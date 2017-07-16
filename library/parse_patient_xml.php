@@ -291,5 +291,3 @@ function insertApprovedData($data)
     }
     sqlQuery("UPDATE documents SET foreign_id = ? WHERE id =? ",array($_REQUEST['pid'],$_REQUEST['doc_id']));
 }
-
-?>

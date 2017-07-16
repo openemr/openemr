@@ -20,5 +20,3 @@ require_once ("EmailMessage");
  */
 class Message extends EmailMessage {
 }
-
-?>

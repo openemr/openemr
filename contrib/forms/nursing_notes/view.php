@@ -11,4 +11,3 @@ require ("C_FormNursingNotes.class.php");
 
 $c = new C_FormNursingNotes();
 echo $c->view_action($_GET['id']);
-?>

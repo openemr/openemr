@@ -199,5 +199,3 @@ class Google extends SearchEngine {
         }
     }
 }
-
-?>

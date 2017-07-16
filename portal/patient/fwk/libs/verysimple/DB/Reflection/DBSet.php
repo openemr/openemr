@@ -61,5 +61,3 @@ class DBSet {
         $this->GetterName = ($tmp1 == "_") ? $tmp2 : ($tmp1 . $tmp2);
     }
 }
-
-?>

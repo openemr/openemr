@@ -81,4 +81,3 @@ class OnsitePortalActivityCriteria extends OnsitePortalActivityCriteriaDAO
 	*/
 
 }
-?>

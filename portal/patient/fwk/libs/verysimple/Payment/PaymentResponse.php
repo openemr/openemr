@@ -20,5 +20,3 @@ class PaymentResponse {
     var $RawResponse = "";
     var $ParsedResponse = array ();
 }
-
-?>

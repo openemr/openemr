@@ -28,5 +28,3 @@ if( $vectAutosave['autosave_flag'] == 1 )
 }
 
 //echo "debug :: form was deleted... sql=$strSql";
-
-?>

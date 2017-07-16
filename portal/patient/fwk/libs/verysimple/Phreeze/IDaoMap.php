@@ -20,5 +20,3 @@ interface IDaoMap {
     static function GetFieldMaps();
     static function GetKeyMaps();
 }
-
-?>

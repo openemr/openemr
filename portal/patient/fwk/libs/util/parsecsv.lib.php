@@ -875,5 +875,3 @@ class parseCSV {
         return false;
     }
 }
-
-?>

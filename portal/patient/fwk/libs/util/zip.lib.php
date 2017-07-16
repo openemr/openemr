@@ -179,4 +179,3 @@ class zipfile {
         "\x00\x00"; // .zip file comment length
     } // end of the 'file()' method
 } // end of the 'zipfile' class
-?>

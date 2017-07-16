@@ -295,4 +295,3 @@ function LBFgcac_default_main_compl()
 {
     return _LBFgcac_recent_default('main_compl');
 }
-?>

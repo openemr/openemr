@@ -492,4 +492,3 @@ class Mime_Types {
         return true;
     }
 }
-?>

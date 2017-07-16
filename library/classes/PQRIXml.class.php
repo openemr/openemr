@@ -107,4 +107,3 @@ class PQRIXml extends XmlWriterOemr {
     }
 
 }
-?>

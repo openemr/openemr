@@ -15,4 +15,3 @@ class UrlWriterMode {
     const JOOMLA = "JOOMLA";
     const MOBILE = "MOBILE";
 }
-?>

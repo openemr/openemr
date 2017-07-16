@@ -3324,4 +3324,3 @@ function endsWith($FullStr, $EndStr)
     $FullStrEnd = substr($FullStr, strlen($FullStr) - $StrLen);
     return $FullStrEnd == $EndStr;
 }
-?>

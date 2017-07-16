@@ -47,4 +47,3 @@ function portal_connection()
     );
     return $client;
 }
-?>

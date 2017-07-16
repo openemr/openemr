@@ -73,5 +73,3 @@ class DBSchema {
         $this->Server->Connection->Release ( $rs2 );
     }
 }
-
-?>

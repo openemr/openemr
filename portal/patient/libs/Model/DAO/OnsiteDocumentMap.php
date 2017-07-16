@@ -109,5 +109,3 @@ class OnsiteDocumentMap implements IDaoMap, IDaoMap2
     }
 
 }
-
-?>

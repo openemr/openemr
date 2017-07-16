@@ -94,5 +94,3 @@ class Authenticator {
         @session_destroy ();
     }
 }
-
-?>

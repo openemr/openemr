@@ -99,5 +99,3 @@ if($task=='update')
     update_justify($req_pid,$req_encounter,$diags,$billing_id);
     $database->CompleteTrans();
 }
-
-?>

@@ -574,5 +574,3 @@ class VerySimpleStringUtil {
 
 // this will be executed only once
 VerySimpleStringUtil::InitStaticVars ();
-
-?>

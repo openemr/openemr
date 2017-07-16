@@ -148,5 +148,3 @@ class UserMap implements IDaoMap, IDaoMap2
     }
 
 }
-
-?>

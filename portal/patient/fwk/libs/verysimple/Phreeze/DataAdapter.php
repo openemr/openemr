@@ -543,4 +543,3 @@ class DataAdapter implements IObservable {
             @$observer->Observe ( $obj, $ltype );
     }
 }
-?>

@@ -935,5 +935,3 @@ class C_Prescription extends Controller {
         }
     }
 }
-
-?>

@@ -74,4 +74,3 @@ for($i=1;$i<=$last;$i++) {
 }
 
 $pdf->Output();
-?>

@@ -223,5 +223,3 @@ function ReturnOFXSql()
 
     return $sql;
 }
-
-?>

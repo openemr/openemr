@@ -218,4 +218,3 @@ else { //problem with query
     //require_once('home.php');
     header('Location: ./home.php');
     exit;
-?>

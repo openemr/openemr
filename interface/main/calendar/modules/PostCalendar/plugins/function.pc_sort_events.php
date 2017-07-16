@@ -74,4 +74,3 @@ function smarty_function_pc_sort_events($params, &$smarty)
     
     $smarty->assign_by_ref($var,$newArray);
 }
-?>

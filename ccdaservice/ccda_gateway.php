@@ -114,4 +114,3 @@ function portalccdafetching($pid, $server_url, $parameterArray)
         return $result;
 }
 return 0;
-?>

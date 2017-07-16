@@ -102,4 +102,3 @@ function psychiatrisch_onderzoek_report( $pid, $encounter, $cols, $id )
     }
     print "</tr></table>";
 }
-?>

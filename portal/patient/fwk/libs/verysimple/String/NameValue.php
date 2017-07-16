@@ -78,5 +78,3 @@ class NameValue {
         return $sa;
     }
 }
-
-?>

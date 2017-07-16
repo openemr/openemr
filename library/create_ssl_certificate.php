@@ -149,5 +149,3 @@ function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $
     }
     return $p12Out;
 }
-
-?>

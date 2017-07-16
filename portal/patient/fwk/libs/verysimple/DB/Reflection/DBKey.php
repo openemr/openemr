@@ -38,5 +38,3 @@ class DBKey {
         $this->GetterName = $this->NameNoPrefix;
     }
 }
-
-?>

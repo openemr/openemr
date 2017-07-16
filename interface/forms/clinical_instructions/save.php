@@ -45,5 +45,3 @@ if ($id && $id != 0) {
 formHeader("Redirecting....");
 formJump();
 formFooter();
-?>
-

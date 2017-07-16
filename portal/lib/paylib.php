@@ -128,4 +128,3 @@ function OnlinePayPost($type, $auditrec)
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     $NameNew=$patdata['fname'] . " " .$patdata['lname']. " " .$patdata['mname'];
 }
-?>

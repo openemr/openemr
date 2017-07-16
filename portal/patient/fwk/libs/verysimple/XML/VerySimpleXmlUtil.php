@@ -349,5 +349,3 @@ class VerySimpleXmlUtil {
         throw new ParseException ( $string, $code );
     }
 }
-
-?>

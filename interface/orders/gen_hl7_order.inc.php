@@ -481,4 +481,3 @@ function send_hl7_order($ppid, $out)
     "ID: $msgid Protocol: $protocol Host: $remote_host");
     return '';
 }
-?>

@@ -74,4 +74,3 @@ function smarty_function_pc_week_range($args)
     // return the formated range
     echo $firstDay.$args['sep'].$lastDay;
 }
-?>

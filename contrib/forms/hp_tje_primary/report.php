@@ -26,4 +26,3 @@ function hp_tje_primary_report( $pid, $encounter, $cols, $id)
     }
     print "</tr></table>";
 }
-?> 

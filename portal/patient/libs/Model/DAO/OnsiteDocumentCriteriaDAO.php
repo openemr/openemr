@@ -330,5 +330,3 @@ class OnsiteDocumentCriteriaDAO extends Criteria
     public $FilePath_BitwiseAnd;
 
 }
-
-?>

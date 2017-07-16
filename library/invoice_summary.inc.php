@@ -177,4 +177,3 @@ function ar_responsible_party($patient_id, $encounter_id)
     if ($balance > 0) return 0;
     return -1;
 }
-?>

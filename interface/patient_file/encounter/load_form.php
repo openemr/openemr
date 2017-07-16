@@ -22,4 +22,3 @@ else {
 
     include_once("$incdir/forms/" . $_GET["formname"] . "/new.php");
 }
-?>

@@ -74,4 +74,3 @@ while ($row = sqlFetchArray($res)) {
 
 echo "</table>');\n";
 echo "nextOpen();\n";
-?>

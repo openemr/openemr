@@ -50,5 +50,3 @@ class Auth401 {
         return isset ( $_SERVER ["PHP_AUTH_PW"] ) ? $_SERVER ["PHP_AUTH_PW"] : "";
     }
 }
-
-?>

@@ -26,4 +26,3 @@ class RuleActions {
         array_push( $this->actions, $action );
     }
 }
-?>

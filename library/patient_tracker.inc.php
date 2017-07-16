@@ -375,4 +375,3 @@ function getApptStatus($appointments)
     }
     return $astat;
 }
-?>

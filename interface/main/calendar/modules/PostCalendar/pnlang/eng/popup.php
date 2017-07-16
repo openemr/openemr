@@ -42,4 +42,3 @@ define('_PC_PM', xl ('PM') );
 if (!defined('_POSTCALENDARNOAUTH')) {
     define('_POSTCALENDARNOAUTH', xl ('Not authorised to access PostCalendar module') );
 }
-?>

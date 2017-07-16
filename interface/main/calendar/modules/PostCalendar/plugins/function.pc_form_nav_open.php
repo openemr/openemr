@@ -41,4 +41,3 @@ function smarty_function_pc_form_nav_open($args=array())
             
     echo $fstart;
 }
-?>

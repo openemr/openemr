@@ -75,4 +75,3 @@ function qual_id_to_description($qual_type,$value)
     }
     return null;
 }
-?>

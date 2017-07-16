@@ -153,4 +153,3 @@ function setListTouch($patient_id,$type)
         sqlStatement("INSERT INTO `lists_touch` ( `pid`,`type`,`date` ) VALUES ( ?, ?, NOW() )", array($patient_id,$type) );
     }
 }
-?>

@@ -1202,4 +1202,3 @@ class BarcodeDatamatrix {
         return $datamatrix;
     }
 }
-?>

@@ -133,4 +133,3 @@ class OFX {
         return $string;
     }
 }
-?>

@@ -128,5 +128,3 @@ else {
   // Successful
     echo $installer->debug_message . "\n";
 }
-
-?>

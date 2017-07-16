@@ -98,5 +98,3 @@ class TestGateway extends PaymentProcessor {
         return $resp;
     }
 }
-
-?>

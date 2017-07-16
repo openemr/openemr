@@ -75,4 +75,3 @@ if (!empty($_POST['execute_report_id'])) {
 else {
     echo "ERROR";
 }
-?>

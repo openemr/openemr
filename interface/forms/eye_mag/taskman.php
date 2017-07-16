@@ -110,6 +110,3 @@ while ($task= sqlFetchArray($result))   {
 $send['comments'] = "Nothing new to do!";
 echo json_encode($send);
         exit;
-
-?>
-

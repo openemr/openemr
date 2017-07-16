@@ -391,5 +391,3 @@ class PatientController extends AppBaseController{
         }
     }
 }
-
-?>

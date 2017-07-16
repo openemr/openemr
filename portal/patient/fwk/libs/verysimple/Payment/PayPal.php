@@ -380,5 +380,3 @@ class PayPal extends PaymentProcessor {
 		 */
     }
 }
-
-?>

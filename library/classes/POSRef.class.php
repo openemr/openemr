@@ -150,4 +150,3 @@ class POSRef {
         return $this->pos_ref;
     }
 }
-?>

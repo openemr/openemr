@@ -1195,4 +1195,3 @@ function checkCategoryLimits($eventdata)
     }
 
 }*/
-?>

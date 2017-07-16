@@ -26,4 +26,3 @@ function pain_report( $pid, $encounter, $cols, $id)
     }
     print "</tr></table>";
 }
-?> 

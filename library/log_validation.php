@@ -58,4 +58,3 @@ function catch_logs()
         sqlInsert("INSERT into log_validator (log_id,log_checksum) VALUES(?,?)",array($row['id'],$row['checksum']));
     }
 }
-?>

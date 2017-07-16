@@ -66,11 +66,3 @@ function pnSecConfirmAuthKey($preview = false)
     // Not found, assume invalid
     return false;
 }
-
-
-
-
-
-
-
-?>

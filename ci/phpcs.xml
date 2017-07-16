@@ -63,7 +63,7 @@
 <rule ref="PSR2.Files.EndFileNewline"/>
 <!-- The closing ?> tag MUST be omitted from files containing only PHP. -->
 <!-- checked in Files/ClosingTagSniff -->
-<!--<rule ref="PSR2.Files.ClosingTag"/> --> <!-- FIXABLE -->
+<rule ref="PSR2.Files.ClosingTag"/>
 
 <!-- 2.3 Lines -->
 

@@ -30,4 +30,3 @@ while ($row = sqlFetchArray($res)) {
     "'" . $row['encounter'] . "'" .
     ");\n";
 }
-?>

@@ -64,5 +64,3 @@ if ($row ['status'] == 'filed') {
     echo 'waiting';
     return;
 }
-
-?>

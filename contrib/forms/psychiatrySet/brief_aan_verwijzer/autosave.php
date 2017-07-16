@@ -75,5 +75,3 @@ $result = sqlQuery("SELECT autosave_datetime FROM form_brief_aan_verwijzer
 
 //output timestamp
 echo xl('Last Saved') . ': '.$result['autosave_datetime'];
-
-?>

@@ -11,4 +11,3 @@ require ("C_FormROS2.class.php");
 $c = new C_FormROS2();
 echo $c->default_action_process($_POST);
 @formJump();
-?>

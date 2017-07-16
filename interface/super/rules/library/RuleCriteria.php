@@ -131,4 +131,3 @@ abstract class RuleCriteria {
     }
 
 }
-?>

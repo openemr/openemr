@@ -11,4 +11,3 @@ require ("C_FormROS2.class.php");
 
 $c = new C_FormROS2();
 echo $c->view_action($_GET['id']);
-?>

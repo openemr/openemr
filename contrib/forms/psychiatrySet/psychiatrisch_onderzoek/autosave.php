@@ -77,5 +77,3 @@ $result = sqlQuery("SELECT autosave_datetime FROM form_psychiatrisch_onderzoek
 
 //output timestamp
 echo xl('Last Saved') . ': '.$result['autosave_datetime'];
-
-?>

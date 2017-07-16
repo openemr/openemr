@@ -31,4 +31,3 @@ function ankleinjury_report($pid, $encounter, $cols, $id)
         print "</tr>\n</table>\n";
     }
 }
-?> 

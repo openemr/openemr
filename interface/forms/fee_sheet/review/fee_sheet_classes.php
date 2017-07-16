@@ -118,4 +118,3 @@ class encounter_info
         return $this->id;
     }
 }
-?>

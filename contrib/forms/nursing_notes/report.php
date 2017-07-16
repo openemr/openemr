@@ -34,4 +34,3 @@ function nursing_notes_report( $pid, $encounter, $cols, $id)
     }
     print "</tr></table>";
 }
-?>

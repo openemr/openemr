@@ -247,5 +247,3 @@ class DataDriverMySQLi implements IDataDriver {
         $this->Execute ( $connection, "SET AUTOCOMMIT=1" );
     }
 }
-
-?>

@@ -6,4 +6,3 @@ require ("C_FormSOAP.class.php");
 
 $c = new C_FormSOAP();
 echo $c->view_action($_GET['id']);
-?>

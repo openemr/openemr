@@ -27,4 +27,3 @@ function assessment_intake_report( $pid, $encounter, $cols, $id)
     }
     print "</tr></table>";
 }
-?> 

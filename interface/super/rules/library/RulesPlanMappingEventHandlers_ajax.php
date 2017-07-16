@@ -169,4 +169,3 @@ switch ($action) {
     default:
         break;
 }
-?>

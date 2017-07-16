@@ -441,4 +441,3 @@ function doVoid($patient_id, $encounter_id, $purge=false, $time='')
         array($new_invoice_refno, $patient_id, $encounter_id));
     }
 }
-?>

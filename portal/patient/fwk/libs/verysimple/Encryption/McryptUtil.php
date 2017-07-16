@@ -77,4 +77,3 @@ class McryptUtil {
         return $strip_nulls ? rtrim ( $decrypted, "\0" ) : $decrypted;
     }
 }
-?>

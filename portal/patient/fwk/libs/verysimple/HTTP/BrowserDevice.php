@@ -128,5 +128,3 @@ class BrowserDevice {
         return self::$instance;
     }
 }
-
-?>

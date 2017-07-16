@@ -35,5 +35,3 @@ class CacheRam implements ICache {
             unset ( $this->ram [$key] );
     }
 }
-
-?>

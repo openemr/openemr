@@ -154,4 +154,3 @@ class CouchDB {
         return $this->body;
     }
 }
-?>

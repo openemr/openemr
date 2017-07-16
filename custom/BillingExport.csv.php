@@ -253,5 +253,3 @@ class BillingExport {
         rename($this->tmpname, $this->TARGET_DIR . '/' . basename($this->tmpname));
     }
 }
-
-?>

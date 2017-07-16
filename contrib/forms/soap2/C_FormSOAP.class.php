@@ -56,4 +56,3 @@ class C_FormSOAP extends Controller {
     }
 
 }
-?>

@@ -396,4 +396,3 @@ function logRemindersArray()
 
         return $reminders;
 }
-?>

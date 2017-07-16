@@ -126,5 +126,3 @@ class C_InsuranceNumbers extends Controller {
     }
 
 }
-
-?>

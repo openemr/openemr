@@ -39,4 +39,3 @@ else {
     fpassthru($fp);
 }
 exit;
-?>

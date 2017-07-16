@@ -274,5 +274,3 @@ class OnsitePortalActivityController extends AppBaseController
         }
     }
 }
-
-?>

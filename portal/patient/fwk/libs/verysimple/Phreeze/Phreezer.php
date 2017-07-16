@@ -1033,5 +1033,3 @@ class Phreezer extends Observable {
         ) );
     }
 }
-
-?>

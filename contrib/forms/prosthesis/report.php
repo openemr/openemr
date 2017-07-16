@@ -26,4 +26,3 @@ function prosthesis_report( $pid, $encounter, $cols, $id)
     }
     print "</tr></table>";
 }
-?> 

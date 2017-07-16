@@ -107,5 +107,3 @@ class ConnectionSetting {
         $this->Multibyte = $tmp->Multibyte;
     }
 }
-
-?>

@@ -102,4 +102,3 @@ function InsuranceCompanyDisplay()
     '</table>'.
     '<input type="hidden" name="hidden_type_code" id="hidden_type_code" value="'.attr($_POST['hidden_type_code']).'"/>';
 }
-?>

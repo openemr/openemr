@@ -99,4 +99,3 @@ function doc_toDoc( $htmlin )
     flush();
     readfile( $fname );
 };
-?>

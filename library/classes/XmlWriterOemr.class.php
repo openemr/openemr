@@ -62,5 +62,3 @@ class XmlWriterOemr {
         return $this->xml;
     }
 }
-
-?>

@@ -355,4 +355,3 @@ class HttpRequest {
         return $qs;
     }
 }
-?>

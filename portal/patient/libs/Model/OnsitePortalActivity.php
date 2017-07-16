@@ -68,5 +68,3 @@ class OnsitePortalActivity extends OnsitePortalActivityDAO
     }
 
 }
-
-?>

@@ -50,5 +50,3 @@ abstract class Abstract_Model
         }
     }
 }
-
-?>

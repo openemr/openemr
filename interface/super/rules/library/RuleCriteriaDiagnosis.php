@@ -65,4 +65,3 @@ class RuleCriteriaDiagnosis extends RuleCriteria {
     }
 
 }
-?>

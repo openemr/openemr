@@ -19,5 +19,3 @@ class Savant3_Plugin_plural extends Savant3_Plugin {
         return $string . 's';
     }
 }
-
-?>

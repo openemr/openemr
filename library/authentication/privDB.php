@@ -113,4 +113,3 @@ function privQuery($sql,$params=null)
     return $rez;
 
 }
-?>

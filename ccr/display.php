@@ -65,4 +65,3 @@ if($type == "CCR"){
         $html = $xslt->transformToXML($xmlDom);
         echo $html;
 }
-?>

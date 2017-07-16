@@ -17,4 +17,3 @@ class ConfigTree extends Tree {
         parent::__construct($root,$root_type);
     }
 }
-?>

@@ -214,4 +214,3 @@ function oeFormatAge($dobYMD, $nowYMD='', $format=0)
 
     return $age;
 }
-?>

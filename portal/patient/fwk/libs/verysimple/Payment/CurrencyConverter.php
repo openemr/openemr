@@ -56,4 +56,3 @@ class CurrencyConverter {
         return $converted_amount;
     }
 }
-?>

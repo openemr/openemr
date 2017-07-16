@@ -376,4 +376,3 @@ flush();
 readfile($fname);
 
 unlink($fname);
-?>

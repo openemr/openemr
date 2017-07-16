@@ -24,5 +24,3 @@ class SearchRank {
     public $TopRankedTitle;
     public $TopRankedSnippet;
 }
-
-?>

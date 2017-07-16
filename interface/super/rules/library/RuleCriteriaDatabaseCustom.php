@@ -100,4 +100,3 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria {
     }
    
 }
-?>

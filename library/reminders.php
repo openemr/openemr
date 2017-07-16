@@ -476,6 +476,3 @@ function fetch_reminders($patient_id='',$type='',$due_status='',$select='*')
 
     return $returnval;
 }
-
-?>
-

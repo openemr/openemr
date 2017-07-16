@@ -97,5 +97,3 @@ class FormValidator {
         return $verified;
     }
 }
-
-?>

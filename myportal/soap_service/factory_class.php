@@ -32,4 +32,3 @@ class factoryclass{
         return new $page;
     }
 }
-?>

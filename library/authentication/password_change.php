@@ -232,5 +232,3 @@ function update_password($activeUser,$targetUser,&$currentPwd,&$newPwd,&$errMsg,
     }
     return true;
 }
-
-?>

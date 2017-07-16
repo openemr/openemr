@@ -29,4 +29,3 @@ class AMC_304g_Numerator implements AmcFilterIF
         }
     }
 }
-?>

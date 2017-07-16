@@ -57,7 +57,3 @@ class C_FormPriorAuth extends Controller {
     }
 
 }
-
-
-
-?>

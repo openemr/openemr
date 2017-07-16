@@ -58,5 +58,3 @@ class OAuthUtil {
         return $url;
     }
 }
-
-?>

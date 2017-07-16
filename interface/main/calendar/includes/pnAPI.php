@@ -1510,5 +1510,3 @@ function pnMailHackAttempt(
 
         return;
 }
-
-?>

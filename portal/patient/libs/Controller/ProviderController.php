@@ -86,4 +86,3 @@ class ProviderController extends AppBaseController
     }
 
 }
-?>

@@ -69,4 +69,3 @@ function misc_billing_options_report( $pid, $encounter, $cols, $id)
     }
     print "</tr></table>";
 }
-?>

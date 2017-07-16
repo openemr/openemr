@@ -35,4 +35,3 @@ $activeMessages = getPnotesByUser("1","no",$_SESSION['authUser'],true);
 
 $totalNumber = $dueReminders + $activeMessages;
 echo ($totalNumber > 0 ? '('.text(intval($totalNumber)).')' : '');
-?>

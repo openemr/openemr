@@ -153,4 +153,3 @@ function smarty_function_pc_url($args)
     }
     echo $link;
 }
-?>

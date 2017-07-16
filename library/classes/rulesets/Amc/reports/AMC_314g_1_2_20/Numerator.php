@@ -56,4 +56,3 @@ class AMC_314g_1_2_20_Numerator implements AmcFilterIF{
         }
     }
 }
-?>

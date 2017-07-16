@@ -243,4 +243,3 @@ class EncountermanagerController extends AbstractActionController
         return $this->encountermanagerTable;
     }
 }
-?>

@@ -1016,5 +1016,3 @@ abstract class Controller {
         throw new Exception ( get_class ( $this ) . "::" . $name . " is not implemented" );
     }
 }
-
-?>

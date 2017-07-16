@@ -18,4 +18,3 @@ function pic_array()
     }
     return $pics;
 }
-?>

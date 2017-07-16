@@ -45,4 +45,3 @@ if($qrda_fname != ""){
 }else{
     echo xlt("File path not found.");
 }
-?>

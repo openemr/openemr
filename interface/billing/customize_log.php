@@ -35,5 +35,3 @@ while ($line = fgets($fh)) {
     echo("<br />");
 }
     fclose($fh);
-    
-?>

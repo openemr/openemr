@@ -113,4 +113,3 @@ class MockRouter implements IRouter {
         $this->_params = array ();
     }
 }
-?>

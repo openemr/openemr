@@ -929,4 +929,3 @@ function acl_check_cat_name($catname, $user='', $return_value='')
     if (empty($tmp['aco_spec'])) return true;
     return acl_check_aco_spec($tmp['aco_spec'], $user, $return_value);
 }
-?>

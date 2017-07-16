@@ -345,5 +345,3 @@ class UserController extends AppBaseController
         }
     }
 }
-
-?>

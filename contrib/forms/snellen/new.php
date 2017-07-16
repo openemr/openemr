@@ -11,4 +11,3 @@ require ("C_FormSnellen.class.php");
 
 $c = new C_FormSnellen();
 echo $c->default_action();
-?>

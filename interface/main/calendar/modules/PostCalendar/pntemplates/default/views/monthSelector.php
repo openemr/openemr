@@ -63,4 +63,3 @@ for($idx=0;$idx<13;$idx++)
 }
 
 echo $DOM->saveXML($divMonths);
-?>

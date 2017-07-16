@@ -19,5 +19,3 @@ require_once ("VerySimpleXmlUtil.php");
  */
 class XMLUtil extends VerySimpleXmlUtil {
 }
-
-?>

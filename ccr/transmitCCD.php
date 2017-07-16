@@ -145,5 +145,3 @@ function transmitCCD($ccd,$recipient,$requested_by,$xml_type="CCD")
 
     return("SUCCESS");
 }
-
-?>

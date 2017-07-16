@@ -27,5 +27,3 @@ interface ISqlFunction {
      */
     public function GetQuotedSql($phreezer);
 }
-
-?>

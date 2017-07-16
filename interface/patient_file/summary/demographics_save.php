@@ -157,4 +157,3 @@ newInsuranceData(
 );
 
  include_once("demographics.php");
-?>

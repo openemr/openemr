@@ -79,5 +79,3 @@ class MemCacheProxy extends CacheMemCache {
         return parent::Delete ( $key );
     }
 }
-
-?>

@@ -268,4 +268,3 @@ class GenericRouter implements IRouter {
         return $returnVal != '' ? $returnVal : $default;
     }
 }
-?>

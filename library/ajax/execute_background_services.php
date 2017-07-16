@@ -160,5 +160,3 @@ function background_shutdown()
 register_shutdown_function('background_shutdown');
 execute_background_service_calls();
 unset($service_name);
-
-?>

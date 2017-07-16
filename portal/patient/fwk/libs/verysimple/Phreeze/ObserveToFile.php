@@ -108,5 +108,3 @@ class ObserveToFile implements IObserver {
         return $msg;
     }
 }
-
-?>

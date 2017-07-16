@@ -41,5 +41,3 @@ if (!empty($_FILES)) {
     addNewDocument($name,$type,$tmp_name,$error,$size,$owner,$patient_id,$category_id);
 
 }
-
-?>

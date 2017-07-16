@@ -236,4 +236,3 @@ function updateStatus($id,$status)
         return 'failed';
     }
 }
-?>

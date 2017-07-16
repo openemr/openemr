@@ -73,5 +73,3 @@ class AuthorizeNet extends PaymentProcessor {
         return $resp;
     }
 }
-
-?>

@@ -74,5 +74,3 @@ if ($erow['form_id'] > '0') {
     formJump('./view_form.php?formname='.$form_folder.'&id='.attr($newid).'&pid='.attr($pid));
     formFooter();
     exit;
-?>
-

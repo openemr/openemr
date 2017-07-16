@@ -21,5 +21,3 @@ foreach (glob( base_dir() . "base/library/*.php") as $filename) {
 foreach (glob( library_dir() . "/*.php") as $filename) {
     require_once( $filename );
 }
-
-?>

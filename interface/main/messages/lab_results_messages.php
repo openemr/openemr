@@ -50,5 +50,3 @@ function lab_results_messages($set_pid, $rid, $provider_id="")
         }
     }
 }
-
-?>

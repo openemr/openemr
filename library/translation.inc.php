@@ -289,5 +289,3 @@ function html_header_show()
     //
     // Keeping this function, since it may prove useful for user interface improvements
 }
-
-?>

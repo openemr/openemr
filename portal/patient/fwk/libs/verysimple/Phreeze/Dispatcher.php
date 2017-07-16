@@ -192,5 +192,3 @@ class Dispatcher {
         ExceptionThrower::HandleError ( $code, $string, $file, $line, $context );
     }
 }
-
-?>

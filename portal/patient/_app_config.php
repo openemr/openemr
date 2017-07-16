@@ -331,5 +331,3 @@ GlobalConfig::$ROUTE_MAP = array (
                 'route' => 'Provider.ErrorApi404'
         )
 );
-
-?>

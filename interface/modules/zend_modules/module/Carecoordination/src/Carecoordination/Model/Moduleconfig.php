@@ -62,4 +62,3 @@ class Moduleconfig extends AbstractTableGateway
         return $this->inputFilter;
     }
 }
-?>

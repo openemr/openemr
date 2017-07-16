@@ -319,5 +319,3 @@ class Pop3Client {
         return false;
     }
 }
-
-?>

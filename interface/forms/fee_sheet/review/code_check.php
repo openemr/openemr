@@ -51,4 +51,3 @@ function diag_code_types($format='json',$sqlEscape=false)
         return implode(",",$diagCodes);
     }
 }
-?>

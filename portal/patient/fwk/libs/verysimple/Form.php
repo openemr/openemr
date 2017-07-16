@@ -18,5 +18,3 @@ require_once ("verysimple/HTTP/Request.php");
  */
 class Form extends Request {
 }
-
-?>

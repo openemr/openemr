@@ -142,4 +142,3 @@ class C_PatientFinder extends Controller {
         return $result_array;
     }
 }
-?>

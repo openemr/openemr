@@ -110,5 +110,3 @@ class PassPhrase {
         return $newpass;
     }
 }
-
-?>

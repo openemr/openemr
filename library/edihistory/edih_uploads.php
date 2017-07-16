@@ -575,7 +575,3 @@ function edih_sort_upload($files_array, $html_out=true, $err_only=true)
     //
     return $prc_htm;
 }
-
-
-
-?>

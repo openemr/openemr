@@ -147,4 +147,3 @@ while ($row = sqlFetchArray($res)) {
 // Dump the output array as JSON.
 //
 echo json_encode($out);
-?>

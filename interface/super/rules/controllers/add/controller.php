@@ -14,4 +14,3 @@ class Controller_add extends BaseController {
     }
 
 }
-?>

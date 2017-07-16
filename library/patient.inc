@@ -1824,5 +1824,3 @@ function is_patient_deceased($pid,$date='')
         return $results['days_deceased'];
     }
 }
-
-?>

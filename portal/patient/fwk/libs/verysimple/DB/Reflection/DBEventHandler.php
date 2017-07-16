@@ -81,5 +81,3 @@ class DBEventHandler {
         throw new DatabaseException ( $message, $code, $data );
     }
 }
-
-?>

@@ -120,4 +120,3 @@ function smarty_function_pc_sort_day($params, &$smarty)
     //pcDebugVar($hours);
     $smarty->assign_by_ref($var,$hours);
 }
-?>

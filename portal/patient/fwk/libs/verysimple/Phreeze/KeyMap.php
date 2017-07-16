@@ -55,5 +55,3 @@ class KeyMap {
         $this->LoadType = $lt;
     }
 }
-
-?>

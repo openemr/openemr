@@ -56,4 +56,3 @@ function smarty_function_pc_form_nav_close($args=array())
     }
     echo '</form>';
 }
-?>

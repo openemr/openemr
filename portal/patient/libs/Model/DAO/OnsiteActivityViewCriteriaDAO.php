@@ -615,5 +615,3 @@ class OnsiteActivityViewCriteriaDAO extends Criteria
     public $PhysicianType_BitwiseAnd;
 
 }
-
-?>

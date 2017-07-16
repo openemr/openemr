@@ -124,4 +124,3 @@ abstract class RuleCriteriaFactory {
 
     abstract function modify($criteria, $ruleId);
 }
-?>

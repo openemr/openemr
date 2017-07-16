@@ -126,4 +126,3 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria {
     }
 
 }
-?>

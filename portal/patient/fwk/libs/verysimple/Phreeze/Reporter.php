@@ -332,5 +332,3 @@ abstract class Reporter implements Serializable {
     {
     }
 }
-
-?>

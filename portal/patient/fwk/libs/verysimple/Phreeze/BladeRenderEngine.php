@@ -131,5 +131,3 @@ class BladeRenderEngine implements IRenderEngine {
         return $this->model;
     }
 }
-
-?>

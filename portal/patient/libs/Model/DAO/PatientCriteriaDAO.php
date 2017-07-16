@@ -1410,5 +1410,3 @@ class PatientCriteriaDAO extends Criteria
     public $Industry_BitwiseAnd;
 
 }
-
-?>

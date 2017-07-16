@@ -32,5 +32,3 @@ function newpatient_report( $pid, $encounter, $cols, $id)
     }
     print "</td></tr></table>\n";
 }
-
-?>

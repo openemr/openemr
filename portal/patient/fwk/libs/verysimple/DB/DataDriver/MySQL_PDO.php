@@ -265,5 +265,3 @@ class DataDriverMySQL_PDO implements IDataDriver {
         $connection->rollBack ();
     }
 }
-
-?>

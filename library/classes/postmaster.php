@@ -56,5 +56,3 @@ class MyMailer extends PHPMailer
         }
     }
 }
-
-?>

@@ -381,4 +381,3 @@ class InsuranceCompany extends ORDataObject{
     }
 
 } //End Of InsuranceCompanies
-?>

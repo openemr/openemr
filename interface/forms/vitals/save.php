@@ -6,4 +6,3 @@ require ("C_FormVitals.class.php");
 $c = new C_FormVitals();
 echo $c->default_action_process($_POST);
 @formJump();
-?>

@@ -62,4 +62,3 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false)
     display_layout_rows($formname, $arr);
     echo "</table>\n";
 }
-?>

@@ -722,4 +722,3 @@ class EncounterccdadispatchController extends AbstractActionController
         return $view;
     }
 }
-?>

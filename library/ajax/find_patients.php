@@ -77,5 +77,3 @@ if ($error) {
 else {
     echo "f.submit()\n";
 }
-
-?>

@@ -44,4 +44,3 @@ function smarty_modifier_pc_date_format($string, $format=null, $default_date=nul
         return;
     }
 }
-?>

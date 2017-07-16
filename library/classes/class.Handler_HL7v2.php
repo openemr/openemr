@@ -36,5 +36,3 @@ class Handler_HL7v2 {
     } // end method _StripToNumeric
 
 } // end class Handler_HL7v2
-
-?>

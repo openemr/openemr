@@ -124,5 +124,3 @@ class FieldMap {
         return ($this->FieldType == FM_TYPE_DECIMAL || $this->FieldType == FM_TYPE_INT || $this->FieldType == FM_TYPE_SMALLINT || $this->FieldType == FM_TYPE_TINYINT || $this->FieldType == FM_TYPE_MEDIUMINT || $this->FieldType == FM_TYPE_BIGINT || $this->FieldType == FM_TYPE_FLOAT);
     }
 }
-
-?>

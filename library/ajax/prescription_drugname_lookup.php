@@ -28,5 +28,3 @@ $rez = sqlStatement($sql);
 while ($row = sqlFetchArray($rez)) {
     echo $row['name']."|".$row['drug_id']."\n";
 }
-
-?>

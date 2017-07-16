@@ -164,5 +164,3 @@ class OnsiteActivityViewReporter extends Reporter{
         return $sql;
     }
 }
-
-?>

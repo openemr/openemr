@@ -6,4 +6,3 @@ require ("C_FormPriorAuth.class.php");
 $c = new C_FormPriorAuth();
 echo $c->default_action_process($_POST);
 @formJump();
-?>

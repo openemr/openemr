@@ -20,5 +20,3 @@ require_once ("RequestUtil.php");
  */
 class Request extends RequestUtil {
 }
-
-?>

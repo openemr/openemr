@@ -152,5 +152,3 @@ class xmltoarray_parser_htmlfix{
     }
 
 }
-
-?>

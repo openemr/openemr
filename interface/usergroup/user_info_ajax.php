@@ -53,4 +53,3 @@ else
     // If update_password fails the error message is returned
     echo text($errMsg);
 }
-?>

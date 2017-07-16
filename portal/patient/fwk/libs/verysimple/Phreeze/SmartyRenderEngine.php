@@ -95,5 +95,3 @@ class SmartyRenderEngine implements IRenderEngine {
         return $this->smarty->getTemplateVars ();
     }
 }
-
-?>

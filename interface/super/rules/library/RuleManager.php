@@ -788,4 +788,3 @@ class RuleManager {
     }
 
 }
-?>

@@ -495,5 +495,3 @@ class Criteria {
             throw new Exception ( "Unknown property: $key" );
     }
 }
-
-?>

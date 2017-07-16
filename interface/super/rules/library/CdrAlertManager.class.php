@@ -65,4 +65,3 @@ class CdrAlertManager{
     }
         
 } // end of CdrAlertManager
-?>

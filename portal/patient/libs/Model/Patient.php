@@ -68,5 +68,3 @@ class Patient extends PatientDAO
     }
 
 }
-
-?>

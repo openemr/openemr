@@ -233,5 +233,3 @@ function get_groups_cat_id()
     $result = sqlQuery('SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_cattype = 3 AND pc_active = 1 LIMIT 1');
     return !empty($result) ? $result['pc_catid'] : 0;
 }
-
-?>

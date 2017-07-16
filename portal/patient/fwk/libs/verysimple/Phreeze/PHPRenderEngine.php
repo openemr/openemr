@@ -130,5 +130,3 @@ class PHPRenderEngine implements IRenderEngine {
         return $this->model;
     }
 }
-
-?>

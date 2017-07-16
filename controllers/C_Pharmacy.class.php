@@ -75,5 +75,3 @@ class C_Pharmacy extends Controller {
     }
 
 }
-
-?>

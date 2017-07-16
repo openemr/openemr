@@ -125,5 +125,3 @@ class OnsiteActivityViewMap implements IDaoMap, IDaoMap2{
         return self::$KM;
     }
 }
-
-?>

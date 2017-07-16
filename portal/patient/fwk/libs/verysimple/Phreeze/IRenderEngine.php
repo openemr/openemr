@@ -57,5 +57,3 @@ interface IRenderEngine {
      */
     public function getAll();
 }
-
-?>

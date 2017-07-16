@@ -898,4 +898,3 @@ function limit_query_string($limit=null,$start=null,$number=null,$return_only_on
     }
     return $limit_query;
 }
-?>

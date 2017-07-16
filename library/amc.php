@@ -366,5 +366,3 @@ function amcNoSoCProvided($amc_id, $patient_id, $object_category='', $object_id=
 {
          sqlStatement("UPDATE `amc_misc_data` SET `soc_provided` = NULL WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? ", array($amc_id,$patient_id,$object_category,$object_id) );
 }
-
-?>

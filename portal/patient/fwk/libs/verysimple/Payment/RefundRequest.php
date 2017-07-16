@@ -45,5 +45,3 @@ class RefundRequest {
         $this->CustomerIP = $_SERVER ['REMOTE_ADDR'];
     }
 }
-
-?>

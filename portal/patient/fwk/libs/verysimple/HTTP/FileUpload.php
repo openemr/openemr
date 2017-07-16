@@ -75,4 +75,3 @@ class FileUpload {
             @chmod ( $fullpath, 0666 );
     }
 }
-?>

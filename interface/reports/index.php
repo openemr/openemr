@@ -121,5 +121,3 @@ else {
   //tell smarty to execute the template
     $smarty->display($template_dir . "general_default.html");
 }
-
-?>

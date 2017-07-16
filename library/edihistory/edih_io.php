@@ -954,7 +954,3 @@ function edih_disp_era_processed()
     }
     return $str_html;
 }
-
-
-
-?>

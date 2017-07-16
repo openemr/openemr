@@ -48,4 +48,3 @@ class NFQ_0059_InitialPatientPopulation implements CqmFilterIF
         return false;
     }
 }
-?>

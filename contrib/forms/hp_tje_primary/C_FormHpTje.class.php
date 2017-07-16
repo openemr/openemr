@@ -58,7 +58,3 @@ class C_FormHpTje extends Controller {
     }
 
 }
-
-
-
-?>

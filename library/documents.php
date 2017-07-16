@@ -238,5 +238,3 @@ function get_extension($imagetype)
         default: return "";
     }
 }
-    
-?>

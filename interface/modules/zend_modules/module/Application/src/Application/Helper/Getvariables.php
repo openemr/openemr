@@ -76,4 +76,3 @@ class Getvariables extends \Zend\View\Helper\AbstractHelper implements ServiceLo
         return $this->serviceLocator;
     }
 }
-?>

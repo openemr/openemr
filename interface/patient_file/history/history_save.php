@@ -39,4 +39,3 @@ while ($frow = sqlFetchArray($fres)) {
 updateHistoryData($pid, $newdata);
 
  include_once("history.php");
-?>

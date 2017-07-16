@@ -501,4 +501,3 @@ function error_xml($err)
     $message .= "</response>\n";
     return $message;
 }
-?>

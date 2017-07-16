@@ -27,4 +27,3 @@ function individual_treatment_plan_report( $pid, $encounter, $cols, $id)
     }
     print "</tr></table>";
 }
-?> 

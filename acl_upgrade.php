@@ -637,5 +637,3 @@ if ($response) {
 } else {
     echo "ERROR upgrading access control version";
 }
-
-?>

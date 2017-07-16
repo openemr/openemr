@@ -170,4 +170,3 @@ foreach ($TEMPLATE_LABELS as $key => $value) {
 $s = preg_replace('/\{\S+\}/', '', $s);
 
 echo $s;
-?>

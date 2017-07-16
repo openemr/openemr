@@ -38,4 +38,3 @@ function hist_exam_plan_report($pid, $encounter, $cols, $id)
         print "</tr>\n</table>\n";
     }
 }
-?> 

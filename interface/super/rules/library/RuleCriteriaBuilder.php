@@ -28,4 +28,3 @@ abstract class RuleCriteriaBuilder {
     abstract function newInstance( $criteriaType );
 
 }
-?>

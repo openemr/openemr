@@ -33,5 +33,3 @@ class ParseException extends Exception {
         return "ParseException" . (count ( $pair ) > 1 ? $pair [1] : $pair [0]);
     }
 }
-
-?>

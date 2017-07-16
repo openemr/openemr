@@ -40,4 +40,3 @@ function specialist_notes_report($pid, $encounter, $cols, $id)
         print "</tr>\n</table>\n";
     }
 }
-?> 

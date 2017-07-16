@@ -234,5 +234,3 @@ class DBColumn {
         return $rt;
     }
 }
-
-?>

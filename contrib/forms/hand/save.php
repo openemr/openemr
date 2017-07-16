@@ -11,4 +11,3 @@ require ("C_FormHand.class.php");
 $c = new C_FormHand();
 echo $c->default_action_process($_POST);
 @formJump();
-?>

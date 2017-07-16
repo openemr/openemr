@@ -172,5 +172,3 @@ class sms
         $response = $result[9];
     }
 }
-
-?>

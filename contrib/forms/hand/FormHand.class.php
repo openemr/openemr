@@ -234,5 +234,3 @@ class FormHand extends ORDataObject {
 
 
 }   // end of Form
-
-?>

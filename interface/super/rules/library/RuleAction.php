@@ -49,4 +49,3 @@ class RuleAction {
         return $this->itemLbl;
     }
 }
-?>

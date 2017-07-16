@@ -268,5 +268,3 @@ class Mailer {
         return $this->_log;
     }
 }
-
-?>

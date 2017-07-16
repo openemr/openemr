@@ -19,5 +19,3 @@ class html2text {
         return convert_html_to_text ( $this->html );
     }
 }
-
-?>

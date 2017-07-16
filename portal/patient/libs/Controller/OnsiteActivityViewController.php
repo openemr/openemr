@@ -307,5 +307,3 @@ class OnsiteActivityViewController extends AppBaseController{
         }
     }
 }
-
-?>

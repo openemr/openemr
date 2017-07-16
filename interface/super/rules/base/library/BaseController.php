@@ -87,4 +87,3 @@ abstract class BaseController {
         array_push($this->viewBean->helpers, $helper);
     }
 }
-?>

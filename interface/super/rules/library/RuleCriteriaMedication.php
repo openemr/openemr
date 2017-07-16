@@ -30,4 +30,3 @@ class RuleCriteriaMedication extends RuleCriteriaSimpleText {
     }
 
 }
-?>

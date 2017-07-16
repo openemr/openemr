@@ -378,4 +378,3 @@ function postcalendar_calendarblock_update($blockinfo)
     $blockinfo['content'] = serialize($vars);
     return $blockinfo;
 }
-?>

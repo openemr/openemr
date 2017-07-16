@@ -2095,4 +2095,3 @@ function postcalendar_admin_categoryLimitsUpdate()
     return $output->GetOutput();
 
 }
-?>

@@ -49,5 +49,3 @@ class SimpleAccount implements IAuthenticatable {
     {
     }
 }
-
-?>

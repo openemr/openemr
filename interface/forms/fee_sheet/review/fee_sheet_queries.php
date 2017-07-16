@@ -386,4 +386,3 @@ function update_justify($pid,$enc,$diags,$billing_id)
     $params=array($justify,$billing_id);
     sqlStatement($sqlUpdate,$params);
 }
-?>

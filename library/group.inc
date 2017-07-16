@@ -117,6 +117,3 @@ function unsetGroup()
 
     unset($_SESSION['therapy_group']);
 }
-
-
-?>

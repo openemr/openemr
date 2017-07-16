@@ -353,5 +353,3 @@ function cron_GetNotificationSettings( )
 
     return( $vectNotificationSettings );
 }
-
-?>

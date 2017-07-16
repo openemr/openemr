@@ -11,4 +11,3 @@ require ("C_FormHPI.class.php");
 
 $c = new C_FormHPI();
 echo $c->default_action();
-?>

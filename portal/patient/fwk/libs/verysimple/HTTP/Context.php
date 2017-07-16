@@ -56,5 +56,3 @@ class Context {
         $_SESSION [$this->GUID . "_" . $var] = serialize ( $val );
     }
 }
-
-?>

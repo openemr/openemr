@@ -72,4 +72,3 @@ else {
 formHeader("Redirecting....");
 formJump();
 formFooter();
-?>

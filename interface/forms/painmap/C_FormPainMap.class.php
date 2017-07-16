@@ -91,4 +91,3 @@ class C_FormPainMap extends C_AbstractClickmap {
         return "Pain Scale";
     }
 }
-?>

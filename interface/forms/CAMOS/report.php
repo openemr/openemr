@@ -31,4 +31,3 @@ function CAMOS_report( $pid, $encounter, $cols, $id)
         echo "<pre>".wordwrap(stripslashes(replace($pid,$encounter,$data['content'])))."</pre><hr>\n";
     }
 }
-?> 

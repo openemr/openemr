@@ -21,4 +21,3 @@ class RuleCriteriaFilterFactory extends RuleCriteriaFactory {
     }
 
 }
-?>

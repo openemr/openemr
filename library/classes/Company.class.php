@@ -174,4 +174,3 @@ class Company extends ORDataObject{
     }
 
 } // end of Company
-?>

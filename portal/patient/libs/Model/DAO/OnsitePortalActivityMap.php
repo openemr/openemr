@@ -104,5 +104,3 @@ class OnsitePortalActivityMap implements IDaoMap, IDaoMap2
     }
 
 }
-
-?>

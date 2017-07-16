@@ -297,5 +297,3 @@ function formTrim($s)
 {
     return formDataCore($s,true);
 }
-
-?>

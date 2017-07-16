@@ -51,4 +51,3 @@ else {
 
 $ignoreAuth=true; // ignore the standard authentication for a regular OpenEMR user
 require_once(dirname(__file__) . './../interface/globals.php');
-?>

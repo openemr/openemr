@@ -175,5 +175,3 @@ class AuthAccount extends AccountDAO implements IAuthenticatable {
         $this->Save ();
     }
 }
-
-?>

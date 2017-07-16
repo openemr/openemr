@@ -54,4 +54,3 @@
 @define('_PC_SEARCH_EVENT', xl ('Search') );
 @define('_PC_AM', xl ('AM') );
 @define('_PC_PM', xl ('PM') );
-?>

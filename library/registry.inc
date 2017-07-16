@@ -109,5 +109,3 @@ function getTherapyGroupCategories()
 
     return array('');
 }
-
-?>

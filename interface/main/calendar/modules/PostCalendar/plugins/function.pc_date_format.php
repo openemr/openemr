@@ -40,4 +40,3 @@ function smarty_function_pc_date_format($args)
         echo strftime($format,time());
     }
 }
-?>

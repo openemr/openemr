@@ -124,4 +124,3 @@ function smarty_function_pc_date_select($args)
         echo $element;
     }
 }
-?>

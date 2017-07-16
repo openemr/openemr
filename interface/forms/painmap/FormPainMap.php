@@ -49,4 +49,3 @@ class FormPainMap extends AbstractClickmapModel {
         return C_FormPainMap::$FORM_CODE;
     }
 }
-?>

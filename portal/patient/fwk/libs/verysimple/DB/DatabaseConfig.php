@@ -14,5 +14,3 @@ class DatabaseConfig {
     /** @var boolean set to true to convert NULL values to empty string when inserting/updating */
     public static $CONVERT_NULL_TO_EMPTYSTRING = true;
 }
-
-?>

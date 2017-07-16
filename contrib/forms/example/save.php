@@ -10,4 +10,3 @@ formJump("./print.php?id=$id");
 
 
 formFooter();
-?>

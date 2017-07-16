@@ -13,5 +13,3 @@
  */
 class IncludeException extends Exception {
 }
-
-?>

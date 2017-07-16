@@ -106,4 +106,3 @@ class RuleCriteriaListsBuilder extends RuleCriteriaBuilder {
     }
 
 }
-?>

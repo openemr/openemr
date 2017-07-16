@@ -46,4 +46,3 @@ function treatment_plan_report( $pid, $encounter, $cols, $id)
     }
     print "</tr></table>";
 }
-?> 

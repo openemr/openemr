@@ -275,4 +275,3 @@ function arSetupSecondary($patient_id, $encounter_id, $debug,$crossover=0)
 
     return xl("Encounter ") . $encounter . xl(" is ready for re-billing.");
 }
-?>

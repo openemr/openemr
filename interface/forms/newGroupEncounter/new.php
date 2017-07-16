@@ -53,4 +53,3 @@ if(acl_check("groups","glog",false, 'write')){
 }else{
     echo xlt("access not allowed");
 }
-?>

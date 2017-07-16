@@ -26,4 +26,3 @@ function painmap_report( $pid, $encounter, $cols, $id)
     /* Render the form. */
     echo $c->report_action($id);
 }
-?>

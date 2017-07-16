@@ -184,5 +184,3 @@ class EmailMessage {
         $this->Attachments [] = $path;
     }
 }
-
-?>

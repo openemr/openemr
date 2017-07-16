@@ -361,4 +361,3 @@ class sigToSvg {
         return gzencode($this->getImage(), 9);
     }
 }
-?>

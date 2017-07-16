@@ -75,5 +75,3 @@ catch (exception $ex)
         }
     }
 }
-
-?>

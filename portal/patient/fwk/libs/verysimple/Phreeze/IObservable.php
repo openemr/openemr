@@ -35,5 +35,3 @@ interface IObservable {
      */
     public function Observe($obj, $ltype = OBSERVE_INFO);
 }
-
-?>

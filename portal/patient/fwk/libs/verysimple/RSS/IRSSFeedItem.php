@@ -57,5 +57,3 @@ interface IRSSFeedItem {
      */
     public function GetRSSAuthor();
 }
-
-?>

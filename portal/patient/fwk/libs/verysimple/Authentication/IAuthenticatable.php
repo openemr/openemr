@@ -40,5 +40,3 @@ interface IAuthenticatable {
      */
     public function Login($username, $password);
 }
-
-?>

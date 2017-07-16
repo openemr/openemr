@@ -186,4 +186,3 @@ class Note extends ORDataObject{
     }
 
 } // end of Note
-?>

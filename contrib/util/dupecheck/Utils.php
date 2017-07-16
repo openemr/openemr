@@ -72,5 +72,3 @@ function GetParameters()
     }
     return $parameters;
 }
-
-?>

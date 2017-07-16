@@ -11,4 +11,3 @@ require ("C_FormHPI.class.php");
 
 $c = new C_FormHPI();
 echo $c->view_action($_GET['id']);
-?>

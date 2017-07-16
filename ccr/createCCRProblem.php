@@ -148,4 +148,3 @@ do {
 		return $e_Source;
 	}
 */
-?>

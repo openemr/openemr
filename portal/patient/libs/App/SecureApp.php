@@ -98,5 +98,3 @@ class SecureApp implements IAuthenticatable
     }
 
 }
-
-?>

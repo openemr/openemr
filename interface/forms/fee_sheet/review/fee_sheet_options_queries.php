@@ -77,4 +77,3 @@ function load_fee_sheet_options($pricelevel)
     
     return $retval;
 }
-?>

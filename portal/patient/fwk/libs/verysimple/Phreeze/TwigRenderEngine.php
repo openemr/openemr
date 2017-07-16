@@ -98,5 +98,3 @@ class TwigRenderEngine implements IRenderEngine {
         return $this->assignments;
     }
 }
-
-?>

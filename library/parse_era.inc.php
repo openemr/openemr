@@ -521,4 +521,3 @@ function parse_era_for_check($filename)
     if ($segid != 'IEA') return 'Premature end of ERA file';
     return '';
 }
-?>

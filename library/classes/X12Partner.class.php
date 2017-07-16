@@ -294,4 +294,3 @@ class X12Partner extends ORDataObject{
         );
     }
 }
-?>

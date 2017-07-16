@@ -68,5 +68,3 @@ class OnsiteDocument extends OnsiteDocumentDAO
     }
 
 }
-
-?>

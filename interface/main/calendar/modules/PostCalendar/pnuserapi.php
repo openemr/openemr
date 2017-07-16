@@ -1539,6 +1539,3 @@ function fillBlocks($td,$ar)
 
 
 }
-
-
-?>

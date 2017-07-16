@@ -60,4 +60,3 @@ class Savant3_Plugin_htmlAttribs extends Savant3_Plugin {
         return $xhtml;
     }
 }
-?>

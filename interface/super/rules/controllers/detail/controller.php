@@ -21,4 +21,3 @@ class Controller_detail extends BaseController {
     }
 
 }
-?>

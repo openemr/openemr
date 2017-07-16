@@ -255,5 +255,3 @@ class OnsitePortalActivityCriteriaDAO extends Criteria
     public $Checksum_BitwiseAnd;
 
 }
-
-?>

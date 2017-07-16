@@ -36,4 +36,3 @@ function updateAppointmentStatus($pid, $encdate, $newstatus)
           $_SESSION["authUser"], $newstatus, $tmp['pc_room'], $encounter);
     }
 }
-?>

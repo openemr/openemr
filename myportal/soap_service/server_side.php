@@ -1450,4 +1450,3 @@ $server = new SoapServer(null,array('uri' => "urn://portal/res"));
 $server->setClass('UserService');
 $server->setPersistence(SOAP_PERSISTENCE_SESSION);
 $server->handle();
-?>

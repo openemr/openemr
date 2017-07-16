@@ -120,4 +120,3 @@ class AppBaseController extends Controller
     }
 
 }
-?>

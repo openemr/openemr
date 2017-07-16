@@ -80,7 +80,3 @@ function getCombinePatients($dataSheet, $reportID)
     }
     return $patients;
 }
-    
-    
-
-?>

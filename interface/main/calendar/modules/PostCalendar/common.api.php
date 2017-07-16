@@ -1956,5 +1956,3 @@ function &postcalendar_userapi_getCategoryLimits()
     $result->Close();
     return $limits;
 }
-
-?>

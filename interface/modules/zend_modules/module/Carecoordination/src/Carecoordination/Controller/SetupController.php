@@ -153,4 +153,3 @@ class SetupController extends AbstractActionController
         return $title;
     }
 }
-?>

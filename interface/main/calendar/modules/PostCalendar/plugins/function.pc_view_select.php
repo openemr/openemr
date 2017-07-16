@@ -71,4 +71,3 @@ function smarty_function_pc_view_select($args)
         echo $options,$submit;
     }
 }
-?>

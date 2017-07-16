@@ -116,4 +116,3 @@ class Savant3_Plugin_date extends Savant3_Plugin {
         }
     }
 }
-?>

@@ -698,5 +698,3 @@ function upgradeFromSqlFile($filename)
     }
     flush();
 } // end function
-
-?>

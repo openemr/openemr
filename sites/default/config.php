@@ -61,4 +61,3 @@ $GLOBALS['oer_config']['druglabels']['logo'] = dirname(__FILE__) .
   "/../../interface/pic/" . $GLOBALS['oer_config']['druglabels']['logo_pic'];
 
 $GLOBALS['oer_config']['documents']['repository'] = $GLOBALS['oer_config']['documents']['repopath'];
-?>

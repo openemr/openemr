@@ -192,5 +192,3 @@ class FormSnellen extends ORDataObject {
     }
 
 }   // end of Form
-
-?>

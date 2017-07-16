@@ -44,4 +44,3 @@ abstract class RuleCriteriaSimpleText extends RuleCriteria {
     }
 
 }
-?>

@@ -73,5 +73,3 @@ function isWhiteFile($file)
     }
     return false;
 }
-
-?>

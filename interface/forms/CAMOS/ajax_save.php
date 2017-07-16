@@ -44,4 +44,3 @@ foreach($camos_array as $val) {
     }
 }
 echo "<font color=red><b>" . xl('submitted') . ": " . time() . "</b></font>";
-?>

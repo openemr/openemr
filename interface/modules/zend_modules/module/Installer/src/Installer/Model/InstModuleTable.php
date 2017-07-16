@@ -870,4 +870,3 @@ class InstModuleTable
     }
   
 }
-?>

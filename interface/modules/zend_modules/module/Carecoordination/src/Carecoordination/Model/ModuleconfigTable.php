@@ -46,4 +46,3 @@ class ModuleconfigTable extends AbstractTableGateway
         return $users;
     }
 }
-?>

@@ -268,5 +268,3 @@ function isPlanActive($plan_id)
         return false;
     }
 }
-
-?>

@@ -22,6 +22,3 @@ require_once("$srcdir/reminders.php");
 session_write_close();
 
 patient_reminder_widget($pid);
-
-?>
-

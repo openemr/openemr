@@ -35,4 +35,3 @@ class RuleCriteriaDbView {
         return $this->intervalType;
     }
 }
-?>

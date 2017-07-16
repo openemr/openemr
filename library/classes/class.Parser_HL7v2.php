@@ -212,5 +212,3 @@ class Parser_HL7v2 {
         return $cmp;
     }
 } // end class Parser_HL7v2
-
-?>

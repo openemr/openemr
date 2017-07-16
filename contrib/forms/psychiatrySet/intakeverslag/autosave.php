@@ -88,5 +88,3 @@ $result = sqlQuery("SELECT autosave_datetime FROM form_intakeverslag
 
 //output timestamp
 echo xl('Last Saved') . ': '.$result['autosave_datetime'];
-
-?>

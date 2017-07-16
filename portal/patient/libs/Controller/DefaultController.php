@@ -60,4 +60,3 @@ class DefaultController extends AppBaseController
     }
 
 }
-?>

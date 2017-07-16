@@ -440,4 +440,3 @@ function collectItemizedPatientsCdrReport($report_id,$itemized_test_id,$pass='al
         return $returnval;
     }
 }
-?>

@@ -145,5 +145,3 @@ do {
     $e_Refill->appendChild($e_Number);
 
 } while ($value = sqlFetchArray($result));
-
-?>

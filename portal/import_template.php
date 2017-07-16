@@ -76,4 +76,3 @@ if (!empty($_FILES["tplFile"])) {
     chmod(UPLOAD_DIR . $name, 0644);
     header("location: " . $_SERVER['HTTP_REFERER']);
 }
-?>

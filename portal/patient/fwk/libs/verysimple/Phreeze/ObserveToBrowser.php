@@ -46,5 +46,3 @@ class ObserveToBrowser implements IObserver {
         }
     }
 }
-
-?>

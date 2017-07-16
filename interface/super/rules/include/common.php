@@ -99,5 +99,3 @@ function controller_dir( $controller )
     }
     return $dir;
 }
-
-?>

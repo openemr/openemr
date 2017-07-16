@@ -247,5 +247,3 @@ abstract class AbstractClickmapModel extends ORDataObject {
     }
 
 }
-
-?>

@@ -42,5 +42,3 @@ $output->Text(pnModAPIFunc('postcalendar','user','eventDetail',array('eid'=>$eid
 
 $output->Text('</body></html>');
 $output->PrintPage();
-
-?>

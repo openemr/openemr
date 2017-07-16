@@ -68,5 +68,3 @@ class OnsiteActivityView extends OnsiteActivityViewDAO
     }
 
 }
-
-?>

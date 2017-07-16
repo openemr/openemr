@@ -91,4 +91,3 @@ class RuleCriteriaLifestyle extends RuleCriteria {
     }
 
 }
-?>

@@ -1417,4 +1417,3 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false)
     $log .= "\n";
     return $out;
 }
-?>

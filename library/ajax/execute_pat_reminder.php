@@ -55,4 +55,3 @@ if ( (!empty($_POST['execute_report_id']) && !empty($_POST['process_type'])) && 
 else {
     echo "ERROR";
 }
-?>

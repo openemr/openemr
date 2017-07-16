@@ -513,5 +513,3 @@ function handle_zip_file($mode, $file)
         exit;
     }
 }
-
-?>

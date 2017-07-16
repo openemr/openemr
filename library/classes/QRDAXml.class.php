@@ -605,4 +605,3 @@ class QRDAXml extends XmlWriterOemr {
     }
 
 }
-?>

@@ -187,4 +187,3 @@ function active_directory_validation($user, $pass)
     }
     return $valid;
 }
-?>

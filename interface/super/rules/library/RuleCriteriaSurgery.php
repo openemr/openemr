@@ -30,4 +30,3 @@ class RuleCriteriaSurgery extends RuleCriteriaSimpleText {
     }
 
 }
-?>

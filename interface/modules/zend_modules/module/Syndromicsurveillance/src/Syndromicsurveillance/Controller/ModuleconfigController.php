@@ -79,4 +79,3 @@ class ModuleconfigController extends AbstractActionController
         return $dependedModules;
     }
 }
-?>

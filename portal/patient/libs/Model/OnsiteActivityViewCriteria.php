@@ -81,4 +81,3 @@ class OnsiteActivityViewCriteria extends OnsiteActivityViewCriteriaDAO
 	*/
 
 }
-?>

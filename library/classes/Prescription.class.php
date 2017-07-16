@@ -711,4 +711,3 @@ class Prescription extends ORDataObject {
     }
 
 }// end of Prescription
-?>

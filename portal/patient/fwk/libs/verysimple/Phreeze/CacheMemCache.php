@@ -100,5 +100,3 @@ class CacheMemCache implements ICache {
         return $result;
     }
 }
-
-?>

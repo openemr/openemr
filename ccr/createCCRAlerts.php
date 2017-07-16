@@ -125,5 +125,3 @@ do {
 
 } while ($row = sqlFetchArray($result));
     //}
-
-?>

@@ -33,5 +33,3 @@ class UrlWriter extends ActionRouter {
         return $this->GetUrl ( $controller, $method, $params );
     }
 }
-
-?>

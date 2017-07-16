@@ -72,5 +72,3 @@ function insert_language_log($lang_desc,$lang_code,$cons_name,$def)
         }
     }
 }
-
-?>

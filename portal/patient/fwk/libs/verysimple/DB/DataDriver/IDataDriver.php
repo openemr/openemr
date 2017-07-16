@@ -185,5 +185,3 @@ interface IDataDriver {
      */
     function RollbackTransaction($connection);
 }
-
-?>

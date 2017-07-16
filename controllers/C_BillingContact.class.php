@@ -72,5 +72,3 @@ class C_InsuranceCompany extends Controller {
     }
 
 }
-
-?>

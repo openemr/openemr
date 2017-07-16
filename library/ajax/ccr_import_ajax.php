@@ -192,4 +192,3 @@ if($_REQUEST["ccr_ajax"] == "yes"){
     }
     exit;
 }
-?>

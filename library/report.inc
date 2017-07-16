@@ -544,5 +544,3 @@ function printDataOne($retar, $key, $sep, $date_format)
         }
     }
 }
-
-?>

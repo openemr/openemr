@@ -169,4 +169,3 @@ function soccer_injury_report($pid, $encounter, $cols, $id)
     echo " </tr>\n";
     echo "</table>\n";
 }
-?>

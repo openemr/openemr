@@ -139,5 +139,3 @@ class C_FormVitals extends Controller {
     }
 
 }
-
-?>

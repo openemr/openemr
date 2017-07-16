@@ -78,5 +78,3 @@ elseif ($_GET['mode'] == 'update'){
 }
 
 formJump();
-
-?>

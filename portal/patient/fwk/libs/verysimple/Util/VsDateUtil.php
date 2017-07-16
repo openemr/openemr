@@ -166,5 +166,3 @@ class VsDateUtil {
         return date ( $format, strtotime ( self::Now () . " - $hours hours" ) );
     }
 }
-
-?>

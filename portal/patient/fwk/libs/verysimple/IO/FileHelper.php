@@ -37,4 +37,3 @@ class FileHelper {
         $this->FolderPath = substr ( $this->Path, 0, strrpos ( $this->Path, "/" ) + 1 );
     }
 }
-?>

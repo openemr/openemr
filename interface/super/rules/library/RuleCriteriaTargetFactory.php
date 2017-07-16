@@ -45,4 +45,3 @@ class RuleCriteriaTargetFactory extends RuleCriteriaFactory {
     }
 
 }
-?>

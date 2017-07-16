@@ -78,4 +78,3 @@ abstract class Savant3_Filter {
         return $text;
     }
 }
-?>

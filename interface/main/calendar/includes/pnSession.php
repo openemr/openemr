@@ -471,4 +471,3 @@ function pnSessionGC($maxlifetime)
 
     return true;
 }
-?>

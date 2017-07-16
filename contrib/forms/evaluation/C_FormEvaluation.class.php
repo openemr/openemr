@@ -70,7 +70,3 @@ class C_FormEvaluation extends Controller {
     }
 
 }
-
-
-
-?>

@@ -1342,5 +1342,3 @@ function patCharactersticQRDA($xml, $patient_id)
         $xml->close_entry();
     }
 }
-
-?>

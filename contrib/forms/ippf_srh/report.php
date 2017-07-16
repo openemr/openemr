@@ -20,4 +20,3 @@ function ippf_srh_report($pid, $encounter, $cols, $id)
     display_layout_rows('SRH', sqlQuery("SELECT * FROM form_ippf_srh WHERE id = '$id'"));
     echo "</table>\n";
 }
-?>

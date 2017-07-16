@@ -687,4 +687,3 @@ function postcalendar_delete()
     // Deletion successful
     return true;
 }
-?>

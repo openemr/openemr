@@ -295,4 +295,3 @@ function updateAcl($array_acl_id_number, $group_title, $section_name, $section_t
     }
         return;
 }
-?>

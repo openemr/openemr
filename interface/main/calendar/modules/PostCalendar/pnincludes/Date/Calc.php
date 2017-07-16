@@ -1579,5 +1579,3 @@ class Date_Calc {
     }
 
 } // end class Date_calendar
-
-?>

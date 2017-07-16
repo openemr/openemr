@@ -56,4 +56,3 @@ define('_PC_DUR_HOURS', xl ('_PC_DUR_HOURS') );
 define('_PC_DUR_MINUTES', xl ('_PC_DUR_MINUTES') );
 define('_PC_OL_CLOSE', xl ('Close') );
 define('_PC_CLICK_FOR_MORE', xl ('click for more') );
-?>

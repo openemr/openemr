@@ -33,4 +33,3 @@ if (!file_exists($BACKUP_EVENTLOG_DIR))
 $BACKUP_EVENTLOG_DIR=$BACKUP_EVENTLOG_DIR.'/eventlog_'.$backuptime.'.sql';
 $cmd=$argv[1].'/interface/main/backuplog.sh '.$sqlconf["login"].' '.$sqlconf["pass"].' '.$sqlconf["dbase"].' '.$BACKUP_EVENTLOG_DIR.' '.$sqlconf["host"];
 system($cmd);
-?>

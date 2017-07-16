@@ -181,5 +181,3 @@ class PatientMap implements IDaoMap, IDaoMap2
     }
 
 }
-
-?>

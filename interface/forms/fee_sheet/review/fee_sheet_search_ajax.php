@@ -61,4 +61,3 @@ else
 $retval['codes']=diagnosis_search($search_type_id,$search_type,$search_query);
 
 echo json_encode($retval);
-?>

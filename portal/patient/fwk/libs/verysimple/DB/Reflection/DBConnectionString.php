@@ -38,5 +38,3 @@ class DBConnectionString {
         $this->Type = $type;
     }
 }
-
-?>

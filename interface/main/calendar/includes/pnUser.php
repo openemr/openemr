@@ -627,5 +627,3 @@ function pnUserGetAll()
 
     return $resarray;
 }
-
-?>

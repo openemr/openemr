@@ -338,5 +338,3 @@ class FormSOAP extends ORDataObject {
         parent::persist();
     }
 }   // end of Form
-
-?>

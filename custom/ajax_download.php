@@ -115,4 +115,3 @@ if ( count($patients) ) {
     echo $zipFile;
 } else
     echo xlt("FAILURE: No patients for measure") . " " . text($ruleID);
-?>

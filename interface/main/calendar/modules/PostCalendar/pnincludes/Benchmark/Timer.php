@@ -144,4 +144,3 @@ class Benchmark_Timer {
         return $result;
     }
 }
-?>

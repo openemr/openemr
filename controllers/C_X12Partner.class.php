@@ -79,5 +79,3 @@ class C_X12Partner extends Controller {
     }
 
 }
-
-?>

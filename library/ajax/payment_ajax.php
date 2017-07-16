@@ -214,4 +214,3 @@ function AjaxDropDownCode()
         die;
     }
 }
-?>

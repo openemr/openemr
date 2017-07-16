@@ -69,5 +69,3 @@ foreach ($pid_list as $pid) {
     $pdf->Add_Label($text);
 }
 $pdf->Output();
-
-?>

@@ -84,5 +84,3 @@ while ($lrow = sqlFetchArray($lres)) {
 }
 echo "]}";
 exit;
-
-?>

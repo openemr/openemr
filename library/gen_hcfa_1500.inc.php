@@ -767,4 +767,3 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
     put_hcfa(64, 1, 1, ' ');
     return;
 }
-?>

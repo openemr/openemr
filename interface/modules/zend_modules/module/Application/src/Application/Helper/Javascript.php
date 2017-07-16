@@ -43,4 +43,3 @@ class Javascript extends AbstractHelper
         echo '</script>';
     }
 }
-?>

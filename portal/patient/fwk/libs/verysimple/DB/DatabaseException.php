@@ -29,5 +29,3 @@ class DatabaseException extends Exception {
         $this->data = $data;
     }
 }
-
-?>

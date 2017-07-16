@@ -22,5 +22,3 @@ define ( "OBSERVE_FATAL", 16 );
 interface IObserver {
     public function Observe($obj, $ltype = OBSERVE_INFO);
 }
-
-?>

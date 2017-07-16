@@ -388,5 +388,3 @@ if($_POST['ccrAction']) {
         createCCR($_POST['ccrAction'],$raw);
     }
 }
-
-?>

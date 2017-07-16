@@ -61,4 +61,3 @@ class C_FormHPI extends Controller {
     }
 
 }
-?>

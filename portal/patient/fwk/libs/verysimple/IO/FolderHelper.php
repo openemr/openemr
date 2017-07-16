@@ -56,4 +56,3 @@ class FolderHelper {
         return $files;
     }
 }
-?>

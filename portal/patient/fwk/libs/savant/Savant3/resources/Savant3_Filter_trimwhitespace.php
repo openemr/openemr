@@ -120,4 +120,3 @@ class Savant3_Filter_trimwhitespace extends Savant3_Filter {
         }
     }
 }
-?>

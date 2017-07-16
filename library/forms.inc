@@ -193,4 +193,3 @@ function getDocumentsByEncounter($patientID = null,$encounterID = null)
     }
     return $allDocuments;
 }
-?>

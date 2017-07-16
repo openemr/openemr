@@ -488,6 +488,3 @@ function phimail_notify($subj,$body)
     $mail->AddAddress($recipient);
     return ($mail->Send());
 }
-
-
-?>

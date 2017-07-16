@@ -51,4 +51,3 @@ function physical_exam_report($pid, $encounter, $cols, $id)
 
     echo "</table>\n";
 }
-?> 

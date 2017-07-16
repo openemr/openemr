@@ -71,5 +71,3 @@ class Recipient {
         return Recipient::IsEmailInValidFormat ( $this->Email );
     }
 }
-
-?>

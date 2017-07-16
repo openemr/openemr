@@ -40,5 +40,3 @@ function smarty_function_user_info($params, &$smarty)
         echo $user_info['fname']." ".$user_info['lname'];
     }
 }
-
-?>

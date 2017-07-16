@@ -135,4 +135,3 @@ function prevSetting($uspfx, $postvar, $label, $initval)
     }
     return $pset;
 }
-?>

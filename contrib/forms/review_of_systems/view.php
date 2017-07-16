@@ -6,4 +6,3 @@ require ("C_FormReviewOfSystems.class.php");
 
 $c = new C_FormReviewOfSystems();
 echo $c->view_action($_GET['id']);
-?>

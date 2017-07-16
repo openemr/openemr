@@ -50,5 +50,3 @@ interface FactoryIF
      */
     public function createLog();
 }
-
-?>

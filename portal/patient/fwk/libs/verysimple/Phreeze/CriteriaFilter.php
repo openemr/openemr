@@ -73,5 +73,3 @@ class CriteriaFilter {
         return "";
     }
 }
-
-?>

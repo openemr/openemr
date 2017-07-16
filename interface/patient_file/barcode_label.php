@@ -140,4 +140,3 @@ Barcode::rotate(-$len / 2, ($data['height'] / 2) + $fontSize + $marge, $angle, $
 
 $pdf->TextWithRotation($x + $xt, $y + $yt, $data['hri'], $angle);
 $pdf->Output();
-?>

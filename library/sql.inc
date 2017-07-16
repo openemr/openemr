@@ -716,5 +716,3 @@ function sqlRollbackTrans()
 {
     $GLOBALS['adodb']['db']->RollbackTrans();
 }
-
-?>

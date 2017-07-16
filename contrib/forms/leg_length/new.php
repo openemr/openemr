@@ -11,4 +11,3 @@ require ("C_FormLegLength.class.php");
 
 $c = new C_FormLegLength();
 echo $c->default_action();
-?>

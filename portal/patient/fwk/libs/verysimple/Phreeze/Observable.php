@@ -46,5 +46,3 @@ abstract class Observable implements IObservable {
         }
     }
 }
-
-?>

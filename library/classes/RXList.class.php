@@ -205,4 +205,3 @@ print "<FORM>\n";
 print html_form::select_widget("test", RxList::get_list($drug));
 print "</FORM>\n";
 */
-?>

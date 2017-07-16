@@ -49,4 +49,3 @@ function setGpRelation($type1, $id1, $type2, $id2, $set=true)
         }
     }
 }
-?>

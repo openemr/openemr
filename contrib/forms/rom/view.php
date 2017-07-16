@@ -11,4 +11,3 @@ require ("C_FormROM.class.php");
 
 $c = new C_FormROM();
 echo $c->view_action($_GET['id']);
-?>

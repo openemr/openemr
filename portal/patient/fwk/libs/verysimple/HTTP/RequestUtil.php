@@ -597,5 +597,3 @@ class RequestUtil {
         ), '', self::Get ( $fieldname ) );
     }
 }
-
-?>

@@ -885,5 +885,3 @@ class UserCriteriaDAO extends Criteria
     public $PhysicianType_BitwiseAnd;
 
 }
-
-?>

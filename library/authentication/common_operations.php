@@ -105,4 +105,3 @@ function confirm_user_password($username,&$password)
     }
     return false;
 }
-?>

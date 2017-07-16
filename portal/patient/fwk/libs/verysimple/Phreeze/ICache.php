@@ -40,5 +40,3 @@ interface ICache {
      */
     public function Delete($key);
 }
-
-?>

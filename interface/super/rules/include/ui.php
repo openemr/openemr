@@ -59,5 +59,3 @@ function getListOptionsArray( $list_id )
     }
     return $optionsArray;
 }
-    
-?>

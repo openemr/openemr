@@ -59,4 +59,3 @@ class RuleCriteriaSex extends RuleCriteria {
     }
 
 }
-?>

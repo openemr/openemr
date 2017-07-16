@@ -26,4 +26,3 @@
  */
 define('_CREATETABLEFAILED', xl ('Table creation failed'));
 define('_UPDATETABLEFAILED', xl ('Table update failed'));
-?>

@@ -981,4 +981,3 @@ function eventCategoryFinder($sql,$event,$table)
 
     return $event;
 }
-?>

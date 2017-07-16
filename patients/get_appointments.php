@@ -55,4 +55,3 @@ foreach($events as $row) {
 if ($resNotNull) {
     if ( $count < 1 ) { echo "&nbsp;&nbsp;" . htmlspecialchars('No Appointments',ENT_NOQUOTES); }
 }
-?>

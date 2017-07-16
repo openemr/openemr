@@ -86,4 +86,3 @@ function observation_report($pid, $encounter, $cols, $id)
         print "</table>";
     }
 }
-?> 

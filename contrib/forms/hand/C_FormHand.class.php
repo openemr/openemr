@@ -61,4 +61,3 @@ class C_FormHand extends Controller {
     }
 
 }
-?>

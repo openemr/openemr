@@ -290,5 +290,3 @@ function patientQRDAHistory($patient_id)
     $patientHistRow = sqlQuery("SELECT tobacco, date FROM history_data WHERE pid= ? ORDER BY id DESC LIMIT 1", array($patient_id));
     return $patientHistRow;
 }
-
-?>

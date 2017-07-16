@@ -193,5 +193,3 @@ class DBConnection {
         return $this->adapter->Release ( $rs );
     }
 }
-
-?>

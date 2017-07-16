@@ -111,4 +111,3 @@ function oemr_password_hash($plaintext,$salt)
         }
     }
 }
-?>

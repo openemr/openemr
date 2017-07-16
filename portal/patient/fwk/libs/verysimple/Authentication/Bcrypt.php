@@ -168,4 +168,3 @@ class Bcrypt {
         return $output;
     }
 }
-?>

@@ -11,4 +11,3 @@ require ("C_FormNursingNotes.class.php");
 $c = new C_FormNursingNotes();
 echo $c->default_action_process($_POST);
 @formJump();
-?>

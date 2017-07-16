@@ -174,4 +174,3 @@ class Address extends ORDataObject{
 $a = new Address("0");
 
 echo $a->toString(true);*/
-?>

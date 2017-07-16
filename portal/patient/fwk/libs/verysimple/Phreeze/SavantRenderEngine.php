@@ -110,5 +110,3 @@ class SavantRenderEngine implements IRenderEngine {
         return get_object_vars ( $this->savant );
     }
 }
-
-?>

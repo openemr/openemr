@@ -30,4 +30,3 @@ class RuleCriteriaAllergy extends RuleCriteriaSimpleText {
     }
 
 }
-?>

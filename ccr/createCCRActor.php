@@ -365,5 +365,3 @@ while ($row2 = sqlFetchArray($result[2])) {
     $e_ActorID = $ccr->createElement('ActorID', $authorID);
     $e_Actor->appendChild($e_ActorID);
 }
-
-?>

@@ -79,4 +79,3 @@ class Patient extends ORDataObject{
         return $this->date_of_birth; }
 
 } // end of Patient
-?>

@@ -31,6 +31,3 @@ function setencounter($enc)
     //the screen for a new encounter
     return $return_val;
 }
-
-?>
-

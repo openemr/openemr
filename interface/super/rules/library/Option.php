@@ -22,4 +22,3 @@ class Option {
         $this->label = $label;
     }
 }
-?>

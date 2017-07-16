@@ -46,4 +46,3 @@ define('_PC_SEARCH_RESULTS', xl ('Search Results:') );
 define('_PC_SEARCH_KEYWORDS', xl ('Keywords') );
 define('_PC_SEARCH_PERFORM',  xl ('Perform Search') );
 define('_PC_SEARCH_MAX', xl ('More than 50 results, please make your search more specific.') );
-?>

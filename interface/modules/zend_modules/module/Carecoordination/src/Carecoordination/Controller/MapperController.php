@@ -138,4 +138,3 @@ class MapperController extends AbstractActionController
         return $this->mapperTable;
     }
 }
-?>

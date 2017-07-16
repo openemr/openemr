@@ -22,4 +22,3 @@ if ( !(empty($_POST['patient_id'])) && !(empty($_POST['type'])) ) {
     setListTouch($_POST['patient_id'], $_POST['type']);
 
 }
-?>

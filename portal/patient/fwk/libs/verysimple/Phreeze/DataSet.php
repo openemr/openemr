@@ -526,5 +526,3 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
         }
     }
 }
-
-?>

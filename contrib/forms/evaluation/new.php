@@ -6,4 +6,3 @@ require ("C_FormEvaluation.class.php");
 
 $c = new C_FormEvaluation();
 echo $c->default_action();
-?>

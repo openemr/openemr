@@ -64,4 +64,3 @@ if ($issue) {
 }
 
 echo "alert('$msg');\n";
-?>

@@ -104,4 +104,3 @@ class ModuleconfigController extends AbstractActionController
         return $acl;
     }
 }
-?>

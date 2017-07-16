@@ -90,5 +90,3 @@ global $pid;
 
            $e_Text = $ccr->createElement('Text', 'Summary of patient information');
            $e_Description->appendChild($e_Text);
-
-?>

@@ -28,5 +28,3 @@ class CacheNoCache implements ICache {
     {
     }
 }
-
-?>

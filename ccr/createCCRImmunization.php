@@ -82,5 +82,3 @@ do {
     $e_Code->appendChild($e_Value);
 
 } while ($row = sqlFetchArray($result));
-
-?>

@@ -22,4 +22,3 @@ require_once("$srcdir/clinical_rules.php");
 session_write_close();
 
 clinical_summary_widget($pid,"reminders-due",'','default',$_SESSION['authUser']);
-?>

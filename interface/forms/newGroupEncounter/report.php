@@ -46,5 +46,3 @@ function newGroupEncounter_report( $group_id, $encounter, $cols, $id)
     }
     print "</td></tr></table>\n";
 }
-
-?>

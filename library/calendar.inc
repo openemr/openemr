@@ -230,5 +230,3 @@ function is_holiday($date)
 {
     Holidays_Controller::is_holiday($date);
 }
-
-?>

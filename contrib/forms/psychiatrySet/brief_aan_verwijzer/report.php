@@ -93,4 +93,3 @@ function brief_aan_verwijzer_report( $pid, $encounter, $cols, $id )
     }
     print "</tr></table>";
 }
-?>

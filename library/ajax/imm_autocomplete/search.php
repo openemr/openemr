@@ -35,6 +35,3 @@ if (!empty($_GET['term'])){
     /* Toss back results as json encoded array. */
     echo json_encode($return_arr);
 }
-
-
-?>

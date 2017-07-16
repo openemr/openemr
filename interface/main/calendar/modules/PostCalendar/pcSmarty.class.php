@@ -126,4 +126,3 @@ class pcSmarty extends Smarty
         $this->assign('THEME_PATH',"themes/$osTheme");
     }
 }
-?>

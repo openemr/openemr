@@ -56,5 +56,3 @@ function getImmunizationList($pid,$sortby,$showError)
         $results = sqlStatement($sql,array($pid));
         return $results;
 }
-
-?>

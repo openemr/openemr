@@ -194,5 +194,3 @@ class DataDriverSQLite implements IDataDriver {
         throw new Exception ( 'Transaction support is not implemented for this DataDriver' );
     }
 }
-
-?>

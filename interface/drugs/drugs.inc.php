@@ -287,4 +287,3 @@ function isWarehouseAllowed($facid, $whid, $userid=0)
     }
     return true;
 }
-?>

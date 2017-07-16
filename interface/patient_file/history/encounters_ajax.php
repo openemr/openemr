@@ -27,4 +27,3 @@ else {
     if (!function_exists($report_function)) exit;
     call_user_func($report_function, $ptid, $encid, 2, $formid);
 }
-?>

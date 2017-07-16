@@ -351,5 +351,3 @@ function formatPhone($phone)
     else
                 return $phone;
 }
-
-?>

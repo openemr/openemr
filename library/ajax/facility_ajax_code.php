@@ -40,4 +40,3 @@ $date=$_REQUEST['date'];
 $q=sqlStatement("SELECT pc_billing_location FROM openemr_postcalendar_events WHERE pc_pid=? AND pc_eventDate=? AND pc_facility=?", array($pid,$date,$facility) );
 $row=sqlFetchArray($q);
 billing_facility('billing_facility',$row['pc_billing_location']);
-?>

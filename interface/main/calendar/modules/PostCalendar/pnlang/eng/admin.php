@@ -123,4 +123,3 @@ define('_PC_COLOR_PICK_TITLE', xl ('pick') );
 define('_PC_CAT_TYPE', xl ('Type') );
 define('_PC_ACTIVE', xl ('Active') );
 define('_PC_SEQ', xl ('Sequence') );
-?>

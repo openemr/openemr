@@ -127,5 +127,3 @@ do {
     $e_Site->appendChild($e_Text);
         
 } while ($row = sqlFetchArray($result));
-
-?>

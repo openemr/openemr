@@ -242,5 +242,3 @@ class FormHPI extends ORDataObject {
         parent::persist();
     }
 }   // end of Form
-
-?>

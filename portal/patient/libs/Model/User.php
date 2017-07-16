@@ -68,5 +68,3 @@ class User extends UserDAO
     }
 
 }
-
-?>

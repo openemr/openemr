@@ -90,4 +90,3 @@ f.form_total.readOnly = true;
 ";
 
 }
-?>

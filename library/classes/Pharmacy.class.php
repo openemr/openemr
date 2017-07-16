@@ -246,4 +246,3 @@ class Pharmacy extends ORDataObject{
 /*$p = new Pharmacy("1");
 echo $p->toString(true);
 */
-?>

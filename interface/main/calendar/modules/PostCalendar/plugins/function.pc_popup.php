@@ -87,4 +87,3 @@ function smarty_function_pc_popup($args)
     if (!empty($vauto))         { echo ",VAUTO"; }
     echo ');" onMouseOut="nd();"';
 }
-?>

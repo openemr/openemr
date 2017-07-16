@@ -1390,4 +1390,3 @@ class C_Document extends Controller {
     }
 
 }
-?>

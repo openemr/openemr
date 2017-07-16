@@ -559,4 +559,3 @@ $html .= "
 
 // Send final result to display
 echo $html;
-?>

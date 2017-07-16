@@ -228,5 +228,3 @@ class SkipJack extends PaymentProcessor {
         return (isset ( $errors [$code] )) ? $errors [$code] : "Unknown Error";
     }
 }
-
-?>

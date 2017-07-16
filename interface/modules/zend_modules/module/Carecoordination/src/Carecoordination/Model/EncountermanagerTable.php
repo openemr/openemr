@@ -360,4 +360,3 @@ class EncountermanagerTable extends AbstractTableGateway
         $appTable->zQuery($query,array('','',0,$fname,$lname,$direct_address,1,'emr_direct'));
     }
 }
-?>

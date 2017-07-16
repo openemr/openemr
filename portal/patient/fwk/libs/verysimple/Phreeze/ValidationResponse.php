@@ -27,5 +27,3 @@ class ValidationResponse {
     public $Message = "";
     public $Data;
 }
-
-?>

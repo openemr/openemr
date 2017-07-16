@@ -34,4 +34,3 @@ function reviewofs_report( $pid, $encounter, $cols, $id)
     }
     print "</tr></table>";
 }
-?> 

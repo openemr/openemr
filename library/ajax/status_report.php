@@ -32,4 +32,3 @@ if (!empty($_POST['status_report_id'])) {
 else {
     echo "ERROR";
 }
-?>

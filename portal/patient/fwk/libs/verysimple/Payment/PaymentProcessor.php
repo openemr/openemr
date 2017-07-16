@@ -134,5 +134,3 @@ abstract class PaymentProcessor {
         return $tmp;
     }
 }
-
-?>

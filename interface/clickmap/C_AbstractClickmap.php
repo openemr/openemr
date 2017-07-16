@@ -174,4 +174,3 @@ abstract class C_AbstractClickmap extends Controller {
         }
     }
 }
-?>

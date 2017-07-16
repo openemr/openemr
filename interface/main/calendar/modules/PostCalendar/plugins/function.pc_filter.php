@@ -142,4 +142,3 @@ function smarty_function_pc_filter($args, &$smarty)
         echo $output->FormHidden('pc_username',$pc_username);
     }
 }
-?>

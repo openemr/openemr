@@ -154,4 +154,3 @@ function vitals_report( $pid, $encounter, $cols, $id, $print = true)
     if ($print) echo $vitals ;
     else return $vitals;
 }
-?>

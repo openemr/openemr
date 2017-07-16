@@ -56,5 +56,3 @@ class ObserveToSmarty implements IObserver {
         $this->_smarty->assign ( str_pad ( $this->_counter ++, 3, "0", STR_PAD_LEFT ) . "_" . $desc, $msg );
     }
 }
-
-?>

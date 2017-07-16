@@ -416,6 +416,3 @@ $success = truncateLogs($con);
 // Close the connection
 mysqli_close($con);
 echo " \n successfully updated $patients patients \n\n";
-
-
-?>

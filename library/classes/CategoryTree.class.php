@@ -48,4 +48,3 @@ class CategoryTree extends Tree {
         return $categories;
     }
 }
-?>

@@ -29,5 +29,3 @@ function ped_fever_report( $pid, $encounter, $cols, $id)
         print "</tr></table>";
     endif;
 }
-
-?> 

@@ -101,4 +101,3 @@ function split_csv_line($record)
     array_unshift($fields, $first);
     return $fields;
 }
-?>

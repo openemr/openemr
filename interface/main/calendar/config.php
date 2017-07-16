@@ -81,4 +81,3 @@ if (@file_exists("personal_config.php"))
 // Make config file backwards compatible (deprecated)
 // ----------------------------------------------------------------------
 extract($pnconfig, EXTR_OVERWRITE);
-?>

@@ -171,5 +171,3 @@ class RSS_Writer {
         echo $this->returnXML ();
     }
 }
-
-?>

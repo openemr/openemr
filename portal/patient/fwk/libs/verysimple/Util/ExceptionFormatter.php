@@ -79,5 +79,3 @@ class ExceptionFormatter {
         return $msg;
     }
 }
-
-?>

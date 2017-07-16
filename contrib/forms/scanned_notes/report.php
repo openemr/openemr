@@ -50,4 +50,3 @@ function scanned_notes_report($pid, $useless_encounter, $cols, $id)
         }
     }
 }
-?>

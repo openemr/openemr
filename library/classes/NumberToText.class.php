@@ -236,4 +236,3 @@ class NumberToText {
         return ((float)$usec + (float)$sec);
     }
 }
-?>

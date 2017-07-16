@@ -82,4 +82,3 @@ class RuleCriteriaAge extends RuleCriteria {
         $this->timeUnit = $timeUnit;
     }
 }
-?>

@@ -139,4 +139,3 @@ function track_anything_report( $pid, $encounter, $cols, $id)
     echo "</div>"; // end hide for report
         echo "</div>";
 }// end function track_anything_report
-?>

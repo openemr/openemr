@@ -49,5 +49,3 @@ class DBServer {
         return $schema;
     }
 }
-
-?>

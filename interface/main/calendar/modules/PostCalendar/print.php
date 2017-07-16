@@ -67,4 +67,3 @@ switch($viewtype) {
 $output->Text(postcalendar_footer());
 $output->Text('</body></html>');
 $output->PrintPage();
-?>

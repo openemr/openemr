@@ -45,5 +45,3 @@ $hp = new Parser_HL7v2($msg);
 print_r($hp->MSH);
 echo "<br><br>";
 print_r($hp->EVN);*/
-
-?>

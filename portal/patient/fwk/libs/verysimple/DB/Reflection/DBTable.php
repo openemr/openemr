@@ -298,5 +298,3 @@ class DBTable {
         }
     }
 }
-
-?>

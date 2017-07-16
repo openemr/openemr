@@ -397,4 +397,3 @@ function postcalendar_adminapi_addCategoryLimit($args)
     }
     return true;
 }
-?>

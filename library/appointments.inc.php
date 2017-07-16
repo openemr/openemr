@@ -693,5 +693,3 @@ function recurrence_is_current($end_date)
     }
     return false;
 }
-
-?>

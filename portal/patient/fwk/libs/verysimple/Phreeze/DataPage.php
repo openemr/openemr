@@ -100,5 +100,3 @@ class DataPage implements Iterator {
         return $arr;
     }
 }
-
-?>

@@ -37,5 +37,3 @@ if(($_POST['func']=="unset_gid"))
 {
     unsetGroup();
 }
-
-?> 

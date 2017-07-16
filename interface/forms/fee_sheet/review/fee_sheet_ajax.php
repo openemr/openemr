@@ -108,4 +108,3 @@ if($task=='add_diags')
     $database->CompleteTrans();
     return;
 }
-?>

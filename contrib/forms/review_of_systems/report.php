@@ -36,6 +36,3 @@ function review_of_systems_report( $pid, $encounter, $cols, $id)
         }
     }
 }
-
-
-?> 

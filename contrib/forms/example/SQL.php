@@ -29,4 +29,3 @@ if (!sqlStatement($create))
 
 echo "Success!<br>";
 flush();
-?>

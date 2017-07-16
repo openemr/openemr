@@ -31,5 +31,3 @@ class NFQ_0059_Denominator implements CqmFilterIF
         return true ;
     }
 }
-
-?>

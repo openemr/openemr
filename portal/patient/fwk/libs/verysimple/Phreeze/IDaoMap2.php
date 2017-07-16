@@ -51,5 +51,3 @@ interface IDaoMap2 {
      */
     static function GetKeyMaps();
 }
-
-?>

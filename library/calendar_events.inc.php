@@ -109,4 +109,3 @@ function eventMatchesDay($row, $date)
 
     return false; // repeating event did not match
 }
-?>

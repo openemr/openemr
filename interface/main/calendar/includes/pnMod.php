@@ -929,5 +929,3 @@ function pnModCallHooks($hookobject, $hookaction, $hookid, $extrainfo)
         return $extrainfo;
     }
 }
-
-?>

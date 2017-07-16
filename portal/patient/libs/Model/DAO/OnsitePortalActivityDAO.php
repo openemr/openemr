@@ -88,4 +88,3 @@ class OnsitePortalActivityDAO extends Phreezable
 
 
 }
-?>

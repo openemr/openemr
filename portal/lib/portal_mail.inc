@@ -301,4 +301,3 @@ function updateStatus($id,$status)
         updatePortalMailMessageStatus($id,$status);
         return 1;
 }
-?>

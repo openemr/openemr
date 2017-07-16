@@ -44,5 +44,3 @@ function getUuid()
        mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535) // 48 bits for "node"
     );
 }
-
-?>

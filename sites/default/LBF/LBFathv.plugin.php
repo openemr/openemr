@@ -165,5 +165,3 @@ if (f.form_bmi_status) {
 ";
 
 }
-?>
-

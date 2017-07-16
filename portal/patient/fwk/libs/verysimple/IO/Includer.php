@@ -105,5 +105,3 @@ class Includer {
         throw new IncludeException ( $msg, $code );
     }
 }
-
-?>

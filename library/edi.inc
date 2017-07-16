@@ -809,4 +809,3 @@ function arrFormated(&$item, $key)
     $item = substr($item,1,strlen($item)-1);
     $item = "'".$item;
 }
-?>

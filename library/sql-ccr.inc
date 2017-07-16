@@ -526,5 +526,3 @@ function getReportFilename()
 
     return $result_filename;
 }
-
-?>

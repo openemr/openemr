@@ -178,4 +178,3 @@ function process_diagnoses_02_12(&$claim,&$log)
         $hcfa_entry->put();
     }
 }
-?>

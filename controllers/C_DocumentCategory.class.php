@@ -172,5 +172,3 @@ class C_DocumentCategory extends Controller {
     }
 
 }
-
-?>

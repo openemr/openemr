@@ -91,4 +91,3 @@ class Controller_alerts extends BaseController {
     }
 
 }
-?>

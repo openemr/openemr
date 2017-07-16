@@ -38,4 +38,3 @@ if (($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) ||
 
 $viewmode = false;
 require_once("common.php");
-?>

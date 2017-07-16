@@ -272,4 +272,3 @@ class MapperTable extends AbstractTableGateway
         $res        = $appTable->zQuery("update ccda_table_mapping set deleted = 1 where id <= ? and user_id = ?", $values);
     }
 }
-?>

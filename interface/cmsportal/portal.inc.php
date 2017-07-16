@@ -98,4 +98,3 @@ function cms_field_to_lbf($data_type, $field_id, &$fldarr)
     }
     return $newvalue;
 }
-?>

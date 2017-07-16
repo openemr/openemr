@@ -69,4 +69,3 @@ class C_FormProsthesis extends Controller {
     }
 
 }
-?>
