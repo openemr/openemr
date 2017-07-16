@@ -670,8 +670,7 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
 
     //fetch acl for category of given encounter
     $pc_catid = fetchCategoryIdByEncounter($encounter);
-    $postCalendarCategoryACO = fetchPostCalendarCategoryACO($pc_catid);
-    $postCalendarCategoryACO = explode('|',$postCalendarCategoryACO);
+    $postCalendarCategoryACO = explode('|',fetchPostCalendarCategoryACO($pc_catid));
     $authPostCalendarCategory = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
     $authPostCalendarCategoryWrite = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1],'','write');
 
