@@ -7,6 +7,5 @@ php:
 env:
       - CI_JOB=lint_syntax
       - CI_JOB=lint_style
-
 script:
       - bash ci/ci.sh --dir ./
