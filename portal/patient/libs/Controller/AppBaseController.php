@@ -3,7 +3,7 @@
 
 /** import supporting libraries */
 require_once("verysimple/Phreeze/Controller.php");
-require_once (dirname( __FILE__ )."/../../../lib/appsql.class.php" );
+require_once(dirname(__FILE__)."/../../../lib/appsql.class.php");
 /**
  * AppBaseController is a base class Controller class from which
  * the front controllers inherit.  it is not necessary to use this
@@ -36,7 +36,6 @@ class AppBaseController extends Controller
 			require_once("App/SecureApp.php");
 			$this->RequirePermission(SecureApp::$PERMISSION_ADMIN,'SecureApp.LoginForm');
 		}*/
-
     }
 
     /**
@@ -74,9 +73,9 @@ class AppBaseController extends Controller
      * @param string $prop
      * @param string $default
      */
-    protected function SafeGetVal($json, $prop, $default='')
+    protected function SafeGetVal($json, $prop, $default = '')
     {
-        return (property_exists($json,$prop))
+        return (property_exists($json, $prop))
             ? $json->$prop
             : $default;
     }
@@ -87,7 +86,7 @@ class AppBaseController extends Controller
      */
     protected function RenderExceptionJSON(Exception $exception)
     {
-        $this->RenderErrorJSON($exception->getMessage(),null,$exception);
+        $this->RenderErrorJSON($exception->getMessage(), null, $exception);
     }
 
     /**
@@ -102,22 +101,17 @@ class AppBaseController extends Controller
         $err->message = $message;
         $err->errors = array();
 
-        if ($errors != null)
-        {
-            foreach ($errors as $key=>$val)
-            {
+        if ($errors != null) {
+            foreach ($errors as $key => $val) {
                 $err->errors[lcfirst($key)] = $val;
             }
         }
 
-        if ($exception)
-        {
-            $err->stackTrace = explode("\n#", substr($exception->getTraceAsString(),1) );
+        if ($exception) {
+            $err->stackTrace = explode("\n#", substr($exception->getTraceAsString(), 1));
         }
 
         @header('HTTP/1.1 401 Unauthorized');
-        $this->RenderJSON($err,RequestUtil::Get('callback'));
+        $this->RenderJSON($err, RequestUtil::Get('callback'));
     }
-
 }
-?>

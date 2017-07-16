@@ -41,8 +41,10 @@ if ($formid) {
     $sql = "SELECT * FROM `form_functional_cognitive_status` WHERE id=? AND pid = ? AND encounter = ?";
     $res = sqlStatement($sql, array($formid,$_SESSION["pid"], $_SESSION["encounter"]));
 
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
+    }
+
     $check_res = $all;
 }
 
@@ -181,7 +183,9 @@ $check_res = $formid ? $check_res : array();
                         </td>
                         <td align="left" class="forms"><?php echo xlt('Active'); ?>:</td>
                         <td>
-                            <input type="checkbox" name="activity[]" onclick="checkVal(this.id);" id="activity_<?php echo $key + 1; ?>" value="<?php echo text($obj{"activity"}); ?>" <?php if ($obj{"activity"} == 1) echo "checked='checked'" ?> class="activity">
+                            <input type="checkbox" name="activity[]" onclick="checkVal(this.id);" id="activity_<?php echo $key + 1; ?>" value="<?php echo text($obj{"activity"}); ?>" <?php if ($obj{"activity"} == 1) {
+                                echo "checked='checked'";
+} ?> class="activity">
                             <input type="hidden" name="activity1[]" id="activity1_<?php echo $key + 1; ?>" value="<?php echo text($obj{"activity"}); ?>" class="activity1">
                         </td>
                         <td>
@@ -218,8 +222,8 @@ $check_res = $formid ? $check_res : array();
                     <img src='../../pic/remove.png' onclick="deleteRow(this.parentElement.parentElement.id);" align='absbottom' width='24' height='22' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to delete the row'); ?>'>
                 </td>
             </tr>
-            <?php }
-    ?>
+            <?php
+            } ?>
 
     <tr>
         <td align="left" colspan="5" style="padding-bottom:7px;"></td>

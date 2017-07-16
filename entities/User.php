@@ -25,12 +25,14 @@ use Doctrine\ORM\Mapping\GeneratedValue;
  * @Table(name="users")
  * @Entity(repositoryClass="repositories\UserRepository")
  */
-class User {
+class User
+{
     /**
      * Default constructor.
      */
     public function __construct()
-    {}
+    {
+    }
 
     /**
      * @Column(name="id", type="integer")

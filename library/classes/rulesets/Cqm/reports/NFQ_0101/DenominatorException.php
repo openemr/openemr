@@ -29,7 +29,7 @@ class NFQ_0101_DenominatorException implements CqmFilterIF
         return "DenominatorException";
     }
     
-    public function test( CqmPatient $patient, $beginDate, $endDate )
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         //Risk Category Assessment not done: Medical Reasons and Risk Category Assessment: Patient Not Ambulatory with their identifying
         //SNOMEDCT(160685001) code to support a Denominator Exception in the measure when chosen for a patient.
@@ -47,10 +47,10 @@ class NFQ_0101_DenominatorException implements CqmFilterIF
                             "AND ( prc.procedure_code = '160685001' OR  prc.procedure_code = '161590003' OR prc.procedure_code = '183932001' OR prc.procedure_code = '183964008' OR prc.procedure_code = '183966005' OR prc.procedure_code = '216952002' OR prc.procedure_code = '266721009' OR prc.procedure_code = '269191009' ) ".
                             "AND prc.procedure_order_title = 'Risk Category Assessment'";
         
-        $check = sqlQuery( $riskCatAssessQry, array($beginDate, $endDate, $patient->id) );
-        if ($check['cnt'] > 0){
+        $check = sqlQuery($riskCatAssessQry, array($beginDate, $endDate, $patient->id));
+        if ($check['cnt'] > 0) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }

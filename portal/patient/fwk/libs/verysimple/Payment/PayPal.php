@@ -4,7 +4,7 @@
 /**
  * import supporting libraries
  */
-require_once ("PaymentProcessor.php");
+require_once("PaymentProcessor.php");
 
 /**
  * PayPal extends the generic PaymentProcessor object to process
@@ -16,7 +16,8 @@ require_once ("PaymentProcessor.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.1
  */
-class PayPal extends PaymentProcessor {
+class PayPal extends PaymentProcessor
+{
     // used by paypal - 'sandbox' or 'beta-sandbox' or 'live'
     private $environment = 'sandbox';
     
@@ -38,12 +39,12 @@ class PayPal extends PaymentProcessor {
      */
     function Refund(RefundRequest $req)
     {
-        $resp = new PaymentResponse ();
+        $resp = new PaymentResponse();
         $resp->OrderNumber = $req->InvoiceId;
         
-        $nvpStr = "&TRANSACTIONID=" . urlencode ( $req->TransactionId );
+        $nvpStr = "&TRANSACTIONID=" . urlencode($req->TransactionId);
         
-        $nvpStr .= "&CURRENCYCODE=" . urlencode ( $req->TransactionCurrency );
+        $nvpStr .= "&CURRENCYCODE=" . urlencode($req->TransactionCurrency);
         
         if ($req->RefundType == RefundRequest::$REFUND_TYPE_PARTIAL) {
             if (! $req->RefundAmount) {
@@ -51,22 +52,24 @@ class PayPal extends PaymentProcessor {
                 $resp->ResponseMessage = "RefundAmount is required for partial refund";
                 return $resp;
             }
-            $nvpStr .= "&REFUNDTYPE=Partial&AMT=" . urldecode ( $req->RefundAmount );
+
+            $nvpStr .= "&REFUNDTYPE=Partial&AMT=" . urldecode($req->RefundAmount);
         } else {
             $nvpStr .= "&REFUNDTYPE=Full";
         }
         
-        if ($req->Memo)
-            $nvpStr .= "&NOTE=" . urlencode ( $req->Memo );
+        if ($req->Memo) {
+            $nvpStr .= "&NOTE=" . urlencode($req->Memo);
+        }
         
-        if ($req->InvoiceId)
-            $nvpStr .= "&INVOICEID=" . urlencode ( $req->InvoiceId );
+        if ($req->InvoiceId) {
+            $nvpStr .= "&INVOICEID=" . urlencode($req->InvoiceId);
+        }
             
             // Execute the API operation
-        $resp->RawResponse = $this->PPHttpPost ( 'RefundTransaction', $nvpStr );
+        $resp->RawResponse = $this->PPHttpPost('RefundTransaction', $nvpStr);
         
-        if ("SUCCESS" == strtoupper ( $resp->RawResponse ["ACK"] ) || "SUCCESSWITHWARNING" == strtoupper ( $resp->RawResponse ["ACK"] )) {
-            
+        if ("SUCCESS" == strtoupper($resp->RawResponse ["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($resp->RawResponse ["ACK"])) {
             /*
 			 * SAMPLE SUCCESS RESPONSE
 			 * Array (
@@ -86,7 +89,7 @@ class PayPal extends PaymentProcessor {
             $resp->IsSuccess = true;
             $resp->TransactionId = $resp->RawResponse ['REFUNDTRANSACTIONID'];
             $resp->OrderNumber = $req->InvoiceId;
-            $resp->ResponseMessage = urldecode ( $resp->RawResponse ['GROSSREFUNDAMT'] . ' ' . $resp->RawResponse ['CURRENCYCODE'] ) . " was sucessfully refunded.";
+            $resp->ResponseMessage = urldecode($resp->RawResponse ['GROSSREFUNDAMT'] . ' ' . $resp->RawResponse ['CURRENCYCODE']) . " was sucessfully refunded.";
         } else {
             /*
 			 * SAMPLE ERROR RESPONSE:
@@ -103,14 +106,14 @@ class PayPal extends PaymentProcessor {
 			 */
             
             $resp->IsSuccess = false;
-            $resp->ResponseCode = urldecode ( $this->GetArrayVal ( $resp->RawResponse, "L_ERRORCODE0" ) );
-            $resp->ResponseMessage = $this->GetErrorMessage ( $resp->RawResponse );
+            $resp->ResponseCode = urldecode($this->GetArrayVal($resp->RawResponse, "L_ERRORCODE0"));
+            $resp->ResponseMessage = $this->GetErrorMessage($resp->RawResponse);
         }
         
         $resp->ParsedResponse = "";
         $delim = "";
-        foreach ( array_keys ( $resp->RawResponse ) as $key ) {
-            $resp->ParsedResponse .= $delim . $key . "='" . urldecode ( $resp->RawResponse [$key] ) . "'";
+        foreach (array_keys($resp->RawResponse) as $key) {
+            $resp->ParsedResponse .= $delim . $key . "='" . urldecode($resp->RawResponse [$key]) . "'";
             $delim = ", ";
         }
         
@@ -126,7 +129,7 @@ class PayPal extends PaymentProcessor {
      */
     function Process(PaymentRequest $req)
     {
-        $resp = new PaymentResponse ();
+        $resp = new PaymentResponse();
         $resp->OrderNumber = $req->OrderNumber;
         
         // before bothering with contacting the processor, check for some basic fields
@@ -146,68 +149,69 @@ class PayPal extends PaymentProcessor {
         
         // post to paypal service
         // Set request-specific fields.
-        $paymentType = $req->TransactionType == PaymentRequest::$TRANSACTION_TYPE_AUTH_CAPTURE ? urlencode ( 'Sale' ) : urlencode ( 'Authorization' );
-        $firstName = urlencode ( $req->CustomerFirstName );
-        $lastName = urlencode ( $req->CustomerLastName );
-        $creditCardType = urlencode ( trim ( $req->CCType ) );
-        $creditCardNumber = urlencode ( trim ( $req->CCNumber ) );
+        $paymentType = $req->TransactionType == PaymentRequest::$TRANSACTION_TYPE_AUTH_CAPTURE ? urlencode('Sale') : urlencode('Authorization');
+        $firstName = urlencode($req->CustomerFirstName);
+        $lastName = urlencode($req->CustomerLastName);
+        $creditCardType = urlencode(trim($req->CCType));
+        $creditCardNumber = urlencode(trim($req->CCNumber));
         
         // month needs to be two digits - padded with leading zero if necessary
-        $padDateMonth = urlencode ( trim ( str_pad ( $req->CCExpMonth, 2, '0', STR_PAD_LEFT ) ) );
+        $padDateMonth = urlencode(trim(str_pad($req->CCExpMonth, 2, '0', STR_PAD_LEFT)));
         
         // year needs to be full 4-digit
-        $expDateYear = urlencode ( $this->GetFullYear ( trim ( $req->CCExpYear ) ) );
+        $expDateYear = urlencode($this->GetFullYear(trim($req->CCExpYear)));
         
-        $email = (urlencode ( $req->CustomerEmail ));
-        $invoiceNum = (urlencode ( $req->InvoiceNumber ));
-        $orderDesc = (urlencode ( $req->OrderDescription ));
-        $cvv2Number = urlencode ( $req->CCSecurityCode );
-        $address1 = urlencode ( $req->CustomerStreetAddress );
-        $address2 = urlencode ( $req->CustomerStreetAddress2 );
-        $city = urlencode ( $req->CustomerCity );
-        $state = urlencode ( $req->CustomerState );
-        $zip = urlencode ( $req->CustomerZipCode );
-        $amount = urlencode ( $req->TransactionAmount );
-        $currencyID = urlencode ( $req->TransactionCurrency ); // or other currency ('GBP', 'EUR', 'JPY', 'CAD', 'AUD')
+        $email = (urlencode($req->CustomerEmail));
+        $invoiceNum = (urlencode($req->InvoiceNumber));
+        $orderDesc = (urlencode($req->OrderDescription));
+        $cvv2Number = urlencode($req->CCSecurityCode);
+        $address1 = urlencode($req->CustomerStreetAddress);
+        $address2 = urlencode($req->CustomerStreetAddress2);
+        $city = urlencode($req->CustomerCity);
+        $state = urlencode($req->CustomerState);
+        $zip = urlencode($req->CustomerZipCode);
+        $amount = urlencode($req->TransactionAmount);
+        $currencyID = urlencode($req->TransactionCurrency); // or other currency ('GBP', 'EUR', 'JPY', 'CAD', 'AUD')
                                                             
         // soft descriptor can only be a max of 22 chars with no non-alphanumeric characters
-        $softdescriptor = urlencode ( substr ( preg_replace ( "/[^a-zA-Z0-9\s]/", "", $req->SoftDescriptor ), 0, 22 ) );
+        $softdescriptor = urlencode(substr(preg_replace("/[^a-zA-Z0-9\s]/", "", $req->SoftDescriptor), 0, 22));
         
         // legit country code list: https://cms.paypal.com/us/cgi-bin/?&cmd=_render-content&content_ID=developer/e_howto_api_nvp_country_codes
-        $country = urlencode ( strtoupper ( $req->CustomerCountry ) ); // US or other valid country code
-        if ($country == "USA")
+        $country = urlencode(strtoupper($req->CustomerCountry)); // US or other valid country code
+        if ($country == "USA") {
             $country = "US";
+        }
             
             // Add request-specific fields to the request string.
         $nvpStr = "&PAYMENTACTION=$paymentType&AMT=$amount&CREDITCARDTYPE=$creditCardType&ACCT=$creditCardNumber" . "&EXPDATE=$padDateMonth$expDateYear&CVV2=$cvv2Number&FIRSTNAME=$firstName&LASTNAME=$lastName" . "&STREET=$address1&CITY=$city&STATE=$state&ZIP=$zip&COUNTRYCODE=$country&CURRENCYCODE=$currencyID" . "&DESC=$orderDesc&INVNUM=$invoiceNum&EMAIL=$email&SOFTDESCRIPTOR=$softdescriptor";
         
         // make the post - use a try/catch in case of network errors
         try {
-            $resp->RawResponse = $this->PPHttpPost ( 'DoDirectPayment', $nvpStr );
+            $resp->RawResponse = $this->PPHttpPost('DoDirectPayment', $nvpStr);
             
-            if ("SUCCESS" == strtoupper ( $resp->RawResponse ["ACK"] ) || "SUCCESSWITHWARNING" == strtoupper ( $resp->RawResponse ["ACK"] )) {
+            if ("SUCCESS" == strtoupper($resp->RawResponse ["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($resp->RawResponse ["ACK"])) {
                 $resp->IsSuccess = true;
-                $resp->TransactionId = urldecode ( $this->GetArrayVal ( $resp->RawResponse, "TRANSACTIONID" ) );
-                $resp->ResponseCode = urldecode ( "AVSCODE=" . $this->GetArrayVal ( $resp->RawResponse, "AVSCODE" ) . ",CVV2MATCH=" . $this->GetArrayVal ( $resp->RawResponse, "CVV2MATCH" ) );
-                $resp->ResponseMessage = urldecode ( "Charge of " . $this->GetArrayVal ( $resp->RawResponse, "AMT" ) . " Posted" );
+                $resp->TransactionId = urldecode($this->GetArrayVal($resp->RawResponse, "TRANSACTIONID"));
+                $resp->ResponseCode = urldecode("AVSCODE=" . $this->GetArrayVal($resp->RawResponse, "AVSCODE") . ",CVV2MATCH=" . $this->GetArrayVal($resp->RawResponse, "CVV2MATCH"));
+                $resp->ResponseMessage = urldecode("Charge of " . $this->GetArrayVal($resp->RawResponse, "AMT") . " Posted");
             } else {
                 // for error descriptions, refrer to https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_nvp_errorcodes
                 $resp->IsSuccess = false;
-                $resp->ResponseCode = urldecode ( $this->GetArrayVal ( $resp->RawResponse, "L_ERRORCODE0" ) );
-                $resp->ResponseMessage = $this->GetErrorMessage ( $resp->RawResponse );
+                $resp->ResponseCode = urldecode($this->GetArrayVal($resp->RawResponse, "L_ERRORCODE0"));
+                $resp->ResponseMessage = $this->GetErrorMessage($resp->RawResponse);
             }
             
             $resp->ParsedResponse = "";
             $delim = "";
-            foreach ( array_keys ( $resp->RawResponse ) as $key ) {
-                $resp->ParsedResponse .= $delim . $key . "='" . urldecode ( $resp->RawResponse [$key] ) . "'";
+            foreach (array_keys($resp->RawResponse) as $key) {
+                $resp->ParsedResponse .= $delim . $key . "='" . urldecode($resp->RawResponse [$key]) . "'";
                 $delim = ", ";
             }
-        } catch ( Exception $ex ) {
+        } catch (Exception $ex) {
             // this means we had a connection error talking to the gateway
             $resp->IsSuccess = false;
-            $resp->ResponseCode = $ex->getCode ();
-            $resp->ResponseMessage = $ex->getMessage ();
+            $resp->ResponseCode = $ex->getCode();
+            $resp->ResponseMessage = $ex->getMessage();
         }
         
         return $resp;
@@ -236,13 +240,13 @@ class PayPal extends PaymentProcessor {
 		 * [CURRENCYCODE] => USD
 		 * )
 		 */
-        $errmsg = $this->GetArrayVal ( $httpParsedResponseAr, "L_SHORTMESSAGE0" ) . ": ";
+        $errmsg = $this->GetArrayVal($httpParsedResponseAr, "L_SHORTMESSAGE0") . ": ";
         
         // figure out the message as PayPal reports it
-        $longmessage = $this->GetArrayVal ( $httpParsedResponseAr, "L_LONGMESSAGE0" );
+        $longmessage = $this->GetArrayVal($httpParsedResponseAr, "L_LONGMESSAGE0");
         
         // paypal prepends this to every message, so strip it out
-        $longmessage = str_replace ( "This%20transaction%20cannot%20be%20processed%2e", "", $longmessage );
+        $longmessage = str_replace("This%20transaction%20cannot%20be%20processed%2e", "", $longmessage);
         
         if ($longmessage != "") {
             // this will generally be the best description of the error
@@ -251,20 +255,20 @@ class PayPal extends PaymentProcessor {
             // paypal didn't give a simple error description so we have to try to decipher the gateway response
             
             // this is the response code from the gateway
-            $processor_code = $this->GetArrayVal ( $httpParsedResponseAr, "L_ERRORPARAMVALUE0" );
+            $processor_code = $this->GetArrayVal($httpParsedResponseAr, "L_ERRORPARAMVALUE0");
             
             if ($processor_code) {
                 // this will usually be "ProcessorResponse" in which case we don't need to display it
-                $processor_prefix = $this->GetArrayVal ( $httpParsedResponseAr, "L_ERRORPARAMID0" );
+                $processor_prefix = $this->GetArrayVal($httpParsedResponseAr, "L_ERRORPARAMID0");
                 $processor_prefix = ($processor_prefix == "ProcessorResponse") ? '' : $processor_prefix . ' - ';
                 
-                $processor_message = $processor_prefix . $this->getProcessorResponseDescription ( $processor_code );
+                $processor_message = $processor_prefix . $this->getProcessorResponseDescription($processor_code);
                 
                 $errmsg .= $processor_message;
             }
         }
         
-        return urldecode ( $errmsg );
+        return urldecode($errmsg);
     }
     
     /**
@@ -278,7 +282,7 @@ class PayPal extends PaymentProcessor {
      */
     private function GetArrayVal($arr, $key, $not_defined_val = "")
     {
-        return array_key_exists ( $key, $arr ) ? $arr [$key] : $not_defined_val;
+        return array_key_exists($key, $arr) ? $arr [$key] : $not_defined_val;
     }
     
     /**
@@ -295,9 +299,9 @@ class PayPal extends PaymentProcessor {
     {
         
         // Set up your API credentials, PayPal end point, and API version.
-        $API_UserName = urlencode ( $this->Username );
-        $API_Password = urlencode ( $this->Password );
-        $API_Signature = urlencode ( $this->Signature );
+        $API_UserName = urlencode($this->Username);
+        $API_Password = urlencode($this->Password);
+        $API_Signature = urlencode($this->Signature);
         $API_Endpoint = "https://api-3t.paypal.com/nvp";
         
         if ("sandbox" === $this->environment || "beta-sandbox" === $this->environment) {
@@ -305,46 +309,46 @@ class PayPal extends PaymentProcessor {
         }
         
         // $version = urlencode('51.0');
-        $version = urlencode ( '62.0' );
+        $version = urlencode('62.0');
         
         // Set the curl parameters.
-        $ch = curl_init ();
-        curl_setopt ( $ch, CURLOPT_URL, $API_Endpoint );
-        curl_setopt ( $ch, CURLOPT_VERBOSE, 1 );
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $API_Endpoint);
+        curl_setopt($ch, CURLOPT_VERBOSE, 1);
         
         // Turn off the server and peer verification (TrustManager Concept).
-        curl_setopt ( $ch, CURLOPT_SSL_VERIFYPEER, false );
-        curl_setopt ( $ch, CURLOPT_SSL_VERIFYHOST, false );
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         
-        curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt ( $ch, CURLOPT_POST, 1 );
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
         
         // Set the API operation, version, and API signature in the request.
         $nvpreq = "METHOD=$methodName_&VERSION=$version&PWD=$API_Password&USER=$API_UserName&SIGNATURE=$API_Signature$nvpStr_";
         
         // Set the request as a POST FIELD for curl.
-        curl_setopt ( $ch, CURLOPT_POSTFIELDS, $nvpreq );
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $nvpreq);
         
         // Get response from the server.
-        $httpResponse = curl_exec ( $ch );
+        $httpResponse = curl_exec($ch);
         
         if (! $httpResponse) {
-            throw new Exception ( "$methodName_ failed: " . curl_error ( $ch ) . '(' . curl_errno ( $ch ) . ')' );
+            throw new Exception("$methodName_ failed: " . curl_error($ch) . '(' . curl_errno($ch) . ')');
         }
         
         // Extract the response details.
-        $httpResponseAr = explode ( "&", $httpResponse );
+        $httpResponseAr = explode("&", $httpResponse);
         
         $httpParsedResponseAr = array ();
-        foreach ( $httpResponseAr as $i => $value ) {
-            $tmpAr = explode ( "=", $value );
-            if (sizeof ( $tmpAr ) > 1) {
+        foreach ($httpResponseAr as $i => $value) {
+            $tmpAr = explode("=", $value);
+            if (sizeof($tmpAr) > 1) {
                 $httpParsedResponseAr [$tmpAr [0]] = $tmpAr [1];
             }
         }
         
-        if ((0 == sizeof ( $httpParsedResponseAr )) || ! array_key_exists ( 'ACK', $httpParsedResponseAr )) {
-            throw new Exception ( "Invalid HTTP Response for POST request($nvpreq) to $API_Endpoint." );
+        if ((0 == sizeof($httpParsedResponseAr)) || ! array_key_exists('ACK', $httpParsedResponseAr)) {
+            throw new Exception("Invalid HTTP Response for POST request($nvpreq) to $API_Endpoint.");
         }
         
         return $httpParsedResponseAr;
@@ -380,5 +384,3 @@ class PayPal extends PaymentProcessor {
 		 */
     }
 }
-
-?>

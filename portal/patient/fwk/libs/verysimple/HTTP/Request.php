@@ -4,7 +4,7 @@
 /**
  * import supporting libraries
  */
-require_once ("RequestUtil.php");
+require_once("RequestUtil.php");
 
 /**
  * Static utility class for processing form post/request data
@@ -18,7 +18,6 @@ require_once ("RequestUtil.php");
  * @version 1.0
  * @deprecated User RequestUtil instead to avoid namespace conflicts
  */
-class Request extends RequestUtil {
+class Request extends RequestUtil
+{
 }
-
-?>

@@ -4,7 +4,7 @@
 /**
  * import supporting libraries
  */
-require_once ("EmailMessage");
+require_once("EmailMessage");
 
 /**
  * Generic interface for sending Email.
@@ -18,7 +18,6 @@ require_once ("EmailMessage");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.1
  */
-class Message extends EmailMessage {
+class Message extends EmailMessage
+{
 }
-
-?>

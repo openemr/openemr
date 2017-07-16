@@ -22,19 +22,20 @@
  */
 
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Patient Documents"));
-    $this->assign('nav','onsitedocuments');
+    $this->assign('nav', 'onsitedocuments');
 
     $pid = $this->cpid;
     $recid = $this->recid;
     $docid = $this->docid;
     $encounter= '';
 
-    if(  !$docid )
-         $docid = 'Hipaa_Document';
+if (!$docid) {
+     $docid = 'Hipaa_Document';
+}
 
     $isnew = false;
-    $ptName = isset ($_SESSION['ptName']) ? $_SESSION['ptName'] : $pid;
-    $cuser = isset ( $_SESSION ['sessionUser'] ) ? $_SESSION ['sessionUser'] : $_SESSION ['authUserID'];
+    $ptName = isset($_SESSION['ptName']) ? $_SESSION['ptName'] : $pid;
+    $cuser = isset($_SESSION ['sessionUser']) ? $_SESSION ['sessionUser'] : $_SESSION ['authUserID'];
     echo "<script>var cpid='" . attr($pid) . "';var cuser='" . attr($cuser) . "';var ptName='" . attr($ptName) . "';</script>";
     echo "<script>var recid='" . attr($recid) . "';var docid='" . attr($docid) . "';var webRoot='" . $GLOBALS['web_root'] . "';var isNewDoc='" . attr($isnew) . "';</script>";
     echo "<script>var alertMsg1='" . xlt("Saved to Documents->Onsite Portal->Reviewed - Open there to move or rename.") . "';</script>";
@@ -287,7 +288,7 @@ body {
             <!--<img class='pull-left' style='width:14%;height:auto;margin-right:10px;' class='logo' src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png'/>-->
             <ul class="nav nav-pills"  style='margin-top:5px'>
                 <li class="page-header" style='margin-left:10px;'><h4><a href="javascript:location.reload(true);"><?php echo xla('Attention: Pending Documents') . '>'?></a></h4></li>
-                <?php require_once(dirname( __FILE__ ) . '/../../lib/template_menu.php');?>
+                <?php require_once(dirname(__FILE__) . '/../../lib/template_menu.php');?>
                 <li class="bg-danger"><a href="#"    onclick='window.location.replace("./../home.php")'><?php echo xlt('Return Home');?></a></li>
             </ul>
             <div id="collectionAlert"></div>

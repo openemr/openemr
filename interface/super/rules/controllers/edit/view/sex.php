@@ -9,14 +9,14 @@
 <p class="row">
     <span class="left_col colhead req" data-fld="fld_sex"><?php echo xl('Sex');?></span>
     <span class="end_col">
-    <?php echo render_select( array( "target"   =>  "fld_sex",
+    <?php echo render_select(array( "target"   =>  "fld_sex",
                                      "name"     =>  "fld_sex",
                                      "value"    =>  $criteria->value,
-                                     "options"  =>  $criteria->getOptions() ) ); ?>
+                                     "options"  =>  $criteria->getOptions() )); ?>
     </span>
 </p>
 
 <br/>
 
 <!-- optional/required and inclusion/exclusion fields -->
-<?php echo common_fields( array( "criteria" => $criteria) ); ?>
+<?php echo common_fields(array( "criteria" => $criteria)); ?>

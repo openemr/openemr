@@ -4,12 +4,10 @@ require_once("$srcdir/billing.inc");
 
 if (isset($mode)) {
     if ($mode == "add") {
-        addBilling($encounter, $type, $code, strip_escape_custom($text),$pid, $userauthorized,$_SESSION['authUserID']);
-    }
-    elseif ($mode == "delete") {
+        addBilling($encounter, $type, $code, strip_escape_custom($text), $pid, $userauthorized, $_SESSION['authUserID']);
+    } elseif ($mode == "delete") {
         deleteBilling($id);
-    }
-    elseif ($mode == "clear") {
+    } elseif ($mode == "clear") {
         clearBilling($id);
     }
 }
@@ -24,13 +22,13 @@ if (isset($mode)) {
 
 <a href="encounter_bottom.php" onclick="top.restoreSession()">
 
-<span class=title><?php xl('Billing','e'); ?></span>
+<span class=title><?php xl('Billing', 'e'); ?></span>
 <font class=more><?php echo $tback;?></font></a>
 
 <table border=0 cellpadding=3 cellspacing=0>
 
 <?php
-if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
+if ($result = getBillingByEncounter($pid, $encounter, "*")) {
     $billing_html = array();
     foreach ($result as $iter) {
         if ($iter["code_type"] == "ICD9") {
@@ -41,28 +39,26 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
                 "</a></div></td>\n";
             $billing_html[$iter["code_type"]] .= $html;
             $counter++;
-        }
-        elseif ($iter["code_type"] == "COPAY") {
+        } elseif ($iter["code_type"] == "COPAY") {
             $billing_html[$iter["code_type"]] .= "<tr><td></td>" .
                 "<td><a class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
                 $iter{"code"}."</b> " . ucwords(strtolower($iter{"code_text"})) .
                 "</a></td>\n";
-        }
-        else {
+        } else {
             $billing_html[$iter["code_type"]] .= "<tr><td></td>" .
                 "<td><a class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
                 $iter{"code"} . "</b> " . ucwords(strtolower($iter{"code_text"})) .
                 "</a><span class=\"small\">";
-            $js = explode(":",$iter['justify']);
+            $js = explode(":", $iter['justify']);
             $counter = 0;
             foreach ($js as $j) {
-                if(!empty($j)) {
+                if (!empty($j)) {
                     if ($counter == 0) {
                         $billing_html[$iter["code_type"]] .= " (<b>$j</b>)";
-                    }
-                    else {
+                    } else {
                         $billing_html[$iter["code_type"]] .= " ($j)";
                     }
+
                     $counter++;
                 }
             }

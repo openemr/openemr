@@ -14,7 +14,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-interface IDataDriver {
+interface IDataDriver
+{
     /**
      * returns a string to identify the type of server
      * supported in the implemenation
@@ -185,5 +186,3 @@ interface IDataDriver {
      */
     function RollbackTransaction($connection);
 }
-
-?>

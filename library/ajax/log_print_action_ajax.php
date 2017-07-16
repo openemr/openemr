@@ -32,4 +32,3 @@ $h2t->width = 0;
 $h2t->_convert(false);
 
 newEvent("print", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $h2t->get_text());
-?>

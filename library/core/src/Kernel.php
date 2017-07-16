@@ -82,6 +82,7 @@ class Kernel
         if (!$this->container) {
             $this->prepareContainer();
         }
+
         return $this->container;
     }
 

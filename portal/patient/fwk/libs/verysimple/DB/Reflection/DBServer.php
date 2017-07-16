@@ -4,8 +4,8 @@
 /**
  * import supporting libraries
  */
-require_once ("DBConnection.php");
-require_once ("DBSchema.php");
+require_once("DBConnection.php");
+require_once("DBSchema.php");
 
 /**
  * DBServer is an object representation of a MySQL Server
@@ -16,7 +16,8 @@ require_once ("DBSchema.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class DBServer {
+class DBServer
+{
     public $Connection;
     public $SchemaName;
     
@@ -40,14 +41,12 @@ class DBServer {
      */
     function GetSchema()
     {
-        $this->Connection->Connect ();
+        $this->Connection->Connect();
         
-        $schema = new DBSchema ( $this );
+        $schema = new DBSchema($this);
         
-        $this->Connection->Disconnect ();
+        $this->Connection->Disconnect();
         
         return $schema;
     }
 }
-
-?>

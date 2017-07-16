@@ -28,29 +28,42 @@ de_identification_screen1.php  */
 $begin_date = $_POST["begin_date"];
 $end_date = $_POST["end_date"];
 
-if ($_POST["unstructured"])
-$include_unstructured = 1;
-else
-$include_unstructured = 0;
+if ($_POST["unstructured"]) {
+    $include_unstructured = 1;
+} else {
+    $include_unstructured = 0;
+}
 
-if ($_POST["all"])
-$include_tables = "all";
-else
-{
-    if ($_POST["history_data"])
-    $include_tables = $include_tables . $_POST["history_data"]. "#";
-    if ($_POST["prescriptions"])
-    $include_tables = $include_tables . $_POST["prescriptions"]. "#";
-    if ($_POST["immunization"])
-    $include_tables = $include_tables . $_POST["immunization"]. "#";
-    if ($_POST["lists"])
-    $include_tables = $include_tables . $_POST["lists"]. "#";
-    if ($_POST["transactions"])
-    $include_tables = $include_tables . $_POST["transactions"]. "#";
-    if ($_POST["insurance_data"])
-    $include_tables = $include_tables . $_POST["insurance_data"]. "#";
-    if ($_POST["billing_data"])
-    $include_tables = $include_tables . "billing#payments";
+if ($_POST["all"]) {
+    $include_tables = "all";
+} else {
+    if ($_POST["history_data"]) {
+        $include_tables = $include_tables . $_POST["history_data"]. "#";
+    }
+
+    if ($_POST["prescriptions"]) {
+        $include_tables = $include_tables . $_POST["prescriptions"]. "#";
+    }
+
+    if ($_POST["immunization"]) {
+        $include_tables = $include_tables . $_POST["immunization"]. "#";
+    }
+
+    if ($_POST["lists"]) {
+        $include_tables = $include_tables . $_POST["lists"]. "#";
+    }
+
+    if ($_POST["transactions"]) {
+        $include_tables = $include_tables . $_POST["transactions"]. "#";
+    }
+
+    if ($_POST["insurance_data"]) {
+        $include_tables = $include_tables . $_POST["insurance_data"]. "#";
+    }
+
+    if ($_POST["billing_data"]) {
+        $include_tables = $include_tables . "billing#payments";
+    }
 }
 
 $diagnosis_text = $_POST["diagnosis_text"];
@@ -59,8 +72,7 @@ $immunization_text = $_POST["immunization_text"];
 
 $query = "select status from de_identification_status";
 $res = sqlStatement($query);
-if ($row = sqlFetchArray($res))
-{
+if ($row = sqlFetchArray($res)) {
     $deIdentificationStatus = addslashes($row['status']);
  /* $deIdentificationStatus:
  *  0 - There is no De Identification in progress. (start new De Identification process)
@@ -70,8 +82,7 @@ if ($row = sqlFetchArray($res))
  */
 }
 
-if($deIdentificationStatus == 0)
-{
+if ($deIdentificationStatus == 0) {
  //0 - There is no De Identification in progress. (start new De Identification process)
         ?>
 <html>
@@ -95,17 +106,16 @@ if($deIdentificationStatus == 0)
 
     $query = "SELECT count(*) as count FROM metadata_de_identification";
     $res = sqlStatement($query);
-    if ($row = sqlFetchArray($res))
-    {
+    if ($row = sqlFetchArray($res)) {
         $no_of_items = addslashes($row['count']);
-        if($no_of_items == 0)
-        {
+        if ($no_of_items == 0) {
             $cmd="cp ".$GLOBALS['webserver_root']."/sql/metadata_de_identification.txt ".$GLOBALS['temporary_files_dir']."/metadata_de_identification.txt";
             $output3=shell_exec($cmd);
             $query = "LOAD DATA INFILE '".$GLOBALS['temporary_files_dir']."/metadata_de_identification.txt' INTO TABLE metadata_de_identification FIELDS TERMINATED BY ','  LINES TERMINATED BY '\n'";
             $res = sqlStatement($query);
         }
     }
+
     //create transaction tables
     $query = "call create_transaction_tables()";
     $res = sqlStatement($query);
@@ -127,29 +137,24 @@ if($deIdentificationStatus == 0)
     $query = "update de_identification_status set status = 1";
     $res = sqlStatement($query);
 
-    try
-    {
+    try {
         //call procedure - execute in background
         $sh_cmd='./de_identification_procedure.sh '.$sqlconf["host"].' '.$sqlconf["login"].' '.$sqlconf["pass"].' '.$sqlconf["dbase"].' &';
-        system ($sh_cmd);
+        system($sh_cmd);
 
 
         $query = "SELECT status FROM de_identification_status ";
         $res = sqlStatement($query);
-        if ($row = sqlFetchArray($res))
-        {
+        if ($row = sqlFetchArray($res)) {
             $de_identification_status = addslashes($row['status']);
-            if($de_identification_status == 2 || $de_identification_status == 3)
-            {
+            if ($de_identification_status == 2 || $de_identification_status == 3) {
              //2 - The De Identification process completed and xls file is ready to download
              //3 - The De Identification process completed with error
                 $query = "SELECT count(*) as count FROM de_identified_data ";
                 $res = sqlStatement($query);
-                if ($row = sqlFetchArray($res))
-                {
+                if ($row = sqlFetchArray($res)) {
                     $no_of_items = addslashes($row['count']);
-                    if($no_of_items <= 1)
-                    {
+                    if ($no_of_items <= 1) {
                         ?>
     <table>
     <tr>
@@ -190,17 +195,15 @@ if($deIdentificationStatus == 0)
     </table>
 
         <?php
-                    }
-                    else
-                    {   //delete old de_identified_data.xls file
+                    } else {   //delete old de_identified_data.xls file
                         $timestamp=0;
                         $query = "select now() as timestamp";
                         $res = sqlStatement($query);
-                        if ($row = sqlFetchArray($res))
-                        {
+                        if ($row = sqlFetchArray($res)) {
                             $timestamp = addslashes($row['timestamp']);
                         }
-                        $timestamp = str_replace(" ","_",$timestamp);
+
+                        $timestamp = str_replace(" ", "_", $timestamp);
                         $de_identified_file = $GLOBALS['temporary_files_dir']."/de_identified_data".$timestamp.".xls";
                         $query = "update de_identification_status set last_available_de_identified_data_file = '" . $de_identified_file . "'";
                         $res = sqlStatement($query);
@@ -248,27 +251,22 @@ if($deIdentificationStatus == 0)
                 }
             }
         }
-    }
-    catch (Exception $e)
-    {
+    } catch (Exception $e) {
         //error status
         $query = "update de_identification_status set status = 3";
         $res = sqlStatement($query);
     }
-}
-else if($deIdentificationStatus == 2 or $deIdentificationStatus == 3)
-{
+} else if ($deIdentificationStatus == 2 or $deIdentificationStatus == 3) {
  //2 - The De Identification process completed and xls file is ready to download
  //3 - The De Identification process completed with error
     $query = "select last_available_de_identified_data_file from de_identification_status";
     $res = sqlStatement($query);
-    if ($row = sqlFetchArray($res))
-    {
+    if ($row = sqlFetchArray($res)) {
         $filename = addslashes($row['last_available_de_identified_data_file']);
     }
+
     ob_end_clean();
     if (file_exists($filename)) {
-
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
         header('Content-Disposition: attachment; filename='.basename($filename));
@@ -282,7 +280,6 @@ else if($deIdentificationStatus == 2 or $deIdentificationStatus == 3)
         ob_clean();
         flush();
         readfile($filename);
-
     }
 
     //xls file downloaded complete

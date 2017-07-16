@@ -6,17 +6,18 @@
 // as published by the Free Software Foundation; either version 2
 
 
-define("EVENT_VEHICLE",1);
-define("EVENT_WORK_RELATED",2);
-define("EVENT_SLIP_FALL",3);
-define("EVENT_OTHER",4);
+define("EVENT_VEHICLE", 1);
+define("EVENT_WORK_RELATED", 2);
+define("EVENT_SLIP_FALL", 3);
+define("EVENT_OTHER", 4);
 
 
 /**
  * class FormHpTjePrimary
  *
  */
-class FormNursingNotes extends ORDataObject {
+class FormNursingNotes extends ORDataObject
+{
 
     /**
      *
@@ -43,12 +44,11 @@ class FormNursingNotes extends ORDataObject {
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormNursingNotes($id= "", $_prefix = "")
+    function FormNursingNotes($id = "", $_prefix = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;
-        }
-        else {
+        } else {
             $id = "";
             $this->date = date("Y-m-d H:i:s");
         }
@@ -74,8 +74,7 @@ class FormNursingNotes extends ORDataObject {
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }
@@ -116,7 +115,7 @@ class FormNursingNotes extends ORDataObject {
     }
     function set_user($u)
     {
-        if(!empty($u)){
+        if (!empty($u)) {
             $this->user = $u;
         }
     }
@@ -138,7 +137,7 @@ class FormNursingNotes extends ORDataObject {
     }
     function set_assessment($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->assessment = $data;
         }
     }
@@ -149,7 +148,7 @@ class FormNursingNotes extends ORDataObject {
     }
     function set_procedures($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->procedures = $data;
         }
     }
@@ -160,7 +159,7 @@ class FormNursingNotes extends ORDataObject {
     }
     function set_discharge($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->discharge = $data;
         }
     }
@@ -170,5 +169,3 @@ class FormNursingNotes extends ORDataObject {
         parent::persist();
     }
 }   // end of Form
-
-?>

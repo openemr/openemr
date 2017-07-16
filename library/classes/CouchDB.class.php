@@ -25,7 +25,8 @@
 //
 // +------------------------------------------------------------------------------+
 
-class CouchDB {
+class CouchDB
+{
     function __construct()
     {
         $this->host = $GLOBALS['couchdb_host'];
@@ -39,10 +40,11 @@ class CouchDB {
     {
         $resp = $this->send("GET", "/"); // response: string(46) "{"couchdb": "Welcome", "version": "0.7.0a553"}"
         $response = json_decode($resp);
-        if($response->couchdb && $response->version)
-        return true;
-        else
-        return false;
+        if ($response->couchdb && $response->version) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     function createDB($db)
@@ -69,7 +71,7 @@ class CouchDB {
         $couch_json['encounter'] = $encounter;
         $couch_json['mimetype'] = $type;
         $couch_json['data'] = $json;
-        if($th_json) {
+        if ($th_json) {
             $couch_json['th_data'] = $th_json;
         }
 
@@ -87,14 +89,15 @@ class CouchDB {
         $couch_json['encounter'] = $encounter;
         $couch_json['mimetype'] = $type;
         $couch_json['data'] = $json;
-        if($th_json) {
+        if ($th_json) {
             $couch_json['th_data'] = $th_json;
         }
+
         $resp = $this->send("PUT", "/".$db."/".$docid, json_encode($couch_json));
         return json_decode($resp);
     }
 
-    function DeleteDoc($db,$docid,$revid)
+    function DeleteDoc($db, $docid, $revid)
     {
         $resp = $this->send("DELETE", "/".$db."/".$docid."?rev=".$revid);
         return true;
@@ -107,25 +110,25 @@ class CouchDB {
         return json_decode($resp); // string(47) "{"_id":"123","_rev":"2039697587","data":"Foo"}"
     }
 
-    function stringToId( $string, $replace = '_' )
+    function stringToId($string, $replace = '_')
     {
         // First translit string to ASCII, as this characters are most probably
         // supported everywhere
-        $string = iconv( 'UTF-8', 'ASCII//TRANSLIT', $string );
+        $string = iconv('UTF-8', 'ASCII//TRANSLIT', $string);
 
         // And then still replace any obscure characters by _ to ensure nothing
         // "bad" happens with this string.
-        $string = preg_replace( '([^A-Za-z0-9.-]+)', $replace, $string );
+        $string = preg_replace('([^A-Za-z0-9.-]+)', $replace, $string);
 
         // Additionally we convert the string to lowercase, so that we get case
         // insensitive fetching
-        return strtolower( $string );
+        return strtolower($string);
     }
 
     function send($method, $url, $post_data = null)
     {
         $s = fsockopen($this->host, $this->port, $errno, $errstr);
-        if(!$s) {
+        if (!$s) {
             return false;
         }
 
@@ -135,18 +138,17 @@ class CouchDB {
             $request .= 'Authorization: Basic '.base64_encode($this->user.':'.$this->pass)."\r\n";
         }
 
-        if($post_data) {
+        if ($post_data) {
             $request .= "Content-Length: ".strlen($post_data)."\r\n\r\n";
             $request .= "$post_data\r\n";
-        }
-        else {
+        } else {
             $request .= "\r\n";
         }
 
         fwrite($s, $request);
         $response = "";
 
-        while(!feof($s)) {
+        while (!feof($s)) {
             $response .= fgets($s);
         }
 
@@ -154,4 +156,3 @@ class CouchDB {
         return $this->body;
     }
 }
-?>

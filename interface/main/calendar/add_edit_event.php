@@ -54,8 +54,9 @@ require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
 require_once($GLOBALS['srcdir'].'/group.inc');
 
  //Check access control
- if (!acl_check('patients','appt','',array('write','wsome') ))
-   die(xl('Access not allowed'));
+if (!acl_check('patients', 'appt', '', array('write','wsome'))) {
+    die(xl('Access not allowed'));
+}
 
 /* Things that might be passed by our opener. */
  $eid           = $_GET['eid'];         // only for existing events
@@ -63,32 +64,38 @@ require_once($GLOBALS['srcdir'].'/group.inc');
  $userid        = $_GET['userid'];
  $default_catid = $_GET['catid'] ? $_GET['catid'] : '5';
  //
- if ($date)
-  $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
-else
-  $date = date("Y-m-d");
+if ($date) {
+    $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
+} else {
+    $date = date("Y-m-d");
+}
+
  //
  $starttimem = '00';
- if (isset($_GET['starttimem']))
-  $starttimem = substr('00' . $_GET['starttimem'], -2);
+if (isset($_GET['starttimem'])) {
+    $starttimem = substr('00' . $_GET['starttimem'], -2);
+}
+
  //
 if (isset($_GET['starttimeh'])) {
     $starttimeh = $_GET['starttimeh'];
     if (isset($_GET['startampm'])) {
-        if ($_GET['startampm'] == '2' && $starttimeh < 12)
-        $starttimeh += 12;
+        if ($_GET['startampm'] == '2' && $starttimeh < 12) {
+            $starttimeh += 12;
+        }
     }
 } else {
     $starttimeh = date("G");
 }
+
  $startampm = '';
 
  $info_msg = "";
 
     ?>
 
-<?php $g_edit = acl_check("groups","gcalendar",false, 'write');?>
-<?php $g_view = acl_check("groups","gcalendar",false, 'view');?>
+<?php $g_edit = acl_check("groups", "gcalendar", false, 'write');?>
+<?php $g_view = acl_check("groups", "gcalendar", false, 'view');?>
 
 
  <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
@@ -102,33 +109,34 @@ if (isset($_GET['starttimeh'])) {
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
 $have_group_global_enabled = true;
-if ( (!$g_edit && !$g_view) || (!$GLOBALS['enable_group_therapy']) ) {
+if ((!$g_edit && !$g_view) || (!$GLOBALS['enable_group_therapy'])) {
     $_GET['group'] = false;
     $have_group_global_enabled = false;
-
 }
-if($_GET['group'] == true)
+
+if ($_GET['group'] == true) {
     //groups tab
     $collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php?group=true");
-elseif($_GET['prov'])
+} elseif ($_GET['prov']) {
     //providers tab
     $collectthis = '';
-else
-    //patient tab
+} else { //patient tab
     $collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php");
+}
 
 if (empty($collectthis)) {
     $collectthis = "undefined";
-}
-else {
+} else {
     $collectthis = $collectthis[array_keys($collectthis)[0]]["rules"];
 }
 ?>
 <?php $disabled = (!$g_edit && $have_group_global_enabled )?' disabled=true; ':'';?>
-<?php if($disabled) echo '<script>$( document ).ready(function(){
+<?php if ($disabled) {
+    echo '<script>$( document ).ready(function(){
     $("input").prop("disabled", true);
     $("select").prop("disabled", true);
-}) </script>';?>
+}) </script>';
+}?>
 
     <?php
 
@@ -141,9 +149,8 @@ else {
         // multi providers case
         // =======================================
         if (is_array($_POST['form_provider'])) {
-
             // obtain the next available unique key to group multiple providers around some event
-            $q = sqlStatement ("SELECT MAX(pc_multiple) as max FROM openemr_postcalendar_events");
+            $q = sqlStatement("SELECT MAX(pc_multiple) as max FROM openemr_postcalendar_events");
             $max = sqlFetchArray($q);
             $new_multiple_value = $max['max'] + 1;
 
@@ -160,8 +167,11 @@ else {
                 $args['endtime'] = $endtime;
                 $args['locationspec'] = $locationspec;
                 $pc_eid_temp = InsertEvent($args);
-                if($pc_eid == null) $pc_eid = $pc_eid_temp;
+                if ($pc_eid == null) {
+                    $pc_eid = $pc_eid_temp;
+                }
             }
+
             return $pc_eid;
 
 
@@ -189,44 +199,46 @@ else {
          $patient_dob = trim($_POST['form_dob']);
          $tmph = $_POST['form_hour'] + 0;
          $tmpm = $_POST['form_minute'] + 0;
-         if ($_POST['form_ampm'] == '2' && $tmph < 12) $tmph += 12;
+        if ($_POST['form_ampm'] == '2' && $tmph < 12) {
+            $tmph += 12;
+        }
+
          $appttime = "$tmph:$tmpm:00";
 
         if ($patient_dob && $_POST['form_pid']) {
             sqlStatement("UPDATE patient_data SET DOB = ? WHERE " .
-                                    "pid = ?", array($patient_dob,$_POST['form_pid']) );
+                                    "pid = ?", array($patient_dob,$_POST['form_pid']));
         }
 
         // Manage tracker status.
         // And auto-create a new encounter if appropriate.
         if (!empty($_POST['form_pid'])) {
-            if ($GLOBALS['auto_create_new_encounters'] && $event_date == date('Y-m-d') && (is_checkin($_POST['form_apptstatus']) == '1') && !is_tracker_encounter_exist($event_date,$appttime,$_POST['form_pid'],$_GET['eid']))
-            {
+            if ($GLOBALS['auto_create_new_encounters'] && $event_date == date('Y-m-d') && (is_checkin($_POST['form_apptstatus']) == '1') && !is_tracker_encounter_exist($event_date, $appttime, $_POST['form_pid'], $_GET['eid'])) {
                 $encounter = todaysEncounterCheck($_POST['form_pid'], $event_date, $_POST['form_comments'], $_POST['facility'], $_POST['billing_facility'], $_POST['form_provider'], $_POST['form_category'], false);
-                if($encounter){
+                if ($encounter) {
                         $info_msg .= xl("New encounter created with id");
                         $info_msg .= " $encounter";
                 }
+
                  # Capture the appt status and room number for patient tracker. This will map the encounter to it also.
-                if ( isset($GLOBALS['temporary-eid-for-manage-tracker']) || !empty($_GET['eid']) ) {
+                if (isset($GLOBALS['temporary-eid-for-manage-tracker']) || !empty($_GET['eid'])) {
                     // Note that the temporary-eid-for-manage-tracker is used to capture the eid for new appointments and when separate a recurring
                     // appointment. It is set in the InsertEvent() function. Note that in the case of spearating a recurrent appointment, the get eid
                     // parameter is actually erroneous(is eid of the recurrent appt and not the new separated appt), so need to use the
                     // temporary-eid-for-manage-tracker global instead.
                     $temp_eid = (isset($GLOBALS['temporary-eid-for-manage-tracker'])) ? $GLOBALS['temporary-eid-for-manage-tracker'] : $_GET['eid'];
-                    manage_tracker_status($event_date,$appttime,$temp_eid,$_POST['form_pid'],$_SESSION["authUser"],$_POST['form_apptstatus'],$_POST['form_room'],$encounter);
+                    manage_tracker_status($event_date, $appttime, $temp_eid, $_POST['form_pid'], $_SESSION["authUser"], $_POST['form_apptstatus'], $_POST['form_room'], $encounter);
                 }
-            }
-            else
-            {
+            } else {
                     # Capture the appt status and room number for patient tracker.
                 if (!empty($_GET['eid'])) {
-                    manage_tracker_status($event_date,$appttime,$_GET['eid'],$_POST['form_pid'],$_SESSION["authUser"],$_POST['form_apptstatus'],$_POST['form_room']);
+                    manage_tracker_status($event_date, $appttime, $_GET['eid'], $_POST['form_pid'], $_SESSION["authUser"], $_POST['form_apptstatus'], $_POST['form_room']);
                 }
             }
         }
+
         // auto create encounter for therapy group
-        if(!empty($_POST['form_gid'])){
+        if (!empty($_POST['form_gid'])) {
                                                                                 // status Took Place is the check in of therapy group
             if ($GLOBALS['auto_create_new_encounters'] && $event_date == date('Y-m-d') && $_POST['form_apptstatus'] == '=') {
                 $encounter = todaysTherapyGroupEncounterCheck($_POST['form_gid'], $event_date, $_POST['form_comments'], $_POST['facility'], $_POST['billing_facility'], $_POST['form_provider'], $_POST['form_category'], false, $pc_eid);
@@ -236,7 +248,6 @@ else {
                 }
             }
         }
-
     }
 
 
@@ -248,42 +259,42 @@ else {
         $timestamp = strtotime($start_date);
         $day = date('w', $timestamp);
         //If the 'start date' is one of the set days
-        if(in_array(($day+1), explode(',',$recurrence))){
+        if (in_array(($day+1), explode(',', $recurrence))) {
             return $start_date;
         }
+
         //else: (we need to change start date to first occurrence of one of the set days)
 
         $new_date = getTheNextAppointment($start_date, $recurrence);
 
         return $new_date;
-
-
     }
 //================================================================================================================
 
 // EVENTS TO FACILITIES (lemonsoftware)
 //(CHEMED) get facility name
 // edit event case - if there is no association made, then insert one with the first facility
-    if ( $eid ) {
+    if ($eid) {
         $selfacil = '';
         $facility = sqlQuery("SELECT pc_facility, pc_multiple, pc_aid, facility.name
                             FROM openemr_postcalendar_events
                               LEFT JOIN facility ON (openemr_postcalendar_events.pc_facility = facility.id)
-                              WHERE pc_eid = ?", array($eid) );
+                              WHERE pc_eid = ?", array($eid));
             // if ( !$facility['pc_facility'] ) {
-        if ( is_array($facility) && !$facility['pc_facility'] ) {
-            $qmin = sqlQuery("SELECT facility_id as minId, facility FROM users WHERE id = ?", array($facility['pc_aid']) );
+        if (is_array($facility) && !$facility['pc_facility']) {
+            $qmin = sqlQuery("SELECT facility_id as minId, facility FROM users WHERE id = ?", array($facility['pc_aid']));
             $min  = $qmin['minId'];
             $min_name = $qmin['facility'];
 
             // multiple providers case
-            if ( $GLOBALS['select_multi_providers'] ) {
+            if ($GLOBALS['select_multi_providers']) {
                 $mul  = $facility['pc_multiple'];
-                sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_multiple = ?", array($min,$mul) );
+                sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_multiple = ?", array($min,$mul));
             }
+
             // EOS multiple
 
-            sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_eid = ?", array($min,$eid) );
+            sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_eid = ?", array($min,$eid));
             $e2f = $min;
             $e2f_name = $min_name;
         } else {
@@ -298,12 +309,11 @@ else {
             }
         }
     }
+
 // EOS E2F
 // ===========================
 //=============================================================================================================================
-    if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save")
-     {
-
+    if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save") {
         // Compute start and end time strings to be saved.
         if ($_POST['form_allday']) {
             $tmph = 0;
@@ -312,9 +322,13 @@ else {
         } else {
             $tmph = $_POST['form_hour'] + 0;
             $tmpm = $_POST['form_minute'] + 0;
-            if ($_POST['form_ampm'] == '2' && $tmph < 12) $tmph += 12;
+            if ($_POST['form_ampm'] == '2' && $tmph < 12) {
+                $tmph += 12;
+            }
+
             $duration = abs($_POST['form_duration']); // fixes #395
         }
+
             $starttime = "$tmph:$tmpm:00";
             //
             $tmpm += $duration;
@@ -322,6 +336,7 @@ else {
             $tmpm -= 60;
             ++$tmph;
         }
+
             $endtime = "$tmph:$tmpm:00";
 
             // Set up working variables related to repeated events.
@@ -337,22 +352,20 @@ else {
              $event_date = fixDate($_POST['form_date']);
 
              //If used new recurrence mechanism of set days every week
-        if(!empty($_POST['days_every_week'])){
+        if (!empty($_POST['days_every_week'])) {
             $my_recurrtype = 3;
            //loop through checkboxes and insert encounter days into array
             $days_every_week_arr = array();
-            for($i=1; $i<=7; $i++){
-                if(!empty($_POST['day_' . $i])){
+            for ($i=1; $i<=7; $i++) {
+                if (!empty($_POST['day_' . $i])) {
                     array_push($days_every_week_arr, $i);
                 }
             }
-            $my_repeat_freq = implode(",",$days_every_week_arr);
+
+            $my_repeat_freq = implode(",", $days_every_week_arr);
             $my_repeat_type = 6;
             $event_date = fixDate(setEventDate($_POST['form_date'], $my_repeat_freq));
-
-        }
-        elseif (!empty($_POST['form_repeat'])){
-
+        } elseif (!empty($_POST['form_repeat'])) {
             $my_recurrtype = 1;
             if ($my_repeat_type > 4) {
                 $my_recurrtype = 2;
@@ -365,6 +378,7 @@ else {
                     // Last occurence of this weekday on the month
                     $my_repeat_on_num = 5;
                 }
+
                 // Maybe not needed, but for consistency with postcalendar:
                 $my_repeat_freq = 0;
                 $my_repeat_type = 0;
@@ -392,10 +406,14 @@ else {
                     );
 
             //
-        if($my_recurrtype == 2) { // Added by epsdky 2016 (details in commit)
-            if($_POST['old_repeats'] == 2) {
-                if($_POST['rt2_flag2']) $recurrspec['rt2_pf_flag'] = "1";
-            } else $recurrspec['rt2_pf_flag'] = "1";
+        if ($my_recurrtype == 2) { // Added by epsdky 2016 (details in commit)
+            if ($_POST['old_repeats'] == 2) {
+                if ($_POST['rt2_flag2']) {
+                    $recurrspec['rt2_pf_flag'] = "1";
+                }
+            } else {
+                $recurrspec['rt2_pf_flag'] = "1";
+            }
         } // End of addition by epsdky
             //
             // no recurr specs, this is used for adding a new non-recurring event
@@ -406,14 +424,11 @@ else {
                         "event_repeat_on_freq" => "0",
                         "exdate" => ""
                     );
-
     }//if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save")
 //=============================================================================================================================
     if ($_POST['form_action'] == "duplicate") {
-
         $eid = InsertEventFull();
         DOBandEncounter($eid);
-
     }
 
 // If we are saving, then save and close the window.
@@ -423,44 +438,46 @@ else {
          *                    UPDATE EVENTS
          * =====================================================*/
         if ($eid) {
-
             // what is multiple key around this $eid?
-            $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid) );
+            $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
 
             // ====================================
             // multiple providers
             // ====================================
             if ($GLOBALS['select_multi_providers'] && $row['pc_multiple']) {
-
                 // obtain current list of providers regarding the multiple key
-                $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple=?", array($row['pc_multiple']) );
-                while ($current = sqlFetchArray($up)) { $providers_current[] = $current['pc_aid']; }
+                $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple=?", array($row['pc_multiple']));
+                while ($current = sqlFetchArray($up)) {
+                    $providers_current[] = $current['pc_aid'];
+                }
 
                 // get the new list of providers from the submitted form
                 $providers_new = $_POST['form_provider'];
 
                 // ===== Only current event of repeating series =====
                 if ($_POST['recurr_affect'] == 'current') {
-
                     // update all existing event records to exlude the current date
                     foreach ($providers_current as $provider) {
                         // update the provider's original event
                         // get the original event's repeat specs
                         $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events ".
-                        " WHERE pc_aid = ? AND pc_multiple=?", array($provider,$row['pc_multiple']) );
+                        " WHERE pc_aid = ? AND pc_multiple=?", array($provider,$row['pc_multiple']));
                         $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
                         $selected_date = date("Ymd", strtotime($_POST['selected_date']));
-                        if ($oldRecurrspec['exdate'] != "") { $oldRecurrspec['exdate'] .= ",".$selected_date; }
-                        else { $oldRecurrspec['exdate'] .= $selected_date; }
+                        if ($oldRecurrspec['exdate'] != "") {
+                            $oldRecurrspec['exdate'] .= ",".$selected_date;
+                        } else {
+                            $oldRecurrspec['exdate'] .= $selected_date;
+                        }
 
                         // mod original event recur specs to exclude this date
-                        sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                            sqlStatement("UPDATE openemr_postcalendar_events SET " .
                             " pc_recurrspec = ? ".
-                            " WHERE pc_aid = ? AND pc_multiple=?", array(serialize($oldRecurrspec),$provider,$row['pc_multiple']) );
+                            " WHERE pc_aid = ? AND pc_multiple=?", array(serialize($oldRecurrspec),$provider,$row['pc_multiple']));
                     }
 
                     // obtain the next available unique key to group multiple providers around some event
-                    $q = sqlStatement ("SELECT MAX(pc_multiple) as max FROM openemr_postcalendar_events");
+                    $q = sqlStatement("SELECT MAX(pc_multiple) as max FROM openemr_postcalendar_events");
                     $max = sqlFetchArray($q);
                     $new_multiple_value = $max['max'] + 1;
 
@@ -483,31 +500,27 @@ else {
                         $args['locationspec'] = $locationspec;
                         InsertEvent($args);
                     }
-                }
-
-                // ===== Future Recurring events of a repeating series =====
+                } // ===== Future Recurring events of a repeating series =====
                 else if ($_POST['recurr_affect'] == 'future') {
                     // update all existing event records to
                     // stop recurring on this date-1
                     $selected_date = date("Y-m-d", (strtotime($_POST['selected_date'])-24*60*60));
                     foreach ($providers_current as $provider) {
                         // In case of a change in the middle of the event
-                        if  (strcmp($_POST['event_start_date'],$_POST['selected_date'])!=0) {
+                        if (strcmp($_POST['event_start_date'], $_POST['selected_date'])!=0) {
                             // mod original event recur specs to end on this date
                             sqlStatement("UPDATE openemr_postcalendar_events SET " .
                             " pc_enddate = ? " .
                             " WHERE pc_aid = ? AND pc_multiple=?", array($selected_date, $provider, $row['pc_multiple']));
-                        }
-                        // In case of a change in the event head
+                        } // In case of a change in the event head
                         else {
                             sqlStatement("DELETE FROM openemr_postcalendar_events " .
-                            " WHERE pc_aid = ? AND pc_multiple=?" , array($provider, $row['pc_multiple']));
+                            " WHERE pc_aid = ? AND pc_multiple=?", array($provider, $row['pc_multiple']));
                         }
-
                     }
 
                     // obtain the next available unique key to group multiple providers around some event
-                    $q = sqlStatement ("SELECT MAX(pc_multiple) as max FROM openemr_postcalendar_events");
+                    $q = sqlStatement("SELECT MAX(pc_multiple) as max FROM openemr_postcalendar_events");
                     $max = sqlFetchArray($q);
                     $new_multiple_value = $max['max'] + 1;
 
@@ -526,19 +539,17 @@ else {
                         $args['locationspec'] = $locationspec;
                         InsertEvent($args);
                     }
-                }
-
-                else {
+                } else {
                     /* =================================================================== */
                     // ===== a Single event or All events in a repeating series ==========
                     /* =================================================================== */
 
                     // this difference means that some providers from current was UNCHECKED
                     // so we must delete this event for them
-                    $r1 = array_diff ($providers_current, $providers_new);
-                    if (count ($r1)) {
+                    $r1 = array_diff($providers_current, $providers_new);
+                    if (count($r1)) {
                         foreach ($r1 as $to_be_removed) {
-                            sqlQuery("DELETE FROM openemr_postcalendar_events WHERE pc_aid=? AND pc_multiple=?", array($to_be_removed,$row['pc_multiple']) );
+                            sqlQuery("DELETE FROM openemr_postcalendar_events WHERE pc_aid=? AND pc_multiple=?", array($to_be_removed,$row['pc_multiple']));
                         }
                     }
 
@@ -547,13 +558,15 @@ else {
                     // oct-08 JRM
                     if ($_POST['form_date'] == $_POST['selected_date']) {
                         // user has NOT changed the start date of the event (and not recurrtype 3)
-                        if($my_recurrtype != 3) $event_date = fixDate($_POST['event_start_date']);
+                        if ($my_recurrtype != 3) {
+                            $event_date = fixDate($_POST['event_start_date']);
+                        }
                     }
 
                     // this difference means that some providers were added
                     // so we must insert this event for them
-                    $r2 = array_diff ($providers_new, $providers_current);
-                    if (count ($r2)) {
+                    $r2 = array_diff($providers_new, $providers_current);
+                    if (count($r2)) {
                         foreach ($r2 as $to_be_inserted) {
                             $args = $_POST;
                             // specify some special variables needed for the INSERT
@@ -599,8 +612,8 @@ else {
             // ====================================
             // single provider
             // ====================================
-            } elseif ( !$row['pc_multiple'] ) {
-                if ( $GLOBALS['select_multi_providers'] ) {
+            } elseif (!$row['pc_multiple']) {
+                if ($GLOBALS['select_multi_providers']) {
                     $prov = $_POST['form_provider'][0];
                 } else {
                     $prov =  $_POST['form_provider'];
@@ -608,16 +621,19 @@ else {
 
                 if ($_POST['recurr_affect'] == 'current') {
                     // get the original event's repeat specs
-                    $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid) );
+                    $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
                     $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
                     $selected_date = date("Ymd", strtotime($_POST['selected_date']));
-                    if ($oldRecurrspec['exdate'] != "") { $oldRecurrspec['exdate'] .= ",".$selected_date; }
-                    else { $oldRecurrspec['exdate'] .= $selected_date; }
+                    if ($oldRecurrspec['exdate'] != "") {
+                        $oldRecurrspec['exdate'] .= ",".$selected_date;
+                    } else {
+                        $oldRecurrspec['exdate'] .= $selected_date;
+                    }
 
                     // mod original event recur specs to exclude this date
-                    sqlStatement("UPDATE openemr_postcalendar_events SET " .
-                    " pc_recurrspec = ? ".
-                    " WHERE pc_eid = ?", array(serialize($oldRecurrspec),$eid) );
+                        sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                        " pc_recurrspec = ? ".
+                        " WHERE pc_eid = ?", array(serialize($oldRecurrspec),$eid));
 
                     // insert a new event on this date with POST form data
                     $args = $_POST;
@@ -633,13 +649,12 @@ else {
                     $args['endtime'] = $endtime;
                     $args['locationspec'] = $locationspec;
                     InsertEvent($args);
-                }
-                else if ($_POST['recurr_affect'] == 'future') {
+                } else if ($_POST['recurr_affect'] == 'future') {
                     // mod original event to stop recurring on this date-1
                     $selected_date = date("Ymd", (strtotime($_POST['selected_date'])-24*60*60));
                     sqlStatement("UPDATE openemr_postcalendar_events SET " .
                     " pc_enddate = ? ".
-                    " WHERE pc_eid = ?", array($selected_date,$eid) );
+                    " WHERE pc_eid = ?", array($selected_date,$eid));
 
                     // insert a new event starting on this date with POST form data
                     $args = $_POST;
@@ -651,15 +666,15 @@ else {
                     $args['endtime'] = $endtime;
                     $args['locationspec'] = $locationspec;
                     InsertEvent($args);
-                }
-                else {
-
+                } else {
         // perform a check to see if user changed event date
         // this is important when editing an existing recurring event
         // oct-08 JRM
                     if ($_POST['form_date'] == $_POST['selected_date']) {
                         // user has NOT changed the start date of the event (and not recurrtype 3)
-                        if($my_recurrtype != 3) $event_date = fixDate($_POST['event_start_date']);
+                        if ($my_recurrtype != 3) {
+                            $event_date = fixDate($_POST['event_start_date']);
+                        }
                     }
 
                     // mod the SINGLE event or ALL EVENTS in a repeating series
@@ -695,24 +710,18 @@ else {
 
             // EVENTS TO FACILITIES
             $e2f = (int)$eid;
-
-
         } else {
             /* =======================================================
          *                    INSERT NEW EVENT(S)
          * ======================================================*/
 
             $eid = InsertEventFull();
-
         }
 
             // done with EVENT insert/update statements
 
             DOBandEncounter(isset($eid) ? $eid : null);
-
-    }
-
-// =======================================
+    } // =======================================
 //    DELETE EVENT(s)
 // =======================================
     else if ($_POST['form_action'] == "delete") {
@@ -720,18 +729,22 @@ else {
         //  multi providers event
         // =======================================
         if ($GLOBALS['select_multi_providers']) {
-
             // what is multiple key around this $eid?
-            $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid) );
+            $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
 
             // obtain current list of providers regarding the multiple key
             $providers_current = array();
-            $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple=?", array($row['pc_multiple']) );
-            while ($current = sqlFetchArray($up)) { $providers_current[] = $current['pc_aid']; }
+            $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple=?", array($row['pc_multiple']));
+            while ($current = sqlFetchArray($up)) {
+                $providers_current[] = $current['pc_aid'];
+            }
 
             // establish a WHERE clause
-            if ( $row['pc_multiple'] ) { $whereClause = "pc_multiple = '{$row['pc_multiple']}'"; }
-            else { $whereClause = "pc_eid = '$eid'"; }
+            if ($row['pc_multiple']) {
+                $whereClause = "pc_multiple = '{$row['pc_multiple']}'";
+            } else {
+                $whereClause = "pc_eid = '$eid'";
+            }
 
             if ($_POST['recurr_affect'] == 'current') {
                 // update all existing event records to exlude the current date
@@ -739,71 +752,68 @@ else {
                     // update the provider's original event
                     // get the original event's repeat specs
                     $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events ".
-                        " WHERE pc_aid <=> ? AND pc_multiple=?", array($provider,$row['pc_multiple']) );
+                    " WHERE pc_aid <=> ? AND pc_multiple=?", array($provider,$row['pc_multiple']));
                     $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
                     $selected_date = date("Y-m-d", strtotime($_POST['selected_date']));
-                    if ($oldRecurrspec['exdate'] != "") { $oldRecurrspec['exdate'] .= ",".$selected_date; }
-                    else { $oldRecurrspec['exdate'] .= $selected_date; }
+                    if ($oldRecurrspec['exdate'] != "") {
+                        $oldRecurrspec['exdate'] .= ",".$selected_date;
+                    } else {
+                            $oldRecurrspec['exdate'] .= $selected_date;
+                    }
 
                     // mod original event recur specs to exclude this date
-                    sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                        sqlStatement("UPDATE openemr_postcalendar_events SET " .
                         " pc_recurrspec = ? ".
-                        " WHERE ". $whereClause, array(serialize($oldRecurrspec)) );
+                        " WHERE ". $whereClause, array(serialize($oldRecurrspec)));
                 }
-            }
-            else if ($_POST['recurr_affect'] == 'future') {
+            } else if ($_POST['recurr_affect'] == 'future') {
                 // update all existing event records to stop recurring on this date-1
                 $selected_date = date("Y-m-d", (strtotime($_POST['selected_date'])-24*60*60));
                 foreach ($providers_current as $provider) {
                     // In case of a change in the middle of the event
-                    if  (strcmp($_POST['event_start_date'],$_POST['selected_date'])!=0) {
+                    if (strcmp($_POST['event_start_date'], $_POST['selected_date'])!=0) {
                         // update the provider's original event
                         sqlStatement("UPDATE openemr_postcalendar_events SET " .
-                            " pc_enddate = ? " .
-                            " WHERE " . $whereClause, array($selected_date));
-                    }
-                    // In case of a change in the event head
-                    else{
+                        " pc_enddate = ? " .
+                        " WHERE " . $whereClause, array($selected_date));
+                    } // In case of a change in the event head
+                    else {
                         sqlStatement("DELETE FROM openemr_postcalendar_events WHERE ".$whereClause);
                     }
                 }
-            }
-            else {
+            } else {
                 // really delete the event from the database
                 sqlStatement("DELETE FROM openemr_postcalendar_events WHERE ".$whereClause);
             }
-        }
-
-        // =======================================
+        } // =======================================
         //  single provider event
         // =======================================
         else {
-
             if ($_POST['recurr_affect'] == 'current') {
                 // mod original event recur specs to exclude this date
 
                 // get the original event's repeat specs
-                $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid) );
+                $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
                 $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
                 $selected_date = date("Ymd", strtotime($_POST['selected_date']));
-                if ($oldRecurrspec['exdate'] != "") { $oldRecurrspec['exdate'] .= ",".$selected_date; }
-                else { $oldRecurrspec['exdate'] .= $selected_date; }
-                sqlStatement("UPDATE openemr_postcalendar_events SET " .
-                    " pc_recurrspec = ? ".
-                    " WHERE pc_eid = ?", array(serialize($oldRecurrspec),$eid) );
-            }
+                if ($oldRecurrspec['exdate'] != "") {
+                    $oldRecurrspec['exdate'] .= ",".$selected_date;
+                } else {
+                    $oldRecurrspec['exdate'] .= $selected_date;
+                }
 
-            else if ($_POST['recurr_affect'] == 'future') {
+                    sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                    " pc_recurrspec = ? ".
+                    " WHERE pc_eid = ?", array(serialize($oldRecurrspec),$eid));
+            } else if ($_POST['recurr_affect'] == 'future') {
                 // mod original event to stop recurring on this date-1
                 $selected_date = date("Ymd", (strtotime($_POST['selected_date'])-24*60*60));
                 sqlStatement("UPDATE openemr_postcalendar_events SET " .
                     " pc_enddate = ? ".
-                    " WHERE pc_eid = ?", array($selected_date,$eid) );
-            }
-
-            else {
+                    " WHERE pc_eid = ?", array($selected_date,$eid));
+            } else {
                 // fully delete the event from the database
-                sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid) );
+                sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
             }
         }
     }
@@ -811,7 +821,10 @@ else {
     if ($_POST['form_action'] != "") {
         // Close this window and refresh the calendar (or the patient_tracker) display.
         echo "<html>\n<body>\n<script language='JavaScript'>\n";
-        if ($info_msg) echo " alert('" . addslashes($info_msg) . "');\n";
+        if ($info_msg) {
+            echo " alert('" . addslashes($info_msg) . "');\n";
+        }
+
         echo " if (opener && !opener.closed && opener.refreshme) {\n " .
           "  opener.refreshme();\n " . // This is for standard calendar page refresh
           " } else {\n " .
@@ -850,7 +863,10 @@ else {
     $repeattype = '0';
     $repeatfreq = '0';
     $patientid = '';
-    if ($_REQUEST['patientid']) $patientid = $_REQUEST['patientid'];
+    if ($_REQUEST['patientid']) {
+        $patientid = $_REQUEST['patientid'];
+    }
+
     $patientname = null;
     $patienttitle = array();
     $pcroom = "";
@@ -858,7 +874,10 @@ else {
     $row = array();
     $informant = "";
     $groupid = '';
-    if ($_REQUEST['groupid']) $groupid = $_REQUEST['groupid'];
+    if ($_REQUEST['groupid']) {
+        $groupid = $_REQUEST['groupid'];
+    }
+
     $groupname = null;
     $group_statuses = getGroupStatuses();
 
@@ -870,12 +889,15 @@ else {
         $row = sqlQuery("SELECT e.*, u.fname, u.mname, u.lname " .
           "FROM openemr_postcalendar_events AS e " .
           "LEFT OUTER JOIN users AS u ON u.id = e.pc_informant " .
-          "WHERE pc_eid = ?", array($eid) );
+          "WHERE pc_eid = ?", array($eid));
         $informant = $row['fname'] . ' ' . $row['mname'] . ' ' . $row['lname'];
 
         // instead of using the event's starting date, keep what has been provided
         // via the GET array, see the top of this file
-        if (empty($_GET['date'])) $date = $row['pc_eventDate'];
+        if (empty($_GET['date'])) {
+            $date = $row['pc_eventDate'];
+        }
+
         $eventstartdate = $row['pc_eventDate']; // for repeating event stuff - JRM Oct-08
         $userid = $row['pc_aid'];
         $patientid = $row['pc_pid'];
@@ -896,17 +918,18 @@ else {
                 $repeatfreq = $rspecs['event_repeat_on_freq'];
             if ($rspecs['event_repeat_on_num'] < 5) {
                 $repeattype = 5;
-            }
-            else {
+            } else {
                  $repeattype = 6;
             }
         }
+
         $recurrence_end_date = ($row['pc_endDate'] && $row['pc_endDate'] != '0000-00-00') ? $row['pc_endDate'] : null;
         $pcroom = $row['pc_room'];
         $hometext = $row['pc_hometext'];
-        if (substr($hometext, 0, 6) == ':text:') $hometext = substr($hometext, 6);
-    }
-    else {
+        if (substr($hometext, 0, 6) == ':text:') {
+            $hometext = substr($hometext, 6);
+        }
+    } else {
           // a NEW event
           $eventstartdate = $date; // for repeating event stuff - JRM Oct-08
 
@@ -918,14 +941,15 @@ else {
             $pref_facility = sqlFetchArray(sqlStatement("SELECT facility_id, facility FROM users WHERE id = $userid"));
             *************************************************************/
             if ($_SESSION['pc_facility']) {
-                $pref_facility = sqlFetchArray(sqlStatement("
+                $pref_facility = sqlFetchArray(sqlStatement(
+                    "
 		        SELECT f.id as facility_id,
 		        f.name as facility
 		        FROM facility f
 		        WHERE f.id = ?
 	          ",
-                array($_SESSION['pc_facility'])
-                  ));
+                    array($_SESSION['pc_facility'])
+                ));
             } else {
                 $pref_facility = sqlFetchArray(sqlStatement("
             SELECT u.facility_id,
@@ -933,30 +957,37 @@ else {
             FROM users u
             LEFT JOIN facility f on (u.facility_id = f.id)
             WHERE u.id = ?
-            ", array($userid) ));
+            ", array($userid)));
             }
+
              /************************************************************/
              $e2f = $pref_facility['facility_id'];
              $e2f_name = $pref_facility['facility'];
         }
+
           //END of CHEMED -----------------------
     }
 
  // If we have a patient ID, get the name and phone numbers to display.
     if ($patientid) {
         $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB " .
-         "FROM patient_data WHERE pid = ?", array($patientid) );
+         "FROM patient_data WHERE pid = ?", array($patientid));
         $patientname = $prow['lname'] . ", " . $prow['fname'];
-        if ($prow['phone_home']) $patienttitle['phone_home'] = xl("Home Phone").": " . $prow['phone_home'];
-        if ($prow['phone_biz']) $patienttitle['phone_biz'] = xl("Work Phone").": " . $prow['phone_biz'];
+        if ($prow['phone_home']) {
+            $patienttitle['phone_home'] = xl("Home Phone").": " . $prow['phone_home'];
+        }
+
+        if ($prow['phone_biz']) {
+            $patienttitle['phone_biz'] = xl("Work Phone").": " . $prow['phone_biz'];
+        }
     }
 
  // If we have a group id, get group data
-    if ($groupid){
+    if ($groupid) {
         $group_data = getGroup($groupid);
         $groupname = $group_data['group_name'];
         $group_end_date = $group_data['group_end_date'];
-        if(!$recurrence_end_date && $group_end_date && $group_end_date != '0000-00-00'){
+        if (!$recurrence_end_date && $group_end_date && $group_end_date != '0000-00-00') {
             $recurrence_end_date = $group_end_date;// If there is no recurr end date get group's end date as default (only if group has an end date)
         }
     }
@@ -973,7 +1004,9 @@ else {
     $startampm = '1';
     if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
         $startampm = '2';
-        if ($starttimeh > 12) $starttimeh -= 12;
+        if ($starttimeh > 12) {
+            $starttimeh -= 12;
+        }
     }
 
 ?>
@@ -1003,49 +1036,62 @@ td { font-size:0.8em; }
  // Read the event categories, generate their options list, and get
  // the default event duration from them if this is a new event.
  $cattype=0;
-if($_GET['prov']==true){
+if ($_GET['prov']==true) {
     $cattype=1;
 }
-if($_GET['group'] == true){
+
+if ($_GET['group'] == true) {
     $cattype=3;
 }
- $cres = sqlStatement("SELECT pc_catid, pc_cattype, pc_catname, " .
-  "pc_recurrtype, pc_duration, pc_end_all_day " .
-  "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq");
- $catoptions = "";
- $prefcat_options = "    <option value='0'>-- " . xlt("None") . " --</option>\n";
- $thisduration = 0;
- if ($eid) {
-     $thisduration = $row['pc_alldayevent'] ? 1440 : round($row['pc_duration'] / 60);
+
+$cres = sqlStatement("SELECT pc_catid, pc_cattype, pc_catname, " .
+"pc_recurrtype, pc_duration, pc_end_all_day " .
+"FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq");
+$catoptions = "";
+$prefcat_options = "    <option value='0'>-- " . xlt("None") . " --</option>\n";
+$thisduration = 0;
+if ($eid) {
+    $thisduration = $row['pc_alldayevent'] ? 1440 : round($row['pc_duration'] / 60);
+}
+
+while ($crow = sqlFetchArray($cres)) {
+    $duration = round($crow['pc_duration'] / 60);
+    if ($crow['pc_end_all_day']) {
+        $duration = 1440;
     }
-    while ($crow = sqlFetchArray($cres)) {
-        $duration = round($crow['pc_duration'] / 60);
-        if ($crow['pc_end_all_day']) $duration = 1440;
 
-        // This section is to build the list of preferred categories:
-        if ($duration) {
-            $prefcat_options .= "    <option value='" . attr($crow['pc_catid']) . "'";
-            if ($eid) {
-                if ($crow['pc_catid'] == $row['pc_prefcatid']) $prefcat_options .= " selected";
-            }
-            $prefcat_options .= ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
-        }
-
-        if ($crow['pc_cattype'] != $cattype) continue;
-
-        echo " durations[" . attr($crow['pc_catid']) . "] = " . attr($duration) . "\n";
-        // echo " rectypes[" . $crow['pc_catid'] . "] = " . $crow['pc_recurrtype'] . "\n";
-        $catoptions .= "    <option value='" . attr($crow['pc_catid']) . "'";
+    // This section is to build the list of preferred categories:
+    if ($duration) {
+        $prefcat_options .= "    <option value='" . attr($crow['pc_catid']) . "'";
         if ($eid) {
-            if ($crow['pc_catid'] == $row['pc_catid']) $catoptions .= " selected";
-        } else {
-            if ($crow['pc_catid'] == $default_catid) {
-                $catoptions .= " selected";
-                $thisduration = $duration;
+            if ($crow['pc_catid'] == $row['pc_prefcatid']) {
+                $prefcat_options .= " selected";
             }
         }
-        $catoptions .= ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
+
+        $prefcat_options .= ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
     }
+
+    if ($crow['pc_cattype'] != $cattype) {
+        continue;
+    }
+
+    echo " durations[" . attr($crow['pc_catid']) . "] = " . attr($duration) . "\n";
+    // echo " rectypes[" . $crow['pc_catid'] . "] = " . $crow['pc_recurrtype'] . "\n";
+    $catoptions .= "    <option value='" . attr($crow['pc_catid']) . "'";
+    if ($eid) {
+        if ($crow['pc_catid'] == $row['pc_catid']) {
+            $catoptions .= " selected";
+        }
+    } else {
+        if ($crow['pc_catid'] == $default_catid) {
+            $catoptions .= " selected";
+            $thisduration = $duration;
+        }
+    }
+
+    $catoptions .= ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
+}
 ?>
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
@@ -1306,7 +1352,7 @@ var weekDays = new Array(
 <!-- ViSolve : Requirement - Redirect to Create New Patient Page -->
 <input   type='hidden' size='2' name='resname' value='empty' />
 <?php
-if ($_POST["resname"]=="noresult"){
+if ($_POST["resname"]=="noresult") {
     echo '
 <script language="Javascript">
 			// refresh and redirect the parent window
@@ -1317,6 +1363,7 @@ if ($_POST["resname"]=="noresult"){
 			window.close();
 </script>';
 }
+
 $classprov='current';
 $classpati='';
 ?>
@@ -1336,13 +1383,11 @@ $classpati='';
     $provider_class='';
     $group_class='';
     $normal='';
-if($_GET['prov']==true){
+if ($_GET['prov']==true) {
     $provider_class="class='current'";
-}
-elseif($_GET['group']==true){
+} elseif ($_GET['group']==true) {
     $group_class="class='current'";
-}
-else{
+} else {
     $normal="class='current'";
 }
 ?>
@@ -1364,7 +1409,7 @@ else{
          <a href='add_edit_event.php?prov=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
             <?php echo xlt('Provider');?></a>
          </li>
-            <?php if($have_group_global_enabled ) :?>
+            <?php if ($have_group_global_enabled) :?>
          <li <?php echo $group_class ;?>>
             <a href='add_edit_event.php?group=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
             <?php echo xlt('Group');?></a>
@@ -1386,7 +1431,9 @@ else{
         <td width='1%' nowrap>
             &nbsp;&nbsp;
             <input   type='radio' name='form_allday' onclick='set_allday()' value='1' id='rballday1'
-            <?php if ($thisduration == 1440) echo "checked " ?>/>
+            <?php if ($thisduration == 1440) {
+                echo "checked ";
+} ?>/>
         </td>
         <td colspan='2' nowrap id='tdallday1'>
             <?php echo xlt('All day event'); ?>
@@ -1404,7 +1451,9 @@ else{
         </td>
         <td nowrap>
             &nbsp;&nbsp;
-            <input   type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2' <?php if ($thisduration != 1440) echo "checked " ?>/>
+            <input   type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2' <?php if ($thisduration != 1440) {
+                echo "checked ";
+} ?>/>
         </td>
         <td width='1%' nowrap id='tdallday2'>
             <?php echo xlt('Time'); ?>
@@ -1418,7 +1467,9 @@ else{
             </span>
             <select   name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
                 <option value='1'><?php echo xlt('AM'); ?></option>
-                <option value='2'<?php if ($startampm == '2') echo " selected" ?>><?php echo xlt('PM'); ?></option>
+                <option value='2'<?php if ($startampm == '2') {
+                    echo " selected";
+} ?>><?php echo xlt('PM'); ?></option>
             </select>
         </td>
     </tr>
@@ -1466,13 +1517,14 @@ else{
             if ($_SESSION['authorizedUser'] || in_array($facrow, $facils)) {
                 $selected = ( $facrow['id'] == $e2f ) ? 'selected="selected"' : '' ;
                 echo "<option value='" . attr($facrow['id']) . "' $selected>" . text($facrow['name']) . "</option>";
-            }
-            else{
+            } else {
                 $selected = ( $facrow['id'] == $e2f ) ? 'selected="selected"' : '' ;
                 echo "<option value='" . attr($facrow['id']) . "' $selected>" . text($facrow['name']) . "</option>";
             }
+
             /************************************************************/
         }
+
       // EOS E2F
       // ===========================
         ?>
@@ -1487,12 +1539,12 @@ else{
         </td>
         <td>
             <?php
-            billing_facility('billing_facility',$row['pc_billing_location']);
+            billing_facility('billing_facility', $row['pc_billing_location']);
             ?>
         </td>
     </tr>
     <?php
-    if($_GET['prov']!=true && $_GET['group']!=true){
+    if ($_GET['prov']!=true && $_GET['group']!=true) {
         ?>
     <tr id="patient_details">
      <td nowrap>
@@ -1504,12 +1556,12 @@ else{
      </td>
      <td colspan='3' nowrap style='font-size:8pt'>
       <span class="infobox">
-        <?php foreach($patienttitle as $value){
+        <?php foreach ($patienttitle as $value) {
             if ($value != "") {
                 echo text(trim($value));
             }
 
-            if(count($patienttitle) > 1){
+            if (count($patienttitle) > 1) {
                 echo "<br />";
             }
 }
@@ -1521,7 +1573,7 @@ else{
     }
     ?>
 <?php
-if($_GET['group']==true &&  $have_group_global_enabled){
+if ($_GET['group']==true &&  $have_group_global_enabled) {
     ?>
  <tr id="group_details">
   <td nowrap>
@@ -1533,12 +1585,12 @@ if($_GET['group']==true &&  $have_group_global_enabled){
   </td>
   <td colspan='3' nowrap style='font-size:8pt'>
    <span class="infobox">
-    <?php foreach($patienttitle as $value){
+    <?php foreach ($patienttitle as $value) {
         if ($value != "") {
               echo trim($value);
         }
 
-        if(count($patienttitle) > 1){
+        if (count($patienttitle) > 1) {
               echo "<br />";
         }
 }
@@ -1551,8 +1603,11 @@ if($_GET['group']==true &&  $have_group_global_enabled){
     ?>
  <tr>
   <td nowrap>
-   <b><?php if($_GET['group']==true) echo xlt('Coordinating Counselors');
-    else echo xlt('Provider'); ?>:</b>
+   <b><?php if ($_GET['group']==true) {
+        echo xlt('Coordinating Counselors');
+} else {
+    echo xlt('Provider');
+} ?>:</b>
   </td>
   <td nowrap>
 
@@ -1561,20 +1616,19 @@ if($_GET['group']==true &&  $have_group_global_enabled){
 // =======================================
 // multi providers
 // =======================================
-if  ($GLOBALS['select_multi_providers']) {
-
+if ($GLOBALS['select_multi_providers']) {
     //  there are two posible situations: edit and new record
     $providers_array = array();
     // this is executed only on edit ($eid)
     if ($eid) {
-        if ( $multiple_value ) {
+        if ($multiple_value) {
             // find all the providers around multiple key
-            $qall = sqlStatement ("SELECT pc_aid AS providers FROM openemr_postcalendar_events WHERE pc_multiple = ?", array($multiple_value) );
+            $qall = sqlStatement("SELECT pc_aid AS providers FROM openemr_postcalendar_events WHERE pc_multiple = ?", array($multiple_value));
             while ($r = sqlFetchArray($qall)) {
                 $providers_array[] = $r['providers'];
             }
         } else {
-            $qall = sqlStatement ("SELECT pc_aid AS providers FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid) );
+            $qall = sqlStatement("SELECT pc_aid AS providers FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
             $providers_array = sqlFetchArray($qall);
         }
     }
@@ -1586,11 +1640,16 @@ if  ($GLOBALS['select_multi_providers']) {
         echo "    <option value='" . attr($urow['id']) . "'";
 
         if ($userid) {
-            if ( in_array($urow['id'], $providers_array) || ($urow['id'] == $userid) ) echo " selected";
+            if (in_array($urow['id'], $providers_array) || ($urow['id'] == $userid)) {
+                echo " selected";
+            }
         }
 
         echo ">" . text($urow['lname']);
-        if ($urow['fname']) echo ", " . text($urow['fname']);
+        if ($urow['fname']) {
+            echo ", " . text($urow['fname']);
+        }
+
         echo "</option>\n";
     }
 
@@ -1600,14 +1659,12 @@ if  ($GLOBALS['select_multi_providers']) {
 // single provider
 // =======================================
 } else {
-
     if ($eid) {
         // get provider from existing event
-        $qprov = sqlStatement ("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid) );
+        $qprov = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
         $provider = sqlFetchArray($qprov);
         $defaultProvider = $provider['pc_aid'];
-    }
-    else {
+    } else {
       // this is a new event so smartly choose a default provider
     /*****************************************************************
       if ($userid) {
@@ -1645,20 +1702,31 @@ if  ($GLOBALS['select_multi_providers']) {
         if (count($_SESSION['pc_username']) >= 1) {
             // get the numeric ID of the first provider in the array
             $pc_username = $_SESSION['pc_username'];
-            $firstProvider = sqlFetchArray(sqlStatement("select id from users where username=?", array($pc_username[0]) ));
+            $firstProvider = sqlFetchArray(sqlStatement("select id from users where username=?", array($pc_username[0])));
             $defaultProvider = $firstProvider['id'];
         }
+
       // if we clicked on a provider's schedule to add the event, use THAT.
-        if ($userid) $defaultProvider = $userid;
+        if ($userid) {
+            $defaultProvider = $userid;
+        }
     }
+
     echo "<select     name='form_provider' style='width:100%' />";
     while ($urow = sqlFetchArray($ures)) {
         echo "    <option value='" . attr($urow['id']) . "'";
-        if ($urow['id'] == $defaultProvider) echo " selected";
+        if ($urow['id'] == $defaultProvider) {
+            echo " selected";
+        }
+
         echo ">" . text($urow['lname']);
-        if ($urow['fname']) echo ", " . text($urow['fname']);
+        if ($urow['fname']) {
+            echo ", " . text($urow['fname']);
+        }
+
         echo "</option>\n";
     }
+
     echo "</select>";
     /****************************************************************/
 }
@@ -1672,10 +1740,9 @@ if  ($GLOBALS['select_multi_providers']) {
       //Check if repeat is using the new 'days every week' mechanism.
         function isDaysEveryWeek($repeat)
         {
-            if($repeat == 3){
+            if ($repeat == 3) {
                 return true;
-            }
-            else{
+            } else {
                 return false;
             }
         }
@@ -1683,10 +1750,9 @@ if  ($GLOBALS['select_multi_providers']) {
       //Check if using the regular repeat mechanism.
         function isRegularRepeat($repeat)
         {
-            if($repeat == 1 || $repeat == 2){
+            if ($repeat == 1 || $repeat == 2) {
                 return true;
-            }
-            else{
+            } else {
                 return false;
             }
         }
@@ -1699,7 +1765,9 @@ if  ($GLOBALS['select_multi_providers']) {
       repeating mechanism is being used, and load settings accordingly.
       */
         ?>
-   <input   type='checkbox' name='form_repeat' id="form_repeat" onclick='set_repeat(this)' value='1'<?php if (isRegularRepeat($repeats)) echo " checked" ?>/>
+   <input   type='checkbox' name='form_repeat' id="form_repeat" onclick='set_repeat(this)' value='1'<?php if (isRegularRepeat($repeats)) {
+        echo " checked";
+} ?>/>
    <input   type='hidden' name='form_repeat_exdate' id='form_repeat_exdate' value='<?php echo attr($repeatexdate); ?>' /> <!-- dates excluded from the repeat -->
   </td>
   <td nowrap id='tdrepeat1'><?php echo xlt('Repeats'); ?>
@@ -1709,10 +1777,12 @@ if  ($GLOBALS['select_multi_providers']) {
    <select   name='form_repeat_freq' title='<?php echo xla('Every, every other, every 3rd, etc.'); ?>'>
 <?php
 foreach (array(1 => xl('every'), 2 => xl('2nd'), 3 => xl('3rd'), 4 => xl('4th'), 5 => xl('5th'), 6 => xl('6th'))
-  as $key => $value)
-{
+ as $key => $value) {
     echo "    <option value='" . attr($key) . "'";
-    if ($key == $repeatfreq && isRegularRepeat($repeats)) echo " selected";
+    if ($key == $repeatfreq && isRegularRepeat($repeats)) {
+        echo " selected";
+    }
+
     echo ">" . text($value) . "</option>\n";
 }
 ?>
@@ -1723,10 +1793,12 @@ foreach (array(1 => xl('every'), 2 => xl('2nd'), 3 => xl('3rd'), 4 => xl('4th'),
  // See common.api.php for these. Options 5 and 6 will be dynamically filled in
  // when the start date is set.
 foreach (array(0 => xl('day') , 4 => xl('workday'), 1 => xl('week'), 2 => xl('month'), 3 => xl('year'),
-   5 => '?', 6 => '?') as $key => $value)
-{
+   5 => '?', 6 => '?') as $key => $value) {
     echo "    <option value='" . attr($key) . "'";
-    if ($key == $repeattype && isRegularRepeat($repeats)) echo " selected";
+    if ($key == $repeattype && isRegularRepeat($repeats)) {
+        echo " selected";
+    }
+
     echo ">" . text($value) . "</option>\n";
 }
 ?>
@@ -1744,16 +1816,20 @@ foreach (array(0 => xl('day') , 4 => xl('workday'), 1 => xl('week'), 2 => xl('mo
 <tr id="days_every_week_row">
     <td></td>
     <td></td>
-    <td><input    type='checkbox' id='days_every_week' name='days_every_week' onclick='set_days_every_week()' <?php if (isDaysEveryWeek($repeats)) echo " checked" ?>/></td>
+    <td><input    type='checkbox' id='days_every_week' name='days_every_week' onclick='set_days_every_week()' <?php if (isDaysEveryWeek($repeats)) {
+        echo " checked";
+} ?>/></td>
     <td id="days_label"><?php echo xlt('Days Of Week') . ": "; ?></td>
     <td id="days">
         <?php
         foreach (array(1 => xl('Su{{Sunday}}') , 2 => xl('Mo{{Monday}}'), 3 => xl('Tu{{Tuesday}}'), 4 => xl('We{{Wednesday}}'),
-                     5 => xl('Th{{Thursday}}'), 6 => xl('Fr{{Friday}}'), 7 => xl('Sa{{Saturday}}')) as $key => $value)
-        {
+                     5 => xl('Th{{Thursday}}'), 6 => xl('Fr{{Friday}}'), 7 => xl('Sa{{Saturday}}')) as $key => $value) {
             echo " <div><input type='checkbox' name='day_". attr($key) ."'";
             //Checks appropriate days according to days in recurrence string.
-            if (in_array($key, explode(',',$repeatfreq)) && isDaysEveryWeek($repeats)) echo " checked";
+            if (in_array($key, explode(',', $repeatfreq)) && isDaysEveryWeek($repeats)) {
+                echo " checked";
+            }
+
             echo " /><label>" . text($value) . "</label></div>\n";
         }
         ?>
@@ -1770,10 +1846,9 @@ foreach (array(0 => xl('day') , 4 => xl('workday'), 1 => xl('week'), 2 => xl('mo
   <td nowrap>
 
 <?php
-if($_GET['group']!=true) {
+if ($_GET['group']!=true) {
     generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'apptstat', 'empty_title' => 'SKIP'), $row['pc_apptstatus']);
-}
-else{
+} else {
     generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'groupstat', 'empty_title' => 'SKIP'), $row['pc_apptstatus']);
 }
 ?>
@@ -1797,24 +1872,30 @@ else{
 <?php
 if ($repeatexdate != "") {
     $tmptitle = "The following dates are excluded from the repeating series";
-    if ($multiple_value) { $tmptitle .= " for one or more providers:\n"; }
-    else { $tmptitle .= "\n"; }
-    $max = $GLOBALS['number_of_ex_appts_to_show'];
-
-    $exdates = explode(",", $repeatexdate);
-    if(!empty($exdates)){
-        $exdates=array_slice($exdates,0,$max,true);
+    if ($multiple_value) {
+        $tmptitle .= " for one or more providers:\n";
+    } else {
+        $tmptitle .= "\n";
     }
+
+        $max = $GLOBALS['number_of_ex_appts_to_show'];
+
+        $exdates = explode(",", $repeatexdate);
+    if (!empty($exdates)) {
+        $exdates=array_slice($exdates, 0, $max, true);
+    }
+
     foreach ($exdates as $exdate) {
         $tmptitle .= date("d M Y", strtotime($exdate))."\n";
     }
-    echo "<a href='#' title='" . attr($tmptitle) . "' alt='" . attr($tmptitle) . "'><img src='../../pic/warning.gif' title='" . attr($tmptitle) . "' alt='*!*' style='border:none;'/></a>";
+
+        echo "<a href='#' title='" . attr($tmptitle) . "' alt='" . attr($tmptitle) . "'><img src='../../pic/warning.gif' title='" . attr($tmptitle) . "' alt='*!*' style='border:none;'/></a>";
 }
 ?>
   </td>
  </tr>
     <?php
-    if($_GET['prov']!=true){
+    if ($_GET['prov']!=true) {
         ?>
     <tr>
      <td nowrap>
@@ -1822,11 +1903,12 @@ if ($repeatexdate != "") {
      </td>
      <td colspan='4' nowrap>
         <?php
-        echo generate_select_list('form_room', 'patient_flow_board_rooms',$pcroom, xl('Room Number'));
+        echo generate_select_list('form_room', 'patient_flow_board_rooms', $pcroom, xl('Room Number'));
         ?>
      </td>
     </tr>
-        <?php } ?>
+    <?php
+    } ?>
  <tr>
   <td nowrap>
    <b><?php echo xlt('Comments'); ?>:</b>
@@ -1867,21 +1949,25 @@ if ($repeatexdate != "") {
 <?php } ?>
 
 &nbsp;
-<input type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete');?>'<?php if (!$eid) echo " disabled" ?> />
+<input type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete');?>'<?php if (!$eid) {
+    echo " disabled";
+} ?> />
 &nbsp;
 <input type='button' id='cancel' value='<?php echo xla('Cancel');?>' />
 &nbsp;
 <input type='button' name='form_duplicate' id='form_duplicate' value='<?php echo xla('Create Duplicate');?>' />
 </p></td></tr></table>
-<?php if ($informant) echo "<p class='text'>" . xlt('Last update by') . " " .
-  text($informant) . " " . xlt('on') . " " . text($row['pc_time']) . "</p>\n"; ?>
+<?php if ($informant) {
+    echo "<p class='text'>" . xlt('Last update by') . " " .
+    text($informant) . " " . xlt('on') . " " . text($row['pc_time']) . "</p>\n";
+} ?>
 </center>
 </form>
 
 <div id="recurr_popup" style="visibility: hidden; position: absolute; top: 50px; left: 50px; width: 400px; border: 3px outset yellow; background-color: yellow; padding: 5px;">
 <?php echo xlt('Apply the changes to the Current event only, to this and all Future occurrences, or to All occurrences?') ?>
 <br>
-<?php if($GLOBALS['submit_changes_for_all_appts_at_once']) {?>
+<?php if ($GLOBALS['submit_changes_for_all_appts_at_once']) {?>
     <input type="button" name="all_events" id="all_events" value="  <?php echo xla('All'); ?>  ">
 <?php } ?>
 <input type="button" name="recurr_cancel" id="recurr_cancel" value="<?php echo xla('Cancel'); ?>">
@@ -1987,7 +2073,7 @@ function validateform(event,valu){
 
 
     <?php
-    if($GLOBALS['select_multi_providers']){
+    if ($GLOBALS['select_multi_providers']) {
     ?>
     //If multiple providers is enabled, create provider validation (Note: if no provider is chosen it causes bugs when deleting recurrent events).
     if(typeof (collectvalidation) == 'undefined'){
@@ -2006,7 +2092,7 @@ function validateform(event,valu){
 
     $('#form_action').val(valu);
 
-    <?php if ($repeats): ?>
+    <?php if ($repeats) : ?>
     // existing repeating events need additional prompt
     if ($("#recurr_affect").val() == "") {
         DisableForm();
@@ -2037,7 +2123,7 @@ function deleteEvent() {
     if (confirm("<?php echo addslashes(xl('Deleting this event cannot be undone. It cannot be recovered once it is gone. Are you sure you wish to delete this event?')); ?>")) {
         $('#form_action').val("delete");
 
-        <?php if ($repeats): ?>
+        <?php if ($repeats) : ?>
         // existing repeating events need additional prompt
         if ($("#recurr_affect").val() == "") {
             DisableForm();
@@ -2074,12 +2160,12 @@ function SubmitForm() {
     $edate=$edate->format('Y-m-d');
     $is_holiday=false;
     $holidays_controller = new Holidays_Controller();
-    $holidays = $holidays_controller->get_holidays_by_date_range($sdate,$edate);
-    if(in_array($sdate,$holidays)){
+    $holidays = $holidays_controller->get_holidays_by_date_range($sdate, $edate);
+    if (in_array($sdate, $holidays)) {
         $is_holiday=true;
     }?>
     if (f.form_action.value != 'delete') {
-        <?php if($is_holiday){?>
+        <?php if ($is_holiday) {?>
         if (!confirm('<?php echo xls('On this date there is a holiday, use it anyway?'); ?>')) {
             top.restoreSession();
         }

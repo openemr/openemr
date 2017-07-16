@@ -24,12 +24,13 @@
  * @link    http://www.open-emr.org
  */
 
-class Therapy_groups_participants{
+class Therapy_groups_participants
+{
 
     const TABLE = 'therapy_groups_participants';
     const PATIENT_TABLE = 'patient_data';
 
-    public function getParticipants($groupId, $onlyActive=false)
+    public function getParticipants($groupId, $onlyActive = false)
     {
 
         $sql = "SELECT gp.*, p.fname, p.lname FROM " . self::TABLE . " AS gp ";
@@ -37,30 +38,33 @@ class Therapy_groups_participants{
         $sql .= "WHERE gp.group_id = ?";
         $binds = array($groupId);
 
-        if($onlyActive) {
+        if ($onlyActive) {
             $sql .= " AND gp.group_patient_status = ?";
             $binds[] = 10;
         }
+
         $groupParticipants = array();
-        $result = sqlStatement($sql,$binds);
-        while($gp = sqlFetchArray($result)){
+        $result = sqlStatement($sql, $binds);
+        while ($gp = sqlFetchArray($result)) {
             $groupParticipants[] = $gp;
         }
+
         return $groupParticipants;
     }
 
-    public function updateParticipant(array $participant, $patientId ,$groupId)
+    public function updateParticipant(array $participant, $patientId, $groupId)
     {
 
-        if(empty($participant['group_patient_end'])){
+        if (empty($participant['group_patient_end'])) {
             $participant['group_patient_end'] = null;
         }
 
         $sql = "UPDATE " . self::TABLE . " SET ";
-        foreach($participant as $key => $value){
+        foreach ($participant as $key => $value) {
             $sql .= $key . '=?,';
         }
-        $sql = substr($sql,0, -1);
+
+        $sql = substr($sql, 0, -1);
         $sql .= ' WHERE pid = ? AND group_id = ?';
 
         $data = array_merge($participant, array($patientId, $groupId));
@@ -68,7 +72,7 @@ class Therapy_groups_participants{
         return !$result ? false :true;
     }
 
-    public function removeParticipant($groupId,$pid)
+    public function removeParticipant($groupId, $pid)
     {
 
         $sql = "DELETE FROM " . self::TABLE . " WHERE group_id = ? AND pid = ?";

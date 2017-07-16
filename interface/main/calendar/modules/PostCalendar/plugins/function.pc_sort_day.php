@@ -50,21 +50,26 @@ function smarty_function_pc_sort_day($params, &$smarty)
         $sh = '08';
         $sm = '00';
     } else {
-        list($sh,$sm) = explode(':',$start);
+        list($sh,$sm) = explode(':', $start);
     }
     
     if (!in_array('end', array_keys($params))) {
         $eh = '21';
         $em = '00';
     } else {
-        list($eh,$em) = explode(':',$end);
+        list($eh,$em) = explode(':', $end);
     }
     
-    if(strtolower($order) == 'asc') $function = 'sort_byTimeA';
-    if(strtolower($order) == 'desc') $function = 'sort_byTimeD';
+    if (strtolower($order) == 'asc') {
+        $function = 'sort_byTimeA';
+    }
+
+    if (strtolower($order) == 'desc') {
+        $function = 'sort_byTimeD';
+    }
     
-    foreach($value as $events) {
-        usort($events,$function);
+    foreach ($value as $events) {
+        usort($events, $function);
         $newArray = $events;
     }
     
@@ -72,22 +77,22 @@ function smarty_function_pc_sort_day($params, &$smarty)
     // columns and rows to build a nice day view
     $ch = $sh;
     $cm = $sm;
-    while("$ch:$cm" <= "$eh:$em") {
+    while ("$ch:$cm" <= "$eh:$em") {
         $hours["$ch:$cm"] = array();
         $cm += $inc;
-        if($cm >= 60) {
+        if ($cm >= 60) {
             $cm = '00';
-            $ch = sprintf('%02d',$ch+1);
+            $ch = sprintf('%02d', $ch+1);
         }
     }
     
     $alldayevents = array();
-    foreach($newArray as $event) {
-        list($sh,$sm,$ss) = explode(':',$event['startTime']);
-        $eh = sprintf('%02d',$sh + $event['duration_hours']);
-        $em = sprintf('%02d',$sm + $event['duration_minutes']);
+    foreach ($newArray as $event) {
+        list($sh,$sm,$ss) = explode(':', $event['startTime']);
+        $eh = sprintf('%02d', $sh + $event['duration_hours']);
+        $em = sprintf('%02d', $sm + $event['duration_minutes']);
         
-        if($event['alldayevent']) {
+        if ($event['alldayevent']) {
             // we need an entire column . save till later
             $alldayevents[] = $event;
         } else {
@@ -96,28 +101,29 @@ function smarty_function_pc_sort_day($params, &$smarty)
             $ch = $sh;
             $cm = $sm;
             //what times do we need?
-            while("$ch:$cm" < "$eh:$em") {
+            while ("$ch:$cm" < "$eh:$em") {
                 $needed[] = "$ch:$cm";
                 $cm += $inc;
-                if($cm >= 60) {
+                if ($cm >= 60) {
                     $cm = '00';
-                    $ch = sprintf('%02d',$ch+1);
+                    $ch = sprintf('%02d', $ch+1);
                 }
             }
+
             $i = 0;
-            foreach($needed as $time) {
-                if($i==0) {
+            foreach ($needed as $time) {
+                if ($i==0) {
                     $hours[$time][] = $event;
                     $key = count($hours[$time])-1;
                 } else {
                     $hours[$time][$key] = 'continued';
                 }
+
                 $i++;
             }
-            
         }
     }
+
     //pcDebugVar($hours);
-    $smarty->assign_by_ref($var,$hours);
+    $smarty->assign_by_ref($var, $hours);
 }
-?>

@@ -21,7 +21,10 @@
 
 function invalue($name)
 {
-    if (!$_POST[$name]) return "''";
+    if (!$_POST[$name]) {
+        return "''";
+    }
+
     $fld = add_escape_custom(trim($_POST[$name]));
     return "'$fld'";
 }
@@ -100,7 +103,6 @@ td { font-size:10pt; }
  // If we are saving, then save and close the window.
  //
 if ($_POST['form_save']) {
-
  // Collect the form_abook_type option value
  //  (ie. patient vs company centric)
     $type_sql_row = sqlQuery("SELECT `option_value` FROM `list_options` WHERE `list_id` = 'abook_type' AND `option_id` = ? AND activity = 1", array(trim($_POST['form_abook_type'])));
@@ -113,8 +115,7 @@ if ($_POST['form_save']) {
         $form_lname = invalue('form_director_lname');
         $form_mname = invalue('form_director_mname');
         $form_suffix = invalue('form_director_suffix');
-    }
-    else {
+    } else {
         // Person centric
         $form_title = invalue('form_title');
         $form_fname = invalue('form_fname');
@@ -124,7 +125,6 @@ if ($_POST['form_save']) {
     }
 
     if ($userid) {
-
         $query = "UPDATE users SET " .
         "abook_type = "   . invalue('form_abook_type')   . ", " .
         "title = "        . $form_title                  . ", " .
@@ -162,9 +162,7 @@ if ($_POST['form_save']) {
         "notes = "        . invalue('form_notes')        . " "  .
         "WHERE id = '" . add_escape_custom($userid) . "'";
         sqlStatement($query);
-
     } else {
-
         $userid = sqlInsert("INSERT INTO users ( " .
         "username, password, authorized, info, source, " .
         "title, fname, lname, mname, suffix, " .
@@ -219,23 +217,21 @@ if ($_POST['form_save']) {
         invalue('form_notes')         . ", " .
         invalue('form_abook_type')    . " "  .
         ")");
-
     }
-}
-
-else  if ($_POST['form_delete']) {
-
+} else if ($_POST['form_delete']) {
     if ($userid) {
        // Be careful not to delete internal users.
         sqlStatement("DELETE FROM users WHERE id = ? AND username = ''", array($userid));
     }
-
 }
 
 if ($_POST['form_save'] || $_POST['form_delete']) {
   // Close this window and redisplay the updated list.
     echo "<script language='JavaScript'>\n";
-    if ($info_msg) echo " alert('".addslashes($info_msg)."');\n";
+    if ($info_msg) {
+        echo " alert('".addslashes($info_msg)."');\n";
+    }
+
     echo " window.close();\n";
     echo " if (opener.refreshme) opener.refreshme();\n";
     echo "</script></body></html>\n";
@@ -268,7 +264,7 @@ if ($type) { // note this only happens when its new
 
 <table border='0' width='100%'>
 
-<?php if (acl_check('admin', 'practice' )) { // allow choose type option if have admin access ?>
+<?php if (acl_check('admin', 'practice')) { // allow choose type option if have admin access ?>
  <tr>
   <td width='1%' nowrap><b><?php echo xlt('Type'); ?>:</b></td>
   <td>
@@ -312,7 +308,9 @@ if ($type) { // note this only happens when its new
     value='<?php echo attr($row['organization']); ?>'
     style='width:100%' class='inputtext' />
     <span id='cpoe_span' style="display:none;">
-        <input type='checkbox' title="<?php echo xla('CPOE'); ?>" name='form_cpoe' id='form_cpoe' value='1' <?php if($row['cpoe']=='1') echo "CHECKED"; ?>/>
+        <input type='checkbox' title="<?php echo xla('CPOE'); ?>" name='form_cpoe' id='form_cpoe' value='1' <?php if ($row['cpoe']=='1') {
+            echo "CHECKED";
+} ?>/>
         <label for='form_cpoe'><b><?php echo xlt('CPOE'); ?></b></label>
    </span>
   </td>

@@ -21,7 +21,8 @@
  * @link       http://www.open-emr.org
  */
 
-class eRxXMLBuilder {
+class eRxXMLBuilder
+{
 
     private $globals;
     private $store;
@@ -39,11 +40,11 @@ class eRxXMLBuilder {
 
     public function __construct($globals = null, $store = null)
     {
-        if($globals) {
+        if ($globals) {
             $this->setGlobals($globals);
         }
 
-        if($store) {
+        if ($store) {
             $this->setStore($store);
         }
     }
@@ -127,8 +128,8 @@ class eRxXMLBuilder {
 
     public function addSentAllergyIds($allergyIds)
     {
-        if(is_array($allergyIds)) {
-            foreach($allergyIds as $allergyId) {
+        if (is_array($allergyIds)) {
+            foreach ($allergyIds as $allergyId) {
                 $this->sentAllergyIds[] = $allergyId;
             }
         } else {
@@ -143,8 +144,8 @@ class eRxXMLBuilder {
 
     public function addSentMedicationIds($medicationIds)
     {
-        if(is_array($medicationIds)) {
-            foreach($medicationIds as $medicationId) {
+        if (is_array($medicationIds)) {
+            foreach ($medicationIds as $medicationId) {
                 $this->sentMedicationIds[] = $medicationId;
             }
         } else {
@@ -159,8 +160,8 @@ class eRxXMLBuilder {
 
     public function addSentPrescriptionId($prescriptionIds)
     {
-        if(is_array($prescriptionIds)) {
-            foreach($prescriptionIds as $prescriptionId) {
+        if (is_array($prescriptionIds)) {
+            foreach ($prescriptionIds as $prescriptionId) {
                 $this->sentPrescriptionIds[] = $prescriptionId;
             }
         } else {
@@ -175,7 +176,7 @@ class eRxXMLBuilder {
 
     public function fieldEmpty($value, $message)
     {
-        if(empty($value)) {
+        if (empty($value)) {
             $this->fieldEmptyMessages[] = $message;
         }
     }
@@ -187,7 +188,7 @@ class eRxXMLBuilder {
 
     public function demographicsCheck($value, $message)
     {
-        if(empty($value)) {
+        if (empty($value)) {
             $this->demographicsCheckMessages[] = $message;
         }
     }
@@ -199,7 +200,7 @@ class eRxXMLBuilder {
 
     public function warningMessage($value, $message)
     {
-        if(empty($value)) {
+        if (empty($value)) {
             $this->warningMessages[] = $message;
         }
     }
@@ -233,8 +234,8 @@ class eRxXMLBuilder {
 
     public function appendChildren($element, &$children)
     {
-        if(is_a($element, 'DOMNode') && is_array($children) && count($children)) {
-            foreach($children as $child) {
+        if (is_a($element, 'DOMNode') && is_array($children) && count($children)) {
+            foreach ($children as $child) {
                 // if(is_array($child)) {
                 // 	$this->appendChildren($element, $child);
                 // }
@@ -245,7 +246,7 @@ class eRxXMLBuilder {
 
     public function getDocument()
     {
-        if($this->document === null) {
+        if ($this->document === null) {
             $this->document = new DOMDocument();
             $this->document->formatOutput = true;
         }
@@ -255,13 +256,13 @@ class eRxXMLBuilder {
 
     public function getNCScript()
     {
-        if($this->ncScript === null) {
+        if ($this->ncScript === null) {
             $document = $this->getDocument();
 
             $this->ncScript = $document->createElement('NCScript');
-            $this->ncScript->setAttribute('xmlns',            'http://secure.newcropaccounts.com/interfaceV7');
+            $this->ncScript->setAttribute('xmlns', 'http://secure.newcropaccounts.com/interfaceV7');
             $this->ncScript->setAttribute('xmlns:NCStandard', 'http://secure.newcropaccounts.com/interfaceV7:NCStandard');
-            $this->ncScript->setAttribute('xmlns:xsi',        'http://www.w3.org/2001/XMLSchema-instance');
+            $this->ncScript->setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
 
             $document->appendChild($this->ncScript);
         }
@@ -292,7 +293,7 @@ class eRxXMLBuilder {
         $eRxUserRole = $eRxUserRole['newcrop_user_role'];
 
         $this->fieldEmpty($eRxUserRole, xl('NewCrop eRx User Role'));
-        if(!$eRxUserRole) {
+        if (!$eRxUserRole) {
             echo xlt('Unauthorized access to ePrescription');
             die;
         }
@@ -302,15 +303,20 @@ class eRxXMLBuilder {
         switch ($eRxUserRole) {
             case 'admin':
             case 'manager':
-            case 'nurse':               $newCropUser = 'Staff';
-break;
-            case 'doctor':              $newCropUser = 'LicensedPrescriber';
-break;
-            case 'supervisingDoctor':   $newCropUser = 'SupervisingDoctor';
-break;
-            case 'midlevelPrescriber':  $newCropUser = 'MidlevelPrescriber';
-break;
-            default:                    $newCropUser = '';
+            case 'nurse':
+                $newCropUser = 'Staff';
+                break;
+            case 'doctor':
+                $newCropUser = 'LicensedPrescriber';
+                break;
+            case 'supervisingDoctor':
+                $newCropUser = 'SupervisingDoctor';
+                break;
+            case 'midlevelPrescriber':
+                $newCropUser = 'MidlevelPrescriber';
+                break;
+            default:
+                $newCropUser = '';
         }
 
         $element = $this->getDocument()->createElement('UserRole');
@@ -329,10 +335,10 @@ break;
 
         $eRxUserRole = preg_replace('/erx/', '', $eRxUserRole);
 
-        if(!$page) {
-            if($eRxUserRole == 'admin') {
+        if (!$page) {
+            if ($eRxUserRole == 'admin') {
                 $page = 'admin';
-            } elseif($eRxUserRole == 'manager') {
+            } elseif ($eRxUserRole == 'manager') {
                 $page = 'manager';
             } else {
                 $page = 'compose';
@@ -351,7 +357,7 @@ break;
         $postalCodePostfix = substr($postalCode, 5, 4);
         $postalCode = substr($postalCode, 0, 5);
 
-        if(strlen($postalCode) < 5) {
+        if (strlen($postalCode) < 5) {
             $this->fieldEmpty('', xl('Primary Facility Zip Code'));
         }
 
@@ -360,7 +366,10 @@ break;
         $element->appendChild($this->createElementTextFieldEmpty('city', $facility['city'], xl('Primary Facility City')));
         $element->appendChild($this->createElementTextFieldEmpty('state', $facility['state'], xl('Primary Facility State')));
         $element->appendChild($this->createElementText('zip', $postalCode));
-        if(strlen($postalCodePostfix) == 4) $element->appendChild($this->createElementText('zip4', $postalCodePostfix));
+        if (strlen($postalCodePostfix) == 4) {
+            $element->appendChild($this->createElementText('zip4', $postalCodePostfix));
+        }
+
         $element->appendChild($this->createElementTextFieldEmpty('country', substr($facility['country_code'], 0, 2), xl('Primary Facility Country code')));
 
         return $element;
@@ -371,7 +380,7 @@ break;
         $facility = $this->getStore()
             ->getFacilityPrimary();
 
-        if(!$facility['federal_ein']) {
+        if (!$facility['federal_ein']) {
             echo xlt('Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.');
             die;
         }
@@ -393,17 +402,31 @@ break;
         $postalCodePostfix = substr($postalCode, 5, 4);
         $postalCode = substr($postalCode, 0, 5);
 
-        if(strlen($postalCode) < 5) {
+        if (strlen($postalCode) < 5) {
             $this->fieldEmpty('', xl('Facility Zip Code'));
         }
 
         $element = $this->getDocument()->createElement('LocationAddress');
-        if($facility['street']) $element->appendChild($this->createElementText('address1', $this->trimData($this->stripSpecialCharacter($facility['street']), 35)));
-        if($facility['city']) $element->appendChild($this->createElementText('city', $facility['city']));
-        if($facility['state']) $element->appendChild($this->createElementText('state', $facility['state']));
+        if ($facility['street']) {
+            $element->appendChild($this->createElementText('address1', $this->trimData($this->stripSpecialCharacter($facility['street']), 35)));
+        }
+
+        if ($facility['city']) {
+            $element->appendChild($this->createElementText('city', $facility['city']));
+        }
+
+        if ($facility['state']) {
+            $element->appendChild($this->createElementText('state', $facility['state']));
+        }
+
         $element->appendChild($this->createElementText('zip', $postalCode));
-        if(strlen($postalCodePostfix) == 4) $element->appendChild($this->createElementText('zip4', $postalCodePostfix));
-        if($facility['country_code']) $element->appendChild($this->createElementText('country', substr($facility['country_code'], 0, 2)));
+        if (strlen($postalCodePostfix) == 4) {
+            $element->appendChild($this->createElementText('zip4', $postalCodePostfix));
+        }
+
+        if ($facility['country_code']) {
+            $element->appendChild($this->createElementText('country', substr($facility['country_code'], 0, 2)));
+        }
 
         return $element;
     }
@@ -417,9 +440,17 @@ break;
         $element->setAttribute('ID', $userFacility['id']);
         $element->appendChild($this->createElementText('locationName', $this->trimData($this->stripSpecialCharacter($userFacility['name']), 35)));
         $element->appendChild($this->getLocationAddress($userFacility));
-        if($userFacility['phone']) $element->appendChild($this->createElementText('primaryPhoneNumber', preg_replace('/[^0-9]/', '', $userFacility['phone'])));
-        if($userFacility['fax']) $element->appendChild($this->createElementText('primaryFaxNumber', preg_replace('/[^0-9]/', '', $userFacility['fax'])));
-        if($userFacility['phone']) $element->appendChild($this->createElementText('pharmacyContactNumber', preg_replace('/[^0-9]/', '', $userFacility['phone'])));
+        if ($userFacility['phone']) {
+            $element->appendChild($this->createElementText('primaryPhoneNumber', preg_replace('/[^0-9]/', '', $userFacility['phone'])));
+        }
+
+        if ($userFacility['fax']) {
+            $element->appendChild($this->createElementText('primaryFaxNumber', preg_replace('/[^0-9]/', '', $userFacility['fax'])));
+        }
+
+        if ($userFacility['phone']) {
+            $element->appendChild($this->createElementText('pharmacyContactNumber', preg_replace('/[^0-9]/', '', $userFacility['phone'])));
+        }
 
         return $element;
     }
@@ -433,7 +464,10 @@ break;
         $element->setAttribute('ID', $userDetails['npi']);
         $element->appendChild($this->getLicensedPrescriberName($userDetails));
         $element->appendChild($this->createElementTextFieldEmpty('dea', $userDetails['federaldrugid'], 'Licensed Prescriber DEA'));
-        if($userDetails['upin']) $element->appendChild($this->createElementText('upin', $userDetails['upin']));
+        if ($userDetails['upin']) {
+            $element->appendChild($this->createElementText('upin', $userDetails['upin']));
+        }
+
         $element->appendChild($this->createElementText('licenseNumber', $userDetails['state_license_number']));
         $element->appendChild($this->createElementTextFieldEmpty('npi', $userDetails['npi'], xl('Licensed Prescriber NPI')));
 
@@ -469,7 +503,9 @@ break;
         $element->appendChild($this->createElementTextFieldEmpty('last', $this->stripSpecialCharacter($user['lname']), $prescriberType.' '.xl('Licensed Prescriber Last Name')));
         $element->appendChild($this->createElementTextFieldEmpty('first', $this->stripSpecialCharacter($user['fname']), $prescriberType.' '.xl('Licensed Prescriber First Name')));
         $element->appendChild($this->createElementText('middle', $this->stripSpecialCharacter($user['mname'])));
-        if($prefix && $user['title']) $element->appendChild($this->createElementTextFieldEmpty('prefix', $user['title'], $prescriberType.' '.xl('Licensed Prescriber Title (Prefix)')));
+        if ($prefix && $user['title']) {
+            $element->appendChild($this->createElementTextFieldEmpty('prefix', $user['title'], $prescriberType.' '.xl('Licensed Prescriber Title (Prefix)')));
+        }
 
         return $element;
     }
@@ -483,7 +519,10 @@ break;
         $element->setAttribute('ID', $userDetails['npi']);
         $element->appendChild($this->getLicensedPrescriberName($userDetails, xl('Supervising Doctor')));
         $element->appendChild($this->createElementTextFieldEmpty('dea', $userDetails['federaldrugid'], xl('Supervising Doctor DEA')));
-        if($userDetails['upin']) $element->appendChild($this->createElementText('upin', $userDetails['upin']));
+        if ($userDetails['upin']) {
+            $element->appendChild($this->createElementText('upin', $userDetails['upin']));
+        }
+
         $element->appendChild($this->createElementText('licenseNumber', $userDetails['state_license_number']));
         $element->appendChild($this->createElementTextFieldEmpty('npi', $userDetails['npi'], xl('Supervising Doctor NPI')));
 
@@ -499,7 +538,10 @@ break;
         $element->setAttribute('ID', $userDetails['npi']);
         $element->appendChild($this->getLicensedPrescriberName($userDetails, xl('Midlevel Prescriber'), true));
         $element->appendChild($this->createElementTextFieldEmpty('dea', $userDetails['federaldrugid'], xl('Midlevel Prescriber DEA')));
-        if($userDetails['upin']) $element->appendChild($this->createElementText('upin', $userDetails['upin']));
+        if ($userDetails['upin']) {
+            $element->appendChild($this->createElementText('upin', $userDetails['upin']));
+        }
+
         $element->appendChild($this->createElementText('licenseNumber', $userDetails['state_license_number']));
 
         return $element;
@@ -512,19 +554,19 @@ break;
 
         $elements = array();
 
-        if($userRole != 'manager') {
+        if ($userRole != 'manager') {
             $elements[] = $this->getLocation($authUserId);
         }
 
-        if($userRole == 'doctor' || $destination == 'renewal') {
+        if ($userRole == 'doctor' || $destination == 'renewal') {
             $elements[] = $this->getLicensedPrescriber($authUserId);
         }
 
-        if($userRole == 'manager' || $userRole == 'admin' || $userRole == 'nurse') {
+        if ($userRole == 'manager' || $userRole == 'admin' || $userRole == 'nurse') {
             $elements[] = $this->getStaff($authUserId);
-        } elseif($userRole == 'supervisingDoctor') {
+        } elseif ($userRole == 'supervisingDoctor') {
             $elements[] = $this->getSupervisingDoctor($authUserId);
-        } elseif($userRole == 'midlevelPrescriber') {
+        } elseif ($userRole == 'midlevelPrescriber') {
             $elements[] = $this->getMidlevelPrescriber($authUserId);
         }
 
@@ -547,22 +589,29 @@ break;
         $this->warningMessage($patient['street'], xl('Patient Street Address'));
 
 
-        if(trim($patient['country_code']) == '') {
+        if (trim($patient['country_code']) == '') {
             $eRxDefaultPatientCountry = $this->getGlobals()->getDefaultPatientCountry();
 
-            if($eRxDefaultPatientCountry == '') {
+            if ($eRxDefaultPatientCountry == '') {
                 $this->demographicsCheck('', xl('Global Default Patient Country'));
             } else {
                 $patient['country_code'] = $eRxDefaultPatientCountry;
             }
+
             $this->demographicsCheck('', xl('Patient Country'));
         }
 
         $element = $this->getDocument()->createElement('PatientAddress');
         $element->appendChild($this->createElementTextFieldEmpty('address1', $patient['street'], xl('Patient Street Address')));
         $element->appendChild($this->createElementTextDemographicsCheck('city', $patient['city'], xl('Patient City')));
-        if($patient['state']) $element->appendChild($this->createElementText('state', $patient['state']));
-        if($patient['postal_code']) $element->appendChild($this->createElementText('zip', $patient['postal_code']));
+        if ($patient['state']) {
+            $element->appendChild($this->createElementText('state', $patient['state']));
+        }
+
+        if ($patient['postal_code']) {
+            $element->appendChild($this->createElementText('zip', $patient['postal_code']));
+        }
+
         $element->appendChild($this->createElementText('country', substr($patient['country_code'], 0, 2)));
 
         return $element;
@@ -571,21 +620,29 @@ break;
     public function getPatientContact($patient)
     {
         $element = $this->getDocument()->createElement('PatientContact');
-        if($patient['phone_home']) $element->appendChild($this->createElementText('homeTelephone', preg_replace('/-/', '', $patient['phone_home'])));
+        if ($patient['phone_home']) {
+            $element->appendChild($this->createElementText('homeTelephone', preg_replace('/-/', '', $patient['phone_home'])));
+        }
 
         return $element;
     }
 
     public function getPatientCharacteristics($patient)
     {
-        if(trim($patient['date_of_birth']) == '' || $patient['date_of_birth'] == '00000000') {
+        if (trim($patient['date_of_birth']) == '' || $patient['date_of_birth'] == '00000000') {
             $this->warningMessage('', xl('Patient Date Of Birth'));
         }
+
         $this->warningMessage(trim($patient['sex']), xl('Patient Gender'));
 
         $element = $this->getDocument()->createElement('PatientCharacteristics');
-        if($patient['date_of_birth'] && $patient['date_of_birth'] != '00000000') $element->appendChild($this->createElementText('dob', $patient['date_of_birth']));
-        if($patient['sex']) $element->appendChild($this->createElementText('gender', substr($patient['sex'], 0, 1)));
+        if ($patient['date_of_birth'] && $patient['date_of_birth'] != '00000000') {
+            $element->appendChild($this->createElementText('dob', $patient['date_of_birth']));
+        }
+
+        if ($patient['sex']) {
+            $element->appendChild($this->createElementText('gender', substr($patient['sex'], 0, 1)));
+        }
 
         return $element;
     }
@@ -597,7 +654,7 @@ break;
 
         $elements = array();
 
-        while($healthplan = sqlFetchArray($healthplans)) {
+        while ($healthplan = sqlFetchArray($healthplans)) {
             $element = $this->getDocument()->createElement('PatientFreeformHealthplans');
             $element->appendChild($this->createElementText('healthplanName', $this->trimData($this->stripSpecialCharacter($healthplan['name'], 35))));
 
@@ -614,13 +671,21 @@ break;
 
         $elements = array();
 
-        while($allergy = sqlFetchArray($allergyData)) {
+        while ($allergy = sqlFetchArray($allergyData)) {
             $element = $this->getDocument()->createElement('PatientFreeformAllergy');
             $element->setAttribute('ID', $allergy['id']);
 
-            if($allergy['title1']) $element->appendChild($this->createElementText('allergyName', $this->trimData($this->stripSpecialCharacter($allergy['title1']), 70)));
-            if($allergy['title2']=='Mild' || $allergy['title2']=='Moderate' || $allergy['title2']=='Severe') $element->appendChild($this->createElementText('allergySeverityTypeID', $allergy['title2']));
-            if($allergy['comments']) $element->appendChild($this->createElementText('allergyComment', $this->trimData($this->stripSpecialCharacter($allergy['comments']), 200)));
+            if ($allergy['title1']) {
+                $element->appendChild($this->createElementText('allergyName', $this->trimData($this->stripSpecialCharacter($allergy['title1']), 70)));
+            }
+
+            if ($allergy['title2']=='Mild' || $allergy['title2']=='Moderate' || $allergy['title2']=='Severe') {
+                $element->appendChild($this->createElementText('allergySeverityTypeID', $allergy['title2']));
+            }
+
+            if ($allergy['comments']) {
+                $element->appendChild($this->createElementText('allergyComment', $this->trimData($this->stripSpecialCharacter($allergy['comments']), 200)));
+            }
 
             $elements[] = $element;
 
@@ -666,8 +731,8 @@ break;
     {
         $elements = array();
 
-        foreach($prescriptionIds as $prescriptionId) {
-            if($prescriptionId) {
+        foreach ($prescriptionIds as $prescriptionId) {
+            if ($prescriptionId) {
                 $prescription = $this->getStore()
                     ->getPrescriptionById($prescriptionId);
 
@@ -698,7 +763,7 @@ break;
 
         $elements = array();
 
-        while($medication = sqlFetchArray($medications)) {
+        while ($medication = sqlFetchArray($medications)) {
             $elements[] = $this->getOutsidePrescription(array(
                 'externalId'        => $medication['id'],
                 'date'              => $medication['begdate'],
@@ -720,7 +785,7 @@ break;
     {
         $elements = array();
 
-        if($patientId) {
+        if ($patientId) {
             $uploadActive = $this->getGlobals()->getUploadActive();
 
             $elements[] = $this->getPatient($patientId);
@@ -736,19 +801,19 @@ break;
 
             $prescriptionIds = array();
 
-            while($selectPrescriptionId = sqlFetchArray($selectPrescriptionIds)) {
+            while ($selectPrescriptionId = sqlFetchArray($selectPrescriptionIds)) {
                 $prescriptionIds[] = $selectPrescriptionId['id'];
             }
 
-            if(count($requestedPrescriptionIds) > 0) {
+            if (count($requestedPrescriptionIds) > 0) {
                 $elements = array_merge($elements, $this->getPatientPrescriptions($requestedPrescriptionIds));
-            } elseif(count($prescriptionIds) > 0) {
+            } elseif (count($prescriptionIds) > 0) {
                 $elements = array_merge($elements, $this->getPatientPrescriptions($prescriptionIds));
             } else {
                 $this->getPatientPrescriptions(array(0));
             }
 
-            if($selectPrescriptionIdsCount < $totalCount) {
+            if ($selectPrescriptionIdsCount < $totalCount) {
                 $elements = array_merge($elements, $this->getPatientMedication($patientId, $uploadActive, $totalCount - $selectPrescriptionIdsCount));
             }
         }

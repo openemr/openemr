@@ -32,8 +32,7 @@ $msg = xl('Internal error!');
 if ($issue) {
     $msg = xl('Issue') . " $issue " . xl('has been linked to visit') .
     " $thispid.$thisenc.";
-}
-else {
+} else {
     $issue = sqlInsert("INSERT INTO lists ( " .
     "date, pid, type, title, activity, comments, begdate, user, groupname " .
     ") VALUES ( " .
@@ -64,4 +63,3 @@ if ($issue) {
 }
 
 echo "alert('$msg');\n";
-?>

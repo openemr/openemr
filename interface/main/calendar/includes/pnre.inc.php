@@ -1,6 +1,6 @@
 <?php
 
-function pnSecAuthAction($a,$b,$c,$d)
+function pnSecAuthAction($a, $b, $c, $d)
 {
 //	echo "forcing auth to true";
     return true;
@@ -22,7 +22,7 @@ function pnSecAuthAction($a,$b,$c,$d)
  * @returns string
  * @return an encrypted key for use in authorisation of operations
  */
-function pnSecGenAuthKey($modname='')
+function pnSecGenAuthKey($modname = '')
 {
 
     if (empty($modname)) {
@@ -60,17 +60,10 @@ function pnSecConfirmAuthKey($preview = false)
             srand((double)microtime()*1000000);
             pnSessionSetVar('rand', rand());
         }
+
         return true;
     }
 
     // Not found, assume invalid
     return false;
 }
-
-
-
-
-
-
-
-?>

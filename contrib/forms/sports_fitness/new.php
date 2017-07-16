@@ -31,7 +31,10 @@ if (! $encounter) { // comes from globals.php
 function rbvalue($rbname)
 {
     $tmp = $_POST[$rbname];
-    if (! $tmp) return "NULL";
+    if (! $tmp) {
+        return "NULL";
+    }
+
     return "'$tmp'";
 }
 
@@ -39,7 +42,10 @@ function rbinput($name, $value, $desc, $colname)
 {
     global $row;
     $ret  = "<input type='radio' name='$name' value='$value'";
-    if ($row[$colname] == $value) $ret .= " checked";
+    if ($row[$colname] == $value) {
+        $ret .= " checked";
+    }
+
     $ret .= " />$desc";
     return $ret;
 }
@@ -49,7 +55,6 @@ $formid = $_GET['id'];
 // If Save was clicked, save the info.
 //
 if ($_POST['bn_save']) {
-
  // If updating an existing form...
  //
     if ($formid) {
@@ -72,9 +77,7 @@ if ($_POST['bn_save']) {
          "other = '"                . $_POST['form_other']                . "' "  .
          "WHERE id = '$formid'";
         sqlStatement($query);
-    }
-
- // If adding a new form...
+    } // If adding a new form...
  //
     else {
         $query = "INSERT INTO form_sports_fitness ( " .
@@ -111,7 +114,7 @@ if ($_POST['bn_save']) {
 }
 
 if ($formid) {
-    $row = sqlQuery ("SELECT * FROM form_sports_fitness WHERE " .
+    $row = sqlQuery("SELECT * FROM form_sports_fitness WHERE " .
     "id = '$formid' AND activity = '1'") ;
 }
 ?>
@@ -227,8 +230,8 @@ if ($formid) {
     <tr>
      <td colspan='6' nowrap>
       B.F. Method Used:&nbsp;
-        <?php echo rbinput('form_method_body_fat', 'Caliper'    , 'Caliper'    , 'method_body_fat') ?>&nbsp;
-        <?php echo rbinput('form_method_body_fat', 'Electronic' , 'Electronic' , 'method_body_fat') ?>&nbsp;
+        <?php echo rbinput('form_method_body_fat', 'Caliper', 'Caliper', 'method_body_fat') ?>&nbsp;
+        <?php echo rbinput('form_method_body_fat', 'Electronic', 'Electronic', 'method_body_fat') ?>&nbsp;
         <?php echo rbinput('form_method_body_fat', 'Hydrostatic', 'Hydrostatic', 'method_body_fat') ?>
      </td>
     </tr>

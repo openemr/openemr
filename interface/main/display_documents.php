@@ -37,9 +37,9 @@ $sub_date = date_format($curdate, 'Y-m-d');
 $form_from_doc_date = ( $_GET['form_from_doc_date'] ) ? $_GET['form_from_doc_date'] : oeFormatShortDate($sub_date);
 $form_to_doc_date = ( $_GET['form_to_doc_date'] ) ? $_GET['form_to_doc_date'] : oeFormatShortDate(date("Y-m-d"));
 
-if($GLOBALS['date_display_format'] == 1) {
+if ($GLOBALS['date_display_format'] == 1) {
     $title_tooltip = "MM/DD/YYYY";
-} elseif($GLOBALS['date_display_format'] == 2) {
+} elseif ($GLOBALS['date_display_format'] == 2) {
     $title_tooltip = "DD/MM/YYYY";
 } else {
     $title_tooltip = "YYYY-MM-DD";
@@ -103,7 +103,7 @@ $display_collapse_msg = "display:inline;";
         var todate = $("#" + toDate).val();
         if ( (frmdate.length > 0) && (todate.length > 0) ) {
             if ( DateCheckGreater(frmdate, todate, global_date_format) == false ){
-                alert("<?php xl('To date must be later than From date!','e'); ?>");
+                alert("<?php xl('To date must be later than From date!', 'e'); ?>");
                 return false;
             }
         }
@@ -188,16 +188,18 @@ $display_collapse_msg = "display:inline;";
     if ($form_from_doc_date) {
         $form_from_doc_date = DateToYYYYMMDD($form_from_doc_date);
         $date_filter = " DATE(d.date) >= ? ";
-                array_push($query_array,$form_from_doc_date);
+                array_push($query_array, $form_from_doc_date);
     }
+
     if ($form_to_doc_date) {
         $form_to_doc_date = DateToYYYYMMDD($form_to_doc_date);
         $date_filter .= " AND DATE(d.date) <= ? ";
-                array_push($query_array,$form_to_doc_date);
+                array_push($query_array, $form_to_doc_date);
     }
+
     // Get the category ID for lab reports.
     $query = "SELECT rght FROM categories WHERE name = ?";
-    $catIDRs = sqlQuery($query,array($GLOBALS['lab_results_category_name']));
+    $catIDRs = sqlQuery($query, array($GLOBALS['lab_results_category_name']));
     $catID = $catIDRs['rght'];
 
     $query = "SELECT d.*,CONCAT(pd.fname,' ',pd.lname) AS pname,GROUP_CONCAT(n.note ORDER BY n.date DESC SEPARATOR '|') AS docNotes,
@@ -206,8 +208,8 @@ $display_collapse_msg = "display:inline;";
 		INNER JOIN categories_to_documents ctd ON d.id = ctd.document_id AND ctd.category_id = ?
 		LEFT JOIN notes n ON d.id = n.foreign_id
 		WHERE " . $date_filter . " GROUP BY d.id ORDER BY date DESC";
-        array_unshift($query_array,$catID);
-    $resultSet = sqlStatement($query,$query_array);
+        array_unshift($query_array, $catID);
+    $resultSet = sqlStatement($query, $query_array);
     ?>
 
     <table border="1" cellpadding=3 cellspacing=0>
@@ -220,17 +222,19 @@ $display_collapse_msg = "display:inline;";
     </tr>
     <?php
     if (sqlNumRows($resultSet)) {
-        while ( $row = sqlFetchArray($resultSet) ) {
+        while ($row = sqlFetchArray($resultSet)) {
             $url = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr($row["foreign_id"]) . "&document_id=" . attr($row["id"]) . '&as_file=false';
             // Get the notes for this document.
             $notes = array();
             $note = '';
-            if ( $row['docNotes'] ) {
-                $notes = explode("|",$row['docNotes']);
+            if ($row['docNotes']) {
+                $notes = explode("|", $row['docNotes']);
                 $dates = explode("|", $row['docDates']);
             }
-            for ( $i = 0 ; $i < count($notes) ; $i++ )
+
+            for ($i = 0; $i < count($notes); $i++) {
                 $note .= oeFormatShortDate(date('Y-m-d', strtotime($dates[$i]))) . " : " . text($notes[$i]) . "<br />";
+            }
             ?>
             <tr class="text">
                 <td><?php echo oeFormatShortDate(date('Y-m-d', strtotime($row['date']))); ?> </td>
@@ -241,8 +245,10 @@ $display_collapse_msg = "display:inline;";
                 <td><?php echo $note; ?> &nbsp;</td>
                 <td align="center"><?php echo ( $row['encounter_id'] ) ? text($row['encounter_id']) : ''; ?> </td>
             </tr>
-        <?php } ?>
-    <?php } ?>
+        <?php
+        } ?>
+    <?php
+    } ?>
     </table>
 </div>
 </body>

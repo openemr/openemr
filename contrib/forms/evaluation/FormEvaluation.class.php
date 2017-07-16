@@ -5,7 +5,8 @@
  * class FormEvaluation
  *
  */
-class FormEvaluation extends ORDataObject {
+class FormEvaluation extends ORDataObject
+{
 
     /**
      *
@@ -37,12 +38,11 @@ class FormEvaluation extends ORDataObject {
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormEvaluation($id= "", $_prefix = "")
+    function FormEvaluation($id = "", $_prefix = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;
-        }
-        else {
+        } else {
             $id = "";
         }
 
@@ -67,7 +67,6 @@ class FormEvaluation extends ORDataObject {
         while ($row = sqlFetchArray($results)) {
             $this->checks[] = $row['name'];
         }
-
     }
 
     function toString($html = false)
@@ -77,8 +76,7 @@ class FormEvaluation extends ORDataObject {
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }
@@ -293,7 +291,6 @@ class FormEvaluation extends ORDataObject {
                 }
             }
         }
-
     }
 
     function _form_layout()
@@ -448,7 +445,4 @@ class FormEvaluation extends ORDataObject {
 
         return $a;
     }
-
-
 }   // end of Form
-?>

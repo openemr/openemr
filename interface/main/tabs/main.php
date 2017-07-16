@@ -1,6 +1,7 @@
 <?php
 use Esign\Api;
 use OpenEMR\Core\Header;
+
 /**
  * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
@@ -82,7 +83,7 @@ function goRepeaterServices(){
 }
 
 function isEncounterLocked( encounterId ) {
-    <?php if ( $esignApi->lockEncounters() ) { ?>
+    <?php if ($esignApi->lockEncounters()) { ?>
     // If encounter locking is enabled, make a syncronous call (async=false) to check the
     // DB to see if the encounter is locked.
     // Call restore session, just in case
@@ -118,7 +119,7 @@ var webroot_url="<?php echo $web_root; ?>";
 
 <script type="text/javascript">
 // Create translations to be used in the menuActionClick() function in below js/tabs_view_model.js script
-var xl_strings_tabs_view_model = <?php echo json_encode( array(
+var xl_strings_tabs_view_model = <?php echo json_encode(array(
     'encounter_locked' => xla('This encounter is locked. No new forms can be added.'),
     'must_select_patient'  => $GLOBALS['enable_group_therapy'] ? xla('You must first select or add a patient or therapy group.') : xla('You must first select or add a patient.'),
     'must_select_encounter'    => xla('You must first select or create an encounter.')
@@ -142,12 +143,13 @@ if ($GLOBALS['erx_enable']) {
         $GLOBALS['newcrop_user_role_erxadmin'] = 1;
     }
 }
+
 // prepare track anything to be used in creating the menu
 $track_anything_sql = sqlQuery("SELECT `state` FROM `registry` WHERE `directory` = 'track_anything'");
 $GLOBALS['track_anything_state'] = $track_anything_sql['state'];
 // prepare Issues popup link global that is used in creating the menu
-$GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write') || acl_check('encounters','notes_a','','write')) &&
-  acl_check('patients','med','','write'));
+$GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'write') || acl_check('encounters', 'notes_a', '', 'write')) &&
+  acl_check('patients', 'med', '', 'write'));
 ?>
 
 <?php require_once("templates/tabs_template.php"); ?>
@@ -158,7 +160,7 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write')
 <?php require_once("menu/menu_json.php"); ?>
 <?php $userQuery = sqlQuery("select * from users where username = ?", array($_SESSION['authUser'])); ?>
 <script type="text/javascript">
-    <?php if(!empty($_SESSION['frame1url']) && !empty($_SESSION['frame1target'])) { ?>
+    <?php if (!empty($_SESSION['frame1url']) && !empty($_SESSION['frame1target'])) { ?>
         app_view_model.application_data.tabs.tabsList()[0].url(<?php echo json_encode("../".$_SESSION['frame1url']); ?>);
         app_view_model.application_data.tabs.tabsList()[0].name(<?php echo json_encode($_SESSION['frame1target']); ?>);
     <?php } ?>
@@ -179,8 +181,10 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write')
 <?php // mdsupport - app settings
     $disp_mainBox = '';
 if (isset($_SESSION['app1'])) {
-    $rs = sqlquery("SELECT title app_url FROM list_options WHERE activity=1 AND list_id=? AND option_id=?",
-        array('apps', $_SESSION['app1']));
+    $rs = sqlquery(
+        "SELECT title app_url FROM list_options WHERE activity=1 AND list_id=? AND option_id=?",
+        array('apps', $_SESSION['app1'])
+    );
     if ($rs['app_url'] != "main/main_screen.php") {
         echo '<iframe name="app1" src="../../'.attr($rs['app_url']).'"
     			style="position:absolute; left:0; top:0; height:100%; width:100%; border:none;" />';

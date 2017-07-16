@@ -21,5 +21,4 @@
  * @author  Amiel Elboim <amielel@matrix.co.il>
  * @link    http://www.open-emr.org
  */
-require_once ("new.php");
-?>
+require_once("new.php");

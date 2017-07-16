@@ -22,8 +22,8 @@ use OpenEMR\Core\Header;
 
     <?php
     if ($_POST['form_yesno']) {
-        $form_yesno = filter_input(INPUT_POST,'form_yesno');
-        $form_adreviewed = DateToYYYYMMDD(filter_input(INPUT_POST,'form_adreviewed'));
+        $form_yesno = filter_input(INPUT_POST, 'form_yesno');
+        $form_adreviewed = DateToYYYYMMDD(filter_input(INPUT_POST, 'form_adreviewed'));
         sqlQuery("UPDATE patient_data SET completed_ad = ?, ad_reviewed = ? where pid = ?", array($form_yesno,$form_adreviewed,$pid));
         // Close this window and refresh the calendar display.
         echo "</head><body>\n<script language='JavaScript'>\n";
@@ -32,6 +32,7 @@ use OpenEMR\Core\Header;
         echo "</script>\n</body>\n</html>\n";
         exit();
     }
+
     $sql = "select completed_ad, ad_reviewed from patient_data where pid = ?";
     $myrow = sqlQuery($sql, array($pid));
     if ($myrow) {
@@ -126,11 +127,13 @@ use OpenEMR\Core\Header;
                             <?php echo text($dateTimeDoc);
                                 $counterFlag = true;
                         }
+
                           // if no associated docs with category then show it's empty
                         if (!$counterFlag) {
                             ?>
                             <br><?php echo text($nameDoc); ?><span style='color:red;'>[<?php echo xlt('EMPTY'); ?>]</span>
-                            <?php }
+                            <?php
+                        }
                     }
                 }
                 ?>

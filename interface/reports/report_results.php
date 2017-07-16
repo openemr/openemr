@@ -23,6 +23,7 @@
 
 
 use OpenEMR\Core\Header;
+
 require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once "$srcdir/options.inc.php";
@@ -34,7 +35,7 @@ require_once "$srcdir/report_database.inc";
 
 <head>
 
-<title><?php echo htmlspecialchars( xl('Report Results/History'), ENT_NOQUOTES); ?></title>
+<title><?php echo htmlspecialchars(xl('Report Results/History'), ENT_NOQUOTES); ?></title>
 
 <?php Header::setupHeader('datetime-picker'); ?>
 
@@ -87,7 +88,7 @@ require_once "$srcdir/report_database.inc";
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-<span class='title'><?php echo htmlspecialchars( xl('Report History/Results'), ENT_NOQUOTES); ?></span>
+<span class='title'><?php echo htmlspecialchars(xl('Report History/Results'), ENT_NOQUOTES); ?></span>
 
 <form method='post' name='theform' id='theform' action='report_results.php' onsubmit='return top.restoreSession()'>
 
@@ -102,23 +103,23 @@ require_once "$srcdir/report_database.inc";
 
                    <tr>
                       <td class='control-label'>
-                            <?php echo htmlspecialchars( xl('Begin Date'), ENT_NOQUOTES); ?>:
+                            <?php echo htmlspecialchars(xl('Begin Date'), ENT_NOQUOTES); ?>:
                       </td>
                       <td>
-                         <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo htmlspecialchars( $_POST['form_begin_date'], ENT_QUOTES); ?>'
+                         <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo htmlspecialchars($_POST['form_begin_date'], ENT_QUOTES); ?>'
                             class='datepicker form-control'
-                            title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
+                            title='<?php echo htmlspecialchars(xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
                       </td>
                    </tr>
 
                 <tr>
                         <td class='control-label'>
-                                <?php echo htmlspecialchars( xl('End Date'), ENT_NOQUOTES); ?>:
+                                <?php echo htmlspecialchars(xl('End Date'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>
-                           <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo htmlspecialchars( $_POST['form_end_date'], ENT_QUOTES); ?>'
+                           <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo htmlspecialchars($_POST['form_end_date'], ENT_QUOTES); ?>'
                                 class='datepicker form-control'
-                                title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
+                                title='<?php echo htmlspecialchars(xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
                         </td>
                 </tr>
     </table>
@@ -157,91 +158,116 @@ require_once "$srcdir/report_database.inc";
 
  <thead>
   <th align='center'>
-    <?php echo htmlspecialchars( xl('Title'), ENT_NOQUOTES); ?>
+    <?php echo htmlspecialchars(xl('Title'), ENT_NOQUOTES); ?>
   </th>
 
   <th align='center'>
-    <?php echo htmlspecialchars( xl('Date'), ENT_NOQUOTES); ?>
+    <?php echo htmlspecialchars(xl('Date'), ENT_NOQUOTES); ?>
   </th>
 
   <th align='center'>
-    <?php echo htmlspecialchars( xl('Status'), ENT_NOQUOTES); ?>
+    <?php echo htmlspecialchars(xl('Status'), ENT_NOQUOTES); ?>
   </th>
 
  </thead>
  <tbody>  <!-- added for better print-ability -->
 <?php
 
- $res = listingReportDatabase($_POST['form_begin_date'],$_POST['form_end_date']);
+ $res = listingReportDatabase($_POST['form_begin_date'], $_POST['form_end_date']);
 while ($row = sqlFetchArray($res)) {
-
   // Figure out the title and link
     if ($row['type'] == "cqm") {
-        if (!$GLOBALS['enable_cqm']) continue;
+        if (!$GLOBALS['enable_cqm']) {
+            continue;
+        }
+
         $type_title = xl('Clinical Quality Measures (CQM)');
         $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-    }
-    else if ($row['type'] == "cqm_2011") {
-        if (!$GLOBALS['enable_cqm']) continue;
+    } else if ($row['type'] == "cqm_2011") {
+        if (!$GLOBALS['enable_cqm']) {
+            continue;
+        }
+
         $type_title = xl('2011 Clinical Quality Measures (CQM)');
         $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-    }
-    else if ($row['type'] == "cqm_2014") {
-        if (!$GLOBALS['enable_cqm']) continue;
+    } else if ($row['type'] == "cqm_2014") {
+        if (!$GLOBALS['enable_cqm']) {
+            continue;
+        }
+
         $type_title = xl('2014 Clinical Quality Measures (CQM)');
         $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-    }
-    else if ($row['type'] == "amc") {
-        if (!$GLOBALS['enable_amc']) continue;
+    } else if ($row['type'] == "amc") {
+        if (!$GLOBALS['enable_amc']) {
+            continue;
+        }
+
         $type_title = xl('Automated Measure Calculations (AMC)');
         $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-    }
-    else if ($row['type'] == "amc_2011") {
-        if (!$GLOBALS['enable_amc']) continue;
+    } else if ($row['type'] == "amc_2011") {
+        if (!$GLOBALS['enable_amc']) {
+            continue;
+        }
+
         $type_title = xl('2011 Automated Measure Calculations (AMC)');
         $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-    }
-    else if ($row['type'] == "amc_2014") {
-        if (!$GLOBALS['enable_amc']) continue;
+    } else if ($row['type'] == "amc_2014") {
+        if (!$GLOBALS['enable_amc']) {
+            continue;
+        }
+
         $type_title = xl('2014 Automated Measure Calculations (AMC)');
         $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-    }
-    else if ($row['type'] == "amc_2014_stage1") {
-        if (!$GLOBALS['enable_amc']) continue;
+    } else if ($row['type'] == "amc_2014_stage1") {
+        if (!$GLOBALS['enable_amc']) {
+            continue;
+        }
+
         $type_title = xl('2014 Automated Measure Calculations (AMC) - Stage I');
         $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-    }
-    else if ($row['type'] == "amc_2014_stage2") {
-        if (!$GLOBALS['enable_amc']) continue;
+    } else if ($row['type'] == "amc_2014_stage2") {
+        if (!$GLOBALS['enable_amc']) {
+            continue;
+        }
+
         $type_title = xl('2014 Automated Measure Calculations (AMC) - Stage II');
         $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-    }
-    else if ($row['type'] == "process_reminders") {
-        if (!$GLOBALS['enable_cdr']) continue;
+    } else if ($row['type'] == "process_reminders") {
+        if (!$GLOBALS['enable_cdr']) {
+            continue;
+        }
+
         $type_title = xl('Processing Patient Reminders');
         $link="../batchcom/batch_reminders.php?report_id=" . attr($row["report_id"]);
-    }
-    else if ($row['type'] == "process_send_reminders") {
-        if (!$GLOBALS['enable_cdr']) continue;
+    } else if ($row['type'] == "process_send_reminders") {
+        if (!$GLOBALS['enable_cdr']) {
+            continue;
+        }
+
         $type_title = xl('Processing and Sending Patient Reminders');
         $link="../batchcom/batch_reminders.php?report_id=" . attr($row["report_id"]);
-    }
-    else if ($row['type'] == "passive_alert") {
-        if (!$GLOBALS['enable_cdr']) continue;
+    } else if ($row['type'] == "passive_alert") {
+        if (!$GLOBALS['enable_cdr']) {
+            continue;
+        }
+
         $type_title = xl('Standard Measures (Passive Alerts)');
         $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-    }
-    else if ($row['type'] == "active_alert") {
-        if (!$GLOBALS['enable_cdr']) continue;
+    } else if ($row['type'] == "active_alert") {
+        if (!$GLOBALS['enable_cdr']) {
+            continue;
+        }
+
         $type_title = xl('Standard Measures (Active Alerts)');
         $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-    }
-    else if ($row['type'] == "patient_reminder") {
-        if (!$GLOBALS['enable_cdr']) continue;
+    } else if ($row['type'] == "patient_reminder") {
+        if (!$GLOBALS['enable_cdr']) {
+            continue;
+        }
+
         $type_title = xl('Standard Measures (Patient Reminders)');
         $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-    }
-    else {
+    } else {
         // Not identified, so give an unknown title
         $type_title = xl('Unknown') . "-" . $row['type'];
         $link="";

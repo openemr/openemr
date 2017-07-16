@@ -31,15 +31,13 @@ function slInvoiceNumber(&$out)
     if ($acount == 2) {
         $pid = $atmp[0];
         $encounter = $atmp[1];
-    }
-    else if ($acount == 3) {
+    } else if ($acount == 3) {
         $pid = $atmp[0];
         $brow = sqlQuery("SELECT encounter FROM billing WHERE " .
         "pid = '$pid' AND encounter = '" . $atmp[1] . "' AND activity = 1");
         
         $encounter = $brow['encounter'];
-    }
-    else if ($acount == 1) {
+    } else if ($acount == 1) {
         $pres = sqlStatement("SELECT pid FROM patient_data WHERE " .
         "lname LIKE '" . addslashes($out['patient_lname']) . "' AND " .
         "fname LIKE '" . addslashes($out['patient_fname']) . "' " .
@@ -53,7 +51,10 @@ function slInvoiceNumber(&$out)
         }
     }
 
-    if ($pid && $encounter) $invnumber = "$pid.$encounter";
+    if ($pid && $encounter) {
+        $invnumber = "$pid.$encounter";
+    }
+
     return array($pid, $encounter, $invnumber);
 }
 
@@ -61,16 +62,22 @@ function slInvoiceNumber(&$out)
   // session already exists, then its ID is returned.  Otherwise a new session
   // is created.
   //
-function arGetSession($payer_id, $reference, $check_date, $deposit_date='', $pay_total=0)
+function arGetSession($payer_id, $reference, $check_date, $deposit_date = '', $pay_total = 0)
 {
-    if (empty($deposit_date)) $deposit_date = $check_date;
+    if (empty($deposit_date)) {
+        $deposit_date = $check_date;
+    }
+
     if ($payer_id) {
         $row = sqlQuery("SELECT session_id FROM ar_session WHERE " .
         "payer_id = '$payer_id' AND reference = '$reference' AND " .
         "check_date = '$check_date' AND deposit_date = '$deposit_date' " .
         "ORDER BY session_id DESC LIMIT 1");
-        if (!empty($row['session_id'])) return $row['session_id'];
+        if (!empty($row['session_id'])) {
+            return $row['session_id'];
+        }
     }
+
     return sqlInsert("INSERT INTO ar_session ( " .
     "payer_id, user_id, reference, check_date, deposit_date, pay_total " .
     ") VALUES ( " .
@@ -83,7 +90,7 @@ function arGetSession($payer_id, $reference, $check_date, $deposit_date='', $pay
     ")");
 }
   //writing the check details to Session Table on ERA proxcessing
-function arPostSession($payer_id,$check_number,$check_date,$pay_total,$post_to_date,$deposit_date,$debug)
+function arPostSession($payer_id, $check_number, $check_date, $pay_total, $post_to_date, $deposit_date, $debug)
 {
       $query = "INSERT INTO ar_session( " .
       "payer_id,user_id,closed,reference,check_date,pay_total,post_to_date,deposit_date,patient_id,payment_type,adjustment_code,payment_method " .
@@ -107,7 +114,7 @@ function arPostSession($payer_id,$check_number,$check_date,$pay_total,$post_to_d
   
   // Post a payment, new style.
   //
-function arPostPayment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $memo, $debug, $time='', $codetype='')
+function arPostPayment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $memo, $debug, $time = '', $codetype = '')
 {
     $codeonly = $code;
     $modifier = '';
@@ -116,10 +123,13 @@ function arPostPayment($patient_id, $encounter_id, $session_id, $amount, $code, 
         $codeonly = substr($code, 0, $tmp);
         $modifier = substr($code, $tmp+1);
     }
-    if (empty($time)) $time = date('Y-m-d H:i:s');
+
+    if (empty($time)) {
+        $time = date('Y-m-d H:i:s');
+    }
 
     sqlBeginTrans();
-    $sequence_no = sqlQuery( "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($patient_id, $encounter_id));
+    $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($patient_id, $encounter_id));
     $query = "INSERT INTO ar_activity ( " .
     "pid, encounter, sequence_no, code_type, code, modifier, payer_type, post_time, post_user, " .
     "session_id, memo, pay_amount " .
@@ -146,7 +156,7 @@ function arPostPayment($patient_id, $encounter_id, $session_id, $amount, $code, 
   // automated remittance processing can create a new service item.
   // Here we add it as an unauthorized item to the billing table.
   //
-function arPostCharge($patient_id, $encounter_id, $session_id, $amount, $units, $thisdate, $code, $description, $debug, $codetype='')
+function arPostCharge($patient_id, $encounter_id, $session_id, $amount, $units, $thisdate, $code, $description, $debug, $codetype = '')
 {
     /*****************************************************************
     // Select an existing billing item as a template.
@@ -166,6 +176,7 @@ function arPostCharge($patient_id, $encounter_id, $session_id, $amount, $units, 
       // default to CPT4 if empty, which is consistent with previous functionality.
         $codetype="CPT4";
     }
+
     $codeonly = $code;
     $modifier = '';
     $tmp = strpos($code, ':');
@@ -174,23 +185,25 @@ function arPostCharge($patient_id, $encounter_id, $session_id, $amount, $units, 
         $modifier = substr($code, $tmp+1);
     }
 
-    addBilling($encounter_id,
-    $codetype,
-    $codeonly,
-    $description,
-    $patient_id,
-    0,
-    0,
-    $modifier,
-    $units,
-    $amount,
-    '',
-    '');
+    addBilling(
+        $encounter_id,
+        $codetype,
+        $codeonly,
+        $description,
+        $patient_id,
+        0,
+        0,
+        $modifier,
+        $units,
+        $amount,
+        '',
+        ''
+    );
 }
 
   // Post an adjustment, new style.
   //
-function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $reason, $debug, $time='', $codetype='')
+function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $reason, $debug, $time = '', $codetype = '')
 {
     $codeonly = $code;
     $modifier = '';
@@ -199,10 +212,13 @@ function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $cod
         $codeonly = substr($code, 0, $tmp);
         $modifier = substr($code, $tmp+1);
     }
-    if (empty($time)) $time = date('Y-m-d H:i:s');
+
+    if (empty($time)) {
+        $time = date('Y-m-d H:i:s');
+    }
 
     sqlBeginTrans();
-    $sequence_no = sqlQuery( "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($patient_id, $encounter_id));
+    $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($patient_id, $encounter_id));
     $query = "INSERT INTO ar_activity ( " .
     "pid, encounter, sequence_no, code_type, code, modifier, payer_type, post_user, post_time, " .
     "session_id, memo, adj_amount " .
@@ -227,52 +243,57 @@ function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $cod
 
 function arGetPayerID($patient_id, $date_of_service, $payer_type)
 {
-    if ($payer_type < 1 || $payer_type > 3) return 0;
+    if ($payer_type < 1 || $payer_type > 3) {
+        return 0;
+    }
+
     $tmp = array(1 => 'primary', 2 => 'secondary', 3 => 'tertiary');
     $value = $tmp[$payer_type];
     $query = "SELECT provider FROM insurance_data WHERE " .
     "pid = ? AND type = ? AND date <= ? " .
     "ORDER BY date DESC LIMIT 1";
-    $nprow = sqlQuery($query, array($patient_id,$value,$date_of_service) );
-    if (empty($nprow)) return 0;
+    $nprow = sqlQuery($query, array($patient_id,$value,$date_of_service));
+    if (empty($nprow)) {
+        return 0;
+    }
+
     return $nprow['provider'];
 }
 
   // Make this invoice re-billable, new style.
   //
-function arSetupSecondary($patient_id, $encounter_id, $debug,$crossover=0)
+function arSetupSecondary($patient_id, $encounter_id, $debug, $crossover = 0)
 {
     if ($crossover==1) {
     //if claim forwarded setting a new status
         $status=6;
-    
     } else {
-    
         $status=1;
-    
     }
+
     // Determine the next insurance level to be billed.
     $ferow = sqlQuery("SELECT date, last_level_billed " .
     "FROM form_encounter WHERE " .
     "pid = '$patient_id' AND encounter = '$encounter_id'");
     $date_of_service = substr($ferow['date'], 0, 10);
     $new_payer_type = 0 + $ferow['last_level_billed'];
-    if ($new_payer_type < 3 && !empty($ferow['last_level_billed']) || $new_payer_type == 0)
-    ++$new_payer_type;
+    if ($new_payer_type < 3 && !empty($ferow['last_level_billed']) || $new_payer_type == 0) {
+        ++$new_payer_type;
+    }
 
     $new_payer_id = arGetPayerID($patient_id, $date_of_service, $new_payer_type);
 
     if ($new_payer_id) {
         // Queue up the claim.
-        if (!$debug)
-        updateClaim(true, $patient_id, $encounter_id, $new_payer_id, $new_payer_type,$status, 5, '', 'hcfa','',$crossover);
-    }
-    else {
+        if (!$debug) {
+            updateClaim(true, $patient_id, $encounter_id, $new_payer_id, $new_payer_type, $status, 5, '', 'hcfa', '', $crossover);
+        }
+    } else {
       // Just reopen the claim.
-        if (!$debug)
-        updateClaim(true, $patient_id, $encounter_id, -1, -1, $status, 0, '','','',$crossover);
+        if (!$debug) {
+            updateClaim(true, $patient_id, $encounter_id, -1, -1, $status, 0, '', '', '', $crossover);
+        }
     }
 
     return xl("Encounter ") . $encounter . xl(" is ready for re-billing.");
 }
-?>

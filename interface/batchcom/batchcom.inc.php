@@ -39,6 +39,7 @@ function where_or_and($and)
     } else {
         $and='AND ';
     }
+
     return $and;
 }
     
@@ -66,6 +67,7 @@ function generate_csv($sql_result)
             foreach ($row as $key => $value) {
                 $file .= "$key,";
             }
+
             $file = substr($file, 0, -1);
             $file .= "\n";
             reset($row);
@@ -74,6 +76,7 @@ function generate_csv($sql_result)
         foreach ($row as $key => $value) {
             $line .= "$value,";
         }
+
         $line = substr($line, 0, -1);
         $line .= "\n";
         $file .= $line;

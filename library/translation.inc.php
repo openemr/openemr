@@ -10,13 +10,12 @@
 //   declared, so check to ensure has not been declared yet.
 //
 if (!(function_exists('xl'))) {
-    function xl($constant,$mode='r',$prepend='',$append='')
+    function xl($constant, $mode = 'r', $prepend = '', $append = '')
     {
         // set language id
         if (!empty($_SESSION['language_choice'])) {
              $lang_id = $_SESSION['language_choice'];
-        }
-        else {
+        } else {
              $lang_id = 1;
         }
 
@@ -24,8 +23,7 @@ if (!(function_exists('xl'))) {
              // language id = 1, so no need to translate
              //  -- remove comments
              $string = preg_replace('/\{\{.*\}\}/', '', $constant);
-        }
-        else {
+        } else {
              // TRANSLATE
              // first, clean lines
              // convert new lines to spaces and remove windows end of lines
@@ -37,18 +35,19 @@ if (!(function_exists('xl'))) {
              $sql="SELECT * FROM lang_definitions JOIN lang_constants ON " .
             "lang_definitions.cons_id = lang_constants.cons_id WHERE " .
             "lang_id=? AND constant_name = ? LIMIT 1";
-             $res = sqlStatementNoLog($sql,array($lang_id,$constant));
+             $res = sqlStatementNoLog($sql, array($lang_id,$constant));
              $row = SqlFetchArray($res);
              $string = $row['definition'];
-            if ($string == '') { $string = "$constant"; }
+            if ($string == '') {
+                $string = "$constant";
+            }
 
              // remove dangerous characters and remove comments
             if ($GLOBALS['translate_no_safe_apostrophe']) {
                 $patterns = array ('/\n/','/\r/','/\{\{.*\}\}/');
                 $replace = array (' ','','');
                 $string = preg_replace($patterns, $replace, $string);
-            }
-            else {
+            } else {
                 // convert apostrophes and quotes to safe apostrophe
                 $patterns = array ('/\n/','/\r/','/"/',"/'/",'/\{\{.*\}\}/');
                 $replace = array (' ','','`','`','');
@@ -80,46 +79,40 @@ if (!(function_exists('xl'))) {
 //
 // Added 5-09 by BM for translation of list labels (when applicable)
 // Only translates if the $GLOBALS['translate_lists'] is set to true.
-function xl_list_label($constant,$mode='r',$prepend='',$append='')
+function xl_list_label($constant, $mode = 'r', $prepend = '', $append = '')
 {
     if ($GLOBALS['translate_lists']) {
         // TRANSLATE
         if ($mode == "e") {
-            xl($constant,$mode,$prepend,$append);
+            xl($constant, $mode, $prepend, $append);
+        } else {
+            return xl($constant, $mode, $prepend, $append);
         }
-        else {
-            return xl($constant,$mode,$prepend,$append);
-        }
-    }
-    else {
+    } else {
         // DO NOT TRANSLATE
         if ($mode == "e") {
             echo $prepend.$constant.$append;
-        }
-        else {
+        } else {
             return $prepend.$constant.$append;
         }
     }
 }
 // Added 5-09 by BM for translation of layout labels (when applicable)
 // Only translates if the $GLOBALS['translate_layout'] is set to true.
-function xl_layout_label($constant,$mode='r',$prepend='',$append='')
+function xl_layout_label($constant, $mode = 'r', $prepend = '', $append = '')
 {
     if ($GLOBALS['translate_layout']) {
         // TRANSLATE
         if ($mode == "e") {
-            xl($constant,$mode,$prepend,$append);
+            xl($constant, $mode, $prepend, $append);
+        } else {
+            return xl($constant, $mode, $prepend, $append);
         }
-        else {
-            return xl($constant,$mode,$prepend,$append);
-        }
-    }
-    else {
+    } else {
         // DO NOT TRANSLATE
         if ($mode == "e") {
             echo $prepend.$constant.$append;
-        }
-        else {
+        } else {
             return $prepend.$constant.$append;
         }
     }
@@ -127,23 +120,20 @@ function xl_layout_label($constant,$mode='r',$prepend='',$append='')
 // Added 6-2009 by BM for translation of access control group labels
 //  (when applicable)
 // Only translates if the $GLOBALS['translate_gacl_groups'] is set to true.
-function xl_gacl_group($constant,$mode='r',$prepend='',$append='')
+function xl_gacl_group($constant, $mode = 'r', $prepend = '', $append = '')
 {
     if ($GLOBALS['translate_gacl_groups']) {
         // TRANSLATE
         if ($mode == "e") {
-            xl($constant,$mode,$prepend,$append);
+            xl($constant, $mode, $prepend, $append);
+        } else {
+            return xl($constant, $mode, $prepend, $append);
         }
-        else {
-            return xl($constant,$mode,$prepend,$append);
-        }
-    }
-    else {
+    } else {
         // DO NOT TRANSLATE
         if ($mode == "e") {
             echo $prepend.$constant.$append;
-        }
-        else {
+        } else {
             return $prepend.$constant.$append;
         }
     }
@@ -151,23 +141,20 @@ function xl_gacl_group($constant,$mode='r',$prepend='',$append='')
 // Added 6-2009 by BM for translation of patient form (notes) titles
 //  (when applicable)
 // Only translates if the $GLOBALS['translate_form_titles'] is set to true.
-function xl_form_title($constant,$mode='r',$prepend='',$append='')
+function xl_form_title($constant, $mode = 'r', $prepend = '', $append = '')
 {
     if ($GLOBALS['translate_form_titles']) {
         // TRANSLATE
         if ($mode == "e") {
-            xl($constant,$mode,$prepend,$append);
+            xl($constant, $mode, $prepend, $append);
+        } else {
+            return xl($constant, $mode, $prepend, $append);
         }
-        else {
-            return xl($constant,$mode,$prepend,$append);
-        }
-    }
-    else {
+    } else {
         // DO NOT TRANSLATE
         if ($mode == "e") {
             echo $prepend.$constant.$append;
-        }
-        else {
+        } else {
             return $prepend.$constant.$append;
         }
     }
@@ -176,23 +163,20 @@ function xl_form_title($constant,$mode='r',$prepend='',$append='')
 // Added 6-2009 by BM for translation of document categories
 //  (when applicable)
 // Only translates if the $GLOBALS['translate_document_categories'] is set to true.
-function xl_document_category($constant,$mode='r',$prepend='',$append='')
+function xl_document_category($constant, $mode = 'r', $prepend = '', $append = '')
 {
     if ($GLOBALS['translate_document_categories']) {
         // TRANSLATE
         if ($mode == "e") {
-            xl($constant,$mode,$prepend,$append);
+            xl($constant, $mode, $prepend, $append);
+        } else {
+            return xl($constant, $mode, $prepend, $append);
         }
-        else {
-            return xl($constant,$mode,$prepend,$append);
-        }
-    }
-    else {
+    } else {
         // DO NOT TRANSLATE
         if ($mode == "e") {
             echo $prepend.$constant.$append;
-        }
-        else {
+        } else {
             return $prepend.$constant.$append;
         }
     }
@@ -201,23 +185,20 @@ function xl_document_category($constant,$mode='r',$prepend='',$append='')
 // Added 6-2009 by BM for translation of appointment categories
 //  (when applicable)
 // Only translates if the $GLOBALS['translate_appt_categories'] is set to true.
-function xl_appt_category($constant,$mode='r',$prepend='',$append='')
+function xl_appt_category($constant, $mode = 'r', $prepend = '', $append = '')
 {
     if ($GLOBALS['translate_appt_categories']) {
         // TRANSLATE
         if ($mode == "e") {
-            xl($constant,$mode,$prepend,$append);
+            xl($constant, $mode, $prepend, $append);
+        } else {
+            return xl($constant, $mode, $prepend, $append);
         }
-        else {
-            return xl($constant,$mode,$prepend,$append);
-        }
-    }
-    else {
+    } else {
         // DO NOT TRANSLATE
         if ($mode == "e") {
             echo $prepend.$constant.$append;
-        }
-        else {
+        } else {
             return $prepend.$constant.$append;
         }
     }
@@ -236,15 +217,15 @@ function getLanguageTitle($val)
  // validate language id
     if (!empty($val)) {
          $lang_id = $val;
-    }
-    else {
+    } else {
          $lang_id = 1;
     }
 
  // get language title
-    $res = sqlStatement("select lang_description from lang_languages where lang_id =?",array($lang_id));
-    for ($iter = 0;$row = sqlFetchArray($res);
-    $iter++) $result[$iter] = $row;
+    $res = sqlStatement("select lang_description from lang_languages where lang_id =?", array($lang_id));
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+        $result[$iter] = $row;
+    };
     $languageTitle = $result[0]{"lang_description"};
     return $languageTitle;
 }
@@ -289,5 +270,3 @@ function html_header_show()
     //
     // Keeping this function, since it may prove useful for user interface improvements
 }
-
-?>

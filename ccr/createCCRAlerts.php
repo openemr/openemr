@@ -25,7 +25,6 @@ $result = getAlertData();
 $row = sqlFetchArray($result);
 
 do {
-
 //while ($row = sqlFetchArray($result)) {
 
     $e_Alert = $ccr->createElement('Alert');
@@ -88,7 +87,7 @@ do {
     $e_ExactDateTime = $ccr->createElement('ExactDateTime', $row['date']);
     $e_DateTime->appendChild($e_ExactDateTime);
     
-    $e_Description = $ccr->createElement('Description' );
+    $e_Description = $ccr->createElement('Description');
     $e_EnvironmentalAgent->appendChild($e_Description);
 
     $e_Text = $ccr->createElement('Text', $row['alert_title']);
@@ -103,7 +102,7 @@ do {
     $e_Status = $ccr->createElement('Status');
     $e_EnvironmentalAgent->appendChild($e_Status);
 
-    $e_Text = $ccr->createElement('Text',$row['outcome']);
+    $e_Text = $ccr->createElement('Text', $row['outcome']);
     $e_Status->appendChild($e_Text);
     
     $e_EnvironmentalAgent->appendChild(sourceType($ccr, $sourceID));
@@ -122,8 +121,5 @@ do {
     
     $e_Text = $ccr->createElement('Text', 'None');
     $e_Status->appendChild($e_Text);
-
 } while ($row = sqlFetchArray($result));
     //}
-
-?>

@@ -15,20 +15,22 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-function generateDateQualifierSelect($name,$options,$obj)
+function generateDateQualifierSelect($name, $options, $obj)
 {
     echo     "<select name='".attr($name)."'>";
-    for($idx=0;$idx<count($options);$idx++)
-    {
+    for ($idx=0; $idx<count($options); $idx++) {
         echo "<option value='".attr($options[$idx][1])."'";
-        if($obj[$name]==$options[$idx][1]) echo " selected";
+        if ($obj[$name]==$options[$idx][1]) {
+            echo " selected";
+        }
+
         echo ">".text($options[$idx][0])."</option>";
     }
-    echo     "</select>";
 
+    echo     "</select>";
 }
 
-function genProviderSelect($selname, $toptext, $default=0, $disabled=false)
+function genProviderSelect($selname, $toptext, $default = 0, $disabled = false)
 {
     $query = "SELECT id, lname, fname FROM users WHERE " .
     "( authorized = 1 OR info LIKE '%provider%' ) AND username != '' " .
@@ -36,15 +38,22 @@ function genProviderSelect($selname, $toptext, $default=0, $disabled=false)
     "ORDER BY lname, fname";
     $res = sqlStatement($query);
     echo "<select name='" . attr($selname) . "'";
-    if ($disabled) echo " disabled";
+    if ($disabled) {
+        echo " disabled";
+    }
+
     echo ">";
     echo "<option value=''>" . text($toptext);
     while ($row = sqlFetchArray($res)) {
         $provid = $row['id'];
         echo "<option value='" . attr($provid) . "'";
-        if ($provid == $default) echo " selected";
+        if ($provid == $default) {
+            echo " selected";
+        }
+
         echo ">" . text($row['lname'] . ", " . $row['fname']);
     }
+
     echo "</select>\n";
 }
 
@@ -63,16 +72,14 @@ $box_15_qualifier_options=array(array(xl("Initial Treatment"),"454"),
                                             );
 $hcfa_date_quals=array("box_14_date_qual"=>$box_14_qualifier_options,"box_15_date_qual"=>$box_15_qualifier_options);
 
-function qual_id_to_description($qual_type,$value)
+function qual_id_to_description($qual_type, $value)
 {
     $options=$GLOBALS['hcfa_date_quals'][$qual_type];
-    for($idx=0;$idx<count($options);$idx++)
-    {
-        if($options[$idx][1]==$value)
-        {
+    for ($idx=0; $idx<count($options); $idx++) {
+        if ($options[$idx][1]==$value) {
             return $options[$idx][0];
         }
     }
+
     return null;
 }
-?>

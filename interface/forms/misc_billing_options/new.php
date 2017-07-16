@@ -70,25 +70,33 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
     <form method="post" <?php echo "name='my_form' " . "action='$rootdir/forms/misc_billing_options/save.php?id=" . attr($formid) . "'>\n";?>
       <h4><?php echo xlt('Miscellaneous Billing Options for HCFA-1500'); ?></h4>
       <label for="box10a"><?php echo xlt('Box 10. a. Employment related:'); ?></label>
-      <input type="checkbox" name="employment_related" id="box10a" value="1" <?php if ($obj['employment_related'] == "1") echo "checked"; ?> ><br><br>
+      <input type="checkbox" name="employment_related" id="box10a" value="1" <?php if ($obj['employment_related'] == "1") {
+            echo "checked";
+} ?> ><br><br>
       <label for="box10b"><?php echo xlt('Box 10. b. Auto Accident:'); ?></label>
-      <input type="checkbox" name="auto_accident" id="box10b" value="1" <?php if ($obj['auto_accident'] == "1") echo "checked"; ?> >
+      <input type="checkbox" name="auto_accident" id="box10b" value="1" <?php if ($obj['auto_accident'] == "1") {
+            echo "checked";
+} ?> >
       <label for="box10bstate"><?php echo xlt('State:'); ?></label>
       <input type="entry" name="accident_state" id="box10bstate" size="1" value="<?php echo attr($obj{"accident_state"}); ?>" /><br><br>
       <label for="box10c"><?php echo xlt('Box 10. c. Other Accident:'); ?></label>
-      <input type="checkbox" name="other_accident" id="box10c" value="1" <?php if ($obj['other_accident'] == "1") echo "checked" ; ?> ><br><br>
+      <input type="checkbox" name="other_accident" id="box10c" value="1" <?php if ($obj['other_accident'] == "1") {
+            echo "checked" ;
+} ?> ><br><br>
       <label for="box10d"><?php echo xlt('Box 10. d. EPSDT Referral Code:'); ?></label>
       <input type="entry" size="2" name="medicaid_referral_code" id="box10d" value="<?php echo attr($obj{"medicaid_referral_code"}); ?>" >
       <label for="box10depsdt"><?php echo xlt('EPSDT:'); ?></label>
-      <input type="checkbox" name="epsdt_flag" id="box10depsdt" value="1" <?php if ($obj['epsdt_flag'] == "1") echo "checked"; ?> ><br><br>
+      <input type="checkbox" name="epsdt_flag" id="box10depsdt" value="1" <?php if ($obj['epsdt_flag'] == "1") {
+            echo "checked";
+} ?> ><br><br>
       <label for="onset_date"><?php echo xlt('Box 14. Onset Date:');
         $onset_date = $obj{"onset_date"}; ?></label>
       <input type="text" size="10" class='datepicker' name='onset_date' id='onset_date' value='<?php echo attr($onset_date); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' >
-      <label for="box_14_date_qual_box"><?php echo generateDateQualifierSelect("box_14_date_qual",$box_14_qualifier_options,$obj); ?><br><br>
+      <label for="box_14_date_qual_box"><?php echo generateDateQualifierSelect("box_14_date_qual", $box_14_qualifier_options, $obj); ?><br><br>
       <label for="date_initial_treament"><?php echo xlt('Box 15. Other Date:');
         $date_initial_treatment = $obj{"date_initial_treatment"}; ?></label>
       <input type="text" size="10" class='datepicker' name='date_initial_treatment' id='date_initial_treatment' value='<?php echo attr($date_initial_treatment); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' >
-      <label for="box_15_date_qual"><?php generateDateQualifierSelect("box_15_date_qual",$box_15_qualifier_options,$obj); ?><br><br>
+      <label for="box_15_date_qual"><?php generateDateQualifierSelect("box_15_date_qual", $box_15_qualifier_options, $obj); ?><br><br>
       <label for="off_work_from"><?php echo xlt('Box 16. Date unable to work from:');
         $off_work_from = $obj{"off_work_from"}; ?></label>
       <input type="text" size="10" class='datepicker' name='off_work_from' id='off_work_from' value='<?php echo attr($off_work_from); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' >
@@ -106,7 +114,9 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
         $hospitalization_date_to = $obj{"hospitalization_date_to"}; ?></label>
       <input type="text" size="10" class='datepicker' name='hospitalization_date_to' id='hospitalization_date_to' value='<?php echo attr($hospitalization_date_to); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' ><br><br>
       <label for="outside_lab"><?php echo xlt('Box 20. Is Outside Lab used?'); ?></label>
-      <input type="checkbox" name="outside_lab" id="outside_labe" value="1" <?php if ($obj['outside_lab'] == "1") echo "checked";?> >
+      <input type="checkbox" name="outside_lab" id="outside_labe" value="1" <?php if ($obj['outside_lab'] == "1") {
+            echo "checked";
+}?> >
       <label for="lab_amount"><?php echo xlt('Amount Charges:'); ?></label>
       <input type="entry" size="7" align='right' name="lab_amount" id="lab_amount" value="<?php echo attr($obj{"lab_amount"});?>" ><br><br>
       <label for="medicaid_resubmission_code"><?php echo xlt('Box 22. Medicaid Resubmission Code (ICD-9) ');?></label>
@@ -116,7 +126,9 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
       <label for="prior_auth_number"><?php echo xlt('Box 23. Prior Authorization No. ');?></label>
       <input type="entry" size="15" name="prior_auth_number" id="prior_auth_number" value="<?php echo attr($obj{"prior_auth_number"}); ?>" ><br><br>
       <label for="replacement_claim"><?php echo xlt('X12 only replacement claim:'); ?></label>
-      <input type="checkbox" name="replacement_claim" id="replacement_claim" value="1" <?php if ($obj['replacement_claim'] == "1") echo "checked"; ?> ><br><br>
+      <input type="checkbox" name="replacement_claim" id="replacement_claim" value="1" <?php if ($obj['replacement_claim'] == "1") {
+            echo "checked";
+} ?> ><br><br>
       <label for="icn_resubmission_number"><?php echo xlt('X12 only ICN resubmission No.'); ?></label>
       <input type="entry" size="35" name="icn_resubmission_number" id="icn_resubmission_number" value="<?php echo attr($obj{"icn_resubmission_number"}); ?>" ><br><br>
       <label for="addl_notes"><?php echo xlt('Additional Notes:'); ?>

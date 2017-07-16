@@ -15,4 +15,3 @@ function procedure_order_report($pid, $encounter, $cols, $id)
 {
     generate_order_report($id);
 }
-?>

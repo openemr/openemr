@@ -44,4 +44,4 @@ function clinical_instructions_report($pid, $encounter, $cols, $id)
         <?php
     }
 }
-?> 
+?>

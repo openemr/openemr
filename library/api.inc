@@ -31,28 +31,27 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
         global $attendant_type;
 
     $sql = "insert into " . escape_table_name($tableName) . " set " .  $attendant_type . "='".add_escape_custom($_SESSION['pid'])."',groupname='".add_escape_custom($_SESSION['authProvider'])."',user='".add_escape_custom($_SESSION['authUser'])."',authorized='".add_escape_custom($authorized)."',activity=1, date = NOW(),";
-    foreach ($values as $key => $value)
-    if (strpos($key,"openemr_net_cpt") === 0) {
-        //code to auto add cpt code
-        if (!empty($value)) {
-            $code_array = explode(" ",$value,2);
+    foreach ($values as $key => $value) {
+        if (strpos($key, "openemr_net_cpt") === 0) {
+            //code to auto add cpt code
+            if (!empty($value)) {
+                $code_array = explode(" ", $value, 2);
 
-            addBilling(date("Ymd"), 'CPT4', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
+                addBilling(date("Ymd"), 'CPT4', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
+            }
+        } //case where key looks like "[a-zA-Z]*diagnosis[0-9]" which is special, it is used to auto add ICD codes
+
+        elseif (strpos($key, "diagnosis") == (strlen($key) -10) && !(strpos($key, "diagnosis")=== false )) {
+            //icd auto add ICD9-CM
+            if (!empty($value)) {
+                $code_array = explode(" ", $value, 2);
+                addBilling(date("Ymd"), 'ICD9-M', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
+            }
+        } else {
+            $sql .= " " . escape_sql_column_name($key, array($tableName)) . " = '" . add_escape_custom($value) . "',";
         }
+    }
 
-    }
-        //case where key looks like "[a-zA-Z]*diagnosis[0-9]" which is special, it is used to auto add ICD codes
-
-    elseif (strpos($key,"diagnosis") == (strlen($key) -10) && !(strpos($key,"diagnosis")=== false )) {
-        //icd auto add ICD9-CM
-        if (!empty($value)) {
-            $code_array = explode(" ",$value,2);
-            addBilling(date("Ymd"), 'ICD9-M', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
-        }
-    }
-    else {
-        $sql .= " " . escape_sql_column_name($key,array($tableName)) . " = '" . add_escape_custom($value) . "',";
-    }
     $sql = substr($sql, 0, -1);
     return sqlInsert($sql);
 }
@@ -61,8 +60,9 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
 function formUpdate($tableName, $values, $id, $authorized = "0")
 {
     $sql = "update " . escape_table_name($tableName) . " set pid ='".add_escape_custom($_SESSION['pid'])."',groupname='".add_escape_custom($_SESSION['authProvider'])."',user='".add_escape_custom($_SESSION['authUser'])."',authorized='".add_escape_custom($authorized)."',activity=1, date = NOW(),";
-    foreach ($values as $key => $value)
-        $sql .= " " . escape_sql_column_name($key,array($tableName)) . " = '" . add_escape_custom($value) . "',";
+    foreach ($values as $key => $value) {
+        $sql .= " " . escape_sql_column_name($key, array($tableName)) . " = '" . add_escape_custom($value) . "',";
+    }
 
     $sql = substr($sql, 0, -1);
     $sql .= " where id='".add_escape_custom($id)."'";
@@ -74,55 +74,66 @@ function formUpdate($tableName, $values, $id, $authorized = "0")
 function formJump($address = "0")
 {
     $returnurl = 'encounter_top.php';
-    if ($address == "0")
+    if ($address == "0") {
         $address = "{$GLOBALS['rootdir']}/patient_file/encounter/$returnurl";
+    }
+
     echo "\n<script language='Javascript'>top.restoreSession();window.location='$address';</script>\n";
     exit;
 }
 
-function formFetch($tableName, $id, $cols="*", $activity="1")
+function formFetch($tableName, $id, $cols = "*", $activity = "1")
 {
         // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
-    return sqlQuery ( "select $cols from `" . escape_table_name($tableName) . "` where id=? and pid = ? and activity like ? order by date DESC LIMIT 0,1", array($id,$GLOBALS['pid'],$activity) ) ;
+    return sqlQuery("select $cols from `" . escape_table_name($tableName) . "` where id=? and pid = ? and activity like ? order by date DESC LIMIT 0,1", array($id,$GLOBALS['pid'],$activity)) ;
 }
 
-function formGetIds($tableName, $cols = "*", $limit='all', $start=0, $activity = "1")
+function formGetIds($tableName, $cols = "*", $limit = 'all', $start = 0, $activity = "1")
 {
-    if($limit == "all")
-        {
+    if ($limit == "all") {
                 // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
                 $sql = "select $cols from `" . escape_table_name($tableName) . "` where pid like '$pid' ";
-                if ($activity != "all")
-                        $sql .= "and activity like '$activity' ";
+        if ($activity != "all") {
+                $sql .= "and activity like '$activity' ";
+        }
+
                 $sql .= "order by date DESC";
-    }
-    else
-        {
+    } else {
         $sql = "select $cols from pnotes where pid like '$pid' ";
         $sql .= " AND deleted != 1 "; // exclude ALL deleted notes
-        if ($activity != "all")
+        if ($activity != "all") {
                 $sql .= "and activity like '$activity' ";
+        }
+
         $sql .= "order by date DESC LIMIT $start, $limit";
     }
 
         $res = sqlStatement($sql);
 
-        for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-                $all[$iter] = $row;
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+            $all[$iter] = $row;
+    }
+
         return $all;
 }
 
 function formDisappear($tableName, $id)
 {
         // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
-    if (sqlStatement("update `" . escape_table_name($tableName) . "` set activity = '0' where id='$id' and pid='$pid'")) return true;
+    if (sqlStatement("update `" . escape_table_name($tableName) . "` set activity = '0' where id='$id' and pid='$pid'")) {
+        return true;
+    }
+
     return false;
 }
 
 function formReappear($tableName, $id)
 {
         // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
-        if (sqlStatement("update `" . escape_table_name($tableName) . "` set activity = '1' where id='$id' and pid='$pid'")) return true;
+    if (sqlStatement("update `" . escape_table_name($tableName) . "` set activity = '1' where id='$id' and pid='$pid'")) {
+        return true;
+    }
+
     return false;
 }
 ?>

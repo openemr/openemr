@@ -42,7 +42,7 @@ use OpenEMR\Core\Header;
 </head>
 
 <?php // collect data
-  $recordRequest = sqlQuery("SELECT * FROM `amc_misc_data` WHERE `pid`=? AND `amc_id`='provide_rec_pat_amc' AND (`date_completed` IS NULL OR `date_completed`='') ORDER BY `date_created` DESC", array($pid) );
+  $recordRequest = sqlQuery("SELECT * FROM `amc_misc_data` WHERE `pid`=? AND `amc_id`='provide_rec_pat_amc' AND (`date_completed` IS NULL OR `date_completed`='') ORDER BY `date_created` DESC", array($pid));
 ?>
 
 <body class="body_top">

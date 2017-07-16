@@ -7,7 +7,9 @@ include_once("../../library/acl.inc");
 
 // Might want something different here.
 //
-if (! acl_check('acct', 'rep')) die("Unauthorized access.");
+if (! acl_check('acct', 'rep')) {
+    die("Unauthorized access.");
+}
 
 $facilityService = new \services\FacilityService();
 
@@ -29,7 +31,10 @@ $cellcount = 0;
 function genStartRow($att)
 {
     global $cellcount, $form_output;
-    if ($form_output != 3) echo " <tr $att>\n";
+    if ($form_output != 3) {
+        echo " <tr $att>\n";
+    }
+
     $cellcount = 0;
 }
 
@@ -38,36 +43,45 @@ function genEndRow()
     global $form_output;
     if ($form_output == 3) {
         echo "\n";
-    }
-    else {
+    } else {
         echo " </tr>\n";
     }
 }
 
 // Usually this generates one cell, but allows for two or more.
 //
-function genAnyCell($data, $right=false, $class='')
+function genAnyCell($data, $right = false, $class = '')
 {
     global $cellcount, $form_output;
     if (!is_array($data)) {
         $data = array(0 => $data);
     }
+
     foreach ($data as $datum) {
         if ($form_output == 3) {
-            if ($cellcount) echo ',';
+            if ($cellcount) {
+                echo ',';
+            }
+
             echo '"' . $datum . '"';
-        }
-        else {
+        } else {
             echo "  <td";
-            if ($class) echo " class='$class'";
-            if ($right) echo " align='right'";
+            if ($class) {
+                echo " class='$class'";
+            }
+
+            if ($right) {
+                echo " align='right'";
+            }
+
             echo ">$datum</td>\n";
         }
+
         ++$cellcount;
     }
 }
 
-function genHeadCell($data, $right=false)
+function genHeadCell($data, $right = false)
 {
     genAnyCell($data, $right, 'dehead');
 }
@@ -78,7 +92,10 @@ function genNumCell($num, $cnum)
 {
     global $atotals, $form_output;
     $atotals[$cnum] += $num;
-    if (empty($num) && $form_output != 3) $num = '&nbsp;';
+    if (empty($num) && $form_output != 3) {
+        $num = '&nbsp;';
+    }
+
     genAnyCell($num, true, 'detail');
 }
 
@@ -92,8 +109,7 @@ if ($form_output == 3) {
     header("Content-Type: application/force-download");
     header("Content-Disposition: attachment; filename=service_statistics_report.csv");
     header("Content-Description: File Transfer");
-}
-else { // not export
+} else { // not export
 ?>
 <html>
 <head>
@@ -126,7 +142,7 @@ else { // not export
 <table border='0' cellspacing='5' cellpadding='1'>
  <tr>
   <td valign='top' class='detail' nowrap>
-    <?php xl('Facility','e'); ?>:
+    <?php xl('Facility', 'e'); ?>:
   </td>
   <td valign='top' class='detail'>
 <?php
@@ -138,35 +154,42 @@ else { // not export
 foreach ($fres as $frow) {
     $facid = $frow['id'];
     echo "    <option value='$facid'";
-    if ($facid == $_POST['form_facility']) echo " selected";
+    if ($facid == $_POST['form_facility']) {
+        echo " selected";
+    }
+
     echo ">" . $frow['name'] . "\n";
 }
+
  echo "   </select>\n";
 ?>
   </td>
   <td colspan='2' class='detail' nowrap>
-    <?php xl('Date','e'); ?>
+    <?php xl('Date', 'e'); ?>
    <input type='text' name='form_from_date' id='form_from_date' size='10' value='<?php echo $from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='Report date yyyy-mm-dd' />
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>' />
+    title='<?php xl('Click here to choose a date', 'e'); ?>' />
   </td>
   <td valign='top' class='dehead' nowrap>
-    <?php xl('To','e'); ?>:
+    <?php xl('To', 'e'); ?>:
   </td>
   <td colspan='3' valign='top' class='detail' nowrap>
 <?php
 foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $value) {
     echo "   <input type='radio' name='form_output' value='$key'";
-    if ($key == $form_output) echo ' checked';
+    if ($key == $form_output) {
+        echo ' checked';
+    }
+
     echo " />$value &nbsp;";
 }
 ?>
   </td>
   <td align='right' valign='top' class='detail' nowrap>
-   <input type='submit' name='form_submit' value='<?php xl('Submit','e'); ?>'
-    title='<?php xl('Click to generate the report','e'); ?>' />
+   <input type='submit' name='form_submit' value='<?php xl('Submit', 'e'); ?>'
+    title='<?php xl('Click to generate the report', 'e'); ?>' />
   </td>
  </tr>
  <tr>
@@ -178,13 +201,13 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
 } // end not export
 
 if ($_POST['form_submit']) {
-
     $lores = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
     "list_id = 'contrameth' AND activity = 1 ORDER BY title");
     while ($lorow = sqlFetchArray($lores)) {
         $areport[$lorow['option_id']] = array($lorow['title'],
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
+
     $areport['zzz'] = array('Unknown', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
   // This gets us all MA codes, with encounter and patient
@@ -203,6 +226,7 @@ if ($_POST['form_submit']) {
     if ($form_facility) {
         $query .= "AND fe.facility_id = '$form_facility' ";
     }
+
     $query .= "ORDER BY fe.pid, fe.encounter, b.code";
     $res = sqlStatement($query);
 
@@ -213,7 +237,6 @@ if ($_POST['form_submit']) {
 
     while ($row = sqlFetchArray($res)) {
         if ($row['code_type'] === 'MA') {
-
             // Logic for individual patients.
             //
             if ($row['pid'] != $last_pid) { // new patient
@@ -258,7 +281,6 @@ if ($_POST['form_submit']) {
                 if (empty($trow['count'])) ++$areport[$method][5];
               }
                 *************************************************************/
-
             } // end new patient
 
             // Logic for visits.
@@ -276,14 +298,37 @@ if ($_POST['form_submit']) {
             // Logic for specific services.
             //
             $code = 0 + $row['code'];
-            if ($code == 255004) ++$areport[$method][5];  // pap smear
-            if ($code == 256101) ++$areport[$method][6];  // preg test
-            if ($code == 375008) ++$areport[$method][7];  // dr's check
-            if ($code == 375015) ++$areport[$method][8];  // dr's visit (was 375014)
-            if ($code == 375011) ++$areport[$method][9];  // advice
-            if ($code == 019916) ++$areport[$method][10]; // couns by method
-            if ($code == 039916) ++$areport[$method][11]; // infert couns
-            if ($code == 019911) ++$areport[$method][12]; // std/aids couns
+            if ($code == 255004) {
+                ++$areport[$method][5];  // pap smear
+            }
+
+            if ($code == 256101) {
+                ++$areport[$method][6];  // preg test
+            }
+
+            if ($code == 375008) {
+                ++$areport[$method][7];  // dr's check
+            }
+
+            if ($code == 375015) {
+                ++$areport[$method][8];  // dr's visit (was 375014)
+            }
+
+            if ($code == 375011) {
+                ++$areport[$method][9];  // advice
+            }
+
+            if ($code == 019916) {
+                ++$areport[$method][10]; // couns by method
+            }
+
+            if ($code == 039916) {
+                ++$areport[$method][11]; // infert couns
+            }
+
+            if ($code == 019911) {
+                ++$areport[$method][12]; // std/aids couns
+            }
         }
     } // end while
 
@@ -293,20 +338,20 @@ if ($_POST['form_submit']) {
 
   // Generate headings.
     genStartRow("bgcolor='#dddddd'");
-    genHeadCell(xl('Method'         ));
-    genHeadCell(xl('New Clients'    ), true);
-    genHeadCell(xl('Old Clients'    ), true);
-    genHeadCell(xl('Total Clients'  ), true);
-    genHeadCell(xl('Contra Clients' ), true);
+    genHeadCell(xl('Method'));
+    genHeadCell(xl('New Clients'), true);
+    genHeadCell(xl('Old Clients'), true);
+    genHeadCell(xl('Total Clients'), true);
+    genHeadCell(xl('Contra Clients'), true);
   // genHeadCell(xl('O.A.F.V.'       ), true);
-    genHeadCell(xl('Pap Smear'      ), true);
-    genHeadCell(xl('Preg Test'      ), true);
-    genHeadCell(xl('Dr Check'       ), true);
-    genHeadCell(xl('Dr Visit'       ), true);
-    genHeadCell(xl('Advice'         ), true);
+    genHeadCell(xl('Pap Smear'), true);
+    genHeadCell(xl('Preg Test'), true);
+    genHeadCell(xl('Dr Check'), true);
+    genHeadCell(xl('Dr Visit'), true);
+    genHeadCell(xl('Advice'), true);
     genHeadCell(xl('Couns by Method'), true);
-    genHeadCell(xl('Infert Couns'   ), true);
-    genHeadCell(xl('STD/AIDS Couns' ), true);
+    genHeadCell(xl('Infert Couns'), true);
+    genHeadCell(xl('STD/AIDS Couns'), true);
     genEndRow();
 
     $encount = 0;
@@ -319,6 +364,7 @@ if ($_POST['form_submit']) {
         for ($cnum = 0; $cnum < $report_col_count; ++$cnum) {
             genNumCell($varr[$cnum + 1], $cnum);
         }
+
         genEndRow();
     } // end foreach
 
@@ -329,11 +375,11 @@ if ($_POST['form_submit']) {
         for ($cnum = 0; $cnum < $report_col_count; ++$cnum) {
             genHeadCell($atotals[$cnum], true);
         }
+
         genEndRow();
         // End of table.
         echo "</table>\n";
     }
-
 } // end if submit
 
 if ($form_output != 3) {

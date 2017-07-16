@@ -4,9 +4,9 @@
 /**
  * import supporting libraries
  */
-require_once ("verysimple/Phreeze/IRenderEngine.php");
+require_once("verysimple/Phreeze/IRenderEngine.php");
 require_once 'Twig/Autoloader.php';
-Twig_Autoloader::register ();
+Twig_Autoloader::register();
 
 /**
  * TwigRenderEngine is an implementation of IRenderEngine that uses
@@ -18,7 +18,8 @@ Twig_Autoloader::register ();
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class TwigRenderEngine implements IRenderEngine {
+class TwigRenderEngine implements IRenderEngine
+{
     
     /** @var Twig_Environment */
     public $twig;
@@ -34,10 +35,10 @@ class TwigRenderEngine implements IRenderEngine {
      */
     function __construct($templatePath = '', $compilePath = '')
     {
-        $this->loader = new Twig_Loader_Filesystem ( $templatePath );
-        $this->twig = new Twig_Environment ( $this->loader, array (
+        $this->loader = new Twig_Loader_Filesystem($templatePath);
+        $this->twig = new Twig_Environment($this->loader, array (
                 'cache' => $compilePath
-        ) );
+        ));
     }
     
     /**
@@ -55,9 +56,11 @@ class TwigRenderEngine implements IRenderEngine {
      */
     function display($template)
     {
-        if (strpos ( '.', $template ) === false)
+        if (strpos('.', $template) === false) {
             $template .= '.html';
-        return $this->twig->display ( $template, $this->assignments );
+        }
+
+        return $this->twig->display($template, $this->assignments);
     }
     
     /**
@@ -66,9 +69,11 @@ class TwigRenderEngine implements IRenderEngine {
      */
     function fetch($template)
     {
-        if (strpos ( '.', $template ) === false)
+        if (strpos('.', $template) === false) {
             $template .= '.html';
-        return $this->twig->render ( $template, $this->assignments );
+        }
+
+        return $this->twig->render($template, $this->assignments);
     }
     
     /**
@@ -77,7 +82,7 @@ class TwigRenderEngine implements IRenderEngine {
      */
     function clear($key)
     {
-        unset ( $this->assignments [$key] );
+        unset($this->assignments [$key]);
     }
     
     /**
@@ -98,5 +103,3 @@ class TwigRenderEngine implements IRenderEngine {
         return $this->assignments;
     }
 }
-
-?>

@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class PassPhrase {
+class PassPhrase
+{
     
     /**
      * *
@@ -22,7 +23,7 @@ class PassPhrase {
      */
     static function GetRandomPassPhrase($length = 8)
     {
-        srand ( ( double ) microtime () * 1000000 );
+        srand(( double ) microtime() * 1000000);
         
         $vowels = array (
                 "a",
@@ -90,25 +91,23 @@ class PassPhrase {
                 "whor"
         );
         
-        $num_vowels = count ( $vowels );
-        $num_cons = count ( $cons );
+        $num_vowels = count($vowels);
+        $num_cons = count($cons);
         $password = "";
         
-        for($i = 0; $i < $length; $i ++) {
-            $password .= $cons [rand ( 0, $num_cons - 1 )] . $vowels [rand ( 0, $num_vowels - 1 )];
+        for ($i = 0; $i < $length; $i ++) {
+            $password .= $cons [rand(0, $num_cons - 1)] . $vowels [rand(0, $num_vowels - 1)];
         }
         
-        $newpass = substr ( $password, 0, $length );
+        $newpass = substr($password, 0, $length);
         
         // ensure this is not a potentially offensive password
-        foreach ( $badwords as $badword ) {
-            if (strpos ( $newpass, $badword ) !== false) {
-                return PassPhrase::GetRandomPassPhrase ( $length );
+        foreach ($badwords as $badword) {
+            if (strpos($newpass, $badword) !== false) {
+                return PassPhrase::GetRandomPassPhrase($length);
             }
         }
         
         return $newpass;
     }
 }
-
-?>

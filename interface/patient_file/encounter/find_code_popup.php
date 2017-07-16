@@ -27,11 +27,9 @@ $form_code_type = $_POST['form_code_type'];
 $default = '';
 if (!empty($form_code_type)) {
     $default = $form_code_type;
-}
-else if (!empty($allowed_codes) && count($allowed_codes) == 1) {
+} else if (!empty($allowed_codes) && count($allowed_codes) == 1) {
     $default = $allowed_codes[0];
-}
-else if (!empty($_REQUEST['default'])) {
+} else if (!empty($_REQUEST['default'])) {
     $default = $_REQUEST['default'];
 }
 
@@ -93,8 +91,7 @@ td { font-size:10pt; }
 $string_target_element = "";
 if (!empty($target_element)) {
     $string_target_element = "?target_element=" . urlencode($target_element) . "&";
-}
-else {
+} else {
     $string_target_element = "?";
 }
 ?>
@@ -135,18 +132,24 @@ foreach ($allowed_codes as $code) {
    </select>
 <?php
     }
-}
-else {
+} else {
   // No allowed types were specified, so show all.
     echo "   <select name='form_code_type'";
     echo ">\n";
     foreach ($code_types as $key => $value) {
         echo "    <option value='" . attr($key) . "'";
-        if ($default == $key) echo " selected";
+        if ($default == $key) {
+            echo " selected";
+        }
+
         echo ">" . xlt($value['label']) . "</option>\n";
     }
+
     echo "    <option value='PROD'";
-    if ($default == 'PROD') echo " selected";
+    if ($default == 'PROD') {
+        echo " selected";
+    }
+
     echo ">" . xlt("Product") . "</option>\n";
     echo "   </select>&nbsp;&nbsp;\n";
 }
@@ -176,7 +179,9 @@ else {
 
 <?php
 if ($_REQUEST['bn_search'] || $_REQUEST['search_term']) {
-    if (!$form_code_type) $form_code_type = $codetype;
+    if (!$form_code_type) {
+        $form_code_type = $codetype;
+    }
 ?>
 
 <table border='0'>
@@ -186,7 +191,7 @@ if ($_REQUEST['bn_search'] || $_REQUEST['search_term']) {
 </tr>
 <?php
 $search_term = $_REQUEST['search_term'];
-$res = main_code_set_search($form_code_type,$search_term);
+$res = main_code_set_search($form_code_type, $search_term);
 if ($form_code_type == 'PROD') { // Special case that displays search for products/drugs
     while ($row = sqlFetchArray($res)) {
         $drug_id = $row['drug_id'];
@@ -199,8 +204,7 @@ if ($form_code_type == 'PROD') { // Special case that displays search for produc
         echo "  <td>$anchor" . text($desc) . "</a></td>\n";
         echo " </tr>";
     }
-}
-else {
+} else {
     while ($row = sqlFetchArray($res)) { // Display normal search
         $itercode = $row['code'];
         $itertext = trim($row['code_text']);
@@ -208,11 +212,11 @@ else {
             // add a 5th parameter to function to select the target element on the form for placing the code.
             $anchor = "<a href='' " .
             "onclick='return selcode_target(\"" . attr(addslashes($form_code_type)) . "\", \"" . attr(addslashes($itercode)) . "\", \"\", \"" . attr(addslashes($itertext)) . "\", \"" . attr(addslashes($target_element)) . "\")'>";
-        }
-        else {
+        } else {
             $anchor = "<a href='' " .
             "onclick='return selcode(\"" . attr(addslashes($form_code_type)) . "\", \"" . attr(addslashes($itercode)) . "\", \"\", \"" . attr(addslashes($itertext)) . "\")'>";
         }
+
         echo " <tr>";
         echo "  <td>$anchor" . text($itercode) . "</a></td>\n";
         echo "  <td>$anchor" . text($itertext) . "</a></td>\n";

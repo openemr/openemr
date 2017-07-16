@@ -21,38 +21,39 @@ function setInsurance($pid, $ainsurance, $asubscriber, $seq)
 {
     $iwhich = $seq == '2' ? "secondary" : ($seq == '3' ? "tertiary" : "primary");
     newInsuranceData(
-    $pid,
-    $iwhich,
-    $ainsurance["provider$seq"],
-    $ainsurance["policy$seq"],
-    $ainsurance["group$seq"],
-    $ainsurance["name$seq"],
-    $asubscriber["lname$seq"],
-    $asubscriber["mname$seq"],
-    $asubscriber["fname$seq"],
-    $asubscriber["relationship$seq"],
-    $asubscriber["ss$seq"],
-    fixDate($asubscriber["dob$seq"]),
-    $asubscriber["street$seq"],
-    $asubscriber["zip$seq"],
-    $asubscriber["city$seq"],
-    $asubscriber["state$seq"],
-    $asubscriber["country$seq"],
-    $asubscriber["phone$seq"],
-    $asubscriber["employer$seq"],
-    $asubscriber["employer_street$seq"],
-    $asubscriber["employer_city$seq"],
-    $asubscriber["employer_zip$seq"],
-    $asubscriber["employer_state$seq"],
-    $asubscriber["employer_country$seq"],
-    $ainsurance["copay$seq"],
-    $asubscriber["sex$seq"]
+        $pid,
+        $iwhich,
+        $ainsurance["provider$seq"],
+        $ainsurance["policy$seq"],
+        $ainsurance["group$seq"],
+        $ainsurance["name$seq"],
+        $asubscriber["lname$seq"],
+        $asubscriber["mname$seq"],
+        $asubscriber["fname$seq"],
+        $asubscriber["relationship$seq"],
+        $asubscriber["ss$seq"],
+        fixDate($asubscriber["dob$seq"]),
+        $asubscriber["street$seq"],
+        $asubscriber["zip$seq"],
+        $asubscriber["city$seq"],
+        $asubscriber["state$seq"],
+        $asubscriber["country$seq"],
+        $asubscriber["phone$seq"],
+        $asubscriber["employer$seq"],
+        $asubscriber["employer_street$seq"],
+        $asubscriber["employer_city$seq"],
+        $asubscriber["employer_zip$seq"],
+        $asubscriber["employer_state$seq"],
+        $asubscriber["employer_country$seq"],
+        $ainsurance["copay$seq"],
+        $asubscriber["sex$seq"]
     );
 }
 
  // Check authorization.
- if (!acl_check('patients', 'demo','','write'))
-  die("Updating demographics is not authorized.");
+if (!acl_check('patients', 'demo', '', 'write')) {
+    die("Updating demographics is not authorized.");
+}
 
 if ($_POST['form_import']) {
     $apatient    = array();
@@ -73,7 +74,6 @@ if ($_POST['form_import']) {
     $xml = array();
 
     if (xml_parse_into_struct($parser, $_POST['form_import_data'], $xml)) {
-
         foreach ($xml as $taginfo) {
             $tag = strtolower($taginfo['tag']);
             $tagtype = $taginfo['type'];
@@ -84,100 +84,99 @@ if ($_POST['form_import']) {
                 $probearr[$probeix] = $tag;
                 continue;
             }
+
             if ($tagtype == 'close') {
                 --$probeix;
                 continue;
             }
+
             if ($tagtype != 'complete') {
                 die("Invalid tag type '$tagtype'");
             }
 
             if ($probeix == 1 && $probearr[$probeix] == 'patient') {
                 $apatient[$tag] = $tagval;
-            }
-            else if ($probeix == 2 && $probearr[$probeix] == 'pcp') {
+            } else if ($probeix == 2 && $probearr[$probeix] == 'pcp') {
                 $apcp[$tag] = $tagval;
-            }
-            else if ($probeix == 2 && $probearr[$probeix] == 'employer') {
+            } else if ($probeix == 2 && $probearr[$probeix] == 'employer') {
                 $aemployer[$tag] = $tagval;
-            }
-            else if ($probeix == 2 && $probearr[$probeix] == 'insurance') {
+            } else if ($probeix == 2 && $probearr[$probeix] == 'insurance') {
                 if ($tag == 'priority') {
                     $inspriority = $tagval;
                 } else {
                     $ainsurance["$tag$inspriority"] = $tagval;
                 }
-            }
-            else if ($probeix == 3 && $probearr[$probeix] == 'subscriber') {
+            } else if ($probeix == 3 && $probearr[$probeix] == 'subscriber') {
                 $asubscriber["$tag$inspriority"] = $tagval;
-            }
-            else {
+            } else {
                 $alertmsg = "Invalid tag \"" . $probearr[$probeix] . "\" at level $probeix";
             }
         }
     } else {
         $alertmsg = "Invalid import data!";
     }
+
     xml_parser_free($parser);
 
     $olddata = getPatientData($pid);
 
-    if ($olddata['squad'] && ! acl_check('squads', $olddata['squad']))
-    die("You are not authorized to access this squad.");
+    if ($olddata['squad'] && ! acl_check('squads', $olddata['squad'])) {
+        die("You are not authorized to access this squad.");
+    }
 
     newPatientData(
-    $olddata['id'],
-    $apatient['title'],
-    $apatient['fname'],
-    $apatient['lname'],
-    $apatient['mname'],
-    $apatient['sex'],
-    $apatient['dob'],
-    $apatient['street'],
-    $apatient['zip'],
-    $apatient['city'],
-    $apatient['state'],
-    $apatient['country'],
-    $apatient['ss'],
-    $apatient['occupation'],
-    $apatient['phone_home'],
-    $apatient['phone_biz'],
-    $apatient['phone_contact'],
-    $apatient['status'],
-    $apatient['contact_relationship'],
-    $apatient['referrer'],
-    $apatient['referrerID'],
-    $apatient['email'],
-    $apatient['language'],
-    $apatient['ethnoracial'],
-    $apatient['interpreter'],
-    $apatient['migrantseasonal'],
-    $apatient['family_size'],
-    $apatient['monthly_income'],
-    $apatient['homeless'],
-    fixDate($apatient['financial_review']),
-    $apatient['pubpid'],
-    $pid,
-    $olddata['providerID'],
-    $apatient['genericname1'],
-    $apatient['genericval1'],
-    $apatient['genericname2'],
-    $apatient['genericval2'],
-    $apatient['billing_note'],
-    $apatient['phone_cell'],
-    $apatient['hipaa_mail'],
-    $apatient['hipaa_voice'],
-    $olddata['squad']
+        $olddata['id'],
+        $apatient['title'],
+        $apatient['fname'],
+        $apatient['lname'],
+        $apatient['mname'],
+        $apatient['sex'],
+        $apatient['dob'],
+        $apatient['street'],
+        $apatient['zip'],
+        $apatient['city'],
+        $apatient['state'],
+        $apatient['country'],
+        $apatient['ss'],
+        $apatient['occupation'],
+        $apatient['phone_home'],
+        $apatient['phone_biz'],
+        $apatient['phone_contact'],
+        $apatient['status'],
+        $apatient['contact_relationship'],
+        $apatient['referrer'],
+        $apatient['referrerID'],
+        $apatient['email'],
+        $apatient['language'],
+        $apatient['ethnoracial'],
+        $apatient['interpreter'],
+        $apatient['migrantseasonal'],
+        $apatient['family_size'],
+        $apatient['monthly_income'],
+        $apatient['homeless'],
+        fixDate($apatient['financial_review']),
+        $apatient['pubpid'],
+        $pid,
+        $olddata['providerID'],
+        $apatient['genericname1'],
+        $apatient['genericval1'],
+        $apatient['genericname2'],
+        $apatient['genericval2'],
+        $apatient['billing_note'],
+        $apatient['phone_cell'],
+        $apatient['hipaa_mail'],
+        $apatient['hipaa_voice'],
+        $olddata['squad']
     );
 
     newEmployerData(
-    $pid,
-    $aemployer['name'],
-    $aemployer['street'],
-    $aemployer['zip'],
-    $aemployer['city'],
-    $aemployer['state'],
-    $aemployer['country']
+        $pid,
+        $aemployer['name'],
+        $aemployer['street'],
+        $aemployer['zip'],
+        $aemployer['city'],
+        $aemployer['state'],
+        $aemployer['country']
     );
 
     setInsurance($pid, $ainsurance, $asubscriber, '1');
@@ -185,7 +184,10 @@ if ($_POST['form_import']) {
     setInsurance($pid, $ainsurance, $asubscriber, '3');
 
     echo "<html>\n<body>\n<script language='JavaScript'>\n";
-    if ($alertmsg) echo " alert('$alertmsg');\n";
+    if ($alertmsg) {
+        echo " alert('$alertmsg');\n";
+    }
+
     echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
     echo " window.close();\n";
     echo "</script>\n</body>\n</html>\n";

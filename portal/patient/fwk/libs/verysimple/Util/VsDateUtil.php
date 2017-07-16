@@ -10,7 +10,8 @@
  * @license LGPL http://www.gnu.org/licenses/lgpl.html
  * @version 1.0
  */
-class VsDateUtil {
+class VsDateUtil
+{
     /** @var int one day in milliseconds */
     static $ONE_DAY = 86400000;
     
@@ -30,7 +31,7 @@ class VsDateUtil {
      */
     static function Today($format = "Y-m-d")
     {
-        return self::Now ( $format );
+        return self::Now($format);
     }
     
     /**
@@ -41,9 +42,11 @@ class VsDateUtil {
      */
     static function DstStartNorthAmerica($year = null)
     {
-        if (! $year)
-            $year = date ( 'Y' );
-        return strtotime ( '03/01/' . $year . ' second sunday' );
+        if (! $year) {
+            $year = date('Y');
+        }
+
+        return strtotime('03/01/' . $year . ' second sunday');
     }
     
     /**
@@ -54,9 +57,11 @@ class VsDateUtil {
      */
     static function DstEndNorthAmerica($year = null)
     {
-        if (! $year)
-            $year = date ( 'Y' );
-        return strtotime ( '11/01/' . $year . ' first sunday' );
+        if (! $year) {
+            $year = date('Y');
+        }
+
+        return strtotime('11/01/' . $year . ' first sunday');
     }
     
     /**
@@ -67,9 +72,11 @@ class VsDateUtil {
      */
     static function IsDstNorthAmerica($timestamp = null)
     {
-        if (! $timestamp)
-            $timestamp = time ();
-        return $timestamp > self::DstStartNorthAmerica () && $timestamp < self::DstEndNorthAmerica ();
+        if (! $timestamp) {
+            $timestamp = time();
+        }
+
+        return $timestamp > self::DstStartNorthAmerica() && $timestamp < self::DstEndNorthAmerica();
     }
     
     /**
@@ -79,7 +86,7 @@ class VsDateUtil {
      */
     static function Now($format = "Y-m-d H:i:s")
     {
-        return date ( $format );
+        return date($format);
     }
     
     /**
@@ -89,7 +96,7 @@ class VsDateUtil {
      */
     static function Yesterday($format = "Y-m-d")
     {
-        return self::DaysAgo ( 1, $format );
+        return self::DaysAgo(1, $format);
     }
     
     /**
@@ -99,7 +106,7 @@ class VsDateUtil {
      */
     static function Tomorrow($format = "Y-m-d")
     {
-        return self::DaysFromNow ( 1, $format );
+        return self::DaysFromNow(1, $format);
     }
     
     /**
@@ -109,7 +116,7 @@ class VsDateUtil {
      */
     static function TwentyFourHoursAgo($format = "Y-m-d H:i:s")
     {
-        return self::HoursAgo ( 24, $format );
+        return self::HoursAgo(24, $format);
     }
     
     /**
@@ -119,7 +126,7 @@ class VsDateUtil {
      */
     static function TwentyFourHoursFromNow($format = "Y-m-d H:i:s")
     {
-        return self::HoursFromNow ( 24, $format );
+        return self::HoursFromNow(24, $format);
     }
     
     /**
@@ -130,7 +137,7 @@ class VsDateUtil {
      */
     static function DaysAgo($days, $format = "Y-m-d")
     {
-        return date ( $format, strtotime ( self::Now () . " - $days days" ) );
+        return date($format, strtotime(self::Now() . " - $days days"));
     }
     
     /**
@@ -141,7 +148,7 @@ class VsDateUtil {
      */
     static function DaysFromNow($days, $format = "Y-m-d")
     {
-        return date ( $format, strtotime ( self::Now () . " + $days days" ) );
+        return date($format, strtotime(self::Now() . " + $days days"));
     }
     
     /**
@@ -152,7 +159,7 @@ class VsDateUtil {
      */
     static function HoursAgo($hours, $format = "Y-m-d H:i:s")
     {
-        return date ( $format, strtotime ( self::Now () . " - $hours hours" ) );
+        return date($format, strtotime(self::Now() . " - $hours hours"));
     }
     
     /**
@@ -163,8 +170,6 @@ class VsDateUtil {
      */
     static function HoursFromNow($hours, $format = "Y-m-d H:i:s")
     {
-        return date ( $format, strtotime ( self::Now () . " - $hours hours" ) );
+        return date($format, strtotime(self::Now() . " - $hours hours"));
     }
 }
-
-?>

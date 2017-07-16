@@ -27,24 +27,18 @@
 //===============================================================================
 //Patient ajax section and listing of charges..Used in New Payment and Edit Payment screen.
 //===============================================================================
-if (isset($_POST["mode"]))
- {
-    if (($_POST["mode"] == "search" || $_POST["default_search_patient"] == "default_search_patient") && $_REQUEST['hidden_patient_code']*1>0)
-    {
+if (isset($_POST["mode"])) {
+    if (($_POST["mode"] == "search" || $_POST["default_search_patient"] == "default_search_patient") && $_REQUEST['hidden_patient_code']*1>0) {
         $hidden_patient_code=$_REQUEST['hidden_patient_code'];
         $RadioPaid=$_REQUEST['RadioPaid'];
-        if($RadioPaid=='Show_Paid')
-         {
+        if ($RadioPaid=='Show_Paid') {
             $StringForQuery='';
-        }
-        elseif($RadioPaid=='Non_Paid')
-         {
+        } elseif ($RadioPaid=='Non_Paid') {
             $StringForQuery=" and last_level_closed = 0 ";
-        }
-        elseif($RadioPaid=='Show_Primary_Complete')
-         {
+        } elseif ($RadioPaid=='Show_Primary_Complete') {
             $StringForQuery=" and last_level_closed >= 1 ";
         }
+
         $ResultSearchNew = sqlStatement("SELECT b.id,last_level_closed,b.encounter,fe.`date`,b.code_type,b.code,b.modifier,fee
 	                                 FROM billing AS b,form_encounter AS fe, code_types AS ct
 			                         WHERE b.encounter=fe.encounter AND b.code_type=ct.ct_key AND ct.ct_diag=0 
@@ -59,6 +53,7 @@ if (isset($_POST["mode"]))
           $NameNew=$lname.' '.$fname.' '.$mname;
     }
 }
+
 //===============================================================================
 ?>
 <table width="1004" border="0" cellspacing="0" cellpadding="0"  id="TablePatientPortion">
@@ -71,7 +66,7 @@ if (isset($_POST["mode"]))
               <tr>
                 <td  class='text'><table width="799" border="0" cellspacing="0" cellpadding="0" style="border:1px solid black" >
               <tr>
-                <td width="45" align="left" class="text">&nbsp;<?php echo htmlspecialchars( xl('Patient'), ENT_QUOTES).':' ?>
+                <td width="45" align="left" class="text">&nbsp;<?php echo htmlspecialchars(xl('Patient'), ENT_QUOTES).':' ?>
                 </td>
                 <td width="265"><input type="hidden" id="hidden_ajax_patient_close_value" value="<?php echo $Message=='' ? htmlspecialchars($NameNew) : '' ;?>" />
                 <input name='patient_code'  style="width:265px"   id='patient_code' class="text"  onKeyDown="PreventIt(event)"  
@@ -80,12 +75,12 @@ if (isset($_POST["mode"]))
                 style="border:1px solid black; ; padding-left:5px; width:55px; height:17px;"><?php echo $Message=='' ? htmlspecialchars(formData('hidden_patient_code')) : '' ;?></div>
                 </td>
                 <td width="84" class="text">&nbsp;<input type="radio" name="RadioPaid" onClick="SearchOnceMore()" <?php echo $_REQUEST['RadioPaid']=='Non_Paid'
-                || $_REQUEST['RadioPaid']=='' ? 'checked' : '' ; ?>  value="Non_Paid" id="Non_Paid"  /><?php echo htmlspecialchars( xl('Non Paid'), ENT_QUOTES) ?></td>
+                || $_REQUEST['RadioPaid']=='' ? 'checked' : '' ; ?>  value="Non_Paid" id="Non_Paid"  /><?php echo htmlspecialchars(xl('Non Paid'), ENT_QUOTES) ?></td>
                 <td width="168" class="text"><input type="radio" name="RadioPaid" onClick="SearchOnceMore()" 
                 <?php echo $_REQUEST['RadioPaid']=='Show_Primary_Complete' ? 'checked' : '' ; ?>  value="Show_Primary_Complete" 
-                id="Show_Primary_Complete" /><?php echo htmlspecialchars( xl('Show Primary Complete'), ENT_QUOTES) ?></td>
+                id="Show_Primary_Complete" /><?php echo htmlspecialchars(xl('Show Primary Complete'), ENT_QUOTES) ?></td>
                 <td width="157" class="text"><input type="radio" name="RadioPaid" onClick="SearchOnceMore()" 
-                <?php echo $_REQUEST['RadioPaid']=='Show_Paid' ? 'checked' : '' ; ?>  value="Show_Paid" id="Show_Paid" /><?php echo htmlspecialchars( xl('Show All Transactions'), ENT_QUOTES) ?>
+                <?php echo $_REQUEST['RadioPaid']=='Show_Paid' ? 'checked' : '' ; ?>  value="Show_Paid" id="Show_Paid" /><?php echo htmlspecialchars(xl('Show All Transactions'), ENT_QUOTES) ?>
                 </td>
               </tr>
               <tr>
@@ -117,34 +112,31 @@ if (isset($_POST["mode"]))
             $CountIndexBelow=0;
             $PreviousEncounter=0;
             $PreviousPID=0;
-            if($RowSearch = sqlFetchArray($ResultSearchNew))
-             {
+            if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
             ?>
             <table width="1004"  border="0" cellpadding="0" cellspacing="0" align="center" id="TableDistributePortion">
               <tr class="text" height="10">
                 <td colspan="14"></td>
               </tr>
               <tr class="text" bgcolor="#dddddd">
-                <td width="55" class="left top" ><?php echo htmlspecialchars( xl('Post For'), ENT_QUOTES) ?></td>
-                <td width="80" class="left top" ><?php echo htmlspecialchars( xl('Service Date'), ENT_QUOTES) ?></td>
-                <td width="65" class="left top" ><?php echo htmlspecialchars( xl('Encounter'), ENT_QUOTES) ?></td>
-                <td width="70" class="left top" ><?php echo htmlspecialchars( xl('Service Code'), ENT_QUOTES) ?></td>
-                <td width="55" class="left top" ><?php echo htmlspecialchars( xl('Charge'), ENT_QUOTES) ?></td>
-                <td width="40" class="left top" ><?php echo htmlspecialchars( xl('Copay'), ENT_QUOTES) ?></td>
-                <td width="45" class="left top" ><?php echo htmlspecialchars( xl('Remdr'), ENT_QUOTES) ?></td>
-                <td width="60" class="left top" ><?php echo htmlspecialchars( xl('Allowed'), ENT_QUOTES) ?></td>
-                <td width="60" class="left top" ><?php echo htmlspecialchars( xl('Payment'), ENT_QUOTES) ?></td>
-                <td width="70" class="left top" ><?php echo htmlspecialchars( xl('Adj Amount'), ENT_QUOTES) ?></td>
-                <td width="60" class="left top" ><?php echo htmlspecialchars( xl('Deductible'), ENT_QUOTES) ?></td>
-                <td width="60" class="left top" ><?php echo htmlspecialchars( xl('Takeback'), ENT_QUOTES) ?></td>
-                <td width="60" class="left top" ><?php echo htmlspecialchars( xl('MSP Code'), ENT_QUOTES) ?></td>
-                <td width="60" class="left top" ><?php echo htmlspecialchars( xl('Follow Up'), ENT_QUOTES) ?></td>
-                <td width="209" class="left top right" ><?php echo htmlspecialchars( xl('Follow Up Reason'), ENT_QUOTES) ?></td>
+                <td width="55" class="left top" ><?php echo htmlspecialchars(xl('Post For'), ENT_QUOTES) ?></td>
+                <td width="80" class="left top" ><?php echo htmlspecialchars(xl('Service Date'), ENT_QUOTES) ?></td>
+                <td width="65" class="left top" ><?php echo htmlspecialchars(xl('Encounter'), ENT_QUOTES) ?></td>
+                <td width="70" class="left top" ><?php echo htmlspecialchars(xl('Service Code'), ENT_QUOTES) ?></td>
+                <td width="55" class="left top" ><?php echo htmlspecialchars(xl('Charge'), ENT_QUOTES) ?></td>
+                <td width="40" class="left top" ><?php echo htmlspecialchars(xl('Copay'), ENT_QUOTES) ?></td>
+                <td width="45" class="left top" ><?php echo htmlspecialchars(xl('Remdr'), ENT_QUOTES) ?></td>
+                <td width="60" class="left top" ><?php echo htmlspecialchars(xl('Allowed'), ENT_QUOTES) ?></td>
+                <td width="60" class="left top" ><?php echo htmlspecialchars(xl('Payment'), ENT_QUOTES) ?></td>
+                <td width="70" class="left top" ><?php echo htmlspecialchars(xl('Adj Amount'), ENT_QUOTES) ?></td>
+                <td width="60" class="left top" ><?php echo htmlspecialchars(xl('Deductible'), ENT_QUOTES) ?></td>
+                <td width="60" class="left top" ><?php echo htmlspecialchars(xl('Takeback'), ENT_QUOTES) ?></td>
+                <td width="60" class="left top" ><?php echo htmlspecialchars(xl('MSP Code'), ENT_QUOTES) ?></td>
+                <td width="60" class="left top" ><?php echo htmlspecialchars(xl('Follow Up'), ENT_QUOTES) ?></td>
+                <td width="209" class="left top right" ><?php echo htmlspecialchars(xl('Follow Up Reason'), ENT_QUOTES) ?></td>
               </tr>
                 <?php
-                do
-                 {
-
+                do {
                     $CountIndex++;
                     $CountIndexBelow++;
                     $Ins=0;
@@ -154,29 +146,30 @@ if (isset($_POST["mode"]))
                       "pid = '$hidden_patient_code' AND encounter = '".$RowSearch['encounter']."'");
                     $date_of_service = substr($ferow['date'], 0, 10);
                     $new_payer_type = 0 + $ferow['last_level_closed'];
-                    if ($new_payer_type <= 3 && !empty($ferow['last_level_closed']) || $new_payer_type == 0)
-                      ++$new_payer_type;
+                    if ($new_payer_type <= 3 && !empty($ferow['last_level_closed']) || $new_payer_type == 0) {
+                        ++$new_payer_type;
+                    }
+
                     $new_payer_id = arGetPayerID($hidden_patient_code, $date_of_service, $new_payer_type);
                     
-                    if($new_payer_id==0)
-                     {
+                    if ($new_payer_id==0) {
                         $Ins=0;
-                    }
-                    elseif($new_payer_id>0)
-                     {
+                    } elseif ($new_payer_id>0) {
                         $Ins=$new_payer_type;
                     }
 
 
-                    $ServiceDateArray=explode(' ',$RowSearch['date']);
+                    $ServiceDateArray=explode(' ', $RowSearch['date']);
                     $ServiceDate=oeFormatShortDate($ServiceDateArray[0]);
                                         $Codetype=$RowSearch['code_type'];
                     $Code=$RowSearch['code'];
                     $Modifier =$RowSearch['modifier'];
-                    if($Modifier!='')
-                     $ModifierString=", $Modifier";
-                    else
-                     $ModifierString="";
+                    if ($Modifier!='') {
+                        $ModifierString=", $Modifier";
+                    } else {
+                        $ModifierString="";
+                    }
+
                     $Fee=$RowSearch['fee'];
                     $Encounter=$RowSearch['encounter'];
                     
@@ -189,12 +182,9 @@ if (isset($_POST["mode"]))
                     $rowId = sqlFetchArray($resId);
                     $Id=$rowId['id'];
 
-                    if($BillingId!=$Id)//multiple cpt in single encounter
-                     {
+                    if ($BillingId!=$Id) {//multiple cpt in single encounter
                         $Copay=0.00;
-                    }
-                    else
-                     {
+                    } else {
                         $resCopay = sqlStatement("SELECT sum(fee) as copay FROM billing where  code_type='COPAY'  and
 						pid ='$hidden_patient_code' and  encounter  ='$Encounter' and billing.activity!=0");
                         $rowCopay = sqlFetchArray($resCopay);
@@ -208,6 +198,7 @@ if (isset($_POST["mode"]))
                         
                         $Copay=$Copay+$PatientPay;
                     }
+
                         //payer_type!=0, supports both mapped and unmapped code_type in ar_activity
                         $resMoneyGot = sqlStatement("SELECT sum(pay_amount) as MoneyGot FROM ar_activity where
 						pid ='$hidden_patient_code' and (code_type='$Codetype' or code_type='') and code='$Code' and modifier='$Modifier'  and  encounter  ='$Encounter' and  !(payer_type=0 and 
@@ -223,36 +214,26 @@ if (isset($_POST["mode"]))
                         $Remainder=$Fee-$Copay-$MoneyGot-$MoneyAdjusted;
 
                     $TotalRows=sqlNumRows($ResultSearchNew);
-                    if($CountIndexBelow==sqlNumRows($ResultSearchNew))
-                     {
+                    if ($CountIndexBelow==sqlNumRows($ResultSearchNew)) {
                         $StringClass=' bottom left top ';
-                    }
-                    else
-                     {
+                    } else {
                         $StringClass=' left top ';
                     }
 
 
-                    if($Ins==1)
-                     {
+                    if ($Ins==1) {
                         $bgcolor='#ddddff';
-                    }
-                    elseif($Ins==2)
-                     {
+                    } elseif ($Ins==2) {
                         $bgcolor='#ffdddd';
-                    }
-                    elseif($Ins==3)
-                     {
+                    } elseif ($Ins==3) {
                         $bgcolor='#F2F1BC';
-                    }
-                    elseif($Ins==0)
-                     {
+                    } elseif ($Ins==0) {
                         $bgcolor='#AAFFFF';
                     }
                 ?>
               <tr class="text"  bgcolor='<?php echo $bgcolor; ?>' id="trCharges<?php echo $CountIndex; ?>">
                 <td align="left" class="<?php echo $StringClass; ?>" ><input name="HiddenIns<?php echo $CountIndex; ?>" id="HiddenIns<?php echo $CountIndex; ?>" 
-                 value="<?php echo htmlspecialchars($Ins); ?>" type="hidden"/><?php echo generate_select_list("payment_ins$CountIndex", "payment_ins", "$Ins", "Insurance/Patient",'','','ActionOnInsPat("'.$CountIndex.'")');?></td>
+                 value="<?php echo htmlspecialchars($Ins); ?>" type="hidden"/><?php echo generate_select_list("payment_ins$CountIndex", "payment_ins", "$Ins", "Insurance/Patient", '', '', 'ActionOnInsPat("'.$CountIndex.'")');?></td>
                 <td class="<?php echo $StringClass; ?>" ><?php echo htmlspecialchars($ServiceDate); ?></td>
                 <td align="right" class="<?php echo $StringClass; ?>" ><input name="HiddenEncounter<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($Encounter); ?>" 
                 type="hidden"/><?php echo htmlspecialchars($Encounter); ?></td>
@@ -262,10 +243,10 @@ if (isset($_POST["mode"]))
                 <td align="right" class="<?php echo $StringClass; ?>" ><input name="HiddenChargeAmount<?php echo $CountIndex; ?>"
                  id="HiddenChargeAmount<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($Fee); ?>" type="hidden"/><?php echo htmlspecialchars($Fee); ?></td>
                 <td align="right" class="<?php echo $StringClass; ?>" ><input name="HiddenCopayAmount<?php echo $CountIndex; ?>"
-                 id="HiddenCopayAmount<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($Copay); ?>" type="hidden"/><?php echo htmlspecialchars(number_format($Copay,2)); ?></td>
-                <td align="right"   id="RemainderTd<?php echo $CountIndex; ?>"  class="<?php echo $StringClass; ?>" ><?php echo htmlspecialchars(round($Remainder,2)); ?></td>
+                 id="HiddenCopayAmount<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($Copay); ?>" type="hidden"/><?php echo htmlspecialchars(number_format($Copay, 2)); ?></td>
+                <td align="right"   id="RemainderTd<?php echo $CountIndex; ?>"  class="<?php echo $StringClass; ?>" ><?php echo htmlspecialchars(round($Remainder, 2)); ?></td>
                 <input name="HiddenRemainderTd<?php echo $CountIndex; ?>" id="HiddenRemainderTd<?php echo $CountIndex; ?>" 
-                 value="<?php echo htmlspecialchars(round($Remainder,2)); ?>" type="hidden"/>
+                 value="<?php echo htmlspecialchars(round($Remainder, 2)); ?>" type="hidden"/>
                 <td class="<?php echo $StringClass; ?>" ><input  name="Allowed<?php echo $CountIndex; ?>" id="Allowed<?php echo $CountIndex; ?>" 
                  onKeyDown="PreventIt(event)"  autocomplete="off"  
                  onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);UpdateTotalValues(<?php echo $CountIndexAbove*1+1; ?>,<?php echo $TotalRows; ?>,'Allowed','initialallowtotal');UpdateTotalValues(<?php echo $CountIndexAbove*1+1; ?>,<?php echo $TotalRows; ?>,'Payment','initialpaymenttotal');UpdateTotalValues(<?php echo $CountIndexAbove*1+1; ?>,<?php echo $TotalRows; ?>,'AdjAmount','initialAdjAmounttotal');RestoreValues(<?php echo $CountIndex; ?>)" 
@@ -285,15 +266,14 @@ if (isset($_POST["mode"]))
                  id="Takeback<?php echo $CountIndex; ?>"  
                  onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);UpdateTotalValues(<?php echo $CountIndexAbove*1+1; ?>,<?php echo $TotalRows; ?>,'Takeback','initialtakebacktotal');RestoreValues(<?php echo $CountIndex; ?>)"  
                   type="text"   style="width:60px;text-align:right; font-size:12px" /></td>
-                <td align="left" class="<?php echo $StringClass; ?>" ><input name="HiddenReasonCode<?php echo $CountIndex; ?>" id="HiddenReasonCode<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($ReasonCodeDB); ?>" type="hidden"/><?php echo generate_select_list( "ReasonCode$CountIndex", "msp_remit_codes", "", "MSP Code", "--" ); ?></td>                          
+                <td align="left" class="<?php echo $StringClass; ?>" ><input name="HiddenReasonCode<?php echo $CountIndex; ?>" id="HiddenReasonCode<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($ReasonCodeDB); ?>" type="hidden"/><?php echo generate_select_list("ReasonCode$CountIndex", "msp_remit_codes", "", "MSP Code", "--"); ?></td>                          
                 <td align="center" class="<?php echo $StringClass; ?>" ><input type="checkbox" id="FollowUp<?php echo $CountIndex; ?>" 
                  name="FollowUp<?php echo $CountIndex; ?>" value="y" onClick="ActionFollowUp(<?php echo $CountIndex; ?>)"  /></td> 
                 <td class="<?php echo $StringClass; ?> right" ><input  onKeyDown="PreventIt(event)" id="FollowUpReason<?php echo $CountIndex; ?>"   
                  name="FollowUpReason<?php echo $CountIndex; ?>"  readonly=""  type="text"   style="width:209px;font-size:12px" /></td>
               </tr>
             <?php
-
-                }while($RowSearch = sqlFetchArray($ResultSearchNew));
+                } while ($RowSearch = sqlFetchArray($ResultSearchNew));
             ?>
              <tr class="text">
                 <td align="left" colspan="7">&nbsp;</td>

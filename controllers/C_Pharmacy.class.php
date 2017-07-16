@@ -1,7 +1,8 @@
 <?php
 
 
-class C_Pharmacy extends Controller {
+class C_Pharmacy extends Controller
+{
 
     var $template_mod;
     var $pharmacies;
@@ -14,7 +15,7 @@ class C_Pharmacy extends Controller {
         $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings&pharmacy&");
         $this->assign("STYLE", $GLOBALS['style']);
-        $this->assign("WEB_ROOT", $GLOBALS['webroot'] );
+        $this->assign("WEB_ROOT", $GLOBALS['webroot']);
         $this->Pharmacy = new Pharmacy();
     }
 
@@ -23,12 +24,11 @@ class C_Pharmacy extends Controller {
         return $this->list_action();
     }
 
-    function edit_action($id = "",$patient_id="",$p_obj = null)
+    function edit_action($id = "", $patient_id = "", $p_obj = null)
     {
         if ($p_obj != null && get_class($p_obj) == "pharmacy") {
             $this->pharmacies[0] = $p_obj;
-        }
-        elseif (get_class($this->pharmacies[0]) != "pharmacy" ) {
+        } elseif (get_class($this->pharmacies[0]) != "pharmacy") {
             $this->pharmacies[0] = new Pharmacy($id);
         }
 
@@ -36,6 +36,7 @@ class C_Pharmacy extends Controller {
             $this->pharmacies[0]->set_patient_id($patient_id);
             $this->pharmacies[0]->set_provider($this->pharmacies[0]->patient->get_provider());
         }
+
         $this->assign("pharmacy", $this->pharmacies[0]);
         return $this->fetch($GLOBALS['template_dir'] . "pharmacies/" . $this->template_mod . "_edit.html");
     }
@@ -44,11 +45,11 @@ class C_Pharmacy extends Controller {
     {
 
         if (!empty($sort)) {
-            $this->assign("pharmacies", $this->Pharmacy->pharmacies_factory("",$sort));
-        }
-        else {
+            $this->assign("pharmacies", $this->Pharmacy->pharmacies_factory("", $sort));
+        } else {
             $this->assign("pharmacies", $this->Pharmacy->pharmacies_factory());
         }
+
         //print_r(Prescription::prescriptions_factory($id));
         return $this->fetch($GLOBALS['template_dir'] . "pharmacies/" . $this->template_mod . "_list.html");
     }
@@ -56,15 +57,17 @@ class C_Pharmacy extends Controller {
 
     function edit_action_process()
     {
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
+
         //print_r($_POST);
         if (is_numeric($_POST['id'])) {
             $this->pharmacies[0] = new Pharmacy($_POST['id']);
-        }
-        else {
+        } else {
             $this->pharmacies[0] = new Pharmacy();
         }
+
         parent::populate_object($this->pharmacies[0]);
         //print_r($this->pharmacies[0]);
         //echo $this->pharmacies[0]->toString(true);
@@ -73,7 +76,4 @@ class C_Pharmacy extends Controller {
         $_POST['process'] = "";
         header('Location:'.$GLOBALS['webroot']."/controller.php?" . "practice_settings&pharmacy&action=list");//Z&H
     }
-
 }
-
-?>

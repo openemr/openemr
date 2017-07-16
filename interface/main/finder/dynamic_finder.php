@@ -27,7 +27,10 @@ while ($row = sqlFetchArray($res)) {
     $header .= "</th>\n";
     $header0 .= "   <td align='center'><input type='text' size='10' ";
     $header0 .= "value='' class='search_init' /></td>\n";
-    if ($coljson) $coljson .= ", ";
+    if ($coljson) {
+        $coljson .= ", ";
+    }
+
     $coljson .= "{\"sName\": \"" . addcslashes($colname, "\t\r\n\"\\") . "\"}";
     ++$colcount;
 }
@@ -73,7 +76,9 @@ $(document).ready(function() {
 
  // This puts our custom HTML into the table header.
  $("div.mytopdiv").html("<form name='myform'><input type='checkbox' name='form_new_window' value='1'<?php
-    if (!empty($GLOBALS['gbl_pt_list_new_window'])) echo ' checked'; ?> /><?php
+    if (!empty($GLOBALS['gbl_pt_list_new_window'])) {
+        echo ' checked';
+    } ?> /><?php
   echo xlt('Open in New Window'); ?></form>");
 
  // This is to support column-specific search fields.

@@ -20,6 +20,7 @@
 */
 
 namespace Application\Helper;
+
 use Zend\View\Helper\AbstractHelper;
  
 class Javascript extends AbstractHelper
@@ -36,11 +37,11 @@ class Javascript extends AbstractHelper
                 $scheme = 'http://';
                 break;
         }
-        $basePath = str_replace("/index.php","",$_SERVER['PHP_SELF']);
+
+        $basePath = str_replace("/index.php", "", $_SERVER['PHP_SELF']);
         echo '<script type="text/javascript">';
         echo 'var basePath    = "'.$scheme.$_SERVER['SERVER_NAME'].$basePath.'";';
         echo 'var dateFormat = "yy-mm-dd"';
         echo '</script>';
     }
 }
-?>

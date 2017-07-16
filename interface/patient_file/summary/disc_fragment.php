@@ -28,7 +28,7 @@ require_once("../../globals.php");
  * @param $pid   -  patient id.
  * @param $limit -  certain limit up to which the disclosures are to be displyed.
  */
-function getDisclosureByDate($pid,$limit)
+function getDisclosureByDate($pid, $limit)
 {
     $discQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
     " LEFT JOIN users u ON u.username = el.user ".
@@ -36,8 +36,10 @@ function getDisclosureByDate($pid,$limit)
     " ORDER BY el.date DESC LIMIT 0, $limit";
     $r1 = sqlStatement($discQry, array($pid));
     $result2 = array();
-    for ($iter = 0;$frow = sqlFetchArray($r1);$iter++)
+    for ($iter = 0; $frow = sqlFetchArray($r1); $iter++) {
         $result2[$iter] = $frow;
+    }
+
     return $result2;
 }
 ?>
@@ -55,37 +57,39 @@ $N=3;
 //$has_variable is set to 1 if there are disclosures recorded.
 $has_disclosure=0;
 //retrieve all the disclosures.
-$result=getDisclosureByDate($pid,$N);
-if ($result != null){
+$result=getDisclosureByDate($pid, $N);
+if ($result != null) {
     $disclosure_count = 0;//number of disclosures so far displayed
-    foreach ($result as $iter)
-    {
+    foreach ($result as $iter) {
         $has_disclosure = 1;
         $app_event=$iter{"event"};
-        $event=explode("-",$app_event);
+        $event=explode("-", $app_event);
         $description=nl2br(text($iter{"description"}));//for line breaks.
         //listing the disclosures
         echo "<tr style='border-bottom:1px dashed' class='text'>";
             echo "<td valign='top' class='text'>";
-        if($event[1]=='healthcareoperations'){ echo "<b>";
+        if ($event[1]=='healthcareoperations') {
+            echo "<b>";
             echo xlt('health care operations');
             echo "</b>";
-        } else echo "<b>".text($event[1])."</b>";
+        } else {
+            echo "<b>".text($event[1])."</b>";
+        }
+
             echo "</td>";
             echo "<td>".text($iter['user_fullname'])."</td>";
             echo "<td  valign='top'class='text'>";
-            echo htmlspecialchars($iter{"date"}." (".xl('Recipient').":".$iter{"recipient"}.")",ENT_NOQUOTES);
+            echo htmlspecialchars($iter{"date"}." (".xl('Recipient').":".$iter{"recipient"}.")", ENT_NOQUOTES);
                     echo " ".$description;
             echo "</td>";
         echo "</tr>";
-
     }
 }
 ?>
 </table>
 <?php
-if ( $has_disclosure == 0 ) //If there are no disclosures recorded
-{ ?>
+if ($has_disclosure == 0) { //If there are no disclosures recorded
+    ?>
     <span class='text'>
 <?php
   echo xlt("There are no disclosures recorded for this patient.");
@@ -99,13 +103,12 @@ if (acl_check('patients', 'disclosure', '', array('write', 'addonly'))) {
 ?>
     </span>
 <?php
-} else
-{
+} else {
 ?>
     <br />
     <span class='text'> <?php
-    echo htmlspecialchars(xl('Displaying the following number of most recent disclosures:'),ENT_NOQUOTES);?><b><?php echo " ".htmlspecialchars($N,ENT_NOQUOTES);?></b><br>
-    <a href='disclosure_full.php'><?php echo htmlspecialchars(xl('Click here to view them all.'),ENT_NOQUOTES);?></a>
+    echo htmlspecialchars(xl('Displaying the following number of most recent disclosures:'), ENT_NOQUOTES);?><b><?php echo " ".htmlspecialchars($N, ENT_NOQUOTES);?></b><br>
+    <a href='disclosure_full.php'><?php echo htmlspecialchars(xl('Click here to view them all.'), ENT_NOQUOTES);?></a>
     </span><?php
 } ?>
 <br />

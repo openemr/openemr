@@ -28,7 +28,7 @@
  * @param   boolean   $showError  indicator whether to retrieve the records that were added erroneously
  * @return  recordset             listing of immunizations for a patient
  */
-function getImmunizationList($pid,$sortby,$showError)
+function getImmunizationList($pid, $sortby, $showError)
 {
         $sql = "select i1.id ,i1.immunization_id, i1.cvx_code, i1.administered_date, c.code_text_short, c.code".
                 ",i1.manufacturer ,i1.lot_number, i1.completion_status ".
@@ -48,13 +48,10 @@ function getImmunizationList($pid,$sortby,$showError)
         
     if ($sortby == "vacc") {
         $sql .= " c.code_text_short, i1.immunization_id, i1.administered_date DESC";
-    }
-    else {
+    } else {
         $sql .= " administered_date desc";
     }
 
-        $results = sqlStatement($sql,array($pid));
+        $results = sqlStatement($sql, array($pid));
         return $results;
 }
-
-?>

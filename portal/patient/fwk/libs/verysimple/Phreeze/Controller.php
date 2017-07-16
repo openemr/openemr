@@ -4,13 +4,13 @@
 /**
  * import supporting libraries
  */
-require_once ("verysimple/HTTP/RequestUtil.php");
-require_once ("verysimple/HTTP/Context.php");
-require_once ("Phreezer.php");
-require_once ("Criteria.php");
-require_once ("IRouter.php");
-require_once ("GenericRouter.php");
-require_once ("verysimple/Authentication/IAuthenticatable.php");
+require_once("verysimple/HTTP/RequestUtil.php");
+require_once("verysimple/HTTP/Context.php");
+require_once("Phreezer.php");
+require_once("Criteria.php");
+require_once("IRouter.php");
+require_once("GenericRouter.php");
+require_once("verysimple/Authentication/IAuthenticatable.php");
 
 /**
  * Controller is a base controller object used for an MVC pattern
@@ -24,7 +24,8 @@ require_once ("verysimple/Authentication/IAuthenticatable.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 3.1
  */
-abstract class Controller {
+abstract class Controller
+{
     protected $Phreezer;
     protected $RenderEngine;
     
@@ -87,40 +88,41 @@ abstract class Controller {
         // for backwards compatibility
         $this->Smarty = & $renderEngine;
         
-        $ra = RequestUtil::GetRemoteHost ();
-        $this->GUID = $this->Phreezer->DataAdapter->GetDBName () . "_" . str_replace ( ".", "_", $ra );
+        $ra = RequestUtil::GetRemoteHost();
+        $this->GUID = $this->Phreezer->DataAdapter->GetDBName() . "_" . str_replace(".", "_", $ra);
         
-        $this->_router = $router ? $router : new GenericRouter ();
+        $this->_router = $router ? $router : new GenericRouter();
         
         if ($context) {
             $this->Context = & $context;
         } else {
-            $this->Context = new Context ();
+            $this->Context = new Context();
             $this->Context->GUID = "CTX_" . $this->GUID;
         }
         
         if ($this->RenderEngine) {
             // assign some variables globally for the views
-            $this->Assign ( "CURRENT_USER", $this->GetCurrentUser () );
-            $this->Assign ( "URL", $this->GetRouter () );
-            $this->Assign ( "BROWSER_DEVICE", $this->GetDevice () );
+            $this->Assign("CURRENT_USER", $this->GetCurrentUser());
+            $this->Assign("URL", $this->GetRouter());
+            $this->Assign("BROWSER_DEVICE", $this->GetDevice());
             
             // if feedback was persisted, set it
-            $feedback = $this->Context->Get ( "feedback" );
+            $feedback = $this->Context->Get("feedback");
             
             // print_r($feedback); die('feedback');
             
-            if (is_array ( $feedback )) {
-                foreach ( $feedback as $key => $val ) {
-                    $this->Assign ( $key, $val );
+            if (is_array($feedback)) {
+                foreach ($feedback as $key => $val) {
+                    $this->Assign($key, $val);
                 }
             } else {
-                $this->Assign ( "feedback", $feedback );
+                $this->Assign("feedback", $feedback);
             }
-            $this->Context->Set ( "feedback", null );
+
+            $this->Context->Set("feedback", null);
         }
         
-        $this->Init ();
+        $this->Init();
     }
     
     /**
@@ -176,18 +178,18 @@ abstract class Controller {
      */
     protected function Require401Authentication(IAuthenticatable $authenticatable, $realm = "Login Required", $qs_username_field = "", $qs_password_field = "")
     {
-        require_once ("verysimple/Authentication/Auth401.php");
+        require_once("verysimple/Authentication/Auth401.php");
         
-        $user = $this->Get401Authentication ( $authenticatable, $qs_username_field, $qs_password_field );
+        $user = $this->Get401Authentication($authenticatable, $qs_username_field, $qs_password_field);
         
         // we only want to output 401 headers if the user is not already authenticated
         if (! $user) {
-            if ($this->Get401AuthUsername ( $qs_username_field )) {
+            if ($this->Get401AuthUsername($qs_username_field)) {
                 // a username was provided, which means login failed
-                Auth401::OutputHeaders ( "Invalid Login" );
+                Auth401::OutputHeaders("Invalid Login");
             } else {
                 // no username provided, which means prompt for username
-                Auth401::OutputHeaders ( $realm );
+                Auth401::OutputHeaders($realm);
             }
         }
     }
@@ -200,7 +202,7 @@ abstract class Controller {
      */
     protected function AssignCSRFToken($varname = 'CSRFToken')
     {
-        $this->Assign ( $varname, $this->GetCSRFToken () );
+        $this->Assign($varname, $this->GetCSRFToken());
     }
     
     /**
@@ -212,11 +214,11 @@ abstract class Controller {
      */
     protected function GetCSRFToken()
     {
-        $token = $this->Context->Get ( 'X-CSRFToken' );
+        $token = $this->Context->Get('X-CSRFToken');
         
         if (! $token) {
-            $token = md5 ( rand ( 1111111111, 9999999999 ) . microtime () );
-            $this->Context->Set ( 'X-CSRFToken', $token );
+            $token = md5(rand(1111111111, 9999999999) . microtime());
+            $this->Context->Set('X-CSRFToken', $token);
         }
         
         return $token;
@@ -235,18 +237,18 @@ abstract class Controller {
     protected function VerifyCSRFToken($headerName = 'X-CSRFToken')
     {
         // check that a CSRF token is present in the request
-        $headers = RequestUtil::GetHeaders ();
+        $headers = RequestUtil::GetHeaders();
         
         // make this case-insensitive (IE changes all headers to lower-case)
-        $headers = array_change_key_case ( $headers, CASE_LOWER );
-        $headerName = strtolower ( $headerName );
+        $headers = array_change_key_case($headers, CASE_LOWER);
+        $headerName = strtolower($headerName);
         
-        if (array_key_exists ( $headerName, $headers )) {
-            if ($this->GetCSRFToken () != $headers [$headerName]) {
-                throw new Exception ( 'Invalid CSRFToken' );
+        if (array_key_exists($headerName, $headers)) {
+            if ($this->GetCSRFToken() != $headers [$headerName]) {
+                throw new Exception('Invalid CSRFToken');
             }
         } else {
-            throw new Exception ( 'Missing CSRFToken' );
+            throw new Exception('Missing CSRFToken');
         }
     }
     
@@ -263,14 +265,14 @@ abstract class Controller {
     {
         if ($observer == null) {
             require_once "ObserveToBrowser.php";
-            $observer = new ObserveToBrowser ();
+            $observer = new ObserveToBrowser();
         }
         
         if ($with_styles) {
-            $this->PrintOut ( "<style>.debug, .query, .info {font-family: courier new; border-bottom: solid 1px #999;} .debug {color: blue;} .query {color: green;}</style>" );
+            $this->PrintOut("<style>.debug, .query, .info {font-family: courier new; border-bottom: solid 1px #999;} .debug {color: blue;} .query {color: green;}</style>");
         }
         
-        $this->Phreezer->AttachObserver ( $observer );
+        $this->Phreezer->AttachObserver($observer);
     }
     
     /**
@@ -283,8 +285,8 @@ abstract class Controller {
      */
     protected function Get401AuthUsername($qs_username_field = "")
     {
-        $qsv = $qs_username_field ? RequestUtil::Get ( $qs_username_field ) : '';
-        return $qsv ? $qsv : Auth401::GetUsername ();
+        $qsv = $qs_username_field ? RequestUtil::Get($qs_username_field) : '';
+        return $qsv ? $qsv : Auth401::GetUsername();
     }
     
     /**
@@ -297,8 +299,8 @@ abstract class Controller {
      */
     protected function Get401AuthPassword($qs_password_field = "")
     {
-        $qsv = $qs_password_field ? RequestUtil::Get ( $qs_password_field ) : '';
-        return $qsv ? $qsv : Auth401::GetPassword ();
+        $qsv = $qs_password_field ? RequestUtil::Get($qs_password_field) : '';
+        return $qsv ? $qsv : Auth401::GetPassword();
     }
     
     /**
@@ -319,20 +321,20 @@ abstract class Controller {
     protected function Get401Authentication(IAuthenticatable $authenticatable, $qs_username_field = "", $qs_password_field = "")
     {
         $user = null;
-        $username = $this->Get401AuthUsername ( $qs_username_field );
+        $username = $this->Get401AuthUsername($qs_username_field);
         
         if ($username) {
             // username was provided so let's attempt a login
-            $password = $this->Get401AuthPassword ( $qs_password_field );
+            $password = $this->Get401AuthPassword($qs_password_field);
             
-            if ($authenticatable->Login ( $username, $password )) {
+            if ($authenticatable->Login($username, $password)) {
                 $user = $authenticatable;
-                $this->SetCurrentUser ( $authenticatable );
+                $this->SetCurrentUser($authenticatable);
             }
         } else {
             // no login info was provided so return whatever is in the session
             // (which will be null if the user is not authenticated)
-            $user = $this->GetCurrentUser ();
+            $user = $this->GetCurrentUser();
         }
         
         return $user;
@@ -368,8 +370,10 @@ abstract class Controller {
         if ($this->CaptureOutputMode) {
             $this->DebugOutput .= $text;
         } else {
-            if ($contentType)
-                header ( "Content-type: " . $contentType );
+            if ($contentType) {
+                header("Content-type: " . $contentType);
+            }
+
             print $text;
         }
     }
@@ -382,8 +386,8 @@ abstract class Controller {
      */
     public function GetDevice()
     {
-        require_once ("verysimple/HTTP/BrowserDevice.php");
-        return BrowserDevice::GetInstance ();
+        require_once("verysimple/HTTP/BrowserDevice.php");
+        return BrowserDevice::GetInstance();
     }
     
     /**
@@ -394,15 +398,16 @@ abstract class Controller {
     public function ListAll()
     {
         if (! $this->ModelName) {
-            throw new Exception ( "ModelName must be defined in " . get_class ( $this ) . "::ListAll" );
+            throw new Exception("ModelName must be defined in " . get_class($this) . "::ListAll");
         }
         
         // capture output instead of rendering if specified
         if ($this->CaptureOutputMode) {
-            $this->DebugOutput = $this->RenderEngine->fetch ( "View" . $this->ModelName . "ListAll.tpl" );
+            $this->DebugOutput = $this->RenderEngine->fetch("View" . $this->ModelName . "ListAll.tpl");
         } else {
-            $this->RenderEngine->display ( "View" . $this->ModelName . "ListAll.tpl" );
+            $this->RenderEngine->display("View" . $this->ModelName . "ListAll.tpl");
         }
+
         // $this->_ListAll(null, Request::Get("page",1), Request::Get("limit",20));
     }
     
@@ -420,12 +425,12 @@ abstract class Controller {
     protected function _ListAll(Criteria $criteria, $current_page, $limit)
     {
         if (! $this->ModelName) {
-            throw new Exception ( "ModelName must be defined in " . get_class ( $this ) . "::_ListAll." );
+            throw new Exception("ModelName must be defined in " . get_class($this) . "::_ListAll.");
         }
         
-        $page = $this->Phreezer->Query ( $this->ModelName, $criteria )->GetDataPage ( $current_page, $limit );
-        $this->RenderEngine->assign ( $this->ModelName . "DataPage", $page );
-        $this->RenderEngine->display ( "View" . $this->ModelName . "ListAll.tpl" );
+        $page = $this->Phreezer->Query($this->ModelName, $criteria)->GetDataPage($current_page, $limit);
+        $this->RenderEngine->assign($this->ModelName . "DataPage", $page);
+        $this->RenderEngine->display("View" . $this->ModelName . "ListAll.tpl");
     }
     
     /**
@@ -443,10 +448,11 @@ abstract class Controller {
      */
     protected function RenderXML($page, $additionalProps = null, $supressProps = null, $noMap = false)
     {
-        require_once ("verysimple/String/VerySimpleStringUtil.php");
+        require_once("verysimple/String/VerySimpleStringUtil.php");
         
-        if (! is_array ( $supressProps ))
+        if (! is_array($supressProps)) {
             $supressProps = array ();
+        }
             
             // never include these props
         $suppressProps [] = "NoCache";
@@ -458,12 +464,12 @@ abstract class Controller {
         $xml .= "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n";
         
         $xml .= "<DataPage>\r\n";
-        $xml .= "<ObjectName>" . htmlspecialchars ( $page->ObjectName ) . "</ObjectName>\r\n";
-        $xml .= "<ObjectKey>" . htmlspecialchars ( $page->ObjectKey ) . "</ObjectKey>\r\n";
-        $xml .= "<TotalRecords>" . htmlspecialchars ( $page->TotalResults ) . "</TotalRecords>\r\n";
-        $xml .= "<TotalPages>" . htmlspecialchars ( $page->TotalPages ) . "</TotalPages>\r\n";
-        $xml .= "<CurrentPage>" . htmlspecialchars ( $page->CurrentPage ) . "</CurrentPage>\r\n";
-        $xml .= "<PageSize>" . htmlspecialchars ( $page->PageSize ) . "</PageSize>\r\n";
+        $xml .= "<ObjectName>" . htmlspecialchars($page->ObjectName) . "</ObjectName>\r\n";
+        $xml .= "<ObjectKey>" . htmlspecialchars($page->ObjectKey) . "</ObjectKey>\r\n";
+        $xml .= "<TotalRecords>" . htmlspecialchars($page->TotalResults) . "</TotalRecords>\r\n";
+        $xml .= "<TotalPages>" . htmlspecialchars($page->TotalPages) . "</TotalPages>\r\n";
+        $xml .= "<CurrentPage>" . htmlspecialchars($page->CurrentPage) . "</CurrentPage>\r\n";
+        $xml .= "<PageSize>" . htmlspecialchars($page->PageSize) . "</PageSize>\r\n";
         
         $xml .= "<Records>\r\n";
         
@@ -472,49 +478,50 @@ abstract class Controller {
             $fms = array ();
         } else {
             try {
-                $fms = $this->Phreezer->GetFieldMaps ( $page->ObjectName );
-            } catch ( exception $ex ) {
-                throw new Exception ( "The objects contained in this DataPage do not have a FieldMap.  Set noMap argument to true to supress this error: " . $ex->getMessage () );
+                $fms = $this->Phreezer->GetFieldMaps($page->ObjectName);
+            } catch (exception $ex) {
+                throw new Exception("The objects contained in this DataPage do not have a FieldMap.  Set noMap argument to true to supress this error: " . $ex->getMessage());
             }
         }
         
-        foreach ( $page->Rows as $obj ) {
-            $xml .= "<" . htmlspecialchars ( $page->ObjectName ) . ">\r\n";
-            foreach ( get_object_vars ( $obj ) as $var => $val ) {
-                if (! in_array ( $var, $supressProps )) {
+        foreach ($page->Rows as $obj) {
+            $xml .= "<" . htmlspecialchars($page->ObjectName) . ">\r\n";
+            foreach (get_object_vars($obj) as $var => $val) {
+                if (! in_array($var, $supressProps)) {
                     // depending on what type of field this is, do some special formatting
-                    $fm = isset ( $fms [$var] ) ? $fms [$var]->FieldType : FM_TYPE_UNKNOWN;
+                    $fm = isset($fms [$var]) ? $fms [$var]->FieldType : FM_TYPE_UNKNOWN;
                     
                     if ($fm == FM_TYPE_DATETIME) {
-                        $val = strtotime ( $val ) ? date ( "m/d/Y h:i A", strtotime ( $val ) ) : $val;
+                        $val = strtotime($val) ? date("m/d/Y h:i A", strtotime($val)) : $val;
                     } elseif ($fm == FM_TYPE_DATE) {
-                        $val = strtotime ( $val ) ? date ( "m/d/Y", strtotime ( $val ) ) : $val;
+                        $val = strtotime($val) ? date("m/d/Y", strtotime($val)) : $val;
                     }
                     
                     // if the developer has added a property that is not a simple type
                     // we need to serialize it
-                    if (is_array ( $val ) || is_object ( $val )) {
-                        $val = serialize ( $val );
+                    if (is_array($val) || is_object($val)) {
+                        $val = serialize($val);
                     }
                     
-                    $val = VerySimpleStringUtil::EncodeSpecialCharacters ( $val, true, true );
+                    $val = VerySimpleStringUtil::EncodeSpecialCharacters($val, true, true);
                     
-                    $xml .= "<" . htmlspecialchars ( $var ) . ">" . $val . "</" . htmlspecialchars ( $var ) . ">\r\n";
+                    $xml .= "<" . htmlspecialchars($var) . ">" . $val . "</" . htmlspecialchars($var) . ">\r\n";
                 }
             }
             
             // Add any properties that we want from child objects
             if ($additionalProps) {
-                foreach ( $additionalProps as $meth => $propPair ) {
-                    $props = explode ( ",", $propPair );
-                    foreach ( $props as $prop ) {
-                        $xml .= "<" . htmlspecialchars ( $meth . $prop ) . ">" . htmlspecialchars ( $obj->$meth ()->$prop ) . "</" . htmlspecialchars ( $meth . $prop ) . ">\r\n";
+                foreach ($additionalProps as $meth => $propPair) {
+                    $props = explode(",", $propPair);
+                    foreach ($props as $prop) {
+                        $xml .= "<" . htmlspecialchars($meth . $prop) . ">" . htmlspecialchars($obj->$meth ()->$prop) . "</" . htmlspecialchars($meth . $prop) . ">\r\n";
                     }
                 }
             }
             
-            $xml .= "</" . htmlspecialchars ( $page->ObjectName ) . ">\r\n";
+            $xml .= "</" . htmlspecialchars($page->ObjectName) . ">\r\n";
         }
+
         $xml .= "</Records>\r\n";
         
         $xml .= "</DataPage>\r\n";
@@ -523,7 +530,7 @@ abstract class Controller {
         if ($this->CaptureOutputMode) {
             $this->DebugOutput = $xml;
         } else {
-            header ( 'Content-type: text/xml' );
+            header('Content-type: text/xml');
             print $xml;
         }
     }
@@ -538,37 +545,39 @@ abstract class Controller {
      */
     protected function RenderRSS(array $feedItems, $feedTitle = "RSS Feed", $feedDescription = "RSS Feed")
     {
-        require_once ('verysimple/RSS/Writer.php');
-        require_once ('verysimple/RSS/IRSSFeedItem.php');
+        require_once('verysimple/RSS/Writer.php');
+        require_once('verysimple/RSS/IRSSFeedItem.php');
         
-        $baseUrl = RequestUtil::GetBaseURL ();
-        $rssWriter = new RSS_Writer ( $feedTitle, $baseUrl, $feedDescription );
-        $rssWriter->setLanguage ( 'us-en' );
-        $rssWriter->addCategory ( "Items" );
+        $baseUrl = RequestUtil::GetBaseURL();
+        $rssWriter = new RSS_Writer($feedTitle, $baseUrl, $feedDescription);
+        $rssWriter->setLanguage('us-en');
+        $rssWriter->addCategory("Items");
         
-        if (count ( $feedItems )) {
+        if (count($feedItems)) {
             $count = 0;
-            foreach ( $feedItems as $item ) {
+            foreach ($feedItems as $item) {
                 $count ++;
                 
                 if ($item instanceof IRSSFeedItem) {
-                    $rssWriter->addItem ( $item->GetRSSTitle (), // title
-                    $item->GetRSSLink ( $baseUrl ), // link
-                    $item->GetRSSDescription (), // description
-                    $item->GetRSSAuthor (), // author
-                    date ( DATE_RSS, $item->GetRSSPublishDate () ), // date
-                    null, // source
-                    $item->GetRSSGUID () ) // guid
+                    $rssWriter->addItem(
+                        $item->GetRSSTitle(), // title
+                        $item->GetRSSLink($baseUrl), // link
+                        $item->GetRSSDescription(), // description
+                        $item->GetRSSAuthor(), // author
+                        date(DATE_RSS, $item->GetRSSPublishDate()), // date
+                        null, // source
+                        $item->GetRSSGUID()
+                    ) // guid
                     ;
                 } else {
-                    $rssWriter->addItem ( "Item $count doesn't implment IRSSFeedItem", "about:blank", '', 'Error', date ( DATE_RSS ) );
+                    $rssWriter->addItem("Item $count doesn't implment IRSSFeedItem", "about:blank", '', 'Error', date(DATE_RSS));
                 }
             }
         } else {
-            $rssWriter->addItem ( "No Items", "about:blank", '', 'No Author', date ( DATE_RSS ) );
+            $rssWriter->addItem("No Items", "about:blank", '', 'No Author', date(DATE_RSS));
         }
         
-        $rssWriter->writeOut ();
+        $rssWriter->writeOut();
     }
     
     /**
@@ -577,7 +586,7 @@ abstract class Controller {
      */
     protected function Set($var, $val)
     {
-        return $this->Context->Set ( $var, $val );
+        return $this->Context->Set($var, $val);
     }
     
     /**
@@ -586,7 +595,7 @@ abstract class Controller {
      */
     protected function Get($var, $default = null)
     {
-        return $this->Context->Get ( $var, $default );
+        return $this->Context->Get($var, $default);
     }
     
     /**
@@ -599,32 +608,32 @@ abstract class Controller {
      */
     function ValidateInput()
     {
-        require_once ("ValidationResponse.php");
-        $vr = new ValidationResponse ();
+        require_once("ValidationResponse.php");
+        $vr = new ValidationResponse();
         
-        $save = RequestUtil::Get ( "SaveInline" );
+        $save = RequestUtil::Get("SaveInline");
         
-        $obj = $this->LoadFromForm ();
+        $obj = $this->LoadFromForm();
         
-        if (! is_object ( $obj )) {
+        if (! is_object($obj)) {
             $vr->Success = false;
             $vr->Errors = array (
                     "Unknown" => "LoadFromForm does not appear to be implemented.  Unable to validate"
             );
             $vr->Message = "LoadFromForm does not appear to be implemented.  Unable to validate";
-        } elseif ($obj->Validate ()) {
+        } elseif ($obj->Validate()) {
             $vr->Success = true;
         } else {
             $vr->Success = false;
-            $vr->Errors = $obj->GetValidationErrors ();
+            $vr->Errors = $obj->GetValidationErrors();
             $vr->Message = "Validation Errors Occured";
         }
         
         // if the user requested to save inline, their Save method will take over from here
         if ($vr->Success && $save) {
-            $this->Save ();
+            $this->Save();
         } else {
-            $this->RenderJSON ( $vr );
+            $this->RenderJSON($vr);
         }
     }
     
@@ -633,16 +642,16 @@ abstract class Controller {
      */
     function Save()
     {
-        if (! RequestUtil::Get ( "SaveInline" )) {
-            throw new Exception ( "Save is not implemented by this controller" );
+        if (! RequestUtil::Get("SaveInline")) {
+            throw new Exception("Save is not implemented by this controller");
         }
         
-        require_once ("ValidationResponse.php");
-        $vr = new ValidationResponse ();
+        require_once("ValidationResponse.php");
+        $vr = new ValidationResponse();
         $vr->Success = false;
         $vr->Errors = array ();
         $vr->Message = "SaveInline is not implemented by this controller";
-        $this->RenderJSON ( $vr );
+        $this->RenderJSON($vr);
     }
     
     /**
@@ -653,14 +662,15 @@ abstract class Controller {
     protected function GetColumns()
     {
         if (! $this->ModelName) {
-            throw new Exception ( "ModelName must be defined in " . get_class ( $this ) . "::GetColumns" );
+            throw new Exception("ModelName must be defined in " . get_class($this) . "::GetColumns");
         }
         
         $counter = 0;
         $props = array ();
-        foreach ( get_class_vars ( $this->ModelName ) as $var => $val ) {
+        foreach (get_class_vars($this->ModelName) as $var => $val) {
             $props [$counter ++] = $var;
         }
+
         return $props;
     }
     
@@ -685,10 +695,10 @@ abstract class Controller {
      */
     public function ClearCurrentUser()
     {
-        require_once ("verysimple/Authentication/Authenticator.php");
+        require_once("verysimple/Authentication/Authenticator.php");
         
         $this->_cu = null;
-        Authenticator::ClearAuthentication ( $this->GUID );
+        Authenticator::ClearAuthentication($this->GUID);
     }
     
     /**
@@ -700,10 +710,10 @@ abstract class Controller {
     protected function SetCurrentUser(IAuthenticatable $user)
     {
         $this->_cu = $user;
-        Authenticator::SetCurrentUser ( $user, $this->GUID );
+        Authenticator::SetCurrentUser($user, $this->GUID);
         
         // assign some global variables to the view
-        $this->Assign ( "CURRENT_USER", $this->GetCurrentUser () );
+        $this->Assign("CURRENT_USER", $this->GetCurrentUser());
     }
     
     /**
@@ -714,29 +724,30 @@ abstract class Controller {
     protected function GetCurrentUser()
     {
         if (! $this->_cu) {
-            require_once ("verysimple/Authentication/Authenticator.php");
+            require_once("verysimple/Authentication/Authenticator.php");
             
-            $this->Phreezer->Observe ( "Loading CurrentUser from Session" );
-            $this->_cu = Authenticator::GetCurrentUser ( $this->GUID );
+            $this->Phreezer->Observe("Loading CurrentUser from Session");
+            $this->_cu = Authenticator::GetCurrentUser($this->GUID);
             
             if ($this->_cu) {
-                if (get_class ( $this->_cu ) == "__PHP_Incomplete_Class") {
+                if (get_class($this->_cu) == "__PHP_Incomplete_Class") {
                     // this happens if the class used for authentication was not included before the session was started
-                    $tmp = print_r ( $this->_cu, 1 );
-                    $parts1 = explode ( "__PHP_Incomplete_Class_Name] => ", $tmp );
-                    $parts2 = explode ( "[", $parts1 [1] );
-                    $name = trim ( $parts2 [0] );
+                    $tmp = print_r($this->_cu, 1);
+                    $parts1 = explode("__PHP_Incomplete_Class_Name] => ", $tmp);
+                    $parts2 = explode("[", $parts1 [1]);
+                    $name = trim($parts2 [0]);
                     
-                    Authenticator::ClearAuthentication ( $this->GUID );
-                    throw new Exception ( "The class definition used for authentication '$name' must be defined (included) before the session is started, for example in _app_config.php." );
+                    Authenticator::ClearAuthentication($this->GUID);
+                    throw new Exception("The class definition used for authentication '$name' must be defined (included) before the session is started, for example in _app_config.php.");
                 } else {
                     // refresh the current user if the object supports it
-                    if (method_exists ( $this->_cu, 'Refresh' ))
-                        $this->_cu->Refresh ( $this->Phreezer );
+                    if (method_exists($this->_cu, 'Refresh')) {
+                        $this->_cu->Refresh($this->Phreezer);
+                    }
                 }
             }
         } else {
-            $this->Phreezer->Observe ( "Using previously loaded CurrentUser" );
+            $this->Phreezer->Observe("Using previously loaded CurrentUser");
         }
         
         return $this->_cu;
@@ -751,8 +762,8 @@ abstract class Controller {
      */
     public function IsApiRequest()
     {
-        $url = RequestUtil::GetCurrentURL ();
-        return (strpos ( $url, self::$ApiIdentifier ) !== false);
+        $url = RequestUtil::GetCurrentURL();
+        return (strpos($url, self::$ApiIdentifier) !== false);
     }
     
     /**
@@ -774,20 +785,20 @@ abstract class Controller {
      */
     protected function RequirePermission($permission, $on_fail_action = "", $not_authenticated_feedback = "Please login to access this page", $permission_denied_feedback = "You are not authorized to view this page and/or your session has expired")
     {
-        $this->Phreezer->Observe ( "Checking For Permission '$permission'" );
-        $cu = $this->GetCurrentUser ();
+        $this->Phreezer->Observe("Checking For Permission '$permission'");
+        $cu = $this->GetCurrentUser();
         
-        if (! $cu || ! $cu->IsAuthorized ( $permission )) {
-            $message = ! $cu || $cu->IsAnonymous () ? $not_authenticated_feedback : $permission_denied_feedback;
+        if (! $cu || ! $cu->IsAuthorized($permission)) {
+            $message = ! $cu || $cu->IsAnonymous() ? $not_authenticated_feedback : $permission_denied_feedback;
             
-            if ($on_fail_action && $this->IsApiRequest () == false) {
-                $this->Redirect ( $on_fail_action, array (
+            if ($on_fail_action && $this->IsApiRequest() == false) {
+                $this->Redirect($on_fail_action, array (
                         'feedback' => $message,
                         'warning' => $message
-                ) );
+                ));
             } else {
-                $ex = new AuthenticationException ( $message, 500 );
-                $this->Crash ( "Permission Denied", 500, $ex );
+                $ex = new AuthenticationException($message, 500);
+                $this->Crash("Permission Denied", 500, $ex);
             }
         }
     }
@@ -800,7 +811,7 @@ abstract class Controller {
      */
     protected function Assign($varname, $varval)
     {
-        $this->RenderEngine->assign ( $varname, $varval );
+        $this->RenderEngine->assign($varname, $varval);
     }
     
     /**
@@ -813,18 +824,20 @@ abstract class Controller {
      */
     protected function Render($view = "", $format = null)
     {
-        $isSmarty = (strpos ( get_class ( $this->RenderEngine ), "Smarty" ) > - 1);
+        $isSmarty = (strpos(get_class($this->RenderEngine), "Smarty") > - 1);
         
-        if ($isSmarty && $format == null)
+        if ($isSmarty && $format == null) {
             $format = self::$SmartyViewPrefix;
+        }
         
-        if ($format == null)
+        if ($format == null) {
             $format = '';
+        }
         
         if ($view == "") {
             // automatic binding
-            $backtrace = debug_backtrace ();
-            $view = str_replace ( "Controller", "", $backtrace [1] ['class'] ) . $backtrace [1] ['function'];
+            $backtrace = debug_backtrace();
+            $view = str_replace("Controller", "", $backtrace [1] ['class']) . $backtrace [1] ['function'];
         }
         
         // if the render engine is Smarty then add the '.tpl' suffix
@@ -832,9 +845,9 @@ abstract class Controller {
         
         // capture output instead of rendering if specified
         if ($this->CaptureOutputMode) {
-            $this->DebugOutput = $this->RenderEngine->fetch ( $viewPath );
+            $this->DebugOutput = $this->RenderEngine->fetch($viewPath);
         } else {
-            $this->RenderEngine->display ( $viewPath );
+            $this->RenderEngine->display($viewPath);
         }
     }
     
@@ -856,38 +869,39 @@ abstract class Controller {
     {
         $obj = null;
         
-        if (is_a ( $var, 'DataSet' ) || is_a ( $var, 'DataPage' )) {
+        if (is_a($var, 'DataSet') || is_a($var, 'DataPage')) {
             // if a dataset or datapage can be converted directly into an array without enumerating twice
-            $obj = $var->ToObjectArray ( $useSimpleObject, $options );
+            $obj = $var->ToObjectArray($useSimpleObject, $options);
         } else if ($useSimpleObject) {
             // we need to figure out what type
-            if (is_array ( $var ) || is_a ( $var, 'SplFixedArray' )) {
+            if (is_array($var) || is_a($var, 'SplFixedArray')) {
                 $obj = array ();
-                foreach ( $var as $item ) {
-                    $obj [] = $item->ToObject ( $options );
+                foreach ($var as $item) {
+                    $obj [] = $item->ToObject($options);
                 }
-            } elseif (is_a ( $var, 'Phreezable' ) || is_a ( $var, 'Reporter' )) {
-                $obj = $var->ToObject ( $options );
+            } elseif (is_a($var, 'Phreezable') || is_a($var, 'Reporter')) {
+                $obj = $var->ToObject($options);
             } else {
-                throw new Exception ( 'RenderJSON could not determine the type of object to render' );
+                throw new Exception('RenderJSON could not determine the type of object to render');
             }
         } else {
             $obj = $var;
         }
         
-        if ($forceUTF8 == 1)
-            $this->UTF8Encode ( $obj );
+        if ($forceUTF8 == 1) {
+            $this->UTF8Encode($obj);
+        }
         
         try {
-            $output = json_encode ( $obj );
-        } catch ( Exception $ex ) {
-            if (strpos ( $ex->getMessage (), 'Invalid UTF-8' ) !== false) {
+            $output = json_encode($obj);
+        } catch (Exception $ex) {
+            if (strpos($ex->getMessage(), 'Invalid UTF-8') !== false) {
                 // a UTF encoding problem has been encountered
                 if ($forceUTF8 == 2) {
-                    $this->UTF8Encode ( $obj );
-                    $output = json_encode ( $obj );
+                    $this->UTF8Encode($obj);
+                    $output = json_encode($obj);
                 } else {
-                    throw new Exception ( 'The object to be encoded contains invalid UTF-8 data.  Please verify your database character encoding or alternatively set the Controller::RenderJSON $forceUTF8 parameter to 1 or 2.' );
+                    throw new Exception('The object to be encoded contains invalid UTF-8 data.  Please verify your database character encoding or alternatively set the Controller::RenderJSON $forceUTF8 parameter to 1 or 2.');
                 }
             } else {
                 // we don't know what this is so don't try to handle it here
@@ -895,14 +909,15 @@ abstract class Controller {
             }
         }
         
-        if ($callback)
+        if ($callback) {
             $output = "$callback(" . $output . ")";
+        }
             
             // capture output instead of rendering if specified
         if ($this->CaptureOutputMode) {
             $this->DebugOutput = $output;
         } else {
-            @header ( $callback ? 'Content-type: text/plain' : 'Content-type: application/json' );
+            @header($callback ? 'Content-type: text/plain' : 'Content-type: application/json');
             print $output;
         }
     }
@@ -919,7 +934,7 @@ abstract class Controller {
      */
     protected function Crash($errmsg = "Unknown Error", $code = 0, $exception = null)
     {
-        $ex = $exception ? $exception : new Exception ( $errmsg, $code );
+        $ex = $exception ? $exception : new Exception($errmsg, $code);
         throw $ex;
     }
     
@@ -938,41 +953,42 @@ abstract class Controller {
      */
     protected function Redirect($action, $feedback = null, $params = "", $mode = "")
     {
-        if (! $mode)
+        if (! $mode) {
             $mode = self::$DefaultRedirectMode;
+        }
         
-        $params = is_array ( $params ) ? $params : array ();
+        $params = is_array($params) ? $params : array ();
         
         if ($feedback != null) {
-            $this->Context->Set ( "feedback", $feedback );
+            $this->Context->Set("feedback", $feedback);
         }
         
         // support for deprecated Controller/Method format
-        list ( $controller, $method ) = explode ( ".", str_replace ( "/", ".", $action ) );
+        list ( $controller, $method ) = explode(".", str_replace("/", ".", $action));
         
-        $url = $this->GetRouter ()->GetUrl ( $controller, $method, $params );
+        $url = $this->GetRouter()->GetUrl($controller, $method, $params);
         
         // capture output instead of rendering if specified
         if ($this->CaptureOutputMode) {
             if ($mode == 'client') {
-                $this->RenderEngine->assign ( "url", $url );
-                $this->DebugOutput = $this->RenderEngine->fetch ( "_redirect.tpl" );
+                $this->RenderEngine->assign("url", $url);
+                $this->DebugOutput = $this->RenderEngine->fetch("_redirect.tpl");
             } else {
                 $this->DebugOutput = 'Location: ' . $url;
             }
         } else {
-            
             if ($mode == 'client') {
-                $this->RenderEngine->assign ( "url", $url );
-                $this->RenderEngine->display ( "_redirect.tpl" );
+                $this->RenderEngine->assign("url", $url);
+                $this->RenderEngine->display("_redirect.tpl");
             } else {
-                header ( 'Location: ' . $url );
+                header('Location: ' . $url);
             }
         }
         
         // don't exit if we are unit testing because it will stop all further tests
-        if (! $this->UnitTestMode)
-            exit ();
+        if (! $this->UnitTestMode) {
+            exit();
+        }
     }
     
     /**
@@ -987,18 +1003,19 @@ abstract class Controller {
      */
     private function UTF8Encode(&$input)
     {
-        if (is_string ( $input )) {
+        if (is_string($input)) {
             // pop recursion here
-            $input = utf8_encode ( $input );
-        } else if (is_array ( $input )) {
-            foreach ( $input as &$value ) {
-                $this->UTF8Encode ( $value );
+            $input = utf8_encode($input);
+        } else if (is_array($input)) {
+            foreach ($input as &$value) {
+                $this->UTF8Encode($value);
             }
-            unset ( $value );
-        } else if (is_object ( $input )) {
-            $vars = array_keys ( get_object_vars ( $input ) );
-            foreach ( $vars as $var ) {
-                $this->UTF8Encode ( $input->$var );
+
+            unset($value);
+        } else if (is_object($input)) {
+            $vars = array_keys(get_object_vars($input));
+            foreach ($vars as $var) {
+                $this->UTF8Encode($input->$var);
             }
         }
     }
@@ -1013,8 +1030,6 @@ abstract class Controller {
      */
     function __call($name, $vars = null)
     {
-        throw new Exception ( get_class ( $this ) . "::" . $name . " is not implemented" );
+        throw new Exception(get_class($this) . "::" . $name . " is not implemented");
     }
 }
-
-?>

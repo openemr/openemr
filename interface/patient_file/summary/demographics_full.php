@@ -22,7 +22,7 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
-require_once ("$srcdir/patientvalidation.inc.php");
+require_once("$srcdir/patientvalidation.inc.php");
 
  // Session pid must be right or bad things can happen when demographics are saved!
  //
@@ -39,13 +39,17 @@ if ($set_pid && $set_pid != $_SESSION["pid"]) {
 
  // Check authorization.
 if ($pid) {
-    if (!acl_check('patients', 'demo', '', 'write'))
-    die(xlt('Updating demographics is not authorized.'));
-    if ($result['squad'] && ! acl_check('squads', $result['squad']))
-    die(xlt('You are not authorized to access this squad.'));
+    if (!acl_check('patients', 'demo', '', 'write')) {
+        die(xlt('Updating demographics is not authorized.'));
+    }
+
+    if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
+        die(xlt('You are not authorized to access this squad.'));
+    }
 } else {
-    if (!acl_check('patients', 'demo', '', array('write','addonly') ))
-    die(xlt('Adding demographics is not authorized.'));
+    if (!acl_check('patients', 'demo', '', array('write','addonly'))) {
+        die(xlt('Adding demographics is not authorized.'));
+    }
 }
 
 $CPR = 4; // cells per row
@@ -56,7 +60,7 @@ $CPR = 4; // cells per row
 // $provideri = getProviderInfo();
 if ($GLOBALS['insurance_information'] != '0') {
     $insurancei = getInsuranceProvidersExtra();
-}else{
+} else {
     $insurancei = getInsuranceProviders();
 }
 
@@ -152,7 +156,7 @@ function upperFirst(string,text) {
  return replace(string,text,text.charAt(0).toUpperCase() + text.substring(1,text.length));
 }
 
-<?php for ($i=1;$i<=3;$i++) { ?>
+<?php for ($i=1; $i<=3; $i++) { ?>
 function auto_populate_employer_address<?php echo $i ?>(){
  var f = document.demographics_form;
  if (f.form_i<?php echo $i?>subscriber_relationship.options[f.form_i<?php echo $i?>subscriber_relationship.selectedIndex].value == "self")
@@ -199,7 +203,7 @@ function checkNum () {
  if(re.exec(str))
  {
  }else{
-  alert("<?php xl('Please enter a monetary amount using only numbers and a decimal point.','e'); ?>");
+  alert("<?php xl('Please enter a monetary amount using only numbers and a decimal point.', 'e'); ?>");
  }
 }
 
@@ -295,7 +299,7 @@ if(dateVal > currentDate)
 }
 
 //Patient Data validations
-    <?php if($GLOBALS['erx_enable']){ ?>
+    <?php if ($GLOBALS['erx_enable']) { ?>
  alertMsg='';
  for(i=0;i<f.length;i++){
   if(f[i].type=='text' && f[i].value)
@@ -394,7 +398,7 @@ function policykeyup(e) {
 // Added 06/2009 by BM to make compatible with list_options table and functions - using jquery
 $(document).ready(function() {
 
-    <?php for ($i=1;$i<=3;$i++) { ?>
+    <?php for ($i=1; $i<=3; $i++) { ?>
   $("#form_i<?php echo $i?>subscriber_relationship").change(function() { auto_populate_employer_address<?php echo $i?>(); });
     <?php } ?>
 
@@ -449,7 +453,10 @@ function end_row()
     end_cell();
     if ($cell_count > 0) {
         for (; $cell_count < $CPR;
-        ++$cell_count) echo "<td></td>";
+        ++$cell_count) {
+            echo "<td></td>";
+        }
+
         echo "</tr>\n";
         $cell_count = 0;
     }
@@ -495,12 +502,11 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 
 <?php
 if (! $GLOBALS['simplified_demographics']) {
-
     $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
     $insurance_info = array();
-    $insurance_info[1] = getInsuranceData($pid,"primary");
-    $insurance_info[2] = getInsuranceData($pid,"secondary");
-    $insurance_info[3] = getInsuranceData($pid,"tertiary");
+    $insurance_info[1] = getInsuranceData($pid, "primary");
+    $insurance_info[2] = getInsuranceData($pid, "secondary");
+    $insurance_info[3] = getInsuranceData($pid, "tertiary");
 
     ?>
     <div class="section-header">
@@ -519,7 +525,7 @@ echo xlt($CapInstype); ?></a></li><?php
     <div class="tabContainer">
 
     <?php
-    for($i=1;$i<=3;$i++) {
+    for ($i=1; $i<=3; $i++) {
         $result3 = $insurance_info[$i];
     ?>
 
@@ -545,8 +551,10 @@ echo xlt($CapInstype); ?></a></li><?php
                 <?php
                 foreach ($insurancei as $iid => $iname) {
                     echo "<option value='" . attr($iid) . "'";
-                    if (strtolower($iid) == strtolower($result3{"provider"}))
-                    echo " selected";
+                    if (strtolower($iid) == strtolower($result3{"provider"})) {
+                        echo " selected";
+                    }
+
                     echo ">" . text($iname) . "</option>\n";
                 }
                 ?>
@@ -591,7 +599,9 @@ echo xlt($CapInstype); ?></a></li><?php
              <td><input type=entry size=16 name=i<?php echo $i?>group_number value="<?php echo attr($result3{"group_number"}); ?>" onkeyup='policykeyup(this)'></td>
             </tr>
 
-            <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
+            <tr<?php if ($GLOBALS['omit_employers']) {
+                echo " style='display:none'";
+} ?>>
              <td class='required'><?php echo xlt('Subscriber Employer (SE)'); ?><br><span style='font-weight:normal'>
               (<?php echo xlt('if unemployed enter Student'); ?>,<br><?php echo xlt('PT Student, or leave blank'); ?>) </span></td>
               <td class='required'>:</td>
@@ -600,7 +610,9 @@ echo xlt($CapInstype); ?></a></li><?php
                onchange="capitalizeMe(this);" /></td>
             </tr>
 
-            <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
+            <tr<?php if ($GLOBALS['omit_employers']) {
+                echo " style='display:none'";
+} ?>>
              <td><span class=required><?php echo xlt('SE Address'); ?></span></td>
              <td class='required'>:</td>
              <td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer_street
@@ -608,7 +620,9 @@ echo xlt($CapInstype); ?></a></li><?php
                onchange="capitalizeMe(this);" /></td>
             </tr>
 
-            <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
+            <tr<?php if ($GLOBALS['omit_employers']) {
+                echo " style='display:none'";
+} ?>>
              <td colspan="3">
               <table>
                <tr>
@@ -698,7 +712,9 @@ echo xlt($CapInstype); ?></a></li><?php
             <tr>
                 <td class=leftborder><span class=required><?php echo xlt('City'); ?></span></td>
                 <td class=required>:</td>
-                <td><input type=entry size=11 name=i<?php echo $i?>subscriber_city value="<?php echo attr($result3{"subscriber_city"}); ?>" onchange="capitalizeMe(this);" /></td><td class=leftborder><span class='required'<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>><?php echo xlt('Country'); ?>: </span></td><td>
+                <td><input type=entry size=11 name=i<?php echo $i?>subscriber_city value="<?php echo attr($result3{"subscriber_city"}); ?>" onchange="capitalizeMe(this);" /></td><td class=leftborder><span class='required'<?php if ($GLOBALS['omit_employers']) {
+                    echo " style='display:none'";
+} ?>><?php echo xlt('Country'); ?>: </span></td><td>
                     <?php
                     // Modified 7/2009 by BM to incorporate data types
                     generate_form_field(array('data_type'=>$GLOBALS['country_data_type'],'field_id'=>('i'.$i.'subscriber_country'),'list_id'=>$GLOBALS['country_list'],'fld_length'=>'10','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_country']);
@@ -724,8 +740,12 @@ echo xlt($CapInstype); ?></a></li><?php
                 <td class=required>:</td>
                 <td colspan=2>
                     <select name=i<?php echo $i?>accept_assignment>
-                     <option value="TRUE" <?php if (strtoupper($result3{"accept_assignment"}) == "TRUE") echo "selected"?>><?php echo xlt('YES'); ?></option>
-                     <option value="FALSE" <?php if (strtoupper($result3{"accept_assignment"}) == "FALSE") echo "selected"?>><?php echo xlt('NO'); ?></option>
+                     <option value="TRUE" <?php if (strtoupper($result3{"accept_assignment"}) == "TRUE") {
+                            echo "selected";
+}?>><?php echo xlt('YES'); ?></option>
+                     <option value="FALSE" <?php if (strtoupper($result3{"accept_assignment"}) == "FALSE") {
+                            echo "selected";
+}?>><?php echo xlt('NO'); ?></option>
                     </select>
                 </td>
                 <td></td><td></td>
@@ -740,7 +760,10 @@ echo xlt($CapInstype); ?></a></li><?php
 <?php
 foreach ($policy_types as $key => $value) {
     echo "            <option value ='" . attr($key) . "'";
-    if ($key == $result3['policy_type']) echo " selected";
+    if ($key == $result3['policy_type']) {
+        echo " selected";
+    }
+
     echo ">" . text($value) . "</option>\n";
 }
 ?>
@@ -755,7 +778,8 @@ foreach ($policy_types as $key => $value) {
 
       </div>
 
-    <?php } //end insurer for loop ?>
+    <?php
+    } //end insurer for loop ?>
 
    </div>
 </div>
@@ -769,7 +793,7 @@ foreach ($policy_types as $key => $value) {
 
 <script language="JavaScript">
 // hard code validation for old validation, in the new validation possible to add match rules
-<?php if($GLOBALS['new_validate'] == 0) { ?>
+<?php if ($GLOBALS['new_validate'] == 0) { ?>
  // fix inconsistently formatted phone numbers from the database
  var f = document.forms[0];
  if (f.form_phone_contact) phonekeyup(f.form_phone_contact,mypcc);
@@ -822,7 +846,7 @@ $use_validate_js=$GLOBALS['new_validate'];
     });
 
 //This code deals with demographics before save action -
-    <?php if ( ($GLOBALS['gbl_edit_patient_form'] == '1') && (checkIfPatientValidationHookIsActive()) ):?>
+    <?php if (($GLOBALS['gbl_edit_patient_form'] == '1') && (checkIfPatientValidationHookIsActive())) :?>
 
                 //Use the Zend patient validation hook.
                 //TODO - get the edit part of patient validation hook to work smoothly and then
@@ -855,8 +879,14 @@ $use_validate_js=$GLOBALS['new_validate'];
                 "ORDER BY group_name, seq");
             while ($mfrow = sqlFetchArray($mfres)) {
                 $field_id  = $mfrow['field_id'];
-                if (strpos($field_id, 'em_') === 0) continue;
-                if (!empty($mflist)) $mflist .= ",";
+                if (strpos($field_id, 'em_') === 0) {
+                    continue;
+                }
+
+                if (!empty($mflist)) {
+                    $mflist .= ",";
+                }
+
                     $mflist .= "'" . text($field_id) . "'";
             } ?>
 

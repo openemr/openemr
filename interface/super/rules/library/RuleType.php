@@ -11,7 +11,8 @@
  * todo turn this into a real enum
  * @author aron
  */
-class RuleType {
+class RuleType
+{
 
     var $code;
     var $lbl;
@@ -22,7 +23,7 @@ class RuleType {
     const AMC = "amc";
     const PatientReminder = "patientreminder";
 
-    function __construct( $code, $lbl )
+    function __construct($code, $lbl)
     {
         $this->lbl = $lbl;
         $this->code = $code;
@@ -33,7 +34,7 @@ class RuleType {
      * @param string $value
      * @return RuleType
      */
-    public static function from( $code )
+    public static function from($code)
     {
         $map = self::map();
         return $map[$code];
@@ -48,15 +49,13 @@ class RuleType {
     private static function map()
     {
         $map = array(
-            self::ActiveAlert  =>  new RuleType( self::ActiveAlert, xl( 'Active Alert' ) ),
-            self::PassiveAlert   =>  new RuleType( self::PassiveAlert, xl( 'Passive Alert' ) ),
+            self::ActiveAlert  =>  new RuleType(self::ActiveAlert, xl('Active Alert')),
+            self::PassiveAlert   =>  new RuleType(self::PassiveAlert, xl('Passive Alert')),
             // not yet supported
 //            self::CQM   =>  new RuleType( self::CQM, xl( 'CQM' ) ),
 //            self::AMC   =>  new RuleType( self::AMC, xl( 'AMC' ) ),
-            self::PatientReminder   =>  new RuleType( self::PatientReminder, xl( 'Patient Reminder' ) )
+            self::PatientReminder   =>  new RuleType(self::PatientReminder, xl('Patient Reminder'))
         );
         return $map;
     }
-
 }
-?>

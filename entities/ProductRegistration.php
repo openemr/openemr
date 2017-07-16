@@ -31,13 +31,13 @@ use Doctrine\ORM\Mapping\Id;
  * @Table(name="product_registration")
  * @Entity(repositoryClass="repositories\ProductRegistrationRepository")
  */
-class ProductRegistration {
+class ProductRegistration
+{
     /**
      * Default constructor.
      */
     public function __construct()
     {
-
     }
 
     /**

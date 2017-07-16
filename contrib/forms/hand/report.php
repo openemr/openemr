@@ -7,7 +7,7 @@
 //------------Forms generated from formsWiz
 include_once("../../globals.php");
 include_once($GLOBALS["srcdir"] . "/api.inc");
-function hand_report( $pid, $encounter, $cols, $id)
+function hand_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
     $cols = 2;
@@ -52,10 +52,9 @@ function hand_report( $pid, $encounter, $cols, $id)
             <td><p align='left'><?php echo $data['notes']?>&nbsp;</p></td>
         </tr>
     </table>
-    <?php } ?>
+        <?php } ?>
 
         <?php
-
     }
 }
 ?>

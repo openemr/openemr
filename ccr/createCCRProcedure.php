@@ -25,7 +25,6 @@
     $row = sqlFetchArray($result);
 
 do {
-
     $e_Procedure = $ccr->createElement('Procedure');
     $e_Procedures->appendChild($e_Procedure);
 
@@ -46,7 +45,7 @@ do {
     $e_Text = $ccr->createElement('Text', $row['type']);
     $e_Type->appendChild($e_Text);
         
-    $e_Description = $ccr->createElement('Description' );
+    $e_Description = $ccr->createElement('Description');
     $e_Procedure->appendChild($e_Description);
 
     $e_Text = $ccr->createElement('Text', $row['proc_title']);
@@ -75,7 +74,7 @@ do {
     $e_Location = $ccr->createElement('Location');
     $e_Locations->appendChild($e_Location);
 
-    $e_Description = $ccr->createElement('Description' );
+    $e_Description = $ccr->createElement('Description');
     $e_Location->appendChild($e_Description);
 
     $e_Text = $ccr->createElement('Text', $row['laterality']);
@@ -96,7 +95,7 @@ do {
     $e_Duration = $ccr->createElement('Duration');
     $e_Procedure->appendChild($e_Duration);
 
-    $e_Description = $ccr->createElement('Description' );
+    $e_Description = $ccr->createElement('Description');
     $e_Duration->appendChild($e_Description);
 
     $e_Text = $ccr->createElement('Text', 'None');
@@ -125,7 +124,4 @@ do {
 
     $e_Text = $ccr->createElement('Text', $row['body_site']);
     $e_Site->appendChild($e_Text);
-        
 } while ($row = sqlFetchArray($result));
-
-?>

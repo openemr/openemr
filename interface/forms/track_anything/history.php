@@ -28,16 +28,16 @@ require_once("../../globals.php");
 include_once($GLOBALS["srcdir"] . "/api.inc");
 
 $returnurl = 'encounter_top.php';
-if(!$formid){
+if (!$formid) {
     $formid = $_POST['formid']; // call from track_anything encounter
     $fromencounter = 1;
-    if(!$formid){
+    if (!$formid) {
         $formid = $_GET['formid']; // call from demographic-widget "track_anything_fragement.php"
         $fromencounter = 0;
     }
 }
 
-if ($_POST['fromencounter'] != ''){
+if ($_POST['fromencounter'] != '') {
     $fromencounter = $_POST['fromencounter'];
 }
 
@@ -45,9 +45,10 @@ if ($_POST['fromencounter'] != ''){
 //----------------------
 $ASC_DESC = $_POST['ASC_DESC'];
 
-if(!$ASC_DESC) {
+if (!$ASC_DESC) {
     $ASC_DESC = "DESC"; # order DESC by default
 }
+
 //---------- end $_POSTed vars
 
 
@@ -151,10 +152,16 @@ echo "<div id='track_anything'>";
 echo "<form method='post' action='history.php' onsubmit='return top.restoreSession()'>";
 echo "<table><tr>";
 echo "<td class='menu'><input type='radio' name='ASC_DESC' ";
-if($ASC_DESC == 'ASC'){ echo "checked='checked' "; }
+if ($ASC_DESC == 'ASC') {
+    echo "checked='checked' ";
+}
+
 echo " value='ASC'> " . xlt('ASC') . " &nbsp;";
 echo "<input type='radio' name='ASC_DESC' ";
-if($ASC_DESC != 'ASC'){ echo "checked='checked' ";}
+if ($ASC_DESC != 'ASC') {
+    echo "checked='checked' ";
+}
+
 echo " value='DESC'> " . xlt('DESC');
 echo "</td>";
 echo "<td class='menu'><input class='graph_button' type='submit' name='submit' value='" . xla('Order Tracks') . "' /></td>";
@@ -164,14 +171,16 @@ echo "<input type='hidden' name='fromencounter' value='" . attr($fromencounter) 
 
 // go to encounter or go to demographics
 //---------------------------------------------
-if($fromencounter == 1) {
+if ($fromencounter == 1) {
     echo "<td>&nbsp;&nbsp;&nbsp;<a class='css_button' href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>".xlt('Back to encounter')."</span></a></td>";
 }
-if($fromencounter == 0) {
+
+if ($fromencounter == 0) {
     echo "<td>&nbsp;&nbsp;&nbsp;<a href='../../patient_file/summary/demographics.php' ";
     echo " class='css_button' onclick='top.restoreSession()'>";
     echo "<span>" . xlt('Back to Patient') . "</span></a></td>";
 }
+
 //---------------------------------------------
 
 echo "</tr></table>";
@@ -213,8 +222,8 @@ $spell .= "AND forms.formdir = 'track_anything' AND forms.pid = ? ";
 $spell .= "GROUP BY id ";
 $spell .= "ORDER BY sortdate " . escape_sort_order($ASC_DESC);
 //---
-$query = sqlStatement($spell,array($the_procedure,$pid));
-while($myrow = sqlFetchArray($query)){
+$query = sqlStatement($spell, array($the_procedure,$pid));
+while ($myrow = sqlFetchArray($query)) {
     $the_track = $myrow["id"];
     $the_encounter = $myrow["encounter"];
     $track_count++;
@@ -241,7 +250,7 @@ while($myrow = sqlFetchArray($query)){
     $spell2 .= "WHERE track_anything_id = ? ";
     $spell2 .= "ORDER BY track_timestamp " . escape_sort_order($ASC_DESC);
     $query2 = sqlStatement($spell2, array($the_track));
-    while($myrow2 = sqlFetchArray($query2)){
+    while ($myrow2 = sqlFetchArray($query2)) {
         $thistime = $myrow2['track_timestamp'];
         $shownameflag++;
 
@@ -256,20 +265,23 @@ while($myrow = sqlFetchArray($query)){
 
         // print local <table>-heads
         // ----------------------------
-        if ($shownameflag==1){
+        if ($shownameflag==1) {
             echo "<tr><th class='time'>" . xlt('Time') . "</th>";
-            while($myrow3 = sqlFetchArray($query3)){
+            while ($myrow3 = sqlFetchArray($query3)) {
                 echo "<th class='item'>&nbsp;" . text($myrow3['the_name']) . "&nbsp;</th>"; //
 
-                if($save_item_flag == 0) {
+                if ($save_item_flag == 0) {
                     $items_n[$items_c] = $myrow3['the_name']; // save item names
                     $items_c++; // count number of items
                 }
+
                 $col++;
             }
+
             $save_item_flag++;
             echo "</tr>";
         }
+
         //-----/end print local table head
 
         // data-rows
@@ -279,14 +291,16 @@ while($myrow = sqlFetchArray($query)){
         $date_local[$row_lc]  = $thistime; // save datetime into local array
 
         $query3  = sqlStatement($spell3, array($the_track, $thistime));
-        while($myrow3 = sqlFetchArray($query3)){
+        while ($myrow3 = sqlFetchArray($query3)) {
             echo "<td class='item'>&nbsp;" . text($myrow3['result']) . "&nbsp;</td>";
             if (is_numeric($myrow3['result'])) {
                     $value_global[$col_i][$row_gl] = $myrow3['result']; // save value into global array
                     $value_local[$col_i][$row_lc]  = $myrow3['result']; // save value into local array
             }
+
             $col_i++;
         }
+
         echo "</tr>";
         $row++;
         $row_gl++;
@@ -298,23 +312,25 @@ while($myrow = sqlFetchArray($query)){
     //----------------------------------------------------
     echo "<tr>";
     echo "<td class='check'>" . xlt('Check items to graph') . " </td>"; //
-    for ($col_i = 0; $col_i < $col; $col_i++){
+    for ($col_i = 0; $col_i < $col; $col_i++) {
         echo "<td class='check'>";
         for ($row_b=0; $row_b <$row_lc; $row_b++) {
-            if(is_numeric($value_local[$col_i][$row_b])){
+            if (is_numeric($value_local[$col_i][$row_b])) {
                 $localplot_c[$col_i]++; // count more than 1 to show graph-button
                 $globalplot_c[$col_i]++;
             }
         }
 
         // show graph-checkbox only if we have more than 1 valid data
-        if ($localplot_c[$col_i] > 1 || $globalplot_c[$col_i] > 1){
+        if ($localplot_c[$col_i] > 1 || $globalplot_c[$col_i] > 1) {
             echo "<input type='checkbox' name='check_col" . attr($track_count) . "' value='" . attr($col_i) . "'>";
             if ($localplot_c[$col_i] > 1) {
                 $localplot++;
             }
+
             $globalplot++;
         }
+
         echo "</td>";
     }
 
@@ -325,15 +341,18 @@ while($myrow = sqlFetchArray($query)){
     echo "<tr>";
     echo "<td class='check'>" . xlt('With checked items plot') . ":</td>"; //
     echo "<td class='check'>";
-    if ($localplot > 0){
+    if ($localplot > 0) {
         echo "<input type='button' class='graph_button'  onclick='get_my_graph" . attr($track_count) . "(\"local\")' name='' value='" . xla('encounter data') . "'>";
     }
-    if ($localplot > 0 && $globalplot > 0){
+
+    if ($localplot > 0 && $globalplot > 0) {
             echo "<br>";
     }
-    if ($globalplot > 0){
+
+    if ($globalplot > 0) {
         echo "<input type='button' class='graph_button'  onclick='get_my_graph" . attr($track_count) . "(\"global\")' name='' value='" . xla('data of all encounters so far') . "'>";
     }
+
     echo "</td>";
     echo "</tr>";
     echo "</table>";
@@ -380,10 +399,16 @@ echo "<hr>";
 echo "<form method='post' action='history.php' onsubmit='return top.restoreSession()'>";
 echo "<table><tr>";
 echo "<td class='menu'><input type='radio' name='ASC_DESC' ";
-if($ASC_DESC == 'ASC'){ echo "checked='checked' "; }
+if ($ASC_DESC == 'ASC') {
+    echo "checked='checked' ";
+}
+
 echo " value='ASC'> " . xlt('ASC') . " &nbsp;";
 echo "<input type='radio' name='ASC_DESC' ";
-if($ASC_DESC != 'ASC'){ echo "checked='checked' ";}
+if ($ASC_DESC != 'ASC') {
+    echo "checked='checked' ";
+}
+
 echo " value='DESC'> " . xlt('DESC');
 echo "</td>";
 echo "<td class='menu'><input class='graph_button' type='submit' name='submit' value='" . xlt('Order Tracks') . "' /></td>";
@@ -394,14 +419,16 @@ echo "<input type='hidden' name='fromencounter' value='" . attr($fromencounter) 
 
 // go to encounter or go to demographics
 //---------------------------------------------
-if($fromencounter == 1) {
+if ($fromencounter == 1) {
     echo "<td>&nbsp;&nbsp;&nbsp;<a class='css_button' href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>".xlt('Back to encounter')."</span></a></td>";
 }
-if($fromencounter == 0) {
+
+if ($fromencounter == 0) {
     echo "<td>&nbsp;&nbsp;&nbsp;<a href='../../patient_file/summary/demographics.php' ";
     echo " class='css_button' onclick='top.restoreSession()'>";
-    echo "<span>" . htmlspecialchars(xl('Back to Patient'),ENT_NOQUOTES) . "</span></a></td>";
+    echo "<span>" . htmlspecialchars(xl('Back to Patient'), ENT_NOQUOTES) . "</span></a></td>";
 }
+
 //---------------------------------------------
 echo "</tr></table>";
 echo "</form>";

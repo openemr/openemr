@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class DatabaseException extends Exception {
+class DatabaseException extends Exception
+{
     
     /**
      * codes used to determine error sub-type
@@ -24,10 +25,8 @@ class DatabaseException extends Exception {
     public function __construct($message, $code = 0, $data = "")
     {
         // make sure everything is assigned properly
-        parent::__construct ( $message, $code );
+        parent::__construct($message, $code);
         
         $this->data = $data;
     }
 }
-
-?>

@@ -20,5 +20,3 @@ require_once(dirname(__FILE__) . "/../clinical_rules.php");
 if ($_POST['plan'] && $_POST['type'] && $_POST['setting'] && $_POST['patient_id']) {
     set_plan_activity_patient($_POST['plan'], $_POST['type'], $_POST['setting'], $_POST['patient_id']);
 }
-
-?>

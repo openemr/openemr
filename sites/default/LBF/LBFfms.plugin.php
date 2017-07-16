@@ -65,7 +65,6 @@ function fms_numeric_changed(e) {
  f.form_total.value = sum;
 }
 ";
-
 }
 
 // The purpose of this function is to create JavaScript that is run
@@ -88,6 +87,4 @@ for (var i = 0; i < fms_numeric.length; ++i) {
 }
 f.form_total.readOnly = true;
 ";
-
 }
-?>

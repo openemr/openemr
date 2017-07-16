@@ -26,7 +26,8 @@ namespace repositories;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\Common\Collections\Criteria;
 
-class UserRepository extends EntityRepository {
+class UserRepository extends EntityRepository
+{
     /**
      * Finds the user associated with the local session id.
      *

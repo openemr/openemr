@@ -4,11 +4,11 @@
 /**
  * import supporting libraries
  */
-require_once ("Recipient.php");
-require_once ("verysimple/String/VerySimpleStringUtil.php");
+require_once("Recipient.php");
+require_once("verysimple/String/VerySimpleStringUtil.php");
 
-define ( "MESSAGE_FORMAT_TEXT", 0 );
-define ( "MESSAGE_FORMAT_HTML", 1 );
+define("MESSAGE_FORMAT_TEXT", 0);
+define("MESSAGE_FORMAT_HTML", 1);
 
 /**
  * Generic interface for sending Email
@@ -19,7 +19,8 @@ define ( "MESSAGE_FORMAT_HTML", 1 );
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.2
  */
-class EmailMessage {
+class EmailMessage
+{
     public $Recipients;
     public $CCRecipients;
     public $BCCRecipients;
@@ -72,11 +73,11 @@ class EmailMessage {
     function SetFrom($email, $name = "")
     {
         if ($this->DecodeEntities) {
-            $email = $this->DecodeEntities ( $email );
-            $name = $this->DecodeEntities ( $name );
+            $email = $this->DecodeEntities($email);
+            $name = $this->DecodeEntities($name);
         }
         
-        $this->From = new Recipient ( $email, $name );
+        $this->From = new Recipient($email, $name);
     }
     
     /**
@@ -88,11 +89,11 @@ class EmailMessage {
     function SetReplyTo($email, $name = "")
     {
         if ($this->DecodeEntities) {
-            $email = $this->DecodeEntities ( $email );
-            $name = $this->DecodeEntities ( $name );
+            $email = $this->DecodeEntities($email);
+            $name = $this->DecodeEntities($name);
         }
         
-        $this->ReplyTo = new Recipient ( $email, $name );
+        $this->ReplyTo = new Recipient($email, $name);
     }
     
     /**
@@ -103,7 +104,7 @@ class EmailMessage {
      */
     public function DecodeEntities($val)
     {
-        return VerySimpleStringUtil::DecodeFromHTML ( $val, 'ISO-8859-1' );
+        return VerySimpleStringUtil::DecodeFromHTML($val, 'ISO-8859-1');
         // return utf8_decode( VerySimpleStringUtil::DecodeFromHTML($val,) );
     }
     
@@ -113,7 +114,7 @@ class EmailMessage {
      */
     public function GetSubject()
     {
-        return ($this->DecodeEntities) ? $this->DecodeEntities ( $this->Subject ) : $this->Subject;
+        return ($this->DecodeEntities) ? $this->DecodeEntities($this->Subject) : $this->Subject;
     }
     
     /**
@@ -149,26 +150,26 @@ class EmailMessage {
     function AddRecipient($email, $name = "", $recipientType = "")
     {
         if ($this->DecodeEntities) {
-            $email = $this->DecodeEntities ( $email );
-            $name = $this->DecodeEntities ( $name );
+            $email = $this->DecodeEntities($email);
+            $name = $this->DecodeEntities($name);
         }
         
-        $email = str_replace ( ",", ";", $email );
-        $emails = explode ( ";", $email );
+        $email = str_replace(",", ";", $email);
+        $emails = explode(";", $email);
         
-        $name = str_replace ( ",", ";", $name );
-        $names = explode ( ";", $name );
+        $name = str_replace(",", ";", $name);
+        $names = explode(";", $name);
         
-        for($i = 0; $i < count ( $emails ); $i ++) {
-            $addr = trim ( $emails [$i] );
-            $realname = isset ( $names [$i] ) ? $names [$i] : $addr;
+        for ($i = 0; $i < count($emails); $i ++) {
+            $addr = trim($emails [$i]);
+            $realname = isset($names [$i]) ? $names [$i] : $addr;
             
             if ($recipientType == self::$RECIPIENT_TYPE_CC) {
-                $this->CCRecipients [] = new Recipient ( $addr, $realname );
+                $this->CCRecipients [] = new Recipient($addr, $realname);
             } elseif ($recipientType == self::$RECIPIENT_TYPE_BCC) {
-                $this->BCCRecipients [] = new Recipient ( $addr, $realname );
+                $this->BCCRecipients [] = new Recipient($addr, $realname);
             } else {
-                $this->Recipients [] = new Recipient ( $addr, $realname );
+                $this->Recipients [] = new Recipient($addr, $realname);
             }
         }
     }
@@ -184,5 +185,3 @@ class EmailMessage {
         $this->Attachments [] = $path;
     }
 }
-
-?>

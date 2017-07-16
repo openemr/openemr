@@ -18,7 +18,7 @@ class AmcResult implements RsResultIF
     public $patientsIncluded; // Number of patients that pass target
     public $percentage; // Calculated percentage
 
-    public function __construct( $rowRule, $totalPatients, $patientsInPopulation, $patientsExcluded, $patientsIncluded, $percentage )
+    public function __construct($rowRule, $totalPatients, $patientsInPopulation, $patientsExcluded, $patientsIncluded, $percentage)
     {
         $this->rule = $rowRule;
 //        $this->numeratorLabel = $numeratorLabel;
@@ -33,7 +33,6 @@ class AmcResult implements RsResultIF
         if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
             $this->itemized_test_id = array('itemized_test_id' => $GLOBALS['report_itemized_test_id_iterator']);
         }
-
     }
 
     public function format()
@@ -47,11 +46,11 @@ class AmcResult implements RsResultIF
             'pass_filter' => $this->patientsInPopulation,
             'pass_target' => $this->patientsIncluded,
             'percentage' => $this->percentage );
-            $rowFormat = array_merge( $rowFormat, $this->rule );
+            $rowFormat = array_merge($rowFormat, $this->rule);
 
         // If itemization is turned on, then record the itemized_test_id
         if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-            $rowFormat = array_merge( $rowFormat, $this->itemized_test_id );
+            $rowFormat = array_merge($rowFormat, $this->itemized_test_id);
         }
         
         return $rowFormat;

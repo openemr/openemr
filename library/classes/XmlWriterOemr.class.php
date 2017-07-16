@@ -8,7 +8,8 @@
 
  // This program is the base class to implement XML writer.
 
-class XmlWriterOemr {
+class XmlWriterOemr
+{
     var $xml;
     var $indent;
     var $stack = array();
@@ -30,6 +31,7 @@ class XmlWriterOemr {
         foreach ($attributes as $key => $value) {
             $this->xml .= ' '.htmlspecialchars($key).'="'.htmlspecialchars($value).'"';
         }
+
         $this->xml .= ">\n";
         $this->stack[] = htmlspecialchars($element);
     }
@@ -40,6 +42,7 @@ class XmlWriterOemr {
         foreach ($attributes as $key => $value) {
             $this->xml .= ' '.htmlspecialchars($key).'="'.htmlspecialchars($value).'"';
         }
+
         $this->xml .= '>'.htmlspecialchars($content).'</'.htmlspecialchars($element).'>'."\n";
     }
     function emptyelement($element, $attributes = array())
@@ -49,6 +52,7 @@ class XmlWriterOemr {
         foreach ($attributes as $key => $value) {
             $this->xml .= ' '.htmlspecialchars($key).'="'.htmlspecialchars($value).'"';
         }
+
         $this->xml .= " />\n";
     }
     function pop()
@@ -62,5 +66,3 @@ class XmlWriterOemr {
         return $this->xml;
     }
 }
-
-?>

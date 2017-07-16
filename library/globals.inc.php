@@ -127,6 +127,7 @@ function gblTimeZones()
     foreach ($zones as $zone) {
         $arr[$zone] = str_replace('_', ' ', $zone);
     }
+
     return $arr;
 }
 

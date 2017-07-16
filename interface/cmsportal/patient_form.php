@@ -48,6 +48,7 @@ if ($_POST['bn_save']) {
             $newdata[$table][$field_id] = get_layout_form_value($frow);
         }
     }
+
     if (empty($ptid)) {
         $tmp = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
         $ptid = empty($tmp['pid']) ? 1 : intval($tmp['pid']);
@@ -55,19 +56,21 @@ if ($_POST['bn_save']) {
             // pubpid for new patient defaults to pid.
             $newdata['patient_data']['pubpid'] = "$ptid";
         }
-        updatePatientData ($ptid, $newdata['patient_data' ], true);
+
+        updatePatientData($ptid, $newdata['patient_data' ], true);
         updateEmployerData($ptid, $newdata['employer_data'], true);
         newHistoryData($ptid);
-    }
-    else {
+    } else {
         $newdata['patient_data']['id'] = $_POST['db_id'];
         updatePatientData($ptid, $newdata['patient_data']);
     }
+
   // Finally, delete the request from the portal.
     $result = cms_portal_call(array('action' => 'delpost', 'postid' => $postid));
     if ($result['errmsg']) {
         die(text($result['errmsg']));
     }
+
     echo "<html><body><script language='JavaScript'>\n";
     echo "if (top.restoreSession) top.restoreSession(); else opener.top.restoreSession();\n";
     echo "document.location.href = 'list_requests.php';\n";
@@ -205,15 +208,17 @@ function validate() {
 
 <table width='100%' cellpadding='1' cellspacing='2'>
  <tr class='head'>
-  <th align='left'><?php echo xlt('Field'        ); ?></th>
+  <th align='left'><?php echo xlt('Field'); ?></th>
   <th align='left'><?php echo xlt('Current Value'); ?></th>
-  <th align='left'><?php echo xlt('New Value'    ); ?></th>
+  <th align='left'><?php echo xlt('New Value'); ?></th>
  </tr>
 
 <?php
-$lores = sqlStatement("SELECT * FROM layout_options " .
-  "WHERE form_id = ? AND uor > 0 ORDER BY group_name, seq",
-  array('DEM'));
+$lores = sqlStatement(
+    "SELECT * FROM layout_options " .
+    "WHERE form_id = ? AND uor > 0 ORDER BY group_name, seq",
+    array('DEM')
+);
 
 // Will be used to indicate if this user does not yet have a portal login.
 $portal_registration_needed = false;
@@ -222,21 +227,31 @@ while ($lorow = sqlFetchArray($lores)) {
     $data_type  = $lorow['data_type'];
     $field_id   = $lorow['field_id'];
   // We deal with this one at the end.
-    if ($field_id == 'cmsportal_login') continue;
+    if ($field_id == 'cmsportal_login') {
+        continue;
+    }
+
   // Flamingo translates field names to lower case so we have to match with those.
     $reskey = $field_id;
     foreach ($result['fields'] as $key => $dummy) {
-        if (strcasecmp($key, $field_id) == 0) $reskey = $key;
+        if (strcasecmp($key, $field_id) == 0) {
+            $reskey = $key;
+        }
     }
+
   // Generate form fields for items that are either from the WordPress form
   // or are mandatory for a new patient.
     if (isset($result['fields'][$reskey]) || ($lorow['uor'] > 1 && $ptid == 0)) {
         $list_id = $lorow['list_id'];
         $field_title = $lorow['title'];
-        if ($field_title === '') $field_title = '(' . $field_id . ')';
+        if ($field_title === '') {
+            $field_title = '(' . $field_id . ')';
+        }
 
         $currvalue  = '';
-        if (isset($ptrow[$field_id])) $currvalue = $ptrow[$field_id];
+        if (isset($ptrow[$field_id])) {
+            $currvalue = $ptrow[$field_id];
+        }
 
         /*****************************************************************
       $newvalue = '';
@@ -264,8 +279,7 @@ if (empty($ptrow[$field_id])) {
         // Registered in portal but still need to record that in openemr.
         echo "</table>\n";
         echo "<input type='hidden' name='form_$field_id' value='" . attr($result['post']['user']) . "' />\n";
-    }
-    else {
+    } else {
         // Portal registration is needed.
         $newvalue = isset($result['fields']['email']) ? trim($result['fields']['email']) : '';
         echo " <tr class='detail'>\n";
@@ -280,8 +294,7 @@ if (empty($ptrow[$field_id])) {
         echo " </tr>\n";
         echo "</table>\n";
     }
-}
-else {
+} else {
   // Portal login name is already in openemr.
     echo "</table>\n";
 }
@@ -299,7 +312,7 @@ else {
 <script language="JavaScript">
 
 // hard code validation for old validation, in the new validation possible to add match rules
-<?php if($GLOBALS['new_validate'] == 0) { ?>
+<?php if ($GLOBALS['new_validate'] == 0) { ?>
 
 // Fix inconsistently formatted phone numbers from the database.
 var f = document.forms[0];

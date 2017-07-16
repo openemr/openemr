@@ -31,23 +31,21 @@ $setting_new_window = prevSetting($uspfx, 'setting_new_window', 'form_new_window
 
 if (!is_null($_POST['form_provider'])) {
     $provider = $_POST['form_provider'];
-}
-else if ($_SESSION['userauthorized']) {
+} else if ($_SESSION['userauthorized']) {
     $provider = $_SESSION['authUserID'];
-}
-else {
+} else {
     $provider = null;
 }
+
 $facility  = !is_null($_POST['form_facility']) ? $_POST['form_facility'] : null;
 $form_apptstatus = !is_null($_POST['form_apptstatus']) ? $_POST['form_apptstatus'] : null;
 $form_apptcat=null;
-if(isset($_POST['form_apptcat']))
-{
-    if($form_apptcat!="ALL")
-    {
+if (isset($_POST['form_apptcat'])) {
+    if ($form_apptcat!="ALL") {
         $form_apptcat=intval($_POST['form_apptcat']);
     }
 }
+
 $form_patient_name = !is_null($_POST['form_patient_name']) ? $_POST['form_patient_name'] : null;
 $form_patient_id = !is_null($_POST['form_patient_id']) ? $_POST['form_patient_id'] : null;
 
@@ -58,7 +56,7 @@ $datetime = date("Y-m-d H:i:s");
 
 # go get the information and process it
 $appointments = fetch_Patient_Tracker_Events($from_date, $to_date, $provider, $facility, $form_apptstatus, $form_apptcat, $form_patient_name, $form_patient_id);
-$appointments = sortAppointments( $appointments, 'time' );
+$appointments = sortAppointments($appointments, 'time');
 
 //grouping of the count of every status
 $appointments_status = getApptStatus($appointments);
@@ -78,13 +76,13 @@ $appointments_status = getApptStatus($appointments);
 // xl('Coding done')
 // xl('Canceled < 24h')
 $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1", array('apptstat'));
-while ( $lrow = sqlFetchArray ( $lres ) ) {
+while ($lrow = sqlFetchArray($lres)) {
     // if exists, remove the legend character
-    if($lrow['title'][1] == ' '){
+    if ($lrow['title'][1] == ' ') {
         $splitTitle = explode(' ', $lrow['title']);
         array_shift($splitTitle);
         $title = implode(' ', $splitTitle);
-    }else{
+    } else {
         $title = $lrow['title'];
     }
 
@@ -94,7 +92,7 @@ while ( $lrow = sqlFetchArray ( $lres ) ) {
 $chk_prov = array();  // list of providers with appointments
 
 // Scan appointments for additional info
-foreach ( $appointments as $apt ) {
+foreach ($appointments as $apt) {
     $chk_prov[$apt['uprovider_id']] = $apt['ulname'] . ', ' . $apt['ufname'] . ' ' . $apt['umname'];
 }
 ?>
@@ -175,8 +173,7 @@ function openNewTopWindow(newpid,newencounterid) {
 if ($GLOBALS['pat_trkr_timer'] == '0') {
     // if the screen is not set up for auto refresh, use standard page call
     $action_page = "patient_tracker.php";
-}
-else {
+} else {
     // if the screen is set up for auto refresh, this will allow it to be closed by auto logoff
     $action_page = "patient_tracker.php?skip_timeout_reset=1";
 }
@@ -204,11 +201,12 @@ else {
                 while ($urow = sqlFetchArray($ures)) {
                     $provid = $urow['id'];
                     echo "    <option value='" . attr($provid) . "'";
-                    if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']){
+                    if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']) {
                         echo " selected";
-                    } elseif(!isset($_POST['form_provider'])&& $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']){
+                    } elseif (!isset($_POST['form_provider'])&& $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']) {
                         echo " selected";
                     }
+
                     echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
                 }
 
@@ -217,20 +215,19 @@ else {
                     ?>
                 </td>
                 <td class='label_custom'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
-                <td><?php generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'All'),$_POST['form_apptstatus']);?></td>
+                <td><?php generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'All'), $_POST['form_apptstatus']);?></td>
                 <td><?php echo xlt('Category') #category drop down creation ?>:</td>
                 <td>
                     <select id="form_apptcat" name="form_apptcat">
                         <?php
                         $categories=fetchAppointmentCategories();
                         echo "<option value='ALL'>".xlt("All")."</option>";
-                        while($cat=sqlFetchArray($categories))
-                        {
+                        while ($cat=sqlFetchArray($categories)) {
                             echo "<option value='".attr($cat['id'])."'";
-                            if($cat['id']==$_POST['form_apptcat'])
-                            {
+                            if ($cat['id']==$_POST['form_apptcat']) {
                                 echo " selected='true' ";
                             }
+
                             echo    ">".text(xl_appt_category($cat['category']))."</option>";
                         }
                         ?>
@@ -240,7 +237,7 @@ else {
                     <div style='margin-left: 15px'>
                         <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                             <span> <?php echo xlt('Filter'); ?> </span> </a>
-                        <?php if ($_POST['form_refresh'] || $_POST['form_orderby'] ) { ?>
+                        <?php if ($_POST['form_refresh'] || $_POST['form_orderby']) { ?>
                             <a href='#' class='css_button' id='printbutton'>
                                 <span> <?php echo xlt('Print'); ?> </span> </a>
                         <?php } ?>
@@ -295,9 +292,10 @@ else {
                 <?php
                 $statuses_output =  xlt('Total patients')  . ':' . text($appointments_status['count_all']);
                 unset($appointments_status['count_all']);
-                foreach($appointments_status as $status_symbol => $count){
+                foreach ($appointments_status as $status_symbol => $count) {
                     $statuses_output .= " | " . text(xl_list_label($statuses_list[$status_symbol]))  .":" . $count;
                 }
+
                 echo $statuses_output;
                 ?>
          </small></b>
@@ -365,20 +363,25 @@ else {
  </tr>
 
 <?php
-foreach ( $appointments as $appointment ) {
-
+foreach ($appointments as $appointment) {
         # Collect appt date and set up squashed date for use below
         $date_appt = $appointment['pc_eventDate'];
-        $date_squash = str_replace("-","",$date_appt);
+        $date_squash = str_replace("-", "", $date_appt);
 
         # Collect variables and do some processing
         $docname  = $chk_prov[$appointment['uprovider_id']];
-        if (strlen($docname)<= 3 ) continue;
+    if (strlen($docname)<= 3) {
+        continue;
+    }
+
         $ptname = $appointment['lname'] . ', ' . $appointment['fname'] . ' ' . $appointment['mname'];
         $appt_enc = $appointment['encounter'];
         $appt_eid = (!empty($appointment['eid'])) ? $appointment['eid'] : $appointment['pc_eid'];
         $appt_pid = (!empty($appointment['pid'])) ? $appointment['pid'] : $appointment['pc_pid'];
-        if ($appt_pid ==0 ) continue; // skip when $appt_pid = 0, since this means it is not a patient specific appt slot
+    if ($appt_pid ==0) {
+        continue; // skip when $appt_pid = 0, since this means it is not a patient specific appt slot
+    }
+
         $status = (!empty($appointment['status'])) ? $appointment['status'] : $appointment['pc_apptstatus'];
         $appt_room = (!empty($appointment['room'])) ? $appointment['room'] : $appointment['pc_room'];
         $appt_time = (!empty($appointment['appttime'])) ? $appointment['appttime'] : $appointment['pc_startTime'];
@@ -387,17 +390,20 @@ foreach ( $appointments as $appointment ) {
     if ($GLOBALS['ptkr_visit_reason']) {
         $reason_visit = $appointment['pc_hometext'];
     }
+
         $newarrive = collect_checkin($tracker_id);
         $newend = collect_checkout($tracker_id);
         $colorevents = (collectApptStatusSettings($status));
         $bgcolor = $colorevents['color'];
         $statalert = $colorevents['time_alert'];
         # process the time to allow items with a check out status to be displayed
-    if ( is_checkout($status) && ($GLOBALS['checkout_roll_off'] > 0) ) {
+    if (is_checkout($status) && ($GLOBALS['checkout_roll_off'] > 0)) {
         $to_time = strtotime($newend);
         $from_time = strtotime($datetime);
-        $display_check_out = round(abs($from_time - $to_time) / 60,0);
-        if ( $display_check_out >= $GLOBALS['checkout_roll_off'] ) continue;
+        $display_check_out = round(abs($from_time - $to_time) / 60, 0);
+        if ($display_check_out >= $GLOBALS['checkout_roll_off']) {
+            continue;
+        }
     }
 ?>
 <tr bgcolor='<?php echo $bgcolor ?>'>
@@ -418,7 +424,9 @@ foreach ( $appointments as $appointment ) {
             <?php } ?>
     <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
         <td class="detail" align="center">
-            <?php if($appt_enc != 0) echo text($appt_enc); ?></a>
+            <?php if ($appt_enc != 0) {
+                echo text($appt_enc);
+} ?></a>
          </td>
             <?php } ?>
      <td class="detail" align="center">
@@ -436,7 +444,7 @@ foreach ( $appointments as $appointment ) {
             <?php } else { ?>
            <a href=""  onclick="return bpopup(<?php echo attr($tracker_id); # calls popup for patient tracker status?>)">
             <?php } ?>
-    <?php echo text(getListItemTitle("apptstat",$status)); # drop down list for appointment status?>
+    <?php echo text(getListItemTitle("apptstat", $status)); # drop down list for appointment status?>
      </a>
 
      </td>
@@ -448,24 +456,22 @@ if (strtotime($newend) != '') {
     $from_time = strtotime($newarrive);
     $to_time = strtotime($newend);
     $yestime = '0';
-}
-else
-    {
+} else {
        $from_time = strtotime($appointment['start_datetime']);
        $yestime = '1';
 }
 
-    $timecheck = round(abs($to_time - $from_time) / 60,0);
+    $timecheck = round(abs($to_time - $from_time) / 60, 0);
 if ($timecheck >= $statalert && ($statalert != '0')) { # Determine if the time in status limit has been reached.
     echo "<td align='center' class='js-blink-infinite'>	"; # and if so blink
-}
-else
-    {
+} else {
     echo "<td align='center' class='detail'> "; # and if not do not blink
 }
+
 if (($yestime == '1') && ($timecheck >=1) && (strtotime($newarrive)!= '')) {
     echo text($timecheck . ' ' .($timecheck >=2 ? xl('minutes'): xl('minute')));
 }
+
     #end time in current status
     ?>
      </td>
@@ -484,16 +490,16 @@ if (($yestime == '1') && ($timecheck >=1) && (strtotime($newarrive)!= '')) {
     if (strtotime($newend) != '') {
           $from_time = strtotime($newarrive);
           $to_time = strtotime($newend);
-    }
-    else
-     {
+    } else {
           $from_time = strtotime($newarrive);
           $to_time = strtotime(date("Y-m-d H:i:s"));
     }
-     $timecheck2 = round(abs($to_time - $from_time) / 60,0);
+
+     $timecheck2 = round(abs($to_time - $from_time) / 60, 0);
     if (strtotime($newarrive) != '' && ($timecheck2 >=1)) {
           echo text($timecheck2 . ' ' .($timecheck2 >=2 ? xl('minutes'): xl('minute')));
     }
+
      # end total time in practice
         ?>
         <?php echo text($appointment['pc_time']); ?>
@@ -511,19 +517,30 @@ if (($yestime == '1') && ($timecheck >=1) && (strtotime($newarrive)!= '')) {
             <?php if ($GLOBALS['drug_screen']) { ?>
             <?php if (strtotime($newarrive) != '') { ?>
          <td class="detail" align="center">
-            <?php if (text($appointment['random_drug_test']) == '1') {  echo xl('Yes');
-}  else { echo xl('No'); }?>
+            <?php if (text($appointment['random_drug_test']) == '1') {
+                echo xl('Yes');
+} else {
+    echo xl('No');
+}?>
          </td>
-            <?php } else {  echo "  <td>"; }?>
+            <?php } else {
+    echo "  <td>";
+}?>
             <?php if (strtotime($newarrive) != '' && $appointment['random_drug_test'] == '1') { ?>
          <td class="detail" align="center">
             <?php if (strtotime($newend) != '') { # the following block allows the check box for drug screens to be disabled once the status is check out ?>
-             <input type=checkbox  disabled='disable' class="drug_screen_completed" id="<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>"  <?php if ($appointment['drug_screen_completed'] == "1") echo "checked";?>>
+             <input type=checkbox  disabled='disable' class="drug_screen_completed" id="<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>"  <?php if ($appointment['drug_screen_completed'] == "1") {
+                    echo "checked";
+}?>>
             <?php } else { ?>
-             <input type=checkbox  class="drug_screen_completed" id='<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>' name="drug_screen_completed" <?php if ($appointment['drug_screen_completed'] == "1") echo "checked";?>>
+             <input type=checkbox  class="drug_screen_completed" id='<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>' name="drug_screen_completed" <?php if ($appointment['drug_screen_completed'] == "1") {
+                    echo "checked";
+}?>>
             <?php } ?>
          </td>
-            <?php } else {  echo "  <td>"; }?>
+            <?php } else {
+    echo "  <td>";
+}?>
             <?php } ?>
          </tr>
         <?php
@@ -535,18 +552,23 @@ if (($yestime == '1') && ($timecheck >=1) && (strtotime($newarrive)!= '')) {
 if (!is_null($_POST['form_provider'])) {
     echo "<input type='hidden' name='form_provider' value='" . attr($_POST['form_provider']) . "'>";
 }
+
 if (!is_null($_POST['form_facility'])) {
     echo "<input type='hidden' name='form_facility' value='" . attr($_POST['form_facility']) . "'>";
 }
+
 if (!is_null($_POST['form_apptstatus'])) {
     echo "<input type='hidden' name='form_apptstatus' value='" . attr($_POST['form_apptstatus']) . "'>";
 }
+
 if (!is_null($_POST['form_apptcat'])) {
     echo "<input type='hidden' name='form_apptcat' value='" . attr($_POST['form_apptcat']) . "'>";
 }
+
 if (!is_null($_POST['form_patient_id'])) {
     echo "<input type='hidden' name='form_patient_id' value='" . attr($_POST['form_patient_id']) . "'>";
 }
+
 if (!is_null($_POST['form_patient_name'])) {
     echo "<input type='hidden' name='form_patient_name' value='" . attr($_POST['form_patient_name']) . "'>";
 }

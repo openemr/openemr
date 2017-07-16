@@ -883,7 +883,4 @@ class UserCriteriaDAO extends Criteria
     public $PhysicianType_IsEmpty;
     public $PhysicianType_BitwiseOr;
     public $PhysicianType_BitwiseAnd;
-
 }
-
-?>

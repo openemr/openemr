@@ -41,4 +41,3 @@ while ($row = sqlFetchArray($res)) {
     $def = $row['option_id'] == $current ? 'true' : 'false';
     echo "itemsel.options[j++] = new Option('$tmp','$tmp',$def,$def);\n";
 }
-?>

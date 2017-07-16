@@ -30,4 +30,3 @@
 //    3. Redirects user to the login screen (maintains the site id)
 $_GET['auth'] = "logout";
 require_once("globals.php");
-?>

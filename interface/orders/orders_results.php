@@ -33,11 +33,15 @@ $form_review = empty($_GET['review']) ? 0 : 1;
 
 // Check authorization.
 $thisauth = acl_check('patients', 'med');
-if (!$thisauth) die(xl('Not authorized'));
+if (!$thisauth) {
+    die(xl('Not authorized'));
+}
 
 // Check authorization for pending review.
 $reviewauth = acl_check('patients', 'sign');
-if ($form_review and !$reviewauth and !$thisauth) die(xl('Not authorized'));
+if ($form_review and !$reviewauth and !$thisauth) {
+    die(xl('Not authorized'));
+}
 
 // Set pid for pending review.
 if ($_GET['set_pid'] && $form_review) {
@@ -53,7 +57,9 @@ if ($_GET['set_pid'] && $form_review) {
     <?php
 }
 
-if (!$form_batch && !$pid && !$form_review) die(xl('There is no current patient'));
+if (!$form_batch && !$pid && !$form_review) {
+    die(xl('There is no current patient'));
+}
 
 function oresRawData($name, $index)
 {
@@ -69,7 +75,10 @@ function oresData($name, $index)
 
 function QuotedOrNull($fld)
 {
-    if (empty($fld)) return "NULL";
+    if (empty($fld)) {
+        return "NULL";
+    }
+
     return "'$fld'";
 }
 
@@ -80,7 +89,9 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
         list($order_id, $order_seq, $report_id, $result_id) = explode(':', $line_value);
 
         // Not using xl() here because this is for debugging only.
-        if (empty($order_id)) die("Order ID is missing from line $lino.");
+        if (empty($order_id)) {
+            die("Order ID is missing from line $lino.");
+        }
 
         // If report data exists for this line, save it.
         $date_report = oresData("form_date_report", $lino);
@@ -95,32 +106,35 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
             "report_status = '" . oresData("form_report_status", $lino) . "'";
 
             // Set the review status to reviewed.
-            if ($form_review)
-            $sets .= ", review_status = 'reviewed'";
+            if ($form_review) {
+                $sets .= ", review_status = 'reviewed'";
+            }
 
             if ($report_id) { // Report already exists.
                 sqlStatement("UPDATE procedure_report SET $sets "  .
                 "WHERE procedure_report_id = '$report_id'");
-            }
-            else { // Add new report.
+            } else { // Add new report.
                 $report_id = sqlInsert("INSERT INTO procedure_report SET $sets");
             }
         }
 
         // If this line had report data entry fields, filled or not, set the
         // "current report ID" which the following result data will link to.
-        if (isset($_POST["form_date_report"][$lino])) $current_report_id = $report_id;
+        if (isset($_POST["form_date_report"][$lino])) {
+            $current_report_id = $report_id;
+        }
 
         // If there's a report, save corresponding results.
         if ($current_report_id) {
             // Comments and notes will be combined into one comments field.
             $form_comments = oresRawData("form_comments", $lino);
-            $form_comments = str_replace("\n"  ,'~' , $form_comments);
-            $form_comments = str_replace("\r"  ,''  , $form_comments);
+            $form_comments = str_replace("\n", '~', $form_comments);
+            $form_comments = str_replace("\r", '', $form_comments);
             $form_notes = oresRawData("form_notes", $lino);
             if ($form_notes !== '') {
                 $form_comments .= "\n" . $form_notes;
             }
+
             $sets =
             "procedure_report_id = '$current_report_id', " .
             "result_code = '" . oresData("form_result_code", $lino) . "', " .
@@ -135,8 +149,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
             if ($result_id) { // result already exists
                 sqlStatement("UPDATE procedure_result SET $sets "  .
                 "WHERE procedure_result_id = '$result_id'");
-            }
-            else { // Add new result.
+            } else { // Add new result.
                 $result_id = sqlInsert("INSERT INTO procedure_result SET $sets");
             }
         }
@@ -151,7 +164,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
-<title><?php  xl('Procedure Results','e'); ?></title>
+<title><?php  xl('Procedure Results', 'e'); ?></title>
 
 <style>
 
@@ -269,7 +282,7 @@ function extShow(lino, show) {
 function prDateRequired(rlino) {
  var f = document.forms[0];
  if (f['form_date_report['+rlino+']'].value.length < 10) {
-  alert('<?php xl('Missing report date','e') ?>');
+  alert('<?php xl('Missing report date', 'e') ?>');
   if (f['form_date_report['+rlino+']'].focus)
    f['form_date_report['+rlino+']'].focus();
   return false;
@@ -324,11 +337,17 @@ $(document).ready(function() {
   <td class='text'>
 <?php
 if ($form_batch) {
-    $form_from_date = formData('form_from_date','P',true);
-    $form_to_date   = formData('form_to_date','P',true);
-    if (empty($form_to_date)) $form_to_date = $form_from_date;
+    $form_from_date = formData('form_from_date', 'P', true);
+    $form_to_date   = formData('form_to_date', 'P', true);
+    if (empty($form_to_date)) {
+        $form_to_date = $form_from_date;
+    }
+
     $form_proc_type = formData('form_proc_type') + 0;
-    if (!$form_proc_type) $form_proc_type = -1;
+    if (!$form_proc_type) {
+        $form_proc_type = -1;
+    }
+
     $form_proc_type_desc = '';
     if ($form_proc_type > 0) {
         $ptrow = sqlQuery("SELECT name FROM procedure_type WHERE " .
@@ -336,32 +355,34 @@ if ($form_batch) {
         $form_proc_type_desc = $ptrow['name'];
     }
 ?>
-    <?php xl('Procedure','e'); ?>:
+    <?php xl('Procedure', 'e'); ?>:
    <input type='text' size='30' name='form_proc_type_desc'
     value='<?php echo addslashes($form_proc_type_desc) ?>'
     onclick='sel_proc_type()' onfocus='this.blur()'
-    title='<?php xl('Click to select the desired procedure','e'); ?>'
+    title='<?php xl('Click to select the desired procedure', 'e'); ?>'
     style='cursor:pointer;cursor:hand' readonly />
    <input type='hidden' name='form_proc_type' value='<?php echo $form_proc_type ?>' />
 
-   &nbsp;<?php xl('From','e'); ?>:
+   &nbsp;<?php xl('From', 'e'); ?>:
    <input type='text' size='10' class='datepicker' name='form_from_date' id='form_from_date'
     value='<?php echo $form_from_date ?>'
-    title='<?php xl('yyyy-mm-dd','e'); ?>' />
+    title='<?php xl('yyyy-mm-dd', 'e'); ?>' />
 
-   &nbsp;<?php xl('To','e'); ?>:
+   &nbsp;<?php xl('To', 'e'); ?>:
    <input type='text' size='10' class='datepicker' name='form_to_date' id='form_to_date'
     value='<?php echo $form_to_date ?>'
-    title='<?php xl('yyyy-mm-dd','e'); ?>' />
+    title='<?php xl('yyyy-mm-dd', 'e'); ?>' />
 
    &nbsp;
 <?php
 } // end header for batch option
 ?>
    <!-- removed by jcw -- check/submit sequece too tedious.  This is a quick fix -->
-<!--   <input type='checkbox' name='form_all' value='1' <?php if ($_POST['form_all']) echo " checked"; ?>><?php xl('Include Completed','e') ?>
+<!--   <input type='checkbox' name='form_all' value='1' <?php if ($_POST['form_all']) {
+    echo " checked";
+} ?>><?php xl('Include Completed', 'e') ?>
    &nbsp;-->
-   <input type='submit' name='form_refresh' value=<?php xl('Refresh','e'); ?>>
+   <input type='submit' name='form_refresh' value=<?php xl('Refresh', 'e'); ?>>
   </td>
  </tr>
 </table>
@@ -372,25 +393,25 @@ if ($form_batch) {
 
  <tr class='head'>
   <td colspan='2'><?php echo $form_batch ? xl('Patient') : xl('Order'); ?></td>
-  <td colspan='4'><?php xl('Report','e'); ?></td>
-  <td colspan='7'><?php xl('Results and','e'); ?> <span class='reccolor''>
-    <?php  xl('Recommendations','e'); ?></span></td>
+  <td colspan='4'><?php xl('Report', 'e'); ?></td>
+  <td colspan='7'><?php xl('Results and', 'e'); ?> <span class='reccolor''>
+    <?php  xl('Recommendations', 'e'); ?></span></td>
  </tr>
 
  <tr class='head'>
   <td><?php echo $form_batch ? xl('Name') : xl('Date'); ?></td>
   <td><?php echo $form_batch ? xl('ID') : xl('Procedure Name'); ?></td>
-  <td><?php xl('Reported','e'); ?></td>
-  <td><?php xl('Ext Time Collected','e'); ?></td>
-  <td><?php xl('Specimen','e'); ?></td>
-  <td><?php xl('Status','e'); ?></td>
-  <td><?php xl('Code','e'); ?></td>
-  <td><?php xl('Name','e'); ?></td>
-  <td><?php xl('Abn','e'); ?></td>
-  <td><?php xl('Value','e'); ?></td>
+  <td><?php xl('Reported', 'e'); ?></td>
+  <td><?php xl('Ext Time Collected', 'e'); ?></td>
+  <td><?php xl('Specimen', 'e'); ?></td>
+  <td><?php xl('Status', 'e'); ?></td>
+  <td><?php xl('Code', 'e'); ?></td>
+  <td><?php xl('Name', 'e'); ?></td>
+  <td><?php xl('Abn', 'e'); ?></td>
+  <td><?php xl('Value', 'e'); ?></td>
   <td><?php xl('Units', 'e'); ?></td>
-  <td><?php xl('Range','e'); ?></td>
-  <td><?php xl('?','e'); ?></td>
+  <td><?php xl('Range', 'e'); ?></td>
+  <td><?php xl('?', 'e'); ?></td>
  </tr>
 
 <?php
@@ -426,8 +447,7 @@ if ($form_batch) {
     "po.date_ordered >= '$form_from_date' AND po.date_ordered <= '$form_to_date' " .
     "AND $where " .
     "ORDER BY pd.lname, pd.fname, pd.mname, po.patient_id, $orderby";
-}
-else {
+} else {
     $query = "SELECT $selects " .
     "FROM procedure_order AS po " .
     "$joins " .
@@ -459,15 +479,20 @@ while ($row = sqlFetchArray($res)) {
 
   // skip report_status = receive to make sure do not show the report before it reviewed and sign off by Physicians
     if ($form_review) {
-        if ($review_status == "reviewed") continue;
-    }
-    else {
-        if ($review_status == "received") continue;
+        if ($review_status == "reviewed") {
+            continue;
+        }
+    } else {
+        if ($review_status == "received") {
+            continue;
+        }
     }
 
-    $query_test=sqlFetchArray(sqlStatement("select deleted from forms where form_id=? and formdir='procedure_order'",array($order_id)));
+    $query_test=sqlFetchArray(sqlStatement("select deleted from forms where form_id=? and formdir='procedure_order'", array($order_id)));
   // skip the procedure that has been deleted from the encounter form
-    if($query_test['deleted']==1) continue;
+    if ($query_test['deleted']==1) {
+        continue;
+    }
 
     $selects = "pt2.procedure_type, pt2.procedure_code, pt2.units AS pt2_units, " .
     "pt2.range AS pt2_range, pt2.procedure_type_id AS procedure_type_id, " .
@@ -522,9 +547,10 @@ while ($row = sqlFetchArray($res)) {
             $result_notes = trim(substr($result_comments, $i + 1));
             $result_comments = substr($result_comments, 0, $i);
         }
+
         $result_comments = trim($result_comments);
 
-        if($result_facility <> "" && !in_array($result_facility, $facilities)) {
+        if ($result_facility <> "" && !in_array($result_facility, $facilities)) {
             $facilities[] = $result_facility;
         }
 
@@ -532,6 +558,7 @@ while ($row = sqlFetchArray($res)) {
             ++$encount;
             $lastrcn = '';
         }
+
         $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
 
         echo " <tr class='detail' bgcolor='$bgcolor'>\n";
@@ -542,26 +569,25 @@ while ($row = sqlFetchArray($res)) {
             if ($form_batch) {
                 if ($lastpoid != $order_id) {
                     $tmp = $row['lname'];
-                    if ($row['fname'] || $row['mname'])
-                    $tmp .= ', ' . $row['fname'] . ' ' . $row['mname'];
+                    if ($row['fname'] || $row['mname']) {
+                        $tmp .= ', ' . $row['fname'] . ' ' . $row['mname'];
+                    }
+
                     echo "  <td>" . text($tmp) . "</td>\n";
                     echo "  <td>" . text($row['pubpid']) . "</td>\n";
-                }
-                else {
+                } else {
                     echo "  <td colspan='2' style='background-color:transparent'>&nbsp;</td>";
                 }
-            }
-            else {
+            } else {
                 if ($lastpoid != $order_id) {
                     echo "  <td>" . $row['date_ordered'] . "</td>\n";
-                }
-                else {
+                } else {
                     echo "  <td style='background-color:transparent'>&nbsp;</td>";
                 }
+
                 echo "  <td>" . text($row['procedure_name']) . "</td>\n";
             }
-        }
-        else {
+        } else {
             echo "  <td colspan='2' style='background-color:transparent'>&nbsp;</td>";
         }
 
@@ -597,11 +623,16 @@ while ($row = sqlFetchArray($res)) {
             echo "</td>\n";
 
             echo "  <td>";
-            echo generate_select_list("form_report_status[$lino]", 'proc_rep_status',
-            $report_status, xl('Report Status'), ' ', 'cellselect');
+            echo generate_select_list(
+                "form_report_status[$lino]",
+                'proc_rep_status',
+                $report_status,
+                xl('Report Status'),
+                ' ',
+                'cellselect'
+            );
             echo "</td>\n";
-        }
-        else {
+        } else {
             echo "  <td colspan='4' style='background-color:transparent'>&nbsp;</td>\n";
         }
 
@@ -616,19 +647,25 @@ while ($row = sqlFetchArray($res)) {
         "</td>\n";
 
         echo "  <td>";
-        echo generate_select_list("form_result_abnormal[$lino]", 'proc_res_abnormal',
-        $result_abnormal, xl('Indicates abnormality'), ' ', 'cellselect');
+        echo generate_select_list(
+            "form_result_abnormal[$lino]",
+            'proc_res_abnormal',
+            $result_abnormal,
+            xl('Indicates abnormality'),
+            ' ',
+            'cellselect'
+        );
         echo "</td>\n";
 
         echo "  <td>";
         if ($result_units == 'bool') {
               echo "&nbsp;--";
-        }
-        else {
+        } else {
               echo "<input type='text' size='7' name='form_result_result[$lino]'" .
                 " class='celltext' value='" . attr($result_result) . "' " .
                 " />";
         }
+
         echo "</td>\n";
 
         echo "  <td>";
@@ -666,8 +703,13 @@ while ($row = sqlFetchArray($res)) {
         htmlspecialchars($result_text) .
         "</td></tr>\n" .
         "<tr><td class='bold' width='1%' nowrap>" . xlt('Status') . ": </td>" .
-        "<td>" . generate_select_list("form_result_status[$lino]", 'proc_res_status',
-          $result_status, xl('Result Status'), '') . "</td></tr>\n" .
+        "<td>" . generate_select_list(
+            "form_result_status[$lino]",
+            'proc_res_status',
+            $result_status,
+            xl('Result Status'),
+            ''
+        ) . "</td></tr>\n" .
           "<tr><td class='bold' nowrap>" . xlt('Facility') . ": </td>" .     // Ensoftek: Changed Facility to Text Area as the field procedure_result-->facility is now multi-line
           "<td><textarea rows='3' cols='15' name='form_facility[$lino]'" .
           " title='" . xla('Supplier facility name') . "'" .
@@ -699,10 +741,10 @@ if (!empty($facilities)) {
   // display facility information
     $extra_html .= "<table>";
     $extra_html .= "<tr><th>". xl('Performing Laboratory Facility') . "</th></tr>";
-    foreach($facilities as $facilityID) {
-        foreach(explode(":", $facilityID) as $lab_facility) {
+    foreach ($facilities as $facilityID) {
+        foreach (explode(":", $facilityID) as $lab_facility) {
             $facility_array = getFacilityInfo($lab_facility);
-            if($facility_array) {
+            if ($facility_array) {
                 $extra_html .=
                 "<tr><td><hr></td></tr>" .
                 "<tr><td>". htmlspecialchars($facility_array['fname']) . " " . htmlspecialchars($facility_array['lname']) . ", " . htmlspecialchars($facility_array['title']). "</td></tr>" .
@@ -712,6 +754,7 @@ if (!empty($facilities)) {
             }
         }
     }
+
     $extra_html .= "</table>\n";
 }
 ?>
@@ -724,22 +767,20 @@ if ($form_review) {
     if ($reviewauth) {
         ?>
      <center><p>
-         <input type='submit' name='form_submit' value='<?php xl('Sign Results','e'); ?>' />
+         <input type='submit' name='form_submit' value='<?php xl('Sign Results', 'e'); ?>' />
      </p></center>
     <?php
-    }
-    else {
+    } else {
         ?>
      <center><p>
-         <input type='button' name='form_submit' value='<?php xl('Sign Results','e'); ?>' onclick="alert('<?php xl('Not authorized','e') ?>');" />
+         <input type='button' name='form_submit' value='<?php xl('Sign Results', 'e'); ?>' onclick="alert('<?php xl('Not authorized', 'e') ?>');" />
      </p></center>
     <?php
     }
-}
-else {
+} else {
 ?>
  <center><p>
-  <input type='submit' name='form_submit' value='<?php xl('Save','e'); ?>' />
+  <input type='submit' name='form_submit' value='<?php xl('Save', 'e'); ?>' />
  </p></center>
 <?php
 }

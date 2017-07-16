@@ -19,7 +19,9 @@
  $info_msg = "";
  $tmpl_line_no = 0;
 
- if (!acl_check('admin', 'drugs')) die(xlt('Not authorized'));
+if (!acl_check('admin', 'drugs')) {
+    die(xlt('Not authorized'));
+}
 
 // Format dollars for display.
 //
@@ -27,8 +29,11 @@ function bucks($amount)
 {
     if ($amount) {
         $amount = sprintf("%.2f", $amount);
-        if ($amount != 0.00) return $amount;
+        if ($amount != 0.00) {
+            return $amount;
+        }
     }
+
     return '';
 }
 
@@ -65,14 +70,19 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
         echo "<input type='text' name='form_tmpl[$tmpl_line_no][price][" . attr($pricelevel) . "]' value='" . attr($price) . "' size='6' maxlength='12'>";
         echo "</td>\n";
     }
+
     $pres = sqlStatement("SELECT option_id FROM list_options " .
     "WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq");
     while ($prow = sqlFetchArray($pres)) {
         echo "  <td class='tmplcell'>";
         echo "<input type='checkbox' name='form_tmpl[$tmpl_line_no][taxrate][" . attr($prow['option_id']) . "]' value='1'";
-        if (strpos(":$taxrates", $prow['option_id']) !== false) echo " checked";
+        if (strpos(":$taxrates", $prow['option_id']) !== false) {
+            echo " checked";
+        }
+
         echo " /></td>\n";
     }
+
     echo " </tr>\n";
 }
 
@@ -184,8 +194,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
             "active = "          . (empty($_POST['form_active']) ? 0 : 1) . " " .
             "WHERE drug_id = ?", array($drug_id));
             sqlStatement("DELETE FROM drug_templates WHERE drug_id = ?", array($drug_id));
-        }
-        else { // deleting
+        } else { // deleting
             if (acl_check('admin', 'super')) {
                 sqlStatement("DELETE FROM drug_inventory WHERE drug_id = ?", array($drug_id));
                 sqlStatement("DELETE FROM drug_templates WHERE drug_id = ?", array($drug_id));
@@ -193,8 +202,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
                 sqlStatement("DELETE FROM prices WHERE pr_id = ? AND pr_selector != ''", array($drug_id));
             }
         }
-    }
-    else if ($_POST['form_save']) { // saving a new drug
+    } else if ($_POST['form_save']) { // saving a new drug
         $new_drug = true;
         $drug_id = sqlInsert("INSERT INTO drugs ( " .
         "name, ndc_number, drug_code, on_order, reorder_point, max_level, form, " .
@@ -226,6 +234,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
         if ($GLOBALS['sell_non_drug_products'] == 2) {
             $tmpl["1"]['selector'] = $_POST['form_name'];
         }
+
         sqlStatement("DELETE FROM prices WHERE pr_id = ? AND pr_selector != ''", array($drug_id));
         for ($lino = 1; isset($tmpl["$lino"]['selector']); ++$lino) {
             $iter = $tmpl["$lino"];
@@ -237,20 +246,27 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
                         $taxrates .= "$key:";
                     }
                 }
-                sqlInsert("INSERT INTO drug_templates ( " .
-                "drug_id, selector, dosage, period, quantity, refills, taxrates " .
-                ") VALUES ( ?, ?, ?, ?, ?, ?, ? )",
-                array($drug_id, $selector, trim($iter['dosage']), trim($iter['period']),
-                trim($iter['quantity']), trim($iter['refills']), $taxrates));
+
+                sqlInsert(
+                    "INSERT INTO drug_templates ( " .
+                    "drug_id, selector, dosage, period, quantity, refills, taxrates " .
+                    ") VALUES ( ?, ?, ?, ?, ?, ?, ? )",
+                    array($drug_id, $selector, trim($iter['dosage']), trim($iter['period']),
+                    trim($iter['quantity']),
+                    trim($iter['refills']),
+                    $taxrates)
+                );
 
                 // Add prices for this drug ID and selector.
                 foreach ($iter['price'] as $key => $value) {
                          $value = $value + 0;
                     if ($value) {
-                         sqlStatement("INSERT INTO prices ( " .
-                           "pr_id, pr_selector, pr_level, pr_price ) VALUES ( " .
-                           "?, ?, ?, ? )",
-                           array($drug_id, $selector, $key, $value));
+                         sqlStatement(
+                             "INSERT INTO prices ( " .
+                             "pr_id, pr_selector, pr_level, pr_price ) VALUES ( " .
+                             "?, ?, ?, ? )",
+                             array($drug_id, $selector, $key, $value)
+                         );
                     }
                 } // end foreach price
             } // end if selector is present
@@ -271,13 +287,17 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
   // Close this window and redisplay the updated list of drugs.
   //
     echo "<script language='JavaScript'>\n";
-    if ($info_msg) echo " alert('$info_msg');\n";
+    if ($info_msg) {
+        echo " alert('$info_msg');\n";
+    }
+
     echo " if (opener.refreshme) opener.refreshme();\n";
     if ($new_drug) {
         echo " window.location.href='add_edit_lot.php?drug=$drug_id&lot=0'\n";
     } else {
         echo " window.close();\n";
     }
+
     echo "</script></body></html>\n";
     exit();
 }
@@ -286,8 +306,7 @@ if ($drug_id) {
     $row = sqlQuery("SELECT * FROM drugs WHERE drug_id = ?", array($drug_id));
     $tres = sqlStatement("SELECT * FROM drug_templates WHERE " .
     "drug_id = ? ORDER BY selector", array($drug_id));
-}
-else {
+} else {
     $row = array(
     'name' => '',
     'active' => '1',
@@ -322,16 +341,25 @@ else {
  <tr>
   <td valign='top' nowrap><b><?php echo xlt('Active'); ?>:</b></td>
   <td>
-   <input type='checkbox' name='form_active' value='1'<?php if ($row['active']) echo ' checked'; ?> />
+   <input type='checkbox' name='form_active' value='1'<?php
+    if ($row['active']) {
+            echo ' checked';
+    } ?> />
   </td>
  </tr>
 
  <tr>
   <td valign='top' nowrap><b><?php echo xlt('Allow'); ?>:</b></td>
   <td>
-   <input type='checkbox' name='form_allow_multiple' value='1'<?php if ($row['allow_multiple']) echo ' checked'; ?> />
+   <input type='checkbox' name='form_allow_multiple' value='1'<?php
+    if ($row['allow_multiple']) {
+        echo ' checked';
+    } ?> />
     <?php echo xlt('Multiple Lots'); ?> &nbsp;
-   <input type='checkbox' name='form_allow_combining' value='1'<?php if ($row['allow_combining']) echo ' checked'; ?> />
+   <input type='checkbox' name='form_allow_combining' value='1'<?php
+    if ($row['allow_combining']) {
+        echo ' checked';
+    } ?> />
     <?php echo xlt('Combining Lots'); ?>
   </td>
  </tr>
@@ -369,21 +397,23 @@ else {
      <td valign='top' nowrap>&nbsp;</td>
      <td valign='top' nowrap><?php echo xlt('Global'); ?></td>
 <?php
-  // One column header per warehouse title.
-  $pwarr = array();
-  $pwres = sqlStatement("SELECT lo.option_id, lo.title, " .
+// One column header per warehouse title.
+$pwarr = array();
+$pwres = sqlStatement(
+    "SELECT lo.option_id, lo.title, " .
     "pw.pw_min_level, pw.pw_max_level " .
     "FROM list_options AS lo " .
     "LEFT JOIN product_warehouse AS pw ON " .
     "pw.pw_drug_id = ? AND " .
     "pw.pw_warehouse = lo.option_id WHERE " .
     "lo.list_id = 'warehouse' AND lo.activity = 1 ORDER BY lo.seq, lo.title",
-    array($drug_id));
-  while ($pwrow = sqlFetchArray($pwres)) {
-      $pwarr[] = $pwrow;
-      echo "     <td valign='top' nowrap>" .
-      text($pwrow['title']) . "</td>\n";
-    }
+    array($drug_id)
+);
+while ($pwrow = sqlFetchArray($pwres)) {
+    $pwarr[] = $pwrow;
+    echo "     <td valign='top' nowrap>" .
+    text($pwrow['title']) . "</td>\n";
+}
 ?>
     </tr>
     <tr>
@@ -486,31 +516,32 @@ foreach ($pwarr as $pwrow) {
   <td>
    <table border='0' width='100%'>
     <tr>
-     <td class='drugsonly'><b><?php echo xlt('Name'    ); ?></b></td>
+     <td class='drugsonly'><b><?php echo xlt('Name'); ?></b></td>
      <td class='drugsonly'><b><?php echo xlt('Schedule'); ?></b></td>
      <td class='drugsonly'><b><?php echo xlt('Interval'); ?></b></td>
-     <td class='drugsonly'><b><?php echo xlt('Qty'     ); ?></b></td>
-     <td class='drugsonly'><b><?php echo xlt('Refills' ); ?></b></td>
+     <td class='drugsonly'><b><?php echo xlt('Qty'); ?></b></td>
+     <td class='drugsonly'><b><?php echo xlt('Refills'); ?></b></td>
 <?php
-  // Show a heading for each price level.  Also create an array of prices
-  // for new template lines.
-  $emptyPrices = array();
-  $pres = sqlStatement("SELECT option_id, title FROM list_options " .
+// Show a heading for each price level.  Also create an array of prices
+// for new template lines.
+$emptyPrices = array();
+$pres = sqlStatement("SELECT option_id, title FROM list_options " .
     "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq");
-  while ($prow = sqlFetchArray($pres)) {
-      $emptyPrices[$prow['option_id']] = '';
-      echo "     <td><b>" .
-      generate_display_field(array('data_type'=>'1','list_id'=>'pricelevel'), $prow['option_id']) .
-      "</b></td>\n";
-    }
-  // Show a heading for each tax rate.
-    $pres = sqlStatement("SELECT option_id, title FROM list_options " .
+while ($prow = sqlFetchArray($pres)) {
+    $emptyPrices[$prow['option_id']] = '';
+    echo "     <td><b>" .
+    generate_display_field(array('data_type'=>'1','list_id'=>'pricelevel'), $prow['option_id']) .
+    "</b></td>\n";
+}
+
+// Show a heading for each tax rate.
+$pres = sqlStatement("SELECT option_id, title FROM list_options " .
     "WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq");
-    while ($prow = sqlFetchArray($pres)) {
-        echo "     <td><b>" .
-         generate_display_field(array('data_type'=>'1','list_id'=>'taxrate'), $prow['option_id']) .
-         "</b></td>\n";
-    }
+while ($prow = sqlFetchArray($pres)) {
+    echo "     <td><b>" .
+        generate_display_field(array('data_type'=>'1','list_id'=>'taxrate'), $prow['option_id']) .
+        "</b></td>\n";
+}
 ?>
     </tr>
 <?php
@@ -521,19 +552,30 @@ if ($tres) {
         $selector = $trow['selector'];
       // Get array of prices.
         $prices = array();
-        $pres = sqlStatement("SELECT lo.option_id, p.pr_price " .
-        "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
-        "p.pr_id = ? AND p.pr_selector = ? AND " .
-        "p.pr_level = lo.option_id " .
-        "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq",
-        array($drug_id, $selector));
+        $pres = sqlStatement(
+            "SELECT lo.option_id, p.pr_price " .
+            "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
+            "p.pr_id = ? AND p.pr_selector = ? AND " .
+            "p.pr_level = lo.option_id " .
+            "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq",
+            array($drug_id, $selector)
+        );
         while ($prow = sqlFetchArray($pres)) {
             $prices[$prow['option_id']] = $prow['pr_price'];
         }
-        writeTemplateLine($selector, $trow['dosage'], $trow['period'],
-        $trow['quantity'], $trow['refills'], $prices, $trow['taxrates']);
+
+        writeTemplateLine(
+            $selector,
+            $trow['dosage'],
+            $trow['period'],
+            $trow['quantity'],
+            $trow['refills'],
+            $prices,
+            $trow['taxrates']
+        );
     }
 }
+
 for ($i = 0; $i < $blank_lines; ++$i) {
     $selector = $GLOBALS['sell_non_drug_products'] == 2 ? $row['name'] : '';
     writeTemplateLine($selector, '', '', '', '', $emptyPrices, '');

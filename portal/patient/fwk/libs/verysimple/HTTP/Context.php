@@ -14,7 +14,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class Context {
+class Context
+{
     public $GUID;
     
     /**
@@ -22,8 +23,8 @@ class Context {
      */
     public function __construct()
     {
-        if (session_id () == '') {
-            @session_start ();
+        if (session_id() == '') {
+            @session_start();
         }
     }
     
@@ -38,7 +39,7 @@ class Context {
      */
     public function Get($var, $default = null)
     {
-        return (isset ( $_SESSION [$this->GUID . "_" . $var] )) ? unserialize ( $_SESSION [$this->GUID . "_" . $var] ) : null;
+        return (isset($_SESSION [$this->GUID . "_" . $var])) ? unserialize($_SESSION [$this->GUID . "_" . $var]) : null;
     }
     
     /**
@@ -53,8 +54,6 @@ class Context {
      */
     public function Set($var, $val)
     {
-        $_SESSION [$this->GUID . "_" . $var] = serialize ( $val );
+        $_SESSION [$this->GUID . "_" . $var] = serialize($val);
     }
 }
-
-?>

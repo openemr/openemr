@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-abstract class RuleCriteriaFactory {
+abstract class RuleCriteriaFactory
+{
 
     var $strategyMap;
     function __construct()
@@ -31,13 +32,13 @@ abstract class RuleCriteriaFactory {
         $this->strategyMap[ RuleCriteriaType::custom_bucket ] = new RuleCriteriaDatabaseBuilder();
     }
 
-    function resolveCriteriaType( $method, $methodDetail, $ruleValue)
+    function resolveCriteriaType($method, $methodDetail, $ruleValue)
     {
         $strategyMap = $this->getStrategyMap();
         $criteriaType = null;
-        foreach( $strategyMap as $key=>$value ) {
+        foreach ($strategyMap as $key => $value) {
             $criteriaType = $value->resolveRuleCriteriaType($method, $methodDetail, $ruleValue);
-            if ( $criteriaType != null ) {
+            if ($criteriaType != null) {
                 return $criteriaType;
             }
         }
@@ -59,21 +60,22 @@ abstract class RuleCriteriaFactory {
     ) {
         
         $criteriaType = $this->resolveCriteriaType($method, $methodDetail, $value);
-        if ( $criteriaType == null ) {
+        if ($criteriaType == null) {
             // could not resolve a criteria
             return null;
         }
 
-        $builder = $this->getBuilderFor( $criteriaType );
-        if ( is_null( $builder ) ) {
+        $builder = $this->getBuilderFor($criteriaType);
+        if (is_null($builder)) {
             // if no builder, then its an unrecognized critiera
             return null;
         }
 
-        $criteria = $builder->build( $criteriaType, $value, $methodDetail );
-        if ( is_null( $criteria ) ) {
+        $criteria = $builder->build($criteriaType, $value, $methodDetail);
+        if (is_null($criteria)) {
             return null;
         }
+
         $criteria->inclusion = $inclusion;
         $criteria->optional = $optional;
         $criteria->guid = $guid;
@@ -91,16 +93,17 @@ abstract class RuleCriteriaFactory {
     function buildNewInstance($ruleId, $criteriaType)
     {
         $strategyMap = $this->getStrategyMap();
-        $builder = $this->getBuilderFor( $criteriaType );
-        if ( is_null( $builder ) ) {
+        $builder = $this->getBuilderFor($criteriaType);
+        if (is_null($builder)) {
             // if no builder, then its an unrecognized critiera
             return null;
         }
 
-        $criteria = $builder->newInstance( $criteriaType );
-        if ( is_null( $criteria ) ) {
+        $criteria = $builder->newInstance($criteriaType);
+        if (is_null($criteria)) {
             return null;
         }
+
         $criteria->criteriaType = $criteriaType;
 
         return $criteria;
@@ -116,7 +119,7 @@ abstract class RuleCriteriaFactory {
      * @param RuleCriteriaType $criteriaType
      * @return RuleCriteria
      */
-    function getBuilderFor( $criteriaType )
+    function getBuilderFor($criteriaType)
     {
         $map = $this->getStrategyMap();
         return $map[ $criteriaType->code ];
@@ -124,4 +127,3 @@ abstract class RuleCriteriaFactory {
 
     abstract function modify($criteria, $ruleId);
 }
-?>

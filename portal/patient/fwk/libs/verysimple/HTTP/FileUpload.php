@@ -13,7 +13,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class FileUpload {
+class FileUpload
+{
     public $Name;
     public $Size;
     public $Type;
@@ -28,7 +29,7 @@ class FileUpload {
      */
     public function ToXML($base64 = true)
     {
-        return "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n" . "<file>\r\n" . "<name>" . $this->Name . "</name>\r\n" . "<size>" . $this->Size . "</size>\r\n" . "<type>" . $this->Type . "</type>\r\n" . "<Extension>" . $this->Extension . "</Extension>\r\n" . "<encoding>" . ($base64 ? "base64" : "none") . "</encoding>\r\n" . "<data>" . ($base64 ? base64_encode ( $this->Data ) : $this->Data) . "</data>\r\n" . "</file>";
+        return "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n" . "<file>\r\n" . "<name>" . $this->Name . "</name>\r\n" . "<size>" . $this->Size . "</size>\r\n" . "<type>" . $this->Type . "</type>\r\n" . "<Extension>" . $this->Extension . "</Extension>\r\n" . "<encoding>" . ($base64 ? "base64" : "none") . "</encoding>\r\n" . "<data>" . ($base64 ? base64_encode($this->Data) : $this->Data) . "</data>\r\n" . "</file>";
     }
     
     /**
@@ -38,10 +39,10 @@ class FileUpload {
      */
     public function FromXML($xml)
     {
-        $sxo = new SimpleXMLElement ( $xml );
+        $sxo = new SimpleXMLElement($xml);
         
         if ($sxo->encoding == "base64") {
-            $this->Data = base64_decode ( $sxo->data );
+            $this->Data = base64_decode($sxo->data);
         } else {
             $this->Data = $sxo->data;
         }
@@ -67,12 +68,12 @@ class FileUpload {
         $name = $alternate_name ? $alternate_name : $this->Name;
         
         $fullpath = $path . $name;
-        $handle = fopen ( $fullpath, "w" );
-        fwrite ( $handle, $this->Data );
-        fclose ( $handle );
+        $handle = fopen($fullpath, "w");
+        fwrite($handle, $this->Data);
+        fclose($handle);
         
-        if ($chmod)
-            @chmod ( $fullpath, 0666 );
+        if ($chmod) {
+            @chmod($fullpath, 0666);
+        }
     }
 }
-?>

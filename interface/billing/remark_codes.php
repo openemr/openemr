@@ -594,4 +594,3 @@ $remark_codes = array(
  'N368' => 'You must appeal the determination of the previously ajudicated claim.',
  'N369' => 'Alert: Although this claim has been processed, it is deficient according to state legislation/regulation.',
 );
-?>

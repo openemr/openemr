@@ -14,7 +14,8 @@ namespace OpenEMR;
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  * @copyright Copyright (c) 2017 Matthew Vita
  */
-class Checker {
+class Checker
+{
     private static $minimumPhpVersion = "5.6.0";
 
     private static function xlDelegate($value)

@@ -13,7 +13,8 @@ require_once "verysimple/String/VerySimpleStringUtil.php";
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class OAuthUtil {
+class OAuthUtil
+{
     
     /**
      * Given a URL return an OAuth signed URL.
@@ -42,21 +43,19 @@ class OAuthUtil {
         );
         $params = $params ? $params : array ();
         
-        OAuthStore::instance ( "2Leg", $options );
+        OAuthStore::instance("2Leg", $options);
         
         // Obtain a request object for the request we want to make
-        $request = new OAuthRequester ( $url, $method, $params, $body );
+        $request = new OAuthRequester($url, $method, $params, $body);
         
-        $sig = $request->sign ( $key, null, '' );
+        $sig = $request->sign($key, null, '');
         
-        $data = $request->signatureBaseString ();
+        $data = $request->signatureBaseString();
         
-        $url = substr ( urldecode ( $data . '&oauth_signature=' . $request->calculateDataSignature ( $data, $secret, '', $signature_method ) ), strlen ( $method ) + 1 );
+        $url = substr(urldecode($data . '&oauth_signature=' . $request->calculateDataSignature($data, $secret, '', $signature_method)), strlen($method) + 1);
         
-        $url = VerySimpleStringUtil::ReplaceFirst ( '&', '?', $url );
+        $url = VerySimpleStringUtil::ReplaceFirst('&', '?', $url);
         
         return $url;
     }
 }
-
-?>

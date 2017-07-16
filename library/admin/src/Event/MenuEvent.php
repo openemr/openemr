@@ -8,7 +8,6 @@
 
 namespace OpenEMR\Admin\Event;
 
-
 use Symfony\Component\EventDispatcher\Event;
 
 /**

@@ -34,12 +34,14 @@ use Doctrine\ORM\Mapping\GeneratedValue;
  * @Table(name="onotes")
  * @Entity(repositoryClass="repositories\ONoteRepository")
  */
-class ONote {
+class ONote
+{
     /**
      * Default constructor.
      */
     public function __construct()
-    {}
+    {
+    }
 
     /**
      * @Id

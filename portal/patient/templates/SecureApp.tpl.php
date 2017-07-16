@@ -22,7 +22,7 @@
  */
 
     $this->assign('title', xlt("Patient Portal Secure"));
-    $this->assign('nav','secureapp');
+    $this->assign('nav', 'secureapp');
 
     $this->display('_Header.tpl.php');
 ?>

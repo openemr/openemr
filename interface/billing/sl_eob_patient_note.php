@@ -31,12 +31,14 @@
 <head>
 <?php html_header_show();?>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-<title><?php xl('EOB Posting - Patient Note','e')?></title>
+<title><?php xl('EOB Posting - Patient Note', 'e')?></title>
 </head>
 <body>
 <?php
   $patient_id = $_GET['patient_id'];
-  if (! $patient_id) die(xl("You cannot access this page directly."));
+if (! $patient_id) {
+    die(xl("You cannot access this page directly."));
+}
 
 if ($_POST['form_save']) {
     $thevalue = trim($_POST['form_note']);
@@ -46,7 +48,10 @@ if ($_POST['form_save']) {
     "WHERE pid = ? ", array($thevalue, $patient_id));
 
     echo "<script language='JavaScript'>\n";
-    if ($info_msg) echo " alert('$info_msg');\n";
+    if ($info_msg) {
+        echo " alert('$info_msg');\n";
+    }
+
     echo " window.close();\n";
     echo "</script></body></html>\n";
     exit();
@@ -68,9 +73,9 @@ if ($_POST['form_save']) {
 </p>
 
 <p>&nbsp;</p>
-<input type='submit' name='form_save' value='<?php xl("Save","e")?>'>
+<input type='submit' name='form_save' value='<?php xl("Save", "e")?>'>
 &nbsp;
-<input type='button' value='<?php xl("Cancel","e")?>' onclick='window.close()'>
+<input type='button' value='<?php xl("Cancel", "e")?>' onclick='window.close()'>
 
 </form>
 </center>

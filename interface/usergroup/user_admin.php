@@ -18,12 +18,15 @@ use OpenEMR\Menu\MainMenuRole;
 
 $facilityService = new \services\FacilityService();
 
-if (!$_GET["id"] || !acl_check('admin', 'users'))
-  exit();
+if (!$_GET["id"] || !acl_check('admin', 'users')) {
+    exit();
+}
 
-$res = sqlStatement("select * from users where id=?",array($_GET["id"]));
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+$res = sqlStatement("select * from users where id=?", array($_GET["id"]));
+for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                 $result[$iter] = $row;
+}
+
 $iter = $result[0];
 
 ?>
@@ -48,8 +51,7 @@ $iter = $result[0];
 $collectthis = collectValidationPageRules("/interface/usergroup/user_admin.php");
 if (empty($collectthis)) {
     $collectthis = "undefined";
-}
-else {
+} else {
     $collectthis = $collectthis["user_form"]["rules"];
 }
 ?>
@@ -73,7 +75,7 @@ function submitform() {
 
     top.restoreSession();
     var flag=0;
-    <?php if(!$GLOBALS['use_active_directory']){ ?>
+    <?php if (!$GLOBALS['use_active_directory']) { ?>
     if(document.forms[0].clearPass.value!="")
     {
         //Checking for the strong password if the 'secure password' feature is enabled
@@ -110,7 +112,7 @@ function submitform() {
         if((document.forms[0].user_type.value != "Emergency Login") && (document.forms[0].pre_active.value == 0) && (document.forms[0].active.checked == 1) && (document.forms[0].grace_time.value != "") && (document.forms[0].current_date.value) > (document.forms[0].grace_time.value))
         {
             flag=1;
-            document.getElementById('error_message').innerHTML="<?php xl('Please reset the password.','e') ?>";
+            document.getElementById('error_message').innerHTML="<?php xl('Please reset the password.', 'e') ?>";
         }
     }
 
@@ -123,7 +125,7 @@ function submitform() {
     }
   }
 
-        <?php if($GLOBALS['erx_enable']){ ?>
+        <?php if ($GLOBALS['erx_enable']) { ?>
     alertMsg='';
     f=document.forms[0];
     for(i=0;i<f.length;i++){
@@ -198,10 +200,10 @@ function authorized_clicked() {
 </head>
 <body class="body_top">
 <table><tr><td>
-<span class="title"><?php xl('Edit User','e'); ?></span>&nbsp;
+<span class="title"><?php xl('Edit User', 'e'); ?></span>&nbsp;
 </td><td>
-    <a class="css_button" name='form_save' id='form_save' href='#' onclick='return submitform()'> <span><?php xl('Save','e');?></span> </a>
-    <a class="css_button" id='cancel' href='#'><span><?php xl('Cancel','e');?></span></a>
+    <a class="css_button" name='form_save' id='form_save' href='#' onclick='return submitform()'> <span><?php xl('Save', 'e');?></span> </a>
+    <a class="css_button" id='cancel' href='#'><span><?php xl('Cancel', 'e');?></span></a>
 </td></tr>
 </table>
 <br>
@@ -217,8 +219,7 @@ function authorized_clicked() {
 //Calculating the grace time
 $current_date = date("Y-m-d");
 $password_exp=$iter["pwd_expiration_date"];
-if($password_exp != "0000-00-00")
-  {
+if ($password_exp != "0000-00-00") {
     $grace_time1 = date("Y-m-d", strtotime($password_exp . "+".$GLOBALS['password_grace_time'] ."days"));
 }
 ?>
@@ -229,62 +230,76 @@ if($password_exp != "0000-00-00")
 $acl_name=acl_get_group_titles($iter["username"]);
 $bg_name='';
 $bg_count=count($acl_name);
-for($i=0;$i<$bg_count;$i++){
-    if($acl_name[$i] == "Emergency Login")
-    $bg_name=$acl_name[$i];
+for ($i=0; $i<$bg_count; $i++) {
+    if ($acl_name[$i] == "Emergency Login") {
+        $bg_name=$acl_name[$i];
+    }
 }
 ?>
 <input type=hidden name="user_type" value="<?php echo $bg_name; ?>" >
 
 <TABLE border=0 cellpadding=0 cellspacing=0>
 <TR>
-    <TD style="width:180px;"><span class=text><?php xl('Username','e'); ?>: </span></TD>
+    <TD style="width:180px;"><span class=text><?php xl('Username', 'e'); ?>: </span></TD>
     <TD style="width:270px;"><input type=entry name=username style="width:150px;" value="<?php echo $iter["username"]; ?>" disabled></td>
-    <?php if(!$GLOBALS['use_active_directory']){ ?>
-        <TD style="width:200px;"><span class=text><?php xl('Your Password','e'); ?>: </span></TD>
+    <?php if (!$GLOBALS['use_active_directory']) { ?>
+        <TD style="width:200px;"><span class=text><?php xl('Your Password', 'e'); ?>: </span></TD>
         <TD class='text' style="width:280px;"><input type='password' name=adminPass style="width:150px;"  value="" autocomplete='off'><font class="mandatory">*</font></TD>
     <?php } ?>
 </TR>
-    <?php if(!$GLOBALS['use_active_directory']){ ?>
+    <?php if (!$GLOBALS['use_active_directory']) { ?>
 <TR>
     <TD style="width:180px;"><span class=text></span></TD>
     <TD style="width:270px;"></td>
-    <TD style="width:200px;"><span class=text><?php xl('User\'s New Password','e'); ?>: </span></TD>
+    <TD style="width:200px;"><span class=text><?php xl('User\'s New Password', 'e'); ?>: </span></TD>
     <TD class='text' style="width:280px;">    <input type=text name=clearPass style="width:150px;"  value=""><font class="mandatory">*</font></td>
 </TR>
     <?php } ?>
 
 <TR height="30" style="valign:middle;">
 <td><span class="text">&nbsp;</span></td><td>&nbsp;</td>
-<td colspan="2"><span class=text><?php xl('Provider','e'); ?>:
+<td colspan="2"><span class=text><?php xl('Provider', 'e'); ?>:
  <input type="checkbox" name="authorized" onclick="authorized_clicked()"<?php
-    if ($iter["authorized"]) echo " checked"; ?> />
- &nbsp;&nbsp;<span class='text'><?php xl('Calendar','e'); ?>:
+    if ($iter["authorized"]) {
+        echo " checked";
+    } ?> />
+ &nbsp;&nbsp;<span class='text'><?php xl('Calendar', 'e'); ?>:
  <input type="checkbox" name="calendar"<?php
-    if ($iter["calendar"]) echo " checked";
-    if (!$iter["authorized"]) echo " disabled"; ?> />
- &nbsp;&nbsp;<span class='text'><?php xl('Active','e'); ?>:
- <input type="checkbox" name="active"<?php if ($iter["active"]) echo " checked"; ?> />
+    if ($iter["calendar"]) {
+        echo " checked";
+    }
+
+    if (!$iter["authorized"]) {
+        echo " disabled";
+    } ?> />
+ &nbsp;&nbsp;<span class='text'><?php xl('Active', 'e'); ?>:
+ <input type="checkbox" name="active"<?php if ($iter["active"]) {
+        echo " checked";
+} ?> />
 </TD>
 </TR>
 
 <TR>
-<TD><span class=text><?php xl('First Name','e'); ?>: </span></TD>
+<TD><span class=text><?php xl('First Name', 'e'); ?>: </span></TD>
 <TD><input type=entry name=fname id=fname style="width:150px;" value="<?php echo $iter["fname"]; ?>"><span class="mandatory">&nbsp;*</span></td>
-<td><span class=text><?php xl('Middle Name','e'); ?>: </span></TD><td><input type=entry name=mname style="width:150px;"  value="<?php echo $iter["mname"]; ?>"></td>
+<td><span class=text><?php xl('Middle Name', 'e'); ?>: </span></TD><td><input type=entry name=mname style="width:150px;"  value="<?php echo $iter["mname"]; ?>"></td>
 </TR>
 
 <TR>
-<td><span class=text><?php xl('Last Name','e'); ?>: </span></td><td><input type=entry name=lname id=lname style="width:150px;"  value="<?php echo $iter["lname"]; ?>"><span class="mandatory">&nbsp;*</span></td>
-<td><span class=text><?php xl('Default Facility','e'); ?>: </span></td><td><select name=facility_id style="width:150px;" >
+<td><span class=text><?php xl('Last Name', 'e'); ?>: </span></td><td><input type=entry name=lname id=lname style="width:150px;"  value="<?php echo $iter["lname"]; ?>"><span class="mandatory">&nbsp;*</span></td>
+<td><span class=text><?php xl('Default Facility', 'e'); ?>: </span></td><td><select name=facility_id style="width:150px;" >
 <?php
 $fres = $facilityService->getAllBillingLocations();
 if ($fres) {
-    for ($iter2 = 0; $iter2 < sizeof($fres); $iter2++)
+    for ($iter2 = 0; $iter2 < sizeof($fres); $iter2++) {
                 $result[$iter2] = $fres[$iter2];
-    foreach($result as $iter2) {
+    }
+
+    foreach ($result as $iter2) {
         ?>
-          <option value="<?php echo $iter2['id']; ?>" <?php if ($iter['facility_id'] == $iter2['id']) echo "selected"; ?>><?php echo htmlspecialchars($iter2['name']); ?></option>
+          <option value="<?php echo $iter2['id']; ?>" <?php if ($iter['facility_id'] == $iter2['id']) {
+                echo "selected";
+} ?>><?php echo htmlspecialchars($iter2['name']); ?></option>
 <?php
     }
 }
@@ -301,16 +316,18 @@ if ($fres) {
 <?php
   $userFacilities = getUserFacilities($_GET['id']);
   $ufid = array();
-  foreach($userFacilities as $uf)
+foreach ($userFacilities as $uf) {
     $ufid[] = $uf['id'];
+}
+
   $fres = $facilityService->getAllServiceLocations();
 if ($fres) {
-    foreach($fres as $frow):
+    foreach ($fres as $frow) :
 ?>
    <option <?php echo in_array($frow['id'], $ufid) || $frow['id'] == $iter['facility_id'] ? "selected" : null ?>
       value="<?php echo $frow['id'] ?>"><?php echo htmlspecialchars($frow['name']) ?></option>
 <?php
-endforeach;
+    endforeach;
 }
 ?>
   </select>
@@ -319,19 +336,21 @@ endforeach;
 <?php } ?>
 
 <TR>
-<TD><span class=text><?php xl('Federal Tax ID','e'); ?>: </span></TD><TD><input type=text name=taxid style="width:150px;"  value="<?php echo $iter["federaltaxid"]?>"></td>
-<TD><span class=text><?php xl('Federal Drug ID','e'); ?>: </span></TD><TD><input type=text name=drugid style="width:150px;"  value="<?php echo $iter["federaldrugid"]?>"></td>
+<TD><span class=text><?php xl('Federal Tax ID', 'e'); ?>: </span></TD><TD><input type=text name=taxid style="width:150px;"  value="<?php echo $iter["federaltaxid"]?>"></td>
+<TD><span class=text><?php xl('Federal Drug ID', 'e'); ?>: </span></TD><TD><input type=text name=drugid style="width:150px;"  value="<?php echo $iter["federaldrugid"]?>"></td>
 </TR>
 
 <tr>
-<td><span class="text"><?php xl('UPIN','e'); ?>: </span></td><td><input type="text" name="upin" style="width:150px;" value="<?php echo $iter["upin"]?>"></td>
-<td class='text'><?php xl('See Authorizations','e'); ?>: </td>
+<td><span class="text"><?php xl('UPIN', 'e'); ?>: </span></td><td><input type="text" name="upin" style="width:150px;" value="<?php echo $iter["upin"]?>"></td>
+<td class='text'><?php xl('See Authorizations', 'e'); ?>: </td>
 <td><select name="see_auth" style="width:150px;" >
 <?php
-foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value)
-{
+foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value) {
     echo " <option value='$key'";
-    if ($key == $iter['see_auth']) echo " selected";
+    if ($key == $iter['see_auth']) {
+        echo " selected";
+    }
+
     echo ">$value</option>\n";
 }
 ?>
@@ -339,27 +358,27 @@ foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key =>
 </tr>
 
 <tr>
-<td><span class="text"><?php xl('NPI','e'); ?>: </span></td><td><input type="text" name="npi" style="width:150px;"  value="<?php echo $iter["npi"]?>"></td>
-<td><span class="text"><?php xl('Job Description','e'); ?>: </span></td><td><input type="text" name="job" style="width:150px;"  value="<?php echo $iter["specialty"]?>"></td>
+<td><span class="text"><?php xl('NPI', 'e'); ?>: </span></td><td><input type="text" name="npi" style="width:150px;"  value="<?php echo $iter["npi"]?>"></td>
+<td><span class="text"><?php xl('Job Description', 'e'); ?>: </span></td><td><input type="text" name="job" style="width:150px;"  value="<?php echo $iter["specialty"]?>"></td>
 </tr>
 
 <tr>
-<td><span class="text"><?php xl('Taxonomy','e'); ?>: </span></td>
+<td><span class="text"><?php xl('Taxonomy', 'e'); ?>: </span></td>
 <td><input type="text" name="taxonomy" style="width:150px;"  value="<?php echo $iter["taxonomy"]?>"></td>
 <td>&nbsp;</td><td>&nbsp;</td></tr>
 
 <tr>
-<td><span class="text"><?php xl('State License Number','e'); ?>: </span></td>
+<td><span class="text"><?php xl('State License Number', 'e'); ?>: </span></td>
 <td><input type="text" name="state_license_number" style="width:150px;"  value="<?php echo $iter["state_license_number"]?>"></td>
-<td class='text'><?php xl('NewCrop eRX Role','e'); ?>:</td>
+<td class='text'><?php xl('NewCrop eRX Role', 'e'); ?>:</td>
 <td>
-    <?php echo generate_select_list("erxrole", "newcrop_erx_role", $iter['newcrop_user_role'],'',xl('Select Role'),'','','',array('style'=>'width:150px')); ?>
+    <?php echo generate_select_list("erxrole", "newcrop_erx_role", $iter['newcrop_user_role'], '', xl('Select Role'), '', '', '', array('style'=>'width:150px')); ?>
 </td>
 </tr>
 
 <tr>
-  <td><span class="text"><?php xl('Provider Type','e'); ?>: </span></td>
-  <td><?php echo generate_select_list("physician_type", "physician_type", $iter['physician_type'],'',xl('Select Type'),'physician_type_class','','',''); ?></td>
+  <td><span class="text"><?php xl('Provider Type', 'e'); ?>: </span></td>
+  <td><?php echo generate_select_list("physician_type", "physician_type", $iter['physician_type'], '', xl('Select Type'), 'physician_type_class', '', '', ''); ?></td>
   <td>
     <span class="text"><?php echo xlt('Main Menu Role'); ?>: </span>
   </td>
@@ -369,18 +388,26 @@ foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key =>
 </tr>
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
 <tr>
- <td class="text"><?php xl('Default Warehouse','e'); ?>: </td>
+ <td class="text"><?php xl('Default Warehouse', 'e'); ?>: </td>
  <td class='text'>
 <?php
-echo generate_select_list('default_warehouse', 'warehouse',
-  $iter['default_warehouse'], '');
+echo generate_select_list(
+    'default_warehouse',
+    'warehouse',
+    $iter['default_warehouse'],
+    ''
+);
 ?>
  </td>
- <td class="text"><?php xl('Invoice Refno Pool','e'); ?>: </td>
+ <td class="text"><?php xl('Invoice Refno Pool', 'e'); ?>: </td>
  <td class='text'>
 <?php
-echo generate_select_list('irnpool', 'irnpool', $iter['irnpool'],
-  xl('Invoice reference number pool, if used'));
+echo generate_select_list(
+    'irnpool',
+    'irnpool',
+    $iter['irnpool'],
+    xl('Invoice reference number pool, if used')
+);
 ?>
  </td>
 </tr>
@@ -391,30 +418,29 @@ echo generate_select_list('irnpool', 'irnpool', $iter['irnpool'],
 if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
 ?>
  <tr>
-<td class='text'><?php xl('Access Control','e'); ?>:</td>
+<td class='text'><?php xl('Access Control', 'e'); ?>:</td>
  <td><select id="access_group_id" name="access_group[]" multiple style="width:150px;" >
 <?php
   $list_acl_groups = acl_get_group_title_list();
   $username_acl_groups = acl_get_group_titles($iter["username"]);
 foreach ($list_acl_groups as $value) {
-    if (($username_acl_groups) && in_array($value,$username_acl_groups)) {
+    if (($username_acl_groups) && in_array($value, $username_acl_groups)) {
         // Modified 6-2009 by BM - Translate group name if applicable
         echo " <option value='$value' selected>" . xl_gacl_group($value) . "</option>\n";
-    }
-    else {
+    } else {
         // Modified 6-2009 by BM - Translate group name if applicable
         echo " <option value='$value'>" . xl_gacl_group($value) . "</option>\n";
     }
 }
     ?>
   </select></td>
-  <td><span class=text><?php xl('Additional Info','e'); ?>:</span></td>
+  <td><span class=text><?php xl('Additional Info', 'e'); ?>:</span></td>
   <td><textarea style="width:150px;" name="comments" wrap=auto rows=4 cols=25><?php echo $iter["info"];?></textarea></td>
 
   </tr>
   <tr height="20" valign="bottom">
   <td colspan="4" class="text">
-  <font class="mandatory">*</font> <?php xl('You must enter your own password to change user passwords. Leave blank to keep password unchanged.','e'); ?>
+  <font class="mandatory">*</font> <?php xl('You must enter your own password to change user passwords. Leave blank to keep password unchanged.', 'e'); ?>
 <!--
 Display red alert if entered password matched one of last three passwords/Display red alert if user password was expired and the user was inactivated previously
 -->

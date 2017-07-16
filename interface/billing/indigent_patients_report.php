@@ -25,6 +25,7 @@
  */
 
 use OpenEMR\Core\Header;
+
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 
@@ -32,7 +33,10 @@ $alertmsg = '';
 
 function bucks($amount)
 {
-    if ($amount) return oeFormatMoney($amount);
+    if ($amount) {
+        return oeFormatMoney($amount);
+    }
+
     return "";
 }
 
@@ -72,7 +76,7 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
 
 <?php Header::setupHeader('datetime-picker'); ?>
 
-<title><?php xl('Indigent Patients Report','e')?></title>
+<title><?php xl('Indigent Patients Report', 'e')?></title>
 
 <script language="JavaScript">
 
@@ -95,7 +99,7 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Indigent Patients','e'); ?></span>
+<span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Indigent Patients', 'e'); ?></span>
 
 <form method='post' action='indigent_patients_report.php' id='theform'>
 
@@ -111,14 +115,14 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
     <table class='text'>
         <tr>
             <td class='control-label'>
-                <?php xl('Visits From','e'); ?>:
+                <?php xl('Visits From', 'e'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_start_date' id="form_start_date" size='10' value='<?php echo $form_start_date ?>'
                 title='yyyy-mm-dd'>
             </td>
             <td class='control-label'>
-                <?php xl('To','e'); ?>:
+                <?php xl('To', 'e'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_end_date' id="form_end_date" size='10' value='<?php echo $form_end_date ?>'
@@ -159,39 +163,39 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
 
  <thead bgcolor="#dddddd">
   <th>
-   &nbsp;<?php xl('Patient','e')?>
+   &nbsp;<?php xl('Patient', 'e')?>
   </th>
   <th>
-   &nbsp;<?php xl('SSN','e')?>
+   &nbsp;<?php xl('SSN', 'e')?>
   </th>
   <th>
-   &nbsp;<?php xl('Invoice','e')?>
+   &nbsp;<?php xl('Invoice', 'e')?>
   </th>
   <th>
-   &nbsp;<?php xl('Svc Date','e')?>
+   &nbsp;<?php xl('Svc Date', 'e')?>
   </th>
   <th>
-   &nbsp;<?php xl('Due Date','e')?>
+   &nbsp;<?php xl('Due Date', 'e')?>
   </th>
   <th align="right">
-    <?php xl('Amount','e')?>&nbsp;
+    <?php xl('Amount', 'e')?>&nbsp;
   </th>
   <th align="right">
-    <?php xl('Paid','e')?>&nbsp;
+    <?php xl('Paid', 'e')?>&nbsp;
   </th>
   <th align="right">
-    <?php xl('Balance','e')?>&nbsp;
+    <?php xl('Balance', 'e')?>&nbsp;
   </th>
  </thead>
 
 <?php
 if ($_POST['form_refresh']) {
-
     $where = "";
 
     if ($form_start_date) {
         $where .= " AND e.date >= '$form_start_date'";
     }
+
     if ($form_end_date) {
         $where .= " AND e.date <= '$form_end_date'";
     }
@@ -201,8 +205,7 @@ if ($_POST['form_refresh']) {
     "FROM form_encounter AS e, patient_data AS p, insurance_data AS i " .
     "WHERE p.pid = e.pid AND i.pid = e.pid AND i.type = 'primary' " .
     "AND i.provider = ''$where " .
-    "ORDER BY p.lname, p.fname, p.mname, p.pid, e.date"
-    );
+    "ORDER BY p.lname, p.fname, p.mname, p.pid, e.date");
 
     $total_amount = 0;
     $total_paid   = 0;
@@ -264,7 +267,7 @@ if ($_POST['form_refresh']) {
 ?>
 <tr bgcolor='#dddddd'>
 <td class="detail">
-&nbsp;<?php xl('Totals','e'); ?>
+&nbsp;<?php xl('Totals', 'e'); ?>
 </td>
 <td class="detail">
  &nbsp;

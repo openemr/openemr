@@ -6,7 +6,7 @@
 /**
  * include required files
  */
-require_once ("SearchRank.php");
+require_once("SearchRank.php");
 
 /**
  * This is a base class for providing SearchEngine functionality
@@ -17,7 +17,8 @@ require_once ("SearchRank.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class SearchEngine {
+class SearchEngine
+{
     protected $Key;
     protected $Pass;
     public $FailedRequests = 0;
@@ -35,7 +36,7 @@ class SearchEngine {
         $this->Key = $key;
         $this->Pass = $pass;
         
-        $this->Init ();
+        $this->Init();
     }
     
     /**
@@ -45,5 +46,3 @@ class SearchEngine {
     {
     }
 }
-
-?>

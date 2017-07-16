@@ -26,7 +26,7 @@ $patdata = sqlQuery("SELECT " .
 
 // re-order the dates
 //
-$today = oeFormatShortDate($date='today');
+$today = oeFormatShortDate($date = 'today');
 $dob = oeFormatShortDate($patdata['DOB']);
 
 //Keep in mind the envelope is shifted by 90 degrees.
@@ -53,9 +53,9 @@ $text1 = sprintf("%s %s\n", $patdata['fname'], $patdata['lname']);
 $text2 = sprintf("%s \n", $patdata['street']);
 $text3 = sprintf("%s , %s %s", $patdata['city'], $patdata['state'], $patdata['postal_code']);
 
-$pdf = new eFPDF('P', 'mm',array($x_width, $y_height)); // set the orentation, unit of measure and size of the page
+$pdf = new eFPDF('P', 'mm', array($x_width, $y_height)); // set the orentation, unit of measure and size of the page
 $pdf->AddPage();
-$pdf->SetFont('Arial','',$font_size);
+$pdf->SetFont('Arial', '', $font_size);
 $pdf->TextWithRotation($x, $y + $yt, $text1, $angle);
 $xt += $xt;
 $pdf->TextWithRotation($x + $xt, $y + $yt, $text2, $angle);

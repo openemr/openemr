@@ -24,22 +24,22 @@
 namespace SMA_Common;
 
  session_start();
-if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ) {
+if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
-    require_once ( dirname( __FILE__ ) . "/../../interface/globals.php" );
+    require_once(dirname(__FILE__) . "/../../interface/globals.php");
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $_SESSION['pid']);
-}
-else {
+} else {
     session_destroy();
     $ignoreAuth = false;
-    require_once ( dirname( __FILE__ ) . "/../../interface/globals.php" );
-    if ( ! isset($_SESSION['authUserID']) ){
+    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    if (! isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
         header('Location: '.$landingpage);
         exit;
     }
+
     define('IS_DASHBOARD', $_SESSION['authUserID']);
     define('IS_PORTAL', false);
     $_SERVER[REMOTE_ADDR] = 'admin::' . $_SERVER[REMOTE_ADDR];
@@ -47,13 +47,14 @@ else {
 
 define('C_USER', IS_PORTAL ?  IS_PORTAL : IS_DASHBOARD);
 
-if(isset($_REQUEST['fullscreen'])){
+if (isset($_REQUEST['fullscreen'])) {
     $_SESSION['whereto'] = 'messagespanel';
     define('IS_FULLSCREEN', true);
+} else {
+    define('IS_FULLSCREEN', false);
 }
-else define('IS_FULLSCREEN', false);
 
-define('CHAT_HISTORY',      '150');
+define('CHAT_HISTORY', '150');
 define('CHAT_ONLINE_RANGE', '1');
 define('ADMIN_USERNAME_PREFIX', 'adm_');
 
@@ -108,6 +109,7 @@ abstract class Controller
                 call_user_func(array($this, self::ACTION_DEFAULT), array())
             );
         }
+
         return $this->_response;
     }
 
@@ -119,6 +121,7 @@ abstract class Controller
             } else {
                 throw new \Exception('Response content must be scalar');
             }
+
             exit;
         }
     }
@@ -139,11 +142,12 @@ abstract class Controller
             if (is_scalar($params)) {
                 header($params);
             } else {
-                foreach($params as $key => $value) {
+                foreach ($params as $key => $value) {
                     header(sprintf('%s: %s', $key, $value));
                 }
             }
         }
+
         return $this;
     }
 
@@ -174,6 +178,7 @@ abstract class Controller
             return isset($this->_request[$param]) ?
                 $this->_request[$param] : $default;
         }
+
         return $this->_request;
     }
 
@@ -183,6 +188,7 @@ abstract class Controller
             return isset($this->_query[$param]) ?
                 $this->_query[$param] : $default;
         }
+
         return $this->_query;
     }
 
@@ -192,6 +198,7 @@ abstract class Controller
             return isset($this->_post[$param]) ?
                 $this->_post[$param] : $default;
         }
+
         return $this->_post;
     }
 
@@ -201,6 +208,7 @@ abstract class Controller
             return isset($this->_server[$param]) ?
                 $this->_server[$param] : $default;
         }
+
         return $this->_server;
     }
 
@@ -210,6 +218,7 @@ abstract class Controller
             return isset($this->_session[$param]) ?
                 $this->_session[$param] : $default;
         }
+
         return $this->_session;
     }
 
@@ -219,6 +228,7 @@ abstract class Controller
             return isset($this->_cookies[$param]) ?
                 $this->_cookies[$param] : $default;
         }
+
         return $this->_cookies;
     }
 
@@ -253,23 +263,27 @@ abstract class Helper
 }
 
 namespace SMA_Msg;
+
+// @codingStandardsIgnoreStart
 use SMA_Common;
+// @codingStandardsIgnoreEnd
 class Model extends SMA_Common\Model
 {
     public function getAuthUsers()
     {
-        $response = sqlStatementNoLog( "SELECT patient_data.pid as recip_id, Concat_Ws(' ', patient_data.fname, patient_data.lname) as username FROM patient_data WHERE allow_patient_portal = 'YES'" );
+        $response = sqlStatementNoLog("SELECT patient_data.pid as recip_id, Concat_Ws(' ', patient_data.fname, patient_data.lname) as username FROM patient_data WHERE allow_patient_portal = 'YES'");
         $resultpd = array ();
-        while( $row = sqlFetchArray($response) ){
+        while ($row = sqlFetchArray($response)) {
             $resultpd[] = $row;
         }
-        $response = sqlStatementNoLog( "SELECT users.id as recip_id, users.authorized as dash, CONCAT(users.fname,' ',users.lname) as username  FROM users WHERE authorized = 1" );
+
+        $response = sqlStatementNoLog("SELECT users.id as recip_id, users.authorized as dash, CONCAT(users.fname,' ',users.lname) as username  FROM users WHERE authorized = 1");
         $result = array ();
-        while( $row = sqlFetchArray($response) ){
+        while ($row = sqlFetchArray($response)) {
             $result[] = $row;
         }
 
-        return json_encode( array_merge($result,$resultpd) );
+        return json_encode(array_merge($result, $resultpd));
     }
     public function getMessages($limit = CHAT_HISTORY, $reverse = true)
     {
@@ -277,23 +291,27 @@ class Model extends SMA_Common\Model
             ORDER BY `date` DESC LIMIT {$limit}) ORDER BY `date` ASC");
 
         $result = array();
-        while($row = sqlFetchArray($response)) {
-            if(IS_PORTAL){
-                $u = json_decode( $row['recip_id'], true );
-                if(!is_array($u)) continue;
-                if( (in_array(C_USER,$u)) || $row['sender_id'] == C_USER ){
+        while ($row = sqlFetchArray($response)) {
+            if (IS_PORTAL) {
+                $u = json_decode($row['recip_id'], true);
+                if (!is_array($u)) {
+                    continue;
+                }
+
+                if ((in_array(C_USER, $u)) || $row['sender_id'] == C_USER) {
                      $result[] = $row; // only current patient messages
                 }
+            } else {
+                $result[] = $row; // admin gets all
             }
-            else $result[] = $row; // admin gets all
         }
 
         return $result;
     }
 
-    public function addMessage($username, $message, $ip, $senderid=0, $recipid='')
+    public function addMessage($username, $message, $ip, $senderid = 0, $recipid = '')
     {
-        return sqlQueryNoLog("INSERT INTO onsite_messages VALUES (NULL, ?, ?, ?, NOW(), ?, ?)", array($username,$message,$ip,$senderid,$recipid) );
+        return sqlQueryNoLog("INSERT INTO onsite_messages VALUES (NULL, ?, ?, ?, NOW(), ?, ?)", array($username,$message,$ip,$senderid,$recipid));
     }
 
     public function removeMessages()
@@ -315,19 +333,20 @@ class Model extends SMA_Common\Model
             $response = sqlStatementNoLog("SELECT count(*) as total FROM onsite_online");
             return sqlFetchArray($response);
         }
+
         $response = sqlStatementNoLog("SELECT * FROM onsite_online");
         $result = array();
-        while($row = sqlFetchArray($response)) {
+        while ($row = sqlFetchArray($response)) {
             $result[] = $row;
         }
 
         return $result;
     }
 
-    public function updateOnline($hash, $ip, $username='', $userid=0)
+    public function updateOnline($hash, $ip, $username = '', $userid = 0)
     {
         return sqlStatementNoLog("REPLACE INTO onsite_online
-            VALUES ( ?, ?, NOW(), ?, ? )", array($hash, $ip, $username, $userid) ) or die(mysql_error());
+            VALUES ( ?, ?, NOW(), ?, ? )", array($hash, $ip, $username, $userid)) or die(mysql_error());
     }
 
     public function clearOffline($timeRange = CHAT_ONLINE_RANGE)
@@ -338,9 +357,7 @@ class Model extends SMA_Common\Model
 
     public function __destruct()
     {
-
     }
-
 }
 
 class Controller extends SMA_Common\Controller
@@ -364,9 +381,10 @@ class Controller extends SMA_Common\Controller
     {
         $this->setHeader(array('Content-Type' => 'application/json'));
         $messages = $this->getModel()->getMessages();
-        foreach($messages as &$message) {
+        foreach ($messages as &$message) {
             $message['me'] = C_USER === $message['sender_id']; // $this->getServer('REMOTE_ADDR') === $message['ip'];
         }
+
         return json_encode($messages);
     }
 
@@ -378,10 +396,11 @@ class Controller extends SMA_Common\Controller
         $this->setCookie('username', $username, 9999 * 9999);
         $recipid = $this->getPost('recip_id');
 
-        if(IS_PORTAL)
+        if (IS_PORTAL) {
             $senderid = IS_PORTAL;
-        else
-                $senderid = IS_DASHBOARD;
+        } else {
+            $senderid = IS_DASHBOARD;
+        }
 
         $result = array('success' => false);
         if ($username && $message) {
@@ -407,16 +426,18 @@ class Controller extends SMA_Common\Controller
 
     private function _parseAdminCommand($message)
     {
-        if (strpos($message,'/clear') !== false) {
+        if (strpos($message, '/clear') !== false) {
             $this->getModel()->removeMessages();
             return true;
         }
-        if (strpos($message,'/online') !== false) {
+
+        if (strpos($message, '/online') !== false) {
             $online = $this->getModel()->getOnline(false);
             $ipArr = array();
             foreach ($online as $item) {
                 $ipArr[] = $item->ip;
             }
+
             $message = 'Online: ' . implode(", ", $ipArr);
             $this->getModel()->addMessage('Admin Command', $message, '0.0.0.0');
             return true;
@@ -436,16 +457,19 @@ class Controller extends SMA_Common\Controller
     {
         $ip = $this->getServer('REMOTE_ADDR');
         $hash = $this->_getMyUniqueHash();
-        $user = $this->getRequest('username','No Username');
-        if( $user == 'currentol' ){
+        $user = $this->getRequest('username', 'No Username');
+        if ($user == 'currentol') {
             $onlines = $this->getModel()->getOnline(false);
             $this->setHeader(array('Content-Type' => 'application/json'));
             return json_encode($onlines);
         }
-        if(IS_PORTAL)
+
+        if (IS_PORTAL) {
             $userid = IS_PORTAL;
-        else
+        } else {
             $userid = IS_DASHBOARD;
+        }
+
         $this->getModel()->updateOnline($hash, $ip, $user, $userid);
         $this->getModel()->clearOffline();
        // $this->getModel()->removeOldMessages(); // @todo For soft delete when I decide. DO NOT REMOVE

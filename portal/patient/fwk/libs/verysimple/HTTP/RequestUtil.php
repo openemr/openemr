@@ -16,7 +16,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.4
  */
-class RequestUtil {
+class RequestUtil
+{
     
     /** @var bool set to true and all non-ascii characters in request variables will be html encoded */
     static $ENCODE_NON_ASCII = false;
@@ -46,14 +47,22 @@ class RequestUtil {
      */
     static function GetRemoteHost()
     {
-        if (array_key_exists ( 'HTTP_X_CLUSTER_CLIENT_IP', $_SERVER ))
+        if (array_key_exists('HTTP_X_CLUSTER_CLIENT_IP', $_SERVER)) {
             return $_SERVER ['HTTP_X_CLUSTER_CLIENT_IP'];
-        if (array_key_exists ( 'HTTP_X_FORWARDED_FOR', $_SERVER ))
+        }
+
+        if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)) {
             return $_SERVER ['HTTP_X_FORWARDED_FOR'];
-        if (array_key_exists ( 'X_FORWARDED_FOR', $_SERVER ))
+        }
+
+        if (array_key_exists('X_FORWARDED_FOR', $_SERVER)) {
             return $_SERVER ['X_FORWARDED_FOR'];
-        if (array_key_exists ( 'REMOTE_ADDR', $_SERVER ))
+        }
+
+        if (array_key_exists('REMOTE_ADDR', $_SERVER)) {
             return $_SERVER ['REMOTE_ADDR'];
+        }
+
         return "0.0.0.0";
     }
     
@@ -62,7 +71,7 @@ class RequestUtil {
      */
     static function IsSSL()
     {
-        return isset ( $_SERVER ['HTTPS'] ) && $_SERVER ['HTTPS'] != "" && $_SERVER ['HTTPS'] != "off";
+        return isset($_SERVER ['HTTPS']) && $_SERVER ['HTTPS'] != "" && $_SERVER ['HTTPS'] != "off";
     }
     
     /**
@@ -74,17 +83,17 @@ class RequestUtil {
     public static function NormalizeUrlRewrite()
     {
         $uri = array ();
-        if (isset ( $_SERVER ["REQUEST_URI"] )) {
-            $uri = parse_url ( $_SERVER ["REQUEST_URI"] );
-        } elseif (isset ( $_SERVER ["QUERY_STRING"] )) {
+        if (isset($_SERVER ["REQUEST_URI"])) {
+            $uri = parse_url($_SERVER ["REQUEST_URI"]);
+        } elseif (isset($_SERVER ["QUERY_STRING"])) {
             $uri ['query'] = $_SERVER ["QUERY_STRING"];
         }
         
-        if (isset ( $uri ['query'] )) {
-            $parts = explode ( "&", $uri ['query'] );
-            foreach ( $parts as $part ) {
-                $keyval = explode ( "=", $part, 2 );
-                $_REQUEST [$keyval [0]] = isset ( $keyval [1] ) ? urldecode ( $keyval [1] ) : "";
+        if (isset($uri ['query'])) {
+            $parts = explode("&", $uri ['query']);
+            foreach ($parts as $part) {
+                $keyval = explode("=", $part, 2);
+                $_REQUEST [$keyval [0]] = isset($keyval [1]) ? urldecode($keyval [1]) : "";
             }
         }
     }
@@ -96,10 +105,12 @@ class RequestUtil {
      */
     public static function GetServerRootUrl()
     {
-        $url = self::GetCurrentURL ( false );
-        $parts = explode ( '/', $url );
-        if (count ( $parts ) < 2)
-            throw new Exception ( 'RequestUtil is unable to determine the server root' );
+        $url = self::GetCurrentURL(false);
+        $parts = explode('/', $url);
+        if (count($parts) < 2) {
+            throw new Exception('RequestUtil is unable to determine the server root');
+        }
+
         return $parts [0] . '//' . $parts [2] . '/';
     }
     
@@ -112,9 +123,9 @@ class RequestUtil {
      */
     public static function GetBaseURL()
     {
-        $url = self::GetCurrentURL ( false );
-        $slash = strripos ( $url, "/" );
-        return substr ( $url, 0, $slash + 1 );
+        $url = self::GetCurrentURL(false);
+        $slash = strripos($url, "/");
+        return substr($url, 0, $slash + 1);
     }
     
     /**
@@ -127,23 +138,24 @@ class RequestUtil {
      */
     public static function GetUrlParts($appRoot = '')
     {
-        $urlqs = explode ( "?", self::GetCurrentURL (), 2 );
+        $urlqs = explode("?", self::GetCurrentURL(), 2);
         $url = $urlqs [0];
         
         // if a root folder was provided, then we need to strip that out as well
-        if ($appRoot)
-            $url = str_replace ( $appRoot . '/', '', $url );
+        if ($appRoot) {
+            $url = str_replace($appRoot . '/', '', $url);
+        }
         
-        $parts = explode ( "/", $url );
+        $parts = explode("/", $url);
         // we only want the parts starting with #3 (after http://server/)
         
-        array_shift ( $parts );
-        array_shift ( $parts );
-        array_shift ( $parts );
+        array_shift($parts);
+        array_shift($parts);
+        array_shift($parts);
         
         // if there is no action specified then we don't want to return an array with an empty string
-        while ( count ( $parts ) && $parts [0] == '' ) {
-            array_shift ( $parts );
+        while (count($parts) && $parts [0] == '') {
+            array_shift($parts);
         }
         
         return $parts;
@@ -163,17 +175,18 @@ class RequestUtil {
      */
     public static function GetMethod($emulateHttpParamName = '_method')
     {
-        if (array_key_exists ( $emulateHttpParamName, $_REQUEST ))
+        if (array_key_exists($emulateHttpParamName, $_REQUEST)) {
             return $_REQUEST [$emulateHttpParamName];
+        }
         
-        $headers = self::GetRequestHeaders ();
+        $headers = self::GetRequestHeaders();
         
         // this is used by backbone
-        if (array_key_exists ( 'X-HTTP-Method-Override', $headers )) {
+        if (array_key_exists('X-HTTP-Method-Override', $headers)) {
             return $headers ['X-HTTP-Method-Override'];
         }
         
-        return array_key_exists ( 'REQUEST_METHOD', $_SERVER ) ? $_SERVER ['REQUEST_METHOD'] : '';
+        return array_key_exists('REQUEST_METHOD', $_SERVER) ? $_SERVER ['REQUEST_METHOD'] : '';
     }
     
     /**
@@ -183,17 +196,19 @@ class RequestUtil {
      */
     public static function GetRequestHeaders()
     {
-        if (function_exists ( 'getallheaders' ))
-            return getallheaders ();
+        if (function_exists('getallheaders')) {
+            return getallheaders();
+        }
         
         $headers = array ();
-        foreach ( $_SERVER as $k => $v ) {
-            if (substr ( $k, 0, 5 ) == "HTTP_") {
-                $k = str_replace ( '_', ' ', substr ( $k, 5 ) );
-                $k = str_replace ( ' ', '-', ucwords ( strtolower ( $k ) ) );
+        foreach ($_SERVER as $k => $v) {
+            if (substr($k, 0, 5) == "HTTP_") {
+                $k = str_replace('_', ' ', substr($k, 5));
+                $k = str_replace(' ', '-', ucwords(strtolower($k)));
                 $headers [$k] = $v;
             }
         }
+
         return $headers;
     }
     
@@ -211,7 +226,7 @@ class RequestUtil {
     public static function GetBody()
     {
         if (! self::$bodyCacheIsReady) {
-            self::$bodyCache = @file_get_contents ( 'php://input' );
+            self::$bodyCache = @file_get_contents('php://input');
             self::$bodyCacheIsReady = true;
         }
         
@@ -242,18 +257,20 @@ class RequestUtil {
     {
         $headers = false;
         
-        if (function_exists ( 'apache_request_headers' ))
-            $headers = apache_request_headers ();
+        if (function_exists('apache_request_headers')) {
+            $headers = apache_request_headers();
+        }
         
         if ($headers === false) {
             // apache_request_headers is not supported in this environment
             
             $headers = array ();
-            foreach ( $_SERVER as $key => $value ) {
-                if (substr ( $key, 0, 5 ) != 'HTTP_') {
+            foreach ($_SERVER as $key => $value) {
+                if (substr($key, 0, 5) != 'HTTP_') {
                     continue;
                 }
-                $header = str_replace ( ' ', '-', ucwords ( str_replace ( '_', ' ', strtolower ( substr ( $key, 5 ) ) ) ) );
+
+                $header = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
                 $headers [$header] = $value;
             }
         }
@@ -272,40 +289,40 @@ class RequestUtil {
      */
     public static function GetCurrentURL($include_querystring = true, $append_post_vars = false)
     {
-        $server_protocol = isset ( $_SERVER ["SERVER_PROTOCOL"] ) ? $_SERVER ["SERVER_PROTOCOL"] : "";
-        $http_host = isset ( $_SERVER ["HTTP_HOST"] ) ? $_SERVER ["HTTP_HOST"] : "";
-        $server_port = isset ( $_SERVER ["SERVER_PORT"] ) ? $_SERVER ["SERVER_PORT"] : "";
+        $server_protocol = isset($_SERVER ["SERVER_PROTOCOL"]) ? $_SERVER ["SERVER_PROTOCOL"] : "";
+        $http_host = isset($_SERVER ["HTTP_HOST"]) ? $_SERVER ["HTTP_HOST"] : "";
+        $server_port = isset($_SERVER ["SERVER_PORT"]) ? $_SERVER ["SERVER_PORT"] : "";
         
-        $protocol = substr ( $server_protocol, 0, strpos ( $server_protocol, "/" ) ) . (isset ( $_SERVER ["HTTPS"] ) && $_SERVER ["HTTPS"] == "on" ? "S" : "");
+        $protocol = substr($server_protocol, 0, strpos($server_protocol, "/")) . (isset($_SERVER ["HTTPS"]) && $_SERVER ["HTTPS"] == "on" ? "S" : "");
         $port = "";
         
-        $domainport = explode ( ":", $http_host );
+        $domainport = explode(":", $http_host);
         $domain = $domainport [0];
         
-        $port = (isset ( $domainport [1] )) ? $domainport [1] : $server_port;
+        $port = (isset($domainport [1])) ? $domainport [1] : $server_port;
         
         // ports 80 and 443 are generally not included in the url
         $port = ($port == "" || $port == "80" || $port == "443") ? "" : (":" . $port);
         
-        if (isset ( $_SERVER ['REQUEST_URI'] )) {
+        if (isset($_SERVER ['REQUEST_URI'])) {
             // REQUEST_URI is more accurate but isn't always defined on windows
             // in particular for the format http://www.domain.com/?var=val
-            $pq = explode ( "?", $_SERVER ['REQUEST_URI'], 2 );
+            $pq = explode("?", $_SERVER ['REQUEST_URI'], 2);
             $path = $pq [0];
-            $qs = isset ( $pq [1] ) ? "?" . $pq [1] : "";
+            $qs = isset($pq [1]) ? "?" . $pq [1] : "";
         } else {
             // otherwise use SCRIPT_NAME & QUERY_STRING
-            $path = isset ( $_SERVER ['SCRIPT_NAME'] ) ? $_SERVER ['SCRIPT_NAME'] : "";
-            $qs = isset ( $_SERVER ['QUERY_STRING'] ) ? "?" . $_SERVER ['QUERY_STRING'] : "";
+            $path = isset($_SERVER ['SCRIPT_NAME']) ? $_SERVER ['SCRIPT_NAME'] : "";
+            $qs = isset($_SERVER ['QUERY_STRING']) ? "?" . $_SERVER ['QUERY_STRING'] : "";
         }
         
         // if we also want the post variables appended we can get them as a querystring from php://input
-        if ($append_post_vars && isset ( $_POST )) {
-            $post = self::GetBody ();
+        if ($append_post_vars && isset($_POST)) {
+            $post = self::GetBody();
             $qs .= $qs ? "&$post" : "?$post";
         }
         
-        $url = strtolower ( $protocol ) . "://" . $domain . $port . $path . ($include_querystring ? $qs : "");
+        $url = strtolower($protocol) . "://" . $domain . $port . $path . ($include_querystring ? $qs : "");
         
         return $url;
     }
@@ -330,13 +347,14 @@ class RequestUtil {
     public static function GetFileUpload($fieldname, $ignore_empty = false, $max_kb = 0, $ok_types = null)
     {
         // make sure there is actually a file upload
-        if (! isset ( $_FILES [$fieldname] )) {
+        if (! isset($_FILES [$fieldname])) {
             // this means the form field wasn't present which is generally an error
             // however if ignore is specified, then return empty string
             if ($ignore_empty) {
                 return null;
             }
-            throw new Exception ( "\$_FILES['" . $fieldname . "'] is empty.  Did you forget to add enctype='multipart/form-data' to your form code?" );
+
+            throw new Exception("\$_FILES['" . $fieldname . "'] is empty.  Did you forget to add enctype='multipart/form-data' to your form code?");
         }
         
         // make sure a file was actually uploaded, otherwise return null
@@ -354,41 +372,42 @@ class RequestUtil {
             $error_codes [2] = "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the html form.";
             $error_codes [3] = "The uploaded file was only partially uploaded.";
             $error_codes [4] = "No file was uploaded.";
-            throw new Exception ( "Error uploading file: " . $error_codes [$upload ['error']] );
+            throw new Exception("Error uploading file: " . $error_codes [$upload ['error']]);
         }
         
         // backwards compatibility
-        if (self::$TestMode)
+        if (self::$TestMode) {
             self::$VALIDATE_FILE_UPLOAD = false;
+        }
             
             // make sure this is a legit file request
-        if (self::$VALIDATE_FILE_UPLOAD && is_uploaded_file ( $upload ['tmp_name'] ) == false) {
-            throw new Exception ( "Unable to access this upload: " . $fieldname );
+        if (self::$VALIDATE_FILE_UPLOAD && is_uploaded_file($upload ['tmp_name']) == false) {
+            throw new Exception("Unable to access this upload: " . $fieldname);
         }
         
         // get the filename and Extension
         $tmp_path = $upload ['tmp_name'];
-        $info = pathinfo ( $upload ['name'] );
+        $info = pathinfo($upload ['name']);
         
-        require_once ("FileUpload.php");
-        $fupload = new FileUpload ();
+        require_once("FileUpload.php");
+        $fupload = new FileUpload();
         $fupload->Name = $info ['basename'];
         $fupload->Size = $upload ['size'];
         $fupload->Type = $upload ['type'];
-        $fupload->Extension = strtolower ( $info ['extension'] );
+        $fupload->Extension = strtolower($info ['extension']);
         
-        if ($ok_types && ! in_array ( $fupload->Extension, $ok_types )) {
-            throw new Exception ( "The file '" . htmlentities ( $fupload->Name ) . "' is not a type that is allowed.  Allowed file types are: " . (implode ( ", ", $ok_types )) . "." );
+        if ($ok_types && ! in_array($fupload->Extension, $ok_types)) {
+            throw new Exception("The file '" . htmlentities($fupload->Name) . "' is not a type that is allowed.  Allowed file types are: " . (implode(", ", $ok_types)) . ".");
         }
         
         if ($max_kb && ($fupload->Size / 1024) > $max_kb) {
-            throw new Exception ( "The file '" . htmlentities ( $fupload->Name ) . "' is to large.  Maximum allowed size is " . number_format ( $max_kb / 1024, 2 ) . "Mb" );
+            throw new Exception("The file '" . htmlentities($fupload->Name) . "' is to large.  Maximum allowed size is " . number_format($max_kb / 1024, 2) . "Mb");
         }
         
         // open the file and read the entire contents
-        $fh = fopen ( $tmp_path, "r" );
-        $fupload->Data = fread ( $fh, filesize ( $tmp_path ) );
-        fclose ( $fh );
+        $fh = fopen($tmp_path, "r");
+        $fupload->Data = fread($fh, filesize($tmp_path));
+        fclose($fh);
         
         return $fupload;
     }
@@ -411,8 +430,8 @@ class RequestUtil {
      */
     public static function GetFile($fieldname, $b64encode = true, $ignore_empty = false, $max_kb = 0, $ok_types = null)
     {
-        $fupload = self::GetFileUpload ( $fieldname, $ignore_empty, $max_kb, $ok_types );
-        return ($fupload) ? $fupload->ToXML ( $b64encode ) : null;
+        $fupload = self::GetFileUpload($fieldname, $ignore_empty, $max_kb, $ok_types);
+        return ($fupload) ? $fupload->ToXML($b64encode) : null;
     }
     
     /**
@@ -460,25 +479,25 @@ class RequestUtil {
         $val = null;
         
         if ($ignorecase) {
-            $_REQUEST_LOWER = array_change_key_case ( $_REQUEST, CASE_LOWER );
-            $val = (isset ( $_REQUEST_LOWER [strtolower ( $fieldname )] ) && $_REQUEST_LOWER [strtolower ( $fieldname )] != "") ? $_REQUEST_LOWER [strtolower ( $fieldname )] : $default;
+            $_REQUEST_LOWER = array_change_key_case($_REQUEST, CASE_LOWER);
+            $val = (isset($_REQUEST_LOWER [strtolower($fieldname)]) && $_REQUEST_LOWER [strtolower($fieldname)] != "") ? $_REQUEST_LOWER [strtolower($fieldname)] : $default;
         } else {
-            $val = (isset ( $_REQUEST [$fieldname] ) && $_REQUEST [$fieldname] != "") ? $_REQUEST [$fieldname] : $default;
+            $val = (isset($_REQUEST [$fieldname]) && $_REQUEST [$fieldname] != "") ? $_REQUEST [$fieldname] : $default;
         }
         
         if ($escape) {
-            $val = htmlspecialchars ( $val, ENT_COMPAT, null, false );
+            $val = htmlspecialchars($val, ENT_COMPAT, null, false);
         }
         
         if (self::$ENCODE_NON_ASCII) {
-            require_once ("verysimple/String/VerySimpleStringUtil.php");
+            require_once("verysimple/String/VerySimpleStringUtil.php");
             
-            if (is_array ( $val )) {
-                foreach ( $val as $k => $v ) {
-                    $val [$k] = VerySimpleStringUtil::EncodeToHTML ( $v );
+            if (is_array($val)) {
+                foreach ($val as $k => $v) {
+                    $val [$k] = VerySimpleStringUtil::EncodeToHTML($v);
                 }
             } else {
-                $val = VerySimpleStringUtil::EncodeToHTML ( $val );
+                $val = VerySimpleStringUtil::EncodeToHTML($val);
             }
         }
         
@@ -493,10 +512,10 @@ class RequestUtil {
      */
     public static function HasNonAsciiChars($fieldname)
     {
-        require_once ("verysimple/String/VerySimpleStringUtil.php");
+        require_once("verysimple/String/VerySimpleStringUtil.php");
         
-        $val = isset ( $_REQUEST [$fieldname] ) ? $_REQUEST [$fieldname] : '';
-        return VerySimpleStringUtil::EncodeToHTML ( $val ) != $val;
+        $val = isset($_REQUEST [$fieldname]) ? $_REQUEST [$fieldname] : '';
+        return VerySimpleStringUtil::EncodeToHTML($val) != $val;
     }
     
     /**
@@ -511,11 +530,11 @@ class RequestUtil {
      */
     public static function GetPersisted($fieldname, $default = "", $escape = false)
     {
-        if (isset ( $_REQUEST [$fieldname] )) {
-            $_SESSION ["_PERSISTED_" . $fieldname] = self::Get ( $fieldname, $default, $escape );
+        if (isset($_REQUEST [$fieldname])) {
+            $_SESSION ["_PERSISTED_" . $fieldname] = self::Get($fieldname, $default, $escape);
         }
         
-        if (! isset ( $_SESSION ["_PERSISTED_" . $fieldname] )) {
+        if (! isset($_SESSION ["_PERSISTED_" . $fieldname])) {
             $_SESSION ["_PERSISTED_" . $fieldname] = $default;
         }
         
@@ -538,30 +557,31 @@ class RequestUtil {
      */
     public static function GetAsDate($fieldname, $default = "date('Y-m-d')", $includetime = false)
     {
-        $returnVal = self::Get ( $fieldname, $default );
+        $returnVal = self::Get($fieldname, $default);
         
         if ($returnVal == "date('Y-m-d')") {
-            return date ( 'Y-m-d' );
+            return date('Y-m-d');
         } elseif ($returnVal == "date('Y-m-d H:i:s')") {
-            return date ( 'Y-m-d H:i:s' );
+            return date('Y-m-d H:i:s');
         } elseif ($returnVal == "") {
             return "";
         } else {
             if ($includetime) {
-                if (self::Get ( $fieldname . "Hour" )) {
-                    $hour = self::Get ( $fieldname . "Hour", date ( "H" ) );
-                    $minute = self::Get ( $fieldname . "Minute", date ( "i" ) );
-                    $ampm = self::Get ( $fieldname . "AMPM", "AM" );
+                if (self::Get($fieldname . "Hour")) {
+                    $hour = self::Get($fieldname . "Hour", date("H"));
+                    $minute = self::Get($fieldname . "Minute", date("i"));
+                    $ampm = self::Get($fieldname . "AMPM", "AM");
                     
                     if ($ampm == "PM") {
                         $hour = ($hour * 1) + 12;
                     }
+
                     $returnVal .= " " . $hour . ":" . $minute . ":" . "00";
                 }
                 
-                return date ( "Y-m-d H:i:s", strtotime ( $returnVal ) );
+                return date("Y-m-d H:i:s", strtotime($returnVal));
             } else {
-                return date ( "Y-m-d", strtotime ( $returnVal ) );
+                return date("Y-m-d", strtotime($returnVal));
             }
         }
     }
@@ -580,7 +600,7 @@ class RequestUtil {
      */
     public static function GetAsDateTime($fieldname, $default = "date('Y-m-d H:i:s')")
     {
-        return self::GetAsDate ( $fieldname, $default, true );
+        return self::GetAsDate($fieldname, $default, true);
     }
     
     /**
@@ -591,11 +611,9 @@ class RequestUtil {
      */
     public static function GetCurrency($fieldname)
     {
-        return str_replace ( array (
+        return str_replace(array (
                 ',',
                 '$'
-        ), '', self::Get ( $fieldname ) );
+        ), '', self::Get($fieldname));
     }
 }
-
-?>

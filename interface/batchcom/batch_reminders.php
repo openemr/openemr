@@ -74,6 +74,7 @@ if (empty($report_id) && !empty($GLOBALS['pat_rem_clin_nice'])) {
                     if ($results_log['type'] == "process_send_reminders") {
                         $send_rem_log = $data_log[1];
                     }
+
                     echo "<span class='text'>" . xlt("Date of Report") . ": " . text($results_log['date_report']) . "</span><br><br>";
                 } else {
                     $update_rem_log = update_reminders_batch_method();

@@ -38,7 +38,7 @@ function getNonCQMPlans()
                 "AND list_options.option_id NOT LIKE '%plan_cqm' AND clin_plans.pid = 0 AND list_options.list_id = ?;";
     $result = sqlStatement($sql_st, array('clinical_plans'));
 
-    while($row = sqlFetchArray($result)) {
+    while ($row = sqlFetchArray($result)) {
         $plan_id = $row['plan_id'];
         $plan_pid = $row['pid'];
         $plan_title = $row['title'];
@@ -46,6 +46,7 @@ function getNonCQMPlans()
         $plan_info = array('plan_id'=>$plan_id, 'plan_pid'=>$plan_pid, 'plan_title'=>$plan_title);
         array_push($plans, $plan_info);
     }
+
     return $plans;
 }
 
@@ -59,7 +60,7 @@ function getRulesInPlan($plan_id)
                 "WHERE cpr.plan_id = ?;";
     $result = sqlStatement($sql_st, array($plan_id));
     
-    while($row = sqlFetchArray($result)) {
+    while ($row = sqlFetchArray($result)) {
         $rules[$row['rule_option_id']] = $row['rule_title'];
     }
     
@@ -82,7 +83,7 @@ function getRulesNotInPlan($plan_id)
                     "); ";
     $result = sqlStatement($sql_st, array($plan_id));
     
-    while($row = sqlFetchArray($result)) {
+    while ($row = sqlFetchArray($result)) {
         $rules[$row['rule_option_id']] = $row['rule_title'];
     }
     
@@ -130,9 +131,10 @@ function addNewPlan($plan_name, $plan_rules)
     $max_seq = 0;
     
     if ($res != null) {
-        while($row = sqlFetchArray($res)) {
+        while ($row = sqlFetchArray($res)) {
             $max_seq = $row['max_seq'];
         }
+
         $max_seq += 10;
     }
     
@@ -168,25 +170,22 @@ function togglePlanStatus($plan_id, $nm_flag)
                    "normal_flag = ? ".
                    "WHERE id = ? AND pid = 0 ";
          sqlStatement($sql_st, array($nm_flag, $plan_id));
-    if ($nm_flag = 0)
-           {
+    if ($nm_flag = 0) {
         $nm_chk = 1;
     }
-    if ($nm_flag = 1)
-           {
+
+    if ($nm_flag = 1) {
         $nm_chk = 0;
     }
+
            $sql_check = "SELECT `id` " .
                               "FROM `clinical_plans` " .
                               "WHERE ((`id` = ?) AND (`pid` = 0) AND (`normal_flag` = ?));";
          $res_chk = sqlStatement($sql_check, array($plan_id, $nm_chk));
          $row_chk = sqlFetchArray($res_chk);
-    if ($row_chk == $plan_id)
-            {
+    if ($row_chk == $plan_id) {
         throw new Exception("002");
-    }
-    else
-            {
+    } else {
         throw new Exception("007");
     }
 }
@@ -202,7 +201,6 @@ function submitChanges($plan_id, $added_rules, $removed_rules)
     if (sizeof($removed_rules) > 0) {
         removeRulesFromPlan($plan_id, $removed_rules);
     }
-    
 }
 
 function addRulesToPlan($plan_id, $list_of_rules)
@@ -242,9 +240,10 @@ function generatePlanID()
     $res = sqlStatement($sql_st, null);
     
     if ($res != null) {
-        while($row = sqlFetchArray($res)) {
+        while ($row = sqlFetchArray($res)) {
             $plan_id = $row['max_planid'];
         }
+
         $plan_id += 1;
     }
     
@@ -268,5 +267,3 @@ function isPlanActive($plan_id)
         return false;
     }
 }
-
-?>

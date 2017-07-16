@@ -34,8 +34,10 @@ function care_plan_report($pid, $encounter, $cols, $id)
     $sql = "SELECT * FROM `form_care_plan` WHERE id=? AND pid = ? AND encounter = ?";
     $res = sqlStatement($sql, array($id,$_SESSION["pid"], $_SESSION["encounter"]));
 
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $data[$iter] = $row;
+    }
+
     if ($data) {
         ?>
         <table style='border-collapse:collapse;border-spacing:0;width: 100%;'>
@@ -61,4 +63,4 @@ function care_plan_report($pid, $encounter, $cols, $id)
         <?php
     }
 }
-?> 
+?>

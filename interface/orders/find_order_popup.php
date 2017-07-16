@@ -41,7 +41,7 @@ if (isset($_GET['typeid'])) {
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <script language="JavaScript">
 if (opener.closed || !opener.set_proc_type) {
- alert('<?php xl('The destination form was closed; I cannot act on your selection.','e'); ?>');
+ alert('<?php xl('The destination form was closed; I cannot act on your selection.', 'e'); ?>');
 }
 else {
  opener.set_proc_type(<?php echo "$typeid, '$name'"; ?>);
@@ -55,8 +55,7 @@ if (isset($_GET['formid'])) {
         echo ' opener.set_proc_html("';
         echo generate_qoe_html($typeid, intval($_GET['formid']), 0, intval($_GET['formseq']));
         echo '", "' . $qoe_init_javascript .  '");' . "\n";
-    }
-    else {
+    } else {
         echo ' opener.set_proc_html("", "");' . "\n";
     }
 }
@@ -67,6 +66,7 @@ window.close();
 <?php
   exit();
 }
+
 // End Submission.
 //////////////////////////////////////////////////////////////////////
 
@@ -88,8 +88,13 @@ td { font-size:10pt; }
 function selcode(typeid) {
  location.href = 'find_order_popup.php<?php
     echo "?order=$order&labid=$labid";
-    if (isset($_GET['formid' ])) echo '&formid='  . $_GET['formid'];
-    if (isset($_GET['formseq'])) echo '&formseq=' . $_GET['formseq'];
+    if (isset($_GET['formid' ])) {
+        echo '&formid='  . $_GET['formid'];
+    }
+
+    if (isset($_GET['formseq'])) {
+        echo '&formseq=' . $_GET['formseq'];
+    }
 ?>&typeid=' + typeid;
  return false;
 }
@@ -102,8 +107,13 @@ function selcode(typeid) {
 
 <form method='post' name='theform' action='find_order_popup.php<?php
 echo "?order=$order&labid=$labid";
-if (isset($_GET['formid' ])) echo '&formid='  . $_GET['formid'];
-if (isset($_GET['formseq'])) echo '&formseq=' . $_GET['formseq'];
+if (isset($_GET['formid' ])) {
+    echo '&formid='  . $_GET['formid'];
+}
+
+if (isset($_GET['formseq'])) {
+    echo '&formseq=' . $_GET['formseq'];
+}
 ?>'>
 
 <center>

@@ -93,29 +93,30 @@ $form_encounter_layout = array(
 
 $source = empty($_REQUEST['source']) ? 'D' : $_REQUEST['source'];
 
-function gsr_fixup(&$row, $fldid, $default='')
+function gsr_fixup(&$row, $fldid, $default = '')
 {
     if (isset($row[$fldid])) {
         return addslashes($row[$fldid]);
     }
+
     return $default;
 }
 
 function gen_sel_row($row)
 {
     echo " <tr class='oneresult' onclick='selectField(";
-    echo '"' . gsr_fixup($row, 'field_id'      ) . '",';
-    echo '"' . gsr_fixup($row, 'title'         ) . '",';
-    echo '"' . gsr_fixup($row, 'data_type'     ) . '",';
-    echo '"' . gsr_fixup($row, 'uor'           ) . '",';
+    echo '"' . gsr_fixup($row, 'field_id') . '",';
+    echo '"' . gsr_fixup($row, 'title') . '",';
+    echo '"' . gsr_fixup($row, 'data_type') . '",';
+    echo '"' . gsr_fixup($row, 'uor') . '",';
     echo '"' . gsr_fixup($row, 'fld_length', 20) . '",';
-    echo '"' . gsr_fixup($row, 'max_length',  0) . '",';
-    echo '"' . gsr_fixup($row, 'list_id'       ) . '",';
-    echo '"' . gsr_fixup($row, 'titlecols' ,  1) . '",';
-    echo '"' . gsr_fixup($row, 'datacols'  ,  3) . '",';
-    echo '"' . gsr_fixup($row, 'edit_options'  ) . '",';
-    echo '"' . gsr_fixup($row, 'description'   ) . '",';
-    echo '"' . gsr_fixup($row, 'fld_rows'  ,  0) . '"';
+    echo '"' . gsr_fixup($row, 'max_length', 0) . '",';
+    echo '"' . gsr_fixup($row, 'list_id') . '",';
+    echo '"' . gsr_fixup($row, 'titlecols', 1) . '",';
+    echo '"' . gsr_fixup($row, 'datacols', 3) . '",';
+    echo '"' . gsr_fixup($row, 'edit_options') . '",';
+    echo '"' . gsr_fixup($row, 'description') . '",';
+    echo '"' . gsr_fixup($row, 'fld_rows', 0) . '"';
     echo ")'>";
     echo "<td>" . text($row['field_id']) . "</td>";
     echo "<td>" . text($row['title'   ]) . "</td>";
@@ -195,11 +196,17 @@ li {
 <h1>
 <?php
 // F should never happen, but just in case.
-if ($source == 'F') echo xlt('Fields in This Form' ); else
-if ($source == 'D') echo xlt('Demographics Fields' ); else
-if ($source == 'H') echo xlt('History Fields'      ); else
-if ($source == 'E') echo xlt('Visit Attributes'    ); else
-if ($source == 'V') echo xlt('Visit Form Attributes');
+if ($source == 'F') {
+    echo xlt('Fields in This Form');
+} else if ($source == 'D') {
+    echo xlt('Demographics Fields');
+} else if ($source == 'H') {
+    echo xlt('History Fields');
+} else if ($source == 'E') {
+    echo xlt('Visit Attributes');
+} else if ($source == 'V') {
+    echo xlt('Visit Form Attributes');
+}
 ?>
 </h1>
 
@@ -209,25 +216,32 @@ if ($source == 'V') {
     foreach ($form_encounter_layout as $lrow) {
         gen_sel_row($lrow);
     }
-}
-else {
+} else {
     if ($source == 'D' || $source == 'H') {
-        $res = sqlStatement("SELECT * FROM layout_options " .
-        "WHERE form_id = ? AND uor > 0 ORDER BY field_id",
-        array($source == 'D' ? 'DEM' : 'HIS'));
+        $res = sqlStatement(
+            "SELECT * FROM layout_options " .
+            "WHERE form_id = ? AND uor > 0 ORDER BY field_id",
+            array($source == 'D' ? 'DEM' : 'HIS')
+        );
+    } else {
+        $res = sqlStatement(
+            "SELECT * FROM layout_options WHERE " .
+            "form_id LIKE ? AND uor > 0 AND source = ? ORDER BY field_id, form_id",
+            array('LBF%', 'E')
+        );
     }
-    else {
-        $res = sqlStatement("SELECT * FROM layout_options WHERE " .
-        "form_id LIKE ? AND uor > 0 AND source = ? ORDER BY field_id, form_id",
-        array('LBF%', 'E'));
-    }
+
     $last_field_id = '';
     while ($row = sqlFetchArray($res)) {
-        if ($row['field_id'] === $last_field_id) continue;
+        if ($row['field_id'] === $last_field_id) {
+            continue;
+        }
+
         $last_field_id = $row['field_id'];
         gen_sel_row($row);
     }
 }
+
 echo "</table>\n";
 ?>
 

@@ -12,7 +12,7 @@
 
 
 
-require_once( dirname(__FILE__) . "/../../globals.php");
+require_once(dirname(__FILE__) . "/../../globals.php");
 require_once("$srcdir/clinical_rules.php");
 
 //To improve performance and not freeze the session when running this
@@ -21,5 +21,4 @@ require_once("$srcdir/clinical_rules.php");
 // session work in the future, then will need to remove this line.
 session_write_close();
 
-clinical_summary_widget($pid,"reminders-due",'','default',$_SESSION['authUser']);
-?>
+clinical_summary_widget($pid, "reminders-due", '', 'default', $_SESSION['authUser']);

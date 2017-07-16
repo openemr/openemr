@@ -6,18 +6,19 @@
  * This is a class for storing document categories using the MPTT implementation
  */
 
-class CategoryTree extends Tree {
+class CategoryTree extends Tree
+{
 
     /*
 	*	This just sits on top of the parent constructor, only a shell so that the _table var gets set
 	*/
-    function __construct($root,$root_type = ROOT_TYPE_ID)
+    function __construct($root, $root_type = ROOT_TYPE_ID)
     {
         $this->_table = "categories";
-        parent::__construct($root,$root_type);
+        parent::__construct($root, $root_type);
     }
 
-    function _get_categories_array($patient_id, $user='')
+    function _get_categories_array($patient_id, $user = '')
     {
         $categories = array();
         $sql = "SELECT c.id, c.name, c.aco_spec, d.id AS document_id, d.type, d.url, d.docdate"
@@ -29,12 +30,12 @@ class CategoryTree extends Tree {
             if ($patient_id == "00") {
       // Collect documents that are not assigned to a patient
                 $sql .= " AND (d.foreign_id = 0 OR d.foreign_id IS NULL) ";
-            }
-            else {
+            } else {
       // Collect documents for a specific patient
                 $sql .= " AND d.foreign_id = '" . $patient_id . "'";
             }
         }
+
         $sql .= " ORDER BY c.id ASC, d.docdate DESC, d.url ASC";
 
         //echo $sql;
@@ -48,4 +49,3 @@ class CategoryTree extends Tree {
         return $categories;
     }
 }
-?>

@@ -60,7 +60,7 @@ class SendtoController extends AbstractActionController
                                 'listenerObject'      => $this->listenerObject,
                                 'ccda_components'     => $ccda_components,
                             ));
-        if($button_only == 1) {
+        if ($button_only == 1) {
             $this->layout('layout/embedded_button');
         }
         
@@ -78,14 +78,15 @@ class SendtoController extends AbstractActionController
         switch ($ajax_mode) {
             case 'get_componets':
                 $formId = $this->getRequest()->getPost('form_id', null);
-                $components = $this->getSendtoTable()->getCombinationFormComponents($encounter,$formId);
+                $components = $this->getSendtoTable()->getCombinationFormComponents($encounter, $formId);
                 echo $components;
                 break;
             case 'send_fax':
                 $x=ob_get_level();
-                for(;$x>0;$x--){
+                for (; $x>0; $x--) {
                     ob_end_clean();
                 }
+
                 ob_start();
                 $attention                      = $_POST['attentionto'];
                 $_REQUEST['formnames']          = $_POST['selectedforms'];
@@ -97,26 +98,28 @@ class SendtoController extends AbstractActionController
                 break;
             case 'fax_details':
                 $req_list   = $this->getRequest()->getPost('req_list', null);
-                if($req_list == "facility") {
+                if ($req_list == "facility") {
                     $facility = $this->getSendtoTable()->getFacility();
                     echo "<option value=''>-".$this->listenerObject->z_xlt("Select")."-</option>";
-                    foreach($facility as $fac_query_result){
+                    foreach ($facility as $fac_query_result) {
                         echo "<option value='".$this->escapeHtml($fac_query_result['fax'])."' >".$fac_query_result['name']."</option>";
                     }
                 } else {
                     $users = $this->getSendtoTable()->getUsers($req_list);
                     echo "<option value=''>-".$this->listenerObject->z_xlt("Select")."-</option>";
-                    foreach($users as $user){
+                    foreach ($users as $user) {
                         if ($user['ab_option'] == 3) {
                             $displayName = $user['organization'];
-                        }else {
+                        } else {
                             $displayName = $user['fname'] . ' ' . $user['mname'] . ' ' . $user['lname'];
                         }
+
                         echo "<option value='".$this->escapeHtml($user['fax'])."' >".$displayName."</option>";
                     }
                 }
                 break;
         }
+
         return $this->response;
     }
     
@@ -131,6 +134,7 @@ class SendtoController extends AbstractActionController
             $sm = $this->getServiceLocator();
             $this->sendtoTable = $sm->get('Application\Model\SendtoTable');
         }
+
         return $this->sendtoTable;
     }
     
@@ -145,6 +149,7 @@ class SendtoController extends AbstractActionController
             $sm = $this->getServiceLocator();
             $this->applicationTable = $sm->get('Application\Model\ApplicationTable');
         }
+
         return $this->applicationTable;
     }
 }

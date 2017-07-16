@@ -4,8 +4,8 @@
 /**
  * import supporting libraries
  */
-require_once ("IAuthenticatable.php");
-require_once ("AuthenticationException.php");
+require_once("IAuthenticatable.php");
+require_once("AuthenticationException.php");
 
 /**
  * Authenticator is a collection of static methods for storing a current user
@@ -18,7 +18,8 @@ require_once ("AuthenticationException.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class Authenticator {
+class Authenticator
+{
     static $user = null;
     static $is_initialized = false;
     public static function Init()
@@ -26,8 +27,8 @@ class Authenticator {
         if (! self::$is_initialized) {
             self::$is_initialized = true;
             
-            if (session_id () == '') {
-                @session_start ();
+            if (session_id() == '') {
+                @session_start();
             }
         }
     }
@@ -41,12 +42,13 @@ class Authenticator {
     public static function GetCurrentUser($guid = "CURRENT_USER")
     {
         if (self::$user == null) {
-            self::Init ();
+            self::Init();
             
-            if (isset ( $_SESSION [$guid] )) {
-                self::$user = unserialize ( $_SESSION [$guid] );
+            if (isset($_SESSION [$guid])) {
+                self::$user = unserialize($_SESSION [$guid]);
             }
         }
+
         return self::$user;
     }
     
@@ -61,9 +63,9 @@ class Authenticator {
      */
     public static function SetCurrentUser(IAuthenticatable $user, $guid = "CURRENT_USER")
     {
-        self::UnsetAllSessionVars (); // this calls Init so we don't have to here
+        self::UnsetAllSessionVars(); // this calls Init so we don't have to here
         self::$user = $user;
-        $_SESSION [$guid] = serialize ( $user );
+        $_SESSION [$guid] = serialize($user);
     }
     
     /**
@@ -71,9 +73,9 @@ class Authenticator {
      */
     public static function UnsetAllSessionVars()
     {
-        self::Init ();
-        foreach ( array_keys ( $_SESSION ) as $key ) {
-            unset ( $_SESSION [$key] );
+        self::Init();
+        foreach (array_keys($_SESSION) as $key) {
+            unset($_SESSION [$key]);
         }
     }
     
@@ -85,14 +87,12 @@ class Authenticator {
      */
     public static function ClearAuthentication($guid = "CURRENT_USER")
     {
-        self::Init ();
+        self::Init();
         self::$user = null;
-        unset ( $_SESSION [$guid] );
+        unset($_SESSION [$guid]);
         
-        self::UnsetAllSessionVars ();
+        self::UnsetAllSessionVars();
         
-        @session_destroy ();
+        @session_destroy();
     }
 }
-
-?>

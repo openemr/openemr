@@ -6,6 +6,7 @@
  */
 
 use OpenEMR\Core\Header;
+
  require_once("../../globals.php");
  require_once("$srcdir/patient.inc");
  require_once("history.inc.php");
@@ -31,16 +32,15 @@ $(document).ready(function(){
     <div class="row">
         <div class="col-xs-12">
             <?php
-            if (acl_check('patients','med')) {
+            if (acl_check('patients', 'med')) {
                 $tmp = getPatientData($pid, "squad");
                 if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
-                    echo "<p>(".htmlspecialchars(xl('History not authorized'),ENT_NOQUOTES).")</p>\n";
+                    echo "<p>(".htmlspecialchars(xl('History not authorized'), ENT_NOQUOTES).")</p>\n";
                     echo "</body>\n</html>\n";
                     exit();
                 }
-            }
-            else {
-                echo "<p>(".htmlspecialchars(xl('History not authorized'),ENT_NOQUOTES).")</p>\n";
+            } else {
+                echo "<p>(".htmlspecialchars(xl('History not authorized'), ENT_NOQUOTES).")</p>\n";
                 echo "</body>\n</html>\n";
                 exit();
             }
@@ -52,17 +52,17 @@ $(document).ready(function(){
             }
             ?>
 
-            <?php if (acl_check('patients','med','',array('write','addonly') )) { ?>
+            <?php if (acl_check('patients', 'med', '', array('write','addonly'))) { ?>
                 <div class="page-header">
                     <h1><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?> <small><?php echo xl("History & Lifestyle");?></small></h1>
                 </div>
                 <div>
                     <div class="btn-group">
                         <a href="../summary/demographics.php" class="btn btn-default btn-back" onclick="top.restoreSession()">
-                            <?php echo htmlspecialchars(xl('Back To Patient'),ENT_NOQUOTES);?>
+                            <?php echo htmlspecialchars(xl('Back To Patient'), ENT_NOQUOTES);?>
                         </a>
                         <a href="history_full.php" class="btn btn-default btn-edit" onclick="top.restoreSession()">
-                            <?php echo htmlspecialchars(xl("Edit"),ENT_NOQUOTES);?>
+                            <?php echo htmlspecialchars(xl("Edit"), ENT_NOQUOTES);?>
                         </a>
                     </div>
                 </div>

@@ -24,6 +24,7 @@
  */
 
 use OpenEMR\Core\Header;
+
  require_once("../globals.php");
  require_once("$srcdir/patient.inc");
  require_once("$srcdir/options.inc.php");
@@ -37,8 +38,13 @@ function qescape($str)
 
  $from_date = DateToYYYYMMDD($_POST['form_from_date']);
  $to_date   = DateToYYYYMMDD($_POST['form_to_date']);
- if (empty($to_date) && !empty($from_date)) $to_date = date('Y-12-31');
- if (empty($from_date) && !empty($to_date)) $from_date = date('Y-01-01');
+if (empty($to_date) && !empty($from_date)) {
+    $to_date = date('Y-12-31');
+}
+
+if (empty($from_date) && !empty($to_date)) {
+    $from_date = date('Y-01-01');
+}
 
 $form_provider = empty($_POST['form_provider']) ? 0 : intval($_POST['form_provider']);
 
@@ -50,13 +56,12 @@ if ($_POST['form_csvexport']) {
     header("Content-Type: application/force-download");
     header("Content-Disposition: attachment; filename=patient_list.csv");
     header("Content-Description: File Transfer");
-}
-else {
+} else {
 ?>
 <html>
 <head>
 
-<title><?php xl('Patient List','e'); ?></title>
+<title><?php xl('Patient List', 'e'); ?></title>
 
 <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 <script language="JavaScript">
@@ -116,7 +121,7 @@ $(document).ready(function() {
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Patient List','e'); ?></span>
+<span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Patient List', 'e'); ?></span>
 
 <div id="report_parameters_daterange">
 <?php if (!(empty($to_date) && empty($from_date))) { ?>
@@ -139,7 +144,7 @@ $(document).ready(function() {
     <table class='text'>
         <tr>
       <td class='control-label'>
-        <?php xl('Provider','e'); ?>:
+        <?php xl('Provider', 'e'); ?>:
       </td>
       <td>
             <?php
@@ -148,13 +153,13 @@ $(document).ready(function() {
             ?>
       </td>
             <td class='control-label'>
-                <?php xl('Visits From','e'); ?>:
+                <?php xl('Visits From', 'e'); ?>:
             </td>
             <td>
                <input class='datepicker form-control' type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo oeFormatShortDate($from_date) ?>'>
             </td>
             <td class='control-label'>
-                <?php xl('To','e'); ?>:
+                <?php xl('To', 'e'); ?>:
             </td>
             <td>
                <input class='datepicker form-control' type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo oeFormatShortDate($to_date) ?>'>
@@ -179,7 +184,7 @@ $(document).ready(function() {
                     </a>
                     <?php if ($_POST['form_refresh']) { ?>
                       <a href='#' id='printbutton' class='btn btn-default btn-print'>
-                            <?php xl('Print','e'); ?>
+                            <?php xl('Print', 'e'); ?>
                       </a>
                     <?php } ?>
               </div>
@@ -209,22 +214,21 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         echo '"' . xl('Zip') . '",';
         echo '"' . xl('Home Phone') . '",';
         echo '"' . xl('Work Phone') . '"' . "\n";
-    }
-    else {
+    } else {
     ?>
 
   <div id="report_results">
   <table id='mymaintable'>
    <thead>
-    <th> <?php xl('Last Visit','e'); ?> </th>
-    <th> <?php xl('Patient','e'); ?> </th>
-    <th> <?php xl('ID','e'); ?> </th>
-    <th> <?php xl('Street','e'); ?> </th>
-    <th> <?php xl('City','e'); ?> </th>
-    <th> <?php xl('State','e'); ?> </th>
-    <th> <?php xl('Zip','e'); ?> </th>
-    <th> <?php xl('Home Phone','e'); ?> </th>
-    <th> <?php xl('Work Phone','e'); ?> </th>
+    <th> <?php xl('Last Visit', 'e'); ?> </th>
+    <th> <?php xl('Patient', 'e'); ?> </th>
+    <th> <?php xl('ID', 'e'); ?> </th>
+    <th> <?php xl('Street', 'e'); ?> </th>
+    <th> <?php xl('City', 'e'); ?> </th>
+    <th> <?php xl('State', 'e'); ?> </th>
+    <th> <?php xl('Zip', 'e'); ?> </th>
+    <th> <?php xl('Home Phone', 'e'); ?> </th>
+    <th> <?php xl('Work Phone', 'e'); ?> </th>
  </thead>
  <tbody>
 <?php
@@ -245,17 +249,16 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         if ($form_provider) {
             $query .= "AND e.provider_id = '$form_provider' ";
         }
-    }
-    else {
+    } else {
         if ($form_provider) {
             $query .= "JOIN form_encounter AS e ON " .
             "e.pid = p.pid AND e.provider_id = '$form_provider' ";
-        }
-        else {
+        } else {
             $query .= "LEFT OUTER JOIN form_encounter AS e ON " .
             "e.pid = p.pid ";
         }
     }
+
     $query .=
     "LEFT OUTER JOIN insurance_data AS i1 ON " .
     "i1.pid = p.pid AND i1.type = 'primary' " .
@@ -271,16 +274,22 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
     $prevpid = 0;
     while ($row = sqlFetchArray($res)) {
-        if ($row['pid'] == $prevpid) continue;
+        if ($row['pid'] == $prevpid) {
+            continue;
+        }
+
         $prevpid = $row['pid'];
         $age = '';
         if ($row['DOB']) {
             $dob = $row['DOB'];
             $tdy = $row['edate'] ? $row['edate'] : date('Y-m-d');
-            $ageInMonths = (substr($tdy,0,4)*12) + substr($tdy,5,2) -
-                   (substr($dob,0,4)*12) - substr($dob,5,2);
-            $dayDiff = substr($tdy,8,2) - substr($dob,8,2);
-            if ($dayDiff < 0) --$ageInMonths;
+            $ageInMonths = (substr($tdy, 0, 4)*12) + substr($tdy, 5, 2) -
+                   (substr($dob, 0, 4)*12) - substr($dob, 5, 2);
+            $dayDiff = substr($tdy, 8, 2) - substr($dob, 8, 2);
+            if ($dayDiff < 0) {
+                --$ageInMonths;
+            }
+
             $age = intval($ageInMonths/12);
         }
 
@@ -296,15 +305,14 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             echo '"' . qescape($row['postal_code']) . '",';
             echo '"' . qescape($row['phone_home']) . '",';
             echo '"' . qescape($row['phone_biz']) . '"' . "\n";
-        }
-        else {
+        } else {
         ?>
        <tr>
         <td>
         <?php echo oeFormatShortDate(substr($row['edate'], 0, 10)) ?>
    </td>
    <td>
-        <?php echo htmlspecialchars( $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] ) ?>
+        <?php echo htmlspecialchars($row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']) ?>
    </td>
    <td>
         <?php echo $row['pubpid'] ?>
@@ -337,7 +345,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
    <tr class="report_totals">
     <td colspan='9'>
-        <?php xl('Total Number of Patients','e'); ?>
+        <?php xl('Total Number of Patients', 'e'); ?>
    :
         <?php echo $totalpts ?>
   </td>
@@ -353,7 +361,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 if (!$_POST['form_refresh'] && !$_POST['form_csvexport']) {
 ?>
 <div class='text'>
-    <?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
+    <?php echo xl('Please input search criteria above, and click Submit to view results.', 'e'); ?>
 </div>
 <?php
 }

@@ -27,7 +27,8 @@
  *
  *
  */
-abstract class Savant3_Filter {
+abstract class Savant3_Filter
+{
     
     /**
      *
@@ -55,8 +56,8 @@ abstract class Savant3_Filter {
      */
     public function __construct($conf = null)
     {
-        settype ( $conf, 'array' );
-        foreach ( $conf as $key => $val ) {
+        settype($conf, 'array');
+        foreach ($conf as $key => $val) {
             $this->$key = $val;
         }
     }
@@ -78,4 +79,3 @@ abstract class Savant3_Filter {
         return $text;
     }
 }
-?>

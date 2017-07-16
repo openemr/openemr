@@ -4,18 +4,22 @@
 include_once("../../globals.php");
 include_once($GLOBALS["srcdir"]."/api.inc");
 
-function ped_fever_report( $pid, $encounter, $cols, $id)
+function ped_fever_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
     $data = formFetch("form_ped_fever", $id);
     if ($data) :
         print "<table span class=text><tr>";
-        foreach($data as $key => $value) {
-            if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" || $key == "authorized" || $key == "activity" || $key == "date" || $value == "" || $value == "0000-00-00 00:00:00") continue;
+        foreach ($data as $key => $value) {
+            if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" || $key == "authorized" || $key == "activity" || $key == "date" || $value == "" || $value == "0000-00-00 00:00:00") {
+                continue;
+            }
 
-            if ($value == "on") $value = "yes";
+            if ($value == "on") {
+                $value = "yes";
+            }
             
-            $key=ucwords(str_replace("_"," ",$key));
+            $key=ucwords(str_replace("_", " ", $key));
 
             print "<td><span class=bold>$key: </span><span class=text>$value</span></td>";
             
@@ -29,5 +33,3 @@ function ped_fever_report( $pid, $encounter, $cols, $id)
         print "</tr></table>";
     endif;
 }
-
-?> 

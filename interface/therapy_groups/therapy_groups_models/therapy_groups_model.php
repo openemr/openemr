@@ -24,7 +24,8 @@
  * @link    http://www.open-emr.org
  */
 
-class Therapy_Groups{
+class Therapy_Groups
+{
 
     const TABLE = 'therapy_groups';
 
@@ -35,9 +36,10 @@ class Therapy_Groups{
 
         $therapy_groups = array();
         $result = sqlStatement($sql);
-        while($tg = sqlFetchArray($result)){
+        while ($tg = sqlFetchArray($result)) {
             $therapy_groups[] = $tg;
         }
+
         return $therapy_groups;
     }
 
@@ -64,10 +66,11 @@ class Therapy_Groups{
     {
 
         $sql = "UPDATE " . self::TABLE . " SET ";
-        foreach($groupData as $key => $value){
+        foreach ($groupData as $key => $value) {
             $sql .= $key . '=?,';
         }
-        $sql = substr($sql,0, -1);
+
+        $sql = substr($sql, 0, -1);
         $sql .= ' WHERE group_id = ?';
         array_push($groupData, $groupData['group_id']);
         $result = sqlStatement($sql, $groupData);
@@ -80,7 +83,7 @@ class Therapy_Groups{
         $sql = "SELECT COUNT(*) AS count FROM " . self::TABLE . " WHERE group_name = ? AND group_start_date = ?";
         $conditions = array($name, $startDate);
 
-        if(!is_null($groupId)){
+        if (!is_null($groupId)) {
             $sql .= " AND group_id <> ?";
             $conditions[] = $groupId;
         }
@@ -115,17 +118,18 @@ class Therapy_Groups{
     {
         $sql = 'SELECT ' . $result_columns . ' FROM ' . self::TABLE . ' WHERE ' . $column . ' LIKE ? ';
         // status 20 is 'deleted'
-        if($onlyActive) $sql .= ' AND group_status = 10 ';
+        if ($onlyActive) {
+            $sql .= ' AND group_status = 10 ';
+        }
+
         $sql .='ORDER BY group_start_date DESC;';
         $search_params = '%' . $search_params . '%';
         $result = sqlStatement($sql, array($search_params));
         $final_result = array();
-        while($row = sqlFetchArray($result)){
+        while ($row = sqlFetchArray($result)) {
             $final_result[] = $row;
         }
+
         return $final_result;
-
     }
-
-
 }

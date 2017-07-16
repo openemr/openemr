@@ -30,6 +30,7 @@ if (!acl_check('admin', 'acl')) {
     echo error_xml(xl('ACL Administration Not Authorized'));
     exit;
 }
+
 //ensure php is installed
 if (!isset($phpgacl_location)) {
     echo error_xml(xl('PHP-gacl is not installed'));
@@ -37,8 +38,8 @@ if (!isset($phpgacl_location)) {
 }
 
 //Display red alert if Emergency Login ACL is activated for a user.
-if($_POST["action"] == "add"){
-    if (in_array("Emergency Login",$_POST["selection"])) {
+if ($_POST["action"] == "add") {
+    if (in_array("Emergency Login", $_POST["selection"])) {
         array_push($error, (xl('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation.') ));
     }
 }
@@ -66,6 +67,7 @@ if ($_POST["control"] == "membership") {
             echo user_group_listings_xml($_POST["name"], $error);
             exit;
         }
+
         //add the group, then return updated membership data
         add_user_aros($_POST["name"], $_POST["selection"]);
         echo user_group_listings_xml($_POST["name"], $error);
@@ -78,15 +80,16 @@ if ($_POST["control"] == "membership") {
             echo user_group_listings_xml($_POST["name"], $error);
             exit;
         }
+
         // check if user is protected. If so, then state message unable to remove from admin group.
         $userNametoID = getIDfromUser($_POST["name"]);
-        if (checkUserSetting("gacl_protect","1",$userNametoID) || ($_POST["name"] == "admin")) {
+        if (checkUserSetting("gacl_protect", "1", $userNametoID) || ($_POST["name"] == "admin")) {
              $gacl_protect = true;
-        }
-        else {
+        } else {
              $gacl_protect = false;
         }
-        if ($gacl_protect && in_array("Administrators",$_POST["selection"])) {
+
+        if ($gacl_protect && in_array("Administrators", $_POST["selection"])) {
             //unable to remove admin user from administrators group, process remove,
             // send soft error, then return data
             array_push($error, (xl('Not allowed to remove this user from the Administrators group') . "!"));
@@ -94,6 +97,7 @@ if ($_POST["control"] == "membership") {
             echo user_group_listings_xml($_POST["name"], $error);
             exit;
         }
+
         //remove the group(s), then return updated membership data
         remove_user_aros($_POST["name"], $_POST["selection"]);
         echo user_group_listings_xml($_POST["name"], $error);
@@ -114,39 +118,38 @@ if ($_POST["control"] == "acl") {
         if (empty($_POST["title"])) {
             $form_error = true;
             array_push($error, ("title_" . xl('Need to enter title') . "!"));
-        }
-        else if (!ctype_alpha(str_replace(' ', '', $_POST["title"]))) {
+        } else if (!ctype_alpha(str_replace(' ', '', $_POST["title"]))) {
             $form_error = true;
             array_push($error, ("title_" . xl('Please only use alphabetic characters') . "!"));
-        }
-        else if (acl_exist($_POST["title"], false, $_POST["return_value"])) {
+        } else if (acl_exist($_POST["title"], false, $_POST["return_value"])) {
             $form_error = true;
             array_push($error, ("title_" . xl('Already used, choose another title') . "!"));
         }
+
         if (empty($_POST["identifier"])) {
             $form_error = true;
             array_push($error, ("identifier_" . xl('Need to enter identifier') . "!"));
-        }
-        else if (!ctype_alpha($_POST["identifier"])) {
+        } else if (!ctype_alpha($_POST["identifier"])) {
             $form_error = true;
             array_push($error, ("identifier_" . xl('Please only use alphabetic characters with no spaces') . "!"));
-        }
-        else if (acl_exist(false, $_POST["identifier"], $_POST["return_value"])) {
+        } else if (acl_exist(false, $_POST["identifier"], $_POST["return_value"])) {
             $form_error = true;
             array_push($error, ("identifier_" . xl('Already used, choose another identifier') . "!"));
         }
+
         if (empty($_POST["return_value"])) {
             $form_error = true;
             array_push($error, ("return_" . xl('Need to enter a Return Value') . "!"));
         }
+
         if (empty($_POST["description"])) {
             $form_error = true;
             array_push($error, ("description_" . xl('Need to enter a description') . "!"));
-        }
-        else if (!ctype_alpha(str_replace(' ', '', $_POST["description"]))) {
+        } else if (!ctype_alpha(str_replace(' ', '', $_POST["description"]))) {
             $form_error = true;
             array_push($error, ("description_" . xl('Please only use alphabetic characters') . "!"));
         }
+
         //process if data is valid
         if (!$form_error) {
             acl_add($_POST["title"], $_POST["identifier"], $_POST["return_value"], $_POST["description"]);
@@ -154,8 +157,7 @@ if ($_POST["control"] == "acl") {
              "<response>\n" .
              "\t<success>SUCCESS</success>\n" .
              "</response>\n";
-        }
-        else { //$form_error = true, so return errors
+        } else { //$form_error = true, so return errors
             echo error_xml($error);
         }
     }
@@ -167,10 +169,12 @@ if ($_POST["control"] == "acl") {
             $form_error = true;
             array_push($error, ("aclTitle_" . xl('Need to enter title') . "!"));
         }
+
         if ($_POST["title"] == "Administrators") {
             $form_error = true;
             array_push($error, ("aclTitle_" . xl('Not allowed to delete the Administrators group') . "!"));
         }
+
         //process if data is valid
         if (!$form_error) {
             acl_remove($_POST["title"], $_POST["return_value"]);
@@ -178,8 +182,7 @@ if ($_POST["control"] == "acl") {
              "<response>\n" .
              "\t<success>SUCCESS</success>\n" .
              "</response>\n";
-        }
-        else { //$form_error = true, so return errors
+        } else { //$form_error = true, so return errors
             echo error_xml($error);
         }
     }
@@ -205,6 +208,7 @@ if ($_POST["control"] == "aco") {
             echo aco_listings_xml($_POST["name"], $_POST["return_value"], $error);
             exit;
         }
+
         //add the aco, then return updated membership data
         acl_add_acos($_POST["name"], $_POST["return_value"], $_POST["selection"]);
         echo aco_listings_xml($_POST["name"], $_POST["return_value"], $error);
@@ -217,12 +221,14 @@ if ($_POST["control"] == "aco") {
             echo aco_listings_xml($_POST["name"], $_POST["return_value"], $error);
             exit;
         }
+
         if ($_POST["name"] == "Administrators") {
             //will not allow removal of acos from Administrators ACL
             array_push($error, (xl('Not allowed to inactivate anything from the Administrators ACL') . "!"));
             echo aco_listings_xml($_POST["name"], $_POST["return_value"], $error);
             exit;
         }
+
         //remove the acos, then return updated data
         acl_remove_acos($_POST["name"], $_POST["return_value"], $_POST["selection"]);
         echo aco_listings_xml($_POST["name"], $_POST["return_value"], $error);
@@ -241,8 +247,10 @@ function username_listings_xml($err)
     $message = "<?xml version=\"1.0\"?>\n" .
     "<response>\n";
     $res = sqlStatement("select * from users where username != '' and active = 1 order by username");
-    for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-    $result4[$iter] = $row;
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+        $result4[$iter] = $row;
+    }
+
     foreach ($result4 as $iter) {
         $message .= "\t<user>\n" .
           "\t\t<username>" . $iter{"username"} . "</username>\n";
@@ -251,13 +259,16 @@ function username_listings_xml($err)
             //not joined to any group, so send alert
             $message .= "\t\t<alert>no membership</alert>\n";
         }
+
         $message .= "\t</user>\n";
     }
+
     if (isset($err)) {
         foreach ($err as $value) {
             $message .= "\t<error>" . $value . "</error>\n";
         }
     }
+
     $message .= "</response>\n";
     return $message;
 }
@@ -288,6 +299,7 @@ function user_group_listings_xml($username, $err)
             $message .= "\t\t</group>\n";
         }
     }
+
     $message .= "\t</inactive>\n" .
     "\t<active>\n";
     if ($username_acl_groups) {
@@ -301,12 +313,14 @@ function user_group_listings_xml($username, $err)
             $message .= "\t\t</group>\n";
         }
     }
+
     $message .= "\t</active>\n";
     if (isset($err)) {
         foreach ($err as $value) {
             $message .= "\t<error>" . $value . "</error>\n";
         }
     }
+
     $message .= "</response>\n";
     return $message;
 }
@@ -342,11 +356,13 @@ function acl_listings_xml($err)
              "\t</acl>\n";
         }
     }
+
     if (isset($err)) {
         foreach ($err as $value) {
             $message .= "\t<error>" . $value . "</error>\n";
         }
     }
+
     $message .= "</response>\n";
     return $message;
 }
@@ -380,9 +396,8 @@ function aco_listings_xml($group, $return_value, $err)
     "\t<inactive>\n";
     foreach ($list_aco_objects as $key => $value) {
         $counter = 0;
-        foreach($list_aco_objects[$key] as $value2) {
-            if (!array_key_exists($key,$active_aco_objects) || !in_array($value2, $active_aco_objects[$key])) {
-       
+        foreach ($list_aco_objects[$key] as $value2) {
+            if (!array_key_exists($key, $active_aco_objects) || !in_array($value2, $active_aco_objects[$key])) {
                 if ($counter == 0) {
                     $counter = $counter + 1;
                     $aco_section_data = $gacl->get_section_data($key, 'ACO');
@@ -391,9 +406,9 @@ function aco_listings_xml($group, $return_value, $err)
                     // Modified 6-2009 by BM - Translate gacl aco section name
                     $message .= "\t\t<section>\n" .
                     "\t\t\t<name>" . xl($aco_section_title) . "</name>\n";
-    
                 }
-                $aco_id = $gacl->get_object_id($key, $value2,'ACO');
+
+                $aco_id = $gacl->get_object_id($key, $value2, 'ACO');
                 $aco_data = $gacl->get_object_data($aco_id, 'ACO');
                 $aco_title = $aco_data[0][3];
                 $message .= "\t\t\t<aco>\n";
@@ -405,10 +420,12 @@ function aco_listings_xml($group, $return_value, $err)
                 $message .= "\t\t\t</aco>\n";
             }
         }
+
         if ($counter != 0) {
             $message .= "\t\t</section>\n";
         }
     }
+
     $message .= "\t</inactive>\n" .
     "\t<active>\n";
     foreach ($active_aco_objects as $key => $value) {
@@ -419,8 +436,8 @@ function aco_listings_xml($group, $return_value, $err)
         $message .= "\t\t<section>\n" .
          "\t\t\t<name>" . xl($aco_section_title) . "</name>\n";
      
-        foreach($active_aco_objects[$key] as $value2) {
-            $aco_id = $gacl->get_object_id($key, $value2,'ACO');
+        foreach ($active_aco_objects[$key] as $value2) {
+            $aco_id = $gacl->get_object_id($key, $value2, 'ACO');
             $aco_data = $gacl->get_object_data($aco_id, 'ACO');
             $aco_title = $aco_data[0][3];
             $message .= "\t\t\t<aco>\n";
@@ -431,14 +448,17 @@ function aco_listings_xml($group, $return_value, $err)
             $message .= "\t\t\t\t<id>" . $aco_id . "</id>\n";
             $message .= "\t\t\t</aco>\n";
         }
+
         $message .= "\t\t</section>\n";
     }
+
     $message .= "\t</active>\n";
     if (isset($err)) {
         foreach ($err as $value) {
             $message .= "\t<error>" . $value . "</error>\n";
         }
     }
+
     $message .= "</response>\n";
     return $message;
 }
@@ -456,13 +476,12 @@ function return_values_xml($err)
  
     $message = "<?xml version=\"1.0\"?>\n" .
     "<response>\n";
-    foreach(acl_get_group_title_list() as $value) {
+    foreach (acl_get_group_title_list() as $value) {
         $acl_id = $gacl->search_acl(false, false, false, false, $value, false, false, false, false);
-        foreach($acl_id as $value2){
+        foreach ($acl_id as $value2) {
             $acl = $gacl->get_acl($value2);
             $ret = $acl["return_value"];
             if (!in_array($ret, $returns)) {
-    
                 // Modified 6-2009 by BM - Translate return value
                 $message .= "\t<return>\n";
                 $message .= "\t\t<returnid>" . $ret  . "</returnid>\n";
@@ -473,11 +492,13 @@ function return_values_xml($err)
             }
         }
     }
+
     if (isset($err)) {
         foreach ($err as $value) {
             $message .= "\t<error>" . $value . "</error>\n";
         }
     }
+
     $message .= "</response>\n";
     return $message;
 }
@@ -490,15 +511,14 @@ function error_xml($err)
 {
     $message = "<?xml version=\"1.0\"?>\n" .
     "<response>\n";
-    if (is_array($err)){
-        foreach ($err as $value){
+    if (is_array($err)) {
+        foreach ($err as $value) {
             $message .= "\t<error>" . $value . "</error>\n";
         }
-    }
-    else {
+    } else {
         $message .= "\t<error>" . $err . "</error>\n";
     }
+
     $message .= "</response>\n";
     return $message;
 }
-?>

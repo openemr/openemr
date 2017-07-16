@@ -35,17 +35,17 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 
 <body class='body_top'>
 <div>
-  <span class='title'><?php echo htmlspecialchars( xl('Clinical Reminders'), ENT_NOQUOTES); ?></span>
+  <span class='title'><?php echo htmlspecialchars(xl('Clinical Reminders'), ENT_NOQUOTES); ?></span>
 </div>
 <div id='namecontainer_creminders' class='namecontainer_creminders' style='float:left;margin-right:10px'>
-    <?php echo htmlspecialchars( xl('for'), ENT_NOQUOTES);?>&nbsp;
+    <?php echo htmlspecialchars(xl('for'), ENT_NOQUOTES);?>&nbsp;
   <span class="title">
-    <a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo htmlspecialchars( getPatientName($pid), ENT_NOQUOTES); ?></a>
+    <a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES); ?></a>
   </span>
 </div>
 <div>
   <a href="../summary/demographics.php" class="css_button" onclick="top.restoreSession()">
-    <span><?php echo htmlspecialchars( xl('Back To Patient'), ENT_NOQUOTES);?></span>
+    <span><?php echo htmlspecialchars(xl('Back To Patient'), ENT_NOQUOTES);?></span>
   </a>
 </div>
 
@@ -55,26 +55,26 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 
 <?php
   // collect the pertinent plans and rules
-  $plans_default = resolve_plans_sql('','0',true);
-  $rules_default = resolve_rules_sql('','0',true,'',$_SESSION['authUser']);
+  $plans_default = resolve_plans_sql('', '0', true);
+  $rules_default = resolve_rules_sql('', '0', true, '', $_SESSION['authUser']);
 ?>
 
 <ul class="tabNav">
-  <li class='current'><a href='#' onclick='top.restoreSession()'><?php echo htmlspecialchars( xl('Main'), ENT_NOQUOTES); ?></a></li>
-  <li><a href='#' onclick='top.restoreSession()'><?php echo htmlspecialchars( xl('Plans'), ENT_NOQUOTES); ?></a></li>
-  <li><a href='#' onclick='top.restoreSession()'><?php echo htmlspecialchars( xl('Admin'), ENT_NOQUOTES); ?></a></li>
+  <li class='current'><a href='#' onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Main'), ENT_NOQUOTES); ?></a></li>
+  <li><a href='#' onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Plans'), ENT_NOQUOTES); ?></a></li>
+  <li><a href='#' onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Admin'), ENT_NOQUOTES); ?></a></li>
 </ul>
 
 <div class="tabContainer">
   <div class="tab current text" style="height:auto;width:97%;">
     <?php
-      clinical_summary_widget($pid,"reminders-all",'','default',$_SESSION['authUser']);
+      clinical_summary_widget($pid, "reminders-all", '', 'default', $_SESSION['authUser']);
     ?>
   </div>
 
   <div class="tab text" style="height:auto;width:97%;">
     <?php
-      clinical_summary_widget($pid,"reminders-all",'',"plans",$_SESSION['authUser']);
+      clinical_summary_widget($pid, "reminders-all", '', "plans", $_SESSION['authUser']);
     ?>
   </div>
 
@@ -82,17 +82,17 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
     <div id='report_results'>
       <table>
         <tr>
-          <th rowspan="2"><?php echo htmlspecialchars( xl('Plan'), ENT_NOQUOTES); ?></th>
-          <th colspan="2"><?php echo htmlspecialchars( xl('Show'), ENT_NOQUOTES); ?></th>
+          <th rowspan="2"><?php echo htmlspecialchars(xl('Plan'), ENT_NOQUOTES); ?></th>
+          <th colspan="2"><?php echo htmlspecialchars(xl('Show'), ENT_NOQUOTES); ?></th>
         </tr>
         <tr>
-          <th><?php echo htmlspecialchars( xl('Patient Setting'), ENT_NOQUOTES); ?></th>
-          <th style="left-margin:1em;"><?php echo htmlspecialchars( xl('Practice Default Setting'), ENT_NOQUOTES); ?></th>
+          <th><?php echo htmlspecialchars(xl('Patient Setting'), ENT_NOQUOTES); ?></th>
+          <th style="left-margin:1em;"><?php echo htmlspecialchars(xl('Practice Default Setting'), ENT_NOQUOTES); ?></th>
         </tr>
         <?php foreach ($plans_default as $plan) { ?>
             <?php
           //only show the plan if there are any rules in it that the user has access to
-            $plan_check = resolve_rules_sql('','0',true,$plan['id'],$_SESSION['authUser']);
+            $plan_check = resolve_rules_sql('', '0', true, $plan['id'], $_SESSION['authUser']);
             if (empty($plan_check)) {
                 continue;
             }
@@ -102,35 +102,37 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
             <td align="center">
                 <?php
 
-                $patient_plan = collect_plan($plan['id'],$patient_id);
+                $patient_plan = collect_plan($plan['id'], $patient_id);
 
               // Set the patient specific setting for gui
                 if (empty($patient_plan)) {
                     $select = "default";
-                }
-                else {
+                } else {
                     if ($patient_plan['normal_flag'] == "1") {
                         $select = "on";
-                    }
-                    else if ($patient_plan['normal_flag'] == "0"){
+                    } else if ($patient_plan['normal_flag'] == "0") {
                         $select = "off";
-                    }
-                    else { // $patient_rule['normal_flag'] == NULL
+                    } else { // $patient_rule['normal_flag'] == NULL
                         $select = "default";
                     }
                 } ?>
-              <select class="plan_show" name="<?php echo htmlspecialchars( $plan['id'], ENT_NOQUOTES); ?>">
-                <option value="default" <?php if ($select == "default") echo "selected"; ?>><?php echo htmlspecialchars( xl('Default'), ENT_NOQUOTES); ?></option>
-                <option value="on" <?php if ($select == "on") echo "selected"; ?>><?php echo htmlspecialchars( xl('On'), ENT_NOQUOTES); ?></option>
-                <option value="off" <?php if ($select == "off") echo "selected"; ?>><?php echo htmlspecialchars( xl('Off'), ENT_NOQUOTES); ?></option>
+              <select class="plan_show" name="<?php echo htmlspecialchars($plan['id'], ENT_NOQUOTES); ?>">
+                <option value="default" <?php if ($select == "default") {
+                    echo "selected";
+} ?>><?php echo htmlspecialchars(xl('Default'), ENT_NOQUOTES); ?></option>
+                <option value="on" <?php if ($select == "on") {
+                    echo "selected";
+} ?>><?php echo htmlspecialchars(xl('On'), ENT_NOQUOTES); ?></option>
+                <option value="off" <?php if ($select == "off") {
+                    echo "selected";
+} ?>><?php echo htmlspecialchars(xl('Off'), ENT_NOQUOTES); ?></option>
               </select>
             </td>
             <td align="center" style="border-right:1px solid black;">
                 <?php if ($plan['normal_flag'] == "1") {
-                    echo htmlspecialchars( xl('On'), ENT_NOQUOTES);
-}
-else {
-    echo htmlspecialchars( xl('Off'), ENT_NOQUOTES);
+                    echo htmlspecialchars(xl('On'), ENT_NOQUOTES);
+} else {
+    echo htmlspecialchars(xl('Off'), ENT_NOQUOTES);
 } ?>
             </td>
           </tr>
@@ -140,49 +142,51 @@ else {
       <br>
       <table>
         <tr>
-          <th rowspan="2"><?php echo htmlspecialchars( xl('Rule'), ENT_NOQUOTES); ?></th>
-          <th colspan="2"><?php echo htmlspecialchars( xl('Passive Alert'), ENT_NOQUOTES); ?></th>
-          <th colspan="2"><?php echo htmlspecialchars( xl('Active Alert'), ENT_NOQUOTES); ?></th>
+          <th rowspan="2"><?php echo htmlspecialchars(xl('Rule'), ENT_NOQUOTES); ?></th>
+          <th colspan="2"><?php echo htmlspecialchars(xl('Passive Alert'), ENT_NOQUOTES); ?></th>
+          <th colspan="2"><?php echo htmlspecialchars(xl('Active Alert'), ENT_NOQUOTES); ?></th>
         </tr>
         <tr>
-          <th><?php echo htmlspecialchars( xl('Patient Setting'), ENT_NOQUOTES); ?></th>
-          <th style="left-margin:1em;"><?php echo htmlspecialchars( xl('Practice Default Setting'), ENT_NOQUOTES); ?></th>
-          <th><?php echo htmlspecialchars( xl('Patient Setting'), ENT_NOQUOTES); ?></th>
-          <th style="left-margin:1em;"><?php echo htmlspecialchars( xl('Practice Default Setting'), ENT_NOQUOTES); ?></th>
+          <th><?php echo htmlspecialchars(xl('Patient Setting'), ENT_NOQUOTES); ?></th>
+          <th style="left-margin:1em;"><?php echo htmlspecialchars(xl('Practice Default Setting'), ENT_NOQUOTES); ?></th>
+          <th><?php echo htmlspecialchars(xl('Patient Setting'), ENT_NOQUOTES); ?></th>
+          <th style="left-margin:1em;"><?php echo htmlspecialchars(xl('Practice Default Setting'), ENT_NOQUOTES); ?></th>
         </tr>
         <?php foreach ($rules_default as $rule) { ?>
           <tr>
             <td style="border-right:1px solid black;"><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $rule['id']); ?></td>
             <td align="center">
                 <?php
-                $patient_rule = collect_rule($rule['id'],$patient_id);
+                $patient_rule = collect_rule($rule['id'], $patient_id);
               // Set the patient specific setting for gui
                 if (empty($patient_rule)) {
                     $select = "default";
-                }
-                else {
+                } else {
                     if ($patient_rule['passive_alert_flag'] == "1") {
                         $select = "on";
-                    }
-                    else if ($patient_rule['passive_alert_flag'] == "0"){
+                    } else if ($patient_rule['passive_alert_flag'] == "0") {
                         $select = "off";
-                    }
-                    else { // $patient_rule['passive_alert_flag'] == NULL
+                    } else { // $patient_rule['passive_alert_flag'] == NULL
                         $select = "default";
                     }
                 } ?>
-              <select class="passive_alert" name="<?php echo htmlspecialchars( $rule['id'], ENT_NOQUOTES); ?>">
-                <option value="default" <?php if ($select == "default") echo "selected"; ?>><?php echo htmlspecialchars( xl('Default'), ENT_NOQUOTES); ?></option>
-                <option value="on" <?php if ($select == "on") echo "selected"; ?>><?php echo htmlspecialchars( xl('On'), ENT_NOQUOTES); ?></option>
-                <option value="off" <?php if ($select == "off") echo "selected"; ?>><?php echo htmlspecialchars( xl('Off'), ENT_NOQUOTES); ?></option>
+              <select class="passive_alert" name="<?php echo htmlspecialchars($rule['id'], ENT_NOQUOTES); ?>">
+                <option value="default" <?php if ($select == "default") {
+                    echo "selected";
+} ?>><?php echo htmlspecialchars(xl('Default'), ENT_NOQUOTES); ?></option>
+                <option value="on" <?php if ($select == "on") {
+                    echo "selected";
+} ?>><?php echo htmlspecialchars(xl('On'), ENT_NOQUOTES); ?></option>
+                <option value="off" <?php if ($select == "off") {
+                    echo "selected";
+} ?>><?php echo htmlspecialchars(xl('Off'), ENT_NOQUOTES); ?></option>
               </select>
             </td>
             <td align="center" style="border-right:1px solid black;">
                 <?php if ($rule['passive_alert_flag'] == "1") {
-                    echo htmlspecialchars( xl('On'), ENT_NOQUOTES);
-}
-else {
-    echo htmlspecialchars( xl('Off'), ENT_NOQUOTES);
+                    echo htmlspecialchars(xl('On'), ENT_NOQUOTES);
+} else {
+    echo htmlspecialchars(xl('Off'), ENT_NOQUOTES);
 } ?>
             </td>
             <td align="center">
@@ -190,30 +194,32 @@ else {
               // Set the patient specific setting for gui
                 if (empty($patient_rule)) {
                     $select = "default";
-                }
-                else {
+                } else {
                     if ($patient_rule['active_alert_flag'] == "1") {
                         $select = "on";
-                    }
-                    else if ($patient_rule['active_alert_flag'] == "0"){
+                    } else if ($patient_rule['active_alert_flag'] == "0") {
                         $select = "off";
-                    }
-                    else { // $patient_rule['active_alert_flag'] == NULL
+                    } else { // $patient_rule['active_alert_flag'] == NULL
                         $select = "default";
                     }
                 } ?>
-              <select class="active_alert" name="<?php echo htmlspecialchars( $rule['id'], ENT_NOQUOTES); ?>">
-                <option value="default" <?php if ($select == "default") echo "selected"; ?>><?php echo htmlspecialchars( xl('Default'), ENT_NOQUOTES); ?></option>
-                <option value="on" <?php if ($select == "on") echo "selected"; ?>><?php echo htmlspecialchars( xl('On'), ENT_NOQUOTES); ?></option>
-                <option value="off" <?php if ($select == "off") echo "selected"; ?>><?php echo htmlspecialchars( xl('Off'), ENT_NOQUOTES); ?></option>
+              <select class="active_alert" name="<?php echo htmlspecialchars($rule['id'], ENT_NOQUOTES); ?>">
+                <option value="default" <?php if ($select == "default") {
+                    echo "selected";
+} ?>><?php echo htmlspecialchars(xl('Default'), ENT_NOQUOTES); ?></option>
+                <option value="on" <?php if ($select == "on") {
+                    echo "selected";
+} ?>><?php echo htmlspecialchars(xl('On'), ENT_NOQUOTES); ?></option>
+                <option value="off" <?php if ($select == "off") {
+                    echo "selected";
+} ?>><?php echo htmlspecialchars(xl('Off'), ENT_NOQUOTES); ?></option>
               </select>
             </td>
             <td align="center">
                 <?php if ($rule['active_alert_flag'] == "1") {
-                    echo htmlspecialchars( xl('On'), ENT_NOQUOTES);
-}
-else {
-    echo htmlspecialchars( xl('Off'), ENT_NOQUOTES);
+                    echo htmlspecialchars(xl('On'), ENT_NOQUOTES);
+} else {
+    echo htmlspecialchars(xl('Off'), ENT_NOQUOTES);
 } ?>
             </td>
           </tr>

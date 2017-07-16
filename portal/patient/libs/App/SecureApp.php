@@ -39,11 +39,10 @@ class SecureApp implements IAuthenticatable
      */
     public function __construct()
     {
-        if (!self::$USERS)
-        {
+        if (!self::$USERS) {
             self::$USERS = array(
-                "demo"=>password_hash("pass",PASSWORD_BCRYPT),
-                "admin"=>password_hash("pass",PASSWORD_BCRYPT)
+                "demo"=>password_hash("pass", PASSWORD_BCRYPT),
+                "admin"=>password_hash("pass", PASSWORD_BCRYPT)
             );
         }
     }
@@ -66,9 +65,13 @@ class SecureApp implements IAuthenticatable
      */
     public function IsAuthorized($permission)
     {
-        if ($this->Username == 'admin') return true;
+        if ($this->Username == 'admin') {
+            return true;
+        }
 
-        if ($this->Username == 'demo' && $permission == self::$PERMISSION_USER) return true;
+        if ($this->Username == 'demo' && $permission == self::$PERMISSION_USER) {
+            return true;
+        }
 
         return false;
     }
@@ -83,12 +86,10 @@ class SecureApp implements IAuthenticatable
      * @param string $username
      * @param string $password
      */
-    public function Login($username,$password)
+    public function Login($username, $password)
     {
-        foreach (self::$USERS as $un=>$pw)
-        {
-            if ($username == $un && password_verify($password,$pw))
-            {
+        foreach (self::$USERS as $un => $pw) {
+            if ($username == $un && password_verify($password, $pw)) {
                 $this->Username = $username;
                 break;
             }
@@ -96,7 +97,4 @@ class SecureApp implements IAuthenticatable
 
         return $this->Username != '';
     }
-
 }
-
-?>

@@ -8,5 +8,6 @@ return function ($class) {
     if (!isset($map[$class])) {
         return false;
     }
+
     return include $map[$class];
 };

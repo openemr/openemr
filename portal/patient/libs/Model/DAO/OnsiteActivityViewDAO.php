@@ -156,8 +156,4 @@ class OnsiteActivityViewDAO extends Phreezable
 
     /** @var string */
     public $PhysicianType;
-
-
-
 }
-?>

@@ -92,12 +92,10 @@ if ($_POST['form_save']) {
         $query = "UPDATE procedure_providers SET $sets " .
         "WHERE ppid = '"  . add_escape_custom($ppid) . "'";
         sqlStatement($query);
-    }
-    else {
+    } else {
         $ppid = sqlInsert("INSERT INTO procedure_providers SET $sets");
     }
-}
-else if ($_POST['form_delete']) {
+} else if ($_POST['form_delete']) {
     if ($ppid) {
         sqlStatement("DELETE FROM procedure_providers WHERE ppid = ?", array($ppid));
     }
@@ -106,7 +104,10 @@ else if ($_POST['form_delete']) {
 if ($_POST['form_save'] || $_POST['form_delete']) {
   // Close this window and redisplay the updated list.
     echo "<script language='JavaScript'>\n";
-    if ($info_msg) echo " alert('" . addslashes($info_msg) . "');\n";
+    if ($info_msg) {
+        echo " alert('" . addslashes($info_msg) . "');\n";
+    }
+
     echo " window.close();\n";
     echo " if (opener.refreshme) opener.refreshme();\n";
     echo "</script></body></html>\n";
@@ -123,10 +124,11 @@ while ($org_row = sqlFetchArray($org_res)) {
     $lab_org_name = $org_row['organization'];
     $selected = '';
     if ($ppid) {
-        if($row['lab_director'] == $org_row['id']){
+        if ($row['lab_director'] == $org_row['id']) {
             $selected = "SELECTED";
         }
     }
+
     $optionsStr .= "<option value='".attr($org_row['id'])."' $selected>".  text($lab_org_name)."</option>";
 }
 ?>
@@ -190,13 +192,15 @@ while ($org_row = sqlFetchArray($org_res)) {
   <td>
    <select name='form_DorP' title='<?php echo xla('MSH-11'); ?>'>
 <?php
-foreach(array(
+foreach (array(
   'D' => xl('Debugging'),
   'P' => xl('Production'),
-  ) as $key => $value)
-{
+  ) as $key => $value) {
     echo "    <option value='" . attr($key) . "'";
-    if ($key == $row['DorP']) echo " selected";
+    if ($key == $row['DorP']) {
+        echo " selected";
+    }
+
     echo ">" . text($value) . "</option>\n";
 }
 ?>
@@ -209,15 +213,17 @@ foreach(array(
   <td>
    <select name='form_protocol'>
 <?php
-foreach(array(
+foreach (array(
   // Add to this list as more protocols are supported.
   'DL'   => xl('Download'),
   'SFTP' => xl('SFTP'),
   'FS'   => xl('Local Filesystem'),
-  ) as $key => $value)
-{
+  ) as $key => $value) {
     echo "    <option value='" . attr($key) . "'";
-    if ($key == $row['protocol']) echo " selected";
+    if ($key == $row['protocol']) {
+        echo " selected";
+    }
+
     echo ">" . text($value) . "</option>\n";
 }
 ?>
@@ -225,13 +231,15 @@ foreach(array(
    &nbsp;
    <select name='form_direction'>
 <?php
-foreach(array(
+foreach (array(
   'B' => xl('Bidirectional'),
   'R' => xl('Results Only'),
-  ) as $key => $value)
-{
+  ) as $key => $value) {
     echo "    <option value='" . attr($key) . "'";
-    if ($key == $row['direction']) echo " selected";
+    if ($key == $row['direction']) {
+        echo " selected";
+    }
+
     echo ">" . text($value) . "</option>\n";
 }
 ?>

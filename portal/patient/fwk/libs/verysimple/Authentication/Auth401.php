@@ -11,7 +11,8 @@
  * @version 1.0
  *
  */
-class Auth401 {
+class Auth401
+{
     
     /**
      * Send 401 headers to the browser
@@ -23,11 +24,12 @@ class Auth401 {
      */
     static function OutputHeaders($realm = "Login Required", $terminate = true)
     {
-        header ( "WWW-Authenticate: Basic realm=\"" . $realm . "\"" );
-        header ( "Status: 401 Unauthorized" );
-        header ( "HTTP-Status: 401 Unauthorized" );
-        if ($terminate)
-            die ();
+        header("WWW-Authenticate: Basic realm=\"" . $realm . "\"");
+        header("Status: 401 Unauthorized");
+        header("HTTP-Status: 401 Unauthorized");
+        if ($terminate) {
+            die();
+        }
     }
     
     /**
@@ -37,7 +39,7 @@ class Auth401 {
      */
     static function GetUsername()
     {
-        return isset ( $_SERVER ["PHP_AUTH_USER"] ) ? $_SERVER ["PHP_AUTH_USER"] : "";
+        return isset($_SERVER ["PHP_AUTH_USER"]) ? $_SERVER ["PHP_AUTH_USER"] : "";
     }
     
     /**
@@ -47,8 +49,6 @@ class Auth401 {
      */
     static function GetPassword()
     {
-        return isset ( $_SERVER ["PHP_AUTH_PW"] ) ? $_SERVER ["PHP_AUTH_PW"] : "";
+        return isset($_SERVER ["PHP_AUTH_PW"]) ? $_SERVER ["PHP_AUTH_PW"] : "";
     }
 }
-
-?>

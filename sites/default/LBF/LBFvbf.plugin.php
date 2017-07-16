@@ -31,10 +31,10 @@ function vbfComputeBMI() {
   bmi = weight / height / height * 703;
   bmi = bmi.toFixed(1);
   if      (bmi > 42  ) stat = '" . xl('Obesity III') . "';
-  else if (bmi > 34  ) stat = '" . xl('Obesity II' ) . "';
-  else if (bmi > 30  ) stat = '" . xl('Obesity I'  ) . "';
-  else if (bmi > 27  ) stat = '" . xl('Overweight' ) . "';
-  else if (bmi > 18.5) stat = '" . xl('Normal'     ) . "';
+  else if (bmi > 34  ) stat = '" . xl('Obesity II') . "';
+  else if (bmi > 30  ) stat = '" . xl('Obesity I') . "';
+  else if (bmi > 27  ) stat = '" . xl('Overweight') . "';
+  else if (bmi > 18.5) stat = '" . xl('Normal') . "';
   else                 stat = '" . xl('Underweight') . "';
  }
  if (f.form_bmi) f.form_bmi.value = bmi;
@@ -184,7 +184,6 @@ function vbfSFChanged() {
  vbfComputeBF();
 }
 ";
-
 }
 
 // The purpose of this function is to create JavaScript that is run
@@ -231,7 +230,4 @@ if (f.form_sf_sum) {
  }
 }
 ";
-
 }
-?>
-

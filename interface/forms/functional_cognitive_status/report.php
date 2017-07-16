@@ -34,8 +34,10 @@ function functional_cognitive_status_report($pid, $encounter, $cols, $id)
     $sql = "SELECT * FROM `form_functional_cognitive_status` WHERE id=? AND pid = ? AND encounter = ?";
     $res = sqlStatement($sql, array($id,$pid, $encounter));
 
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $data[$iter] = $row;
+    }
+
     if ($data) {
         ?>
         <table style='border-collapse:collapse;border-spacing:0;width: 100%;'>
@@ -63,4 +65,4 @@ function functional_cognitive_status_report($pid, $encounter, $cols, $id)
         <?php
     }
 }
-?> 
+?>

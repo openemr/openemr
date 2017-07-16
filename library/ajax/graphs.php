@@ -48,17 +48,13 @@ function getIdealYSteps($a)
 {
     if ($a>1000) {
         return 200;
-    }
-    else if ($a>500) {
+    } else if ($a>500) {
         return 100;
-    }
-    else if ($a>100) {
+    } else if ($a>100) {
         return 20;
-    }
-    else if ($a>50) {
+    } else if ($a>50) {
         return 10;
-    }
-    else {
+    } else {
         return 5;
     }
 }
@@ -68,20 +64,21 @@ function graphsGetValues($name)
     global $is_lbf, $pid, $table;
     if ($is_lbf) {
         // Like below, but for LBF data.
-        $values = sqlStatement("SELECT " .
-        "ld.field_value AS " . add_escape_custom($name) . ", " .
-        "f.date " .
-        "FROM forms AS f, lbf_data AS ld WHERE " .
-        "f.pid = ? AND " .
-        "f.formdir = ? AND " .
-        "f.deleted = 0 AND " .
-        "ld.form_id = f.form_id AND " .
-        "ld.field_id = ? AND " .
-        "ld.field_value != '0' " .
-        "ORDER BY f.date",
-        array($pid, $table, $name));
-    }
-    else {
+        $values = sqlStatement(
+            "SELECT " .
+            "ld.field_value AS " . add_escape_custom($name) . ", " .
+            "f.date " .
+            "FROM forms AS f, lbf_data AS ld WHERE " .
+            "f.pid = ? AND " .
+            "f.formdir = ? AND " .
+            "f.deleted = 0 AND " .
+            "ld.form_id = f.form_id AND " .
+            "ld.field_id = ? AND " .
+            "ld.field_value != '0' " .
+            "ORDER BY f.date",
+            array($pid, $table, $name)
+        );
+    } else {
         // Collect the pertinent info and ranges
         //  (Note am skipping values of zero, this could be made to be
         //   optional in the future when using lab values)
@@ -92,6 +89,7 @@ function graphsGetValues($name)
         "WHERE " . add_escape_custom($name) . " != 0 " .
         "AND pid = ? ORDER BY date", array($pid));
     }
+
     return $values;
 }
 
@@ -103,71 +101,70 @@ if ($is_lbf) {
         $titleGraphLine1 = xl("BP Systolic");
         $titleGraphLine2 = xl("BP Diastolic");
     }
-}
-else {
+} else {
     switch ($name) {
         case "weight":
              $titleGraph = $title." (".xl("lbs").")";
-          break;
+            break;
         case "weight_metric":
              $titleGraph = $title." (".xl("kg").")";
              $multiplier = getLbstoKgMultiplier();
              $name = "weight";
-          break;
+            break;
         case "height":
              $titleGraph = $title." (".xl("in").")";
-          break;
+            break;
         case "height_metric":
              $titleGraph = $title." (".xl("cm").")";
              $multiplier = getIntoCmMultiplier();
              $name = "height";
-          break;
+            break;
         case "bps":
              $titleGraph = xl("Blood Pressure")." (".xl("mmHg").")";
              $titleGraphLine1 = xl("BP Systolic");
              $titleGraphLine2 = xl("BP Diastolic");
-          break;
+            break;
         case "bpd":
              $titleGraph = xl("Blood Pressure")." (".xl("mmHg").")";
              $titleGraphLine1 = xl("BP Diastolic");
              $titleGraphLine2 = xl("BP Systolic");
-          break;
+            break;
         case "pulse":
              $titleGraph = $title." (".xl("per min").")";
-          break;
+            break;
         case "respiration":
              $titleGraph = $title." (".xl("per min").")";
-          break;
+            break;
         case "temperature":
              $titleGraph = $title." (".xl("F").")";
-          break;
+            break;
         case "temperature_metric":
              $titleGraph = $title." (".xl("C").")";
              $isConvertFtoC = 1;
              $name="temperature";
-          break;
+            break;
         case "oxygen_saturation":
              $titleGraph = $title." (".xl("%").")";
-          break;
+            break;
         case "head_circ":
              $titleGraph = $title." (".xl("in").")";
-          break;
+            break;
         case "head_circ_metric":
              $titleGraph = $title." (".xl("cm").")";
              $multiplier = getIntoCmMultiplier();
              $name="head_circ";
-          break;
+            break;
         case "waist_circ":
              $titleGraph = $title." (".xl("in").")";
-          break;
+            break;
         case "waist_circ_metric":
              $titleGraph = $title." (".xl("cm").")";
              $multiplier = getIntoCmMultiplier();
              $name="waist_circ";
-          break;
+            break;
         case "BMI":
              $titleGraph = $title." (".xl("kg/m^2").")";
-          break;
+            break;
         default:
              $titleGraph = $title;
     }
@@ -177,8 +174,7 @@ else {
 if ($table) {
   // Like below, but for LBF data.
     $values = graphsGetValues($name);
-}
-else {
+} else {
     exit;
 }
 
@@ -193,18 +189,27 @@ if ($is_lbf) {
     if ($name == "bp_systolic" || $name == "bp_diastolic") {
         // Set BP flag and collect other pressure reading
         $isBP = 1;
-        if ($name == "bp_systolic") $name_alt = "bp_diastolic";
-        else $name_alt = "bp_systolic";
+        if ($name == "bp_systolic") {
+            $name_alt = "bp_diastolic";
+        } else {
+            $name_alt = "bp_systolic";
+        }
+
         // Collect the pertinent vitals and ranges.
         $values_alt = graphsGetValues($name_alt);
     }
-}
-else {
+} else {
     if ($name == "bps" || $name == "bpd") {
         // Set BP flag and collect other pressure reading
         $isBP = 1;
-        if ($name == "bps") $name_alt = "bpd";
-        if ($name == "bpd") $name_alt = "bps";
+        if ($name == "bps") {
+            $name_alt = "bpd";
+        }
+
+        if ($name == "bpd") {
+            $name_alt = "bps";
+        }
+
         // Collect the pertinent vitals and ranges.
         $values_alt = graphsGetValues($name_alt);
     }
@@ -218,18 +223,18 @@ while ($row = sqlFetchArray($values)) {
         if ($multiplier) {
             // apply unit conversion multiplier
             $y=$row["$name"]*$multiplier;
-        }
-        else if ($isConvertFtoC ) {
+        } else if ($isConvertFtoC) {
             // apply temp F to C conversion
             $y=convertFtoC($row["$name"]);
-        }
-        else {
+        } else {
            // no conversion, so use raw value
             $y=$row["$name"];
         }
+
         $data[$x][$name] = $y;
     }
 }
+
 if ($isBP) {
   //set up the other blood pressure line
     while ($row = sqlFetchArray($values_alt)) {
@@ -238,15 +243,14 @@ if ($isBP) {
             if ($multiplier) {
                 // apply unit conversion multiplier
                 $y=$row["$name_alt"]*$multiplier;
-            }
-            else if ($isConvertFtoC ) {
+            } else if ($isConvertFtoC) {
                 // apply temp F to C conversion
                 $y=convertFtoC($row["$name_alt"]);
-            }
-            else {
+            } else {
                // no conversion, so use raw value
                 $y=$row["$name_alt"];
             }
+
             $data[$x][$name_alt] = $y;
         }
     }
@@ -256,8 +260,7 @@ if ($isBP) {
 $data_final = "";
 if ($isBP) {
     $data_final .= xl('Date') . "\t" . $titleGraphLine1 . "\t" . $titleGraphLine2 . "\n";
-}
-else {
+} else {
     $data_final .= xl('Date') . "\t" . $titleGraph . "\n";
 }
 
@@ -277,4 +280,4 @@ $graph_build['title'] = $titleGraph;
 // Note need to also use " when building the $data_final rather
 // than ' , or else JSON_UNESCAPED_SLASHES doesn't work and \n and
 // \t get escaped.
-echo json_encode($graph_build,JSON_UNESCAPED_SLASHES);
+echo json_encode($graph_build, JSON_UNESCAPED_SLASHES);

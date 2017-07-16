@@ -15,12 +15,17 @@
 
  // Check authorization.
  $thisauth = acl_check('admin', 'drugs');
- if (!$thisauth) die(xl('Not authorized'));
+if (!$thisauth) {
+    die(xl('Not authorized'));
+}
 
 function addWarning($msg)
 {
     global $warnings;
-    if ($warnings) $warnings .= '<br />';
+    if ($warnings) {
+        $warnings .= '<br />';
+    }
+
     $warnings .= $msg;
 }
 
@@ -29,8 +34,7 @@ $form_action = $_POST['form_action'];
 
 if (!empty($_POST['form_days'])) {
     $form_days = $_POST['form_days'] + 0;
-}
-else {
+} else {
     $form_days = sprintf('%d', (strtotime(date('Y-m-d')) - strtotime(date('Y-01-01'))) / (60 * 60 * 24) + 1);
 }
 
@@ -48,7 +52,7 @@ $res = sqlStatement("SELECT d.*, SUM(di.on_hand) AS on_hand " .
 <?php html_header_show(); ?>
 
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
-<title><?php  xl('Inventory List','e'); ?></title>
+<title><?php  xl('Inventory List', 'e'); ?></title>
 
 <style>
 /* specifically include & exclude from printing */
@@ -150,9 +154,9 @@ table.mymaintable td, table.mymaintable th {
 <table width='98%' id='mymaintable' class='mymaintable'>
  <thead style='display:table-header-group'>
   <tr class='head'>
-   <th><?php  xl('Name','e'); ?></th>
-   <th><?php  xl('NDC','e'); ?></th>
-   <th><?php  xl('Form','e'); ?></th>
+   <th><?php  xl('Name', 'e'); ?></th>
+   <th><?php  xl('NDC', 'e'); ?></th>
+   <th><?php  xl('Form', 'e'); ?></th>
    <th align='right'><?php echo htmlspecialchars(xl('QOH')); ?></th>
    <th align='right'><?php echo htmlspecialchars(xl('Reorder')); ?></th>
    <th align='right'><?php echo htmlspecialchars(xl('Avg Monthly')); ?></th>
@@ -228,12 +232,12 @@ while ($row = sqlFetchArray($res)) {
         if ($irow['on_hand'] < $min_sale) {
             addWarning(htmlspecialchars(xl('Lot') . " '$lotno' " . xl('quantity seems unusable')));
         }
+
         if (!empty($irow['expiration'])) {
             $expdays = (int) ((strtotime($irow['expiration']) - time()) / (60 * 60 * 24));
             if ($expdays <= 0) {
                 addWarning(htmlspecialchars(xl('Lot') . " '$lotno' " . xl('has expired')));
-            }
-            else if ($expdays <= 30) {
+            } else if ($expdays <= 30) {
                 addWarning(htmlspecialchars(xl('Lot') . " '$lotno' " . xl('expires in') . " $expdays " . xl('days')));
             }
         }

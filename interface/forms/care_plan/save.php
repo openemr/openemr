@@ -53,12 +53,13 @@ if ($id && $id != 0) {
     } else {
         $newid = 1;
     }
+
     addForm($encounter, "Care Plan Form", $newid, "care_plan", $_SESSION["pid"], $userauthorized);
 }
 
 $count = array_filter($count);
 if (!empty($count)) {
-    foreach ($count as $key => $codeval):
+    foreach ($count as $key => $codeval) :
         $code_val = $code[$key] ? $code[$key] : 0;
         $codetext_val = $code_text[$key] ? $code_text[$key] :'NULL';
         $description_val = $code_des[$key] ? $code_des[$key] : 'NULL';
@@ -78,9 +79,8 @@ if (!empty($count)) {
         sqlInsert("INSERT INTO form_care_plan SET $sets");
     endforeach;
 }
+
 $_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();
-?>
-

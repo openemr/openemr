@@ -4,9 +4,9 @@
 /**
  * import supporting libraries
  */
-include_once ("PaymentRequest.php");
-include_once ("PaymentResponse.php");
-include_once ("RefundRequest.php");
+include_once("PaymentRequest.php");
+include_once("PaymentResponse.php");
+include_once("RefundRequest.php");
 
 /**
  * PaymentProcessor is an abstract base class for processing PaymentRequest
@@ -20,7 +20,8 @@ include_once ("RefundRequest.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 3.0
  */
-abstract class PaymentProcessor {
+abstract class PaymentProcessor
+{
     public $Username;
     public $Password;
     public $Signature;
@@ -38,7 +39,7 @@ abstract class PaymentProcessor {
         $this->Password = $password;
         $this->Signature = $signature;
         $this->_testMode = $testmode;
-        $this->Init ( $testmode );
+        $this->Init($testmode);
     }
     
     /**
@@ -73,9 +74,9 @@ abstract class PaymentProcessor {
      */
     protected function GetFullYear($year)
     {
-        if (strlen ( $year ) < 4) {
+        if (strlen($year) < 4) {
             // assume the current century (could be problematic around 2098, 2099, etc)
-            $century = substr ( date ( "Y" ), 0, 2 );
+            $century = substr(date("Y"), 0, 2);
             $year = $century . $year;
         }
         
@@ -98,41 +99,40 @@ abstract class PaymentProcessor {
         // convert the data array into a url querystring
         $post_data = "";
         $delim = "";
-        foreach ( array_keys ( $data ) as $key ) {
+        foreach (array_keys($data) as $key) {
             $post_data .= $delim . $key . "=" . $data [$key];
             $delim = "&";
         }
         
         $agent = "curl_post.1";
         // $header[] = "Accept: text/vnd.wap.wml,*.*";
-        $ch = curl_init ( $url );
+        $ch = curl_init($url);
         
-        curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt ( $ch, CURLOPT_VERBOSE, 0 ); // ########## debug
-        curl_setopt ( $ch, CURLOPT_USERAGENT, $agent );
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_VERBOSE, 0); // ########## debug
+        curl_setopt($ch, CURLOPT_USERAGENT, $agent);
         // curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-        curl_setopt ( $ch, CURLOPT_FOLLOWLOCATION, 1 );
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         
         if ($use_cookies) {
-            curl_setopt ( $ch, CURLOPT_COOKIEJAR, "cook" );
-            curl_setopt ( $ch, CURLOPT_COOKIEFILE, "cook" );
+            curl_setopt($ch, CURLOPT_COOKIEJAR, "cook");
+            curl_setopt($ch, CURLOPT_COOKIEFILE, "cook");
         }
         
-        curl_setopt ( $ch, CURLOPT_POST, 1 );
-        curl_setopt ( $ch, CURLOPT_POSTFIELDS, $post_data );
-        curl_setopt ( $ch, CURLOPT_SSL_VERIFYPEER, $verify_cert );
-        curl_setopt ( $ch, CURLOPT_NOPROGRESS, 1 );
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $verify_cert);
+        curl_setopt($ch, CURLOPT_NOPROGRESS, 1);
         
-        $tmp = curl_exec ( $ch );
-        $error = curl_error ( $ch );
+        $tmp = curl_exec($ch);
+        $error = curl_error($ch);
         
         if ($error != "") {
             $tmp .= $error;
         }
-        curl_close ( $ch );
+
+        curl_close($ch);
         
         return $tmp;
     }
 }
-
-?>

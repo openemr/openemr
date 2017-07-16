@@ -1,17 +1,18 @@
 <?php
 
 
-define("EVENT_VEHICLE",1);
-define("EVENT_WORK_RELATED",2);
-define("EVENT_SLIP_FALL",3);
-define("EVENT_OTHER",4);
+define("EVENT_VEHICLE", 1);
+define("EVENT_WORK_RELATED", 2);
+define("EVENT_SLIP_FALL", 3);
+define("EVENT_OTHER", 4);
 
 
 /**
  * class FormHpTjePrimary
  *
  */
-class FormSOAP extends ORDataObject {
+class FormSOAP extends ORDataObject
+{
 
     /**
      *
@@ -51,12 +52,11 @@ class FormSOAP extends ORDataObject {
      * Constructor sets all Form attributes to their default value
      */
 
-    function __construct($id= "", $_prefix = "")
+    function __construct($id = "", $_prefix = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;
-        }
-        else {
+        } else {
             $id = "";
             $this->date = date("Y-m-d H:i:s");
         }
@@ -82,8 +82,7 @@ class FormSOAP extends ORDataObject {
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }
@@ -134,7 +133,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_user($u)
     {
-        if(!empty($u)){
+        if (!empty($u)) {
             $this->user = $u;
         }
     }
@@ -144,7 +143,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_subjective($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->subjective = $data;
         }
     }
@@ -154,7 +153,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_objective($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->objective = $data;
         }
     }
@@ -165,7 +164,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_assessment($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->assessment = $data;
         }
     }
@@ -184,7 +183,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_general($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->general = $data;
         }
     }
@@ -196,7 +195,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_heent($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->heent = $data;
         }
     }
@@ -208,7 +207,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_neck($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->neck = $data;
         }
     }
@@ -220,7 +219,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_cardio($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->cardio = $data;
         }
     }
@@ -232,7 +231,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_respiratory($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->respiratory = $data;
         }
     }
@@ -245,7 +244,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_breasts($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->breasts = $data;
         }
     }
@@ -257,7 +256,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_abdomen($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->abdomen = $data;
         }
     }
@@ -269,7 +268,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_gastro($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->gastro = $data;
         }
     }
@@ -281,7 +280,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_extremities($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->extremities = $data;
         }
     }
@@ -293,7 +292,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_skin($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->skin = $data;
         }
     }
@@ -305,7 +304,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_neurological($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->neurological = $data;
         }
     }
@@ -317,7 +316,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_mentalstatus($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->mentalstatus = $data;
         }
     }
@@ -328,7 +327,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_plan($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->plan = $data;
         }
     }
@@ -338,5 +337,3 @@ class FormSOAP extends ORDataObject {
         parent::persist();
     }
 }   // end of Form
-
-?>

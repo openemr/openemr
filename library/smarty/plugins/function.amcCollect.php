@@ -34,9 +34,8 @@ function smarty_function_amcCollect($params, &$smarty)
         $object_category = $params['object_category'];
         $object_id = $params['object_id'];
 
-    $returnArray = amcCollect($amc_id,$patient_id,$object_category,$object_id);
+    $returnArray = amcCollect($amc_id, $patient_id, $object_category, $object_id);
         $smarty->assign('amcCollectReturn', $returnArray);
 }
 
 /* vim: set expandtab: */
-?>

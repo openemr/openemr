@@ -10,7 +10,7 @@ include_once("../globals.php");
 <html>
 <head>
 <?php html_header_show();?>
-<title><?php xl('List lists','e'); ?></title>
+<title><?php xl('List lists', 'e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
@@ -41,7 +41,7 @@ li {
 
 <body class="body_top text">
 <div id="lists">
-<h1><?php xl('Active lists','e'); ?></h1>
+<h1><?php xl('Active lists', 'e'); ?></h1>
 <ul>
 <?php
 $res = sqlStatement("SELECT * FROM list_options WHERE " .

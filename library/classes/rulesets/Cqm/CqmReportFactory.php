@@ -10,19 +10,19 @@ class CqmReportFactory extends RsReportFactoryAbstract
 {
     public function __construct()
     {
-        foreach ( glob( dirname(__FILE__)."/library/*.php" ) as $filename ) {
-            require_once( $filename );
+        foreach (glob(dirname(__FILE__)."/library/*.php") as $filename) {
+            require_once($filename);
         }
 
-        foreach ( glob( dirname(__FILE__)."/reports/*.php" ) as $filename ) {
-            require_once( $filename );
+        foreach (glob(dirname(__FILE__)."/reports/*.php") as $filename) {
+            require_once($filename);
         }
     }
     
-    public function createReport( $className, $rowRule, $patientData, $dateTarget, $options )
+    public function createReport($className, $rowRule, $patientData, $dateTarget, $options)
     {
         $reportObject = null;
-        if ( class_exists( $className ) ) {
+        if (class_exists($className)) {
             $reportObject = new $className( $rowRule, $patientData, $dateTarget, $options );
         } else {
             $reportObject = new NFQ_Unimplemented();

@@ -37,6 +37,7 @@ if ($_GET["mode"] == "new") {
 } elseif ($_GET["mode"] == "update") {
     $success = formUpdate($table_name, $_POST, $_GET["id"], $userauthorized);
 }
+
 $_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();

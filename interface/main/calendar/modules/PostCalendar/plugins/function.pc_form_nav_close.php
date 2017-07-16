@@ -24,36 +24,41 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-function smarty_function_pc_form_nav_close($args=array())
+function smarty_function_pc_form_nav_close($args = array())
 {
     extract($args);
     unset($args);
     
-    if(_SETTING_OPEN_NEW_WINDOW || isset($print)) {
+    if (_SETTING_OPEN_NEW_WINDOW || isset($print)) {
         $target = 'target="csCalendar"';
     } else {
         $target = '';
     }
 
-    if(!defined('_PC_FORM_DATE')) {
+    if (!defined('_PC_FORM_DATE')) {
         $Date = postcalendar_getDate();
         echo '<input type="hidden" name="Date" value="'.$Date.'" />';
     }
-    if(!defined('_PC_FORM_VIEW_TYPE')) {
+
+    if (!defined('_PC_FORM_VIEW_TYPE')) {
         echo '<input type="hidden" name="viewtype" value="'.pnVarCleanFromInput('viewtype').'" />';
     }
-    if(!defined('_PC_FORM_TEMPLATE')) {
+
+    if (!defined('_PC_FORM_TEMPLATE')) {
         echo '<input type="hidden" name="tplview" value="'.pnVarCleanFromInput('tplview').'" />';
     }
-    if(!defined('_PC_FORM_USERNAME')) {
+
+    if (!defined('_PC_FORM_USERNAME')) {
         echo '<input type="hidden" name="pc_username" value="'.pnVarCleanFromInput('pc_username').'" />';
     }
-    if(!defined('_PC_FORM_CATEGORY')) {
+
+    if (!defined('_PC_FORM_CATEGORY')) {
         echo '<input type="hidden" name="pc_category" value="'.pnVarCleanFromInput('pc_category').'" />';
     }
-    if(!defined('_PC_FORM_TOPIC')) {
+
+    if (!defined('_PC_FORM_TOPIC')) {
         echo '<input type="hidden" name="pc_topic" value="'.pnVarCleanFromInput('pc_topic').'" />';
     }
+
     echo '</form>';
 }
-?>

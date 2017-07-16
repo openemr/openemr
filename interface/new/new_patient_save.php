@@ -29,12 +29,13 @@ sqlStatement("unlock tables");
 //end table lock
 $newpid = 1;
 
-if ($result['pid'] > 1)
-  $newpid = $result['pid'];
+if ($result['pid'] > 1) {
+    $newpid = $result['pid'];
+}
 
 setpid($newpid);
 
-if($pid == null) {
+if ($pid == null) {
     $pid = 0;
 }
 
@@ -46,7 +47,6 @@ if (isset($_POST["pubpid"]) && ($_POST["pubpid"] != "")) {
 }
 
 if ($_POST['form_create']) {
-
     $form_fname = ucwords(trim($_POST["fname"]));
     $form_lname = ucwords(trim($_POST["lname"]));
     $form_mname = ucwords(trim($_POST["mname"]));
@@ -63,53 +63,53 @@ if ($_POST['form_create']) {
   // ===================
 
     newPatientData(
-    $_POST["db_id"],
-    $_POST["title"],
-    $form_fname,
-    $form_lname,
-    $form_mname,
-    $form_sex, // sex
-    $form_dob, // dob
-    $form_street, // street
-    $form_postcode, // postal_code
-    $form_city, // city
-    "", // state
-    $form_countrycode, // country_code
-    "", // ss
-    "", // occupation
-    "", // phone_home
-    "", // phone_biz
-    "", // phone_contact
-    "", // status
-    "", // contact_relationship
-    "", // referrer
-    "", // referrerID
-    "", // email
-    "", // language
-    "", // ethnoracial
-    "", // interpreter
-    "", // migrantseasonal
-    "", // family_size
-    "", // monthly_income
-    "", // homeless
-    "", // financial_review
-    "$mypubpid",
-    $pid,
-    "", // providerID
-    "", // genericname1
-    "", // genericval1
-    "", // genericname2
-    "", // genericval2
-    "", //billing_note
-    "", // phone_cell
-    "", // hipaa_mail
-    "", // hipaa_voice
-    0,  // squad
-    0,  // $pharmacy_id = 0,
-    "", // $drivers_license = "",
-    "", // $hipaa_notice = "",
-    "", // $hipaa_message = "",
-    $_POST['regdate']
+        $_POST["db_id"],
+        $_POST["title"],
+        $form_fname,
+        $form_lname,
+        $form_mname,
+        $form_sex, // sex
+        $form_dob, // dob
+        $form_street, // street
+        $form_postcode, // postal_code
+        $form_city, // city
+        "", // state
+        $form_countrycode, // country_code
+        "", // ss
+        "", // occupation
+        "", // phone_home
+        "", // phone_biz
+        "", // phone_contact
+        "", // status
+        "", // contact_relationship
+        "", // referrer
+        "", // referrerID
+        "", // email
+        "", // language
+        "", // ethnoracial
+        "", // interpreter
+        "", // migrantseasonal
+        "", // family_size
+        "", // monthly_income
+        "", // homeless
+        "", // financial_review
+        "$mypubpid",
+        $pid,
+        "", // providerID
+        "", // genericname1
+        "", // genericval1
+        "", // genericname2
+        "", // genericval2
+        "", //billing_note
+        "", // phone_cell
+        "", // hipaa_mail
+        "", // hipaa_voice
+        0,  // squad
+        0,  // $pharmacy_id = 0,
+        "", // $drivers_license = "",
+        "", // $hipaa_notice = "",
+        "", // $hipaa_message = "",
+        $_POST['regdate']
     );
 
     newEmployerData($pid);
@@ -124,7 +124,6 @@ if ($_POST['form_create']) {
         sqlQuery("UPDATE patient_data SET referral_source = ? " .
         "WHERE pid = ?", array($refsource, $pid));
     }
-
 }
 ?>
 <html>
@@ -134,6 +133,7 @@ if ($_POST['form_create']) {
 if ($alertmsg) {
     echo "alert('" . addslashes($alertmsg) . "');\n";
 }
+
   echo "window.location='$rootdir/patient_file/summary/demographics.php?" .
     "set_pid=" . attr($pid) . "&is_new=1';\n";
 ?>

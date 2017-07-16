@@ -33,11 +33,15 @@ $obj = formFetch("form_obstetrical", $_GET["id"]);
 <table>
 <tr>
 <td><span class=text>Name: </span></td><td><input type=entry name="name" value="<?php echo $obj{"name"};?>" ></td>
-<td><span class=text>Birthdate: </span></td><td><input type=entry size=10 name=birthdate value="<?php if ($obj{"birthdate"} != "0000-00-00 00:00:00") {echo date("Y-m-d",strtotime($obj{"birthdate"}));
-} else {echo "YYYY-MM-DD";}?>"></td>
+<td><span class=text>Birthdate: </span></td><td><input type=entry size=10 name=birthdate value="<?php if ($obj{"birthdate"} != "0000-00-00 00:00:00") {
+    echo date("Y-m-d", strtotime($obj{"birthdate"}));
+} else {
+    echo "YYYY-MM-DD";
+}?>"></td>
 <td><span class=text>Birth Status: </span></td><td><input type=entry name="birth_status" value="<?php echo $obj{"birth_status"};?>" ></td>
 <td><span class=text>Gender: </span></td><td><input type=entry name="gender" value="<?php echo $obj{"gender"};?>" ></td>
-<td><input type=checkbox name="circumcised"  <?php if ($obj{"circumcised"} == "on") {echo "checked";
+<td><input type=checkbox name="circumcised"  <?php if ($obj{"circumcised"} == "on") {
+    echo "checked";
 };?>></td><td><span class=text>Circumcised</span></td>
 </tr>
 </table>

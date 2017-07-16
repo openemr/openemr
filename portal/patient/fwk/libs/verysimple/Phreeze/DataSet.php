@@ -4,7 +4,7 @@
 /**
  * import supporting libraries
  */
-require_once ("DataPage.php");
+require_once("DataPage.php");
 
 /**
  * DataSet stores zero or more Loadable objects
@@ -68,7 +68,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
         $this->_phreezer = & $preezer;
         $this->_rs = null;
         $this->_sql = $sql;
-        $this->_cache_timeout = is_null ( $cache_timeout ) ? $preezer->ValueCacheTimeout : $cache_timeout;
+        $this->_cache_timeout = is_null($cache_timeout) ? $preezer->ValueCacheTimeout : $cache_timeout;
     }
     
     /**
@@ -82,7 +82,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      */
     private function _getObject(&$row)
     {
-        $obj = new $this->_objectclass ( $this->_phreezer, $row );
+        $obj = new $this->_objectclass($this->_phreezer, $row);
         return $obj;
     }
     
@@ -95,29 +95,30 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
     function Next()
     {
         if ($this->UnableToCache) {
-            require_once ("verysimple/Util/ExceptionFormatter.php");
-            $info = ExceptionFormatter::FormatTrace ( debug_backtrace () );
-            $this->_phreezer->Observe ( "(DataSet.Next: unable to cache query with cursor) " . $info . "  " . $this->_sql, OBSERVE_DEBUG );
+            require_once("verysimple/Util/ExceptionFormatter.php");
+            $info = ExceptionFormatter::FormatTrace(debug_backtrace());
+            $this->_phreezer->Observe("(DataSet.Next: unable to cache query with cursor) " . $info . "  " . $this->_sql, OBSERVE_DEBUG);
             
             // use this line to discover where an uncachable query is coming from
-            throw new Exception ( "WTF" );
+            throw new Exception("WTF");
             
             // stop this warning from repeating on every next call for this dataset
             $this->UnableToCache = false;
         }
         
-        $this->_verifyRs ();
+        $this->_verifyRs();
         
         $this->_current = null;
         $this->_counter ++;
         
         if ($this->_eof) {
-            if (! $this->_no_exception)
-                throw new Exception ( "EOF: This is a forward-only dataset." );
+            if (! $this->_no_exception) {
+                throw new Exception("EOF: This is a forward-only dataset.");
+            }
         }
         
-        if ($row = $this->_phreezer->DataAdapter->Fetch ( $this->_rs )) {
-            $this->_current = $this->_getObject ( $row );
+        if ($row = $this->_phreezer->DataAdapter->Fetch($this->_rs)) {
+            $this->_current = $this->_getObject($row);
             $this->_last = $this->_current;
         } else {
             $this->_eof = true;
@@ -132,8 +133,8 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
     private function _verifyRs()
     {
         if ($this->_rs == null) {
-            $this->_phreezer->IncludeModel ( $this->_objectclass );
-            $this->_rs = $this->_phreezer->DataAdapter->Select ( $this->_sql );
+            $this->_phreezer->IncludeModel($this->_objectclass);
+            $this->_rs = $this->_phreezer->DataAdapter->Select($this->_sql);
         }
     }
     
@@ -143,23 +144,23 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      */
     public function Execute()
     {
-        return $this->_phreezer->DataAdapter->Execute ( $this->_sql );
+        return $this->_phreezer->DataAdapter->Execute($this->_sql);
     }
     public function rewind()
     {
         $this->_rs = null;
         $this->_counter = 0;
         $this->_no_exception = true;
-        $this->_total = $this->Count ();
-        $this->_verifyRs ();
-        $this->Next (); // we have to get the party started for php iteration
+        $this->_total = $this->Count();
+        $this->_verifyRs();
+        $this->Next(); // we have to get the party started for php iteration
     }
     public function current()
     {
         // php iteration calls next then gets the current record. The DataSet
         // Next return the current object. so, we have to fudge a little on the
         // laster iteration to make it work properly
-        return ($this->key () == $this->Count ()) ? $this->_last : $this->_current;
+        return ($this->key() == $this->Count()) ? $this->_last : $this->_current;
     }
     public function key()
     {
@@ -167,7 +168,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
     }
     public function valid()
     {
-        return $this->key () <= $this->Count ();
+        return $this->key() <= $this->Count();
     }
     
     /**
@@ -198,36 +199,36 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      */
     function Count()
     {
-        if (! $this->CountIsKnown ()) {
+        if (! $this->CountIsKnown()) {
             // check the cache
             $cachekey = $this->_sql . " COUNT";
-            $this->_totalcount = $this->GetDelayedCache ( $cachekey );
+            $this->_totalcount = $this->GetDelayedCache($cachekey);
             
             // if no cache, go to the db
             if ($this->_totalcount != null) {
-                $this->_phreezer->Observe ( "DataSet.Count: skipping count query because cache exists", OBSERVE_DEBUG );
+                $this->_phreezer->Observe("DataSet.Count: skipping count query because cache exists", OBSERVE_DEBUG);
             } else {
-                $this->LockCache ( $cachekey );
+                $this->LockCache($cachekey);
                 
                 $sql = "";
                 
                 // if a custom counter sql query was provided, use that because it should be more efficient
                 if ($this->CountSQL) {
-                    $this->_phreezer->Observe ( "DataSet.Count: using CountSQL to obtain total number of records", OBSERVE_DEBUG );
+                    $this->_phreezer->Observe("DataSet.Count: using CountSQL to obtain total number of records", OBSERVE_DEBUG);
                     $sql = $this->CountSQL;
                 } else {
-                    $this->_phreezer->Observe ( "(DataSet.Count: CountSQL was not provided so a counter query will be generated.  Implement GetCustomCountQuery in the reporter class to improve performance.)", OBSERVE_WARN );
-                    $sql = "select count(1) as counter from (" . $this->_sql . ") tmptable" . rand ( 1000, 9999 );
+                    $this->_phreezer->Observe("(DataSet.Count: CountSQL was not provided so a counter query will be generated.  Implement GetCustomCountQuery in the reporter class to improve performance.)", OBSERVE_WARN);
+                    $sql = "select count(1) as counter from (" . $this->_sql . ") tmptable" . rand(1000, 9999);
                 }
                 
-                $rs = $this->_phreezer->DataAdapter->Select ( $sql );
-                $row = $this->_phreezer->DataAdapter->Fetch ( $rs );
-                $this->_phreezer->DataAdapter->Release ( $rs );
+                $rs = $this->_phreezer->DataAdapter->Select($sql);
+                $row = $this->_phreezer->DataAdapter->Fetch($rs);
+                $this->_phreezer->DataAdapter->Release($rs);
                 $this->_totalcount = $row ["counter"];
                 
-                $this->_phreezer->SetValueCache ( $cachekey, $this->_totalcount, $this->_cache_timeout );
+                $this->_phreezer->SetValueCache($cachekey, $this->_totalcount, $this->_cache_timeout);
                 
-                $this->UnlockCache ( $cachekey );
+                $this->UnlockCache($cachekey);
             }
         }
         
@@ -250,36 +251,36 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      */
     function ToObjectArray($asSimpleObject = false, $options = null)
     {
-        $cachekey = $this->_sql . " OBJECTARRAY" . ($asSimpleObject ? '-AS-OBJECT-' . serialize ( $options ) : '');
+        $cachekey = $this->_sql . " OBJECTARRAY" . ($asSimpleObject ? '-AS-OBJECT-' . serialize($options) : '');
         
-        $arr = $this->GetDelayedCache ( $cachekey );
+        $arr = $this->GetDelayedCache($cachekey);
         
         if ($arr != null) {
             // we have a cache value, so we will repopulate from that
-            $this->_phreezer->Observe ( "(DataSet.ToObjectArray: skipping query because cache exists) " . $this->_sql, OBSERVE_DEBUG );
+            $this->_phreezer->Observe("(DataSet.ToObjectArray: skipping query because cache exists) " . $this->_sql, OBSERVE_DEBUG);
             if (! $asSimpleObject) {
-                foreach ( $arr as $obj ) {
-                    $obj->Refresh ( $this->_phreezer );
+                foreach ($arr as $obj) {
+                    $obj->Refresh($this->_phreezer);
                 }
             }
         } else {
             // there is nothing in the cache so we have to reload it
             
-            $this->LockCache ( $cachekey );
+            $this->LockCache($cachekey);
             
             $this->UnableToCache = false;
             
             // use a fixed count array if the count is known for performance
-            $arr = $this->CountIsKnown () ? $this->GetEmptyArray ( $this->Count () ) : array ();
+            $arr = $this->CountIsKnown() ? $this->GetEmptyArray($this->Count()) : array ();
             
             $i = 0;
-            while ( $object = $this->Next () ) {
-                $arr [$i ++] = $asSimpleObject ? $object->ToObject ( $options ) : $object;
+            while ($object = $this->Next()) {
+                $arr [$i ++] = $asSimpleObject ? $object->ToObject($options) : $object;
             }
             
-            $this->_phreezer->SetValueCache ( $cachekey, $arr, $this->_cache_timeout );
+            $this->_phreezer->SetValueCache($cachekey, $arr, $this->_cache_timeout);
             
-            $this->UnlockCache ( $cachekey );
+            $this->UnlockCache($cachekey);
         }
         
         return $arr;
@@ -291,7 +292,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      */
     function ToLabelArray($val_prop, $label_prop)
     {
-        return $this->GetLabelArray ( $val_prop, $label_prop );
+        return $this->GetLabelArray($val_prop, $label_prop);
     }
     
     /**
@@ -306,7 +307,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      */
     private function GetEmptyArray($count = 0)
     {
-        return ($count && class_exists ( 'SplFixedArray' )) ? new SplFixedArray ( $count ) : array ();
+        return ($count && class_exists('SplFixedArray')) ? new SplFixedArray($count) : array ();
     }
     
     /**
@@ -326,24 +327,24 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
         // $cachekey = md5($this->_sql . " VAL=".$val_prop." LABEL=" . $label_prop);
         $cachekey = $this->_sql . " VAL=" . $val_prop . " LABEL=" . $label_prop;
         
-        $arr = $this->GetDelayedCache ( $cachekey );
+        $arr = $this->GetDelayedCache($cachekey);
         
         // if no cache, go to the db
         if ($arr != null) {
-            $this->_phreezer->Observe ( "(DataSet.GetLabelArray: skipping query because cache exists) " . $this->_sql, OBSERVE_QUERY );
+            $this->_phreezer->Observe("(DataSet.GetLabelArray: skipping query because cache exists) " . $this->_sql, OBSERVE_QUERY);
         } else {
-            $this->LockCache ( $cachekey );
+            $this->LockCache($cachekey);
             
             $arr = array ();
             $this->UnableToCache = false;
             
-            while ( $object = $this->Next () ) {
+            while ($object = $this->Next()) {
                 $arr [$object->$val_prop] = $object->$label_prop;
             }
             
-            $this->_phreezer->SetValueCache ( $cachekey, $arr, $this->_cache_timeout );
+            $this->_phreezer->SetValueCache($cachekey, $arr, $this->_cache_timeout);
             
-            $this->UnlockCache ( $cachekey );
+            $this->UnlockCache($cachekey);
         }
         
         return $arr;
@@ -356,7 +357,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      */
     function Clear()
     {
-        $this->_phreezer->DataAdapter->Release ( $this->_rs );
+        $this->_phreezer->DataAdapter->Release($this->_rs);
     }
     
     /**
@@ -383,28 +384,28 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
         // $cachekey = md5($this->_sql . " PAGE=".$pagenum." SIZE=" . $pagesize);
         $cachekey = $this->_sql . " PAGE=" . $pagenum . " SIZE=" . $pagesize . " COUNT=" . ($countrecords ? '1' : '0');
         
-        $page = $this->GetDelayedCache ( $cachekey );
+        $page = $this->GetDelayedCache($cachekey);
         
         // if no cache, go to the db
         if ($page != null) {
-            $this->_phreezer->Observe ( "(DataSet.GetDataPage: skipping query because cache exists) " . $this->_sql, OBSERVE_QUERY );
+            $this->_phreezer->Observe("(DataSet.GetDataPage: skipping query because cache exists) " . $this->_sql, OBSERVE_QUERY);
             
-            foreach ( $page->Rows as $obj ) {
-                $obj->Refresh ( $this->_phreezer );
+            foreach ($page->Rows as $obj) {
+                $obj->Refresh($this->_phreezer);
             }
         } else {
-            $this->LockCache ( $cachekey );
+            $this->LockCache($cachekey);
             
             $this->UnableToCache = false;
             
-            $page = new DataPage ();
+            $page = new DataPage();
             $page->ObjectName = $this->_objectclass;
-            $page->ObjectInstance = new $this->_objectclass ( $this->_phreezer );
+            $page->ObjectInstance = new $this->_objectclass($this->_phreezer);
             $page->PageSize = $pagesize;
             $page->CurrentPage = $pagenum;
             
             if ($countrecords) {
-                $page->TotalResults = $this->Count ();
+                $page->TotalResults = $this->Count();
                 
                 // first check if we have less than or exactly the same number of
                 // results as the pagesize. if so, don't bother doing the math.
@@ -418,7 +419,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
                     // we have more than one page. we always need to round up
                     // here because 5.1 pages means we are spilling out into
                     // a 6th page. (this will also handle zero results properly)
-                    $page->TotalPages = ceil ( $page->TotalResults / $pagesize );
+                    $page->TotalPages = ceil($page->TotalResults / $pagesize);
                 }
             } else {
                 $page->TotalResults = $pagesize; // this will get adjusted after we run the query
@@ -440,14 +441,14 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
             // limit query.
             // $sql = "select * from (" . $this->_sql . ") page limit $start,$pagesize";
             $sql = $this->_sql . ($pagesize == 0 ? "" : " limit $start,$pagesize");
-            $this->_rs = $this->_phreezer->DataAdapter->Select ( $sql );
+            $this->_rs = $this->_phreezer->DataAdapter->Select($sql);
             
             // if we know the number of rows we have, then use SplFixedArray for performance
-            $page->Rows = ($page->TotalPages > $page->CurrentPage) ? $this->GetEmptyArray ( $pagesize ) : array ();
+            $page->Rows = ($page->TotalPages > $page->CurrentPage) ? $this->GetEmptyArray($pagesize) : array ();
             
             // transfer all of the results into the page object
             $i = 0;
-            while ( $obj = $this->Next () ) {
+            while ($obj = $this->Next()) {
                 $page->Rows [$i ++] = $obj;
             }
             
@@ -456,11 +457,11 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
                 $page->TotalResults = $i;
             }
             
-            $this->_phreezer->SetValueCache ( $cachekey, $page, $this->_cache_timeout );
+            $this->_phreezer->SetValueCache($cachekey, $page, $this->_cache_timeout);
             
-            $this->Clear ();
+            $this->Clear();
             
-            $this->UnlockCache ( $cachekey );
+            $this->UnlockCache($cachekey);
         }
         
         return $page;
@@ -473,17 +474,18 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
     private function GetDelayedCache($cachekey)
     {
         // if no cache then don't return anything
-        if ($this->_cache_timeout == 0)
+        if ($this->_cache_timeout == 0) {
             return null;
+        }
         
-        $obj = $this->_phreezer->GetValueCache ( $cachekey );
+        $obj = $this->_phreezer->GetValueCache($cachekey);
         
         // no cache, so try three times with a delay to prevent a cache stampede
         $counter = 1;
-        while ( $counter < 4 && $obj == null && $this->IsLocked ( $cachekey ) ) {
-            $this->_phreezer->Observe ( "(DataSet.GetDelayedCache: flood prevention. delayed attempt " . $counter . " of 3...) " . $cachekey, OBSERVE_DEBUG );
-            usleep ( 50000 ); // 5/100th of a second
-            $obj = $this->_phreezer->GetValueCache ( $cachekey );
+        while ($counter < 4 && $obj == null && $this->IsLocked($cachekey)) {
+            $this->_phreezer->Observe("(DataSet.GetDelayedCache: flood prevention. delayed attempt " . $counter . " of 3...) " . $cachekey, OBSERVE_DEBUG);
+            usleep(50000); // 5/100th of a second
+            $obj = $this->_phreezer->GetValueCache($cachekey);
             $counter ++;
         }
         
@@ -497,7 +499,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      */
     private function IsLocked($cachekey)
     {
-        return $this->_phreezer->LockFilePath && file_exists ( $this->_phreezer->LockFilePath . md5 ( $cachekey ) . ".lock" );
+        return $this->_phreezer->LockFilePath && file_exists($this->_phreezer->LockFilePath . md5($cachekey) . ".lock");
     }
     
     /**
@@ -508,7 +510,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
     private function LockCache($cachekey)
     {
         if ($this->_phreezer->LockFilePath) {
-            touch ( $this->_phreezer->LockFilePath . md5 ( $cachekey ) . ".lock" );
+            touch($this->_phreezer->LockFilePath . md5($cachekey) . ".lock");
         }
     }
     
@@ -520,11 +522,10 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
     private function UnlockCache($cachekey)
     {
         if ($this->_phreezer->LockFilePath) {
-            $lockfile = $this->_phreezer->LockFilePath . md5 ( $cachekey ) . ".lock";
-            if (file_exists ( $lockfile ))
-                @unlink ( $lockfile );
+            $lockfile = $this->_phreezer->LockFilePath . md5($cachekey) . ".lock";
+            if (file_exists($lockfile)) {
+                @unlink($lockfile);
+            }
         }
     }
 }
-
-?>

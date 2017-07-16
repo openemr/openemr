@@ -68,6 +68,7 @@ for ($p=0; $p<count($db_patient); $p++) {
             //Use the default when the message is not found
             $greeting = $GLOBALS['phone_appt_message']['Default'];
     }
+
     //Set up the parameters for the call
     $data = array(
                 "firstName" => $prow['fname'],
@@ -162,6 +163,7 @@ function cron_getPhoneAlertpatientData($type, $trigger_hours)
         $patient_array[$cnt] = $prow;
         $cnt++;
     }
+
     return $patient_array;
 }
 
@@ -197,6 +199,7 @@ function WriteLog($data)
             if (!fwrite($fp, $data.$sdata)) {
                 print "Cannot write to file ($filename)";
             }
+
             fclose($fp);
         }
     }

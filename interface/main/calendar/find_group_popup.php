@@ -203,12 +203,16 @@ if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
 
 <div id="searchCriteria">
     <form method='post' name='theform' id="theform"
-          action='find_group_popup.php?<?php if (isset($_GET['pflag'])) echo "pflag=0"; ?>'>
+          action='find_group_popup.php?<?php if (isset($_GET['pflag'])) {
+                echo "pflag=0";
+} ?>'>
         <?php echo htmlspecialchars(xl('Search by'), ENT_NOQUOTES) . ':'; ?>
         <select name='searchby'>
             <option value="Name"><?php echo htmlspecialchars(xl('Name'), ENT_NOQUOTES); ?></option>
             <option
-                value="ID"<?php if ($searchby == 'ID') echo ' selected' ?>><?php echo htmlspecialchars(xl('ID'), ENT_NOQUOTES); ?></option>
+                value="ID"<?php if ($searchby == 'ID') {
+                    echo ' selected';
+} ?>><?php echo htmlspecialchars(xl('ID'), ENT_NOQUOTES); ?></option>
         </select>
         <?php echo htmlspecialchars(xl('for'), ENT_NOQUOTES) . ':'; ?>
         <input type='text' id='searchparm' name='searchparm' size='12'
@@ -221,20 +225,20 @@ if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
 </div>
 
 
-<?php if (!isset($_REQUEST['searchparm'])): ?>
+<?php if (!isset($_REQUEST['searchparm'])) : ?>
     <div id="searchstatus"><?php echo htmlspecialchars(xl('Enter your search criteria above'), ENT_NOQUOTES); ?></div>
-<?php elseif (count($result) == 0): ?>
+<?php elseif (count($result) == 0) : ?>
 <div id="searchstatus"
      class="noResults"><?php echo htmlspecialchars(xl('No records found. Please expand your search criteria.'), ENT_NOQUOTES); ?>
     <br>
 </div>
-<?php elseif (count($result) >= 100): ?>
+<?php elseif (count($result) >= 100) : ?>
 <div id="searchstatus" class="tooManyResults"><?php echo htmlspecialchars(xl('More than 100 records found. Please narrow your search criteria.'), ENT_NOQUOTES); ?></div>
-<?php elseif (count($result) < 100): ?>
+<?php elseif (count($result) < 100) : ?>
 <div id="searchstatus" class="howManyResults"><?php echo htmlspecialchars(count($result), ENT_NOQUOTES); ?> <?php echo htmlspecialchars(xl('records found.'), ENT_NOQUOTES); ?></div>
 <?php endif; ?>
 
-<?php if (isset($result)): ?>
+<?php if (isset($result)) : ?>
 
 <div id="searchResultsHeader">
 <table>

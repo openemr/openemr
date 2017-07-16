@@ -28,7 +28,7 @@ $form_code_type = $_POST['form_code_type'];
 <html>
 <head>
 <?php html_header_show(); ?>
-<title><?php xl('Drug Finder','e'); ?></title>
+<title><?php xl('Drug Finder', 'e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
@@ -129,11 +129,11 @@ function check_search_str()
  <tr>
   <td>
    <b>
-    <?php xl('Search for','e'); ?>
+    <?php xl('Search for', 'e'); ?>
    <input type='text' name='search_term' id='search_term' size='12' value='<?php echo $_REQUEST['search_term']; ?>'
-    title='<?php xl('Any part of the drug id or drug name','e'); ?>' />
+    title='<?php xl('Any part of the drug id or drug name', 'e'); ?>' />
    &nbsp;
-   <input type='submit' name='bn_search' id='bn_search' value='<?php xl('Search','e'); ?>' />  
+   <input type='submit' name='bn_search' id='bn_search' value='<?php xl('Search', 'e'); ?>' />  
    </b>
   </td>
  </tr>
@@ -148,19 +148,16 @@ function check_search_str()
 <table>
 <tr>
 <td colspan="4">
-<?php if ($_REQUEST['bn_search'])
-{
+<?php if ($_REQUEST['bn_search']) {
     $search_term = $_REQUEST['search_term'];
     {
     $query = "SELECT count(*) as count FROM drugs " .
       "WHERE (drug_id LIKE '%$search_term%' OR " .
       "name LIKE '%$search_term%') ";
     $res = sqlStatement($query);
-    if ($row = sqlFetchArray($res))
-    {
+    if ($row = sqlFetchArray($res)) {
         $no_of_items = addslashes($row['count']);
-        if($no_of_items < 1)
-        {
+        if ($no_of_items < 1) {
             ?>
         <script language='JavaScript'>
             alert("<?php echo xl('Search string does not match with list in database');
@@ -171,6 +168,7 @@ function check_search_str()
         </script>    
         <?php
         }
+
         $query = "SELECT drug_id, name FROM drugs " .
         "WHERE (drug_id LIKE '%$search_term%' OR " .
         "name LIKE '%$search_term%') " .
@@ -185,19 +183,20 @@ function check_search_str()
                <input type="checkbox" id="chkbox" name ="chkbox" value= "<?php echo $itercode."-".$itertext; ?>" > <?php echo $itercode."    ".$itertext."</br>";
         }
     }
+
     }
 ?>
 </td>
 </tr>
  </table>
 <center>
- <input type='button' name='select_all' value='<?php xl('Select All','e'); ?>' onclick="chkbox_select_all(document.select_drug.chkbox);"/>
+ <input type='button' name='select_all' value='<?php xl('Select All', 'e'); ?>' onclick="chkbox_select_all(document.select_drug.chkbox);"/>
  
- <input type='button' name='unselect_all' value='<?php xl('Unselect All','e'); ?>' onclick="chkbox_select_none(document.select_drug.chkbox);"/>
+ <input type='button' name='unselect_all' value='<?php xl('Unselect All', 'e'); ?>' onclick="chkbox_select_none(document.select_drug.chkbox);"/>
  
- <input type='button' name='submit' value='<?php xl('Submit','e'); ?>' onclick="window_submit(document.select_drug.chkbox);"/>
+ <input type='button' name='submit' value='<?php xl('Submit', 'e'); ?>' onclick="window_submit(document.select_drug.chkbox);"/>
  
- <input type='button' name='cancel' value='<?php xl('Cancel','e'); ?>' onclick="window_close();"/>
+ <input type='button' name='cancel' value='<?php xl('Cancel', 'e'); ?>' onclick="window_close();"/>
 </center> 
 <?php } ?>
 </form>

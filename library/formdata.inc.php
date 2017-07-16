@@ -65,7 +65,7 @@ function escape_limit($s)
  */
 function escape_sort_order($s)
 {
-      return escape_identifier(strtolower($s),array("asc","desc"));
+      return escape_identifier(strtolower($s), array("asc","desc"));
 }
 
 /**
@@ -82,7 +82,7 @@ function escape_sort_order($s)
  * @param   boolean       $long    Use long form (ie. table.colname) vs short form (ie. colname).
  * @return  string                 Escaped table name variable.
  */
-function escape_sql_column_name($s,$tables,$long=false)
+function escape_sql_column_name($s, $tables, $long = false)
 {
 
       // If the $tables is empty, then process them all
@@ -108,15 +108,14 @@ function escape_sql_column_name($s,$tables,$long=false)
         while ($row=sqlFetchArray($res)) {
             if ($long) {
                 $columns_options[]=$table_escaped.".".$row['Field'];
-            }
-            else {
+            } else {
                 $columns_options[]=$row['Field'];
             }
         }
     }
 
       // Now can escape(via whitelisting) the sql column name
-      return escape_identifier($s,$columns_options,true);
+      return escape_identifier($s, $columns_options, true);
 }
 
 /**
@@ -149,7 +148,7 @@ function escape_table_name($s)
     }
 
       // Now can escape(via whitelisting) the sql table name
-      return escape_identifier($s,$tables_array,true,false);
+      return escape_identifier($s, $tables_array, true, false);
 }
 
 /**
@@ -189,39 +188,39 @@ function mitigateSqlTableUpperCase($s)
  * @param   boolean  $case_sens_match  Use case sensitive match (this is default).
  * @return  string                     Escaped/sanitized sql identifier variable.
  */
-function escape_identifier($s,$whitelist_items,$die_if_no_match=false,$case_sens_match=true)
+function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case_sens_match = true)
 {
     if (is_array($whitelist_items)) {
         // Only return an item within the whitelist_items
         $ok = $whitelist_items;
         // First, search for case sensitive match
-        $key = array_search($s,$ok);
+        $key = array_search($s, $ok);
         if ($key === false) {
             // No match
             if (!$case_sens_match) {
                 // Attempt a case insensitive match
-                $ok_UPPER = array_map("strtoupper",$ok);
-                $key = array_search(strtoupper($s),$ok_UPPER);
+                $ok_UPPER = array_map("strtoupper", $ok);
+                $key = array_search(strtoupper($s), $ok_UPPER);
             }
+
             if ($key === false) {
                 // Still no match
                 if ($die_if_no_match) {
                     // No match and $die_if_no_match is set, so die() and send error messages to screen and log
-                    error_Log("ERROR: OpenEMR SQL Escaping ERROR of the following string: ".$s,0);
+                    error_Log("ERROR: OpenEMR SQL Escaping ERROR of the following string: ".$s, 0);
                     die("<br><span style='color:red;font-weight:bold;'>".xlt("There was an OpenEMR SQL Escaping ERROR of the following string")." ".text($s)."</span><br>");
-                }
-                else {
+                } else {
                     // Return first token since no match
                     $key = 0;
                 }
             }
         }
+
         return $ok[$key];
-    }
-    else {
+    } else {
         // Return an item that has been "cleaned" up
         // (this is currently experimental and goal is to avoid using this)
-        return preg_replace('/[^a-zA-Z0-9_.]/','',$s);
+        return preg_replace('/[^a-zA-Z0-9_.]/', '', $s);
     }
 }
 
@@ -234,16 +233,17 @@ function escape_identifier($s,$whitelist_items,$die_if_no_match=false,$case_sens
  * @param bool $istrim whether to use trim() on the data.
  * @return string variable requested, or empty string
  */
-function formData($name, $type='P', $isTrim=false)
+function formData($name, $type = 'P', $isTrim = false)
 {
-    if ($type == 'P')
-    $s = isset($_POST[$name]) ? $_POST[$name] : '';
-    else if ($type == 'G')
-    $s = isset($_GET[$name]) ? $_GET[$name] : '';
-    else
-    $s = isset($_REQUEST[$name]) ? $_REQUEST[$name] : '';
+    if ($type == 'P') {
+        $s = isset($_POST[$name]) ? $_POST[$name] : '';
+    } else if ($type == 'G') {
+        $s = isset($_GET[$name]) ? $_GET[$name] : '';
+    } else {
+        $s = isset($_REQUEST[$name]) ? $_REQUEST[$name] : '';
+    }
 
-    return formDataCore($s,$isTrim);
+    return formDataCore($s, $isTrim);
 }
 
 /**
@@ -256,10 +256,13 @@ function formData($name, $type='P', $isTrim=false)
  * @param bool $istrim whether to use trim() on the data.
  * @return string
  */
-function formDataCore($s, $isTrim=false)
+function formDataCore($s, $isTrim = false)
 {
       //trim if selected
-    if ($isTrim) {$s = trim($s);}
+    if ($isTrim) {
+        $s = trim($s);
+    }
+
       //strip escapes
       $s = strip_escape_custom($s);
       //add escapes for safe database insertion
@@ -295,7 +298,5 @@ function strip_escape_custom($s)
  */
 function formTrim($s)
 {
-    return formDataCore($s,true);
+    return formDataCore($s, true);
 }
-
-?>

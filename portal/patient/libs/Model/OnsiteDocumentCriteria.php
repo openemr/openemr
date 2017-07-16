@@ -79,6 +79,4 @@ class OnsiteDocumentCriteria extends OnsiteDocumentCriteriaDAO
 		}
 	}
 	*/
-
 }
-?>

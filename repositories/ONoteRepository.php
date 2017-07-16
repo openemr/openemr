@@ -24,7 +24,8 @@ namespace repositories;
 
 use Doctrine\ORM\EntityRepository;
 
-class ONoteRepository extends EntityRepository {
+class ONoteRepository extends EntityRepository
+{
     /**
      * Add new office note.
      *
@@ -67,7 +68,8 @@ class ONoteRepository extends EntityRepository {
                 $this->_em->flush();
                 $result = true;
             }
-        } catch (Exception $e) {}
+        } catch (Exception $e) {
+        }
 
         return $result;
     }
@@ -91,7 +93,8 @@ class ONoteRepository extends EntityRepository {
                 $this->_em->flush();
                 $result = true;
             }
-        } catch (Exception $e) {}
+        } catch (Exception $e) {
+        }
 
         return $result;
     }

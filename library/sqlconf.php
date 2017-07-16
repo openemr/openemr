@@ -16,5 +16,5 @@ if (empty($GLOBALS['OE_SITE_DIR'])) {
     $tmp = empty($_GET['site']) ? 'default' : $_GET['site'];
     $GLOBALS['OE_SITE_DIR'] = $GLOBALS['OE_SITES_BASE'] . '/' . $tmp;
 }
+
 require_once $GLOBALS['OE_SITE_DIR'] . "/sqlconf.php";
-?>

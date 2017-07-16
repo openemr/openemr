@@ -136,4 +136,3 @@ function xls($key)
     return addslashes(hsc_private_xl_or_warn($key));
 }
 return; // Stop include / require from going any further (non-PHP)
-?>

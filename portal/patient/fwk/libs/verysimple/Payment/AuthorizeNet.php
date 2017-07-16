@@ -4,7 +4,7 @@
 /**
  * import supporting libraries
  */
-require_once ("PaymentProcessor.php");
+require_once("PaymentProcessor.php");
 
 /**
  * AuthorizeNet extends the generic PaymentProcessor object to process
@@ -16,7 +16,8 @@ require_once ("PaymentProcessor.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-class AuthorizeNet extends PaymentProcessor {
+class AuthorizeNet extends PaymentProcessor
+{
     static $AN_RESPONSE_UNKNOWN = 0;
     static $AN_RESPONSE_SUCCESS = 1;
     static $AN_RESPONSE_DECLINED = 2;
@@ -35,14 +36,14 @@ class AuthorizeNet extends PaymentProcessor {
     {
         // convert the request object into compatible param list
         $params = array ();
-        $params ['x_amount'] = number_format ( $req->TransactionAmount, 2, ".", "" );
-        $params ['x_card_num'] = str_replace ( array (
+        $params ['x_amount'] = number_format($req->TransactionAmount, 2, ".", "");
+        $params ['x_card_num'] = str_replace(array (
                 "-",
                 " "
         ), array (
                 "",
                 ""
-        ), $req->CCNumber );
+        ), $req->CCNumber);
         $params ['x_card_code'] = $req->CCSecurityCode;
         $params ['x_exp_date'] = $req->CCExpMonth . "/" . $req->CCExpYear;
         $params ['x_type'] = $req->TransactionType;
@@ -59,12 +60,12 @@ class AuthorizeNet extends PaymentProcessor {
         $params ['x_password'] = $this->Password;
         
         // do the http post
-        $resp = new PaymentResponse ();
-        $resp->RawResponse = $this->CurlPost ( $this->post_url, $params );
+        $resp = new PaymentResponse();
+        $resp->RawResponse = $this->CurlPost($this->post_url, $params);
         
         // parse the results
         $resp->OrderNumber = $req->OrderNumber;
-        $resp->ParsedResponse = explode ( ",", $resp->RawResponse );
+        $resp->ParsedResponse = explode(",", $resp->RawResponse);
         $resp->ResponseCode = $resp->ParsedResponse [0];
         $resp->ResponseMessage = $resp->ParsedResponse [3];
         $resp->TransactionId = $resp->ParsedResponse [37];
@@ -73,5 +74,3 @@ class AuthorizeNet extends PaymentProcessor {
         return $resp;
     }
 }
-
-?>

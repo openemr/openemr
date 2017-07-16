@@ -1,7 +1,7 @@
 <?php
 
-define("ROOT_TYPE_ID",1);
-define("ROOT_TYPE_NAME",2);
+define("ROOT_TYPE_ID", 1);
+define("ROOT_TYPE_NAME", 2);
 
 /**
  * class Tree
@@ -11,7 +11,8 @@ define("ROOT_TYPE_NAME",2);
  * and having ids that are more or less sequential makes human reading, fixing and reconstruction much easier.
  */
 
-class Tree {
+class Tree
+{
 
     /*
 	*	This is the name of the table this tree is stored in
@@ -36,7 +37,7 @@ class Tree {
 	*	@param mixed $root name or id of desired root node
 	*	@param int $root_type optional flag indicating if $root is a name or id, defaults to id
 	*/
-    function __construct($root,$root_type = ROOT_TYPE_ID)
+    function __construct($root, $root_type = ROOT_TYPE_ID)
     {
         $this->_db = $GLOBALS['adodb']['db'];
         $this->_root = add_escape_custom($root);
@@ -56,13 +57,13 @@ class Tree {
         if ($this->root_type == ROOT_TYPE_NAME) {
             $sql = "SELECT * FROM " . $this->_table . " WHERE name='".$root."'";
         }
+
         $result = $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
         $row = array();
 
-        if($result && !$result->EOF) {
+        if ($result && !$result->EOF) {
             $row = $result->fields;
-        }
-        else {
+        } else {
             $this->tree = array();
         }
 
@@ -86,8 +87,7 @@ class Tree {
             if ($this->_table == "categories") {
                 $this->_id_name[$row['id']] = array("id" => $row['id'], "name" => xl_document_category($row['name']),
                 "parent" => $row['parent'], "value" => $row['value'], "aco_spec" => $row['aco_spec']);
-            }
-            else {
+            } else {
                 $this->_id_name[$row['id']] = array("id" => $row['id'], "name" => $row['name'], "parent" => $row['parent']);
             }
 
@@ -108,7 +108,7 @@ class Tree {
 
             //if parent is 0 then the node has no parents, the number of nodes in the id_name lookup always includes any nodes
             //that could be the parent of any future node in the record set, the order is deterministic because of the algorithm
-            while($parent != 0 && $loop < count($this->_id_name)) {
+            while ($parent != 0 && $loop < count($this->_id_name)) {
                 $ar_string = "[\"" . ($this->_id_name[$parent]['id']) . "\"]" . $ar_string;
                 $loop++;
                 $parent = $this->_id_name[$parent]['parent'];
@@ -125,7 +125,7 @@ class Tree {
             //merge recursive is used so that no keys are replaced in other words a key
             //with a specific value will not be replace but instead that value will be turned into an array
             //consisting of the previous value and the new value
-            $tree = array_merge_n($tree,$ar);
+            $tree = array_merge_n($tree, $ar);
 
             // add this node to the stack
             $right[] = $row['rght'];
@@ -155,15 +155,15 @@ class Tree {
             $sql = "SELECT lft FROM " . $this->_table . " WHERE id='" . $parent . "';";
             $result = $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
 
-            if($result && !$result->EOF) {
+            if ($result && !$result->EOF) {
                 $left = $result->fields['lft'];
-            }
-            else {
+            } else {
                 //the node you are rebuilding below if goofed up and you didn't supply a proper value
                 //nothing we can do so error
                 die("Error: The node you are rebuilding from could not be found, please supply an existing node id.");
             }
         }
+
       // get all children of this node
         $sql = "SELECT id FROM " . $this->_table . " WHERE parent='" . $parent . "' ORDER BY id;";
         $result = $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
@@ -200,7 +200,7 @@ class Tree {
 	*	@param string $aco_spec optional ACO value in section|value format
 	*	@return int id of newly added node
 	*/
-    function add_node($parent_id, $name, $value="", $aco_spec="patients|docs")
+    function add_node($parent_id, $name, $value = "", $aco_spec = "patients|docs")
     {
 
         $sql = "SELECT * from " . $this->_table . " where parent = '" . $parent_id . "' and name='" . $name . "'";
@@ -243,7 +243,7 @@ class Tree {
 	*	@param string $aco_spec optional ACO value in section|value format
 	*	@return int same as input id
 	*/
-    function edit_node($id, $name, $value="", $aco_spec="patients|docs")
+    function edit_node($id, $name, $value = "", $aco_spec = "patients|docs")
     {
         $sql = "SELECT c2.id FROM " . $this->_table . " AS c1, " . $this->_table . " AS c2 WHERE " .
         "c1.id = $id AND c2.id != c1.id AND c2.parent = c1.parent AND c2.name = '" .
@@ -252,6 +252,7 @@ class Tree {
         if ($result && !$result->EOF) {
               die(xlt('This name already exists under this parent.') . "<br>");
         }
+
         $sql = "UPDATE " . $this->_table . " SET name = '" . add_escape_custom($name) .
         "', value = '" . add_escape_custom($value) .
         "', aco_spec = '" . add_escape_custom($aco_spec) . "' WHERE id = $id";
@@ -311,24 +312,21 @@ class Tree {
 
     function get_node_info($id)
     {
-        if(!empty($this->_id_name[$id])) {
+        if (!empty($this->_id_name[$id])) {
             return $this->_id_name[$id];
-        }
-        else {
+        } else {
             return array();
         }
     }
 
     function get_node_name($id)
     {
-        if(!empty($this->_id_name[$id])) {
+        if (!empty($this->_id_name[$id])) {
             return $this->_id_name[$id]['name'];
-        }
-        else {
+        } else {
             return false;
         }
     }
-
 }
 
 function array_merge_2(&$array, &$array_i)
@@ -340,6 +338,7 @@ function array_merge_2(&$array, &$array_i)
             if (!isset($array[$k])) {
                 $array[$k] = array();
             }
+
             array_merge_2($array[$k], $v);
 
            // Else, the value is assigned to the current element of the resulting array:
@@ -352,6 +351,7 @@ function array_merge_2(&$array, &$array_i)
                     $array = array();
                     $array[0] = $temp;
                 }
+
                 $array[$k] = $v;
             }
         }
@@ -391,4 +391,3 @@ print_r($t->tree);
 print_r($t->tree);
 echo "</pre>";
 */
-?>

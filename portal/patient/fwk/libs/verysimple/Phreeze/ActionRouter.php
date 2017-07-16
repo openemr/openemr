@@ -1,8 +1,8 @@
 <?php
 /** @package    verysimple::Phreeze */
-require_once ("verysimple/HTTP/RequestUtil.php");
-require_once ("verysimple/Util/UrlWriterMode.php");
-require_once ("verysimple/Phreeze/IRouter.php");
+require_once("verysimple/HTTP/RequestUtil.php");
+require_once("verysimple/Util/UrlWriterMode.php");
+require_once("verysimple/Phreeze/IRouter.php");
 
 /**
  * class for dealing with URLs
@@ -13,7 +13,8 @@ require_once ("verysimple/Phreeze/IRouter.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class ActionRouter implements IRouter {
+class ActionRouter implements IRouter
+{
     private $_mode;
     private $_appRoot;
     private $_defaultRoute;
@@ -40,7 +41,7 @@ class ActionRouter implements IRouter {
      */
     public function GetUri()
     {
-        return implode ( '/', RequestUtil::GetUrlParts ( $this->_appRoot ) );
+        return implode('/', RequestUtil::GetUrlParts($this->_appRoot));
     }
     
     /**
@@ -57,7 +58,7 @@ class ActionRouter implements IRouter {
     public function GetUrlParam($key, $default = '')
     {
         // make the route params case insensitive
-        return RequestUtil::Get ( $key, $default, false, true );
+        return RequestUtil::Get($key, $default, false, true);
     }
     
     /**
@@ -65,28 +66,28 @@ class ActionRouter implements IRouter {
      */
     public function GetUrl($controller, $method, $params = '', $requestMethod = '')
     {
-        $format = str_replace ( "{delim}", $this->delim, self::$_format );
+        $format = str_replace("{delim}", $this->delim, self::$_format);
         
         $qs = "";
         $d = "";
-        if (is_array ( $params )) {
-            foreach ( $params as $key => $val ) {
+        if (is_array($params)) {
+            foreach ($params as $key => $val) {
                 // if no val, the omit the equal sign (this might be used in rest-type requests)
-                $qs .= $d . $key . (strlen ( $val ) ? ("=" . urlencode ( $val )) : "");
+                $qs .= $d . $key . (strlen($val) ? ("=" . urlencode($val)) : "");
                 $d = $this->delim;
             }
         } else {
             $qs = $params;
         }
         
-        $url = sprintf ( $format, $controller, $method, $qs );
+        $url = sprintf($format, $controller, $method, $qs);
         
         // strip off trailing delimiters from the url
-        $url = (substr ( $url, - 5 ) == "&amp;") ? substr ( $url, 0, strlen ( $url ) - 5 ) : $url;
-        $url = (substr ( $url, - 1 ) == "&" || substr ( $url, - 1 ) == "?") ? substr ( $url, 0, strlen ( $url ) - 1 ) : $url;
+        $url = (substr($url, - 5) == "&amp;") ? substr($url, 0, strlen($url) - 5) : $url;
+        $url = (substr($url, - 1) == "&" || substr($url, - 1) == "?") ? substr($url, 0, strlen($url) - 1) : $url;
         
-        $api_check = explode ( "/api/", RequestUtil::GetCurrentUrl () );
-        if ($this->stripApi && count ( $api_check ) > 1) {
+        $api_check = explode("/api/", RequestUtil::GetCurrentUrl());
+        if ($this->stripApi && count($api_check) > 1) {
             $url = $api_check [0] . "/" . $url;
         }
         
@@ -99,16 +100,18 @@ class ActionRouter implements IRouter {
     public function GetRoute($uri = "")
     {
         if ($uri == "") {
-            $action = RequestUtil::Get ( 'action' );
-            if (! $action)
+            $action = RequestUtil::Get('action');
+            if (! $action) {
                 $action = $this->_defaultRoute;
-            $uri = $action ? $action : RequestUtil::GetCurrentURL ();
+            }
+
+            $uri = $action ? $action : RequestUtil::GetCurrentURL();
         }
         
         // get the action requested
-        $params = explode ( ".", str_replace ( "/", ".", $uri ) );
-        $controller_param = isset ( $params [0] ) && $params [0] ? $params [0] : "";
-        $controller_param = str_replace ( array (
+        $params = explode(".", str_replace("/", ".", $uri));
+        $controller_param = isset($params [0]) && $params [0] ? $params [0] : "";
+        $controller_param = str_replace(array (
                 ".",
                 "/",
                 "\\"
@@ -116,15 +119,16 @@ class ActionRouter implements IRouter {
                 "",
                 "",
                 ""
-        ), $controller_param );
+        ), $controller_param);
         
         if (! $controller_param) {
-            throw new Exception ( "Invalid or missing Controller parameter" );
+            throw new Exception("Invalid or missing Controller parameter");
         }
         
-        $method_param = isset ( $params [1] ) && $params [1] ? $params [1] : "";
-        if (! $method_param)
+        $method_param = isset($params [1]) && $params [1] ? $params [1] : "";
+        if (! $method_param) {
             $method_param = "DefaultAction";
+        }
         
         return array (
                 $controller_param,
@@ -142,10 +146,11 @@ class ActionRouter implements IRouter {
      */
     public function ModeIs($value)
     {
-        if (strcmp ( $this->_mode, $value ) == 0)
+        if (strcmp($this->_mode, $value) == 0) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
     
     /**
@@ -164,9 +169,9 @@ class ActionRouter implements IRouter {
 			 * case UrlWriterMode::MOBILE:
 			 * break;
 			 */
-            default :
+            default:
                 // default is to return the standard browser-based action=%s.%s&%s:
-                return RequestUtil::Get ( $url_param, $default_action );
+                return RequestUtil::Get($url_param, $default_action);
                 break;
         }
     }

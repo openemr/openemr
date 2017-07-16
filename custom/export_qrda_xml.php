@@ -251,36 +251,36 @@ $form_provider = $_GET['form_provider'];
 $report_id = $_GET['report_id'];
 $report_view = collectReportDatabase($report_id);
 $target_date = $report_view['date_target'];
-$dataSheet = json_decode($report_view['data'],true);
+$dataSheet = json_decode($report_view['data'], true);
 
 //Needed array for Rule NQF#0024 Stratification
 $stratumCheckArr = array();
-if(count($dataSheet) > 0){
+if (count($dataSheet) > 0) {
     //Inner Data Loop
     foreach ($dataSheet as $row) {
         $itemized_test_id = $row['itemized_test_id'];
         $numerator_label = $row['numerator_label'];
-        if($row['cqm_nqf_code'] == "0024"){
-            if( $row['population_label'] == "Population Criteria 2" ){
-                if($row['numerator_label'] == "Numerator 1"){
+        if ($row['cqm_nqf_code'] == "0024") {
+            if ($row['population_label'] == "Population Criteria 2") {
+                if ($row['numerator_label'] == "Numerator 1") {
                     $stratum_1_ipp      = $row['initial_population'];
                     $stratum_1_exclude  = $row['excluded'];
                     $stratum_1_denom    = $row['pass_filter'];
                     $stratum_1_numer1  = $row['pass_target'];
-                }else if($row['numerator_label'] == "Numerator 2"){
+                } else if ($row['numerator_label'] == "Numerator 2") {
                     $stratum_1_numer2 = $row['pass_target'];
-                }else if($row['numerator_label'] == "Numerator 3"){
+                } else if ($row['numerator_label'] == "Numerator 3") {
                     $stratum_1_numer3 = $row['pass_target'];
                 }
-            }else if( $row['population_label'] == "Population Criteria 3" ){
-                if($row['numerator_label'] == "Numerator 1"){
+            } else if ($row['population_label'] == "Population Criteria 3") {
+                if ($row['numerator_label'] == "Numerator 1") {
                     $stratum_2_ipp      = $row['initial_population'];
                     $stratum_2_exclude  = $row['excluded'];
                     $stratum_2_denom    = $row['pass_filter'];
                     $stratum_2_numer1  = $row['pass_target'];
-                }else if($row['numerator_label'] == "Numerator 2"){
+                } else if ($row['numerator_label'] == "Numerator 2") {
                     $stratum_2_numer2 = $row['pass_target'];
-                }else if($row['numerator_label'] == "Numerator 3"){
+                } else if ($row['numerator_label'] == "Numerator 3") {
                     $stratum_2_numer3 = $row['pass_target'];
                 }
             }
@@ -300,12 +300,11 @@ if(count($dataSheet) > 0){
                             'numer_patients' => $stratum_2_numer1,
                             'numer2' => $stratum_2_numer2,
                             'numer3' => $stratum_2_numer3);
-
     }
 }
 
-$from_date = date('Y', strtotime($target_date ))."-01-01";
-$to_date =  date('Y', strtotime($target_date ))."-12-31";
+$from_date = date('Y', strtotime($target_date))."-01-01";
+$to_date =  date('Y', strtotime($target_date))."-12-31";
 $xml = new QRDAXml();
 
 #################################################################################################
@@ -358,11 +357,12 @@ $xml->self_authorTime($auth_dtime);
 $xml->open_assignAuthor();
 $authorsetid = getUuid();
 $xml->self_customId($authorsetid);
-if($form_provider != ""){
+if ($form_provider != "") {
     $userRow = sqlQuery("SELECT facility, facility_id, federaltaxid, npi, phone,fname, lname FROM users WHERE id=?", array($form_provider));
     $facility_name = $userRow['facility'];
     $facility_id = $userRow['facility_id'];
 }
+
 //$xml->self_customTag('telecom', array('value' => $userRow['phone'], 'use'=>'WP'));
 
 //assignedAuthoringDevice Start
@@ -460,7 +460,7 @@ $xml->open_customTag('assignedEntity');
 $npi_provider = !empty($userRow['npi']) ? $userRow['npi'] : '123456789';
 $xml->self_customTag('id', array('root' => '2.16.840.1.113883.4.6', 'extension' =>$npi_provider));
 
-if($userRow['phone'] != ""){
+if ($userRow['phone'] != "") {
     $xml->self_customTag('telecom', array('value' => $userRow['phone'], 'use'=>'WP'));
 }
 
@@ -476,7 +476,7 @@ $xml->close_customTag();
 $xml->open_customTag('representedOrganization');
 
 $tin_provider = $userRow['federaltaxid'];
-if($tin_provider != ""){
+if ($tin_provider != "") {
     $xml->self_customTag('id', array('root' => '2.16.840.1.113883.4.2', 'extension' =>$tin_provider));
 }
 
@@ -595,7 +595,7 @@ $xml->open_text();
 $cnt=1;
 
 $tabArr = array('border'=>1, 'width'=>'100%');
-if(count($dataSheet) > 0){
+if (count($dataSheet) > 0) {
     $uniqIdArr = array();
 
     //Inner Data Loop
@@ -604,7 +604,9 @@ if(count($dataSheet) > 0){
         $numerator_label = $row['numerator_label'];
 
         //CQM Rules 2014 set, 0013 is 0018
-        if($row['cqm_nqf_code'] == "0013") $row['cqm_nqf_code'] = "0018";
+        if ($row['cqm_nqf_code'] == "0013") {
+            $row['cqm_nqf_code'] = "0018";
+        }
 
         //Table Start
         $xml->open_customTag('table', $tabArr);
@@ -624,31 +626,33 @@ if(count($dataSheet) > 0){
         $xml->open_customTag('tbody');
         $xml->open_customTag('tr');
 
-        $tdTitle = generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'),$row['id']);
+        $tdTitle = generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $row['id']);
 
         if (!empty($row['cqm_pqri_code'])) {
-            $tdTitle .= " " . htmlspecialchars( xl('PQRI') . ":" . $row['cqm_pqri_code'], ENT_NOQUOTES) . " ";
-        }
-        if (!empty($row['cqm_nqf_code'])) {
-            $tdTitle .= " " . htmlspecialchars( xl('NQF') . ":" . $row['cqm_nqf_code'], ENT_NOQUOTES) . " ";
+            $tdTitle .= " " . htmlspecialchars(xl('PQRI') . ":" . $row['cqm_pqri_code'], ENT_NOQUOTES) . " ";
         }
 
-        if ( !(empty($row['concatenated_label'])) ) {
-            $tdTitle .= ", " . htmlspecialchars( xl( $row['concatenated_label'] ), ENT_NOQUOTES) . " ";
+        if (!empty($row['cqm_nqf_code'])) {
+            $tdTitle .= " " . htmlspecialchars(xl('NQF') . ":" . $row['cqm_nqf_code'], ENT_NOQUOTES) . " ";
+        }
+
+        if (!(empty($row['concatenated_label']))) {
+            $tdTitle .= ", " . htmlspecialchars(xl($row['concatenated_label']), ENT_NOQUOTES) . " ";
         }
 
         $tdVersionNeutral = getUuid();
 
-        if($preDefinedUniqIDRules[$row['cqm_nqf_code']] != ""){
-            if( ($row['cqm_nqf_code'] == "0421" ) )
+        if ($preDefinedUniqIDRules[$row['cqm_nqf_code']] != "") {
+            if (($row['cqm_nqf_code'] == "0421" )) {
                 $tdVersionSpecific = $preDefinedUniqIDRules[$row['cqm_nqf_code']][$row['numerator_label']];
-            else if($row['cqm_nqf_code'] == "0024")
+            } else if ($row['cqm_nqf_code'] == "0024") {
                 $tdVersionSpecific = $preDefinedUniqIDRules[$row['cqm_nqf_code']][$row['population_label']][$row['numerator_label']];
-            else
+            } else {
                 $tdVersionSpecific = $preDefinedUniqIDRules[$row['cqm_nqf_code']];
+            }
 
             $uniqIdArr[] = $tdVersionSpecific;
-        }else{
+        } else {
             $tdVersionSpecific = getUuid();
             $uniqIdArr[] = $tdVersionSpecific;
         }
@@ -674,18 +678,21 @@ if(count($dataSheet) > 0){
 
 
         //All CQM Measures taken here
-        foreach($CQMeausesArr as $cqmKey => $cqmVal){
-
+        foreach ($CQMeausesArr as $cqmKey => $cqmVal) {
             //DENEXCEP(Denominator Exception not needed for some rules are skipping here)
-            if( (in_array($row['cqm_nqf_code'], $denExcepNotNeedRules) ) && ($cqmKey == "exception_patients") ) continue;
+            if ((in_array($row['cqm_nqf_code'], $denExcepNotNeedRules) ) && ($cqmKey == "exception_patients")) {
+                continue;
+            }
 
             //get Itemized Data
-            if($cqmKey == "init_patients")
-                $itemPatArr = collectItemizedPatientsCdrReport($report_id,$itemized_test_id,$cqmItemizedArr[$cqmKey]);
-            else
-                $itemPatArr = collectItemizedPatientsCdrReport($report_id,$itemized_test_id,$cqmItemizedArr[$cqmKey], $numerator_label);
+            if ($cqmKey == "init_patients") {
+                $itemPatArr = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $cqmItemizedArr[$cqmKey]);
+            } else {
+                $itemPatArr = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $cqmItemizedArr[$cqmKey], $numerator_label);
+            }
+
             $fullPatArr = array();
-            foreach($itemPatArr as $itemPatInfo){
+            foreach ($itemPatArr as $itemPatInfo) {
                 $fullPatArr[] = $itemPatInfo['pid'];
             }
 
@@ -700,7 +707,7 @@ if(count($dataSheet) > 0){
             $xml->open_list();
 
             //Gender Section Display
-            foreach($mainQrdaGenderCodeArr as $GKey => $GVal){
+            foreach ($mainQrdaGenderCodeArr as $GKey => $GVal) {
                 $xml->open_customTag('item');
                 $genderInfo = $detailsArr['gender'][$GVal];
                 $arrContent = array('name'=>$GVal, 'value'=>$genderInfo);
@@ -709,7 +716,7 @@ if(count($dataSheet) > 0){
             }
 
             //Ethnicity Section Display
-            foreach($mainEthiArr as $ethKey => $ethVal){
+            foreach ($mainEthiArr as $ethKey => $ethVal) {
                 $ethnicity_data = $detailsArr['ethnicity'][$ethVal];
                 $xml->open_customTag('item');
                 $arrContent = array('name'=>'Ethnicity - '.$ethVal, 'value'=>$ethnicity_data);
@@ -718,7 +725,7 @@ if(count($dataSheet) > 0){
             }
 
             //Race Section Display
-            foreach($mainQrdaRaceArr as $RKey => $RVal){
+            foreach ($mainQrdaRaceArr as $RKey => $RVal) {
                 $race_data = $detailsArr['race'][$RVal];
                 $xml->open_customTag('item');
                 $arrContent = array('name'=>'Race - '.$RVal, 'value'=>$race_data);
@@ -728,7 +735,7 @@ if(count($dataSheet) > 0){
 
             //Payer Type Section Display
             $payerCheckArr = getQRDAPayerInfo($fullPatArr);
-            foreach($mainQrdaPayerCodeArr as $PKey => $PVal){
+            foreach ($mainQrdaPayerCodeArr as $PKey => $PVal) {
                 $xml->open_customTag('item');
                 $arrContent = array('name'=>'Payer - '.$PVal, 'value'=>$payerCheckArr[$PVal]);
                 $xml->innerContent($arrContent);
@@ -739,6 +746,7 @@ if(count($dataSheet) > 0){
             $xml->close_list();
             $xml->close_customTag();
         }
+
         $xml->close_list();
     }
 }
@@ -748,11 +756,11 @@ $xml->close_text();
 #######################################################################
 ######################### QUALITY MEASURES START ######################
 #######################################################################
-if(count($dataSheet) > 0){
+if (count($dataSheet) > 0) {
     $innrCnt = 0;
     $skipMultNumArr = array();
     $dataChkArr = array();
-    foreach($multNumNQFArr as $multNumVal){
+    foreach ($multNumNQFArr as $multNumVal) {
         $skipMultNumArr[$multNumVal] = false;
         $dataChkArr[$multNumVal] = 0;
     }
@@ -768,28 +776,30 @@ if(count($dataSheet) > 0){
         //	if(in_array($row['numerator_label'], $NQF38NumArr)) continue;
         //}
 
-        if(in_array($row['cqm_nqf_code'], $multNumNQFArr)){
+        if (in_array($row['cqm_nqf_code'], $multNumNQFArr)) {
             $dataChkArr[$row['cqm_nqf_code']]++;
         }
 
         //CQM Rules 2014 set, 0013 is 0018
-        if($row['cqm_nqf_code'] == "0013") $row['cqm_nqf_code'] = "0018";
+        if ($row['cqm_nqf_code'] == "0013") {
+            $row['cqm_nqf_code'] = "0018";
+        }
 
-        $tdTitle = generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'),$row['id']);
+        $tdTitle = generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $row['id']);
         if (!empty($row['cqm_pqri_code'])) {
-            $tdTitle .= " " . text( xl('PQRI') . ":" . $row['cqm_pqri_code']) . " ";
-        }
-        if (!empty($row['cqm_nqf_code'])) {
-            $tdTitle .= " " . text( xl('NQF') . ":" . $row['cqm_nqf_code']) . " ";
+            $tdTitle .= " " . text(xl('PQRI') . ":" . $row['cqm_pqri_code']) . " ";
         }
 
-        if ( !(empty($row['concatenated_label'])) ) {
-            $tdTitle .= ", " . text( xl( $row['concatenated_label'] )) . " ";
+        if (!empty($row['cqm_nqf_code'])) {
+            $tdTitle .= " " . text(xl('NQF') . ":" . $row['cqm_nqf_code']) . " ";
+        }
+
+        if (!(empty($row['concatenated_label']))) {
+            $tdTitle .= ", " . text(xl($row['concatenated_label'])) . " ";
         }
 
         ###########################################################
-        if( ( !isset($skipMultNumArr[$row['cqm_nqf_code']]) ) || ($skipMultNumArr[$row['cqm_nqf_code']] == false) ){
-
+        if (( !isset($skipMultNumArr[$row['cqm_nqf_code']]) ) || ($skipMultNumArr[$row['cqm_nqf_code']] == false)) {
             //Entry open
             $xml->open_entry();
 
@@ -871,15 +881,16 @@ if(count($dataSheet) > 0){
             //$exDocID = getUuid();
 
 
-            if( ($row['cqm_nqf_code'] == "0421" )){
+            if (($row['cqm_nqf_code'] == "0421" )) {
                 $exDocID = $preDefPopIdArr[$row['cqm_nqf_code']][$row['numerator_label']]["NUMER"];
-            }else if(($row['cqm_nqf_code'] == "0024")){
+            } else if (($row['cqm_nqf_code'] == "0024")) {
                 $exDocID = $preDefPopIdArr[$row['cqm_nqf_code']][$row['population_label']][$row['numerator_label']]["NUMER"];
-            }else{
-                if($preDefPopIdArr[$row['cqm_nqf_code']]["NUMER"] != "")
+            } else {
+                if ($preDefPopIdArr[$row['cqm_nqf_code']]["NUMER"] != "") {
                     $exDocID = $preDefPopIdArr[$row['cqm_nqf_code']]["NUMER"];
-                else
+                } else {
                     $exDocID = getUuid();
+                }
             }
 
             $xml->self_customId($exDocID);
@@ -898,28 +909,34 @@ if(count($dataSheet) > 0){
 
             $xml->close_loopComponent();
             ############### Performance Rate for Proportion Measure template END ###################
-
         }
 
         //All CQM Measures taken here
-        foreach($CQMeausesArr as $cqmKey => $cqmVal){
-
+        foreach ($CQMeausesArr as $cqmKey => $cqmVal) {
             //DENEXCEP(Denominator Exception not needed for some rules are skipping here)
-            if( (in_array($row['cqm_nqf_code'], $denExcepNotNeedRules) ) && ($cqmKey == "exception_patients") ) continue;
+            if ((in_array($row['cqm_nqf_code'], $denExcepNotNeedRules) ) && ($cqmKey == "exception_patients")) {
+                continue;
+            }
 
             //cqm 0024 alllowing only nuemerator 2 and numerator 3 for ipp1,ipp2 and 1pp3 to avoid repeatation
-            if($row['cqm_nqf_code'] == '0024' && ($row['numerator_label'] == "Numerator 2" || $row['numerator_label'] == "Numerator 3") && $cqmKey != 'numer_patients') continue;
-            if($row['cqm_nqf_code'] == '0024' && ($row['population_label'] == "Population Criteria 2" || $row['population_label'] == "Population Criteria 3")) continue;
+            if ($row['cqm_nqf_code'] == '0024' && ($row['numerator_label'] == "Numerator 2" || $row['numerator_label'] == "Numerator 3") && $cqmKey != 'numer_patients') {
+                continue;
+            }
+
+            if ($row['cqm_nqf_code'] == '0024' && ($row['population_label'] == "Population Criteria 2" || $row['population_label'] == "Population Criteria 3")) {
+                continue;
+            }
 
 
             //get Itemized Data
-            if($cqmKey == "init_patients")
-                $itemPatArr = collectItemizedPatientsCdrReport($report_id,$itemized_test_id,$cqmItemizedArr[$cqmKey]);
-            else
-                $itemPatArr = collectItemizedPatientsCdrReport($report_id,$itemized_test_id,$cqmItemizedArr[$cqmKey], $numerator_label);
+            if ($cqmKey == "init_patients") {
+                $itemPatArr = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $cqmItemizedArr[$cqmKey]);
+            } else {
+                $itemPatArr = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $cqmItemizedArr[$cqmKey], $numerator_label);
+            }
 
             $fullPatArr = array();
-            foreach($itemPatArr as $itemPatInfo){
+            foreach ($itemPatArr as $itemPatInfo) {
                 $fullPatArr[] = $itemPatInfo['pid'];
             }
 
@@ -976,15 +993,16 @@ if(count($dataSheet) > 0){
             $xml->close_customTag();
 
             #### Stratum Start (Stratification)#####
-            if($row['cqm_nqf_code'] == '0024'){
+            if ($row['cqm_nqf_code'] == '0024') {
                 $strat_count = 1;
-                for(;$strat_count <= 2;$strat_count++){
-
+                for (; $strat_count <= 2; $strat_count++) {
                         $strata_value = $stratum[$strat_count][$cqmKey];
 
-                        if($row['numerator_label'] == "Numerator 2") $strata_value = $stratum[$strat_count]['numer2'];
-
-                    else if($row['numerator_label'] == "Numerator 3") $strata_value = $stratum[$strat_count]['numer3'];
+                    if ($row['numerator_label'] == "Numerator 2") {
+                        $strata_value = $stratum[$strat_count]['numer2'];
+                    } else if ($row['numerator_label'] == "Numerator 3") {
+                        $strata_value = $stratum[$strat_count]['numer3'];
+                    }
 
                         //entryRelationship Open
                         $xml->open_customTag('entryRelationship', array('typeCode'=>'COMP'));
@@ -1062,9 +1080,9 @@ if(count($dataSheet) > 0){
 
                         //entryRelationship Close
                         $xml->close_customTag();
-
                 }
             }
+
             #### Stratum END #####
 
             ####################################################
@@ -1073,7 +1091,7 @@ if(count($dataSheet) > 0){
             ####################################################
             ####################################################
 
-            foreach($mainQrdaGenderCodeArr as $GKey => $GVal){
+            foreach ($mainQrdaGenderCodeArr as $GKey => $GVal) {
                 //entryRelationship Open
                 $xml->open_customTag('entryRelationship', array('typeCode'=>'COMP'));
 
@@ -1132,6 +1150,7 @@ if(count($dataSheet) > 0){
                 //entryRelationship Close
                 $xml->close_customTag();
             }
+
             ####################################################
             ####################################################
             //Sex Supplemental Data Element END
@@ -1144,7 +1163,7 @@ if(count($dataSheet) > 0){
             ####################################################
             ####################################################
 
-            foreach($mainEthiArr as $ethKey => $ethVal){
+            foreach ($mainEthiArr as $ethKey => $ethVal) {
                 //entryRelationship Open
                 $xml->open_customTag('entryRelationship', array('typeCode'=>'COMP'));
 
@@ -1202,8 +1221,8 @@ if(count($dataSheet) > 0){
 
                 //entryRelationship Close
                 $xml->close_customTag();
-
             }
+
             ####################################################
             ####################################################
             //Ethnicity Supplemental Data Element (CMS EP) END
@@ -1217,7 +1236,7 @@ if(count($dataSheet) > 0){
             ####################################################
             ####################################################
 
-            foreach($mainQrdaRaceArr as $RKey => $RVal){
+            foreach ($mainQrdaRaceArr as $RKey => $RVal) {
                 //entryRelationship Open
                 $xml->open_customTag('entryRelationship', array('typeCode'=>'COMP'));
 
@@ -1290,7 +1309,7 @@ if(count($dataSheet) > 0){
             ####################################################
             ####################################################
             $payerCheckArr = getQRDAPayerInfo($fullPatArr);
-            foreach($mainQrdaPayerCodeArr as $PKey => $PVal){
+            foreach ($mainQrdaPayerCodeArr as $PKey => $PVal) {
                 //entryRelationship Open
                 $xml->open_customTag('entryRelationship', array('typeCode'=>'COMP'));
 
@@ -1366,8 +1385,8 @@ if(count($dataSheet) > 0){
 
                 //entryRelationship Close
                 $xml->close_customTag();
-
             }
+
             ####################################################
             ####################################################
             //Payer Supplemental Data Element (CMS EP) END
@@ -1384,16 +1403,18 @@ if(count($dataSheet) > 0){
             $xml->open_customTag('externalObservation', $arr);
 
             //Modified HQMF_ID for CQM IDS
-            if( ($row['cqm_nqf_code'] == "0421" ) ){
+            if (($row['cqm_nqf_code'] == "0421" )) {
                 $refID = $preDefPopIdArr[$row['cqm_nqf_code']][$row['numerator_label']][$mainQrdaPopulationIncArr[$cqmKey]];
-            }else if( ($row['cqm_nqf_code'] == "0024") ){
+            } else if (($row['cqm_nqf_code'] == "0024")) {
                 $refID = $preDefPopIdArr[$row['cqm_nqf_code']][$row['population_label']][$row['numerator_label']][$mainQrdaPopulationIncArr[$cqmKey]];
-            }else{
+            } else {
                 $refID = $preDefPopIdArr[$row['cqm_nqf_code']][$mainQrdaPopulationIncArr[$cqmKey]];
             }
-            if($refID == ""){
+
+            if ($refID == "") {
                 $refID = getUuid();
             }
+
             $xml->self_customId($refID);
 
             //externalObservation Close
@@ -1411,17 +1432,18 @@ if(count($dataSheet) > 0){
         }
 
         //Multiple Numerator Handling
-        if(in_array($row['cqm_nqf_code'], $multNumNQFArr)){
+        if (in_array($row['cqm_nqf_code'], $multNumNQFArr)) {
             //Skipping Multiple Numerator(s)
-            if(in_array($row['cqm_nqf_code'], $multNumNQFArr)){
+            if (in_array($row['cqm_nqf_code'], $multNumNQFArr)) {
                 $skipMultNumArr[$row['cqm_nqf_code']] = true;
             }
-            if($dataChkArr[$row['cqm_nqf_code']] == $countNumNQFArr[$row['cqm_nqf_code']]){
+
+            if ($dataChkArr[$row['cqm_nqf_code']] == $countNumNQFArr[$row['cqm_nqf_code']]) {
                 //Organizer Close
                 $xml->close_customTag();
                 $xml->close_entry();
             }
-        }else{
+        } else {
             //Organizer Close
             $xml->close_customTag();
             $xml->close_entry();
@@ -1457,9 +1479,10 @@ $xml->close_clinicaldocument();
 //QRDA File Download Folder in site/cqm_qrda folder
 $qrda_fname = "QRDA_III_".date("YmdHis").".xml";
 $qrda_file_path = $GLOBALS['OE_SITE_DIR'] . "/documents/cqm_qrda/";
-if(!file_exists($qrda_file_path)){
+if (!file_exists($qrda_file_path)) {
     mkdir($qrda_file_path, 0777, true);
 }
+
 $qrda_file_name = $qrda_file_path.$qrda_fname;
 $fileQRDAOPen = fopen($qrda_file_name, "w");
 fwrite($fileQRDAOPen, trim($xml->getXml()));

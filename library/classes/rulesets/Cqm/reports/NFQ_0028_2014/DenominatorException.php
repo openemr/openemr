@@ -28,17 +28,21 @@ class NFQ_0028_2014_DenominatorException implements CqmFilterIF
         return "DenominatorException";
     }
     
-    public function test( CqmPatient $patient, $beginDate, $endDate )
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         
         // Diagnosis Limited Life Expectancy
         $limited_life = array();
-        foreach(Codes::lookup(Diagnosis::LIMITED_LIFE,'SNOMED-CT') as $code){ $limited_life[] = "SNOMED-CT:".$code;}
-        $limited_life = "'".implode("','",$limited_life)."'";
+        foreach (Codes::lookup(Diagnosis::LIMITED_LIFE, 'SNOMED-CT') as $code) {
+            $limited_life[] = "SNOMED-CT:".$code;
+        }
+
+        $limited_life = "'".implode("','", $limited_life)."'";
         $query = "SELECT count(*) as cnt from lists where type ='medical_problem' and pid = ? and diagnosis in ($limited_life) and begdate between ? and ? and (enddate is null or enddate > ? )";
-        $diagnosis = sqlQuery($query,array($patient->id,$beginDate,$endDate,$endDate));
-        if($diagnosis['cnt'] > 0)
+        $diagnosis = sqlQuery($query, array($patient->id,$beginDate,$endDate,$endDate));
+        if ($diagnosis['cnt'] > 0) {
             return true;
+        }
         
         //Risk Category Tobacco Screening Done to allow a provider to document that the screening was performed along with other numerous options from the Risk
         //Category Assessment not done:  Medical Reason value set with the identifying SNOMEDCT Code attached at the Select List level.
@@ -53,10 +57,10 @@ class NFQ_0028_2014_DenominatorException implements CqmFilterIF
                             "AND ( prc.procedure_code = '161590003' OR prc.procedure_code = '183932001' OR prc.procedure_code = '183964008' OR prc.procedure_code = '183966005' OR prc.procedure_code = '216952002' OR prc.procedure_code = '266721009' OR prc.procedure_code = '269191009') ".
                             "AND prc.procedure_order_title = 'Risk Category Assessment'";
         
-        $check = sqlQuery( $riskCatAssessQry, array($beginDate, $endDate, $patient->id) );
-        if ($check['cnt'] > 0){
+        $check = sqlQuery($riskCatAssessQry, array($beginDate, $endDate, $patient->id));
+        if ($check['cnt'] > 0) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }

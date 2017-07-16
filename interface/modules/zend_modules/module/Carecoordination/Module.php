@@ -1,5 +1,6 @@
 <?php
 namespace Carecoordination;
+
 use Carecoordination\Model\CarecoordinationTable;
 use Carecoordination\Model\SetupTable;
 use Carecoordination\Model\EncounterccdadispatchTable;
@@ -106,4 +107,3 @@ class Module
         );
     }
 }
-?>

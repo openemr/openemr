@@ -16,7 +16,10 @@ require_once("$srcdir/options.inc.php");
 
 function QuotedOrNull($fld)
 {
-    if ($fld) return "'".add_escape_custom($fld)."'";
+    if ($fld) {
+        return "'".add_escape_custom($fld)."'";
+    }
+
     return "NULL";
 }
 
@@ -25,7 +28,7 @@ function checkWarehouseUsed($warehouse_id)
     global $drug_id;
     $row = sqlQuery("SELECT count(*) AS count FROM drug_inventory WHERE " .
     "drug_id = ? AND " .
-    "destroy_date IS NULL AND warehouse_id = ?", array($drug_id,$warehouse_id) );
+    "destroy_date IS NULL AND warehouse_id = ?", array($drug_id,$warehouse_id));
     return $row['count'];
 }
 
@@ -35,7 +38,7 @@ function checkWarehouseUsed($warehouse_id)
 // Returns the number of warehouses allowed.
 // For these purposes the "unassigned" option is considered a warehouse.
 //
-function genWarehouseList($tag_name, $currvalue, $title, $class='')
+function genWarehouseList($tag_name, $currvalue, $title, $class = '')
 {
     global $drug_id;
 
@@ -46,7 +49,10 @@ function genWarehouseList($tag_name, $currvalue, $title, $class='')
     "WHERE list_id = 'warehouse' AND activity = 1 ORDER BY seq, title");
 
     echo "<select name='".attr($tag_name)."' id='".attr($tag_name)."'";
-    if ($class) echo " class='".attr($class)."'";
+    if ($class) {
+        echo " class='".attr($class)."'";
+    }
+
     echo " title='".attr($title)."'>";
 
     $got_selected = false;
@@ -59,15 +65,17 @@ function genWarehouseList($tag_name, $currvalue, $title, $class='')
 
     while ($lrow = sqlFetchArray($lres)) {
         $whid = $lrow['option_id'];
-        if ($whid != $currvalue && !$allow_multiple && checkWarehouseUsed($whid)) continue;
+        if ($whid != $currvalue && !$allow_multiple && checkWarehouseUsed($whid)) {
+            continue;
+        }
 
         echo "<option value='".attr($whid)."'";
         if ((strlen($currvalue) == 0 && $lrow['is_default']) ||
-        (strlen($currvalue)  > 0 && $whid == $currvalue))
-        {
+        (strlen($currvalue)  > 0 && $whid == $currvalue)) {
             echo " selected";
             $got_selected = true;
         }
+
         echo ">" . text($lrow['title']) . "</option>\n";
 
         ++$count;
@@ -79,8 +87,7 @@ function genWarehouseList($tag_name, $currvalue, $title, $class='')
         echo " <font color='red' title='" .
         xla('Please choose a valid selection from the list.') . "'>" .
         xlt('Fix this') . "!</font>";
-    }
-    else {
+    } else {
         echo "</select>";
     }
 
@@ -93,14 +100,19 @@ $info_msg = "";
 
 $form_trans_type = isset($_POST['form_trans_type']) ? $_POST['form_trans_type'] : '0';
 
-if (!acl_check('admin', 'drugs')) die(xlt('Not authorized'));
-if (!$drug_id) die(xlt('Drug ID missing!'));
+if (!acl_check('admin', 'drugs')) {
+    die(xlt('Not authorized'));
+}
+
+if (!$drug_id) {
+    die(xlt('Drug ID missing!'));
+}
 ?>
 <html>
 <head>
 <?php html_header_show();?>
 <title><?php echo $lot_id ? xlt("Edit") : xlt("Add New");
-xlt('Lot','e',' '); ?></title>
+xlt('Lot', 'e', ' '); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
@@ -187,7 +199,6 @@ if ($lot_id) {
 // If we are saving, then save and close the window.
 //
 if ($_POST['form_save'] || $_POST['form_delete']) {
-
     $form_quantity = $_POST['form_quantity'] + 0;
     $form_cost = sprintf('%0.2f', $_POST['form_cost']);
     $form_source_lot = $_POST['form_source_lot'] + 0;
@@ -197,21 +208,20 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
     if ($form_trans_type == '3') { // return
         $form_quantity = 0 - $form_quantity;
         $form_cost = 0 - $form_cost;
-    }
-    else if ($form_trans_type == '5') { // adjustment
+    } else if ($form_trans_type == '5') { // adjustment
         $form_cost = 0;
-    }
-    else if ($form_trans_type == '0') { // no transaction
+    } else if ($form_trans_type == '0') { // no transaction
         $form_quantity = 0;
         $form_cost = 0;
-    }
-    else if ($form_trans_type == '6') { // distribution
+    } else if ($form_trans_type == '6') { // distribution
         $form_quantity = 0 - $form_quantity;
         $form_cost = 0 - $form_cost;
     }
+
     if ($form_trans_type != '4') { // not transfer
         $form_source_lot = 0;
     }
+
     if ($form_trans_type != '6') { // not distribution
         $form_distributor_id = '0';
     }
@@ -219,7 +229,7 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
   // If a transfer, make sure there is sufficient quantity in the source lot.
     if ($_POST['form_save'] && $form_source_lot && $form_quantity) {
         $srow = sqlQuery("SELECT on_hand FROM drug_inventory WHERE " .
-        "drug_id = ? AND inventory_id = ?", array($drug_id,$form_source_lot) );
+        "drug_id = ? AND inventory_id = ?", array($drug_id,$form_source_lot));
         if ($srow['on_hand'] < $form_quantity) {
               $info_msg = xl('Transfer failed, insufficient quantity in source lot');
         }
@@ -232,8 +242,7 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
                 // Make sure the destination quantity will not end up negative.
                 if (($row['on_hand'] + $form_quantity) < 0) {
                     $info_msg = xl('Transaction failed, insufficient quantity in destination lot');
-                }
-                else {
+                } else {
                     sqlStatement("UPDATE drug_inventory SET " .
                     "lot_number = '"   . add_escape_custom($_POST['form_lot_number'])    . "', " .
                     "manufacturer = '" . add_escape_custom($_POST['form_manufacturer'])  . "', " .
@@ -241,20 +250,17 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
                     "vendor_id = '"    . add_escape_custom($_POST['form_vendor_id'])     . "', " .
                     "warehouse_id = '" . add_escape_custom($_POST['form_warehouse_id'])  . "', " .
                     "on_hand = on_hand + '" . add_escape_custom($form_quantity)            . "' "  .
-                    "WHERE drug_id = ? AND inventory_id = ?", array($drug_id,$lot_id) );
+                    "WHERE drug_id = ? AND inventory_id = ?", array($drug_id,$lot_id));
                 }
-            }
-            else {
+            } else {
                 sqlStatement("DELETE FROM drug_inventory WHERE drug_id = ? " .
-                "AND inventory_id = ?", array($drug_id,$lot_id) );
+                "AND inventory_id = ?", array($drug_id,$lot_id));
             }
-        }
-        // Destination lot will be created.
+        } // Destination lot will be created.
         else {
             if ($form_quantity < 0) {
                 $info_msg = xl('Transaction failed, quantity is less than zero');
-            }
-            else {
+            } else {
                 $lot_id = sqlInsert("INSERT INTO drug_inventory ( " .
                 "drug_id, lot_number, manufacturer, expiration, " .
                 "vendor_id, warehouse_id, on_hand " .
@@ -274,7 +280,10 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
         if ($_POST['form_save'] && $form_quantity) {
             $form_notes = $_POST['form_notes'];
             $form_sale_date = $_POST['form_sale_date'];
-            if (empty($form_sale_date)) $form_sale_date = date('Y-m-d');
+            if (empty($form_sale_date)) {
+                $form_sale_date = date('Y-m-d');
+            }
+
             sqlInsert("INSERT INTO drug_sales ( " .
             "drug_id, inventory_id, prescription_id, pid, encounter, user, " .
             "sale_date, quantity, fee, xfer_inventory_id, distributor_id, notes " .
@@ -294,14 +303,14 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
             if ($form_source_lot) {
                   sqlStatement("UPDATE drug_inventory SET " .
                     "on_hand = on_hand - ? " .
-                    "WHERE inventory_id = ?", array($form_quantity,$form_source_lot) );
+                    "WHERE inventory_id = ?", array($form_quantity,$form_source_lot));
 
                 foreach (array('lot_number', 'manufacturer', 'expiration', 'vendor_id') as $item) {
                             sqlStatement("UPDATE drug_inventory AS di1, drug_inventory AS di2 " .
                               "SET di1.".add_escape_custom($item)." = di2.".add_escape_custom($item)." " .
                               "WHERE di1.inventory_id = ? AND " .
                               "di2.inventory_id = ? AND " .
-                              "( di1.".add_escape_custom($item)." IS NULL OR di1.".add_escape_custom($item)." = '' OR di1.".add_escape_custom($item)." = '0' )", array($lot_id,$form_source_lot) );
+                              "( di1.".add_escape_custom($item)." IS NULL OR di1.".add_escape_custom($item)." = '' OR di1.".add_escape_custom($item)." = '0' )", array($lot_id,$form_source_lot));
                 }
             }
         }
@@ -310,7 +319,10 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
   // Close this window and redisplay the updated list of drugs.
   //
     echo "<script language='JavaScript'>\n";
-    if ($info_msg) echo " alert('".addslashes($info_msg)."');\n";
+    if ($info_msg) {
+        echo " alert('".addslashes($info_msg)."');\n";
+    }
+
     echo " window.close();\n";
     echo " if (opener.refreshme) opener.refreshme();\n";
     echo "</script></body></html>\n";
@@ -356,10 +368,12 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
   <td>
 <?php
 // Address book entries for vendors.
-generate_form_field(array('data_type' => 14, 'field_id' => 'vendor_id',
-  'list_id' => '', 'edit_options' => 'V',
-  'description' => xl('Address book entry for the vendor')),
-  $row['vendor_id']);
+generate_form_field(
+    array('data_type' => 14, 'field_id' => 'vendor_id',
+    'list_id' => '', 'edit_options' => 'V',
+    'description' => xl('Address book entry for the vendor')),
+    $row['vendor_id']
+);
 ?>
   </td>
  </tr>
@@ -370,9 +384,11 @@ generate_form_field(array('data_type' => 14, 'field_id' => 'vendor_id',
 <?php
   // generate_select_list("form_warehouse_id", 'warehouse',
   //   $row['warehouse_id'], xl('Location of this lot'), xl('Unassigned'));
-if (!genWarehouseList("form_warehouse_id", $row['warehouse_id'],
-    xl('Location of this lot')))
-{
+if (!genWarehouseList(
+    "form_warehouse_id",
+    $row['warehouse_id'],
+    xl('Location of this lot')
+)) {
     $info_msg = xl('This product allows only one lot per warehouse.');
 }
 ?>
@@ -398,10 +414,12 @@ foreach (array(
   '6' => xl('Distribution'),
   '4' => xl('Transfer'),
   '5' => xl('Adjustment'),
-) as $key => $value)
-{
+) as $key => $value) {
     echo "<option value='" . attr($key) . "'";
-    if ($key == $form_trans_type) echo " selected";
+    if ($key == $form_trans_type) {
+        echo " selected";
+    }
+
     echo ">" . text($value) . "</option>\n";
 }
 ?>
@@ -465,7 +483,10 @@ $lres = sqlStatement("SELECT " .
 while ($lrow = sqlFetchArray($lres)) {
     echo "<option value='" . attr($lrow['inventory_id']) . "'>";
     echo text($lrow['lot_number']);
-    if (!empty($lrow['title'])) echo " / " . text($lrow['title']);
+    if (!empty($lrow['title'])) {
+        echo " / " . text($lrow['title']);
+    }
+
     echo " (" . text($lrow['on_hand']) . ")";
     echo "</option>\n";
 }

@@ -13,7 +13,7 @@ class NFQ_0421_Numerator1 implements CqmFilterIF
         return "Numerator 1";
     }
 
-    public function test( CqmPatient $patient, $beginDate, $endDate )
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         // Flow of control loop
         $return = false;
@@ -31,9 +31,9 @@ class NFQ_0421_Numerator1 implements CqmFilterIF
                      "AND DATE( form_vitals.date ) >= DATE_ADD( form_encounter.date, INTERVAL -6 MONTH ) " .
                      "AND DATE( form_vitals.date ) <= DATE( form_encounter.date ) " .
                      "AND ( enc_category_map.rule_enc_id = 'enc_outpatient' )";
-            $res = sqlStatement( $query, array( $patient->id ) );
+            $res = sqlStatement($query, array( $patient->id ));
             $number = sqlNumRows($res);
-            if ( $number >= 1 ) {
+            if ($number >= 1) {
                 $return = true;
                 break;
             }
@@ -52,11 +52,11 @@ class NFQ_0421_Numerator1 implements CqmFilterIF
                      "AND ( DATE( form_vitals.date ) >= DATE_ADD( form_encounter.date, INTERVAL -6 MONTH ) ) " .
                      "AND ( DATE( form_vitals.date ) <= DATE( form_encounter.date ) ) " .
                      "AND ( enc_category_map.rule_enc_id = 'enc_outpatient' )";
-            $res = sqlStatement( $query, array( $patient->id ) );
+            $res = sqlStatement($query, array( $patient->id ));
             $number = sqlNumRows($res);
-            if ( $number >= 1 &&
-                ( Helper::check( ClinicalType::CARE_GOAL, CareGoal::FOLLOW_UP_PLAN_BMI_MGMT, $patient ) ||
-                  Helper::check( ClinicalType::COMMUNICATION, Communication::DIET_CNSLT, $patient ) ) ) {
+            if ($number >= 1 &&
+                ( Helper::check(ClinicalType::CARE_GOAL, CareGoal::FOLLOW_UP_PLAN_BMI_MGMT, $patient) ||
+                  Helper::check(ClinicalType::COMMUNICATION, Communication::DIET_CNSLT, $patient) ) ) {
                 $return = true;
                 break;
             }
@@ -75,15 +75,15 @@ class NFQ_0421_Numerator1 implements CqmFilterIF
                      "AND ( DATE( form_vitals.date ) >= DATE_ADD( form_encounter.date, INTERVAL -6 MONTH ) ) " .
                      "AND ( DATE( form_vitals.date ) <= DATE( form_encounter.date ) ) " .
                      "AND ( enc_category_map.rule_enc_id = 'enc_outpatient' )";
-            $res = sqlStatement( $query, array( $patient->id ) );
+            $res = sqlStatement($query, array( $patient->id ));
             $number = sqlNumRows($res);
-            if ( $number >= 1 &&
-                ( Helper::check( ClinicalType::CARE_GOAL, CareGoal::FOLLOW_UP_PLAN_BMI_MGMT, $patient ) ||
-                  Helper::check( ClinicalType::COMMUNICATION, Communication::DIET_CNSLT, $patient ) ) ) {
+            if ($number >= 1 &&
+                ( Helper::check(ClinicalType::CARE_GOAL, CareGoal::FOLLOW_UP_PLAN_BMI_MGMT, $patient) ||
+                  Helper::check(ClinicalType::COMMUNICATION, Communication::DIET_CNSLT, $patient) ) ) {
                 $return = true;
                 break;
             }
-        } while( false );
+        } while (false);
 
         return $return;
     }

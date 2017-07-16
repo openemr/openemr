@@ -4,7 +4,7 @@
 /**
  * import supporting libraries
  */
-require_once ("PaymentProcessor.php");
+require_once("PaymentProcessor.php");
 
 /**
  * SkipJack extends the generic PaymentProcessor object to process
@@ -16,7 +16,8 @@ require_once ("PaymentProcessor.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.1
  */
-class SkipJack extends PaymentProcessor {
+class SkipJack extends PaymentProcessor
+{
     private $liveUrl = "https://www.skipjackic.com/scripts/evolvcc.dll?AuthorizeApi";
     private $testUrl = "https://developer.skipjackic.com/scripts/evolvcc.dll?AuthorizeAPI";
     private $url = "";
@@ -39,7 +40,7 @@ class SkipJack extends PaymentProcessor {
      */
     function Refund(RefundRequest $req)
     {
-        throw new Exception ( "Refund not implemented for this gateway" );
+        throw new Exception("Refund not implemented for this gateway");
     }
     
     /**
@@ -53,37 +54,38 @@ class SkipJack extends PaymentProcessor {
     {
         if ($this->_testMode) {
             if ($req->SerialNumber == "" || $req->DeveloperSerialNumber == "") {
-                throw new Exception ( "SkipJack requires  a SerialNumber and DeveloperSerialNumber for test transactions.  Free developer accounts can be obtained through SkipJack.com" );
+                throw new Exception("SkipJack requires  a SerialNumber and DeveloperSerialNumber for test transactions.  Free developer accounts can be obtained through SkipJack.com");
             }
         } else {
             if ($req->SerialNumber == "") {
-                throw new Exception ( "SkipJack requires a SerialNumber for live transactions" );
+                throw new Exception("SkipJack requires a SerialNumber for live transactions");
             }
         }
         
         // skipjack requires a funky formatted order string
-        if (! $req->OrderString)
+        if (! $req->OrderString) {
             $req->OrderString = "1~None~0.00~0~N~||";
+        }
         
-        $resp = new PaymentResponse ();
+        $resp = new PaymentResponse();
         $resp->OrderNumber = $req->OrderNumber;
         
         // post to skipjack service
-        $resp->RawResponse = $this->CurlPost ( $this->url, $this->GetPostData ( $req ) );
+        $resp->RawResponse = $this->CurlPost($this->url, $this->GetPostData($req));
         
         // response is two lines - first line is field name, 2nd line is values
-        $lines = explode ( "\r\n", $resp->RawResponse );
+        $lines = explode("\r\n", $resp->RawResponse);
         
         // strip off the beginning and ending doublequote
-        $lines [0] = substr ( $lines [0], 1, strlen ( $lines [0] ) - 2 );
-        $lines [1] = substr ( $lines [1], 1, strlen ( $lines [1] ) - 2 );
+        $lines [0] = substr($lines [0], 1, strlen($lines [0]) - 2);
+        $lines [1] = substr($lines [1], 1, strlen($lines [1]) - 2);
         
         // split the fields and values
-        $fields = explode ( "\",\"", $lines [0] );
-        $vals = explode ( "\",\"", $lines [1] );
+        $fields = explode("\",\"", $lines [0]);
+        $vals = explode("\",\"", $lines [1]);
         
         // convert these two lines into a hash so we can get individual values
-        for($i = 0; $i < count ( $fields ); $i ++) {
+        for ($i = 0; $i < count($fields); $i ++) {
             $resp->ParsedResponse [$fields [$i]] = $vals [$i];
         }
         
@@ -99,10 +101,10 @@ class SkipJack extends PaymentProcessor {
         
         // dependin on the status, get the best description we can
         if ($resp->IsSuccess) {
-            $resp->ResponseMessage = $this->GetMessage ( $resp->ParsedResponse ["szReturnCode"] );
+            $resp->ResponseMessage = $this->GetMessage($resp->ParsedResponse ["szReturnCode"]);
         } else if (! $verifyOK) {
             // verification failed
-            $resp->ResponseMessage = $this->GetMessage ( $resp->ParsedResponse ["szReturnCode"] );
+            $resp->ResponseMessage = $this->GetMessage($resp->ParsedResponse ["szReturnCode"]);
         } else if (! $authOK) {
             // verification was ok, but the processor didn't process the transaction
             $resp->ResponseMessage = $resp->ParsedResponse ["szAuthorizationDeclinedMessage"];
@@ -126,15 +128,15 @@ class SkipJack extends PaymentProcessor {
         $data ["zipcode"] = $req->CustomerZipCode;
         $data ["shiptophone"] = $req->CustomerPhone;
         $data ["email"] = $req->CustomerEmail;
-        $data ["ordernumber"] = "CC" . substr ( md5 ( time () ), 0, 20 );
-        $data ["transactionamount"] = number_format ( $req->TransactionAmount, 2, ".", "" );
-        $data ["accountnumber"] = str_replace ( array (
+        $data ["ordernumber"] = "CC" . substr(md5(time()), 0, 20);
+        $data ["transactionamount"] = number_format($req->TransactionAmount, 2, ".", "");
+        $data ["accountnumber"] = str_replace(array (
                 "-",
                 " "
         ), array (
                 "",
                 ""
-        ), $req->CCNumber );
+        ), $req->CCNumber);
         $data ["month"] = $req->CCExpMonth;
         $data ["year"] = $req->CCExpYear;
         $data ["cvv2"] = $req->CCSecurityCode;
@@ -225,8 +227,6 @@ class SkipJack extends PaymentProcessor {
         $errors ["-116"] = "POS Check lane or cash register number is invalid. Use a valid lane or cash register number that has been configured in the Skipjack Merchant Account.";
         $errors ["-117"] = "POS Check Invalid Cashier Number";
         
-        return (isset ( $errors [$code] )) ? $errors [$code] : "Unknown Error";
+        return (isset($errors [$code])) ? $errors [$code] : "Unknown Error";
     }
 }
-
-?>

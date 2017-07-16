@@ -29,6 +29,7 @@ $row = array();
 if (! $encounter) { // comes from globals.php
     die("Internal error: we do not seem to be in an encounter!");
 }
+
 // encode a string from a form field for database writing.
 function form2db($fldval)
 {
@@ -40,7 +41,10 @@ function form2db($fldval)
 function rbvalue($rbname)
 {
     $tmp = $_POST[$rbname];
-    if (! $tmp) return "NULL";
+    if (! $tmp) {
+        return "NULL";
+    }
+
     return "'$tmp'";
 }
 
@@ -48,7 +52,10 @@ function rbinput($name, $value, $desc, $colname)
 {
     global $row;
     $ret  = "<input type='radio' name='$name' value='$value'";
-    if ($row[$colname] == $value) $ret .= " checked";
+    if ($row[$colname] == $value) {
+        $ret .= " checked";
+    }
+
     $ret .= " />$desc";
     return $ret;
 }
@@ -58,7 +65,6 @@ $formid = $_GET['id'];
 // If Save was clicked, save the info.
 //
 if ($_POST['bn_save']) {
-
  // If updating an existing form...
  //
     if ($formid) {
@@ -76,9 +82,7 @@ if ($_POST['bn_save']) {
          "other = '"                . form2db($_POST['form_other'])      . "' "  .
          "WHERE id = '$formid'";
         sqlStatement($query);
-    }
-
- // If adding a new form...
+    } // If adding a new form...
  //
     else {
         $query = "INSERT INTO form_body_composition ( " .
@@ -108,10 +112,9 @@ if ($_POST['bn_save']) {
 }
 
 if ($formid) {
-    $row = sqlQuery ("SELECT * FROM form_body_composition WHERE " .
+    $row = sqlQuery("SELECT * FROM form_body_composition WHERE " .
     "id = '$formid' AND activity = '1'") ;
-}
-else {
+} else {
  // Get the most recent scale reading.
     $items = explode(',', trim(file_get_contents($scale_file_name)));
     if ($items && count($items) > 11) {

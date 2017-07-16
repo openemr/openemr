@@ -22,40 +22,46 @@
  */
 
 use OpenEMR\Core\Header;
+
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 
-if(isset($_POST['form_from_date'])) {
+if (isset($_POST['form_from_date'])) {
     $from_date = $_POST['form_from_date'] !== "" ?
     fixDate($_POST['form_from_date'], date('Y-m-d')) :
     0;
 }
-if(isset($_POST['form_to_date'])) {
+
+if (isset($_POST['form_to_date'])) {
     $to_date =$_POST['form_to_date'] !== "" ?
     fixDate($_POST['form_to_date'], date('Y-m-d')) :
     0;
 }
+
 //
 $form_code = isset($_POST['form_code']) ? $_POST['form_code'] : array();
 //
-if (empty ($form_code) ) {
+if (empty($form_code)) {
     $query_codes = '';
 } else {
     $query_codes = 'c.id in (';
-    foreach( $form_code as $code ){ $query_codes .= $code . ","; }
-      $query_codes = substr($query_codes ,0,-1);
+    foreach ($form_code as $code) {
+        $query_codes .= $code . ",";
+    }
+
+      $query_codes = substr($query_codes, 0, -1);
       $query_codes .= ') and ';
 }
 
 function tr($a)
 {
-    return (str_replace(' ','^',$a));
+    return (str_replace(' ', '^', $a));
 }
 
 function format_cvx_code($cvx_code)
 {
 
-    if ( $cvx_code < 10 ) {
+    if ($cvx_code < 10) {
         return "0$cvx_code";
     }
 
@@ -66,8 +72,7 @@ function format_phone($phone)
 {
 
     $phone = preg_replace("/[^0-9]/", "", $phone);
-    switch (strlen($phone))
-    {
+    switch (strlen($phone)) {
         case 7:
             return tr(preg_replace("/([0-9]{3})([0-9]{4})/", "000 $1$2", $phone));
         case 10:
@@ -80,14 +85,13 @@ function format_phone($phone)
 function format_ethnicity($ethnicity)
 {
 
-    switch ($ethnicity)
-    {
+    switch ($ethnicity) {
         case "hisp_or_latin":
-           return ("H^Hispanic or Latino^HL70189");
+            return ("H^Hispanic or Latino^HL70189");
         case "not_hisp_or_latin":
-           return ("N^not Hispanic or Latino^HL70189");
+            return ("N^not Hispanic or Latino^HL70189");
         default: // Unknown
-           return ("U^Unknown^HL70189");
+            return ("U^Unknown^HL70189");
     }
 }
 
@@ -121,24 +125,29 @@ if ($_POST['form_get_hl7']==='true') {
     $query .= "concat(p.fname, ' ',p.mname,' ', p.lname) as patientname, ".
     "i.vis_date as immunizationdate, "  ;
 }
+
   $query .=
   "i.id as immunizationid, c.code_text_short as immunizationtitle ".
   "from immunizations i, patient_data p, codes c ".
   "left join code_types ct on c.code_type = ct.ct_id ".
   "where ".
   "ct.ct_key='CVX' and ";
-if($from_date!=0) {
+if ($from_date!=0) {
     $query .= "i.vis_date >= '$from_date' " ;
 }
-if($from_date!=0 and $to_date!=0) {
+
+if ($from_date!=0 and $to_date!=0) {
     $query .= " and " ;
 }
-if($to_date!=0) {
+
+if ($to_date!=0) {
     $query .= "i.vis_date <= '$to_date' ";
 }
-if($from_date!=0 or $to_date!=0) {
+
+if ($from_date!=0 or $to_date!=0) {
     $query .= " and " ;
 }
+
   $query .= "i.patient_id=p.pid and ".
   $query_codes .
   "i.cvx_code = c.code and ";
@@ -165,14 +174,38 @@ if ($_POST['form_get_hl7']==='true') {
         $content .= "MSH|^~\&|OPENEMR||||$nowdate||".
         "VXU^V04^VXU_V04|OPENEMR-110316102457117|P|2.5.1" .
         "$D" ;
-        if ($r['sex']==='Male') $r['sex'] = 'M';
-        if ($r['sex']==='Female') $r['sex'] = 'F';
-        if ($r['status']==='married') $r['status'] = 'M';
-        if ($r['status']==='single') $r['status'] = 'S';
-        if ($r['status']==='divorced') $r['status'] = 'D';
-        if ($r['status']==='widowed') $r['status'] = 'W';
-        if ($r['status']==='separated') $r['status'] = 'A';
-        if ($r['status']==='domestic partner') $r['status'] = 'P';
+        if ($r['sex']==='Male') {
+            $r['sex'] = 'M';
+        }
+
+        if ($r['sex']==='Female') {
+            $r['sex'] = 'F';
+        }
+
+        if ($r['status']==='married') {
+            $r['status'] = 'M';
+        }
+
+        if ($r['status']==='single') {
+            $r['status'] = 'S';
+        }
+
+        if ($r['status']==='divorced') {
+            $r['status'] = 'D';
+        }
+
+        if ($r['status']==='widowed') {
+            $r['status'] = 'W';
+        }
+
+        if ($r['status']==='separated') {
+            $r['status'] = 'A';
+        }
+
+        if ($r['status']==='domestic partner') {
+            $r['status'] = 'P';
+        }
+
         $content .= "PID|" . // [[ 3.72 ]]
         "|" . // 1. Set id
         "|" . // 2. (B)Patient id
@@ -241,12 +274,11 @@ if ($_POST['form_get_hl7']==='true') {
         "|" . // 20.Completion Status
         "A" . // 21.Action Code - RXA
         "$D" ;
-
     }
 
   // send the header here
     header('Content-type: text/plain');
-    header('Content-Disposition: attachment; filename=' . $filename );
+    header('Content-Disposition: attachment; filename=' . $filename);
 
   // put the content in the file
     echo($content);
@@ -257,7 +289,7 @@ if ($_POST['form_get_hl7']==='true') {
 <html>
 <head>
 
-<title><?php xl('Immunization Registry','e'); ?></title>
+<title><?php xl('Immunization Registry', 'e'); ?></title>
 
 <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
@@ -310,7 +342,7 @@ if ($_POST['form_get_hl7']==='true') {
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Immunization Registry','e'); ?></span>
+<span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Immunization Registry', 'e'); ?></span>
 
 <div id="report_parameters_daterange">
 <?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
@@ -328,7 +360,7 @@ onsubmit='return top.restoreSession()'>
       <table class='text'>
         <tr>
           <td class='control-label'>
-            <?php xl('Codes','e'); ?>:
+            <?php xl('Codes', 'e'); ?>:
           </td>
           <td>
 <?php
@@ -343,14 +375,18 @@ onsubmit='return top.restoreSession()'>
 while ($crow = sqlFetchArray($cres)) {
     $codeid = $crow['id'];
     echo "    <option value='$codeid'";
-    if (in_array($codeid, $form_code)) echo " selected";
+    if (in_array($codeid, $form_code)) {
+        echo " selected";
+    }
+
     echo ">" . $crow['name'] . "\n";
 }
+
  echo "   </select>\n";
 ?>
           </td>
           <td class='control-label'>
-            <?php xl('From','e'); ?>:
+            <?php xl('From', 'e'); ?>:
           </td>
           <td>
             <input type='text' name='form_from_date' id="form_from_date"
@@ -359,7 +395,7 @@ while ($crow = sqlFetchArray($cres)) {
             title='yyyy-mm-dd'>
           </td>
           <td class='control-label'>
-            <?php xl('To','e'); ?>:
+            <?php xl('To', 'e'); ?>:
           </td>
           <td>
             <input type='text' name='form_to_date' id="form_to_date"
@@ -414,11 +450,11 @@ if ($_POST['form_refresh']) {
 <div id="report_results">
 <table>
 <thead align="left">
-<th> <?php xl('Patient ID','e'); ?> </th>
-<th> <?php xl('Patient Name','e'); ?> </th>
-<th> <?php xl('Immunization Code','e'); ?> </th>
-<th> <?php xl('Immunization Title','e'); ?> </th>
-<th> <?php xl('Immunization Date','e'); ?> </th>
+<th> <?php xl('Patient ID', 'e'); ?> </th>
+<th> <?php xl('Patient Name', 'e'); ?> </th>
+<th> <?php xl('Immunization Code', 'e'); ?> </th>
+<th> <?php xl('Immunization Title', 'e'); ?> </th>
+<th> <?php xl('Immunization Date', 'e'); ?> </th>
 </thead>
 <tbody>
 <?php
@@ -452,7 +488,7 @@ while ($row = sqlFetchArray($res)) {
 ?>
 <tr class="report_totals">
  <td colspan='9'>
-    <?php xl('Total Number of Immunizations','e'); ?>
+    <?php xl('Total Number of Immunizations', 'e'); ?>
   :
     <?php echo $total ?>
  </td>
@@ -463,7 +499,7 @@ while ($row = sqlFetchArray($res)) {
 </div> <!-- end of results -->
 <?php } else { ?>
 <div class='text'>
-    <?php echo xl('Click Refresh to view all results, or please input search criteria above to view specific results.', 'e' ); ?>
+    <?php echo xl('Click Refresh to view all results, or please input search criteria above to view specific results.', 'e'); ?>
 </div>
 <?php } ?>
 </form>

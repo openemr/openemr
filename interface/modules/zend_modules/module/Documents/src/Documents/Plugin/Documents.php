@@ -49,7 +49,7 @@ class Documents extends AbstractPlugin
      * @param String $key Encryption Key
      * @return String
      */
-    public function encrypt($plaintext,$key,$cypher = 'tripledes', $mode = 'cfb' )
+    public function encrypt($plaintext, $key, $cypher = 'tripledes', $mode = 'cfb')
     {
                 $obj = new \C_Document();
                 $obj->encrypt($plaintext, $key, $cypher, $mode);
@@ -61,7 +61,7 @@ class Documents extends AbstractPlugin
      * @param String $key Decryption Key
      * @return String
      */
-    public function decrypt($crypttext,$key,$cypher = 'tripledes',$mode = 'cfb')
+    public function decrypt($crypttext, $key, $cypher = 'tripledes', $mode = 'cfb')
     {
                 $obj = new \C_Document();
                 $obj->decrypt($crypttext, $key, $cypher, $mode);
@@ -99,13 +99,13 @@ class Documents extends AbstractPlugin
      * @param Json Encoded Data
      * @return Array
      */
-    public function saveCouchDocument($connection,$data)
+    public function saveCouchDocument($connection, $data)
     {
         $couch  = $connection->postDocument($data);
         $id         = $couch[0];
         $rev        = $couch[1];
-        if($id && $rev) {
-            $connection->putDocument($data,$id,$rev);
+        if ($id && $rev) {
+            $connection->putDocument($data, $id, $rev);
             return $couch;
         } else {
             return false;
@@ -119,7 +119,7 @@ class Documents extends AbstractPlugin
      * @param  String $encryption_key Key for Document Encryption
      * @return String File Content
      */
-    public function getDocument($documentId,$doEncryption =false,$encryption_key = '')
+    public function getDocument($documentId, $doEncryption = false, $encryption_key = '')
     {
                 $obj = new \C_Document();
                 $document = $obj->retrieve_action("", $documentId, true, true, true);
@@ -136,20 +136,22 @@ class Documents extends AbstractPlugin
         $result = $obj->zQuery($query);
         $count  = 0;
         $module = array();
-        foreach($result as $row) {
+        foreach ($result as $row) {
             $content = \Documents\Plugin\Documents::getDocument($row['id']);
             $module[$count]['doc_id']   = $row['id'];
             if (preg_match("/<ClinicalDocument/", $content)) {
-                if (preg_match("/2.16.840.1.113883.3.88.11.32.1/", $content)){
+                if (preg_match("/2.16.840.1.113883.3.88.11.32.1/", $content)) {
                     $module[$count]['doc_type'] = 'CCD';
+                } else {
+                    $module[$count]['doc_type'] = 'CCDA';
                 }
-                else
-                $module[$count]['doc_type'] = 'CCDA';
+            } elseif (preg_match("/<ccr:ContinuityOfCareRecord/", $content)) {
+                $module[$count]['doc_type'] = 'CCR';
             }
-            elseif (preg_match("/<ccr:ContinuityOfCareRecord/", $content))
-            $module[$count]['doc_type'] = 'CCR';
+
             $count++;
         }
+
         return $module;
     }
 }

@@ -37,14 +37,14 @@ $landingpage = "index.php?site=".$_SESSION['site_id'];
 //
 
 // kick out if patient not authenticated
-if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ) {
+if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
-}
-else {
+} else {
     session_destroy();
     header('Location: '.$landingpage.'&w');
     exit;
 }
+
 //
 
 $ignoreAuth = 1;
@@ -65,24 +65,35 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
 {
     global $slots, $slotsecs, $slotstime, $slotbase, $slotcount, $input_catid;
     $udate = strtotime($starttime, $udate);
-    if ($udate < $slotstime) return;
+    if ($udate < $slotstime) {
+        return;
+    }
+
     $i = (int) ($udate / $slotsecs) - $slotbase;
     $iend = (int) (($duration + $slotsecs - 1) / $slotsecs) + $i;
-    if ($iend > $slotcount) $iend = $slotcount;
-    if ($iend <= $i) $iend = $i + 1;
+    if ($iend > $slotcount) {
+        $iend = $slotcount;
+    }
+
+    if ($iend <= $i) {
+        $iend = $i + 1;
+    }
+
     for (; $i < $iend; ++$i) {
         if ($catid == 2) {        // in office
             // If a category ID was specified when this popup was invoked, then select
             // only IN events with a matching preferred category or with no preferred
             // category; other IN events are to be treated as OUT events.
             if ($input_catid) {
-                if ($prefcatid == $input_catid || !$prefcatid)
-                $slots[$i] |= 1;
-                else
-                $slots[$i] |= 2;
+                if ($prefcatid == $input_catid || !$prefcatid) {
+                    $slots[$i] |= 1;
+                } else {
+                    $slots[$i] |= 2;
+                }
             } else {
                 $slots[$i] |= 1;
             }
+
             break; // ignore any positive duration for IN
         } else if ($catid == 3) { // out of office
             $slots[$i] |= 2;
@@ -99,77 +110,89 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
  $catslots = 1;
 if ($input_catid) {
     $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = '$input_catid'");
-    if ($srow['pc_duration']) $catslots = ceil($srow['pc_duration'] / $slotsecs);
+    if ($srow['pc_duration']) {
+        $catslots = ceil($srow['pc_duration'] / $slotsecs);
+    }
 }
 
  $info_msg = "";
 
  $searchdays = 7; // default to a 1-week lookahead
- if ($_REQUEST['searchdays']) $searchdays = $_REQUEST['searchdays'];
+if ($_REQUEST['searchdays']) {
+    $searchdays = $_REQUEST['searchdays'];
+}
 
  // Get a start date.
-if ($_REQUEST['startdate'] && preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
-     $_REQUEST['startdate'], $matches))
-{
+if ($_REQUEST['startdate'] && preg_match(
+    "/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
+    $_REQUEST['startdate'],
+    $matches
+)) {
     $sdate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
 } else {
     $sdate = date("Y-m-d");
 }
 
- // Get an end date - actually the date after the end date.
- preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $sdate, $matches);
- $edate = date("Y-m-d",
-  mktime(0, 0, 0, $matches[2], $matches[3] + $searchdays, $matches[1]));
+    // Get an end date - actually the date after the end date.
+    preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $sdate, $matches);
+    $edate = date(
+        "Y-m-d",
+        mktime(0, 0, 0, $matches[2], $matches[3] + $searchdays, $matches[1])
+    );
 
- // compute starting time slot number and number of slots.
- $slotstime = strtotime("$sdate 00:00:00");
- $slotetime = strtotime("$edate 00:00:00");
- $slotbase  = (int) ($slotstime / $slotsecs);
- $slotcount = (int) ($slotetime / $slotsecs) - $slotbase;
+    // compute starting time slot number and number of slots.
+    $slotstime = strtotime("$sdate 00:00:00");
+    $slotetime = strtotime("$edate 00:00:00");
+    $slotbase  = (int) ($slotstime / $slotsecs);
+    $slotcount = (int) ($slotetime / $slotsecs) - $slotbase;
 
- if ($slotcount <= 0 || $slotcount > 100000) die("Invalid date range.");
+    if ($slotcount <= 0 || $slotcount > 100000) {
+        die("Invalid date range.");
+    }
 
- $slotsperday = (int) (60 * 60 * 24 / $slotsecs);
+    $slotsperday = (int) (60 * 60 * 24 / $slotsecs);
 
- // If we have a provider, search.
- //
- if ($_REQUEST['providerid']) {
-     $providerid = $_REQUEST['providerid'];
+    // If we have a provider, search.
+    //
+    if ($_REQUEST['providerid']) {
+        $providerid = $_REQUEST['providerid'];
 
-  // Create and initialize the slot array. Values are bit-mapped:
-  //   bit 0 = in-office occurs here
-  //   bit 1 = out-of-office occurs here
-  //   bit 2 = reserved
-  // So, values may range from 0 to 7.
-  //
-     $slots = array_pad(array(), $slotcount, 0);
+    // Create and initialize the slot array. Values are bit-mapped:
+    //   bit 0 = in-office occurs here
+    //   bit 1 = out-of-office occurs here
+    //   bit 2 = reserved
+    // So, values may range from 0 to 7.
+    //
+        $slots = array_pad(array(), $slotcount, 0);
 
-  // Note there is no need to sort the query results.
-//  echo $sdate." -- ".$edate;
-     $query = "SELECT pc_eventDate, pc_endDate, pc_startTime, pc_duration, " .
-     "pc_recurrtype, pc_recurrspec, pc_alldayevent, pc_catid, pc_prefcatid, pc_title " .
-     "FROM openemr_postcalendar_events " .
-     "WHERE pc_aid = '$providerid' AND " .
-     "((pc_endDate >= '$sdate' AND pc_eventDate < '$edate') OR " .
-     "(pc_endDate = '0000-00-00' AND pc_eventDate >= '$sdate' AND pc_eventDate < '$edate'))";
-     $res = sqlStatement($query);
-//  print_r($res);
+    // Note there is no need to sort the query results.
+    //  echo $sdate." -- ".$edate;
+        $query = "SELECT pc_eventDate, pc_endDate, pc_startTime, pc_duration, " .
+        "pc_recurrtype, pc_recurrspec, pc_alldayevent, pc_catid, pc_prefcatid, pc_title " .
+        "FROM openemr_postcalendar_events " .
+        "WHERE pc_aid = '$providerid' AND " .
+        "((pc_endDate >= '$sdate' AND pc_eventDate < '$edate') OR " .
+        "(pc_endDate = '0000-00-00' AND pc_eventDate >= '$sdate' AND pc_eventDate < '$edate'))";
+        $res = sqlStatement($query);
+   //  print_r($res);
 
-     while ($row = sqlFetchArray($res)) {
-         $thistime = strtotime($row['pc_eventDate'] . " 00:00:00");
-         if ($row['pc_recurrtype']) {
+        while ($row = sqlFetchArray($res)) {
+            $thistime = strtotime($row['pc_eventDate'] . " 00:00:00");
+            if ($row['pc_recurrtype']) {
+                preg_match('/"event_repeat_freq_type";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
+                $repeattype = $matches[1];
 
-             preg_match('/"event_repeat_freq_type";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
-             $repeattype = $matches[1];
-
-             preg_match('/"event_repeat_freq";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
-             $repeatfreq = $matches[1];
-             if ($row['pc_recurrtype'] == 2) {
-                 // Repeat type is 2 so frequency comes from event_repeat_on_freq.
-                 preg_match('/"event_repeat_on_freq";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
-                 $repeatfreq = $matches[1];
+                preg_match('/"event_repeat_freq";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
+                $repeatfreq = $matches[1];
+                if ($row['pc_recurrtype'] == 2) {
+                    // Repeat type is 2 so frequency comes from event_repeat_on_freq.
+                    preg_match('/"event_repeat_on_freq";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
+                    $repeatfreq = $matches[1];
                 }
-                if (! $repeatfreq) $repeatfreq = 1;
+
+                if (! $repeatfreq) {
+                    $repeatfreq = 1;
+                }
 
                 preg_match('/"event_repeat_on_num";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
                 $my_repeat_on_num = $matches[1];
@@ -178,18 +201,27 @@ if ($_REQUEST['startdate'] && preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
                 $my_repeat_on_day = $matches[1];
 
                 $endtime = strtotime($row['pc_endDate'] . " 00:00:00") + (24 * 60 * 60);
-                if ($endtime > $slotetime) $endtime = $slotetime;
+                if ($endtime > $slotetime) {
+                    $endtime = $slotetime;
+                }
 
                 $repeatix = 0;
                 while ($thistime < $endtime) {
-
                     // Skip the event if a repeat frequency > 1 was specified and this is
                     // not the desired occurrence.
                     if (! $repeatix) {
-                        doOneDay($row['pc_catid'], $thistime, $row['pc_startTime'],
-                         $row['pc_duration'], $row['pc_prefcatid']);
+                        doOneDay(
+                            $row['pc_catid'],
+                            $thistime,
+                            $row['pc_startTime'],
+                            $row['pc_duration'],
+                            $row['pc_prefcatid']
+                        );
                     }
-                    if (++$repeatix >= $repeatfreq) $repeatix = 0;
+
+                    if (++$repeatix >= $repeatfreq) {
+                        $repeatix = 0;
+                    }
 
                     $adate = getdate($thistime);
 
@@ -200,23 +232,29 @@ if ($_REQUEST['startdate'] && preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
                             $adate['year'] += 1;
                             $adate['mon'] -= 12;
                         }
+
                         if ($my_repeat_on_num < 5) { // not last
                             $adate['mday'] = 1;
                             $dow = jddayofweek(cal_to_jd(CAL_GREGORIAN, $adate['mon'], $adate['mday'], $adate['year']));
-                            if ($dow > $my_repeat_on_day) $dow -= 7;
+                            if ($dow > $my_repeat_on_day) {
+                                $dow -= 7;
+                            }
+
                             $adate['mday'] += ($my_repeat_on_num - 1) * 7 + $my_repeat_on_day - $dow;
-                        }
-                        else { // last weekday of month
+                        } else { // last weekday of month
                             $adate['mday'] = cal_days_in_month(CAL_GREGORIAN, $adate['mon'], $adate['year']);
                             $dow = jddayofweek(cal_to_jd(CAL_GREGORIAN, $adate['mon'], $adate['mday'], $adate['year']));
-                            if ($dow < $my_repeat_on_day) $dow += 7;
+                            if ($dow < $my_repeat_on_day) {
+                                $dow += 7;
+                            }
+
                             $adate['mday'] += $my_repeat_on_day - $dow;
                         }
                     } // end recurrtype 2
 
                     else { // recurrtype 1
 
-                        if ($repeattype == 0)        { // daily
+                        if ($repeattype == 0) { // daily
                             $adate['mday'] += 1;
                         } else if ($repeattype == 1) { // weekly
                             $adate['mday'] += 7;
@@ -225,12 +263,13 @@ if ($_REQUEST['startdate'] && preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
                         } else if ($repeattype == 3) { // yearly
                             $adate['year'] += 1;
                         } else if ($repeattype == 4) { // work days
-                            if ($adate['wday'] == 5)      // if friday, skip to monday
-                             $adate['mday'] += 3;
-                            else if ($adate['wday'] == 6) // saturday should not happen
-                             $adate['mday'] += 2;
-                            else
-                             $adate['mday'] += 1;
+                            if ($adate['wday'] == 5) {      // if friday, skip to monday
+                                $adate['mday'] += 3;
+                            } else if ($adate['wday'] == 6) { // saturday should not happen
+                                $adate['mday'] += 2;
+                            } else {
+                                $adate['mday'] += 1;
+                            }
                         } else if ($repeattype == 5) { // monday
                             $adate['mday'] += 7;
                         } else if ($repeattype == 6) { // tuesday
@@ -244,32 +283,47 @@ if ($_REQUEST['startdate'] && preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
                         } else {
                              die("Invalid repeat type '$repeattype'");
                         }
-
                     } // end recurrtype 1
 
                     $thistime = mktime(0, 0, 0, $adate['mon'], $adate['mday'], $adate['year']);
                 }
             } else {
-                doOneDay($row['pc_catid'], $thistime, $row['pc_startTime'],
-                 $row['pc_duration'], $row['pc_prefcatid']);
+                doOneDay(
+                    $row['pc_catid'],
+                    $thistime,
+                    $row['pc_startTime'],
+                    $row['pc_duration'],
+                    $row['pc_prefcatid']
+                );
             }
         }
 
-  // Mark all slots reserved where the provider is not in-office.
-  // Actually we could do this in the display loop instead.
+     // Mark all slots reserved where the provider is not in-office.
+     // Actually we could do this in the display loop instead.
         $inoffice = false;
         for ($i = 0; $i < $slotcount; ++$i) {
-               if (($i % $slotsperday) == 0) $inoffice = false;
-               if ($slots[$i] & 1) $inoffice = true;
-               if ($slots[$i] & 2) $inoffice = false;
-               if (! $inoffice) $slots[$i] |= 4;
+            if (($i % $slotsperday) == 0) {
+                $inoffice = false;
+            }
+
+            if ($slots[$i] & 1) {
+                $inoffice = true;
+            }
+
+            if ($slots[$i] & 2) {
+                $inoffice = false;
+            }
+
+            if (! $inoffice) {
+                $slots[$i] |= 4;
+            }
         }
     }
 ?>
 <html>
 <head>
 <?php html_header_show(); ?>
-<title><?php xl('Find Available Appointments','e'); ?></title>
+<title><?php xl('Find Available Appointments', 'e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
@@ -287,7 +341,7 @@ if ($_REQUEST['startdate'] && preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
 
  function setappt(year,mon,mday,hours,minutes) {
   if (opener.closed || ! opener.setappt)
-   alert('<?php xl('The destination form was closed; I cannot act on your selection.','e'); ?>');
+   alert('<?php xl('The destination form was closed; I cannot act on your selection.', 'e'); ?>');
   else
    opener.setappt(year,mon,mday,hours,minutes);
   window.close();
@@ -359,17 +413,17 @@ form {
 <form method='post' name='theform' action='./find_appt_popup_user.php?providerid=<?php echo $providerid ?>&catid=<?php echo $input_catid ?>'>
    <input type="hidden" name='bypatient' />
 
-    <?php xl('Start date:','e'); ?>
+    <?php xl('Start date:', 'e'); ?>
 
 
    <input type='text' class='datepicker' name='startdate' id='startdate' size='10' value='<?php echo $sdate ?>'
     title='yyyy-mm-dd starting date for search'/>
 
-    <?php xl('for','e'); ?>
+    <?php xl('for', 'e'); ?>
    <input type='text' name='searchdays' size='3' value='<?php echo $searchdays ?>'
     title='Number of days to search from the start date' />
-    <?php xl('days','e'); ?>&nbsp;
-   <input type='submit' value='<?php xl('Search','e'); ?>'>
+    <?php xl('days', 'e'); ?>&nbsp;
+   <input type='submit' value='<?php xl('Search', 'e'); ?>'>
 </div>
 
 <?php if (!empty($slots)) : ?>
@@ -377,8 +431,8 @@ form {
 <div id="searchResultsHeader">
 <table class='table table-bordered'>
  <tr>
-  <th class="srDate"><?php xl ('Day','e'); ?></th>
-  <th class="srTimes"><?php xl ('Available Times','e'); ?></th>
+  <th class="srDate"><?php xl('Day', 'e'); ?></th>
+  <th class="srTimes"><?php xl('Available Times', 'e'); ?></th>
  </tr>
 </table>
 </div>
@@ -389,12 +443,16 @@ form {
     $lastdate = "";
     $ampmFlag = "am"; // establish an AM-PM line break flag
 for ($i = 0; $i < $slotcount; ++$i) {
-
     $available = true;
     for ($j = $i; $j < $i + $catslots; ++$j) {
-        if ($slots[$j] >= 4) $available = false;
+        if ($slots[$j] >= 4) {
+            $available = false;
+        }
     }
-    if (!$available) continue; // skip reserved slots
+
+    if (!$available) {
+        continue; // skip reserved slots
+    }
 
     $utime = ($slotbase + $i) * $slotsecs;
     $thisdate = date("Y-m-d", $utime);
@@ -405,6 +463,7 @@ for ($i = 0; $i < $slotcount; ++$i) {
             echo "</td>\n";
             echo " </tr>\n";
         }
+
         $lastdate = $thisdate;
         echo " <tr class='oneresult'>\n";
         echo "  <td class='srDate'>" . date("l", $utime)."<br>".date("Y-m-d", $utime) . "</td>\n";
@@ -414,7 +473,10 @@ for ($i = 0; $i < $slotcount; ++$i) {
     }
 
     $ampm = date('a', $utime);
-    if ($ampmFlag != $ampm) { echo "</div><div id='pm'>PM "; }
+    if ($ampmFlag != $ampm) {
+        echo "</div><div id='pm'>PM ";
+    }
+
     $ampmFlag = $ampm;
 
     $atitle = "Choose ".date("h:i a", $utime);
@@ -427,18 +489,19 @@ for ($i = 0; $i < $slotcount; ++$i) {
     $adate['minutes'] . ")'".
     " title='$atitle' alt='$atitle'".
     ">";
-    echo (strlen(date('g',$utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
+    echo (strlen(date('g', $utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
     $anchor . date("g:i", $utime) . "</a> ";
 
     // If category duration is more than 1 slot, increment $i appropriately.
     // This is to avoid reporting available times on undesirable boundaries.
     $i += $catslots - 1;
 }
+
 if ($lastdate) {
     echo "</td>\n";
     echo " </tr>\n";
 } else {
-    echo " <tr><td colspan='2'> " . xl('No openings were found for this period.','e') . "</td></tr>\n";
+    echo " <tr><td colspan='2'> " . xl('No openings were found for this period.', 'e') . "</td></tr>\n";
 }
 ?>
 </table>

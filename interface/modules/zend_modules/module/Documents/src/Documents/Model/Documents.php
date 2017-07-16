@@ -32,7 +32,6 @@ class Documents implements InputFilterAwareInterface
 
     public function exchangeArray($data)
     {
-    
     }
     
     public function getArrayCopy()
@@ -53,6 +52,7 @@ class Documents implements InputFilterAwareInterface
 
             $this->inputFilter = $inputFilter;
         }
+
         return $this->inputFilter;
     }
 }

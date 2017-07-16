@@ -129,7 +129,7 @@
   //   gdlog      Group detailed log of appointment in patient record
   //   gm         Send message from the permanent group therapist to the personal therapist
 
-if (isset ($phpgacl_location)) {
+if (isset($phpgacl_location)) {
     $GLOBALS['phpgacl_location_global'] = $phpgacl_location;
     require_once("$phpgacl_location/gacl.class.php");
     $gacl_object = new gacl();
@@ -162,7 +162,9 @@ if (isset ($phpgacl_location)) {
  */
 function acl_check($section, $value, $user = '', $return_value = '')
 {
-    if (! $user) $user = $_SESSION['authUser'];
+    if (! $user) {
+        $user = $_SESSION['authUser'];
+    }
 
     // Superuser always gets access to everything.
     if (($section != 'admin' || $value != 'super') && acl_check('admin', 'super', $user)) {
@@ -173,55 +175,52 @@ function acl_check($section, $value, $user = '', $return_value = '')
       // This will return all pertinent ACL's (including return_values and whether allow/deny)
       // Walk through them to assess for access
         $gacl_object = new gacl();
-        $acl_results = $gacl_object->acl_query($section, $value, $GLOBALS['section_aro_value_global'], $user,null,null,null,null,null,true);
+        $acl_results = $gacl_object->acl_query($section, $value, $GLOBALS['section_aro_value_global'], $user, null, null, null, null, null, true);
         if (empty($acl_results)) {
             return false; //deny access
         }
+
         $access=false; //flag
         $deny=false; //flag
         foreach ($acl_results as $acl_result) {
-            if (empty($acl_result['acl_id'])) return false; //deny access, since this happens if no pertinent ACL's are returned
+            if (empty($acl_result['acl_id'])) {
+                return false; //deny access, since this happens if no pertinent ACL's are returned
+            }
+
             if (is_array($return_value)) {
                 foreach ($return_value as $single_return_value) {
                     if (empty($single_return_value)) {
                         // deal with case if not looking for specific return value
                         if ($acl_result['allow']) {
                             $access=true;
-                        }
-                        else {
+                        } else {
                             $deny=true;
                         }
-                    }
-                    else { //!empty($single_return_value)
+                    } else { //!empty($single_return_value)
                         // deal with case if looking for specific return value
                         if ($acl_result['return_value'] == $single_return_value) {
                             if ($acl_result['allow']) {
                                 $access=true;
-                            }
-                            else{
+                            } else {
                                 $deny=true;
                             }
                         }
                     }
                 }
-            }
-            else { // $return_value is not an array (either empty or with one value)
+            } else { // $return_value is not an array (either empty or with one value)
                 if (empty($return_value)) {
                     // deal with case if not looking for specific return value
                     if ($acl_result['allow']) {
                         $access=true;
-                    }
-                    else {
+                    } else {
                         $deny=true;
                     }
-                }
-                else { //!empty($return_value)
+                } else { //!empty($return_value)
                     // deal with case if looking for specific return value
                     if ($acl_result['return_value'] == $return_value) {
                         if ($acl_result['allow']) {
                             $access=true;
-                        }
-                        else{
+                        } else {
                             $deny=true;
                         }
                     }
@@ -231,7 +230,10 @@ function acl_check($section, $value, $user = '', $return_value = '')
 
       // Now decide whether user has access
       // (Note a denial takes precedence)
-        if (!$deny && $access) return true;
+        if (!$deny && $access) {
+            return true;
+        }
+
         return false;
     }
 
@@ -240,20 +242,37 @@ function acl_check($section, $value, $user = '', $return_value = '')
     // If you want custom access control but don't want to mess with phpGACL,
     // then you could customize the code below instead.
 
-    if ($user == 'admin') return 'write';
-    if ($section == 'admin' && $value == 'super') return 0;
-    if ($_SESSION['userauthorized']) return 'write';
-
-    if ($section == 'patients') {
-        if ($value == 'med') return 1;
+    if ($user == 'admin') {
         return 'write';
     }
-    else if ($section == 'encounters') {
-        if (strpos($value, 'coding' ) === 0) return 'write';
-        if (strpos($value, 'notes'  ) === 0) return 'write';
-        if ($value == 'relaxed') return 'write';
+
+    if ($section == 'admin' && $value == 'super') {
+        return 0;
     }
-    else if ($section != 'admin') {
+
+    if ($_SESSION['userauthorized']) {
+        return 'write';
+    }
+
+    if ($section == 'patients') {
+        if ($value == 'med') {
+            return 1;
+        }
+
+        return 'write';
+    } else if ($section == 'encounters') {
+        if (strpos($value, 'coding') === 0) {
+            return 'write';
+        }
+
+        if (strpos($value, 'notes') === 0) {
+            return 'write';
+        }
+
+        if ($value == 'relaxed') {
+            return 'write';
+        }
+    } else if ($section != 'admin') {
         return 'write';
     }
 
@@ -277,8 +296,10 @@ function acl_get_section_acos($section)
                 $arr[$value] = $odata[0];
             }
         }
+
         return $arr;
     }
+
     return 0;
 }
 
@@ -287,9 +308,13 @@ function _acl_squad_compare($a, $b)
 {
     if ($a[2] == $b[2]) {
       // If order value is the same, sort by squad name.
-        if ($a[3] == $b[3]) return 0;
+        if ($a[3] == $b[3]) {
+            return 0;
+        }
+
         return ($a[3] < $b[3]) ? -1 : 1;
     }
+
     return ($a[2] < $b[2]) ? -1 : 1;
 }
 
@@ -329,14 +354,15 @@ function acl_get_sensitivities()
 function aco_exist($section_name, $aco_name)
 {
     global $phpgacl_location;
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
-        $aco_id = $gacl->get_object_id($section_name,  $aco_name, 'ACO');
+        $aco_id = $gacl->get_object_id($section_name, $aco_name, 'ACO');
         if ($aco_id) {
             return true;
         }
     }
+
     return false;
 }
 
@@ -346,7 +372,7 @@ function aco_exist($section_name, $aco_name)
 function acl_get_group_title_list()
 {
     global $phpgacl_location;
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
         $parent_id = $gacl->get_root_group_id();
@@ -356,9 +382,11 @@ function acl_get_group_title_list()
             $arr_group_data = $gacl->get_group_data($value, 'ARO');
             $arr_group_titles[$value] = $arr_group_data[3];
         }
+
         sort($arr_group_titles);
         return $arr_group_titles;
     }
+
     return 0;
 }
 
@@ -370,7 +398,7 @@ function acl_get_group_title_list()
 function acl_get_group_titles($user_name)
 {
     global $phpgacl_location, $section_aro_value;
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
         $user_aro_id = $gacl->get_object_id($section_aro_value, $user_name, 'ARO');
@@ -381,11 +409,13 @@ function acl_get_group_titles($user_name)
                     $arr_group_data = $gacl->get_group_data($value, 'ARO');
                     $arr_group_titles[$key] =  $arr_group_data[3];
                 }
+
                 sort($arr_group_titles);
                 return $arr_group_titles;
             }
         }
     }
+
     return 0;
 }
 
@@ -401,22 +431,28 @@ function add_user_aros($username, $group)
     if (!$current_user_groups) {
         $current_user_groups = array();
     }
-    if (is_array($group)){
+
+    if (is_array($group)) {
         foreach ($group as $value) {
             if (!in_array($value, $current_user_groups)) {
                 array_push($current_user_groups, $value);
             }
         }
-    }
-    else {
+    } else {
         if (!in_array($group, $current_user_groups)) {
             array_push($current_user_groups, $group);
         }
     }
+
     $user_data = sqlFetchArray(sqlStatement("select * from users where username='" .
     $username . "'"));
-    set_user_aro($current_user_groups, $username, $user_data["fname"],
-    $user_data["mname"], $user_data["lname"]);
+    set_user_aro(
+        $current_user_groups,
+        $username,
+        $user_data["fname"],
+        $user_data["mname"],
+        $user_data["lname"]
+    );
     return;
 }
 
@@ -430,24 +466,29 @@ function remove_user_aros($username, $group)
 {
     $current_user_groups = acl_get_group_titles($username);
     $new_user_groups = array();
-    if (is_array($group)){
+    if (is_array($group)) {
         foreach ($current_user_groups as $value) {
             if (!in_array($value, $group)) {
                 array_push($new_user_groups, $value);
             }
         }
-    }
-    else {
+    } else {
         foreach ($current_user_groups as $value) {
             if ($value != $group) {
                 array_push($new_user_groups, $value);
             }
         }
     }
+
     $user_data = sqlFetchArray(sqlStatement("select * from users where username='" .
     $username . "'"));
-    set_user_aro($new_user_groups, $username, $user_data["fname"],
-    $user_data["mname"], $user_data["lname"]);
+    set_user_aro(
+        $new_user_groups,
+        $username,
+        $user_data["fname"],
+        $user_data["mname"],
+        $user_data["lname"]
+    );
     return;
 }
 
@@ -465,7 +506,7 @@ function set_user_aro($arr_group_titles, $user_name, $first_name, $middle_name, 
 {
     global $phpgacl_location, $section_aro_value;
 
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
 
@@ -474,10 +515,9 @@ function set_user_aro($arr_group_titles, $user_name, $first_name, $middle_name, 
         require_once(dirname(__FILE__).'/user.inc');
         require_once(dirname(__FILE__).'/calendar.inc');
         $userNametoID = getIDfromUser($user_name);
-        if (checkUserSetting("gacl_protect","1",$userNametoID) || $user_name == "admin") {
+        if (checkUserSetting("gacl_protect", "1", $userNametoID) || $user_name == "admin") {
             $gacl_protect = true;
-        }
-        else {
+        } else {
             $gacl_protect = false;
         }
 
@@ -500,12 +540,10 @@ function set_user_aro($arr_group_titles, $user_name, $first_name, $middle_name, 
                 //create user full name field
                 if ($middle_name) {
                       $full_name = $first_name . " " . $middle_name . " " .  $last_name;
-                }
-                else {
+                } else {
                     if ($last_name) {
                               $full_name = $first_name . " " . $last_name;
-                    }
-                    else {
+                    } else {
                           $full_name = $first_name;
                     }
                 }
@@ -525,8 +563,7 @@ function set_user_aro($arr_group_titles, $user_name, $first_name, $middle_name, 
                         foreach ($arr_remove_group_ids as $value2) {
                             $gacl->del_group_object($value2, $section_aro_value, $user_name, 'ARO');
                         }
-                    }
-                    else {
+                    } else {
                         //user ARO object does not exist, so will create it
                         $gacl->add_object($section_aro_value, $full_name, $user_name, 10, 0, 'ARO');
                     }
@@ -550,6 +587,7 @@ function set_user_aro($arr_group_titles, $user_name, $first_name, $middle_name, 
                             $boolean_admin=1;
                         }
                     }
+
                     if (!$boolean_admin) {
                         foreach ($arr_all_group_ids as $value4) {
                             $arr_temp = $gacl->get_group_data($value4, 'ARO');
@@ -560,11 +598,16 @@ function set_user_aro($arr_group_titles, $user_name, $first_name, $middle_name, 
                     }
                 }
             }
+
         //if array of groups was empty, then we are done, and can break from loop
-            if (empty($arr_group_titles)) break;
+            if (empty($arr_group_titles)) {
+                break;
+            }
         }
+
         return true;
     }
+
     return false;
 }
 
@@ -582,29 +625,26 @@ function set_user_aro($arr_group_titles, $user_name, $first_name, $middle_name, 
 function acl_exist($title, $name, $return_value)
 {
     global $phpgacl_location;
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
         if (!$name) {
             $acl = $gacl->search_acl(false, false, false, false, $title, false, false, false, $return_value);
-        }
-        else if (!$title) {
+        } else if (!$title) {
             $group_id = $gacl->get_group_id($name, null, 'ARO');
             if ($group_id) {
                 $group_data = $gacl->get_group_data($group_id, 'ARO');
                 $acl = $gacl->search_acl(false, false, false, false, $group_data[3], false, false, false, $return_value);
-            }
-            else {
+            } else {
                 return false;
             }
-        }
-        else {
+        } else {
             $acl = $gacl->search_acl(false, false, false, false, $title, false, false, false, $return_value);
         }
+
         if (!empty($acl)) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -621,24 +661,43 @@ function acl_exist($title, $name, $return_value)
 function acl_add($acl_title, $acl_name, $return_value, $note)
 {
     global $phpgacl_location;
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
         $group_id = $gacl->get_group_id($acl_name, $acl_title, 'ARO');
         if ($group_id) {
             //group already exist, so just create acl
-            $gacl->add_acl(array("placeholder"=>array("filler")),
-             null, array($group_id), null, null, 1, 1, $return_value, $note);
-        }
-        else {
+            $gacl->add_acl(
+                array("placeholder"=>array("filler")),
+                null,
+                array($group_id),
+                null,
+                null,
+                1,
+                1,
+                $return_value,
+                $note
+            );
+        } else {
             //create group, then create acl
             $parent_id = $gacl->get_root_group_id();
             $aro_id = $gacl->add_group($acl_name, $acl_title, $parent_id, 'ARO');
-            $gacl->add_acl(array("placeholder"=>array("filler")),
-             null, array($aro_id), null, null, 1, 1, $return_value, $note);
+            $gacl->add_acl(
+                array("placeholder"=>array("filler")),
+                null,
+                array($aro_id),
+                null,
+                null,
+                1,
+                1,
+                $return_value,
+                $note
+            );
         }
+
         return;
     }
+
     return 0;
 }
 
@@ -653,7 +712,7 @@ function acl_add($acl_title, $acl_name, $return_value, $note)
 function acl_remove($acl_title, $return_value)
 {
     global $phpgacl_location;
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
       //First, delete the acl
@@ -661,12 +720,14 @@ function acl_remove($acl_title, $return_value)
         $gacl->del_acl($acl_id[0]);
       //Then, remove the group(if no more acl's are remaining)
         $acl_search=$gacl->search_acl(false, false, false, false, $acl_title, false, false, false, false);
-        if (empty($acl_search)){
+        if (empty($acl_search)) {
             $group_id=$gacl-> get_group_id(null, $acl_title, 'ARO');
             $gacl->del_group($group_id, true, 'ARO');
         }
+
         return;
     }
+
     return 0;
 }
 
@@ -679,7 +740,7 @@ function acl_remove($acl_title, $return_value)
 function acl_add_acos($acl_title, $return_value, $aco_id)
 {
     global $phpgacl_location;
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
         $acl_id = $gacl->search_acl(false, false, false, false, $acl_title, false, false, false, $return_value);
@@ -689,8 +750,10 @@ function acl_add_acos($acl_title, $return_value, $aco_id)
             $aco_name = $aco_data[0][1];
             $gacl->append_acl($acl_id[0], null, null, null, null, array($aco_section=>array($aco_name)));
         }
+
         return;
     }
+
     return 0;
 }
 
@@ -705,7 +768,7 @@ function acl_add_acos($acl_title, $return_value, $aco_id)
 function acl_remove_acos($acl_title, $return_value, $aco_id)
 {
     global $phpgacl_location;
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
         $acl_id = $gacl->search_acl(false, false, false, false, $acl_title, false, false, false, $return_value);
@@ -715,11 +778,11 @@ function acl_remove_acos($acl_title, $return_value, $aco_id)
       //  removal of the acl.
         if (count($aco_id) == acl_count_acos($acl_title, $return_value)) {
             //1-get the filler-placeholder aco id
-            $filler_aco_id = $gacl->get_object_id('placeholder','filler','ACO');
+            $filler_aco_id = $gacl->get_object_id('placeholder', 'filler', 'ACO');
             //2-add filler-placeholder aco
             acl_add_acos($acl_title, $return_value, array($filler_aco_id));
             //3-ensure filler-placeholder aco is not to be deleted
-            $safeListaco = remove_element($_POST["selection"],$filler_aco_id);
+            $safeListaco = remove_element($_POST["selection"], $filler_aco_id);
             //4-prepare to safely delete the acos
             $aco_id = $safeListaco;
         }
@@ -730,8 +793,10 @@ function acl_remove_acos($acl_title, $return_value, $aco_id)
             $aco_name = $aco_data[0][1];
             $gacl->shift_acl($acl_id[0], null, null, null, null, array($aco_section=>array($aco_name)));
         }
+
         return;
     }
+
     return 0;
 }
 
@@ -744,7 +809,7 @@ function acl_remove_acos($acl_title, $return_value, $aco_id)
 function acl_count_acos($acl_title, $return_value)
 {
     global $phpgacl_location;
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
         $acl_id = $gacl->search_acl(false, false, false, false, $acl_title, false, false, false, $return_value);
@@ -753,8 +818,10 @@ function acl_count_acos($acl_title, $return_value)
         foreach ($acl_data['aco'] as $key => $value) {
             $aco_count = $aco_count + count($acl_data['aco'][$key]);
         }
+
         return $aco_count;
     }
+
     return 0;
 }
 
@@ -764,11 +831,12 @@ function acl_count_acos($acl_title, $return_value)
 function remove_element($arr, $val)
 {
     $arr2 = array();
-    foreach ($arr as $value){
+    foreach ($arr as $value) {
         if ($value != $val) {
-            array_push($arr2,$value);
+            array_push($arr2, $value);
         }
     }
+
     return $arr2;
 }
   /**
@@ -783,7 +851,7 @@ function remove_element($arr, $val)
   * $param String $section_identifier ACL Section id
   * @return boolean
   */
-function zh_acl_check($user_id,$section_identifier)
+function zh_acl_check($user_id, $section_identifier)
 {
     $sql_user_acl = " SELECT
                         COUNT(allowed) AS count
@@ -805,22 +873,22 @@ function zh_acl_check($user_id,$section_identifier)
                             ON usr. username =  garo.value
                         WHERE
                           garo.section_value = ? AND usr. id = ?";
-    $res_groups     = sqlStatement($sql_user_group,array('users',$user_id));
+    $res_groups     = sqlStatement($sql_user_group, array('users',$user_id));
 
     // Prepare the group queries with the placemakers and binding array for the IN part
     $groups_sql_param = array();
     $groupPlacemakers = "";
     $firstFlag = true;
-    while($row = sqlFetchArray($res_groups)){
-        array_push($groups_sql_param,$row['group_id']);
+    while ($row = sqlFetchArray($res_groups)) {
+        array_push($groups_sql_param, $row['group_id']);
         if ($firstFlag) {
             $groupPlacemakers = "?";
             $firstFlag = false;
-        }
-        else {
+        } else {
             $groupPlacemakers .= ",?";
         }
     }
+
     $sql_group_acl_base  = " SELECT
                         COUNT(allowed) AS count
                       FROM
@@ -838,24 +906,25 @@ function zh_acl_check($user_id,$section_identifier)
     $count_group_allowed    = 0;
     $count_user_allowed     = 0;
 
-    $res_user_allowed       = sqlQuery($sql_user_acl,array($section_identifier,$user_id,1));
+    $res_user_allowed       = sqlQuery($sql_user_acl, array($section_identifier,$user_id,1));
     $count_user_allowed     = $res_user_allowed['count'];
 
     $res_group_allowed      = sqlQuery($sql_group_acl_allowed, $groups_sql_param);
     $count_group_allowed    = $res_group_allowed['count'];
 
-    if($count_user_allowed > 0)
+    if ($count_user_allowed > 0) {
         return true;
-    elseif($count_group_allowed > 0)
+    } elseif ($count_group_allowed > 0) {
         return true;
-    else
+    } else {
         return false;
+    }
 }
 
   // This generates an HTML options list for all ACOs.
   // The caller inserts this between <select> and </select> tags.
   //
-function gen_aco_html_options($default='')
+function gen_aco_html_options($default = '')
 {
     global $phpgacl_location;
     require_once("$phpgacl_location/gacl_api.class.php");
@@ -865,43 +934,60 @@ function gen_aco_html_options($default='')
     $list_aco_objects = $gacl->get_objects(null, 0, 'ACO');
     ksort($list_aco_objects);
     foreach ($list_aco_objects as $seckey => $dummy) {
-        if (empty($dummy)) continue;
+        if (empty($dummy)) {
+            continue;
+        }
+
         asort($list_aco_objects[$seckey]);
         $aco_section_data = $gacl->get_section_data($seckey, 'ACO');
         $aco_section_title = $aco_section_data[3];
         $s .= "<optgroup label='" . xla($aco_section_title) . "'>\n";
-        foreach($list_aco_objects[$seckey] as $acokey) {
-            $aco_id = $gacl->get_object_id($seckey, $acokey,'ACO');
+        foreach ($list_aco_objects[$seckey] as $acokey) {
+            $aco_id = $gacl->get_object_id($seckey, $acokey, 'ACO');
             $aco_data = $gacl->get_object_data($aco_id, 'ACO');
             $aco_title = $aco_data[0][3];
             $optkey = "$seckey|$acokey";
             $s .= "<option value='" . attr($optkey) . "'";
-            if ($optkey == $default) $s .= ' selected';
+            if ($optkey == $default) {
+                $s .= ' selected';
+            }
+
             $s .= ">" . xlt($aco_title) . "</option>";
         }
+
         $s .= "</optgroup>";
     }
+
     return $s;
 }
 
   // Permissions check for an ACO in "section|aco" format.
   // Note $return_value may be an array of return values.
   //
-function acl_check_aco_spec($aco_spec, $user='', $return_value='')
+function acl_check_aco_spec($aco_spec, $user = '', $return_value = '')
 {
-    if (empty($aco_spec)) return true;
-    $tmp = explode('|', $aco_spec);
-    if (!is_array($return_value)) $return_value = array($return_value);
-    foreach ($return_value as $rv) {
-        if (acl_check($tmp[0], $tmp[1], $user, $rv)) return true;
+    if (empty($aco_spec)) {
+        return true;
     }
+
+    $tmp = explode('|', $aco_spec);
+    if (!is_array($return_value)) {
+        $return_value = array($return_value);
+    }
+
+    foreach ($return_value as $rv) {
+        if (acl_check($tmp[0], $tmp[1], $user, $rv)) {
+            return true;
+        }
+    }
+
     return false;
 }
 
   // Permissions check for a specified encounter form type.
   // Note $return_value may be an array of return values.
   //
-function acl_check_form($formdir, $user='', $return_value='')
+function acl_check_form($formdir, $user = '', $return_value = '')
 {
     require_once(dirname(__FILE__) . '/registry.inc');
     $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
@@ -911,22 +997,29 @@ function acl_check_form($formdir, $user='', $return_value='')
   // Permissions check for a specified issue type.
   // Note $return_value may be an array of return values.
   //
-function acl_check_issue($type, $user='', $return_value='')
+function acl_check_issue($type, $user = '', $return_value = '')
 {
     require_once(dirname(__FILE__) . '/lists.inc');
     global $ISSUE_TYPES;
-    if (empty($ISSUE_TYPES[$type][5])) return true;
+    if (empty($ISSUE_TYPES[$type][5])) {
+        return true;
+    }
+
     return acl_check_aco_spec($ISSUE_TYPES[$type][5], $user, $return_value);
 }
 
   // Permissions check for a specified document category name.
   // Note $return_value may be an array of return values.
   //
-function acl_check_cat_name($catname, $user='', $return_value='')
+function acl_check_cat_name($catname, $user = '', $return_value = '')
 {
-    $tmp = sqlQuery("SELECT aco_spec FROM categories WHERE name = ? ORDER BY id LIMIT 1",
-    array($catname));
-    if (empty($tmp['aco_spec'])) return true;
+    $tmp = sqlQuery(
+        "SELECT aco_spec FROM categories WHERE name = ? ORDER BY id LIMIT 1",
+        array($catname)
+    );
+    if (empty($tmp['aco_spec'])) {
+        return true;
+    }
+
     return acl_check_aco_spec($tmp['aco_spec'], $user, $return_value);
 }
-?>

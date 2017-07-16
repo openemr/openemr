@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class CodeManager {
+class CodeManager
+{
     const SQL_SELECT =
     "SELECT id,
             code,
@@ -34,20 +35,22 @@ class CodeManager {
      * Returns an array of Code
      * @param string $searchTerm
      */
-    function search( $searchTerm )
+    function search($searchTerm)
     {
-        $stmt = sqlStatement( self::SQL_SELECT . " " . self::SQL_WHERE_SEARCH,
-                array( "%$searchTerm%", "%$searchTerm%", "%$searchTerm%", "%$searchTerm%", "%$searchTerm%" ) );
+        $stmt = sqlStatement(
+            self::SQL_SELECT . " " . self::SQL_WHERE_SEARCH,
+            array( "%$searchTerm%", "%$searchTerm%", "%$searchTerm%", "%$searchTerm%", "%$searchTerm%" )
+        );
 
         $codes = array();
 
-        for($iter=0; $row=sqlFetchArray($stmt); $iter++) {
+        for ($iter=0; $row=sqlFetchArray($stmt); $iter++) {
             $code = new Code();
             $code->code = $row['code'];
             $code->text = $row['code_text'];
             $code->id = $row['id'];
             $code->codeType = $row['code_type'];
-            array_push( $codes, $code );
+            array_push($codes, $code);
         }
 
         return $codes;
@@ -56,9 +59,9 @@ class CodeManager {
     /**
      * @return Code
      */
-    function get( $id )
+    function get($id)
     {
-        $row = sqlQuery( self::SQL_SELECT . " " . self::SQL_WHERE_GET, array( $id ) );
+        $row = sqlQuery(self::SQL_SELECT . " " . self::SQL_WHERE_GET, array( $id ));
         if (!$row) {
             return null;
         }
@@ -71,6 +74,4 @@ class CodeManager {
 
         return $code;
     }
-
 }
-?>

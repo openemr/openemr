@@ -38,15 +38,12 @@ $imagedir = $GLOBALS['OE_SITE_DIR'] . "/documents/$pid/encounters";
 // If Save was clicked, save the info.
 //
 if ($_POST['bn_save']) {
-
  // If updating an existing form...
  //
     if ($formid) {
         $query = "UPDATE form_scanned_notes SET notes = ? WHERE id = ?";
         sqlStatement($query, array($_POST['form_notes'], $formid));
-    }
-
- // If adding a new form...
+    } // If adding a new form...
  //
     else {
         $query = "INSERT INTO form_scanned_notes (notes) VALUES (?)";
@@ -62,26 +59,34 @@ if ($_POST['bn_save']) {
         // If the patient's encounter image directory does not yet exist, create it.
         if (! is_dir($imagedir)) {
             $tmp0 = exec("mkdir -p '$imagedir'", $tmp1, $tmp2);
-            if ($tmp2) die("mkdir returned $tmp2: $tmp0");
+            if ($tmp2) {
+                die("mkdir returned $tmp2: $tmp0");
+            }
+
             exec("touch '$imagedir/index.html'");
         }
+
         // Remove any previous image files for this encounter and form ID.
         for ($i = -1; true; ++$i) {
              $suffix = ($i < 0) ? "" : "-$i";
              $path = "$imagedir/${encounter}_$formid$suffix.jpg";
             if (is_file($path)) {
                 unlink($path);
-            }
-            else {
-                if ($i >= 0) break;
+            } else {
+                if ($i >= 0) {
+                    break;
+                }
             }
         }
+
         $tmp_name = $_FILES['form_image']['tmp_name'];
         // default density is 72 dpi, we change to 96.  And -append was removed
         // to create a separate image file for each page.
         $cmd = "convert -density 96 '$tmp_name' '$imagepath'";
         $tmp0 = exec($cmd, $tmp1, $tmp2);
-        if ($tmp2) die("\"$cmd\" returned $tmp2: $tmp0");
+        if ($tmp2) {
+            die("\"$cmd\" returned $tmp2: $tmp0");
+        }
     }
 
  // formHeader("Redirecting....");
@@ -95,12 +100,16 @@ $imageurl = "$web_root/sites/" . $_SESSION['site_id'] .
   "/documents/$pid/encounters/${encounter}_$formid.jpg";
 
 if ($formid) {
-    $row = sqlQuery("SELECT * FROM form_scanned_notes WHERE " .
-    "id = ? AND activity = '1'",
-    array($formid));
-    $formrow = sqlQuery("SELECT id FROM forms WHERE " .
-    "form_id = ? AND formdir = 'scanned_notes'",
-    array($formid));
+    $row = sqlQuery(
+        "SELECT * FROM form_scanned_notes WHERE " .
+        "id = ? AND activity = '1'",
+        array($formid)
+    );
+    $formrow = sqlQuery(
+        "SELECT id FROM forms WHERE " .
+        "form_id = ? AND formdir = 'scanned_notes'",
+        array($formid)
+    );
 }
 ?>
 <html>
@@ -168,7 +177,7 @@ if ($formid && is_file($imagepath)) {
 }
 ?>
    <p>&nbsp;
-    <?php xl('Upload this file:','e') ?>
+    <?php xl('Upload this file:', 'e') ?>
    <input type="hidden" name="MAX_FILE_SIZE" value="12000000" />
    <input name="form_image" type="file" />
    <br />&nbsp;</p>

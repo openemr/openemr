@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-class ConnectionSetting {
+class ConnectionSetting
+{
     /** @var string database type, for example mysql, mysqli, sqlite */
     var $Type = "mysql";
     
@@ -50,7 +51,7 @@ class ConnectionSetting {
     function __construct($connection_code = "")
     {
         if ($connection_code != "") {
-            $this->Unserialize ( $connection_code );
+            $this->Unserialize($connection_code);
         }
     }
     
@@ -85,7 +86,7 @@ class ConnectionSetting {
      */
     function Serialize()
     {
-        return base64_encode ( serialize ( $this ) );
+        return base64_encode(serialize($this));
     }
     
     /**
@@ -94,7 +95,7 @@ class ConnectionSetting {
     function Unserialize(&$serialized)
     {
         // load the util from the serialized code
-        $tmp = unserialize ( base64_decode ( $serialized ) );
+        $tmp = unserialize(base64_decode($serialized));
         $this->Type = $tmp->Type;
         $this->Username = $tmp->Username;
         $this->Password = $tmp->Password;
@@ -107,5 +108,3 @@ class ConnectionSetting {
         $this->Multibyte = $tmp->Multibyte;
     }
 }
-
-?>

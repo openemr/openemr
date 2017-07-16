@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class FileHelper {
+class FileHelper
+{
     public $Name;
     public $Path;
     public $FolderPath;
@@ -28,13 +29,12 @@ class FileHelper {
     function __construct($path)
     {
         // TODO: user build-in php functions to extract these properties
-        $this->Path = str_replace ( "\\", "/", $path ); // normalize any directory paths
+        $this->Path = str_replace("\\", "/", $path); // normalize any directory paths
         
-        $this->Name = substr ( $this->Path, strrpos ( $this->Path, "/" ) + 1 );
-        $this->Extention = substr ( $this->Path, strrpos ( $this->Path, "." ) + 1 );
-        $this->Prefix = substr ( $this->Name, 0, strpos ( $this->Name, "." ) );
-        $this->MiddleBit = substr ( $this->Name, strpos ( $this->Name, "." ) + 1, strrpos ( $this->Name, "." ) - strpos ( $this->Name, "." ) - 1 );
-        $this->FolderPath = substr ( $this->Path, 0, strrpos ( $this->Path, "/" ) + 1 );
+        $this->Name = substr($this->Path, strrpos($this->Path, "/") + 1);
+        $this->Extention = substr($this->Path, strrpos($this->Path, ".") + 1);
+        $this->Prefix = substr($this->Name, 0, strpos($this->Name, "."));
+        $this->MiddleBit = substr($this->Name, strpos($this->Name, ".") + 1, strrpos($this->Name, ".") - strpos($this->Name, ".") - 1);
+        $this->FolderPath = substr($this->Path, 0, strrpos($this->Path, "/") + 1);
     }
 }
-?>

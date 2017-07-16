@@ -30,6 +30,7 @@
 
 
 use OpenEMR\Core\Header;
+
 require_once("../globals.php");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/appointments.inc.php";
@@ -159,6 +160,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
         if (!empty($selectedFromDate) && !empty($selectedToDate)) {
             $dateSet = 1;
         }
+
         if (isset($selectedFacility) && !empty($selectedFacility)) {
             $facilitySet = 1;
         }
@@ -175,6 +177,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
             if (1 === $facilitySet && $facilityList['id'] == $selectedFacility) {
                 $facilities[$facilityList['id']] = $facilityList['name'];
             }
+
             if (empty($selectedFacility)) {
                 $facilities[$facilityList['id']] = $facilityList['name'];
             }
@@ -239,7 +242,6 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
         $totalAppointmentSql = fetchAppointments($from_date, $to_date, null, $providerID, $facilityID);
         if (count($totalAppointmentSql) > 0) { // check if $totalAppointmentSql array has value
             foreach ($totalAppointmentSql as $appointment) {
-
                 $eventDate = $appointment['pc_eventDate'];
                 $facility = $appointment['name'];
                 $providerName = $appointment['ufname'] . ' ' . $appointment['ulname'];
@@ -248,16 +250,20 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                 if (!isset($totalAppointment[$eventDate])) {
                     $totalAppointment[$eventDate] = [];
                 }
+
                 if (!isset($totalAppointment[$eventDate][$facility])) {
                     $totalAppointment[$eventDate][$facility] = [];
                 }
+
                 if (!isset($totalAppointment[$eventDate][$facility][$providerName])) {
                     $totalAppointment[$eventDate][$facility][$providerName] = [];
                 }
+
                 // initialize the number of appointment to 0
                 if (!isset($totalAppointment[$eventDate][$facility][$providerName]['appointments'])) {
                     $totalAppointment[$eventDate][$facility][$providerName]['appointments'] = 0;
                 }
+
                 // increment the number of appointments
                 $totalAppointment[$eventDate][$facility][$providerName]['appointments']++;
             }
@@ -363,6 +369,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                                             } else {
                                                 $dueAmount = number_format(0, 2);
                                             }
+
                                             echo text($dueAmount);
                                             ?>
                                         </td>
@@ -398,8 +405,8 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                     ?>
                     <tr>
                         <td colspan="9" style="text-align:center;font-weight:bold;"> <?php echo xlt("There are no record(s) found."); ?></td>
-                    </tr>
-                <?php } ?>
+                    </tr><?php
+                } ?>
 
             </table>
         </div>

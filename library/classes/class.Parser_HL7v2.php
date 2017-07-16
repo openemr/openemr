@@ -3,7 +3,8 @@
     // $Author$
     // HL7 Parser
 
-class Parser_HL7v2 {
+class Parser_HL7v2
+{
 
     var $field_separator;
     var $map;
@@ -13,7 +14,7 @@ class Parser_HL7v2 {
     var $MSH;
     var $EVN;
 
-    function __construct( $message, $_options = null )
+    function __construct($message, $_options = null)
     {
         // Assume separator is a pipe
         $this->message = $message;
@@ -44,32 +45,32 @@ class Parser_HL7v2 {
                 case 'EVN':
                     $this->message_type = trim($type);
                     call_user_func_array(
-                    array(&$this, '_'.$type),
-                    array(
+                        array(&$this, '_'.$type),
+                        array(
                         // All but type
                         substr(
                             $segment,
                             -(strlen($segment)-3)
                         )
-                    )
+                        )
                     );
                     $this->map[$count]['type'] = $type;
                     $this->map[$count]['position'] = 0;
-                break;
+                    break;
 
                 default:
                     $this->message_type = trim($type);
                     $this->__default_segment_parser($segment);
                     $this->map[$count]['type'] = $type;
                     $this->map[$count]['position'] = count($this->message[$type]);
-                break;
+                    break;
             } // end switch type
         }
 
         // Depending on message type, handle differently
         switch ($this->message_type) {
             default:
-            return ('Message type '.$this->message_type.' is '.
+                return ('Message type '.$this->message_type.' is '.
                 'currently unhandled'."<br/>\n");
             break;
         } // end switch
@@ -90,6 +91,7 @@ class Parser_HL7v2 {
                     "_FreeMED.Handler_HL7v2_".$type.
                     "</b><br/>\n";
             }
+
             return false;
         }
 
@@ -101,7 +103,7 @@ class Parser_HL7v2 {
 
     function _EVN($segment)
     {
-        $composites = $this->__parse_segment ($segment);
+        $composites = $this->__parse_segment($segment);
         if ($this->options['debug']) {
             print "<b>EVN segment</b><br/>\n";
             foreach ($composites as $k => $v) {
@@ -122,7 +124,7 @@ class Parser_HL7v2 {
     {
         // Get separator
         $this->field_separator = substr($segment, 0, 1);
-        $composites = $this->__parse_segment ($segment);
+        $composites = $this->__parse_segment($segment);
         if ($this->options['debug']) {
             print "<b>MSH segment</b><br/>\n";
             foreach ($composites as $k => $v) {
@@ -212,5 +214,3 @@ class Parser_HL7v2 {
         return $cmp;
     }
 } // end class Parser_HL7v2
-
-?>

@@ -42,12 +42,12 @@
     $category_name = $_REQUEST['category_name'];
 
     $query = "SELECT * FROM patient_data where pid=?";
-    $pat_data =  sqlQuery($query,array($pid));
+    $pat_data =  sqlQuery($query, array($pid));
 
     $providerID  =  getProviderIdOfEncounter($encounter);
     $providerNAME = getProviderName($providerID);
     $query = "SELECT * FROM users where id = ?";
-    $prov_data =  sqlQuery($query,array($providerID));
+    $prov_data =  sqlQuery($query, array($providerID));
 
     $query="select form_encounter.date as encounter_date, form_eye_mag.* from form_eye_mag ,forms,form_encounter
     where
@@ -56,7 +56,7 @@
     form_eye_mag.id=forms.form_id and
     forms.deleted != '1' and
     form_eye_mag.pid=? ";
-    $encounter_data =sqlQuery($query,array($encounter,$pid));
+    $encounter_data =sqlQuery($query, array($encounter,$pid));
     $dated = new DateTime($encounter_data['encounter_date']);
     $dated = $dated->format('Y-m-d');
     $visit_date = oeFormatShortDate($dated);
@@ -318,24 +318,46 @@
                             <?php
                             $i='0';
                             foreach ($documents['zones'] as $zone) {
-                                if ($zone[0]['value'] == "DRAW") continue; //for now DRAW is under OTHER...
+                                if ($zone[0]['value'] == "DRAW") {
+                                    continue; //for now DRAW is under OTHER...
+                                }
+
                                 //menu friendly names:
-                                if ($zone[0]['value'] == "EXT") $name = xl("External");
-                                if ($zone[0]['value'] == "ANTSEG") $name = xl("Anterior Segment");
-                                if ($zone[0]['value'] == "POSTSEG") $name = xl("Posterior Segment");
-                                if ($zone[0]['value'] == "NEURO") $name = xl("Neuro-physiology");
+                                if ($zone[0]['value'] == "EXT") {
+                                    $name = xl("External");
+                                }
+
+                                if ($zone[0]['value'] == "ANTSEG") {
+                                    $name = xl("Anterior Segment");
+                                }
+
+                                if ($zone[0]['value'] == "POSTSEG") {
+                                    $name = xl("Posterior Segment");
+                                }
+
+                                if ($zone[0]['value'] == "NEURO") {
+                                    $name = xl("Neuro-physiology");
+                                }
 
                                 $class = "git";
-                                if ($category_id == $zone[0]['id']) { $appends = "<i class='fa fa-arrow-down'></i>"; }
+                                if ($category_id == $zone[0]['id']) {
+                                    $appends = "<i class='fa fa-arrow-down'></i>";
+                                }
+
                                 if (count($documents['docs_in_zone'][$zone[0][value]]) >'0') {
                                     if ($zone[0][value] == $category_name) {
                                         $class='play';
                                     } else {
                                         $class = "git";
                                     }
+
                                     $count = count($documents['docs_in_zone'][$zone[0][value]]);
-                                    if ($count!=1) {$s =xla('s{{suffix to make Document plural, ie. Documents}}');
-                                    } else {$s='';}
+                                    if ($count!=1) {
+                                        $s =xla('s{{suffix to make Document plural, ie. Documents}}');
+                                    } else {
+                                        $s='';
+                                    }
+
                                     $response[$zone[0][value]] = '<a title="'.$count.' '.xla('Document'). $s.'"
 										class="'.$class.' "
 										href="Anything_simple.php?display=i&encounter='.attr($encounter).'&category_name='.attr($zone[0][value]).'">'.
@@ -357,10 +379,15 @@
                                         text($name).'</a></li>';
                                 }
                             }
+
                             echo $menu['EXT'].$menu['ANTSEG'].$menu['POSTSEG'].$menu['NEURO'];
 
-                            if ($category_name == "OTHER") {$class='play';
-                            } else { $class = "git"; }
+                            if ($category_name == "OTHER") {
+                                $class='play';
+                            } else {
+                                $class = "git";
+                            }
+
                             echo '<li><a title="'.xla('Other Documents').'"
 										class="'.$class.'"  style="'.$style.'"
 										href="Anything_simple.php?display=i&encounter='.attr($encounter).'&category_name=OTHER">
@@ -400,16 +427,23 @@
                         $reg = Menu_myGetRegistered();
                     if (!empty($reg)) {
                         $StringEcho= '<li class="dropdown">';
-                        if ( $encounterLocked === false || !(isset($encounterLocked))) {
+                        if ($encounterLocked === false || !(isset($encounterLocked))) {
                             foreach ($reg as $entry) {
                                 $new_category = trim($entry['category']);
                                 $new_nickname = trim($entry['nickname']);
-                                if ($new_category == '') {$new_category = htmlspecialchars(xl('Miscellaneous'),ENT_QUOTES);}
-                                if ($new_nickname != '') {$nickname = $new_nickname;}
-                                else {$nickname = $entry['name'];}
+                                if ($new_category == '') {
+                                    $new_category = htmlspecialchars(xl('Miscellaneous'), ENT_QUOTES);
+                                }
+
+                                if ($new_nickname != '') {
+                                    $nickname = $new_nickname;
+                                } else {
+                                    $nickname = $entry['name'];
+                                }
+
                                 if ($old_category != $new_category) { //new category, new menu section
                                     $new_category_ = $new_category;
-                                    $new_category_ = str_replace(' ','_',$new_category_);
+                                    $new_category_ = str_replace(' ', '_', $new_category_);
                                     if ($old_category != '') {
                                         $StringEcho.= "
                                                 </ul>
@@ -417,6 +451,7 @@
                                             <li class='dropdown'>
                                             ";
                                     }
+
                                     $StringEcho.= '
                                       <a class="dropdown-toggle" data-toggle="dropdown"
                                         id="menu_dropdown_'.attr($new_category_).'" role="button"
@@ -425,17 +460,20 @@
                                         ';
                                     $old_category = $new_category;
                                 }
-                                $StringEcho.= "<li>
+
+                                    $StringEcho.= "<li>
                                     <a target='RBot' href='".$GLOBALS['webroot']."/interface/patient_file/encounter/load_form.php?formname=" .urlencode($entry['directory'])."'>
                                     <i class='fa fa-angle-double-down' title='". xla('Opens in Bottom frame')."'></i>".
-                                xl_form_title($nickname) . "</a></li>";
+                                    xl_form_title($nickname) . "</a></li>";
                             }
                         }
+
                         $StringEcho.= '
                             </ul>
                           </li>
                           ';
                     }
+
                         echo $StringEcho;
                     ?>
                     <li class="dropdown">
@@ -479,7 +517,8 @@
                     $append ='';
                     if ($category_id == $zone['id']) {
                         $class="play";
-                        $append = "<i class='fa fa-arrow-down'></i>"; }
+                        $append = "<i class='fa fa-arrow-down'></i>";
+                    }
 
                     if ($zone['name'] == xl('Advance Directives') ||
                         $zone['name'] == xl('Durable Power of Attorney') ||
@@ -488,8 +527,12 @@
                         $zone['name'] == xl('Imaging')) {
                     } else {
                         $count = count($documents['docs_in_name'][$zone['name']]);
-                        if ($count!=1) {$s ="s";
-                        } else {$s='';}
+                        if ($count!=1) {
+                            $s ="s";
+                        } else {
+                            $s='';
+                        }
+
                         $disabled='';
                         if ($count =='0') {
                             $class = 'current';
@@ -498,7 +541,6 @@
 								<span class="borderShadow '.$class.'">'.text($zone['name']).'</span></a>
 							'.$append;
                         } else {
-
                             echo ' <a '.$disabled.' title="'.$count.' '.xla('Document').$s.'" class="'.$class.'"
 								href="Anything_simple.php?display=i&category_id='.$zone['id'].'&encounter='.$encounter.'&category_name='.$category_name.'">
 								<span  class="borderShadow">'.text($zone['name']).'</span></a>
@@ -518,8 +560,11 @@
         $i='0';
         if ($category_id) {
             $counter = count($documents['docs_in_cat_id'][$category_id]) -10;
-            if ($counter <0) $counter ='0';
-            for ($i=$counter;$i < count($documents['docs_in_cat_id'][$category_id]); $i++) {
+            if ($counter <0) {
+                $counter ='0';
+            }
+
+            for ($i=$counter; $i < count($documents['docs_in_cat_id'][$category_id]); $i++) {
                 echo '
 				<object><embed src="'.$GLOBALS['webroot'].'/controller.php?document&amp;retrieve&amp;patient_id='.$pid.'&amp;document_id='.attr($documents['docs_in_cat_id'][$category_id][$i][id]).'&amp;as_file=false" frameborder="0"
 				 type="'.attr($documents['docs_in_cat_id'][$category_id][$i]['mimetype']).'" allowscriptaccess="always" allowfullscreen="true" width="800px" height="600px"></embed></object>
@@ -527,8 +572,11 @@
             }
         } else {
             $counter = count($documents['docs_in_zone'][$category_id]) -10;
-            if ($counter <0) $counter ='0';
-            for ($i=$counter;$i < count($documents['docs_in_zone'][$category_name]); $i++) {
+            if ($counter <0) {
+                $counter ='0';
+            }
+
+            for ($i=$counter; $i < count($documents['docs_in_zone'][$category_name]); $i++) {
                 echo '
 				<object><embed src="'.$GLOBALS['webroot'].'/controller.php?document&amp;retrieve&amp;patient_id='.$pid.'&amp;document_id='.attr($documents['docs_in_zone'][$category_name][$i][id]).'&amp;as_file=false" frameborder="0"
 				 type="'.attr($documents['docs_in_zone'][$category_name][$i]['mimetype']).'" allowscriptaccess="always" allowfullscreen="true" width="800px" height="600px"></embed></object>
@@ -541,14 +589,14 @@
     <!-- END AnythingSlider -->
     <center>
         <?php
-        $output = menu_overhaul_left($pid,$encounter);
+        $output = menu_overhaul_left($pid, $encounter);
         echo $output;
         ?>
     </center>
     <?php
     if ($display=="fullscreen") {
        // this function is in php/".$form_name."_functions.php
-        $output = menu_overhaul_bottom($pid,$encounter);
+        $output = menu_overhaul_bottom($pid, $encounter);
         echo $output;
     }
     ?>

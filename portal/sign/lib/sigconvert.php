@@ -57,11 +57,13 @@ function sigJsonToImage($json, $options = array())
     $pen = imagecolorallocate($img, $options['penColour'][0], $options['penColour'][1], $options['penColour'][2]);
     imagefill($img, 0, 0, $bg);
 
-    if (is_string($json))
+    if (is_string($json)) {
         $json = json_decode(stripslashes($json));
+    }
 
-        foreach ($json as $v)
-            drawThickLine($img, $v->lx * $options['drawMultiplier'], $v->ly * $options['drawMultiplier'], $v->mx * $options['drawMultiplier'], $v->my * $options['drawMultiplier'], $pen, $options['penWidth'] * ($options['drawMultiplier'] / 2));
+    foreach ($json as $v) {
+        drawThickLine($img, $v->lx * $options['drawMultiplier'], $v->ly * $options['drawMultiplier'], $v->mx * $options['drawMultiplier'], $v->my * $options['drawMultiplier'], $pen, $options['penWidth'] * ($options['drawMultiplier'] / 2));
+    }
 
             $imgDest = imagecreatetruecolor($options['imageSize'][0], $options['imageSize'][1]);
 
@@ -91,18 +93,24 @@ function sigJsonToImage($json, $options = array())
  */
 function smart_resize_image(
     $file,
-    $string             = null,
-    $width              = 0,
-    $height             = 0,
-    $proportional       = false,
-    $output             = 'file',
-    $delete_original    = true,
+    $string = null,
+    $width = 0,
+    $height = 0,
+    $proportional = false,
+    $output = 'file',
+    $delete_original = true,
     $use_linux_commands = false,
-    $quality            = 100,
-    $cropFromTop        = false
+    $quality = 100,
+    $cropFromTop = false
 ) {
-            if ( $height <= 0 && $width <= 0 ) return false;
-            if ( $file === null && $string === null ) return false;
+    if ($height <= 0 && $width <= 0) {
+        return false;
+    }
+
+    if ($file === null && $string === null) {
+        return false;
+    }
+
             # Setting defaults and meta
             $info                         = $file !== null ? getimagesize($file) : getimagesizefromstring($string);
             $image                        = '';
@@ -112,13 +120,17 @@ function smart_resize_image(
             $cropHeight = $cropWidth = 0;
             # Calculating proportionality
     if ($proportional) {
-        if      ($width  == 0)  $factor = $height/$height_old;
-        elseif  ($height == 0)  $factor = $width/$width_old;
-        else                    $factor = min( $width / $width_old, $height / $height_old );
-        $final_width  = round( $width_old * $factor );
-        $final_height = round( $height_old * $factor );
-    }
-    else {
+        if ($width  == 0) {
+            $factor = $height/$height_old;
+        } elseif ($height == 0) {
+            $factor = $width/$width_old;
+        } else {
+            $factor = min($width / $width_old, $height / $height_old);
+        }
+
+        $final_width  = round($width_old * $factor);
+        $final_height = round($height_old * $factor);
+    } else {
         $final_width = ( $width <= 0 ) ? $width_old : $width;
         $final_height = ( $height <= 0 ) ? $height_old : $height;
         $widthX = $width_old / $width;
@@ -127,19 +139,25 @@ function smart_resize_image(
         $cropWidth = ($width_old - $width * $x) / 2;
         $cropHeight = ($height_old - $height * $x) / 2;
     }
+
             # Loading image to memory according to type
-    switch ( $info[2] ) {
-        case IMAGETYPE_JPEG:  $file !== null ? $image = imagecreatefromjpeg($file) : $image = imagecreatefromstring($string);
-break;
-        case IMAGETYPE_GIF:   $file !== null ? $image = imagecreatefromgif($file)  : $image = imagecreatefromstring($string);
-break;
-        case IMAGETYPE_PNG:   $file !== null ? $image = imagecreatefrompng($file)  : $image = imagecreatefromstring($string);
-break;
-        default: return false;
+    switch ($info[2]) {
+        case IMAGETYPE_JPEG:
+            $file !== null ? $image = imagecreatefromjpeg($file) : $image = imagecreatefromstring($string);
+            break;
+        case IMAGETYPE_GIF:
+            $file !== null ? $image = imagecreatefromgif($file)  : $image = imagecreatefromstring($string);
+            break;
+        case IMAGETYPE_PNG:
+            $file !== null ? $image = imagecreatefrompng($file)  : $image = imagecreatefromstring($string);
+            break;
+        default:
+            return false;
     }
+
             # This is the resizing/resampling/transparency-preserving magic
-            $image_resized = imagecreatetruecolor( $final_width, $final_height );
-    if ( ($info[2] == IMAGETYPE_GIF) || ($info[2] == IMAGETYPE_PNG) ) {
+            $image_resized = imagecreatetruecolor($final_width, $final_height);
+    if (($info[2] == IMAGETYPE_GIF) || ($info[2] == IMAGETYPE_PNG)) {
         $transparency = imagecolortransparent($image);
         $palletsize = imagecolorstotal($image);
         if ($transparency >= 0 && $transparency < $palletsize) {
@@ -147,27 +165,32 @@ break;
             $transparency       = imagecolorallocate($image_resized, $transparent_color['red'], $transparent_color['green'], $transparent_color['blue']);
             imagefill($image_resized, 0, 0, $transparency);
             imagecolortransparent($image_resized, $transparency);
-        }
-        elseif ($info[2] == IMAGETYPE_PNG) {
+        } elseif ($info[2] == IMAGETYPE_PNG) {
             imagealphablending($image_resized, false);
             $color = imagecolorallocatealpha($image_resized, 0, 0, 0, 127);
             imagefill($image_resized, 0, 0, $color);
             imagesavealpha($image_resized, true);
         }
     }
-    if ($cropFromTop){
+
+    if ($cropFromTop) {
         $cropHeightFinal = 0;
-    }else{
+    } else {
         $cropHeightFinal = $cropHeight;
     }
+
             imagecopyresampled($image_resized, $image, 0, 0, $cropWidth, $cropHeightFinal, $final_width, $final_height, $width_old - 2 * $cropWidth, $height_old - 2 * $cropHeight);
             # Taking care of original, if needed
-    if ( $delete_original ) {
-        if ( $use_linux_commands ) exec('rm '.$file);
-        else @unlink($file);
+    if ($delete_original) {
+        if ($use_linux_commands) {
+            exec('rm '.$file);
+        } else {
+            @unlink($file);
+        }
     }
+
             # Preparing a method of providing result
-    switch ( strtolower($output) ) {
+    switch (strtolower($output)) {
         case 'browser':
             $mime = image_type_to_mime_type($info[2]);
             header("Content-type: $mime");
@@ -183,18 +206,23 @@ break;
         default:
             break;
     }
+
             # Writing image according to type to the output destination and image quality
-    switch ( $info[2] ) {
-        case IMAGETYPE_GIF:   imagegif($image_resized, $output);
-break;
-        case IMAGETYPE_JPEG:  imagejpeg($image_resized, $output, $quality);
-break;
+    switch ($info[2]) {
+        case IMAGETYPE_GIF:
+            imagegif($image_resized, $output);
+            break;
+        case IMAGETYPE_JPEG:
+            imagejpeg($image_resized, $output, $quality);
+            break;
         case IMAGETYPE_PNG:
             $quality = 9 - (int)((0.9*$quality)/10.0);
             imagepng($image_resized, $output, $quality);
             break;
-        default: return false;
+        default:
+            return false;
     }
+
             return true;
 }
 /**
@@ -231,7 +259,8 @@ function drawThickLine($img, $startX, $startY, $endX, $endY, $colour, $thickness
     imagefilledpolygon($img, $array, (count($array)/2), $colour);
 }
 
-class sigToSvg {
+class sigToSvg
+{
     /**
      * Associative array of options.
      * @var array|null
@@ -263,27 +292,31 @@ class sigToSvg {
             if (is_null($this->coords)) {
                 $jErr = '';
                 if (function_exists('json_last_error')) { // allow for php 5.2
-                    switch(json_last_error()) {
+                    switch (json_last_error()) {
                         case JSON_ERROR_DEPTH:
                                 $jErr = ' - Maximum stack depth exceeded';
-                        break;
+                            break;
                         case JSON_ERROR_CTRL_CHAR:
                                 $jErr = ' - Unexpected control character found';
-                        break;
+                            break;
                         case JSON_ERROR_SYNTAX:
                                 $jErr = ' - Syntax error, malformed JSON';
-                        break;
+                            break;
                         case JSON_ERROR_NONE:
                                 $jErr = ' - Unknown error';
-                        break;
+                            break;
                     }
                 }
+
                 throw new Exception("Cannot decode the JSON string.$jErr", 1000);
             }
+
             $this->coords = array_map('array_values', $this->coords); // flatten the array
         } elseif (is_array($json)) {
             $this->coords = array();
-            foreach ($json as $obj) $this->coords[] = array_values((array)$obj);
+            foreach ($json as $obj) {
+                $this->coords[] = array_values((array)$obj);
+            }
         } else {
             throw new Exception('Data passed to constructor is invalid.', 1001);
         }
@@ -292,7 +325,7 @@ class sigToSvg {
      * Svg Mime Type
      * @return string
      */
-    static public function getMimeType()
+    public static function getMimeType()
     {
         return 'image/svg+xml';
     }
@@ -315,7 +348,9 @@ class sigToSvg {
     private function setMax($coord)
     {
         foreach ($coord as $i => $pt) {
-            if ($pt > $this->max[$i%2]) $this->max[$i%2] = $pt;
+            if ($pt > $this->max[$i%2]) {
+                $this->max[$i%2] = $pt;
+            }
         }
     }
     /**
@@ -329,6 +364,7 @@ class sigToSvg {
             $lines .= vsprintf('<line x1="%d" y1="%d" x2="%d" y2="%d"/>', $coord);
             $this->setMax($coord);
         }
+
         return $lines;
     }
     /**
@@ -336,7 +372,7 @@ class sigToSvg {
      * @param bool $axis False is x-axis, True is y-axis
      * @return int
      */
-    private function getBound($axis=0)
+    private function getBound($axis = 0)
     {
         return round($this->max[(int)$axis] + ($this->options['penWidth'] / 2));
     }
@@ -357,8 +393,10 @@ class sigToSvg {
      */
     public function getImageGz()
     {
-        if (!function_exists('gzencode')) throw new Exception('Cannot get gzip image. Check that Zlib is installed.', 2000);
+        if (!function_exists('gzencode')) {
+            throw new Exception('Cannot get gzip image. Check that Zlib is installed.', 2000);
+        }
+
         return gzencode($this->getImage(), 9);
     }
 }
-?>

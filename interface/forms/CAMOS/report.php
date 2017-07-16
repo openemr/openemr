@@ -3,7 +3,7 @@
 include_once(dirname(__FILE__).'/../../globals.php');
 include_once("../../../library/api.inc");
 include_once("content_parser.php");
-function CAMOS_report( $pid, $encounter, $cols, $id)
+function CAMOS_report($pid, $encounter, $cols, $id)
 {
     $data = formFetch("form_CAMOS", $id);
     if ($data) {
@@ -28,7 +28,6 @@ function CAMOS_report( $pid, $encounter, $cols, $id)
         echo "<a href='" . $GLOBALS['webroot'] .
         "/interface/forms/CAMOS/notegen.php' target=_new>" . xl('Print Any Encounter') . "</a></div>\n";
     //    echo "<pre>".wordwrap(stripslashes(content_parser($data['content'])))."</pre><hr>\n";
-        echo "<pre>".wordwrap(stripslashes(replace($pid,$encounter,$data['content'])))."</pre><hr>\n";
+        echo "<pre>".wordwrap(stripslashes(replace($pid, $encounter, $data['content'])))."</pre><hr>\n";
     }
 }
-?> 

@@ -32,22 +32,24 @@ function smarty_function_pc_week_range($args)
     // $args['format1'] format date 1 like this
     // $args['format2'] format date 1 like this
     setlocale(LC_TIME, _PC_LOCALE);
-    if(!isset($args['date'])) {
+    if (!isset($args['date'])) {
         $args['date'] = postcalendar_getDate();
     }
     
-    $y = substr($args['date'],0,4);
-    $m = substr($args['date'],4,2);
-    $d = substr($args['date'],6,2);
+    $y = substr($args['date'], 0, 4);
+    $m = substr($args['date'], 4, 2);
+    $d = substr($args['date'], 6, 2);
     
-    if(!isset($args['sep'])) {
+    if (!isset($args['sep'])) {
         $args['sep'] = ' - ';
     }
-    if(!isset($args['format'])) {
-        if(!isset($args['format1'])) {
+
+    if (!isset($args['format'])) {
+        if (!isset($args['format1'])) {
             $args['format1'] = _SETTING_DATE_FORMAT;
         }
-        if(!isset($args['format2']))  {
+
+        if (!isset($args['format2'])) {
             $args['format2'] = _SETTING_DATE_FORMAT;
         }
     } else {
@@ -56,22 +58,30 @@ function smarty_function_pc_week_range($args)
     }
     
     // get the week date range for the supplied $date
-    $dow = date('w',mktime(0,0,0,$m,$d,$y));
-    if(_SETTING_FIRST_DAY_WEEK == 0) {
-        $firstDay   = strftime($args['format1'],mktime(0,0,0,$m,($d-$dow),$y));
-        $lastDay    = strftime($args['format2'],mktime(0,0,0,$m,($d+(6-$dow)),$y));
-    } elseif(_SETTING_FIRST_DAY_WEEK == 1) {
-        if($dow == 0) $sub = 6;
-        else $sub = $dow-1;
-        $firstDay   = strftime($args['format1'],mktime(0,0,0,$m,($d-$sub),$y));
-        $lastDay    = strftime($args['format2'],mktime(0,0,0,$m,($d+(6-$sub)),$y));
-    } elseif(_SETTING_FIRST_DAY_WEEK == 6) {
-        if($dow == 6) $sub = 0;
-        else $sub = $dow+1;
-        $firstDay   = strftime($args['format1'],mktime(0,0,0,$m,($d-$sub),$y));
-        $lastDay    = strftime($args['format2'],mktime(0,0,0,$m,($d+(6-$sub)),$y));
+    $dow = date('w', mktime(0, 0, 0, $m, $d, $y));
+    if (_SETTING_FIRST_DAY_WEEK == 0) {
+        $firstDay   = strftime($args['format1'], mktime(0, 0, 0, $m, ($d-$dow), $y));
+        $lastDay    = strftime($args['format2'], mktime(0, 0, 0, $m, ($d+(6-$dow)), $y));
+    } elseif (_SETTING_FIRST_DAY_WEEK == 1) {
+        if ($dow == 0) {
+            $sub = 6;
+        } else {
+            $sub = $dow-1;
+        }
+
+        $firstDay   = strftime($args['format1'], mktime(0, 0, 0, $m, ($d-$sub), $y));
+        $lastDay    = strftime($args['format2'], mktime(0, 0, 0, $m, ($d+(6-$sub)), $y));
+    } elseif (_SETTING_FIRST_DAY_WEEK == 6) {
+        if ($dow == 6) {
+            $sub = 0;
+        } else {
+            $sub = $dow+1;
+        }
+
+        $firstDay   = strftime($args['format1'], mktime(0, 0, 0, $m, ($d-$sub), $y));
+        $lastDay    = strftime($args['format2'], mktime(0, 0, 0, $m, ($d+(6-$sub)), $y));
     }
+
     // return the formated range
     echo $firstDay.$args['sep'].$lastDay;
 }
-?>

@@ -34,7 +34,6 @@ class Acl implements InputFilterAwareInterface
 
     public function exchangeArray($data)
     {
-    
     }
     public function getArrayCopy()
     {
@@ -53,6 +52,7 @@ class Acl implements InputFilterAwareInterface
 
             $this->inputFilter = $inputFilter;
         }
+
         return $this->inputFilter;
     }
 }

@@ -23,7 +23,10 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false)
     $jobj = json_decode($tmp['notes'], true);
 
   // Check access control.
-    if (!empty($jobj['aco'])) $LBF_ACO = explode('|', $jobj['aco']);
+    if (!empty($jobj['aco'])) {
+        $LBF_ACO = explode('|', $jobj['aco']);
+    }
+
     if (!acl_check('admin', 'super') && !empty($LBF_ACO)) {
         if (!acl_check($LBF_ACO[0], $LBF_ACO[1])) {
             die(xlt('Access denied'));
@@ -39,27 +42,35 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false)
         $field_id  = $frow['field_id'];
         $currvalue = '';
         if ($frow['edit_options'] == 'H') {
-            if (isset($shrow[$field_id])) $currvalue = $shrow[$field_id];
+            if (isset($shrow[$field_id])) {
+                $currvalue = $shrow[$field_id];
+            }
         } else {
             $currvalue = lbf_current_value($frow, $id, $encounter);
-            if ($currvalue === false) continue; // should not happen
+            if ($currvalue === false) {
+                continue; // should not happen
+            }
         }
+
         // For brevity, skip fields without a value.
-        if ($currvalue === '') continue;
+        if ($currvalue === '') {
+            continue;
+        }
+
         // $arr[$field_id] = $currvalue;
         // A previous change did this instead of the above, not sure if desirable? -- Rod
         // $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
         // Hi Rod content width issue in Encounter Summary - epsdky
         // Also had it not wordwrap nation notes which breaks it since it splits
         //  html tags apart - brady
-        if ( $no_wrap || ($frow['data_type'] == 34) ) {
+        if ($no_wrap || ($frow['data_type'] == 34)) {
             $arr[$field_id] = $currvalue;
         } else {
             $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
         }
     }
+
     echo "<table>\n";
     display_layout_rows($formname, $arr);
     echo "</table>\n";
 }
-?>

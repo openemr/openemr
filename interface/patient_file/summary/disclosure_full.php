@@ -29,28 +29,25 @@ require_once("$srcdir/log.inc");
 require_once("$srcdir/options.inc.php");
 
 //retrieve the user name
-$res = sqlQuery("select username from users where username=?", array($_SESSION{"authUser"}) );
+$res = sqlQuery("select username from users where username=?", array($_SESSION{"authUser"}));
 $uname=$res{"username"};
 //if the mode variable is set to disclosure, retrieve the values from 'disclosure_form ' in record_disclosure.php to store it in database.
-if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure"){
+if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
     $dates=trim($_POST['dates']);
     $event=trim($_POST['form_disclosure_type']);
     $recipient_name=trim($_POST['recipient_name']);
     $disclosure_desc=trim($_POST['desc_disc']);
     $disclosure_id=trim($_POST['disclosure_id']);
-    if (isset($_POST["updatemode"]) and $_POST["updatemode"] == "disclosure_update")
-    {
+    if (isset($_POST["updatemode"]) and $_POST["updatemode"] == "disclosure_update") {
         //update the recorded disclosure in the extended_log table.
-        updateRecordedDisclosure($dates,$event,$recipient_name,$disclosure_desc,$disclosure_id);
-    }
-    else
-    {
+        updateRecordedDisclosure($dates, $event, $recipient_name, $disclosure_desc, $disclosure_id);
+    } else {
         //insert the disclosure records in the extended_log table.
-         recordDisclosure($dates,$event,$pid,$recipient_name,$disclosure_desc,$uname);
+         recordDisclosure($dates, $event, $pid, $recipient_name, $disclosure_desc, $uname);
     }
 }
-if (isset($_GET['deletelid']))
-{
+
+if (isset($_GET['deletelid'])) {
     $deletelid=$_GET['deletelid'];
 //function to delete the recorded disclosures
     deleteDisclosure($deletelid);
@@ -89,13 +86,15 @@ if (isset($_GET['deletelid']))
 <?php
 $N=15;
 $offset = $_REQUEST['offset'];
-if (!isset($offset)) $offset = 0;
+if (!isset($offset)) {
+    $offset = 0;
+}
 
 $disclQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
   " LEFT JOIN users u ON u.username = el.user " .
   " WHERE el.patient_id = ? AND el.event IN (SELECT option_id FROM list_options WHERE list_id='disclosure_type' AND activity = 1)" .
   " ORDER BY el.date DESC ";
-$r2= sqlStatement($disclQry, array($pid) );
+$r2= sqlStatement($disclQry, array($pid));
 $totalRecords=sqlNumRows($r2);
 
 //echo "select id,event,recipient,description,date from extended_log where patient_id=$pid AND event in (select option_id from list_options where list_id='disclosure_type') order by date desc limit $offset ,$N";
@@ -105,10 +104,10 @@ $disclInnerQry = " SELECT el.id, el.event, el.recipient, el.description, el.date
   " WHERE patient_id = ? AND event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1)" .
   " ORDER BY date DESC LIMIT $offset, $N";
 
-$r1= sqlStatement($disclInnerQry, array($pid) );
+$r1= sqlStatement($disclInnerQry, array($pid));
 $n=sqlNumRows($r1);
 $noOfRecordsLeft=($totalRecords - $offset);
-if ($n>0){?>
+if ($n>0) {?>
     <table border='0' class="text">
         <tr>
         <td colspan='5' style="padding: 5px;"><a href="disclosure_full.php" class="" id='Submit' onclick="top.restoreSession()"><span><?php echo xlt('Refresh'); ?></span></a></td>
@@ -125,10 +124,11 @@ if ($n>0){?>
         </tr>
     <?php
     $result2 = array();
-    for ($iter = 0;$frow = sqlFetchArray($r1);$iter++)
+    for ($iter = 0; $frow = sqlFetchArray($r1); $iter++) {
         $result2[$iter] = $frow;
-    foreach($result2 as $iter)
-    {
+    }
+
+    foreach ($result2 as $iter) {
         $description =nl2br(text($iter{description})); //for line break if there is any new lines in the input text area field.
         ?>
         <!-- List the recipient name, description, date and edit and delete options-->
@@ -139,15 +139,13 @@ if ($n>0){?>
             <a href='#' class='deletenote css_button_small'
             id='<?php echo text($iter{id}); ?>' onclick='top.restoreSession()'><span><?php echo xlt('Delete');?></span></a></td>
             <td class="text" valign='top'><?php echo text($iter{recipient});?>&nbsp;</td>
-            <td class='text' valign='top'><?php echo text(getListItemTitle('disclosure_type',$iter['event'])); ?>&nbsp;</td>
+            <td class='text' valign='top'><?php echo text(getListItemTitle('disclosure_type', $iter['event'])); ?>&nbsp;</td>
             <td class='text'><?php echo text($iter{date})." ".$description;?>&nbsp;</td>
             <td class='text'><?php echo text($iter{user_fullname});?></td>
         </tr>
         <?php
     }
-}
-else
-{?>
+} else {?>
     <br>
     <!-- Display None, if there is no disclosure -->
     <span class='text' colspan='3'><?php echo xlt('None');?></span>
@@ -194,7 +192,7 @@ $(document).ready(function()
 
         var DeleteNote = function(logevent)
         {
-        if (confirm("<?php echo htmlspecialchars(xl('Are you sure you want to delete this disclosure?','','','\n ') . xl('This action CANNOT be undone.'),ENT_QUOTES); ?>"))
+        if (confirm("<?php echo htmlspecialchars(xl('Are you sure you want to delete this disclosure?', '', '', '\n ') . xl('This action CANNOT be undone.'), ENT_QUOTES); ?>"))
             {
                     top.restoreSession();
                         window.location.replace("disclosure_full.php?deletelid="+logevent.id)

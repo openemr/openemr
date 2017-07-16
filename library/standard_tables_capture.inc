@@ -26,37 +26,34 @@
 
 // Function to copy a package to temp
 // $type (RXNORM, SNOMED etc.)
-function temp_copy($filename,$type)
+function temp_copy($filename, $type)
 {
 
-    if(!file_exists($filename)) {
+    if (!file_exists($filename)) {
         return false;
     }
 
-    if(!file_exists($GLOBALS['temporary_files_dir']."/".$type)) {
-        if(!mkdir($GLOBALS['temporary_files_dir']."/".$type, 0777, true)) {
+    if (!file_exists($GLOBALS['temporary_files_dir']."/".$type)) {
+        if (!mkdir($GLOBALS['temporary_files_dir']."/".$type, 0777, true)) {
                 return false;
         }
     }
 
-    if(copy($filename,$GLOBALS['temporary_files_dir']."/".$type."/".basename($filename))) {
+    if (copy($filename, $GLOBALS['temporary_files_dir']."/".$type."/".basename($filename))) {
         return true;
-    }
-    else {
+    } else {
         return false;
     }
 }
 
 // Function to unarchive a package
 // $type (RXNORM, SNOMED etc.)
-function temp_unarchive($filename,$type)
+function temp_unarchive($filename, $type)
 {
     $filename = $GLOBALS['temporary_files_dir']."/".$type."/".basename($filename);
-    if(!file_exists($filename)) {
+    if (!file_exists($filename)) {
         return false;
-    }
-    else {
-
+    } else {
     // let's uzip the file
     // use checksums to determine the "version"
     //
@@ -65,10 +62,10 @@ function temp_unarchive($filename,$type)
             if (!($zip->extractTo($GLOBALS['temporary_files_dir']."/".$type))) {
                 return false;
             }
+
             $zip->close();
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -82,7 +79,7 @@ function rxnorm_import($is_windows_flag)
     // set paths
     $dirScripts = $GLOBALS['temporary_files_dir']."/RXNORM/scripts/mysql";
     $dir = $GLOBALS['temporary_files_dir']."/RXNORM/rrf";
-    $dir=str_replace('\\','/',$dir);
+    $dir=str_replace('\\', '/', $dir);
 
     $rx_info = array();
     $rx_info['rxnatomarchive'] = array('title' => "Archive Data", 'dir' => "$dir", 'origin' => "RXNATOMARCHIVE.RRF", 'filename' => "RXNATOMARCHIVE.RRF", 'table' => "rxnatomarchive", 'required' => 0);
@@ -99,29 +96,27 @@ function rxnorm_import($is_windows_flag)
     $file_load = file_get_contents($dirScripts.'/Table_scripts_mysql_rxn.sql', true);
     if ($is_windows_flag) {
         $data_load = file_get_contents($dirScripts.'/Load_scripts_mysql_rxn_win.sql', true);
-    }
-    else {
+    } else {
         $data_load = file_get_contents($dirScripts.'/Load_scripts_mysql_rxn_unix.sql', true);
     }
+
     $indexes_load = file_get_contents($dirScripts.'/Indexes_mysql_rxn.sql', true);
 
     //
     // Creating the structure for table and applying indexes
     //
 
-    $file_array=explode(";",$file_load);
-    foreach($file_array as $val){
-        if(trim($val)!='')
-        {
+    $file_array=explode(";", $file_load);
+    foreach ($file_array as $val) {
+        if (trim($val)!='') {
             sqlStatementNoLog($val);
         }
     }
 
-    $indexes_array=explode(";",$indexes_load);
+    $indexes_array=explode(";", $indexes_load);
 
-    foreach($indexes_array as $val1){
-        if(trim($val1)!='')
-        {
+    foreach ($indexes_array as $val1) {
+        if (trim($val1)!='') {
             sqlStatementNoLog($val1);
         }
     }
@@ -130,23 +125,22 @@ function rxnorm_import($is_windows_flag)
     // Settings to drastically speed up import with InnoDB
     sqlStatementNoLog("SET autocommit=0");
     sqlStatementNoLog("START TRANSACTION");
-    $data=explode(";",$data_load);
-    foreach($data as $val)
-    {
-        foreach($rx_info as $key => $value)
-        {
+    $data=explode(";", $data_load);
+    foreach ($data as $val) {
+        foreach ($rx_info as $key => $value) {
             $file_name= $value['origin'];
             $replacement=$dir."/".$file_name;
 
             $pattern='/'.$file_name.'/';
-            if(strpos($val,$file_name) !== false) {
-                $val1 = str_replace($file_name,$replacement,$val);
-                if(trim($val1)!='') {
+            if (strpos($val, $file_name) !== false) {
+                $val1 = str_replace($file_name, $replacement, $val);
+                if (trim($val1)!='') {
                     sqlStatementNoLog($val1);
                 }
             }
         }
     }
+
     // Settings to drastically speed up import with InnoDB
     sqlStatementNoLog("COMMIT");
     sqlStatementNoLog("SET autocommit=1");
@@ -155,7 +149,7 @@ function rxnorm_import($is_windows_flag)
 }
 
 // Function to import SNOMED tables
-function snomed_import($us_extension=false)
+function snomed_import($us_extension = false)
 {
 
     // set up array
@@ -198,52 +192,59 @@ function snomed_import($us_extension=false)
     $dir_snomed = $GLOBALS['temporary_files_dir']."/SNOMED/";
     $sub_path="Terminology/Content/";
     $dir=$dir_snomed;
-    $dir=str_replace('\\','/',$dir);
+    $dir=str_replace('\\', '/', $dir);
 
     // executing the create statement for tables, these are defined in snomed_capture.inc file
     // this is skipped if the US extension is being added
     if (!$us_extension) {
-        foreach($table_array_for_snomed as $val){
-            if(trim($val)!=''){
+        foreach ($table_array_for_snomed as $val) {
+            if (trim($val)!='') {
                 sqlStatement($val);
             }
         }
     }
 
     // reading the SNOMED directory and identifying the files to import and replacing the variables by originals values.
-    if( is_dir($dir) && $handle = opendir($dir)) {
+    if (is_dir($dir) && $handle = opendir($dir)) {
         while (false !== ($filename = readdir($handle))) {
-            if ($filename != "." && $filename != ".." && !strpos($filename,"zip")) {
+            if ($filename != "." && $filename != ".." && !strpos($filename, "zip")) {
                 $path=$dir."".$filename."/".$sub_path;
                 if (!(is_dir($path))) {
                     $path=$dir."".$filename."/RF1Release/".$sub_path;
                 }
-                if( is_dir($path) && $handle1 = opendir($path)) {
+
+                if (is_dir($path) && $handle1 = opendir($path)) {
                     while (false !== ($filename1 = readdir($handle1))) {
                         $load_script="Load data local infile '#FILENAME#' into table #TABLE# fields terminated by '\\t' ESCAPED BY '' lines terminated by '\\n' ignore 1 lines   ";
                         $array_replace=array("#FILENAME#","#TABLE#");
                         if ($filename1 != "." && $filename1 != "..") {
                             $file_replace=$path.$filename1;
-                            if(strpos($filename1,"Concepts") !== false){
-                                $new_str=str_replace($array_replace,array($file_replace,"sct_concepts"),$load_script);
+                            if (strpos($filename1, "Concepts") !== false) {
+                                $new_str=str_replace($array_replace, array($file_replace,"sct_concepts"), $load_script);
                             }
-                            if(strpos($filename1,"Descriptions") !== false){
-                                $new_str=str_replace($array_replace,array($file_replace,"sct_descriptions"),$load_script);
+
+                            if (strpos($filename1, "Descriptions") !== false) {
+                                $new_str=str_replace($array_replace, array($file_replace,"sct_descriptions"), $load_script);
                             }
-                            if(strpos($filename1,"Relationships") !== false){
-                                $new_str=str_replace($array_replace,array($file_replace,"sct_relationships"),$load_script);
+
+                            if (strpos($filename1, "Relationships") !== false) {
+                                $new_str=str_replace($array_replace, array($file_replace,"sct_relationships"), $load_script);
                             }
-                            if($new_str!=''){
+
+                            if ($new_str!='') {
                                 sqlStatement($new_str);
                             }
                         }
                     }
                 }
+
                 closedir($handle1);
             }
         }
+
         closedir($handle);
     }
+
     return true;
 }
 
@@ -254,7 +255,7 @@ function icd_import($type)
 
     // set up paths
     $dir_icd = $GLOBALS['temporary_files_dir']."/".$type."/";
-    $dir=str_replace('\\','/',$dir_icd);
+    $dir=str_replace('\\', '/', $dir_icd);
     $db_load = '';
     $db_update = '';
 
@@ -276,7 +277,6 @@ function icd_import($type)
         '#FLD1#' => "dx_code", '#POS1#' => 1, '#LEN1#' => 5,
         '#FLD2#' => "long_desc", '#POS2#' => 7, '#LEN2#' => 300);
     } else {
-
         $incoming['icd10pcs_order_'] = array('#TABLENAME#' => "icd10_pcs_order_code",
         '#FLD1#' => "pcs_code", '#POS1#' => 7, '#LEN1#' => 7,
         '#FLD2#' => "valid_for_coding", '#POS2#' => 15, '#LEN2#' => 1,
@@ -329,10 +329,10 @@ function icd_import($type)
     $col_template = "#FLD# = trim(Substring(@var, #POS#, #LEN#))";
 
     // load all data and set active revision
-    if( is_dir($dir) && $handle = opendir($dir)) {
+    if (is_dir($dir) && $handle = opendir($dir)) {
         while (false !== ($filename = readdir($handle))) {
         // bypass unwanted entries
-            if (!stripos($filename, ".txt") || stripos($filename,"diff") || stripos($filename, "addenda")) {
+            if (!stripos($filename, ".txt") || stripos($filename, "diff") || stripos($filename, "addenda")) {
                 continue;
             }
 
@@ -342,13 +342,12 @@ function icd_import($type)
             $keys = array_keys($incoming);
             while ($this_key = array_pop($keys)) {
                 if (stripos($filename, $this_key) !== false) {
-
                     // now substitute the tablename
                         $run_sql = str_replace("#TABLENAME#", $incoming[$this_key]['#TABLENAME#'], $run_sql);
     
                     // the range defines the maximum number of fields contained
                     // in any of the incoming files
-                    foreach(range(1, 8) as $field) {
+                    foreach (range(1, 8) as $field) {
                         $fld = "#FLD" . $field . "#";
                         $nxtfld = "#FLD" . ($field+1) . "#";
                         $pos = "#POS" . $field . "#";
@@ -363,8 +362,10 @@ function icd_import($type)
                         if (!array_key_exists($nxtfld, $incoming[$this_key])) {
                             break;
                         }
+
                         $run_sql .= ",";
                     }
+
                     sqlStatement($run_sql);
 
                     // now update the revision for this load
@@ -374,15 +375,15 @@ function icd_import($type)
                     $run_sql = "UPDATE " . $incoming[$this_key]['#TABLENAME#'] . " SET active = 0";
                     sqlQuery($run_sql);
                     $run_sql = "UPDATE " . $incoming[$this_key]['#TABLENAME#'] . " SET active = 1, revision = ? WHERE revision = 0";
-                    sqlQuery($run_sql, array($next_rev) );
+                    sqlQuery($run_sql, array($next_rev));
                     break;
                 }
             }
         }
+
         closedir($handle);
-    }
-    else {
-        echo htmlspecialchars( xl('ERROR: No ICD import directory.'), ENT_NOQUOTES)."<br>";
+    } else {
+        echo htmlspecialchars(xl('ERROR: No ICD import directory.'), ENT_NOQUOTES)."<br>";
         return;
     }
 
@@ -394,8 +395,7 @@ function icd_import($type)
         sqlStatement("update `icd9_sg_code` SET formatted_sg_code = concat(concat(left(sg_code, 2), '.'), substr(sg_code, 3))");
         sqlStatement("update `icd9_dx_code` A, `icd9_dx_long_code` B set A.long_desc = B.long_desc where A.dx_code = B.dx_code and A.active = 1 and A.long_desc is NULL");
         sqlStatement("update `icd9_sg_code` A, `icd9_sg_long_code` B set A.long_desc = B.long_desc where A.sg_code = B.sg_code and A.active = 1 and A.long_desc is NULL");
-    }
-    else { // ICD 10
+    } else { // ICD 10
         sqlStatement("update `icd10_dx_order_code` SET formatted_dx_code = dx_code");
         sqlStatement("update `icd10_dx_order_code` SET formatted_dx_code = concat(concat(left(dx_code, 3), '.'), substr(dx_code, 4)) WHERE LENGTH(dx_code) > 3");
     }
@@ -406,24 +406,24 @@ function icd_import($type)
 function valueset_import($type)
 {
     $dir_valueset = $GLOBALS['temporary_files_dir']."/".$type."/";
-        $dir = str_replace('\\','/',$dir_valueset);
+        $dir = str_replace('\\', '/', $dir_valueset);
 
     // Settings to drastically speed up import with InnoDB
     sqlStatementNoLog("SET autocommit=0");
     sqlStatementNoLog("START TRANSACTION");
-    if( is_dir($dir) && $handle = opendir($dir)) {
+    if (is_dir($dir) && $handle = opendir($dir)) {
         while (false !== ($filename = readdir($handle))) {
-            if(stripos($filename, ".xml")){
+            if (stripos($filename, ".xml")) {
                     $abs_path = $dir.$filename;
-                    $xml  = simplexml_load_file($abs_path,null,null,'ns0',true);
-                foreach($xml->DescribedValueSet as $vset){
+                    $xml  = simplexml_load_file($abs_path, null, null, 'ns0', true);
+                foreach ($xml->DescribedValueSet as $vset) {
                     $vset_attr = $vset->attributes();
                     $nqf = $vset->xpath('ns0:Group[@displayName="NQF Number"]/ns0:Keyword');
-                    foreach($vset->ConceptList as $cp){
-                        foreach($nqf as $nqf_code){
-                            foreach($cp->Concept as $con){
+                    foreach ($vset->ConceptList as $cp) {
+                        foreach ($nqf as $nqf_code) {
+                            foreach ($cp->Concept as $con) {
                                 $con_attr = $con->attributes();
-                                sqlStatementNoLog("INSERT INTO valueset values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE code_system = values(code_system),description = values(description),valueset_name = values(valueset_name)",array($nqf_code,$con_attr->code,$con_attr->codeSystem,$con_attr->codeSystemName,$vset_attr->ID,$con_attr->displayName,$vset_attr->displayName));
+                                sqlStatementNoLog("INSERT INTO valueset values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE code_system = values(code_system),description = values(description),valueset_name = values(valueset_name)", array($nqf_code,$con_attr->code,$con_attr->codeSystem,$con_attr->codeSystemName,$vset_attr->ID,$con_attr->displayName,$vset_attr->displayName));
                             }
                         }
                     }
@@ -446,35 +446,32 @@ function valueset_import($type)
 // $type (RXNORM etc.)
 function temp_dir_cleanup($type)
 {
-    if(is_dir($GLOBALS['temporary_files_dir']."/".$type)) {
+    if (is_dir($GLOBALS['temporary_files_dir']."/".$type)) {
         rmdir_recursive($GLOBALS['temporary_files_dir']."/".$type);
     }
 }
 
 // Function to update version tracker table if successful
 // $type (RXNORM etc.)
-function update_tracker_table($type,$revision,$version,$file_checksum)
+function update_tracker_table($type, $revision, $version, $file_checksum)
 {
     if ($type == 'RXNORM') {
-        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'RXNORM',?,?,?)", array($revision, $version, $file_checksum) );
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'RXNORM',?,?,?)", array($revision, $version, $file_checksum));
+        return true;
+    } else if ($type == 'SNOMED') {
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'SNOMED',?,?,?)", array($revision, $version, $file_checksum));
+        return true;
+    } else if ($type == 'ICD9') {
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'ICD9',?,?,?)", array($revision, $version, $file_checksum));
+        return true;
+    } else if ($type == 'CQM_VALUESET') {
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'CQM_VALUESET',?,?,?)", array($revision, $version, $file_checksum));
+        return true;
+    } else { // $type == 'ICD10')
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'ICD10',?,?,?)", array($revision, $version, $file_checksum));
         return true;
     }
-    else if ($type == 'SNOMED') {
-        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'SNOMED',?,?,?)", array($revision, $version, $file_checksum) );
-        return true;
-    }
-    else if ($type == 'ICD9') {
-        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'ICD9',?,?,?)", array($revision, $version, $file_checksum) );
-        return true;
-    }
-    else if($type == 'CQM_VALUESET'){
-        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'CQM_VALUESET',?,?,?)", array($revision, $version, $file_checksum) );
-        return true;
-    }
-    else { // $type == 'ICD10')
-        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'ICD10',?,?,?)", array($revision, $version, $file_checksum) );
-        return true;
-    }
+
     return false;
 }
 
@@ -491,8 +488,10 @@ function rmdir_recursive($dir)
             rmdir_recursive($file);
             continue;
         }
+
         unlink($file);
     }
+
     rmdir($dir);
 }
 
@@ -500,18 +499,16 @@ function rmdir_recursive($dir)
 function handle_zip_file($mode, $file)
 {
         // 1. copy the file to temp directory
-    if (!temp_copy($file,$mode)) {
-        echo htmlspecialchars( xl('ERROR: Unable to copy the file.'), ENT_NOQUOTES)."<br>";
+    if (!temp_copy($file, $mode)) {
+        echo htmlspecialchars(xl('ERROR: Unable to copy the file.'), ENT_NOQUOTES)."<br>";
         temp_dir_cleanup($mode);
         exit;
     }
 
         // 2. unarchive the file
-    if (!temp_unarchive($file,$mode)) {
-        echo htmlspecialchars( xl('ERROR: Unable to extract the file.'), ENT_NOQUOTES)."<br>";
+    if (!temp_unarchive($file, $mode)) {
+        echo htmlspecialchars(xl('ERROR: Unable to extract the file.'), ENT_NOQUOTES)."<br>";
         temp_dir_cleanup($mode);
         exit;
     }
 }
-
-?>

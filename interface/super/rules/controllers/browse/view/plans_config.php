@@ -377,23 +377,23 @@ $.extend($.ui.multiselect.locale, {
 
 <div class="cdr-mappings">
     <br/>
-    <div><b><?php echo out( xl( 'View Plan Rules' )); ?></b></div>
+    <div><b><?php echo out(xl('View Plan Rules')); ?></b></div>
     <br/>
     <div id="cdr_mappings_form-div" class="cdr-form">
         <div class="cdr-plans">
             <?php echo out(xl('Plan')) . ':'; ?>
             <select id="cdr-plans-select" name="cdr-plans-select" class="cdr-plans-select-class">
-                             <option id="select_plan" value="select_plan">- <?php echo out( xl( 'SELECT PLAN' )); ?> -</option>
+                             <option id="select_plan" value="select_plan">- <?php echo out(xl('SELECT PLAN')); ?> -</option>
                 <option id="divider" value="divider" disabled/>
-                <option id="add_new_plan" value="add_new_plan"><?php echo out( xl( 'ADD NEW PLAN' )); ?></option>
+                <option id="add_new_plan" value="add_new_plan"><?php echo out(xl('ADD NEW PLAN')); ?></option>
             </select>
             <input title="<?php echo out(xl('Delete Plan')); ?>" id="delete_plan" class="delete_button" type="image" style="display: none;"/>
         </div>  
         <div id="new_plan_container"></div>
         <div id="cdr_hide_show-div" style="display: none;">
             <div id="plan_status_div" class="plan-status_div">
-                                <label id='plan-status-label'><?php echo out( xl( 'Status' )) . ':'; ?></label>
-                <button id='cdr-status' disable><?php echo out( xl( 'Activate' )); ?></button>
+                                <label id='plan-status-label'><?php echo out(xl('Status')) . ':'; ?></label>
+                <button id='cdr-status' disable><?php echo out(xl('Activate')); ?></button>
             </div>
             <br/>
             
@@ -401,8 +401,8 @@ $.extend($.ui.multiselect.locale, {
                 <div id="cdr_rules" class="cdr-rules-class"></div>      
             
                 <div id="cdr_buttons_div" class="cdr-buttons-class">
-                    <button id='cdr-button-cancel'><?php echo out( xl( 'Cancel' )); ?></button>
-                    <button id='cdr-button-submit'><?php echo out( xl( 'Submit' )); ?></button>
+                    <button id='cdr-button-cancel'><?php echo out(xl('Cancel')); ?></button>
+                    <button id='cdr-button-submit'><?php echo out(xl('Submit')); ?></button>
                 </div>
             </div>
         </div>

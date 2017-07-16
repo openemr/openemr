@@ -35,7 +35,8 @@
  *	$array[$key] = $xmltoarray->fix_html_entities($value); //returns proper html values
  * }
  */
-class xmltoarray_parser_htmlfix{
+class xmltoarray_parser_htmlfix
+{
     var $values;
     var $index;
     var $thearray;
@@ -68,17 +69,19 @@ class xmltoarray_parser_htmlfix{
      */
     function xmlparser_fix_into_struct($xml)
     {
-        $trans_table = get_html_translation_table(HTML_ENTITIES,ENT_QUOTES);
+        $trans_table = get_html_translation_table(HTML_ENTITIES, ENT_QUOTES);
         $keys = array();
-        foreach($trans_table as $key=>$value) {
-            if($key != "<" && $key != ">" && $key != "&" && $key != "\"" && $key != "'" && $key != " "){
+        foreach ($trans_table as $key => $value) {
+            if ($key != "<" && $key != ">" && $key != "&" && $key != "\"" && $key != "'" && $key != " ") {
                 $keys[$key] = $value;
             }
         }
-        foreach($keys as $key=>$value){
-            $xml =  preg_replace("/".$key."/",$value,$xml);
+
+        foreach ($keys as $key => $value) {
+            $xml =  preg_replace("/".$key."/", $value, $xml);
         }
-        $xml =  str_replace("&","%and%",$xml);
+
+        $xml =  str_replace("&", "%and%", $xml);
         
         xml_parse_into_struct($this->parser, $xml, $this->values, $this->index);
         xml_parser_free($this->parser);
@@ -106,37 +109,40 @@ class xmltoarray_parser_htmlfix{
     function _struct_to_array($values, &$i)
     {
         $child = array();
-        if (isset($values[$i]['value'])) array_push($child, $values[$i]['value']);
+        if (isset($values[$i]['value'])) {
+            array_push($child, $values[$i]['value']);
+        }
         
         while ($i++ < count($values)) {
-            if(isset($values[$i])){
+            if (isset($values[$i])) {
                 switch ($values[$i]['type']) {
                     case 'cdata':
                         array_push($child, $values[$i]['value']);
-                    break;
+                        break;
                     
                     case 'complete':
                         $name = $values[$i]['tag'];
-                        if(!empty($name)){
+                        if (!empty($name)) {
                             $child[$name]= (isset($values[$i]['value']))?($values[$i]['value']):'';
-                            if(isset($values[$i]['attributes'])) {
+                            if (isset($values[$i]['attributes'])) {
                                 $child[$name] = $values[$i]['attributes'];
                             }
                         }
-                    break;
+                        break;
                     
                     case 'open':
                         $name = $values[$i]['tag'];
                         $size = isset($child[$name]) ? sizeof($child[$name]) : 0;
                         $child[$name][$size] = $this->_struct_to_array($values, $i);
-                    break;
+                        break;
                     
                     case 'close':
-                    return $child;
+                        return $child;
                     break;
                 }
             }
         }
+
         return $child;
     }//_struct_to_array
 
@@ -147,10 +153,7 @@ class xmltoarray_parser_htmlfix{
      */
     function fix_html_entities($string)
     {
-        $string =  str_replace("%and%","&",$string);
+        $string =  str_replace("%and%", "&", $string);
         return $string;
     }
-
 }
-
-?>

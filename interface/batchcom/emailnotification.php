@@ -39,20 +39,25 @@ if ($_POST['form_action']=='save') {
     if ($_POST['email_sender']=="") {
         $form_err .= xl('Empty value in "Email Sender"') . '<br>';
     }
+
     if ($_POST['email_subject']=="") {
         $form_err .= xl('Empty value in "Email Subject"') . '<br>';
     }
+
     //validate dates
     if (!check_date_format($_POST['next_app_date'])) {
         $form_err .= xl('Date format for "Next Appointment" is not valid') . '<br>';
     }
+
     // validates and or
     if ($_POST['provider_name']=="") {
         $form_err .= xl('Empty value in "Name of Provider"') . '<br>';
     }
+
     if ($_POST['message']=="") {
         $form_err .= xl('Empty value in "Email Text"') . '<br>';
     }
+
     //process sql
     if (!$form_err) {
         $next_app_time = $_POST['hour'].":".$_POST['min'];
@@ -84,6 +89,7 @@ if ($result) {
     $email_subject = $result['email_subject'];
     $message = $result['message'];
 }
+
 //my_print_r($result);
 
 // menu arrays (done this way so it's easier to validate input on validate selections)
@@ -110,6 +116,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
         if ($form_err) {
             echo '<div class="alert alert-danger">' . xlt('The following errors occurred') . ': ' . text($form_err) . '</div>';
         }
+
         if ($sql_msg) {
             echo '<div class="alert alert-info">' . xlt('The following errors occurred') . ': ' . text($sql_msg) . '</div>';
         }

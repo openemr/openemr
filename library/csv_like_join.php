@@ -10,6 +10,7 @@ function csv_like_join($array, $quote_all = false)
         } else {
             $result .= ',';
         }
+
         if ($quote_all) {
             $result .= csv_quote($value);
         } else {
@@ -39,8 +40,7 @@ function need_csv_quote($string)
     if (strpos($string, ',') === false
      && strpos($string, '"') === false
      && strpos($string, "\r") === false
-     && strpos($string, "\n") === false)
-    {
+     && strpos($string, "\n") === false) {
         return false;
     }
 
@@ -62,8 +62,7 @@ function split_csv_line($record)
         while ($start < strlen($record)
             && ($end = strpos($record, '"', $start)) !== false
             && $end < strlen($record) - 1
-            && $record[$end + 1] !== ',')
-        {
+            && $record[$end + 1] !== ',') {
             if ($record[$end + 1] !== '"') {
                 die("Found characters between double-quoted field and comma.");
             }
@@ -101,4 +100,3 @@ function split_csv_line($record)
     array_unshift($fields, $first);
     return $fields;
 }
-?>

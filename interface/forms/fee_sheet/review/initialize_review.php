@@ -19,8 +19,7 @@
  * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @link    http://www.open-emr.org
  */
-if(!$isBilled)
-{
+if (!$isBilled) {
     require_once("code_check.php");
 ?>
 <script>

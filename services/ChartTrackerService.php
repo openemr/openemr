@@ -22,7 +22,8 @@
 
 namespace services;
 
-class ChartTrackerService {
+class ChartTrackerService
+{
 
     /**
      * Logger used primarily for logging events that are of interest to
@@ -60,5 +61,4 @@ class ChartTrackerService {
         $this->logger->debug('Attempting to track patient location');
         $this->repository->save($patientLocation);
     }
-
 }

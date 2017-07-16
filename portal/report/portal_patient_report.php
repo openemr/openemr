@@ -28,15 +28,15 @@ $landingpage = "../index.php?site=".$_SESSION['site_id'];
 //
 
 // kick out if patient not authenticated
-if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ) {
+if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $user = $_SESSION['sessionUser'];
-}
-else {
+} else {
     session_destroy();
     header('Location: '.$landingpage.'&w');
     exit;
 }
+
 $ignoreAuth = true;
 global $ignoreAuth;
 
@@ -61,6 +61,7 @@ if ($GLOBALS['gbl_portal_cms_enable']) {
     $ptdata = getPatientData($pid, 'cmsportal_login');
     $cmsportal = $ptdata['cmsportal_login'] !== '';
 }
+
 $ignoreAuth = 1;
 ?>
 
@@ -220,7 +221,7 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 <body class="body_top">
 <div id="patient_reports"> <!-- large outer DIV -->
 
-<?php if ( $GLOBALS['activate_ccr_ccd_report'] ) { // show CCR/CCD reporting options ?>
+<?php if ($GLOBALS['activate_ccr_ccd_report']) { // show CCR/CCD reporting options ?>
 <div id="ccr_report">
 
 <form name='ccr_form' id='ccr_form' method='post' action="../ccr/createCCR.php?portal_auth_two=1">
@@ -335,7 +336,9 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
    <input type='checkbox' name='include_history' id='include_history' value="history"><?php echo xlt('History'); ?><br>
    <input type='checkbox' name='include_insurance' id='include_insurance' value="insurance"><?php echo xlt('Insurance'); ?><br>
    <input type='checkbox' name='include_billing' id='include_billing' value="billing"
-    <?php if (!$GLOBALS['simplified_demographics']) echo 'checked'; ?>><?php echo xlt('Billing'); ?><br>
+    <?php if (!$GLOBALS['simplified_demographics']) {
+        echo 'checked';
+} ?>><?php echo xlt('Billing'); ?><br>
   </td>
   <td class='text'>
    <!--
@@ -395,6 +398,7 @@ while ($prow = sqlFetchArray($pres)) {
         echo "  <td colspan='4' class='bold'><b>$disptype</b></td>\n";
         echo " </tr>\n";
     }
+
     $rowid = $prow['id'];
     $disptitle = trim($prow['title']) ? $prow['title'] : "[Missing Title]";
 
@@ -408,14 +412,18 @@ while ($prow = sqlFetchArray($pres)) {
     while ($ierow = sqlFetchArray($ieres)) {
         echo $ierow['encounter'] . "/";
     }
+
     echo "' />$disptitle</td>\n";
     echo "     <td>" . $prow['begdate'];
 
-    if ($prow['enddate']) { echo " - " . $prow['enddate']; }
-    else { echo " Active"; }
+    if ($prow['enddate']) {
+        echo " - " . $prow['enddate'];
+    } else {
+        echo " Active";
+    }
 
-    echo "</td>\n";
-    echo "</tr>\n";
+        echo "</td>\n";
+        echo "</tr>\n";
 }
 ?>
    </table>
@@ -432,9 +440,9 @@ while ($prow = sqlFetchArray($pres)) {
 <span class='bold'><?php echo xlt('Encounters &amp; Forms'); ?>:</span>
 <br><br>
 
-<?php if (!($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)): ?>
+<?php if (!($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) : ?>
 (Encounters not authorized)
-<?php else: ?>
+<?php else : ?>
 
 <?php
 
@@ -450,22 +458,27 @@ $res = sqlStatement("SELECT forms.encounter, forms.form_id, forms.form_name, " .
 $res2 = sqlStatement("SELECT name FROM registry ORDER BY priority");
 $html_strings = array();
 $registry_form_name = array();
-while($result2 = sqlFetchArray($res2)) {
-    array_push($registry_form_name,trim($result2['name']));
+while ($result2 = sqlFetchArray($res2)) {
+    array_push($registry_form_name, trim($result2['name']));
 }
-while($result = sqlFetchArray($res)) {
+
+while ($result = sqlFetchArray($res)) {
     if ($result{"form_name"} == "New Patient Encounter") {
         if ($isfirst == 0) {
-            foreach($registry_form_name as $var) {
+            foreach ($registry_form_name as $var) {
                 if ($toprint = $html_strings[$var]) {
-                    foreach($toprint as $var) {print $var;}
+                    foreach ($toprint as $var) {
+                        print $var;
+                    }
                 }
             }
+
             $html_strings = array();
             echo "</div>\n"; // end DIV encounter_forms
             echo "</div>\n\n";  //end DIV encounter_data
             echo "<br>";
         }
+
         $isfirst = 0;
         echo "<div class='encounter_data'>\n";
         echo "<input type=checkbox ".
@@ -483,23 +496,36 @@ while($result = sqlFetchArray($res)) {
         }
 
         echo $result{"reason"}.
-                " (" . date("Y-m-d",strtotime($result{"date"})) .
+                " (" . date("Y-m-d", strtotime($result{"date"})) .
                 ")\n";
         echo "<div class='encounter_forms'>\n";
-    }
-    else {
+    } else {
         $form_name = trim($result{"form_name"});
         //if form name is not in registry, look for the closest match by
         // finding a registry name which is  at the start of the form name.
         //this is to allow for forms to put additional helpful information
         //in the database in the same string as their form name after the name
         $form_name_found_flag = 0;
-        foreach($registry_form_name as $var) {if ($var == $form_name) {$form_name_found_flag = 1;}}
+        foreach ($registry_form_name as $var) {
+            if ($var == $form_name) {
+                $form_name_found_flag = 1;
+            }
+        }
+
         // if the form does not match precisely with any names in the registry, now see if any front partial matches
         // and change $form_name appropriately so it will print above in $toprint = $html_strings[$var]
-        if (!$form_name_found_flag) { foreach($registry_form_name as $var) {if (strpos($form_name,$var) == 0) {$form_name = $var;}}}
+        if (!$form_name_found_flag) {
+            foreach ($registry_form_name as $var) {
+                if (strpos($form_name, $var) == 0) {
+                    $form_name = $var;
+                }
+            }
+        }
 
-        if (!is_array($html_strings[$form_name])) {$html_strings[$form_name] = array();}
+        if (!is_array($html_strings[$form_name])) {
+            $html_strings[$form_name] = array();
+        }
+
         array_push($html_strings[$form_name], "<input type='checkbox' ".
                                                 " name='" . $result{"formdir"} . "_" . $result{"form_id"} . "'".
                                                 " id='" . $result{"formdir"} . "_" . $result{"form_id"} . "'".
@@ -508,9 +534,12 @@ while($result = sqlFetchArray($res)) {
                                                 ">" . xl_form_title($result{"form_name"}) . "<br>\n");
     }
 }
-foreach($registry_form_name as $var) {
+
+foreach ($registry_form_name as $var) {
     if ($toprint = $html_strings[$var]) {
-        foreach($toprint as $var) {print $var;}
+        foreach ($toprint as $var) {
+            print $var;
+        }
     }
 }
 ?>
@@ -532,15 +561,17 @@ foreach($registry_form_name as $var) {
   <td class='text'><?php echo xlt('Order Descriptions'); ?></td>
  </tr>
 <?php
-$res = sqlStatement("SELECT po.procedure_order_id, po.date_ordered, fe.date " .
-  "FROM procedure_order AS po " .
-  "LEFT JOIN forms AS f ON f.pid = po.patient_id AND f.formdir = 'procedure_order' AND " .
-  "f.form_id = po.procedure_order_id AND f.deleted = 0 " .
-  "LEFT JOIN form_encounter AS fe ON fe.pid = f.pid AND fe.encounter = f.encounter " .
-  "WHERE po.patient_id = ? " .
-  "ORDER BY po.date_ordered DESC, po.procedure_order_id DESC",
-  array($pid));
-while($row = sqlFetchArray($res)) {
+$res = sqlStatement(
+    "SELECT po.procedure_order_id, po.date_ordered, fe.date " .
+    "FROM procedure_order AS po " .
+    "LEFT JOIN forms AS f ON f.pid = po.patient_id AND f.formdir = 'procedure_order' AND " .
+    "f.form_id = po.procedure_order_id AND f.deleted = 0 " .
+    "LEFT JOIN form_encounter AS fe ON fe.pid = f.pid AND fe.encounter = f.encounter " .
+    "WHERE po.patient_id = ? " .
+    "ORDER BY po.date_ordered DESC, po.procedure_order_id DESC",
+    array($pid)
+);
+while ($row = sqlFetchArray($res)) {
     $poid = $row['procedure_order_id'];
     echo " <tr>\n";
     echo "  <td align='center' class='text'>" .
@@ -548,14 +579,20 @@ while($row = sqlFetchArray($res)) {
     echo "  <td class='text'>" . oeFormatShortDate($row['date_ordered']) . "&nbsp;&nbsp;</td>\n";
     echo "  <td class='text'>" . oeFormatShortDate($row['date']) . "&nbsp;&nbsp;</td>\n";
     echo "  <td class='text'>";
-    $opres = sqlStatement("SELECT procedure_code, procedure_name FROM procedure_order_code " .
-    "WHERE procedure_order_id = ? ORDER BY procedure_order_seq",
-    array($poid));
-    while($oprow = sqlFetchArray($opres)) {
+    $opres = sqlStatement(
+        "SELECT procedure_code, procedure_name FROM procedure_order_code " .
+        "WHERE procedure_order_id = ? ORDER BY procedure_order_seq",
+        array($poid)
+    );
+    while ($oprow = sqlFetchArray($opres)) {
         $tmp = $oprow['procedure_name'];
-        if (empty($tmp)) $tmp = $oprow['procedure_code'];
+        if (empty($tmp)) {
+            $tmp = $oprow['procedure_code'];
+        }
+
         echo text($tmp) . "<br />";
     }
+
     echo "</td>\n";
     echo " </tr>\n";
 }
@@ -573,7 +610,10 @@ $sql = "SELECT d.id, d.url, c.name FROM documents AS d " .
         "LEFT JOIN categories AS c ON c.id = ctd.category_id WHERE " .
         "d.foreign_id = " . $db->qstr($pid);
 $result = $db->Execute($sql);
-if ($db->ErrorMsg()) echo $db->ErrorMsg();
+if ($db->ErrorMsg()) {
+    echo $db->ErrorMsg();
+}
+
 while ($result && !$result->EOF) {
     echo "<li class='bold'>";
     echo '<input type="checkbox" name="documents[]" value="' .
@@ -655,7 +695,7 @@ initReport = function(){
         function() {
                 if(document.getElementById('show_date').checked == true){
                     if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
-                       alert('<?php echo addslashes( xl('Please select a start date and end date')) ?>');
+                       alert('<?php echo addslashes(xl('Please select a start date and end date')) ?>');
                             return false;
                     }
                 }
@@ -694,7 +734,7 @@ initReport = function(){
         function() {
                 if(document.getElementById('show_date').checked == true){
                         if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
-                                alert('<?php echo addslashes( xl('Please select a start date and end date')) ?>');
+                                alert('<?php echo addslashes(xl('Please select a start date and end date')) ?>');
                                 return false;
                         }
                 }
@@ -773,6 +813,7 @@ initReport = function(){
                 }
         });
 <?php }
+
 if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { ?>
         $(".viewCCD_send_dialog").click(
         function() {

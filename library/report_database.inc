@@ -46,7 +46,7 @@
  * @param   timestamp  $end    End of date range
  * @return  sql-query          Listing of report results
  */
-function listingReportDatabase($start_date='',$end_date='')
+function listingReportDatabase($start_date = '', $end_date = '')
 {
 
   // set $end_date to today's date if empty
@@ -68,8 +68,7 @@ function listingReportDatabase($start_date='',$end_date='')
                          ) AS pt
                          WHERE pt.date_report < ?
                          ORDER BY pt.report_id", array($end_date));
-    }
-    else {
+    } else {
         $res = sqlStatement("SELECT *, TIMESTAMPDIFF(MINUTE,pt.date_report,pt.date_report_complete) as `report_time_processing`
                          FROM (
                            SELECT `report_id`,
@@ -101,8 +100,7 @@ function bookmarkReportDatabase()
     $query = sqlQuery("SELECT max(`report_id`) as max_report_id FROM `report_results`");
     if (empty($query)) {
         $new_report_id = 1;
-    }
-    else {
+    } else {
         $new_report_id = $query['max_report_id'] + 1;
     }
 
@@ -120,7 +118,7 @@ function bookmarkReportDatabase()
  * @param   integer  $report_id  Report id (if have already bookmarked a report id)
  * @return  integer              Report id that is assigned to the report
  */
-function beginReportDatabase($type,$fields,$report_id=null)
+function beginReportDatabase($type, $fields, $report_id = null)
 {
 
   // Retrieve a new report id, if needed.
@@ -128,12 +126,10 @@ function beginReportDatabase($type,$fields,$report_id=null)
         $query = sqlQuery("SELECT max(`report_id`) as max_report_id FROM `report_results`");
         if (empty($query)) {
             $new_report_id = 1;
-        }
-        else {
+        } else {
             $new_report_id = $query['max_report_id'] + 1;
         }
-    }
-    else {
+    } else {
         $new_report_id = $report_id;
     }
 
@@ -146,8 +142,7 @@ function beginReportDatabase($type,$fields,$report_id=null)
 
   // Set the fields tokens
     if (!empty($fields)) {
-        foreach ($fields as $key=>$value) {
-
+        foreach ($fields as $key => $value) {
             // skip the special tokens
             if (($key == "type") ||
              ($key == "data") ||
@@ -156,7 +151,9 @@ function beginReportDatabase($type,$fields,$report_id=null)
              ($key == "total_items") ||
              ($key == "date_report") ||
              ($key == "date_report_complete") ||
-             ($key == "bookmark") ) continue;
+             ($key == "bookmark") ) {
+                continue;
+            }
 
             // place the token
             sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", array ($new_report_id,$key,$value));
@@ -174,7 +171,7 @@ function beginReportDatabase($type,$fields,$report_id=null)
  * @param   integer  $report_id    Report id
  * @param   integer  $total_items  Total number of items that will be processed
  */
-function setTotalItemsReportDatabase($report_id,$total_items)
+function setTotalItemsReportDatabase($report_id, $total_items)
 {
   // Insert the total items that are to be processed
     sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", array ($report_id,"total_items",$total_items));
@@ -187,10 +184,10 @@ function setTotalItemsReportDatabase($report_id,$total_items)
  * @param   integer  $report_id           Report id
  * @param   integer  $items_processed  Number of items that have been processed
  */
-function updateReportDatabase($report_id,$items_processed)
+function updateReportDatabase($report_id, $items_processed)
 {
   // Update the items that have been processed
-    sqlStatement("UPDATE `report_results` SET `field_value`=? WHERE `report_id`=? AND `field_id`='progress_items'", array($items_processed,$report_id) );
+    sqlStatement("UPDATE `report_results` SET `field_value`=? WHERE `report_id`=? AND `field_id`='progress_items'", array($items_processed,$report_id));
 }
 
 /**
@@ -201,17 +198,17 @@ function updateReportDatabase($report_id,$items_processed)
  * @param   integer  $report_id  Report id
  * @param   string   $data       Report results/data
  */
-function finishReportDatabase($report_id,$data)
+function finishReportDatabase($report_id, $data)
 {
 
   // Record the data
-    sqlStatement("UPDATE `report_results` SET `field_value`=? WHERE `report_id`=? AND `field_id`='data'", array($data,$report_id) );
+    sqlStatement("UPDATE `report_results` SET `field_value`=? WHERE `report_id`=? AND `field_id`='data'", array($data,$report_id));
 
   // Record the finish date/time
     sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", array ($report_id,"date_report_complete",date("Y-m-d H:i:s")));
 
   // Set progress to complete
-    sqlStatement("UPDATE `report_results` SET `field_value`='complete' WHERE `report_id`=? AND `field_id`='progress'", array($report_id) );
+    sqlStatement("UPDATE `report_results` SET `field_value`='complete' WHERE `report_id`=? AND `field_id`='progress'", array($report_id));
 }
 
 /**
@@ -229,7 +226,7 @@ function collectReportDatabase($report_id)
   // Convert data into an array
     $final_array = array();
     while ($row = sqlFetchArray($res)) {
-        $final_array = array_merge($final_array,array($row['field_id']=>$row['field_value']));
+        $final_array = array_merge($final_array, array($row['field_id']=>$row['field_value']));
     }
 
     return $final_array;
@@ -255,14 +252,13 @@ function getStatusReportDatabase($report_id)
   // Place into an array for quick processing
     $final_array = array();
     while ($row = sqlFetchArray($res)) {
-        $final_array = array_merge($final_array,array($row['field_id']=>$row['field_value']));
+        $final_array = array_merge($final_array, array($row['field_id']=>$row['field_value']));
     }
 
     if ($final_array['progress'] == "complete") {
         // return COMPLETE
         return "COMPLETE";
-    }
-    else {
+    } else {
         $final_array['progress_items'] = ($final_array['progress_items']) ? $final_array['progress_items'] : 0;
         return $final_array['progress_items'] . " / " . $final_array['total_items'] . " " . xl("Patients");
     }
@@ -277,7 +273,7 @@ function getStatusReportDatabase($report_id)
  * @param   integer  $patient_id        Patient pid
  * @param   integer  $$numerator_label  Numerator label (if applicable)
  */
-function insertItemReportTracker($report_id, $itemized_test_id, $pass, $patient_id, $numerator_label='')
+function insertItemReportTracker($report_id, $itemized_test_id, $pass, $patient_id, $numerator_label = '')
 {
     $sqlParameters = array($report_id,$itemized_test_id,$numerator_label,$pass,$patient_id);
     sqlStatementCdrEngine("INSERT INTO `report_itemized` (`report_id`,`itemized_test_id`,`numerator_label`,`pass`,`pid`) VALUES (?,?,?,?,?)", $sqlParameters);
@@ -291,19 +287,20 @@ function insertItemReportTracker($report_id, $itemized_test_id, $pass, $patient_
  * @param   integer  $numerator_label   Numerator label (if applicable)
  * @return  string/boolean              Rule title for itemization display (false if nothing found)
  */
-function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label='')
+function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label = '')
 {
     $dispTitle = "";
     $report_view = collectReportDatabase($report_id);
     $type_report = $report_view['type'];
-    $dataSheet = json_decode($report_view['data'],true);
+    $dataSheet = json_decode($report_view['data'], true);
     foreach ($dataSheet as $row) {
         if (isset($row['is_main']) || isset($row['is_sub'])) {
             if (isset($row['is_main'])) {
                 // Store this
-                $dispTitle = generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'),$row['id']);
+                $dispTitle = generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $row['id']);
             }
-            if ( ($row['itemized_test_id'] == $itemized_test_id) && ($row['numerator_label'] == $numerator_label) ) {
+
+            if (($row['itemized_test_id'] == $itemized_test_id) && ($row['numerator_label'] == $numerator_label)) {
                 // We have a hit, build on the $dispTitle created above
                 if (isset($row['is_main'])) {
                     $tempCqmAmcString = "";
@@ -311,28 +308,34 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
                         if (!empty($row['cqm_pqri_code'])) {
                             $tempCqmAmcString .= " " . xlt('PQRI') . ":" . text($row['cqm_pqri_code']) . " ";
                         }
+
                         if (!empty($row['cqm_nqf_code'])) {
                             $tempCqmAmcString .= " " . xlt('NQF') . ":" . text($row['cqm_nqf_code']) . " ";
                         }
                     }
+
                     if ($type_report == "amc") {
                         if (!empty($row['amc_code'])) {
                             $tempCqmAmcString .= " " . xlt('AMC-2011') . ":" . text($row['amc_code']) . " ";
                         }
+
                         if (!empty($row['amc_code_2014'])) {
                             $tempCqmAmcString .= " " . xlt('AMC-2014') . ":" . text($row['amc_code_2014']) . " ";
                         }
                     }
+
                     if ($type_report == "amc_2011") {
                         if (!empty($row['amc_code'])) {
                             $tempCqmAmcString .= " " . xlt('AMC-2011') . ":" . text($row['amc_code']) . " ";
                         }
                     }
+
                     if ($type_report == "amc_2014_stage1") {
                         if (!empty($row['amc_code_2014'])) {
                             $tempCqmAmcString .= " " . xlt('AMC-2014 Stage I'). ":" . text($row['amc_code_2014']) . " ";
                         }
                     }
+
                     if ($type_report == "amc_2014_stage2") {
                         if (!empty($row['amc_code_2014'])) {
                             $tempCqmAmcString .= " " . xlt('AMC-2014 Stage II'). ":" . text($row['amc_code_2014']) . " ";
@@ -342,18 +345,20 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
                     if (!empty($tempCqmAmcString)) {
                         $dispTitle .=  "(".$tempCqmAmcString.")";
                     }
-                    if ( !(empty($row['concatenated_label'])) ) {
+
+                    if (!(empty($row['concatenated_label']))) {
                         $dispTitle .= ", " . xlt($row['concatenated_label']) . " ";
                     }
+                } else { // isset($row['is_sub']
+                    $dispTitle .= " - " .  generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $row['action_category']);
+                    $dispTitle .= ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $row['action_item']);
                 }
-                else { // isset($row['is_sub']
-                    $dispTitle .= " - " .  generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$row['action_category']);
-                    $dispTitle .= ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$row['action_item']);
-                }
+
                 return $dispTitle;
             }
         }
     }
+
     return false;
 }
 
@@ -368,76 +373,76 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
  * @param   integer  $fstart            Sql query pagination info
  * @return  array/integer               Array list or a count
  */
-function collectItemizedPatientsCdrReport($report_id,$itemized_test_id,$pass='all',$numerator_label='',$count=false,$sqllimit='all',$fstart=0)
+function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass = 'all', $numerator_label = '', $count = false, $sqllimit = 'all', $fstart = 0)
 {
 
     if ($count) {
         $given = " COUNT(DISTINCT `patient_data`.`pid`) AS total_listings ";
-    }
-    else {
+    } else {
         $given = " DISTINCT `patient_data`.*, DATE_FORMAT(`patient_data`.`DOB`,'%m/%d/%Y') as DOB_TS ";
     }
+
     $orderby = " `patient_data`.`lname` ASC, `patient_data`.`fname` ASC ";
 
   // set $pass_sql
     switch ($pass) {
         case "fail":
             $pass_sql=0;
-          break;
+            break;
         case "pass":
             $pass_sql=1;
-          break;
+            break;
         case "exclude":
             $pass_sql=2;
-          break;
+            break;
         case "init_patients":
             $pass_sql=3;
-          break;
+            break;
         case "exception":
             $pass_sql=4;
-          break;
+            break;
     }
 
     $sqlParameters = array($report_id,$itemized_test_id,$numerator_label);
 
     if ($pass == "all") {
         $sql_where = " WHERE `report_itemized`.`pass` != 3 AND `report_itemized`.`report_id` = ? AND `report_itemized`.`itemized_test_id` = ? AND `report_itemized`.`numerator_label` = ? ";
-    }
-    else if ($pass == "fail") {
+    } else if ($pass == "fail") {
         $exlPidArr = array();
-        $exludeResult = collectItemizedPatientsCdrReport($report_id,$itemized_test_id,'exclude',$numerator_label,false,$sqllimit,$fstart);
-        foreach($exludeResult as $exlResArr){
+        $exludeResult = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, 'exclude', $numerator_label, false, $sqllimit, $fstart);
+        foreach ($exludeResult as $exlResArr) {
             $exlPidArr[] = $exlResArr['pid'];
         }
 
         $sql_where = " WHERE `report_itemized`.`report_id` = ? AND `report_itemized`.`itemized_test_id` = ? AND `report_itemized`.`numerator_label` = ? AND `report_itemized`.`pass` = ? ";
 
-        if(count($exlPidArr) > 0){
+        if (count($exlPidArr) > 0) {
             $exlPids = implode(",", $exlPidArr);
             $sql_where .= " AND patient_data.pid NOT IN(" . add_escape_custom($exlPids) . ") ";
         }
-        array_push($sqlParameters,$pass_sql);
-    }
-    else {
+
+        array_push($sqlParameters, $pass_sql);
+    } else {
         $sql_where = " WHERE `report_itemized`.`report_id` = ? AND `report_itemized`.`itemized_test_id` = ? AND `report_itemized`.`numerator_label` = ? AND `report_itemized`.`pass` = ? ";
-        array_push($sqlParameters,$pass_sql);
+        array_push($sqlParameters, $pass_sql);
     }
 
     $sql_query = "SELECT " . $given . " FROM `patient_data` JOIN `report_itemized` ON `patient_data`.`pid` = `report_itemized`.`pid` " . $sql_where. " ORDER BY " . $orderby;
 
-    if ($sqllimit != "all") $sql_query .= " limit " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
+    if ($sqllimit != "all") {
+        $sql_query .= " limit " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
+    }
 
     if ($count) {
-        $rez = sqlQueryCdrEngine($sql_query,$sqlParameters);
+        $rez = sqlQueryCdrEngine($sql_query, $sqlParameters);
         return $rez['total_listings'];
-    }
-    else {
-        $rez = sqlStatementCdrEngine($sql_query,$sqlParameters);
+    } else {
+        $rez = sqlStatementCdrEngine($sql_query, $sqlParameters);
         // create array of listing for return
-        for($iter=0; $row=sqlFetchArray($rez); $iter++) {
+        for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
             $returnval[$iter]=$row;
         }
+
         return $returnval;
     }
 }
-?>

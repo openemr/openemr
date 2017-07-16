@@ -15,8 +15,11 @@
 //
 include_once("../../interface/globals.php");
 
-$q = formData("q","G",true);
-if (!$q) return;
+$q = formData("q", "G", true);
+if (!$q) {
+    return;
+}
+
 $limit = $_GET['limit'];
 
 $sql = "select drug_id, name from drugs where ".
@@ -28,5 +31,3 @@ $rez = sqlStatement($sql);
 while ($row = sqlFetchArray($rez)) {
     echo $row['name']."|".$row['drug_id']."\n";
 }
-
-?>

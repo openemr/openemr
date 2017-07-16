@@ -61,4 +61,3 @@ $pelines = array(
         'TRTXRAY' => xl('X-ray'),
         'TRTRET'  => xl('Return Visit'))
 );
-?>

@@ -51,15 +51,16 @@ class ProviderController extends AppBaseController
     public function Home()
     {
         $cpid=$cuser=0;
-        if (isset($_SESSION['authUser']) )
+        if (isset($_SESSION['authUser'])) {
             $cuser = $_SESSION['authUser'];
-        else{
-            header( "refresh:5;url= ./provider" );
+        } else {
+            header("refresh:5;url= ./provider");
             echo 'Shared session not allowed with Portal!!!  <br>Onsite portal is using this session<br>Waiting until Onsite Portal is logged out........';
             exit;
         }
-        $this->Assign ( 'cpid', $GLOBALS['pid'] );
-        $this->Assign ( 'cuser', $cuser );
+
+        $this->Assign('cpid', $GLOBALS['pid']);
+        $this->Assign('cuser', $cuser);
 
         $this->Render();
     }
@@ -84,6 +85,4 @@ class ProviderController extends AppBaseController
     {
         $this->RenderErrorJSON('An unknown API endpoint was requested.');
     }
-
 }
-?>

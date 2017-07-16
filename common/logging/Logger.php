@@ -37,7 +37,8 @@
 
 namespace common\logging;
 
-class Logger {
+class Logger
+{
     /**
      * The class that is associated with a log entry.
      */
@@ -54,7 +55,7 @@ class Logger {
      *
      * @param $classContext - provided when a class uses the logger.
      */
-    public function __construct($classContext="UnknownClassContext")
+    public function __construct($classContext = "UnknownClassContext")
     {
         if (isset($GLOBALS["log_level"]) && $GLOBALS["log_level"] !== "OFF") {
             $this->classContext = $classContext;
@@ -189,7 +190,7 @@ class Logger {
         if ($this->isLogLevelInDesiredHierarchy($type) && !empty($this->logFile)) {
             $logEntry = date("Y-m-d H:i:s") . " [" . $type . "] " . $this->classContext . " - " . $message;
 
-            file_put_contents($this->logFile, $logEntry.PHP_EOL , FILE_APPEND | LOCK_EX);
+            file_put_contents($this->logFile, $logEntry.PHP_EOL, FILE_APPEND | LOCK_EX);
 
             if ($type === "ERROR") {
                 error_log($message);

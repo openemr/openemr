@@ -11,11 +11,12 @@
  *
  * @author aron
  */
-class RuleCriteriaLifestyle extends RuleCriteria {
+class RuleCriteriaLifestyle extends RuleCriteria
+{
     var $type;
     var $matchValue;
 
-    function __construct( $type, $matchValue )
+    function __construct($type, $matchValue)
     {
         $this->type = $type;
         $this->matchValue = $matchValue;
@@ -23,19 +24,20 @@ class RuleCriteriaLifestyle extends RuleCriteria {
 
     function getRequirements()
     {
-        $requirements = xl( "Value" ) . ": ";
-        if ( is_null($this->matchValue ) ) {
-            $requirements .= xl( "Any" );
+        $requirements = xl("Value") . ": ";
+        if (is_null($this->matchValue)) {
+            $requirements .= xl("Any");
         } else {
             $requirements .= "'" . $this->matchValue . "'";
         }
+
         return $requirements;
     }
 
     function getTitle()
     {
-        $label = xl_layout_label( $this->getLayoutLabel( $this->type, "HIS") );
-        return xl( "Lifestyle" ) . " - " . $label;
+        $label = xl_layout_label($this->getLayoutLabel($this->type, "HIS"));
+        return xl("Lifestyle") . " - " . $label;
     }
 
     function getView()
@@ -48,15 +50,16 @@ class RuleCriteriaLifestyle extends RuleCriteria {
 
         $stmt = sqlStatement(
             "SELECT field_id, title FROM layout_options "
-           ."WHERE form_id = 'HIS' AND group_name LIKE '%Lifestyle%'" );
+            ."WHERE form_id = 'HIS' AND group_name LIKE '%Lifestyle%'"
+        );
 
         $options = array();
 
-        for( $iter=0; $row=sqlFetchArray($stmt); $iter++ ) {
+        for ($iter=0; $row=sqlFetchArray($stmt); $iter++) {
             $id = $row['field_id'];
-            $label = xl_layout_label( $row['title'] );
+            $label = xl_layout_label($row['title']);
             $option = array( "id"=>$id, "label"=>$label );
-            array_push( $options, $option );
+            array_push($options, $option);
         }
 
         return $options;
@@ -82,13 +85,10 @@ class RuleCriteriaLifestyle extends RuleCriteria {
 
         $this->type = $lifestyle;
 
-        if ( $matchType == "any" ) {
+        if ($matchType == "any") {
             $this->matchValue = null;
         } else {
             $this->matchValue = $value;
         }
-
     }
-
 }
-?>
