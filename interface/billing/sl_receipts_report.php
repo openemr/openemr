@@ -26,6 +26,7 @@
 
 
 use OpenEMR\Core\Header;
+
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');

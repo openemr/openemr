@@ -31,6 +31,7 @@ use Zend\InputFilter\InputFilterAwareInterface;
 use Zend\InputFilter\InputFilterInterface;
 
 use \Application\Model\ApplicationTable;
+
 class ImmunizationTable extends AbstractTableGateway
 {
     public $tableGateway;

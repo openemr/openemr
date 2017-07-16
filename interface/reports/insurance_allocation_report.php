@@ -21,6 +21,7 @@
  */
 
 use OpenEMR\Core\Header;
+
  include_once("../globals.php");
  include_once("../../library/patient.inc");
  include_once("../../library/acl.inc");

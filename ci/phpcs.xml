@@ -122,7 +122,7 @@
       There MUST be one use keyword per declaration.
       There MUST be one blank line after the use block. -->
  <!-- checked in Namespaces/UseDeclarationSniff -->
- <!-- <rule ref="PSR2.Namespaces.UseDeclaration"/> --><!-- FIXABLE -->
+ <rule ref="PSR2.Namespaces.UseDeclaration"/>
 
  <!-- 4. Classes, Properties, and Methods -->
 

@@ -7,6 +7,7 @@
 // of the License, or (at your option) any later version.
 
 use OpenEMR\Core\Header;
+
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
 

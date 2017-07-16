@@ -254,7 +254,9 @@ abstract class Helper
 
 namespace SMA_Msg;
 
+// @codingStandardsIgnoreStart
 use SMA_Common;
+// @codingStandardsIgnoreEnd
 class Model extends SMA_Common\Model
 {
     public function getAuthUsers()

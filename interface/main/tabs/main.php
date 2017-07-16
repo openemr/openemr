@@ -1,6 +1,7 @@
 <?php
 use Esign\Api;
 use OpenEMR\Core\Header;
+
 /**
  * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>

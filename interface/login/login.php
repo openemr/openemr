@@ -28,6 +28,7 @@
 
 
 use OpenEMR\Core\Header;
+
 $ignoreAuth=true;
 require_once("../globals.php");
 

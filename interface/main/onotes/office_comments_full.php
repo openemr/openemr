@@ -21,6 +21,7 @@
 
 
 use OpenEMR\Core\Header;
+
 include_once("../../globals.php");
 
 $oNoteService = new \services\ONoteService();

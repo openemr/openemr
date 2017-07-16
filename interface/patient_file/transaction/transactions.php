@@ -2,6 +2,7 @@
 
 
 use OpenEMR\Core\Header;
+
 include_once("../../globals.php");
 include_once("$srcdir/transactions.inc");
 require_once("$srcdir/options.inc.php");

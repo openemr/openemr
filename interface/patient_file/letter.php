@@ -7,6 +7,7 @@
 // of the License, or (at your option) any later version.
 
 use OpenEMR\Core\Header;
+
 include_once("../globals.php");
 include_once($GLOBALS['srcdir'] . "/patient.inc");
 

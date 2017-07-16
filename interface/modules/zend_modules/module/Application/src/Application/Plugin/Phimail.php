@@ -23,6 +23,7 @@ namespace Application\Plugin;
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 use Application\Model\ApplicationTable;
 use Application\Listener\Listener;
+
 require_once($GLOBALS['srcdir'].'/direct_message_check.inc');
 
 class Phimail extends AbstractPlugin

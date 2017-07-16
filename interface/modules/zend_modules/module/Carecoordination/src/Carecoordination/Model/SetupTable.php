@@ -26,7 +26,6 @@ use Zend\Db\TableGateway\AbstractTableGateway;
 use Application\Model\ApplicationTable;
 use Zend\Db\Adapter\Driver\Pdo\Result;
 
-
 class SetupTable extends AbstractTableGateway
 {
     /*

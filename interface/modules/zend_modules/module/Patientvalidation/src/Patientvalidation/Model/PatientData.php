@@ -24,7 +24,6 @@ use Zend\InputFilter\InputFilter;
 use Zend\InputFilter\InputFilterAwareInterface;
 use Zend\InputFilter\InputFilterInterface;
 
-
 class PatientData implements InputFilterAwareInterface
 {
     /*

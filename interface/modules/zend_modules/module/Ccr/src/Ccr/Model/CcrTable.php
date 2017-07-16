@@ -30,6 +30,7 @@ use DOMXpath;
 
 use Document;
 use CouchDB;
+
 require_once(dirname(__FILE__) . "/../../../../../../../../library/patient.inc");
 
 class CcrTable extends AbstractTableGateway

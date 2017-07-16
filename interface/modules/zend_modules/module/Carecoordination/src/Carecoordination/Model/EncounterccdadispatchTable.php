@@ -26,6 +26,7 @@ namespace Carecoordination\Model;
 use Zend\Db\TableGateway\AbstractTableGateway;
 use Application\Model\ApplicationTable;
 use Zend\Db\Adapter\Driver\Pdo\Result;
+
 require_once(dirname(__FILE__) . "/../../../../../../../../custom/code_types.inc.php");
 require_once(dirname(__FILE__) . "/../../../../../../../forms/vitals/report.php");
 
