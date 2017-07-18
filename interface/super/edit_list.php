@@ -384,7 +384,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
     } else if ($list_id == 'apptstat' || $list_id == 'groupstat') {
         list($apptstat_color, $apptstat_timealert) = explode("|", $notes);
         echo "  <td>";
-        echo "<input type='text' class='color' name='opt[$opt_line_no][apptstat_color]' value='" .
+        echo "<input type='text' class='jscolor' name='opt[$opt_line_no][apptstat_color]' value='" .
             htmlspecialchars($apptstat_color, ENT_QUOTES) . "' size='6' maxlength='6' class='optin' />";
         echo "</td>\n";
         echo "  <td>";
@@ -615,7 +615,7 @@ function writeITLine($it_array)
 <html>
 
 <head>
-    <?php echo Header::setupHeader('select2'); ?>
+    <?php echo Header::setupHeader(['select2', 'jscolor']); ?>
     <title><?php xl('List Editor', 'e'); ?></title>
     <style>
         .optcell {
@@ -633,8 +633,6 @@ function writeITLine($it_array)
             color: green;
         }
     </style>
-    <script type="text/javascript"
-            src="<?php echo $GLOBALS['assets_static_relative']; ?>/jscolor-1-4-5/jscolor.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             $(".select-dropdown").select2({
@@ -837,10 +835,13 @@ function writeITLine($it_array)
             <ul class="nav navbar-nav">
                 <li><a href="#" data-toggle="modal"
                        data-target="#modal-new-list"><i class="fa fa-plus"></i>&nbsp;<?php xl('New List', 'e'); ?>
-                    </a></li>
-                <li><a href="#" class="deletelist" id="<?php echo $list_id; ?>"><i
-                                class="fa fa-trash"></i>&nbsp;<?php xl('Delete List', 'e'); ?>
-                    </a></li>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="deletelist" id="<?php echo $list_id; ?>">
+                        <i class="fa fa-trash"></i>&nbsp;<?php xl('Delete List', 'e'); ?>
+                    </a>
+                </li>
             </ul>
             <form method='post' name='theform' id='theform'
                   action='edit_list.php' class="navbar-form navbar-left">
@@ -888,7 +889,7 @@ function writeITLine($it_array)
                         ?>
                     </select>
                 </div>
-            </form>
+
         </div><!-- /.navbar-collapse -->
     </div>
 </nav>
@@ -1109,7 +1110,7 @@ function writeITLine($it_array)
             <form action="edit_list.php" method="post" class="form">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal"
-                            aria-label="Close"><i class="fa fa-times"
+                            aria-label="<?php echo xl('Close');?>"><i class="fa fa-times"
                                                   aria-hidden="true"></i>
                     </button>
                     <h4 class="modal-title"><?php xl('New List', 'e'); ?></h4>
