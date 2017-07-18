@@ -25,6 +25,7 @@
  */
 
 use OpenEMR\Core\Header;
+
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/log.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
@@ -376,7 +377,7 @@ if ($_POST['form_submit']) {
 }
 ?>
 
-<form method='post' name="deletefrm" action='deleter.php?patient=<?php echo attr($patient) ?>&encounterid=<?php echo attr($encounterid) ?>&formid=<?php echo attr($formid) ?>&issue=<?php echo attr($issue) ?>&document=<?php echo attr($document) ?>&payment=<?php echo attr($payment) ?>&billing=<?php echo attr($billing) ?>&transaction=<?php echo attr($transaction) ?>' onsubmit="javascript:alert('1');document.deleform.submit();">
+<form method='post' name="deletefrm" action='deleter.php?patient=<?php echo attr($patient) ?>&encounterid=<?php echo attr($encounterid) ?>&formid=<?php echo attr($formid) ?>&issue=<?php echo attr($issue) ?>&document=<?php echo attr($document) ?>&payment=<?php echo attr($payment) ?>&billing=<?php echo attr($billing) ?>&transaction=<?php echo attr($transaction) ?>' onsubmit="alert('1');document.deleform.submit();">
 
 <p class="lead">&nbsp;<br><?php echo xlt('Do you really want to delete'); ?>
 
@@ -401,7 +402,7 @@ if ($patient) {
 ?> <?php echo xlt('and all subordinate data? This action will be logged'); ?>!</p>
 <div class="btn-group">
     <a href="#" onclick="submit_form()" class="btn btn-lg btn-save btn-default"><?php echo xlt('Yes, Delete and Log'); ?></a>
-    <a href='#' class="btn btn-lg btn-link btn-cancel" onclick="popup_close();"><?php echo xlt('No, Cancel');?></a>
+    <a href='#' class="btn btn-lg btn-link btn-cancel" data-dismiss="modal" onclick="popup_close();"><?php echo xlt('No, Cancel');?></a>
 </div>
 <input type='hidden' name='form_submit' value='<?php echo xla('Yes, Delete and Log'); ?>'/>
 </form>
