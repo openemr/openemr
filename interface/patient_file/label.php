@@ -25,8 +25,6 @@
 // I used the program example supplied with the Avery Label Print Class to produce this program
 
 
-
-
 require_once("../globals.php");
 
 //Get the data to place on labels
