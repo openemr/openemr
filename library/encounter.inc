@@ -32,5 +32,15 @@ function setencounter($enc)
     return $return_val;
 }
 
+
+//fetches encounter pc_catid by encounter number
+function fetchCategoryIdByEncounter($encounter)
+{
+    global $attendant_type;
+    $table = $attendant_type == 'pid' ? 'form_encounter' : 'form_groups_encounter';
+    $sql = "select pc_catid from $table where encounter=? limit 1";
+    $result = sqlQuery($sql, array($encounter));
+    return $result['pc_catid'];
+}
 ?>
 
