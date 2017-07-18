@@ -25,7 +25,7 @@
             <i class="fa fa-caret-up menu_arrow" id="patient_caret" title="<?php echo xla('Toggle the Patient Panel'); ?>" aria-hidden="true"></i>
         </div>
         <!-- ko  foreach: tabsList -->
-            <div class="tabSpan bgcolor2" data-bind="click: tabClicked, css: {tabNotchosen: !visible()}">
+            <div class="tabSpan bgcolor2 tabSpan_tabs" data-bind="click: tabClicked, css: {tabNotchosen: !visible()}">
                 <span class="tabTitle" data-bind="text: title, click: tabClicked, css: {tabHidden: !visible()}"></span>
                 <span class="fa fa-fw fa-refresh" data-bind="click: tabRefresh"></span>
                 <!--ko if:!locked() -->

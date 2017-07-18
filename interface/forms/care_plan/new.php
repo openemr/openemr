@@ -1,4 +1,4 @@
-<?php
+ <?php
 // +-----------------------------------------------------------------------------+
 // Copyright (C) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 // Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
@@ -26,7 +26,7 @@
 //           Brady Miller <brady.g.miller@gmail.com>
 //
 // +------------------------------------------------------------------------------+
-
+use OpenEMR\Core\Header;
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 require_once("$srcdir/patient.inc");
@@ -50,22 +50,37 @@ $check_res = $formid ? $check_res : array();
 $sql1 = "SELECT option_id AS `value`, title FROM `list_options` WHERE list_id = ?";
 $result = sqlStatement($sql1, array('Plan_of_Care_Type'));
 foreach($result as $value):
-    $care_plan_type[] = $value;
+  $care_plan_type[] = $value;
 endforeach;
 ?>
 <html>
     <head>
-        <?php html_header_show(); ?>
-
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
-
-        <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
-
-    </head>
+       <?php Header::setupHeader(['bootstrap', 'datetime-picker']);?>
+		<style type="text/css" title="mystyles" media="all">
+			.form-group{
+				margin-bottom: 5px;
+			}
+			legend{
+				border-bottom: 2px solid  #E5E5E5;
+				background:#E5E5E5;
+				padding-left:10px;
+			}
+			.form-horizontal .control-label {
+				padding-top: 2px;
+			}
+			fieldset{
+				border-color: #68171A !important;
+				background-color: #f2f2f2;
+				margin-bottom:10px;
+				padding-bottom:15px;
+			}
+			@media only screen and (max-width: 768px) {
+				[class*="col-"] {
+				width: 100%;
+				text-align:left!Important;
+			}
+		</style>
+	</head>
 
     <body class="body_top">
         <script type="text/javascript">
@@ -111,9 +126,11 @@ endforeach;
             function deleteRow(rowId)
             {
                 if (rowId != 'tb_row_1') {
-                    var table = document.getElementById("care_plan");
+                    /*var table = document.getElementById("care_plan");
                     var rowIndex = document.getElementById(rowId).rowIndex;
-                    table.deleteRow(rowIndex);
+                    table.deleteRow(rowIndex);*/
+					var elem = document.getElementById(rowId);
+					elem.parentNode.removeChild(elem);
                 }
             }
 
@@ -146,99 +163,111 @@ endforeach;
             });
 
         </script>
-        <p><span class="forms-title"><?php echo xlt('Care Plan Form'); ?></span></p>
-        </br>
-        <?php echo "<form method='post' name='my_form' " . "action='$rootdir/forms/care_plan/save.php?id=" . attr($formid) . "'>\n"; ?>
-        <table id="care_plan" border="0">
-
-            <?php
-            if (!empty($check_res)) {
-                foreach ($check_res as $key => $obj) {
-                    ?>
-                    <tr class="tb_row" id="tb_row_<?php echo attr($key) + 1; ?>">
-                        <td align="left" class="forms"><?php echo xlt('Code'); ?>:</td>
-                        <td class="forms">
-                            <input type="text" id="code_<?php echo attr($key) + 1; ?>" style="width:210px" name="code[]" class="code" value="<?php echo text($obj{"code"}); ?>"  onclick='sel_code(this.parentElement.parentElement.id);'><br>
-                            <span id="displaytext_<?php echo attr($key) + 1; ?>" style="width:210px !important;display: block;font-size:13px;color: blue;" class="displaytext"><?php echo text($obj{"codetext"}); ?></span>
-                            <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo text($obj{"codetext"}); ?>">
-                        </td>
-                        <td align="left" class="forms"><?php echo xlt('Description'); ?>:</td>
-                        <td class="forms">
-                            <textarea rows="4" id="description_<?php echo attr($key) + 1; ?>" cols="30" name="description[]" class="description"><?php echo text($obj{"description"}); ?></textarea>
-                        </td>
-                        <td align="left" class="forms"><?php echo xlt('Date'); ?>:</td>
-                        <td class="forms">
-                            <input type='text' id="code_date_<?php echo attr($key) + 1; ?>" size='10' name='code_date[]' class="code_date datepicker" <?php echo attr($disabled) ?> value='<?php echo attr($obj{"date"}); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
-                        </td>
-                        <td align="left" class="forms"><?php echo xlt('Type'); ?>:</td>
-                        <td>
-                          <select name="care_plan_type[]" id="care_plan_type_<?php echo attr($key) + 1; ?>" class="care_plan_type">
-                            <option value=""></option>
-                            <?php foreach($care_plan_type as $value):
-                                $selected = ($value['value'] == $obj{"care_plan_type"}) ? 'selected="selected"' : '';
-                            ?>
-                            <option value="<?php echo attr($value['value']);?>" <?php echo $selected;?>><?php echo text($value['title']);?></option>
-                            <?php endforeach;?>
-                          </select>
-                        </td>
-                        <td>
-                            <img src='../../pic/add.png' onclick="duplicateRow(this.parentElement.parentElement);" align='absbottom' width='27' height='24' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to duplicate the row'); ?>'>
-                            <img src='../../pic/remove.png' onclick="deleteRow(this.parentElement.parentElement.id);" align='absbottom' width='24' height='22' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to delete the row'); ?>'>
-                        </td>
-                    <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1;?>">
-                </tr>
-                <?php
-                }
-            } else {
-                ?>
-                <tr class="tb_row" id="tb_row_1">
-                <td align="left" class="forms"><?php echo xlt('Code'); ?>:</td>
-                <td class="forms">
-                    <input type="text" id="code_1" name="code[]" style="width:210px" class="code" value="<?php echo text($obj{"code"}); ?>" onclick='sel_code(this.parentElement.parentElement.id);'><br>
-                    <span id="displaytext_1" style="width:210px !important;display: block;font-size:13px;color: blue;" class="displaytext"></span>
-                    <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo text($obj{"codetext"}); ?>">
-                </td>
-                <td align="left" class="forms"><?php echo xlt('Description'); ?>:</td>
-                <td class="forms">
-                    <textarea rows="4" id="description_1" cols="30" name="description[]" class="description"><?php echo text($obj{"description"}); ?></textarea>
-                </td>
-                <td align="left" class="forms"><?php echo xlt('Date'); ?>:</td>
-                <td class="forms">
-                    <input type='text' id="code_date_1" size='10' name='code_date[]' class="code_date datepicker" <?php echo attr($disabled) ?> value='<?php echo attr($obj{"date"}); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
-                </td>
-                <td align="left" class="forms"><?php echo xlt('Type'); ?>:</td>
-                <td>
-                  <select name="care_plan_type[]" id="care_plan_type_1" class="care_plan_type">
-                    <option value=""></option>
-                    <?php foreach($care_plan_type as $value):
-                        $selected = ($value['value'] == $obj{"care_plan_type"}) ? 'selected="selected"' : '';
-                    ?>
-                    <option value="<?php echo attr($value['value']);?>" <?php echo $selected;?>><?php echo text($value['title']);?></option>
-                    <?php endforeach;?>
-                      </select>
-                    </td>
-                    <td>
-                    <img src='../../pic/add.png' onclick="duplicateRow(this.parentElement.parentElement);" align='absbottom' width='27' height='24' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to duplicate the row'); ?>'>
-                    <img src='../../pic/remove.png' onclick="deleteRow(this.parentElement.parentElement.id);" align='absbottom' width='24' height='22' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to delete the row'); ?>'>
-                    </td>
-                <input type="hidden" name="count[]" id="count_1" class="count" value="1">
-            </tr>
-            <?php }
-    ?>
-
-    <tr>
-        <td align="left" colspan="5" style="padding-bottom:7px;"></td>
-    </tr>
-    <tr>
-        <td colspan="2"></td>
-        <td colspan="3">
-            <input type="hidden" id="clickId" value="">
-            <input type='submit'  value='<?php echo xla('Save'); ?>' class="button-css">&nbsp;
-<!--            <input type='button'  value="Print" onclick="window.print()" class="button-css">-->
-        </td>
-    </tr>
-</table>
-</form>
+		<div class="container">
+        
+			<div class="row">
+				<div class="page-header">
+						<h2><?php echo xlt('Care Plan Form'); ?></h2>
+				</div>
+			</div>
+			<div class="row">
+			<?php echo "<form method='post' name='my_form' " . "action='$rootdir/forms/care_plan/save.php?id=" . attr($formid) . "'>\n"; ?>
+				<fieldset>
+					<legend><?php echo xlt('Enter Details'); ?></legend>
+					<?php
+						if (!empty($check_res)) {
+							foreach ($check_res as $key => $obj) {
+					?>
+					<div class = "tb_row" id="tb_row_<?php echo attr($key) + 1; ?>"> 
+						<div class="form-group">
+							<div class=" forms col-xs-3">
+								<label for="code_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Code'); ?>:</label>
+								<input type="text" id="code_<?php echo attr($key) + 1; ?>"  name="code[]" class="form-control code" value="<?php echo text($obj{"code"}); ?>"  onclick='sel_code(this.parentElement.parentElement.id);'>
+								<span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext help-block"></span>
+								<input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo text($obj{"codetext"}); ?>">
+							</div>
+							<div class="forms col-xs-4">
+								<label for="description_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Description'); ?>:</label>
+								<textarea name="description[]"	id="description_<?php echo attr($key) + 1; ?>" class="form-control description"  rows="3" ><?php echo text($obj{"description"}); ?></textarea>
+							</div>
+							<div class="forms col-xs-2">
+								<label for="code_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Date'); ?>:</label>
+								<input type='text' id="code_date_<?php echo attr($key) + 1; ?>" name='code_date[]' class="form-control code_date datepicker" <?php echo attr($disabled) ?> value='<?php echo attr($obj{"date"}); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
+							</div>
+							<div class="forms col-xs-2">
+								<label for="care_plan_type_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Type'); ?>:</label>
+								<select name="care_plan_type[]" id="care_plan_type_<?php echo attr($key) + 1; ?>" class="form-control care_plan_type">
+									<option value=""></option>
+									<?php foreach($care_plan_type as $value):
+									$selected = ($value['value'] == $obj{"care_plan_type"}) ? 'selected="selected"' : '';
+									?>
+									<option value="<?php echo attr($value['value']);?>" <?php echo $selected;?>><?php echo text($value['title']);?></option>
+									<?php endforeach;?>
+								</select>
+							</div>
+							<div class="forms col-xs-1" style="padding-top:35px">
+								<i class="fa fa-plus-circle fa-2x" aria-hidden="true" onclick="duplicateRow(this.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'></i>
+								<i class="fa fa-times-circle fa-2x text-danger"  aria-hidden="true" onclick="deleteRow(this.parentElement.parentElement.parentElement.id);"  title='<?php echo xla('Click here to delete the row'); ?>'></i>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+						
+					</div>
+					<?php
+						}
+					} else {
+					?>
+					<div class="tb_row" id="tb_row_1">
+						<div class="form-group">
+							<div class=" forms col-xs-3">
+								<label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
+								<input type="text" id="code_<?php echo attr($key) + 1; ?>"  name="code[]" class="form-control code" value="<?php echo text($obj{"code"}); ?>"  onclick='sel_code(this.parentElement.parentElement.id);'>
+								<span id="displaytext_1"  class="displaytext help-block"></span>
+								<input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo text($obj{"codetext"}); ?>">
+							</div>
+							<div class="forms col-xs-4">
+								<label for="description_1" class="h5"><?php echo xlt('Description'); ?>:</label>
+								<textarea name="description[]"	id="description_1" class="form-control description"  rows="3" ><?php echo text($obj{"description"}); ?></textarea>
+							</div>
+							<div class="forms col-xs-2">
+								<label for="code_date_1" class="h5"><?php echo xlt('Date'); ?>:</label>
+								<input type='text' id="code_date_1"  name='code_date[]' class="form-control code_date datepicker" <?php echo attr($disabled) ?> value='<?php echo attr($obj{"date"}); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
+							</div>
+							<div class="forms col-xs-2">
+								<label for="care_plan_type_1" class="h5"><?php echo xlt('Type'); ?>:</label>
+								<select name="care_plan_type[]" id="care_plan_type_1" class="form-control care_plan_type">
+									<option value=""></option>
+									<?php foreach($care_plan_type as $value):
+									  $selected = ($value['value'] == $obj{"care_plan_type"}) ? 'selected="selected"' : '';
+									?>
+									<option value="<?php echo attr($value['value']);?>" <?php echo $selected;?>><?php echo text($value['title']);?></option>
+									<?php endforeach;?>
+								</select>
+							</div>
+							<div class="forms col-xs-1 " style="padding-top:35px">
+								<i class="fa fa-plus-circle fa-2x" aria-hidden="true" onclick="duplicateRow(this.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'></i>
+								<i class="fa fa-times-circle fa-2x text-danger"  aria-hidden="true" onclick="deleteRow(this.parentElement.parentElement.parentElement.id);"  title='<?php echo xla('Click here to delete the row'); ?>'></i>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+					</div>
+						
+					<?php }
+					?>
+				
+				</fieldset>
+				<div class="form-group">
+					<div class="col-sm-12 text-center">
+						<div class="btn-group" role="group">
+							<a href="javascript:top.restoreSession();document.my_form.submit();" class="btn btn-default btn-save"><?php echo xlt('Save'); ?></a>
+							<a href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>' class="btn btn-default btn-cancel" onclick="top.restoreSession()"><?php echo xlt('Don\'t Save'); ?></a>
+							<input type="hidden" id="clickId" value="">
+						</div>
+					</div>
+				</div>
+			</form>
+	</div>
+</div>
 <?php
 formFooter();
 ?>
