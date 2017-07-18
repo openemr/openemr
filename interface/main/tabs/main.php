@@ -83,10 +83,10 @@ function goRepeaterServices(){
 
 function isEncounterLocked( encounterId ) {
     <?php if ( $esignApi->lockEncounters() ) { ?>
-    // If encounter locking is enabled, make a syncronous call (async=false) to check the
-    // DB to see if the encounter is locked.
-    // Call restore session, just in case
-    top.restoreSession();
+	// If encounter locking is enabled, make a syncronous call (async=false) to check the
+	// DB to see if the encounter is locked.
+	// Call restore session, just in case
+	top.restoreSession();
     $.ajax({
         type: 'POST',
         url: '<?php echo $GLOBALS['webroot']?>/interface/esign/index.php?module=encounter&method=esign_is_encounter_locked',
@@ -96,12 +96,12 @@ function isEncounterLocked( encounterId ) {
         },
         dataType: 'json',
         async:false
-    });
-    return encounter_locked;
-    <?php } else { ?>
-    // If encounter locking isn't enabled then always return false
-    return false;
-    <?php } ?>
+	});
+	return encounter_locked;
+	<?php } else { ?>
+	// If encounter locking isn't enabled then always return false
+	return false;
+	<?php } ?>
 }
 var webroot_url="<?php echo $web_root; ?>";
 </script>
@@ -178,26 +178,26 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write')
 <iframe name="timeout" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="timeout_iframe.php"></iframe>
 <?php // mdsupport - app settings
     $disp_mainBox = '';
-if (isset($_SESSION['app1'])) {
-    $rs = sqlquery("SELECT title app_url FROM list_options WHERE activity=1 AND list_id=? AND option_id=?",
-        array('apps', $_SESSION['app1']));
-    if ($rs['app_url'] != "main/main_screen.php") {
-        echo '<iframe name="app1" src="../../'.attr($rs['app_url']).'"
+    if (isset($_SESSION['app1'])) {
+    	$rs = sqlquery("SELECT title app_url FROM list_options WHERE activity=1 AND list_id=? AND option_id=?",
+    			array('apps', $_SESSION['app1']));
+    	if ($rs['app_url'] != "main/main_screen.php") {
+    		echo '<iframe name="app1" src="../../'.attr($rs['app_url']).'"
     			style="position:absolute; left:0; top:0; height:100%; width:100%; border:none;" />';
-        $disp_mainBox = 'style="display: none;"';
+    		$disp_mainBox = 'style="display: none;"';
+    	}
     }
-}
 ?>
 <div id="mainBox" <?php echo $disp_mainBox ?>>
     <div id="dialogDiv"></div>
-    <div class="body_top">
+    <div class="body_top body_top_tabs">
         <a href="http://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" target="_blank"><img class="logo" alt="openEMR small logo" style="float: left; margin:3px 4px 0px 10px;width:20px;z-index:10000;" border="0" src="<?php echo $GLOBALS['images_static_relative']; ?>/menu-logo.png"></a>
         <span id="menu logo" data-bind="template: {name: 'menu-template', data: application_data} "></span>
         <span id="userData" data-bind="template: {name: 'user-data-template', data:application_data} "></span>
     </div>
-    <div id="attendantData" class="body_title acck" data-bind="template: {name: app_view_model.attendant_template_type, data: application_data} ">
+    <div id="attendantData" class="body_title acck body_title_tabs" data-bind="template: {name: app_view_model.attendant_template_type, data: application_data} ">
     </div>
-    <div class="body_title" data-bind="template: {name: 'tabs-controls', data: application_data} "> </div>
+    <div class="body_title body_title_tabs " data-bind="template: {name: 'tabs-controls', data: application_data} "> </div>
 
     <div class="mainFrames">
         <div id="framesDisplay" data-bind="template: {name: 'tabs-frames', data: application_data}"> </div>

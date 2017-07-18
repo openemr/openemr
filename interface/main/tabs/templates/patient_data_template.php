@@ -16,8 +16,8 @@
 <script type="text/html" id="patient-data-template">
     <div>
         <span class="patientDataColumn">
-            <span style="float:left;"><a data-bind="click: viewPtFinder" href="#" class="btn btn-default btn-sm">
-                <i class="fa fa-search" aria-hidden="true"></i>
+            <span style="float:left;"><a data-bind="click: viewPtFinder" href="#" class="btn-sm">
+                <span class="fa-stack fa-lg chevron_color"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-search fa-stack-1x fa-inverse"></i></span>
             </a></span>
             <div class="patientInfo" style="float: left">
               <!-- ko if: patient -->
@@ -40,8 +40,8 @@
                     <?php echo xlt("None{{Patient}}");?>
                 <!-- /ko -->
                 <!-- ko if: patient -->
-                    <a class="btn btn-xs btn-link" href="#" data-bind="click:clearPatient" title="<?php echo xla("Clear") ?>">
-                        <i class="fa fa-times"></i>
+                    <a class="btn-xs chevron_color" href="#" data-bind="click:clearPatient" title="<?php echo xla("Clear") ?>">
+                        <i class="fa fa-times-circle fa-lg"></i>
                     </a>
                 <!-- /ko -->
             </div>
@@ -54,8 +54,8 @@
         <span class="patientDataColumn">
         <!-- ko if: patient -->
         <!-- ko with: patient -->
-            <a class="btn btn-xs btn-link" data-bind="click: clickNewEncounter" href="#" title="<?php echo xla("New Encounter");?>">
-                <i class="fa fa-plus"></i>
+            <a  class="btn-sm btn-link" data-bind="click: clickNewEncounter" href="#" title="<?php echo xla("New Encounter");?>">
+                <span class="fa-stack fa-lg chevron_color"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-plus fa-stack-1x fa-inverse"></i></span>
             </a>
             <div class="patientCurrentEncounter">
                 <span><?php echo xlt("Open Encounter"); ?>:</span>
@@ -72,7 +72,7 @@
             <!-- ko if: encounterArray().length > 0 -->
             <br>
             <div class="btn-group dropdown">
-                <button class="btn btn-default btn-sm dropdown-toggle"
+                <button class="btn btn-default btn-md dropdown-toggle"
                         type="button" id="pastEncounters"
                         data-toggle="dropdown"
                         aria-haspopup="true"

@@ -13,7 +13,13 @@
  *
  */
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
 
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
 
 include_once('../../globals.php');
 include_once("$srcdir/patient.inc");
@@ -23,20 +29,20 @@ $info_msg = "";
  // If we are searching, search.
  //
 if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
-    $searchby = $_REQUEST['searchby'];
-    $searchparm = trim($_REQUEST['searchparm']);
+  $searchby = $_REQUEST['searchby'];
+  $searchparm = trim($_REQUEST['searchparm']);
 
-    if ($searchby == "Last") {
-        $result = getPatientLnames("$searchparm","*");
-    } elseif ($searchby == "Phone") {                  //(CHEMED) Search by phone number
-        $result = getPatientPhone("$searchparm","*");
-    } elseif ($searchby == "ID") {
-        $result = getPatientId("$searchparm","*");
-    } elseif ($searchby == "DOB") {
-        $result = getPatientDOB("$searchparm","*");
-    } elseif ($searchby == "SSN") {
-        $result = getPatientSSN("$searchparm","*");
-    }
+  if ($searchby == "Last") {
+    $result = getPatientLnames("$searchparm","*");
+  } elseif ($searchby == "Phone") {                  //(CHEMED) Search by phone number
+    $result = getPatientPhone("$searchparm","*");
+  } elseif ($searchby == "ID") {
+    $result = getPatientId("$searchparm","*");
+  } elseif ($searchby == "DOB") {
+    $result = getPatientDOB("$searchparm","*");
+  } elseif ($searchby == "SSN") {
+    $result = getPatientSSN("$searchparm","*");
+  }
 }
 ?>
 
@@ -127,7 +133,7 @@ form {
 <!-- ViSolve: Verify the noresult parameter -->
 <?php
 if(isset($_GET["res"])){
-    echo '
+echo '
 <script language="Javascript">
 			// Pass the variable to parent hidden type and submit
 			opener.document.theform.resname.value = "noresult";
@@ -158,7 +164,7 @@ if(isset($_GET["res"])){
 
 <div id="searchCriteria">
 <form method='post' name='theform' id="theform" action='find_patient_popup.php?<?php if(isset($_GET['pflag'])) echo "pflag=0"; ?>'>
-    <?php echo htmlspecialchars( xl('Search by:'), ENT_NOQUOTES); ?>
+   <?php echo htmlspecialchars( xl('Search by:'), ENT_NOQUOTES); ?>
    <select name='searchby'>
     <option value="Last"><?php echo htmlspecialchars( xl('Name'), ENT_NOQUOTES); ?></option>
     <!-- (CHEMED) Search by phone number -->
@@ -167,7 +173,7 @@ if(isset($_GET["res"])){
     <option value="SSN"<?php if ($searchby == 'SSN') echo ' selected' ?>><?php echo htmlspecialchars( xl('SSN'), ENT_NOQUOTES); ?></option>
     <option value="DOB"<?php if ($searchby == 'DOB') echo ' selected' ?>><?php echo htmlspecialchars( xl('DOB'), ENT_NOQUOTES); ?></option>
    </select>
-    <?php echo htmlspecialchars( xl('for:'), ENT_NOQUOTES); ?>
+ <?php echo htmlspecialchars( xl('for:'), ENT_NOQUOTES); ?>
    <input type='text' id='searchparm' name='searchparm' size='12' value='<?php echo htmlspecialchars( $_REQUEST['searchparm'], ENT_QUOTES); ?>'
     title='<?php echo htmlspecialchars( xl('If name, any part of lastname or lastname,firstname'), ENT_QUOTES); ?>'>
    &nbsp;
@@ -194,7 +200,7 @@ if(isset($_GET["res"])){
 
 <?php if (isset($result)): ?>
 
-<div id="searchResultsHeader">
+<div id="searchResultsHeader" class="head">
 <table>
  <tr>
   <th class="srName"><?php echo htmlspecialchars( xl('Name'), ENT_NOQUOTES); ?></th>

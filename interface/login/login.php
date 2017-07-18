@@ -37,43 +37,43 @@ require_once("../globals.php");
 // Build a list of valid entries
 $emr_app = array();
 if ($GLOBALS['new_tabs_layout']) {
-    $rs = sqlStatement ( "SELECT option_id, title,is_default FROM list_options
+	$rs = sqlStatement ( "SELECT option_id, title,is_default FROM list_options
 			WHERE list_id=? and activity=1 ORDER BY seq, option_id",
-            array ('apps') );
-    if (sqlNumRows($rs)) {
-        while ( $app = sqlFetchArray ($rs) ) {
-            $app_req = explode ( '?', trim($app['title']) );
-            if (! file_exists ( '../'.$app_req[0]))
-                continue;
-                $emr_app [trim ( $app ['option_id'] )] = trim ( $app ['title'] );
-                if ($app ['is_default'])
-                    $emr_app_def = $app ['option_id'];
-        }
-    }
+			array ('apps') );
+	if (sqlNumRows($rs)) {
+		while ( $app = sqlFetchArray ($rs) ) {
+			$app_req = explode ( '?', trim($app['title']) );
+			if (! file_exists ( '../'.$app_req[0]))
+				continue;
+				$emr_app [trim ( $app ['option_id'] )] = trim ( $app ['title'] );
+				if ($app ['is_default'])
+					$emr_app_def = $app ['option_id'];
+		}
+	}
 }
 $div_app = '';
 if (count($emr_app)) {
-    // Standard app must exist
-    $std_app = 'main/main_screen.php';
-    if (!in_array($std_app, $emr_app)) {
-        $emr_app['*OpenEMR'] = $std_app;
-    }
-    if (isset($_REQUEST['app']) && $emr_app[$_REQUEST['app']]) {
-        $div_app = sprintf('<input type="hidden" name="appChoice" value="%s">', attr($_REQUEST['app']));
-    } else {
-        foreach ( $emr_app as $opt_disp => $opt_value ) {
-            $opt_htm .= sprintf('<option value="%s" %s>%s</option>\n',
-                    attr($opt_disp), ($opt_disp == $opt_default ? 'selected="selected"' : ''), text(xl_list_label($opt_disp)));
-        }
-        $div_app = sprintf('
+	// Standard app must exist
+	$std_app = 'main/main_screen.php';
+	if (!in_array($std_app, $emr_app)) {
+		$emr_app['*OpenEMR'] = $std_app;
+	}
+	if (isset($_REQUEST['app']) && $emr_app[$_REQUEST['app']]) {
+		$div_app = sprintf('<input type="hidden" name="appChoice" value="%s">', attr($_REQUEST['app']));
+	} else {
+		foreach ( $emr_app as $opt_disp => $opt_value ) {
+			$opt_htm .= sprintf('<option value="%s" %s>%s</option>\n',
+					attr($opt_disp), ($opt_disp == $opt_default ? 'selected="selected"' : ''), text(xl_list_label($opt_disp)));
+		}
+		$div_app = sprintf('
 <div id="divApp" class="form-group">
 	<label for="appChoice" class="control-label text-right">%s:</label>
     <div>
         <select class="form-control" id="selApp" name="appChoice" size="1">%s</select>
     </div>
 </div>',
-            xlt('App'), $opt_htm);
-    }
+			xlt('App'), $opt_htm);
+	}
 }
 
 ?>
@@ -165,10 +165,10 @@ if (count($emr_app)) {
                         // collect groups
                         $res = sqlStatement("select distinct name from groups");
                         for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-                              $result[$iter] = $row;
+	                          $result[$iter] = $row;
                         if (count($result) == 1) {
-                              $resvalue = $result[0]{"name"};
-                              echo "<input type='hidden' name='authProvider' value='" . attr($resvalue) . "' />\n";
+	                          $resvalue = $result[0]{"name"};
+	                          echo "<input type='hidden' name='authProvider' value='" . attr($resvalue) . "' />\n";
                         }
                         // collect default language id
                         $res2 = sqlStatement("select * from lang_languages where lang_description = ?",array($GLOBALS['language_default']));
@@ -193,25 +193,25 @@ if (count($emr_app)) {
                             if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation']))
                             {
                                 $sql = "SELECT *,lang_description as trans_lang_description FROM lang_languages ORDER BY lang_description, lang_id";
-                                  $res3=SqlStatement($sql);
+	                              $res3=SqlStatement($sql);
                             }
                             else {
                                 // Use and sort by the translated language name.
                                 $sql = "SELECT ll.lang_id, " .
                                     "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
-                                      "ll.lang_description " .
+	                                  "ll.lang_description " .
                                     "FROM lang_languages AS ll " .
                                     "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
                                     "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
                                     "ld.lang_id = ? " .
                                     "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
                                 $res3=SqlStatement($sql, array($mainLangID));
-                            }
+	                          }
 
                             for ($iter = 0;$row = sqlFetchArray($res3);$iter++)
                                 $result3[$iter] = $row;
                             if (count($result3) == 1) {
-                                  //default to english if only return one language
+	                              //default to english if only return one language
                                 echo "<input type='hidden' name='languageChoice' value='1' />\n";
                             }
                         }
@@ -328,7 +328,7 @@ if (count($emr_app)) {
                         </div>
                     <?php endif; // End language menu block ?>
                     <div class="form-group pull-right">
-                        <button type="submit" class="btn btn-default btn-lg" onClick="transmit_form()"><i class="fa fa-sign-in"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
+                        <button type="submit" class="btn btn-default btn-medium" onClick="transmit_form()"><i class="fa fa-sign-in"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
                     </div>
                 </div>
                 <div class="col-sm-12 text-center">

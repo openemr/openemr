@@ -220,16 +220,9 @@ div.closeDlgIframe:before {
 {
     background-color: #f4f4f4;
 }
-.patientInfo a {
+/*.patientInfo a {
     color: #333 !important;
-}
-
-.patientInfo .patientPicture img
-{
-    height: 55px;
-    margin-top: -5px;
-    padding-right: 5px;
-}
+}*/
 
 .patientCurrentEncounter {
     display: inline;
