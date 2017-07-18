@@ -45,8 +45,8 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param		$title		String		Category Name
      * @return		$records	Array		Category ID	
      */
-	public function fetch_cat_id($title)
-	{
+    public function fetch_cat_id($title)
+    {
         $appTable = new ApplicationTable();
         $query = "SELECT * 
                    FROM categories 
@@ -68,8 +68,8 @@ class CarecoordinationTable extends AbstractTableGateway
      *
      * @return records       Array     List of documents uploaded by the user during a particular time
      */
-  public function fetch_uploaded_documents($data)
-  {
+    public function fetch_uploaded_documents($data)
+    {
         $query = "SELECT * 
                    FROM categories_to_documents AS cat_doc
                    JOIN documents AS doc 
@@ -89,8 +89,8 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param    cat_title   Text    Category Name
      * @return   records     Array   List of CCDA imported to the system, pending approval
      */
-	public function document_fetch($data)
-	{
+    public function document_fetch($data)
+    {
         $query = "SELECT am.id as amid, 
                         cat.name, 
                         u.fname, 
@@ -134,8 +134,8 @@ class CarecoordinationTable extends AbstractTableGateway
      *
      * @param	$components		Array of components
      */
-	public function import($xml,$document_id)
-	{
+    public function import($xml,$document_id)
+    {
         $components = $xml['component']['structuredBody']['component'];
         $components_oids = array(
             '2.16.840.1.113883.10.20.22.4.7' => 'allergy',
@@ -170,8 +170,8 @@ class CarecoordinationTable extends AbstractTableGateway
                         break;
                     }
                 }
-      }
-      else{
+            }
+            else{
                 if ($components_oids[$components[$i]['section']['templateId']['root']] != '') {
                     $func_name = $components_oids[$components[$i]['section']['templateId']['root']];
                     $this->$func_name($components[$i]);
@@ -182,7 +182,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->ccda_data_array['ip_address'] = $_SERVER['REMOTE_ADDR'];
         $this->ccda_data_array['type'] = '12';
 
-        //Patient Details					
+        //Patient Details
         $this->ccda_data_array['field_name_value_array']['patient_data'][1]['fname'] = is_array($xml['recordTarget']['patientRole']['patient']['name']['given']) ? $xml['recordTarget']['patientRole']['patient']['name']['given'][0] : $xml['recordTarget']['patientRole']['patient']['name']['given'];
         $this->ccda_data_array['field_name_value_array']['patient_data'][1]['lname'] = $xml['recordTarget']['patientRole']['patient']['name']['family'];
         $this->ccda_data_array['field_name_value_array']['patient_data'][1]['DOB'] = $xml['recordTarget']['patientRole']['patient']['birthTime']['value'];
@@ -235,16 +235,16 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->ccda_data_array['field_name_value_array']['custodian'][1]['organisation'] = $xml['custodian']['assignedCustodian']['representedCustodianOrganization']['name'];
         
         //documentationOf
-	$doc_of_str = '';
-	if(!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['prefix']))
-	 $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['prefix']." ";
-	if(!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['given']))
-	 $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['given']." ";
-	if(!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['family']))
-	 $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['family']." ";
-	if(!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['representedOrganization']['name']))
-	 $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['representedOrganization']['name']." ";
-	$this->ccda_data_array['field_name_value_array']['documentationOf'][1]['assignedPerson'] = $doc_of_str;
+        $doc_of_str = '';
+        if(!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['prefix']))
+        $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['prefix']." ";
+        if(!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['given']))
+        $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['given']." ";
+        if(!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['family']))
+        $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['family']." ";
+        if(!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['representedOrganization']['name']))
+        $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['representedOrganization']['name']." ";
+        $this->ccda_data_array['field_name_value_array']['documentationOf'][1]['assignedPerson'] = $doc_of_str;
                 
         $documentationOf = $this->ccda_data_array['field_name_value_array']['documentationOf'][1]['assignedPerson'];
                 
@@ -252,8 +252,8 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->update_document_table($document_id, $audit_master_id, $audit_master_approval_status,$documentationOf);
     }
 
-  public function update_document_table($document_id,$audit_master_id,$audit_master_approval_status,$documentationOf)
-  {
+    public function update_document_table($document_id,$audit_master_id,$audit_master_approval_status,$documentationOf)
+    {
         $appTable = new ApplicationTable();
         $query = "UPDATE documents 
               SET audit_master_id = ?,
@@ -266,534 +266,534 @@ class CarecoordinationTable extends AbstractTableGateway
             $audit_master_approval_status,
             $documentationOf,
             $document_id));
-        }
+    }
 
-        public function allergy($component)
-	{
-            if ($component['section']['entry'][0]) {
-                foreach ($component['section']['entry'] as $key => $value) {
-                    $this->fetch_allergy_value($value);
-                }
-                    }
-                    else{
-                $this->fetch_allergy_value($component['section']['entry']);
+    public function allergy($component)
+    {
+        if ($component['section']['entry'][0]) {
+            foreach ($component['section']['entry'] as $key => $value) {
+                $this->fetch_allergy_value($value);
             }
+        }
+        else{
+            $this->fetch_allergy_value($component['section']['entry']);
+        }
             unset($component);
             return;
-        }
+    }
 
-	public function fetch_allergy_value($allergy_array)
-	{
-            if($allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['code'] != '' && $allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['code'] != 0) {
-                $i = count($this->ccda_data_array['field_name_value_array']['lists2']) + 1;
-                $this->ccda_data_array['field_name_value_array']['lists2'][$i]['type'] = 'allergy';
-                $this->ccda_data_array['field_name_value_array']['lists2'][$i]['extension'] = $allergy_array['act']['id']['extension'];
-                $this->ccda_data_array['field_name_value_array']['lists2'][$i]['begdate'] = $allergy_array['act']['effectiveTime']['low']['value'];
-                $this->ccda_data_array['field_name_value_array']['lists2'][$i]['enddate'] = $allergy_array['act']['effectiveTime']['high']['value'];
-                $this->ccda_data_array['field_name_value_array']['lists2'][$i]['list_code'] = $allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['code'];
-                $this->ccda_data_array['field_name_value_array']['lists2'][$i]['list_code_text'] = $allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['displayName'];
-                $this->ccda_data_array['field_name_value_array']['lists2'][$i]['codeSystemName'] = $allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['codeSystemName'];
-                $this->ccda_data_array['field_name_value_array']['lists2'][$i]['outcome'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['code'];
-                $this->ccda_data_array['field_name_value_array']['lists2'][$i]['severity_al_code'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][2]['observation']['value']['code'];
-                $this->ccda_data_array['field_name_value_array']['lists2'][$i]['severity_al'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][2]['observation']['value']['code'];
-                $this->ccda_data_array['field_name_value_array']['lists2'][$i]['status'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][0]['observation']['value']['displayName'];
-                $this->ccda_data_array['field_name_value_array']['lists2'][$i]['reaction'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['code'];
-                $this->ccda_data_array['field_name_value_array']['lists2'][$i]['reaction_text'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['displayName'];
-                $this->ccda_data_array['field_name_value_array']['lists2'][$i]['modified_time'] = $allergy_array['act']['entryRelationship']['observation']['performer']['assignedEntity']['time']['value'];
-                $this->ccda_data_array['entry_identification_array']['lists2'][$i] = $i;
-                unset($allergy_array);
-                return;
-            }
+    public function fetch_allergy_value($allergy_array)
+    {
+        if($allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['code'] != '' && $allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['code'] != 0) {
+            $i = count($this->ccda_data_array['field_name_value_array']['lists2']) + 1;
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['type'] = 'allergy';
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['extension'] = $allergy_array['act']['id']['extension'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['begdate'] = $allergy_array['act']['effectiveTime']['low']['value'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['enddate'] = $allergy_array['act']['effectiveTime']['high']['value'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['list_code'] = $allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['code'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['list_code_text'] = $allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['codeSystemName'] = $allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['codeSystemName'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['outcome'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['code'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['severity_al_code'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][2]['observation']['value']['code'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['severity_al'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][2]['observation']['value']['code'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['status'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][0]['observation']['value']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['reaction'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['code'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['reaction_text'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['modified_time'] = $allergy_array['act']['entryRelationship']['observation']['performer']['assignedEntity']['time']['value'];
+            $this->ccda_data_array['entry_identification_array']['lists2'][$i] = $i;
+            unset($allergy_array);
+            return;
         }
+    }
 
-	public function medication($component)
-	{
+    public function medication($component)
+    {
             $component['section']['text'] = '';
-            if ($component['section']['entry'][0]) {
-                foreach ($component['section']['entry'] as $key => $value) {
-                    $this->fetch_medication_value($value);
-                }
-                    }
-                    else{
-                $this->fetch_medication_value($component['section']['entry']);
+        if ($component['section']['entry'][0]) {
+            foreach ($component['section']['entry'] as $key => $value) {
+                $this->fetch_medication_value($value);
             }
+        }
+        else{
+            $this->fetch_medication_value($component['section']['entry']);
+        }
             unset($component);
             return;
+    }
+
+    public function fetch_medication_value($medication_data)
+    {
+        if($medication_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'] != '' && $medication_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'] != 0) {
+            $i = count($this->ccda_data_array['field_name_value_array']['lists3']) + 1;
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['type'] = 'medication';
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['extension'] = $medication_data['substanceAdministration']['id']['extension'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['root'] = $medication_data['substanceAdministration']['id']['root'];
+            if ($medication_data['substanceAdministration']['effectiveTime'][0]['low']['value'] == '')
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['begdate'] = date('Y-m-d');
+            else
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['begdate'] = $medication_data['substanceAdministration']['effectiveTime'][0]['low']['value'];
+            if ($medication_data['substanceAdministration']['effectiveTime'][0]['high']['value'])
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['enddate'] = $medication_data['substanceAdministration']['effectiveTime'][0]['high']['value'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['route'] = $medication_data['substanceAdministration']['routeCode']['code'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['route_display'] = $medication_data['substanceAdministration']['routeCode']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['dose'] = $medication_data['substanceAdministration']['doseQuantity']['value'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['dose_unit'] = $medication_data['substanceAdministration']['doseQuantity']['unit'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['rate'] = $medication_data['substanceAdministration']['rateQuantity']['value'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['rate_unit'] = $medication_data['substanceAdministration']['rateQuantity']['unit'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['drug_code'] = $medication_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['drug_text'] = $medication_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['note'] = $medication_data['substanceAdministration']['text']['reference']['value'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['indication'] = $medication_data['substanceAdministration']['entryRelationship'][0]['observation']['value']['displayName'] ? $medication_data['substanceAdministration']['entryRelationship'][0]['observation']['value']['displayName'] : $medication_data['substanceAdministration']['entryRelationship']['observation']['value']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['prn'] = $medication_data['substanceAdministration']['precondition']['criterion']['value']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['modified_time'] = $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['author']['time']['value'];
+
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_title'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['prefix'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['prefix'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['author']['assignedAuthor']['assignedPerson']['name']['prefix'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_fname'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['given'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['given'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['author']['assignedAuthor']['assignedPerson']['name']['given'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_lname'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['family'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['family'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['author']['assignedAuthor']['assignedPerson']['name']['family'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_root'] = $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['author']['assignedAuthor']['id']['root'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_address'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['streetAddressLine'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['streetAddressLine'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['performer']['assignedEntity']['addr']['streetAddressLine'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_city'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['city'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['city'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['performer']['assignedEntity']['addr']['city'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_state'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['state'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['state'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['performer']['assignedEntity']['addr']['state'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_postalCode'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['postalCode'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['postalCode'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['performer']['assignedEntity']['addr']['postalCode'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_country'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['country']['value'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['country']['value'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['performer']['assignedEntity']['addr']['country'];
+            $this->ccda_data_array['entry_identification_array']['lists3'][$i] = $i;
+            unset($medication_data);
+            return;
         }
+    }
 
-	public function fetch_medication_value($medication_data)
-	{
-            if($medication_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'] != '' && $medication_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'] != 0) {
-                $i = count($this->ccda_data_array['field_name_value_array']['lists3']) + 1;
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['type'] = 'medication';
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['extension'] = $medication_data['substanceAdministration']['id']['extension'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['root'] = $medication_data['substanceAdministration']['id']['root'];
-                if ($medication_data['substanceAdministration']['effectiveTime'][0]['low']['value'] == '')
-                    $this->ccda_data_array['field_name_value_array']['lists3'][$i]['begdate'] = date('Y-m-d');
-                else
-                    $this->ccda_data_array['field_name_value_array']['lists3'][$i]['begdate'] = $medication_data['substanceAdministration']['effectiveTime'][0]['low']['value'];
-                if ($medication_data['substanceAdministration']['effectiveTime'][0]['high']['value'])
-                    $this->ccda_data_array['field_name_value_array']['lists3'][$i]['enddate'] = $medication_data['substanceAdministration']['effectiveTime'][0]['high']['value'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['route'] = $medication_data['substanceAdministration']['routeCode']['code'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['route_display'] = $medication_data['substanceAdministration']['routeCode']['displayName'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['dose'] = $medication_data['substanceAdministration']['doseQuantity']['value'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['dose_unit'] = $medication_data['substanceAdministration']['doseQuantity']['unit'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['rate'] = $medication_data['substanceAdministration']['rateQuantity']['value'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['rate_unit'] = $medication_data['substanceAdministration']['rateQuantity']['unit'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['drug_code'] = $medication_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['drug_text'] = $medication_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['displayName'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['note'] = $medication_data['substanceAdministration']['text']['reference']['value'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['indication'] = $medication_data['substanceAdministration']['entryRelationship'][0]['observation']['value']['displayName'] ? $medication_data['substanceAdministration']['entryRelationship'][0]['observation']['value']['displayName'] : $medication_data['substanceAdministration']['entryRelationship']['observation']['value']['displayName'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['prn'] = $medication_data['substanceAdministration']['precondition']['criterion']['value']['displayName'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['modified_time'] = $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['author']['time']['value'];
-
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_title'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['prefix'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['prefix'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['author']['assignedAuthor']['assignedPerson']['name']['prefix'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_fname'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['given'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['given'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['author']['assignedAuthor']['assignedPerson']['name']['given'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_lname'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['family'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['family'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['author']['assignedAuthor']['assignedPerson']['name']['family'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_root'] = $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['author']['assignedAuthor']['id']['root'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_address'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['streetAddressLine'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['streetAddressLine'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['performer']['assignedEntity']['addr']['streetAddressLine'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_city'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['city'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['city'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['performer']['assignedEntity']['addr']['city'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_state'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['state'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['state'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['performer']['assignedEntity']['addr']['state'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_postalCode'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['postalCode'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['postalCode'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['performer']['assignedEntity']['addr']['postalCode'];
-                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_country'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['country']['value'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['country']['value'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['performer']['assignedEntity']['addr']['country'];
-                $this->ccda_data_array['entry_identification_array']['lists3'][$i] = $i;
-                unset($medication_data);
-                return;
-            }
-        }
-
-	public function medical_problem($component)
-	{
+    public function medical_problem($component)
+    {
             $component['section']['text'] = '';
-            if ($component['section']['entry'][0]) {
-                foreach ($component['section']['entry'] as $key => $value) {
-                    $this->fetch_medical_problem_value($value);
-                }
-                    }
-                    else{
-                $this->fetch_medical_problem_value($component['section']['entry']);
+        if ($component['section']['entry'][0]) {
+            foreach ($component['section']['entry'] as $key => $value) {
+                $this->fetch_medical_problem_value($value);
             }
+        }
+        else{
+            $this->fetch_medical_problem_value($component['section']['entry']);
+        }
             unset($component);
             return;
-        }
+    }
 
-	public function fetch_medical_problem_value($medical_problem_data)
-	{
-            if($medical_problem_data['act']['entryRelationship']['observation']['value']['code'] != '' && $medical_problem_data['act']['entryRelationship']['observation']['value']['code'] != 0) {
-                $i = count($this->ccda_data_array['field_name_value_array']['lists1']) + 1;
-                $this->ccda_data_array['field_name_value_array']['lists1'][$i]['type'] = 'medical_problem';
-                $this->ccda_data_array['field_name_value_array']['lists1'][$i]['extension'] = $medical_problem_data['act']['id']['extension'];
-                $this->ccda_data_array['field_name_value_array']['lists1'][$i]['root'] = $medical_problem_data['act']['id']['root'];
-                $this->ccda_data_array['field_name_value_array']['lists1'][$i]['begdate'] = $medical_problem_data['act']['effectiveTime']['low']['value'];
-                $this->ccda_data_array['field_name_value_array']['lists1'][$i]['enddate'] = $medical_problem_data['act']['effectiveTime']['high']['value'];
-                $this->ccda_data_array['field_name_value_array']['lists1'][$i]['list_code'] = $medical_problem_data['act']['entryRelationship']['observation']['value']['code'];
-                $this->ccda_data_array['field_name_value_array']['lists1'][$i]['list_code_text'] = $medical_problem_data['act']['entryRelationship']['observation']['value']['displayName'];
-                $this->ccda_data_array['field_name_value_array']['lists1'][$i]['observation'] = $medical_problem_data['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['code'];
-                $this->ccda_data_array['field_name_value_array']['lists1'][$i]['observation_text'] = $medical_problem_data['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['displayName'];
-                $this->ccda_data_array['field_name_value_array']['lists1'][$i]['status'] = $medical_problem_data['act']['entryRelationship']['observation']['entryRelationship'][2]['observation']['value']['displayName'];
-                $this->ccda_data_array['field_name_value_array']['lists1'][$i]['modified_time'] = $medical_problem_data['act']['entryRelationship']['observation']['performer']['assignedEntity']['time']['value'];
-                $this->ccda_data_array['entry_identification_array']['lists1'][$i] = $i;
-                unset($medical_problem_data);
-                return;
-            }
+    public function fetch_medical_problem_value($medical_problem_data)
+    {
+        if($medical_problem_data['act']['entryRelationship']['observation']['value']['code'] != '' && $medical_problem_data['act']['entryRelationship']['observation']['value']['code'] != 0) {
+            $i = count($this->ccda_data_array['field_name_value_array']['lists1']) + 1;
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['type'] = 'medical_problem';
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['extension'] = $medical_problem_data['act']['id']['extension'];
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['root'] = $medical_problem_data['act']['id']['root'];
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['begdate'] = $medical_problem_data['act']['effectiveTime']['low']['value'];
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['enddate'] = $medical_problem_data['act']['effectiveTime']['high']['value'];
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['list_code'] = $medical_problem_data['act']['entryRelationship']['observation']['value']['code'];
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['list_code_text'] = $medical_problem_data['act']['entryRelationship']['observation']['value']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['observation'] = $medical_problem_data['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['code'];
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['observation_text'] = $medical_problem_data['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['status'] = $medical_problem_data['act']['entryRelationship']['observation']['entryRelationship'][2]['observation']['value']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['modified_time'] = $medical_problem_data['act']['entryRelationship']['observation']['performer']['assignedEntity']['time']['value'];
+            $this->ccda_data_array['entry_identification_array']['lists1'][$i] = $i;
+            unset($medical_problem_data);
+            return;
         }
+    }
 
-	public function immunization($component)
-	{
+    public function immunization($component)
+    {
             $component['section']['text'] = '';
-            if ($component['section']['entry'][0]) {
-                foreach ($component['section']['entry'] as $key => $value) {
-                    $this->fetch_immunization_value($value);
-                }
-                    }
-                    else{
-                $this->fetch_immunization_value($component['section']['entry']);
+        if ($component['section']['entry'][0]) {
+            foreach ($component['section']['entry'] as $key => $value) {
+                $this->fetch_immunization_value($value);
             }
+        }
+        else{
+            $this->fetch_immunization_value($component['section']['entry']);
+        }
             unset($component);
             return;
-        }
+    }
 
-	public function fetch_immunization_value($immunization_data)
-	{
-            if($immunization_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'] != '' && $immunization_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'] != 0) {
-                $i = count($this->ccda_data_array['field_name_value_array']['immunization']) + 1;
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['extension'] = $immunization_data['substanceAdministration']['id']['extension'];
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['root'] = $immunization_data['substanceAdministration']['id']['root'];
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['administered_date'] = $immunization_data['substanceAdministration']['effectiveTime']['value'];
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['route_code'] = $immunization_data['substanceAdministration']['routeCode']['code'];
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['route_code_text'] = $immunization_data['substanceAdministration']['routeCode']['displayName'];
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['cvx_code'] = $immunization_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'];
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['cvx_code_text'] = $immunization_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['displayName'];
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['amount_administered'] = $immunization_data['substanceAdministration']['doseQuantity']['value'];
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['amount_administered_unit'] = $immunization_data['substanceAdministration']['doseQuantity']['unit'];
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['completion_status'] = $immunization_data['substanceAdministration']['statusCode']['code'];
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['manufacturer'] = $immunization_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturerOrganization']['name'];
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_npi'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['id']['extension'];
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_name'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['given'];
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_address'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['addr']['streetAddressLine'];
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_city'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['addr']['city'];
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_state'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['addr']['state'];
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_postalCode'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['addr']['postalCode'];
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_country'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['addr']['country'];
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_telecom'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['telecom']['value'];
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['represented_organization'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['representedOrganization']['name'];
-                $this->ccda_data_array['field_name_value_array']['immunization'][$i]['represented_organization_tele'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['representedOrganization']['telecom'];
-                $this->ccda_data_array['entry_identification_array']['immunization'][$i] = $i;
-                unset($immunization_data);
-                return;
-            }
+    public function fetch_immunization_value($immunization_data)
+    {
+        if($immunization_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'] != '' && $immunization_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'] != 0) {
+            $i = count($this->ccda_data_array['field_name_value_array']['immunization']) + 1;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['extension'] = $immunization_data['substanceAdministration']['id']['extension'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['root'] = $immunization_data['substanceAdministration']['id']['root'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['administered_date'] = $immunization_data['substanceAdministration']['effectiveTime']['value'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['route_code'] = $immunization_data['substanceAdministration']['routeCode']['code'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['route_code_text'] = $immunization_data['substanceAdministration']['routeCode']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['cvx_code'] = $immunization_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['cvx_code_text'] = $immunization_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['amount_administered'] = $immunization_data['substanceAdministration']['doseQuantity']['value'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['amount_administered_unit'] = $immunization_data['substanceAdministration']['doseQuantity']['unit'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['completion_status'] = $immunization_data['substanceAdministration']['statusCode']['code'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['manufacturer'] = $immunization_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturerOrganization']['name'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_npi'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['id']['extension'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_name'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['given'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_address'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['addr']['streetAddressLine'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_city'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['addr']['city'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_state'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['addr']['state'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_postalCode'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['addr']['postalCode'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_country'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['addr']['country'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_telecom'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['telecom']['value'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['represented_organization'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['representedOrganization']['name'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['represented_organization_tele'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['representedOrganization']['telecom'];
+            $this->ccda_data_array['entry_identification_array']['immunization'][$i] = $i;
+            unset($immunization_data);
+            return;
         }
+    }
 
-	public function procedure($component)
-	{
+    public function procedure($component)
+    {
             $component['section']['text'] = '';
-            if ($component['section']['entry'][0]) {
-                foreach ($component['section']['entry'] as $key => $value) {
-                    if ($key % 3 != 0)
-                        continue; //every third entry section has the procedure details
-                    $this->fetch_procedure_value($value);
-                }
+        if ($component['section']['entry'][0]) {
+            foreach ($component['section']['entry'] as $key => $value) {
+                if ($key % 3 != 0)
+                    continue; //every third entry section has the procedure details
+                $this->fetch_procedure_value($value);
             }
-            else {
-                $this->fetch_procedure_value($component['section']['entry']);
-            }
+        }
+        else {
+            $this->fetch_procedure_value($component['section']['entry']);
+        }
             unset($component);
             return;
+    }
+
+    public function fetch_procedure_value($procedure_data)
+    {
+        if($procedure_data['procedure']['code']['code'] != '' && $procedure_data['procedure']['code']['code'] != 0) {
+            $i = count($this->ccda_data_array['field_name_value_array']['procedure']) + 1;
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['extension'] = $procedure_data['procedure']['id']['extension'];
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['root'] = $procedure_data['procedure']['id']['root'];
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['code'] = $procedure_data['procedure']['code']['code'];
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['code_text'] = $procedure_data['procedure']['code']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['codeSystemName'] = $procedure_data['procedure']['code']['codeSystemName'];
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['date'] = $procedure_data['procedure']['effectiveTime']['value'];
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization1'] = $procedure_data['procedure']['performer']['assignedEntity']['representedOrganization']['name'];
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_address1'] = $procedure_data['procedure']['performer']['assignedEntity']['addr']['streetAddressLine'];
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_city1'] = $procedure_data['procedure']['performer']['assignedEntity']['addr']['city'];
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_state1'] = $procedure_data['procedure']['performer']['assignedEntity']['addr']['state'];
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_postalcode1'] = $procedure_data['procedure']['performer']['assignedEntity']['addr']['postalCode'];
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_country1'] = $procedure_data['procedure']['performer']['assignedEntity']['addr']['country'];
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_telecom1'] = $procedure_data['procedure']['performer']['assignedEntity']['telecom']['value'];
+
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization2'] = $procedure_data['procedure']['participant']['participantRole']['playingEntity']['name'];
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_address2'] = $procedure_data['procedure']['participant']['participantRole']['addr']['streetAddressLine'];
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_city2'] = $procedure_data['procedure']['participant']['participantRole']['addr']['city'];
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_state2'] = $procedure_data['procedure']['participant']['participantRole']['addr']['state'];
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_postalcode2'] = $procedure_data['procedure']['participant']['participantRole']['addr']['postalCode'];
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_country2'] = $procedure_data['procedure']['participant']['participantRole']['addr']['country'];
+            $this->ccda_data_array['entry_identification_array']['procedure'][$i] = $i;
+            unset($procedure_data);
+            return;
         }
+    }
 
-	public function fetch_procedure_value($procedure_data)
-	{
-            if($procedure_data['procedure']['code']['code'] != '' && $procedure_data['procedure']['code']['code'] != 0) {
-                $i = count($this->ccda_data_array['field_name_value_array']['procedure']) + 1;
-                $this->ccda_data_array['field_name_value_array']['procedure'][$i]['extension'] = $procedure_data['procedure']['id']['extension'];
-                $this->ccda_data_array['field_name_value_array']['procedure'][$i]['root'] = $procedure_data['procedure']['id']['root'];
-                $this->ccda_data_array['field_name_value_array']['procedure'][$i]['code'] = $procedure_data['procedure']['code']['code'];
-                $this->ccda_data_array['field_name_value_array']['procedure'][$i]['code_text'] = $procedure_data['procedure']['code']['displayName'];
-                $this->ccda_data_array['field_name_value_array']['procedure'][$i]['codeSystemName'] = $procedure_data['procedure']['code']['codeSystemName'];
-                $this->ccda_data_array['field_name_value_array']['procedure'][$i]['date'] = $procedure_data['procedure']['effectiveTime']['value'];
-                $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization1'] = $procedure_data['procedure']['performer']['assignedEntity']['representedOrganization']['name'];
-                $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_address1'] = $procedure_data['procedure']['performer']['assignedEntity']['addr']['streetAddressLine'];
-                $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_city1'] = $procedure_data['procedure']['performer']['assignedEntity']['addr']['city'];
-                $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_state1'] = $procedure_data['procedure']['performer']['assignedEntity']['addr']['state'];
-                $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_postalcode1'] = $procedure_data['procedure']['performer']['assignedEntity']['addr']['postalCode'];
-                $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_country1'] = $procedure_data['procedure']['performer']['assignedEntity']['addr']['country'];
-                $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_telecom1'] = $procedure_data['procedure']['performer']['assignedEntity']['telecom']['value'];
-
-                $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization2'] = $procedure_data['procedure']['participant']['participantRole']['playingEntity']['name'];
-                $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_address2'] = $procedure_data['procedure']['participant']['participantRole']['addr']['streetAddressLine'];
-                $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_city2'] = $procedure_data['procedure']['participant']['participantRole']['addr']['city'];
-                $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_state2'] = $procedure_data['procedure']['participant']['participantRole']['addr']['state'];
-                $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_postalcode2'] = $procedure_data['procedure']['participant']['participantRole']['addr']['postalCode'];
-                $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_country2'] = $procedure_data['procedure']['participant']['participantRole']['addr']['country'];
-                $this->ccda_data_array['entry_identification_array']['procedure'][$i] = $i;
-                unset($procedure_data);
-                return;
-            }
-        }
-
-	public function lab_result($component)
-	{
+    public function lab_result($component)
+    {
             $component['section']['text'] = '';
-            if ($component['section']['entry'][0]) {
-                foreach ($component['section']['entry'] as $key => $value) {
-                    $this->fetch_lab_result_value($value);
-                }
-                    }
-                    else{
-                $this->fetch_lab_result_value($component['section']['entry']);
+        if ($component['section']['entry'][0]) {
+            foreach ($component['section']['entry'] as $key => $value) {
+                $this->fetch_lab_result_value($value);
             }
+        }
+        else{
+            $this->fetch_lab_result_value($component['section']['entry']);
+        }
             unset($component);
             return;
-        }
+    }
 
-	public function fetch_lab_result_value($lab_result_data)
-	{
+    public function fetch_lab_result_value($lab_result_data)
+    {
                 $i = count($this->ccda_data_array['field_name_value_array']['procedure_result']) + 1;
-                foreach ($lab_result_data['organizer']['component'] as $key => $value) {
-                    if($value['observation']['code']['code']) {
-                        $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['extension'] = $lab_result_data['organizer']['id']['extension'];
-                        $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['root'] = $lab_result_data['organizer']['id']['root'];
-                        $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['proc_code'] = $lab_result_data['organizer']['code']['code'];
-                        $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['proc_text'] = $lab_result_data['organizer']['code']['displayName'];
-                        $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['date'] = $lab_result_data['organizer']['effectiveTime']['value'];
-                        $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['status'] = $lab_result_data['organizer']['statusCode']['code'];
+        foreach ($lab_result_data['organizer']['component'] as $key => $value) {
+            if($value['observation']['code']['code']) {
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['extension'] = $lab_result_data['organizer']['id']['extension'];
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['root'] = $lab_result_data['organizer']['id']['root'];
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['proc_code'] = $lab_result_data['organizer']['code']['code'];
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['proc_text'] = $lab_result_data['organizer']['code']['displayName'];
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['date'] = $lab_result_data['organizer']['effectiveTime']['value'];
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['status'] = $lab_result_data['organizer']['statusCode']['code'];
 
-                        $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_extension'] = $value['observation']['id']['extension'];
-                        $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_root'] = $value['observation']['id']['root'];
-                        $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_code'] = $value['observation']['code']['code'];
-                        $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_text'] = $value['observation']['code']['displayName'];
-                        $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_date'] = $value['observation']['effectiveTime']['value'];
-                        $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_value'] = $value['observation']['value']['value'];
-                        $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_unit'] = $value['observation']['value']['unit'];
-                        if ($value['observation']['referenceRange']['observationRange']['text'])
-                            $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_range'] = $value['observation']['referenceRange']['observationRange']['text'];
-                        else
-                            $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_range'] = $value['observation']['referenceRange']['observationRange']['value']['low']['value'] . '-' . $value['observation']['referenceRange']['observationRange']['value']['high']['value'] . ' ' . $value['observation']['referenceRange']['observationRange']['value']['low']['unit'];
-                        $this->ccda_data_array['entry_identification_array']['procedure_result'][$i] = $i;
-                        $i++;
-                    }
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_extension'] = $value['observation']['id']['extension'];
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_root'] = $value['observation']['id']['root'];
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_code'] = $value['observation']['code']['code'];
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_text'] = $value['observation']['code']['displayName'];
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_date'] = $value['observation']['effectiveTime']['value'];
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_value'] = $value['observation']['value']['value'];
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_unit'] = $value['observation']['value']['unit'];
+                if ($value['observation']['referenceRange']['observationRange']['text'])
+                    $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_range'] = $value['observation']['referenceRange']['observationRange']['text'];
+                else
+                    $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_range'] = $value['observation']['referenceRange']['observationRange']['value']['low']['value'] . '-' . $value['observation']['referenceRange']['observationRange']['value']['high']['value'] . ' ' . $value['observation']['referenceRange']['observationRange']['value']['low']['unit'];
+                $this->ccda_data_array['entry_identification_array']['procedure_result'][$i] = $i;
+                $i++;
             }
+        }
             unset($lab_result_data);
             return;
-        }
+    }
 
-	public function vital_sign($component)
-	{
+    public function vital_sign($component)
+    {
             $component['section']['text'] = '';
-            if ($component['section']['entry'][0]) {
-                foreach ($component['section']['entry'] as $key => $value) {
-                    $this->fetch_vital_sign_value($value);
-                }
-                    }
-                    else{
-                $this->fetch_vital_sign_value($component['section']['entry']);
+        if ($component['section']['entry'][0]) {
+            foreach ($component['section']['entry'] as $key => $value) {
+                $this->fetch_vital_sign_value($value);
             }
+        }
+        else{
+            $this->fetch_vital_sign_value($component['section']['entry']);
+        }
             unset($component);
             return;
-        }
+    }
 
-	public function fetch_vital_sign_value($vital_sign_data)
-	{
-            if($vital_sign_data['organizer']['component'][0]['observation']['effectiveTime']['value'] != '' && $vital_sign_data['organizer']['component'][0]['observation']['effectiveTime']['value'] != 0) {
-                $i = count($this->ccda_data_array['field_name_value_array']['vital_sign']) + 1;
-                $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['extension'] = $vital_sign_data['organizer']['id']['extension'];
-                $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['root'] = $vital_sign_data['organizer']['id']['root'];
-                $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['date'] = $vital_sign_data['organizer']['component'][0]['observation']['effectiveTime']['value'];
-                $vitals_array = array(
-                    '8310-5' => 'temperature',
-                    '8462-4' => 'bpd',
-                    '8480-6' => 'bps',
-                    '8287-5' => 'head_circ',
-                    '8867-4' => 'pulse',
-                    '8302-2' => 'height',
-                    '2710-2' => 'oxygen_saturation',
-                    '9279-1' => 'respiration',
-                    '3141-9' => 'weight'
-                );
+    public function fetch_vital_sign_value($vital_sign_data)
+    {
+        if($vital_sign_data['organizer']['component'][0]['observation']['effectiveTime']['value'] != '' && $vital_sign_data['organizer']['component'][0]['observation']['effectiveTime']['value'] != 0) {
+            $i = count($this->ccda_data_array['field_name_value_array']['vital_sign']) + 1;
+            $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['extension'] = $vital_sign_data['organizer']['id']['extension'];
+            $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['root'] = $vital_sign_data['organizer']['id']['root'];
+            $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['date'] = $vital_sign_data['organizer']['component'][0]['observation']['effectiveTime']['value'];
+            $vitals_array = array(
+            '8310-5' => 'temperature',
+            '8462-4' => 'bpd',
+            '8480-6' => 'bps',
+            '8287-5' => 'head_circ',
+            '8867-4' => 'pulse',
+            '8302-2' => 'height',
+            '2710-2' => 'oxygen_saturation',
+            '9279-1' => 'respiration',
+            '3141-9' => 'weight'
+            );
 
-                for ($j = 0; $j < 9; $j++) {
-                    $code = $vital_sign_data['organizer']['component'][$j]['observation']['code']['code'];
-                    if ($vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship']) {
-                        $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['bps'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][0]['observation']['value']['value'];
-                        $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['bpd'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][1]['observation']['value']['value'];
-                    }
-                    else
-                        $this->ccda_data_array['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $vital_sign_data['organizer']['component'][$j]['observation']['value']['value'];
+            for ($j = 0; $j < 9; $j++) {
+                $code = $vital_sign_data['organizer']['component'][$j]['observation']['code']['code'];
+                if ($vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship']) {
+                    $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['bps'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][0]['observation']['value']['value'];
+                    $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['bpd'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][1]['observation']['value']['value'];
                 }
-                $this->ccda_data_array['entry_identification_array']['vital_sign'][$i] = $i;
-                unset($vital_sign_data);
-                return;
+                else
+                $this->ccda_data_array['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $vital_sign_data['organizer']['component'][$j]['observation']['value']['value'];
             }
-        }
-
-	public function social_history($component)
-	{
-            $component['section']['text'] = '';
-            if ($component['section']['entry'][0]) {
-                foreach ($component['section']['entry'] as $key => $value) {
-                    $this->fetch_social_history_value($value);
-                }
-                    }
-                    else{
-                $this->fetch_social_history_value($component['section']['entry']);
-            }
-            unset($component);
+            $this->ccda_data_array['entry_identification_array']['vital_sign'][$i] = $i;
+            unset($vital_sign_data);
             return;
         }
+    }
 
-	public function fetch_social_history_value($social_history_data)
-	{
-            if($social_history_data['observation']['value']['code'] != '' && $social_history_data['observation']['value']['code'] != 0) {
-                $social_history_array = array(
-                    '2.16.840.1.113883.10.20.22.4.78' => 'smoking'
-                );
-                $i = 0;
-                $code = $social_history_data['observation']['templateId']['root'];
-                foreach ($this->ccda_data_array['field_name_value_array']['social_history'] as $key => $value) {
-                    if (!array_key_exists($social_history_array[$code], $value)) {
-                        $i = $key;
-                            }
-                            else {
-                        $i = count($this->ccda_data_array['field_name_value_array']['social_history']) + 1;
-                    }
-                }
-                $this->ccda_data_array['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['extension'] = $social_history_data['observation']['id']['extension'];
-                $this->ccda_data_array['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['root'] = $social_history_data['observation']['id']['root'];
-                $this->ccda_data_array['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['status'] = $social_history_data['observation']['value']['code'];
-                $this->ccda_data_array['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['begdate'] = $social_history_data['observation']['effectiveTime']['low']['value'];
-                $this->ccda_data_array['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['enddate'] = $social_history_data['observation']['effectiveTime']['high']['value'];
-                $this->ccda_data_array['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['value'] = $social_history_data['observation']['value']['displayName'];
-                $this->ccda_data_array['entry_identification_array']['social_history'][$i] = $i;
-                unset($social_history_data);
-                return;
+    public function social_history($component)
+    {
+            $component['section']['text'] = '';
+        if ($component['section']['entry'][0]) {
+            foreach ($component['section']['entry'] as $key => $value) {
+                $this->fetch_social_history_value($value);
             }
         }
-
-	public function encounter($component)
-	{
-            $component['section']['text'] = '';
-            if ($component['section']['entry'][0]) {
-                foreach ($component['section']['entry'] as $key => $value) {
-                    $this->fetch_encounter_value($value);
-                }
-                    }
-                    else{
-                $this->fetch_encounter_value($component['section']['entry']);
-            }
+        else{
+            $this->fetch_social_history_value($component['section']['entry']);
+        }
             unset($component);
             return;
+    }
+
+    public function fetch_social_history_value($social_history_data)
+    {
+        if($social_history_data['observation']['value']['code'] != '' && $social_history_data['observation']['value']['code'] != 0) {
+            $social_history_array = array(
+            '2.16.840.1.113883.10.20.22.4.78' => 'smoking'
+            );
+            $i = 0;
+            $code = $social_history_data['observation']['templateId']['root'];
+            foreach ($this->ccda_data_array['field_name_value_array']['social_history'] as $key => $value) {
+                if (!array_key_exists($social_history_array[$code], $value)) {
+                    $i = $key;
+                }
+                else {
+                    $i = count($this->ccda_data_array['field_name_value_array']['social_history']) + 1;
+                }
+            }
+            $this->ccda_data_array['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['extension'] = $social_history_data['observation']['id']['extension'];
+            $this->ccda_data_array['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['root'] = $social_history_data['observation']['id']['root'];
+            $this->ccda_data_array['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['status'] = $social_history_data['observation']['value']['code'];
+            $this->ccda_data_array['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['begdate'] = $social_history_data['observation']['effectiveTime']['low']['value'];
+            $this->ccda_data_array['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['enddate'] = $social_history_data['observation']['effectiveTime']['high']['value'];
+            $this->ccda_data_array['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['value'] = $social_history_data['observation']['value']['displayName'];
+            $this->ccda_data_array['entry_identification_array']['social_history'][$i] = $i;
+            unset($social_history_data);
+            return;
         }
+    }
 
-	public function fetch_encounter_value($encounter_data)
-	{
-            if($encounter_data['encounter']['effectiveTime']['value'] != 0) {
-                $i = count($this->ccda_data_array['field_name_value_array']['encounter']) + 1;
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['extension'] = $encounter_data['encounter']['id']['extension'];
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['root'] = $encounter_data['encounter']['id']['root'];
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['date'] = $encounter_data['encounter']['effectiveTime']['value'];
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['code'] = $encounter_data['encounter']['code']['code'];
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['code_text'] = $encounter_data['encounter']['code']['displayName'];
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['provider_npi'] = $encounter_data['encounter']['performer']['assignedEntity']['id']['extension'];
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['provider_name'] = $encounter_data['encounter']['performer']['assignedEntity']['assignedPerson']['name']['given'];
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['provider_address'] = $encounter_data['encounter']['performer']['assignedEntity']['addr']['streetAddressLine'];
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['provider_city'] = $encounter_data['encounter']['performer']['assignedEntity']['addr']['city'];
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['provider_state'] = $encounter_data['encounter']['performer']['assignedEntity']['addr']['state'];
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['provider_postalCode'] = $encounter_data['encounter']['performer']['assignedEntity']['addr']['postalCode'];
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['provider_country'] = $encounter_data['encounter']['performer']['assignedEntity']['addr']['country'];
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['represented_organization_name'] = $encounter_data['encounter']['participant']['participantRole']['playingEntity']['name'];
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['represented_organization_address'] = $encounter_data['encounter']['participant']['participantRole']['addr']['streetAddressLine'];
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['represented_organization_city'] = $encounter_data['encounter']['participant']['participantRole']['addr']['city'];
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['represented_organization_state'] = $encounter_data['encounter']['participant']['participantRole']['addr']['state'];
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['represented_organization_zip'] = $encounter_data['encounter']['participant']['participantRole']['addr']['postalCode'];
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['represented_organization_country'] = $encounter_data['encounter']['participant']['participantRole']['addr']['country'];
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['represented_organization_telecom'] = $encounter_data['encounter']['participant']['participantRole']['telecom'];
-
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['encounter_diagnosis_date'] = $encounter_data['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['effectiveTime']['low']['value'];
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['encounter_diagnosis_code'] = $encounter_data['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['value']['code'];
-                $this->ccda_data_array['field_name_value_array']['encounter'][$i]['encounter_diagnosis_issue'] = $encounter_data['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['value']['displayName'];
-                $this->ccda_data_array['entry_identification_array']['encounter'][$i] = $i;
-                unset($encounter_data);
-                return;
+    public function encounter($component)
+    {
+            $component['section']['text'] = '';
+        if ($component['section']['entry'][0]) {
+            foreach ($component['section']['entry'] as $key => $value) {
+                $this->fetch_encounter_value($value);
             }
         }
+        else{
+            $this->fetch_encounter_value($component['section']['entry']);
+        }
+            unset($component);
+            return;
+    }
 
-	public function care_plan($component)
-	{
+    public function fetch_encounter_value($encounter_data)
+    {
+        if($encounter_data['encounter']['effectiveTime']['value'] != 0) {
+            $i = count($this->ccda_data_array['field_name_value_array']['encounter']) + 1;
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['extension'] = $encounter_data['encounter']['id']['extension'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['root'] = $encounter_data['encounter']['id']['root'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['date'] = $encounter_data['encounter']['effectiveTime']['value'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['code'] = $encounter_data['encounter']['code']['code'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['code_text'] = $encounter_data['encounter']['code']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['provider_npi'] = $encounter_data['encounter']['performer']['assignedEntity']['id']['extension'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['provider_name'] = $encounter_data['encounter']['performer']['assignedEntity']['assignedPerson']['name']['given'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['provider_address'] = $encounter_data['encounter']['performer']['assignedEntity']['addr']['streetAddressLine'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['provider_city'] = $encounter_data['encounter']['performer']['assignedEntity']['addr']['city'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['provider_state'] = $encounter_data['encounter']['performer']['assignedEntity']['addr']['state'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['provider_postalCode'] = $encounter_data['encounter']['performer']['assignedEntity']['addr']['postalCode'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['provider_country'] = $encounter_data['encounter']['performer']['assignedEntity']['addr']['country'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['represented_organization_name'] = $encounter_data['encounter']['participant']['participantRole']['playingEntity']['name'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['represented_organization_address'] = $encounter_data['encounter']['participant']['participantRole']['addr']['streetAddressLine'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['represented_organization_city'] = $encounter_data['encounter']['participant']['participantRole']['addr']['city'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['represented_organization_state'] = $encounter_data['encounter']['participant']['participantRole']['addr']['state'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['represented_organization_zip'] = $encounter_data['encounter']['participant']['participantRole']['addr']['postalCode'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['represented_organization_country'] = $encounter_data['encounter']['participant']['participantRole']['addr']['country'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['represented_organization_telecom'] = $encounter_data['encounter']['participant']['participantRole']['telecom'];
+
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['encounter_diagnosis_date'] = $encounter_data['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['effectiveTime']['low']['value'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['encounter_diagnosis_code'] = $encounter_data['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['value']['code'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['encounter_diagnosis_issue'] = $encounter_data['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['value']['displayName'];
+            $this->ccda_data_array['entry_identification_array']['encounter'][$i] = $i;
+            unset($encounter_data);
+            return;
+        }
+    }
+
+    public function care_plan($component)
+    {
         $component['section']['text'] = '';
         if ($component['section']['entry'][0]) {
             foreach ($component['section']['entry'] as $key => $value) {
                 $this->fetch_care_plan_value($value);
             }
-		}
-		else{
+        }
+        else{
             $this->fetch_care_plan_value($component['section']['entry']);
         }
         unset($component);
         return;
-        }
+    }
 
-	public function fetch_care_plan_value($care_plan_data)
-	{
-            if($care_plan_data['act']['code']['code'] != '' && $care_plan_data['act']['code']['code'] != 0) {
-                $i = count($this->ccda_data_array['field_name_value_array']['care_plan']) + 1;
-                $this->ccda_data_array['field_name_value_array']['care_plan'][$i]['extension'] = $care_plan_data['act']['templateId']['root'];
-                $this->ccda_data_array['field_name_value_array']['care_plan'][$i]['root'] = $care_plan_data['act']['templateId']['root'];
-                $this->ccda_data_array['field_name_value_array']['care_plan'][$i]['code'] = $care_plan_data['act']['code']['code'];
-                $this->ccda_data_array['field_name_value_array']['care_plan'][$i]['code_text'] = $care_plan_data['act']['code']['displayName'];
-                $this->ccda_data_array['field_name_value_array']['care_plan'][$i]['description'] = $care_plan_data['act']['text'];
-                $this->ccda_data_array['field_name_value_array']['care_plan'][$i]['date'] = $care_plan_data['act']['effectiveTime']['center']['value'];
-                $this->ccda_data_array['entry_identification_array']['care_plan'][$i] = $i;
-                unset($care_plan_data);
-                return;
-            }
+    public function fetch_care_plan_value($care_plan_data)
+    {
+        if($care_plan_data['act']['code']['code'] != '' && $care_plan_data['act']['code']['code'] != 0) {
+            $i = count($this->ccda_data_array['field_name_value_array']['care_plan']) + 1;
+            $this->ccda_data_array['field_name_value_array']['care_plan'][$i]['extension'] = $care_plan_data['act']['templateId']['root'];
+            $this->ccda_data_array['field_name_value_array']['care_plan'][$i]['root'] = $care_plan_data['act']['templateId']['root'];
+            $this->ccda_data_array['field_name_value_array']['care_plan'][$i]['code'] = $care_plan_data['act']['code']['code'];
+            $this->ccda_data_array['field_name_value_array']['care_plan'][$i]['code_text'] = $care_plan_data['act']['code']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['care_plan'][$i]['description'] = $care_plan_data['act']['text'];
+            $this->ccda_data_array['field_name_value_array']['care_plan'][$i]['date'] = $care_plan_data['act']['effectiveTime']['center']['value'];
+            $this->ccda_data_array['entry_identification_array']['care_plan'][$i] = $i;
+            unset($care_plan_data);
+            return;
         }
+    }
 
-	public function functional_cognitive_status($component)
-	{
+    public function functional_cognitive_status($component)
+    {
         $component['section']['text'] = '';
         if ($component['section']['entry'][0]) {
             foreach ($component['section']['entry'] as $key => $value) {
                 $this->fetch_functional_cognitive_status_value($value);
             }
-		}
-		else{
+        }
+        else{
             $this->fetch_functional_cognitive_status_value($component['section']['entry']);
         }
         unset($component);
         return;
-        }
-
-	public function fetch_functional_cognitive_status_value($functional_cognitive_status_data)
-	{
-            if($functional_cognitive_status_data['observation']['value']['code'] != '' && $functional_cognitive_status_data['observation']['value']['code'] != 0) {
-                $i = count($this->ccda_data_array['field_name_value_array']['functional_cognitive_status']) + 1;
-                $this->ccda_data_array['field_name_value_array']['functional_cognitive_status'][$i]['extension'] = $functional_cognitive_status_data['observation']['id']['extension'];
-                $this->ccda_data_array['field_name_value_array']['functional_cognitive_status'][$i]['root'] = $functional_cognitive_status_data['observation']['id']['root'];
-                $this->ccda_data_array['field_name_value_array']['functional_cognitive_status'][$i]['date'] = $functional_cognitive_status_data['observation']['effectiveTime']['low']['value'];
-                $this->ccda_data_array['field_name_value_array']['functional_cognitive_status'][$i]['code'] = $functional_cognitive_status_data['observation']['value']['code'];
-                $this->ccda_data_array['field_name_value_array']['functional_cognitive_status'][$i]['code_text'] = $functional_cognitive_status_data['observation']['code']['displayName'];
-                $this->ccda_data_array['field_name_value_array']['functional_cognitive_status'][$i]['description'] = $functional_cognitive_status_data['observation']['value']['displayName'];
-                $this->ccda_data_array['entry_identification_array']['functional_cognitive_status'][$i] = $i;
-                unset($functional_cognitive_status_data);
-                return;
-            }
-        }
-
-        public function referral($component)
-	{
-		if($component['section']['entry'][0]){
-			foreach($component['section']['entry'] as $key => $value){
-				$this->fetch_referral_value($value);
-			}
-		}
-		else{
-			$this->fetch_referral_value($component['section']);
-		}
-		unset($component);
-		return;
-	}
-	
-	public function fetch_referral_value($referral_data)
-	{
-    if(is_array($referral_data['text']['paragraph'])) {
-      $i = 1;
-      foreach ($referral_data['text']['paragraph'] as $key => $value) {
-        if($value) {
-          $this->ccda_data_array['field_name_value_array']['referral'][$i]['body'] = preg_replace("/\s+/", " ",$value);
-          $this->ccda_data_array['entry_identification_array']['referral'][$i]     = $i;
-          $i++;
-        }
-      }
-      
     }
-    else {
-		$i = count($this->ccda_data_array['field_name_value_array']['referral']) + 1;
-		$this->ccda_data_array['field_name_value_array']['referral'][$i]['root'] = $referral_data['templateId']['root'];
-		$this->ccda_data_array['field_name_value_array']['referral'][$i]['body'] = preg_replace("/\s+/", " ",$referral_data['text']['paragraph']);
 
-    $this->ccda_data_array['entry_identification_array']['referral'][$i]          = $i;
-		unset($referral_data);
-    }
-		return;
-	}
-        
-        public function discharge_medications($component)
-	{
-            $component['section']['text'] = '';
-            if ($component['section']['entry'][0]) {
-                foreach ($component['section']['entry'] as $key => $value) {
-                    $this->fetch_discharge_medications_value($value);
-                }
-                    }
-                    else{
-                $this->fetch_discharge_medications_value($component['section']['entry']);
-            }
-            unset($component);
+    public function fetch_functional_cognitive_status_value($functional_cognitive_status_data)
+    {
+        if($functional_cognitive_status_data['observation']['value']['code'] != '' && $functional_cognitive_status_data['observation']['value']['code'] != 0) {
+            $i = count($this->ccda_data_array['field_name_value_array']['functional_cognitive_status']) + 1;
+            $this->ccda_data_array['field_name_value_array']['functional_cognitive_status'][$i]['extension'] = $functional_cognitive_status_data['observation']['id']['extension'];
+            $this->ccda_data_array['field_name_value_array']['functional_cognitive_status'][$i]['root'] = $functional_cognitive_status_data['observation']['id']['root'];
+            $this->ccda_data_array['field_name_value_array']['functional_cognitive_status'][$i]['date'] = $functional_cognitive_status_data['observation']['effectiveTime']['low']['value'];
+            $this->ccda_data_array['field_name_value_array']['functional_cognitive_status'][$i]['code'] = $functional_cognitive_status_data['observation']['value']['code'];
+            $this->ccda_data_array['field_name_value_array']['functional_cognitive_status'][$i]['code_text'] = $functional_cognitive_status_data['observation']['code']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['functional_cognitive_status'][$i]['description'] = $functional_cognitive_status_data['observation']['value']['displayName'];
+            $this->ccda_data_array['entry_identification_array']['functional_cognitive_status'][$i] = $i;
+            unset($functional_cognitive_status_data);
             return;
         }
+    }
 
-	public function fetch_discharge_medications_value($discharge_medications_data)
-	{
+    public function referral($component)
+    {
+        if($component['section']['entry'][0]){
+            foreach($component['section']['entry'] as $key => $value){
+                $this->fetch_referral_value($value);
+            }
+        }
+        else{
+            $this->fetch_referral_value($component['section']);
+        }
+        unset($component);
+        return;
+    }
+    
+    public function fetch_referral_value($referral_data)
+    {
+        if(is_array($referral_data['text']['paragraph'])) {
+              $i = 1;
+            foreach ($referral_data['text']['paragraph'] as $key => $value) {
+                if($value) {
+                    $this->ccda_data_array['field_name_value_array']['referral'][$i]['body'] = preg_replace("/\s+/", " ",$value);
+                    $this->ccda_data_array['entry_identification_array']['referral'][$i]     = $i;
+                    $i++;
+                }
+            }
+      
+        }
+        else {
+            $i = count($this->ccda_data_array['field_name_value_array']['referral']) + 1;
+            $this->ccda_data_array['field_name_value_array']['referral'][$i]['root'] = $referral_data['templateId']['root'];
+            $this->ccda_data_array['field_name_value_array']['referral'][$i]['body'] = preg_replace("/\s+/", " ",$referral_data['text']['paragraph']);
+
+            $this->ccda_data_array['entry_identification_array']['referral'][$i]          = $i;
+            unset($referral_data);
+        }
+        return;
+    }
+        
+    public function discharge_medications($component)
+    {
+        $component['section']['text'] = '';
+        if ($component['section']['entry'][0]) {
+            foreach ($component['section']['entry'] as $key => $value) {
+                $this->fetch_discharge_medications_value($value);
+            }
+        }
+        else{
+            $this->fetch_discharge_medications_value($component['section']['entry']);
+        }
+            unset($component);
+            return;
+    }
+
+    public function fetch_discharge_medications_value($discharge_medications_data)
+    {
                 $i = count($this->ccda_data_array['field_name_value_array']['discharge_medication']) + 1;
                 $this->ccda_data_array['field_name_value_array']['discharge_medication'][$i]['extension']           = $discharge_medications_data['act']['id']['extension'];
                 $this->ccda_data_array['field_name_value_array']['discharge_medication'][$i]['root']                = $discharge_medications_data['act']['id']['root'];
@@ -823,71 +823,71 @@ class CarecoordinationTable extends AbstractTableGateway
                 $this->ccda_data_array['entry_identification_array']['discharge_medication'][$i]                    = $i;
                 unset($discharge_medications_data);
                 return;
-        }
+    }
         
-        public function discharge_summary($component)
-	{
-		if($component['section']['entry'][0]){
-			foreach($component['section']['entry'] as $key => $value){
-				$this->fetch_discharge_summary_value($value);
-			}
-		}
-		else{
-			$this->fetch_discharge_summary_value($component['section']);
-		}
-		unset($component);
-		return;
-	}
-	
-	public function fetch_discharge_summary_value($discharge_summary_data)
-	{
-		$i = count($this->ccda_data_array['field_name_value_array']['discharge_summary']) + 1;
-		$this->ccda_data_array['field_name_value_array']['discharge_summary'][$i]['root'] = $discharge_summary_data['templateId']['root'];
+    public function discharge_summary($component)
+    {
+        if($component['section']['entry'][0]){
+            foreach($component['section']['entry'] as $key => $value){
+                $this->fetch_discharge_summary_value($value);
+            }
+        }
+        else{
+            $this->fetch_discharge_summary_value($component['section']);
+        }
+        unset($component);
+        return;
+    }
+    
+    public function fetch_discharge_summary_value($discharge_summary_data)
+    {
+        $i = count($this->ccda_data_array['field_name_value_array']['discharge_summary']) + 1;
+        $this->ccda_data_array['field_name_value_array']['discharge_summary'][$i]['root'] = $discharge_summary_data['templateId']['root'];
                 $text =  preg_replace("/\s+/", " ",$discharge_summary_data['text']['content']);
-                for($j=0;$j<count($discharge_summary_data['text']['list']['item']);$j++) {
-                    if(is_array($discharge_summary_data['text']['list']['item'][$j])) {
-                        for($k=0;$k<count($discharge_summary_data['text']['list']['item'][$j]['list']['item']);$k++) {
-                           $text .= "#$%". preg_replace("/\s+/", " ",$discharge_summary_data['text']['list']['item'][$j]['list']['item'][$k]);
-                        }
-                    }
-                    else {
-                        $text .= "#$%". preg_replace("/\s+/", " ",$discharge_summary_data['text']['list']['item'][$j]);
-                    }
+        for($j=0;$j<count($discharge_summary_data['text']['list']['item']);$j++) {
+            if(is_array($discharge_summary_data['text']['list']['item'][$j])) {
+                for($k=0;$k<count($discharge_summary_data['text']['list']['item'][$j]['list']['item']);$k++) {
+                    $text .= "#$%". preg_replace("/\s+/", " ",$discharge_summary_data['text']['list']['item'][$j]['list']['item'][$k]);
                 }
-		$this->ccda_data_array['field_name_value_array']['discharge_summary'][$i]['text'] = $text;
+            }
+            else {
+                $text .= "#$%". preg_replace("/\s+/", " ",$discharge_summary_data['text']['list']['item'][$j]);
+            }
+        }
+        $this->ccda_data_array['field_name_value_array']['discharge_summary'][$i]['text'] = $text;
 
                 $this->ccda_data_array['entry_identification_array']['discharge_summary'][$i]     = $i;
-		unset($discharge_summary_data);
-		return;
-	}
+        unset($discharge_summary_data);
+        return;
+    }
     /*
      * Fetch a document from the database
      *
      * @param	$document_id		Integer		Document ID
      * @return	$content		String		File content
      */
-	public function getDocument($document_id)
-	{
+    public function getDocument($document_id)
+    {
         $content = \Documents\Plugin\Documents::getDocument($document_id);
         return $content;
     }
 
-  public function getCategory()
-  {
+    public function getCategory()
+    {
         $doc_obj = new DocumentsTable();
         $category = $doc_obj->getCategory();
         return $category;
     }
 
-  public function getIssues($pid)
-  {
+    public function getIssues($pid)
+    {
         $doc_obj = new DocumentsTable();
         $issues = $doc_obj->getIssues($pid);
         return $issues;
     }
 
-  public function getCategoryIDs()
-  {
+    public function getCategoryIDs()
+    {
         $doc_obj = new DocumentsTable();
         $result = implode("|", $doc_obj->getCategoryIDs(array('CCD', 'CCR', 'CCDA')));
         return $result;
@@ -899,8 +899,8 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param    audit_master_id   Integer   ID from audit master table
      * @return   records           Array     Demographics data
      */
-  public function getDemographics($data)
-  {
+    public function getDemographics($data)
+    {
         $appTable = new ApplicationTable();
         $query = "SELECT ad.id as adid, 
                           table_name, 
@@ -924,8 +924,8 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param    pid       Integer   Patient ID
      * @return   records   Array     current patient data
      */
-  public function getDemographicsOld($data)
-  {
+    public function getDemographicsOld($data)
+    {
         $appTable = new ApplicationTable();
         $query = "SELECT * 
                    FROM patient_data 
@@ -944,8 +944,8 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param    pid       Integer     patient id
      * @return   records   Array       list of problems
      */
-  public function getProblems($data)
-  {
+    public function getProblems($data)
+    {
         $appTable = new ApplicationTable();
         $query = "SELECT * 
                    FROM lists
@@ -964,8 +964,8 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param    pid       Integer     patient id
      * @return   records   Array       list of allergies
      */
-  public function getAllergies($data)
-  {
+    public function getAllergies($data)
+    {
         $appTable = new ApplicationTable();
         $query = "SELECT * 
                    FROM lists 
@@ -984,8 +984,8 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param    pid       Integer     patient id
      * @return   records   Array       list of medications
      */
-  public function getMedications($data)
-  {
+    public function getMedications($data)
+    {
         $appTable = new ApplicationTable();
         $query = "SELECT * 
                    FROM prescriptions 
@@ -1004,8 +1004,8 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param    pid       Integer     patient id
      * @return   records   Array       list of immunizations
      */
-  public function getImmunizations($data)
-  {
+    public function getImmunizations($data)
+    {
         $appTable = new ApplicationTable();
         $query = "SELECT * 
                    FROM immunizations 
@@ -1024,8 +1024,8 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param    pid       Integer     patient id
      * @return   records   Array       list of lab results
      */
-  public function getLabResults($data)
-  {
+    public function getLabResults($data)
+    {
         $appTable = new ApplicationTable();
         $query = "SELECT CONCAT_WS('',po.procedure_order_id,poc.`procedure_order_seq`) AS tcode, 
                           prs.result AS result_value, 
@@ -1057,8 +1057,8 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param    pid       Integer     patient id
      * @return   records   Array       list of vitals
      */
-  public function getVitals($data)
-  {
+    public function getVitals($data)
+    {
         $appTable = new ApplicationTable();
         $query = "SELECT * 
                    FROM form_vitals 
@@ -1077,8 +1077,8 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param    pid       Integer     patient id
      * @return   records   Array       history data
      */
-  public function getSocialHistory($data)
-  {
+    public function getSocialHistory($data)
+    {
         $appTable = new ApplicationTable();
         $query = "SELECT * 
                    FROM history_data 
@@ -1098,8 +1098,8 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param    pid       Integer     patient id
      * @return   records   Array       encounter data
      */
-  public function getEncounterData($data)
-  {
+    public function getEncounterData($data)
+    {
         $appTable = new ApplicationTable();
         $query = "SELECT form_encounter.*,u.fname AS provider_name 
                    FROM form_encounter 
@@ -1120,8 +1120,8 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param    pid       Integer     patient id
      * @return   records   Array       billing data
      */
-  public function getProcedure($data)
-  {
+    public function getProcedure($data)
+    {
         $appTable = new ApplicationTable();
         $query = "SELECT *
                  FROM billing
@@ -1140,8 +1140,8 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param    pid       Integer     patient id
      * @return   records   Array       list of Care Plans
      */
-  public function getCarePlan($data)
-  {
+    public function getCarePlan($data)
+    {
         $appTable = new ApplicationTable();
         $query = "SELECT * 
                    FROM form_care_plan 
@@ -1160,8 +1160,8 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param    pid       Integer     patient id
      * @return   records   Array       list of Functional Cognitive Status
      */
-  public function getFunctionalCognitiveStatus($data)
-  {
+    public function getFunctionalCognitiveStatus($data)
+    {
         $appTable = new ApplicationTable();
         $query = "SELECT * 
                    FROM form_functional_cognitive_status 
@@ -1180,8 +1180,8 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param    am_id         integer     audit master ID
      * @param    table_name    string      identifier inserted for each table (eg: prescriptions, list1 ...)
      */
-  public function createAuditArray($am_id,$table_name)
-  {
+    public function createAuditArray($am_id,$table_name)
+    {
         $appTable = new ApplicationTable();
         if (strpos($table_name, ',')) {
             $tables = explode(',', $table_name);
@@ -1200,8 +1200,8 @@ class CarecoordinationTable extends AbstractTableGateway
                      WHERE am.id = ? AND am.type = 12 AND am.approval_status = 1 
                      ORDER BY ad.entry_identification,ad.field_name";
             $result = $appTable->zQuery($query, $arr);
-    }
-    else{
+        }
+        else{
             $query = "SELECT * 
                        FROM audit_master am 
                        JOIN audit_details ad 
@@ -1213,13 +1213,13 @@ class CarecoordinationTable extends AbstractTableGateway
         }
         $records = array();
         foreach ($result as $res) {
-          $records[$table_name][$res['entry_identification']][$res['field_name']] = $res['field_value'];
+            $records[$table_name][$res['entry_identification']][$res['field_name']] = $res['field_value'];
         }
         return $records;
     }
 
-  public function getListTitle($option_id='',$list_id,$codes='')
-  {
+    public function getListTitle($option_id='',$list_id,$codes='')
+    {
         $appTable = new ApplicationTable();
         if ($option_id) {
             $query = "SELECT title 
@@ -1238,8 +1238,8 @@ class CarecoordinationTable extends AbstractTableGateway
         return $res_cur['title'];
     }
 
-  public function insertApprovedData($data)
-  {
+    public function insertApprovedData($data)
+    {
         $appTable = new ApplicationTable();
         $patient_data_fields = '';
         $patient_data_values = array();
@@ -1535,17 +1535,17 @@ class CarecoordinationTable extends AbstractTableGateway
                                 }
                                 else if($p1_arr[$i] == 0) {
                                     $query7 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
-                                    $appTable->zQuery($query7, array((NULL),$data['pid'], $data['lists1-old-id-con'][$i]));
-                                 }
+                                    $appTable->zQuery($query7, array((null),$data['pid'], $data['lists1-old-id-con'][$i]));
+                                }
                             }
                             if(substr($key,0,-4) == 'lists1_exist'){
                                 if($p2_arr[$i] == 1) {
-                                  $query4 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
-                                  $appTable->zQuery($query4, array(date('Y-m-d'),$data['pid'], $data['lists1_exist-list_id'][$i]));
+                                    $query4 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
+                                    $appTable->zQuery($query4, array(date('Y-m-d'),$data['pid'], $data['lists1_exist-list_id'][$i]));
                                 }
                                 else if($p2_arr[$i] == 0) {
-                                  $query4 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
-                                  $appTable->zQuery($query4, array((NULL),$data['pid'], $data['lists1_exist-list_id'][$i]));
+                                    $query4 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
+                                    $appTable->zQuery($query4, array((null),$data['pid'], $data['lists1_exist-list_id'][$i]));
                                 }
                             }
                             elseif(substr($key, 0, -4) == 'lists2-con') {
@@ -1555,11 +1555,11 @@ class CarecoordinationTable extends AbstractTableGateway
                                 elseif($data['lists2-begdate-con'][$i] == 0) {
                                     $allergy_begdate = $data['lists2-begdate-con'][$i];
                                     $allergy_begdate_value = fixDate($allergy_begdate);
-                                    $allergy_begdate_value = (NULL);
+                                    $allergy_begdate_value = (null);
                                 }
                                 $severity_option_id = $this->getOptionId('severity_ccda', '', 'SNOMED-CT:' . $data['lists2-severity_al-con'][$i]);
                                 $severity_text = $this->getListTitle($severity_option_id, 'severity_ccda', 'SNOMED-CT:' . $data['lists2-severity_al-con'][$i]);
-                                if ($severity_option_id == '' || $severity_option_id == NULL) {
+                                if ($severity_option_id == '' || $severity_option_id == null) {
                                     $q_max_option_id = "SELECT MAX(CAST(option_id AS SIGNED))+1 AS option_id  
                                                     FROM list_options 
                                                     WHERE list_id=?";
@@ -1580,11 +1580,11 @@ class CarecoordinationTable extends AbstractTableGateway
                                                   ?,
                                                   1
                                                  )";
-                              if($severity_text) $appTable->zQuery($q_insert_units_option,array($severity_option_id,$severity_text));
+                                    if($severity_text) $appTable->zQuery($q_insert_units_option,array($severity_option_id,$severity_text));
                                 }
 
                                 $reaction_option_id = $this->getOptionId('Reaction', $data['lists2-reaction_text-con'][$i], '');
-                                if ($reaction_option_id == '' || $reaction_option_id == NULL) {
+                                if ($reaction_option_id == '' || $reaction_option_id == null) {
                                     $q_max_option_id = "SELECT MAX(CAST(option_id AS SIGNED))+1 AS option_id  
                                                     FROM list_options 
                                                     WHERE list_id=?";
@@ -1605,9 +1605,9 @@ class CarecoordinationTable extends AbstractTableGateway
                                                   ?,
                                                   1
                                                  )";
-                                if($value['reaction_text']) $appTable->zQuery($q_insert_units_option,array($reaction_option_id,$data['lists2-reaction_text-con'][$i]));
+                                    if($value['reaction_text']) $appTable->zQuery($q_insert_units_option,array($reaction_option_id,$data['lists2-reaction_text-con'][$i]));
                                 }
-                              $q_upd_allergies = "UPDATE lists
+                                $q_upd_allergies = "UPDATE lists
                                     SET date=?,
                                         begdate=?, 
                                         title=?, 
@@ -1615,33 +1615,33 @@ class CarecoordinationTable extends AbstractTableGateway
                                         severity_al=?,
                                         reaction=?
                                     WHERE pid = ? AND id=?";
-                        $appTable->zQuery($q_upd_allergies, array(
-                            date('y-m-d H:i:s'),
-                            $allergy_begdate_value,
-                            $data['lists2-title-con'][$i],
-                            'RXNORM' . ':' . $data['lists2-diagnosis-con'][$i],
-                            $severity_option_id,
-                            $reaction_option_id ? $reaction_option_id : 0,
-                            $data['pid'],
-                            $data['lists2-list_id-con'][$i]));
+                                $appTable->zQuery($q_upd_allergies, array(
+                                date('y-m-d H:i:s'),
+                                $allergy_begdate_value,
+                                $data['lists2-title-con'][$i],
+                                'RXNORM' . ':' . $data['lists2-diagnosis-con'][$i],
+                                $severity_option_id,
+                                $reaction_option_id ? $reaction_option_id : 0,
+                                $data['pid'],
+                                $data['lists2-list_id-con'][$i]));
                         
-                            if($a1_arr[$i] == 1) {
-                                $query5 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
-                                $appTable->zQuery($query5, array(date('Y-m-d'),$data['pid'], $data['lists2-list_id-con'][$i]));
-                              }
-                              else if($a1_arr[$i] == 0) {
-                                $query5 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
-                                $appTable->zQuery($query5, array((NULL),$data['pid'], $data['lists2-list_id-con'][$i]));
-                              }
+                                if($a1_arr[$i] == 1) {
+                                    $query5 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
+                                    $appTable->zQuery($query5, array(date('Y-m-d'),$data['pid'], $data['lists2-list_id-con'][$i]));
+                                }
+                                else if($a1_arr[$i] == 0) {
+                                    $query5 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
+                                    $appTable->zQuery($query5, array((null),$data['pid'], $data['lists2-list_id-con'][$i]));
+                                }
                             }
                             if(substr($key,0,-4) == 'lists2_exist'){
                                 if($a2_arr[$i] == 1) {
-                                  $query5 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
-                                  $appTable->zQuery($query5, array(date('Y-m-d'),$data['pid'], $data['lists2_exist-list_id'][$i]));
+                                    $query5 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
+                                    $appTable->zQuery($query5, array(date('Y-m-d'),$data['pid'], $data['lists2_exist-list_id'][$i]));
                                 }
                                 else if($a2_arr[$i] == 0) {
-                                  $query5 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
-                                  $appTable->zQuery($query5, array((NULL),$data['pid'], $data['lists2_exist-list_id'][$i]));
+                                    $query5 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
+                                    $appTable->zQuery($query5, array((null),$data['pid'], $data['lists2_exist-list_id'][$i]));
                                 }
                             }
                             elseif(substr($key, 0, -4) == 'lists3-con') {
@@ -1651,12 +1651,12 @@ class CarecoordinationTable extends AbstractTableGateway
                                                       FROM users 
                                                       WHERE abook_type='external_provider' AND npi=?";
                                     $res_query_sel_users = $appTable->zQuery($query_sel_users, array($data['lists3-provider_npi-con'][$i]));
-                                    if ($res_query_sel_users->count() > 0) {
-                                        foreach ($res_query_sel_users as $value1) {
-                                            $provider_id = $value1['id'];
-                                        }
-                              }
-                              else {
+                                if ($res_query_sel_users->count() > 0) {
+                                    foreach ($res_query_sel_users as $value1) {
+                                        $provider_id = $value1['id'];
+                                    }
+                                }
+                                else {
                                         $query_ins_users = "INSERT INTO users
                                                         ( fname,
                                                           lname,
@@ -1688,22 +1688,22 @@ class CarecoordinationTable extends AbstractTableGateway
                                             $data['lists3-provider_postalCode-con'][$i]
                                         ));
                                         $provider_id = $res_query_ins_users->getGeneratedValue();
-                                    }
+                                }
 
                                     //route
                                     $q1_route = "SELECT *  
                                                FROM list_options
                                                WHERE list_id='drug_route' AND notes=?";
                                     $res_q1_route = $appTable->zQuery($q1_route, array($data['lists3-route-con'][$i]));
-                                    foreach ($res_q1_route as $val1) {
-                                        $oid_route = $val1['option_id'];
+                                foreach ($res_q1_route as $val1) {
+                                    $oid_route = $val1['option_id'];
+                                }
+                                if ($res_q1_route->count() == 0) {
+                                    $lres = $appTable->zQuery("SELECT IFNULL(MAX(CONVERT(SUBSTRING_INDEX(option_id,'-',-1),UNSIGNED INTEGER))+1,1) AS option_id FROM list_options WHERE list_id = ?", array('drug_route'));
+                                    foreach ($lres as $lrow) {
+                                        $oid_route = $lrow['option_id'];
                                     }
-                                    if ($res_q1_route->count() == 0) {
-                                        $lres = $appTable->zQuery("SELECT IFNULL(MAX(CONVERT(SUBSTRING_INDEX(option_id,'-',-1),UNSIGNED INTEGER))+1,1) AS option_id FROM list_options WHERE list_id = ?", array('drug_route'));
-                                        foreach ($lres as $lrow) {
-                                            $oid_route = $lrow['option_id'];
-                                        }
-                                        $q_insert_route = "INSERT INTO list_options
+                                    $q_insert_route = "INSERT INTO list_options
                                                    (
                                                     list_id,
                                                     option_id,
@@ -1719,31 +1719,31 @@ class CarecoordinationTable extends AbstractTableGateway
                                                     ?,
                                                     1
                                                    )";
-                                        $appTable->zQuery($q_insert_route, array($oid_route, $data['lists3-route-con'][$i],
-                                            $data['lists3-route_display-con'][$i]));
-                                    }
+                                    $appTable->zQuery($q_insert_route, array($oid_route, $data['lists3-route-con'][$i],
+                                    $data['lists3-route_display-con'][$i]));
+                                }
 
                                     //drug form
                                     $query_select_form = "SELECT * FROM list_options WHERE list_id = ? AND title = ?";
                                     $result = $appTable->zQuery($query_select_form, array('drug_form', $data['lists3-dose_unit-con'][$i]));
-                                    if ($result->count() > 0) {
-                                        $q_update = "UPDATE list_options SET activity = 1 WHERE list_id = ? AND title = ?";
-                                        $appTable->zQuery($q_update, array('drug_form', $data['lists3-dose_unit-con'][$i]));
-                                        foreach ($result as $value2) {
-                                            $oidu_unit = $value2['option_id'];
-                                        }
-                              }
-                              else {
+                                if ($result->count() > 0) {
+                                    $q_update = "UPDATE list_options SET activity = 1 WHERE list_id = ? AND title = ?";
+                                    $appTable->zQuery($q_update, array('drug_form', $data['lists3-dose_unit-con'][$i]));
+                                    foreach ($result as $value2) {
+                                        $oidu_unit = $value2['option_id'];
+                                    }
+                                }
+                                else {
                                         $lres = $appTable->zQuery("SELECT IFNULL(MAX(CONVERT(SUBSTRING_INDEX(option_id,'-',-1),UNSIGNED INTEGER))+1,1) AS option_id FROM list_options WHERE list_id = ?", array('drug_form'));
-                                        foreach ($lres as $lrow) {
-                                            $oidu_unit = $lrow['option_id'];
-                                        }
+                                    foreach ($lres as $lrow) {
+                                        $oidu_unit = $lrow['option_id'];
+                                    }
                                         $q_insert = "INSERT INTO list_options (list_id,option_id,title,activity) VALUES (?,?,?,?)";
                                         $appTable->zQuery($q_insert, array('drug_form', $oidu_unit, $data['lists3-dose_unit-con'][$i], 1));
-                                    }
-                                    if ($data['lists3-enddate-con'][$i] == '' || $data['lists3-enddate-con'][$i] == 0) {
-                                        $data['lists3-enddate-con'][$i] = (NULL);
-                                    }
+                                }
+                                if ($data['lists3-enddate-con'][$i] == '' || $data['lists3-enddate-con'][$i] == 0) {
+                                    $data['lists3-enddate-con'][$i] = (null);
+                                }
                                 $q_upd_pres = "UPDATE prescriptions
                                         SET date_added=?,
                                             drug=?,
@@ -1773,29 +1773,29 @@ class CarecoordinationTable extends AbstractTableGateway
                                      $provider_id,
                                      $data['lists3-id-con'][$i],
                                      $data['pid']));
-                                 if($m1_arr[$i] == 1) {
+                                if($m1_arr[$i] == 1) {
                                     $query6 = "UPDATE prescriptions SET end_date = ?,active = ? WHERE patient_id = ? AND id = ?";
                                     $appTable->zQuery($query6, array(date('Y-m-d'),'-1',$data['pid'], $data['lists3-id-con'][$i]));
-                                  }
-                                  else if($m1_arr[$i] == 0) {
+                                }
+                                else if($m1_arr[$i] == 0) {
                                     $query6 = "UPDATE prescriptions SET end_date = ?,active = ? WHERE patient_id = ? AND id = ?";
-                                    $appTable->zQuery($query6, array((NULL),'1',$data['pid'], $data['lists3-id-con'][$i]));
-                                  }
+                                    $appTable->zQuery($query6, array((null),'1',$data['pid'], $data['lists3-id-con'][$i]));
+                                }
                             }
                             if(substr($key,0,-4) == 'lists3_exist'){
                                 if($m2_arr[$i] == 1) {
-                                  $query6 = "UPDATE prescriptions SET end_date = ?,active = ? WHERE patient_id = ? AND id = ?";
-                                  $appTable->zQuery($query6, array(date('Y-m-d'),'-1',$data['pid'], $data['lists3_exist-id'][$i]));
+                                    $query6 = "UPDATE prescriptions SET end_date = ?,active = ? WHERE patient_id = ? AND id = ?";
+                                    $appTable->zQuery($query6, array(date('Y-m-d'),'-1',$data['pid'], $data['lists3_exist-id'][$i]));
                                 }
                                 else if($m2_arr[$i] == 0) {
-                                  $query6 = "UPDATE prescriptions SET end_date = ?,active = ? WHERE patient_id = ? AND id = ?";
-                                  $appTable->zQuery($query6, array((NULL),'1',$data['pid'], $data['lists3_exist-id'][$i]));
+                                    $query6 = "UPDATE prescriptions SET end_date = ?,active = ? WHERE patient_id = ? AND id = ?";
+                                    $appTable->zQuery($query6, array((null),'1',$data['pid'], $data['lists3_exist-id'][$i]));
                                 }
                             }
                         }
                     }
-      }
-      else
+                }
+                else
                 if (substr($key, 0, 12) == 'patient_data') {
                     if ($val == 'update') {
                         $var_name = substr($key, 0, -4);
@@ -1823,7 +1823,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $appTable->zQuery("UPDATE documents 
                        SET audit_master_approval_status=2 
                        WHERE audit_master_id=?", array($data['amid']));
-	$this->InsertReconcilation($data['pid'],$data['document_id']);
+        $this->InsertReconcilation($data['pid'],$data['document_id']);
         $this->InsertImmunization($arr_immunization['immunization'], $data['pid'], 1);
         $this->InsertPrescriptions($arr_prescriptions['lists3'], $data['pid'], 1);
         $this->InsertAllergies($arr_allergies['lists2'], $data['pid'], 1);
@@ -1838,34 +1838,35 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->InsertReferrals($arr_referral['referral'], $data['pid'], 1);
     }
 
-  public function InsertReconcilation($pid,$doc_id){
-  		$appTable = new ApplicationTable();
-  		$query    = "SELECT encounter FROM documents d inner join form_encounter e on ( e.pid = d.foreign_id and e.date = d.docdate ) where d.id = ? and pid = ?";
-  		$docEnc   = $appTable->zQuery($query,array($doc_id,$pid));
-  		
-  		if($docEnc->count() == 0){
-  			$enc = $appTable->zQuery("SELECT encounter
+    public function InsertReconcilation($pid,$doc_id)
+    {
+        $appTable = new ApplicationTable();
+        $query    = "SELECT encounter FROM documents d inner join form_encounter e on ( e.pid = d.foreign_id and e.date = d.docdate ) where d.id = ? and pid = ?";
+        $docEnc   = $appTable->zQuery($query,array($doc_id,$pid));
+        
+        if($docEnc->count() == 0){
+            $enc = $appTable->zQuery("SELECT encounter
                                       FROM form_encounter
                                       WHERE pid=?
                                       ORDER BY id DESC LIMIT 1", array($pid));
-  		 $enc_cur = $enc->current();
-  		 $enc_id = $enc_cur['encounter'] ? $enc_cur['encounter'] : 0;
-  		}
-  		else{
-  			foreach ($docEnc as $d_enc){
-  				$enc_id = $d_enc['encounter'];
-  			}
-  		}
-  		$med_rec = $appTable->zQuery("select * from amc_misc_data where pid = ? and amc_id = 'med_reconc_amc' and map_category = 'form_encounter' and map_id = ?",array($pid,$enc_id));
-		if($med_rec->count() == 0){
-	  		$appTable->zQuery("INSERT INTO amc_misc_data (amc_id,pid,map_category,map_id,date_created,date_completed,soc_provided) values('med_reconc_amc',?,'form_encounter',?,NOW(),NOW(),NOW())",array($pid,$enc_id));
-		}
-		else{
-			$appTable->zQuery("UPDATE amc_misc_data set date_completed = NOW() where pid = ? and amc_id = 'med_reconc_amc' and map_category ='form_encounter' and map_id = ?",array($pid,$enc_id));
-		}
-  }
-  public function discardCCDAData($data)
-  {
+            $enc_cur = $enc->current();
+            $enc_id = $enc_cur['encounter'] ? $enc_cur['encounter'] : 0;
+        }
+        else{
+            foreach ($docEnc as $d_enc){
+                $enc_id = $d_enc['encounter'];
+            }
+        }
+        $med_rec = $appTable->zQuery("select * from amc_misc_data where pid = ? and amc_id = 'med_reconc_amc' and map_category = 'form_encounter' and map_id = ?",array($pid,$enc_id));
+        if($med_rec->count() == 0){
+            $appTable->zQuery("INSERT INTO amc_misc_data (amc_id,pid,map_category,map_id,date_created,date_completed,soc_provided) values('med_reconc_amc',?,'form_encounter',?,NOW(),NOW(),NOW())",array($pid,$enc_id));
+        }
+        else{
+            $appTable->zQuery("UPDATE amc_misc_data set date_completed = NOW() where pid = ? and amc_id = 'med_reconc_amc' and map_category ='form_encounter' and map_id = ?",array($pid,$enc_id));
+        }
+    }
+    public function discardCCDAData($data)
+    {
         $appTable = new ApplicationTable();
         $query = "UPDATE audit_master 
                    SET approval_status = '3' 
@@ -1876,8 +1877,8 @@ class CarecoordinationTable extends AbstractTableGateway
                       WHERE audit_master_id=?", array($data['audit_master_id']));
     }
 
-  public function buildLabArray($lab_array)
-  {
+    public function buildLabArray($lab_array)
+    {
         $lab_results = array();
         $j = 0;
         foreach ($lab_array as $key => $value) {
@@ -1896,8 +1897,8 @@ class CarecoordinationTable extends AbstractTableGateway
         return $lab_results;
     }
 
-  public function InsertLabResults($lab_results,$pid)
-  {
+    public function InsertLabResults($lab_results,$pid)
+    {
         $appTable = new ApplicationTable();
         foreach ($lab_results as $key => $value) {
             $query_select_pro = "SELECT * FROM procedure_providers WHERE name = ?";
@@ -1906,8 +1907,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 $query_insert_pro = "INSERT INTO procedure_providers(name) VALUES (?)";
                 $result_pro = $appTable->zQuery($query_insert_pro, array('External Lab'));
                 $pro_id = $result_pro->getGeneratedValue();
-        }
-        else {
+            }
+            else {
                 foreach ($result_pro as $value1) {
                     $pro_id = $value1['ppid'];
                 }
@@ -1951,8 +1952,8 @@ class CarecoordinationTable extends AbstractTableGateway
                     if ($Ures->count() == 0) {
                         $qU_insert = "INSERT INTO list_options(list_id,option_id,title,activity) VALUES (?,?,?,?)";
                         $appTable->zQuery($qU_insert, array('proc_unit', $unit, $unit, 1));
-               }
-               else {
+                    }
+                    else {
                         $qU_update = "UPDATE list_options SET activity = 1 WHERE list_id = ? AND option_id = ?";
                         $appTable->zQuery($qU_update, array('proc_unit', $unit));
                     }
@@ -1963,8 +1964,8 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
-  public function insert_patient($audit_master_id,$document_id)
-  {
+    public function insert_patient($audit_master_id,$document_id)
+    {
         require_once(dirname(__FILE__) . "/../../../../../../../../library/patient.inc");
         $pid = 0;
         $j = 1;
@@ -2020,55 +2021,55 @@ class CarecoordinationTable extends AbstractTableGateway
                     if ($rowfield['field_name'] == 'DOB') {
                         $dob = $this->formatDate($rowfield['field_value'], 1);
                         $newdata['patient_data'][$rowfield['field_name']] = $dob;
-          }
-          else{
+                    }
+                    else{
                         if ($rowfield['field_name'] == 'religion') {
                             $religion_option_id = $this->getOptionId('religious_affiliation', $rowfield['field_value'], '');
                             $newdata['patient_data'][$rowfield['field_name']] = $religion_option_id;
-            }
-            elseif($rowfield['field_name'] == 'race'){
+                        }
+                        elseif($rowfield['field_name'] == 'race'){
                             $race_option_id = $this->getOptionId('race', $rowfield['field_value'], '');
                             $newdata['patient_data'][$rowfield['field_name']] = $race_option_id;
-            }
-            elseif($rowfield['field_name'] == 'ethnicity'){
-                            $ethnicity_option_id = $this->getOptionId('ethnicity', $rowfield['field_value'], '');
-                            $newdata['patient_data'][$rowfield['field_name']] = $ethnicity_option_id;
-            }
-            else
-                            $newdata['patient_data'][$rowfield['field_name']] = $rowfield['field_value'];
+                        }
+                        elseif($rowfield['field_name'] == 'ethnicity'){
+                              $ethnicity_option_id = $this->getOptionId('ethnicity', $rowfield['field_value'], '');
+                              $newdata['patient_data'][$rowfield['field_name']] = $ethnicity_option_id;
+                        }
+                        else
+                                      $newdata['patient_data'][$rowfield['field_name']] = $rowfield['field_value'];
                     }
                 }
                 elseif ($table == 'immunization') {
                     $newdata['immunization'][$rowfield['field_name']] = $rowfield['field_value'];
-        }
-        elseif($table == 'lists3'){
+                }
+                elseif($table == 'lists3'){
                     $newdata['lists3'][$rowfield['field_name']] = $rowfield['field_value'];
-        }
-        elseif($table == 'lists1'){
+                }
+                elseif($table == 'lists1'){
                     $newdata['lists1'][$rowfield['field_name']] = $rowfield['field_value'];
-        }
-        elseif($table == 'lists2'){
+                }
+                elseif($table == 'lists2'){
                     $newdata['lists2'][$rowfield['field_name']] = $rowfield['field_value'];
-        }
-        elseif($table == 'vital_sign') {
+                }
+                elseif($table == 'vital_sign') {
                     $newdata['vital_sign'][$rowfield['field_name']] = $rowfield['field_value'];
-        }
-        elseif($table == 'social_history') {
+                }
+                elseif($table == 'social_history') {
                     $newdata['social_history'][$rowfield['field_name']] = $rowfield['field_value'];
-        }
-        elseif($table == 'encounter') {
+                }
+                elseif($table == 'encounter') {
                     $newdata['encounter'][$rowfield['field_name']] = $rowfield['field_value'];
-        }
-        elseif($table == 'procedure_result') {
+                }
+                elseif($table == 'procedure_result') {
                     $newdata['procedure_result'][$rowfield['field_name']] = $rowfield['field_value'];
-        }
-        elseif($table == 'procedure') {
+                }
+                elseif($table == 'procedure') {
                     $newdata['procedure'][$rowfield['field_name']] = $rowfield['field_value'];
-        }
-        elseif($table == 'care_plan') {
+                }
+                elseif($table == 'care_plan') {
                     $newdata['care_plan'][$rowfield['field_name']] = $rowfield['field_value'];
-        }
-        elseif($table == 'functional_cognitive_status') {
+                }
+                elseif($table == 'functional_cognitive_status') {
                     $newdata['functional_cognitive_status'][$rowfield['field_name']] = $rowfield['field_value'];
                 } elseif ($table == 'referral') {
                     $newdata['referral'][$rowfield['field_name']] = $rowfield['field_value'];
@@ -2076,8 +2077,8 @@ class CarecoordinationTable extends AbstractTableGateway
             }
             if ($table == 'patient_data') {
                 updatePatientData($pid, $newdata['patient_data'], true);
-      }
-      elseif($table == 'immunization'){
+            }
+            elseif($table == 'immunization'){
                 $arr_immunization['immunization'][$a]['extension'] = $newdata['immunization']['extension'];
                 $arr_immunization['immunization'][$a]['root'] = $newdata['immunization']['root'];
                 $arr_immunization['immunization'][$a]['administered_date'] = $newdata['immunization']['administered_date'];
@@ -2101,8 +2102,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_immunization['immunization'][$a]['represented_organization'] = $newdata['immunization']['represented_organization'];
                 $arr_immunization['immunization'][$a]['represented_organization_tele'] = $newdata['immunization']['represented_organization_tele'];
                 $a++;
-      }
-      elseif($table == 'lists3'){
+            }
+            elseif($table == 'lists3'){
                 $arr_prescriptions['lists3'][$b]['extension'] = $newdata['lists3']['extension'];
                 $arr_prescriptions['lists3'][$b]['root'] = $newdata['lists3']['root'];
                 $arr_prescriptions['lists3'][$b]['begdate'] = $newdata['lists3']['begdate'];
@@ -2129,8 +2130,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_prescriptions['lists3'][$b]['provider_state'] = $newdata['lists3']['provider_state'];
                 $arr_prescriptions['lists3'][$b]['provider_root'] = $newdata['lists3']['provider_root'];
                 $b++;
-      }
-      elseif($table == 'lists1' && $newdata['lists1']['list_code'] !=0){
+            }
+            elseif($table == 'lists1' && $newdata['lists1']['list_code'] !=0){
                 $arr_med_pblm['lists1'][$d]['extension'] = $newdata['lists1']['extension'];
                 $arr_med_pblm['lists1'][$d]['root'] = $newdata['lists1']['root'];
                 $arr_med_pblm['lists1'][$d]['begdate'] = $newdata['lists1']['begdate'];
@@ -2141,8 +2142,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_med_pblm['lists1'][$d]['observation_text'] = $newdata['lists1']['observation_text'];
                 $arr_med_pblm['lists1'][$d]['observation_code'] = $newdata['lists1']['observation'];
                 $d++;
-      }
-      elseif($table == 'lists2' && $newdata['lists2']['list_code'] !=0){
+            }
+            elseif($table == 'lists2' && $newdata['lists2']['list_code'] !=0){
                 $arr_allergies['lists2'][$c]['extension'] = $newdata['lists2']['extension'];
                 $arr_allergies['lists2'][$c]['begdate'] = $newdata['lists2']['begdate'];
                 $arr_allergies['lists2'][$c]['enddate'] = $newdata['lists2']['enddate'];
@@ -2155,8 +2156,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_allergies['lists2'][$c]['codeSystemName'] = $newdata['lists2']['codeSystemName'];
                 $arr_allergies['lists2'][$c]['outcome'] = $newdata['lists2']['outcome'];
                 $c++;
-      }
-      elseif($table == 'encounter') {
+            }
+            elseif($table == 'encounter') {
                 $arr_encounter['encounter'][$k]['extension'] = $newdata['encounter']['extension'];
                 $arr_encounter['encounter'][$k]['root'] = $newdata['encounter']['root'];
                 $arr_encounter['encounter'][$k]['date'] = $newdata['encounter']['date'];
@@ -2181,8 +2182,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_encounter['encounter'][$k]['encounter_diagnosis_code'] = $newdata['encounter']['encounter_diagnosis_code'];
                 $arr_encounter['encounter'][$k]['encounter_diagnosis_issue'] = $newdata['encounter']['encounter_diagnosis_issue'];
                 $k++;
-      }
-      elseif($table == 'vital_sign') {
+            }
+            elseif($table == 'vital_sign') {
                 $arr_vitals['vitals'][$q]['extension'] = $newdata['vital_sign']['extension'];
                 $arr_vitals['vitals'][$q]['date'] = $newdata['vital_sign']['date'];
                 $arr_vitals['vitals'][$q]['temperature'] = $newdata['vital_sign']['temperature'];
@@ -2195,47 +2196,47 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_vitals['vitals'][$q]['respiration'] = $newdata['vital_sign']['respiration'];
                 $arr_vitals['vitals'][$q]['weight'] = $newdata['vital_sign']['weight'];
                 $q++;
-      }
-      elseif($table == 'social_history') {
+            }
+            elseif($table == 'social_history') {
                 $tobacco_status = array(
                     '449868002' => 'Current',
                     '8517006' => 'Quit',
                     '266919005' => 'Never'
-                );
-                $alcohol_status = array(
-                    '219006' => 'Current',
-                    '82581004' => 'Quit',
-                    '228274009' => 'Never'
-                );
-                $alcohol = explode("|", $newdata['social_history']['alcohol']);
+                      );
+                      $alcohol_status = array(
+                          '219006' => 'Current',
+                          '82581004' => 'Quit',
+                          '228274009' => 'Never'
+                      );
+                      $alcohol = explode("|", $newdata['social_history']['alcohol']);
                 if ($alcohol[2] != 0) {
                     $alcohol_date = $this->formatDate($alcohol[2], 1);
-        }
-        else {
-                    $alcohol_date = $alcohol[2];
                 }
-                $alcohol_date_value = fixDate($alcohol_date);
+                else {
+                                $alcohol_date = $alcohol[2];
+                }
+                      $alcohol_date_value = fixDate($alcohol_date);
                 foreach ($alcohol_status as $key => $value) {
-                    if ($alcohol[1] == $key)
-                        $alcohol[1] = strtolower($value) . "alcohol";
+                      if ($alcohol[1] == $key)
+                          $alcohol[1] = strtolower($value) . "alcohol";
                 }
-                $alcohol_value = $alcohol[0] . "|" . $alcohol[1] . "|" . $alcohol_date_value;
+                      $alcohol_value = $alcohol[0] . "|" . $alcohol[1] . "|" . $alcohol_date_value;
 
-                $tobacco = explode("|", $newdata['social_history']['smoking']);
+                      $tobacco = explode("|", $newdata['social_history']['smoking']);
                 if ($tobacco[2] != 0) {
-                    $smoking_date = $this->formatDate($tobacco[2], 1);
-        }
-        else {
-                    $smoking_date = $tobacco[2];
+                      $smoking_date = $this->formatDate($tobacco[2], 1);
                 }
-                $smoking_date_value = fixDate($smoking_date);
+                else {
+                                $smoking_date = $tobacco[2];
+                }
+                      $smoking_date_value = fixDate($smoking_date);
                 foreach ($tobacco_status as $key => $value2) {
-                    if ($tobacco[1] == $key)
-                        $tobacco[1] = strtolower($value2) . "tobacco";
+                      if ($tobacco[1] == $key)
+                          $tobacco[1] = strtolower($value2) . "tobacco";
                 }
-                $smoking_value = $tobacco[0] . "|" . $tobacco[1] . "|" . $smoking_date_value;
+                      $smoking_value = $tobacco[0] . "|" . $tobacco[1] . "|" . $smoking_date_value;
 
-                $query_insert = "INSERT INTO history_data
+                      $query_insert = "INSERT INTO history_data
                          (
                           pid,
                           alcohol,
@@ -2249,23 +2250,23 @@ class CarecoordinationTable extends AbstractTableGateway
                           ?,
                           ?
                          )";
-                $appTable->zQuery($query_insert, array($pid,
-                    $alcohol_value,
-                    $smoking_value,
-                    date('Y-m-d H:i:s')));
+                      $appTable->zQuery($query_insert, array($pid,
+                          $alcohol_value,
+                          $smoking_value,
+                          date('Y-m-d H:i:s')));
             }
             elseif ($table == 'procedure_result') {
                 if ($newdata['procedure_result']['date'] != 0) {
                     $proc_date = $this->formatDate($newdata['procedure_result']['date'], 0);
-        }
-        else {
+                }
+                else {
                     $proc_date = $newdata['procedure_result']['date'];
                 }
 
                 if ($newdata['procedure_result']['results_date'] != 0) {
                     $proc_result_date = $this->formatDate($newdata['procedure_result']['results_date'], 0);
-        }
-        else {
+                }
+                else {
                     $proc_result_date = $newdata['procedure_result']['results_date'];
                 }
                 $arr_procedure_res['procedure_result'][$j]['proc_text'] = $newdata['procedure_result']['proc_text'];
@@ -2279,8 +2280,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_procedure_res['procedure_result'][$j]['results_value'] = $newdata['procedure_result']['results_value'];
                 $arr_procedure_res['procedure_result'][$j]['results_date'] = $proc_result_date;
                 $j++;
-      }
-      elseif($table == 'procedure') {
+            }
+            elseif($table == 'procedure') {
                 $arr_procedures['procedure'][$y]['extension'] = $newdata['procedure']['extension'];
                 $arr_procedures['procedure'][$y]['root'] = $newdata['procedure']['root'];
                 $arr_procedures['procedure'][$y]['codeSystemName'] = $newdata['procedure']['codeSystemName'];
@@ -2303,16 +2304,16 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_procedures['procedure'][$y]['represented_organization_postalcode2'] = $newdata['procedure']['represented_organization_postalcode2'];
                 $arr_procedures['procedure'][$y]['represented_organization_country2'] = $newdata['procedure']['represented_organization_country2'];
                 $y++;
-      }
-      elseif($table == 'care_plan') {
+            }
+            elseif($table == 'care_plan') {
                 $arr_care_plan['care_plan'][$e]['extension'] = $newdata['care_plan']['extension'];
                 $arr_care_plan['care_plan'][$e]['root'] = $newdata['care_plan']['root'];
                 $arr_care_plan['care_plan'][$e]['text'] = $newdata['care_plan']['code_text'];
                 $arr_care_plan['care_plan'][$e]['code'] = $newdata['care_plan']['code'];
                 $arr_care_plan['care_plan'][$e]['description'] = $newdata['care_plan']['description'];
                 $e++;
-      }
-      elseif($table == 'functional_cognitive_status') {
+            }
+            elseif($table == 'functional_cognitive_status') {
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['extension'] = $newdata['functional_cognitive_status']['extension'];
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['root'] = $newdata['functional_cognitive_status']['root'];
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['text'] = $newdata['functional_cognitive_status']['code_text'];
@@ -2352,22 +2353,22 @@ class CarecoordinationTable extends AbstractTableGateway
             $document_id));
     }
 
-  public function formatDate($unformatted_date,$ymd=1)
-  {
+    public function formatDate($unformatted_date,$ymd=1)
+    {
         $day = substr($unformatted_date, 6, 2);
         $month = substr($unformatted_date, 4, 2);
         $year = substr($unformatted_date, 0, 4);
         if ($ymd == 1) {
             $formatted_date = $year . "/" . $month . "/" . $day;
-    }
-    else {
+        }
+        else {
             $formatted_date = $day . "/" . $month . "/" . $year;
         }
         return $formatted_date;
     }
 
-  public function getOptionId($list_id,$title,$codes)
-  {
+    public function getOptionId($list_id,$title,$codes)
+    {
         $appTable = new ApplicationTable();
         if ($title) {
             $query = "SELECT option_id 
@@ -2386,8 +2387,8 @@ class CarecoordinationTable extends AbstractTableGateway
         return $res_cur['option_id'];
     }
 
-  public function InsertEncounter($enc_array,$pid,$revapprove=1)
-  {
+    public function InsertEncounter($enc_array,$pid,$revapprove=1)
+    {
         $appTable = new ApplicationTable();
         foreach ($enc_array as $key => $value) {
             $encounter_id = $appTable->generateSequenceID();
@@ -2399,8 +2400,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 foreach ($res_query_sel_users as $value1) {
                     $provider_id = $value1['id'];
                 }
-      }
-      else {
+            }
+            else {
                 $query_ins_users = "INSERT INTO users
                                 ( username,
                                   fname,
@@ -2434,7 +2435,7 @@ class CarecoordinationTable extends AbstractTableGateway
                     $value['provider_city'],
                     $value['provider_state'],
                     $value['provider_postalCode']));
-                $provider_id = $res_query_ins_users->getGeneratedValue();
+                      $provider_id = $res_query_ins_users->getGeneratedValue();
             }
             //facility
             $query_sel_fac = "SELECT * 
@@ -2445,8 +2446,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 foreach ($res_query_sel_fac as $value2) {
                     $facility_id = $value2['id'];
                 }
-      }
-      else {
+            }
+            else {
                 $query_ins_fac = "INSERT INTO users
                               ( username,
                                 organization,
@@ -2477,16 +2478,16 @@ class CarecoordinationTable extends AbstractTableGateway
                     $value['represented_organization_city'],
                     $value['represented_organization_state'],
                     $value['represented_organization_zip']));
-                $facility_id = $res_query_ins_fac->getGeneratedValue();
+                      $facility_id = $res_query_ins_fac->getGeneratedValue();
             }
             if ($value['date'] != 0 && $revapprove == 0) {
                 $encounter_date = $this->formatDate($value['date'], 1);
                 $encounter_date_value = fixDate($encounter_date);
-      }
-      elseif($value['date'] != 0 && $revapprove==1){
+            }
+            elseif($value['date'] != 0 && $revapprove==1){
                 $encounter_date_value = \Application\Model\ApplicationTable::fixDate($value['date'], 'yyyy-mm-dd', 'dd/mm/yyyy');
-      }
-      elseif($value['date'] == 0) {
+            }
+            elseif($value['date'] == 0) {
                 $encounter_date = $value['date'];
                 $encounter_date_value = fixDate($encounter_date);
             }
@@ -2523,8 +2524,8 @@ class CarecoordinationTable extends AbstractTableGateway
                     $provider_id,
                     $value['extension']));
                 $enc_id = $result->getGeneratedValue();
-      }
-      else {
+            }
+            else {
                 $q_upd_encounter = "UPDATE form_encounter
                             SET pid=?,
                                 encounter=?,
@@ -2541,10 +2542,10 @@ class CarecoordinationTable extends AbstractTableGateway
                     $provider_id,
                     $value['extension'],
                     $pid));
-                $q_sel_enc = "SELECT id FROM form_encounter WHERE external_id=?";
-                $res_q_sel_enc = $appTable->zQuery($q_sel_enc, array($value['extension']));
-                $res_enc_cur = $res_q_sel_enc->current();
-                $enc_id = $res_enc_cur['id'];
+                      $q_sel_enc = "SELECT id FROM form_encounter WHERE external_id=?";
+                      $res_q_sel_enc = $appTable->zQuery($q_sel_enc, array($value['extension']));
+                      $res_enc_cur = $res_q_sel_enc->current();
+                      $enc_id = $res_enc_cur['id'];
             }
             $q_ins_forms = "INSERT INTO forms (date,encounter,form_name,form_id,pid,user,groupname,deleted,formdir) VALUES (?,?,?,?,?,?,?,?,?)";
             $appTable->zQuery($q_ins_forms, array($encounter_date_value, $encounter_id, 'New Patient Encounter', $enc_id, $pid, $_SESSION["authProvider"], 'Default', 0, 'newpatient'));
@@ -2555,13 +2556,13 @@ class CarecoordinationTable extends AbstractTableGateway
                     foreach ($result as $value1) {
                         $list_id = $value1['id'];
                     }
-        }
-        else {
+                }
+                else {
                     //to lists
                     $query_insert = "INSERT INTO lists(pid,type,begdate,activity,title,date, diagnosis) VALUES (?,?,?,?,?,?,?)";
                     $result = $appTable->zQuery($query_insert, array($pid, 'medical_problem', $value['encounter_diagnosis_date'], 1,
                         $value['encounter_diagnosis_issue'], date('Y-m-d H:i:s'), 'SNOMED-CT:' . $value['encounter_diagnosis_code']));
-                    $list_id = $result->getGeneratedValue();
+                            $list_id = $result->getGeneratedValue();
                 }
                 //Linking issue with encounter
                 $q_sel_iss_enc = "SELECT * FROM issue_encounter WHERE pid=? and list_id=? and encounter=?";
@@ -2577,18 +2578,18 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
-  public function InsertVitals($vitals_array,$pid,$revapprove=1)
-  {
+    public function InsertVitals($vitals_array,$pid,$revapprove=1)
+    {
         $appTable = new ApplicationTable();
         foreach ($vitals_array as $key => $value) {
             if ($value['date'] != 0 && $revapprove == 0) {
                 $vitals_date = $this->formatDate($value['date'], 1);
                 $vitals_date_value = fixDate($vitals_date);
-      }
-      elseif($value['date'] !=0 && $revapprove == 1) {
+            }
+            elseif($value['date'] !=0 && $revapprove == 1) {
                 $vitals_date_value = \Application\Model\ApplicationTable::fixDate($value['date'], 'yyyy-mm-dd', 'dd/mm/yyyy');
-      }
-      elseif($value['date'] == 0){
+            }
+            elseif($value['date'] == 0){
                 $vitals_date = $value['date'];
                 $vitals_date_value = fixDate($vitals_date);
             }
@@ -2643,8 +2644,8 @@ class CarecoordinationTable extends AbstractTableGateway
                     $value['oxygen_saturation'],
                     $value['extension']));
                 $vitals_id = $res->getGeneratedValue();
-      }
-      else {
+            }
+            else {
                 $q_upd_vitals = "UPDATE form_vitals
                          SET pid=?,
                              date=?,
@@ -2693,8 +2694,8 @@ class CarecoordinationTable extends AbstractTableGateway
                                                  LIMIT 1", array($pid));
                 $res_enc_cur = $res_enc->current();
                 $encounter_for_forms = $res_enc_cur['encounter'];
-      }
-      else {
+            }
+            else {
                 foreach ($res_query_sel_enc as $value2) {
                     $encounter_for_forms = $value2['encounter'];
                 }
@@ -2728,18 +2729,18 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
-  public function InsertProcedures($proc_array,$pid,$revapprove=1)
-  {
+    public function InsertProcedures($proc_array,$pid,$revapprove=1)
+    {
         $appTable = new ApplicationTable();
         foreach ($proc_array as $key => $value) {
             if ($value['date'] != 0 && $revapprove == 0) {
                 $procedure_date = $this->formatDate($value['date'], 1);
                 $procedure_date_value = fixDate($procedure_date);
-      }
-      elseif($value['date'] != 0 && $revapprove == 1) {
+            }
+            elseif($value['date'] != 0 && $revapprove == 1) {
                 $procedure_date_value = \Application\Model\ApplicationTable::fixDate($value['date'], 'yyyy-mm-dd', 'dd/mm/yyyy');
-      }
-      elseif($value['date'] == 0) {
+            }
+            elseif($value['date'] == 0) {
                 $procedure_date = $value['date'];
                 $procedure_date_value = fixDate($procedure_date);
             }
@@ -2752,8 +2753,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 foreach ($res3 as $value3) {
                     $facility_id = $value3['id'];
                 }
-      }
-      else {
+            }
+            else {
                 $query4 = "INSERT INTO users
                         ( username,
                           organization,
@@ -2780,7 +2781,7 @@ class CarecoordinationTable extends AbstractTableGateway
                     $value['represented_organization_city1'],
                     $value['represented_organization_state1'],
                     $value['represented_organization_postalcode1']));
-                $facility_id = $res4->getGeneratedValue();
+                      $facility_id = $res4->getGeneratedValue();
             }
 
             //facility2
@@ -2792,8 +2793,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 foreach ($res6 as $value6) {
                     $facility_id2 = $value6['id'];
                 }
-      }
-      else {
+            }
+            else {
                 $query7 = "INSERT INTO users
                         ( username,
                           organization,
@@ -2820,7 +2821,7 @@ class CarecoordinationTable extends AbstractTableGateway
                     $value['represented_organization_city2'],
                     $value['represented_organization_state2'],
                     $value['represented_organization_postalcode2']));
-                $facility_id2 = $res7->getGeneratedValue();
+                      $facility_id2 = $res7->getGeneratedValue();
             }
 
             $query_sel_enc = "SELECT encounter 
@@ -2836,8 +2837,8 @@ class CarecoordinationTable extends AbstractTableGateway
                                                    LIMIT 1", array($pid));
                 $res_enc_cur = $res_enc->current();
                 $encounter_for_billing = $res_enc_cur['encounter'];
-      }
-      else {
+            }
+            else {
                 foreach ($res_query_sel_enc as $val) {
                     $encounter_for_billing = $val['encounter'];
                 }
@@ -2865,8 +2866,8 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
-  public function InsertImmunization($imm_array,$pid,$revapprove=1)
-  {
+    public function InsertImmunization($imm_array,$pid,$revapprove=1)
+    {
         $appTable = new ApplicationTable();
         $qc_select = "SELECT ct_id FROM code_types WHERE ct_key = ?";
         $c_result = $appTable->zQuery($qc_select, array('CVX'));
@@ -2883,8 +2884,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 foreach ($res_query_sel_users as $value1) {
                     $provider_id = $value1['id'];
                 }
-      }
-      else {
+            }
+            else {
                 $query_ins_users = "INSERT INTO users
                             ( fname,
                               npi,
@@ -2915,7 +2916,7 @@ class CarecoordinationTable extends AbstractTableGateway
                     $value['provider_state'],
                     $value['provider_postalCode'],
                     $value['provider_telecom']));
-                $provider_id = $res_query_ins_users->getGeneratedValue();
+                      $provider_id = $res_query_ins_users->getGeneratedValue();
             }
             //facility
             $query_sel_fac = "SELECT * 
@@ -2926,8 +2927,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 foreach ($res_query_sel_fac as $value2) {
                     $facility_id = $value2['id'];
                 }
-      }
-      else {
+            }
+            else {
                 $query_ins_fac = "INSERT INTO users
                               ( organization,
                                 phonecell,
@@ -2941,16 +2942,16 @@ class CarecoordinationTable extends AbstractTableGateway
                               )";
                 $res_query_ins_fac = $appTable->zQuery($query_ins_fac, array($value['represented_organization'],
                     $value['represented_organization_tele']));
-                $facility_id = $res_query_ins_fac->getGeneratedValue();
+                      $facility_id = $res_query_ins_fac->getGeneratedValue();
             }
             if ($value['administered_date'] != 0 && $revapprove == 0) {
                 $immunization_date = $this->formatDate($value['administered_date'], 1);
                 $immunization_date_value = fixDate($immunization_date);
-      }
-      elseif($value['administered_date'] != 0 && $revapprove == 1) {
+            }
+            elseif($value['administered_date'] != 0 && $revapprove == 1) {
                 $immunization_date_value = \Application\Model\ApplicationTable::fixDate($value['administered_date'], 'yyyy-mm-dd', 'dd/mm/yyyy');
-      }
-      elseif($value['administered_date'] != 0) {
+            }
+            elseif($value['administered_date'] != 0) {
                 $immunization_date = $value['administered_date'];
                 $immunization_date_value = fixDate($immunization_date);
             }
@@ -3077,8 +3078,8 @@ class CarecoordinationTable extends AbstractTableGateway
                     $value['manufacturer'],
                     $value['completion_status'],
                     $value['extension']));
-      }
-      else {
+            }
+            else {
                 $q_upd_imm = "UPDATE immunizations
                       SET patient_id=?,
                           administered_date=?,
@@ -3105,29 +3106,29 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
-  public function InsertPrescriptions($pres_array,$pid,$revapprove=1)
-  {
+    public function InsertPrescriptions($pres_array,$pid,$revapprove=1)
+    {
         $appTable = new ApplicationTable();
         $oid_route = $unit_option_id = $oidu_unit = '';
         foreach ($pres_array as $key => $value) {
-           $active = 1;
-           if ($value['enddate'] == '' || $value['enddate'] == 0) {
-                $value['enddate'] = (NULL);
-           }
-           if($revapprove == 1) {
-            if($value['discontinue'] == 1) {
-             $active = '-1';
-             if($value['enddate'] == (NULL)) {
-               $value['enddate'] = date('Y-m-d');
-             }
-            } else {
-             $active = '1';
-             if($value['enddate']) {
-               $value['enddate'] = (NULL);
-             }
+            $active = 1;
+            if ($value['enddate'] == '' || $value['enddate'] == 0) {
+                $value['enddate'] = (null);
             }
-            $value['begdate'] = \Application\Model\ApplicationTable::fixDate($value['begdate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
-           }
+            if($revapprove == 1) {
+                if($value['discontinue'] == 1) {
+                    $active = '-1';
+                    if($value['enddate'] == (null)) {
+                         $value['enddate'] = date('Y-m-d');
+                    }
+                } else {
+                    $active = '1';
+                    if($value['enddate']) {
+                         $value['enddate'] = (null);
+                    }
+                }
+                $value['begdate'] = \Application\Model\ApplicationTable::fixDate($value['begdate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
+            }
             //provider
             $query_sel_users = "SELECT * 
                               FROM users 
@@ -3137,8 +3138,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 foreach ($res_query_sel_users as $value1) {
                     $provider_id = $value1['id'];
                 }
-      }
-      else {
+            }
+            else {
                 $query_ins_users = "INSERT INTO users
                                 ( fname,
                                   lname,
@@ -3169,15 +3170,15 @@ class CarecoordinationTable extends AbstractTableGateway
                     $value['provider_state'],
                     $value['provider_postalCode']
                 ));
-                $provider_id = $res_query_ins_users->getGeneratedValue();
+                      $provider_id = $res_query_ins_users->getGeneratedValue();
             }
 
             //unit
             if($revapprove == 1) {
-             $value['rate_unit'] = $this->getListTitle($value['rate_unit'], 'drug_units', '');
+                $value['rate_unit'] = $this->getListTitle($value['rate_unit'], 'drug_units', '');
             }
             $unit_option_id = $this->getOptionId('drug_units', $value['rate_unit'], '');
-            if ($unit_option_id == '' || $unit_option_id == NULL) {
+            if ($unit_option_id == '' || $unit_option_id == null) {
                 $q_max_option_id = "SELECT MAX(CAST(option_id AS SIGNED))+1 AS option_id  
                               FROM list_options 
                               WHERE list_id=?";
@@ -3243,8 +3244,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 foreach ($result as $value2) {
                     $oidu_unit = $value2['option_id'];
                 }
-      }
-      else {
+            }
+            else {
                 $lres = $appTable->zQuery("SELECT IFNULL(MAX(CONVERT(SUBSTRING_INDEX(option_id,'-',-1),UNSIGNED INTEGER))+1,1) AS option_id FROM list_options WHERE list_id = ?", array('drug_form'));
                 foreach ($lres as $lrow) {
                     $oidu_unit = $lrow['option_id'];
@@ -3309,8 +3310,8 @@ class CarecoordinationTable extends AbstractTableGateway
                     $value['drug_code'],
                     $provider_id,
                     $value['extension']));
-      }
-      else {
+            }
+            else {
                 $q_upd_pres = "UPDATE prescriptions
                        SET patient_id=?,
                            date_added=?,
@@ -3349,8 +3350,8 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
-  public function InsertAllergies($allergy_array,$pid,$revapprove=1)
-  {
+    public function InsertAllergies($allergy_array,$pid,$revapprove=1)
+    {
         $appTable = new ApplicationTable();
         foreach ($allergy_array as $key => $value) {
             $active = 1;
@@ -3358,35 +3359,35 @@ class CarecoordinationTable extends AbstractTableGateway
             if ($value['begdate'] != 0 && $revapprove == 0) {
                 $allergy_begdate = $this->formatDate($value['begdate'], 1);
                 $allergy_begdate_value = fixDate($allergy_begdate);
-      }
-      elseif($value['begdate'] !=0 && $revapprove == 1) {
+            }
+            elseif($value['begdate'] !=0 && $revapprove == 1) {
                 $allergy_begdate_value = \Application\Model\ApplicationTable::fixDate($value['begdate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
-      }
-      elseif($value['begdate'] == 0) {
+            }
+            elseif($value['begdate'] == 0) {
                 $allergy_begdate = $value['begdate'];
                 $allergy_begdate_value = fixDate($allergy_begdate);
-                $allergy_begdate_value = (NULL);
+                $allergy_begdate_value = (null);
             }
 
             if ($value['enddate'] != 0 && $revapprove == 0) {
                 $allergy_enddate = $this->formatDate($value['enddate'], 1);
                 $allergy_enddate_value = fixDate($allergy_enddate);
-      }
-      elseif($value['enddate'] !=0 && $revapprove == 1) {
+            }
+            elseif($value['enddate'] !=0 && $revapprove == 1) {
                 $allergy_enddate_value = \Application\Model\ApplicationTable::fixDate($value['enddate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
-      }
-      elseif($value['enddate'] == 0 || $value['enddate'] == '') {
+            }
+            elseif($value['enddate'] == 0 || $value['enddate'] == '') {
                 $allergy_enddate = $value['enddate'];
                 $allergy_enddate_value = fixDate($allergy_enddate);
-                $allergy_enddate_value = (NULL);
+                $allergy_enddate_value = (null);
             }
             if($revapprove == 1) {
-             if($value['resolved'] == 1) {
-              if(!$allergy_enddate_value)
-                  $allergy_enddate_value = date('y-m-d');
-             }else {
-              $allergy_enddate_value = (NULL);
-             }
+                if($value['resolved'] == 1) {
+                    if(!$allergy_enddate_value)
+                     $allergy_enddate_value = date('y-m-d');
+                }else {
+                    $allergy_enddate_value = (null);
+                }
             }
             $q_sel_allergies = "SELECT * 
                               FROM lists
@@ -3395,7 +3396,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
             $severity_option_id = $this->getOptionId('severity_ccda', '', 'SNOMED-CT:' . $value['severity_al']);
             $severity_text = $this->getListTitle($severity_option_id, 'severity_ccda', 'SNOMED-CT:' . $value['severity_al']);
-            if ($severity_option_id == '' || $severity_option_id == NULL) {
+            if ($severity_option_id == '' || $severity_option_id == null) {
                 $q_max_option_id = "SELECT MAX(CAST(option_id AS SIGNED))+1 AS option_id  
                                 FROM list_options 
                                 WHERE list_id=?";
@@ -3416,11 +3417,11 @@ class CarecoordinationTable extends AbstractTableGateway
                               ?,
                               1
                              )";
-          if($severity_text) $appTable->zQuery($q_insert_units_option,array($severity_option_id,$severity_text));
+                if($severity_text) $appTable->zQuery($q_insert_units_option,array($severity_option_id,$severity_text));
             }
 
             $reaction_option_id = $this->getOptionId('Reaction', $value['reaction_text'], '');
-            if ($reaction_option_id == '' || $reaction_option_id == NULL) {
+            if ($reaction_option_id == '' || $reaction_option_id == null) {
                 $q_max_option_id = "SELECT MAX(CAST(option_id AS SIGNED))+1 AS option_id  
                                 FROM list_options 
                                 WHERE list_id=?";
@@ -3441,7 +3442,7 @@ class CarecoordinationTable extends AbstractTableGateway
                               ?,
                               1
                              )";
-          if($value['reaction_text']) $appTable->zQuery($q_insert_units_option,array($reaction_option_id,$value['reaction_text']));
+                if($value['reaction_text']) $appTable->zQuery($q_insert_units_option,array($reaction_option_id,$value['reaction_text']));
             }
 
             if ($res_q_sel_allergies->count() == 0) {
@@ -3484,8 +3485,8 @@ class CarecoordinationTable extends AbstractTableGateway
                     $reaction_option_id ? $reaction_option_id : 0,
                     $value['extension']));
                 $list_id = $result->getGeneratedValue();
-      }
-      else {
+            }
+            else {
                 $q_upd_allergies = "UPDATE lists
                             SET pid=?,
                                 date=?,
@@ -3510,8 +3511,8 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
-  public function InsertMedicalProblem($med_pblm_array,$pid,$revapprove=1)
-  {
+    public function InsertMedicalProblem($med_pblm_array,$pid,$revapprove=1)
+    {
         $appTable = new ApplicationTable();
         foreach ($med_pblm_array as $key => $value) {
             $activity = 1;
@@ -3519,36 +3520,36 @@ class CarecoordinationTable extends AbstractTableGateway
             if ($value['begdate'] != 0 && $revapprove == 0) {
                 $med_pblm_begdate = $this->formatDate($value['begdate'], 1);
                 $med_pblm_begdate_value = fixDate($med_pblm_begdate);
-      }
-      elseif($value['begdate'] !=0 && $revapprove == 1) {
+            }
+            elseif($value['begdate'] !=0 && $revapprove == 1) {
                 $med_pblm_begdate_value = \Application\Model\ApplicationTable::fixDate($value['begdate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
-      }
-      elseif($value['begdate'] == 0) {
+            }
+            elseif($value['begdate'] == 0) {
                 $med_pblm_begdate = $value['begdate'];
                 $med_pblm_begdate_value = fixDate($med_pblm_begdate);
-                $med_pblm_begdate_value = (NULL);
+                $med_pblm_begdate_value = (null);
             }
 
             if ($value['enddate'] != 0 && $revapprove == 0) {
                 $med_pblm_enddate = $this->formatDate($value['enddate'], 1);
                 $med_pblm_enddate_value = fixDate($med_pblm_enddate);
-      }
-      elseif($value['enddate'] !=0 && $revapprove == 1) {
+            }
+            elseif($value['enddate'] !=0 && $revapprove == 1) {
                 $med_pblm_enddate_value = \Application\Model\ApplicationTable::fixDate($value['enddate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
-      }
-      elseif($value['enddate'] == 0 || $value['enddate'] == '') {
+            }
+            elseif($value['enddate'] == 0 || $value['enddate'] == '') {
                 $med_pblm_enddate = $value['enddate'];
                 $med_pblm_enddate_value = fixDate($med_pblm_enddate);
-                $med_pblm_enddate_value = (NULL);
+                $med_pblm_enddate_value = (null);
             }
             
             if($revapprove == 1) {
-             if($value['resolved'] == 1) {
-              if(!$med_pblm_enddate_value)
-                  $med_pblm_enddate_value = date('y-m-d');
-             }else {
-              $med_pblm_enddate_value = (NULL);
-             }
+                if($value['resolved'] == 1) {
+                    if(!$med_pblm_enddate_value)
+                     $med_pblm_enddate_value = date('y-m-d');
+                }else {
+                    $med_pblm_enddate_value = (null);
+                }
             }
             
             $query_select = "SELECT * FROM list_options WHERE list_id = ? AND title = ?";
@@ -3559,8 +3560,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 foreach ($result as $value1) {
                     $o_id = $value1['option_id'];
                 }
-        }
-        else {
+            }
+            else {
                 $lres = $appTable->zQuery("SELECT IFNULL(MAX(CONVERT(SUBSTRING_INDEX(option_id,'-',-1),UNSIGNED INTEGER))+1,1) AS option_id FROM list_options WHERE list_id = ?", array('outcome'));
                 foreach ($lres as $lrow) {
                     $o_id = $lrow['option_id'];
@@ -3610,8 +3611,8 @@ class CarecoordinationTable extends AbstractTableGateway
                     $value['extension']));
 
                 $list_id = $result->getGeneratedValue();
-      }
-      else {
+            }
+            else {
                 $q_upd_med_pblm = "UPDATE lists
                            SET pid=?,
                                date=?,
@@ -3635,8 +3636,8 @@ class CarecoordinationTable extends AbstractTableGateway
             }
         }
     }
-  public function InsertCarePlan($care_plan_array,$pid,$revapprove=1)
-  {
+    public function InsertCarePlan($care_plan_array,$pid,$revapprove=1)
+    {
         $newid = '';
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery("SELECT MAX(id) as largestId FROM `form_care_plan`");
@@ -3662,8 +3663,8 @@ class CarecoordinationTable extends AbstractTableGateway
                                                  LIMIT 1", array($pid));
                 $res_enc_cur = $res_enc->current();
                 $encounter_for_forms = $res_enc_cur['encounter'];
-      }
-      else {
+            }
+            else {
                 foreach ($res_query_sel_enc as $value2) {
                     $encounter_for_forms = $value2['encounter'];
                 }
@@ -3677,8 +3678,8 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
-  public function InsertFunctionalCognitiveStatus($functional_cognitive_status_array,$pid,$revapprove=1)
-  {
+    public function InsertFunctionalCognitiveStatus($functional_cognitive_status_array,$pid,$revapprove=1)
+    {
         $newid = '';
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery("SELECT MAX(id) as largestId FROM `form_functional_cognitive_status`");
@@ -3707,8 +3708,8 @@ class CarecoordinationTable extends AbstractTableGateway
                                                  LIMIT 1", array($pid));
                 $res_enc_cur = $res_enc->current();
                 $encounter_for_forms = $res_enc_cur['encounter'];
-      }
-      else {
+            }
+            else {
                 foreach ($res_query_sel_enc as $value2) {
                     $encounter_for_forms = $value2['encounter'];
                 }
@@ -3722,7 +3723,8 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
-    public function InsertReferrals($arr_referral, $pid, $revapprove = 1) {
+    public function InsertReferrals($arr_referral, $pid, $revapprove = 1)
+    {
         $appTable = new ApplicationTable();
         foreach ($arr_referral as $key => $value) {
             $query_insert = "INSERT INTO transactions(date,title,pid,groupname,user,authorized)VALUES(?,?,?,?,?,?)";
@@ -3732,7 +3734,8 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
-    public function getCodes($option_id, $list_id) {
+    public function getCodes($option_id, $list_id)
+    {
         $appTable = new ApplicationTable();
         if ($option_id) {
             $query = "SELECT notes 
@@ -3749,8 +3752,8 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param    list_id  string     
      * @return   records   Array  list of list details
      */
-  public function getList($list)
-  {
+    public function getList($list)
+    {
         $appTable = new ApplicationTable();
         $query = "SELECT title,option_id,notes,codes FROM list_options WHERE list_id = ?";
         $result = $appTable->zQuery($query, array($list));
@@ -3768,7 +3771,8 @@ class CarecoordinationTable extends AbstractTableGateway
      * @return   records   Array       list of Referral values
      */
 
-    public function getReferralReason($data) {
+    public function getReferralReason($data)
+    {
         $appTable = new ApplicationTable();
         $query = "SELECT * 
                    FROM transactions 
@@ -3785,16 +3789,16 @@ class CarecoordinationTable extends AbstractTableGateway
    * 
    * @param audit_master_id   Integer  ID from audi_master table
    */
-  public function getdocumentationOf($audit_master_id)
-  {
-      $appTable = new ApplicationTable();
-      $query    = "SELECT documentationOf FROM documents WHERE audit_master_id = ?";
-      $result   = $appTable->zQuery($query, array($audit_master_id));
-      foreach($result as $row) {
-        $documentationOf = $row['documentationOf'];
-      }
-      return $documentationOf;
-  }
+    public function getdocumentationOf($audit_master_id)
+    {
+        $appTable = new ApplicationTable();
+        $query    = "SELECT documentationOf FROM documents WHERE audit_master_id = ?";
+        $result   = $appTable->zQuery($query, array($audit_master_id));
+        foreach($result as $row) {
+            $documentationOf = $row['documentationOf'];
+        }
+        return $documentationOf;
+    }
   
    /*
     * Return the list of CCDA components
@@ -3815,7 +3819,8 @@ class CarecoordinationTable extends AbstractTableGateway
         return $components;
     }
     
-    public function getMonthString($m){
+    public function getMonthString($m)
+    {
         $m = trim($m);
         if($m == '01'){
             return "Jan";
@@ -3844,7 +3849,8 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
     
-    public function getListCodes($option_id, $list_id) {
+    public function getListCodes($option_id, $list_id)
+    {
         $appTable = new ApplicationTable();
         if ($option_id) {
             $query = "SELECT codes 

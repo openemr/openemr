@@ -30,10 +30,10 @@ $tmp = getPatientData($pid, "squad");
 if (($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) ||
   !acl_check_form('newpatient', '', array('write', 'addonly')))
 {
-  echo "<body>\n<html>\n";
-  echo "<p>(" . xlt('New encounters not authorized') . ")</p>\n";
-  echo "</body>\n</html>\n";
-  exit();
+    echo "<body>\n<html>\n";
+    echo "<p>(" . xlt('New encounters not authorized') . ")</p>\n";
+    echo "</body>\n</html>\n";
+    exit();
 }
 
 $viewmode = false;

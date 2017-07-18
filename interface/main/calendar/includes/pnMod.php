@@ -687,12 +687,12 @@ function pnModURL($modname, $type='user', $func='main', $args=array(), $path = '
             }
         }
     }
-	//remove characters not belonging in a path, prevent possible injection
-	//this may break windows path accesses?
-	$path = preg_replace("/[^\.\/a-zA-Z0-9]/","",$path)
-;
+    //remove characters not belonging in a path, prevent possible injection
+    //this may break windows path accesses?
+    $path = preg_replace("/[^\.\/a-zA-Z0-9]/","",$path)
+    ;
     // The URL
-	$final_url = pnGetBaseURL() . $path . $url;
+    $final_url = pnGetBaseURL() . $path . $url;
     return $final_url;
 }
 
@@ -751,7 +751,8 @@ function pnModAvailable($modname)
  * @returns string
  * @return the name of the current top-level module, false if not in a module
  */
-function pnModGetName() {
+function pnModGetName()
+{
     $modname = pnVarCleanFromInput('module');
     if (empty($modname)) {
         $name = pnVarCleanFromInput('name');
@@ -779,13 +780,15 @@ function pnModGetName() {
  * @param hooktype name of the hook type
  * @param hookfunc name of the hook function
  */
-function pnModRegisterHook($hookobject,
-                           $hookaction,
-                           $hookarea,
-                           $hookmodule,
-                           $hooktype,
-                           $hookfunc)
-{
+function pnModRegisterHook(
+    $hookobject,
+    $hookaction,
+    $hookarea,
+    $hookmodule,
+    $hooktype,
+    $hookfunc
+) {
+
     
     // Get database info
     list($dbconn) = pnDBGetConn();
@@ -828,13 +831,15 @@ function pnModRegisterHook($hookobject,
  * @param hooktype name of the hook type
  * @param hookfunc name of the hook function
  */
-function pnModUnregisterHook($hookobject,
-                             $hookaction,
-                             $hookarea,
-                             $hookmodule,
-                             $hooktype,
-                             $hookfunc)
-{
+function pnModUnregisterHook(
+    $hookobject,
+    $hookaction,
+    $hookarea,
+    $hookmodule,
+    $hooktype,
+    $hookfunc
+) {
+
     
     // Get database info
     list($dbconn) = pnDBGetConn();
@@ -868,7 +873,8 @@ function pnModUnregisterHook($hookobject,
  * @returns string
  * @return output from hooks
  */
-function pnModCallHooks($hookobject, $hookaction, $hookid, $extrainfo) {
+function pnModCallHooks($hookobject, $hookaction, $hookid, $extrainfo)
+{
 
     // Get database info
     list($dbconn) = pnDBGetConn();

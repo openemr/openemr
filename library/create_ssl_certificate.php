@@ -32,8 +32,15 @@
  * @param $organizationalUnitName - Organization Unit Name
  * @return array [ CSR data, privatekey ], or 'false' on error.
  */
-function create_csr($commonName, $emailAddress, $countryName, $stateOrProvinceName,
-                    $localityName, $organizationName, $organizationalUnitName) {
+function create_csr(
+    $commonName,
+    $emailAddress,
+    $countryName,
+    $stateOrProvinceName,
+    $localityName,
+    $organizationName,
+    $organizationalUnitName
+) {
 
     if ($commonName == "")
         return false;
@@ -85,7 +92,8 @@ function create_csr($commonName, $emailAddress, $countryName, $stateOrProvinceNa
  * @param $cakey   - The Certificate Authority private key data to sign with.
  * @return data    - A signed certificate, or false on error.
  */
-function create_crt($privkey, $csr, $cacert, $cakey) {
+function create_crt($privkey, $csr, $cacert, $cakey)
+{
 
     $opensslConf = $GLOBALS['webserver_root'] . "/library/openssl.cnf";
     $config = array('config' => $opensslConf);
@@ -105,7 +113,8 @@ function create_crt($privkey, $csr, $cacert, $cakey) {
  * @param $valid_days   - validity in number of days for the user certificate
  * @return string       - The client certificate signed by the Certificate Authority, or false on error.
  */
-function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $cakey, $valid_days) {
+function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $cakey, $valid_days)
+{
 
     $opensslConf = $GLOBALS['webserver_root'] . "/library/openssl.cnf";
     $config = array('config' => $opensslConf);
@@ -115,7 +124,8 @@ function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $
     if ($arr === false) {
         return false;
     }
-    $csr = $arr[0]; $privkey = $arr[1];
+    $csr = $arr[0];
+    $privkey = $arr[1];
 
     /* user id is used as serial number to sign a certificate */
     $serial = 0;

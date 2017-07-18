@@ -27,12 +27,12 @@ $orderid = empty($_REQUEST['orderid']) ? 0 : intval($_REQUEST['orderid']);
 
 $patient_id = $pid;
 if ($docid) {
-  $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid));
-  $patient_id = intval($row['foreign_id']);
+    $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid));
+    $patient_id = intval($row['foreign_id']);
 }
 else if ($orderid) {
-  $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid));
-  $patient_id = intval($row['patient_id']);
+    $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid));
+    $patient_id = intval($row['patient_id']);
 }
 
 // Check authorization.
@@ -58,69 +58,69 @@ if (!isset($offset)) $offset = 0;
 
 $active = 'all';
 if ($form_active) {
-  if (!$form_inactive) $active = '1';
+    if (!$form_inactive) $active = '1';
 }
 else {
-  if ($form_inactive)
+    if ($form_inactive)
     $active = '0';
-  else
+    else
     $form_active = $form_inactive = '1';
 }
 
 // this code handles changing the state of activity tags when the user updates
 // them through the interface
 if (isset($mode)) {
-  if ($mode == "update") {
-    foreach ($_POST as $var => $val) {
-      if (strncmp($var, 'act', 3) == 0) {
-        $id = str_replace("act", "", $var);
-        if ($_POST["chk$id"]) {
-          reappearPnote($id);
-        } else {
-          disappearPnote($id);
+    if ($mode == "update") {
+        foreach ($_POST as $var => $val) {
+            if (strncmp($var, 'act', 3) == 0) {
+                $id = str_replace("act", "", $var);
+                if ($_POST["chk$id"]) {
+                    reappearPnote($id);
+                } else {
+                    disappearPnote($id);
+                }
+                if ($docid) {
+                    setGpRelation(1, $docid, 6, $id, !empty($_POST["lnk$id"]));
+                }
+                if ($orderid) {
+                    setGpRelation(2, $orderid, 6, $id, !empty($_POST["lnk$id"]));
+                }
+            }
+        }
+    }
+    elseif ($mode == "new") {
+        $note = $_POST['note'];
+        if ($noteid) {
+            updatePnote($noteid, $note, $_POST['form_note_type'], $_POST['assigned_to']);
+            $noteid = '';
+        }
+        else {
+            $noteid = addPnote($patient_id, $note, $userauthorized, '1', $_POST['form_note_type'],
+            $_POST['assigned_to']);
         }
         if ($docid) {
-          setGpRelation(1, $docid, 6, $id, !empty($_POST["lnk$id"]));
+            setGpRelation(1, $docid, 6, $noteid);
         }
         if ($orderid) {
-          setGpRelation(2, $orderid, 6, $id, !empty($_POST["lnk$id"]));
+            setGpRelation(2, $orderid, 6, $noteid);
         }
-      }
+        $noteid = '';
     }
-  }
-  elseif ($mode == "new") {
-    $note = $_POST['note'];
-    if ($noteid) {
-      updatePnote($noteid, $note, $_POST['form_note_type'], $_POST['assigned_to']);
-      $noteid = '';
+    elseif ($mode == "delete") {
+        if ($noteid) {
+            deletePnote($noteid);
+            newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], "pnotes: id ".$noteid);
+        }
+        $noteid = '';
     }
-    else {
-      $noteid = addPnote($patient_id, $note, $userauthorized, '1', $_POST['form_note_type'],
-        $_POST['assigned_to']);
-    }
-    if ($docid) {
-      setGpRelation(1, $docid, 6, $noteid);
-    }
-    if ($orderid) {
-      setGpRelation(2, $orderid, 6, $noteid);
-    }
-    $noteid = '';
-  }
-  elseif ($mode == "delete") {
-    if ($noteid) {
-        deletePnote($noteid);
-        newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], "pnotes: id ".$noteid);
-    }
-    $noteid = '';
-  }
 }
 
 $title = '';
 $assigned_to = $_SESSION['authUser'];
 if ($noteid) {
-  $prow = getPnoteById($noteid, 'title,assigned_to,body');
-  $title = $prow['title'];
-  $assigned_to = $prow['assigned_to'];
+    $prow = getPnoteById($noteid, 'title,assigned_to,body');
+    $title = $prow['title'];
+    $assigned_to = $prow['assigned_to'];
 }
 
 // Get the users list.  The "Inactive" test is a kludge, we should create
@@ -165,12 +165,12 @@ document.forms[0].submit();
 <?php
 $title_docname = "";
 if ($docid) {
-  $title_docname .= " " . xl("linked to document") . " ";
-  $d = new Document($docid);
-  $title_docname .= $d->get_url_file();
+    $title_docname .= " " . xl("linked to document") . " ";
+    $d = new Document($docid);
+    $title_docname .= $d->get_url_file();
 }
 if ($orderid) {
-  $title_docname .= " " . xl("linked to procedure order") . " $orderid";
+    $title_docname .= " " . xl("linked to procedure order") . " $orderid";
 }
 
 $urlparms = "docid=$docid&orderid=$orderid";
@@ -207,13 +207,13 @@ $urlparms = "docid=$docid&orderid=$orderid";
  <tr>
   <td class='text'>
     <?php
-     if ($noteid) {
+    if ($noteid) {
        // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-       echo htmlspecialchars( xl('Amend Existing Note'), ENT_NOQUOTES) .
-         "<b> &quot;" . generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $title) . "&quot;</b>\n";
-     } else {
-       echo htmlspecialchars( xl('Add New Note'), ENT_NOQUOTES) . "\n";
-     }
+        echo htmlspecialchars( xl('Amend Existing Note'), ENT_NOQUOTES) .
+        "<b> &quot;" . generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $title) . "&quot;</b>\n";
+    } else {
+        echo htmlspecialchars( xl('Add New Note'), ENT_NOQUOTES) . "\n";
+    }
     ?>
   </td>
  </tr>
@@ -222,21 +222,21 @@ $urlparms = "docid=$docid&orderid=$orderid";
     <br/>
 
    <b><?php echo htmlspecialchars( xl('Type'), ENT_NOQUOTES); ?>:</b>
-   <?php
+    <?php
    // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
     generate_form_field(array('data_type'=>1,'field_id'=>'note_type','list_id'=>'note_type','empty_title'=>'SKIP'), $title);
-   ?>
+    ?>
    &nbsp; &nbsp;
    <b><?php echo htmlspecialchars( xl('To'), ENT_NOQUOTES); ?>:</b>
    <select name='assigned_to'>
 <?php
- while ($urow = sqlFetchArray($ures)) {
-  echo "    <option value='" . htmlspecialchars( $urow['username'], ENT_QUOTES) . "'";
-  if ($urow['username'] == $assigned_to) echo " selected";
-  echo ">" . htmlspecialchars( $urow['lname'], ENT_NOQUOTES);
-  if ($urow['fname']) echo htmlspecialchars( ", ".$urow['fname'], ENT_NOQUOTES);
-  echo "</option>\n";
- }
+while ($urow = sqlFetchArray($ures)) {
+    echo "    <option value='" . htmlspecialchars( $urow['username'], ENT_QUOTES) . "'";
+    if ($urow['username'] == $assigned_to) echo " selected";
+    echo ">" . htmlspecialchars( $urow['lname'], ENT_NOQUOTES);
+    if ($urow['fname']) echo htmlspecialchars( ", ".$urow['fname'], ENT_NOQUOTES);
+    echo "</option>\n";
+}
 ?>
    <option value=''><?php echo htmlspecialchars( xl('Mark Note as Completed'), ENT_NOQUOTES); ?></option>
    </select>
@@ -285,7 +285,7 @@ if ($noteid) {
   <td>
 <?php
 if ($offset > ($N-1)) {
-  echo "   <a class='link' href='pnotes_full.php" .
+    echo "   <a class='link' href='pnotes_full.php" .
     "?$urlparms" .
     "&form_active=" . htmlspecialchars( $form_active, ENT_QUOTES) .
     "&form_inactive=" . htmlspecialchars( $form_inactive, ENT_QUOTES) .
@@ -298,7 +298,7 @@ if ($offset > ($N-1)) {
   <td align='right'>
 <?php
 if ($result_count == $N) {
-  echo "   <a class='link' href='pnotes_full.php" .
+    echo "   <a class='link' href='pnotes_full.php" .
     "?$urlparms" .
     "&form_active=" . htmlspecialchars( $form_active, ENT_QUOTES) .
     "&form_inactive=" . htmlspecialchars( $form_inactive, ENT_QUOTES) .
@@ -317,7 +317,7 @@ if ($result_count == $N) {
 
 <?php
 if ($_GET['set_pid']) {
-  $ndata = getPatientData($patient_id, "fname, lname, pubpid");
+    $ndata = getPatientData($patient_id, "fname, lname, pubpid");
 ?>
  parent.left_nav.setPatient(<?php echo "'" . addslashes($ndata['fname']." ".$ndata['lname']) . "'," . addslashes($patient_id) . ",'" . addslashes($ndata['pubpid']) . "',window.name"; ?>);
 <?php
@@ -327,15 +327,15 @@ if ($_GET['set_pid']) {
 // of that document.
 //
 if ($noteid /* && $title == 'New Document' */ ) {
-  $prow = getPnoteById($noteid, 'body');
-  if (preg_match('/New scanned document (\d+): [^\n]+\/([^\n]+)/', $prow['body'], $matches)) {
-    $docid = $matches[1];
-    $docname = $matches[2];
-?>
- window.open('../../../controller.php?document&retrieve&patient_id=<?php echo htmlspecialchars( $patient_id, ENT_QUOTES) ?>&document_id=<?php echo htmlspecialchars( $docid, ENT_QUOTES) ?>&<?php echo htmlspecialchars( $docname, ENT_QUOTES)?>&as_file=true',
+    $prow = getPnoteById($noteid, 'body');
+    if (preg_match('/New scanned document (\d+): [^\n]+\/([^\n]+)/', $prow['body'], $matches)) {
+        $docid = $matches[1];
+        $docname = $matches[2];
+    ?>
+     window.open('../../../controller.php?document&retrieve&patient_id=<?php echo htmlspecialchars( $patient_id, ENT_QUOTES) ?>&document_id=<?php echo htmlspecialchars( $docid, ENT_QUOTES) ?>&<?php echo htmlspecialchars( $docname, ENT_QUOTES)?>&as_file=true',
   '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
 <?php
-  }
+    }
 }
 ?>
 
@@ -400,8 +400,8 @@ $(document).ready(function(){
 });
 $(document).ready(function(){
     $("#cancel").click(function() {
-		  parent.$.fn.fancybox.close();
-	 });
+          parent.$.fn.fancybox.close();
+     });
 
 });
 </script>

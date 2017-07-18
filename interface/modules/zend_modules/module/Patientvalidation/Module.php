@@ -58,7 +58,7 @@ class Module {
     {
         return array(
             'factories' => array(
-                'Patientvalidation\Model\PatientDataTable' =>  function($sm) {
+                'Patientvalidation\Model\PatientDataTable' =>  function ($sm) {
                     $tableGateway = $sm->get('PatientDataTableGateway');
                     $table = new PatientDataTable($tableGateway);
                     return $table;
@@ -83,7 +83,7 @@ class Module {
         $events = $manager->getEventManager();
         $sharedEvents = $events->getSharedManager();
 
-        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function($e) {
+        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e) {
             $controller = $e->getTarget();
             //$controller->layout()->setVariable('status', null);
             $controller->layout('layout/layout.phtml');

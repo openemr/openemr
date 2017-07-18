@@ -6,20 +6,20 @@ include_once("$srcdir/options.inc.php");
 
 // Check authorization.
 if ($pid) {
-  if ( !acl_check('patients','demo','','write') )
+    if ( !acl_check('patients','demo','','write') )
     die(xlt('Updating demographics is not authorized.'));
-  $tmp = getPatientData($pid, "squad");
-  if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
+    $tmp = getPatientData($pid, "squad");
+    if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
     die(xlt('You are not authorized to access this squad.'));
 } else {
-  if (!acl_check('patients','demo','',array('write','addonly') ))
+    if (!acl_check('patients','demo','',array('write','addonly') ))
     die(xlt('Adding demographics is not authorized.'));
 }
 
 foreach ($_POST as $key => $val) {
-  if ($val == "MM/DD/YYYY") {
-    $_POST[$key] = "";
-  }
+    if ($val == "MM/DD/YYYY") {
+        $_POST[$key] = "";
+    }
 }
 
 // Update patient_data and employer_data:
@@ -30,20 +30,23 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
   "ORDER BY group_name, seq");
 while ($frow = sqlFetchArray($fres)) {
-  $data_type = $frow['data_type'];
-  $field_id  = $frow['field_id'];
-  // $value  = '';
-  $colname = $field_id;
-  $table = 'patient_data';
-  if (strpos($field_id, 'em_') === 0) {
-    $colname = substr($field_id, 3);
-    $table = 'employer_data';
-  }
 
-  // if (isset($_POST["form_$field_id"])) $value = $_POST["form_$field_id"];
-  $value = get_layout_form_value($frow);
+    $data_type = $frow['data_type'];
+    $field_id = $frow['field_id'];
+    // $value  = '';
+    $colname = $field_id;
+    $table = 'patient_data';
+    if (strpos($field_id, 'em_') === 0) {
+        $colname = substr($field_id, 3);
+        $table = 'employer_data';
+    }
 
-  $newdata[$table][$colname] = $value;
+    //get value only if field exist in $_POST (prevent deleting of field with disabled attribute)
+    if (isset($_POST["form_$field_id"])){
+        $newdata[$table][$colname] = get_layout_form_value($frow);
+    }
+
+
 }
 updatePatientData($pid, $newdata['patient_data']);
 updateEmployerData($pid, $newdata['employer_data']);

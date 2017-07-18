@@ -214,7 +214,7 @@ $check_res = $formid ? $check_res : array();
             <?php
             if (!empty($check_res)) {
                 foreach ($check_res as $key => $obj) {
-                  $style= '';
+                    $style= '';
                     ?>
                     <tr class="tb_row" id="tb_row_<?php echo $key + 1; ?>">
                         <td align="left" class="forms"><?php echo xlt('Code'); ?>:</td>
@@ -227,14 +227,14 @@ $check_res = $formid ? $check_res : array();
                         </td>
                         <td id="ob_value_head_<?php echo $key + 1; ?>" class="forms ob_value_head" align="left" <?php if( !$obj{"ob_value"}) {?>style="display: none;" <?php }?>><?php echo xlt('Value'); ?>:</td>
                         <td class="forms">
-                           <?php
-                                if((text($obj{"code"}) == '21612-7' || text($obj{"code"}) == '8661-1')) {
-                                  $style = 'display: block;';
-                                }
-                                elseif(text($obj{"code"}) == 'SS003' || !$obj{"ob_value"}) {
-                                  $style = 'display: none;';
-                                }
-                           ?>
+                            <?php
+                            if((text($obj{"code"}) == '21612-7' || text($obj{"code"}) == '8661-1')) {
+                                $style = 'display: block;';
+                            }
+                            elseif(text($obj{"code"}) == 'SS003' || !$obj{"ob_value"}) {
+                                $style = 'display: none;';
+                            }
+                            ?>
                           <input type="text" name="ob_value[]" id="ob_value_<?php echo $key + 1; ?>" style="width: 60%; <?php echo $style;?>" class="ob_value" value="<?php if((text($obj{"code"}) == '21612-7' || text($obj{"code"}) == '8661-1') && text($obj{"code"}) != 'SS003') echo text($obj{"ob_value"}); ?>">
                           <select name="ob_value_phin[]" id="ob_value_phin_<?php echo $key + 1; ?>" class="ob_value_phin" <?php if(text($obj{"code"}) != 'SS003') { ?> style="display: none;" <?php }?>>
                               <option value="261QE0002X" <?php if(text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QE0002X') echo 'selected = "selected"' ;?>><?php echo xlt('Emergency Care'); ?></option>
@@ -244,12 +244,12 @@ $check_res = $formid ? $check_res : array();
                           </select>
                         </td>
                         <?php
-                            if(!$obj{"ob_unit"} || (text($obj{"code"}) == 'SS003')|| text($obj{"code"}) == '8661-1') {
-                              $style = 'display: none;' ;
-                            }
-                            elseif(text($obj{"code"}) == '21612-7') {
-                              $style = 'display: block';
-                            }
+                        if(!$obj{"ob_unit"} || (text($obj{"code"}) == 'SS003')|| text($obj{"code"}) == '8661-1') {
+                            $style = 'display: none;' ;
+                        }
+                        elseif(text($obj{"code"}) == '21612-7') {
+                            $style = 'display: block';
+                        }
                         ?>
                         <td id="ob_unit_head_<?php echo $key + 1; ?>" class="forms ob_unit_head" align="left" style="<?php echo $style;?>"><?php echo xlt('Units'); ?>:</td>
                         <td class="forms">
@@ -275,10 +275,10 @@ $check_res = $formid ? $check_res : array();
                         </td>
                 </tr>
                 <?php
-            }
-        } else {
-            ?>
-            <tr class="tb_row" id="tb_row_1">
+                }
+            } else {
+                ?>
+                <tr class="tb_row" id="tb_row_1">
                 <td align="left" class="forms"><?php echo xlt('Code'); ?>:</td>
                 <td class="forms">
                     <input type="text" id="code_1" name="code[]" style="width:50%;" class="code" value="<?php echo text($obj{"code"}); ?>" onclick='sel_code(this.parentElement.parentElement.id);'><br>
@@ -289,33 +289,33 @@ $check_res = $formid ? $check_res : array();
                 </td>
                 <td id="ob_value_head_1" class="forms ob_value_head" align="left" <?php if( !$obj{"ob_value"}) {?>style="display: none;" <?php }?>><?php echo xlt('Value'); ?>:</td>
                 <td class="forms">
-                  <?php
-                      if((text($obj{"code"}) == '21612-7' || text($obj{"code"}) == '8661-1')) {
+                    <?php
+                    if((text($obj{"code"}) == '21612-7' || text($obj{"code"}) == '8661-1')) {
                         $style = 'display: block;';
-                      }
-                      elseif(text($obj{"code"}) == 'SS003' || !$obj{"ob_value"}) {
+                    }
+                    elseif(text($obj{"code"}) == 'SS003' || !$obj{"ob_value"}) {
                         $style = 'display: none;';
-                      }
-                   ?>
-                  <input type="text" name="ob_value[]" id="ob_value_1" style="width: 60%;<?php echo $style;?>" class="ob_value" value="<?php if((text($obj{"code"}) == '21612-7' || text($obj{"code"}) == '8661-1') && text($obj{"code"}) != 'SS003') echo text($obj{"ob_value"}); ?>">
-                  <select name="ob_value_phin[]" id="ob_value_phin_1" class="ob_value_phin" <?php if(text($obj{"code"}) != 'SS003') { ?> style="display: none;" <?php }?>>
-                    <option value="261QE0002X" <?php if(text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QE0002X') echo 'selected = "selected"' ;?>><?php echo xlt('Emergency Care'); ?></option>
-                    <option value="261QM2500X" <?php if(text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QM2500X') echo 'selected = "selected"' ;?>><?php echo xlt('Medical Specialty'); ?></option>
-                    <option value="261QP2300X" <?php if(text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QP2300X') echo 'selected = "selected"' ;?>><?php echo xlt('Primary Care'); ?></option>
-                    <option value="261QU0200X" <?php if(text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QU0200X') echo 'selected = "selected"' ;?>><?php echo xlt('Urgent Care'); ?></option>
-                  </select>
-                </td>
-                <?php
-                    if(!$obj{"ob_unit"} || (text($obj{"code"}) == 'SS003')|| text($obj{"code"}) == '8661-1') {
-                      $style = 'display: none;' ;
                     }
-                    elseif(text($obj{"code"}) == '21612-7') {
-                      $style = 'display: block';
-                    }
-                ?>
-                <td id="ob_unit_head_1" class="forms ob_unit_head" align="left" style="<?php echo $style;?>"><?php echo xlt('Units'); ?>:</td>
+                        ?>
+                          <input type="text" name="ob_value[]" id="ob_value_1" style="width: 60%;<?php echo $style;?>" class="ob_value" value="<?php if((text($obj{"code"}) == '21612-7' || text($obj{"code"}) == '8661-1') && text($obj{"code"}) != 'SS003') echo text($obj{"ob_value"}); ?>">
+                          <select name="ob_value_phin[]" id="ob_value_phin_1" class="ob_value_phin" <?php if(text($obj{"code"}) != 'SS003') { ?> style="display: none;" <?php }?>>
+                        <option value="261QE0002X" <?php if(text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QE0002X') echo 'selected = "selected"' ;?>><?php echo xlt('Emergency Care'); ?></option>
+                        <option value="261QM2500X" <?php if(text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QM2500X') echo 'selected = "selected"' ;?>><?php echo xlt('Medical Specialty'); ?></option>
+                        <option value="261QP2300X" <?php if(text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QP2300X') echo 'selected = "selected"' ;?>><?php echo xlt('Primary Care'); ?></option>
+                        <option value="261QU0200X" <?php if(text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QU0200X') echo 'selected = "selected"' ;?>><?php echo xlt('Urgent Care'); ?></option>
+                      </select>
+                    </td>
+                        <?php
+                        if(!$obj{"ob_unit"} || (text($obj{"code"}) == 'SS003')|| text($obj{"code"}) == '8661-1') {
+                            $style = 'display: none;' ;
+                        }
+                        elseif(text($obj{"code"}) == '21612-7') {
+                            $style = 'display: block';
+                        }
+                        ?>
+                        <td id="ob_unit_head_1" class="forms ob_unit_head" align="left" style="<?php echo $style;?>"><?php echo xlt('Units'); ?>:</td>
                 <td class="forms">
-                  <select <?php if(text($obj{"code"}) != '21612-7') { ?> style="display: none;" <?php }?> name="ob_unit[]" id="ob_unit_1" class="ob_unit">
+                      <select <?php if(text($obj{"code"}) != '21612-7') { ?> style="display: none;" <?php }?> name="ob_unit[]" id="ob_unit_1" class="ob_unit">
                       <option value="d" <?php if(text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'd') echo 'selected = "selected"' ;?>><?php echo xlt('Day'); ?></option>
                       <option value="mo" <?php if(text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'mo') echo 'selected = "selected"' ;?>><?php echo xlt('Month'); ?></option>
                       <option value="UNK" <?php if(text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'UNK') echo 'selected = "selected"' ;?>><?php echo xlt('Unknown'); ?></option>
@@ -323,11 +323,11 @@ $check_res = $formid ? $check_res : array();
                       <option value="a" <?php if(text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'a') echo 'selected = "selected"' ;?>><?php echo xlt('Year'); ?></option>
                   </select>
                 </td>
-                <td align="left" class="forms"><?php echo xlt('Comments'); ?>:</td>
+                    <td align="left" class="forms"><?php echo xlt('Comments'); ?>:</td>
                 <td class="forms">
                     <textarea rows="4" id="comments_1" cols="20" name="comments[]" class="comments"><?php echo text($obj{"observation"}); ?></textarea>
                 </td>
-                <td align="left" class="forms"><?php echo xlt('Date'); ?>:</td>
+                    <td align="left" class="forms"><?php echo xlt('Date'); ?>:</td>
                 <td class="forms">
                     <input type='text' id="code_date_1" size='10' name='code_date[]' class="code_date datepicker" <?php echo attr($disabled) ?> value='<?php echo attr($obj{"date"}); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
                 </td>
@@ -335,8 +335,8 @@ $check_res = $formid ? $check_res : array();
                     <img src='../../pic/add.png' onclick="duplicateRow(this.parentElement.parentElement);" align='absbottom' width='27' height='24' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to duplicate the row'); ?>'>
                     <img src='../../pic/remove.png' onclick="deleteRow(this.parentElement.parentElement.id);" align='absbottom' width='24' height='22' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to delete the row'); ?>'>
                 </td>
-        </tr>
-    <?php }
+            </tr>
+            <?php }
     ?>
 
     <tr>

@@ -93,7 +93,7 @@ function pnUserLogIn($uname, $pass, $rememberme)
         if (!empty($rememberme)) {
             pnSessionSetVar('rememberme', 1);
         }
-     }
+    }
 
      return true;
 }
@@ -204,9 +204,9 @@ function pnUserGetVars($uid)
     $result = $dbconn->Execute($query);
 
     while (!$result->EOF) {
-       $uservars = $result->GetRowAssoc(false);
-       $vars[$uservars['label']] = $uservars['value'];
-       $result->MoveNext();
+        $uservars = $result->GetRowAssoc(false);
+        $vars[$uservars['label']] = $uservars['value'];
+        $result->MoveNext();
     }
 
     $result->Close();
@@ -360,9 +360,9 @@ function pnUserSetVar($name, $value)
                           '".pnVarPrepForStore($value)."')";
            $dbconn->Execute($query);
 
-           if($dbconn->ErrorNo() != 0) {
-             return false;
-           }
+        if($dbconn->ErrorNo() != 0) {
+            return false;
+        }
 
     } else {
 
@@ -374,9 +374,9 @@ function pnUserSetVar($name, $value)
                      $datacolumns[uda_uid] = '" . pnVarPrepForStore($uid) ."'";
            $dbconn->Execute($query);
 
-           if($dbconn->ErrorNo() != 0) {
-             return false;
-           }
+        if($dbconn->ErrorNo() != 0) {
+            return false;
+        }
     }
 
     return true;
@@ -429,7 +429,7 @@ function pnUserDelVar($name)
     $result = $dbconn->Execute($query);
 
     if($dbconn->ErrorNo() != 0) {
-      return false;
+        return false;
     }
 
     // delete variable from user data for all users
@@ -438,7 +438,7 @@ function pnUserDelVar($name)
     $dbconn->Execute($query);
 
     if($dbconn->ErrorNo() != 0) {
-      return false;
+        return false;
     }
 
     return true;
@@ -470,10 +470,10 @@ function pnUserGetTheme()
         $usertheme = pnUserGetVar('theme');
         // modification mouzaia .71
         if (!empty($usertheme)) {
-			if (@opendir(WHERE_IS_PERSO."themes/".pnVarPrepForOS($usertheme)))
-			    { return $usertheme; }
+            if (@opendir(WHERE_IS_PERSO."themes/".pnVarPrepForOS($usertheme)))
+                { return $usertheme; }
             if (@opendir("themes/" . pnVarPrepForOS($usertheme)))
-				{ return $usertheme; }
+                { return $usertheme; }
         }
     }
 
@@ -605,7 +605,7 @@ function pnUserGetAll()
     $result = $dbconn->Execute($sql);
 
     if($dbconn->ErrorNo() != 0) {
-      return;
+        return;
     }
 
     if ($result->EOF) {

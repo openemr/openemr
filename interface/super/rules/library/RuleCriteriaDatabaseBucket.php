@@ -20,8 +20,13 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria {
     var $frequencyComparator;
     var $frequency;
 
-    function __construct( $category, $item, $completed,
-                    $frequencyComparator, $frequency ) {
+    function __construct(
+        $category,
+        $item,
+        $completed,
+        $frequencyComparator,
+        $frequency
+    ) {
         $this->category = $category;
         $this->categoryLbl = $this->getLabel($this->category, 'rule_action_category');
         $this->item = $item;
@@ -31,7 +36,8 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria {
         $this->frequency = $frequency;
     }
 
-    function getRequirements() {
+    function getRequirements()
+    {
         $requirements .= xl( "Completed" ) . ": ";
         $requirements .= $this->completed ? xl( "Yes" ) : xl( "No" );
         $requirements .= " | ";
@@ -41,23 +47,28 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria {
         return $requirements;
     }
 
-    function getTitle() {
+    function getTitle()
+    {
         return $this->getCategoryLabel() . " - " . $this->getItemLabel();
     }
 
-    function getCategoryLabel() {
+    function getCategoryLabel()
+    {
         return $this->categoryLbl;
     }
 
-    function getItemLabel() {
+    function getItemLabel()
+    {
         return $this->itemLbl;
     }
 
-    function getView() {
+    function getView()
+    {
         return "bucket.php";
     }
 
-    function getDbView() {
+    function getDbView()
+    {
         $dbView = parent::getDbView();
 
         $dbView->method = "database";
@@ -71,7 +82,8 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria {
         return $dbView;
     }
 
-    function updateFromRequest() {
+    function updateFromRequest()
+    {
         parent::updateFromRequest();
 
         $category = _post("fld_category");

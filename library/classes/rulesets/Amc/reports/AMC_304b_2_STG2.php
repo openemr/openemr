@@ -31,7 +31,7 @@ class AMC_304b_2_STG2 extends AbstractAmcReport
 
     public function getObjectToCount()
     {
-	   return "prescriptions";
+        return "prescriptions";
     }
  
     public function createDenominator()

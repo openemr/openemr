@@ -35,18 +35,18 @@ function validate(f) {
     f.form_date.style.backgroundColor="red";
     return false;
   } else {
-	var form_date = f.form_date.value.split( " " );
-	var date_split = form_date[0].split( "-" );
-	var time_split = form_date[1].split( ":" );
-	var d = new Date( date_split[0], date_split[1]-1, date_split[2], time_split[0], time_split[1], time_split[2] );
-	var now = new Date();
-	if ( d > now &&
-		f.form_complete.value == "YES" ) {
-		alert("<?php echo htmlspecialchars( xl('You cannot enter a future date with a completed value of YES.'), ENT_QUOTES); ?>");
-	    f.form_date.focus();
-	    f.form_date.style.backgroundColor="red";
-	    return false;
-	}
+    var form_date = f.form_date.value.split( " " );
+    var date_split = form_date[0].split( "-" );
+    var time_split = form_date[1].split( ":" );
+    var d = new Date( date_split[0], date_split[1]-1, date_split[2], time_split[0], time_split[1], time_split[2] );
+    var now = new Date();
+    if ( d > now &&
+        f.form_complete.value == "YES" ) {
+        alert("<?php echo htmlspecialchars( xl('You cannot enter a future date with a completed value of YES.'), ENT_QUOTES); ?>");
+        f.form_date.focus();
+        f.form_date.style.backgroundColor="red";
+        return false;
+    }
   }
   return true;
 }
@@ -81,9 +81,9 @@ $(document).ready(function(){
 
 // Ensure user is authorized
 if (!acl_check('patients', 'med')) {
-  echo "<p>(" . htmlspecialchars( xl('Not authorized'), ENT_NOQUOTES) . ")</p>\n";
-  echo "</body>\n</html>\n";
-  exit();
+    echo "<p>(" . htmlspecialchars( xl('Not authorized'), ENT_NOQUOTES) . ")</p>\n";
+    echo "</body>\n</html>\n";
+    exit();
 }
 
 if ($_POST['form_complete']) {
@@ -91,32 +91,32 @@ if ($_POST['form_complete']) {
   //  and then close the window/modul.
 
   // Collect and trim variables
-  if (isset($_POST['form_entryID'])) $form_entryID = trim($_POST['form_entryID']);
-  $form_date = trim($_POST['form_date']);
-  $form_category = trim($_POST['form_category']);
-  $form_item = trim($_POST['form_item']);
-  $form_complete = trim($_POST['form_complete']);
-  $form_result = trim($_POST['form_result']);
+    if (isset($_POST['form_entryID'])) $form_entryID = trim($_POST['form_entryID']);
+    $form_date = trim($_POST['form_date']);
+    $form_category = trim($_POST['form_category']);
+    $form_item = trim($_POST['form_item']);
+    $form_complete = trim($_POST['form_complete']);
+    $form_result = trim($_POST['form_result']);
 
-  if (!isset($form_entryID)) {
-    // Insert new row of data into rule_patient_data table
-    sqlInsert("INSERT INTO `rule_patient_data` (`date`, `pid`, `category`, `item`, `complete`, `result`) " .
-      "VALUES (?,?,?,?,?,?)", array($form_date, $pid, $form_category, $form_item, $form_complete, $form_result) );
-  }
-  else { // $form_mode == "edit"
-    // Modify selected row in rule_patient_data table
-    sqlStatement("UPDATE `rule_patient_data` " .
-      "SET `date`=?, `complete`=?, `result`=? " .
-      "WHERE `id`=?", array($form_date,$form_complete,$form_result,$form_entryID) );
-  }
+    if (!isset($form_entryID)) {
+        // Insert new row of data into rule_patient_data table
+        sqlInsert("INSERT INTO `rule_patient_data` (`date`, `pid`, `category`, `item`, `complete`, `result`) " .
+        "VALUES (?,?,?,?,?,?)", array($form_date, $pid, $form_category, $form_item, $form_complete, $form_result) );
+    }
+    else { // $form_mode == "edit"
+        // Modify selected row in rule_patient_data table
+        sqlStatement("UPDATE `rule_patient_data` " .
+        "SET `date`=?, `complete`=?, `result`=? " .
+        "WHERE `id`=?", array($form_date,$form_complete,$form_result,$form_entryID) );
+    }
 
   // Close this window and refresh the patient summary display.
-  echo "<html>\n<body>\n<script language='JavaScript'>\n";
-  echo " window.close();\n";
-  echo " top.restoreSession();\n";
-  echo " if ( opener ) { opener.location.reload(); } else { parent.location.reload(); } \n";
-  echo "</script>\n</body>\n</html>\n";
-  exit();
+    echo "<html>\n<body>\n<script language='JavaScript'>\n";
+    echo " window.close();\n";
+    echo " top.restoreSession();\n";
+    echo " if ( opener ) { opener.location.reload(); } else { parent.location.reload(); } \n";
+    echo "</script>\n</body>\n</html>\n";
+    exit();
 }
 
 // Display the form
@@ -127,12 +127,12 @@ if (isset($_GET['entryID'])) $entryID = trim($_GET['entryID']);
 
 // Collect data if a specific entry is selected
 if (isset($entryID)) {
-  $selectedEntry = sqlQuery("SELECT `date`, `complete`, `result` " .
+    $selectedEntry = sqlQuery("SELECT `date`, `complete`, `result` " .
     "FROM `rule_patient_data` " .
     "WHERE `id`=?", array($entryID) );
-  $form_date = $selectedEntry['date'];
-  $form_complete = $selectedEntry['complete'];
-  $form_result = $selectedEntry['result'];
+    $form_date = $selectedEntry['date'];
+    $form_complete = $selectedEntry['complete'];
+    $form_result = $selectedEntry['result'];
 }
 
 ?>
@@ -170,15 +170,15 @@ if (isset($entryID)) {
     echo attr($form_result);
     echo "</textarea>";
     echo "</td></tr>";
-  echo "</table>";
-  echo "<input type='hidden' name='form_category' value='" .
+    echo "</table>";
+    echo "<input type='hidden' name='form_category' value='" .
     attr($category)  . "' />";
-  echo "<input type='hidden' name='form_item' value='" .
+    echo "<input type='hidden' name='form_item' value='" .
     attr($item)  . "' />";
-  if (isset($entryID)) {
-    echo "<input type='hidden' name='form_entryID' value='" .
-      attr($entryID)  . "' />";
-  }
+    if (isset($entryID)) {
+        echo "<input type='hidden' name='form_entryID' value='" .
+        attr($entryID)  . "' />";
+    }
 ?>
 </form>
 <?php
@@ -204,34 +204,34 @@ if (sqlNumRows($res) >= 1) { //display table ?>
     </tr>
     <?php
     while ($row = sqlFetchArray($res)) {
-      if (isset($entryID) && ($entryID == $row['id'])) {
-        echo "<tr class='text' style='background-color:LightGrey'>";
-      }
-      else {
-        echo "<tr class='text'>";
-      }
-      if (isset($entryID) && ($entryID == $row['id'])) {
-        // hide the edit button
-        echo "<td>&nbsp;</td>";
-      }
-      else { // show the edit button
-        echo "<td><a href='patient_data.php?category=" .
-          attr($category) . "&item=" .
-          attr($item) . "&entryID=" .
-          attr($row['id']) .
-          "' onclick='top.restoreSession()' class='css_button_small'>" .
-          "<span>" . xlt('Edit') . "</span></a>" .
-          "</td>";
-      }
-      echo "<td>" . text($row['date']) . "</td>";
-      echo "<td align='center'>" . text($row['complete']) . "</td>";
-      echo "<td>" . nl2br( htmlspecialchars( $row['result'], ENT_NOQUOTES) ) . "</td>";
-      echo "</tr>";
+        if (isset($entryID) && ($entryID == $row['id'])) {
+            echo "<tr class='text' style='background-color:LightGrey'>";
+        }
+        else {
+            echo "<tr class='text'>";
+        }
+        if (isset($entryID) && ($entryID == $row['id'])) {
+            // hide the edit button
+            echo "<td>&nbsp;</td>";
+        }
+        else { // show the edit button
+            echo "<td><a href='patient_data.php?category=" .
+            attr($category) . "&item=" .
+            attr($item) . "&entryID=" .
+            attr($row['id']) .
+            "' onclick='top.restoreSession()' class='css_button_small'>" .
+            "<span>" . xlt('Edit') . "</span></a>" .
+            "</td>";
+        }
+        echo "<td>" . text($row['date']) . "</td>";
+        echo "<td align='center'>" . text($row['complete']) . "</td>";
+        echo "<td>" . nl2br( htmlspecialchars( $row['result'], ENT_NOQUOTES) ) . "</td>";
+        echo "</tr>";
     } ?>
   </table>
 <?php } //display table if statement
 else { //no entries
-  echo "<p>" . xlt('No previous entries.') . "</p>";
+    echo "<p>" . xlt('No previous entries.') . "</p>";
 } ?>
 </div>
 </body>

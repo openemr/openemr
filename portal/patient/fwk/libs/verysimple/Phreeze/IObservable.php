@@ -16,24 +16,24 @@ require_once ("IObserver.php");
  * @version 2.0
  */
 interface IObservable {
-	/**
-	 * Registers/attaches an IObserver to this object
-	 *
-	 * @access public
-	 * @param IObserver $observer        	
-	 */
-	public function AttachObserver($observer);
-	
-	/**
-	 * Fires the Observe event on all registered observers
-	 *
-	 * @access public
-	 * @param variant $obj
-	 *        	the $obj or message that you want to log/listen to, etc.
-	 * @param int $ltype
-	 *        	the type/level
-	 */
-	public function Observe($obj, $ltype = OBSERVE_INFO);
+    /**
+     * Registers/attaches an IObserver to this object
+     *
+     * @access public
+     * @param IObserver $observer
+     */
+    public function AttachObserver($observer);
+    
+    /**
+     * Fires the Observe event on all registered observers
+     *
+     * @access public
+     * @param variant $obj
+     *          the $obj or message that you want to log/listen to, etc.
+     * @param int $ltype
+     *          the type/level
+     */
+    public function Observe($obj, $ltype = OBSERVE_INFO);
 }
 
 ?>

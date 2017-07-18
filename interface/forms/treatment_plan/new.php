@@ -52,11 +52,11 @@ $obj = $formid ? formFetch("form_treatment_plan", $formid) : array();
   win.printLogSetup(document.getElementById('printbutton'));
 
   $('.datepicker').datetimepicker({
-   <?php $datetimepicker_timepicker = false; ?>
-   <?php $datetimepicker_showseconds = false; ?>
-   <?php $datetimepicker_formatInput = false; ?>
-   <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-   <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
  });
 </script>
@@ -74,127 +74,127 @@ echo "<form method='post' name='my_form' " .
 
 <tr>
 <td align="left" class="forms" class="forms"><?php echo xlt('Client Name' ); ?>:</td>
-		<td class="forms">
-			<label class="forms-data"> <?php if (is_numeric($pid)) {
+        <td class="forms">
+            <label class="forms-data"> <?php if (is_numeric($pid)) {
 
-    $result = getPatientData($pid, "fname,lname,squad");
-   echo text($result['fname'])." ".text($result['lname']);}
+                $result = getPatientData($pid, "fname,lname,squad");
+                echo text($result['fname'])." ".text($result['lname']);}
    $patient_name=($result['fname'])." ".($result['lname']);
-   ?>
+    ?>
    </label>
    <input type="hidden" name="client_name" value="<?php echo attr($patient_name);?>">
-		</td>
-		<td align="left"  class="forms"><?php echo xlt('DOB'); ?>:</td>
-		<td class="forms">
-		<label class="forms-data"> <?php if (is_numeric($pid)) {
+        </td>
+        <td align="left"  class="forms"><?php echo xlt('DOB'); ?>:</td>
+        <td class="forms">
+        <label class="forms-data"> <?php if (is_numeric($pid)) {
 
-    $result = getPatientData($pid, "*");
-   echo text($result['DOB']);}
+            $result = getPatientData($pid, "*");
+            echo text($result['DOB']);}
    $dob=($result['DOB']);
-   ?>
+    ?>
    </label>
      <input type="hidden" name="DOB" value="<?php echo attr($dob);?>">
-		</td>
-		</tr>
-	<tr>
- 	  <td align="left"  class="forms"><?php echo xlt('Client Number'); ?>:</td>
-		<td class="forms">
-			<label class="forms-data" > <?php if (is_numeric($pid)) {
+        </td>
+        </tr>
+    <tr>
+      <td align="left"  class="forms"><?php echo xlt('Client Number'); ?>:</td>
+        <td class="forms">
+            <label class="forms-data" > <?php if (is_numeric($pid)) {
 
-    $result = getPatientData($pid, "*");
-   echo text($result['pid']);}
+                $result = getPatientData($pid, "*");
+                echo text($result['pid']);}
    $patient_id=$result['pid'];
-   ?>
+    ?>
    </label>
     <input type="hidden" name="client_number" value="<?php echo attr($patient_id);?>">
-		</td>
+        </td>
 
 
-		<td align="left" class="forms"><?php echo xlt('Admit Date'); ?>:</td>
-		<td class="forms">
-			   <input type='text' size='10' class='datepicker' name='admit_date' id='admission_date' <?php echo attr($disabled) ?>;
-			   value='<?php echo attr($obj{"admit_date"}); ?>'
-			   title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
-		</td>
+        <td align="left" class="forms"><?php echo xlt('Admit Date'); ?>:</td>
+        <td class="forms">
+               <input type='text' size='10' class='datepicker' name='admit_date' id='admission_date' <?php echo attr($disabled) ?>;
+               value='<?php echo attr($obj{"admit_date"}); ?>'
+               title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
+        </td>
 
-		</tr>
-		<tr>
-		<td align="left" class="forms"><?php echo xlt('Provider'); ?>:</td>
-		 <td class="forms" width="280px">
- <?php
+        </tr>
+        <tr>
+        <td align="left" class="forms"><?php echo xlt('Provider'); ?>:</td>
+         <td class="forms" width="280px">
+    <?php
 
     echo "<select name='provider' style='width:60%' />";
     while ($urow = sqlFetchArray($ures)) {
-      echo "    <option value='" . attr($urow['lname']) . "'";
-      if ($urow['lname'] == attr($obj{"provider"})) echo " selected";
-      echo ">" . text($urow['lname']);
-      if ($urow['fname']) echo ", " . text($urow['fname']);
-      echo "</option>\n";
+        echo "    <option value='" . attr($urow['lname']) . "'";
+        if ($urow['lname'] == attr($obj{"provider"})) echo " selected";
+        echo ">" . text($urow['lname']);
+        if ($urow['fname']) echo ", " . text($urow['fname']);
+        echo "</option>\n";
     }
     echo "</select>";
 ?>
-		</td>
+        </td>
 
-		</tr>
+        </tr>
 
-	<tr>
+    <tr>
 
   <td colspan='3' nowrap style='font-size:8pt'>
    &nbsp;
-	</td>
-	</tr>
+    </td>
+    </tr>
 
-	<tr>
-		<td align="left" class="forms"><?php echo xlt('Presenting Issue(s)'); ?>:</td>
-		<td colspan="3"><textarea name="presenting_issues" rows="2" cols="60" wrap="virtual name"><?php echo text($obj{"presenting_issues"});?></textarea></td>
+    <tr>
+        <td align="left" class="forms"><?php echo xlt('Presenting Issue(s)'); ?>:</td>
+        <td colspan="3"><textarea name="presenting_issues" rows="2" cols="60" wrap="virtual name"><?php echo text($obj{"presenting_issues"});?></textarea></td>
 
-	</tr>
-	<tr>
-		<td align="left" class="forms"><?php echo xlt('Patient History'); ?>:</td>
-		<td colspan="3"><textarea name="patient_history" rows="2" cols="60" wrap="virtual name"><?php echo text($obj{"patient_history"});?></textarea></td>
+    </tr>
+    <tr>
+        <td align="left" class="forms"><?php echo xlt('Patient History'); ?>:</td>
+        <td colspan="3"><textarea name="patient_history" rows="2" cols="60" wrap="virtual name"><?php echo text($obj{"patient_history"});?></textarea></td>
 
-	</tr>
-	<tr>
+    </tr>
+    <tr>
 
-		<td align="left" class="forms"><?php echo xlt('Medications'); ?>:</td>
-		<td colspan="3"><textarea name="medications" rows="2" cols="60" wrap="virtual name"><?php echo text($obj{"medications"});?></textarea></td>
+        <td align="left" class="forms"><?php echo xlt('Medications'); ?>:</td>
+        <td colspan="3"><textarea name="medications" rows="2" cols="60" wrap="virtual name"><?php echo text($obj{"medications"});?></textarea></td>
 
 
-	</tr>
-	<tr>
-		<td align="left" class="forms"><?php echo xlt('Anyother Relevant Information'); ?>:</td>
-		<td colspan="3"><textarea name="anyother_relevant_information" rows="2" cols="60" wrap="virtual name"><?php echo text($obj{"anyother_relevant_information"});?></textarea></td>
+    </tr>
+    <tr>
+        <td align="left" class="forms"><?php echo xlt('Anyother Relevant Information'); ?>:</td>
+        <td colspan="3"><textarea name="anyother_relevant_information" rows="2" cols="60" wrap="virtual name"><?php echo text($obj{"anyother_relevant_information"});?></textarea></td>
 
-	</tr>
-	<tr>
-		<td align="left" class="forms"><?php echo xlt('Diagnosis'); ?>:</td>
-		<td colspan="3"><textarea name="diagnosis" rows="2" cols="60" wrap="virtual name"><?php echo text($obj{"diagnosis"});?></textarea></td>
+    </tr>
+    <tr>
+        <td align="left" class="forms"><?php echo xlt('Diagnosis'); ?>:</td>
+        <td colspan="3"><textarea name="diagnosis" rows="2" cols="60" wrap="virtual name"><?php echo text($obj{"diagnosis"});?></textarea></td>
 
-	</tr>
-	<tr>
-		<td align="left" class="forms"><?php echo xlt('Treatment Received'); ?>:</td>
-		<td colspan="3"><textarea name="treatment_received" rows="2" cols="60" wrap="virtual name"><?php echo text($obj{"treatment_received"});?></textarea></td>
+    </tr>
+    <tr>
+        <td align="left" class="forms"><?php echo xlt('Treatment Received'); ?>:</td>
+        <td colspan="3"><textarea name="treatment_received" rows="2" cols="60" wrap="virtual name"><?php echo text($obj{"treatment_received"});?></textarea></td>
 
-	</tr>
-	<tr>
-		<td align="left" class="forms"><?php echo xlt('Recommendation For Follow Up'); ?>:</td>
-		<td colspan="3"><textarea name="recommendation_for_follow_up" rows="2" cols="60" wrap="virtual name"><?php echo text($obj{"recommendation_for_follow_up"});?></textarea></td>
+    </tr>
+    <tr>
+        <td align="left" class="forms"><?php echo xlt('Recommendation For Follow Up'); ?>:</td>
+        <td colspan="3"><textarea name="recommendation_for_follow_up" rows="2" cols="60" wrap="virtual name"><?php echo text($obj{"recommendation_for_follow_up"});?></textarea></td>
 
-	</tr>
-	<tr>
-		<td align="left colspan="3" style="padding-bottom:7px;"></td>
-	</tr>
-	<tr>
-		<td align="left colspan="3" style="padding-bottom:7px;"></td>
-	</tr>
-	<tr>
-		<td></td>
+    </tr>
+    <tr>
+        <td align="left colspan="3" style="padding-bottom:7px;"></td>
+    </tr>
+    <tr>
+        <td align="left colspan="3" style="padding-bottom:7px;"></td>
+    </tr>
+    <tr>
+        <td></td>
     <td><input type='submit'  value='<?php echo xlt('Save');?>' class="button-css">&nbsp;
   <input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />&nbsp;
 
-	<input type='button' class="button-css" value='<?php echo xlt('Cancel');?>'
+    <input type='button' class="button-css" value='<?php echo xlt('Cancel');?>'
  onclick="top.restoreSession();location='<?php echo "$rootdir/patient_file/encounter/$returnurl" ?>'" /></td>
-	</tr>
+    </tr>
 </table>
 </form>
 <?php

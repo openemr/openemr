@@ -44,12 +44,12 @@ $begin = $_GET['begin'];
 
 if (!empty($patient_id)) {
   //Only update one patient
-  $update_rem_log = update_reminders('', $patient_id);
+    $update_rem_log = update_reminders('', $patient_id);
 }
 
 if ($mode == "simple") {
   // Collect the rules for the per patient rules selection tab
-  $rules_default = resolve_rules_sql('','0',TRUE);
+    $rules_default = resolve_rules_sql('','0',true);
 }
 
 ?>
@@ -93,69 +93,69 @@ if ($mode == "simple") {
 // This is for sorting the records.
 $sort = array("category, item", "lname, fname", "due_status", "date_created", "hipaa_allowemail", "hipaa_allowsms", "date_sent", "voice_status", "email_status", "sms_status", "mail_status");
 if($sortby == "") {
-  $sortby = $sort[0];
+    $sortby = $sort[0];
 }
 if($sortorder == "") {
-  $sortorder = "asc";
+    $sortorder = "asc";
 }
 for($i = 0; $i < count($sort); $i++) {
-  $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) ."&mode=" . attr($mode) . "&sortby=" . attr($sort[$i]) . "&sortorder=asc\" onclick=\"top.restoreSession()\">" .
+    $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) ."&mode=" . attr($mode) . "&sortby=" . attr($sort[$i]) . "&sortorder=asc\" onclick=\"top.restoreSession()\">" .
     "<img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."\"></a>";
 }
 for($i = 0; $i < count($sort); $i++) {
-  if($sortby == $sort[$i]) {
-    switch($sortorder) {
-      case "asc"      : $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=desc\" onclick=\"top.restoreSession()\">" .
+    if($sortby == $sort[$i]) {
+        switch($sortorder) {
+            case "asc"      : $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=desc\" onclick=\"top.restoreSession()\">" .
                           "<img src=\"../../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."\"></a>";
                         break;
-      case "desc"     : $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=asc\" onclick=\"top.restoreSession()\">" .
+            case "desc"     : $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=asc\" onclick=\"top.restoreSession()\">" .
                           "<img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Down'), ENT_QUOTES)."\"></a>";
                         break;
-    } break;
-  }
+        } break;
+    }
 }
 // This is for managing page numbering and display beneath the Patient Reminders table.
 $listnumber = 25;
 $sqlBindArray = array();
 if (!empty($patient_id)) {
-  $add_sql = "AND a.pid=? ";
-  array_push($sqlBindArray,$patient_id);
+    $add_sql = "AND a.pid=? ";
+    array_push($sqlBindArray,$patient_id);
 }
 $sql = "SELECT a.id, a.due_status, a.category, a.item, a.date_created, a.date_sent, b.fname, b.lname " .
   "FROM `patient_reminders` as a, `patient_data` as b " .
   "WHERE a.active='1' AND a.pid=b.pid ".$add_sql;
 $result = sqlStatement($sql, $sqlBindArray);
 if(sqlNumRows($result) != 0) {
-  $total = sqlNumRows($result);
+    $total = sqlNumRows($result);
 }
 else {
-  $total = 0;
+    $total = 0;
 }
 if($begin == "" or $begin == 0) {
-  $begin = 0;
+    $begin = 0;
 }
 $prev = $begin - $listnumber;
 $next = $begin + $listnumber;
 $start = $begin + 1;
 $end = $listnumber + $start - 1;
 if($end >= $total) {
- $end = $total;
+    $end = $total;
 }
 if($end < $start) {
-  $start = 0;
+    $start = 0;
 }
 if($prev >= 0) {
-  $prevlink = "<a href=\"patient_reminders.php?patient_id=$patient_id&mode=$mode&sortby=$sortby&sortorder=$sortorder&begin=$prev\" onclick=\"top.restoreSession()\"><<</a>";
+    $prevlink = "<a href=\"patient_reminders.php?patient_id=$patient_id&mode=$mode&sortby=$sortby&sortorder=$sortorder&begin=$prev\" onclick=\"top.restoreSession()\"><<</a>";
 }
 else {
-  $prevlink = "<<";
+    $prevlink = "<<";
 }
 
 if($next < $total) {
-  $nextlink = "<a href=\"patient_reminders.php?patient_id=$patient_id&mode=$mode&sortby=$sortby&sortorder=$sortorder&begin=$next\" onclick=\"top.restoreSession()\">>></a>";
+    $nextlink = "<a href=\"patient_reminders.php?patient_id=$patient_id&mode=$mode&sortby=$sortby&sortorder=$sortorder&begin=$next\" onclick=\"top.restoreSession()\">>></a>";
 }
 else {
-  $nextlink = ">>";
+    $nextlink = ">>";
 }
 ?>
 
@@ -235,7 +235,7 @@ else {
       <tbody>
 <?php
       $sql = "SELECT a.id, a.due_status, a.category, a.item, a.date_created, a.date_sent, a.voice_status, " .
-      				"a.sms_status, a.email_status, a.mail_status, b.fname, b.lname, b.hipaa_allowemail, b.hipaa_allowsms " .
+                    "a.sms_status, a.email_status, a.mail_status, b.fname, b.lname, b.hipaa_allowemail, b.hipaa_allowsms " .
         "FROM `patient_reminders` as a, `patient_data` as b " .
         "WHERE a.active='1' AND a.pid=b.pid " . $add_sql .
         "ORDER BY " . add_escape_custom($sortby) . " " .
@@ -243,10 +243,10 @@ else {
         "LIMIT " . add_escape_custom($begin) . ", " .
         add_escape_custom($listnumber);
       $result = sqlStatement($sql,$sqlBindArray);
-      while ($myrow = sqlFetchArray($result)) { ?>
+while ($myrow = sqlFetchArray($result)) { ?>
         <tr>
           <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$myrow['category']) . " : " .
-                generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$myrow['item']); ?></td>
+            generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$myrow['item']); ?></td>
           <td><?php echo htmlspecialchars($myrow['lname'].", ".$myrow['fname'], ENT_NOQUOTES); ?></td>
           <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$myrow['due_status']); ?></td>
           <td><?php echo ($myrow['date_created']) ? htmlspecialchars($myrow['date_created'], ENT_NOQUOTES) : " "; ?></td>
@@ -280,23 +280,23 @@ else {
           <tr>
             <td style="border-right:1px solid black;"><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $rule['id']); ?></td>
             <td align="center">
-              <?php
-              $patient_rule = collect_rule($rule['id'],$patient_id);
+                <?php
+                $patient_rule = collect_rule($rule['id'],$patient_id);
               // Set the patient specific setting for gui
-              if (empty($patient_rule)) {
-                $select = "default";
-              }
-              else {
-                if ($patient_rule['patient_reminder_flag'] == "1") {
-                  $select = "on";
+                if (empty($patient_rule)) {
+                    $select = "default";
                 }
-                else if ($patient_rule['patient_reminder_flag'] == "0"){
-                  $select = "off";
-                }
-                else { // $patient_rule['patient_reminder_flag'] == NULL
-                  $select = "default";
-                }
-              } ?>
+                else {
+                    if ($patient_rule['patient_reminder_flag'] == "1") {
+                        $select = "on";
+                    }
+                    else if ($patient_rule['patient_reminder_flag'] == "0"){
+                        $select = "off";
+                    }
+                    else { // $patient_rule['patient_reminder_flag'] == NULL
+                        $select = "default";
+                    }
+                } ?>
               <select class="patient_reminder" name="<?php echo htmlspecialchars( $rule['id'], ENT_NOQUOTES); ?>">
                 <option value="default" <?php if ($select == "default") echo "selected"; ?>><?php echo htmlspecialchars( xl('Default'), ENT_NOQUOTES); ?></option>
                 <option value="on" <?php if ($select == "on") echo "selected"; ?>><?php echo htmlspecialchars( xl('On'), ENT_NOQUOTES); ?></option>
@@ -304,12 +304,12 @@ else {
               </select>
             </td>
             <td align="center" style="border-right:1px solid black;">
-              <?php if ($rule['patient_reminder_flag'] == "1") {
-                echo htmlspecialchars( xl('On'), ENT_NOQUOTES);
-              }
-              else {
-                echo htmlspecialchars( xl('Off'), ENT_NOQUOTES);
-              } ?>
+                <?php if ($rule['patient_reminder_flag'] == "1") {
+                    echo htmlspecialchars( xl('On'), ENT_NOQUOTES);
+}
+else {
+    echo htmlspecialchars( xl('Off'), ENT_NOQUOTES);
+} ?>
             </td>
           </tr>
         <?php } ?>

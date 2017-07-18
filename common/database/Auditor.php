@@ -51,8 +51,9 @@ final class Auditor implements SQLLogger {
      * Default constructor. This is here for completeness, it is
      * essentially a no-op.
      */
-    public function __construct() {
-      $this->logger = new \common\logging\Logger("\common\database\Auditor");
+    public function __construct()
+    {
+        $this->logger = new \common\logging\Logger("\common\database\Auditor");
     }
 
     /**
@@ -62,7 +63,8 @@ final class Auditor implements SQLLogger {
      * @param $params the optional param values for the SQL.
      * @param $types the optional param types.
      */
-    public function startQuery($sql, array $params = null, array $types = null) {
+    public function startQuery($sql, array $params = null, array $types = null)
+    {
         $this->queries[++$this->currentQueryIndex] = array('sql' => $sql, 'params' => $params);
         $this->logger->trace("sql: " . $sql);
     }
@@ -74,7 +76,8 @@ final class Auditor implements SQLLogger {
      * @note this is only called if the query succeeded.
      * @note the query is from the dictionary once complete at this point.
      */
-    public function stopQuery() {
+    public function stopQuery()
+    {
         $sql = $this->queries[$this->currentQueryIndex]['sql'];
         $params = $this->queries[$this->currentQueryIndex]['params'];
         auditSQLEvent($sql, true, $params);

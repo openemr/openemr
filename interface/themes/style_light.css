@@ -698,6 +698,10 @@ tr.odd, td.even {
   color: orangered;
 }
 
+.modal-footer > button {
+  float: none !important;
+}
+
 .btn-default {
   background: rgba(0,0,0,0.05) !important;
   color: rgba(0,0,0,0.87) !important;

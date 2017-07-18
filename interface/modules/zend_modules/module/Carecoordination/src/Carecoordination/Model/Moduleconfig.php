@@ -40,7 +40,7 @@ class Moduleconfig extends AbstractTableGateway
 
     public function exchangeArray($data)
     {
-	
+    
     }
     public function getArrayCopy()
     {
@@ -54,10 +54,10 @@ class Moduleconfig extends AbstractTableGateway
     public function getInputFilter()
     {
         if (!$this->inputFilter) {
-            $inputFilter 	= new InputFilter();
-            $factory     	= new InputFactory();
+            $inputFilter    = new InputFilter();
+            $factory        = new InputFactory();
 
-            $this->inputFilter 	= $inputFilter;
+            $this->inputFilter  = $inputFilter;
         }
         return $this->inputFilter;
     }

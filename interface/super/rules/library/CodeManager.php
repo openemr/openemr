@@ -26,14 +26,16 @@ class CodeManager {
     "WHERE id = ?";
 
 
-    function __construct() {
+    function __construct()
+    {
     }
 
     /**
      * Returns an array of Code
      * @param string $searchTerm
      */
-    function search( $searchTerm ) {
+    function search( $searchTerm )
+    {
         $stmt = sqlStatement( self::SQL_SELECT . " " . self::SQL_WHERE_SEARCH,
                 array( "%$searchTerm%", "%$searchTerm%", "%$searchTerm%", "%$searchTerm%", "%$searchTerm%" ) );
 
@@ -54,7 +56,8 @@ class CodeManager {
     /**
      * @return Code
      */
-    function get( $id ) {
+    function get( $id )
+    {
         $row = sqlQuery( self::SQL_SELECT . " " . self::SQL_WHERE_GET, array( $id ) );
         if (!$row) {
             return null;

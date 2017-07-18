@@ -3,8 +3,8 @@
 namespace ESign;
 
 /**
- * Signature class 
- * 
+ * Signature class
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -62,12 +62,12 @@ class Signature implements SignatureIF
     
     public function getClass()
     {
-       $class = "";
-       if ( $this->isLock() === true ) {
-           $class .= " locked";
-       }
+        $class = "";
+        if ( $this->isLock() === true ) {
+            $class .= " locked";
+        }
        
-       return $class;
+        return $class;
     }
 
     public function getId()

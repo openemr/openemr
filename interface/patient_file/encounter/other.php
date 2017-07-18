@@ -63,7 +63,7 @@ return true;  }
   <td class="text"><?php xl('$','e'); ?> </span><input type=entry name=feeH size=5></td>
   <td> <input type=text name="noofunits" onkeypress="return isNumberKey(event)" size=3 value=1></td>
   <td>&nbsp;<a class='text' onclick="clearform('clear')" href="javascript:top.restoreSession();document.other_form.submit();">
-   <?php xl('Save','e'); ?> </a>
+    <?php xl('Save','e'); ?> </a>
   </td>
 </tr>
 </table>

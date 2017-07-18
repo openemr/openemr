@@ -15,7 +15,7 @@ require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
 
 $response = OpenEMR\Checker::checkPhpVersion();
 if ($response !== true) {
-  die($response);
+    die($response);
 }
 
 // Disable PHP timeout.  This will not work in safe mode.
@@ -61,48 +61,48 @@ $EMRversion = trim(preg_replace('/\s*\([^)]*\)/', '', $GLOBALS['openemr_version'
   <p style="font-weight:bold; text-align:center;"><?php echo xlt('Applying Patch to site'),' : ',text($_SESSION['site_id']) ?></p>
 
 
-  <?php
-  upgradeFromSqlFile('patch.sql');
-  flush();
+    <?php
+    upgradeFromSqlFile('patch.sql');
+    flush();
 
-  echo '<p style="font-weight:bold; text-align:left; color:green">',xlt('Updating global configuration defaults'),'...</p>';
-  require_once("library/globals.inc.php");
-  foreach ($GLOBALS_METADATA as $grpname => $grparr) {
-    foreach ($grparr as $fldid => $fldarr) {
-      list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-      if ( is_array($fldtype) || (substr($fldtype, 0, 2) !== 'm_') ) {
-        $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
-        if (empty($row['count'])) {
-          sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-            "VALUES ( '$fldid', '0', '$flddef' )");
+    echo '<p style="font-weight:bold; text-align:left; color:green">',xlt('Updating global configuration defaults'),'...</p>';
+    require_once("library/globals.inc.php");
+    foreach ($GLOBALS_METADATA as $grpname => $grparr) {
+        foreach ($grparr as $fldid => $fldarr) {
+            list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
+            if ( is_array($fldtype) || (substr($fldtype, 0, 2) !== 'm_') ) {
+                $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
+                if (empty($row['count'])) {
+                    sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
+                    "VALUES ( '$fldid', '0', '$flddef' )");
+                }
+            }
         }
-      }
     }
-  }
 
-  $canRealPatchBeApplied = $versionService->canRealPatchBeApplied($desiredVersion);
-  if ($canRealPatchBeApplied) {
-      echo '<p style="font-weight:bold; text-align:left;">',xlt('Updating version indicators'),'...</p>';
-      $result = $versionService->update($desiredVersion);
+    $canRealPatchBeApplied = $versionService->canRealPatchBeApplied($desiredVersion);
+    if ($canRealPatchBeApplied) {
+        echo '<p style="font-weight:bold; text-align:left;">',xlt('Updating version indicators'),'...</p>';
+        $result = $versionService->update($desiredVersion);
 
-      if (!$result) {
-          echo '<p style="font-weight:bold; text-align:left; color:red">',xlt('Unable insert version information into database'),'...</p>';
-      }
-  }
+        if (!$result) {
+            echo '<p style="font-weight:bold; text-align:left; color:red">',xlt('Unable insert version information into database'),'...</p>';
+        }
+    }
 
-  echo '<p style="text-align:center; font-size:1.8em;">',xlt('Database Patch'),' ',text($desiredVersion->getRealPatch()),' ',xlt('finished'),'.</p>';
+    echo '<p style="text-align:center; font-size:1.8em;">',xlt('Database Patch'),' ',text($desiredVersion->getRealPatch()),' ',xlt('finished'),'.</p>';
 
-  echo '<p style="text-align:center; font-size:1.8em;">OpenEMR ',xlt('Version'),' = ',text($EMRversion.'('.$desiredVersion->getRealPatch().')'),'.</p>';
+    echo '<p style="text-align:center; font-size:1.8em;">OpenEMR ',xlt('Version'),' = ',text($EMRversion.'('.$desiredVersion->getRealPatch().')'),'.</p>';
 
-  echo '<p><a style="border-radius: 10px; padding:5px; width:200px; margin:0 auto; background-color:green; color:white; font-weight:bold; display:block; text-align:center;" href="index.php?site=',attr($_SESSION['site_id']).'">',xlt('Log in'),'</a></p>';
+    echo '<p><a style="border-radius: 10px; padding:5px; width:200px; margin:0 auto; background-color:green; color:white; font-weight:bold; display:block; text-align:center;" href="index.php?site=',attr($_SESSION['site_id']).'">',xlt('Log in'),'</a></p>';
 
-  if(isset($_SERVER['HTTP_REFERER'])) {
-      $split = preg_split('/\//',$_SERVER['HTTP_REFERER']);
-      if($split[count($split) - 1] == 'admin.php')
+    if(isset($_SERVER['HTTP_REFERER'])) {
+        $split = preg_split('/\//',$_SERVER['HTTP_REFERER']);
+        if($split[count($split) - 1] == 'admin.php')
         echo '<p><a style="border-radius: 10px; padding:5px; width:200px; margin:0 auto; background-color:green; color:white; font-weight:bold; display:block; text-align:center;" href="admin.php">',xlt('Back to Admin Page'),'</a></p>';
-  }
+    }
 
-  ?>
+    ?>
 </div>
 </body>
 </html>

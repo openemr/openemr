@@ -16,7 +16,8 @@ class ControllerRouter {
     /**
      * xxx todo: error handling
      */
-    function route() {
+    function route()
+    {
         $actionParam = _get( "action" );
         $paramParts = explode("!", $actionParam);
         $controller = $paramParts[0];

@@ -13,24 +13,25 @@ require_once ("verysimple/HTTP/RequestUtil.php");
  * @version 1.0
  */
 class UrlWriter extends ActionRouter {
-	/**
-	 * Returns a url for the given controller, method and parameters
-	 *
-	 * @param string $controller        	
-	 * @param string $method        	
-	 * @param string $params
-	 *        	in the format param1=val1&param2=val2
-	 * @param bool $strip_api
-	 *        	set to true to strip virtual part of the url in a rest call
-	 * @param string $delim
-	 *        	the querystring variable delimiter (& or &amp; for generating valid html)
-	 * @return string URL
-	 */
-	public function Get($controller, $method, $params = "", $strip_api = true, $delim = "&") {
-		$this->stripApi = $strip_api;
-		$this->delim = $delim;
-		return $this->GetUrl ( $controller, $method, $params );
-	}
+    /**
+     * Returns a url for the given controller, method and parameters
+     *
+     * @param string $controller
+     * @param string $method
+     * @param string $params
+     *          in the format param1=val1&param2=val2
+     * @param bool $strip_api
+     *          set to true to strip virtual part of the url in a rest call
+     * @param string $delim
+     *          the querystring variable delimiter (& or &amp; for generating valid html)
+     * @return string URL
+     */
+    public function Get($controller, $method, $params = "", $strip_api = true, $delim = "&")
+    {
+        $this->stripApi = $strip_api;
+        $this->delim = $delim;
+        return $this->GetUrl ( $controller, $method, $params );
+    }
 }
 
 ?>

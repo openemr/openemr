@@ -284,6 +284,13 @@ div.closeDlgIframe {
     color:red;
 }
 
+.patientInfo .patientPicture img
+{
+    height: 55px;
+    margin-top: -5px;
+    padding-right: 5px;
+}
+
 .top {
     vertical-align:top;
 }

@@ -12,7 +12,7 @@
  * these steps to find out which function in that controller should be invoked:
  *
  * todo - document these steps
- * 
+ *
  * @author aron
  */
 class ActionRouter {
@@ -23,7 +23,8 @@ class ActionRouter {
     var $appRoot;
     var $action;
 
-    function __construct($controller, $action, $path) {
+    function __construct($controller, $action, $path)
+    {
         $this->controller = $controller;
         $this->action = $action;
         $this->path = $path;
@@ -31,7 +32,8 @@ class ActionRouter {
         $this->webRoot = $GLOBALS['webroot'];
     }
 
-    function route() {
+    function route()
+    {
         if ( !$this->action ) {
             $this->action = "default";
         }
@@ -51,7 +53,8 @@ class ActionRouter {
         }
     }
 
-    function perform( $action ) {
+    function perform( $action )
+    {
         $action_method = '_action_' . $action;
 
         // execute the default action if action is not found
@@ -96,7 +99,8 @@ class ActionRouter {
         return $result;
     }
 
-    function resolveTemplate( $templateName ) {
+    function resolveTemplate( $templateName )
+    {
         // try local
         $template_location = $this->path . "/template/" . $templateName;
 
@@ -115,7 +119,8 @@ class ActionRouter {
         }
     }
 
-    function resolveHelper( $name ) {
+    function resolveHelper( $name )
+    {
         // try local
         $location = $this->path . "/helper/" . $name;
 

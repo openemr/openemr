@@ -16,33 +16,35 @@ require_once ("IObservable.php");
  * @version 2.0
  */
 abstract class Observable implements IObservable {
-	private $_observers = Array ();
-	
-	/**
-	 * Registers an observer with this object
-	 *
-	 * @param IObserver $observer        	
-	 */
-	public function AttachObserver($observer) {
-		if ($observer) {
-			$this->_observers [] = & $observer;
-		}
-	}
-	
-	/**
-	 * Fires and observable event.
-	 * All registered observers will be notified
-	 *
-	 * @param variant $obj
-	 *        	a string, numeric or object that contains the observable message
-	 * @param int $ltype
-	 *        	specified the "level" as defined in IObservable
-	 */
-	public function Observe($obj, $ltype = OBSERVE_INFO) {
-		foreach ( $this->_observers as $observer ) {
-			$observer->Observe ( $obj, $ltype );
-		}
-	}
+    private $_observers = array ();
+    
+    /**
+     * Registers an observer with this object
+     *
+     * @param IObserver $observer
+     */
+    public function AttachObserver($observer)
+    {
+        if ($observer) {
+            $this->_observers [] = & $observer;
+        }
+    }
+    
+    /**
+     * Fires and observable event.
+     * All registered observers will be notified
+     *
+     * @param variant $obj
+     *          a string, numeric or object that contains the observable message
+     * @param int $ltype
+     *          specified the "level" as defined in IObservable
+     */
+    public function Observe($obj, $ltype = OBSERVE_INFO)
+    {
+        foreach ( $this->_observers as $observer ) {
+            $observer->Observe ( $obj, $ltype );
+        }
+    }
 }
 
 ?>

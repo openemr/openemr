@@ -21,46 +21,60 @@
  * @link http://www.open-emr.org
  */
 
-function addPortalMailboxMail($owner, $newtext, $authorized = '0', $activity = '1',
-		$title='Unassigned', $assigned_to = '', $datetime = '', $message_status = "New",$master_note = '0', $sid='', $sn='', $rid='', $rn='',$replyid=0)
-{
-	if (empty($datetime)) $datetime = date('Y-m-d H:i:s');
-	$user = $_SESSION['portal_username'] ? $_SESSION['portal_username'] : $_SESSION['authUser'];
-	// make inactive if set as Done
-	if ($message_status == "Done") $activity = 0;
-	$body = $newtext;
-	if($master_note == '0'){
-		$n = sqlQueryNoLog("SELECT MAX(id) as newid from onsite_mail");
-		$master_note = $n['newid']+1;
-	}
-	if($replyid){
-		if($owner != $sid){
-			$hold = $master_note;
-			$master_note = $replyid;
-			$replyid = $hold;
-		}
-		else{
-			$replyid = $master_note;
-			}
-	}
-	else if($owner != $sid){
-		$replyid = $master_note-1;
-	}
-	else{
-		$replyid = $master_note;
-	}
+function addPortalMailboxMail(
+    $owner,
+    $newtext,
+    $authorized = '0',
+    $activity = '1',
+    $title='Unassigned',
+    $assigned_to = '',
+    $datetime = '',
+    $message_status = "New",
+    $master_note = '0',
+    $sid='',
+    $sn='',
+    $rid='',
+    $rn='',
+    $replyid=0
+) {
 
-	return sqlInsert("INSERT INTO onsite_mail (date, body, owner, user, groupname, " .
-			"authorized, activity, title, assigned_to, message_status, mail_chain, sender_id, sender_name, recipient_id, recipient_name, reply_mail_chain) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)",
-			array($datetime, $body, $owner, $user, 'Default', $authorized, $activity, $title, $assigned_to, $message_status,$master_note,$sid,$sn,$rid,$rn,$replyid) );
+    if (empty($datetime)) $datetime = date('Y-m-d H:i:s');
+    $user = $_SESSION['portal_username'] ? $_SESSION['portal_username'] : $_SESSION['authUser'];
+    // make inactive if set as Done
+    if ($message_status == "Done") $activity = 0;
+    $body = $newtext;
+    if($master_note == '0'){
+        $n = sqlQueryNoLog("SELECT MAX(id) as newid from onsite_mail");
+        $master_note = $n['newid']+1;
+    }
+    if($replyid){
+        if($owner != $sid){
+            $hold = $master_note;
+            $master_note = $replyid;
+            $replyid = $hold;
+        }
+        else{
+            $replyid = $master_note;
+        }
+    }
+    else if($owner != $sid){
+        $replyid = $master_note-1;
+    }
+    else{
+        $replyid = $master_note;
+    }
+
+    return sqlInsert("INSERT INTO onsite_mail (date, body, owner, user, groupname, " .
+            "authorized, activity, title, assigned_to, message_status, mail_chain, sender_id, sender_name, recipient_id, recipient_name, reply_mail_chain) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)",
+            array($datetime, $body, $owner, $user, 'Default', $authorized, $activity, $title, $assigned_to, $message_status,$master_note,$sid,$sn,$rid,$rn,$replyid) );
 }
 
 function getPortalPatientDeleted($owner = '', $limit = '', $offset = 0, $search = '')
 {
-	if($limit){
-		$limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
-	}
-	$sql = "
+    if($limit){
+        $limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
+    }
+    $sql = "
 	SELECT
 	p.id,
 	p.date,
@@ -83,22 +97,22 @@ function getPortalPatientDeleted($owner = '', $limit = '', $offset = 0, $search 
 	ORDER BY `date` asc
 	$limit
 	";
-	$all = $row = array();
-	$data = array($owner,$owner);
-	if($search) $data = array($owner,$owner,$owner);
-	$res = sqlStatement($sql, $data);
-	for($iter = 0;$row = sqlFetchArray($res);$iter++){
-		$all[$iter] = $row;
-	}
-	return $all;
+    $all = $row = array();
+    $data = array($owner,$owner);
+    if($search) $data = array($owner,$owner,$owner);
+    $res = sqlStatement($sql, $data);
+    for($iter = 0;$row = sqlFetchArray($res);$iter++){
+        $all[$iter] = $row;
+    }
+    return $all;
 }
 
 function getPortalPatientNotes($owner = '', $limit = '', $offset = 0, $search = '')
 {
-	if($limit){
-		$limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
-	}
-	$sql = "
+    if($limit){
+        $limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
+    }
+    $sql = "
 	SELECT
 	p.id,
 	p.date,
@@ -121,22 +135,22 @@ function getPortalPatientNotes($owner = '', $limit = '', $offset = 0, $search = 
 	ORDER BY `date` asc
 	$limit
 	";
-	$all = $row = array();
-	$data = array($owner,$owner);
-	if($search) $data = array($owner,$owner,$owner);
-	$res = sqlStatement($sql, $data);
-	for($iter = 0;$row = sqlFetchArray($res);$iter++){
-		$all[$iter] = $row;
-	}
-	return $all;
+    $all = $row = array();
+    $data = array($owner,$owner);
+    if($search) $data = array($owner,$owner,$owner);
+    $res = sqlStatement($sql, $data);
+    for($iter = 0;$row = sqlFetchArray($res);$iter++){
+        $all[$iter] = $row;
+    }
+    return $all;
 }
 
 function getPortalPatientNotifications($owner = '', $limit = '', $offset = 0, $search = '')
 {
-	if($limit){
-		$limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
-	}
-	$sql = "
+    if($limit){
+        $limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
+    }
+    $sql = "
 	SELECT
 	pr.id,
 	date_created AS `date`,
@@ -160,20 +174,20 @@ function getPortalPatientNotifications($owner = '', $limit = '', $offset = 0, $s
 	ORDER BY `date` asc
 	$limit
 	";
-	$all = $row = array();
-	$res = sqlStatement($sql, array($owner));
-	for($iter = 0;$row = sqlFetchArray($res);$iter++){
-		$all[$iter] = $row;
-	}
-	return $all;
+    $all = $row = array();
+    $res = sqlStatement($sql, array($owner));
+    for($iter = 0;$row = sqlFetchArray($res);$iter++){
+        $all[$iter] = $row;
+    }
+    return $all;
 }
 
 function getPortalPatientSentNotes($owner = '', $limit = '', $offset = 0, $search = '')
 {
-	if($limit){
-		$limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
-	}
-	$sql = "
+    if($limit){
+        $limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
+    }
+    $sql = "
 	SELECT
 	p.id,
 	p.date,
@@ -200,87 +214,91 @@ function getPortalPatientSentNotes($owner = '', $limit = '', $offset = 0, $searc
 	ORDER BY `date` asc
 	$limit
 	";
-	$all = $row = array();
-	$res = sqlStatement($sql, array($owner,$owner));
-	for($iter = 0;$row = sqlFetchArray($res);$iter++){
-		$all[$iter] = $row;
-	}
-	return $all;
+    $all = $row = array();
+    $res = sqlStatement($sql, array($owner,$owner));
+    for($iter = 0;$row = sqlFetchArray($res);$iter++){
+        $all[$iter] = $row;
+    }
+    return $all;
 }
 
 function updatePortalMailMessageStatus($id, $message_status)
 {
-	if ($message_status == "Done") {
-		sqlStatement("update onsite_mail set message_status = ?, activity = '0' where id = ?", array($message_status, $id) );
-	}
-	elseif($message_status == "Delete") {
-		sqlStatement("update onsite_mail set message_status = ?, activity = '1', deleted = '1',delete_date = ? where mail_chain = ? OR id = ?", array($message_status, date('Y-m-d H:i:s'), $id, $id) );
-	}
-	else{
-		sqlStatement("update onsite_mail set message_status = ?, activity = '1' where id = ?", array($message_status, $id) );
-	}
+    if ($message_status == "Done") {
+        sqlStatement("update onsite_mail set message_status = ?, activity = '0' where id = ?", array($message_status, $id) );
+    }
+    elseif($message_status == "Delete") {
+        sqlStatement("update onsite_mail set message_status = ?, activity = '1', deleted = '1',delete_date = ? where mail_chain = ? OR id = ?", array($message_status, date('Y-m-d H:i:s'), $id, $id) );
+    }
+    else{
+        sqlStatement("update onsite_mail set message_status = ?, activity = '1' where id = ?", array($message_status, $id) );
+    }
 }
 
-function getMails($owner,$dotype,$nsrch,$nfsrch){
-	if($owner){
-		if($dotype == "inbox"){
-			if($nsrch && $nfsrch){
-				$result_notes = getPortalPatientNotes($owner,'','0',$nsrch);
-				$result_notifications = getPortalPatientNotifications($owner,'','0',$nfsrch);
-				$result = array_merge((array)$result_notes,(array)$result_notifications);
-			}else{
-				$result_notes = getPortalPatientNotes($owner);
-				$result_notifications = getPortalPatientNotifications($owner);
-				$result = array_merge((array)$result_notes,(array)$result_notifications);
-				//$result = $result_notes;
-			}
-			return $result;
-		}elseif($dotype == "sent"){
-			if($nsrch){
-				$result_sent_notes = getPortalPatientSentNotes($owner,'','0',$nsrch);
-			}else{
-				$result_sent_notes = getPortalPatientSentNotes($owner);
-			}
-			return $result_sent_notes;
-		}elseif($dotype == "all"){
-			$result = array();
-			$result_notes = getPortalPatientNotes($owner,'','0',"OR (p.deleted != 1 AND (p.owner = ?)) ");
-			$result_notifications = getPortalPatientNotifications($owner);
-			$result = array_merge((array)$result_notes,(array)$result_notifications);
-			return $result;
-		}elseif($dotype == "deleted"){
-			$result = array();
-			$result = getPortalPatientDeleted($owner,'','0',"OR (p.deleted = 1 AND (p.owner = ?)) ");
-			return $result;
-			}
-		}else{
-			return 'failed';
-		}
+function getMails($owner,$dotype,$nsrch,$nfsrch)
+{
+    if($owner){
+        if($dotype == "inbox"){
+            if($nsrch && $nfsrch){
+                $result_notes = getPortalPatientNotes($owner,'','0',$nsrch);
+                $result_notifications = getPortalPatientNotifications($owner,'','0',$nfsrch);
+                $result = array_merge((array)$result_notes,(array)$result_notifications);
+            }else{
+                $result_notes = getPortalPatientNotes($owner);
+                $result_notifications = getPortalPatientNotifications($owner);
+                $result = array_merge((array)$result_notes,(array)$result_notifications);
+                //$result = $result_notes;
+            }
+            return $result;
+        }elseif($dotype == "sent"){
+            if($nsrch){
+                $result_sent_notes = getPortalPatientSentNotes($owner,'','0',$nsrch);
+            }else{
+                $result_sent_notes = getPortalPatientSentNotes($owner);
+            }
+            return $result_sent_notes;
+        }elseif($dotype == "all"){
+            $result = array();
+            $result_notes = getPortalPatientNotes($owner,'','0',"OR (p.deleted != 1 AND (p.owner = ?)) ");
+            $result_notifications = getPortalPatientNotifications($owner);
+            $result = array_merge((array)$result_notes,(array)$result_notifications);
+            return $result;
+        }elseif($dotype == "deleted"){
+            $result = array();
+            $result = getPortalPatientDeleted($owner,'','0',"OR (p.deleted = 1 AND (p.owner = ?)) ");
+            return $result;
+        }
+    }else{
+        return 'failed';
+    }
 }
 
-function getMailDetails($id){
-	if($owner){
-		$result = getMailById($id);
-		if($result['owner'] == $owner && $result['message_status'] == 'New'){
-			updatePortalMailMessageStatus($id,'Read');
-		}
-		return $result;
-	}else{
-		return 'failed';
-	}
+function getMailDetails($id)
+{
+    if($owner){
+        $result = getMailById($id);
+        if($result['owner'] == $owner && $result['message_status'] == 'New'){
+            updatePortalMailMessageStatus($id,'Read');
+        }
+        return $result;
+    }else{
+        return 'failed';
+    }
 }
 
-function sendMail($owner,$note,$title='Unassigned',$to, $noteid,$sid,$sn,$rid,$rn,$status='New',$replyid){
-	if($owner){
-		addPortalMailboxMail($owner,$note,'1','1',$title,$to,'',$status,$noteid,$sid,$sn,$rid,$rn,$replyid);
-		return 1;
-	}else{
-		return 'failed';
-	}
+function sendMail($owner,$note,$title='Unassigned',$to, $noteid,$sid,$sn,$rid,$rn,$status='New',$replyid)
+{
+    if($owner){
+        addPortalMailboxMail($owner,$note,'1','1',$title,$to,'',$status,$noteid,$sid,$sn,$rid,$rn,$replyid);
+        return 1;
+    }else{
+        return 'failed';
+    }
 }
 
-function updateStatus($id,$status){
-		updatePortalMailMessageStatus($id,$status);
-		return 1;
+function updateStatus($id,$status)
+{
+        updatePortalMailMessageStatus($id,$status);
+        return 1;
 }
 ?>

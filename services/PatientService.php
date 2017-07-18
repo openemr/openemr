@@ -25,17 +25,39 @@ namespace services;
 class PatientService {
 
   /**
-   * Default constructor.
+   * In the case where a patient doesn't have a picture uploaded,
+   * this value will be returned so that the document controller
+   * can return an empty response.
    */
-  public function __construct() {
-  }
+    private $patient_picture_fallback_id = -1;
+
+    private $pid;
 
   /**
+   * Default constructor.
+   */
+    public function __construct()
+    {
+    }
+
+    public function setPid($pid)
+    {
+        $this->pid = $pid;
+    }
+
+    public function getPid()
+    {
+        return $this->pid;
+    }
+
+  /**
+   * TODO: This should go in the ChartTrackerService and doesn't have to be static.
    * @param $pid unique patient id
    * @return recordset
    */
-  public static function getChartTrackerInformationActivity($pid) {
-    $sql = "SELECT ct.ct_when,
+    public static function getChartTrackerInformationActivity($pid)
+    {
+        $sql = "SELECT ct.ct_when,
                    ct.ct_userid,
                    ct.ct_location,
                    u.username,
@@ -46,14 +68,16 @@ class PatientService {
             LEFT OUTER JOIN users AS u ON u.id = ct.ct_userid
             WHERE ct.ct_pid = ?
             ORDER BY ct.ct_when DESC";
-    return sqlStatement($sql, array($pid));
-  }
+        return sqlStatement($sql, array($pid));
+    }
 
   /**
+   * TODO: This should go in the ChartTrackerService and doesn't have to be static.
    * @return recordset
    */
-  public static function getChartTrackerInformation() {
-    $sql = "SELECT ct.ct_when,
+    public static function getChartTrackerInformation()
+    {
+        $sql = "SELECT ct.ct_when,
                    u.username,
                    u.fname AS ufname,
                    u.mname AS umname,
@@ -68,7 +92,29 @@ class PatientService {
             LEFT OUTER JOIN patient_data AS p ON p.pid = ct.ct_pid
             WHERE ct.ct_userid != 0
             ORDER BY p.pubpid";
-    return sqlStatement($sql);
-  }
+        return sqlStatement($sql);
+    }
+
+  /**
+   * @return number
+   */
+    public function getPatientPictureDocumentId()
+    {
+        $sql = "SELECT doc.id AS id
+                 FROM documents doc
+                 JOIN categories_to_documents cate_to_doc
+                   ON doc.id = cate_to_doc.document_id
+                 JOIN categories cate
+                   ON cate.id = cate_to_doc.category_id
+                WHERE cate.name LIKE ? and doc.foreign_id = ?";
+
+        $result = sqlQuery($sql, array($GLOBALS['patient_photo_category_name'], $this->pid));
+
+        if (empty($result) || empty($result['id'])) {
+            return $this->patient_picture_fallback_id;
+        }
+
+        return $result['id'];
+    }
 
 }

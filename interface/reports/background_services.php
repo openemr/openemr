@@ -71,7 +71,7 @@ require_once("../globals.php");
     <table>
         <tr>
             <td width='470px'>
-	              <div class="btn-group pull-left" role="group">
+                  <div class="btn-group pull-left" role="group">
                     <a id='refresh_button' href='#' class='btn btn-default btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
                         <?php echo xlt('Refresh'); ?>
                     </a>
@@ -90,31 +90,31 @@ require_once("../globals.php");
 
  <thead>
   <th align='center'>
-   <?php echo xlt('Service Name'); ?>
+    <?php echo xlt('Service Name'); ?>
   </th>
 
   <th align='center'>
-   <?php echo xlt('Active'); ?>
+    <?php echo xlt('Active'); ?>
   </th>
 
   <th align='center'>
-   <?php echo xlt('Automatic'); ?>
+    <?php echo xlt('Automatic'); ?>
   </th>
 
   <th align='center'>
-   <?php echo xlt('Interval (minutes)'); ?>
+    <?php echo xlt('Interval (minutes)'); ?>
   </th>
 
   <th align='center'>
-   <?php echo xlt('Currently Busy'); ?>
+    <?php echo xlt('Currently Busy'); ?>
   </th>
 
   <th align='center'>
-   <?php echo xlt('Last Run Started At'); ?>
+    <?php echo xlt('Last Run Started At'); ?>
   </th>
 
   <th align='center'>
-   <?php echo xlt('Next Scheduled Run'); ?>
+    <?php echo xlt('Next Scheduled Run'); ?>
   </th>
 
   <th align='center'>
@@ -126,7 +126,7 @@ require_once("../globals.php");
 <?php
 
  $res = sqlStatement("SELECT *, (`next_run` - INTERVAL `execute_interval` MINUTE) as `last_run_start`" .
-	" FROM `background_services` ORDER BY `sort_order`");
+    " FROM `background_services` ORDER BY `sort_order`");
  while ($row = sqlFetchArray($res)) {
 ?>
  <tr>
@@ -134,41 +134,41 @@ require_once("../globals.php");
 
       <td align='center'><?php echo ($row['active']) ? xlt("Yes") : xlt("No"); ?></td>
 
-      <?php if ($row['active']) { ?>
+        <?php if ($row['active']) { ?>
           <td align='center'><?php echo ($row['execute_interval'] > 0) ? xlt("Yes") : xlt("No"); ?></td>
-      <?php } else { ?>
+        <?php } else { ?>
           <td align='center'><?php echo xlt('Not Applicable'); ?></td>
-      <?php } ?>
+        <?php } ?>
 
-      <?php if ($row['active'] && ($row['execute_interval'] > 0)) { ?>
+        <?php if ($row['active'] && ($row['execute_interval'] > 0)) { ?>
           <td align='center'><?php echo text($row['execute_interval']); ?></td>
-      <?php } else { ?>
+        <?php } else { ?>
           <td align='center'><?php echo xlt('Not Applicable'); ?></td>
-      <?php } ?>
+        <?php } ?>
 
           <td align='center'><?php echo ($row['running']>0) ? xlt("Yes") : xlt("No"); ?></td>
 
-      <?php if ( $row['running'] > -1) { ?>
+        <?php if ( $row['running'] > -1) { ?>
           <td align='center'><?php echo text($row['last_run_start']); ?></td>
-      <?php } else { ?>
+        <?php } else { ?>
           <td align='center'><?php echo xlt('Never'); ?></td>
-      <?php } ?>
+        <?php } ?>
 
-      <?php if ( $row['active'] && ($row['execute_interval'] > 0) ) { ?>
+        <?php if ( $row['active'] && ($row['execute_interval'] > 0) ) { ?>
           <td align='center'><?php echo text($row['next_run']); ?></td>
-      <?php } else { ?>
+        <?php } else { ?>
           <td align='center'><?php echo xlt('Not Applicable'); ?></td>
-      <?php } ?>
+        <?php } ?>
 
-      <?php if ($row['name'] == "phimail") { ?>
+        <?php if ($row['name'] == "phimail") { ?>
          <td align='center'><a href='direct_message_log.php' onclick='top.restoreSession()'><?php echo xlt("View Log"); ?></a></td>
-      <?php } else { ?>
+        <?php } else { ?>
          <td align='center'>&nbsp;</td>
-      <?php } ?>
+        <?php } ?>
 
  </tr>
 <?php
- } // $row = sqlFetchArray($res) while
+    } // $row = sqlFetchArray($res) while
 ?>
 </tbody>
 </table>

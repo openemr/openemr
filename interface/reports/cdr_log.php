@@ -42,11 +42,11 @@ require_once "$srcdir/clinical_rules.php";
 
 $(document).ready(function() {
   $('.datepicker').datetimepicker({
-   <?php $datetimepicker_timepicker = true; ?>
-   <?php $datetimepicker_showseconds = true; ?>
-   <?php $datetimepicker_formatInput = false; ?>
-   <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-   <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    <?php $datetimepicker_timepicker = true; ?>
+    <?php $datetimepicker_showseconds = true; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
  });
 
@@ -94,13 +94,13 @@ $(document).ready(function() {
 <table>
  <tr>
   <td width='470px'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
+    <table class='text'>
 
                    <tr>
                       <td class='control-label'>
-                         <?php echo xlt('Begin Date'); ?>:
+                            <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
                          <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo attr($_POST['form_begin_date']); ?>'
@@ -111,7 +111,7 @@ $(document).ready(function() {
 
                 <tr>
                         <td class='control-label'>
-                              <?php echo xlt('End Date'); ?>:
+                                <?php echo xlt('End Date'); ?>:
                         </td>
                         <td>
                            <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo attr($_POST['form_end_date']); ?>'
@@ -119,24 +119,24 @@ $(document).ready(function() {
                                 title='<?php echo xla('yyyy-mm-dd hh:mm:ss'); ?>'>
                         </td>
                 </tr>
-	</table>
-	</div>
+    </table>
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
-				<div class="text-center">
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
+                <div class="text-center">
           <div class="btn-group" role="group">
             <a id='search_button' href='#' class='btn btn-default btn-search' onclick='top.restoreSession(); $("#theform").submit()'>
-						  <?php echo xlt('Search'); ?>
+                            <?php echo xlt('Search'); ?>
             </a>
           </div>
-				</div>
-			</td>
-		</tr>
-	</table>
+                </div>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>
@@ -152,111 +152,111 @@ $(document).ready(function() {
 
  <thead>
   <th align='center'>
-   <?php echo xlt('Date'); ?>
+    <?php echo xlt('Date'); ?>
   </th>
 
   <th align='center'>
-   <?php echo xlt('Patient ID'); ?>
+    <?php echo xlt('Patient ID'); ?>
   </th>
 
   <th align='center'>
-   <?php echo xlt('User ID'); ?>
+    <?php echo xlt('User ID'); ?>
   </th>
 
   <th align='center'>
-   <?php echo xlt('Category'); ?>
+    <?php echo xlt('Category'); ?>
   </th>
 
   <th align='center'>
-   <?php echo xlt('All Alerts'); ?>
+    <?php echo xlt('All Alerts'); ?>
   </th>
 
   <th align='center'>
-   <?php echo xlt('New Alerts'); ?>
+    <?php echo xlt('New Alerts'); ?>
   </th>
 
  </thead>
  <tbody>  <!-- added for better print-ability -->
- <?php
- $res = listingCDRReminderLog($_POST['form_begin_date'],$_POST['form_end_date']);
+    <?php
+    $res = listingCDRReminderLog($_POST['form_begin_date'],$_POST['form_end_date']);
 
- while ($row = sqlFetchArray($res)) {
-  //Create category title
-  if ($row['category'] == 'clinical_reminder_widget') {
-   $category_title = xl("Passive Alert");
-  }
-  else if ($row['category'] == 'active_reminder_popup') {
-   $category_title = xl("Active Alert");
-  }
-  else if ($row['category'] == 'allergy_alert') {
-   $category_title = xl("Allergy Warning");
-  }
-  else {
-   $category_title = $row['category'];
-  }
-  //Prepare the targets
-  $all_alerts = json_decode($row['value'], true);
-  if (!empty($row['new_value'])) {
-   $new_alerts = json_decode($row['new_value'], true);
-  }
-?>
-  <tr>
-    <td><?php echo text($row['date']); ?></td>
+    while ($row = sqlFetchArray($res)) {
+        //Create category title
+        if ($row['category'] == 'clinical_reminder_widget') {
+            $category_title = xl("Passive Alert");
+        }
+        else if ($row['category'] == 'active_reminder_popup') {
+            $category_title = xl("Active Alert");
+        }
+        else if ($row['category'] == 'allergy_alert') {
+            $category_title = xl("Allergy Warning");
+        }
+        else {
+            $category_title = $row['category'];
+        }
+        //Prepare the targets
+        $all_alerts = json_decode($row['value'], true);
+        if (!empty($row['new_value'])) {
+            $new_alerts = json_decode($row['new_value'], true);
+        }
+        ?>
+     <tr>
+       <td><?php echo text($row['date']); ?></td>
     <td><?php echo text($row['pid']); ?></td>
     <td><?php echo text($row['uid']); ?></td>
     <td><?php echo text($category_title); ?></td>
     <td>
-     <?php
-      //list off all targets with rule information shown when hover
-      foreach ($all_alerts as $targetInfo => $alert) {
-       if ( ($row['category'] == 'clinical_reminder_widget') || ($row['category'] == 'active_reminder_popup') ) {
-        $rule_title = getListItemTitle("clinical_rules",$alert['rule_id']);
-        $catAndTarget = explode(':',$targetInfo);
-        $category = $catAndTarget[0];
-        $target = $catAndTarget[1];
-        echo "<span title='" .attr($rule_title) . "'>" .
-             generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$category) .
-             ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$target) .
-             " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$alert['due_status']) . ")" .
-             "<span><br>";
-       }
-       else { // $row['category'] == 'allergy_alert'
-         echo $alert . "<br>";
-       }
-      }
-     ?>
-    </td>
-    <td>
-     <?php
-     if (!empty($row['new_value'])) {
-      //list new targets with rule information shown when hover
-      foreach ($new_alerts as $targetInfo => $alert) {
-       if ( ($row['category'] == 'clinical_reminder_widget') || ($row['category'] == 'active_reminder_popup') ) {
-        $rule_title = getListItemTitle("clinical_rules",$alert['rule_id']);
-        $catAndTarget = explode(':',$targetInfo);
-        $category = $catAndTarget[0];
-        $target = $catAndTarget[1];
-        echo "<span title='" .attr($rule_title) . "'>" .
-             generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$category) .
-             ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$target) .
-             " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$alert['due_status']) . ")" .
-             "<span><br>";
-       }
-       else { // $row['category'] == 'allergy_alert'
-        echo $alert . "<br>";
-       }
-      }
-     }
-     else {
-      echo "&nbsp;";
-     }
-     ?>
-    </td>
-  </tr>
+        <?php
+         //list off all targets with rule information shown when hover
+        foreach ($all_alerts as $targetInfo => $alert) {
+            if ( ($row['category'] == 'clinical_reminder_widget') || ($row['category'] == 'active_reminder_popup') ) {
+                $rule_title = getListItemTitle("clinical_rules",$alert['rule_id']);
+                $catAndTarget = explode(':',$targetInfo);
+                $category = $catAndTarget[0];
+                $target = $catAndTarget[1];
+                echo "<span title='" .attr($rule_title) . "'>" .
+                  generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$category) .
+                  ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$target) .
+                  " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$alert['due_status']) . ")" .
+                  "<span><br>";
+            }
+            else { // $row['category'] == 'allergy_alert'
+                 echo $alert . "<br>";
+            }
+        }
+        ?>
+       </td>
+       <td>
+        <?php
+        if (!empty($row['new_value'])) {
+         //list new targets with rule information shown when hover
+            foreach ($new_alerts as $targetInfo => $alert) {
+                if ( ($row['category'] == 'clinical_reminder_widget') || ($row['category'] == 'active_reminder_popup') ) {
+                    $rule_title = getListItemTitle("clinical_rules",$alert['rule_id']);
+                    $catAndTarget = explode(':',$targetInfo);
+                    $category = $catAndTarget[0];
+                    $target = $catAndTarget[1];
+                    echo "<span title='" .attr($rule_title) . "'>" .
+                      generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$category) .
+                      ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$target) .
+                      " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$alert['due_status']) . ")" .
+                      "<span><br>";
+                }
+                else { // $row['category'] == 'allergy_alert'
+                    echo $alert . "<br>";
+                }
+            }
+        }
+        else {
+            echo "&nbsp;";
+        }
+        ?>
+       </td>
+     </tr>
 
- <?php
- } // $row = sqlFetchArray($res) while
- ?>
+        <?php
+    } // $row = sqlFetchArray($res) while
+    ?>
  </tbody>
  </table>
  </div>  <!-- end of search results -->

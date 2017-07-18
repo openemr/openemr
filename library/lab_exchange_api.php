@@ -6,29 +6,31 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-	if(!extension_loaded("curl"))
+    if(!extension_loaded("curl"))
         throw(new Exception(
             "Curl extension is required"));
             
-	class LabExchangeClient {
-	
-		protected $Endpoint;
-		protected $SiteId;
-		protected $Token;
-		
-		public function __construct($siteId, $token, $endpoint) {
-			$this->SiteId = $siteId;
-			$this->Token = $token;
-			$this->Endpoint = $endpoint;
-		
-		}
-		
-		public function sendRequest($path, $method="GET", $vars=array()){
-		
-			echo "Path: {$path}\n";
+    class LabExchangeClient {
+    
+        protected $Endpoint;
+        protected $SiteId;
+        protected $Token;
+        
+        public function __construct($siteId, $token, $endpoint)
+        {
+            $this->SiteId = $siteId;
+            $this->Token = $token;
+            $this->Endpoint = $endpoint;
+        
+        }
+        
+        public function sendRequest($path, $method="GET", $vars=array())
+        {
+        
+            echo "Path: {$path}\n";
 
-			$encoded = "";
-            foreach($vars AS $key=>$value)
+            $encoded = "";
+            foreach($vars as $key=>$value)
                 $encoded .= "$key=".urlencode($value)."&";
             $encoded = substr($encoded, 0, -1);
             $tmpfile = "";
@@ -37,23 +39,23 @@
             // Construct full url.
             $url = "{$this->Endpoint}/$path";
             
-	    echo "Url: {$url}\n";
+            echo "Url: {$url}\n";
 
             // If GET and vars, append them.
             if($method == "GET")
-                $url .= (FALSE === strpos($path, '?')?"?":"&").$encoded;
+                $url .= (false === strpos($path, '?')?"?":"&").$encoded;
 
             // Initialize a new curl object.
             $curl = curl_init($url);
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             switch(strtoupper($method)) {
                 case "GET":
-                    curl_setopt($curl, CURLOPT_HTTPGET, TRUE);
+                    curl_setopt($curl, CURLOPT_HTTPGET, true);
                     break;
                 case "POST":
-                    curl_setopt($curl, CURLOPT_POST, TRUE);
+                    curl_setopt($curl, CURLOPT_POST, true);
                     curl_setopt($curl, CURLOPT_POSTFIELDS, $encoded);
                     break;
                 case "PUT":
@@ -80,7 +82,7 @@
                 $pwd = "{$this->SiteId}:{$this->Token}");
             
             // Do the request. If FALSE, then an exception occurred.
-            if(FALSE === ($result = curl_exec($curl)))
+            if(false === ($result = curl_exec($curl)))
                 throw(new Exception(
                     "Curl failed with error " . curl_error($curl)));
             
@@ -95,10 +97,10 @@
                 
             return new RestResponse($url, $result, $responseCode);
         }
-		
-	}
-	
-	class RestResponse {
+        
+    }
+    
+    class RestResponse {
         
         public $ResponseText;
         public $ResponseXml;
@@ -108,7 +110,8 @@
         public $IsError;
         public $ErrorMessage;
         
-        public function __construct($url, $text, $status) {
+        public function __construct($url, $text, $status)
+        {
             preg_match('/([^?]+)\??(.*)/', $url, $matches);
             $this->Url = $matches[1];
             $this->QueryString = $matches[2];
@@ -124,6 +127,6 @@
         }
         
     }
-	
+    
 ?>
-		
+        

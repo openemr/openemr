@@ -37,7 +37,7 @@ class SoapController extends AbstractActionController
     
     public function __construct()
     {
-        $this->listenerObject	= new Listener;
+        $this->listenerObject   = new Listener;
     }
     
     
@@ -46,7 +46,7 @@ class SoapController extends AbstractActionController
 
         $server = new Server(null,
         array('uri' => 'http://localhost/index/soap'));
-        // set SOAP service class        
+        // set SOAP service class
         // Bind already initialized object to Soap Server
         $server->setObject(new EncounterccdadispatchController($this->getServiceLocator()));
         // handle request
@@ -56,7 +56,7 @@ class SoapController extends AbstractActionController
     
         /**
     * Table Gateway
-    * 
+    *
     * @return type
     */
     public function getEncounterccdadispatchTable()
@@ -70,7 +70,7 @@ class SoapController extends AbstractActionController
     
     /**
     * Table Gateway
-    * 
+    *
     * @return type
     */
     public function getApplicationTable()

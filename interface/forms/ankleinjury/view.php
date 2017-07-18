@@ -1,3 +1,16 @@
+<?php
+/**
+ * Generated DocBlock
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  cfapress <cfapress>
+ * @author  Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2008 cfapress <cfapress>
+ * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+?>
 <!-- Ankle Injury View Form created by Nikolai Vitsyn by 2004/02/19 -->
 <?php
 include_once("../../globals.php");
@@ -23,16 +36,19 @@ $obj = formFetch("form_ankleinjury", $_GET["id"]);
 <span class=text>Date of Injury: </span><input type=entry name="ankle_date_of_injuary" value="<?php echo stripslashes($obj{"ankle_date_of_injuary"});?>" >
 <td align="right"><?php xl('Work related?','e');?>:</td>
 <td><input type=checkbox name="ankle_work_related" <?php if ($obj{"ankle_work_related"} == "on")
-echo "checked";;?>><span class=text></span><br></td>
+echo "checked";
+;?>><span class=text></span><br></td>
 
 <table >
 <tr>
 <td align="right"><?php xl('Foot:','e');?></td>
 <td><input type=radio name="ankle_foot" value="Left" <?php if ($obj{"ankle_foot"} == "Left")
-{echo "checked";};?>><span class=text></span><br></td>
+{echo "checked";
+};?>><span class=text></span><br></td>
 <td align="right"><?php xl('Left:','e');?></td>
 <td><input type=radio name="ankle_foot" value="Right" <?php if ($obj{"ankle_foot"} == "Right")
-{echo "checked";};?>><span class=text></span><br></td>
+{echo "checked";
+};?>><span class=text></span><br></td>
 <td align="right"><?php xl('Right:','e');?></td>
 </tr>
 </table>
@@ -42,22 +58,26 @@ echo "checked";;?>><span class=text></span><br></td>
 <td align="right"><?php xl('Severity of Pain:','e');?></td>
 <td align="right">1:</td>
 <td><input type=radio name="ankle_severity_of_pain" value="1" <?php if ($obj{"ankle_severity_of_pain"} == "1")
-{echo "checked";};?>><span class=text></span><br></td>
+{echo "checked";
+};?>><span class=text></span><br></td>
 
 <td align="right">2:</td>
 <td><input type=radio name="ankle_severity_of_pain" value="2" <?php if ($obj{"ankle_severity_of_pain"} == "2")
-{echo "checked";};?>><span class=text></span><br></td>
+{echo "checked";
+};?>><span class=text></span><br></td>
 
 <td align="right">3:</td>
 <td><input type=radio name="ankle_severity_of_pain" value="3" <?php if ($obj{"ankle_severity_of_pain"} == "3")
-{echo "checked";};?>><span class=text></span><br></td>
+{echo "checked";
+};?>><span class=text></span><br></td>
 </tr>
 </table>
 
 <table><tr>
 <td align="right"><?php xl('Significant Swelling:','e');?></td>
 <td><input type=checkbox name="ankle_significant_swelling" <?php if ($obj{"ankle_significant_swelling"} == "on")
-{echo "checked";};?>><span class=text></span><br>
+{echo "checked";
+};?>><span class=text></span><br>
 </tr>
 </table>
 
@@ -66,10 +86,12 @@ echo "checked";;?>><span class=text></span><br></td>
 <tr>
 <td align="right"><?php xl('Onset of Swelling:','e');?></td>
 <td><input type=radio name="ankle_onset_of_swelling" value="within minutes" <?php if ($obj{"ankle_onset_of_swelling"} == "within minutes")
-{echo "checked";};?>><span class=text></span><br></td>
+{echo "checked";
+};?>><span class=text></span><br></td>
 <td align="right"><?php xl('within minutes:','e');?></td>
 <td><input type=radio name="ankle_onset_of_swelling" value="within hours" <?php if ($obj{"ankle_onset_of_swelling"} == "within hours")
-{echo "checked";};?>><span class=text></span><br></td>
+{echo "checked";
+};?>><span class=text></span><br></td>
 <td align="right"><?php xl('within hours:','e');?></td>
 </tr>
 </table>
@@ -84,16 +106,20 @@ echo "checked";;?>><span class=text></span><br></td>
 <td align="right"><?php xl('Bone Tenderness:','e');?></td>
 <td align="right"><?php xl('Medial malleolus:','e');?></td>
 <td><input type=radio name="ankle_ottawa_bone_tenderness" value="Medial malleolus" <?php if ($obj{"ankle_ottawa_bone_tenderness"} == "Medial malleolus")
-{echo "checked";};?>><span class=text></span><br></td>
+{echo "checked";
+};?>><span class=text></span><br></td>
 <td align="right"><?php xl('Lateral malleolus:','e');?></td>
 <td><input type=radio name="ankle_ottawa_bone_tenderness"  value="Lateral malleolus" <?php if ($obj{"ankle_ottawa_bone_tenderness"} == "Lateral malleolus")
-{echo "checked";};?>><span class=text></span><br></td>
+{echo "checked";
+};?>><span class=text></span><br></td>
 <td align="right"><?php xl('Base of fifth (5th) Metarsal:','e');?></td>
 <td><input type=radio name="ankle_ottawa_bone_tenderness" value="Base of fifth (5th) Metarsal" <?php if ($obj{"ankle_ottawa_bone_tenderness"} == "Base of fifth (5th) Metarsal")
-{echo "checked";};?>><span class=text></span><br></td>
+{echo "checked";
+};?>><span class=text></span><br></td>
 <td align="right"><?php xl('At the Navicular:','e');?></td>
 <td><input type=radio name="ankle_ottawa_bone_tenderness" value="At the Navicular" <?php if ($obj{"ankle_ottawa_bone_tenderness"} == "At the Navicular")
-{echo "checked";};?>><span class=text></span><br></td>
+{echo "checked";
+};?>><span class=text></span><br></td>
 </tr>
 </table>
 
@@ -102,10 +128,12 @@ echo "checked";;?>><span class=text></span><br></td>
 <td align="right"><?php xl('Able to Bear Weight four (4) steps:','e');?></td>
 <td align="right"><?php xl('Yes:','e');?></td>
 <td><input type=radio name="ankle_able_to_bear_weight_steps" value="Yes" <?php if ($obj{"ankle_able_to_bear_weight_steps"} == "Yes")
-{echo "checked";};?>><span class=text></span><br></td>
+{echo "checked";
+};?>><span class=text></span><br></td>
 <td align="right"><?php xl('No:','e');?></td>
 <td><input type=radio name="ankle_able_to_bear_weight_steps" value="No" <?php if ($obj{"ankle_able_to_bear_weight_steps"} == "No")
-{echo "checked";};?>><span class=text></span><br></td>
+{echo "checked";
+};?>><span class=text></span><br></td>
 </tr>
 </table>
 

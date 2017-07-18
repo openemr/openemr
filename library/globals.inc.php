@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // Copyright (C) 2010-2015 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -424,8 +424,8 @@ $GLOBALS_METADATA = array(
         'gb_how_sort_list' => array(
             xl('How to sort a drop-lists'),
             array(
-                '0' => 'Sort by seq',
-                '1' => 'Sort alphabetically'
+                '0' => xl('Sort by seq'),
+                '1' => xl('Sort alphabetically')
             ),
             '0',
             xl('What kind of sorting will be in the drop lists.')
@@ -694,6 +694,13 @@ $GLOBALS_METADATA = array(
             '0',                              // default
             xl('Option to support inventory and sales of products')
         ),
+
+        'default_visit_category' => [
+            xl('Default Visit Category'),
+            'default_visit_category',
+            '_blank',
+            xl('Define a default visit category'),
+        ],
 
         'disable_chart_tracker' => array(
             xl('Disable Chart Tracker'),
@@ -1424,10 +1431,10 @@ $GLOBALS_METADATA = array(
         'calendar_appt_style' => array(
             xl('Appointment Display Style'),
             array(
-                '1' => 'Last name',
-                '2' => 'Last name, first name',
-                '3' => 'Last name, first name (title)',
-                '4' => 'Last name, first name (title: comments)',
+                '1' => xl('Last name'),
+                '2' => xl('Last name, first name'),
+                '3' => xl('Last name, first name (title)'),
+                '4' => xl('Last name, first name (title: comments)'),
             ),
             '2',                               // default
             xl('This determines how appointments display on the calendar.')
@@ -1436,8 +1443,8 @@ $GLOBALS_METADATA = array(
         'event_color' => array(
             xl('Appointment/Event Color'),
             array(
-                '1' => 'Category Color Schema',
-                '2' => 'Facility Color Schema',
+                '1' => xl('Category Color Schema'),
+                '2' => xl('Facility Color Schema'),
             ),                           // data type
             '1',                              // default
             xl('This determines which color schema used for appointment')
@@ -1570,7 +1577,7 @@ $GLOBALS_METADATA = array(
         'pat_trkr_timer' => array(
             xl('Patient Flow Board Timer Interval'),
             array(
-                '0' => 'No automatic refresh',
+                '0' => xl('No automatic refresh'),
                 '0:10' => '10',
                 '0:20' => '20',
                 '0:30' => '30',
@@ -3090,6 +3097,41 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',                              // default = false
             xl('Select to print patient address labels from popups in left nav screen.')
+        ),
+
+        'env_x_width' => array(
+            xl('Envelope Width in mm'),
+            'num',                           // data type
+            '104.775',
+            xl('In Portrait mode, determines the width of the envelope along the x-axis in mm')
+        ),
+
+        'env_y_height' => array(
+            xl('Envelope Height in mm'),
+            'num',                           // data type
+            '241.3',
+            xl('In Portrait mode, determines the height of the envelope along the y-axis in mm')
+        ),
+
+        'env_font_size' => array(
+            xl('Font Size in Pt'),
+            'num',                           // data type
+            '14',
+            xl('Sets the font of the address text on the envelope in mm')
+        ),
+
+        'env_x_dist' => array(
+            xl('Envelope x-axis starting pt'),
+            'num',                           // data type
+            '65',
+            xl('Distance from the \'top\' of the envelope in mm')
+        ),
+
+        'env_y_dist' => array(
+            xl('Envelope y-axis starting pt'),
+            'num',                           // data type
+            '220',
+            xl(' Distance from the right most edge of the envelope in portrait position in mm')
         ),
 
     ),

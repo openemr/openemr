@@ -30,59 +30,59 @@ class ApplicationTable extends AbstractTableGateway
     protected $adapter;
     
     /**
-     * 
+     *
      * @param \Zend\Db\Adapter\Adapter $adapter
      */
     public function __construct()
     {
-      $adapter = \Zend\Db\TableGateway\Feature\GlobalAdapterFeature::getStaticAdapter();
-      $this->adapter = $adapter;
-      $this->resultSetPrototype = new ResultSet();
-      $this->resultSetPrototype->setArrayObjectPrototype(new Application());
-      $this->initialize();
+        $adapter = \Zend\Db\TableGateway\Feature\GlobalAdapterFeature::getStaticAdapter();
+        $this->adapter = $adapter;
+        $this->resultSetPrototype = new ResultSet();
+        $this->resultSetPrototype->setArrayObjectPrototype(new Application());
+        $this->initialize();
     }
     
     /**
      * Function zQuery
      * All DB Transactions take place
-     * 
+     *
      * @param String  $sql      SQL Query Statment
      * @param array   $params   SQL Parameters
      * @param boolean $log      Logging True / False
      * @param boolean $error    Error Display True / False
      * @return type
      */
-    public function zQuery($sql, $params = '', $log = TRUE, $error = TRUE)
+    public function zQuery($sql, $params = '', $log = true, $error = true)
     {
-      $return = false;
-      $result = false;
+        $return = false;
+        $result = false;
 
-      try {
-        $statement  = $this->adapter->query($sql);
-        $return     = $statement->execute($params);
-        $result     = true;
-      } catch (\Zend\Db\Adapter\ExceptionInterface $e) {
-        if ($error) {
-          $this->errorHandler($e, $sql, $params);
+        try {
+            $statement  = $this->adapter->query($sql);
+            $return     = $statement->execute($params);
+            $result     = true;
+        } catch (\Zend\Db\Adapter\ExceptionInterface $e) {
+            if ($error) {
+                $this->errorHandler($e, $sql, $params);
+            }
+        } catch (\Exception $e) {
+            if ($error) {
+                $this->errorHandler($e, $sql, $params);
+            }
         }
-      } catch (\Exception $e) {
-        if ($error) {
-          $this->errorHandler($e, $sql, $params);
-        }
-      }
 
       /**
        * Function auditSQLEvent
        * Logging Mechanism
-       * 
+       *
        * using OpenEMR log function (auditSQLEvent)
        * Path /library/log.inc
        * Logging, if the $log is true
        */
-      if ($log) {
-        auditSQLEvent($sql, $result, $params);
-      }
-      return $return;
+        if ($log) {
+            auditSQLEvent($sql, $result, $params);
+        }
+        return $return;
     }
     
     /**
@@ -91,13 +91,13 @@ class ApplicationTable extends AbstractTableGateway
      * Display the Error, Line and File
      * Same behavior of HelpfulDie fuction in OpenEMR
      * Path /library/sql.inc
-     * 
+     *
      * @param type    $e
      * @param string  $sql
      * @param array   $binds
      */
-     public function errorHandler($e, $sql, $binds = '')
-     {
+    public function errorHandler($e, $sql, $binds = '')
+    {
         $escaper = new \Zend\Escaper\Escaper('utf-8');
         $trace  = $e->getTraceAsString();
         $nLast = strpos($trace , '[internal function]');
@@ -109,18 +109,18 @@ class ApplicationTable extends AbstractTableGateway
         /** List all Params */
         $processedBinds = "";
         if (is_array($binds)) {
-          $firstLoop = true;
-          foreach ($binds as $valueBind) {
-            if ($firstLoop) {
-            $processedBinds .= "'" . $valueBind . "'";
-            $firstLoop = false;
-            } else {
-            $processedBinds .= ",'" . $valueBind . "'";
+            $firstLoop = true;
+            foreach ($binds as $valueBind) {
+                if ($firstLoop) {
+                    $processedBinds .= "'" . $valueBind . "'";
+                    $firstLoop = false;
+                } else {
+                    $processedBinds .= ",'" . $valueBind . "'";
+                }
             }
-          }
-          if (!empty($processedBinds)) {
-            $processedBinds = "(" . $processedBinds . ")";
-          }
+            if (!empty($processedBinds)) {
+                $processedBinds = "(" . $processedBinds . ")";
+            }
         }
         echo '<pre><span style="color: red;">';
         echo 'ERROR : ' . $logMsg;
@@ -135,29 +135,29 @@ class ApplicationTable extends AbstractTableGateway
         $logMsg .= "\n SQL statement : $sql" . $processedBinds;
         $logMsg .= "\n $trace";
         error_log("ERROR: " . $logMsg, 0);
-     }
+    }
      
     /**
      * Function quoteValue
      * Escape Quotes in the value
-     * 
+     *
      * @param type $value
      * @return type
      */
     public function quoteValue($value)
     {
-      return $this->adapter->platform->quoteValue($value);
+        return $this->adapter->platform->quoteValue($value);
     }
 
     /**
      * Function zAclCheck
      * Check ACL in Zend
-     * 
+     *
      * Same Functionality in the OpemEMR
      * for Left Nav ACL Check
      * Path openemr/library/acl.inc
      * Function Name zh_acl_check
-     * 
+     *
      * @param int     $user_id Auth user Id
      * $param String  $section_identifier ACL Section id
      * @return boolean
@@ -196,7 +196,7 @@ class ApplicationTable extends AbstractTableGateway
         $res_groups     = $this->zQuery($sql_user_group,array('users',$user_id));
         $groups = array();
         foreach($res_groups as $row){
-          array_push($groups,$row['group_id']);
+            array_push($groups,$row['group_id']);
         }
         $groups_str = implode(",",$groups);
         
@@ -242,8 +242,8 @@ class ApplicationTable extends AbstractTableGateway
      */
     public function listAutoSuggest($post, $limit)
     {
-      $pages        = 0;
-      $limitEnd     =  \Application\Plugin\CommonPlugin::escapeLimit($limit);
+        $pages        = 0;
+        $limitEnd     =  \Application\Plugin\CommonPlugin::escapeLimit($limit);
       
         if (isset($GLOBALS['set_autosuggest_options'])) {
           
@@ -266,22 +266,22 @@ class ApplicationTable extends AbstractTableGateway
             $trailing       = $post->trailing;
         }
       
-      $queryString  = $post->queryString;
+        $queryString  = $post->queryString;
       
       
-      $page         = $post->page;
-      $searchType   = $post->searchType;
-      $searchEleNo  = $post->searchEleNo;
+        $page         = $post->page;
+        $searchType   = $post->searchType;
+        $searchEleNo  = $post->searchEleNo;
       
-      if ($page == '') {
-        $limitStart = 0;
-      } else {
-        $limitStart = \Application\Plugin\CommonPlugin::escapeLimit($page);
-      }
+        if ($page == '') {
+            $limitStart = 0;
+        } else {
+            $limitStart = \Application\Plugin\CommonPlugin::escapeLimit($page);
+        }
 
-      $keyword = $leading . $queryString . $trailing;
-      if (strtolower($searchType) == 'patient') {
-        $sql = "SELECT fname, mname, lname, pid, DOB FROM patient_data 
+        $keyword = $leading . $queryString . $trailing;
+        if (strtolower($searchType) == 'patient') {
+            $sql = "SELECT fname, mname, lname, pid, DOB FROM patient_data 
                 WHERE pid LIKE ? 
                 OR  CONCAT(fname, ' ', lname) LIKE ?  
                 OR  CONCAT(lname, ' ', fname) LIKE ? 
@@ -289,7 +289,7 @@ class ApplicationTable extends AbstractTableGateway
                 OR DATE_FORMAT(DOB,'%d-%m-%Y') LIKE ?  
                 OR DATE_FORMAT(DOB,'%Y-%m-%d') LIKE ?  
                 ORDER BY fname ";
-        $result = $this->zQuery($sql, array(
+            $result = $this->zQuery($sql, array(
                                           $keyword,
                                           $keyword,
                                           $keyword,
@@ -297,9 +297,9 @@ class ApplicationTable extends AbstractTableGateway
                                           $keyword,
                                           $keyword
                                       ));
-        $rowCount   =  $result->count();
-        $sql        .= "LIMIT $limitStart, $limitEnd";
-        $result     = $this->zQuery($sql, array(
+            $rowCount   =  $result->count();
+            $sql        .= "LIMIT $limitStart, $limitEnd";
+            $result     = $this->zQuery($sql, array(
                                           $keyword,
                                           $keyword,
                                           $keyword,
@@ -308,36 +308,36 @@ class ApplicationTable extends AbstractTableGateway
                                           $keyword,
 
                                       ));
-      }
-      elseif (strtolower($searchType) == 'emrdirect') {
-        $sql = "SELECT fname, mname, lname,email,id FROM users 
+        }
+        elseif (strtolower($searchType) == 'emrdirect') {
+            $sql = "SELECT fname, mname, lname,email,id FROM users 
                 WHERE (CONCAT(fname, ' ', lname) LIKE ?  
                 OR  CONCAT(lname, ' ', fname) LIKE ? 
                 OR email LIKE ?)   
                 AND abook_type = 'emr_direct' 
                 AND active = 1
                 ORDER BY fname ";
-        $result = $this->zQuery($sql, array(
+            $result = $this->zQuery($sql, array(
                                           $keyword,
                                           $keyword,
                                           $keyword,
                                       ));
-        $rowCount   =  $result->count();
-        $sql        .= "LIMIT $limitStart, $limitEnd";
-        $result     = $this->zQuery($sql, array(
+            $rowCount   =  $result->count();
+            $sql        .= "LIMIT $limitStart, $limitEnd";
+            $result     = $this->zQuery($sql, array(
                                           $keyword,
                                           $keyword,
                                           $keyword,
                                       ));
-      }
-      $arr = array();
-      if ($result) {
-        foreach ($result as $row) {
-          $arr[] = $row;
         }
-        $arr['rowCount'] = $rowCount;
-      }
-      return $arr;
+        $arr = array();
+        if ($result) {
+            foreach ($result as $row) {
+                $arr[] = $row;
+            }
+            $arr['rowCount'] = $rowCount;
+        }
+        return $arr;
     }
     
     /*
@@ -369,7 +369,7 @@ class ApplicationTable extends AbstractTableGateway
         
         $input_date = preg_replace('/T|Z/', ' ', $input_date);
         
-        $temp 	= explode(' ',$input_date); //split using space and consider the first portion, in case of date with time
+        $temp   = explode(' ',$input_date); //split using space and consider the first portion, in case of date with time
         $input_date = $temp[0];
         
         $output_format = \Application\Model\ApplicationTable::dateFormat($output_format);

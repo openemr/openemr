@@ -66,28 +66,28 @@ $form_patient_id = trim($_POST['form_patient_id']);
 $curr_pid = $pid;
 $ptrow = array();
 if (!empty($form_patient_id)) {
-  $query = "SELECT pid, pubpid, fname, mname, lname FROM patient_data WHERE " .
+    $query = "SELECT pid, pubpid, fname, mname, lname FROM patient_data WHERE " .
     "pubpid = ? ORDER BY pid LIMIT 1";
-  $ptrow = sqlQuery($query,array($form_patient_id));
-  if (empty($ptrow)) {
-    $curr_pid = 0;
-    echo "<font color='red'>" . xlt('Chart ID') . " '" . text($form_patient_id) . "' " . xlt('not found!') . "</font><br />&nbsp;<br />";
-  }
-  else {
-    $curr_pid = $ptrow['pid'];
-  }
+    $ptrow = sqlQuery($query,array($form_patient_id));
+    if (empty($ptrow)) {
+        $curr_pid = 0;
+        echo "<font color='red'>" . xlt('Chart ID') . " '" . text($form_patient_id) . "' " . xlt('not found!') . "</font><br />&nbsp;<br />";
+    }
+    else {
+        $curr_pid = $ptrow['pid'];
+    }
 }
 else if (!empty($curr_pid)) {
-  $query = "SELECT pid, pubpid, fname, mname, lname FROM patient_data WHERE " .
+    $query = "SELECT pid, pubpid, fname, mname, lname FROM patient_data WHERE " .
     "pid = ?";
-  $ptrow = sqlQuery($query,array($curr_pid));
-  $form_patient_id = $ptrow['pubpid'];
+    $ptrow = sqlQuery($query,array($curr_pid));
+    $form_patient_id = $ptrow['pubpid'];
 }
 if (!empty($ptrow)) {
-  echo '<span class="title">' . text(xl('for','','',' '));
-  echo text($ptrow['lname']) . ', ' . text($ptrow['fname']) . ' ' . text($ptrow['mname']) . ' ';
-  echo "(" . text($ptrow['pubpid']) . ")";
-  echo "</span>\n";
+    echo '<span class="title">' . text(xl('for','','',' '));
+    echo text($ptrow['lname']) . ', ' . text($ptrow['fname']) . ' ' . text($ptrow['mname']) . ' ';
+    echo "(" . text($ptrow['pubpid']) . ")";
+    echo "</span>\n";
 }
 ?>
 
@@ -102,42 +102,42 @@ if (!empty($ptrow)) {
 <table>
  <tr>
   <td width='200px'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
-		<tr>
-			<td class='control-label'>
-			   <?php echo xlt('Patient ID'); ?>:
-			</td>
-			<td>
-			   <input type='text' name='form_patient_id' class='form-control' size='10' maxlength='31' value='<?php echo attr($form_patient_id) ?>'
-				title='<?php echo xla('Patient ID'); ?>' />
-			</td>
-		</tr>
-	</table>
+    <table class='text'>
+        <tr>
+            <td class='control-label'>
+                <?php echo xlt('Patient ID'); ?>:
+            </td>
+            <td>
+               <input type='text' name='form_patient_id' class='form-control' size='10' maxlength='31' value='<?php echo attr($form_patient_id) ?>'
+                title='<?php echo xla('Patient ID'); ?>' />
+            </td>
+        </tr>
+    </table>
 
-	</div>
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
-				<div class="text-center">
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
+                <div class="text-center">
           <div class="btn-group" role="group">
-					  <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-						  <?php echo xlt('Submit'); ?>
-					  </a>
-					  <?php if ($_POST['form_refresh'] || !empty($ptrow) ) { ?>
+                      <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                            <?php echo xlt('Submit'); ?>
+                      </a>
+                        <?php if ($_POST['form_refresh'] || !empty($ptrow) ) { ?>
               <a href='#' class='btn btn-default btn-print' id='printbutton'>
-							  <?php echo xlt('Print'); ?>
-					    </a>
-					  <?php } ?>
+                                <?php echo xlt('Print'); ?>
+                        </a>
+                        <?php } ?>
           </div>
-				</div>
-			</td>
-		</tr>
-	</table>
+                </div>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>
@@ -145,46 +145,46 @@ if (!empty($ptrow)) {
 </div> <!-- end of parameters -->
 
 <?php
- if ($_POST['form_refresh'] || !empty($ptrow) ) {
+if ($_POST['form_refresh'] || !empty($ptrow) ) {
 ?>
 <div id="report_results">
 <table>
- <thead>
-  <th> <?php echo xlt('Time'); ?> </th>
-  <th> <?php echo xlt('Destination'); ?> </th>
- </thead>
- <tbody>
+<thead>
+<th> <?php echo xlt('Time'); ?> </th>
+<th> <?php echo xlt('Destination'); ?> </th>
+</thead>
+<tbody>
 <?php
 $row = array();
 if (!empty($ptrow)) {
-  $res = \services\PatientService::getChartTrackerInformationActivity($curr_pid);
-  while ($row = sqlFetchArray($res)) {
-?>
- <tr>
-  <td>
-   <?php echo text(oeFormatShortDate(substr($row['ct_when'], 0, 10))) . text(substr($row['ct_when'], 10)); ?>
+    $res = \services\PatientService::getChartTrackerInformationActivity($curr_pid);
+    while ($row = sqlFetchArray($res)) {
+    ?>
+   <tr>
+    <td>
+        <?php echo text(oeFormatShortDate(substr($row['ct_when'], 0, 10))) . text(substr($row['ct_when'], 10)); ?>
   </td>
   <td>
 <?php
-    if (!empty($row['ct_location'])) {
-      echo generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'),$row['ct_location']);
-    }
-    else if (!empty($row['ct_userid'])) {
-      echo text($row['lname']) . ', ' . text($row['fname']) . ' ' . text($row['mname']);
-    }
+if (!empty($row['ct_location'])) {
+    echo generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'),$row['ct_location']);
+}
+else if (!empty($row['ct_userid'])) {
+    echo text($row['lname']) . ', ' . text($row['fname']) . ' ' . text($row['mname']);
+}
 ?>
   </td>
  </tr>
 <?php
-  } // end while
- } // end if
+    } // end while
+} // end if
 ?>
 </tbody>
 </table>
 </div> <!-- end of results -->
 <?php } else { ?>
 <div class='text'>
- 	<?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
+    <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
 </div>
 <?php } ?>
 

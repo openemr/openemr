@@ -17,35 +17,37 @@ require_once ("DBSchema.php");
  * @version 1.0
  */
 class DBServer {
-	public $Connection;
-	public $SchemaName;
-	
-	/**
-	 * Instantiate new DBServer
-	 *
-	 * @access public
-	 * @param DBConnection $connection        	
-	 */
-	function __construct($connection) {
-		$this->Connection = & $connection;
-	}
-	
-	/**
-	 * Return the schema with the given name from this server
-	 *
-	 * @access public
-	 * @param string $name        	
-	 * @return DBSchema
-	 */
-	function GetSchema() {
-		$this->Connection->Connect ();
-		
-		$schema = new DBSchema ( $this );
-		
-		$this->Connection->Disconnect ();
-		
-		return $schema;
-	}
+    public $Connection;
+    public $SchemaName;
+    
+    /**
+     * Instantiate new DBServer
+     *
+     * @access public
+     * @param DBConnection $connection
+     */
+    function __construct($connection)
+    {
+        $this->Connection = & $connection;
+    }
+    
+    /**
+     * Return the schema with the given name from this server
+     *
+     * @access public
+     * @param string $name
+     * @return DBSchema
+     */
+    function GetSchema()
+    {
+        $this->Connection->Connect ();
+        
+        $schema = new DBSchema ( $this );
+        
+        $this->Connection->Disconnect ();
+        
+        return $schema;
+    }
 }
 
 ?>

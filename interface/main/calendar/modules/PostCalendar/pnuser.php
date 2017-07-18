@@ -154,7 +154,7 @@ function postcalendar_user_delete()
     if($uname != $event['uname']) {
         if (!validateGroupStatus($uname,getUsername($event['uname']))) {
 
-         return _PC_CAN_NOT_DELETE;
+            return _PC_CAN_NOT_DELETE;
         }
     }
     //if($uname != $event['uname']) {
@@ -187,7 +187,7 @@ function postcalendar_user_deleteevents()
     if($uname != $event['uname']) {
         if (!validateGroupStatus($uname,getUsername($event['uname']))) {
 
-         return _PC_CAN_NOT_DELETE;
+            return _PC_CAN_NOT_DELETE;
         }
     }
     unset($event);
@@ -250,7 +250,9 @@ function delete_event($title)
 /**
  * submit an event
  */
-function postcalendar_user_edit($args) {return postcalendar_user_submit($args); }
+function postcalendar_user_edit($args)
+{
+    return postcalendar_user_submit($args); }
 function postcalendar_user_submit2($args)
 {
 
@@ -863,7 +865,7 @@ function postcalendar_user_search()
     foreach($categories as $category) {
         $selected = "";
         if ($pc_category == $category[id]) { $selected = " SELECTED "; }
-	//modified 8/09 by BM to allow translation if applicable
+    //modified 8/09 by BM to allow translation if applicable
         $cat_options .= "<option value=\"$category[id]\" $selected>" . xl_appt_category($category[name]) . "</option>";
     }
     $tpl->assign_by_ref('CATEGORY_OPTIONS',$cat_options);
@@ -879,7 +881,8 @@ function postcalendar_user_search()
 
     // then override the setting if we have a value from the submitted form
     $ProviderID = pnVarCleanFromInput("provider_id");
-    if (is_numeric($ProviderID)) { $tpl->assign('ProviderID', $ProviderID);; }
+    if (is_numeric($ProviderID)) { $tpl->assign('ProviderID', $ProviderID);
+        ; }
     elseif ($ProviderID == "_ALL_") { } // do nothing
     else { $tpl->assign('ProviderID', ""); }
 
@@ -891,7 +894,7 @@ function postcalendar_user_search()
     $provider_options .= ">" . xl('All Providers') . "</option>";
     foreach ($provinfo as $provider) {
         $selected = "";
-        // if we don't have a ProviderID chosen, pick the first one from the 
+        // if we don't have a ProviderID chosen, pick the first one from the
         // pc_username Session variable
         if ($ProviderID == "") {
             // that variable stores the 'username' and not the numeric 'id'
@@ -923,10 +926,10 @@ function postcalendar_user_search()
     // the function getPatientPID($pid, $given, $orderby, $limit, $start) <-- defined in library/patient.inc
     $plistlimit = 500;
     if (is_numeric($PatientID)) {
-      $tpl->assign('PatientList', getPatientPID(array('pid'=>$PatientID, 'limit'=>$plistlimit)));
+        $tpl->assign('PatientList', getPatientPID(array('pid'=>$PatientID, 'limit'=>$plistlimit)));
     }
     else {
-      $tpl->assign('PatientList', getPatientPID(array('limit' =>$plistlimit)));
+        $tpl->assign('PatientList', getPatientPID(array('limit' =>$plistlimit)));
     }
     $event_endday = pnVarCleanFromInput("event_endday");
     $event_endmonth = pnVarCleanFromInput("event_endmonth");
@@ -1173,7 +1176,7 @@ function checkCategoryLimits($eventdata)
     }
 
     return null;
- }
+}
     /*list($dbconn) = pnDBGetConn();
     $pntable = pnDBGetTables();
     $event_table = $pntable['postcalendar_events'];

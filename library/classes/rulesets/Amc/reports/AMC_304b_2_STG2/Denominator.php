@@ -25,7 +25,7 @@
 // Prescription written for drugs requiring a prescription in order to be dispensed
 // Denominator exclusion:
 // Prescription written for controlled substance
-// Generate and transmit permissible prescriptions electronically (other than controlled substances) queried for drug formulary).( AMC-2014:170.314(g)(1)/(2)–8 )
+// Generate and transmit permissible prescriptions electronically (other than controlled substances) queried for drug formulary).( AMC-2014:170.314(g)(1)/(2)-8 )
 
 class AMC_304b_2_STG2_Denominator implements AmcFilterIF
 {

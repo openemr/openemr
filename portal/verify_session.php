@@ -40,12 +40,12 @@ $landingpage = "index.php?site=".$_SESSION['site_id'];
 
 // kick out if patient not authenticated
 if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ) {
-  $pid = $_SESSION['pid'];
+    $pid = $_SESSION['pid'];
 }
 else {
-  session_destroy();
-  header('Location: '.$landingpage.'&w');
-  exit;
+    session_destroy();
+    header('Location: '.$landingpage.'&w');
+    exit;
 }
 //
 

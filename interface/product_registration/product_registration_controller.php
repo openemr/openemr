@@ -29,7 +29,8 @@ require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/
 class ProductRegistrationController {
     private $productRegistrationService;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->productRegistrationService = new \services\ProductRegistrationService();
 
         // (note this is here until we use Zend Framework)
@@ -43,13 +44,15 @@ class ProductRegistrationController {
         }
     }
 
-    public function get() {
+    public function get()
+    {
         $statusPayload = $this->productRegistrationService->getProductStatus();
 
         \common\http\HttpResponseHelper::send(200, $statusPayload, 'JSON');
     }
 
-    public function post() {
+    public function post()
+    {
         $response = null;
         $status = 500;
 

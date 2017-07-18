@@ -28,9 +28,9 @@ $my_files = array(
 $lres = sqlStatement('SELECT * FROM list_options ' .
   "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
 while ($lrow = sqlFetchArray($lres)) {
-  $option_id = $lrow['option_id']; // should start with LBF
-  $title = $lrow['title'];
-  $my_files[] = "LBF/$option_id.plugin.php";
+    $option_id = $lrow['option_id']; // should start with LBF
+    $title = $lrow['title'];
+    $my_files[] = "LBF/$option_id.plugin.php";
 }
 
 $form_filename = strip_escape_custom($_REQUEST['form_filename']);
@@ -42,55 +42,55 @@ $imagedir     = "$OE_SITE_DIR/images";
 $educationdir = "$OE_SITE_DIR/documents/education";
 
 if (!empty($_POST['bn_save'])) {
-  if ($form_filename) {
-    // Textareas, at least in Firefox, return a \r\n at the end of each line
-    // even though only \n was originally there.  For consistency with
-    // normal OpenEMR usage we translate those back.
-    file_put_contents($filepath, str_replace("\r\n", "\n",
-      $_POST['form_filedata']));
-    $form_filename = '';
-  }
+    if ($form_filename) {
+        // Textareas, at least in Firefox, return a \r\n at the end of each line
+        // even though only \n was originally there.  For consistency with
+        // normal OpenEMR usage we translate those back.
+        file_put_contents($filepath, str_replace("\r\n", "\n",
+        $_POST['form_filedata']));
+        $form_filename = '';
+    }
 
   // Handle image uploads.
-  if (is_uploaded_file($_FILES['form_image']['tmp_name']) && $_FILES['form_image']['size']) {
-    $form_dest_filename = $_POST['form_dest_filename'];
-    if ($form_dest_filename == '') {
-      $form_dest_filename = $_FILES['form_image']['name'];
+    if (is_uploaded_file($_FILES['form_image']['tmp_name']) && $_FILES['form_image']['size']) {
+        $form_dest_filename = $_POST['form_dest_filename'];
+        if ($form_dest_filename == '') {
+            $form_dest_filename = $_FILES['form_image']['name'];
+        }
+        $form_dest_filename = basename($form_dest_filename);
+        if ($form_dest_filename == '') {
+            die(htmlspecialchars(xl('Cannot find a destination filename')));
+        }
+        $imagepath = "$imagedir/$form_dest_filename";
+        // If the site's image directory does not yet exist, create it.
+        if (!is_dir($imagedir)) {
+            mkdir($imagedir);
+        }
+        if (is_file($imagepath)) unlink($imagepath);
+        $tmp_name = $_FILES['form_image']['tmp_name'];
+        if (!move_uploaded_file($_FILES['form_image']['tmp_name'], $imagepath)) {
+            die(htmlspecialchars(xl('Unable to create') . " '$imagepath'"));
+        }
     }
-    $form_dest_filename = basename($form_dest_filename);
-    if ($form_dest_filename == '') {
-      die(htmlspecialchars(xl('Cannot find a destination filename')));
-    }
-    $imagepath = "$imagedir/$form_dest_filename";
-    // If the site's image directory does not yet exist, create it.
-    if (!is_dir($imagedir)) {
-      mkdir($imagedir);
-    }
-    if (is_file($imagepath)) unlink($imagepath);
-    $tmp_name = $_FILES['form_image']['tmp_name'];
-    if (!move_uploaded_file($_FILES['form_image']['tmp_name'], $imagepath)) {
-      die(htmlspecialchars(xl('Unable to create') . " '$imagepath'"));
-    }
-  }
 
   // Handle PDF uploads for patient education.
-  if (is_uploaded_file($_FILES['form_education']['tmp_name']) && $_FILES['form_education']['size']) {
-    $form_dest_filename = $_FILES['form_education']['name'];
-    $form_dest_filename = strtolower(basename($form_dest_filename));
-    if (substr($form_dest_filename, -4) != '.pdf') {
-      die(xlt('Filename must end with ".pdf"'));
+    if (is_uploaded_file($_FILES['form_education']['tmp_name']) && $_FILES['form_education']['size']) {
+        $form_dest_filename = $_FILES['form_education']['name'];
+        $form_dest_filename = strtolower(basename($form_dest_filename));
+        if (substr($form_dest_filename, -4) != '.pdf') {
+            die(xlt('Filename must end with ".pdf"'));
+        }
+        $educationpath = "$educationdir/$form_dest_filename";
+        // If the site's education directory does not yet exist, create it.
+        if (!is_dir($educationdir)) {
+            mkdir($educationdir);
+        }
+        if (is_file($educationpath)) unlink($educationpath);
+        $tmp_name = $_FILES['form_education']['tmp_name'];
+        if (!move_uploaded_file($tmp_name, $educationpath)) {
+            die(text(xl('Unable to create') . " '$educationpath'"));
+        }
     }
-    $educationpath = "$educationdir/$form_dest_filename";
-    // If the site's education directory does not yet exist, create it.
-    if (!is_dir($educationdir)) {
-      mkdir($educationdir);
-    }
-    if (is_file($educationpath)) unlink($educationpath);
-    $tmp_name = $_FILES['form_education']['tmp_name'];
-    if (!move_uploaded_file($tmp_name, $educationpath)) {
-      die(text(xl('Unable to create') . " '$educationpath'"));
-    }
-  }
 
 }
 
@@ -176,7 +176,7 @@ if($GLOBALS['secure_upload']){
         $white_list = array();
         $lres = sqlStatement("SELECT option_id FROM list_options WHERE list_id = 'files_white_list' AND activity = 1");
         while ($lrow = sqlFetchArray($lres)) {
-           $white_list[] = $lrow['option_id'];
+            $white_list[] = $lrow['option_id'];
         }
     }
 }
@@ -238,18 +238,18 @@ function msfFileChanged() {
    <select name='form_filename' onchange='msfFileChanged()'>
     <option value=''></option>
 <?php
-  foreach ($my_files as $filename) {
+foreach ($my_files as $filename) {
     echo "    <option value='" . htmlspecialchars($filename, ENT_QUOTES) . "'";
     if ($filename == $form_filename) echo " selected";
     echo ">" . htmlspecialchars($filename) . "</option>\n";
-  }
+}
 ?>
    </select>
    <br />
    <textarea name='form_filedata' rows='25' style='width:100%'><?php
-  if ($form_filename) {
-    echo htmlspecialchars(@file_get_contents($filepath));
-  }
+    if ($form_filename) {
+        echo htmlspecialchars(@file_get_contents($filepath));
+    }
 ?></textarea>
   </td>
  </tr>
@@ -260,10 +260,10 @@ function msfFileChanged() {
 
  <tr>
   <td valign='top' class='detail' nowrap>
-   <?php echo htmlspecialchars(xl('Source File')); ?>:
+    <?php echo htmlspecialchars(xl('Source File')); ?>:
    <input type="hidden" name="MAX_FILE_SIZE" value="12000000" />
    <input type="file" name="form_image" size="40" />&nbsp;
-   <?php echo htmlspecialchars(xl('Destination Filename')) ?>:
+    <?php echo htmlspecialchars(xl('Destination Filename')) ?>:
    <select name='form_dest_filename'>
     <option value=''>(<?php echo htmlspecialchars(xl('Use source filename')) ?>)</option>
 <?php
@@ -271,17 +271,17 @@ function msfFileChanged() {
   $dh = opendir($imagedir);
   if (!$dh) die(htmlspecialchars(xl('Cannot read directory') . " '$imagedir'"));
   $imagesslist = array();
-  while (false !== ($sfname = readdir($dh))) {
+while (false !== ($sfname = readdir($dh))) {
     if (substr($sfname, 0, 1) == '.') continue;
     if ($sfname == 'CVS'            ) continue;
     $imageslist[$sfname] = $sfname;
-  }
+}
   closedir($dh);
   ksort($imageslist);
-  foreach ($imageslist as $sfname) {
+foreach ($imageslist as $sfname) {
     echo "    <option value='" . htmlspecialchars($sfname, ENT_QUOTES) . "'";
     echo ">" . htmlspecialchars($sfname) . "</option>\n";
-  }
+}
 ?>
    </select>
   </td>
@@ -292,9 +292,9 @@ function msfFileChanged() {
  </tr>
  <tr>
   <td valign='top' class='detail' nowrap>
-   <?php echo xlt('Source File'); ?>:
+    <?php echo xlt('Source File'); ?>:
    <input type="file" name="form_education" size="40" />&nbsp;
-   <?php echo xlt('Name must be like codetype_code_language.pdf, for example icd9_274.11_en.pdf'); ?>
+    <?php echo xlt('Name must be like codetype_code_language.pdf, for example icd9_274.11_en.pdf'); ?>
   </td>
  </tr>
 
@@ -338,9 +338,9 @@ function msfFileChanged() {
             </div>
             <select multiple="multiple" id='black-list' class="form-control">
                 <?php
-                    foreach ($mime_types as $type) {
-                        if(!in_array($type, $white_list)){
-                            echo "<option value='" . attr($type) . "'> " . text($type) . "</option>";
+                foreach ($mime_types as $type) {
+                    if(!in_array($type, $white_list)){
+                        echo "<option value='" . attr($type) . "'> " . text($type) . "</option>";
                     }
                 }
                 ?>

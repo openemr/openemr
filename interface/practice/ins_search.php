@@ -65,11 +65,11 @@ td { font-size:10pt; }
 .search { background-color:#aaffaa }
 
 #form_entry {
-	display:block;
+    display:block;
 }
 
 #form_list {
-	display:none;
+    display:none;
 }
 
 </style>
@@ -91,9 +91,9 @@ td { font-size:10pt; }
  // This is invoked when our Search button is clicked.
  function dosearch() {
 
-	$("#form_entry").hide();
-  	var f = document.forms[0];
-	var search_list = 'ins_list.php' +
+    $("#form_entry").hide();
+    var f = document.forms[0];
+    var search_list = 'ins_list.php' +
    '?form_name='   + doescape(f.form_name.value  ) +
    '&form_attn='   + doescape(f.form_attn.value  ) +
    '&form_addr1='  + doescape(f.form_addr1.value ) +
@@ -105,7 +105,7 @@ td { font-size:10pt; }
    '&form_cms_id=' + doescape(f.form_cms_id.value);
 
     top.restoreSession();
-    $("#form_list").load( search_list ).show();	
+    $("#form_list").load( search_list ).show(); 
 
   return false;
  }
@@ -157,68 +157,68 @@ td { font-size:10pt; }
 <?php
  // If we are saving, then save and close the window.
  //
- if ($_POST['form_save']) {
-  $ins_id = '';
-  $ins_name = $_POST['form_name'];
+if ($_POST['form_save']) {
+    $ins_id = '';
+    $ins_name = $_POST['form_name'];
 
-  if ($ins_id) {
-   // sql for updating could go here if this script is enhanced to support
-   // editing of existing insurance companies.
-  } else {
-   $ins_id = generate_id();
+    if ($ins_id) {
+       // sql for updating could go here if this script is enhanced to support
+       // editing of existing insurance companies.
+    } else {
+        $ins_id = generate_id();
 
-   sqlInsert("INSERT INTO insurance_companies ( " .
-    "id, name, attn, cms_id, ins_type_code, x12_receiver_id, x12_default_partner_id " .
-    ") VALUES ( " .
-    $ins_id                         . ", "  .
-    "'" . add_escape_custom($ins_name)                 . "', " .
-    "'" . add_escape_custom($_POST['form_attn'])       . "', " .
-    "'" . add_escape_custom($_POST['form_cms_id'])     . "', " .
-    "'" . add_escape_custom($_POST['form_ins_type_code']) . "', " .
-    "'" . add_escape_custom($_POST['form_partner'])    . "', " .
-    "'" . add_escape_custom($_POST['form_partner'])    . "' "  .
-   ")");
+        sqlInsert("INSERT INTO insurance_companies ( " .
+        "id, name, attn, cms_id, ins_type_code, x12_receiver_id, x12_default_partner_id " .
+        ") VALUES ( " .
+        $ins_id                         . ", "  .
+        "'" . add_escape_custom($ins_name)                 . "', " .
+        "'" . add_escape_custom($_POST['form_attn'])       . "', " .
+        "'" . add_escape_custom($_POST['form_cms_id'])     . "', " .
+        "'" . add_escape_custom($_POST['form_ins_type_code']) . "', " .
+        "'" . add_escape_custom($_POST['form_partner'])    . "', " .
+        "'" . add_escape_custom($_POST['form_partner'])    . "' "  .
+        ")");
 
-   sqlInsert("INSERT INTO addresses ( " .
-    "id, line1, line2, city, state, zip, country, foreign_id " .
-    ") VALUES ( " .
-    generate_id()                . ", "  .
-    "'" . add_escape_custom($_POST['form_addr1'])   . "', " .
-    "'" . add_escape_custom($_POST['form_addr2'])   . "', " .
-    "'" . add_escape_custom($_POST['form_city'])    . "', " .
-    "'" . add_escape_custom($_POST['form_state'])   . "', " .
-    "'" . add_escape_custom($_POST['form_zip'])     . "', " .
-    "'" . add_escape_custom($_POST['form_country']) . "', " .
-    $ins_id                      . " "   .
-   ")");
+        sqlInsert("INSERT INTO addresses ( " .
+        "id, line1, line2, city, state, zip, country, foreign_id " .
+        ") VALUES ( " .
+        generate_id()                . ", "  .
+        "'" . add_escape_custom($_POST['form_addr1'])   . "', " .
+        "'" . add_escape_custom($_POST['form_addr2'])   . "', " .
+        "'" . add_escape_custom($_POST['form_city'])    . "', " .
+        "'" . add_escape_custom($_POST['form_state'])   . "', " .
+        "'" . add_escape_custom($_POST['form_zip'])     . "', " .
+        "'" . add_escape_custom($_POST['form_country']) . "', " .
+        $ins_id                      . " "   .
+        ")");
 
-   $phone_parts = array();
-   preg_match("/(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", $_POST['form_phone'],
-    $phone_parts);
+        $phone_parts = array();
+        preg_match("/(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", $_POST['form_phone'],
+        $phone_parts);
 
-   sqlInsert("INSERT INTO phone_numbers ( " .
-    "id, country_code, area_code, prefix, number, type, foreign_id " .
-    ") VALUES ( " .
-    generate_id()         . ", "  .
-    "'+1'"                . ", "  .
-    "'" . add_escape_custom($phone_parts[1]) . "', " .
-    "'" . add_escape_custom($phone_parts[2]) . "', " .
-    "'" . add_escape_custom($phone_parts[3]) . "', " .
-    "'2'"                 . ", "  .
-    $ins_id               . " "   .
-   ")");
-  }
+        sqlInsert("INSERT INTO phone_numbers ( " .
+        "id, country_code, area_code, prefix, number, type, foreign_id " .
+        ") VALUES ( " .
+        generate_id()         . ", "  .
+        "'+1'"                . ", "  .
+        "'" . add_escape_custom($phone_parts[1]) . "', " .
+        "'" . add_escape_custom($phone_parts[2]) . "', " .
+        "'" . add_escape_custom($phone_parts[3]) . "', " .
+        "'2'"                 . ", "  .
+        $ins_id               . " "   .
+        ")");
+    }
 
   // Close this window and tell our opener to select the new company.
   //
-  echo "<script language='JavaScript'>\n";
-  if ($info_msg) echo " alert('$info_msg');\n";
-  echo " parent.$.fn.fancybox.close();\n";
-  echo " top.restoreSession();\n";
-  echo " if (parent.set_insurance) parent.set_insurance($ins_id,'".addslashes($ins_name)."');\n";
-  echo "</script></body></html>\n";
-  exit();
- }
+    echo "<script language='JavaScript'>\n";
+    if ($info_msg) echo " alert('$info_msg');\n";
+    echo " parent.$.fn.fancybox.close();\n";
+    echo " top.restoreSession();\n";
+    echo " if (parent.set_insurance) parent.set_insurance($ins_id,'".addslashes($ins_name)."');\n";
+    echo "</script></body></html>\n";
+    exit();
+}
 
  // Query x12_partners.
  $xres = sqlStatement(
@@ -327,11 +327,11 @@ td { font-size:10pt; }
   <td>
    <select name='form_ins_type_code'>
 <?php
- for ($i = 1; $i < count($ins_type_code_array); ++$i) {
-  echo "   <option value='$i'";
+for ($i = 1; $i < count($ins_type_code_array); ++$i) {
+    echo "   <option value='$i'";
   // if ($i == $row['ins_type_code']) echo " selected";
-  echo ">" . $ins_type_code_array[$i] . "\n";
- }
+    echo ">" . $ins_type_code_array[$i] . "\n";
+}
 ?>
    </select>
   </td>
@@ -343,11 +343,11 @@ td { font-size:10pt; }
    <select name='form_partner' title='Default X12 Partner'>
     <option value=""><?php xl('None','e','-- ',' --'); ?></option>
 <?php
- while ($xrow = sqlFetchArray($xres)) {
-  echo "   <option value='" . $xrow['id'] . "'";
+while ($xrow = sqlFetchArray($xres)) {
+    echo "   <option value='" . $xrow['id'] . "'";
   // if ($xrow['id'] == $row['x12_default_partner_id']) echo " selected";
-  echo ">" . $xrow['name'] . "</option>\n";
- }
+    echo ">" . $xrow['name'] . "</option>\n";
+}
 ?>
    </select>
   </td>

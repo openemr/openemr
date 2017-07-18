@@ -37,7 +37,7 @@ class CcdController extends AbstractActionController
     protected $ccdTable;
     public function __construct($sm)
     {
-      $this->listenerObject	= new Listener;
+        $this->listenerObject = new Listener;
     }
     
     /*
@@ -45,22 +45,22 @@ class CcdController extends AbstractActionController
     */
     public function uploadAction()
     {
-      $request          = $this->getRequest();
-      $upload           = $request->getPost('upload');
-      $category_details = \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->fetch_cat_id('CCD');
+        $request          = $this->getRequest();
+        $upload           = $request->getPost('upload');
+        $category_details = \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->fetch_cat_id('CCD');
       
-      if($upload == 1){
-        $time_start         = date('Y-m-d H:i:s');
-        $cdoc               = \Documents\Controller\DocumentsController::uploadAction();
-        $uploaded_documents = array();
-        $uploaded_documents = \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->fetch_uploaded_documents(array('user' => $_SESSION['authId'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')));
-        if($uploaded_documents[0]['id'] > 0){
-            $_REQUEST["document_id"]    = $uploaded_documents[0]['id'];
-            $_REQUEST["batch_import"]   = 'YES';
-            $this->importAction();
+        if($upload == 1){
+            $time_start         = date('Y-m-d H:i:s');
+            $cdoc               = \Documents\Controller\DocumentsController::uploadAction();
+            $uploaded_documents = array();
+            $uploaded_documents = \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->fetch_uploaded_documents(array('user' => $_SESSION['authId'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')));
+            if($uploaded_documents[0]['id'] > 0){
+                $_REQUEST["document_id"]    = $uploaded_documents[0]['id'];
+                $_REQUEST["batch_import"]   = 'YES';
+                $this->importAction();
+            }
         }
-      }
-      else{
+        else{
             $result = \Documents\Plugin\Documents::fetchXmlDocuments();
             foreach($result as $row){
                 if($row['doc_type'] == 'CCD'){
@@ -71,15 +71,15 @@ class CcdController extends AbstractActionController
             }
         }
       
-      $records = \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCD','type' => '13'));
-      $view = new ViewModel(array(
+        $records = \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCD','type' => '13'));
+        $view = new ViewModel(array(
           'records'       => $records,
           'category_id'   => $category_details[0]['id'],
           'file_location' => basename($_FILES['file']['name']),
           'patient_id'    => '00',
           'listenerObject'=> $this->listenerObject
-      ));
-      return $view;
+        ));
+        return $view;
     }
     
     /*
@@ -92,9 +92,9 @@ class CcdController extends AbstractActionController
     {
         $request     = $this->getRequest();
         if($request->getQuery('document_id')) {
-          $_REQUEST["document_id"] = $request->getQuery('document_id');
-          $category_details  	     = \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->fetch_cat_id('CCD');
-          \Documents\Controller\DocumentsController::getDocumentsTable()->updateDocumentCategory($category_details[0]['id'],$_REQUEST["document_id"]);
+            $_REQUEST["document_id"] = $request->getQuery('document_id');
+            $category_details          = \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->fetch_cat_id('CCD');
+            \Documents\Controller\DocumentsController::getDocumentsTable()->updateDocumentCategory($category_details[0]['id'],$_REQUEST["document_id"]);
         }
         $document_id                      =    $_REQUEST["document_id"];
         $xml_content                      =    \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->getDocument($document_id);

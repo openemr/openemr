@@ -331,7 +331,7 @@ class pnHTML
         }
 
         // Other headers
-		// Removed as per patch #264 bvdbos 
+        // Removed as per patch #264 bvdbos
         // header('Content-length: ' . strlen($this->output));
 
         print $this->output;
@@ -356,7 +356,7 @@ class pnHTML
 //        print '<table width="100%" border="0" cellpadding="0" cellspacing="0">';
 /* Fixes bug 16 Neo submitted by keops 14/09/2002
  */
-		  print '<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td align="left" valign="top">';
+          print '<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td align="left" valign="top">';
 
         $output = ob_get_contents();
         @ob_end_clean();
@@ -1144,11 +1144,11 @@ class pnHTML
         {
             return;
         }
-		$disable_text = "";
-		if ($disable)
-			$disable_text = " disabled ";
-		if ($readonly)
-			$disable_text = " disabled  ";
+        $disable_text = "";
+        if ($disable)
+            $disable_text = " disabled ";
+        if ($readonly)
+            $disable_text = " disabled  ";
         $this->tabindex++;
 
         // Set up selected if required
@@ -1172,7 +1172,7 @@ class pnHTML
             .(($multiple == 1) ? ' multiple="multiple"' : '')
             .((empty ($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
             .' tabindex="'.$this->tabindex.'"'
-			.' ' . $disable_text
+            .' ' . $disable_text
             .'>'
         ;
         foreach ($data as $datum)

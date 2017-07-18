@@ -11,10 +11,11 @@
  require_once("$srcdir/acl.inc");
  require_once("drugs.inc.php");
 
- function QuotedOrNull($fld) {
-  if ($fld) return "'".add_escape_custom($fld)."'";
-  return "NULL";
- }
+function QuotedOrNull($fld)
+{
+    if ($fld) return "'".add_escape_custom($fld)."'";
+    return "NULL";
+}
 
  $drug_id = $_REQUEST['drug'];
  $lot_id  = $_REQUEST['lot'];
@@ -50,23 +51,23 @@ td { font-size:10pt; }
 <?php
  // If we are saving, then save and close the window.
  //
- if ($_POST['form_save']) {
-  sqlStatement("UPDATE drug_inventory SET " .
-   "destroy_date = "     . QuotedOrNull($_POST['form_date']) . ", "  .
-   "destroy_method = '"  . add_escape_custom($_POST['form_method'])    . "', " .
-   "destroy_witness = '" . add_escape_custom($_POST['form_witness'])   . "', " .
-   "destroy_notes = '"   . add_escape_custom($_POST['form_notes'])     . "' "  .
-   "WHERE drug_id = ? AND inventory_id = ?", array($drug_id,$lot_id) );
+if ($_POST['form_save']) {
+    sqlStatement("UPDATE drug_inventory SET " .
+    "destroy_date = "     . QuotedOrNull($_POST['form_date']) . ", "  .
+    "destroy_method = '"  . add_escape_custom($_POST['form_method'])    . "', " .
+    "destroy_witness = '" . add_escape_custom($_POST['form_witness'])   . "', " .
+    "destroy_notes = '"   . add_escape_custom($_POST['form_notes'])     . "' "  .
+    "WHERE drug_id = ? AND inventory_id = ?", array($drug_id,$lot_id) );
 
   // Close this window and redisplay the updated list of drugs.
   //
-  echo "<script language='JavaScript'>\n";
-  if ($info_msg) echo " alert('".addslashes($info_msg)."');\n";
-  echo " window.close();\n";
-  echo " if (opener.refreshme) opener.refreshme();\n";
-  echo "</script></body></html>\n";
-  exit();
- }
+    echo "<script language='JavaScript'>\n";
+    if ($info_msg) echo " alert('".addslashes($info_msg)."');\n";
+    echo " window.close();\n";
+    echo " if (opener.refreshme) opener.refreshme();\n";
+    echo "</script></body></html>\n";
+    exit();
+}
 
  $row = sqlQuery("SELECT * FROM drug_inventory WHERE drug_id = ? " .
   "AND inventory_id = ?", array($drug_id,$lot_id));
@@ -80,28 +81,28 @@ td { font-size:10pt; }
  <tr>
   <td valign='top' width='1%' nowrap><b><?php echo xlt('Lot Number'); ?>:</b></td>
   <td>
-   <?php echo text($row['lot_number']) ?>
+    <?php echo text($row['lot_number']) ?>
   </td>
  </tr>
 
  <tr>
   <td valign='top' nowrap><b><?php echo xlt('Manufacturer'); ?>:</b></td>
   <td>
-   <?php echo text($row['manufacturer']) ?>
+    <?php echo text($row['manufacturer']) ?>
   </td>
  </tr>
 
  <tr>
   <td valign='top' nowrap><b><?php echo xlt('Quantity On Hand'); ?>:</b></td>
   <td>
-   <?php echo text($row['on_hand']) ?>
+    <?php echo text($row['on_hand']) ?>
   </td>
  </tr>
 
  <tr>
   <td valign='top' nowrap><b><?php echo xlt('Expiration Date'); ?>:</b></td>
   <td>
-   <?php echo text($row['expiration']) ?>
+    <?php echo text($row['expiration']) ?>
   </td>
  </tr>
 

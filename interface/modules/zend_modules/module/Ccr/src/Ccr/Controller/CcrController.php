@@ -34,7 +34,7 @@ class CcrController extends AbstractActionController
     
     public function __construct()
     {
-        $this->listenerObject	= new Listener;
+        $this->listenerObject   = new Listener;
     }
     
     /*
@@ -91,17 +91,17 @@ class CcrController extends AbstractActionController
     {
         $request     = $this->getRequest();
         if($request->getQuery('document_id')) {
-          $_REQUEST["document_id"] = $request->getQuery('document_id');
-          $category_details  	     = $this->getCcrTable()->fetch_cat_id('CCR');
-          \Documents\Controller\DocumentsController::getDocumentsTable()->updateDocumentCategory($category_details[0]['id'],$_REQUEST["document_id"]);
+            $_REQUEST["document_id"] = $request->getQuery('document_id');
+            $category_details          = $this->getCcrTable()->fetch_cat_id('CCR');
+            \Documents\Controller\DocumentsController::getDocumentsTable()->updateDocumentCategory($category_details[0]['id'],$_REQUEST["document_id"]);
         }
         $doc_id     = $_REQUEST["document_id"];
         $content    = $this->getCcrTable()->getDocument($doc_id);
         if($request->getQuery('document_id')) {
-          $replace    = array('<ccr:ContinuityOfCareRecord xsi:schemaLocation="urn:astm-org:CCR CCRV1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ccr="urn:astm-org:CCR">','ccr:');
-          $to_replace = array('<ContinuityOfCareRecord xmlns="urn:astm-org:CCR">','');
-          $content    = str_replace($replace,$to_replace, $content);
-          $content    = preg_replace('/BirthName/', 'CurrentName', $content, 2);
+            $replace    = array('<ccr:ContinuityOfCareRecord xsi:schemaLocation="urn:astm-org:CCR CCRV1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ccr="urn:astm-org:CCR">','ccr:');
+            $to_replace = array('<ContinuityOfCareRecord xmlns="urn:astm-org:CCR">','');
+            $content    = str_replace($replace,$to_replace, $content);
+            $content    = preg_replace('/BirthName/', 'CurrentName', $content, 2);
            
         }
         //fields to which the corresponding elements are to be inserted
@@ -313,7 +313,7 @@ class CcrController extends AbstractActionController
     
     /**
     * Table Gateway
-    * 
+    *
     * @return type
     */
     public function getCcrTable()

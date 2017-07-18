@@ -1,4 +1,4 @@
-<?php 
+<?php
 include_once("../globals.php");
 ?>
 
@@ -11,7 +11,7 @@ include_once("../globals.php");
 </head>
 <body class="body_title">
 
-<?php 
+<?php
 $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'");
 ?>
 

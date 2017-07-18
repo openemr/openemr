@@ -34,7 +34,7 @@ $provider_results = sqlQuery("select * from users where username='" . $_SESSION{
 function getPatientDateOfLastEncounter( $nPid )
 {
   // get date of last encounter F103 or F153
-  $strEventDate = sqlQuery("SELECT MAX(pc_eventDate) AS max
+    $strEventDate = sqlQuery("SELECT MAX(pc_eventDate) AS max
                   FROM openemr_postcalendar_events
                   WHERE pc_pid = $nPid
                   AND pc_apptstatus = '@'
@@ -42,9 +42,9 @@ function getPatientDateOfLastEncounter( $nPid )
                   AND pc_eventDate >= '2007-01-01'");
 
   // now check if there was a previous encounter
-  if( $strEventDate['max'] != "" )
+    if( $strEventDate['max'] != "" )
     return( $strEventDate['max'] );
-  else
+    else
     return( "00-00-0000" );
 }
 
@@ -62,7 +62,7 @@ $vectAutosave = sqlQuery( "SELECT id, autosave_flag, autosave_datetime FROM form
 
 if( $vectAutosave['id'] && $vectAutosave['id'] != "" && $vectAutosave['id'] > 0 )
 {
-  $obj = formFetch("form_psychiatrisch_onderzoek", $vectAutosave['id']);
+    $obj = formFetch("form_psychiatrisch_onderzoek", $vectAutosave['id']);
 
 } else
 {
@@ -112,7 +112,7 @@ $(document).ready(function(){
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-           <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
                         });
 

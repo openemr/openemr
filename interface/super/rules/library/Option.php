@@ -16,7 +16,8 @@ class Option {
     var $id;
     var $label;
     
-    function __construct( $id, $label ) {
+    function __construct( $id, $label )
+    {
         $this->id = $id;
         $this->label = $label;
     }

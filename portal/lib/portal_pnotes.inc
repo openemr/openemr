@@ -25,34 +25,43 @@
 
 require_once("$srcdir/pnotes.inc");
 
-function addPortalMailboxPnote($pid, $newtext, $authorized = '0', $activity = '1',
-		$title='Unassigned', $assigned_to = '', $datetime = '', $message_status = "New",$master_note = '0')
-{
-	if (empty($datetime)) $datetime = date('Y-m-d H:i:s');
+function addPortalMailboxPnote(
+    $pid,
+    $newtext,
+    $authorized = '0',
+    $activity = '1',
+    $title='Unassigned',
+    $assigned_to = '',
+    $datetime = '',
+    $message_status = "New",
+    $master_note = '0'
+) {
 
-	// make inactive if set as Done
-	if ($message_status == "Done") $activity = 0;
+    if (empty($datetime)) $datetime = date('Y-m-d H:i:s');
 
-	$user = $_SESSION['authUser']?$_SESSION['authUser']:$pid;
-	$pname = $_SESSION['ptName']?$_SESSION['ptName']:$user;
+    // make inactive if set as Done
+    if ($message_status == "Done") $activity = 0;
 
-	/* $body =  " ($pname";
+    $user = $_SESSION['authUser']?$_SESSION['authUser']:$pid;
+    $pname = $_SESSION['ptName']?$_SESSION['ptName']:$user;
+
+    /* $body =  " ($pname";
 	if ($assigned_to) $body .= " to $assigned_to";
 	$body = $body . ') ' . $newtext; */
 
-	$body = $newtext;
+    $body = $newtext;
 
-	return sqlInsert("INSERT INTO pnotes (date, body, pid, user, groupname, " .
-			"authorized, activity, title, assigned_to, message_status, portal_relation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-			array($datetime, $body, $pid, $user, 'Default', $authorized, $activity, $title, $assigned_to, $message_status,$master_note) );
+    return sqlInsert("INSERT INTO pnotes (date, body, pid, user, groupname, " .
+            "authorized, activity, title, assigned_to, message_status, portal_relation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            array($datetime, $body, $pid, $user, 'Default', $authorized, $activity, $title, $assigned_to, $message_status,$master_note) );
 }
 
 function getPortalPatientNotes($pid = '', $limit = '', $offset = 0, $search = '')
 {
-	if($limit){
-		$limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
-	}
-	$sql = "
+    if($limit){
+        $limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
+    }
+    $sql = "
 	SELECT
 	p.id,
 	p.date,
@@ -77,19 +86,19 @@ function getPortalPatientNotes($pid = '', $limit = '', $offset = 0, $search = ''
 	ORDER BY `date` desc
 	$limit
 	";
-	$res = sqlStatement($sql, array($pid));
-	for($iter = 0;$row = sqlFetchArray($res);$iter++){
-		$all[$iter] = $row;
-	}
-	return $all;
+    $res = sqlStatement($sql, array($pid));
+    for($iter = 0;$row = sqlFetchArray($res);$iter++){
+        $all[$iter] = $row;
+    }
+    return $all;
 }
 
 function getPortalPatientNotifications($pid = '', $limit = '', $offset = 0, $search = '')
 {
-	if($limit){
-		$limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
-	}
-	$sql = "
+    if($limit){
+        $limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
+    }
+    $sql = "
 	SELECT
 	pr.id,
 	date_created AS `date`,
@@ -113,19 +122,19 @@ function getPortalPatientNotifications($pid = '', $limit = '', $offset = 0, $sea
 	ORDER BY `date` desc
 	$limit
 	";
-	$res = sqlStatement($sql, array($pid));
-	for($iter = 0;$row = sqlFetchArray($res);$iter++){
-		$all[$iter] = $row;
-	}
-	return $all;
+    $res = sqlStatement($sql, array($pid));
+    for($iter = 0;$row = sqlFetchArray($res);$iter++){
+        $all[$iter] = $row;
+    }
+    return $all;
 }
 
 function getPortalPatientSentNotes($pid = '', $limit = '', $offset = 0, $search = '')
 {
-	if($limit){
-		$limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
-	}
-	$sql = "
+    if($limit){
+        $limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
+    }
+    $sql = "
 	SELECT
 	p.id,
 	p.date,
@@ -152,75 +161,79 @@ function getPortalPatientSentNotes($pid = '', $limit = '', $offset = 0, $search 
 	ORDER BY `date` desc
 	$limit
 	";
-	$res = sqlStatement($sql, array($pid,$pid));
-	for($iter = 0;$row = sqlFetchArray($res);$iter++){
-		$all[$iter] = $row;
-	}
-	return $all;
+    $res = sqlStatement($sql, array($pid,$pid));
+    for($iter = 0;$row = sqlFetchArray($res);$iter++){
+        $all[$iter] = $row;
+    }
+    return $all;
 }
 function updatePortalPnoteMessageStatus($id, $message_status)
 {
-	if ($message_status == "Done") {
-		sqlStatement("update pnotes set message_status = ?, activity = '0' where id = ?", array($message_status, $id) );
-	}
-	else {
-		sqlStatement("update pnotes set message_status = ?, activity = '1' where id = ?", array($message_status, $id) );
-	}
+    if ($message_status == "Done") {
+        sqlStatement("update pnotes set message_status = ?, activity = '0' where id = ?", array($message_status, $id) );
+    }
+    else {
+        sqlStatement("update pnotes set message_status = ?, activity = '1' where id = ?", array($message_status, $id) );
+    }
 }
-function getMails($pid,$dotype,$nsrch,$nfsrch){
+function getMails($pid,$dotype,$nsrch,$nfsrch)
+{
 
-	if($pid){
-		if($dotype == "inbox"){
-			if($nsrch && $nfsrch){
-				$result_notes = getPortalPatientNotes($pid,'','0',$nsrch);
-				$result_notifications = getPortalPatientNotifications($pid,'','0',$nfsrch);
-				$result = array_merge((array)$result_notes,(array)$result_notifications);
-			}else{
-				$result_notes = getPortalPatientNotes($pid);
-				$result_notifications = getPortalPatientNotifications($pid);
-				$result = array_merge((array)$result_notes,(array)$result_notifications);
-			}
-			return $result;
-		}elseif($dotype == "sent"){
-			if($nsrch){
-				$result_sent_notes = getPortalPatientSentNotes($pid,'','0',$nsrch);
-			}else{
-				$result_sent_notes = getPortalPatientSentNotes($pid);
-			}
-			return $result_sent_notes;
-		}
-	}else{
-		return 'failed';
-	}
-}
-
-function getMailDetails($id){
-	if($pid){
-		$result = getPnoteById($id);
-		if($result['assigned_to'] == '-patient-' && $result['message_status'] == 'New'){
-			updatePortalPnoteMessageStatus($id,'Read');
-		}
-		return $result;
-	}else{
-		return 'failed';
-	}
+    if($pid){
+        if($dotype == "inbox"){
+            if($nsrch && $nfsrch){
+                $result_notes = getPortalPatientNotes($pid,'','0',$nsrch);
+                $result_notifications = getPortalPatientNotifications($pid,'','0',$nfsrch);
+                $result = array_merge((array)$result_notes,(array)$result_notifications);
+            }else{
+                $result_notes = getPortalPatientNotes($pid);
+                $result_notifications = getPortalPatientNotifications($pid);
+                $result = array_merge((array)$result_notes,(array)$result_notifications);
+            }
+            return $result;
+        }elseif($dotype == "sent"){
+            if($nsrch){
+                $result_sent_notes = getPortalPatientSentNotes($pid,'','0',$nsrch);
+            }else{
+                $result_sent_notes = getPortalPatientSentNotes($pid);
+            }
+            return $result_sent_notes;
+        }
+    }else{
+        return 'failed';
+    }
 }
 
-function sendMail($pid,$note,$title='Unassigned',$to, $noteid){
-	if($pid){
-		addPortalMailboxPnote($pid,$note,'1','1',$title,$to,'','New',$noteid);
-		return 1;
-	}else{
-		return 'failed';
-	}
+function getMailDetails($id)
+{
+    if($pid){
+        $result = getPnoteById($id);
+        if($result['assigned_to'] == '-patient-' && $result['message_status'] == 'New'){
+            updatePortalPnoteMessageStatus($id,'Read');
+        }
+        return $result;
+    }else{
+        return 'failed';
+    }
+}
+
+function sendMail($pid,$note,$title='Unassigned',$to, $noteid)
+{
+    if($pid){
+        addPortalMailboxPnote($pid,$note,'1','1',$title,$to,'','New',$noteid);
+        return 1;
+    }else{
+        return 'failed';
+    }
 }
 
 
-function updateStatus($id,$status){
-	if($pid){
-		updatePortalPnoteMessageStatus($id,$status);
-	}else{
-		return 'failed';
-	}
+function updateStatus($id,$status)
+{
+    if($pid){
+        updatePortalPnoteMessageStatus($id,$status);
+    }else{
+        return 'failed';
+    }
 }
 ?>

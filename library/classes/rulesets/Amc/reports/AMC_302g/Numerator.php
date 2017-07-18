@@ -19,10 +19,10 @@ class AMC_302g_Numerator implements AmcFilterIF
     {
         // Is smoking status recorded as structured data before the end date of the report
         if ( exist_lifestyle_item($patient->id,'tobacco','',$endDate) ) {
-          return true;
+            return true;
         }
         else {
-          return false;
+            return false;
         }
     }
 }

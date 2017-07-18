@@ -47,18 +47,18 @@ $dob = oeFormatShortDate($patdata['DOB']);
 //
 
 if ($GLOBALS['chart_label_type'] == '1') {
-$pdf = new PDF_Label('5160');
-$last = 30;
+    $pdf = new PDF_Label('5160');
+    $last = 30;
 }
 
 if ($GLOBALS['chart_label_type'] == '2') {
-$pdf = new PDF_Label('5161');
-$last = 20;
+    $pdf = new PDF_Label('5161');
+    $last = 20;
 }
 
 if ($GLOBALS['chart_label_type'] == '3') {
-$pdf = new PDF_Label('5162');
-$last = 14;
+    $pdf = new PDF_Label('5162');
+    $last = 14;
 }
 
 $pdf->AddPage();
@@ -70,7 +70,7 @@ $text = sprintf("  %s %s\n  %s\n  %s\n  %s", $patdata['fname'], $patdata['lname'
 //
 
 for($i=1;$i<=$last;$i++) {
-	$pdf->Add_Label($text);
+    $pdf->Add_Label($text);
 }
 
 $pdf->Output();

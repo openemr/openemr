@@ -1,4 +1,4 @@
-<?php 
+<?php
  // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -15,13 +15,14 @@
  // Putting a message here will cause a popup window to display it.
  $info_msg = "";
 
- function addwhere($where, $colname, $value) {
-  if ($value) {
-   $where .= " AND ";
-   $where .= "$colname LIKE '%" . add_escape_custom($value) . "%'";
-  }
-  return $where;
- }
+function addwhere($where, $colname, $value)
+{
+    if ($value) {
+        $where .= " AND ";
+        $where .= "$colname LIKE '%" . add_escape_custom($value) . "%'";
+    }
+    return $where;
+}
 
  // The following code builds the appropriate SQL query from the
  // search parameters passed by our opener (ins_search.php).
@@ -100,25 +101,25 @@ td { font-size:10pt; }
   <td><b><?php xl('Phone','e');?></b></td>
  </tr>
 
-<?php 
-  while ($row = sqlFetchArray($res)) {
-   $anchor = "<a href=\"\" onclick=\"return setins(" .
+<?php
+while ($row = sqlFetchArray($res)) {
+    $anchor = "<a href=\"\" onclick=\"return setins(" .
     $row['id'] . ",'" . addslashes($row['name']) . "')\">";
-   $phone = '&nbsp';
-   if ($row['number']) {
-    $phone = $row['area_code'] . '-' . $row['prefix'] . '-' . $row['number'];
-   }
-   echo " <tr>\n";
-   echo "  <td valign='top'>$anchor" . $row['name'] . "</a>&nbsp;</td>\n";
-   echo "  <td valign='top'>" . $row['attn'] . "&nbsp;</td>\n";
-   echo "  <td valign='top'>" . $row['line1'] . "&nbsp;</td>\n";
-   echo "  <td valign='top'>" . $row['line2'] . "&nbsp;</td>\n";
-   echo "  <td valign='top'>" . $row['city'] . "&nbsp;</td>\n";
-   echo "  <td valign='top'>" . $row['state'] . "&nbsp;</td>\n";
-   echo "  <td valign='top'>" . $row['zip'] . "&nbsp;</td>\n";
-   echo "  <td valign='top'>$phone</td>\n";
-   echo " </tr>\n";
-  }
+    $phone = '&nbsp';
+    if ($row['number']) {
+        $phone = $row['area_code'] . '-' . $row['prefix'] . '-' . $row['number'];
+    }
+    echo " <tr>\n";
+    echo "  <td valign='top'>$anchor" . $row['name'] . "</a>&nbsp;</td>\n";
+    echo "  <td valign='top'>" . $row['attn'] . "&nbsp;</td>\n";
+    echo "  <td valign='top'>" . $row['line1'] . "&nbsp;</td>\n";
+    echo "  <td valign='top'>" . $row['line2'] . "&nbsp;</td>\n";
+    echo "  <td valign='top'>" . $row['city'] . "&nbsp;</td>\n";
+    echo "  <td valign='top'>" . $row['state'] . "&nbsp;</td>\n";
+    echo "  <td valign='top'>" . $row['zip'] . "&nbsp;</td>\n";
+    echo "  <td valign='top'>$phone</td>\n";
+    echo " </tr>\n";
+}
 ?>
 </table>
 

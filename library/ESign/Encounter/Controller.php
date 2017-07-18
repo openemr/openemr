@@ -4,7 +4,7 @@ namespace ESign;
 
 /**
  * Encounter controller implementation
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  *
@@ -71,7 +71,7 @@ class Encounter_Controller extends Abstract_Controller
     }
     
     /**
-     * 
+     *
      * @return multitype:string
      */
     public function esign_form_submit()
@@ -80,7 +80,7 @@ class Encounter_Controller extends Abstract_Controller
         $status = self::STATUS_FAILURE;
         $password = $this->getRequest()->getParam( 'password', '' );
         $encounterId = $this->getRequest()->getParam( 'encounterId', '' );
-        // Lock if 'Lock e-signed encounters and their forms' option is set, 
+        // Lock if 'Lock e-signed encounters and their forms' option is set,
         // unless esign_lock_toggle option is enable in globals, then check the request param
         $lock = false;
         if ( $GLOBALS['lock_esign_all'] ) {

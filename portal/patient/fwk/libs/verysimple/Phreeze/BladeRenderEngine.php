@@ -30,98 +30,106 @@ require_once ("laravel/section.php");
  * @version 1.0
  */
 class BladeRenderEngine implements IRenderEngine {
-	/**
-	 * the file path to the template director
-	 */
-	static $TEMPLATE_PATH;
-	static $COMPILE_PATH;
-	
-	/**
-	 * stores the assigned vars
-	 */
-	public $model = Array ();
-	
-	/**
-	 *
-	 * @param string $templatePath        	
-	 * @param string $compilePath
-	 *        	(not used for this render engine)
-	 */
-	function __construct($templatePath = '', $compilePath = '') {
-		self::$TEMPLATE_PATH = $templatePath;
-		self::$COMPILE_PATH = $compilePath;
-		
-		// blade will look for this path to store compiled templates
-		$GLOBALS ['laravel_paths'] ['storage'] = self::$COMPILE_PATH;
-		
-		// attach a handler to the 'View::loader' event so we can tweak the file paths to fit with Phreeze
-		Laravel\Event::listen ( Laravel\View::loader, function ($bundle, $view) {
-			return BladeRenderEngine::$TEMPLATE_PATH . $view . '.blade.php';
-		} );
-	}
-	
-	/**
-	 * @inheritdoc
-	 */
-	public function assign($key, $value) {
-		$this->model [$key] = $value;
-	}
-	
-	/**
-	 * @inheritdoc
-	 */
-	public function display($template) {
-		// die('template = ' . $template);
-		$template = str_replace ( '.tpl', '', $template ); // normalize any old smarty template paths
-		echo $this->fetch ( $template );
-	}
-	
-	/**
-	 * Returns the specified model value
-	 */
-	public function get($key) {
-		return $this->model [$key];
-	}
-	
-	/**
-	 * @inheritdoc
-	 */
-	public function fetch($template) {
-		$view = Laravel\View::make ( $template, $this->model );
-		
-		Laravel\Blade::sharpen ();
-		
-		$responses = Laravel\Event::fire ( Laravel\View::engine, array (
-				$view 
-		) );
-		
-		return $responses [0];
-	}
-	
-	/**
-	 *
-	 * @see IRenderEngine::clear()
-	 */
-	function clear($key) {
-		if (array_key_exists ( $key, $this->model ))
-			unset ( $this->model [$key] );
-	}
-	
-	/**
-	 *
-	 * @see IRenderEngine::clearAll()
-	 */
-	function clearAll() {
-		$this->model == array ();
-	}
-	
-	/**
-	 *
-	 * @see IRenderEngine::getAll()
-	 */
-	function getAll() {
-		return $this->model;
-	}
+    /**
+     * the file path to the template director
+     */
+    static $TEMPLATE_PATH;
+    static $COMPILE_PATH;
+    
+    /**
+     * stores the assigned vars
+     */
+    public $model = array ();
+    
+    /**
+     *
+     * @param string $templatePath
+     * @param string $compilePath
+     *          (not used for this render engine)
+     */
+    function __construct($templatePath = '', $compilePath = '')
+    {
+        self::$TEMPLATE_PATH = $templatePath;
+        self::$COMPILE_PATH = $compilePath;
+        
+        // blade will look for this path to store compiled templates
+        $GLOBALS ['laravel_paths'] ['storage'] = self::$COMPILE_PATH;
+        
+        // attach a handler to the 'View::loader' event so we can tweak the file paths to fit with Phreeze
+        Laravel\Event::listen ( Laravel\View::loader, function ($bundle, $view) {
+            return BladeRenderEngine::$TEMPLATE_PATH . $view . '.blade.php';
+        } );
+    }
+    
+    /**
+     * @inheritdoc
+     */
+    public function assign($key, $value)
+    {
+        $this->model [$key] = $value;
+    }
+    
+    /**
+     * @inheritdoc
+     */
+    public function display($template)
+    {
+        // die('template = ' . $template);
+        $template = str_replace ( '.tpl', '', $template ); // normalize any old smarty template paths
+        echo $this->fetch ( $template );
+    }
+    
+    /**
+     * Returns the specified model value
+     */
+    public function get($key)
+    {
+        return $this->model [$key];
+    }
+    
+    /**
+     * @inheritdoc
+     */
+    public function fetch($template)
+    {
+        $view = Laravel\View::make ( $template, $this->model );
+        
+        Laravel\Blade::sharpen ();
+        
+        $responses = Laravel\Event::fire ( Laravel\View::engine, array (
+                $view
+        ) );
+        
+        return $responses [0];
+    }
+    
+    /**
+     *
+     * @see IRenderEngine::clear()
+     */
+    function clear($key)
+    {
+        if (array_key_exists ( $key, $this->model ))
+            unset ( $this->model [$key] );
+    }
+    
+    /**
+     *
+     * @see IRenderEngine::clearAll()
+     */
+    function clearAll()
+    {
+        $this->model == array ();
+    }
+    
+    /**
+     *
+     * @see IRenderEngine::getAll()
+     */
+    function getAll()
+    {
+        return $this->model;
+    }
 }
 
 ?>

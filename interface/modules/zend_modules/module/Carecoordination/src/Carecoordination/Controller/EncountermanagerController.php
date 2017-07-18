@@ -34,13 +34,13 @@ class EncountermanagerController extends AbstractActionController
     
     public function __construct()
     {
-        $this->listenerObject	= new Listener;
+        $this->listenerObject   = new Listener;
     }
     
     public function indexAction()
     {
         $request        = $this->getRequest();
-        $fromDate 		= $request->getPost('form_date_from', null);
+        $fromDate       = $request->getPost('form_date_from', null);
         $fromDate       = $this->CommonPlugin()->date_format($fromDate, 'yyyy-mm-dd', $GLOBALS['date_display_format']);
         $toDate         = $request->getPost('form_date_to', null);
         $toDate         = $this->CommonPlugin()->date_format($toDate, 'yyyy-mm-dd', $GLOBALS['date_display_format']);
@@ -67,29 +67,29 @@ class EncountermanagerController extends AbstractActionController
         $latest_ccda    = $request->getPost('latestccda') ? $request->getPost('latestccda') : $this->getRequest()->getQuery('latest_ccda');
 
         if($downloadccda == 'download_ccda') {
-          $pids           = '';
-          if($request->getQuery('pid_ccda')) {
-            $pid             = $request->getQuery('pid_ccda');
-            if($pid !='') {
-              $combination = $pid;
+            $pids           = '';
+            if($request->getQuery('pid_ccda')) {
+                $pid             = $request->getQuery('pid_ccda');
+                if($pid !='') {
+                    $combination = $pid;
+                }
             }
-          }
-          else {
-            $combination     = $request->getPost('ccda_pid');
-          }
+            else {
+                $combination     = $request->getPost('ccda_pid');
+            }
           
-          for($i=0 ; $i<count($combination) ; $i++){
-            if($i == (count($combination)-1)) {
-              if($combination == $pid)
-                $pids = $pid;
-              else
-                $pids .= $combination[$i];
+            for($i=0 ; $i<count($combination) ; $i++){
+                if($i == (count($combination)-1)) {
+                    if($combination == $pid)
+                    $pids = $pid;
+                    else
+                    $pids .= $combination[$i];
+                }
+                else
+                $pids .= $combination[$i].'|';
             }
-            else
-              $pids .= $combination[$i].'|';
-          }
-          $components   = $request->getPost('components') ? $request->getPost('components') : $request->getQuery()->components;
-          $this->forward()->dispatch('encounterccdadispatch',array('action'       => 'index',
+            $components   = $request->getPost('components') ? $request->getPost('components') : $request->getQuery()->components;
+            $this->forward()->dispatch('encounterccdadispatch',array('action'       => 'index',
                                                                    'pids'         => $pids,
                                                                    'view'         => 1,
                                                                    'downloadccda' => $downloadccda,
@@ -135,7 +135,7 @@ class EncountermanagerController extends AbstractActionController
             'table_obj'     => $this->getEncountermanagerTable(),
             'status_details'=> $status_details,
             'listenerObject'=> $this->listenerObject,
-            'commonplugin' 	=> $this->CommonPlugin(),
+            'commonplugin'  => $this->CommonPlugin(),
         ));
         return $index;
     }
@@ -178,46 +178,46 @@ class EncountermanagerController extends AbstractActionController
     }
     public function downloadallAction()
     {
-      $pids     = $this->params('pids');
-      if($pids != ''){
-        $zip        = new Zip();
-        $parent_dir = sys_get_temp_dir()."/CCDA_".time();
-        if(!is_dir($parent_dir)){
-          mkdir($parent_dir, true);
-          chmod($parent_dir, 0777);
-        }
-        $arr = explode('|', $pids);
-        foreach($arr as $row){
-            $pid      = $row;
-            $row      = $this->getEncountermanagerTable()->getFileID($pid);
-            $id       = $row['id'];
-            $dir      = $parent_dir."/CCDA_{$row['lname']}_{$row['fname']}/";
-            $filename = "CCDA_{$row['lname']}_{$row['fname']}.xml";
-            if(!is_dir($dir)){
-              mkdir($dir, true);
-              chmod($dir, 0777);
+        $pids     = $this->params('pids');
+        if($pids != ''){
+            $zip        = new Zip();
+            $parent_dir = sys_get_temp_dir()."/CCDA_".time();
+            if(!is_dir($parent_dir)){
+                mkdir($parent_dir, true);
+                chmod($parent_dir, 0777);
             }
-            $content = $this->getEncountermanagerTable()->getFile($id);
-            $f2      = fopen($dir.$filename, "w");
-            fwrite($f2, $content);
-            fclose($f2);
-            copy(dirname(__FILE__)."/../../../../../public/css/CDA.xsl", $dir."CDA.xsl");
+            $arr = explode('|', $pids);
+            foreach($arr as $row){
+                $pid      = $row;
+                $row      = $this->getEncountermanagerTable()->getFileID($pid);
+                $id       = $row['id'];
+                $dir      = $parent_dir."/CCDA_{$row['lname']}_{$row['fname']}/";
+                $filename = "CCDA_{$row['lname']}_{$row['fname']}.xml";
+                if(!is_dir($dir)){
+                    mkdir($dir, true);
+                    chmod($dir, 0777);
+                }
+                $content = $this->getEncountermanagerTable()->getFile($id);
+                $f2      = fopen($dir.$filename, "w");
+                fwrite($f2, $content);
+                fclose($f2);
+                copy(dirname(__FILE__)."/../../../../../public/css/CDA.xsl", $dir."CDA.xsl");
+            }
+            $zip_dir  = sys_get_temp_dir()."/";
+            $zip_name = "CCDA.zip";
+            $zip->setArchive($zip_dir.$zip_name);
+            $zip->compress($parent_dir);
+        
+            ob_clean();
+            header("Cache-Control: public");
+            header("Content-Description: File Transfer");
+            header("Content-Disposition: attachment; filename=$zip_name");
+            header("Content-Type: application/download");
+            header("Content-Transfer-Encoding: binary");
+            readfile($zip_dir.$zip_name);
+        
+            exit;
         }
-        $zip_dir  = sys_get_temp_dir()."/";
-        $zip_name = "CCDA.zip";
-        $zip->setArchive($zip_dir.$zip_name);
-        $zip->compress($parent_dir);
-        
-        ob_clean();
-        header("Cache-Control: public");
-        header("Content-Description: File Transfer");
-        header("Content-Disposition: attachment; filename=$zip_name");
-        header("Content-Type: application/download");
-        header("Content-Transfer-Encoding: binary");
-        readfile($zip_dir.$zip_name);
-        
-        exit;
-      }
     }
     public function transmitCCDAction()
     {
@@ -231,7 +231,7 @@ class EncountermanagerController extends AbstractActionController
     
     /**
     * Table Gateway
-    * 
+    *
     * @return type
     */
     public function getEncountermanagerTable()

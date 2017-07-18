@@ -37,8 +37,8 @@ echo "var itemsel = document.forms[0]['$target'];\n";
 echo "var j = 0;\n";
 echo "itemsel.options[j++] = new Option('-- " . xls('Please Select') . " --','',false,false);\n";
 while ($row = sqlFetchArray($res)) {
-  $tmp = addslashes($row['option_id']);
-  $def = $row['option_id'] == $current ? 'true' : 'false';
-  echo "itemsel.options[j++] = new Option('$tmp','$tmp',$def,$def);\n";
+    $tmp = addslashes($row['option_id']);
+    $def = $row['option_id'] == $current ? 'true' : 'false';
+    echo "itemsel.options[j++] = new Option('$tmp','$tmp',$def,$def);\n";
 }
 ?>

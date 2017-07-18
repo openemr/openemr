@@ -34,7 +34,8 @@ class BaseController{
      * @param $template view name
      * @param array $data variables for injection into view
      */
-    protected function loadView($template, $data = array()){
+    protected function loadView($template, $data = array())
+    {
 
         $template = dirname(__FILE__) .'/../' . self::VIEW_FOLDER .'/'. $template .'.php';
 

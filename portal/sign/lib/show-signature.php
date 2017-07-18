@@ -49,7 +49,7 @@ if ($type == 'admin-signature') {
     $pid = 0;
     $row = sqlQuery( "SELECT pid,status,sig_image,type,user FROM onsite_signatures WHERE user=? && type=?", array($user,$type) );
 } else {
-	$row = sqlQuery( "SELECT pid,status,sig_image,type,user FROM onsite_signatures WHERE pid=?", array($pid) );
+    $row = sqlQuery( "SELECT pid,status,sig_image,type,user FROM onsite_signatures WHERE pid=?", array($pid) );
 }
 if ( !$row ['pid'] && !$row ['user']) {
     $status = 'waiting';

@@ -26,7 +26,7 @@ class Module
             'Zend\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
-                	
+                    
                 ),
             ),
         );
@@ -36,11 +36,11 @@ class Module
     {
         return include __DIR__ . '/config/module.config.php';
     }
-	
+    
     public function init(ModuleManager $moduleManager)
     {
         $sharedEvents = $moduleManager->getEventManager()->getSharedManager();
-        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function($e) {
+        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e) {
             $controller = $e->getTarget();
             $controller->layout('carecoordination/layout/layout');
                 $route = $controller->getEvent()->getRouteMatch();
@@ -55,35 +55,35 @@ class Module
     {
         return array(
             'factories' => array(
-                'Carecoordination\Model\CarecoordinationTable' =>  function($sm) {
+                'Carecoordination\Model\CarecoordinationTable' =>  function ($sm) {
                     $tableGateway = $sm->get('Zend\Db\Adapter\Adapter');
                     $table = new CarecoordinationTable($tableGateway);
                     return $table;
                 },
-		
-		'Carecoordination\Model\EncounterccdadispatchTable' =>  function($sm) {
+        
+            'Carecoordination\Model\EncounterccdadispatchTable' =>  function ($sm) {
                     $tableGateway = $sm->get('Zend\Db\Adapter\Adapter');
                     $table = new EncounterccdadispatchTable($tableGateway);
                     return $table;
-                },
-		
-		'Carecoordination\Model\EncountermanagerTable' =>  function($sm) {
+            },
+        
+            'Carecoordination\Model\EncountermanagerTable' =>  function ($sm) {
                     $tableGateway = $sm->get('Zend\Db\Adapter\Adapter');
                     $table = new EncountermanagerTable($tableGateway);
                     return $table;
-                },
-		
-		'Carecoordination\Model\SetupTable' =>  function($sm) {
+            },
+        
+            'Carecoordination\Model\SetupTable' =>  function ($sm) {
                     $tableGateway = $sm->get('Zend\Db\Adapter\Adapter');
                     $table = new SetupTable($tableGateway);
                     return $table;
-                },
+            },
                         
-		'Carecoordination\Model\CcdTable' =>  function($sm) {
+            'Carecoordination\Model\CcdTable' =>  function ($sm) {
                     $tableGateway = $sm->get('Zend\Db\Adapter\Adapter');
                     $table = new CcdTable($tableGateway);
                     return $table;
-                },
+            },
             ),
         );
     }
@@ -94,11 +94,11 @@ class Module
         return array(
             'factories' => array(
                 // the array key here is the name you will call the view helper by in your view scripts
-                'emr_helper' => function($sm) {
+                'emr_helper' => function ($sm) {
                     $locator = $sm->getServiceLocator(); // $sm is the view helper manager, so we need to fetch the main service manager
                     return new Emr($locator->get('Request'));
                 },
-                'menu' => function($sm) {
+                'menu' => function ($sm) {
                     $locator = $sm->getServiceLocator();
                     return new Menu();
                 },

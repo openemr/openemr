@@ -6,17 +6,17 @@ include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
 
 foreach ($_POST as $k => $var) {
-	$_POST[$k] = add_escape_custom($var);
-	echo "$var\n";
+    $_POST[$k] = add_escape_custom($var);
+    echo "$var\n";
 }
 
 if ($encounter == "") $encounter = date("Ymd");
 
 if ($_GET["mode"] == "new"){
-	$newid = formSubmit("form_ped_GI", $_POST, $_GET["id"], $userauthorized);
-	addForm($encounter, "Pediatric GI Evaluation", $newid, "ped_GI", $pid, $userauthorized);
+    $newid = formSubmit("form_ped_GI", $_POST, $_GET["id"], $userauthorized);
+    addForm($encounter, "Pediatric GI Evaluation", $newid, "ped_GI", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
-	sqlInsert("update form_ped_GI set `pid` = {$_SESSION["pid"]},
+    sqlInsert("update form_ped_GI set `pid` = {$_SESSION["pid"]},
 	`groupname`='".$_SESSION["authProvider"]."',
 	`user`='".$_SESSION["authUser"]."',
 	`authorized`=$userauthorized,

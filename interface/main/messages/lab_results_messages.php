@@ -10,7 +10,8 @@ require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/auth.inc");
 
-function lab_results_messages($set_pid, $rid, $provider_id="") {
+function lab_results_messages($set_pid, $rid, $provider_id="")
+{
     global $userauthorized;
     if ($provider_id != "") {
         $where = "AND id = '".$provider_id."'";

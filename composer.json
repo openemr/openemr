@@ -26,8 +26,11 @@
         "doctrine/couchdb": "1.0-beta2",
         "doctrine/orm": "2.5.5",
         "twig/twig": "1.33.*",
-        "symfony/http-foundation": "2.8.*",
         "vlucas/phpdotenv": "2.4",
+        "symfony/config": "2.8.*",
+        "symfony/dependency-injection": "2.8.*",
+        "symfony/event-dispatcher": "2.8.*",
+        "symfony/http-foundation": "2.8.*",
         "symfony/yaml": "2.8.*",
         "phpoffice/phpexcel": "1.8.1",
         "ezyang/htmlpurifier": "4.9.3"
@@ -65,7 +68,11 @@
             "services\\": "services",
             "repositories\\": "repositories",
             "OpenEMR\\Encounter\\Services\\": "interface/patient_file/encounter/Services",
-            "OpenEMR\\Core\\": "library/core/src"
+            "OpenEMR\\Admin\\": "library/admin/src",
+            "OpenEMR\\Core\\": "library/core/src",
+            "OpenEMR\\Menu\\": "library/menu",
+            "OpenEMR\\Calendar\\": "library/calendar/src",
+            "OpenEMR\\Sample\\": "library/sample/src"
         }
     },
     "config": {

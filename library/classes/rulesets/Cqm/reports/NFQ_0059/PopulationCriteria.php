@@ -33,7 +33,8 @@ class NFQ_0059_PopulationCriteria implements CqmPopulationCrtiteriaFactory
         return new DiabetesExclusions();
     }
     
-    public function createDenominatorException(){
-    	return new ExceptionsNone();
+    public function createDenominatorException()
+    {
+        return new ExceptionsNone();
     }
 }

@@ -40,13 +40,13 @@ function update_modules_menu(&$menu_list)
                                     WHERE m.mod_id = ? AND fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='modules' ORDER BY m.mod_id",array($modulerow['mod_id']));
 
             $modulePath = "";
-            $added 		= "";
+            $added      = "";
             if($modulerow['type'] == 0) {
                 $modulePath = $GLOBALS['customModDir'];
-                $added		= "";
+                $added      = "";
             }
             else{
-                $added		= "index";
+                $added      = "index";
                 $modulePath = $GLOBALS['zendModDir'];
             }
             $relative_link ="/interface/modules/".$modulePath."/".$modulerow['mod_relative_link'].$added;
@@ -91,68 +91,70 @@ function update_modules_menu(&$menu_list)
                 }
                 array_push($menu_list->children,$newEntry);
             }
-       }
+        }
     }
 }
 
 // This creates menu entries for all encounter forms.
 //
-function update_visit_forms(&$menu_list) {
-  $baseURL = "/interface/patient_file/encounter/load_form.php?formname=";
-  $menu_list->children = array();
+function update_visit_forms(&$menu_list)
+{
+    $baseURL = "/interface/patient_file/encounter/load_form.php?formname=";
+    $menu_list->children = array();
   // LBF Visit forms
-  $lres = sqlStatement("SELECT * FROM list_options " .
+    $lres = sqlStatement("SELECT * FROM list_options " .
     "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
-  while ($lrow = sqlFetchArray($lres)) {
-    $option_id = $lrow['option_id']; // should start with LBF
-    $title = $lrow['title'];
-    $formURL = $baseURL . urlencode($option_id);
-    $formEntry = new stdClass();
-    $formEntry->label = xl_form_title($title);
-    $formEntry->url = $formURL;
-    $formEntry->requirement = 2;
-    $formEntry->target = 'enc';
-    // Plug in ACO attribute, if any, of this LBF.
-    $jobj = json_decode($lrow['notes'], true);
-    if (!empty($jobj['aco'])) {
-      $tmp = explode('|', $jobj['aco']);
-      if (!empty($tmp[1])) {
-        $formEntry->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
-      }
+    while ($lrow = sqlFetchArray($lres)) {
+        $option_id = $lrow['option_id']; // should start with LBF
+        $title = $lrow['title'];
+        $formURL = $baseURL . urlencode($option_id);
+        $formEntry = new stdClass();
+        $formEntry->label = xl_form_title($title);
+        $formEntry->url = $formURL;
+        $formEntry->requirement = 2;
+        $formEntry->target = 'enc';
+        // Plug in ACO attribute, if any, of this LBF.
+        $jobj = json_decode($lrow['notes'], true);
+        if (!empty($jobj['aco'])) {
+            $tmp = explode('|', $jobj['aco']);
+            if (!empty($tmp[1])) {
+                $formEntry->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
+            }
+        }
+        array_push($menu_list->children, $formEntry);
     }
-    array_push($menu_list->children, $formEntry);
-  }
   // Traditional forms
-  $reg = getRegistered();
-  if (!empty($reg)) {
-    foreach ($reg as $entry) {
-      $option_id = $entry['directory'];
-      $title = trim($entry['nickname']);
-      if ($option_id == 'fee_sheet' ) continue;
-      if ($option_id == 'newpatient') continue;
-      if (empty($title)) $title = $entry['name'];
-      $formURL = $baseURL . urlencode($option_id);
-      $formEntry = new stdClass();
-      $formEntry->label = xl_form_title($title);
-      $formEntry->url = $formURL;
-      $formEntry->requirement = 2;
-      $formEntry->target = 'enc';
-      // Plug in ACO attribute, if any, of this form.
-      $tmp = explode('|', $entry['aco_spec']);
-      if (!empty($tmp[1])) {
-        $formEntry->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
-      }
-      array_push($menu_list->children, $formEntry);
+    $reg = getRegistered();
+    if (!empty($reg)) {
+        foreach ($reg as $entry) {
+            $option_id = $entry['directory'];
+            $title = trim($entry['nickname']);
+            if ($option_id == 'fee_sheet' ) continue;
+            if ($option_id == 'newpatient') continue;
+            if (empty($title)) $title = $entry['name'];
+            $formURL = $baseURL . urlencode($option_id);
+            $formEntry = new stdClass();
+            $formEntry->label = xl_form_title($title);
+            $formEntry->url = $formURL;
+            $formEntry->requirement = 2;
+            $formEntry->target = 'enc';
+            // Plug in ACO attribute, if any, of this form.
+            $tmp = explode('|', $entry['aco_spec']);
+            if (!empty($tmp[1])) {
+                $formEntry->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
+            }
+            array_push($menu_list->children, $formEntry);
+        }
     }
-  }
 }
 
-function update_create_visit(&$menu_list) {
-  $tmp = getRegistryEntryByDirectory('newpatient', 'aco_spec');
-  if (!empty($tmp['aco_spec'])) {
-    $tmp = explode('|', $tmp['aco_spec']);
-    $menu_list->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
-  }
+function update_create_visit(&$menu_list)
+{
+    $tmp = getRegistryEntryByDirectory('newpatient', 'aco_spec');
+    if (!empty($tmp['aco_spec'])) {
+        $tmp = explode('|', $tmp['aco_spec']);
+        $menu_list->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
+    }
 }
 
 function menu_update_entries(&$menu_list)
@@ -182,26 +184,27 @@ function menu_update_entries(&$menu_list)
 // Permissions check for a particular acl_req array item.
 // Elements beyond the 2nd are ACL return values, one of which should be permitted.
 //
-function menu_acl_check($arr) {
-  if (isset($arr[2])) {
-    for ($i = 2; isset($arr[$i]); ++$i) {
-      if (substr($arr[0], 0, 1) == '!') {
-        if (!acl_check(substr($arr[0], 1), $arr[1], '', $arr[$i])) return TRUE;
-      }
-      else {
-        if (acl_check($arr[0], $arr[1], '', $arr[$i])) return TRUE;
-      }
-    }
-  }
-  else {
-    if (substr($arr[0], 0, 1) == '!') {
-      if (!acl_check(substr($arr[0], 1), $arr[1])) return TRUE;
+function menu_acl_check($arr)
+{
+    if (isset($arr[2])) {
+        for ($i = 2; isset($arr[$i]); ++$i) {
+            if (substr($arr[0], 0, 1) == '!') {
+                if (!acl_check(substr($arr[0], 1), $arr[1], '', $arr[$i])) return true;
+            }
+            else {
+                if (acl_check($arr[0], $arr[1], '', $arr[$i])) return true;
+            }
+        }
     }
     else {
-      if (acl_check($arr[0], $arr[1])) return TRUE;
+        if (substr($arr[0], 0, 1) == '!') {
+            if (!acl_check(substr($arr[0], 1), $arr[1])) return true;
+        }
+        else {
+            if (acl_check($arr[0], $arr[1])) return true;
+        }
     }
-  }
-  return FALSE;
+    return false;
 }
 
 function menu_apply_restrictions(&$menu_list_src,&$menu_list_updated)

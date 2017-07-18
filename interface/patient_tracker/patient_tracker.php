@@ -30,13 +30,13 @@ $setting_new_window = prevSetting($uspfx, 'setting_new_window', 'form_new_window
 #to allow picking a date to review
 
 if (!is_null($_POST['form_provider'])) {
-  $provider = $_POST['form_provider'];
+    $provider = $_POST['form_provider'];
 }
 else if ($_SESSION['userauthorized']) {
-  $provider = $_SESSION['authUserID'];
+    $provider = $_SESSION['authUserID'];
 }
 else {
-  $provider = null;
+    $provider = null;
 }
 $facility  = !is_null($_POST['form_facility']) ? $_POST['form_facility'] : null;
 $form_apptstatus = !is_null($_POST['form_apptstatus']) ? $_POST['form_apptstatus'] : null;
@@ -95,7 +95,7 @@ $chk_prov = array();  // list of providers with appointments
 
 // Scan appointments for additional info
 foreach ( $appointments as $apt ) {
-  $chk_prov[$apt['uprovider_id']] = $apt['ulname'] . ', ' . $apt['ufname'] . ' ' . $apt['umname'];
+    $chk_prov[$apt['uprovider_id']] = $apt['ulname'] . ', ' . $apt['ufname'] . ' ' . $apt['umname'];
 }
 ?>
 <html>
@@ -130,7 +130,7 @@ function calendarpopup(eid,date_squash) {
 
 // auto refresh screen pat_trkr_timer is the timer variable
 function refreshbegin(first){
-  <?php if ($GLOBALS['pat_trkr_timer'] != '0') { ?>
+    <?php if ($GLOBALS['pat_trkr_timer'] != '0') { ?>
     var reftime="<?php echo attr($GLOBALS['pat_trkr_timer']); ?>";
     var parsetime=reftime.split(":");
     parsetime=(parsetime[0]*60)+(parsetime[1]*1)*1000;
@@ -138,9 +138,9 @@ function refreshbegin(first){
       refreshme();
     }
     setTimeout("refreshbegin('0')",parsetime);
-  <?php } else { ?>
+    <?php } else { ?>
     return;
- <?php } ?>
+    <?php } ?>
 }
 
 // used to display the patient demographic and encounter screens
@@ -172,14 +172,14 @@ function openNewTopWindow(newpid,newencounterid) {
 </head>
 
 <?php
-  if ($GLOBALS['pat_trkr_timer'] == '0') {
+if ($GLOBALS['pat_trkr_timer'] == '0') {
     // if the screen is not set up for auto refresh, use standard page call
     $action_page = "patient_tracker.php";
-  }
-  else {
+}
+else {
     // if the screen is set up for auto refresh, this will allow it to be closed by auto logoff
     $action_page = "patient_tracker.php?skip_timeout_reset=1";
-  }
+}
 
 ?>
 <span class="title"><?php echo xlt("Flow Board") ?></span>
@@ -201,16 +201,16 @@ function openNewTopWindow(newpid,newencounterid) {
                     echo "   <select name='form_provider'>\n";
                     echo "    <option value='ALL'>-- " . xlt('All') . " --\n";
 
-                    while ($urow = sqlFetchArray($ures)) {
-                        $provid = $urow['id'];
-                        echo "    <option value='" . attr($provid) . "'";
-                        if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']){
-                            echo " selected";
-                        } elseif(!isset($_POST['form_provider'])&& $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']){
-                            echo " selected";
-                        }
-                        echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
+                while ($urow = sqlFetchArray($ures)) {
+                    $provid = $urow['id'];
+                    echo "    <option value='" . attr($provid) . "'";
+                    if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']){
+                        echo " selected";
+                    } elseif(!isset($_POST['form_provider'])&& $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']){
+                        echo " selected";
                     }
+                    echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
+                }
 
                     echo "   </select>\n";
 
@@ -239,7 +239,7 @@ function openNewTopWindow(newpid,newencounterid) {
                 <td style="border-left: 1px solid;" rowspan="2">
                     <div style='margin-left: 15px'>
                         <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-                            <span> <?php echo xlt('Submit'); ?> </span> </a>
+                            <span> <?php echo xlt('Filter'); ?> </span> </a>
                         <?php if ($_POST['form_refresh'] || $_POST['form_orderby'] ) { ?>
                             <a href='#' class='css_button' id='printbutton'>
                                 <span> <?php echo xlt('Print'); ?> </span> </a>
@@ -264,16 +264,16 @@ function openNewTopWindow(newpid,newencounterid) {
 <form name='pattrk' id='pattrk' method='post' action='<?php echo $action_page; ?>' onsubmit='return top.restoreSession()' enctype='multipart/form-data'>
 
 <div>
-  <?php if (count($chk_prov) == 1) {?>
+    <?php if (count($chk_prov) == 1) {?>
   <h2><span style='float: left'><?php echo xlt('Appointments for'). ' : '. text(reset($chk_prov)) ?></span></h2>
-  <?php } ?>
+    <?php } ?>
  <div id= 'inanewwindow' class='inanewwindow'>
  <span style='float: right'>
    <a id='setting_cog'><i class="fa fa-cog fa-2x fa-fw">&nbsp;</i></a>
-   <?php // Note that are unable to html escape below $setting_new_window, or else will break the code, secondary to white space issues. ?>
+    <?php // Note that are unable to html escape below $setting_new_window, or else will break the code, secondary to white space issues. ?>
    <input type='hidden' name='setting_new_window' id='setting_new_window' value='<?php echo $setting_new_window ?>' />
    <label id='settings'><input type='checkbox' name='form_new_window' id='form_new_window' value='1'<?php echo $setting_new_window ?> >
-     <?php echo xlt('Open Patient in New Window'); ?></input></label>
+        <?php echo xlt('Open Patient in New Window'); ?></input></label>
    <a id='refreshme'><i class="fa fa-refresh fa-2x fa-fw">&nbsp;</i></a>
  </span>
 </div>
@@ -292,241 +292,242 @@ function openNewTopWindow(newpid,newencounterid) {
  <tr>
      <td colspan="12">
          <b><small>
-             <?php
-             $statuses_output =  xlt('Total patients')  . ':' . text($appointments_status['count_all']);
-             unset($appointments_status['count_all']);
-             foreach($appointments_status as $status_symbol => $count){
-                 $statuses_output .= " | " . text(xl_list_label($statuses_list[$status_symbol]))  .":" . $count;
-             }
-             echo $statuses_output;
-             ?>
+                <?php
+                $statuses_output =  xlt('Total patients')  . ':' . text($appointments_status['count_all']);
+                unset($appointments_status['count_all']);
+                foreach($appointments_status as $status_symbol => $count){
+                    $statuses_output .= " | " . text(xl_list_label($statuses_list[$status_symbol]))  .":" . $count;
+                }
+                echo $statuses_output;
+                ?>
          </small></b>
      </td>
  </tr>
  <tr bgcolor="#cccff">
-  <?php if ($GLOBALS['ptkr_show_pid']) { ?>
+    <?php if ($GLOBALS['ptkr_show_pid']) { ?>
    <td class="dehead" align="center">
-   <?php  echo xlt('PID'); ?>
+    <?php  echo xlt('PID'); ?>
   </td>
-  <?php } ?>
+    <?php } ?>
   <td class="dehead" align="center">
-   <?php  echo xlt('Patient'); ?>
+    <?php  echo xlt('Patient'); ?>
   </td>
-  <?php if ($GLOBALS['ptkr_visit_reason']) { ?>
+    <?php if ($GLOBALS['ptkr_visit_reason']) { ?>
   <td class="dehead" align="center">
-   <?php  echo xlt('Reason'); ?>
+    <?php  echo xlt('Reason'); ?>
   </td>
-  <?php } ?>
-  <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
+    <?php } ?>
+    <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
   <td class="dehead" align="center">
-   <?php  echo xlt('Encounter'); ?>
+    <?php  echo xlt('Encounter'); ?>
   </td>
-  <?php } ?>
+    <?php } ?>
   <td class="dehead" align="center">
-   <?php  echo xlt('Exam Room #'); ?>
-  </td>
-  <td class="dehead" align="center">
-   <?php  echo xlt('Appt Time'); ?>
+    <?php  echo xlt('Exam Room #'); ?>
   </td>
   <td class="dehead" align="center">
-   <?php  echo xlt('Arrive Time'); ?>
+    <?php  echo xlt('Appt Time'); ?>
   </td>
   <td class="dehead" align="center">
-   <?php  echo xlt('Status'); ?>
+    <?php  echo xlt('Arrive Time'); ?>
   </td>
   <td class="dehead" align="center">
-   <?php  echo xlt('Current Status Time'); ?>
+    <?php  echo xlt('Status'); ?>
   </td>
   <td class="dehead" align="center">
-   <?php  echo xlt('Visit Type'); ?>
+    <?php  echo xlt('Current Status Time'); ?>
   </td>
-  <?php if (count($chk_prov) > 1) { ?>
   <td class="dehead" align="center">
-   <?php  echo xlt('Provider'); ?>
+    <?php  echo xlt('Visit Type'); ?>
   </td>
-  <?php } ?>
+    <?php if (count($chk_prov) > 1) { ?>
+  <td class="dehead" align="center">
+    <?php  echo xlt('Provider'); ?>
+  </td>
+    <?php } ?>
  <td class="dehead" align="center">
-   <?php  echo xlt('Total Time'); ?>
+    <?php  echo xlt('Total Time'); ?>
   </td>
  <td class="dehead" align="center">
-   <?php  echo xlt('Check Out Time'); ?>
+    <?php  echo xlt('Check Out Time'); ?>
   </td>
    <td class="dehead" align="center">
-   <?php  echo xlt('Updated By'); ?>
+    <?php  echo xlt('Updated By'); ?>
   </td>
- <?php if ($GLOBALS['drug_screen']) { ?>
+    <?php if ($GLOBALS['drug_screen']) { ?>
   <td class="dehead" align="center">
-   <?php  echo xlt('Random Drug Screen'); ?>
+    <?php  echo xlt('Random Drug Screen'); ?>
   </td>
   <td class="dehead" align="center">
-   <?php  echo xlt('Drug Screen Completed'); ?>
+    <?php  echo xlt('Drug Screen Completed'); ?>
   </td>
- <?php } ?>
+    <?php } ?>
  </tr>
 
 <?php
-	foreach ( $appointments as $appointment ) {
+foreach ( $appointments as $appointment ) {
 
-                # Collect appt date and set up squashed date for use below
-                $date_appt = $appointment['pc_eventDate'];
-                $date_squash = str_replace("-","",$date_appt);
+        # Collect appt date and set up squashed date for use below
+        $date_appt = $appointment['pc_eventDate'];
+        $date_squash = str_replace("-","",$date_appt);
 
-                # Collect variables and do some processing
-                $docname  = $chk_prov[$appointment['uprovider_id']];
-                if (strlen($docname)<= 3 ) continue;
-                $ptname = $appointment['lname'] . ', ' . $appointment['fname'] . ' ' . $appointment['mname'];
-                $appt_enc = $appointment['encounter'];
-                $appt_eid = (!empty($appointment['eid'])) ? $appointment['eid'] : $appointment['pc_eid'];
-                $appt_pid = (!empty($appointment['pid'])) ? $appointment['pid'] : $appointment['pc_pid'];
-                if ($appt_pid ==0 ) continue; // skip when $appt_pid = 0, since this means it is not a patient specific appt slot
-                $status = (!empty($appointment['status'])) ? $appointment['status'] : $appointment['pc_apptstatus'];
-                $appt_room = (!empty($appointment['room'])) ? $appointment['room'] : $appointment['pc_room'];
-                $appt_time = (!empty($appointment['appttime'])) ? $appointment['appttime'] : $appointment['pc_startTime'];
-                $tracker_id = $appointment['id'];
-                # reason for visit
-                if ($GLOBALS['ptkr_visit_reason']) {
-                  $reason_visit = $appointment['pc_hometext'];
-                }
-                $newarrive = collect_checkin($tracker_id);
-                $newend = collect_checkout($tracker_id);
-                $colorevents = (collectApptStatusSettings($status));
-                $bgcolor = $colorevents['color'];
-                $statalert = $colorevents['time_alert'];
-                # process the time to allow items with a check out status to be displayed
-                if ( is_checkout($status) && ($GLOBALS['checkout_roll_off'] > 0) ) {
-                        $to_time = strtotime($newend);
-                        $from_time = strtotime($datetime);
-                        $display_check_out = round(abs($from_time - $to_time) / 60,0);
-                        if ( $display_check_out >= $GLOBALS['checkout_roll_off'] ) continue;
-                }
+        # Collect variables and do some processing
+        $docname  = $chk_prov[$appointment['uprovider_id']];
+        if (strlen($docname)<= 3 ) continue;
+        $ptname = $appointment['lname'] . ', ' . $appointment['fname'] . ' ' . $appointment['mname'];
+        $appt_enc = $appointment['encounter'];
+        $appt_eid = (!empty($appointment['eid'])) ? $appointment['eid'] : $appointment['pc_eid'];
+        $appt_pid = (!empty($appointment['pid'])) ? $appointment['pid'] : $appointment['pc_pid'];
+        if ($appt_pid ==0 ) continue; // skip when $appt_pid = 0, since this means it is not a patient specific appt slot
+        $status = (!empty($appointment['status'])) ? $appointment['status'] : $appointment['pc_apptstatus'];
+        $appt_room = (!empty($appointment['room'])) ? $appointment['room'] : $appointment['pc_room'];
+        $appt_time = (!empty($appointment['appttime'])) ? $appointment['appttime'] : $appointment['pc_startTime'];
+        $tracker_id = $appointment['id'];
+        # reason for visit
+    if ($GLOBALS['ptkr_visit_reason']) {
+        $reason_visit = $appointment['pc_hometext'];
+    }
+        $newarrive = collect_checkin($tracker_id);
+        $newend = collect_checkout($tracker_id);
+        $colorevents = (collectApptStatusSettings($status));
+        $bgcolor = $colorevents['color'];
+        $statalert = $colorevents['time_alert'];
+        # process the time to allow items with a check out status to be displayed
+    if ( is_checkout($status) && ($GLOBALS['checkout_roll_off'] > 0) ) {
+        $to_time = strtotime($newend);
+        $from_time = strtotime($datetime);
+        $display_check_out = round(abs($from_time - $to_time) / 60,0);
+        if ( $display_check_out >= $GLOBALS['checkout_roll_off'] ) continue;
+    }
 ?>
-        <tr bgcolor='<?php echo $bgcolor ?>'>
-        <?php if ($GLOBALS['ptkr_show_pid']) { ?>
+<tr bgcolor='<?php echo $bgcolor ?>'>
+<?php if ($GLOBALS['ptkr_show_pid']) { ?>
         <td class="detail" align="center">
         <?php echo text($appt_pid) ?>
          </td>
         <?php } ?>
+    <td class="detail" align="center">
+<a href="#" onclick="return topatient('<?php echo attr($appt_pid);?>','<?php echo attr($appt_enc);?>')" >
+<?php echo text($ptname); ?></a>
+     </td>
+     <!-- reason -->
+    <?php if ($GLOBALS['ptkr_visit_reason']) { ?>
+         <td class="detail" align="center">
+            <?php echo text($reason_visit) ?>
+         </td>
+            <?php } ?>
+    <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
         <td class="detail" align="center">
-        <a href="#" onclick="return topatient('<?php echo attr($appt_pid);?>','<?php echo attr($appt_enc);?>')" >
-        <?php echo text($ptname); ?></a>
+            <?php if($appt_enc != 0) echo text($appt_enc); ?></a>
          </td>
-         <!-- reason -->
-         <?php if ($GLOBALS['ptkr_visit_reason']) { ?>
-         <td class="detail" align="center">
-         <?php echo text($reason_visit) ?>
-         </td>
-         <?php } ?>
-		 <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
-        <td class="detail" align="center">
-		 <?php if($appt_enc != 0) echo text($appt_enc); ?></a>
-         </td>
-		 <?php } ?>
-         <td class="detail" align="center">
-         <?php echo getListItemTitle('patient_flow_board_rooms', $appt_room);?>
-         </td>
-         <td class="detail" align="center">
-         <?php echo oeFormatTime($appt_time) ?>
-         </td>
-         <td class="detail" align="center">
-        <?php echo ($newarrive ? oeFormatTime($newarrive) : '&nbsp;') ?>
-         </td>
-         <td class="detail" align="center">
-         <?php if (empty($tracker_id)) { #for appt not yet with tracker id and for recurring appt ?>
+            <?php } ?>
+     <td class="detail" align="center">
+    <?php echo getListItemTitle('patient_flow_board_rooms', $appt_room);?>
+     </td>
+     <td class="detail" align="center">
+    <?php echo oeFormatTime($appt_time) ?>
+     </td>
+     <td class="detail" align="center">
+<?php echo ($newarrive ? oeFormatTime($newarrive) : '&nbsp;') ?>
+     </td>
+     <td class="detail" align="center">
+    <?php if (empty($tracker_id)) { #for appt not yet with tracker id and for recurring appt ?>
            <a href=""  onclick="return calendarpopup(<?php echo attr($appt_eid).",".attr($date_squash); # calls popup for add edit calendar event?>)">
-         <?php } else { ?>
+            <?php } else { ?>
            <a href=""  onclick="return bpopup(<?php echo attr($tracker_id); # calls popup for patient tracker status?>)">
-         <?php } ?>
-         <?php echo text(getListItemTitle("apptstat",$status)); # drop down list for appointment status?>
-         </a>
+            <?php } ?>
+    <?php echo text(getListItemTitle("apptstat",$status)); # drop down list for appointment status?>
+     </a>
 
-		 </td>
-        <?php
-		 #time in current status
-		 $to_time = strtotime(date("Y-m-d H:i:s"));
-		 $yestime = '0';
-		 if (strtotime($newend) != '') {
- 			$from_time = strtotime($newarrive);
-			$to_time = strtotime($newend);
-			$yestime = '0';
-		 }
-         else
-        {
-			$from_time = strtotime($appointment['start_datetime']);
-			$yestime = '1';
-        }
+     </td>
+<?php
+ #time in current status
+ $to_time = strtotime(date("Y-m-d H:i:s"));
+ $yestime = '0';
+if (strtotime($newend) != '') {
+    $from_time = strtotime($newarrive);
+    $to_time = strtotime($newend);
+    $yestime = '0';
+}
+else
+    {
+       $from_time = strtotime($appointment['start_datetime']);
+       $yestime = '1';
+}
 
-        $timecheck = round(abs($to_time - $from_time) / 60,0);
-        if ($timecheck >= $statalert && ($statalert != '0')) { # Determine if the time in status limit has been reached.
-           echo "<td align='center' class='js-blink-infinite'>	"; # and if so blink
-        }
-        else
-        {
-           echo "<td align='center' class='detail'> "; # and if not do not blink
-        }
-        if (($yestime == '1') && ($timecheck >=1) && (strtotime($newarrive)!= '')) {
-		   echo text($timecheck . ' ' .($timecheck >=2 ? xl('minutes'): xl('minute')));
-		}
-        #end time in current status
+    $timecheck = round(abs($to_time - $from_time) / 60,0);
+if ($timecheck >= $statalert && ($statalert != '0')) { # Determine if the time in status limit has been reached.
+    echo "<td align='center' class='js-blink-infinite'>	"; # and if so blink
+}
+else
+    {
+    echo "<td align='center' class='detail'> "; # and if not do not blink
+}
+if (($yestime == '1') && ($timecheck >=1) && (strtotime($newarrive)!= '')) {
+    echo text($timecheck . ' ' .($timecheck >=2 ? xl('minutes'): xl('minute')));
+}
+    #end time in current status
+    ?>
+     </td>
+     <td class="detail" align="center">
+    <?php echo text(xl_appt_category($appointment['pc_title'])) ?>
+     </td>
+    <?php if (count($chk_prov) > 1) { ?>
+         <td class="detail" align="center">
+            <?php echo text($docname); ?>
+         </td>
+            <?php } ?>
+     <td class="detail" align="center">
+    <?php
+
+     # total time in practice
+    if (strtotime($newend) != '') {
+          $from_time = strtotime($newarrive);
+          $to_time = strtotime($newend);
+    }
+    else
+     {
+          $from_time = strtotime($newarrive);
+          $to_time = strtotime(date("Y-m-d H:i:s"));
+    }
+     $timecheck2 = round(abs($to_time - $from_time) / 60,0);
+    if (strtotime($newarrive) != '' && ($timecheck2 >=1)) {
+          echo text($timecheck2 . ' ' .($timecheck2 >=2 ? xl('minutes'): xl('minute')));
+    }
+     # end total time in practice
         ?>
-		 </td>
-         <td class="detail" align="center">
-         <?php echo text(xl_appt_category($appointment['pc_title'])) ?>
-         </td>
-         <?php if (count($chk_prov) > 1) { ?>
-         <td class="detail" align="center">
-         <?php echo text($docname); ?>
-         </td>
-         <?php } ?>
-         <td class="detail" align="center">
-         <?php
-
-		 # total time in practice
-		 if (strtotime($newend) != '') {
- 			$from_time = strtotime($newarrive);
-			$to_time = strtotime($newend);
-		 }
-         else
-         {
-			$from_time = strtotime($newarrive);
- 		    $to_time = strtotime(date("Y-m-d H:i:s"));
-         }
-         $timecheck2 = round(abs($to_time - $from_time) / 60,0);
-         if (strtotime($newarrive) != '' && ($timecheck2 >=1)) {
-            echo text($timecheck2 . ' ' .($timecheck2 >=2 ? xl('minutes'): xl('minute')));
-         }
-         # end total time in practice
-        ?>
-		<?php echo text($appointment['pc_time']); ?>
-         </td>
+        <?php echo text($appointment['pc_time']); ?>
+     </td>
         <td class="detail" align="center">
-         <?php
-		 if (strtotime($newend) != '') {
-		    echo oeFormatTime($newend) ;
-		 }
-		 ?>
-         </td>
-         <td class="detail" align="center">
-         <?php echo text($appointment['user']) ?>
-         </td>
-         <?php if ($GLOBALS['drug_screen']) { ?>
-         <?php if (strtotime($newarrive) != '') { ?>
-         <td class="detail" align="center">
-         <?php if (text($appointment['random_drug_test']) == '1') {  echo xl('Yes'); }  else { echo xl('No'); }?>
-         </td>
-         <?php } else {  echo "  <td>"; }?>
-         <?php if (strtotime($newarrive) != '' && $appointment['random_drug_test'] == '1') { ?>
-         <td class="detail" align="center">
-		 <?php if (strtotime($newend) != '') { # the following block allows the check box for drug screens to be disabled once the status is check out ?>
-		     <input type=checkbox  disabled='disable' class="drug_screen_completed" id="<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>"  <?php if ($appointment['drug_screen_completed'] == "1") echo "checked";?>>
-		 <?php } else { ?>
-		     <input type=checkbox  class="drug_screen_completed" id='<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>' name="drug_screen_completed" <?php if ($appointment['drug_screen_completed'] == "1") echo "checked";?>>
-         <?php } ?>
-		 </td>
-         <?php } else {  echo "  <td>"; }?>
-		 <?php } ?>
-		 </tr>
         <?php
-	} //end for
+        if (strtotime($newend) != '') {
+              echo oeFormatTime($newend) ;
+        }
+        ?>
+         </td>
+         <td class="detail" align="center">
+        <?php echo text($appointment['user']) ?>
+         </td>
+            <?php if ($GLOBALS['drug_screen']) { ?>
+            <?php if (strtotime($newarrive) != '') { ?>
+         <td class="detail" align="center">
+            <?php if (text($appointment['random_drug_test']) == '1') {  echo xl('Yes');
+}  else { echo xl('No'); }?>
+         </td>
+            <?php } else {  echo "  <td>"; }?>
+            <?php if (strtotime($newarrive) != '' && $appointment['random_drug_test'] == '1') { ?>
+         <td class="detail" align="center">
+            <?php if (strtotime($newend) != '') { # the following block allows the check box for drug screens to be disabled once the status is check out ?>
+             <input type=checkbox  disabled='disable' class="drug_screen_completed" id="<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>"  <?php if ($appointment['drug_screen_completed'] == "1") echo "checked";?>>
+            <?php } else { ?>
+             <input type=checkbox  class="drug_screen_completed" id='<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>' name="drug_screen_completed" <?php if ($appointment['drug_screen_completed'] == "1") echo "checked";?>>
+            <?php } ?>
+         </td>
+            <?php } else {  echo "  <td>"; }?>
+            <?php } ?>
+         </tr>
+        <?php
+} //end for
 ?>
 
 <?php
@@ -556,8 +557,8 @@ if (!is_null($_POST['form_patient_name'])) {
 
 <script type="text/javascript">
   $(document).ready(function() {
-	  $('#settings').css("display","none");
-	  refreshbegin('1');
+      $('#settings').css("display","none");
+      refreshbegin('1');
 
     $('.js-blink-infinite').each(function() {
       // set up blinking text
@@ -596,12 +597,12 @@ if (!is_null($_POST['form_patient_name'])) {
   });
 
   $('#setting_cog').click(function () {
-	  $(this).css("display","none");
-	  $('#settings').css("display","inline");
+      $(this).css("display","none");
+      $('#settings').css("display","inline");
   });
 
   $('#refreshme').click(function () {
-	  refreshme();
+      refreshme();
   });
 </script>
 <!-- form used to open a new top level window when a patient row is clicked -->

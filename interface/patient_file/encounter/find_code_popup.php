@@ -18,7 +18,7 @@ require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 $info_msg = "";
 $codetype = $_REQUEST['codetype'];
 if (!empty($codetype)) {
-	$allowed_codes = split_csv_line($codetype);
+    $allowed_codes = split_csv_line($codetype);
 }
 
 $form_code_type = $_POST['form_code_type'];
@@ -26,13 +26,13 @@ $form_code_type = $_POST['form_code_type'];
 // Determine which code type will be selected by default.
 $default = '';
 if (!empty($form_code_type)) {
-  $default = $form_code_type;
+    $default = $form_code_type;
 }
 else if (!empty($allowed_codes) && count($allowed_codes) == 1) {
-  $default = $allowed_codes[0];
+    $default = $allowed_codes[0];
 }
 else if (!empty($_REQUEST['default'])) {
-  $default = $_REQUEST['default'];
+    $default = $_REQUEST['default'];
 }
 
 // This variable is used to store the html element
@@ -84,7 +84,7 @@ td { font-size:10pt; }
 </script>
 
 </head>
-<?php 
+<?php
     $focus = "document.theform.search_term.select();";
 ?>
 <body class="body_top" OnLoad="<?php echo $focus; ?>">
@@ -92,10 +92,10 @@ td { font-size:10pt; }
 <?php
 $string_target_element = "";
 if (!empty($target_element)) {
-$string_target_element = "?target_element=" . urlencode($target_element) . "&";
+    $string_target_element = "?target_element=" . urlencode($target_element) . "&";
 }
 else {
-$string_target_element = "?";
+    $string_target_element = "?";
 }
 ?>
 <?php if (!empty($allowed_codes)) { ?>
@@ -119,50 +119,50 @@ $string_target_element = "?";
 
 <?php
 if (!empty($allowed_codes)) {
-	if (count($allowed_codes) === 1) {
-  echo "<input type='text' name='form_code_type' value='" . attr($codetype) . "' size='5' readonly>\n";
-	} else {
+    if (count($allowed_codes) === 1) {
+        echo "<input type='text' name='form_code_type' value='" . attr($codetype) . "' size='5' readonly>\n";
+    } else {
 ?>
    <select name='form_code_type'>
 <?php
-		foreach ($allowed_codes as $code) {
-			$selected_attr = ($default == $code) ? " selected='selected'" : '';
+foreach ($allowed_codes as $code) {
+    $selected_attr = ($default == $code) ? " selected='selected'" : '';
 ?>
-   	<option value='<?php echo attr($code) ?>'<?php echo $selected_attr ?>><?php echo xlt($code_types[$code]['label']) ?></option>
+<option value='<?php echo attr($code) ?>'<?php echo $selected_attr ?>><?php echo xlt($code_types[$code]['label']) ?></option>
 <?php
-		}
+}
 ?>
    </select>
 <?php
-	}
+    }
 }
 else {
   // No allowed types were specified, so show all.
-  echo "   <select name='form_code_type'";
-  echo ">\n";
-  foreach ($code_types as $key => $value) {
-    echo "    <option value='" . attr($key) . "'";
-    if ($default == $key) echo " selected";
-    echo ">" . xlt($value['label']) . "</option>\n";
-  }
-  echo "    <option value='PROD'";
-  if ($default == 'PROD') echo " selected";
-  echo ">" . xlt("Product") . "</option>\n";
-  echo "   </select>&nbsp;&nbsp;\n";
+    echo "   <select name='form_code_type'";
+    echo ">\n";
+    foreach ($code_types as $key => $value) {
+        echo "    <option value='" . attr($key) . "'";
+        if ($default == $key) echo " selected";
+        echo ">" . xlt($value['label']) . "</option>\n";
+    }
+    echo "    <option value='PROD'";
+    if ($default == 'PROD') echo " selected";
+    echo ">" . xlt("Product") . "</option>\n";
+    echo "   </select>&nbsp;&nbsp;\n";
 }
 ?>
 
- <?php echo xlt('Search for:'); ?>
+    <?php echo xlt('Search for:'); ?>
    <input type='text' name='search_term' size='12' value='<?php echo attr($_REQUEST['search_term']); ?>'
     title='<?php echo xla('Any part of the desired code or its description'); ?>' />
    &nbsp;
    <input type='submit' name='bn_search' value='<?php echo xla('Search'); ?>' />
    &nbsp;&nbsp;&nbsp;
-   <?php if (!empty($target_element)) { ?>
+    <?php if (!empty($target_element)) { ?>
      <input type='button' value='<?php echo xla('Erase'); ?>' onclick="selcode_target('', '', '', '', '<?php echo attr(addslashes($target_element)); ?>')" />
-   <?php } else { ?>
+    <?php } else { ?>
      <input type='button' value='<?php echo xla('Erase'); ?>' onclick="selcode('', '', '', '')" />
-   <?php } ?>
+    <?php } ?>
    </b>
   </td>
  </tr>
@@ -175,50 +175,50 @@ else {
 </table>
 
 <?php
-  if ($_REQUEST['bn_search'] || $_REQUEST['search_term']) {
+if ($_REQUEST['bn_search'] || $_REQUEST['search_term']) {
     if (!$form_code_type) $form_code_type = $codetype;
 ?>
 
 <table border='0'>
- <tr>
-  <td><b><?php echo xlt('Code'); ?></b></td>
-  <td><b><?php echo xlt('Description'); ?></b></td>
- </tr>
+<tr>
+<td><b><?php echo xlt('Code'); ?></b></td>
+<td><b><?php echo xlt('Description'); ?></b></td>
+</tr>
 <?php
-  $search_term = $_REQUEST['search_term'];
-  $res = main_code_set_search($form_code_type,$search_term);
-  if ($form_code_type == 'PROD') { // Special case that displays search for products/drugs
+$search_term = $_REQUEST['search_term'];
+$res = main_code_set_search($form_code_type,$search_term);
+if ($form_code_type == 'PROD') { // Special case that displays search for products/drugs
     while ($row = sqlFetchArray($res)) {
-      $drug_id = $row['drug_id'];
-      $selector = $row['selector'];
-      $desc = $row['name'];
-      $anchor = "<a href='' " .
+        $drug_id = $row['drug_id'];
+        $selector = $row['selector'];
+        $desc = $row['name'];
+        $anchor = "<a href='' " .
         "onclick='return selcode(\"PROD\", \"" . attr(addslashes($drug_id)) . "\", \"" . attr(addslashes($selector)) . "\", \"" . attr(addslashes($desc)) . "\")'>";
-      echo " <tr>";
-      echo "  <td>$anchor" . text($drug_id.":".$selector) . "</a></td>\n";
-      echo "  <td>$anchor" . text($desc) . "</a></td>\n";
-      echo " </tr>";
+        echo " <tr>";
+        echo "  <td>$anchor" . text($drug_id.":".$selector) . "</a></td>\n";
+        echo "  <td>$anchor" . text($desc) . "</a></td>\n";
+        echo " </tr>";
     }
-  }
-  else {
+}
+else {
     while ($row = sqlFetchArray($res)) { // Display normal search
-      $itercode = $row['code'];
-      $itertext = trim($row['code_text']);
-      if (!empty($target_element)) {
-        // add a 5th parameter to function to select the target element on the form for placing the code.
-        $anchor = "<a href='' " .
-          "onclick='return selcode_target(\"" . attr(addslashes($form_code_type)) . "\", \"" . attr(addslashes($itercode)) . "\", \"\", \"" . attr(addslashes($itertext)) . "\", \"" . attr(addslashes($target_element)) . "\")'>";
-      }
-      else {
-        $anchor = "<a href='' " .
-          "onclick='return selcode(\"" . attr(addslashes($form_code_type)) . "\", \"" . attr(addslashes($itercode)) . "\", \"\", \"" . attr(addslashes($itertext)) . "\")'>";
-      }
-      echo " <tr>";
-      echo "  <td>$anchor" . text($itercode) . "</a></td>\n";
-      echo "  <td>$anchor" . text($itertext) . "</a></td>\n";
-      echo " </tr>";
+        $itercode = $row['code'];
+        $itertext = trim($row['code_text']);
+        if (!empty($target_element)) {
+            // add a 5th parameter to function to select the target element on the form for placing the code.
+            $anchor = "<a href='' " .
+            "onclick='return selcode_target(\"" . attr(addslashes($form_code_type)) . "\", \"" . attr(addslashes($itercode)) . "\", \"\", \"" . attr(addslashes($itertext)) . "\", \"" . attr(addslashes($target_element)) . "\")'>";
+        }
+        else {
+            $anchor = "<a href='' " .
+            "onclick='return selcode(\"" . attr(addslashes($form_code_type)) . "\", \"" . attr(addslashes($itercode)) . "\", \"\", \"" . attr(addslashes($itertext)) . "\")'>";
+        }
+        echo " <tr>";
+        echo "  <td>$anchor" . text($itercode) . "</a></td>\n";
+        echo "  <td>$anchor" . text($itertext) . "</a></td>\n";
+        echo " </tr>";
     }
-  }
+}
 ?>
 </table>
 

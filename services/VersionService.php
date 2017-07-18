@@ -39,7 +39,8 @@ class VersionService {
     /**
      * Default constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->logger = new \common\logging\Logger("\services\VersionService");
         $database = \common\database\Connector::Instance();
         $entityManager = $database->entityManager;
@@ -52,14 +53,16 @@ class VersionService {
      *
      * @return bool
      */
-    public function doesTableExist() {
+    public function doesTableExist()
+    {
         return $this->repository->doesTableExist();
     }
 
     /**
      * @return the sole version entry in the database.
      */
-    public function fetch() {
+    public function fetch()
+    {
         $version = $this->repository->findFirst();
 
         if (empty($version)) {
@@ -77,7 +80,8 @@ class VersionService {
      * @param $version the new version entry.
      * @return true/false for if the update went through.
      */
-    public function update(Version $version) {
+    public function update(Version $version)
+    {
         $this->logger->debug("Updating version entry");
         if (!$this->canRealPatchBeApplied($version)) {
             $version->setRealPatch(0);
@@ -89,7 +93,8 @@ class VersionService {
     /**
      * @return bool if the release contains a patch file or not.
      */
-    public function canRealPatchBeApplied(Version $version) {
+    public function canRealPatchBeApplied(Version $version)
+    {
         $this->logger->debug("Determining if a real patch can be applied");
         //Collected below function call to a variable, since unable to directly include
         // function calls within empty() in php versions < 5.5 .

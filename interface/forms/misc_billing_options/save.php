@@ -15,16 +15,18 @@ require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
 if (! $encounter) { // comes from globals.php
- die(xlt("Internal error: we do not seem to be in an encounter!"));
+    die(xlt("Internal error: we do not seem to be in an encounter!"));
 }
 
 if ($_POST["off_work_from"] == "0000-00-00" || $_POST["off_work_from"] == "")
-	{ $_POST["is_unable_to_work"] = "0"; $_POST["off_work_to"] = "";}
-	else {$_POST["is_unable_to_work"] = "1";}
+    { $_POST["is_unable_to_work"] = "0";
+    $_POST["off_work_to"] = "";}
+else {$_POST["is_unable_to_work"] = "1";}
 
 if ($_POST["hospitalization_date_from"] == "0000-00-00" || $_POST["hospitalization_date_from"] == "")
-	{ $_POST["is_hospitalized"] = "0"; $_POST["hospitalization_date_to"] = "";}
-	else {$_POST["is_hospitalized"] = "1";}
+    { $_POST["is_hospitalized"] = "0";
+    $_POST["hospitalization_date_to"] = "";}
+else {$_POST["is_hospitalized"] = "1";}
 
 $id = formData('id','G') + 0;
 
@@ -60,11 +62,11 @@ $sets = "pid = {$_SESSION["pid"]},
   comments                    = '" . formData("comments") . "'";
 
 if (empty($id)) {
-  $newid = sqlInsert("INSERT INTO form_misc_billing_options SET $sets");
-  addForm($encounter, "Misc Billing Options", $newid, "misc_billing_options", $pid, $userauthorized);
+    $newid = sqlInsert("INSERT INTO form_misc_billing_options SET $sets");
+    addForm($encounter, "Misc Billing Options", $newid, "misc_billing_options", $pid, $userauthorized);
 }
 else {
-  sqlStatement("UPDATE form_misc_billing_options SET $sets WHERE id = $id");
+    sqlStatement("UPDATE form_misc_billing_options SET $sets WHERE id = $id");
 }
 
 formHeader("Redirecting....");

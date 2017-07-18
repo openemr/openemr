@@ -1,3 +1,16 @@
+<?php
+/**
+ * Generated DocBlock
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  cfapress <cfapress>
+ * @author  Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2008 cfapress <cfapress>
+ * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+?>
 <!-- Form created by Nikolai Vitsyn: 2004/02/13  -->
 
 <?php
@@ -95,15 +108,15 @@ formHeader("Form: ankleinjury");
  <script language="javascript">
  <!--
  function doCPT(select) {
- 	var numchecked = 0;
- 	for (i=0; i<document.my_form.openemr_net_cptcode.length; i++) {
- 		if (document.my_form.openemr_net_cptcode[i].checked == true) {
- 			numchecked++;
- 		}
- 	}
- 	if (numchecked == 0) {
- 		document.my_form.openemr_net_cptcode[1].checked = true;
- 	}
+    var numchecked = 0;
+    for (i=0; i<document.my_form.openemr_net_cptcode.length; i++) {
+        if (document.my_form.openemr_net_cptcode[i].checked == true) {
+            numchecked++;
+        }
+    }
+    if (numchecked == 0) {
+        document.my_form.openemr_net_cptcode[1].checked = true;
+    }
  }
  -->
  </script>
@@ -131,17 +144,17 @@ formHeader("Form: ankleinjury");
 <br><br>
 <table>
 <tr>
-	<td width="10"></td>
-	<td><?php xl('CPT Codes','e');?></td>
-	<td></td>
+    <td width="10"></td>
+    <td><?php xl('CPT Codes','e');?></td>
+    <td></td>
 </tr>
 <tr>
-	<td></td>
-	<td colspan="2">
-		&nbsp;&nbsp;&nbsp;<input type="radio" name="openemr_net_cptcode" value=""><?php xl('none','e');?><br>
-		&nbsp;&nbsp;&nbsp;<input type="radio" name="openemr_net_cptcode" value="99212 Established - Uncomplicated"><?php xl('99212 Established - Uncomplicated','e');?><br>
-		&nbsp;&nbsp;&nbsp;<input type="radio" name="openemr_net_cptcode" value="99213 Established - Low Complexity"><?php xl('99213 Established - Low Complexity','e');?><br>
-	</td>
+    <td></td>
+    <td colspan="2">
+        &nbsp;&nbsp;&nbsp;<input type="radio" name="openemr_net_cptcode" value=""><?php xl('none','e');?><br>
+        &nbsp;&nbsp;&nbsp;<input type="radio" name="openemr_net_cptcode" value="99212 Established - Uncomplicated"><?php xl('99212 Established - Uncomplicated','e');?><br>
+        &nbsp;&nbsp;&nbsp;<input type="radio" name="openemr_net_cptcode" value="99213 Established - Low Complexity"><?php xl('99213 Established - Low Complexity','e');?><br>
+    </td>
 </tr>
 </table>
 

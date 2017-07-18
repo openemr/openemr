@@ -59,10 +59,10 @@ if ($id && $id != 0) {
 $count = array_filter($count);
 if (!empty($count)) {
     foreach ($count as $key => $codeval):
-      $code_val = $code[$key] ? $code[$key] : 0;
-      $codetext_val = $code_text[$key] ? $code_text[$key] :'NULL';
-      $description_val = $code_des[$key] ? $code_des[$key] : 'NULL';
-      $care_plan_type_val = $care_plan_type[$key] ? $care_plan_type[$key] : 'NULL';
+        $code_val = $code[$key] ? $code[$key] : 0;
+        $codetext_val = $code_text[$key] ? $code_text[$key] :'NULL';
+        $description_val = $code_des[$key] ? $code_des[$key] : 'NULL';
+        $care_plan_type_val = $care_plan_type[$key] ? $care_plan_type[$key] : 'NULL';
         $sets = "id    = ". add_escape_custom($newid) .",
             pid        = ". add_escape_custom($_SESSION["pid"]) .",
             groupname  = '" . add_escape_custom($_SESSION["authProvider"]) . "',

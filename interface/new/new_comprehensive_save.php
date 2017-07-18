@@ -11,13 +11,13 @@ require_once("../globals.php");
 // Validation for non-unique external patient identifier.
 $alertmsg = '';
 if (!empty($_POST["form_pubpid"])) {
-  $form_pubpid = trim($_POST["form_pubpid"]);
-  $result = sqlQuery("SELECT count(*) AS count FROM patient_data WHERE " .
+    $form_pubpid = trim($_POST["form_pubpid"]);
+    $result = sqlQuery("SELECT count(*) AS count FROM patient_data WHERE " .
     "pubpid = ?", array($form_pubpid));
-  if ($result['count']) {
-    // Error, not unique.
-    $alertmsg = xl('Warning: Patient ID is not unique!');
-  }
+    if ($result['count']) {
+        // Error, not unique.
+        $alertmsg = xl('Warning: Patient ID is not unique!');
+    }
 }
 
 require_once("$srcdir/pid.inc");
@@ -38,7 +38,7 @@ setpid($newpid);
 
 if (empty($pid)) {
   // sqlStatement("unlock tables");
-  die("Internal error: setpid(" .text($newpid) . ") failed!");
+    die("Internal error: setpid(" .text($newpid) . ") failed!");
 }
 
 // Update patient_data and employer_data:
@@ -51,20 +51,22 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
   "OR field_id = 'pubpid' " .
   "ORDER BY group_name, seq");
 while ($frow = sqlFetchArray($fres)) {
-  $data_type = $frow['data_type'];
-  $field_id  = $frow['field_id'];
+    $data_type = $frow['data_type'];
+    $field_id  = $frow['field_id'];
   // $value     = '';
-  $colname   = $field_id;
-  $tblname   = 'patient_data';
-  if (strpos($field_id, 'em_') === 0) {
-    $colname = substr($field_id, 3);
-    $tblname = 'employer_data';
-  }
+    $colname   = $field_id;
+    $tblname   = 'patient_data';
+    if (strpos($field_id, 'em_') === 0) {
+        $colname = substr($field_id, 3);
+        $tblname = 'employer_data';
+    }
+  //get value only if field exist in $_POST (prevent deleting of field with disabled attribute)
+    if (isset($_POST["form_$field_id"])) {
+        $value = get_layout_form_value($frow);
+        if ($field_id == 'pubpid' && empty($value)) $value = $pid;
+        $newdata[$tblname][$colname] = $value;
+    }
 
-  $value = get_layout_form_value($frow);
-
-  if ($field_id == 'pubpid' && empty($value)) $value = $pid;
-  $newdata[$tblname][$colname] = $value;
 }
 updatePatientData($pid, $newdata['patient_data'], true);
 updateEmployerData($pid, $newdata['employer_data'], true);
@@ -183,7 +185,7 @@ newInsuranceData(
 <script language="Javascript">
 <?php
 if ($alertmsg) {
-  echo "alert('" . addslashes($alertmsg) . "');\n";
+    echo "alert('" . addslashes($alertmsg) . "');\n";
 }
   echo "window.location='$rootdir/patient_file/summary/demographics.php?" .
     "set_pid=" . attr($pid) . "&is_new=1';\n";

@@ -30,7 +30,8 @@ class QueryUtils {
      * @param $map - Query information (where clause(s), join clause(s), order, data, etc).
      * @return array of associative arrays | one associative array.
      */
-    public static function selectHelper($sqlUpToFromStatement, $map) {
+    public static function selectHelper($sqlUpToFromStatement, $map)
+    {
         $where = isset($map["where"]) ? $map["where"] : null;
         $data  = isset($map["data"])  ? $map["data"]  : null;
         $join  = isset($map["join"])  ? $map["join"]  : null;

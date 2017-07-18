@@ -22,9 +22,9 @@ $vectAutosave = sqlQuery( "SELECT id, autosave_flag, autosave_datetime FROM form
 if( $vectAutosave['autosave_flag'] == 1 )
 {
   
-  $strSql = "DELETE from  form_brief_aan_verwijzer 
+    $strSql = "DELETE from  form_brief_aan_verwijzer 
                   WHERE id = ".$vectAutosave['id'].";";
-  sqlQuery( $strSql );
+    sqlQuery( $strSql );
 }
 
 //echo "debug :: form was deleted... sql=$strSql";

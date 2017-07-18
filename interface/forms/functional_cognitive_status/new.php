@@ -190,10 +190,10 @@ $check_res = $formid ? $check_res : array();
                         </td>
                 </tr>
                 <?php
-            }
-        } else {
-            ?>
-            <tr class="tb_row" id="tb_row_1">
+                }
+            } else {
+                ?>
+                <tr class="tb_row" id="tb_row_1">
                 <td align="left" class="forms"><?php echo xlt('Code'); ?>:</td>
                 <td class="forms">
                     <input type="text" id="code_1" name="code[]" class="code" style="width:210px" value="<?php echo text($obj{"code"}); ?>" onclick='sel_code(this.parentElement.parentElement.id);'><br>
@@ -217,8 +217,8 @@ $check_res = $formid ? $check_res : array();
                     <img src='../../pic/add.png' onclick="duplicateRow(this.parentElement.parentElement);" align='absbottom' width='27' height='24' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to duplicate the row'); ?>'>
                     <img src='../../pic/remove.png' onclick="deleteRow(this.parentElement.parentElement.id);" align='absbottom' width='24' height='22' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to delete the row'); ?>'>
                 </td>
-        </tr>
-    <?php }
+            </tr>
+            <?php }
     ?>
 
     <tr>

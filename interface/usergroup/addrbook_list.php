@@ -37,27 +37,27 @@ $query = "SELECT u.*, lo.option_id AS ab_name, lo.option_value as ab_option FROM
   "list_id = 'abook_type' AND option_id = u.abook_type AND activity = 1 " .
   "WHERE u.active = 1 AND ( u.authorized = 1 OR u.username = '' ) ";
 if ($form_organization) {
- $query .= "AND u.organization LIKE ? ";
- array_push($sqlBindArray,$form_organization."%");
+    $query .= "AND u.organization LIKE ? ";
+    array_push($sqlBindArray,$form_organization."%");
 }
 if ($form_lname) {
- $query .= "AND u.lname LIKE ? ";
- array_push($sqlBindArray,$form_lname."%");
+    $query .= "AND u.lname LIKE ? ";
+    array_push($sqlBindArray,$form_lname."%");
 }
 if ($form_fname) {
- $query .= "AND u.fname LIKE ? ";
- array_push($sqlBindArray,$form_fname."%");
+    $query .= "AND u.fname LIKE ? ";
+    array_push($sqlBindArray,$form_fname."%");
 }
 if ($form_specialty) {
- $query .= "AND u.specialty LIKE ? ";
- array_push($sqlBindArray,"%".$form_specialty."%");
+    $query .= "AND u.specialty LIKE ? ";
+    array_push($sqlBindArray,"%".$form_specialty."%");
 }
 if ($form_abook_type) {
- $query .= "AND u.abook_type LIKE ? ";
- array_push($sqlBindArray,$form_abook_type);
+    $query .= "AND u.abook_type LIKE ? ";
+    array_push($sqlBindArray,$form_abook_type);
 }
 if ($form_external) {
- $query .= "AND u.username = '' ";
+    $query .= "AND u.username = '' ";
 }
 if ($form_lname) {
     $query .= "ORDER BY u.lname, u.fname, u.mname";
@@ -88,16 +88,16 @@ $res = sqlStatement($query,$sqlBindArray);
 <table>
  <tr class='search'> <!-- bgcolor='#ddddff' -->
   <td>
-   <?php echo xlt('Organization')?>:
+    <?php echo xlt('Organization')?>:
    <input type='text' name='form_organization' size='10' value='<?php echo attr($_POST['form_organization']); ?>'
     class='inputtext' title='<?php echo xla("All or part of the organization") ?>' />&nbsp;
-   <?php echo xlt('First Name')?>:
+    <?php echo xlt('First Name')?>:
    <input type='text' name='form_fname' size='10' value='<?php echo attr($_POST['form_fname']); ?>'
     class='inputtext' title='<?php echo xla("All or part of the first name") ?>' />&nbsp;
-   <?php echo xlt('Last Name')?>:
+    <?php echo xlt('Last Name')?>:
    <input type='text' name='form_lname' size='10' value='<?php echo attr($_POST['form_lname']); ?>'
     class='inputtext' title='<?php echo xla("All or part of the last name") ?>' />&nbsp;
-   <?php echo xlt('Specialty')?>:
+    <?php echo xlt('Specialty')?>:
    <input type='text' name='form_specialty' size='10' value='<?php echo attr($_POST['form_specialty']); ?>'
     class='inputtext' title='<?php echo xla("Any part of the desired specialty") ?>' />&nbsp;
 <?php
@@ -107,7 +107,7 @@ $res = sqlStatement($query,$sqlBindArray);
 ?>
    <input type='checkbox' name='form_external' value='1'<?php if ($form_external) echo ' checked'; ?>
     title='<?php echo xla("Omit internal users?") ?>' />
-   <?php echo xlt('External Only')?>&nbsp;&nbsp;
+    <?php echo xlt('External Only')?>&nbsp;&nbsp;
    <input type='submit' title='<?php echo xla("Use % alone in a field to just sort on that column") ?>' class='button' name='form_search' value='<?php echo xla("Search")?>' />
    <input type='button' class='button' value='<?php echo xla("Add New"); ?>' onclick='doedclick_add(document.forms[0].form_abook_type.value)' />
 </td>
@@ -133,41 +133,41 @@ $res = sqlStatement($query,$sqlBindArray);
 
 <?php
  $encount = 0;
- while ($row = sqlFetchArray($res)) {
-  ++$encount;
+while ($row = sqlFetchArray($res)) {
+    ++$encount;
   //$bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
-  $bgclass = (($encount & 1) ? "evenrow" : "oddrow");
-  $username = $row['username'];
-  if (! $row['active']) $username = '--';
+    $bgclass = (($encount & 1) ? "evenrow" : "oddrow");
+    $username = $row['username'];
+    if (! $row['active']) $username = '--';
 
-  $displayName = $row['fname'] . ' ' . $row['mname'] . ' ' . $row['lname']; // Person Name
-  if ($row['suffix'] >'') $displayName .=", ".$row['suffix'];
-  if ( acl_check('admin', 'practice' ) || (empty($username) && empty($row['ab_name'])) ) {
-   // Allow edit, since have access or (no item type and not a local user)
-   $trTitle = xl('Edit'). ' ' . $displayName;
-   echo " <tr class='detail $bgclass' style='cursor:pointer' " .
+    $displayName = $row['fname'] . ' ' . $row['mname'] . ' ' . $row['lname']; // Person Name
+    if ($row['suffix'] >'') $displayName .=", ".$row['suffix'];
+    if ( acl_check('admin', 'practice' ) || (empty($username) && empty($row['ab_name'])) ) {
+       // Allow edit, since have access or (no item type and not a local user)
+        $trTitle = xl('Edit'). ' ' . $displayName;
+        echo " <tr class='detail $bgclass' style='cursor:pointer' " .
         "onclick='doedclick_edit(" . $row['id'] . ")' title='".attr($trTitle)."'>\n";
-  }
-  else {
-   // Do not allow edit, since no access and (item is a type or is a local user)
-   $trTitle = $displayName . " (" . xl("Not Allowed to Edit") . ")";
-   echo " <tr class='detail $bgclass' title='".attr($trTitle)."'>\n";
-  }
-  echo "  <td>" . text($row['organization']) . "</td>\n";
-  echo "  <td>" . text($displayName) . "</td>\n";
-  echo "  <td>" . ($username ? '*' : '') . "</td>\n";
-  echo "  <td>" . generate_display_field(array('data_type'=>'1','list_id'=>'abook_type'),$row['ab_name']) . "</td>\n";
-  echo "  <td>" . text($row['specialty']) . "</td>\n";
-  echo "  <td>" . text($row['phonew1'])   . "</td>\n";
-  echo "  <td>" . text($row['phonecell']) . "</td>\n";
-  echo "  <td>" . text($row['fax'])       . "</td>\n";
-  echo "  <td>" . text($row['email'])     . "</td>\n";
-  echo "  <td>" . text($row['street'])    . "</td>\n";
-  echo "  <td>" . text($row['city'])      . "</td>\n";
-  echo "  <td>" . text($row['state'])     . "</td>\n";
-  echo "  <td>" . text($row['zip'])       . "</td>\n";
-  echo " </tr>\n";
- }
+    }
+    else {
+       // Do not allow edit, since no access and (item is a type or is a local user)
+        $trTitle = $displayName . " (" . xl("Not Allowed to Edit") . ")";
+        echo " <tr class='detail $bgclass' title='".attr($trTitle)."'>\n";
+    }
+    echo "  <td>" . text($row['organization']) . "</td>\n";
+    echo "  <td>" . text($displayName) . "</td>\n";
+    echo "  <td>" . ($username ? '*' : '') . "</td>\n";
+    echo "  <td>" . generate_display_field(array('data_type'=>'1','list_id'=>'abook_type'),$row['ab_name']) . "</td>\n";
+    echo "  <td>" . text($row['specialty']) . "</td>\n";
+    echo "  <td>" . text($row['phonew1'])   . "</td>\n";
+    echo "  <td>" . text($row['phonecell']) . "</td>\n";
+    echo "  <td>" . text($row['fax'])       . "</td>\n";
+    echo "  <td>" . text($row['email'])     . "</td>\n";
+    echo "  <td>" . text($row['street'])    . "</td>\n";
+    echo "  <td>" . text($row['city'])      . "</td>\n";
+    echo "  <td>" . text($row['state'])     . "</td>\n";
+    echo "  <td>" . text($row['zip'])       . "</td>\n";
+    echo " </tr>\n";
+}
 ?>
 </table>
 <div style="display: none;">

@@ -32,7 +32,8 @@ class UserService {
     /**
      * Default constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $database = \common\database\Connector::Instance();
         $entityManager = $database->entityManager;
         $this->repository = $entityManager->getRepository('\entities\User');
@@ -41,21 +42,24 @@ class UserService {
     /**
      * @return Fully hydrated user object
      */
-    public function getUser($userId) {
+    public function getUser($userId)
+    {
         return $this->repository->getUser($userId);
     }
 
     /**
      * @return active users (fully hydrated)
      */
-    public function getActiveUsers() {
+    public function getActiveUsers()
+    {
         return $this->repository->getActiveUsers();
     }
 
     /**
      * @return Fully hydrated user object.
      */
-    public function getCurrentlyLoggedInUser() {
+    public function getCurrentlyLoggedInUser()
+    {
         return $this->repository->getCurrentlyLoggedInUser();
     }
 
@@ -66,7 +70,8 @@ class UserService {
      *
      * @return String of the current user group.
      */
-    public function getCurrentlyLoggedInUserGroup() {
+    public function getCurrentlyLoggedInUserGroup()
+    {
         return $_SESSION['authProvider'];
     }
 }

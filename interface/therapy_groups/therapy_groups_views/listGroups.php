@@ -141,11 +141,11 @@
                     <td><?php echo xlt($group_types[$group['group_type']]);?></td>
                     <td><?php echo xlt($statuses[$group['group_status']]);?></td>
                     <td><?php echo text(oeFormatShortDate($group['group_start_date']));?></td>
-                    <td><?php echo ($group['group_end_date'] == '0000-00-00' OR $group['group_end_date'] == '00-00-0000' OR empty($group['group_end_date'])) ? '' : text(oeFormatShortDate($group['group_end_date'])); ?></td>
+                    <td><?php echo ($group['group_end_date'] == '0000-00-00' or $group['group_end_date'] == '00-00-0000' or empty($group['group_end_date'])) ? '' : text(oeFormatShortDate($group['group_end_date'])); ?></td>
                     <td>
                         <?php foreach ($group['counselors'] as $counselor){
                             echo text($counselor) . " </br> ";
-                        } ;?>
+} ;?>
                     </td>
                     <td><?php echo text($group['group_notes']);?></td>
                     <td class="delete_btn">

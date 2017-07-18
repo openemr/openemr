@@ -17,7 +17,8 @@ require_once("$srcdir/billing.inc");
 
 $facilityService = new \services\FacilityService();
 
-function genColumn($ix) {
+function genColumn($ix)
+{
     global $html;
     global $SBCODES;
     for ($imax = count($SBCODES); $ix < $imax; ++$ix) {
@@ -541,12 +542,12 @@ foreach ($pid_list as $pid) {
 
 // Common End Code
 if ($form_fill != 2) {   //use native browser 'print' for multipage
-$html .= "<div id='hideonprint'>
+    $html .= "<div id='hideonprint'>
 <p>
 <input type='button' value='";
 
-$html .= xla('Print');
-$html .="' id='printbutton' />
+    $html .= xla('Print');
+    $html .="' id='printbutton' />
 </div>";
 }
 

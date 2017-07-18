@@ -138,66 +138,66 @@ if ($_POST['formaction']=="generate") {
     $cpstring = str_replace('{'.$FIELD_TAG['PT_DOB'].'}'          , $patdata['DOB'], $cpstring);
 
     if ($form_format == "pdf") {
-      $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
-      $pdf->ezSetMargins($GLOBALS['rx_top_margin']
+        $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
+        $pdf->ezSetMargins($GLOBALS['rx_top_margin']
                       ,$GLOBALS['rx_bottom_margin']
                       ,$GLOBALS['rx_left_margin']
                       ,$GLOBALS['rx_right_margin']
                       );
-      if (file_exists("$template_dir/custom_pdf.php")) {
-        include("$template_dir/custom_pdf.php");
-      }
-      else {
-        $pdf->selectFont('Helvetica');
-        $pdf->ezText($cpstring, 12);
-      }
-      $pdf->ezStream();
-      exit;
+        if (file_exists("$template_dir/custom_pdf.php")) {
+            include("$template_dir/custom_pdf.php");
+        }
+        else {
+            $pdf->selectFont('Helvetica');
+            $pdf->ezText($cpstring, 12);
+        }
+        $pdf->ezStream();
+        exit;
     }
     else { // $form_format = html
         $cpstring = text($cpstring); //escape to prevent stored cross script attack
-	    $cpstring = str_replace("\n", "<br>", $cpstring);
-	    $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
+        $cpstring = str_replace("\n", "<br>", $cpstring);
+        $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
         ?>
         <html>
         <head>
         <style>
         body {
-	 font-family: sans-serif;
-	 font-weight: normal;
-	 font-size: 12pt;
-	 background: white;
-	 color: black;
-	}
-	.paddingdiv {
-	 width: 524pt;
-	 padding: 0pt;
-	 margin-top: 50pt;
-	}
-	.navigate {
-	 margin-top: 2.5em;
-	}
-	@media print {
-	 .navigate {
-	  display: none;
-	 }
-	}
-	</style>
-	<title><?php echo xlt('Letter'); ?></title>
-	</head>
+     font-family: sans-serif;
+     font-weight: normal;
+     font-size: 12pt;
+     background: white;
+     color: black;
+    }
+    .paddingdiv {
+     width: 524pt;
+     padding: 0pt;
+     margin-top: 50pt;
+    }
+    .navigate {
+     margin-top: 2.5em;
+    }
+    @media print {
+     .navigate {
+      display: none;
+     }
+    }
+    </style>
+    <title><?php echo xlt('Letter'); ?></title>
+    </head>
         <body>
-	<div class='paddingdiv'>
-	<?php echo $cpstring; ?>
+    <div class='paddingdiv'>
+    <?php echo $cpstring; ?>
         <div class="navigate">
-	<a href='<?php echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved'; ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
-	</div>
-	<script language='JavaScript'>
-	window.print();
-	</script>
-	</body>
-	</div>
-	<?php
-	exit;
+    <a href='<?php echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved'; ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
+    </div>
+    <script language='JavaScript'>
+    window.print();
+    </script>
+    </body>
+    </div>
+    <?php
+    exit;
     }
 }
 else if (isset($_GET['template']) && $_GET['template'] != "") {
@@ -279,16 +279,16 @@ $optfrom = '';
 $optto = '';
 $ulist = "var ulist = new Array();\n";
 while ($urow = sqlFetchArray($ures)) {
-  $uname = $urow['lname'];
-  if ($urow['fname']) $uname .= ", " . $urow['fname'];
-  $tmp1 = " <option value='" . attr($urow['id']) . "'";
-  $tmp2 = ">" . text($uname) . "</option>\n";
-  $optto .= $tmp1 . $tmp2;
-  if ($urow['id'] == $_SESSION['authUserID']) $tmp1 .= " selected";
-  $optfrom .= $tmp1 . $tmp2;
-  $ulist .= "ulist[$i] = '" . attr($uname) . "|" .
+    $uname = $urow['lname'];
+    if ($urow['fname']) $uname .= ", " . $urow['fname'];
+    $tmp1 = " <option value='" . attr($urow['id']) . "'";
+    $tmp2 = ">" . text($uname) . "</option>\n";
+    $optto .= $tmp1 . $tmp2;
+    if ($urow['id'] == $_SESSION['authUserID']) $tmp1 .= " selected";
+    $optfrom .= $tmp1 . $tmp2;
+    $ulist .= "ulist[$i] = '" . attr($uname) . "|" .
     attr($urow['id']) . "|" . attr($urow['specialty']) . "';\n";
-  ++$i;
+    ++$i;
 }
 
 // Get the unique specialties.
@@ -297,7 +297,7 @@ $sres = sqlStatement("SELECT DISTINCT specialty FROM users " .
   "ORDER BY specialty");
 $optspec = "<option value='All'>" . xlt('All') . "</option>\n";
 while ($srow = sqlFetchArray($sres)) {
-  $optspec .= " <option value='" . attr($srow['specialty']) . "'>" .
+    $optspec .= " <option value='" . attr($srow['specialty']) . "'>" .
     text($srow['specialty']) . "</option>\n";
 }
 ?>
@@ -408,7 +408,7 @@ function insertAtCursor(myField, myValue) {
  <tr>
 
   <td class='control-label'>
-   <?php echo xlt('From'); ?>:
+    <?php echo xlt('From'); ?>:
   </td>
 
   <td>
@@ -418,7 +418,7 @@ function insertAtCursor(myField, myValue) {
   </td>
 
   <td class='control-label'>
-   <?php echo xlt('Date'); ?>:
+    <?php echo xlt('Date'); ?>:
   </td>
 
   <td>
@@ -432,7 +432,7 @@ function insertAtCursor(myField, myValue) {
  <tr>
 
   <td class='control-label'>
-   <?php echo xlt('Specialty'); ?>:
+    <?php echo xlt('Specialty'); ?>:
   </td>
 
   <td>
@@ -442,7 +442,7 @@ function insertAtCursor(myField, myValue) {
   </td>
 
   <td class='control-label'>
-   <?php echo xlt('Template'); ?>:
+    <?php echo xlt('Template'); ?>:
   </td>
 
   <td>
@@ -454,20 +454,20 @@ $dh = opendir($tpldir);
 if (! $dh) die(xlt('Cannot read') . ' ' . $tpldir);
 while (false !== ($tfname = readdir($dh))) {
   // skip dot-files, scripts and images
-  if (preg_match("/^\./"   , $tfname)) { continue; }
-  if (preg_match("/\.php$/", $tfname)) { continue; }
-  if (preg_match("/\.jpg$/", $tfname)) { continue; }
-  if (preg_match("/\.png$/", $tfname)) { continue; }
-  echo "<option value='" . attr($tfname) . "'";
-  if (($tfname == $_POST['form_template']) || ($tfname == $_GET['template'])) echo " SELECTED";
-  echo ">";
-  if ($tfname == 'autosaved') {
-    echo xlt($tfname);
-  }
-  else {
-    echo text($tfname);
-  }
-  echo "</option>";
+    if (preg_match("/^\./"   , $tfname)) { continue; }
+    if (preg_match("/\.php$/", $tfname)) { continue; }
+    if (preg_match("/\.jpg$/", $tfname)) { continue; }
+    if (preg_match("/\.png$/", $tfname)) { continue; }
+    echo "<option value='" . attr($tfname) . "'";
+    if (($tfname == $_POST['form_template']) || ($tfname == $_GET['template'])) echo " SELECTED";
+    echo ">";
+    if ($tfname == 'autosaved') {
+        echo xlt($tfname);
+    }
+    else {
+        echo text($tfname);
+    }
+    echo "</option>";
 }
 closedir($dh);
 ?>
@@ -481,7 +481,7 @@ closedir($dh);
  <tr>
 
   <td class='control-label'>
-   <?php echo xlt('To'); ?>:
+    <?php echo xlt('To'); ?>:
   </td>
 
   <td>
@@ -491,7 +491,7 @@ closedir($dh);
   </td>
 
   <td class='control-label'>
-   <?php echo xlt('Print Format'); ?>:
+    <?php echo xlt('Print Format'); ?>:
   </td>
 
   <td>

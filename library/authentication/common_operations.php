@@ -1,7 +1,7 @@
 <?php
 /**
  * This is a library of commonly used functions for managing data for authentication
- * 
+ *
  * Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -40,7 +40,7 @@ define("COL_SALT_H2","salt_history2");
 
 /**
  * create a new password entry in the users_secure table
- * 
+ *
  * @param type $username
  * @param type $password  Passing by reference so additional copy is not created in memory
  */
@@ -66,8 +66,8 @@ function initializePassword($username,$userid,&$password)
 
 /**
  * After a user's password has been updated to use the new hashing strategy wipe out the old hash value.
- * 
- * 
+ *
+ *
  * @param type $username
  * @param type $userid
  */
@@ -82,7 +82,7 @@ function purgeCompatabilityPassword($username,$userid)
 
 
 /**
- * 
+ *
  * @param type $username
  * @param type $password
  * @return boolean  returns true if the password for the given user is correct, false otherwise.

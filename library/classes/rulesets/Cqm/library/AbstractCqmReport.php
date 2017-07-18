@@ -47,15 +47,18 @@ abstract class AbstractCqmReport implements RsReportIF
 
     public abstract function createPopulationCriteria();
 
-    public function getBeginMeasurement() {
+    public function getBeginMeasurement()
+    {
         return $this->_beginMeasurement;
     }
 
-    public function getEndMeasurement() {
+    public function getEndMeasurement()
+    {
         return $this->_endMeasurement;
     }
     
-    public function getResults() {
+    public function getResults()
+    {
         return $this->_resultsArray;
     }
 
@@ -204,14 +207,14 @@ abstract class AbstractCqmReport implements RsReportIF
 
                 // If itemization is turned on, then record the "passed" item
                 if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                   insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $patient->id, $numerator->getTitle());
+                    insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $patient->id, $numerator->getTitle());
                 }
  
             }
             else {
                 // If itemization is turned on, then record the "failed" item
                 if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                   insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $patient->id, $numerator->getTitle());
+                    insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $patient->id, $numerator->getTitle());
                 }
 
             }

@@ -25,10 +25,10 @@
 include_once ("$argv[1]/library/sqlconf.php");
 $backuptime=date("Ymd_His");
 $BACKUP_EVENTLOG_DIR = $argv[2] . "/emr_eventlog_backup";
- if (!file_exists($BACKUP_EVENTLOG_DIR))
-  {
-  mkdir($BACKUP_EVENTLOG_DIR);
-  chmod($BACKUP_EVENTLOG_DIR,0777);
+if (!file_exists($BACKUP_EVENTLOG_DIR))
+{
+    mkdir($BACKUP_EVENTLOG_DIR);
+    chmod($BACKUP_EVENTLOG_DIR,0777);
 }
 $BACKUP_EVENTLOG_DIR=$BACKUP_EVENTLOG_DIR.'/eventlog_'.$backuptime.'.sql';
 $cmd=$argv[1].'/interface/main/backuplog.sh '.$sqlconf["login"].' '.$sqlconf["pass"].' '.$sqlconf["dbase"].' '.$BACKUP_EVENTLOG_DIR.' '.$sqlconf["host"];

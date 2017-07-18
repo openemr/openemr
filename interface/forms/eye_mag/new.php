@@ -1,11 +1,11 @@
 <?php
-/** 
- * forms/eye_mag/new.php 
- * 
+/**
+ * forms/eye_mag/new.php
+ *
  * The page shown when the user requests a new form
  *
- * Copyright (C) 2016 Raymond Magauran <magauran@MedFetch.com> 
- * 
+ * Copyright (C) 2016 Raymond Magauran <magauran@MedFetch.com>
+ *
  * LICENSE: This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as
  *  published by the Free Software Foundation, either version 3 of the
@@ -18,10 +18,10 @@
  *
  *  You should have received a copy of the GNU Affero General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * @package OpenEMR 
- * @author Ray Magauran <magauran@MedFetch.com> 
- * @link http://www.open-emr.org 
+ *
+ * @package OpenEMR
+ * @author Ray Magauran <magauran@MedFetch.com>
+ * @link http://www.open-emr.org
  */
 
 
@@ -39,11 +39,13 @@ $returnurl = 'encounter_top.php';
 
 $pid = $_REQUEST['pid'];
 
-if (!$pid) { $pid = $_SESSION['pid']; } else { $_SESSION['pid'] = $pid; }
+if (!$pid) { $pid = $_SESSION['pid'];
+} else { $_SESSION['pid'] = $pid; }
 if (!$user) $user = $_SESSION['authUser'];
 if (!$group) $group = $_SESSION['authProvider'];
 
-if (!$_SESSION['encounter']) { $encounter = date("Ymd"); } else { $encounter=$_SESSION['encounter'];}
+if (!$_SESSION['encounter']) { $encounter = date("Ymd");
+} else { $encounter=$_SESSION['encounter'];}
 $query = "select * from form_encounter where pid =? and encounter= ?";
 $encounter_data = sqlQuery($query,array($pid,$encounter));
 $encounter_date = $encounter_data['date'];
@@ -66,7 +68,7 @@ if ($erow['form_id'] > '0') {
     $sql = "insert into forms (date, encounter, form_name, form_id, pid, " .
             "user, groupname, authorized, formdir) values (NOW(),?,?,?,?,?,?,?,?)";//activity=1, date = NOW()
     $answer = sqlInsert( $sql ,array($encounter,$form_name,$newid,$pid,$user,$group,$providerid,$form_folder));
- }
+}
  
     formHeader("Redirecting....");
     formJump('./view_form.php?formname='.$form_folder.'&id='.attr($newid).'&pid='.attr($pid));

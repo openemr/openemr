@@ -36,7 +36,8 @@ require_once(dirname(__FILE__) . "/../../../library/patient_tracker.inc.php");
  * @param $group_id
  * @return array|null
  */
-function get_form_id_of_existing_attendance_form($encounter, $group_id){
+function get_form_id_of_existing_attendance_form($encounter, $group_id)
+{
     $sql = "SELECT form_id FROM forms WHERE encounter = ? AND formdir = 'group_attendance' AND therapy_group_id = ? AND deleted = 0;";
     $result = sqlQuery($sql, array($encounter, $group_id));
     return $result;
@@ -49,7 +50,8 @@ function get_form_id_of_existing_attendance_form($encounter, $group_id){
  * @param $group_encounter_data
  * @param $appt_data
  */
-function participant_insertions($form_id, $therapy_group, $group_encounter_data,$appt_data){
+function participant_insertions($form_id, $therapy_group, $group_encounter_data,$appt_data)
+{
     $patientData = $_POST['patientData'];
     foreach ($patientData as $pid => $patient){
 
@@ -81,7 +83,8 @@ function participant_insertions($form_id, $therapy_group, $group_encounter_data,
  * @param $pid
  * @param $participantData
  */
-function insert_into_tgpa_table($form_id, $pid, $participantData){
+function insert_into_tgpa_table($form_id, $pid, $participantData)
+{
     $sql_for_table_tgpa = "INSERT INTO therapy_groups_participant_attendance (form_id, pid, meeting_patient_comment, meeting_patient_status) " .
         "VALUES(?,?,?,?);";
     sqlInsert($sql_for_table_tgpa, array($form_id, $pid, $participantData['comment'], $participantData['status']));
@@ -96,7 +99,8 @@ function insert_into_tgpa_table($form_id, $pid, $participantData){
  * @param $pc_startTime
  * @param $participantData
  */
-function insert_patient_appt($pid, $gid, $pc_aid, $pc_eventDate, $pc_startTime, $participantData){
+function insert_patient_appt($pid, $gid, $pc_aid, $pc_eventDate, $pc_startTime, $participantData)
+{
     $select_sql = "SELECT pc_eid FROM openemr_postcalendar_events WHERE pc_pid = ? AND pc_gid = ? AND pc_eventDate = ? AND pc_startTime = ?;";
     $result = sqlStatement($select_sql, array($pid, $gid, $pc_eventDate, $pc_startTime));
     $result_array = sqlFetchArray($result);
@@ -126,7 +130,8 @@ function insert_patient_appt($pid, $gid, $pc_aid, $pc_eventDate, $pc_startTime, 
  * @param $participantData
  * @param $pc_aid
  */
-function insert_patient_encounter($pid, $gid, $group_encounter_date, $participantData, $pc_aid){
+function insert_patient_encounter($pid, $gid, $group_encounter_date, $participantData, $pc_aid)
+{
     $select_sql = "SELECT id, encounter FROM form_encounter WHERE pid = ? AND external_id = ? AND pc_catid = ? AND date = ?; ";
     $result = sqlStatement($select_sql, array($pid, $gid, get_groups_cat_id(), $group_encounter_date));
     $result_array = sqlFetchArray($result);
@@ -147,7 +152,7 @@ function insert_patient_encounter($pid, $gid, $group_encounter_date, $participan
 
         global $userauthorized;
 
-        addForm($enc_id, "New Patient Encounter", $form_id, "newpatient",$pid, $userauthorized, $group_encounter_date,'','',NULL);
+        addForm($enc_id, "New Patient Encounter", $form_id, "newpatient",$pid, $userauthorized, $group_encounter_date,'','',null);
 
         return $enc_id;
 
@@ -159,7 +164,8 @@ function insert_patient_encounter($pid, $gid, $group_encounter_date, $participan
  * @param $encounter_id
  * @return array
  */
-function get_appt_data($encounter_id){
+function get_appt_data($encounter_id)
+{
     $sql =
         "SELECT ope.pc_aid, ope.pc_eventDate, ope.pc_startTime, ope.pc_room FROM form_groups_encounter as fge " .
         "JOIN openemr_postcalendar_events as ope ON fge.appt_id = ope.pc_eid " .
@@ -173,7 +179,8 @@ function get_appt_data($encounter_id){
  * @param $encounter_id
  * @return array
  */
-function get_group_encounter_data($encounter_id){
+function get_group_encounter_data($encounter_id)
+{
     $sql = "SELECT date FROM form_groups_encounter WHERE encounter = ?";
     $result = sqlQuery($sql, array($encounter_id));
     return $result;
@@ -185,7 +192,8 @@ function get_group_encounter_data($encounter_id){
  * @param $status
  * @return bool
  */
-function if_to_create_for_patient($status){
+function if_to_create_for_patient($status)
+{
     $sql = 'SELECT toggle_setting_1 FROM list_options WHERE list_id = \'attendstat\' AND toggle_setting_1 = 1 AND option_id = ?';
     $to_create = sqlQuery($sql, array($status));
     return $to_create;
@@ -196,7 +204,8 @@ function if_to_create_for_patient($status){
  * @param $table
  * @return int
  */
-function largest_id_plus_one($table){
+function largest_id_plus_one($table)
+{
     $maxId = largest_id($table);
     if ($maxId) {
         $newid = $maxId + 1;
@@ -211,14 +220,16 @@ function largest_id_plus_one($table){
  * @param $table
  * @return mixed
  */
-function largest_id($table){
+function largest_id($table)
+{
     $res = sqlStatement("SELECT MAX(id) as largestId FROM `" . escape_table_name($table) . "`");
     $getMaxid = sqlFetchArray($res);
     return $getMaxid['largestId'];
 }
 
 
-function get_groups_cat_id(){
+function get_groups_cat_id()
+{
     $result = sqlQuery('SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_cattype = 3 AND pc_active = 1 LIMIT 1');
     return !empty($result) ? $result['pc_catid'] : 0;
 }

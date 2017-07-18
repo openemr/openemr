@@ -1,7 +1,7 @@
 <?php
 /**
  * Controller for getting information about fee sheet options
- * 
+ *
  * Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
  *
  * LICENSE: This program is free software; you can redistribute it and/or

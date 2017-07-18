@@ -3,17 +3,17 @@
 //
 
 
-function registerForm ( $directory , $sql_run=0 , $unpackaged=1 , $state=0 )
+function registerForm( $directory , $sql_run=0 , $unpackaged=1 , $state=0 )
 {
-	$check = sqlQuery("select state from registry where directory='$directory'");
-	if ($check == false)
-	{
-		$lines = @file($GLOBALS['srcdir']."/../interface/forms/$directory/info.txt");
-		if ($lines)
-			$name = $lines[0];
-		else
-			$name = $directory;
-		return sqlInsert("insert into registry set
+    $check = sqlQuery("select state from registry where directory='$directory'");
+    if ($check == false)
+    {
+        $lines = @file($GLOBALS['srcdir']."/../interface/forms/$directory/info.txt");
+        if ($lines)
+            $name = $lines[0];
+        else
+            $name = $directory;
+        return sqlInsert("insert into registry set
 			name='$name',
 			state='$state',
 			directory='".add_escape_custom($directory)."',
@@ -21,13 +21,13 @@ function registerForm ( $directory , $sql_run=0 , $unpackaged=1 , $state=0 )
 			unpackaged='$unpackaged',
 			date=NOW()
 		");
-	}
-	return false;
+    }
+    return false;
 }
 
-function updateRegistered ( $id, $mod )
+function updateRegistered( $id, $mod )
 {
-	return sqlInsert("update registry set
+    return sqlInsert("update registry set
 		$mod,
 		date=NOW()
 	where
@@ -35,50 +35,51 @@ function updateRegistered ( $id, $mod )
 	");
 }
 
-function getRegistered ( $state="1", $limit="unlimited", $offset="0")
+function getRegistered( $state="1", $limit="unlimited", $offset="0")
 {
-	$sql = "select * from registry where state like \"$state\" order by priority, name";
-	if ($limit != "unlimited")
-		$sql .= " limit $limit, $offset";
-	$res = sqlStatement($sql);
-	if ($res)
-	for($iter=0; $row=sqlFetchArray($res); $iter++)
-	{
-		$all[$iter] = $row;
-	}
-	else
-		return false;
-	return $all;
+    $sql = "select * from registry where state like \"$state\" order by priority, name";
+    if ($limit != "unlimited")
+        $sql .= " limit $limit, $offset";
+    $res = sqlStatement($sql);
+    if ($res)
+    for($iter=0; $row=sqlFetchArray($res); $iter++)
+    {
+        $all[$iter] = $row;
+    }
+    else
+        return false;
+    return $all;
 }
 
-function getRegistryEntry ( $id, $cols = "*" )
+function getRegistryEntry( $id, $cols = "*" )
 {
-	$sql = "select $cols from registry where id='$id'";
-	return sqlQuery($sql);
+    $sql = "select $cols from registry where id='$id'";
+    return sqlQuery($sql);
 }
 
-function getRegistryEntryByDirectory($directory, $cols = "*") {
-	$sql = "select $cols from registry where directory = ?";
-	return sqlQuery($sql, $directory);
+function getRegistryEntryByDirectory($directory, $cols = "*")
+{
+    $sql = "select $cols from registry where directory = ?";
+    return sqlQuery($sql, $directory);
 }
 
-function installSQL ( $dir )
+function installSQL( $dir )
 {
-	$sqltext = $dir."/table.sql";
-	if ($sqlarray = @file($sqltext))
-	{
-		$sql = implode("", $sqlarray);
-		//echo "<br>$sql<br><br>";
-		$sqla = explode(";",$sql);
-		foreach ($sqla as $sqlq) {
-		  if (strlen($sqlq) > 5) {
-		   sqlStatement(rtrim("$sqlq"));
-		  }
-		}
+    $sqltext = $dir."/table.sql";
+    if ($sqlarray = @file($sqltext))
+    {
+        $sql = implode("", $sqlarray);
+        //echo "<br>$sql<br><br>";
+        $sqla = explode(";",$sql);
+        foreach ($sqla as $sqlq) {
+            if (strlen($sqlq) > 5) {
+                sqlStatement(rtrim("$sqlq"));
+            }
+        }
 
-		return true;
-	}else
-		return false;
+        return true;
+    }else
+        return false;
 }
 
 
@@ -93,7 +94,7 @@ function installSQL ( $dir )
  *            state => 0=inactive / 1=active
  *  OUTPUT = true or false
  */
-function isRegistered ( $directory, $state = 1)
+function isRegistered( $directory, $state = 1)
 {
     $sql = "select id from registry where ".
             "directory='".$directory.
@@ -103,9 +104,10 @@ function isRegistered ( $directory, $state = 1)
     return false;
 }
 
-function getTherapyGroupCategories(){
+function getTherapyGroupCategories()
+{
 
-	return array('');
+    return array('');
 }
 
 ?>

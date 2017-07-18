@@ -2,22 +2,13 @@
 /**
  * User entity.
  *
- * Copyright (C) 2017 Matthew Vita <matthewvita48@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
  * @package OpenEMR
- * @author  Matthew Vita <matthewvita48@gmail.com>
  * @link    http://www.open-emr.org
+ * @author  Matthew Vita <matthewvita48@gmail.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Matthew Vita <matthewvita48@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace entities;
@@ -38,7 +29,8 @@ class User {
     /**
      * Default constructor.
      */
-    public function __construct() {}
+    public function __construct()
+    {}
 
     /**
      * @Column(name="id", type="integer")
@@ -327,452 +319,579 @@ class User {
      */
     private $source;
 
-    public function getId() {
+    /**
+     * @Column(name="main_menu_role", type="string")
+     */
+    private $mainMenuRole;
+
+    public function getId()
+    {
         return $this->id;
     }
 
-    public function setId($value) {
+    public function setId($value)
+    {
         $this->id = $value;
     }
 
-    public function getUsername() {
+    public function getUsername()
+    {
         return $this->username;
     }
 
-    public function setUsername($value) {
+    public function setUsername($value)
+    {
         $this->username = $value;
     }
 
-    public function getPassword() {
+    public function getPassword()
+    {
         return $this->password;
     }
 
-    public function setPassword($value) {
+    public function setPassword($value)
+    {
         $this->password = $value;
     }
 
-    public function getAuthorized() {
+    public function getAuthorized()
+    {
         return $this->authorized;
     }
 
-    public function setAuthorized($value) {
+    public function setAuthorized($value)
+    {
         $this->authorized = $value;
     }
 
-    public function getInfo() {
+    public function getInfo()
+    {
         return $this->info;
     }
 
-    public function setInfo($value) {
+    public function setInfo($value)
+    {
         $this->info = $value;
     }
 
-    public function getSource() {
+    public function getSource()
+    {
         return $this->source;
     }
 
-    public function setSource($value) {
+    public function setSource($value)
+    {
         $this->source = $value;
     }
 
-    public function getFname() {
+    public function getFname()
+    {
         return $this->fname;
     }
 
-    public function setFname($value) {
+    public function setFname($value)
+    {
         $this->fname = $value;
     }
 
-    public function getMname() {
+    public function getMname()
+    {
         return $this->mname;
     }
 
-    public function setMname($value) {
+    public function setMname($value)
+    {
         $this->mname = $value;
     }
 
-    public function getLname() {
+    public function getLname()
+    {
         return $this->lname;
     }
 
-    public function setLname($value) {
+    public function setLname($value)
+    {
         $this->lname = $value;
     }
 
-    public function getSuffix() {
+    public function getSuffix()
+    {
         return $this->suffix;
     }
 
-    public function setSuffix($value) {
+    public function setSuffix($value)
+    {
         $this->suffix = $value;
     }
 
-    public function getFederalTaxId() {
+    public function getFederalTaxId()
+    {
         return $this->federalTaxId;
     }
 
-    public function setFederalTaxId($value) {
+    public function setFederalTaxId($value)
+    {
         $this->federalTaxId = $value;
     }
 
-    public function getFederalDrugId() {
+    public function getFederalDrugId()
+    {
         return $this->federalDrugId;
     }
 
-    public function setFederalDrugId($value) {
+    public function setFederalDrugId($value)
+    {
         $this->federalDrugId = $value;
     }
 
-    public function getUpin() {
+    public function getUpin()
+    {
         return $this->upin;
     }
 
-    public function setUpin($value) {
+    public function setUpin($value)
+    {
         $this->upin = $value;
     }
 
-    public function getFacility() {
+    public function getFacility()
+    {
         return $this->facility;
     }
 
-    public function setFacility($value) {
+    public function setFacility($value)
+    {
         $this->facility = $value;
     }
 
-    public function getFacilityId() {
+    public function getFacilityId()
+    {
         return $this->facilityId;
     }
 
-    public function setFacilityId($value) {
+    public function setFacilityId($value)
+    {
         $this->facilityId = $value;
     }
 
-    public function getSeeAuth() {
+    public function getSeeAuth()
+    {
         return $this->seeAuth;
     }
 
-    public function setSeeAuth($value) {
+    public function setSeeAuth($value)
+    {
         $this->seeAuth = $value;
     }
 
-    public function getActive() {
+    public function getActive()
+    {
         return $this->active;
     }
 
-    public function setActive($value) {
+    public function setActive($value)
+    {
         $this->active = $value;
     }
 
-    public function getNpi() {
+    public function getNpi()
+    {
         return $this->npi;
     }
 
-    public function setNpi($value) {
+    public function setNpi($value)
+    {
         $this->npi = $value;
     }
 
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->title;
     }
 
-    public function setTitle($value) {
+    public function setTitle($value)
+    {
         $this->title = $value;
     }
 
-    public function getSpecialty() {
+    public function getSpecialty()
+    {
         return $this->specialty;
     }
 
-    public function setSpecialty($value) {
+    public function setSpecialty($value)
+    {
         $this->specialty = $value;
     }
 
-    public function getBillName() {
+    public function getBillName()
+    {
         return $this->billName;
     }
 
-    public function setBillName($value) {
+    public function setBillName($value)
+    {
         $this->billName = $value;
     }
 
-    public function getEmail() {
+    public function getEmail()
+    {
         return $this->email;
     }
 
-    public function setEmail($value) {
+    public function setEmail($value)
+    {
         $this->email = $value;
     }
 
-    public function getEmailDirect() {
+    public function getEmailDirect()
+    {
         return $this->emailDirect;
     }
 
-    public function setEmailDirect($value) {
+    public function setEmailDirect($value)
+    {
         $this->emailDirect = $value;
     }
 
-    public function getUrl() {
+    public function getUrl()
+    {
         return $this->url;
     }
 
-    public function setUrl($value) {
+    public function setUrl($value)
+    {
         $this->url = $value;
     }
 
-    public function getAssistant() {
+    public function getAssistant()
+    {
         return $this->assistant;
     }
 
-    public function setAssistant($value) {
+    public function setAssistant($value)
+    {
         $this->assistant = $value;
     }
 
-    public function getOrganization() {
+    public function getOrganization()
+    {
         return $this->organization;
     }
 
-    public function setOrganization($value) {
+    public function setOrganization($value)
+    {
         $this->organization = $value;
     }
 
-    public function getValedictory() {
+    public function getValedictory()
+    {
         return $this->valedictory;
     }
 
-    public function setValedictory($value) {
+    public function setValedictory($value)
+    {
         $this->valedictory = $value;
     }
 
-    public function getStreet() {
+    public function getStreet()
+    {
         return $this->street;
     }
 
-    public function setStreet($value) {
+    public function setStreet($value)
+    {
         $this->street = $value;
     }
 
-    public function getStreetB() {
+    public function getStreetB()
+    {
         return $this->streetB;
     }
 
-    public function setStreetB($value) {
+    public function setStreetB($value)
+    {
         $this->streetB = $value;
     }
 
-    public function getCity() {
+    public function getCity()
+    {
         return $this->city;
     }
 
-    public function setCity($value) {
+    public function setCity($value)
+    {
         $this->city = $value;
     }
 
-    public function getState() {
+    public function getState()
+    {
         return $this->state;
     }
 
-    public function setState($value) {
+    public function setState($value)
+    {
         $this->state = $value;
     }
 
-    public function getZip() {
+    public function getZip()
+    {
         return $this->zip;
     }
 
-    public function setZip($value) {
+    public function setZip($value)
+    {
         $this->zip = $value;
     }
 
-    public function getStreet2() {
+    public function getStreet2()
+    {
         return $this->street2;
     }
 
-    public function setStreet2($value) {
+    public function setStreet2($value)
+    {
         $this->street2 = $value;
     }
 
-    public function getStreetB2() {
+    public function getStreetB2()
+    {
         return $this->streetB2;
     }
 
-    public function setStreetB2($value) {
+    public function setStreetB2($value)
+    {
         $this->streetB2 = $value;
     }
 
-    public function getCity2() {
+    public function getCity2()
+    {
         return $this->city2;
     }
 
-    public function setCity2($value) {
+    public function setCity2($value)
+    {
         $this->city2 = $value;
     }
 
-    public function getState2() {
+    public function getState2()
+    {
         return $this->state2;
     }
 
-    public function setState2($value) {
+    public function setState2($value)
+    {
         $this->state2 = $value;
     }
 
-    public function getZip2() {
+    public function getZip2()
+    {
         return $this->zip2;
     }
 
-    public function setZip2($value) {
+    public function setZip2($value)
+    {
         $this->zip2 = $value;
     }
 
-    public function getPhone() {
+    public function getPhone()
+    {
         return $this->phone;
     }
 
-    public function setPhone($value) {
+    public function setPhone($value)
+    {
         $this->phone = $value;
     }
 
-    public function getFax() {
+    public function getFax()
+    {
         return $this->fax;
     }
 
-    public function setFax($value) {
+    public function setFax($value)
+    {
         $this->fax = $value;
     }
 
-    public function getPhoneW1() {
+    public function getPhoneW1()
+    {
         return $this->phoneW1;
     }
 
-    public function setPhoneW1($value) {
+    public function setPhoneW1($value)
+    {
         $this->phoneW1 = $value;
     }
 
-    public function getPhoneW2() {
+    public function getPhoneW2()
+    {
         return $this->phoneW2;
     }
 
-    public function setPhoneW2($value) {
+    public function setPhoneW2($value)
+    {
         $this->phoneW2 = $value;
     }
 
-    public function getPhoneCell() {
+    public function getPhoneCell()
+    {
         return $this->phoneCell;
     }
 
-    public function setPhoneCell($value) {
+    public function setPhoneCell($value)
+    {
         $this->phoneCell = $value;
     }
 
-    public function getNotes() {
+    public function getNotes()
+    {
         return $this->notes;
     }
 
-    public function setNotes($value) {
+    public function setNotes($value)
+    {
         $this->notes = $value;
     }
 
-    public function getCalUi() {
+    public function getCalUi()
+    {
         return $this->calUi;
     }
 
-    public function setCalUi($value) {
+    public function setCalUi($value)
+    {
         $this->calUi = $value;
     }
 
-    public function getTaxonomy() {
+    public function getTaxonomy()
+    {
         return $this->taxonomy;
     }
 
-    public function setTaxonomy($value) {
+    public function setTaxonomy($value)
+    {
         $this->taxonomy = $value;
     }
 
-    public function getCalendar() {
+    public function getCalendar()
+    {
         return $this->calendar;
     }
 
-    public function setCalendar($value) {
+    public function setCalendar($value)
+    {
         $this->calendar = $value;
     }
 
-    public function getaBookType() {
+    public function getaBookType()
+    {
         return $this->aBookType;
     }
 
-    public function setaBookType($value) {
+    public function setaBookType($value)
+    {
         $this->aBookType = $value;
     }
 
-    public function getPwdExpirationDate() {
+    public function getPwdExpirationDate()
+    {
         return $this->pwdExpirationDate;
     }
 
-    public function setPwdExpirationDate($value) {
+    public function setPwdExpirationDate($value)
+    {
         $this->pwdExpirationDate = $value;
     }
 
-    public function getPwdHistory1() {
+    public function getPwdHistory1()
+    {
         return $this->pwdHistory1;
     }
 
-    public function setPwdHistory1($value) {
+    public function setPwdHistory1($value)
+    {
         $this->pwdHistory1 = $value;
     }
 
-    public function getPwdHistory2() {
+    public function getPwdHistory2()
+    {
         return $this->pwdHistory2;
     }
 
-    public function setPwdHistory2($value) {
+    public function setPwdHistory2($value)
+    {
         $this->pwdHistory2 = $value;
     }
 
-    public function getDefaultWarehouse() {
+    public function getDefaultWarehouse()
+    {
         return $this->defaultWarehouse;
     }
 
-    public function setDefaultWarehouse($value) {
+    public function setDefaultWarehouse($value)
+    {
         $this->defaultWarehouse = $value;
     }
 
-    public function getIrnPool() {
+    public function getIrnPool()
+    {
         return $this->irnPool;
     }
 
-    public function setIrnPool($value) {
+    public function setIrnPool($value)
+    {
         $this->irnPool = $value;
     }
 
-    public function getStateLicenseNumber() {
+    public function getStateLicenseNumber()
+    {
         return $this->stateLicenseNumber;
     }
 
-    public function setStateLicenseNumber($value) {
+    public function setStateLicenseNumber($value)
+    {
         $this->stateLicenseNumber = $value;
     }
 
-    public function getNewCropUserRole() {
+    public function getNewCropUserRole()
+    {
         return $this->newCropUserRole;
     }
 
-    public function setNewCropUserRole($value) {
+    public function setNewCropUserRole($value)
+    {
         $this->newCropUserRole = $value;
     }
 
-    public function getCpoe() {
+    public function getCpoe()
+    {
         return $this->cpoe;
     }
 
-    public function setCpoe($value) {
+    public function setCpoe($value)
+    {
         $this->cpoe = $value;
     }
 
-    public function getPhysicianType() {
+    public function getPhysicianType()
+    {
         return $this->physicianType;
     }
 
-    public function setPhysicianType($value) {
+    public function setPhysicianType($value)
+    {
         $this->physicianType = $value;
+    }
+
+    public function getMainMenuRole()
+    {
+        return $this->mainMenuRole;
+    }
+
+    public function setMainMenuRole($value)
+    {
+        $this->mainMenuRole = $value;
     }
 
     /**
@@ -780,7 +899,8 @@ class User {
      *
      * @return object as string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return "id: '" . $this->getId() . "' " .
                "username: '" . $this->getUsername() . "' " .
                "password: '" . $this->getPassword() . "' " .
@@ -836,15 +956,17 @@ class User {
                "stateLicenseNumber: '" . $this->getStateLicenseNumber() . "' " .
                "newCropUserRole: '" . $this->getNewCropUserRole() . "' " .
                "cpoe: '" . $this->getCpoe() . "' " .
-               "physicianType: '" . $this->getPhysicianType() . "' ";
-   }
+               "physicianType: '" . $this->getPhysicianType() . "' " .
+               "mainMenuRole: '" . $this->getMainMenuRole() . "' ";
+    }
 
     /**
      * ToSerializedObject of the entire object.
      *
      * @return object as serialized object.
      */
-    public function toSerializedObject() {
-      return get_object_vars($this);
+    public function toSerializedObject()
+    {
+        return get_object_vars($this);
     }
 }

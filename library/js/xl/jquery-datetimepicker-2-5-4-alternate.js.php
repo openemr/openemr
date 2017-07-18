@@ -21,8 +21,8 @@
  *        yearStart: datepicker_yearStart,
  *        rtl: datepicker_rtl,
  *        format: datepicker_format,
- *	      timepicker:false
- *	  });
+ *        timepicker:false
+ *    });
  *
  * Example code in the javascript for datetimepicker:
  *    $('.jquery-date-time-picker').datetimepicker({
@@ -37,8 +37,8 @@
  *        rtl: datetimepicker_rtl,
  *        format: datetimepicker_format,
  *        step: datetimepicker_step,
- *	      timepicker:true
- *	  });
+ *        timepicker:true
+ *    });
  *
  *
  * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>

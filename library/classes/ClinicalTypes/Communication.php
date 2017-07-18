@@ -14,7 +14,8 @@ class Communication extends ClinicalType
     const COUNS_NUTRITION = 'comm_couns_nutrition'; // Communication to patient: counseling for nutrition
     const COUNS_PHYS_ACTIVITY = 'comm_couns_phys_activity'; // Communication to patient: counseling for physical activity
     const PREV_RECEIPT_VACCINE = 'comm_previous_receipt_vaccine';
-    public function getListId() {
+    public function getListId()
+    {
         return 'Clinical_Rules_Comm_Types';
     }
     

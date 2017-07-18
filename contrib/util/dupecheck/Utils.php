@@ -12,7 +12,7 @@
  * the max length of the string
  */
 
-function NBSPPadSuffix ($strInfo, $intMaxLength)
+function NBSPPadSuffix($strInfo, $intMaxLength)
 {
     $intN = $intMaxLength - strlen($strInfo);
 
@@ -30,7 +30,7 @@ function NBSPPadSuffix ($strInfo, $intMaxLength)
  * properly quote the passed value
  * or return NULL if there is no value at all
  */
-function SQLQuote ($strValue)
+function SQLQuote($strValue)
 {
     /* are we quoting a number or string? */
 
@@ -38,7 +38,7 @@ function SQLQuote ($strValue)
         /* It's a string */
 
         if (strlen($strValue) == 0) { return "NULL"; }
-        if ($strValue == NULL) { return "NULL"; }
+        if ($strValue == null) { return "NULL"; }
         /* remove any '\' values */
         $strValue = preg_replace("/\\\/", '', $strValue);
         return "'". preg_replace("/\'/", "''", $strValue) ."'";
@@ -57,7 +57,7 @@ function SQLQuote ($strValue)
  * Get the HTML (GET or POST) parameters
  */
 
-function GetParameters ()
+function GetParameters()
 {
     if ($_SERVER["REQUEST_METHOD"]=="POST") {
         foreach ($_POST as $key => $value) {

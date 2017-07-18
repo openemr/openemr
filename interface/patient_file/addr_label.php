@@ -3,31 +3,15 @@
 * interface/patient_file/addr_label.php Displaying a PDF file of Labels for printing.
 *
 * Program for displaying Address Labels
-* via the popups on the left nav screen
-*
-* Copyright (C) 2014 Terry Hill <terry@lillysystems.com>
-*
-* LICENSE: This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 3
-* of the License, or (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
 *
 * @package OpenEMR
-* @author Terry Hill <terry@lillysystems.com>
-* @link http://www.open-emr.org
-*
-* this is from the barcode-coder and FPDF website I used the examples and code snippets listed on the sites
-* to create this program
+* @link    http://www.open-emr.org
+* @author  Terry Hill <terry@lillysystems.com>
+* @author  Daniel Pflieger <growlingflea@gmail.com>
+* @copyright Copyright (c) 2014 Terry Hill <terry@lillysystems.com>
+* @copyright Copyright (c) 2017 Daniel Pflieger <growlingflea@gmail.com>
+* @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
-
-
-
 
 require_once("../globals.php");
 
@@ -45,38 +29,38 @@ $patdata = sqlQuery("SELECT " .
 $today = oeFormatShortDate($date='today');
 $dob = oeFormatShortDate($patdata['DOB']);
 
-$pdf = new PDF_Label('5160'); // used this to get the basic info to the class
-$pdf = new eFPDF('P', 'mm',array(102,252)); // set the orentation, unit of measure and size of the page
-$pdf->AddPage();
-$pdf->SetFont('Arial','',50);
+//Keep in mind the envelope is shifted by 90 degrees.
+// Changes made by Daniel Pflieger, daniel@mi-squared.com growlingflea@gmail.com
 
+$x_width =  $GLOBALS['env_x_width'];
+$y_height = $GLOBALS['env_y_height'];
 
-$fontSize = 40;
-$marge    = 5;   // between barcode and hri in pixel
-$x        = 20;  // barcode center
-$y        = 200;  // barcode center
-$height   = 40;   // barcode height in 1D ; module size in 2D
-$width    = 1;    // barcode height in 1D ; not use in 2D
+//printed text details
+$font_size = $GLOBALS['env_font_size'];
+$x         = $GLOBALS['env_x_dist'];  // Distance from the 'top' of the envelope in portrait position
+$y         = $GLOBALS['env_y_dist']; // Distance from the right most edge of the envelope in portrait position
 $angle    = 90;   // rotation in degrees
 $black    = '000000'; // color in hexa
 
+//Format of the address
+//This number increases the spacing between the line printed on the envelope
+$xt       = .2*$font_size;
 
+//ymargin of printed text. The smaller the number, the further from the left edge edge the address is printed
+$yt       = 0;
 
 $text1 = sprintf("%s %s\n", $patdata['fname'], $patdata['lname']);
 $text2 = sprintf("%s \n", $patdata['street']);
-$text3 = sprintf("%s , %s\n", $patdata['city'], $patdata['state']);
-$text4 = sprintf("%s \n", $patdata['postal_code']);
+$text3 = sprintf("%s , %s %s", $patdata['city'], $patdata['state'], $patdata['postal_code']);
 
-
-$pdf->TextWithRotation($x + $xt, $y + $yt, $text1, $angle);
-$xt=$xt + 15;
+$pdf = new eFPDF('P', 'mm',array($x_width, $y_height)); // set the orentation, unit of measure and size of the page
+$pdf->AddPage();
+$pdf->SetFont('Arial','',$font_size);
+$pdf->TextWithRotation($x, $y + $yt, $text1, $angle);
+$xt += $xt;
 $pdf->TextWithRotation($x + $xt, $y + $yt, $text2, $angle);
-$xt=$xt + 15;
+$xt +=$xt;
 $pdf->TextWithRotation($x + $xt, $y + $yt, $text3, $angle);
-$xt=$xt + 15;
-$y=$y - 100;
-$pdf->TextWithRotation($x + $xt, $y + $yt, $text4, $angle);
-
+$xt +=$xt;
 
 $pdf->Output();
-?>

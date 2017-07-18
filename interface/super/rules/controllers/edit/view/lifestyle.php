@@ -22,7 +22,7 @@
     <span class="left_col colhead req"><?php echo out( xl( 'Value' ) ); ?></span>
     <span class="end_col">
         <input type="radio" name="fld_value_type" class="field" value="match"
-               <?php echo !is_null($criteria->matchValue) ? "CHECKED" : ""?>> <?php echo out( xl( 'Match' ) ); ?>
+                <?php echo !is_null($criteria->matchValue) ? "CHECKED" : ""?>> <?php echo out( xl( 'Match' ) ); ?>
         <input type="text" name="fld_value" class="field short" value="<?php echo out( $criteria->matchValue ); ?>" />
     </span>
 </p>
@@ -31,7 +31,7 @@
     <span class="left_col colhead">&nbsp;</span>
     <span class="end_col">
         <input type="radio" name="fld_value_type" class="field" value="any"
-               <?php echo is_null($criteria->matchValue) ? "CHECKED" : ""?>> <?php echo out( xl( 'Any' ) ); ?>
+                <?php echo is_null($criteria->matchValue) ? "CHECKED" : ""?>> <?php echo out( xl( 'Any' ) ); ?>
     </span>
 </p>
 

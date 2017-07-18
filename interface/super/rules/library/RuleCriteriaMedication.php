@@ -14,11 +14,13 @@ require_once( library_src( 'RuleCriteriaSimpleText.php') );
  * @author aron
  */
 class RuleCriteriaMedication extends RuleCriteriaSimpleText {
-    function __construct( $title, $value = '') {
+    function __construct( $title, $value = '')
+    {
         parent::__construct($title, $value);
     }
 
-    function getDbView() {
+    function getDbView()
+    {
         $dbView = parent::getDbView();
 
         $dbView->method = "lists";

@@ -33,7 +33,7 @@ class SyndromicsurveillanceController extends AbstractActionController
     
     public function __construct()
     {
-      	$this->listenerObject	= new Listener;
+        $this->listenerObject   = new Listener;
     }
     
     /*
@@ -50,7 +50,7 @@ class SyndromicsurveillanceController extends AbstractActionController
         $this->search   = $request->getPost('search', null);
         $fromDate       = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d',strtotime(date('Ymd')) - (86400*7));
         $toDate         = $request->getPost('form_date_to', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_to', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
-		$code_selected  = $request->getPost('form_icd_codes', null);
+        $code_selected  = $request->getPost('form_icd_codes', null);
         $provider_selected  = $request->getPost('form_provider_id', null);
         
         $results        = $request->getPost('form_results', 100);
@@ -100,14 +100,14 @@ class SyndromicsurveillanceController extends AbstractActionController
             'form_data'     => $params,
             'table_obj'     => $this->getSyndromicsurveillanceTable(),
             'listenerObject'=> $this->listenerObject,
-			'commonplugin'  => $this->CommonPlugin(),
+            'commonplugin'  => $this->CommonPlugin(),
         ));
         return $view;
     }
     
     /**
     * Table Gateway
-    * 
+    *
     * @return type
     */
     public function getSyndromicsurveillanceTable()
