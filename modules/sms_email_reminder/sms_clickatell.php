@@ -72,7 +72,7 @@ class sms
     * Gateway command sending method (curl,fopen)
     * @var mixed
     */
-    var $sending_method = "fopen";
+    var $sending_method = "curl";
 
     /**
     * Does to use facility for delivering Unicode messages
@@ -120,17 +120,24 @@ class sms
     * @return object New SMS object.
     * @access public
     */
-    function sms()
-    {
+
+    function sms ($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY, $SMS_GATEWAY_RETURN_NUM ) {
+
+        $this->api_id = $SMS_GATEWAY_APIKEY;
+        $this->user = $SMS_GATEWAY_USENAME;
+        $this->password=$SMS_GATEWAY_PASSWORD;
+        $this->sender_ph_num = str_replace(' ', '', $SMS_GATEWAY_RETURN_NUM);
+
+
         if ($this->use_ssl) {
-            $this->base   = "http://api.clickatell.com/http";
-            $this->base_s = "https://api.clickatell.com/http";
+            $this->base   = "HTTPS://platform.clickatell.com/messages/http";
+            $this->base_s = "HTTPS://platform.clickatell.com/messages/http";
         } else {
-            $this->base   = "http://api.clickatell.com/http";
+            $this->base   = "HTTPS://platform.clickatell.com/messages/http";
             $this->base_s = $this->base;
         }
 
-        $this->_auth();
+
     }
 
     /**
@@ -138,21 +145,15 @@ class sms
     * @return mixed  "OK" or script die
     * @access private
     */
-    function _auth()
-    {
-        $comm = sprintf("%s/auth?api_id=%s&user=%s&password=%s", $this->base_s, $this->api_id, $this->user, $this->password);
-        $this->session = $this->_parse_auth($this->_execgw($comm));
+
+    function _auth() {
+
+        $comm = sprintf ("%s/auth?apiKey=%s", $this->base_s, $this->api_id);
+        $this->session = $this->_parse_auth ($this->_execgw($comm));
     }
 
-    /**
-    * Query SMS credis balance
-    * @return integer  number of SMS credits
-    * @access public
-    */
-    function getbalance()
-    {
-        $comm = sprintf("%s/getbalance?session_id=%s", $this->base, $this->session);
-        return $this->_parse_getbalance($this->_execgw($comm));
+    function getReturnNum(){
+        return $this->sender_ph_num;
     }
 
     /**
@@ -166,12 +167,7 @@ class sms
     function send($to = null, $from = null, $text = null)
     {
 
-        /* Check SMS credits balance */
-        if ($this->getbalance() < $this->balace_limit) {
-            die("You have reach the SMS credit limit!");
-        };
-
-        /* Check SMS $text length */
+    	/* Check SMS $text length */
         if ($this->unicode == true) {
             $this->_chk_mbstring();
             if (mb_strlen($text) > 210) {
@@ -185,12 +181,12 @@ class sms
                 $concat = "";
             }
         } else {
-            if (strlen($text) > 459) {
-                die("Your message is too long! (Current lenght=".strlen($text).")");
-            }
 
-            /* Does message need to be concatenate */
-            if (strlen($text) > 160) {
+            if (strlen ($text) > 900) {
+    	        die ("Your message is too long! (Current lenght=".strlen ($text).")");
+    	    }
+        	/* Does message need to be concatenate */
+            if (strlen ($text) > 160) {
                 $concat = "&concat=3";
             } else {
                 $concat = "";
@@ -210,17 +206,15 @@ class sms
         $cleanup_chr = array ("+", " ", "(", ")", "\r", "\n", "\r\n");
         $to = str_replace($cleanup_chr, "", $to);
 
-        /* Send SMS now */
-        $comm = sprintf(
-            "%s/sendmsg?session_id=%s&to=%s&from=%s&text=%s&callback=%s&unicode=%s%s",
-            $this->base,
-            $this->session,
-            rawurlencode($to),
-            rawurlencode($from),
-            $this->encode_message($text),
-            $this->callback,
-            $this->unicode,
-            $concat
+
+    	/* Send SMS now */
+    	$comm = sprintf ("%s/send?apiKey=%s&to=%s&content=%s&from=%s",
+        $this->base,
+        $this->api_id,
+        rawurlencode($to),
+        $this->encode_message($text),
+        $this->sender_ph_num
+
         );
         return $this->_parse_send($this->_execgw($comm));
     }
@@ -329,24 +323,29 @@ class sms
     * CURL sending method
     * @access private
     */
-    function _curl($command)
-    {
-        $this->_chk_curl();
-        $ch = curl_init($command);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        if ($this->curl_use_proxy) {
-            curl_setopt($ch, CURLOPT_PROXY, $this->curl_proxy);
-            curl_setopt($ch, CURLOPT_PROXYUSERPWD, $this->curl_proxyuserpwd);
-        }
 
+
+    function _curl($command) {
+        $this->_chk_curl();
+        $ch = curl_init ();
+        curl_setopt_array($ch, array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => $command,
+
+        ));
+
+        if ($this->curl_use_proxy) {
+            curl_setopt ($ch, CURLOPT_PROXY, $this->curl_proxy);
+            curl_setopt ($ch, CURLOPT_PROXYUSERPWD, $this->curl_proxyuserpwd);
+
+        }
         $result=curl_exec($ch);
-        curl_close($ch);
+        $error = curl_error($ch);
+        curl_close ($ch);
         return $result;
     }
 
-    /**
+    /** // ""
     * fopen sending method
     * @access private
     */
@@ -370,12 +369,14 @@ class sms
     * Parse authentication command response text
     * @access private
     */
-    function _parse_auth($result)
-    {
-        $session = substr($result, 4);
+
+    function _parse_auth ($result) {
+
+        $object = json_decode($result, true);
+    	$session = substr($result, 4);
         $code = substr($result, 0, 2);
-        if ($code!="OK") {
-            die("Error in SMS authorization! ($result)");
+        if ($object['error'] !== null) {
+            die ("Error in SMS authorization! ({$object['error']})");
         }
 
         return $session;
@@ -385,15 +386,15 @@ class sms
     * Parse send command response text
     * @access private
     */
-    function _parse_send($result)
-    {
-        $code = substr($result, 0, 2);
-        if ($code!="ID") {
-            die("Error sending SMS! ($result)");
-        } else {
-            $code = "OK";
-        }
 
+    function _parse_send ($result) {
+
+        $response = json_decode($result);
+    	if (0) {
+    	    die ("Error sending SMS! ($result)");
+    	} else {
+    	    $code = "OK";
+    	}
         return $code;
     }
 

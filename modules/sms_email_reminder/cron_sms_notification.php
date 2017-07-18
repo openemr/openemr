@@ -7,11 +7,14 @@
 //
 // Created by:
 // Updated by:	Larry Lart on 11/03/2008
+// Updated by:  Daniel Pflieger on 7/16/2017 daniel@growlingflea.com growlingflea@gmail.com daniel@mi-squared.com
 ////////////////////////////////////////////////////////////////////
 
 // larry :: hack add for command line version
 $_SERVER['REQUEST_URI']=$_SERVER['PHP_SELF'];
 $_SERVER['SERVER_NAME']='localhost';
+$_SERVER['HTTP_HOST']='default';
+$ignoreAuth = true;
 $backpic = "";
 
 // email notification
@@ -49,88 +52,71 @@ $vectNotificationSettings = cron_GetNotificationSettings();
 $SMS_GATEWAY_USENAME = $vectNotificationSettings['SMS_gateway_username'];
 $SMS_GATEWAY_PASSWORD = $vectNotificationSettings['SMS_gateway_password'];
 $SMS_GATEWAY_APIKEY = $vectNotificationSettings['SMS_gateway_apikey'];
+$SMS_GATEWAY_RETURN_NUM = $vectNotificationSettings['SMS_gateway_return_phone_num'];
+
 // set cron time (time to event ?) - todo extra tests
 $CRON_TIME = $vectNotificationSettings['Send_SMS_Before_Hours'];
     
 //echo "\nDEBUG :: user=".$vectNotificationSettings['SMS_gateway_username']."\n";
 
 // create sms object
-$mysms = new sms($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY);
+
+$mysms = new sms( $SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY, $SMS_GATEWAY_RETURN_NUM );
 
 $db_patient = cron_getAlertpatientData($TYPE);
 echo "\n<br>Total ".count($db_patient)." Records Found";
 
 // for every event found
 for ($p=0; $p<count($db_patient); $p++) {
+
     $prow =$db_patient[$p];
+	$app_date = $prow['pc_eventDate']." ".$prow['pc_startTime'];
+	$app_time = strtotime($app_date);
 
-    //echo "\n-----\nDEBUG :cron_sms: found patient = ".$prow['fname']." ".$prow['lname']."\n";
+	$app_time_hour = round($app_time/3600);
+	$curr_total_hour = round(time()/3600);
 
-    // my_print_r($prow);
-    /*
-	if($prow['pc_eventDate'] < $check_date)
+	$remaining_app_hour = round($app_time_hour - $curr_total_hour);
+	$remain_hour = round($remaining_app_hour - $SMS_NOTIFICATION_HOUR);
+
+	// larry :: debug
+	//echo "\nDEBUG :: checkdate=$check_date, app_date=$app_date, apptime=$app_time remain_hour=$remain_hour -- CRON_TIME=$CRON_TIME\n";
+
+	// build log message
+	$strMsg = "\n========================".$TYPE." || ".date("Y-m-d H:i:s")."=========================";
+	$strMsg .= "\nSEND NOTIFICATION BEFORE:".$SMS_NOTIFICATION_HOUR." || CRONJOB RUN EVERY:".$CRON_TIME." || APPDATETIME:".$app_date." || REMAINING APP HOUR:".($remaining_app_hour)." || SEND ALERT AFTER:".($remain_hour);
+
+	// check in the interval
+	if( $remain_hour >= -($CRON_TIME) &&  $remain_hour <= $CRON_TIME )
 	{
-		$app_date = date("Y-m-d")." ".$prow['pc_startTime'];
-	}else{
-		$app_date = $prow['pc_eventDate']." ".$prow['pc_startTime'];
+		// insert entry in notification_log table
+		cron_InsertNotificationLogEntry($TYPE,$prow,$db_email_msg);
+
+		//set message 
+		$db_email_msg['message'] = cron_setmessage($prow,$db_email_msg);
+
+		// send sms to patinet - if not in test mode
+		if( $bTestRun == 0 )
+		{
+			cron_SendSMS( $prow['phone_cell'], $db_email_msg['email_subject'],
+				$db_email_msg['message'], $mysms->getReturnNum() );
+		}
+
+
+		
+		//update entry >> pc_sendalertsms='Yes'
+		cron_updateentry($TYPE,$prow['pid'],$prow['pc_eid']);
+		
+		$strMsg .= " || ALERT SENT SUCCESSFULLY TO ".$prow['phone_cell'];
+		$strMsg .= "\n".$patient_info."\n".$smsgateway_info."\n".$data_info."\n".$db_email_msg['message'];
 	}
-	*/
-    $app_date = $prow['pc_eventDate']." ".$prow['pc_startTime'];
-    $app_time = strtotime($app_date);
 
-    $app_time_hour = round($app_time/3600);
-    $curr_total_hour = round(time()/3600);
+	$db_email_msg = cron_getNotificationData($TYPE);
 
-    $remaining_app_hour = round($app_time_hour - $curr_total_hour);
-    $remain_hour = round($remaining_app_hour - $SMS_NOTIFICATION_HOUR);
-
-    // larry :: debug
-    //echo "\nDEBUG :: checkdate=$check_date, app_date=$app_date, apptime=$app_time remain_hour=$remain_hour -- CRON_TIME=$CRON_TIME\n";
-
-    // build log message
-    $strMsg = "\n========================".$TYPE." || ".date("Y-m-d H:i:s")."=========================";
-    $strMsg .= "\nSEND NOTIFICATION BEFORE:".$SMS_NOTIFICATION_HOUR." || CRONJOB RUN EVERY:".$CRON_TIME." || APPDATETIME:".$app_date." || REMAINING APP HOUR:".($remaining_app_hour)." || SEND ALERT AFTER:".($remain_hour);
-
-    // check in the interval
-    if ($remain_hour >= -($CRON_TIME) &&  $remain_hour <= $CRON_TIME) {
-        // insert entry in notification_log table
-        cron_InsertNotificationLogEntry($TYPE, $prow, $db_email_msg);
-
-        //set message
-        $db_email_msg['message'] = cron_setmessage($prow, $db_email_msg);
-        
-        // send sms to patinet - if not in test mode
-        if ($bTestRun == 0) {
-            cron_SendSMS(
-                $prow['phone_cell'],
-                $db_email_msg['email_subject'],
-                $db_email_msg['message'],
-                $db_email_msg['email_sender']
-            );
-        }
-
-        // larry :: debug
-        echo "\nDEBUG :: sms was sent to= ".$prow['phone_cell'].
-                    " \nsender= ".$db_email_msg['email_sender'].
-                    " \nsbj= ". $db_email_msg['email_subject'].
-                    " \nmsg= ".$db_email_msg['message']."\n";
-        
-        //update entry >> pc_sendalertsms='Yes'
-        cron_updateentry($TYPE, $prow['pid'], $prow['pc_eid']);
-        
-        $strMsg .= " || ALERT SENT SUCCESSFULLY TO ".$prow['phone_cell'];
-        $strMsg .= "\n".$patient_info."\n".$smsgateway_info."\n".$data_info."\n".$db_email_msg['message'];
-    }
-
-    // write logs for every reminder sent
-    WriteLog($strMsg);
-
-    // larry :: update notification data again - todo :: fix change in cron_updateentry
-    $db_email_msg = cron_getNotificationData($TYPE);
 }
 
 unset($mysms);
-sqlClose();
+
 
 ?>
 

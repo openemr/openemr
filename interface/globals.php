@@ -610,4 +610,58 @@ if (version_compare(phpversion(), "5.2.1", ">=")) {
 }
 
 // turn off PHP compatibility warnings
+
 ini_set("session.bug_compat_warn", "off");
+
+
+/* Pages with "myadmin" in the URL don't need register_globals. */
+$fake_register_globals =
+	$fake_register_globals && (strpos($_SERVER['REQUEST_URI'],"myadmin") === FALSE);
+
+
+// Emulates register_globals = On.  Moved to the bottom of globals.php to prevent
+// overrides of any variables used during global setup.
+// EXTR_SKIP flag set to prevent overriding any variables defined earlier
+if ($fake_register_globals) {
+  extract($_GET,EXTR_SKIP);
+  extract($_POST,EXTR_SKIP);
+}
+
+//Added Code for Clickatel plug-in.  Values were hard coded and code was outdated
+//This module updates the database with the Admin values everytime globals is run.
+//The cron job has no way of checking the Adminstration->Globals settings so
+//the database is updated when globals is called.
+if($SMS_GATEWAY_USENAME != '' && $SMS_GATEWAY_PASSWORD != '') {
+//Check to see if SMS_gateway exists
+  $query = sqlQuery("Show columns from notification_settings like ?", array("SMS_gateway_return_phone_num"));
+
+//Create the new row if it doesn't exist
+  $colexists = ($query != null) ? TRUE : FALSE;
+  if (!$colexists) {
+
+    $colresult = sqlQuery("Alter table notification_settings add SMS_gateway_return_phone_num text");
+
+  }
+////if they don't match, update the DB*/
+  $smsQuery = sqlQuery("select SMS_gateway_username, SMS_gateway_password, SMS_gateway_apikey, 
+                        SMS_gateway_return_phone_num, Send_SMS_Before_Hours from notification_settings where type like ?", "SMS%");
+  $smsGlobals = array('SMS_gateway_username'=>$SMS_GATEWAY_USENAME, 'SMS_gateway_password' =>$SMS_GATEWAY_PASSWORD, 'SMS_gateway_apikey' => $SMS_GATEWAY_APIKEY, 'SMS_gateway_return_phone_num' => $SMS_GATEWAY_RETURN_NUMBER, 'Send_SMS_Before_Hours'=>$SMS_NOTIFICATION_HOUR );
+
+  if($smsQuery !== $smsGlobals){
+
+    foreach($smsGlobals as $index=>$setting){
+
+        $smsUpdate = sqlQuery("update notification_settings set $index = ? where type like ?", array($setting,"SMS%"));
+    }
+
+  }
+
+
+
+
+
+}
+
+
+
+?>

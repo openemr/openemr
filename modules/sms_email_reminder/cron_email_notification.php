@@ -7,11 +7,14 @@
 //
 // Created by:
 // Updated by:	Larry Lart on 10/03/2008
+// Updated by:  Daniel Pflieger on 7/16/2017 daniel@growlingflea.com growlingflea@gmail.com daniel@mi-squared.com
 ////////////////////////////////////////////////////////////////////
 
 // larry :: hack add for command line version
 $_SERVER['REQUEST_URI']=$_SERVER['PHP_SELF'];
 $_SERVER['SERVER_NAME']='localhost';
+$_SERVER['HTTP_HOST']='default';
+$ignoreAuth = true;
 $backpic = "";
 
 // email notification
@@ -63,32 +66,30 @@ for ($p=0; $p<count($db_patient); $p++) {
         // insert entry in notification_log table
         cron_InsertNotificationLogEntry($TYPE, $prow, $db_email_msg);
 
-        //set message
-        $db_email_msg['message'] = cron_setmessage($prow, $db_email_msg);
-        
-        // send mail to patinet
-        cron_SendMail(
-            $prow['email'],
-            $db_email_msg['email_subject'],
-            $db_email_msg['message'],
-            $db_email_msg['email_sender']
-        );
-        
-        //update entry >> pc_sendalertemail='Yes'
-        cron_updateentry($TYPE, $prow['pid'], $prow['pc_eid']);
-        
-        $strMsg .= " || ALERT SENT SUCCESSFULLY TO ".$prow['email'];
-        $strMsg .= "\n".$patient_info."\n".$smsgateway_info."\n".$data_info."\n".$db_email_msg['message'];
-    }
-    
-    WriteLog($strMsg);
+
+		//set message 
+		$db_email_msg['message'] = cron_setmessage( $prow, $db_email_msg );
+		
+		// send mail to patinet
+		cron_SendMail( $prow['email'], $db_email_msg['email_subject'],
+				$db_email_msg['message'], $db_email_msg['email_sender'] );
+		
+		//update entry >> pc_sendalertemail='Yes'
+		cron_updateentry($TYPE,$prow['pid'],$prow['pc_eid']);
+		
+		$strMsg .= " || ALERT SENT SUCCESSFULLY TO ".$prow['email'];
+		$strMsg .= "\n".$patient_info."\n".$smsgateway_info."\n".$data_info."\n".$db_email_msg['message'];
+	}
+	
+	//WriteLog( $strMsg );
+
 
     // larry :: get notification data again - since was updated by cron_updateentry
     // todo :: instead fix not to modify the template aka $db_email_msg
     $db_email_msg = cron_getNotificationData($TYPE);
 }
 
-sqlClose();
+
 ?>
 
 <html>

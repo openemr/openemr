@@ -16,6 +16,8 @@ $v_minor = '0';
 $v_patch = '1';
 $v_tag   = '-dev'; // minor revision number, should be empty for production releases
 
+//This is the CAPEDS with WMT version
+
 // A real patch identifier. This is incremented when we release a patch for a
 // production release. Note the above $v_patch variable is a misnomer and actually
 // stores release version information.

@@ -1772,12 +1772,27 @@ $GLOBALS_METADATA = array(
     //
     'Notifications' => array(
 
+
         'patient_reminder_sender_name' => array(
             xl('Patient Reminder Sender Name'),
             'text',                           // data type
             '',                               // default
             xl('Name of the sender for patient reminders.')
         ),
+
+      'SMS_GATEWAY_RETURN_NUMBER' => array(
+          xl('SMS Gateway Return Number'),
+          'text',                           // data type
+          '',                               // default
+          xl('Require within the United States.  Must sign up for two-way messaging.')
+      ),
+
+    'phone_notification_hour' => array(
+      xl('Phone Notification Hour'),
+      'num',                            // data type
+      '50',                             // default
+      xl('Number of hours in advance to send Phone notification.')
+    ),
 
         'patient_reminder_sender_email' => array(
             xl('Patient Reminder Sender Email'),
