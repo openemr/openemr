@@ -609,6 +609,7 @@ $today = date("Y-m-d");
 		left: 0;
 		top: 0;
 		width:100%;
+		height:10000px;
 		
 	  }
 	}
@@ -629,7 +630,7 @@ $today = date("Y-m-d");
 					<legend>
 						&nbsp;<?php echo xlt('Post Item');?>
 						<div class ="pull-left">
-							<a  class='' data-target="#myModal" data-toggle="modal" href='#' style='color:#000000' onclick="loadiframe('sl_eob_help.php')"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+							<a  class='' data-target="#myModal" data-toggle="modal"  href='sl_eob_help.php#invoice_search' style='color:#000000' ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
 						</div>
 						
 					</legend>
@@ -686,7 +687,7 @@ $today = date("Y-m-d");
 								</label>
 						</div>
 						<div class ="pull-left">
-							<a  class='' data-target="#myModal" data-toggle="modal" href='#' style='color:#000000' onclick="loadiframe('sl_eob_help.php#electonic_remits')"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+							<a  class='' data-target="#myModal" data-toggle="modal" href='#' id='help-href' name='help-href' style='color:#000000' ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
 						</div>
 						<input type="hidden" id="hid1" value="<?php echo xlt('Invoice Search');?>">
 						<input type="hidden" id="hid2" value="<?php echo xlt('ERA Upload');?>">
@@ -1023,7 +1024,7 @@ $today = date("Y-m-d");
 				<div class="modal-dialog modal-lg">
 					<div class="modal-content">
 						<!--<div class="modal-header" style="border:hidden"></div>-->
-						<div class="modal-body" style="padding-top:10px; padding-left:5px; padding-right:0px; padding-bottom:0px;">
+						<div class="modal-body" id="modal-content" name="modal-content" style="padding-top:10px; padding-left:5px; padding-right:0px; padding-bottom:0px;">
 							<iframe src="" frameborder="0" id="targetiframe" style="height:650px; width:100%; overflow-x: hidden" name="targetframe" allowtransparency="true"></iframe>
 						</div>
 						<div class="modal-footer" style="margin-top:0px;">
@@ -1111,10 +1112,31 @@ $today = date("Y-m-d");
 	}
 
 	?>
-	function loadiframe(htmlHref) //load iframe
+	/*function loadiframe(htmlHref) //load iframe
 	{
 	document.getElementById('targetiframe').src = htmlHref;
-	}
+	}*/
+	
+	
+	$( document ).ready(function() {
+		$('#help-href').click (function(){
+			var radioVal = $("input[name='radio-search']:checked").val();
+			
+			if (radioVal == 'inv-search'){
+				document.getElementById('targetiframe').src ='sl_eob_help.php#invoice_search';
+			}
+			else if (radioVal == 'era-upld'){
+				document.getElementById('targetiframe').src ='sl_eob_help.php#electonic_remits';
+			}
+			else{
+				document.getElementById('targetiframe').src ='sl_eob_help.php#entire_doc';
+			}
+		})
+	});
+
+	
+	
+	
 	</script>
 	<?php 
 		$tr_str = xl('Search');
