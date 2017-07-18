@@ -20,7 +20,7 @@
 }
 
 .css_button[href*="deleter"]:before,
-input[type="button"][href*="deleter"]:before,
+input[type="button"][href*="deleter"] [type="submit"]:before,
 button[href*="deleter"]:before {
     font-family: "FontAwesome";
     content: "\f014";
@@ -79,3 +79,21 @@ button[href*="deleter"]:before {
 .btn-update::before {
     content: '\f021\00a0\00a0';
 }
+
+.btn-show::before {
+    content: '\f06e\00a0\00a0';
+}
+.btn-hide::before {
+    content: '\f070\00a0\00a0';
+}
+.btn-undo::before {
+    content: '\f0e2\00a0\00a0';
+}
+.btn-download::before {
+    content: '\f019\00a0\00a0';
+}
+
+.btn-mail::before {
+    content: '\f0e0\00a0\00a0';
+}
+
