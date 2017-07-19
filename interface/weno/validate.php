@@ -9,13 +9,14 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+
 include_once('../globals.php');
-include_once('transmitDataClass.php');
+use OpenEMR\Rx\Weno\TransmitData;
 
 $pid = $GLOBALS['pid'];
 $uid = $_SESSION['authUserID'];
 
-$validation = new transmitData();
+$validation = new TransmitData();
 
 $patient = $validation->validatePatient($pid);
 $pharmacy = $validation->patientPharmacyInfo($pid);

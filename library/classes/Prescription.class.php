@@ -267,8 +267,9 @@ class Prescription extends ORDataObject {
 
     function set_id($id)
     {
-        if (!empty($id) && is_numeric($id)) { $this->id = $id; }
-        $this->id = $id;
+        if (!empty($id) && is_numeric($id)) {
+            $this->id = $id;
+        }
     }
     function get_id()
     {

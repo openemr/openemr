@@ -1,6 +1,6 @@
 <?php
 /**
- * weno rx formulary update.
+ * Drug interaction check.
  *
  * @package OpenEMR
  * @link    http://www.open-emr.org

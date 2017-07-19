@@ -461,32 +461,26 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','Calendar','main/calendar/index.php',20,0,0);
 #EndIf
 
---
 #IfMissingColumn users weno_prov_id
 ALTER TABLE `users` ADD `weno_prov_id` VARCHAR(15) DEFAULT NULL;
 #Endif
 
---
-#IfMissingColumn prescriptions ntx 
+#IfMissingColumn prescriptions ntx
 ALTER TABLE `prescriptions` ADD `ntx` INT(2) DEFAULT NULL;
 #Endif
 
---
-#IfMissingColumn prescriptions rtx 
+#IfMissingColumn prescriptions rtx
 ALTER TABLE `prescriptions` ADD `rtx` INT(2) DEFAULT NULL;
 #Endif
 
---
-#IfMissingColumn prescriptions txDate 
+#IfMissingColumn prescriptions txDate
 ALTER TABLE `prescriptions` ADD `txDate` DATE NOT NULL;
 #Endif
 
---
 #IfMissingColumn pharmacies ncpdp
 ALTER TABLE `pharmacies` ADD `ncpdp` INT(12) NULL;
 #Endif
 
---
 #IfMissingColumn pharmacies npi
 ALTER TABLE `pharmacies` ADD `npi` INT(12) NULL;  
 #Endif

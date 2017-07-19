@@ -9,9 +9,10 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-include_once("../globals.php");
-include_once($srcdir."/patient.inc");
-include_once("transmitDataClass.php");
+
+require_once("../globals.php");
+require_once($srcdir."/patient.inc");
+use OpenEMR\Rx\Weno\TransmitData;
 
 $date = date("Y-m-d");
 $pid = $GLOBALS['pid'];
@@ -40,7 +41,7 @@ foreach ($fill as $data) {
     }
 
     // Collect provider data
-    $prInfo = new transmitData();
+    $prInfo = new TransmitData();
     $proData = $prInfo->getProviderFacility($uid);
 
     // Collect pharmacy data

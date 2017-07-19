@@ -9,13 +9,12 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Core\Header;
 require_once('../globals.php');
-require_once('transmitDataClass.php');
-require_once("adminClass.php");
 require_once("$srcdir/options.inc.php");
+use OpenEMR\Core\Header;
+use OpenEMR\Rx\Weno\AdminProperties;
 
-$tables   = new adminProperties();
+$tables   = new AdminProperties();
 
 ?>
 <html>

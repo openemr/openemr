@@ -1348,6 +1348,8 @@ return array(
     'OpenEMR\\Core\\Kernel' => $baseDir . '/library/core/src/Kernel.php',
     'OpenEMR\\Encounter\\Services\\ViewHelper' => $baseDir . '/interface/patient_file/encounter/Services/ViewHelper.php',
     'OpenEMR\\Menu\\MainMenuRole' => $baseDir . '/library/menu/MainMenuRole.php',
+    'OpenEMR\\Rx\\Weno\\AdminProperties' => $baseDir . '/library/weno/AdminProperties.php',
+    'OpenEMR\\Rx\\Weno\\TransmitData' => $baseDir . '/library/weno/TransmitData.php',
     'OpenEMR\\Sample\\Event\\SampleEvent' => $baseDir . '/library/sample/src/Event/SampleEvent.php',
     'OpenEMR\\Sample\\Event\\SampleSubscriber' => $baseDir . '/library/sample/src/Event/SampleSubscriber.php',
     'PDFBarcode' => $vendorDir . '/mpdf/mpdf/classes/barcode.php',

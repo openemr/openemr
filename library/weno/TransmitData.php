@@ -1,6 +1,6 @@
 <?php
 /**
- * weno rx mark tx.
+ * TransmitData class.
  *
  * @package OpenEMR
  * @link    http://www.open-emr.org
@@ -9,7 +9,10 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-class transmitData {
+
+namespace OpenEMR\Rx\Weno;
+
+class TransmitData {
     
     public function __construct()
     {}

@@ -27,7 +27,7 @@ $id = ++$getMaxId['MAX(id)'];  // set start import ID to max id plus 1
    /*
    *  Opens the CSV file and reads each line 
    */
-$file = fopen("pharmacyList.csv","r");
+$file = fopen("../../contrib/weno/pharmacyList.csv","r");
 
 while(! feof($file))    //This loop continues till the end of the file is reached.
 {

@@ -1,6 +1,6 @@
 <?php
 /**
- * weno rx admin class.
+ * AdminProperties class.
  *
  * @package OpenEMR
  * @link    http://www.open-emr.org
@@ -9,7 +9,9 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-class adminProperties {
+namespace OpenEMR\Rx\Weno;
+
+class AdminProperties {
 
     public function __construct()
     {}
@@ -23,7 +25,7 @@ class adminProperties {
   * Import the narcotics into the table database from SQL file
   *
   */
-        $sqlNarc = file_get_contents('narc.sql');
+        $sqlNarc = file_get_contents('../../contrib/weno/narc.sql');
 
         sqlInsert($sqlNarc);
 
@@ -44,4 +46,4 @@ class adminProperties {
         return sqlQuery($sql);
     }
 
-}//End of class
+}

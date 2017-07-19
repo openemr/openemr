@@ -48,10 +48,7 @@ $(document).ready(function(){
         $("#transmit").show();
 
       });
-   });
-   
-   
-$(document).ready(function(){
+
     $('#order').click(function(){
         $('#success').html("<i class="fa fa-refresh fa-spin fa-3x fa-fw"></i>");
         var patient = { "patient": {

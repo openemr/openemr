@@ -11,15 +11,15 @@
  
 
 require_once('../globals.php');
-require_once('transmitDataClass.php');
 require_once('$srcdir/patient.inc');
 use OpenEMR\Core\Header;
+use OpenEMR\Rx\Weno\TransmitData;
 
 $date = date("Y-m-d");
 $pid = $GLOBALS['pid'];
 $uid = $_SESSION['authUserID'];          //username of the person for this session
 
-$tData = new transmitData();
+$tData = new TransmitData();
 
 $send = $tData->getDrugList($pid, $date);
 $provider = $tData->getProviderFacility($uid);
