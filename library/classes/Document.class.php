@@ -11,7 +11,8 @@ require_once(dirname(__FILE__) . "/../gprelations.inc.php");
  * id and categories which do the same.
  */
 
-class Document extends ORDataObject{
+class Document extends ORDataObject
+{
 
     /*
 	*	Database unique identifier
@@ -158,8 +159,7 @@ class Document extends ORDataObject{
 
         if (empty($foreign_id)) {
              $foreign_id= "like '%'";
-        }
-        else {
+        } else {
             $foreign_id= " = '" . add_escape_custom(strval($foreign_id)) . "'";
         }
 
@@ -186,7 +186,7 @@ class Document extends ORDataObject{
     {
         $d = new Document();
         //strip url handler, for now we always assume file://
-        $filename = preg_replace("|^(.*)://|","",$url);
+        $filename = preg_replace("|^(.*)://|", "", $url);
 
         if (!file_exists($filename)) {
             die("An invalid URL was specified to crete a new document, this would only be caused if files are being deleted as you are working through the queue. '$filename'\n");
@@ -198,14 +198,12 @@ class Document extends ORDataObject{
         if ($result && !$result->EOF) {
             if (file_exists($filename)) {
                 $d = new Document($result->fields['id']);
-            }
-            else {
+            } else {
                 $sql = "DELETE FROM  " . $d->_table . " WHERE id= '" . $result->fields['id'] ."'";
                 $result = $d->_db->Execute($sql);
                 echo("There is a database for the file but it no longer exists on the file system. Its document entry has been deleted. '$filename'\n");
             }
-        }
-        else {
+        } else {
             $file_command = $GLOBALS['oer_config']['document']['file_command_path'] ;
             $cmd_args = "-i ".escapeshellarg($new_path.$fname);
 
@@ -233,7 +231,7 @@ class Document extends ORDataObject{
         . "ID: " . $this->id."\n"
         . "FID: " . $this->foreign_id."\n"
         . "type: " . $this->type . "\n"
-        . "type_array: " . print_r($this->type_array,true) . "\n"
+        . "type_array: " . print_r($this->type_array, true) . "\n"
         . "size: " . $this->size . "\n"
         . "date: " . $this->date . "\n"
         . "url: " . $this->url . "\n"
@@ -249,8 +247,7 @@ class Document extends ORDataObject{
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }
@@ -335,21 +332,21 @@ class Document extends ORDataObject{
     */
     function get_url_filepath()
     {
-        return preg_replace("|^(.*)://|","",$this->url);
+        return preg_replace("|^(.*)://|", "", $this->url);
     }
     /**
     * get the url filename only
     */
     function get_url_file()
     {
-        return basename_international(preg_replace("|^(.*)://|","",$this->url));
+        return basename_international(preg_replace("|^(.*)://|", "", $this->url));
     }
     /**
     * get the url path only
     */
     function get_url_path()
     {
-        return dirname(preg_replace("|^(.*)://|","",$this->url)) ."/";
+        return dirname(preg_replace("|^(.*)://|", "", $this->url)) ."/";
     }
     function get_path_depth()
     {
@@ -425,7 +422,7 @@ class Document extends ORDataObject{
 
     function get_ccr_type($doc_id)
     {
-        $type = sqlQuery("SELECT c.name FROM categories AS c LEFT JOIN categories_to_documents AS ctd ON c.id = ctd.category_id WHERE ctd.document_id = ?",array($doc_id));
+        $type = sqlQuery("SELECT c.name FROM categories AS c LEFT JOIN categories_to_documents AS ctd ON c.id = ctd.category_id WHERE ctd.document_id = ?", array($doc_id));
         return $type['name'];
     }
     function set_imported($imported)
@@ -438,7 +435,7 @@ class Document extends ORDataObject{
     }
     function update_imported($doc_id)
     {
-        sqlQuery("UPDATE documents SET imported = 1 WHERE id = ?",array($doc_id));
+        sqlQuery("UPDATE documents SET imported = 1 WHERE id = ?", array($doc_id));
     }
     /*
 	*	Overridden function to stor current object state in the db.
@@ -448,11 +445,12 @@ class Document extends ORDataObject{
 	*	@param int $fid foreign id that should be used so that this document can be related (joined) on it later
 	*/
 
-    function persist($fid ="")
+    function persist($fid = "")
     {
         if (!empty($fid)) {
             $this->foreign_id = $fid;
         }
+
         parent::persist();
     }
 
@@ -486,7 +484,7 @@ class Document extends ORDataObject{
         return $this->couch_revid;
     }
 
-    function get_couch_url($pid,$encounter)
+    function get_couch_url($pid, $encounter)
     {
         $couch_docid = $this->get_couch_docid();
         $couch_url = $this->get_url();
@@ -496,8 +494,8 @@ class Document extends ORDataObject{
         $content = $resp->data;
         $temp_url=$couch_url;
         $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $pid . '_' . $couch_url;
-        $f_CDB = fopen($temp_url,'w');
-        fwrite($f_CDB,base64_decode($content));
+        $f_CDB = fopen($temp_url, 'w');
+        fwrite($f_CDB, base64_decode($content));
         fclose($f_CDB);
         return $temp_url;
     }
@@ -525,14 +523,14 @@ class Document extends ORDataObject{
             $resp = $couch->update_doc($data);
             // Sometimes the response from CouchDB is not available, still it would
             // have saved in the DB. Hence check one more time.
-            if(!$resp->_id || !$resp->_rev){
+            if (!$resp->_id || !$resp->_rev) {
                     $data = array($db, $couch_docid, $new_patient_id, $couchresp->encounter);
                     $resp = $couch->retrieve_doc($data);
             }
-            if($resp->_rev == $couch_revid) {
+
+            if ($resp->_rev == $couch_revid) {
                   return false;
-            }
-            else {
+            } else {
                   $this->set_couch_revid($resp->_rev);
             }
         }
@@ -566,21 +564,20 @@ class Document extends ORDataObject{
         $filename,
         $mimetype,
         &$data,
-        $higher_level_path='',
-        $path_depth=1,
-        $owner=0,
+        $higher_level_path = '',
+        $path_depth = 1,
+        $owner = 0,
         $tmpfile = null
     ) {
         // The original code used the encounter ID but never set it to anything.
         // That was probably a mistake, but we reference it here for documentation
         // and leave it empty. Logically, documents are not tied to encounters.
 
-        if($GLOBALS['generate_doc_thumb']) {
-
+        if ($GLOBALS['generate_doc_thumb']) {
             $thumb_size = ($GLOBALS['thumb_doc_max_size'] > 0) ? $GLOBALS['thumb_doc_max_size'] : null;
             $thumbnail_class = new Thumbnail($thumb_size);
 
-            if(!is_null($tmpfile)) {
+            if (!is_null($tmpfile)) {
                 $has_thumbnail = $thumbnail_class->file_support_thumbnail($tmpfile);
             } else {
                 $has_thumbnail = false;
@@ -613,59 +610,59 @@ class Document extends ORDataObject{
             } else {
                 $th_json = false;
             }
+
             $db = $GLOBALS['couchdb_dbase'];
             $couchdata = array($db, $docid, $patient_id, $encounter_id, $mimetype, $json, $th_json);
             $resp = $couch->check_saveDOC($couchdata);
-            if(!$resp->id || !$resp->_rev) {
+            if (!$resp->id || !$resp->_rev) {
                 // Not sure what this is supposed to do.  The references to id, rev,
                 // _id and _rev seem pretty weird.
                 $couchdata = array($db, $docid, $patient_id, $encounter_id);
                 $resp = $couch->retrieve_doc($couchdata);
                 $docid = $resp->_id;
                 $revid = $resp->_rev;
-            }
-            else {
+            } else {
                 $docid = $resp->id;
                 $revid = $resp->rev;
             }
-            if(!$docid && !$revid) {
+
+            if (!$docid && !$revid) {
                 return xl('CouchDB save failed');
             }
+
             $this->url = $filename;
             $this->couch_docid = $docid;
             $this->couch_revid = $revid;
-        }
-        else {
+        } else {
             // Storing document files locally.
             $repository = $GLOBALS['oer_config']['documents']['repository'];
             $higher_level_path = preg_replace("/[^A-Za-z0-9\/]/", "_", $higher_level_path);
             if ((!empty($higher_level_path)) && (is_numeric($patient_id) && $patient_id > 0)) {
                 // Allow higher level directory structure in documents directory and a patient is mapped.
                 $filepath = $repository . $higher_level_path . "/";
-            }
-            else if (!empty($higher_level_path)) {
+            } else if (!empty($higher_level_path)) {
                 // Allow higher level directory structure in documents directory and there is no patient mapping
                 // (will create up to 10000 random directories and increment the path_depth by 1).
-                $filepath = $repository . $higher_level_path . '/' . rand(1,10000)  . '/';
+                $filepath = $repository . $higher_level_path . '/' . rand(1, 10000)  . '/';
                 ++$path_depth;
-            }
-            else if (!(is_numeric($patient_id)) || !($patient_id > 0)) {
+            } else if (!(is_numeric($patient_id)) || !($patient_id > 0)) {
                 // This is the default action except there is no patient mapping (when patient_id is 00 or direct)
                 // (will create up to 10000 random directories and set the path_depth to 2).
-                $filepath = $repository . $patient_id . '/' . rand(1,10000)  . '/';
+                $filepath = $repository . $patient_id . '/' . rand(1, 10000)  . '/';
                 $path_depth = 2;
                 $patient_id = 0;
-            }
-            else {
+            } else {
                 // This is the default action where the patient is used as one level directory structure in documents directory.
                 $filepath = $repository . $patient_id . '/';
                 $path_depth = 1;
             }
+
             if (!file_exists($filepath)) {
                 if (!mkdir($filepath, 0700, true)) {
                     return xl('Unable to create patient document subdirectory');
                 }
             }
+
             // Filename modification to force valid characters and uniqueness.
             $filename = preg_replace("/[^a-zA-Z0-9_.]/", "_", $filename);
 
@@ -684,28 +681,35 @@ class Document extends ORDataObject{
                 $fn2 = '.';
                 $fn3 = substr($filename, $dotpos + 1);
             }
+
             while (file_exists($filepath . $filename)) {
-                if (++$fnsuffix > 10000) return xl('Failed to compute a unique filename');
+                if (++$fnsuffix > 10000) {
+                    return xl('Failed to compute a unique filename');
+                }
+
                 $filename = $fn1 . '_' . $fnsuffix . $fn2 . $fn3;
             }
+
             $this->url = "file://" . $filepath . $filename;
             if (is_numeric($path_depth)) {
                 // this is for when directory structure is more than one level
                 $this->path_depth = $path_depth;
             }
+
             // Store the file into its proper directory.
             if (file_put_contents($filepath . $filename, $data) === false) {
                 return xl('Failed to create') . " $filepath$filename";
             }
-            if( $has_thumbnail ) {
+
+            if ($has_thumbnail) {
                  $this->thumb_url = "file://" . $filepath . $this->get_thumb_name($filename);
                  // Store the file into its proper directory.
                 if (file_put_contents($filepath . $this->get_thumb_name($filename), $thumbnail_data) === false) {
                     return xl('Failed to create') .  $filepath . $this->get_thumb_name($filename);
                 }
             }
-
         }
+
         $this->size  = strlen($data);
         $this->hash  = sha1($data);
         $this->type  = $this->type_array['file_url'];
@@ -713,12 +717,13 @@ class Document extends ORDataObject{
         $this->set_foreign_id($patient_id);
         $this->persist();
         $this->populate();
-        if (is_numeric($this->get_id()) && is_numeric($category_id)){
+        if (is_numeric($this->get_id()) && is_numeric($category_id)) {
             $sql = "REPLACE INTO categories_to_documents set " .
             "category_id = '$category_id', " .
             "document_id = '" . $this->get_id() . "'";
             $this->_db->Execute($sql);
         }
+
         return '';
     }
 
@@ -737,7 +742,7 @@ class Document extends ORDataObject{
    * @param  integer $category_id  The desired document category ID
    * @param  string  $message      Any desired message text for the note.
    */
-    function postPatientNote($provider, $category_id, $message='')
+    function postPatientNote($provider, $category_id, $message = '')
     {
         // Build note text in a way that identifies the new document.
         // See pnotes_full.php which uses this to auto-display the document.
@@ -747,12 +752,14 @@ class Document extends ORDataObject{
             $note = $catrow['name'] . "/$note";
             $tmp = $catrow['parent'];
         }
+
         $note = "New scanned document " . $this->get_id() . ": $note";
-        if ($message) $note .= "\n" . $message;
+        if ($message) {
+            $note .= "\n" . $message;
+        }
+
         $noteid = addPnote($this->get_foreign_id(), $note, 0, '1', 'New Document', $provider);
         // Link the new note to the document.
         setGpRelation(1, $this->get_id(), 6, $noteid);
     }
-
 } // end of Document
-?>

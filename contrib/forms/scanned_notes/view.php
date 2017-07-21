@@ -20,4 +20,3 @@
 */
 
 require_once("new.php");
-?>

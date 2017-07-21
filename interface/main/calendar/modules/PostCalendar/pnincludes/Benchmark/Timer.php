@@ -41,7 +41,8 @@
  * @access   public
  */
 
-class Benchmark_Timer {
+class Benchmark_Timer
+{
     /**
      * Contains the markers
      *
@@ -124,7 +125,7 @@ class Benchmark_Timer {
                 $diff = '-';
             } else {
                 if (extension_loaded('bcmath')) {
-                    $diff  = bcsub($time,  $temp, 6);
+                    $diff  = bcsub($time, $temp, 6);
                     $total = bcadd($total, $diff, 6);
                 } else {
                     $diff  = $time - $temp;
@@ -144,4 +145,3 @@ class Benchmark_Timer {
         return $result;
     }
 }
-?>

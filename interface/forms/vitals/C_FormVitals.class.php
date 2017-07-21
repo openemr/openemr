@@ -1,10 +1,11 @@
 <?php
 
-require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
-require_once ($GLOBALS['fileroot'] . "/library/patient.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once($GLOBALS['fileroot'] . "/library/patient.inc");
 require_once("FormVitals.class.php");
 
-class C_FormVitals extends Controller {
+class C_FormVitals extends Controller
+{
 
     var $template_dir;
     var $form_id;
@@ -16,12 +17,12 @@ class C_FormVitals extends Controller {
         $this->template_mod = $template_mod;
         $this->template_dir = dirname(__FILE__) . "/templates/vitals/";
         $this->assign("FORM_ACTION", $GLOBALS['web_root']);
-        $this->assign("DONT_SAVE_LINK",$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl");
+        $this->assign("DONT_SAVE_LINK", $GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl");
         $this->assign("STYLE", $GLOBALS['style']);
 
       // Options for units of measurement and things to omit.
-        $this->assign("units_of_measurement",$GLOBALS['units_of_measurement']);
-        $this->assign("gbl_vitals_options",$GLOBALS['gbl_vitals_options']);
+        $this->assign("units_of_measurement", $GLOBALS['units_of_measurement']);
+        $this->assign("gbl_vitals_options", $GLOBALS['gbl_vitals_options']);
     }
 
     function default_action_old()
@@ -29,7 +30,7 @@ class C_FormVitals extends Controller {
         //$vitals = array();
         //array_push($vitals, new FormVitals());
         $vitals = new FormVitals();
-        $this->assign("vitals",$vitals);
+        $this->assign("vitals", $vitals);
         $this->assign("results", $results);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
@@ -46,8 +47,7 @@ class C_FormVitals extends Controller {
 
         if (is_numeric($form_id)) {
             $vitals = new FormVitals($form_id);
-        }
-        else {
+        } else {
             $vitals = new FormVitals();
         }
 
@@ -66,11 +66,10 @@ class C_FormVitals extends Controller {
         $patient_dob=$patient_data['DOB'];
         $patient_age = getPatientAge($patient_dob);
         $this->assign("patient_age", $patient_age);
-        $this->assign("patient_dob",$patient_dob);
+        $this->assign("patient_dob", $patient_dob);
 
         $i = 1;
-        while($result && !$result->EOF)
-        {
+        while ($result && !$result->EOF) {
             $results[$i]['id'] = $result->fields['id'];
             $results[$i]['encdate'] = substr($result->fields['encdate'], 0, 10);
             $results[$i]['date'] = $result->fields['date'];
@@ -92,31 +91,41 @@ class C_FormVitals extends Controller {
             $result->MoveNext();
         }
 
-        $this->assign("vitals",$vitals);
+        $this->assign("vitals", $vitals);
         $this->assign("results", $results);
 
-        $this->assign("VIEW",true);
+        $this->assign("VIEW", true);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
-
     }
 
     function default_action_process()
     {
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
 
         $weight = $_POST["weight"];
         $height = $_POST["height"];
         if ($weight > 0 && $height > 0) {
             $_POST["BMI"] = ($weight/$height/$height)*703;
         }
-        if     ( $_POST["BMI"] > 42 )   $_POST["BMI_status"] = 'Obesity III';
-        elseif ( $_POST["BMI"] > 34 )   $_POST["BMI_status"] = 'Obesity II';
-        elseif ( $_POST["BMI"] > 30 )   $_POST["BMI_status"] = 'Obesity I';
-        elseif ( $_POST["BMI"] > 27 )   $_POST["BMI_status"] = 'Overweight';
-        elseif ( $_POST["BMI"] > 25 )   $_POST["BMI_status"] = 'Normal BL';
-        elseif ( $_POST["BMI"] > 18.5 ) $_POST["BMI_status"] = 'Normal';
-        elseif ( $_POST["BMI"] > 10 )   $_POST["BMI_status"] = 'Underweight';
+
+        if ($_POST["BMI"] > 42) {
+            $_POST["BMI_status"] = 'Obesity III';
+        } elseif ($_POST["BMI"] > 34) {
+            $_POST["BMI_status"] = 'Obesity II';
+        } elseif ($_POST["BMI"] > 30) {
+            $_POST["BMI_status"] = 'Obesity I';
+        } elseif ($_POST["BMI"] > 27) {
+            $_POST["BMI_status"] = 'Overweight';
+        } elseif ($_POST["BMI"] > 25) {
+            $_POST["BMI_status"] = 'Normal BL';
+        } elseif ($_POST["BMI"] > 18.5) {
+            $_POST["BMI_status"] = 'Normal';
+        } elseif ($_POST["BMI"] > 10) {
+            $_POST["BMI_status"] = 'Underweight';
+        }
+
         $temperature = $_POST["temperature"];
         if ($temperature == '0' || $temperature == '') {
             $_POST["temp_method"] = "";
@@ -130,14 +139,12 @@ class C_FormVitals extends Controller {
         if ($GLOBALS['encounter'] < 1) {
             $GLOBALS['encounter'] = date("Ymd");
         }
-        if(empty($_POST['id']))
-        {
+
+        if (empty($_POST['id'])) {
             addForm($GLOBALS['encounter'], "Vitals", $this->vitals->id, "vitals", $GLOBALS['pid'], $_SESSION['userauthorized']);
             $_POST['process'] = "";
         }
+
         return;
     }
-
 }
-
-?>

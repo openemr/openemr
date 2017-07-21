@@ -4,8 +4,8 @@
 /**
  * import supporting libraries
  */
-require_once ("FieldMap.php");
-require_once ("KeyMap.php");
+require_once("FieldMap.php");
+require_once("KeyMap.php");
 
 /**
  * IDaoMap2 is an interface for a mapped object that can be persisted by Phreeze
@@ -17,7 +17,8 @@ require_once ("KeyMap.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-interface IDaoMap2 {
+interface IDaoMap2
+{
     /**
      * Add a new FieldMap
      *
@@ -51,5 +52,3 @@ interface IDaoMap2 {
      */
     static function GetKeyMaps();
 }
-
-?>

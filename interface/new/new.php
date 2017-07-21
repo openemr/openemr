@@ -33,7 +33,7 @@ function getLayoutUOR($form_id, $field_id)
 }
 
 // Determine if the registration date should be requested.
-$regstyle = getLayoutUOR('DEM','regdate') ? "" : " style='display:none'";
+$regstyle = getLayoutUOR('DEM', 'regdate') ? "" : " style='display:none'";
 
 $form_pubpid    = $_POST['pubpid'   ] ? trim($_POST['pubpid'   ]) : '';
 $form_title     = $_POST['title'    ] ? trim($_POST['title'    ]) : '';
@@ -50,7 +50,7 @@ $form_regdate   = $_POST['regdate'  ] ? trim($_POST['regdate'  ]) : date('Y-m-d'
 
 <head>
 <?php html_header_show(); ?>
-<link rel="stylesheet" href="<?php echo xl($css_header,'e');?>" type="text/css">
+<link rel="stylesheet" href="<?php echo xl($css_header, 'e');?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
@@ -71,13 +71,13 @@ $form_regdate   = $_POST['regdate'  ] ? trim($_POST['regdate'  ]) : date('Y-m-d'
    return false;
   }
 <?php } ?>
-<?php if (getLayoutUOR('DEM','sex') == 2) { ?>
+<?php if (getLayoutUOR('DEM', 'sex') == 2) { ?>
   if (f.sex.selectedIndex <= 0) {
    alert('Please select a value for sex!');
    return false;
   }
 <?php } ?>
-<?php if (getLayoutUOR('DEM','DOB') == 2) { ?>
+<?php if (getLayoutUOR('DEM', 'DOB') == 2) { ?>
   if (f.DOB.value.length == 0) {
    alert('Please select a birth date!');
    return false;
@@ -112,7 +112,7 @@ $(document).ready(function(){
 
 <form name='new_patient' method='post' action="new_patient_save.php"
  onsubmit='return validate()'>
-<span class='title'><?php xl('Add Patient Record','e');?></span>
+<span class='title'><?php xl('Add Patient Record', 'e');?></span>
 
 <br><br>
 
@@ -127,7 +127,7 @@ $(document).ready(function(){
 <?php if (!$GLOBALS['omit_employers']) { ?>
  <tr>
   <td>
-   <span class='bold'><?php xl('Title','e');?>: </span>
+   <span class='bold'><?php xl('Title', 'e');?>: </span>
   </td>
   <td>
    <select name='title'>
@@ -136,7 +136,10 @@ $ores = sqlStatement("SELECT option_id, title FROM list_options " .
   "WHERE list_id = 'titles' AND activity = 1 ORDER BY seq");
 while ($orow = sqlFetchArray($ores)) {
     echo "    <option value='" . $orow['option_id'] . "'";
-    if ($orow['option_id'] == $form_title) echo " selected";
+    if ($orow['option_id'] == $form_title) {
+        echo " selected";
+    }
+
     echo ">" . $orow['title'] . "</option>\n";
 }
 ?>
@@ -147,7 +150,7 @@ while ($orow = sqlFetchArray($ores)) {
 
  <tr>
   <td>
-   <span class='bold'><?php xl('First Name','e');?>: </span>
+   <span class='bold'><?php xl('First Name', 'e');?>: </span>
   </td>
   <td>
    <input type='entry' size='15' name='fname' value='<?php echo $form_fname; ?>'>
@@ -156,7 +159,7 @@ while ($orow = sqlFetchArray($ores)) {
 
  <tr>
   <td>
-   <span class='bold'><?php xl('Middle Name','e');?>: </span>
+   <span class='bold'><?php xl('Middle Name', 'e');?>: </span>
   </td>
   <td>
    <input type='entry' size='15' name='mname' value='<?php echo $form_mname; ?>'>
@@ -165,7 +168,7 @@ while ($orow = sqlFetchArray($ores)) {
 
  <tr>
   <td>
-   <span class='bold'><?php xl('Last Name','e');?>: </span>
+   <span class='bold'><?php xl('Last Name', 'e');?>: </span>
   </td>
   <td>
    <input type='entry' size='15' name='lname' value='<?php echo $form_lname; ?>'>
@@ -174,7 +177,7 @@ while ($orow = sqlFetchArray($ores)) {
 
  <tr>
   <td>
-   <span class='bold'><?php xl('Sex','e'); ?>: </span>
+   <span class='bold'><?php xl('Sex', 'e'); ?>: </span>
   </td>
   <td>
    <select name='sex'>
@@ -184,7 +187,10 @@ $ores = sqlStatement("SELECT option_id, title FROM list_options " .
   "WHERE list_id = 'sex' AND activity = 1 ORDER BY seq");
 while ($orow = sqlFetchArray($ores)) {
     echo "    <option value='" . $orow['option_id'] . "'";
-    if ($orow['option_id'] == $form_sex) echo " selected";
+    if ($orow['option_id'] == $form_sex) {
+        echo " selected";
+    }
+
     echo ">" . $orow['title'] . "</option>\n";
 }
 ?>
@@ -195,7 +201,7 @@ while ($orow = sqlFetchArray($ores)) {
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
  <tr>
   <td>
-   <span class='bold'><?php xl('Referral Source','e'); ?>: </span>
+   <span class='bold'><?php xl('Referral Source', 'e'); ?>: </span>
   </td>
   <td>
    <select name='refsource'>
@@ -205,7 +211,10 @@ $ores = sqlStatement("SELECT option_id, title FROM list_options " .
   "WHERE list_id = 'refsource' AND activity = 1 ORDER BY seq");
 while ($orow = sqlFetchArray($ores)) {
     echo "    <option value='" . $orow['option_id'] . "'";
-    if ($orow['option_id'] == $form_refsource) echo " selected";
+    if ($orow['option_id'] == $form_refsource) {
+        echo " selected";
+    }
+
     echo ">" . $orow['title'] . "</option>\n";
 }
 ?>
@@ -216,7 +225,7 @@ while ($orow = sqlFetchArray($ores)) {
 
  <tr>
   <td>
-   <span class='bold'><?php xl('Birth Date','e');?>: </span>
+   <span class='bold'><?php xl('Birth Date', 'e');?>: </span>
   </td>
   <td>
    <input type='text' size='10' class='datepicker' name='DOB' id='DOB'
@@ -227,7 +236,7 @@ while ($orow = sqlFetchArray($ores)) {
 
  <tr<?php echo $regstyle ?>>
   <td>
-   <span class='bold'><?php xl('Registration Date','e');?>: </span>
+   <span class='bold'><?php xl('Registration Date', 'e');?>: </span>
   </td>
   <td>
    <input type='text' size='10' class='datepicker' name='regdate' id='regdate'
@@ -238,18 +247,18 @@ while ($orow = sqlFetchArray($ores)) {
 
  <tr>
   <td>
-   <span class='bold'><?php xl('Patient Number','e');?>: </span>
+   <span class='bold'><?php xl('Patient Number', 'e');?>: </span>
   </td>
   <td>
    <input type='entry' size='5' name='pubpid' value='<?php echo $form_pubpid; ?>'>
-   <span class='text'><?php xl('omit to autoassign','e');?> &nbsp; &nbsp; </span>
+   <span class='text'><?php xl('omit to autoassign', 'e');?> &nbsp; &nbsp; </span>
   </td>
  </tr>
 
  <tr>
   <td colspan='2'>
    &nbsp;<br>
-   <input type='submit' name='form_create' value=<?php xl('Create New Patient','e'); ?> />
+   <input type='submit' name='form_create' value=<?php xl('Create New Patient', 'e'); ?> />
   </td>
   <td>
   </td>

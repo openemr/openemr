@@ -12,7 +12,10 @@ require_once("$srcdir/acl.inc");
 
 function formatcyp($amount)
 {
-    if ($amount) return sprintf("%.2f", $amount);
+    if ($amount) {
+        return sprintf("%.2f", $amount);
+    }
+
     return '';
 }
 
@@ -21,10 +24,11 @@ function display_desc($desc)
     if (preg_match('/^\S*?:(.+)$/', $desc, $matches)) {
         $desc = $matches[1];
     }
+
     return $desc;
 }
 
-function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty, $cypfactor, $irnumber='')
+function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty, $cypfactor, $irnumber = '')
 {
     global $product, $productcyp, $producttotal, $productqty, $grandtotal, $grandqty;
 
@@ -33,7 +37,9 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
     $rowresult = sprintf('%01.2f', $rowcyp * $qty);
 
     $rowproduct = $description;
-    if (! $rowproduct) $rowproduct = 'Unknown';
+    if (! $rowproduct) {
+        $rowproduct = 'Unknown';
+    }
 
     if ($product != $rowproduct) {
         if ($product) {
@@ -45,13 +51,14 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
                     echo '"' . formatcyp($productcyp) . '",';
                     echo '"' . formatcyp($producttotal) . '"' . "\n";
                 }
-            }
-            else {
+            } else {
         ?>
 
        <tr bgcolor="#ddddff">
         <td class="detail" colspan="<?php echo $_POST['form_details'] ? 3 : 1; ?>">
-        <?php if ($_POST['form_details']) echo xl('Total for '); echo display_desc($product) ?>
+        <?php if ($_POST['form_details']) {
+            echo xl('Total for ');
+} echo display_desc($product) ?>
   </td>
   <td class="dehead" align="right">
         <?php echo $productqty; ?>
@@ -66,6 +73,7 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
 <?php
             } // End not csv export
         }
+
         $producttotal = 0;
         $productqty = 0;
         $product = $rowproduct;
@@ -75,14 +83,13 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
 
     if ($_POST['form_details']) {
         if ($_POST['form_csvexport']) {
-            echo '"' . display_desc($product         ) . '",';
+            echo '"' . display_desc($product) . '",';
             echo '"' . oeFormatShortDate(display_desc($transdate)) . '",';
             echo '"' . display_desc($invnumber) . '",';
-            echo '"' . display_desc($qty      ) . '",';
+            echo '"' . display_desc($qty) . '",';
             echo '"' . formatcyp($rowcyp) . '",';
             echo '"' . formatcyp($rowresult) . '"' . "\n";
-        }
-        else {
+        } else {
         ?>
 
      <tr>
@@ -107,7 +114,6 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
   </td>
  </tr>
 <?php
-
         } // End not csv export
     } // end details
     $producttotal += $rowresult;
@@ -116,10 +122,12 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
     $grandqty     += $qty;
 } // end function
 
-if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
+if (! acl_check('acct', 'rep')) {
+    die(xl("Unauthorized access."));
+}
 
 $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
-$form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
+$form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_facility  = $_POST['form_facility'];
 
 if ($_POST['form_csvexport']) {
@@ -137,20 +145,18 @@ if ($_POST['form_csvexport']) {
         echo '"Qty",';
         echo '"CYP",';
         echo '"Result"' . "\n";
-    }
-    else {
+    } else {
         echo '"Item",';
         echo '"Qty",';
         echo '"CYP",';
         echo '"Result"' . "\n";
     }
-}
-else { // not export
+} else { // not export
 ?>
 <html>
 <head>
 <?php html_header_show();?>
-<title><?php xl('CYP Report','e') ?></title>
+<title><?php xl('CYP Report', 'e') ?></title>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 <script language="JavaScript">
@@ -165,7 +171,7 @@ else { // not export
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <center>
 
-<h2><?php xl('CYP Report','e')?></h2>
+<h2><?php xl('CYP Report', 'e')?></h2>
 
 <form method='post' action='ippf_cyp_report.php'>
 
@@ -183,9 +189,13 @@ else { // not export
 while ($frow = sqlFetchArray($fres)) {
     $facid = $frow['id'];
     echo "    <option value='$facid'";
-    if ($facid == $form_facility) echo " selected";
+    if ($facid == $form_facility) {
+        echo " selected";
+    }
+
     echo ">" . $frow['name'] . "\n";
 }
+
   echo "   </select>\n";
 ?>
    &nbsp;<?xl('From:','e')?>
@@ -193,19 +203,21 @@ while ($frow = sqlFetchArray($fres)) {
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
+    title='<?php xl('Click here to choose a date', 'e'); ?>'>
    &nbsp;To:
    <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
+    title='<?php xl('Click here to choose a date', 'e'); ?>'>
    &nbsp;
-   <input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details','e') ?>
+   <input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) {
+        echo " checked";
+} ?>><?php xl('Details', 'e') ?>
    &nbsp;
-   <input type='submit' name='form_refresh' value="<?php xl('Refresh','e') ?>">
+   <input type='submit' name='form_refresh' value="<?php xl('Refresh', 'e') ?>">
    &nbsp;
-   <input type='submit' name='form_csvexport' value="<?php xl('Export to CSV','e') ?>">
+   <input type='submit' name='form_csvexport' value="<?php xl('Export to CSV', 'e') ?>">
    &nbsp;
    <input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />
   </td>
@@ -222,24 +234,24 @@ while ($frow = sqlFetchArray($fres)) {
 
  <tr bgcolor="#dddddd">
   <td class="dehead">
-    <?php xl('Item','e') ?>
+    <?php xl('Item', 'e') ?>
   </td>
 <?php if ($_POST['form_details']) { ?>
   <td class="dehead">
-    <?php xl('Date','e') ?>
+    <?php xl('Date', 'e') ?>
   </td>
   <td class="dehead">
-    <?php xl('Invoice','e') ?>
+    <?php xl('Invoice', 'e') ?>
   </td>
 <?php } ?>
   <td class="dehead" align="right">
-    <?php xl('Qty','e') ?>
+    <?php xl('Qty', 'e') ?>
   </td>
   <td class="dehead" align="right">
-    <?php xl('CYP','e') ?>
+    <?php xl('CYP', 'e') ?>
   </td>
   <td class="dehead" align="right">
-    <?php xl('Result','e') ?>
+    <?php xl('Result', 'e') ?>
   </td>
  </tr>
 <?php
@@ -270,15 +282,22 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     if ($form_facility) {
         $query .= " AND fe.facility_id = '$form_facility'";
     }
+
     $query .= " ORDER BY b.code, fe.date, fe.id";
   //
     $res = sqlStatement($query);
     while ($row = sqlFetchArray($res)) {
-        thisLineItem($row['pid'], $row['encounter'],
-        $row['code'] . ' ' . $row['code_text'],
-        substr($row['date'], 0, 10), $row['units'], $row['cyp_factor'],
-        $row['invoice_refno']);
+        thisLineItem(
+            $row['pid'],
+            $row['encounter'],
+            $row['code'] . ' ' . $row['code_text'],
+            substr($row['date'], 0, 10),
+            $row['units'],
+            $row['cyp_factor'],
+            $row['invoice_refno']
+        );
     }
+
   //
     $query = "SELECT s.sale_date, s.quantity, s.pid, s.encounter, " .
     "d.name, d.cyp_factor, fe.date, fe.facility_id, fe.invoice_refno " .
@@ -292,13 +311,20 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     if ($form_facility) {
         $query .= " AND fe.facility_id = '$form_facility'";
     }
+
     $query .= " ORDER BY d.name, fe.date, fe.id";
   //
     $res = sqlStatement($query);
     while ($row = sqlFetchArray($res)) {
-        thisLineItem($row['pid'], $row['encounter'], $row['name'],
-        substr($row['date'], 0, 10), $row['quantity'], $row['cyp_factor'],
-        $row['invoice_refno']);
+        thisLineItem(
+            $row['pid'],
+            $row['encounter'],
+            $row['name'],
+            substr($row['date'], 0, 10),
+            $row['quantity'],
+            $row['cyp_factor'],
+            $row['invoice_refno']
+        );
     }
 
     if ($_POST['form_csvexport']) {
@@ -308,13 +334,14 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             echo '"' . formatcyp($productcyp) . '",';
             echo '"' . formatcyp($producttotal) . '"' . "\n";
         }
-    }
-    else {
+    } else {
     ?>
 
    <tr bgcolor="#ddddff">
     <td class="detail" colspan="<?php echo $_POST['form_details'] ? 3 : 1; ?>">
-        <?php if ($_POST['form_details']) echo xl('Total for '); echo display_desc($product) ?>
+        <?php if ($_POST['form_details']) {
+            echo xl('Total for ');
+} echo display_desc($product) ?>
   </td>
   <td class="dehead" align="right">
         <?php echo $productqty; ?>
@@ -329,7 +356,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
  <tr bgcolor="#ffdddd">
     <td class="detail" colspan="<?php echo $_POST['form_details'] ? 3 : 1; ?>">
-        <?php xl('Grand Total','e'); ?>
+        <?php xl('Grand Total', 'e'); ?>
   </td>
   <td class="dehead" align="right">
         <?php echo $grandqty; ?>
@@ -343,7 +370,6 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
  </tr>
 
 <?php
-
     } // End not csv export
 } // end report generation
 

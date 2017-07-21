@@ -38,7 +38,7 @@ class Form_Factory implements FactoryIF
     protected $_formDir = null;
     protected $_encounterId = null;
     
-    public function __construct( $formId, $formDir, $encounterId )
+    public function __construct($formId, $formDir, $encounterId)
     {
         $this->_formId = $formId;
         $this->_formDir = $formDir;
@@ -53,10 +53,10 @@ class Form_Factory implements FactoryIF
     public function createSignable()
     {
         $signable = null;
-        if ( strpos( $this->_formDir, 'LBF' ) === 0 ) {
-            $signable = new Form_LBF_Signable( $this->_formId, $this->_formDir, $this->_encounterId );
+        if (strpos($this->_formDir, 'LBF') === 0) {
+            $signable = new Form_LBF_Signable($this->_formId, $this->_formDir, $this->_encounterId);
         } else {
-            $signable = new Form_Signable( $this->_formId, $this->_formDir, $this->_encounterId );
+            $signable = new Form_Signable($this->_formId, $this->_formDir, $this->_encounterId);
         }
         
         return $signable;
@@ -64,11 +64,11 @@ class Form_Factory implements FactoryIF
     
     public function createButton()
     {
-        return new Form_Button( $this->_formId, $this->_formDir, $this->_encounterId );
+        return new Form_Button($this->_formId, $this->_formDir, $this->_encounterId);
     }
 
     public function createLog()
     {
-        return new Form_Log( $this->_formId, $this->_formDir, $this->_encounterId );
+        return new Form_Log($this->_formId, $this->_formDir, $this->_encounterId);
     }
 }

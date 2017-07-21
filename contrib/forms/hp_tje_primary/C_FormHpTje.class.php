@@ -1,9 +1,10 @@
 <?php
 
-require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormHpTjePrimary.class.php");
 
-class C_FormHpTje extends Controller {
+class C_FormHpTje extends Controller
+{
 
     var $template_dir;
 
@@ -20,8 +21,8 @@ class C_FormHpTje extends Controller {
     function default_action()
     {
         $hptje_primary = new FormHpTjePrimary();
-        $this->assign("hptje_primary",$hptje_primary);
-        $this->assign("checks",$hptje_primary->_form_layout());
+        $this->assign("hptje_primary", $hptje_primary);
+        $this->assign("checks", $hptje_primary->_form_layout());
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
@@ -29,22 +30,22 @@ class C_FormHpTje extends Controller {
     {
         if (is_numeric($form_id)) {
             $hptje_primary = new FormHpTjePrimary($form_id);
-        }
-        else {
+        } else {
             $hptje_primary = new FormHpTjePrimary();
         }
 
-        $this->assign("hptje_primary",$hptje_primary);
-        $this->assign("checks",$hptje_primary->_form_layout());
-        $this->assign("VIEW",true);
+        $this->assign("hptje_primary", $hptje_primary);
+        $this->assign("checks", $hptje_primary->_form_layout());
+        $this->assign("VIEW", true);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
-
     }
 
     function default_action_process()
     {
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
+
         $this->hptje_primary = new FormHpTjePrimary($_POST['id']);
         parent::populate_object($this->hptje_primary);
 
@@ -52,13 +53,9 @@ class C_FormHpTje extends Controller {
         if ($GLOBALS['encounter'] == "") {
             $GLOBALS['encounter'] = date("Ymd");
         }
+
         addForm($GLOBALS['encounter'], "Head Pain TJE", $this->hptje_primary->id, "hp_tje_primary", $GLOBALS['pid'], $_SESSION['userauthorized']);
         $_POST['process'] = "";
         return;
     }
-
 }
-
-
-
-?>

@@ -40,7 +40,7 @@ $patdata = sqlQuery("SELECT " .
 // re-order the dates
 //
 
-$today = oeFormatShortDate($date='today');
+$today = oeFormatShortDate($date = 'today');
 $dob = oeFormatShortDate($patdata['DOB']);
 
 //get label type and number of labels on sheet
@@ -69,9 +69,8 @@ $text = sprintf("  %s %s\n  %s\n  %s\n  %s", $patdata['fname'], $patdata['lname'
 // For loop for printing the labels
 //
 
-for($i=1;$i<=$last;$i++) {
+for ($i=1; $i<=$last; $i++) {
     $pdf->Add_Label($text);
 }
 
 $pdf->Output();
-?>

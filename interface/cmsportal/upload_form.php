@@ -38,8 +38,11 @@ function getKittens($catid, $catstring, &$categories)
         getKittens($crow['id'], ($catstring ? "$catstring / " : "") .
         ($catid ? $crow['name'] : ''), $categories);
     }
+
   // If no kitties, then this is a leaf node and should be listed.
-    if (!$childcount) $categories[$catid] = $catstring;
+    if (!$childcount) {
+        $categories[$catid] = $catstring;
+    }
 }
 
 $postid    = empty($_REQUEST['postid'   ]) ? 0 : intval($_REQUEST['postid'   ]);
@@ -51,33 +54,48 @@ if ($_POST['bn_save']) {
     if (is_array($_POST['form_filename'])) {
         foreach ($_POST['form_filename'] as $uploadid => $filename) {
             $catid = $_POST['form_category'][$uploadid];
-            if (!$catid) continue;
+            if (!$catid) {
+                continue;
+            }
+
             echo xlt('Fetching following file from portal') . ": " . $filename . " ...<br />\n";
             flush();
             if ($messageid) {
                 $result = cms_portal_call(array('action' => 'getmsgup', 'uploadid' => $uploadid));
-            }
-            else {
+            } else {
                 $result = cms_portal_call(array('action' => 'getupload', 'uploadid' => $uploadid));
             }
-            if ($result['errmsg']) die(text($result['errmsg']));
+
+            if ($result['errmsg']) {
+                die(text($result['errmsg']));
+            }
+
             $d = new Document();
             // With JSON-over-HTTP we would need to base64_decode the contents.
-            $rc = $d->createDocument($ptid, $catid, $filename, $result['mimetype'],
-            $result['contents']);
-            if ($rc) die(text(xl('Error saving document') . ": $rc"));
+            $rc = $d->createDocument(
+                $ptid,
+                $catid,
+                $filename,
+                $result['mimetype'],
+                $result['contents']
+            );
+            if ($rc) {
+                die(text(xl('Error saving document') . ": $rc"));
+            }
         }
     }
+
   // Finally, delete the request or message from the portal.
     if ($messageid) {
         $result = cms_portal_call(array('action' => 'delmessage', 'messageid' => $messageid));
-    }
-    else {
+    } else {
         $result = cms_portal_call(array('action' => 'delpost', 'postid' => $postid));
     }
+
     if ($result['errmsg']) {
         die(text($result['errmsg']));
     }
+
     echo "<script language='JavaScript'>\n";
     echo "if (top.restoreSession) top.restoreSession(); else opener.top.restoreSession();\n";
     echo "document.location.href = 'list_requests.php';\n";
@@ -90,13 +108,16 @@ $categories = array();
 getKittens(0, '', $categories);
 
 // Get the portal request data.
-if (!$postid && !$messageid) die(xlt('Request ID is missing!'));
+if (!$postid && !$messageid) {
+    die(xlt('Request ID is missing!'));
+}
+
 if ($messageid) {
     $result = cms_portal_call(array('action' => 'getmessage', 'messageid' => $messageid));
-}
-else {
+} else {
     $result = cms_portal_call(array('action' => 'getpost', 'postid' => $postid));
 }
+
 if ($result['errmsg']) {
     die(text($result['errmsg']));
 }
@@ -180,9 +201,13 @@ if (is_array($result['uploads'])) {
         $i = 0;
         foreach ($categories as $catkey => $catname) {
             echo "<option value='" . attr($catkey) . "'";
-            if (++$i == 1) echo " selected";
+            if (++$i == 1) {
+                echo " selected";
+            }
+
             echo ">" . text($catname) . "</option>\n";
         }
+
         echo "</select></td>\n";
         //
         echo " </tr>\n";

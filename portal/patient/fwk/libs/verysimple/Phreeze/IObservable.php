@@ -4,7 +4,7 @@
 /**
  * import supporting libraries
  */
-require_once ("IObserver.php");
+require_once("IObserver.php");
 
 /**
  * IObservable defines an interface for an object that can have listeners attached
@@ -15,7 +15,8 @@ require_once ("IObserver.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-interface IObservable {
+interface IObservable
+{
     /**
      * Registers/attaches an IObserver to this object
      *
@@ -35,5 +36,3 @@ interface IObservable {
      */
     public function Observe($obj, $ltype = OBSERVE_INFO);
 }
-
-?>

@@ -24,7 +24,8 @@
  *
  *
  */
-class Savant3_Error {
+class Savant3_Error
+{
     
     /**
      *
@@ -85,13 +86,13 @@ class Savant3_Error {
     public function __construct($conf = array())
     {
         // set public properties
-        foreach ( $conf as $key => $val ) {
+        foreach ($conf as $key => $val) {
             $this->$key = $val;
         }
         
         // add a backtrace
         if ($conf ['trace'] === true) {
-            $this->trace = debug_backtrace ();
+            $this->trace = debug_backtrace();
         }
     }
     
@@ -105,10 +106,9 @@ class Savant3_Error {
      */
     public function __toString()
     {
-        ob_start ();
-        echo get_class ( $this ) . ': ';
-        print_r ( get_object_vars ( $this ) );
-        return ob_get_clean ();
+        ob_start();
+        echo get_class($this) . ': ';
+        print_r(get_object_vars($this));
+        return ob_get_clean();
     }
 }
-?>

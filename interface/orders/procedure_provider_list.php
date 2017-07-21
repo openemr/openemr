@@ -22,6 +22,7 @@
 
 
 use OpenEMR\Core\Header;
+
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
@@ -46,7 +47,9 @@ $res = sqlStatement($query);
 
 <script language="JavaScript">
 
-<?php if ($popup) require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php if ($popup) {
+    require($GLOBALS['srcdir'] . "/restoreSession.php");
+} ?>
 
 // Callback from popups to refresh this display.
 function refreshme() {
@@ -94,17 +97,17 @@ function doedclick_edit(ppid) {
                    <tbody>
                     <?php
                     while ($row = sqlFetchArray($res)) {
-                        if (acl_check('admin', 'practice' )) {
+                        if (acl_check('admin', 'practice')) {
                             $trTitle = xl('Edit') . ' ' . $row['name'];
                             echo " <tr class='detail' style='cursor:pointer' " .
                                "onclick='doedclick_edit(" . $row['ppid'] . ")' title='" . attr($trTitle) . "'>\n";
-                        }
-                        else {
+                        } else {
                             $trTitle = $displayName . " (" . xl("Not Allowed to Edit") . ")";
                             echo " <tr class='detail $bgclass' title='" . attr($trTitle) . "'>\n";
                         }
-                        echo "  <td>" . text($row['name']    ) . "</td>\n";
-                        echo "  <td>" . text($row['npi']     ) . "</td>\n";
+
+                        echo "  <td>" . text($row['name']) . "</td>\n";
+                        echo "  <td>" . text($row['npi']) . "</td>\n";
                         echo "  <td>" . text($row['protocol']) . "</td>\n";
                         echo " </tr>\n";
                     }

@@ -43,7 +43,7 @@ class Signature implements SignatureIF
 
     private $_verification = null;
     
-    public function __construct( $id, $tid, $table, $isLock, $uid, $firstName, $lastName, $datetime, $hash, $amendment = null, $signatureHash = null )
+    public function __construct($id, $tid, $table, $isLock, $uid, $firstName, $lastName, $datetime, $hash, $amendment = null, $signatureHash = null)
     {
         $this->id = $id;
         $this->tid = $tid;
@@ -63,7 +63,7 @@ class Signature implements SignatureIF
     public function getClass()
     {
         $class = "";
-        if ( $this->isLock() === true ) {
+        if ($this->isLock() === true) {
             $class .= " locked";
         }
        
@@ -102,7 +102,7 @@ class Signature implements SignatureIF
     
     public function isLock()
     {
-        if ( $this->isLock > 0 ) {
+        if ($this->isLock > 0) {
             return true;
         }
         
@@ -122,6 +122,6 @@ class Signature implements SignatureIF
     
     public function verify()
     {
-        return $this->_verification->verify( $this->getData(), $this->signatureHash );
+        return $this->_verification->verify($this->getData(), $this->signatureHash);
     }
 }

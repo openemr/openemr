@@ -42,29 +42,36 @@ function create_csr(
     $organizationalUnitName
 ) {
 
-    if ($commonName == "")
+    if ($commonName == "") {
         return false;
+    }
 
     /* Build the Distinguished Name (DN) for the certificate */
     $dn = array("commonName" => $commonName);
 
-    if($emailAddress)
+    if ($emailAddress) {
         $dn = array_merge($dn, array("emailAddress" => $emailAddress));
+    }
 
-    if ($countryName)
+    if ($countryName) {
         $dn = array_merge($dn, array("countryName" => $countryName));
+    }
 
-    if ($stateOrProvinceName)
+    if ($stateOrProvinceName) {
         $dn = array_merge($dn, array("stateOrProvinceName" => $stateOrProvinceName));
+    }
 
-    if ($localityName)
+    if ($localityName) {
         $dn = array_merge($dn, array("localityName" => $localityName));
+    }
 
-    if ($organizationName)
+    if ($organizationName) {
         $dn = array_merge($dn, array("organizationName" => $organizationName));
+    }
 
-    if ($organizationalUnitName)
+    if ($organizationalUnitName) {
         $dn = array_merge($dn, array("organizationalUnitName" => $organizationalUnitName));
+    }
 
     /* OpenSSL functions need the path to the openssl.cnf file */
     $opensslConf = $GLOBALS['webserver_root'] . "/library/openssl.cnf";
@@ -80,6 +87,7 @@ function create_csr(
     if ($csr === false) {
         return false;
     }
+
     return array($csr, $privkey);
 }
 
@@ -98,7 +106,7 @@ function create_crt($privkey, $csr, $cacert, $cakey)
     $opensslConf = $GLOBALS['webserver_root'] . "/library/openssl.cnf";
     $config = array('config' => $opensslConf);
 
-    $cert = openssl_csr_sign($csr, $cacert ,$cakey, 3650, $config,rand(1000,9999));
+    $cert = openssl_csr_sign($csr, $cacert, $cakey, 3650, $config, rand(1000, 9999));
     return $cert;
 }
 
@@ -124,6 +132,7 @@ function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $
     if ($arr === false) {
         return false;
     }
+
     $csr = $arr[0];
     $privkey = $arr[1];
 
@@ -134,8 +143,14 @@ function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $
         $serial = $row['id'];
     }
 
-    $cert = openssl_csr_sign($csr, file_get_contents($cacert), file_get_contents($cakey),
-                             $valid_days, $config, $serial);
+    $cert = openssl_csr_sign(
+        $csr,
+        file_get_contents($cacert),
+        file_get_contents($cakey),
+        $valid_days,
+        $config,
+        $serial
+    );
 
     if ($cert === false) {
         return false;
@@ -147,7 +162,6 @@ function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $
     if (openssl_pkcs12_export($cert, $p12Out, $privkey, "") === false) {
         return false;
     }
+
     return $p12Out;
 }
-
-?>

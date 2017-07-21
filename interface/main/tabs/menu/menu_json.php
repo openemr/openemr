@@ -17,8 +17,7 @@ require_once("menu_db.php");
 use OpenEMR\Menu\MainMenuRole;
 
 $menu_parsed=load_menu("default");
-if(count($menu_parsed)==0)
-{
+if (count($menu_parsed)==0) {
     // Use a json file to build menu rather than database
     // Note this is currently the standard mechanism
 
@@ -35,12 +34,14 @@ if(count($menu_parsed)==0)
     }
 
     // if error, then die and report error
-    if (!$menu_parsed) die("\nJSON ERROR: " . json_last_error());
+    if (!$menu_parsed) {
+        die("\nJSON ERROR: " . json_last_error());
+    }
 }
 
 menu_update_entries($menu_parsed);
 $menu_restrictions=array();
-menu_apply_restrictions($menu_parsed,$menu_restrictions);
+menu_apply_restrictions($menu_parsed, $menu_restrictions);
 ?>
 <script type="text/javascript">
 

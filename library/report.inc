@@ -110,18 +110,16 @@ function getPatientReport($pid)
 {
     $sql = "select * from patient_data where pid='$pid' order by date ASC";
     $res = sqlStatement("$sql");
-    while($list = sqlFetchArray($res))
-    {
-        while(list($key, $value) = each($list))
-        {
-            if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date'])
-            {
+    while ($list = sqlFetchArray($res)) {
+        while (list($key, $value) = each($list)) {
+            if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date']) {
                 $ret[$key]['title'] = $key;
                 $ret[$key]['content'] = $value;
                 $ret[$key]['date'] = $list['date'];
             }
         }
     }
+
     return $ret;
 }
 
@@ -129,17 +127,15 @@ function getHistoryReport($pid)
 {
         $sql = "select * from history_data where pid='$pid' order by date ASC";
         $res = sqlStatement("$sql");
-    while($list = sqlFetchArray($res))
-        {
-        while(list($key, $value) = each($list))
-        {
-            if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date'])
-            {
+    while ($list = sqlFetchArray($res)) {
+        while (list($key, $value) = each($list)) {
+            if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date']) {
                 $ret[$key]['content'] = $value;
                 $ret[$key]['date'] = $list['date'];
             }
         }
     }
+
         return $ret;
 }
 
@@ -147,17 +143,15 @@ function getInsuranceReport($pid, $type = "primary")
 {
         $sql = "select * from insurance_data where pid='$pid' and type='$type' order by date ASC";
         $res = sqlStatement("$sql");
-    while($list = sqlFetchArray($res))
-        {
-        while(list($key, $value) = each($list))
-        {
-            if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date'])
-            {
+    while ($list = sqlFetchArray($res)) {
+        while (list($key, $value) = each($list)) {
+            if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date']) {
                 $ret[$key]['content'] = $value;
                 $ret[$key]['date'] = $list['date'];
             }
         }
     }
+
         return $ret;
 }
 
@@ -165,17 +159,15 @@ function getEmployerReport($pid)
 {
         $sql = "select * from employer_data where pid='$pid' order by date ASC";
         $res = sqlStatement("$sql");
-    while($list = sqlFetchArray($res))
-        {
-        while(list($key, $value) = each($list))
-        {
-            if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date'])
-            {
+    while ($list = sqlFetchArray($res)) {
+        while (list($key, $value) = each($list)) {
+            if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date']) {
                 $ret[$key]['content'] = $value;
                 $ret[$key]['date'] = $list['date'];
             }
         }
     }
+
         return $ret;
 }
 
@@ -183,24 +175,22 @@ function getListsReport($pid)
 {
         $sql = "select * from lists where id='$id' order by date ASC";
         $res = sqlStatement("$sql");
-    while($list = sqlFetchArray($res))
-        {
-        while(list($key, $value) = each($list))
-        {
-            if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date'])
-            {
+    while ($list = sqlFetchArray($res)) {
+        while (list($key, $value) = each($list)) {
+            if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date']) {
                 $ret[$key]['content'] = $value;
                 $ret[$key]['date'] = $list['date'];
             }
         }
     }
+
         return $ret;
 }
 
 function printListData($pid, $list_type, $list_activity = "%")
 {
     $res = sqlStatement("select * from lists where pid='$pid' and type='$list_type' and activity like '$list_activity' order by date");
-    while($result = sqlFetchArray($res)) {
+    while ($result = sqlFetchArray($res)) {
         print "<span class=bold>" . $result{"title"} . ":</span><span class=text> " . $result{"comments"} . "</span><br>\n";
     }
 }
@@ -209,7 +199,7 @@ function printPatientNotes($pid)
 {
   // exclude ALL deleted notes
     $res = sqlStatement("select * from pnotes where pid = '$pid' and deleted != 1 and activity = 1 order by date");
-    while($result = sqlFetchArray($res)) {
+    while ($result = sqlFetchArray($res)) {
         print "<span class=bold>" . oeFormatSDFT(strtotime($result{"date"})) .
         ":</span><span class=text> " .
         stripslashes(oeFormatPatientNote($result['body'])) . "</span><br>\n";
@@ -225,9 +215,12 @@ function lbt_current_value($frow, $formid)
     $currvalue = '';
     if ($formid) {
         $ldrow = sqlQuery("SELECT field_value FROM lbt_data WHERE " .
-        "form_id = ? AND field_id = ?", array($formid, $field_id) );
-        if (!empty($ldrow)) $currvalue = $ldrow['field_value'];
+        "form_id = ? AND field_id = ?", array($formid, $field_id));
+        if (!empty($ldrow)) {
+            $currvalue = $ldrow['field_value'];
+        }
     }
+
     return $currvalue;
 }
 
@@ -243,9 +236,13 @@ function lbt_report($id, $formname)
         $field_id  = $frow['field_id'];
         $currvalue = lbt_current_value($frow, $id);
         // For brevity, skip fields without a value.
-        if ($currvalue === '') continue;
+        if ($currvalue === '') {
+            continue;
+        }
+
         $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
     }
+
     echo "<table>\n";
     display_layout_rows($formname, $arr);
     echo "</table>\n";
@@ -256,7 +253,7 @@ function lbt_report($id, $formname)
 function printPatientTransactions($pid)
 {
     $res = sqlStatement("SELECT * FROM transactions WHERE pid = ? ORDER BY date", array($pid));
-    while($row = sqlFetchArray($res)) {
+    while ($row = sqlFetchArray($res)) {
         echo "<p><span class='bold'>" .
         text(oeFormatSDFT(strtotime($row['date']))) .
         " (" .
@@ -270,7 +267,7 @@ function printPatientTransactions($pid)
 function printPatientBilling($pid)
 {
     $res = sqlStatement("select * from billing where pid='$pid' order by date");
-    while($result = sqlFetchArray($res)) {
+    while ($result = sqlFetchArray($res)) {
         echo "<span class=bold>" . oeFormatSDFT(strtotime($result{"date"})) . " : </span>";
         echo "<span class=text>(".$result{"code_type"}.") ";
         echo $result['code_type'] == 'COPAY' ? oeFormatMoney($result['code']) : $result['code'];
@@ -305,9 +302,10 @@ function getPatientBillingEncounter($pid, $encounter)
   /******************************************************************/
     $res = sqlStatement($sql);
     $billings = array();
-    while($result = sqlFetchArray($res)) {
+    while ($result = sqlFetchArray($res)) {
         $billings[] = $result;
     }
+
     return $billings;
 }
 
@@ -315,12 +313,12 @@ function printPatientForms($pid, $cols)
 {
     //this function takes a $pid
     $inclookupres = sqlStatement("select distinct formdir from forms where pid='$pid' AND deleted=0");
-    while($result = sqlFetchArray($inclookupres)) {
+    while ($result = sqlFetchArray($inclookupres)) {
         include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
     }
 
     $res = sqlStatement("select * from forms where pid='$pid' AND deleted=0 order by date");
-    while($result = sqlFetchArray($res)) {
+    while ($result = sqlFetchArray($res)) {
         if ($result{"form_name"} == "New Patient Encounter") {
             echo "<div class='text encounter'>\n";
             echo "<h1>" . $result["form_name"] . "</h1>";
@@ -335,26 +333,28 @@ function printPatientForms($pid, $cols)
             echo " ".xl('Provider').": ".$tmp['title']." ".
                 $tmp['fname']." ".$tmp['mname']." ".$tmp['lname'];
             echo "<br/>";
-        }
-        else {
+        } else {
             echo "<div class='text encounter_form'>";
             echo "<h1>" . $result["form_name"] . "</h1>";
         }
+
         echo "(" . oeFormatSDFT(strtotime($result["date"])) . ") ";
 
         if (acl_check('acct', 'rep') || acl_check('acct', 'eob') || acl_check('acct', 'bill')) {
             if ($result{"form_name"} == "New Patient Encounter") {
                 // display billing info
                 echo "<br/>";
-                $bres = sqlStatement("SELECT b.date, b.code, b.code_text " .
-                  "FROM billing AS b, code_types AS ct WHERE " .
-                  "b.pid = ? AND " .
-                  "b.encounter = ? AND " .
-                  "b.activity = 1 AND " .
-                  "b.code_type = ct.ct_key AND " .
-                  "ct.ct_diag = 0 " .
-                  "ORDER BY b.date",
-                  array($pid, $result['encounter']));
+                $bres = sqlStatement(
+                    "SELECT b.date, b.code, b.code_text " .
+                    "FROM billing AS b, code_types AS ct WHERE " .
+                    "b.pid = ? AND " .
+                    "b.encounter = ? AND " .
+                    "b.activity = 1 AND " .
+                    "b.code_type = ct.ct_key AND " .
+                    "ct.ct_diag = 0 " .
+                    "ORDER BY b.date",
+                    array($pid, $result['encounter'])
+                );
                 while ($brow=sqlFetchArray($bres)) {
                     echo "<span class='bold'>&nbsp;".xl('Procedure').": </span><span class='text'>" .
                         $brow['code'] . " " . $brow['code_text'] . "</span><br>\n";
@@ -374,9 +374,9 @@ function getRecHistoryData($pid)
     //column name->dates->values
     //$return{"lname"}[0..n]{"date"}
     //$return{"lname"}[0..n]{"value"}
-    $res = sqlStatement("select * from history_data where pid=? order by date", array($pid) );
+    $res = sqlStatement("select * from history_data where pid=? order by date", array($pid));
 
-    while($result = sqlFetchArray($res)) {
+    while ($result = sqlFetchArray($res)) {
         foreach ($result as $key => $val) {
             if ($key == "pid" || $key == "date" || $key == "id") {
                 next;
@@ -390,6 +390,7 @@ function getRecHistoryData($pid)
             }
         }
     }
+
     return $retar;
 }
 
@@ -399,9 +400,9 @@ function getRecEmployerData($pid)
     //column name->dates->values
     //$return{"lname"}[0..n]{"date"}
     //$return{"lname"}[0..n]{"value"}
-    $res = sqlStatement("select * from employer_data where pid=? order by date", array($pid) );
+    $res = sqlStatement("select * from employer_data where pid=? order by date", array($pid));
 
-    while($result = sqlFetchArray($res)) {
+    while ($result = sqlFetchArray($res)) {
         foreach ($result as $key => $val) {
             if ($key == "pid" || $key == "date" || $key == "id") {
                 next;
@@ -415,6 +416,7 @@ function getRecEmployerData($pid)
             }
         }
     }
+
     return $retar;
 }
 
@@ -424,9 +426,9 @@ function getRecPatientData($pid)
     //column name->dates->values
     //$return{"lname"}[0..n]{"date"}
     //$return{"lname"}[0..n]{"value"}
-    $res = sqlStatement("select * from patient_data where pid=? order by date", array($pid) );
+    $res = sqlStatement("select * from patient_data where pid=? order by date", array($pid));
 
-    while($result = sqlFetchArray($res)) {
+    while ($result = sqlFetchArray($res)) {
         foreach ($result as $key => $val) {
             if ($key == "pid" || $key == "date" || $key == "id") {
                 next;
@@ -440,6 +442,7 @@ function getRecPatientData($pid)
             }
         }
     }
+
     return $retar;
 }
 
@@ -449,9 +452,9 @@ function getRecInsuranceData($pid, $ins_type)
     //column name->dates->values
     //$return{"lname"}[0..n]{"date"}
     //$return{"lname"}[0..n]{"value"}
-    $res = sqlStatement("select *, ic.name as provider_name from insurance_data left join insurance_companies as ic on ic.id = provider where pid=? and type=? order by date", array($pid,$ins_type) );
+    $res = sqlStatement("select *, ic.name as provider_name from insurance_data left join insurance_companies as ic on ic.id = provider where pid=? and type=? order by date", array($pid,$ins_type));
 
-    while($result = sqlFetchArray($res)) {
+    while ($result = sqlFetchArray($res)) {
         foreach ($result as $key => $val) {
             if ($key == "pid" || $key == "date" || $key == "id") {
                 next;
@@ -465,6 +468,7 @@ function getRecInsuranceData($pid, $ins_type)
             }
         }
     }
+
     return $retar;
 }
 
@@ -484,20 +488,22 @@ function printRecData($data_array, $recres, $N)
             print "</tr><tr>\n";
             $count = 0;
         }
+
         print "<td valign=top><span class=bold>$aval</span><br><span class=text>";
         printData($recres, $akey, "<br>", "Y-m-d");
         print "</span></td>\n";
         $count++;
     }
+
     print "</tr></table>\n";
 }
 
 function printData($retar, $key, $sep, $date_format)
 {
     //$retar{$key}
-    if (@array_key_exists($key,$retar)) {
+    if (@array_key_exists($key, $retar)) {
         $length = sizeof($retar{$key});
-        for ($iter = $length;$iter>=1;$iter--) {
+        for ($iter = $length; $iter>=1; $iter--) {
             if ($retar{$key}[$iter]{"value"} != "0000-00-00 00:00:00") {
                 print $retar{$key}[$iter]{"value"} . " (" . oeFormatSDFT(strtotime($retar{$key}[$iter]{"date"})) . ")$sep";
             }
@@ -523,26 +529,29 @@ function printRecDataOne($data_array, $recres, $N)
                 print "</tr><tr>\n";
                 $count = 0;
             }
+
             print "<td valign=top><span class=bold>" . text($aval) . "</span><br><span class=text>";
             printDataOne($recres, $akey, "<br>", "Y-m-d");
             print "</span></td>\n";
             $count++;
         }
     }
+
     print "</tr></table>\n";
 }
 
 function printDataOne($retar, $key, $sep, $date_format)
 {
     //this function supports the printRecDataOne function above
-    if (@array_key_exists($key,$retar)) {
+    if (@array_key_exists($key, $retar)) {
         $length = sizeof($retar{$key});
         if ($retar{$key}[$length]{"value"} != "0000-00-00 00:00:00") {
             $tmp = $retar{$key}[$length]{"value"};
-            if (strstr($key, 'DOB')) $tmp = oeFormatShortDate($tmp);
+            if (strstr($key, 'DOB')) {
+                $tmp = oeFormatShortDate($tmp);
+            }
+
             print text($tmp) . $sep;
         }
     }
 }
-
-?>

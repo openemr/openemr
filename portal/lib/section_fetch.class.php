@@ -46,6 +46,7 @@ class FetchSection
         foreach ($result as $row) {
             $records[] = $row;
         }
+
         return $records;
     }
 
@@ -66,6 +67,7 @@ class FetchSection
         foreach ($result as $row) {
             $records[] = $row;
         }
+
         return $records;
     }
 
@@ -86,6 +88,7 @@ class FetchSection
         foreach ($result as $row) {
             $records[] = $row;
         }
+
         return $records;
     }
 
@@ -106,6 +109,7 @@ class FetchSection
         foreach ($result as $row) {
             $records[] = $row;
         }
+
         return $records;
     }
 
@@ -134,6 +138,7 @@ class FetchSection
         foreach ($result as $row) {
             $records[] = $row;
         }
+
         return $records;
     }
 
@@ -167,6 +172,7 @@ class FetchSection
         foreach ($result as $row) {
             $records[] = $row;
         }
+
         return $records;
     }
 
@@ -187,6 +193,7 @@ class FetchSection
         foreach ($result as $row) {
             $records[] = $row;
         }
+
         return $records;
     }
 
@@ -208,6 +215,7 @@ class FetchSection
         foreach ($result as $row) {
             $records[] = $row;
         }
+
         return $records;
     }
 
@@ -230,6 +238,7 @@ class FetchSection
         foreach ($result as $row) {
             $records[] = $row;
         }
+
         return $records;
     }
 
@@ -250,6 +259,7 @@ class FetchSection
         foreach ($result as $row) {
             $records[] = $row;
         }
+
         return $records;
     }
 
@@ -270,6 +280,7 @@ class FetchSection
         foreach ($result as $row) {
             $records[] = $row;
         }
+
         return $records;
     }
 
@@ -290,8 +301,7 @@ class FetchSection
         foreach ($result as $row) {
             $records[] = $row;
         }
+
         return $records;
     }
-
 }
-?>

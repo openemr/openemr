@@ -1,23 +1,23 @@
 <?php
 /** @package    verysimple::Phreeze */
-require_once ("IRenderEngine.php");
+require_once("IRenderEngine.php");
 
-define ( 'EXT', '.php' );
-define ( 'BLADE_EXT', '.blade.php' );
-define ( 'CRLF', "\r\n" );
-define ( 'DEFAULT_BUNDLE', 'application' );
-define ( 'MB_STRING', ( int ) function_exists ( 'mb_get_info' ) );
-define ( 'DS', DIRECTORY_SEPARATOR );
+define('EXT', '.php');
+define('BLADE_EXT', '.blade.php');
+define('CRLF', "\r\n");
+define('DEFAULT_BUNDLE', 'application');
+define('MB_STRING', ( int ) function_exists('mb_get_info'));
+define('DS', DIRECTORY_SEPARATOR);
 
-require_once ("laravel/paths.php");
-require_once ("laravel/helpers.php");
-require_once ("laravel/blade.php");
-require_once ("laravel/view.php");
-require_once ("laravel/event.php");
-require_once ("laravel/bundle.php");
-require_once ("laravel/session.php");
-require_once ("laravel/messages.php");
-require_once ("laravel/section.php");
+require_once("laravel/paths.php");
+require_once("laravel/helpers.php");
+require_once("laravel/blade.php");
+require_once("laravel/view.php");
+require_once("laravel/event.php");
+require_once("laravel/bundle.php");
+require_once("laravel/session.php");
+require_once("laravel/messages.php");
+require_once("laravel/section.php");
 
 /**
  * PHPRenderEngine is an implementation of IRenderEngine
@@ -29,7 +29,8 @@ require_once ("laravel/section.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class BladeRenderEngine implements IRenderEngine {
+class BladeRenderEngine implements IRenderEngine
+{
     /**
      * the file path to the template director
      */
@@ -56,9 +57,9 @@ class BladeRenderEngine implements IRenderEngine {
         $GLOBALS ['laravel_paths'] ['storage'] = self::$COMPILE_PATH;
         
         // attach a handler to the 'View::loader' event so we can tweak the file paths to fit with Phreeze
-        Laravel\Event::listen ( Laravel\View::loader, function ($bundle, $view) {
+        Laravel\Event::listen(Laravel\View::loader, function ($bundle, $view) {
             return BladeRenderEngine::$TEMPLATE_PATH . $view . '.blade.php';
-        } );
+        });
     }
     
     /**
@@ -75,8 +76,8 @@ class BladeRenderEngine implements IRenderEngine {
     public function display($template)
     {
         // die('template = ' . $template);
-        $template = str_replace ( '.tpl', '', $template ); // normalize any old smarty template paths
-        echo $this->fetch ( $template );
+        $template = str_replace('.tpl', '', $template); // normalize any old smarty template paths
+        echo $this->fetch($template);
     }
     
     /**
@@ -92,13 +93,13 @@ class BladeRenderEngine implements IRenderEngine {
      */
     public function fetch($template)
     {
-        $view = Laravel\View::make ( $template, $this->model );
+        $view = Laravel\View::make($template, $this->model);
         
-        Laravel\Blade::sharpen ();
+        Laravel\Blade::sharpen();
         
-        $responses = Laravel\Event::fire ( Laravel\View::engine, array (
+        $responses = Laravel\Event::fire(Laravel\View::engine, array (
                 $view
-        ) );
+        ));
         
         return $responses [0];
     }
@@ -109,8 +110,9 @@ class BladeRenderEngine implements IRenderEngine {
      */
     function clear($key)
     {
-        if (array_key_exists ( $key, $this->model ))
-            unset ( $this->model [$key] );
+        if (array_key_exists($key, $this->model)) {
+            unset($this->model [$key]);
+        }
     }
     
     /**
@@ -131,5 +133,3 @@ class BladeRenderEngine implements IRenderEngine {
         return $this->model;
     }
 }
-
-?>

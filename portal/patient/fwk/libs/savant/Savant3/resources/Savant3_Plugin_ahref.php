@@ -24,7 +24,8 @@
  *
  *
  */
-class Savant3_Plugin_ahref extends Savant3_Plugin {
+class Savant3_Plugin_ahref extends Savant3_Plugin
+{
     
     /**
      *
@@ -51,54 +52,52 @@ class Savant3_Plugin_ahref extends Savant3_Plugin {
     {
         $html = '<a href="';
         
-        if (is_array ( $href )) {
-            
+        if (is_array($href)) {
             // add the HREF from an array
             $tmp = '';
             
-            if (isset ( $href ['scheme'] )) {
+            if (isset($href ['scheme'])) {
                 $tmp .= $href ['scheme'] . ':';
-                if (strtolower ( $href ['scheme'] ) != 'mailto') {
+                if (strtolower($href ['scheme']) != 'mailto') {
                     $tmp .= '//';
                 }
             }
             
-            if (isset ( $href ['host'] )) {
+            if (isset($href ['host'])) {
                 $tmp .= $href ['host'];
             }
             
-            if (isset ( $href ['path'] )) {
+            if (isset($href ['path'])) {
                 $tmp .= $href ['path'];
             }
             
-            if (isset ( $href ['query'] )) {
+            if (isset($href ['query'])) {
                 $tmp .= '?' . $href ['query'];
             }
             
-            if (isset ( $href ['fragment'] )) {
+            if (isset($href ['fragment'])) {
                 $tmp .= '#' . $href ['fragment'];
             }
             
-            $html .= htmlspecialchars ( $tmp );
+            $html .= htmlspecialchars($tmp);
         } else {
-            
             // add the HREF from a scalar
-            $html .= htmlspecialchars ( $href );
+            $html .= htmlspecialchars($href);
         }
         
         $html .= '"';
         
         // add attributes
-        if (is_array ( $attr )) {
+        if (is_array($attr)) {
             // from array
-            foreach ( $attr as $key => $val ) {
-                $key = htmlspecialchars ( $key );
-                $val = htmlspecialchars ( $val );
+            foreach ($attr as $key => $val) {
+                $key = htmlspecialchars($key);
+                $val = htmlspecialchars($val);
                 $html .= " $key=\"$val\"";
             }
-        } elseif (! is_null ( $attr )) {
+        } elseif (! is_null($attr)) {
             // from scalar
-            $html .= htmlspecialchars ( " $attr" );
+            $html .= htmlspecialchars(" $attr");
         }
         
         // set the link text, close the tag, and return
@@ -106,4 +105,3 @@ class Savant3_Plugin_ahref extends Savant3_Plugin {
         return $html;
     }
 }
-?>

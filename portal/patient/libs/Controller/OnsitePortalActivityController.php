@@ -47,7 +47,6 @@ class OnsitePortalActivityController extends AppBaseController
     protected function Init()
     {
         parent::Init();
-
     }
 
     /**
@@ -63,12 +62,11 @@ class OnsitePortalActivityController extends AppBaseController
      */
     public function Query()
     {
-        try
-        {
+        try {
             $criteria = new OnsitePortalActivityCriteria();
-            $pid = RequestUtil::Get( 'patientId' );
-            $activity = RequestUtil::Get( 'activity' );
-            $doc = RequestUtil::Get( 'doc' );
+            $pid = RequestUtil::Get('patientId');
+            $activity = RequestUtil::Get('activity');
+            $doc = RequestUtil::Get('doc');
             $doc = $doc ? $doc : 0;
             $criteria->PatientId_Equals = $pid;
             $criteria->Activity_Equals = $activity;
@@ -79,26 +77,25 @@ class OnsitePortalActivityController extends AppBaseController
             // if a sort order was specified then specify in the criteria
             $output->orderBy = RequestUtil::Get('orderBy');
             $output->orderDesc = RequestUtil::Get('orderDesc') != '';
-            if ($output->orderBy) $criteria->SetOrder($output->orderBy, $output->orderDesc);
+            if ($output->orderBy) {
+                $criteria->SetOrder($output->orderBy, $output->orderDesc);
+            }
 
             $page = RequestUtil::Get('page');
 
-            if ($page != '')
-            {
+            if ($page != '') {
                 // if page is specified, use this instead (at the expense of one extra count query)
                 $pagesize = $this->GetDefaultPageSize();
 
-                $onsiteportalactivities = $this->Phreezer->Query('OnsitePortalActivity',$criteria)->GetDataPage($page, $pagesize);
-                $output->rows = $onsiteportalactivities->ToObjectArray(true,$this->SimpleObjectParams());
+                $onsiteportalactivities = $this->Phreezer->Query('OnsitePortalActivity', $criteria)->GetDataPage($page, $pagesize);
+                $output->rows = $onsiteportalactivities->ToObjectArray(true, $this->SimpleObjectParams());
                 $output->totalResults = $onsiteportalactivities->TotalResults;
                 $output->totalPages = $onsiteportalactivities->TotalPages;
                 $output->pageSize = $onsiteportalactivities->PageSize;
                 $output->currentPage = $onsiteportalactivities->CurrentPage;
-            }
-            else
-            {
+            } else {
                 // return all results
-                $onsiteportalactivities = $this->Phreezer->Query('OnsitePortalActivity',$criteria);
+                $onsiteportalactivities = $this->Phreezer->Query('OnsitePortalActivity', $criteria);
                 $output->rows = $onsiteportalactivities->ToObjectArray(true, $this->SimpleObjectParams());
                 $output->totalResults = count($output->rows);
                 $output->totalPages = 1;
@@ -108,9 +105,7 @@ class OnsitePortalActivityController extends AppBaseController
 
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -120,14 +115,11 @@ class OnsitePortalActivityController extends AppBaseController
      */
     public function Read()
     {
-        try
-        {
+        try {
             $pk = $this->GetRouter()->GetUrlParam('id');
-            $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity',$pk);
+            $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
             $this->RenderJSON($onsiteportalactivity, $this->JSONPCallback(), true, $this->SimpleObjectParams());
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -137,13 +129,10 @@ class OnsitePortalActivityController extends AppBaseController
      */
     public function Create()
     {
-        try
-        {
-
+        try {
             $json = json_decode(RequestUtil::GetBody());
 
-            if (!$json)
-            {
+            if (!$json) {
                 throw new Exception('The request body does not contain valid JSON');
             }
 
@@ -154,7 +143,7 @@ class OnsitePortalActivityController extends AppBaseController
             // this is an auto-increment.  uncomment if updating is allowed
             // $onsiteportalactivity->Id = $this->SafeGetVal($json, 'id');
 
-            $onsiteportalactivity->Date = date('Y-m-d H:i:s',strtotime($this->SafeGetVal($json, 'date')));
+            $onsiteportalactivity->Date = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'date')));
             $onsiteportalactivity->PatientId = $this->SafeGetVal($json, 'patientId');
             $onsiteportalactivity->Activity = $this->SafeGetVal($json, 'activity');
             $onsiteportalactivity->RequireAudit = $this->SafeGetVal($json, 'requireAudit');
@@ -165,25 +154,19 @@ class OnsitePortalActivityController extends AppBaseController
             $onsiteportalactivity->TableAction = $this->SafeGetVal($json, 'tableAction');
             $onsiteportalactivity->TableArgs = $this->SafeGetVal($json, 'tableArgs');
             $onsiteportalactivity->ActionUser = $this->SafeGetVal($json, 'actionUser');
-            $onsiteportalactivity->ActionTakenTime = date('Y-m-d H:i:s',strtotime($this->SafeGetVal($json, 'actionTakenTime')));
+            $onsiteportalactivity->ActionTakenTime = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'actionTakenTime')));
             $onsiteportalactivity->Checksum = $this->SafeGetVal($json, 'checksum');
 
             $onsiteportalactivity->Validate();
             $errors = $onsiteportalactivity->GetValidationErrors();
 
-            if (count($errors) > 0)
-            {
-                $this->RenderErrorJSON('Please check the form for errors',$errors);
-            }
-            else
-            {
+            if (count($errors) > 0) {
+                $this->RenderErrorJSON('Please check the form for errors', $errors);
+            } else {
                 $onsiteportalactivity->Save();
                 $this->RenderJSON($onsiteportalactivity, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -193,25 +176,22 @@ class OnsitePortalActivityController extends AppBaseController
      */
     public function Update()
     {
-        try
-        {
-
+        try {
             $json = json_decode(RequestUtil::GetBody());
 
-            if (!$json)
-            {
+            if (!$json) {
                 throw new Exception('The request body does not contain valid JSON');
             }
 
             $pk = $this->GetRouter()->GetUrlParam('id');
-            $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity',$pk);
+            $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
 
             // TODO: any fields that should not be updated by the user should be commented out
 
             // this is a primary key.  uncomment if updating is allowed
             // $onsiteportalactivity->Id = $this->SafeGetVal($json, 'id', $onsiteportalactivity->Id);
 
-            $onsiteportalactivity->Date = date('Y-m-d H:i:s',strtotime($this->SafeGetVal($json, 'date', $onsiteportalactivity->Date)));
+            $onsiteportalactivity->Date = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'date', $onsiteportalactivity->Date)));
             $onsiteportalactivity->PatientId = $this->SafeGetVal($json, 'patientId', $onsiteportalactivity->PatientId);
             $onsiteportalactivity->Activity = $this->SafeGetVal($json, 'activity', $onsiteportalactivity->Activity);
             $onsiteportalactivity->RequireAudit = $this->SafeGetVal($json, 'requireAudit', $onsiteportalactivity->RequireAudit);
@@ -222,28 +202,19 @@ class OnsitePortalActivityController extends AppBaseController
             $onsiteportalactivity->TableAction = $this->SafeGetVal($json, 'tableAction', $onsiteportalactivity->TableAction);
             $onsiteportalactivity->TableArgs = $this->SafeGetVal($json, 'tableArgs', $onsiteportalactivity->TableArgs);
             $onsiteportalactivity->ActionUser = $this->SafeGetVal($json, 'actionUser', $onsiteportalactivity->ActionUser);
-            $onsiteportalactivity->ActionTakenTime = date('Y-m-d H:i:s',strtotime($this->SafeGetVal($json, 'actionTakenTime', $onsiteportalactivity->ActionTakenTime)));
+            $onsiteportalactivity->ActionTakenTime = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'actionTakenTime', $onsiteportalactivity->ActionTakenTime)));
             $onsiteportalactivity->Checksum = $this->SafeGetVal($json, 'checksum', $onsiteportalactivity->Checksum);
 
             $onsiteportalactivity->Validate();
             $errors = $onsiteportalactivity->GetValidationErrors();
 
-            if (count($errors) > 0)
-            {
-                $this->RenderErrorJSON('Please check the form for errors',$errors);
-            }
-            else
-            {
+            if (count($errors) > 0) {
+                $this->RenderErrorJSON('Please check the form for errors', $errors);
+            } else {
                 $onsiteportalactivity->Save();
                 $this->RenderJSON($onsiteportalactivity, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-
-
-        }
-        catch (Exception $ex)
-        {
-
-
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -253,26 +224,19 @@ class OnsitePortalActivityController extends AppBaseController
      */
     public function Delete()
     {
-        try
-        {
-
+        try {
             // TODO: if a soft delete is prefered, change this to update the deleted flag instead of hard-deleting
 
             $pk = $this->GetRouter()->GetUrlParam('id');
-            $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity',$pk);
+            $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
 
             $onsiteportalactivity->Delete();
 
             $output = new stdClass();
 
             $this->RenderJSON($output, $this->JSONPCallback());
-
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
 }
-
-?>

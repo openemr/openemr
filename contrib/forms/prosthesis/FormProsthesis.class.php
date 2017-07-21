@@ -7,7 +7,8 @@
  * class Prosthesis
  *
  */
-class FormProsthesis extends ORDataObject {
+class FormProsthesis extends ORDataObject
+{
 
     /**
      *
@@ -72,14 +73,14 @@ class FormProsthesis extends ORDataObject {
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormProsthesis($id= "", $_prefix = "")
+    function FormProsthesis($id = "", $_prefix = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;
-        }
-        else {
+        } else {
             $id = "";
         }
+
         $this->_table = "form_prosthesis";
         $this->date = date("Y-m-d H:i:s");
         $this->activity = 1;
@@ -96,8 +97,7 @@ class FormProsthesis extends ORDataObject {
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }
@@ -446,7 +446,4 @@ class FormProsthesis extends ORDataObject {
     {
         return $this->patient_understands;
     }
-
 }   // end of Form
-
-?>

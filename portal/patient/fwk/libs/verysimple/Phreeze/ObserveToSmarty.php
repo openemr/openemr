@@ -4,7 +4,7 @@
 /**
  * import supporting libraries
  */
-require_once ("IObserver.php");
+require_once("IObserver.php");
 
 /**
  * ObserverToBrowser is an implementation of IObserver that outputs all
@@ -16,7 +16,8 @@ require_once ("IObserver.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-class ObserveToSmarty implements IObserver {
+class ObserveToSmarty implements IObserver
+{
     private $_smarty = null;
     private $_counter = 0;
     public function __construct($smarty)
@@ -26,8 +27,8 @@ class ObserveToSmarty implements IObserver {
     }
     public function Observe($obj, $ltype = OBSERVE_INFO)
     {
-        if (is_object ( $obj ) || is_array ( $obj )) {
-            $msg = "<pre>" . print_r ( $obj, 1 ) . "</pre>";
+        if (is_object($obj) || is_array($obj)) {
+            $msg = "<pre>" . print_r($obj, 1) . "</pre>";
         } else {
             $msg = $obj;
         }
@@ -35,26 +36,24 @@ class ObserveToSmarty implements IObserver {
         $desc = "";
         
         switch ($ltype) {
-            case OBSERVE_DEBUG :
+            case OBSERVE_DEBUG:
                 $desc = "DEBUG";
                 break;
-            case OBSERVE_QUERY :
+            case OBSERVE_QUERY:
                 $desc = "QUERY";
                 $msg = $desc . " " . $msg;
                 break;
-            case OBSERVE_FATAL :
+            case OBSERVE_FATAL:
                 $desc = "FATAL";
                 break;
-            case OBSERVE_INFO :
+            case OBSERVE_INFO:
                 $desc = "INFO";
                 break;
-            case OBSERVE_WARN :
+            case OBSERVE_WARN:
                 $desc = "WARN";
                 break;
         }
         
-        $this->_smarty->assign ( str_pad ( $this->_counter ++, 3, "0", STR_PAD_LEFT ) . "_" . $desc, $msg );
+        $this->_smarty->assign(str_pad($this->_counter ++, 3, "0", STR_PAD_LEFT) . "_" . $desc, $msg);
     }
 }
-
-?>

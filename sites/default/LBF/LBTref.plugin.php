@@ -55,5 +55,3 @@ var f = document.forms[0];
 f.form_refer_external.onchange = function () { external_changed(); };
 ";
 }
-
-?>

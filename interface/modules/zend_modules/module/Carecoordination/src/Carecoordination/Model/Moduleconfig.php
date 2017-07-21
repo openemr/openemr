@@ -40,7 +40,6 @@ class Moduleconfig extends AbstractTableGateway
 
     public function exchangeArray($data)
     {
-    
     }
     public function getArrayCopy()
     {
@@ -59,7 +58,7 @@ class Moduleconfig extends AbstractTableGateway
 
             $this->inputFilter  = $inputFilter;
         }
+
         return $this->inputFilter;
     }
 }
-?>

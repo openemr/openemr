@@ -328,7 +328,4 @@ class OnsiteDocumentCriteriaDAO extends Criteria
     public $FilePath_IsEmpty;
     public $FilePath_BitwiseOr;
     public $FilePath_BitwiseAnd;
-
 }
-
-?>

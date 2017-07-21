@@ -7,7 +7,8 @@
  * class Prosthesis
  *
  */
-class FormReviewOfSystems extends ORDataObject {
+class FormReviewOfSystems extends ORDataObject
+{
 
     /**
      *
@@ -43,14 +44,14 @@ class FormReviewOfSystems extends ORDataObject {
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormReviewOfSystems($id= "", $_prefix = "")
+    function FormReviewOfSystems($id = "", $_prefix = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;
-        }
-        else {
+        } else {
             $id = "";
         }
+
         $this->_table = "form_review_of_systems";
         $this->date = date("Y-m-d H:i:s");
         $this->activity = 1;
@@ -67,8 +68,7 @@ class FormReviewOfSystems extends ORDataObject {
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }
@@ -83,7 +83,6 @@ class FormReviewOfSystems extends ORDataObject {
         while ($row = sqlFetchArray($results)) {
             $this->checks[] = $row['name'];
         }
-
     }
 
     function persist()
@@ -100,7 +99,6 @@ class FormReviewOfSystems extends ORDataObject {
                 }
             }
         }
-
     }
 
     function set_id($id)
@@ -395,8 +393,4 @@ class FormReviewOfSystems extends ORDataObject {
 
         return $a;
     }
-
-
 }   // end of Form
-
-?>

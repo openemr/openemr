@@ -30,15 +30,13 @@ $factories = array(
 );
 
 // This settings can be change in the global settings under security tab
-if($GLOBALS['allow_multiple_databases']){
-
+if ($GLOBALS['allow_multiple_databases']) {
     // Open pdo connection
     $dbh = new PDO('mysql:dbname=' . $GLOBALS['dbase'] . ';host=' . $GLOBALS['host'], $GLOBALS['login'], $GLOBALS['pass']);
     $adapters = array();
     $res = $dbh->prepare('SELECT * FROM multiple_db');
-    if($res->execute()){
+    if ($res->execute()) {
         foreach ($res->fetchAll() as $row) {
-
             // Create new adapters using data from database
             $adapters[$row['namespace']] = array(
                 'driver' => 'Pdo',
@@ -52,13 +50,13 @@ if($GLOBALS['allow_multiple_databases']){
             // Create new factories using data from custom database
             $factories[$row['namespace']] = function ($serviceManager) use ($row) {
                 $adapterAbstractServiceFactory = new Zend\Db\Adapter\AdapterAbstractServiceFactory();
-                $adapter = $adapterAbstractServiceFactory->createServiceWithName($serviceManager,'',$row['namespace']);
+                $adapter = $adapterAbstractServiceFactory->createServiceWithName($serviceManager, '', $row['namespace']);
                 return $adapter;
             };
         }
     }
-    $dbh = null; // Close pdo connection
 
+    $dbh = null; // Close pdo connection
 }
 
 

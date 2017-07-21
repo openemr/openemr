@@ -11,11 +11,11 @@ $content_type = "text/plain";
 $claim_file_dir = $GLOBALS['OE_SITE_DIR'] . "/edi/";
 
 $fname = $_GET['key'];
-$fname = preg_replace("[/]","",$fname);
-$fname = preg_replace("[\.\.]","",$fname);
-$fname = preg_replace("[\\\\]","",$fname);
+$fname = preg_replace("[/]", "", $fname);
+$fname = preg_replace("[\.\.]", "", $fname);
+$fname = preg_replace("[\\\\]", "", $fname);
 
-if (strtolower(substr($fname,(strlen($fname)-4))) == ".pdf") {
+if (strtolower(substr($fname, (strlen($fname)-4))) == ".pdf") {
     $content_type = "application/pdf";
 }
 
@@ -23,9 +23,7 @@ $fname = $claim_file_dir . $fname;
 
 if (!file_exists($fname)) {
     echo xl("The claim file: ") . $_GET['key'] . xl(" could not be accessed.");
-}
-
-else {
+} else {
     $fp = fopen($fname, 'r');
 
     header("Pragma: public");
@@ -38,5 +36,5 @@ else {
     // dump the picture and stop the script
     fpassthru($fp);
 }
+
 exit;
-?>

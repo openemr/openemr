@@ -31,7 +31,7 @@ $provider_results = sqlQuery("select * from users where username='" . $_SESSION{
 
 ////////////////////////////////////////////////////////////////////
 // Function:	getPatientDateOfLastEncounter
-function getPatientDateOfLastEncounter( $nPid )
+function getPatientDateOfLastEncounter($nPid)
 {
   // get date of last encounter F103 or F153
     $strEventDate = sqlQuery("SELECT MAX(pc_eventDate) AS max
@@ -42,31 +42,32 @@ function getPatientDateOfLastEncounter( $nPid )
                   AND pc_eventDate >= '2007-01-01'");
 
   // now check if there was a previous encounter
-    if( $strEventDate['max'] != "" )
-    return( $strEventDate['max'] );
-    else
-    return( "00-00-0000" );
+    if ($strEventDate['max'] != "") {
+        return( $strEventDate['max'] );
+    } else {
+        return( "00-00-0000" );
+    }
 }
 
-$m_strEventDate = getPatientDateOfLastEncounter( $result['pid'] );
+$m_strEventDate = getPatientDateOfLastEncounter($result['pid']);
 
 // get last saved id for intakeverslag
-$vectIntakeverslagQuery = sqlQuery( "SELECT id FROM form_intakeverslag
+$vectIntakeverslagQuery = sqlQuery("SELECT id FROM form_intakeverslag
                             WHERE pid = ".$_SESSION["pid"].
                             " AND groupname='".$_SESSION["authProvider"].
                             "' AND user='".$_SESSION["authUser"]."' AND
                             authorized=$userauthorized AND activity=1
                             AND autosave_flag=0
-                            ORDER by id DESC limit 1" );
+                            ORDER by id DESC limit 1");
 
 // get autosave id for Psychiatrisch Onderzoek
-$vectAutosavePO = sqlQuery( "SELECT id, autosave_flag, autosave_datetime FROM form_psychiatrisch_onderzoek
+$vectAutosavePO = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_psychiatrisch_onderzoek
                             WHERE pid = ".$_SESSION["pid"].
                             " AND groupname='".$_SESSION["authProvider"].
                             "' AND user='".$_SESSION["authUser"]."' AND
                             authorized=$userauthorized AND activity=1
                             AND autosave_flag=1
-                            ORDER by id DESC limit 1" );
+                            ORDER by id DESC limit 1");
 
 //fetch data from INTAKE-VERSLAG
 $obj_iv = formFetch("form_intakeverslag", $vectIntakeverslagQuery['id']);
@@ -75,51 +76,66 @@ $obj_po = formFetch("form_psychiatrisch_onderzoek", $vectAutosavePO['id']);
 /////////////////
 // here we mix the data
 // Reden van aanmelding
-if( $obj_po['reden_van_aanmelding'] != '' )
-  $obj['reden_van_aanmelding'] = $obj_po['reden_van_aanmelding'];
-elseif( $obj_iv['reden_van_aanmelding'] != '' )
-  $obj['reden_van_aanmelding'] = $obj_iv['reden_van_aanmelding'];
-else
-  $obj['reden_van_aanmelding'] = '';
+if ($obj_po['reden_van_aanmelding'] != '') {
+    $obj['reden_van_aanmelding'] = $obj_po['reden_van_aanmelding'];
+} elseif ($obj_iv['reden_van_aanmelding'] != '') {
+    $obj['reden_van_aanmelding'] = $obj_iv['reden_van_aanmelding'];
+} else {
+    $obj['reden_van_aanmelding'] = '';
+}
+
 // Conclusie van intake
-if( $obj_po['conclusie_van_intake'] != '' )
-  $obj['conclusie_van_intake'] = $obj_po['conclusie_van_intake'];
-elseif( $obj_iv['beschrijvende_conclusie'] != '' )
-  $obj['conclusie_van_intake'] = $obj_iv['beschrijvende_conclusie'];
-else
-  $obj['conclusie_van_intake'] = '';
+if ($obj_po['conclusie_van_intake'] != '') {
+    $obj['conclusie_van_intake'] = $obj_po['conclusie_van_intake'];
+} elseif ($obj_iv['beschrijvende_conclusie'] != '') {
+    $obj['conclusie_van_intake'] = $obj_iv['beschrijvende_conclusie'];
+} else {
+    $obj['conclusie_van_intake'] = '';
+}
+
 // Medicatie - local
-if( $obj_po['medicatie'] != '' )
-  $obj['medicatie'] = $obj_po['medicatie'];
-else
-  $obj['medicatie'] = '';
+if ($obj_po['medicatie'] != '') {
+    $obj['medicatie'] = $obj_po['medicatie'];
+} else {
+    $obj['medicatie'] = '';
+}
+
 // Anamnese - local
-if( $obj_po['anamnese'] != '' )
-  $obj['anamnese'] = $obj_po['anamnese'];
-else
-  $obj['anamnese'] = '';
+if ($obj_po['anamnese'] != '') {
+    $obj['anamnese'] = $obj_po['anamnese'];
+} else {
+    $obj['anamnese'] = '';
+}
+
 // Psychiatrisch onderzoek i.e.z. - local
-if( $obj_po['psychiatrisch_onderzoek'] != '' )
-  $obj['psychiatrisch_onderzoek'] = $obj_po['psychiatrisch_onderzoek'];
-else
-  $obj['psychiatrisch_onderzoek'] = '';
+if ($obj_po['psychiatrisch_onderzoek'] != '') {
+    $obj['psychiatrisch_onderzoek'] = $obj_po['psychiatrisch_onderzoek'];
+} else {
+    $obj['psychiatrisch_onderzoek'] = '';
+}
+
 // Beschrijvende conclusie
-if( $obj_po['beschrijvende_conclusie'] != '' )
-  $obj['beschrijvende_conclusie'] = $obj_po['beschrijvende_conclusie'];
-elseif( $obj_iv['beschrijvende_conclusie'] != '' )
-  $obj['beschrijvende_conclusie'] = $obj_iv['beschrijvende_conclusie'];
-else
-  $obj['beschrijvende_conclusie'] = '';
+if ($obj_po['beschrijvende_conclusie'] != '') {
+    $obj['beschrijvende_conclusie'] = $obj_po['beschrijvende_conclusie'];
+} elseif ($obj_iv['beschrijvende_conclusie'] != '') {
+    $obj['beschrijvende_conclusie'] = $obj_iv['beschrijvende_conclusie'];
+} else {
+    $obj['beschrijvende_conclusie'] = '';
+}
+
 // Behandelvoorstel
-if( $obj_po['behandelvoorstel'] != '' )
-  $obj['behandelvoorstel'] = $obj_po['behandelvoorstel'];
-elseif( $obj_iv['behandelvoorstel'] != '' )
-  $obj['behandelvoorstel'] = $obj_iv['behandelvoorstel'];
-else
-  $obj['behandelvoorstel'] = '';
+if ($obj_po['behandelvoorstel'] != '') {
+    $obj['behandelvoorstel'] = $obj_po['behandelvoorstel'];
+} elseif ($obj_iv['behandelvoorstel'] != '') {
+    $obj['behandelvoorstel'] = $obj_iv['behandelvoorstel'];
+} else {
+    $obj['behandelvoorstel'] = '';
+}
 
 $tmpDate = stripslashes($obj{"datum_onderzoek"});
-if( $tmpDate && $tmpDate != '0000-00-00 00:00:00' ) $m_strEventDate = $tmpDate;
+if ($tmpDate && $tmpDate != '0000-00-00 00:00:00') {
+    $m_strEventDate = $tmpDate;
+}
 
 ?>
 
@@ -148,10 +164,11 @@ if( $tmpDate && $tmpDate != '0000-00-00 00:00:00' ) $m_strEventDate = $tmpDate;
 
 <?php
 
-if( $vectAutosavePO['id'] )
-  $psychiatrisch_onderzoek_id = $vectAutosavePO['id'];
-else
-  $psychiatrisch_onderzoek_id = "0";
+if ($vectAutosavePO['id']) {
+    $psychiatrisch_onderzoek_id = $vectAutosavePO['id'];
+} else {
+    $psychiatrisch_onderzoek_id = "0";
+}
 
 ?>
 <script type="text/javascript">
@@ -169,7 +186,7 @@ $(document).ready(function(){
 
 function delete_autosave( )
 {
-  if( confirm("<?php xl('Are you sure you want to completely remove this form?','e'); ?>") )
+  if( confirm("<?php xl('Are you sure you want to completely remove this form?', 'e'); ?>") )
   {
     $.ajax(
             {
@@ -236,13 +253,13 @@ function autosave( )
 
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 <form method=post action="<?php echo $rootdir;?>/forms/psychiatrisch_onderzoek/save.php?mode=new&saveid=<?php echo $psychiatrisch_onderzoek_id; ?>" name="my_form">
-<span class="title"><?php xl('Psychiatric Examination','e'); ?></span><br><br>
+<span class="title"><?php xl('Psychiatric Examination', 'e'); ?></span><br><br>
 
 <table>
 <tr>
-<td><?php xl('Examination Date','e'); ?>:</td><td>
+<td><?php xl('Examination Date', 'e'); ?>:</td><td>
 <input type='text' class='datepicker' name='datum_onderzoek' id='datum_onderzoek' size='10' value='<?php echo $m_strEventDate ?>'
-          title='<?php xl('Examination Date','e'); ?>: yyyy-mm-dd'></input>
+          title='<?php xl('Examination Date', 'e'); ?>: yyyy-mm-dd'></input>
 
 
 <?php
@@ -251,21 +268,21 @@ function autosave( )
 </tr>
 </table>
 
-<br><span class=text><?php xl('Reason for Visit','e'); ?></span><br>
+<br><span class=text><?php xl('Reason for Visit', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo stripslashes($obj{"reden_van_aanmelding"});?></textarea><br>
-<br><span class=text><?php xl('Intake Conclusion','e'); ?></span><br>
+<br><span class=text><?php xl('Intake Conclusion', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="conclusie_van_intake" id="conclusie_van_intake"><?php echo stripslashes($obj{"conclusie_van_intake"});?></textarea><br>
-<br><span class=text><?php xl('Medications','e'); ?></span><br>
+<br><span class=text><?php xl('Medications', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="medicatie" id="medicatie"><?php echo stripslashes($obj{"medicatie"});?></textarea><br>
 
-<br><span class=text><?php xl('History','e'); ?></span><br>
+<br><span class=text><?php xl('History', 'e'); ?></span><br>
 <textarea cols=80 rows=10 wrap=virtual name="anamnese" id="anamnese"><?php echo stripslashes($obj{"anamnese"});?></textarea><br>
 
-<br><span class=text><?php xl('Psychiatric Examination','e'); ?></span><br>
+<br><span class=text><?php xl('Psychiatric Examination', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="psychiatrisch_onderzoek" id="psychiatrisch_onderzoek"><?php echo stripslashes($obj{"psychiatrisch_onderzoek"});?></textarea><br>
-<br><span class=text><?php xl('Conclusions','e'); ?></span><br>
+<br><span class=text><?php xl('Conclusions', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="beschrijvende_conclusie" id="beschrijvende_conclusie"><?php echo stripslashes($obj{"beschrijvende_conclusie"});?></textarea><br>
-<br><span class=text><?php xl('Treatment Plan','e'); ?></span><br>
+<br><span class=text><?php xl('Treatment Plan', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="behandelvoorstel" id="behandelvoorstel"><?php echo stripslashes($obj{"behandelvoorstel"});?></textarea><br>
 
 
@@ -279,9 +296,9 @@ function autosave( )
 </tr></table>
 
 <br><br>
-<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
+<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save', 'e'); ?>]</a>
 <br>
-<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link_submit" onclick="delete_autosave();top.restoreSession()">[<?php xl('Don\'t Save','e'); ?>]</a>
+<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link_submit" onclick="delete_autosave();top.restoreSession()">[<?php xl('Don\'t Save', 'e'); ?>]</a>
 </form>
 
 <div id="timestamp"></div>

@@ -25,8 +25,8 @@
  * @link    http://www.open-emr.org
  */
 
-require_once( dirname(__FILE__) . "/../../../globals.php" );
-require_once( dirname(__FILE__) . "/RulesPlanMappingEventHandlers.php" );
+require_once(dirname(__FILE__) . "/../../../globals.php");
+require_once(dirname(__FILE__) . "/RulesPlanMappingEventHandlers.php");
 
 $action = $_GET["action"];
 switch ($action) {
@@ -43,7 +43,7 @@ switch ($action) {
         $rules_list = array();
         foreach ($rules as $key => $value) {
             $rule_info = array('rule_id'=>$key, 'rule_title'=>$value);
-            array_push($rules_list,$rule_info);
+            array_push($rules_list, $rule_info);
         }
 
         echo json_encode($rules_list);
@@ -56,7 +56,7 @@ switch ($action) {
         $rules_list = array();
         foreach ($rules as $key => $value) {
             $rule_info = array('rule_id'=>$key, 'rule_title'=>$value);
-            array_push($rules_list,$rule_info);
+            array_push($rules_list, $rule_info);
         }
 
         echo json_encode($rules_list);
@@ -69,13 +69,13 @@ switch ($action) {
         $rules_list = array();
         foreach ($rules as $key => $value) {
             $rule_info = array('rule_id'=>$key, 'rule_title'=>$value, 'selected'=>'true');
-            array_push($rules_list,$rule_info);
+            array_push($rules_list, $rule_info);
         }
 
         $rules = getRulesNotInPlan($_GET["plan_id"]);
         foreach ($rules as $key => $value) {
             $rule_info = array('rule_id'=>$key, 'rule_title'=>$value, 'selected'=>'false');
-            array_push($rules_list,$rule_info);
+            array_push($rules_list, $rule_info);
         }
 
         echo json_encode($rules_list);
@@ -101,7 +101,6 @@ switch ($action) {
                     //Plan Name Taken
                     $status_code = '002';
                     $status_mssg = xl('Plan Name Already Exists');
-
                 } else if ($e->getMessage() == "003") {
                     //Already in list options
                     $status_code = '003';
@@ -139,15 +138,16 @@ switch ($action) {
         } else {
             $nm_flag = 1;
         }
+
         try {
             togglePlanStatus($plan_id_toggle, $nm_flag);
         } catch (Exception $e) {
-            if ($e->getMessage() == "007")
-            {
+            if ($e->getMessage() == "007") {
                 $code_back = "007";
                 echo json_encode($code_back);
             }
-            if  ($e->getMessage() == "002") {
+
+            if ($e->getMessage() == "002") {
                 $code_back = "002";
                 echo json_encode($code_back);
             }
@@ -169,4 +169,3 @@ switch ($action) {
     default:
         break;
 }
-?>

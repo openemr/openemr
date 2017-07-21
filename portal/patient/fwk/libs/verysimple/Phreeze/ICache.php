@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-interface ICache {
+interface ICache
+{
     /**
      * Retreives a value from the cache
      *
@@ -40,5 +41,3 @@ interface ICache {
      */
     public function Delete($key);
 }
-
-?>

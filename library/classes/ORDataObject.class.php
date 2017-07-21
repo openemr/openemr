@@ -5,7 +5,8 @@
  *
  */
 
-class ORDataObject {
+class ORDataObject
+{
     var $_prefix;
     var $_table;
     var $_db;
@@ -37,9 +38,9 @@ class ORDataObject {
                         //DEBUG LINE - error_log("ORDataObject persist after strip: ".$val, 0);
                 }
 
-                if (in_array($field,$pkeys)  && empty($val)) {
+                if (in_array($field, $pkeys)  && empty($val)) {
                     $last_id = generate_id();
-                    call_user_func(array(&$this,"set_".$field),$last_id);
+                    call_user_func(array(&$this,"set_".$field), $last_id);
                     $val = $last_id;
                 }
 
@@ -56,8 +57,8 @@ class ORDataObject {
             }
         }
 
-        if (strrpos($sql,",") == (strlen($sql) -1)) {
-                $sql = substr($sql,0,(strlen($sql) -1));
+        if (strrpos($sql, ",") == (strlen($sql) -1)) {
+                $sql = substr($sql, 0, (strlen($sql) -1));
         }
 
         //echo "<br>sql is: " . $sql . "<br /><br>";
@@ -74,11 +75,9 @@ class ORDataObject {
                 $func = "set_" . $field_name;
                 //echo "f: $field m: $func status: " .  (is_callable(array($this,$func))? "yes" : "no") . "<br>";
                 if (is_callable(array($this,$func))) {
-
                     if (!empty($field)) {
                         //echo "s: $field_name to: $field <br>";
-                        call_user_func(array(&$this,$func),$field);
-
+                        call_user_func(array(&$this,$func), $field);
                     }
                 }
             }
@@ -92,11 +91,9 @@ class ORDataObject {
                 $func = "set_" . $field_name;
                 //echo "f: $field m: $func status: " .  (is_callable(array($this,$func))? "yes" : "no") . "<br>";
                 if (is_callable(array($this,$func))) {
-
                     if (!empty($field)) {
                         //echo "s: $field_name to: $field <br>";
-                        call_user_func(array(&$this,$func),$field);
-
+                        call_user_func(array(&$this,$func), $field);
                     }
                 }
             }
@@ -111,58 +108,63 @@ class ORDataObject {
      * @param boolean $blank optional value to include a empty element at position 0, default is true
      * @return array array of values as name to index pairs found in the db enumeration of this field
      */
-    function _load_enum($field_name,$blank = true)
+    function _load_enum($field_name, $blank = true)
     {
         if (!empty($GLOBALS['static']['enums'][$this->_table][$field_name])
             && is_array($GLOBALS['static']['enums'][$this->_table][$field_name])
-            && !empty($this->_table))                                               {
-
+            && !empty($this->_table)) {
             return $GLOBALS['static']['enums'][$this->_table][$field_name];
-        }
-        else {
+        } else {
             $cols = $this->_db->MetaColumns($this->_table);
             if ($cols && !$cols->EOF) {
                 //why is there a foreach here? at some point later there will be a scheme to autoload all enums
                 //for an object rather than 1x1 manually as it is now
-                foreach($cols as $col) {
+                foreach ($cols as $col) {
                     if ($col->name == $field_name && $col->type == "enum") {
-                        for($idx=0;$idx<count($col->enums);$idx++)
-                                {
-                            $col->enums[$idx]=str_replace("'","",$col->enums[$idx]);
+                        for ($idx=0; $idx<count($col->enums); $idx++) {
+                            $col->enums[$idx]=str_replace("'", "", $col->enums[$idx]);
                         }
+
                         $enum = $col->enums;
                         //for future use
                         //$enum[$col->name] = $enum_types[1];
                     }
                 }
-                array_unshift($enum," ");
+
+                array_unshift($enum, " ");
 
                //keep indexing consistent whether or not a blank is present
                 if (!$blank) {
                     unset($enum[0]);
                 }
+
                 $enum = array_flip($enum);
                 $GLOBALS['static']['enums'][$this->_table][$field_name] = $enum;
             }
+
             return $enum;
         }
     }
 
-    function _utility_array($obj_ar,$reverse=false,$blank=true, $name_func="get_name", $value_func="get_id")
+    function _utility_array($obj_ar, $reverse = false, $blank = true, $name_func = "get_name", $value_func = "get_id")
     {
         $ar = array();
         if ($blank) {
             $ar[0] = " ";
         }
-        if (!is_array($obj_ar)) return $ar;
-        foreach($obj_ar as $obj) {
+
+        if (!is_array($obj_ar)) {
+            return $ar;
+        }
+
+        foreach ($obj_ar as $obj) {
             $ar[$obj->$value_func()] = $obj->$name_func();
         }
+
         if ($reverse) {
             $ar = array_flip($ar);
         }
+
         return $ar;
     }
-
 } // end of ORDataObject
-?>

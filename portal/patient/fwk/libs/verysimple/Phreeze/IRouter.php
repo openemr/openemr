@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-interface IRouter {
+interface IRouter
+{
     /**
      * Given a controller, method and params, returns a url that points
      * to the correct location
@@ -62,4 +63,3 @@ interface IRouter {
      */
     public function GetUri();
 }
-?>

@@ -45,23 +45,21 @@ $ThisPageSearchCriteriaQueryDropDownDefaultKey=array();
 $ThisPageSearchCriteriaInclude=array();
 //Filling the input array.
 $ThisPageSearchCriteriaDisplay=$ThisPageSearchCriteriaDisplayMaster;
-$ThisPageSearchCriteriaKey=explode(',',$ThisPageSearchCriteriaKeyMaster);
-$ThisPageSearchCriteriaDataType=explode(',',$ThisPageSearchCriteriaDataTypeMaster);
+$ThisPageSearchCriteriaKey=explode(',', $ThisPageSearchCriteriaKeyMaster);
+$ThisPageSearchCriteriaDataType=explode(',', $ThisPageSearchCriteriaDataTypeMaster);
 //--------------------------------------------------------------
 //Filling the input array.
 $NumberOfRadioThisPageSearchCriteria=0;
 $NumberOfQueryDropDownThisPageSearchCriteria=0;
 $NumberOfIncludeThisPageSearchCriteria=0;
-for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPageSearchCriteriaDataType);$ThisPageSearchCriteriaIndex++)
- {
-    if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio' || $ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio_like')
-     {
+for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPageSearchCriteriaDataType); $ThisPageSearchCriteriaIndex++) {
+    if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio' || $ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio_like') {
         $NumberOfRadioThisPageSearchCriteria++;
         $ThisPageSearchCriteriaDisplayRadio[$ThisPageSearchCriteriaIndex]=$ThisPageSearchCriteriaDisplayRadioMaster[$NumberOfRadioThisPageSearchCriteria];
-        $ThisPageSearchCriteriaRadioKey[$ThisPageSearchCriteriaIndex]=explode(',',$ThisPageSearchCriteriaRadioKeyMaster[$NumberOfRadioThisPageSearchCriteria]);
+        $ThisPageSearchCriteriaRadioKey[$ThisPageSearchCriteriaIndex]=explode(',', $ThisPageSearchCriteriaRadioKeyMaster[$NumberOfRadioThisPageSearchCriteria]);
     }
-    if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='query_drop_down')
-     {
+
+    if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='query_drop_down') {
         $NumberOfQueryDropDownThisPageSearchCriteria++;
         $ThisPageSearchCriteriaQueryDropDown[$ThisPageSearchCriteriaIndex]=$NumberOfQueryDropDownThisPageSearchCriteria;
         $ThisPageSearchCriteriaQueryDropDownDefault[$ThisPageSearchCriteriaIndex]=
@@ -69,21 +67,22 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
         $ThisPageSearchCriteriaQueryDropDownDefaultKey[$ThisPageSearchCriteriaIndex]=
                                             $ThisPageSearchCriteriaQueryDropDownMasterDefaultKey[$NumberOfQueryDropDownThisPageSearchCriteria];
     }
-    if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='include')
-     {
+
+    if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='include') {
         $NumberOfIncludeThisPageSearchCriteria++;
         $ThisPageSearchCriteriaInclude[$ThisPageSearchCriteriaIndex]=$NumberOfIncludeThisPageSearchCriteria;
     }
 }
+
 //------------------------------------------------------------------------------
 ?>
         <table width="560" border="0" cellspacing="0" cellpadding="0" >
           <tr>
             <td><fieldset style="border-color:#000000; border-width:1px;padding-left:5px;padding-right:0px;padding-top:0px;padding-bottom:0px;" >
-                <legend class='text'><b><?php echo htmlspecialchars( xl('Choose Criteria'), ENT_QUOTES) ?></b></legend>
+                <legend class='text'><b><?php echo htmlspecialchars(xl('Choose Criteria'), ENT_QUOTES) ?></b></legend>
                 <table width="290" border="0" cellspacing="0" cellpadding="0">
                   <tr>
-                    <td class='text'><?php echo htmlspecialchars( xl('Criteria'), ENT_QUOTES) ?></td>
+                    <td class='text'><?php echo htmlspecialchars(xl('Criteria'), ENT_QUOTES) ?></td>
                     <td ></td>
                   </tr>
                   <tr>
@@ -91,8 +90,7 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
                     <select name="choose_this_page_criteria" id="choose_this_page_criteria" title="Choose Criteria"
                     class="text" style="width:140px;"  onChange="CriteriaVisible()" size='8' >
                     <?php
-                    for ($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPageSearchCriteriaKey);$ThisPageSearchCriteriaIndex++)
-                    {
+                    for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPageSearchCriteriaKey); $ThisPageSearchCriteriaIndex++) {
                         $optionValue = $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex];
                         echo "<option value='".attr($optionValue)."'";
                         $optionLabel = $ThisPageSearchCriteriaDisplay[$ThisPageSearchCriteriaIndex];
@@ -104,12 +102,10 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
                     <td width="150"  valign="top">
                     <!-- Below section comes as per the defined criteria arrays.Initially all are hidden.As per the click the corresponding items gets visible. -->
                         <?php
-                        for ($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPageSearchCriteriaKey);$ThisPageSearchCriteriaIndex++)
-                        {
-                            if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='date' ||
-                            $ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='datetime')
-                            {
-                                $DateNamePart=str_replace('.','_',$ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
+                        for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPageSearchCriteriaKey); $ThisPageSearchCriteriaIndex++) {
+                            if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='date' ||
+                            $ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='datetime') {
+                                $DateNamePart=str_replace('.', '_', $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
                         ?>
                                 <table width="150" border="0" cellspacing="0" cellpadding="0"
                                     id="table_<?php echo attr($ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]) ?>" style="display:none">
@@ -117,53 +113,61 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
                                     <td class='text criteria_class2' ><?php echo text($ThisPageSearchCriteriaDisplay[$ThisPageSearchCriteriaIndex]); ?></td>
                                   </tr>
                                   <tr>
-                                    <td width="150" class='text criteria_class2' ><?php echo generate_select_list("date_master_criteria_$DateNamePart",
-                                    "date_master_criteria", $_REQUEST["date_master_criteria_$DateNamePart"],
-                                    "Date Criteria","","text criteria_class1",
-                                    'calendar_function(this.value,"master_from_date_'.$DateNamePart.'","master_to_date_'.$DateNamePart.'");
+                                    <td width="150" class='text criteria_class2' >
+                                    <?php
+                                    echo generate_select_list(
+                                        "date_master_criteria_$DateNamePart",
+                                        "date_master_criteria",
+                                        $_REQUEST["date_master_criteria_$DateNamePart"],
+                                        "Date Criteria",
+                                        "",
+                                        "text criteria_class1",
+                                        'calendar_function(this.value,"master_from_date_'.$DateNamePart.'","master_to_date_'.$DateNamePart.'");
                                     appendOptionDateCriteria("'.attr($ThisPageSearchCriteriaDisplay[$ThisPageSearchCriteriaIndex]).'","'.
-                                    $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex].'",this.options[this.selectedIndex].text,'.
-                                    'this.options[this.selectedIndex].value," = ","master_from_date_'.$DateNamePart.'","master_to_date_'.$DateNamePart.'",
-                                    "'.$ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex].'")');?>
+                                        $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex].'",this.options[this.selectedIndex].text,'.
+                                        'this.options[this.selectedIndex].value," = ","master_from_date_'.$DateNamePart.'","master_to_date_'.$DateNamePart.'",
+                                    "'.$ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex].'")'
+                                    );
+                                    ?>
                                     </td>
                                   </tr>
                                   <tr>
                                     <td class='text' align="right" style="padding-right:5px;padding-bottom:2px;padding-top:2px">
-                                        <?php echo htmlspecialchars( xl('From'), ENT_QUOTES).':' ?><input type='text' size='7'
+                                        <?php echo htmlspecialchars(xl('From'), ENT_QUOTES).':' ?><input type='text' size='7'
                                         name='master_from_date_<?php echo $DateNamePart;?>'
                                         id='master_from_date_<?php echo $DateNamePart;?>' class="text datepicker"
                                         value="<?php echo attr($_REQUEST["master_from_date_$DateNamePart"]) ?>"
                                         onChange="SetDateCriteriaCustom('date_master_criteria_<?php echo $DateNamePart;?>');
                                         appendOptionDateCriteria('<?php echo attr($ThisPageSearchCriteriaDisplay[$ThisPageSearchCriteriaIndex]);?>',
                                         '<?php echo $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex];?>',
-                                        '<?php echo htmlspecialchars( xl('Custom'), ENT_QUOTES); ?>',
-                                        '<?php echo htmlspecialchars( xl('Custom'), ENT_QUOTES); ?>',
+                                        '<?php echo htmlspecialchars(xl('Custom'), ENT_QUOTES); ?>',
+                                        '<?php echo htmlspecialchars(xl('Custom'), ENT_QUOTES); ?>',
                                         ' = ','master_from_date_<?php echo $DateNamePart;?>','master_to_date_<?php echo $DateNamePart;?>',
                                         '<?php echo $ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex] ?>')" />&nbsp;
                                    </td>
                                   </tr>
                                   <tr>
                                     <td class='text' align="right" style="padding-right:5px">
-                                        <?php echo htmlspecialchars( xl('To'), ENT_QUOTES).':' ?><input type='text' size='7'
+                                        <?php echo htmlspecialchars(xl('To'), ENT_QUOTES).':' ?><input type='text' size='7'
                                         name='master_to_date_<?php echo $DateNamePart;?>'
                                         id='master_to_date_<?php echo $DateNamePart;?>' class="text datepicker"
                                         value="<?php echo attr($_REQUEST["master_to_date_$DateNamePart"]) ?>"
                                         onChange="SetDateCriteriaCustom('date_master_criteria_<?php echo $DateNamePart;?>');
                                         appendOptionDateCriteria('<?php echo attr($ThisPageSearchCriteriaDisplay[$ThisPageSearchCriteriaIndex]);?>',
                                         '<?php echo $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex];?>',
-                                        '<?php echo htmlspecialchars( xl('Custom'), ENT_QUOTES); ?>',
-                                        '<?php echo htmlspecialchars( xl('Custom'), ENT_QUOTES); ?>',
+                                        '<?php echo htmlspecialchars(xl('Custom'), ENT_QUOTES); ?>',
+                                        '<?php echo htmlspecialchars(xl('Custom'), ENT_QUOTES); ?>',
                                         ' = ','master_from_date_<?php echo $DateNamePart;?>','master_to_date_<?php echo $DateNamePart;?>',
                                         '<?php echo $ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex] ?>')" />&nbsp;
                                    </td>
                                   </tr>
                                 </table>
-                        <?php }?>
                         <?php
-                        if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='query_drop_down')
-                         {
-                            $array_query_drop_down=BuildArrayForReport($ThisPageSearchCriteriaQueryDropDownMaster[$ThisPageSearchCriteriaQueryDropDown[$ThisPageSearchCriteriaIndex]]);
-                            $QueryDropDownNamePart=str_replace('.','_',$ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
+                            }
+
+                            if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='query_drop_down') {
+                                $array_query_drop_down=BuildArrayForReport($ThisPageSearchCriteriaQueryDropDownMaster[$ThisPageSearchCriteriaQueryDropDown[$ThisPageSearchCriteriaIndex]]);
+                                $QueryDropDownNamePart=str_replace('.', '_', $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
                         ?>
                         <table width="150" border="0" cellspacing="0" cellpadding="0"
                           id="table_<?php echo $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex] ?>" style="display:none">
@@ -184,12 +188,12 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
                               ><?php echo text($ThisPageSearchCriteriaQueryDropDownDefault[$ThisPageSearchCriteriaIndex]) ?></option>
 
                                 <?php
-                                foreach($array_query_drop_down as $array_query_drop_down_key => $array_query_drop_down_value)
-                                   {
-                                    if($_REQUEST["query_drop_down_master_".$QueryDropDownNamePart]==$array_query_drop_down_key)
+                                foreach ($array_query_drop_down as $array_query_drop_down_key => $array_query_drop_down_value) {
+                                    if ($_REQUEST["query_drop_down_master_".$QueryDropDownNamePart]==$array_query_drop_down_key) {
                                         $Selected=' selected ';
-                                    else
+                                    } else {
                                         $Selected='';
+                                    }
                                     ?>
                                     <option value="<?php echo attr($array_query_drop_down_key) ?>" <?php echo $Selected ?>
                                 ><?php echo text($array_query_drop_down_value) ?></option>
@@ -201,11 +205,11 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
                                 </td>
                               </tr>
                             </table>
-                        <?php }?>
                         <?php
-                        if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='include')
-                         {
-                            $IncludeNamePart=str_replace('.','_',$ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
+                            }
+
+                            if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='include') {
+                                $IncludeNamePart=str_replace('.', '_', $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
                         ?>
                         <table width="150" border="0" cellspacing="0" cellpadding="0"
                           id="table_<?php echo attr($ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]) ?>" style="display:none">
@@ -219,20 +223,19 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
                                 ?></td>
                               </tr>
                             </table>
-                        <?php }?>
                         <?php
-                        if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='text' ||
-                            $ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='text_like')
-                         {
-                            $TextNamePart=str_replace('.','_',$ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
-                            if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='text')
-                            {
-                                $TextSeperator=' = ';
                             }
-                            if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='text_like')
-                            {
-                                $TextSeperator=' like ';
-                            }
+
+                            if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='text' ||
+                                $ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='text_like') {
+                                $TextNamePart=str_replace('.', '_', $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
+                                if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='text') {
+                                    $TextSeperator=' = ';
+                                }
+
+                                if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='text_like') {
+                                    $TextSeperator=' like ';
+                                }
                         ?>
                         <table width="150" border="0" cellspacing="0" cellpadding="0"
                           id="table_<?php echo attr($ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]) ?>" style="display:none">
@@ -251,11 +254,11 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
                             size="15"  autocomplete="off" /></td>
                           </tr>
                         </table>
-                        <?php }?>
                         <?php
-                        if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio' ||
-                            $ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio_like')
-                         {
+                            }
+                            
+                            if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio' ||
+                                $ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio_like') {
                         ?>
                         <table width="150" border="0" cellspacing="0" cellpadding="0"
                           id="table_<?php echo attr($ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]) ?>" style="display:none">
@@ -263,24 +266,24 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
                           <td  class='text criteria_class2'   width="150" ><?php echo text($ThisPageSearchCriteriaDisplay[$ThisPageSearchCriteriaIndex]); ?></td>
                           </tr>
                             <?php
-                            if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio')
-                             {
+                            if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio') {
                                 $RadioSeperator=' = ';
                             }
-                            if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio_like')
-                             {
+
+                            if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio_like') {
                                 $RadioSeperator=' like ';
                             }
+
                             for ($ThisPageSearchCriteriaRadioIndex=0;
                                     $ThisPageSearchCriteriaRadioIndex<sizeof($ThisPageSearchCriteriaDisplayRadio[$ThisPageSearchCriteriaIndex]);
-                                      $ThisPageSearchCriteriaRadioIndex++)
-                            {
-                                $RadioNamePart=str_replace('.','_',$ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
-                                if($_REQUEST["radio_".$RadioNamePart]==
-                                          $ThisPageSearchCriteriaRadioKey[$ThisPageSearchCriteriaIndex][$ThisPageSearchCriteriaRadioIndex])
+                                      $ThisPageSearchCriteriaRadioIndex++) {
+                                $RadioNamePart=str_replace('.', '_', $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
+                                if ($_REQUEST["radio_".$RadioNamePart]==
+                                          $ThisPageSearchCriteriaRadioKey[$ThisPageSearchCriteriaIndex][$ThisPageSearchCriteriaRadioIndex]) {
                                     $Checked=' checked ';
-                                else
+                                } else {
                                     $Checked='';
+                                }
                             ?>
                             <tr>
                             <td class='text'><input type="radio" name="radio_<?php echo attr($RadioNamePart) ?>"
@@ -300,7 +303,7 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
                             ?>
                             </table>
                         <?php
-                        }
+                            }
                         ?>
                     <?php
                         }
@@ -311,20 +314,19 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
                 </fieldset>
             </td>
             <td valign="top"><fieldset style="border-color:#000000; border-width:1px;padding-left:5px;padding-right:0px;padding-top:0px;padding-bottom:0px;" >
-                <legend class='text'><b><?php echo htmlspecialchars( xl('Current Criteria'), ENT_QUOTES) ?></b></legend>
+                <legend class='text'><b><?php echo htmlspecialchars(xl('Current Criteria'), ENT_QUOTES) ?></b></legend>
                 <table width="260" border="0" cellspacing="0" cellpadding="0">
                   <tr>
-                    <td width="117" class='text'><?php echo htmlspecialchars( xl('Criteria'), ENT_QUOTES) ?></td>
-                    <td width="118" class='text'><?php echo htmlspecialchars( xl('Set To'), ENT_QUOTES) ?></td>
+                    <td width="117" class='text'><?php echo htmlspecialchars(xl('Criteria'), ENT_QUOTES) ?></td>
+                    <td width="118" class='text'><?php echo htmlspecialchars(xl('Set To'), ENT_QUOTES) ?></td>
                     <td width="25" class='text'></td>
                   </tr>
                   <tr>
                     <td colspan="2"><select name='final_this_page_criteria[]' id='final_this_page_criteria'
                         size='8' style="width:235px;"   class='text'  title='Criteria' multiple="multiple" >
                         <?php
-                        for($final_this_page_criteria_index=0;$final_this_page_criteria_index<sizeof($_REQUEST['final_this_page_criteria']);
-                                                                                    $final_this_page_criteria_index++)
-                        {
+                        for ($final_this_page_criteria_index=0; $final_this_page_criteria_index<sizeof($_REQUEST['final_this_page_criteria']);
+                                                                                    $final_this_page_criteria_index++) {
                         ?>
                         <option value="<?php echo attr($_REQUEST['final_this_page_criteria'][$final_this_page_criteria_index]) ?>" >
                         <?php echo xlt($_REQUEST['final_this_page_criteria_text'][$final_this_page_criteria_index]) ?></option>
@@ -335,9 +337,8 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
                         </select>
                         <select name='final_this_page_criteria_text[]' id='final_this_page_criteria_text' style="display:none" multiple="multiple" >
                         <?php
-                        for($final_this_page_criteria_index=0;$final_this_page_criteria_index<sizeof($_REQUEST['final_this_page_criteria']);
-                                                                                    $final_this_page_criteria_index++)
-                        {
+                        for ($final_this_page_criteria_index=0; $final_this_page_criteria_index<sizeof($_REQUEST['final_this_page_criteria']);
+                                                                                    $final_this_page_criteria_index++) {
                         ?>
                         <option value="<?php echo attr($_REQUEST['final_this_page_criteria_text'][$final_this_page_criteria_index]) ?>" >1</option>
                         <?php

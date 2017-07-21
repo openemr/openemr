@@ -42,12 +42,14 @@ if ($_POST['bn_save']) {
             $newdata[$field_id] = get_layout_form_value($frow);
         }
     }
+
     updateHistoryData($ptid, $newdata);
   // Finally, delete the request from the portal.
     $result = cms_portal_call(array('action' => 'delpost', 'postid' => $postid));
     if ($result['errmsg']) {
         die(text($result['errmsg']));
     }
+
     echo "<html><body><script language='JavaScript'>\n";
     echo "if (top.restoreSession) top.restoreSession(); else opener.top.restoreSession();\n";
     echo "document.location.href = 'list_requests.php';\n";
@@ -56,7 +58,10 @@ if ($_POST['bn_save']) {
 }
 
 // Get the portal request data.
-if (!$postid) die(xlt('Request ID is missing!'));
+if (!$postid) {
+    die(xlt('Request ID is missing!'));
+}
+
 $result = cms_portal_call(array('action' => 'getpost', 'postid' => $postid));
 if ($result['errmsg']) {
     die(text($result['errmsg']));
@@ -131,15 +136,17 @@ function validate() {
 
 <table width='100%' cellpadding='1' cellspacing='2'>
  <tr class='head'>
-  <th align='left'><?php echo xlt('Field'        ); ?></th>
+  <th align='left'><?php echo xlt('Field'); ?></th>
   <th align='left'><?php echo xlt('Current Value'); ?></th>
-  <th align='left'><?php echo xlt('New Value'    ); ?></th>
+  <th align='left'><?php echo xlt('New Value'); ?></th>
  </tr>
 
 <?php
-$lores = sqlStatement("SELECT * FROM layout_options " .
-  "WHERE form_id = ? AND uor > 0 ORDER BY group_name, seq",
-  array('HIS'));
+$lores = sqlStatement(
+    "SELECT * FROM layout_options " .
+    "WHERE form_id = ? AND uor > 0 ORDER BY group_name, seq",
+    array('HIS')
+);
 
 while ($lorow = sqlFetchArray($lores)) {
     $data_type  = $lorow['data_type'];
@@ -152,20 +159,26 @@ while ($lorow = sqlFetchArray($lores)) {
         if (($i = strpos($key, ':')) !== false) {
             $key = substr($key, 0, $i);
         }
+
         if (strcasecmp($key, $field_id) == 0) {
             $reskey = $key;
             $gotfield = true;
         }
     }
+
   // Generate form fields for items that are either from the WordPress form
   // or are mandatory.
     if ($gotfield || $lorow['uor'] > 1) {
         $list_id = $lorow['list_id'];
         $field_title = $lorow['title'];
-        if ($field_title === '') $field_title = '(' . $field_id . ')';
+        if ($field_title === '') {
+            $field_title = '(' . $field_id . ')';
+        }
 
         $currvalue = '';
-        if (isset($hyrow[$field_id])) $currvalue = $hyrow[$field_id];
+        if (isset($hyrow[$field_id])) {
+            $currvalue = $hyrow[$field_id];
+        }
 
         $newvalue = cms_field_to_lbf($data_type, $reskey, $result['fields']);
 

@@ -36,11 +36,16 @@ require_once("portal.inc.php");
  */
 function getListItem($listid, $value)
 {
-    $lrow = sqlQuery("SELECT title FROM list_options " .
-    "WHERE list_id = ? AND option_id = ? AND activity = 1",
-    array($listid, $value));
+    $lrow = sqlQuery(
+        "SELECT title FROM list_options " .
+        "WHERE list_id = ? AND option_id = ? AND activity = 1",
+        array($listid, $value)
+    );
     $tmp = xl_list_label($lrow['title']);
-    if (empty($tmp)) $tmp = "($report_status)";
+    if (empty($tmp)) {
+        $tmp = "($report_status)";
+    }
+
     return $tmp;
 }
 
@@ -52,7 +57,10 @@ function getListItem($listid, $value)
  */
 function myCellText($s)
 {
-    if ($s === '') return '&nbsp;';
+    if ($s === '') {
+        return '&nbsp;';
+    }
+
     return text($s);
 }
 
@@ -61,22 +69,35 @@ function patientNameFromLogin($login)
 {
     $ptname = '';
     if ($login) {
-        $tmp = sqlQuery("SELECT fname, lname, mname, pid " .
-        "FROM patient_data WHERE cmsportal_login = ? ORDER BY id LIMIT 1",
-        array($login));
+        $tmp = sqlQuery(
+            "SELECT fname, lname, mname, pid " .
+            "FROM patient_data WHERE cmsportal_login = ? ORDER BY id LIMIT 1",
+            array($login)
+        );
         if (!empty($tmp['pid'])) {
               $ptname = $tmp['lname'];
-              if ($tmp['fname'] || $tmp['mname']) $ptname .= ',';
-              if ($tmp['fname']) $ptname .= ' ' . $tmp['fname'];
-              if ($tmp['mname']) $ptname .= ' ' . $tmp['mname'];
+            if ($tmp['fname'] || $tmp['mname']) {
+                $ptname .= ',';
+            }
+
+            if ($tmp['fname']) {
+                $ptname .= ' ' . $tmp['fname'];
+            }
+
+            if ($tmp['mname']) {
+                $ptname .= ' ' . $tmp['mname'];
+            }
         }
     }
+
     return $ptname;
 }
 
 // Check authorization.
 $thisauth = acl_check('patients', 'med');
-if (!$thisauth) die(xlt('Not authorized'));
+if (!$thisauth) {
+    die(xlt('Not authorized'));
+}
 
 $errmsg = '';
 
@@ -90,6 +111,7 @@ if (!empty($_POST['bn_delete'])) {
             }
         }
     }
+
     if (is_array($_POST['form_msg_cb'])) {
         foreach ($_POST['form_msg_cb'] as $messageid) {
             $result = cms_portal_call(array('action' => 'delmessage', 'messageid' => $messageid));
@@ -241,11 +263,11 @@ if ($result['errmsg']) {
  </tr>
 
  <tr class='head'>
-  <th><?php echo xlt('Portal ID'   ); ?></td>
-  <th><?php echo xlt('Name in EMR' ); ?></td>
-  <th><?php echo xlt('Date/Time'   ); ?></td>
+  <th><?php echo xlt('Portal ID'); ?></td>
+  <th><?php echo xlt('Name in EMR'); ?></td>
+  <th><?php echo xlt('Date/Time'); ?></td>
   <th><?php echo xlt('Request Type'); ?></td>
-  <th><?php echo xlt('Delete'      ); ?></td>
+  <th><?php echo xlt('Delete'); ?></td>
  </tr>
 
 <?php
@@ -259,7 +281,7 @@ while ($v1 || $v2) {
         $postid = $v1[1]['postid'];
         $ptname = patientNameFromLogin($v1[1]['user']);
         echo "  <td>" . text($v1[1]['user']) . "</td>\n";
-        echo "  <td>" . text($ptname       ) . "</td>\n";
+        echo "  <td>" . text($ptname) . "</td>\n";
         echo "  <td style='cursor:pointer;color:blue;'";
         echo " onclick=\"openRequest(" .
          "'" . addslashes($postid)      . "'," .
@@ -269,12 +291,11 @@ while ($v1 || $v2) {
         echo "  <td align='center'><input type='checkbox' name='form_req_cb[" .
          attr($postid) . "]' value='" . attr($postid) . "' /></td>\n";
         $v1 = each($result['list']);
-    }
-    else {
+    } else {
         $messageid = $v2[1]['messageid'];
         $ptname = patientNameFromLogin($v2[1]['user']);
         echo "  <td>" . text($v2[1]['user']) . "</td>\n";
-        echo "  <td>" . text($ptname       ) . "</td>\n";
+        echo "  <td>" . text($ptname) . "</td>\n";
         echo "  <td style='cursor:pointer;color:blue;'";
         echo " onclick=\"openMessage(" .
          "'" . addslashes($messageid)      . "'" .
@@ -285,6 +306,7 @@ while ($v1 || $v2) {
            attr($messageid) . "]' value='" . attr($messageid) . "' /></td>\n";
         $v2 = each($result['messages']);
     }
+
     echo " </tr>\n";
 }
 ?>

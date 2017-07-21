@@ -32,15 +32,13 @@ $output =& new pnHTML();
 $output->SetInputMode(_PNH_VERBATIMINPUT);
 
 // let's load the User API so we can use it :)
-if(!pnModAPILoad('postcalendar','user')) {
+if (!pnModAPILoad('postcalendar', 'user')) {
     die('Could not load PostCalendar user API');
 }
 
 $eid  = pnVarCleanFromInput('eid');
 $date = pnVarCleanFromInput('date');
-$output->Text(pnModAPIFunc('postcalendar','user','eventDetail',array('eid'=>$eid,'date'=>$date)));
+$output->Text(pnModAPIFunc('postcalendar', 'user', 'eventDetail', array('eid'=>$eid,'date'=>$date)));
 
 $output->Text('</body></html>');
 $output->PrintPage();
-
-?>

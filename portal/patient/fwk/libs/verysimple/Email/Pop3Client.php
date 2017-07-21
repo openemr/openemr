@@ -12,16 +12,18 @@
  * @license LGPL
  * @version 1.1
  */
-class Pop3Client {
+class Pop3Client
+{
     private $mbox;
     private $do_delete = false;
     public static $VERSION = "1.1";
     function Pop3Client()
     {
-        if (! function_exists ( "imap_open" )) {
-            require_once ('PEAR.php');
-            if (! pear::loadExtension ( 'imap' ))
-                throw new Exception ( "Pop3Client: Unable to load imap extension" );
+        if (! function_exists("imap_open")) {
+            require_once('PEAR.php');
+            if (! pear::loadExtension('imap')) {
+                throw new Exception("Pop3Client: Unable to load imap extension");
+            }
         }
     }
     
@@ -48,7 +50,7 @@ class Pop3Client {
      */
     function Open($user, $pass, $host, $port = "110", $mbtype = "pop3", $mbfolder = "INBOX", $options = null, $retries = 1)
     {
-        $this->mbox = imap_open ( "{" . $host . ":" . $port . "/" . $mbtype . "/notls}" . $mbfolder . "", $user, $pass, $options, $retries );
+        $this->mbox = imap_open("{" . $host . ":" . $port . "/" . $mbtype . "/notls}" . $mbfolder . "", $user, $pass, $options, $retries);
     }
     
     /**
@@ -60,7 +62,7 @@ class Pop3Client {
      */
     function DeleteMessage($msgnum)
     {
-        imap_delete ( $this->mbox, $msgnum );
+        imap_delete($this->mbox, $msgnum);
         $this->do_delete = true;
     }
     
@@ -74,10 +76,10 @@ class Pop3Client {
     function Close($empty_trash = true)
     {
         if ($this->do_delete && $empty_trash) {
-            imap_expunge ( $this->mbox );
+            imap_expunge($this->mbox);
         }
         
-        imap_close ( $this->mbox );
+        imap_close($this->mbox);
     }
     
     /**
@@ -88,7 +90,7 @@ class Pop3Client {
      */
     function GetMessageCount()
     {
-        $summary = $this->GetSummary ();
+        $summary = $this->GetSummary();
         return $summary->Nmsgs;
     }
     
@@ -100,7 +102,7 @@ class Pop3Client {
      */
     function GetSummary()
     {
-        return imap_check ( $this->mbox );
+        return imap_check($this->mbox);
     }
     
     /**
@@ -112,7 +114,7 @@ class Pop3Client {
      */
     function GetQuickHeaders()
     {
-        return imap_headers ( $this->mbox );
+        return imap_headers($this->mbox);
     }
     
     /**
@@ -125,7 +127,7 @@ class Pop3Client {
      */
     function GetHeader($msgno)
     {
-        return imap_headerinfo ( $this->mbox, $msgno );
+        return imap_headerinfo($this->mbox, $msgno);
     }
     
     /**
@@ -140,23 +142,23 @@ class Pop3Client {
      */
     function GetAttachments($msgno, $include_raw_data = true)
     {
-        $struct = imap_fetchstructure ( $this->mbox, $msgno );
-        $contentParts = count ( $struct->parts );
+        $struct = imap_fetchstructure($this->mbox, $msgno);
+        $contentParts = count($struct->parts);
         $attachments = array ();
         
         if ($contentParts >= 2) {
-            for($i = 2; $i <= $contentParts; $i ++) {
-                $att [$i - 2] = imap_bodystruct ( $this->mbox, $msgno, $i );
+            for ($i = 2; $i <= $contentParts; $i ++) {
+                $att [$i - 2] = imap_bodystruct($this->mbox, $msgno, $i);
                 // these extra bits help us later...
                 $att [$i - 2]->x_msg_id = $msgno;
                 $att [$i - 2]->x_part_id = $i;
             }
             
-            for($k = 0; $k < sizeof ( $att ); $k ++) {
-                if (strtolower ( $att [$k]->parameters [0]->value ) == "us-ascii" && $att [$k]->parameters [1]->value != "") {
-                    $attachments [$k] = $this->_getPartFromStruct ( $att [$k], $include_raw_data );
-                } elseif (strtolower ( $att [$k]->parameters [0]->value ) != "iso-8859-1") {
-                    $attachments [$k] = $this->_getPartFromStruct ( $att [$k], $include_raw_data );
+            for ($k = 0; $k < sizeof($att); $k ++) {
+                if (strtolower($att [$k]->parameters [0]->value) == "us-ascii" && $att [$k]->parameters [1]->value != "") {
+                    $attachments [$k] = $this->_getPartFromStruct($att [$k], $include_raw_data);
+                } elseif (strtolower($att [$k]->parameters [0]->value) != "iso-8859-1") {
+                    $attachments [$k] = $this->_getPartFromStruct($att [$k], $include_raw_data);
                 }
             }
         }
@@ -170,10 +172,10 @@ class Pop3Client {
         $part->msgnum = $struct->x_msg_id;
         $part->partnum = $struct->x_part_id;
         $part->filename = $struct->parameters [0]->value;
-        $part->type = $this->GetPrimaryType ( $struct );
+        $part->type = $this->GetPrimaryType($struct);
         $part->subtype = $struct->subtype;
-        $part->mimetype = $this->GetMimeType ( $struct );
-        $part->rawdata = (! $include_raw_data) ? null : $this->GetAttachmentRawData ( $struct->x_msg_id, $struct->x_part_id, $struct->encoding );
+        $part->mimetype = $this->GetMimeType($struct);
+        $part->rawdata = (! $include_raw_data) ? null : $this->GetAttachmentRawData($struct->x_msg_id, $struct->x_part_id, $struct->encoding);
         return $part;
     }
     
@@ -192,12 +194,12 @@ class Pop3Client {
      */
     function GetAttachmentRawData($msgno, $partnum, $encoding_id = 0)
     {
-        $content = imap_fetchbody ( $this->mbox, $msgno, $partnum );
+        $content = imap_fetchbody($this->mbox, $msgno, $partnum);
         
         if ($encoding_id == 3) {
-            return imap_base64 ( $content );
+            return imap_base64($content);
         } elseif ($encoding_id == 4) {
-            return imap_qprint ( $content );
+            return imap_qprint($content);
         }
         
         return $content;
@@ -237,8 +239,9 @@ class Pop3Client {
     function GetMimeType(&$structure)
     {
         if ($structure->subtype) {
-            return $this->GetPrimaryType ( $structure ) . '/' . $structure->subtype;
+            return $this->GetPrimaryType($structure) . '/' . $structure->subtype;
         }
+
         return "TEXT/PLAIN";
     }
     
@@ -255,11 +258,11 @@ class Pop3Client {
     function GetMessageBody($msgnum, $prefer_html = true)
     {
         if ($prefer_html) {
-            $body = $this->GetPart ( $msgnum, "TEXT/HTML" );
-            $body = $body ? $body : $this->GetPart ( $msgnum, "TEXT/PLAIN" );
+            $body = $this->GetPart($msgnum, "TEXT/HTML");
+            $body = $body ? $body : $this->GetPart($msgnum, "TEXT/PLAIN");
         } else {
-            $body = $this->GetPart ( $msgnum, "TEXT/PLAIN" );
-            $body = $body ? $body : $this->GetPart ( $msgnum, "TEXT/HTML" );
+            $body = $this->GetPart($msgnum, "TEXT/PLAIN");
+            $body = $body ? $body : $this->GetPart($msgnum, "TEXT/HTML");
         }
         
         return $body;
@@ -284,29 +287,29 @@ class Pop3Client {
         $stream = $this->mbox;
         $prefix = "";
         
-        $structure = $structure ? $structure : imap_fetchstructure ( $stream, $msg_number );
+        $structure = $structure ? $structure : imap_fetchstructure($stream, $msg_number);
         
         if ($structure) {
-            if ($mime_type == $this->GetMimeType ( $structure )) {
+            if ($mime_type == $this->GetMimeType($structure)) {
                 $part_number = $part_number ? $part_number : "1";
-                $text = imap_fetchbody ( $stream, $msg_number, $part_number );
+                $text = imap_fetchbody($stream, $msg_number, $part_number);
                 
                 if ($structure->encoding == 3) {
-                    return imap_base64 ( $text );
+                    return imap_base64($text);
                 } else if ($structure->encoding == 4) {
-                    return imap_qprint ( $text );
+                    return imap_qprint($text);
                 } else {
                     return $text;
                 }
             }
             
-            if ($structure->type == 1) /* multipart */
-            {
-                while ( list ( $index, $sub_structure ) = each ( $structure->parts ) ) {
+            if ($structure->type == 1) { /* multipart */
+                while (list ( $index, $sub_structure ) = each($structure->parts)) {
                     if ($part_number) {
                         $prefix = $part_number . '.';
                     }
-                    $data = $this->GetPart ( $msg_number, $mime_type, $sub_structure, $prefix . ($index + 1) );
+
+                    $data = $this->GetPart($msg_number, $mime_type, $sub_structure, $prefix . ($index + 1));
                     
                     if ($data) {
                         return $data;
@@ -319,5 +322,3 @@ class Pop3Client {
         return false;
     }
 }
-
-?>

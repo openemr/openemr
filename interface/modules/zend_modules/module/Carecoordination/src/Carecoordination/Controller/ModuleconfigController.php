@@ -32,7 +32,6 @@ class ModuleconfigController extends AbstractActionController
     
     public function __construct()
     {
-        
     }
     
     public function indexAction()
@@ -48,7 +47,6 @@ class ModuleconfigController extends AbstractActionController
 
     public function exchangeArray($data)
     {
-    
     }
     public function getArrayCopy()
     {
@@ -68,6 +66,7 @@ class ModuleconfigController extends AbstractActionController
 
             $this->inputFilter = $inputFilter;
         }
+
         return $this->inputFilter;
     }
     
@@ -104,4 +103,3 @@ class ModuleconfigController extends AbstractActionController
         return $acl;
     }
 }
-?>

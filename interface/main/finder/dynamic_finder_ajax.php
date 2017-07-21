@@ -32,16 +32,15 @@ $orderby = '';
 if (isset($_GET['iSortCol_0'])) {
     for ($i = 0; $i < intval($_GET['iSortingCols']); ++$i) {
         $iSortCol = intval($_GET["iSortCol_$i"]);
-        if ($_GET["bSortable_$iSortCol"] == "true" ) {
+        if ($_GET["bSortable_$iSortCol"] == "true") {
             $sSortDir = escape_sort_order($_GET["sSortDir_$i"]); // ASC or DESC
       // We are to sort on column # $iSortCol in direction $sSortDir.
             $orderby .= $orderby ? ', ' : 'ORDER BY ';
       //
             if ($aColumns[$iSortCol] == 'name') {
                     $orderby .= "lname $sSortDir, fname $sSortDir, mname $sSortDir";
-            }
-            else {
-                    $orderby .= "`" . escape_sql_column_name($aColumns[$iSortCol],array('patient_data')) . "` $sSortDir";
+            } else {
+                    $orderby .= "`" . escape_sql_column_name($aColumns[$iSortCol], array('patient_data')) . "` $sSortDir";
             }
         }
     }
@@ -59,12 +58,14 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
             "lname LIKE '$sSearch%' OR " .
             "fname LIKE '$sSearch%' OR " .
             "mname LIKE '$sSearch%' ";
-        }
-        else {
-            $where .= "`" . escape_sql_column_name($colname,array('patient_data')) . "` LIKE '$sSearch%' ";
+        } else {
+            $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch%' ";
         }
     }
-    if ($where) $where .= ")";
+
+    if ($where) {
+        $where .= ")";
+    }
 }
 
 // Column-specific filtering.
@@ -79,9 +80,8 @@ for ($i = 0; $i < count($aColumns); ++$i) {
             "lname LIKE '$sSearch%' OR " .
             "fname LIKE '$sSearch%' OR " .
             "mname LIKE '$sSearch%' )";
-        }
-        else {
-            $where .= " `" . escape_sql_column_name($colname,array('patient_data')) . "` LIKE '$sSearch%'";
+        } else {
+            $where .= " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch%'";
         }
     }
 }
@@ -91,13 +91,15 @@ for ($i = 0; $i < count($aColumns); ++$i) {
 //
 $sellist = 'pid';
 foreach ($aColumns as $colname) {
-    if ($colname == 'pid') continue;
+    if ($colname == 'pid') {
+        continue;
+    }
+
     $sellist .= ", ";
     if ($colname == 'name') {
         $sellist .= "lname, fname, mname";
-    }
-    else {
-        $sellist .= "`" . escape_sql_column_name($colname,array('patient_data')) . "`";
+    } else {
+        $sellist .= "`" . escape_sql_column_name($colname, array('patient_data')) . "`";
     }
 }
 
@@ -127,18 +129,26 @@ while ($row = sqlFetchArray($res)) {
     foreach ($aColumns as $colname) {
         if ($colname == 'name') {
             $name = $row['lname'];
-            if ($name && $row['fname']) $name .= ', ';
-            if ($row['fname']) $name .= $row['fname'];
-            if ($row['mname']) $name .= ' ' . $row['mname'];
+            if ($name && $row['fname']) {
+                $name .= ', ';
+            }
+
+            if ($row['fname']) {
+                $name .= $row['fname'];
+            }
+
+            if ($row['mname']) {
+                $name .= ' ' . $row['mname'];
+            }
+
             $arow[] = $name;
-        }
-        else if ($colname == 'DOB' || $colname == 'regdate' || $colname == 'ad_reviewed' || $colname == 'userdate1') {
+        } else if ($colname == 'DOB' || $colname == 'regdate' || $colname == 'ad_reviewed' || $colname == 'userdate1') {
             $arow[] = oeFormatShortDate($row[$colname]);
-        }
-        else {
+        } else {
             $arow[] = $row[$colname];
         }
     }
+
     $out['aaData'][] = $arow;
 }
 
@@ -147,4 +157,3 @@ while ($row = sqlFetchArray($res)) {
 // Dump the output array as JSON.
 //
 echo json_encode($out);
-?>

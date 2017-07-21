@@ -100,8 +100,8 @@ $installSettings['no_root_db_access']        = 'BLANK';
 $installSettings['development_translations'] = 'BLANK';
 
 // Collect parameters(if exist) for installation configuration settings
-for ($i=1;$i < count($argv); $i++) {
-    $indexandvalue = explode("=",$argv[$i]);
+for ($i=1; $i < count($argv); $i++) {
+    $indexandvalue = explode("=", $argv[$i]);
     $index = $indexandvalue[0];
     $value = $indexandvalue[1];
     $installSettings[$index] = $value;
@@ -113,20 +113,19 @@ foreach ($installSettings as $setting => $value) {
     if ($value == "BLANK") {
         $value = '';
     }
+
     $tempInstallSettings[$setting] = $value;
 }
+
 $installSettings = $tempInstallSettings;
 
 
 // Install and configure OpenEMR using the Installer class
-$installer = new Installer( $installSettings );
-if ( ! $installer->quick_install() ) {
+$installer = new Installer($installSettings);
+if (! $installer->quick_install()) {
   // Failed, report error
     echo "ERROR: " . $installer->error_message . "\n";
-}
-else {
+} else {
   // Successful
     echo $installer->debug_message . "\n";
 }
-
-?>

@@ -1,17 +1,18 @@
 <?php
 
 
-define("EVENT_VEHICLE",1);
-define("EVENT_WORK_RELATED",2);
-define("EVENT_SLIP_FALL",3);
-define("EVENT_OTHER",4);
+define("EVENT_VEHICLE", 1);
+define("EVENT_WORK_RELATED", 2);
+define("EVENT_SLIP_FALL", 3);
+define("EVENT_OTHER", 4);
 
 
 /**
  * class FormHpTjePrimary
  *
  */
-class FormSOAP extends ORDataObject {
+class FormSOAP extends ORDataObject
+{
 
     /**
      *
@@ -39,12 +40,11 @@ class FormSOAP extends ORDataObject {
      * Constructor sets all Form attributes to their default value
      */
 
-    function __construct($id= "", $_prefix = "")
+    function __construct($id = "", $_prefix = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;
-        }
-        else {
+        } else {
             $id = "";
             $this->date = date("Y-m-d H:i:s");
         }
@@ -70,8 +70,7 @@ class FormSOAP extends ORDataObject {
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }
@@ -122,7 +121,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_user($u)
     {
-        if(!empty($u)){
+        if (!empty($u)) {
             $this->user = $u;
         }
     }
@@ -132,7 +131,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_subjective($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->subjective = $data;
         }
     }
@@ -142,7 +141,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_objective($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->objective = $data;
         }
     }
@@ -152,7 +151,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_assessment($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->assessment = $data;
         }
     }
@@ -162,7 +161,7 @@ class FormSOAP extends ORDataObject {
     }
     function set_plan($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->plan = $data;
         }
     }
@@ -172,5 +171,3 @@ class FormSOAP extends ORDataObject {
         parent::persist();
     }
 }   // end of Form
-
-?>

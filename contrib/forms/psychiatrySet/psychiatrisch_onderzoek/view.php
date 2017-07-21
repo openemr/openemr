@@ -31,7 +31,7 @@ $provider_results = sqlQuery("select * from users where username='" . $_SESSION{
 
 ////////////////////////////////////////////////////////////////////
 // Function:	getPatientDateOfLastEncounter
-function getPatientDateOfLastEncounter( $nPid )
+function getPatientDateOfLastEncounter($nPid)
 {
   // get date of last encounter F103 or F153
     $strEventDate = sqlQuery("SELECT MAX(pc_eventDate) AS max
@@ -42,35 +42,35 @@ function getPatientDateOfLastEncounter( $nPid )
                   AND pc_eventDate >= '2007-01-01'");
 
   // now check if there was a previous encounter
-    if( $strEventDate['max'] != "" )
-    return( $strEventDate['max'] );
-    else
-    return( "00-00-0000" );
+    if ($strEventDate['max'] != "") {
+        return( $strEventDate['max'] );
+    } else {
+        return( "00-00-0000" );
+    }
 }
 
-$m_strEventDate = getPatientDateOfLastEncounter( $result['pid'] );
+$m_strEventDate = getPatientDateOfLastEncounter($result['pid']);
 
 // get autosave id for Psychiatrisch Onderzoek
-$vectAutosave = sqlQuery( "SELECT id, autosave_flag, autosave_datetime FROM form_psychiatrisch_onderzoek
+$vectAutosave = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_psychiatrisch_onderzoek
                             WHERE pid = ".$_SESSION["pid"].
                             " AND groupname='".$_SESSION["authProvider"].
                             "' AND user='".$_SESSION["authUser"]."' AND
                             authorized=$userauthorized AND activity=1
                             AND autosave_flag=1
-                            ORDER by id DESC limit 1" );
+                            ORDER by id DESC limit 1");
 
 
-if( $vectAutosave['id'] && $vectAutosave['id'] != "" && $vectAutosave['id'] > 0 )
-{
+if ($vectAutosave['id'] && $vectAutosave['id'] != "" && $vectAutosave['id'] > 0) {
     $obj = formFetch("form_psychiatrisch_onderzoek", $vectAutosave['id']);
-
-} else
-{
-    $obj = formFetch("form_psychiatrisch_onderzoek", $_GET["id"] );
+} else {
+    $obj = formFetch("form_psychiatrisch_onderzoek", $_GET["id"]);
 }
 
 $tmpDate = stripslashes($obj{"datum_onderzoek"});
-if( $tmpDate && $tmpDate != '0000-00-00 00:00:00' ) $m_strEventDate = $tmpDate;
+if ($tmpDate && $tmpDate != '0000-00-00 00:00:00') {
+    $m_strEventDate = $tmpDate;
+}
 
 ?>
 
@@ -98,10 +98,11 @@ if( $tmpDate && $tmpDate != '0000-00-00 00:00:00' ) $m_strEventDate = $tmpDate;
 
 <?php
 
-if( $_GET["id"] )
-  $psychiatrisch_onderzoek_id = $_GET["id"];
-else
-  $psychiatrisch_onderzoek_id = "0";
+if ($_GET["id"]) {
+    $psychiatrisch_onderzoek_id = $_GET["id"];
+} else {
+    $psychiatrisch_onderzoek_id = "0";
+}
 
 ?>
 <script type="text/javascript">
@@ -119,7 +120,7 @@ $(document).ready(function(){
 
 function delete_autosave( )
 {
-  if( confirm("<?php xl('Are you sure you want to completely remove this form?','e'); ?>") )
+  if( confirm("<?php xl('Are you sure you want to completely remove this form?', 'e'); ?>") )
   {
     $.ajax(
             {
@@ -192,13 +193,13 @@ include_once("$srcdir/api.inc");
 
 
 <form method=post action="<?php echo $rootdir?>/forms/psychiatrisch_onderzoek/save.php?mode=update&id=<?php echo $_GET["id"];?>" name="my_form">
-<span class="title"><?php xl('Psychiatric Examination','e'); ?></span><Br><br>
+<span class="title"><?php xl('Psychiatric Examination', 'e'); ?></span><Br><br>
 
 <table>
 <tr>
-<td><?php xl('Examination Date','e'); ?>:</td><td>
+<td><?php xl('Examination Date', 'e'); ?>:</td><td>
 <input type='text' class='datepicker' name='datum_onderzoek' id='datum_onderzoek' size='10' value='<?php echo $m_strEventDate ?>'
-          title='<?php xl('Examination Date','e'); ?>: yyyy-mm-dd'></input>
+          title='<?php xl('Examination Date', 'e'); ?>: yyyy-mm-dd'></input>
 
 
 <?php
@@ -207,19 +208,19 @@ include_once("$srcdir/api.inc");
 </tr>
 </table>
 
-<br><span class=text><?php xl('Reason for Visit','e'); ?></span><br>
+<br><span class=text><?php xl('Reason for Visit', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo stripslashes($obj{"reden_van_aanmelding"});?></textarea><br>
-<br><span class=text><?php xl('Intake Conclusion','e'); ?></span><br>
+<br><span class=text><?php xl('Intake Conclusion', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="conclusie_van_intake" id="conclusie_van_intake"><?php echo stripslashes($obj{"conclusie_van_intake"});?></textarea><br>
-<br><span class=text><?php xl('Medications','e'); ?></span><br>
+<br><span class=text><?php xl('Medications', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="medicatie" id="medicatie"><?php echo stripslashes($obj{"medicatie"});?></textarea><br>
-<br><span class=text><?php xl('History','e'); ?></span><br>
+<br><span class=text><?php xl('History', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="anamnese" id="anamnese"><?php echo stripslashes($obj{"anamnese"});?></textarea><br>
-<br><span class=text><?php xl('Psychiatric Examination','e'); ?></span><br>
+<br><span class=text><?php xl('Psychiatric Examination', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="psychiatrisch_onderzoek" id="psychiatrisch_onderzoek"><?php echo stripslashes($obj{"psychiatrisch_onderzoek"});?></textarea><br>
-<br><span class=text><?php xl('Conclusions','e'); ?></span><br>
+<br><span class=text><?php xl('Conclusions', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="beschrijvende_conclusie" id="beschrijvende_conclusie"><?php echo stripslashes($obj{"beschrijvende_conclusie"});?></textarea><br>
-<br><span class=text><?php xl('Treatment Plan','e'); ?></span><br>
+<br><span class=text><?php xl('Treatment Plan', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="behandelvoorstel" id="behandelvoorstel"><?php echo stripslashes($obj{"behandelvoorstel"});?></textarea><br>
 
 <table><tr>
@@ -229,10 +230,10 @@ include_once("$srcdir/api.inc");
 </tr></table>
 
 <br><br>
-<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
+<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save', 'e'); ?>]</a>
 <br>
 <a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link_submit"
- onclick="delete_autosave();top.restoreSession()">[<?php xl('Don\'t Save Changes','e'); ?>]</a>
+ onclick="delete_autosave();top.restoreSession()">[<?php xl('Don\'t Save Changes', 'e'); ?>]</a>
 </form>
 
 <div id="timestamp"></div>

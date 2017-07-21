@@ -31,6 +31,8 @@
     module name enclosed with brackets
     (ex: [PostCalendar])
  *******************************************************/
-if (!defined("LOADED_AS_MODULE")) { echo 'You may not access this module directly'; }
-else { pnRedirect(pnModURL(pnVarCleanFromInput('name'), 'user', 'main')); }
-?>
+if (!defined("LOADED_AS_MODULE")) {
+    echo 'You may not access this module directly';
+} else {
+    pnRedirect(pnModURL(pnVarCleanFromInput('name'), 'user', 'main'));
+}

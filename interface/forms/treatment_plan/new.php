@@ -73,12 +73,13 @@ echo "<form method='post' name='my_form' " .
 <table  border="0">
 
 <tr>
-<td align="left" class="forms" class="forms"><?php echo xlt('Client Name' ); ?>:</td>
+<td align="left" class="forms" class="forms"><?php echo xlt('Client Name'); ?>:</td>
         <td class="forms">
             <label class="forms-data"> <?php if (is_numeric($pid)) {
-
                 $result = getPatientData($pid, "fname,lname,squad");
-                echo text($result['fname'])." ".text($result['lname']);}
+                echo text($result['fname'])." ".text($result['lname']);
+}
+
    $patient_name=($result['fname'])." ".($result['lname']);
     ?>
    </label>
@@ -87,9 +88,10 @@ echo "<form method='post' name='my_form' " .
         <td align="left"  class="forms"><?php echo xlt('DOB'); ?>:</td>
         <td class="forms">
         <label class="forms-data"> <?php if (is_numeric($pid)) {
-
             $result = getPatientData($pid, "*");
-            echo text($result['DOB']);}
+            echo text($result['DOB']);
+}
+
    $dob=($result['DOB']);
     ?>
    </label>
@@ -100,9 +102,10 @@ echo "<form method='post' name='my_form' " .
       <td align="left"  class="forms"><?php echo xlt('Client Number'); ?>:</td>
         <td class="forms">
             <label class="forms-data" > <?php if (is_numeric($pid)) {
-
                 $result = getPatientData($pid, "*");
-                echo text($result['pid']);}
+                echo text($result['pid']);
+}
+
    $patient_id=$result['pid'];
     ?>
    </label>
@@ -126,11 +129,18 @@ echo "<form method='post' name='my_form' " .
     echo "<select name='provider' style='width:60%' />";
     while ($urow = sqlFetchArray($ures)) {
         echo "    <option value='" . attr($urow['lname']) . "'";
-        if ($urow['lname'] == attr($obj{"provider"})) echo " selected";
+        if ($urow['lname'] == attr($obj{"provider"})) {
+            echo " selected";
+        }
+
         echo ">" . text($urow['lname']);
-        if ($urow['fname']) echo ", " . text($urow['fname']);
+        if ($urow['fname']) {
+            echo ", " . text($urow['fname']);
+        }
+
         echo "</option>\n";
     }
+
     echo "</select>";
 ?>
         </td>

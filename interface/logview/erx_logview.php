@@ -28,25 +28,25 @@ require_once($srcdir.'/log.inc');
 
 $error_log_path = $GLOBALS['OE_SITE_DIR'].'/documents/erx_error';
 
-if(array_key_exists('filename', $_REQUEST)) {
+if (array_key_exists('filename', $_REQUEST)) {
     $filename = $_REQUEST['filename'];
 } else {
     $filename = '';
 }
 
-if(array_key_exists('start_date', $_REQUEST)) {
+if (array_key_exists('start_date', $_REQUEST)) {
     $start_date = $_REQUEST['start_date'];
 } else {
     $start_date = '';
 }
 
-if($filename) {
+if ($filename) {
     $bat_content = '';
 
     preg_match('/erx_error-\d{4}-\d{1,2}-\d{1,2}\.log/', $filename, $matches);
 
-    if($matches) {
-        if($fd = fopen($error_log_path.'/'.$filename, 'r')) {
+    if ($matches) {
+        if ($fd = fopen($error_log_path.'/'.$filename, 'r')) {
             $bat_content = fread($fd, filesize($error_log_path.'/'.$filename));
         }
 
@@ -97,14 +97,14 @@ if($filename) {
 <?php
 
     $check_for_file = 0;
-if(array_key_exists('search_logs', $_REQUEST)) {
+if (array_key_exists('search_logs', $_REQUEST)) {
     if ($handle = opendir($error_log_path)) {
-        while(false !== ($file = readdir($handle))) {
+        while (false !== ($file = readdir($handle))) {
             $file_as_in_folder = 'erx_error-'.$start_date.'.log';
 
-            if($file != '.' && $file != '..' && $file_as_in_folder == $file) {
+            if ($file != '.' && $file != '..' && $file_as_in_folder == $file) {
                 $check_for_file = 1;
-                $fd = fopen ($error_log_path.'/'.$file, 'r');
+                $fd = fopen($error_log_path.'/'.$file, 'r');
                 $bat_content = fread($fd, filesize($error_log_path.'/'.$file));
 ?>
                 <p><?php echo xlt('Download'); ?>: <a href="erx_logview.php?filename=<?php echo htmlspecialchars($file, ENT_QUOTES); ?>"><?php echo htmlspecialchars($file, ENT_NOQUOTES); ?></a></p>
@@ -113,7 +113,8 @@ if(array_key_exists('search_logs', $_REQUEST)) {
             }
         }
     }
-    if($check_for_file == 0) {
+
+    if ($check_for_file == 0) {
         echo xlt('No log file exist for the selected date').': '.$start_date;
     }
 }

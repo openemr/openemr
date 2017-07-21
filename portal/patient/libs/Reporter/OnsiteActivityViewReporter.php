@@ -26,7 +26,7 @@
 /**
  * import supporting libraries
  */
-require_once ( "verysimple/Phreeze/Reporter.php" );
+require_once("verysimple/Phreeze/Reporter.php");
 
 /**
  * This is an example Reporter based on the OnsiteActivityView object.
@@ -40,7 +40,8 @@ require_once ( "verysimple/Phreeze/Reporter.php" );
  * @author ClassBuilder
  * @version 1.0
  */
-class OnsiteActivityViewReporter extends Reporter{
+class OnsiteActivityViewReporter extends Reporter
+{
 
     // the properties in this class must match the columns returned by GetCustomQuery().
     // 'CustomFieldExample' is an example that is not part of the `onsite_activity_view` table
@@ -91,7 +92,7 @@ class OnsiteActivityViewReporter extends Reporter{
 	 * @param Criteria $criteria
 	 * @return string SQL statement
 	 */
-    static function GetCustomQuery( $criteria )
+    static function GetCustomQuery($criteria)
     {
 
         $sql = "select
@@ -152,7 +153,7 @@ class OnsiteActivityViewReporter extends Reporter{
 	 * @param Criteria $criteria
 	 * @return string SQL statement
 	 */
-    static function GetCustomCountQuery( $criteria )
+    static function GetCustomCountQuery($criteria)
     {
         $sql = "select count(1) as counter from `onsite_activity_view`";
 
@@ -162,7 +163,4 @@ class OnsiteActivityViewReporter extends Reporter{
 
         return $sql;
     }
-
 }
-
-?>

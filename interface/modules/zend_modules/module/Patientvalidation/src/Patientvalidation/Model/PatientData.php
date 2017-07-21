@@ -19,10 +19,10 @@
  */
 
 namespace Patientvalidation\Model;
+
 use Zend\InputFilter\InputFilter;
 use Zend\InputFilter\InputFilterAwareInterface;
 use Zend\InputFilter\InputFilterInterface;
-
 
 class PatientData implements InputFilterAwareInterface
 {
@@ -152,8 +152,6 @@ class PatientData implements InputFilterAwareInterface
         $this->lname = (!empty($data['lname'])) ? $data['lname'] : null;
         $this->sex = (!empty($data['sex'])) ? $data['sex'] : null;
         $this->DOB = (!empty($data['DOB'])) ? $data['DOB'] : null;
-
-
     }
 
 
@@ -198,13 +196,13 @@ class PatientData implements InputFilterAwareInterface
         if (!$this->inputFilter) {
             $inputFilter = new InputFilter();
 
-            foreach(self::$inputsValidations as $input) {
+            foreach (self::$inputsValidations as $input) {
                 $inputFilter->add($input);
             }
 
             $this->inputFilter = $inputFilter;
         }
+
         return $this->inputFilter;
     }
-
 }

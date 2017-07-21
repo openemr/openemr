@@ -1,7 +1,7 @@
 <?php
 /** @package    verysimple::Phreeze */
-require_once ("verysimple/HTTP/RequestUtil.php");
-require_once ("verysimple/Phreeze/IRouter.php");
+require_once("verysimple/HTTP/RequestUtil.php");
+require_once("verysimple/Phreeze/IRouter.php");
 
 /**
  * SimpleRouter is a URL router that parses URLs in the following format:
@@ -22,7 +22,8 @@ require_once ("verysimple/Phreeze/IRouter.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class SimpleRouter implements IRouter {
+class SimpleRouter implements IRouter
+{
     public static $ROUTE_NOT_FOUND = "Default.Error404";
     private $routes = array ();
     private $defaultAction = 'Default.Home';
@@ -37,8 +38,10 @@ class SimpleRouter implements IRouter {
      */
     public function __construct($appRootUrl = '', $defaultAction = '', $mapping = array())
     {
-        if ($defaultAction)
+        if ($defaultAction) {
             $this->defaultAction = $defaultAction;
+        }
+
         $this->routes = $mapping;
     }
     
@@ -54,7 +57,7 @@ class SimpleRouter implements IRouter {
      */
     public function GetUrl($controller, $method, $params = '', $requestMethod = '')
     {
-        throw new Exception ( 'Not yet implemented' );
+        throw new Exception('Not yet implemented');
     }
     
     /**
@@ -68,21 +71,21 @@ class SimpleRouter implements IRouter {
     {
         $match = '';
         
-        $qs = $uri ? $uri : (array_key_exists ( 'QUERY_STRING', $_SERVER ) ? $_SERVER ['QUERY_STRING'] : '');
-        $parsed = explode ( '&', $qs, 2 );
+        $qs = $uri ? $uri : (array_key_exists('QUERY_STRING', $_SERVER) ? $_SERVER ['QUERY_STRING'] : '');
+        $parsed = explode('&', $qs, 2);
         $action = $parsed [0];
         
-        if (strpos ( $action, '=' ) > - 1 || ! $action) {
+        if (strpos($action, '=') > - 1 || ! $action) {
             // the querystring is empty or the first param is a named param, which we ignore
             $match = $this->defaultAction;
         } else {
             // otherwise we have a route. see if we have a match in the routemap, otherwise return the 'not found' route
-            $method = RequestUtil::GetMethod ();
+            $method = RequestUtil::GetMethod();
             $route = $method . ':' . $action;
-            $match = array_key_exists ( $route, $this->routes ) ? $this->routes [$route] ['route'] : self::$ROUTE_NOT_FOUND;
+            $match = array_key_exists($route, $this->routes) ? $this->routes [$route] ['route'] : self::$ROUTE_NOT_FOUND;
         }
         
-        return explode ( '.', $match, 2 );
+        return explode('.', $match, 2);
     }
     
     /**
@@ -97,7 +100,7 @@ class SimpleRouter implements IRouter {
      */
     public function GetUrlParam($key, $default = '')
     {
-        return array_key_exists ( $key, $_REQUEST ) ? $_REQUEST [$key] : $default;
+        return array_key_exists($key, $_REQUEST) ? $_REQUEST [$key] : $default;
     }
     
     /**

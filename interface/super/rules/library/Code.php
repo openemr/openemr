@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class Code {
+class Code
+{
     //put your code here
 
     var $id;
@@ -19,7 +20,7 @@ class Code {
     var $text;
     var $codeType;
 
-    function __construct( $id, $code, $text, $codeType )
+    function __construct($id, $code, $text, $codeType)
     {
         $this->id = $id;
         $this->code = $code;
@@ -31,7 +32,4 @@ class Code {
     {
         return $this->codeType . ":" . $this->id . " - " . $this->code . " " . $this->text;
     }
-    
 }
-
-?>

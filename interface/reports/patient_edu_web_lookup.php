@@ -64,7 +64,10 @@ $form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] :
                                 <?php
                                 foreach ($websites as $key => $value) {
                                     echo "    <option value='" . attr($key) . "'";
-                                    if ($key == $form_lookup_at) echo ' selected';
+                                    if ($key == $form_lookup_at) {
+                                        echo ' selected';
+                                    }
+
                                     echo ">" .  text($key) . "</option>\n";
                                 }
                                 ?>

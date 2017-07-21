@@ -1,7 +1,8 @@
 <?php
 
 
-class C_Hl7 extends Controller {
+class C_Hl7 extends Controller
+{
 
     function __construct($template_mod = "general")
     {
@@ -20,16 +21,17 @@ class C_Hl7 extends Controller {
         if ($_POST['process'] == "true") {
             $msg = $_POST['hl7data'];
         }
+
         $hp = new Parser_HL7v2($msg);
         $err = $hp->parse();
         //print_r($hp);
         if (!empty($err)) {
             $this->assign("hl7_message_err", nl2br("Error:<br>" . $err));
         }
+
         $this->assign("hl7_array", $hp->composite_array());
         return;
     }
-
 }
 
 
@@ -45,5 +47,3 @@ $hp = new Parser_HL7v2($msg);
 print_r($hp->MSH);
 echo "<br><br>";
 print_r($hp->EVN);*/
-
-?>

@@ -18,7 +18,7 @@ class sms
     var $username = "";
     var $password = "";
     
-    function sms( $strUser, $strPass )
+    function sms($strUser, $strPass)
     {
         $this->username = $strUser;
           $this->password = $strPass;
@@ -42,10 +42,11 @@ class sms
         $request .= "&to=".urlencode($phoneNo);
 
             // larry :: default if not defined - TODO  replace
-            if( !$sender )
-                  $request .= "&from=BosmanGGZ";
-        else
-          $request .= "&from=".urlencode($sender);
+        if (!$sender) {
+              $request .= "&from=BosmanGGZ";
+        } else {
+            $request .= "&from=".urlencode($sender);
+        }
         
         $request .= "&route=GD02";
         
@@ -73,26 +74,21 @@ class sms
      */
     function _send($request)
     {
-        if(extension_loaded('curl'))
-        {
+        if (extension_loaded('curl')) {
             /**
              * cURL extension is installed
              * call the method that sends the sms through cURL
              */
              
             $response = $this->_send_curl($request);
-        }
-        elseif(!extension_loaded('sockets'))
-        {
+        } elseif (!extension_loaded('sockets')) {
             /**
              * Sockets extension is installed
              * call the method that sends the sms through sockets
              */
              
              $response = $this->_send_sock($request);
-        }
-        else
-        {
+        } else {
             /**
              * The required extensions are not installed
              * call the method that sends the sms using file_get_contents
@@ -118,7 +114,7 @@ class sms
         
         /* Set cURL variables */
         curl_setopt($ch, CURLOPT_URL, "https://www.tm4b.com/client/api/http.php");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
@@ -157,20 +153,20 @@ class sms
         $out = @fsockopen($host, $port, $errno, $errstr);
         
         /* Make sure that the connection succeded */
-        if($out)
-        {
+        if ($out) {
             /* Send the request */
             fputs($out, $http_header);
             
             /* Get the response */
-            while(!feof($out)) $result[] = fgets($out);
+            while (!feof($out)) {
+                $result[] = fgets($out);
+            }
             
             /* Terminate the connection */
             fclose($out);
         }
+
         /* Get the response from the returned string */
         $response = $result[9];
     }
 }
-
-?>

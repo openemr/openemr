@@ -4,7 +4,7 @@
 /**
  * require supporting files
  */
-require_once ("ParseException.php");
+require_once("ParseException.php");
 
 /**
  * VerySimpleXmlUtil provides a collection of static methods that are useful when
@@ -16,7 +16,8 @@ require_once ("ParseException.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 3.2
  */
-class VerySimpleXmlUtil {
+class VerySimpleXmlUtil
+{
     // replacement variable for inner text and for attribute values
     static $reservedAttrib = array (
             "&",
@@ -75,30 +76,28 @@ class VerySimpleXmlUtil {
     {
         if (! $xml) {
             $xml = $emptyVal;
-            if (! $xml)
-                throw new Exception ( 'Empty string could not be parsed as XML' );
+            if (! $xml) {
+                throw new Exception('Empty string could not be parsed as XML');
+            }
         }
         
         // re-route error handling temporarily so we can convert PHP errors to an exception
-        set_error_handler ( array (
+        set_error_handler(array (
                 "VerySimpleXmlUtil",
                 "HandleParseException"
-        ), E_ALL );
+        ), E_ALL);
         
         try {
-            
-            $element = new SimpleXMLElement ( $xml );
-        } catch ( Exception $ex1 ) {
-            
+            $element = new SimpleXMLElement($xml);
+        } catch (Exception $ex1) {
             // the xml could not be parsed, SimpleXMLElement is very picky about non-ascii characters
             // so if specified then re-try it with all non-ascii characters stripped
             if ($reAttempt) {
-                
                 try {
                     // $xml = @iconv('UTF-8', "ISO-8859-1//IGNORE", $xml); // this doesn't seem to work
-                    $xml = preg_replace ( '/[[:^print:]]/', '?', $xml ); // this is heavy-handed but works
-                    $element = new SimpleXMLElement ( $xml );
-                } catch ( Exception $ex2 ) {
+                    $xml = preg_replace('/[[:^print:]]/', '?', $xml); // this is heavy-handed but works
+                    $element = new SimpleXMLElement($xml);
+                } catch (Exception $ex2) {
                     // re-throw the first exception so we don't confuse the error due to the second attempt
                     throw $ex1;
                 }
@@ -108,7 +107,7 @@ class VerySimpleXmlUtil {
         }
         
         // reset error handling back to whatever it was
-        restore_error_handler ();
+        restore_error_handler();
         
         return $element;
     }
@@ -124,14 +123,15 @@ class VerySimpleXmlUtil {
     static function Escape($str, $escapeQuotes = false)
     {
         if ($escapeQuotes) {
-            $str = str_replace ( VerySimpleXmlUtil::$replacementsAttrib, VerySimpleXmlUtil::$replacementsTempAttrib, $str );
-            $str = str_replace ( VerySimpleXmlUtil::$reservedAttrib, VerySimpleXmlUtil::$replacementsAttrib, $str );
-            $str = str_replace ( VerySimpleXmlUtil::$replacementsTempAttrib, VerySimpleXmlUtil::$replacementsAttrib, $str );
+            $str = str_replace(VerySimpleXmlUtil::$replacementsAttrib, VerySimpleXmlUtil::$replacementsTempAttrib, $str);
+            $str = str_replace(VerySimpleXmlUtil::$reservedAttrib, VerySimpleXmlUtil::$replacementsAttrib, $str);
+            $str = str_replace(VerySimpleXmlUtil::$replacementsTempAttrib, VerySimpleXmlUtil::$replacementsAttrib, $str);
         } else {
-            $str = str_replace ( VerySimpleXmlUtil::$replacementsText, VerySimpleXmlUtil::$replacementsTempText, $str );
-            $str = str_replace ( VerySimpleXmlUtil::$reservedText, VerySimpleXmlUtil::$replacementsText, $str );
-            $str = str_replace ( VerySimpleXmlUtil::$replacementsTempText, VerySimpleXmlUtil::$replacementsText, $str );
+            $str = str_replace(VerySimpleXmlUtil::$replacementsText, VerySimpleXmlUtil::$replacementsTempText, $str);
+            $str = str_replace(VerySimpleXmlUtil::$reservedText, VerySimpleXmlUtil::$replacementsText, $str);
+            $str = str_replace(VerySimpleXmlUtil::$replacementsTempText, VerySimpleXmlUtil::$replacementsText, $str);
         }
+
         return $str;
     }
     
@@ -144,7 +144,7 @@ class VerySimpleXmlUtil {
      */
     static function UnEscape($str)
     {
-        return str_replace ( VerySimpleXmlUtil::$replacements, VerySimpleXmlUtil::$reserved, $str );
+        return str_replace(VerySimpleXmlUtil::$replacements, VerySimpleXmlUtil::$reserved, $str);
     }
     
     /**
@@ -162,35 +162,37 @@ class VerySimpleXmlUtil {
      */
     static function ToArray($xmlstring, $recurse = false, $emptyVal = null)
     {
-        $xmlstring = trim ( $xmlstring );
+        $xmlstring = trim($xmlstring);
         
         if (! $xmlstring) {
             $xmlstring = $emptyVal;
-            if (! $xmlstring)
-                throw new Exception ( 'Empty string could not be parsed as XML' );
+            if (! $xmlstring) {
+                throw new Exception('Empty string could not be parsed as XML');
+            }
         }
         
-        $xml = VerySimpleXmlUtil::SafeParse ( $xmlstring );
+        $xml = VerySimpleXmlUtil::SafeParse($xmlstring);
         $array = array ();
         
         if ($recurse) {
-            VerySimpleXmlUtil::RecurseXmlObjToArr ( $xml, $array );
+            VerySimpleXmlUtil::RecurseXmlObjToArr($xml, $array);
         } else {
-            foreach ( $xml as $key => $val ) {
-                $children = $val->children ();
+            foreach ($xml as $key => $val) {
+                $children = $val->children();
                 
                 if ($children) {
-                    $grandchildren = $children->children ();
+                    $grandchildren = $children->children();
                     if ($grandchildren) {
                         $array [$key] = $children;
                     } else {
                         $array [] = $val;
                     }
                 } else {
-                    $array [strval ( $key )] = strval ( $val );
+                    $array [strval($key)] = strval($val);
                 }
             }
         }
+
         return $array;
     }
     
@@ -206,26 +208,29 @@ class VerySimpleXmlUtil {
      */
     static function RecurseXmlObjToArr($obj, &$arr)
     {
-        $children = $obj->children ();
-        foreach ( $children as $elementName => $node ) {
-            $nextIdx = count ( $arr );
+        $children = $obj->children();
+        foreach ($children as $elementName => $node) {
+            $nextIdx = count($arr);
             $arr [$nextIdx] = array ();
-            $arr [$nextIdx] ['@name'] = strtolower ( ( string ) $elementName );
+            $arr [$nextIdx] ['@name'] = strtolower(( string ) $elementName);
             $arr [$nextIdx] ['@attributes'] = array ();
-            $attributes = $node->attributes ();
-            foreach ( $attributes as $attributeName => $attributeValue ) {
-                $attribName = strtolower ( trim ( ( string ) $attributeName ) );
-                $attribVal = trim ( ( string ) $attributeValue );
+            $attributes = $node->attributes();
+            foreach ($attributes as $attributeName => $attributeValue) {
+                $attribName = strtolower(trim(( string ) $attributeName));
+                $attribVal = trim(( string ) $attributeValue);
                 $arr [$nextIdx] ['@attributes'] [$attribName] = $attribVal;
             }
+
             $text = ( string ) $node;
-            $text = trim ( $text );
-            if (strlen ( $text ) > 0) {
+            $text = trim($text);
+            if (strlen($text) > 0) {
                 $arr [$nextIdx] ['@text'] = $text;
             }
+
             $arr [$nextIdx] ['@children'] = array ();
-            VerySimpleXmlUtil::RecurseXmlObjToArr ( $node, $arr [$nextIdx] ['@children'] );
+            VerySimpleXmlUtil::RecurseXmlObjToArr($node, $arr [$nextIdx] ['@children']);
         }
+
         return;
     }
     
@@ -242,29 +247,29 @@ class VerySimpleXmlUtil {
     {
         $xml = "";
         
-        if (is_object ( $var )) {
+        if (is_object($var)) {
             // object have properties that we recurse
-            $name = strlen ( $root ) > 0 && is_numeric ( $root ) == false ? $root : get_class ( $var );
+            $name = strlen($root) > 0 && is_numeric($root) == false ? $root : get_class($var);
             $xml .= "<" . $name . ">\n";
             
-            $props = get_object_vars ( $var );
-            foreach ( array_keys ( $props ) as $key ) {
-                $xml .= VerySimpleXmlUtil::ToXML ( $props [$key], $key );
+            $props = get_object_vars($var);
+            foreach (array_keys($props) as $key) {
+                $xml .= VerySimpleXmlUtil::ToXML($props [$key], $key);
             }
             
             $xml .= "</" . $name . ">\n";
-        } elseif (is_array ( $var )) {
-            $name = strlen ( $root ) > 0 ? (is_numeric ( $root ) ? "Array_" . $root : $root) : "Array";
+        } elseif (is_array($var)) {
+            $name = strlen($root) > 0 ? (is_numeric($root) ? "Array_" . $root : $root) : "Array";
             $xml .= "<" . $name . ">\n";
             
-            foreach ( array_keys ( $var ) as $key ) {
-                $xml .= VerySimpleXmlUtil::ToXML ( $var [$key], $key );
+            foreach (array_keys($var) as $key) {
+                $xml .= VerySimpleXmlUtil::ToXML($var [$key], $key);
             }
             
             $xml .= "</" . $name . ">\n";
         } else {
-            $name = strlen ( $root ) > 0 ? (is_numeric ( $root ) ? "Value_" . $root : $root) : "Value";
-            $xml .= "<" . $name . ">" . VerySimpleXmlUtil::Escape ( $var ) . "</" . $name . ">\n";
+            $name = strlen($root) > 0 ? (is_numeric($root) ? "Value_" . $root : $root) : "Value";
+            $xml .= "<" . $name . ">" . VerySimpleXmlUtil::Escape($var) . "</" . $name . ">\n";
         }
         
         return $xml;
@@ -284,7 +289,7 @@ class VerySimpleXmlUtil {
      */
     static function GetInnerText(XMLReader $xml, $default = "")
     {
-        if ($xml->isEmptyElement == false && $xml->read () && $xml->nodeType == XMLReader::TEXT) {
+        if ($xml->isEmptyElement == false && $xml->read() && $xml->nodeType == XMLReader::TEXT) {
             return $xml->value;
         } else {
             return $default;
@@ -346,8 +351,6 @@ class VerySimpleXmlUtil {
      */
     public static function HandleParseException($code, $string, $file, $line, $context)
     {
-        throw new ParseException ( $string, $code );
+        throw new ParseException($string, $code);
     }
 }
-
-?>

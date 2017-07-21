@@ -13,9 +13,9 @@ class NFQ_0038_Numerator9 implements CqmFilterIF
         return "Numerator 9";
     }
     
-    public function test( CqmPatient $patient, $beginDate, $endDate )
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
-        if ( Immunizations::checkRotavirus( $patient, $beginDate, $endDate ) ) {
+        if (Immunizations::checkRotavirus($patient, $beginDate, $endDate)) {
             return true;
         }
         

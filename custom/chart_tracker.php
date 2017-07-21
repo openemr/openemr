@@ -37,8 +37,11 @@ $form_curid   = isset($_POST['form_curid'  ]) ? trim($_POST['form_curid'  ]) : '
 $form_newloc  = isset($_POST['form_newloc' ]) ? trim($_POST['form_newloc' ]) : '';
 $form_newuser = isset($_POST['form_newuser']) ? trim($_POST['form_newuser']) : '';
 
-if ($form_newuser) $form_newloc = '';
-else $form_newuser = 0;
+if ($form_newuser) {
+    $form_newloc = '';
+} else {
+    $form_newuser = 0;
+}
 ?>
 <html>
 
@@ -102,7 +105,7 @@ if ($form_newid) {
     "LEFT OUTER JOIN chart_tracker AS ct ON ct.ct_pid = pd.pid " .
     "WHERE pd.pubpid = ? " .
     "ORDER BY pd.pid ASC, ct.ct_when DESC LIMIT 1";
-    $row = sqlQuery($query, array($form_newid) );
+    $row = sqlQuery($query, array($form_newid));
     if (empty($row)) {
         echo "<font color='red'>" . xlt('Chart ID') . " " . "'" . text($form_newid) . "' " . xlt('not found') . "!</font><br />";
     }
@@ -119,10 +122,9 @@ if (!empty($row)) {
     $current_location = xlt('Unassigned');
     if ($ct_userid) {
         $user = $userService->getUser($ct_userid);
-        $current_location = text( $user->getLname() . ", " . $user->getFname() . " " . $user->getMname() . " " . $row['ct_when'] );
-    }
-    else if ($ct_location) {
-        $current_location = generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'),$ct_location);
+        $current_location = text($user->getLname() . ", " . $user->getFname() . " " . $user->getMname() . " " . $row['ct_when']);
+    } else if ($ct_location) {
+        $current_location = generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'), $ct_location);
     }
 
     echo " <tr>\n";
@@ -134,7 +136,7 @@ if (!empty($row)) {
 
     echo " <tr>\n";
     echo "  <td class='bold'>" . xlt('Name') . ":</td>\n";
-    echo "  <td class='text'>" . text( $row['lname'] . ", " . $row['fname'] . " " . $row['mname'] ) . "</td>\n";
+    echo "  <td class='text'>" . text($row['lname'] . ", " . $row['fname'] . " " . $row['mname']) . "</td>\n";
     echo " </tr>\n";
 
     echo " <tr>\n";
@@ -167,7 +169,7 @@ if (!empty($row)) {
 
     $users = $userService->getActiveUsers();
 
-    foreach($users as $activeUser) {
+    foreach ($users as $activeUser) {
         echo "    <option value='" . attr($activeUser->getId()) . "'";
         echo ">" . text($activeUser->getLname()) . ', ' . text($activeUser->getFname()) . ' ' . text($activeUser->getMname()) .
         "</option>\n";

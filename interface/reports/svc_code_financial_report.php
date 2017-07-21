@@ -31,6 +31,7 @@
 
 
 use OpenEMR\Core\Header;
+
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
@@ -44,10 +45,12 @@ $grand_total_amt_adjustment  = 0;
 $grand_total_amt_balance  = 0;
 
 
-  if (! acl_check('acct', 'rep')) die(xlt("Unauthorized access."));
+if (! acl_check('acct', 'rep')) {
+    die(xlt("Unauthorized access."));
+}
 
   $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
-  $form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
+  $form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
   $form_facility  = $_POST['form_facility'];
   $form_provider  = $_POST['form_provider'];
 
@@ -144,9 +147,13 @@ $('.datepicker').datetimepicker({
             while ($urow = sqlFetchArray($ures)) {
                 $provid = $urow['id'];
                 echo "    <option value='" . attr($provid) ."'";
-                if ($provid == $_POST['form_provider']) echo " selected";
+                if ($provid == $_POST['form_provider']) {
+                    echo " selected";
+                }
+
                 echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
             }
+
                             echo "   </select>\n";
                             ?>
                 </td>
@@ -167,7 +174,10 @@ $('.datepicker').datetimepicker({
                         </td>
                         <td>
                           <div class="checkbox">
-                           <label><input type='checkbox' name='form_details'<?php  if ($_POST['form_details']) echo ' checked'; ?>>
+                           <label><input type='checkbox' name='form_details'<?php
+                            if ($_POST['form_details']) {
+                                    echo ' checked';
+                            } ?>>
                             <?php echo xlt('Important Codes'); ?></label>
                           </div>
                         </td>
@@ -204,6 +214,7 @@ $('.datepicker').datetimepicker({
 
 <?php
 }
+
    // end not export
 
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
@@ -222,23 +233,26 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     "INNER JOIN code_types AS ct ON ct.ct_key = b.code_type AND ct.ct_fee = '1' " .
     "WHERE b.code_type != 'COPAY' AND b.activity = 1 /* AND b.fee != 0 */ AND " .
     "fe.date >=  ? AND fe.date <= ?";
-    array_push($sqlBindArray,"$from_date 00:00:00","$to_date 23:59:59");
+    array_push($sqlBindArray, "$from_date 00:00:00", "$to_date 23:59:59");
     // If a facility was specified.
     if ($form_facility) {
         $query .= " AND fe.facility_id = ?";
-        array_push($sqlBindArray,$form_facility);
+        array_push($sqlBindArray, $form_facility);
     }
+
     // If a provider was specified.
     if ($form_provider) {
         $query .= " AND b.provider_id = ?";
-        array_push($sqlBindArray,$form_provider);
+        array_push($sqlBindArray, $form_provider);
     }
+
     // If selected important codes
-    if($_POST['form_details']) {
+    if ($_POST['form_details']) {
         $query .= " AND c.financial_reporting = '1'";
     }
+
     $query .= " GROUP BY b.code ORDER BY b.code, fe.date, fe.id ";
-    $res = sqlStatement($query,$sqlBindArray);
+    $res = sqlStatement($query, $sqlBindArray);
     $grand_total_units  = 0;
     $grand_total_amt_billed  = 0;
     $grand_total_amt_paid  = 0;
@@ -258,6 +272,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         $row['financial_reporting'] = $erow['financial_reporting'];
         $rows[$erow['pid'] . '|' . $erow['code'] . '|' . $erow['units']] = $row;
     }
+
     if ($_POST['form_csvexport']) {
       // CSV headers:
         if (true) {
@@ -293,14 +308,19 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 </thead>
 <?php
     }
+
             $orow = -1;
 
     foreach ($rows as $key => $row) {
         $print = '';
         $csv = '';
 
-        if($row['financial_reporting']){ $bgcolor = "#FFFFDD";
-        }else { $bgcolor = "#FFDDDD";  }
+        if ($row['financial_reporting']) {
+            $bgcolor = "#FFFFDD";
+        } else {
+            $bgcolor = "#FFDDDD";
+        }
+
         $print = "<tr bgcolor='$bgcolor'><td class='detail'>".text($row['Procedure codes'])."</td><td class='detail'>".text($row['Units'])."</td><td class='detail'>".text(oeFormatMoney($row['Amt Billed']))."</td><td class='detail'>".text(oeFormatMoney($row['Paid Amt']))."</td><td class='detail'>".text(oeFormatMoney($row['Adjustment Amt']))."</td><td class='detail'>".text(oeFormatMoney($row['Balance Amt']))."</td>";
 
         $csv = '"' . text($row['Procedure codes']) . '","' . text($row['Units']) . '","' . text(oeFormatMoney($row['Amt Billed'])) . '","' . text(oeFormatMoney($row['Paid Amt'])) . '","' . text(oeFormatMoney($row['Adjustment Amt'])) . '","' . text(oeFormatMoney($row['Balance Amt'])) . '"' . "\n";
@@ -312,10 +332,13 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
                                        $grand_total_amt_adjustment  += $row['Adjustment Amt'];
                                        $grand_total_amt_balance  += $row['Balance Amt'];
 
-        if ($_POST['form_csvexport']) { echo $csv; }
-        else { echo $print;
+        if ($_POST['form_csvexport']) {
+            echo $csv;
+        } else {
+            echo $print;
         }
     }
+
     if (!$_POST['form_csvexport']) {
         echo "<tr bgcolor='#ffffff'>\n";
         echo " <td class='detail'>" . xlt("Grand Total") . "</td>\n";
@@ -336,8 +359,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 }
 
 if (! $_POST['form_csvexport']) {
-    if ( $_POST['form_refresh'] && count($print) != 1)
-    {
+    if ($_POST['form_refresh'] && count($print) != 1) {
         echo "<span style='font-size:10pt;'>";
            echo xlt('No matches found. Try search again.');
            echo "</span>";
@@ -346,10 +368,10 @@ if (! $_POST['form_csvexport']) {
     }
 
     if (!$_POST['form_refresh'] && !$_POST['form_csvexport']) { ?>
-    <div class='text'>
-            <?php echo xlt('Please input search criteria above, and click Submit to view results.' ); ?>
-    </div>
-        <?php } ?>
+        <div class='text'>
+        <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
+        </div><?php
+    } ?>
 </form>
 </body>
 

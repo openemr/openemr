@@ -269,5 +269,3 @@ class PatientReporter extends Reporter
         return $sql;
     }
 }
-
-?>

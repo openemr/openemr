@@ -11,11 +11,12 @@
  *
  * @author aron
  */
-abstract class RuleCriteriaSimpleText extends RuleCriteria {
+abstract class RuleCriteriaSimpleText extends RuleCriteria
+{
     var $title;
     var $value;
 
-    function __construct( $title, $value )
+    function __construct($title, $value)
     {
         $this->title = $title;
         $this->value = $value;
@@ -42,6 +43,4 @@ abstract class RuleCriteriaSimpleText extends RuleCriteria {
         $value = _post("fld_value");
         $this->value = $value;
     }
-
 }
-?>

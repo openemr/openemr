@@ -40,10 +40,12 @@ function pnSessionSetup()
     if (empty($path)) {
         $path = '/';
     }
+
     $host = $HTTP_SERVER_VARS['HTTP_HOST'];
     if (empty($host)) {
         $host = getenv('HTTP_HOST');
     }
+
     $host = preg_replace('/:.*/', '', $host);
 
     // PHP configuration variables
@@ -83,6 +85,7 @@ function pnSessionSetup()
             $lifetime = 788940000;
             break;
     }
+
     ini_set('session.cookie_lifetime', $lifetime);
 
     if (pnConfigGetVar('intranet') == false) {
@@ -105,12 +108,14 @@ function pnSessionSetup()
     ini_set('session.auto_start', 1);
 
     // Session handlers
-    session_set_save_handler("pnSessionOpen",
-                             "pnSessionClose",
-                             "pnSessionRead",
-                             "pnSessionWrite",
-                             "pnSessionDestroy",
-                             "pnSessionGC");
+    session_set_save_handler(
+        "pnSessionOpen",
+        "pnSessionClose",
+        "pnSessionRead",
+        "pnSessionWrite",
+        "pnSessionDestroy",
+        "pnSessionGC"
+    );
     return true;
 }
 
@@ -197,8 +202,9 @@ function pnSessionInit()
     }
 */
     // Kick it
-    if (!session_id)
+    if (!session_id) {
         session_start();
+    }
 
     // Have to re-write the cache control header to remove no-save, this
     // allows downloading of files to disk for application handlers
@@ -214,18 +220,22 @@ function pnSessionInit()
     if (empty($ipaddr)) {
         $ipaddr = getenv('REMOTE_ADDR');
     }
+
     if (!empty($HTTP_SERVER_VARS['HTTP_CLIENT_IP'])) {
         $ipaddr = $HTTP_SERVER_VARS['HTTP_CLIENT_IP'];
     }
+
     $tmpipaddr = getenv('HTTP_CLIENT_IP');
     if (!empty($tmpipaddr)) {
         $ipaddr = $tmpipaddr;
     }
-    if  (!empty($HTTP_SERVER_VARS['HTTP_X_FORWARDED_FOR'])) {
+
+    if (!empty($HTTP_SERVER_VARS['HTTP_X_FORWARDED_FOR'])) {
         $ipaddr = preg_replace('/,.*/', '', $HTTP_SERVER_VARS['HTTP_X_FORWARDED_FOR']);
     }
+
     $tmpipaddr = getenv('HTTP_X_FORWARDED_FOR');
-    if  (!empty($tmpipaddr)) {
+    if (!empty($tmpipaddr)) {
         $ipaddr = preg_replace('/,.*/', '', $tmpipaddr);
     }
 
@@ -237,7 +247,7 @@ function pnSessionInit()
               WHERE $sessioninfocolumn[sessid] = '" . pnVarPrepForStore($sessid) . "'";
 
     $result = $dbconn->Execute($query);
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return false;
     }
 
@@ -377,6 +387,7 @@ function pnSessionRead($sessid)
     } else {
         $value = '';
     }
+
     $result->Close();
 
     return($value);
@@ -462,6 +473,7 @@ function pnSessionGC($maxlifetime)
             $where = "WHERE $sessioninfocolumn[lastused] < " . (time() - (pnConfigGetVar('secinactivemins') * 60));
             break;
     }
+
     $query = "DELETE FROM $sessioninfotable $where";
     $dbconn->Execute($query);
 
@@ -471,4 +483,3 @@ function pnSessionGC($maxlifetime)
 
     return true;
 }
-?>

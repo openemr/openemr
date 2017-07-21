@@ -28,7 +28,7 @@
 
 // ISA Segment  - EDI-270 format
 
-function create_ISA($row,$X12info,$segTer,$compEleSep)
+function create_ISA($row, $X12info, $segTer, $compEleSep)
 {
 
     $ISA     =  array();
@@ -37,7 +37,7 @@ function create_ISA($row,$X12info,$segTer,$compEleSep)
 
     $ISA[1] = "00";                                 // Author Info Qualifier
 
-    $ISA[2] = str_pad("0000000",10," ");        // Author Information
+    $ISA[2] = str_pad("0000000", 10, " ");        // Author Information
 
     $ISA[3] = "00";                                 //   Security Information Qualifier
                                                 //   MEDI-CAL NOTE: For Leased-Line & Dial-Up use '01',
@@ -45,29 +45,29 @@ function create_ISA($row,$X12info,$segTer,$compEleSep)
                                                 //   '00' No Security Information Present
                                                 //   (No Meaningful Information in I04)
 
-    $ISA[4] = str_pad("0000000000",10," ");         // Security Information
+    $ISA[4] = str_pad("0000000000", 10, " ");         // Security Information
 
-    $ISA[5] = str_pad("ZZ",2," ");              // Interchange ID Qualifier
+    $ISA[5] = str_pad("ZZ", 2, " ");              // Interchange ID Qualifier
 
-    $ISA[6] = str_pad($X12info[2],15," ");      // INTERCHANGE SENDER ID
+    $ISA[6] = str_pad($X12info[2], 15, " ");      // INTERCHANGE SENDER ID
 
-    $ISA[7] = str_pad("ZZ",2," ");              // Interchange ID Qualifier
+    $ISA[7] = str_pad("ZZ", 2, " ");              // Interchange ID Qualifier
 
-    $ISA[8] = str_pad($X12info[3],15," ");      // INTERCHANGE RECEIVER ID
+    $ISA[8] = str_pad($X12info[3], 15, " ");      // INTERCHANGE RECEIVER ID
 
-    $ISA[9] = str_pad(date('ymd'),6," ");       // Interchange Date (YYMMDD)
+    $ISA[9] = str_pad(date('ymd'), 6, " ");       // Interchange Date (YYMMDD)
 
-    $ISA[10] = str_pad(date('Hi'),4," ");       // Interchange Time (HHMM)
+    $ISA[10] = str_pad(date('Hi'), 4, " ");       // Interchange Time (HHMM)
 
     $ISA[11] = "^";                                 // Interchange Control Standards Identifier
 
-    $ISA[12] = str_pad("00501",5," ");          // Interchange Control Version Number
+    $ISA[12] = str_pad("00501", 5, " ");          // Interchange Control Version Number
 
-    $ISA[13] = str_pad("000000001",9," ");      // INTERCHANGE CONTROL NUMBER
+    $ISA[13] = str_pad("000000001", 9, " ");      // INTERCHANGE CONTROL NUMBER
 
-    $ISA[14] = str_pad("1",1," ");              // Acknowledgment Request [0= not requested, 1= requested]
+    $ISA[14] = str_pad("1", 1, " ");              // Acknowledgment Request [0= not requested, 1= requested]
 
-    $ISA[15] =  str_pad("P",1," ");                 // Usage Indicator [ P = Production Data, T = Test Data ]
+    $ISA[15] =  str_pad("P", 1, " ");                 // Usage Indicator [ P = Production Data, T = Test Data ]
 
     $ISA['Created'] = implode('*', $ISA);       // Data Element Separator
 
@@ -76,12 +76,11 @@ function create_ISA($row,$X12info,$segTer,$compEleSep)
     $ISA['Created'] = $ISA ['Created'] . $compEleSep . $segTer;
 
     return trim($ISA['Created']);
-
 }
 
 // GS Segment  - EDI-270 format
 
-function create_GS($row,$X12info,$segTer,$compEleSep)
+function create_GS($row, $X12info, $segTer, $compEleSep)
 {
 
     $GS    = array();
@@ -109,12 +108,11 @@ function create_GS($row,$X12info,$segTer,$compEleSep)
     $GS['Created'] = $GS ['Created'] . $segTer;  // change the information in the tag or change the tag
 
     return trim($GS['Created']);
-
 }
 
 // ST Segment  - EDI-270 format
 
-function create_ST($row,$X12info,$segTer,$compEleSep)
+function create_ST($row, $X12info, $segTer, $compEleSep)
 {
 
     $ST    =    array();
@@ -132,12 +130,11 @@ function create_ST($row,$X12info,$segTer,$compEleSep)
     $ST['Created'] = $ST ['Created'] . $segTer;
 
     return trim($ST['Created']);
-
 }
 
 // BHT Segment  - EDI-270 format
 
-function create_BHT($row,$X12info,$segTer,$compEleSep)
+function create_BHT($row, $X12info, $segTer, $compEleSep)
 {
 
     $BHT    =   array();
@@ -153,21 +150,20 @@ function create_BHT($row,$X12info,$segTer,$compEleSep)
                                             //when using Real Time transactions.
                                             //For BATCH this can be used for optional information.
 
-    $BHT[4] = str_pad(date('Ymd'),8," ");           // Date Transaction Set Created
+    $BHT[4] = str_pad(date('Ymd'), 8, " ");           // Date Transaction Set Created
 
-    $BHT[5] = str_pad(date('Hi'),4," ");            // Time Transaction Set Created no space after and 1300 is plenty
+    $BHT[5] = str_pad(date('Hi'), 4, " ");            // Time Transaction Set Created no space after and 1300 is plenty
 
     $BHT['Created'] = implode('*', $BHT);           // Data Element Separator
 
     $BHT['Created'] = $BHT ['Created'] . $segTer;
 
     return trim($BHT['Created']);
-
 }
 
 // HL Segment  - EDI-270 format
 
-function create_HL($row, $nHlCounter,$X12info,$segTer,$compEleSep)
+function create_HL($row, $nHlCounter, $X12info, $segTer, $compEleSep)
 {
 
     $HL         = array();
@@ -177,20 +173,15 @@ function create_HL($row, $nHlCounter,$X12info,$segTer,$compEleSep)
 
     $HL[1] = $nHlCounter;       // Hierarchical ID No.
 
-    if($nHlCounter == 1)
-    {
+    if ($nHlCounter == 1) {
         $HL[2] = "";
         $HL[3] = 20;            // Description: Identifies the payor, maintainer, or source of the information.
         $HL[4] = 1;                 // 1 Additional Subordinate HL Data Segment in This Hierarchical Structure.
-    }
-    else if($nHlCounter == 2)
-    {
+    } else if ($nHlCounter == 2) {
         $HL[2] = 1;                 // Hierarchical Parent ID Number
         $HL[3] = 21;            // Hierarchical Level Code. '21' Information Receiver
         $HL[4] = 1;                 // 1 Additional Subordinate HL Data Segment in This Hierarchical Structure.
-    }
-    else
-    {
+    } else {
         $HL[2] = 2;
         $HL[3] = 22;            // Hierarchical Level Code.'22' Subscriber
         $HL[4] = 0;                 // 0 no Additional Subordinate in the Hierarchical Structure.
@@ -201,20 +192,18 @@ function create_HL($row, $nHlCounter,$X12info,$segTer,$compEleSep)
     $HL['Created'] = $HL ['Created'] . $segTer;
 
     return trim($HL['Created']);
-
 }
 
 // NM1 Segment  - EDI-270 format
 
-function create_NM1($row,$nm1Cast,$X12info,$segTer,$compEleSep)
+function create_NM1($row, $nm1Cast, $X12info, $segTer, $compEleSep)
 {
 
     $NM1        = array();
 
     $NM1[0]         = "NM1";                    // Subscriber Name Segment ID
 
-    if($nm1Cast == 'PR')
-    {
+    if ($nm1Cast == 'PR') {
         $NM1[1] = "PR";                         // Entity ID Code - Payer [PR Payer]
         $NM1[2] = "2";                      // Entity Type - Non-Person
         $NM1[3] = $row["payer_name"];       // Organizational Name
@@ -224,9 +213,7 @@ function create_NM1($row,$nm1Cast,$X12info,$segTer,$compEleSep)
         $NM1[7] = "";                       // Data Element not required.
         $NM1[8] = "46";                         // 46 - Electronic Transmitter Identification Number (ETIN)
         $NM1[9] = $X12info[3];              // Application Sender's ID
-    }
-    else if($nm1Cast == 'FA')
-    {
+    } else if ($nm1Cast == 'FA') {
         $NM1[1] = "FA";                         // Entity ID Code - Facility [FA Facility]
         $NM1[2] = "2";                      // Entity Type - Non-Person
         $NM1[3] = $row['facility_name'];            // Organizational Name
@@ -236,9 +223,7 @@ function create_NM1($row,$nm1Cast,$X12info,$segTer,$compEleSep)
         $NM1[7] = "";                       // Data Element not required.
         $NM1[8] = "FI";
         $NM1[9] = $row['facility_npi'];
-    }
-    else if($nm1Cast == 'IL')
-    {
+    } else if ($nm1Cast == 'IL') {
         $NM1[1] = "IL";                         // Insured or Subscriber
         $NM1[2] = "1";                      // Entity Type - Person
         $NM1[3] = $row['lname'];                // last Name
@@ -255,39 +240,35 @@ function create_NM1($row,$nm1Cast,$X12info,$segTer,$compEleSep)
     $NM1['Created'] = $NM1['Created'] . $segTer;
 
     return trim($NM1['Created']);
-
 }
 
 // REF Segment  - EDI-270 format
 
-function create_REF($row,$ref,$X12info,$segTer,$compEleSep)
+function create_REF($row, $ref, $X12info, $segTer, $compEleSep)
 {
 
     $REF    =   array();
 
     $REF[0] = "REF";                        // Subscriber Additional Identification    does not want this for anything
 
-    if($ref == '1P')
-    {
+    if ($ref == '1P') {
         $REF[1] = "4A";                         // Reference Identification Qualifier
         $REF[2] = $row['provider_pin'];                 // Provider Pin.
-    }
-    else
-    {
+    } else {
         $REF[1] = "EJ";                         // 'EJ' for Patient Account Number     does not want this for patient
         $REF[2] = $row['pid'];                  // Patient Account No.
     }
+
     $REF['Created'] = implode('*', $REF);               // Data Element Separator
 
     $REF['Created'] = $REF['Created'] . $segTer;
 
     return trim($REF['Created']);
-
 }
 
 // TRN Segment - EDI-270 format
 
-function create_TRN($row,$tracno,$refiden,$X12info,$segTer,$compEleSep)
+function create_TRN($row, $tracno, $refiden, $X12info, $segTer, $compEleSep)
 {
 
     $TRN    =   array();
@@ -307,12 +288,11 @@ function create_TRN($row,$tracno,$refiden,$X12info,$segTer,$compEleSep)
     $TRN['Created'] = $TRN['Created'] . $segTer;
 
     return trim($TRN['Created']);
-
 }
 
 // DMG Segment - EDI-270 format
 
-function create_DMG($row,$X12info,$segTer,$compEleSep)
+function create_DMG($row, $X12info, $segTer, $compEleSep)
 {
 
     $DMG    =   array();
@@ -332,7 +312,7 @@ function create_DMG($row,$X12info,$segTer,$compEleSep)
 
 // DTP Segment - EDI-270 format
 
-function create_DTP($row,$qual,$X12info,$segTer,$compEleSep)
+function create_DTP($row, $qual, $X12info, $segTer, $compEleSep)
 {
 
     $DTP    =   array();
@@ -343,11 +323,12 @@ function create_DTP($row,$qual,$X12info,$segTer,$compEleSep)
 
     $DTP[2] = "D8";                             // Date Format Qualifier - (D8 means CCYYMMDD)
 
-    if($qual == '102'){
+    if ($qual == '102') {
         $DTP[3] = $row['date'];                 // Date
-    }else{
+    } else {
         $DTP[3] = $row['pc_eventDate'];         // Date of Service
     }
+
     $DTP['Created'] = implode('*', $DTP);   // Data Element Separator
 
     $DTP['Created'] = $DTP['Created'] .  $segTer;
@@ -357,7 +338,7 @@ function create_DTP($row,$qual,$X12info,$segTer,$compEleSep)
 
 // EQ Segment - EDI-270 format
 
-function create_EQ($row,$X12info,$segTer,$compEleSep)
+function create_EQ($row, $X12info, $segTer, $compEleSep)
 {
 
     $EQ         =   array();
@@ -375,7 +356,7 @@ function create_EQ($row,$X12info,$segTer,$compEleSep)
 
 // SE Segment - EDI-270 format
 
-function create_SE($row,$segmentcount,$X12info,$segTer,$compEleSep)
+function create_SE($row, $segmentcount, $X12info, $segTer, $compEleSep)
 {
 
     $SE     =   array();
@@ -395,7 +376,7 @@ function create_SE($row,$segmentcount,$X12info,$segTer,$compEleSep)
 
 // GE Segment - EDI-270 format
 
-function create_GE($row,$X12info,$segTer,$compEleSep)
+function create_GE($row, $X12info, $segTer, $compEleSep)
 {
 
     $GE     =   array();
@@ -415,7 +396,7 @@ function create_GE($row,$X12info,$segTer,$compEleSep)
 
 // IEA Segment - EDI-270 format
 
-function create_IEA($row,$X12info,$segTer,$compEleSep)
+function create_IEA($row, $X12info, $segTer, $compEleSep)
 {
 
     $IEA    =   array();
@@ -450,7 +431,7 @@ function translate_relationship($relationship)
 
 // EDI-270 Batch file Generation
 
-function print_elig($res,$X12info,$segTer,$compEleSep)
+function print_elig($res, $X12info, $segTer, $compEleSep)
 {
 
     $i=1;
@@ -464,32 +445,29 @@ function print_elig($res,$X12info,$segTer,$compEleSep)
     $trcNo      = 1234501;
     $refiden    = 5432101;
 
-    while ($row = sqlFetchArray($res))
-    {
-
-        if($nHlCounter == 1)
-        {
+    while ($row = sqlFetchArray($res)) {
+        if ($nHlCounter == 1) {
             // create ISA
-            $PATEDI    = create_ISA($row,$X12info,$segTer,$compEleSep);
+            $PATEDI    = create_ISA($row, $X12info, $segTer, $compEleSep);
 
             // create GS
-            $PATEDI   .= create_GS($row,$X12info,$segTer,$compEleSep);
+            $PATEDI   .= create_GS($row, $X12info, $segTer, $compEleSep);
 
             // create ST
-            $PATEDI   .= create_ST($row,$X12info,$segTer,$compEleSep);
+            $PATEDI   .= create_ST($row, $X12info, $segTer, $compEleSep);
 
             // create BHT
-            $PATEDI   .= create_BHT($row,$X12info,$segTer,$compEleSep);
+            $PATEDI   .= create_BHT($row, $X12info, $segTer, $compEleSep);
 
             // For Payer Segment
 
-            $PATEDI  .= create_HL($row,1,$X12info,$segTer,$compEleSep);
-            $PATEDI  .= create_NM1($row,'PR',$X12info,$segTer,$compEleSep);
+            $PATEDI  .= create_HL($row, 1, $X12info, $segTer, $compEleSep);
+            $PATEDI  .= create_NM1($row, 'PR', $X12info, $segTer, $compEleSep);
 
             // For Provider Segment
 
-            $PATEDI  .= create_HL($row,2,$X12info,$segTer,$compEleSep);
-            $PATEDI  .= create_NM1($row,'FA',$X12info,$segTer,$compEleSep);
+            $PATEDI  .= create_HL($row, 2, $X12info, $segTer, $compEleSep);
+            $PATEDI  .= create_NM1($row, 'FA', $X12info, $segTer, $compEleSep);
 
             $nHlCounter = $nHlCounter + 2;
             $segmentcount = 7; // segement counts - start from ST
@@ -497,12 +475,12 @@ function print_elig($res,$X12info,$segTer,$compEleSep)
 
         // For Subscriber Segment
 
-        $PATEDI  .= create_HL($row,$nHlCounter,$X12info,$segTer,$compEleSep);
-        $PATEDI  .= create_NM1($row,'IL',$X12info,$segTer,$compEleSep);
-        $PATEDI  .= create_DMG($row,$X12info,$segTer,$compEleSep);
+        $PATEDI  .= create_HL($row, $nHlCounter, $X12info, $segTer, $compEleSep);
+        $PATEDI  .= create_NM1($row, 'IL', $X12info, $segTer, $compEleSep);
+        $PATEDI  .= create_DMG($row, $X12info, $segTer, $compEleSep);
 
-        $PATEDI  .= create_DTP($row,'291',$X12info,$segTer,$compEleSep);
-        $PATEDI  .= create_EQ($row,$X12info,$segTer,$compEleSep);
+        $PATEDI  .= create_DTP($row, '291', $X12info, $segTer, $compEleSep);
+        $PATEDI  .= create_EQ($row, $X12info, $segTer, $compEleSep);
 
         $segmentcount   = $segmentcount + 7;
         $nHlCounter     = $nHlCounter + 1;
@@ -511,12 +489,11 @@ function print_elig($res,$X12info,$segTer,$compEleSep)
         $refiden    = $refiden + 1;
 
 
-        if($rowCount == sqlNumRows($res))
-        {
+        if ($rowCount == sqlNumRows($res)) {
             $segmentcount = $segmentcount + 1;
-            $PATEDI   .= create_SE($row,$segmentcount,$X12info,$segTer,$compEleSep);
-            $PATEDI   .= create_GE($row,$X12info,$segTer,$compEleSep);
-            $PATEDI   .= create_IEA($row,$X12info,$segTer,$compEleSep);
+            $PATEDI   .= create_SE($row, $segmentcount, $X12info, $segTer, $compEleSep);
+            $PATEDI   .= create_GE($row, $X12info, $segTer, $compEleSep);
+            $PATEDI   .= create_IEA($row, $X12info, $segTer, $compEleSep);
         }
     }
 
@@ -525,7 +502,7 @@ function print_elig($res,$X12info,$segTer,$compEleSep)
 
 // Report Generation
 
-function show_elig($res,$X12info,$segTer,$compEleSep)
+function show_elig($res, $X12info, $segTer, $compEleSep)
 {
 
     $i=0;
@@ -533,14 +510,14 @@ function show_elig($res,$X12info,$segTer,$compEleSep)
 			<table>
 				<thead>
 
-					<th style='width:12%;'>	". htmlspecialchars( xl('Facility Name'), ENT_NOQUOTES) ."</th>
-					<th style='width:9%;' >	". htmlspecialchars( xl('Facility NPI'), ENT_NOQUOTES) ."</th>
-					<th style='width:15%;'>	". htmlspecialchars( xl('Insurance Comp'), ENT_NOQUOTES) ."</th>
-					<th style='width:8%;' >	". htmlspecialchars( xl('Policy No'), ENT_NOQUOTES) ."</th>
-					<th style='width:16%;'>	". htmlspecialchars( xl('Patient Name'), ENT_NOQUOTES) ."</th>
-					<th style='width:7%;' >	". htmlspecialchars( xl('DOB'), ENT_NOQUOTES) ."</th>
-					<th style='width:6%;' >	". htmlspecialchars( xl('Gender'), ENT_NOQUOTES) ."</th>
-					<th style='width:9%;' >	". htmlspecialchars( xl('SSN'), ENT_NOQUOTES) ."</th>
+					<th style='width:12%;'>	". htmlspecialchars(xl('Facility Name'), ENT_NOQUOTES) ."</th>
+					<th style='width:9%;' >	". htmlspecialchars(xl('Facility NPI'), ENT_NOQUOTES) ."</th>
+					<th style='width:15%;'>	". htmlspecialchars(xl('Insurance Comp'), ENT_NOQUOTES) ."</th>
+					<th style='width:8%;' >	". htmlspecialchars(xl('Policy No'), ENT_NOQUOTES) ."</th>
+					<th style='width:16%;'>	". htmlspecialchars(xl('Patient Name'), ENT_NOQUOTES) ."</th>
+					<th style='width:7%;' >	". htmlspecialchars(xl('DOB'), ENT_NOQUOTES) ."</th>
+					<th style='width:6%;' >	". htmlspecialchars(xl('Gender'), ENT_NOQUOTES) ."</th>
+					<th style='width:9%;' >	". htmlspecialchars(xl('SSN'), ENT_NOQUOTES) ."</th>
 					<th style='width:2%;' >	&nbsp;			  </th>
 				</thead>
 
@@ -549,13 +526,11 @@ function show_elig($res,$X12info,$segTer,$compEleSep)
 		";
 
     while ($row = sqlFetchArray($res)) {
-
-
         $i= $i+1;
 
-        if($i%2 == 0){
+        if ($i%2 == 0) {
             $background = '#FFF';
-        }else{
+        } else {
             $background = '#FFF';
         }
 
@@ -580,17 +555,17 @@ function show_elig($res,$X12info,$segTer,$compEleSep)
         $elig[17] = "30";                       // Service Type
         $elig[18] = $row['pubpid'];                     // Patient Account Number pubpid
 
-        echo "	<tr id='PR".$i."_". htmlspecialchars( $row['policy_number'], ENT_QUOTES)."'>
-				<td class ='detail' style='width:12%;'>". htmlspecialchars( $row['facility_name'], ENT_NOQUOTES) ."</td>
-				<td class ='detail' style='width:9%;'>".  htmlspecialchars( $row['facility_npi'], ENT_NOQUOTES) ."</td>
-				<td class ='detail' style='width:15%;'>". htmlspecialchars( $row['payer_name'], ENT_NOQUOTES) ."</td>
-				<td class ='detail' style='width:8%;'>".  htmlspecialchars( $row['policy_number'], ENT_NOQUOTES) ."</td>
-				<td class ='detail' style='width:16%;'>". htmlspecialchars( $row['subscriber_lname']." ".$row['subscriber_fname'], ENT_NOQUOTES) ."</td>
-				<td class ='detail' style='width:7%;'>".  htmlspecialchars( $row['subscriber_dob'], ENT_NOQUOTES) ."</td>
-				<td class ='detail' style='width:6%;'>".  htmlspecialchars( $row['subscriber_sex'], ENT_NOQUOTES) ."</td>
-				<td class ='detail' style='width:9%;'>".  htmlspecialchars( $row['subscriber_ss'], ENT_NOQUOTES) ."</td>
+        echo "	<tr id='PR".$i."_". htmlspecialchars($row['policy_number'], ENT_QUOTES)."'>
+				<td class ='detail' style='width:12%;'>". htmlspecialchars($row['facility_name'], ENT_NOQUOTES) ."</td>
+				<td class ='detail' style='width:9%;'>".  htmlspecialchars($row['facility_npi'], ENT_NOQUOTES) ."</td>
+				<td class ='detail' style='width:15%;'>". htmlspecialchars($row['payer_name'], ENT_NOQUOTES) ."</td>
+				<td class ='detail' style='width:8%;'>".  htmlspecialchars($row['policy_number'], ENT_NOQUOTES) ."</td>
+				<td class ='detail' style='width:16%;'>". htmlspecialchars($row['subscriber_lname']." ".$row['subscriber_fname'], ENT_NOQUOTES) ."</td>
+				<td class ='detail' style='width:7%;'>".  htmlspecialchars($row['subscriber_dob'], ENT_NOQUOTES) ."</td>
+				<td class ='detail' style='width:6%;'>".  htmlspecialchars($row['subscriber_sex'], ENT_NOQUOTES) ."</td>
+				<td class ='detail' style='width:9%;'>".  htmlspecialchars($row['subscriber_ss'], ENT_NOQUOTES) ."</td>
 				<td class ='detail' style='width:2%;'>
-					<img src='../../images/deleteBtn.png' title=' .htmlspecialchars( xl('Delete Row'), ENT_QUOTES) . ' style='cursor:pointer;cursor:hand;' onclick='deletetherow(\"" . $i."_". htmlspecialchars( $row['policy_number'], ENT_QUOTES) . "\")'>
+					<img src='../../images/deleteBtn.png' title=' .htmlspecialchars( xl('Delete Row'), ENT_QUOTES) . ' style='cursor:pointer;cursor:hand;' onclick='deletetherow(\"" . $i."_". htmlspecialchars($row['policy_number'], ENT_QUOTES) . "\")'>
 				</td>
 			</tr>
 		";
@@ -599,14 +574,14 @@ function show_elig($res,$X12info,$segTer,$compEleSep)
         unset($elig);
     }
 
-    if($i==0){
-
+    if ($i==0) {
         echo "	<tr>
 				<td class='norecord' colspan=9>
-					<div style='padding:5px;font-family:arial;font-size:13px;text-align:center;'>". htmlspecialchars( xl('No records found'), ENT_NOQUOTES) . "</div>
+					<div style='padding:5px;font-family:arial;font-size:13px;text-align:center;'>". htmlspecialchars(xl('No records found'), ENT_NOQUOTES) . "</div>
 				</td>
 			</tr>	";
     }
+
         echo "	</tbody>
 			</table>";
 }
@@ -630,30 +605,30 @@ function show_eligibility_information($pid)
 			AND	 		eligv.eligibility_check_date = (SELECT max(eligibility_check_date)
 										FROM eligibility_verification
 										WHERE	insurance_id = eligv.insurance_id)";
-    $result         = sqlStatement($query, array($pid) );
+    $result         = sqlStatement($query, array($pid));
 
     $row = sqlFetchArray($result);
 
         $showString="";
     $showString .=  "<br><div class='text'>" .
             "<b>" .
-            htmlspecialchars( xl('Insurance Provider'), ENT_NOQUOTES) . ":</b> " .
-            (!empty($row['name']) ? htmlspecialchars( $row['name'], ENT_NOQUOTES) : htmlspecialchars( xl('n/a'), ENT_NOQUOTES)) .
+            htmlspecialchars(xl('Insurance Provider'), ENT_NOQUOTES) . ":</b> " .
+            (!empty($row['name']) ? htmlspecialchars($row['name'], ENT_NOQUOTES) : htmlspecialchars(xl('n/a'), ENT_NOQUOTES)) .
             "<br>\n" .
             "<b>" .
-            htmlspecialchars( xl('Status'), ENT_NOQUOTES) . ":</b> " .
-            (!empty($row['ResponseMessage']) ? htmlspecialchars( $row['ResponseMessage'], ENT_NOQUOTES) : htmlspecialchars( xl('n/a'), ENT_NOQUOTES)) .
+            htmlspecialchars(xl('Status'), ENT_NOQUOTES) . ":</b> " .
+            (!empty($row['ResponseMessage']) ? htmlspecialchars($row['ResponseMessage'], ENT_NOQUOTES) : htmlspecialchars(xl('n/a'), ENT_NOQUOTES)) .
             "<br>\n" .
             "<b>" .
-            htmlspecialchars( xl('Last Verified On'), ENT_NOQUOTES) . ":</b> " .
-            (!empty($row['VerificationDate']) ? htmlspecialchars( $row['VerificationDate'], ENT_NOQUOTES) : htmlspecialchars( xl('n/a'), ENT_NOQUOTES)) .
+            htmlspecialchars(xl('Last Verified On'), ENT_NOQUOTES) . ":</b> " .
+            (!empty($row['VerificationDate']) ? htmlspecialchars($row['VerificationDate'], ENT_NOQUOTES) : htmlspecialchars(xl('n/a'), ENT_NOQUOTES)) .
             "<br>" .
-            "<b>" . htmlspecialchars( xl('Copay'), ENT_NOQUOTES) . ":</b> " .
-            (!empty($row['copay']) ? htmlspecialchars( $row['copay'], ENT_NOQUOTES) : htmlspecialchars( xl('n/a'), ENT_NOQUOTES)) .
-            "<br><b>" . htmlspecialchars( xl('Deductible'), ENT_NOQUOTES) . ":</b> " .
-            (!empty($row['deductible']) ? htmlspecialchars( $row['deductible'], ENT_NOQUOTES) : htmlspecialchars( xl('n/a'), ENT_NOQUOTES)) .
-            "<br><b>" . htmlspecialchars( xl('Deductible Met'), ENT_NOQUOTES) . ":</b> " .
-            (!empty($row['deductiblemet']) ? ($row['deductiblemet'] == 'Y' ? htmlspecialchars( xl('Yes'), ENT_NOQUOTES) : htmlspecialchars( xl('No'), ENT_NOQUOTES)) : htmlspecialchars( xl('n/a'), ENT_NOQUOTES)) .
+            "<b>" . htmlspecialchars(xl('Copay'), ENT_NOQUOTES) . ":</b> " .
+            (!empty($row['copay']) ? htmlspecialchars($row['copay'], ENT_NOQUOTES) : htmlspecialchars(xl('n/a'), ENT_NOQUOTES)) .
+            "<br><b>" . htmlspecialchars(xl('Deductible'), ENT_NOQUOTES) . ":</b> " .
+            (!empty($row['deductible']) ? htmlspecialchars($row['deductible'], ENT_NOQUOTES) : htmlspecialchars(xl('n/a'), ENT_NOQUOTES)) .
+            "<br><b>" . htmlspecialchars(xl('Deductible Met'), ENT_NOQUOTES) . ":</b> " .
+            (!empty($row['deductiblemet']) ? ($row['deductiblemet'] == 'Y' ? htmlspecialchars(xl('Yes'), ENT_NOQUOTES) : htmlspecialchars(xl('No'), ENT_NOQUOTES)) : htmlspecialchars(xl('n/a'), ENT_NOQUOTES)) .
             "</div>";
 
     echo $showString;
@@ -664,7 +639,7 @@ function show_eligibility_information($pid)
 
 // Function to save the values in eligibility_response table
 
-function eligibility_response_save($segmentVal,$vendorID)
+function eligibility_response_save($segmentVal, $vendorID)
 {
 
     $resCount = 0;
@@ -674,33 +649,27 @@ function eligibility_response_save($segmentVal,$vendorID)
 				WHERE	 response_description = ? and
 					 response_vendor_id	  = ?";
 
-    $resCount = sqlStatement($query, array($segmentVal, $vendorID) );
+    $resCount = sqlStatement($query, array($segmentVal, $vendorID));
 
 
-    if(isset($resCount))
-    {
-
+    if (isset($resCount)) {
         $row        = sqlFetchArray($resCount);
 
         $resCount   = $row['RecordsCount'];
-
     }
 
-    if($resCount == 0)
-    {
-
+    if ($resCount == 0) {
         $query = "INSERT into eligibility_response SET	response_description =?,
 								response_vendor_id	 = ?,
 								response_create_date = now(),
 								response_modify_date = now()";
-        $res    = sqlStatement($query, array($segmentVal, $vendorID) );
+        $res    = sqlStatement($query, array($segmentVal, $vendorID));
     }
-
 }
 
 // Function to save the values in eligibility_verification table
 
-function eligibility_verification_save($segmentVal,$x12PartnerId,$patientId)
+function eligibility_verification_save($segmentVal, $x12PartnerId, $patientId)
 {
 
     $resCount = 0;
@@ -712,7 +681,7 @@ function eligibility_verification_save($segmentVal,$x12PartnerId,$patientId)
 				WHERE	 response_description = ? and
 						 response_vendor_id	  = ?";
 
-    $resId  = sqlStatement($query, array($segmentVal, $x12PartnerId) );
+    $resId  = sqlStatement($query, array($segmentVal, $x12PartnerId));
 
     // For fetching the insuarace data Id
 
@@ -721,42 +690,34 @@ function eligibility_verification_save($segmentVal,$x12PartnerId,$patientId)
 				WHERE	 type = 'primary' and
 						 pid = ?";
 
-    $insId  = sqlStatement($query, array($patientId) );
+    $insId  = sqlStatement($query, array($patientId));
 
-    if(isset($resId))
-    {
-
+    if (isset($resId)) {
         $row        = sqlFetchArray($resId);
 
         $responseId     = $row['response_id'];
-
     }
-    if(isset($insId))
-    {
 
+    if (isset($insId)) {
         $row        = sqlFetchArray($insId);
 
         $insuranceId    = $row['id'];
         $copay      = $row['copay'];
-
     }
 
-    if($resCount == 0)
-    {
-
-        if(isset($insuranceId) && !empty($insuranceId)){
-
+    if ($resCount == 0) {
+        if (isset($insuranceId) && !empty($insuranceId)) {
             //Set up the sql variable binding array (this prevents sql-injection attacks)
             $sqlBindArray = array();
             $query = "INSERT into eligibility_verification SET	response_id	= ? ,
 										insurance_id	= ?,";
             array_push($sqlBindArray, $responseId, $insuranceId);
 
-            if(!empty($copay))
-            {
+            if (!empty($copay)) {
                 $query .= "copay = ?,";
                 array_push($sqlBindArray, $copay);
             }
+
             $query .= "eligibility_check_date	= now(),
 				   create_date			= now()";
             $res    = sqlStatement($query, $sqlBindArray);
@@ -774,18 +735,18 @@ function eligibility_information($insuranceId)
 			FROM		eligibility_verification
 			WHERE	    insuranceid = ?";
 
-    $result         = sqlStatement($query, array($insuranceId) );
+    $result         = sqlStatement($query, array($insuranceId));
     $row        = sqlFetchArray($result);
     return $row;
-
 }
 // return array of X12 partners
 
 function getX12Partner()
 {
     $rez = sqlStatement("select * from x12_partners");
-    for($iter=0; $row=sqlFetchArray($rez); $iter++)
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
+    }
 
     return $returnval;
 }
@@ -795,8 +756,9 @@ function getUsernames()
 {
     $rez = sqlStatement("select distinct username, lname, fname,id from users " .
         "where authorized = 1 and username != ''");
-    for($iter=0; $row=sqlFetchArray($rez); $iter++)
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
+    }
 
     return $returnval;
 }
@@ -806,7 +768,6 @@ function getUsernames()
 function arrFormated(&$item, $key)
 {
     $item = strstr($item, '_');
-    $item = substr($item,1,strlen($item)-1);
+    $item = substr($item, 1, strlen($item)-1);
     $item = "'".$item;
 }
-?>

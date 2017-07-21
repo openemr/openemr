@@ -28,10 +28,10 @@ class NFQ_0038_2014_Denominator implements CqmFilterIF
         return "Denominator";
     }
     
-    public function test( CqmPatient $patient, $beginDate, $endDate )
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         $oneEncounter = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
-        if ( Helper::check( ClinicalType::ENCOUNTER, Encounter::ENC_OUT_PCP_OBGYN, $patient, $beginDate, $endDate, $oneEncounter ) ) {
+        if (Helper::check(ClinicalType::ENCOUNTER, Encounter::ENC_OUT_PCP_OBGYN, $patient, $beginDate, $endDate, $oneEncounter)) {
             return true;
         }
         

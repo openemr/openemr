@@ -25,7 +25,8 @@
  */
 
 
-class Therapy_Groups_Events{
+class Therapy_Groups_Events
+{
 
     const TABLE = 'openemr_postcalendar_events';
 
@@ -39,10 +40,7 @@ class Therapy_Groups_Events{
 
         $appts_to_show = $GLOBALS['number_of_group_appts_to_show'];
         $current_date = date('Y-m-d');
-        $events = fetchNextXAppts($current_date, null, $appts_to_show, $gid );
+        $events = fetchNextXAppts($current_date, null, $appts_to_show, $gid);
         return $events;
     }
-
-
-
 }

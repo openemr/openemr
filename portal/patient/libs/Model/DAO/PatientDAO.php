@@ -315,8 +315,4 @@ class PatientDAO extends Phreezable
 
     /** @var string */
     public $Industry;
-
-
-
 }
-?>

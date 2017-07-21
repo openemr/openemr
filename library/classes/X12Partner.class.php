@@ -5,7 +5,8 @@
  *
  */
 
-class X12Partner extends ORDataObject{
+class X12Partner extends ORDataObject
+{
 
     var $id;
     var $name;
@@ -36,7 +37,7 @@ class X12Partner extends ORDataObject{
         parent::__construct();
         $this->id = $id;
         $this->_table = "x12_partners";
-        $this->processing_format_array = $this->_load_enum("processing_format",false);
+        $this->processing_format_array = $this->_load_enum("processing_format", false);
         $this->processing_format = $this->processing_format_array[0];
         //most recent x12 version mandated by HIPAA and CMS
         // $this->x12_version = "004010X098A1";
@@ -55,10 +56,11 @@ class X12Partner extends ORDataObject{
         $x = new X12Partner();
         $sql = "SELECT id FROM "  . $x->_table . " order by name";
         $result = $x->_db->Execute($sql);
-        while($result && !$result->EOF) {
+        while ($result && !$result->EOF) {
             $partners[] = new X12Partner($result->fields['id']);
             $result->MoveNext();
         }
+
         return $partners;
     }
 
@@ -231,6 +233,7 @@ class X12Partner extends ORDataObject{
             $ta = $this->processing_format_array;
             return $ta[$this->processing_format];
         }
+
         return $this->processing_format;
     }
 
@@ -294,4 +297,3 @@ class X12Partner extends ORDataObject{
         );
     }
 }
-?>

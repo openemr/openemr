@@ -39,35 +39,41 @@ require_once("$webserver_root/custom/code_types.inc.php");
 function hl7Text($s)
 {
   // See http://www.interfaceware.com/hl7_escape_protocol.html:
-    $s = str_replace('\\', '\\E\\'  , $s);
-    $s = str_replace('^' , '\\S\\'  , $s);
-    $s = str_replace('|' , '\\F\\'  , $s);
-    $s = str_replace('~' , '\\R\\'  , $s);
-    $s = str_replace('&' , '\\T\\'  , $s);
+    $s = str_replace('\\', '\\E\\', $s);
+    $s = str_replace('^', '\\S\\', $s);
+    $s = str_replace('|', '\\F\\', $s);
+    $s = str_replace('~', '\\R\\', $s);
+    $s = str_replace('&', '\\T\\', $s);
     $s = str_replace("\r", '\\X0d\\', $s);
     return $s;
 }
 
 function hl7Zip($s)
 {
-    return hl7Text(preg_replace('/[-\s]*/','',$s));
+    return hl7Text(preg_replace('/[-\s]*/', '', $s));
 }
 
 function hl7Date($s)
 {
-    return preg_replace('/[^\d]/','',$s);
+    return preg_replace('/[^\d]/', '', $s);
 }
 
 function hl7Time($s)
 {
-    if (empty($s)) return '';
+    if (empty($s)) {
+        return '';
+    }
+
     return date('YmdHis', strtotime($s));
 }
 
 function hl7Sex($s)
 {
     $s = strtoupper(substr($s, 0, 1));
-    if ($s !== 'M' && $s !== 'F') $s = 'U';
+    if ($s !== 'M' && $s !== 'F') {
+        $s = 'U';
+    }
+
     return $s;
 }
 
@@ -76,9 +82,11 @@ function hl7Phone($s)
     if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/", $s, $tmp)) {
         return '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3];
     }
+
     if (preg_match("/(\d\d\d)\D*(\d\d\d\d)\D*$/", $s, $tmp)) {
         return $tmp[1] . '-' . $tmp[2];
     }
+
     return '';
 }
 
@@ -87,6 +95,7 @@ function hl7SSN($s)
     if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)\D*$/", $s, $tmp)) {
         return $tmp[1] . '-' . $tmp[2] . '-' . $tmp[3];
     }
+
     return '';
 }
 
@@ -98,10 +107,16 @@ function hl7Priority($s)
 function hl7Relation($s)
 {
     $tmp = strtolower($s);
-    if ($tmp == 'self' || $tmp == '') return 'self';
-    else if ($tmp == 'spouse') return 'spouse';
-    else if ($tmp == 'child' ) return 'child';
-    else if ($tmp == 'other' ) return 'other';
+    if ($tmp == 'self' || $tmp == '') {
+        return 'self';
+    } else if ($tmp == 'spouse') {
+        return 'spouse';
+    } else if ($tmp == 'child') {
+        return 'child';
+    } else if ($tmp == 'other') {
+        return 'other';
+    }
+
   // Should not get here so this will probably get noticed if we do.
     return $s;
 }
@@ -114,29 +129,43 @@ function hl7Relation($s)
  * @param  date    $encounter_date  YYYY-MM-DD date.
  * @return array   Array containing an array of data for each payer.
  */
-function loadPayerInfo($pid, $date='')
+function loadPayerInfo($pid, $date = '')
 {
-    if (empty($date)) $date = date('Y-m-d');
+    if (empty($date)) {
+        $date = date('Y-m-d');
+    }
+
     $payers = array();
-    $dres = sqlStatement("SELECT * FROM insurance_data WHERE " .
-    "pid = ? AND date <= ? ORDER BY type ASC, date DESC",
-    array($pid, $date));
+    $dres = sqlStatement(
+        "SELECT * FROM insurance_data WHERE " .
+        "pid = ? AND date <= ? ORDER BY type ASC, date DESC",
+        array($pid, $date)
+    );
     $prevtype = ''; // type is primary, secondary or tertiary
     while ($drow = sqlFetchArray($dres)) {
-        if (strcmp($prevtype, $drow['type']) == 0) continue;
+        if (strcmp($prevtype, $drow['type']) == 0) {
+            continue;
+        }
+
         $prevtype = $drow['type'];
         // Very important to check for a missing provider because
         // that indicates no insurance as of the given date.
-        if (empty($drow['provider'])) continue;
+        if (empty($drow['provider'])) {
+            continue;
+        }
+
         $ins = count($payers);
-        $crow = sqlQuery("SELECT * FROM insurance_companies WHERE id = ?",
-        array($drow['provider']));
+        $crow = sqlQuery(
+            "SELECT * FROM insurance_companies WHERE id = ?",
+            array($drow['provider'])
+        );
         $orow = new InsuranceCompany($drow['provider']);
         $payers[$ins] = array();
         $payers[$ins]['data']    = $drow;
         $payers[$ins]['company'] = $crow;
         $payers[$ins]['object']  = $orow;
     }
+
     return $payers;
 }
 
@@ -158,32 +187,38 @@ function gen_hl7_order($orderid, &$out)
     $today = time();
     $out = '';
 
-    $porow = sqlQuery("SELECT " .
-    "po.date_collected, po.date_ordered, po.order_priority, " .
-    "pp.*, " .
-    "pd.pid, pd.pubpid, pd.fname, pd.lname, pd.mname, pd.DOB, pd.ss, " .
-    "pd.phone_home, pd.phone_biz, pd.sex, pd.street, pd.city, pd.state, pd.postal_code, " .
-    "f.encounter, u.fname AS docfname, u.lname AS doclname, u.npi AS docnpi " .
-    "FROM procedure_order AS po, procedure_providers AS pp, " .
-    "forms AS f, patient_data AS pd, users AS u " .
-    "WHERE " .
-    "po.procedure_order_id = ? AND " .
-    "pp.ppid = po.lab_id AND " .
-    "f.formdir = 'procedure_order' AND " .
-    "f.form_id = po.procedure_order_id AND " .
-    "pd.pid = f.pid AND " .
-    "u.id = po.provider_id",
-    array($orderid));
-    if (empty($porow)) return "Procedure order, ordering provider or lab is missing for order ID '$orderid'";
+    $porow = sqlQuery(
+        "SELECT " .
+        "po.date_collected, po.date_ordered, po.order_priority, " .
+        "pp.*, " .
+        "pd.pid, pd.pubpid, pd.fname, pd.lname, pd.mname, pd.DOB, pd.ss, " .
+        "pd.phone_home, pd.phone_biz, pd.sex, pd.street, pd.city, pd.state, pd.postal_code, " .
+        "f.encounter, u.fname AS docfname, u.lname AS doclname, u.npi AS docnpi " .
+        "FROM procedure_order AS po, procedure_providers AS pp, " .
+        "forms AS f, patient_data AS pd, users AS u " .
+        "WHERE " .
+        "po.procedure_order_id = ? AND " .
+        "pp.ppid = po.lab_id AND " .
+        "f.formdir = 'procedure_order' AND " .
+        "f.form_id = po.procedure_order_id AND " .
+        "pd.pid = f.pid AND " .
+        "u.id = po.provider_id",
+        array($orderid)
+    );
+    if (empty($porow)) {
+        return "Procedure order, ordering provider or lab is missing for order ID '$orderid'";
+    }
 
-    $pcres = sqlStatement("SELECT " .
-    "pc.procedure_code, pc.procedure_name, pc.procedure_order_seq, pc.diagnoses " .
-    "FROM procedure_order_code AS pc " .
-    "WHERE " .
-    "pc.procedure_order_id = ? AND " .
-    "pc.do_not_send = 0 " .
-    "ORDER BY pc.procedure_order_seq",
-    array($orderid));
+    $pcres = sqlStatement(
+        "SELECT " .
+        "pc.procedure_code, pc.procedure_name, pc.procedure_order_seq, pc.diagnoses " .
+        "FROM procedure_order_code AS pc " .
+        "WHERE " .
+        "pc.procedure_order_id = ? AND " .
+        "pc.do_not_send = 0 " .
+        "ORDER BY pc.procedure_order_seq",
+        array($orderid)
+    );
 
   // Message Header
     $out .= "MSH" .
@@ -208,7 +243,10 @@ function gen_hl7_order($orderid, &$out)
     $d1 .                            // Alternate Patient ID (not required)
     $d1 . hl7Text($porow['lname']) .
       $d2 . hl7Text($porow['fname']);
-    if ($porow['mname']) $out .= $d2 . hl7Text($porow['mname']);
+    if ($porow['mname']) {
+        $out .= $d2 . hl7Text($porow['mname']);
+    }
+
     $out .=
     $d1 .
     $d1 . hl7Date($porow['DOB']) .   // DOB
@@ -291,7 +329,10 @@ function gen_hl7_order($orderid, &$out)
     $d1 .
     $d1 . hl7Text($porow['lname']) .
       $d2 . hl7Text($porow['fname']);
-    if ($porow['mname']) $out .= $d2 . hl7Text($porow['mname']);
+    if ($porow['mname']) {
+        $out .= $d2 . hl7Text($porow['mname']);
+    }
+
     $out .=
     $d1 .
     $d1 . hl7Text($porow['street']) .
@@ -350,9 +391,15 @@ function gen_hl7_order($orderid, &$out)
         if (!empty($pcrow['diagnoses'])) {
             $relcodes = explode(';', $pcrow['diagnoses']);
             foreach ($relcodes as $codestring) {
-                if ($codestring === '') continue;
+                if ($codestring === '') {
+                    continue;
+                }
+
                 list($codetype, $code) = explode(':', $codestring);
-                if ($codetype !== 'ICD9') continue;
+                if ($codetype !== 'ICD9') {
+                    continue;
+                }
+
                 $desc = lookup_code_descriptions($codestring);
                 $out .= "DG1" .
                 $d1 . ++$setid2 .                         // Set ID
@@ -364,18 +411,20 @@ function gen_hl7_order($orderid, &$out)
         }
 
         // Order entry questions and answers.
-        $qres = sqlStatement("SELECT " .
-        "a.question_code, a.answer, q.fldtype " .
-        "FROM procedure_answers AS a " .
-        "LEFT JOIN procedure_questions AS q ON " .
-        "q.lab_id = ? " .
-        "AND q.procedure_code = ? AND " .
-        "q.question_code = a.question_code " .
-        "WHERE " .
-        "a.procedure_order_id = ? AND " .
-        "a.procedure_order_seq = ? " .
-        "ORDER BY q.seq, a.answer_seq",
-        array($porow['ppid'], $pcrow['procedure_code'], $orderid, $pcrow['procedure_order_seq']));
+        $qres = sqlStatement(
+            "SELECT " .
+            "a.question_code, a.answer, q.fldtype " .
+            "FROM procedure_answers AS a " .
+            "LEFT JOIN procedure_questions AS q ON " .
+            "q.lab_id = ? " .
+            "AND q.procedure_code = ? AND " .
+            "q.question_code = a.question_code " .
+            "WHERE " .
+            "a.procedure_order_id = ? AND " .
+            "a.procedure_order_seq = ? " .
+            "ORDER BY q.seq, a.answer_seq",
+            array($porow['ppid'], $pcrow['procedure_code'], $orderid, $pcrow['procedure_order_seq'])
+        );
         $setid2 = 0;
         while ($qrow = sqlFetchArray($qres)) {
               // Formatting of these answer values may be lab-specific and we'll figure
@@ -392,6 +441,7 @@ function gen_hl7_order($orderid, &$out)
                   $days = $answer % 7;
                   $answer = $weeks . 'wks ' . $days . 'days';
             }
+
               $out .= "OBX" .
                 $d1 . ++$setid2 .                           // Set ID
                 $d1 . $datatype .                           // Structure of observation value
@@ -420,7 +470,9 @@ function send_hl7_order($ppid, $out)
 
     $pprow = sqlQuery("SELECT * FROM procedure_providers " .
     "WHERE ppid = ?", array($ppid));
-    if (empty($pprow)) return xl('Procedure provider') . " $ppid " . xl('not found');
+    if (empty($pprow)) {
+        return xl('Procedure provider') . " $ppid " . xl('not found');
+    }
 
     $protocol = $pprow['protocol'];
     $remote_host = $pprow['remote_host'];
@@ -428,7 +480,9 @@ function send_hl7_order($ppid, $out)
   // Extract MSH-10 which is the message control ID.
     $segmsh = explode(substr($out, 3, 1), substr($out, 0, strpos($out, $d0)));
     $msgid = $segmsh[9];
-    if (empty($msgid)) return xl('Internal error: Cannot find MSH-10');
+    if (empty($msgid)) {
+        return xl('Internal error: Cannot find MSH-10');
+    }
 
     if ($protocol == 'DL' || $pprow['orders_path'] === '') {
         header("Pragma: public");
@@ -439,46 +493,49 @@ function send_hl7_order($ppid, $out)
         header("Content-Description: File Transfer");
         echo $out;
         exit;
-    }
-
-    else if ($protocol == 'SFTP') {
+    } else if ($protocol == 'SFTP') {
         // Compute the target path/file name.
         $filename = $msgid . '.txt';
-        if ($pprow['orders_path']) $filename = $pprow['orders_path'] . '/' . $filename;
+        if ($pprow['orders_path']) {
+            $filename = $pprow['orders_path'] . '/' . $filename;
+        }
 
         // Connect to the server and write the file.
         $sftp = new \phpseclib\Net\SFTP($remote_host);
         if (!$sftp->login($pprow['login'], $pprow['password'])) {
             return xl('Login to this remote host failed') . ": '$remote_host'";
         }
+
         if (!$sftp->put($filename, $out)) {
             return xl('Creating this file on remote host failed') . ": '$filename'";
         }
-    }
-
-    else if ($protocol == 'FS') {
+    } else if ($protocol == 'FS') {
         // Compute the target path/file name.
         $filename = $msgid . '.txt';
-        if ($pprow['orders_path']) $filename = $pprow['orders_path'] . '/' . $filename;
+        if ($pprow['orders_path']) {
+            $filename = $pprow['orders_path'] . '/' . $filename;
+        }
+
         $fh = fopen("$filename", 'w');
         if ($fh) {
             fwrite($fh, $out);
             fclose($fh);
-        }
-        else {
+        } else {
             return xl('Cannot create file') . ' "' . "$filename" . '"';
         }
-    }
-
-  // TBD: Insert "else if ($protocol == '???') {...}" to support other protocols.
+    } // TBD: Insert "else if ($protocol == '???') {...}" to support other protocols.
 
     else {
         return xl('This protocol is not implemented') . ": '$protocol'";
     }
 
   // Falling through to here indicates success.
-    newEvent("proc_order_xmit", $_SESSION['authUser'], $_SESSION['authProvider'], 1,
-    "ID: $msgid Protocol: $protocol Host: $remote_host");
+    newEvent(
+        "proc_order_xmit",
+        $_SESSION['authUser'],
+        $_SESSION['authProvider'],
+        1,
+        "ID: $msgid Protocol: $protocol Host: $remote_host"
+    );
     return '';
 }
-?>

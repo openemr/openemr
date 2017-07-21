@@ -12,7 +12,8 @@ The original location of this file is /home/duhlman/uml-generated-code/prescript
  * class Provider
  *
  */
-class Provider extends ORDataObject{
+class Provider extends ORDataObject
+{
 
         var $id;
         var $lname;
@@ -60,9 +61,10 @@ class Provider extends ORDataObject{
     {
         $provider_array = array();
         $res = sqlQ("Select id,fname,lname  from users where authorized = 1");
-        while ($row = sqlFetchArray($res) ) {
+        while ($row = sqlFetchArray($res)) {
                     $provider_array[$row['id']] = $row['fname'] . " " . $row['lname'];
         }
+
         return $provider_array;
     }
 
@@ -72,7 +74,7 @@ class Provider extends ORDataObject{
         $sql = "SELECT id FROM "  . $this->_table . " where authorized = 1 " . $sort;
         $results = sqlQ($sql);
 
-        while($row = sqlFetchArray($results) ) {
+        while ($row = sqlFetchArray($results)) {
                     $psa[] = new Provider($row['id']);
         }
 
@@ -134,6 +136,4 @@ class Provider extends ORDataObject{
     {
         return $this->state_license_number;
     }
-
 } // end of Provider
-?>

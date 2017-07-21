@@ -115,5 +115,3 @@ class OnsitePortalActivityReporter extends Reporter
         return $sql;
     }
 }
-
-?>

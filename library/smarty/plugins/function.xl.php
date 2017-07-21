@@ -33,8 +33,7 @@ function smarty_function_xl($params, &$smarty)
             $translate = $params['t'];
     }
 
-    xl($translate,'e');
+    xl($translate, 'e');
 }
 
 /* vim: set expandtab: */
-?>

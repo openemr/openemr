@@ -206,7 +206,7 @@ function ConvertToUpperCase(ObjectPassed)
      }
     else
      {
-        alert("<?php echo htmlspecialchars( xl('Please Select a Patient.'), ENT_QUOTES) ?>")
+        alert("<?php echo htmlspecialchars(xl('Please Select a Patient.'), ENT_QUOTES) ?>")
      }
  }
 function CheckUnappliedAmount()
@@ -229,7 +229,7 @@ function ValidateNumeric(TheObject)
  {//Numeric validations, used while typing numbers.
   if(TheObject.value!=TheObject.value*1)
    {
-    alert("<?php echo htmlspecialchars( xl('Value Should be Numeric'), ENT_QUOTES) ?>");
+    alert("<?php echo htmlspecialchars(xl('Value Should be Numeric'), ENT_QUOTES) ?>");
     TheObject.focus();
     return false;
    }
@@ -238,7 +238,7 @@ function SavePayment()
  {//Used before saving.
     if(FormValidations())//FormValidations contains the form checks
      {
-        if(confirm("<?php echo htmlspecialchars( xl('Would you like to save?'), ENT_QUOTES) ?>"))
+        if(confirm("<?php echo htmlspecialchars(xl('Would you like to save?'), ENT_QUOTES) ?>"))
          {
             top.restoreSession();
             document.getElementById('mode').value='new_payment';
@@ -254,7 +254,7 @@ function OpenEOBEntry()
  {//Used before allocating the recieved amount.
     if(FormValidations())//FormValidations contains the form checks
      {
-        if(confirm("<?php echo htmlspecialchars( xl('Would you like to Allocate?'), ENT_QUOTES) ?>"))
+        if(confirm("<?php echo htmlspecialchars(xl('Would you like to Allocate?'), ENT_QUOTES) ?>"))
          {
             top.restoreSession();
             document.getElementById('mode').value='distribute';
@@ -308,14 +308,11 @@ function FillAmount()
  {//Called when there is change in the amount by typing.
  //Readjusts the various values.
     <?php
-    if($screen=='new_payment')
-     {
+    if ($screen=='new_payment') {
         ?>
     UnpostedAmt=document.getElementById('HidUnpostedAmount').value*1;
         <?php
-    }
-    else
-     {
+    } else {
         ?>
     UnpostedAmt=document.getElementById('payment_amount').value*1;
         <?php
@@ -374,12 +371,12 @@ function CheckPayingEntityAndDistributionPostFor()
         InsPatDropDownValue=document.getElementById('payment_ins'+RowCount).options[document.getElementById('payment_ins'+RowCount).selectedIndex].value;
         if(PayingEntity=='patient' && InsPatDropDownValue>0)
          {
-          alert("<?php echo htmlspecialchars( xl('Cannot Post for Insurance.The Paying Entity selected is Patient.'), ENT_QUOTES) ?>");
+          alert("<?php echo htmlspecialchars(xl('Cannot Post for Insurance.The Paying Entity selected is Patient.'), ENT_QUOTES) ?>");
           return false;
          }
         else if(PayingEntity=='insurance' && InsPatDropDownValue==0)
          {
-          alert("<?php echo htmlspecialchars( xl('Cannot Post for Patient.The Paying Entity selected is Insurance.'), ENT_QUOTES) ?>");
+          alert("<?php echo htmlspecialchars(xl('Cannot Post for Patient.The Paying Entity selected is Insurance.'), ENT_QUOTES) ?>");
           return false;
          }
        }
@@ -390,32 +387,32 @@ function FormValidations()
  {//Screen validations are done here.
   if(document.getElementById('check_date').value=='')
    {
-    alert("<?php echo htmlspecialchars( xl('Please Fill the Date'), ENT_QUOTES) ?>");
+    alert("<?php echo htmlspecialchars(xl('Please Fill the Date'), ENT_QUOTES) ?>");
     document.getElementById('check_date').focus();
     return false;
    }
   else if(!ValidateDateGreaterThanNow(document.getElementById('check_date').value,'<?php echo DateFormatRead();?>'))
    {
-    alert("<?php echo htmlspecialchars( xl('Date Cannot be greater than Today'), ENT_QUOTES) ?>");
+    alert("<?php echo htmlspecialchars(xl('Date Cannot be greater than Today'), ENT_QUOTES) ?>");
     document.getElementById('check_date').focus();
     return false;
    }
   if(document.getElementById('post_to_date').value=='')
    {
-    alert("<?php echo htmlspecialchars( xl('Please Fill the Post To Date'), ENT_QUOTES) ?>");
+    alert("<?php echo htmlspecialchars(xl('Please Fill the Post To Date'), ENT_QUOTES) ?>");
     document.getElementById('post_to_date').focus();
     return false;
    }
   else if(!ValidateDateGreaterThanNow(document.getElementById('post_to_date').value,'<?php echo DateFormatRead();?>'))
    {
-    alert("<?php echo htmlspecialchars( xl('Post To Date Cannot be greater than Today'), ENT_QUOTES) ?>");
+    alert("<?php echo htmlspecialchars(xl('Post To Date Cannot be greater than Today'), ENT_QUOTES) ?>");
     document.getElementById('post_to_date').focus();
     return false;
    }
-  else if(DateCheckGreater(document.getElementById('post_to_date').value,'<?php echo $GLOBALS['post_to_date_benchmark']=='' ? date('Y-m-d',time() - (10 * 24 * 60 * 60)) : htmlspecialchars(oeFormatShortDate($GLOBALS['post_to_date_benchmark']));?>',
+  else if(DateCheckGreater(document.getElementById('post_to_date').value,'<?php echo $GLOBALS['post_to_date_benchmark']=='' ? date('Y-m-d', time() - (10 * 24 * 60 * 60)) : htmlspecialchars(oeFormatShortDate($GLOBALS['post_to_date_benchmark']));?>',
   '<?php echo DateFormatRead();?>'))
    {
-    alert("<?php echo htmlspecialchars( xl('Post To Date Must be greater than the Financial Close Date.'), ENT_QUOTES) ?>");
+    alert("<?php echo htmlspecialchars(xl('Post To Date Must be greater than the Financial Close Date.'), ENT_QUOTES) ?>");
     document.getElementById('post_to_date').focus();
     return false;
    }
@@ -423,18 +420,17 @@ function FormValidations()
       document.getElementById('payment_method').options[document.getElementById('payment_method').selectedIndex].value=='bank_draft') &&
        document.getElementById('check_number').value=='' ))
    {
-    alert("<?php echo htmlspecialchars( xl('Please Fill the Check Number'), ENT_QUOTES) ?>");
+    alert("<?php echo htmlspecialchars(xl('Please Fill the Check Number'), ENT_QUOTES) ?>");
     document.getElementById('check_number').focus();
     return false;
    }
     <?php
-    if($screen=='edit_payment')
-     {
+    if ($screen=='edit_payment') {
         ?>
        if(document.getElementById('check_number').value!='' &&
        document.getElementById('payment_method').options[document.getElementById('payment_method').selectedIndex].value=='')
         {
-        alert("<?php echo htmlspecialchars( xl('Please Select the Payment Method'), ENT_QUOTES) ?>");
+        alert("<?php echo htmlspecialchars(xl('Please Select the Payment Method'), ENT_QUOTES) ?>");
         document.getElementById('payment_method').focus();
         return false;
         }
@@ -443,23 +439,22 @@ function FormValidations()
     ?>
    if(document.getElementById('payment_amount').value=='')
    {
-    alert("<?php echo htmlspecialchars( xl('Please Fill the Payment Amount'), ENT_QUOTES) ?>");
+    alert("<?php echo htmlspecialchars(xl('Please Fill the Payment Amount'), ENT_QUOTES) ?>");
     document.getElementById('payment_amount').focus();
     return false;
    }
    if(document.getElementById('payment_amount').value!=document.getElementById('payment_amount').value*1)
    {
-    alert("<?php echo htmlspecialchars( xl('Payment Amount must be Numeric'), ENT_QUOTES) ?>");
+    alert("<?php echo htmlspecialchars(xl('Payment Amount must be Numeric'), ENT_QUOTES) ?>");
     document.getElementById('payment_amount').focus();
     return false;
    }
     <?php
-    if($screen=='edit_payment')
-     {
+    if ($screen=='edit_payment') {
         ?>
       if(document.getElementById('adjustment_code').options[document.getElementById('adjustment_code').selectedIndex].value=='')
        {
-        alert("<?php echo htmlspecialchars( xl('Please Fill the Payment Category'), ENT_QUOTES) ?>");
+        alert("<?php echo htmlspecialchars(xl('Please Fill the Payment Category'), ENT_QUOTES) ?>");
         document.getElementById('adjustment_code').focus();
         return false;
        }
@@ -468,13 +463,13 @@ function FormValidations()
     ?>
   if(document.getElementById('type_code').value=='')
    {
-    alert("<?php echo htmlspecialchars( xl('Please Fill the Payment From'), ENT_QUOTES) ?>");
+    alert("<?php echo htmlspecialchars(xl('Please Fill the Payment From'), ENT_QUOTES) ?>");
     document.getElementById('type_code').focus();
     return false;
    }
   if(document.getElementById('hidden_type_code').value!=document.getElementById('div_insurance_or_patient').innerHTML)
    {
-    alert("<?php echo htmlspecialchars( xl('Take Payment From, from Drop Down'), ENT_QUOTES) ?>");
+    alert("<?php echo htmlspecialchars(xl('Take Payment From, from Drop Down'), ENT_QUOTES) ?>");
     document.getElementById('type_code').focus();
     return false;
    }
@@ -483,7 +478,7 @@ function FormValidations()
    }
   else if(!ValidateDateGreaterThanNow(document.getElementById('deposit_date').value,'<?php echo DateFormatRead();?>'))
    {
-    alert("<?php echo htmlspecialchars( xl('Deposit Date Cannot be greater than Today'), ENT_QUOTES) ?>");
+    alert("<?php echo htmlspecialchars(xl('Deposit Date Cannot be greater than Today'), ENT_QUOTES) ?>");
     document.getElementById('deposit_date').focus();
     return false;
    }

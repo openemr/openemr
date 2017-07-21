@@ -17,7 +17,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-interface ISqlFunction {
+interface ISqlFunction
+{
     /**
      * Return the quoted SQL that will be used for the insert/update/select
      *
@@ -27,5 +28,3 @@ interface ISqlFunction {
      */
     public function GetQuotedSql($phreezer);
 }
-
-?>

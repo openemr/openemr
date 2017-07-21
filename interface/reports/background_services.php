@@ -22,6 +22,7 @@
 
 
 use OpenEMR\Core\Header;
+
 require_once("../globals.php");
 ?>
 
@@ -125,11 +126,11 @@ require_once("../globals.php");
  <tbody>  <!-- added for better print-ability -->
 <?php
 
- $res = sqlStatement("SELECT *, (`next_run` - INTERVAL `execute_interval` MINUTE) as `last_run_start`" .
-    " FROM `background_services` ORDER BY `sort_order`");
- while ($row = sqlFetchArray($res)) {
+$res = sqlStatement("SELECT *, (`next_run` - INTERVAL `execute_interval` MINUTE) as `last_run_start`" .
+  " FROM `background_services` ORDER BY `sort_order`");
+while ($row = sqlFetchArray($res)) {
 ?>
- <tr>
+  <tr>
       <td align='center'><?php echo xlt($row['title']); ?></td>
 
       <td align='center'><?php echo ($row['active']) ? xlt("Yes") : xlt("No"); ?></td>
@@ -148,27 +149,27 @@ require_once("../globals.php");
 
           <td align='center'><?php echo ($row['running']>0) ? xlt("Yes") : xlt("No"); ?></td>
 
-        <?php if ( $row['running'] > -1) { ?>
+        <?php if ($row['running'] > -1) { ?>
           <td align='center'><?php echo text($row['last_run_start']); ?></td>
         <?php } else { ?>
           <td align='center'><?php echo xlt('Never'); ?></td>
         <?php } ?>
 
-        <?php if ( $row['active'] && ($row['execute_interval'] > 0) ) { ?>
+        <?php if ($row['active'] && ($row['execute_interval'] > 0)) { ?>
           <td align='center'><?php echo text($row['next_run']); ?></td>
         <?php } else { ?>
           <td align='center'><?php echo xlt('Not Applicable'); ?></td>
         <?php } ?>
 
         <?php if ($row['name'] == "phimail") { ?>
-         <td align='center'><a href='direct_message_log.php' onclick='top.restoreSession()'><?php echo xlt("View Log"); ?></a></td>
+          <td align='center'><a href='direct_message_log.php' onclick='top.restoreSession()'><?php echo xlt("View Log"); ?></a></td>
         <?php } else { ?>
-         <td align='center'>&nbsp;</td>
+          <td align='center'>&nbsp;</td>
         <?php } ?>
 
- </tr>
+  </tr>
 <?php
-    } // $row = sqlFetchArray($res) while
+} // $row = sqlFetchArray($res) while
 ?>
 </tbody>
 </table>

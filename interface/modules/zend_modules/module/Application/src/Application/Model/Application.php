@@ -31,7 +31,6 @@ class Application implements InputFilterAwareInterface
 
     public function exchangeArray($data)
     {
-    
     }
     
     public function getArrayCopy()
@@ -52,6 +51,7 @@ class Application implements InputFilterAwareInterface
 
             $this->inputFilter = $inputFilter;
         }
+
         return $this->inputFilter;
     }
 }

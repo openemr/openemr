@@ -23,9 +23,9 @@
  */
 
     //require_once ("./../verify_session.php");
-    require_once ( "../../library/options.inc.php" );
+    require_once("../../library/options.inc.php");
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Patient Data"));
-    $this->assign('nav','patientdata');
+    $this->assign('nav', 'patientdata');
     /*
      *  row keys are js underscore camelcase and follow the underscores varables used in this template
      *  $row['city'] or $row['postalCode'] e.t.c.. The keys do not match table columns ie postalCode here is postal_code in table.
@@ -79,7 +79,7 @@
                 <div class="controls inline-inputs">
                     <?php
                   # Generate drop down list for Title
-                    echo generate_select_list('title', 'titles',$row['title'], xl('Title'),'Unassigned',"form-control");
+                    echo generate_select_list('title', 'titles', $row['title'], xl('Title'), 'Unassigned', "form-control");
                     ?>
                  <span class="help-inline"></span>
                 </div>
@@ -128,7 +128,7 @@
                     <div class="controls inline-inputs">
                         <?php
                       # Generate drop down list for Sex
-                        echo generate_select_list('sex', 'sex',$row['sex'], xl('Sex'),'Unassigned',"form-control");
+                        echo generate_select_list('sex', 'sex', $row['sex'], xl('Sex'), 'Unassigned', "form-control");
                         ?>
                      <span class="help-inline"></span>
                     </div>
@@ -152,7 +152,7 @@
                 <div class="controls inline-inputs">
                     <?php
                   # Generate drop down list for State
-                    echo generate_select_list('state', 'state',$row['state'], xl('State'),'Unassigned',"form-control");
+                    echo generate_select_list('state', 'state', $row['state'], xl('State'), 'Unassigned', "form-control");
                     ?>
                  <span class="help-inline"></span>
                 </div>
@@ -219,7 +219,7 @@
                 <div class="controls inline-inputs">
                     <?php
                   # Generate drop down list for Marital Status
-                    echo generate_select_list('status', 'marital',$row['marital'], xl('Marital Status'),'Unassigned',"form-control");
+                    echo generate_select_list('status', 'marital', $row['marital'], xl('Marital Status'), 'Unassigned', "form-control");
                     ?>
                  <span class="help-inline"></span>
                 </div>
@@ -281,7 +281,7 @@
                 <div class="controls inline-inputs">
                     <?php
                   # Generate drop down list for Race
-                    echo generate_select_list('race', 'race',$row[ 'race'], xl('Race'),'Unassigned',"form-control");
+                    echo generate_select_list('race', 'race', $row[ 'race'], xl('Race'), 'Unassigned', "form-control");
                     ?>
                 <span class="help-inline"></span>
                 </div>
@@ -292,7 +292,7 @@
                     <div class="controls inline-inputs">
                         <?php
                       # Generate drop down list for Ethnicity
-                        echo generate_select_list('ethnicity', 'ethnicity',$row['ethnicity'], xl('Ethnicity'),'Unassigned',"form-control");
+                        echo generate_select_list('ethnicity', 'ethnicity', $row['ethnicity'], xl('Ethnicity'), 'Unassigned', "form-control");
                         ?>
                     <span class="help-inline"></span>
                     </div>
@@ -302,7 +302,7 @@
                 <div class="controls inline-inputs">
                     <?php
                   # Generate drop down list for Religion
-                    echo generate_select_list('religion', 'religious_affiliation',$row['religion'], xl('Religion'),'Unassigned',"form-control");
+                    echo generate_select_list('religion', 'religious_affiliation', $row['religion'], xl('Religion'), 'Unassigned', "form-control");
                     ?>
                  <span class="help-inline"></span>
                 </div>
@@ -372,7 +372,7 @@
                     <div class="controls inline-inputs">
                         <?php
                       # Generate drop down list for Referral Source
-                        echo generate_select_list('referralSource', 'refsource',$row['referralSource'], xl('Referral Source'),'Unassigned',"form-control");
+                        echo generate_select_list('referralSource', 'refsource', $row['referralSource'], xl('Referral Source'), 'Unassigned', "form-control");
                         ?>
                         <span class="help-inline"></span>
                     </div>
@@ -457,7 +457,7 @@
                     <div class="controls inline-inputs">
                     <?php
                       # Generate drop down list for Ethnoracial
-                      echo generate_select_list('ethnoracial', 'ethrace',$row['ethnoracial'], xl('Ethnoracial'),'Unassigned',"form-control");
+                      echo generate_select_list('ethnoracial', 'ethrace', $row['ethnoracial'], xl('Ethnoracial'), 'Unassigned', "form-control");
                         ?>
                         <span class="help-inline"></span>
                     </div>

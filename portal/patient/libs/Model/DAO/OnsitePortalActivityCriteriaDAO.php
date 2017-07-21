@@ -253,7 +253,4 @@ class OnsitePortalActivityCriteriaDAO extends Criteria
     public $Checksum_IsEmpty;
     public $Checksum_BitwiseOr;
     public $Checksum_BitwiseAnd;
-
 }
-
-?>

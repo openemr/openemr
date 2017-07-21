@@ -13,7 +13,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-class ValidationResponse {
+class ValidationResponse
+{
     public function __construct($success = false, $message = "", $primaryKey = "", $errors = null)
     {
         $this->Success = $success;
@@ -27,5 +28,3 @@ class ValidationResponse {
     public $Message = "";
     public $Data;
 }
-
-?>

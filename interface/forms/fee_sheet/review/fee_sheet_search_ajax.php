@@ -25,40 +25,32 @@ require_once("../../../globals.php");
 require_once("fee_sheet_classes.php");
 require_once("fee_sheet_search_queries.php");
 
-if(!acl_check('acct', 'bill'))
-{
+if (!acl_check('acct', 'bill')) {
     header("HTTP/1.0 403 Forbidden");
     echo "Not authorized for billing";
     return false;
 }
 
-if(isset($_REQUEST['search_query']))
-{
+if (isset($_REQUEST['search_query'])) {
     $search_query=$_REQUEST['search_query'];
-}
-else
-{
+} else {
     header("HTTP/1.0 403 Forbidden");
     echo "No search parameter specified";
     return false;
 }
-if(isset($_REQUEST['search_type']))
-{
+
+if (isset($_REQUEST['search_type'])) {
     $search_type=$_REQUEST['search_type'];
-}
-else
-{
+} else {
     $search_type='ICD9';
 }
-if(isset($_REQUEST['search_type_id']))
-{
+
+if (isset($_REQUEST['search_type_id'])) {
     $search_type_id=$_REQUEST['search_type_id'];
-}
-else
-{
+} else {
     $search_type_id=2;
 }
-$retval['codes']=diagnosis_search($search_type_id,$search_type,$search_query);
+
+$retval['codes']=diagnosis_search($search_type_id, $search_type, $search_query);
 
 echo json_encode($retval);
-?>

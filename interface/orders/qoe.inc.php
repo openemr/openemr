@@ -29,7 +29,7 @@
  * @param  string  $formseq  Zero-relative occurrence number in the form.
  * @return string            The generated HTML.
  */
-function generate_qoe_html($ptid=0, $orderid=0, $dbseq=0, $formseq=0)
+function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
 {
     global $rootdir, $qoe_init_javascript;
 
@@ -37,7 +37,9 @@ function generate_qoe_html($ptid=0, $orderid=0, $dbseq=0, $formseq=0)
     $qoe_init_javascript = '';
     $prefix = 'ans' . $formseq . '_';
 
-    if (empty($ptid)) return $s;
+    if (empty($ptid)) {
+        return $s;
+    }
 
     $s .= "<table>";
 
@@ -70,7 +72,10 @@ function generate_qoe_html($ptid=0, $orderid=0, $dbseq=0, $formseq=0)
 
         $s .= "<tr>";
         $s .= "<td width='1%' valign='top' nowrap";
-        if ($qrow['required']) $s .= " style='color:#880000'"; // TBD: move to stylesheet
+        if ($qrow['required']) {
+            $s .= " style='color:#880000'"; // TBD: move to stylesheet
+        }
+
         $s .= ">" . attr($qrow['question_text']) . "</td>";
         $s .= "<td valign='top'>";
 
@@ -78,32 +83,35 @@ function generate_qoe_html($ptid=0, $orderid=0, $dbseq=0, $formseq=0)
             // Text Field.
             $s .= "<input type='text' name='$qfieldid' size='50'";
             $s .= " maxlength='" . ($maxsize ? $maxsize : 255) . "'";
-            if (!empty($answers)) $s .= " value='" . attr($answers[0]) . "'";
+            if (!empty($answers)) {
+                $s .= " value='" . attr($answers[0]) . "'";
+            }
+
             $s .= " />";
             $s .= "&nbsp;" . text($qrow['tips']);
-        }
-
-        else if ($fldtype == 'N') {
+        } else if ($fldtype == 'N') {
             // Numeric text Field.
             // TBD: Add some JavaScript validation for this.
             $s .= "<input type='text' name='$qfieldid' maxlength='8'";
-            if (!empty($answers)) $s .= " value='" . attr($answers[0]) . "'";
+            if (!empty($answers)) {
+                $s .= " value='" . attr($answers[0]) . "'";
+            }
+
             $s .= " />";
             $s .= "&nbsp;" . text($qrow['tips']);
-        }
-
-        else if ($fldtype == 'D') {
+        } else if ($fldtype == 'D') {
             // Date Field.
             $s .= "<input type='text' size='10' name='$qfieldid' id='$qfieldid'";
-            if (!empty($answers)) $s .= " value='" . attr($answers[0]) . "'";
+            if (!empty($answers)) {
+                $s .= " value='" . attr($answers[0]) . "'";
+            }
+
             $s .= " onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />";
             $s .= "<img src='$rootdir/pic/show_calendar.gif' align='absbottom' width='24' height='22'" .
             " id='img_$qfieldid' border='0' alt='[?]' style='cursor:pointer'" .
-            " title='" . htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES) . "' />";
+            " title='" . htmlspecialchars(xl('Click here to choose a date'), ENT_QUOTES) . "' />";
             $qoe_init_javascript .= " Calendar.setup({inputField:'$qfieldid', ifFormat:'%Y-%m-%d', button:'img_$qfieldid'});";
-        }
-
-        else if ($fldtype == 'G') {
+        } else if ($fldtype == 'G') {
             // Gestational age in weeks and days.
             $currweeks = -1;
             $currdays  = -1;
@@ -111,27 +119,34 @@ function generate_qoe_html($ptid=0, $orderid=0, $dbseq=0, $formseq=0)
                 $currweeks = intval($answers[0] / 7);
                 $currdays  = $answers[0] % 7;
             }
+
             $s .= "<select name='G1_$qfieldid'>";
             $s .= "<option value=''></option>";
             for ($i = 5; $i <= 21; ++$i) {
                 $s .= "<option value='$i'";
-                if ($i == $currweeks) $s .= " selected";
+                if ($i == $currweeks) {
+                    $s .= " selected";
+                }
+
                 $s .= ">$i</option>";
             }
+
             $s .= "</select>";
             $s .= " " . xlt('weeks') . " &nbsp;";
             $s .= "<select name='G2_$qfieldid'>";
             $s .= "<option value=''></option>";
             for ($i = 0; $i <= 6; ++$i) {
                 $s .= "<option value='$i'";
-                if ($i == $currdays) $s .= " selected";
+                if ($i == $currdays) {
+                    $s .= " selected";
+                }
+
                 $s .= ">$i</option>";
             }
+
             $s .= "</select>";
             $s .= " " . xlt('days');
-        }
-
-        // Possible alternative code instead of radio buttons and checkboxes.
+        } // Possible alternative code instead of radio buttons and checkboxes.
         // Might use this for cases where the list of choices is large.
         /*****************************************************************
       else {
@@ -162,16 +177,23 @@ function generate_qoe_html($ptid=0, $orderid=0, $dbseq=0, $formseq=0)
             $i = 0;
             foreach ($a as $aval) {
                 list($desc, $code) = explode(':', $aval);
-                if (empty($code)) $code = $desc;
-                if ($i) $s .= "<br />";
+                if (empty($code)) {
+                    $code = $desc;
+                }
+
+                if ($i) {
+                    $s .= "<br />";
+                }
+
                 $s .= "<input type='checkbox' name='$qfieldid[$i]' value='" . attr($code) . "'";
-                if (in_array($code, $answers)) $s .= " checked";
+                if (in_array($code, $answers)) {
+                    $s .= " checked";
+                }
+
                 $s .= " />" . text($desc);
                 ++$i;
             }
-        }
-
-        else {
+        } else {
             // Radio buttons or drop-list, depending on the number of choices.
             $a = explode(';', $qrow['options']);
             if (count($a) > 5) {
@@ -179,21 +201,36 @@ function generate_qoe_html($ptid=0, $orderid=0, $dbseq=0, $formseq=0)
                 $s .= ">";
                 foreach ($a as $aval) {
                     list($desc, $code) = explode(':', $aval);
-                    if (empty($code)) $code = $desc;
+                    if (empty($code)) {
+                        $code = $desc;
+                    }
+
                     $s .= "<option value='" . attr($code) . "'";
-                    if (in_array($code, $answers)) $s .= " selected";
+                    if (in_array($code, $answers)) {
+                        $s .= " selected";
+                    }
+
                     $s .= ">" . text($desc) . "</option>";
                 }
+
                 $s .= "</select>";
-            }
-            else {
+            } else {
                 $i = 0;
                 foreach ($a as $aval) {
                     list($desc, $code) = explode(':', $aval);
-                    if (empty($code)) $code = $desc;
-                    if ($i) $s .= "<br />";
+                    if (empty($code)) {
+                        $code = $desc;
+                    }
+
+                    if ($i) {
+                        $s .= "<br />";
+                    }
+
                     $s .= "<input type='radio' name='$qfieldid' value='" . attr($code) . "'";
-                    if (in_array($code, $answers)) $s .= " checked";
+                    if (in_array($code, $answers)) {
+                        $s .= " checked";
+                    }
+
                     $s .= " />" . text($desc);
                     ++$i;
                 }
@@ -207,4 +244,3 @@ function generate_qoe_html($ptid=0, $orderid=0, $dbseq=0, $formseq=0)
     $s .= '</table>';
     return $s;
 }
-?>

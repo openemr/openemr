@@ -14,12 +14,12 @@
  require_once("../drugs/drugs.inc.php");
 
  $form_from_date  = fixDate($_POST['form_from_date'], date('Y-01-01'));
- $form_to_date    = fixDate($_POST['form_to_date']  , date('Y-m-d'));
+ $form_to_date    = fixDate($_POST['form_to_date'], date('Y-m-d'));
 ?>
 <html>
 <head>
 <?php html_header_show();?>
-<title><?php xl('Destroyed Drugs','e'); ?></title>
+<title><?php xl('Destroyed Drugs', 'e'); ?></title>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 
 <style  type="text/css">@import url(../../library/dynarch_calendar.css);</style>
@@ -59,7 +59,7 @@ $(document).ready(function() {
 
 <center>
 
-<h2><?php xl('Destroyed Drugs','e'); ?></h2>
+<h2><?php xl('Destroyed Drugs', 'e'); ?></h2>
 
 <form name='theform' method='post' action='destroyed_drugs_report.php'>
 
@@ -67,24 +67,24 @@ $(document).ready(function() {
 
  <tr>
   <td>
-    <?php xl('From','e'); ?>:
+    <?php xl('From', 'e'); ?>:
    <input type='text' name='form_from_date' id='form_from_date'
     size='10' value='<?php echo $form_from_date ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title=<?php xl('yyyy-mm-dd','e','\'','\''); ?>>
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title=<?php xl('yyyy-mm-dd', 'e', '\'', '\''); ?>>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title=<?php xl('Click here to choose a date','e','\'','\''); ?>>
+    title=<?php xl('Click here to choose a date', 'e', '\'', '\''); ?>>
 
-   &nbsp;<?php xl('To','e'); ?>:
+   &nbsp;<?php xl('To', 'e'); ?>:
    <input type='text' name='form_to_date' id='form_to_date'
     size='10' value='<?php echo $form_to_date ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title=<?php xl('yyyy-mm-dd','e','\'','\''); ?>>
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title=<?php xl('yyyy-mm-dd', 'e', '\'', '\''); ?>>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-    title=<?php xl('Click here to choose a date','e','\'','\''); ?>>
+    title=<?php xl('Click here to choose a date', 'e', '\'', '\''); ?>>
 
    &nbsp;
-   <input type='submit' name='form_refresh' value=<?php xl('Refresh','e'); ?>>
+   <input type='submit' name='form_refresh' value=<?php xl('Refresh', 'e'); ?>>
    &nbsp;
    <input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />
   </td>
@@ -101,28 +101,28 @@ $(document).ready(function() {
  <thead>
  <tr bgcolor="#dddddd">
   <td class='dehead'>
-    <?php xl('Drug Name','e'); ?>
+    <?php xl('Drug Name', 'e'); ?>
   </td>
   <td class='dehead'>
-    <?php xl('NDC','e'); ?>
+    <?php xl('NDC', 'e'); ?>
   </td>
   <td class='dehead'>
-    <?php xl('Lot','e'); ?>
+    <?php xl('Lot', 'e'); ?>
   </td>
   <td class='dehead'>
-    <?php xl('Qty','e'); ?>
+    <?php xl('Qty', 'e'); ?>
   </td>
   <td class='dehead'>
-    <?php xl('Date Destroyed','e'); ?>
+    <?php xl('Date Destroyed', 'e'); ?>
   </td>
   <td class='dehead'>
-    <?php xl('Method','e'); ?>
+    <?php xl('Method', 'e'); ?>
   </td>
   <td class='dehead'>
-    <?php xl('Witness','e'); ?>
+    <?php xl('Witness', 'e'); ?>
   </td>
   <td class='dehead'>
-    <?php xl('Notes','e'); ?>
+    <?php xl('Notes', 'e'); ?>
   </td>
  </tr>
  </thead>

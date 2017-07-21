@@ -18,4 +18,3 @@ $claim_status_codes = array(
  '25' => 'Predetermination Pricing Only - No Payment',
  '27' => 'Reviewed',
 );
-?>

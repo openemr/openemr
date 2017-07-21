@@ -41,15 +41,17 @@ if ($formid) {
     $sql = "SELECT * FROM `form_care_plan` WHERE id=? AND pid = ? AND encounter = ?";
     $res = sqlStatement($sql, array($formid,$_SESSION["pid"], $_SESSION["encounter"]));
 
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
+    }
+
     $check_res = $all;
 }
 
 $check_res = $formid ? $check_res : array();
 $sql1 = "SELECT option_id AS `value`, title FROM `list_options` WHERE list_id = ?";
 $result = sqlStatement($sql1, array('Plan_of_Care_Type'));
-foreach($result as $value):
+foreach ($result as $value) :
     $care_plan_type[] = $value;
 endforeach;
 ?>
@@ -174,7 +176,7 @@ endforeach;
                         <td>
                           <select name="care_plan_type[]" id="care_plan_type_<?php echo attr($key) + 1; ?>" class="care_plan_type">
                             <option value=""></option>
-                            <?php foreach($care_plan_type as $value):
+                            <?php foreach ($care_plan_type as $value) :
                                 $selected = ($value['value'] == $obj{"care_plan_type"}) ? 'selected="selected"' : '';
                             ?>
                             <option value="<?php echo attr($value['value']);?>" <?php echo $selected;?>><?php echo text($value['title']);?></option>
@@ -210,7 +212,7 @@ endforeach;
                 <td>
                   <select name="care_plan_type[]" id="care_plan_type_1" class="care_plan_type">
                     <option value=""></option>
-                    <?php foreach($care_plan_type as $value):
+                    <?php foreach ($care_plan_type as $value) :
                         $selected = ($value['value'] == $obj{"care_plan_type"}) ? 'selected="selected"' : '';
                     ?>
                     <option value="<?php echo attr($value['value']);?>" <?php echo $selected;?>><?php echo text($value['title']);?></option>
@@ -223,8 +225,8 @@ endforeach;
                     </td>
                 <input type="hidden" name="count[]" id="count_1" class="count" value="1">
             </tr>
-            <?php }
-    ?>
+            <?php
+            } ?>
 
     <tr>
         <td align="left" colspan="5" style="padding-bottom:7px;"></td>

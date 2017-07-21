@@ -10,7 +10,7 @@ include_once("../globals.php");
 <html>
 <head>
 <?php html_header_show();?>
-<title><?php xl('List groups','e'); ?></title>
+<title><?php xl('List groups', 'e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
@@ -45,7 +45,7 @@ li {
 
 <body class="body_top text">
 <div id="groups">
-<h1><?php xl('Layout groups','e'); ?></h1>
+<h1><?php xl('Layout groups', 'e'); ?></h1>
 <ul>
 <?php
 $res = sqlStatement("SELECT distinct(group_name) FROM layout_options WHERE " .
@@ -56,6 +56,7 @@ while ($row = sqlFetchArray($res)) {
     if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
         $xlgname = "<span class='translation'>>>&nbsp; " . xl($gname) . "</span>";
     }
+
     echo "<li id='".$row['group_name']."' class='oneresult'> $gname $xlgname </li>";
 }
 ?>

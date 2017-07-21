@@ -55,7 +55,9 @@ var framesrc = '<frame ';
 
 // this allows us to keep our viewtype between screens -- JRM calendar_view_type
 $viewtype = $GLOBALS['calendar_view_type'];
-if (isset($_SESSION['viewtype'])) { $viewtype = $_SESSION['viewtype']; }
+if (isset($_SESSION['viewtype'])) {
+    $viewtype = $_SESSION['viewtype'];
+}
 
 // this allows us to keep our selected providers between screens -- JRM
 $pcuStr = "pc_username=".$_SESSION['authUser'];
@@ -67,15 +69,13 @@ if (isset($_SESSION['pc_username'])) {
         foreach ($_SESSION['pc_username'] as $pcu) {
             $pcuStr .= "&pc_username[]=".$pcu;
         }
-    }
-    else {
+    } else {
         // two possibilities here
         // 1) pc_username is an array with a single element
         // 2) pc_username is just a string, not an array
         if (is_string($_SESSION['pc_username'])) {
             $pcuStr .= "&pc_username[]=".$_SESSION['pc_username'];
-        }
-        else {
+        } else {
             $pcuStr .= "&pc_username[]=".$_SESSION['pc_username'][0];
         }
     }
@@ -84,11 +84,9 @@ if (isset($_SESSION['pc_username'])) {
 // different frame source page depending on session vars
 if ($_SESSION['userauthorized'] && $GLOBALS['docs_see_entire_calendar']) {
     $framesrc = "calendar/index.php?module=PostCalendar&viewtype=".$viewtype."&func=view";
-}
-else if ($_SESSION['userauthorized']) {
+} else if ($_SESSION['userauthorized']) {
     $framesrc = "calendar/index.php?module=PostCalendar&viewtype=".$viewtype."&func=view&".$pcuStr;
-}
-else {
+} else {
     $framesrc = "calendar/index.php?module=PostCalendar&func=view&viewtype=".$viewtype;
 }
 ?>

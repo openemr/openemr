@@ -29,56 +29,71 @@ function smarty_function_pc_date_select($args)
     $print = pnVarCleanFromInput('print');
     $tplview = pnVarCleanFromInput('tplview');
     $viewtype = pnVarCleanFromInput('viewtype');
-    if(!isset($viewtype)) $viewtype = _SETTING_DEFAULT_VIEW;
+    if (!isset($viewtype)) {
+        $viewtype = _SETTING_DEFAULT_VIEW;
+    }
+
     $Date = postcalendar_getDate();
     
-    if(!isset($y)) $y = substr($Date,0,4);
-    if(!isset($m)) $m = substr($Date,4,2);
-    if(!isset($d)) $d = substr($Date,6,2);
+    if (!isset($y)) {
+        $y = substr($Date, 0, 4);
+    }
+
+    if (!isset($m)) {
+        $m = substr($Date, 4, 2);
+    }
+
+    if (!isset($d)) {
+        $d = substr($Date, 6, 2);
+    }
     
-    if(!isset($args['day']) || strtolower($args['day']) == 'on') {
+    if (!isset($args['day']) || strtolower($args['day']) == 'on') {
         $args['day'] = true;
-        @define('_PC_FORM_DATE',true);
+        @define('_PC_FORM_DATE', true);
     } else {
         $args['day'] = false;
     }
-    if(!isset($args['month']) || strtolower($args['month']) == 'on') {
+
+    if (!isset($args['month']) || strtolower($args['month']) == 'on') {
         $args['month'] = true;
-        @define('_PC_FORM_DATE',true);
+        @define('_PC_FORM_DATE', true);
     } else {
         $args['month'] = false;
     }
-    if(!isset($args['year']) || strtolower($args['year']) == 'on') {
+
+    if (!isset($args['year']) || strtolower($args['year']) == 'on') {
         $args['year'] = true;
-        @define('_PC_FORM_DATE',true);
+        @define('_PC_FORM_DATE', true);
     } else {
         $args['year'] = false;
     }
-    if(!isset($args['view']) || strtolower($args['view']) == 'on') {
+
+    if (!isset($args['view']) || strtolower($args['view']) == 'on') {
         $args['view'] = true;
-        @define('_PC_FORM_VIEW_TYPE',true);
+        @define('_PC_FORM_VIEW_TYPE', true);
     } else {
         $args['view'] = false;
     }
+
     $dayselect=$monthselect=$yearselect=$viewselect='';
     $output = new pnHTML();
     $output->SetOutputMode(_PNH_RETURNOUTPUT);
-    if($args['day'] === true) {
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__,'user','buildDaySelect',array('pc_day'=>$d));
+    if ($args['day'] === true) {
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', array('pc_day'=>$d));
         $dayselect = $output->FormSelectMultiple('jumpday', $sel_data);
     }
         
-    if($args['month'] === true) {
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__,'user','buildMonthSelect',array('pc_month'=>$m));
+    if ($args['month'] === true) {
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', array('pc_month'=>$m));
         $monthselect = $output->FormSelectMultiple('jumpmonth', $sel_data);
     }
         
-    if($args['year'] === true) {
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__,'user','buildYearSelect',array('pc_year'=>$y));
+    if ($args['year'] === true) {
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', array('pc_year'=>$y));
         $yearselect = $output->FormSelectMultiple('jumpyear', $sel_data);
     }
         
-    if($args['view'] === true) {
+    if ($args['view'] === true) {
         $sel_data = array();
         $sel_data[0]['id']         = 'day';
         $sel_data[0]['selected']   = $viewtype=='day';
@@ -94,7 +109,11 @@ function smarty_function_pc_date_select($args)
         $sel_data[3]['name']       = _CAL_YEARVIEW;
         $viewselect = $output->FormSelectMultiple('viewtype', $sel_data);
     }
-        if(!isset($args['label'])) $args['label'] = _PC_JUMP_MENU_SUBMIT;
+
+    if (!isset($args['label'])) {
+        $args['label'] = _PC_JUMP_MENU_SUBMIT;
+    }
+
         $jumpsubmit = '<input type="submit" valign="middle" name="submit" value="'.$args['label'].'" />';
     $output->SetOutputMode(_PNH_KEEPOUTPUT);
     
@@ -104,24 +123,25 @@ function smarty_function_pc_date_select($args)
                         'view'=>$viewselect,
                         'jump'=>$jumpsubmit);
                         
-    if(isset($args['order'])) {
+    if (isset($args['order'])) {
         $newOrder = array();
-        $order = explode(',',$args['order']);
-        foreach($order as $tmp_order) {
-            array_push($newOrder,$orderArray[$tmp_order]);
+        $order = explode(',', $args['order']);
+        foreach ($order as $tmp_order) {
+            array_push($newOrder, $orderArray[$tmp_order]);
         }
-        foreach($orderArray as $key=>$old_order) {
-            if(!in_array($key,$newOrder)) {
-                array_push($newOrder,$orderArray[$old_order]);
+
+        foreach ($orderArray as $key => $old_order) {
+            if (!in_array($key, $newOrder)) {
+                array_push($newOrder, $orderArray[$old_order]);
             }
         }
+
         $order = $newOrder;
     } else {
         $order = $orderArray;
     }
     
-    foreach($order as $element) {
+    foreach ($order as $element) {
         echo $element;
     }
 }
-?>

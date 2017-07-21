@@ -7,13 +7,16 @@ foreach ($_POST as $k => $var) {
     $_POST[$k] = add_escape_custom($var);
     echo "$var\n";
 }
-if ($encounter == "")
-$encounter = date("Ymd");
-if ($_GET["mode"] == "new"){
+
+if ($encounter == "") {
+    $encounter = date("Ymd");
+}
+
+if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_assessment_intake", $_POST, $_GET["id"], $userauthorized);
     print 'formSubmitt';  /*debugging */
     addForm($encounter, "Assessment and Intake", $newid, "assessment_intake", $pid, $userauthorized);
-}elseif ($_GET["mode"] == "update") {
+} elseif ($_GET["mode"] == "update") {
     sqlInsert("update form_assessment_intake set pid = {$_SESSION["pid"]},groupname='".$_SESSION["authProvider"]."',user='".$_SESSION["authUser"]."',authorized=$userauthorized,activity=1, date = NOW(), 
 dcn='".$_POST["dcn"]."', 
 location='".$_POST["location"]."',
@@ -143,8 +146,8 @@ referrals_cu='".$_POST["referrals_cu"]."',
 referrals_docs='".$_POST["referrals_docs"]."',
 referrals_or='".$_POST["referrals_or"]."' where id=$id");
 }
+
 $_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();
-?>

@@ -31,21 +31,25 @@ require_once("$srcdir/report.inc");
 $facilityService = new \services\FacilityService();
 
 $startdate = $enddate = "";
-if(empty($_POST['start']) || empty($_POST['end'])) {
+if (empty($_POST['start']) || empty($_POST['end'])) {
     // set some default dates
     $startdate = date('Y-m-d', (time() - 30*24*60*60));
     $enddate = date('Y-m-d', time());
-}
-else {
+} else {
     // set dates
     $startdate = $_POST['start'];
     $enddate = $_POST['end'];
 }
+
 //Patient related stuff
-if ($_POST["form_patient"])
-$form_patient = isset($_POST['form_patient']) ? $_POST['form_patient'] : '';
+if ($_POST["form_patient"]) {
+    $form_patient = isset($_POST['form_patient']) ? $_POST['form_patient'] : '';
+}
+
 $form_pid = isset($_POST['form_pid']) ? $_POST['form_pid'] : '';
-if ($form_patient == '' ) $form_pid = '';
+if ($form_patient == '') {
+    $form_pid = '';
+}
 ?>
 <html>
 
@@ -266,7 +270,7 @@ if ($form_patient == '' ) $form_pid = '';
 <div id="superbill_results">
 
 <?php
-if( !(empty($_POST['start']) || empty($_POST['end']))) {
+if (!(empty($_POST['start']) || empty($_POST['end']))) {
     $facility = $facilityService->getPrimaryBillingLocation();
 ?>
 <p>
@@ -280,20 +284,22 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
         $res_query =    "select * from forms where " .
                         "form_name = 'New Patient Encounter' and " .
                         "date between ? and ? " ;
-                array_push($sqlBindArray,$startdate,$enddate);
-if($form_pid) {
+                array_push($sqlBindArray, $startdate, $enddate);
+if ($form_pid) {
     $res_query.= " and pid=? ";
-    array_push($sqlBindArray,$form_pid);
+    array_push($sqlBindArray, $form_pid);
 }
-        $res_query.=     " order by date DESC" ;
-        $res =sqlStatement($res_query,$sqlBindArray);
 
-while($result = sqlFetchArray($res)) {
+        $res_query.=     " order by date DESC" ;
+        $res =sqlStatement($res_query, $sqlBindArray);
+
+while ($result = sqlFetchArray($res)) {
     if ($result{"form_name"} == "New Patient Encounter") {
         $newpatient[] = $result{"form_id"}.":".$result{"encounter"};
         $pids[] = $result{"pid"};
     }
 }
+
     $N = 6;
 
 function postToGet($newpatient, $pids)
@@ -307,8 +313,11 @@ function postToGet($newpatient, $pids)
 }
 
     $iCounter = 0;
-if(empty($newpatient)){ $newpatient = array(); }
-foreach($newpatient as $patient){
+if (empty($newpatient)) {
+    $newpatient = array();
+}
+
+foreach ($newpatient as $patient) {
     /*
     $inclookupres = sqlStatement("select distinct formdir from forms where pid='".$pids[$iCounter]."'");
     while($result = sqlFetchArray($inclookupres)) {
@@ -318,17 +327,17 @@ foreach($newpatient as $patient){
 
     print "<div id='superbill_patientdata'>";
     print "<h1>".xlt('Patient Data').":</h1>";
-    printRecDataOne($patient_data_array, getRecPatientData ($pids[$iCounter]), $N);
+    printRecDataOne($patient_data_array, getRecPatientData($pids[$iCounter]), $N);
     print "</div>";
 
     print "<div id='superbill_insurancedata'>";
     print "<h1>".xlt('Insurance Data').":</h1>";
     print "<h2>".xlt('Primary').":</h2>";
-    printRecDataOne($insurance_data_array, getRecInsuranceData ($pids[$iCounter],"primary"), $N);
+    printRecDataOne($insurance_data_array, getRecInsuranceData($pids[$iCounter], "primary"), $N);
     print "<h2>".xlt('Secondary').":</h2>";
-    printRecDataOne($insurance_data_array, getRecInsuranceData ($pids[$iCounter],"secondary"), $N);
+    printRecDataOne($insurance_data_array, getRecInsuranceData($pids[$iCounter], "secondary"), $N);
     print "<h2>".xlt('Tertiary').":</h2>";
-    printRecDataOne($insurance_data_array, getRecInsuranceData ($pids[$iCounter],"tertiary"), $N);
+    printRecDataOne($insurance_data_array, getRecInsuranceData($pids[$iCounter], "tertiary"), $N);
     print "</div>";
 
     print "<div id='superbill_billingdata'>";
@@ -345,8 +354,8 @@ foreach($newpatient as $patient){
         $copays = 0.00;
         //foreach ($patient as $be) {
 
-            $ta = explode(":",$patient);
-            $billing = getPatientBillingEncounter($pids[$iCounter],$ta[1]);
+            $ta = explode(":", $patient);
+            $billing = getPatientBillingEncounter($pids[$iCounter], $ta[1]);
 
             $billings[] = $billing;
         foreach ($billing as $b) {
@@ -354,7 +363,7 @@ foreach($newpatient as $patient){
             $bdate = strtotime($b['date']);
 
             echo "<tr>\n";
-            echo "<td class='text' style='font-size: 0.8em'>" . oeFormatShortDate(date("Y-m-d",$bdate)) . "<BR>" . date("h:i a", $bdate) . "</td>";
+            echo "<td class='text' style='font-size: 0.8em'>" . oeFormatShortDate(date("Y-m-d", $bdate)) . "<BR>" . date("h:i a", $bdate) . "</td>";
             echo "<td class='text'>" . text($b['provider_name']) . "</td>";
             echo "<td class='text'>";
             echo text($b['code_type']) . ":\t" . text($b['code']) . "&nbsp;". text($b['modifier']) . "&nbsp;&nbsp;&nbsp;" . text($b['code_text']) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
@@ -365,8 +374,9 @@ foreach($newpatient as $patient){
             echo "</tr>\n";
             $total += $b['fee'];
         }
+
         // Calculate the copay for the encounter
-        $copays = getPatientCopay($pids[$iCounter],$ta[1]);
+        $copays = getPatientCopay($pids[$iCounter], $ta[1]);
         //}
         echo "<tr><td>&nbsp;</td></tr>";
         echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xlt('Sub-Total')."</td><td class='text'>" . oeFormatMoney($total + abs($copays)) . "</td></tr>";
@@ -377,6 +387,7 @@ foreach($newpatient as $patient){
         //print_r($billings);
         echo "</pre>";
     }
+
     echo "</div>";
 
     ++$iCounter;

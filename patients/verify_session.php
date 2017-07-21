@@ -21,16 +21,15 @@
     //
 
     // kick out if patient not authenticated
-if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite']) ) {
+if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite'])) {
     $pid = $_SESSION['pid'];
-}
-else {
+} else {
     session_destroy();
     header('Location: '.$landingpage.'&w');
     exit;
 }
+
     //
 
     $ignoreAuth=true; // ignore the standard authentication for a regular OpenEMR user
     include_once('../interface/globals.php');
-?>

@@ -21,9 +21,9 @@
  * @link http://www.open-emr.org
  */
 
-$this->assign( 'title', xlt("Portal Dashboard") . " | " . xlt("Home"));
-$this->assign( 'nav', 'home' );
-$this->display( '_ProviderHeader.tpl.php' );
+$this->assign('title', xlt("Portal Dashboard") . " | " . xlt("Home"));
+$this->assign('nav', 'home');
+$this->display('_ProviderHeader.tpl.php');
 echo "<script>var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cuser) . "';var webRoot='" . $GLOBALS['web_root'] . "';</script>";
 ?>
 <script>
@@ -151,5 +151,5 @@ $(document).ready(function(){
 <!-- /container -->
 
 <?php
-$this->display( '_Footer.tpl.php' );
+$this->display('_Footer.tpl.php');
 ?>

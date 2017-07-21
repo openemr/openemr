@@ -31,7 +31,7 @@ $provider_results = sqlQuery("select * from users where username='" . $_SESSION{
 
 ////////////////////////////////////////////////////////////////////
 // Function:	getPatientDateOfLastEncounter
-function getPatientDateOfLastEncounter( $nPid )
+function getPatientDateOfLastEncounter($nPid)
 {
   // get date of last encounter no codes
     $strEventDate = sqlQuery("SELECT MAX(pc_eventDate) AS max
@@ -41,30 +41,28 @@ function getPatientDateOfLastEncounter( $nPid )
                   AND pc_eventDate >= '2007-01-01'");
 
   // now check if there was a previous encounter
-    if( $strEventDate['max'] != "" )
-    return( $strEventDate['max'] );
-    else
-    return( "00-00-0000" );
+    if ($strEventDate['max'] != "") {
+        return( $strEventDate['max'] );
+    } else {
+        return( "00-00-0000" );
+    }
 }
 
-$m_strEventDate = getPatientDateOfLastEncounter( $result['pid'] );
+$m_strEventDate = getPatientDateOfLastEncounter($result['pid']);
 
 // get autosave id for Psychiatrisch Onderzoek
-$vectAutosave = sqlQuery( "SELECT id, autosave_flag, autosave_datetime FROM form_brief_aan_verwijzer
+$vectAutosave = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_brief_aan_verwijzer
                             WHERE pid = ".$_SESSION["pid"].
                             " AND groupname='".$_SESSION["authProvider"].
                             "' AND user='".$_SESSION["authUser"]."' AND
                             authorized=$userauthorized AND activity=1
                             AND autosave_flag=1
-                            ORDER by id DESC limit 1" );
+                            ORDER by id DESC limit 1");
 
-if( $vectAutosave['id'] && $vectAutosave['id'] != "" && $vectAutosave['id'] > 0 )
-{
+if ($vectAutosave['id'] && $vectAutosave['id'] != "" && $vectAutosave['id'] > 0) {
     $obj = formFetch("form_brief_aan_verwijzer", $vectAutosave['id']);
-
-} else
-{
-    $obj = formFetch("form_brief_aan_verwijzer", (int)$_GET["id"] );
+} else {
+    $obj = formFetch("form_brief_aan_verwijzer", (int)$_GET["id"]);
 }
 
 ?>
@@ -92,10 +90,11 @@ if( $vectAutosave['id'] && $vectAutosave['id'] != "" && $vectAutosave['id'] > 0 
 
 <?php
 
-if( $_GET["id"] )
-  $brief_aan_verwijzer_id = $_GET["id"];
-else
-  $brief_aan_verwijzer_id = "0";
+if ($_GET["id"]) {
+    $brief_aan_verwijzer_id = $_GET["id"];
+} else {
+    $brief_aan_verwijzer_id = "0";
+}
 
 ?>
 <script type="text/javascript">
@@ -112,7 +111,7 @@ $(document).ready(function(){
 
 function delete_autosave( )
 {
-  if( confirm("<?php xl('Are you sure you want to completely remove this form?','e'); ?>") )
+  if( confirm("<?php xl('Are you sure you want to completely remove this form?', 'e'); ?>") )
   {
     $.ajax(
             {
@@ -179,20 +178,20 @@ include_once("$srcdir/api.inc");
 ?>
 
 <form method=post action="<?php echo $rootdir?>/forms/brief_aan_verwijzer/save.php?mode=update&id=<?php echo $_GET["id"];?>" name="my_form">
-<span class="title"><?php xl('Psychiatric Brief Letter','e'); ?></span><Br><br>
+<span class="title"><?php xl('Psychiatric Brief Letter', 'e'); ?></span><Br><br>
 
-<br><span class=text><?php xl('Introduction','e'); ?></span><br>
+<br><span class=text><?php xl('Introduction', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="introductie" id="introductie"><?php echo stripslashes($obj{"introductie"});?></textarea><br>
 
-<br><span class=text><?php xl('Reason for Visit','e'); ?></span><br>
+<br><span class=text><?php xl('Reason for Visit', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo stripslashes($obj{"reden_van_aanmelding"});?></textarea><br>
-<br><span class=text><?php xl('History','e'); ?></span><br>
+<br><span class=text><?php xl('History', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="anamnese" id="anamnese"><?php echo stripslashes($obj{"anamnese"});?></textarea><br>
-<br><span class=text><?php xl('Psychiatric Examination','e'); ?></span><br>
+<br><span class=text><?php xl('Psychiatric Examination', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="psychiatrisch_onderzoek" id="psychiatrisch_onderzoek"><?php echo stripslashes($obj{"psychiatrisch_onderzoek"});?></textarea><br>
-<br><span class=text><?php xl('Conclusions','e'); ?></span><br>
+<br><span class=text><?php xl('Conclusions', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="beschrijvend_conclusie" id="beschrijvend_conclusie"><?php echo stripslashes($obj{"beschrijvend_conclusie"});?></textarea><br>
-<br><span class=text><?php xl('Treatment Plan','e'); ?></span><br>
+<br><span class=text><?php xl('Treatment Plan', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="advies_beleid" id="advies_beleid"><?php echo stripslashes($obj{"advies_beleid"});?></textarea><br>
 
 <table><tr>
@@ -202,10 +201,10 @@ include_once("$srcdir/api.inc");
 </tr></table>
 
 <br><br>
-<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
+<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save', 'e'); ?>]</a>
 <br>
 <a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link_submit"
- onclick="delete_autosave();top.restoreSession()">[<?php xl('Don\'t Save Changes','e'); ?>]</a>
+ onclick="delete_autosave();top.restoreSession()">[<?php xl('Don\'t Save Changes', 'e'); ?>]</a>
 </form>
 
 <div id="timestamp"></div>

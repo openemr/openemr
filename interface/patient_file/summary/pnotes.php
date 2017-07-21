@@ -36,11 +36,11 @@
 if ($docid) {
     $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid));
     $patient_id = intval($row['foreign_id']);
-}
-else if ($orderid) {
+} else if ($orderid) {
     $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid));
     $patient_id = intval($row['patient_id']);
 }
+
  $urlparms = "docid=$docid&orderid=$orderid";
 ?>
 <html>
@@ -57,11 +57,13 @@ else if ($orderid) {
  $thisauth = acl_check('patients', 'notes');
 if ($thisauth) {
     $tmp = getPatientData($patient_id, "squad");
-    if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-    $thisauth = 0;
+    if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+        $thisauth = 0;
+    }
 }
+
 if (!$thisauth) {
-    echo "<p>(" . htmlspecialchars( xl('Notes not authorized'), ENT_NOQUOTES) . ")</p>\n";
+    echo "<p>(" . htmlspecialchars(xl('Notes not authorized'), ENT_NOQUOTES) . ")</p>\n";
     echo "</body>\n</html>\n";
     exit();
 }
@@ -69,23 +71,22 @@ if (!$thisauth) {
 
 <div id='pnotes'>
 
-<?php if ( acl_check('patients', 'notes','',array('write','addonly') )): ?>
+<?php if (acl_check('patients', 'notes', '', array('write','addonly'))) : ?>
 
 <a href="pnotes_full.php?<?php echo $urlparms; ?>" onclick="top.restoreSession()">
 
-<span class="title"><?php echo htmlspecialchars( xl('Notes'), ENT_NOQUOTES); ?>
+<span class="title"><?php echo htmlspecialchars(xl('Notes'), ENT_NOQUOTES); ?>
 <?php
 if ($docid) {
     echo " " . xlt("linked to document") . " ";
     $d = new Document($docid);
     echo $d->get_url_file();
-}
-else if ($orderid) {
+} else if ($orderid) {
     echo " " . xlt("linked to procedure order") . " $orderid";
 }
 ?>
 </span>
-<span class=more><?php echo htmlspecialchars( $tmore, ENT_NOQUOTES);?></span>
+<span class=more><?php echo htmlspecialchars($tmore, ENT_NOQUOTES);?></span>
 </a>
 <?php endif; ?>
 
@@ -102,7 +103,7 @@ $billing_note = "";
 $colorbeg = "";
 $colorend = "";
 $resnote = getPatientData($patient_id, "billing_note");
-if(!empty($resnote['billing_note'])) {
+if (!empty($resnote['billing_note'])) {
     $billing_note = $resnote['billing_note'];
     $colorbeg = "<span style='color:red'>";
     $colorend = "</span>";
@@ -113,28 +114,37 @@ $balance = get_patient_balance($patient_id);
 if ($balance != "0") {
     $formatted = sprintf((xl('$').'%01.2f'), $balance);
     echo " <tr class='text billing'>\n";
-    echo "  <td>" . $colorbeg . htmlspecialchars( xl('Balance Due'), ENT_NOQUOTES) .
+    echo "  <td>" . $colorbeg . htmlspecialchars(xl('Balance Due'), ENT_NOQUOTES) .
     $colorend . "</td><td>" . $colorbeg .
-    htmlspecialchars( $formatted, ENT_NOQUOTES) . $colorend."</td>\n";
+    htmlspecialchars($formatted, ENT_NOQUOTES) . $colorend."</td>\n";
     echo " </tr>\n";
 }
 
 if ($billing_note) {
     echo " <tr class='text billing'>\n";
-    echo "  <td>" . $colorbeg . htmlspecialchars( xl('Billing Note'), ENT_NOQUOTES) .
+    echo "  <td>" . $colorbeg . htmlspecialchars(xl('Billing Note'), ENT_NOQUOTES) .
     $colorend . "</td><td>" . $colorbeg .
-    htmlspecialchars( $billing_note, ENT_NOQUOTES) . $colorend . "</td>\n";
+    htmlspecialchars($billing_note, ENT_NOQUOTES) . $colorend . "</td>\n";
     echo " </tr>\n";
 }
 
 //retrieve all active notes
-$result = getPnotesByDate("", 1, "id,date,body,user,title,assigned_to",
-  $patient_id, "all", 0, '', $docid, '', $orderid);
+$result = getPnotesByDate(
+    "",
+    1,
+    "id,date,body,user,title,assigned_to",
+    $patient_id,
+    "all",
+    0,
+    '',
+    $docid,
+    '',
+    $orderid
+);
 
 if ($result != null) {
     $notes_count = 0;//number of notes so far displayed
     foreach ($result as $iter) {
-
         if ($notes_count >= $N) {
             //we have more active notes to print, but we've reached our display maximum
             echo " <tr>\n";
@@ -142,8 +152,8 @@ if ($result != null) {
             echo "   <a ";
             echo "href='pnotes_full.php?active=1&$urlparms" .
             "' class='alert' onclick='top.restoreSession()'>";
-            echo htmlspecialchars( xl('Some notes were not displayed.','','',' '), ENT_NOQUOTES) .
-            htmlspecialchars( xl('Click here to view all.'), ENT_NOQUOTES) . "</a>\n";
+            echo htmlspecialchars(xl('Some notes were not displayed.', '', '', ' '), ENT_NOQUOTES) .
+            htmlspecialchars(xl('Click here to view all.'), ENT_NOQUOTES) . "</a>\n";
             echo "  </td>\n";
             echo " </tr>\n";
             break;
@@ -151,13 +161,13 @@ if ($result != null) {
 
         $body = $iter['body'];
         if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
-            $body = nl2br(htmlspecialchars( $body, ENT_NOQUOTES));
+            $body = nl2br(htmlspecialchars($body, ENT_NOQUOTES));
         } else {
-            $body = htmlspecialchars( date('Y-m-d H:i', strtotime($iter['date'])), ENT_NOQUOTES) .
-            ' (' . htmlspecialchars( $iter['user'], ENT_NOQUOTES) . ') ' . nl2br(htmlspecialchars( $body, ENT_NOQUOTES));
+            $body = htmlspecialchars(date('Y-m-d H:i', strtotime($iter['date'])), ENT_NOQUOTES) .
+            ' (' . htmlspecialchars($iter['user'], ENT_NOQUOTES) . ') ' . nl2br(htmlspecialchars($body, ENT_NOQUOTES));
         }
 
-        echo " <tr class='text noterow' id='".htmlspecialchars( $iter['id'], ENT_QUOTES)."'>\n";
+        echo " <tr class='text noterow' id='".htmlspecialchars($iter['id'], ENT_QUOTES)."'>\n";
 
         // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
         echo "  <td valign='top' class='bold'>";
@@ -188,12 +198,12 @@ $(document).ready(function(){
 });
 
 var EditNote = function(note) {
-<?php if ( acl_check('patients', 'notes','',array('write','addonly') )): ?>
+<?php if (acl_check('patients', 'notes', '', array('write','addonly'))) : ?>
     top.restoreSession();
     location.href = "pnotes_full.php?<?php echo $urlparms; ?>&noteid=" + note.id + "&active=1";
-<?php else: ?>
+<?php else : ?>
     // no-op
-    alert("<?php echo htmlspecialchars( xl('You do not have access to view/edit this note'), ENT_QUOTES); ?>");
+    alert("<?php echo htmlspecialchars(xl('You do not have access to view/edit this note'), ENT_QUOTES); ?>");
 <?php endif; ?>
 }
 

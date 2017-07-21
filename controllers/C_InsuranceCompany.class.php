@@ -1,7 +1,8 @@
 <?php
 
 
-class C_InsuranceCompany extends Controller {
+class C_InsuranceCompany extends Controller
+{
 
     var $template_mod;
     var $icompanies;
@@ -14,8 +15,8 @@ class C_InsuranceCompany extends Controller {
         $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings&insurance_company&");
         $this->assign("STYLE", $GLOBALS['style']);
-        $this->assign("WEB_ROOT", $GLOBALS['webroot'] );
-        $this->assign("SUPPORT_ENCOUNTER_CLAIMS", $GLOBALS['support_encounter_claims'] );
+        $this->assign("WEB_ROOT", $GLOBALS['webroot']);
+        $this->assign("SUPPORT_ENCOUNTER_CLAIMS", $GLOBALS['support_encounter_claims']);
         $this->InsuranceCompany = new InsuranceCompany();
     }
 
@@ -24,12 +25,11 @@ class C_InsuranceCompany extends Controller {
         return $this->list_action();
     }
 
-    function edit_action($id = "",$patient_id="",$p_obj = null)
+    function edit_action($id = "", $patient_id = "", $p_obj = null)
     {
         if ($p_obj != null && get_class($p_obj) == "insurancecompany") {
             $this->icompanies[0] = $p_obj;
-        }
-        elseif (get_class($this->icompanies[0]) != "insurancecompany" ) {
+        } elseif (get_class($this->icompanies[0]) != "insurancecompany") {
             $this->icompanies[0] = new InsuranceCompany($id);
         }
 
@@ -44,9 +44,8 @@ class C_InsuranceCompany extends Controller {
     {
 
         if (!empty($sort)) {
-            $this->assign("icompanies", $this->InsuranceCompany->insurance_companies_factory("",$sort));
-        }
-        else {
+            $this->assign("icompanies", $this->InsuranceCompany->insurance_companies_factory("", $sort));
+        } else {
             $this->assign("icompanies", $this->InsuranceCompany->insurance_companies_factory());
         }
 
@@ -56,13 +55,14 @@ class C_InsuranceCompany extends Controller {
 
     function edit_action_process()
     {
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
+
         //print_r($_POST);
         if (is_numeric($_POST['id'])) {
             $this->icompanies[0] = new InsuranceCompany($_POST['id']);
-        }
-        else {
+        } else {
             $this->icompanies[0] = new InsuranceCompany();
         }
 
@@ -75,7 +75,4 @@ class C_InsuranceCompany extends Controller {
         $_POST['process'] = "";
         header('Location:'.$GLOBALS['webroot']."/controller.php?" . "practice_settings&insurance_company&action=list");//Z&H
     }
-
 }
-
-?>

@@ -34,7 +34,6 @@ class Syndromicsurveillance extends Form implements InputFilterAwareInterface
 
     public function exchangeArray($data)
     {
-        
     }
     
     public function getArrayCopy()
@@ -54,11 +53,11 @@ class Syndromicsurveillance extends Form implements InputFilterAwareInterface
             $factory     = new InputFactory();
             $this->inputFilter = $inputFilter;
         }
+
         return $this->inputFilter;
     }
     
     public function fetch_result($fromDate, $toDate, $code_selected, $provider_selected, $form_provider_id)
     {
-        
     }
 }

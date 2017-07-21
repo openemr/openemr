@@ -4,7 +4,7 @@
 /**
  * import supporting libraries
  */
-require_once ("FileHelper.php");
+require_once("FileHelper.php");
 
 /**
  * Provided object oriented access to a file system directory
@@ -15,7 +15,8 @@ require_once ("FileHelper.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class FolderHelper {
+class FolderHelper
+{
     private $Path;
     
     /**
@@ -41,19 +42,18 @@ class FolderHelper {
     public function GetFiles($pattern = "")
     {
         $files = array ();
-        $dh = opendir ( $this->Path );
+        $dh = opendir($this->Path);
         
-        while ( $fname = readdir ( $dh ) ) {
-            if (is_file ( $this->Path . $fname )) {
-                if ($pattern == "" || preg_match ( $pattern, $fname ) > 0) {
-                    $files [] = new FileHelper ( $this->Path . $fname );
+        while ($fname = readdir($dh)) {
+            if (is_file($this->Path . $fname)) {
+                if ($pattern == "" || preg_match($pattern, $fname) > 0) {
+                    $files [] = new FileHelper($this->Path . $fname);
                 }
             }
         }
         
-        closedir ( $dh );
+        closedir($dh);
         
         return $files;
     }
 }
-?>

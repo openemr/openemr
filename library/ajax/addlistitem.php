@@ -17,7 +17,9 @@
 include_once("../../interface/globals.php");
 
 // check for required values
-if ($_GET['listid'] == "" || trim($_GET['newitem']) == "" || trim($_GET['newitem_abbr']) == "") exit;
+if ($_GET['listid'] == "" || trim($_GET['newitem']) == "" || trim($_GET['newitem_abbr']) == "") {
+    exit;
+}
 
 // set the values for the new list item
 $is_default = 0;
@@ -29,8 +31,7 @@ $option_value = 0;
 // make sure we're not adding a duplicate title or id
 $exists_title = sqlQuery("SELECT * FROM list_options WHERE ".
                     " list_id='".$list_id."'".
-                    " and title = '" . trim($title) . "' AND activity = 1"
-                    );
+                    " and title = '" . trim($title) . "' AND activity = 1");
 if ($exists_title) {
     echo json_encode(array("error"=> xl('Record already exist') ));
     exit;
@@ -38,8 +39,7 @@ if ($exists_title) {
 
 $exists_id = sqlQuery("SELECT * FROM list_options WHERE ".
                     " list_id='".$list_id."'".
-                    " and option_id = '" . trim($option_id) . "' AND activity = 1"
-                    );
+                    " and option_id = '" . trim($option_id) . "' AND activity = 1");
 if ($exists_id) {
     echo json_encode(array("error"=> xl('Record already exist') ));
     exit;
@@ -61,8 +61,7 @@ $rc = sqlInsert("INSERT INTO list_options ( " .
                 ",'".$seq."'" .
                 ",'".$is_default."'" .
                 ",'".$option_value."'".
-                ")"
-);
+                ")");
 
 // return JSON data of list items on success
 echo '{ "error":"", "options": [';
@@ -77,12 +76,10 @@ while ($lrow = sqlFetchArray($lres)) {
     // translate title if translate-lists flag set and not english
     if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
         echo '"title":"' . xl($lrow['title']) .'"}';
-    }
-    else {
+    } else {
         echo '"title":"'.$lrow['title'].'"}';
     }
 }
+
 echo "]}";
 exit;
-
-?>

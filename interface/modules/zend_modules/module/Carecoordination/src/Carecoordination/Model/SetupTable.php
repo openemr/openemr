@@ -26,7 +26,6 @@ use Zend\Db\TableGateway\AbstractTableGateway;
 use Application\Model\ApplicationTable;
 use Zend\Db\Adapter\Driver\Pdo\Result;
 
-
 class SetupTable extends AbstractTableGateway
 {
     /*
@@ -44,8 +43,8 @@ class SetupTable extends AbstractTableGateway
                         left join ccda_sections as sec on sec.ccda_components_id = com.ccda_components_id
                         where 1=1 ORDER BY sec.ccda_components_id, sec.ccda_sections_id";
         $appTable   = new ApplicationTable();
-        $row        = $appTable->zQuery($query,array());
-        foreach($row as $result){
+        $row        = $appTable->zQuery($query, array());
+        foreach ($row as $result) {
             $sections[] = $result;
         }
         
@@ -64,8 +63,8 @@ class SetupTable extends AbstractTableGateway
         
         $query      = "select name, directory, nickname from registry where state=? ORDER BY name";
         $appTable   = new ApplicationTable();
-        $row        = $appTable->zQuery($query,array(1));
-        foreach($row as $result){
+        $row        = $appTable->zQuery($query, array(1));
+        foreach ($row as $result) {
             $name       = $result['nickname'] ? $result['nickname'] : $result['name'];
             $directory  = "1|".$result['directory'];
             $forms[]    = array($name, $directory);
@@ -86,18 +85,19 @@ class SetupTable extends AbstractTableGateway
         
         $query      = "select option_id, title from list_options where list_id = ? ORDER BY seq,title";
         $appTable   = new ApplicationTable();
-        $row        = $appTable->zQuery($query,array('lbfnames'));
+        $row        = $appTable->zQuery($query, array('lbfnames'));
         $count      = 0;
-        foreach($row as $result){
+        foreach ($row as $result) {
             $lbf[$count][0]     = $result['title'];
             $lbf[$count][1]     = "2|".$result['option_id'];
             $res_1 =  $appTable->zQuery("SELECT field_id,title FROM layout_options WHERE form_id=? ORDER BY title", array($result['option_id']));
             $count_sub      = 0;
-            foreach($res_1 as $row_1){
+            foreach ($res_1 as $row_1) {
                 $lbf[$count][2][$count_sub][0] = ($row_1['title'] ? $row_1['title'] : $row_1['field_id']);
                 $lbf[$count][2][$count_sub][1] = $lbf[$count][1]."|".$row_1['field_id'];
                 $count_sub++;
             }
+
             $count++;
         }
         
@@ -116,19 +116,20 @@ class SetupTable extends AbstractTableGateway
         
         $query  = "SHOW TABLES LIKE 'form_%'";
         $appTable   = new ApplicationTable();
-        $res        = $appTable->zQuery($query,array());
+        $res        = $appTable->zQuery($query, array());
         $count  = 0;
-        foreach($res as $row){
+        foreach ($res as $row) {
             $table_name     = array_shift($row);
             $tables[$count][0]  = $table_name;
             $tables[$count][1]  = "3|".$table_name;
             $res_desc       = $appTable->zQuery("DESCRIBE ".$table_name);
             $count_sub      = 0;
-            foreach($res_desc as $row_desc){
+            foreach ($res_desc as $row_desc) {
                 $tables[$count][2][$count_sub][0] = $row_desc['Field'];
                 $tables[$count][2][$count_sub][1] = $tables[$count][1]."|".$row_desc['Field'];
                 $count_sub++;
             }
+
             $count++;
         }
         
@@ -147,8 +148,8 @@ class SetupTable extends AbstractTableGateway
         
         $query      = "SELECT * FROM categories WHERE id != ? ORDER BY NAME ASC";
         $appTable   = new ApplicationTable();
-        $res        = $appTable->zQuery($query,array(1));
-        foreach($res as $row){
+        $res        = $appTable->zQuery($query, array(1));
+        foreach ($res as $row) {
             $document_categories[] = array($row['name'], '4|'.$row['id']);
         }
         
@@ -172,43 +173,39 @@ class SetupTable extends AbstractTableGateway
                             LEFT JOIN categories AS cat ON cat.id = tab1.form_dir
 			    WHERE tab1.deleted = ?";
         $appTable       = new ApplicationTable();
-        $res            = $appTable->zQuery($query,array('lbfnames',0));
+        $res            = $appTable->zQuery($query, array('lbfnames',0));
         
         $count      = 0;
         $class      = '';
-        foreach($res as $row){
+        foreach ($res as $row) {
             $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['form_dir']      = $row['form_dir'];
             $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['form_type']     = $row['form_type'];
             $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['form_table']    = $row['form_table'];
             $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['ccda_field']    = $row['ccda_field'];
-            if($row['form_type'] == 1){
-                if($row['ccda_field']){
+            if ($row['form_type'] == 1) {
+                if ($row['ccda_field']) {
                     $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['name']  = $row['ccda_field'];
                     $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['class'] = "3|".$row['form_dir']."|".$row['ccda_field'];
-                }
-                elseif($row['form_table'] && !$row['ccda_field']){
+                } elseif ($row['form_table'] && !$row['ccda_field']) {
                     $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['name']  = $row['form_table'];
                     $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['class'] = "1|".$row['form_table'];
-                }
-                else{
+                } else {
                     $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['name']  = $row['form_name'];
                     $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['class'] = "1|".$row['form_dir'];
                 }
-            }
-            elseif($row['form_type'] == 2){
-                if($row['ccda_field']){
+            } elseif ($row['form_type'] == 2) {
+                if ($row['ccda_field']) {
                     $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['name']  = $row['ccda_field'];
                     $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['class'] = "2|".$row['form_dir']."|".$row['ccda_field'];
-                }
-                else{
+                } else {
                     $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['name']  = $row['title'];
                     $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['class'] = "2|".$row['form_dir'];
                 }
-            }
-            elseif($row['form_type'] == 3){
+            } elseif ($row['form_type'] == 3) {
                 $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['name']  = $row['name'];
                 $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['class'] = "4|".$row['id'];
             }
+
             $count++;
         }
         
@@ -224,8 +221,8 @@ class SetupTable extends AbstractTableGateway
     {
         $query      = "select max(id) as id from ccda_table_mapping where user_id=?";
         $appTable       = new ApplicationTable();
-        $res            = $appTable->zQuery($query,array(1));
-        foreach($res as $row){
+        $res            = $appTable->zQuery($query, array(1));
+        foreach ($res as $row) {
             return $row['id'];
         }
     }
@@ -243,8 +240,8 @@ class SetupTable extends AbstractTableGateway
         $appTable->zQuery($sql, $values);
         $query      = "select max(id) as id from ccda_table_mapping";
         $appTable   = new ApplicationTable();
-        $res        = $appTable->zQuery($query,array());
-        foreach($res as $row){
+        $res        = $appTable->zQuery($query, array());
+        foreach ($res as $row) {
             return $row['id'];
         }
     }
@@ -272,4 +269,3 @@ class SetupTable extends AbstractTableGateway
         $res        = $appTable->zQuery("update ccda_table_mapping set deleted = 1 where id <= ? and user_id = ?", $values);
     }
 }
-?>

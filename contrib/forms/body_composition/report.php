@@ -17,16 +17,18 @@ function body_composition_report($pid, $encounter, $cols, $id)
     "id = '$id' AND activity = '1'");
     if ($data) {
         print "<table cellpadding='0' cellspacing='0'>\n<tr>\n";
-        foreach($data as $key => $value) {
+        foreach ($data as $key => $value) {
             if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" ||
              $key == "authorized" || $key == "activity" || $key == "date" ||
              $value == "" || $value == "0" || $value == "0.00") {
                 continue;
             }
+
             if ($value == "on") {
                 $value = "yes";
             }
-            $key=ucwords(str_replace("_"," ",$key));
+
+            $key=ucwords(str_replace("_", " ", $key));
             print "<td valign='top'><span class='bold'>$key: </span><span class='text'>$value &nbsp;</span></td>\n";
             $count++;
             if ($count == $cols) {
@@ -34,7 +36,7 @@ function body_composition_report($pid, $encounter, $cols, $id)
                 print "</tr>\n<tr>\n";
             }
         }
+
         print "</tr>\n</table>\n";
     }
 }
-?> 

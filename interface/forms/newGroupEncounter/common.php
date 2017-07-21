@@ -106,8 +106,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
     $collectthis = collectValidationPageRules("/interface/forms/newGroupEncounter/common.php");
     if (empty($collectthis)) {
          $collectthis = "undefined";
-    }
-    else {
+    } else {
          $collectthis = $collectthis["new-encounter-form"]["rules"];
     }
     ?>
@@ -205,19 +204,28 @@ function cancelClicked() {
      <td class='text'>
       <select name='pc_catid' id='pc_catid'>
     <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
-<?php
- $cres = sqlStatement("SELECT pc_catid, pc_catname, pc_cattype " .
-  "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq ");
- while ($crow = sqlFetchArray($cres)) {
-     $catid = $crow['pc_catid'];
-     if ($crow['pc_cattype'] != 3) continue;
-     echo "       <option value='" . attr($catid) . "'";
-  // mark therapy group's category as selected
-     if(!$viewmode && $crow['pc_cattype'] == 3) echo " selected";
-     if ($viewmode && $crow['pc_catid'] == $result['pc_catid']) echo " selected";
-     echo ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
+    <?php
+    $cres = sqlStatement("SELECT pc_catid, pc_catname, pc_cattype " .
+    "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq ");
+    while ($crow = sqlFetchArray($cres)) {
+        $catid = $crow['pc_catid'];
+        if ($crow['pc_cattype'] != 3) {
+            continue;
+        }
+
+        echo "       <option value='" . attr($catid) . "'";
+    // mark therapy group's category as selected
+        if (!$viewmode && $crow['pc_cattype'] == 3) {
+            echo " selected";
+        }
+
+        if ($viewmode && $crow['pc_catid'] == $result['pc_catid']) {
+            echo " selected";
+        }
+
+        echo ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
     }
-?>
+    ?>
       </select>
      </td>
     </tr>
@@ -238,9 +246,11 @@ if ($viewmode) {
 
 $facilities = $facilityService->getAllServiceLocations();
 if ($facilities) {
-    foreach($facilities as $iter) {
+    foreach ($facilities as $iter) {
     ?>
-       <option value="<?php echo attr($iter['id']); ?>" <?php if ($def_facility == $iter['id']) echo "selected";?>><?php echo text($iter['name']); ?></option>
+       <option value="<?php echo attr($iter['id']); ?>" <?php if ($def_facility == $iter['id']) {
+            echo "selected";
+}?>><?php echo text($iter['name']); ?></option>
 <?php
     }
 }
@@ -253,12 +263,12 @@ if ($facilities) {
         <td class='text'>
             <div id="ajaxdiv">
             <?php
-            billing_facility('billing_facility',$result['billing_facility']);
+            billing_facility('billing_facility', $result['billing_facility']);
             ?>
             </div>
         </td>
      </tr>
-        <?php if($GLOBALS['set_pos_code_encounter']){ ?>
+        <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
         <tr>
             <td><span class='bold' nowrap><?php echo xlt('POS Code'); ?>: </span></td>
             <td colspan="6">
@@ -269,10 +279,12 @@ if ($facilities) {
 
                 foreach ($pc->get_pos_ref() as $pos) {
                     echo "<option value=\"" . attr($pos["code"]) . "\" ";
-                    if($pos["code"] == $result['pos_code']) echo "selected";
+                    if ($pos["code"] == $result['pos_code']) {
+                        echo "selected";
+                    }
+
                     echo ">" . text($pos['code'])  . ": ". xlt($pos['title']);
                     echo "</option>\n";
-
                 }
 
                 ?>
@@ -294,12 +306,19 @@ foreach ($sensitivities as $value) {
    // Omit sensitivities to which this user does not have access.
     if (acl_check('sensitivities', $value[1])) {
         echo "       <option value='" . attr($value[1]) . "'";
-        if ($viewmode && $result['sensitivity'] == $value[1]) echo " selected";
+        if ($viewmode && $result['sensitivity'] == $value[1]) {
+            echo " selected";
+        }
+
         echo ">" . xlt($value[3]) . "</option>\n";
     }
 }
+
 echo "       <option value=''";
-if ($viewmode && !$result['sensitivity']) echo " selected";
+if ($viewmode && !$result['sensitivity']) {
+    echo " selected";
+}
+
 echo ">" . xlt('None'). "</option>\n";
 ?>
      </select>
@@ -313,7 +332,9 @@ echo ">" . xlt('None'). "</option>\n";
 ?>
     </tr>
 
-    <tr<?php if (!$GLOBALS['gbl_visit_referral_source']) echo " style='visibility:hidden;'"; ?>>
+    <tr<?php if (!$GLOBALS['gbl_visit_referral_source']) {
+        echo " style='visibility:hidden;'";
+} ?>>
      <td class='bold' nowrap><?php echo xlt('Referral Source'); ?>:</td>
      <td class='text'>
 <?php
@@ -331,7 +352,9 @@ echo ">" . xlt('None'). "</option>\n";
      </td>
     </tr>
 
-    <tr<?php if ($GLOBALS['ippf_specific']) echo " style='visibility:hidden;'"; ?>>
+    <tr<?php if ($GLOBALS['ippf_specific']) {
+        echo " style='visibility:hidden;'";
+} ?>>
      <td class='bold' nowrap><?php echo xlt('Additional Date:'); ?></td>
      <td class='text' nowrap><!-- default is blank so that while generating claim the date is blank. -->
       <input type='text' size='10' class='datepicker' name='form_onset_date' id='form_onset_date'
@@ -384,7 +407,7 @@ if (!$viewmode) { ?>
     " AND fe.date <= ? " .
     " AND " .
     "f.formdir = 'newGroupEncounter' AND f.form_id = fe.id AND f.deleted = 0 " .
-    "ORDER BY fe.encounter DESC LIMIT 1",array($therapy_group,date('Y-m-d 00:00:00'),date('Y-m-d 23:59:59')));
+    "ORDER BY fe.encounter DESC LIMIT 1", array($therapy_group,date('Y-m-d 00:00:00'),date('Y-m-d 23:59:59')));
 
 if (!empty($erow['encounter'])) {
     // If there is an encounter from today then present the duplicate visit dialog

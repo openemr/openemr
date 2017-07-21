@@ -25,7 +25,8 @@ require_once(dirname(__FILE__).'/../globals.php');
  * This class extends the ORDataObject class, to model the contents of an image-based form.
  *
  */
-abstract class AbstractClickmapModel extends ORDataObject {
+abstract class AbstractClickmapModel extends ORDataObject
+{
 
     /**
      * The row to persist information to/from.
@@ -92,7 +93,7 @@ abstract class AbstractClickmapModel extends ORDataObject {
      * @param id
      *  The index of a row in the given table to initialize form contents from.
      */
-    public function AbstractClickmapModel($table, $id="")
+    public function AbstractClickmapModel($table, $id = "")
     {
         /* Only accept numeric IDs as arguments. */
         if (is_numeric($id)) {
@@ -153,9 +154,7 @@ abstract class AbstractClickmapModel extends ORDataObject {
     {
         if (!empty($id) && is_numeric($id)) {
             $this->id = $id;
-        }
-        else
-        {
+        } else {
             trigger_error('API violation: set function called with empty or non numeric string.', E_USER_WARNING);
         }
     }
@@ -169,9 +168,7 @@ abstract class AbstractClickmapModel extends ORDataObject {
     {
         if (!empty($pid) && is_numeric($pid)) {
             $this->pid = $pid;
-        }
-        else
-        {
+        } else {
             trigger_error('API violation: set function called with empty or non numeric string.', E_USER_WARNING);
         }
     }
@@ -185,9 +182,7 @@ abstract class AbstractClickmapModel extends ORDataObject {
     {
         if (!empty($tf) && is_numeric($tf)) {
             $this->activity = $tf;
-        }
-        else
-        {
+        } else {
             trigger_error('API violation: set function called with empty or non numeric string.', E_USER_WARNING);
         }
     }
@@ -207,9 +202,7 @@ abstract class AbstractClickmapModel extends ORDataObject {
     {
         if (!empty($dt)) {
             $this->date = $dt;
-        }
-        else
-        {
+        } else {
             trigger_error('API violation: set function called with empty string.', E_USER_WARNING);
         }
     }
@@ -223,9 +216,7 @@ abstract class AbstractClickmapModel extends ORDataObject {
     {
         if (!empty($u)) {
             $this->user = $u;
-        }
-        else
-        {
+        } else {
             trigger_error('API violation: set function called with empty string.', E_USER_WARNING);
         }
     }
@@ -239,13 +230,8 @@ abstract class AbstractClickmapModel extends ORDataObject {
     {
         if (!empty($data)) {
             $this->data = $data;
-        }
-        else
-        {
+        } else {
             trigger_error('API violation: set function called with empty string.', E_USER_WARNING);
         }
     }
-
 }
-
-?>

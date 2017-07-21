@@ -8,5 +8,5 @@
 //
 interface AmcFilterIF extends RsFilterIF
 {
-    public function test( AmcPatient $patient, $beginDate, $endDate );
+    public function test(AmcPatient $patient, $beginDate, $endDate);
 }

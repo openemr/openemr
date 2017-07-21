@@ -82,4 +82,4 @@ class Module
         Container::setDefaultManager($sessionManager);
         $sessionManager->start();
     }
-}?>
+}

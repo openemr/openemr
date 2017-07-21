@@ -22,7 +22,8 @@
 
 namespace common\utils;
 
-class QueryUtils {
+class QueryUtils
+{
     /**
      * Shared getter for SQL selects.
      *

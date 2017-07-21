@@ -17,10 +17,10 @@ include_once("../../../library/sqlconf.php");
 global $host,$port,$login,$pass,$dbase,$disable_utf8_flag;
 if (!$disable_utf8_flag) {
     $pnconfig['utf8Flag'] = true;
-}
-else {
+} else {
     $pnconfig['utf8Flag'] = false;
 }
+
 // ---------------------------------------
 
 $pnconfig['modname'] = "PostCalendar";
@@ -75,10 +75,11 @@ $pndebug['debug_sql']      = 0;
 // if there is a personal_config.php in the folder where is config.php
 // we add it. (This HAS to be at the end, after all initialization.)
 // ----------------------------------------------------------------------
-if (@file_exists("personal_config.php"))
-{ include("personal_config.php"); }
+if (@file_exists("personal_config.php")) {
+    include("personal_config.php");
+}
+
 // ----------------------------------------------------------------------
 // Make config file backwards compatible (deprecated)
 // ----------------------------------------------------------------------
 extract($pnconfig, EXTR_OVERWRITE);
-?>

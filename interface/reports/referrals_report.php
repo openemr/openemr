@@ -25,6 +25,7 @@
  */
 
 use OpenEMR\Core\Header;
+
  require_once("../globals.php");
  require_once("$srcdir/patient.inc");
  require_once "$srcdir/options.inc.php";
@@ -219,20 +220,22 @@ if ($_POST['form_refresh']) {
         // If a facility is specified, ignore rows that do not match.
         if ($form_facility !== '') {
             if ($form_facility) {
-                if ($row['facility_id'] != $form_facility) continue;
-            }
-            else {
-                if (!empty($row['facility_id'])) continue;
+                if ($row['facility_id'] != $form_facility) {
+                    continue;
+                }
+            } else {
+                if (!empty($row['facility_id'])) {
+                    continue;
+                }
             }
         }
 
     ?>
    <tr>
     <td>
-        <?php if($row['organization']!=null || $row['organization']!='') {
+        <?php if ($row['organization']!=null || $row['organization']!='') {
             echo text($row['organization']);
-}
-else {
+} else {
     echo text($row['referer_to']);
 }
 

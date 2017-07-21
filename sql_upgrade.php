@@ -46,14 +46,21 @@ $GLOBALS["enable_auditlog"]=0;
 $versions = array();
 $sqldir = "$webserver_root/sql";
 $dh = opendir($sqldir);
-if (! $dh) die("Cannot read $sqldir");
+if (! $dh) {
+    die("Cannot read $sqldir");
+}
+
 while (false !== ($sfname = readdir($dh))) {
-    if (substr($sfname, 0, 1) == '.') continue;
+    if (substr($sfname, 0, 1) == '.') {
+        continue;
+    }
+
     if (preg_match('/^(\d+)_(\d+)_(\d+)-to-\d+_\d+_\d+_upgrade.sql$/', $sfname, $matches)) {
         $version = $matches[1] . '.' . $matches[2] . '.' . $matches[3];
         $versions[$version] = $sfname;
     }
 }
+
 closedir($dh);
 ksort($versions);
 ?>
@@ -73,7 +80,10 @@ if (!empty($_POST['form_submit'])) {
     $form_old_version = $_POST['form_old_version'];
 
     foreach ($versions as $version => $filename) {
-        if (strcmp($version, $form_old_version) < 0) continue;
+        if (strcmp($version, $form_old_version) < 0) {
+            continue;
+        }
+
         upgradeFromSqlFile($filename);
     }
 
@@ -82,7 +92,7 @@ if (!empty($_POST['form_submit'])) {
         upgradeFromSqlFile('ippf_upgrade.sql');
     }
 
-    if ( (!empty($v_realpatch)) && ($v_realpatch != "") && ($v_realpatch > 0) ) {
+    if ((!empty($v_realpatch)) && ($v_realpatch != "") && ($v_realpatch > 0)) {
         // This release contains a patch file, so process it.
         upgradeFromSqlFile('patch.sql');
     }
@@ -94,7 +104,7 @@ if (!empty($_POST['form_submit'])) {
     foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         foreach ($grparr as $fldid => $fldarr) {
             list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-            if ( is_array($fldtype) || (substr($fldtype, 0, 2) !== 'm_') ) {
+            if (is_array($fldtype) || (substr($fldtype, 0, 2) !== 'm_')) {
                 $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
                 if (empty($row['count'])) {
                     sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
@@ -137,7 +147,10 @@ if (!empty($_POST['form_submit'])) {
 foreach ($versions as $version => $filename) {
     echo " <option value='$version'";
   // Defaulting to most recent version, which is now 5.0.0.
-    if ($version === '5.0.0') echo " selected";
+    if ($version === '5.0.0') {
+        echo " selected";
+    }
+
     echo ">$version</option>\n";
 }
 ?>

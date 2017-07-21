@@ -33,7 +33,7 @@ $imagedir   = "$patientdir/demographics";
 <head>
 <title>Upload Image</title>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-<link rel="stylesheet" href="<?php echo xl($css_header,'e');?>" type="text/css">
+<link rel="stylesheet" href="<?php echo xl($css_header, 'e');?>" type="text/css">
 </head>
 <body>
 
@@ -41,27 +41,32 @@ $imagedir   = "$patientdir/demographics";
   $errmsg = '';
 
 if ($_POST["form_submit"] || $_POST["form_delete"]) {
-    if (!file_exists($patientdir)) mkdir($patientdir);
-    if (!file_exists($imagedir  )) mkdir($imagedir  );
+    if (!file_exists($patientdir)) {
+        mkdir($patientdir);
+    }
+
+    if (!file_exists($imagedir)) {
+        mkdir($imagedir);
+    }
+
     check_file_dir_name($what);
     $filename = "$imagedir/$what.jpg";
 
     if ($_POST["form_delete"]) {
         unlink($filename);
-    }
-    else {
+    } else {
       // Check if the upload worked.
       //
         if (! $errmsg) {
-            if (! is_uploaded_file($_FILES['userfile']['tmp_name']))
-            $errmsg = "Upload failed!  Make sure the path/filename is valid " .
-            "and the file is less than 4,000,000 bytes.";
+            if (! is_uploaded_file($_FILES['userfile']['tmp_name'])) {
+                $errmsg = "Upload failed!  Make sure the path/filename is valid " .
+                "and the file is less than 4,000,000 bytes.";
+            }
         }
 
       // Copy the image to its destination.
       //
         if (! $errmsg) {
-
             /***************************************************************
           $tmp = exec("/usr/bin/convert -resize 150x150 " .
             ($_POST["form_normalize"] ? "-equalize " : "") .
@@ -88,6 +93,7 @@ if ($_POST["form_submit"] || $_POST["form_delete"]) {
         echo "opener.location.reload()\n";
         echo "window.close()\n";
     }
+
     echo "</script>\n</body>\n</html>\n";
 
     exit;

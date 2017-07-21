@@ -18,7 +18,8 @@
  * @link    http://www.open-emr.org
  */
 
-class DuplicateRegistrationException extends Exception {
+class DuplicateRegistrationException extends Exception
+{
     public function errorMessage()
     {
         return $this->getMessage();

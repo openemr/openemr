@@ -25,258 +25,279 @@
  */
 session_start();
 
-if( isset( $_SESSION['pid'] ) && isset( $_SESSION['patient_portal_onsite_two'] ) ){
+if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
-    require_once ( dirname( __FILE__ ) . "/../interface/globals.php" );
-} else{
+    require_once(dirname(__FILE__) . "/../interface/globals.php");
+} else {
     session_destroy();
     $ignoreAuth = false;
-    require_once ( dirname( __FILE__ ) . "/../interface/globals.php" );
-    if( ! isset( $_SESSION['authUserID'] ) ){
+    require_once(dirname(__FILE__) . "/../interface/globals.php");
+    if (! isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
-        header( 'Location: ' . $landingpage );
+        header('Location: ' . $landingpage);
         exit();
     }
 }
-require_once ( dirname( __FILE__ ) . "/lib/appsql.class.php" );
-require_once ( "$srcdir/acl.inc" );
-require_once ( "$srcdir/patient.inc" );
-require_once ( "$srcdir/billing.inc" );
-require_once ( "$srcdir/payment.inc.php" );
-require_once ( "$srcdir/forms.inc" );
-require_once ( "$srcdir/sl_eob.inc.php" );
-require_once ( "$srcdir/invoice_summary.inc.php" );
-require_once ( "../custom/code_types.inc.php" );
-require_once ( "$srcdir/formatting.inc.php" );
-require_once ( "$srcdir/options.inc.php" );
-require_once ( "$srcdir/encounter_events.inc.php" );
+
+require_once(dirname(__FILE__) . "/lib/appsql.class.php");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/billing.inc");
+require_once("$srcdir/payment.inc.php");
+require_once("$srcdir/forms.inc");
+require_once("$srcdir/sl_eob.inc.php");
+require_once("$srcdir/invoice_summary.inc.php");
+require_once("../custom/code_types.inc.php");
+require_once("$srcdir/formatting.inc.php");
+require_once("$srcdir/options.inc.php");
+require_once("$srcdir/encounter_events.inc.php");
 
 $appsql = new ApplicationTable();
 
 $pid = $_REQUEST['hidden_patient_code'] > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
 
-$edata = $appsql->getPortalAudit( $pid, 'review', 'payment' );
+$edata = $appsql->getPortalAudit($pid, 'review', 'payment');
 $ccdata = array();
 $invdata = array();
 
-if( $edata ){
-    $ccdata = json_decode(aes256Decrypt($edata['checksum']),true);
-    $invdata = json_decode($edata['table_args'],true);
+if ($edata) {
+    $ccdata = json_decode(aes256Decrypt($edata['checksum']), true);
+    $invdata = json_decode($edata['table_args'], true);
     echo "<script  type='text/javascript'>var jsondata='" . $edata['table_args'] . "';var ccdata='" . $edata['checksum'] . "'</script>";
 }
-function bucks( $amount )
+
+function bucks($amount)
 {
-    if( $amount ){
-        $amount = oeFormatMoney( $amount );
+    if ($amount) {
+        $amount = oeFormatMoney($amount);
         return $amount;
     }
+
     return '';
 }
-function rawbucks( $amount )
+function rawbucks($amount)
 {
-    if( $amount ){
-        $amount = sprintf( "%.2f", $amount );
+    if ($amount) {
+        $amount = sprintf("%.2f", $amount);
         return $amount;
     }
+
     return '';
 }
 
 // Display a row of data for an encounter.
 //
 $var_index = 0;
-function echoLine( $iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0 )
+function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0)
 {
     global $var_index;
     $var_index ++;
-    $balance = bucks( $charges - $ptpaid - $inspaid );
-    $balance = ( round( $duept, 2 ) != 0 ) ? 0 : $balance; // if balance is due from patient, then insurance balance is displayed as zero
+    $balance = bucks($charges - $ptpaid - $inspaid);
+    $balance = ( round($duept, 2) != 0 ) ? 0 : $balance; // if balance is due from patient, then insurance balance is displayed as zero
     $encounter = $encounter ? $encounter : '';
-    echo " <tr id='tr_" . attr( $var_index ) . "' >\n";
-    echo "  <td class='detail'>" . text( oeFormatShortDate( $date ) ) . "</td>\n";
-    echo "  <td class='detail' id='" . attr( $date ) . "' align='left'>" . htmlspecialchars( $encounter, ENT_QUOTES ) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_charges_$var_index' >" . htmlspecialchars( bucks( $charges ), ENT_QUOTES ) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_inspaid_$var_index' >" . htmlspecialchars( bucks( $inspaid * - 1 ), ENT_QUOTES ) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_ptpaid_$var_index' >" . htmlspecialchars( bucks( $ptpaid * - 1 ), ENT_QUOTES ) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_patient_copay_$var_index' >" . htmlspecialchars( bucks( $patcopay ), ENT_QUOTES ) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_copay_$var_index' >" . htmlspecialchars( bucks( $copay ), ENT_QUOTES ) . "</td>\n";
-    echo "  <td class='detail' align='center' id='balance_$var_index'>" . htmlspecialchars( bucks( $balance ), ENT_QUOTES ) . "</td>\n";
-    echo "  <td class='detail' align='center' id='duept_$var_index'>" . htmlspecialchars( bucks( round( $duept, 2 ) * 1 ), ENT_QUOTES ) . "</td>\n";
-    echo "  <td class='detail' align='right'><input class='form-control' style='width:60px;padding:2px 2px;' type='text' name='" . attr( $iname ) . "'  id='paying_" . attr( $var_index ) . "' " . " value='" . '' . "' onchange='coloring();calctotal()'  autocomplete='off' " . "onkeyup='calctotal()'/></td>\n";
+    echo " <tr id='tr_" . attr($var_index) . "' >\n";
+    echo "  <td class='detail'>" . text(oeFormatShortDate($date)) . "</td>\n";
+    echo "  <td class='detail' id='" . attr($date) . "' align='left'>" . htmlspecialchars($encounter, ENT_QUOTES) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_charges_$var_index' >" . htmlspecialchars(bucks($charges), ENT_QUOTES) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_inspaid_$var_index' >" . htmlspecialchars(bucks($inspaid * - 1), ENT_QUOTES) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_ptpaid_$var_index' >" . htmlspecialchars(bucks($ptpaid * - 1), ENT_QUOTES) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_patient_copay_$var_index' >" . htmlspecialchars(bucks($patcopay), ENT_QUOTES) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_copay_$var_index' >" . htmlspecialchars(bucks($copay), ENT_QUOTES) . "</td>\n";
+    echo "  <td class='detail' align='center' id='balance_$var_index'>" . htmlspecialchars(bucks($balance), ENT_QUOTES) . "</td>\n";
+    echo "  <td class='detail' align='center' id='duept_$var_index'>" . htmlspecialchars(bucks(round($duept, 2) * 1), ENT_QUOTES) . "</td>\n";
+    echo "  <td class='detail' align='right'><input class='form-control' style='width:60px;padding:2px 2px;' type='text' name='" . attr($iname) . "'  id='paying_" . attr($var_index) . "' " . " value='" . '' . "' onchange='coloring();calctotal()'  autocomplete='off' " . "onkeyup='calctotal()'/></td>\n";
     echo " </tr>\n";
 }
 
 // We use this to put dashes, colons, etc. back into a timestamp.
 //
-function decorateString( $fmt, $str )
+function decorateString($fmt, $str)
 {
     $res = '';
-    while( $fmt ){
-        $fc = substr( $fmt, 0, 1 );
-        $fmt = substr( $fmt, 1 );
-        if( $fc == '.' ){
-            $res .= substr( $str, 0, 1 );
-            $str = substr( $str, 1 );
-        } else{
+    while ($fmt) {
+        $fc = substr($fmt, 0, 1);
+        $fmt = substr($fmt, 1);
+        if ($fc == '.') {
+            $res .= substr($str, 0, 1);
+            $str = substr($str, 1);
+        } else {
             $res .= $fc;
         }
     }
+
     return $res;
 }
 
 // Compute taxes from a tax rate string and a possibly taxable amount.
 //
-function calcTaxes( $row, $amount )
+function calcTaxes($row, $amount)
 {
     $total = 0;
-    if( empty( $row['taxrates'] ) ) return $total;
-    $arates = explode( ':', $row['taxrates'] );
-    if( empty( $arates ) ) return $total;
-    foreach( $arates as $value ){
-        if( empty( $value ) ) continue;
-        $trow = sqlQuery( "SELECT option_value FROM list_options WHERE " . "list_id = 'taxrate' AND option_id = ? LIMIT 1", array ($value
-        ) );
-        if( empty( $trow['option_value'] ) ){
-            echo "<!-- Missing tax rate '" . text( $value ) . "'! -->\n";
+    if (empty($row['taxrates'])) {
+        return $total;
+    }
+
+    $arates = explode(':', $row['taxrates']);
+    if (empty($arates)) {
+        return $total;
+    }
+
+    foreach ($arates as $value) {
+        if (empty($value)) {
             continue;
         }
-        $tax = sprintf( "%01.2f", $amount * $trow['option_value'] );
+
+        $trow = sqlQuery("SELECT option_value FROM list_options WHERE " . "list_id = 'taxrate' AND option_id = ? LIMIT 1", array ($value
+        ));
+        if (empty($trow['option_value'])) {
+            echo "<!-- Missing tax rate '" . text($value) . "'! -->\n";
+            continue;
+        }
+
+        $tax = sprintf("%01.2f", $amount * $trow['option_value']);
         // echo "<!-- Rate = '$value', amount = '$amount', tax = '$tax' -->\n";
         $total += $tax;
     }
+
     return $total;
 }
 
 $now = time();
-$today = date( 'Y-m-d', $now );
-$timestamp = date( 'Y-m-d H:i:s', $now );
+$today = date('Y-m-d', $now);
+$timestamp = date('Y-m-d H:i:s', $now);
 
 
 // $patdata = getPatientData($pid, 'fname,lname,pubpid');
 
-$patdata = sqlQuery( "SELECT " . "p.fname, p.mname, p.lname, p.pubpid,p.pid, i.copay " . "FROM patient_data AS p " . "LEFT OUTER JOIN insurance_data AS i ON " . "i.pid = p.pid AND i.type = 'primary' " . "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", array ($pid
-) );
+$patdata = sqlQuery("SELECT " . "p.fname, p.mname, p.lname, p.pubpid,p.pid, i.copay " . "FROM patient_data AS p " . "LEFT OUTER JOIN insurance_data AS i ON " . "i.pid = p.pid AND i.type = 'primary' " . "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", array ($pid
+));
 
 $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Save button was clicked...
-if( $_POST['form_save'] ){
+if ($_POST['form_save']) {
     // $extra = json_decode($_POST['ajax_mode'], true);
     $form_pid = $_POST['form_pid'];
-    $form_method = trim( $_POST['form_method'] );
-    $form_source = trim( $_POST['form_source'] );
-    $patdata = getPatientData( $form_pid, 'fname,mname,lname,pubpid' );
+    $form_method = trim($_POST['form_method']);
+    $form_source = trim($_POST['form_source']);
+    $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
-    if( $_REQUEST['radio_type_of_payment'] == 'pre_payment' ){
-        $payment_id = idSqlStatement( "insert into ar_session set " . "payer_id = ?" . ", patient_id = ?" . ", user_id = ?" . ", closed = ?" . ", reference = ?" . ", check_date =  now() , deposit_date = now() " . ",  pay_total = ?" . ", payment_type = 'patient'" . ", description = ?" . ", adjustment_code = 'pre_payment'" . ", post_to_date = now() " . ", payment_method = ?", array (
+    if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
+        $payment_id = idSqlStatement("insert into ar_session set " . "payer_id = ?" . ", patient_id = ?" . ", user_id = ?" . ", closed = ?" . ", reference = ?" . ", check_date =  now() , deposit_date = now() " . ",  pay_total = ?" . ", payment_type = 'patient'" . ", description = ?" . ", adjustment_code = 'pre_payment'" . ", post_to_date = now() " . ", payment_method = ?", array (
                 0,$form_pid,$_SESSION['authUserID'],0,$form_source,$_REQUEST['form_prepayment'],$NameNew,$form_method
-        ) );
+        ));
 
-        frontPayment( $form_pid, 0, $form_method, $form_source, $_REQUEST['form_prepayment'], 0, $timestamp ); // insertion to 'payments' table.
+        frontPayment($form_pid, 0, $form_method, $form_source, $_REQUEST['form_prepayment'], 0, $timestamp); // insertion to 'payments' table.
     }
 
-    if( $_POST['form_upay'] && $_REQUEST['radio_type_of_payment'] != 'pre_payment' ){
-        foreach( $_POST['form_upay'] as $enc => $payment ){
-            if( $amount = 0 + $payment ){
+    if ($_POST['form_upay'] && $_REQUEST['radio_type_of_payment'] != 'pre_payment') {
+        foreach ($_POST['form_upay'] as $enc => $payment) {
+            if ($amount = 0 + $payment) {
                 $zero_enc = $enc;
-                if( $_REQUEST['radio_type_of_payment'] == 'invoice_balance' ){
+                if ($_REQUEST['radio_type_of_payment'] == 'invoice_balance') {
                     ;
-                } else{
-                    if( ! $enc ){
-                        $enc = calendar_arrived( $form_pid );
+                } else {
+                    if (! $enc) {
+                        $enc = calendar_arrived($form_pid);
                     }
                 }
+
                 // ----------------------------------------------------------------------------------------------------
                 // Fetching the existing code and modifier
-                $ResultSearchNew = sqlStatement( "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key " . "WHERE code_types.ct_fee=1 AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier", array ($form_pid,$enc
-                ) );
-                if( $RowSearch = sqlFetchArray( $ResultSearchNew ) ){
+                $ResultSearchNew = sqlStatement("SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key " . "WHERE code_types.ct_fee=1 AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier", array ($form_pid,$enc
+                ));
+                if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                     $Codetype = $RowSearch['code_type'];
                     $Code = $RowSearch['code'];
                     $Modifier = $RowSearch['modifier'];
-                } else{
+                } else {
                     $Codetype = '';
                     $Code = '';
                     $Modifier = '';
                 }
+
                 // ----------------------------------------------------------------------------------------------------
-                if( $_REQUEST['radio_type_of_payment'] == 'copay' ) // copay saving to ar_session and ar_activity tables
-                {
-                    $session_id = idSqlStatement( "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," . " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) " . " VALUES ('0',?,?,now(),now(),?,'','patient','COPAY',?,?,'patient_payment',now())", array (
+                if ($_REQUEST['radio_type_of_payment'] == 'copay') { // copay saving to ar_session and ar_activity tables
+                    $session_id = idSqlStatement("INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," . " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) " . " VALUES ('0',?,?,now(),now(),?,'','patient','COPAY',?,?,'patient_payment',now())", array (
                             $_SESSION['authId'],$form_source,$amount,$form_pid,$form_method
-                    ) );
+                    ));
 
-                    $insrt_id = idSqlStatement( "INSERT INTO ar_activity (pid,encounter,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" . " VALUES (?,?,?,?,?,0,now(),?,?,?,'PCP')", array ($form_pid,$enc,$Codetype,$Code,$Modifier,'3',$session_id,$amount
-                    ) );
+                    $insrt_id = idSqlStatement("INSERT INTO ar_activity (pid,encounter,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" . " VALUES (?,?,?,?,?,0,now(),?,?,?,'PCP')", array ($form_pid,$enc,$Codetype,$Code,$Modifier,'3',$session_id,$amount
+                    ));
 
-                    frontPayment( $form_pid, $enc, $form_method, $form_source, $amount, 0, $timestamp ); // insertion to 'payments' table.
+                    frontPayment($form_pid, $enc, $form_method, $form_source, $amount, 0, $timestamp); // insertion to 'payments' table.
                 }
-                if( $_REQUEST['radio_type_of_payment'] == 'invoice_balance' || $_REQUEST['radio_type_of_payment'] == 'cash' ){ // Payment by patient after insurance paid, cash patients similar to do not bill insurance in feesheet.
-                    if( $_REQUEST['radio_type_of_payment'] == 'cash' ){
-                        sqlStatement( "update form_encounter set last_level_closed=? where encounter=? and pid=? ", array (4,$enc,$form_pid
-                        ) );
-                        sqlStatement( "update billing set billed=? where encounter=? and pid=?", array (1,$enc,$form_pid
-                        ) );
+
+                if ($_REQUEST['radio_type_of_payment'] == 'invoice_balance' || $_REQUEST['radio_type_of_payment'] == 'cash') { // Payment by patient after insurance paid, cash patients similar to do not bill insurance in feesheet.
+                    if ($_REQUEST['radio_type_of_payment'] == 'cash') {
+                        sqlStatement("update form_encounter set last_level_closed=? where encounter=? and pid=? ", array (4,$enc,$form_pid
+                        ));
+                        sqlStatement("update billing set billed=? where encounter=? and pid=?", array (1,$enc,$form_pid
+                        ));
                     }
+
                     $adjustment_code = 'patient_payment';
-                    $payment_id = idSqlStatement( "insert into ar_session set " . "payer_id = ?" . ", patient_id = ?" . ", user_id = ?" . ", closed = ?" . ", reference = ?" . ", check_date =  now() , deposit_date = now() " . ",  pay_total = ?" . ", payment_type = 'patient'" . ", description = ?" . ", adjustment_code = ?" . ", post_to_date = now() " . ", payment_method = ?", array (
+                    $payment_id = idSqlStatement("insert into ar_session set " . "payer_id = ?" . ", patient_id = ?" . ", user_id = ?" . ", closed = ?" . ", reference = ?" . ", check_date =  now() , deposit_date = now() " . ",  pay_total = ?" . ", payment_type = 'patient'" . ", description = ?" . ", adjustment_code = ?" . ", post_to_date = now() " . ", payment_method = ?", array (
                             0,$form_pid,$_SESSION['authUserID'],0,$form_source,$amount,$NameNew,$adjustment_code,$form_method
-                    ) );
+                    ));
 
                     // --------------------------------------------------------------------------------------------------------------------
 
-                    frontPayment( $form_pid, $enc, $form_method, $form_source, 0, $amount, $timestamp ); // insertion to 'payments' table.
+                    frontPayment($form_pid, $enc, $form_method, $form_source, 0, $amount, $timestamp); // insertion to 'payments' table.
 
                     // --------------------------------------------------------------------------------------------------------------------
 
-                    $resMoneyGot = sqlStatement( "SELECT sum(pay_amount) as PatientPay FROM ar_activity where pid =? and " . "encounter =? and payer_type=0 and account_code='PCP'", array ($form_pid,$enc
-                    ) ); // new fees screen copay gives account_code='PCP'
-                    $rowMoneyGot = sqlFetchArray( $resMoneyGot );
+                    $resMoneyGot = sqlStatement("SELECT sum(pay_amount) as PatientPay FROM ar_activity where pid =? and " . "encounter =? and payer_type=0 and account_code='PCP'", array ($form_pid,$enc
+                    )); // new fees screen copay gives account_code='PCP'
+                    $rowMoneyGot = sqlFetchArray($resMoneyGot);
                     $Copay = $rowMoneyGot['PatientPay'];
 
                     // --------------------------------------------------------------------------------------------------------------------
 
                     // Looping the existing code and modifier
-                    $ResultSearchNew = sqlStatement( "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key WHERE code_types.ct_fee=1 " . "AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier", array ($form_pid,$enc
-                    ) );
-                    while( $RowSearch = sqlFetchArray( $ResultSearchNew ) ){
+                    $ResultSearchNew = sqlStatement("SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key WHERE code_types.ct_fee=1 " . "AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier", array ($form_pid,$enc
+                    ));
+                    while ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                         $Codetype = $RowSearch['code_type'];
                         $Code = $RowSearch['code'];
                         $Modifier = $RowSearch['modifier'];
                         $Fee = $RowSearch['fee'];
 
-                        $resMoneyGot = sqlStatement( "SELECT sum(pay_amount) as MoneyGot FROM ar_activity where pid =? " . "and code_type=? and code=? and modifier=? and encounter =? and !(payer_type=0 and account_code='PCP')", array ($form_pid,$Codetype,$Code,$Modifier,$enc
-                        ) );
+                        $resMoneyGot = sqlStatement("SELECT sum(pay_amount) as MoneyGot FROM ar_activity where pid =? " . "and code_type=? and code=? and modifier=? and encounter =? and !(payer_type=0 and account_code='PCP')", array ($form_pid,$Codetype,$Code,$Modifier,$enc
+                        ));
                         // new fees screen copay gives account_code='PCP'
-                        $rowMoneyGot = sqlFetchArray( $resMoneyGot );
+                        $rowMoneyGot = sqlFetchArray($resMoneyGot);
                         $MoneyGot = $rowMoneyGot['MoneyGot'];
 
-                        $resMoneyAdjusted = sqlStatement( "SELECT sum(adj_amount) as MoneyAdjusted FROM ar_activity where " . "pid =? and code_type=? and code=? and modifier=? and encounter =?", array ($form_pid,$Codetype,$Code,$Modifier,$enc
-                        ) );
-                        $rowMoneyAdjusted = sqlFetchArray( $resMoneyAdjusted );
+                        $resMoneyAdjusted = sqlStatement("SELECT sum(adj_amount) as MoneyAdjusted FROM ar_activity where " . "pid =? and code_type=? and code=? and modifier=? and encounter =?", array ($form_pid,$Codetype,$Code,$Modifier,$enc
+                        ));
+                        $rowMoneyAdjusted = sqlFetchArray($resMoneyAdjusted);
                         $MoneyAdjusted = $rowMoneyAdjusted['MoneyAdjusted'];
 
                         $Remainder = $Fee - $Copay - $MoneyGot - $MoneyAdjusted;
                         $Copay = 0;
-                        if( round( $Remainder, 2 ) != 0 && $amount != 0 ){
-                            if( $amount - $Remainder >= 0 ){
+                        if (round($Remainder, 2) != 0 && $amount != 0) {
+                            if ($amount - $Remainder >= 0) {
                                 $insert_value = $Remainder;
                                 $amount = $amount - $Remainder;
-                            } else{
+                            } else {
                                 $insert_value = $amount;
                                 $amount = 0;
                             }
-                            sqlStatement( "insert into ar_activity set " . "pid = ?" . ", encounter = ?" . ", code_type = ?" . ", code = ?" . ", modifier = ?" . ", payer_type = ?" . ", post_time = now() " . ", post_user = ?" . ", session_id = ?" . ", pay_amount = ?" . ", adj_amount = ?" . ", account_code = 'PP'", array (
+
+                            sqlStatement("insert into ar_activity set " . "pid = ?" . ", encounter = ?" . ", code_type = ?" . ", code = ?" . ", modifier = ?" . ", payer_type = ?" . ", post_time = now() " . ", post_user = ?" . ", session_id = ?" . ", pay_amount = ?" . ", adj_amount = ?" . ", account_code = 'PP'", array (
                                     $form_pid,$enc,$Codetype,$Code,$Modifier,0,3,$payment_id,$insert_value,0
-                            ) );
+                            ));
                         } // if
                     } // while
-                    if( $amount != 0 ){ // if any excess is there.
-                        sqlStatement( "insert into ar_activity set " . "pid = ?" . ", encounter = ?" . ", code_type = ?" . ", code = ?" . ", modifier = ?" . ", payer_type = ?" . ", post_time = now() " . ", post_user = ?" . ", session_id = ?" . ", pay_amount = ?" . ", adj_amount = ?" . ", account_code = 'PP'", array (
+                    if ($amount != 0) { // if any excess is there.
+                        sqlStatement("insert into ar_activity set " . "pid = ?" . ", encounter = ?" . ", code_type = ?" . ", code = ?" . ", modifier = ?" . ", payer_type = ?" . ", post_time = now() " . ", post_user = ?" . ", session_id = ?" . ", pay_amount = ?" . ", adj_amount = ?" . ", account_code = 'PP'", array (
                                 $form_pid,$enc,$Codetype,$Code,$Modifier,0,3,$payment_id,$amount,0
-                        ) );
+                        ));
                     }
+
                     // --------------------------------------------------------------------------------------------------------------------
                 } // invoice_balance
             } // if ($amount = 0 + $payment)
@@ -284,37 +305,36 @@ if( $_POST['form_save'] ){
     } // if ($_POST['form_upay'])
 } // if ($_POST['form_save'])
 
-if( $_POST['form_save'] || $_REQUEST['receipt']){
-
-    if( $_REQUEST['receipt'] ){
+if ($_POST['form_save'] || $_REQUEST['receipt']) {
+    if ($_REQUEST['receipt']) {
         $form_pid = $_GET['patient'];
-        $timestamp = decorateString( '....-..-.. ..:..:..', $_GET['time'] );
+        $timestamp = decorateString('....-..-.. ..:..:..', $_GET['time']);
     }
 
     // Get details for what we guess is the primary facility.
-    $frow = sqlQuery( "SELECT * FROM facility " . "ORDER BY billing_location DESC, accepts_assignment DESC, id LIMIT 1" );
+    $frow = sqlQuery("SELECT * FROM facility " . "ORDER BY billing_location DESC, accepts_assignment DESC, id LIMIT 1");
 
     // Get the patient's name and chart number.
-    $patdata = getPatientData( $form_pid, 'fname,mname,lname,pubpid' );
+    $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
 
     // Re-fetch payment info.
-    $payrow = sqlQuery( "SELECT " . "SUM(amount1) AS amount1, " . "SUM(amount2) AS amount2, " . "MAX(method) AS method, " . "MAX(source) AS source, " . "MAX(dtime) AS dtime, " .
+    $payrow = sqlQuery("SELECT " . "SUM(amount1) AS amount1, " . "SUM(amount2) AS amount2, " . "MAX(method) AS method, " . "MAX(source) AS source, " . "MAX(dtime) AS dtime, " .
     // "MAX(user) AS user " .
     "MAX(user) AS user, " . "MAX(encounter) as encounter " . "FROM payments WHERE " . "pid = ? AND dtime = ?", array ($form_pid,$timestamp
-    ) );
+    ));
 
     // Create key for deleting, just in case.
     $ref_id = ( $_REQUEST['radio_type_of_payment'] == 'copay' ) ? $session_id : $payment_id;
-    $payment_key = $form_pid . '.' . preg_replace( '/[^0-9]/', '', $timestamp ) . '.' . $ref_id;
+    $payment_key = $form_pid . '.' . preg_replace('/[^0-9]/', '', $timestamp) . '.' . $ref_id;
 
     // get facility from encounter
-    $tmprow = sqlQuery( "
+    $tmprow = sqlQuery("
     SELECT facility_id
     FROM form_encounter
     WHERE encounter = ?", array ($payrow['encounter']
-    ) );
-    $frow = sqlQuery( "SELECT * FROM facility " . " WHERE id = ?", array ($tmprow['facility_id']
-    ) );
+    ));
+    $frow = sqlQuery("SELECT * FROM facility " . " WHERE id = ?", array ($tmprow['facility_id']
+    ));
 
     // Now proceed with printing the receipt.
     ?>
@@ -354,7 +374,7 @@ echo '<htlm><head></head><body style="text-align: center; margin: auto;">';
         <h2><?php echo xlt('Receipt for Payment'); ?></h2>
         <p><?php echo text($frow['name'])?>
         <br><?php echo text($frow['street'])?>
-        <br><?php echo text( $frow['city'] . ', ' . $frow['state'] ) . ' ' . text( $frow['postal_code'] )?>
+        <br><?php echo text($frow['city'] . ', ' . $frow['state']) . ' ' . text($frow['postal_code'])?>
         <br><?php echo htmlentities($frow['phone'])?>
         <p>
         <div style="text-align: center; margin: auto;">
@@ -366,11 +386,11 @@ echo '<htlm><head></head><body style="text-align: center; margin: auto;">';
                 </tr>
                 <tr>
                     <td><?php echo xlt('Patient'); ?>:</td>
-                    <td><?php echo text( $patdata['fname'] ) . " " . text( $patdata['mname'] ) . " " . text( $patdata['lname'] ) . " (" . text( $patdata['pubpid'] ) . ")"?></td>
+                    <td><?php echo text($patdata['fname']) . " " . text($patdata['mname']) . " " . text($patdata['lname']) . " (" . text($patdata['pubpid']) . ")"?></td>
                 </tr>
                 <tr>
                     <td><?php echo xlt('Paid Via'); ?>:</td>
-                    <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'payment_method'),$payrow['method']); ?></td>
+                    <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'payment_method'), $payrow['method']); ?></td>
                 </tr>
                 <tr>
                     <td><?php echo xlt('Authorized Id'); ?>:</td>
@@ -396,7 +416,7 @@ echo '<htlm><head></head><body style="text-align: center; margin: auto;">';
 </body></html>
 <?php
  ob_end_flush();
-} else{
+} else {
     //
     // Here we display the form for data entry.
     //
@@ -441,7 +461,7 @@ function calctotal() {
      f.form_paytotal.value = Number(total).toFixed(2);
      if(flag){
         $('#payfrm')[0].reset();
-        alert("<?php echo addslashes( xl('Negative payments not accepted')) ?>")
+        alert("<?php echo addslashes(xl('Negative payments not accepted')) ?>")
     }
  return true;
 }
@@ -525,7 +545,7 @@ function validate()
       {
        if(elem.value*1>0)
         {//A warning message, if the amount is posted with out encounter.
-         if(confirm("<?php echo addslashes( xl('Are you sure to post for today?')) ?>"))
+         if(confirm("<?php echo addslashes(xl('Are you sure to post for today?')) ?>"))
           {
            ok=1;
           }
@@ -567,13 +587,13 @@ function validate()
    }*///Co Pay
  else if( document.getElementsByName('form_paytotal')[0].value <= 0 )//total 0
   {
-    alert("<?php echo addslashes( xl('Invalid Total!')) ?>")
+    alert("<?php echo addslashes(xl('Invalid Total!')) ?>")
     return false;
   }
  if(ok==-1)
   {
      //return true;
-     if(confirm("<?php echo addslashes( xl('Payment Validated: Save?')) ?>"))
+     if(confirm("<?php echo addslashes(xl('Payment Validated: Save?')) ?>"))
       {
        return true;
       }
@@ -776,12 +796,12 @@ $('#paySubmit').click( function(e) {
         beforeSend: function(xhr){
             if( validateCC() !== true) return false;
             if( $('#pin').val() == "" || $('#ccname').val() == "" || $('#ccyear').val() == "" || $('#ccmonth').val() == ""){
-                 alert("<?php echo addslashes( xl('Invalid Credit Card Values: Please correct')) ?>")
+                 alert("<?php echo addslashes(xl('Invalid Credit Card Values: Please correct')) ?>")
                  return false;
             }
             if( validate() != true){
                 flag = 1;
-                alert("<?php echo addslashes( xl('Validation error: Fix and resubmit. This popup info is preserved!')) ?>")
+                alert("<?php echo addslashes(xl('Validation error: Fix and resubmit. This popup info is preserved!')) ?>")
                 return false;
             }
             $("#openPayModal .close").click()
@@ -790,7 +810,7 @@ $('#paySubmit').click( function(e) {
             console.log("There was an error:"+errorThrow);
         },
         success: function(templateHtml, textStatus, jqXHR){
-            alert("<?php echo addslashes( xl('Payment successfully sent for authorization. You will be notified when payment is posted. Until payment is accepted and you are notified, you may resubmit this payment at anytime with new amounts or different credit card. Thank you')) ?>")
+            alert("<?php echo addslashes(xl('Payment successfully sent for authorization. You will be notified when payment is posted. Until payment is accepted and you are notified, you may resubmit this payment at anytime with new amounts or different credit card. Thank you')) ?>")
             window.location.reload(false);
         }
     });
@@ -815,12 +835,12 @@ $("#payfrm").on('submit', function(e){
         beforeSend: function(xhr){
             if( validate() != true){
                 flag = 1;
-                alert("<?php echo addslashes( xl('Validation error: Fix and resubmit. Payment values are preserved!')) ?>")
+                alert("<?php echo addslashes(xl('Validation error: Fix and resubmit. Payment values are preserved!')) ?>")
                 return false;
             }
         },
         error: function(xhr, textStatus, error){
-            alert("<?php echo addslashes( xl('There is a Post error')) ?>")
+            alert("<?php echo addslashes(xl('There is a Post error')) ?>")
             console.log("There was an error:"+textStatus);
             return false;
         },
@@ -879,7 +899,7 @@ function getAuth(){
             <tr>
                 <td colspan='3' align='center' class='text'><b><?php echo xlt('Accept Payment for'); ?>&nbsp;:&nbsp;&nbsp;<?php
 
-                echo htmlspecialchars( $patdata['fname'], ENT_QUOTES ) . " " . htmlspecialchars( $patdata['lname'], ENT_QUOTES ) . " " . htmlspecialchars( $patdata['mname'], ENT_QUOTES ) . " (" . htmlspecialchars( $patdata['pid'], ENT_QUOTES ) . ")"?></b>
+                echo htmlspecialchars($patdata['fname'], ENT_QUOTES) . " " . htmlspecialchars($patdata['lname'], ENT_QUOTES) . " " . htmlspecialchars($patdata['mname'], ENT_QUOTES) . " (" . htmlspecialchars($patdata['pid'], ENT_QUOTES) . ")"?></b>
     <?php $NameNew=$patdata['fname'] . " " .$patdata['lname']. " " .$patdata['mname'];?>
   </td>
             </tr>
@@ -894,10 +914,13 @@ function getAuth(){
                     class="text" onChange='CheckVisible("yes")'>
     <?php
     $query1112 = "SELECT * FROM list_options where list_id=?  ORDER BY seq, title ";
-    $bres1112 = sqlStatement( $query1112, array ('payment_method') );
-    while( $brow1112 = sqlFetchArray( $bres1112 ) ){
-        if( $brow1112['option_id'] != 'credit_card' || $brow1112['option_id'] == 'electronic' || $brow1112['option_id'] == 'bank_draft' ) continue;
-        echo "<option value='" . htmlspecialchars( $brow1112['option_id'], ENT_QUOTES ) . "'>" . htmlspecialchars( xl_list_label( $brow1112['title'] ), ENT_QUOTES ) . "</option>";
+    $bres1112 = sqlStatement($query1112, array ('payment_method'));
+    while ($brow1112 = sqlFetchArray($bres1112)) {
+        if ($brow1112['option_id'] != 'credit_card' || $brow1112['option_id'] == 'electronic' || $brow1112['option_id'] == 'bank_draft') {
+            continue;
+        }
+
+        echo "<option value='" . htmlspecialchars($brow1112['option_id'], ENT_QUOTES) . "'>" . htmlspecialchars(xl_list_label($brow1112['title']), ENT_QUOTES) . "</option>";
     }
     ?>
   </select></td>
@@ -913,8 +936,9 @@ function getAuth(){
   </td>
                 <td colspan='2'>
     <?php
-    if( isset( $_SESSION['authUserID'] ) )
-        echo "<input type='text'  id='check_number' name='form_source' style='width:120px;' value='" . htmlspecialchars( $payrow['source'], ENT_QUOTES ) . "'>";
+    if (isset($_SESSION['authUserID'])) {
+        echo "<input type='text'  id='check_number' name='form_source' style='width:120px;' value='" . htmlspecialchars($payrow['source'], ENT_QUOTES) . "'>";
+    }
     ?>
   </td>
             </tr>
@@ -1018,59 +1042,63 @@ function getAuth(){
     //
     $query = "SELECT fe.encounter, fe.reason, b.code_type, b.code, b.modifier, b.fee, " . "LEFT(fe.date, 10) AS encdate ,fe.last_level_closed " . "FROM  form_encounter AS fe left join billing AS b  on " . "b.pid = ? AND b.activity = 1  AND " . // AND b.billed = 0
 "b.code_type != 'TAX' AND b.fee != 0 " . "AND fe.pid = b.pid AND fe.encounter = b.encounter " . "where fe.pid = ? " . "ORDER BY b.encounter";
-    $bres = sqlStatement( $query, array ($pid,$pid) );
+    $bres = sqlStatement($query, array ($pid,$pid));
     //
-while( $brow = sqlFetchArray( $bres ) ){
+while ($brow = sqlFetchArray($bres)) {
     $key = 0 + $brow['encounter'];
-    if( empty( $encs[$key] ) ){
+    if (empty($encs[$key])) {
         $encs[$key] = array ('encounter' => $brow['encounter'],'date' => $brow['encdate'],'last_level_closed' => $brow['last_level_closed'],'charges' => 0,'payments' => 0,'reason'=>$brow['reason']
         );
     }
-    if( $brow['code_type'] === 'COPAY' ){
+
+    if ($brow['code_type'] === 'COPAY') {
         // $encs[$key]['payments'] -= $brow['fee'];
-    } else{
+    } else {
         $encs[$key]['charges'] += $brow['fee'];
         // Add taxes.
         $sql_array = array ();
         $query = "SELECT taxrates FROM codes WHERE " . "code_type = ? AND " . "code = ? AND ";
-        array_push( $sql_array, $code_types[$brow['code_type']]['id'], $brow['code'] );
-        if( $brow['modifier'] ){
+        array_push($sql_array, $code_types[$brow['code_type']]['id'], $brow['code']);
+        if ($brow['modifier']) {
             $query .= "modifier = ?";
-            array_push( $sql_array, $brow['modifier'] );
-        } else{
+            array_push($sql_array, $brow['modifier']);
+        } else {
             $query .= "(modifier IS NULL OR modifier = '')";
         }
+
         $query .= " LIMIT 1";
-        $trow = sqlQuery( $query, $sql_array );
-        $encs[$key]['charges'] += calcTaxes( $trow, $brow['fee'] );
+        $trow = sqlQuery($query, $sql_array);
+        $encs[$key]['charges'] += calcTaxes($trow, $brow['fee']);
     }
 }
+
     // Do the same for unbilled product sales.
     //
     $query = "SELECT fe.encounter, fe.reason, s.drug_id, s.fee, " . "LEFT(fe.date, 10) AS encdate,fe.last_level_closed " . "FROM form_encounter AS fe left join drug_sales AS s " . "on s.pid = ? AND s.fee != 0 " . // AND s.billed = 0
 "AND fe.pid = s.pid AND fe.encounter = s.encounter " . "where fe.pid = ? " . "ORDER BY s.encounter";
 
-    $dres = sqlStatement( $query, array ($pid,$pid) );
+    $dres = sqlStatement($query, array ($pid,$pid));
     //
-while( $drow = sqlFetchArray( $dres ) ){
+while ($drow = sqlFetchArray($dres)) {
     $key = 0 + $drow['encounter'];
-    if( empty( $encs[$key] ) ){
+    if (empty($encs[$key])) {
         $encs[$key] = array ('encounter' => $drow['encounter'],'date' => $drow['encdate'],'last_level_closed' => $drow['last_level_closed'],'charges' => 0,'payments' => 0
         );
     }
+
     $encs[$key]['charges'] += $drow['fee'];
     // Add taxes.
-    $trow = sqlQuery( "SELECT taxrates FROM drug_templates WHERE drug_id = ? " . "ORDER BY selector LIMIT 1", array ($drow['drug_id']
-    ) );
-    $encs[$key]['charges'] += calcTaxes( $trow, $drow['fee'] );
+    $trow = sqlQuery("SELECT taxrates FROM drug_templates WHERE drug_id = ? " . "ORDER BY selector LIMIT 1", array ($drow['drug_id']
+    ));
+    $encs[$key]['charges'] += calcTaxes($trow, $drow['fee']);
 }
 
-    ksort( $encs, SORT_NUMERIC );
+    ksort($encs, SORT_NUMERIC);
     $gottoday = false;
     // Bringing on top the Today always
-foreach( $encs as $key => $value ){
+foreach ($encs as $key => $value) {
     $dispdate = $value['date'];
-    if( strcmp( $dispdate, $today ) == 0 && ! $gottoday ){
+    if (strcmp($dispdate, $today) == 0 && ! $gottoday) {
         $gottoday = true;
         break;
     }
@@ -1079,52 +1107,55 @@ foreach( $encs as $key => $value ){
     // If no billing was entered yet for today, then generate a line for
     // entering today's co-pay.
     //
-if( ! $gottoday ){
+if (! $gottoday) {
     // echoLine("form_upay[0]", date("Y-m-d"), 0, 0, 0, 0 /*$duept*/);//No encounter yet defined.
 }
+
     $gottoday = false;
-foreach( $encs as $key => $value ){
+foreach ($encs as $key => $value) {
     $enc = $value['encounter'];
     $reason = $value['reason'];
     $dispdate = $value['date'];
-    if( strcmp( $dispdate, $today ) == 0 && ! $gottoday ){
-        $dispdate = date( "Y-m-d" );
+    if (strcmp($dispdate, $today) == 0 && ! $gottoday) {
+        $dispdate = date("Y-m-d");
         $gottoday = true;
     }
+
     // ------------------------------------------------------------------------------------
-    $inscopay = getCopay( $pid, $dispdate );
-    $patcopay = getPatientCopay( $pid, $enc );
+    $inscopay = getCopay($pid, $dispdate);
+    $patcopay = getPatientCopay($pid, $enc);
     // Insurance Payment
     // -----------------
-    $drow = sqlQuery( "SELECT  SUM(pay_amount) AS payments, " . "SUM(adj_amount) AS adjustments  FROM ar_activity WHERE " . "pid = ? and encounter = ? and " . "payer_type != 0 and account_code!='PCP' ", array ($pid,$enc
-    ) );
+    $drow = sqlQuery("SELECT  SUM(pay_amount) AS payments, " . "SUM(adj_amount) AS adjustments  FROM ar_activity WHERE " . "pid = ? and encounter = ? and " . "payer_type != 0 and account_code!='PCP' ", array ($pid,$enc
+    ));
     $dpayment = $drow['payments'];
     $dadjustment = $drow['adjustments'];
 // Patient Payment
 // ---------------
-    $drow = sqlQuery( "SELECT  SUM(pay_amount) AS payments, " . "SUM(adj_amount) AS adjustments  FROM ar_activity WHERE " . "pid = ? and encounter = ? and " . "payer_type = 0 and account_code!='PCP' ", array ($pid,$enc
-    ) );
+    $drow = sqlQuery("SELECT  SUM(pay_amount) AS payments, " . "SUM(adj_amount) AS adjustments  FROM ar_activity WHERE " . "pid = ? and encounter = ? and " . "payer_type = 0 and account_code!='PCP' ", array ($pid,$enc
+    ));
     $dpayment_pat = $drow['payments'];
 
 // ------------------------------------------------------------------------------------
 // NumberOfInsurance
-    $ResultNumberOfInsurance = sqlStatement( "SELECT COUNT( DISTINCT TYPE ) NumberOfInsurance FROM insurance_data
+    $ResultNumberOfInsurance = sqlStatement("SELECT COUNT( DISTINCT TYPE ) NumberOfInsurance FROM insurance_data
             where pid = ? and provider>0 ", array ($pid
-    ) );
-    $RowNumberOfInsurance = sqlFetchArray( $ResultNumberOfInsurance );
+    ));
+    $RowNumberOfInsurance = sqlFetchArray($ResultNumberOfInsurance);
     $NumberOfInsurance = $RowNumberOfInsurance['NumberOfInsurance'] * 1;
 // ------------------------------------------------------------------------------------
     $duept = 0;
-    if( ( ( $NumberOfInsurance == 0 || $value['last_level_closed'] == 4 || $NumberOfInsurance == $value['last_level_closed'] ) ) ){ // Patient balance
-        $brow = sqlQuery( "SELECT SUM(fee) AS amount FROM billing WHERE " . "pid = ? and encounter = ? AND activity = 1", array ($pid,$enc
-        ) );
-        $srow = sqlQuery( "SELECT SUM(fee) AS amount FROM drug_sales WHERE " . "pid = ? and encounter = ? ", array ($pid,$enc
-        ) );
-        $drow = sqlQuery( "SELECT SUM(pay_amount) AS payments, " . "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " . "pid = ? and encounter = ? ", array ($pid,$enc
-        ) );
+    if (( ( $NumberOfInsurance == 0 || $value['last_level_closed'] == 4 || $NumberOfInsurance == $value['last_level_closed'] ) )) { // Patient balance
+        $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " . "pid = ? and encounter = ? AND activity = 1", array ($pid,$enc
+        ));
+        $srow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " . "pid = ? and encounter = ? ", array ($pid,$enc
+        ));
+        $drow = sqlQuery("SELECT SUM(pay_amount) AS payments, " . "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " . "pid = ? and encounter = ? ", array ($pid,$enc
+        ));
         $duept = $brow['amount'] + $srow['amount'] - $drow['payments'] - $drow['adjustments'];
     }
-    echoLine( "form_upay[$enc]", $dispdate, $value['charges'], $dpayment_pat, ( $dpayment + $dadjustment ), $duept, ($enc.':'.$reason), $inscopay, $patcopay );
+
+    echoLine("form_upay[$enc]", $dispdate, $value['charges'], $dpayment_pat, ( $dpayment + $dadjustment ), $duept, ($enc.':'.$reason), $inscopay, $patcopay);
 }
 
     // Continue with display of the data entry form.
@@ -1145,15 +1176,15 @@ foreach( $encs as $key => $value ){
                 </tr>
         </table>
 <?php
-if( isset( $ccdata["name"] ) ){
+if (isset($ccdata["name"])) {
     echo '<div class="col-xs-12 col-md-4 col-lg-4">
         <div class="panel panel-default height">';
-    if( ! isset( $_SESSION['authUserID'] ) )
-    echo '<div class="panel-heading">'.xlt("Payment Information").'<span style="color:#cc0000"><em> '.xlt("Pending Auth since").': </em>'.text($edata["date"]).'</span></div>';
-    else
-    echo '<div class="panel-heading">'.xlt("Payment Information").' <button type="button" class="btn btn-danger btn-sm" onclick="getAuth()">'.xlt("Authorize").'</button></div>';
-}
-else{
+    if (! isset($_SESSION['authUserID'])) {
+        echo '<div class="panel-heading">'.xlt("Payment Information").'<span style="color:#cc0000"><em> '.xlt("Pending Auth since").': </em>'.text($edata["date"]).'</span></div>';
+    } else {
+        echo '<div class="panel-heading">'.xlt("Payment Information").' <button type="button" class="btn btn-danger btn-sm" onclick="getAuth()">'.xlt("Authorize").'</button></div>';
+    }
+} else {
     echo '<div style="display:none" class="col-xs-12 col-md-6 col-lg-6"><div class="panel panel-default height"><div class="panel-heading">'.xlt("Payment Information").' </div>';
 }
     ?>
@@ -1161,10 +1192,11 @@ else{
                              <strong><?php echo xlt('Card Name');?>:  </strong><span id="cn"><?php echo attr($ccdata["cc_type"])?></span><br>
                             <strong><?php echo xlt('Name On Card');?>:  </strong><span id="nc"><?php echo attr($ccdata["name"])?></span><br>
                             <strong><?php echo xlt('Card Number');?>:  </strong><span id="ccn"><?php
-                            if( isset( $_SESSION['authUserID'] ) )
+                            if (isset($_SESSION['authUserID'])) {
                                 echo $ccdata["cc_number"] . "</span><br>";
-                            else
-                                    echo "**********  ".substr($ccdata["cc_number"],-4) . "</span><br>";
+                            } else {
+                                echo "**********  ".substr($ccdata["cc_number"], -4) . "</span><br>";
+                            }
                                     ?>
                             <strong><?php echo xlt('Exp Date');?>:  </strong><span id="ed"><?php echo attr($ccdata["month"])."/".attr($ccdata["year"])?></span><br>
                             <strong><?php echo xlt('Charge Total');?>:  </strong><span id="ct"><?php echo attr($invdata["form_paytotal"])?></span><br>
@@ -1173,10 +1205,11 @@ else{
              </div>
     <p>
 <?php
-    if( ! isset( $_SESSION['authUserID'] ) )
-        echo '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
-else
-        echo "<button type='submit' class='btn btn-danger' form='payfrm'>" . xlt('Post Payment') . "</button>";
+if (! isset($_SESSION['authUserID'])) {
+    echo '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
+} else {
+    echo "<button type='submit' class='btn btn-danger' form='payfrm'>" . xlt('Post Payment') . "</button>";
+}
     ?>
  &nbsp;
     </p>

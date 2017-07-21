@@ -46,7 +46,10 @@ function do_visit_form($irow, $encounter, $first)
 
   // logic that applies only to the first related visit
     if ($first) {
-        if ($a['ab_location'] == 'ma') $a['ab_location'] = 'proc';
+        if ($a['ab_location'] == 'ma') {
+            $a['ab_location'] = 'proc';
+        }
+
         $a['complications'] = $irow['rec_compl'];
         $a['contrameth'] = '';
     }
@@ -59,16 +62,26 @@ function do_visit_form($irow, $encounter, $first)
                 $query = "INSERT INTO lbf_data " .
                 "( form_id, field_id, field_value ) " .
                 " VALUES ( '$newid', '$field_id', '$value' )";
-                if ($verbose) echo "<br />$query\n";
-                if (!$debug) sqlStatement($query);
-            }
-            else {
+                if ($verbose) {
+                    echo "<br />$query\n";
+                }
+
+                if (!$debug) {
+                    sqlStatement($query);
+                }
+            } else {
                 $query = "INSERT INTO lbf_data " .
                 "( field_id, field_value ) " .
                 " VALUES ( '$field_id', '$value' )";
-                if ($verbose) echo "<br />$query\n";
-                if (!$debug) $newid = sqlInsert($query);
+                if ($verbose) {
+                    echo "<br />$query\n";
+                }
+
+                if (!$debug) {
+                    $newid = sqlInsert($query);
+                }
             }
+
             $didone = true;
         }
     }
@@ -78,7 +91,9 @@ function do_visit_form($irow, $encounter, $first)
         ++$insert_count;
     }
 
-    if (!$didone) echo "<br />*** Empty issue skipped for visit $pid.$encounter ***\n";
+    if (!$didone) {
+        echo "<br />*** Empty issue skipped for visit $pid.$encounter ***\n";
+    }
 }
 ?>
 <html>
@@ -93,7 +108,6 @@ function do_visit_form($irow, $encounter, $first)
 </center>
 <?php
 if (!empty($_POST['form_submit'])) {
-
   // If database is not utf8, convert it.
     $trow = sqlQuery("SHOW CREATE DATABASE $dbase");
     array_shift($trow);
@@ -104,11 +118,18 @@ if (!empty($_POST['form_submit'])) {
         while ($trow = sqlFetchArray($tres)) {
             $value = array_shift($trow);
             $query = "ALTER TABLE $value CONVERT TO CHARACTER SET utf8";
-            if ($verbose) echo "<br />$query\n";
+            if ($verbose) {
+                echo "<br />$query\n";
+            }
+
             sqlStatement($query);
         }
+
         $query = "ALTER DATABASE $dbase CHARACTER SET utf8";
-        if ($verbose) echo "<br />$query\n";
+        if ($verbose) {
+            echo "<br />$query\n";
+        }
+
         sqlStatement($query);
         echo "<br />&nbsp;\n";
     }
@@ -136,8 +157,7 @@ if (!empty($_POST['form_submit'])) {
                 do_visit_form($irow, $ierow['encounter'], $first);
                 $first = false;
             }
-        }
-        else {
+        } else {
               echo "<br />*** Issue $list_id for pid $patient_id has no linked visits, skipped ***\n";
         }
     }

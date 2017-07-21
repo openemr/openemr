@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class DBConnectionString {
+class DBConnectionString
+{
     public $Host;
     public $Port;
     public $Username;
@@ -38,5 +39,3 @@ class DBConnectionString {
         $this->Type = $type;
     }
 }
-
-?>

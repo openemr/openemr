@@ -63,7 +63,7 @@ class InstModuleTable
     public function installSQL($dir)
     {
         $sqltext = $dir . "/table.sql";
-        if(file_exists($sqltext)) {
+        if (file_exists($sqltext)) {
             if ($sqlarray = @file($sqltext)) {
                 $sql = implode("", $sqlarray);
                 $sqla = explode(";", $sql);
@@ -74,6 +74,7 @@ class InstModuleTable
                         $result = $this->applicationTable->zQuery($query);
                     }
                 }
+
                 return true;
             } else {
                 return true;
@@ -127,7 +128,7 @@ class InstModuleTable
    * @param unknown_type $base
    * @return boolean
    */
-    public function register($directory,$rel_path,$state=0, $base = "custom_modules" )
+    public function register($directory, $rel_path, $state = 0, $base = "custom_modules")
     {
         $sql = "SELECT mod_active FROM modules WHERE mod_directory = ?";
         $params = array(
@@ -140,24 +141,26 @@ class InstModuleTable
             $typeSet = "";
 
             $lines = @file($GLOBALS['srcdir']."/../interface/modules/$base/$added$directory/info.txt");
-            if ($lines){
+            if ($lines) {
                 $name = $lines[0];
             } else {
                 $name = $directory;
             }
+
             $uiname = ucwords(strtolower($directory));
             $section_id = 0;
             $sec_count = "SELECT count(*) as total FROM module_acl_sections";
             $sec_result = $this->applicationTable->zQuery($sec_count);
             $arr = $sec_result->current();
-            if($arr['total'] > 0){
+            if ($arr['total'] > 0) {
                 $sql_max_id = "SELECT MAX(section_id) as max_id FROM module_acl_sections";
                 $sec_result = $this->applicationTable->zQuery($sql_max_id);
                 $arr = $sec_result->current();
                 $section_id = $arr['max_id'];
             }
+
             $section_id++;
-            if($base != "custom_modules"){
+            if ($base != "custom_modules") {
                 $added = "module/";
 
                 $sql = "INSERT INTO modules SET mod_id = ?,  mod_name = ?,
@@ -195,8 +198,8 @@ class InstModuleTable
             $result = $this->applicationTable->zQuery($sql, $params);
             return $moduleInsertId;
         }
+
         return false;
-    
     }
   
   /**
@@ -220,13 +223,14 @@ class InstModuleTable
         $sql = "select * from modules where mod_active = 1 order by mod_ui_order asc";
         $res =  $this->applicationTable->zQuery($sql);
      
-        if(count($res) > 0){
-            foreach($res as $row) {
+        if (count($res) > 0) {
+            foreach ($res as $row) {
                 $mod = new InstModule();
                 $mod -> exchangeArray($row);
-                array_push($all,$mod);
+                array_push($all, $mod);
             }
         }
+
         return $all;
     }
   
@@ -235,7 +239,7 @@ class InstModuleTable
    * @param string $cols
    * @return Ambigous <boolean, unknown>
    */
-    function getRegistryEntry( $id, $cols = "" )
+    function getRegistryEntry($id, $cols = "")
     {
         $sql = "SELECT mod_directory FROM modules WHERE mod_id = ?";
         $results   = $this->applicationTable->zQuery($sql, array($id));
@@ -256,11 +260,11 @@ class InstModuleTable
    * @param int         $id     Module PK
    * @param string  $mod    Status
    */
-    public function updateRegistered( $id, $mod = '', $values = '' )
+    public function updateRegistered($id, $mod = '', $values = '')
     {
-        if($mod == "mod_active=1"){
+        if ($mod == "mod_active=1") {
             $resp = $this->checkDependencyOnEnable($id);
-            if($resp['status'] == 'success' && $resp['code'] == '1') {
+            if ($resp['status'] == 'success' && $resp['code'] == '1') {
                 $sql = "UPDATE modules SET mod_active = 1, 
                                     date = ? 
                                WHERE mod_id = ?";
@@ -270,9 +274,9 @@ class InstModuleTable
                 );
                 $results   = $this->applicationTable->zQuery($sql, $params);
             }
-        } else if($mod == "mod_active=0"){
+        } else if ($mod == "mod_active=0") {
             $resp = $this->checkDependencyOnDisable($id);
-            if($resp['status'] == 'success' && $resp['code'] == '1') {
+            if ($resp['status'] == 'success' && $resp['code'] == '1') {
                 $sql = "UPDATE modules SET mod_active = 0, 
                                     date = ? 
                                WHERE mod_id = ?";
@@ -293,6 +297,7 @@ class InstModuleTable
             );
             $resp   = $this->applicationTable->zQuery($sql, $params);
         }
+
         return $resp;
     }
   
@@ -300,14 +305,16 @@ class InstModuleTable
    * Function to get ACL objects for module
    * @param int         $mod_id     Module PK
    */
-    public function getSettings($type,$mod_id)
+    public function getSettings($type, $mod_id)
     {
-        if($type=='ACL')
-        $type = 1;
-        elseif($type=='Hooks')
-        $type = 3;
-        else
-        $type = 2;
+        if ($type=='ACL') {
+            $type = 1;
+        } elseif ($type=='Hooks') {
+            $type = 3;
+        } else {
+            $type = 2;
+        }
+
         $all = array();
         $sql = "SELECT ms.*,mod_directory 
                             FROM modules_settings AS ms 
@@ -315,13 +322,14 @@ class InstModuleTable
                             ON ms.mod_id=m.mod_id 
                             WHERE m.mod_id=? AND fld_type=?";
         $res = $this->applicationTable->zQuery($sql, array($mod_id, $type));
-        if($res){
-            foreach($res as $key => $m) {
+        if ($res) {
+            foreach ($res as $key => $m) {
                 $mod = new InstModule();
                 $mod -> exchangeArray($m);
                 array_push($all, $mod);
             }
         }
+
         return $all;
     }
   
@@ -338,13 +346,14 @@ class InstModuleTable
                         AND group_id IS NOT NULL 
                         GROUP BY id ";
         $res = $this->applicationTable->zQuery($sql);
-        if($res){
-            foreach($res as $key => $m) {
+        if ($res) {
+            foreach ($res as $key => $m) {
                 $mod = new InstModule();
                 $mod -> exchangeArray($m);
-                array_push($all,$mod);
+                array_push($all, $mod);
             }
         }
+
         return $all;
     }
   /**
@@ -364,11 +373,12 @@ class InstModuleTable
                     WHERE group_id IS NOT NULL 
                     ORDER BY gag.id";
         $res = $this->applicationTable->zQuery($sql);
-        if($res){
-            foreach($res as $key => $m) {
+        if ($res) {
+            foreach ($res as $key => $m) {
                 $all[$m['group_id']][$m['id']] = $m['user'];
             }
         }
+
         return $all;
     }
   
@@ -384,11 +394,12 @@ class InstModuleTable
                     AND username IS NOT NULL 
                     AND username<>''";
         $res = $this->applicationTable->zQuery($sql);
-        if($res){
-            foreach($res as $key => $m) {
+        if ($res) {
+            foreach ($res as $key => $m) {
                 $all[$m['username']] = $m['USER'];
             }
         }
+
         return $all;
     }
   
@@ -400,12 +411,13 @@ class InstModuleTable
                   WHERE mod_id=? 
                   GROUP BY fld_type 
                   ORDER BY fld_type ";
-        $res = $this->applicationTable->zQuery($sql,array($mod_id));
-        if($res){
-            foreach($res as $key => $m) {
+        $res = $this->applicationTable->zQuery($sql, array($mod_id));
+        if ($res) {
+            foreach ($res as $key => $m) {
                 $all[$m['fld_type']] = $m['cnt'];
             }
         }
+
         return $all;
     }
   /**
@@ -437,6 +449,7 @@ class InstModuleTable
                 $i++;
             }
         }
+
         return $arr;
     }
   
@@ -449,31 +462,32 @@ class InstModuleTable
         $sql      = "SELECT msh.*,ms.menu_name FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
                 obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON msh.mod_id=m.mod_id 
                 WHERE fld_type = '3' AND mod_active = 1 AND msh.mod_id = ? ";
-        $res      = $this->applicationTable->zQuery($sql,array($mod_id));
-        foreach($res as $row) {
+        $res      = $this->applicationTable->zQuery($sql, array($mod_id));
+        foreach ($res as $row) {
             $mod = new InstModule();
             $mod -> exchangeArray($row);
-            array_push($all,$mod);
+            array_push($all, $mod);
         }
+
         return $all;
     }
   
   /**
    * Function to get Status of a Hook
    */
-    public function getHookStatus($modId,$hookId,$hangerId)
+    public function getHookStatus($modId, $hookId, $hangerId)
     {
-        if($modId && $hookId && $hangerId){
+        if ($modId && $hookId && $hangerId) {
             $sql = "select * FROM modules_hooks_settings 
                         WHERE mod_id = ? 
                         AND enabled_hooks = ? 
                         AND attached_to = ? ";
             $res  = $this->applicationTable->zQuery($sql, array($modId, $hookId, $hangerId));
-            foreach($res as $row){
+            foreach ($res as $row) {
                 $modArr   = $row;
             }
 
-            if($modArr['mod_id'] <> ""){
+            if ($modArr['mod_id'] <> "") {
                 return "1";
             } else {
                 return "0";
@@ -484,9 +498,9 @@ class InstModuleTable
   /**
    * Function to Delete Hooks
    */
-    public function saveHooks($modId,$hookId,$hangerId)
+    public function saveHooks($modId, $hookId, $hangerId)
     {
-        if($modId){
+        if ($modId) {
             $sql = "INSERT INTO modules_hooks_settings(mod_id, enabled_hooks, attached_to) VALUES (?,?,?) ";
             $this->applicationTable->zQuery($sql, array($modId, $hookId, $hangerId));
         }
@@ -495,7 +509,7 @@ class InstModuleTable
   /**
    * Save Module Hook settings
    */
-    public function saveModuleHookSettings($modId,$hook)
+    public function saveModuleHookSettings($modId, $hook)
     {
         $sql = "INSERT INTO modules_settings SET mod_id = ?,
                                               fld_type = 3,
@@ -516,8 +530,8 @@ class InstModuleTable
    */
     public function DeleteHooks($post)
     {
-        if($post['hooksID']){
-            $this->applicationTable->zQuery("DELETE FROM modules_hooks_settings WHERE id = ? ",array($post['hooksID']));
+        if ($post['hooksID']) {
+            $this->applicationTable->zQuery("DELETE FROM modules_hooks_settings WHERE id = ? ", array($post['hooksID']));
         }
     }
   
@@ -526,9 +540,9 @@ class InstModuleTable
    */
     public function deleteModuleHooks($modId)
     {
-        if($modId){
+        if ($modId) {
             //DELETE MODULE HOOKS
-            $this->applicationTable->zQuery("DELETE FROM modules_hooks_settings WHERE mod_id = ? ",array($modId));
+            $this->applicationTable->zQuery("DELETE FROM modules_hooks_settings WHERE mod_id = ? ", array($modId));
         }
     }
   
@@ -536,22 +550,22 @@ class InstModuleTable
     {
         $retArray = array();
         $modDirectory = $this->getModuleDirectory($mod_id);
-        if($modDirectory){
+        if ($modDirectory) {
             //GET DEPENDED MODULES OF A MODULE HOOKS FROM A FUNCTION IN ITS MODEL CONFIGURATION CLASS
             $depModules   = $this->getDependedModulesByDirectoryName($modDirectory);
             $requiredModules  = array();
-            if(count($depModules) > 0){
-                foreach($depModules as $depModule){
-                    if($depModule <> ""){
+            if (count($depModules) > 0) {
+                foreach ($depModules as $depModule) {
+                    if ($depModule <> "") {
                         $res  = $this->getModuleStatusByDirectoryName($depModule);
-                        if($res <> "Enabled"){
+                        if ($res <> "Enabled") {
                             $requiredModules[]    = $depModule;
                         }
                     }
                 }
             }
   
-            if(count($requiredModules) > 0) {
+            if (count($requiredModules) > 0) {
                 $retArray['status']   = "failure";
                 $retArray['code']   = "200";
                 $retArray['value']    = $requiredModules;
@@ -565,6 +579,7 @@ class InstModuleTable
             $retArray['code']   = "400";
             $retArray['value']    = \Application\Listener\Listener::z_xlt("Module Directory not found");
         }
+
         return $retArray;
     }
   
@@ -578,18 +593,18 @@ class InstModuleTable
         //GET MODULE DIRECTORY OF DISABLING MODULE
         $modDirectory = $this->getModuleDirectory($mod_id);
         $usedModArr   = array();
-        if(count($modArray) > 0){
+        if (count($modArray) > 0) {
             //LOOP THROUGH INSTALLED MODULES
-            foreach($modArray as $module) {
-                if($module->modId <> ""){
+            foreach ($modArray as $module) {
+                if ($module->modId <> "") {
                     //GET MODULE DEPENDED MODULES
                     $InstalledmodDirectory    = $this->getModuleDirectory($module->modId);
                     $depModArr    = $this->getDependencyModulesDir($module->modId);
-                    if(count($depModArr) > 0){
+                    if (count($depModArr) > 0) {
                         //LOOP THROUGH DEPENDENCY MODULES
                         //CHECK IF THE DISABLING MODULE IS BEING DEPENDED BY OTHER INSTALLED MODULES
-                        foreach($depModArr as $depModule) {
-                            if($modDirectory == $depModule){
+                        foreach ($depModArr as $depModule) {
+                            if ($modDirectory == $depModule) {
                                 $depFlag  = "1";
                                 $usedModArr[] = $InstalledmodDirectory;
                             }
@@ -598,21 +613,24 @@ class InstModuleTable
                 }
             }
         }
-        if($depFlag == "0"){
+
+        if ($depFlag == "0") {
             $retArray['status'] = "success";
             $retArray['code']   = "1";
             $retArray['value']  = "";
         } else {
             $usedModArr   = array_unique($usedModArr);
             $multiple   = "module";
-            if(count($usedModArr) > 1) {
+            if (count($usedModArr) > 1) {
                 $multiple = "modules";
             }
-            $usedModules  = implode(",",$usedModArr);
+
+            $usedModules  = implode(",", $usedModArr);
             $retArray['status']   = "failure";
             $retArray['code']   = "200";
             $retArray['value']    = \Application\Listener\Listener::z_xlt("Dependency Problem") . ': ' . \Application\Listener\Listener::z_xlt("This module is being used by ") . $usedModules ." " . \Application\Listener\Listener::z_xlt($multiple);
         }
+
         return $retArray;
     }
   
@@ -620,22 +638,24 @@ class InstModuleTable
     {
         $reader = new Ini();
         $modDirname   = $this->getModuleDirectory($mod_id);
-        if($modDirname <> ""){
+        if ($modDirname <> "") {
             $depModuleStatusArr   = array();
             //GET DEPENDED MODULES OF A MODULE HOOKS FROM A FUNCTION IN ITS MODEL CONFIGURATION CLASS
             $depModulesArr    = $this->getDependedModulesByDirectoryName($modDirname);
             $ret_str = "";
-            if(count($depModulesArr)>0){
+            if (count($depModulesArr)>0) {
                 $count = 0;
-                foreach($depModulesArr as $modDir){
-                    if($count > 0){
+                foreach ($depModulesArr as $modDir) {
+                    if ($count > 0) {
                         $ret_str.= ", ";
                     }
+
                     $ret_str.= trim($modDir)."(".$this->getModuleStatusByDirectoryName($modDir).")";
                     $count++;
                 }
             }
         }
+
         return $ret_str;
     }
   
@@ -643,10 +663,11 @@ class InstModuleTable
     {
         $depModulesArr    = array();
         $modDirectory     = $this->getModuleDirectory($mod_id);
-        if($modDirectory){
+        if ($modDirectory) {
             //GET DEPENDED MODULES OF A MODULE HOOKS FROM A FUNCTION IN ITS MODEL CONFIGURATION CLASS
             $depModulesArr    = $this->getDependedModulesByDirectoryName($modDirectory);
         }
+
         return $depModulesArr;
     }
   
@@ -654,12 +675,12 @@ class InstModuleTable
     {
         $sql = "SELECT mod_active,mod_directory FROM modules WHERE mod_directory = ? ";
         $res  = $this->applicationTable->zQuery($sql, array(trim($moduleDir)));
-        foreach($res as $row) {
+        foreach ($res as $row) {
             $check    = $row;
         }
 
-        if((count($check) > 0)&& is_array($check)){
-            if($check['mod_active'] == "1"){
+        if ((count($check) > 0)&& is_array($check)) {
+            if ($check['mod_active'] == "1") {
                 return "Enabled";
             } else {
                 return "Disabled";
@@ -682,26 +703,29 @@ class InstModuleTable
     public function getModuleDirectory($mod_id)
     {
         $moduleName   = "";
-        if($mod_id <> ""){
-            $res  = $this->applicationTable->zQuery("SELECT mod_directory FROM modules WHERE mod_id = ? ",array($mod_id));
-            foreach($res as $row) {
+        if ($mod_id <> "") {
+            $res  = $this->applicationTable->zQuery("SELECT mod_directory FROM modules WHERE mod_id = ? ", array($mod_id));
+            foreach ($res as $row) {
                 $modArr   = $row;
             }
-            if($modArr['mod_directory'] <> ""){
+
+            if ($modArr['mod_directory'] <> "") {
                 $moduleName = $modArr['mod_directory'];
             }
+
             return $moduleName;
         }
     }
   
-    public function checkModuleHookExists($mod_id,$hookId)
+    public function checkModuleHookExists($mod_id, $hookId)
     {
         $sql = "SELECT obj_name FROM modules_settings WHERE mod_id = ? AND fld_type = '3' AND obj_name = ? ";
         $res  = $this->applicationTable->zQuery($sql, array($mod_id, $hookId));
-        foreach($res as $row){
+        foreach ($res as $row) {
             $modArr   = $row;
         }
-        if($modArr['obj_name'] <> ""){
+
+        if ($modArr['obj_name'] <> "") {
             return "1";
         } else {
             return "0";
@@ -713,9 +737,10 @@ class InstModuleTable
     {
         $objHooks = $this->getObject($moduleDirectory, $option = 'Controller');
         $hooksArr = array();
-        if($objHooks){
+        if ($objHooks) {
             $hooksArr = $objHooks->getHookConfig();
         }
+
         return $hooksArr;
     }
   
@@ -725,53 +750,65 @@ class InstModuleTable
     {
         $objHooks = $this->getObject($moduleDirectory, $option = 'Controller');
         $aclArray = array();
-        if($objHooks){
+        if ($objHooks) {
             $aclArray = $objHooks->getAclConfig();
         }
+
         return $aclArray;
     }
   
-    public function insertAclSections($acl_data,$mod_dir,$module_id)
+    public function insertAclSections($acl_data, $mod_dir, $module_id)
     {
         $obj    = new ApplicationTable;
-        foreach($acl_data as $acl){
+        foreach ($acl_data as $acl) {
             $identifier = $acl['section_id'];
             $name             = $acl['section_name'];
             $parent           = $acl['parent_section'];
 
             $sql_parent = "SELECT section_id FROM module_acl_sections WHERE section_identifier =?";
-            $result = $obj->zQuery($sql_parent,array($parent));
+            $result = $obj->zQuery($sql_parent, array($parent));
             $parent_id = 0;
-            foreach($result as $row){
+            foreach ($result as $row) {
                 $parent_id = $row['section_id'];
             }
+
             $sql_max_id = "SELECT MAX(section_id) as max_id FROM module_acl_sections";
             $result = $obj->zQuery($sql_max_id);
             $section_id = 0;
-            foreach($result as $row){
+            foreach ($result as $row) {
                 $section_id = $row['max_id'];
             }
+
             $section_id++;
             $sql_if_exists = "SELECT COUNT(*) as count FROM module_acl_sections WHERE section_identifier = ? AND parent_section =?";
-            $result = $obj->zQuery($sql_if_exists,array($identifier,$parent_id));
+            $result = $obj->zQuery($sql_if_exists, array($identifier,$parent_id));
             $exists = 0;
-            foreach($result as $row){
-                if($row['count'] > 0) $exists =1;
+            foreach ($result as $row) {
+                if ($row['count'] > 0) {
+                    $exists =1;
+                }
             }
-            if($exists) continue;
+
+            if ($exists) {
+                continue;
+            }
+
             $sql_insert = "INSERT INTO module_acl_sections (`section_id`,`section_name`,`parent_section`,`section_identifier`,`module_id`) VALUES(?,?,?,?,?)";
-            $obj->zQuery($sql_insert,array($section_id,$name,$parent_id,$identifier,$module_id));
+            $obj->zQuery($sql_insert, array($section_id,$name,$parent_id,$identifier,$module_id));
         }
 
         $sql = "SELECT COUNT(mod_id) AS count FROM modules_settings WHERE mod_id = ? AND fld_type = 1";
-        $result = $obj->zQuery($sql,array($module_id));
+        $result = $obj->zQuery($sql, array($module_id));
         $exists = 0;
-        foreach($result as $row){
-            if($row['count'] > 0) $exists =1;
+        foreach ($result as $row) {
+            if ($row['count'] > 0) {
+                $exists =1;
+            }
         }
-        if(!$exists){
+
+        if (!$exists) {
             $sql = "INSERT INTO modules_settings(`mod_id`,`fld_type`,`obj_name`,`menu_name`) VALUES(?,'1',?,?)";
-            $result = $obj->zQuery($sql,array($module_id,$mod_dir,$mod_dir));
+            $result = $obj->zQuery($sql, array($module_id,$mod_dir,$mod_dir));
         }
     }
   
@@ -790,18 +827,19 @@ class InstModuleTable
     {
         $objHooks = $this->getObject($moduleDirectory, $option = 'Controller');
         $retArr   = array();
-        if($objHooks){
+        if ($objHooks) {
             $retArr   = $objHooks->getDependedModulesConfig();
         }
+
         return $retArr;
     }
   
   /**
    * Function to Save Module Hooks
    */
-    public function saveModuleHooks($modId,$hookId,$hookTitle,$hookPath)
+    public function saveModuleHooks($modId, $hookId, $hookTitle, $hookPath)
     {
-        if($modId){
+        if ($modId) {
             $sql = "INSERT INTO modules_settings(mod_id, fld_type, obj_name, menu_name, path) VALUES (?,'3',?,?,?) ";
             $this->applicationTable->zQuery($sql, array($modId, $hookId, $hookTitle, $hookPath));
         }
@@ -813,7 +851,7 @@ class InstModuleTable
    */
     public function deleteModuleHookSettings($modId)
     {
-        if($modId){
+        if ($modId) {
             $sql = "DELETE FROM modules_settings WHERE mod_id = ? AND fld_type = '3'";
             $this->applicationTable->zQuery($sql, array($modId));
         }
@@ -843,15 +881,17 @@ class InstModuleTable
                 $setup['module_dir']  = strtolower($moduleDirectory);
                 $setup['title']       = $setupTile;
             }
+
             return $setup;
         } else {
             $phpObjCode   = str_replace('[module_name]', $moduleDirectory, '$obj  = new \[module_name]\\' . $option . '\Moduleconfig' . $option . '();');
             $className        = str_replace('[module_name]', $moduleDirectory, '\[module_name]\\' . $option  . '\Moduleconfig' . $option . '');
         }
     
-        if(class_exists($className)){
+        if (class_exists($className)) {
             eval($phpObjCode);
         }
+
         return $obj;
     }
   
@@ -864,10 +904,8 @@ class InstModuleTable
     public function validateNickName($name)
     {
         $sql      = "SELECT * FROM `modules` WHERE mod_nick_name = ? ";
-        $result = $this->applicationTable->zQuery($sql,array($name));
+        $result = $this->applicationTable->zQuery($sql, array($name));
         $count  = $result->count();
         return $count;
     }
-  
 }
-?>

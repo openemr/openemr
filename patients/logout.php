@@ -18,4 +18,3 @@
     //redirect to pretty login/logout page
     header('Location: '.$landingpage.'&logout');
     //
-?>

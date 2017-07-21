@@ -10,7 +10,6 @@ namespace OpenEMR\Sample\Event;
 
 use Symfony\Component\EventDispatcher\Event;
 
-
 /**
  * Holder of all events related to Sample actions.
  *

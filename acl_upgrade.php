@@ -139,11 +139,10 @@ require_once("$srcdir/acl_upgrade_fx.php");
 
 //Ensure that phpGACL has been installed
 include_once('library/acl.inc');
-if (isset ($phpgacl_location)) {
+if (isset($phpgacl_location)) {
     include_once("$phpgacl_location/gacl_api.class.php");
     $gacl = new gacl_api();
-}
-else {
+} else {
     die("You must first set up library/acl.inc to use phpGACL!");
 }
 
@@ -181,7 +180,7 @@ if ($acl_version < $upgrade_acl) {
   //Add 'Placeholder' object section (added in 3.0.2)
     addObjectSectionAcl('placeholder', 'Placeholder');
   //Add 'Nation Notes' object section (added in 4.1.0)
-    addObjectSectionAcl('nationnotes','Nation Notes');
+    addObjectSectionAcl('nationnotes', 'Nation Notes');
   //Add 'Patient Portal' object section (added in 4.1.0)
     addObjectSectionAcl('patientportal', 'Patient Portal');
 
@@ -341,13 +340,13 @@ if ($acl_version < $upgrade_acl) {
   //Insert the 'sign' object from the 'patients' section into the Physicians group write ACL (added in 3.3.0)
     updateAcl($doc_write, 'Physicians', 'patients', 'Patients', 'sign', 'Sign Lab Results (write,addonly optional)', 'write');
   //Insert the 'sign' object from the 'nationnotes' section into the Administrators group write ACL (added in 3.3.0)
-    updateAcl($admin_write, 'Administrators','nationnotes', 'Nation Notes', 'nn_configure', 'Nation Notes Configure','write');
+    updateAcl($admin_write, 'Administrators', 'nationnotes', 'Nation Notes', 'nn_configure', 'Nation Notes Configure', 'write');
   //Insert the 'sign' object from the 'nationnotes' section into the Emergency Login group write ACL (added in 3.3.0)
-    updateAcl($emergency_write, 'Emergency Login','nationnotes', 'Nation Notes', 'nn_configure', 'Nation Notes Configure','write');
+    updateAcl($emergency_write, 'Emergency Login', 'nationnotes', 'Nation Notes', 'nn_configure', 'Nation Notes Configure', 'write');
   //Insert the 'patientportal' object from the 'patientportal' section into the Administrators group write ACL (added in 4.1.0)
-    updateAcl($admin_write, 'Administrators','patientportal', 'Patient Portal', 'portal', 'Patient Portal','write');
+    updateAcl($admin_write, 'Administrators', 'patientportal', 'Patient Portal', 'portal', 'Patient Portal', 'write');
   //Insert the 'patientportal' object from the 'patientportal' section into the Emergency Login group write ACL (added in 4.1.0)
-    updateAcl($emergency_write, 'Emergency Login','patientportal', 'Patient Portal', 'portal', 'Patient Portal','write');
+    updateAcl($emergency_write, 'Emergency Login', 'patientportal', 'Patient Portal', 'portal', 'Patient Portal', 'write');
 
   //DONE with upgrading to this version
     $acl_version = $upgrade_acl;
@@ -421,9 +420,9 @@ if ($acl_version < $upgrade_acl) {
   //Update the ACLs
     echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
   //Insert the 'Modules' object from the 'Menus' section into the Administrators group write ACL (added in 4.1.3)
-    updateAcl($admin_write, 'Administrators','menus', 'Menus', 'modle', 'Modules', 'write');
+    updateAcl($admin_write, 'Administrators', 'menus', 'Menus', 'modle', 'Modules', 'write');
   //Insert the 'Modules' object from the 'Menus' section into the Emergency Login group write ACL (added in 4.1.3)
-    updateAcl($emergency_write, 'Emergency Login','menus', 'Menus', 'modle', 'Modules', 'write');
+    updateAcl($emergency_write, 'Emergency Login', 'menus', 'Menus', 'modle', 'Modules', 'write');
 
   //DONE with upgrading to this version
     $acl_version = $upgrade_acl;
@@ -455,17 +454,17 @@ if ($acl_version < $upgrade_acl) {
   //Add new Objects
     echo "<BR/><B>Adding new objects</B><BR/>";
   // Add 'Patient Reminders (write,addonly optional)' object (added in 5.0.1)
-    addObjectAcl('patients', 'Patients', 'reminder'  , 'Patient Reminders (write,addonly optional)');
+    addObjectAcl('patients', 'Patients', 'reminder', 'Patient Reminders (write,addonly optional)');
   // Add 'Clinical Reminders/Alerts (write,addonly optional)' object (added in 5.0.1)
-    addObjectAcl('patients', 'Patients', 'alert'     , 'Clinical Reminders/Alerts (write,addonly optional)');
+    addObjectAcl('patients', 'Patients', 'alert', 'Clinical Reminders/Alerts (write,addonly optional)');
   // Add 'Disclosures (write,addonly optional)' object (added in 5.0.1)
     addObjectAcl('patients', 'Patients', 'disclosure', 'Disclosures (write,addonly optional)');
   // Add 'Prescriptions (write,addonly optional)' object (added in 5.0.1)
-    addObjectAcl('patients', 'Patients', 'rx'        , 'Prescriptions (write,addonly optional)');
+    addObjectAcl('patients', 'Patients', 'rx', 'Prescriptions (write,addonly optional)');
   // Add 'Amendments (write,addonly optional)' object (added in 5.0.1)
-    addObjectAcl('patients', 'Patients', 'amendment' , 'Amendments (write,addonly optional)');
+    addObjectAcl('patients', 'Patients', 'amendment', 'Amendments (write,addonly optional)');
   // Add 'Lab Results (write,addonly optional)' object (added in 5.0.1)
-    addObjectAcl('patients', 'Patients', 'lab'       , 'Lab Results (write,addonly optional)');
+    addObjectAcl('patients', 'Patients', 'lab', 'Lab Results (write,addonly optional)');
 
     //Update already existing Objects
   // echo "<BR/><B>Upgrading objects</B><BR/>";
@@ -514,11 +513,11 @@ if ($acl_version < $upgrade_acl) {
     echo "<BR/><B>Adding new objects</B><BR/>";
     // Add 'Multipledb' object (added in 5.0.1)
     addObjectAcl('admin', 'Administration', 'multipledb', 'Multipledb');
-    addObjectAcl('groups', 'Groups', 'gadd'  , 'View/Add/Update groups');
-    addObjectAcl('groups', 'Groups', 'gcalendar'  , 'View/Create/Update groups appointment in calendar');
-    addObjectAcl('groups', 'Groups', 'glog'  , 'Group encounter log');
-    addObjectAcl('groups', 'Groups', 'gdlog'  , 'Group detailed log of appointment in patient record');
-    addObjectAcl('groups', 'Groups', 'gm'  , 'Send message from the permanent group therapist to the personal therapist');
+    addObjectAcl('groups', 'Groups', 'gadd', 'View/Add/Update groups');
+    addObjectAcl('groups', 'Groups', 'gcalendar', 'View/Create/Update groups appointment in calendar');
+    addObjectAcl('groups', 'Groups', 'glog', 'Group encounter log');
+    addObjectAcl('groups', 'Groups', 'gdlog', 'Group detailed log of appointment in patient record');
+    addObjectAcl('groups', 'Groups', 'gm', 'Send message from the permanent group therapist to the personal therapist');
   //Update already existing Objects
     echo "<BR/><B>Upgrading objects</B><BR/>";
 
@@ -528,13 +527,13 @@ if ($acl_version < $upgrade_acl) {
 
   //Update the ACLs
     echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
-    updateAcl($admin_write, 'Administrators','groups', 'Groups', 'gadd', 'View/Add/Update groups','write');
-    updateAcl($admin_write, 'Administrators','groups', 'Groups', 'gcalendar','View/Create/Update groups appointment in calendar','write');
-    updateAcl($admin_write, 'Administrators','groups', 'Groups', 'glog',  'Group encounter log','write');
-    updateAcl($admin_write, 'Administrators','groups', 'Groups', 'gdlog',  'Group detailed log of appointment in patient record','write');
-    updateAcl($admin_write, 'Administrators','groups', 'Groups', 'gm', 'Send message from the permanent group therapist to the personal therapist','write');
+    updateAcl($admin_write, 'Administrators', 'groups', 'Groups', 'gadd', 'View/Add/Update groups', 'write');
+    updateAcl($admin_write, 'Administrators', 'groups', 'Groups', 'gcalendar', 'View/Create/Update groups appointment in calendar', 'write');
+    updateAcl($admin_write, 'Administrators', 'groups', 'Groups', 'glog', 'Group encounter log', 'write');
+    updateAcl($admin_write, 'Administrators', 'groups', 'Groups', 'gdlog', 'Group detailed log of appointment in patient record', 'write');
+    updateAcl($admin_write, 'Administrators', 'groups', 'Groups', 'gm', 'Send message from the permanent group therapist to the personal therapist', 'write');
     //Insert the 'Multipledb' object from the 'admin' section into the Administrators group write ACL (added in 5.0.1)
-    updateAcl($admin_write, 'Administrators','admin', 'Administration', 'multipledb', 'Multipledb','write');
+    updateAcl($admin_write, 'Administrators', 'admin', 'Administration', 'multipledb', 'Multipledb', 'write');
     //DONE with upgrading to this version
     $acl_version = $upgrade_acl;
 }
@@ -637,5 +636,3 @@ if ($response) {
 } else {
     echo "ERROR upgrading access control version";
 }
-
-?>

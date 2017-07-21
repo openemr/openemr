@@ -68,14 +68,15 @@ function getAclIdNumber($title, $return_value)
     switch (count($temp_acl_id_array)) {
         case 0:
             echo "<B>ERROR</B>, '$title' group '$return_value' ACL does not exist.</BR>";
-                break;
+            break;
         case 1:
             echo "'$title' group '$return_value' ACL is present.</BR>";
-                break;
+            break;
         default:
             echo "<B>ERROR</B>, Multiple '$title' group '$return_value' ACLs are present.</BR>";
-                break;
+            break;
     }
+
         return $temp_acl_id_array;
 }
 
@@ -104,40 +105,38 @@ function addNewACL($title, $name, $return_value, $note)
                      echo "The '$title' group already exist.</BR>";
                      echo "The '$title' group '$return_value' ACL has been successfully added.</BR>";
                      $temp_acl_id_array = array($temp_acl_id);
-                }
-                else {
+                } else {
                      echo "The '$title' group already exist.</BR>";
                      echo "<B>ERROR</B>, Unable to create the '$title' group '$return_value' ACL.</BR>";
                 }
-            }
-            else {
+            } else {
                 //create group, then create acl
                 $parent_id = $gacl->get_root_group_id();
                 $aro_id = $gacl->add_group($name, $title, $parent_id, 'ARO');
                 $temp_acl_id = $gacl->add_acl(array("placeholder"=>array("filler")), null, array($aro_id), null, null, 1, 1, $return_value, $note);
-                if ($aro_id ) {
+                if ($aro_id) {
                     echo "The '$title' group has been successfully added.</BR>";
-                }
-                else {
+                } else {
                     echo "<B>ERROR</B>, Unable to create the '$title' group.</BR>";
                 }
+
                 if ($temp_acl_id) {
                     echo "The '$title' group '$return_value' ACL has been successfully added.</BR>";
                     $temp_acl_id_array = array($temp_acl_id);
-                }
-                else {
+                } else {
                     echo "<B>ERROR</B>, Unable to create the '$title' group '$return_value' ACL.</BR>";
                 }
             }
-                break;
+            break;
         case 1:
             echo "'$title' group '$return_value' ACL already exist.</BR>";
-                break;
+            break;
 
         default:
             echo "<B>ERROR</B>, Multiple '$title' group '$return_value' ACLs are present.</BR>";
-                break;
+            break;
     }
+
         return $temp_acl_id_array;
 }
 
@@ -153,16 +152,15 @@ function addObjectSectionAcl($name, $title)
         global $gacl;
     if ($gacl->get_object_section_section_id($title, $name, 'ACO')) {
         echo "The '$title' object section already exist.</BR>";
-    }
-    else {
-        $tmp_boolean = $gacl->add_object_section($title , $name, 10, 0, 'ACO');
+    } else {
+        $tmp_boolean = $gacl->add_object_section($title, $name, 10, 0, 'ACO');
         if ($tmp_boolean) {
             echo "The '$title' object section has been successfully added.</BR>";
-        }
-        else {
+        } else {
             echo "<B>ERROR</B>,unable to create the '$title' object section.</BR>";
         }
     }
+
         return;
 }
 
@@ -181,16 +179,15 @@ function addObjectAcl($section_name, $section_title, $object_name, $object_title
         global $gacl;
     if ($gacl->get_object_id($section_name, $object_name, 'ACO')) {
         echo "The '$object_title' object in the '$section_title' section already exist.</BR>";
-    }
-    else {
+    } else {
         $tmp_boolean = $gacl->add_object($section_name, $object_title, $object_name, 10, 0, 'ACO');
         if ($tmp_boolean) {
             echo "The '$object_title' object in the '$section_title' section has been successfully added.</BR>";
-        }
-        else {
+        } else {
             echo "<B>ERROR</B>,unable to create the '$object_title' object in the '$section_title' section.</BR>";
         }
     }
+
         return;
 }
 
@@ -209,16 +206,15 @@ function addObjectAclWithOrder($section_name, $section_title, $object_name, $obj
         global $gacl;
     if ($gacl->get_object_id($section_name, $object_name, 'ACO')) {
         echo "The '$object_title' object in the '$section_title' section already exist.</BR>";
-    }
-    else {
+    } else {
         $tmp_boolean = $gacl->add_object($section_name, $object_title, $object_name, $order_number, 0, 'ACO');
         if ($tmp_boolean) {
             echo "The '$object_title' object in the '$section_title' section has been successfully added.</BR>";
-        }
-        else {
+        } else {
             echo "<B>ERROR</B>,unable to create the '$object_title' object in the '$section_title' section.</BR>";
         }
     }
+
         return;
 }
 
@@ -243,20 +239,18 @@ function editObjectAcl($section_name, $section_title, $object_name, $object_titl
             $tmp_object[0][1] ==  $object_name &&
             $tmp_object[0][3] ==  $object_title) {
             echo "The '$object_title' object in the '$section_title' section has already been updated.</BR>";
-        }
-        else {
+        } else {
             $tmp_boolean = $gacl->edit_object($tmp_objectID, $section_name, $object_title, $object_name, $order_number, 0, 'ACO');
             if ($tmp_boolean) {
                 echo "The '$object_title' object in the '$section_title' section has been successfully updated.</BR>";
-            }
-            else {
+            } else {
                 echo "<B>ERROR</B>,unable to update the '$object_title' object in the '$section_title' section.</BR>";
             }
         }
-    }
-    else {
+    } else {
         echo "<B>ERROR</B>, the '$object_title' object in the '$section_title' section does not exist.</BR>";
     }
+
         return;
 }
 
@@ -279,20 +273,19 @@ function updateAcl($array_acl_id_number, $group_title, $section_name, $section_t
     switch (count($tmp_array)) {
         case 0:
             $tmp_boolean = @$gacl->append_acl($array_acl_id_number[0], null, null, null, null, array($section_name=>array($object_name)));
-            if ($tmp_boolean){
+            if ($tmp_boolean) {
                 echo "Successfully placed the '$object_title' object of the '$section_title' section into the '$group_title' group '$return_value' ACL.</BR>";
-            }
-            else {
+            } else {
                 echo "<B>ERROR</B>,unable to place the '$object_title' object of the '$section_title' section into the '$group_title' group '$return_value' ACL.</BR>";
             }
-                break;
+            break;
         case 1:
             echo "The '$object_title' object of the '$section_title' section is already found in the '$group_title' group '$return_value' ACL.</BR>";
-                break;
+            break;
         default:
             echo "<B>ERROR</B>, Multiple '$group_title' group '$return_value' ACLs with the '$object_title' object of the '$section_title' section are present.</BR>";
-                break;
+            break;
     }
+
         return;
 }
-?>

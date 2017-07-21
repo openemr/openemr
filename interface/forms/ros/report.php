@@ -3,7 +3,7 @@
 include_once(dirname(__FILE__).'/../../globals.php');
 include_once($GLOBALS["srcdir"]."/api.inc");
 
-function ros_report( $pid, $encounter, $cols, $id)
+function ros_report($pid, $encounter, $cols, $id)
 {
 
     $count = 0;
@@ -77,22 +77,28 @@ function ros_report( $pid, $encounter, $cols, $id)
          
         print "<div id='form_ros_values'><table class='report_results'><tr>";
 
-        foreach($data as $key => $value) {
+        foreach ($data as $key => $value) {
             if (isset($cmap[$key])) {
-                if ($cmap[$key] == '') continue;
+                if ($cmap[$key] == '') {
+                    continue;
+                }
+
                 $key = $cmap[$key];
             } else {
-                $key = ucwords(str_replace("_"," ",$key));
+                $key = ucwords(str_replace("_", " ", $key));
             }
 
             // skip the N/A values -- cfapress, Jan 2009 OR blank or zero date values
             if ($value == "N/A" || $value == "" ||
-                $value == "0000-00-00" || $value == "0000-00-00 00:00:00") continue;
+                $value == "0000-00-00" || $value == "0000-00-00 00:00:00") {
+                continue;
+            }
 
-            if ($value == "on") { $value = "yes"; }
+            if ($value == "on") {
+                $value = "yes";
+            }
                 
-            printf ("<td><span class=bold>%s: </span><span class=text>%s</span></td>"
-                    , xl($key), xl($value));
+            printf("<td><span class=bold>%s: </span><span class=text>%s</span></td>", xl($key), xl($value));
             $count++;
 
             if ($count == $cols) {
@@ -101,6 +107,6 @@ function ros_report( $pid, $encounter, $cols, $id)
             }
         }
     }
+
     print "</tr></table></div>";
 }
-?>

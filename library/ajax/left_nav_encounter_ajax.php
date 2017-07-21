@@ -27,20 +27,26 @@ $today = date('Y-m-d');
 $irow = sqlQuery("SELECT title, pid FROM lists WHERE id = ?", array($issue));
 
 $thispid = $irow['pid'];
-if (empty($thispid)) die("Error fetching issue $issue");
+if (empty($thispid)) {
+    die("Error fetching issue $issue");
+}
 
 if ($createvisit) {
   // Create a new encounter and give it a title of the issue title.
     $thisenc = todaysEncounter($thispid, $irow['title']);
 
   // If the encounter is not already linked to the specified issue, link it.
-    $tmp = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
-    "pid = ? AND list_id = ? AND encounter = ?",
-    array($thispid, $issue, $thisenc));
+    $tmp = sqlQuery(
+        "SELECT count(*) AS count FROM issue_encounter WHERE " .
+        "pid = ? AND list_id = ? AND encounter = ?",
+        array($thispid, $issue, $thisenc)
+    );
     if (empty($tmp['count'])) {
-        sqlStatement("INSERT INTO issue_encounter " .
-        "( pid, list_id, encounter ) VALUES ( ?, ?, ? )",
-        array($thispid, $issue, $thisenc));
+        sqlStatement(
+            "INSERT INTO issue_encounter " .
+            "( pid, list_id, encounter ) VALUES ( ?, ?, ? )",
+            array($thispid, $issue, $thisenc)
+        );
     }
 ?>
 
@@ -80,8 +86,7 @@ if ($createvisit) {
 top.left_nav.setEncounter('<?php echo $today; ?>', enc, 'RBot');
 top.left_nav.loadFrame2('enc2', 'RBot', 'patient_file/encounter/encounter_top.php?set_encounter=' + enc);
 <?php
-}
-else { // if not $createvisit
+} else { // if not $createvisit
 ?>
 top.left_nav.loadFrame2('nen1','RBot','forms/newpatient/new.php?autoloaded=1&calenc=&issue=<?php echo $issue; ?>');
 <?php

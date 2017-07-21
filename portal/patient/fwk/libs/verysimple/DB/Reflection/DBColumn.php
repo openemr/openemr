@@ -1,6 +1,6 @@
 <?php
 /** @package    verysimple::DB::Reflection */
-require_once ('verysimple/Phreeze/FieldMap.php');
+require_once('verysimple/Phreeze/FieldMap.php');
 
 /**
  * DBcolumn is an object representation of column
@@ -11,7 +11,8 @@ require_once ('verysimple/Phreeze/FieldMap.php');
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class DBColumn {
+class DBColumn
+{
     public $Table;
     public $Name;
     public $Type;
@@ -38,31 +39,31 @@ class DBColumn {
     function __construct($table, $row)
     {
         // typical type is something like varchar(40)
-        $typesize = explode ( "(", $row ["Type"] );
+        $typesize = explode("(", $row ["Type"]);
         
-        $tmp = isset ( $typesize [1] ) ? str_replace ( ")", "", $typesize [1] ) : "";
-        $sizesign = explode ( " ", $tmp );
+        $tmp = isset($typesize [1]) ? str_replace(")", "", $typesize [1]) : "";
+        $sizesign = explode(" ", $tmp);
         
         $this->Table = & $table;
         $this->Name = $row ["Field"];
         $this->NameWithoutPrefix = $row ["Field"];
         $this->Type = $typesize [0];
-        $this->Unsigned = isset ( $sizesign [1] );
+        $this->Unsigned = isset($sizesign [1]);
         $this->Null = $row ["Null"];
         $this->Key = $row ["Key"];
         $this->Default = $row ["Default"];
         $this->Extra = $row ["Extra"];
         
         // enums are a little different because they contain a list of legal values instead of a size limit
-        if ($this->IsEnum ()) {
+        if ($this->IsEnum()) {
             // enum size is in the format 'val1','val2',...
-            $this->Size = explode ( "','", substr ( $sizesign [0], 1, - 1 ) );
+            $this->Size = explode("','", substr($sizesign [0], 1, - 1));
             $this->MaxSize = 0;
         } else {
             $this->Size = $sizesign [0];
             // size may be saved for decimals as "n,n" so we need to convert that to an int
-            $tmp = explode ( ",", $this->Size );
-            $this->MaxSize = count ( $tmp ) > 1 ? ($tmp [0] + $tmp [1]) : $this->Size;
+            $tmp = explode(",", $this->Size);
+            $this->MaxSize = count($tmp) > 1 ? ($tmp [0] + $tmp [1]) : $this->Size;
         }
         
         // if ($this->Key == "MUL") print " ########################## " . print_r($row,1) . " ########################## ";
@@ -85,7 +86,7 @@ class DBColumn {
      */
     function GetEnumValues()
     {
-        return $this->IsEnum () ? $this->Size : array ();
+        return $this->IsEnum() ? $this->Size : array ();
     }
     
     /**
@@ -95,7 +96,7 @@ class DBColumn {
      */
     function GetPhreezeType()
     {
-        return FieldMap::GetConstantFromType ( $this->Type );
+        return FieldMap::GetConstantFromType($this->Type);
     }
     
     /**
@@ -107,26 +108,26 @@ class DBColumn {
     {
         $rt = $this->Type;
         switch ($this->Type) {
-            case "smallint" :
-            case "bigint" :
-            case "tinyint" :
-            case "mediumint" :
+            case "smallint":
+            case "bigint":
+            case "tinyint":
+            case "mediumint":
                 $rt = "int";
                 break;
-            case "varchar" :
-            case "text" :
-            case "tinytext" :
+            case "varchar":
+            case "text":
+            case "tinytext":
                 $rt = "string";
                 break;
-            case "date" :
-            case "datetime" :
+            case "date":
+            case "datetime":
                 $rt = "date";
                 break;
-            case "decimal" :
-            case "float" :
+            case "decimal":
+            case "float":
                 $rt = "float";
                 break;
-            default :
+            default:
                 break;
         }
         
@@ -142,43 +143,43 @@ class DBColumn {
     {
         $rt = $this->Type;
         switch ($this->Type) {
-            case "int" :
+            case "int":
                 $rt = "integer";
                 break;
-            case "smallint" :
+            case "smallint":
                 $rt = "integer";
                 break;
-            case "tinyint" :
+            case "tinyint":
                 $rt = "integer";
                 break;
-            case "varchar" :
+            case "varchar":
                 $rt = "text";
                 break;
-            case "text" :
+            case "text":
                 $rt = "text";
                 break;
-            case "tinytext" :
+            case "tinytext":
                 $rt = "text";
                 break;
-            case "date" :
+            case "date":
                 $rt = "datetime";
                 break;
-            case "datetime" :
+            case "datetime":
                 $rt = "datetime";
                 break;
-            case "mediumint" :
+            case "mediumint":
                 $rt = "integer";
                 break;
-            case "bigint" :
+            case "bigint":
                 $rt = "integer";
                 break;
-            case "decimal" :
+            case "decimal":
                 $rt = "real";
                 break;
-            case "float" :
+            case "float":
                 $rt = "real";
                 break;
-            default :
+            default:
                 break;
         }
         
@@ -194,45 +195,43 @@ class DBColumn {
     {
         $rt = $this->Type;
         switch ($this->Type) {
-            case "int" :
+            case "int":
                 $rt = "int";
                 break;
-            case "smallint" :
+            case "smallint":
                 $rt = "int";
                 break;
-            case "tinyint" :
+            case "tinyint":
                 $rt = $this->MaxSize > 1 ? "int" : "Boolean";
                 break;
-            case "varchar" :
+            case "varchar":
                 $rt = "String";
                 break;
-            case "text" :
+            case "text":
                 $rt = "String";
                 break;
-            case "tinytext" :
+            case "tinytext":
                 $rt = "String";
                 break;
-            case "datetime" :
+            case "datetime":
                 $rt = "Date";
                 break;
-            case "mediumint" :
+            case "mediumint":
                 $rt = "int";
                 break;
-            case "bigint" :
+            case "bigint":
                 $rt = "int";
                 break;
-            case "decimal" :
+            case "decimal":
                 $rt = "Number";
                 break;
-            case "float" :
+            case "float":
                 $rt = "Number";
                 break;
-            default :
+            default:
                 break;
         }
         
         return $rt;
     }
 }
-
-?>

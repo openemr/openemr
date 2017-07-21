@@ -37,7 +37,10 @@ function cbinput($name, $colname)
 {
     global $row;
     $ret  = "<input type='checkbox' name='$name' value='1'";
-    if ($row[$colname]) $ret .= " checked";
+    if ($row[$colname]) {
+        $ret .= " checked";
+    }
+
     $ret .= " />";
     return $ret;
 }
@@ -52,7 +55,6 @@ $formid = $_GET['id'];
 // If Save was clicked, save the info.
 //
 if ($_POST['bn_save']) {
-
     $fu_timing   = $_POST['fu_timing'];
     $fu_location = $_POST['fu_location'];
 
@@ -66,9 +68,7 @@ if ($_POST['bn_save']) {
          "followup_location = '$fu_location'"                . " "   .
          "WHERE id = '$formid'";
         sqlStatement($query);
-    }
-
- // If adding a new form...
+    } // If adding a new form...
  //
     else {
         $query = "INSERT INTO form_specialist_notes ( " .
@@ -90,7 +90,7 @@ if ($_POST['bn_save']) {
 }
 
 if ($formid) {
-    $row = sqlQuery ("SELECT * FROM form_specialist_notes WHERE " .
+    $row = sqlQuery("SELECT * FROM form_specialist_notes WHERE " .
     "id = '$formid' AND activity = '1'") ;
 }
 ?>

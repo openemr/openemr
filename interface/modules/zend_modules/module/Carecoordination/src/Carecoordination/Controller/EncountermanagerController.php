@@ -48,8 +48,8 @@ class EncountermanagerController extends AbstractActionController
         $encounter      = $request->getPost('form_encounter', null);
         $status         = $request->getPost('form_status', null);
         
-        if(!$pid && !$encounter && !$status){
-            $fromDate       = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d',strtotime(date('Ymd')) - (86400*7));
+        if (!$pid && !$encounter && !$status) {
+            $fromDate       = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400*7));
             $toDate         = $request->getPost('form_date_to', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_to', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
         }
         
@@ -60,36 +60,37 @@ class EncountermanagerController extends AbstractActionController
         $select_all     = $request->getPost('form_select_all', 0);
         $end            = $current_page*$results;
         $start          = ($end - $results);
-        $new_search     = $request->getPost('form_new_search',null);
+        $new_search     = $request->getPost('form_new_search', null);
         $form_sl_no     = $request->getPost('form_sl_no', 0);
         
         $downloadccda       = $request->getPost('downloadccda') ? $request->getPost('downloadccda') : $request->getQuery()->downloadccda;
         $latest_ccda    = $request->getPost('latestccda') ? $request->getPost('latestccda') : $this->getRequest()->getQuery('latest_ccda');
 
-        if($downloadccda == 'download_ccda') {
+        if ($downloadccda == 'download_ccda') {
             $pids           = '';
-            if($request->getQuery('pid_ccda')) {
+            if ($request->getQuery('pid_ccda')) {
                 $pid             = $request->getQuery('pid_ccda');
-                if($pid !='') {
+                if ($pid !='') {
                     $combination = $pid;
                 }
-            }
-            else {
+            } else {
                 $combination     = $request->getPost('ccda_pid');
             }
           
-            for($i=0 ; $i<count($combination) ; $i++){
-                if($i == (count($combination)-1)) {
-                    if($combination == $pid)
-                    $pids = $pid;
-                    else
-                    $pids .= $combination[$i];
+            for ($i=0; $i<count($combination); $i++) {
+                if ($i == (count($combination)-1)) {
+                    if ($combination == $pid) {
+                        $pids = $pid;
+                    } else {
+                        $pids .= $combination[$i];
+                    }
+                } else {
+                    $pids .= $combination[$i].'|';
                 }
-                else
-                $pids .= $combination[$i].'|';
             }
+
             $components   = $request->getPost('components') ? $request->getPost('components') : $request->getQuery()->components;
-            $this->forward()->dispatch('encounterccdadispatch',array('action'       => 'index',
+            $this->forward()->dispatch('encounterccdadispatch', array('action'       => 'index',
                                                                    'pids'         => $pids,
                                                                    'view'         => 1,
                                                                    'downloadccda' => $downloadccda,
@@ -113,11 +114,12 @@ class EncountermanagerController extends AbstractActionController
                         'sl_no'         => $form_sl_no,
                     );
         
-        if($new_search) {
-            $count  = $this->getEncountermanagerTable()->getEncounters($params,1);
+        if ($new_search) {
+            $count  = $this->getEncountermanagerTable()->getEncounters($params, 1);
         } else {
-            $count  = $request->getPost('form_count',$this->getEncountermanagerTable()->getEncounters($params,1));
+            $count  = $request->getPost('form_count', $this->getEncountermanagerTable()->getEncounters($params, 1));
         }
+
         $totalpages     = ceil($count/$results);
         
         $details        = $this->getEncountermanagerTable()->getEncounters($params);
@@ -145,7 +147,7 @@ class EncountermanagerController extends AbstractActionController
         $id         = $this->getRequest()->getQuery('id');
         $dir        = sys_get_temp_dir()."/CCDA_$id/";
         $filename   = "CCDA_$id.xml";
-        if(!is_dir($dir)){
+        if (!is_dir($dir)) {
             mkdir($dir, true);
             chmod($dir, 0777);
         }
@@ -179,30 +181,33 @@ class EncountermanagerController extends AbstractActionController
     public function downloadallAction()
     {
         $pids     = $this->params('pids');
-        if($pids != ''){
+        if ($pids != '') {
             $zip        = new Zip();
             $parent_dir = sys_get_temp_dir()."/CCDA_".time();
-            if(!is_dir($parent_dir)){
+            if (!is_dir($parent_dir)) {
                 mkdir($parent_dir, true);
                 chmod($parent_dir, 0777);
             }
+
             $arr = explode('|', $pids);
-            foreach($arr as $row){
+            foreach ($arr as $row) {
                 $pid      = $row;
                 $row      = $this->getEncountermanagerTable()->getFileID($pid);
                 $id       = $row['id'];
                 $dir      = $parent_dir."/CCDA_{$row['lname']}_{$row['fname']}/";
                 $filename = "CCDA_{$row['lname']}_{$row['fname']}.xml";
-                if(!is_dir($dir)){
+                if (!is_dir($dir)) {
                     mkdir($dir, true);
                     chmod($dir, 0777);
                 }
+
                 $content = $this->getEncountermanagerTable()->getFile($id);
                 $f2      = fopen($dir.$filename, "w");
                 fwrite($f2, $content);
                 fclose($f2);
                 copy(dirname(__FILE__)."/../../../../../public/css/CDA.xsl", $dir."CDA.xsl");
             }
+
             $zip_dir  = sys_get_temp_dir()."/";
             $zip_name = "CCDA.zip";
             $zip->setArchive($zip_dir.$zip_name);
@@ -240,7 +245,7 @@ class EncountermanagerController extends AbstractActionController
             $sm = $this->getServiceLocator();
             $this->encountermanagerTable = $sm->get('Carecoordination\Model\EncountermanagerTable');
         }
+
         return $this->encountermanagerTable;
     }
 }
-?>

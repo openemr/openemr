@@ -31,8 +31,7 @@ $alertmsg = '';
 $collectthis = collectValidationPageRules("/interface/usergroup/facilities_add.php");
 if (empty($collectthis)) {
     $collectthis = "undefined";
-}
-else {
+} else {
     $collectthis = $collectthis["facility-add"]["rules"];
 }
 
@@ -59,7 +58,7 @@ function submitform() {
     var valid = submitme(1, undefined, 'facility-add', collectvalidation);
     if (!valid) return;
 
-    <?php if($GLOBALS['erx_enable']){ ?>
+    <?php if ($GLOBALS['erx_enable']) { ?>
     alertMsg='';
     f=document.forms[0];
     for(i=0;i<f.length;i++){
@@ -178,13 +177,13 @@ function displayAlert()
 <body class="body_top">
 <table>
 <tr><td>
-    <span class="title"><?php xl('Add Facility','e'); ?></span>&nbsp;&nbsp;&nbsp;</td>
+    <span class="title"><?php xl('Add Facility', 'e'); ?></span>&nbsp;&nbsp;&nbsp;</td>
     <td colspan=5 align=center style="padding-left:2px;">
         <a onclick="submitform();" class="css_button large_button" name='form_save' id='form_save' href='#'>
-            <span class='css_button_span large_button_span'><?php xl('Save','e');?></span>
+            <span class='css_button_span large_button_span'><?php xl('Save', 'e');?></span>
         </a>
         <a class="css_button large_button" id='cancel' href='#' >
-            <span class='css_button_span large_button_span'><?php xl('Cancel','e');?></span>
+            <span class='css_button_span large_button_span'><?php xl('Cancel', 'e');?></span>
         </a>
 </td></tr>
 </table>
@@ -195,60 +194,65 @@ function displayAlert()
     <input type=hidden name=mode value="facility">
     <table border=0 cellpadding=0 cellspacing=0>
         <tr>
-        <td><span class="text"><?php xl('Name','e'); ?>: </span></td><td><input type=entry name=facility size=20 value=""></td>
+        <td><span class="text"><?php xl('Name', 'e'); ?>: </span></td><td><input type=entry name=facility size=20 value=""></td>
         <td width=20>&nbsp;</td>
-        <td><span class="text"><?php xl('Phone','e'); ?>: </span></td><td><input type=entry name=phone size=20 value=""></td>
+        <td><span class="text"><?php xl('Phone', 'e'); ?>: </span></td><td><input type=entry name=phone size=20 value=""></td>
         </tr>
         <tr>
-        <td><span class="text"><?php xl('Address','e'); ?>: </span></td><td><input type=entry size=20 name=street value=""></td>
+        <td><span class="text"><?php xl('Address', 'e'); ?>: </span></td><td><input type=entry size=20 name=street value=""></td>
         <td>&nbsp;</td>
-        <td><span class="text"><?php xl('Fax','e'); ?>: </span></td><td><input type=entry name=fax size=20 value=""></td>
+        <td><span class="text"><?php xl('Fax', 'e'); ?>: </span></td><td><input type=entry name=fax size=20 value=""></td>
         </tr>
         <tr>
-        <td><span class="text"><?php xl('City','e'); ?>: </span></td><td><input type=entry size=20 name=city value=""></td>
+        <td><span class="text"><?php xl('City', 'e'); ?>: </span></td><td><input type=entry size=20 name=city value=""></td>
         <td>&nbsp;</td>
-        <td><span class="text"><?php xl('Zip Code','e'); ?>: </span></td><td><input type=entry size=20 name=postal_code value=""></td>
+        <td><span class="text"><?php xl('Zip Code', 'e'); ?>: </span></td><td><input type=entry size=20 name=postal_code value=""></td>
         </tr>
         <tr>
-        <td><span class="text"><?php xl('State','e'); ?>: </span></td><td><input type=entry size=20 name=state value=""></td>
+        <td><span class="text"><?php xl('State', 'e'); ?>: </span></td><td><input type=entry size=20 name=state value=""></td>
         <td>&nbsp;</td>
-        <td><span class="text"><?php xl('Tax ID','e'); ?>: </span></td><td><select name=tax_id_type><option value="EI"><?php xl('EIN','e'); ?></option><option value="SY"><?php xl('SSN','e'); ?></option></select><input type=entry size=11 name=federal_ein value=""></td>
+        <td><span class="text"><?php xl('Tax ID', 'e'); ?>: </span></td><td><select name=tax_id_type><option value="EI"><?php xl('EIN', 'e'); ?></option><option value="SY"><?php xl('SSN', 'e'); ?></option></select><input type=entry size=11 name=federal_ein value=""></td>
         </tr>
         <tr>
-        <td height="22"><span class="text"><?php xl('Country','e'); ?>: </span></td><td><input type=entry size=20 name=country_code value=""></td>
+        <td height="22"><span class="text"><?php xl('Country', 'e'); ?>: </span></td><td><input type=entry size=20 name=country_code value=""></td>
         <td>&nbsp;</td>
-        <td><span class="text"><?php ($GLOBALS['simplified_demographics'] ? xl('Facility Code','e') : xl('Facility NPI','e')); ?>:
+        <td><span class="text"><?php ($GLOBALS['simplified_demographics'] ? xl('Facility Code', 'e') : xl('Facility NPI', 'e')); ?>:
         </span></td><td><input type=entry size=20 name=facility_npi value=""></td>
         </tr>
         <tr>
-        <td><span class="text"><?php xl('Website','e'); ?>: </span></td><td><input type=entry size=20 name=website value=""></td>
+        <td><span class="text"><?php xl('Website', 'e'); ?>: </span></td><td><input type=entry size=20 name=website value=""></td>
         <td>&nbsp;</td>
-        <td><span class="text"><?php xl('Email','e'); ?>: </span></td><td><input type=entry size=20 name=email value=""></td>
+        <td><span class="text"><?php xl('Email', 'e'); ?>: </span></td><td><input type=entry size=20 name=email value=""></td>
         </tr>
 
         <tr>
-          <td><span class='text'><?php xl('Billing Location','e'); ?>: </span></td><td><input type='checkbox' name='billing_location' value = '1'></td>
+          <td><span class='text'><?php xl('Billing Location', 'e'); ?>: </span></td><td><input type='checkbox' name='billing_location' value = '1'></td>
           <td>&nbsp;</td>
-          <td><span class='text'><?php xl('Accepts Assignment','e'); ?><br>(<?php xl('only if billing location','e'); ?>): </span></td> <td><input type='checkbox' name='accepts_assignment' value = '1'></td>
+          <td><span class='text'><?php xl('Accepts Assignment', 'e'); ?><br>(<?php xl('only if billing location', 'e'); ?>): </span></td> <td><input type='checkbox' name='accepts_assignment' value = '1'></td>
         </tr>
         <tr>
-          <td><span class='text'><?php xl('Service Location','e'); ?>: </span></td> <td><input type='checkbox' name='service_location' value = '1'></td>
+          <td><span class='text'><?php xl('Service Location', 'e'); ?>: </span></td> <td><input type='checkbox' name='service_location' value = '1'></td>
           <td>&nbsp;</td>
-          <td><span class='text'><?php echo htmlspecialchars(xl('Color'),ENT_QUOTES); ?>: </span></td> <td><input type=entry name=ncolor id=ncolor size=20 value=""><span>[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php echo htmlspecialchars(xl('Pick'),ENT_QUOTES); ?></a>]</span></td>
+          <td><span class='text'><?php echo htmlspecialchars(xl('Color'), ENT_QUOTES); ?>: </span></td> <td><input type=entry name=ncolor id=ncolor size=20 value=""><span>[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php echo htmlspecialchars(xl('Pick'), ENT_QUOTES); ?></a>]</span></td>
         </tr>
     <?php
     $disabled='';
     $resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => $my_fid));
-    if(sizeof($resPBE)>0)
-    $disabled='disabled';
+    if (sizeof($resPBE)>0) {
+        $disabled='disabled';
+    }
     ?>
      <tr>
-          <td><span class='text'><?php xl('Primary Business Entity','e'); ?>: </span></td>
-          <td><input type='checkbox' name='primary_business_entity' id='primary_business_entity' value='1' <?php if ($facility['primary_business_entity'] == 1) echo 'checked'; ?> <?php if($GLOBALS['erx_enable']){ ?> onchange='return displayAlert()' <?php } ?> <?php echo $disabled;?>></td>
+          <td><span class='text'><?php xl('Primary Business Entity', 'e'); ?>: </span></td>
+          <td><input type='checkbox' name='primary_business_entity' id='primary_business_entity' value='1' <?php if ($facility['primary_business_entity'] == 1) {
+                echo 'checked';
+} ?> <?php if ($GLOBALS['erx_enable']) {
+                ?> onchange='return displayAlert()' <?php
+} ?> <?php echo $disabled;?>></td>
           <td>&nbsp;</td>
          </tr>
         <tr>
-            <td><span class=text><?php xl('POS Code','e'); ?>: </span></td>
+            <td><span class=text><?php xl('POS Code', 'e'); ?>: </span></td>
             <td colspan="6">
                 <select name="pos_code">
                 <?php
@@ -265,19 +269,19 @@ function displayAlert()
             </td>
         </tr>
         <tr>
-            <td><span class="text"><?php xl('Billing Attn','e'); ?>:</span></td>
+            <td><span class="text"><?php xl('Billing Attn', 'e'); ?>:</span></td>
             <td colspan="4"><input type="text" name="attn" size="45"></td>
         </tr>
         <tr>
-            <td><span class="text"><?php xl('CLIA Number','e'); ?>:</span></td>
+            <td><span class="text"><?php xl('CLIA Number', 'e'); ?>:</span></td>
             <td colspan="4"><input type="text" name="domain_identifier" size="45"></td>
         </tr>
         <tr>
-            <td><span class="text"><?php xl('Facility ID','e'); ?>:</span></td>
+            <td><span class="text"><?php xl('Facility ID', 'e'); ?>:</span></td>
             <td colspan="4"><input type="text" name="facility_id" size="20"></td>
         </tr>
         <tr height="25" style="valign:bottom;">
-        <td><font class="mandatory">*</font><span class="text"> <?php echo xl('Required','e'); ?></span></td><td>&nbsp;</td><td>&nbsp;</td>
+        <td><font class="mandatory">*</font><span class="text"> <?php echo xl('Required', 'e'); ?></span></td><td>&nbsp;</td><td>&nbsp;</td>
         <td>&nbsp;</td><td>&nbsp;</td>
         </tr>
     </table>

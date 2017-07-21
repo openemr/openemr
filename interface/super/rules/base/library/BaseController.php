@@ -16,7 +16,8 @@
  *
  * @author aron
  */
-abstract class BaseController {
+abstract class BaseController
+{
 
     var $viewBean;
     var $ruleManager;
@@ -35,26 +36,26 @@ abstract class BaseController {
         $this->_action_error();
     }
 
-    public function emit_json( $object )
+    public function emit_json($object)
     {
         header('Content-type: application/json');
-        echo json_encode( $object );
+        echo json_encode($object);
     }
 
-    public function set_view( $view, $template='' )
+    public function set_view($view, $template = '')
     {
         $this->viewBean->_view = $view;
-        if ( $template ) {
+        if ($template) {
             $this->viewBean->_template = $template;
         }
     }
 
-    public function forward( $forward )
+    public function forward($forward)
     {
         $this->viewBean->_forward = $forward;
     }
 
-    public function redirect( $redirect )
+    public function redirect($redirect)
     {
         $this->viewBean->_redirect = $redirect;
     }
@@ -65,26 +66,28 @@ abstract class BaseController {
      */
     public function getRuleManager()
     {
-        if ( !$this->ruleManager ) {
+        if (!$this->ruleManager) {
             $this->ruleManager = new RuleManager();
         }
+
         return $this->ruleManager;
     }
 
     public function getCodeManager()
     {
-        if ( !$this->codeManager ) {
+        if (!$this->codeManager) {
             $this->codeManager = new CodeManager();
         }
+
         return $this->codeManager;
     }
 
-    public function addHelper( $helper )
+    public function addHelper($helper)
     {
-        if ( is_null($this->viewBean->helpers) ) {
+        if (is_null($this->viewBean->helpers)) {
             $this->viewBean->helpers = array();
         }
+
         array_push($this->viewBean->helpers, $helper);
     }
 }
-?>

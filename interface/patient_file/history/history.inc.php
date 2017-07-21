@@ -44,4 +44,3 @@
   'hip_replacement'  => xl('Hip Replacement'),
   'knee_replacement' => xl('Knee Replacement')
   );
-?>

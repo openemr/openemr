@@ -40,7 +40,7 @@ $featureData['amendment']['listLink'] = "list_amendments.php";
 
 <frameset cols="18%,*" id="main_frame">
  <frame src="left_frame.php?feature=<?php echo attr($feature); ?>" name="leftFrame" scrolling="auto"/>
-    <?php if ( $id ) { ?>
+    <?php if ($id) { ?>
     <frame src="<?php echo $GLOBALS['webroot'] ?>/interface/patient_file/summary/<?php echo attr($featureData[$feature]['addLink']); ?>?id=<?php echo attr($id) ?>"
         name="rightFrame" scrolling="auto"/>
     <?php } else { ?>

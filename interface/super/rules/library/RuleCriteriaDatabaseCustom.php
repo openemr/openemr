@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class RuleCriteriaDatabaseCustom extends RuleCriteria {
+class RuleCriteriaDatabaseCustom extends RuleCriteria
+{
 
     var $table;
     var $column;
@@ -39,13 +40,13 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria {
     function getRequirements()
     {
         $requirements = "";
-        if ( $this->value ) {
-            $requirements .= xl( "Value" ) . ": ";
+        if ($this->value) {
+            $requirements .= xl("Value") . ": ";
             $requirements .= $this->decodeComparator($this->valueComparator) . " " . $this->value;
             $requirements .= " | ";
         }
         
-        $requirements .= xl( "Frequency" ) . ": ";
+        $requirements .= xl("Frequency") . ": ";
         $requirements .= $this->decodeComparator($this->frequencyComparator) . " " . $this->frequency;
 
         return $requirements;
@@ -53,7 +54,7 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria {
 
     function getTitle()
     {
-        return xl( $this->table ) . "." . xl( $this->column );
+        return xl($this->table) . "." . xl($this->column);
     }
 
     function getView()
@@ -64,12 +65,13 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria {
     function getTableNameOptions()
     {
         $options = array();
-        $stmts = sqlStatement( "SHOW TABLES" );
-        for($iter=0; $row=sqlFetchArray($stmts); $iter++) {
-            foreach( $row as $key=>$value) {
-                array_push( $options, array( "id" => out( $value ), "label" => out( xl ( $value ) ) ) );
+        $stmts = sqlStatement("SHOW TABLES");
+        for ($iter=0; $row=sqlFetchArray($stmts); $iter++) {
+            foreach ($row as $key => $value) {
+                array_push($options, array( "id" => out($value), "label" => out(xl($value)) ));
             }
         }
+
         return $options;
     }
     
@@ -98,6 +100,4 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria {
         $this->frequency = _post("fld_frequency");
         $this->frequencyComparator = _post("fld_frequency_comparator");
     }
-   
 }
-?>

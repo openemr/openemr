@@ -10,6 +10,7 @@
 
 
 use OpenEMR\Core\Header;
+
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
@@ -68,23 +69,22 @@ $ptrow = array();
 if (!empty($form_patient_id)) {
     $query = "SELECT pid, pubpid, fname, mname, lname FROM patient_data WHERE " .
     "pubpid = ? ORDER BY pid LIMIT 1";
-    $ptrow = sqlQuery($query,array($form_patient_id));
+    $ptrow = sqlQuery($query, array($form_patient_id));
     if (empty($ptrow)) {
         $curr_pid = 0;
         echo "<font color='red'>" . xlt('Chart ID') . " '" . text($form_patient_id) . "' " . xlt('not found!') . "</font><br />&nbsp;<br />";
-    }
-    else {
+    } else {
         $curr_pid = $ptrow['pid'];
     }
-}
-else if (!empty($curr_pid)) {
+} else if (!empty($curr_pid)) {
     $query = "SELECT pid, pubpid, fname, mname, lname FROM patient_data WHERE " .
     "pid = ?";
-    $ptrow = sqlQuery($query,array($curr_pid));
+    $ptrow = sqlQuery($query, array($curr_pid));
     $form_patient_id = $ptrow['pubpid'];
 }
+
 if (!empty($ptrow)) {
-    echo '<span class="title">' . text(xl('for','','',' '));
+    echo '<span class="title">' . text(xl('for', '', '', ' '));
     echo text($ptrow['lname']) . ', ' . text($ptrow['fname']) . ' ' . text($ptrow['mname']) . ' ';
     echo "(" . text($ptrow['pubpid']) . ")";
     echo "</span>\n";
@@ -128,7 +128,7 @@ if (!empty($ptrow)) {
                       <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
                       </a>
-                        <?php if ($_POST['form_refresh'] || !empty($ptrow) ) { ?>
+                        <?php if ($_POST['form_refresh'] || !empty($ptrow)) { ?>
               <a href='#' class='btn btn-default btn-print' id='printbutton'>
                                 <?php echo xlt('Print'); ?>
                         </a>
@@ -145,7 +145,7 @@ if (!empty($ptrow)) {
 </div> <!-- end of parameters -->
 
 <?php
-if ($_POST['form_refresh'] || !empty($ptrow) ) {
+if ($_POST['form_refresh'] || !empty($ptrow)) {
 ?>
 <div id="report_results">
 <table>
@@ -167,9 +167,8 @@ if (!empty($ptrow)) {
   <td>
 <?php
 if (!empty($row['ct_location'])) {
-    echo generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'),$row['ct_location']);
-}
-else if (!empty($row['ct_userid'])) {
+    echo generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'), $row['ct_location']);
+} else if (!empty($row['ct_userid'])) {
     echo text($row['lname']) . ', ' . text($row['fname']) . ' ' . text($row['mname']);
 }
 ?>

@@ -198,5 +198,3 @@ class UserReporter extends Reporter
         return $sql;
     }
 }
-
-?>

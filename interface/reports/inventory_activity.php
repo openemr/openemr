@@ -47,7 +47,10 @@ function getEndInventory($product_id = 0, $warehouse_id = '~')
     }
 
     $prodcond = '';
-    if ($form_product) $product_id = $form_product;
+    if ($form_product) {
+        $product_id = $form_product;
+    }
+
     if ($product_id) {
         $prodcond = "AND di.drug_id = '$product_id'";
     }
@@ -85,7 +88,7 @@ function thisLineItem(
     $rowwh,
     $transdate,
     $qtys,
-    $irnumber=''
+    $irnumber = ''
 ) {
 
     global $warehouse, $product, $secqtys, $priqtys, $grandqtys;
@@ -96,17 +99,19 @@ function thisLineItem(
     $invnumber = empty($irnumber) ? ($patient_id ? "$patient_id.$encounter_id" : "") : $irnumber;
 
   // Product name for this detail line item.
-    if (empty($rowprod)) $rowprod = 'Unnamed Product';
+    if (empty($rowprod)) {
+        $rowprod = 'Unnamed Product';
+    }
 
   // Warehouse name for this line item.
-    if (empty($rowwh)) $rowwh = 'None';
+    if (empty($rowwh)) {
+        $rowwh = 'None';
+    }
 
   // If new warehouse or product...
     if ($warehouse_id != $last_warehouse_id || $product_id != $last_product_id) {
-
         // If there was anything to total...
         if (($product_first && $last_warehouse_id != '~') || (!$product_first && $last_product_id)) {
-
             $secei = getEndInventory($last_product_id, $last_warehouse_id);
 
             // Print second-column totals.
@@ -120,6 +125,7 @@ function thisLineItem(
                         echo '"'  . esc4Export($warehouse) . '"';
                         echo ',"' . esc4Export($product)   . '"';
                     }
+
                     echo ',"' . ($secei - $secqtys[0] - $secqtys[1] - $secqtys[2] - $secqtys[3] - $secqtys[4]) . '"'; // start inventory
                     echo ',"' . $secqtys[0] . '"'; // sales
                     echo ',"' . $secqtys[1] . '"'; // distributions
@@ -129,8 +135,7 @@ function thisLineItem(
                     echo ',"' . $secei      . '"'; // end inventory
                     echo "\n";
                 }
-            }
-            else {
+            } else {
                 // Not export:
         ?>
        <tr bgcolor="#ddddff">
@@ -140,7 +145,10 @@ function thisLineItem(
     $prodleft = " "; ?>
   </td>
   <td class="detail" colspan='3'>
-    <?php if ($_POST['form_details']) echo htmlspecialchars(xl('Total for')) . ' ';
+    <?php if ($_POST['form_details']) {
+        echo htmlspecialchars(xl('Total for')) . ' ';
+}
+
     echo htmlspecialchars($warehouse); ?>
   </td>
 <?php } else { ?>
@@ -149,7 +157,10 @@ function thisLineItem(
     $whleft = " "; ?>
   </td>
   <td class="detail" colspan='3'>
-    <?php if ($_POST['form_details']) echo htmlspecialchars(xl('Total for')) . ' ';
+    <?php if ($_POST['form_details']) {
+        echo htmlspecialchars(xl('Total for')) . ' ';
+}
+
     echo htmlspecialchars($product); ?>
   </td>
 <?php } ?>
@@ -178,8 +189,9 @@ function thisLineItem(
 <?php
             } // End not csv export
         }
+
         $secqtys = array(0, 0, 0, 0, 0);
-        if ($product_first ) {
+        if ($product_first) {
             $whleft = $warehouse = $rowwh;
             $last_warehouse_id = $warehouse_id;
         } else {
@@ -190,11 +202,9 @@ function thisLineItem(
 
   // If first column is changing, time for its totals.
     if (($product_first && $product_id != $last_product_id) ||
-      (!$product_first && $warehouse_id != $last_warehouse_id))
-    {
+      (!$product_first && $warehouse_id != $last_warehouse_id)) {
         if (($product_first && $last_product_id) ||
-        (!$product_first && $last_warehouse_id != '~'))
-        {
+        (!$product_first && $last_warehouse_id != '~')) {
             $priei = $product_first ? getEndInventory($last_product_id) :
               getEndInventory(0, $last_warehouse_id);
             // Print first column total.
@@ -234,6 +244,7 @@ function thisLineItem(
 <?php
             } // End not csv export
         }
+
         $priqtys = array(0, 0, 0, 0, 0);
         if ($product_first) {
             $prodleft = $product = $rowprod;
@@ -248,12 +259,13 @@ function thisLineItem(
     if ($_POST['form_details'] && $product_id && ($qtys[0] + $qtys[1] + $qtys[2] + $qtys[3] + $qtys[4])) {
         if ($form_action == 'export') {
             if ($product_first) {
-                echo '"'  . esc4Export($product )  . '"';
+                echo '"'  . esc4Export($product)  . '"';
                 echo ',"' . esc4Export($warehouse) . '"';
             } else {
                 echo '"'  . esc4Export($warehouse) . '"';
                 echo ',"' . esc4Export($product)   . '"';
             }
+
             echo ',"' . oeFormatShortDate($transdate) . '"';
             echo ',"' . esc4Export($invnumber) . '"';
             echo ',"' . $qtys[0]             . '"'; // sales
@@ -262,8 +274,7 @@ function thisLineItem(
             echo ',"' . $qtys[3]             . '"'; // transfers
             echo ',"' . $qtys[4]             . '"'; // adjustments
             echo "\n";
-        }
-        else {
+        } else {
         ?>
      <tr>
         <?php if ($product_first) { ?>
@@ -323,13 +334,15 @@ function thisLineItem(
     }
 } // end function
 
-if (! acl_check('acct', 'rep')) die(htmlspecialchars(xl("Unauthorized access.")));
+if (! acl_check('acct', 'rep')) {
+    die(htmlspecialchars(xl("Unauthorized access.")));
+}
 
 // this is "" or "submit" or "export".
 $form_action = $_POST['form_action'];
 
 $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
-$form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
+$form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_product  = $_POST['form_product'];
 
 if ($form_action == 'export') {
@@ -341,29 +354,29 @@ if ($form_action == 'export') {
     header("Content-Description: File Transfer");
   // CSV headers:
     if ($product_first) {
-        echo '"' . esc4export(xl('Product'  )) . '",';
+        echo '"' . esc4export(xl('Product')) . '",';
         echo '"' . esc4export(xl('Warehouse')) . '",';
     } else {
         echo '"' . esc4export(xl('Warehouse')) . '",';
-        echo '"' . esc4export(xl('Product'  )) . '",';
+        echo '"' . esc4export(xl('Product')) . '",';
     }
+
     if ($_POST['form_details']) {
-        echo '"' . esc4export(xl('Date'         )) . '",';
-        echo '"' . esc4export(xl('Invoice'      )) . '",';
-        echo '"' . esc4export(xl('Sales'        )) . '",';
+        echo '"' . esc4export(xl('Date')) . '",';
+        echo '"' . esc4export(xl('Invoice')) . '",';
+        echo '"' . esc4export(xl('Sales')) . '",';
         echo '"' . esc4export(xl('Distributions')) . '",';
-        echo '"' . esc4export(xl('Purchases'    )) . '",';
-        echo '"' . esc4export(xl('Transfers'    )) . '",';
-        echo '"' . esc4export(xl('Adjustments'  )) . '"' . "\n";
-    }
-    else {
-        echo '"' . esc4export(xl('Start'        )) . '",';
-        echo '"' . esc4export(xl('Sales'        )) . '",';
+        echo '"' . esc4export(xl('Purchases')) . '",';
+        echo '"' . esc4export(xl('Transfers')) . '",';
+        echo '"' . esc4export(xl('Adjustments')) . '"' . "\n";
+    } else {
+        echo '"' . esc4export(xl('Start')) . '",';
+        echo '"' . esc4export(xl('Sales')) . '",';
         echo '"' . esc4export(xl('Distributions')) . '",';
-        echo '"' . esc4export(xl('Purchases'    )) . '",';
-        echo '"' . esc4export(xl('Transfers'    )) . '",';
-        echo '"' . esc4export(xl('Adjustments'  )) . '",';
-        echo '"' . esc4export(xl('End'          )) . '"' . "\n";
+        echo '"' . esc4export(xl('Purchases')) . '",';
+        echo '"' . esc4export(xl('Transfers')) . '",';
+        echo '"' . esc4export(xl('Adjustments')) . '",';
+        echo '"' . esc4export(xl('End')) . '"' . "\n";
     }
 } // end export
 else {
@@ -450,7 +463,9 @@ table.mymaintable td, table.mymaintable th {
      <td nowrap>
       <select name='form_by'>
        <option value='p'><?php echo htmlspecialchars(xl('Product')); ?></option>
-       <option value='w'<?php if (!$product_first) echo ' selected'; ?>><?php echo htmlspecialchars(xl('Warehouse')); ?></option>
+       <option value='w'<?php if (!$product_first) {
+            echo ' selected';
+} ?>><?php echo htmlspecialchars(xl('Warehouse')); ?></option>
       </select>
      </td>
      <td class='label_custom'>
@@ -493,9 +508,13 @@ echo "       <option value=''>-- " . htmlspecialchars(xl('All Products')) . " --
 while ($prow = sqlFetchArray($pres)) {
     $drug_id = $prow['drug_id'];
     echo "       <option value='$drug_id'";
-    if ($drug_id == $form_product) echo " selected";
+    if ($drug_id == $form_product) {
+        echo " selected";
+    }
+
     echo ">" . htmlspecialchars($prow['name']) . "\n";
 }
+
 echo "      </select>\n";
 ?>
      </td>
@@ -503,7 +522,9 @@ echo "      </select>\n";
         <?php echo htmlspecialchars(xl('Details')); ?>:
      </td>
      <td colspan='3' nowrap>
-      <input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?> />
+      <input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) {
+            echo " checked";
+} ?> />
      </td>
     </tr>
    </table>
@@ -626,18 +647,23 @@ if ($form_action) { // if submit or export
 
     $res = sqlStatement($query);
     while ($row = sqlFetchArray($res)) {
-
         // If new lot and it was destroyed during the reporting period,
         // generate a pseudo-adjustment for that.
         if ($row['inventory_id'] != $last_inventory_id) {
             $last_inventory_id = $row['inventory_id'];
             if (!empty($row['destroy_date']) && $row['on_hand'] != 0
-            && $row['destroy_date'] <= $form_to_date)
-            {
-                thisLineItem($row['drug_id'], $row['warehouse_id'], 0,
-                  0, $row['name'], $row['title'], $row['destroy_date'],
-                  array(0, 0, 0, 0, 0 - $row['on_hand']),
-                  xl('Destroyed'));
+            && $row['destroy_date'] <= $form_to_date) {
+                thisLineItem(
+                    $row['drug_id'],
+                    $row['warehouse_id'],
+                    0,
+                    0,
+                    $row['name'],
+                    $row['title'],
+                    $row['destroy_date'],
+                    array(0, 0, 0, 0, 0 - $row['on_hand']),
+                    xl('Destroyed')
+                );
             }
         }
 
@@ -645,23 +671,33 @@ if ($form_action) { // if submit or export
         if ($row['sale_id']) {
             if ($row['xfer_inventory_id']) {
                 // A transfer sale item will appear twice, once with each lot.
-                if ($row['inventory_id'] == $row['xfer_inventory_id'])
-                $qtys[3] = $row['quantity'];
-                else
-                $qtys[3] = 0 - $row['quantity'];
+                if ($row['inventory_id'] == $row['xfer_inventory_id']) {
+                    $qtys[3] = $row['quantity'];
+                } else {
+                    $qtys[3] = 0 - $row['quantity'];
+                }
+            } else if ($row['pid']) {
+                $qtys[0] = 0 - $row['quantity'];
+            } else if ($row['distributor_id']) {
+                $qtys[1] = 0 - $row['quantity'];
+            } else if ($row['fee'] != 0) {
+                $qtys[2] = 0 - $row['quantity'];
+            } else { // no pid, distributor, source lot or fee: must be an adjustment
+                $qtys[4] = 0 - $row['quantity'];
             }
-            else if ($row['pid'])
-            $qtys[0] = 0 - $row['quantity'];
-            else if ($row['distributor_id'])
-            $qtys[1] = 0 - $row['quantity'];
-            else if ($row['fee'] != 0)
-            $qtys[2] = 0 - $row['quantity'];
-            else // no pid, distributor, source lot or fee: must be an adjustment
-            $qtys[4] = 0 - $row['quantity'];
         }
-        thisLineItem($row['drug_id'], $row['warehouse_id'], $row['pid'] + 0,
-        $row['encounter'] + 0, $row['name'], $row['title'], $row['sale_date'],
-        $qtys, $row['invoice_refno']);
+
+        thisLineItem(
+            $row['drug_id'],
+            $row['warehouse_id'],
+            $row['pid'] + 0,
+            $row['encounter'] + 0,
+            $row['name'],
+            $row['title'],
+            $row['sale_date'],
+            $qtys,
+            $row['invoice_refno']
+        );
     }
 
   // Generate totals for last product and warehouse.

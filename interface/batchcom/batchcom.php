@@ -39,32 +39,41 @@ if ($_POST['form_action']=='process') {
     if (!check_date_format($_POST['app_s'])) {
         $form_err .= xl('Date format for "appointment start" is not valid');
     }
+
     if (!check_date_format($_POST['app_e'])) {
         $form_err .= xl('Date format for "appointment end" is not valid');
     }
+
     if (!check_date_format($_POST['seen_since'])) {
         $form_err .= xl('Date format for "seen since" is not valid');
     }
+
     if (!check_date_format($_POST['seen_before'])) {
         $form_err .= xl('Date format for "seen before" is not valid');
     }
+
     // validate numbers
     if (!check_age($_POST['age_from'])) {
         $form_err .= xl('Age format for "age from" is not valid');
     }
+
     if (!check_age($_POST['age_upto'])) {
         $form_err .= xl('Age format for "age up to" is not valid');
     }
+
     // validate selections
     if (!check_select($_POST['gender'], $gender_choices)) {
         $form_err .= xl('Error in "Gender" selection');
     }
+
     if (!check_select($_POST['process_type'], $process_choices)) {
         $form_err .= xl('Error in "Process" selection');
     }
+
     if (!check_select($_POST['hipaa_choice'], $hipaa_choices)) {
         $form_err .= xl('Error in "HIPAA" selection');
     }
+
     if (!check_select($_POST['sort_by'], $sort_by_choices)) {
         $form_err.=xl('Error in "Sort By" selection');
     }
@@ -86,33 +95,40 @@ if ($_POST['form_action']=='process') {
             $sql .= " and cal_events.pc_eventDate >= ?";
             array_push($params, $_POST['app_s']);
         }
+
         if ($_POST['app_e']!=0 and $_POST['app_e']!='') {
             $sql .= " and cal_events.pc_endDate <= ?";
             array_push($params, $_POST['app_e']);
         }
+
         // encounter dates
         if ($_POST['seen_since']!=0 and $_POST['seen_since']!='') {
             $sql .= " and forms.date >= ?" ;
             array_push($params, $_POST['seen_since']);
         }
+
         if ($_POST['seen_before']!=0 and $_POST['seen_before']!='') {
             $sql .= " and forms.date <= ?" ;
             array_push($params, $_POST['seen_before']);
         }
+
         // age
         if ($_POST['age_from']!=0 and $_POST['age_from']!='') {
             $sql .= " and DATEDIFF( CURDATE( ), patient_data.DOB )/ 365.25 >= ?";
             array_push($params, $_POST['age_from']);
         }
+
         if ($_POST['age_upto']!=0 and $_POST['age_upto']!='') {
             $sql .= " and DATEDIFF( CURDATE( ), patient_data.DOB )/ 365.25 <= ?";
             array_push($params, $_POST['age_upto']);
         }
+
         // gender
         if ($_POST['gender']!='Any') {
             $sql .= " and patient_data.sex=?";
             array_push($params, $_POST['gender']);
         }
+
         // hipaa override
         if ($_POST['hipaa_choice'] != $hipaa_choices[0]) {
             $sql .= " and patient_data.hipaa_mail='YES' ";

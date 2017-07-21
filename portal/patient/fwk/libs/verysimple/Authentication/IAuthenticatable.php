@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-interface IAuthenticatable {
+interface IAuthenticatable
+{
     /**
      * Return true if the user is anonymous, meaning they have not
      * yet authenticated
@@ -40,5 +41,3 @@ interface IAuthenticatable {
      */
     public function Login($username, $password);
 }
-
-?>

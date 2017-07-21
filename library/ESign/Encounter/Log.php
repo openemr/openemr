@@ -41,25 +41,25 @@ class Encounter_Log implements LogIF
      *
      * @param unknown $encounterId
      */
-    public function __construct( $encounterId )
+    public function __construct($encounterId)
     {
         $this->_viewer = new Viewer();
         $this->_viewer->encounterId = $encounterId;
         $this->_viewer->logId = "encounter-".$encounterId;
     }
     
-    public function render( SignableIF $signable )
+    public function render(SignableIF $signable)
     {
         $this->_viewer->signatures = $signable->getSignatures();
         $this->_viewer->verified = $signable->verify();
-        return $this->_viewer->render( $this );
+        return $this->_viewer->render($this);
     }
     
-    public function getHtml( SignableIF $signable )
+    public function getHtml(SignableIF $signable)
     {
         $this->_viewer->verified = $signable->verify();
         $this->_viewer->signatures = $signable->getSignatures();
-        return $this->_viewer->getHtml( $this );
+        return $this->_viewer->getHtml($this);
     }
     
     public function getViewScript()
@@ -75,7 +75,7 @@ class Encounter_Log implements LogIF
     public function isViewable()
     {
         $viewable = false;
-        if ( $GLOBALS['esign_all'] ) {
+        if ($GLOBALS['esign_all']) {
             $viewable = true;
         }
         

@@ -22,35 +22,36 @@
  */
 //authencate for portal or main- never know where it gets used
 session_start();
-if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ) {
+if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
-    require_once ( dirname( __FILE__ ) . "/../interface/globals.php" );
+    require_once(dirname(__FILE__) . "/../interface/globals.php");
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $_SESSION['pid']);
-}
-else {
+} else {
     session_destroy();
     $ignoreAuth = false;
-    require_once ( dirname( __FILE__ ) . "/../interface/globals.php" );
-    if ( ! isset($_SESSION['authUserID']) ){
+    require_once(dirname(__FILE__) . "/../interface/globals.php");
+    if (! isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
         header('Location: '.$landingpage);
         exit;
     }
+
     define('IS_DASHBOARD', $_SESSION['authUserID']);
     define('IS_PORTAL', false);
 }
+
 // give me something to do.
 $dowhat = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
-if( $dowhat && $GLOBALS['ccda_alt_service_enable'] >= 1 ){ // do I need this?
-    require_once ("./../ccdaservice/ssmanager.php");
-    if(!runCheck()){ // woops, try again
-        if(!runCheck())
+if ($dowhat && $GLOBALS['ccda_alt_service_enable'] >= 1) { // do I need this?
+    require_once("./../ccdaservice/ssmanager.php");
+    if (!runCheck()) { // woops, try again
+        if (!runCheck()) {
             die("Document service start failed. Click back to return home."); // nuts! give up
+        }
     }
-}
-else{
+} else {
     // maybe next time
     die("Cda generation service turned off: Verify in Administration->Globals! Click back to return home."); // Die an honorable death!!
 }
@@ -68,7 +69,10 @@ $parameterArray ['view'] = 1;
 $parameterArray ['recipients'] = 'patient'; // emr_direct or hie else if not set $_SESSION['authUserID']
 $parameterArray [0] [6] = $_SESSION ['portal_username']; // set to an onsite portal user
 
-if(!isset($_SESSION ['site_id'])) $_SESSION ['site_id'] = 'default'; // do believe globals does this but I go rogue at times.
+if (!isset($_SESSION ['site_id'])) {
+    $_SESSION ['site_id'] = 'default'; // do believe globals does this but I go rogue at times.
+}
+
 $server_url = 'http://localhost'. $GLOBALS['webroot'];  // I alias into openemr directory on my sights causing webroot to be empty.
                                                                                             //I've have actually seen this return 'default' due to apache config'ed with localhost alias on more than one virtual host?? Watch
 //global $server_url; // can't find where this is defined!
@@ -76,11 +80,13 @@ $server_url = 'http://localhost'. $GLOBALS['webroot'];  // I alias into openemr 
 $ccdaxml = portalccdafetching($pid, $server_url, $parameterArray);
 // disposal decisions will be here.
 $h='';
-if (!$parameterArray ['view']){
-    header ( 'Content-Type: application/xml' );
+if (!$parameterArray ['view']) {
+    header('Content-Type: application/xml');
+} else {
+    $h='<a href="./../portal/home.php" </a><button style="color: red; background: white;" >' . xlt("Return Home") .'</button><br>';
 }
-else $h='<a href="./../portal/home.php" </a><button style="color: red; background: white;" >' . xlt("Return Home") .'</button><br>';
-print_r ( $h.$ccdaxml.$h );
+
+print_r($h.$ccdaxml.$h);
 //service_shutdown(1); //In ssmanager  0= terminate and disable 1 = soft=terminate but still active w/no restart, > 1 just restart based on B.S timer
 exit;
 
@@ -107,11 +113,10 @@ function portalccdafetching($pid, $server_url, $parameterArray)
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         $result = curl_exec($ch) or die(curl_error($ch));
         curl_close($ch);
-    }
-    catch (Exception $e) {
+    } catch (Exception $e) {
         return false;
     }
+
         return $result;
 }
 return 0;
-?>

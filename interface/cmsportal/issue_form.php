@@ -121,32 +121,33 @@ if ($_POST['bn_save']) {
             $value = fixDate($value, '');
             if (empty($value)) {
                 $value = "NULL";
-            }
-            else {
+            } else {
                 $value = "'$value'";
             }
-        }
-        else {
+        } else {
             $value = "'" . add_escape_custom($value) . "'";
         }
+
         $sets .= ", `$key` = $value";
     }
+
     if (empty($issueid)) {
         $sql = "INSERT INTO lists SET " .
         "pid = '" . add_escape_custom($ptid) . "', activity = 1, " .
         "user = '" . add_escape_custom($_SESSION['authUser']) . "', " .
         "groupname = '" . add_escape_custom($_SESSION['authProvider']) . "', $sets";
         $issueid = sqlInsert($sql);
-    }
-    else {
+    } else {
         $sql = "UPDATE lists SET $sets WHERE id = '" . add_escape_custom($issueid) . "'";
         sqlStatement($sql);
     }
+
   // Finally, delete the request from the portal.
     $result = cms_portal_call(array('action' => 'delpost', 'postid' => $postid));
     if ($result['errmsg']) {
         die(text($result['errmsg']));
     }
+
     echo "<html><body><script language='JavaScript'>\n";
     echo "if (top.restoreSession) top.restoreSession(); else opener.top.restoreSession();\n";
     echo "document.location.href = 'list_requests.php';\n";
@@ -155,13 +156,19 @@ if ($_POST['bn_save']) {
 }
 
 // Get the portal request data.
-if (!$postid) die(xlt('Request ID is missing!'));
+if (!$postid) {
+    die(xlt('Request ID is missing!'));
+}
+
 $result = cms_portal_call(array('action' => 'getpost', 'postid' => $postid));
 if ($result['errmsg']) {
     die(text($result['errmsg']));
 }
+
 // If user changed issue type, it will have submitted the form to override it.
-if ($form_type) $result['fields']['type'] = $form_type;
+if ($form_type) {
+    $result['fields']['type'] = $form_type;
+}
 
 // Look up the patient in OpenEMR.
 $ptid = lookup_openemr_patient($result['post']['user']);
@@ -239,15 +246,23 @@ $(document).ready(function() {
 <select name='issueid' onchange='myRestoreSession();this.form.submit();'>
  <option value='0'><?php echo xlt('Add New Issue'); ?></option>
 <?php
-$ires = sqlStatement("SELECT id, title, begdate " .
-  "FROM lists WHERE pid = ? AND type = ? AND activity > 0 " .
-  "AND enddate IS NULL ORDER BY enddate, title",
-  array($ptid, $result['fields']['type']));
+$ires = sqlStatement(
+    "SELECT id, title, begdate " .
+    "FROM lists WHERE pid = ? AND type = ? AND activity > 0 " .
+    "AND enddate IS NULL ORDER BY enddate, title",
+    array($ptid, $result['fields']['type'])
+);
 while ($irow = sqlFetchArray($ires)) {
     echo " <option value='" . attr($irow['id']) . "'";
-    if ($irow['id'] == $issueid) echo " selected";
+    if ($irow['id'] == $issueid) {
+        echo " selected";
+    }
+
     echo ">" . text($irow['title']);
-    if (!empty($irow['begdate'])) echo " (" . text($irow['begdate']) . ")";
+    if (!empty($irow['begdate'])) {
+        echo " (" . text($irow['begdate']) . ")";
+    }
+
     echo "</option>\n";
 }
 ?>
@@ -256,14 +271,16 @@ while ($irow = sqlFetchArray($ires)) {
 
 <table width='100%' cellpadding='1' cellspacing='2'>
  <tr class='head'>
-  <th align='left'><?php echo xlt('Field'        ); ?></th>
+  <th align='left'><?php echo xlt('Field'); ?></th>
   <th align='left'><?php echo xlt('Current Value'); ?></th>
-  <th align='left'><?php echo xlt('New Value'    ); ?></th>
+  <th align='left'><?php echo xlt('New Value'); ?></th>
  </tr>
 
 <?php
 $irow = array();
-if (!empty($issueid)) $irow = getListById($issueid);
+if (!empty($issueid)) {
+    $irow = getListById($issueid);
+}
 
 foreach ($issue_layout as $lorow) {
     $data_type  = $lorow['data_type'];
@@ -273,10 +290,14 @@ foreach ($issue_layout as $lorow) {
     $field_title = $lorow['title'];
 
     $currvalue  = '';
-    if (isset($irow[$field_id])) $currvalue = $irow[$field_id];
+    if (isset($irow[$field_id])) {
+        $currvalue = $irow[$field_id];
+    }
 
     $newvalue = '';
-    if (isset($result['fields'][$field_id])) $newvalue = trim($result['fields'][$field_id]);
+    if (isset($result['fields'][$field_id])) {
+        $newvalue = trim($result['fields'][$field_id]);
+    }
 
     echo " <tr class='detail'>\n";
     echo "  <td class='bold'>" . text($field_title) . "</td>\n";

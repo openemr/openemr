@@ -41,23 +41,24 @@ function make_task($ajax_req)
     $enc        = $ajax_req['enc'];
 
     $query      = "SELECT * FROM users WHERE id=?";
-    $to_data    =  sqlQuery($query,array($to_id));
+    $to_data    =  sqlQuery($query, array($to_id));
     $filename   = "Fax_".$encounter."_".$to_data['lname'].".pdf";
 
     $query = "SELECT * FROM documents where encounter_id=? and foreign_id=? and url like ?";
-    $doc = sqlQuery($query,array($encounter,$pid,'%'.$filename.'%' ));
+    $doc = sqlQuery($query, array($encounter,$pid,'%'.$filename.'%' ));
 
 
     $sql = "SELECT * from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
-    $task = sqlQuery($sql,array($from_id,$to_id,$patient_id,$enc));
+    $task = sqlQuery($sql, array($from_id,$to_id,$patient_id,$enc));
 
     if (!$doc['ID'] && $task['ID'] && ($task['REQ_DATE'] < (time() - 60))) {
         // The task was requested more than a minute ago (prevents multi-clicks from "re-generating" the PDF),
         // but the document was deleted (to redo it)...
         // Delete the task, recreate the task, and send the newly made PDF.
         $sql = "DELETE from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
-        $task = sqlQuery($sql,array($from_id,$to_id,$patient_id,$enc));
+        $task = sqlQuery($sql, array($from_id,$to_id,$patient_id,$enc));
     }
+
     if ($task['ID'] && $task['COMPLETED'] =='2') {
         $send['comments'] = xlt('This fax has already been sent.')." ".
                             xlt('If you made changes and want to re-send it, delete the original (in Communications) and try again.')." ".
@@ -82,7 +83,7 @@ function make_task($ajax_req)
             //You can only resend from here once.
             $send['comments'] = xlt('To resend, delete the file from Communications and try again.');
             echo json_encode($send);
-            update_taskman($task,'refaxed', '2');
+            update_taskman($task, 'refaxed', '2');
             exit;
         } else { //DOC_TYPE is a Fax or Report
             $send['comments'] = xlt('Currently working on making this document')."...\n";
@@ -108,11 +109,12 @@ function process_tasks($task)
      *  if not we need to create this
      */
     $task = make_document($task);
-    update_taskman($task,'created', '1');
+    update_taskman($task, 'created', '1');
     if ($task['DOC_TYPE'] == 'Fax') {
         deliver_document($task);
     }
-    update_taskman($task,'completed', '1');
+
+    update_taskman($task, 'completed', '1');
 
     if ($task['DOC_TYPE'] == "Fax") {
         //now return any objects you need to Eye Form
@@ -122,31 +124,33 @@ function process_tasks($task)
 							</a>";
                             //if we want a "resend" icon, add it here.
     }
+
     return $send;
 }
 
  /**
  *  This function updates the taskman record in the form_taskman table.
  */
-function update_taskman($task,$action,$value)
+function update_taskman($task, $action, $value)
 {
     global $send;
     if ($action == 'created') {
         $sql = "UPDATE form_taskman set DOC_ID=?,COMMENT=concat('Created: ',NOW(),'\n') where ID=?";
-        sqlQuery($sql,array($task['DOC_ID'],$task['ID']));
+        sqlQuery($sql, array($task['DOC_ID'],$task['ID']));
         $send['comments'] .="Documented created.\n";
     }
+
     if ($action == 'completed') {
         $sql = "UPDATE form_taskman set DOC_ID=?,COMPLETED =?,COMPLETED_DATE=NOW(),COMMENT=concat(COMMENT,'Completed: ', NOW(),'\n') where ID=?";
-        sqlQuery($sql,array($task['DOC_ID'],$value,$task['ID']));
+        sqlQuery($sql, array($task['DOC_ID'],$value,$task['ID']));
         $send['comments'] .="Task completed.\n";
     }
+
     if ($action == 'refaxed') {
         $sql = "UPDATE form_taskman set DOC_ID=?,COMPLETED =?,COMPLETED_DATE=NOW(),COMMENT=concat(COMMENT,'Refaxed: ', NOW(),'\n') where ID=?";
-        sqlQuery($sql,array($task['DOC_ID'],$value,$task['ID']));
+        sqlQuery($sql, array($task['DOC_ID'],$value,$task['ID']));
         $send['comments'] .="Ok, we resent it to the Fax Server.\n";
     }
-
 }
 
 
@@ -166,11 +170,11 @@ function deliver_document($task)
 
     //use PHPMAILER
     $query          = "SELECT * FROM users WHERE id=?";
-    $to_data        =  sqlQuery($query,array($task['TO_ID']));
-    $from_data      =  sqlQuery($query,array($task['FROM_ID']));
+    $to_data        =  sqlQuery($query, array($task['TO_ID']));
+    $from_data      =  sqlQuery($query, array($task['FROM_ID']));
     $facility_data  =  $facilityService->getPrimaryBillingLocation();
     $query          = "SELECT * FROM patient_data where pid=?";
-    $patientData    =  sqlQuery($query,array($task['PATIENT_ID']));
+    $patientData    =  sqlQuery($query, array($task['PATIENT_ID']));
 
     $from_fax   = preg_replace("/[^0-9]/", "", $facility_data['fax']);
     $from_name  = $from_data['fname']." ".$from_data['lname'];
@@ -199,12 +203,12 @@ function deliver_document($task)
     $mail->MsgHTML("<html><HEAD> <TITLE>Fax Central openEMR</TITLE> <BASE HREF='http://www.oculoplasticsllc.com'> </HEAD><body><div class='wrapper'>".$cover_page."</div></body></html>");
     $mail->IsHTML(true);
     $mail->AltBody = $cover_page;
-    $mail->AddAttachment( $file_to_attach , $file_name );
+    $mail->AddAttachment($file_to_attach, $file_name);
     if ($mail->Send()) {
         return true;
     } else {
         $email_status = $mail->ErrorInfo;
-        error_log("EMAIL ERROR: ".$email_status,0);
+        error_log("EMAIL ERROR: ".$email_status, 0);
         return false;
     }
 }
@@ -235,19 +239,25 @@ function make_document($task)
      * We want to store the current PDF version of this task.
      */
     $query          = "SELECT * FROM users WHERE id=?";
-    $to_data        =  sqlQuery($query,array($task['TO_ID']));
-    $from_data      =  sqlQuery($query,array($task['FROM_ID']));
+    $to_data        =  sqlQuery($query, array($task['TO_ID']));
+    $from_data      =  sqlQuery($query, array($task['FROM_ID']));
     $facility_data  =  $facilityService->getPrimaryBillingLocation();
     $query          = "SELECT * FROM patient_data where pid=?";
-    $patientData    =  sqlQuery($query,array($task['PATIENT_ID']));
+    $patientData    =  sqlQuery($query, array($task['PATIENT_ID']));
 
     $from_fax   = preg_replace("/[^0-9]/", "", $facility_data['fax']);
     $from_name  = $from_data['fname']." ".$from_data['lname'];
-    if ($from_data['suffix']) $from_name .=", ".$from_data['suffix'];
+    if ($from_data['suffix']) {
+        $from_name .=", ".$from_data['suffix'];
+    }
+
     $from_fac   = $from_facility['name'];
     $to_fax     = preg_replace("/[^0-9]/", "", $to_data['fax']);
     $to_name    = $to_data['fname']." ".$to_data['lname'];
-    if ($to_data['suffix']) $to_name .=", ".$to_data['suffix'];
+    if ($to_data['suffix']) {
+        $to_name .=", ".$to_data['suffix'];
+    }
+
     $pt_name    = $patientData['fname'].' '.$patientData['lname'];
     $encounter = $task['ENC_ID'];
     $query="select form_encounter.date as encounter_date,form_eye_mag.id as form_id,form_encounter.*, form_eye_mag.*
@@ -258,7 +268,7 @@ function make_document($task)
             form_eye_mag.id=forms.form_id and
             forms.deleted != '1' and
             form_eye_mag.pid=? ";
-    $encounter_data =sqlQuery($query,array($encounter,$task['PATIENT_ID']));
+    $encounter_data =sqlQuery($query, array($encounter,$task['PATIENT_ID']));
     @extract($encounter_data);
     $providerID  =  getProviderIdOfEncounter($encounter);
     $providerNAME = getProviderName($providerID);
@@ -280,7 +290,7 @@ function make_document($task)
         $category_name = "Communication"; //Faxes are stored in the Documents->Communication category.  Do we need to translate this?
         //$category_name = xl('Communication');
         $query = "select id from categories where name =?";
-        $ID = sqlQuery($query,array($category_name));
+        $ID = sqlQuery($query, array($category_name));
         $category_id = $ID['id'];
 
         $filename = "Fax_".$encounter."_".$to_data['lname'].".pdf";
@@ -291,7 +301,7 @@ function make_document($task)
     } else {
         $category_name = "Encounters";
         $query = "select id from categories where name =?";
-        $ID = sqlQuery($query,array($category_name));
+        $ID = sqlQuery($query, array($category_name));
         $category_id = $ID['id'];
 
         $filename = "Report_".$encounter.".pdf";
@@ -300,19 +310,20 @@ function make_document($task)
         }
 
         $sql = "DELETE from categories_to_documents where document_id IN (SELECT id from documents where documents.url like ?)";
-        sqlQuery($sql,array("%".$filename));
+        sqlQuery($sql, array("%".$filename));
         $sql = "DELETE from documents where documents.url like ?";
-        sqlQuery($sql,array("%".$filename));
+        sqlQuery($sql, array("%".$filename));
     }
 
-    $pdf = new HTML2PDF ($GLOBALS['pdf_layout'],
-                         $GLOBALS['pdf_size'],
-                         $GLOBALS['pdf_language'],
-                         true, // default unicode setting is true
-                         'UTF-8', // default encoding setting is UTF-8
-                         array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
-                         $_SESSION['language_direction'] == 'rtl' ? true : false
-                      );
+    $pdf = new HTML2PDF(
+        $GLOBALS['pdf_layout'],
+        $GLOBALS['pdf_size'],
+        $GLOBALS['pdf_language'],
+        true, // default unicode setting is true
+        'UTF-8', // default encoding setting is UTF-8
+        array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
+        $_SESSION['language_direction'] == 'rtl' ? true : false
+    );
 
     ob_start();
     ?><html>
@@ -340,7 +351,7 @@ function make_document($task)
     if ($task['DOC_TYPE'] == 'Fax') {
         ?>
         <div class='wrapper'>
-        <?php echo report_header($task['PATIENT_ID'],'PDF'); ?>
+        <?php echo report_header($task['PATIENT_ID'], 'PDF'); ?>
             <br />
             <br />
             <br />
@@ -360,7 +371,9 @@ function make_document($task)
                 <tr>
                 <td class='col1'><?php echo xlt('Address'); ?>:</td>
                     <td class='col2'>
-                    <?php if ($from_data['name']) echo text($from_data['name'])."<br />"; ?>
+                    <?php if ($from_data['name']) {
+                        echo text($from_data['name'])."<br />";
+} ?>
                     <?php echo text($from_data['street']); ?><br />
                     <?php echo text($from_data['city']); ?>, <?php echo text($from_data['state'])." ".text($from_data['zip']); ?>
                         <br />
@@ -422,6 +435,7 @@ function make_document($task)
     <?php
     echo '<page></page><div style="page-break-after:always; clear:both"></div>';
     }
+
         // 	If the doc_id does exit, why remake it?
         //	We could just add another attachment, stopping here at the coversheet, and adding the doc_name that we sent...
         //	No.  We actually need a physical copy of what we sent, since the report itself can be overwritten.  Keep it legal.
@@ -440,10 +454,12 @@ function make_document($task)
     $wsrlen = strlen($webserver_root);
     while (true) {
         $i = stripos($content, " src='/", $i + 1);
-        if ($i === false) break;
+        if ($i === false) {
+            break;
+        }
+
         if (substr($content, $i+6, $wrlen) === $web_root &&
-          substr($content, $i+6, $wsrlen) !== $webserver_root)
-        {
+          substr($content, $i+6, $wsrlen) !== $webserver_root) {
             $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
         }
     }
@@ -454,11 +470,11 @@ function make_document($task)
     $type = "application/pdf";
     $size = filesize($temp_filename);
 
-    $return = addNewDocument($filename,$type,$temp_filename,0,$size,$task['FROM_ID'],$task['PATIENT_ID'],$category_id);
+    $return = addNewDocument($filename, $type, $temp_filename, 0, $size, $task['FROM_ID'], $task['PATIENT_ID'], $category_id);
     $task['DOC_ID'] = $return['doc_id'];
     $task['DOC_url'] = $filepath.'/'.$filename;
     $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter
-    sqlQuery($sql,array($encounter,$task['DOC_ID']));
+    sqlQuery($sql, array($encounter,$task['DOC_ID']));
 
     return $task;
 }

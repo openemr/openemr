@@ -22,7 +22,7 @@
  */
 
     $this->assign('title', xlt('Patient Portal') . ' | ' . xlt('Onsite Activity Views'));
-    $this->assign('nav','onsiteactivityviews');
+    $this->assign('nav', 'onsiteactivityviews');
 
     $this->display('_FormsHeader.tpl.php');
     echo "<script>var cuser='" . $this->cuser . "';</script>";

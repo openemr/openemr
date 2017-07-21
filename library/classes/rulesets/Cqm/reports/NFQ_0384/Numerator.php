@@ -28,7 +28,7 @@ class NFQ_0384_Numerator implements CqmFilterIF
         return "Numerator";
     }
 
-    public function test( CqmPatient $patient, $beginDate, $endDate )
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         //Patient visits in which pain intensity is quantified
         $riskCatAssessQry = "SELECT count(*) as cnt FROM form_encounter fe ".
@@ -41,10 +41,10 @@ class NFQ_0384_Numerator implements CqmFilterIF
                             "AND ( prc.procedure_code = '38208-5') ".
                             "AND prc.procedure_order_title = 'Risk Category Assessment'";
     
-        $check = sqlQuery( $riskCatAssessQry, array($beginDate, $endDate, $patient->id) );
-        if ($check['cnt'] > 0){
+        $check = sqlQuery($riskCatAssessQry, array($beginDate, $endDate, $patient->id));
+        if ($check['cnt'] > 0) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }

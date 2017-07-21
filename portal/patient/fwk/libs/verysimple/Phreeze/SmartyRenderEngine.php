@@ -4,8 +4,8 @@
 /**
  * import supporting libraries
  */
-require_once ("smarty/Smarty.class.php");
-require_once ("verysimple/Phreeze/IRenderEngine.php");
+require_once("smarty/Smarty.class.php");
+require_once("verysimple/Phreeze/IRenderEngine.php");
 
 /**
  * SmartyRenderEngine is an implementation of IRenderEngine that uses
@@ -17,7 +17,8 @@ require_once ("verysimple/Phreeze/IRenderEngine.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class SmartyRenderEngine implements IRenderEngine {
+class SmartyRenderEngine implements IRenderEngine
+{
     
     /** @var Smarty */
     public $smarty;
@@ -29,10 +30,11 @@ class SmartyRenderEngine implements IRenderEngine {
      */
     function __construct($templatePath = '', $compilePath = '')
     {
-        $this->smarty = new Smarty ();
+        $this->smarty = new Smarty();
         
-        if ($templatePath)
+        if ($templatePath) {
             $this->smarty->template_dir = $templatePath;
+        }
         
         if ($compilePath) {
             $this->smarty->compile_dir = $compilePath;
@@ -47,7 +49,7 @@ class SmartyRenderEngine implements IRenderEngine {
      */
     function assign($key, $value)
     {
-        return $this->smarty->assign ( $key, $value );
+        return $this->smarty->assign($key, $value);
     }
     
     /**
@@ -56,7 +58,7 @@ class SmartyRenderEngine implements IRenderEngine {
      */
     function display($template)
     {
-        return $this->smarty->display ( $template );
+        return $this->smarty->display($template);
     }
     
     /**
@@ -65,7 +67,7 @@ class SmartyRenderEngine implements IRenderEngine {
      */
     function fetch($template)
     {
-        return $this->smarty->fetch ( $template );
+        return $this->smarty->fetch($template);
     }
     
     /**
@@ -74,7 +76,7 @@ class SmartyRenderEngine implements IRenderEngine {
      */
     function clear($key)
     {
-        $this->smarty->clearAssign ( $key );
+        $this->smarty->clearAssign($key);
     }
     
     /**
@@ -83,7 +85,7 @@ class SmartyRenderEngine implements IRenderEngine {
      */
     function clearAll()
     {
-        $this->smarty->clearAllAssign ();
+        $this->smarty->clearAllAssign();
     }
     
     /**
@@ -92,8 +94,6 @@ class SmartyRenderEngine implements IRenderEngine {
      */
     function getAll()
     {
-        return $this->smarty->getTemplateVars ();
+        return $this->smarty->getTemplateVars();
     }
 }
-
-?>

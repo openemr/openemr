@@ -109,7 +109,10 @@ function end_row()
     end_cell();
     if ($cell_count > 0) {
         for (; $cell_count < $CPR;
-        ++$cell_count) echo "<td></td>";
+        ++$cell_count) {
+            echo "<td></td>";
+        }
+
         echo "</tr>\n";
         $cell_count = 0;
     }
@@ -141,15 +144,17 @@ while ($frow = sqlFetchArray($fres)) {
     if (strpos($field_id, 'em_') === 0) {
         $tmp = substr($field_id, 3);
         // if (isset($result2[$tmp])) $currvalue = $result2[$tmp];
-    }
-    else {
+    } else {
         // if (isset($result[$field_id])) $currvalue = $result[$field_id];
     }
 
   // Handle a data category (group) change.
     if (strcmp($this_group, $last_group) != 0) {
         end_group();
-        if (strlen($last_group) > 0) echo "<br />\n";
+        if (strlen($last_group) > 0) {
+            echo "<br />\n";
+        }
+
         $group_name = substr($this_group, 1);
         $last_group = $this_group;
         echo "<b>" . xl_layout_label($group_name) . "</b>\n";
@@ -164,23 +169,32 @@ while ($frow = sqlFetchArray($fres)) {
         echo "  <tr style='height:30pt'>";
     }
 
-    if ($item_count == 0 && $titlecols == 0) $titlecols = 1;
+    if ($item_count == 0 && $titlecols == 0) {
+        $titlecols = 1;
+    }
 
   // Handle starting of a new label cell.
     if ($titlecols > 0) {
         end_cell();
         echo "<td colspan='$titlecols' width='10%'";
         echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
-        if ($cell_count == 2) echo " style='padding-left:10pt'";
+        if ($cell_count == 2) {
+            echo " style='padding-left:10pt'";
+        }
+
         echo ">";
         $cell_count += $titlecols;
     }
+
     ++$item_count;
 
     echo "<b>";
     
-    if ($frow['title']) echo (xl_layout_label($frow['title']) . ":");
-    else echo "&nbsp;";
+    if ($frow['title']) {
+        echo (xl_layout_label($frow['title']) . ":");
+    } else {
+        echo "&nbsp;";
+    }
 
     echo "</b>";
 
@@ -188,7 +202,10 @@ while ($frow = sqlFetchArray($fres)) {
     if ($datacols > 0) {
         end_cell();
         echo "<td colspan='$datacols' width='40%' class='under'";
-        if ($cell_count > 0) echo " style='padding-left:5pt;'";
+        if ($cell_count > 0) {
+            echo " style='padding-left:5pt;'";
+        }
+
         echo ">";
         $cell_count += $datacols;
     }

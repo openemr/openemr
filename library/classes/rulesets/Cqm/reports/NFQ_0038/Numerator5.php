@@ -13,11 +13,12 @@ class NFQ_0038_Numerator5 implements CqmFilterIF
         return "Numerator 5";
     }
     
-    public function test( CqmPatient $patient, $beginDate, $endDate )
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
-        if ( Immunizations::checkHepB( $patient, $beginDate, $endDate ) ) {
+        if (Immunizations::checkHepB($patient, $beginDate, $endDate)) {
             return true;
         }
+
         return false;
     }
 }

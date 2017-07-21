@@ -22,20 +22,22 @@
  * APPLICATION ROOT DIRECTORY
  * If the application doesn't detect this correctly then it can be set explicitly
  */
-if (! GlobalConfig::$APP_ROOT)
-    GlobalConfig::$APP_ROOT = realpath ( "./" );
+if (! GlobalConfig::$APP_ROOT) {
+    GlobalConfig::$APP_ROOT = realpath("./");
+}
 
 /**
  * check is needed to ensure asp_tags is not enabled
  */
-if (ini_get ( 'asp_tags' ))
-    die ( '<h3>Server Configuration Problem: asp_tags is enabled, but is not compatible with Savant.</h3>' . '<p>You can disable asp_tags in .htaccess, php.ini or generate your app with another template engine such as Smarty.</p>' );
+if (ini_get('asp_tags')) {
+    die('<h3>Server Configuration Problem: asp_tags is enabled, but is not compatible with Savant.</h3>' . '<p>You can disable asp_tags in .htaccess, php.ini or generate your app with another template engine such as Smarty.</p>');
+}
 
 /**
  * INCLUDE PATH
  * Adjust the include path as necessary so PHP can locate required libraries
  */
-set_include_path ( GlobalConfig::$APP_ROOT . '/libs/' . PATH_SEPARATOR . GlobalConfig::$APP_ROOT . '/fwk/libs' . PATH_SEPARATOR . get_include_path () );
+set_include_path(GlobalConfig::$APP_ROOT . '/libs/' . PATH_SEPARATOR . GlobalConfig::$APP_ROOT . '/fwk/libs' . PATH_SEPARATOR . get_include_path());
 
 /**
  * COMPOSER AUTOLOADER
@@ -331,5 +333,3 @@ GlobalConfig::$ROUTE_MAP = array (
                 'route' => 'Provider.ErrorApi404'
         )
 );
-
-?>

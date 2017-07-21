@@ -4,8 +4,8 @@
 /**
  * import supporting libraries
  */
-require_once ("FieldMap.php");
-require_once ("KeyMap.php");
+require_once("FieldMap.php");
+require_once("KeyMap.php");
 
 /**
  * IDaoMap is an interface for a mapped object that can be persisted by Phreezer
@@ -16,9 +16,8 @@ require_once ("KeyMap.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-interface IDaoMap {
+interface IDaoMap
+{
     static function GetFieldMaps();
     static function GetKeyMaps();
 }
-
-?>

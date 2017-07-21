@@ -30,15 +30,19 @@ if ($_POST['form_action']=='save') {
     if ($_POST['Send_SMS_Before_Hours']=="") {
         $form_err .= xl('Empty value in "SMS Hours"') . '<br>';
     }
+
     if ($_POST['Send_Email_Before_Hours']=="") {
         $form_err .= xl('Empty value in "Email Hours"') . '<br>';
     }
+
     if ($_POST['SMS_gateway_username']=="") {
         $form_err .= xl('Empty value in "Username"') . '<br>';
     }
+
     if ($_POST['SMS_gateway_password']=="") {
         $form_err .= xl('Empty value in "Password"') . '<br>';
     }
+
     //process sql
     if (!$form_err) {
         $sql_text = " ( `SettingsId` , `Send_SMS_Before_Hours` , `Send_Email_Before_Hours` , `SMS_gateway_password` , `SMS_gateway_apikey` , `SMS_gateway_username` , `type` ) ";
@@ -67,6 +71,7 @@ if ($result) {
     $SMS_gateway_username = $result['SMS_gateway_username'];
     $SMS_gateway_apikey = $result['SMS_gateway_apikey'];
 }
+
 //my_print_r($result);
 //START OUT OUR PAGE....
 ?>
@@ -88,6 +93,7 @@ if ($result) {
         if ($form_err) {
             echo '<div class="alert alert-danger">' . xlt('The following errors occurred') . ': ' . text($form_err) . '</div>';
         }
+
         if ($sql_msg) {
             echo '<div class="alert alert-info">' . xlt('The following errors occurred') . ': ' . text($sql_msg) . '</div>';
         }

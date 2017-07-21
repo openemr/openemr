@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class RuleActions {
+class RuleActions
+{
     var $actions = array();
 
     function __construct()
@@ -21,9 +22,8 @@ class RuleActions {
     /**
      * @param RuleAction $action
      */
-    function add( $action )
+    function add($action)
     {
-        array_push( $this->actions, $action );
+        array_push($this->actions, $action);
     }
 }
-?>

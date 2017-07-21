@@ -73,16 +73,16 @@ function show_edit(t) {
 </head>
 <body class="body_top">
 <form method=post action="<?php echo $rootdir?>/forms/CAMOS/save.php?mode=delete&id=<?php echo $_GET["id"];?>" name="my_form">
-<h1> <?php xl('CAMOS','e'); ?> </h1>
-<input type="submit" name="delete" value="<?php xl('Delete Selected Items','e'); ?>" />
-<input type="submit" name="update" value="<?php xl('Update Selected Items','e'); ?>" />
+<h1> <?php xl('CAMOS', 'e'); ?> </h1>
+<input type="submit" name="delete" value="<?php xl('Delete Selected Items', 'e'); ?>" />
+<input type="submit" name="update" value="<?php xl('Update Selected Items', 'e'); ?>" />
 <?php
 echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl'>[" . xl('do nothing') . "]</a>";
 ?>
 <br/><br/>
-<input type='button' value='<?php xl('Select All','e'); ?>'
+<input type='button' value='<?php xl('Select All', 'e'); ?>'
   onClick='checkall()'>
-<input type='button' value='<?php xl('Unselect All','e'); ?>'
+<input type='button' value='<?php xl('Unselect All', 'e'); ?>'
   onClick='uncheckall()'>
 <br/><br/>
 <?php

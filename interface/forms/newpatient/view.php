@@ -34,4 +34,3 @@ if (acl_check('encounters', 'date_a')) {
 
 $viewmode = true;
 require_once("common.php");
-?>

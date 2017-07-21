@@ -6,7 +6,8 @@
  * class
  *
  */
-class FormROS extends ORDataObject {
+class FormROS extends ORDataObject
+{
 
     /**
      *
@@ -170,21 +171,20 @@ class FormROS extends ORDataObject {
      * Constructor sets all Form attributes to their default value
      */
 
-    function __construct($id= "", $_prefix = "")
+    function __construct($id = "", $_prefix = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;
-        }
-        else {
+        } else {
             $id = "";
         }
+
         $this->date = date("Y-m-d H:i:s");
         $this->date_of_onset = date("Y-m-d");
         $this->_table = "form_ros";
 
         $this->pid = $GLOBALS['pid'];
         if ($id != "") {
-
             $this->populate();
         }
     }
@@ -221,7 +221,7 @@ class FormROS extends ORDataObject {
 
     function set_date($date)
     {
-        if(!empty($date)){
+        if (!empty($date)) {
             $this->date = $date;
         }
     }
@@ -232,7 +232,7 @@ class FormROS extends ORDataObject {
     }
     function set_weight_change($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->weight_change = $data;
         }
     }
@@ -243,7 +243,7 @@ class FormROS extends ORDataObject {
     }
     function set_weakness($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->weakness = $data;
         }
     }
@@ -254,7 +254,7 @@ class FormROS extends ORDataObject {
     }
     function set_fatigue($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->fatigue = $data;
         }
     }
@@ -265,7 +265,7 @@ class FormROS extends ORDataObject {
     }
     function set_anorexia($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->anorexia = $data;
         }
     }
@@ -276,7 +276,7 @@ class FormROS extends ORDataObject {
     }
     function set_fever($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->fever = $data;
         }
     }
@@ -287,7 +287,7 @@ class FormROS extends ORDataObject {
     }
     function set_chills($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->chills = $data;
         }
     }
@@ -298,7 +298,7 @@ class FormROS extends ORDataObject {
     }
     function set_night_sweats($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->night_sweats = $data;
         }
     }
@@ -309,7 +309,7 @@ class FormROS extends ORDataObject {
     }
     function set_insomnia($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->insomnia = $data;
         }
     }
@@ -320,7 +320,7 @@ class FormROS extends ORDataObject {
     }
     function set_irritability($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->irritability = $data;
         }
     }
@@ -331,7 +331,7 @@ class FormROS extends ORDataObject {
     }
     function set_heat_or_cold($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->heat_or_cold = $data;
         }
     }
@@ -342,7 +342,7 @@ class FormROS extends ORDataObject {
     }
     function set_intolerance($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->intolerance = $data;
         }
     }
@@ -353,7 +353,7 @@ class FormROS extends ORDataObject {
     }
     function set_change_in_vision($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->change_in_vision = $data;
         }
     }
@@ -363,7 +363,7 @@ class FormROS extends ORDataObject {
     }
     function set_glaucoma_history($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->glaucoma_history = $data;
         }
     }
@@ -373,7 +373,7 @@ class FormROS extends ORDataObject {
     }
     function set_eye_pain($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->eye_pain = $data;
         }
     }
@@ -383,7 +383,7 @@ class FormROS extends ORDataObject {
     }
     function set_irritation($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->irritation = $data;
         }
     }
@@ -393,7 +393,7 @@ class FormROS extends ORDataObject {
     }
     function set_redness($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->redness = $data;
         }
     }
@@ -403,7 +403,7 @@ class FormROS extends ORDataObject {
     }
     function set_excessive_tearing($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->excessive_tearing = $data;
         }
     }
@@ -413,7 +413,7 @@ class FormROS extends ORDataObject {
     }
     function set_double_vision($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->double_vision = $data;
         }
     }
@@ -423,7 +423,7 @@ class FormROS extends ORDataObject {
     }
     function set_blind_spots($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->blind_spots = $data;
         }
     }
@@ -433,7 +433,7 @@ class FormROS extends ORDataObject {
     }
     function set_photophobia($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->photophobia = $data;
         }
     }
@@ -444,7 +444,7 @@ class FormROS extends ORDataObject {
     }
     function set_hearing_loss($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->hearing_loss = $data;
         }
     }
@@ -454,7 +454,7 @@ class FormROS extends ORDataObject {
     }
     function set_discharge($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->discharge = $data;
         }
     }
@@ -464,7 +464,7 @@ class FormROS extends ORDataObject {
     }
     function set_pain($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->pain = $data;
         }
     }
@@ -474,7 +474,7 @@ class FormROS extends ORDataObject {
     }
     function set_vertigo($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->vertigo = $data;
         }
     }
@@ -484,7 +484,7 @@ class FormROS extends ORDataObject {
     }
     function set_tinnitus($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->tinnitus = $data;
         }
     }
@@ -494,7 +494,7 @@ class FormROS extends ORDataObject {
     }
     function set_frequent_colds($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->frequent_colds = $data;
         }
     }
@@ -504,7 +504,7 @@ class FormROS extends ORDataObject {
     }
     function set_sore_throat($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->sore_throat = $data;
         }
     }
@@ -514,7 +514,7 @@ class FormROS extends ORDataObject {
     }
     function set_sinus_problems($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->sinus_problems = $data;
         }
     }
@@ -524,7 +524,7 @@ class FormROS extends ORDataObject {
     }
     function set_post_nasal_drip($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->post_nasal_drip = $data;
         }
     }
@@ -534,7 +534,7 @@ class FormROS extends ORDataObject {
     }
     function set_nosebleed($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->nosebleed = $data;
         }
     }
@@ -544,7 +544,7 @@ class FormROS extends ORDataObject {
     }
     function set_snoring($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->snoring = $data;
         }
     }
@@ -554,7 +554,7 @@ class FormROS extends ORDataObject {
     }
     function set_apnea($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->apnea = $data;
         }
     }
@@ -564,7 +564,7 @@ class FormROS extends ORDataObject {
     }
     function set_breast_mass($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->breast_mass = $data;
         }
     }
@@ -574,7 +574,7 @@ class FormROS extends ORDataObject {
     }
     function set_breast_discharge($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->breast_discharge = $data;
         }
     }
@@ -584,7 +584,7 @@ class FormROS extends ORDataObject {
     }
     function set_biopsy($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->biopsy = $data;
         }
     }
@@ -594,7 +594,7 @@ class FormROS extends ORDataObject {
     }
     function set_abnormal_mammogram($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->abnormal_mammogram = $data;
         }
     }
@@ -604,13 +604,13 @@ class FormROS extends ORDataObject {
     }
     function set_cough($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->cough = $data;
         }
     }
     function set_sputum($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->sputum = $data;
         }
     }
@@ -624,7 +624,7 @@ class FormROS extends ORDataObject {
     }
     function set_shortness_of_breath($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->shortness_of_breath = $data;
         }
     }
@@ -634,7 +634,7 @@ class FormROS extends ORDataObject {
     }
     function set_wheezing($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->wheezing = $data;
         }
     }
@@ -644,7 +644,7 @@ class FormROS extends ORDataObject {
     }
     function set_hemoptsyis($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->hemoptsyis = $data;
         }
     }
@@ -654,7 +654,7 @@ class FormROS extends ORDataObject {
     }
     function set_asthma($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->asthma = $data;
         }
     }
@@ -664,7 +664,7 @@ class FormROS extends ORDataObject {
     }
     function set_copd($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->copd = $data;
         }
     }
@@ -675,7 +675,7 @@ class FormROS extends ORDataObject {
     }
     function set_chest_pain($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->chest_pain = $data;
         }
     }
@@ -685,7 +685,7 @@ class FormROS extends ORDataObject {
     }
     function set_palpitation($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->palpitation = $data;
         }
     }
@@ -695,7 +695,7 @@ class FormROS extends ORDataObject {
     }
     function set_syncope($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->syncope = $data;
         }
     }
@@ -705,7 +705,7 @@ class FormROS extends ORDataObject {
     }
     function set_pnd($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->pnd = $data;
         }
     }
@@ -715,7 +715,7 @@ class FormROS extends ORDataObject {
     }
     function set_doe($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->doe = $data;
         }
     }
@@ -725,7 +725,7 @@ class FormROS extends ORDataObject {
     }
     function set_orthopnea($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->orthopnea = $data;
         }
     }
@@ -735,7 +735,7 @@ class FormROS extends ORDataObject {
     }
     function set_peripheal($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->peripheal = $data;
         }
     }
@@ -745,7 +745,7 @@ class FormROS extends ORDataObject {
     }
     function set_edema($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->edema = $data;
         }
     }
@@ -755,7 +755,7 @@ class FormROS extends ORDataObject {
     }
     function set_legpain_cramping($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->legpain_cramping = $data;
         }
     }
@@ -765,7 +765,7 @@ class FormROS extends ORDataObject {
     }
     function set_history_murmur($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->history_murmur = $data;
         }
     }
@@ -775,7 +775,7 @@ class FormROS extends ORDataObject {
     }
     function set_arrythmia($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->arrythmia = $data;
         }
     }
@@ -785,7 +785,7 @@ class FormROS extends ORDataObject {
     }
     function set_heart_problem($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->heart_problem = $data;
         }
     }
@@ -796,7 +796,7 @@ class FormROS extends ORDataObject {
     }
     function set_polyuria($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->polyuria = $data;
         }
     }
@@ -806,7 +806,7 @@ class FormROS extends ORDataObject {
     }
     function set_polydypsia($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->polydypsia = $data;
         }
     }
@@ -816,7 +816,7 @@ class FormROS extends ORDataObject {
     }
     function set_dysuria($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->dysuria = $data;
         }
     }
@@ -826,7 +826,7 @@ class FormROS extends ORDataObject {
     }
     function set_hematuria($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->hematuria = $data;
         }
     }
@@ -836,7 +836,7 @@ class FormROS extends ORDataObject {
     }
     function set_frequency($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->frequency = $data;
         }
     }
@@ -846,7 +846,7 @@ class FormROS extends ORDataObject {
     }
     function set_urgency($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->urgency = $data;
         }
     }
@@ -856,7 +856,7 @@ class FormROS extends ORDataObject {
     }
     function set_incontinence($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->incontinence = $data;
         }
     }
@@ -866,7 +866,7 @@ class FormROS extends ORDataObject {
     }
     function set_renal_stones($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->renal_stones = $data;
         }
     }
@@ -876,7 +876,7 @@ class FormROS extends ORDataObject {
     }
     function set_utis($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->utis = $data;
         }
     }
@@ -887,7 +887,7 @@ class FormROS extends ORDataObject {
     }
     function set_hesitancy($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->hesitancy = $data;
         }
     }
@@ -897,7 +897,7 @@ class FormROS extends ORDataObject {
     }
     function set_dribbling($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->dribbling = $data;
         }
     }
@@ -907,7 +907,7 @@ class FormROS extends ORDataObject {
     }
     function set_stream($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->stream = $data;
         }
     }
@@ -917,7 +917,7 @@ class FormROS extends ORDataObject {
     }
     function set_nocturia($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->nocturia = $data;
         }
     }
@@ -927,7 +927,7 @@ class FormROS extends ORDataObject {
     }
     function set_erections($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->erections = $data;
         }
     }
@@ -937,7 +937,7 @@ class FormROS extends ORDataObject {
     }
     function set_ejaculations($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->ejaculations = $data;
         }
     }
@@ -948,7 +948,7 @@ class FormROS extends ORDataObject {
     }
     function set_g($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->g = $data;
         }
     }
@@ -958,7 +958,7 @@ class FormROS extends ORDataObject {
     }
     function set_p($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->p = $data;
         }
     }
@@ -968,7 +968,7 @@ class FormROS extends ORDataObject {
     }
     function set_ap($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->ap = $data;
         }
     }
@@ -978,7 +978,7 @@ class FormROS extends ORDataObject {
     }
     function set_lc($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->lc = $data;
         }
     }
@@ -988,7 +988,7 @@ class FormROS extends ORDataObject {
     }
     function set_mearche($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->mearche = $data;
         }
     }
@@ -998,7 +998,7 @@ class FormROS extends ORDataObject {
     }
     function set_menopause($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->menopause = $data;
         }
     }
@@ -1008,7 +1008,7 @@ class FormROS extends ORDataObject {
     }
     function set_lmp($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->lmp = $data;
         }
     }
@@ -1018,7 +1018,7 @@ class FormROS extends ORDataObject {
     }
     function set_f_frequency($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->f_frequency = $data;
         }
     }
@@ -1028,7 +1028,7 @@ class FormROS extends ORDataObject {
     }
     function set_f_flow($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->f_flow = $data;
         }
     }
@@ -1038,7 +1038,7 @@ class FormROS extends ORDataObject {
     }
     function set_f_symptoms($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->f_symptoms = $data;
         }
     }
@@ -1048,7 +1048,7 @@ class FormROS extends ORDataObject {
     }
     function set_abnormal_hair_growth($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->abnormal_hair_growth = $data;
         }
     }
@@ -1058,7 +1058,7 @@ class FormROS extends ORDataObject {
     }
     function set_f_hirsutism($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->f_hirsutism = $data;
         }
     }
@@ -1069,7 +1069,7 @@ class FormROS extends ORDataObject {
     }
     function set_joint_pain($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->joint_pain = $data;
         }
     }
@@ -1079,7 +1079,7 @@ class FormROS extends ORDataObject {
     }
     function set_swelling($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->swelling = $data;
         }
     }
@@ -1089,7 +1089,7 @@ class FormROS extends ORDataObject {
     }
     function set_m_redness($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->m_redness = $data;
         }
     }
@@ -1099,7 +1099,7 @@ class FormROS extends ORDataObject {
     }
     function set_m_warm($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->m_warm = $data;
         }
     }
@@ -1109,7 +1109,7 @@ class FormROS extends ORDataObject {
     }
     function set_m_stiffness($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->m_stiffness = $data;
         }
     }
@@ -1119,7 +1119,7 @@ class FormROS extends ORDataObject {
     }
     function set_muscle($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->muscle = $data;
         }
     }
@@ -1129,7 +1129,7 @@ class FormROS extends ORDataObject {
     }
     function set_m_aches($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->m_aches = $data;
         }
     }
@@ -1139,7 +1139,7 @@ class FormROS extends ORDataObject {
     }
     function set_fms($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->fms = $data;
         }
     }
@@ -1149,7 +1149,7 @@ class FormROS extends ORDataObject {
     }
     function set_arthritis($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->arthritis = $data;
         }
     }
@@ -1160,7 +1160,7 @@ class FormROS extends ORDataObject {
     }
     function set_loc($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->loc = $data;
         }
     }
@@ -1170,7 +1170,7 @@ class FormROS extends ORDataObject {
     }
     function set_seizures($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->seizures = $data;
         }
     }
@@ -1180,7 +1180,7 @@ class FormROS extends ORDataObject {
     }
     function set_stroke($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->stroke = $data;
         }
     }
@@ -1190,7 +1190,7 @@ class FormROS extends ORDataObject {
     }
     function set_tia($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->tia = $data;
         }
     }
@@ -1200,7 +1200,7 @@ class FormROS extends ORDataObject {
     }
     function set_n_numbness($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->n_numbness = $data;
         }
     }
@@ -1210,7 +1210,7 @@ class FormROS extends ORDataObject {
     }
     function set_n_weakness($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->n_weakness = $data;
         }
     }
@@ -1220,7 +1220,7 @@ class FormROS extends ORDataObject {
     }
     function set_paralysis($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->paralysis = $data;
         }
     }
@@ -1230,7 +1230,7 @@ class FormROS extends ORDataObject {
     }
     function set_intellectual_decline($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->intellectual_decline = $data;
         }
     }
@@ -1240,7 +1240,7 @@ class FormROS extends ORDataObject {
     }
     function set_memory_problems($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->memory_problems = $data;
         }
     }
@@ -1250,7 +1250,7 @@ class FormROS extends ORDataObject {
     }
     function set_dementia($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->dementia = $data;
         }
     }
@@ -1260,7 +1260,7 @@ class FormROS extends ORDataObject {
     }
     function set_n_headache($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->n_headache = $data;
         }
     }
@@ -1271,7 +1271,7 @@ class FormROS extends ORDataObject {
     }
     function set_s_cancer($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->s_cancer = $data;
         }
     }
@@ -1281,7 +1281,7 @@ class FormROS extends ORDataObject {
     }
     function set_psoriasis($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->psoriasis = $data;
         }
     }
@@ -1291,7 +1291,7 @@ class FormROS extends ORDataObject {
     }
     function set_s_acne($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->s_acne = $data;
         }
     }
@@ -1301,7 +1301,7 @@ class FormROS extends ORDataObject {
     }
     function set_s_other($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->s_other = $data;
         }
     }
@@ -1311,7 +1311,7 @@ class FormROS extends ORDataObject {
     }
     function set_s_disease($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->s_disease = $data;
         }
     }
@@ -1322,7 +1322,7 @@ class FormROS extends ORDataObject {
     }
     function set_p_diagnosis($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->p_diagnosis = $data;
         }
     }
@@ -1332,7 +1332,7 @@ class FormROS extends ORDataObject {
     }
     function set_p_medication($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->p_medication = $data;
         }
     }
@@ -1342,7 +1342,7 @@ class FormROS extends ORDataObject {
     }
     function set_depression($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->depression = $data;
         }
     }
@@ -1352,7 +1352,7 @@ class FormROS extends ORDataObject {
     }
     function set_anxiety($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->anxiety = $data;
         }
     }
@@ -1362,7 +1362,7 @@ class FormROS extends ORDataObject {
     }
     function set_social_difficulties($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->social_difficulties = $data;
         }
     }
@@ -1373,7 +1373,7 @@ class FormROS extends ORDataObject {
     }
     function set_thyroid_problems($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->thyroid_problems = $data;
         }
     }
@@ -1383,7 +1383,7 @@ class FormROS extends ORDataObject {
     }
     function set_diabetes($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->diabetes = $data;
         }
     }
@@ -1393,7 +1393,7 @@ class FormROS extends ORDataObject {
     }
     function set_abnormal_blood($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->abnormal_blood = $data;
         }
     }
@@ -1404,7 +1404,7 @@ class FormROS extends ORDataObject {
     }
     function set_anemia($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->anemia = $data;
         }
     }
@@ -1414,7 +1414,7 @@ class FormROS extends ORDataObject {
     }
     function set_fh_blood_problems($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->fh_blood_problems = $data;
         }
     }
@@ -1424,7 +1424,7 @@ class FormROS extends ORDataObject {
     }
     function set_bleeding_problems($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->bleeding_problems = $data;
         }
     }
@@ -1434,7 +1434,7 @@ class FormROS extends ORDataObject {
     }
     function set_allergies($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->allergies = $data;
         }
     }
@@ -1444,7 +1444,7 @@ class FormROS extends ORDataObject {
     }
     function set_frequent_illness($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->frequent_illness = $data;
         }
     }
@@ -1454,7 +1454,7 @@ class FormROS extends ORDataObject {
     }
     function set_hiv($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->hiv = $data;
         }
     }
@@ -1464,7 +1464,7 @@ class FormROS extends ORDataObject {
     }
     function set_hai_status($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->hai_status = $data;
         }
     }
@@ -1481,7 +1481,7 @@ class FormROS extends ORDataObject {
     }
     function set_dysphagia($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->dysphagia = $data;
         }
     }
@@ -1491,7 +1491,7 @@ class FormROS extends ORDataObject {
     }
     function set_heartburn($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->heartburn = $data;
         }
     }
@@ -1501,7 +1501,7 @@ class FormROS extends ORDataObject {
     }
     function set_bloating($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->bloating = $data;
         }
     }
@@ -1511,7 +1511,7 @@ class FormROS extends ORDataObject {
     }
     function set_belching($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->belching = $data;
         }
     }
@@ -1521,7 +1521,7 @@ class FormROS extends ORDataObject {
     }
     function set_flatulence($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->flatulence = $data;
         }
     }
@@ -1531,7 +1531,7 @@ class FormROS extends ORDataObject {
     }
     function set_nausea($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->nausea = $data;
         }
     }
@@ -1541,7 +1541,7 @@ class FormROS extends ORDataObject {
     }
     function set_vomiting($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->vomiting = $data;
         }
     }
@@ -1551,7 +1551,7 @@ class FormROS extends ORDataObject {
     }
     function set_hematemesis($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->hematemesis = $data;
         }
     }
@@ -1561,7 +1561,7 @@ class FormROS extends ORDataObject {
     }
     function set_gastro_pain($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->gastro_pain = $data;
         }
     }
@@ -1571,7 +1571,7 @@ class FormROS extends ORDataObject {
     }
     function set_food_intolerance($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->food_intolerance = $data;
         }
     }
@@ -1581,7 +1581,7 @@ class FormROS extends ORDataObject {
     }
     function set_hepatitis($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->hepatitis = $data;
         }
     }
@@ -1591,7 +1591,7 @@ class FormROS extends ORDataObject {
     }
     function set_jaundice($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->jaundice = $data;
         }
     }
@@ -1601,7 +1601,7 @@ class FormROS extends ORDataObject {
     }
     function set_hematochezia($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->hematochezia = $data;
         }
     }
@@ -1611,7 +1611,7 @@ class FormROS extends ORDataObject {
     }
     function set_changed_bowel($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->changed_bowel = $data;
         }
     }
@@ -1621,7 +1621,7 @@ class FormROS extends ORDataObject {
     }
     function set_diarrhea($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->diarrhea = $data;
         }
     }
@@ -1631,7 +1631,7 @@ class FormROS extends ORDataObject {
     }
     function set_constipation($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->constipation = $data;
         }
     }
@@ -1642,8 +1642,7 @@ class FormROS extends ORDataObject {
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }
@@ -1651,8 +1650,4 @@ class FormROS extends ORDataObject {
     {
         parent::persist();
     }
-
-
 }   // end of Form
-
-?>

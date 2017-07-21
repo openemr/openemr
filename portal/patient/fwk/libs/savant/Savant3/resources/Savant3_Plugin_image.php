@@ -27,7 +27,8 @@
  *
  *
  */
-class Savant3_Plugin_image extends Savant3_Plugin {
+class Savant3_Plugin_image extends Savant3_Plugin
+{
     
     /**
      *
@@ -84,20 +85,20 @@ class Savant3_Plugin_image extends Savant3_Plugin {
     public function image($file, $alt = null, $height = null, $width = null, $attr = null)
     {
         // is the document root set?
-        if (is_null ( $this->documentRoot ) && isset ( $_SERVER ['DOCUMENT_ROOT'] )) {
+        if (is_null($this->documentRoot) && isset($_SERVER ['DOCUMENT_ROOT'])) {
             // no, so set it
             $this->documentRoot = $_SERVER ['DOCUMENT_ROOT'];
         }
         
         // make sure there's a DIRECTORY_SEPARATOR between the docroot
         // and the image dir
-        if (substr ( $this->documentRoot, - 1 ) != DIRECTORY_SEPARATOR && substr ( $this->imageDir, 0, 1 ) != DIRECTORY_SEPARATOR) {
+        if (substr($this->documentRoot, - 1) != DIRECTORY_SEPARATOR && substr($this->imageDir, 0, 1) != DIRECTORY_SEPARATOR) {
             $this->documentRoot .= DIRECTORY_SEPARATOR;
         }
         
         // make sure there's a separator between the imageDir and the
         // file name
-        if (substr ( $this->imageDir, - 1 ) != DIRECTORY_SEPARATOR && substr ( $file, 0, 1 ) != DIRECTORY_SEPARATOR) {
+        if (substr($this->imageDir, - 1) != DIRECTORY_SEPARATOR && substr($file, 0, 1) != DIRECTORY_SEPARATOR) {
             $this->imageDir .= DIRECTORY_SEPARATOR;
         }
         
@@ -107,11 +108,11 @@ class Savant3_Plugin_image extends Savant3_Plugin {
         // get the file information
         $info = false;
         
-        if (strpos ( $file, '://' ) === false) {
+        if (strpos($file, '://') === false) {
             // no "://" in the file, so it's local
             $file = $this->imageDir . $file;
             $tmp = $this->documentRoot . $file;
-            $info = @getimagesize ( $tmp );
+            $info = @getimagesize($tmp);
         } else {
             // don't attempt to get file info from streams, it takes
             // way too long.
@@ -119,25 +120,23 @@ class Savant3_Plugin_image extends Savant3_Plugin {
         }
         
         // did we find the file info?
-        if (is_array ( $info )) {
-            
+        if (is_array($info)) {
             // capture type info regardless
             $type = $info [2];
             
             // capture size info where both not specified
-            if (is_null ( $width ) && is_null ( $height )) {
+            if (is_null($width) && is_null($height)) {
                 $width = $info [0];
                 $height = $info [1];
             }
         }
         
         // clean up
-        unset ( $info );
+        unset($info);
         
         // is the file a PNG? if so, check user agent, we will need to
         // make special allowances for Microsoft IE.
-        if (stristr ( $_SERVER ['HTTP_USER_AGENT'], 'MSIE' ) && $type === 3) {
-            
+        if (stristr($_SERVER ['HTTP_USER_AGENT'], 'MSIE') && $type === 3) {
             // support alpha transparency for PNG files in MSIE
             $html = '<span style="position: relative;';
             
@@ -150,36 +149,36 @@ class Savant3_Plugin_image extends Savant3_Plugin {
             }
             
             $html .= ' filter:progid:DXImageTransform.Microsoft.AlphaImageLoader';
-            $html .= "(src='" . htmlspecialchars ( $file ) . "',sizingMethod='scale');\"";
-            $html .= ' title="' . htmlspecialchars ( $alt ) . '"';
+            $html .= "(src='" . htmlspecialchars($file) . "',sizingMethod='scale');\"";
+            $html .= ' title="' . htmlspecialchars($alt) . '"';
             
-            $html .= $this->Savant->htmlAttribs ( $attr );
+            $html .= $this->Savant->htmlAttribs($attr);
             
             // done
             $html .= '></span>';
         } else {
-            
             // not IE, so build a normal image tag.
             $html = '<img';
-            $html .= ' src="' . htmlspecialchars ( $file ) . '"';
+            $html .= ' src="' . htmlspecialchars($file) . '"';
             
             // add the alt attribute
-            if (is_null ( $alt )) {
-                $alt = basename ( $file );
+            if (is_null($alt)) {
+                $alt = basename($file);
             }
-            $html .= ' alt="' . htmlspecialchars ( $alt ) . '"';
+
+            $html .= ' alt="' . htmlspecialchars($alt) . '"';
             
             // add the height attribute
             if ($height) {
-                $html .= ' height="' . htmlspecialchars ( $height ) . '"';
+                $html .= ' height="' . htmlspecialchars($height) . '"';
             }
             
             // add the width attribute
             if ($width) {
-                $html .= ' width="' . htmlspecialchars ( $width ) . '"';
+                $html .= ' width="' . htmlspecialchars($width) . '"';
             }
             
-            $html .= $this->Savant->htmlAttribs ( $attr );
+            $html .= $this->Savant->htmlAttribs($attr);
             
             // done
             $html .= ' />';
@@ -189,5 +188,3 @@ class Savant3_Plugin_image extends Savant3_Plugin {
         return $html;
     }
 }
-
-?>

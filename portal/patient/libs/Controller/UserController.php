@@ -60,9 +60,11 @@ class UserController extends AppBaseController
     public function ListView()
     {
         $rid=0;
-        if (isset($_GET['id']) )
+        if (isset($_GET['id'])) {
             $rid = (int) $_GET['id'];
-        $this->Assign ( 'recid', $rid );
+        }
+
+        $this->Assign('recid', $rid);
         $this->Render();
     }
 
@@ -71,10 +73,9 @@ class UserController extends AppBaseController
      */
     public function Query()
     {
-        try
-        {
+        try {
             $criteria = new UserCriteria();
-            $recnum = RequestUtil::Get ( 'recId' );
+            $recnum = RequestUtil::Get('recId');
             $criteria->Id_Equals = $recnum;
 
             $output = new stdClass();
@@ -82,12 +83,14 @@ class UserController extends AppBaseController
             // if a sort order was specified then specify in the criteria
             $output->orderBy = RequestUtil::Get('orderBy');
             $output->orderDesc = RequestUtil::Get('orderDesc') != '';
-            if ($output->orderBy) $criteria->SetOrder($output->orderBy, $output->orderDesc);
+            if ($output->orderBy) {
+                $criteria->SetOrder($output->orderBy, $output->orderDesc);
+            }
 
             $page = RequestUtil::Get('page');
 
                 // return all results
-                $users = $this->Phreezer->Query('User',$criteria);
+                $users = $this->Phreezer->Query('User', $criteria);
                 $output->rows = $users->ToObjectArray(true, $this->SimpleObjectParams());
                 $output->totalResults = count($output->rows);
                 $output->totalPages = 1;
@@ -95,9 +98,7 @@ class UserController extends AppBaseController
                 $output->currentPage = 1;
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -107,14 +108,11 @@ class UserController extends AppBaseController
      */
     public function Read()
     {
-        try
-        {
+        try {
             $pk = $this->GetRouter()->GetUrlParam('id');
-            $user = $this->Phreezer->Get('User',$pk);
+            $user = $this->Phreezer->Get('User', $pk);
             $this->RenderJSON($user, $this->JSONPCallback(), true, $this->SimpleObjectParams());
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -124,13 +122,10 @@ class UserController extends AppBaseController
      */
     public function Create()
     {
-        try
-        {
-
+        try {
             $json = json_decode(RequestUtil::GetBody());
 
-            if (!$json)
-            {
+            if (!$json) {
                 throw new Exception('The request body does not contain valid JSON');
             }
 
@@ -187,7 +182,7 @@ class UserController extends AppBaseController
             $user->SsiRelayhealth = $this->SafeGetVal($json, 'ssiRelayhealth');
             $user->Calendar = $this->SafeGetVal($json, 'calendar');
             $user->AbookType = $this->SafeGetVal($json, 'abookType');
-            $user->PwdExpirationDate = date('Y-m-d H:i:s',strtotime($this->SafeGetVal($json, 'pwdExpirationDate')));
+            $user->PwdExpirationDate = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'pwdExpirationDate')));
             $user->PwdHistory1 = $this->SafeGetVal($json, 'pwdHistory1');
             $user->PwdHistory2 = $this->SafeGetVal($json, 'pwdHistory2');
             $user->DefaultWarehouse = $this->SafeGetVal($json, 'defaultWarehouse');
@@ -200,19 +195,13 @@ class UserController extends AppBaseController
             $user->Validate();
             $errors = $user->GetValidationErrors();
 
-            if (count($errors) > 0)
-            {
-                $this->RenderErrorJSON('Please check the form for errors',$errors);
-            }
-            else
-            {
+            if (count($errors) > 0) {
+                $this->RenderErrorJSON('Please check the form for errors', $errors);
+            } else {
                 $user->Save();
                 $this->RenderJSON($user, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -222,18 +211,15 @@ class UserController extends AppBaseController
      */
     public function Update()
     {
-        try
-        {
-
+        try {
             $json = json_decode(RequestUtil::GetBody());
 
-            if (!$json)
-            {
+            if (!$json) {
                 throw new Exception('The request body does not contain valid JSON');
             }
 
             $pk = $this->GetRouter()->GetUrlParam('id');
-            $user = $this->Phreezer->Get('User',$pk);
+            $user = $this->Phreezer->Get('User', $pk);
 
             // TODO: any fields that should not be updated by the user should be commented out
 
@@ -286,7 +272,7 @@ class UserController extends AppBaseController
             $user->SsiRelayhealth = $this->SafeGetVal($json, 'ssiRelayhealth', $user->SsiRelayhealth);
             $user->Calendar = $this->SafeGetVal($json, 'calendar', $user->Calendar);
             $user->AbookType = $this->SafeGetVal($json, 'abookType', $user->AbookType);
-            $user->PwdExpirationDate = date('Y-m-d H:i:s',strtotime($this->SafeGetVal($json, 'pwdExpirationDate', $user->PwdExpirationDate)));
+            $user->PwdExpirationDate = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'pwdExpirationDate', $user->PwdExpirationDate)));
             $user->PwdHistory1 = $this->SafeGetVal($json, 'pwdHistory1', $user->PwdHistory1);
             $user->PwdHistory2 = $this->SafeGetVal($json, 'pwdHistory2', $user->PwdHistory2);
             $user->DefaultWarehouse = $this->SafeGetVal($json, 'defaultWarehouse', $user->DefaultWarehouse);
@@ -299,22 +285,13 @@ class UserController extends AppBaseController
             $user->Validate();
             $errors = $user->GetValidationErrors();
 
-            if (count($errors) > 0)
-            {
-                $this->RenderErrorJSON('Please check the form for errors',$errors);
-            }
-            else
-            {
+            if (count($errors) > 0) {
+                $this->RenderErrorJSON('Please check the form for errors', $errors);
+            } else {
                 $user->Save();
                 $this->RenderJSON($user, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-
-
-        }
-        catch (Exception $ex)
-        {
-
-
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -324,26 +301,19 @@ class UserController extends AppBaseController
      */
     public function Delete()
     {
-        try
-        {
-
+        try {
             // TODO: if a soft delete is prefered, change this to update the deleted flag instead of hard-deleting
 
             $pk = $this->GetRouter()->GetUrlParam('id');
-            $user = $this->Phreezer->Get('User',$pk);
+            $user = $this->Phreezer->Get('User', $pk);
 
             $user->Delete();
 
             $output = new stdClass();
 
             $this->RenderJSON($output, $this->JSONPCallback());
-
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
 }
-
-?>

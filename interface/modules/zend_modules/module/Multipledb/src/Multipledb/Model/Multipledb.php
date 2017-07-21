@@ -19,10 +19,10 @@
  */
 
 namespace Multipledb\Model;
+
 use Zend\InputFilter\InputFilter;
 use Zend\InputFilter\InputFilterAwareInterface;
 use Zend\InputFilter\InputFilterInterface;
-
 
 class Multipledb implements InputFilterAwareInterface
 {
@@ -48,9 +48,6 @@ class Multipledb implements InputFilterAwareInterface
         $this->host = (!empty($data['host'])) ? $data['host'] : null;
         $this->port = (!empty($data['port'])) ? $data['port'] : null;
         $this->date = (!empty($data['date'])) ? $data['date'] : null;
-
-
-
     }
 
 
@@ -106,13 +103,13 @@ class Multipledb implements InputFilterAwareInterface
         if (!$this->inputFilter) {
             $inputFilter = new InputFilter();
 
-            foreach(self::$inputsValidations as $input) {
+            foreach (self::$inputsValidations as $input) {
                 $inputFilter->add($input);
             }
 
             $this->inputFilter = $inputFilter;
         }
+
         return $this->inputFilter;
     }
-
 }

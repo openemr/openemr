@@ -46,9 +46,10 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         $result     = $appTable->zQuery($query);
         
         $codes      = array();
-        foreach($result as $row){
+        foreach ($result as $row) {
             $codes[] = $row;
         }
+
         return $codes;
     }
     
@@ -65,7 +66,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         
         $sqlSelctProvider       = "SELECT * FROM form_encounter WHERE encounter = ? AND pid = ?";
         $resultSelctProvider    = $appTable->zQuery($sqlSelctProvider, array($encounter, $pid));
-        foreach($resultSelctProvider as $resultSelctProvider_row){
+        foreach ($resultSelctProvider as $resultSelctProvider_row) {
             $provider = $resultSelctProvider_row['provider_id'];
         }
         
@@ -82,12 +83,13 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             'disabled' => false
         );
         $i = 1;
-        foreach($result as $row) {
+        foreach ($result as $row) {
             if ($row['id'] == $provider) {
                 $select =  true;
             } else {
                 $select = false;
             }
+
             $rows[$i] = array (
                 'value' => $row['id'],
                 'label' => $row['fname']." ".$row['lname'],
@@ -95,6 +97,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             );
             $i++;
         }
+
         return $rows;
     }
     
@@ -122,7 +125,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 			  lists l, patient_data p, codes c, form_encounter AS fe 
 			WHERE c.reportable = 1 ";
         
-        if($provider_selected){
+        if ($provider_selected) {
             $query .= " AND provider_id = ? ";
             $query_string[] = $provider_selected;
         }
@@ -136,9 +139,9 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         $query_string[] = $fromDate;
         $query_string[] = $toDate;
         
-        if($code_selected){
+        if ($code_selected) {
             $query .= " AND c.id IN (?) ";
-            $query_string[] = implode(',',$code_selected);
+            $query_string[] = implode(',', $code_selected);
         }
         
         $query .= " AND l.diagnosis LIKE 'ICD9:%' 
@@ -151,9 +154,9 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 				WHERE c.reportable = 1 
 					AND b.code_type = 'ICD9' AND b.activity = '1' AND b.pid = p.pid AND fe.encounter = b.encounter ";
         
-        if($code_selected){
+        if ($code_selected) {
             $query .= " AND c.id IN (?) ";
-            $query_string[] = implode(',',$code_selected);
+            $query_string[] = implode(',', $code_selected);
         }
         
         $query .= " AND c.code = b.code 
@@ -164,7 +167,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 				form_encounter AS fenc 
 			WHERE fenc.pid = fe.pid) ";
         
-        if($provider_selected){
+        if ($provider_selected) {
             $query .= " AND provider_id = ? ";
             $query_string[] = $provider_selected;
         }
@@ -173,12 +176,13 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         $query_string[] = $fromDate;
         $query_string[] = $toDate;
         
-        if($get_count){
+        if ($get_count) {
             $appTable   = new ApplicationTable();
             $result     = $appTable->zQuery($query, $query_string);
-            foreach($result as $row){
+            foreach ($result as $row) {
                 $records[] = $row;
             }
+
             return count($records);
         }
         
@@ -186,7 +190,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         
         $appTable   = new ApplicationTable();
         $result     = $appTable->zQuery($query, $query_string);
-        foreach($result as $row){
+        foreach ($result as $row) {
             $records[] = $row;
         }
         
@@ -219,7 +223,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         LEFT JOIN facility AS fac ON fac.id = fe.facility_id
 			WHERE c.reportable = 1 ";
         
-        if($provider_selected){
+        if ($provider_selected) {
             $query .= " AND provider_id = ? ";
             $query_string[] = $provider_selected;
         }
@@ -233,9 +237,9 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         $query_string[] = $fromDate;
         $query_string[] = $toDate;
         
-        if($code_selected){
+        if ($code_selected) {
             $query .= " AND c.id IN (?) ";
-            $query_string[] = implode(',',$code_selected);
+            $query_string[] = implode(',', $code_selected);
         }
         
         $query .= " AND l.diagnosis LIKE 'ICD9:%' 
@@ -252,9 +256,9 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 			  WHERE c.reportable = 1 
 				AND b.code_type = 'ICD9' AND b.activity = '1' AND b.pid = p.pid AND fe.encounter = b.encounter ";
         
-        if($code_selected){
+        if ($code_selected) {
             $query .= " AND c.id IN (?) ";
-            $query_string[] = implode(',',$code_selected);
+            $query_string[] = implode(',', $code_selected);
         }
         
         $query .= " AND c.code = b.code 
@@ -265,7 +269,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 			form_encounter AS fenc 
 		  WHERE fenc.pid = fe.pid) ";
         
-        if($provider_selected){
+        if ($provider_selected) {
             $query .= " AND provider_id = ? ";
             $query_string[] = $provider_selected;
         }
@@ -285,14 +289,14 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         $now1       = date('Y-m-d G:i');
         $filename   = "syn_sur_". $now . ".hl7";
     
-        foreach($result as $r) {
+        foreach ($result as $r) {
             $fac_name = $race_code = $ethnicity_code = $county_code = '';
             $o_query        = "SELECT * FROM `form_observation` WHERE `encounter` =  ? AND `pid` = ? AND `activity` = ?" ;
-            $o_result       = $appTable->zQuery($o_query,array($r['encounter'],$r['patientid'],1));
-            $fac_name       = preg_replace('/\s+/', '',$r['name']);
-            $race_code      = $this->getCodes($r['race'],'race');
-            $ethnicity_code = $this->getCodes($r['ethnicity'],'ethnicity');
-            $county_code    = $this->getCodes($r['county'],'county');
+            $o_result       = $appTable->zQuery($o_query, array($r['encounter'],$r['patientid'],1));
+            $fac_name       = preg_replace('/\s+/', '', $r['name']);
+            $race_code      = $this->getCodes($r['race'], 'race');
+            $ethnicity_code = $this->getCodes($r['ethnicity'], 'ethnicity');
+            $county_code    = $this->getCodes($r['county'], 'county');
             $content .= "MSH|^~\&|OPENEMR|".$fac_name."^".$r['facility_npi']."^NPI|||".$nowdate."||".
             "ADT^A04^ADT_A01|NIST-SS-TC-XXX.XX|P^T|2.5.1|||||||||PH_SS-NoAck^SS Sender^2.16.840.1.114222.4.10.3^ISO$D";
             $content .= "EVN|" . // [[ 3.69 ]]
@@ -304,14 +308,38 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             "|" . // 6. Event Occurred
             $fac_name."^".$r['facility_npi']."^NPI" . // 7. Event Facility
             "$D" ;
-            if ($r['sex']==='Male') $r['sex'] = 'M';
-            if ($r['sex']==='Female') $r['sex'] = 'F';
-            if ($r['status']==='married') $r['status'] = 'M';
-            if ($r['status']==='single') $r['status'] = 'S';
-            if ($r['status']==='divorced') $r['status'] = 'D';
-            if ($r['status']==='widowed') $r['status'] = 'W';
-            if ($r['status']==='separated') $r['status'] = 'A';
-            if ($r['status']==='domestic partner') $r['status'] = 'P';
+            if ($r['sex']==='Male') {
+                $r['sex'] = 'M';
+            }
+
+            if ($r['sex']==='Female') {
+                $r['sex'] = 'F';
+            }
+
+            if ($r['status']==='married') {
+                $r['status'] = 'M';
+            }
+
+            if ($r['status']==='single') {
+                $r['status'] = 'S';
+            }
+
+            if ($r['status']==='divorced') {
+                $r['status'] = 'D';
+            }
+
+            if ($r['status']==='widowed') {
+                $r['status'] = 'W';
+            }
+
+            if ($r['status']==='separated') {
+                $r['status'] = 'A';
+            }
+
+            if ($r['status']==='domestic partner') {
+                $r['status'] = 'P';
+            }
+
             $content .= "PID|" . // [[ 3.72 ]]
             "1|" . // 1. Set id
             "|" . // 2. (B)Patient id
@@ -402,11 +430,17 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             $i = 0;
             foreach ($o_result as $row) {
                     $i++;
-                if($row['code'] == 'SS003') {
-                    if($row['ob_value'] == '261QE0002X') $text ='Emergency Care';
-                    else if($row['ob_value'] == '261QM2500X') $text ='Medical Specialty';
-                    else if($row['ob_value'] == '261QP2300X') $text ='Primary Care';
-                    else if($row['ob_value'] == '261QU0200X') $text ='Urgent Care';
+                if ($row['code'] == 'SS003') {
+                    if ($row['ob_value'] == '261QE0002X') {
+                        $text ='Emergency Care';
+                    } else if ($row['ob_value'] == '261QM2500X') {
+                        $text ='Medical Specialty';
+                    } else if ($row['ob_value'] == '261QP2300X') {
+                        $text ='Primary Care';
+                    } else if ($row['ob_value'] == '261QU0200X') {
+                        $text ='Urgent Care';
+                    }
+
                     $content .= "OBX|".
                     $i."|".   //1. Set ID
                     "CWE|".    //2. Value Type
@@ -420,8 +454,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
                     "|".    //10.
                     "F".     //11. Observation Result Status
                     "$D";
-                }
-                elseif($row['code'] == '21612-7') {
+                } elseif ($row['code'] == '21612-7') {
                     $content .= "OBX|".
                     $i."|".   //1. Set ID
                     "NM|".    //2. Value Type
@@ -435,8 +468,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
                     "|".    //10.
                     "F".     //11. Observation Result Status
                     "$D";
-                }
-                elseif($row['code'] == '8661-1') {
+                } elseif ($row['code'] == '8661-1') {
                     $content .= "OBX|".
                     $i."|".   //1. Set ID
                     "CWE|".    //2. Value Type
@@ -452,6 +484,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
                     "$D";
                 }
             }
+
             $content .= "DG1|" . // [[ 6.24 ]]
             "1|" . // 1. Set ID
             "|" . // 2.B.R Diagnosis Coding Method
@@ -480,9 +513,10 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             $query_insert = "insert into syndromic_surveillance(lists_id,submission_date,filename) values (?, ?, ?)";
             $appTable->zQuery($query_insert, array($r['issueid'], $now1, $filename));
         }
+
         //send the header here
         header('Content-type: text/plain');
-        header('Content-Disposition: attachment; filename=' . $filename );
+        header('Content-Disposition: attachment; filename=' . $filename);
           
         // put the content in the file
         echo($content);
@@ -494,8 +528,8 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 	*/
     public function convert_to_yyyymmdd($date)
     {
-        $date   = str_replace('/','-',$date);
-        $arr    = explode('-',$date);
+        $date   = str_replace('/', '-', $date);
+        $arr    = explode('-', $date);
         $formatted_date = $arr[2]."-".$arr[0]."-".$arr[1];
         return $formatted_date;
     }
@@ -510,16 +544,20 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     */
     public function date_format($date, $format)
     {
-        if(!$date) return;
+        if (!$date) {
+            return;
+        }
+
         $format = $format ? $format : 'm/d/y';
-        $temp   = explode(' ',$date); //split using space and consider the first portion, incase of date with time
+        $temp   = explode(' ', $date); //split using space and consider the first portion, incase of date with time
         $date   = $temp[0];
-        $date   = str_replace('/','-',$date);
-        $arr    = explode('-',$date);
+        $date   = str_replace('/', '-', $date);
+        $arr    = explode('-', $date);
         
-        if($format == 'm/d/y'){
+        if ($format == 'm/d/y') {
             $formatted_date = $arr[1]."/".$arr[2]."/".$arr[0];
         }
+
         $formatted_date = $temp[1] ? $formatted_date." ".$temp[1] : $formatted_date; //append the time, if exists, with the new formatted date
         return $formatted_date;
     }
@@ -530,18 +568,19 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     */
     function tr($a)
     {
-        return (str_replace(' ','^',$a));
+        return (str_replace(' ', '^', $a));
     }
-    public function getCodes($option_id,$list_id)
+    public function getCodes($option_id, $list_id)
     {
         $appTable  = new ApplicationTable();
-        if($option_id) {
+        if ($option_id) {
             $query   = "SELECT notes 
                     FROM list_options 
                     WHERE list_id=? AND option_id=?";
-            $result  = $appTable->zQuery($query,array($list_id,$option_id));
+            $result  = $appTable->zQuery($query, array($list_id,$option_id));
             $res_cur = $result->current();
         }
+
         return $res_cur['notes'];
     }
 }

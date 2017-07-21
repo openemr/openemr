@@ -25,74 +25,78 @@
  * @link    http://www.open-emr.org
  */
 
- include_once("../globals.php");
- include_once("$srcdir/patient.inc");
- include_once("$srcdir/acl.inc");
- include_once("$srcdir/lists.inc");
+include_once("../globals.php");
+include_once("$srcdir/patient.inc");
+include_once("$srcdir/acl.inc");
+include_once("$srcdir/lists.inc");
 
- $patdata = getPatientData($pid, "fname,lname,squad");
+$patdata = getPatientData($pid, "fname,lname,squad");
 
- $thisauth = ((acl_check('encounters','notes','','write') ||
-               acl_check('encounters','notes_a','','write')) &&
-              acl_check('patients','med','','write'));
+$thisauth = ((acl_check('encounters', 'notes', '', 'write') ||
+            acl_check('encounters', 'notes_a', '', 'write')) &&
+            acl_check('patients', 'med', '', 'write'));
 
- if ($patdata['squad'] && ! acl_check('squads', $patdata['squad']))
-  $thisauth = 0;
+if ($patdata['squad'] && ! acl_check('squads', $patdata['squad'])) {
+     $thisauth = 0;
+}
 
- if (!$thisauth) {
-     echo "<html>\n<body>\n";
-     echo "<p>" .xlt('You are not authorized for this.'). "</p>\n";
-     echo "</body>\n</html>\n";
-     exit();
+if (!$thisauth) {
+    echo "<html>\n<body>\n";
+    echo "<p>" .xlt('You are not authorized for this.'). "</p>\n";
+    echo "</body>\n</html>\n";
+    exit();
+}
+
+$alertmsg = ""; // anything here pops up in an alert box
+$endjs = "";    // holds javascript to write at the end
+
+// If the Save button was clicked...
+if ($_POST['form_save']) {
+    $form_pid = $_POST['form_pid'];
+    $form_pelist = $_POST['form_pelist'];
+    // $pattern = '|/(\d+),(\d+),([YN])|';
+    $pattern = '|/(\d+),(\d+)|';
+
+    preg_match_all($pattern, $form_pelist, $matches);
+    $numsets = count($matches[1]);
+
+    $query = "DELETE FROM issue_encounter WHERE pid = ?";
+    sqlQuery($query, array($form_pid));
+    for ($i = 0; $i < $numsets; ++$i) {
+        $list_id   = $matches[1][$i];
+        $encounter = $matches[2][$i];
+        $query = "INSERT INTO issue_encounter ( " .
+            "pid, list_id, encounter" .
+            ") VALUES ( " .
+            " ?, ?, ?" .
+            ")";
+        sqlQuery($query, array($form_pid, $list_id, $encounter));
     }
 
-    $alertmsg = ""; // anything here pops up in an alert box
-    $endjs = "";    // holds javascript to write at the end
-
- // If the Save button was clicked...
-    if ($_POST['form_save']) {
-        $form_pid = $_POST['form_pid'];
-        $form_pelist = $_POST['form_pelist'];
-        // $pattern = '|/(\d+),(\d+),([YN])|';
-        $pattern = '|/(\d+),(\d+)|';
-
-        preg_match_all($pattern, $form_pelist, $matches);
-        $numsets = count($matches[1]);
-
-        $query = "DELETE FROM issue_encounter WHERE pid = ?";
-        sqlQuery($query, array($form_pid));
-        for ($i = 0; $i < $numsets; ++$i) {
-            $list_id   = $matches[1][$i];
-            $encounter = $matches[2][$i];
-            $query = "INSERT INTO issue_encounter ( " .
-             "pid, list_id, encounter" .
-             ") VALUES ( " .
-             " ?, ?, ?" .
-             ")";
-            sqlQuery($query, array($form_pid, $list_id, $encounter));
-        }
-
-        echo "<html><body>"
-        ."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"
-        . "<script language='JavaScript'>\n";
-        if ($alertmsg) echo " alert('" . addslashes($alertmsg) . "');\n";
-        echo " var myboss = opener ? opener : parent;\n";
-        echo " myboss.location.reload();\n";
-        echo " window.close();\n";
-        echo "</script></body></html>\n";
-        exit();
+    echo "<html><body>"
+    ."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"
+    . "<script language='JavaScript'>\n";
+    if ($alertmsg) {
+        echo " alert('" . addslashes($alertmsg) . "');\n";
     }
 
- // get problems
-    $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? " .
-    "ORDER BY type, date", array($pid));
+    echo " var myboss = opener ? opener : parent;\n";
+    echo " myboss.location.reload();\n";
+    echo " window.close();\n";
+    echo "</script></body></html>\n";
+    exit();
+}
 
- // get encounters
-    $eres = sqlStatement("SELECT * FROM form_encounter WHERE pid = ? " .
-    "ORDER BY date DESC", array($pid));
+// get problems
+$pres = sqlStatement("SELECT * FROM lists WHERE pid = ? " .
+"ORDER BY type, date", array($pid));
 
- // get problem/encounter relations
-    $peres = sqlStatement("SELECT * FROM issue_encounter WHERE pid = ?", array($pid));
+// get encounters
+$eres = sqlStatement("SELECT * FROM form_encounter WHERE pid = ? " .
+"ORDER BY date DESC", array($pid));
+
+// get problem/encounter relations
+$peres = sqlStatement("SELECT * FROM issue_encounter WHERE pid = ?", array($pid));
 ?>
 <html>
 <head>
@@ -276,6 +280,7 @@ while ($row = sqlFetchArray($peres)) {
   //  ($row['resolved'] ? "Y" : "N") . "/";
     echo text($row['list_id']) . "," . text($row['encounter']) . "/";
 }
+
  echo "' />\n";
 ?>
 
@@ -363,7 +368,10 @@ in that section to add and delete relationships.'); ?>
 if ($_REQUEST['issue']) {
     echo "doclick('p', " . attr(addslashes($_REQUEST['issue'])) . ");\n";
 }
- if ($alertmsg) echo "alert('" . addslashes($alertmsg) . "');\n";
+
+if ($alertmsg) {
+    echo "alert('" . addslashes($alertmsg) . "');\n";
+}
 ?>
 </script>
 </body>

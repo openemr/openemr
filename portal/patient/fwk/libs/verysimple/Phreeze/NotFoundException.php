@@ -11,7 +11,6 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-class NotFoundException extends Exception {
+class NotFoundException extends Exception
+{
 }
-
-?>

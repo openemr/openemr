@@ -34,8 +34,7 @@ require_once('../globals.php');
 if (isset($_POST['new_login_session_management'])) {
   // This is a new login, so create a new session id and remove the old session
     session_regenerate_id(true);
-}
-else {
+} else {
   // This is not a new login, so create a new session id and do NOT remove the old session
     session_regenerate_id(false);
 }
@@ -44,13 +43,13 @@ $_SESSION["encounter"] = '';
 
 // Fetch the password expiration date
 $is_expired=false;
-if($GLOBALS['password_expiration_days'] != 0){
+if ($GLOBALS['password_expiration_days'] != 0) {
     $is_expired=false;
     $q= (isset($_POST['authUser'])) ? $_POST['authUser'] : '';
     $result = sqlStatement("select pwd_expiration_date from users where username = ?", array($q));
     $current_date = date('Y-m-d');
     $pwd_expires_date = $current_date;
-    if($row = sqlFetchArray($result)) {
+    if ($row = sqlFetchArray($result)) {
         $pwd_expires_date = $row['pwd_expiration_date'];
     }
 
@@ -70,27 +69,26 @@ if ($is_expired) {
   //display the php file containing the password expiration message.
     $frame1url = "pwd_expires_alert.php";
     $frame1target = "adm";
-}
-else if (!empty($_POST['patientID'])) {
+} else if (!empty($_POST['patientID'])) {
     $patientID = 0 + $_POST['patientID'];
     if (empty($_POST['encounterID'])) {
         // Open patient summary screen (without a specific encounter)
         $frame1url = "../patient_file/summary/demographics.php?set_pid=".attr($patientID);
         $frame1target = "pat";
-    }
-    else {
+    } else {
         // Open patient summary screen with a specific encounter
         $encounterID = 0 + $_POST['encounterID'];
         $frame1url = "../patient_file/summary/demographics.php?set_pid=".attr($patientID)."&set_encounterid=".attr($encounterID);
         $frame1target = "pat";
     }
-}
-else if (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
+} else if (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
     $frame1url = "calendar/index.php?pid=" . attr($_GET['pid']);
-    if (isset($_GET['date'])) $frame1url .= "&date=" . attr($_GET['date']);
+    if (isset($_GET['date'])) {
+        $frame1url .= "&date=" . attr($_GET['date']);
+    }
+
     $frame1target = "cal";
-}
-else {
+} else {
   // standard layout
     if ($GLOBALS['default_top_pane']) {
         $frame1url=attr($GLOBALS['default_top_pane']);
@@ -101,7 +99,9 @@ else {
         '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => ('flb')
         );
         $frame1target = $map_paths_to_targets[$GLOBALS['default_top_pane']];
-        if (empty($frame1target)) $frame1target = "msc";
+        if (empty($frame1target)) {
+            $frame1target = "msc";
+        }
     } else {
         $frame1url = "main_info.php";
         $frame1target = "cal";
@@ -109,7 +109,9 @@ else {
 }
 
 $nav_area_width = '130';
-if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_area_width'];
+if (!empty($GLOBALS['gbl_nav_area_width'])) {
+    $nav_area_width = $GLOBALS['gbl_nav_area_width'];
+}
 
 // This is where will decide whether to use tabs layout or non-tabs layout
 // Will also set Session variables to communicate settings to tab layout
@@ -120,6 +122,7 @@ if ($GLOBALS['new_tabs_layout']) {
     if ((isset($_POST['appChoice'])) && ($_POST['appChoice'] !== '*OpenEMR')) {
         $_SESSION['app1'] = $_POST['appChoice'];
     }
+
     header('Location: '.$web_root."/interface/main/tabs/main.php");
     exit();
 }
@@ -189,14 +192,14 @@ if (empty($GLOBALS['gbl_tall_nav_area'])) {
     // not tall nav area ?>
 <frameset rows='<?php echo attr($GLOBALS['titleBarHeight']) + 5 ?>,*' frameborder='1' border='1' framespacing='1' onunload='imclosing()'>
  <frame src='main_title.php' name='Title' scrolling='no' frameborder='1' noresize />
-    <?php if($lang_dir != 'rtl'){ ?>
+    <?php if ($lang_dir != 'rtl') { ?>
 
      <frameset cols='<?php echo attr($nav_area_width) . ',*'; ?>' id='fsbody' frameborder='1' border='4' framespacing='4'>
         <?php echo $sidebar_tpl ?>
         <?php echo $main_tpl ?>
      </frameset>
 
-    <?php }else{ ?>
+    <?php } else { ?>
 
      <frameset cols='<?php echo  '*,' . attr($nav_area_width); ?>' id='fsbody' frameborder='1' border='4' framespacing='4'>
         <?php echo $main_tpl ?>

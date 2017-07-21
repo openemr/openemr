@@ -13,7 +13,10 @@
 
 function QuotedOrNull($fld)
 {
-    if ($fld) return "'".add_escape_custom($fld)."'";
+    if ($fld) {
+        return "'".add_escape_custom($fld)."'";
+    }
+
     return "NULL";
 }
 
@@ -21,9 +24,17 @@ function QuotedOrNull($fld)
  $lot_id  = $_REQUEST['lot'];
  $info_msg = "";
 
- if (!acl_check('admin', 'drugs')) die(xlt('Not authorized'));
- if (!$drug_id) die(xlt('Drug ID missing!'));
- if (!$lot_id ) die(xlt('Lot ID missing!'));
+if (!acl_check('admin', 'drugs')) {
+    die(xlt('Not authorized'));
+}
+
+if (!$drug_id) {
+    die(xlt('Drug ID missing!'));
+}
+
+if (!$lot_id) {
+    die(xlt('Lot ID missing!'));
+}
 ?>
 <html>
 <head>
@@ -57,12 +68,15 @@ if ($_POST['form_save']) {
     "destroy_method = '"  . add_escape_custom($_POST['form_method'])    . "', " .
     "destroy_witness = '" . add_escape_custom($_POST['form_witness'])   . "', " .
     "destroy_notes = '"   . add_escape_custom($_POST['form_notes'])     . "' "  .
-    "WHERE drug_id = ? AND inventory_id = ?", array($drug_id,$lot_id) );
+    "WHERE drug_id = ? AND inventory_id = ?", array($drug_id,$lot_id));
 
   // Close this window and redisplay the updated list of drugs.
   //
     echo "<script language='JavaScript'>\n";
-    if ($info_msg) echo " alert('".addslashes($info_msg)."');\n";
+    if ($info_msg) {
+        echo " alert('".addslashes($info_msg)."');\n";
+    }
+
     echo " window.close();\n";
     echo " if (opener.refreshme) opener.refreshme();\n";
     echo "</script></body></html>\n";

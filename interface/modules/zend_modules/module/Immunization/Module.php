@@ -1,5 +1,6 @@
 <?php
 namespace Immunization;
+
 use Immunization\Model\Immunization;
 use Immunization\Model\ImmunizationTable;
 use Zend\Db\ResultSet\ResultSet;
@@ -81,4 +82,3 @@ class Module
         );
     }
 }
-?>

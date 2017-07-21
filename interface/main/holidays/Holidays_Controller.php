@@ -24,7 +24,8 @@
  */
 
 require_once("Holidays_Storage.php");
-class Holidays_Controller{
+class Holidays_Controller
+{
 
     const UPLOAD_DIR = "documents/holidays_storage";
     const FILE_NAME = "holidays_to_import.csv";
@@ -56,17 +57,20 @@ class Holidays_Controller{
     public function upload_csv($files)
     {
         if (!file_exists($GLOBALS['OE_SITE_DIR']."/". self::UPLOAD_DIR)) {
-            if (!mkdir($GLOBALS['OE_SITE_DIR']."/". self::UPLOAD_DIR."/",0700)) {
+            if (!mkdir($GLOBALS['OE_SITE_DIR']."/". self::UPLOAD_DIR."/", 0700)) {
                 return false;
             }
         }
-        $file_type = pathinfo($this->target_file,PATHINFO_EXTENSION);
-        if($file_type != "csv"){
+
+        $file_type = pathinfo($this->target_file, PATHINFO_EXTENSION);
+        if ($file_type != "csv") {
             return false;
         }
+
         if (move_uploaded_file($files["form_file"]["tmp_name"], $this->target_file)) {
             return true;
         }
+
         return false;
     }
 
@@ -77,13 +81,12 @@ class Holidays_Controller{
     public function import_holidays_from_csv()
     {
         $file=$this->get_file_csv_data();
-        if(empty($file)){
+        if (empty($file)) {
             return false;
         }
 
         $this->storage->import_holidays($this->target_file);
         return true;
-
     }
 
     /**
@@ -93,9 +96,10 @@ class Holidays_Controller{
     public function get_file_csv_data()
     {
         $file=array();
-        if (file_exists($this->target_file)){
-            $file['date']= date ("d/m/Y H:i:s", filemtime($this->target_file));
+        if (file_exists($this->target_file)) {
+            $file['date']= date("d/m/Y H:i:s", filemtime($this->target_file));
         }
+
         return $file;
     }
 
@@ -107,7 +111,6 @@ class Holidays_Controller{
         $holidays = $this->storage->get_holidays();
         $events = $this->storage->create_events($holidays);
         return true;
-        
     }
 
     /**
@@ -116,10 +119,10 @@ class Holidays_Controller{
      * @param $end_date
      * @return array
      */
-    public function get_holidays_by_date_range($start_date,$end_date)
+    public function get_holidays_by_date_range($start_date, $end_date)
     {
         $holidays = array();
-        $holidays = Holidays_Storage::get_holidays_by_dates($start_date,$end_date);
+        $holidays = Holidays_Storage::get_holidays_by_dates($start_date, $end_date);
         return $holidays;
     }
 
@@ -130,12 +133,11 @@ class Holidays_Controller{
     public static function is_holiday($date)
     {
         $holidays = array();
-        $holidays = Holidays_Storage::get_holidays_by_dates($date,$date);
-        if(in_array($date,$holidays)){
+        $holidays = Holidays_Storage::get_holidays_by_dates($date, $date);
+        if (in_array($date, $holidays)) {
             return true;
         }
+
         return false;
     }
-    
-
 }

@@ -26,7 +26,8 @@ namespace common\database;
 
 use \Doctrine\DBAL\Logging\SQLLogger;
 
-final class Auditor implements SQLLogger {
+final class Auditor implements SQLLogger
+{
     /**
      * Executed SQL queries with the following keys in each inner object:
      *
@@ -83,5 +84,4 @@ final class Auditor implements SQLLogger {
         auditSQLEvent($sql, true, $params);
         unset($this->queries[$this->currentQueryIndex]);
     }
-
 }

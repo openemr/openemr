@@ -34,7 +34,7 @@ function patient_data_view_model(pname,pid,pubpid,str_dob)
     self.pubpid=ko.observable(pubpid);
     self.str_dob=ko.observable(str_dob);
     self.patient_picture=ko.computed(function(){
-      return '/openemr/controller.php' +
+      return webroot_url + '/controller.php' +
              '?document&retrieve' +
              '&patient_id=' + pubpid +
              '&document_id=-1' +

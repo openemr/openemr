@@ -37,8 +37,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] !
 }
 
 /*		Editing existing facility					*/
-if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] == "admin_facility")
-{
+if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] == "admin_facility") {
     $newFacility = array(
       "fid" => trim(isset($_POST["fid"]) ? $_POST["fid"] : ''),
       "name" => trim(isset($_POST["facility"]) ? $_POST["facility"] : ''),
@@ -114,8 +113,8 @@ $(document).ready(function(){
 <div>
     <div>
     <table><tr><td>
-        <b><?php xl('Facilities','e'); ?></b>&nbsp;</td><td>
-         <a href="facilities_add.php" class="iframe addfac_modal css_button"><span><?php xl('Add','e');?></span></a>
+        <b><?php xl('Facilities', 'e'); ?></b>&nbsp;</td><td>
+         <a href="facilities_add.php" class="iframe addfac_modal css_button"><span><?php xl('Add', 'e');?></span></a>
          </td></tr>
     </table>
     </div>
@@ -123,25 +122,35 @@ $(document).ready(function(){
         <div>
 <table cellpadding="1" cellspacing="0" class="showborder">
     <tr class="showborder_head" height="22">
-        <th style="border-style:1px solid #000" width="140px"><?php xl('Name','e'); ?></th>
-        <th style="border-style:1px solid #000" width="320px"><?php xl('Address','e'); ?></th>
-        <th style="border-style:1px solid #000"><?php xl('Phone','e'); ?></th>
+        <th style="border-style:1px solid #000" width="140px"><?php xl('Name', 'e'); ?></th>
+        <th style="border-style:1px solid #000" width="320px"><?php xl('Address', 'e'); ?></th>
+        <th style="border-style:1px solid #000"><?php xl('Phone', 'e'); ?></th>
     </tr>
         <?php
         $fres = 0;
         $fres = $facilityService->getAll();
         if ($fres) {
             $result2 = array();
-            for ($iter3 = 0; $iter3 < sizeof($fres); $iter3++)
-            $result2[$iter3] = $fres[$iter3];
-            foreach($result2 as $iter3) {
+            for ($iter3 = 0; $iter3 < sizeof($fres); $iter3++) {
+                $result2[$iter3] = $fres[$iter3];
+            }
+
+            foreach ($result2 as $iter3) {
                 $varstreet="";//these are assigned conditionally below,blank assignment is done so that old values doesn't get propagated to next level.
                 $varcity="";
                 $varstate="";
                 $varstreet=$iter3["street"];
-                if ($iter3["street"]!="")$varstreet=$iter3["street"].",";
-                if ($iter3["city"]!="")$varcity=$iter3["city"].",";
-                if ($iter3["state"]!="")$varstate=$iter3["state"].",";
+                if ($iter3["street"]!="") {
+                    $varstreet=$iter3["street"].",";
+                }
+
+                if ($iter3["city"]!="") {
+                    $varcity=$iter3["city"].",";
+                }
+
+                if ($iter3["state"]!="") {
+                    $varstate=$iter3["state"].",";
+                }
         ?>
       <tr height="22">
          <td valign="top" class="text"><b><a href="facility_admin.php?fid=<?php echo $iter3["id"];?>" class="iframe medium_modal"><span><?php echo htmlspecialchars($iter3["name"]);?></span></a></b>&nbsp;</td>
@@ -151,13 +160,13 @@ $(document).ready(function(){
     <?php
             }
         }
-        if (count($result2)<=0)
-         {?>
+
+        if (count($result2)<=0) {?>
          <tr height="25">
-               <td colspan="3"  style="text-align:center;font-weight:bold;"> <?php echo xl( "Currently there are no facilities." ); ?></td>
+               <td colspan="3"  style="text-align:center;font-weight:bold;"> <?php echo xl("Currently there are no facilities."); ?></td>
     </tr>
-                <?php }
-?>
+        <?php
+        } ?>
     </table>
         </div>
     </div>
