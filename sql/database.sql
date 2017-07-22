@@ -3482,7 +3482,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, to
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('apptstat','$'       ,'$ Coding done'       ,60,0,'C0FF96|0');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('apptstat','%'       ,'% Canceled < 24h'    ,65,0,'BFBFBF|0');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('apptstat','^'       ,'^ Pending'           ,70,0,'FEFDCF|0');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, activity) VALUES ('apptstat','AVM'     ,'AVM Confirmed'       ,80,0,'F0FFE8|0',1)
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, activity) VALUES ('apptstat','AVM'     ,'AVM Confirmed'       ,80,0,'F0FFE8|0',1);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, activity) VALUES ('apptstat','SMS'     ,'SMS Confirmed'       ,85,0,'F0FFE8|0',1);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, activity) VALUES ('apptstat','EMAIL'   ,'EMAIL Confimed'      ,90,0,'FFEBE3|0',1);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, activity) VALUES ('apptstat','CALL'    ,'Callback requested'  ,95,0,'FFDBE2|5',1);
