@@ -67,7 +67,7 @@ a:hover {
   font-size: 0.9em;
 }
 
-.alert {
+.alert-custom {
   background-color: #FF0000 !important;
   color: #fff !important;
 }
@@ -1492,7 +1492,7 @@ table.dataTable#therapy_groups_list tbody td{
     padding-bottom: 55px;
 }
 
-.alert-danger {
+.alert-danger-custom {
   background-color: #FF0000 !important;
   color: #fff !important;
 }

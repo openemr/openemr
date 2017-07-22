@@ -29,7 +29,7 @@ $newPass=$_REQUEST['newPass'];
 $newPass2=$_REQUEST['newPass2'];
 
 if ($newPass!=$newPass2) {
-    echo xlt("Passwords Don't match!");
+    echo "<div class='alert alert-danger'>" . xlt("Passwords Don't match!") . "</div>";
     exit;
 }
 
