@@ -195,8 +195,7 @@ $logged_in = $MedEx->login();
             </div>
             <?php
             switch ($task) {
-                case "add" :
-                {
+                case "add":
                     // Add a new message for a specific patient; the message is documented in Patient Notes.
                     // Add a new message; it's treated as a new note in Patient Notes.
                     $note = $_POST['note'];
@@ -229,9 +228,9 @@ $logged_in = $MedEx->login();
                             addPnote($reply_to, $note, $userauthorized, '1', $form_note_type, $assigned_to, '', $form_message_status);
                         }
                     }
-                } break;
+                    break;
                 case "savePatient":
-                case "save" : {
+                case "save":
                     // Update alert.
                     $noteid = $_POST['noteid'];
                     $form_message_status = $_POST['form_message_status'];
@@ -245,8 +244,8 @@ $logged_in = $MedEx->login();
                     $note = $_POST['note'];
                     $title = $_POST['form_note_type'];
                     $reply_to = $_POST['reply_to'];
-                }
-                case "edit" : {
+                    break;
+                case "edit":
                     if ($noteid == "") {
                         $noteid = $_GET['noteid'];
                     }
@@ -262,15 +261,15 @@ $logged_in = $MedEx->login();
                         }
                         $form_message_status = $result['message_status'];
                     }
-                } break;
-                case "delete" : {
+                    break;
+                case "delete":
                     // Delete selected message(s) from the Messages box (only).
                     $delete_id = $_POST['delete_id'];
                     for ($i = 0; $i < count($delete_id); $i++) {
                         deletePnote($delete_id[$i]);
                         newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id ".$delete_id[$i]);
                     }
-                } break;
+                    break;
             }
             if ($task == "addnew" or $task == "edit") {
               // Display the Messages page layout.
