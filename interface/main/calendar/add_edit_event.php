@@ -1430,10 +1430,7 @@ if ($_GET['prov']==true) {
         </td>
         <td width='1%' nowrap>
             &nbsp;&nbsp;
-            <input   type='radio' name='form_allday' onclick='set_allday()' value='1' id='rballday1'
-            <?php if ($thisduration == 1440) {
-                echo "checked ";
-} ?>/>
+            <input type='radio' name='form_allday' onclick='set_allday()' value='1' id='rballday1'<?php echo ($thisduration == 1440) ? " checked" : ""; ?>/>
         </td>
         <td colspan='2' nowrap id='tdallday1'>
             <?php echo xlt('All day event'); ?>
@@ -1451,9 +1448,7 @@ if ($_GET['prov']==true) {
         </td>
         <td nowrap>
             &nbsp;&nbsp;
-            <input   type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2' <?php if ($thisduration != 1440) {
-                echo "checked ";
-} ?>/>
+            <input type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2'<?php echo ($thisduration != 1440) ? " checked " : ""; ?>/>
         </td>
         <td width='1%' nowrap id='tdallday2'>
             <?php echo xlt('Time'); ?>
@@ -1467,9 +1462,7 @@ if ($_GET['prov']==true) {
             </span>
             <select   name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
                 <option value='1'><?php echo xlt('AM'); ?></option>
-                <option value='2'<?php if ($startampm == '2') {
-                    echo " selected";
-} ?>><?php echo xlt('PM'); ?></option>
+                <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
             </select>
         </td>
     </tr>
@@ -1556,7 +1549,8 @@ if ($_GET['prov']==true) {
      </td>
      <td colspan='3' nowrap style='font-size:8pt'>
       <span class="infobox">
-        <?php foreach ($patienttitle as $value) {
+        <?php
+        foreach ($patienttitle as $value) {
             if ($value != "") {
                 echo text(trim($value));
             }
@@ -1564,7 +1558,7 @@ if ($_GET['prov']==true) {
             if (count($patienttitle) > 1) {
                 echo "<br />";
             }
-}
+        }
         ?>
       </span>
      </td>
@@ -1585,7 +1579,8 @@ if ($_GET['group']==true &&  $have_group_global_enabled) {
   </td>
   <td colspan='3' nowrap style='font-size:8pt'>
    <span class="infobox">
-    <?php foreach ($patienttitle as $value) {
+    <?php
+    foreach ($patienttitle as $value) {
         if ($value != "") {
               echo trim($value);
         }
@@ -1593,17 +1588,18 @@ if ($_GET['group']==true &&  $have_group_global_enabled) {
         if (count($patienttitle) > 1) {
               echo "<br />";
         }
-}
+    }
     ?>
    </span>
   </td>
  </tr>
-    <?php
+<?php
 }
-    ?>
+?>
  <tr>
   <td nowrap>
-   <b><?php if ($_GET['group']==true) {
+   <b>
+<?php if ($_GET['group']==true) {
         echo xlt('Coordinating Counselors');
 } else {
     echo xlt('Provider');
@@ -1765,10 +1761,8 @@ if ($GLOBALS['select_multi_providers']) {
       repeating mechanism is being used, and load settings accordingly.
       */
         ?>
-   <input   type='checkbox' name='form_repeat' id="form_repeat" onclick='set_repeat(this)' value='1'<?php if (isRegularRepeat($repeats)) {
-        echo " checked";
-} ?>/>
-   <input   type='hidden' name='form_repeat_exdate' id='form_repeat_exdate' value='<?php echo attr($repeatexdate); ?>' /> <!-- dates excluded from the repeat -->
+   <input type='checkbox' name='form_repeat' id="form_repeat" onclick='set_repeat(this)' value='1'<?php echo (isRegularRepeat($repeats)) ? " checked" : "";?>/>
+   <input type='hidden' name='form_repeat_exdate' id='form_repeat_exdate' value='<?php echo attr($repeatexdate); ?>' /> <!-- dates excluded from the repeat -->
   </td>
   <td nowrap id='tdrepeat1'><?php echo xlt('Repeats'); ?>
   </td>
@@ -1816,9 +1810,7 @@ foreach (array(0 => xl('day') , 4 => xl('workday'), 1 => xl('week'), 2 => xl('mo
 <tr id="days_every_week_row">
     <td></td>
     <td></td>
-    <td><input    type='checkbox' id='days_every_week' name='days_every_week' onclick='set_days_every_week()' <?php if (isDaysEveryWeek($repeats)) {
-        echo " checked";
-} ?>/></td>
+    <td><input type='checkbox' id='days_every_week' name='days_every_week' onclick='set_days_every_week()' <?php echo (isDaysEveryWeek($repeats)) ? " checked" : ""; ?>/></td>
     <td id="days_label"><?php echo xlt('Days Of Week') . ": "; ?></td>
     <td id="days">
         <?php
@@ -1949,9 +1941,7 @@ if ($repeatexdate != "") {
 <?php } ?>
 
 &nbsp;
-<input type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete');?>'<?php if (!$eid) {
-    echo " disabled";
-} ?> />
+<input type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete');?>'<?php echo (!$eid) ? " disabled" : "";?> />
 &nbsp;
 <input type='button' id='cancel' value='<?php echo xla('Cancel');?>' />
 &nbsp;
