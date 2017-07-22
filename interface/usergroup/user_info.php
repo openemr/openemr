@@ -2,19 +2,21 @@
 /**
  * User password change tool
  *
- * @package     OpenEMR
- * @link        http://www.open-emr.org
- * @author      Roberto Vasquez <robertogagliotta@gmail.com>
- * @copyright   Copyright  (C) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
- * @license     https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
- *
-*/
-include_once("../globals.php");
-include_once("$srcdir/auth.inc");
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
+ */
+
+require_once("../globals.php");
+require_once("$srcdir/auth.inc");
 
 use OpenEMR\Core\Header;
 
-if($GLOBALS['use_active_directory']) {
+if ($GLOBALS['use_active_directory']) {
     exit();
 }
 ?>
@@ -58,7 +60,7 @@ function update_password()
 <?php
 
 $ip=$_SERVER['REMOTE_ADDR'];
-$res = sqlStatement("select fname,lname,username from users where id=?",array($_SESSION["authId"]));
+$res = sqlStatement("select fname,lname,username from users where id=?", array($_SESSION["authId"]));
 $row = sqlFetchArray($res);
       $iter=$row;
 ?>
@@ -72,8 +74,8 @@ $row = sqlFetchArray($res);
    </div>
    <div class="row">
       <div class="col-xs-12">
-        <div class='text-primary' id="display_msg"></div>
-      </div> 
+        <div id="display_msg"></div>
+      </div>
    </div>
 
   <div class="row">
@@ -115,16 +117,13 @@ $row = sqlFetchArray($res);
               <button type="Submit" class='btn btn-default btn-save'><?php echo xlt('Save Changes'); ?></button>
            </div>
         </div>
+        </form>
      </div>
   </div>
 </div>
 
-
-</FORM>
-
-<br><br>
-</BODY>
-</HTML>
+</body>
+</html>
 
 <?php
 //  da39a3ee5e6b4b0d3255bfef95601890afd80709 == blank
