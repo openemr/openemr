@@ -32,7 +32,9 @@ $alertmsg = '';
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 
 <script src="checkpwd_validation.js" type="text/javascript"></script>
-
+<!-- new password verification dialog -->
+<link href = "<?php echo $GLOBALS['webroot'] ?>/library/css/jquery-ui.css" rel = "stylesheet">
+<script src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-dialog-ui.js"></script>
 <!-- validation library -->
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
 <?php    $use_validate_js = 1;?>
@@ -148,10 +150,12 @@ function submitform() {
       return false;
    }
     <?php } // End erx_enable only include block?>
-
-    document.forms[0].submit();
-    parent.$.fn.fancybox.close();
-
+  //New password dialog                                                                                          
+   if($('#password').val()==$('#confirmpassword').val())    
+       $( "#admin_dialog" ).dialog( "open" ); 
+   else
+         return false;
+   ////document.forms[0].submit();
 }
 function authorized_clicked() {
      var f = document.forms[0];
@@ -160,11 +164,91 @@ function authorized_clicked() {
 }
 
 </script>
+<!--- password check with confirm password -->
+<script>
+$(document).ready(function()
+{
+	 $( "#admin_dialog" ).dialog({
+         autoOpen: false, 
+         modal: true,
+         buttons: {
+            OK: function(){
+
+                 if($('#adminPass_new').val().trim()!='')
+
+                    {
+                     $(this).dialog("close");
+
+                     document.forms[0].submit();
+                     parent.$.fn.fancybox.close();
+                     } 
+                 else 
+                     {
+                     $('#adminPass_new').css('border','1px solid red');
+
+                 }
+            }
+         },
+      });
+
+     $('#adminPass_new').keyup(function()
+    		 {
+		 $('#adminpass').val($(this).val());
+    		 });
+	
+$('#error_pass').hide();
+
+
+$('.checkpassword').keyup(function()
+{
+
+if($('#password').val()!=$('#confirmpassword').val() && $('#confirmpassword').val().trim() !='')
+{
+$('#error_pass').show();
+}
+else
+{
+$('#error_pass').hide();
+
+}
+
+});
+
+});
+
+</script>
 <style type="text/css">
   .physician_type_class{
     width: 120px !important;
   }
+.errortext
+{
+color: red;
+}
 </style>
+    <style>
+         .ui-widget-header,.ui-state-default, .ui-button {
+            background:rgb(16,80,182);
+            border: 1px solid rgb(16,80,182);
+            color: #FFFFFF;
+            font-weight: bold;
+         }
+         .ui-state-default
+         {
+          background:rgb(16,80,182);
+            border: 1px solid rgb(16,80,182);
+            color: #FFFFFF;
+            font-weight: bold;
+         }
+       .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default
+       {
+        background:rgb(16,80,182);
+            border: 1px solid rgb(16,80,182);
+            color: #FFFFFF;
+            font-weight: bold;
+       }
+         
+      </style>
 </head>
 <body class="body_top">
 <table><tr><td>
@@ -189,17 +273,26 @@ function authorized_clicked() {
 <span class="bold">&nbsp;</span>
 <table border=0 cellpadding=0 cellspacing=0 style="width:600px;">
 <tr>
+<td style="width:150px;"><span class="text"></td><td  style="width:150px;"></td>
+<td colspan='2'><span class="mandatory errortext" id='error_pass'><small>Password Doesn't Match !!!&nbsp;*</small></span></td>
+</tr>
+<tr>
 <td style="width:150px;"><span class="text"><?php xl('Username', 'e'); ?>: </span></td><td  style="width:220px;"><input type=entry name="rumple" style="width:120px;"> <span class="mandatory">&nbsp;*</span></td>
     <?php if (!$GLOBALS['use_active_directory']) { ?>
-<td style="width:150px;"><span class="text"><?php xl('Password', 'e'); ?>: </span></td><td style="width:250px;"><input type="password" style="width:120px;" name="stiltskin"><span class="mandatory">&nbsp;*</span></td>
+<td style="width:150px;"><span class="text"><?php xl('Password', 'e'); ?>: </span></td><td style="width:250px;"><input type="password" style="width:120px;" name="stiltskin" class='checkpassword' id='password'><span class="mandatory">&nbsp;*</span></td>
     <?php } else { ?>
         <td> <input type="hidden" value="124" name="stiltskin" /></td>
     <?php } ?>
 </tr>
 <tr>
+<td style="width:150px;"></td><td  style="width:220px;"></td>
+<td style="width:150px;"><span class="text"><?php xl('Confirm Password','e'); ?>: </span></td><td style="width:250px;"><input type="password" style="width:120px;" id="confirmpassword" class='checkpassword'  name="confirmpassword"><span class="mandatory">&nbsp;*</span></td>
+</tr>
+<!--new password dialog change -->
+<tr style='display:none'>
     <td style="width:150px;"></td><td  style="width:220px;"></span></td>
     <TD style="width:200px;"><span class=text><?php xl('Your Password', 'e'); ?>: </span></TD>
-    <TD class='text' style="width:280px;"><input type='password' name=adminPass style="width:120px;"  value="" autocomplete='off'><font class="mandatory">*</font></TD>
+    <TD class='text' style="width:280px;"><input type='password' name=adminPass id="adminpass" style="width:120px;"  value="" autocomplete='off'><font class="mandatory">*</font></TD>
 
 </tr>
 <tr>
@@ -487,3 +580,8 @@ $(document).ready(function(){
 
 </body>
 </html>
+
+<!-- password dialog box -->
+<div id = "admin_dialog" title = "Enter Your Password">
+<input type='password' name='adminPass_new' id='adminPass_new' value='' style="width:100%;height:25px">
+</div>

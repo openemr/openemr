@@ -40,6 +40,9 @@ $iter = $result[0];
 <script type="text/javascript" src="../../library/js/common.js"></script>
 
 <script src="checkpwd_validation.js" type="text/javascript"></script>
+<!-- new password verification dialog -->
+<link href = "<?php echo $GLOBALS['webroot'] ?>/library/css/jquery-ui.css" rel = "stylesheet">
+<script src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-dialog-ui.js"></script>
 
 <!-- validation library -->
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
@@ -165,8 +168,10 @@ function submitform() {
     }
     <?php } ?>
     if(flag == 0){
-                    document.forms[0].submit();
-                    parent.$.fn.fancybox.close();
+    	//new password dialog changes
+		 $( "#admin_dialog" ).dialog( "open" );
+		   //document.forms[0].submit();
+           //parent.$.fn.fancybox.close(); 
     }
 }
 //Getting the list of selected item in ACL
@@ -192,11 +197,67 @@ function authorized_clicked() {
 }
 
 </script>
+	<script>
+	$(document).ready(function(){
+	
+	 $( "#admin_dialog" ).dialog({
+         autoOpen: false, 
+         modal: true,
+         buttons: {
+            OK: function(){
+
+                 if($('#adminPass_new').val().trim()!='')
+
+                    {
+                     $(this).dialog("close");
+
+                     document.forms[0].submit();
+                     parent.$.fn.fancybox.close();
+                     } 
+                 else 
+                     {
+                     $('#adminPass_new').css('border','1px solid red');
+
+                 }
+            }
+         },
+      });
+
+     $('#adminPass_new').keyup(function()
+    		 {
+		 $('#adminPass').val($(this).val());
+    		 });
+     });
+
+	</script>
 <style type="text/css">
   .physician_type_class{
     width: 150px !important;
   }
 </style>
+ <style>
+         .ui-widget-header,.ui-state-default, .ui-button {
+            background:rgb(16,80,182);
+            border: 1px solid rgb(16,80,182);
+            color: #FFFFFF;
+            font-weight: bold;
+         }
+         .ui-state-default
+         {
+          background:rgb(16,80,182);
+            border: 1px solid rgb(16,80,182);
+            color: #FFFFFF;
+            font-weight: bold;
+         }
+       .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default
+       {
+        background:rgb(16,80,182);
+            border: 1px solid rgb(16,80,182);
+            color: #FFFFFF;
+            font-weight: bold;
+       }
+         
+      </style>
 </head>
 <body class="body_top">
 <table><tr><td>
@@ -242,17 +303,20 @@ for ($i=0; $i<$bg_count; $i++) {
 <TR>
     <TD style="width:180px;"><span class=text><?php xl('Username', 'e'); ?>: </span></TD>
     <TD style="width:270px;"><input type=entry name=username style="width:150px;" value="<?php echo $iter["username"]; ?>" disabled></td>
-    <?php if (!$GLOBALS['use_active_directory']) { ?>
-        <TD style="width:200px;"><span class=text><?php xl('Your Password', 'e'); ?>: </span></TD>
-        <TD class='text' style="width:280px;"><input type='password' name=adminPass style="width:150px;"  value="" autocomplete='off'><font class="mandatory">*</font></TD>
+    <?php if (!$GLOBALS['use_active_directory']) { ?>      
+        <!-- new password dialog changes -->
+        <TD style="width:200px;"><span class=text><?php xl('User\'s New Password', 'e'); ?>: </span></TD>
+       <TD class='text' style="width:280px;">    <input type=text name=clearPass style="width:150px;"  value=""><font class="mandatory">*</font></td>
+       
     <?php } ?>
 </TR>
     <?php if (!$GLOBALS['use_active_directory']) { ?>
-<TR>
+       <!-- new password dialog changes -->
+<TR style='display: none'>
     <TD style="width:180px;"><span class=text></span></TD>
     <TD style="width:270px;"></td>
-    <TD style="width:200px;"><span class=text><?php xl('User\'s New Password', 'e'); ?>: </span></TD>
-    <TD class='text' style="width:280px;">    <input type=text name=clearPass style="width:150px;"  value=""><font class="mandatory">*</font></td>
+      <TD style="width:200px;"><span class=text><?php xl('Your Password', 'e'); ?>: </span></TD>
+     <TD class='text' style="width:280px;"><input type='password' name=adminPass id='adminPass' style="width:150px;"  value="" autocomplete='off'><font class="mandatory">*</font></TD>
 </TR>
     <?php } ?>
 
@@ -473,3 +537,8 @@ $(document).ready(function(){
 <?php
 //  d41d8cd98f00b204e9800998ecf8427e == blank
 ?>
+<!-- password dialog box -->
+<div id = "admin_dialog" title = "Enter Your Password">
+<input type='password' name='adminPass_new' id='adminPass_new' value='' style="width:100%;height:25px">
+
+</div>
