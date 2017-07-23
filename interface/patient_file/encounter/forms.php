@@ -668,6 +668,18 @@ $providerNameRes = getProviderName($providerIDres);
 <?php
 $pass_sens_squad = true;
 
+//fetch acl for category of given encounter
+$pc_catid = fetchCategoryIdByEncounter($encounter);
+$postCalendarCategoryACO = fetchPostCalendarCategoryACO($pc_catid);
+if ($postCalendarCategoryACO) {
+    $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
+    $authPostCalendarCategory = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
+    $authPostCalendarCategoryWrite = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1], '', 'write');
+} else { // if no aco is set for category
+    $authPostCalendarCategory = true;
+    $authPostCalendarCategoryWrite = true;
+}
+
 if ($attendant_type == 'pid' && is_numeric($pid)) {
     echo '<span class="title">' . oeFormatShortDate($encounter_date) . " " . xlt("Encounter") . '</span>';
 
@@ -676,18 +688,6 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     echo htmlspecialchars(xl('for', '', ' ', ' ') . $result['fname'] . " " . $result['lname']);
     if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
         $pass_sens_squad = false;
-    }
-
-    //fetch acl for category of given encounter
-    $pc_catid = fetchCategoryIdByEncounter($encounter);
-    $postCalendarCategoryACO = fetchPostCalendarCategoryACO($pc_catid);
-    if ($postCalendarCategoryACO) {
-        $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
-        $authPostCalendarCategory = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
-        $authPostCalendarCategoryWrite = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1], '', 'write');
-    } else { // if no aco is set for category
-        $authPostCalendarCategory = true;
-        $authPostCalendarCategoryWrite = true;
     }
 
     // Check for no access to the encounter's sensitivity level.
