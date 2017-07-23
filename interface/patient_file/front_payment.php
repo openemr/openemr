@@ -371,13 +371,13 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
         $timestamp = decorateString('....-..-.. ..:..:..', $_GET['time']);
     }
 
-  // Get details for what we guess is the primary facility.
+    // Get details for what we guess is the primary facility.
     $frow = $facilityService->getPrimaryBusinessEntity(array("useLegacyImplementation" => true));
 
-  // Get the patient's name and chart number.
+    // Get the patient's name and chart number.
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
 
-  // Re-fetch payment info.
+    // Re-fetch payment info.
     $payrow = sqlQuery("SELECT " .
     "SUM(amount1) AS amount1, " .
     "SUM(amount2) AS amount2, " .
@@ -390,18 +390,20 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
     "FROM payments WHERE " .
     "pid = ? AND dtime = ?", array($form_pid,$timestamp));
 
-  // Create key for deleting, just in case.
+    // Create key for deleting, just in case.
     $ref_id = ($_REQUEST['radio_type_of_payment']=='copay') ? $session_id : $payment_id ;
     $payment_key = $form_pid . '.' . preg_replace('/[^0-9]/', '', $timestamp).'.'.$ref_id;
 
-  // get facility from encounter
-    $tmprow = sqlQuery("
-    SELECT facility_id
-    FROM form_encounter
-    WHERE encounter = ?", array($payrow['encounter']));
-    $frow = $facilityService->getById($tmprow['facility_id']);
+    if ($_REQUEST['radio_type_of_payment'] != 'pre_payment') {
+        // get facility from encounter
+        $tmprow = sqlQuery("SELECT `facility_id` FROM `form_encounter` WHERE `encounter` = ?", array($payrow['encounter']));
+        $frow = $facilityService->getById($tmprow['facility_id']);
+    } else {
+        // if pre_payment, then no encounter yet, so get main office address
+        $frow = $facilityService->getPrimaryBillingLocation();
+    }
 
-  // Now proceed with printing the receipt.
+    // Now proceed with printing the receipt.
 ?>
 
 <title><?php echo xlt('Receipt for Payment'); ?></title>
@@ -482,7 +484,15 @@ $(document).ready(function() {
   <td><?php echo text(oeFormatMoney($payrow['amount1'])) ?></td>
  </tr>
  <tr>
-  <td><?php echo xlt('Amount for Past Balance'); ?>:</td>
+  <td>
+    <?php
+    if ($_REQUEST['radio_type_of_payment']=='pre_payment') {
+        echo xlt('Pre-payment Amount');
+    } else {
+        echo xlt('Amount for Past Balance');
+    }
+    ?>
+  :</td>
   <td><?php echo text(oeFormatMoney($payrow['amount2'])) ?></td>
  </tr>
  <tr>
