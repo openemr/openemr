@@ -1,4 +1,13 @@
 <?php
+/**
+ * Patient report
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 require_once("../../globals.php");
 require_once("$srcdir/lists.inc");
@@ -23,17 +32,16 @@ if ($GLOBALS['gbl_portal_cms_enable']) {
 ?>
 <html>
 <head>
+<title><?php echo xlt("Patient Reports"); ?></title>
+
 <?php html_header_show();?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../../library/textformat.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
-<!-- include jQuery support -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
+<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language='JavaScript'>
 
@@ -86,30 +94,16 @@ function show_date_fun(){
         <span class='bold'><?php xl('Start Date', 'e');?>: </span>
       </td>
       <td>
-        <input type='text' size='10' name='Start' id='Start'
-         onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+        <input type='text' class='datepicker' size='10' name='Start' id='Start'
          title='<?php xl('yyyy-mm-dd', 'e'); ?>' />
-        <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-         id='img_start' border='0' alt='[?]' style='cursor:pointer'
-         title='<?php xl('Click here to choose a date', 'e'); ?>' >
-        <script LANGUAGE="JavaScript">
-         Calendar.setup({inputField:"Start", ifFormat:"%Y-%m-%d", button:"img_start"});
-        </script>
       </td>
       <td>
         &nbsp;
         <span class='bold'><?php xl('End Date', 'e');?>: </span>
       </td>
       <td>
-        <input type='text' size='10' name='End' id='End'
-         onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+        <input type='text' class='datepicker' size='10' name='End' id='End'
          title='<?php xl('yyyy-mm-dd', 'e'); ?>' />
-        <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-         id='img_end' border='0' alt='[?]' style='cursor:pointer'
-         title='<?php xl('Click here to choose a date', 'e'); ?>' >
-        <script LANGUAGE="JavaScript">
-         Calendar.setup({inputField:"End", ifFormat:"%Y-%m-%d", button:"img_end"});
-        </script>
       </td>
     </tr>
   </table>
@@ -531,6 +525,14 @@ while ($result && !$result->EOF) {
 
 // jQuery stuff to make the page a little easier to use
 $(document).ready(function(){
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+
     $(".genreport").click(function() { top.restoreSession(); document.report_form.pdf.value = 0; $("#report_form").submit(); });
     $(".genpdfrep").click(function() { top.restoreSession(); document.report_form.pdf.value = 1; $("#report_form").submit(); });
     $(".genportal").click(function() { top.restoreSession(); document.report_form.pdf.value = 2; $("#report_form").submit(); });
