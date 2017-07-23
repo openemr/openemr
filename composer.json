@@ -13,7 +13,7 @@
 
         "mpdf/mpdf": "6.1.3",
         "adldap2/adldap2": "7.0.4",
-        "smarty/smarty": "2.6.29",
+        "smarty/smarty": "2.6.30",
         "adodb/adodb-php": "5.20.9",
         "phpmailer/phpmailer": "5.2.16",
         "rospdf/pdf-php": "0.12.22",
