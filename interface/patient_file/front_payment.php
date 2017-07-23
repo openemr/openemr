@@ -401,6 +401,11 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
     WHERE encounter = ?", array($payrow['encounter']));
     $frow = $facilityService->getById($tmprow['facility_id']);
 
+ if($_REQUEST['radio_type_of_payment']=='pre_payment'){
+  // if pre_payment is being made then use the main office address added by Sherwin 7/21/2017
+   $frow = sqlQuery("SELECT * FROM `facility` WHERE name != '' LIMIT 1");
+   }
+
   // Now proceed with printing the receipt.
 ?>
 
@@ -482,7 +487,7 @@ $(document).ready(function() {
   <td><?php echo text(oeFormatMoney($payrow['amount1'])) ?></td>
  </tr>
  <tr>
-  <td><?php echo xlt('Amount for Past Balance'); ?>:</td>
+  <td><?php if($_REQUEST['radio_type_of_payment']=='pre_payment'){echo xlt('Pre-payment Amount');} else {echo xlt('Amount for Past Balance');} //Added by Sherwin 7/21/2017  ?>:</td>
   <td><?php echo text(oeFormatMoney($payrow['amount2'])) ?></td>
  </tr>
  <tr>
