@@ -1228,7 +1228,7 @@ if ($GLOBALS['ippf_specific']) { ?>
                     <label for="newlistname"
                            class="control-label"><?php xl('List Name', 'e'); ?></label>
                     <input type="text" size="20" class="form-control"
-                           maxlength="30" name="newlistname" id="newlistname">
+                           maxlength="100" name="newlistname" id="newlistname">
                     <input type="hidden" name="formaction" value="addlist">
 
                 </div>

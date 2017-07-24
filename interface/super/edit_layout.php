@@ -565,7 +565,7 @@ function writeFieldLine($linedata)
 
         echo "<input type='text' name='fld[$fld_line_no][list_id]'  id='fld[$fld_line_no][list_id]' value='" .
         htmlspecialchars($linedata['list_id'], ENT_QUOTES) . "'".$type.
-        " size='6' maxlength='30' class='optin listid' style='width:100%;cursor:pointer'".
+        " size='6' maxlength='100' class='optin listid' style='width:100%;cursor:pointer'".
         "title='". xl('Choose list') . "' />";
     
         echo "<select name='fld[$fld_line_no][contextName]' id='fld[$fld_line_no][contextName]' ".$disp.">";

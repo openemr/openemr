@@ -2707,14 +2707,14 @@ CREATE TABLE `layout_options` (
   `uor` tinyint(1) NOT NULL default '1',
   `fld_length` int(11) NOT NULL default '15',
   `max_length` int(11) NOT NULL default '0',
-  `list_id` varchar(31) NOT NULL default '',
+  `list_id` varchar(100) NOT NULL default '',
   `titlecols` tinyint(3) NOT NULL default '1',
   `datacols` tinyint(3) NOT NULL default '1',
   `default_value` varchar(255) NOT NULL default '',
   `edit_options` varchar(36) NOT NULL default '',
   `description` text,
   `fld_rows` int(11) NOT NULL default '0',
-  `list_backup_id` varchar(31) NOT NULL default '',
+  `list_backup_id` varchar(100) NOT NULL default '',
   `source` char(1) NOT NULL default 'F' COMMENT 'F=Form, D=Demographics, H=History, E=Encounter',
   `conditions` text COMMENT 'serialized array of skip conditions',
   `validation` varchar(100) default NULL,
@@ -2903,8 +2903,8 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_name`,`title`,`seq`,`d
 
 DROP TABLE IF EXISTS `list_options`;
 CREATE TABLE `list_options` (
-  `list_id` varchar(31) NOT NULL default '',
-  `option_id` varchar(31) NOT NULL default '',
+  `list_id` varchar(100) NOT NULL default '',
+  `option_id` varchar(100) NOT NULL default '',
   `title` varchar(255) NOT NULL default '',
   `seq` int(11) NOT NULL default '0',
   `is_default` tinyint(1) NOT NULL default '0',
