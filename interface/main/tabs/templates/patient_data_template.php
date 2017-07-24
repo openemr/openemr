@@ -13,6 +13,16 @@
  * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
  */
 ?>
+<style>
+<!--
+.enc-sel {
+    margin-left: 20px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+}
+-->
+</style>
 <script type="text/html" id="patient-data-template">
     <div>
         <span class="patientDataColumn">
@@ -83,14 +93,16 @@
                 </button>
                 <ul class="container dropdown-menu" aria-labelledby="pastEncounters" style="max-width: 400px;">
                     <!-- ko foreach:encounterArray -->
-                    <li class="row">
-						<div class="col-sm-8"><a href="#" data-bind="click:chooseEncounterEvent">
-                            <div class="col-sm-4" data-bind="text:date"></div>
-                            <div class="col-sm-8" data-bind="text:category"></div>
-                        </a></div>
-                        <div class="col-sm-4 pull-right"><a href="#" data-bind="click:reviewEncounterEvent">
-                            <i class="fa fa-rotate-left"></i>&nbsp;<?php echo xlt("Review");?>
-                        </a></div>
+                    <li class="row text-nowrap">
+                        <a href="#" class="col-sm-10 enc-sel" data-bind="click:chooseEncounterEvent">
+                            <span data-bind="text:date"></span>&nbsp;-&nbsp;
+                            <span data-bind="text:category"></span>
+                        </a>
+                        <span style="float: right;padding-right: 20px;">
+                            <a href="#" class="btn btn-xs btn-default" data-bind="click:reviewEncounterEvent" 
+                                title='<?php echo xlt("Review");?>'>
+                            <i class="fa fa-search"></i>
+                        </a></span>
                     </li>
                     <!-- /ko -->
                 </ul>
