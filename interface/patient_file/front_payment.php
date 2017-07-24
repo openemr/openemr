@@ -922,9 +922,7 @@ function make_insurance()
 <body class="body_top" onunload='imclosing()' onLoad="cursor_pointer();">
 <center>
 
-<form method='post' action='front_payment.php<?php if ($payid) {
-    echo "?payid=$payid";
-} ?>'
+<form method='post' action='front_payment.php<?php echo ($payid) ? "?payid=$payid" : ""; ?>'
  onsubmit='return validate();'>
 <input type='hidden' name='form_pid' value='<?php echo attr($pid) ?>' />
 
