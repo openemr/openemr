@@ -1585,6 +1585,7 @@ class Display extends base
      */
     public function show_progress_recall($recall, $events = '', $possibleModalities = '')
     {
+        global $logged_in;
         //Two scenarios: First, appt is made as recall asks. Second, appt is made not for recall reason - recall still needed.
         //We can either require all recalls to be manually deleted or do some automatically...  If manual only,
         //the secretary looking at the board will need to know when they were last seen at least and when next appt is
@@ -1760,13 +1761,13 @@ class Display extends base
                 $show['appt'] = oeFormatShortDate(date('Y-m-d', $phpdate))." @ ".date('g:iA', $phpdate);
                 $show['DONE'] = '1';
             } elseif ($GLOBALS['medex_enable'] == '1') {
-                if ($logged_in = $MedEx->login()) {
+                if ($logged_in) {
                     if ($camps =='0') {
                         $show['status'] = "reddish"; //hey, nothing automatic left to do - manual processing required.
                     } else {
                         $show['status'] = "yellowish"; //no appt yet but something happened!
                     }
-                }
+               }
             } else {
                 $show['status'] = "whitish";
             }
