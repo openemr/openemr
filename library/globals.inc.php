@@ -2483,6 +2483,13 @@ $GLOBALS_METADATA = array(
     //
     'Connectors' => array(
 
+        'medex_enable' => array(
+          xl('Enable MedEx Communication Service'),
+          'bool',                           // data type
+          '0',
+          xl('Enable MedEx Communication Service')
+        ),
+        
         'erx_enable' => array(
             xl('Enable NewCrop eRx Service'),
             'bool',

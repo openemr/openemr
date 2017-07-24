@@ -2,9 +2,9 @@
 /**
  * /library/MedEx/API.php
  *
- * @package OpenEMR
+ * @package MedEx
  * @author MedEx <support@MedExBank.com>
- * @link http://www.open-emr.org
+ * @link http://www.MedExBank.com
  * @copyright Copyright (c) 2017 MedEx <support@MedExBank.com>
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
  */
@@ -756,18 +756,30 @@ class Display extends base
                 </div>
                 <div class="navbar-collapse collapse" id="oer-navbar-collapse-1">
                     <ul class="navbar-nav">
-                        <li class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
-                            <ul class="bgcolor2 dropdown-menu" role="menu">
-                                <?php if ($logged_in) { ?>
-                                 <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class=""><a onclick="tabYourIt('prefs','main/messages/messages.php?go=Preferences');"><?php echo xlt("Preferences"); ?></a></li>
-                                    <?php } else { ?>
-                                <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class="">
-                                    <a href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=setup&stage=1"><?php echo xlt("Setup MedEx"); ?></a></li>
-                                <?php } ?>
-                                <li id="icons" name="icons"><a onclick="doRecallclick_edit('icons');"><?php echo xlt('Icon Chart'); ?></a></li>
-                            </ul>
-                        </li>
+                        <?php
+                        if ($GLOBALS['medex_enable'] == '1') {
+                            ?>
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
+                                <ul class="bgcolor2 dropdown-menu" role="menu">
+                                    <?php 
+                                    if ($logged_in) { 
+                                        ?>
+                                        <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class=""><a onclick="tabYourIt('prefs','main/messages/messages.php?go=Preferences');"><?php echo xlt("Preferences"); ?></a></li>
+                                        <?php 
+                                    } else { 
+                                        ?>
+                                        <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class="">
+                                        <a href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=setup&stage=1"><?php echo xlt("Setup MedEx"); ?></a></li>
+                                        <?php
+                                    } 
+                                    ?>
+                                    <li id="icons" name="icons"><a onclick="doRecallclick_edit('icons');"><?php echo xlt('Icon Chart'); ?></a></li>
+                                </ul>
+                            </li>
+                            <?php
+                        }
+                        ?>
                         
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_msg" role="button" aria-expanded="true"><?php echo xlt("Messages"); ?> </a>
@@ -786,39 +798,34 @@ class Display extends base
                                 <li id="menu_log_msg"> <a onclick="openLogScreen();" > <?php echo xlt("Message Log"); ?></a></li>
                             </ul>
                         </li>
-                    <!--    In ver 1.0 we do not tackle Clinical Reminders, just appt reminders...  
-                        <li class="dropdown" > <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Clinical Reminders"); ?> </a>
-                             <ul class="bgcolor2 dropdown-menu" role="menu">
-                                <li><a id="BUTTON_ApRem_menu" href="<?php echo $GLOBALS['web_root']; ?>/interface/patient_file/reminder/patient_reminders.php?mode=admin&patient_id="> <?php echo xlt("Cl. Reminder Board"); ?></a></li>
-                                <li class="divider"><hr /></li>
-                                <li id="menu_pend_recalls" name="menu_pend_recalls"> <a onclick="goReminderRecall('Recalls');" id="BUTTON_pend_recalls_menu" href="#"> <?php echo xlt("Cl. Reminder Options"); ?></a></li>
-                            <?php if ($logged_in) {
-?>    <li class="divider"><hr /></li>
-                                <li id="menu_pend_recalls" name="menu_pend_recalls"> <a onclick="goReminderRecall('Reminder_Campaigns');" id="BUTTON_pend_recalls_menu" href="#"> <?php echo xlt("Cl. Reminder Campaigns"); ?></a></li>
-                            <?php } ?>
-                            </ul>
-                         </li>
-                        -->
-                        <?php if ($logged_in) { ?>
-                        <li class="dropdown" > <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Appt. Reminders"); ?> </a>
-                             <ul class="bgcolor2 dropdown-menu" role="menu">
-                                <li><a id="BUTTON_ApRem_menu" onclick="tabYourIt('cal','main/main_info.php');"> <?php echo xlt("Calendar"); ?></a></li>
-                                <li class="divider"><hr /></li>
-                                <li id="menu_pend_recalls" name="menu_pend_recalls"> <a id="BUTTON_pend_recalls_menu" onclick="tabYourIt('flb','patient_tracker/patient_tracker.php?skip_timeout_reset=1');"> <?php echo xlt("Flow Board"); ?></a></li>
-                                <li class="divider"><hr /></li>
-                                <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap left' target='_MedEx' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Reminder Campaigns"); ?></a></li>
-                            </ul>
-                         </li>
-                            <?php } ?>
+                        <?php 
+                        if ($logged_in) { 
+                            ?>
+                            <li class="dropdown" > <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Appt. Reminders"); ?> </a>
+                                 <ul class="bgcolor2 dropdown-menu" role="menu">
+                                    <li><a id="BUTTON_ApRem_menu" onclick="tabYourIt('cal','main/main_info.php');"> <?php echo xlt("Calendar"); ?></a></li>
+                                    <li class="divider"><hr /></li>
+                                    <li id="menu_pend_recalls" name="menu_pend_recalls"> <a id="BUTTON_pend_recalls_menu" onclick="tabYourIt('flb','patient_tracker/patient_tracker.php?skip_timeout_reset=1');"> <?php echo xlt("Flow Board"); ?></a></li>
+                                    <li class="divider"><hr /></li>
+                                    <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap left' target='_MedEx' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Reminder Campaigns"); ?></a></li>
+                                </ul>
+                             </li>
+                            <?php 
+                        } 
+                        ?>
                          <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Patient Recalls"); ?> </a>
                             <ul class="bgcolor2 dropdown-menu" role="menu">
                                 <li id="menu_new_recall" name="menu_new_recall"> <a id="BUTTON_new_recall_menu" onclick="tabYourIt('recall','main/messages/messages.php?go=addRecall');"> <?php echo xlt("New Recall"); ?></a></li>
                                 <li id="menu_pend_recalls" name="menu_pend_recalls"> <a  onclick="goReminderRecall('Recalls');" id="BUTTON_pend_recalls_menu" href="#"> <?php echo xlt("Recall Board"); ?></a></li>
-                            <?php if ($logged_in) { ?>
+                            <?php 
+                            if ($logged_in) { 
+                                ?>
                                  <li class="divider"><hr /></li>
                                 <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap left' target='_blank' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Recall Campaigns"); ?></a></li>
-                            <?php } ?>
+                                <?php 
+                            } 
+                            ?>
                             </ul>
                         </li>
                     </ul>
@@ -826,13 +833,20 @@ class Display extends base
             </div>
         </nav>
         <?php
-        $error=$this->MedEx->getLastError();
-        if (!empty($error['ip'])) { ?>
-        <div class="alert alert-danger" style="width:50%;margin:30px auto 5px;font-size:0.9em;text-align:center;">    
-            <?php  echo $error['ip']; ?>
-        </div>
-        <?php   }
+        if ($GLOBALS['medex_enable'] == '1') {
+            $error=$this->MedEx->getLastError();
+            if (!empty($error['ip'])) { 
+                ?>
+                <div class="alert alert-danger" style="width:50%;margin:30px auto 5px;font-size:0.9em;text-align:center;">    
+                <?php  
+                echo $error['ip']; 
+                ?>
+                </div>
+                <?php   
+            }
+        }
     }
+
     public function preferences($prefs = '')
     {
         if (empty($prefs)) {
@@ -1000,7 +1014,20 @@ class Display extends base
     {
         global $MedEx;
         //let's get all the recalls the user requests, or if no dates set (initial state get old and some future)
-        $recalls = $this->get_recalls($_REQUEST['datepicker1'], $_REQUEST['datepicker2']);
+        $from_date = !is_null($_REQUEST['datepicker1']) ? $_REQUEST['datepicker1'] : date("Y-m-d", strtotime('-6 months'));
+        if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
+            $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
+            $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d'), date('Y')+$ptkr_time);
+        } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'M') {
+            $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
+            $ptkr_future_time = mktime(0, 0, 0, date('m')+$ptkr_time, date('d'), date('Y'));
+        } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'D') {
+             $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
+             $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d')+$ptkr_time, date('Y'));
+        }
+        $to_date = date('Y-m-d', $ptkr_future_time);
+    
+        $recalls = $this->get_recalls($from_date, $to_date);
         // if all we don't use MedEx, there is no need to display the progress tabs, all recall processing is manual.
         if (!$logged_in) {
             $reminder_bar = "nodisplay";
@@ -1035,7 +1062,6 @@ class Display extends base
                 return false;
             }
         </script>
-
       <div class="row">
         <div class="col-sm-12">
             <div class="showRecalls" id="show_recalls" style="text-align:center;margin:40 auto;">
@@ -1060,30 +1086,32 @@ class Display extends base
                         }
                         $current_events .=  $icon." ".$event['E_fire_time']." ".xlt('days')." ".xlt($action)."<br />";
                     }
+                    ?>
+                    <div class="borderShadow" style="position:absolute;top:20px;right:10px;width:200px;font-size:0.9em;">
+                        <a class="fa fw fa-plus-square" title="<?php echo xla('Add a New Recall'); ?>" id="BUTTON_new_recall_menu" style="float:left;" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=addRecall"></a>
+                        <b><u>MedEx <?php echo xlt('Recall Schedule'); ?></u></b><br />
+                        <span>
+                            <?php echo $current_events; ?>
+                        </span>
+                    </div>
+                    <?php
+                }
 
-                    $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
-                    while ($fac = sqlFetchArray($fac_sql)) {
-                        $select_facs .= "<option value=".attr($fac['id']).">".text($fac['name'])."</option>\n";
-                        $count_facs++;
+                $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
+                while ($fac = sqlFetchArray($fac_sql)) {
+                    $select_facs .= "<option value=".attr($fac['id']).">".text($fac['name'])."</option>\n";
+                    $count_facs++;
+                }
+                $prov_sql = sqlStatement("SELECT * FROM users WHERE authorized != 0 AND active = 1 ORDER BY lname, fname");
+                while ($prov = sqlFetchArray($prov_sql)) {
+                    $prov_name = $prov['fname']." ".$prov['lname'];
+                    if (!empty($prov['suffix'])) {
+                        $prov_name .= ', '.text($prov['suffix']);
                     }
-                    $prov_sql = sqlStatement("SELECT * FROM users WHERE authorized != 0 AND active = 1 ORDER BY lname, fname");
-                    while ($prov = sqlFetchArray($prov_sql)) {
-                        $prov_name = $prov['fname']." ".$prov['lname'];
-                        if (!empty($prov['suffix'])) {
-                            $prov_name .= ', '.text($prov['suffix']);
-                        }
-                        $select_provs .="<option value=".attr($prov['id']).">".text($prov_name)."</option>\n";
-                        $count_provs++;
-                    }
+                    $select_provs .="<option value=".attr($prov['id']).">".text($prov_name)."</option>\n";
+                    $count_provs++;
+                }
                 ?>
-                <div class="borderShadow" style="position:absolute;top:20px;right:10px;width:200px;font-size:0.9em;">
-                    <a class="fa fw fa-plus-square" title="<?php echo xla('Add a New Recall'); ?>" id="BUTTON_new_recall_menu" style="float:left;" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=addRecall"></a>
-                    <b><u>MedEx <?php echo xlt('Recall Schedule'); ?></u></b><br />
-                    <span>
-                        <?php echo $current_events; ?>
-                    </span>
-                </div>
-                <?php } ?>
                 <div class="title"><?php echo xlt('Recall Board'); ?></div>
                 <div name="div_response" id="div_response"><?php echo xlt('Persons needing a recall, no appt scheduled yet'); ?>.</div>
                 <?php
@@ -1107,29 +1135,9 @@ class Display extends base
                                 echo $select_provs;
                                 ?>
                             </select>
-                            <?php
-                            //adopted from flow board
-                            if ($_REQUEST['datepicker2']) {
-                                $to_date = $_REQUEST['datepicker2'];
-                            } else {
-                                if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
-                                    $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
-                                    $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d'), date('Y')+$ptkr_time);
-                                } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'M') {
-                                    $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
-                                    $ptkr_future_time = mktime(0, 0, 0, date('m')+$ptkr_time, date('d'), date('Y'));
-                                } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'D') {
-                                     $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
-                                     $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d')+$ptkr_time, date('Y'));
-                                }
-                                $to_date = date('Y-m-d', $ptkr_future_time);
-                            }
-                            $from_date = !is_null($_REQUEST['datepicker1']) ? $_REQUEST['datepicker1'] : date("Y-m-d", strtotime('-6 months'));
-                            
-                            ?>
                             <label for="recall_from"><?php echo ('From'); ?>:</label><input id="datepicker1" name="datepicker1" value="<?php echo attr($from_date); ?>" style="width:100px;text-align: center;" type="text">
                             <label for="recall_from"><?php echo ('To'); ?>:</label><input id="datepicker2" name="datepicker2" value="<?php echo attr($to_date); ?>" style="width:100px;text-align: center;" type="text">
-                            <input href="#" class="css_button btn ui-buttons ui-widget ui-corner-all news btn" type="submit" onsubmit='return top.restoreSession();' value="<?php echo xla('Apply'); ?>">
+                            <input href="#" class="css_button btn ui-buttons ui-widget ui-corner-all news btn" type="submit" onsubmit='return top.restoreSession();' value="<?php echo xla('Filter'); ?>">
                         </form>
                     </span>
                 </div>
@@ -1743,6 +1751,7 @@ class Display extends base
         //      or write it off or delete it or do soemthing else?  Have to know what to do to write that. ;)
         $query  = "select * from openemr_postcalendar_events WHERE pc_eventDate > CURDATE() and pc_pid =? and pc_time >  CURDATE()- INTERVAL 16 HOUR";
         $result = sqlFetchArray(sqlStatement($query, array($recall['pid'])));
+         
         if ($something_happened||$result) {
             if ($result) {
                 $show['status'] = "greenish"; //appt made, move on
@@ -1750,17 +1759,25 @@ class Display extends base
                 $show['pc_eid'] = $result['pc_eid'];
                 $show['appt'] = oeFormatShortDate(date('Y-m-d', $phpdate))." @ ".date('g:iA', $phpdate);
                 $show['DONE'] = '1';
-            } else {
-                if ($camps =='0') {
-                    $show['status'] = "reddish"; //hey, nothing automatic left to do - manual processing required.
-                } else {
-                    $show['status'] = "yellowish"; //no appt yet but something happened!
+            } elseif ($GLOBALS['medex_enable'] == '1') {
+                if ($logged_in = $MedEx->login()) {
+                    if ($camps =='0') {
+                        $show['status'] = "reddish"; //hey, nothing automatic left to do - manual processing required.
+                    } else {
+                        $show['status'] = "yellowish"; //no appt yet but something happened!
+                    }
                 }
+            } else {
+                $show['status'] = "whitish";
             }
-        } elseif ($camps =='0') {
+        } elseif (($GLOBALS['medex_enable'] == '1') && ($camps =='0')) {
                     $show['status'] = "reddish"; //hey, nothing automatic left to do - manual processing required.
+        } else {
+            $show['status'] = "whitish";
         }
-        $show['progression'] =   '<div onclick="SMS_bot(\'recall_'.$recall['pid'].'\');">'.$show['progression'].'</div>';
+        if ($logged_in) {
+            $show['progression'] =   '<div onclick="SMS_bot(\'recall_'.$recall['pid'].'\');">'.$show['progression'].'</div>';
+        }
         return $show;
     }
     private function get_icon($event_type, $status = 'SCHEDULED')

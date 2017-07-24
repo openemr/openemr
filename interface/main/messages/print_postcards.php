@@ -2,8 +2,8 @@
 /**
  * Print postcards for patients currently in the $_SESSION['pidList'] variable.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @package MedEx
+ * @link    http://www.MedExBank.com
  * @author  MedEx <support@MedExBank.com>
  * @copyright Copyright (c) 2017 MedEx <support@MedExBank.com>
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3

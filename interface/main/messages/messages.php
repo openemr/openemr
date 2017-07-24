@@ -27,8 +27,9 @@ require_once("$srcdir/gprelations.inc.php");
 require_once("$srcdir/MedEx/API.php");
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
-$logged_in = $MedEx->login();
-
+if ($GLOBALS['medex_enable'] == '1') {
+    $logged_in = $MedEx->login();
+}
 ?><html>
   <head>
     <title><?php echo xlt('Message Center'); ?></title>

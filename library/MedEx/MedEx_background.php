@@ -5,8 +5,8 @@
  * This file is executed as a background service
  * either through ajax or cron.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @package MedEx
+ * @link    http://www.MedExBank.com
  * @author  MedEx <support@MedExBank.com>
  * @copyright Copyright (c) 2017 MedEx <support@MedExBank.com>
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
@@ -14,7 +14,7 @@
 
 $ignoreAuth=true;
 $_SERVER['REQUEST_URI'] = '';
-$_SERVER['SERVER_NAME'] = 'yourserver.com'; //PUT your server name here
+$_SERVER['SERVER_NAME'] = 'example.tld'; //PUT your server name here
 $_SERVER['HTTP_HOST']   = 'default'; //for multi-site i believe
 
 require_once(dirname(__FILE__)."/../../interface/globals.php");
