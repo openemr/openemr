@@ -18,17 +18,6 @@ require_once("$srcdir/clinical_rules.php");
 <html>
 <head>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-<SCRIPT LANGUAGE="JavaScript">
-
-$(document).ready(function(){
-  $("#close").click(function() { parent.$.fn.fancybox.close(); });
-});
-
-</script>
 </head>
 
 <body class="body_top">
@@ -63,7 +52,11 @@ if (!empty($active_alerts) && empty($all_allergy_alerts)) {
 
 ?>
 </span>&nbsp;&nbsp;&nbsp;</td>
-<td><a href="#" id="close" class="css_button large_button"><span class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Close'), ENT_NOQUOTES);?></span></a></td>
+<td>
+    <a href="#" id="close" class="css_button large_button" onclick="parent.$.fn.fancybox.close(); return false;">
+        <span class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Close'), ENT_NOQUOTES);?></span>
+    </a>
+</td>
 </tr>
 </table>
 <br>
