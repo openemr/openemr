@@ -816,7 +816,7 @@ class Display extends base
                          <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Patient Recalls"); ?> </a>
                             <ul class="bgcolor2 dropdown-menu" role="menu">
-                                <li id="menu_new_recall" name="menu_new_recall"> <a id="BUTTON_new_recall_menu" onclick="tabYourIt('recall','main/messages/messages.php?go=addRecall');"> <?php echo xlt("New Recall"); ?></a></li>
+                                <li id="menu_new_recall" name="menu_new_recall"> <a id="BUTTON_new_recall_menu" onclick="tabYourIt('rcb','main/messages/messages.php?go=addRecall');"> <?php echo xlt("New Recall"); ?></a></li>
                                 <li id="menu_pend_recalls" name="menu_pend_recalls"> <a  onclick="goReminderRecall('Recalls');" id="BUTTON_pend_recalls_menu" href="#"> <?php echo xlt("Recall Board"); ?></a></li>
                             <?php 
                             if ($logged_in) { 
