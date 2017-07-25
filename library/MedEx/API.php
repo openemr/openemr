@@ -1014,8 +1014,9 @@ class Display extends base
     {
         global $MedEx;
         //let's get all the recalls the user requests, or if no dates set (initial state get old and some future)
-        $from_date = !is_null($_REQUEST['datepicker1']) ? $_REQUEST['datepicker1'] : date("Y-m-d", strtotime('-6 months'));
-        if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
+        $from_date = !is_null($_REQUEST['datepicker1']) ? date('Y-m-d',strtotime($_REQUEST['datepicker1'])) : date('Y-m-d', strtotime('-6 months'));
+        
+         if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
             $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
             $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d'), date('Y')+$ptkr_time);
         } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'M') {
@@ -1025,10 +1026,14 @@ class Display extends base
              $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
              $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d')+$ptkr_time, date('Y'));
         }
-        $to_date = date('Y-m-d', $ptkr_future_time);
-    
+        $to_date = date('Y-m-d',$ptkr_future_time);
+        $to_date = !is_null($_REQUEST['datepicker2']) ? date('Y-m-d',strtotime($_REQUEST['datepicker2'])) : $to_date;
+        
         $recalls = $this->get_recalls($from_date, $to_date);
-        // if all we don't use MedEx, there is no need to display the progress tabs, all recall processing is manual.
+        $from_date = oeFormatShortDate($from_date);
+        $to_date = oeFormatShortDate($to_date);
+        
+            // if all we don't use MedEx, there is no need to display the progress tabs, all recall processing is manual.
         if (!$logged_in) {
             $reminder_bar = "nodisplay";
             $events='';
@@ -1184,7 +1189,6 @@ class Display extends base
             }
             $count_providers++;
         }
-        
         foreach ($recalls as $recall) {
             $show = $this->show_progress_recall($recall, $events);
             if (!empty($show['DONE'])) {
@@ -1312,10 +1316,13 @@ class Display extends base
         //limit date range for initial Board to keep us sane and not tax the server too much
         if ($from_date=='') {
             $from_date = date("Y-m-d", strtotime('-6 months'));
+        } else {
+            $from_date = date("Y-m-d", strtotime($from_date));
         }
         if ($to_date=='') {
             $to_date = date("Y-m-d", strtotime('+3 months'));
-            ;
+        } else {
+            $to_date = date("Y-m-d", strtotime($to_date));
         }
         $query = "Select * from medex_recalls,patient_data as pat 
                     where pat.pid=medex_recalls.r_pid and 
@@ -1601,7 +1608,6 @@ class Display extends base
         $show['AVM']['text']='';
         $show['progression']='';
         $show['DONE']='';
-        
         $query = "select * from openemr_postcalendar_events WHERE 
                   pc_eventDate > CURDATE() and pc_pid =? and pc_eventDate > ? - INTERVAL 90 DAY  and pc_time <  CURDATE()- INTERVAL 16 HOUR";
         $count = sqlFetchArray(sqlStatement($query, array($recall['r_pid'],$recall['r_eventDate'])));
@@ -1743,7 +1749,7 @@ class Display extends base
             $show['progression'] .= "<a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap left' target='_MedEx'>".
                                     $show['campaign'][$event['C_UID']]['icon']." ".text($show['campaign'][$event['C_UID']]['executed'])."</a><br />";
         }
-        
+
         // Show recall row status via background color.
         // If an appt was made < 16hrs ago, make it green(completed) and $show['DONE'] = 1
         //   o/w yellow(in progress) if something happened or Campaign fired
@@ -2354,3 +2360,4 @@ class MedEx
     }
 }
 //class InvalidDataException extends \Exception {}
+?>

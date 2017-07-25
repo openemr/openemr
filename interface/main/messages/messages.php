@@ -59,7 +59,20 @@ if ($GLOBALS['medex_enable'] == '1') {
         var xljs_NOTE = '<?php echo xl('NOTE'); ?>';
         var xljs_PthsApSched = '<?php echo xl('This patient already has an appointment scheduled for'); ?>';
         var xljs_PlsDecRecDate = '<?php echo xl('Please decide on a Recall Date'); ?>';
-     </script>
+        <?php 
+            
+        if ($GLOBALS['date_display_format']=='0') {
+            $date_format = 'yy-m-d';
+            
+        } elseif ($GLOBALS['date_display_format']=='1') {
+            $date_format = 'mm/dd/yy';
+                
+        } elseif ($GLOBALS['date_display_format']=='2') {
+            $date_format = 'dd/mm/yy';
+        } 
+        ?>
+        var xljs_dateFormat = '<?php echo $date_format; ?>';
+    </script>
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
     <script type="text/javascript">
         <?php require_once("$srcdir/restoreSession.php"); ?>
@@ -77,11 +90,11 @@ if ($GLOBALS['medex_enable'] == '1') {
   </head>
 
   <body class="body_top">
-    <div class="container">
         <?php
-        if (empty($_REQUEST['nomenu'])) {
+        if (($GLOBALS['medex_enable'] == '1')&&(empty($_REQUEST['nomenu']))) {
             $MedEx->display->navigation($logged_in);
-        } ?>
+        } 
+        ?>
 
         <?php if (!empty($_GET['go'])) { ?>
             <?php
@@ -109,6 +122,8 @@ if ($GLOBALS['medex_enable'] == '1') {
         <?php } else {
       //original message.php stuff
         ?>
+    <div class="container">
+    
       <div class="row">
         <div class="col-sm-8 text-center col-offset-sm-2">
             <div class="div_title">

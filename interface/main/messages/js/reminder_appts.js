@@ -13,11 +13,32 @@ var postcards=[];
 var show_just;
 
 $(function() {
-  $( "#datepicker1" ).datepicker({ dateFormat: "yy-mm-dd" });
-  $( "#datepicker2" ).datepicker({
-                                 dateFormat: "yy-mm-dd",
+  $( "#datepicker1" ).datepicker({
+                                 beforeShow: function() {
+                                 setTimeout(function(){
+                                            $('.ui-datepicker').css('z-index', 99999999999999);
+                                            }, 0);
+                                 },
+                                 changeYear: true,
+                                 defaultDate: "-6m",
+                                 showButtonPanel: true,
+                                 dateFormat: xljs_dateFormat,
                                  onSelect: function(dateText, inst) {
-                                    $('#'+inst.id).attr('value',dateText);
+                                 $('#'+inst.id).attr('value',dateText);
+                                 }
+                                 });
+  $( "#datepicker2" ).datepicker({
+                                 beforeShow: function() {
+                                 setTimeout(function(){
+                                            $('.ui-datepicker').css('z-index', 99999999999999);
+                                            }, 0);
+                                 },
+                                 changeYear: true,
+                                 defaultDate: "+1m",
+                                 showButtonPanel: true,
+                                 dateFormat: xljs_dateFormat,
+                                 onSelect: function(dateText, inst) {
+                                 $('#'+inst.id).attr('value',dateText);
                                  }
                                  });
   });
