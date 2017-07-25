@@ -44,18 +44,21 @@ $form_folder = "eye_mag";
 require_once("php/".$form_folder."_functions.php");
 
 $query = "SELECT * FROM patient_data where pid=?";
-$pat_data =  sqlQuery($query,array($data['pid']));
+$pat_data =  sqlQuery($query, array($data['pid']));
 
 $providerID  =  getProviderIdOfEncounter($encounter);
 $providerNAME = getProviderName($providerID);
 $query = "SELECT * FROM users where id = ?";
-$prov_data =  sqlQuery($query,array($providerID));
+$prov_data =  sqlQuery($query, array($providerID));
 
 $practice_data = $facilityService->getPrimaryBusinessEntity();
 
-if (!$_REQUEST['pid']) $_REQUEST['pid'] = $_REQUEST['id'];
+if (!$_REQUEST['pid']) {
+    $_REQUEST['pid'] = $_REQUEST['id'];
+}
+
 $query = "SELECT * FROM patient_data where pid=?";
-$pat_data =  sqlQuery($query,array($_REQUEST['pid']));
+$pat_data =  sqlQuery($query, array($_REQUEST['pid']));
 
 if ($_REQUEST['mode'] =="update") {  //store any changed fields in dispense table
     $table_name = "form_eye_mag_dispense";
@@ -66,28 +69,35 @@ if ($_REQUEST['mode'] =="update") {  //store any changed fields in dispense tabl
     if (sqlNumRows($dispense_fields) > 0) {
         while ($row = sqlFetchArray($dispense_fields)) {
       //exclude critical columns/fields, define below as needed
-      if ($row['Field'] == 'id' ||
-         $row['Field'] == 'pid' ||
-         $row['Field'] == 'user' ||
-         $row['Field'] == 'groupname' ||
-         $row['Field'] == 'authorized' ||
-         $row['Field'] == 'activity'
-         ) continue;
-            if (isset($_POST[$row['Field']])) $fields[$row['Field']] = $_POST[$row['Field']];
+            if ($row['Field'] == 'id' ||
+            $row['Field'] == 'pid' ||
+            $row['Field'] == 'user' ||
+            $row['Field'] == 'groupname' ||
+            $row['Field'] == 'authorized' ||
+            $row['Field'] == 'activity'
+            ) {
+                continue;
+            }
+
+            if (isset($_POST[$row['Field']])) {
+                $fields[$row['Field']] = $_POST[$row['Field']];
+            }
         }
+
         $fields['RXTYPE']=$RXTYPE;
 
         $insert_this_id = formUpdate($table_name, $fields, $_POST['id'], $_SESSION['userauthorized']);
     }
+
     exit;
 } elseif ($_REQUEST['mode'] =="remove") {
     $query ="DELETE FROM form_eye_mag_dispense where id=?";
-    sqlStatement($query,array($_REQUEST['delete_id']));
+    sqlStatement($query, array($_REQUEST['delete_id']));
     echo xlt('Prescription successfully removed.');
     exit;
 } elseif ($_REQUEST['RXTYPE']) {  //store any changed fields
     $query ="UPDATE form_eye_mag_dispense set RXTYPE=? where id=?";
-    sqlStatement($query,array($_REQUEST['RXTYPE'],$_REQUEST['id']));
+    sqlStatement($query, array($_REQUEST['RXTYPE'],$_REQUEST['id']));
     exit;
 }
 
@@ -96,9 +106,17 @@ formHeader("OpenEMR Eye: ".$prov_data[facility]);
 
 if ($_REQUEST['REFTYPE']) {
     $REFTYPE = $_REQUEST['REFTYPE'];
-    if ($REFTYPE == "AR") $RXTYPE = "Bifocal";
-    if ($REFTYPE == "MR") $RXTYPE = "Bifocal";
-    if ($REFTYPE == "CTL") $RXTYPE = "Bifocal";
+    if ($REFTYPE == "AR") {
+        $RXTYPE = "Bifocal";
+    }
+
+    if ($REFTYPE == "MR") {
+        $RXTYPE = "Bifocal";
+    }
+
+    if ($REFTYPE == "CTL") {
+        $RXTYPE = "Bifocal";
+    }
 
     $id = $_REQUEST['id'];
     $table_name = "form_eye_mag";
@@ -107,15 +125,16 @@ if ($_REQUEST['REFTYPE']) {
     } else {
         $encounter = $_REQUEST['encounter'];
     }
+
     $query = "SELECT * FROM form_eye_mag JOIN forms on forms.form_id = form_eye_mag.id
     where form_eye_mag.pid =? and forms.encounter=? and forms.deleted !='1'";
 
-    $data =  sqlQuery($query, array($id,$encounter) );
+    $data =  sqlQuery($query, array($id,$encounter));
 
     if ($REFTYPE =="W") {
         //we have rx_number 1-5 to process...
         $query = "select * from form_eye_mag_wearing where ENCOUNTER=? and FORM_ID=? and PID=? and RX_NUMBER=?";
-        $wear = sqlStatement($query,array($encounter,$_REQUEST['form_id'],$_REQUEST['pid'],$_REQUEST['rx_number']));
+        $wear = sqlStatement($query, array($encounter,$_REQUEST['form_id'],$_REQUEST['pid'],$_REQUEST['rx_number']));
         $wearing = sqlFetchArray($wear);
         $ODSPH = $wearing['ODSPH'];
         $ODAXIS = $wearing['ODAXIS'];
@@ -132,16 +151,17 @@ if ($_REQUEST['REFTYPE']) {
         if ($wearing['RX_TYPE']=='0') {
             $Single="checked='checked'";
             $RXTYPE="Single";
-        } elseif ($wearing['RX_TYPE']=='1'){
+        } elseif ($wearing['RX_TYPE']=='1') {
             $Bifocal ="checked='checked'";
             $RXTYPE="Bifocal";
-        } elseif ($wearing['RX_TYPE']=='2'){
+        } elseif ($wearing['RX_TYPE']=='2') {
             $Trifocal ="checked='checked'";
             $RXTYPE="Trifocal";
-        } elseif ($wearing['RX_TYPE']=='3'){
+        } elseif ($wearing['RX_TYPE']=='3') {
             $Progressive ="checked='checked'";
             $RXTYPE="Progressive";
         }
+
         //do LT and Lens materials
     } elseif ($REFTYPE =="AR") {
             $ODSPH = $data['ARODSPH'];
@@ -208,7 +228,7 @@ if ($_REQUEST['REFTYPE']) {
             $CTLSUPPLIEROS      = getListItemTitle('CTLManufacturer', $data['CTLSUPPLIEROS']);
             $CTLBRANDOD         = getListItemTitle('CTLManufacturer', $data['CTLBRANDOD']);
             $CTLBRANDOS         = getListItemTitle('CTLManufacturer', $data['CTLBRANDOS']);
-   }
+    }
 
     //Since we selected the Print Icon, we must be dispensing this - add to dispensed table now
     $table_name = "form_eye_mag_dispense";
@@ -219,28 +239,33 @@ if ($_REQUEST['REFTYPE']) {
     if (sqlNumRows($dispense_fields) > 0) {
         while ($row = sqlFetchArray($dispense_fields)) {
       //exclude critical columns/fields, define below as needed
-      if ($row['Field'] == 'id' ||
-         $row['Field'] == 'pid' ||
-         $row['Field'] == 'user' ||
-         $row['Field'] == 'groupname' ||
-         $row['Field'] == 'authorized' ||
-         $row['Field'] == 'activity' ||
-         $row['Field'] == 'RXTYPE' ||
-         $row['Field'] == 'REFDATE'
-         )
-        continue;
-            if (isset(${$row['Field']})) $fields[$row['Field']] = ${$row['Field']};
+            if ($row['Field'] == 'id' ||
+            $row['Field'] == 'pid' ||
+            $row['Field'] == 'user' ||
+            $row['Field'] == 'groupname' ||
+            $row['Field'] == 'authorized' ||
+            $row['Field'] == 'activity' ||
+            $row['Field'] == 'RXTYPE' ||
+            $row['Field'] == 'REFDATE'
+            ) {
+                continue;
+            }
+
+            if (isset(${$row['Field']})) {
+                $fields[$row['Field']] = $$row['Field'];
+            }
         }
+
         $fields['RXTYPE']=$RXTYPE;
         $fields['REFDATE'] = $data['date'];
 
         $insert_this_id = formSubmit($table_name, $fields, $form_id, $_SESSION['userauthorized']);
     }
 }
-if ($_REQUEST['dispensed']) {
 
+if ($_REQUEST['dispensed']) {
     $query = "SELECT * from form_eye_mag_dispense where pid =? ORDER BY date DESC";
-    $dispensed = sqlStatement($query,array($_REQUEST['pid']));
+    $dispensed = sqlStatement($query, array($_REQUEST['pid']));
     ?><html>
         <title><?php echo xlt('Rx Dispensed History'); ?></title>
         <head>
@@ -335,7 +360,7 @@ if ($_REQUEST['dispensed']) {
 
             </script>
         </head>
-            <?php echo report_header($pid,"web"); ?>
+            <?php echo report_header($pid, "web"); ?>
             <div class="row">
                 <div class="col-sm-2"></div>
                 <div class="col-sm-8" style="margin:5;text-align:center;">
@@ -352,14 +377,28 @@ if ($_REQUEST['dispensed']) {
                     <?php
                     while ($row = sqlFetchArray($dispensed)) {
                         $i++;
-                        $Single ='';$Bifocal='';$Trifocal='';$Progressive='';
-                        if ($row['RXTYPE'] == "Single") $Single = "checked='checked'";
-                        if ($row['RXTYPE'] == "Bifocal") $Bifocal = "checked='checked'";
-                        if ($row['RXTYPE'] == "Trifocal") $Trifocal = "checked='checked'";
-                        if ($row['RXTYPE'] == "Progressive") $Progressive = "checked='checked'";
+                        $Single ='';
+                        $Bifocal='';
+                        $Trifocal='';
+                        $Progressive='';
+                        if ($row['RXTYPE'] == "Single") {
+                            $Single = "checked='checked'";
+                        }
+
+                        if ($row['RXTYPE'] == "Bifocal") {
+                            $Bifocal = "checked='checked'";
+                        }
+
+                        if ($row['RXTYPE'] == "Trifocal") {
+                            $Trifocal = "checked='checked'";
+                        }
+
+                        if ($row['RXTYPE'] == "Progressive") {
+                            $Progressive = "checked='checked'";
+                        }
 
                         $row['REFDATE'] = oeFormatShortDate($row['REFDATE']);
-                        $row['date'] = oeFormatShortDate(date('Y-m-d',strtotime($row['date'])));
+                        $row['date'] = oeFormatShortDate(date('Y-m-d', strtotime($row['date'])));
                         ?>
                         <div id="RXID_<?php echo attr($row['id']); ?>" style="position:relative;text-align:center;width:80%;margin: 10 auto;">
                             <i class="pull-right fa fa-close"
@@ -378,22 +417,22 @@ if ($_REQUEST['dispensed']) {
                                 <tr>
                                     <td class="right bold"><?php echo xlt('Refraction Method'); ?>: </td>
                                     <td>&nbsp;&nbsp;<?php
-                                        if ($row['REFTYPE'] == "W") {
-                                            echo xlt('Duplicate Rx -- unchanged from current Rx{{The refraction did not change, New Rx=old Rx}}');
-                                        } else if ($row['REFTYPE'] == "CR") {
-                                            echo xlt('Cycloplegic (Wet) Refraction');
-                                        } else if ($row['REFTYPE'] == "MR") {
-                                            echo xlt('Manifest (Dry) Refraction');
-                                        } else if ($row['REFTYPE'] == "AR") {
-                                            echo xlt('Auto-Refraction');
-                                        } else if ($row['REFTYPE'] == "CTL") {
-                                            echo xlt('Contact Lens');
-                                        }  ?>
+                                    if ($row['REFTYPE'] == "W") {
+                                        echo xlt('Duplicate Rx -- unchanged from current Rx{{The refraction did not change, New Rx=old Rx}}');
+                                    } else if ($row['REFTYPE'] == "CR") {
+                                        echo xlt('Cycloplegic (Wet) Refraction');
+                                    } else if ($row['REFTYPE'] == "MR") {
+                                        echo xlt('Manifest (Dry) Refraction');
+                                    } else if ($row['REFTYPE'] == "AR") {
+                                        echo xlt('Auto-Refraction');
+                                    } else if ($row['REFTYPE'] == "CTL") {
+                                        echo xlt('Contact Lens');
+                                    }  ?>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td colspan="2"> <?php
-                                        if ($row['REFTYPE'] != "CTL") { ?>
+                                    if ($row['REFTYPE'] != "CTL") { ?>
                                             <table id="SpectacleRx" name="SpectacleRx" class="refraction" style="top:0px;">
                                                 <tr style="font-style:bold;">
                                                     <td></td>
@@ -448,76 +487,77 @@ if ($_REQUEST['dispensed']) {
                                                 </tr>
                                             </table>
                                             <?php
-                                        } else { ?>
+                                    } else { ?>
                                             <center>
                                                 <table id="CTLRx" name="CTLRx" class="refraction">
                                                     <tr>
-                                                        <td colspan="4" class="bold underline left"><?php echo xlt('Right Lens'); ?></u></td>
+                                                    <td colspan="4" class="bold underline left"><?php echo xlt('Right Lens'); ?></u></td>
                                                     </tr>
                                                     <tr>
-                                                        <td colspan="3" class="left"><?php echo text($row['CTLBRANDOD']); ?></td>
+                                                    <td colspan="3" class="left"><?php echo text($row['CTLBRANDOD']); ?></td>
                                                     </tr>
                                                     <tr class="bold" style="text-decoration:underline;">
-                                                        <td></td>
-                                                        <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
-                                                        <td><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
-                                                        <td><?php echo xlt('Axis{{Axis in a glasses prescription}}'); ?></td>
-                                                        <td><?php echo xlt('BC{{Base Curve}}'); ?></td>
-                                                        <td><?php echo xlt('Diam{{Diameter}}'); ?></td>
-                                                        <td><?php echo xlt('ADD'); ?></td>
-                                                        <td><td>
-                                                        <td><?php echo xlt('Supplier'); ?></td>
+                                                    <td></td>
+                                                    <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
+                                                    <td><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
+                                                    <td><?php echo xlt('Axis{{Axis in a glasses prescription}}'); ?></td>
+                                                    <td><?php echo xlt('BC{{Base Curve}}'); ?></td>
+                                                    <td><?php echo xlt('Diam{{Diameter}}'); ?></td>
+                                                    <td><?php echo xlt('ADD'); ?></td>
+                                                    <td><td>
+                                                    <td><?php echo xlt('Supplier'); ?></td>
                                                     </tr>
                                                     <tr>
-                                                        <td></td>
-                                                        <td><?php echo text($row['ODSPH']); ?></td>
-                                                        <td><?php echo text($row['ODCYL']); ?></td>
-                                                        <td><?php echo text($row['ODAXIS']); ?></td>
-                                                        <td><?php echo text($row['ODBC']); ?></td>
-                                                        <td><?php echo text($row['ODDIAM']); ?></td>
-                                                        <td><?php echo text($row['ODADD']); ?></td>
-                                                        <td colspan="3" class="right"><?php echo text($row['CTLSUPPLIEROD']); ?></td>
+                                                    <td></td>
+                                                    <td><?php echo text($row['ODSPH']); ?></td>
+                                                    <td><?php echo text($row['ODCYL']); ?></td>
+                                                    <td><?php echo text($row['ODAXIS']); ?></td>
+                                                    <td><?php echo text($row['ODBC']); ?></td>
+                                                    <td><?php echo text($row['ODDIAM']); ?></td>
+                                                    <td><?php echo text($row['ODADD']); ?></td>
+                                                    <td colspan="3" class="right"><?php echo text($row['CTLSUPPLIEROD']); ?></td>
                                                     </tr>
                                                     <tr>
-                                                        <td colspan="4" class="bold underline left"><u><?php echo xlt('Left Lens'); ?></u>
-                                                        </td>
+                                                    <td colspan="4" class="bold underline left"><u><?php echo xlt('Left Lens'); ?></u>
+                                                    </td>
                                                     </tr>
                                                     <tr>
-                                                        <td colspan="3" class="left"><?php echo text($row['CTLBRANDOS']); ?></td>
+                                                    <td colspan="3" class="left"><?php echo text($row['CTLBRANDOS']); ?></td>
                                                     </tr>
                                                     <tr class="bold" style="text-decoration:underline;">
-                                                        <td></td>
-                                                        <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
-                                                        <td><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
-                                                        <td><?php echo xlt('Axis{{Axis in a glasses prescription}}'); ?></td>
-                                                        <td><?php echo xlt('BC{{Base Curve}}'); ?></td>
-                                                        <td><?php echo xlt('Diam{{Diameter}}'); ?></td>
-                                                        <td><?php echo xlt('ADD'); ?></td>
-                                                        <td><td>
-                                                        <td><?php echo xlt('Supplier'); ?></td>
+                                                    <td></td>
+                                                    <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
+                                                    <td><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
+                                                    <td><?php echo xlt('Axis{{Axis in a glasses prescription}}'); ?></td>
+                                                    <td><?php echo xlt('BC{{Base Curve}}'); ?></td>
+                                                    <td><?php echo xlt('Diam{{Diameter}}'); ?></td>
+                                                    <td><?php echo xlt('ADD'); ?></td>
+                                                    <td><td>
+                                                    <td><?php echo xlt('Supplier'); ?></td>
                                                     </tr>
                                                     <tr>
-                                                        <td></td>
-                                                        <td><?php echo text($row['OSSPH']); ?></td>
-                                                        <td><?php echo text($row['OSCYL']); ?></td>
-                                                        <td><?php echo text($row['OSAXIS']); ?></td>
-                                                        <td><?php echo text($row['OSBC']); ?></td>
-                                                        <td><?php echo text($row['OSDIAM']); ?></td>
-                                                        <td><?php echo text($row['OSADD']); ?></td>
-                                                        <td colspan="3" class="right"><?php echo text($row['CTLSUPPLIEROS']); ?></td>
+                                                    <td></td>
+                                                    <td><?php echo text($row['OSSPH']); ?></td>
+                                                    <td><?php echo text($row['OSCYL']); ?></td>
+                                                    <td><?php echo text($row['OSAXIS']); ?></td>
+                                                    <td><?php echo text($row['OSBC']); ?></td>
+                                                    <td><?php echo text($row['OSDIAM']); ?></td>
+                                                    <td><?php echo text($row['OSADD']); ?></td>
+                                                    <td colspan="3" class="right"><?php echo text($row['CTLSUPPLIEROS']); ?></td>
 
                                                     </tr>
                                                 </table>
                                             </center>
                                             <?php
-                                        } ?>
+                                    } ?>
                                     </td>
                                 </tr>
                             </table>
                         <hr>
 
                         </div>
-                        <?php  } ?>
+                    <?php
+                    } ?>
                 </div>
                 <div class="col-sm-2"></div>
             </div>
@@ -526,6 +566,7 @@ if ($_REQUEST['dispensed']) {
     <?php
     exit;
 }
+
    ob_start();
     ?>
     <html>
@@ -722,7 +763,7 @@ if ($_REQUEST['dispensed']) {
             </script>
         </head>
         <body>
-            <?php echo report_header($pid,"web");
+            <?php echo report_header($pid, "web");
             $visit= getEncounterDateByEncounter($encounter);
             $visit_date = $visit['date'];
             ?>
@@ -794,17 +835,16 @@ if ($_REQUEST['dispensed']) {
                                         <tr class="header closeButton">
                                             <td colspan="9" class="right">
                                                 <span><?php
-                                                        if ($ODHPD||$ODHBASE||$ODVPD||$ODVBASE||$ODSLABOFF||$ODVERTEXDIST||
+                                                if ($ODHPD||$ODHBASE||$ODVPD||$ODVBASE||$ODSLABOFF||$ODVERTEXDIST||
                                                             $OSHPD||$OSHBASE||$OSVPD||$OSVBASE||$OSSLABOFF||$OSVERTEXDIST||
                                                             $ODMPDD||$ODMPDN||$OSMPDD||$OSMPDN||$BPDD||$BPDN||
-                                                            $LENS_MATERIAL||$LENS_TREATMENTS)
-                                                        {
-                                                            $detailed = '1';
-                                                            ?><i class="fa fa-minus-square-o"></i><?php
-                                                        } else {
-                                                            $detailed ='0';
-                                                            ?><i class="fa fa-plus-square-o"></i><?php
-                                                        }
+                                                            $LENS_MATERIAL||$LENS_TREATMENTS) {
+                                                          $detailed = '1';
+                                                    ?><i class="fa fa-minus-square-o"></i><?php
+                                                } else {
+                                                    $detailed ='0';
+                                                    ?><i class="fa fa-plus-square-o"></i><?php
+                                                }
                                                         ?>
                                                 </span>
 
@@ -856,7 +896,7 @@ if ($_REQUEST['dispensed']) {
                                             <td name="W_wide" rowspan="2" style="vertical-align:middle;"><input type="text" class="prism" id="BPDD" name="BPDD" value="<?php echo attr($BPDD); ?>"></td>
                                             <td name="W_wide" rowspan="2" style="vertical-align:middle;"><input type="text" class="prism" id="BPDN" name="BPDN" value="<?php echo attr($BPDN); ?>"></td>
                                             <td colspan="2">   <?php
-                                                        echo generate_select_list("LENS_MATERIAL", "Eye_Lens_Material", "$LENS_MATERIAL",'',' ','','restoreSession;submit_form();','',array('style'=>'width:120px'));
+                                                        echo generate_select_list("LENS_MATERIAL", "Eye_Lens_Material", "$LENS_MATERIAL", '', ' ', '', 'restoreSession;submit_form();', '', array('style'=>'width:120px'));
                                                                 ?>
                                                 </td>
                                         </tr>
@@ -872,7 +912,7 @@ if ($_REQUEST['dispensed']) {
                                         </tr>
                                         <tr style="text-align:left;vertical-align:top;">
                                             <td colspan="5" style="font-weight:bold;text-align:left;">
-                                                <?php  echo generate_lens_treatments($W,$LENS_TREATMENTS); ?>
+                                                <?php  echo generate_lens_treatments($W, $LENS_TREATMENTS); ?>
                                             </td>
                                         </tr>
                                         <tr class="dispense_data"><td colspan="9" class="center"><hr /></td></tr>
@@ -944,7 +984,7 @@ if ($_REQUEST['dispensed']) {
                                                 <textarea cols="30" rows="4"><?php echo text($COMMENTS); ?></textarea>
                                             </td>
                                         </tr>
-                                         <?php } ?>
+                                        <?php } ?>
                                     </table>
                                     <?php
                                 } ?>
@@ -952,20 +992,23 @@ if ($_REQUEST['dispensed']) {
                         </tr>
                         <tr>
                             <td style="margin:25px auto;text-align:center;">
-                           <?php
+                            <?php
                                 $signature = $GLOBALS["webserver_root"]."/interface/forms/eye_mag/images/sign_".attr($_SESSION['authUserID']).".jpg";
-                                if (file_exists($signature)) {
-                                    ?>
-                                    <span style="position:relative;padding-left:40px;">
-                                        <img src='<?php echo $web_root; ?>/interface/forms/eye_mag/images/sign_<?php echo attr($_SESSION['authUserID']); ?>.jpg'
-                                        style="width:240px;height:85px;border-block-end: 1pt solid black;margin:5px;" />
+                            if (file_exists($signature)) {
+                                ?>
+                                <span style="position:relative;padding-left:40px;">
+                                <img src='<?php echo $web_root; ?>/interface/forms/eye_mag/images/sign_<?php echo attr($_SESSION['authUserID']); ?>.jpg'
+                                    style="width:240px;height:85px;border-block-end: 1pt solid black;margin:5px;" />
                                     </span><br />
 
-                                    <?php } ?>
+                            <?php
+                            } ?>
 
-                        <?php echo xlt('Provider'); ?>: <?php echo text($prov_data['fname']); ?> <?php echo text($prov_data['lname']);
-                        if ($prov_data['suffix']) { echo ", ".$prov_data['suffix'];} ?><br />
-                                <small><?php echo xlt('e-signed'); ?> <input type="checkbox" checked="checked"></small>
+                            <?php echo xlt('Provider'); ?>: <?php echo text($prov_data['fname']); ?> <?php echo text($prov_data['lname']);
+                            if ($prov_data['suffix']) {
+                                echo ", ".$prov_data['suffix'];
+                            } ?><br />
+                            <small><?php echo xlt('e-signed'); ?> <input type="checkbox" checked="checked"></small>
                             </td>
                         </tr>
                     </table>
@@ -983,7 +1026,10 @@ if ($_REQUEST['dispensed']) {
                         });
                     });
                 });
-                <?php if (!$detailed) { echo "$('.header').trigger('click');"; } ?>
+                <?php
+                if (!$detailed) {
+                    echo "$('.header').trigger('click');";
+                } ?>
 
                 $("input[name$='PD']").blur(function() {
                                                                        //make it all caps
@@ -1157,5 +1203,5 @@ if ($_REQUEST['dispensed']) {
     <?php
     $content = ob_get_clean();
     echo $content;
-exit;
+    exit;
 ?>

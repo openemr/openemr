@@ -1,30 +1,48 @@
-<table border="0" align="center" cellspacing="0" cellpadding="0" width="100%" height="22">
-<tr bgcolor="#00ffff">
-<?php if (acl_check('admin', 'batchcom')) { ?>
-<td valign="middle" nowrap>
-&nbsp;<a class=menu target=Main href="../batchcom/batchcom.php"
- onclick="top.restoreSession()"
- title="Batch Communication and Export"><?php echo xlt('BatchCom');?></a>&nbsp;
-</td>
-<?php } ?>
-<?php if (acl_check('admin', 'notification')) { ?>
-<td valign="middle" nowrap>
-&nbsp;<a class=menu target=Main href="../batchcom/smsnotification.php"
- onclick="top.restoreSession()"
- title="SMS Notification"><?php echo xlt('SMS Notification');?></a>&nbsp;
-</td>
-<td valign="middle" nowrap>
-&nbsp;<a class=menu target=Main href="../batchcom/emailnotification.php"
- onclick="top.restoreSession()"
- title="SMS Notification"><?php echo xlt('Email Notification');?></a>&nbsp;
-</td>
-<td valign="middle" nowrap>
-&nbsp;<a class=menu target=Main href="../batchcom/settingsnotification.php"
- onclick="top.restoreSession()"
- title="SMS/Email Alert Settings"><?php echo xlt('SMS/Email Alert Settings');?></a>&nbsp;
-</td>
-<?php } ?>
+<?php
+/**
+ * Batchcom navigation bar.
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author  Jason 'Toolbox' Oettinger <jason@oettinger.email>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Jason 'Toolbox' Oettinger <jason@oettinger.email>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+?>
+<nav>
+    <ul class="nav nav-tabs nav-justified">
+        <?php
+        if (acl_check('admin', 'batchcom')) { ?>
+            <li role="presentation" title="<?php echo xla('BatchCom'); ?>">
+                <a href="<?php echo $GLOBALS['rootdir']; ?>/batchcom/batchcom.php">
+                    <?php echo xlt('BatchCom'); ?>
+                </a>
+            </li>
+        <?php
+        }
 
-<td width="20%">&nbsp;</td>
-</tr>
-</table>
+        if (acl_check('admin', 'notification')) { ?>
+            <li role="presentation" title="<?php echo xla('SMS Notification'); ?>">
+                <a href="<?php echo $GLOBALS['rootdir']; ?>/batchcom/smsnotification.php">
+                    <?php echo xlt('SMS Notification'); ?>
+                </a>
+            </li>
+        <?php
+        }
+        ?>
+        <li role="presentation" title="<?php echo xla('Email Notification'); ?>">
+            <a href="<?php echo $GLOBALS['rootdir']; ?>/batchcom/emailnotification.php">
+                <?php echo xlt('Email Notification'); ?>
+            </a>
+        </li>
+        <li role="presentation" title="<?php echo xla('SMS/Email Alert Settings'); ?>">
+            <a href="<?php echo $GLOBALS['rootdir']; ?>/batchcom/settingsnotification.php">
+                <?php echo xlt('SMS/Email Alert Settings'); ?>
+            </a>
+        </li>
+       
+    </ul>
+</nav>
+

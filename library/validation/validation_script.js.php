@@ -27,13 +27,13 @@
 
 /*LBF form take the valude from the global $GLOBALS['new_validate'];*/
 /*Other pages depend if the page in the lists options (page validation)is active and exists)*/
-if($use_validate_js){
+if ($use_validate_js) {
 ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/moment-2-13-0/moment.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_modified.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_extend.js"></script>
 <?php
- }
+}
 ?>
 
 <script language='JavaScript'>
@@ -231,7 +231,7 @@ function submitme(new_validate,e,form_id, constraints) {
                     case 'An end date later than the start date is required for repeated events!':
                        return '<?php echo xla('An end date later than the start date is required for repeated events!');?>';
                     case 'Required field missing: Please enter the User Name':
-                        return '<?php echo xla('Required field missing: Please enter the User Name','e');?>';
+                        return '<?php echo xla('Required field missing: Please enter the User Name', 'e');?>';
                     case 'Please enter the password':
                         return '<?php echo xla('Please enter the password'); ?>';
                     case 'Required field missing: Please enter the First name':

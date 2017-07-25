@@ -30,11 +30,11 @@
 
 <!-- diagnosis -->
 <p class="row">
-    <span class="left_col colhead req" data-fld="fld_diagnosis"><?php echo out( $criteria->getTitle() ); ?></span>
-    <span class="end_col"><input id="fld_value" type="text" name="fld_value" class="field" onclick="sel_diagnosis()" value="<?php echo out( $criteria->getRequirements() ); ?>"></span>
+    <span class="left_col colhead req" data-fld="fld_diagnosis"><?php echo out($criteria->getTitle()); ?></span>
+    <span class="end_col"><input id="fld_value" type="text" name="fld_value" class="field" onclick="sel_diagnosis()" value="<?php echo out($criteria->getRequirements()); ?>"></span>
 </p>
 
 <br/>
 
 <!-- optional/required and inclusion/exclusion fields -->
-<?php echo common_fields( array( "criteria" => $criteria) ); ?>
+<?php echo common_fields(array( "criteria" => $criteria)); ?>

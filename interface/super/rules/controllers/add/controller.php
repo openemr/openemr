@@ -6,11 +6,11 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
-class Controller_add extends BaseController {
+class Controller_add extends BaseController
+{
 
-    function _action_add() {
+    function _action_add()
+    {
         $this->viewBean->_view = "add.php";
     }
-
 }
-?>

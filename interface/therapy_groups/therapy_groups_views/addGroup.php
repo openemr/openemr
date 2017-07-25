@@ -25,11 +25,11 @@
  */
 ?>
 
-<?php $edit = acl_check("groups","gadd",false, 'write');?>
-<?php $view = acl_check("groups","gadd",false, 'view');?>
+<?php $edit = acl_check("groups", "gadd", false, 'write');?>
+<?php $view = acl_check("groups", "gadd", false, 'view');?>
 
 <?php require 'header.php'; ?>
-<?php if($view || $edit) :?>
+<?php if ($view || $edit) :?>
 <main id="add-group">
     <div class="container container-group">
         <form method="post" name="addGroup">
@@ -92,7 +92,7 @@
                         </div>
                         <div class="col-md-6 col-sm-6">
                             <select name="group_status" class="full-width"  value="<?php echo attr($groupData['group_status']);?>">
-                                <?php foreach($statuses as $key => $status): ?>
+                                <?php foreach ($statuses as $key => $status) : ?>
                                     <option value="<?php echo attr($key);?>" <?php echo $key == $groupData['group_status'] ? 'selected' : ''; ?>><?php echo xlt($status); ?></option>
                                 <?php endforeach; ?>
                             </select>
@@ -108,7 +108,7 @@
                         </div>
                         <div class="col-md-8 col-sm-7">
                             <select name="counselors[]" multiple class="full-width">
-                                <?php foreach($users as $user): ?>
+                                <?php foreach ($users as $user) : ?>
                                     <option value="<?php echo attr($user['id']);?>" <?php echo !is_null($groupData['counselors']) && in_array($user['id'], $groupData['counselors']) ? 'selected' : '';?>><?php echo text($user['fname'] . ' ' . $user['lname']);?></option>
                                 <?php endforeach; ?>
                             </select>
@@ -138,28 +138,28 @@
                     </div>
                 </div>
             </div>
-            <?php if($edit):?>
+            <?php if ($edit) :?>
             <div class="row group-row">
                 <div class="col-md-3">
-                    <?php if($edit):?>
+                    <?php if ($edit) :?>
                     <button type="submit" name="save" value="save" <?php echo $savingStatus == 'success' ? 'disabled' : '';?>><?php echo xlt('Add group');?></button>
                     <?php endif;?>
                 </div>
                 <div class="col-md-9 col-sm 12">
-                    <?php if($edit):?>
-                    <?php if($savingStatus == 'exist'): ?>
+                    <?php if ($edit) :?>
+                    <?php if ($savingStatus == 'exist') : ?>
                         <div id="exist-group"><h4 class="group-error-msg"><?php echo text($message) ?></h4><button id="cancel-save"><?php echo xlt('cancel') ?></button><button type="submit" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button></div>
                     <?php endif ?>
-                    <?php if($savingStatus == 'success'): ?>
+                    <?php if ($savingStatus == 'success') : ?>
                         <h4 class="group-success-msg"><?php echo text($message) ?></h4>
                     <?php endif ?>
-                    <?php if($savingStatus == 'failed'): ?>
+                    <?php if ($savingStatus == 'failed') : ?>
                         <h4 class="group-serror-msg"><?php echo text($message) ?></h4>
                     <?php endif ?>
                     <?php endif;?>
                 </div>
             <div>
-                <?php endif;?>
+            <?php endif;?>
         </form>
     </div>
 </main>
@@ -195,4 +195,3 @@
 <?php endif;?>
 
 <?php require 'footer.php'; ?>
-

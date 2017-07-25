@@ -28,11 +28,12 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/erx_javascript.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
-require_once ("$srcdir/patientvalidation.inc.php");
+require_once("$srcdir/patientvalidation.inc.php");
 
 // Check authorization.
-if (!acl_check('patients','demo','',array('write','addonly') ))
-  die("Adding demographics is not authorized.");
+if (!acl_check('patients', 'demo', '', array('write','addonly'))) {
+    die("Adding demographics is not authorized.");
+}
 
 $CPR = 4; // cells per row
 
@@ -42,9 +43,10 @@ $searchcolor = empty($GLOBALS['layout_search_color']) ?
 $WITH_SEARCH = ($GLOBALS['full_new_patient_form'] == '1' || $GLOBALS['full_new_patient_form'] == '2' );
 $SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3' || $GLOBALS['full_new_patient_form'] == '4');
 
-function getLayoutRes() {
-  global $SHORT_FORM;
-  return sqlStatement("SELECT * FROM layout_options " .
+function getLayoutRes()
+{
+    global $SHORT_FORM;
+    return sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
     ($SHORT_FORM ? "AND ( uor > 1 OR edit_options LIKE '%N%' ) " : "") .
     "ORDER BY group_name, seq");
@@ -55,23 +57,25 @@ function getLayoutRes() {
 // 2 = select list
 // 0 = not searchable
 //
-function getSearchClass($data_type) {
-  switch($data_type) {
-    case  1: // single-selection list
-    case 10: // local provider list
-    case 11: // provider list
-    case 12: // pharmacy list
-    case 13: // squads
-    case 14: // address book list
-    case 26: // single-selection list with add
-    case 35: // facilities
-      return 2;
-    case  2: // text field
-    case  3: // textarea
-    case  4: // date
-      return 1;
-  }
-  return 0;
+function getSearchClass($data_type)
+{
+    switch ($data_type) {
+        case 1: // single-selection list
+        case 10: // local provider list
+        case 11: // provider list
+        case 12: // pharmacy list
+        case 13: // squads
+        case 14: // address book list
+        case 26: // single-selection list with add
+        case 35: // facilities
+            return 2;
+        case 2: // text field
+        case 3: // textarea
+        case 4: // date
+            return 1;
+    }
+
+    return 0;
 }
 
 $fres = getLayoutRes();
@@ -144,7 +148,7 @@ function replace(string,text,by) {
  return newstr;
 }
 
-<?php for ($i=1;$i<=3;$i++) { ?>
+<?php for ($i=1; $i<=3; $i++) { ?>
 function auto_populate_employer_address<?php echo $i ?>(){
  var f = document.demographics_form;
  if (f.form_i<?php echo $i?>subscriber_relationship.options[f.form_i<?php echo $i?>subscriber_relationship.selectedIndex].value == "self") {
@@ -271,8 +275,8 @@ function trimlen(s) {
 
 function validate(f) {
   var errMsgs = new Array();
-  <?php generate_layout_validation('DEM'); ?>
-  <?php if($GLOBALS['erx_enable']){ ?>
+    <?php generate_layout_validation('DEM'); ?>
+    <?php if ($GLOBALS['erx_enable']) { ?>
   alertMsg='';
   for(i=0;i<f.length;i++){
     if(f[i].type=='text' && f[i].value)
@@ -298,13 +302,13 @@ function validate(f) {
     alert(alertMsg);
     return false;
   }
-  <?php } ?>
+    <?php } ?>
   var msg = "";
-  msg += "<?php echo htmlspecialchars(xl('The following fields are required'),ENT_QUOTES); ?>:\n\n";
+  msg += "<?php echo htmlspecialchars(xl('The following fields are required'), ENT_QUOTES); ?>:\n\n";
   for ( var i = 0; i < errMsgs.length; i++ ) {
          msg += errMsgs[i] + "\n";
   }
-  msg += "\n<?php echo htmlspecialchars(xl('Please fill them in before continuing.'),ENT_QUOTES); ?>";
+  msg += "\n<?php echo htmlspecialchars(xl('Please fill them in before continuing.'), ENT_QUOTES); ?>";
 
 
 //Misc  Deceased Date Validation for Future Date
@@ -320,10 +324,10 @@ currentDate = year+'-'+month+'-'+day;
 if(errMsgs.length > 0 || dateVal > currentDate)
 {
 if(errMsgs.length > 0)
-	alert(msg);
+    alert(msg);
 if(dateVal > currentDate)
-	alert ('<?php echo xls("Deceased Date should not be greater than Today"); ?>');
-	return false;
+    alert ('<?php echo xls("Deceased Date should not be greater than Today"); ?>');
+    return false;
 }
  return true;
 }
@@ -339,7 +343,7 @@ function toggleSearch(elem) {
 <?php } ?>
  if (force_submit) {
   force_submit = false;
-  f.create.value = '<?php xl('Create New Patient','e'); ?>';
+  f.create.value = '<?php xl('Create New Patient', 'e'); ?>';
  }
  return true;
 }
@@ -374,24 +378,27 @@ function searchme() {
 $lres = getLayoutRes();
 
 while ($lrow = sqlFetchArray($lres)) {
-  $field_id  = $lrow['field_id'];
-  if (strpos($field_id, 'em_') === 0) continue;
-  $data_type = $lrow['data_type'];
-  $fldname = "form_$field_id";
-  switch(getSearchClass($data_type)) {
-    case  1:
-      echo
-      " if (f.$fldname.style.backgroundColor != '' && trimlen(f.$fldname.value) > 0) {\n" .
-      "  url += '&$field_id=' + encodeURIComponent(f.$fldname.value);\n" .
-      " }\n";
-      break;
-    case 2:
-      echo
-      " if (f.$fldname.style.backgroundColor != '' && f.$fldname.selectedIndex > 0) {\n" .
-      "  url += '&$field_id=' + encodeURIComponent(f.$fldname.options[f.$fldname.selectedIndex].value);\n" .
-      " }\n";
-      break;
-  }
+    $field_id  = $lrow['field_id'];
+    if (strpos($field_id, 'em_') === 0) {
+        continue;
+    }
+
+    $data_type = $lrow['data_type'];
+    $fldname = "form_$field_id";
+    switch (getSearchClass($data_type)) {
+        case 1:
+            echo
+            " if (f.$fldname.style.backgroundColor != '' && trimlen(f.$fldname.value) > 0) {\n" .
+            "  url += '&$field_id=' + encodeURIComponent(f.$fldname.value);\n" .
+            " }\n";
+            break;
+        case 2:
+            echo
+            " if (f.$fldname.style.backgroundColor != '' && f.$fldname.selectedIndex > 0) {\n" .
+            "  url += '&$field_id=' + encodeURIComponent(f.$fldname.options[f.$fldname.selectedIndex].value);\n" .
+            " }\n";
+            break;
+    }
 }
 ?>
 
@@ -413,39 +420,50 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
 <form action='new_comprehensive_save.php' name='demographics_form' id="DEM"  method='post' onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM",constraints)'>
 
-<span class='title'><?php xl('Search or Add Patient','e'); ?></span>
+<span class='title'><?php xl('Search or Add Patient', 'e'); ?></span>
 
 <table width='100%' cellpadding='0' cellspacing='8'>
  <tr>
   <td align='left' valign='top'>
-<?php if ($SHORT_FORM) echo "  <center>\n"; ?>
+<?php if ($SHORT_FORM) {
+    echo "  <center>\n";
+} ?>
 <?php
 
-function end_cell() {
-  global $item_count, $cell_count;
-  if ($item_count > 0) {
-    echo "</td>";
-    $item_count = 0;
-  }
+function end_cell()
+{
+    global $item_count, $cell_count;
+    if ($item_count > 0) {
+        echo "</td>";
+        $item_count = 0;
+    }
 }
 
-function end_row() {
-  global $cell_count, $CPR;
-  end_cell();
-  if ($cell_count > 0) {
-    for (; $cell_count < $CPR; ++$cell_count) echo "<td></td>";
-    echo "</tr>\n";
-    $cell_count = 0;
-  }
+function end_row()
+{
+    global $cell_count, $CPR;
+    end_cell();
+    if ($cell_count > 0) {
+        for (; $cell_count < $CPR;
+        ++$cell_count) {
+            echo "<td></td>";
+        }
+
+        echo "</tr>\n";
+        $cell_count = 0;
+    }
 }
 
-function end_group() {
-  global $last_group, $SHORT_FORM;
-  if (strlen($last_group) > 0) {
-    end_row();
-    echo " </table>\n";
-    if (!$SHORT_FORM) echo "</div>\n";
-  }
+function end_group()
+{
+    global $last_group, $SHORT_FORM;
+    if (strlen($last_group) > 0) {
+        end_row();
+        echo " </table>\n";
+        if (!$SHORT_FORM) {
+            echo "</div>\n";
+        }
+    }
 }
 
 $last_group    = '';
@@ -455,85 +473,107 @@ $display_style = 'block';
 $group_seq     = 0; // this gives the DIV blocks unique IDs
 
 while ($frow = sqlFetchArray($fres)) {
-  $this_group = $frow['group_name'];
-  $titlecols  = $frow['titlecols'];
-  $datacols   = $frow['datacols'];
-  $data_type  = $frow['data_type'];
-  $field_id   = $frow['field_id'];
-  $list_id    = $frow['list_id'];
-  $currvalue  = '';
-  $condition_str = get_conditions_str($condition_str,$group_fields);
+    $this_group = $frow['group_name'];
+    $titlecols  = $frow['titlecols'];
+    $datacols   = $frow['datacols'];
+    $data_type  = $frow['data_type'];
+    $field_id   = $frow['field_id'];
+    $list_id    = $frow['list_id'];
+    $currvalue  = '';
+    $condition_str = get_conditions_str($condition_str, $group_fields);
 
-  if (strpos($field_id, 'em_') === 0) {
-    $tmp = substr($field_id, 3);
-    if (isset($result2[$tmp])) $currvalue = $result2[$tmp];
-  }
-  else {
-    if (isset($result[$field_id])) $currvalue = $result[$field_id];
-  }
+    if (strpos($field_id, 'em_') === 0) {
+        $tmp = substr($field_id, 3);
+        if (isset($result2[$tmp])) {
+            $currvalue = $result2[$tmp];
+        }
+    } else {
+        if (isset($result[$field_id])) {
+            $currvalue = $result[$field_id];
+        }
+    }
 
   // Handle a data category (group) change.
-  if (strcmp($this_group, $last_group) != 0) {
-    if (!$SHORT_FORM) {
-      end_group();
-      $group_seq++;    // ID for DIV tags
-      $group_name = substr($this_group, 1);
-      if (strlen($last_group) > 0) echo "<br />";
-      echo "<span class='bold'><input type='checkbox' name='form_cb_$group_seq' id='form_cb_$group_seq' value='1' " .
-        "onclick='return divclick(this,\"div_$group_seq\");'";
-      if ($display_style == 'block') echo " checked";
+    if (strcmp($this_group, $last_group) != 0) {
+        if (!$SHORT_FORM) {
+            end_group();
+            $group_seq++;    // ID for DIV tags
+            $group_name = substr($this_group, 1);
+            if (strlen($last_group) > 0) {
+                echo "<br />";
+            }
 
-      // Modified 6-09 by BM - Translate if applicable
-      echo " /><b>" . xl_layout_label($group_name) . "</b></span>\n";
+            echo "<span class='bold'><input type='checkbox' name='form_cb_$group_seq' id='form_cb_$group_seq' value='1' " .
+            "onclick='return divclick(this,\"div_$group_seq\");'";
+            if ($display_style == 'block') {
+                echo " checked";
+            }
 
-      echo "<div id='div_$group_seq' class='section' style='display:$display_style;'>\n";
-      echo " <table border='0' cellpadding='0'>\n";
-      $display_style = 'none';
+            // Modified 6-09 by BM - Translate if applicable
+            echo " /><b>" . xl_layout_label($group_name) . "</b></span>\n";
+
+            echo "<div id='div_$group_seq' class='section' style='display:$display_style;'>\n";
+            echo " <table border='0' cellpadding='0'>\n";
+            $display_style = 'none';
+        } else if (strlen($last_group) == 0) {
+            echo " <table border='0' cellpadding='0'>\n";
+        }
+
+        $last_group = $this_group;
     }
-    else if (strlen($last_group) == 0) {
-      echo " <table border='0' cellpadding='0'>\n";
-    }
-    $last_group = $this_group;
-  }
 
   // Handle starting of a new row.
-  if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
-    end_row();
-    echo "  <tr>";
-  }
+    if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
+        end_row();
+        echo "  <tr>";
+    }
 
-  if ($item_count == 0 && $titlecols == 0) $titlecols = 1;
-  $field_id_label='label_'.$frow['field_id'];
+    if ($item_count == 0 && $titlecols == 0) {
+        $titlecols = 1;
+    }
+
+    $field_id_label='label_'.$frow['field_id'];
   // Handle starting of a new label cell.
-  if ($titlecols > 0) {
-    end_cell();
-    echo "<td colspan='$titlecols' id='$field_id_label'";
-    echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
-    if ($cell_count == 2) echo " style='padding-left:10pt'";
-    echo ">";
-    $cell_count += $titlecols;
-  }
-  ++$item_count;
+    if ($titlecols > 0) {
+        end_cell();
+        echo "<td colspan='$titlecols' id='$field_id_label'";
+        echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
+        if ($cell_count == 2) {
+            echo " style='padding-left:10pt'";
+        }
 
-  echo "<b>";
+        echo ">";
+        $cell_count += $titlecols;
+    }
+
+    ++$item_count;
+
+    echo "<b>";
 
   // Modified 6-09 by BM - Translate if applicable
-  if ($frow['title']) echo (xl_layout_label($frow['title']).":"); else echo "&nbsp;";
+    if ($frow['title']) {
+        echo (xl_layout_label($frow['title']).":");
+    } else {
+        echo "&nbsp;";
+    }
 
-  echo "</b>";
+    echo "</b>";
 
   // Handle starting of a new data cell.
-  if ($datacols > 0) {
-      $id_field_text = "text_".$frow['field_id'];
-    end_cell();
-    echo "<td colspan='$datacols' class='text data'";
-    if ($cell_count > 0) echo " style='padding-left:5pt'". " id='".$id_field_text."'";
-    echo ">";
-    $cell_count += $datacols;
-  }
+    if ($datacols > 0) {
+        $id_field_text = "text_".$frow['field_id'];
+        end_cell();
+        echo "<td colspan='$datacols' class='text data'";
+        if ($cell_count > 0) {
+            echo " style='padding-left:5pt'". " id='".$id_field_text."'";
+        }
 
-  ++$item_count;
-  generate_form_field($frow, $currvalue);
+        echo ">";
+        $cell_count += $datacols;
+    }
+
+    ++$item_count;
+    generate_form_field($frow, $currvalue);
 }
 
 end_group();
@@ -541,39 +581,44 @@ end_group();
 
 <?php
 if (! $GLOBALS['simplified_demographics']) {
-  $insurancei = getInsuranceProviders();
-  $pid = 0;
-  $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
-  $insurance_info = array();
-  $insurance_info[1] = getInsuranceData($pid,"primary");
-  $insurance_info[2] = getInsuranceData($pid,"secondary");
-  $insurance_info[3] = getInsuranceData($pid,"tertiary");
+    $insurancei = getInsuranceProviders();
+    $pid = 0;
+    $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
+    $insurance_info = array();
+    $insurance_info[1] = getInsuranceData($pid, "primary");
+    $insurance_info[2] = getInsuranceData($pid, "secondary");
+    $insurance_info[3] = getInsuranceData($pid, "tertiary");
 
-  echo "<br /><span class='bold'><input type='checkbox' name='form_cb_ins' value='1' " .
+    echo "<br /><span class='bold'><input type='checkbox' name='form_cb_ins' value='1' " .
     "onclick='return divclick(this,\"div_ins\");'";
-  if ($display_style == 'block') echo " checked";
-  echo " /><b>" . xl('Insurance') . "</b></span>\n";
-  echo "<div id='div_ins' class='section' style='display:$display_style;'>\n";
+    if ($display_style == 'block') {
+        echo " checked";
+    }
 
-  for($i=1;$i<=3;$i++) {
-   $result3 = $insurance_info[$i];
-?>
-<table border="0">
- <tr>
-  <td valign='top' colspan='2'>
-   <span class='required'><?php echo $insurance_headings[$i -1].":"?></span>
-   <select name="i<?php echo $i?>provider">
-    <option value=""><?php xl('Unassigned','e'); ?></option>
+    echo " /><b>" . xl('Insurance') . "</b></span>\n";
+    echo "<div id='div_ins' class='section' style='display:$display_style;'>\n";
+
+    for ($i=1; $i<=3; $i++) {
+        $result3 = $insurance_info[$i];
+    ?>
+  <table border="0">
+   <tr>
+    <td valign='top' colspan='2'>
+     <span class='required'><?php echo $insurance_headings[$i -1].":"?></span>
+     <select name="i<?php echo $i?>provider">
+    <option value=""><?php xl('Unassigned', 'e'); ?></option>
 <?php
- foreach ($insurancei as $iid => $iname) {
-  echo "<option value='" . $iid . "'";
-  if (strtolower($iid) == strtolower($result3{"provider"}))
-   echo " selected";
-  echo ">" . $iname . "</option>\n";
- }
+foreach ($insurancei as $iid => $iname) {
+    echo "<option value='" . $iid . "'";
+    if (strtolower($iid) == strtolower($result3{"provider"})) {
+        echo " selected";
+    }
+
+    echo ">" . $iname . "</option>\n";
+}
 ?>
-   </select>&nbsp;<a class='iframe medium_modal' href='../practice/ins_search.php' onclick='ins_search(<?php echo $i?>)'>
-  <span> <?php xl('Search/Add Insurer','e'); ?></span></a>
+     </select>&nbsp;<a class='iframe medium_modal' href='../practice/ins_search.php' onclick='ins_search(<?php echo $i?>)'>
+  <span> <?php xl('Search/Add Insurer', 'e'); ?></span></a>
   </td>
  </tr>
  <tr>
@@ -582,7 +627,7 @@ if (! $GLOBALS['simplified_demographics']) {
 
     <tr>
      <td>
-      <span class='required'><?php xl('Plan Name','e'); ?>: </span>
+      <span class='required'><?php xl('Plan Name', 'e'); ?>: </span>
      </td>
      <td>
       <input type='entry' size='20' name='i<?php echo $i?>plan_name' value="<?php echo $result3{"plan_name"} ?>"
@@ -592,7 +637,7 @@ if (! $GLOBALS['simplified_demographics']) {
 
     <tr>
      <td>
-      <span class='required'><?php xl('Effective Date','e'); ?>: </span>
+      <span class='required'><?php xl('Effective Date', 'e'); ?>: </span>
      </td>
      <td>
       <input type='entry' size='11' class='datepicker' name='i<?php echo $i ?>effective_date'
@@ -603,147 +648,162 @@ if (! $GLOBALS['simplified_demographics']) {
     </tr>
 
     <tr>
-     <td><span class=required><?php xl('Policy Number','e'); ?>: </span></td>
+     <td><span class=required><?php xl('Policy Number', 'e'); ?>: </span></td>
      <td><input type='entry' size='16' name='i<?php echo $i?>policy_number' value="<?php echo $result3{"policy_number"}?>"
       onkeyup='policykeyup(this)'></td>
     </tr>
 
     <tr>
-     <td><span class=required><?php xl('Group Number','e'); ?>: </span></td><td><input type=entry size=16 name=i<?php echo $i?>group_number value="<?php echo $result3{"group_number"}?>" onkeyup='policykeyup(this)'></td>
+     <td><span class=required><?php xl('Group Number', 'e'); ?>: </span></td><td><input type=entry size=16 name=i<?php echo $i?>group_number value="<?php echo $result3{"group_number"}?>" onkeyup='policykeyup(this)'></td>
     </tr>
 
-    <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
-     <td class='required'><?php xl('Subscriber Employer (SE)','e'); ?><br><span style='font-weight:normal'>
-      (<?php xl('if unemployed enter Student','e'); ?>,<br><?php xl('PT Student, or leave blank','e'); ?>): </span></td>
+    <tr<?php if ($GLOBALS['omit_employers']) {
+        echo " style='display:none'";
+} ?>>
+     <td class='required'><?php xl('Subscriber Employer (SE)', 'e'); ?><br><span style='font-weight:normal'>
+      (<?php xl('if unemployed enter Student', 'e'); ?>,<br><?php xl('PT Student, or leave blank', 'e'); ?>): </span></td>
      <td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer
       value="<?php echo $result3{"subscriber_employer"}?>"
        onchange="capitalizeMe(this);" /></td>
     </tr>
 
-    <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
-     <td><span class=required><?php xl('SE Address','e'); ?>: </span></td>
+    <tr<?php if ($GLOBALS['omit_employers']) {
+        echo " style='display:none'";
+} ?>>
+     <td><span class=required><?php xl('SE Address', 'e'); ?>: </span></td>
      <td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer_street
       value="<?php echo $result3{"subscriber_employer_street"}?>"
        onchange="capitalizeMe(this);" /></td>
     </tr>
 
-    <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
+    <tr<?php if ($GLOBALS['omit_employers']) {
+        echo " style='display:none'";
+} ?>>
      <td colspan="2">
       <table>
        <tr>
-        <td><span class=required><?php xl('SE City','e'); ?>: </span></td>
+        <td><span class=required><?php xl('SE City', 'e'); ?>: </span></td>
         <td><input type=entry size=15 name=i<?php echo $i?>subscriber_employer_city
          value="<?php echo $result3{"subscriber_employer_city"}?>"
           onchange="capitalizeMe(this);" /></td>
-        <td><span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('SE State','e') : xl('SE Locality','e') ?>: </span></td>
-	<td>
-         <?php
-          // Modified 7/2009 by BM to incorporate data types
-	  generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'field_id'=>('i'.$i.'subscriber_employer_state'),'list_id'=>$GLOBALS['state_list'],'fld_length'=>'15','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_employer_state']);
-         ?>
-        </td>
-       </tr>
-       <tr>
-        <td><span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('SE Zip Code','e') : xl('SE Postal Code','e') ?>: </span></td>
-        <td><input type=entry size=10 name=i<?php echo $i?>subscriber_employer_postal_code value="<?php echo $result3{"subscriber_employer_postal_code"}?>"></td>
-        <td><span class=required><?php xl('SE Country','e'); ?>: </span></td>
-	<td>
-         <?php
-          // Modified 7/2009 by BM to incorporate data types
-	  generate_form_field(array('data_type'=>$GLOBALS['country_data_type'],'field_id'=>('i'.$i.'subscriber_employer_country'),'list_id'=>$GLOBALS['country_list'],'fld_length'=>'10','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_employer_country']);
-         ?>
-	</td>
-       </tr>
-      </table>
-     </td>
-    </tr>
+        <td><span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('SE State', 'e') : xl('SE Locality', 'e') ?>: </span></td>
+    <td>
+            <?php
+            // Modified 7/2009 by BM to incorporate data types
+            generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'field_id'=>('i'.$i.'subscriber_employer_state'),'list_id'=>$GLOBALS['state_list'],'fld_length'=>'15','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_employer_state']);
+                ?>
+          </td>
+         </tr>
+         <tr>
+            <td><span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('SE Zip Code', 'e') : xl('SE Postal Code', 'e') ?>: </span></td>
+            <td><input type=entry size=10 name=i<?php echo $i?>subscriber_employer_postal_code value="<?php echo $result3{"subscriber_employer_postal_code"}?>"></td>
+            <td><span class=required><?php xl('SE Country', 'e'); ?>: </span></td>
+      <td>
+                <?php
+              // Modified 7/2009 by BM to incorporate data types
+                generate_form_field(array('data_type'=>$GLOBALS['country_data_type'],'field_id'=>('i'.$i.'subscriber_employer_country'),'list_id'=>$GLOBALS['country_list'],'fld_length'=>'10','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_employer_country']);
+                ?>
+      </td>
+         </tr>
+        </table>
+       </td>
+      </tr>
 
-   </table>
-  </td>
+     </table>
+    </td>
 
-  <td valign=top>
-   <span class=required><?php xl('Subscriber','e'); ?>: </span>
-   <input type=entry size=10 name=i<?php echo $i?>subscriber_fname
-    value="<?php echo $result3{"subscriber_fname"}?>"
-    onchange="capitalizeMe(this);" />
-   <input type=entry size=3 name=i<?php echo $i?>subscriber_mname
-    value="<?php echo $result3{"subscriber_mname"}?>"
-    onchange="capitalizeMe(this);" />
-   <input type=entry size=10 name=i<?php echo $i?>subscriber_lname
-    value="<?php echo $result3{"subscriber_lname"}?>"
-    onchange="capitalizeMe(this);" />
-   <br>
-   <span class=required><?php xl('Relationship','e'); ?>: </span>
-   <?php
-    // Modified 6/2009 by BM to use list_options and function
-    generate_form_field(array('data_type'=>1,'field_id'=>('i'.$i.'subscriber_relationship'),'list_id'=>'sub_relation','empty_title'=>' '), $result3['subscriber_relationship']);
-   ?>
-   <a href="javascript:popUp('../../interface/patient_file/summary/browse.php?browsenum=<?php echo $i?>')" class=text>(<?php xl('Browse','e'); ?>)</a><br />
+    <td valign=top>
+       <span class=required><?php xl('Subscriber', 'e'); ?>: </span>
+       <input type=entry size=10 name=i<?php echo $i?>subscriber_fname
+        value="<?php echo $result3{"subscriber_fname"}?>"
+      onchange="capitalizeMe(this);" />
+       <input type=entry size=3 name=i<?php echo $i?>subscriber_mname
+        value="<?php echo $result3{"subscriber_mname"}?>"
+      onchange="capitalizeMe(this);" />
+       <input type=entry size=10 name=i<?php echo $i?>subscriber_lname
+        value="<?php echo $result3{"subscriber_lname"}?>"
+      onchange="capitalizeMe(this);" />
+     <br>
+       <span class=required><?php xl('Relationship', 'e'); ?>: </span>
+        <?php
+      // Modified 6/2009 by BM to use list_options and function
+        generate_form_field(array('data_type'=>1,'field_id'=>('i'.$i.'subscriber_relationship'),'list_id'=>'sub_relation','empty_title'=>' '), $result3['subscriber_relationship']);
+        ?>
+       <a href="javascript:popUp('../../interface/patient_file/summary/browse.php?browsenum=<?php echo $i?>')" class=text>(<?php xl('Browse', 'e'); ?>)</a><br />
 
-   <span class=bold><?php xl('D.O.B.','e'); ?>: </span>
-   <input type='entry' size='11' class='datepicker' name='i<?php echo $i?>subscriber_DOB'
-    id='i<?php echo $i?>subscriber_DOB'
-    value='<?php echo $result3['subscriber_DOB'] ?>'
+       <span class=bold><?php xl('D.O.B.', 'e'); ?>: </span>
+       <input type='entry' size='11' class='datepicker' name='i<?php echo $i?>subscriber_DOB'
+      id='i<?php echo $i?>subscriber_DOB'
+      value='<?php echo $result3['subscriber_DOB'] ?>'
     title='yyyy-mm-dd' />
 
-   <span class=bold><?php xl('S.S.','e'); ?>: </span><input type=entry size=11 name=i<?php echo $i?>subscriber_ss value="<?php echo $result3{"subscriber_ss"}?>">&nbsp;
-   <span class=bold><?php xl('Sex','e'); ?>: </span>
-   <?php
-    // Modified 6/2009 by BM to use list_options and function
-    generate_form_field(array('data_type'=>1,'field_id'=>('i'.$i.'subscriber_sex'),'list_id'=>'sex'), $result3['subscriber_sex']);
-   ?>
-   <br>
-   <span class=required><?php xl('Subscriber Address','e'); ?>: </span>
-   <input type=entry size=25 name=i<?php echo $i?>subscriber_street
-    value="<?php echo $result3{"subscriber_street"}?>"
+       <span class=bold><?php xl('S.S.', 'e'); ?>: </span><input type=entry size=11 name=i<?php echo $i?>subscriber_ss value="<?php echo $result3{"subscriber_ss"}?>">&nbsp;
+       <span class=bold><?php xl('Sex', 'e'); ?>: </span>
+        <?php
+      // Modified 6/2009 by BM to use list_options and function
+        generate_form_field(array('data_type'=>1,'field_id'=>('i'.$i.'subscriber_sex'),'list_id'=>'sex'), $result3['subscriber_sex']);
+        ?>
+     <br>
+       <span class=required><?php xl('Subscriber Address', 'e'); ?>: </span>
+       <input type=entry size=25 name=i<?php echo $i?>subscriber_street
+      value="<?php echo $result3{"subscriber_street"}?>"
     onchange="capitalizeMe(this);" /><br>
-   <span class=required><?php xl('City','e'); ?>: </span>
-   <input type=entry size=15 name=i<?php echo $i?>subscriber_city
-    value="<?php echo $result3{"subscriber_city"}?>"
+       <span class=required><?php xl('City', 'e'); ?>: </span>
+       <input type=entry size=15 name=i<?php echo $i?>subscriber_city
+      value="<?php echo $result3{"subscriber_city"}?>"
     onchange="capitalizeMe(this);" />
-   <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('State','e') : xl('Locality','e') ?>: </span>
-   <?php
-    // Modified 7/2009 by BM to incorporate data types
-    generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'field_id'=>('i'.$i.'subscriber_state'),'list_id'=>$GLOBALS['state_list'],'fld_length'=>'15','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_state']);
-   ?>
-   <br />
-   <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('Zip Code','e') : xl('Postal Code','e') ?>: </span><input type=entry size=10 name=i<?php echo $i?>subscriber_postal_code value="<?php echo $result3{"subscriber_postal_code"}?>">
-   <span class='required'<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
-   <?php xl('Country','e'); ?>: </span>
-   <?php
-    // Modified 7/2009 by BM to incorporate data types
-    generate_form_field(array('data_type'=>$GLOBALS['country_data_type'],'field_id'=>('i'.$i.'subscriber_country'),'list_id'=>$GLOBALS['country_list'],'fld_length'=>'10','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_country']);
-   ?>
-   <br />
-   <span class=bold><?php xl('Subscriber Phone','e'); ?>:
-   <input type='text' size='20' name='i<?php echo $i?>subscriber_phone' value='<?php echo $result3["subscriber_phone"] ?>' onkeyup='phonekeyup(this,mypcc)' />
-   </span><br />
-   <span class=bold><?php xl('CoPay','e'); ?>: <input type=text size="6" name=i<?php echo $i?>copay value="<?php echo $result3{"copay"}?>">
-   </span><br />
-   <span class='required'><?php xl('Accept Assignment','e'); ?>: </span>
-   <select name=i<?php echo $i?>accept_assignment>
-     <option value="TRUE" <?php if (strtoupper($result3{"accept_assignment"}) == "TRUE") echo "selected"?>><?php xl('YES','e'); ?></option>
-     <option value="FALSE" <?php if (strtoupper($result3{"accept_assignment"}) == "FALSE") echo "selected"?>><?php xl('NO','e'); ?></option>
-   </select>
-  </td>
- </tr>
+       <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('State', 'e') : xl('Locality', 'e') ?>: </span>
+        <?php
+      // Modified 7/2009 by BM to incorporate data types
+        generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'field_id'=>('i'.$i.'subscriber_state'),'list_id'=>$GLOBALS['state_list'],'fld_length'=>'15','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_state']);
+        ?>
+     <br />
+       <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('Zip Code', 'e') : xl('Postal Code', 'e') ?>: </span><input type=entry size=10 name=i<?php echo $i?>subscriber_postal_code value="<?php echo $result3{"subscriber_postal_code"}?>">
+       <span class='required'<?php if ($GLOBALS['omit_employers']) {
+            echo " style='display:none'";
+} ?>>
+        <?php xl('Country', 'e'); ?>: </span>
+        <?php
+      // Modified 7/2009 by BM to incorporate data types
+        generate_form_field(array('data_type'=>$GLOBALS['country_data_type'],'field_id'=>('i'.$i.'subscriber_country'),'list_id'=>$GLOBALS['country_list'],'fld_length'=>'10','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_country']);
+        ?>
+     <br />
+       <span class=bold><?php xl('Subscriber Phone', 'e'); ?>:
+       <input type='text' size='20' name='i<?php echo $i?>subscriber_phone' value='<?php echo $result3["subscriber_phone"] ?>' onkeyup='phonekeyup(this,mypcc)' />
+     </span><br />
+       <span class=bold><?php xl('CoPay', 'e'); ?>: <input type=text size="6" name=i<?php echo $i?>copay value="<?php echo $result3{"copay"}?>">
+     </span><br />
+       <span class='required'><?php xl('Accept Assignment', 'e'); ?>: </span>
+       <select name=i<?php echo $i?>accept_assignment>
+       <option value="TRUE" <?php if (strtoupper($result3{"accept_assignment"}) == "TRUE") {
+            echo "selected";
+}?>><?php xl('YES', 'e'); ?></option>
+       <option value="FALSE" <?php if (strtoupper($result3{"accept_assignment"}) == "FALSE") {
+            echo "selected";
+}?>><?php xl('NO', 'e'); ?></option>
+     </select>
+    </td>
+   </tr>
 
-</table>
-<hr />
-<?php
-  }
-  echo "</div>\n";
- } // end of "if not simplified_demographics"
+  </table>
+  <hr />
+    <?php
+    }
+
+    echo "</div>\n";
+} // end of "if not simplified_demographics"
 ?>
 
-<?php if (!$SHORT_FORM) echo "  <center>\n"; ?>
+<?php if (!$SHORT_FORM) {
+    echo "  <center>\n";
+} ?>
 <br />
 <?php if ($WITH_SEARCH) { ?>
-<input type="button" id="search" value=<?php xl('Search','e','\'','\''); ?>
+<input type="button" id="search" value=<?php xl('Search', 'e', '\'', '\''); ?>
  style='background-color:<?php echo $searchcolor; ?>' />
 &nbsp;&nbsp;
 <?php } ?>
-<input type="button" name='create' id="create" value=<?php xl('Create New Patient','e','\'','\''); ?> />
+<input type="button" name='create' id="create" value=<?php xl('Create New Patient', 'e', '\'', '\''); ?> />
 
 </center>
 
@@ -764,7 +824,7 @@ if (! $GLOBALS['simplified_demographics']) {
 <script language="JavaScript">
 
 // hard code validation for old validation, in the new validation possible to add match rules
-<?php if($GLOBALS['new_validate'] == 0) { ?>
+<?php if ($GLOBALS['new_validate'] == 0) { ?>
 
 // fix inconsistently formatted phone numbers from the database
 var f = document.forms[0];
@@ -791,7 +851,7 @@ enable_modals();
                 'frameWidth' : 650
         });
     // added to integrate insurance stuff
-    <?php for ($i=1;$i<=3;$i++) { ?>
+    <?php for ($i=1; $i<=3; $i++) { ?>
     $("#form_i<?php echo $i?>subscriber_relationship").change(function() { auto_populate_employer_address<?php echo $i?>(); });
     <?php } ?>
 
@@ -799,13 +859,13 @@ enable_modals();
     $('#create').click(function() { check()});
 
     var check = function(e) {
-      <?php if($GLOBALS['new_validate']){?>
+        <?php if ($GLOBALS['new_validate']) {?>
             var valid = submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,e,"DEM",constraints);
-      <?php }else{?>
+        <?php } else {?>
             top.restoreSession();
             var f = document.forms[0];
             var valid = validate(f);
-      <?php }?>
+        <?php }?>
         if (valid) {
             if (force_submit) {
                 // In this case dups were shown already and Save should just save.
@@ -814,7 +874,7 @@ enable_modals();
                 return;
             }
 
-      <?php
+        <?php
         // D in edit_options indicates the field is used in duplication checking.
         // This constructs a list of the names of those fields.
         $mflist = "";
@@ -824,15 +884,21 @@ enable_modals();
             "ORDER BY group_name, seq");
         while ($mfrow = sqlFetchArray($mfres)) {
             $field_id  = $mfrow['field_id'];
-            if (strpos($field_id, 'em_') === 0) continue;
-            if (!empty($mflist)) $mflist .= ",";
+            if (strpos($field_id, 'em_') === 0) {
+                continue;
+            }
+
+            if (!empty($mflist)) {
+                $mflist .= ",";
+            }
+
             $mflist .= "'" . htmlentities($field_id) . "'";
         }
 ?>
-        <?php if ( ($GLOBALS['full_new_patient_form'] == '4') && (checkIfPatientValidationHookIsActive()) ):?>
+        <?php if (($GLOBALS['full_new_patient_form'] == '4') && (checkIfPatientValidationHookIsActive())) :?>
             // Use zend module patient validation hook to open the controller and send the dup-checker fields.
             var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation";?>';
-        <?php else:?>
+        <?php else :?>
             // Build and invoke the URL to create the dup-checker dialog.
             var url = 'new_search_popup.php';
         <?php endif;?>
@@ -857,17 +923,20 @@ enable_modals();
 <?php
 $lres = getLayoutRes();
 while ($lrow = sqlFetchArray($lres)) {
-  $field_id  = $lrow['field_id'];
-  if (strpos($field_id, 'em_') === 0) continue;
-  switch(getSearchClass($lrow['data_type'])) {
-    case 1:
-      echo "    \$('#form_$field_id').click(function() { toggleSearch(this); });\n";
-      break;
-    case 2:
-      echo "    \$('#form_$field_id').click(function() { selClick(this); });\n";
-      echo "    \$('#form_$field_id').blur(function() { selBlur(this); });\n";
-      break;
-  }
+    $field_id  = $lrow['field_id'];
+    if (strpos($field_id, 'em_') === 0) {
+        continue;
+    }
+
+    switch (getSearchClass($lrow['data_type'])) {
+        case 1:
+            echo "    \$('#form_$field_id').click(function() { toggleSearch(this); });\n";
+            break;
+        case 2:
+            echo "    \$('#form_$field_id').click(function() { selClick(this); });\n";
+            echo "    \$('#form_$field_id').blur(function() { selBlur(this); });\n";
+            break;
+    }
 }
 ?>
 

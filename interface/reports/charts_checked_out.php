@@ -8,13 +8,14 @@
 
 // This reports checkins and checkouts for a specified patient's chart.
 use OpenEMR\Core\Header;
+
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 ?>
 <html>
 <head>
 
-<title><?php xl('Charts Checked Out','e'); ?></title>
+<title><?php xl('Charts Checked Out', 'e'); ?></title>
 
 <?php Header::setupHeader(); ?>
 
@@ -48,7 +49,7 @@ require_once("$srcdir/patient.inc");
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Charts Checked Out','e'); ?></span>
+<span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Charts Checked Out', 'e'); ?></span>
 
 <div id="report_results">
 <br/>
@@ -75,30 +76,30 @@ sqlStatement("CREATE TEMPORARY TABLE cttemp SELECT " .
 $res = \services\PatientService::getChartTrackerInformation();
 $data_ctr = 0;
 while ($row = sqlFetchArray($res)) {
-
-if ( $data_ctr == 0 ) { ?>
-<table>
- <thead>
-  <th> <?php xl('Chart','e'); ?> </th>
-  <th> <?php xl('Patient','e'); ?> </th>
-  <th> <?php xl('Location','e'); ?> </th>
-  <th> <?php xl('As Of','e'); ?> </th>
- </thead>
- <tbody>
-<?php  } ?>
+    if ($data_ctr == 0) { ?>
+    <table>
+     <thead>
+          <th> <?php xl('Chart', 'e'); ?> </th>
+          <th> <?php xl('Patient', 'e'); ?> </th>
+          <th> <?php xl('Location', 'e'); ?> </th>
+          <th> <?php xl('As Of', 'e'); ?> </th>
+     </thead>
+     <tbody>
+    <?php
+    } ?>
 
  <tr>
   <td>
-   <?php echo $row['pubpid']; ?>
+    <?php echo $row['pubpid']; ?>
   </td>
   <td>
-   <?php echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']; ?>
+    <?php echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']; ?>
   </td>
   <td>
-   <?php echo $row['ulname'] . ', ' . $row['ufname'] . ' ' . $row['umname']; ?>
+    <?php echo $row['ulname'] . ', ' . $row['ufname'] . ' ' . $row['umname']; ?>
   </td>
   <td>
-   <?php echo oeFormatShortDate(substr($row['ct_when'], 0, 10)) . substr($row['ct_when'], 10); ?>
+    <?php echo oeFormatShortDate(substr($row['ct_when'], 0, 10)) . substr($row['ct_when'], 10); ?>
   </td>
  </tr>
 <?php
@@ -106,8 +107,8 @@ if ( $data_ctr == 0 ) { ?>
 $data_ctr++;
 } // end while
 
-if ( $data_ctr < 1 ) { ?>
-<span class='text'><?php xl('There are no charts checked out.','e'); ?></span>
+if ($data_ctr < 1) { ?>
+<span class='text'><?php xl('There are no charts checked out.', 'e'); ?></span>
 <?php
 }
 ?>

@@ -25,7 +25,8 @@ namespace repositories;
 use entities\Version;
 use Doctrine\ORM\EntityRepository;
 
-class VersionRepository extends EntityRepository {
+class VersionRepository extends EntityRepository
+{
     /**
      * Updates the sole version entry in the database. The version
      * table doesn't use unique keys, so a special merger function
@@ -35,7 +36,8 @@ class VersionRepository extends EntityRepository {
      * @param $version the new version entry.
      * @return true/false for if the update went through.
      */
-    public function update(Version $version) {
+    public function update(Version $version)
+    {
         $response = false;
 
         try {
@@ -43,7 +45,8 @@ class VersionRepository extends EntityRepository {
             $updateInformation = $this->_em->persist($objectToBeUpdated);
             $this->_em->flush();
             $response = true;
-        } catch (Exception $e) {}
+        } catch (Exception $e) {
+        }
 
         return $response;
     }
@@ -53,7 +56,8 @@ class VersionRepository extends EntityRepository {
      *
      * @return version.
      */
-    public function findFirst() {
+    public function findFirst()
+    {
         $results = $this->_em->getRepository($this->_entityName)->findAll();
         if (!empty($results)) {
             return $results[0];
@@ -67,7 +71,8 @@ class VersionRepository extends EntityRepository {
      *
      * @return bool
      */
-    public function doesTableExist() {
+    public function doesTableExist()
+    {
         $query = $this->_em->getConnection()->prepare("SHOW TABLES LIKE 'version'");
         $query->execute();
         $results = $query->fetch();
@@ -83,7 +88,8 @@ class VersionRepository extends EntityRepository {
      * @param $newObject the new value object.
      * @return the updated version ready to override the current version entry in the table.
      */
-    private function updateNonKeyedEntityObject(Version $objectToBeUpdated, Version $newObject) {
+    private function updateNonKeyedEntityObject(Version $objectToBeUpdated, Version $newObject)
+    {
         if (!empty($objectToBeUpdated)) {
             $objectToBeUpdated->setAcl($newObject->getAcl());
             $objectToBeUpdated->setDatabase($newObject->getDatabase());

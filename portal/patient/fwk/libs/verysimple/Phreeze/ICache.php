@@ -10,35 +10,34 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-interface ICache {
-	/**
-	 * Retreives a value from the cache
-	 *
-	 * @access public
-	 * @param string $key        	
-	 */
-	public function Get($key, $flags = null);
-	
-	/**
-	 * Stores a value in the cache
-	 *
-	 * @access public
-	 * @param string $key        	
-	 * @param variant $val        	
-	 * @param int $flags        	
-	 * @param int $timout
-	 *        	in seconds
-	 * @return variant
-	 */
-	public function Set($key, $val, $flags = null, $timeout = 0);
-	
-	/**
-	 * Removes a value from the cache
-	 *
-	 * @access public
-	 * @param string $key        	
-	 */
-	public function Delete($key);
+interface ICache
+{
+    /**
+     * Retreives a value from the cache
+     *
+     * @access public
+     * @param string $key
+     */
+    public function Get($key, $flags = null);
+    
+    /**
+     * Stores a value in the cache
+     *
+     * @access public
+     * @param string $key
+     * @param variant $val
+     * @param int $flags
+     * @param int $timout
+     *          in seconds
+     * @return variant
+     */
+    public function Set($key, $val, $flags = null, $timeout = 0);
+    
+    /**
+     * Removes a value from the cache
+     *
+     * @access public
+     * @param string $key
+     */
+    public function Delete($key);
 }
-
-?>

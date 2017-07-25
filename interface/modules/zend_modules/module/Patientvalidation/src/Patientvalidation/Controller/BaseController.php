@@ -94,12 +94,14 @@ class BaseController extends AbstractActionController
     /**
      * @return mixed params object
      */
-    protected function getRequestedParams(){
+    protected function getRequestedParams()
+    {
 
         return $this->getRequest()->getQuery() ;
     }
 
-    protected function getRequestedParamsArray(){
+    protected function getRequestedParamsArray()
+    {
 
         return (array)$this->getRequest()->getQuery() ;
     }
@@ -116,7 +118,8 @@ class BaseController extends AbstractActionController
      * return current user id
      * @return int
      */
-    protected function getUserId(){
+    protected function getUserId()
+    {
 
         return $_SESSION['authUserID'];
     }
@@ -128,19 +131,17 @@ class BaseController extends AbstractActionController
      * @return \Zend\Stdlib\ResponseInterface
      * @comment to use this function return this $response in your controller
      */
-    public function responseWithNoLayout($data, $convertToJson=true, $responsecode=200){
+    public function responseWithNoLayout($data, $convertToJson = true, $responsecode = 200)
+    {
 
         $response = $this->getResponse();
         $response->setStatusCode($responsecode);
-        if($convertToJson) {
+        if ($convertToJson) {
             $response->setContent(json_encode($data));
-        }
-        else{
+        } else {
             $response->setContent($data);
         }
+
         return $response;
     }
-
-
-
 }

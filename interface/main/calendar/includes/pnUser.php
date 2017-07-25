@@ -36,7 +36,7 @@
 /*
  * Data types for User Properties
  */
-define('_UDCONST_MANDATORY',-1); // indicates a cord field that can't be removed'
+define('_UDCONST_MANDATORY', -1); // indicates a cord field that can't be removed'
 define('_UDCONST_CORE', 0); // indicates a core field (HACK, to be removed?)
 define('_UDCONST_STRING', 1);
 define('_UDCONST_TEXT', 2);
@@ -57,7 +57,6 @@ function pnUserLogIn($uname, $pass, $rememberme)
     $pntable = pnDBGetTables();
 
     if (!pnUserLoggedIn()) {
-
         // Get user information
         $userscolumn = &$pntable['users_column'];
         $userstable = $pntable['users'];
@@ -71,6 +70,7 @@ function pnUserLogIn($uname, $pass, $rememberme)
         if ($result->EOF) {
             return false;
         }
+
         list($uid, $realpass) = $result->fields;
         $result->Close();
 
@@ -93,7 +93,7 @@ function pnUserLogIn($uname, $pass, $rememberme)
         if (!empty($rememberme)) {
             pnSessionSetVar('rememberme', 1);
         }
-     }
+    }
 
      return true;
 }
@@ -101,7 +101,7 @@ function pnUserLogIn($uname, $pass, $rememberme)
 /**
  * Compare Passwords
   */
-function comparePasswords($givenpass, $realpass, $username, $cryptSalt='')
+function comparePasswords($givenpass, $realpass, $username, $cryptSalt = '')
 {
     $compare2crypt = true;
     $compare2text = true;
@@ -109,18 +109,21 @@ function comparePasswords($givenpass, $realpass, $username, $cryptSalt='')
     $system = pnConfigGetVar('system');
     
     $md5pass = md5($givenpass);
-    if (strcmp($md5pass, $realpass) == 0)
+    if (strcmp($md5pass, $realpass) == 0) {
         return $md5pass;
-    elseif ($compare2crypt && $system != "1" ){
+    } elseif ($compare2crypt && $system != "1") {
         $crypted = false;
         if ($cryptSalt != '') {
-            if (strcmp(crypt($givenpass, $cryptSalt), $realpass) == 0)
+            if (strcmp(crypt($givenpass, $cryptSalt), $realpass) == 0) {
                 $crypted = true;
+            }
         } else {
-            if (strcmp(crypt($givenpass, $cryptSalt), $realpass) == 0)
+            if (strcmp(crypt($givenpass, $cryptSalt), $realpass) == 0) {
                 $crypted = true;
+            }
         }
-        if ($crypted){
+
+        if ($crypted) {
             updateUserPass($username, $md5pass);
             return $md5pass;
         }
@@ -165,7 +168,7 @@ function pnUserLogOut()
  */
 function pnUserLoggedIn()
 {
-    if(pnSessionGetVar('uid') || $_SESSION['authUser']) {
+    if (pnSessionGetVar('uid') || $_SESSION['authUser']) {
         return true;
     } else {
         return false;
@@ -204,9 +207,9 @@ function pnUserGetVars($uid)
     $result = $dbconn->Execute($query);
 
     while (!$result->EOF) {
-       $uservars = $result->GetRowAssoc(false);
-       $vars[$uservars['label']] = $uservars['value'];
-       $result->MoveNext();
+        $uservars = $result->GetRowAssoc(false);
+        $vars[$uservars['label']] = $uservars['value'];
+        $result->MoveNext();
     }
 
     $result->Close();
@@ -223,7 +226,7 @@ function pnUserGetVars($uid)
     $corevars = $result->GetRowAssoc(false);
     $result->Close();
 
-    $vars = array_merge ($vars, $corevars);
+    $vars = array_merge($vars, $corevars);
 
     // Aliasing if required
     if (empty($vars['uid'])) {
@@ -254,6 +257,7 @@ function pnUserGetVars($uid)
         $vars['noscore'] = $vars['pn_noscore'];
         $vars['commentmax'] = $vars['pn_commentmax'];
     }
+
     return($vars);
 }
 
@@ -266,7 +270,7 @@ function pnUserGetVars($uid)
  * @returns string
  * @return the value of the user variable if successful, false otherwise
  */
-function pnUserGetVar($name, $uid=-1)
+function pnUserGetVar($name, $uid = -1)
 {
     static $vars = array();
 
@@ -277,6 +281,7 @@ function pnUserGetVar($name, $uid=-1)
     if ($uid == -1) {
         $uid = pnSessionGetVar('uid');
     }
+
     if (empty($uid)) {
         return;
     }
@@ -348,7 +353,6 @@ function pnUserSetVar($name, $value)
     // TODO: do some checking with $type to maybe do conditional sql
 
     if ($result->EOF) {
-
            // record does not exist
 
            $query = "INSERT INTO $datatable
@@ -360,12 +364,10 @@ function pnUserSetVar($name, $value)
                           '".pnVarPrepForStore($value)."')";
            $dbconn->Execute($query);
 
-           if($dbconn->ErrorNo() != 0) {
-             return false;
-           }
-
+        if ($dbconn->ErrorNo() != 0) {
+            return false;
+        }
     } else {
-
            // existing record
 
            $query = "UPDATE $datatable
@@ -374,9 +376,9 @@ function pnUserSetVar($name, $value)
                      $datacolumns[uda_uid] = '" . pnVarPrepForStore($uid) ."'";
            $dbconn->Execute($query);
 
-           if($dbconn->ErrorNo() != 0) {
-             return false;
-           }
+        if ($dbconn->ErrorNo() != 0) {
+            return false;
+        }
     }
 
     return true;
@@ -428,8 +430,8 @@ function pnUserDelVar($name)
               WHERE $propcolumns[prop_id] = '" . pnVarPrepForStore($id) ."'";
     $result = $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
-      return false;
+    if ($dbconn->ErrorNo() != 0) {
+        return false;
     }
 
     // delete variable from user data for all users
@@ -437,8 +439,8 @@ function pnUserDelVar($name)
               WHERE $datacolumns[uda_propid] = '" . pnVarPrepForStore($id) ."'";
     $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
-      return false;
+    if ($dbconn->ErrorNo() != 0) {
+        return false;
     }
 
     return true;
@@ -470,10 +472,13 @@ function pnUserGetTheme()
         $usertheme = pnUserGetVar('theme');
         // modification mouzaia .71
         if (!empty($usertheme)) {
-			if (@opendir(WHERE_IS_PERSO."themes/".pnVarPrepForOS($usertheme)))
-			    { return $usertheme; }
-            if (@opendir("themes/" . pnVarPrepForOS($usertheme)))
-				{ return $usertheme; }
+            if (@opendir(WHERE_IS_PERSO."themes/".pnVarPrepForOS($usertheme))) {
+                return $usertheme;
+            }
+
+            if (@opendir("themes/" . pnVarPrepForOS($usertheme))) {
+                return $usertheme;
+            }
         }
     }
 
@@ -482,6 +487,7 @@ function pnUserGetTheme()
         if (@opendir(WHERE_IS_PERSO."themes/" . pnVarPrepForOS($systemtheme))) {
             return $systemtheme;
         }
+
         if (@opendir("themes/" . pnVarPrepForOS($systemtheme))) {
             return $systemtheme;
         }
@@ -493,9 +499,11 @@ function pnUserGetTheme()
     if (@opendir(WHERE_IS_PERSO."themes/" . pnVarPrepForOS($defaulttheme))) {
         return $defaulttheme;
     }
+
     if (@opendir("themes/" . pnVarPrepForOS($defaulttheme))) {
         return $defaulttheme;
     }
+
     return false;
 }
 
@@ -604,8 +612,8 @@ function pnUserGetAll()
             FROM $userstable";
     $result = $dbconn->Execute($sql);
 
-    if($dbconn->ErrorNo() != 0) {
-      return;
+    if ($dbconn->ErrorNo() != 0) {
+        return;
     }
 
     if ($result->EOF) {
@@ -613,7 +621,7 @@ function pnUserGetAll()
     }
 
     $resarray = array();
-    while(!$result->EOF) {
+    while (!$result->EOF) {
         list($uname, $uid, $name, $email, $url, $user_avatar) = $result->fields;
         $result->MoveNext();
         $resarray[$uid] = array('uname' => $uname,
@@ -623,9 +631,8 @@ function pnUserGetAll()
                                 'url' => $url,
                                 'avatar' => $user_avatar);
     }
+
     $result->Close();
 
     return $resarray;
 }
-
-?>

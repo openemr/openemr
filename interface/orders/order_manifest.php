@@ -27,87 +27,108 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 
-function getListItem($listid, $value) {
-  $lrow = sqlQuery("SELECT title FROM list_options " .
-    "WHERE list_id = ? AND option_id = ? AND activity = 1",
-    array($listid, $value));
-  $tmp = xl_list_label($lrow['title']);
-  if (empty($tmp)) $tmp = "($value)";
-  return $tmp;
+function getListItem($listid, $value)
+{
+    $lrow = sqlQuery(
+        "SELECT title FROM list_options " .
+        "WHERE list_id = ? AND option_id = ? AND activity = 1",
+        array($listid, $value)
+    );
+    $tmp = xl_list_label($lrow['title']);
+    if (empty($tmp)) {
+        $tmp = "($value)";
+    }
+
+    return $tmp;
 }
 
-function myCellText($s) {
-  if ($s === '') return '&nbsp;';
-  return text($s);
+function myCellText($s)
+{
+    if ($s === '') {
+        return '&nbsp;';
+    }
+
+    return text($s);
 }
 
-function generate_order_summary($orderid) {
+function generate_order_summary($orderid)
+{
 
   // If requested, save checkbox selections as to which procedures are not sendable.
-  if ($_POST['bn_save']) {
-    sqlStatement("UPDATE procedure_order_code " .
-      "SET do_not_send = 0 WHERE " .
-      "procedure_order_id = ? AND " .
-      "do_not_send != 0",
-      array($orderid));
-    if (!empty($_POST['form_omit'])) {
-      foreach ($_POST['form_omit'] as $key) {
-        sqlStatement("UPDATE procedure_order_code " .
-          "SET do_not_send = 1 WHERE " .
-          "procedure_order_id = ? AND " .
-          "do_not_send = 0 AND " .
-          "procedure_order_seq = ?",
-          array($orderid, intval($key)));
-      }
+    if ($_POST['bn_save']) {
+        sqlStatement(
+            "UPDATE procedure_order_code " .
+            "SET do_not_send = 0 WHERE " .
+            "procedure_order_id = ? AND " .
+            "do_not_send != 0",
+            array($orderid)
+        );
+        if (!empty($_POST['form_omit'])) {
+            foreach ($_POST['form_omit'] as $key) {
+                sqlStatement(
+                    "UPDATE procedure_order_code " .
+                    "SET do_not_send = 1 WHERE " .
+                    "procedure_order_id = ? AND " .
+                    "do_not_send = 0 AND " .
+                    "procedure_order_seq = ?",
+                    array($orderid, intval($key))
+                );
+            }
+        }
     }
-  }
 
-  $orow = sqlQuery("SELECT " .
-    "po.procedure_order_id, po.patient_id, po.date_ordered, po.order_status, " .
-    "po.date_collected, po.specimen_type, po.specimen_location, po.lab_id, po.clinical_hx, " .
-    "pd.pubpid, pd.lname, pd.fname, pd.mname, pd.DOB, pd.sex, " .
-    "pd.street, pd.city, pd.state, pd.postal_code, " .
-    "fe.date, " .
-    "pp.name AS labname, " .
-    "u.lname AS ulname, u.fname AS ufname, u.mname AS umname, " .
-    "ru.lname AS ref_lname, ru.fname AS ref_fname, ru.mname AS ref_mname, " .
-    "ru.street AS ref_street, ru.city AS ref_city, ru.state AS ref_state, ru.zip AS ref_zip " .
-    "FROM procedure_order AS po " .
-    "LEFT JOIN patient_data AS pd ON pd.pid = po.patient_id " .
-    "LEFT JOIN procedure_providers AS pp ON pp.ppid = po.lab_id " .
-    "LEFT JOIN users AS u ON u.id = po.provider_id " .
-    "LEFT JOIN users AS ru ON ru.id = pd.ref_providerID " .
-    "LEFT JOIN form_encounter AS fe ON fe.pid = po.patient_id AND fe.encounter = po.encounter_id " .
-    "WHERE po.procedure_order_id = ?",
-    array($orderid));
+    $orow = sqlQuery(
+        "SELECT " .
+        "po.procedure_order_id, po.patient_id, po.date_ordered, po.order_status, " .
+        "po.date_collected, po.specimen_type, po.specimen_location, po.lab_id, po.clinical_hx, " .
+        "pd.pubpid, pd.lname, pd.fname, pd.mname, pd.DOB, pd.sex, " .
+        "pd.street, pd.city, pd.state, pd.postal_code, " .
+        "fe.date, " .
+        "pp.name AS labname, " .
+        "u.lname AS ulname, u.fname AS ufname, u.mname AS umname, " .
+        "ru.lname AS ref_lname, ru.fname AS ref_fname, ru.mname AS ref_mname, " .
+        "ru.street AS ref_street, ru.city AS ref_city, ru.state AS ref_state, ru.zip AS ref_zip " .
+        "FROM procedure_order AS po " .
+        "LEFT JOIN patient_data AS pd ON pd.pid = po.patient_id " .
+        "LEFT JOIN procedure_providers AS pp ON pp.ppid = po.lab_id " .
+        "LEFT JOIN users AS u ON u.id = po.provider_id " .
+        "LEFT JOIN users AS ru ON ru.id = pd.ref_providerID " .
+        "LEFT JOIN form_encounter AS fe ON fe.pid = po.patient_id AND fe.encounter = po.encounter_id " .
+        "WHERE po.procedure_order_id = ?",
+        array($orderid)
+    );
 
-  $lab_id = intval($orow['lab_id']);
-  $patient_id = intval($orow['patient_id']);
-  $encdate = substr($orow['date'], 0, 10);
+    $lab_id = intval($orow['lab_id']);
+    $patient_id = intval($orow['patient_id']);
+    $encdate = substr($orow['date'], 0, 10);
 
   // Get insurance info.
-  $ins_policy = '';
-  $ins_group  = '';
-  $ins_name   = '';
-  $ins_addr   = '';
-  $ins_city   = '';
-  $ins_state  = '';
-  $ins_zip    = '';
-  $irow = getInsuranceDataByDate($patient_id, $encdate, 'primary',
-    "insd.provider, insd.policy_number, insd.group_number");
-  if (!empty($irow['provider'])) {
-    $ins_policy = $irow['policy_number'];
-    $ins_group  = $irow['group_number'];
-    $insco = new InsuranceCompany($irow['provider']);
-    if (!empty($insco)) {
-      $ins_name  = $insco->get_name();
-      $tmp       = $insco->get_address();
-      $ins_addr  = $tmp->get_line1();
-      $ins_city  = $tmp->get_city();
-      $ins_state = $tmp->get_state();
-      $ins_zip   = $tmp->get_zip();
+    $ins_policy = '';
+    $ins_group  = '';
+    $ins_name   = '';
+    $ins_addr   = '';
+    $ins_city   = '';
+    $ins_state  = '';
+    $ins_zip    = '';
+    $irow = getInsuranceDataByDate(
+        $patient_id,
+        $encdate,
+        'primary',
+        "insd.provider, insd.policy_number, insd.group_number"
+    );
+    if (!empty($irow['provider'])) {
+        $ins_policy = $irow['policy_number'];
+        $ins_group  = $irow['group_number'];
+        $insco = new InsuranceCompany($irow['provider']);
+        if (!empty($insco)) {
+            $ins_name  = $insco->get_name();
+            $tmp       = $insco->get_address();
+            $ins_addr  = $tmp->get_line1();
+            $ins_city  = $tmp->get_city();
+            $ins_state = $tmp->get_state();
+            $ins_zip   = $tmp->get_zip();
+        }
     }
-  }
 ?>
 
 <style>
@@ -222,15 +243,16 @@ function generate_order_summary($orderid) {
     "procedure_order_seq, procedure_code, procedure_name, diagnoses, do_not_send " .
     "FROM procedure_order_code WHERE " .
     "procedure_order_id =  ? ";
-  if (!empty($_POST['bn_show_sendable'])) {
+if (!empty($_POST['bn_show_sendable'])) {
     $query .= "AND do_not_send = 0 ";
-  }
+}
+
   $query .= "ORDER BY procedure_order_seq";
   $res = sqlStatement($query, array($orderid));
 
   $encount = 0;
 
-  while ($row = sqlFetchArray($res)) {
+while ($row = sqlFetchArray($res)) {
     $order_seq      = empty($row['procedure_order_seq']) ? 0 : ($row['procedure_order_seq'] + 0);
     $procedure_code = empty($row['procedure_code'  ]) ? '' : $row['procedure_code'];
     $procedure_name = empty($row['procedure_name'  ]) ? '' : $row['procedure_name'];
@@ -239,47 +261,59 @@ function generate_order_summary($orderid) {
     // Create a string of HTML representing the procedure answers.
     // This code cloned from gen_hl7_order.inc.php.
     // Should maybe refactor it into something like a ProcedureAnswer class.
-    $qres = sqlStatement("SELECT " .
-      "a.question_code, a.answer, q.fldtype, q.question_text " .
-      "FROM procedure_answers AS a " .
-      "LEFT JOIN procedure_questions AS q ON " .
-      "q.lab_id = ? " .
-      "AND q.procedure_code = ? AND " .
-      "q.question_code = a.question_code " .
-      "WHERE " .
-      "a.procedure_order_id = ? AND " .
-      "a.procedure_order_seq = ? " .
-      "ORDER BY q.seq, a.answer_seq",
-      array($lab_id, $procedure_code, $orderid, $order_seq));
+    $qres = sqlStatement(
+        "SELECT " .
+        "a.question_code, a.answer, q.fldtype, q.question_text " .
+        "FROM procedure_answers AS a " .
+        "LEFT JOIN procedure_questions AS q ON " .
+        "q.lab_id = ? " .
+        "AND q.procedure_code = ? AND " .
+        "q.question_code = a.question_code " .
+        "WHERE " .
+        "a.procedure_order_id = ? AND " .
+        "a.procedure_order_seq = ? " .
+        "ORDER BY q.seq, a.answer_seq",
+        array($lab_id, $procedure_code, $orderid, $order_seq)
+    );
 
     $notes='';
     while ($qrow = sqlFetchArray($qres)) {
-      // Formatting of these answer values may be lab-specific and we'll figure
-      // out how to deal with that as more labs are supported.
-      $answer = trim($qrow['answer']);
-      $fldtype = $qrow['fldtype'];
-      if ($fldtype == 'G') {
-        $weeks = intval($answer / 7);
-        $days = $answer % 7;
-        $answer = $weeks . 'wks ' . $days . 'days';
-      }
-      if ($notes) $notes .= '<br />';
-      $notes .= text($qrow['question_text'] . ': ' . $answer);
+        // Formatting of these answer values may be lab-specific and we'll figure
+        // out how to deal with that as more labs are supported.
+        $answer = trim($qrow['answer']);
+        $fldtype = $qrow['fldtype'];
+        if ($fldtype == 'G') {
+            $weeks = intval($answer / 7);
+            $days = $answer % 7;
+            $answer = $weeks . 'wks ' . $days . 'days';
+        }
+
+        if ($notes) {
+            $notes .= '<br />';
+        }
+
+        $notes .= text($qrow['question_text'] . ': ' . $answer);
     }
-    if ($notes === '') $notes = '&nbsp;';
+
+    if ($notes === '') {
+        $notes = '&nbsp;';
+    }
 
     ++$encount;
     $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
     echo " <tr class='detail' bgcolor='$bgcolor'>\n";
     echo "  <td><input type='checkbox' name='form_omit[$order_seq]' value='1'";
-    if (!empty($row['do_not_send'])) echo " checked";
+    if (!empty($row['do_not_send'])) {
+        echo " checked";
+    }
+
     echo " /></td>\n";
     echo "  <td>" . myCellText("$procedure_code") . "</td>\n";
     echo "  <td>" . myCellText("$procedure_name") . "</td>\n";
     echo "  <td>" . myCellText("$diagnoses") . "</td>\n";
     echo "  <td>$notes</td>\n";
     echo " </tr>\n";
-  }
+}
 ?>
 
 </table>
@@ -302,7 +336,9 @@ function generate_order_summary($orderid) {
 
 // Check authorization.
 $thisauth = acl_check('patients', 'med');
-if (!$thisauth) die(xl('Not authorized'));
+if (!$thisauth) {
+    die(xl('Not authorized'));
+}
 
 $orderid = intval($_GET['orderid']);
 ?>

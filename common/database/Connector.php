@@ -43,7 +43,8 @@ use \Doctrine\ORM\Tools\Setup;
 use \Doctrine\ORM\EntityManager;
 use \common\database\Auditor;
 
-final class Connector {
+final class Connector
+{
     /**
      * The pooled Doctrine connection.
      */
@@ -57,7 +58,8 @@ final class Connector {
     /**
      * Default constructor.
      */
-    private function __construct() {
+    private function __construct()
+    {
         $this->logger = new \common\logging\Logger("\common\database\Connector");
         $this->createConnection();
     }
@@ -68,7 +70,8 @@ final class Connector {
      *
      * @return Connector instance
      */
-    public static function Instance() {
+    public static function Instance()
+    {
         static $singletonInstance = null;
         if ($singletonInstance === null) {
             $singletonInstance = new Connector();
@@ -86,7 +89,8 @@ final class Connector {
      *
      * @todo document throwables
      */
-    private function createConnection() {
+    private function createConnection()
+    {
         global $sqlconf;
         $entityPath = array(__DIR__ . "../entities");
 

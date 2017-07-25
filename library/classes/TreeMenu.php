@@ -124,7 +124,7 @@ class HTML_TreeMenu
             */
             case 'kriesing':
                 $className = strtolower(get_class($params['structure']->dataSourceClass));
-                $isXMLStruct = strpos($className,'_xml') !== false ? true : false;
+                $isXMLStruct = strpos($className, '_xml') !== false ? true : false;
 
                 // Get the entire tree, the $nodes are sorted like in the tree view
                 // from top to bottom, so we can easily put them in the nodes
@@ -134,25 +134,25 @@ class HTML_TreeMenu
                 $treeMenu  = new HTML_TreeMenu();
                 $curNode[0] = &$treeMenu;   // we need the current node as the reference to the
 
-                foreach ( $nodes as $aNode ) {
+                foreach ($nodes as $aNode) {
                     $events = array();
                     $data = array();
 
                     // In an XML, all the attributes are saved in an array, but since they might be
                     // used as the parameters, we simply extract them here if we handle an XML-structure
-                    if ( $isXMLStruct && sizeof($aNode['attributes']) ){
-                        foreach ( $aNode['attributes'] as $key=>$val ) {
-                            if ( !$aNode[$key] ) { // dont overwrite existing values
+                    if ($isXMLStruct && sizeof($aNode['attributes'])) {
+                        foreach ($aNode['attributes'] as $key => $val) {
+                            if (!$aNode[$key]) { // dont overwrite existing values
                                 $aNode[$key] = $val;
                             }
                         }
                     }
 
                     // Process all the data that are saved in $aNode and put them in the data and/or events array
-                    foreach ( $aNode as $key=>$val ) {
-                        if ( !is_array($val) ) {
+                    foreach ($aNode as $key => $val) {
+                        if (!is_array($val)) {
                             // Dont get the recursive data in here! they are always arrays
-                            if ( substr($key,0,2) == 'on' ){  // get the events
+                            if (substr($key, 0, 2) == 'on') {  // get the events
                                 $events[$key] = $val;
                             }
 
@@ -165,7 +165,7 @@ class HTML_TreeMenu
                     $data['text'] = $aNode['text'] ? $aNode['text'] : $aNode['name'];
 
                     // Add the item to the proper node
-                    $thisNode = &$curNode[$aNode['level']]->addItem( new HTML_TreeNode( $data , $events ) );
+                    $thisNode = &$curNode[$aNode['level']]->addItem(new HTML_TreeNode($data, $events));
                     $curNode[$aNode['level']+1] = &$thisNode;
                 }
                 break;
@@ -198,7 +198,6 @@ class HTML_TreeMenu
                         HTML_TreeMenu::createFromStructure($recurseParams);
                     }
                 }
-
                 break;
 
             /**
@@ -227,7 +226,6 @@ class HTML_TreeMenu
                     }
                 }
                 break;
-
         }
 
         return $treeMenu;
@@ -415,7 +413,7 @@ class HTML_TreeNode
         $this->isDynamic     = true;
         $this->ensureVisible = false;
         $this->linkTarget    = null;
-        $this->id 			 = null;
+        $this->id            = null;
 
         $this->parent        = null;
         $this->events        = $events;
@@ -631,14 +629,16 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
 
         $html  = "\n";
         $html .= '<script language="javascript" type="text/javascript">' . "\n\t";
-        $html .= sprintf('%s = new TreeMenu("%s", "%s", "%s", "%s", %s, %s);',
-                         $menuObj,
-                         $this->images,
-                         $menuObj,
-                         $this->linkTarget,
-                         $this->defaultClass,
-                         $this->usePersistence ? 'true' : 'false',
-                         $this->noTopLevelImages ? 'true' : 'false');
+        $html .= sprintf(
+            '%s = new TreeMenu("%s", "%s", "%s", "%s", %s, %s);',
+            $menuObj,
+            $this->images,
+            $menuObj,
+            $this->linkTarget,
+            $this->defaultClass,
+            $this->usePersistence ? 'true' : 'false',
+            $this->noTopLevelImages ? 'true' : 'false'
+        );
 
         $html .= "\n";
 
@@ -657,6 +657,7 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
         if ($this->usePersistence && $this->isDynamic) {
             $html .= sprintf("\n\t%s.resetBranches();", $menuObj);
         }
+
         $html .= "\n</script>";
 
         return $html;
@@ -673,26 +674,30 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
 
         $expanded  = $this->isDynamic ? ($nodeObj->expanded  ? 'true' : 'false') : 'true';
         $isDynamic = $this->isDynamic ? ($nodeObj->isDynamic ? 'true' : 'false') : 'false';
-        $html = sprintf("\t %s = %s.addItem(new TreeNode('%s', %s, %s, %s, %s, '%s', '%s', %s));\n",
-                        $return,
-                        $prefix,
-                        str_replace("'", "\\'", $nodeObj->text),
-                        !empty($nodeObj->icon) ? "'" . $nodeObj->icon . "'" : 'null',
-                        !empty($nodeObj->link) ? "'" . attr($nodeObj->link) . "'" : 'null',
-                        $expanded,
-                        $isDynamic,
-                        $nodeObj->cssClass,
-                        $nodeObj->linkTarget,
-                        !empty($nodeObj->expandedIcon) ? "'" . $nodeObj->expandedIcon . "'" : 'null');
+        $html = sprintf(
+            "\t %s = %s.addItem(new TreeNode('%s', %s, %s, %s, %s, '%s', '%s', %s));\n",
+            $return,
+            $prefix,
+            str_replace("'", "\\'", $nodeObj->text),
+            !empty($nodeObj->icon) ? "'" . $nodeObj->icon . "'" : 'null',
+            !empty($nodeObj->link) ? "'" . attr($nodeObj->link) . "'" : 'null',
+            $expanded,
+            $isDynamic,
+            $nodeObj->cssClass,
+            $nodeObj->linkTarget,
+            !empty($nodeObj->expandedIcon) ? "'" . $nodeObj->expandedIcon . "'" : 'null'
+        );
 
         foreach ($nodeObj->events as $event => $handler) {
-            $html .= sprintf("\t %s.setEvent('%s', '%s');\n",
-                             $return,
-                             $event,
-                             str_replace(array("\r", "\n", "'"), array('\r', '\n', "\'"), $handler));
+            $html .= sprintf(
+                "\t %s.setEvent('%s', '%s');\n",
+                $return,
+                $event,
+                str_replace(array("\r", "\n", "'"), array('\r', '\n', "\'"), $handler)
+            );
         }
 
-        if ($this->maxDepth > 0 AND $currentDepth == $this->maxDepth) {
+        if ($this->maxDepth > 0 and $currentDepth == $this->maxDepth) {
             $maxDepthPrefix = $prefix;
         }
 
@@ -789,12 +794,11 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
             }
         }
 
-		if ($this->promoText) {
-        	return sprintf('<option value="">%s</option>%s', $this->promoText, $nodeHTML);
-		}
-		else {
-			return $nodeHTML;
-		}
+        if ($this->promoText) {
+            return sprintf('<option value="">%s</option>%s', $this->promoText, $nodeHTML);
+        } else {
+            return $nodeHTML;
+        }
     }
 
     /**
@@ -818,4 +822,3 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
         return $html;
     }
 } // End class HTML_TreeMenu_Listbox
-?>

@@ -31,6 +31,7 @@ use Zend\InputFilter\InputFilterAwareInterface;
 use Zend\InputFilter\InputFilterInterface;
 
 use \Application\Model\ApplicationTable;
+
 class ImmunizationTable extends AbstractTableGateway
 {
     public $tableGateway;
@@ -38,57 +39,57 @@ class ImmunizationTable extends AbstractTableGateway
 
     public function __construct(TableGateway $tableGateway)
     {
-        $this->tableGateway 		= 	$tableGateway;
-		$adapter 					= 	\Zend\Db\TableGateway\Feature\GlobalAdapterFeature::getStaticAdapter();
-		$this->adapter              = 	$adapter;
-		$this->resultSetPrototype   = 	new ResultSet();
-		$this->applicationTable	    = 	new ApplicationTable;
-    }
-	
-	/**
-	* function codeslist()
-	* Codes List
-    */
-    public function codeslist()
-	{
-		$sql	=   "SELECT id, CONCAT('CVX:',CODE) AS NAME FROM codes LEFT JOIN code_types ct ON codes.code_type = ct.ct_id WHERE ct.ct_key='CVX' ORDER BY NAME";
-		$result	=   $this->applicationTable->zQuery($sql);
-		return $result;
+        $this->tableGateway         =   $tableGateway;
+        $adapter                    =   \Zend\Db\TableGateway\Feature\GlobalAdapterFeature::getStaticAdapter();
+        $this->adapter              =   $adapter;
+        $this->resultSetPrototype   =   new ResultSet();
+        $this->applicationTable     =   new ApplicationTable;
     }
     
     /**
-	* function immunized patient details
-	* @param type $form_data
-	* @return type
-	*/
-    public function immunizedPatientDetails($form_data,$getCount=null)
+    * function codeslist()
+    * Codes List
+    */
+    public function codeslist()
     {
-		$query_data = array();
-		$query_codes     = $form_data['query_codes'];
-		$from_date       = $form_data['form_from_date'];
-		$to_date         = $form_data['form_to_date'];
-		$form_get_hl7    = $form_data['form_get_hl7'];
+        $sql    =   "SELECT id, CONCAT('CVX:',CODE) AS NAME FROM codes LEFT JOIN code_types ct ON codes.code_type = ct.ct_id WHERE ct.ct_key='CVX' ORDER BY NAME";
+        $result =   $this->applicationTable->zQuery($sql);
+        return $result;
+    }
+    
+    /**
+    * function immunized patient details
+    * @param type $form_data
+    * @return type
+    */
+    public function immunizedPatientDetails($form_data, $getCount = null)
+    {
+        $query_data = array();
+        $query_codes     = $form_data['query_codes'];
+        $from_date       = $form_data['form_from_date'];
+        $to_date         = $form_data['form_to_date'];
+        $form_get_hl7    = $form_data['form_get_hl7'];
                 $query_pids      = $form_data['query_pids'];
-		$fdate           = '';
-		$todate          = '';
-		$query =
+        $fdate           = '';
+        $todate          = '';
+        $query =
         "SELECT " .
         "i.patient_id AS patientid, " .
         "p.language, ".
         "i.cvx_code , " ;
         if ($form_get_hl7==='true') {
-			$query .=
-				"DATE_FORMAT(p.DOB,'%Y%m%d') AS DOB, ".
+            $query .=
+                "DATE_FORMAT(p.DOB,'%Y%m%d') AS DOB, ".
                                 "p.pubpid, ".
                                 "CONCAT(IF(p.street IS NULL,'',p.street), '^^', IF(p.city IS NULL,'',p.city), '^', IF(p.state IS NULL,'',p.state), '^', IF(p.postal_code IS NULL,'',p.postal_code) ,'^', IF(l.option_id IS NULL,'',l.notes)) AS address, ".
-				"p.country_code, ".
-				"p.phone_home, ".
-				"p.phone_biz, ".
-				"p.status, ".
-				"p.sex, ".
-				"p.ethnoracial, ".
-				"p.race, ".
-				"p.ethnicity, ".
+                "p.country_code, ".
+                "p.phone_home, ".
+                "p.phone_biz, ".
+                "p.status, ".
+                "p.sex, ".
+                "p.ethnoracial, ".
+                "p.race, ".
+                "p.ethnicity, ".
                                 "p.guardiansname, ".
                                 "p.guardianrelationship, ".
                                 "p.guardiansex, ".
@@ -103,19 +104,19 @@ class ImmunizationTable extends AbstractTableGateway
                                 "DATE_FORMAT(p.imm_reg_stat_effdate,'%Y%m%d') AS immunization_registry_status_effective_date, ".
                                 "CONCAT(IF(p.guardianaddress IS NULL,'',p.guardianaddress), '^', '','^',IF(p.guardiancity IS NULL,'',p.guardiancity), '^', IF(p.guardianstate IS NULL,'',p.guardianstate), '^', IF(p.guardianpostalcode IS NULL,'',p.guardianpostalcode) ,'^', IF(l.option_id IS NULL,'',l.notes),'^','L', '^', '', '^', '', '^', '') AS guardian_address, ".
                                 "p.ss, ".
-				"c.code_text, ".
-				"c.code, ".
-				"c.code_type, ".
-				"DATE_FORMAT(i.vis_date,'%Y%m%d') AS immunizationdate, ".
-				"DATE_FORMAT(i.administered_date,'%Y%m%d') AS administered_date, ".
-				"i.lot_number AS lot_number, ".
-				"i.manufacturer AS manufacturer, ".
+                "c.code_text, ".
+                "c.code, ".
+                "c.code_type, ".
+                "DATE_FORMAT(i.vis_date,'%Y%m%d') AS immunizationdate, ".
+                "DATE_FORMAT(i.administered_date,'%Y%m%d') AS administered_date, ".
+                "i.lot_number AS lot_number, ".
+                "i.manufacturer AS manufacturer, ".
                                 "i.administration_site, ".
                                 "CONCAT(IF(p.lname IS NULL,'',p.lname), '^', p.fname , '^', IF(p.mname IS NULL,'',p.mname)) AS patientname, ".
                                 "f.id,".
                                 "f.name AS fac_name, ".
-				"f.facility_code,".
-				"i.administered_by_id,".
+                "f.facility_code,".
+                "i.administered_by_id,".
                                 "i.note,".
                                 "CONCAT (IF(u.npi IS NULL,'',u.npi),'^',u.lname,'^',u.fname,'^',IF(u.mname IS NULL,'',u.mname)) as primary_care_provider_details, ".
                                 "l.notes AS country_code, ".
@@ -130,55 +131,60 @@ class ImmunizationTable extends AbstractTableGateway
                                 "CONCAT(u2.lname,'^',u2.fname,'^',IF(u2.mname IS NULL,'',u2.mname)) AS ordering_provider_name, ".
                                 "i.administered_by_id,i.note,i.information_source,DATE_FORMAT(i.expiration_date,'%Y%m%d') AS expiration_date,i.refusal_reason,i.completion_status,";
         } else {
-			$query .= "CONCAT(IF(p.fname IS NULL,'',p.fname),' ',IF(p.mname IS NULL,'',p.mname),' ',IF(p.lname IS NULL,'',p.lname)) AS  patientname, ".
-				"i.vis_date AS immunizationdate, "  ;
+            $query .= "CONCAT(IF(p.fname IS NULL,'',p.fname),' ',IF(p.mname IS NULL,'',p.mname),' ',IF(p.lname IS NULL,'',p.lname)) AS  patientname, ".
+                "i.vis_date AS immunizationdate, "  ;
         }
+
         $query .=
-			"i.id AS immunizationid, c.code_text_short AS immunizationtitle, c.code_text,i.amount_administered AS administered_amount, i.amount_administered_unit AS administered_unit ".
-			"FROM (immunizations AS i, patient_data AS p, codes AS c) ".
-			"LEFT JOIN code_types ct ON c.code_type = ct.ct_id ".
-			"LEFT JOIN users AS u ON i.administered_by_id = u.id ".
-			"LEFT JOIN facility AS f ON f.id = u.facility_id ".
+            "i.id AS immunizationid, c.code_text_short AS immunizationtitle, c.code_text,i.amount_administered AS administered_amount, i.amount_administered_unit AS administered_unit ".
+            "FROM (immunizations AS i, patient_data AS p, codes AS c) ".
+            "LEFT JOIN code_types ct ON c.code_type = ct.ct_id ".
+            "LEFT JOIN users AS u ON i.administered_by_id = u.id ".
+            "LEFT JOIN facility AS f ON f.id = u.facility_id ".
                         "LEFT JOIN list_options l ON l.option_id = p.country_code AND l.list_id='country' ".
                         "LEFT JOIN list_options l1 ON l1.option_id = i.route AND l1.list_id='drug_route' ".
                         "LEFT JOIN list_options l2 ON l2.option_id = p.guardiancountry AND l2.list_id='country' ".
                         "LEFT JOIN users AS u1 ON i.created_by = u1.id ".
                         "LEFT JOIN users AS u2 ON i.ordering_provider = u2.id ".
-			"WHERE ".
-			"ct.ct_key='CVX' and ";
-        if($from_date!=0) {
-			$query .= "i.vis_date >= ? " ;
-			$query_data[] = $from_date;
+            "WHERE ".
+            "ct.ct_key='CVX' and ";
+        if ($from_date!=0) {
+            $query .= "i.vis_date >= ? " ;
+            $query_data[] = $from_date;
         }
-        if($from_date!=0 and $to_date!=0) {
-			$query .= " and " ;
+
+        if ($from_date!=0 and $to_date!=0) {
+            $query .= " and " ;
         }
-        if($to_date!=0) {
-			$query .= "i.vis_date <= ? ";
-			$query_data[] = $to_date;
+
+        if ($to_date!=0) {
+            $query .= "i.vis_date <= ? ";
+            $query_data[] = $to_date;
         }
-        if($from_date!=0 or $to_date!=0) {
-			$query .= " and " ;
+
+        if ($from_date!=0 or $to_date!=0) {
+            $query .= " and " ;
         }
+
         $query .= "i.patient_id=p.pid and ".
         add_escape_custom($query_codes) .
         $query_pids .
         "i.cvx_code = c.code ORDER BY i.patient_id, i.id";
         
-        if($getCount){
-            $result		=	$this->applicationTable->zQuery($query,$query_data);
-            $resCount 	=   $result->count();
+        if ($getCount) {
+            $result     =   $this->applicationTable->zQuery($query, $query_data);
+            $resCount   =   $result->count();
             return $resCount;
         }
         
         $query .= " LIMIT ".\Application\Plugin\CommonPlugin::escapeLimit($form_data['limit_start']).",".\Application\Plugin\CommonPlugin::escapeLimit($form_data['results']);
-        $result	=	$this->applicationTable->zQuery($query,$query_data);
+        $result =   $this->applicationTable->zQuery($query, $query_data);
         return $result;
-	}
+    }
   
-    public function getNotes($option_id,$list_id)
+    public function getNotes($option_id, $list_id)
     {
-        if($option_id) {
+        if ($option_id) {
             $query   = "SELECT 
                           notes 
                         FROM
@@ -186,9 +192,10 @@ class ImmunizationTable extends AbstractTableGateway
                         WHERE list_id = ? 
                           AND option_id = ? 
                           AND activity = ?";
-            $result  = $this->applicationTable->zQuery($query,array($list_id,$option_id,1));
+            $result  = $this->applicationTable->zQuery($query, array($list_id,$option_id,1));
             $res_cur = $result->current();
         }
+
         return $res_cur['notes'];
     }
   
@@ -198,7 +205,7 @@ class ImmunizationTable extends AbstractTableGateway
     * @param type $id
     * @return type Array $val
     */
-    public function getImmunizationObservationResultsData($pid,$id)
+    public function getImmunizationObservationResultsData($pid, $id)
     {
         $sql    = " SELECT 
                        * 
@@ -207,15 +214,16 @@ class ImmunizationTable extends AbstractTableGateway
                      WHERE imo_pid = ? 
                        AND imo_im_id = ?";
         $result = $this->applicationTable->zQuery($sql, array($pid,$id));
-        foreach($result as $row) {
+        foreach ($result as $row) {
             $val[]  = $row;
         }
+
         return $val;
     }
   
-    public function getCodes($option_id,$list_id)
+    public function getCodes($option_id, $list_id)
     {
-        if($option_id) {
+        if ($option_id) {
             $query   = "SELECT 
                           codes 
                         FROM
@@ -223,11 +231,11 @@ class ImmunizationTable extends AbstractTableGateway
                         WHERE list_id = ? 
                           AND option_id = ? 
                           AND activity = ?";
-            $result  = $this->applicationTable->zQuery($query,array($list_id,$option_id,1));
+            $result  = $this->applicationTable->zQuery($query, array($list_id,$option_id,1));
             $res_cur = $result->current();
         }
-        $codes            = explode(":",$res_cur['codes']);
+
+        $codes            = explode(":", $res_cur['codes']);
         return $codes[1];
     }
-    
 }

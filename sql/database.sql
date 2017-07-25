@@ -2,7 +2,7 @@
 -- Database: `openemr`
 --
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `addresses`
@@ -23,7 +23,7 @@ CREATE TABLE `addresses` (
   KEY `foreign_id` (`foreign_id`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `amc_misc_data`
@@ -41,7 +41,7 @@ CREATE TABLE `amc_misc_data` (
   KEY  (`amc_id`,`pid`,`map_id`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `amendments`
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS `amendments` (
   KEY amendment_pid(`pid`)
 ) ENGINE = InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `amendments_history`
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS `amendments_history` (
 KEY amendment_history_id(`amendment_id`)
 ) ENGINE = InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `array`
@@ -91,7 +91,7 @@ CREATE TABLE `array` (
   `array_value` longtext
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `audit_master`
@@ -151,7 +151,7 @@ CREATE TABLE `background_services` (
 INSERT INTO `background_services` (`name`, `title`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('ccdaservice', 'C-CDA Node Service', 1, 'runCheck', '/ccdaservice/ssmanager.php', 95),
 ('phimail', 'phiMail Direct Messaging Service', 5, 'phimail_check', '/library/direct_message_check.inc', 100);
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `batchcom`
@@ -169,7 +169,7 @@ CREATE TABLE `batchcom` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `billing`
@@ -209,7 +209,7 @@ CREATE TABLE `billing` (
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `categories`
@@ -261,7 +261,7 @@ INSERT INTO `categories` VALUES (26, 'Drawings - Eye', '', 17, 47, 48, 'patients
 INSERT INTO `categories` VALUES (27, 'Onsite Portal', '', 1, 51, 56, 'patients|docs');
 INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 52, 53, 'patients|docs');
 INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 54, 55, 'patients|docs');
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `categories_seq`
@@ -279,7 +279,7 @@ CREATE TABLE `categories_seq` (
 
 INSERT INTO `categories_seq` VALUES (29);
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `categories_to_documents`
@@ -292,7 +292,7 @@ CREATE TABLE `categories_to_documents` (
   PRIMARY KEY  (`category_id`,`document_id`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `claims`
@@ -315,7 +315,7 @@ CREATE TABLE `claims` (
   PRIMARY KEY  (`patient_id`,`encounter_id`,`version`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `clinical_plans`
@@ -357,7 +357,7 @@ INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_2011
 INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_measure_group` ) VALUES ('dm_plan', 0, 1, 0, '');
 INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_measure_group` ) VALUES ('prevent_plan', 0, 1, 0, '');
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `clinical_plans_rules`
@@ -427,7 +427,7 @@ INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('prevent_pla
 --   Cancer Screening: Prostate Cancer Screening
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('prevent_plan', 'rule_cs_prostate');
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `clinical_rules`
@@ -674,7 +674,7 @@ INSERT INTO `clinical_rules`
 ('e_prescribe_2_stage2_amc', 0, 0, 0, 0, '', '', 1, '170.304(b)', 0, 0, 1, '170.314(g)(1)/(2)–8', 0, 0, 0, 1);
 
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `clinical_rules_log
@@ -696,7 +696,7 @@ CREATE TABLE `clinical_rules_log` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `codes`
@@ -740,7 +740,7 @@ INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('Inhale','C38216',1
 INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('Intramuscular','C28161',112);
 INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('mg','C28253',112);
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `syndromic_surveillance`
@@ -756,7 +756,7 @@ CREATE TABLE `syndromic_surveillance` (
   KEY (`lists_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `config`
@@ -775,7 +775,7 @@ CREATE TABLE `config` (
   KEY `lft` (`lft`,`rght`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `config_seq`
@@ -793,7 +793,7 @@ CREATE TABLE `config_seq` (
 
 INSERT INTO `config_seq` VALUES (0);
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `dated_reminders`
@@ -815,7 +815,7 @@ CREATE TABLE `dated_reminders` (
   KEY `dr_from_ID` (`dr_from_ID`,`dr_message_due_date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `dated_reminders_link`
@@ -831,7 +831,7 @@ CREATE TABLE `dated_reminders_link` (
   KEY `dr_id` (`dr_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `direct_message_log`
@@ -855,7 +855,7 @@ CREATE TABLE `direct_message_log` (
   KEY `patient_id` (`patient_id`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `documents`
@@ -893,7 +893,7 @@ CREATE TABLE `documents` (
   KEY `owner` (`owner`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `documents_legal_detail`
@@ -921,7 +921,7 @@ CREATE TABLE `documents_legal_detail` (
   PRIMARY KEY (`dld_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `documents_legal_master`
@@ -948,7 +948,7 @@ CREATE TABLE `documents_legal_master` (
   PRIMARY KEY (`dlm_document_id`)
 ) ENGINE=InnoDB COMMENT='List of Master Docs to be signed' AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `documents_legal_categories`
@@ -995,7 +995,7 @@ CREATE TABLE `drug_inventory` (
   PRIMARY KEY  (`inventory_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `drug_sales`
@@ -1023,7 +1023,7 @@ CREATE TABLE `drug_sales` (
   PRIMARY KEY  (`sale_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `drug_templates`
@@ -1041,7 +1041,7 @@ CREATE TABLE `drug_templates` (
   PRIMARY KEY  (`drug_id`,`selector`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `drugs`
@@ -1073,7 +1073,7 @@ CREATE TABLE `drugs` (
   PRIMARY KEY  (`drug_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `eligibility_response`
@@ -1090,7 +1090,7 @@ CREATE TABLE `eligibility_response` (
   PRIMARY KEY  (`response_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `eligibility_verification`
@@ -1110,7 +1110,7 @@ CREATE TABLE `eligibility_verification` (
   KEY `insurance_id` (`insurance_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `employer_data`
@@ -1131,7 +1131,7 @@ CREATE TABLE `employer_data` (
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `enc_category_map`
@@ -1185,7 +1185,7 @@ INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_inf
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_ophthal_serv', 14);
 
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `erx_ttl_touch`
@@ -1201,7 +1201,7 @@ CREATE  TABLE `erx_ttl_touch` (
   PRIMARY KEY (`patient_id`, `process`)
 ) ENGINE = InnoDB COMMENT = 'Store records last update per patient data process' ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `standardized_tables_track`
@@ -1218,7 +1218,7 @@ CREATE TABLE `standardized_tables_track` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `facility`
@@ -1261,7 +1261,7 @@ CREATE TABLE `facility` (
 INSERT INTO `facility` VALUES (3, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 0, NULL, '', '', '', '', '','#99FFFF','0', '', '1');
 
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `facility_user_ids`
@@ -1278,7 +1278,7 @@ CREATE TABLE  `facility_user_ids` (
   KEY `uid` (`uid`,`facility_id`,`field_id`)
 ) ENGINE=InnoDB  AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `fee_sheet_options`
@@ -1306,7 +1306,7 @@ INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '3Detailed', 'CP
 INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '4Extended', 'CPT4|99214|');
 INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '5Comprehensive', 'CPT4|99215|');
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `form_dictation`
@@ -1326,7 +1326,7 @@ CREATE TABLE `form_dictation` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `form_encounter`
@@ -1361,7 +1361,7 @@ CREATE TABLE `form_encounter` (
   KEY `encounter_date` (`date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `form_misc_billing_options`
@@ -1405,7 +1405,7 @@ CREATE TABLE `form_misc_billing_options` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `form_reviewofs`
@@ -1531,7 +1531,7 @@ CREATE TABLE `form_reviewofs` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `form_ros`
@@ -1684,7 +1684,7 @@ CREATE TABLE `form_ros` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `form_soap`
@@ -1706,7 +1706,7 @@ CREATE TABLE `form_soap` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `form_vitals`
@@ -1740,7 +1740,7 @@ CREATE TABLE `form_vitals` (
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `forms`
@@ -1765,7 +1765,7 @@ CREATE TABLE `forms` (
   KEY `form_id` (`form_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `geo_country_reference`
@@ -2025,7 +2025,7 @@ INSERT INTO `geo_country_reference` VALUES (237, 'Zaire', 'ZR', 'ZAR');
 INSERT INTO `geo_country_reference` VALUES (238, 'Zambia', 'ZM', 'ZMB');
 INSERT INTO `geo_country_reference` VALUES (239, 'Zimbabwe', 'ZW', 'ZWE');
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `geo_zone_reference`
@@ -2127,7 +2127,7 @@ INSERT INTO `geo_zone_reference` VALUES (80, 61, 'SA', 'South Australia');
 INSERT INTO `geo_zone_reference` VALUES (81, 61, 'ACT', 'Australian Capital Territory');
 INSERT INTO `geo_zone_reference` VALUES (82, 61, 'VIC', 'Victoria');
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `groups`
@@ -2141,7 +2141,7 @@ CREATE TABLE `groups` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `history_data`
@@ -2242,7 +2242,7 @@ CREATE TABLE `history_data` (
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `icd9_dx_code`
@@ -2262,7 +2262,7 @@ CREATE TABLE `icd9_dx_code` (
   KEY `active` (`active`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `icd9_sg_code`
@@ -2282,7 +2282,7 @@ CREATE TABLE `icd9_sg_code` (
   KEY `active` (`active`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `icd9_dx_long_code`
@@ -2297,7 +2297,7 @@ CREATE TABLE `icd9_dx_long_code` (
   `revision` int default 0
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `icd9_sg_long_code`
@@ -2312,7 +2312,7 @@ CREATE TABLE `icd9_sg_long_code` (
   `revision` int default 0
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `icd10_dx_order_code`
@@ -2332,7 +2332,7 @@ CREATE TABLE `icd10_dx_order_code` (
   KEY `active` (`active`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `icd10_pcs_order_code`
@@ -2351,7 +2351,7 @@ CREATE TABLE `icd10_pcs_order_code` (
   KEY `active` (`active`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `icd10_gem_pcs_9_10`
@@ -2367,7 +2367,7 @@ CREATE TABLE `icd10_gem_pcs_9_10` (
   `revision` int default 0
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `icd10_gem_pcs_10_9`
@@ -2383,7 +2383,7 @@ CREATE TABLE `icd10_gem_pcs_10_9` (
   `revision` int default 0
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `icd10_gem_dx_9_10`
@@ -2399,7 +2399,7 @@ CREATE TABLE `icd10_gem_dx_9_10` (
   `revision` int default 0
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `icd10_gem_dx_10_9`
@@ -2415,7 +2415,7 @@ CREATE TABLE `icd10_gem_dx_10_9` (
   `revision` int default 0
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `icd10_reimbr_dx_9_10`
@@ -2436,7 +2436,7 @@ CREATE TABLE `icd10_reimbr_dx_9_10` (
   `revision` int default 0
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `icd10_reimbr_pcs_9_10`
@@ -2457,7 +2457,7 @@ CREATE TABLE `icd10_reimbr_pcs_9_10` (
   `revision` int default 0
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `immunizations`
@@ -2496,7 +2496,7 @@ CREATE TABLE `immunizations` (
   KEY `patient_id` (`patient_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `insurance_companies`
@@ -2516,7 +2516,7 @@ CREATE TABLE `insurance_companies` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `insurance_data`
@@ -2558,7 +2558,7 @@ CREATE TABLE `insurance_data` (
   UNIQUE KEY `pid_type_date` (`pid`,`type`,`date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `insurance_numbers`
@@ -2577,7 +2577,7 @@ CREATE TABLE `insurance_numbers` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `issue_encounter`
@@ -2592,7 +2592,7 @@ CREATE TABLE `issue_encounter` (
   PRIMARY KEY  (`pid`,`list_id`,`encounter`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `issue_types`
@@ -2629,7 +2629,7 @@ INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbrev
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('50','ippf_specific','ippf_gcac','Abortions','Abortion','A','3','0');
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('60','ippf_specific','contraceptive','Contraception','Contraception','C','4','0');
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `lang_constants`
@@ -2676,7 +2676,7 @@ CREATE TABLE `lang_languages` (
 
 INSERT INTO `lang_languages` VALUES (1, 'en', 'English', 0);
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `lang_custom`
@@ -2690,7 +2690,7 @@ CREATE TABLE `lang_custom` (
   `definition` mediumtext
 ) ENGINE=InnoDB ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `layout_options`
@@ -2895,7 +2895,7 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_name`,`title`,`seq`,`d
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_name`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardianphone'  , '8Guardian', 'Phone'  ,90, 2, 1,20,63, '', 1, 1, '', '', 'Phone', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_name`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardianworkphone'  , '8Guardian', 'Work Phone'  ,100, 2, 1,20,63, '', 1, 1, '', '', 'Work Phone', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_name`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardianemail'  , '8Guardian', 'Email'  ,110, 2, 1,20,63, '', 1, 1, '', '', 'Guardian Email Address', 0);
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `list_options`
@@ -4642,7 +4642,7 @@ INSERT INTO list_options (list_id,option_id,title,seq,notes,activity) VALUES ('f
 INSERT INTO list_options (list_id,option_id,title,seq,notes,activity) VALUES ('formdir_keys','physical_exam','"id":"forms_id","limit":"*"',30,'Physical exam form table has non-std id and n records',1);
 
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 -- provider_qualifier_code
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','provider_qualifier_code','Provider Qualifier Code', 1,0);
@@ -4653,6 +4653,10 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 -- Files type white list
 INSERT INTO list_options (`list_id`, `option_id`, `title`) VALUES ('lists', 'files_white_list', 'Files type white list');
 
+-- Sample Apps (Disabled)
+INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','apps','Apps');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','*OpenEMR','main/main_screen.php',10,1,0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','Calendar','main/calendar/index.php',20,0,0);
 
 --
 -- Table structure for table `lists`
@@ -4696,7 +4700,7 @@ CREATE TABLE `lists` (
   KEY `type` (`type`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `lists_touch`
@@ -4710,7 +4714,7 @@ CREATE TABLE `lists_touch` (
   PRIMARY KEY  (`pid`,`type`)
 ) ENGINE=InnoDB ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `log`
@@ -4737,7 +4741,7 @@ CREATE TABLE `log` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `modules`
@@ -4764,7 +4768,7 @@ CREATE TABLE `modules` (
   PRIMARY KEY (`mod_id`,`mod_directory`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `module_acl_group_settings`
@@ -4777,7 +4781,7 @@ CREATE TABLE `module_acl_group_settings` (
   PRIMARY KEY (`module_id`,`group_id`,`section_id`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `module_acl_sections`
@@ -4790,7 +4794,7 @@ CREATE TABLE `module_acl_sections` (
   `module_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `module_acl_user_settings`
@@ -4803,7 +4807,7 @@ CREATE TABLE `module_acl_user_settings` (
   PRIMARY KEY (`module_id`,`user_id`,`section_id`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `module_configuration`
@@ -4816,7 +4820,7 @@ CREATE TABLE `module_configuration` (
   PRIMARY KEY (`module_config_id`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `modules_hooks_settings`
@@ -4829,7 +4833,7 @@ CREATE TABLE `modules_hooks_settings` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `modules_settings`
@@ -4842,7 +4846,7 @@ CREATE TABLE `modules_settings` (
   `path` VARCHAR(255) DEFAULT NULL
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `notes`
@@ -4862,7 +4866,7 @@ CREATE TABLE `notes` (
   KEY `date` (`date`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `onotes`
@@ -4879,7 +4883,7 @@ CREATE TABLE `onotes` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `onsite_documents`
@@ -4910,7 +4914,7 @@ CREATE TABLE `onsite_documents` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `onsite_mail`
@@ -4945,7 +4949,7 @@ CREATE TABLE `onsite_mail` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `onsite_messages`
@@ -4964,7 +4968,7 @@ CREATE TABLE `onsite_messages` (
 ) ENGINE=InnoDB COMMENT='Portal messages' AUTO_INCREMENT=1 ;
 
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `onsite_online`
@@ -4980,7 +4984,7 @@ CREATE TABLE `onsite_online` (
   PRIMARY KEY (`hash`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `onsite_portal_activity`
@@ -5007,7 +5011,7 @@ CREATE TABLE `onsite_portal_activity` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `onsite_signatures`
@@ -5035,7 +5039,7 @@ CREATE TABLE `onsite_signatures` (
   KEY `encounter` (`encounter`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `openemr_module_vars`
@@ -5076,7 +5080,7 @@ INSERT INTO `openemr_module_vars` VALUES (218, 'PostCalendar', 'pcUseInternation
 INSERT INTO `openemr_module_vars` VALUES (217, 'PostCalendar', 'pcEventsOpenInNewWindow', '0');
 INSERT INTO `openemr_module_vars` VALUES (216, 'PostCalendar', 'pcTime24Hours', '0');
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `openemr_modules`
@@ -5104,7 +5108,7 @@ CREATE TABLE `openemr_modules` (
 
 INSERT INTO `openemr_modules` VALUES (46, 'PostCalendar', 2, 'PostCalendar', 'PostNuke Calendar Module', 0, 'PostCalendar', '4.0.0', 1, 1, 3);
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `openemr_postcalendar_categories`
@@ -5129,6 +5133,7 @@ CREATE TABLE `openemr_postcalendar_categories` (
   `pc_cattype` INT( 11 ) NOT NULL COMMENT 'Used in grouping categories',
   `pc_active` tinyint(1) NOT NULL default 1,
   `pc_seq` int(11) NOT NULL default '0',
+  `aco_spec` VARCHAR(63) NOT NULL default 'encounters|notes',
   PRIMARY KEY  (`pc_catid`),
   KEY `basic_cat` (`pc_catname`,`pc_catcolor`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 ;
@@ -5137,24 +5142,24 @@ CREATE TABLE `openemr_postcalendar_categories` (
 -- Dumping data for table `openemr_postcalendar_categories`
 --
 
-INSERT INTO `openemr_postcalendar_categories` VALUES (5, 'Office Visit', '#FFFFCC', 'Normal Office Visit', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,5);
-INSERT INTO `openemr_postcalendar_categories` VALUES (4, 'Vacation', '#EFEFEF', 'Reserved for use to define Scheduled Vacation Time', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 0, 0, 0, 1, 0, 1,1,4);
-INSERT INTO `openemr_postcalendar_categories` VALUES (1, 'No Show', '#DDDDDD', 'Reserved to define when an event did not occur as specified.', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 0, 0, 0, 0, 0, 0,1,1);
-INSERT INTO `openemr_postcalendar_categories` VALUES (2, 'In Office', '#99CCFF', 'Reserved todefine when a provider may haveavailable appointments after.', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 1, 3, 2, 0, 0, 1,1,2);
-INSERT INTO `openemr_postcalendar_categories` VALUES (3, 'Out Of Office', '#99FFFF', 'Reserved to define when a provider may not have available appointments after.', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 1, 3, 2, 0, 0, 1,1,3);
-INSERT INTO `openemr_postcalendar_categories` VALUES (6,'Holidays','#9676DB','Clinic holiday',0,NULL,'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}',0,86400,1,3,2,0,0,2,1,6);
-INSERT INTO `openemr_postcalendar_categories` VALUES (7,'Closed','#2374AB','Clinic closed',0,NULL,'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}',0,86400,1,3,2,0,0,2,1,7);
-INSERT INTO `openemr_postcalendar_categories` VALUES (8, 'Lunch', '#FFFF33', 'Lunch', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 3600, 0, 3, 2, 0, 0, 1,1,8);
-INSERT INTO `openemr_postcalendar_categories` VALUES (9, 'Established Patient', '#CCFF33', '', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0, 0,1,9);
-INSERT INTO `openemr_postcalendar_categories` VALUES (10,'New Patient', '#CCFFFF', '', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 1800, 0, 0, 0, 0, 0, 0,1,10);
-INSERT INTO `openemr_postcalendar_categories` VALUES (11,'Reserved','#FF7777','Reserved',1,NULL,'a:5:{s:17:\"event_repeat_freq\";s:1:\"1\";s:22:\"event_repeat_freq_type\";s:1:\"4\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,900,0,3,2,0,0, 1,1,11);
-INSERT INTO `openemr_postcalendar_categories` VALUES (12, 'Health and Behavioral Assessment', '#C7C7C7', 'Health and Behavioral Assessment', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,12);
-INSERT INTO `openemr_postcalendar_categories` VALUES (13, 'Preventive Care Services', '#CCCCFF', 'Preventive Care Services', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,13);
+INSERT INTO `openemr_postcalendar_categories` VALUES (5, 'Office Visit', '#FFFFCC', 'Normal Office Visit', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,5,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (4, 'Vacation', '#EFEFEF', 'Reserved for use to define Scheduled Vacation Time', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 0, 0, 0, 1, 0, 1,1,4,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (1, 'No Show', '#DDDDDD', 'Reserved to define when an event did not occur as specified.', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 0, 0, 0, 0, 0, 0,1,1,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (2, 'In Office', '#99CCFF', 'Reserved todefine when a provider may haveavailable appointments after.', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 1, 3, 2, 0, 0, 1,1,2,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (3, 'Out Of Office', '#99FFFF', 'Reserved to define when a provider may not have available appointments after.', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 1, 3, 2, 0, 0, 1,1,3,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (6,'Holidays','#9676DB','Clinic holiday',0,NULL,'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}',0,86400,1,3,2,0,0,2,1,6,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (7,'Closed','#2374AB','Clinic closed',0,NULL,'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}',0,86400,1,3,2,0,0,2,1,7,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (8, 'Lunch', '#FFFF33', 'Lunch', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 3600, 0, 3, 2, 0, 0, 1,1,8,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (9, 'Established Patient', '#CCFF33', '', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0, 0,1,9,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (10,'New Patient', '#CCFFFF', '', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 1800, 0, 0, 0, 0, 0, 0,1,10,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (11,'Reserved','#FF7777','Reserved',1,NULL,'a:5:{s:17:\"event_repeat_freq\";s:1:\"1\";s:22:\"event_repeat_freq_type\";s:1:\"4\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,900,0,3,2,0,0, 1,1,11,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (12, 'Health and Behavioral Assessment', '#C7C7C7', 'Health and Behavioral Assessment', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,12,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (13, 'Preventive Care Services', '#CCCCFF', 'Preventive Care Services', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,13,'encounters|notes');
 
-INSERT INTO `openemr_postcalendar_categories` VALUES (14, 'Ophthalmological Services', '#F89219', 'Ophthalmological Services', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,14);
-INSERT INTO `openemr_postcalendar_categories` VALUES (15, 'Group Therapy' , '#BFBFBF' , 'Group Therapy', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 3600, 0, 0, 0, 0, 0, 3, 1, 15);
+INSERT INTO `openemr_postcalendar_categories` VALUES (14, 'Ophthalmological Services', '#F89219', 'Ophthalmological Services', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,14,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories` VALUES (15, 'Group Therapy' , '#BFBFBF' , 'Group Therapy', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 3600, 0, 0, 0, 0, 0, 3, 1, 15,'encounters|notes');
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `openemr_postcalendar_events`
@@ -5205,7 +5210,7 @@ CREATE TABLE `openemr_postcalendar_events` (
   KEY `pc_eventDate` (`pc_eventDate`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `openemr_postcalendar_limits`
@@ -5221,7 +5226,7 @@ CREATE TABLE `openemr_postcalendar_limits` (
   PRIMARY KEY  (`pc_limitid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `openemr_postcalendar_topics`
@@ -5237,7 +5242,7 @@ CREATE TABLE `openemr_postcalendar_topics` (
   KEY `basic_cat` (`pc_catname`,`pc_catcolor`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `openemr_session_info`
@@ -5254,7 +5259,7 @@ CREATE TABLE `openemr_session_info` (
   PRIMARY KEY  (`pn_sessid`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `patient_access_onsite`
@@ -5271,7 +5276,7 @@ CREATE TABLE `patient_access_onsite`(
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB AUTO_INCREMENT=1;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `patient_data`
@@ -5389,7 +5394,7 @@ CREATE TABLE `patient_data` (
   UNIQUE KEY `pid` (`pid`),
   KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `patient_portal_menu`
@@ -5417,7 +5422,7 @@ INSERT  INTO `patient_portal_menu`(`patient_portal_menu_id`,`patient_portal_menu
 INSERT  INTO `patient_portal_menu`(`patient_portal_menu_id`,`patient_portal_menu_group_id`,`menu_name`,`menu_order`,`menu_status`) VALUES (11,1,'View Health Information',33,1);
 INSERT  INTO `patient_portal_menu`(`patient_portal_menu_id`,`patient_portal_menu_group_id`,`menu_name`,`menu_order`,`menu_status`) VALUES (12,1,'Download Health Information',36,1);
 INSERT  INTO `patient_portal_menu`(`patient_portal_menu_id`,`patient_portal_menu_group_id`,`menu_name`,`menu_order`,`menu_status`) VALUES (13,1,'Transmit Health Information',39,1);
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `patient_reminders`
@@ -5444,7 +5449,7 @@ CREATE TABLE `patient_reminders` (
   KEY (`category`,`item`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `patient_access_offsite`
@@ -5521,7 +5526,7 @@ CREATE TABLE `payments` (
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `payment_gateway_details`
@@ -5535,7 +5540,7 @@ CREATE TABLE `payment_gateway_details` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `pharmacies`
@@ -5550,7 +5555,7 @@ CREATE TABLE `pharmacies` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `phone_numbers`
@@ -5569,7 +5574,7 @@ CREATE TABLE `phone_numbers` (
   KEY `foreign_id` (`foreign_id`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `pma_bookmark`
@@ -5594,7 +5599,7 @@ INSERT INTO `pma_bookmark` VALUES (9, 'openemr', 'openemr', 'Search by Code', 'S
 INSERT INTO `pma_bookmark` VALUES (8, 'openemr', 'openemr', 'Count No Shows By Provider since Interval ago', 'SELECT concat( u.fname,  " ", u.lname )  AS  "Provider Name", u.id AS  "Provider ID", count(  DISTINCT ev.pc_eid )  AS  "Number of No Shows"/* , concat(DATE_FORMAT(NOW(),''%Y-%m-%d''), '' and '',DATE_FORMAT(DATE_ADD(now(), INTERVAL [VARIABLE]),''%Y-%m-%d'') ) as "Between Dates" */ FROM  `openemr_postcalendar_events`  AS ev LEFT  JOIN users AS u ON ev.pc_aid = u.id WHERE ev.pc_catid =1/* and ( ev.pc_eventDate >= DATE_SUB(now(), INTERVAL [VARIABLE]) )  */\r\nGROUP  BY u.id;');
 INSERT INTO `pma_bookmark` VALUES (6, 'openemr', 'openemr', 'Appointments By Race/Ethnicity from today plus interval', 'SELECT  count(pd.ethnoracial) as "Number of Appointments", pd.ethnoracial AS  "Race/Ethnicity" /* , concat(DATE_FORMAT(NOW(),''%Y-%m-%d''), '' and '',DATE_FORMAT(DATE_ADD(now(), INTERVAL [VARIABLE]),''%Y-%m-%d'') ) as "Between Dates" */ FROM openemr_postcalendar_events AS ev LEFT  JOIN   `patient_data`  AS pd ON  pd.pid = ev.pc_pid where ev.pc_eventstatus=1 and ev.pc_catid = 5 and ev.pc_eventDate >= now()  /* and ( ev.pc_eventDate <= DATE_ADD(now(), INTERVAL [VARIABLE]) )  */ group by pd.ethnoracial');
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `pma_column_info`
@@ -5614,7 +5619,7 @@ CREATE TABLE `pma_column_info` (
   UNIQUE KEY `db_name` (`db_name`,`table_name`,`column_name`)
 ) ENGINE=InnoDB COMMENT='Column Information for phpMyAdmin' AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `pma_history`
@@ -5632,7 +5637,7 @@ CREATE TABLE `pma_history` (
   KEY `username` (`username`,`db`,`table`,`timevalue`)
 ) ENGINE=InnoDB COMMENT='SQL history' AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `pma_pdf_pages`
@@ -5647,7 +5652,7 @@ CREATE TABLE `pma_pdf_pages` (
   KEY `db_name` (`db_name`)
 ) ENGINE=InnoDB COMMENT='PDF Relationpages for PMA' AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `pma_relation`
@@ -5665,7 +5670,7 @@ CREATE TABLE `pma_relation` (
   KEY `foreign_field` (`foreign_db`,`foreign_table`)
 ) ENGINE=InnoDB COMMENT='Relation table';
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `pma_table_coords`
@@ -5681,7 +5686,7 @@ CREATE TABLE `pma_table_coords` (
   PRIMARY KEY  (`db_name`,`table_name`,`pdf_page_number`)
 ) ENGINE=InnoDB COMMENT='Table coordinates for phpMyAdmin PDF output';
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `pma_table_info`
@@ -5695,7 +5700,7 @@ CREATE TABLE `pma_table_info` (
   PRIMARY KEY  (`db_name`,`table_name`)
 ) ENGINE=InnoDB COMMENT='Table information for phpMyAdmin';
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `pnotes`
@@ -5721,7 +5726,7 @@ CREATE TABLE `pnotes` (
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `prescriptions`
@@ -5770,7 +5775,7 @@ CREATE TABLE `prescriptions` (
   KEY `patient_id` (`patient_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `prices`
@@ -5785,7 +5790,7 @@ CREATE TABLE `prices` (
   PRIMARY KEY  (`pr_id`,`pr_selector`,`pr_level`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `registry`
@@ -5830,7 +5835,7 @@ INSERT INTO `registry` VALUES ('Eye Exam', 1, 'eye_mag', 21, 1, 1, '2015-10-15 0
 INSERT INTO `registry` VALUES ('Group Attendance Form', 1, 'group_attendance', 22, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1,'encounters|notes');
 INSERT INTO `registry` VALUES ('New Group Encounter Form', 1, 'newGroupEncounter', 23, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1,'patients|appt');
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `report_itemized`
@@ -5846,7 +5851,7 @@ CREATE TABLE `report_itemized` (
   KEY (`report_id`,`itemized_test_id`,`numerator_label`,`pass`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `report_results`
@@ -5860,7 +5865,7 @@ CREATE TABLE `report_results` (
   PRIMARY KEY (`report_id`,`field_id`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `rule_action`
@@ -5903,7 +5908,7 @@ INSERT INTO `rule_action` ( `id`, `group_id`, `category`, `item` ) VALUES ('rule
 INSERT INTO `rule_action` ( `id`, `group_id`, `category`, `item` ) VALUES ('rule_blood_pressure', 1, 'act_cat_measure', 'act_bp');
 INSERT INTO `rule_action` ( `id`, `group_id`, `category`, `item` ) VALUES ('rule_inr_measure', 1, 'act_cat_measure', 'act_lab_inr');
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `rule_action_item`
@@ -5941,7 +5946,7 @@ INSERT INTO `rule_action_item` ( `category`, `item`, `clin_rem_link`, `reminder_
 INSERT INTO `rule_action_item` ( `category`, `item`, `clin_rem_link`, `reminder_message`, `custom_flag` ) VALUES ('act_cat_assess', 'act_soc_sec', '', '', 0);
 INSERT INTO `rule_action_item` ( `category`, `item`, `clin_rem_link`, `reminder_message`, `custom_flag` ) VALUES ('act_cat_assess', 'act_penicillin_allergy', '', '', 1);
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `rule_filter`
@@ -6271,7 +6276,7 @@ INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `me
 -- Penicillin Allergy Assessment
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_penicillin_allergy', 1, 0, 'filt_lists', 'allergy', 'penicillin');
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `rule_patient_data`
@@ -6291,7 +6296,7 @@ CREATE TABLE `rule_patient_data` (
   KEY (`category`,`item`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `rule_reminder`
@@ -6407,7 +6412,7 @@ INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES 
 INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_inr_measure', 'patient_reminder_pre', 'week', '2');
 INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_inr_measure', 'patient_reminder_post', 'month', '1');
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `rule_target`
@@ -6508,7 +6513,7 @@ INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `
 -- INR Measurement
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_inr_measure', 1, 1, 1, 'target_proc', 'INR::CPT4:85610::::::ge::1', 0);
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `sequences`
@@ -6525,7 +6530,7 @@ CREATE TABLE `sequences` (
 
 INSERT INTO `sequences` VALUES (1);
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `supported_external_dataloads`
@@ -6620,7 +6625,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2016-10-01', '2017-GEM-PCS.zip', 'a4e08b08fb9a53c81385867c82aa8a9e');
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 -- Table structure for table `transactions`
 --
 
@@ -6637,7 +6642,7 @@ CREATE TABLE `transactions` (
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `users`
@@ -6701,6 +6706,7 @@ CREATE TABLE `users` (
   `newcrop_user_role` VARCHAR(30) DEFAULT NULL,
   `cpoe` tinyint(1) NULL DEFAULT NULL,
   `physician_type` VARCHAR(50) DEFAULT NULL,
+  `main_menu_role` VARCHAR(50) NOT NULL DEFAULT 'standard',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
@@ -6711,7 +6717,7 @@ CREATE TABLE `users` (
 --  (so these inserts can be found in the sql/official_additional_users.sql script)
 
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `user_secure`
@@ -6730,7 +6736,7 @@ CREATE TABLE `users_secure` (
   UNIQUE KEY `USERNAME_ID` (`id`,`username`)
 ) ENGINE=InnoDb;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `user_settings`
@@ -6767,7 +6773,7 @@ INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES 
 INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'gacl_protect', '0');
 INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (1, 'gacl_protect', '1');
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `voids`
@@ -6790,7 +6796,7 @@ CREATE TABLE `voids` (
   KEY pidenc (patient_id, encounter_id)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `x12_partners`
@@ -6819,7 +6825,7 @@ CREATE TABLE `x12_partners` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB;
 
--- -----------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
 -- Table structure for table `automatic_notification`
 --
 
@@ -6845,7 +6851,7 @@ CREATE TABLE `automatic_notification` (
 INSERT INTO `automatic_notification` (`notification_id`, `sms_gateway_type`, `next_app_date`, `next_app_time`, `provider_name`, `message`, `email_sender`, `email_subject`, `type`, `notification_sent_date`) VALUES (1, 'CLICKATELL', '0000-00-00', ':', 'EMR GROUP 1 .. SMS', 'Welcome to EMR GROUP 1.. SMS', '', '', 'SMS', '0000-00-00 00:00:00'),
 (2, '', '2007-10-02', '05:50', 'EMR GROUP', 'Welcome to EMR GROUP . Email', 'EMR Group', 'Welcome to EMR GROUP', 'Email', '2007-09-30 00:00:00');
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `notification_log`
@@ -6871,7 +6877,7 @@ CREATE TABLE `notification_log` (
   PRIMARY KEY  (`iLogId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `notification_settings`
@@ -6895,7 +6901,7 @@ CREATE TABLE `notification_settings` (
 
 INSERT INTO `notification_settings` (`SettingsId`, `Send_SMS_Before_Hours`, `Send_Email_Before_Hours`, `SMS_gateway_username`, `SMS_gateway_password`, `SMS_gateway_apikey`, `type`) VALUES (1, 150, 150, 'sms username', 'sms password', 'sms api key', 'SMS/Email Settings');
 
--- -------------------------------------------------------------------
+----------------------------------------------------------------------
 
 CREATE TABLE chart_tracker (
   ct_pid            int(11)       NOT NULL,
@@ -8763,9 +8769,9 @@ INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, 
 ('attendstat', '~', '~ Late Arrival', '40', '0', '0', 'BFBFBF|0', '1'),
 ('attendstat', 'x', 'x Cancelled', '50', '0', '0', 'FEFDCF|0', '0');
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 --
 -- Table structure for table `extended_log`
 --
@@ -8793,7 +8799,7 @@ CREATE TABLE version (
   v_acl      int(11)     NOT NULL DEFAULT 0
 ) ENGINE=InnoDB;
 INSERT INTO version (v_major, v_minor, v_patch, v_realpatch, v_tag, v_database, v_acl) VALUES (0, 0, 0, 0, '', 0, 0);
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `customlists`
@@ -8816,7 +8822,7 @@ INSERT INTO customlists(cl_list_id,cl_list_type,cl_list_item_long) VALUES (1,2,'
 INSERT INTO customlists(cl_list_id,cl_list_type,cl_list_item_long) VALUES (2,2,'Objective');
 INSERT INTO customlists(cl_list_id,cl_list_type,cl_list_item_long) VALUES (3,2,'Assessment');
 INSERT INTO customlists(cl_list_id,cl_list_type,cl_list_item_long) VALUES (4,2,'Plan');
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `template_users`
@@ -8840,7 +8846,7 @@ CREATE TABLE `product_warehouse` (
   PRIMARY KEY  (`pw_drug_id`,`pw_warehouse`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 --
 -- Table structure for table `misc_address_book`
@@ -8859,9 +8865,9 @@ CREATE TABLE `misc_address_book` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 --
 -- Table structure for table `esign_signatures`
 --
@@ -8904,9 +8910,9 @@ CREATE TABLE `shared_attributes` (
   PRIMARY KEY (`pid`, `encounter`, `field_id`)
 );
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 --
 -- Table structure for table `ccda_components`
 --
@@ -8939,10 +8945,10 @@ insert into ccda_components (ccda_components_id, ccda_components_field, ccda_com
 insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('20','functional_status','Functional Status',1);
 insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('21','referral','Reason for Referral',1);
 insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('22','instructions','Instructions',1);
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 --
 -- Table structure for table `ccda_sections`
 --
@@ -8996,10 +9002,10 @@ insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_f
 insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('43','8','procedure_description','Procedure Description','0');
 insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('44','8','procedure_indications','Procedure Indications','0');
 insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('45','9','unstructured_doc','Document','0');
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 --
 -- Table structure for table `ccda_field_mapping`
 --
@@ -9009,10 +9015,10 @@ CREATE TABLE ccda_field_mapping (
   ccda_field varchar(100) DEFAULT NULL,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 --
 -- Table structure for table `ccda`
 --
@@ -9033,10 +9039,10 @@ CREATE TABLE ccda (
   PRIMARY KEY (id),
   UNIQUE KEY unique_key (pid,encounter,time)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 --
 -- Table structure for table `ccda_table_mapping`
 --
@@ -9052,9 +9058,9 @@ CREATE TABLE ccda_table_mapping (
   timestamp timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
--- --------------------------------------------------------
+-----------------------------------------------------------
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 --
 -- Table structure for table `external_procedures`
 --
@@ -9070,9 +9076,9 @@ CREATE TABLE `external_procedures` (
   `ep_external_id` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`ep_id`)
 ) ENGINE=InnoDB;
--- --------------------------------------------------------
+-----------------------------------------------------------
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 --
 -- Table structure for table `external_encounters`
 --
@@ -9086,9 +9092,9 @@ CREATE TABLE `external_encounters` (
   `ee_external_id` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`ee_id`)
 ) ENGINE=InnoDB;
--- --------------------------------------------------------
+-----------------------------------------------------------
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 --
 -- Table structure for table `form_care_plan`
 --
@@ -9107,9 +9113,9 @@ CREATE TABLE `form_care_plan` (
   `external_id` varchar(30) DEFAULT NULL,
   `care_plan_type` varchar(30) DEFAULT NULL
 ) ENGINE=InnoDB;
--- --------------------------------------------------------
+-----------------------------------------------------------
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 --
 -- Table structure for table `form_functional_cognitive_status`
 --
@@ -9127,9 +9133,9 @@ CREATE TABLE `form_functional_cognitive_status` (
   `description` text,
   `external_id` varchar(30) DEFAULT NULL
 ) ENGINE=InnoDB;
--- --------------------------------------------------------
+-----------------------------------------------------------
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 --
 -- Table structure for table `form_observation`
 --
@@ -9150,9 +9156,9 @@ CREATE TABLE `form_observation` (
   `code_type` varchar(255),
   `table_code` varchar(255)
 ) ENGINE=InnoDB;
--- --------------------------------------------------------
+-----------------------------------------------------------
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 --
 -- Table structure for table `form_clinical_instructions`
 --
@@ -9166,9 +9172,9 @@ CREATE TABLE `form_clinical_instructions` (
   `activity` TINYINT DEFAULT 1 NULL,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB;
--- --------------------------------------------------------
+-----------------------------------------------------------
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 --
 -- Table structure for table 'valueset'
 --
@@ -9201,8 +9207,8 @@ CREATE TABLE `immunization_observation` (
   `imo_date_observation` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`imo_id`)
 ) ENGINE=InnoDB;
--- --------------------------------------------------------
--- --------------------------------------------------------
+-----------------------------------------------------------
+-----------------------------------------------------------
 --
 -- Table structure for table 'calendar external'
 --
@@ -9213,7 +9219,7 @@ CREATE TABLE calendar_external (
   `source` VARCHAR(45) NULL,
   PRIMARY KEY (`id`)) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 --
 -- Tables for Eye Module
 --

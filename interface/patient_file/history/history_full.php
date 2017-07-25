@@ -21,6 +21,7 @@
 
 
 use OpenEMR\Core\Header;
+
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("history.inc.php");
@@ -32,13 +33,16 @@ require_once("$srcdir/validation/LBF_Validation.php");
 $CPR = 4; // cells per row
 
 // Check authorization.
-if (acl_check('patients','med')) {
-  $tmp = getPatientData($pid, "squad");
-  if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-   die(htmlspecialchars(xl("Not authorized for this squad."),ENT_NOQUOTES));
+if (acl_check('patients', 'med')) {
+    $tmp = getPatientData($pid, "squad");
+    if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+        die(htmlspecialchars(xl("Not authorized for this squad."), ENT_NOQUOTES));
+    }
 }
-if ( !acl_check('patients','med','',array('write','addonly') ))
-  die(htmlspecialchars(xl("Not authorized"),ENT_NOQUOTES));
+
+if (!acl_check('patients', 'med', '', array('write','addonly'))) {
+    die(htmlspecialchars(xl("Not authorized"), ENT_NOQUOTES));
+}
 ?>
 <html>
 <head>
@@ -50,13 +54,13 @@ if ( !acl_check('patients','med','',array('write','addonly') ))
  //Added on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
  var code_options_js = Array();
 
- <?php
- $smoke_codes = getSmokeCodes();
+    <?php
+    $smoke_codes = getSmokeCodes();
 
- foreach ($smoke_codes as $val => $code) {
+    foreach ($smoke_codes as $val => $code) {
             echo "code_options_js"."['" . attr($val) . "']='" . attr($code) . "';\n";
-      }
- ?>
+    }
+    ?>
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
@@ -148,7 +152,7 @@ function smoking_statusClicked(cb)
      {
      document.getElementById('form_tobacco').selectedIndex = 6;
      }
-	 radioChange(document.getElementById('form_tobacco').value);
+     radioChange(document.getElementById('form_tobacco').value);
 }
 
 // The ID of the input element to receive a found code.
@@ -171,7 +175,9 @@ function set_related(codetype, code, selector, codedesc) {
 // This invokes the find-code popup.
 function sel_related(e) {
  current_sel_name = e.name;
- dlgopen('../encounter/find_code_popup.php<?php if ($GLOBALS['ippf_specific']) echo '?codetype=REF' ?>', '_blank', 500, 400);
+ dlgopen('../encounter/find_code_popup.php<?php if ($GLOBALS['ippf_specific']) {
+        echo '?codetype=REF';
+} ?>', '_blank', 500, 400);
 }
 
 </script>
@@ -210,8 +216,8 @@ $(document).ready(function(){
     height: auto;
 }
 div.tab {
-	height: auto;
-	width: auto;
+    height: auto;
+    width: auto;
 }
 </style>
 
@@ -224,8 +230,8 @@ div.tab {
             <?php
             $result = getHistoryData($pid);
             if (!is_array($result)) {
-              newHistoryData($pid);
-              $result = getHistoryData($pid);
+                newHistoryData($pid);
+                $result = getHistoryData($pid);
             }
 
             $fres = sqlStatement("SELECT * FROM layout_options " .
@@ -243,7 +249,7 @@ div.tab {
                 <input type='hidden' name='mode' value='save'>
 
                 <div class="page-header">
-                    <h1><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?>&nbsp;<small><?php echo htmlspecialchars(xl('History & Lifestyle'),ENT_NOQUOTES); ?></h1>
+                    <h1><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?>&nbsp;<small><?php echo htmlspecialchars(xl('History & Lifestyle'), ENT_NOQUOTES); ?></h1>
                 </div>
                 <div class="btn-group">
                     <button type="submit" class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>
@@ -257,7 +263,7 @@ div.tab {
                 <!-- history tabs -->
                 <div id="HIS" style='float:none; margin-top: 10px; margin-right:20px'>
                     <ul class="tabNav" >
-                       <?php display_layout_tabs('HIS', $result, $result2); ?>
+                        <?php display_layout_tabs('HIS', $result, $result2); ?>
                     </ul>
 
                     <div class="tabContainer">

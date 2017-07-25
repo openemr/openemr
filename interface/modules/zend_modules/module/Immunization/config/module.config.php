@@ -6,7 +6,7 @@ return array(
         ),
     ),
 
-	'router' => array(
+    'router' => array(
         'routes' => array(
             'immunization' => array(
                 'type'    => 'segment',
@@ -38,5 +38,3 @@ return array(
         ),
     ),
 );
-
-?>

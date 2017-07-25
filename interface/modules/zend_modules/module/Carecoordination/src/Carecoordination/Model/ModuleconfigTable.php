@@ -38,12 +38,12 @@ class ModuleconfigTable extends AbstractTableGateway
 {
     public function getUsers()
     {
-		$users = array('0' => '');
-		$res = $this->applicationTable->zQuery(("SELECT id, fname, lname, street, city, state, zip  FROM users WHERE abook_type='ccda'"));
-		foreach($res as $row){
-			$users[$row['id']] = $row['fname']." ".$row['lname'];
-		}
-		return $users;
+        $users = array('0' => '');
+        $res = $this->applicationTable->zQuery(("SELECT id, fname, lname, street, city, state, zip  FROM users WHERE abook_type='ccda'"));
+        foreach ($res as $row) {
+            $users[$row['id']] = $row['fname']." ".$row['lname'];
+        }
+
+        return $users;
     }
 }
-?>

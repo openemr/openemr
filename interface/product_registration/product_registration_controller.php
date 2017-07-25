@@ -26,10 +26,12 @@ require_once($GLOBALS['fileroot'] . "/interface/main/exceptions/invalid_email_ex
 require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/generic_product_registration_exception.php");
 require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/duplicate_registration_exception.php");
 
-class ProductRegistrationController {
+class ProductRegistrationController
+{
     private $productRegistrationService;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->productRegistrationService = new \services\ProductRegistrationService();
 
         // (note this is here until we use Zend Framework)
@@ -43,13 +45,15 @@ class ProductRegistrationController {
         }
     }
 
-    public function get() {
+    public function get()
+    {
         $statusPayload = $this->productRegistrationService->getProductStatus();
 
         \common\http\HttpResponseHelper::send(200, $statusPayload, 'JSON');
     }
 
-    public function post() {
+    public function post()
+    {
         $response = null;
         $status = 500;
 

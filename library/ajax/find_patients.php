@@ -16,16 +16,21 @@
 //
 require_once("../../interface/globals.php");
 
-function myGetValue($fldname) {
-  $val = formData($fldname, 'G', true);
-  if ($val == 'undefined') $val = '';
-  return $val;
+function myGetValue($fldname)
+{
+    $val = formData($fldname, 'G', true);
+    if ($val == 'undefined') {
+        $val = '';
+    }
+
+    return $val;
 }
 
-function myQueryPatients($where) {
-  $sql = "SELECT count(*) AS count FROM patient_data WHERE $where";
-  $row = sqlQuery($sql);
-  return $row['count'];
+function myQueryPatients($where)
+{
+    $sql = "SELECT count(*) AS count FROM patient_data WHERE $where";
+    $row = sqlQuery($sql);
+    return $row['count'];
 }
 
 $fname  = myGetValue('fname');
@@ -38,42 +43,42 @@ $error = 0;
 $message = '';
 
 if ($pubpid) {
-  if (myQueryPatients("pubpid LIKE '$pubpid'")) {
-    $error = 2;
-    $message = xl('A patient with this ID already exists.');
-    $fname = $mname = $lname = $ss = '';
-  }
+    if (myQueryPatients("pubpid LIKE '$pubpid'")) {
+        $error = 2;
+        $message = xl('A patient with this ID already exists.');
+        $fname = $mname = $lname = $ss = '';
+    }
 }
 
 if (!$error && $ss) {
-  if (myQueryPatients("ss LIKE '$ss'")) {
-    $error = 2;
-    $message = xl('A patient with this SS already exists.');
-    $fname = $mname = $lname = $pubpid = '';
-  }
+    if (myQueryPatients("ss LIKE '$ss'")) {
+        $error = 2;
+        $message = xl('A patient with this SS already exists.');
+        $fname = $mname = $lname = $pubpid = '';
+    }
 }
 
 $nametest = "fname LIKE '$fname' AND lname LIKE '$lname'";
-if ($mname != '') $nametest .= " AND mname LIKE '$mname'";
+if ($mname != '') {
+    $nametest .= " AND mname LIKE '$mname'";
+}
 
 if (!$error && ($fname || $lname || $mname)) {
-  if (myQueryPatients("$nametest")) {
-    $error = 1;
-    $message = xl('A patient with this name already exists.');
-    $pubpid = $ss = '';
-  }
+    if (myQueryPatients("$nametest")) {
+        $error = 1;
+        $message = xl('A patient with this name already exists.');
+        $pubpid = $ss = '';
+    }
 }
 
 if ($error) {
-  if ($error == 1) {
-    echo "force_submit = true;\n";
-    echo "f.create.value = '" . xl('Force Create New Patient') . "';\n";
-  }
-  $message = addslashes($message);
-  echo "show_matches('$fname', '$mname', '$lname', '$pubpid', '$ss', '$message')\n";
-}
-else {
-  echo "f.submit()\n";
-}
+    if ($error == 1) {
+        echo "force_submit = true;\n";
+        echo "f.create.value = '" . xl('Force Create New Patient') . "';\n";
+    }
 
-?>
+    $message = addslashes($message);
+    echo "show_matches('$fname', '$mname', '$lname', '$pubpid', '$ss', '$message')\n";
+} else {
+    echo "f.submit()\n";
+}

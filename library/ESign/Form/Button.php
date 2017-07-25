@@ -3,9 +3,9 @@
 namespace ESign;
 
 /**
- * Form implementation of ButtonIF interface, which is used to 
+ * Form implementation of ButtonIF interface, which is used to
  * display a button that triggers esign behavior.
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -32,7 +32,7 @@ class Form_Button implements ButtonIF
 {
     private $_viewer = null;
 
-    public function __construct( $formId, $formDir, $encounterId )
+    public function __construct($formId, $formDir, $encounterId)
     {
         // Configure the viewer so it has access to these variables
         $this->_viewer = new Viewer();
@@ -52,13 +52,13 @@ class Form_Button implements ButtonIF
         return $GLOBALS['srcdir'].'/ESign/views/form/esign_button.php';
     }
     
-    public function render( SignableIF $signable = null )
+    public function render(SignableIF $signable = null)
     {
-        return $this->_viewer->render( $this );
+        return $this->_viewer->render($this);
     }
     
-    public function getHtml( SignableIF $signable = null )
+    public function getHtml(SignableIF $signable = null)
     {
-        return $this->_viewer->getHtml( $this );
+        return $this->_viewer->getHtml($this);
     }
 }

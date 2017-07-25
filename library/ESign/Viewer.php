@@ -4,7 +4,7 @@ namespace ESign;
 /**
  * Enables echoing and stringifying objects that implement the
  * ViewableIF interface.
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -29,33 +29,34 @@ require_once $GLOBALS['srcdir'].'/ESign/ViewableIF.php';
 
 class Viewer extends Abstract_Model
 {
-    public function __construct( array $args = null )
+    public function __construct(array $args = null)
     {
-        parent::__construct( $args );
+        parent::__construct($args);
         
         // Force the args key => value pairs to be set as properties on the viewer objet
-        $this->pushArgs( true );
+        $this->pushArgs(true);
     }
     
-    protected function setAttributes( array $attributes )
+    protected function setAttributes(array $attributes)
     {
-        foreach ( $attributes as $key => $value ) {
+        foreach ($attributes as $key => $value) {
             $this->{$key} = $value;
         }
     }
     
-    public function render( ViewableIF $viewable, array $attributes = null )
+    public function render(ViewableIF $viewable, array $attributes = null)
     {
-        if ( $attributes ) {
-            $this->setAttributes( $attributes );
+        if ($attributes) {
+            $this->setAttributes($attributes);
         }
+
         include $viewable->getViewScript();
     }
     
-    public function getHtml( ViewableIF $viewable, array $attributes = null )
+    public function getHtml(ViewableIF $viewable, array $attributes = null)
     {
         ob_start();
-        $this->render( $viewable, $attributes );
+        $this->render($viewable, $attributes);
         $buffer = ob_get_clean();
         return $buffer;
     }

@@ -14,83 +14,71 @@ include_once($GLOBALS["srcdir"]."/api.inc");
 // Purpose:	callback func?
 // Input:	pid? encounter, cols, id ?
 ////////////////////////////////////////////////////////////////////
-function brief_aan_verwijzer_report( $pid, $encounter, $cols, $id )
+function brief_aan_verwijzer_report($pid, $encounter, $cols, $id)
 {
-  $count = 0;
-  $data = formFetch( "form_psychiatrisch_onderzoek", $id );
-  if( $data )
-  {
-    print "<table>";
+    $count = 0;
+    $data = formFetch("form_psychiatrisch_onderzoek", $id);
+    if ($data) {
+        print "<table>";
     
-    foreach( $data as $key => $value )
-    {
-      // here we check for current ???? what ? session ?
-      if ($key == "id" || $key == "pid" || $key == "user" ||
-        $key == "groupname" || $key == "authorized" || $key == "activity" ||
-        $key == "date" || $value == "" || $value == "0000-00-00 00:00:00")
-      {
-        continue;
-      }
+        foreach ($data as $key => $value) {
+            // here we check for current ???? what ? session ?
+            if ($key == "id" || $key == "pid" || $key == "user" ||
+            $key == "groupname" || $key == "authorized" || $key == "activity" ||
+            $key == "date" || $value == "" || $value == "0000-00-00 00:00:00") {
+                continue;
+            }
       
-      // larry :: ??? - is this for check box or select or what ?
-      if( $value == "on" )
-      {
-        $value = "yes";
-      }
+            // larry :: ??? - is this for check box or select or what ?
+            if ($value == "on") {
+                $value = "yes";
+            }
 
-      // Introductie
-      if( $key == "introductie" )
-      {
-        print "<tr><td><span class=bold>" . xl('Introduction') . ": </span><span class=text>" .
-              nl2br(stripslashes($value)) . "</span></td></tr>";
-      }
+            // Introductie
+            if ($key == "introductie") {
+                print "<tr><td><span class=bold>" . xl('Introduction') . ": </span><span class=text>" .
+                    nl2br(stripslashes($value)) . "</span></td></tr>";
+            }
 
-      // Reden van aanmelding 
-      if( $key == "reden_van_aanmelding" )
-      {
-        print "<tr><td><span class=bold>" . xl('Reason for Visit') . ": </span><span class=text>" .
-              nl2br(stripslashes($value)) . "</span></td></tr>";
-      }
+            // Reden van aanmelding
+            if ($key == "reden_van_aanmelding") {
+                print "<tr><td><span class=bold>" . xl('Reason for Visit') . ": </span><span class=text>" .
+                    nl2br(stripslashes($value)) . "</span></td></tr>";
+            }
       
-      // Anamnese
-      if( $key == "anamnese" )
-      {
-        print "<tr><td><span class=bold>" . xl('History') . ": </span><span class=text>" .
-              nl2br(stripslashes($value)) . "</span></td></tr>";
-      }
+            // Anamnese
+            if ($key == "anamnese") {
+                print "<tr><td><span class=bold>" . xl('History') . ": </span><span class=text>" .
+                    nl2br(stripslashes($value)) . "</span></td></tr>";
+            }
       
-      // Psychiatrisch onderzoek 
-      if( $key == "psychiatrisch_onderzoek" )
-      {
-        print "<tr><td><span class=bold>" . xl('Psychiatric Examination') . ": </span><span class=text>" .
-              nl2br(stripslashes($value)) . "</span></td></tr>";
-      }
+            // Psychiatrisch onderzoek
+            if ($key == "psychiatrisch_onderzoek") {
+                print "<tr><td><span class=bold>" . xl('Psychiatric Examination') . ": </span><span class=text>" .
+                    nl2br(stripslashes($value)) . "</span></td></tr>";
+            }
       
-      // Beschrijvend conclusie
-      if( $key == "beschrijvend_conclusie" )
-      {
-        print "<tr><td><span class=bold>" . xl('Conclusions') . ": </span><span class=text>" .
-              nl2br(stripslashes($value)) . "</span></td></tr>";
-      }
+            // Beschrijvend conclusie
+            if ($key == "beschrijvend_conclusie") {
+                print "<tr><td><span class=bold>" . xl('Conclusions') . ": </span><span class=text>" .
+                    nl2br(stripslashes($value)) . "</span></td></tr>";
+            }
       
-      // Advies/beleid
-      if( $key == "advies_beleid" )
-      {
-        print "<tr><td><span class=bold>" . xl('Treatment Plan') . ": </span><span class=text>" .
-              nl2br(stripslashes($value)) . "</span></td></tr>";
-      }
+            // Advies/beleid
+            if ($key == "advies_beleid") {
+                print "<tr><td><span class=bold>" . xl('Treatment Plan') . ": </span><span class=text>" .
+                    nl2br(stripslashes($value)) . "</span></td></tr>";
+            }
       
-      // increment records counter
-      $count++;
-      // check if not at the end close/open new row
-      if ($count == $cols)
-      {
-        $count = 0;
-        print "</tr><tr>\n";
-      }
-      
+            // increment records counter
+            $count++;
+            // check if not at the end close/open new row
+            if ($count == $cols) {
+                $count = 0;
+                print "</tr><tr>\n";
+            }
+        }
     }
-  }
-  print "</tr></table>";
+
+    print "</tr></table>";
 }
-?>

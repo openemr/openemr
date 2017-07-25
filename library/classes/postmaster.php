@@ -29,16 +29,12 @@ class MyMailer extends PHPMailer
     {
         global $HTML_CHARSET;
         $this->CharSet = $HTML_CHARSET;
-        switch($GLOBALS['EMAIL_METHOD'])
-        {
-            case "PHPMAIL" :
-            {
+        switch ($GLOBALS['EMAIL_METHOD']) {
+            case "PHPMAIL":
                 $this->Mailer = "mail";
-            }
-            break;
-            case "SMTP" :
-            {
-		global $SMTP_Auth;
+                break;
+            case "SMTP":
+                global $SMTP_Auth;
                 $this->Mailer = "smtp";
                 $this->SMTPAuth = $SMTP_Auth;
                 $this->Host = $GLOBALS['SMTP_HOST'];
@@ -46,15 +42,10 @@ class MyMailer extends PHPMailer
                 $this->Password = $GLOBALS['SMTP_PASS'];
                 $this->Port = $GLOBALS['SMTP_PORT'];
                 $this->SMTPSecure = $GLOBALS['SMTP_SECURE'];
-            }
-            break;
-            case "SENDMAIL" :
-            {
+                break;
+            case "SENDMAIL":
                 $this->Mailer = "sendmail";
-            }
-            break;
+                break;
         }
     }
 }
-
-?>

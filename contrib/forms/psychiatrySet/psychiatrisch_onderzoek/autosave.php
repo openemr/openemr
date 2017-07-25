@@ -13,31 +13,30 @@ include_once("$srcdir/forms.inc");
 
 
 // escape the strings
-foreach ($_POST as $k => $var)
-{
-  $_POST[$k] = add_escape_custom($var);
+foreach ($_POST as $k => $var) {
+    $_POST[$k] = add_escape_custom($var);
   // echo "$var\n";
 }
 
 /////////////////
 // here we check to se if there was an autosave version prior to the real save 
-$vectAutosave = sqlQuery( "SELECT id, autosave_flag, autosave_datetime FROM form_psychiatrisch_onderzoek
+$vectAutosave = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_psychiatrisch_onderzoek
                             WHERE pid = ".$_SESSION["pid"].
                             " AND groupname='".$_SESSION["authProvider"].
                             "' AND user='".$_SESSION["authUser"]."' AND
                             authorized=$userauthorized AND activity=1
                             AND autosave_flag=1 
-                            ORDER by id DESC limit 1" );
+                            ORDER by id DESC limit 1");
 
 // if yes then update this else insert
-if( $vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update" )
-{
-  if( $_POST["mode"] == "update" )
-      $newid = $_POST["id"];
-  else
-      $newid = $vectAutosave['id'];
+if ($vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update") {
+    if ($_POST["mode"] == "update") {
+        $newid = $_POST["id"];
+    } else {
+        $newid = $vectAutosave['id'];
+    }
   
-  $strSql = "UPDATE form_psychiatrisch_onderzoek
+    $strSql = "UPDATE form_psychiatrisch_onderzoek
                 SET pid = ".$_SESSION["pid"].", groupname='".$_SESSION["authProvider"]."', user='".$_SESSION["authUser"]."', 
                 authorized=$userauthorized, activity=1, date = NOW(), 
                 datum_onderzoek='".$_POST["datum_onderzoek"]."',
@@ -52,14 +51,12 @@ if( $vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update" )
                 autosave_datetime=NOW() 
                   WHERE id = ".$newid.";";
 
-  sqlQuery( $strSql );
+    sqlQuery($strSql);
 
 //echo "DEBUG :: id=$newid, sql=$strSql<br>";
-
-} else
-{
-    $newid = formSubmit( "form_psychiatrisch_onderzoek", $_POST, $_GET["id"], $userauthorized );
-    addForm( $encounter, "Psychiatric Examination", $newid, "psychiatrisch_onderzoek", $pid, $userauthorized );
+} else {
+    $newid = formSubmit("form_psychiatrisch_onderzoek", $_POST, $_GET["id"], $userauthorized);
+    addForm($encounter, "Psychiatric Examination", $newid, "psychiatrisch_onderzoek", $pid, $userauthorized);
     
     //echo "Debug :: insert<br>";
 }
@@ -72,10 +69,8 @@ $result = sqlQuery("SELECT autosave_datetime FROM form_psychiatrisch_onderzoek
                             "' AND user='".$_SESSION["authUser"]."' AND
                             authorized=$userauthorized AND activity=1 AND id=$newid
                             AND autosave_flag=1 
-                            ORDER by id DESC limit 1" );
+                            ORDER by id DESC limit 1");
 //$timestamp = mysql_result($result, 0);
 
 //output timestamp
 echo xl('Last Saved') . ': '.$result['autosave_datetime'];
-
-?>

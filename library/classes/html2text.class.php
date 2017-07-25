@@ -89,7 +89,7 @@
  *  out that extra spaces should be compressed--a problem addressed with
  *  Marcus Bointon's fixes but that I had not yet incorporated.
  *
- *	Thanks to Daniel Schledermann (http://www.typoconsult.dk/) for
+ *  Thanks to Daniel Schledermann (http://www.typoconsult.dk/) for
  *  suggesting a valuable fix with <a> tag handling.
  *
  *  Thanks to Wojciech Bajon (again!) for suggesting fixes and additions,
@@ -174,7 +174,7 @@ class html2text
         '/<th[^>]*>(.*?)<\/th>/ie',              // <th> and </th>
         '/&(nbsp|#160);/i',                      // Non-breaking space
         '/&(quot|rdquo|ldquo|#8220|#8221|#147|#148);/i',
-		                                         // Double quotes
+                                                 // Double quotes
         '/&(apos|rsquo|lsquo|#8216|#8217);/i',   // Single quotes
         '/&gt;/i',                               // Greater-than
         '/&lt;/i',                               // Less-than
@@ -236,8 +236,8 @@ class html2text
         '--',
         '-',
         '*',
-        '£',
-        'EUR',                                  // Euro sign. € ?
+        'Â£',                                    // Pound sign!
+        'EUR',                                  // Euro sign. â‚¬ ?
         '',                                     // Unknown/unhandled entities
         ' '                                     // Runs of spaces, post-handling
     );
@@ -299,11 +299,12 @@ class html2text
      *  @access public
      *  @return void
      */
-    function __construct( $source = '', $from_file = false )
+    function __construct($source = '', $from_file = false)
     {
-        if ( !empty($source) ) {
+        if (!empty($source)) {
             $this->set_html($source, $from_file);
         }
+
         $this->set_base_url();
     }
 
@@ -315,11 +316,11 @@ class html2text
      *  @access public
      *  @return void
      */
-    function set_html( $source, $from_file = false )
+    function set_html($source, $from_file = false)
     {
         $this->html = $source;
 
-        if ( $from_file && file_exists($source) ) {
+        if ($from_file && file_exists($source)) {
             $fp = fopen($source, 'r');
             $this->html = fread($fp, filesize($source));
             fclose($fp);
@@ -336,7 +337,7 @@ class html2text
      */
     function get_text()
     {
-        if ( !$this->_converted ) {
+        if (!$this->_converted) {
             $this->_convert();
         }
 
@@ -374,9 +375,9 @@ class html2text
      *  @access public
      *  @return void
      */
-    function set_allowed_tags( $allowed_tags = '' )
+    function set_allowed_tags($allowed_tags = '')
     {
-        if ( !empty($allowed_tags) ) {
+        if (!empty($allowed_tags)) {
             $this->allowed_tags = $allowed_tags;
         }
     }
@@ -387,20 +388,21 @@ class html2text
      *  @access public
      *  @return void
      */
-    function set_base_url( $url = '' )
+    function set_base_url($url = '')
     {
-        if ( empty($url) ) {
-        	if ( !empty($_SERVER['HTTP_HOST']) ) {
-	            $this->url = 'http://' . $_SERVER['HTTP_HOST'];
-        	} else {
-	            $this->url = '';
-	        }
+        if (empty($url)) {
+            if (!empty($_SERVER['HTTP_HOST'])) {
+                $this->url = 'http://' . $_SERVER['HTTP_HOST'];
+            } else {
+                $this->url = '';
+            }
         } else {
             // Strip any trailing slashes for consistency (relative
             // URLs may already start with a slash like "/file.html")
-            if ( substr($url, -1) == '/' ) {
+            if (substr($url, -1) == '/') {
                 $url = substr($url, 0, -1);
             }
+
             $this->url = $url;
         }
     }
@@ -416,7 +418,7 @@ class html2text
      *  @access private
      *  @return void
      */
-    function _convert($ll=true)
+    function _convert($ll = true)
     {
         // Variables used for building the link list
         $this->_link_count = 0;
@@ -435,15 +437,15 @@ class html2text
         $text = preg_replace("/[\n]{3,}/", "\n\n", $text);
 
         // Add link list
-        if ( $ll && !empty($this->_link_list) ) {
+        if ($ll && !empty($this->_link_list)) {
             $text .= "\n\nLinks:\n------\n" . $this->_link_list;
         }
 
         // Wrap the text to a readable format
         // for PHP versions >= 4.0.2. Default width is 75
         // If width is 0 or less, don't wrap the text.
-        if ( $this->width > 0 ) {
-        	$text = wordwrap($text, $this->width);
+        if ($this->width > 0) {
+            $text = wordwrap($text, $this->width);
         }
 
         $this->text = $text;
@@ -464,30 +466,28 @@ class html2text
      *  @access private
      *  @return string
      */
-    function _build_link_list( $link, $display )
+    function _build_link_list($link, $display)
     {
-		if ( substr($link, 0, 7) == 'http://' || substr($link, 0, 8) == 'https://' ||
+        if (substr($link, 0, 7) == 'http://' || substr($link, 0, 8) == 'https://' ||
              substr($link, 0, 7) == 'mailto:' ) {
             $this->_link_count++;
             $this->_link_list .= "[" . $this->_link_count . "] $link\n";
             $additional = ' [' . $this->_link_count . ']';
-		} elseif ( substr($link, 0, 11) == 'javascript:' ) {
-			// Don't count the link; ignore it
-			$additional = '';
-		// what about href="#anchor" ?
+        } elseif (substr($link, 0, 11) == 'javascript:') {
+            // Don't count the link; ignore it
+            $additional = '';
+        // what about href="#anchor" ?
         } else {
             $this->_link_count++;
             $this->_link_list .= "[" . $this->_link_count . "] " . $this->url;
-            if ( substr($link, 0, 1) != '/' ) {
+            if (substr($link, 0, 1) != '/') {
                 $this->_link_list .= '/';
             }
+
             $this->_link_list .= "$link\n";
             $additional = ' [' . $this->_link_count . ']';
         }
 
         return $display . $additional;
     }
-
 }
-
-?>

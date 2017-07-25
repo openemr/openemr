@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // Copyright (C) 2010-2015 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -127,6 +127,7 @@ function gblTimeZones()
     foreach ($zones as $zone) {
         $arr[$zone] = str_replace('_', ' ', $zone);
     }
+
     return $arr;
 }
 
@@ -3097,6 +3098,41 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',                              // default = false
             xl('Select to print patient address labels from popups in left nav screen.')
+        ),
+
+        'env_x_width' => array(
+            xl('Envelope Width in mm'),
+            'num',                           // data type
+            '104.775',
+            xl('In Portrait mode, determines the width of the envelope along the x-axis in mm')
+        ),
+
+        'env_y_height' => array(
+            xl('Envelope Height in mm'),
+            'num',                           // data type
+            '241.3',
+            xl('In Portrait mode, determines the height of the envelope along the y-axis in mm')
+        ),
+
+        'env_font_size' => array(
+            xl('Font Size in Pt'),
+            'num',                           // data type
+            '14',
+            xl('Sets the font of the address text on the envelope in mm')
+        ),
+
+        'env_x_dist' => array(
+            xl('Envelope x-axis starting pt'),
+            'num',                           // data type
+            '65',
+            xl('Distance from the \'top\' of the envelope in mm')
+        ),
+
+        'env_y_dist' => array(
+            xl('Envelope y-axis starting pt'),
+            'num',                           // data type
+            '220',
+            xl(' Distance from the right most edge of the envelope in portrait position in mm')
         ),
 
     ),

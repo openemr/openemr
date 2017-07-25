@@ -21,6 +21,7 @@
 
 
 use OpenEMR\Core\Header;
+
 require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once "$srcdir/options.inc.php";
@@ -38,7 +39,7 @@ $provider  = trim($_POST['form_provider']);
 
 <head>
 
-<title><?php echo htmlspecialchars( xl('Automated Measure Calculations (AMC) Tracking'), ENT_NOQUOTES); ?></title>
+<title><?php echo htmlspecialchars(xl('Automated Measure Calculations (AMC) Tracking'), ENT_NOQUOTES); ?></title>
 
 <?php Header::setupHeader('datetime-picker') ?>
 
@@ -51,11 +52,11 @@ $provider  = trim($_POST['form_provider']);
   win.printLogSetup(document.getElementById('printbutton'));
 
   $('.datepicker').datetimepicker({
-   <?php $datetimepicker_timepicker = true; ?>
-   <?php $datetimepicker_showseconds = true; ?>
-   <?php $datetimepicker_formatInput = false; ?>
-   <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-   <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    <?php $datetimepicker_timepicker = true; ?>
+    <?php $datetimepicker_showseconds = true; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
  });
 
@@ -174,9 +175,9 @@ $provider  = trim($_POST['form_provider']);
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-<span class='title'><?php echo htmlspecialchars( xl('Report'), ENT_NOQUOTES); ?> -
+<span class='title'><?php echo htmlspecialchars(xl('Report'), ENT_NOQUOTES); ?> -
 
-<?php echo htmlspecialchars( xl('Automated Measure Calculations (AMC) Tracking'), ENT_NOQUOTES); ?></span>
+<?php echo htmlspecialchars(xl('Automated Measure Calculations (AMC) Tracking'), ENT_NOQUOTES); ?></span>
 
 <form method='post' name='theform' id='theform' action='amc_tracking.php' onsubmit='return top.restoreSession()'>
 
@@ -185,91 +186,100 @@ $provider  = trim($_POST['form_provider']);
 <table>
  <tr>
   <td width='470px'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
+    <table class='text'>
 
                  <tr>
                       <td class='control-label'>
-                        <?php echo htmlspecialchars( xl('Begin Date'), ENT_NOQUOTES); ?>:
+                        <?php echo htmlspecialchars(xl('Begin Date'), ENT_NOQUOTES); ?>:
                       </td>
                       <td>
-                         <input type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo htmlspecialchars( $begin_date, ENT_QUOTES); ?>'
+                         <input type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo htmlspecialchars($begin_date, ENT_QUOTES); ?>'
                             class='datepicker form-control'
-                            title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
+                            title='<?php echo htmlspecialchars(xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
                       </td>
                  </tr>
 
                 <tr>
                         <td class='control-label'>
-                           <?php echo htmlspecialchars( xl('End Date'), ENT_NOQUOTES); ?>:
+                            <?php echo htmlspecialchars(xl('End Date'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>
-                           <input type='text' name='form_end_date' id="form_end_date" size='20' value='<?php echo htmlspecialchars( $end_date, ENT_QUOTES); ?>'
+                           <input type='text' name='form_end_date' id="form_end_date" size='20' value='<?php echo htmlspecialchars($end_date, ENT_QUOTES); ?>'
                                 class='datepicker form-control'
-                                title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
+                                title='<?php echo htmlspecialchars(xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
                         </td>
                 </tr>
 
                 <tr>
                         <td class='control-label'>
-                            <?php echo htmlspecialchars( xl('Rule'), ENT_NOQUOTES); ?>:
+                            <?php echo htmlspecialchars(xl('Rule'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>
                             <select name='form_rule' class='form-control'>
-                            <option value='send_sum_amc' <?php if ($rule == "send_sum_amc") echo "selected"; ?>>
-                            <?php echo htmlspecialchars( xl('Send Summaries with Referrals'), ENT_NOQUOTES); ?></option>
-                            <option value='provide_rec_pat_amc' <?php if ($rule == "provide_rec_pat_amc") echo "selected"; ?>>
-                            <?php echo htmlspecialchars( xl('Patient Requested Medical Records'), ENT_NOQUOTES); ?></option>
-                            <option value='provide_sum_pat_amc' <?php if ($rule == "provide_sum_pat_amc") echo "selected"; ?>>
-                            <?php echo htmlspecialchars( xl('Provide Records to Patient for Visit'), ENT_NOQUOTES); ?></option>
+                            <option value='send_sum_amc' <?php if ($rule == "send_sum_amc") {
+                                echo "selected";
+} ?>>
+                            <?php echo htmlspecialchars(xl('Send Summaries with Referrals'), ENT_NOQUOTES); ?></option>
+                            <option value='provide_rec_pat_amc' <?php if ($rule == "provide_rec_pat_amc") {
+                                echo "selected";
+} ?>>
+                            <?php echo htmlspecialchars(xl('Patient Requested Medical Records'), ENT_NOQUOTES); ?></option>
+                            <option value='provide_sum_pat_amc' <?php if ($rule == "provide_sum_pat_amc") {
+                                echo "selected";
+} ?>>
+                            <?php echo htmlspecialchars(xl('Provide Records to Patient for Visit'), ENT_NOQUOTES); ?></option>
                             </select>
                         </td>
                 </tr>
 
                 <tr>
-			<td class='control-label'>
-			   <?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES); ?>:
-			</td>
-			<td>
-				<?php
+            <td class='control-label'>
+                <?php echo htmlspecialchars(xl('Provider'), ENT_NOQUOTES); ?>:
+            </td>
+            <td>
+                <?php
 
-				 // Build a drop-down list of providers.
-				 //
+                 // Build a drop-down list of providers.
+                 //
 
-				 $query = "SELECT id, lname, fname FROM users WHERE ".
-				  "authorized = 1 $provider_facility_filter ORDER BY lname, fname"; //(CHEMED) facility filter
+                 $query = "SELECT id, lname, fname FROM users WHERE ".
+                  "authorized = 1 $provider_facility_filter ORDER BY lname, fname"; //(CHEMED) facility filter
 
-				 $ures = sqlStatement($query);
+                 $ures = sqlStatement($query);
 
-				 echo "   <select name='form_provider' class='form-control'>\n";
-				 echo "    <option value=''>-- " . htmlspecialchars( xl('All'), ENT_NOQUOTES) . " --\n";
+                 echo "   <select name='form_provider' class='form-control'>\n";
+                 echo "    <option value=''>-- " . htmlspecialchars(xl('All'), ENT_NOQUOTES) . " --\n";
 
-				 while ($urow = sqlFetchArray($ures)) {
-				  $provid = $urow['id'];
-				  echo "    <option value='".htmlspecialchars( $provid, ENT_QUOTES)."'";
-				  if ($provid == $_POST['form_provider']) echo " selected";
-				  echo ">" . htmlspecialchars( $urow['lname'] . ", " . $urow['fname'], ENT_NOQUOTES) . "\n";
-				 }
+                while ($urow = sqlFetchArray($ures)) {
+                    $provid = $urow['id'];
+                    echo "    <option value='".htmlspecialchars($provid, ENT_QUOTES)."'";
+                    if ($provid == $_POST['form_provider']) {
+                        echo " selected";
+                    }
 
-				 echo "   </select>\n";
+                    echo ">" . htmlspecialchars($urow['lname'] . ", " . $urow['fname'], ENT_NOQUOTES) . "\n";
+                }
 
-				?>
+                 echo "   </select>\n";
+
+                ?>
                         </td>
-		</tr>
-	</table>
+        </tr>
+    </table>
 
-	</div>
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
-				<div class="text-center">
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
+                <div class="text-center">
           <div class="btn-group" role="group">
             <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); top.restoreSession(); $("#theform").submit();'>
-						  <?php echo xlt('Submit'); ?>
+                            <?php echo xlt('Submit'); ?>
             </a>
             <?php if ($_POST['form_refresh']) { ?>
               <a href='#' class='btn btn-default btn-print' id='printbutton'>
@@ -277,10 +287,10 @@ $provider  = trim($_POST['form_provider']);
               </a>
             <?php } ?>
           </div>
-				</div>
-			</td>
-		</tr>
-	</table>
+                </div>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>
@@ -290,113 +300,105 @@ $provider  = trim($_POST['form_provider']);
 <br>
 
 <?php
- if ($_POST['form_refresh']) {
+if ($_POST['form_refresh']) {
 ?>
 
 
 <div id="report_results">
 <table>
 
- <thead>
-  <th>
-   <?php echo htmlspecialchars( xl('Patient Name'), ENT_NOQUOTES); ?>
-  </th>
+<thead>
+ <th>
+    <?php echo htmlspecialchars(xl('Patient Name'), ENT_NOQUOTES); ?>
+ </th>
 
-  <th>
-   <?php echo htmlspecialchars( xl('Patient ID'), ENT_NOQUOTES); ?>
-  </th>
+ <th>
+    <?php echo htmlspecialchars(xl('Patient ID'), ENT_NOQUOTES); ?>
+ </th>
 
-  <th>
+ <th>
     <?php
-      if ($rule == "send_sum_amc") {
-        echo htmlspecialchars( xl('Referral Date'), ENT_NOQUOTES);
-      }
-      else if ($rule == "provide_rec_pat_amc") {
-        echo htmlspecialchars( xl('Record Request Date'), ENT_NOQUOTES);
-      }
-      else { // $rule == "provide_sum_pat_amc"
-        echo htmlspecialchars( xl('Encounter Date'), ENT_NOQUOTES);
-      }
+    if ($rule == "send_sum_amc") {
+        echo htmlspecialchars(xl('Referral Date'), ENT_NOQUOTES);
+    } else if ($rule == "provide_rec_pat_amc") {
+        echo htmlspecialchars(xl('Record Request Date'), ENT_NOQUOTES);
+    } else { // $rule == "provide_sum_pat_amc"
+        echo htmlspecialchars(xl('Encounter Date'), ENT_NOQUOTES);
+    }
     ?>
   </th>
 
   <th>
-   <?php
-     if ($rule == "send_sum_amc") {
-       echo htmlspecialchars( xl('Referral ID'), ENT_NOQUOTES);
-     }
-      else if ($rule == "provide_rec_pat_amc") {
+    <?php
+    if ($rule == "send_sum_amc") {
+        echo htmlspecialchars(xl('Referral ID'), ENT_NOQUOTES);
+    } else if ($rule == "provide_rec_pat_amc") {
         echo "&nbsp";
-      }
-     else { // $rule == "provide_sum_pat_amc"
-       echo htmlspecialchars( xl('Encounter ID'), ENT_NOQUOTES);
-     }
-   ?>
+    } else { // $rule == "provide_sum_pat_amc"
+        echo htmlspecialchars(xl('Encounter ID'), ENT_NOQUOTES);
+    }
+    ?>
   </th>
 
   <th>
-   <?php
-     if ($rule == "provide_rec_pat_amc") {
-       echo htmlspecialchars( xl('Medical Records Sent'), ENT_NOQUOTES);
-     }
-     else if ($rule == "send_sum_amc") {
-       echo htmlspecialchars( xl('Summary of Care Sent'), ENT_NOQUOTES);
-     }
-     else { // $rule == "provide_sum_pat_amc"
-       echo htmlspecialchars( xl('Medical Summary Given'), ENT_NOQUOTES);
-     }
-   ?>
-  </th>
-  <?php
-    if ($rule == "send_sum_amc") {
-      echo "<th>";
-      echo htmlspecialchars( xl('Summary of Care Sent Electronically'), ENT_NOQUOTES);
-      echo "<th>";
+    <?php
+    if ($rule == "provide_rec_pat_amc") {
+        echo htmlspecialchars(xl('Medical Records Sent'), ENT_NOQUOTES);
+    } else if ($rule == "send_sum_amc") {
+        echo htmlspecialchars(xl('Summary of Care Sent'), ENT_NOQUOTES);
+    } else { // $rule == "provide_sum_pat_amc"
+        echo htmlspecialchars(xl('Medical Summary Given'), ENT_NOQUOTES);
     }
-  ?>
+    ?>
+  </th>
+    <?php
+    if ($rule == "send_sum_amc") {
+        echo "<th>";
+        echo htmlspecialchars(xl('Summary of Care Sent Electronically'), ENT_NOQUOTES);
+        echo "<th>";
+    }
+    ?>
 
  </thead>
  <tbody>  <!-- added for better print-ability -->
 <?php
 
-  // Send the request for information
-  $resultsArray = amcTrackingRequest($rule,$begin_date,$end_date,$provider);
+// Send the request for information
+$resultsArray = amcTrackingRequest($rule, $begin_date, $end_date, $provider);
 
 ?>
 
-  <?php
-   foreach ($resultsArray as $result) {
-     echo "<tr bgcolor='" . $bgcolor ."'>";
-     echo "<td>" . htmlspecialchars($result['lname'].",".$result['fname'], ENT_NOQUOTES) . "</td>";
-     echo "<td>" . htmlspecialchars($result['pid'],ENT_NOQUOTES) . "</td>";
-     echo "<td>" . htmlspecialchars($result['date'],ENT_NOQUOTES) . "</td>";
-     if ($rule == "send_sum_amc" || $rule == "provide_sum_pat_amc") {
-       echo "<td>" . htmlspecialchars($result['id'],ENT_NOQUOTES) . "</td>";
-     }
-     else { //$rule == "provide_rec_pat_amc"
-       echo "<td>&nbsp</td>";
-     }
+<?php
+foreach ($resultsArray as $result) {
+    echo "<tr bgcolor='" . $bgcolor ."'>";
+    echo "<td>" . htmlspecialchars($result['lname'].",".$result['fname'], ENT_NOQUOTES) . "</td>";
+    echo "<td>" . htmlspecialchars($result['pid'], ENT_NOQUOTES) . "</td>";
+    echo "<td>" . htmlspecialchars($result['date'], ENT_NOQUOTES) . "</td>";
+    if ($rule == "send_sum_amc" || $rule == "provide_sum_pat_amc") {
+        echo "<td>" . htmlspecialchars($result['id'], ENT_NOQUOTES) . "</td>";
+    } else { //$rule == "provide_rec_pat_amc"
+        echo "<td>&nbsp</td>";
+    }
 
-     if ($rule == "send_sum_amc") {
-       echo "<td><input type='checkbox' id='send_sum_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='send_sum(\"".htmlspecialchars($result['pid'],ENT_QUOTES)."\",\"".htmlspecialchars($result['id'],ENT_QUOTES)."\")'>" . htmlspecialchars( xl('Yes'), ENT_NOQUOTES) . "</td>";
-       echo "<td><input type='checkbox' id='send_sum_elec_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='send_sum_elec(\"".htmlspecialchars($result['pid'],ENT_QUOTES)."\",\"".htmlspecialchars($result['id'],ENT_QUOTES)."\")'>" . htmlspecialchars( xl('Yes'), ENT_NOQUOTES) . "</td>";
-     }
-     else if ($rule == "provide_rec_pat_amc") {
-       echo "<td><input type='checkbox' id='provide_rec_pat_flag_".attr($result['pid'])."' onclick='provide_rec_pat(\"".htmlspecialchars($result['pid'],ENT_QUOTES)."\",\"".htmlspecialchars($result['date'],ENT_QUOTES)."\")'>" . htmlspecialchars( xl('Yes'), ENT_NOQUOTES) . "</td>";
-     }
-     else { //$rule == "provide_sum_pat_amc"
-       echo "<td><input type='checkbox' id='provide_sum_pat_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='provide_sum_pat(\"".htmlspecialchars($result['pid'],ENT_QUOTES)."\",\"".htmlspecialchars($result['id'],ENT_QUOTES)."\")'>" . htmlspecialchars( xl('Yes'), ENT_NOQUOTES) . "</td>";
-     }
-     echo "</tr>";
-   }
-  ?>
+    if ($rule == "send_sum_amc") {
+        echo "<td><input type='checkbox' id='send_sum_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='send_sum(\"".htmlspecialchars($result['pid'], ENT_QUOTES)."\",\"".htmlspecialchars($result['id'], ENT_QUOTES)."\")'>" . htmlspecialchars(xl('Yes'), ENT_NOQUOTES) . "</td>";
+        echo "<td><input type='checkbox' id='send_sum_elec_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='send_sum_elec(\"".htmlspecialchars($result['pid'], ENT_QUOTES)."\",\"".htmlspecialchars($result['id'], ENT_QUOTES)."\")'>" . htmlspecialchars(xl('Yes'), ENT_NOQUOTES) . "</td>";
+    } else if ($rule == "provide_rec_pat_amc") {
+        echo "<td><input type='checkbox' id='provide_rec_pat_flag_".attr($result['pid'])."' onclick='provide_rec_pat(\"".htmlspecialchars($result['pid'], ENT_QUOTES)."\",\"".htmlspecialchars($result['date'], ENT_QUOTES)."\")'>" . htmlspecialchars(xl('Yes'), ENT_NOQUOTES) . "</td>";
+    } else { //$rule == "provide_sum_pat_amc"
+        echo "<td><input type='checkbox' id='provide_sum_pat_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='provide_sum_pat(\"".htmlspecialchars($result['pid'], ENT_QUOTES)."\",\"".htmlspecialchars($result['id'], ENT_QUOTES)."\")'>" . htmlspecialchars(xl('Yes'), ENT_NOQUOTES) . "</td>";
+    }
+
+        echo "</tr>";
+}
+    ?>
 
 </tbody>
 </table>
 </div>  <!-- end of search results -->
 <?php } else { ?>
 <div class='text'>
- 	<?php echo htmlspecialchars( xl('Please input search criteria above, and click Submit to view results.'), ENT_NOQUOTES); ?>
+    <?php echo htmlspecialchars(xl('Please input search criteria above, and click Submit to view results.'), ENT_NOQUOTES); ?>
 </div>
 <?php } ?>
 

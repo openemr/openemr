@@ -63,7 +63,7 @@ $DEBUG = false;
 
 
 
-$con = mysqli_connect($host,$user,$pass,$database) or die("Some error occurred during connection. must enter Host, Username, password, and database in mysqli_connect() " . mysqli_error($con)); 
+$con = mysqli_connect($host, $user, $pass, $database) or die("Some error occurred during connection. must enter Host, Username, password, and database in mysqli_connect() " . mysqli_error($con));
 echo("\n Successfully connected to database....... Waiting...... \n ");
 
 
@@ -83,65 +83,67 @@ $female = array(
                 "Brittany", "Brittney", "Britney", "Brit", "Britt", "Brita", "Brie"
                 );
 // count of names is: 806
-$lnames = array	(
-						"Sandles","Hollifield","Flack","Lussier","Deloe","Thao","Dardenne","Spiro","Futter","Subasic","Shawler","Baehr","Murrillo","Christenbury",
-						"Plourde","Cotty","Suro","Gabe","Davids","Eschrich","Trautmann","Matarrita","Crompton","Pekas","Komo","Monroy","Kortkamp","Klukan","Henrity",
-						"Kindig","Syal","Hurtig","Vangilder","Ronsini","Hutchenson","Alvero","Valeriani","Bendtsen","Hornbarger","Marsili","Burfeind","Torello","Wink",
-						"Nemani","Astry","Eroh","Hidalgo","Wardlow","Sherren","Donegan","Weick","Peria","Fetchko","Achterhof","Schlappi","Stoudmire","Winsett","Obrien",
-						"Zindell","Snachez","Upright","Pinales","Laneve","Danner","Perches","Brentlinger","Epperly","Colpaert","Hoppins","Cheslock","Sprecher","Hesselman","Viscosi",
-						"Brazzi","Martincic","Pienta","Bonaventura","Pluta","Ruse","Gondek","Hammerstad","Fahl","Cromeans","Ramsbottom","Scipioni","Balley","Peskind","Senf","Hyler",
-						"Villareal","Weymouth","Smyser","Hawkinson","Freeberg","Gruntz","Pennebaker","Norbo","Bazar","Kveton","Glumac","Braner","Ye","Macoreno","Baj","Lehtomaki","Wiford",
-						"Carnell","Jegede","Motts","Magda","Tjaden","Sinko","Larrosa","Shaub","Gerecke","Wyborny","Arterberry","Milliken","Gurnee","Coble","Opal","Orrick","Barlup","Sedlachek",
-						"Silveri","Nielson","Niss","Heavener","Youngkin","Poro","Losinger","Billeaudeau","Hospelhorn","Orizetti","Lesches","Yarnall","Vanderlip","Ingrum","Anzaldo","Hirose",
-						"Rottinghaus","Missler","Brogden","Delasancha","Sacchetti","Faria","Chicharello","Salvesen","Kapichok","Sleppy","Semper","Abatti","Jarnagin","Schuerholz","Nicholl",
-						"Loft","Dagel","Winkelpleck","Madera","Muhs","Denner","Makey","Wendell","Ridder","Slaugenhaupt","Wilburn","Poladian","Dozal","Royston","Eardley","Villarta","Youree",
-						"Appiah","Edith","Abdeldayen","Pasquini","Cabe","Hurla","Gest","Bayete","Goatley","Mcguffin","Kluz","Gepner","Crowston","Gyger","Stover","Orandello","Hairgrove",
-						"Mccurtain","Cendana","Pfeiffenberge","Dirkson","Weida","Baucom","Tamas","Berra","Austad","Kawano","Benda","Ellermann","Ryan","Landolt","Schnelzer","Arnt","Minardi",
-						"Maizes","Rosborough","Lyford","Klaass","Shorette","Whitener","Buys","Kounthong","Bisconer","Waser","Flamer","Marushia","Emlin","Driggs","Kubes","Duderstadt","Butters"
-						,"Shears","Wigington","Walchak","Kenouo","Bohmann","Hannagan","Eigner","Rainford","Adkisson","Vitrano","Walkingstick","Tart","Armesto","Kimmell","Ulman","Fortgang",
-						"Stockley","Brzostek","Hoefling","Crickenberger","Cyler","Ornelas","Farria","Montella","Stock","Zorc","Halbrooks","Carriere","Colindres","Tyska","Esguerra","Buerstatte",
-						"Welles","Gettinger","Grotz","Revilla","Galston","Pittmann","Bechel","Kimberlin","Odums","Causby","Ware","Havenhill","Branine","Kelnhofer","Dahm","Braunwarth","Omarah",
-						"Syrop","Mcgugin","Aston","Lannom","Hirt","Mccrorey","Lyall","Kos","Muegge","Lamorte","Lothringer","Falcioni","Delgenio","Catenaccio","Gauntt","Shutte","Sarley","Calogero",
-						"Obermuller","Polintan","Cerritos","Doom","Zaccagnino","Schilz","Garib","Coffie","Birkline","Maleck","Delaluz","Maiolo","Hackmann","Portsche","Sundberg","Him","Lempka","Ohmen",
-						"Chamble","Riolo","Cichonski","Onan","Derfus","Knilands","Pawelk","Vallelonga","Mikesell","Breaker","Lockman","Navo","Cornelson","Mcgeady","Kana","Meikle","Shapino","Tonas",
-						"Fasbender","Grodecki","Leffers","Wahdan","Krawczyk","Hafemeister","Sebestyen","Kun","Dehm","Guyton","Dupaty","Gjeltema","Fernet","Calvery","Glasgow","Anger","Capelli",
-						"Levendoski","Gehle","Dungey","Denike","Marreel","Arbertha","Granberry","Guillan","Mass","Poeschl","Ouderkirk","Connard","Lichlyter","Taverna","Ladden","Blethen","Lauter",
-						"Avrett","Scovel","Gietz","Cabiltes","Podbielski","Glaser","Beringer","Stoyanoff","Mcfeeley","Hazel","Fratzke","Register","Olaughlin","Bilbrew","Holey","Snead","Dincher",
-						"Toribio","Kazmer","Rushman","Herkstroeter","Zwack","Packen","Busta","Sanlucas","Shivers","Bracks","Brodis","Beavis","Liuzza","Chadd","Truan","Beyene","Sedberry","Bow","Kemper",
-						"Tabuena","Bodwell","Lowa","Buboltz","Thicke","Maupins","Rozzell","Sheffer","Mckeone","Ulvan","Metta","Spielmann","Ullman","Chick","Baseman","Critchfield","Readenour","Zimlich",
-						"Kinch","Ochoa","Gobel","Safranek","Mandia","Bissonette","Mansanares","Brigantino","Zipfel","Soja","Touney","Ochotorena","Baradi","Burbridge","Hayes","Mozgala","Spisak",
-						"Cartledge","Luetmer","Pipkins","Roorda","Boccanfuso","Houghtelling","Habibi","Dumaine","Sloup","Sperdute","Villanueva","Fitzgerrel","Breiling","Kachikian","Rimes",
-						"Kubler","Ostroot","Sauerwein","Condie","Buckey","Solesbee","Mckern","Berceir","Meason","Strissel","Salvati","Ingham","Lather","Pullan","Gastelun","Elridge","Moorehouse",
-						"Marcantel","Hadaway","Spriggle","Podraza","Mainguy","Henedia","Hofstadter","Laundree","Cerrano","Benac","Cahee","Gadson","Vandevort","Trias","Redus","Nabarrete","Valeriano",
-						"Feimster","Calcagino","Ashbach","Dolch","Altringer","Kala","Abeb","Laurenceau","Mallozzi","Winkles","Monsegur","Severi","Solle","Sjogren","Pok","Molett","Varos","Gilfoy",
-						"Medicus","Jeppson","Abbasi","Mccraight","Ohashi","Hocker","Mckennon","Littrel","Twilligear","Liptok","Gollop","Cuthbert","Poissant","Lainez","Pratts","Haugrud","Posa",
-						"Schrag","Entrup","Cortes","Blanga","Demello","Skelton","Corell","Mchan","Torti","Vecchia","Alaya","Keown","Cicali","Machkovich","Lawford","Troyani","Devon","Smylie",
-						"Macklem","Garibay","Rowold","Wern","Madaffari","Tatum","Belmont","Nishikawa","Similien","Rybacki","Brisbane","Martiarena","Dortch","Eck","Lijewski","Sarlinas","Dekok",
-						"Oliviera","Baublitz","Pane","Wiebe","Gatson","Allende","Driesel","Sartor","Tarras","Richiusa","Oriordan","Alar","Brickle","Kosorog","Barbee","Beidleman","Agbisit",
-						"Schiavi","Regester","Marrero","Braxton","Mateus","Cara","Abdelal","Merone","Rodarmel","Goerlich","Dunnell","Ralat","Lacina","Scheidt","Zilahi","Kjetland","Knepshield",
-						"Alce","Champy","Degiorgio","Ciubal","Kuhl","Hargett","Bosa","Derkas","Spierling","Bonnenfant","Hoegerl","Steffa","Harriss","Feldhaus","Schapiro","Calcano","Cresta",
-						"Ladtkow","Yournet","Getler","Reisling","Miker","Valorie","Genga","Lerwick","Yaun","Yoes","Guild","Beverly","Plassman","Dolly","Ghera","Costilla","Hauber","Svennungsen",
-						"Tharaldson","Verghese","Torpey","Merlin","Levitch","Laughinghouse","Cabreja","Kilb","Fontanilla","Berri","Doede","Oligee","Janikowski","Denkins","Alanko","Jeannette",
-						"Hites","Schriefer","Oborny","Malory","Sturrup","Petros","Geesey","Rivenberg","Trumball","Littfin","Gigantino","Shipps","Wycoff","Kupper","Dolgas","Oby","Polucha","Rasp",
-						"Graue","Konick","Espenshade","Machel","Noxon","Bassiti","Schnickel","Corlee","Meaker","Bolch","Iara","Laredo","Stasko","Fisette","Clar","Didlake","Borghoff","Dubberly",
-						"Quattro","Amparan","Walstrom","Mancini","Rathmanner","Andina","Muldrow","Heimbigner","Bloodough","Stoot","Bluestein","Meeks","Kaltenhauser","Ybos","Rehak","Dao","Shrum",
-						"Bjerknes","Harp","Studeny","Sweers","Granto","Eldrige","Nast","Goodling","Daquino","Allegood","Delonge","Lattrell","Willougby","Betry","Sorvig","Schremp","Waynick",
-						"Quidley","Kadner","Wares","Swarb","Placko","Travelstead","Liebold","Fukano","Daughetee","Feagler","Orie","Thruman","Quartuccio","Reinholdt","Urwin","Repoff","Crickard",
-						"Prately","Stabile","Faler","Wolfrum","Hughe","Gustave","Lemar","Zhu","Quihuiz","Krinsky","Cresswell","Vanbergen","Durelli","Carron","Targett","Emmert","Ferrusi",
-						"Harless","Ailes","Shimer","Greff","Pinna","Guedes","Meury","Lapari","Litty","Ji","Marcus","Lampel","Minotti","Migliorisi","Tevebaugh","Morgan","Steidel","Bartee",
-						"Brackman","Borruso","Ficklin","Baza","Mercier","Sponholz","Trego","Channell","Vanburen","Zaring","Luken","Komorowski","Fasciano","Drafts","Dar","Callicoat","Callam",
-						"Villaquiran","Vanbrunt","Coiner","Luckenbill","Mcray","Pin","Hayer","Lapenta","Isita","Slaydon","Frondorf","Cavagna","Passalacqua","Lehnertz","Kavadias","Macione",
-						"Sturch","Boes","Albor","Bookamer","Burbine","Bardach","Ghaor","Quartieri","Mcgill","Michelena","Aronson","Brosig","Morganti","Rodewald","Barich","Langelier"
+$lnames = array (
+                        "Sandles","Hollifield","Flack","Lussier","Deloe","Thao","Dardenne","Spiro","Futter","Subasic","Shawler","Baehr","Murrillo","Christenbury",
+                        "Plourde","Cotty","Suro","Gabe","Davids","Eschrich","Trautmann","Matarrita","Crompton","Pekas","Komo","Monroy","Kortkamp","Klukan","Henrity",
+                        "Kindig","Syal","Hurtig","Vangilder","Ronsini","Hutchenson","Alvero","Valeriani","Bendtsen","Hornbarger","Marsili","Burfeind","Torello","Wink",
+                        "Nemani","Astry","Eroh","Hidalgo","Wardlow","Sherren","Donegan","Weick","Peria","Fetchko","Achterhof","Schlappi","Stoudmire","Winsett","Obrien",
+                        "Zindell","Snachez","Upright","Pinales","Laneve","Danner","Perches","Brentlinger","Epperly","Colpaert","Hoppins","Cheslock","Sprecher","Hesselman","Viscosi",
+                        "Brazzi","Martincic","Pienta","Bonaventura","Pluta","Ruse","Gondek","Hammerstad","Fahl","Cromeans","Ramsbottom","Scipioni","Balley","Peskind","Senf","Hyler",
+                        "Villareal","Weymouth","Smyser","Hawkinson","Freeberg","Gruntz","Pennebaker","Norbo","Bazar","Kveton","Glumac","Braner","Ye","Macoreno","Baj","Lehtomaki","Wiford",
+                        "Carnell","Jegede","Motts","Magda","Tjaden","Sinko","Larrosa","Shaub","Gerecke","Wyborny","Arterberry","Milliken","Gurnee","Coble","Opal","Orrick","Barlup","Sedlachek",
+                        "Silveri","Nielson","Niss","Heavener","Youngkin","Poro","Losinger","Billeaudeau","Hospelhorn","Orizetti","Lesches","Yarnall","Vanderlip","Ingrum","Anzaldo","Hirose",
+                        "Rottinghaus","Missler","Brogden","Delasancha","Sacchetti","Faria","Chicharello","Salvesen","Kapichok","Sleppy","Semper","Abatti","Jarnagin","Schuerholz","Nicholl",
+                        "Loft","Dagel","Winkelpleck","Madera","Muhs","Denner","Makey","Wendell","Ridder","Slaugenhaupt","Wilburn","Poladian","Dozal","Royston","Eardley","Villarta","Youree",
+                        "Appiah","Edith","Abdeldayen","Pasquini","Cabe","Hurla","Gest","Bayete","Goatley","Mcguffin","Kluz","Gepner","Crowston","Gyger","Stover","Orandello","Hairgrove",
+                        "Mccurtain","Cendana","Pfeiffenberge","Dirkson","Weida","Baucom","Tamas","Berra","Austad","Kawano","Benda","Ellermann","Ryan","Landolt","Schnelzer","Arnt","Minardi",
+                        "Maizes","Rosborough","Lyford","Klaass","Shorette","Whitener","Buys","Kounthong","Bisconer","Waser","Flamer","Marushia","Emlin","Driggs","Kubes","Duderstadt","Butters"
+                        ,"Shears","Wigington","Walchak","Kenouo","Bohmann","Hannagan","Eigner","Rainford","Adkisson","Vitrano","Walkingstick","Tart","Armesto","Kimmell","Ulman","Fortgang",
+                        "Stockley","Brzostek","Hoefling","Crickenberger","Cyler","Ornelas","Farria","Montella","Stock","Zorc","Halbrooks","Carriere","Colindres","Tyska","Esguerra","Buerstatte",
+                        "Welles","Gettinger","Grotz","Revilla","Galston","Pittmann","Bechel","Kimberlin","Odums","Causby","Ware","Havenhill","Branine","Kelnhofer","Dahm","Braunwarth","Omarah",
+                        "Syrop","Mcgugin","Aston","Lannom","Hirt","Mccrorey","Lyall","Kos","Muegge","Lamorte","Lothringer","Falcioni","Delgenio","Catenaccio","Gauntt","Shutte","Sarley","Calogero",
+                        "Obermuller","Polintan","Cerritos","Doom","Zaccagnino","Schilz","Garib","Coffie","Birkline","Maleck","Delaluz","Maiolo","Hackmann","Portsche","Sundberg","Him","Lempka","Ohmen",
+                        "Chamble","Riolo","Cichonski","Onan","Derfus","Knilands","Pawelk","Vallelonga","Mikesell","Breaker","Lockman","Navo","Cornelson","Mcgeady","Kana","Meikle","Shapino","Tonas",
+                        "Fasbender","Grodecki","Leffers","Wahdan","Krawczyk","Hafemeister","Sebestyen","Kun","Dehm","Guyton","Dupaty","Gjeltema","Fernet","Calvery","Glasgow","Anger","Capelli",
+                        "Levendoski","Gehle","Dungey","Denike","Marreel","Arbertha","Granberry","Guillan","Mass","Poeschl","Ouderkirk","Connard","Lichlyter","Taverna","Ladden","Blethen","Lauter",
+                        "Avrett","Scovel","Gietz","Cabiltes","Podbielski","Glaser","Beringer","Stoyanoff","Mcfeeley","Hazel","Fratzke","Register","Olaughlin","Bilbrew","Holey","Snead","Dincher",
+                        "Toribio","Kazmer","Rushman","Herkstroeter","Zwack","Packen","Busta","Sanlucas","Shivers","Bracks","Brodis","Beavis","Liuzza","Chadd","Truan","Beyene","Sedberry","Bow","Kemper",
+                        "Tabuena","Bodwell","Lowa","Buboltz","Thicke","Maupins","Rozzell","Sheffer","Mckeone","Ulvan","Metta","Spielmann","Ullman","Chick","Baseman","Critchfield","Readenour","Zimlich",
+                        "Kinch","Ochoa","Gobel","Safranek","Mandia","Bissonette","Mansanares","Brigantino","Zipfel","Soja","Touney","Ochotorena","Baradi","Burbridge","Hayes","Mozgala","Spisak",
+                        "Cartledge","Luetmer","Pipkins","Roorda","Boccanfuso","Houghtelling","Habibi","Dumaine","Sloup","Sperdute","Villanueva","Fitzgerrel","Breiling","Kachikian","Rimes",
+                        "Kubler","Ostroot","Sauerwein","Condie","Buckey","Solesbee","Mckern","Berceir","Meason","Strissel","Salvati","Ingham","Lather","Pullan","Gastelun","Elridge","Moorehouse",
+                        "Marcantel","Hadaway","Spriggle","Podraza","Mainguy","Henedia","Hofstadter","Laundree","Cerrano","Benac","Cahee","Gadson","Vandevort","Trias","Redus","Nabarrete","Valeriano",
+                        "Feimster","Calcagino","Ashbach","Dolch","Altringer","Kala","Abeb","Laurenceau","Mallozzi","Winkles","Monsegur","Severi","Solle","Sjogren","Pok","Molett","Varos","Gilfoy",
+                        "Medicus","Jeppson","Abbasi","Mccraight","Ohashi","Hocker","Mckennon","Littrel","Twilligear","Liptok","Gollop","Cuthbert","Poissant","Lainez","Pratts","Haugrud","Posa",
+                        "Schrag","Entrup","Cortes","Blanga","Demello","Skelton","Corell","Mchan","Torti","Vecchia","Alaya","Keown","Cicali","Machkovich","Lawford","Troyani","Devon","Smylie",
+                        "Macklem","Garibay","Rowold","Wern","Madaffari","Tatum","Belmont","Nishikawa","Similien","Rybacki","Brisbane","Martiarena","Dortch","Eck","Lijewski","Sarlinas","Dekok",
+                        "Oliviera","Baublitz","Pane","Wiebe","Gatson","Allende","Driesel","Sartor","Tarras","Richiusa","Oriordan","Alar","Brickle","Kosorog","Barbee","Beidleman","Agbisit",
+                        "Schiavi","Regester","Marrero","Braxton","Mateus","Cara","Abdelal","Merone","Rodarmel","Goerlich","Dunnell","Ralat","Lacina","Scheidt","Zilahi","Kjetland","Knepshield",
+                        "Alce","Champy","Degiorgio","Ciubal","Kuhl","Hargett","Bosa","Derkas","Spierling","Bonnenfant","Hoegerl","Steffa","Harriss","Feldhaus","Schapiro","Calcano","Cresta",
+                        "Ladtkow","Yournet","Getler","Reisling","Miker","Valorie","Genga","Lerwick","Yaun","Yoes","Guild","Beverly","Plassman","Dolly","Ghera","Costilla","Hauber","Svennungsen",
+                        "Tharaldson","Verghese","Torpey","Merlin","Levitch","Laughinghouse","Cabreja","Kilb","Fontanilla","Berri","Doede","Oligee","Janikowski","Denkins","Alanko","Jeannette",
+                        "Hites","Schriefer","Oborny","Malory","Sturrup","Petros","Geesey","Rivenberg","Trumball","Littfin","Gigantino","Shipps","Wycoff","Kupper","Dolgas","Oby","Polucha","Rasp",
+                        "Graue","Konick","Espenshade","Machel","Noxon","Bassiti","Schnickel","Corlee","Meaker","Bolch","Iara","Laredo","Stasko","Fisette","Clar","Didlake","Borghoff","Dubberly",
+                        "Quattro","Amparan","Walstrom","Mancini","Rathmanner","Andina","Muldrow","Heimbigner","Bloodough","Stoot","Bluestein","Meeks","Kaltenhauser","Ybos","Rehak","Dao","Shrum",
+                        "Bjerknes","Harp","Studeny","Sweers","Granto","Eldrige","Nast","Goodling","Daquino","Allegood","Delonge","Lattrell","Willougby","Betry","Sorvig","Schremp","Waynick",
+                        "Quidley","Kadner","Wares","Swarb","Placko","Travelstead","Liebold","Fukano","Daughetee","Feagler","Orie","Thruman","Quartuccio","Reinholdt","Urwin","Repoff","Crickard",
+                        "Prately","Stabile","Faler","Wolfrum","Hughe","Gustave","Lemar","Zhu","Quihuiz","Krinsky","Cresswell","Vanbergen","Durelli","Carron","Targett","Emmert","Ferrusi",
+                        "Harless","Ailes","Shimer","Greff","Pinna","Guedes","Meury","Lapari","Litty","Ji","Marcus","Lampel","Minotti","Migliorisi","Tevebaugh","Morgan","Steidel","Bartee",
+                        "Brackman","Borruso","Ficklin","Baza","Mercier","Sponholz","Trego","Channell","Vanburen","Zaring","Luken","Komorowski","Fasciano","Drafts","Dar","Callicoat","Callam",
+                        "Villaquiran","Vanbrunt","Coiner","Luckenbill","Mcray","Pin","Hayer","Lapenta","Isita","Slaydon","Frondorf","Cavagna","Passalacqua","Lehnertz","Kavadias","Macione",
+                        "Sturch","Boes","Albor","Bookamer","Burbine","Bardach","Ghaor","Quartieri","Mcgill","Michelena","Aronson","Brosig","Morganti","Rodewald","Barich","Langelier"
                   );
 
 /* function to clear the present value if a record's column and replace it with a value if spoecified
    Input: $con, $table, $column, $value = value to replace with
 */
-function removeColumn($con, $table, $column, $value = ''){
+function removeColumn($con, $table, $column, $value = '')
+{
     $removeSS = ("Update $table SET $column='$value' where 1 ");
     $query = mysqli_query($con, $removeSS) or print( "\n QUERY '$removeSS' DID NOT WORK.  PLEASE VERIFY THE TABLE AND COLUMN EXISTS \n");
-    if($query) print("\n Query '$removeSS' completed! \n");
-
+    if ($query) {
+        print("\n Query '$removeSS' completed! \n");
+    }
 }
 
 /* This function replaces the first and last name of the patient with a auto generated name
@@ -151,7 +153,8 @@ function removeColumn($con, $table, $column, $value = ''){
     INPUT: connection, last name array, firstname arrays, debug
     OUTPUT: Number of patients DEID.
 */
-function deIdPatientData($con, $lnames, $male, $female, $DEBUG=false){
+function deIdPatientData($con, $lnames, $male, $female, $DEBUG = false)
+{
 
     removeColumn($con, "patient_data", "ss", "0000-00-00");
     removeColumn($con, "form_encounter", "reason", "reason goes here, bucko");
@@ -162,34 +165,36 @@ function deIdPatientData($con, $lnames, $male, $female, $DEBUG=false){
 
     $removeLname = ("Select lname, pid, id, ss, street, sex from patient_data ");
     $query = mysqli_query($con, $removeLname);
-    while($result = mysqli_fetch_array($query))
-    {
-        if ($DEBUG===TRUE) {if($i ===10)break;}
+    while ($result = mysqli_fetch_array($query)) {
+        if ($DEBUG===true) {
+            if ($i ===10) {
+                break;
+            }
+        }
+
         $i++;
         $string = '';
         //Give the user a new last name in patient_data.lname
-        $last_name = $lnames[rand(0,800)];
+        $last_name = $lnames[rand(0, 800)];
 
         //Give the user a new first name
-        $first_name_male = $male[rand(0,32)];
-        $first_name_female = $female[rand(0,74)];
+        $first_name_male = $male[rand(0, 32)];
+        $first_name_female = $female[rand(0, 74)];
 
         //Change the street address patient_Data.street
-        $street = rand(1,9999)." ".rand(0,200)." Avenue ";
+        $street = rand(1, 9999)." ".rand(0, 200)." Avenue ";
 
         //remove the drivers license
-        $drivers_license = rand(2,999).rand(0,999).rand(0,99);
+        $drivers_license = rand(2, 999).rand(0, 999).rand(0, 99);
 
         //change the patient_data.phone_home
-        $phone_home = rand(200,999)."-".rand(200,999)."-".rand(1000,9999);
+        $phone_home = rand(200, 999)."-".rand(200, 999)."-".rand(1000, 9999);
 
         $string = "update patient_data set lname = '$last_name', ";
 
-        if($result['sex'] === 'Male'){
-
+        if ($result['sex'] === 'Male') {
             $string .= " fname = '$first_name_male', ";
-        }
-        else{
+        } else {
             $string .= " fname = '$first_name_female', ";
         }
 
@@ -214,20 +219,17 @@ function deIdPatientData($con, $lnames, $male, $female, $DEBUG=false){
         $string = '';
         deIdInsuranceDataTable($con, $result['pid']);
         //now update insurace
-
-
-
     }
 
-   return $i;
-
+    return $i;
 }
 
 
 //This function replaces the data stored in the insurance_data table with the random generated name.
 //In order for this to work, this function must be called AFTER the random name generator has been called.
 //Input: $con, $pid
-function deIdInsuranceDataTable($con, $pid){
+function deIdInsuranceDataTable($con, $pid)
+{
 
     //check if there is
     $type = ['primary', 'secondary', 'tertiary'];
@@ -240,16 +242,14 @@ function deIdInsuranceDataTable($con, $pid){
 
     //for each insurance type:
     //see if a insured name exists.  if it does, update the table with the new information
-    foreach($type as $ty){
-
+    foreach ($type as $ty) {
         //see if a first name exists, if it does then replace it
         $query = "select subscriber_lname from insurance_data where pid = '{$pid}' and type = '{$ty}' ";
         $result = mysqli_query($con, $query);
         $result = mysqli_fetch_array($result);
-        if($result['subscriber_lname'] === '' || $result === null){
+        if ($result['subscriber_lname'] === '' || $result === null) {
             continue;
-        }else{
-
+        } else {
             $string = "update insurance_data set 
               subscriber_lname = '{$demographic_array['lname']}',
               subscriber_fname = '{$demographic_array['fname']}',
@@ -268,15 +268,14 @@ function deIdInsuranceDataTable($con, $pid){
             $update = mysqli_query($con, $string) or print("update did not work");
         }
     }
-
-
 }
 
 
 //This function replaces the facility name with unqiue names so users can
 //see how different facilities have their data and permissions abstracted depending on
 //which facility the user has access too.
-function deIdFacilityTable($con){
+function deIdFacilityTable($con)
+{
 
 
     removeColumn($con, "facility", "phone", "(000) 000-0000");
@@ -287,8 +286,7 @@ function deIdFacilityTable($con){
 
     $query = "select * from facility";
     $result = mysqli_query($con, $query);
-    while($row = mysqli_fetch_array($result)){
-
+    while ($row = mysqli_fetch_array($result)) {
         $string = "update facility set 
           
               `name`    = 'Facility_{$row['id']}',
@@ -298,19 +296,16 @@ function deIdFacilityTable($con){
 
         mysqli_query($con, $string) or print "Error altering facility table \n";
         $string = '';
-
-
-
     }
 
     echo "Successfully deid'ed Facility Table";
-
 }
 
 
 
 //
-function deIdUsersTable($con){
+function deIdUsersTable($con)
+{
 
 
     removeColumn($con, "users", "federaltaxid", "123456789");
@@ -337,37 +332,31 @@ function deIdUsersTable($con){
 
 
 
-    while($row = mysqli_fetch_array($result)){
+    while ($row = mysqli_fetch_array($result)) {
         $string = "update users set ";
 
-       if(strpos($row['newcrop_user_role'], 'doctor') !==false){
-
-           $string .= "fname = 'Doctor.{$row['id']}', 
+        if (strpos($row['newcrop_user_role'], 'doctor') !==false) {
+            $string .= "fname = 'Doctor.{$row['id']}', 
                        lname = 'Doctor.{$row['id']}' ";
-
-
-       }else if(strpos($row['newcrop_user_role'], 'nurse') !==false){
-
-           $string .= "fname = 'Nurse.{$row['id']}', 
+        } else if (strpos($row['newcrop_user_role'], 'nurse') !==false) {
+            $string .= "fname = 'Nurse.{$row['id']}', 
                        lname = 'Nurse.{$row['id']}' ";
-
-       }else{
-
-           $string .= "fname = 'noNewCrop', 
+        } else {
+            $string .= "fname = 'noNewCrop', 
                        lname = 'Nurse{$row['id']}'";
+        }
 
-       }
         $string .= " where `id` = {$row['id']} ";
         mysqli_query($con, $string) or print "Error altering users table \n";
         //$string = '';
-
     }
 
     echo "successfuly altered user table \n ";
 }
 
 //Clears most forms.  User must verify that this function handles all text fields that might hold personal identifying information
-function deIdForms($con){
+function deIdForms($con)
+{
 
     removeColumn($con, "form_physical_exam", "comments", "no comment, talk to my lawyer");
     removeColumn($con, "form_soap", "subjective", "Patient Hurts");
@@ -382,15 +371,14 @@ function deIdForms($con){
     removeColumn($con, "pnotes", "body", "DATETIME (FROMUSER to USER) Note about Patient posted here");
 
     echo "successfuly altered user forms table \n ";
-
 }
 
 // truncates log tables to remove all hidden information
-function truncateLogs($con){
+function truncateLogs($con)
+{
 
     $query = mysqli_query($con, "TRUNCATE TABLE log") or print("\n\n log table not truncated \n\n");
     $query = mysqli_query($con, "TRUNCATE TABLE documents") or print("\n\n documents table not truncated \n\n");
-
 }
 
 
@@ -409,6 +397,3 @@ $success = truncateLogs($con);
 // Close the connection
 mysqli_close($con);
 echo " \n successfully updated $patients patients \n\n";
-
-
-?>

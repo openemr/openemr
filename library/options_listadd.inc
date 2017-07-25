@@ -22,8 +22,8 @@
  </div>
  <div style = 'text-align:center;'>
   <div style='margin:0.5em 0 0 0;'>
-   <input type='button' name='newlistitem_submit' id='newlistitem_submit' value='<?php xl('Add','e'); ?>'>
-   <input type='button' name='newlistitem_cancel' id='newlistitem_cancel' value='<?php xl('Cancel','e'); ?>'>
+   <input type='button' name='newlistitem_submit' id='newlistitem_submit' value='<?php xl('Add', 'e'); ?>'>
+   <input type='button' name='newlistitem_cancel' id='newlistitem_cancel' value='<?php xl('Cancel', 'e'); ?>'>
   </div>
  </div>
 </div>
@@ -41,12 +41,12 @@
     var state   = "\
 <ul style='list-style-type:none; margin:0; padding:0;'>\
  <li style='font-weight:bold; font-size:120%; text-align:center;'>\
-  <?php echo htmlspecialchars(xl('Enter new State'),ENT_NOQUOTES); ?></li>\
+    <?php echo htmlspecialchars(xl('Enter new State'), ENT_NOQUOTES); ?></li>\
  <li style='margin:0.5em 0 0 0; padding:0;'>\
-  <?php echo htmlspecialchars(xl('Full Name', '', '', ':'),ENT_NOQUOTES); ?>\
+    <?php echo htmlspecialchars(xl('Full Name', '', '', ':'), ENT_NOQUOTES); ?>\
   <input type='textbox' name='newlistitem_value' id='newlistitem_value' size='20' maxlength='50'><li>\
  <li style='margin:0.5em 0 0 0; padding:0;'>\
-  <?php echo htmlspecialchars(xl('Abbreviation', '', '', ':'),ENT_NOQUOTES); ?>\
+    <?php echo htmlspecialchars(xl('Abbreviation', '', '', ':'), ENT_NOQUOTES); ?>\
   <input type='textbox' name='newlistitem_abbr' id='newlistitem_abbr' size='10' maxlength='50'><li>\
 </ul>\
 "
@@ -71,21 +71,21 @@ $(document).ready(function(){
         $('#newlistitem_fieldid').val($(btnObj).attr("fieldid"));
 
         // REMOVE previous form
-	$("#specificForm").empty();
-	
-	// INSERT the selected form
-	if (($("#newlistitem_listid").val() == "state") && (stateCustomFlag)) {
-	 // insert state form and clear values
+    $("#specificForm").empty();
+    
+    // INSERT the selected form
+    if (($("#newlistitem_listid").val() == "state") && (stateCustomFlag)) {
+     // insert state form and clear values
          $("#specificForm").append(state);
-	 $('#newlistitem_value').val("");
-	 $('#newlistitem_abbr').val("");
-	}
-	else {
-	 // insert generic form and clear values
-	 $("#specificForm").append(generic);
-	 $('#newlistitem_value').val("");
+     $('#newlistitem_value').val("");
+     $('#newlistitem_abbr').val("");
+    }
+    else {
+     // insert generic form and clear values
+     $("#specificForm").append(generic);
+     $('#newlistitem_value').val("");
         }
-	
+    
         // make the item visible before setting its x,y location
         $('#newlistitem').css('display', 'inline');
         //getting height and width of the message box
@@ -106,30 +106,30 @@ $(document).ready(function(){
     
     // save the new list item to the given list
     var SaveNewListItem = function(btnObj, e) {
-	// VALIDATE the selected form
+    // VALIDATE the selected form
         //  Don't allow a number as first character
         //  Don't allow illegal characters (' and " for now) - still developing
-	//   First, validate fields common to all forms
+    //   First, validate fields common to all forms
         if ($("#newlistitem_value").val().match(/^\d/)) {
-            alert("<?php echo htmlspecialchars(xl('List items can not start with a number.'),ENT_QUOTES); ?>");
+            alert("<?php echo htmlspecialchars(xl('List items can not start with a number.'), ENT_QUOTES); ?>");
             $("#newlistitem_value").focus();
             return false;
         }
         if ($("#newlistitem_value").val().match(/[\'\"]/)) {
-            alert("<?php echo htmlspecialchars(xl('List items contains illegal character(s).'),ENT_QUOTES); ?>");
+            alert("<?php echo htmlspecialchars(xl('List items contains illegal character(s).'), ENT_QUOTES); ?>");
             $("#newlistitem_value").focus();
             return false;
         }
-	//  Second, validate form specific fields
+    //  Second, validate form specific fields
         if (($("#newlistitem_listid").val() == "state") && (stateCustomFlag)) {
             // state forms specific validation
             if ($("#newlistitem_abbr").val().match(/^\d/)) {
-                alert("<?php echo htmlspecialchars(xl('List items can not start with a number.'),ENT_QUOTES); ?>");
+                alert("<?php echo htmlspecialchars(xl('List items can not start with a number.'), ENT_QUOTES); ?>");
                 $("#newlistitem_abbr").focus();
                 return false;
             }
             if ($("#newlistitem_abbr").val().match(/[\'\"]/)) {
-                alert("<?php echo htmlspecialchars(xl('List items contains illegal character(s).'),ENT_QUOTES); ?>");
+                alert("<?php echo htmlspecialchars(xl('List items contains illegal character(s).'), ENT_QUOTES); ?>");
                 $("#newlistitem_abbr").focus();
                 return false;
             }
@@ -137,60 +137,60 @@ $(document).ready(function(){
 
         // PROCESS the selected form
         if (($("#newlistitem_listid").val() == "state") && (stateCustomFlag)) {
-	    // process state form
-	    //  (note we have collected a title and abbreviation)
-	    var listid = $("#newlistitem_listid").val();
-	    var newitem = $('#newlistitem_value').val();
-	    var newitem_abbr = $('#newlistitem_abbr').val();
-	    
-	}
-	else {
-	    // process generic form
-	    //  (note we have only collected the title, so will make
-	    //   abbreviation same as title)
-	    var listid = $("#newlistitem_listid").val();
-	    var newitem = $('#newlistitem_value').val();
-	    var newitem_abbr = $('#newlistitem_value').val();
-	}
+        // process state form
+        //  (note we have collected a title and abbreviation)
+        var listid = $("#newlistitem_listid").val();
+        var newitem = $('#newlistitem_value').val();
+        var newitem_abbr = $('#newlistitem_abbr').val();
+        
+    }
+    else {
+        // process generic form
+        //  (note we have only collected the title, so will make
+        //   abbreviation same as title)
+        var listid = $("#newlistitem_listid").val();
+        var newitem = $('#newlistitem_value').val();
+        var newitem_abbr = $('#newlistitem_value').val();
+    }
 
         // make the AJAX call to save the new value to the specified list
         // upon returning successfully, refresh the list box and select 
         // the new list item
         $.getJSON("<?php echo $GLOBALS['webroot']; ?>/library/ajax/addlistitem.php",
                     {listid: listid,
-		     newitem: newitem,
-		     newitem_abbr: newitem_abbr},
+             newitem: newitem,
+             newitem_abbr: newitem_abbr},
                     function(jsondata, txtresponse) {
-		    	 if( jsondata.error == '' ){
-			  //process each widget with the same list
-			$("select.addtolistclass_"+listid).each(function(){
-			    var pointer = $(this);
-			    var currentselected = pointer.val();
-			    var listboxfield = pointer.attr("id");
-			    var listbox = document.getElementById(listboxfield);
+                 if( jsondata.error == '' ){
+              //process each widget with the same list
+            $("select.addtolistclass_"+listid).each(function(){
+                var pointer = $(this);
+                var currentselected = pointer.val();
+                var listboxfield = pointer.attr("id");
+                var listbox = document.getElementById(listboxfield);
                             while (listbox.options.length > 0) { listbox.options[0] = null; }
                             $.each(jsondata.options, function () {
-			        if (listboxfield == $('#newlistitem_fieldid').val()) {
-				    // build select for the chosen widget field
+                    if (listboxfield == $('#newlistitem_fieldid').val()) {
+                    // build select for the chosen widget field
                                     listbox.options[listbox.options.length] = new Option(this.title, this.id);
                                     if (this.id == newitem_abbr) {
-				        pointer.val(this.id);
+                        pointer.val(this.id);
                                     }
-				}
-				else {
-				    // build select for the other widgets using the same list
-				    listbox.options[listbox.options.length] = new Option(this.title, this.id);
-				    if (this.id == currentselected) {
+                }
+                else {
+                    // build select for the other widgets using the same list
+                    listbox.options[listbox.options.length] = new Option(this.title, this.id);
+                    if (this.id == currentselected) {
                                         pointer.val(currentselected);
-				    }
-				}
+                    }
+                }
                             }); 
-			});
+            });
         
                         // now hide the DIV
                         $('#newlistitem').hide();
-		     }else{
-             	
+             }else{
+                
                  alert( jsondata.error );
              }
                     }

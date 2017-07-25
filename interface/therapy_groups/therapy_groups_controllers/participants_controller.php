@@ -29,20 +29,21 @@ require_once dirname(__FILE__) . '/base_controller.php';
 require_once dirname(__FILE__) . '/therapy_groups_controller.php';
 require_once("{$GLOBALS['srcdir']}/pid.inc");
 
-class ParticipantsController extends BaseController{
+class ParticipantsController extends BaseController
+{
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->groupParticipantsModel = $this->loadModel('therapy_groups_participants');
         $this->groupEventsModel = $this->loadModel('Therapy_Groups_Events');
         $this->groupModel = $this->loadModel('therapy_groups');
     }
 
-    public function index($groupId ,$data = array()){
+    public function index($groupId, $data = array())
+    {
 
-        if(isset($_POST['save'])){
-
-            for($k = 0; $k < count($_POST['pid']); $k++){
-
+        if (isset($_POST['save'])) {
+            for ($k = 0; $k < count($_POST['pid']); $k++) {
                 $patient['pid'] = $_POST['pid'][$k];
                 $patient['group_patient_status'] = $_POST['group_patient_status'][$k];
                 $patient['group_patient_start'] = DateToYYYYMMDD($_POST['group_patient_start'][$k]);
@@ -57,14 +58,13 @@ class ParticipantsController extends BaseController{
                 );
                 //filter and sanitize all post data.
                 $participant = filter_var_array($patient, $filters);
-                $this->groupParticipantsModel->updateParticipant($participant,$patient['pid'], $_POST['group_id']);
+                $this->groupParticipantsModel->updateParticipant($participant, $patient['pid'], $_POST['group_id']);
                 unset($_GET['editParticipants']);
             }
         }
 
-        if(isset($_GET['deleteParticipant'])){
-
-            $this->groupParticipantsModel->removeParticipant($_GET['group_id'],$_GET['pid']);
+        if (isset($_GET['deleteParticipant'])) {
+            $this->groupParticipantsModel->removeParticipant($_GET['group_id'], $_GET['pid']);
         }
 
         $data['events'] = $this->groupEventsModel->getGroupEvents($groupId);
@@ -74,6 +74,7 @@ class ParticipantsController extends BaseController{
             $statuses[$key]  = $row['group_patient_status'];
             $names[$key] = $row['lname'] . ' ' . $row['fname'];
         }
+
         array_multisort($statuses, SORT_ASC, $names, SORT_ASC, $data['participants']);
 
         $data['statuses'] = TherapyGroupsController::prepareParticipantStatusesList();
@@ -81,7 +82,7 @@ class ParticipantsController extends BaseController{
         $groupData = $this->groupModel->getGroup($groupId);
         $data['groupName'] = $groupData['group_name'];
 
-        if(isset($_GET['editParticipants'])){
+        if (isset($_GET['editParticipants'])) {
             $data['readonly'] = '';
         }
 
@@ -91,16 +92,17 @@ class ParticipantsController extends BaseController{
     }
 
 
-    public function add($groupId){
+    public function add($groupId)
+    {
 
-        if(isset($_POST['save_new'])){
-
+        if (isset($_POST['save_new'])) {
             $_POST['group_patient_start'] = DateToYYYYMMDD($_POST['group_patient_start']);
 
             $alreadyRegistered = $this->groupParticipantsModel->isAlreadyRegistered($_POST['pid'], $groupId);
-            if($alreadyRegistered){
+            if ($alreadyRegistered) {
                 $this->index($groupId, array('participant_data' => $_POST, 'addStatus' => 'failed','message' => xlt('The patient already registered to the group')));
             }
+
             // adding group id to $_POST
             $_POST = array('group_id' => $groupId) + $_POST;
 
@@ -121,5 +123,4 @@ class ParticipantsController extends BaseController{
 
         $this->index($groupId, array('participant_data' => null));
     }
-
 }

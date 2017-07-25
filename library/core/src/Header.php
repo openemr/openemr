@@ -66,11 +66,15 @@ class Header
      * @throws ParseException If unable to parse the config file
      * @return string
      */
-    static public function setupHeader($assets = [])
+    public static function setupHeader($assets = [])
     {
-        html_header_show();
-        echo self::loadTheme();
-        echo self::includeAsset($assets);
+        try {
+            html_header_show();
+            echo self::loadTheme();
+            echo self::includeAsset($assets);
+        } catch (\InvalidArgumentException $e) {
+            error_log($e->getMessage());
+        }
     }
 
     /**
@@ -86,7 +90,7 @@ class Header
      * @throws ParseException If unable to parse the config file
      * @return string
      */
-    static private function includeAsset($assets = [])
+    private static function includeAsset($assets = [])
     {
 
         if (is_string($assets)) {
@@ -136,7 +140,7 @@ class Header
      * @var array $opts Options
      * @return array Array with `scripts` and `links` keys which contain arrays of elements
      */
-    static private function buildAsset($opts = array())
+    private static function buildAsset($opts = array())
     {
         $script = (isset($opts['script'])) ? $opts['script'] : false;
         $link = (isset($opts['link'])) ? $opts['link'] : false;
@@ -152,15 +156,25 @@ class Header
         }
 
         if ($link) {
-            $link = self::parsePlaceholders($link);
-            $path = self::createFullPath($basePath, $link);
-            $links[] = self::createElement($path, 'link');
+            if (!is_string($link) && !is_array($link)) {
+                throw new \InvalidArgumentException("Link must be of type string or array");
+            }
+
+            if (is_string($link)) {
+                $link = [$link];
+            }
+
+            foreach ($link as $l) {
+                $l = self::parsePlaceholders($l);
+                $path = self::createFullPath($basePath, $l);
+                $links[] = self::createElement($path, 'link');
+            }
         }
 
         return ['scripts' => $scripts, 'links' => $links];
     }
 
-    static private function loadTheme()
+    private static function loadTheme()
     {
         $link = '<link rel="stylesheet" href="%css_header%" type="text/css">';
         return self::parsePlaceholders($link);
@@ -176,7 +190,7 @@ class Header
      * @param string $subject String containing placeholders (%key-name%)
      * @return string The new string with properly replaced keys
      */
-    static public function parsePlaceholders($subject)
+    public static function parsePlaceholders($subject)
     {
         $re = '/%(.*)%/';
         $matches = [];
@@ -187,6 +201,7 @@ class Header
                 $subject = str_replace($match[0], $GLOBALS["{$match[1]}"], $subject);
             }
         }
+
         return $subject;
     }
 
@@ -197,7 +212,7 @@ class Header
      * @param string $type Must be `script` or `link`
      * @return string mixed HTML element
      */
-    static private function createElement($path, $type)
+    private static function createElement($path, $type)
     {
 
         $script = "<script type=\"text/javascript\" src=\"%path%\"></script>\n";
@@ -207,7 +222,6 @@ class Header
         $v = $GLOBALS['v_js_includes'];
         $path = $path . "?v={$v}";
         return str_replace("%path%", $path, $template);
-
     }
 
     /**
@@ -217,7 +231,7 @@ class Header
      * @param string $path specific path / filename
      * @return string The full path
      */
-    static private function createFullPath($base, $path)
+    private static function createFullPath($base, $path)
     {
         return $base . $path;
     }
@@ -228,7 +242,7 @@ class Header
      * @param string $file Full path to filename
      * @return array Array of assets
      */
-    static private function readConfigFile($file)
+    private static function readConfigFile($file)
     {
         try {
             $config = Yaml::parse(file_get_contents($file));
@@ -238,5 +252,4 @@ class Header
             // @TODO need to handle this better. RD 2017-05-24
         }
     }
-
 }

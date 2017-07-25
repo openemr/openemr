@@ -8,41 +8,40 @@
 
         require_once("verify_session.php");
 
-	$sql = "SELECT * FROM lists WHERE pid = ? AND type = 'medical_problem' ORDER BY begdate";
+    $sql = "SELECT * FROM lists WHERE pid = ? AND type = 'medical_problem' ORDER BY begdate";
 
-	$res = sqlStatement($sql, array($pid) );
+    $res = sqlStatement($sql, array($pid));
 
-  	if(sqlNumRows($res)>0)
-  	{
-  		?>
-  		<table class="class1">
-  			<tr class="header">
-  				<th><?php echo htmlspecialchars( xl('Title'),ENT_NOQUOTES);?></th>
-  				<th><?php echo htmlspecialchars( xl('Reported Date'),ENT_NOQUOTES);?></th>
-  				<th><?php echo htmlspecialchars( xl('Start Date'),ENT_NOQUOTES);?></th>
-  				<th><?php echo htmlspecialchars( xl('End Date'),ENT_NOQUOTES);?></th>
-  			</tr>
-  		<?php
-  		$even=false;
-  		while ($row = sqlFetchArray($res)) {
-  			if ($even) {
-  				$class="class1_even";
-  				$even=false;
-  			} else {
-  				$class="class1_odd";
-  				$even=true;
-  			}
-  			echo "<tr class='".$class."'>";
-  			echo "<td>".htmlspecialchars($row['title'],ENT_NOQUOTES)."</td>";
-  			echo "<td>".htmlspecialchars($row['date'],ENT_NOQUOTES)."</td>";
-  			echo "<td>".htmlspecialchars($row['begdate'],ENT_NOQUOTES)."</td>";
-  			echo "<td>".htmlspecialchars($row['enddate'],ENT_NOQUOTES)."</td>";
-  			echo "</tr>";
-  		}
-		echo "</table>";
-  	}
-	else
-	{
-		echo htmlspecialchars( xl("No Results"),ENT_NOQUOTES);
-	}
+if (sqlNumRows($res)>0) {
+    ?>
+    <table class="class1">
+        <tr class="header">
+        <th><?php echo htmlspecialchars(xl('Title'), ENT_NOQUOTES);?></th>
+        <th><?php echo htmlspecialchars(xl('Reported Date'), ENT_NOQUOTES);?></th>
+        <th><?php echo htmlspecialchars(xl('Start Date'), ENT_NOQUOTES);?></th>
+        <th><?php echo htmlspecialchars(xl('End Date'), ENT_NOQUOTES);?></th>
+        </tr>
+    <?php
+    $even=false;
+    while ($row = sqlFetchArray($res)) {
+        if ($even) {
+            $class="class1_even";
+            $even=false;
+        } else {
+            $class="class1_odd";
+            $even=true;
+        }
+
+        echo "<tr class='".$class."'>";
+        echo "<td>".htmlspecialchars($row['title'], ENT_NOQUOTES)."</td>";
+        echo "<td>".htmlspecialchars($row['date'], ENT_NOQUOTES)."</td>";
+        echo "<td>".htmlspecialchars($row['begdate'], ENT_NOQUOTES)."</td>";
+        echo "<td>".htmlspecialchars($row['enddate'], ENT_NOQUOTES)."</td>";
+        echo "</tr>";
+    }
+
+    echo "</table>";
+} else {
+    echo htmlspecialchars(xl("No Results"), ENT_NOQUOTES);
+}
 ?>

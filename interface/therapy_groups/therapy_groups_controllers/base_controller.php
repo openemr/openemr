@@ -24,7 +24,8 @@
  * @link    http://www.open-emr.org
  */
 
-class BaseController{
+class BaseController
+{
 
     const VIEW_FOLDER = 'therapy_groups_views';
     const MODEL_FOLDER = 'therapy_groups_models';
@@ -34,7 +35,8 @@ class BaseController{
      * @param $template view name
      * @param array $data variables for injection into view
      */
-    protected function loadView($template, $data = array()){
+    protected function loadView($template, $data = array())
+    {
 
         $template = dirname(__FILE__) .'/../' . self::VIEW_FOLDER .'/'. $template .'.php';
 
@@ -49,7 +51,7 @@ class BaseController{
 
     protected function loadModel($name)
     {
-        if(!isset($this->$name)){
+        if (!isset($this->$name)) {
             require(dirname(__FILE__) .'/../' . self::MODEL_FOLDER .'/'. strtolower($name) .'_model.php');
             $this->$name = new $name;
         }

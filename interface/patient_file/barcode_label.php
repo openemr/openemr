@@ -44,7 +44,7 @@ $patdata = sqlQuery("SELECT " .
 
 
 $today = date('m/d/Y');
-$dob   = substr($patdata['DOB'],5,2) ."/". Substr($patdata['DOB'],8,2) ."/". Substr($patdata['DOB'],0,4);
+$dob   = substr($patdata['DOB'], 5, 2) ."/". Substr($patdata['DOB'], 8, 2) ."/". Substr($patdata['DOB'], 0, 4);
 
 
 
@@ -55,44 +55,44 @@ $dob   = substr($patdata['DOB'],5,2) ."/". Substr($patdata['DOB'],8,2) ."/". Sub
 $code     = $patdata['pubpid']; // what is wanted as the barcode
 $bartype = $GLOBALS['barcode_label_type'] ; // Get barcode type
 
- switch($bartype){
-            case '1':
-			    $type     = 'std25';
-				break;
-            case '2':
-			    $type     = 'int25';
-                break;
-            case '3':
-			    $type     = 'ean8';
-                break;
-            case '4':
- 			    $type     = 'ean13';
-                break;
-            case '5':
- 			    $type     = 'upc';
-                break;
-            case '6':
- 			    $type     = 'code11';
-                break;
-            case '7':
- 			    $type     = 'code39';
-                break;
-            case '8':
- 			    $type     = 'code93';
-                break;
-            case '9':
- 			    $type     = 'code128';
-                break;
-            case '10':
- 			    $type     = 'codabar';
-                break;
-            case '11':
- 			    $type     = 'msi';
-                break;
-            case '12':
- 			    $type     = 'datamatrix';
-                break;
-        }
+switch ($bartype) {
+    case '1':
+        $type     = 'std25';
+        break;
+    case '2':
+        $type     = 'int25';
+        break;
+    case '3':
+        $type     = 'ean8';
+        break;
+    case '4':
+        $type     = 'ean13';
+        break;
+    case '5':
+        $type     = 'upc';
+        break;
+    case '6':
+        $type     = 'code11';
+        break;
+    case '7':
+        $type     = 'code39';
+        break;
+    case '8':
+        $type     = 'code93';
+        break;
+    case '9':
+        $type     = 'code128';
+        break;
+    case '10':
+        $type     = 'codabar';
+        break;
+    case '11':
+        $type     = 'msi';
+        break;
+    case '12':
+        $type     = 'datamatrix';
+        break;
+}
 
 // -------------------------------------------------- //
 //                  PROPERTIES
@@ -102,26 +102,24 @@ $angle    = 90;   // rotation in degrees
 $black    = '000000'; // color in hexa
 
 if ($GLOBALS['barcode_label_type'] == '12') {   // datamatrix
-$marge    = 0;   // between barcode and hri in pixel
-$x        = 35;  // barcode center
-$y        = 120;  // barcode center
-$height   = 40;   // barcode height in 1D ; module size in 2D
-$width    = 4;    // barcode height in 1D ; not use in 2D
-}
-ELSE
-{
-$marge    = 5;   // between barcode and hri in pixel
-$x        = 30;  // barcode center
-$y        = 120;  // barcode center
-$height   = 40;   // barcode height in 1D ; module size in 2D
-$width    = 1;    // barcode height in 1D ; not use in 2D
+    $marge    = 0;   // between barcode and hri in pixel
+    $x        = 35;  // barcode center
+    $y        = 120;  // barcode center
+    $height   = 40;   // barcode height in 1D ; module size in 2D
+    $width    = 4;    // barcode height in 1D ; not use in 2D
+} else {
+    $marge    = 5;   // between barcode and hri in pixel
+    $x        = 30;  // barcode center
+    $y        = 120;  // barcode center
+    $height   = 40;   // barcode height in 1D ; module size in 2D
+    $width    = 1;    // barcode height in 1D ; not use in 2D
 }
 
 // -------------------------------------------------- //
 //            ALLOCATE FPDF RESSOURCE
 // -------------------------------------------------- //
 
-$pdf = new eFPDF('P', 'mm',array(102,252)); // set the orentation, unit of measure and size of the page
+$pdf = new eFPDF('P', 'mm', array(102,252)); // set the orentation, unit of measure and size of the page
 $pdf->AddPage();
 
 // -------------------------------------------------- //
@@ -129,7 +127,7 @@ $pdf->AddPage();
 // -------------------------------------------------- //
 
 $data = Barcode::fpdf($pdf, $black, $x, $y, $angle, $type, array('code'=>$code), $width, $height);
-$pdf->SetFont('Arial','B',$fontSize);
+$pdf->SetFont('Arial', 'B', $fontSize);
 $pdf->SetTextColor(0, 0, 0);
 $len = $pdf->GetStringWidth($data['hri']);
 Barcode::rotate(-$len / 2, ($data['height'] / 2) + $fontSize + $marge, $angle, $xt, $yt);
@@ -140,4 +138,3 @@ Barcode::rotate(-$len / 2, ($data['height'] / 2) + $fontSize + $marge, $angle, $
 
 $pdf->TextWithRotation($x + $xt, $y + $yt, $data['hri'], $angle);
 $pdf->Output();
-?>

@@ -2,6 +2,7 @@
 
 
 use OpenEMR\Core\Header;
+
 include_once("../../globals.php");
 include_once("$srcdir/transactions.inc");
 require_once("$srcdir/options.inc.php");
@@ -39,7 +40,9 @@ require_once("$srcdir/options.inc.php");
             <?php echo xlt('View Blank Referral Form'); ?></a>
     </div>
     <div class='text'>
-        <?php if ($result = getTransByPid($pid)) { ?>
+        <?php
+        if ($result = getTransByPid($pid)) {
+        ?>
 
             <table class="table table-striped">
             <thead>
@@ -57,11 +60,13 @@ require_once("$srcdir/options.inc.php");
                     if (!isset($item['body'])) {
                         $item['body'] = '';
                     }
+
                     if (getdate() == strtotime($item['date'])) {
                         $date = "Today, " . date('D F ds', strtotime($item['date']));
                     } else {
                         $date = date('D F ds', strtotime($item['date']));
                     }
+
                     $date = oeFormatShortDate($item['refer_date']);
                     $id = $item['id'];
                     $edit = xl('Edit');
@@ -97,13 +102,19 @@ require_once("$srcdir/options.inc.php");
                         <td><?php echo text($item['user']); ?></td>
                         <td><?php echo text($item['body']); ?></td>
                     </tr>
-                <?php } ?>
+                <?php
+                }
+                ?>
             </tbody>
             </table>
 
-        <?php } else { ?>
-            <span class="text"><?php echo xlt('There are no transactions on file for this patient.'); ?></span>
-        <?php } ?>
+        <?php
+        } else {
+        ?>
+        <span class="text"><?php echo xlt('There are no transactions on file for this patient.'); ?></span>
+        <?php
+        }
+        ?>
     </div>
 </body>
 </html>

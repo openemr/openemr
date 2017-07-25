@@ -28,10 +28,13 @@ require_once("portal.inc.php");
 $postid = intval($_REQUEST['postid']);
 
 // Get the portal request data.
-if (!$postid) die(xlt('Request ID is missing!'));
+if (!$postid) {
+    die(xlt('Request ID is missing!'));
+}
+
 $result = cms_portal_call(array('action' => 'getpost', 'postid' => $postid));
 if ($result['errmsg']) {
-  die(text($result['errmsg']));
+    die(text($result['errmsg']));
 }
 
 // Look up the patient in OpenEMR.
@@ -82,7 +85,9 @@ function openPatient() {
 
 <body class="body_top">
 
-<?php echo "<!-- "; print_r($result); echo " -->\n"; // debugging ?>
+<?php echo "<!-- ";
+print_r($result);
+echo " -->\n"; // debugging ?>
 
 <center>
 
@@ -96,22 +101,27 @@ function openPatient() {
 
 <?php
 foreach ($result['fields'] as $field_id => $newvalue) {
-  if (is_array($newvalue)) {
-    $tmp = '';
-    foreach ($newvalue as $value) {
-      if ($tmp !== '') $tmp .= ', ';
-      $tmp .= $value;
+    if (is_array($newvalue)) {
+        $tmp = '';
+        foreach ($newvalue as $value) {
+            if ($tmp !== '') {
+                $tmp .= ', ';
+            }
+
+            $tmp .= $value;
+        }
+
+        $newvalue = $tmp;
     }
-    $newvalue = $tmp;
-  }
-  $newvalue = trim($newvalue);
-  $field_title = $result['labels'][$field_id];
-  echo " <tr class='detail'>\n";
-  echo "  <td class='bold'>" . text($field_title) . "</td>\n";
-  echo "  <td>";
-  echo text($newvalue);
-  echo "</td>\n";
-  echo " </tr>\n";
+
+    $newvalue = trim($newvalue);
+    $field_title = $result['labels'][$field_id];
+    echo " <tr class='detail'>\n";
+    echo "  <td class='bold'>" . text($field_title) . "</td>\n";
+    echo "  <td>";
+    echo text($newvalue);
+    echo "</td>\n";
+    echo " </tr>\n";
 }
 ?>
 

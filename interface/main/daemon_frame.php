@@ -22,13 +22,16 @@
 
  // Check if there are faxes in the recvq.
  $faxcount = 0;
- if ($GLOBALS['enable_hylafax']) {
-  $statlines = array();
-  exec("faxstat -r -l -h " . $GLOBALS['hylafax_server'], $statlines);
-  foreach ($statlines as $line) {
-   if (substr($line, 0, 1) == '-') ++$faxcount;
-  }
- }
+if ($GLOBALS['enable_hylafax']) {
+    $statlines = array();
+    exec("faxstat -r -l -h " . $GLOBALS['hylafax_server'], $statlines);
+    foreach ($statlines as $line) {
+        if (substr($line, 0, 1) == '-') {
+            ++$faxcount;
+        }
+    }
+}
+
  $color_fax = $faxcount ? $colorh : $colorn;
 
  // Check if this user has any active patient notes assigned to them.

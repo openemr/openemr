@@ -7,6 +7,7 @@
 // of the License, or (at your option) any later version.
 
 use OpenEMR\Core\Header;
+
 include_once("../globals.php");
 include_once($GLOBALS['srcdir'] . "/patient.inc");
 
@@ -66,7 +67,6 @@ $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Generate button was clicked...
 if ($_POST['formaction']=="generate") {
-
     $form_pid      = $_POST['form_pid'];
     $form_from     = $_POST['form_from'];
     $form_to       = $_POST['form_to'];
@@ -91,137 +91,137 @@ if ($_POST['formaction']=="generate") {
     foreach ($FIELD_TAG as $key => $value) {
         $temp_bodytext = str_replace("{".$value."}", "{".$key."}", $temp_bodytext);
     }
+
     if (! fwrite($fh, $temp_bodytext)) {
-        echo xl('Error while saving to the file','','',' ') . $template_dir."/autosaved" .
-             xl('Ensure OpenEMR has write privileges to directory','',' . ',' ') . $template_dir  . "/ ." ;
+        echo xl('Error while saving to the file', '', '', ' ') . $template_dir."/autosaved" .
+             xl('Ensure OpenEMR has write privileges to directory', '', ' . ', ' ') . $template_dir  . "/ ." ;
         die;
     }
+
     fclose($fh);
 
-    $cpstring = str_replace('{'.$FIELD_TAG['DATE'].'}'            , $datestr, $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_TITLE'].'}'      , $from_title, $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_FNAME'].'}'      , $frow['fname'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_LNAME'].'}'      , $frow['lname'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_MNAME'].'}'      , $frow['mname'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_STREET'].'}'     , $frow['street'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_CITY'].'}'       , $frow['city'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_STATE'].'}'      , $frow['state'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_POSTAL'].'}'     , $frow['zip'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['DATE'].'}', $datestr, $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['FROM_TITLE'].'}', $from_title, $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['FROM_FNAME'].'}', $frow['fname'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['FROM_LNAME'].'}', $frow['lname'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['FROM_MNAME'].'}', $frow['mname'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['FROM_STREET'].'}', $frow['street'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['FROM_CITY'].'}', $frow['city'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['FROM_STATE'].'}', $frow['state'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['FROM_POSTAL'].'}', $frow['zip'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['FROM_VALEDICTORY'].'}', $frow['valedictory'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_PHONECELL'].'}'  , $frow['phonecell'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_PHONE'].'}'      , $frow['phone'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['FROM_EMAIL'].'}'      , $frow['email'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_TITLE'].'}'        , $to_title, $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_FNAME'].'}'        , $trow['fname'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_LNAME'].'}'        , $trow['lname'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_MNAME'].'}'        , $trow['mname'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_STREET'].'}'       , $trow['street'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_CITY'].'}'         , $trow['city'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_STATE'].'}'        , $trow['state'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_POSTAL'].'}'       , $trow['zip'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_VALEDICTORY'].'}'  , $trow['valedictory'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_FAX'].'}'          , $trow['fax'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_PHONE'].'}'        , $trow['phone'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_PHONECELL'].'}'    , $trow['phonecell'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['TO_ORGANIZATION'].'}' , $trow['organization'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_FNAME'].'}'        , $patdata['fname'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_LNAME'].'}'        , $patdata['lname'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_MNAME'].'}'        , $patdata['mname'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_STREET'].'}'       , $patdata['street'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_CITY'].'}'         , $patdata['city'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_STATE'].'}'        , $patdata['state'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_POSTAL'].'}'       , $patdata['postal_code'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_PHONE_HOME'].'}'   , $patdata['phone_home'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_PHONE_CELL'].'}'   , $patdata['phone_cell'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_SSN'].'}'          , $patdata['ss'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_EMAIL'].'}'        , $patdata['email'], $cpstring);
-    $cpstring = str_replace('{'.$FIELD_TAG['PT_DOB'].'}'          , $patdata['DOB'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['FROM_PHONECELL'].'}', $frow['phonecell'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['FROM_PHONE'].'}', $frow['phone'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['FROM_EMAIL'].'}', $frow['email'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['TO_TITLE'].'}', $to_title, $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['TO_FNAME'].'}', $trow['fname'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['TO_LNAME'].'}', $trow['lname'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['TO_MNAME'].'}', $trow['mname'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['TO_STREET'].'}', $trow['street'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['TO_CITY'].'}', $trow['city'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['TO_STATE'].'}', $trow['state'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['TO_POSTAL'].'}', $trow['zip'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['TO_VALEDICTORY'].'}', $trow['valedictory'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['TO_FAX'].'}', $trow['fax'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['TO_PHONE'].'}', $trow['phone'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['TO_PHONECELL'].'}', $trow['phonecell'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['TO_ORGANIZATION'].'}', $trow['organization'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['PT_FNAME'].'}', $patdata['fname'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['PT_LNAME'].'}', $patdata['lname'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['PT_MNAME'].'}', $patdata['mname'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['PT_STREET'].'}', $patdata['street'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['PT_CITY'].'}', $patdata['city'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['PT_STATE'].'}', $patdata['state'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['PT_POSTAL'].'}', $patdata['postal_code'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['PT_PHONE_HOME'].'}', $patdata['phone_home'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['PT_PHONE_CELL'].'}', $patdata['phone_cell'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['PT_SSN'].'}', $patdata['ss'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['PT_EMAIL'].'}', $patdata['email'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['PT_DOB'].'}', $patdata['DOB'], $cpstring);
 
     if ($form_format == "pdf") {
-      $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
-      $pdf->ezSetMargins($GLOBALS['rx_top_margin']
-                      ,$GLOBALS['rx_bottom_margin']
-                      ,$GLOBALS['rx_left_margin']
-                      ,$GLOBALS['rx_right_margin']
-                      );
-      if (file_exists("$template_dir/custom_pdf.php")) {
-        include("$template_dir/custom_pdf.php");
-      }
-      else {
-        $pdf->selectFont('Helvetica');
-        $pdf->ezText($cpstring, 12);
-      }
-      $pdf->ezStream();
-      exit;
-    }
-    else { // $form_format = html
+        $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
+        $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
+        if (file_exists("$template_dir/custom_pdf.php")) {
+            include("$template_dir/custom_pdf.php");
+        } else {
+            $pdf->selectFont('Helvetica');
+            $pdf->ezText($cpstring, 12);
+        }
+
+        $pdf->ezStream();
+        exit;
+    } else { // $form_format = html
         $cpstring = text($cpstring); //escape to prevent stored cross script attack
-	    $cpstring = str_replace("\n", "<br>", $cpstring);
-	    $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
+        $cpstring = str_replace("\n", "<br>", $cpstring);
+        $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
         ?>
         <html>
         <head>
         <style>
         body {
-	 font-family: sans-serif;
-	 font-weight: normal;
-	 font-size: 12pt;
-	 background: white;
-	 color: black;
-	}
-	.paddingdiv {
-	 width: 524pt;
-	 padding: 0pt;
-	 margin-top: 50pt;
-	}
-	.navigate {
-	 margin-top: 2.5em;
-	}
-	@media print {
-	 .navigate {
-	  display: none;
-	 }
-	}
-	</style>
-	<title><?php echo xlt('Letter'); ?></title>
-	</head>
-        <body>
-	<div class='paddingdiv'>
-	<?php echo $cpstring; ?>
-        <div class="navigate">
-	<a href='<?php echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved'; ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
-	</div>
-	<script language='JavaScript'>
-	window.print();
-	</script>
-	</body>
-	</div>
-	<?php
-	exit;
+     font-family: sans-serif;
+     font-weight: normal;
+     font-size: 12pt;
+     background: white;
+     color: black;
     }
-}
-else if (isset($_GET['template']) && $_GET['template'] != "") {
+    .paddingdiv {
+     width: 524pt;
+     padding: 0pt;
+     margin-top: 50pt;
+    }
+    .navigate {
+     margin-top: 2.5em;
+    }
+    @media print {
+     .navigate {
+      display: none;
+     }
+    }
+    </style>
+    <title><?php echo xlt('Letter'); ?></title>
+    </head>
+        <body>
+    <div class='paddingdiv'>
+    <?php echo $cpstring; ?>
+        <div class="navigate">
+    <a href='<?php echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved'; ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
+    </div>
+    <script language='JavaScript'>
+    window.print();
+    </script>
+    </body>
+    </div>
+    <?php
+    exit;
+    }
+} else if (isset($_GET['template']) && $_GET['template'] != "") {
     // utilized to go back to autosaved template
     $bodytext = "";
     $fh = fopen("$template_dir/".$_GET['template'], 'r');
-    while (!feof($fh)) $bodytext.= fread($fh, 8192);
+    while (!feof($fh)) {
+        $bodytext.= fread($fh, 8192);
+    }
+
     fclose($fh);
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
         $bodytext = str_replace("{".$key."}", "{".$value."}", $bodytext);
     }
-}
-else if ($_POST['formaction'] == "loadtemplate" && $_POST['form_template'] != "") {
+} else if ($_POST['formaction'] == "loadtemplate" && $_POST['form_template'] != "") {
     $bodytext = "";
     $fh = fopen("$template_dir/".$_POST['form_template'], 'r');
-    while (!feof($fh)) $bodytext.= fread($fh, 8192);
+    while (!feof($fh)) {
+        $bodytext.= fread($fh, 8192);
+    }
+
     fclose($fh);
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
         $bodytext = str_replace("{".$key."}", "{".$value."}", $bodytext);
     }
-}
-else if ($_POST['formaction'] == "newtemplate" && $_POST['newtemplatename'] != "") {
+} else if ($_POST['formaction'] == "newtemplate" && $_POST['newtemplatename'] != "") {
     // attempt to save the template
     $fh = fopen("$template_dir/".$_POST['newtemplatename'], 'w');
     // translate from definition to the constant
@@ -229,23 +229,27 @@ else if ($_POST['formaction'] == "newtemplate" && $_POST['newtemplatename'] != "
     foreach ($FIELD_TAG as $key => $value) {
         $temp_bodytext = str_replace("{".$value."}", "{".$key."}", $temp_bodytext);
     }
+
     if (! fwrite($fh, $temp_bodytext)) {
         echo xlt('Error while writing to file') . ' ' . $template_dir."/".$_POST['newtemplatename'];
         die;
     }
+
     fclose($fh);
 
     // read the saved file back
     $_POST['form_template'] = $_POST['newtemplatename'];
     $fh = fopen("$template_dir/".$_POST['form_template'], 'r');
-    while (!feof($fh)) $bodytext.= fread($fh, 8192);
+    while (!feof($fh)) {
+        $bodytext.= fread($fh, 8192);
+    }
+
     fclose($fh);
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
-        $bodytext = str_replace("{".$key."}", "{".$value."}" , $bodytext);
+        $bodytext = str_replace("{".$key."}", "{".$value."}", $bodytext);
     }
-}
-else if ($_POST['formaction'] == "savetemplate" && $_POST['form_template'] != "") {
+} else if ($_POST['formaction'] == "savetemplate" && $_POST['form_template'] != "") {
     // attempt to save the template
     $fh = fopen("$template_dir/".$_POST['form_template'], 'w');
     // translate from definition to the constant
@@ -253,15 +257,20 @@ else if ($_POST['formaction'] == "savetemplate" && $_POST['form_template'] != ""
     foreach ($FIELD_TAG as $key => $value) {
         $temp_bodytext = str_replace("{".$value."}", "{".$key."}", $temp_bodytext);
     }
+
     if (! fwrite($fh, $temp_bodytext)) {
         echo xlt('Error while writing to file') . ' ' . $template_dir."/".$_POST['form_template'];
         die;
     }
+
     fclose($fh);
 
     // read the saved file back
     $fh = fopen("$template_dir/".$_POST['form_template'], 'r');
-    while (!feof($fh)) $bodytext.= fread($fh, 8192);
+    while (!feof($fh)) {
+        $bodytext.= fread($fh, 8192);
+    }
+
     fclose($fh);
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
@@ -279,16 +288,22 @@ $optfrom = '';
 $optto = '';
 $ulist = "var ulist = new Array();\n";
 while ($urow = sqlFetchArray($ures)) {
-  $uname = $urow['lname'];
-  if ($urow['fname']) $uname .= ", " . $urow['fname'];
-  $tmp1 = " <option value='" . attr($urow['id']) . "'";
-  $tmp2 = ">" . text($uname) . "</option>\n";
-  $optto .= $tmp1 . $tmp2;
-  if ($urow['id'] == $_SESSION['authUserID']) $tmp1 .= " selected";
-  $optfrom .= $tmp1 . $tmp2;
-  $ulist .= "ulist[$i] = '" . attr($uname) . "|" .
+    $uname = $urow['lname'];
+    if ($urow['fname']) {
+        $uname .= ", " . $urow['fname'];
+    }
+
+    $tmp1 = " <option value='" . attr($urow['id']) . "'";
+    $tmp2 = ">" . text($uname) . "</option>\n";
+    $optto .= $tmp1 . $tmp2;
+    if ($urow['id'] == $_SESSION['authUserID']) {
+        $tmp1 .= " selected";
+    }
+
+    $optfrom .= $tmp1 . $tmp2;
+    $ulist .= "ulist[$i] = '" . attr($uname) . "|" .
     attr($urow['id']) . "|" . attr($urow['specialty']) . "';\n";
-  ++$i;
+    ++$i;
 }
 
 // Get the unique specialties.
@@ -297,7 +312,7 @@ $sres = sqlStatement("SELECT DISTINCT specialty FROM users " .
   "ORDER BY specialty");
 $optspec = "<option value='All'>" . xlt('All') . "</option>\n";
 while ($srow = sqlFetchArray($sres)) {
-  $optspec .= " <option value='" . attr($srow['specialty']) . "'>" .
+    $optspec .= " <option value='" . attr($srow['specialty']) . "'>" .
     text($srow['specialty']) . "</option>\n";
 }
 ?>
@@ -408,7 +423,7 @@ function insertAtCursor(myField, myValue) {
  <tr>
 
   <td class='control-label'>
-   <?php echo xlt('From'); ?>:
+    <?php echo xlt('From'); ?>:
   </td>
 
   <td>
@@ -418,7 +433,7 @@ function insertAtCursor(myField, myValue) {
   </td>
 
   <td class='control-label'>
-   <?php echo xlt('Date'); ?>:
+    <?php echo xlt('Date'); ?>:
   </td>
 
   <td>
@@ -432,7 +447,7 @@ function insertAtCursor(myField, myValue) {
  <tr>
 
   <td class='control-label'>
-   <?php echo xlt('Specialty'); ?>:
+    <?php echo xlt('Specialty'); ?>:
   </td>
 
   <td>
@@ -442,7 +457,7 @@ function insertAtCursor(myField, myValue) {
   </td>
 
   <td class='control-label'>
-   <?php echo xlt('Template'); ?>:
+    <?php echo xlt('Template'); ?>:
   </td>
 
   <td>
@@ -451,24 +466,43 @@ function insertAtCursor(myField, myValue) {
 <?php
 $tpldir = $GLOBALS['OE_SITE_DIR'] . "/letter_templates";
 $dh = opendir($tpldir);
-if (! $dh) die(xlt('Cannot read') . ' ' . $tpldir);
+if (! $dh) {
+    die(xlt('Cannot read') . ' ' . $tpldir);
+}
+
 while (false !== ($tfname = readdir($dh))) {
   // skip dot-files, scripts and images
-  if (preg_match("/^\./"   , $tfname)) { continue; }
-  if (preg_match("/\.php$/", $tfname)) { continue; }
-  if (preg_match("/\.jpg$/", $tfname)) { continue; }
-  if (preg_match("/\.png$/", $tfname)) { continue; }
-  echo "<option value='" . attr($tfname) . "'";
-  if (($tfname == $_POST['form_template']) || ($tfname == $_GET['template'])) echo " SELECTED";
-  echo ">";
-  if ($tfname == 'autosaved') {
-    echo xlt($tfname);
-  }
-  else {
-    echo text($tfname);
-  }
-  echo "</option>";
+    if (preg_match("/^\./", $tfname)) {
+        continue;
+    }
+
+    if (preg_match("/\.php$/", $tfname)) {
+        continue;
+    }
+
+    if (preg_match("/\.jpg$/", $tfname)) {
+        continue;
+    }
+
+    if (preg_match("/\.png$/", $tfname)) {
+        continue;
+    }
+
+    echo "<option value='" . attr($tfname) . "'";
+    if (($tfname == $_POST['form_template']) || ($tfname == $_GET['template'])) {
+        echo " SELECTED";
+    }
+
+    echo ">";
+    if ($tfname == 'autosaved') {
+        echo xlt($tfname);
+    } else {
+        echo text($tfname);
+    }
+
+    echo "</option>";
 }
+
 closedir($dh);
 ?>
    </select>
@@ -481,7 +515,7 @@ closedir($dh);
  <tr>
 
   <td class='control-label'>
-   <?php echo xlt('To'); ?>:
+    <?php echo xlt('To'); ?>:
   </td>
 
   <td>
@@ -491,7 +525,7 @@ closedir($dh);
   </td>
 
   <td class='control-label'>
-   <?php echo xlt('Print Format'); ?>:
+    <?php echo xlt('Print Format'); ?>:
   </td>
 
   <td>

@@ -56,28 +56,28 @@ $pres = "prescription";
 ?>
 
 <dl>
-<dt><span href="coding.php" class="title"><?php xl('Coding','e'); ?></span></dt>
+<dt><span href="coding.php" class="title"><?php xl('Coding', 'e'); ?></span></dt>
 
 <dd><a class="text" href="superbill_codes.php"
  target="_parent"
  onclick="top.restoreSession()">
-<?php xl('Superbill','e'); ?></a></dd>
+<?php xl('Superbill', 'e'); ?></a></dd>
 
 <?php foreach ($code_types as $key => $value) { ?>
 <dd><a class="text" href="search_code.php?type=<?php echo $key ?>"
  target="Codes" onclick="top.restoreSession()">
-<?php echo $key; ?> <?php xl('Search','e'); ?></a></dd>
+<?php echo $key; ?> <?php xl('Search', 'e'); ?></a></dd>
 <?php } ?>
 
-<dd><a class="text" href="copay.php" target="Codes" onclick="top.restoreSession()"><?php xl('Copay','e'); ?></a></dd>
-<dd><a class="text" href="other.php" target="Codes" onclick="top.restoreSession()"><?php xl('Other','e'); ?></a></dd><br />
+<dd><a class="text" href="copay.php" target="Codes" onclick="top.restoreSession()"><?php xl('Copay', 'e'); ?></a></dd>
+<dd><a class="text" href="other.php" target="Codes" onclick="top.restoreSession()"><?php xl('Other', 'e'); ?></a></dd><br />
 
 <?php if (!$GLOBALS['disable_prescriptions']) { ?>
-<dt><span href="coding.php" class="title"><?php xl('Prescriptions','e'); ?></span></dt>
+<dt><span href="coding.php" class="title"><?php xl('Prescriptions', 'e'); ?></span></dt>
 <dd><a class="text" href="<?php echo $GLOBALS['webroot']?>/controller.php?<?php echo $pres?>&list&id=<?php echo $pid?>"
- target="Codes" onclick="top.restoreSession()"><?php xl('List Prescriptions','e'); ?></a></dd>
+ target="Codes" onclick="top.restoreSession()"><?php xl('List Prescriptions', 'e'); ?></a></dd>
 <dd><a class="text" href="<?php echo $GLOBALS['webroot']?>/controller.php?<?php echo $pres?>&edit&id=&pid=<?php echo $pid?>"
- target="Codes" onclick="top.restoreSession()"><?php xl('Add Prescription','e'); ?></a></dd>
+ target="Codes" onclick="top.restoreSession()"><?php xl('Add Prescription', 'e'); ?></a></dd>
 <?php }; // if (!$GLOBALS['disable_prescriptions']) ?>
 </dl>
 

@@ -5,7 +5,7 @@ namespace ESign;
 /**
  * Abstract implementation of the ESign controller. Implement the
  * rest of me to create your own controller.
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -40,10 +40,10 @@ abstract class Abstract_Controller implements ViewableIF
     protected $_viewer = null;
     protected $_request = null;
     
-    public function __construct( Request $request )
+    public function __construct(Request $request)
     {
         $this->_request = $request;
-        $this->_method = $this->_request->getParam( 'method' );
+        $this->_method = $this->_request->getParam('method');
         $this->_viewDir = $GLOBALS['srcdir']."/ESign/views";
         $this->_viewScript = 'esign_error.php';
         $this->_view = new Viewer();
@@ -54,25 +54,25 @@ abstract class Abstract_Controller implements ViewableIF
      * The controller method gets all the parameters that match
      * data-* within the button's attributes.
      */
-    public abstract function esign_form_view();
+    abstract public function esign_form_view();
     
     /**
      * Triggered when the module's form is saved (refresh
      * the log.)
      */
-    public abstract function esign_log_view();
+    abstract public function esign_log_view();
     
     /**
      * Triggered when the ESign Sigature form is submitted
      */
-    public abstract function esign_form_submit();
+    abstract public function esign_form_submit();
     
     protected function getRequest()
     {
         return $this->_request;
     }
     
-    protected function setViewScript( $viewScript )
+    protected function setViewScript($viewScript)
     {
         $this->_viewScript = $viewScript;
     }
@@ -84,24 +84,22 @@ abstract class Abstract_Controller implements ViewableIF
     
     public function run()
     {
-        if ( method_exists( $this, $this->_method) ) {
+        if (method_exists($this, $this->_method)) {
             $this->{$this->_method}();
         } else {
-            throw new \Exception( "The method ".$this->_method." does not exist and cannot be executed" );
+            throw new \Exception("The method ".$this->_method." does not exist and cannot be executed");
         }
-        
     }
     
     public function getHtml()
     {
-        return $this->_view->getHtml( $this );
+        return $this->_view->getHtml($this);
     }
     
     public function render()
     {
-        return $this->_view->render( $this );
+        return $this->_view->render($this);
     }
-
 }
 
 class Request
@@ -111,9 +109,9 @@ class Request
         $this->parseParams();
     }
     
-    public function getParam( $key, $default = '' )
+    public function getParam($key, $default = '')
     {
-        if ( isset( $this->_params[$key] ) ) {
+        if (isset($this->_params[$key])) {
             return $this->_params[$key];
         }
     
@@ -122,7 +120,7 @@ class Request
     
     protected function parseParams()
     {
-        foreach ( $_REQUEST as $key => $value ) {
+        foreach ($_REQUEST as $key => $value) {
             $this->_params[$key] = $value;
         }
     }
@@ -133,7 +131,7 @@ class Response
     public $status = null;
     public $message = null;
     
-    public function __construct( $status, $message )
+    public function __construct($status, $message)
     {
         $this->status = $status;
         $this->message = $message;

@@ -27,7 +27,7 @@ class AMC_302m_STG2_Numerator implements AmcFilterIF
         return "AMC_302m_STG2 Numerator";
     }
     
-    public function test( AmcPatient $patient, $beginDate, $endDate )
+    public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // Is patient provided patient specific education during the report period.
         // Check for any patient specific education instances.
@@ -37,13 +37,12 @@ class AMC_302m_STG2_Numerator implements AmcFilterIF
                          "AND enc.encounter = amc.map_id " .
                          "AND `amc_id` = 'patient_edu_amc' " .
                          "AND enc.date >= ? " .
-                         "AND enc.date <= ?", array($patient->id,$beginDate,$endDate) );
+                         "AND enc.date <= ?", array($patient->id,$beginDate,$endDate));
 
-        if ( !(empty($item)) ) {
-          return true;
-        }
-        else {
-          return false;
+        if (!(empty($item))) {
+            return true;
+        } else {
+            return false;
         }
     }
 }

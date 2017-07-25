@@ -5,10 +5,10 @@ namespace ESign;
 /**
  * FactoryIF interface represents an object that is capable
  * of creating a complete ESign object. Used by the Api class
- * to assemble the ESign object. 
- * 
+ * to assemble the ESign object.
+ *
  * @see \Esign\Api::createESign( FactoryIF $factory )
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -50,5 +50,3 @@ interface FactoryIF
      */
     public function createLog();
 }
-
-?>

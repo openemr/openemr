@@ -33,7 +33,7 @@ class Module
         return array(
             'Zend\Loader\ClassMapAutoloader' => array(
                 __DIR__ . '/autoload_classmap.php',
-				),
+                ),
             'Zend\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
@@ -41,12 +41,12 @@ class Module
             ),
         );
     }
-	
+    
     public function getServiceConfig()
     {
         return array(
             'factories' => array(
-                'Acl\Model\AclTable' =>  function($sm) {
+                'Acl\Model\AclTable' =>  function ($sm) {
                     $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
                     $table = new AclTable($dbAdapter);
                     return $table;
@@ -59,11 +59,11 @@ class Module
     {
         return include __DIR__ . '/config/module.config.php';
     }
-	
+    
     public function init(ModuleManager $moduleManager)
     {
         $sharedEvents = $moduleManager->getEventManager()->getSharedManager();
-        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function($e) {
+        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e) {
             $controller = $e->getTarget();
             $controller->layout('acl/layout/layout');
             $route = $controller->getEvent()->getRouteMatch();
@@ -74,4 +74,3 @@ class Module
         }, 100);
     }
 }
-?>

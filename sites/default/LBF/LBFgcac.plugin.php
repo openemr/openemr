@@ -12,16 +12,17 @@
 // Private function.  Constructs a query to find a given lbf_data field's
 // values from visits within the past 2 weeks.
 //
-function _LBFgcac_query_recent($more) {
-  global $pid, $encounter, $formname, $formid;
+function _LBFgcac_query_recent($more)
+{
+    global $pid, $encounter, $formname, $formid;
 
   // Get the date of this visit.
-  $encrow = sqlQuery("SELECT date FROM form_encounter WHERE " .
+    $encrow = sqlQuery("SELECT date FROM form_encounter WHERE " .
     "pid = '$pid' AND encounter = '$encounter'");
-  $encdate = $encrow['date'];
+    $encdate = $encrow['date'];
 
   // Query complications from the two weeks prior to this visit.
-  $query = "SELECT d.field_value " .
+    $query = "SELECT d.field_value " .
     "FROM forms AS f, form_encounter AS fe, lbf_data AS d " .
     "WHERE f.pid = '$pid' AND " .
     "f.formdir = '$formname' AND " .
@@ -31,39 +32,47 @@ function _LBFgcac_query_recent($more) {
     "DATE_ADD(fe.date, INTERVAL 14 DAY) > '$encdate' AND " .
     "d.form_id = f.form_id AND $more";
 
-  return $query;
+    return $query;
 }
 
 // Private function.  Given a field name, gets its value from the most
 // recent instance of this form type that is not more than 2 weeks old.
 //
-function _LBFgcac_recent_default($name) {
-  global $formid;
+function _LBFgcac_recent_default($name)
+{
+    global $formid;
 
   // This logic only makes sense for a new form.
-  if ($formid) return '';
+    if ($formid) {
+        return '';
+    }
 
-  $query = _LBFgcac_query_recent(
-    "d.field_id = '$name' " .
-    "ORDER BY f.form_id DESC LIMIT 1");
-  $row = sqlQuery($query);
+    $query = _LBFgcac_query_recent(
+        "d.field_id = '$name' " .
+        "ORDER BY f.form_id DESC LIMIT 1"
+    );
+    $row = sqlQuery($query);
 
-  if (empty($row['field_value'])) return '';
-  return $row['field_value'];
+    if (empty($row['field_value'])) {
+        return '';
+    }
+
+    return $row['field_value'];
 }
 
 // Private function.  Query services within 2 weeks of this encounter.
 //
-function _LBFgcac_query_recent_services() {
-  global $pid, $encounter;
+function _LBFgcac_query_recent_services()
+{
+    global $pid, $encounter;
 
   // Get the date of this visit.
-  $encrow = sqlQuery("SELECT date FROM form_encounter WHERE " .
+    $encrow = sqlQuery("SELECT date FROM form_encounter WHERE " .
     "pid = '$pid' AND encounter = '$encounter'");
-  $encdate = $encrow['date'];
+    $encdate = $encrow['date'];
 
   // Query services from the two weeks prior to this visit.
-  $query = "SELECT c.related_code " .
+    $query = "SELECT c.related_code " .
     "FROM form_encounter AS fe, billing AS b, codes AS c " .
     "WHERE fe.pid = '$pid' AND fe.date <= '$encdate' AND " .
     "DATE_ADD(fe.date, INTERVAL 14 DAY) > '$encdate' AND " .
@@ -72,40 +81,43 @@ function _LBFgcac_query_recent_services() {
     "c.code = b.code AND c.modifier = b.modifier " .
     "ORDER BY fe.date DESC, b.id DESC";
 
-  return $query;
+    return $query;
 }
 
 // Private function.  Query services from this encounter.
 //
-function _LBFgcac_query_current_services() {
-  global $pid, $encounter;
+function _LBFgcac_query_current_services()
+{
+    global $pid, $encounter;
 
-  $query = "SELECT c.related_code " .
+    $query = "SELECT c.related_code " .
     "FROM billing AS b, codes AS c WHERE " .
     "b.pid = '$pid' AND b.encounter = '$encounter' AND b.activity = 1 AND " .
     "b.code_type = 'MA' AND c.code_type = '12' AND " .
     "c.code = b.code AND c.modifier = b.modifier " .
     "ORDER BY b.id DESC";
 
-  return $query;
+    return $query;
 }
 
 // The purpose of this function is to create JavaScript for the <head>
 // section of the page.  This in turn defines desired javaScript
 // functions.
 //
-function LBFgcac_javascript() {
-  global $formid;
+function LBFgcac_javascript()
+{
+    global $formid;
 
   // Query complications from the two weeks prior to this visit.
-  $res = sqlStatement(_LBFgcac_query_recent(
-    "f.form_id != '$formid' AND " .
-    "d.field_id = 'complications'"));
+    $res = sqlStatement(_LBFgcac_query_recent(
+        "f.form_id != '$formid' AND " .
+        "d.field_id = 'complications'"
+    ));
 
   // This JavaScript function is to enable items in the "Main complications"
   // list that have been selected, and to disable all others.
   // Option.disabled seems to work for Firefox 3 and IE8 but not IE6.
-  echo "// Enable recent complications and disable all others.
+    echo "// Enable recent complications and disable all others.
 function set_main_compl_list() {
  var f = document.forms[0];
  var sel = f.form_main_compl;
@@ -113,14 +125,18 @@ function set_main_compl_list() {
 ";
   // We use the checkbox object values as a scratch area to note which
   // complications were already selected from other forms.
-  while ($row = sqlFetchArray($res)) {
-    $a = explode('|', $row['field_value']);
-    foreach ($a as $complid) {
-      if (empty($complid)) continue;
-      echo " n = 'form_complications[$complid]'; if (f[n]) f[n].value = 2;\n";
+    while ($row = sqlFetchArray($res)) {
+        $a = explode('|', $row['field_value']);
+        foreach ($a as $complid) {
+            if (empty($complid)) {
+                continue;
+            }
+
+            echo " n = 'form_complications[$complid]'; if (f[n]) f[n].value = 2;\n";
+        }
     }
-  }
-  echo " // Scan the list items and set their disabled flags.
+
+    echo " // Scan the list items and set their disabled flags.
  for (var i = 1; i < sel.options.length; ++i) {
   n = 'form_complications[' + sel.options[i].value + ']';
   sel.options[i].disabled = (f[n] && (f[n].checked || f[n].value == '2')) ? false : true;
@@ -128,7 +144,7 @@ function set_main_compl_list() {
 }
 ";
 
-  echo "
+    echo "
 // Disable most form fields if refusing abortion.
 function client_status_changed() {
  var f = document.forms[0];
@@ -185,7 +201,7 @@ function client_status_changed() {
 }
 ";
 
-  echo "
+    echo "
 // Enable some form fields before submitting.
 // This is because disabled fields do not submit their data, however
 // we do want to save the default values that were set for them.
@@ -201,14 +217,14 @@ function mysubmit() {
  return true;
 }
 ";
-
 }
 
 // The purpose of this function is to create JavaScript that is run
 // once when the page is loaded.
 //
-function LBFgcac_javascript_onload() {
-  echo "
+function LBFgcac_javascript_onload()
+{
+    echo "
 set_main_compl_list();
 client_status_changed();
 var f = document.forms[0];
@@ -232,57 +248,80 @@ f.onsubmit = function () { return mysubmit(); };
 
 // Generate default for client status.
 //
-function LBFgcac_default_client_status() {
-  return _LBFgcac_recent_default('client_status');
+function LBFgcac_default_client_status()
+{
+    return _LBFgcac_recent_default('client_status');
 }
 
 // Generate default for visit type.  If there are no recent prior visits,
 // then default to new procedure.
 //
-function LBFgcac_default_ab_location() {
-  global $formid;
-  if ($formid) return '';
-  $vt = _LBFgcac_recent_default('ab_location');
-  if (empty($vt)) return 'proc';
-  return $vt;
+function LBFgcac_default_ab_location()
+{
+    global $formid;
+    if ($formid) {
+        return '';
+    }
+
+    $vt = _LBFgcac_recent_default('ab_location');
+    if (empty($vt)) {
+        return 'proc';
+    }
+
+    return $vt;
 }
 
 // Generate default for the induced procedure type.
 //
-function LBFgcac_default_in_ab_proc() {
+function LBFgcac_default_in_ab_proc()
+{
 
   // Check previous GCAC visit forms for this setting.
-  $default = _LBFgcac_recent_default('in_ab_proc');
-  if ($default !== '') return $default;
+    $default = _LBFgcac_recent_default('in_ab_proc');
+    if ($default !== '') {
+        return $default;
+    }
 
   // If none, query services from recent visits to see if an IPPF code
   // matches that of a procedure type in the list.
-  $res = sqlStatement(_LBFgcac_query_recent_services());
-  while ($row = sqlFetchArray($res)) {
-    if (empty($row['related_code'])) continue;
-    $relcodes = explode(';', $row['related_code']);
-    foreach ($relcodes as $codestring) {
-      if ($codestring === '') continue;
-      list($codetype, $code) = explode(':', $codestring);
-      if ($codetype !== 'IPPF') continue;
-      $lres = sqlStatement("SELECT option_id, mapping FROM list_options " .
-        "WHERE list_id = 'in_ab_proc' AND activity = 1");
-      while ($lrow = sqlFetchArray($lres)) {
-        $maparr = explode(':', $lrow['mapping']);
-        if (empty($maparr[1])) continue;
-        if (preg_match('/^' . $maparr[1] . '/', $code)) {
-          return $lrow['option_id'];
+    $res = sqlStatement(_LBFgcac_query_recent_services());
+    while ($row = sqlFetchArray($res)) {
+        if (empty($row['related_code'])) {
+            continue;
         }
-      }
-    } // end foreach
-  }
 
-  return '';
+        $relcodes = explode(';', $row['related_code']);
+        foreach ($relcodes as $codestring) {
+            if ($codestring === '') {
+                continue;
+            }
+
+            list($codetype, $code) = explode(':', $codestring);
+            if ($codetype !== 'IPPF') {
+                continue;
+            }
+
+            $lres = sqlStatement("SELECT option_id, mapping FROM list_options " .
+            "WHERE list_id = 'in_ab_proc' AND activity = 1");
+            while ($lrow = sqlFetchArray($lres)) {
+                  $maparr = explode(':', $lrow['mapping']);
+                if (empty($maparr[1])) {
+                    continue;
+                }
+
+                if (preg_match('/^' . $maparr[1] . '/', $code)) {
+                    return $lrow['option_id'];
+                }
+            }
+        } // end foreach
+    }
+
+    return '';
 }
 
 // Generate default for the main complication.
 //
-function LBFgcac_default_main_compl() {
-  return _LBFgcac_recent_default('main_compl');
+function LBFgcac_default_main_compl()
+{
+    return _LBFgcac_recent_default('main_compl');
 }
-?>

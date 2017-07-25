@@ -1,7 +1,7 @@
-<?php 
+<?php
 /**
  * ESign button view script for encounter module
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -21,6 +21,6 @@
  * @link    http://www.open-emr.org
  **/
 ?>
-<a target="<?php echo attr( $this->target ); ?>" href="#"
-	class="esign-button-encounter css_button"
-	data-encounterid="<?php echo attr( $this->encounterId ); ?>"><span><?php echo xlt('eSign'); ?></span></a>
+<a target="<?php echo attr($this->target); ?>" href="#"
+    class="esign-button-encounter css_button"
+    data-encounterid="<?php echo attr($this->encounterId); ?>"><span><?php echo xlt('eSign'); ?></span></a>

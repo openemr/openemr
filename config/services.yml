@@ -1,0 +1,12 @@
+services:
+    sample_subscriber:
+        class: OpenEMR\Sample\Event\SampleSubscriber
+        tags:
+            - { name: kernel.event_subscriber }
+    admin.admin_menu_builder:
+        class: OpenEMR\Admin\Service\AdminMenuBuilder
+        arguments: [@event_dispatcher]
+    calendar.event_subscriber:
+        class: OpenEMR\Calendar\EventListener\CalendarSubscriber
+        tags:
+            - { name: kernel.event_subscriber }

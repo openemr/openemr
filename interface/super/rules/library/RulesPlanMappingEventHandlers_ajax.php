@@ -25,148 +25,147 @@
  * @link    http://www.open-emr.org
  */
 
-require_once( dirname(__FILE__) . "/../../../globals.php" );
-require_once( dirname(__FILE__) . "/RulesPlanMappingEventHandlers.php" );
+require_once(dirname(__FILE__) . "/../../../globals.php");
+require_once(dirname(__FILE__) . "/RulesPlanMappingEventHandlers.php");
 
 $action = $_GET["action"];
 switch ($action) {
-	case "getNonCQMPlans":
-		$plans = getNonCQMPlans();
+    case "getNonCQMPlans":
+        $plans = getNonCQMPlans();
 
-		echo json_encode($plans);
+        echo json_encode($plans);
 
-		break;
+        break;
 
-	case "getRulesOfPlan":
-		$rules = getRulesInPlan($_GET["plan_id"]);
+    case "getRulesOfPlan":
+        $rules = getRulesInPlan($_GET["plan_id"]);
 
-		$rules_list = array();
-		foreach ($rules as $key => $value) {
-			$rule_info = array('rule_id'=>$key, 'rule_title'=>$value);
-			array_push($rules_list,$rule_info);
-		}
+        $rules_list = array();
+        foreach ($rules as $key => $value) {
+            $rule_info = array('rule_id'=>$key, 'rule_title'=>$value);
+            array_push($rules_list, $rule_info);
+        }
 
-		echo json_encode($rules_list);
+        echo json_encode($rules_list);
 
-		break;
+        break;
 
-	case "getRulesNotInPlan":
-		$rules = getRulesNotInPlan($_GET["plan_id"]);
+    case "getRulesNotInPlan":
+        $rules = getRulesNotInPlan($_GET["plan_id"]);
 
-		$rules_list = array();
-		foreach ($rules as $key => $value) {
-			$rule_info = array('rule_id'=>$key, 'rule_title'=>$value);
-			array_push($rules_list,$rule_info);
-		}
+        $rules_list = array();
+        foreach ($rules as $key => $value) {
+            $rule_info = array('rule_id'=>$key, 'rule_title'=>$value);
+            array_push($rules_list, $rule_info);
+        }
 
-		echo json_encode($rules_list);
+        echo json_encode($rules_list);
 
-		break;
+        break;
 
-	case "getRulesInAndNotInPlan":
-		$rules = getRulesInPlan($_GET["plan_id"]);
+    case "getRulesInAndNotInPlan":
+        $rules = getRulesInPlan($_GET["plan_id"]);
 
-		$rules_list = array();
-		foreach ($rules as $key => $value) {
-			$rule_info = array('rule_id'=>$key, 'rule_title'=>$value, 'selected'=>'true');
-			array_push($rules_list,$rule_info);
-		}
+        $rules_list = array();
+        foreach ($rules as $key => $value) {
+            $rule_info = array('rule_id'=>$key, 'rule_title'=>$value, 'selected'=>'true');
+            array_push($rules_list, $rule_info);
+        }
 
-		$rules = getRulesNotInPlan($_GET["plan_id"]);
-		foreach ($rules as $key => $value) {
-			$rule_info = array('rule_id'=>$key, 'rule_title'=>$value, 'selected'=>'false');
-			array_push($rules_list,$rule_info);
-		}
+        $rules = getRulesNotInPlan($_GET["plan_id"]);
+        foreach ($rules as $key => $value) {
+            $rule_info = array('rule_id'=>$key, 'rule_title'=>$value, 'selected'=>'false');
+            array_push($rules_list, $rule_info);
+        }
 
-		echo json_encode($rules_list);
+        echo json_encode($rules_list);
 
-		break;
+        break;
 
-	case "commitChanges":
-		$data = json_decode(file_get_contents('php://input'), true);
+    case "commitChanges":
+        $data = json_decode(file_get_contents('php://input'), true);
 
-		$plan_id = $data['plan_id'];
-		$added_rules = $data['added_rules'];
-		$removed_rules = $data['removed_rules'];
-		$plan_name = $data['plan_name'];
+        $plan_id = $data['plan_id'];
+        $added_rules = $data['added_rules'];
+        $removed_rules = $data['removed_rules'];
+        $plan_name = $data['plan_name'];
 
-		if ($plan_id == 'add_new_plan') {
-			try {
-				$plan_id = addNewPlan($plan_name, $added_rules);
-			} catch (Exception $e) {
-				$status_mssg = $e->getMessage();
-				$status_code = '001';
-				
-				if ($e->getMessage() == "002") {
-					//Plan Name Taken
-					$status_code = '002';
-					$status_mssg = xl('Plan Name Already Exists');
+        if ($plan_id == 'add_new_plan') {
+            try {
+                $plan_id = addNewPlan($plan_name, $added_rules);
+            } catch (Exception $e) {
+                $status_mssg = $e->getMessage();
+                $status_code = '001';
+                
+                if ($e->getMessage() == "002") {
+                    //Plan Name Taken
+                    $status_code = '002';
+                    $status_mssg = xl('Plan Name Already Exists');
+                } else if ($e->getMessage() == "003") {
+                    //Already in list options
+                    $status_code = '003';
+                    $status_mssg = xl('Plan Already in list_options');
+                }
 
-				} else if ($e->getMessage() == "003") {
-					//Already in list options
-					$status_code = '003';
-					$status_mssg = xl('Plan Already in list_options');
-				}
+                $status = array('status_code'=>$status_code, 'status_message'=>$status_mssg, 'plan_id'=>$plan_id, 'plan_title'=>$plan_name);
+                echo json_encode($status);
+                
+                break;
+            }
+        } else if (strlen($plan_id) > 0) {
+            submitChanges($plan_id, $added_rules, $removed_rules);
+        }
 
-				$status = array('status_code'=>$status_code, 'status_message'=>$status_mssg, 'plan_id'=>$plan_id, 'plan_title'=>$plan_name);
-				echo json_encode($status);
-				
-				break;
-			}
-		} else if (strlen($plan_id) > 0) {
-			submitChanges($plan_id, $added_rules, $removed_rules);
-		}
+        $status = array('status_code'=>'000', 'status_message'=>'Success', 'plan_id'=>$plan_id, 'plan_title'=>$plan_name);
+        echo json_encode($status);
 
-		$status = array('status_code'=>'000', 'status_message'=>'Success', 'plan_id'=>$plan_id, 'plan_title'=>$plan_name);
-		echo json_encode($status);
+        break;
 
-		break;
+    case "deletePlan":
+        $plan_id = $_GET["plan_id"];
+        deletePlan($plan_id);
 
-	case "deletePlan":
-		$plan_id = $_GET["plan_id"];
-		deletePlan($plan_id);
+        break;
 
-		break;
+    case "togglePlanStatus":
+        $dataToggle  = json_decode(file_get_contents('php://input'), true);
 
-	case "togglePlanStatus":
-		$dataToggle  = json_decode(file_get_contents('php://input'), true);
+        $plan_id_toggle = $dataToggle['selected_plan'];
+        $plan_pid_toggle = $dataToggle['selected_plan_pid'];
+        $active_inactive = $dataToggle['plan_status'];
+        if ($active_inactive == 'deactivate') {
+            $nm_flag = 0;
+        } else {
+            $nm_flag = 1;
+        }
 
-		$plan_id_toggle = $dataToggle['selected_plan'];
-		$plan_pid_toggle = $dataToggle['selected_plan_pid'];
-		$active_inactive = $dataToggle['plan_status'];
-		if ($active_inactive == 'deactivate') {
-			$nm_flag = 0;
-		} else {
-			$nm_flag = 1;
-		}
-		try {
-			togglePlanStatus($plan_id_toggle, $nm_flag);
-		} catch (Exception $e) {
-			if ($e->getMessage() == "007")
-			{
-				$code_back = "007";
-				echo json_encode($code_back);
-			}
-			if  ($e->getMessage() == "002") {
-				$code_back = "002";
-				echo json_encode($code_back);
-			}
-		}
-		break;
-		 
-	case "getPlanStatus":
-		$plan_id = $_GET["plan_id"];
+        try {
+            togglePlanStatus($plan_id_toggle, $nm_flag);
+        } catch (Exception $e) {
+            if ($e->getMessage() == "007") {
+                $code_back = "007";
+                echo json_encode($code_back);
+            }
 
-		$isPlanActive = isPlanActive($plan_id);
+            if ($e->getMessage() == "002") {
+                $code_back = "002";
+                echo json_encode($code_back);
+            }
+        }
+        break;
+         
+    case "getPlanStatus":
+        $plan_id = $_GET["plan_id"];
 
-		$isPlanActive = ($isPlanActive) ? 1 : 0	;
+        $isPlanActive = isPlanActive($plan_id);
 
-		$plan_status = array('plan_id'=>$plan_id, 'is_plan_active'=>$isPlanActive);
-		echo json_encode($plan_status);
+        $isPlanActive = ($isPlanActive) ? 1 : 0 ;
 
-		break;
+        $plan_status = array('plan_id'=>$plan_id, 'is_plan_active'=>$isPlanActive);
+        echo json_encode($plan_status);
 
-	default:
-		break;
+        break;
+
+    default:
+        break;
 }
-?>

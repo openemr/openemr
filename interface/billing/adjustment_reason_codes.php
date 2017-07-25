@@ -202,4 +202,3 @@ $adjustment_reasons = array(
  'D21' => 'This (these) diagnosis(es) is (are) missing or are invalid',
  'W1' => 'Workers Compensation State Fee Schedule Adjustment',
 );
-?>

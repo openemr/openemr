@@ -11,19 +11,20 @@
  *
  * @author aron
  */
-class RuleFilters {
+class RuleFilters
+{
     var $ruleId;
     var $criteria = array();
 
-    function __construct() {
+    function __construct()
+    {
     }
 
     /**
      * @param RuleCriteria $criteria
      */
-    function add( $criteria ) {
-        array_push( $this->criteria, $criteria );
+    function add($criteria)
+    {
+        array_push($this->criteria, $criteria);
     }
-
 }
-?>

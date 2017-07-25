@@ -16,9 +16,9 @@ $rule = $viewBean->rule ?>
 
 <table class="header">
   <tr >
-        <td class="title"><?php echo out( xl( 'Rule Detail' ) ); ?></td>
+        <td class="title"><?php echo out(xl('Rule Detail')); ?></td>
         <td>
-            <a href="index.php?action=browse!list" class="iframe_medium css_button" onclick="top.restoreSession()"><span><?php echo out( xl( 'Back' ) ); ?></span></a>
+            <a href="index.php?action=browse!list" class="iframe_medium css_button" onclick="top.restoreSession()"><span><?php echo out(xl('Back')); ?></span></a>
         </td>
   </tr>
 </table>
@@ -29,47 +29,47 @@ $rule = $viewBean->rule ?>
     <!--         -->
     <div class="section text">
         <p class="header">
-            <?php echo out( xl( 'Summary' ) ); ?>
-            <a href="index.php?action=edit!summary&id=<?php echo out( $rule->id ); ?>"
-               class="action_link" id="edit_summary" onclick="top.restoreSession()">(<?php echo out( xl( 'edit' ) ); ?>)</a>
+            <?php echo out(xl('Summary')); ?>
+            <a href="index.php?action=edit!summary&id=<?php echo out($rule->id); ?>"
+               class="action_link" id="edit_summary" onclick="top.restoreSession()">(<?php echo out(xl('edit')); ?>)</a>
         </p>
-        <p><b><?php echo out( xl( $rule->title ) ); ?></b>
-        (<?php echo implode_funcs( ", ", $rule->getRuleTypeLabels(), array( 'xl', 'out' ) ); ?>)
+        <p><b><?php echo out(xl($rule->title)); ?></b>
+        (<?php echo implode_funcs(", ", $rule->getRuleTypeLabels(), array( 'xl', 'out' )); ?>)
         </p>
-        <p><?php echo out( xl( 'Developer' ) ); ?><b>:</b>&nbsp;<?php echo out( $rule->developer ); ?></p>
-        <p><?php echo out( xl( 'Funding Source' ) ); ?><b>:</b>&nbsp;<?php echo out( $rule->funding_source ); ?></p>
-        <p><?php echo out( xl( 'Release' ) ); ?><b>:</b>&nbsp;<?php echo out( $rule->release ); ?></p>
-        <p><?php echo out( xl( 'Web Reference' ) ); ?><b>:</b>&nbsp;<?php echo out( $rule->web_ref ); ?></p>
+        <p><?php echo out(xl('Developer')); ?><b>:</b>&nbsp;<?php echo out($rule->developer); ?></p>
+        <p><?php echo out(xl('Funding Source')); ?><b>:</b>&nbsp;<?php echo out($rule->funding_source); ?></p>
+        <p><?php echo out(xl('Release')); ?><b>:</b>&nbsp;<?php echo out($rule->release); ?></p>
+        <p><?php echo out(xl('Web Reference')); ?><b>:</b>&nbsp;<?php echo out($rule->web_ref); ?></p>
     </div>
 
     <!--                    -->
     <!-- reminder intervals -->
     <!--                    -->
-    <?php $intervals = $rule->reminderIntervals; if ( $intervals) { ?>
+    <?php $intervals = $rule->reminderIntervals; if ($intervals) { ?>
     <div class="section text">
         <p class="header">
-            <?php echo out( xl( 'Reminder intervals' ) ); ?>
-            <a href="index.php?action=edit!intervals&id=<?php echo $rule->id ?>" class="action_link" onclick="top.restoreSession()">(<?php echo out( xl( 'edit' ) ); ?>)</a>
+            <?php echo out(xl('Reminder intervals')); ?>
+            <a href="index.php?action=edit!intervals&id=<?php echo $rule->id ?>" class="action_link" onclick="top.restoreSession()">(<?php echo out(xl('edit')); ?>)</a>
         </p>
 
-        <?php if ( $intervals->getTypes() ) {?>
+        <?php if ($intervals->getTypes()) {?>
         <p>
             <div>
-                <span class="left_col colhead"><u><?php echo out( xl( 'Type' ) ); ?></u></span>
-                <span class="end_col colhead"><u><?php echo out( xl( 'Detail' ) ); ?></u></span>
+                <span class="left_col colhead"><u><?php echo out(xl('Type')); ?></u></span>
+                <span class="end_col colhead"><u><?php echo out(xl('Detail')); ?></u></span>
             </div>
 
-            <?php foreach($intervals->getTypes() as $type) {?>
+            <?php foreach ($intervals->getTypes() as $type) {?>
                 <div>
-                <span class="left_col"><?php echo out( xl( $type->lbl ) ); ?></span>
+                <span class="left_col"><?php echo out(xl($type->lbl)); ?></span>
                 <span class="end_col">
-                    <?php echo out( $intervals->displayDetails( $type ) ); ?>
+                    <?php echo out($intervals->displayDetails($type)); ?>
                 </span>
                 </div>
             <?php } ?>
         </p>
         <?php } else { ?>
-        <p><?php echo out( xl( 'None defined' ) ); ?></p>
+        <p><?php echo out(xl('None defined')); ?></p>
         <?php } ?>
     </div>
     <?php } ?>
@@ -77,38 +77,38 @@ $rule = $viewBean->rule ?>
     <!--                      -->
     <!-- rule filter criteria -->
     <!--                      -->
-    <?php $filters = $rule->filters; if ( $filters ) { ?>
+    <?php $filters = $rule->filters; if ($filters) { ?>
     <div class="section text">
-        <p class="header"><?php echo out( xl( 'Demographics filter criteria' ) ); ?> <a href="index.php?action=edit!add_criteria&id=<?php echo out( $rule->id ); ?>&criteriaType=filter" class="action_link" onclick="top.restoreSession()">(<?php echo out( xl( 'add' ) ); ?>)</a></p>
+        <p class="header"><?php echo out(xl('Demographics filter criteria')); ?> <a href="index.php?action=edit!add_criteria&id=<?php echo out($rule->id); ?>&criteriaType=filter" class="action_link" onclick="top.restoreSession()">(<?php echo out(xl('add')); ?>)</a></p>
         <p>
-            <?php if ( $filters->criteria ) { ?>
+            <?php if ($filters->criteria) { ?>
 
                 <div>
                     <span class="left_col">&nbsp;</span>
-                    <span class="mid_col"><u><?php echo out( xl( 'Criteria' ) ); ?></u></span>
-                    <span class="mid_col"><u><?php echo out( xl( 'Characteristics' ) ); ?></u></span>
-                    <span class="end_col"><u><?php echo out( xl( 'Requirements' ) ); ?></u></span>
+                    <span class="mid_col"><u><?php echo out(xl('Criteria')); ?></u></span>
+                    <span class="mid_col"><u><?php echo out(xl('Characteristics')); ?></u></span>
+                    <span class="end_col"><u><?php echo out(xl('Requirements')); ?></u></span>
                 </div>
 
-                <?php foreach($filters->criteria as $criteria) { ?>
+                <?php foreach ($filters->criteria as $criteria) { ?>
                     <div>
                         <span class="left_col">
-                            <a href="index.php?action=edit!filter&id=<?php echo out( $rule->id ); ?>&guid=<?php echo out( $criteria->guid ); ?>"
+                            <a href="index.php?action=edit!filter&id=<?php echo out($rule->id); ?>&guid=<?php echo out($criteria->guid); ?>"
                                class="action_link" onclick="top.restoreSession()">
-                                (<?php echo out( xl( 'edit' ) ); ?>)
+                                (<?php echo out(xl('edit')); ?>)
                             </a>
-                            <a href="index.php?action=edit!delete_filter&id=<?php echo out( $rule->id ); ?>&guid=<?php echo out( $criteria->guid ); ?>" 
+                            <a href="index.php?action=edit!delete_filter&id=<?php echo out($rule->id); ?>&guid=<?php echo out($criteria->guid); ?>" 
                                class="action_link" onclick="top.restoreSession()">
-                                (<?php echo out( xl( 'delete' ) ); ?>)
+                                (<?php echo out(xl('delete')); ?>)
                             </a>
                         </span>
-                        <span class="mid_col"><?php echo( out( $criteria->getTitle() ) ); ?></span>
-                        <span class="mid_col"><?php echo( out( $criteria->getCharacteristics() ) ); ?></span>
-                        <span class="end_col"><?php echo( out( $criteria->getRequirements() ) ); ?></span>
+                        <span class="mid_col"><?php echo( out($criteria->getTitle()) ); ?></span>
+                        <span class="mid_col"><?php echo( out($criteria->getCharacteristics()) ); ?></span>
+                        <span class="end_col"><?php echo( out($criteria->getRequirements()) ); ?></span>
                     </div>
                 <?php } ?>
             <?php } else { ?>
-                <p><?php echo out( xl( 'None defined' ) ); ?></p>
+                <p><?php echo out(xl('None defined')); ?></p>
             <?php } ?>
         </p>
     </div>
@@ -120,114 +120,117 @@ $rule = $viewBean->rule ?>
     
     
     <div class="section text">
-	<p class="header"><?php echo out( xl( 'Target/Action Groups' ) ); ?></p>
-	<?php $groupId = 0; foreach ( $rule->groups as $group ) { $groupId = $group->groupId; ?>
-		<div class="group">
-        <!--                      -->
-        <!-- rule target criteria -->
-        <!--                      -->
+    <p class="header"><?php echo out(xl('Target/Action Groups')); ?></p>
+    <?php $groupId = 0;
+    foreach ($rule->groups as $group) {
+        $groupId = $group->groupId; ?>
+            <div class="group">
+            <!--                      -->
+            <!-- rule target criteria -->
+            <!--                      -->
         
-        <?php $targets = $group->ruleTargets; if ( $targets ) { ?>
+            <?php $targets = $group->ruleTargets; if ($targets) { ?>
         <div class="section text">
-            <p class="header"><?php echo out( xl( 'Clinical targets' ) ); ?> 
-            	<a href="index.php?action=edit!add_criteria&id=<?php echo out( $rule->id ); ?>&group_id=<?php echo out( $group->groupId ); ?>&criteriaType=target" class="action_link" onclick="top.restoreSession()">
-            		(<?php echo out( xl( 'add' ) ); ?>)
-            	</a>
+            <p class="header"><?php echo out(xl('Clinical targets')); ?> 
+                <a href="index.php?action=edit!add_criteria&id=<?php echo out($rule->id); ?>&group_id=<?php echo out($group->groupId); ?>&criteriaType=target" class="action_link" onclick="top.restoreSession()">
+                    (<?php echo out(xl('add')); ?>)
+                </a>
             </p>
             <p>
-                <?php if ( $targets->criteria ) { ?>
+                <?php if ($targets->criteria) { ?>
     
                     <div>
                         <span class="left_col">&nbsp;</span>
-                        <span class="mid_col"><u><?php echo out( xl( 'Criteria' ) ); ?></u></span>
-                        <span class="mid_col"><u><?php echo out( xl( 'Characteristics' ) ); ?></u></span>
-                        <span class="end_col"><u><?php echo out( xl( 'Requirements' ) ); ?></u></span>
+                        <span class="mid_col"><u><?php echo out(xl('Criteria')); ?></u></span>
+                        <span class="mid_col"><u><?php echo out(xl('Characteristics')); ?></u></span>
+                        <span class="end_col"><u><?php echo out(xl('Requirements')); ?></u></span>
                     </div>
     
-                    <?php foreach($targets->criteria as $criteria) { ?>
+                    <?php foreach ($targets->criteria as $criteria) { ?>
                         <div class="row">
                             <span class="left_col">
-                                <a href="index.php?action=edit!target&id=<?php echo out( $rule->id ); ?>&guid=<?php echo out( $criteria->guid ); ?>"
+                                <a href="index.php?action=edit!target&id=<?php echo out($rule->id); ?>&guid=<?php echo out($criteria->guid); ?>"
                                    class="action_link" onclick="top.restoreSession()">
-                                    (<?php echo out( xl( 'edit' ) ); ?>)
+                                    (<?php echo out(xl('edit')); ?>)
                                 </a>
-                                <a href="index.php?action=edit!delete_target&id=<?php echo out( $rule->id ); ?>&guid=<?php echo out( $criteria->guid ); ?>"
+                                <a href="index.php?action=edit!delete_target&id=<?php echo out($rule->id); ?>&guid=<?php echo out($criteria->guid); ?>"
                                    class="action_link" onclick="top.restoreSession()">
-                                    (<?php echo out( xl( 'delete' ) ); ?>)
+                                    (<?php echo out(xl('delete')); ?>)
                                 </a>
                             </span>
-                            <span class="mid_col"><?php echo( out( $criteria->getTitle() ) ); ?></span>
-                            <span class="mid_col"><?php echo( out( $criteria->getCharacteristics() ) ); ?></span>
+                            <span class="mid_col"><?php echo( out($criteria->getTitle()) ); ?></span>
+                            <span class="mid_col"><?php echo( out($criteria->getCharacteristics()) ); ?></span>
                             <span class="end_col">
                                     <?php echo( $criteria->getRequirements() ) ?>
-                                    <?php echo is_null( $criteria->getInterval() ) ?  "" :
-                                    " | " . out( xl( 'Interval' ) ) . ": " . out( $criteria->getInterval() ); ?>
+                                    <?php echo is_null($criteria->getInterval()) ?  "" :
+                                    " | " . out(xl('Interval')) . ": " . out($criteria->getInterval()); ?>
                             </span>
                         </div>
                     <?php } ?>
                 <?php } else { ?>
-                    <p><?php echo out( xl( 'None defined' ) ); ?></p>
+                    <p><?php echo out(xl('None defined')); ?></p>
                 <?php } ?>
     
             </p>
         </div>
-        <?php } ?>
+            <?php } ?>
     
-        <!--              -->
-        <!-- rule actions -->
-        <!--              -->
-        <?php $actions = $group->ruleActions; if ( $actions ) { ?>
+            <!--              -->
+            <!-- rule actions -->
+            <!--              -->
+            <?php $actions = $group->ruleActions; if ($actions) { ?>
         <div class="section text">
-            <p class="header"><?php echo out( xl( 'Actions' ) ); ?>
-                <a href="index.php?action=edit!add_action&id=<?php echo out( $rule->id ); ?>&group_id=<?php echo out( $group->groupId );?>" class="action_link" onclick="top.restoreSession()">
-                    (<?php echo out( xl( 'add' ) ); ?>)
+            <p class="header"><?php echo out(xl('Actions')); ?>
+                <a href="index.php?action=edit!add_action&id=<?php echo out($rule->id); ?>&group_id=<?php echo out($group->groupId);?>" class="action_link" onclick="top.restoreSession()">
+                    (<?php echo out(xl('add')); ?>)
                 </a>
             </p>
             <p>
-                <?php if ( $actions->actions) { ?>
+                <?php if ($actions->actions) { ?>
                     <div>
                         <span class="left_col">&nbsp;</span>
-                        <span class="end_col"><u><?php echo out( xl( 'Category/Title' ) ); ?></u></span>
+                        <span class="end_col"><u><?php echo out(xl('Category/Title')); ?></u></span>
                     </div>
     
                     <div>
-                    <?php foreach($actions->actions as $action) { ?>
+                    <?php foreach ($actions->actions as $action) { ?>
                         <span class="left_col">
-                            <a href="index.php?action=edit!action&id=<?php echo out( $rule->id ); ?>&guid=<?php echo out( $action->guid ); ?>"
+                            <a href="index.php?action=edit!action&id=<?php echo out($rule->id); ?>&guid=<?php echo out($action->guid); ?>"
                                class="action_link" onclick="top.restoreSession()">
-                                (<?php echo out( xl( 'edit' ) ); ?>)</a>
-                            <a href="index.php?action=edit!delete_action&id=<?php echo out( $rule->id ); ?>&guid=<?php echo out( $action->guid ); ?>"
+                                (<?php echo out(xl('edit')); ?>)</a>
+                            <a href="index.php?action=edit!delete_action&id=<?php echo out($rule->id); ?>&guid=<?php echo out($action->guid); ?>"
                                class="action_link" onclick="top.restoreSession()">
-                                (<?php echo out( xl( 'delete' ) ); ?>)</a>
+                                (<?php echo out(xl('delete')); ?>)</a>
                         </span>
-                        <span class="end_col"><?php echo out( $action->getTitle() ); ?></span>
+                        <span class="end_col"><?php echo out($action->getTitle()); ?></span>
                     <?php } ?>
                     </div>
                 <?php } else { ?>
-                    <p><?php echo out( xl( 'None defined' ) ); ?></p>
+                    <p><?php echo out(xl('None defined')); ?></p>
                 <?php } ?>
             </p>
         </div>
-        <?php } ?>
-    	</div>
-    <?php } // iteration over groups ?>
-    	<div class="group">
-    		<?php $nextGroupId = $groupId + 1; ?>
-    		<div class="section text">
-        		<p class="header"><?php echo out( xl( 'Clinical targets' ) ); ?> 
-        			<a href="index.php?action=edit!add_criteria&id=<?php echo out( $rule->id ); ?>&group_id=<?php echo $nextGroupId; ?>&criteriaType=target" class="action_link" onclick="top.restoreSession()">
-        				(<?php echo out( xl( 'add' ) ); ?>)
-        			</a>
-        		</p>
-    		</div>
-    		<div class="section text">
-        		<p class="header"><?php echo out( xl( 'Actions' ) ); ?>
-                    <a href="index.php?action=edit!add_action&id=<?php echo out( $rule->id ); ?>&group_id=<?php echo $nextGroupId; ?>" class="action_link" onclick="top.restoreSession()">
-                        (<?php echo out( xl( 'add' ) ); ?>)
+            <?php } ?>
+            </div>
+        <?php
+    } // iteration over groups ?>
+        <div class="group">
+            <?php $nextGroupId = $groupId + 1; ?>
+            <div class="section text">
+                <p class="header"><?php echo out(xl('Clinical targets')); ?> 
+                    <a href="index.php?action=edit!add_criteria&id=<?php echo out($rule->id); ?>&group_id=<?php echo $nextGroupId; ?>&criteriaType=target" class="action_link" onclick="top.restoreSession()">
+                        (<?php echo out(xl('add')); ?>)
                     </a>
                 </p>
             </div>
-    	</div>
+            <div class="section text">
+                <p class="header"><?php echo out(xl('Actions')); ?>
+                    <a href="index.php?action=edit!add_action&id=<?php echo out($rule->id); ?>&group_id=<?php echo $nextGroupId; ?>" class="action_link" onclick="top.restoreSession()">
+                        (<?php echo out(xl('add')); ?>)
+                    </a>
+                </p>
+            </div>
+        </div>
     
     </div>
 

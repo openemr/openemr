@@ -32,11 +32,11 @@ class ModuleconfigController extends AbstractActionController
     protected $inputFilter;
 
     public function __construct()
-    {    }
+    {
+    }
 
     public function exchangeArray($data)
     {
-  
     }
   
     public function getArrayCopy()
@@ -56,12 +56,13 @@ class ModuleconfigController extends AbstractActionController
             $factory     = new InputFactory();
             $this->inputFilter = $inputFilter;
         }
+
         return $this->inputFilter;
     }
   
     public function getHookConfig()
     {
-        $hooks	=  array();
+        $hooks  =  array();
         return $hooks;
     }
     

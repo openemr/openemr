@@ -1,22 +1,22 @@
-<!-- Work/School Note Form created by Nikolai Vitsyn: 2004/02/13 and update 2005/03/30
-     Copyright (C) Open Source Medical Software
-
-     This program is free software; you can redistribute it and/or
-     modify it under the terms of the GNU General Public License
-     as published by the Free Software Foundation; either version 2
-     of the License, or (at your option) any later version.
-
-     This program is distributed in the hope that it will be useful,
-     but WITHOUT ANY WARRANTY; without even the implied warranty of
-     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-     GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. -->
-
 <?php
-
+/**
+ *  Work/School Note Form created by Nikolai Vitsyn: 2004/02/13 and update 2005/03/30
+ *   Copyright (C) Open Source Medical Software
+ *
+ *   This program is free software; you can redistribute it and/or
+ *   modify it under the terms of the GNU General Public License
+ *   as published by the Free Software Foundation; either version 2
+ *   of the License, or (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
 
 
@@ -24,13 +24,16 @@ include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 formHeader("Form: note");
 $returnurl = 'encounter_top.php';
-$provider_results = sqlQuery("select fname, lname from users where username=?",array($_SESSION{"authUser"}));
+$provider_results = sqlQuery("select fname, lname from users where username=?", array($_SESSION{"authUser"}));
 
 /* name of this form */
 $form_name = "note";
 
 // get the record from the database
-if ($_GET['id'] != "") $obj = formFetch("form_".$form_name, $_GET["id"]);
+if ($_GET['id'] != "") {
+    $obj = formFetch("form_".$form_name, $_GET["id"]);
+}
+
 /* remove the time-of-day from the date fields */
 if ($obj['date_of_signature'] != "") {
     $dateparts = explode(" ", $obj['date_of_signature']);
@@ -71,8 +74,12 @@ function PrintForm() {
 </div>
 
 <select name="note_type">
-<option value="WORK NOTE" <?php if ($obj['note_type']=="WORK NOTE") echo " SELECTED"; ?>><?php echo xlt('WORK NOTE'); ?></option>
-<option value="SCHOOL NOTE" <?php if ($obj['note_type']=="SCHOOL NOTE") echo " SELECTED"; ?>><?php echo xlt('SCHOOL NOTE'); ?></option>
+<option value="WORK NOTE" <?php if ($obj['note_type']=="WORK NOTE") {
+    echo " SELECTED";
+} ?>><?php echo xlt('WORK NOTE'); ?></option>
+<option value="SCHOOL NOTE" <?php if ($obj['note_type']=="SCHOOL NOTE") {
+    echo " SELECTED";
+} ?>><?php echo xlt('SCHOOL NOTE'); ?></option>
 </select>
 <br>
 <b><?php echo xlt('MESSAGE:'); ?></b>

@@ -57,7 +57,7 @@ class Module
     {
         return array(
             'factories' => array(
-                'Installer\Model\InstModuleTable' =>  function($sm) {
+                'Installer\Model\InstModuleTable' =>  function ($sm) {
                     $tableGateway = $sm->get('InstModuleTableGateway');
                     $table = new InstModuleTable($tableGateway);
                     return $table;
@@ -75,11 +75,11 @@ class Module
     
     public function onBootstrap(\Zend\EventManager\EventInterface $e)
     {
-    	$config = $e->getApplication()->getServiceManager()->get('Configuration');
-    	$sessionConfig = new SessionConfig();
-    	$sessionConfig->setOptions($config['session']);
-    	$sessionManager = new SessionManager($sessionConfig, null, null);
-    	Container::setDefaultManager($sessionManager);
-    	$sessionManager->start();
+        $config = $e->getApplication()->getServiceManager()->get('Configuration');
+        $sessionConfig = new SessionConfig();
+        $sessionConfig->setOptions($config['session']);
+        $sessionManager = new SessionManager($sessionConfig, null, null);
+        Container::setDefaultManager($sessionManager);
+        $sessionManager->start();
     }
-}?>
+}

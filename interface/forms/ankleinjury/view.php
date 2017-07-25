@@ -1,3 +1,16 @@
+<?php
+/**
+ * Generated DocBlock
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  cfapress <cfapress>
+ * @author  Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2008 cfapress <cfapress>
+ * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+?>
 <!-- Ankle Injury View Form created by Nikolai Vitsyn by 2004/02/19 -->
 <?php
 include_once("../../globals.php");
@@ -12,105 +25,122 @@ include_once("$srcdir/api.inc");
 $obj = formFetch("form_ankleinjury", $_GET["id"]);
 ?>
 <form method=post action="<?php echo $rootdir?>/forms/ankleinjury/save.php?mode=update&id=<?php echo $_GET["id"];?>" name="my_form">
-<span class="title"><?php xl('Ankle Evaluation Form','e');?></span><br></br>
+<span class="title"><?php xl('Ankle Evaluation Form', 'e');?></span><br></br>
 
-<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save','e');?>]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save', 'e');?>]</a>
 <br>
 <a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
- onclick="top.restoreSession()">[<?php xl('Don\'t Save Changes','e');?>]</a>
+ onclick="top.restoreSession()">[<?php xl('Don\'t Save Changes', 'e');?>]</a>
 <br></br>
 
 <span class=text>Date of Injury: </span><input type=entry name="ankle_date_of_injuary" value="<?php echo stripslashes($obj{"ankle_date_of_injuary"});?>" >
-<td align="right"><?php xl('Work related?','e');?>:</td>
-<td><input type=checkbox name="ankle_work_related" <?php if ($obj{"ankle_work_related"} == "on")
-echo "checked";;?>><span class=text></span><br></td>
+<td align="right"><?php xl('Work related?', 'e');?>:</td>
+<td><input type=checkbox name="ankle_work_related" <?php if ($obj{"ankle_work_related"} == "on") {
+    echo "checked";
+}
+
+;?>><span class=text></span><br></td>
 
 <table >
 <tr>
-<td align="right"><?php xl('Foot:','e');?></td>
-<td><input type=radio name="ankle_foot" value="Left" <?php if ($obj{"ankle_foot"} == "Left")
-{echo "checked";};?>><span class=text></span><br></td>
-<td align="right"><?php xl('Left:','e');?></td>
-<td><input type=radio name="ankle_foot" value="Right" <?php if ($obj{"ankle_foot"} == "Right")
-{echo "checked";};?>><span class=text></span><br></td>
-<td align="right"><?php xl('Right:','e');?></td>
+<td align="right"><?php xl('Foot:', 'e');?></td>
+<td><input type=radio name="ankle_foot" value="Left" <?php if ($obj{"ankle_foot"} == "Left") {
+    echo "checked";
+};?>><span class=text></span><br></td>
+<td align="right"><?php xl('Left:', 'e');?></td>
+<td><input type=radio name="ankle_foot" value="Right" <?php if ($obj{"ankle_foot"} == "Right") {
+    echo "checked";
+};?>><span class=text></span><br></td>
+<td align="right"><?php xl('Right:', 'e');?></td>
 </tr>
 </table>
 
 <table >
 <tr>
-<td align="right"><?php xl('Severity of Pain:','e');?></td>
+<td align="right"><?php xl('Severity of Pain:', 'e');?></td>
 <td align="right">1:</td>
-<td><input type=radio name="ankle_severity_of_pain" value="1" <?php if ($obj{"ankle_severity_of_pain"} == "1")
-{echo "checked";};?>><span class=text></span><br></td>
+<td><input type=radio name="ankle_severity_of_pain" value="1" <?php if ($obj{"ankle_severity_of_pain"} == "1") {
+    echo "checked";
+};?>><span class=text></span><br></td>
 
 <td align="right">2:</td>
-<td><input type=radio name="ankle_severity_of_pain" value="2" <?php if ($obj{"ankle_severity_of_pain"} == "2")
-{echo "checked";};?>><span class=text></span><br></td>
+<td><input type=radio name="ankle_severity_of_pain" value="2" <?php if ($obj{"ankle_severity_of_pain"} == "2") {
+    echo "checked";
+};?>><span class=text></span><br></td>
 
 <td align="right">3:</td>
-<td><input type=radio name="ankle_severity_of_pain" value="3" <?php if ($obj{"ankle_severity_of_pain"} == "3")
-{echo "checked";};?>><span class=text></span><br></td>
+<td><input type=radio name="ankle_severity_of_pain" value="3" <?php if ($obj{"ankle_severity_of_pain"} == "3") {
+    echo "checked";
+};?>><span class=text></span><br></td>
 </tr>
 </table>
 
 <table><tr>
-<td align="right"><?php xl('Significant Swelling:','e');?></td>
-<td><input type=checkbox name="ankle_significant_swelling" <?php if ($obj{"ankle_significant_swelling"} == "on")
-{echo "checked";};?>><span class=text></span><br>
+<td align="right"><?php xl('Significant Swelling:', 'e');?></td>
+<td><input type=checkbox name="ankle_significant_swelling" <?php if ($obj{"ankle_significant_swelling"} == "on") {
+    echo "checked";
+};?>><span class=text></span><br>
 </tr>
 </table>
 
 
 <table >
 <tr>
-<td align="right"><?php xl('Onset of Swelling:','e');?></td>
-<td><input type=radio name="ankle_onset_of_swelling" value="within minutes" <?php if ($obj{"ankle_onset_of_swelling"} == "within minutes")
-{echo "checked";};?>><span class=text></span><br></td>
-<td align="right"><?php xl('within minutes:','e');?></td>
-<td><input type=radio name="ankle_onset_of_swelling" value="within hours" <?php if ($obj{"ankle_onset_of_swelling"} == "within hours")
-{echo "checked";};?>><span class=text></span><br></td>
-<td align="right"><?php xl('within hours:','e');?></td>
+<td align="right"><?php xl('Onset of Swelling:', 'e');?></td>
+<td><input type=radio name="ankle_onset_of_swelling" value="within minutes" <?php if ($obj{"ankle_onset_of_swelling"} == "within minutes") {
+    echo "checked";
+};?>><span class=text></span><br></td>
+<td align="right"><?php xl('within minutes:', 'e');?></td>
+<td><input type=radio name="ankle_onset_of_swelling" value="within hours" <?php if ($obj{"ankle_onset_of_swelling"} == "within hours") {
+    echo "checked";
+};?>><span class=text></span><br></td>
+<td align="right"><?php xl('within hours:', 'e');?></td>
 </tr>
 </table>
 
-<span class="text"><?php xl('How did Injury Occur?:','e');?></span></br>
+<span class="text"><?php xl('How did Injury Occur?:', 'e');?></span></br>
 <textarea name="ankle_how_did_injury_occur" cols ="67" rows="4"  wrap="virtual name">
 <?php echo stripslashes($obj{"ankle_how_did_injury_occur"});?></textarea>
 <br>
 
-<table><th colspan="5"><?php xl('Ottawa Ankle Rules','e');?></th>
+<table><th colspan="5"><?php xl('Ottawa Ankle Rules', 'e');?></th>
 <tr>
-<td align="right"><?php xl('Bone Tenderness:','e');?></td>
-<td align="right"><?php xl('Medial malleolus:','e');?></td>
-<td><input type=radio name="ankle_ottawa_bone_tenderness" value="Medial malleolus" <?php if ($obj{"ankle_ottawa_bone_tenderness"} == "Medial malleolus")
-{echo "checked";};?>><span class=text></span><br></td>
-<td align="right"><?php xl('Lateral malleolus:','e');?></td>
-<td><input type=radio name="ankle_ottawa_bone_tenderness"  value="Lateral malleolus" <?php if ($obj{"ankle_ottawa_bone_tenderness"} == "Lateral malleolus")
-{echo "checked";};?>><span class=text></span><br></td>
-<td align="right"><?php xl('Base of fifth (5th) Metarsal:','e');?></td>
-<td><input type=radio name="ankle_ottawa_bone_tenderness" value="Base of fifth (5th) Metarsal" <?php if ($obj{"ankle_ottawa_bone_tenderness"} == "Base of fifth (5th) Metarsal")
-{echo "checked";};?>><span class=text></span><br></td>
-<td align="right"><?php xl('At the Navicular:','e');?></td>
-<td><input type=radio name="ankle_ottawa_bone_tenderness" value="At the Navicular" <?php if ($obj{"ankle_ottawa_bone_tenderness"} == "At the Navicular")
-{echo "checked";};?>><span class=text></span><br></td>
+<td align="right"><?php xl('Bone Tenderness:', 'e');?></td>
+<td align="right"><?php xl('Medial malleolus:', 'e');?></td>
+<td><input type=radio name="ankle_ottawa_bone_tenderness" value="Medial malleolus" <?php if ($obj{"ankle_ottawa_bone_tenderness"} == "Medial malleolus") {
+    echo "checked";
+};?>><span class=text></span><br></td>
+<td align="right"><?php xl('Lateral malleolus:', 'e');?></td>
+<td><input type=radio name="ankle_ottawa_bone_tenderness"  value="Lateral malleolus" <?php if ($obj{"ankle_ottawa_bone_tenderness"} == "Lateral malleolus") {
+    echo "checked";
+};?>><span class=text></span><br></td>
+<td align="right"><?php xl('Base of fifth (5th) Metarsal:', 'e');?></td>
+<td><input type=radio name="ankle_ottawa_bone_tenderness" value="Base of fifth (5th) Metarsal" <?php if ($obj{"ankle_ottawa_bone_tenderness"} == "Base of fifth (5th) Metarsal") {
+    echo "checked";
+};?>><span class=text></span><br></td>
+<td align="right"><?php xl('At the Navicular:', 'e');?></td>
+<td><input type=radio name="ankle_ottawa_bone_tenderness" value="At the Navicular" <?php if ($obj{"ankle_ottawa_bone_tenderness"} == "At the Navicular") {
+    echo "checked";
+};?>><span class=text></span><br></td>
 </tr>
 </table>
 
 <table >
 <tr>
-<td align="right"><?php xl('Able to Bear Weight four (4) steps:','e');?></td>
-<td align="right"><?php xl('Yes:','e');?></td>
-<td><input type=radio name="ankle_able_to_bear_weight_steps" value="Yes" <?php if ($obj{"ankle_able_to_bear_weight_steps"} == "Yes")
-{echo "checked";};?>><span class=text></span><br></td>
-<td align="right"><?php xl('No:','e');?></td>
-<td><input type=radio name="ankle_able_to_bear_weight_steps" value="No" <?php if ($obj{"ankle_able_to_bear_weight_steps"} == "No")
-{echo "checked";};?>><span class=text></span><br></td>
+<td align="right"><?php xl('Able to Bear Weight four (4) steps:', 'e');?></td>
+<td align="right"><?php xl('Yes:', 'e');?></td>
+<td><input type=radio name="ankle_able_to_bear_weight_steps" value="Yes" <?php if ($obj{"ankle_able_to_bear_weight_steps"} == "Yes") {
+    echo "checked";
+};?>><span class=text></span><br></td>
+<td align="right"><?php xl('No:', 'e');?></td>
+<td><input type=radio name="ankle_able_to_bear_weight_steps" value="No" <?php if ($obj{"ankle_able_to_bear_weight_steps"} == "No") {
+    echo "checked";
+};?>><span class=text></span><br></td>
 </tr>
 </table>
 
 <table>
-<tr><th><?php xl('X-Ray Interpretation:','e');?></th> <th><?php xl('Additional X-RAY Notes:','e');?></th></tr>
+<tr><th><?php xl('X-Ray Interpretation:', 'e');?></th> <th><?php xl('Additional X-RAY Notes:', 'e');?></th></tr>
 <tr>
 <td>
 <input type=entry name="ankle_x_ray_interpretation" value="<?php echo
@@ -124,7 +154,7 @@ stripslashes($obj{"ankle_x_ray_interpretation"});?>" size="50">
 </table>
 
 <table>
-<tr><th><?php xl('Diagnosis:','e');?></th><th><?php xl('Additional Diagnosis:','e');?></th></tr>
+<tr><th><?php xl('Diagnosis:', 'e');?></th><th><?php xl('Additional Diagnosis:', 'e');?></th></tr>
 <tr>
 <td><input type=entry name="ankle_diagnosis1" value="<?php echo
 stripslashes($obj{"ankle_diagnosis1"});?>" size="50">
@@ -146,16 +176,16 @@ stripslashes($obj{"ankle_diagnosis4"});?>" size="50"></td>
 </tr>
 </table>
 
-<table><tr><th><?php xl('Plan:','e');?></th><tr>
+<table><tr><th><?php xl('Plan:', 'e');?></th><tr>
 <tr><td>
 <textarea name="ankle_plan" rows="4" cols="67" wrap="virtual name">
 <?php echo stripslashes($obj{"ankle_plan"});?></textarea>
 </td></tr></table>
 
-<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save','e');?>]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save', 'e');?>]</a>
 <br>
 <a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
- onclick="top.restoreSession()">[<?php xl('Don\'t Save Changes','e');?>]</a>
+ onclick="top.restoreSession()">[<?php xl('Don\'t Save Changes', 'e');?>]</a>
 </form>
 <?php
 formFooter();

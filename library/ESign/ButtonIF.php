@@ -3,9 +3,9 @@
 namespace ESign;
 
 /**
- * ButtonIF interface, which is used to display a button that 
+ * ButtonIF interface, which is used to display a button that
  * triggers esign behavior.
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -31,6 +31,6 @@ require_once $GLOBALS['srcdir'].'/ESign/SignableIF.php';
 interface ButtonIF extends ViewableIF
 {
     public function isViewable();
-    public function render( SignableIF $signable = null );
-    public function getHtml( SignableIF $signable = null );
+    public function render(SignableIF $signable = null);
+    public function getHtml(SignableIF $signable = null);
 }

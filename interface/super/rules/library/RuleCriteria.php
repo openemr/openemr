@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-abstract class RuleCriteria {
+abstract class RuleCriteria
+{
     /**
      * if true, then criteria is optional; required otherwise
      * @var boolean
@@ -48,10 +49,11 @@ abstract class RuleCriteria {
 
     var $groupId;
 
-    function getCharacteristics() {
-        $characteristics = $this->optional ? xl ( "Optional" ) : xl ( "Required" );
+    function getCharacteristics()
+    {
+        $characteristics = $this->optional ? xl("Optional") : xl("Required");
         $characteristics .= " ";
-        $characteristics .= $this->inclusion ? xl( "Inclusion" ) : xl( "Exclusion" );
+        $characteristics .= $this->inclusion ? xl("Inclusion") : xl("Exclusion");
 
         return $characteristics;
     }
@@ -62,44 +64,57 @@ abstract class RuleCriteria {
 
     abstract function getView();
 
-    function getInterval() {
-        if ( is_null($this->interval) || is_null( $this->intervalType ) ) {
+    function getInterval()
+    {
+        if (is_null($this->interval) || is_null($this->intervalType)) {
             return null;
         }
-        return xl( $this->interval ) . " x " . " "
-             . xl( $this->intervalType->lbl );
+
+        return xl($this->interval) . " x " . " "
+             . xl($this->intervalType->lbl);
     }
 
-    protected function getLabel( $value, $list_id ) {
+    protected function getLabel($value, $list_id)
+    {
         return getLabel($value, $list_id);
     }
 
-    protected function getLayoutLabel( $value, $form_id ) {
+    protected function getLayoutLabel($value, $form_id)
+    {
         return getLayoutLabel($value, $form_id);
     }
     
-    protected function decodeComparator( $comparator ) {
-        switch ( $comparator ) {
-            case "eq": return "";
+    protected function decodeComparator($comparator)
+    {
+        switch ($comparator) {
+            case "eq":
+                return "";
                 break;
-            case "ne": return "!=";
+            case "ne":
+                return "!=";
                 break;
-            case "gt": return ">";
+            case "gt":
+                return ">";
                 break;
-            case "lt": return "<";
+            case "lt":
+                return "<";
                 break;
-            case "ge": return ">=";
+            case "ge":
+                return ">=";
                 break;
-            case "le": return "<=";
+            case "le":
+                return "<=";
                 break;
         }
+
         return "";
     }
 
     /**
      * @return RuleCriteriaDbView
      */
-    function getDbView() {
+    function getDbView()
+    {
         $dbView = new RuleCriteriaDbView();
         $dbView->inclusion = $this->inclusion;
         $dbView->optional = $this->optional;
@@ -109,12 +124,13 @@ abstract class RuleCriteria {
         return $dbView;
     }
 
-    function updateFromRequest() {
+    function updateFromRequest()
+    {
         $inclusion = "yes" ==  _post("fld_inclusion");
         $optional = "yes" == _post("fld_optional");
         $groupId = _post("group_id");
         $interval = _post("fld_target_interval");
-        $intervalType = TimeUnit::from( _post("fld_target_interval_type") );
+        $intervalType = TimeUnit::from(_post("fld_target_interval_type"));
 
         $this->groupId = $groupId;
         $this->optional = $optional;
@@ -122,6 +138,4 @@ abstract class RuleCriteria {
         $this->interval = $interval;
         $this->intervalType = $intervalType;
     }
-
 }
-?>

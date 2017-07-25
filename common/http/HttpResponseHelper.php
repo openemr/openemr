@@ -20,8 +20,10 @@
 
 namespace common\http;
 
-class HttpResponseHelper {
-    public static function send($statusCode, $payload, $serializationStrategy) {
+class HttpResponseHelper
+{
+    public static function send($statusCode, $payload, $serializationStrategy)
+    {
         $response = null;
 
         if (method_exists($payload, 'toSerializedObject')) {
@@ -42,7 +44,6 @@ class HttpResponseHelper {
                 } else {
                     $response = json_encode($payload);
                 }
-
                 break;
         }
 

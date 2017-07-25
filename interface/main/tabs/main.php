@@ -1,6 +1,7 @@
 <?php
 use Esign\Api;
 use OpenEMR\Core\Header;
+
 /**
  * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
@@ -82,11 +83,11 @@ function goRepeaterServices(){
 }
 
 function isEncounterLocked( encounterId ) {
-    <?php if ( $esignApi->lockEncounters() ) { ?>
-	// If encounter locking is enabled, make a syncronous call (async=false) to check the
-	// DB to see if the encounter is locked.
-	// Call restore session, just in case
-	top.restoreSession();
+    <?php if ($esignApi->lockEncounters()) { ?>
+    // If encounter locking is enabled, make a syncronous call (async=false) to check the
+    // DB to see if the encounter is locked.
+    // Call restore session, just in case
+    top.restoreSession();
     $.ajax({
         type: 'POST',
         url: '<?php echo $GLOBALS['webroot']?>/interface/esign/index.php?module=encounter&method=esign_is_encounter_locked',
@@ -96,12 +97,12 @@ function isEncounterLocked( encounterId ) {
         },
         dataType: 'json',
         async:false
-	});
-	return encounter_locked;
-	<?php } else { ?>
-	// If encounter locking isn't enabled then always return false
-	return false;
-	<?php } ?>
+    });
+    return encounter_locked;
+    <?php } else { ?>
+    // If encounter locking isn't enabled then always return false
+    return false;
+    <?php } ?>
 }
 var webroot_url="<?php echo $web_root; ?>";
 </script>
@@ -118,7 +119,7 @@ var webroot_url="<?php echo $web_root; ?>";
 
 <script type="text/javascript">
 // Create translations to be used in the menuActionClick() function in below js/tabs_view_model.js script
-var xl_strings_tabs_view_model = <?php echo json_encode( array(
+var xl_strings_tabs_view_model = <?php echo json_encode(array(
     'encounter_locked' => xla('This encounter is locked. No new forms can be added.'),
     'must_select_patient'  => $GLOBALS['enable_group_therapy'] ? xla('You must first select or add a patient or therapy group.') : xla('You must first select or add a patient.'),
     'must_select_encounter'    => xla('You must first select or create an encounter.')
@@ -142,12 +143,13 @@ if ($GLOBALS['erx_enable']) {
         $GLOBALS['newcrop_user_role_erxadmin'] = 1;
     }
 }
+
 // prepare track anything to be used in creating the menu
 $track_anything_sql = sqlQuery("SELECT `state` FROM `registry` WHERE `directory` = 'track_anything'");
 $GLOBALS['track_anything_state'] = $track_anything_sql['state'];
 // prepare Issues popup link global that is used in creating the menu
-$GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write') || acl_check('encounters','notes_a','','write')) &&
-  acl_check('patients','med','','write'));
+$GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'write') || acl_check('encounters', 'notes_a', '', 'write')) &&
+  acl_check('patients', 'med', '', 'write'));
 ?>
 
 <?php require_once("templates/tabs_template.php"); ?>
@@ -158,7 +160,7 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write')
 <?php require_once("menu/menu_json.php"); ?>
 <?php $userQuery = sqlQuery("select * from users where username = ?", array($_SESSION['authUser'])); ?>
 <script type="text/javascript">
-    <?php if(!empty($_SESSION['frame1url']) && !empty($_SESSION['frame1target'])) { ?>
+    <?php if (!empty($_SESSION['frame1url']) && !empty($_SESSION['frame1target'])) { ?>
         app_view_model.application_data.tabs.tabsList()[0].url(<?php echo json_encode("../".$_SESSION['frame1url']); ?>);
         app_view_model.application_data.tabs.tabsList()[0].name(<?php echo json_encode($_SESSION['frame1target']); ?>);
     <?php } ?>
@@ -176,7 +178,21 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write')
 <body>
 <!-- Below iframe is to support auto logout when timeout is reached -->
 <iframe name="timeout" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="timeout_iframe.php"></iframe>
-<div id="mainBox">
+<?php // mdsupport - app settings
+    $disp_mainBox = '';
+if (isset($_SESSION['app1'])) {
+    $rs = sqlquery(
+        "SELECT title app_url FROM list_options WHERE activity=1 AND list_id=? AND option_id=?",
+        array('apps', $_SESSION['app1'])
+    );
+    if ($rs['app_url'] != "main/main_screen.php") {
+        echo '<iframe name="app1" src="../../'.attr($rs['app_url']).'"
+    			style="position:absolute; left:0; top:0; height:100%; width:100%; border:none;" />';
+        $disp_mainBox = 'style="display: none;"';
+    }
+}
+?>
+<div id="mainBox" <?php echo $disp_mainBox ?>>
     <div id="dialogDiv"></div>
     <div class="body_top">
         <a href="http://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" target="_blank"><img class="logo" alt="openEMR small logo" style="float: left; margin:3px 4px 0px 10px;width:20px;z-index:10000;" border="0" src="<?php echo $GLOBALS['images_static_relative']; ?>/menu-logo.png"></a>

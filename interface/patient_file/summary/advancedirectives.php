@@ -22,8 +22,8 @@ use OpenEMR\Core\Header;
 
     <?php
     if ($_POST['form_yesno']) {
-        $form_yesno = filter_input(INPUT_POST,'form_yesno');
-        $form_adreviewed = DateToYYYYMMDD(filter_input(INPUT_POST,'form_adreviewed'));
+        $form_yesno = filter_input(INPUT_POST, 'form_yesno');
+        $form_adreviewed = DateToYYYYMMDD(filter_input(INPUT_POST, 'form_adreviewed'));
         sqlQuery("UPDATE patient_data SET completed_ad = ?, ad_reviewed = ? where pid = ?", array($form_yesno,$form_adreviewed,$pid));
         // Close this window and refresh the calendar display.
         echo "</head><body>\n<script language='JavaScript'>\n";
@@ -32,6 +32,7 @@ use OpenEMR\Core\Header;
         echo "</script>\n</body>\n</html>\n";
         exit();
     }
+
     $sql = "select completed_ad, ad_reviewed from patient_data where pid = ?";
     $myrow = sqlQuery($sql, array($pid));
     if ($myrow) {
@@ -43,9 +44,9 @@ use OpenEMR\Core\Header;
     <script type="text/javascript" language="JavaScript">
         function validate(f) {
             if (f.form_adreviewed.value == "") {
-	              alert("<?php echo xls('Please enter a date for Last Reviewed.'); ?>");
-	              f.form_adreviewed.focus();
-	              return false;
+                  alert("<?php echo xls('Please enter a date for Last Reviewed.'); ?>");
+                  f.form_adreviewed.focus();
+                  return false;
             }
             return true;
         }
@@ -110,11 +111,11 @@ use OpenEMR\Core\Header;
                                  "FROM documents " .
                                  "INNER JOIN categories_to_documents " .
                                  "ON categories_to_documents.document_id=documents.id " .
-	                               "WHERE categories_to_documents.category_id=? " .
-	                               "AND documents.foreign_id=? " .
+                                   "WHERE categories_to_documents.category_id=? " .
+                                   "AND documents.foreign_id=? " .
                                 "ORDER BY documents.date DESC";
                         $resNew2 = sqlStatement($query, array($categoryId, $pid));
-	                      $counterFlag = false; //flag used to check for empty categories
+                          $counterFlag = false; //flag used to check for empty categories
                         while ($myrows4 = sqlFetchArray($resNew2)) {
                             $dateTimeDoc = $myrows4['date'];
                             $idDoc = $myrows4['id'];
@@ -124,13 +125,15 @@ use OpenEMR\Core\Header;
                                 <?php echo text(xl_document_category($nameDoc)); ?>
                             </a>
                             <?php echo text($dateTimeDoc);
-		                        $counterFlag = true;
+                                $counterFlag = true;
                         }
-	                      // if no associated docs with category then show it's empty
-	                      if (!$counterFlag) {
+
+                          // if no associated docs with category then show it's empty
+                        if (!$counterFlag) {
                             ?>
-	                          <br><?php echo text($nameDoc); ?><span style='color:red;'>[<?php echo xlt('EMPTY'); ?>]</span>
-	                      <?php }
+                            <br><?php echo text($nameDoc); ?><span style='color:red;'>[<?php echo xlt('EMPTY'); ?>]</span>
+                            <?php
+                        }
                     }
                 }
                 ?>

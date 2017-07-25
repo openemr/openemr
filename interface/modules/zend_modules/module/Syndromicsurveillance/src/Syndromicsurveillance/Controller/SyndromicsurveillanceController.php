@@ -33,7 +33,7 @@ class SyndromicsurveillanceController extends AbstractActionController
     
     public function __construct()
     {
-      	$this->listenerObject	= new Listener;
+        $this->listenerObject   = new Listener;
     }
     
     /*
@@ -48,9 +48,9 @@ class SyndromicsurveillanceController extends AbstractActionController
     {
         $request        = $this->getRequest();
         $this->search   = $request->getPost('search', null);
-        $fromDate       = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d',strtotime(date('Ymd')) - (86400*7));
+        $fromDate       = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400*7));
         $toDate         = $request->getPost('form_date_to', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_to', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
-		$code_selected  = $request->getPost('form_icd_codes', null);
+        $code_selected  = $request->getPost('form_icd_codes', null);
         $provider_selected  = $request->getPost('form_provider_id', null);
         
         $results        = $request->getPost('form_results', 100);
@@ -58,7 +58,7 @@ class SyndromicsurveillanceController extends AbstractActionController
         $current_page   = $request->getPost('form_current_page', 1);
         $end            = $current_page*$results;
         $start          = ($end - $results);
-        $new_search     = $request->getPost('form_new_search',null);
+        $new_search     = $request->getPost('form_new_search', null);
         $form_sl_no     = $request->getPost('form_sl_no', 0);
         $download_hl7   = $request->getPost('download_hl7', 0);
         
@@ -75,19 +75,20 @@ class SyndromicsurveillanceController extends AbstractActionController
                     );
         $params['form_icd_codes'][] = $code_selected;
         
-        if($new_search){
+        if ($new_search) {
             $count = $this->getSyndromicsurveillanceTable()->fetch_result($fromDate, $toDate, $code_selected, $provider_selected, $start, $end, 1);
-        }
-        else{
+        } else {
             $count = $request->getPost('form_count', $this->getSyndromicsurveillanceTable()->fetch_result($fromDate, $toDate, $code_selected, $provider_selected, $start, $end, 1));
         }
+
         $totalpages     = ceil($count/$results);
         
         $params['res_count']    = $count;
         $params['total_pages']  = $totalpages;
-        if($download_hl7){
+        if ($download_hl7) {
             $this->getSyndromicsurveillanceTable()->generate_hl7($fromDate, $toDate, $code_selected, $provider_selected, $start, $end);
         }
+
         $search_result  = $this->getSyndromicsurveillanceTable()->fetch_result($fromDate, $toDate, $code_selected, $provider_selected, $start, $end);
         
         $code_list  = $this->getSyndromicsurveillanceTable()->non_reported_codes();
@@ -100,14 +101,14 @@ class SyndromicsurveillanceController extends AbstractActionController
             'form_data'     => $params,
             'table_obj'     => $this->getSyndromicsurveillanceTable(),
             'listenerObject'=> $this->listenerObject,
-			'commonplugin'  => $this->CommonPlugin(),
+            'commonplugin'  => $this->CommonPlugin(),
         ));
         return $view;
     }
     
     /**
     * Table Gateway
-    * 
+    *
     * @return type
     */
     public function getSyndromicsurveillanceTable()
@@ -116,6 +117,7 @@ class SyndromicsurveillanceController extends AbstractActionController
             $sm = $this->getServiceLocator();
             $this->syndromicsurveillanceTable = $sm->get('Syndromicsurveillance\Model\SyndromicsurveillanceTable');
         }
+
         return $this->syndromicsurveillanceTable;
     }
 }

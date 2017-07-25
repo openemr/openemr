@@ -31,53 +31,72 @@
  $out = "";
 
  // Add a string to output with some basic sanitizing.
- function Add($field) {
-  global $out;
-  $out .= "^" . trim(str_replace(array("\r", "\n", "\t"), " ", $field));
- }
+function Add($field)
+{
+    global $out;
+    $out .= "^" . trim(str_replace(array("\r", "\n", "\t"), " ", $field));
+}
 
  // Remove all non-digits from a string.
- function Digits($field) {
-  return preg_replace("/\D/", "", $field);
- }
+function Digits($field)
+{
+    return preg_replace("/\D/", "", $field);
+}
 
  // Translate sex.
- function Sex($field) {
-  $sex = strtoupper(substr(trim($field), 0, 1));
-  if ($sex != "M" && $sex != "F") $sex = "U";
-  return $sex;
- }
+function Sex($field)
+{
+    $sex = strtoupper(substr(trim($field), 0, 1));
+    if ($sex != "M" && $sex != "F") {
+        $sex = "U";
+    }
+
+    return $sex;
+}
 
  // Translate a date.
- function LWDate($field) {
-  $tmp = fixDate($field);
-  return substr($tmp, 5, 2) . substr($tmp, 8, 2) . substr($tmp, 0, 4);
- }
+function LWDate($field)
+{
+    $tmp = fixDate($field);
+    return substr($tmp, 5, 2) . substr($tmp, 8, 2) . substr($tmp, 0, 4);
+}
 
  // Translate insurance type.
- function InsType($field) {
-  if (! $field)    return "";
-  if ($field == 2) return "Medicare";
-  if ($field == 3) return "Medicaid";
-  return "Other";
- }
+function InsType($field)
+{
+    if (! $field) {
+        return "";
+    }
+
+    if ($field == 2) {
+        return "Medicare";
+    }
+
+    if ($field == 3) {
+        return "Medicaid";
+    }
+
+    return "Other";
+}
 
  // Error abort function that does not leave the system locked.
- function mydie($msg) {
-  global $EXPORT_PATH;
-  rename("$EXPORT_PATH/locked", "$EXPORT_PATH/unlocked");
-  die($msg);
- }
+function mydie($msg)
+{
+    global $EXPORT_PATH;
+    rename("$EXPORT_PATH/locked", "$EXPORT_PATH/unlocked");
+    die($msg);
+}
 
  $alertmsg = ""; // anything here pops up in an alert box
 
  // This mess gets all the info for the patient.
  //
  $insrow = array();
- foreach (array('primary','secondary') as $value) {
-   $insrow[] = sqlQuery("SELECT id FROM insurance_data WHERE " .
-     "pid = '$pid' AND type = '$value' ORDER BY date DESC LIMIT 1");
- }
+foreach (array('primary','secondary') as $value) {
+    $insrow[] = sqlQuery("SELECT id FROM insurance_data WHERE " .
+    "pid = '$pid' AND type = '$value' ORDER BY date DESC LIMIT 1");
+}
+
  $query = "SELECT " .
   "p.pubpid, p.fname, p.mname, p.lname, p.DOB, p.providerID, " .
   "p.ss, p.street, p.city, p.state, p.postal_code, p.phone_home, p.sex, " .
@@ -112,11 +131,12 @@
  // demographics then pick the #1 doctor in the clinic.
  //
  $query = "select id, fname, mname, lname from users where authorized = 1";
- if ($row['providerID']) {
-  $query .= " AND id = " . $row['providerID'];
- } else {
-  $query .= " ORDER BY id LIMIT 1";
- }
+if ($row['providerID']) {
+    $query .= " AND id = " . $row['providerID'];
+} else {
+    $query .= " ORDER BY id LIMIT 1";
+}
+
  $prow = sqlFetchArray(sqlStatement($query));
 
  // Patient Section.
@@ -141,25 +161,25 @@
  // Guarantor Section.  OpenEMR does not have guarantors so we use the primary
  // insurance subscriber if there is one, otherwise the patient.
  //
- if (trim($row['lname1'])) {
-  Add($row['lname1']);
-  Add($row['fname1']);
-  Add(substr($row['mname1'], 0, 1));
-  Add($row['sstreet1']);
-  Add("");
-  Add($row['scity1']);
-  Add($row['sstate1']);
-  Add($row['szip1']);
- } else {
-  Add($row['lname']);
-  Add($row['fname']);
-  Add(substr($row['mname'], 0, 1));
-  Add($row['street']);
-  Add("");
-  Add($row['city']);
-  Add($row['state']);
-  Add($row['postal_code']);
- }
+if (trim($row['lname1'])) {
+    Add($row['lname1']);
+    Add($row['fname1']);
+    Add(substr($row['mname1'], 0, 1));
+    Add($row['sstreet1']);
+    Add("");
+    Add($row['scity1']);
+    Add($row['sstate1']);
+    Add($row['szip1']);
+} else {
+    Add($row['lname']);
+    Add($row['fname']);
+    Add(substr($row['mname'], 0, 1));
+    Add($row['street']);
+    Add("");
+    Add($row['city']);
+    Add($row['state']);
+    Add($row['postal_code']);
+}
 
  // Primary Insurance Section.
  //
@@ -205,27 +225,32 @@
  $out .= "\rEND";
 
  // In case this is the very first time.
- if (! file_exists($EXPORT_PATH)) {
-  mkdir($EXPORT_PATH);
-  @touch("$EXPORT_PATH/unlocked");
- }
+if (! file_exists($EXPORT_PATH)) {
+    mkdir($EXPORT_PATH);
+    @touch("$EXPORT_PATH/unlocked");
+}
 
  // Serialize the following code; collisions would be very bad.
- if (! rename("$EXPORT_PATH/unlocked", "$EXPORT_PATH/locked"))
-  die("Export seems to be in use by someone else; please try again.");
+if (! rename("$EXPORT_PATH/unlocked", "$EXPORT_PATH/locked")) {
+    die("Export seems to be in use by someone else; please try again.");
+}
 
  // Figure out what to use for the target filename.
  $dh = opendir($EXPORT_PATH);
- if (! $dh) mydie("Cannot read $EXPORT_PATH");
+if (! $dh) {
+    mydie("Cannot read $EXPORT_PATH");
+}
+
  $nextnumber = 1;
- while (false !== ($filename = readdir($dh))) {
-  if (preg_match("/PMI(\d{8})\.DEM/", $filename, $matches)) {
-   $tmp = 1 + $matches[1];
-   if ($tmp > $nextnumber) {
-    $nextnumber = $tmp;
-   }
-  }
- }
+while (false !== ($filename = readdir($dh))) {
+    if (preg_match("/PMI(\d{8})\.DEM/", $filename, $matches)) {
+        $tmp = 1 + $matches[1];
+        if ($tmp > $nextnumber) {
+            $nextnumber = $tmp;
+        }
+    }
+}
+
  closedir($dh);
  $fnprefix = sprintf("PMI%08.0f.", $nextnumber);
  $initialname = $fnprefix . "creating";
@@ -236,7 +261,10 @@
  // Write the file locally with a temporary version of the name.
  @touch($initialpath); // work around possible php bug
  $fh = @fopen($initialpath, "w");
- if (! $fh) mydie("Unable to open $initialpath for writing");
+if (! $fh) {
+    mydie("Unable to open $initialpath for writing");
+}
+
  fwrite($fh, $out);
  fclose($fh);
 
@@ -244,22 +272,25 @@
  rename($initialpath, $finalpath);
 
  // Delete old stuff to avoid uncontrolled growth.
- if ($nextnumber > 5) {
-  @unlink("$EXPORT_PATH/PMI%08.0f.DEM", $nextnumber - 5);
- }
+if ($nextnumber > 5) {
+    @unlink("$EXPORT_PATH/PMI%08.0f.DEM", $nextnumber - 5);
+}
 
  // End of serialized code.
  rename("$EXPORT_PATH/locked", "$EXPORT_PATH/unlocked");
 
  // If we have an ftp server, send it there and then rename it.
- if ($FTP_SERVER) {
-  $ftpconn = ftp_connect($FTP_SERVER) or die("FTP connection failed");
-  ftp_login($ftpconn, $FTP_USER, $FTP_PASS) or die("FTP login failed");
-  if ($FTP_DIR) ftp_chdir($ftpconn, $FTP_DIR) or die("FTP chdir failed");
-  ftp_put($ftpconn, $initialname, $finalpath, FTP_BINARY) or die("FTP put failed");
-  ftp_rename($ftpconn, $initialname, $finalname) or die("FTP rename failed");
-  ftp_close($ftpconn);
- }
+if ($FTP_SERVER) {
+    $ftpconn = ftp_connect($FTP_SERVER) or die("FTP connection failed");
+    ftp_login($ftpconn, $FTP_USER, $FTP_PASS) or die("FTP login failed");
+    if ($FTP_DIR) {
+        ftp_chdir($ftpconn, $FTP_DIR) or die("FTP chdir failed");
+    }
+
+    ftp_put($ftpconn, $initialname, $finalpath, FTP_BINARY) or die("FTP put failed");
+    ftp_rename($ftpconn, $initialname, $finalname) or die("FTP rename failed");
+    ftp_close($ftpconn);
+}
 ?>
 <html>
 <head>

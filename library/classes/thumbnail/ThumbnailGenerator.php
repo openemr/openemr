@@ -22,7 +22,8 @@
 /**
  * Class ThumbnailGenerator
  */
-class ThumbnailGenerator{
+class ThumbnailGenerator
+{
 
     public static $types_support = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif');
     private $thumb_obj = null;
@@ -42,9 +43,10 @@ class ThumbnailGenerator{
      */
     public static function get_types_support()
     {
-        foreach(self::$types_support as $value){
+        foreach (self::$types_support as $value) {
             $types_support[] = "'$value'";
         }
+
         return $types_support;
     }
 
@@ -72,9 +74,8 @@ class ThumbnailGenerator{
         WHERE mimetype IN (" . implode(',', self::get_types_support()) . ") AND thumb_url IS NULL";
 
         $results = sqlStatement($sql);
-        while($row = sqlFetchArray($results)) {
-
-            switch((int)$row['storagemethod']) {
+        while ($row = sqlFetchArray($results)) {
+            switch ((int)$row['storagemethod']) {
                 //for hard disk store
                 case 0:
                     $new_file = $this->generate_HD_file($row['url'], $row['path_depth']);
@@ -84,8 +85,10 @@ class ThumbnailGenerator{
                     $new_file =  $this->generate_couch_file($row['couch_docid'], $row['url']);
                     break;
                 default:
-                    $this->error_log($row['url']);continue;
+                    $this->error_log($row['url']);
+                    continue;
             }
+
             // Write error to log if failed
             if (!$new_file) {
                 $this->error_log($row['url']);
@@ -96,9 +99,9 @@ class ThumbnailGenerator{
 
             $sql = "UPDATE documents SET thumb_url = ? WHERE id = ?";
             $update = sqlStatement($sql, array($new_file, $row['id']));
-            if($update) {
-               $feedback['sum_success'] ++;
-               $feedback['success'][] = $row['url'];
+            if ($update) {
+                $feedback['sum_success'] ++;
+                $feedback['success'][] = $row['url'];
             }
         }
 
@@ -113,7 +116,7 @@ class ThumbnailGenerator{
     private function generate_HD_file($url, $path_depth)
     {
         //remove 'file://'
-        $url = preg_replace("|^(.*)://|","",$url);
+        $url = preg_replace("|^(.*)://|", "", $url);
 
         //change full path to current webroot.  this is for documents that may have
         //been moved from a different filesystem and the full path in the database
@@ -124,14 +127,15 @@ class ThumbnailGenerator{
         //directories. For example a path_depth of 2 can give documents/encounters/1/<file>
         // etc.
         // NOTE that $from_filename and basename($url) are the same thing
-        $from_all = explode("/",$url);
+        $from_all = explode("/", $url);
         $from_filename = array_pop($from_all);
         $from_pathname_array = array();
-        for ($i=0;$i<$path_depth;$i++) {
+        for ($i=0; $i<$path_depth; $i++) {
             $from_pathname_array[] = array_pop($from_all);
         }
+
         $from_pathname_array = array_reverse($from_pathname_array);
-        $from_pathname = implode("/",$from_pathname_array);
+        $from_pathname = implode("/", $from_pathname_array);
 
         $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
 
@@ -144,7 +148,7 @@ class ThumbnailGenerator{
         $path_parts = pathinfo($url);
 
         $resource = $this->thumb_obj->create_thumbnail($url);
-        if(!$resource) {
+        if (!$resource) {
             return false;
         }
 
@@ -163,31 +167,33 @@ class ThumbnailGenerator{
      */
     private function generate_couch_file($doc_id, $file_name)
     {
-        if( is_null($this->couch_obj)) {
+        if (is_null($this->couch_obj)) {
             $this->couch_obj = new CouchDB();
         }
+
         $data = array($GLOBALS['couchdb_dbase'],$doc_id);
         $resp = $this->couch_obj->retrieve_doc($data);
 
-        if(empty($resp->data)) {
+        if (empty($resp->data)) {
             return false;
         }
 
-        $resource = $this->thumb_obj->create_thumbnail(null,base64_decode($resp->data));
-        if(!$resource) {
+        $resource = $this->thumb_obj->create_thumbnail(null, base64_decode($resp->data));
+        if (!$resource) {
             return false;
         }
 
         $new_file_content = $this->thumb_obj->get_string_file($resource);
 
-        if(!$new_file_content) {
+        if (!$new_file_content) {
             return false;
         }
+
         $couch_row = get_object_vars($resp);
 
         $couch_row['th_data'] = json_encode(base64_encode($new_file_content));
         $array_update = array_values($couch_row);
-        array_unshift($array_update,$GLOBALS['couchdb_dbase']);
+        array_unshift($array_update, $GLOBALS['couchdb_dbase']);
         $update_couch = $this->couch_obj->update_doc($array_update);
 
         $thumb_name = $this->get_thumb_name($file_name);
@@ -198,7 +204,8 @@ class ThumbnailGenerator{
      * Return file name for thumbnail (adding 'th_')
      * @param $file_name
      */
-    private function get_thumb_name($file_name) {
+    private function get_thumb_name($file_name)
+    {
         return 'th_' . $file_name;
     }
 
@@ -207,11 +214,9 @@ class ThumbnailGenerator{
      * save error in error log
      * @param $url
      */
-    private function error_log($url){
+    private function error_log($url)
+    {
 
         error_log('Failed to create thumbnail of ' . $url);
     }
 }
-
-
-

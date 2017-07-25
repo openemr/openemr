@@ -25,7 +25,8 @@ require_once($GLOBALS['fileroot'] . "/interface/main/exceptions/invalid_email_ex
 require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/generic_product_registration_exception.php");
 require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/duplicate_registration_exception.php");
 
-class ProductRegistrationService {
+class ProductRegistrationService
+{
     /**
      * Logger used primarily for logging events that are of interest to
      * developers.
@@ -40,14 +41,16 @@ class ProductRegistrationService {
     /**
      * Default constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->logger = new \common\logging\Logger("\services\ProductRegistrationService");
         $database = \common\database\Connector::Instance();
         $entityManager = $database->entityManager;
         $this->repository = $entityManager->getRepository('\entities\ProductRegistration');
     }
 
-    public function getProductStatus() {
+    public function getProductStatus()
+    {
         $this->logger->debug('Getting current product registration status');
         $row = $this->repository->findFirst();
 
@@ -73,7 +76,8 @@ class ProductRegistrationService {
         return $row;
     }
 
-    public function registerProduct($email) {
+    public function registerProduct($email)
+    {
         if (!$email || $email == 'false') {
             $this->optOutStrategy();
             return null;
@@ -82,7 +86,8 @@ class ProductRegistrationService {
         }
     }
 
-    private function optInStrategy($email) {
+    private function optInStrategy($email)
+    {
         $this->logger->debug('Attempting to register product with email ' . $email);
         $curl = curl_init('https://reg.open-emr.org/api/registration');
         curl_setopt($curl, CURLOPT_POST, true);
@@ -121,7 +126,8 @@ class ProductRegistrationService {
     }
 
     // void... don't bother checking for success/failure.
-    private function optOutStrategy() {
+    private function optOutStrategy()
+    {
         $this->logger->debug('Attempting to opt out of product registration');
         $entry = new \entities\ProductRegistration();
         $entry->setRegistrationId('null');

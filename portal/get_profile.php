@@ -21,20 +21,20 @@
  */
 //namespace OnsitePortal;
 
-require_once ( "verify_session.php" );
-require_once ( "./../library/report.inc" );
-require_once ( "./../library/options.inc.php" );
-require_once ( "./../library/lists.inc" );
-require_once ( "./../library/formatting.inc.php" );
-require_once ( "./../custom/code_types.inc.php" );
-require_once ( "./../library/forms.inc" );
-require_once ( "./../library/patient.inc" );
+require_once("verify_session.php");
+require_once("./../library/report.inc");
+require_once("./../library/options.inc.php");
+require_once("./../library/lists.inc");
+require_once("./../library/formatting.inc.php");
+require_once("./../custom/code_types.inc.php");
+require_once("./../library/forms.inc");
+require_once("./../library/patient.inc");
 
-require_once ( "./lib/appsql.class.php" );
-require_once ( "./lib/section_fetch.class.php" );
+require_once("./lib/appsql.class.php");
+require_once("./lib/section_fetch.class.php");
 // $fetchsec = new FetchSection ();
 $appsql = new ApplicationTable();
-$pending = $appsql->getPortalAudit( $pid, 'review' );
+$pending = $appsql->getPortalAudit($pid, 'review');
 $N = 7;
 ?>
 
@@ -82,21 +82,22 @@ $N = 7;
     <div class="col-sm-9">
 
         <?php
-                    $result1 = getPatientData( $pid );
-                    $result2 = getEmployerData( $pid );
+                    $result1 = getPatientData($pid);
+                    $result2 = getEmployerData($pid);
                     ?>
         <div class="panel panel-primary" >
                 <header class="panel-heading"><?php echo xlt('Profile Demographics'); ?>
-                <?php if( $pending )
+                <?php if ($pending) {
                     echo '<button type="button" id="editDems" class="btn btn-danger btn-xs pull-right" style="color:white;font-size:14px">' . xlt('Pending Review') . '</button>';
-                else
-                    echo '<button type="button" id="editDems" class="btn btn-success btn-xs pull-right" style="color:white;font-size:14px">' . xlt('Revise') . '</button>';
+} else {
+    echo '<button type="button" id="editDems" class="btn btn-success btn-xs pull-right" style="color:white;font-size:14px">' . xlt('Revise') . '</button>';
+}
                         ?>
                 </header>
                 <div class="panel-body " id="dempanel">
                     <table class='table table-responsive table-condensed'>
         <?php
-                    display_layout_rows( 'DEM', $result1, $result2 );
+                    display_layout_rows('DEM', $result1, $result2);
                     ?>
                     </table>
                 </div>
@@ -111,7 +112,7 @@ $N = 7;
                     <header class="panel-heading"><?php echo xlt('Primary Insurance');?></header>
                     <div class="panel-body">
         <?php
-                    printRecDataOne( $insurance_data_array, getRecInsuranceData( $pid, "primary" ), $N );
+                    printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
                     ?>
                     </div>
                 </div>
@@ -119,14 +120,14 @@ $N = 7;
                     <header class="panel-heading"><?php echo xlt('Secondary Insurance');?></header>
                     <div class="panel-body">
         <?php
-                    printRecDataOne( $insurance_data_array, getRecInsuranceData( $pid, "secondary" ), $N );
+                    printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
                     ?></div>
                 </div>
                 <div class="panel panel-primary">
                     <header class="panel-heading"><?php echo xlt('Tertiary Insurance');?></header>
                     <div class="panel-body">
         <?php
-                    printRecDataOne( $insurance_data_array, getRecInsuranceData( $pid, "tertiary" ), $N );
+                    printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
                     ?></div>
                 </div>
             </div>
@@ -135,9 +136,9 @@ $N = 7;
     <div>
         <?php
         echo "<div class='immunizations'><h4>" . xlt('Patient Immunization') . '</h4>';
-        $result = FetchSection::getImmunizations( $pid );
-        foreach( $result as $row ){
-            echo text( $row{'administered_formatted'}) . ' : ';
+        $result = FetchSection::getImmunizations($pid);
+        foreach ($result as $row) {
+            echo text($row{'administered_formatted'}) . ' : ';
             echo text($row['code_text']) . ' : ';
             echo text($row['note']) . ' : ';
             echo text($row['completion_status']) . '<br>';

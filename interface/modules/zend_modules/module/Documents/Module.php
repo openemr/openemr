@@ -31,66 +31,66 @@ class Module implements AutoloaderProviderInterface
 {
     public function onBootstrap(MvcEvent $e)
     {
-      $eventManager        = $e->getApplication()->getEventManager();
-      $moduleRouteListener = new ModuleRouteListener();
-      $moduleRouteListener->attach($eventManager);
+        $eventManager        = $e->getApplication()->getEventManager();
+        $moduleRouteListener = new ModuleRouteListener();
+        $moduleRouteListener->attach($eventManager);
     }
-		
-		public function init(ModuleManager $mm)
+        
+    public function init(ModuleManager $mm)
     {
-			$mm->getEventManager()->getSharedManager()->attach(__NAMESPACE__, 'dispatch', function($e) {
-				$controller 			= $e->getTarget();
-				$route 						= $controller->getEvent()->getRouteMatch();
-				$controller_name 	= $route->getParam('controller');
-				switch($controller_name) {
-					default:
-						$controller->layout('documents/layout');
-				};
-				$controller->getEvent()->getViewModel()->setVariables(array(
-						    'current_controller' => $route->getParam('controller'),
-						    'current_action' 		 => $route->getParam('action'),
-						));
-			});
+        $mm->getEventManager()->getSharedManager()->attach(__NAMESPACE__, 'dispatch', function ($e) {
+            $controller             = $e->getTarget();
+            $route                      = $controller->getEvent()->getRouteMatch();
+            $controller_name    = $route->getParam('controller');
+            switch ($controller_name) {
+                default:
+                    $controller->layout('documents/layout');
+            };
+            $controller->getEvent()->getViewModel()->setVariables(array(
+                        'current_controller' => $route->getParam('controller'),
+                        'current_action'         => $route->getParam('action'),
+                    ));
+        });
     }
 
     public function getConfig()
     {
-      return include __DIR__ . '/config/module.config.php';
+        return include __DIR__ . '/config/module.config.php';
     }
-		    
+            
     public function getServiceConfig()
     {
-      return array(
+        return array(
         'factories' => array(
-          'Documents\Model\DocumentsTable' =>  function($sm) {
+          'Documents\Model\DocumentsTable' =>  function ($sm) {
             $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
             $table = new DocumentsTable($dbAdapter);
             return $table;
           },
         ),
-      );
+        );
     }
     
     public function getControllerPluginConfig()
     {
-      return array(
+        return array(
         'factories' => array(
-          'Documents' => function($sm) {
+          'Documents' => function ($sm) {
             $sm = $sm->getServiceLocator();
             return new Plugin\Documents($sm);
           }
         )
-      );
+        );
     }
 
     public function getAutoloaderConfig()
     {
-      return array(
+        return array(
         'Zend\Loader\StandardAutoloader' => array(
           'namespaces' => array(
             __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
           ),
         ),
-      );
+        );
     }
 }

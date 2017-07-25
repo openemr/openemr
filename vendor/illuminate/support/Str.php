@@ -30,6 +30,28 @@ class Str
     protected static $studlyCache = [];
 
     /**
+     * Return the remainder of a string after a given value.
+     *
+     * @param  string  $subject
+     * @param  string  $search
+     * @return string
+     */
+    public static function after($subject, $search)
+    {
+        if ($search == '') {
+            return $subject;
+        }
+
+        $pos = strpos($subject, $search);
+
+        if ($pos === false) {
+            return $subject;
+        }
+
+        return substr($subject, $pos + strlen($search));
+    }
+
+    /**
      * Transliterate a UTF-8 value to ASCII.
      *
      * @param  string  $value
@@ -147,10 +169,15 @@ class Str
      * Return the length of the given string.
      *
      * @param  string  $value
+     * @param  string  $encoding
      * @return int
      */
-    public static function length($value)
+    public static function length($value, $encoding = null)
     {
+        if ($encoding) {
+            return mb_strlen($value, $encoding);
+        }
+
         return mb_strlen($value);
     }
 
@@ -294,6 +321,10 @@ class Str
      */
     public static function replaceFirst($search, $replace, $subject)
     {
+        if ($search == '') {
+            return $subject;
+        }
+
         $position = strpos($subject, $search);
 
         if ($position !== false) {

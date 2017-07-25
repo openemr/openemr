@@ -24,8 +24,8 @@ use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\TableGateway\TableGateway;
 use Zend\ModuleManager\ModuleManager;
 
-
-class Module {
+class Module
+{
 
 
     public function getAutoloaderConfig()
@@ -56,7 +56,7 @@ class Module {
     {
         return array(
             'factories' => array(
-                'Multipledb\Model\MultipledbTable' =>  function($sm) {
+                'Multipledb\Model\MultipledbTable' =>  function ($sm) {
                     $tableGateway = $sm->get('MultipledbTableGateway');
                     $table = new MultipledbTable($tableGateway);
                     return $table;
@@ -81,7 +81,7 @@ class Module {
         $events = $manager->getEventManager();
         $sharedEvents = $events->getSharedManager();
 
-        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function($e) {
+        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e) {
             $controller = $e->getTarget();
             //$controller->layout()->setVariable('status', null);
             $controller->layout('multipledb/layout/layout');
@@ -91,10 +91,6 @@ class Module {
             $controller->layout()->setVariable('language_direction', $_SESSION['language_direction']);
             $controller->layout()->setVariable('status', null);
             //variable that get object with all js variables from php
-
         }, 100);
     }
-
-
-
 }

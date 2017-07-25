@@ -11,17 +11,19 @@
  *
  * @author aron
  */
-class RuleActions {
+class RuleActions
+{
     var $actions = array();
 
-    function __construct() {
+    function __construct()
+    {
     }
 
     /**
      * @param RuleAction $action
      */
-    function add( $action ) {
-        array_push( $this->actions, $action );
+    function add($action)
+    {
+        array_push($this->actions, $action);
     }
 }
-?>

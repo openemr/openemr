@@ -10,12 +10,14 @@
  * enum
  * @author aron
  */
-class ReminderIntervalType {
+class ReminderIntervalType
+{
 
     var $code;
     var $lbl;
     
-    function __construct( $code, $lbl ) {
+    function __construct($code, $lbl)
+    {
         $this->lbl = $lbl;
         $this->code = $code;
     }
@@ -25,23 +27,24 @@ class ReminderIntervalType {
      * @param string $value
      * @return ReminderIntervalType
      */
-    public static function from( $code ) {
+    public static function from($code)
+    {
         $map = self::map();
         return $map[$code];
     }
 
-    public static function values() {
+    public static function values()
+    {
         $map = self::map();
         return array_values($map);
     }
 
-    private static function map() {
+    private static function map()
+    {
         $map = array(
-            'clinical'  =>  new ReminderIntervalType( 'clinical', xl( 'Clinical' ) ),
-            'patient'   =>  new ReminderIntervalType( 'patient', xl( 'Patient' ) )
+            'clinical'  =>  new ReminderIntervalType('clinical', xl('Clinical')),
+            'patient'   =>  new ReminderIntervalType('patient', xl('Patient'))
         );
         return $map;
     }
-
 }
-?>

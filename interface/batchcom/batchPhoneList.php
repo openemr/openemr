@@ -1,47 +1,65 @@
 <?php
-/*    
-    batch list processor, included from batchcom 
-*/
+/**
+ * Batch list processor, included from batchcom
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  cfapress
+ * @author  Jason 'Toolbox' Oettinger <jason@oettinger.email>
+ * @copyright Copyright (c) 2008 cfapress
+ * @copyright Copyright (c) 2017 Jason 'Toolbox' Oettinger <jason@oettinger.email>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @todo menu for fields could be added in the future
+ */
 
-// create a list for phone calls
-// menu for fields could be added in the future
+require_once("../globals.php");
+use OpenEMR\Core\Header;
 
 ?>
 <html>
 <head>
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="batchcom.css" type="text/css">
+<title><?php echo xlt("Phone Call List"); ?></title>
+<?php Header::setupHeader(); ?>
 </head>
-<body class="body_top">
-<span class="title"><?php xl('Batch Communication Tool','e')?></span>
-<br><br>
-<span class="pclist" ><?php xl('Phone Call List report','e')?></span>
-<br><br>
-
-<?php
-
-echo ("<table class='batchcom'>"); //will do css
-
-echo ("<thead bgcolor='#ECECEC'><th width='22%'>".xl('Name') ."</th>");
-echo ("<th align='Center' width='15%'>".xl('DOB') ."</th>");
-echo ("<th align='Center' width='15%'>".xl('Home')."</th>");
-echo ("<th align='Center' width='15%'>".xl('Work') ."</th>");
-echo ("<th align='Center' width='15%'>".xl('Contact') ."</th>");
-echo ("<th align='Center' width='15%'>".xl('Cell') ."</th></thead>\n");
-
-while ($row=sqlFetchArray($res)) {
-
-    echo ("<tr><td width='22%'>${row['title']} ");
-    echo ("${row['fname']} ");
-    echo ("${row['lname']} </td>");
-    echo ("<td align='Center'>${row['DOB']} </td>");
-    echo ("<td align='right'>${row['phone_home']} </td>");
-    echo ("<td align='right'>${row['phone_biz']} </td>");
-    echo ("<td align='right'>${row['phone_contact']} </td>");
-    echo ("<td align='right'>${row['phone_cell']} </td></tr>\n");
-}
-
-echo ("</table>");
-
-?>
+<body class="body_top container">
+    <header class="row">
+        <?php require_once("batch_navigation.php");?>
+        <h1 class="col-md-12">
+            <a href="batchcom.php"><?php echo xlt('Batch Communication Tool'); ?></a>
+            <small><?php echo xlt('Phone Call List report'); ?></small>
+        </h1>
+    </header>
+    <main class="row">
+        <div class="col-md-12">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <?php
+                    foreach ([xlt('Name'),xlt('DOB'),xlt('Home'),xlt('Work'),xlt('Contact'),xlt('Cell')] as $header) {
+                        echo "<th>$header</th>";
+                    }
+                    ?>
+                </thead>
+                <tbody>
+                    <?php
+                    while ($row = sqlFetchArray($res)) {
+                        echo "<tr><td>";
+                        echo text($row['title']). ' ' . text($row['fname']) . ' ' . text($row['lname']);
+                        echo "</td><td>";
+                        echo text($row['DOB']);
+                        echo "</td><td>";
+                        echo text($row['phone_home']);
+                        echo "</td><td>";
+                        echo text($row['phone_biz']);
+                        echo "</td><td>";
+                        echo text($row['phone_contact']);
+                        echo "</td><td>";
+                        echo text($row['phone_cell']);
+                        echo "</td></tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>
