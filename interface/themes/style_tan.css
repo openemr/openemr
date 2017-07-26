@@ -67,7 +67,7 @@ a:hover {
     font-weight: bold;
 }
 
-.alert {
+.alert-custom {
     font-size: 0.8em;
     color: #FF0000;
     text-decoration: none;

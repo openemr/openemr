@@ -57,7 +57,7 @@ a:hover {
     font-weight: bold;
 }
 
-.alert {
+.alert-custom {
     font-size: 70%;
     color: #FF0000;
     text-decoration: none;
