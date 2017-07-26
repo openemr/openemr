@@ -9,7 +9,7 @@
 function oeFormatMoney($amount, $symbol = false)
 {
     $s = number_format(
-        doubleval($amount),
+        floatval($amount),
         $GLOBALS['currency_decimals'],
         $GLOBALS['currency_dec_point'],
         $GLOBALS['currency_thousands_sep']
