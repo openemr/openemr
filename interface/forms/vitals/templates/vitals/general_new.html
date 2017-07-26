@@ -393,7 +393,7 @@ $(document).ready(function(){
     $("#growthchart").click(function() { ShowGrowthchart(); });
     $("#pdfchart").click(function() { ShowGrowthchart(1); });
     $("#htmlchart").click(function() { ShowGrowthchart(2); });
-    $("#cancel").click(function() { location.href=cancellink; });
+    $("#cancel").click(function() { parent.location.href=cancellink; });
     addGCSelector();
 
     $('.datetimepicker').datetimepicker({
