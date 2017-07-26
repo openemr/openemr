@@ -337,7 +337,7 @@ function refresh_me() {
     // Process click to pop up the edit window.
 function doRecallclick_edit(goHere) {
     top.restoreSession();
-    dlgopen('messages.php?nomenu=1&go='+goHere, '_blank', 950, 400);
+    dlgopen('messages.php?nomenu=1&go='+goHere, '_blank', 900, 400);
 }
 function goReminderRecall(choice) {
     tabYourIt('recall','main/messages/messages.php?go=' + choice);

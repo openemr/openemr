@@ -1802,7 +1802,7 @@ class Display extends base
     {
         ?>
         <!-- icon rubric -->
-          <div style="position:relative;display:inline-block;margin:30px auto;vertical-align:middle;">
+          <div style="position:relative;margin:30px auto;vertical-align:middle;">
                 <?php
                 $sqlQuery = "SELECT * from medex_icons order by msg_type";
                 $result  = sqlStatement($sqlQuery);
@@ -1811,7 +1811,7 @@ class Display extends base
                     $icons['msg_type']['description'] = $urow['i_description'];
                     $icons[$urow['msg_type']][$urow['msg_status']]  = $urow['i_html'];
                 } ?>
-                <div class="divTable" style="text-align:center;margin:30px auto 30px;width:100%;">
+                <div class="divTable" style="margin:30px auto;width:100%;">
                   <div class="divTableBody">   
                     <div class="divTableRow divTableHeading">
                       <div class="divTableCell center"><?php echo xlt('Message'); ?></div>

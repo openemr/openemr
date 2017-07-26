@@ -17,7 +17,7 @@ require_once "$srcdir/forms.inc";
 require_once "$srcdir/patient.inc";
 require_once "$srcdir/MedEx/API.php";
 
-$MedEx = new MedExApi\MedEx('MedExBank.com');
+$MedEx = new MedExApi\MedEx('api.MedExBank.com');
 //you need admin privileges to update this.
 if ($_REQUEST['go'] =='Preferences') {
     $result     = array();
