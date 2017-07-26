@@ -565,7 +565,7 @@ function writeFieldLine($linedata)
 
         echo "<input type='text' name='fld[$fld_line_no][list_id]'  id='fld[$fld_line_no][list_id]' value='" .
         htmlspecialchars($linedata['list_id'], ENT_QUOTES) . "'".$type.
-        " size='6' maxlength='30' class='optin listid' style='width:100%;cursor:pointer'".
+        " size='6' maxlength='100' class='optin listid' style='width:100%;cursor:pointer'".
         "title='". xl('Choose list') . "' />";
     
         echo "<select name='fld[$fld_line_no][contextName]' id='fld[$fld_line_no][contextName]' ".$disp.">";
@@ -593,7 +593,7 @@ function writeFieldLine($linedata)
         $linedata['data_type'] == 33 || $linedata['data_type'] == 36) {
         echo "<input type='text' name='fld[$fld_line_no][list_backup_id]' value='" .
             htmlspecialchars($linedata['list_backup_id'], ENT_QUOTES) .
-            "' size='3' maxlength='10' class='optin listid' style='cursor:pointer; width:100%' />";
+            "' size='3' maxlength='100' class='optin listid' style='cursor:pointer; width:100%' />";
     } else {
         echo "<input type='hidden' name='fld[$fld_line_no][list_backup_id]' value=''>";
     }
@@ -1248,7 +1248,7 @@ foreach ($datatypes as $key => $value) {
 <td><input type="textbox" name="gnewlengthWidth" id="gnewlengthWidth" value="" size="1" maxlength="3" title="<?php echo xla('Width'); ?>">
     <input type="textbox" name="gnewlengthHeight" id="gnewlengthHeight" value="" size="1" maxlength="3" title="<?php echo xla('Height'); ?>"></td>
 <td><input type="textbox" name="gnewmaxSize" id="gnewmaxSize" value="" size="1" maxlength="3" title="<?php echo xla('Maximum Size (entering 0 will allow any size)'); ?>"></td>
-<td><input type="textbox" name="gnewlistid" id="gnewlistid" value="" size="8" maxlength="31" class="listid">
+<td><input type="textbox" name="gnewlistid" id="gnewlistid" value="" size="8" maxlength="100" class="listid">
     <select name='gcontextName' id='gcontextName' style='display:none'>
         <?php
         $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
@@ -1258,7 +1258,7 @@ foreach ($datatypes as $key => $value) {
         ?>
     </select>
 </td>
-<td><input type="textbox" name="gnewbackuplistid" id="gnewbackuplistid" value="" size="8" maxlength="31" class="listid"></td>
+<td><input type="textbox" name="gnewbackuplistid" id="gnewbackuplistid" value="" size="8" maxlength="100" class="listid"></td>
 <td><input type="textbox" name="gnewtitlecols" id="gnewtitlecols" value="" size="3" maxlength="3"> </td>
 <td><input type="textbox" name="gnewdatacols" id="gnewdatacols" value="" size="3" maxlength="3"> </td>
 <td><input type="textbox" name="gnewedit_options" id="gnewedit_options" value="" size="3" maxlength="36">
