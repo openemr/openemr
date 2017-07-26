@@ -115,6 +115,8 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'event_color',
     'pat_trkr_timer',
     'ptkr_visit_reason',
+    'ptkr_date_range',
+    'ptkr_end_date',
     'checkout_roll_off',
     'erx_import_status_message');
 
@@ -173,9 +175,9 @@ $GLOBALS_METADATA = array(
             xl('Pick a general theme (need to logout/login after change this setting).')
         ),
 
-        'font-family' => [
+        'font-family' => array(
             xl('Default font (need to logout/login after change this setting)'),
-            [
+            array(
                 '__default__' => 'Use Theme Font',
                 'Arial, Helvetica, sans-serif' => "Arial",
                 '"Arial Black", Gadget, sans-serif' => "Arial Black",
@@ -185,24 +187,24 @@ $GLOBALS_METADATA = array(
                 '"Trebuchet MS", Helvetica, sans-serif' => "Trebuchet MS",
                 'Verdana, Geneva, sans-serif' => "Verdana",
                 'lato' => "Lato",
-            ],
+            ),
             '__default__',
             xl('Select the default font'),
-        ],
+        ),
 
-        'font-size' => [
+        'font-size' => array(
             xl('Default font size (need to logout/login after change this setting)'),
-            [
+            array(
                 '__default__' => 'Use Theme Font Size',
                 '10px' => '10px',
                 '12px' => '12px',
                 '14px' => '14px',
                 '16px' => '16px',
                 '18px' => '18px',
-            ],
+            ),
             '__default__',
             xl("Select the default font size"),
-        ],
+        ),
 
         'menu_styling_vertical' => array(
             xl('Vertical Menu Style'),
@@ -696,12 +698,12 @@ $GLOBALS_METADATA = array(
             xl('Option to support inventory and sales of products')
         ),
 
-        'default_visit_category' => [
+        'default_visit_category' => array(
             xl('Default Visit Category'),
             'default_visit_category',
             '_blank',
             xl('Define a default visit category'),
-        ],
+        ),
 
         'disable_chart_tracker' => array(
             xl('Disable Chart Tracker'),
@@ -1573,6 +1575,27 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',                              // default = true
             xl('When Checked, Patient Encounter Number Will Show in Patient Flow Board.')
+        ),
+
+        'ptkr_date_range' => array(
+            xl('Allow Date Range in Patient Flow Board'),
+            'bool',                          // data type
+            '1',                             // default = true
+            xl('This Allows a Date Range to be Selected in Patient Flow Board.')
+        ),
+
+        'ptkr_end_date' => array(
+            xl('Ending Date for Patient Flow Board'),
+            array(
+                'Y1' => xl('One Year Ahead'),
+                'Y2' => xl('Two Years Ahead'),
+                'M6' => xl('Six Months Ahead'),
+                'M3' => xl('Three Months Ahead'),
+                'M1' => xl('One Month Ahead'),
+                'D1' => xl('One Day Ahead'),
+            ),
+            'D1',                     // default = One Day Ahead
+            xl('This is the Ending date for the Patient Flow Board Date Range. (only applicable if Allow Date Range in option above is Enabled)')
         ),
 
         'pat_trkr_timer' => array(
@@ -2460,6 +2483,13 @@ $GLOBALS_METADATA = array(
     //
     'Connectors' => array(
 
+        'medex_enable' => array(
+          xl('Enable MedEx Communication Service'),
+          'bool',                           // data type
+          '0',
+          xl('Enable MedEx Communication Service')
+        ),
+        
         'erx_enable' => array(
             xl('Enable NewCrop eRx Service'),
             'bool',
