@@ -1,6 +1,6 @@
 <?php
 //our api for 3rd party developers
-include_once("../interface/globals.php");
+include_once(dirname(__FILE__) . "../interface/globals.php");
 include_once("{$GLOBALS['srcdir']}/billing.inc");
 
 $GLOBALS['form_exit_url'] = "$rootdir/patient_file/encounter/encounter_top.php";
