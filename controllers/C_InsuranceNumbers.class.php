@@ -84,6 +84,13 @@ class C_InsuranceNumbers extends Controller
 
         $this->assign("provider", $this->providers[0]);
         $this->assign("ins", $this->insurance_numbers[0]);
+
+        if ($_GET['showform'] == "true") {
+            $this->assign("show_edit_gui", true);
+        } else {
+            $this->assign("show_edit_gui", false);
+        }
+
         return $this->fetch($GLOBALS['template_dir'] . "insurance_numbers/" . $this->template_mod . "_edit.html");
     }
 
