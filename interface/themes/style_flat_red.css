@@ -1,7 +1,7 @@
 /**
  * Stylesheet for flat colors
  * The color palette is used to style the various elements in a consistent manner
- 
+
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -12,24 +12,24 @@
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- * 
+ *
  * @package OpenEMR
  * @author Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2017 Ranganath Pathak
- * @version 1.0 
+ * @version 1.0
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License
- * @link http://www.open-emr.org 
+ * @link http://www.open-emr.org
 */
-/* 
+/*
 	COLOR PALETTE
 
-	#68171A - Darkest Red*		
+	#68171A - Darkest Red*
 	#A7252A - Darker Red*
 	#D95459 - Dark Red
-	#E4878A - Mid Red 
+	#E4878A - Mid Red
 	#ECACAE - Mid Pale Red*
 	#ECA9AC - Pale Red
-	#F5D6D8 - Mid Pale Pale Red*	
+	#F5D6D8 - Mid Pale Pale Red*
 	#FBEEEF - Pale Pale Red*
 	#E7E6F9 - Pale Purple~
 	#F9F3F3 - Paler Red
@@ -193,7 +193,7 @@ a:hover {
 }
 
 /*=============================================================
- * Here we have taken variables from globals.php and turned them into CSS classes 
+ * Here we have taken variables from globals.php and turned them into CSS classes
  * these should be used in place of the GLOBAL variables -- JRM March 2008
  *=============================================================*/
 .body_top { background-color: #F9F3F3; margin: 8px }    /* $top_bg_line RP_MODIFIED 2/8/15 #EAE6FF*/
@@ -228,7 +228,7 @@ font-weight:bold;
 }
 #addressbook_list tr.head {
 font-size:10pt;
-/*background-color:#cccccc;*/ 
+/*background-color:#cccccc;*/
 font-weight:bold;
 }
 #addressbook_list tr.detail {
@@ -251,7 +251,7 @@ font-weight:bold;
 .address_names:hover{
 	color:magenta;
 }
-.highlight { 
+.highlight {
     color: magenta !Important;
 }
 /* styles taken out of templates/report/general_default.html */
@@ -283,7 +283,7 @@ font-weight: bold;
 #documents_list {
     width: 29%;
     height: 95%;
-    overflow: auto; 
+    overflow: auto;
     float: left;
     border-right: dashed 1px;
 }
@@ -296,8 +296,8 @@ font-weight: bold;
 }
 #documents_actions iframe {
     display: inline;
-    border:none; 
-    width:100%; 
+    border:none;
+    width:100%;
     height:600px;
     overflow: auto;
 }
@@ -362,7 +362,7 @@ font-weight: bold;
  * seen in the patient summary and notes screens
  *============================================================*/
 #pnotes .billing {
-    background-color: #dfd;  
+    background-color: #dfd;
 }
 
 #pnotes .highlight {
@@ -374,7 +374,7 @@ font-weight: bold;
 }
 
 #pnotes .noterow {
-    cursor: pointer; 
+    cursor: pointer;
 }
 
 #pnotes .noterow td {
@@ -470,7 +470,7 @@ font-weight: bold;
 #patient_pastenc {
     width:100%;
 }
-    
+
 #patient_pastenc .billing_note {
     width: 25%;
 }
@@ -547,7 +547,7 @@ font-weight: bold;
 #patient_reports ul {
     list-style: none;
 }
-    
+
 
 /*=============================================================
  * Report - Custom
@@ -632,7 +632,7 @@ font-weight: bold;
 }
 #addressbook_list tr.evenrow, #searchResults  tr:nth-child(even) {
     background-color: #FFFFFF;/*RP_MODIFIED 1/16/2016 :#ECA9AC */
-	
+
 }
 #addressbook_list tr.oddrow,  #searchResults  tr:nth-child(odd), .signout-restore-subheading{
     background-color:#F5D6D8;/*RP_MODIFIED 1/16/2016 #ffffff */
@@ -640,8 +640,8 @@ font-weight: bold;
 
 /* The top navigation icon styling*/
 .top-nav-icons {
-	margin-right:15px; 
-	margin-top:5px 
+	margin-right:15px;
+	margin-top:5px
 }
 
 /*
@@ -684,12 +684,12 @@ input[type="button"], input[type="submit"], button{
   border: 1px solid transparent;
   border-radius: 2px;
   /*transform: none;*/
-  
-  
+
+
 }
 .head, #searchCriteria{
 	background:#E4878A ! Important;
-	
+
 }
 
 #searchCriteria{
@@ -697,18 +697,18 @@ input[type="button"], input[type="submit"], button{
 	margin-bottom:5px;
 }
 
-input[type="button"]:focus, 
+input[type="button"]:focus,
 input[type="button"]:active:focus,
 input[type="button"].active:focus,
-input[type="submit"]:focus, 
+input[type="submit"]:focus,
 input[type="submit"]:active:focus,
 button.active:focus,
-button:focus, 
+button:focus,
 button:active:focus,
 button.active:focus{
 		 /*transform: translateY(2px);*/
-   
-	
+
+
 }
  input[type="checkbox"]{
 	/* -webkit-appearance:checkbox;
@@ -717,27 +717,27 @@ button.active:focus{
 	 background:none;*/
  }
 input[type="text"], input[type="entry"], input[type="password"], input[type="search"], textarea{
-	-webkit-border-radius: 2px; 
+	-webkit-border-radius: 2px;
 	-moz-border-radius: 2px;
 	border-radius: 2px;
 	border: 1px solid #A7252A !Important;
 	padding: 2px 3px;
 	margin:3px !Important;
-	
+
 }
 select{
-	-webkit-border-radius: 2px; 
+	-webkit-border-radius: 2px;
 	-moz-border-radius: 2px;
 	border-radius: 2px;
 	border: 1px solid #A7252A ! Important;
 	margin:3px;
 }
 
-input[type="text"]:focus, 
-input[type="entry"]:focus, 
+input[type="text"]:focus,
+input[type="entry"]:focus,
 input[type="password"]:focus,
-input[type="search"]:focus, 
-textarea:focus, 
+input[type="search"]:focus,
+textarea:focus,
 select:focus{
 	background: #FBEEEF;
     border-color: #68171A !important;
@@ -785,7 +785,7 @@ select:focus{
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
    /*transform: translateY(2px);*/
-   
+
 }
 .css_button_small:hover,
 .css_button_small:focus,
@@ -827,7 +827,7 @@ fieldset[disabled] .css_button_small {
  color: #FFFFFF;
 }
 
- 
+
 
 .css_button_small span {}
 
@@ -853,7 +853,7 @@ a.disabled_button:hover {
  * TABS A7A7A7
 */
 
-ul.tabNav { margin: 0 0 -4 0; padding: 0; } /*RP_MODIFIED 7/16/2016*/ 
+ul.tabNav { margin: 0 0 -4 0; padding: 0; } /*RP_MODIFIED 7/16/2016*/
 ul.tabNav { float: left; list-style: none; width: 100%; }
 ul.tabNav li { float: left; margin: 0 1px 0 0; padding: 6px 0 0;
 	font-size: 0.8em;
@@ -941,10 +941,10 @@ div.notab-right {
 #report_parameters > table > tbody > tr > td > table {
 	border-left: 1px solid #68171A !Important; /*openemr5*/
 }
- 
+
 #report_parameters  .form-control{
 	width:auto ;
-} 
+}
 #report_results table {
    border-top: 1px solid black;
    border-bottom: 1px solid black;
@@ -1027,15 +1027,15 @@ font-size:9pt;
     padding: 10px 10px 10px 15px;
     color: black;
   }
-.alertmsg1 { 
+.alertmsg1 {
     border: 3px solid #fe7b7a;
     background-color: #ffd6d6 ;
   }
-.alertmsg2 { 
+.alertmsg2 {
     border: 3px solid #f56fff;
     background-color: #fabfff;
   }
-.alertmsg3 { 
+.alertmsg3 {
     border: 3px solid #9acc2e;
     background-color: #eef7dd;
   }
@@ -1089,7 +1089,7 @@ font-size:9pt;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#D95459', endColorstr='#D95459'); /* for IE b5cbff*/
     background: -webkit-gradient(linear, left top, left bottom, from(#D95459), to(#D95459)); /* for webkit browsers b5cbff*/
     background: -moz-linear-gradient(top,  #D95459,  #D95459); /* for firefox 3.6+ b5cbff*/
-    
+
 }
 
 #navigation-slide li a.expanded{
@@ -1327,11 +1327,11 @@ height: 300px !important;
 }
 
 .div-message {
-	background-color:white; 
-	color: gray; 
-	margin:5 0 5 0px; 
+	background-color:white;
+	color: gray;
+	margin:5 0 5 0px;
 	border:1px solid #A7252A;  /*RP_ADDED 7/5/2016*/
-	padding: 5px; 
+	padding: 5px;
 	width: 648px;
 }
 
@@ -1357,7 +1357,7 @@ div.section, div.borderbox   {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5login*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5fee-sheet*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 .feesheet-title{
-	font-weight:900; 
+	font-weight:900;
 	background:#D95459 !important;
 	margin: 0px 0px 10px 0px;
 	padding:3px;
@@ -1423,7 +1423,7 @@ div.section, div.borderbox   {
 /*.patientEncounterList {
     background: #ffff9e !Important;
 	border: 1px solid #A7252A;
- 
+
 }
  .patientEncounterList:hover{
 	background: #FBEEEF  !important;
@@ -1433,7 +1433,7 @@ div.section, div.borderbox   {
 	-webkit-transition: 0.2s linear all;
 	-moz-transition: 0.2s linear all;
 	transition: 0.2s linear all;
-	
+
 	overflow: visible;
     height: auto;
     z-index:4;
@@ -1451,7 +1451,7 @@ div.section, div.borderbox   {
 
 .menuLabel:hover {
     background: #F5D6D8 !Important;
-    
+
 }
 .menuSection > .menuEntries{
     box-shadow: 0px 2px 2px #ECACAE !Important;
@@ -1475,17 +1475,17 @@ div.section, div.borderbox   {
 }
 
 .body_title_tabs {
-	
+
 	background-color: #ECACAE !important;
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs body*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 .tabs_body, #searchCriteria{
-	
+
 	background-color:#ECA9AC ;
 }
 .tabs_body_light{
-	
+
 	background-color:#F5D6D8;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs body*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -1517,11 +1517,11 @@ div#providerPicker select {
 #topToolbarRight {
 	padding:3px;
 }
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs calendar*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/ 
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs calendar*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 calendar icon*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 img[src *="show_calendar.gif"] {
-margin-bottom:3px; 
+margin-bottom:3px;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 calendar icon*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -1823,7 +1823,7 @@ ul.ext-tab-head li.child-active {
 .code_legend{
 	background-color:#E4878A !Important;
 	margin-bottom: 0px !Important;
-} 
+}
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 codes~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 bootstrap nav menu*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 .navbar-custom, .navbar-nav, .nav > .active > a, .navbar-nav > .active > a:hover, .navbar-nav > .active > a:focus {
@@ -1838,15 +1838,15 @@ ul.ext-tab-head li.child-active {
     background-color: #F5D6D8 !Important;
 }
 .dropdown-menu {
-	background-color:#F9F3F3 !Important; 
-	border-top: 1px solid #F9F3F3 !Important; 
-	border-radius: 0px !Important;	
+	background-color:#F9F3F3 !Important;
+	border-top: 1px solid #F9F3F3 !Important;
+	border-radius: 0px !Important;
 }
 .navbar-nav {
    font-size: 15px;
 }
 .navbar-default{
-	background-color:#D95459 !Important; 
+	background-color:#D95459 !Important;
 	border:none;
 }
 .navbar-default .navbar-nav>li>a:focus, .navbar-default .navbar-nav>li>a:hover {
@@ -1892,7 +1892,7 @@ textarea.form-control {
 .table-striped>tbody>tr:nth-of-type(odd) {
 	background-color:#FFFFFF !Important;
 }
-.btn-default{
+.btn-default, .btn-link {
 	background:#A7252A !Important;
 	color: #FFFFFF !Important;
 	border-color:#F9F3F3!Important;
@@ -1910,12 +1910,12 @@ textarea.form-control {
 	padding-top: 2px ! Important;
 }
 .form-control{
-	height: 24px ! Important; 
+	height: 24px ! Important;
     padding: 0px 6px !Important;
 }
 .checkbox input[type=checkbox], .checkbox-inline input[type=checkbox], .radio input[type=radio], .radio-inline input[type=radio] {
     margin-left: -20px !Important;
-	
+
 }
 .checkbox label, .radio label {
     padding-left: 20px !important;
@@ -1924,11 +1924,10 @@ textarea.form-control {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 bootstrap *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 #globals_form_search{
-	margin-top:-3px; 
+	margin-top:-3px;
 	padding:2px 3px 1px 3px;
 }
 
 th.currentvalues , th.historicalvalues {
 	background:#D95459 !Important;
 }
-

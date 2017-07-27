@@ -1054,3 +1054,14 @@ height: 300px !important;
 .custom-tag{
     font-family: "";
 }
+
+legend {
+    border-bottom: 2px solid #E5E5E5 !important;
+    background:#E5E5E5 !important;
+    padding-left:10px !important;
+}
+
+fieldset {
+    background-color: #f2f2f2 !important;
+    margin-bottom:10px !important;
+}
