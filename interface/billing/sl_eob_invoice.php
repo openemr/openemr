@@ -253,7 +253,7 @@ if (! $trans_id) {
                         row_delete("ar_activity", "pid = '$patient_id' AND " .
                           "encounter = '$encounter_id' AND sequence_no = '$arseq'");
                     }
-                }    
+                }
             }
 
             $paytotal = 0;
