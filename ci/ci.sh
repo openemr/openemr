@@ -53,15 +53,15 @@ if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
                 -name "*.php" -print0 | xargs -0 -n1 -P8 php -l
             ;;
         "lint_style")
-            sniff . --standard=ci/phpcs.xml --report=summary --report=source --report=info
+            sniff . --standard=ci/phpcs.xml --report=full
             ;;
         "lint_style_new_commit")
             MODIFIED_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD | tr "\n" " ")
-            sniff "$MODIFIED_FILES" --standard=ci/phpcs_strict.xml --report=summary
+            sniff "$MODIFIED_FILES" --standard=ci/phpcs_strict.xml --report=full
             ;;
         "lint_style_staged")
             MODIFIED_FILES=$(git diff --cached --name-only | tr "\n" " ")
-            sniff "$MODIFIED_FILES" --standard=ci/phpcs_strict.xml --report=summary
+            sniff "$MODIFIED_FILES" --standard=ci/phpcs_strict.xml --report=full
             ;;
         *)
             echo "Error: not a valid CI_JOB"
