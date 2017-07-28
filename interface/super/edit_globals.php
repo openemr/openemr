@@ -18,6 +18,7 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/globals.inc.php");
 require_once("$srcdir/user.inc");
 require_once(dirname(__FILE__)."/../../myportal/soap_service/portal_connectivity.php");
+
 use OpenEMR\Core\Header;
 
 $userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');
@@ -326,9 +327,20 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
   <title><?php echo xlt('Global Settings'); ?></title>
 <?php } ?>
 
-<?php Header::setupHeader(['common','jscolor']); ?>
-
+<?php Header::setupHeader(['common','jscolor', 'bootstrap-sidebar']); ?>
+    <style type="text/css">
+        button {
+            float: none;
+        }
+    </style>
 <script type="text/javascript">
+    $(document).ready(function(){
+        $(".sidebar").on('click', 'a', function(e) {
+//            console.log($(this).data('target'));
+//            var target = $(this).attr('href');
+//            $(target).tab('show');
+        });
+    });
   function validate_file(){
     $.ajax({
       type: "POST",
@@ -360,391 +372,414 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
 <?php } else { ?>
     <div class="body_top">
 <?php } ?>
-
-<?php if ($userMode) { ?>
-  <form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php?mode=user' onsubmit='return top.restoreSession()'>
-<?php } else { ?>
-  <form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php' onsubmit='return top.restoreSession()'>
-<?php } ?>
-
-<div class="container">
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="form-group">
+<div class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle visible-xs" data-toggle="sidebar" data-target=".sidebar" style="float: left;">
+                <span class="sr-only">Toggle navigation</span>
+                <i class="fa fa-bars"></i>
+            </button>
+            <button type="button" class="navbar-toggle visible-xs" data-toggle="sidebar" data-target="main-navbar">
+                <span class="sr-only">{{ "Toggle Navigation" }}</span>
+                <i class="fa fa-bars fa-inverted"></i>
+            </button>
+            <a href="#" class="navbar-brand">
                 <?php if ($userMode) { ?>
-                    <h3><?php echo xlt('Edit User Settings'); ?></h3>
+                    <?php echo xlt('Edit User Settings'); ?>
                 <?php } else { ?>
-                    <h3><?php echo xlt('Edit Global Settings'); ?></h3>
+                    <?php echo xlt('Edit Global Settings'); ?>
                 <?php } ?>
-            </div>
+            </a>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="form-group">
-                <button type='submit' class='btn btn-default btn-save' name='form_save' value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
-                <div class="form-inline pull-right">
-                    <?php // mdsupport - Optional server based searching mechanism for large number of fields on this screen. ?>
-                    <button type='submit' class='btn btn-default btn-search' name='form_search'><?php echo xlt('Search'); ?></button>
-                    <input name='srch_desc' class='form-control' value='<?php echo (!empty($_POST['srch_desc']) ? attr($_POST['srch_desc']) : '') ?>' />
+
+        <div class="collapse navbar-collapse" id="global-setting-nav">
+            <ul class="nav navbar-nav">
+                <li><a href="#"><i class="fa fa-check"></i>&nbsp;&nbsp;<?php echo xlt("Save");?></a></li>
+            </ul>
+            <form class="navbar-form navbar-right">
+                <div class="form-group">
+                    <input type="text" class="form-control" name='srch_desc' value='<?php echo (!empty($_POST['srch_desc']) ? attr($_POST['srch_desc']) : '') ?>'>
                 </div>
-            </div>
+                <button type='submit' class='btn btn-default' name='form_search'><i class="fa fa-search"></i></button>
+            </form>
         </div>
     </div>
 </div>
-
-<ul class="tabNav">
+<?php if ($userMode) { ?>
+<form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php?mode=user' onsubmit='return top.restoreSession()'>
+<?php } else { ?>
+<form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php' onsubmit='return top.restoreSession()'>
+<?php } ?>
 <?php
+$menuList = [];
 $i = 0;
-foreach ($GLOBALS_METADATA as $grpname => $grparr) {
-    if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
-        echo " <li" . ($i ? "" : " class='current'") .
-        "><a href='#'>" .
-        xlt($grpname) . "</a></li>\n";
-        ++$i;
+foreach ($GLOBALS_METADATA as $name => $arr) {
+    if (!$userMode || in_array($name, $USER_SPECIFIC_TABS)) {
+        $menuList[] = [
+            'text' => xlt($name),
+            'current' => $i ? "" : "active",
+            'id' => str_replace(' ', '_', $name)
+        ];
+        $i++;
     }
 }
 ?>
-</ul>
 
-<div class="tabContainer">
-<?php
-$i = 0;
-foreach ($GLOBALS_METADATA as $grpname => $grparr) {
-    if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
-        echo " <div class='tab" . ($i ? "" : " current") .
-          "' style='height:auto;width:97%;'>\n";
+<div class="container-fluid" style="margin-top: 50px;">
+    <div class="row">
+    <div class="col-xs-7 col-sm-3 col-md-2 sidebar sidebar-left sidebar-sm-show">
+        <ul class="nav nav-pills nav-stacked" role="tablist">
+            <?php foreach ($menuList as $item): ?>
+            <li role="presentation" class="<?php echo $item['current'];?>"><a href="#<?php echo $item['id'];?>" role="tab" data-toggle="pill"><?php echo $item['text'];?></a></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+    <div class="col-xs-12 col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+        <div class="tab-content">
+            <?php
+            $i = 0;
+            foreach ($GLOBALS_METADATA as $grpname => $grparr) {
+                if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
+                    $id = str_replace(' ', '_', $grpname);
+                    $active = ($i == 0) ? 'active' : '';
+                    ?>
+                    <div class="tab-pane <?php echo $active;?>" role="tabpanel" id="<?php echo $id;?>">
+                        <div class="page-header">
+                            <h3><?php echo xlt($grpname);?></h3>
+                        </div>
+                    <?php
+                    echo "<div class='container'>";
 
-        echo "<div class='container'>";
-
-        if ($userMode) {
-            echo "<div class='row'>";
-            echo "<div class='col-xs-5'>&nbsp</div>";
-            echo "<div class='col-xs-4'><b>" . xlt('User Specific Setting') . "</b></div>";
-            echo "<div class='col-xs-2'><b>" . xlt('Default Setting') . "</b></div>";
-            echo "<div class='col-xs-1'><b>" . xlt('Default') . "</b></div>";
-            echo "</div>";
-        }
-
-        foreach ($grparr as $fldid => $fldarr) {
-            if (!$userMode || in_array($fldid, $USER_SPECIFIC_GLOBALS)) {
-                list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-                // mdsupport - Check for matches
-                $srch_cl = '';
-                if (!empty($_POST['srch_desc']) && (stristr(($fldname.$flddesc), $_POST['srch_desc']) !== false)) {
-                    $srch_cl = ' srch';
-                }
-
-                // Most parameters will have a single value, but some will be arrays.
-                // Here we cater to both possibilities.
-                $glres = sqlStatement("SELECT gl_index, gl_value FROM globals WHERE " .
-                  "gl_name = ? ORDER BY gl_index", array($fldid));
-                $glarr = array();
-                while ($glrow = sqlFetchArray($glres)) {
-                    $glarr[] = $glrow;
-                }
-
-                // $fldvalue is meaningful only for the single-value cases.
-                $fldvalue = count($glarr) ? $glarr[0]['gl_value'] : $flddef;
-
-                // Collect user specific setting if mode set to user
-                $userSetting = "";
-                $settingDefault = "checked='checked'";
-                if ($userMode) {
-                           $userSettingArray = sqlQuery("SELECT * FROM user_settings WHERE setting_user=? AND setting_label=?", array($_SESSION['authId'],"global:".$fldid));
-                           $userSetting = $userSettingArray['setting_value'];
-                           $globalValue = $fldvalue;
-                    if (!empty($userSettingArray)) {
-                        $fldvalue = $userSetting;
-                        $settingDefault = "";
+                    if ($userMode) {
+                        echo "<div class='row'>";
+                        echo "<div class='col-xs-5'>&nbsp</div>";
+                        echo "<div class='col-xs-4'><b>" . xlt('User Specific Setting') . "</b></div>";
+                        echo "<div class='col-xs-2'><b>" . xlt('Default Setting') . "</b></div>";
+                        echo "<div class='col-xs-1'><b>" . xlt('Default') . "</b></div>";
+                        echo "</div>";
                     }
-                }
 
-                if ($userMode) {
-                    echo " <div class='row" . $srch_cl . "' title='" . attr($flddesc) . "'><div class='col-xs-5 control-label'><b>" . text($fldname) . "</b></div><div class='col-xs-4'>\n";
-                } else {
-                    echo " <div class='row" . $srch_cl . "' title='" . attr($flddesc) . "'><div class='col-sm-5 control-label'><b>" . text($fldname) . "</b></div><div class='col-sm-6'>\n";
-                }
-
-                if (is_array($fldtype)) {
-                              echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
-                    foreach ($fldtype as $key => $value) {
-                        if ($userMode) {
-                            if ($globalValue == $key) {
-                                $globalTitle = $value;
+                    foreach ($grparr as $fldid => $fldarr) {
+                        if (!$userMode || in_array($fldid, $USER_SPECIFIC_GLOBALS)) {
+                            list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
+                            // mdsupport - Check for matches
+                            $srch_cl = '';
+                            if (!empty($_POST['srch_desc']) && (stristr(($fldname.$flddesc), $_POST['srch_desc']) !== false)) {
+                                $srch_cl = ' srch';
                             }
-                        }
 
-                        echo "   <option value='" . attr($key) . "'";
-
-                        //Casting value to string so the comparison will be always the same type and the only thing that will check is the value
-                        //Tried to use === but it will fail in already existing variables
-                        if ((string)$key == (string)$fldvalue) {
-                            echo " selected";
-                        }
-
-                        echo ">";
-                        echo text($value);
-                        echo "</option>\n";
-                    }
-
-                              echo "  </select>\n";
-                } else if ($fldtype == 'bool') {
-                    if ($userMode) {
-                        if ($globalValue == 1) {
-                            $globalTitle = xlt('Checked');
-                        } else {
-                            $globalTitle = xlt('Not Checked');
-                        }
-                    }
-
-                              echo "  <input type='checkbox' class='checkbox' name='form_$i' id='form_$i' value='1'";
-                    if ($fldvalue) {
-                        echo " checked";
-                    }
-
-                              echo " />\n";
-                } else if ($fldtype == 'num') {
-                    if ($userMode) {
-                        $globalTitle = $globalValue;
-                    }
-
-                              echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
-                                "maxlength='15' value='" . attr($fldvalue) . "' />\n";
-                } else if ($fldtype == 'text') {
-                    if ($userMode) {
-                        $globalTitle = $globalValue;
-                    }
-
-                              echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
-                                "maxlength='255' value='" . attr($fldvalue) . "' />\n";
-                } else if ($fldtype == 'pwd') {
-                    if ($userMode) {
-                        $globalTitle = $globalValue;
-                    }
-
-                              echo "  <input type='password' class='form-control' name='form_$i' " .
-                                "maxlength='255' value='' />\n";
-                } else if ($fldtype == 'pass') {
-                    if ($userMode) {
-                        $globalTitle = $globalValue;
-                    }
-
-                              echo "  <input type='password' class='form-control' name='form_$i' " .
-                                "maxlength='255' value='" . attr($fldvalue) . "' />\n";
-                } else if ($fldtype == 'lang') {
-                              $res = sqlStatement("SELECT * FROM lang_languages ORDER BY lang_description");
-                              echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
-                    while ($row = sqlFetchArray($res)) {
-                        echo "   <option value='" . attr($row['lang_description']) . "'";
-                        if ($row['lang_description'] == $fldvalue) {
-                            echo " selected";
-                        }
-
-                        echo ">";
-                        echo xlt($row['lang_description']);
-                        echo "</option>\n";
-                    }
-
-                              echo "  </select>\n";
-                } else if ($fldtype == 'all_code_types') {
-                              global $code_types;
-                              echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
-                    foreach (array_keys($code_types) as $code_key) {
-                        echo "   <option value='" . attr($code_key) . "'";
-                        if ($code_key == $fldvalue) {
-                            echo " selected";
-                        }
-
-                        echo ">";
-                        echo xlt($code_types[$code_key]['label']);
-                        echo "</option>\n";
-                    }
-
-                              echo "  </select>\n";
-                } else if ($fldtype == 'm_lang') {
-                              $res = sqlStatement("SELECT * FROM lang_languages  ORDER BY lang_description");
-                              echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='3'>\n";
-                    while ($row = sqlFetchArray($res)) {
-                        echo "   <option value='" . attr($row['lang_description']) . "'";
-                        foreach ($glarr as $glrow) {
-                            if ($glrow['gl_value'] == $row['lang_description']) {
-                                echo " selected";
-                                break;
+                            // Most parameters will have a single value, but some will be arrays.
+                            // Here we cater to both possibilities.
+                            $glres = sqlStatement("SELECT gl_index, gl_value FROM globals WHERE " .
+                                "gl_name = ? ORDER BY gl_index", array($fldid));
+                            $glarr = array();
+                            while ($glrow = sqlFetchArray($glres)) {
+                                $glarr[] = $glrow;
                             }
-                        }
 
-                        echo ">";
-                        echo xlt($row['lang_description']);
-                        echo "</option>\n";
-                    }
+                            // $fldvalue is meaningful only for the single-value cases.
+                            $fldvalue = count($glarr) ? $glarr[0]['gl_value'] : $flddef;
 
-                              echo "  </select>\n";
-                } else if ($fldtype == 'color_code') {
-                    if ($userMode) {
-                        $globalTitle = $globalValue;
-                    }
+                            // Collect user specific setting if mode set to user
+                            $userSetting = "";
+                            $settingDefault = "checked='checked'";
+                            if ($userMode) {
+                                $userSettingArray = sqlQuery("SELECT * FROM user_settings WHERE setting_user=? AND setting_label=?", array($_SESSION['authId'],"global:".$fldid));
+                                $userSetting = $userSettingArray['setting_value'];
+                                $globalValue = $fldvalue;
+                                if (!empty($userSettingArray)) {
+                                    $fldvalue = $userSetting;
+                                    $settingDefault = "";
+                                }
+                            }
 
-                              echo "  <input type='text' class='form-control jscolor {hash:true}' name='form_$i' id='form_$i' " .
-                                "maxlength='15' value='" . attr($fldvalue) . "' />" .
-                                "<input type='button' value='" . xla('Default'). "' onclick=\"document.forms[0].form_$i.color.fromString('" . attr($flddef) . "')\">\n";
-                } else if ($fldtype == 'default_visit_category') {
+                            if ($userMode) {
+                                echo " <div class='row" . $srch_cl . "' title='" . attr($flddesc) . "'><div class='col-xs-5 control-label'><b>" . text($fldname) . "</b></div><div class='col-xs-4'>\n";
+                            } else {
+                                echo " <div class='row" . $srch_cl . "' title='" . attr($flddesc) . "'><div class='col-sm-5 control-label'><b>" . text($fldname) . "</b></div><div class='col-sm-6'>\n";
+                            }
+
+                            if (is_array($fldtype)) {
+                                echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
+                                foreach ($fldtype as $key => $value) {
+                                    if ($userMode) {
+                                        if ($globalValue == $key) {
+                                            $globalTitle = $value;
+                                        }
+                                    }
+
+                                    echo "   <option value='" . attr($key) . "'";
+
+                                    //Casting value to string so the comparison will be always the same type and the only thing that will check is the value
+                                    //Tried to use === but it will fail in already existing variables
+                                    if ((string)$key == (string)$fldvalue) {
+                                        echo " selected";
+                                    }
+
+                                    echo ">";
+                                    echo text($value);
+                                    echo "</option>\n";
+                                }
+
+                                echo "  </select>\n";
+                            } else if ($fldtype == 'bool') {
+                                if ($userMode) {
+                                    if ($globalValue == 1) {
+                                        $globalTitle = xlt('Checked');
+                                    } else {
+                                        $globalTitle = xlt('Not Checked');
+                                    }
+                                }
+
+                                echo "  <input type='checkbox' class='checkbox' name='form_$i' id='form_$i' value='1'";
+                                if ($fldvalue) {
+                                    echo " checked";
+                                }
+
+                                echo " />\n";
+                            } else if ($fldtype == 'num') {
+                                if ($userMode) {
+                                    $globalTitle = $globalValue;
+                                }
+
+                                echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
+                                    "maxlength='15' value='" . attr($fldvalue) . "' />\n";
+                            } else if ($fldtype == 'text') {
+                                if ($userMode) {
+                                    $globalTitle = $globalValue;
+                                }
+
+                                echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
+                                    "maxlength='255' value='" . attr($fldvalue) . "' />\n";
+                            } else if ($fldtype == 'pwd') {
+                                if ($userMode) {
+                                    $globalTitle = $globalValue;
+                                }
+
+                                echo "  <input type='password' class='form-control' name='form_$i' " .
+                                    "maxlength='255' value='' />\n";
+                            } else if ($fldtype == 'pass') {
+                                if ($userMode) {
+                                    $globalTitle = $globalValue;
+                                }
+
+                                echo "  <input type='password' class='form-control' name='form_$i' " .
+                                    "maxlength='255' value='" . attr($fldvalue) . "' />\n";
+                            } else if ($fldtype == 'lang') {
+                                $res = sqlStatement("SELECT * FROM lang_languages ORDER BY lang_description");
+                                echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
+                                while ($row = sqlFetchArray($res)) {
+                                    echo "   <option value='" . attr($row['lang_description']) . "'";
+                                    if ($row['lang_description'] == $fldvalue) {
+                                        echo " selected";
+                                    }
+
+                                    echo ">";
+                                    echo xlt($row['lang_description']);
+                                    echo "</option>\n";
+                                }
+
+                                echo "  </select>\n";
+                            } else if ($fldtype == 'all_code_types') {
+                                global $code_types;
+                                echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
+                                foreach (array_keys($code_types) as $code_key) {
+                                    echo "   <option value='" . attr($code_key) . "'";
+                                    if ($code_key == $fldvalue) {
+                                        echo " selected";
+                                    }
+
+                                    echo ">";
+                                    echo xlt($code_types[$code_key]['label']);
+                                    echo "</option>\n";
+                                }
+
+                                echo "  </select>\n";
+                            } else if ($fldtype == 'm_lang') {
+                                $res = sqlStatement("SELECT * FROM lang_languages  ORDER BY lang_description");
+                                echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='3'>\n";
+                                while ($row = sqlFetchArray($res)) {
+                                    echo "   <option value='" . attr($row['lang_description']) . "'";
+                                    foreach ($glarr as $glrow) {
+                                        if ($glrow['gl_value'] == $row['lang_description']) {
+                                            echo " selected";
+                                            break;
+                                        }
+                                    }
+
+                                    echo ">";
+                                    echo xlt($row['lang_description']);
+                                    echo "</option>\n";
+                                }
+
+                                echo "  </select>\n";
+                            } else if ($fldtype == 'color_code') {
+                                if ($userMode) {
+                                    $globalTitle = $globalValue;
+                                }
+
+                                echo "  <input type='text' class='form-control jscolor {hash:true}' name='form_$i' id='form_$i' " .
+                                    "maxlength='15' value='" . attr($fldvalue) . "' />" .
+                                    "<input type='button' value='" . xla('Default'). "' onclick=\"document.forms[0].form_$i.color.fromString('" . attr($flddef) . "')\">\n";
+                            } else if ($fldtype == 'default_visit_category') {
                                 $sql = "SELECT pc_catid, pc_catname, pc_cattype 
-                FROM openemr_postcalendar_categories
-                WHERE pc_active = 1 ORDER BY pc_seq";
+                    FROM openemr_postcalendar_categories
+                    WHERE pc_active = 1 ORDER BY pc_seq";
                                 $result = sqlStatement($sql);
                                 echo "<select class='form-control' name='form_{$i}' id='form_{$i}'>\n";
                                 echo "<option value='_blank'>" . xlt('None') . "</option>";
-                    while ($row = sqlFetchArray($result)) {
-                        $catId = $row['pc_catid'];
-                        $name = $row['pc_catname'];
-                        if ($catId < 9 && $catId != "5") {
-                            continue;
-                        }
+                                while ($row = sqlFetchArray($result)) {
+                                    $catId = $row['pc_catid'];
+                                    $name = $row['pc_catname'];
+                                    if ($catId < 9 && $catId != "5") {
+                                        continue;
+                                    }
 
-                        if ($row['pc_cattype'] == 3 && !$GLOBALS['enable_group_therapy']) {
-                            continue;
-                        }
+                                    if ($row['pc_cattype'] == 3 && !$GLOBALS['enable_group_therapy']) {
+                                        continue;
+                                    }
 
-                        $optionStr = '<option value="%pc_catid%"%selected%>%pc_catname%</option>';
-                        $optionStr = str_replace("%pc_catid%", attr($catId), $optionStr);
-                        $optionStr = str_replace("%pc_catname%", text(xl_appt_category($name)), $optionStr);
-                        $selected = ($fldvalue == $catId) ? " selected" : "";
-                        $optionStr = str_replace("%selected%", $selected, $optionStr);
-                        echo $optionStr;
-                    }
+                                    $optionStr = '<option value="%pc_catid%"%selected%>%pc_catname%</option>';
+                                    $optionStr = str_replace("%pc_catid%", attr($catId), $optionStr);
+                                    $optionStr = str_replace("%pc_catname%", text(xl_appt_category($name)), $optionStr);
+                                    $selected = ($fldvalue == $catId) ? " selected" : "";
+                                    $optionStr = str_replace("%selected%", $selected, $optionStr);
+                                    echo $optionStr;
+                                }
 
                                 echo "</select>";
-                } else if ($fldtype == 'css') {
-                    if ($userMode) {
-                        $globalTitle = $globalValue;
-                    }
+                            } else if ($fldtype == 'css') {
+                                if ($userMode) {
+                                    $globalTitle = $globalValue;
+                                }
 
-                              $themedir = "$webserver_root/interface/themes";
-                              $dh = opendir($themedir);
-                    if ($dh) {
-                        echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
-                        while (false !== ($tfname = readdir($dh))) {
-                            // Only show files that contain style_ as options
-                            //  Skip style_blue.css since this is used for
-                            //  lone scripts such as setup.php
-                            //  Also skip style_pdf.css which is for PDFs and not screen output
-                            if (!preg_match("/^style_.*\.css$/", $tfname) ||
-                              $tfname == 'style_blue.css' || $tfname == 'style_pdf.css') {
-                                continue;
+                                $themedir = "$webserver_root/interface/themes";
+                                $dh = opendir($themedir);
+                                if ($dh) {
+                                    echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
+                                    while (false !== ($tfname = readdir($dh))) {
+                                        // Only show files that contain style_ as options
+                                        //  Skip style_blue.css since this is used for
+                                        //  lone scripts such as setup.php
+                                        //  Also skip style_pdf.css which is for PDFs and not screen output
+                                        if (!preg_match("/^style_.*\.css$/", $tfname) ||
+                                            $tfname == 'style_blue.css' || $tfname == 'style_pdf.css') {
+                                            continue;
+                                        }
+
+                                        echo "<option value='" . attr($tfname) . "'";
+                                        // Drop the "style_" part and any replace any underscores with spaces
+                                        $styleDisplayName = str_replace("_", " ", substr($tfname, 6));
+                                        // Strip the ".css" and uppercase the first character
+                                        $styleDisplayName = ucfirst(str_replace(".css", "", $styleDisplayName));
+                                        if ($tfname == $fldvalue) {
+                                            echo " selected";
+                                        }
+
+                                        echo ">";
+                                        echo text($styleDisplayName);
+                                        echo "</option>\n";
+                                    }
+
+                                    closedir($dh);
+                                    echo "  </select>\n";
+                                }
+                            } else if ($fldtype == 'tabs_css') {
+                                if ($userMode) {
+                                    $globalTitle = $globalValue;
+                                }
+
+                                $themedir = "$webserver_root/interface/themes";
+                                $dh = opendir($themedir);
+                                if ($dh) {
+                                    echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
+                                    while (false !== ($tfname = readdir($dh))) {
+                                        // Only show files that contain tabs_style_ as options
+                                        if (!preg_match("/^tabs_style_.*\.css$/", $tfname)) {
+                                            continue;
+                                        }
+
+                                        echo "<option value='" . attr($tfname) . "'";
+                                        // Drop the "tabs_style_" part and any replace any underscores with spaces
+                                        $styleDisplayName = str_replace("_", " ", substr($tfname, 11));
+                                        // Strip the ".css" and uppercase the first character
+                                        $styleDisplayName = ucfirst(str_replace(".css", "", $styleDisplayName));
+                                        if ($tfname == $fldvalue) {
+                                            echo " selected";
+                                        }
+
+                                        echo ">";
+                                        echo text($styleDisplayName);
+                                        echo "</option>\n";
+                                    }
+
+                                    closedir($dh);
+                                    echo "  </select>\n";
+                                }
+                            } else if ($fldtype == 'hour') {
+                                if ($userMode) {
+                                    $globalTitle = $globalValue;
+                                }
+
+                                echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
+                                for ($h = 0; $h < 24; ++$h) {
+                                    echo "<option value='$h'";
+                                    if ($h == $fldvalue) {
+                                        echo " selected";
+                                    }
+
+                                    echo ">";
+                                    if ($h ==  0) {
+                                        echo "12 AM";
+                                    } else if ($h <  12) {
+                                        echo "$h AM";
+                                    } else if ($h == 12) {
+                                        echo "12 PM";
+                                    } else {
+                                        echo ($h - 12) . " PM";
+                                    }
+
+                                    echo "</option>\n";
+                                }
+
+                                echo "  </select>\n";
                             }
 
-                            echo "<option value='" . attr($tfname) . "'";
-                            // Drop the "style_" part and any replace any underscores with spaces
-                            $styleDisplayName = str_replace("_", " ", substr($tfname, 6));
-                            // Strip the ".css" and uppercase the first character
-                            $styleDisplayName = ucfirst(str_replace(".css", "", $styleDisplayName));
-                            if ($tfname == $fldvalue) {
-                                echo " selected";
+                            if ($userMode) {
+                                echo " </div>\n";
+                                echo "<div class='col-xs-2' style='color:red;'>" . attr($globalTitle) . "</div>\n";
+                                echo "<div class='col-xs-1'><input type='checkbox' value='YES' name='toggle_" . $i . "' id='toggle_" . $i . "' " . attr($settingDefault) . "/></div>\n";
+                                echo "<input type='hidden' id='globaldefault_" . $i . "' value='" . attr($globalValue) . "'>\n";
+                                echo "</div>\n";
+                            } else {
+                                echo " </div></div>\n";
                             }
 
-                            echo ">";
-                            echo text($styleDisplayName);
-                            echo "</option>\n";
+                            ++$i;
                         }
 
-                        closedir($dh);
-                        echo "  </select>\n";
-                    }
-                } else if ($fldtype == 'tabs_css') {
-                    if ($userMode) {
-                        $globalTitle = $globalValue;
-                    }
-
-                              $themedir = "$webserver_root/interface/themes";
-                              $dh = opendir($themedir);
-                    if ($dh) {
-                        echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
-                        while (false !== ($tfname = readdir($dh))) {
-                            // Only show files that contain tabs_style_ as options
-                            if (!preg_match("/^tabs_style_.*\.css$/", $tfname)) {
-                                continue;
-                            }
-
-                            echo "<option value='" . attr($tfname) . "'";
-                            // Drop the "tabs_style_" part and any replace any underscores with spaces
-                            $styleDisplayName = str_replace("_", " ", substr($tfname, 11));
-                            // Strip the ".css" and uppercase the first character
-                            $styleDisplayName = ucfirst(str_replace(".css", "", $styleDisplayName));
-                            if ($tfname == $fldvalue) {
-                                echo " selected";
-                            }
-
-                            echo ">";
-                            echo text($styleDisplayName);
-                            echo "</option>\n";
+                        if (trim(strtolower($fldid)) == 'portal_offsite_address_patient_link' && !empty($GLOBALS['portal_offsite_enable']) && !empty($GLOBALS['portal_offsite_providerid'])) {
+                            echo "<div class='row'>";
+                            echo "<div class='col-xs-12'>";
+                            echo "<input type='hidden' name='form_download' id='form_download'>";
+                            echo "<button onclick=\"return validate_file()\" type='button'>" . xla('Download Offsite Portal Connection Files') . "</button>";
+                            echo "<div id='file_error_message' class='alert alert-error'></div>";
+                            echo "</div>";
+                            echo "</div>";
                         }
-
-                        closedir($dh);
-                        echo "  </select>\n";
-                    }
-                } else if ($fldtype == 'hour') {
-                    if ($userMode) {
-                        $globalTitle = $globalValue;
                     }
 
-                              echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
-                    for ($h = 0; $h < 24; ++$h) {
-                        echo "<option value='$h'";
-                        if ($h == $fldvalue) {
-                            echo " selected";
-                        }
-
-                        echo ">";
-                        if ($h ==  0) {
-                            echo "12 AM";
-                        } else if ($h <  12) {
-                            echo "$h AM";
-                        } else if ($h == 12) {
-                            echo "12 PM";
-                        } else {
-                            echo ($h - 12) . " PM";
-                        }
-
-                        echo "</option>\n";
-                    }
-
-                              echo "  </select>\n";
+                    echo " </div>\n";
+                    echo " </div>\n";
                 }
-
-                if ($userMode) {
-                              echo " </div>\n";
-                              echo "<div class='col-xs-2' style='color:red;'>" . attr($globalTitle) . "</div>\n";
-                              echo "<div class='col-xs-1'><input type='checkbox' value='YES' name='toggle_" . $i . "' id='toggle_" . $i . "' " . attr($settingDefault) . "/></div>\n";
-                              echo "<input type='hidden' id='globaldefault_" . $i . "' value='" . attr($globalValue) . "'>\n";
-                              echo "</div>\n";
-                } else {
-                              echo " </div></div>\n";
-                }
-
-                ++$i;
+                $i++;
             }
-
-            if (trim(strtolower($fldid)) == 'portal_offsite_address_patient_link' && !empty($GLOBALS['portal_offsite_enable']) && !empty($GLOBALS['portal_offsite_providerid'])) {
-                echo "<div class='row'>";
-                echo "<div class='col-xs-12'>";
-                echo "<input type='hidden' name='form_download' id='form_download'>";
-                echo "<button onclick=\"return validate_file()\" type='button'>" . xla('Download Offsite Portal Connection Files') . "</button>";
-                echo "<div id='file_error_message' class='alert alert-error'></div>";
-                echo "</div>";
-                echo "</div>";
-            }
-        }
-
-        echo " </div>\n";
-        echo " </div>\n";
-    }
-}
-?>
+            ?>
+        </div>
+    </div>
+    </div>
 </div>
-
 </form>
-
 </div>
 </body>
 
