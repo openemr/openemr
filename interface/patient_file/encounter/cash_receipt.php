@@ -223,8 +223,7 @@ foreach ($ar as $key => $val) {
                 $fname = basename($d->get_url());
                 $extension = substr($fname, strrpos($fname, "."));
                 echo "Document '" . $fname ."'<br>";
-                $n = new Note();
-                $notes = $n->notes_factory($d->get_id());
+                $notes = $d->get_notes();
                 echo "<table>";
                 foreach ($notes as $note) {
                     echo '<tr>';
