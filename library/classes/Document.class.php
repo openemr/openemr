@@ -3,6 +3,13 @@
 require_once(dirname(__FILE__) . "/../pnotes.inc");
 require_once(dirname(__FILE__) . "/../gprelations.inc.php");
 
+// load DocStore_* classes if autoload is not working
+if (! class_exists('DocStore_OS', true)) {
+    require_once('DocStore.interface.php');
+    require_once('DocStore_OS.class.php');
+    require_once('DocStore_CDB.class.php');
+}
+
 /**
  * class Document
  * This class is the logical representation of a physical file on some system somewhere that can be referenced with a URL
@@ -109,6 +116,33 @@ class Document extends ORDataObject
     // For tagging with the encounter
     var $encounter_id;
     var $encounter_check;
+
+    // DocStore interface
+    /*
+     * Class name map for $GLOBALS['document_storage_method']
+     *
+     * Note: Current behavior does not strictly enforce application setting.
+     * 'classes' below provide a mechanism for replicating that anamoly.
+     */
+    public static $DOCSTORES = array(
+        0 => array(
+            'classes' => array(
+                'DocStore_OS',
+                'DocStore_CDB'
+            )
+        ),
+        1 => array(
+            'classes' => array(
+                'DocStore_CDB',
+                'DocStore_OS'
+            )
+        )
+    );
+
+    /*
+     * DocStore object associated with this document
+     */
+    var $docstore_obj;
 
   /*
 	*	Whether the file is already imported
@@ -770,5 +804,30 @@ class Document extends ORDataObject
     function get_notes()
     {
         return (Note::notes_factory($this->get_id()));
+    }
+
+    /**
+     * DocStore interface
+     */
+    private function set_docstore_obj()
+    {
+        $ds_obj_status = false;
+        foreach (Document::$DOCSTORES[$GLOBALS['document_storage_method']]['classes'] as $ds_class) {
+            $this->docstore_obj = new $ds_class($this);
+            $ds_obj_status = $this->docstore_obj->get_status();
+            if ($ds_obj_status) {
+                break;
+            }
+        }
+    }
+
+    public function get_content_raw()
+    {
+        if (! is_object($this->docstore_obj)) {
+            $this->set_docstore_obj();
+        }
+        if (is_object($this->docstore_obj)) {
+            return ($this->docstore_obj->get_content_raw());
+        }
     }
 } // end of Document
