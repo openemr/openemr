@@ -618,7 +618,7 @@ tr.odd {
 #dateNAV {
     font-size:1.1em !important;
 }
-.css_button, input[type="button"],input[type="submit"], button {
+.css_button, input[type="button"],input[type="submit"], button:not(.navbar-toggle) {
   background: #063f80;
   color: #ffffff !important;
   display: inline-block;
