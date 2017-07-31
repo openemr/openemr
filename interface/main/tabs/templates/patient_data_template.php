@@ -16,7 +16,7 @@
 <script type="text/html" id="patient-data-template">
     <div>
         <span class="patientDataColumn">
-            <span style="float:left;"><a data-bind="click: viewPtFinder" href="#" class="btn-sm">
+            <span style="float:left;"><a data-bind="click: viewPtFinder" href="#" class="btn-sm" title="<?php echo xla('Search for patient'); ?>">
                 <span class="fa-stack fa-lg chevron_color"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-search fa-stack-1x fa-inverse"></i></span>
             </a></span>
             <div class="patientInfo" style="float: left">
@@ -54,7 +54,7 @@
         <span class="patientDataColumn">
         <!-- ko if: patient -->
         <!-- ko with: patient -->
-            <a  class="btn-sm btn-link" data-bind="click: clickNewEncounter" href="#" title="<?php echo xla("New Encounter");?>">
+            <a  class="btn-sm" data-bind="click: clickNewEncounter" href="#" title="<?php echo xla("New Encounter");?>">
                 <span class="fa-stack fa-lg chevron_color"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-plus fa-stack-1x fa-inverse"></i></span>
             </a>
             <div class="patientCurrentEncounter">
