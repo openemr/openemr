@@ -672,38 +672,6 @@ function pricelevel_changed(sel) {
         background:#E5E5E5;
         padding-left:10px;
     }
-    .form-horizontal .control-label {
-        padding-top: 2px;
-    }
-    fieldset{
-        background-color: #F2F2F2;
-        margin-bottom:10px;
-        padding-bottom:15px;
-    }
-    .btn-link:focus, .btn-link:hover {
-    text-decoration: none ;
-    }
-    .btn-link{
-        border:1px solid #CCC;
-        border-radius: 3px !Important;
-    }
-    .btn-link.active,.btn-link.focus,.btn-link:active,.btn-link:focus,.btn-link:hover,.open>.dropdown-toggle.btn-link {
-        color:#333;
-        border-color:#ADADAD;
-        box-shadow:0px 0px 2px #ADADAD inset;
-        transition: border-color ease-in-out .3s,box-shadow ease-in-out .3s;
-    }
-    .btn-separate-left{
-        margin-left:20px !Important;
-    }
-    .btn-group>.btn:first-child:not(:last-child):not(.dropdown-toggle) {
-        border-top-right-radius: 3px;
-        border-bottom-right-radius: 3px;;
-    }
-    .btn-group-pinch >.btn:nth-last-child(2):not(.dropdown-toggle) {
-        border-top-right-radius: 3px !Important;
-        border-bottom-right-radius: 3px !Important;
-    }
     #search_results .table th, .table td { 
          border-top: none !important; 
     }

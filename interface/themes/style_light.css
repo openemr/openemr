@@ -1,4 +1,5 @@
 @import "core.css";
+@import "oemr-bs3-override.css";
 
 body {
     font-family: lato, Helvetica, Sans-Serif;
@@ -67,7 +68,7 @@ a:hover {
   font-size: 0.9em;
 }
 
-.alert {
+.alert-custom {
   background-color: #FF0000 !important;
   color: #fff !important;
 }
@@ -696,6 +697,10 @@ tr.odd, td.even {
 }
 .css_btn:hover{
   color: orangered;
+}
+
+.modal-footer > button {
+  float: none !important;
 }
 
 .btn-default {
@@ -1488,7 +1493,7 @@ table.dataTable#therapy_groups_list tbody td{
     padding-bottom: 55px;
 }
 
-.alert-danger {
+.alert-danger-custom {
   background-color: #FF0000 !important;
   color: #fff !important;
 }
