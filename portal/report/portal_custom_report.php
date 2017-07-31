@@ -810,8 +810,7 @@ foreach ($ar as $key => $val) {
                 $couch_revid = $d->get_couch_revid();
                 $extension = substr($fname, strrpos($fname, "."));
                 echo "<h1>" . xl('Document') . " '" . $fname ."'</h1>";
-                $n = new Note();
-                $notes = $n->notes_factory($d->get_id());
+                $notes = $d->get_notes();
                 if (!empty($notes)) {
                     echo "<table>";
                 }
