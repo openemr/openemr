@@ -197,7 +197,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         ),
         'OpenEMR\\Menu\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/library/menu',
+            0 => __DIR__ . '/../..' . '/library/menu/src',
         ),
         'OpenEMR\\Encounter\\Services\\' => 
         array (
@@ -1667,7 +1667,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OpenEMR\\Core\\Header' => __DIR__ . '/../..' . '/library/core/src/Header.php',
         'OpenEMR\\Core\\Kernel' => __DIR__ . '/../..' . '/library/core/src/Kernel.php',
         'OpenEMR\\Encounter\\Services\\ViewHelper' => __DIR__ . '/../..' . '/interface/patient_file/encounter/Services/ViewHelper.php',
-        'OpenEMR\\Menu\\MainMenuRole' => __DIR__ . '/../..' . '/library/menu/MainMenuRole.php',
+        'OpenEMR\\Menu\\MainMenuRole' => __DIR__ . '/../..' . '/library/menu/src/MainMenuRole.php',
         'OpenEMR\\Sample\\Event\\SampleEvent' => __DIR__ . '/../..' . '/library/sample/src/Event/SampleEvent.php',
         'OpenEMR\\Sample\\Event\\SampleSubscriber' => __DIR__ . '/../..' . '/library/sample/src/Event/SampleSubscriber.php',
         'PDFBarcode' => __DIR__ . '/..' . '/mpdf/mpdf/classes/barcode.php',
