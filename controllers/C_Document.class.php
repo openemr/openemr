@@ -291,9 +291,7 @@ class C_Document extends Controller
         require_once(dirname(__FILE__) . "/../library/lists.inc");
 
         $d = new Document($doc_id);
-        $n = new Note();
-
-        $notes = $n->notes_factory($doc_id);
+        $notes = $d->get_notes();
 
         $this->assign("file", $d);
         $this->assign("web_path", $this->_link("retrieve") . "document_id=" . $d->get_id() . "&");

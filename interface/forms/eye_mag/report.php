@@ -2069,7 +2069,7 @@ function display_draw_image($zone, $encounter, $pid)
         $couch_docid = $d->get_couch_docid();
         $couch_revid = $d->get_couch_revid();
         $extension = substr($fname, strrpos($fname, "."));
-        $notes = Note::notes_factory($d->get_id());
+        $notes = $d->get_notes();
         if (!empty($notes)) {
             echo "<table>";
         }
