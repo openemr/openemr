@@ -18,6 +18,7 @@
  * @link    http://www.open-emr.org
  */
 use OpenEMR\Core\Header;
+
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
@@ -61,7 +62,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 <!DOCTYPE HTML>
 <html>
 <head>
-<?php Header::setupHeader(['bootstrap', 'datetime-picker', 'common']);?>
+<?php Header::setupHeader(['datetime-picker', 'common']);?>
 <title><?php echo xlt('Patient Encounter'); ?></title>
 
 
@@ -154,7 +155,7 @@ function cancelClicked() {
 
 </script>
 <style>
-.block {
+/*.block {
     height:100px;
     width:200px;
     text-align:left;
@@ -162,23 +163,46 @@ function cancelClicked() {
 .center {
     margin:auto;
     
-}
+}*/
 .form-group{
-		margin-bottom: 5px;
-		
+        margin-bottom: 5px;
 }
 legend{
-	border-bottom: 2px solid #E5E5E5;
-	background:#E5E5E5;
-	padding-left:10px;
+    border-bottom: 2px solid #E5E5E5;
+    background:#E5E5E5;
+    padding-left:10px;
 }
 .form-horizontal .control-label {
-	padding-top: 2px;
+    padding-top: 2px;
 }
 fieldset{
-	background-color: #F2F2F2;
-	margin-bottom:10px;
-	padding-bottom:15px;
+    background-color: #F2F2F2;
+    margin-bottom:10px;
+    padding-bottom:15px;
+}
+.btn-link:focus, .btn-link:hover {
+text-decoration: none ;
+}
+.btn-link{
+    border:1px solid #CCC;
+    border-radius: 3px !Important;
+}
+.btn-link.active,.btn-link.focus,.btn-link:active,.btn-link:focus,.btn-link:hover,.open>.dropdown-toggle.btn-link {
+    color:#333;
+    border-color:#ADADAD;
+    box-shadow:0px 0px 2px #ADADAD inset;
+    transition: border-color ease-in-out .3s,box-shadow ease-in-out .3s;
+}
+.btn-separate-left{
+    margin-left:20px !Important;
+}
+.btn-group>.btn:first-child:not(:last-child):not(.dropdown-toggle) {
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;;
+}
+.btn-group-pinch >.btn:nth-last-child(2):not(.dropdown-toggle) {
+    border-top-right-radius: 3px !Important;
+    border-bottom-right-radius: 3px !Important;
 }
 @media only screen and (max-width: 1024px) {
 	#visit-details [class*="col-"], #visit-issues [class*="col-"]{
@@ -422,23 +446,21 @@ fieldset{
 						</div>
 					</div>
 				</fieldset>
-				<div class="form-group">
-					<div class="col-sm-12 text-center">
-						<div class="btn-group" role="group">
-							<a href="javascript:saveClicked(undefined);" class="btn btn-default btn-save link_submit"><span><?php echo xlt('Save'); ?></span></a>
-							<?php if ($viewmode || !isset($_GET["autoloaded"]) || $_GET["autoloaded"] != "1") { ?>
-								<a href="<?php echo "$rootdir/patient_file/encounter/encounter_top.php"; ?>"
-								class="btn btn-default btn-cancel link_submit" onClick="top.restoreSession()"><span><?php echo xlt('Cancel'); ?></span></a>
-							<?php } else { // not $viewmode ?>
-							<a href="" class="btn btn-default btn-cancel link_submit" onClick="return cancelClicked()">
-								 <?php echo xlt('Cancel'); ?></a>
-							  <?php } // end not $viewmode ?>
-						</div>
-					</div>
+				<?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
+                        <div class="form-group clearfix">
+                            <div class="col-sm-12 text-left position-override">
+                                <button type="button" class="btn btn-default btn-save" onclick="top.restoreSession(); saveClicked(undefined);"><?php echo xlt('Save');?></button>
+                                <?php if ($viewmode || !isset($_GET["autoloaded"]) || $_GET["autoloaded"] != "1") { ?>
+                                    <button type="button" class="btn btn-link btn-cancel btn-separate-left" onclick="top.restoreSession(); location.href='<?php echo "$rootdir/patient_file/encounter/encounter_top.php";?>';"><?php echo xlt('Cancel');?></button>
+                                <?php } else { // not $viewmode ?>
+                                <button class="btn btn-link btn-cancel btn-separate-left link_submit" onClick="return cancelClicked()">
+                                     <?php echo xlt('Cancel'); ?></button>
+                                  <?php } // end not $viewmode ?>
+                            </div>
+                        </div>
 					<div class="clearfix"></div>
 					
 				</div>
-						
 			</form>
 			<br>
 			<br>

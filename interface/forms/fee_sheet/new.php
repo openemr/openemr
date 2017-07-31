@@ -20,14 +20,11 @@
 * @author Terry Hill <terry@lillysystems.com>
 * @link http://www.open-emr.org
 */
-
-
 use OpenEMR\Core\Header;
+
 require_once("../../globals.php");
 require_once("$srcdir/FeeSheetHtml.class.php");
 require_once("codes.php");
-
-
 //acl check
 if (!acl_check_form('fee_sheet')) {
     ?>
@@ -35,33 +32,25 @@ if (!acl_check_form('fee_sheet')) {
     <?php
     formJump();
 }
-
 // Some table cells will not be displayed unless insurance billing is used.
 $usbillstyle = $GLOBALS['ippf_specific'] ? " style='display:none'" : "";
 $justifystyle = justifiers_are_used() ? "" : " style='display:none'";
-
 $liprovstyle = (isset($GLOBALS['support_fee_sheet_line_item_provider']) &&
   $GLOBALS['support_fee_sheet_line_item_provider'] != 1) ? " style='display:none'" : "";
-
 // This flag comes from the LBFmsivd form and perhaps later others.
 $rapid_data_entry = empty($_GET['rde']) ? 0 : 1;
-
 // This comes from the Add More Items button, or is preserved from its previous value.
 $add_more_items = (empty($_GET['addmore']) && empty($_POST['bn_addmore'])) ? 0 : 1;
-
 $alertmsg = '';
-
 // Determine if more than one price level is in use.
 $tmp = sqlQuery("SELECT COUNT(*) AS count FROM list_options where list_id = 'pricelevel' AND activity = 1");
 $price_levels_are_used = $tmp['count'] > 1;
-
 // Format a money amount with decimals but no other decoration.
 // Second argument is used when extra precision is required.
 function formatMoneyNumber($value, $extradecimals=0)
 {
     return sprintf('%01.' . ($GLOBALS['currency_decimals'] + $extradecimals) . 'f', $value);
 }
-
 // Helper function for creating drop-lists.
 function endFSCategory()
 {
@@ -74,7 +63,6 @@ function endFSCategory()
         $i = 0;
     }
 }
-
 // Generate JavaScript to build the array of diagnoses.
 function genDiagJS($code_type, $code)
 {
@@ -83,13 +71,11 @@ function genDiagJS($code_type, $code)
         echo "diags.push('" . attr($code_type) . "|" . attr($code) . "');\n";
     }
 }
-
 // Write all service lines to the web form.
 //
 function echoServiceLines()
 {
     global $code_types, $justinit, $usbillstyle, $liprovstyle, $justifystyle, $fs, $price_levels_are_used;
-
     foreach ($fs->serviceitems as $lino => $li) {
         $id       = $li['hidden']['id'];
         $codetype = $li['hidden']['code_type'];
@@ -99,12 +85,9 @@ function echoServiceLines()
         $ndc_info = isset($li['ndc_info']) ? $li['ndc_info'] : '';
         $pricelevel = $li['pricelevel'];
         $justify  = $li['justify'];
-
         $strike1 = $li['del'] ? "<strike>" : "";
         $strike2 = $li['del'] ? "</strike>" : "";
-
         echo " <tr>\n";
-
         echo "  <td class='billcell'>$strike1" .
         ($codetype == 'COPAY' ? xl($codetype) : $codetype) . $strike2;
         // if the line to ouput is copay, show the date here passed as $ndc_info,
@@ -125,22 +108,17 @@ function echoServiceLines()
             echo "<input type='hidden' name='bill[$lino][methtype]' value='" . attr($li['hidden']['methtype']) . "' />";
         }
         echo "</td>\n";
-
         if ($codetype != 'COPAY') {
             echo "  <td class='billcell'>$strike1" . text($code) . "$strike2</td>\n";
         } else {
             echo "  <td class='billcell'>&nbsp;</td>\n";
         }
-
         echo "  <td class='billcell'>$strike1" . text($li['code_text']) . "$strike2</td>\n";
-
         if ($billed) {
-
             if (modifiers_are_used(true)) {
                 echo "  <td class='billcell'>$strike1" . text($modifier) . "$strike2" .
                 "<input type='hidden' name='bill[" . attr($lino) . "][mod]' value='" . attr($modifier) . "'></td>\n";
             }
-
             if (fees_are_used()) {
                 if ($price_levels_are_used) {
                     // Show price level for this line.
@@ -156,12 +134,10 @@ function echoServiceLines()
                 }
                 echo "  <td class='billcell' align='center'$justifystyle>$justify</td>\n";
             }
-
             // Show provider for this line.
             echo "  <td class='billcell' align='center' $liprovstyle>";
             echo $fs->genProviderSelect('', '-- ' .xl("Default"). ' --', $li['provid'], true);
             echo "</td>\n";
-
             if ($code_types[$codetype]['claim'] && !$code_types[$codetype]['diag']) {
                 echo "  <td class='billcell' align='center'$usbillstyle>" .
                 text($li['notecodes']) . "</td>\n";
@@ -169,20 +145,15 @@ function echoServiceLines()
             else {
                 echo "  <td class='billcell' align='center'$usbillstyle></td>\n";
             }
-
             echo "  <td class='billcell' align='center'$usbillstyle><input type='checkbox'" .
             ($li['auth'] ? " checked" : "") . " disabled /></td>\n";
-
             if ($GLOBALS['gbl_auto_create_rx']) {
                 echo "  <td class='billcell' align='center'>&nbsp;</td>\n";
             }
-
             echo "  <td class='billcell' align='center'><input type='checkbox'" .
             " disabled /></td>\n";
         }
-
         else { // not billed
-
             if (modifiers_are_used(true)) {
                 if ($codetype != 'COPAY' && ($code_types[$codetype]['mod'] || $modifier)) {
                     echo "  <td class='billcell'><input type='text' name='bill[" . attr($lino) . "][mod]' " .
@@ -207,7 +178,6 @@ function echoServiceLines()
                     else
                     echo " style='text-align:right;background-color:transparent' readonly";
                     echo "></td>\n";
-
                     echo "  <td class='billcell' align='center'>";
                     if ($codetype != 'COPAY') {
                         echo "<input type='text' name='bill[" . attr($lino) . "][units]' " .
@@ -216,7 +186,6 @@ function echoServiceLines()
                         echo "<input type='hidden' name='bill[" . attr($lino) . "][units]' value='" . attr($li['units']) . "'>";
                     }
                     echo "</td>\n";
-
                     if ($code_types[$codetype]['just'] || $li['justify']) {
                         echo "  <td class='billcell' align='center'$justifystyle>";
                         echo "<select name='bill[" . attr($lino) . "][justify]' onchange='setJustify(this)'>";
@@ -233,12 +202,10 @@ function echoServiceLines()
                     echo "  <td class='billcell'$justifystyle>&nbsp;</td>\n"; // justify
                 }
             }
-
             // Provider drop-list for this line.
             echo "  <td class='billcell' align='center' $liprovstyle>";
             echo $fs->genProviderSelect("bill[$lino][provid]", '-- '.xl("Default").' --', $li['provid']);
             echo "</td>\n";
-
             if ($code_types[$codetype]['claim'] && !$code_types[$codetype]['diag']) {
                 echo "  <td class='billcell' align='center'$usbillstyle><input type='text' name='bill[" . attr($lino) . "][notecodes]' " .
                 "value='" . text($li['notecodes']) . "' maxlength='10' size='8' /></td>\n";
@@ -246,20 +213,15 @@ function echoServiceLines()
             else {
                 echo "  <td class='billcell' align='center'$usbillstyle></td>\n";
             }
-
             echo "  <td class='billcell' align='center'$usbillstyle><input type='checkbox' name='bill[".attr($lino) . "][auth]' " .
             "value='1'" . ($li['auth'] ? " checked" : "") . " /></td>\n";
-
             if ($GLOBALS['gbl_auto_create_rx']) {
                 echo "  <td class='billcell' align='center'>&nbsp;</td>\n";   // KHY: May need to confirm proper location of this cell
             }
-
             echo "  <td class='billcell' align='center'><input type='checkbox' name='bill[" . attr($lino) . "][del]' " .
             "value='1'" . ($li['del'] ? " checked" : "") . " /></td>\n";
         }
-
         echo " </tr>\n";
-
         // If NDC info exists or may be required, add a line for it.
         if (isset($li['ndcnum'])) {
             echo " <tr>\n";
@@ -289,13 +251,11 @@ function echoServiceLines()
         }
     }
 }
-
 // Write all product lines to the web form.
 //
 function echoProductLines()
 {
     global $code_types, $usbillstyle, $liprovstyle, $justifystyle, $fs, $price_levels_are_used;
-
     foreach ($fs->productitems as $lino => $li) {
         $drug_id      = $li['hidden']['drug_id'];
         $selector     = $li['hidden']['selector'];
@@ -308,10 +268,8 @@ function echoProductLines()
         $del          = $li['del'];
         $warehouse_id = $li['warehouse'];
         $rx           = $li['rx'];
-
         $strike1 = ($sale_id && $del) ? "<strike>" : "";
         $strike2 = ($sale_id && $del) ? "</strike>" : "";
-
         echo " <tr>\n";
         echo "  <td class='billcell'>{$strike1}" . xlt("Product") . "$strike2";
         echo "<input type='hidden' name='prod[" . attr($lino) . "][sale_id]' value='" . attr($sale_id) . "'>";
@@ -323,15 +281,11 @@ function echoProductLines()
             echo "<input type='hidden' name='prod[$lino][methtype]' value='" . attr($li['hidden']['methtype']) . "' />";
         }
         echo "</td>\n";
-
         echo "  <td class='billcell'>$strike1" . text($drug_id) . "$strike2</td>\n";
-
         echo "  <td class='billcell'>$strike1" . text($li['code_text']) . "$strike2</td>\n";
-
         if (modifiers_are_used(true)) {
             echo "  <td class='billcell'>&nbsp;</td>\n";
         }
-
         if ($billed) {
             if (fees_are_used()) {
                 if ($price_levels_are_used) {
@@ -359,7 +313,6 @@ function echoProductLines()
             echo "  <td class='billcell' align='center'><input type='checkbox'" .   // del
             " disabled /></td>\n";
         }
-
         else { // not billed
             if (fees_are_used()) {
                 if ($price_levels_are_used) {
@@ -398,21 +351,16 @@ function echoProductLines()
             echo "  <td class='billcell' align='center'><input type='checkbox' name='prod[" . attr($lino) . "][del]' " .
             "value='1'" . ($del ? " checked" : "") . " /></td>\n";
         }
-
         echo " </tr>\n";
     }
 }
-
 $fs = new FeeSheetHtml();
-
 // $FEE_SHEET_COLUMNS should be defined in codes.php.
 if (empty($FEE_SHEET_COLUMNS)) $FEE_SHEET_COLUMNS = 2;
-
 // Update price level in patient demographics if it's changed.
 if (!empty($_POST['pricelevel'])) {
     $fs->updatePriceLevel($_POST['pricelevel']);
 }
-
 $current_checksum = $fs->visitChecksum();
 // It's important to look for a checksum mismatch even if we're just refreshing
 // the display, otherwise the error goes undetected on a refresh-then-save.
@@ -423,25 +371,20 @@ if (isset($_POST['form_checksum'])) {
         newEvent("checksum", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $comment, $pid);
     }
 }
-
 if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
     $alertmsg = $fs->checkInventory($_POST['prod']);
 }
-
 // If Save or Save-and-Close was clicked, save the new and modified billing
 // lines; then if no error, redirect to $GLOBALS['form_exit_url'].
 //
 if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
     $main_provid = 0 + $_POST['ProviderID'];
     $main_supid  = 0 + $_POST['SupervisorID'];
-
     $fs->save($_POST['bill'], $_POST['prod'], $main_provid, $main_supid,
     $_POST['default_warehouse'], $_POST['bn_save_close']);
-
   // Note: Taxes are computed at checkout time (in pos_checkout.php which
   // also posts to SL).  Currently taxes with insurance claims make no sense,
   // so for now we'll ignore tax computation in the insurance billing logic.
-
     if ($_POST['running_as_ajax']) {
         // In the case of running as an AJAX handler, we need to return this same
         // form with an updated checksum to properly support the invoking logic.
@@ -456,7 +399,6 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
         // If appropriate, update the status of the related appointment to
         // "In exam room".
         updateAppointmentStatus($fs->pid, $fs->visit_date, '<');
-
         // More Family Planning stuff.
         if (isset($_POST['ippfconmeth'])) {
             $tmp_form_id = $fs->doContraceptionForm($_POST['ippfconmeth'], $_POST['newmauser'], $main_provid);
@@ -469,7 +411,6 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
                 exit;
             }
         }
-
         if ($rapid_data_entry || ($_POST['bn_save_close'] && $_POST['form_has_charges'])) {
             // In rapid data entry mode or if "Save and Checkout" was clicked,
             // we go directly to the Checkout page.
@@ -485,7 +426,6 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
         exit;
     } // end not running as ajax
 } // end save or save-and-close
-
 // Handle reopen request.  In that case no other changes will be saved.
 // If there was a checkout this will undo it.
 if (!$alertmsg && $_POST['bn_reopen']) {
@@ -495,23 +435,17 @@ if (!$alertmsg && $_POST['bn_reopen']) {
     unset($_POST['bill']);
     unset($_POST['prod']);
 }
-
 $billresult = getBillingByEncounter($fs->pid, $fs->encounter, "*");
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['bootstrap', 'knockout']);?>
-
+<?php Header::setupHeader(['knockout']);?>
 <style>
 /*.billcell { font-family: sans-serif; font-size: 10pt }*/
 </style>
-
 <script language="JavaScript">
-
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
-
 var diags = new Array();
-
 <?php
 if ($billresult) {
   foreach ($billresult as $iter) {
@@ -535,248 +469,255 @@ if ($_POST['newcodes']) {
   }
 }
 ?>
-
 // This is invoked by <select onchange> for the various dropdowns,
 // including search results.
 function codeselect(selobj) {
- var i = selobj ? selobj.selectedIndex : -1;
- if (i) {
-  top.restoreSession();
-  var f = document.forms[0];
-  if (selobj) f.newcodes.value = selobj.options[i].value;
-  f.submit();
- }
+    var i = selobj ? selobj.selectedIndex : -1;
+    if (i) {
+        top.restoreSession();
+        var f = document.forms[0];
+        if (selobj) f.newcodes.value = selobj.options[i].value;
+        f.submit();
+    }
 }
 
 function copayselect() {
- top.restoreSession();
- var f = document.forms[0];
- f.newcodes.value = 'COPAY||';
- f.submit();
-}
-
-<?php echo $fs->jsLineItemValidation(); ?>
-
+    top.restoreSession();
+    var f = document.forms[0];
+    f.newcodes.value = 'COPAY||';
+    f.submit();
+} <? php echo $fs - > jsLineItemValidation(); ?>
 function validate(f) {
- if (f.bn_reopen) {
-  var reopening = f.bn_reopen.clicked;
-  var voiding = reopening && f.bn_reopen.clicked == 2;
-  f.bn_reopen.clicked = false;
-  if (reopening) {
-   if (voiding) {
-    if (!confirm('<?php echo xls('Re-opening this visit will cause a void. Payment information will need to be re-entered. Do you want to proceed?'); ?>')) {
-     return false;
+        if (f.bn_reopen) {
+            var reopening = f.bn_reopen.clicked;
+            var voiding = reopening && f.bn_reopen.clicked == 2;
+            f.bn_reopen.clicked = false;
+            if (reopening) {
+                if (voiding) {
+                    if (!confirm('<?php echo xls('Re - opening this visit will cause a void.Payment information will need to be re - entered.Do you want to proceed ? '); ?>')) {
+                        return false;
+                    }
+                }
+                top.restoreSession();
+                return true;
+            }
+        }
+        var refreshing = false;
+        if (f.bn_refresh) {
+            refreshing = f.bn_refresh.clicked ? true : false;
+            f.bn_refresh.clicked = false;
+        }
+        if (f.bn_addmore) {
+            refreshing = refreshing || f.bn_addmore.clicked;
+            f.bn_addmore.clicked = false;
+        }
+        var searching = false;
+        if (f.bn_search) {
+            searching = f.bn_search.clicked ? true : false;
+            f.bn_search.clicked = false;
+        }
+        if (!refreshing && !searching) {
+            if (!jsLineItemValidation(f)) return false;
+        }
+        top.restoreSession();
+        return true;
     }
-   }
-   top.restoreSession();
-   return true;
-  }
- }
- var refreshing = false;
- if (f.bn_refresh) {
-  refreshing = f.bn_refresh.clicked ? true : false;
-  f.bn_refresh.clicked = false;
- }
- if (f.bn_addmore) {
-  refreshing = refreshing || f.bn_addmore.clicked;
-  f.bn_addmore.clicked = false;
- }
- var searching = false;
- if (f.bn_search) {
-  searching = f.bn_search.clicked ? true : false;
-  f.bn_search.clicked  = false;
- }
- if (!refreshing && !searching) {
-  if (!jsLineItemValidation(f)) return false;
- }
- top.restoreSession();
- return true;
-}
-
-// When a justify selection is made, apply it to the current list for
-// this procedure and then rebuild its selection list.
-//
+    // When a justify selection is made, apply it to the current list for
+    // this procedure and then rebuild its selection list.
+    //
 function setJustify(seljust) {
- var theopts = seljust.options;
- var jdisplay = theopts[0].text;
- // Compute revised justification string.  Note this does nothing if
- // the first entry is still selected, which is handy at startup.
- if (seljust.selectedIndex > 0) {
-  var newdiag = seljust.value;
-  if (newdiag.length == 0) {
-   jdisplay = '';
-  }
-  else {
-   if (jdisplay.length) jdisplay += ',';
-   jdisplay += newdiag;
-  }
- }
- // Rebuild selection list.
- var jhaystack = ',' + jdisplay + ',';
- var j = 0;
- theopts.length = 0;
- theopts[j++] = new Option(jdisplay,jdisplay,true,true);
- for (var i = 0; i < diags.length; ++i) {
-  if (jhaystack.indexOf(',' + diags[i] + ',') < 0) {
-   theopts[j++] = new Option(diags[i],diags[i],false,false);
-  }
- }
- theopts[j++] = new Option('Clear','',false,false);
-}
-
-// Determine if there are any charges in this visit.
+        var theopts = seljust.options;
+        var jdisplay = theopts[0].text;
+        // Compute revised justification string.  Note this does nothing if
+        // the first entry is still selected, which is handy at startup.
+        if (seljust.selectedIndex > 0) {
+            var newdiag = seljust.value;
+            if (newdiag.length == 0) {
+                jdisplay = '';
+            } else {
+                if (jdisplay.length) jdisplay += ',';
+                jdisplay += newdiag;
+            }
+        }
+        // Rebuild selection list.
+        var jhaystack = ',' + jdisplay + ',';
+        var j = 0;
+        theopts.length = 0;
+        theopts[j++] = new Option(jdisplay, jdisplay, true, true);
+        for (var i = 0; i < diags.length; ++i) {
+            if (jhaystack.indexOf(',' + diags[i] + ',') < 0) {
+                theopts[j++] = new Option(diags[i], diags[i], false, false);
+            }
+        }
+        theopts[j++] = new Option('Clear', '', false, false);
+    }
+    // Determine if there are any charges in this visit.
 function hasCharges() {
- var f = document.forms[0];
- for (var i = 0; i < f.elements.length; ++i) {
-  var elem = f.elements[i];
-  if (elem.name.indexOf('[price]') > 0) {
-   var fee = Number(elem.value);
-   if (!isNaN(fee) && fee != 0) return true;
-  }
- }
- return false;
-}
-
-// Function to check if there are any charges in the form, and to enable
-// or disable the Save and Close button accordingly.
-//
+        var f = document.forms[0];
+        for (var i = 0; i < f.elements.length; ++i) {
+            var elem = f.elements[i];
+            if (elem.name.indexOf('[price]') > 0) {
+                var fee = Number(elem.value);
+                if (!isNaN(fee) && fee != 0) return true;
+            }
+        }
+        return false;
+    }
+    // Function to check if there are any charges in the form, and to enable
+    // or disable the Save and Close button accordingly.
+    //
 function setSaveAndClose() {
- var f = document.forms[0];
- if (!f.bn_save_close) return;
- if (hasCharges()) {
-  f.form_has_charges.value = '1';
-  f.bn_save_close.value = '<?php echo xla('Save and Checkout'); ?>';
- }
- else {
-  f.form_has_charges.value = '0';
-  f.bn_save_close.value = '<?php echo xla('Save and Close'); ?>';
- }
-}
-
-// Open the add-event dialog.
+        var f = document.forms[0];
+        if (!f.bn_save_close) return;
+        if (hasCharges()) {
+            f.form_has_charges.value = '1';
+            f.bn_save_close.value = '<?php echo xla('Save and Checkout'); ?>';
+        } else {
+            f.form_has_charges.value = '0';
+            f.bn_save_close.value = '<?php echo xla('Save and Close'); ?>';
+        }
+    }
+    // Open the add-event dialog.
 function newEvt() {
- var f = document.forms[0];
- var url = '../../main/calendar/add_edit_event.php?patientid=<?php echo urlencode($fs->pid); ?>';
- if (f.ProviderID && f.ProviderID.value) {
-  url += '&userid=' + parseInt(f.ProviderID.value);
- }
- dlgopen(url, '_blank', 600, 300);
- return false;
+    var f = document.forms[0];
+    var url = '../../main/calendar/add_edit_event.php?patientid=<?php echo urlencode($fs->pid); ?>';
+    if (f.ProviderID && f.ProviderID.value) {
+        url += '&userid=' + parseInt(f.ProviderID.value);
+    }
+    dlgopen(url, '_blank', 600, 400);
+    return false;
 }
 
 function warehouse_changed(sel) {
- if (!confirm('<?php echo xls('Do you really want to change Warehouse?'); ?>')) {
-  // They clicked Cancel so reset selection to its default state.
-  for (var i = 0; i < sel.options.length; ++i) {
-   sel.options[i].selected = sel.options[i].defaultSelected;
-  }
- }
-}
-
-// Invoked when a line item price level is changed.
+        if (!confirm('<?php echo xls('Do you really want to change Warehouse ? '); ?>')) {
+            // They clicked Cancel so reset selection to its default state.
+            for (var i = 0; i < sel.options.length; ++i) {
+                sel.options[i].selected = sel.options[i].defaultSelected;
+            }
+        }
+    }
+    // Invoked when a line item price level is changed.
 function pricelevel_changed(sel) {
- var f = document.forms[0];
- var prname = sel.name.replace('pricelevel', 'price');
- if (f[prname]) {
-  var price = parseFloat(sel.options[sel.selectedIndex].id.substring(4));
-  if (isNaN(price)) price = 0;
-  f[prname].value = price;
- }
- else {
-  alert('<?php echo xls('Form element not found'); ?>: ' + prname);
- }
+    var f = document.forms[0];
+    var prname = sel.name.replace('pricelevel', 'price');
+    if (f[prname]) {
+        var price = parseFloat(sel.options[sel.selectedIndex].id.substring(4));
+        if (isNaN(price)) price = 0;
+        f[prname].value = price;
+    } else {
+        alert('<?php echo xls('
+            Form element not found '); ?>: ' + prname);
+    }
 }
-
 </script>
-
-
-
 <style>
-td{
-	 padding: 3px 10px;
-}
-.code_fieldset{
-	border: 1px solid #0000FF;
-	background-color:#F5F5F5;
-	display: block;
-    margin-left: 2px;
-    margin-right: 2px;
-    padding-top: 0.35em;
-    padding-bottom: 1em;
-    padding-left: 0.75em;
-    padding-right: 0.75em;
-    font-size:1.3em;
-	color:black;
-}
-
-.code_edit{
-	background-color:#E0E0E0;
-}
-
-.code_legend{
-	font-weight:700;
-	font-size:16px;
-	background-color:#E0E0E0;
-	padding:0px 5px 0px 5px;
-	border: none!Important;
-	width:auto !Important;
-	font-size:16px !Important;
-	color:black;
-	margin-bottom: 0px;
-} 
-
-#code_edit_table span{
-	background-color:yellow;
-	font-weight:700;
-}
-
-#code_edit_table tr td {
-	padding: 0px 0px 5px 0px;
-}
-
-#code_edit_table .code_edit td {
-	font-weight: 700;
-	padding: 2px 0px 2px 0px;
-}
-
-#code_edit_table .code_edit td:first-child {
-	padding: 0px 0px 0px 10px;
-}
-.block {
-    height:100px;
-    width:200px;
-    text-align:left;
-}
-.center {
-    margin:auto;
-    
-}
-.form-group{
-		margin-bottom: 5px;
-		
-}
-legend{
-	border-bottom: 2px solid #E5E5E5;
-	background:#E5E5E5;
-	padding-left:10px;
-}
-.form-horizontal .control-label {
-	padding-top: 2px;
-}
-fieldset{
-	background-color: #F2F2F2;
-	margin-bottom:10px;
-	padding-bottom:15px;
-}
-#search_results .table th, .table td { 
-     border-top: none !important; 
-}
-
-.feesheet-title {
-    background-color: #E5E5E5;
-}
-
-
+    td{
+        padding: 3px 10px;
+    }
+    .code_fieldset{
+        border: 1px solid #0000FF;
+        background-color:#F5F5F5;
+        display: block;
+        margin-left: 2px;
+        margin-right: 2px;
+        padding-top: 0.35em;
+        padding-bottom: 1em;
+        padding-left: 0.75em;
+        padding-right: 0.75em;
+        font-size:1.3em;
+        color:black;
+    }
+    .code_edit{
+        background-color:#E0E0E0;
+    }
+    .code_legend{
+        font-weight:700;
+        font-size:16px;
+        background-color:#E0E0E0;
+        padding:0px 5px 0px 5px;
+        border: none!Important;
+        width:auto !Important;
+        font-size:16px !Important;
+        color:black;
+        margin-bottom: 0px;
+    } 
+    #code_edit_table span{
+        background-color:yellow;
+        font-weight:700;
+    }
+    #code_edit_table tr td {
+        padding: 0px 0px 5px 0px;
+    }
+    #code_edit_table .code_edit td {
+        font-weight: 700;
+        padding: 2px 0px 2px 0px;
+    }
+    #code_edit_table .code_edit td:first-child {
+        padding: 0px 0px 0px 10px;
+    }
+    .block {
+        height:100px;
+        width:200px;
+        text-align:left;
+    }
+    .center {
+        margin:auto;
+        
+    }
+    .form-group{
+        margin-bottom: 5px;
+    }
+    legend{
+        border-bottom: 2px solid #E5E5E5;
+        background:#E5E5E5;
+        padding-left:10px;
+    }
+    .form-horizontal .control-label {
+        padding-top: 2px;
+    }
+    fieldset{
+        background-color: #F2F2F2;
+        margin-bottom:10px;
+        padding-bottom:15px;
+    }
+    .btn-link:focus, .btn-link:hover {
+    text-decoration: none ;
+    }
+    .btn-link{
+        border:1px solid #CCC;
+        border-radius: 3px !Important;
+    }
+    .btn-link.active,.btn-link.focus,.btn-link:active,.btn-link:focus,.btn-link:hover,.open>.dropdown-toggle.btn-link {
+        color:#333;
+        border-color:#ADADAD;
+        box-shadow:0px 0px 2px #ADADAD inset;
+        transition: border-color ease-in-out .3s,box-shadow ease-in-out .3s;
+    }
+    .btn-separate-left{
+        margin-left:20px !Important;
+    }
+    .btn-group>.btn:first-child:not(:last-child):not(.dropdown-toggle) {
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;;
+    }
+    .btn-group-pinch >.btn:nth-last-child(2):not(.dropdown-toggle) {
+        border-top-right-radius: 3px !Important;
+        border-bottom-right-radius: 3px !Important;
+    }
+    #search_results .table th, .table td { 
+         border-top: none !important; 
+    }
+    .feesheet-title {
+        background-color: #E5E5E5;
+    }
+    @media only screen and (max-width: 1024px) {
+        div.category-display{
+            width:100% !Important;
+        }
+        div.category-display > button {
+        width:75% !Important;
+        }
+    }
 </style>
 <?php
 $enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, fe.date FROM " .
@@ -785,7 +726,6 @@ $enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, fe.date FROM " .
   "f.formdir = 'newpatient' AND f.deleted = 0 AND " .
   "fe.id = f.form_id LIMIT 1",
   array($pid, $encounter));
-
 $name = $enrow['fname'] . ' ';
 $name .= (!empty($enrow['mname'])) ? $enrow['mname'] . ' ' . $enrow['lname'] : $enrow['lname'];
 $date = xl('for Encounter on') . ' ' . oeFormatShortDate(substr($enrow['date'], 0, 10));
@@ -793,10 +733,9 @@ $title = array(xl('Fee Sheet for'), $name, $date);
 //echo join(" ", $title);
 ?>
 </head>
-
 <body class="body_top">
-	<div class="container">
-		 <div class="row">
+    <div class="container">
+         <div class="row">
             <div class="">
                 <div class="page-header">
                     <h2><?php echo join(" ", $title); ?></h2>
@@ -844,13 +783,13 @@ $title = array(xl('Fee Sheet for'), $name, $date);
                             echo "   </select>\n";
                         }
                         echo "</div>";
-                        echo "</fieldset>";				
+                        echo "</fieldset>";                
                     ?>
                     
                     <fieldset class="">
                         <legend class=""><?php echo xlt("Select Code")?></legend>
                         <div class='text-center'>
-                            <table class = "table" width=95%>
+                            <table class="table" width=95%>
                                 <?php
                                     $i = 0;
                                     $last_category = '';
@@ -945,9 +884,7 @@ $title = array(xl('Fee Sheet for'), $name, $date);
                     
                     <fieldset class="">
                         <legend class=""><?php echo xlt("Search for Additional Codes")?></legend>
-                        <div class="row" >
-                            
-                            <div class="col-xs-8 text-center">
+                            <div class="col-lg-8 col-sm-12 text-center">
                                 <div class="form-group"> 
                                     <?php
                                         $nofs_code_types = array();
@@ -967,11 +904,11 @@ $title = array(xl('Fee Sheet for'), $name, $date);
                                             echo " </label>";
                                         }
                                     ?>
-                                </div>	
+                                </div>    
                             </div>
                             
-                            <div class="col-xs-4 ">	
-                                <div class="form-group"> 
+                            <div class="col-lg-4 col-sm-12 clearfix">    
+                                <div class="form-group clearfix"> 
                                     <div class="col-xs-8">
                                         <input type='text' class="form-control" name='search_term1' value=''>
                                     </div>
@@ -981,15 +918,10 @@ $title = array(xl('Fee Sheet for'), $name, $date);
                                     </div>
                                 </div>
                             </div>
-                            
-                        </div>
-                        
-                        <div class="row">
+                                      
                             <div class="col-sm-12 text-center">
-                                <!--<table  class = "table" width=99%>
-                                <tr>-->
                                 <?php 
-                                    echo "  <td colspan='" . attr($FEE_SHEET_COLUMNS) . "' align='center' nowrap>\n";
+                                    echo "<td colspan='" . attr($FEE_SHEET_COLUMNS) . "' align='center' nowrap>\n";
                                     
                                     // If Search was clicked, do it and write the list of results here.
                                     // There's no limit on the number of results!
@@ -1004,8 +936,7 @@ $title = array(xl('Fee Sheet for'), $name, $date);
                                     if(! $numrows){
                                         echo "   <select name='Search Results' style='width:98%' " .
                                         "onchange='codeselect(this)' disabled >\n";
-                                    }
-                                    else{
+                                    } else {
                                         echo "   <select name='Search Results' style='width:98%; background:yellow' " .
                                         "onchange='codeselect(this)' >\n";
                                     }
@@ -1022,15 +953,8 @@ $title = array(xl('Fee Sheet for'), $name, $date);
                                     }
                                     
                                     echo "   </select>\n";
-                                    //echo "  </td>\n";
                                 ?>
-                                <!--</tr>
-                                    
-                                </table>-->
                             </div>
-                        </div>
-                        
-                        
                     </fieldset>
                     
                 <?php } // end encounter not billed ?>
@@ -1049,7 +973,7 @@ $title = array(xl('Fee Sheet for'), $name, $date);
                             </tr>
                         </table>
                     </div>
-                    <div class='col-xs-12 text-center table-responsive'>							
+                    <div class='col-xs-12 text-center table-responsive'>                            
                         <table name='selected_codes' id='selected_codes' class="table" cellspacing='5'>
                             <tr>
                                 <td class='billcell'><b><?php echo xlt('Type');?></b></td>
@@ -1350,25 +1274,20 @@ $title = array(xl('Fee Sheet for'), $name, $date);
                 <fieldset>
                     <legend class=''><?php echo xlt("Select Providers"); ?></legend>
                     <div class='col-xs-12 text-center'>
-                        <div class="form-group col-xs-6 ">
-                            <label class="control-label col-xs-4 text-right"><?php echo  xlt('Rendering'); ?></label>
+                        <div class="form-group col-lg-6 col-sm-12">
+                            <label class="control-label col-lg-4 col-sm-3 text-right"><?php echo  xlt('Rendering'); ?></label>
                             <?php echo $fs->genProviderSelect('ProviderID', '-- '.xl("Please Select").' --', $fs->provider_id, $isBilled); ?>
                         </div>
-                        <div class="form-group col-xs-6">
+                        <div class="form-group col-lg-6 col-sm-12">
                             <?php
                                 if (!$GLOBALS['ippf_specific']) { ?>
-                                <label class='control-label col-xs-4 text-right'> <?php echo xlt('Supervising'); ?> </label>
+                                <label class='control-label col-lg-4 col-sm-3 text-right'> <?php echo xlt('Supervising'); ?> </label>
                                 <?php echo $fs->genProviderSelect('SupervisorID', '-- '.xl("N/A").' --', $fs->supervisor_id, $isBilled);
                                 }
                             ?>
                         </div>
                     </div>
                 </fieldset>
-                
-                
-                <br>
-                
-                
                 
                 <?php
                     if ($fs->contraception_code && !$isBilled) {
@@ -1400,50 +1319,40 @@ $title = array(xl('Fee Sheet for'), $name, $date);
                 
                 <!--&nbsp; &nbsp; &nbsp;-->
                 <div class="form-group">
-                    <div class="col-sm-12 text-center">
-                        <div class="btn-group" role="group">
-                            
-                            <?php echo "<input type='button' value='" . xla('New Appointment') . "' onclick='newEvt()' />\n"; ?>
+                    <div class="col-sm-12 text-left position-override">
+                        <div class="btn-group btn-group-pinch" role="group">
+                            <button type='button' class='btn btn-default btn-calendar' onclick='newEvt()'><?php echo xlt('New Appointment');?></button>
                             <?php if (!$isBilled) { // visit is not yet billed ?>
-                                <input type='submit' name='bn_refresh' onclick='return this.clicked = true;' 
-                                value='<?php echo xla('Refresh');?>'>
-                                &nbsp;
-                                <input type='submit' name='bn_save' value='<?php echo xla('Save');?>' 
-                                <?php if ($rapid_data_entry) echo " style='background-color:#cc0000';color:#ffffff'"; ?>
-                                
+                                <button type='submit' name='bn_refresh' class='btn btn-default btn-refresh' value='<?php echo xla('Refresh');?>' onclick='return this.clicked = true;'><?php echo xlt('Refresh');?></button>
+                                <button type='submit' name='bn_save' class='btn btn-default btn-save' value='<?php echo xla('Save');?>'
+                                <?php if ($rapid_data_entry) echo " style='background-color:#cc0000';color:#ffffff'"; ?>><?php echo xla('Save');?></button>
+                                                        
                                 <?php if ($GLOBALS['ippf_specific']) { // start ippf-only stuff ?>
                                     <?php if ($fs->hasCharges) { // unbilled with charges ?>
-                                        <input type='submit' name='bn_save_close' class='btn btn-default btn-md' value='<?php echo xla('Save and Checkout'); ?>' />
+                                            <button type='submit' name='bn_save_close' class='btn btn-default btn-save' value='<?php echo xla('Save and Checkout'); ?>'><?php echo xlt('Save and Checkout'); ?></button>
                                         <?php } else { // unbilled with no charges ?>
-                                        <input type='submit' name='bn_save_close' class='btn btn-default btn-md' value='<?php echo xla('Save and Close'); ?>' />
+                                            <button type='submit' name='bn_save_close' class='btn btn-default btn-save'value='<?php echo xla('Save and Close'); ?>'><?php echo xlt('Save and Close'); ?></button>
                                     <?php } // end no charges ?>
-                                    &nbsp;
-                                <?php } // end ippf-only ?>
-                                
-                                <?php } else { // visit is billed ?>
+                                 <?php } // end ippf-only ?>
+                            <?php } else { // visit is billed ?>
                                 <?php if ($fs->hasCharges) { // billed with charges ?>
-                                    <input type='button' class='btn btn-default btn-md' value='<?php echo xla('Show Receipt'); ?>'
-                                    onclick="top.restoreSession();location='../../patient_file/pos_checkout.php?framed=1<?php
-                                    echo "&ptid=" . urlencode($fs->pid) . "&enc=" . urlencode($fs->encounter); ?>'" />
-                                    &nbsp;
-                                    <input type='submit' class='btn btn-default btn-md' name='bn_reopen' onclick='return this.clicked = 2;'
-                                    value='<?php echo xla('Void Checkout and Re-Open'); ?>' />
-                                    &nbsp;
-                                    <?php } else { ?>
-                                    <input type='submit' class='btn btn-default btn-md' name='bn_reopen' onclick='return this.clicked = true;'
-                                    value='<?php echo xla('Re-Open Visit'); ?>' />
-                                    &nbsp;
+                                    <button type='button' class='btn btn-default btn-show'
+                                        onclick="top.restoreSession();location='../../patient_file/pos_checkout.php?framed=1<?php
+                                        echo "&ptid=" . urlencode($fs->pid) . "&enc=" . urlencode($fs->encounter); ?>'" value='<?php echo xla('Show Receipt'); ?>'><?php echo xlt('Show Receipt'); ?></button>
+                                    <button type='submit' class='btn btn-default btn-undo' name='bn_reopen' onclick='return this.clicked = 2;' value='<?php echo xla('Void Checkout and Re-Open'); ?>'>
+                                        <?php echo xlt('Void Checkout and Re-Open'); ?></button>
+                                <?php } else { ?>
+                                    <button type='submit' class='btn btn-default btn-undo' name='bn_reopen' onclick='return this.clicked = true;' value='<?php echo xla('Re-Open Visit'); ?>'>
+                                        <?php echo xlt('Re-Open Visit'); ?></button>
                                 <?php } // end billed without charges ?>
-                                <input type='submit' class='btn btn-default btn-md' name='bn_addmore' onclick='return this.clicked = true;'
-                                value='<?php echo xla('Add More Items'); ?>' />
-                                &nbsp;
+                                <button type='submit' class='btn btn-default btn-add' name='bn_addmore' onclick='return this.clicked = true;' value='<?php echo xla('Add More Items'); ?>'>
+                                    <?php echo xlt('Add More Items'); ?></button>
                             <?php } // end billed ?>
-                            <input type='hidden' name='form_has_charges' value='<?php echo $fs->hasCharges ? 1 : 0; ?>' />
-                            <input type='hidden' name='form_checksum' value='<?php echo $current_checksum; ?>' />
-                            <input type='hidden' name='form_alertmsg' value='<?php echo attr($alertmsg); ?>' />
-                            
-                            <input type='button' value='<?php echo xla('Cancel');?>'
-                            onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
+                                <button type='button' class='btn btn-link btn-cancel btn-separate-left'onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'">
+                                <?php echo xlt('Cancel');?></button>
+                                <input type='hidden' name='form_has_charges' value='<?php echo $fs->hasCharges ? 1 : 0; ?>' />
+                                <input type='hidden' name='form_checksum' value='<?php echo $current_checksum; ?>' />
+                                <input type='hidden' name='form_alertmsg' value='<?php echo attr($alertmsg); ?>' />
                         </div> 
                     </div>
                 </div>
@@ -1451,11 +1360,9 @@ $title = array(xl('Fee Sheet for'), $name, $date);
             <br>
             <br>
         </div>
-	</div>
-
+    </div>
     <script language='JavaScript'>
         setSaveAndClose();
-
         <?php
         echo $justinit;
         if ($alertmsg) {
@@ -1463,7 +1370,6 @@ $title = array(xl('Fee Sheet for'), $name, $date);
         }
         ?>
     </script>
-
 </body>
 </html>
 <?php if (!empty($_POST['running_as_ajax'])) exit; ?>
@@ -1472,14 +1378,13 @@ $title = array(xl('Fee Sheet for'), $name, $date);
 <?php if ($GLOBALS['ippf_specific']) require_once("contraception_products/initialize_contraception_products.php"); ?>
     <script>
         var translated_price_header="<?php echo xlt("Price");?>";
-
-        $(document).ready(function(){
+        /*$(document).ready(function(){
             $(".save").click(function() { 
                 var get_values = <?php echo "rde=" . urlencode($rapid_data_entry) . "&addmore=" . urlencode($add_more_items); ?>
                 top.restoreSession(); 
                 $('#fee_sheet_form').attr('action', "getValues").submit();
                 });
-        });
+        });*/
     </script>
     <?php 
     $search_term = $_POST['search_term1'];
