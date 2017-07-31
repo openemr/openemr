@@ -255,6 +255,10 @@ if ($_POST['bn_save']) {
 <head>
 <?php html_header_show();?>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
+<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
+<?php } ?>
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
@@ -273,6 +277,11 @@ div.section {
  padding: 5pt;
 }
 
+.form-control {
+    width: auto;
+    display: inline;
+    height: auto;
+}
 </style>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
@@ -427,7 +436,7 @@ if (function_exists($formname . '_javascript')) {
 </script>
 </head>
 
-<body <?php echo $top_bg_line; ?> topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
+<body class="body_top">
 
 <?php
   echo "<form method='post' " .
@@ -442,13 +451,22 @@ if (empty($is_lbf)) {
     "form_encounter AS fe, forms AS f, patient_data AS p WHERE " .
     "p.pid = ? AND f.pid = p.pid AND f.encounter = ? AND " .
     "f.formdir = 'newpatient' AND f.deleted = 0 AND " .
-    "fe.id = f.form_id LIMIT 1", array($pid, $encounter));
-    echo "<p class='title' style='margin-top:8px;margin-bottom:8px;text-align:center'>\n";
-    echo text($formtitle) . " " . xlt('for') . ' ';
-    echo text($enrow['fname']) . ' ' . text($enrow['mname']) . ' ' . text($enrow['lname']);
-    echo ' ' . xlt('on') . ' ' . text(oeFormatShortDate(substr($enrow['date'], 0, 10)));
-    echo "</p>\n";
-    $cmsportal_login = $enrow['cmsportal_login'];
+    "fe.id = f.form_id LIMIT 1", array($pid, $encounter)); ?>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="page-header">
+                    <h3>
+                        <?php echo text($formtitle) . " " . xlt('for') . ' ';
+                        echo text($enrow['fname']) . ' ' . text($enrow['mname']) . ' ' . text($enrow['lname']);
+                        echo ' ' . xlt('on') . ' ' . text(oeFormatShortDate(substr($enrow['date'], 0, 10))); ?>
+                    </h3>
+                </div>
+            </div>
+
+
+    <?php $cmsportal_login = $enrow['cmsportal_login'];
 }
 
   // If loading data from portal, get the data.
@@ -732,27 +750,39 @@ while ($frow = sqlFetchArray($fres)) {
 
     end_group();
 ?>
+<br>
 
-<p style='text-align:center'>
-<?php if (empty($is_lbf)) { ?>
-<input type='submit' name='bn_save' value='<?php echo xla('Save') ?>' />
-<?php
-if (function_exists($formname . '_additional_buttons')) {
-  // Allow the plug-in to insert more action buttons here.
-    call_user_func($formname . '_additional_buttons');
-}
-?>
-&nbsp;
-<input type='button' value='<?php echo xla('Cancel') ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
-&nbsp;
-<?php if ($form_is_graphable) { ?>
-<input type='button' value='<?php echo xla('Show Graph') ?>' onclick="top.restoreSession();location='../../patient_file/encounter/trend_form.php?formname=<?php echo attr($formname); ?>'" />
-&nbsp;
-<?php } ?>
-<?php } else { ?>
-<input type='button' value='<?php echo xla('Back') ?>' onclick='window.history.back();' />
-<?php } ?>
-</p>
+            <div class="col-xs-12">
+                <div class="btn-group">
+                    <?php if (empty($is_lbf)) { ?>
+                        <button type="submit" class="btn btn-default btn-save"  name="bn_save" value="<?php echo xla('Save'); ?>">
+                            <?php echo xlt('Save'); ?>
+                        </button>
+                        <?php
+                        if (function_exists($formname . '_additional_buttons')) {
+                            // Allow the plug-in to insert more action buttons here.
+                            call_user_func($formname . '_additional_buttons');
+                        }
+                        ?>
+                        <?php if ($form_is_graphable) { ?>
+                            <button type='button' class="btn btn-default btn-graph" onclick="top.restoreSession();location='../../patient_file/encounter/trend_form.php?formname=<?php echo attr($formname); ?>'">
+                                <?php echo xlt('Show Graph') ?>
+                            </button>
+                            &nbsp;
+                        <?php } ?>
+                        <button type='button' class="btn btn-link btn-cancel" onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'">
+                            <?php echo xlt('Cancel'); ?>
+                        </button>
+                    <?php } else { ?>
+                        <button type='button' class="btn btn-default btn-back" onclick='window.history.back();'>
+                            <?php echo xlt('Back') ?>
+                        </button>
+                    <?php } ?>
+                </div>
+                <hr>
+            </div>
+        </div>
+    </div>
 
 </form>
 
