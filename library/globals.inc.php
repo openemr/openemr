@@ -938,6 +938,12 @@ $GLOBALS_METADATA = array(
             '1',                              // default
             xl('Observation Results in Immunization')
         ),
+        'patient_birthday_alert' => array(
+            xl('Alert on patient birthday'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Alert on patient birthday')
+        ),
 
     ),
     // Report Tab
