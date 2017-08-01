@@ -27,8 +27,8 @@ include_once("../../globals.php");
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
 </head>
 <body>
-<h1><?php xl('Happy Birthday');?></h1>
-<input type="checkbox" name="turnOff" id="turnOff" value="1"/> <?php xl('Turn Off birthday alert');?>
+<h1><?php echo xl('Happy Birthday');?></h1>
+<input type="checkbox" name="turnOff" id="turnOff" value="1"/> <?php echo xl('Turn Off birthday alert');?>
 
 
 <script>

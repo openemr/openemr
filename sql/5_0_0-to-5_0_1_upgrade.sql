@@ -462,3 +462,11 @@ INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','apps','Apps'
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','*OpenEMR','main/main_screen.php',10,1,0);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','Calendar','main/calendar/index.php',20,0,0);
 #EndIf
+
+#IfNotTable patient_birthday_alert
+CREATE TABLE `patient_birthday_alert` (
+  `pid` int(11) NOT NULL,
+  `turned_off_on` date NOT NULL,
+  PRIMARY KEY (`pid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+#EndIf

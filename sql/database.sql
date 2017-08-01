@@ -9949,3 +9949,10 @@ CREATE TABLE `form_therapy_groups_attendance` (
   activity	tinyint(4),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB ;
+
+DROP TABLE IF EXISTS `patient_birthday_alert`;
+CREATE TABLE `patient_birthday_alert` (
+  `pid` int(11) NOT NULL,
+  `turned_off_on` date NOT NULL,
+  PRIMARY KEY (`pid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
