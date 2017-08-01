@@ -392,6 +392,26 @@ while ($gfrow = sqlFetchArray($gfres)) { ?>
       'centerOnScroll' : false
     }).trigger('click');
     <?php } ?>
+<?php /*To display the birthday alert
+    1. The patient is not dead
+    2. The birthday is today
+    3. The notification has not been turned off for this year*/
+
+    if ($GLOBALS['patient_birthday_alert']) {
+        include_once ('../birthday_alert/birthday.inc.php');
+            if (display_birthday_alert($result['deceased_date'],$result['DOB'],$pid)){
+            ?>
+                // show the active reminder modal
+                 $("#birthday_popup").fancybox({
+                    'overlayOpacity' : 0.0,
+                    'showCloseButton' : true,
+                    'frameHeight' : 200,
+                    'frameWidth' : 200,
+                    'centerOnScroll' : false
+                }).trigger('click');
+        <?php } ?>
+
+    <?php } ?>
 
 });
 
@@ -466,6 +486,7 @@ $(window).load(function() {
 
 <a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='visibility: false;' class='iframe' onclick='top.restoreSession()'></a>
 
+<a href='../birthday_alert/birthday_pop.php?pid=<?php echo $pid?>' id='birthday_popup' style='visibility: false;' class='iframe' onclick='top.restoreSession()'></a>
 <?php
 $thisauth = acl_check('patients', 'demo');
 if ($thisauth) {
