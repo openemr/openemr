@@ -97,6 +97,7 @@ $USER_SPECIFIC_TABS = array('Appearance',
     'Locale',
     'Report',
     'Calendar',
+    'CDR',
     'Connectors');
 $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'new_tabs_layout',
@@ -116,6 +117,8 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'pat_trkr_timer',
     'ptkr_visit_reason',
     'checkout_roll_off',
+    'patient_birthday_alert',
+    'patient_birthday_alert_manual_off',
     'erx_import_status_message');
 
 // Gets array of time zones supported by PHP.
@@ -937,7 +940,7 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',                              // default
             xl('Observation Results in Immunization')
-        ),
+        )
 
     ),
     // Report Tab
@@ -2055,6 +2058,22 @@ $GLOBALS_METADATA = array(
             '5',                               // default
             xl('Dated reminders maximum alerts to show')
         ),
+        'patient_birthday_alert' => array(
+            xl('Alert on patient birthday'),
+            array(
+                '0' => xl('No alert'),
+                '1' => xl('Alert only on birthday'),
+                '2' => xl('Alert on and after birthday')
+            ),
+            '1',                              // default
+            xl('Alert on patient birthday')
+        ),
+        'patient_birthday_alert_manual_off' => array(
+            xl('Patient birthday alert requires turning off'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Patient birthday alert requires turning off')
+        )
     ),
 
     // Logging

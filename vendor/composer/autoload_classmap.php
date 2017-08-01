@@ -1348,6 +1348,7 @@ return array(
     'OpenEMR\\Core\\Kernel' => $baseDir . '/library/core/src/Kernel.php',
     'OpenEMR\\Encounter\\Services\\ViewHelper' => $baseDir . '/interface/patient_file/encounter/Services/ViewHelper.php',
     'OpenEMR\\Menu\\MainMenuRole' => $baseDir . '/library/menu/src/MainMenuRole.php',
+    'OpenEMR\\Reminder\\BirthdayReminder' => $baseDir . '/library/reminder/src/BirthdayReminder.php',
     'OpenEMR\\Sample\\Event\\SampleEvent' => $baseDir . '/library/sample/src/Event/SampleEvent.php',
     'OpenEMR\\Sample\\Event\\SampleSubscriber' => $baseDir . '/library/sample/src/Event/SampleSubscriber.php',
     'PDFBarcode' => $vendorDir . '/mpdf/mpdf/classes/barcode.php',

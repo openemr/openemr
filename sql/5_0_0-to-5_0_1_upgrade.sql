@@ -479,3 +479,11 @@ ALTER TABLE `layout_options` CHANGE `list_id` `list_id` VARCHAR(100) NOT NULL DE
 ALTER TABLE `layout_options` CHANGE `list_backup_id` `list_backup_id` VARCHAR(100) NOT NULL DEFAULT '';
 #EndIf
 
+#IfNotTable patient_birthday_alert
+CREATE TABLE `patient_birthday_alert` (
+  `pid` bigint(20) NOT NULL DEFAULT 0,
+  `user_id` bigint(20) NOT NULL DEFAULT 0,
+  `turned_off_on` date NOT NULL,
+  PRIMARY KEY  (`pid`,`user_id`)
+) ENGINE=InnoDB;
+#EndIf

@@ -6,23 +6,25 @@
  * @package OpenEMR
  * @link    http://www.open-emr.org
  * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author    Sharon Cohen <sharonco@matrix.co.il>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Sharon Cohen <sharonco@matrix.co.il>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
- require_once("../../globals.php");
- require_once("$srcdir/patient.inc");
- require_once("$srcdir/acl.inc");
- require_once("$srcdir/options.inc.php");
- require_once("../history/history.inc.php");
- require_once("$srcdir/edi.inc");
- require_once("$srcdir/invoice_summary.inc.php");
- require_once("$srcdir/clinical_rules.php");
- require_once("$srcdir/options.js.php");
- require_once("$srcdir/group.inc");
- ////////////
- require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
+require_once("../../globals.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/options.inc.php");
+require_once("../history/history.inc.php");
+require_once("$srcdir/edi.inc");
+require_once("$srcdir/invoice_summary.inc.php");
+require_once("$srcdir/clinical_rules.php");
+require_once("$srcdir/options.js.php");
+require_once("$srcdir/group.inc");
+require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
+use OpenEMR\Reminder\BirthdayReminder;
 
 if (isset($_GET['set_pid'])) {
     include_once("$srcdir/pid.inc");
@@ -393,6 +395,25 @@ while ($gfrow = sqlFetchArray($gfres)) { ?>
     }).trigger('click');
     <?php } ?>
 
+    <?php if ($GLOBALS['patient_birthday_alert']) {
+        // To display the birthday alert:
+        //  1. The patient is not deceased
+        //  2. The birthday is today (or in the past depending on global selection)
+        //  3. The notification has not been turned off (or shown depending on global selection) for this year
+        $birthdayAlert = new BirthdayReminder($pid, $_SESSION['authId']);
+        if ($birthdayAlert->isDisplayBirthdayAlert()) {
+            ?>
+            // show the active reminder modal
+            $("#birthday_popup").fancybox({
+                'overlayOpacity' : 0.0,
+                'showCloseButton' : true,
+                'frameHeight' : 170,
+                'frameWidth' : 200,
+                'centerOnScroll' : false
+            }).trigger('click');
+        <?php } ?>
+    <?php } ?>
+
 });
 
 // JavaScript stuff to do when a new patient is set.
@@ -466,6 +487,7 @@ $(window).load(function() {
 
 <a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='visibility: false;' class='iframe' onclick='top.restoreSession()'></a>
 
+<a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr($pid); ?>&user_id=<?php echo attr($_SESSION['authId']); ?>' id='birthday_popup' style='visibility: false;' class='iframe' onclick='top.restoreSession()'></a>
 <?php
 $thisauth = acl_check('patients', 'demo');
 if ($thisauth) {

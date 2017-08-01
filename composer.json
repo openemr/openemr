@@ -72,7 +72,8 @@
             "OpenEMR\\Core\\": "library/core/src",
             "OpenEMR\\Menu\\": "library/menu/src",
             "OpenEMR\\Calendar\\": "library/calendar/src",
-            "OpenEMR\\Sample\\": "library/sample/src"
+            "OpenEMR\\Sample\\": "library/sample/src",
+            "OpenEMR\\Reminder\\": "library/reminder/src"
         }
     },
     "config": {

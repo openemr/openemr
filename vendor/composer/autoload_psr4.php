@@ -29,6 +29,7 @@ return array(
     'Symfony\\Component\\Config\\' => array($vendorDir . '/symfony/config'),
     'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),
     'OpenEMR\\Sample\\' => array($baseDir . '/library/sample/src'),
+    'OpenEMR\\Reminder\\' => array($baseDir . '/library/reminder/src'),
     'OpenEMR\\Menu\\' => array($baseDir . '/library/menu/src'),
     'OpenEMR\\Encounter\\Services\\' => array($baseDir . '/interface/patient_file/encounter/Services'),
     'OpenEMR\\Core\\' => array($baseDir . '/library/core/src'),
