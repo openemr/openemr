@@ -1,11 +1,16 @@
 <?php
-
-
 /**
  * class Note
  * This class offers functionality to store sequential comments/notes about an external object or anything with a unique id.
- * It is not intended that once a note is save it can be editied or changed.
+ * It is not intended that once a note is save it can be edited or changed.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 class Note extends ORDataObject
 {
@@ -14,44 +19,44 @@ class Note extends ORDataObject
 	*	Database unique identifier
 	*	@var id
 	*/
-    var $id;
+    private $id;
 
     /*
 	*	DB unique identifier reference to some other table, this is not unique in the notes table
 	*	@var int
 	*/
-    var $foreign_id;
+    private $foreign_id;
 
     /*
 	*	Narrative comments about whatever object is represented by the foreign id this note is associated with
 	*	@var string upto 255 character string
 	*/
-    var $note;
+    private $note;
 
     /*
 	*	Foreign key identifier of who initially persisited the note,
 	*	potentially ownership could be changed but that would be up to an external non-document object process
 	*	@var int
 	*/
-    var $owner;
+    private $owner;
 
     /*
 	*	Date the note was first persisted
 	*	@var date
 	*/
-    var $date;
+    private $date;
 
     /*
 	*	Timestamp of the last time the note was changed and persisted, auto maintained by DB, manually change at your own peril
 	*	@var int
 	*/
-    var $revision;
+    private $revision;
 
     /**
      * Constructor sets all Note attributes to their default value
      * @param int $id optional existing id of a specific note, if omitted a "blank" note is created
      */
-    function __construct($id = "")
+    public function __construct($id = "")
     {
         //call the parent constructor so we have a _db to work with
         parent::__construct();
@@ -99,7 +104,7 @@ class Note extends ORDataObject
     /**
      * Convenience function to generate string debug data about the object
      */
-    function toString($html = false)
+    public function toString($html = false)
     {
         $string .= "\n"
         . "ID: " . $this->id."\n"
@@ -120,50 +125,50 @@ class Note extends ORDataObject
 	*	Getter/Setter methods used by reflection to affect object in persist/poulate operations
 	*	@param mixed new value for given attribute
 	*/
-    function set_id($id)
+    public function set_id($id)
     {
         $this->id = $id;
     }
-    function get_id()
+    public function get_id()
     {
         return $this->id;
     }
-    function set_foreign_id($fid)
+    public function set_foreign_id($fid)
     {
         $this->foreign_id = $fid;
     }
-    function get_foreign_id()
+    public function get_foreign_id()
     {
         return $this->foreign_id;
     }
-    function set_note($note)
+    public function set_note($note)
     {
         $this->note = $note;
     }
-    function get_note()
+    public function get_note()
     {
         return $this->note;
     }
-    function set_date($date)
+    public function set_date($date)
     {
         $this->date = $date;
     }
-    function get_date()
+    public function get_date()
     {
         return $this->date;
     }
-    function set_owner($owner)
+    public function set_owner($owner)
     {
         $this->owner = $owner;
     }
-    function get_owner()
+    public function get_owner()
     {
         return $this->owner;
     }
     /*
 	*	No getter for revision because it is updated automatically by the DB.
 	*/
-    function set_revision($revision)
+    public function set_revision($revision)
     {
         $this->revision = $revision;
     }
@@ -176,7 +181,7 @@ class Note extends ORDataObject
 	*	@param int $fid foreign id that should be used so that this note can be related (joined) on it later
 	*/
 
-    function persist($fid = "")
+    public function persist($fid = "")
     {
         if (!empty($fid)) {
             $this->foreign_id = $fid;
