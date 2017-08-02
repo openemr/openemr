@@ -1818,8 +1818,8 @@ class Display extends base
                       <div class="divTableCell center"><?php echo xlt('Possible'); ?></div>
                       <div class="divTableCell center"><?php echo xlt('Not Possible'); ?></div>
                       <div class="divTableCell center"><?php echo xlt('Scheduled'); ?></div>
-                      <div class="divTableCell center"><?php echo xlt('Sent')."<br />".xlt('In-process'); ?></div>
-                      <div class="divTableCell center"><?php echo xlt('Read')."<br />".xlt('Done');
+                      <div class="divTableCell center"><?php echo xlt('Sent')." /<br />".xlt('In-process'); ?></div>
+                      <div class="divTableCell center"><?php echo xlt('Read')." /<br />".xlt('Delivered');
                         ; ?></div>
                       <div class="divTableCell center"><?php echo xlt('Confirmed'); ?></div>
                       <div class="divTableCell center"><?php echo xlt('Callback'); ?></div>

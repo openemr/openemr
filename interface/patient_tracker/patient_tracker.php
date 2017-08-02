@@ -203,8 +203,8 @@ function topatient(newpid, enc) {
       document.fnew.submit();
     }
     function SMS_bot(eid) {
-      top.restoreSession()
-      window.open('../main/messages/messages.php?nomenu=1&go=SMS_bot&pc_eid=' + eid,'_blank', 'width=330,height=550,resizable=0');
+      top.restoreSession()   
+      window.open('../main/messages/messages.php?nomenu=1&go=SMS_bot&pc_eid=' + eid,'_blank', 'width=370,height=590,resizable=0');
       return false;
     }
 
@@ -213,6 +213,16 @@ function topatient(newpid, enc) {
     .btn {
       border: solid black 0.5pt;
       box-shadow: 3px 3px 3px #7b777760;
+    }
+    .ui-tooltip-content {
+      font-size:8pt;
+      font-family:Calibri;
+      background-color:#fff;
+      border-radius:5px;
+      padding:3px;
+      color:#000;
+      width:200px;
+      white-space: pre-line;
     }
   </style>
 
@@ -433,137 +443,177 @@ if ($GLOBALS['pat_trkr_timer'] == '0') {
                 <?php } ?>
            </tr>
 
-            <?php
-            $query2 = "SELECT * from medex_icons";
-            $iconed = sqlStatement($query2);
-            foreach ($iconed as $icon) {
-                $icons[$icon['msg_type']][$icon['msg_status']]['html'] = $icon['i_html'];
+          <?php
+          $icons=array();
+          $query2 = "SELECT * from medex_icons";
+          $iconed = sqlStatement($query2);    
+          while ($icon = sqlFetchArray($iconed)) {
+            $icons[$icon['msg_type']][$icon['msg_status']]['html'] = $icon['i_html'];
+          }
+        
+       /*   foreach ($iconed as $icon) {
+          //  $icons[$icon['msg_type']][$icon['msg_status']]['description'] = $icon['i_description'];
+            $icons[$icon['msg_type']][$icon['msg_status']]['html'] = $icon['i_html'];
+          }
+          */
+          $prev_appt_date_time = "";
+          foreach ( $appointments as $appointment ) {
+            if (empty($room)) {
+              //they are not here yet, display MedEx Reminder info
+              //one icon per type of response.
+              //If there was a SMS dialog, display it as a mouseover/title
+              //Display date received also as mouseover title.
+              $other_title = '';
+              $title = '';
+              $icon2_here ='';
+              $icon_CALL = '';
+              $icon_4_CALL = '';
+              $appt['stage'] ='';
+              $icon_here = array();
+              $prog_text='';
+              $CALLED='';
+              $FINAL='';
+              $icon_CALL = '';
+              
+              # Collect appt date and set up squashed date for use below
+              $date_appt = $appointment['pc_eventDate'];
+              $date_squash = str_replace("-","",$date_appt);
+
+              $query = "Select * from medex_outgoing where msg_pc_eid =? order by msg_date";
+              $myMedEx = sqlStatement($query,array($appointment['eid']));
+              /**
+               * Each row for this pc_eid in the medex_outgoing table represents an event.
+               * Every event is recorded in $prog_text.
+               * A modality is represented by an icon (eg mail icon, phone icon, text icon).
+               * The state of the Modality is represented by the color of the icon:
+               *      CONFIRMED       =   green
+               *      READ            =   blue
+               *      FAILED          =   pink
+               *      SENT/in process =   yellow
+               *      SCHEDULED       =   white
+               * Icons are displayed in their highest state.
+               */
+              $FINAL='';
+              while ($row = sqlFetchArray($myMedEx)) {
+                //convert $row['msg_date'] to localtime & format the date/time how we like it.
+                $other_title = '';
+                if (!empty($row['msg_extra_text'])) {
+                  $local = attr($row['msg_extra_text'])." |";
+                } 
+                $prog_text .= oeFormatShortDate($row['msg_date'])." :: ".attr($row['msg_type'])." : ".attr($row['msg_reply'])." | ".$local." |";
+              
+                if ($row['msg_reply'] == 'Other') {
+                  $other_title .= $row['msg_extra_text']."\n"; 
+                  $icon_extra .= str_replace("EXTRA",
+                                            oeFormatShortDate($row['msg_date'])."\n".xla('Patient Message').":\n".attr($row['msg_extra_text'])."\n",
+                                            $icons[$row['msg_type']]['EXTRA']['html']);
+                  
+                  continue;
+                }
+                 elseif ($row['msg_reply'] == "FAILED") 
+                { 
+                  $appointment[$row['msg_type']]['stage'] = "FAILED";
+                  $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['FAILED']['html'];
+                } 
+                elseif (($row['msg_reply'] == "CONFIRMED")||($FINAL)) 
+                { 
+                  $appointment[$row['msg_type']]['stage'] = "CONFIRMED";
+                  $FINAL = $icons[$row['msg_type']]['CONFIRMED']['html'];
+                  $icon_here[$row['msg_type']] = $FINAL;
+                  continue;
+                } 
+                elseif ($row['msg_type']=="NOTES") { 
+                  $CALLED="1";
+                  $FINAL = $icons['NOTES']['CALLED']['html'];
+                  $FINAL = str_replace("Call Back: COMPLETED",oeFormatShortDate($row['msg_date'])." :: ".xla('Callback Performed')." | ".xla('NOTES').": ".$row['msg_extra_text']." | ",$FINAL);
+                  $icon_CALL = $icon_4_call;
+                  continue;
+                }
+                elseif (($row['msg_reply'] == "READ")||($appointment[$row['msg_type']]['stage']=="READ")) 
+                {
+                  $appointment[$row['msg_type']]['stage'] = "READ";
+                  $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['READ']['html'];
+                } 
+               
+                elseif (($row['msg_reply'] == "SENT")||($appointment[$row['msg_type']]['stage']=="SENT")) 
+                {
+                  $appointment[$row['msg_type']]['stage'] = "SENT";
+                  $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['SENT']['html'];
+                } 
+                elseif (($row['msg_reply'] == "To Send")||(empty($appointment['stage']))) 
+                {
+                  if (($appointment[$row['msg_type']]['stage']!="CONFIRMED")&&
+                    ($appointment[$row['msg_type']]['stage']!="READ")&&
+                    ($appointment[$row['msg_type']]['stage']!="SENT")&&
+                    ($appointment[$row['msg_type']]['stage']!="FAILED")) 
+                  {
+                    $appointment[$row['msg_type']]['stage']   = "QUEUED";
+                    $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['SCHEDULED']['html'];
+                  }  
+                } 
+                //these are additional icons if present
+                if (($row['msg_reply'] == "CALL")&&(!$CALLED)) { 
+                  $icon_here ='';
+                  $icon_4_CALL = $icons[$row['msg_type']]['CALL']['html'];
+                  $icon_CALL = "<span onclick=\"doCALLback('".$date_squash."','".$appointment['eid']."','".$appointment['pc_cattype']."')\">".$icon_4_CALL."</span>
+                    <span class='hidden' name='progCALLback_".$appointment['eid']."' id='progCALLback_".$appointment['eid']."'>
+                      <form  method='post'>
+                        <h4>Call Back Notes:</h4>
+                        <input type='hidden' name='pc_eid' id='pc_eid' value='".$appointment['eid']."'>
+                        <input type='hidden' name='campaign_uid' id='campaign_uid' value='".$row['campaign_uid']."'>
+                        <textarea name='txtCALLback' id='txtCALLback' rows=6 cols=20></textarea>
+                        <input type='submit' name='saveCALLback' id='saveCALLback' value='Save'>
+                      </form>
+                    </span>
+                      ";
+                } elseif ($row['msg_reply'] == "STOP") { 
+                  $icon2_here .= $icons[$row['msg_type']]['STOP']['html'];
+                } elseif ($row['msg_reply'] == "Other") { 
+                  $icon2_here .= $icons[$row['msg_type']]['Other']['html'];
+                } elseif ($row['msg_reply'] == "CALLED") { 
+                  $icon2_here .= $icons[$row['msg_type']]['CALLED']['html'];
+                }
+              }
+              //if pc_apptstatus == '-', update it now to=status
+
+              if (!empty($other_title)) {
+                $appointment['messages']= $icon2_here.$icon_extra;
+              }
             }
-            $prev_appt_date_time = "";
-            foreach ($appointments as $appointment) {
-                if (empty($room)) {
-                  //they are not here yet, display MedEx Reminder info
-                  //one icon per type of response.
-                  //If there was a SMS dialog, display it as a mouseover/title
-                  //Display date received also as mouseover title.
-                    $other_title = '';
-                    $title = '';
-                    $icon2_here ='';
-                    $icon_CALL = '';
-                    $icon_4_CALL = '';
-                    $appt['stage'] ='';
-                    $icon_here = array();
-                    $prog_text='';
 
-                  # Collect appt date and set up squashed date for use below
-                    $date_appt = $appointment['pc_eventDate'];
-                    $date_squash = str_replace("-", "", $date_appt);
-
-                    $query = "Select * from medex_outgoing where msg_pc_eid =? order by msg_date";
-                    $myMedEx = sqlStatement($query, array($appointment['eid']));
-                    while ($row = sqlFetchArray($myMedEx)) {
-                        $prog_text .= $row['msg_date']." ".$row['msg_type']." ".$row['msg_reply'].": ".$row['msg_extra_text']."\n";
-
-                        if ($row['msg_reply'] == 'Other') {
-                            $other_title .= $row['msg_extra_text']."\n"; //format the date/time how we like it.
-                            continue;
-                        }
-                      // Calendar Appt status gets updated.
-                      // We have added Appt statuses to list apptstatus to include the following categories SMS,AVM,EMAIL,CALL
-
-                        if (($row['msg_reply'] == "CONFIRMED")||($appointment[$row['msg_type']]['stage']=="CONFIRMED")) { //all done then, no need to show any more SMS stuff
-                            $appointment[$row['msg_type']]['stage'] = "CONFIRMED";
-                            $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['CONFIRMED']['html'];
-                         //  $appointment['status'] = $row['msg_type'];
-                        } elseif (($row['msg_reply'] == "READ")||($appointment[$row['msg_type']]['stage']=="READ")) {
-                            if ($appointment[$row['msg_type']]['stage']  != "CONFIRMED") {
-                                $appointment['stage'] = "READ";
-                                $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['READ']['html'];
-                            }
-                        } elseif (($row['msg_reply'] == "SENT")||($appointment[$row['msg_type']]['stage']=="SENT")) {
-                            if (($appointment[$row['msg_type']]['stage']!="CONFIRMED")&& ($appointment[$row['msg_type']]['stage']!="READ")) {
-                                $appointment[$row['msg_type']]['stage'] = "SENT";
-                                $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['SENT']['html'];
-                            }
-                        } elseif (($row['msg_reply'] == "To Send")||($appointment['stage']=="QUEUED")) {
-                            if (($appointment[$row['msg_type']]['stage']!="CONFIRMED")&&($appointment[$row['msg_type']]['stage']!="READ")&&($aappointment[$row['msg_type']]['stage']!="SENT")) {
-                                $appointment[$row['msg_type']]['stage']   = "QUEUED";
-                                $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['SCHEDULED']['html'];
-                            }
-                        }
-                      //these are additional icons if present
-                        if (($row['msg_reply'] == "CALL")||($row['msg_type']=="NOTES")) {
-                            if (($appointment['NOTES']['staged'])||($row['msg_type']=="NOTES")) {
-                                $appointment['NOTES']['staged'] ="YES";
-                                $icon_4_CALL = $icons['NOTES']['CALLED']['html'];
-                            } else {
-                                $icon_4_CALL = $icons[$row['msg_type']]['CALL']['html'];
-                            }
-                            $icon_CALL = "<span onclick=\"doCALLback('".attr(addslashes($date_squash))."','".attr(addslashes($appointment['eid']))."','".attr(addslashes($appointment['pc_cattype']))."')\">".$icon_4_CALL."</span>
-                            <span class='hidden' name='progCALLback_".attr($appointment['eid'])."' id='progCALLback_".attr($appointment['eid'])."'>
-                              <form  method='post'>
-                                <h4>".xlt('Call Back Notes').":</h4>
-                                <input type='hidden' name='pc_eid' id='pc_eid' value='".attr($appointment['eid'])."'>
-                                <input type='hidden' name='campaign_uid' id='campaign_uid' value='".attr($row['campaign_uid'])."'>
-                                <textarea name='txtCALLback' id='txtCALLback' rows=6 cols=20></textarea>
-                                <input type='submit' name='saveCALLback' id='saveCALLback' value='Save'>
-                              </form>
-                            </span>";
-                        } elseif ($row['msg_reply'] == "STOP") {
-                            $icon2_here .= $icons[$row['msg_type']]['STOP']['html'];
-                        } elseif ($row['msg_reply'] == "EXTRA") {
-                            $icon2_here .= $icons[$row['msg_type']]['STOP']['html'];
-                        } elseif ($row['msg_reply'] == "FAILED") {
-                            $icon2_here .= $icons[$row['msg_type']]['FAILED']['html'];
-                        } elseif ($row['msg_reply'] == "CALLED") {
-                            $icon2_here .= $icons[$row['msg_type']]['CALLED']['html'];
-                        }
-                    }
-                  //if pc_apptstatus == '-', update it now to=status
-
-                    if (!empty($other_title)) {
-                        $title = '<a class="btn btn-primary" title="'.attr($other_title).'" onclick="SMS_bot(\''.attr($appointment['pc_eid']).'\')"><i class="fa fa-sticky-note-o" aria-hidden="true"></i></a>';
-                        $appointment['messages'] .= $title;
-                    }
-                }
-
+            
                       # Collect variables and do some processing
-                $docname  = $chk_prov[$appointment['uprovider_id']];
-                if (strlen($docname)<= 3) {
-                    continue;
-                }
-                $ptname = $appointment['lname'] . ', ' . $appointment['fname'] . ' ' . $appointment['mname'];
-                $appt_enc = $appointment['encounter'];
-                $appt_eid = (!empty($appointment['eid'])) ? $appointment['eid'] : $appointment['pc_eid'];
-                $appt_pid = (!empty($appointment['pid'])) ? $appointment['pid'] : $appointment['pc_pid'];
-                if ($appt_pid ==0) {
-                    continue; // skip when $appt_pid = 0, since this means it is not a patient specific appt slot
-                }
-                $status = (!empty($appointment['status'])) ? $appointment['status'] : $appointment['pc_apptstatus'];
-                $appt_room = (!empty($appointment['room'])) ? $appointment['room'] : $appointment['pc_room'];
-                $appt_time = (!empty($appointment['appttime'])) ? $appointment['appttime'] : $appointment['pc_startTime'];
-                $tracker_id = $appointment['id'];
-              # reason for visit
-                if ($GLOBALS['ptkr_visit_reason']) {
-                    $reason_visit = $appointment['pc_hometext'];
-                }
-                $newarrive = collect_checkin($tracker_id);
-                $newend = collect_checkout($tracker_id);
-                $colorevents = (collectApptStatusSettings($status));
-                $bgcolor = $colorevents['color'];
-                $statalert = $colorevents['time_alert'];
-              # process the time to allow items with a check out status to be displayed
-                if (is_checkout($status) && (($GLOBALS['checkout_roll_off'] > 0) && strlen($form_apptstatus) != 1 )) {
-                    $to_time = strtotime($newend);
-                    $from_time = strtotime($datetime);
-                    $display_check_out = round(abs($from_time - $to_time) / 60, 0);
-                    if ($display_check_out >= $GLOBALS['checkout_roll_off']) {
-                        continue;
-                    }
-                }
-                ?>
-              <tr bgcolor='<?php echo $bgcolor ?>'>
-                <?php if ($GLOBALS['ptkr_show_pid']) { ?>
+            $docname  = $chk_prov[$appointment['uprovider_id']];
+            if (strlen($docname)<= 3 ) continue;
+            $ptname = $appointment['lname'] . ', ' . $appointment['fname'] . ' ' . $appointment['mname'];
+            $appt_enc = $appointment['encounter'];
+            $appt_eid = (!empty($appointment['eid'])) ? $appointment['eid'] : $appointment['pc_eid'];
+            $appt_pid = (!empty($appointment['pid'])) ? $appointment['pid'] : $appointment['pc_pid'];
+            if ($appt_pid ==0 ) continue; // skip when $appt_pid = 0, since this means it is not a patient specific appt slot
+            $status = ( !empty($appointment['status'])&&(!is_numeric($appointment['status']))) ?  $appointment['status'] : $appointment['pc_apptstatus'];
+            $appt_room = (!empty($appointment['room'])) ? $appointment['room'] : $appointment['pc_room'];
+            $appt_time = (!empty($appointment['appttime'])) ? $appointment['appttime'] : $appointment['pc_startTime'];
+            $appt_date_time = $date_appt .' '. $appt_time;  // used to find flag double booked
+            $tracker_id = $appointment['id'];
+            # reason for visit
+            if ($GLOBALS['ptkr_visit_reason']) {
+              $reason_visit = $appointment['pc_hometext'];
+            }
+            $newarrive = collect_checkin($tracker_id);
+            $newend = collect_checkout($tracker_id);
+            $colorevents = (collectApptStatusSettings($status));
+            $bgcolor = $colorevents['color'];
+            $statalert = $colorevents['time_alert'];
+            # process the time to allow items with a check out status to be displayed
+            if ( is_checkout($status) && (($GLOBALS['checkout_roll_off'] > 0) && strlen($form_apptstatus) != 1 )  ) {
+              $to_time = strtotime($newend);
+              $from_time = strtotime($datetime);
+              $display_check_out = round(abs($from_time - $to_time) / 60,0);
+              if ( $display_check_out >= $GLOBALS['checkout_roll_off'] ) continue;
+            }
+            ?>
+            <tr bgcolor='<?php echo $bgcolor ?>'>
+              <?php if ($GLOBALS['ptkr_show_pid']) { ?>
               <td class="detail" align="center">
                 <?php echo text($appt_pid) ?>
               </td>
