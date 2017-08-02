@@ -70,7 +70,9 @@ function userSelect() {
 
     <div class="row">
         <div class="col-xs-12">
-            <h3><?php echo xlt('Chart Tracker'); ?></h3>
+            <div class="page-header">
+                <h1><?php echo xlt('Chart Tracker'); ?></h1>
+            </div>
          </div>
     </div>
 
@@ -180,7 +182,7 @@ if (!empty($row)) {
             </div>
         <div class="form-group">
             <div class="col-sm-offset-3 col-sm-9">
-                    <button type='submit' class='btn btn-default btn-search' name='form_save'><?php echo xlt("Save"); ?></button>
+                    <button type='submit' class='btn btn-default btn-save' name='form_save'><?php echo xlt("Save"); ?></button>
             </div>
         </div>
     </div>
