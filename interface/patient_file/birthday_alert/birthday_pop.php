@@ -35,7 +35,7 @@ use OpenEMR\Core\Header;
         var data =  {"pid": pid, "turnOff": value};
         $.ajax({
             type: "POST",
-            url: "turnoff_birthday_alert.php",
+            url: "../../../library/ajax/turnoff_birthday_alert.php",
             async: true,
             data: data,
             success: function (msg) {
