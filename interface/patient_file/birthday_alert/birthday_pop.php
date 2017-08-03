@@ -18,7 +18,7 @@
  */
 
 
-/**picture free taken from https://pixabay.com/en/balloons-party-celebration-floating-154949*/
+/*picture free taken from https://pixabay.com/en/balloons-party-celebration-floating-154949*/
 include_once("../../globals.php");
 
 ?>
@@ -29,7 +29,7 @@ include_once("../../globals.php");
 </head>
 <body>
 
-<h1><?php echo xl('Happy Birthday');?><img src="../../../images/balloons-154949_960_720.png" height="42" width="42"></h1>
+<h1><?php echo xl('Happy Birthday');?><img src="<?php echo$GLOBALS['images_static_relative']?>/balloons-154949_960_720.png" height="42" width="42"></h1>
 <input type="checkbox" name="turnOff" id="turnOff" value="1"/> <?php echo xl('Turn Off birthday alert');?>
 
 
