@@ -9955,4 +9955,4 @@ CREATE TABLE `patient_birthday_alert` (
   `pid` int(11) NOT NULL,
   `turned_off_on` date NOT NULL,
   PRIMARY KEY (`pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
