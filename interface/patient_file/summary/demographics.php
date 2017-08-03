@@ -396,9 +396,8 @@ while ($gfrow = sqlFetchArray($gfres)) { ?>
     1. The patient is not dead
     2. The birthday is today
     3. The notification has not been turned off for this year*/
-
     if ($GLOBALS['patient_birthday_alert']) {
-        include_once ('../birthday_alert/birthday.inc.php');
+        include_once($GLOBALS['srcdir']."/birthday.inc.php");
             if (display_birthday_alert($result['deceased_date'],$result['DOB'],$pid)){
             ?>
                 // show the active reminder modal
