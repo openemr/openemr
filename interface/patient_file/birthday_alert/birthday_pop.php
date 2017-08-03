@@ -16,8 +16,8 @@ use OpenEMR\Core\Header;
 
 <html xmlns="http://www.w3.org/1999/html">
 <head>
+    <?php Header::setupHeader(); ?>
     <title><?php echo xlt("Happy Birthday"); ?></title>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
 </head>
 <body>
 
