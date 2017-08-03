@@ -404,7 +404,7 @@ while ($gfrow = sqlFetchArray($gfres)) { ?>
                  $("#birthday_popup").fancybox({
                     'overlayOpacity' : 0.0,
                     'showCloseButton' : true,
-                    'frameHeight' : 200,
+                    'frameHeight' : 170,
                     'frameWidth' : 200,
                     'centerOnScroll' : false
                 }).trigger('click');

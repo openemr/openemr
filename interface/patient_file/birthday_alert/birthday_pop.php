@@ -20,9 +20,12 @@ use OpenEMR\Core\Header;
     <title><?php echo xlt("Happy Birthday"); ?></title>
 </head>
 <body>
+<p class="h2"><?php echo xl('Happy Birthday');?><img src="<?php echo$GLOBALS['images_static_relative']?>/balloons-154949_960_720.png" height="42" width="42"></p>
 
-<h1><?php echo xl('Happy Birthday');?><img src="<?php echo$GLOBALS['images_static_relative']?>/balloons-154949_960_720.png" height="42" width="42"></h1>
-<input type="checkbox" name="turnOff" id="turnOff" value="1"/> <?php echo xl('Turn Off birthday alert');?>
+<div class="checkbox">
+    <label><input type="checkbox" name="turnOff" id="turnOff" value="1"><?php echo xl('Turn Off birthday alert');?></label>
+</div>
+
 
 
 <script>
