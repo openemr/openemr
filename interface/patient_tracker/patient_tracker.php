@@ -682,10 +682,7 @@ if ($GLOBALS['pat_trkr_timer'] == '0') {
         if (($yestime == '1') && ($timecheck >=1) && (strtotime($newarrive)!= '')) {
             echo text($timecheck . ' ' .($timecheck >=2 ? xl('minutes'): xl('minute')));
         } else {
-          if ($GLOBALS['medex_enable'] == '1'){
-            $icon_here = array();
             echo  "<span onclick='return calendarpopup(". attr($appt_eid).",".attr($date_squash).")'>". implode($icon_here)."</span> ".$icon2_here.$icon_CALL;
-          }
         }
           #end time in current status
             ?>
@@ -719,11 +716,9 @@ if ($GLOBALS['pat_trkr_timer'] == '0') {
         </td>
         <td class="detail" align="center">
             <?php
-       if ($GLOBALS['medex_enable'] == '1'){
             if ($prog_text >'') {
                 echo  '<span class="btn btn-primary" style="padding:5px;" onclick="SMS_bot(\''.attr($appointment['pc_eid']).'\')"><i class="fa fa-list-alt fa-inverse" title="'.attr($prog_text).'"></i></span>';
             }
-       }
 
             if (strtotime($newend) != '') {
                 echo oeFormatTime($newend) ;
