@@ -11,7 +11,7 @@
 
 
 
-function display_birthday_alert($deceased_date,$dob,$pid){
+function displayBirthdayAlert($deceased_date, $dob, $pid){
     if($deceased_date > 0 ){
         return false;
     }
