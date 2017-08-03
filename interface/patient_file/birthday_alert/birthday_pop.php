@@ -10,8 +10,8 @@
  */
 
 /*picture free taken from https://pixabay.com/en/balloons-party-celebration-floating-154949*/
-include_once("../../globals.php");
-
+require_once("../../globals.php");
+use OpenEMR\Core\Header;
 ?>
 
 <html xmlns="http://www.w3.org/1999/html">
