@@ -28,7 +28,7 @@ use OpenEMR\Core\Header;
 <script>
     $("#turnOff").change(function () {
         var pid = <?php echo $_GET['pid']?>;
-        var value = $(this).is(':checked');
+        var value = $(this).prop('checked');
         var data =  {"pid": pid, "turnOff": value};
         $.ajax({
             type: "POST",
