@@ -2,20 +2,13 @@
 /**
  * Viewing and modification/creation of office notes.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @Copyright (C) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -54,8 +47,21 @@ if (isset($_POST['mode'])) {
 <head>
 
 <?php Header::setupHeader(); ?>
+<title><?php echo xlt('Office Notes'); ?></title>
 </head>
-<body class="body_top">
+<body class="body_top" onload="document.forms[0].note.focus()">
+
+<style type="text/css">
+@media screen {
+    #note {
+     background-color:#EBF4FA;
+    }
+
+}
+
+</style>
+
+<div class="container">
 
 <div id="officenotes_edit">
 
@@ -70,18 +76,22 @@ if ($userauthorized) {
 }
 ?>
 
-<a href="office_comments.php" onclick='top.restoreSession()'>
-
-<span class="title"><?php echo xlt('Office Notes'); ?></span>
-<span class="back"><?php echo text($tback); ?></span></a>
-
+   <div class="row">
+      <div class="col-sm-6">
+         <div class="form-group form-horizontal page-header">
+            <h3><label class='col-sm-4 text-right'><?php echo xlt('Office Notes'); ?></label></h3>
+            <p class="back control-label col-sm-1"><a href="office_comments.php" onclick='top.restoreSession()'><?php echo text($tback); ?></a></p>
+         </div>
+      </div>
+   <div class="form-group">
+    <textarea  name ="note" id="note" rows="3"  class="form-control" placeholder="<?php echo xla("Enter new office note here"); ?>" ></textarea>
+    <button type="submit" class='btn btn-save'><?php echo xla('Add New Note'); ?></button> 
+   </div>
 <br>
 <input type="hidden" name="mode" value="new">
 <input type="hidden" name="offset" value="<?php echo attr($offset); ?>">
 <input type="hidden" name="active" value="<?php echo attr($active); ?>">
-
-<textarea name="note" class="form-control" rows="3" placeholder="<?php echo xla("Enter new office note here"); ?>" ></textarea>
-<input type="submit" value="<?php echo xla('Add New Note'); ?>" />
+   </div>
 </form>
 
 <br/>
@@ -102,15 +112,22 @@ if ($active==="1") {
 }
 ?>
 
-<a href="office_comments_full.php?offset=0&active=-1" class="css_button<?php echo attr($all_class);?>" onclick='top.restoreSession()'><?php echo xlt('All'); ?></a>
-<a href="office_comments_full.php?offset=0&active=1" class="css_button<?php echo attr($active_class);?>" onclick='top.restoreSession()'><?php echo xlt('Only Active'); ?></a>
-<a href="office_comments_full.php?offset=0&active=0" class="css_button<?php echo attr($inactive_class);?>" onclick='top.restoreSession()'><?php echo xlt('Only Inactive'); ?></a>
+   <div class="row">
+      <div class="form-group">
+         <a href="office_comments_full.php?offset=0&active=-1" class="css_button<?php echo attr($all_class);?>" onclick='top.restoreSession()'><?php echo xlt('All'); ?></a>
+         <a href="office_comments_full.php?offset=0&active=1" class="css_button<?php echo attr($active_class);?>" onclick='top.restoreSession()'><?php echo xlt('Only Active'); ?></a>
+        <a href="office_comments_full.php?offset=0&active=0" class="css_button<?php echo attr($inactive_class);?>" onclick='top.restoreSession()'><?php echo xlt('Only Inactive'); ?></a>
+         
+
+      </div>
+   </div>
 
 <input type="hidden" name="mode" value="update">
 <input type="hidden" name="offset" value="<?php echo attr($offset);?>">
 <input type="hidden" name="active" value="<?php echo attr($active);?>">
 <br/>
 
+<div id="report_results">
 <table border="0" class="existingnotes table table-striped">
 <?php
 //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
@@ -119,6 +136,7 @@ $notes = $oNoteService->getNotes($active, $offset, $N);
 
 $result_count = 0;
 //retrieve all notes
+
 if ($notes) {
     print "<thead><tr><th>" . xlt("Active") . "</th><th>" . xlt("Date") . " (" . xlt("Sender") . ")</th><th>" . xlt("Office Note") . "</th></tr></thead><tbody>";
     foreach ($notes as $note) {
@@ -155,6 +173,8 @@ if ($notes) {
 </table>
 
 <input type="submit" value="<?php echo xla('Save Activity'); ?>" />
+
+</div> 
 </form>
 <hr>
 <table width="400" border="0" cellpadding="0" cellspacing="0" class="table">
@@ -173,5 +193,6 @@ if ($result_count == $N) {
 </td></tr>
 </table>
 </div>
+</div> 
 </body>
 </html>

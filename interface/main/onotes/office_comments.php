@@ -2,20 +2,13 @@
 /**
  * Viewing of office notes.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @Copyright (C) 2011-2017  Brady Miller <brady.g.miller@gmail.com>
+ * @Copyright (C) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Core\Header;
@@ -32,18 +25,20 @@ $oNoteService = new \services\ONoteService();
 <head>
 
 <?php Header::setupHeader(); ?>
-
+<title><?php echo xlt('Office Notes'); ?></title>
 </head>
 <body class="body_top">
 
-<div id="officenotes_list">
-<a href="office_comments_full.php" onclick='top.restoreSession()'>
-<font class="title"><?php echo xlt('Office Notes'); ?></font>
-<font class="more"><?php echo text($tmore);?></font></a>
-
-<br>
-
-<table border=0 width=100%>
+<div class="container">
+   
+   <div class="row">
+      <div class="col-sm-6">
+         <div class="form-group form-horizontal page-header">
+            <h3><label class='col-sm-4 text-right'><?php echo xlt('Office Notes'); ?></label></h3>
+            <p class="more control-label col-sm-1"><a href="office_comments_full.php" onclick='top.restoreSession()'><?php echo text($tmore); ?></a></p>
+         </div>
+      </div>
+   </div>
 
 <?php
 
@@ -52,6 +47,10 @@ $notes = $oNoteService->getNotes(1, 0, ($N + 1));
 //retrieve all active notes
 if ($notes) {
     $notes_count = 0;//number of notes so far displayed
+   ?>
+       <div id="report_results">
+       <table>
+   <?php
     foreach ($notes as $note) {
         if ($notes_count >= $N) {
             //we have more active notes to print, but we've reached our display maximum (defined at top of this file)
@@ -72,26 +71,22 @@ if ($notes) {
         } else {
             $date_string = $date;
         }
-
             $card  = '';
-            $card .= '<div class="panel panel-default">';
-            $card .= '    <div class="panel-heading">';
+            $card .= '<thead><th align="center">';
             $card .= '        <h3 class="panel-title">'.text($date_string).' <strong>('.text($note->getUser()->getUsername()).')</strong></h3>';
-            $card .= '    </div>';
-            $card .= '    <div class="panel-body">';
-            $card .=          nl2br(text($note->getBody()));
-            $card .= '    </div>';
-            $card .= '</div>';
-
+            $card .= '</th></thead>';
+            $card .= '<tr><td>';
+            $card .= nl2br(text($note->getBody()));
+            $card .= '</th></td>';
+            $card .= '';
             print $card;
 
             $notes_count++;
     }
 }
 ?>
-
 </table>
 </div>
-
+</div>
 </body>
 </html>
