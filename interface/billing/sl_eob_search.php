@@ -81,8 +81,8 @@ if (! empty($GLOBALS['portal_onsite_two_enable'])) {
             return false;
         } // this is all the invoice data for portal auditing
         $note = xl('You have an invoice due for payment in your Patient Documents. There you may pay, download or print the invoice. Thank you.');
-        if (sendMail($_SESSION['authUser'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUser'], $_SESSION['authUser'], $_SESSION['portalUser'], $invoices[0]['patient']) == 1) { // remind admin this was sent
-            sendMail($_SESSION['portalUser'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUser'], $_SESSION['authUser'], $_SESSION['portalUser'], $invoices[0]['patient']); // notify patient
+        if (sendMail($_SESSION['authUser'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUser'], $_SESSION['authUser'], $_SESSION['portalUser'], $invoices[0]['patient'],"New",'0') == 1) { // remind admin this was sent
+            sendMail($_SESSION['portalUser'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUser'], $_SESSION['authUser'], $_SESSION['portalUser'], $invoices[0]['patient'],"New",'0'); // notify patient
         } else {
             return false;
         }
@@ -368,15 +368,6 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
         $where = '( ' . $where . ' ) AND';
     }
 
-  // need to only use summary invoice for multi visits
-    $inv_pid = array();
-    $inv_count = -1;
-    foreach ($_POST['form_invpids'] as $key => $v) {
-        if ($_POST['form_cb'][$key]) {
-            array_push($inv_pid, key($v));
-        }
-    }
-
     $res = sqlStatement("SELECT " .
     "f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, f.last_level_closed, f.last_level_billed, f.billing_note as enc_billing_note, " .
     "p.fname, p.mname, p.lname, p.street, p.city, p.state, p.postal_code, p.billing_note as pat_billing_note " .
@@ -394,9 +385,27 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
     $multiplePatients = false;
     $usePatientNamePdf = false;
 
+    // get pids for delimits
+    // need to only use summary invoice for multi visits
+    $inv_pid = array();
+    $inv_count = -1;
+    if ($_POST['form_portalnotify']) {
+        foreach ($_POST['form_invpids'] as $key => $v) {
+            if ($_POST['form_cb'][$key]) {
+                array_push($inv_pid, key($v));
+            }
+        }
+    }
+    while ($row = sqlFetchArray($res)) {
+        $rows[] = $row;
+        if (! in_array($row['pid'], $inv_pid)) {
+            array_push($inv_pid, $row['pid']);
+        }
+    }
    // This loops once for each invoice/encounter.
    //
-    while ($row = sqlFetchArray($res)) {
+    $rcnt = 0;
+    while ($row = $rows[$rcnt++]) {
         $svcdate = substr($row['date'], 0, 10);
         $duedate = $svcdate; // TBD?
         $duncount = $row['stmt_count'];
@@ -512,9 +521,9 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
             }
             $pvoice[] = $stmt;
             // we don't want to send the portal multiple invoices, thus this. Last invoice for pid is summary.
-            if ($inv_pid[$inv_count] != $inv_pid[$inv_count+1]) {
+            if ($inv_pid[$inv_count] != $inv_pid[$inv_count + 1]) {
                 fwrite($fhprint, make_statement($stmt));
-                if (!notify_portal($stmt['pid'], $pvoice, $STMT_TEMP_FILE, $stmt['pid'] . "-" . $stmt['encounter'])) {
+                if (! notify_portal($stmt['pid'], $pvoice, $STMT_TEMP_FILE, $stmt['pid'] . "-" . $stmt['encounter'])) {
                     $alertmsg = xlt('Notification FAILED');
                     break;
                 }
@@ -526,10 +535,10 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                 continue;
             }
         } else {
-            if ($inv_pid[$inv_count] != $inv_pid[$inv_count+1]) {
+            if ($inv_pid[$inv_count] != $inv_pid[$inv_count + 1]) {
                 $tmp = make_statement($stmt);
-                if(empty($tmp)) {
-                    $tmp = xlt("This EOB Id: $inv_pid[$inv_count] Encounter: $stmt[encounter] does not meet minumum print requirements setup in Globals or there is an unknown error."."\n");
+                if (empty($tmp)) {
+                    $tmp = xlt("This EOB item does not meet minimum print requirements setup in Globals or there is an unknown error.") . " " . xlt("EOB Id") . ":" . $inv_pid[$inv_count] . " " . xlt("Encounter") . ":" . $stmt[encounter] . "\n";
                     $tmp .= "<br />\n\014<br /><br />";
                 }
                 fwrite($fhprint, $tmp);
