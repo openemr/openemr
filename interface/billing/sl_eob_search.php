@@ -81,8 +81,8 @@ if (! empty($GLOBALS['portal_onsite_two_enable'])) {
             return false;
         } // this is all the invoice data for portal auditing
         $note = xl('You have an invoice due for payment in your Patient Documents. There you may pay, download or print the invoice. Thank you.');
-        if (sendMail($_SESSION['authUser'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUser'], $_SESSION['authUser'], $_SESSION['portalUser'], $invoices[0]['patient'],"New",'0') == 1) { // remind admin this was sent
-            sendMail($_SESSION['portalUser'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUser'], $_SESSION['authUser'], $_SESSION['portalUser'], $invoices[0]['patient'],"New",'0'); // notify patient
+        if (sendMail($_SESSION['authUser'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUser'], $_SESSION['authUser'], $_SESSION['portalUser'], $invoices[0]['patient'], "New", '0') == 1) { // remind admin this was sent
+            sendMail($_SESSION['portalUser'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUser'], $_SESSION['authUser'], $_SESSION['portalUser'], $invoices[0]['patient'], "New", '0'); // notify patient
         } else {
             return false;
         }
@@ -396,11 +396,13 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
             }
         }
     }
+    $rcnt = 0;
     while ($row = sqlFetchArray($res)) {
         $rows[] = $row;
-        if (! in_array($row['pid'], $inv_pid)) {
+        if (!$inv_pid[$rcnt]) {
             array_push($inv_pid, $row['pid']);
         }
+        $rcnt++;
     }
    // This loops once for each invoice/encounter.
    //
@@ -1082,7 +1084,7 @@ while ($row = sqlFetchArray($t_res)) {
   <input type='submit' name='form_email' value='<?php xl('Email Selected Statements', 'e'); ?>' /> &nbsp;
 <?php if ($is_portal) {?>
   <input type='submit' name='form_portalnotify' value='<?php xl('Notify via Patient Portal', 'e'); ?>' /> &nbsp;
-    <?php }
+<?php }
 }?>
   <input type='checkbox' name='form_without' value='1' /> <?php xl('Without Update', 'e'); ?>
 </p>
