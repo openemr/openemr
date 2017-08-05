@@ -504,14 +504,12 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
             "last_stmt_date = '$today', stmt_count = stmt_count + 1 " .
             "WHERE id = " . $row['id']);
         }
-
+        $inv_count += 1;
         if ($_POST['form_portalnotify']) {
             if (! is_auth_portal($stmt['pid'])) {
                 $alertmsg = xlt('Notification FAILED: Not Portal Authorized');
                 break;
             }
-
-            $inv_count += 1;
             $pvoice[] = $stmt;
             // we don't want to send the portal multiple invoices, thus this. Last invoice for pid is summary.
             if ($inv_pid[$inv_count] != $inv_pid[$inv_count+1]) {
@@ -528,7 +526,14 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                 continue;
             }
         } else {
-            fwrite($fhprint, make_statement($stmt));
+            if ($inv_pid[$inv_count] != $inv_pid[$inv_count+1]) {
+                $tmp = make_statement($stmt);
+                if(empty($tmp)){
+                    $tmp = xlt("This EOB Id: $inv_pid[$inv_count] Encounter: $stmt[encounter] does not meet minumum print requirements setup in Globals or there is an unknown error."."\n");
+                    $tmp .= "<br />\n\014<br /><br />";
+                }
+                fwrite($fhprint, $tmp);
+            }
         }
     } // end while
 
