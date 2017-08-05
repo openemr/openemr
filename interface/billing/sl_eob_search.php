@@ -528,7 +528,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
         } else {
             if ($inv_pid[$inv_count] != $inv_pid[$inv_count+1]) {
                 $tmp = make_statement($stmt);
-                if(empty($tmp)){
+                if(empty($tmp)) {
                     $tmp = xlt("This EOB Id: $inv_pid[$inv_count] Encounter: $stmt[encounter] does not meet minumum print requirements setup in Globals or there is an unknown error."."\n");
                     $tmp .= "<br />\n\014<br /><br />";
                 }
