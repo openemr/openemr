@@ -1,21 +1,16 @@
 <?php
-/********************************************************************************\
- * Copyright (C) ViCarePlus, Visolve (vicareplus_engg@visolve.com)              *
- *                                                                              *
- * This program is free software; you can redistribute it and/or                *
- * modify it under the terms of the GNU General Public License                  *
- * as published by the Free Software Foundation; either version 2               *
- * of the License, or (at your option) any later version.                       *
- *                                                                              *
- * This program is distributed in the hope that it will be useful,              *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of               *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                *
- * GNU General Public License for more details.                                 *
- *                                                                              *
- * You should have received a copy of the GNU General Public License            *
- * along with this program; if not, write to the Free Software                  *
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
- \********************************************************************************/
+/**
+ * de_identification script
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    ViCarePlus, Visolve <vicareplus_engg@visolve.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010 ViCarePlus, Visolve <vicareplus_engg@visolve.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 require_once("../globals.php");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/patient.inc");
@@ -27,15 +22,16 @@ require_once("$srcdir/options.inc.php");
 <head>
 <title><?php xl('De Identification', 'e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href='<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css' type='text/css'>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <style type="text/css">
 .style1 {
     text-align: center;
 }</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_en.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
+
 <script language="JavaScript">
 //get value from popup window
 function set_related(s,type) {
@@ -244,6 +240,16 @@ function download_file()
  document.de_identification.submit();
 }
 
+$(document).ready(function(){
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+});
+
 </script>
 </head>
 <body class="body_top">
@@ -431,12 +437,10 @@ if (empty($row)) {
     <tr rowspan=2>
         <td>&nbsp;</td>
         <td><span class="text"><?php xl('Begin Date', 'e'); ?></span>
-        <input type="text" size="10" name="begin_date" id="begin_date" value="<?php echo $viewmode ? substr($result['date'], 0, 10) : date('Y-m-d'); ?>" title="<?php xl('yyyy-mm-dd Date of service', 'e'); ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)" />
-        <img src="../pic/show_calendar.gif" align="absbottom" width="24" height="22" id="img_begin_date" border="0" alt="[?]" style="cursor: pointer; cursor: hand" title="<?php xl('Click here to choose a date', 'e'); ?>">&nbsp;
+        <input type="text" size="10" class="datepicker" name="begin_date" id="begin_date" value="<?php echo $viewmode ? substr($result['date'], 0, 10) : date('Y-m-d'); ?>" title="<?php xl('yyyy-mm-dd Date of service', 'e'); ?>" />
         </td>
         <td><span class="text"><?php xl('End Date', 'e'); ?></span>
-        <input type="text" size="10" name="end_date" id="end_date" value="<?php echo $viewmode ? substr($result['date'], 0, 10) : date('Y-m-d'); ?>" title="<?php xl('yyyy-mm-dd Date of service', 'e'); ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)" />
-        <img src="../pic/show_calendar.gif" align="absbottom" width="24" height="22" id="img_end_date" border="0" alt="[?]" style="cursor: pointer; cursor: hand" title="<?php xl('Click here to choose a date', 'e'); ?>">
+        <input type="text" size="10" class="datepicker" name="end_date" id="end_date" value="<?php echo $viewmode ? substr($result['date'], 0, 10) : date('Y-m-d'); ?>" title="<?php xl('yyyy-mm-dd Date of service', 'e'); ?>" />
         </td>
         <td>&nbsp;</td>
         <td>&nbsp;</td>
@@ -538,11 +542,6 @@ if (empty($row)) {
         <input type="hidden" name="drug_text" id="drug_text"><br>
         <input type="hidden" name="immunization_text" id="immunization_text">
   </table>
-  <script language='JavaScript'>
-  /* required for popup calendar */
-  Calendar.setup({inputField:"begin_date", ifFormat:"%Y-%m-%d", button:"img_begin_date"});
-  Calendar.setup({inputField:"end_date", ifFormat:"%Y-%m-%d", button:"img_end_date"});
-  </script>
     <?php
     }
 }

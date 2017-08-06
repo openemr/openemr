@@ -1,14 +1,19 @@
 <?php
-// Copyright (C) 2006-2011 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * spreadsheet.inc.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2006-2011 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-include_once(dirname(__FILE__) . '/api.inc');
-include_once(dirname(__FILE__) . '/forms.inc');
-include_once(dirname(__FILE__) . '/../interface/forms/fee_sheet/codes.php');
+require_once(dirname(__FILE__) . '/api.inc');
+require_once(dirname(__FILE__) . '/forms.inc');
+require_once(dirname(__FILE__) . '/../interface/forms/fee_sheet/codes.php');
 
 $celltypes = array(
  '0' => 'Unused',
@@ -269,7 +274,8 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<style  type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <style>
 .sstable td {
  font-family: sans-serif;
@@ -300,13 +306,13 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
  padding: 0 0 0 0;
 }
 </style>
-<script type="text/javascript" src="../../../library/textformat.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
- var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
+
  var ssChanged = false; // if they have changed anything in the spreadsheet
  var startDate = '<?php echo $start_date ? $start_date : date('Y-m-d'); ?>';
 
@@ -555,6 +561,16 @@ foreach ($bcodes['Phys']['Physiotherapy Procedures'] as $key => $value) {
   inelem.value = s.substring(0, i) + sel.value + s.substring(j);
  }
 
+    $(document).ready(function() {
+        $('.datepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = false; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+        });
+    });
+
 </script>
 
 </head>
@@ -571,22 +587,13 @@ if ($popup) {
  <tr bgcolor='#ddddff'>
   <td>
     <?php xl('Start Date', 'e'); ?>:
-   <input type='text' name='form_start_date' id='form_start_date'
+   <input type='text' class='datepicker' name='form_start_date' id='form_start_date'
     size='10' value='<?php echo $start_date; ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'
-    <?php if ($formid && $start_date) {
-        echo 'disabled ';
-} ?>/>
-<?php if (!$formid || !$start_date) { ?>
-   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_start_date' border='0' alt='[?]' style='cursor:pointer'
-    title='Click here to choose a date'>
-<?php } ?>
+    title='yyyy-mm-dd'
+    <?php echo ($formid && $start_date) ? 'disabled ' : ''; ?>/>
    &nbsp;
     <?php xl('Template:', 'e') ?>
-   <select name='form_template' onchange='newTemplate(this)'<?php if ($formid) {
-        echo ' disabled';
-} ?>>
+   <select name='form_template' onchange='newTemplate(this)'<?php echo ($formid) ? ' disabled' : ''; ?>>
     <option value='0'>-- Select --</option>
 <?php
 while ($trow = sqlFetchArray($tres)) {
@@ -609,9 +616,7 @@ while ($trow = sqlFetchArray($tres)) {
    &nbsp;
    <input type='checkbox' name='form_completed'
     title='<?php xl("If all data for all columns are complete for this form", "e") ?>'
-    <?php if ($form_completed) {
-        echo 'checked ';
-} ?>/>
+    <?php echo ($form_completed) ? 'checked ' : ''; ?>/>
     <?php xl('Completed', 'e') ?>
 <?php } ?>
   </td>
@@ -729,7 +734,6 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
 </center>
 </form>
 <script language='JavaScript'>
- Calendar.setup({inputField:"form_start_date", ifFormat:"%Y-%m-%d", button:"img_start_date"});
 <?php
 if ($alertmsg) {
     echo " alert('$alertmsg');\n";

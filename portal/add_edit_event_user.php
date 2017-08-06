@@ -4,13 +4,15 @@
  * Modified from interface/main/calendar/add_edit_event.php for
  * the patient portal.
  *
- * @package OpenEMR
- * @author Rod Roark <rod@sunsetsystems.com>
- * @author Jerry Padgett <sjpadgett@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 // continue session
@@ -34,9 +36,9 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 $ignoreAuth = 1;
 global $ignoreAuth;
 
- include_once("../interface/globals.php");
- include_once("$srcdir/patient.inc");
- include_once("$srcdir/forms.inc");
+require_once("../interface/globals.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/forms.inc");
 
  // Exit if the modify calendar for portal flag is not set-pulled for v5
  /* if (!($GLOBALS['portal_onsite_appt_modify'])) {
@@ -658,13 +660,13 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
 <?php //html_header_show(); ?>
 <title><?php echo $eid ? "Edit" : "Add New" ?> <?php xl('Event', 'e');?></title>
 <link href="assets/css/style.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
-<style type="text/css">@import url(../library/dynarch_calendar.css);</style>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 <script type="text/javascript" src="../library/topdialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="../library/dynarch_calendar_en.js"></script>
-<script type="text/javascript" src="../library/dynarch_calendar_setup.js"></script>
 
 </head>
 
@@ -688,10 +690,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
   </td>
   <td colspan='2' nowrap id='tdallday1'>
    <input class="form-control input-md" type='text' size='10' name='form_date' readonly id='form_date'
-    value='<?php if (isset($eid)) {
-        echo $eid ? $row['pc_eventDate'] : $date;
-} ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'  />
+    value='<?php echo (isset($eid) && $eid) ? $row['pc_eventDate'] : $date; ?>'  />
   </td>
  </tr>
  <tr>
@@ -707,19 +706,13 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
    <b><?php xl('Time', 'e');?>:</b>
   </td>
   <td width='1%' nowrap id='tdallday3'>
-   <input class="form-control inline" type='text' size='2' name='form_hour' value='<?php if (isset($eid)) {
-        echo $starttimeh;
-} ?>'
+   <input class="form-control inline" type='text' size='2' name='form_hour' value='<?php echo (isset($eid)) ? $starttimeh : ''; ?>'
     title='<?php xl('Event start time', 'e'); ?>' readonly/> :
-  <input class="form-control inline" type='text' size='2' name='form_minute' value='<?php if (isset($eid)) {
-        echo $starttimem;
-} ?>'
+  <input class="form-control inline" type='text' size='2' name='form_minute' value='<?php echo (isset($eid)) ? $starttimem : ''; ?>'
     title='<?php  xl('Event start time', 'e'); ?>' readonly/>&nbsp; <!--  -->
    <select class="form-control" name='form_ampm' title='Note: 12:00 noon is PM, not AM' readonly >
     <option value='1'><?php xl('AM', 'e'); ?></option>
-    <option value='2'<?php if ($startampm == '2') {
-        echo " selected";
-} ?>><?php xl('PM', 'e'); ?></option>
+    <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php xl('PM', 'e'); ?></option>
    </select>
   </td>
  </tr>
@@ -786,7 +779,6 @@ while ($urow = sqlFetchArray($ures)) {
 </p>
 </form>
 <script>
- var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  var durations = new Array();
  // var rectypes  = new Array();
@@ -1017,19 +1009,20 @@ while ($crow = sqlFetchArray($cres)) {
     return false;
  }
 
-</script>
-
-<script>
 <?php if ($eid) { ?>
  set_display();
-<?php } else { ?>
- //set_category();
 <?php } ?>
- //set_allday();
- //set_repeat();
 
- //Calendar.setup({inputField:"form_dob", ifFormat:"%Y-%m-%d", button:"img_dob"});
+    $(document).ready(function() {
+        $('.datepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = false; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+        });
+    });
 </script>
 
 </body>
-</html> 
+</html>

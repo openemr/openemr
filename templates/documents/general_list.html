@@ -1,3 +1,12 @@
+{**
+* general document list
+*
+* @package   OpenEMR
+* @link      http://www.open-emr.org
+* @author    Brady Miller <brady.g.miller@gmail.com>
+* @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+*}
 <html>
 <head>
 {php}html_header_show();{/php}
@@ -20,6 +29,7 @@ $this->assign('demo_pid', $_SESSION['pid']);
 <link rel="stylesheet" href="{$GLOBALS.css_header}" type="text/css">
 <link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone-4-3-0/dist/dropzone.css">
 <link href="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 {literal}
 <style type="text/css">
 .ui-autocomplete {
@@ -40,8 +50,13 @@ overflow: auto;
 }
 </style>
 {/literal}
+<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/jquery-ui.min.js"></script>
 <script type="text/javascript" src="{$WEBROOT}/library/js/DocumentTreeMenu.js"></script>
 <script type="text/javascript" src="{$GLOBALS.assets_static_relative}/dropzone-4-3-0/dist/dropzone.js"></script>
+<script type="text/javascript" src="library/dialog.js?v={$GLOBALS.v_js_includes}"></script>
+<script type="text/javascript" src="library/textformat.js?v={$GLOBALS.v_js_includes}"></script>
+<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script type="text/javascript">
     // dropzone javascript asset translation(s)
@@ -75,8 +90,6 @@ overflow: auto;
 		{/if}
 		{$activity}
 </div>
-<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/jquery-ui.min.js"></script>
 <script type="text/javascript">
 var curpid = "{$cur_pid}";
 var newVersion="{$is_new}";
@@ -115,7 +128,17 @@ $(".pBtn").click(function(event) {
         $input.val('');
 });
 $("#list_collapse").detach().appendTo("#objTreeMenu_1_node_1 nobr");
-{/literal}
+
+$(document).ready(function(){
+    $('.datepicker').datetimepicker({
+        {/literal}{php} $datetimepicker_timepicker = false; {/php}
+        {php} $datetimepicker_showseconds = false; {/php}
+        {php} $datetimepicker_formatInput = false; {/php}
+        {php} require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); {/php}
+        {php} // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma {/php}{literal}
+    });
+});{/literal}
+
 </script>
 </body>
 </html>

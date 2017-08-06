@@ -1,21 +1,23 @@
 <?php
-// Copyright (C) 2010-2016 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
-// Report columns:
-// Product Name (blank where repeated)
-// Warehouse Name (blank where repeated) or Total for Product
-// Starting Inventory (detail lines: date)
-// Ending Inventory   (detail lines: invoice ID)
-// Sales
-// Distributions
-// Purchases
-// Transfers
-
+/**
+ * Report columns:
+ * Product Name (blank where repeated)
+ * Warehouse Name (blank where repeated) or Total for Product
+ * Starting Inventory (detail lines: date)
+ * Ending Inventory   (detail lines: invoice ID)
+ * Sales
+ * Distributions
+ * Purchases
+ * Transfers
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once("../globals.php");
@@ -137,56 +139,56 @@ function thisLineItem(
                 }
             } else {
                 // Not export:
-        ?>
-       <tr bgcolor="#ddddff">
-        <?php if ($product_first) { ?>
-  <td class="detail">
-    <?php echo htmlspecialchars($prodleft);
-    $prodleft = " "; ?>
-  </td>
-  <td class="detail" colspan='3'>
-    <?php if ($_POST['form_details']) {
-        echo htmlspecialchars(xl('Total for')) . ' ';
-}
-
-    echo htmlspecialchars($warehouse); ?>
-  </td>
-<?php } else { ?>
-  <td class="detail">
-    <?php echo htmlspecialchars($whleft);
-    $whleft = " "; ?>
-  </td>
-  <td class="detail" colspan='3'>
-    <?php if ($_POST['form_details']) {
-        echo htmlspecialchars(xl('Total for')) . ' ';
-}
-
-    echo htmlspecialchars($product); ?>
-  </td>
-<?php } ?>
-  <td class="dehead" align="right">
-        <?php echo $secei - $secqtys[0] - $secqtys[1] - $secqtys[2] - $secqtys[3] - $secqtys[4]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $secqtys[0]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $secqtys[1]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $secqtys[2]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $secqtys[3]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $secqtys[4]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $secei; ?>
-  </td>
- </tr>
-<?php
+                ?>
+                <tr bgcolor="#ddddff">
+                <?php if ($product_first) { ?>
+                    <td class="detail">
+                        <?php echo htmlspecialchars($prodleft);
+                        $prodleft = " "; ?>
+                    </td>
+                    <td class="detail" colspan='3'>
+                        <?php
+                        if ($_POST['form_details']) {
+                            echo htmlspecialchars(xl('Total for')) . ' ';
+                        }
+                        echo htmlspecialchars($warehouse); ?>
+                    </td>
+                <?php } else { ?>
+                    <td class="detail">
+                        <?php echo htmlspecialchars($whleft);
+                        $whleft = " "; ?>
+                    </td>
+                    <td class="detail" colspan='3'>
+                        <?php
+                        if ($_POST['form_details']) {
+                            echo htmlspecialchars(xl('Total for')) . ' ';
+                        }
+                        echo htmlspecialchars($product); ?>
+                    </td>
+                <?php } ?>
+                <td class="dehead" align="right">
+                    <?php echo $secei - $secqtys[0] - $secqtys[1] - $secqtys[2] - $secqtys[3] - $secqtys[4]; ?>
+                </td>
+                <td class="dehead" align="right">
+                    <?php echo $secqtys[0]; ?>
+                </td>
+                <td class="dehead" align="right">
+                    <?php echo $secqtys[1]; ?>
+                </td>
+                <td class="dehead" align="right">
+                    <?php echo $secqtys[2]; ?>
+                </td>
+                <td class="dehead" align="right">
+                    <?php echo $secqtys[3]; ?>
+                </td>
+                <td class="dehead" align="right">
+                    <?php echo $secqtys[4]; ?>
+                </td>
+                <td class="dehead" align="right">
+                    <?php echo $secei; ?>
+                </td>
+                </tr>
+            <?php
             } // End not csv export
         }
 
@@ -200,7 +202,7 @@ function thisLineItem(
         }
     }
 
-  // If first column is changing, time for its totals.
+    // If first column is changing, time for its totals.
     if (($product_first && $product_id != $last_product_id) ||
       (!$product_first && $warehouse_id != $last_warehouse_id)) {
         if (($product_first && $last_product_id) ||
@@ -211,37 +213,37 @@ function thisLineItem(
             if ($form_action != 'export') {
             ?>
 
-         <tr bgcolor="#ffdddd">
-          <td class="detail">
-           &nbsp;
-          </td>
-          <td class="detail" colspan="3">
+                <tr bgcolor="#ffdddd">
+                <td class="detail">
+                &nbsp;
+                </td>
+                <td class="detail" colspan="3">
                 <?php echo htmlspecialchars(xl('Total for')) . ' ';
                 echo htmlspecialchars($product_first ? $product : $warehouse); ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $priei - $priqtys[0] - $priqtys[1] - $priqtys[2] - $priqtys[3] - $priqtys[4]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $priqtys[0]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $priqtys[1]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $priqtys[2]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $priqtys[3]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $priqtys[4]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $priei; ?>
-  </td>
- </tr>
-<?php
+                </td>
+                <td class="dehead" align="right">
+                <?php echo $priei - $priqtys[0] - $priqtys[1] - $priqtys[2] - $priqtys[3] - $priqtys[4]; ?>
+                </td>
+                <td class="dehead" align="right">
+                <?php echo $priqtys[0]; ?>
+                </td>
+                <td class="dehead" align="right">
+                <?php echo $priqtys[1]; ?>
+                </td>
+                <td class="dehead" align="right">
+                <?php echo $priqtys[2]; ?>
+                </td>
+                <td class="dehead" align="right">
+                <?php echo $priqtys[3]; ?>
+                </td>
+                <td class="dehead" align="right">
+                <?php echo $priqtys[4]; ?>
+                </td>
+                <td class="dehead" align="right">
+                <?php echo $priei; ?>
+                </td>
+                </tr>
+                <?php
             } // End not csv export
         }
 
@@ -255,7 +257,7 @@ function thisLineItem(
         }
     }
 
-  // Detail line.
+    // Detail line.
     if ($_POST['form_details'] && $product_id && ($qtys[0] + $qtys[1] + $qtys[2] + $qtys[3] + $qtys[4])) {
         if ($form_action == 'export') {
             if ($product_first) {
@@ -275,56 +277,56 @@ function thisLineItem(
             echo ',"' . $qtys[4]             . '"'; // adjustments
             echo "\n";
         } else {
-        ?>
-     <tr>
-        <?php if ($product_first) { ?>
-  <td class="detail">
-    <?php echo htmlspecialchars($prodleft);
-    $prodleft = " "; ?>
-  </td>
-  <td class="detail">
-    <?php echo htmlspecialchars($whleft);
-    $whleft = " "; ?>
-  </td>
-<?php } else { ?>
-  <td class="detail">
-    <?php echo htmlspecialchars($whleft);
-    $whleft = " "; ?>
-  </td>
-  <td class="detail">
-    <?php echo htmlspecialchars($prodleft);
-    $prodleft = " "; ?>
-  </td>
-<?php } ?>
-  <td class="dehead">
-        <?php echo oeFormatShortDate($transdate); ?>
-  </td>
-  <td class="detail">
-        <?php echo htmlspecialchars($invnumber); ?>
-  </td>
-  <td class="detail">
-   &nbsp;
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $qtys[0]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $qtys[1]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $qtys[2]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $qtys[3]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $qtys[4]; ?>
-  </td>
-  <td class="detail">
-   &nbsp;
-  </td>
- </tr>
-<?php
+            ?>
+            <tr>
+            <?php if ($product_first) { ?>
+                <td class="detail">
+                    <?php echo htmlspecialchars($prodleft);
+                    $prodleft = " "; ?>
+                </td>
+                <td class="detail">
+                    <?php echo htmlspecialchars($whleft);
+                    $whleft = " "; ?>
+                </td>
+            <?php } else { ?>
+                <td class="detail">
+                    <?php echo htmlspecialchars($whleft);
+                    $whleft = " "; ?>
+                </td>
+                <td class="detail">
+                    <?php echo htmlspecialchars($prodleft);
+                    $prodleft = " "; ?>
+                </td>
+            <?php } ?>
+            <td class="dehead">
+                <?php echo oeFormatShortDate($transdate); ?>
+            </td>
+            <td class="detail">
+                <?php echo htmlspecialchars($invnumber); ?>
+            </td>
+            <td class="detail">
+                &nbsp;
+            </td>
+            <td class="dehead" align="right">
+                <?php echo $qtys[0]; ?>
+            </td>
+            <td class="dehead" align="right">
+                <?php echo $qtys[1]; ?>
+            </td>
+            <td class="dehead" align="right">
+                <?php echo $qtys[2]; ?>
+            </td>
+            <td class="dehead" align="right">
+                <?php echo $qtys[3]; ?>
+            </td>
+            <td class="dehead" align="right">
+                <?php echo $qtys[4]; ?>
+            </td>
+            <td class="detail">
+                &nbsp;
+            </td>
+            </tr>
+            <?php
         } // End not csv export
     } // end details
     for ($i = 0; $i < 5; ++$i) {
@@ -387,6 +389,7 @@ else {
 <title><?php echo htmlspecialchars(xl('Inventory Activity')) ?></title>
 
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <style type="text/css">
  /* specifically include & exclude from printing */
@@ -412,30 +415,34 @@ table.mymaintable td, table.mymaintable th {
 }
 </style>
 
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+
 <script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 <script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language='JavaScript'>
 
- var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+    $(document).ready(function() {
+        oeFixedHeaderSetup(document.getElementById('mymaintable'));
+        var win = top.printLogSetup ? top : opener.top;
+        win.printLogSetup(document.getElementById('printbutton'));
 
- $(document).ready(function() {
-  oeFixedHeaderSetup(document.getElementById('mymaintable'));
-  var win = top.printLogSetup ? top : opener.top;
-  win.printLogSetup(document.getElementById('printbutton'));
- });
+        $('.datepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = false; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+        });
+    });
 
- function mysubmit(action) {
-  var f = document.forms[0];
-  f.form_action.value = action;
-  top.restoreSession();
-  f.submit();
- }
+    function mysubmit(action) {
+        var f = document.forms[0];
+        f.form_action.value = action;
+        top.restoreSession();
+        f.submit();
+    }
 
 </script>
 
@@ -463,34 +470,24 @@ table.mymaintable td, table.mymaintable th {
      <td nowrap>
       <select name='form_by'>
        <option value='p'><?php echo htmlspecialchars(xl('Product')); ?></option>
-       <option value='w'<?php if (!$product_first) {
-            echo ' selected';
-} ?>><?php echo htmlspecialchars(xl('Warehouse')); ?></option>
+       <option value='w'<?php echo (!$product_first) ? ' selected' : ''; ?>><?php echo htmlspecialchars(xl('Warehouse')); ?></option>
       </select>
      </td>
      <td class='label_custom'>
         <?php echo htmlspecialchars(xl('From')); ?>:
      </td>
      <td nowrap>
-      <input type='text' name='form_from_date' id="form_from_date" size='10'
+      <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10'
        value='<?php echo htmlspecialchars($form_from_date, ENT_QUOTES) ?>'
-       title='<?php echo htmlspecialchars(xl('yyyy-mm-dd'), ENT_QUOTES) ?>'
-       onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'>
-      <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-       id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-       title='<?php echo htmlspecialchars(xl('Click here to choose a date'), ENT_QUOTES); ?>'>
+       title='<?php echo htmlspecialchars(xl('yyyy-mm-dd'), ENT_QUOTES) ?>'>
      </td>
      <td class='label_custom'>
         <?php echo htmlspecialchars(xl('To')); ?>:
      </td>
      <td nowrap>
-      <input type='text' name='form_to_date' id="form_to_date" size='10'
+      <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10'
        value='<?php echo htmlspecialchars($form_to_date, ENT_QUOTES) ?>'
-       title='<?php echo htmlspecialchars(xl('yyyy-mm-dd'), ENT_QUOTES) ?>'
-       onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'>
-      <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-       id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-       title='<?php echo htmlspecialchars(xl('Click here to choose a date'), ENT_QUOTES); ?>'>
+       title='<?php echo htmlspecialchars(xl('yyyy-mm-dd'), ENT_QUOTES) ?>'>
      </td>
     </tr>
     <tr>
@@ -522,9 +519,7 @@ echo "      </select>\n";
         <?php echo htmlspecialchars(xl('Details')); ?>:
      </td>
      <td colspan='3' nowrap>
-      <input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) {
-            echo " checked";
-} ?> />
+      <input type='checkbox' name='form_details' value='1'<?php echo ($_POST['form_details']) ? " checked" : "";?> />
      </td>
     </tr>
    </table>
@@ -632,7 +627,7 @@ if ($form_action) { // if submit or export
     "LEFT JOIN form_encounter AS fe ON fe.pid = s.pid AND fe.encounter = s.encounter " .
     "WHERE ( di.destroy_date IS NULL OR di.destroy_date >= '$form_from_date' )";
 
-  // If a product was specified.
+    // If a product was specified.
     if ($form_product) {
         $query .= " AND di.drug_id = '$form_product'";
     }
@@ -700,64 +695,56 @@ if ($form_action) { // if submit or export
         );
     }
 
-  // Generate totals for last product and warehouse.
+    // Generate totals for last product and warehouse.
     thisLineItem(0, '~', 0, 0, '', '', '0000-00-00', array(0, 0, 0, 0, 0));
 
-  // Grand totals line.
+    // Grand totals line.
     if ($form_action != 'export') { // if submit
         $grei = getEndInventory();
-    ?>
-   <tr bgcolor="#dddddd">
-    <td class="detail" colspan="4">
-        <?php echo htmlspecialchars(xl('Grand Total')); ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $grei - $grandqtys[0] - $grandqtys[1] - $grandqtys[2] - $grandqtys[3] - $grandqtys[4]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $grandqtys[0]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $grandqtys[1]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $grandqtys[2]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $grandqtys[3]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $grandqtys[4]; ?>
-  </td>
-  <td class="dehead" align="right">
-        <?php echo $grei; ?>
-  </td>
- </tr>
-<?php
+        ?>
+        <tr bgcolor="#dddddd">
+        <td class="detail" colspan="4">
+            <?php echo htmlspecialchars(xl('Grand Total')); ?>
+        </td>
+        <td class="dehead" align="right">
+            <?php echo $grei - $grandqtys[0] - $grandqtys[1] - $grandqtys[2] - $grandqtys[3] - $grandqtys[4]; ?>
+        </td>
+        <td class="dehead" align="right">
+            <?php echo $grandqtys[0]; ?>
+        </td>
+        <td class="dehead" align="right">
+            <?php echo $grandqtys[1]; ?>
+        </td>
+        <td class="dehead" align="right">
+            <?php echo $grandqtys[2]; ?>
+        </td>
+        <td class="dehead" align="right">
+            <?php echo $grandqtys[3]; ?>
+        </td>
+        <td class="dehead" align="right">
+            <?php echo $grandqtys[4]; ?>
+        </td>
+        <td class="dehead" align="right">
+            <?php echo $grei; ?>
+        </td>
+        </tr>
+        <?php
     } // End if submit
 } // end if submit or export
 
 if ($form_action != 'export') {
     if ($form_action) {
-    ?>
-   </tbody>
-  </table>
-  </div>
-    <?php
+        ?>
+        </tbody>
+        </table>
+        </div>
+        <?php
     } // end if ($form_action)
-?>
-
-</form>
-</center>
-</body>
-
-<!-- stuff for the popup calendar -->
-<script language="Javascript">
- Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
- Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
-</script>
-
-</html>
-<?php
+    ?>
+    </form>
+    </center>
+    </body>
+    </html>
+    <?php
 } // End not export
 ?>

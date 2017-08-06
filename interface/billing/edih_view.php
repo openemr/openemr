@@ -30,9 +30,6 @@ if (!acl_check('acct', 'eob')) {
     die(xlt("Access Not Authorized"));
 }
 
-//
-//include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php");
-//
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
