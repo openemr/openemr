@@ -65,6 +65,11 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] =
     );
 
     $facilityService->update($newFacility);
+
+    // Update facility name for all users with this facility.
+    // This is necassary because some provider based code uses facility name for lookups instead of facility id.
+    //
+    $facilityService->updateUsersFacility($newFacility['name'], $newFacility['fid']);
 }
 
 ?>
