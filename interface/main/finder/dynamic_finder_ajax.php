@@ -50,7 +50,7 @@ if (isset($_GET['iSortCol_0'])) {
 //
 $where = '';
 if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
-    $sSearch = add_escape_custom($_GET['sSearch']);
+    $sSearch = add_escape_custom(trim($_GET['sSearch']));
     foreach ($aColumns as $colname) {
         $where .= $where ? "OR " : "WHERE ( ";
         if ($colname == 'name') {
