@@ -337,15 +337,15 @@ if ($_POST['form_submit']) {
                 ++$areport[$method][9];  // advice
             }
 
-            if ($code == 019916) {
+            if ($code == 19916) {
                 ++$areport[$method][10]; // couns by method
             }
 
-            if ($code == 039916) {
+            if ($code == 39916) {
                 ++$areport[$method][11]; // infert couns
             }
 
-            if ($code == 019911) {
+            if ($code == 19911) {
                 ++$areport[$method][12]; // std/aids couns
             }
         }

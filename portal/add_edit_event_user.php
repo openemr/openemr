@@ -689,7 +689,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
     <b><?php xl('Date', 'e'); ?>:</b>
   </td>
   <td colspan='2' nowrap id='tdallday1'>
-   <input class="form-control input-md datepicker" type='text' size='10' name='form_date' readonly id='form_date'
+   <input class="form-control input-md" type='text' size='10' name='form_date' readonly id='form_date'
     value='<?php echo (isset($eid) && $eid) ? $row['pc_eventDate'] : $date; ?>'  />
   </td>
  </tr>
