@@ -185,6 +185,7 @@ function create_HTML_statement($stmt)
     $label_cards = xl('VISA/MC/Discovery/HSA');
     $label_cardnum = xl('Card');
     $label_expiry = xl('Exp');
+    $label_cvv = xl('CVV');
     $label_sign = xl('Signature');
     $label_retpay = xl('Please return this bottom part with your payment');
     $label_pgbrk = xl('STATEMENT SUMMARY');
@@ -385,7 +386,7 @@ function create_HTML_statement($stmt)
  ';
     $out .= $label_payby.' '.$label_cards;
     $out .= "<br /><br />";
-    $out .= $label_cardnum .': __________________________________  '.$label_expiry.': ___ / _____ <br /><br />';
+    $out .= $label_cardnum .': __________________________________  '.$label_expiry.': ___ / _____ '.$label_cvv.':_____<br /><br />';
     $out .= $label_sign .'  ____________________________<br />';
     $out .="      </td><td style=width:2.0in;vertical-align:middle;'>";
           $practice_cards = $GLOBALS['webroot']."/sites/" . $_SESSION['site_id'] . "/images/visa_mc_disc_credit_card_logos_176x35.gif";
@@ -580,6 +581,7 @@ function create_statement($stmt)
     $label_cards = xl('VISA/MC/Discovery/HSA');
     $label_cardnum = xl('Card');
     $label_expiry = xl('Exp');
+    $label_cvv = xl('CVV');
     $label_sign = xl('Signature');
     $label_retpay = xl('Return above part with your payment');
     $label_pgbrk = xl('STATEMENT SUMMARY');
@@ -615,9 +617,10 @@ function create_statement($stmt)
     $out .= sprintf("%-32s\n", $label_payby.' '.$label_cards);
     $out .= "\n";
     $out .= sprintf(
-        "%s_____________________  %s______ %s___________________%s\n\n",
+        "%s_____________________  %s______ %s______ %s___________________%s\n\n",
         $label_cardnum,
         $label_expiry,
+        $label_cvv,
         $label_sign
     );
     $out .= sprintf("-----------------------------------------------------------------\n");
