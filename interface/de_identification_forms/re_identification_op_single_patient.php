@@ -39,9 +39,6 @@ if ($status == 0) {
 <head>
 <title><?php xl('Re Identification', 'e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet"
-    href='<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css'
-    type='text/css'>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 

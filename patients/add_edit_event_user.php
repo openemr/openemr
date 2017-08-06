@@ -1,10 +1,15 @@
 <?php
- // Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ * event editor
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2005-2006 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
  // The event editor looks something like this:
 
@@ -41,9 +46,9 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite'])) {
 $ignoreAuth = 1;
 global $ignoreAuth;
 
- include_once("../interface/globals.php");
- include_once("$srcdir/patient.inc");
- include_once("$srcdir/forms.inc");
+require_once("../interface/globals.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/forms.inc");
 
  // Exit if the modify calendar for portal flag is not set
 if (!($GLOBALS['portal_onsite_appt_modify'])) {
@@ -202,7 +207,7 @@ if ($_POST['form_action'] == "save") {
         's:19:"event_repeat_on_day";s:1:"0";' .
         's:20:"event_repeat_on_freq";s:1:"1";}';
     }
-  
+
   //The modification of the start date for events that take place on one day of the week
   //for example monday, or thursday. We set the start date on the first day of the week
   //that the event is scheduled. For example if you set the event to repeat on each monday
@@ -671,22 +676,19 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
 <?php html_header_show(); ?>
 <title><?php echo $eid ? "Edit" : "Add New" ?> <?php xl('Event', 'e');?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <style>
 td { font-size:0.8em; }
 </style>
 
-<style type="text/css">@import url(../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../library/topdialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="../library/topdialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../library/textformat.js"></script>
-<script type="text/javascript" src="../library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="../library/dynarch_calendar_en.js"></script>
-<script type="text/javascript" src="../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
-
- var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  var durations = new Array();
  // var rectypes  = new Array();
@@ -790,11 +792,11 @@ while ($crow = sqlFetchArray($cres)) {
  // Gray out certain fields according to selection of Category DDL
  function categoryChanged() {
     var value = '5';
-   
+
     document.getElementById("form_patient").disabled=false;
     //document.getElementById("form_apptstatus").disabled=false;
     //document.getElementById("form_prefcat").disabled=false;
- 
+
  }
 
  // Do whatever is needed when a new event category is selected.
@@ -868,7 +870,7 @@ while ($crow = sqlFetchArray($cres)) {
     // Invoke the find-available popup.
     function find_available() {
         //top.restoreSession();
-        // (CHEMED) Conditional value selection, because there is no <select> element 
+        // (CHEMED) Conditional value selection, because there is no <select> element
         // when making an appointment for a specific provider
         var s = document.forms[0].form_provider;
         <?php if ($userid != 0) { ?>
@@ -878,10 +880,10 @@ while ($crow = sqlFetchArray($cres)) {
         <?php }?>
 //        var fd2=document.forms[0].form_date2.value;
 //        document.forms[0].form_date.value=fd2.substring(6)+'-'+fd2.substring(0,2)+'-'+fd2.substring(3,5);
-        
+
         var formDate = document.forms[0].form_date;
         window.open('find_appt_popup_user.php?bypatient&providerid=' + s +
-                '&catid=5' + 
+                '&catid=5' +
                 '&startdate=' + formDate.value, '_blank', 500, 400);
         //END (CHEMED) modifications
     }
@@ -893,7 +895,7 @@ while ($crow = sqlFetchArray($cres)) {
    alert('Please click on "Openings" to select a time.');
    return false;
   }
-  
+
 //  in lunch outofoffice reserved vacation
   f.form_category.value='12';
   if (f.form_patient.value=='Click to select' && (!(
@@ -902,7 +904,7 @@ while ($crow = sqlFetchArray($cres)) {
    alert('Please select a patient.');
    return false;
   } else if (f.form_category.value=='10') {
-    unsetpatient(); 
+    unsetpatient();
   }
   var form_action = document.getElementById('form_action');
   form_action.value="save";
@@ -922,6 +924,16 @@ while ($crow = sqlFetchArray($cres)) {
     }
     return false;
  }
+
+    $(document).ready(function() {
+        $('.datepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = false; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+        });
+    });
 
 </script>
 
@@ -948,10 +960,7 @@ while ($crow = sqlFetchArray($cres)) {
   </td>
   <td colspan='2' nowrap id='tdallday1'>
    <input type='text' size='10' name='form_date' readonly id='form_date' <?php echo $disabled ?>
-    value='<?php if (isset($eid)) {
-        echo $eid ? $row['pc_eventDate'] : $date;
-} ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' 
+    value='<?php echo (isset($eid) && $eid) ? $row['pc_eventDate'] : $date; ?>'>
   </td>
  </tr>
 
@@ -970,19 +979,13 @@ while ($crow = sqlFetchArray($cres)) {
     <?php xl('Time', 'e'); ?>
   </td>
   <td width='1%' nowrap id='tdallday3'>
-   <input type='text' size='2' name='form_hour' value='<?php if (isset($eid)) {
-        echo $starttimeh;
-} ?>'
+   <input type='text' size='2' name='form_hour' value='<?php echo (isset($eid)) ? $starttimeh : ''; ?>'
     title='<?php xl('Event start time', 'e'); ?>' readonly/> :
-   <input type='text' size='2' name='form_minute' value='<?php if (isset($eid)) {
-        echo $starttimem;
-} ?>'
+   <input type='text' size='2' name='form_minute' value='<?php echo (isset($eid)) ? $starttimem : ''; ?>'
     title='<?php xl('Event start time', 'e'); ?>' readonly/>&nbsp;
    <select name='form_ampm' title='Note: 12:00 noon is PM, not AM' disabled="disabled">
     <option value='1'><?php xl('AM', 'e'); ?></option>
-    <option value='2'<?php if ($startampm == '2') {
-        echo " selected";
-} ?>><?php xl('PM', 'e'); ?></option>
+    <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php xl('PM', 'e'); ?></option>
    </select>
   </td>
  </tr>
@@ -1000,14 +1003,14 @@ while ($crow = sqlFetchArray($cres)) {
   <td nowrap id='tdallday4'><?php xl('duration', 'e'); ?>
   </td>
   <td nowrap id='tdallday5'>
-   <input type='text' size='4' name='form_duration' readonly value='<?php echo $thisduration ?>' title='<?php xl('Event duration in minutes', 'e'); ?>' /> 
+   <input type='text' size='4' name='form_duration' readonly value='<?php echo $thisduration ?>' title='<?php xl('Event duration in minutes', 'e'); ?>' />
     <?php xl('minutes', 'e'); ?>
-    
+
   </td>
  </tr>
 
     <tr>
-        
+
     </tr>
 
 
@@ -1023,7 +1026,7 @@ while ($crow = sqlFetchArray($cres)) {
         echo "<select name='form_provider' onchange='change_provider();' style='width:100%' />";
     while ($urow = sqlFetchArray($ures)) {
         echo "    <option value='" . $urow['id'] . "'";
-//            if ($urow['id'] == $_SESSION['authUserID']) echo " selected"; 
+//            if ($urow['id'] == $_SESSION['authUserID']) echo " selected";
         if (($urow['id'] == $_GET['userid'])||($urow['id']== $userid)) {
             echo " selected";
         }
@@ -1043,7 +1046,7 @@ while ($crow = sqlFetchArray($cres)) {
 ?>
   </td>
   <td nowrap style='font-size:8pt'>
-   
+
   </td>
   <td><input type='button' value='<?php xl('Openings', 'e');?>' onclick='find_available()' /></td>
   <td></td>
@@ -1072,10 +1075,7 @@ while ($crow = sqlFetchArray($cres)) {
    <font color='white'><?php xl('DOB is missing, please enter if possible', 'e'); ?>:</font></b>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_dob' id='form_dob' style='display:none' title='<?php xl('yyyy-mm-dd date of birth', 'e');?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_dob' border='0' alt='[?]' style='cursor:pointer;cursor:hand;display:none'
-    title='<?php xl('Click here to choose a date', 'e');?>'>
+   <input type='text' size='10' class='datepicker' name='form_dob' id='form_dob' style='display:none' title='<?php xl('yyyy-mm-dd date of birth', 'e');?>' />
   </td>
  </tr>
 
@@ -1098,7 +1098,6 @@ while ($crow = sqlFetchArray($cres)) {
  //set_allday();
  //set_repeat();
 
- //Calendar.setup({inputField:"form_dob", ifFormat:"%Y-%m-%d", button:"img_dob"});
 </script>
 
 </body>

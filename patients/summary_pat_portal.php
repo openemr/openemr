@@ -1,20 +1,15 @@
 <?php
-
-// Copyright (C) 2011 by following authors:
-//   - Cassian LUP <cassi.lup@gmail.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
-//SANITIZE ALL ESCAPES
-// (note this is already completed by the script that includes this
-//    get_patient_info.php )
-
-//STOP FAKE REGISTER GLOBALS
-// (note this is already completed by the script that includes this
-//    get_patient_info.php )
+/**
+ * summary_pat_portal
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Cassian LUP <cassi.lup@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2011 Cassian LUP <cassi.lup@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 //continue session
 session_start();
@@ -37,13 +32,13 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite'])) {
 $ignoreAuth = true;
 global $ignoreAuth;
 
- require_once("../interface/globals.php");
- require_once("$srcdir/patient.inc");
- require_once("$srcdir/acl.inc");
- require_once("$srcdir/options.inc.php");
- require_once("../interface/patient_file/history/history.inc.php");
- require_once("$srcdir/edi.inc");
- include_once("$srcdir/lists.inc");
+require_once("../interface/globals.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/options.inc.php");
+require_once("../interface/patient_file/history/history.inc.php");
+require_once("$srcdir/edi.inc");
+require_once("$srcdir/lists.inc");
 
 ?>
 <html>
@@ -52,15 +47,15 @@ global $ignoreAuth;
 <?php html_header_show(); ?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $web_root; ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<link rel="stylesheet" type="text/css" href="<?php echo $web_root; ?>/library/dynarch_calendar.css">
-<script type="text/javascript" src="<?php echo $web_root; ?>/library/textformat.js"></script>
-<script type="text/javascript" src="<?php echo $web_root; ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $web_root; ?>/library/dynarch_calendar_setup.js"></script>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+<script type="text/javascript" src="<?php echo $web_root; ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $web_root; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
-<script type="text/javascript" src="<?php echo $web_root; ?>/library/js/common.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $web_root; ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $web_root; ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
 <link rel="stylesheet" href="css/base.css" type="text/css"/>
 <link rel="stylesheet" href="css/tables.css" type="text/css"/>
 <script type="text/javascript" language="JavaScript">
@@ -366,6 +361,13 @@ if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { 
         });
 <?php } ?>
 
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
 });
 
 </script>
@@ -435,30 +437,16 @@ if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { 
                  <span class='bold'><?php echo xlt('Start Date');?>: </span>
                 </td>
                 <td>
-                 <input type='text' size='10' name='Start' id='Start'
-                 onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+                 <input type='text' size='10' class='datepicker' name='Start' id='Start'
                  title='<?php echo xla('yyyy-mm-dd'); ?>' />
-                 <img src='../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
-                 id='img_start' border='0' alt='[?]' style='cursor:pointer'
-                 title='<?php echo xla('Click here to choose a date'); ?>' >
-                 <script LANGUAGE="JavaScript">
-                  Calendar.setup({inputField:"Start", ifFormat:"%Y-%m-%d", button:"img_start"});
-                 </script>
                 </td>
                 <td>
                  &nbsp;
                  <span class='bold'><?php echo xlt('End Date');?>: </span>
                 </td>
                 <td>
-                 <input type='text' size='10' name='End' id='End'
-                 onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+                 <input type='text' class='datepicker' size='10' name='End' id='End'
                  title='<?php echo xla('yyyy-mm-dd'); ?>' />
-                 <img src='../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
-                 id='img_end' border='0' alt='[?]' style='cursor:pointer'
-                 title='<?php echo xla('Click here to choose a date'); ?>' >
-                 <script LANGUAGE="JavaScript">
-                  Calendar.setup({inputField:"End", ifFormat:"%Y-%m-%d", button:"img_end"});
-                 </script>
                 </td>
                </tr>
               </table>
