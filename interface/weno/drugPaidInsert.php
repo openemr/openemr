@@ -13,7 +13,9 @@
 
 require_once('../globals.php');
 
-$drugs = file_get_contents('drugspaidinsert.sql');
+
+
+$drugs = file_get_contents('../../contrib/weno/drugspaidinsert.sql');
 
 sqlInsert($drugs);
 

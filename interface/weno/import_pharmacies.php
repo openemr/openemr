@@ -27,7 +27,7 @@ $id = ++$getMaxId['MAX(id)'];  // set start import ID to max id plus 1
    /*
    *  Opens the CSV file and reads each line 
    */
-$file = fopen("pharmacyList.csv","r");
+$file = fopen("../../contrib/weno/pharmacyList.csv","r");
 
 while(! feof($file))    //This loop continues till the end of the file is reached.
 {
@@ -36,8 +36,8 @@ while(! feof($file))    //This loop continues till the end of the file is reache
     $entry = explode(",", $line);
     $tm = 1;
    //check entry 7 to match state
-    if($entry[7] == "PR"){                 //In the next iteration this needs to be gotten from the globals
-        ++$i;              //loop count
+    if($entry[7] == $state){                 //In the next iteration this needs to be gotten from the globals
+        ++$id;              //increment id once inside the loop
     
         $phone = str_replace(" ", "-", $entry[10]);  //reformat the phone numbers and fax number
         $fax = str_replace(" ", "-", $entry[11]);
@@ -59,8 +59,7 @@ while(! feof($file))    //This loop continues till the end of the file is reache
             //Insert Address into address table
             $fid = $id;        // Set the foreign_id to the id in the pharmacies table.
             $aid = ++$id;      // Set the address record to plus one
-            $asql = "INSERT INTO addresses  (`id`, `line1`, `line2`, `city`, `state`, `zip`, `plus_four`, `country`, `foreign_id`) VALUES 
-      (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $asql = "INSERT INTO addresses  (`id`, `line1`, `line2`, `city`, `state`, `zip`, `plus_four`, `country`, `foreign_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $addressInsert = array($aid, $entry[4], $entry[5], $entry[6], $entry[7], $entry[8], '','USA', $fid);
             sqlStatement($asql, $addressInsert);
 

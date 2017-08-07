@@ -35,7 +35,7 @@ do{
     $drugName = $in[8];
 
     sqlStatement("INSERT INTO `erx_drug_paid` SET `drug_label_name` = ?, `NDC` = ?, `price_per_unit` = ? ", array($drugName,$ndc,$price));
-    echo text("Inserted")."". text($drugName) ."<br> ";
+    echo xlt("Inserted")."". text($drugName) ."<br> ";
 
     $i++;
 } while ($i < $lines);

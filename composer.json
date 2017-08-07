@@ -73,6 +73,7 @@
             "OpenEMR\\Menu\\": "library/menu",
             "OpenEMR\\Calendar\\": "library/calendar/src",
             "OpenEMR\\Sample\\": "library/sample/src"
+            "Weno\\": "library/weno"
         }
     },
     "config": {

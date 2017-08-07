@@ -17,6 +17,7 @@ use OpenEMR\Core\Header;
 
 <html>
 <head>
+    <title><?php echo xlt("Rx Log"); ?></title>
     <?php Header::setupHeader(); ?>
 
 </head>
