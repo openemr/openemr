@@ -14,14 +14,12 @@ function dictation_report($pid, $encounter, $cols, $id)
             $key == "date" || $value == "" || $value == "0000-00-00 00:00:00") {
                 continue;
             }
-
             if ($value == "on") {
                 $value = "yes";
             }
-
             $key=ucwords(str_replace("_", " ", $key));
-            print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" .
-            nl2br(text($value)) . "</span></td>";
+            print "<tr><td><span class=bold>" . xlt($key) . ": </span><span class=text>" .
+            nl2br(text($value)) . "</span></td></tr>";
             $count++;
             if ($count == $cols) {
                 $count = 0;
@@ -29,6 +27,5 @@ function dictation_report($pid, $encounter, $cols, $id)
             }
         }
     }
-
     print "</tr></table>";
 }

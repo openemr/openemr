@@ -1892,7 +1892,7 @@ textarea.form-control {
 .table-striped>tbody>tr:nth-of-type(odd) {
 	background-color:#FFFFFF !Important;
 }
-.btn-default{
+.btn-default, .btn-link {
 	background:#A7252A !Important;
 	color: #FFFFFF !Important;
 	border-color:#F9F3F3!Important;
@@ -1931,4 +1931,3 @@ textarea.form-control {
 th.currentvalues , th.historicalvalues {
 	background:#D95459 !Important;
 }
-
