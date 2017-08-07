@@ -9952,7 +9952,8 @@ CREATE TABLE `form_therapy_groups_attendance` (
 
 DROP TABLE IF EXISTS `patient_birthday_alert`;
 CREATE TABLE `patient_birthday_alert` (
-  `pid` int(11) NOT NULL,
+  `pid` bigint(20) NOT NULL,
+  `user_id` bigint(20) NOT NULL,
   `turned_off_on` date NOT NULL,
-  PRIMARY KEY (`pid`)
+  PRIMARY KEY  (`pid`,`user_id`)
 ) ENGINE=InnoDB;

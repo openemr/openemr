@@ -465,8 +465,9 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
 
 #IfNotTable patient_birthday_alert
 CREATE TABLE `patient_birthday_alert` (
-  `pid` int(11) NOT NULL,
+  `pid` bigint(20) NOT NULL,
+  `user_id` bigint(20) NOT NULL,
   `turned_off_on` date NOT NULL,
-  PRIMARY KEY (`pid`)
+  PRIMARY KEY  (`pid`,`user_id`)
 ) ENGINE=InnoDB;
 #EndIf
