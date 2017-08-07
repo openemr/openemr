@@ -485,9 +485,9 @@ $(window).load(function() {
 
 <body class="body_top patient-demographics">
 
-<a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='visibility: false;' class='iframe' onclick='top.restoreSession()'></a>
+<a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='display: none;' class='iframe' onclick='top.restoreSession()'></a>
 
-<a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr($pid); ?>&user_id=<?php echo attr($_SESSION['authId']); ?>' id='birthday_popup' style='visibility: false;' class='iframe' onclick='top.restoreSession()'></a>
+<a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr($pid); ?>&user_id=<?php echo attr($_SESSION['authId']); ?>' id='birthday_popup' style='display: none;' class='iframe' onclick='top.restoreSession()'></a>
 <?php
 $thisauth = acl_check('patients', 'demo');
 if ($thisauth) {
@@ -913,9 +913,11 @@ if ($insurance_count > 0) {
                                 <tr>
                                  <td valign='top' colspan='3'>
                                   <span class='text'>
-                                    <?php if (strcmp($enddate, 'Present') != 0) {
+                                    <?php
+                                    if (strcmp($enddate, 'Present') != 0) {
                                         echo htmlspecialchars(xl("Old"), ENT_NOQUOTES)." ";
-} ?>
+                                    }
+                                    ?>
                                     <?php $tempinstype=ucfirst($instype);
                                     echo htmlspecialchars(xl($tempinstype.' Insurance'), ENT_NOQUOTES); ?>
                                     <?php if (strcmp($row['date'], '0000-00-00') != 0) { ?>
@@ -959,9 +961,11 @@ if ($insurance_count > 0) {
                                     <?php echo htmlspecialchars(xl('S.S.'), ENT_NOQUOTES); ?>:
                                     <?php echo htmlspecialchars($row['subscriber_ss'], ENT_NOQUOTES); ?><br>
                                     <?php echo htmlspecialchars(xl('D.O.B.'), ENT_NOQUOTES); ?>:
-                                    <?php if ($row['subscriber_DOB'] != "0000-00-00 00:00:00") {
+                                    <?php
+                                    if ($row['subscriber_DOB'] != "0000-00-00 00:00:00") {
                                         echo htmlspecialchars($row['subscriber_DOB'], ENT_NOQUOTES);
-} ?><br>
+                                    }
+                                    ?><br>
                                     <?php echo htmlspecialchars(xl('Phone'), ENT_NOQUOTES); ?>:
                                     <?php echo htmlspecialchars($row['subscriber_phone'], ENT_NOQUOTES); ?>
                                   </span>
@@ -970,14 +974,16 @@ if ($insurance_count > 0) {
                                   <span class='bold'><?php echo htmlspecialchars(xl('Subscriber Address'), ENT_NOQUOTES); ?>: </span><br>
                                   <span class='text'><?php echo htmlspecialchars($row['subscriber_street'], ENT_NOQUOTES); ?><br>
                                     <?php echo htmlspecialchars($row['subscriber_city'], ENT_NOQUOTES); ?>
-                                    <?php if ($row['subscriber_state'] != "") {
+                                    <?php
+                                    if ($row['subscriber_state'] != "") {
                                         echo ", ";
-}
+                                    }
 
                                     echo htmlspecialchars($row['subscriber_state'], ENT_NOQUOTES); ?>
-                                    <?php if ($row['subscriber_country'] != "") {
+                                    <?php
+                                    if ($row['subscriber_country'] != "") {
                                         echo ", ";
-}
+                                    }
 
                                     echo htmlspecialchars($row['subscriber_country'], ENT_NOQUOTES); ?>
                                     <?php echo " " . htmlspecialchars($row['subscriber_postal_code'], ENT_NOQUOTES); ?></span>
@@ -987,14 +993,16 @@ if ($insurance_count > 0) {
                                   <span class='text'><?php echo htmlspecialchars($row['subscriber_employer'], ENT_NOQUOTES); ?><br>
                                     <?php echo htmlspecialchars($row['subscriber_employer_street'], ENT_NOQUOTES); ?><br>
                                     <?php echo htmlspecialchars($row['subscriber_employer_city'], ENT_NOQUOTES); ?>
-                                    <?php if ($row['subscriber_employer_city'] != "") {
+                                    <?php
+                                    if ($row['subscriber_employer_city'] != "") {
                                         echo ", ";
-}
+                                    }
 
                                     echo htmlspecialchars($row['subscriber_employer_state'], ENT_NOQUOTES); ?>
-                                    <?php if ($row['subscriber_employer_country'] != "") {
+                                    <?php
+                                    if ($row['subscriber_employer_country'] != "") {
                                         echo ", ";
-}
+                                    }
 
                                     echo htmlspecialchars($row['subscriber_employer_country'], ENT_NOQUOTES); ?>
                                     <?php echo " " . htmlspecialchars($row['subscriber_employer_postal_code'], ENT_NOQUOTES); ?>
@@ -1011,12 +1019,16 @@ if ($insurance_count > 0) {
                   <br />
                                 <?php } ?>
                                   <span class='bold'><?php echo htmlspecialchars(xl('Accept Assignment'), ENT_NOQUOTES); ?>:</span>
-                                  <span class='text'><?php if ($row['accept_assignment'] == "TRUE") {
-                                        echo xl("YES");
-} ?>
-                                    <?php if ($row['accept_assignment'] == "FALSE") {
-                                        echo xl("NO");
-} ?></span>
+                                  <span class='text'>
+                                <?php
+                                if ($row['accept_assignment'] == "TRUE") {
+                                    echo xl("YES");
+                                }
+                                if ($row['accept_assignment'] == "FALSE") {
+                                    echo xl("NO");
+                                }
+                                ?>
+                                  </span>
                                 <?php if (!empty($row['policy_type'])) { ?>
                   <br />
                                   <span class='bold'><?php echo htmlspecialchars(xl('Secondary Medicare Type'), ENT_NOQUOTES); ?>: </span>
