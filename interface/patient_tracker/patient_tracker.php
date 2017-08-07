@@ -279,7 +279,7 @@ if ($GLOBALS['pat_trkr_timer'] == '0') {
 <table border='0' cellpadding='5' cellspacing='0'>
  <tr>
   <td  align='center'><br>
-   <a href='javascript:;' class='css_button_small' align='center' style='color:gray' onclick="document.getElementById('pattrk').submit();"><span><?php echo xlt('Refresh Screen'); ?></span></a>
+   <a href='javascript:;' class='css_button_small' align='center' onclick="document.getElementById('pattrk').submit();"><span><?php echo xlt('Refresh Screen'); ?></span></a>
    </td>
  </tr>
 </table>
