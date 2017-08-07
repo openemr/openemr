@@ -28,6 +28,7 @@ div.category-display
     float:left;
     width: 33%;
     cursor: pointer;
+	margin:1px;
 }
 
 div.category-display > button
