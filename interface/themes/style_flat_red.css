@@ -661,7 +661,7 @@ font-weight: bold;
 .message-table-header, #searchResultsHeader, #searchResultsHeader th,#addressbook_list tr.head, .signout-heading, #report_results table thead, .dehead , .showborder_head {
 	background:#E4878A; /*styles the message table header*/
 }
-input[type="button"], input[type="submit"], button{
+input[type="button"], input[type="submit"], button:not(.navbar-toggle) {
   /*display: inline-block;
   margin-bottom: 3px;*/
   font-size: 12px;

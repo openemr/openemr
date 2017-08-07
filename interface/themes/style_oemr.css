@@ -658,7 +658,7 @@ font-weight: bold;
     text-decoration: none;
 }
 
-.css_button, input[type="button"], input[type="submit"], button{
+.css_button, input[type="button"], input[type="submit"], button:not(.navbar-toggle) {
     background: #063f80;
     color: #ffffff !important;
     display: inline-block;
