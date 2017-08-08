@@ -26,7 +26,7 @@ $facilityService = new \services\FacilityService();
 <!DOCTYPE html>
 <html>
     <head>
-        <?php Header::setupHeader(['bootstrap', 'datetime-picker','font-awesome']);?>
+        <?php Header::setupHeader(['datetime-picker','font-awesome']);?>
         
         <?php
         // Format dollars for display.
@@ -370,41 +370,21 @@ $facilityService = new \services\FacilityService();
           // Now proceed with printing the receipt.
         ?>
         <style>
-        .form-group{
-              margin-bottom: 5px;
-           }
-           legend{
-              border-bottom: 2px solid  #E5E5E5;   
-              background:#E5E5E5;
-              padding-left:10px;
-           }
-           .form-horizontal .control-label {
-              padding-top: 2px;
-           }
-           fieldset{
-              border-color: #68171A !important;
-              background-color: #f2f2f2;/*#e7e7e7*/
-              margin-bottom:10px;
-              padding-bottom:15px;
-           }
-           @media only screen and (max-width: 768px) {
-              [class*="col-"] {
-              width: 100%;
-              text-align:left!Important;
-           }
+            @media only screen and (max-width: 768px) {
+                  [class*="col-"] {
+                  width: 100%;
+                  text-align:left!Important;
+               }
            }
            .table {
               margin: auto;
               width: 90% !important; 
            }
            @media (min-width: 992px){
-           .modal-lg {
-               width: 1000px !Important;
+               .modal-lg {
+                   width: 1000px !Important;
+               }
            }
-           }
-           
-           
-           .modalclass {overflow-x: hidden !Important;}
         </style>
         <title><?php echo xlt('Receipt for Payment'); ?></title>
         <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js" type="text/javascript">
@@ -454,7 +434,7 @@ $facilityService = new \services\FacilityService();
     <body bgcolor='#FFFFFF'>
             <div class = "container">
                 <div class= "row">
-                    <div class= 'col-xs-6 col-xs-offset-2'>
+                    <div class= 'col-xs-6 col-lg-offset-2'>
                         <strong><?php echo text($frow['name']) ?></strong><br>
                         <strong><?php echo text($frow['street']) ?></strong><br>
                         <strong><?php echo text($frow['city'] . ', ' . $frow['state']) . ' ' . text($frow['postal_code']) ?></strong><br>
@@ -466,56 +446,56 @@ $facilityService = new \services\FacilityService();
                     <br>
                 </div>
                 <div class= "row">
-                    <div class="col-xs-12" style="padding-bottom:5px">
-                        <div class="col-xs-3 col-xs-offset-3">
+                    <div class="col-xs-12 oe-custom-line">
+                        <div class="col-xs-3 col-lg-offset-3">
                             <label class="control-label" for=""><?php echo xlt('Date'); ?>:</label>
                         </div>
                         <div class="col-xs-3">
                             <?php echo text(oeFormatSDFT(strtotime($payrow['dtime']))) ?>
                         </div>
                     </div>
-                    <div class="col-xs-12" style="padding-bottom:5px">
-                        <div class="col-xs-3 col-xs-offset-3">
+                    <div class="col-xs-12 oe-custom-line">
+                        <div class="col-xs-3 col-lg-offset-3">
                             <label class="control-label" for=""><?php echo xlt('Patient'); ?>:</label>
                         </div>
                         <div class="col-xs-3">
                             <?php echo text($patdata['fname']) . " " . text($patdata['mname']) . " " . text($patdata['lname']) . " (" . text($patdata['pubpid']) . ")" ?>
                         </div>
                     </div>
-                    <div class="col-xs-12" style="padding-bottom:5px">
-                        <div class="col-xs-3 col-xs-offset-3">
+                    <div class="col-xs-12 oe-custom-line">
+                        <div class="col-xs-3 col-lg-offset-3">
                             <label class="control-label" for=""><?php echo xlt('Paid Via'); ?>:</label>
                         </div>
                         <div class="col-xs-3">
                             <?php echo generate_display_field(array('data_type'=>'1','list_id'=>'payment_method'),$payrow['method']); ?>
                         </div>
                     </div>
-                    <div class="col-xs-12" style="padding-bottom:5px">
-                        <div class="col-xs-3 col-xs-offset-3">
+                    <div class="col-xs-12 oe-custom-line">
+                        <div class="col-xs-3 col-lg-offset-3">
                             <label class="control-label" for=""><?php echo xlt('Check/Ref Number'); ?>:</label>
                         </div>
                         <div class="col-xs-3">
                             <?php echo text($payrow['source']) ?>
                         </div>
                     </div>
-                    <div class="col-xs-12" style="padding-bottom:5px">
-                        <div class="col-xs-3 col-xs-offset-3">
+                    <div class="col-xs-12 oe-custom-line">
+                        <div class="col-xs-3 col-lg-offset-3">
                             <label class="control-label" for=""><?php echo xlt('Amount for This Visit'); ?>:</label>
                         </div>
                         <div class="col-xs-3">
                             <?php echo text(oeFormatMoney($payrow['amount1'])) ?>
                         </div>
                     </div>
-                    <div class="col-xs-12" style="padding-bottom:5px">
-                        <div class="col-xs-3 col-xs-offset-3">
+                    <div class="col-xs-12 oe-custom-line">
+                        <div class="col-xs-3 col-lg-offset-3">
                             <label class="control-label" for=""><?php echo xlt('Amount for Past Balance'); ?>:</label>
                         </div>
                         <div class="col-xs-3">
                             <?php echo text(oeFormatMoney($payrow['amount2'])) ?>
                         </div>
                     </div>
-                    <div class="col-xs-12" style="padding-bottom:5px">
-                        <div class="col-xs-3 col-xs-offset-3">
+                    <div class="col-xs-12 oe-custom-line">
+                        <div class="col-xs-3 col-lg-offset-3">
                             <label class="control-label" for=""><?php echo xlt('Received By'); ?>:</label>
                         </div>
                         <div class="col-xs-3">
@@ -939,42 +919,23 @@ $facilityService = new \services\FacilityService();
             }
             </script>
             <style>
-            .form-group{
-                  margin-bottom: 5px;
-               }
-               legend{
-                  border-bottom: 2px solid  #E5E5E5;   
-                  background:#E5E5E5;
-                  padding-left:10px;
-               }
-               .form-horizontal .control-label {
-                  padding-top: 2px;
-               }
-               fieldset{
-                  border-color: #68171A !important;
-                  background-color: #f2f2f2;/*#e7e7e7*/
-                  margin-bottom:10px;
-                  padding-bottom:15px;
-               }
-               @media only screen and (max-width: 768px) {
-                  [class*="col-"] {
-                  width: 100%;
-                  text-align:left!Important;
-               }
+                @media only screen and (max-width: 768px) {
+                      [class*="col-"] {
+                      width: 100%;
+                      text-align:left!Important;
+                   }
                }
                .table {
                   margin: auto;
                   width: 90% !important; 
                }
                @media (min-width: 992px){
-               .modal-lg {
-                   width: 1000px !Important;
+                   .modal-lg {
+                       width: 1000px !Important;
+                   }
                }
-               }
-               
-               
-               .modalclass {overflow-x: hidden !Important;}
             </style>
+            <title><?php echo xlt('Record Payment'); ?></title>
     </head>
     <body>
             <div class="container"><!--begin container div for form-->
@@ -989,8 +950,8 @@ $facilityService = new \services\FacilityService();
                         <input name='form_pid' type='hidden' value='<?php echo attr($pid) ?>'>
                         <fieldset>
                         <legend><?php echo xlt('Payment'); ?></legend>
-                            <div class="col-xs-12" style="padding-bottom:5px">
-                                <div class="col-xs-3 col-xs-offset-3">
+                            <div class="col-xs-12 oe-custom-line">
+                                <div class="col-xs-3 col-lg-offset-3">
                                     <label class="control-label" for="form_method"><?php echo xlt('Payment Method'); ?>:</label>
                                 </div>
                                 <div class="col-xs-3">
@@ -1007,8 +968,8 @@ $facilityService = new \services\FacilityService();
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-xs-12" style="padding-bottom:5px">
-                                <div class="col-xs-3 col-xs-offset-3">
+                            <div class="col-xs-12 oe-custom-line">
+                                <div class="col-xs-3 col-lg-offset-3">
                                     <label class="control-label" for="check_number"><?php echo xlt('Check/Ref Number'); ?>:</label>
                                 </div>
                                 <div class="col-xs-3">
@@ -1016,11 +977,11 @@ $facilityService = new \services\FacilityService();
                                     <input type='text'  id="check_number" name='form_source' class= 'form-control' value='<?php echo htmlspecialchars($payrow['source'], ENT_QUOTES); ?>'>
                                 </div>
                             </div>
-                            <div class="col-xs-12" style="padding-bottom:5px">
-                                <div class="col-xs-3 col-xs-offset-3">
+                            <div class="col-xs-12 oe-custom-line">
+                                <div class="col-xs-3 col-lg-offset-3">
                                     <label class="control-label" for="form_discount"><?php echo xlt('Patient Coverage'); ?>:</label>
                                 </div>
-                                <div class="col-xs-3">
+                                <div class="col-xs-6">
                                     <div style="padding-left:15px">
                                         <label class="radio-inline">
                                           <input id="radio_type_of_coverage1" name="radio_type_of_coverage" onclick="make_visible_radio();make_self();" type="radio" value="self"><?php echo htmlspecialchars(xl('Self'), ENT_QUOTES); ?>
@@ -1031,11 +992,11 @@ $facilityService = new \services\FacilityService();
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-xs-12" style="padding-bottom:5px">
-                                <div class="col-xs-3 col-xs-offset-3">
+                            <div class="col-xs-12 oe-custom-line">
+                                <div class="col-xs-3 col-lg-offset-3">
                                     <label class="control-label" for=""><?php echo xlt('Payment against'); ?>:</label>
                                 </div>
-                                <div class="col-xs-4">
+                                <div class="col-xs-6">
                                     <div id="tr_radio1" style="padding-left:15px; display:none"><!-- For radio Insurance -->
                                         <label class="radio-inline">
                                           <input id="radio_type_of_payment_self1" name="radio_type_of_payment" onclick="make_visible_row();make_it_hide_enc_pay();cursor_pointer();" type="radio" value="cash"><?php echo htmlspecialchars(xl('Encounter Payment'), ENT_QUOTES); ?>
@@ -1054,9 +1015,9 @@ $facilityService = new \services\FacilityService();
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-xs-12" style="padding-bottom:5px">
+                            <div class="col-xs-12 oe-custom-line">
                                 <div id="table_display_prepayment" style="display:none">
-                                    <div class="col-xs-3 col-xs-offset-3">
+                                    <div class="col-xs-3 col-lg-offset-3">
                                         <label class="control-label" for="form_prepayment"><?php echo xlt('Pre Payment'); ?>:</label>
                                     </div>
                                     <div class="col-xs-3">

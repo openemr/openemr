@@ -185,41 +185,21 @@ function generate_receipt($patient_id, $encounter=0) { //REMEMBER the entire rec
 
         </script>
         <style>
-        .form-group{
-              margin-bottom: 5px;
-           }
-           legend{
-              border-bottom: 2px solid  #E5E5E5;   
-              background:#E5E5E5;
-              padding-left:10px;
-           }
-           .form-horizontal .control-label {
-              padding-top: 2px;
-           }
-           fieldset{
-              border-color: #68171A !important;
-              background-color: #f2f2f2;/*#e7e7e7*/
-              margin-bottom:10px;
-              padding-bottom:15px;
-           }
-           @media only screen and (max-width: 768px) {
-              [class*="col-"] {
-              width: 100%;
-              text-align:left!Important;
-           }
-           }
-           .table {
-              margin: auto;
-              width: 90% !important; 
-           }
-           @media (min-width: 992px){
-           .modal-lg {
-               width: 1000px !Important;
-           }
-           }
-           
-           
-           .modalclass {overflow-x: hidden !Important;}
+        @media only screen and (max-width: 768px) {
+            [class*="col-"] {
+            width: 100%;
+            text-align:left!Important;
+            }
+        }
+        .table {
+            margin: auto;
+            width: 90% !important; 
+        }
+        @media (min-width: 992px){
+            .modal-lg {
+                width: 1000px !Important;
+            }
+        }
         </style>
         <title><?php echo xlt('Patient Checkout'); ?></title>
     </head>
@@ -236,14 +216,14 @@ function generate_receipt($patient_id, $encounter=0) { //REMEMBER the entire rec
                     ?>
             </div>    
             <div class= "row">
-                <div class= 'col-xs-6 col-xs-offset-2'>
+                <div class= 'col-xs-6 col-lg-offset-2'>
                     <?php echo text($patdata['fname']) . ' ' . text($patdata['mname']) . ' ' . text($patdata['lname']) ?><br>
                     <?php echo text($patdata['street']) ?><br>
                     <?php echo text($patdata['city']) . ', ' . text($patdata['state']) . ' ' . text($patdata['postal_code']) ?><br>
                 </div>
             </div>
             <div class= "row ">
-                <div class= 'col-xs-6 col-xs-offset-3'>
+                <div class= 'col-xs-6 col-lg-offset-3'>
                     <table class="table">
                         <thead>
                             <tr>
@@ -762,43 +742,23 @@ function generate_receipt($patient_id, $encounter=0) { //REMEMBER the entire rec
 
             </script>
             <style>
-        .form-group{
-              margin-bottom: 5px;
-           }
-           legend{
-              border-bottom: 2px solid  #E5E5E5;   
-              background:#E5E5E5;
-              padding-left:10px;
-           }
-           .form-horizontal .control-label {
-              padding-top: 2px;
-           }
-           fieldset{
-              border-color: #68171A !important;
-              background-color: #f2f2f2;/*#e7e7e7*/
-              margin-bottom:10px;
-              padding-bottom:15px;
-           }
-           @media only screen and (max-width: 768px) {
-              [class*="col-"] {
-              width: 100%;
-              text-align:left!Important;
-           }
-           }
-           .table {
-              margin: auto;
-              width: 90% !important; 
-           }
-           @media (min-width: 992px){
-           .modal-lg {
-               width: 1000px !Important;
-           }
-           }
-           
-           
-           .modalclass {overflow-x: hidden !Important;}
-        </style>
-        <title><?php echo xlt('Patient Checkout '); ?></title>
+                @media only screen and (max-width: 768px) {
+                    [class*="col-"] {
+                    width: 100%;
+                    text-align:left!Important;
+                    }
+                }
+                .table {
+                    margin: auto;
+                    width: 90% !important; 
+                }
+                @media (min-width: 992px){
+                    .modal-lg {
+                        width: 1000px !Important;
+                    }
+                }
+            </style>
+            <title><?php echo xlt('Patient Checkout'); ?></title>
     </head>
     <body>
         <div class="container">
@@ -937,16 +897,16 @@ function generate_receipt($patient_id, $encounter=0) { //REMEMBER the entire rec
                     </fieldset>
                     <fieldset>
                         <legend><?php echo xlt('Collect Payment'); ?></legend>
-                        <div class="col-xs-12" style="padding-bottom:5px">
-                            <div class="col-xs-3 col-xs-offset-3">
+                        <div class="col-xs-12 oe-custom-line">
+                            <div class="col-xs-3 col-lg-offset-3">
                                 <label class="control-label" for="form_discount"><?php echo $GLOBALS['discount_by_money'] ? xlt('Discount Amount') : xlt('Discount Percentage'); ?>:</label>
                             </div>
                             <div class="col-xs-3">
                                 <input maxlength='8' name='form_discount' id='form_discount' onkeyup='computeTotals()' class= 'form-control' type='text' value=''>
                             </div>
                         </div>
-                        <div class="col-xs-12" style="padding-bottom:5px">
-                            <div class="col-xs-3 col-xs-offset-3">
+                        <div class="col-xs-12 oe-custom-line">
+                            <div class="col-xs-3 col-lg-offset-3">
                                 <label class="control-label" for="form_method"><?php echo xlt('Payment Method'); ?>:</label>
                             </div>
                             <div class="col-xs-3">
@@ -964,24 +924,24 @@ function generate_receipt($patient_id, $encounter=0) { //REMEMBER the entire rec
                                 </select>
                             </div>
                         </div>
-                        <div class="col-xs-12" style="padding-bottom:5px">
-                            <div class="col-xs-3 col-xs-offset-3">
+                        <div class="col-xs-12 oe-custom-line">
+                            <div class="col-xs-3 col-lg-offset-3">
                                 <label class="control-label" for="form_source"><?php echo xlt('Check/Reference Number'); ?>:</label>
                             </div>
                             <div class="col-xs-3">
                                 <input name='form_source' id='form_source' class= 'form-control' type='text' value=''>
                             </div>
                         </div>
-                        <div class="col-xs-12" style="padding-bottom:5px">
-                            <div class="col-xs-3 col-xs-offset-3">
+                        <div class="col-xs-12 oe-custom-line">
+                            <div class="col-xs-3 col-lg-offset-3">
                                 <label class="control-label" for="form_amount"><?php echo xlt('Amount Paid'); ?>:</label>
                             </div>
                             <div class="col-xs-3">
                                 <input name='form_amount' id='form_amount'class='form-control' type='text' value='0.00'>
                             </div>
                         </div>
-                        <div class="col-xs-12" style="padding-bottom:5px">
-                            <div class="col-xs-3 col-xs-offset-3">
+                        <div class="col-xs-12 oe-custom-line">
+                            <div class="col-xs-3 col-lg-offset-3">
                                 <label class="control-label" for="form_date"><?php echo xlt('Posting Date'); ?>:</label>
                             </div>
                             <div class="col-xs-3">
@@ -994,8 +954,8 @@ function generate_receipt($patient_id, $encounter=0) { //REMEMBER the entire rec
                         $irnumber = getInvoiceRefNumber(); 
                         if (!empty($irnumber)) {
                         ?>
-                        <div class="col-xs-12" style="padding-bottom:5px">
-                            <div class="col-xs-3 col-xs-offset-3">
+                        <div class="col-xs-12 oe-custom-line">
+                            <div class="col-xs-3 col-lg-offset-3">
                                 <label class="control-label" for="form_tentative"><?php echo xlt('Tentative Invoice Ref No'); ?>:</label>
                             </div>
                             <div class="col-xs-3">
@@ -1007,8 +967,8 @@ function generate_receipt($patient_id, $encounter=0) { //REMEMBER the entire rec
                         // Otherwise if there is an invoice reference number mask, ask for the refno.
                         else if (!empty($GLOBALS['gbl_mask_invoice_number'])) {
                         ?>
-                        <div class="col-xs-12" style="padding-bottom:5px">
-                            <div class="col-xs-3 col-xs-offset-3">
+                        <div class="col-xs-12 oe-custom-line">
+                            <div class="col-xs-3 col-lg-offset-3">
                                 <label class="control-label" for="form_irnumber"><?php echo xlt('Invoice Reference Number'); ?>:</label>
                             </div>
                             <div class="col-xs-3">
