@@ -17,7 +17,7 @@
   <tr>
         <td class="title"><?php echo out(xl('Rule Edit')); ?></td>
         <td>
-            <a href="index.php?action=detail!view&id=<?php echo out($ruleId); ?>" class="iframe_medium css_button" onclick="top.restoreSession()">
+            <a href="index.php?action=detail!view&id=<?php echo out($ruleId); ?>" class="iframe_medium btn btn-default btn-cancel" onclick="top.restoreSession()">
                 <span><?php echo out(xl('Cancel')); ?></span>
             </a>
         </td>

@@ -234,14 +234,16 @@ function transmit(){
             ?>
             <td><input type="text" name="pwd" id="pwd" value="<?php echo htmlspecialchars($pwd, ENT_QUOTES);?>" size="10"/>
             </td>
-            <td><a href="#" class="css_button" onclick="top.restoreSession(); javascript:document.location.reload()"><span><?php echo htmlspecialchars(xl('Change'), ENT_QUOTES);?></span></a></td>
+            <td><a href="#" class="btn btn-default" onclick="top.restoreSession(); javascript:document.location.reload()"><span><?php echo htmlspecialchars(xl('Change'), ENT_QUOTES);?></span></a></td>
         </tr>
         <tr class="text">
             <td><input type="hidden" name="form_save" id="form_save"></td>
             <td colspan="5" align="center">
-                <a href="#" class="css_button" onclick="return transmit()"><span><?php echo htmlspecialchars(xl('Save'), ENT_QUOTES);?></span></a>
+                <div class="btn-group">
+                    <a href="#" class="btn btn-default btn-save" onclick="return transmit()"><?php echo htmlspecialchars(xl('Save'), ENT_QUOTES);?></a>
+                    <a href="#" class="btn btn-link btn-cancel" onclick="top.restoreSession(); parent.$.fn.fancybox.close();"><?php echo htmlspecialchars(xl('Cancel'), ENT_QUOTES);?></a>
+                </div>
                 <input type="hidden" name="form_cancel" id="form_cancel">
-                <a href="#" class="css_button" onclick="top.restoreSession(); parent.$.fn.fancybox.close();"><span><?php echo htmlspecialchars(xl('Cancel'), ENT_QUOTES);?></span></a>
             </td>
         </tr>
     </table>

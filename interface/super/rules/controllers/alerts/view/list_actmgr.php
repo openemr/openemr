@@ -33,7 +33,10 @@ require_once("$phpgacl_location/gacl_api.class.php");
   </tr>
   <tr>
         <td>
-            <a href="javascript:document.cdralertmgr.submit();" class="css_button" onclick="top.restoreSession()"><span><?php echo out(xl('Save')); ?></span></a><a href="javascript:document.cdralertmgr.reset();" class="css_button" onclick="top.restoreSession()"><span><?php echo out(xl('Reset')); ?></span></a>
+            <div class="btn-group">
+                <a href="javascript:document.cdralertmgr.submit();" class="btn btn-default" onclick="top.restoreSession()"><?php echo out(xl('Save')); ?></a>
+                <a href="javascript:document.cdralertmgr.reset();" class="btn btn-link" onclick="top.restoreSession()"><span><?php echo out(xl('Reset')); ?></span></a>
+            </div>
         </td>
   </tr>        
 </table>

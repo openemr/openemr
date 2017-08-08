@@ -80,7 +80,7 @@ if ($mode == "simple") {
     </span>
   </div>
   <div>
-    <a href="../summary/demographics.php" class="css_button" onclick="top.restoreSession()">
+    <a href="../summary/demographics.php" class="btn btn-default btn-back" onclick="top.restoreSession()">
       <span><?php echo htmlspecialchars(xl('Back To Patient'), ENT_NOQUOTES);?></span>
     </a>
   </div>
@@ -202,16 +202,16 @@ if ($next < $total) {
             <td>
               <div style='margin-left:15px'>
                 <?php if ($mode == "admin") { ?>
-                 <a id='process_button' href='#' class='css_button' onclick='return ReminderBatch("process")'>
+                 <a id='process_button' href='#' class='btn btn-default' onclick='return ReminderBatch("process")'>
                    <span><?php echo htmlspecialchars(xl('Process Reminders'), ENT_NOQUOTES); ?></span>
                  </a>
-                 <a id='process_send_button' href='#' class='css_button' onclick='return ReminderBatch("process_send")'>
+                 <a id='process_send_button' href='#' class='btn btn-default' onclick='return ReminderBatch("process_send")'>
                    <span><?php echo htmlspecialchars(xl('Process and Send Reminders'), ENT_NOQUOTES); ?></span>
                  </a>
                  <span id='status_span'></span>
                  <div id='processing' style='margin:10px;display:none;'><img src='../../pic/ajax-loader.gif'/></div>
                 <?php } else { ?>
-                <a href='patient_reminders.php?patient_id=<?php echo $patient_id; ?>&mode=<?php echo $mode; ?>' class='css_button' onclick='top.restoreSession()'>
+                <a href='patient_reminders.php?patient_id=<?php echo $patient_id; ?>&mode=<?php echo $mode; ?>' class='btn btn-default' onclick='top.restoreSession()'>
                   <span><?php echo htmlspecialchars(xl('Refresh'), ENT_NOQUOTES); ?></span>
                 </a>
                 <?php } ?>

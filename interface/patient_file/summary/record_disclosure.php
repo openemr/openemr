@@ -91,14 +91,14 @@ if ($editlid) {
     <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure'), ENT_NOQUOTES); ?></span><?php
 } ?>
 </div>
-<div><a onclick="return submitform()" class="css_button large_button"
-    name='form_save' id='form_save' href='#'> <span
-    class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Save'), ENT_NOQUOTES);?></span>
-</a></div>
-<div><a class="css_button large_button" id='cancel'
-    href='disclosure_full.php' target='_parent' onclick='top.restoreSession()'> <span
-    class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Cancel'), ENT_NOQUOTES);?></span>
-</a></div>
+<div class="btn-group">
+    <a onclick="return submitform()" class="btn btn-default btn-save btn-large"
+        name='form_save' id='form_save' href='#'><?php echo htmlspecialchars(xl('Save'), ENT_NOQUOTES);?>
+    </a>
+    <a class="btn btn-link btn-cancel" id='cancel'
+        href='disclosure_full.php' target='_parent' onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Cancel'), ENT_NOQUOTES);?></span>
+    </a>
+</div>
 <br>
 <form NAME="disclosure_form" METHOD="POST" ACTION="disclosure_full.php" target='_parent' onsubmit='return top.restoreSession()'>
 <input type=hidden name=mode value="disclosure">

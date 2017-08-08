@@ -1,4 +1,5 @@
 <?php
+
 use ESign\Api;
 
 // This program is free software; you can redistribute it and/or
@@ -275,7 +276,7 @@ if (!isset($_GET['attachid'])) {
     <?php if ($reviewMode) { ?>
         $("body table:first").hide();
         $(".encounter-summary-column").hide();
-        $(".css_button").hide();
+        $(".btn .btn-default").hide();
         $(".css_button_small").hide();
         $(".encounter-summary-column:first").show();
         $(".title:first").text("<?php echo xls("Review"); ?> " + $(".title:first").text() + " ("+<?php echo addslashes($encounter); ?>+")");

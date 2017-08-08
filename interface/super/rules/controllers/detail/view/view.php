@@ -18,7 +18,7 @@ $rule = $viewBean->rule ?>
   <tr >
         <td class="title"><?php echo out(xl('Rule Detail')); ?></td>
         <td>
-            <a href="index.php?action=browse!list" class="iframe_medium css_button" onclick="top.restoreSession()"><span><?php echo out(xl('Back')); ?></span></a>
+            <a href="index.php?action=browse!list" class="iframe_medium btn btn-default btn-back" onclick="top.restoreSession()"><span><?php echo out(xl('Back')); ?></span></a>
         </td>
   </tr>
 </table>

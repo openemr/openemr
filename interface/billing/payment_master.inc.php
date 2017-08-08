@@ -317,9 +317,13 @@ if (($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && 
             <td></td>
           </tr>
           <tr>
-            <td width="100"><a href="#" onClick="javascript:return SavePayment();" class="css_button"><span><?php echo htmlspecialchars(xl('Save Changes'), ENT_QUOTES);?></span></a></td>
-            <td width="110"><a href="#" onClick="javascript:ResetForm()" class="css_button"><span><?php echo htmlspecialchars(xl('Cancel Changes'), ENT_QUOTES);?></span></a></td>
-            <td width="70"><a href="#" class="css_button" onClick="javascript:OpenEOBEntry();"><span><?php echo htmlspecialchars(xl('Allocate'), ENT_QUOTES);?></span></a></td>
+              <td colspan="3">
+                  <div class="btn-group">
+                      <a href="#" onClick="javascript:return SavePayment();" class="btn btn-default btn-save"><?php echo xl('Save');?></a>
+                      <a href="#" class="btn btn-default" onClick="javascript:OpenEOBEntry();"><?php echo htmlspecialchars(xl('Allocate'), ENT_QUOTES);?></a>
+                      <a href="#" onClick="javascript:ResetForm()" class="btn btn-link btn-cancel"><?php echo xl('Cancel');?></a>
+                  </div>
+              </td>
           </tr>
         </table>        </td>
       </tr>

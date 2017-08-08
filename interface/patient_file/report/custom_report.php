@@ -1,4 +1,5 @@
 <?php
+
 use ESign\Api;
 
 /**
@@ -162,7 +163,6 @@ function postToGet($arin)
   .hilite {background-color: #FFFF00;}
   .hilite2 {background-color: transparent;}
   mark {background-color: #FFFF00;}
-  .css_button{cursor:pointer;}
   .next {background-color: #FFFF00;}
   #search_options{
     position:fixed;

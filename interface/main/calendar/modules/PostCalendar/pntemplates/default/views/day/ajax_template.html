@@ -158,10 +158,10 @@ if ( $_SESSION['pc_facility'] ) {
 <input type="hidden" name="jumpdate" id="jumpdate" value="">
 <input type="hidden" name="viewtype" id="viewtype" value="[-php-]echo $viewtype;[-/php-]">
 [-php-]
-echo "   <a href='#' title='" . xl("New Appointment") . "' onclick='newEvt(1, 9, 00, $Date, 0, 0)' class='css_button'>
+echo "   <a href='#' title='" . xl("New Appointment") . "' onclick='newEvt(1, 9, 00, $Date, 0, 0)' class='btn btn-default'>
             <i class='fa fa-plus' aria-hidden='true'></i></a>\n";
 echo "   <a href='#' title='" . xl("Search Appointment") . "'
-            onclick='top.restoreSession();location=\"index.php?module=PostCalendar&func=search\"' class='css_button'>
+            onclick='top.restoreSession();location=\"index.php?module=PostCalendar&func=search\"' class='btn btn-default'>
             <i class='fa fa-search' aria-hidden='true'></i></a>\n";
 [-/php-]
 </div>
@@ -171,7 +171,7 @@ echo "   <a href='#' title='" . xl("Search Appointment") . "'
 [-php-]
 if ($Date <> date('Ymd')) {
 [-/php-]
-<a href='#' name='bnsubmit' value='[-php-]echo xl ("Today")[-/php-]' onClick='GoToToday(theform);'  class='css_button'/><span>[-php-] echo xl("Today")[-/php-]</span></a>
+<a href='#' name='bnsubmit' value='[-php-]echo xl ("Today")[-/php-]' onClick='GoToToday(theform);'  class='btn btn-link'/><span>[-php-] echo xl("Today")[-/php-]</span></a>
 [-php-]
 }
 echo "   <a id='prevday' href='$PREV_DAY_URL' onclick='top.restoreSession()' title='" . xl("Previous Day") . "'>
@@ -184,15 +184,17 @@ echo "   <a id='nextday' href='$NEXT_DAY_URL' onclick='top.restoreSession()' tit
 </div>
 
 <div id="viewPicker">
+    <div class="btn-group">
+        <a href='#' id='printview' title="[-php-]xl('View Printable Version')[-/php-]" class='btn btn-default'>
+            <i class='fa fa-print' aria-hidden='true'></i>&nbsp;&nbsp;[-php-]echo xl('Print');[-/php-]</a>
+        <a href='#' title='[-php-]xl("Refresh")[-/php-]' onclick='javascript:refreshme()' class='btn btn-default'>
+            <i class='fa fa-refresh' aria-hidden='true'></i>&nbsp;&nbsp;[-php-]echo xl('Refresh');[-/php-]</a>
 [-php-]
-echo "   <a href='#' id='printview' title='" . xl("View Printable Version") . "' class='css_button'>
-            <i class='fa fa-print' aria-hidden='true'></i></a>\n";
-echo "   <a href='#' title='" . xl("Refresh") . "' onclick='javascript:refreshme()' class='css_button'>
-            <i class='fa fa-refresh' aria-hidden='true'></i></a>\n";
-echo "   <a href='#' type='button' id='dayview' title='" .htmlspecialchars( xl('Day View'), ENT_QUOTES). "' class='css_button'/><span>".htmlspecialchars( xl('Day'), ENT_QUOTES)."</span></a>\n";
-echo "   <a href='#' type='button' id='weekview' title='" .htmlspecialchars( xl('Week View'), ENT_QUOTES). "' class='css_button'/><span>".htmlspecialchars( xl('Week'), ENT_QUOTES)."</span></a>\n";
-echo "   <a href='#' type='button' id='monthview' title='" .htmlspecialchars( xl('Month View'), ENT_QUOTES). "' class='css_button'/><span>".htmlspecialchars( xl('Month'), ENT_QUOTES)."</span></a>\n";
+echo "   <a href='#' id='dayview' title='" .htmlspecialchars( xl('Day View'), ENT_QUOTES). "' class='btn btn-default'/><span>".htmlspecialchars( xl('Day'), ENT_QUOTES)."</span></a>\n";
+echo "   <a href='#' id='weekview' title='" .htmlspecialchars( xl('Week View'), ENT_QUOTES). "' class='btn btn-default'/><span>".htmlspecialchars( xl('Week'), ENT_QUOTES)."</span></a>\n";
+echo "   <a href='#' id='monthview' title='" .htmlspecialchars( xl('Month View'), ENT_QUOTES). "' class='btn btn-default'/><span>".htmlspecialchars( xl('Month'), ENT_QUOTES)."</span></a>\n";
 [-/php-]
+    </div>
 </div>
 </div> <!-- end topToolbarRight -->
 <div id="bottom">

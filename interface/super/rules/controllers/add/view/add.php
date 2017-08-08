@@ -10,8 +10,10 @@
   <tr >
         <td class="title"><?php echo out(xl('Add Rule')); ?></td>
         <td>
-            <a href="index.php?action=add!add" class="iframe_medium css_button" onclick="top.restoreSession()"><span><?php echo out(xl('Save')); ?></span></a>
-            <a href="index.php?action=browse!list" class="iframe_medium css_button" onclick="top.restoreSession()"><span><?php echo out(xl('Cancel')); ?></span></a>
+            <div class="btn-group">
+                <a href="index.php?action=add!add" class="iframe_medium btn btn-default btn-save" onclick="top.restoreSession()"><?php echo out(xl('Save')); ?></a>
+                <a href="index.php?action=browse!list" class="iframe_medium btn btn-link btn-cancel" onclick="top.restoreSession()"><?php echo out(xl('Cancel')); ?></a>
+            </div>
         </td>
   </tr>
 </table>

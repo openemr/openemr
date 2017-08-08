@@ -32,17 +32,25 @@ require_once("../../globals.php");
 <span class="title"><?php echo xlt('Prescriptions'); ?></span>
 <table>
 <tr height="20px">
-<td>
-    <a href="<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo attr($pid); ?>"  target='RxRight' class="css_button" onclick="top.restoreSession()">
-    <span><?php echo xlt('List');?></span></a>
-    <a href="<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=&pid=<?php echo attr($pid); ?>"  target='RxRight' class="css_button" onclick="top.restoreSession()">
-    <span><?php echo xlt('Add');?></span></a>
-</td>
+    <td>
+        <div class="btn-group">
+            <a href="<?php echo $GLOBALS['webroot'] ?>/controller.php?prescription&list&id=<?php echo attr($pid); ?>"
+               target='RxRight' class="btn btn-default"
+               onclick="top.restoreSession()">
+                <?php echo xlt('List'); ?>
+            </a>
+            <a href="<?php echo $GLOBALS['webroot'] ?>/controller.php?prescription&edit&id=&pid=<?php echo attr($pid); ?>"
+               target='RxRight' class="btn btn-default"
+               onclick="top.restoreSession()">
+                <?php echo xlt('Add'); ?>
+            </a>
+        </div>
+    </td>
 </tr>
 <tr>
 <td>
 <?php if ($GLOBALS['rx_show_drug-drug']) { ?>
-    <a href="<?php echo $GLOBALS['webroot']?>/interface/weno/drug-drug.php"  target='RxRight' class="css_button" onclick="top.restoreSession()">
+    <a href="<?php echo $GLOBALS['webroot']?>/interface/weno/drug-drug.php"  target='RxRight' class="btn btn-default" onclick="top.restoreSession()">
     <span><?php echo xlt('Drug-Drug');?></span></a>
 <?php } ?>
 </td>

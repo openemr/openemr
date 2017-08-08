@@ -17,10 +17,10 @@
   <tr>
         <td class="title"><?php echo $rule->id ? out(xl('Rule Edit')) : out(xl('Rule Add')); ?></td>
         <td>
-            <a href="index.php?action=detail!view&id=<?php echo out($rule->id); ?>" class="iframe_medium css_button" onclick="top.restoreSession()">
-                <span><?php echo out(xl('Cancel')); ?></span>
-            </a>
-            <a href="javascript:;" class="iframe_medium css_button" id="btn_save" onclick="top.restoreSession()"><span><?php echo out(xl('Save')); ?></span></a>
+            <div class="btn-group">
+                <a href="javascript:;" class="iframe_medium btn btn-default btn-save" id="btn_save" onclick="top.restoreSession()"><?php echo out(xl('Save')); ?></a>
+                <a href="index.php?action=detail!view&id=<?php echo out($rule->id); ?>" class="iframe_medium btn btn-link btn-cancel" onclick="top.restoreSession()"><?php echo out(xl('Cancel')); ?></a>
+            </div>
         </td>
   </tr>
 </table>

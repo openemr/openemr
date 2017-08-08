@@ -53,8 +53,8 @@ if (!empty($active_alerts) && empty($all_allergy_alerts)) {
 ?>
 </span>&nbsp;&nbsp;&nbsp;</td>
 <td>
-    <a href="#" id="close" class="css_button large_button" onclick="parent.$.fn.fancybox.close(); return false;">
-        <span class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Close'), ENT_NOQUOTES);?></span>
+    <a href="#" id="close" class="btn btn-default btn-large" onclick="parent.$.fn.fancybox.close(); return false;">
+        <span class='btn btn-default btn-large'><?php echo htmlspecialchars(xl('Close'), ENT_NOQUOTES);?></span>
     </a>
 </td>
 </tr>

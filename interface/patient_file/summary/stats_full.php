@@ -97,7 +97,7 @@ function newEncounter() {
 
 <br>
 <div style="text-align:center" class="buttons">
-  <a href='javascript:;' class='css_button' id='back'><span><?php echo htmlspecialchars(xl('Back'), ENT_NOQUOTES); ?></span></a>
+  <a href='javascript:;' class='btn btn-default btn-back' id='back'><span><?php echo htmlspecialchars(xl('Back'), ENT_NOQUOTES); ?></span></a>
 </div>
 <br>
 <br>

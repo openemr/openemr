@@ -235,11 +235,11 @@ if ($GLOBALS['pat_trkr_timer'] == '0') {
                 </td>
                 <td style="border-left: 1px solid;" rowspan="2">
                     <div style='margin-left: 15px'>
-                        <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-                            <span> <?php echo xlt('Filter'); ?> </span> </a>
+                        <a href='#' class='btn btn-default' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                            <i class="fa fa-filter"></i>&nbsp;&nbsp;<?php echo xlt('Filter'); ?></a>
                         <?php if ($_POST['form_refresh'] || $_POST['form_orderby']) { ?>
-                            <a href='#' class='css_button' id='printbutton'>
-                                <span> <?php echo xlt('Print'); ?> </span> </a>
+                            <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                                <?php echo xlt('Print'); ?></a>
                         <?php } ?>
                     </div>
                 </td>
