@@ -226,7 +226,7 @@ function oeFormatAge($dobYMD, $nowYMD = '', $format = 0)
 function oeTimestampFormatDateTime($timestamp)
 {
     if(!$timestamp){
-        $timestamp = date('Y-m-d H:i');
+        $timestamp = strtotime(date('Y-m-d H:i'));
     }
 
     if ($GLOBALS['date_display_format'] == 1) {      // mm/dd/yyyy, note year is added below
