@@ -223,17 +223,20 @@ function oeFormatAge($dobYMD, $nowYMD = '', $format = 0)
  * @param $timestamp
  * @return bool|string
  */
-function oeFormatLongDate($timestamp)
+function oeTimestampFormatDateTime($timestamp)
 {
     if(!$timestamp){
         $timestamp = date('Y-m-d H:i');
     }
-    // assume input is yyyy-mm-dd
+
     if ($GLOBALS['date_display_format'] == 1) {      // mm/dd/yyyy, note year is added below
         $newDate = date('m-d-Y H:i',$timestamp);
     } else if ($GLOBALS['date_display_format'] == 2) { // dd/mm/yyyy, note year is added below
         $newDate = date('d-m-Y H:i',$timestamp);
+    }else{
+        $newDate = date('Y-m-d H:i',$timestamp);
     }
+
     return $newDate;
 }
 
