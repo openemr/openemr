@@ -64,7 +64,7 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 <head>
 <?php html_header_show();?>
 
-<title><?php echo xlt('Current Patient'); ?></title>
+<title><?php echo xlt('Edit Current Patient'); ?></title>
 
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
@@ -429,7 +429,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
         <div class="row">
             <div class="col-xs-12">
                 <div class="page-header">
-                    <h1><?php echo xlt('Current Patient');?></h1>
+                    <h1><?php echo xlt('Edit Current Patient');?></h1>
                 </div>
             </div>
             <div class="col-xs-12">
