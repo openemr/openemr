@@ -758,7 +758,7 @@ if (isset($_POST["mode"]))
                 <div class="modal-content oe-modal-content">
                     <!--<div class="modal-header" style="border:hidden"></div>-->
                     <div class="modal-body">
-                        <iframe src="/user/dashboard" id="targetiframe" style="height:650px; width:100%; overflow-x: hidden; border:none" allowtransparency="true"></iframe>  
+                        <iframe src="" id="targetiframe" style="height:650px; width:100%; overflow-x: hidden; border:none" allowtransparency="true"></iframe>  
                     </div>
                     <div class="modal-footer" style="margin-top:0px;">
                        <button class="btn btn-link btn-cancel pull-right" data-dismiss="modal" type="button"><?php echo xlt('close'); ?></button>
@@ -768,19 +768,9 @@ if (isset($_POST["mode"]))
         </div>
     </div>
     <script>
-    function loadiframe(htmlHref) //load iframe
-{
-document.getElementById('targetiframe').src = htmlHref;
-}
-
-
-function unloadiframe() //just for the kicks of it
-{
-var frame = document.getElementById("targetiframe"),
-frameHTML = frame.contentDocument || frame.contentWindow.document;
-frameHTML.removeChild(frameDoc.documentElement);    
-}
-
+    function loadiframe(htmlHref) { //load iframe
+         document.getElementById('targetiframe').src = htmlHref;
+    }
     </script>
 </body>
 </html>

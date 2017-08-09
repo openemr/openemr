@@ -103,12 +103,13 @@ $oauthorized = $my_authorized;
 
 <html>
 <head>
-    <?php //if (function_exists('html_header_show')) html_header_show(); ?>
-    <!--<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">-->
-    <?php Header::setupHeader(['datetime-picker','font-awesome']);?>
+    <?php Header::setupHeader(['datetime-picker']);?>
     <style>
-        .subbtn { margin-top:3px; margin-bottom:3px; margin-left:2px; margin-right:2px }
+        /*.subbtn { margin-top:3px; margin-bottom:3px; margin-left:2px; margin-right:2px }*/
+        .btn-group-pinch>.btn:nth-last-child(4):not(.dropdown-toggle) {
+        border-top-right-radius: 3px !Important;
+        border-bottom-right-radius: 3px !Important;
+    }
     </style>
     <script> 
         function select_all() {
@@ -354,7 +355,7 @@ $oauthorized = $my_authorized;
             border: 1px solid #ccc;
             padding: 10px;
         }
-        @media only screen and (max-width: 768px) {
+        @media only screen and (max-width: 1024px) {
             [class*="col-"] {
               width: 100%;
               text-align:left!Important;
@@ -369,21 +370,9 @@ $oauthorized = $my_authorized;
                width: 1000px !Important;
             }
         }
-        .modalclass {overflow-x: hidden !Important;}
-        @media only screen and (max-width : 767px) {
-            .box {
-                height: auto !important;
-            }
-        }
-        .oe-nopad-left{
-            padding-left:0px;
-        }
-        .oe-nopad-right{
-            padding-right:0px;
-        }
         .table th, .table td { 
              border-top: none !important; 
-         }
+        }
     </style>
     <script language="javascript" type="text/javascript">
         document.onclick=TakeActionOnHide;
@@ -402,17 +391,12 @@ $oauthorized = $my_authorized;
         </div>
         <div class="row">
             <form name='the_form' method='post' action='billing_report.php' onsubmit='return top.restoreSession()' style="display:inline">
-
-                <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-                <script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-                <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
                 <script language='JavaScript'>
                  var mypcc = '1';
                 </script>
 
                 <input type='hidden' name='mode' value='change'>
-                <div class="col-xs-12" style="padding:5px 0px">
-                <!--<div class="form-group col-xs-9">-->
+                <div class="col-xs-9">
                     <!-- ============================================================================================================================================= -->
                                                                             <!-- Criteria section Starts -->
                     <!-- ============================================================================================================================================= -->
@@ -501,14 +485,14 @@ $oauthorized = $my_authorized;
                     // ============================================================================================================================================= -->
                     ?>
                     
-                <!--</div>-->
-                <div class="form-group col-xs-3" style="padding-right:0px">
+                </div>
+                <div class="form-group col-xs-3">
                     <fieldset>
                         <legend><?php echo htmlspecialchars( xl('Select Action'), ENT_QUOTES) ?></legend>
                         <div class="form-group col-xs-12">
                             <!--<label for="final_this_page_criteria">&nbsp;</label>-->
                             <div  class= 'text'>
-                                &nbsp;<br>
+                                &nbsp;
                                 <a class="link_submit" style='display:block' href="#" onclick="javascript:return SubmitTheScreen();"><i class="fa fa-circle" style="margin-right:5px; font-size:.75em" aria-hidden="true"></i><strong><?php echo xlt('Update List') ?></strong></a>
                                 <a class='link_submit' style='display:block' href="#" onclick="javascript:return SubmitTheScreenExportOFX();"><i class="fa fa-circle" style="margin-right:5px; font-size:.75em" aria-hidden="true"></i><strong><?php echo  xlt('Export OFX'); ?></strong></a>
                                 <a class='link_submit' style='display:block'href="#" onclick="javascript:return SubmitTheScreenPrint();"><i class="fa fa-circle" style="margin-right:5px; font-size:.75em" aria-hidden="true"></i><strong><?php echo xlt('View Printable Report'); ?></strong></a>
@@ -522,7 +506,8 @@ $oauthorized = $my_authorized;
                                 <?php } ?>
                                 </span> 
                                 <?php if (! file_exists($EXPORT_INC)) { ?>
-                                        <a href='#' id="view-log-link" style='display:block' class='link_submit' title='<?php xla('See messages from the last set of generated claims'); ?>'><i class="fa fa-circle" style="margin-right:5px; font-size:.75em" aria-hidden="true"></i><strong><?php echo  xlt('View Log') ;?></strong></a>
+                                        <!--<a href='#' id="view-log-link" style='display:block' class='link_submit' title='<?php xla('See messages from the last set of generated claims'); ?>'><i class="fa fa-circle" style="margin-right:5px; font-size:.75em" aria-hidden="true"></i><strong><?php echo  xlt('View Log') ;?></strong></a>-->
+                                         <a href='#' id="view-log-link" data-toggle="modal"  data-target="#myModal" style='display:block' class='link_submit'  title='<?php xla('See messages from the last set of generated claims'); ?>'><i class="fa fa-circle" style="margin-right:5px; font-size:.75em" aria-hidden="true"></i><strong><?php echo  xlt('View Log') ;?></strong></a>
                                     <?php } ?>
                                 <a class="link_submit" style='display:block' href="javascript:select_all()"><i class="fa fa-circle" style="margin-right:5px; font-size:.75em" aria-hidden="true"></i><strong><?php  echo  xlt('Select All') ; ?></strong></a>
                                 &nbsp;<br>
@@ -534,63 +519,37 @@ $oauthorized = $my_authorized;
                         </div>
                     </fieldset>
                 </div>
-                <!--</div>-->
             </form>
         </div>
         <div class="row">
             <form name='update_form' method='post' action='billing_process.php' onsubmit='return top.restoreSession()' style="display:inline">
-                <div class="form-group ">
-                     <div class="col-sm-12 text-left position-override">
-                        <div class="btn-group" role="group">
-                            
-                        <?php if (file_exists($EXPORT_INC)) { ?>
-                            <!--                        
-                            <input class="subbtn btn btn-default" data-open-popup="true" name="bn_external" title="<?php echo xla('Export to external billing system') ?>" type="submit" value="Export Billing"> 
-                            <input class="subbtn btn btn-default" data-open-popup="true" name="bn_mark" title="<?php echo xla('Mark as billed but skip billing') ?>" type="submit" value="Mark as Cleared">
-                            -->
+                <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets ?>
+                <div class="form-group clearfix">
+                     <div class="col-xs-12">
+                        <div class=" col-xs-8 btn-group btn-group-pinch text-left position-override" role="group">
+                         <?php if (file_exists($EXPORT_INC)) { ?>
                             <button class="btn btn-default btn-save" data-open-popup="true" name="bn_external" title="<?php echo xla('Export to external billing system') ?>" type="submit" value=""><?php echo xlt('Export Billing')?></button >
-                            <button class="subbtn btn btn-default btn-save" data-open-popup="true" name="bn_mark" title="<?php echo xla('Mark as billed but skip billing') ?>" type="submit" ><?php echo xlt('Mark as Cleared')?></button>
+                            <button class="btn btn-default btn-save" data-open-popup="true" name="bn_mark" title="<?php echo xla('Mark as billed but skip billing') ?>" type="submit" ><?php echo xlt('Mark as Cleared')?></button>
                             
                         <?php } else { ?> 
-                            <!--
-                            <input type="submit" class="subbtn" name="bn_hcfa_print" value="Queue HCFA &amp; Print" title="<?php echo xla('Queue for HCFA batch processing and printing') ?>">
-                            <input type="submit" class="subbtn" name="bn_hcfa" value="Queue HCFA" title="<?php echo xla('Queue for HCFA batch processing')?>">
-                            <input type="submit" class="subbtn" name="bn_ub92_print" value="Queue UB92 &amp; Print" title="<?php echo xla('Queue for UB-92 batch processing and printing')?>">
-                            <input type="submit" class="subbtn" name="bn_ub92" value="Queue UB92" title="<?php echo xla('Queue for UB-92 batch processing')?>">
-                            
-                            <input class="subbtn btn btn-default" name="bn_x12" onclick="MarkAsCleared(1)" title="<?php echo xla('Generate and download X12 batch')?>" type="submit" value="<?php echo xla('Generate X12')?>"> 
-                            -->
-                            <button class="subbtn btn btn-default btn-download" name="bn_x12" onclick="MarkAsCleared(1)" title="<?php echo xla('Generate and download X12 batch')?>" type="submit"> <?php echo xlt('Generate X12')?></button>
+                            <button class="btn btn-default btn-download" name="bn_x12" onclick="MarkAsCleared(1)" title="<?php echo xla('Generate and download X12 batch')?>" type="submit"> <?php echo xlt('Generate X12')?></button>
                             
                         <?php } ?> 
                         <?php if ($GLOBALS['support_encounter_claims']) { ?> 
-                            <!--
-                            <input class="subbtn btn btn-default" name="bn_x12_encounter" onclick="MarkAsCleared(1)" title="<?php echo xla('Generate and download X12 encounter claim batch')?>" type="submit" value="<?php echo xla('Generate X12 Encounter')?>"> 
-                            -->
-                            <button class="subbtn btn btn-default btn-download" name="bn_x12_encounter" onclick="MarkAsCleared(1)" title="<?php echo xla('Generate and download X12 encounter claim batch')?>" type="submit" ><?php echo xlt('Generate X12 Encounter')?></button>
+                            <button class="btn btn-default btn-download" name="bn_x12_encounter" onclick="MarkAsCleared(1)" title="<?php echo xla('Generate and download X12 encounter claim batch')?>" type="submit" ><?php echo xlt('Generate X12 Encounter')?></button>
                         <?php } ?> 
-                            <!--
-                            <input class="subbtn btn btn-default" name="bn_process_hcfa" onclick="MarkAsCleared(2)" style="width:105px;" title="<?php echo xla('Generate and download CMS 1500 paper claims')?>" type="submit" value="<?php echo xla('CMS 1500 PDF')?>"> 
-                            -->
-                            <button class="subbtn btn btn-default btn-download" name="bn_process_hcfa" onclick="MarkAsCleared(2)" title="<?php echo xla('Generate and download CMS 1500 paper claims')?>" type="submit"><?php echo xlt('CMS 1500 PDF')?></button>
+                            <button class="btn btn-default btn-download" name="bn_process_hcfa" onclick="MarkAsCleared(2)" title="<?php echo xla('Generate and download CMS 1500 paper claims')?>" type="submit"><?php echo xlt('CMS 1500 PDF')?></button>
                         <?php if ($GLOBALS['preprinted_cms_1500']) { ?> 
-                            <!--
-                            <input class="subbtn btn btn-default" name="bn_process_hcfa_form" onclick="MarkAsCleared(2)" style="width:210px;" title="<?php echo xla('Generate and download CMS 1500 paper claims on Preprinted form')?>" type="submit" value="<?php echo xla('CMS 1500 PREPRINTED FORM')?>">
-                            -->
-                            <button class="subbtn btn btn-default btn-download" name="bn_process_hcfa_form" onclick="MarkAsCleared(2)"  title="<?php echo xla('Generate and download CMS 1500 paper claims on Preprinted form')?>" type="submit"><?php echo xla('CMS 1500 PREPRINTED FORM')?></button>
+                            <button class="btn btn-default btn-download" name="bn_process_hcfa_form" onclick="MarkAsCleared(2)"  title="<?php echo xla('Generate and download CMS 1500 paper claims on Preprinted form')?>" type="submit"><?php echo xla('CMS 1500 Preprinted Form')?></button>
                         <?php } ?>
-                            <!--                        
-                            <input class="subbtn btn btn-default" name="bn_hcfa_txt_file" onclick="MarkAsCleared(3)" style="width:120px;" title="<?php echo xla('Making batch text files for uploading to Clearing House and will mark as billed')?>" type="submit" value="<?php echo xla('CMS 1500 TEXT')?>"> 
-                            <input class="subbtn btn btn-default" data-open-popup="true" name="bn_mark" title="<?php echo xla('Post to accounting and mark as billed')?>" type="submit" value="<?php echo xla('Mark as Cleared')?>">
-                            <input class="subbtn btn btn-default" data-open-popup="true" name="bn_reopen" title="<?php echo xla('Mark as not billed')?>" type="submit" value="<?php echo xla('Re-Open')?>">
-                            <input type="submit" class="subbtn" name="bn_electronic_file" value="Make Electronic Batch &amp; Clear" title="<?php echo xla('Download billing file, post to accounting and mark as billed')?>">
-                            -->&nbsp;&nbsp;&nbsp; 
-                            <button class="subbtn btn btn-default btn-download" name="bn_hcfa_txt_file" onclick="MarkAsCleared(3)"  title="<?php echo xla('Making batch text files for uploading to Clearing House and will mark as billed')?>" type="submit" ><?php echo xlt('CMS 1500 TEXT')?></button>
-                            <button class="subbtn btn btn-default btn-download" data-open-popup="true" name="bn_mark" title="<?php echo xla('Post to accounting and mark as billed')?>" type="submit"><?php echo xlt('Mark as Cleared')?></button>
-                            <button class="subbtn btn btn-default btn-undo" data-open-popup="true" name="bn_reopen" title="<?php echo xla('Mark as not billed')?>" type="submit" ><?php echo xla('Re-Open')?></button> 
-                            <?php echo xlt('CMS 1500 Margins'); ?>:&nbsp;<?php echo xlt('Left'); ?>:<input type='text' size='2' name='left_margin' value='<?php echo attr($left_margin); ?>' title='<?php echo xla('HCFA left margin in points'); ?>' />&nbsp;
-                            <?php echo xlt('Top'); ?>:<input type='text' size='2' name='top_margin' value='<?php echo attr($top_margin); ?>' title='<?php echo xla('HCFA top margin in points'); ?>' />
+                            <button class="btn btn-default btn-download" name="bn_hcfa_txt_file" onclick="MarkAsCleared(3)"  title="<?php echo xla('Making batch text files for uploading to Clearing House and will mark as billed')?>" type="submit" ><?php echo xlt('CMS 1500 Text')?></button>
+                            <button class="btn btn-default btn-download" data-open-popup="true" name="bn_mark" title="<?php echo xla('Post to accounting and mark as billed')?>" type="submit"><?php echo xlt('Mark as Cleared')?></button>
+                            <button class="btn btn-default btn-undo" data-open-popup="true" name="bn_reopen" title="<?php echo xla('Mark as not billed')?>" type="submit" ><?php echo xla('Re-Open')?></button> 
                         </div>
+						<div class="col-xs-4">
+						<?php echo xlt('CMS 1500 Margins'); ?>:&nbsp;<?php echo xlt('Left'); ?>:<input type='text' size='2' name='left_margin' value='<?php echo attr($left_margin); ?>' title='<?php echo xla('HCFA left margin in points'); ?>' />&nbsp;
+                        <?php echo xlt('Top'); ?>:<input type='text' size='2' name='top_margin' value='<?php echo attr($top_margin); ?>' title='<?php echo xla('HCFA top margin in points'); ?>' />
+						</div>
                     </div>
                 </div>
                 <input id='HiddenMarkAsCleared' name='HiddenMarkAsCleared' type='hidden' value="">
@@ -1158,8 +1117,22 @@ $oauthorized = $my_authorized;
             </form>
         </div>
     </div><!--end of container div -->
-
-        <script>
+    <div class="row">
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog oe-modal-dialog modal-lg">
+                <div class="modal-content oe-modal-content">
+                    <!--<div class="modal-header" style="border:hidden"></div>-->
+                    <div class="modal-body">
+                        <iframe src="" id="targetiframe" style="height:650px; width:100%; overflow-x: hidden; border:none" allowtransparency="true"></iframe>  
+                    </div>
+                    <div class="modal-footer" style="margin-top:0px;">
+                       <button class="btn btn-link btn-cancel pull-right" data-dismiss="modal" type="button"><?php echo xlt('close'); ?></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
         set_button_states();
         <?php
         if ($alertmsg) {
@@ -1169,7 +1142,8 @@ $oauthorized = $my_authorized;
         $(document).ready(function() {
             $("#view-log-link").click( function() {
                 top.restoreSession();
-                dlgopen('customize_log.php', '_blank', 500, 400);
+                //dlgopen('customize_log.php', '_blank', 500, 400);
+               $("#targetiframe").attr("src", "customize_log.php");
             });
 
             $('input[type="submit"]').click( function() {
@@ -1201,7 +1175,7 @@ $oauthorized = $my_authorized;
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
-        </script>
+    </script>
         <input type="hidden" name="divnos"  id="divnos" value="<?php echo attr($divnos) ?>"/>
         <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
 </body>

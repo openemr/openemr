@@ -74,7 +74,7 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
  }
 //------------------------------------------------------------------------------
 ?>
-<div class="form-group col-xs-6">
+<div class="form-group col-xs-8">
     <fieldset>
         <legend><?php echo htmlspecialchars( xl('Choose Criteria'), ENT_QUOTES) ?></legend>
         <div class="form-group col-xs-6">
@@ -279,7 +279,7 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
         ?>
     </fieldset>
 </div>
-<div class="form-group col-xs-3">
+<div class="form-group col-xs-4">
     <fieldset>
         <legend><?php echo htmlspecialchars( xl('Current Criteria'), ENT_QUOTES) ?></legend>
         <div class="form-group col-xs-12">
