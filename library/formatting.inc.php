@@ -219,22 +219,28 @@ function oeFormatAge($dobYMD, $nowYMD = '', $format = 0)
 
 
 /**
- * Returns the complete formatted stae string according the global date format
+ * Returns the complete formatted datetime string according the global date and time format
  * @param $timestamp
  * @return bool|string
  */
 function oeTimestampFormatDateTime($timestamp)
 {
-    if(!$timestamp){
+    if (!$timestamp) {
         $timestamp = strtotime(date('Y-m-d H:i'));
     }
 
-    if ($GLOBALS['date_display_format'] == 1) {      // mm/dd/yyyy, note year is added below
-        $newDate = date('m-d-Y H:i',$timestamp);
-    } else if ($GLOBALS['date_display_format'] == 2) { // dd/mm/yyyy, note year is added below
-        $newDate = date('d-m-Y H:i',$timestamp);
-    }else{
-        $newDate = date('Y-m-d H:i',$timestamp);
+    if ($GLOBALS['time_display_format'] == 0) {
+        $timeFormat = 'H:i';
+    } else { // $GLOBALS['time_display_format'] == 1
+        $timeFormat = 'g:i a';
+    }
+
+    if ($GLOBALS['date_display_format'] == 1) { // mm/dd/yyyy
+        $newDate = date('m/d/Y ' . $timeFormat, $timestamp);
+    } else if ($GLOBALS['date_display_format'] == 2) { // dd/mm/yyyy
+        $newDate = date('d/m/Y ' . $timeFormat, $timestamp);
+    } else { // yyyy-mm-dd
+        $newDate = date('Y-m-d ' . $timeFormat, $timestamp);
     }
 
     return $newDate;
