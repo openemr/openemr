@@ -426,22 +426,21 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 <input type='hidden' name='db_id' value="<?php echo attr($result['id']); ?>" />
 
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="page-header">
-                    <h1><?php echo xlt('Current Patient');?></h1>
+        <div class="page-header">
+            <div class="row">
+                <div class="col-xs-12 col-sm-6 col-md-4">
+                        <h3><?php echo xlt('Current Patient');?></h3>
                 </div>
-            </div>
-            <div class="col-xs-12">
-                <div class="btn-group">
-                    <button type="submit" class="btn btn-default btn-save" id="submit_btn" disabled="disabled" value="<?php echo xla('Save'); ?>">
-                        <?php echo xlt('Save'); ?>
-                    </button>
-                    <a class="btn btn-link btn-cancel" href="demographics.php" onclick="top.restoreSession()">
-                        <?php echo xlt('Cancel'); ?>
-                    </a>
+                <div class="col-xs-12 col-sm-6 col-md-4">
+                    <div class="btn-group btn-header">
+                        <button type="submit" class="btn btn-default btn-save" id="submit_btn" disabled="disabled" value="<?php echo xla('Save'); ?>">
+                            <?php echo xlt('Save'); ?>
+                        </button>
+                        <a class="btn btn-link btn-cancel" href="demographics.php" onclick="top.restoreSession()">
+                            <?php echo xlt('Cancel'); ?>
+                        </a>
+                    </div>
                 </div>
-                <hr>
             </div>
         </div>
     </div>

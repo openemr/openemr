@@ -416,24 +416,25 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 <form action='new_comprehensive_save.php' name='demographics_form' id="DEM"  method='post' onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM",constraints)'>
 
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="page-header">
-                    <h1><?php echo xlt('Search or Add Patient');?></h1>
+        <div class="page-header">
+            <div class="row">
+                <div class="col-xs-12 col-sm-6 col-md-4">
+
+                    <h3><?php echo xlt('Search or Add Patient');?></h3>
                 </div>
-            </div>
-            <div class="col-xs-12">
-                <div class="btn-group">
-                    <?php if ($WITH_SEARCH) { ?>
-                        <button type="button" class="btn btn-default btn-search" id="search" value="<?php echo xla('Search'); ?>">
-                            <?php echo xlt('Search'); ?>
+
+                <div class="col-xs-12 col-sm-6 col-md-4">
+                    <div class="btn-group btn-header">
+                        <?php if ($WITH_SEARCH) { ?>
+                            <button type="button" class="btn btn-default btn-search" id="search" value="<?php echo xla('Search'); ?>">
+                                <?php echo xlt('Search'); ?>
+                            </button>
+                        <?php } ?>
+                        <button type="button" class="btn btn-default btn-save" name='create' id="create" value="<?php echo xla('Create New Patient'); ?>">
+                            <?php echo xlt('Create New Patient'); ?>
                         </button>
-                    <?php } ?>
-                    <button type="button" class="btn btn-default btn-save" name='create' id="create" value="<?php echo xla('Create New Patient'); ?>">
-                        <?php echo xlt('Create New Patient'); ?>
-                    </button>
+                    </div>
                 </div>
-                <hr>
             </div>
         </div>
     </div>

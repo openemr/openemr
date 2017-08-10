@@ -1932,3 +1932,6 @@ th.currentvalues , th.historicalvalues {
 	background:#D95459 !Important;
 }
 
+.btn-header{
+    margin-top: 18px;
+}

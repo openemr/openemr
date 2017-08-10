@@ -1363,3 +1363,7 @@ table.dataTable#therapy_groups_list tbody td{
 .btn-link {
     color: #444444 !important;
 }
+
+.btn-header{
+    margin-top: 18px;
+}
