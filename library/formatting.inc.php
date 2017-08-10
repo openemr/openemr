@@ -74,6 +74,44 @@ function oeFormatTime($time, $format = "")
     return $formatted;
 }
 
+/**
+ * Returns the complete formatted datetime string according the global date and time format
+ * @param $datetime
+ * @return string
+ */
+function oeFormatDateTime($datetime)
+{
+    echo oeFormatShortDate(substr($datetime, 0, 10)) . " " . oeFormatTime(substr($datetime, 10));
+}
+
+/**
+ * Returns the complete formatted datetime string according the global date and time format
+ * @param $timestamp
+ * @return string
+ */
+function oeTimestampFormatDateTime($timestamp)
+{
+    if (!$timestamp) {
+        $timestamp = strtotime(date('Y-m-d H:i'));
+    }
+
+    if ($GLOBALS['time_display_format'] == 0) {
+        $timeFormat = 'H:i';
+    } else { // $GLOBALS['time_display_format'] == 1
+        $timeFormat = 'g:i a';
+    }
+
+    if ($GLOBALS['date_display_format'] == 1) { // mm/dd/yyyy
+        $newDate = date('m/d/Y ' . $timeFormat, $timestamp);
+    } else if ($GLOBALS['date_display_format'] == 2) { // dd/mm/yyyy
+        $newDate = date('d/m/Y ' . $timeFormat, $timestamp);
+    } else { // yyyy-mm-dd
+        $newDate = date('Y-m-d ' . $timeFormat, $timestamp);
+    }
+
+    return $newDate;
+}
+
 // Format short date from time.
 function oeFormatSDFT($time)
 {
@@ -216,33 +254,3 @@ function oeFormatAge($dobYMD, $nowYMD = '', $format = 0)
 
     return $age;
 }
-
-
-/**
- * Returns the complete formatted datetime string according the global date and time format
- * @param $timestamp
- * @return bool|string
- */
-function oeTimestampFormatDateTime($timestamp)
-{
-    if (!$timestamp) {
-        $timestamp = strtotime(date('Y-m-d H:i'));
-    }
-
-    if ($GLOBALS['time_display_format'] == 0) {
-        $timeFormat = 'H:i';
-    } else { // $GLOBALS['time_display_format'] == 1
-        $timeFormat = 'g:i a';
-    }
-
-    if ($GLOBALS['date_display_format'] == 1) { // mm/dd/yyyy
-        $newDate = date('m/d/Y ' . $timeFormat, $timestamp);
-    } else if ($GLOBALS['date_display_format'] == 2) { // dd/mm/yyyy
-        $newDate = date('d/m/Y ' . $timeFormat, $timestamp);
-    } else { // yyyy-mm-dd
-        $newDate = date('Y-m-d ' . $timeFormat, $timestamp);
-    }
-
-    return $newDate;
-}
-
