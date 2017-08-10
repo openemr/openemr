@@ -867,7 +867,6 @@ $use_validate_js=$GLOBALS['new_validate'];
         // Use hook to open the controller and get the new patient validation .
         // when no params are sent this window will be closed from the zend controller.
         var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation";?>';
-        $("#submit_btn").attr("type","button");
         $("#submit_btn").attr("name","btnSubmit");
         $("#submit_btn").attr("id","btnSubmit");
         $("#btnSubmit").click(function( event ) {
