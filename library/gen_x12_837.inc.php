@@ -792,7 +792,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
             "~\n";
         }
 
-        if (!CMS_5010 && $claim->referrerUPIN()) {
+        if (!$CMS_5010 && $claim->referrerUPIN()) {
             ++$edicount;
             $out .= "REF" .   // Referring Provider Secondary Identification
             "*1G" .
@@ -838,8 +838,6 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
             "*" . $claim->providerTaxonomy() .
             "~\n";
         }
-
-        // End of Loop 2310B
     } else {
         // This loop can only get skipped if we are generating a 5010 claim
         if (!($claim->providerNPIValid())) {
@@ -869,14 +867,14 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
             "~\n";
         }
     }
-
-  // Loop 2310D is omitted in the case of home visits (POS=12).
+    // End of Loop 2310B
+    // Loop 2310C is omitted in the case of home visits (POS=12).
     if ($claim->facilityPOS() != 12 && (!$CMS_5010 ||
       ($claim->facilityNPI() != $claim->billingFacilityNPI() ||
       ($claim->facilityNPI() == $claim->billingFacilityNPI() &&
        $claim->facilityStreet() != $claim->billingFacilityStreet())))) {
         ++$edicount;
-        $out .= "NM1" .       // Loop 2310D Service Location
+        $out .= "NM1" .       // Loop 2310C Service Location
         "*77" .
         "*2";
         //Field length is limited to 35. See nucc dataset page 77 www.nucc.org
