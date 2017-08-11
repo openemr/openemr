@@ -89,35 +89,9 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     ++$edicount;
 
     if ($claim->federalIdType() == "SY") { // check entity type for NM*102 1 == person, 2 == non-person entity
-        $tempName = $claim->billingFacilityName();
-        $partsName = explode(' ', $tempName);// Loop 1000A submitter entity == person
-        $num_parts = count($partsName);
-        switch ($num_parts) {
-            case "2":
-                $firstName = $partsName[0];
-                $middleName = '';
-                $lastName = $partsName[1];
-                $suffixName = '';
-                break;
-            case "3":
-                $firstName = $partsName[0];
-                $middleName = $partsName[1];
-                $lastName = $partsName[2];
-                $suffixName = '';
-                break;
-            case "4":
-                $firstName = $partsName[0];
-                $middleName = $partsName[1];
-                $lastName = $partsName[2];
-                $suffixName = $partsName[3];
-                break;
-            default:
-                $log .= "*** submitter name in 1000A loop has more than 4 parts, may not be desirable\n";
-                $firstName = $partsName[0];
-                $middleName = $partsName[1];
-                $lastName = $partsName[2];
-                $suffixName = $partsName[3];
-        }
+        $firstName = $claim->providerFirstName();
+        $lastName = $claim->providerLastName();
+        $middleName = $claim->providerMiddleName();
 
         $out .= "NM1" . // Loop 1000A Submitter
         "*41" .
@@ -128,7 +102,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
         "*" . // Name Prefix not used
         "*" . // Name Suffix not used
         "*46";
-    } else {    //Field length is limited to 35. See nucc dataset page 63 www.nucc.org
+    } else { //Field length is limited to 35. See nucc dataset page 63 www.nucc.org
         $billingFacilityName = substr($claim->billingFacilityName(), 0, $CMS_5010 ? 60 : 35);
         if ($billingFacilityName == '') {
             $log .= "*** billing facility name in 1000A loop is empty\n";
