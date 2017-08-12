@@ -1,4 +1,6 @@
 <?php
+namespace MedExApi;
+
 /**
  * /library/MedEx/API.php
  *
@@ -8,7 +10,6 @@
  * @copyright Copyright (c) 2017 MedEx <support@MedExBank.com>
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
  */
-namespace MedExApi;
 
 class CurlRequest
 {
@@ -195,14 +196,14 @@ class Practice extends Base
             }
         }
 
-        // 2. Make sure any recalls don't have appointments just scheduled
-        //   Go through each recall event in medex_outgoing and check to see if it is completed.  If so tell MedEx.
+        // 2. Make sure any recalls don't have appointments, ie. just a recall is scheduled
+        //   Go through each recall event in medex_outgoing and check to see if it is scheduled.  If so tell MedEx.
         //   We do this when we load the Recall Board........ and now when running a cron job/background_service
         $sql = "SELECT * from medex_outgoing where msg_pc_eid like 'recall_%' GROUP by msg_pc_eid";
         $result = sqlStatement($sql);
         while ($row = sqlFetchArray($result)) {
             $pid = trim($row['msg_pc_eid'], "recall_");
-            //if there is a future appointment now in calendar, stop this recall
+            //if there is a future appointment now in calendar, stop this recall message from going out
             $query  = "select pc_eid from openemr_postcalendar_events WHERE (pc_eventDate > CURDATE()) AND pc_pid=?";
             $test3 = sqlStatement($query, array($pid));
             $result3 = sqlFetchArray($test3);
@@ -665,10 +666,21 @@ class Callback extends Base
         $data['TIMER'] = date(DATE_RFC2822);
         $this->MedEx->logging->log_this($data);
         //Store responses in TABLE medex_outgoing
-        $sqlINSERT = "INSERT INTO medex_outgoing (msg_pc_eid, campaign_uid, msg_type, msg_reply, msg_extra_text,msg_date) 
-                        VALUES (?,?,?,?,?,utc_timestamp())";
-        sqlQuery($sqlINSERT, array($data['pc_eid'],$data['campaign_uid'], $data['msg_type'],$data['msg_reply'],$data['msg_extra']));
+        $sqlINSERT = "INSERT INTO medex_outgoing (msg_pc_eid, campaign_uid, msg_type, msg_reply, msg_extra_text, msg_date, medex_uid) 
+                        VALUES (?,?,?,?,?,utc_timestamp(),?)";
+        sqlQuery($sqlINSERT, array($data['pc_eid'],$data['campaign_uid'], $data['M_type'],$data['msg_reply'],$data['msg_extra'],$data['msg_uid']));
+        
         //process AVM responses
+        if (!$data['patient_id']) {
+            if ($data['e_pid']) {
+                $data['patient_id'] = $data['e_pid'];
+            } else {
+                $query = "SELECT * from openemr_postcalendar_events where pc_eid=?"; //assume one patient per appointment pc_eid/slot...
+                $patient = sqlFetchArray(sqlStatement($query, array($data['pc_eid'])));  //otherwise this will need to be a loop
+                $data['patient_id'] = $patient['pid'];
+            }
+        }
+            
         if ($data['msg_reply']=="CONFIRMED") {
             $sqlUPDATE = "UPDATE openemr_postcalendar_events set pc_apptstatus = ? where pc_eid=?";
             sqlStatement($sqlUPDATE, array($data['msg_type'],$data['pc_eid']));
@@ -679,26 +691,21 @@ class Callback extends Base
         } elseif ($data['msg_reply']=="CALL") {
             $sqlUPDATE = "UPDATE openemr_postcalendar_events set pc_apptstatus = 'CALL' where pc_eid=?";
             $test = sqlQuery($sqlUPDATE, array($data['pc_eid']));
-            $log['sql']=$sqlUPDATE;
+            $log['sql']=$sqlUPDATE . " -- ".$data['pc_eid'];
             $this->MedEx->logging->log_this($log);
+            //this requires attention.  Send up the FLAG!
+            $this->MedEx->logging->new_message($data);
         } elseif (($data['msg_type']=="AVM") && ($data['msg_reply']=="STOP")) {
             //if reply = "STOP" update patient demographics to disallow this mode of communication
-            if (!$data['patient_id']) {
-                if ($data['e_pid']) {
-                    $data['patient_id'] = $patient['e_pid'];
-                } else {
-                    $query = "SELECT * from openemr_postcalendar_events where pc_eid=?"; //assume one patient per appointment pc_eid/slot...
-                    $patient = sqlFetchArray(sqlStatement($query, array($data['pc_eid'])));  //otherwise this will need to be a loop
-                    $data['patient_id'] = $patient['pid'];
-                }
-            }
             $sqlUPDATE = "UPDATE patient_data set hipaa_voice = 'NO' where pid=?";
+            $log['sql']=$sqlUPDATE;
+            $this->MedEx->logging->log_this($log);
             sqlQuery($sqlUPDATE, array($data['patient_id']));
         } elseif (($data['msg_type']=="SMS") && ($data['msg_reply']=="STOP")) {
             $sqlUPDATE = "UPDATE patient_data set hipaa_allowsms = 'NO' where pid=?";
             $log['sql']=$sqlUPDATE;
             $this->MedEx->logging->log_this($log);
-            sqlQuery($sqlUPDATE, array($data['e_pid']));
+            sqlQuery($sqlUPDATE, array($data['patient_id']));
         } elseif (($data['msg_type']=="EMAIL") && ($data['msg_reply']=="STOP")) {
             $sqlUPDATE = "UPDATE patient_data set hipaa_allowemail = 'NO' where pid=?";
             $log['sql']=$sqlUPDATE;
@@ -1063,7 +1070,7 @@ class Display extends base
             });
             function SMS_bot(eid) {
                 top.restoreSession()
-                window.open('messages.php?nomenu=1&go=SMS_bot&pc_eid=' + eid,'_blank', 'width=330,height=550,resizable=0');
+                window.open('messages.php?nomenu=1&go=SMS_bot&pc_eid=' + eid,'SMS_bot', 'width=370,height=600,resizable=0');
                 return false;
             }
         </script>
@@ -1141,7 +1148,7 @@ class Display extends base
                                 ?>
                             </select>
                             <label for="recall_from"><?php echo ('From'); ?>:</label><input id="datepicker1" name="datepicker1" value="<?php echo attr($from_date); ?>" style="width:100px;text-align: center;" type="text">
-                            <label for="recall_from"><?php echo ('To'); ?>:</label><input id="datepicker2" name="datepicker2" value="<?php echo attr($to_date); ?>" style="width:100px;text-align: center;" type="text">
+                            <label for="recall_to"><?php echo ('To'); ?>:</label><input id="datepicker2" name="datepicker2" value="<?php echo attr($to_date); ?>" style="width:100px;text-align: center;" type="text">
                             <input href="#" class="css_button btn ui-buttons ui-widget ui-corner-all news btn" type="submit" onsubmit='return top.restoreSession();' value="<?php echo xla('Filter'); ?>">
                         </form>
                     </span>
@@ -1818,8 +1825,8 @@ class Display extends base
                       <div class="divTableCell center"><?php echo xlt('Possible'); ?></div>
                       <div class="divTableCell center"><?php echo xlt('Not Possible'); ?></div>
                       <div class="divTableCell center"><?php echo xlt('Scheduled'); ?></div>
-                      <div class="divTableCell center"><?php echo xlt('Sent')." /<br />".xlt('In-process'); ?></div>
-                      <div class="divTableCell center"><?php echo xlt('Read')." /<br />".xlt('Delivered');
+                      <div class="divTableCell center"><?php echo xlt('Sent')."<br />".xlt('In-process'); ?></div>
+                      <div class="divTableCell center"><?php echo xlt('Read')."<br />".xlt('Delivered');
                         ; ?></div>
                       <div class="divTableCell center"><?php echo xlt('Confirmed'); ?></div>
                       <div class="divTableCell center"><?php echo xlt('Callback'); ?></div>
@@ -1892,20 +1899,17 @@ class Display extends base
         <?php
     }
     /**
-     *  This function displays a pop-up window containing an image of an iphone with a record of our messaging activity.
+     *  This function displays a pop-up window containing an image of a phone with a record of our messaging activity.
      *  It is fired from the Flow board.
-     *  Clicking the Home button backs up to a list of all patient communications,
-     *  allowing the user to view the message trail of a different client/patient.
      *  It may also end up on the Recall Board.
      *  It may also allow direct two-way SMS texting to patients if desired.
      *  It may also allow playback of AVM audio files.
-     *  It may also do other things I have not thought of yet.
+     *  It may also do other things that haven't been written yet.
      */
     public function SMS_bot($logged_in)
     {
         $fields = array();
-        $fields['pc_eid'] = $_REQUEST['pc_eid'];
-        $fields['show'] = $_REQUEST['show'];
+        $fields = $_REQUEST;
         $this->curl->setUrl($this->MedEx->getUrl('custom/SMS_bot&token='.$logged_in['token']));
         $this->curl->setData($fields);
         $this->curl->makeRequest();

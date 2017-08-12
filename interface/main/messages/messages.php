@@ -29,7 +29,12 @@ require_once("$srcdir/MedEx/API.php");
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 if ($GLOBALS['medex_enable'] == '1') {
     $logged_in = $MedEx->login();
+    if ($_REQUEST['msg']) {
+        $MedEx->display->SMS_bot($logged_in);
+        exit();
+    }
 }
+
 ?><html>
   <head>
     <title><?php echo xlt('Message Center'); ?></title>
@@ -54,6 +59,7 @@ if ($GLOBALS['medex_enable'] == '1') {
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/moment-2-13-0/moment.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>
         var xljs1 = '<?php echo xl('Preferences updated successfully'); ?>';
         var xljs_NOTE = '<?php echo xl('NOTE'); ?>';
