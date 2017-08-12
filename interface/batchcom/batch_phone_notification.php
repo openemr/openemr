@@ -16,7 +16,7 @@
  */
 
 // Allow phone notification as a cronjob
-require_once (dirname (__FILE__, 3)."/library/allow_cronjobs.php");
+require_once(dirname (__FILE__, 3)."/library/allow_cronjobs.php");
 
 $backpic = "";
 
