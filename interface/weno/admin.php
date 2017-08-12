@@ -27,6 +27,11 @@ $tables   = new AdminProperties();
 <div class="container">
 <?php
 
+// check to make sure only administrators access this page.
+if (!acl_check('admin', 'super')) {
+    die(xlt("You are not authorized!"));
+}
+
 if ($GLOBALS['weno_rx_enable'] != 1) {
     print xlt("You must activate Weno first! Go to Admnistration, Globals, Connectors");
     exit;
@@ -49,23 +54,22 @@ if (!$drugData['ndc']) {
 
 <form method="post" action="import_pharmacies.php" >
     <div class="col-lg-2">
-    <?php echo generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'list_id'=>$GLOBALS['state_list'], 'field_id'=>'state')); ?>
+    <?php echo generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'list_id'=>$GLOBALS['state_list'], 'field_id'=>'state'), ''); ?>
     </div>
-    
 
-    <button type="submit" class="btn btn-default btn-save" value= ><?php echo xlt("Import Pharmacies"); ?> </button>
+
+    <button type="submit" class="btn btn-default btn-save" value= ><?php echo xlt("Import Pharmacies"); ?></button>
 
     <br>
-<p><?php echo xlt("Be patient, this can take a while."); ?><br> </p>
+<p><?php echo xlt("Be patient, this can take a while."); ?></p>
 </form>
 <br><br>
 
-<?php  if (!empty($finish)) {
-    echo $finish . xlt("with import");} ?>
+<?php if (!empty($finish)) {
+    echo $finish . xlt("with import");
+} ?>
 
 
 </div>
 </body>
 </html>
-
-
