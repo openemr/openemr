@@ -31,6 +31,7 @@ function cleanDate($date_field)
 
 class Claim
 {
+    public const X12_VERSION = '005010X222A1';
 
     var $pid;               // patient id
     var $encounter_id;      // encounter id
@@ -554,7 +555,7 @@ class Claim
 
     function x12gsversionstring()
     {
-        return x12clean(trim($this->x12_partner['x12_version']));
+        return Claim::X12_VERSION;
     }
 
     function x12gssenderid()
