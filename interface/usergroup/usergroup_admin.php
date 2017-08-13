@@ -431,7 +431,7 @@ function authorized_clicked() {
     <div class="row">
         <div class="col-xs-12">
             <div class="page-title">
-                <h1><?php xl('User / Groups', 'e');?></h1>
+                <h2><?php xl('User / Groups', 'e');?></h2>
             </div>
         </div>
     </div>

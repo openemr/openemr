@@ -100,3 +100,7 @@ button[href*="deleter"]:before {
 .btn-graph::before {
     content: '\f201\00a0\00a0';
 }
+.page-header{
+    margin-top: 1px !important;
+    margin-bottom: 0px !important;
+}

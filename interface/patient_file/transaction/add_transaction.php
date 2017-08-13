@@ -332,22 +332,21 @@ div.tab {
 <input type='hidden' name='mode' value='add'>
 
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="page-header">
-                    <h1><?php echo xlt('Add/Edit Patient Transaction');?></h1>
+        <div class="page-header">
+            <div class="row">
+                <div class="col-xs-12 col-sm-6 col-md-4">
+                    <h2><?php echo xlt('Add/Edit Patient Transaction');?></h2>
                 </div>
-            </div>
-            <div class="col-xs-12">
-                <div class="btn-group">
-                    <a href="#" class="btn btn-default btn-save" onclick="submitme();">
-                        <?php echo xlt('Save'); ?>
-                    </a>
-                    <a href="transactions.php" class="btn btn-link btn-cancel" onclick="top.restoreSession()">
-                        <?php echo xlt('Cancel'); ?>
-                    </a>
+                <div class="col-xs-12 col-sm-6 col-md-4">
+                    <div class="btn-group btn-header">
+                        <a href="#" class="btn btn-default btn-save" onclick="submitme();">
+                            <?php echo xlt('Save'); ?>
+                        </a>
+                        <a href="transactions.php" class="btn btn-link btn-cancel" onclick="top.restoreSession()">
+                            <?php echo xlt('Cancel'); ?>
+                        </a>
+                    </div>
                 </div>
-                <hr>
             </div>
         </div>
     </div>
