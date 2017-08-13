@@ -27,47 +27,47 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     $HLcount = 0;
 
     $log .= "Generating claim $pid" . "-" . $encounter . " for " .
-        $claim->patientFirstName() . ' ' .
-        $claim->patientMiddleName() . ' ' .
-        $claim->patientLastName() . ' on ' .
-        date('Y-m-d H:i', $today) . ".\n";
+    $claim->patientFirstName() . ' ' .
+    $claim->patientMiddleName() . ' ' .
+    $claim->patientLastName() . ' on ' .
+    date('Y-m-d H:i', $today) . ".\n";
 
     $out .= "ISA" .
-        "*" . $claim->x12gsisa01() .
-        "*" . $claim->x12gsisa02() .
-        "*" . $claim->x12gsisa03() .
-        "*" . $claim->x12gsisa04() .
-        "*" . $claim->x12gsisa05() .
-        "*" . $claim->x12gssenderid() .
-        "*" . $claim->x12gsisa07() .
-        "*" . $claim->x12gsreceiverid() .
-        "*" . "030911" .  // dummy data replace by billing_process.php
-        "*" . "1630" . // ditto
-        "*" . "^" .
-        "*" . "00501" .
-        "*" . "000000001" .
-        "*" . $claim->x12gsisa14() .
-        "*" . $claim->x12gsisa15() .
-        "*:" .
-        "~\n";
+    "*" . $claim->x12gsisa01() .
+    "*" . $claim->x12gsisa02() .
+    "*" . $claim->x12gsisa03() .
+    "*" . $claim->x12gsisa04() .
+    "*" . $claim->x12gsisa05() .
+    "*" . $claim->x12gssenderid() .
+    "*" . $claim->x12gsisa07() .
+    "*" . $claim->x12gsreceiverid() .
+    "*" . "030911" .  // dummy data replace by billing_process.php
+    "*" . "1630" . // ditto
+    "*" . "^" .
+    "*" . "00501" .
+    "*" . "000000001" .
+    "*" . $claim->x12gsisa14() .
+    "*" . $claim->x12gsisa15() .
+    "*:" .
+    "~\n";
 
     $out .= "GS" .
-        "*" . "HC" .
-        "*" . $claim->x12gsgs02() .
-        "*" . trim($claim->x12gs03()) .
-        "*" . date('Ymd', $today) .
-        "*" . date('Hi', $today) .
-        "*" . "1" .
-        "*" . "X" .
-        "*" . $claim->x12gsversionstring() .
-        "~\n";
+    "*" . "HC" .
+    "*" . $claim->x12gsgs02() .
+    "*" . trim($claim->x12gs03()) .
+    "*" . date('Ymd', $today) .
+    "*" . date('Hi', $today) .
+    "*" . "1" .
+    "*" . "X" .
+    "*" . $claim->x12gsversionstring() .
+    "~\n";
 
     ++$edicount;
     $out .= "ST" .
-        "*" . "837" .
-        "*" . "0021" .
-        "*" . $claim->x12gsversionstring() .
-        "~\n";
+    "*" . "837" .
+    "*" . "0021" .
+    "*" . $claim->x12gsversionstring() .
+    "~\n";
 
     ++$edicount;
     $out .= "BHT" .
@@ -123,35 +123,35 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
 
     ++$edicount;
     $out .= "NM1" .    // Loop 1000B Receiver
-        "*" . "40" .
-        "*" . "2" .
-        "*" . $claim->clearingHouseName() .
-        "*" .
-        "*" .
-        "*" .
-        "*" .
-        "*" . "46" .
-        "*" . $claim->clearingHouseETIN() .
-        "~\n";
+    "*" . "40" .
+    "*" . "2" .
+    "*" . $claim->clearingHouseName() .
+    "*" .
+    "*" .
+    "*" .
+    "*" .
+    "*" . "46" .
+    "*" . $claim->clearingHouseETIN() .
+    "~\n";
 
     ++$HLcount;
     ++$edicount;
     $out .= "HL" .        // Loop 2000A Billing/Pay-To Provider HL Loop
-        "*" . $HLcount .
-        "*" .
-        "*" . "20" .
-        "*" . "1" .              // 1 indicates there are child segments
-        "~\n";
+    "*" . $HLcount .
+    "*" .
+    "*" . "20" .
+    "*" . "1" .              // 1 indicates there are child segments
+    "~\n";
 
     $HLBillingPayToProvider = $HLcount++;
     // Situational PRV segment for provider taxonomy code for Medicaid.
     if ($claim->claimType() == 'MC') {
         ++$edicount;
         $out .= "PRV" .
-            "*" . "BI" .
-            "*" . "ZZ" .
-            "*" . $claim->providerTaxonomy() .
-            "~\n";
+        "*" . "BI" .
+        "*" . "ZZ" .
+        "*" . $claim->providerTaxonomy() .
+        "~\n";
     }
 
     // Situational CUR segment (foreign currency information) omitted here.
@@ -161,13 +161,13 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
         $lastName = $claim->providerLastName();
         $middleName = $claim->providerMiddleName();
         $out .= "NM1" .
-            "*" . "85" .
-            "*" . "1" .
-            "*" . $lastName .
-            "*" . $firstName .
-            "*" . $middleName .
-            "*" . // Name Prefix not used
-            "*";
+        "*" . "85" .
+        "*" . "1" .
+        "*" . $lastName .
+        "*" . $firstName .
+        "*" . $middleName .
+        "*" . // Name Prefix not used
+        "*";
     } else {
         $billingFacilityName = substr($claim->billingFacilityName(), 0, 60);
         if ($billingFacilityName == '') {
@@ -191,15 +191,15 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
 
     ++$edicount;
     $out .= "N3" .
-        "*" . $claim->billingFacilityStreet() .
-        "~\n";
+    "*" . $claim->billingFacilityStreet() .
+    "~\n";
 
     ++$edicount;
     $out .= "N4" .
-        "*" . $claim->billingFacilityCity() .
-        "*" . $claim->billingFacilityState() .
-        "*" . stripZipCode($claim->billingFacilityZip()) .
-        "~\n";
+    "*" . $claim->billingFacilityCity() .
+    "*" . $claim->billingFacilityState() .
+    "*" . stripZipCode($claim->billingFacilityZip()) .
+    "~\n";
 
     if ($claim->billingFacilityNPI() && $claim->billingFacilityETIN()) {
         ++$edicount;

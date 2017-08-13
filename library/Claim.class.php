@@ -735,7 +735,7 @@ class Claim
 
     function billingContactEmail()
     {
-        return x12clean(trim($this->billing_facility['email']))
+        return x12clean(trim($this->billing_facility['email']));
     }
 
     function facilityName()
