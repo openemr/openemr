@@ -31,7 +31,7 @@ function cleanDate($date_field)
 
 class Claim
 {
-    public const X12_VERSION = '005010X222A1';
+    const X12_VERSION = '005010X222A1';
 
     var $pid;               // patient id
     var $encounter_id;      // encounter id
