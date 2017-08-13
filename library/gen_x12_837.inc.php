@@ -7,9 +7,11 @@
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2009 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017 Stephen Waite <stephen.waite@cmsvt.com>
- * @link http://www.open-emr.org
- *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @link https://github.com/openemr/openemr/tree/master
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR/Billing;
 
 require_once("Claim.class.php");
 

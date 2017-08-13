@@ -1,33 +1,18 @@
 <?php
-/** @package OpenEMR
- *  @link http://www.open-emr.org
- *  @author Rod Roark <rod@sunsetsystems.com>
- *  @copyright Copyright (c) 2009 Rod Roark <rod@sunsetsystems.com>
- *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+/* Claim Class
+ *
+ * @package OpenEMR
+ * @author Rod Roark <rod@sunsetsystems.com>
+ * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2009 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Stephen Waite <stephen.waite@cmsvt.com>
+ * @link https://github.com/openemr/openemr/tree/master
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+namespace OpenEMR\Billing;
  
 require_once(dirname(__FILE__) . "/invoice_summary.inc.php");
-
-// This enforces the X12 Basic Character Set. Page A2.
-//
-function x12clean($str)
-{
-    return preg_replace('/[^A-Z0-9!"\\&\'()+,\\-.\\/;?= ]/', '', strtoupper($str));
-}
-
-// Make sure dates have no formatting and zero filled becomes blank
-// Handles date time stamp formats as well
-//
-function cleanDate($date_field)
-{
-      $cleandate = str_replace('-', '', substr($date_field, 0, 10));
-
-    if (substr_count($cleandate, '0')==8) {
-        $cleandate='';
-    }
-
-      return ($cleandate);
-}
 
 class Claim
 {
@@ -53,6 +38,26 @@ class Claim
     var $payers;            // array of arrays, for all payers
     var $copay;             // total of copays from the ar_activity table
     var $facilityService;
+
+    // This enforces the X12 Basic Character Set. Page A2.
+    private function x12clean($str)
+    {
+        return preg_replace('/[^A-Z0-9!"\\&\'()+,\\-.\\/;?= ]/', '', strtoupper($str));
+    }
+
+// Make sure dates have no formatting and zero filled becomes blank
+// Handles date time stamp formats as well
+
+    private function cleanDate($date_field)
+    {
+        $cleandate = str_replace('-', '', substr($date_field, 0, 10));
+
+        if (substr_count($cleandate, '0')==8) {
+            $cleandate='';
+        }
+
+        return ($cleandate);
+    }
 
     function loadPayerInfo(&$billrow)
     {
