@@ -507,3 +507,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2017-10-01', '2018-ICD-10-PCS-General-Equivalence-Mappings.zip', 'bb73c80e272da28712887d7979b1cebf');
 #EndIf
+
+#IfColumn x12_partners x12_version
+ALTER TABLE `x12_partners` DROP COLUMN `x12_version`;
+#EndIf
