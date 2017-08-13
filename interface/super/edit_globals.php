@@ -340,6 +340,9 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
 //            var target = $(this).attr('href');
 //            $(target).tab('show');
         });
+        $("#link-save-changes").on('click', function(e){
+            $("#theform").trigger("submit");
+        });
     });
   function validate_file(){
     $.ajax({
@@ -394,7 +397,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
 
         <div class="collapse navbar-collapse" id="global-setting-nav">
             <ul class="nav navbar-nav">
-                <li><a href="#"><i class="fa fa-check"></i>&nbsp;&nbsp;<?php echo xlt("Save");?></a></li>
+                <li><a href="#" id="link-save-changes"><i class="fa fa-check"></i>&nbsp;&nbsp;<?php echo xlt("Save");?></a></li>
             </ul>
             <form class="navbar-form navbar-right">
                 <div class="form-group">
