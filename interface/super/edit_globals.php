@@ -376,11 +376,11 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
     <div class="container-fluid">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle visible-xs" data-toggle="sidebar" data-target=".sidebar" style="float: left;">
-                <span class="sr-only">Toggle navigation</span>
+                <span class="sr-only"><?php echo xl("Toggle Navigation");?></span>
                 <i class="fa fa-bars"></i>
             </button>
             <button type="button" class="navbar-toggle visible-xs" data-toggle="sidebar" data-target="main-navbar">
-                <span class="sr-only">{{ "Toggle Navigation" }}</span>
+                <span class="sr-only"><?php echo xl("Toggle Navigation");?>s</span>
                 <i class="fa fa-bars fa-inverted"></i>
             </button>
             <a href="#" class="navbar-brand">
