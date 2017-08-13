@@ -1030,7 +1030,6 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
         // Segment NTE (Third Party Organization Notes) omitted.
         // Segment PS1 (Purchased Service Information) omitted.
         // Segment HCP (Line Pricing/Repricing Information) omitted.
-
     }
 
     // Loop 2410, Drug Information. Medicaid insurers seem to want this
