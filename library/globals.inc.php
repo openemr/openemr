@@ -2387,6 +2387,13 @@ $GLOBALS_METADATA = array(
             xl('Enable Version 1 Onsite Patient Portal.')
         ),
 
+        'self_checkin_enable' => array(
+            xl('Enable Self Check in Kiosk'),
+            'bool',                           // data type
+            '0',
+            xl('Enable Self Check in Kiosk')
+        ),
+
         'portal_onsite_address' => array(
             xl('Version 1 Onsite Patient Portal Site Address'),
             'text',                           // data type
