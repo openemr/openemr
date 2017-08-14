@@ -432,7 +432,7 @@ foreach ($GLOBALS_METADATA as $name => $arr) {
     <div class="row">
     <div class="col-xs-7 col-sm-3 col-md-2 sidebar sidebar-left sidebar-sm-show">
         <ul class="nav nav-pills nav-stacked" role="tablist">
-            <?php foreach ($menuList as $item): ?>
+            <?php foreach ($menuList as $item) : ?>
             <li role="presentation" class="<?php echo $item['current'];?>"><a href="#<?php echo $item['id'];?>" role="tab" data-toggle="pill"><?php echo $item['text'];?></a></li>
             <?php endforeach; ?>
         </ul>
