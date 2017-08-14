@@ -583,5 +583,5 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 
 #IfNotRow2D list_options list_id apptstat option_id EMAIL
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
-('apptstat', 'EMAIL', 'EMAIL Confimed', 20, 0, 0, '', 'FFEBE3|0', '', 0, 0, 1, '');
+('apptstat', 'EMAIL', 'EMAIL Confirmed', 20, 0, 0, '', 'FFEBE3|0', '', 0, 0, 1, '');
 #Endif
