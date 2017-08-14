@@ -1,3 +1,24 @@
+<?php
+/**
+ * Patient Self Check in
+ *
+ * This program allows patients to check themselves in using a touchscreen or similar device in the doctors' practice.
+ * Doing so, they are marked as arrived (code @) on the calendar module of the clinician's screen and are also marked as present
+ * in the Patient Flow Board.
+ * The purpose of this program is to free up time for front desk staff.
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Alfie Carlisle <asc@carlisles.co>
+ * @copyright Copyright (c) 2017 Alfie Carlisle <asc@carlisles.co>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
+require_once("../globals.php");
+require_once($GLOBALS['srcdir'].'/sql.inc');
+?>
+
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
@@ -62,7 +83,7 @@ if ($result->num_rows > 0) {
          echo "<tr>
     	<td>" . $patientNames["fname"] . "</td>
     	<td>" . $patientNames["lname"] . "</td>
-    	<td>" . "<a href='checkin.php?id=" . $patientNames["id"] . "'>Checkin</a>". "</td>
+    	<td>" . "<a href='checkin.php?id=" . $patientNames["id"] . "'>Check In</a>". "</td>
     </tr>";
 
 

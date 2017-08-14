@@ -32,7 +32,7 @@ img {
 <img src="physician-icon-png-15318.png">
 
 <?php
-date_default_timezone_set('Europe/London');
+date_default_timezone_set();
 $id = $_GET["id"];
 
 $timeRN = date("Y-m-d H:i:s");
@@ -58,7 +58,7 @@ $newencounterID = $lastencounterID['id']+1;
 $encountersql = "INSERT INTO form_encounter SET date = '". $date ."', onset_date = '". $date ."', reason = 'Routine Appointment', facility = 'GP', facility_id = '3', pid = '". $id ."', encounter = '". $newencounterID ."'";
 mysqli_query($dbc, $encountersql);
 
-// ... And update the sequence table :-)
+// ... And update the sequence table
 
 $sequenceupdateSql = "UPDATE sequences SET id = '". $newencounterID ."';";
 mysqli_query($dbc, $sequenceupdateSql);
