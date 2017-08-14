@@ -11,8 +11,6 @@
  */
 
 namespace OpenEMR\Billing;
- 
-require_once(dirname(__FILE__) . "/invoice_summary.inc.php");
 
 class Claim
 {
