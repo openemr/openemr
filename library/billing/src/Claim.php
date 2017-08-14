@@ -1497,6 +1497,13 @@ class Claim
         return x12clean(trim($tmp['mname']));
     }
 
+    function providerSuffixName($prockey = -1)
+    {
+        $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
+            $this->provider : $this->procs[$prockey]['provider'];
+        return x12clean(trim($tmp['sname']));
+    }
+
     function providerNPI($prockey = -1)
     {
         $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?

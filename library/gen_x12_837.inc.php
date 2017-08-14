@@ -13,7 +13,7 @@
 
 use OpenEMR\Billing;
 
-require_once("Claim.class.php");
+require_once("Claim.php");
 
 function stripZipCode($zip)
 {
@@ -86,6 +86,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
         $firstName = $claim->providerFirstName();
         $lastName = $claim->providerLastName();
         $middleName = $claim->providerMiddleName();
+        $suffixName = $claim->providerSuffixName();
         $out .= "NM1" . // Loop 1000A Submitter
         "*" . "41" .
         "*" . "1" .
@@ -93,7 +94,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
         "*" . $firstName .
         "*" . $middleName .
         "*" . // Name Prefix not used
-        "*" . // Name Suffix not used
+        "*" . $suffixName .
         "*" . "46";
     } else {
         $billingFacilityName = substr($claim->billingFacilityName(), 0, 60);
@@ -212,6 +213,8 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
             $out .= "*EI"; // For dealing with the situation before adding TaxId type In facility.
         }
         $out .= "*" . $claim->billingFacilityETIN() . "~\n";
+    } else {
+        $log .= "*** No billing facility NPI and/or ETIN.\n";
     }
     if ($claim->providerNumberType() && $claim->providerNumber() && !$claim->billingFacilityNPI()) {
         ++$edicount;
@@ -304,7 +307,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
         "*" . $claim->insuredFirstName() .
         "*" . $claim->insuredMiddleName() .
         "*" .
-        "*" . // Name Suffix
+        "*" . // Name Suffix not used
         "*" . "MI" .
         // "MI" = Member Identification Number
         // "II" = Standard Unique Health Identifier, "Required if the
@@ -678,7 +681,11 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
             "*" . ($claim->claimType() != 'MC' ? "PXC" : "ZZ") .
             "*" . $claim->providerTaxonomy() .
             "~\n";
+        } else {
+            $log .= "*** Performing provider has no taxonomy code.\n";
         }
+    } else {
+        $log .= "*** Rendering provider is billing under a group.\n";
     }
     if (!$claim->providerNPIValid()) {
         // If the loop was skipped because the provider NPI was invalid, generate a warning for the log.
@@ -706,6 +713,8 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
         if ($claim->facilityName() || $claim->facilityNPI() || $claim->facilityETIN()) {
             $out .=
             "*" . $facilityName;
+        } else {
+            $log .= "*** Check for invalid facility name, NPI, and/or tax id.\n";
         }
         if ($claim->facilityNPI() || $claim->facilityETIN()) {
             $out .=
@@ -755,7 +764,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
         "*" . $claim->supervisorFirstName() .
         "*" . $claim->supervisorMiddleName() .
         "*" .   // NM106 not used
-        "*";    // Name Suffix
+        "*";    // Name Suffix not used
         if ($claim->supervisorNPI()) {
             $out .=
             "*" . "XX" .
@@ -772,6 +781,8 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
             "*" . $claim->supervisorNumber() .
             "~\n";
         }
+    } else {
+        $log .= "*** Supervising provider has invalid last name.\n";
     }
 
     // Segments NM1*PW, N3, N4 (Ambulance Pick-Up Location) omitted.
