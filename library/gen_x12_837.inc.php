@@ -13,8 +13,6 @@
 
 use OpenEMR\Billing;
 
-require_once("Claim.php");
-
 function stripZipCode($zip)
 {
     return preg_replace('/[-\s]*/', '', $zip);

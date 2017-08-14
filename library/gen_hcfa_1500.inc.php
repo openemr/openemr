@@ -10,9 +10,8 @@
  * @link http://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-use OpenEMR/Billing;
+use OpenEMR\Billing;
 
-require_once("Claim.php");
 require_once("gen_hcfa_1500_02_12.inc.php");
 
 $hcfa_curr_line = 1;
