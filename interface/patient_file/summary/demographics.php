@@ -420,7 +420,7 @@ while ($gfrow = sqlFetchArray($gfres)) { ?>
             <?php }?>
         }
     }).trigger('click');
-    <?php }elseif ($active_reminders || $all_allergy_alerts) { ?>
+    <?php } elseif ($active_reminders || $all_allergy_alerts) { ?>
     openReminderPopup();
     <?php }?>
 <?php } elseif ($active_reminders || $all_allergy_alerts) { ?>
