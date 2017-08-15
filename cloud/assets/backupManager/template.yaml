@@ -1,0 +1,14 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: A starter AWS Lambda function.
+Resources:
+  backupManager:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: volumeBackupManager.lambda_handler
+      Runtime: python2.7
+      CodeUri: .
+      Description: Manages snapshot copies of EC2 volume
+      MemorySize: 128
+      Timeout: 10
+      Role: !<tag:yaml.org,2002:js/undefined> ''
