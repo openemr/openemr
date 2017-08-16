@@ -22,10 +22,10 @@
 //} else {
 // This will fail if base script has not brought in jQ
 $oemr_cke_dir = $GLOBALS['assets_static_relative']."/ckeditor-4-7-0";
-printf('
-<script type="text/javascript" src="%s/ckeditor.js"></script>
-<script type="text/javascript" src="%s/adapters/jquery.js"></script>',
-    $oemr_cke_dir, $oemr_cke_dir);
+print <<<_CKE_SCRIPTS
+<script type="text/javascript" src="$oemr_cke_dir/ckeditor.js"></script>
+<script type="text/javascript" src="$oemr_cke_dir/adapters/jquery.js"></script>
+_CKE_SCRIPTS;
 //}
 ?>
 
