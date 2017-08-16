@@ -12,7 +12,6 @@ use OpenEMR\Admin\AdminEvents;
 use OpenEMR\Admin\Event\MenuEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-require_once '../../../../interface/globals.php';
 
 /**
  * Class AdminMenuBuilder.
@@ -36,34 +35,65 @@ class AdminMenuBuilder
         $this->event = new MenuEvent();
     }
 
-
-    public function generateMainMenu()
+    public function buildMenuFromGlobalsMetadataBridge($userMode)
     {
-        $menu = [
-            ['name' => 'Appearance', 'link' => ''],
-            ['name' => 'Billing', 'link' => ''],
-            ['name' => 'CDR', 'link' => ''],
-            ['name' => 'Connectors', 'link' => ''],
-            ['name' => 'Documents', 'link' => ''],
-            ['name' => 'E-Sign', 'link' => ''],
-            ['name' => 'Features', 'link' => ''],
-            ['name' => 'Locale', 'link' => ''],
-            ['name' => 'Logging', 'link' => ''],
-            ['name' => 'Miscellaneous', 'link' => ''],
-            ['name' => 'Notifications', 'link' => ''],
-            ['name' => 'PDF', 'link' => ''],
-            ['name' => 'Portal', 'link' => ''],
-            ['name' => 'Report', 'link' => ''],
-            ['name' => 'Rx', 'link' => ''],
-            ['name' => 'Security', 'link' => ''],
-        ];
+        global $GLOBALS_METADATA;
+        global $USER_SPECIFIC_TABS;
+        $i = 0;
+        $menuList = [];
+        foreach ($GLOBALS_METADATA as $name => $arr) {
+            if (!$userMode || in_array($name, $USER_SPECIFIC_TABS)) {
+                $id = strtolower(str_replace(' ', '_', $name));
+                $text = xlt($name);
+                $current = $i ? false : "active";
+                $menuList["{$id}"] = [
+                    'text' => $text,
+                    'current' => $current,
+                    'id' => $id,
+                    'href' => "#{$id}",
+                ];
+                $i++;
+            }
+        }
+        return $menuList;
+    }
+
+    /**
+     * @param array $menu
+     * @return array
+     */
+    public function generateMainMenu($menu)
+    {
         $event = new MenuEvent($menu);
-        error_log('generateMainMenu function');
         /** @var MenuEvent $result */
         $result = $this->dispatcher->dispatch(AdminEvents::BUILD_MAIN_MENU, $event);
-        error_log('and now we\'re back');
         $newMenu = $result->getMenu();
-        sort($newMenu);
-        var_dump($newMenu);
+
+        // Sort the multidimensional array based on the text we are displaying
+        $text = [];
+        foreach ($newMenu as $key => $row) {
+            $text[$key] = $row['text'];
+        }
+        array_multisort($text, $newMenu);
+
+        return $newMenu;
+    }
+
+    public function renderMenu($menu)
+    {
+        // @TODO remove this dependency
+        global $GLOBALS;
+
+        foreach ($menu as $key => $item) {
+            if (array_key_exists('attributes', $item)) {
+                $atts = "";
+                foreach ($item['attributes'] as $prop => $value) {
+                    $atts .= "{$prop}=\"{$value}\" ";
+                }
+                $menu["{$key}"]['attributes'] = $atts;
+            }
+        }
+        $context['menuList'] = $menu;
+        return $GLOBALS['twig']->render('admin/globalsMenu.html.twig', $context);
     }
 }

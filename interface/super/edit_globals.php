@@ -19,6 +19,7 @@ require_once("$srcdir/globals.inc.php");
 require_once("$srcdir/user.inc");
 require_once(dirname(__FILE__)."/../../myportal/soap_service/portal_connectivity.php");
 
+use OpenEMR\Admin\Service\AdminMenuBuilder;
 use OpenEMR\Core\Header;
 
 $userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');
@@ -408,34 +409,20 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
         </div>
     </div>
 </div>
-<?php if ($userMode) { ?>
-<form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php?mode=user' onsubmit='return top.restoreSession()'>
-<?php } else { ?>
-<form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php' onsubmit='return top.restoreSession()'>
-<?php } ?>
+        <?php $formAction = ($userMode) ? "?mode=user" : ""; ?>
+        <form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php<?php echo $formAction;?>' onsubmit='return top.restoreSession()'>
 <?php
-$menuList = [];
-$i = 0;
-foreach ($GLOBALS_METADATA as $name => $arr) {
-    if (!$userMode || in_array($name, $USER_SPECIFIC_TABS)) {
-        $menuList[] = [
-            'text' => xlt($name),
-            'current' => $i ? "" : "active",
-            'id' => str_replace(' ', '_', $name)
-        ];
-        $i++;
-    }
-}
+/** @var AdminMenuBuilder $menuBuilder */
+$menuBuilder = $GLOBALS['kernel']->getContainer()->get('admin.admin_menu_builder');
+$base = $menuBuilder->buildMenuFromGlobalsMetadataBridge($userMode);
+$menuList = $menuBuilder->generateMainMenu($base);
+$theMenu = $menuBuilder->renderMenu($menuList);
 ?>
 
 <div class="container-fluid" style="margin-top: 50px;">
     <div class="row">
     <div class="col-xs-7 col-sm-3 col-md-2 sidebar sidebar-left sidebar-sm-show">
-        <ul class="nav nav-pills nav-stacked" role="tablist">
-            <?php foreach ($menuList as $item): ?>
-            <li role="presentation" class="<?php echo $item['current'];?>"><a href="#<?php echo $item['id'];?>" role="tab" data-toggle="pill"><?php echo $item['text'];?></a></li>
-            <?php endforeach; ?>
-        </ul>
+        <?php echo $theMenu; ?>
     </div>
     <div class="col-xs-12 col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
         <div class="tab-content">
@@ -443,7 +430,7 @@ foreach ($GLOBALS_METADATA as $name => $arr) {
             $i = 0;
             foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                 if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
-                    $id = str_replace(' ', '_', $grpname);
+                    $id = strtolower(str_replace(' ', '_', $grpname));
                     $active = ($i == 0) ? 'active' : '';
                     ?>
                     <div class="tab-pane <?php echo $active;?>" role="tabpanel" id="<?php echo $id;?>">
@@ -455,8 +442,7 @@ foreach ($GLOBALS_METADATA as $name => $arr) {
 
                     if ($userMode) {
                         echo "<div class='row'>";
-                        echo "<div class='col-xs-5'>&nbsp</div>";
-                        echo "<div class='col-xs-4'><b>" . xlt('User Specific Setting') . "</b></div>";
+                        echo "<div class='col-xs-offset-5 col-xs-4'><b>" . xlt('User Specific Setting') . "</b></div>";
                         echo "<div class='col-xs-2'><b>" . xlt('Default Setting') . "</b></div>";
                         echo "<div class='col-xs-1'><b>" . xlt('Default') . "</b></div>";
                         echo "</div>";
@@ -778,6 +764,10 @@ foreach ($GLOBALS_METADATA as $name => $arr) {
                 $i++;
             }
             ?>
+                        <div class="tab-pane" role="tabpanel" id="hookedDetail">
+                            <div class="page-header"></div>
+                            <div class="detailPlaceholder"></div>
+                        </div>
         </div>
     </div>
     </div>
@@ -786,35 +776,48 @@ foreach ($GLOBALS_METADATA as $name => $arr) {
 </div>
 </body>
 
-<script language="JavaScript">
-
+<script type="text/javascript">
 $(document).ready(function(){
-  tabbify();
-
-    <?php // mdsupport - Highlight search results ?>
-  $('.srch div').wrapInner("<mark></mark>");
-  $('.tab > .container').find('div.srch:first').each(function() {
-      var srch_div = $(this).closest('div').prevAll().length + 1;
-      $('.tabNav > li:nth-child('+srch_div+') a').wrapInner("<mark></mark>");
-  });
-  // Use the counter ($i) to make the form user friendly for user-specific globals use
-    <?php if ($userMode) { ?>
-    <?php for ($j = 0; $j <= $i; $j++) { ?>
-      $("#form_<?php echo $j ?>").change(function() {
-        $("#toggle_<?php echo $j ?>").prop('checked',false);
-      });
-      $("#toggle_<?php echo $j ?>").change(function() {
-        if ($('#toggle_<?php echo $j ?>').prop('checked')) {
-          var defaultGlobal = $("#globaldefault_<?php echo $j ?>").val();
-          $("#form_<?php echo $j ?>").val(defaultGlobal);
+    // mdsupport - Highlight search results
+    $('.srch div').wrapInner("<mark></mark>");
+    $('.tab > .container').find('div.srch:first').each(function () {
+        var srch_div = $(this).closest('div').prevAll().length + 1;
+        $('.tabNav > li:nth-child(' + srch_div + ') a').wrapInner("<mark></mark>");
+    });
+    // @TODO RD 2017-08-23 Need to handle the hooked linked items
+    $(".sidebar ul li a").on('click', function(e) {
+        e.preventDefault();
+        console.log('here');
+        var link = $(e.target);
+        var href = link.attr('href');
+//        $(this).attr('href', '#hookedDetail');
+        var $this = $(this);
+        if (href[0] == "#") {
+            $(this).tab('show');
+        } else {
+            $.get(href, function(res) {
+                $("#hookedDetail").empty().append(res);
+                $this.tab('show');
+            });
         }
-      });
-    <?php } ?>
-    <?php } ?>
-
+    });
+    // Use the counter ($i) to make the form user friendly for user-specific globals use
+    <?php if ($userMode): ?>
+    <?php for ($j = 0; $j <= $i; $j++): ?>
+    $("#form_<?php echo $j ?>").change(function () {
+        $("#toggle_<?php echo $j ?>").prop('checked', false);
+    });
+    $("#toggle_<?php echo $j ?>").change(function () {
+        if ($('#toggle_<?php echo $j ?>').prop('checked')) {
+            var defaultGlobal = $("#globaldefault_<?php echo $j ?>").val();
+            $("#form_<?php echo $j ?>").val(defaultGlobal);
+        }
+    });
+    <?php
+        endfor;
+    endif;
+    ?>
 });
-
 </script>
-
 </html>
 

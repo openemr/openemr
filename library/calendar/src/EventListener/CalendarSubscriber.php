@@ -24,7 +24,7 @@ class CalendarSubscriber implements EventSubscriberInterface
     public function onAdminMenuBuild(MenuEvent $event)
     {
         error_log('onAdminMenuBuild was just executed');
-        $event->addMenuItem('Calendar', 'value-of-link.html');
+        $event->addMenuItem('AAA', '/templates/test/test.html.twig', 'aaa');
         return $event;
     }
 }

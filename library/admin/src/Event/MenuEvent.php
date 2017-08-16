@@ -47,9 +47,18 @@ class MenuEvent extends Event
      * @param string $name Text displayed to user. Must already be translated
      * @param string $link Href to the view
      */
-    public function addMenuItem($name, $link)
+    public function addMenuItem($name, $href, $id, $attributes = [])
     {
-        $item = ['name' => $name, 'link' => $link];
+        $baseAttributes = [
+            'data-target' => '#hookedDetail',
+        ];
+        $attributes = array_merge($attributes, $baseAttributes);
+
+        $item = [
+            'text' => $name,
+            'href' => $href,
+            'attributes' => $attributes,
+            'id' => $id];
         $this->menu[] = $item;
     }
 }

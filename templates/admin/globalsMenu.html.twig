@@ -1,0 +1,10 @@
+<!--
+  ~ Copyright (c) 2017. Robert Down <robertdown@live.com>
+  -->
+<ul class="nav nav-pills nav-stacked" role="tablist">
+    {% for item in menuList %}
+    <li role="presentation" class="{{ item.current }}">
+        <a href="{{ item.href }}" role="tab" {{ item.attributes|raw }}>{{ item.text }}</a>
+    </li>
+    {% endfor %}
+</ul>
