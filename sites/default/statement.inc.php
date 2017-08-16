@@ -389,7 +389,7 @@ function create_HTML_statement($stmt)
     $out .= $label_cardnum .': __________________________________  '.$label_expiry.': ___ / _____ '.$label_cvv.':_____<br /><br />';
     $out .= $label_sign .'  ____________________________<br />';
     $out .="      </td><td style=width:2.0in;vertical-align:middle;'>";
-          $practice_cards = $GLOBALS['webroot']."/sites/" . $_SESSION['site_id'] . "/images/visa_mc_disc_credit_card_logos_176x35.gif";
+    $practice_cards = $GLOBALS['OE_SITE_DIR']. "/images/visa_mc_disc_credit_card_logos_176x35.gif";
     if (file_exists($GLOBALS['OE_SITE_DIR']."/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
         $out .= "<img src='$practice_cards' style='width:100%;margin:4px auto;'><br /><p>\n".$label_totaldue.": ".$stmt['amount']."</p>";
     }
@@ -617,7 +617,7 @@ function create_statement($stmt)
     $out .= sprintf("%-32s\n", $label_payby.' '.$label_cards);
     $out .= "\n";
     $out .= sprintf(
-        "%s_____________________  %s______ %s______ %s___________________%s\n\n",
+        "%s_____________________  %s______ %s______ %s___________________\n\n",
         $label_cardnum,
         $label_expiry,
         $label_cvv,
@@ -1077,7 +1077,7 @@ function osp_create_HTML_statement($stmt)
     $out .= $label_cardnum .': {TextInput}  '.$label_expiry.': {smTextInput} / {smTextInput} <br /><br />';
     $out .= $label_sign .'  {PatientSignature}<br />';
     $out .="      </td><td style=width:2.0in;vertical-align:middle;'>";
-          $practice_cards = $GLOBALS['webroot']."/sites/" . $_SESSION['site_id'] . "/images/visa_mc_disc_credit_card_logos_176x35.gif";
+    $practice_cards = $GLOBALS['OE_SITE_DIR']. "/images/visa_mc_disc_credit_card_logos_176x35.gif";
     if (file_exists($GLOBALS['OE_SITE_DIR']."/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
       //$out .= "<img onclick='getPayment()' src='$practice_cards' style='width:100%;margin:4px auto;'><br /><p>\n".$label_totaldue.": ".$stmt['amount']."</p>";
         $out .= "<br /><p>".$label_totaldue.": ".$stmt['amount']."</p>";

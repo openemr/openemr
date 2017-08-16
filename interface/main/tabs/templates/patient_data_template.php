@@ -22,7 +22,7 @@
             <div class="patientInfo" style="float: left">
               <!-- ko if: patient -->
                   <div data-bind="with: patient" class="patientPicture">
-                      <img data-bind="attr: {src: patient_picture()}"
+                      <img data-bind="attr: {src: patient_picture}"
                            class="img-thumbnail"
                            onError="this.src = '<?php echo $GLOBALS['images_static_relative']; ?>/patient-picture-default.png'" />
                   </div>
