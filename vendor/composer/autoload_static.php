@@ -82,6 +82,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
             'OpenEMR\\Encounter\\Services\\' => 27,
             'OpenEMR\\Core\\' => 13,
             'OpenEMR\\Calendar\\' => 17,
+            'OpenEMR\\Billing\\' => 16,
             'OpenEMR\\Admin\\' => 14,
         ),
         'I' => 
@@ -215,6 +216,10 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OpenEMR\\Calendar\\' => 
         array (
             0 => __DIR__ . '/../..' . '/library/calendar/src',
+        ),
+        'OpenEMR\\Billing\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/library/billing/src',
         ),
         'OpenEMR\\Admin\\' => 
         array (
@@ -1667,6 +1672,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OpenEMR\\Admin\\Controller\\AdminController' => __DIR__ . '/../..' . '/library/admin/src/Controller/AdminController.php',
         'OpenEMR\\Admin\\Event\\MenuEvent' => __DIR__ . '/../..' . '/library/admin/src/Event/MenuEvent.php',
         'OpenEMR\\Admin\\Service\\AdminMenuBuilder' => __DIR__ . '/../..' . '/library/admin/src/Service/AdminMenuBuilder.php',
+        'OpenEMR\\Billing\\Claim' => __DIR__ . '/../..' . '/library/billing/src/Claim.php',
         'OpenEMR\\Calendar\\EventListener\\CalendarSubscriber' => __DIR__ . '/../..' . '/library/calendar/src/EventListener/CalendarSubscriber.php',
         'OpenEMR\\Core\\Controller' => __DIR__ . '/../..' . '/library/core/src/Controller.php',
         'OpenEMR\\Core\\Header' => __DIR__ . '/../..' . '/library/core/src/Header.php',

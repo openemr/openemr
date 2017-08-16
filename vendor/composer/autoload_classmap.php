@@ -1342,6 +1342,7 @@ return array(
     'OpenEMR\\Admin\\Controller\\AdminController' => $baseDir . '/library/admin/src/Controller/AdminController.php',
     'OpenEMR\\Admin\\Event\\MenuEvent' => $baseDir . '/library/admin/src/Event/MenuEvent.php',
     'OpenEMR\\Admin\\Service\\AdminMenuBuilder' => $baseDir . '/library/admin/src/Service/AdminMenuBuilder.php',
+    'OpenEMR\\Billing\\Claim' => $baseDir . '/library/billing/src/Claim.php',
     'OpenEMR\\Calendar\\EventListener\\CalendarSubscriber' => $baseDir . '/library/calendar/src/EventListener/CalendarSubscriber.php',
     'OpenEMR\\Core\\Controller' => $baseDir . '/library/core/src/Controller.php',
     'OpenEMR\\Core\\Header' => $baseDir . '/library/core/src/Header.php',

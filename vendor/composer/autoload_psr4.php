@@ -34,6 +34,7 @@ return array(
     'OpenEMR\\Encounter\\Services\\' => array($baseDir . '/interface/patient_file/encounter/Services'),
     'OpenEMR\\Core\\' => array($baseDir . '/library/core/src'),
     'OpenEMR\\Calendar\\' => array($baseDir . '/library/calendar/src'),
+    'OpenEMR\\Billing\\' => array($baseDir . '/library/billing/src'),
     'OpenEMR\\Admin\\' => array($baseDir . '/library/admin/src'),
     'Illuminate\\Support\\' => array($vendorDir . '/illuminate/support'),
     'Illuminate\\Contracts\\' => array($vendorDir . '/illuminate/contracts'),
