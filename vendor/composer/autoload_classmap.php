@@ -1349,6 +1349,8 @@ return array(
     'OpenEMR\\Encounter\\Services\\ViewHelper' => $baseDir . '/interface/patient_file/encounter/Services/ViewHelper.php',
     'OpenEMR\\Menu\\MainMenuRole' => $baseDir . '/library/menu/src/MainMenuRole.php',
     'OpenEMR\\Reminder\\BirthdayReminder' => $baseDir . '/library/reminder/src/BirthdayReminder.php',
+    'OpenEMR\\Rx\\Weno\\AdminProperties' => $baseDir . '/library/weno/src/AdminProperties.php',
+    'OpenEMR\\Rx\\Weno\\TransmitData' => $baseDir . '/library/weno/src/TransmitData.php',
     'OpenEMR\\Sample\\Event\\SampleEvent' => $baseDir . '/library/sample/src/Event/SampleEvent.php',
     'OpenEMR\\Sample\\Event\\SampleSubscriber' => $baseDir . '/library/sample/src/Event/SampleSubscriber.php',
     'PDFBarcode' => $vendorDir . '/mpdf/mpdf/classes/barcode.php',
