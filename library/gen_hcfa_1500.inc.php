@@ -11,8 +11,10 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("Claim.class.php");
 require_once("gen_hcfa_1500_02_12.inc.php");
+require_once(dirname(__FILE__) . "/invoice_summary.inc.php");
+
+use OpenEMR\Billing\Claim;
 
 $hcfa_curr_line = 1;
 $hcfa_curr_col = 1;
