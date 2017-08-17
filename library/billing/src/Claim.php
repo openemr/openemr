@@ -12,6 +12,8 @@
 
 namespace OpenEMR\Billing;
 
+use InsuranceCompany;
+
 class Claim
 {
     const X12_VERSION = '005010X222A1';
