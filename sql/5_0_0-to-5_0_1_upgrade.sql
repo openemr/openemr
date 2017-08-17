@@ -511,3 +511,16 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #IfColumn x12_partners x12_version
 ALTER TABLE `x12_partners` DROP COLUMN `x12_version`;
 #EndIf
+
+#IfMissingColumn claims submitted_claim
+ALTER TABLE `claims` ADD COLUMN `submitted_claim` TEXT NULL DEFAULT NULL COMMENT 'This claims form claim data';
+#EndIf
+
+#IfMissingColumn billing revenue_code
+ALTER TABLE `billing` ADD COLUMN `revenue_code` varchar(6) NOT NULL DEFAULT "" COMMENT 'Item revenue code';
+#EndIf
+
+#IfMissingColumn codes revenue_code
+ALTER TABLE `codes` ADD COLUMN `revenue_code` varchar(255) NOT NULL DEFAULT "" COMMENT 'Item revenue code';
+#EndIf
+

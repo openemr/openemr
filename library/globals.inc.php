@@ -867,6 +867,27 @@ $GLOBALS_METADATA = array(
             xl('This will use the custom immunizations list rather than the standard CVX immunization list.')
         ),
 
+        'ub04_support' => array(
+            xl('Activate UB04/837I Claim Support'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Allow institutional claims support.')
+        ),
+
+        'top_ubmargin_default' => array(
+            xl('Default top print margin for UB04'),
+            'num', // data type
+            '14', // default
+            xl('This is the default top print margin for UB04. It will adjust the final printed output up or down.')
+        ),
+
+        'left_ubmargin_default' => array(
+            xl('Default left print margin for UB04'),
+            'num', // data type
+            '11', // default
+            xl('This is the default left print margin for UB04. It will adjust the final printed output left or right.')
+        ),
+
         'preprinted_cms_1500' => array(
             xl('Prints the CMS 1500 on the Preprinted form'),
             'bool',                           // data type

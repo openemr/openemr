@@ -31,7 +31,7 @@ require_once("codes.php");
 //acl check
 if (!acl_check_form('fee_sheet')) {
     ?>
-    <script language="JavaScript">alert('<?php echo xls("Not authorized"); ?>')</script>;
+    <script>alert('<?php echo xls("Not authorized"); ?>')</script>;
     <?php
     formJump();
 }
@@ -54,7 +54,8 @@ $alertmsg = '';
 // Determine if more than one price level is in use.
 $tmp = sqlQuery("SELECT COUNT(*) AS count FROM list_options where list_id = 'pricelevel' AND activity = 1");
 $price_levels_are_used = $tmp['count'] > 1;
-
+// For revenue codes
+$institutional = $GLOBALS['ub04_support'] == "1" ? true : false;
 // Format a money amount with decimals but no other decoration.
 // Second argument is used when extra precision is required.
 function formatMoneyNumber($value, $extradecimals = 0)
@@ -91,12 +92,15 @@ function genDiagJS($code_type, $code)
 //
 function echoServiceLines()
 {
-    global $code_types, $justinit, $usbillstyle, $liprovstyle, $justifystyle, $fs, $price_levels_are_used;
+    global $code_types, $justinit, $usbillstyle, $liprovstyle, $justifystyle, $fs, $price_levels_are_used, $institutional;
 
     foreach ($fs->serviceitems as $lino => $li) {
         $id       = $li['hidden']['id'];
         $codetype = $li['hidden']['code_type'];
         $code     = $li['hidden']['code'];
+        if ($institutional) {
+            $revenue_code = $li['hidden']['revenue_code'];
+        }
         $modifier = $li['hidden']['mod'];
         $billed   = $li['hidden']['billed'];
         $ndc_info = isset($li['ndc_info']) ? $li['ndc_info'] : '';
@@ -141,6 +145,11 @@ function echoServiceLines()
         echo "  <td class='billcell'>$strike1" . text($li['code_text']) . "$strike2</td>\n";
 
         if ($billed) {
+            if ($institutional) {
+                echo "  <td class='billcell'>$strike1" . text($revenue_code) . "$strike2" .
+                "<input type='hidden' name='bill[" . attr($lino) . "][revenue_code]' value='" . attr($revenue_code) . "'></td>\n";
+            }
+
             if (modifiers_are_used(true)) {
                 echo "  <td class='billcell'>$strike1" . text($modifier) . "$strike2" .
                 "<input type='hidden' name='bill[" . attr($lino) . "][mod]' value='" . attr($modifier) . "'></td>\n";
@@ -186,7 +195,15 @@ function echoServiceLines()
             echo "  <td class='billcell' align='center'><input type='checkbox'" .
             " disabled /></td>\n";
         } else { // not billed
-
+            if ($institutional) {
+                if ($codetype != 'COPAY') { // @TODO Not sure if we want rev codes for dianosis && $codetype != 'ICD10'
+                    echo "  <td class='billcell'><input type='text' class='revcode' name='bill[" . attr($lino) . "][revenue_code]' " .
+                        "title='" . xla("Revenue Code for this item. Type for hints/search") . "' " .
+                        "value='" . attr($revenue_code) . "' size='4'></td>\n";
+                } else {
+                    echo "  <td class='billcell'>&nbsp;</td>\n";
+                }
+            }
             if (modifiers_are_used(true)) {
                 if ($codetype != 'COPAY' && ($code_types[$codetype]['mod'] || $modifier)) {
                     echo "  <td class='billcell'><input type='text' name='bill[" . attr($lino) . "][mod]' " .
@@ -507,8 +524,12 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
             "&ptid={$fs->pid}&enid={$fs->encounter}&rde=$rapid_data_entry");
         } else {
             // Otherwise return to the normal encounter summary frameset.
+            // formJump doesn't work in case of fee sheet called from Fees->Fee Sheet -use header instead.
+            //
+            $to = $GLOBALS['form_exit_url'];
             formHeader("Redirecting....");
-            formJump();
+            header("location: $to");
+            //formJump();
         }
 
         formFooter();
@@ -534,17 +555,17 @@ $billresult = getBillingByEncounter($fs->pid, $fs->encounter, "*");
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <style>
 .billcell { font-family: sans-serif; font-size: 10pt }
+.ui-autocomplete { max-height: 250px; max-width: 350px; overflow-y: auto; overflow-x: hidden; }
 </style>
-
+<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-12-1/themes/base/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/knockout-3-4-0/dist/knockout.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/jquery-ui.min.js"></script>
 <script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
-<script language="JavaScript">
-
+<script>
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
-
 var diags = new Array();
 
 <?php
@@ -919,12 +940,12 @@ foreach ($code_types as $key => $value) {
 ?>
 <?php
 foreach ($nofs_code_types as $key => $value) {
-    echo "   <input type='radio' name='search_type' value='" . attr($key) . "'";
+    echo "   <label><input type='radio' name='search_type' value='" . attr($key) . "'";
     if ($key == $search_type) {
         echo " checked";
     }
 
-    echo " />" . xlt($value['label']) . "&nbsp;\n";
+    echo " />" . xlt($value['label']) . "</label>&nbsp;\n";
 }
 ?>
   </td>
@@ -951,6 +972,9 @@ foreach ($nofs_code_types as $key => $value) {
   <td class='billcell'><b><?php echo xlt('Type');?></b></td>
   <td class='billcell'><b><?php echo xlt('Code');?></b></td>
   <td class='billcell'><b><?php echo xlt('Description');?></b></td>
+<?php if ($institutional) { ?>
+  <td class='billcell'><b><?php echo xlt('Revenue');?></b></td>
+<?php } ?>
 <?php if (modifiers_are_used(true)) { ?>
   <td class='billcell'><b><?php echo xlt('Modifiers');?></b></td>
 <?php } ?>
@@ -994,7 +1018,9 @@ if ($billresult) {
         $bill_lino = count($fs->serviceitems);
         $bline = $_POST['bill']["$bill_lino"];
         $del = $bline['del']; // preserve Delete if checked
-
+        if ($institutional) {
+            $revenue_code   = trim($iter["revenue_code"]);
+        }
         $modifier   = trim($iter["modifier"]);
         $units      = $iter["units"];
         $fee        = $iter["fee"];
@@ -1010,6 +1036,9 @@ if ($billresult) {
 
         // Also preserve other items from the form, if present.
         if ($bline['id'] && !$iter["billed"]) {
+            if ($institutional) {
+                //$revenue_code   = trim($bline['revenue_code']);
+            }
             $modifier   = trim($bline['mod']);
             $units      = max(1, intval(trim($bline['units'])));
             $fee        = formatMoneyNumber((0 + trim($bline['price'])) * $units);
@@ -1032,6 +1061,7 @@ if ($billresult) {
         $fs->addServiceLineItem(array(
         'codetype'    => $iter['code_type'],
         'code'        => trim($iter['code']),
+        'revenue_code'    => $revenue_code,
         'modifier'    => $modifier,
         'ndc_info'    => $ndc_info,
         'auth'        => $authorized,
@@ -1103,6 +1133,7 @@ if ($_POST['bill']) {
         $fs->addServiceLineItem(array(
         'codetype'    => $iter['code_type'],
         'code'        => trim($iter['code']),
+        'revenue_code'        => trim($iter['revenue_code']),
         'modifier'    => trim($iter["mod"]),
         'ndc_info'    => $ndc_info,
         'auth'        => $iter['auth'],
@@ -1289,7 +1320,8 @@ echo "<span class='billcell'><b>\n";
 echo xlt('Providers') . ": &nbsp;";
 
 echo "&nbsp;&nbsp;" . xlt('Rendering') . "\n";
-echo $fs->genProviderSelect('ProviderID', '-- '.xl("Please Select").' --', $fs->provider_id, $isBilled);
+$default_rid = isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : $fs->provider_id;
+echo $fs->genProviderSelect('ProviderID', '-- '.xl("Please Select").' --', $default_rid, $isBilled);
 
 if (!$GLOBALS['ippf_specific']) {
     echo "&nbsp;&nbsp;" . xlt('Supervising') . "\n";
@@ -1387,7 +1419,7 @@ value='<?php echo xla('Refresh');?>'>
 
 </form>
 
-<script language='JavaScript'>
+<script type="text/javascript">
 setSaveAndClose();
 
 <?php
@@ -1401,7 +1433,7 @@ if ($alertmsg) {
 </body>
 </html>
 <?php if (!empty($_POST['running_as_ajax'])) {
-    exit;
+    exit();
 } ?>
 <?php require_once("review/initialize_review.php"); ?>
 <?php require_once("code_choice/initialize_code_choice.php"); ?>
@@ -1410,4 +1442,31 @@ if ($alertmsg) {
 } ?>
 <script>
 var translated_price_header="<?php echo xlt("Price");?>";
+$( function() {
+    var cache = {};
+    $( ".revcode" ).autocomplete({
+        minLength: 1,
+        source: function( request, response ) {
+            var term = request.term;
+            request.code_group = "revenue_code";
+            if ( term in cache ) {
+              response( cache[ term ] );
+              return;
+            }
+            $.getJSON( "<?php echo $GLOBALS['web_root'] ?>/interface/billing/ub04_helpers.php", request, function( data, status, xhr ) {
+              cache[ term ] = data;
+              response( data );
+            })
+        }
+    }).dblclick(function(event) {
+        $(this).autocomplete('search'," ");
+       });
+});
+$( "[name='search_term']" ).keydown(function(event){
+    if(event.keyCode==13){
+        $("[name=bn_search]").trigger('click');
+        return false;
+     }
+ });
+$("[name=search_term]").focus();
 </script>
