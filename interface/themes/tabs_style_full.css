@@ -215,6 +215,7 @@ div.closeDlgIframe:before {
     border-radius: 10px;
     height:100%;
     width:100%;
+    background-color:#fff;
 }
 #attendantData
 {
@@ -475,3 +476,4 @@ div.menuLabel:hover {
     top:6px;
     right:5px;
 }
+

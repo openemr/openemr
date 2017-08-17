@@ -76,6 +76,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
             'OpenEMR\\Services\\' => 17,
             'OpenEMR\\Sample\\' => 15,
             'OpenEMR\\Reminder\\' => 17,
+            'OpenEMR\\Pdf\\' => 12,
             'OpenEMR\\Menu\\' => 13,
             'OpenEMR\\Encounter\\Services\\' => 27,
             'OpenEMR\\Core\\' => 13,
@@ -206,6 +207,10 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OpenEMR\\Reminder\\' => 
         array (
             0 => __DIR__ . '/../..' . '/library/reminder/src',
+        ),
+        'OpenEMR\\Pdf\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/library/pdf/src',
         ),
         'OpenEMR\\Menu\\' => 
         array (
@@ -1694,6 +1699,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OpenEMR\\Core\\Kernel' => __DIR__ . '/../..' . '/library/core/src/Kernel.php',
         'OpenEMR\\Encounter\\Services\\ViewHelper' => __DIR__ . '/../..' . '/interface/patient_file/encounter/Services/ViewHelper.php',
         'OpenEMR\\Menu\\MainMenuRole' => __DIR__ . '/../..' . '/library/menu/src/MainMenuRole.php',
+        'OpenEMR\\Pdf\\PdfCreator' => __DIR__ . '/../..' . '/library/pdf/src/PdfCreator.php',
         'OpenEMR\\Reminder\\BirthdayReminder' => __DIR__ . '/../..' . '/library/reminder/src/BirthdayReminder.php',
         'OpenEMR\\Sample\\Event\\SampleEvent' => __DIR__ . '/../..' . '/library/sample/src/Event/SampleEvent.php',
         'OpenEMR\\Sample\\Event\\SampleSubscriber' => __DIR__ . '/../..' . '/library/sample/src/Event/SampleSubscriber.php',
