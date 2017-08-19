@@ -173,7 +173,7 @@ function ImgProcedure() {literal}{{/literal}
                 </div>
                 <div>
                     {xl t='Rename'}:
-                    <input type='text' size='20' name='docname' id='docname' value='{$file->get_url_web()}'/>
+                    <input type='text' size='20' name='docname' id='docname' value='{$file->get_url_web()|escape:'html'}'/>
               	</div>
                 <div>
                     {xl t='Date'}:

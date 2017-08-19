@@ -344,6 +344,7 @@ $gfres = sqlStatement("SELECT option_id FROM list_options WHERE " .
 while ($gfrow = sqlFetchArray($gfres)) { ?>
     $("#<?php echo $gfrow['option_id']; ?>_ps_expand").load("lbf_fragment.php?formname=<?php echo $gfrow['option_id']; ?>");<?php
 }
+
 ?>
 
     // fancy box
@@ -384,35 +385,49 @@ while ($gfrow = sqlFetchArray($gfres)) { ?>
             'centerOnScroll' : false
   });
 
-    <?php if ($active_reminders || $all_allergy_alerts) { ?>
-    // show the active reminder modal
-    $("#reminder_popup_link").fancybox({
-      'overlayOpacity' : 0.0,
-      'showCloseButton' : true,
-      'frameHeight' : 500,
-      'frameWidth' : 500,
-      'centerOnScroll' : false
-    }).trigger('click');
-    <?php } ?>
+  function openReminderPopup() {
+      $("#reminder_popup_link").fancybox({
+          'overlayOpacity' : 0.0,
+          'showCloseButton' : true,
+          'frameHeight' : 500,
+          'frameWidth' : 500,
+          'centerOnScroll' : false,
+      }).trigger('click');
+  }
 
-    <?php if ($GLOBALS['patient_birthday_alert']) {
-        // To display the birthday alert:
-        //  1. The patient is not deceased
-        //  2. The birthday is today (or in the past depending on global selection)
-        //  3. The notification has not been turned off (or shown depending on global selection) for this year
-        $birthdayAlert = new BirthdayReminder($pid, $_SESSION['authId']);
-        if ($birthdayAlert->isDisplayBirthdayAlert()) {
-            ?>
-            // show the active reminder modal
-            $("#birthday_popup").fancybox({
-                'overlayOpacity' : 0.0,
-                'showCloseButton' : true,
-                'frameHeight' : 170,
-                'frameWidth' : 200,
-                'centerOnScroll' : false
-            }).trigger('click');
-        <?php } ?>
-    <?php } ?>
+
+<?php if ($GLOBALS['patient_birthday_alert']) {
+    // To display the birthday alert:
+    //  1. The patient is not deceased
+    //  2. The birthday is today (or in the past depending on global selection)
+    //  3. The notification has not been turned off (or shown depending on global selection) for this year
+    $birthdayAlert = new BirthdayReminder($pid, $_SESSION['authId']);
+    if ($birthdayAlert->isDisplayBirthdayAlert()) {
+    ?>
+    // show the active reminder modal
+    $("#birthday_popup").fancybox({
+        'overlayOpacity' : 0.0,
+        'showCloseButton' : true,
+        'frameHeight' : 170,
+        'frameWidth' : 200,
+        'centerOnScroll' : false,
+        'callbackOnClose' : function () {
+            <?php if ($active_reminders || $all_allergy_alerts) { ?>
+                //working only with setTimeout 0, must call openReminderPopup only ofter callbackOnClose is finished (fancybox v1 isn't support multi instances)
+                setTimeout(function () {
+                    openReminderPopup();
+                });
+            <?php }?>
+        }
+    }).trigger('click');
+    <?php } elseif ($active_reminders || $all_allergy_alerts) { ?>
+    openReminderPopup();
+    <?php }?>
+<?php } elseif ($active_reminders || $all_allergy_alerts) { ?>
+    openReminderPopup();
+<?php }?>
+
+
 
 });
 
