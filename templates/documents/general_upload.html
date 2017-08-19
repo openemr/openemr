@@ -1,58 +1,67 @@
+{**
+* general document view
+*
+* @package   OpenEMR
+* @link      http://www.open-emr.org
+* @author    Brady Miller <brady.g.miller@gmail.com>
+* @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+*}
 
 <form method=post enctype="multipart/form-data" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
 <input type="hidden" name="MAX_FILE_SIZE" value="64000000" />
 
 {if (!($patient_id > 0)) }
   <div class="text" style="color:red;">
-    {xl t="IMPORTANT: This upload tool is only for uploading documents on patients that are not yet entered into the system. To upload files for patients whom already have been entered into the system, please use the upload tool linked within the Patient Summary screen."}
+    {xl t="IMPORTANT: This upload tool is only for uploading documents on patients that are not yet entered into the system. To upload files for patients whom already have been entered into the system, please use the upload tool linked within the Patient Summary screen."|escape:'html'}
     <br/>
     <br/>
   </div>
 {/if}
 
 <div class="text">
-    {xl t="NOTE: Uploading files with duplicate names will cause the files to be automatically renamed (for example, file.jpg will become file.1.jpg). Filenames are considered unique per patient, not per category."}
+    {xl t="NOTE: Uploading files with duplicate names will cause the files to be automatically renamed (for example, file.jpg will become file.1.jpg). Filenames are considered unique per patient, not per category."|escape:'html'}
     <br/>
     <br/>
 </div>
 <div class="text bold">
-    {xl t="Upload Document"} {if $category_name} {xl t="to category"} '{$category_name}'{/if}
+    {xl t="Upload Document"|escape:'html'} {if $category_name} {xl t="to category"|escape:'html'} '{$category_name|escape:'html'}'{/if}
 </div>
 <div class="text">
-    <p><span>{xl t="Source File Path"}:</span> <input type="file" name="file[]" id="source-name" multiple="true"/>&nbsp;(<font size="1">{xl t="Multiple files can be uploaded at one time by selecting them using CTRL+Click or SHIFT+Click."}</font>)</p>
-    <p><span title="{xl t='Leave Blank To Keep Original Filename'}">{xl t="Optional Destination Name"}:</span> <input type="text" name="destination" title="{xl t='Leave Blank To Keep Original Filename'}" id="destination-name" /></p>
+    <p><span>{xl t="Source File Path"|escape:'html'}:</span> <input type="file" name="file[]" id="source-name" multiple="true"/>&nbsp;(<font size="1">{xl t="Multiple files can be uploaded at one time by selecting them using CTRL+Click or SHIFT+Click."|escape:'html'}</font>)</p>
+    <p><span title="{xl t='Leave Blank To Keep Original Filename'|escape:'html'}">{xl t="Optional Destination Name"|escape:'html'}:</span> <input type="text" name="destination" title="{xl t='Leave Blank To Keep Original Filename'|escape:'html'}" id="destination-name" /></p>
     {if !$hide_encryption}
 	</br>
-	<p><span title="{xl t='Check the box if this is an encrypted file'}">{xl t="Is The File Encrypted?"}:</span> <input type="checkbox" name="encrypted" title="{xl t='Check the box if this is an encrypted file'}" id="encrypted" /></p>
-	<p><span title="{xl t='Pass phrase to decrypt document'}">{xl t="Pass Phrase"}:</span> <input type="text" name="passphrase" title="{xl t='Pass phrase to decrypt document'}" id="passphrase" /></p>
-	<p><i>{xl t='Supports TripleDES encryption/decryption only.'}</i></p>
+	<p><span title="{xl t='Check the box if this is an encrypted file'|escape:'html'}">{xl t="Is The File Encrypted?"|escape:'html'}:</span> <input type="checkbox" name="encrypted" title="{xl t='Check the box if this is an encrypted file'|escape:'html'}" id="encrypted" /></p>
+	<p><span title="{xl t='Pass phrase to decrypt document'|escape:'html'}">{xl t="Pass Phrase"|escape:'html'}:</span> <input type="text" name="passphrase" title="{xl t='Pass phrase to decrypt document'|escape:'html'}" id="passphrase" /></p>
+	<p><i>{xl t='Supports TripleDES encryption/decryption only.'|escape:'html'}</i></p>
     {/if}
-    <p><input type="submit" value="{xl t='Upload'}" /></p>
+    <p><input type="submit" value="{xl t='Upload'|escape:'html'}" /></p>
 </div>
 
-<input type="hidden" name="patient_id" value="{$patient_id}" />
-<input type="hidden" name="category_id" value="{$category_id}" />
-<input type="hidden" name="process" value="{$PROCESS}" />
+<input type="hidden" name="patient_id" value="{$patient_id|escape:'html'}" />
+<input type="hidden" name="category_id" value="{$category_id|escape:'html'}" />
+<input type="hidden" name="process" value="{$PROCESS|escape:'html'}" />
 </form>
 
 <br><br>
 
 <!-- Drag and drop uploader -->
 <div id="autouploader">
-<form method="post" enctype="multipart/form-data" action="{$WEBROOT}/library/ajax/upload.php?patient_id={$patient_id}&parent_id={$category_id}" class="dropzone">
+<form method="post" enctype="multipart/form-data" action="{$WEBROOT}/library/ajax/upload.php?patient_id={$patient_id|escape:'html'}&parent_id={$category_id|escape:'html'}" class="dropzone">
 <input type="hidden" name="MAX_FILE_SIZE" value="64000000" >
 </form>
 </div>
 
 <!-- Section for document template download -->
 <form method='post' action='interface/patient_file/download_template.php' onsubmit='return top.restoreSession()'>
-<input type='hidden' name='patient_id' value='{$patient_id}' />
+<input type='hidden' name='patient_id' value='{$patient_id|escape:'html'}' />
 <p class='text bold'>
- {xl t="Download document template for this patient and visit"}
+ {xl t="Download document template for this patient and visit"|escape:'html'}
 </p>
 <p class='text'>
  <select name='form_filename'>{$TEMPLATES_LIST}</select> &nbsp;
- <input type='submit' value='{xl t="Fetch"}' />
+ <input type='submit' value='{xl t="Fetch"|escape:'html'}' />
 </p>
 </form>
 <!-- End document template download section -->
@@ -60,19 +69,19 @@
 {if !empty($file)}
 	<div class="text bold">
 		<br/>
-		{xl t='Upload Report'}
+		{xl t='Upload Report'|escape:'html'}
 	</div>
 	{foreach from=$file item=file}
 		<div class="text">
-			{if $error}<i>{$error}</i><br/>{/if}
-			{xl t='ID'}: {$file->get_id()}<br>
-			{xl t='Patient'}: {$file->get_foreign_id()}<br>
-			{xl t='URL'}: {$file->get_url()}<br>
-			{xl t='Size'}: {$file->get_size()}<br>
-			{xl t='Date'}: {$file->get_date()}<br>
-			{xl t='Hash'}: {$file->get_hash()}<br>
-			{xl t='MimeType'}: {$file->get_mimetype()}<br>
-			{xl t='Revision'}: {$file->revision}<br><br>
+			{if $error}<i>{$error|escape:'html'}</i><br/>{/if}
+			{xl t='ID'|escape:'html'}: {$file->get_id()|escape:'html'}<br>
+			{xl t='Patient'|escape:'html'}: {$file->get_foreign_id()|escape:'html'}<br>
+			{xl t='URL'|escape:'html'}: {$file->get_url()|escape:'html'}<br>
+			{xl t='Size'|escape:'html'}: {$file->get_size()|escape:'html'}<br>
+			{xl t='Date'|escape:'html'}: {$file->get_date()|escape:'html'}<br>
+			{xl t='Hash'|escape:'html'}: {$file->get_hash()|escape:'html'}<br>
+			{xl t='MimeType'|escape:'html'}: {$file->get_mimetype()|escape:'html'}<br>
+			{xl t='Revision'|escape:'html'}: {$file->revision|escape:'html'}<br><br>
 		</div>
 	{/foreach}
 {/if}

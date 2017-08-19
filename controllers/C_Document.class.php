@@ -48,10 +48,10 @@ class C_Document extends Controller
         $this->assign("hide_encryption", $GLOBALS['hide_document_encryption']);
         $this->assign("patient_id", $patient_id);
 
-    // Added by Rod to support document template download from general_upload.html.
-    // Cloned from similar stuff in manage_document_templates.php.
+        // Added by Rod to support document template download from general_upload.html.
+        // Cloned from similar stuff in manage_document_templates.php.
         $templatedir = $GLOBALS['OE_SITE_DIR'] . '/documents/doctemplates';
-        $templates_options = "<option value=''>-- " . xl('Select Template') . " --</option>";
+        $templates_options = "<option value=''>-- " . xlt('Select Template') . " --</option>";
         if (file_exists($templatedir)) {
               $dh = opendir($templatedir);
         }
@@ -66,8 +66,8 @@ class C_Document extends Controller
               closedir($dh);
               ksort($templateslist);
             foreach ($templateslist as $sfname) {
-                $templates_options .= "<option value='" . htmlspecialchars($sfname, ENT_QUOTES) .
-                  "'>" . htmlspecialchars($sfname) . "</option>";
+                $templates_options .= "<option value='" . attr($sfname) .
+                  "'>" . text($sfname) . "</option>";
             }
         }
         $this->assign("TEMPLATES_LIST", $templates_options);
@@ -1020,8 +1020,23 @@ class C_Document extends Controller
         $menu->addItem($rnode);
         $treeMenu = new HTML_TreeMenu_DHTML($menu, array('images' => 'images', 'defaultClass' => 'treeMenuDefault'));
         $treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, array('linkTarget' => '_self'));
-
         $this->assign("tree_html", $treeMenu->toHTML());
+
+        $is_new = isset($_GET['patient_name']) ? 1 : false;
+        $place_hld = isset($_GET['patient_name']) ? filter_input(INPUT_GET, 'patient_name') : xl("Patient search or select.");
+        $cur_pid = isset($_GET['patient_id']) ? filter_input(INPUT_GET, 'patient_id') : '';
+        $used_msg = xl('Current patient unavailable here. Use Patient Documents');
+        if ($cur_pid == '00' ) {
+            $cur_pid = '0';
+            $is_new = 1;
+        }
+        $this->assign('is_new', $is_new);
+        $this->assign('place_hld', $place_hld);
+        $this->assign('cur_pid', $cur_pid);
+        $this->assign('used_msg', $used_msg);
+        $this->assign('demo_pid', $_SESSION['pid']);
+
+        $this->assign('GLOBALS', $GLOBALS);
 
         return $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_list.html");
     }
