@@ -82,7 +82,7 @@ class FormLegLength extends ORDataObject
         //$this->temp_methods = parent::_load_enum("temp_locations",false);
     }
 
-    function toString($html = false)
+    function __toString()
     {
         return $this->string . "\n" . "ID: " . $this->id . "\n";
     }

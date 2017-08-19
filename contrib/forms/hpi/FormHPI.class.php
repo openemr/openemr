@@ -72,7 +72,7 @@ class FormHPI extends ORDataObject
         //$this->temp_methods = parent::_load_enum("temp_locations",false);
     }
 
-    public function __toString($html = false)
+    public function __toString()
     {
         return $this->string . "\n" . "ID: " . $this->id . "\n";
     }
