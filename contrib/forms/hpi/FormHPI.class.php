@@ -74,11 +74,7 @@ class FormHPI extends ORDataObject
 
     public function __toString($html = false)
     {
-        if ($html) {
-            return nl2br($this->string . "\n" . "ID: " . $this->id . "\n");
-        } else {
-            return $this->string . "\n" . "ID: " . $this->id . "\n";
-        }
+        return $this->string . "\n" . "ID: " . $this->id . "\n";
     }
 
     function set_id($id)

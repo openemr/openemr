@@ -49,7 +49,7 @@ class FormNursingNotes extends ORDataObject
     function __construct($id = "", $_prefix = "")
     {
         parent::__construct();
-        
+
         if (is_numeric($id)) {
             $this->id = $id;
         } else {
@@ -73,14 +73,7 @@ class FormNursingNotes extends ORDataObject
 
     function toString($html = false)
     {
-        $string .= "\n"
-            ."ID: " . $this->id . "\n";
-
-        if ($html) {
-            return nl2br($string);
-        } else {
-            return $string;
-        }
+        return $string . "\n" . "ID: " . $this->id . "\n";
     }
     function set_id($id)
     {
