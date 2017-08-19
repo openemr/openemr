@@ -1026,7 +1026,7 @@ class C_Document extends Controller
         $place_hld = isset($_GET['patient_name']) ? filter_input(INPUT_GET, 'patient_name') : xl("Patient search or select.");
         $cur_pid = isset($_GET['patient_id']) ? filter_input(INPUT_GET, 'patient_id') : '';
         $used_msg = xl('Current patient unavailable here. Use Patient Documents');
-        if ($cur_pid == '00' ) {
+        if ($cur_pid == '00') {
             $cur_pid = '0';
             $is_new = 1;
         }
