@@ -317,7 +317,7 @@ class C_Document extends Controller
             "document_id=" . $d->get_id() . "&process=true");
 
         // Added by Rod to support document issue update:
-        $issues_options = "<option value='0'>-- " . xl('Select Issue') . " --</option>";
+        $issues_options = "<option value='0'>-- " . xlt('Select Issue') . " --</option>";
         $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             "pid = ? " . // AND enddate IS NULL " .
             "ORDER BY type, begdate", array($patient_id));
@@ -326,9 +326,9 @@ class C_Document extends Controller
             if ($ISSUE_TYPES[$desc]) {
                 $desc = $ISSUE_TYPES[$desc][2];
             }
-            $desc .= ": " . $irow['begdate'] . " " . htmlspecialchars(substr($irow['title'], 0, 40));
+            $desc .= ": " . text($irow['begdate']) . " " . text(substr($irow['title'], 0, 40));
             $sel = ($irow['id'] == $d->get_list_id()) ? ' selected' : '';
-            $issues_options .= "<option value='" . $irow['id'] . "'$sel>$desc</option>";
+            $issues_options .= "<option value='" . attr($irow['id']) . "'$sel>$desc</option>";
         }
         $this->assign("ISSUES_LIST", $issues_options);
 
