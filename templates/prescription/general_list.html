@@ -182,37 +182,37 @@ $(document).ready(function(){
       --> 
     </td>
 	<td class="editscript"  id="{$prescription->id}">
-	{if $prescription->active > 0}<b>{/if}{$prescription->drug}{if $prescription->active > 0}</b>{/if}&nbsp;
-  <br />{$prescription->note}
+	{if $prescription->active > 0}<b>{/if}{$prescription->drug|escape:"html"}{if $prescription->active > 0}</b>{/if}&nbsp;
+  <br />{$prescription->note|escape:"html"}
     </td>
 	{else}
   <td>&nbsp;</td>
     <td id="{$prescription->id}">
-	{if $prescription->active > 0}<b>{/if}{$prescription->drug}{if $prescription->active > 0}</b>{/if}&nbsp;
-  <br />{$prescription->note}
+	{if $prescription->active > 0}<b>{/if}{$prescription->drug|escape:"html"}{if $prescription->active > 0}</b>{/if}&nbsp;
+  <br />{$prescription->note|escape:"html"}
     </td>
 	{/if}
     <td id="{$prescription->id}">
-      {$prescription->rxnorm_drugcode}&nbsp;
+      {$prescription->rxnorm_drugcode|escape:"html"}&nbsp;
     </td>
     <td id="{$prescription->id}">
       {$prescription->date_added}<br />
       {$prescription->date_modified}&nbsp;
     </td>
     <td id="{$prescription->id}">
-      {$prescription->get_dosage_display()} &nbsp;
+      {$prescription->get_dosage_display()|escape:"html"} &nbsp;
     </td>
 	{if $prescription->erx_source==0}
     <td class="editscript" id="{$prescription->id}">
-      {$prescription->quantity} &nbsp;
+      {$prescription->quantity|escape:"html"} &nbsp;
     </td>
 	{else}
 	<td id="{$prescription->id}">
-      {$prescription->quantity} &nbsp;
+      {$prescription->quantity|escape:"html"} &nbsp;
     </td>
 	{/if}
     <td id="{$prescription->id}">
-       {$prescription->get_size()} {$prescription->get_unit_display()}&nbsp;
+       {$prescription->get_size()|escape:"html"} {$prescription->get_unit_display()}&nbsp;
     </td>
     <td id="{$prescription->id}">
       {$prescription->provider->get_name_display()}&nbsp;
