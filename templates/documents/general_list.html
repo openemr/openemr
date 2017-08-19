@@ -9,23 +9,9 @@
 *}
 <html>
 <head>
-{php}html_header_show();{/php}
-{php}$this->assign('GLOBALS', $GLOBALS);{/php}
-{php}
-$is_new = isset($_GET['patient_name']) ? 1 : false;
-$place_hld = isset($_GET['patient_name']) ? filter_input(INPUT_GET, 'patient_name') : xl("Patient search or select.");
-$cur_pid = isset($_GET['patient_id']) ? filter_input(INPUT_GET, 'patient_id') : '';
-$used_msg = xl('Current patient unavailable here. Use Patient Documents');
-if ($cur_pid == '00' ) {
-    $cur_pid = '0';
-    $is_new = 1;
-}
-$this->assign('is_new', $is_new);
-$this->assign('place_hld', $place_hld);
-$this->assign('cur_pid', $cur_pid);
-$this->assign('used_msg', $used_msg);
-$this->assign('demo_pid', $_SESSION['pid']);
-{/php}
+
+{headerShow}
+
 <link rel="stylesheet" href="{$GLOBALS.css_header}" type="text/css">
 <link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone-4-3-0/dist/dropzone.css">
 <link href="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
@@ -66,35 +52,35 @@ overflow: auto;
 </head>
 <!--<body bgcolor="{$STYLE.BGCOLOR2}">-->
 <!-- ViSolve - Call expandAll function on loading of the page if global value 'expand_document' is set -->
-{php} if ($GLOBALS['expand_document_tree']) {  {/php}
+{if $GLOBALS.expand_document_tree}
   <body class="body_top" onload="javascript:objTreeMenu_1.expandAll();return false;">
-{php} } else { {/php}
+{else}
   <body class="body_top">
-{php} } {/php}
+{/if}
 
 <div id="documents_list">
     <div class="ui-widget"style="float:right;">
         <button id='pid' class="pBtn" type="button" style="float:right;">0</button>
-         <input id="selectPatient" type="text" placeholder="{$place_hld}">
+         <input id="selectPatient" type="text" placeholder="{$place_hld|escape:'html'}">
     </div>
-<a id="list_collapse" href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">&nbsp;({xl t='Collapse all'})</a>
-<div class="title">{xl t='Documents'}</div>
+<a id="list_collapse" href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">&nbsp;({xl t='Collapse all'|escape:'html'})</a>
+<div class="title">{xl t='Documents'|escape:'html'}</div>
 {$tree_html}
 </div>
 <div id="documents_actions">
 		{if $message}
-			<div class='text' style="margin-bottom:-10px; margin-top:-8px"><i>{$message}</i></div><br>
+			<div class='text' style="margin-bottom:-10px; margin-top:-8px"><i>{$message|escape:'html'}</i></div><br>
 		{/if}
 		{if $messages}
-            <div class='text' style="margin-bottom:-10px; margin-top:-8px"><i>{$messages}</i></div><br>
+            <div class='text' style="margin-bottom:-10px; margin-top:-8px"><i>{$messages|escape:'html'}</i></div><br>
 		{/if}
 		{$activity}
 </div>
 <script type="text/javascript">
-var curpid = "{$cur_pid}";
-var newVersion="{$is_new}";
-var demoPid = "{$demo_pid}";
-var inUseMsg = "{$used_msg}";
+var curpid = "{$cur_pid|escape:'html'}";
+var newVersion="{$is_new|escape:'html'}";
+var demoPid = "{$demo_pid|escape:'html'}";
+var inUseMsg = "{$used_msg|escape:'html'}";
 {literal}
 if(curpid == demoPid && !newVersion){
     $(".ui-widget").hide();
@@ -110,7 +96,7 @@ $(function() {
         },
         select: function(event, sel) {
             event.preventDefault();
-            if (sel.item.value == '00' && ! sel.item.label.match('{/literal}{xl t="Reset"}{literal}')){
+            if (sel.item.value == '00' && ! sel.item.label.match('{/literal}{xl t="Reset"|escape:"html"}{literal}')){
             	alert(inUseMsg);
             	return false;
             }
@@ -129,15 +115,9 @@ $(".pBtn").click(function(event) {
 });
 $("#list_collapse").detach().appendTo("#objTreeMenu_1_node_1 nobr");
 
-$(document).ready(function(){
-    $('.datepicker').datetimepicker({
-        {/literal}{php} $datetimepicker_timepicker = false; {/php}
-        {php} $datetimepicker_showseconds = false; {/php}
-        {php} $datetimepicker_formatInput = false; {/php}
-        {php} require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); {/php}
-        {php} // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma {/php}{literal}
-    });
-});{/literal}
+$(document).ready(function(){{/literal}
+    {datetimepickerSupport}
+{literal}});{/literal}
 
 </script>
 </body>
