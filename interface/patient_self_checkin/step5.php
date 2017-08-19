@@ -7,21 +7,6 @@
 <!-- Latest compiled and minified JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
-<style type="text/css">
-	
-body {
-
-	background-color: #90EE90;
-	text-align: center;
-	font-size: 24pt;
-}
-
-img {
-
-	text-align: center;
-}
-
-</style>
 <!DOCTYPE html>
 <html>
 <head>
@@ -32,8 +17,13 @@ img {
 <img src="physician-icon-png-15318.png">
 
 <?php
-date_default_timezone_set();
-$id = $_GET["id"];
+
+$sex = htmlspecialchars($_GET['sex']);
+$month = htmlspecialchars($_GET['month']);
+$birthday = htmlspecialchars($_GET['date']);
+$surname = htmlspecialchars($_GET['surname']);
+
+// date_default_timezone_set();
 
 $timeRN = date("Y-m-d H:i:s");
 $date = date("y-m-d");
@@ -41,6 +31,58 @@ echo "Time: " . $timeRN . "<br>";
 
 require 'mySQL_connector.php';
 
+// Get patient ID based on the data provided.
+$PIDQuery = "SELECT pid FROM patient_data WHERE lname LIKE '" . $surname . "%' AND dob LIKE '%-" . $month ."-" . $birthday . "'";
+$patient_id = mysql_fetch_array(mysqli_query($dbc, $PIDQuery));
+echo $patient_id;
+
+if ($patient_id==NULL) {
+
+
+	echo '
+
+	<style type="text/css">
+	
+body {
+
+	background-color: red;
+	color: white;
+	text-align: center;
+	font-size: 24pt;
+}
+
+img {
+
+	text-align: center;
+}
+
+</style>
+
+	Sorry. We could not find you in the database, please go to the reception desk to check in.';
+
+
+}
+
+else {
+
+
+echo '<style type="text/css">
+	
+body {
+
+	background-color: green;
+	text-align: center;
+	font-size: 24pt;
+}
+
+img {
+
+	text-align: center;
+}
+
+</style>';
+
+$id = $patient_id['pid'];
 
 // Change appt status
 
@@ -71,7 +113,8 @@ $new_form_id = $lastformrefNo['form_id']+1;
 
 // Create the form reference
 
-$formsql = "INSERT into forms (date, encounter, form_name, form_id, pid, user, groupname, authorized, deleted, formdir) VALUES ('".$date."', '".$newencounterID."', 'New Patient Encounter', '".$new_form_id."', '".$id."', 'carlisle43', 'Default', '1', '0', 'newpatient');";
+$formsql = "INSERT into forms (date, encounter, form_name, form_id, pid, user, groupname, authorized, deleted, formdir) VALUES ('".$date."', '".$newencounterID."', 'New Patient Encounter', '".$new_form_id."', '".$id."', 'carlisle43', 'Default', '1', '0', 'newpatient');"; // TODO
+echo $doctornameresult['username'];
 mysqli_query($dbc, $formsql);
 
 // Find the last sequence number for this patient
@@ -100,13 +143,15 @@ $docid = $doctorIDresult['pc_aid'];
 
 // Find the Drs name.
 
-$lookupdoctor = "SELECT `lname` FROM users where ID = '".$docid."';";
+$lookupdoctor = "SELECT * FROM users where ID = '".$docid."';";
 $doctornameresult = mysqli_fetch_assoc(mysqli_query($dbc, $lookupdoctor));
 echo "Thank you. <br>You have checked in for your appointment with Dr. " . $doctornameresult['lname'] . ".";
 
+} // end else
+
 ?>
 
-<meta http-equiv="refresh" content="6;url=/" />
+<!-- <meta http-equiv="refresh" content="6;url=/" /> -->
 
 </body>
 </html>

@@ -17,6 +17,9 @@
 
 require_once("../globals.php");
 require_once($GLOBALS['srcdir'].'/sql.inc');
+
+if ($GLOBALS['self_checkin_enable']==1) {
+
 ?>
 
 <!-- Latest compiled and minified CSS -->
@@ -30,8 +33,8 @@ require_once($GLOBALS['srcdir'].'/sql.inc');
 
 <div id="welcomeText">
 <h1>Welcome to the Surgery</h1>
-<h2>Today's Appointments</h2>
-<p>Select your name to check in</p>
+<h2>Self Check In</h2>
+<p>Touch your sex to begin</p>
 </div>
 
 <style type="text/css">
@@ -53,7 +56,19 @@ th, td {
 
 tr:nth-child(even){background-color: #f2f2f2}
 
+.col-sm-6 {
+
+    text-align: center;
+}
+
 </style>
+
+<div class="row">
+  <div class="col-sm-6"><a href="step2.php?sex=Male" style="width: 400px; height: 200px;" class="btn btn-lg btn-default">Male</a></div>
+  <div class="col-sm-6"><a href="step2.php?sex=Female" style="width: 400px; height: 200px;" class="btn btn-lg btn-default">Female</a></div>
+</div>
+
+<!--
 
 <table class="tg">
   <tr>
@@ -62,37 +77,47 @@ tr:nth-child(even){background-color: #f2f2f2}
     <th class="tg-yw4l">Tap to check in</th>
   </tr>
 
+<br>
+<br> -->
+
+
 <?php
 
-$date = date("y-m-d");
+// $date = date("y-m-d");
 
-require 'mySQL_connector.php';
+// require 'mySQL_connector.php';
 
-$sql = "SELECT * FROM openemr_postcalendar_events WHERE pc_eventDate = '". $date ."' and pc_pid REGEXP '^[0-9]+$' and pc_apptstatus = '-';";
-$result = $dbc->query($sql);
+// $sql = "SELECT * FROM openemr_postcalendar_events WHERE pc_eventDate = '". $date ."' and pc_pid REGEXP '^[0-9]+$' and pc_apptstatus = '-';";
+// $result = $dbc->query($sql);
 
-if ($result->num_rows > 0) {
-    // output data of each row
+// if ($result->num_rows > 0) {
+//     // output data of each row
 
-    while($row = $result->fetch_assoc()) {
+//     while($row = $result->fetch_assoc()) {
         
-        $uid = $row['pc_pid'];
-        $nameMatchSQL = "SELECT * FROM patient_data where id = '.$uid.'";
-        $patientNames = mysqli_fetch_assoc(mysqli_query($dbc, $nameMatchSQL));
+//         $uid = $row['pc_pid'];
+//         $nameMatchSQL = "SELECT * FROM patient_data where id = '.$uid.'";
+//         $patientNames = mysqli_fetch_assoc(mysqli_query($dbc, $nameMatchSQL));
 
-         echo "<tr>
-    	<td>" . $patientNames["fname"] . "</td>
-    	<td>" . $patientNames["lname"] . "</td>
-    	<td>" . "<a href='checkin.php?id=" . $patientNames["id"] . "'>Check In</a>". "</td>
-    </tr>";
+//          echo "<tr>
+//     	<td>" . $patientNames["fname"] . "</td>
+//     	<td>" . $patientNames["lname"] . "</td>
+//     	<td>" . "<a href='checkin.php?id=" . $patientNames["id"] . "'>Check In</a>". "</td>
+//     </tr>";
 
 
-    }
-} 
+//     }
+// } 
 
-echo "</table>";
+// echo "</table>";
+
+} // end 'if enabled?' if statement
+
+else {
+
+
+    echo "This feature is not enabled.";
+
+}
 
 ?>
-
-
-

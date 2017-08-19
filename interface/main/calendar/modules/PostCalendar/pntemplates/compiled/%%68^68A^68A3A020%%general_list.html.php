@@ -1,7 +1,7 @@
-<?php /* Smarty version 2.6.30, created on 2017-08-13 22:07:44
+<?php /* Smarty version 2.6.30, created on 2017-08-19 21:03:30
          compiled from /Users/alfiecarlisle/Documents/openemr/templates/prescription/general_list.html */ ?>
 <?php require_once(SMARTY_CORE_DIR . 'core.load_plugins.php');
-smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/Users/alfiecarlisle/Documents/openemr/templates/prescription/general_list.html', 92, false),)), $this); ?>
+smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/Users/alfiecarlisle/Documents/openemr/templates/prescription/general_list.html', 92, false),array('modifier', 'escape', '/Users/alfiecarlisle/Documents/openemr/templates/prescription/general_list.html', 185, false),)), $this); ?>
 <html>
 <head>
 <?php html_header_show(); ?>
@@ -226,24 +226,24 @@ prescription&multiprintfax&id=<?php echo $this->_tpl_vars['printm']; ?>
     </td>
 	<td class="editscript"  id="<?php echo $this->_tpl_vars['prescription']->id; ?>
 ">
-	<?php if ($this->_tpl_vars['prescription']->active > 0): ?><b><?php endif; ?><?php echo $this->_tpl_vars['prescription']->drug; ?>
+	<?php if ($this->_tpl_vars['prescription']->active > 0): ?><b><?php endif; ?><?php echo ((is_array($_tmp=$this->_tpl_vars['prescription']->drug)) ? $this->_run_mod_handler('escape', true, $_tmp, 'html') : smarty_modifier_escape($_tmp, 'html')); ?>
 <?php if ($this->_tpl_vars['prescription']->active > 0): ?></b><?php endif; ?>&nbsp;
-  <br /><?php echo $this->_tpl_vars['prescription']->note; ?>
+  <br /><?php echo ((is_array($_tmp=$this->_tpl_vars['prescription']->note)) ? $this->_run_mod_handler('escape', true, $_tmp, 'html') : smarty_modifier_escape($_tmp, 'html')); ?>
 
     </td>
 	<?php else: ?>
   <td>&nbsp;</td>
     <td id="<?php echo $this->_tpl_vars['prescription']->id; ?>
 ">
-	<?php if ($this->_tpl_vars['prescription']->active > 0): ?><b><?php endif; ?><?php echo $this->_tpl_vars['prescription']->drug; ?>
+	<?php if ($this->_tpl_vars['prescription']->active > 0): ?><b><?php endif; ?><?php echo ((is_array($_tmp=$this->_tpl_vars['prescription']->drug)) ? $this->_run_mod_handler('escape', true, $_tmp, 'html') : smarty_modifier_escape($_tmp, 'html')); ?>
 <?php if ($this->_tpl_vars['prescription']->active > 0): ?></b><?php endif; ?>&nbsp;
-  <br /><?php echo $this->_tpl_vars['prescription']->note; ?>
+  <br /><?php echo ((is_array($_tmp=$this->_tpl_vars['prescription']->note)) ? $this->_run_mod_handler('escape', true, $_tmp, 'html') : smarty_modifier_escape($_tmp, 'html')); ?>
 
     </td>
 	<?php endif; ?>
     <td id="<?php echo $this->_tpl_vars['prescription']->id; ?>
 ">
-      <?php echo $this->_tpl_vars['prescription']->rxnorm_drugcode; ?>
+      <?php echo ((is_array($_tmp=$this->_tpl_vars['prescription']->rxnorm_drugcode)) ? $this->_run_mod_handler('escape', true, $_tmp, 'html') : smarty_modifier_escape($_tmp, 'html')); ?>
 &nbsp;
     </td>
     <td id="<?php echo $this->_tpl_vars['prescription']->id; ?>
@@ -255,25 +255,25 @@ prescription&multiprintfax&id=<?php echo $this->_tpl_vars['printm']; ?>
     </td>
     <td id="<?php echo $this->_tpl_vars['prescription']->id; ?>
 ">
-      <?php echo $this->_tpl_vars['prescription']->get_dosage_display(); ?>
+      <?php echo ((is_array($_tmp=$this->_tpl_vars['prescription']->get_dosage_display())) ? $this->_run_mod_handler('escape', true, $_tmp, 'html') : smarty_modifier_escape($_tmp, 'html')); ?>
  &nbsp;
     </td>
 	<?php if ($this->_tpl_vars['prescription']->erx_source == 0): ?>
     <td class="editscript" id="<?php echo $this->_tpl_vars['prescription']->id; ?>
 ">
-      <?php echo $this->_tpl_vars['prescription']->quantity; ?>
+      <?php echo ((is_array($_tmp=$this->_tpl_vars['prescription']->quantity)) ? $this->_run_mod_handler('escape', true, $_tmp, 'html') : smarty_modifier_escape($_tmp, 'html')); ?>
  &nbsp;
     </td>
 	<?php else: ?>
 	<td id="<?php echo $this->_tpl_vars['prescription']->id; ?>
 ">
-      <?php echo $this->_tpl_vars['prescription']->quantity; ?>
+      <?php echo ((is_array($_tmp=$this->_tpl_vars['prescription']->quantity)) ? $this->_run_mod_handler('escape', true, $_tmp, 'html') : smarty_modifier_escape($_tmp, 'html')); ?>
  &nbsp;
     </td>
 	<?php endif; ?>
     <td id="<?php echo $this->_tpl_vars['prescription']->id; ?>
 ">
-       <?php echo $this->_tpl_vars['prescription']->get_size(); ?>
+       <?php echo ((is_array($_tmp=$this->_tpl_vars['prescription']->get_size())) ? $this->_run_mod_handler('escape', true, $_tmp, 'html') : smarty_modifier_escape($_tmp, 'html')); ?>
  <?php echo $this->_tpl_vars['prescription']->get_unit_display(); ?>
 &nbsp;
     </td>
