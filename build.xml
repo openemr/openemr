@@ -60,6 +60,7 @@
         <delete dir="${dir.vendor}/symfony/event-dispatcher/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/filesystem/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/http-foundation/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/process/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/yaml/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/twig/twig/doc" verbose="true"/>
         <delete dir="${dir.vendor}/twig/twig/test" verbose="true"/>
