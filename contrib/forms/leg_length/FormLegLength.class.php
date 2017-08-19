@@ -51,12 +51,16 @@ class FormLegLength extends ORDataObject
     var $UMB_left;
     var $UMB_right;
 
+    var $string;
+
     /**
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormLegLength($id = "", $_prefix = "")
+    function __construct($id = "", $_prefix = "")
     {
+        parent::__construct();
+
         if (is_numeric($id)) {
             $this->id = $id;
         } else {
@@ -80,13 +84,10 @@ class FormLegLength extends ORDataObject
 
     function toString($html = false)
     {
-        $string .= "\n"
-            ."ID: " . $this->id . "\n";
-
         if ($html) {
-            return nl2br($string);
+            return nl2br($this->string . "\n" . "ID: " . $this->id . "\n");
         } else {
-            return $string;
+            return $this->string . "\n" . "ID: " . $this->id . "\n";
         }
     }
     function set_id($id)
