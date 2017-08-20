@@ -63,6 +63,7 @@
 //   Spanish (Spain)                // xl('Spanish (Spain)')
 //   Swedish                        // xl('Swedish')
 //   Tamil                          // xl('Tamil')
+//   Thai                           // xl('Thai')
 //   Turkish                        // xl('Turkish')
 //   Ukrainian                      // xl('Ukrainian')
 //   Urdu                           // xl('Urdu')
