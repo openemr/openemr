@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "Automated OpenEMR 5.0.0 Configuration",
+  "Description" : "Automated OpenEMR 5.0.0.4 Configuration",
 
   "Parameters" : {
     "EC2KeyPair" : {
@@ -1361,7 +1361,7 @@
      "Properties" : {
        "ApplicationName" : { "Ref" : "EBApplication" },
         "Description" :  "OpenEMR v5.0.0 cloud deployment",
-        "SolutionStackName" : "64bit Amazon Linux 2017.03 v2.4.2 running PHP 7.0",
+        "SolutionStackName" : "64bit Amazon Linux 2017.03 v2.4.3 running PHP 7.0",
         "VersionLabel" : { "Ref" : "EBApplicationVersion" },
         "OptionSettings" : [
           {"Namespace" : "aws:autoscaling:launchconfiguration", "OptionName" : "SecurityGroups", "Value" : { "Ref" : "ApplicationSecurityGroup" }},
