@@ -1,10 +1,14 @@
 <?php
-// Copyright (C) 2009 Aron Racho <aron@mi-squared.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-
+/* FormHPI class
+ *
+ * @package OpenEMR
+ * @author Aron Racho <aron@mi-squared.com>
+ * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (C) 2009 Aron Racho <aron@mi-squared.com>
+ * @copyright Copyright (c) 2017 Stephen Waite <stephen.waite@cmsvt.com>
+ * @link https://github.com/openemr/openemr/tree/master
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 define("EVENT_VEHICLE", 1);
 define("EVENT_WORK_RELATED", 2);
@@ -16,19 +20,9 @@ define("EVENT_OTHER", 4);
  * class FormHpTjePrimary
  *
  */
+
 class FormHPI extends ORDataObject
 {
-
-    /**
-     *
-     * @access public
-     */
-
-
-    /**
-     *
-     * static
-     */
     var $id;
     var $date;
     var $pid;
@@ -45,13 +39,14 @@ class FormHPI extends ORDataObject
     var $factors;
     var $signs;
 
-
     /**
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormHPI($id = "", $_prefix = "")
+    function __construct($id = "", $_prefix = "")
     {
+        parent::__construct();
+
         if (is_numeric($id)) {
             $this->id = $id;
         } else {
@@ -67,39 +62,37 @@ class FormHPI extends ORDataObject
             //$this->date = $this->get_date();
         }
     }
+
     function populate()
     {
         parent::populate();
         //$this->temp_methods = parent::_load_enum("temp_locations",false);
     }
 
-    function toString($html = false)
+    function __toString()
     {
-        $string .= "\n"
-            ."ID: " . $this->id . "\n";
-
-        if ($html) {
-            return nl2br($string);
-        } else {
-            return $string;
-        }
+        return "ID: " . $this->id . "\n";
     }
+
     function set_id($id)
     {
         if (!empty($id) && is_numeric($id)) {
             $this->id = $id;
         }
     }
+
     function get_id()
     {
         return $this->id;
     }
+
     function set_pid($pid)
     {
         if (!empty($pid) && is_numeric($pid)) {
             $this->pid = $pid;
         }
     }
+
     function get_pid()
     {
         return $this->pid;
@@ -109,16 +102,19 @@ class FormHPI extends ORDataObject
     {
         return $this->date;
     }
+
     function set_date($dt)
     {
         if (!empty($dt)) {
             $this->date = $dt;
         }
     }
+
     function get_user()
     {
         return $this->user;
     }
+
     function set_user($u)
     {
         if (!empty($u)) {
@@ -132,6 +128,7 @@ class FormHPI extends ORDataObject
             $this->activity = $tf;
         }
     }
+
     function get_activity()
     {
         return $this->activity;
@@ -141,6 +138,7 @@ class FormHPI extends ORDataObject
     {
         return $this->complaint;
     }
+
     function set_complaint($data)
     {
         if (!empty($data)) {
@@ -152,6 +150,7 @@ class FormHPI extends ORDataObject
     {
         return $this->location;
     }
+
     function set_location($data)
     {
         if (!empty($data)) {
@@ -163,6 +162,7 @@ class FormHPI extends ORDataObject
     {
         return $this->quality;
     }
+
     function set_quality($data)
     {
         if (!empty($data)) {
@@ -174,6 +174,7 @@ class FormHPI extends ORDataObject
     {
         return $this->severity;
     }
+
     function set_severity($data)
     {
         if (!empty($data)) {
@@ -185,6 +186,7 @@ class FormHPI extends ORDataObject
     {
         return $this->duration;
     }
+
     function set_duration($data)
     {
         if (!empty($data)) {
@@ -196,6 +198,7 @@ class FormHPI extends ORDataObject
     {
         return $this->timing;
     }
+
     function set_timing($data)
     {
         if (!empty($data)) {
@@ -207,6 +210,7 @@ class FormHPI extends ORDataObject
     {
         return $this->context;
     }
+
     function set_context($data)
     {
         if (!empty($data)) {
@@ -218,6 +222,7 @@ class FormHPI extends ORDataObject
     {
         return $this->factors;
     }
+
     function set_factors($data)
     {
         if (!empty($data)) {
@@ -229,6 +234,7 @@ class FormHPI extends ORDataObject
     {
         return $this->signs;
     }
+
     function set_signs($data)
     {
         if (!empty($data)) {
