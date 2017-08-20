@@ -1,31 +1,31 @@
 <?php
-/**
- * Patient Tracker Status Editor
+/** 
+ * Patient Tracker Status Editor 
  *
  * This allows entry and editing of current status for the patient from within patient tracker and updates the status on the calendar.
  * Contains a drop down for the Room information driven by the list Patient Flow Board Rooms.
- *
- * Copyright (C) 2015-2017 Terry Hill <terry@lillysystems.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>.
- *
- * @package OpenEMR
- * @author Terry Hill <terry@lilysystems.com>
- * @link http://www.open-emr.org
- *
- *
- */
-
-
+ * 
+ * Copyright (C) 2015-2017 Terry Hill <teryhill@librehealth.io>
+ * 
+ * LICENSE: This program is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU General Public License 
+ * as published by the Free Software Foundation; either version 3 
+ * of the License, or (at your option) any later version. 
+ * This program is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+ * GNU General Public License for more details. 
+ * You should have received a copy of the GNU General Public License 
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;. 
+ * 
+ * @package OpenEMR 
+ * @author Terry Hill <terry@lilysystems.com> 
+ * @link http://www.open-emr.org 
+ *  
+ * Please help the overall project by sending changes you make to the author and to the OpenEMR community.
+ * 
+ */ 
+ 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/forms.inc");
@@ -101,17 +101,19 @@ require_once("$srcdir/patient_tracker.inc.php");
     <table>
     <h2><?php echo xlt('Change Status for'). " " . text($row['fname']) . " " . text($row['lname']); ?></h2>
 
-    <span class=text><?php  echo xlt('Status Type'); ?>: </span><br>
+    <span class=text><?php  echo xlt('Status Type'); ?>: </span><br> 
 <?php
     # Generate drop down list for status.
     echo generate_select_list('statustype', 'apptstat', $trow['laststatus'], xl('Status Type'));
 ?>
-    <br><br>
+
+    <br><br>   
     <span class=text><?php  echo xlt('Exam Room Number'); ?>: </span><br>
 <?php
     # Generate drop down list for room number.
-    echo generate_select_list('roomnum', 'patient_flow_board_rooms', $trow['lastroom'], xl('Exam Room Number'));
+    echo generate_select_list('roomnum', 'patient_flow_board_rooms',$trow['lastroom'], xl('Exam Room Number'));
 ?>
+           
 <br><br>
     <tr>
      <td>
@@ -121,7 +123,6 @@ require_once("$srcdir/patient_tracker.inc.php");
      </td>
     </tr>
     </table>
-    </td>
     </form>
     </center>
   </body>
