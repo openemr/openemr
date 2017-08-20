@@ -39,9 +39,6 @@ class FormNursingNotes extends ORDataObject
     var $procedures;
     var $discharge;
 
-    var $string;
-
-
     /**
      * Constructor sets all Form attributes to their default value
      */
@@ -73,24 +70,28 @@ class FormNursingNotes extends ORDataObject
 
     function __toString()
     {
-        return $this->string . "\n" . "ID: " . $this->id . "\n";
+        return "ID: " . $this->id . "\n";
     }
+
     function set_id($id)
     {
         if (!empty($id) && is_numeric($id)) {
             $this->id = $id;
         }
     }
+
     function get_id()
     {
         return $this->id;
     }
+
     function set_pid($pid)
     {
         if (!empty($pid) && is_numeric($pid)) {
             $this->pid = $pid;
         }
     }
+
     function get_pid()
     {
         return $this->pid;
@@ -100,16 +101,19 @@ class FormNursingNotes extends ORDataObject
     {
         return $this->date;
     }
+
     function set_date($dt)
     {
         if (!empty($dt)) {
             $this->date = $dt;
         }
     }
+
     function get_user()
     {
         return $this->user;
     }
+
     function set_user($u)
     {
         if (!empty($u)) {
@@ -123,6 +127,7 @@ class FormNursingNotes extends ORDataObject
             $this->activity = $tf;
         }
     }
+
     function get_activity()
     {
         return $this->activity;
@@ -132,6 +137,7 @@ class FormNursingNotes extends ORDataObject
     {
         return $this->assessment;
     }
+
     function set_assessment($data)
     {
         if (!empty($data)) {
@@ -143,6 +149,7 @@ class FormNursingNotes extends ORDataObject
     {
         return $this->procedures;
     }
+
     function set_procedures($data)
     {
         if (!empty($data)) {
@@ -154,6 +161,7 @@ class FormNursingNotes extends ORDataObject
     {
         return $this->discharge;
     }
+
     function set_discharge($data)
     {
         if (!empty($data)) {

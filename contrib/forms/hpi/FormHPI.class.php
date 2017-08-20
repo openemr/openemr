@@ -39,9 +39,6 @@ class FormHPI extends ORDataObject
     var $factors;
     var $signs;
 
-    // suppress phpstorm undefined variable warning
-    var $string = null;
-
     /**
      * Constructor sets all Form attributes to their default value
      */
@@ -72,9 +69,9 @@ class FormHPI extends ORDataObject
         //$this->temp_methods = parent::_load_enum("temp_locations",false);
     }
 
-    public function __toString()
+    function __toString()
     {
-        return $this->string . "\n" . "ID: " . $this->id . "\n";
+        return "ID: " . $this->id . "\n";
     }
 
     function set_id($id)
