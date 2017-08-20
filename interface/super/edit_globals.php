@@ -64,7 +64,7 @@ function checkCreateCDB()
         $couch = new CouchDB();
         if (!$couch->check_connection()) {
             echo "<script type='text/javascript'>alert('".addslashes(xl("CouchDB Connection Failed."))."');</script>";
-            return;
+            return false;
         }
 
         if ($GLOBALS['couchdb_host'] || $GLOBALS['couchdb_port'] || $GLOBALS['couchdb_dbase']) {
@@ -93,10 +93,10 @@ function updateBackgroundService($name, $active, $interval)
  * To prevent an unexpected service call during startup or shutdown, follow these rules:
  * 1. Any "startup" operations should occur _before_ the updateBackgroundService() call.
  * 2. Any "shutdown" operations should occur _after_ the updateBackgroundService() call. If these operations
- * would cause errors in a running service call, it would be best to make the shutdown function itself
+ * would cause errors in a running service call, it would be best to make the shutdown function itself is
  * a background service that is activated here, does nothing if active=1 or running=1 for the
- * parent service, then deactivates itself by setting active=0 when it is done shutting the parent service
- * down. This will prevent nonresponsiveness to the user by waiting for a service to finish.
+ * parent service.  Then it deactivates itself by setting active=0 when it is done shutting the parent service
+ * down. This will prevent non-responsiveness to the user by waiting for a service to finish.
  * 3. If any "previous" values for globals are required for startup/shutdown logic, they need to be
  * copied to a temp variable before the while($globalsrow...) loop.
  * @author EMR Direct
