@@ -7,7 +7,7 @@
 body {
     margin: 0px 0px 0px 2px;
     /* set the base font and size for all DOM children */
-    font-family: 'open sans', 'source_sans_pro','FontAwesome'!important; 
+    font-family: 'source_sans_pro','FontAwesome'; 
     content: "\f0c4";
 }
 
@@ -662,10 +662,17 @@ input[type="button"][style="background-color:#ffff55"] {
 }
 
 input[type="text"] {
-  background: #ffffff;
-  border: 1px solid #444444;
-  padding: 3px;
-  margin: 3px;
+    background: #fff;
+    border: 1px solid #444;
+    padding: 3px;
+    margin: 3px;
+    text-align: left;
+    display: inline-block;
+    border: 1px solid #CCC !important;
+    box-shadow: 0px 1px 3px #DDD inset;
+    border-radius: 4px;
+    box-sizing: border-box;
+    max-width: 90%;
 }
 
 #logout_link:before {
@@ -734,7 +741,7 @@ div.tabContainer {
 float: left;
 width: 100%;
 border-radius: 0px 8px 8px 8px;
-box-shadow: 2px 2px 2px #c0c0c0;
+box-shadow: 0px 0px 10px #f0f0f0;
 border: 1pt solid #c0c0c0;
 position:relative;
 z-index: 1;
@@ -1015,7 +1022,7 @@ div.summary_item div {
     background: -moz-linear-gradient(center top , #fefdcf,#fefdcf) repeat scroll 0% 0% transparent;
     background: none repeat scroll 0% 0% #fefdcf;
 }
-body dl {
+Xbody dl {
     background-color: #C9DBF2;
     border-bottom: 0.1pt solid black;
     -moz-box-shadow: 0 0 10px #000;
@@ -1023,6 +1030,7 @@ body dl {
     box-shadow: 0 0 10px #000;
     min-height: 0.5px;
 }
+
 
 #sddm li
 {   margin: 0;

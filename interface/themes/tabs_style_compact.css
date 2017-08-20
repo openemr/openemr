@@ -391,10 +391,7 @@ div.closeDlgIframe {
 .body_top {
     background-color: #C9DBF2;
     padding:0px;
-    border-bottom:0.1pt solid black;
-    -moz-box-shadow:    0 0 10px #000;
-    -webkit-box-shadow:  0 0 10px #000;
-    box-shadow:          0 0 10px #000;
+    box-shadow:0 0 10px #939393;
     z-index:10;
 }
 .body_title {

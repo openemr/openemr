@@ -748,9 +748,21 @@ class Display extends base
     public function navigation($logged_in)
     {
         ?>
-        <nav class="bgcolor2 navbar-fixed-top navbar-custom navbar-bright navbar-inner" data-role="page banner navigation">
+        <script>
+        function toggle_menu() {
+            if ($("#navbar_oe").css('visibility') == 'hidden') {
+                $("#navbar_oe").css('visibility','visible');
+            } else {
+                $("#navbar_oe").css('visibility','hidden');
+            }
+            $("#patient_caret").toggleClass('fa-caret-left').toggleClass('fa-caret-right');
+        }
+        </script>
+        <i class="fa fa-caret-left menu_arrow" style="position:absolute;left:5px;top:5px;z-index:1001;" id="patient_caret" onclick='toggle_menu();' aria-hidden="true"></i>
+               
+        <nav id="navbar_oe" class="bgcolor2 navbar-fixed-top navbar-custom navbar-bright navbar-inner" data-role="page banner navigation">
             <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="container-fluid">
+                <div class="container-fluid">
                 <div class="navbar-header brand">
                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#oer-navbar-collapse-1">
                         <span class="sr-only"><?php echo xlt("Toggle navigation"); ?></span>
@@ -758,8 +770,6 @@ class Display extends base
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    &nbsp;
-                    <img src="<?php echo $GLOBALS['webroot']; ?>/sites/default/images/login_logo.gif" class="little_image">
                 </div>
                 <div class="navbar-collapse collapse" id="oer-navbar-collapse-1">
                     <ul class="navbar-nav">
