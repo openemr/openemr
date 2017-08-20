@@ -64,7 +64,7 @@ function checkCreateCDB()
         $couch = new CouchDB();
         if (!$couch->check_connection()) {
             echo "<script type='text/javascript'>alert('".addslashes(xl("CouchDB Connection Failed."))."');</script>";
-            return true;
+            return false;
         }
 
         if ($GLOBALS['couchdb_host'] || $GLOBALS['couchdb_port'] || $GLOBALS['couchdb_dbase']) {
