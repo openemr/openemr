@@ -352,7 +352,6 @@ class pnHTML
         } else {
             $this->output .= $output;
         }
-     return true;
     }
 
     /**

@@ -69,7 +69,6 @@ class FormROM extends ORDataObject
     function __toString()
     {
         return "ID: " . $this->id . "\n";
-
     }
     function set_id($id)
     {

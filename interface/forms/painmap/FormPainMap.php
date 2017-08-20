@@ -35,7 +35,7 @@ class FormPainMap extends AbstractClickmapModel
         parent::__construct();
         parent::AbstractClickmapModel(FormPainMap::$TABLE_NAME, $id);
     }
-    
+
     /**
      * @brief Return the Title of the form, Useful when calling addform().
      */
