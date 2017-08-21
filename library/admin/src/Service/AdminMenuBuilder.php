@@ -39,20 +39,16 @@ class AdminMenuBuilder
     {
         global $GLOBALS_METADATA;
         global $USER_SPECIFIC_TABS;
-        $i = 0;
         $menuList = [];
         foreach ($GLOBALS_METADATA as $name => $arr) {
             if (!$userMode || in_array($name, $USER_SPECIFIC_TABS)) {
                 $id = strtolower(str_replace(' ', '_', $name));
                 $text = xlt($name);
-                $current = $i ? false : "active";
                 $menuList["{$id}"] = [
                     'text' => $text,
-                    'current' => $current,
                     'id' => $id,
                     'href' => "#{$id}",
                 ];
-                $i++;
             }
         }
         return $menuList;
@@ -75,6 +71,7 @@ class AdminMenuBuilder
             $text[$key] = $row['text'];
         }
         array_multisort($text, $newMenu);
+        $newMenu[0]['current'] = 'active';
 
         return $newMenu;
     }

@@ -3,7 +3,7 @@
   -->
 <ul class="nav nav-pills nav-stacked" role="tablist">
     {% for item in menuList %}
-    <li role="presentation" class="{{ item.current }}">
+    <li role="presentation">
         <a href="{{ item.href }}" role="tab" {{ item.attributes|raw }}>{{ item.text }}</a>
     </li>
     {% endfor %}

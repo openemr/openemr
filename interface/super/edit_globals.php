@@ -11,7 +11,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/acl.inc");
@@ -20,149 +19,50 @@ require_once("$srcdir/user.inc");
 require_once(dirname(__FILE__)."/../../myportal/soap_service/portal_connectivity.php");
 
 use OpenEMR\Admin\Service\AdminMenuBuilder;
+use OpenEMR\Admin\Service\Globals;
 use OpenEMR\Core\Header;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\Request;
 
-$userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');
+$globalsService = new Globals($GLOBALS, new Filesystem());
+
+global $GLOBALS_METADATA;
+global $USER_SPECIFIC_TABS;
+global $USER_SPECIFIC_GLOBALS;
+
+$r = Request::createFromGlobals();
+$userMode = ($r->query->get('mode') === 'user') ? true : false;
 
 if (!$userMode) {
-  // Check authorization.
-    $thisauth = acl_check('admin', 'super');
-    if (!$thisauth) {
+    if (!acl_check('admin', 'super')) {
         die(xlt('Not authorized'));
     }
 }
 
-function checkCreateCDB()
-{
-    $globalsres = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN
-  ('couchdb_host','couchdb_user','couchdb_pass','couchdb_port','couchdb_dbase','document_storage_method')");
-    $options = array();
-    while ($globalsrow = sqlFetchArray($globalsres)) {
-        $GLOBALS[$globalsrow['gl_name']] = $globalsrow['gl_value'];
-    }
-
-    $directory_created = false;
-    if (!empty($GLOBALS['document_storage_method'])) {
-        // /documents/temp/ folder is required for CouchDB
-        if (!is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/temp/')) {
-            $directory_created = mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/temp/', 0777, true);
-            if (!$directory_created) {
-                echo xlt("Failed to create temporary folder. CouchDB will not work.");
-            }
-        }
-
-        $couch = new CouchDB();
-        if (!$couch->check_connection()) {
-            echo "<script type='text/javascript'>alert('" . xls("CouchDB Connection Failed.") . "');</script>";
-            return;
-        }
-
-        if ($GLOBALS['couchdb_host'] || $GLOBALS['couchdb_port'] || $GLOBALS['couchdb_dbase']) {
-            $couch->createDB($GLOBALS['couchdb_dbase']);
-            $couch->createView($GLOBALS['couchdb_dbase']);
-        }
-    }
-
-    return true;
-}
-
-/**
- * Update background_services table for a specific service following globals save.
- * @author EMR Direct
- */
-function updateBackgroundService($name, $active, $interval)
-{
-   //order important here: next_run change dependent on _old_ value of execute_interval so it comes first
-    $sql = 'UPDATE background_services SET active=?, '
-    . 'next_run = next_run + INTERVAL (? - execute_interval) MINUTE, execute_interval=? WHERE name=?';
-    return sqlStatement($sql, array($active,$interval,$interval,$name));
-}
-
-/**
- * Make any necessary changes to background_services table when globals are saved.
- * To prevent an unexpected service call during startup or shutdown, follow these rules:
- * 1. Any "startup" operations should occur _before_ the updateBackgroundService() call.
- * 2. Any "shutdown" operations should occur _after_ the updateBackgroundService() call. If these operations
- * would cause errors in a running service call, it would be best to make the shutdown function itself
- * a background service that is activated here, does nothing if active=1 or running=1 for the
- * parent service, then deactivates itself by setting active=0 when it is done shutting the parent service
- * down. This will prevent nonresponsiveness to the user by waiting for a service to finish.
- * 3. If any "previous" values for globals are required for startup/shutdown logic, they need to be
- * copied to a temp variable before the while($globalsrow...) loop.
- * @author EMR Direct
- */
-function checkBackgroundServices()
-{
-  //load up any necessary globals
-    $bgservices = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN
-  ('phimail_enable','phimail_interval')");
-    while ($globalsrow = sqlFetchArray($bgservices)) {
-        $GLOBALS[$globalsrow['gl_name']] = $globalsrow['gl_value'];
-    }
-
-  //Set up phimail service
-    $phimail_active = empty($GLOBALS['phimail_enable']) ? '0' : '1';
-    $phimail_interval = max(0, (int) $GLOBALS['phimail_interval']);
-    updateBackgroundService('phimail', $phimail_active, $phimail_interval);
-}
-function handleAltServices($this_serviceid, $gln = '', $sinterval = 1)
-{
-    $bgservices = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name = ?", array($gln));
-    while ($globalsrow = sqlFetchArray($bgservices)) {
-        $GLOBALS[$globalsrow['gl_name']] = $globalsrow['gl_value'];
-    }
-
-    $bs_active = empty($GLOBALS[$gln]) ? '0' : '1';
-    $bs_interval = max(0, (int) $sinterval);
-    updateBackgroundService($this_serviceid, $bs_active, $bs_interval);
-    if (!$bs_active && $this_serviceid == 'ccdaservice') {
-        require_once(dirname(__FILE__)."/../../ccdaservice/ssmanager.php");
-
-        service_shutdown(0);
-    }
-}
+$pageTitle = ($userMode) ? xlt("User Settings") : xlt("Global Settings");
+$formAction = ($userMode) ? "?mode=user" : "";
 ?>
-
+<!DOCTYPE html>
 <html>
-
 <head>
 <?php
-
 // If we are saving user_specific globals.
-//
-if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
-    $i = 0;
-    foreach ($GLOBALS_METADATA as $grpname => $grparr) {
-        if (in_array($grpname, $USER_SPECIFIC_TABS)) {
-            foreach ($grparr as $fldid => $fldarr) {
-                if (in_array($fldid, $USER_SPECIFIC_GLOBALS)) {
-                    list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-                    $label = "global:".$fldid;
-                    $fldvalue = trim($_POST["form_$i"]);
-                    setUserSetting($label, $fldvalue, $_SESSION['authId'], false);
-                    if ($_POST["toggle_$i"] == "YES") {
-                        removeUserSetting($label);
-                    }
-
-                    ++$i;
-                }
-            }
-        }
+if ($userMode && $r->isMethod('post')):
+    $globalsService->saveUserSettings($r, $GLOBALS_METADATA, $USER_SPECIFIC_TABS, $USER_SPECIFIC_TABS);
+?>
+<script type='text/javascript'>
+if (parent.left_nav.location) {
+    parent.left_nav.location.reload();
+    parent.Title.location.reload();
+    if (self.name == 'RTop') {
+        parent.RBot.location.reload();
+    } else {
+        parent.RTop.location.reload();
     }
-
-    echo "<script type='text/javascript'>";
-    echo "if (parent.left_nav.location) {";
-    echo "  parent.left_nav.location.reload();";
-    echo "  parent.Title.location.reload();";
-    echo "  if(self.name=='RTop'){";
-    echo "  parent.RBot.location.reload();";
-    echo "  }else{";
-    echo "  parent.RTop.location.reload();";
-    echo "  }";
-    echo "}";
-    echo "self.location.href='edit_globals.php?mode=user&unique=yes';";
-    echo "</script>";
 }
+self.location.href = 'edit_globals.php?mode=user&unique=yes';
+</script>
+<?php endif;
 
 if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
     $client = portal_connection();
@@ -202,197 +102,46 @@ if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
         <?php
     }
 }
-?>
-
-<?php
 
 // If we are saving main globals.
-//
-if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) {
-    $force_off_enable_auditlog_encryption = true;
-  // Need to force enable_auditlog_encryption off if the php mycrypt module
-  // is not installed.
-    if (extension_loaded('mcrypt')) {
-        $force_off_enable_auditlog_encryption = false;
+if (!$userMode && $r->isMethod('post')) :
+    $globalsService->saveGlobalSettings($r, $GLOBALS_METADATA);
+    ?>
+<script type='text/javascript'>
+if (parent.left_nav.location) {
+    parent.left_nav.location.reload();
+    parent.Title.location.reload();
+    if (self.name == 'RTop') {
+        parent.RBot.location.reload();
+    } else {
+        parent.RTop.location.reload();
     }
-
-  // Aug 22, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
-  // Check the current status of Audit Logging
-    $auditLogStatusFieldOld = $GLOBALS['enable_auditlog'];
-
-  /*
-   * Compare form values with old database values.
-   * Only save if values differ. Improves speed.
-   */
-
-  // Get all the globals from DB
-    $old_globals = sqlGetAssoc('SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index', false, true);
-
-    $i = 0;
-    foreach ($GLOBALS_METADATA as $grpname => $grparr) {
-        foreach ($grparr as $fldid => $fldarr) {
-            list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-            if ($fldtype == 'pwd') {
-                $pass = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = ?", array($fldid));
-                $fldvalueold = $pass['gl_value'];
-            }
-
-            /* Multiple choice fields - do not compare , overwrite */
-            if (!is_array($fldtype) && substr($fldtype, 0, 2) == 'm_') {
-                if (isset($_POST["form_$i"])) {
-                    $fldindex = 0;
-
-                    sqlStatement("DELETE FROM globals WHERE gl_name = ?", array( $fldid ));
-
-                    foreach ($_POST["form_$i"] as $fldvalue) {
-                        $fldvalue = trim($fldvalue);
-                        sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?,?,?)', array( $fldid, $fldindex, $fldvalue ));
-                        ++$fldindex;
-                    }
-                }
-            } else {
-                /* check value of single field. Don't update if the database holds the same value */
-                if (isset($_POST["form_$i"])) {
-                    $fldvalue = trim($_POST["form_$i"]);
-                } else {
-                    $fldvalue = "";
-                }
-
-                if ($fldtype=='pwd') {
-                    $fldvalue = $fldvalue ? SHA1($fldvalue) : $fldvalueold; // TODO: salted passwords?
-                }
-
-                // We rely on the fact that set of keys in globals.inc === set of keys in `globals`  table!
-
-                if (!isset($old_globals[$fldid]) // if the key not found in database - update database
-                    ||
-                   ( isset($old_globals[$fldid]) && $old_globals[ $fldid ]['gl_value'] !== $fldvalue ) // if the value in database is different
-                ) {
-                      // Need to force enable_auditlog_encryption off if the php mcrypt module
-                      // is not installed.
-                    if ($force_off_enable_auditlog_encryption && ($fldid  == "enable_auditlog_encryption")) {
-                          error_log("OPENEMR ERROR: UNABLE to support auditlog encryption since the php mcrypt module is not installed", 0);
-                          $fldvalue=0;
-                    }
-
-                      // special treatment for some vars
-                    switch ($fldid) {
-                        case 'first_day_week':
-                            // update PostCalendar config as well
-                            sqlStatement("UPDATE openemr_module_vars SET pn_value = ? WHERE pn_name = 'pcFirstDayOfWeek'", array($fldvalue));
-                            break;
-                    }
-
-                      // Replace old values
-                      sqlStatement('DELETE FROM `globals` WHERE gl_name = ?', array( $fldid ));
-                      sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?, ?, ? )', array( $fldid, 0, $fldvalue ));
-                } else {
-                    //error_log("No need to update $fldid");
-                }
-            }
-
-            ++$i;
-        }
-    }
-
-    checkCreateCDB();
-    checkBackgroundServices();
-    handleAltServices('ccdaservice', 'ccda_alt_service_enable', 1);
-
-  // July 1, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
-  // If Audit Logging status has changed, log it.
-    $auditLogStatusNew = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'enable_auditlog'");
-    $auditLogStatusFieldNew = $auditLogStatusNew['gl_value'];
-    if ($auditLogStatusFieldOld != $auditLogStatusFieldNew) {
-         auditSQLAuditTamper($auditLogStatusFieldNew);
-    }
-
-    echo "<script type='text/javascript'>";
-    echo "if (parent.left_nav.location) {";
-    echo "  parent.left_nav.location.reload();";
-    echo "  parent.Title.location.reload();";
-    echo "  if(self.name=='RTop'){";
-    echo "  parent.RBot.location.reload();";
-    echo "  }else{";
-    echo "  parent.RTop.location.reload();";
-    echo "  }";
-    echo "}";
-    echo "self.location.href='edit_globals.php?unique=yes';";
-    echo "</script>";
 }
-?>
-
-<?php if ($userMode) { ?>
-  <title><?php  echo xlt('User Settings'); ?></title>
-<?php } else { ?>
-  <title><?php echo xlt('Global Settings'); ?></title>
-<?php } ?>
-
-<?php Header::setupHeader(['common','jscolor', 'bootstrap-sidebar']); ?>
+self.location.href='edit_globals.php?unique=yes';
+</script>
+<?php endif; ?>
+    <title><?php echo $pageTitle; ?></title>
+    <?php Header::setupHeader(['common', 'jscolor', 'bootstrap-sidebar']); ?>
     <style type="text/css">
         button {
             float: none;
         }
     </style>
-<script type="text/javascript">
-    $(document).ready(function(){
-        $(".sidebar").on('click', 'a', function(e) {
-//            console.log($(this).data('target'));
-//            var target = $(this).attr('href');
-//            $(target).tab('show');
-        });
-        $("#link-save-changes").on('click', function(e){
-            $("#theform").trigger("submit");
-        });
-    });
-  function validate_file(){
-    $.ajax({
-      type: "POST",
-      url: "<?php echo $GLOBALS['webroot']?>/library/ajax/offsite_portal_ajax.php",
-      data: {
-        action: 'check_file'
-      },
-      cache: false,
-      success: function( message )
-      {
-    if(message == 'OK'){
-      document.getElementById('form_download').value = 1;
-      document.getElementById('file_error_message').innerHTML = '';
-      document.forms[0].submit();
-    }
-    else{
-      document.getElementById('form_download').value = 0;
-      document.getElementById('file_error_message').innerHTML = message;
-      return false;
-    }
-      }
-    });
-  }
-</script>
 </head>
-
-<?php if ($userMode) { ?>
-    <body class="body_top" style="min-width: 700px;">
-<?php } else { ?>
-    <div class="body_top">
-<?php } ?>
+<body class="body_top">
 <div class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle visible-xs" data-toggle="sidebar" data-target=".sidebar" style="float: left;">
-                <span class="sr-only"><?php echo xl("Toggle Navigation");?></span>
+                <span class="sr-only"><?php echo xlt("Toggle Navigation");?></span>
                 <i class="fa fa-bars"></i>
             </button>
             <button type="button" class="navbar-toggle visible-xs" data-toggle="sidebar" data-target="main-navbar">
-                <span class="sr-only"><?php echo xl("Toggle Navigation");?>s</span>
+                <span class="sr-only"><?php echo xlt("Toggle Navigation");?></span>
                 <i class="fa fa-bars fa-inverted"></i>
             </button>
             <a href="#" class="navbar-brand">
-                <?php if ($userMode) { ?>
-                    <?php echo xlt('Edit User Settings'); ?>
-                <?php } else { ?>
-                    <?php echo xlt('Edit Global Settings'); ?>
-                <?php } ?>
+                <?php echo ($userMode) ? xlt("Edit User Settings") : "Edit Global Settings"; ?>
             </a>
         </div>
 
@@ -400,40 +149,65 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
             <ul class="nav navbar-nav">
                 <li><a href="#" id="link-save-changes"><i class="fa fa-check"></i>&nbsp;&nbsp;<?php echo xlt("Save");?></a></li>
             </ul>
-            <form class="navbar-form navbar-right">
+            <form class="navbar-form navbar-right" action="edit_globals.php<?php echo $formAction ?>" id="searchform" name="searchform" onsubmit="return top.restoreSession()">
                 <div class="form-group">
-                    <input type="text" class="form-control" name='srch_desc' value='<?php echo (!empty($_POST['srch_desc']) ? attr($_POST['srch_desc']) : '') ?>'>
+                    <input type="text" class="form-control" name='srch_desc' placeholder="<?php echo xla("Search for option");?>..." value='<?php echo (!empty($_POST['srch_desc']) ? attr($_POST['srch_desc']) : '') ?>'>
                 </div>
-                <button type='submit' class='btn btn-default' name='form_search'><i class="fa fa-search"></i></button>
+                <button type='submit' class='btn btn-default' name='form_search'>&nbsp;<i class="fa fa-search"></i>&nbsp;</button>
             </form>
         </div>
     </div>
 </div>
-        <?php $formAction = ($userMode) ? "?mode=user" : ""; ?>
-        <form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php<?php echo $formAction;?>' onsubmit='return top.restoreSession()'>
 <?php
 /** @var AdminMenuBuilder $menuBuilder */
 $menuBuilder = $GLOBALS['kernel']->getContainer()->get('admin.admin_menu_builder');
 $base = $menuBuilder->buildMenuFromGlobalsMetadataBridge($userMode);
 $menuList = $menuBuilder->generateMainMenu($base);
-$theMenu = $menuBuilder->renderMenu($menuList);
 ?>
+<style type="text/css">
+.vcenter {
+    min-height: 100%;
+    min-height: 80vh;
 
+    display: flex;
+    align-items: center;
+}
+</style>
 <div class="container-fluid" style="margin-top: 50px;">
+<form method='post' name='theform' id='theform' class='form-horizontal'
+      action='edit_globals.php<?php echo $formAction; ?>'
+      onsubmit='return top.restoreSession()'>
     <div class="row">
-    <div class="col-xs-7 col-sm-3 col-md-2 sidebar sidebar-left sidebar-sm-show">
-        <?php echo $theMenu; ?>
-    </div>
+        <div class="col-xs-7 col-sm-3 col-md-2 sidebar sidebar-left sidebar-sm-show">
+            <?php echo $menuBuilder->renderMenu($menuList); ?>
+        </div>
     <div class="col-xs-12 col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
         <div class="tab-content">
+            <div class="tab-pane active" role="tabpanel" id="initial">
+                <div class="container">
+                    <div class="row vcenter">
+                        <div class="col-xs-12 text-center">
+                            <i class="fa fa-cogs fa-5x"></i>
+                            <br>
+                            <h3><?php echo xlt("Global Settings"); ?></h3>
+                            <br>
+                            <button type="submit">Submit</button>
+                            <br>
+                            <?php
+                            var_dump($r->getMethod());
+                            var_dump($r->request->all());
+                            ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <?php
             $i = 0;
             foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                 if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
                     $id = strtolower(str_replace(' ', '_', $grpname));
-                    $active = ($i == 0) ? 'active' : '';
                     ?>
-                    <div class="tab-pane <?php echo $active;?>" role="tabpanel" id="<?php echo $id;?>">
+                    <div class="tab-pane" role="tabpanel" id="<?php echo $id;?>">
                         <div class="page-header">
                             <h3><?php echo xlt($grpname);?></h3>
                         </div>
@@ -451,7 +225,6 @@ $theMenu = $menuBuilder->renderMenu($menuList);
                     foreach ($grparr as $fldid => $fldarr) {
                         if (!$userMode || in_array($fldid, $USER_SPECIFIC_GLOBALS)) {
                             list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-                            // mdsupport - Check for matches
                             $srch_cl = '';
                             if (!empty($_POST['srch_desc']) && (stristr(($fldname.$flddesc), $_POST['srch_desc']) !== false)) {
                                 $srch_cl = ' srch';
@@ -480,6 +253,9 @@ $theMenu = $menuBuilder->renderMenu($menuList);
                                     $fldvalue = $userSetting;
                                     $settingDefault = "";
                                 }
+                            } else {
+                                $globalValue = "";
+                                $globalTitle = "";
                             }
 
                             if ($userMode) {
@@ -499,8 +275,9 @@ $theMenu = $menuBuilder->renderMenu($menuList);
 
                                     echo "   <option value='" . attr($key) . "'";
 
-                                    //Casting value to string so the comparison will be always the same type and the only thing that will check is the value
-                                    //Tried to use === but it will fail in already existing variables
+                                    // Casting value to string so the comparison will be always the same
+                                    // type and the only thing that will check is the value.
+                                    // Tried to use === but it will fail in already existing variables
                                     if ((string)$key == (string)$fldvalue) {
                                         echo " selected";
                                     }
@@ -585,7 +362,8 @@ $theMenu = $menuBuilder->renderMenu($menuList);
 
                                 echo "  </select>\n";
                             } else if ($fldtype == 'm_lang') {
-                                $res = sqlStatement("SELECT * FROM lang_languages  ORDER BY lang_description");
+                                $sql = "SELECT * FROM lang_languages ORDER BY lang_description";
+                                $res = sqlStatement($sql);
                                 echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='3'>\n";
                                 while ($row = sqlFetchArray($res)) {
                                     echo "   <option value='" . attr($row['lang_description']) . "'";
@@ -628,7 +406,7 @@ $theMenu = $menuBuilder->renderMenu($menuList);
                                         continue;
                                     }
 
-                                    $optionStr = '<option value="%pc_catid%"%selected%>%pc_catname%</option>';
+                                    $optionStr = '<option value="%pc_catid%" %selected%>%pc_catname%</option>';
                                     $optionStr = str_replace("%pc_catid%", attr($catId), $optionStr);
                                     $optionStr = str_replace("%pc_catname%", text(xl_appt_category($name)), $optionStr);
                                     $selected = ($fldvalue == $catId) ? " selected" : "";
@@ -764,35 +542,31 @@ $theMenu = $menuBuilder->renderMenu($menuList);
                 $i++;
             }
             ?>
-                        <div class="tab-pane" role="tabpanel" id="hookedDetail">
-                            <div class="page-header"></div>
-                            <div class="detailPlaceholder"></div>
-                        </div>
+            <div class="tab-pane" role="tabpanel" id="hookedDetail">
+                <div class="page-header"></div>
+                <div class="detailPlaceholder"></div>
+            </div>
         </div>
     </div>
     </div>
 </div>
 </form>
-</div>
+</body>
 </body>
 
 <script type="text/javascript">
 $(document).ready(function(){
-    // mdsupport - Highlight search results
     $('.srch div').wrapInner("<mark></mark>");
-    $('.tab > .container').find('div.srch:first').each(function () {
+    $('.tab-pane .row.srch :first-child').find('div.srch:first').each(function () {
         var srch_div = $(this).closest('div').prevAll().length + 1;
-        $('.tabNav > li:nth-child(' + srch_div + ') a').wrapInner("<mark></mark>");
+        $('.nav-pills > li:nth-child(' + srch_div + ') a').wrapInner("<mark></mark>");
     });
-    // @TODO RD 2017-08-23 Need to handle the hooked linked items
     $(".sidebar ul li a").on('click', function(e) {
         e.preventDefault();
-        console.log('here');
         var link = $(e.target);
         var href = link.attr('href');
-//        $(this).attr('href', '#hookedDetail');
         var $this = $(this);
-        if (href[0] == "#") {
+        if (href[0] === "#") {
             $(this).tab('show');
         } else {
             $.get(href, function(res) {
@@ -801,23 +575,49 @@ $(document).ready(function(){
             });
         }
     });
+    $("#link-save-changes").on('click', function(e) {
+        $("#theform").submit();
+    });
     // Use the counter ($i) to make the form user friendly for user-specific globals use
     <?php if ($userMode): ?>
-    <?php for ($j = 0; $j <= $i; $j++): ?>
-    $("#form_<?php echo $j ?>").change(function () {
-        $("#toggle_<?php echo $j ?>").prop('checked', false);
-    });
-    $("#toggle_<?php echo $j ?>").change(function () {
-        if ($('#toggle_<?php echo $j ?>').prop('checked')) {
-            var defaultGlobal = $("#globaldefault_<?php echo $j ?>").val();
-            $("#form_<?php echo $j ?>").val(defaultGlobal);
-        }
-    });
-    <?php
+        <?php for ($j = 0; $j <= $i; $j++): ?>
+            $("#form_<?php echo $j ?>").change(function () {
+                $("#toggle_<?php echo $j ?>").prop('checked', false);
+            });
+            $("#toggle_<?php echo $j ?>").change(function () {
+                if ($('#toggle_<?php echo $j ?>').prop('checked')) {
+                    var defaultGlobal = $("#globaldefault_<?php echo $j ?>").val();
+                    $("#form_<?php echo $j ?>").val(defaultGlobal);
+                }
+            });
+        <?php
         endfor;
     endif;
     ?>
 });
+function validate_file(){
+    $.ajax({
+        type: "POST",
+        url: "<?php echo $GLOBALS['webroot']?>/library/ajax/offsite_portal_ajax.php",
+        data: {
+            action: 'check_file'
+        },
+        cache: false,
+        success: function( message )
+        {
+            if(message == 'OK'){
+                document.getElementById('form_download').value = 1;
+                document.getElementById('file_error_message').innerHTML = '';
+                document.forms[0].submit();
+            }
+            else{
+                document.getElementById('form_download').value = 0;
+                document.getElementById('file_error_message').innerHTML = message;
+                return false;
+            }
+        }
+    });
+}
 </script>
 </html>
 
