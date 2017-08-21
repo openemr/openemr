@@ -113,15 +113,8 @@ if ($GLOBALS['self_checkin_enable']==1) {
 
 
 <?php
-
-
 } // end 'if enabled?' if statement
-
 else {
-
-
     echo "This feature is not enabled.";
-
 }
-
 ?>
