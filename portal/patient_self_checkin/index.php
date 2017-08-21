@@ -7,11 +7,13 @@
  * in the Patient Flow Board.
  * The purpose of this program is to free up time for front desk staff.
  *
+ * @category  Portal
  * @package   OpenEMR
- * @link      http://www.open-emr.org
  * @author    Alfie Carlisle <asc@carlisles.co>
  * @copyright Copyright (c) 2017 Alfie Carlisle <asc@carlisles.co>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @link      http://www.open-emr.org
+
  */
 
 

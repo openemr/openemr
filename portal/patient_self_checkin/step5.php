@@ -1,3 +1,5 @@
+<?php require_once "../../interface/globals.php"; ?>
+
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
@@ -40,7 +42,7 @@ p {
 }
 
 </style>
-<?php require_once "../../interface/globals.php"; ?>
+
 <p><img style="text-align: center" width="500px" src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png'/></p>
 <!-- <img align="center" src="physician-icon-png-15318.png" width="100"><br> -->
 
