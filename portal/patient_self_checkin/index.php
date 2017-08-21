@@ -3,8 +3,8 @@
  * Patient Self Check in
  *
  * This program allows patients to check themselves in using a touchscreen or similar device in the doctors' practice.
- * Doing so, they are marked as arrived (code @) on the calendar module of the clinician's screen and are also marked as present
- * in the Patient Flow Board.
+ * Doing so, they are marked as arrived (code @) on the calendar module of the clinician's screen and are also marked
+ * as present in the Patient Flow Board.
  * The purpose of this program is to free up time for front desk staff.
  *
  * @category  Portal
@@ -13,28 +13,34 @@
  * @copyright Copyright (c) 2017 Alfie Carlisle <asc@carlisles.co>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  * @link      http://www.open-emr.org
-
  */
 
 
 require_once "../../interface/globals.php";
 require_once $GLOBALS['srcdir'].'/sql.inc';
-
 if ($GLOBALS['self_checkin_enable']==1) {
-
 ?>
 
 <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+      crossorigin="anonymous">
 
 <!-- Optional theme -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+      integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
+      crossorigin="anonymous">
 
 <!-- Latest compiled and minified JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
 
 <div id="welcomeText">
-<p><img style="text-align: center" width="500px" src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png'/></p>
+<p>
+    <img style="text-align: center" width="500px"
+        src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png'/>
+</p>
 
 <h1>Welcome to Self Check In</h1>
 <h1>Touch your sex to begin</h1>
@@ -43,7 +49,7 @@ if ($GLOBALS['self_checkin_enable']==1) {
 </div>
 
 <style type="text/css">
-  
+
   #welcomeText {
 
     text-align: center;
@@ -77,8 +83,20 @@ if ($GLOBALS['self_checkin_enable']==1) {
 </style>
 
 <div class="row">
-  <div class="col-sm-6"><a href="step2.php?sex=Male" style="width: 400px; height: 300px;" class="btn btn-lg btn-default">Male<br><br><img height="200px" src="male.png"></a></div>
-  <div class="col-sm-6"><a href="step2.php?sex=Female" style="width: 400px; height: 300px;" class="btn btn-lg btn-default">Female<br><br><img height="200px" src="female.png"></a></div>
+  <div class="col-sm-6"><a href="step2.php?sex=Male"
+                           style="width: 400px;
+                           height: 300px;"
+                           class="btn btn-lg btn-default">Male
+          <br><br>
+          <img height="200px" src="male.png">
+      </a>
+  </div>
+  <div class="col-sm-6"><a href="step2.php?sex=Female"
+                           style="width: 400px;
+                           height: 300px;"
+                           class="btn btn-lg btn-default">Female<br><br>
+          <img height="200px" src="female.png"></a>
+  </div>
 </div>
 
 <!--
@@ -96,33 +114,6 @@ if ($GLOBALS['self_checkin_enable']==1) {
 
 <?php
 
-// $date = date("y-m-d");
-
-// require 'mySQL_connector.php';
-
-// $sql = "SELECT * FROM openemr_postcalendar_events WHERE pc_eventDate = '". $date ."' and pc_pid REGEXP '^[0-9]+$' and pc_apptstatus = '-';";
-// $result = $dbc->query($sql);
-
-// if ($result->num_rows > 0) {
-//     // output data of each row
-
-//     while($row = $result->fetch_assoc()) {
-        
-//         $uid = $row['pc_pid'];
-//         $nameMatchSQL = "SELECT * FROM patient_data where id = '.$uid.'";
-//         $patientNames = mysqli_fetch_assoc(mysqli_query($dbc, $nameMatchSQL));
-
-//          echo "<tr>
-//     	<td>" . $patientNames["fname"] . "</td>
-//     	<td>" . $patientNames["lname"] . "</td>
-//     	<td>" . "<a href='checkin.php?id=" . $patientNames["id"] . "'>Check In</a>". "</td>
-//     </tr>";
-
-
-//     }
-// } 
-
-// echo "</table>";
 
 } // end 'if enabled?' if statement
 
