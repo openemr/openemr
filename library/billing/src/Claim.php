@@ -390,7 +390,7 @@ class Claim
                     } else if (preg_match('/Ins(\d)/i', $rsn, $tmp) && $tmp[1] != $insnumber) {
                         continue; // it's for some other payer
                     } else if ($insnumber == '1') {
-                        if (preg_match("/\$\s*adjust code (\S+)/i", $rsn, $tmp)) {
+                        if (preg_match("/Adjust code (\S+)/i", $rsn, $tmp)) {
                             $rcode = $tmp[1]; // from 835
                         } else if ($chg) {
                             // Other adjustments default to Ins1.
