@@ -40,7 +40,7 @@ p {
 }
 
 </style>
-<?php require_once("../../interface/globals.php"); ?>
+<?php require_once "../../interface/globals.php"; ?>
 <p><img style="text-align: center" width="500px" src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png'/></p>
 <!-- <img align="center" src="physician-icon-png-15318.png" width="100"><br> -->
 
@@ -91,10 +91,10 @@ AND id IN (".$implodedArray.")";
 
 $patient_id = mysqli_fetch_array(mysqli_query($dbc, $PIDQuery));
 
-if ($patient_id==NULL) {
+if ($patient_id==null) {
 
 
-	echo '
+    echo '
 	<p><img src="cross.png" width=100px></p>
 	<br>
 	<h1>Sorry. We could not find you in the database, please go to the reception desk to check in.</h1>';
@@ -105,7 +105,7 @@ if ($patient_id==NULL) {
 else {
 
 
-echo '<style type="text/css">
+    echo '<style type="text/css">
 	
 body {
 
@@ -121,89 +121,89 @@ img {
 
 </style>';
 
-$id = $patient_id['pid'];
+    $id = $patient_id['pid'];
 
-// Ensure the patient hasn't already checked in... 
-// We expect @ for a checked in patient and - for a patient who has not yet checked in
+    // Ensure the patient hasn't already checked in... 
+    // We expect @ for a checked in patient and - for a patient who has not yet checked in
 
-$patientcheck = "SELECT `pc_apptstatus` FROM `openemr_postcalendar_events` WHERE pc_pid = ". $id ." AND pc_eventDate = '".$date."'";
-$patientcheckresult = mysqli_fetch_assoc(mysqli_query($dbc, $patientcheck));
+    $patientcheck = "SELECT `pc_apptstatus` FROM `openemr_postcalendar_events` WHERE pc_pid = ". $id ." AND pc_eventDate = '".$date."'";
+    $patientcheckresult = mysqli_fetch_assoc(mysqli_query($dbc, $patientcheck));
 
-if ($patientcheckresult['pc_apptstatus'] == "@") {
-	echo '
+    if ($patientcheckresult['pc_apptstatus'] == "@") {
+        echo '
 	<p><img src="tick.png" width=100px></p>
 	<br>
 	You have already checked in. If you have any questions, please go to the reception desk.';
-}
+    }
 
-else {
+    else {
 
-// Change appt status
+        // Change appt status
 
-$apptsql = "UPDATE openemr_postcalendar_events SET `pc_apptstatus` = '@', `pc_time` = '".$timeRN."' WHERE pc_pid = '".$id."'";
-mysqli_query($dbc, $apptsql);
+        $apptsql = "UPDATE openemr_postcalendar_events SET `pc_apptstatus` = '@', `pc_time` = '".$timeRN."' WHERE pc_pid = '".$id."'";
+        mysqli_query($dbc, $apptsql);
 
-// Get the ID of the last encounter in the DB
+        // Get the ID of the last encounter in the DB
 
-$lastencounterIDsql = "SELECT id FROM sequences ORDER BY id DESC LIMIT 1;";
-$lastencounterID = mysqli_fetch_assoc(mysqli_query($dbc, $lastencounterIDsql));
-$newencounterID = $lastencounterID['id']+1;
+        $lastencounterIDsql = "SELECT id FROM sequences ORDER BY id DESC LIMIT 1;";
+        $lastencounterID = mysqli_fetch_assoc(mysqli_query($dbc, $lastencounterIDsql));
+        $newencounterID = $lastencounterID['id']+1;
 
-// Create the encounter
+        // Create the encounter
 
-$encountersql = "INSERT INTO form_encounter SET date = '". $date ."', onset_date = '". $date ."', reason = 'Routine Appointment', facility = 'GP', facility_id = '3', pid = '". $id ."', encounter = '". $newencounterID ."'";
-mysqli_query($dbc, $encountersql);
+        $encountersql = "INSERT INTO form_encounter SET date = '". $date ."', onset_date = '". $date ."', reason = 'Routine Appointment', facility = 'GP', facility_id = '3', pid = '". $id ."', encounter = '". $newencounterID ."'";
+        mysqli_query($dbc, $encountersql);
 
-// ... And update the sequence table
+        // ... And update the sequence table
 
-$sequenceupdateSql = "UPDATE sequences SET id = '". $newencounterID ."';";
-mysqli_query($dbc, $sequenceupdateSql);
+        $sequenceupdateSql = "UPDATE sequences SET id = '". $newencounterID ."';";
+        mysqli_query($dbc, $sequenceupdateSql);
 
-// Find the last form reference and plus 1
+        // Find the last form reference and plus 1
 
-$lastformref = "SELECT form_id FROM forms ORDER BY form_id DESC LIMIT 1";
-$lastformrefNo = mysqli_fetch_assoc(mysqli_query($dbc, $lastformref));
-$new_form_id = $lastformrefNo['form_id']+1;
+        $lastformref = "SELECT form_id FROM forms ORDER BY form_id DESC LIMIT 1";
+        $lastformrefNo = mysqli_fetch_assoc(mysqli_query($dbc, $lastformref));
+        $new_form_id = $lastformrefNo['form_id']+1;
 
-// Find which doctor is assigned to the patient and show their name
+        // Find which doctor is assigned to the patient and show their name
 
-$getdoctorid = "SELECT `pc_aid` FROM openemr_postcalendar_events where pc_pid = '".$id."' and pc_eventDate = '".$date."';";
-$doctorIDresult = mysqli_fetch_assoc(mysqli_query($dbc, $getdoctorid));
-$docid = $doctorIDresult['pc_aid'];
+        $getdoctorid = "SELECT `pc_aid` FROM openemr_postcalendar_events where pc_pid = '".$id."' and pc_eventDate = '".$date."';";
+        $doctorIDresult = mysqli_fetch_assoc(mysqli_query($dbc, $getdoctorid));
+        $docid = $doctorIDresult['pc_aid'];
 
-// Find the name of the doctor whom the appointment is with
+        // Find the name of the doctor whom the appointment is with
 
-$lookupdoctor = "SELECT * FROM users where ID = '".$docid."';";
-$doctornameresult = mysqli_fetch_assoc(mysqli_query($dbc, $lookupdoctor));
-echo '
+        $lookupdoctor = "SELECT * FROM users where ID = '".$docid."';";
+        $doctornameresult = mysqli_fetch_assoc(mysqli_query($dbc, $lookupdoctor));
+        echo '
 <p><img src="tick.png" width=100px></p>
 <br>
 Thank you. <br>You have checked in for your appointment with Dr. ' . $doctornameresult['lname'] . '.';
 
-// Create the form reference
+        // Create the form reference
 
-$formsql = "INSERT into forms (date, encounter, form_name, form_id, pid, user, groupname, authorized, deleted, formdir) VALUES ('".$date."', '".$newencounterID."', 'New Patient Encounter', '".$new_form_id."', '".$id."', '" . $doctornameresult['username'] . "', 'Default', '1', '0', 'newpatient');"; // TODO
-mysqli_query($dbc, $formsql);
+        $formsql = "INSERT into forms (date, encounter, form_name, form_id, pid, user, groupname, authorized, deleted, formdir) VALUES ('".$date."', '".$newencounterID."', 'New Patient Encounter', '".$new_form_id."', '".$id."', '" . $doctornameresult['username'] . "', 'Default', '1', '0', 'newpatient');"; // TODO
+        mysqli_query($dbc, $formsql);
 
-// Find the last sequence number for this patient
+        // Find the last sequence number for this patient
 
-$patienttrackerQuerysql = "SELECT lastseq, id FROM patient_tracker WHERE apptdate = '".$date."' AND pid = '".$id."';";
+        $patienttrackerQuerysql = "SELECT lastseq, id FROM patient_tracker WHERE apptdate = '".$date."' AND pid = '".$id."';";
 
-$lastseq = mysqli_fetch_assoc(mysqli_query($dbc, $patienttrackerQuerysql));
+        $lastseq = mysqli_fetch_assoc(mysqli_query($dbc, $patienttrackerQuerysql));
 
-// Generate the next sequence number by +1
+        // Generate the next sequence number by +1
 
-$newseq = $lastseq['lastseq'] + 1;
+        $newseq = $lastseq['lastseq'] + 1;
 
-// Update the patient status and sequence to show they have arrived @
+        // Update the patient status and sequence to show they have arrived @
 
-$patienttrackerUpdatesql = "UPDATE patient_tracker SET lastseq = '".$newseq."', date = '".$timeRN."', encounter = '".$newencounterID."' WHERE apptdate = '".$date."' AND pid = '".$id."'; ";
-mysqli_query($dbc, $patienttrackerUpdatesql);
+        $patienttrackerUpdatesql = "UPDATE patient_tracker SET lastseq = '".$newseq."', date = '".$timeRN."', encounter = '".$newencounterID."' WHERE apptdate = '".$date."' AND pid = '".$id."'; ";
+        mysqli_query($dbc, $patienttrackerUpdatesql);
 
-$patient_tracker_element_UPDATE = "INSERT into patient_tracker_element (pt_tracker_id, start_datetime, status, seq, user) VALUES ('".$lastseq['id']."', '".$timeRN."', '@', '".$newseq."', 'SelfCheckin');";
-mysqli_query($dbc, $patient_tracker_element_UPDATE);
+        $patient_tracker_element_UPDATE = "INSERT into patient_tracker_element (pt_tracker_id, start_datetime, status, seq, user) VALUES ('".$lastseq['id']."', '".$timeRN."', '@', '".$newseq."', 'SelfCheckin');";
+        mysqli_query($dbc, $patient_tracker_element_UPDATE);
 
-} // end else
+    } // end else
 }
 
 ?>

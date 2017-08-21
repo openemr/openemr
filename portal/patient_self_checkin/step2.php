@@ -38,13 +38,13 @@ text-align: center; }
 
 <?php
 
-require_once("../../interface/globals.php");
-require_once($GLOBALS['srcdir'].'/sql.inc');
+require_once "../../interface/globals.php";
+require_once $GLOBALS['srcdir'].'/sql.inc';
 
 if ($GLOBALS['self_checkin_enable']==1) {
 
-// Store variable from previous step
-$sex = htmlspecialchars($_GET['sex']);?>
+    // Store variable from previous step
+    $sex = htmlspecialchars($_GET['sex']);?>
 
 <!-- // Get month of birth -->
 
