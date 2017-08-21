@@ -14,7 +14,35 @@
 </head>
 <body>
 
-<img src="physician-icon-png-15318.png">
+<style>
+
+body {
+    font-family: sans-serif;
+    background-color: #638fd0;
+
+    background: -webkit-radial-gradient(circle, white, #638fd0);
+    background: -moz-radial-gradient(circle, white, #638fd0);
+  }
+
+  img {
+
+	text-align: center;
+}
+
+h1 {
+
+	text-align: center;
+}
+
+p {
+
+	text-align: center;
+}
+
+</style>
+<?php require_once("../../interface/globals.php"); ?>
+<p><img style="text-align: center" width="500px" src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png'/></p>
+<!-- <img align="center" src="physician-icon-png-15318.png" width="100"><br> -->
 
 <?php
 
@@ -27,7 +55,7 @@ $surname = htmlspecialchars($_GET['surname']);
 
 $timeRN = date("Y-m-d H:i:s");
 $date = date("y-m-d");
-echo "Time: " . $timeRN . "<br>";
+echo "<h1> Time: " . $timeRN . "</h1><br>";
 
 require 'mySQL_connector.php';
 
@@ -67,25 +95,9 @@ if ($patient_id==NULL) {
 
 
 	echo '
-
-	<style type="text/css">
-	
-body {
-
-	background-color: red;
-	color: white;
-	text-align: center;
-	font-size: 24pt;
-}
-
-img {
-
-	text-align: center;
-}
-
-</style>
-
-	Sorry. We could not find you in the database, please go to the reception desk to check in.';
+	<p><img src="cross.png" width=100px></p>
+	<br>
+	<h1>Sorry. We could not find you in the database, please go to the reception desk to check in.</h1>';
 
 
 }
@@ -118,7 +130,10 @@ $patientcheck = "SELECT `pc_apptstatus` FROM `openemr_postcalendar_events` WHERE
 $patientcheckresult = mysqli_fetch_assoc(mysqli_query($dbc, $patientcheck));
 
 if ($patientcheckresult['pc_apptstatus'] == "@") {
-	echo "You have already checked in. If you have any questions, please go to the reception desk.";
+	echo '
+	<p><img src="tick.png" width=100px></p>
+	<br>
+	You have already checked in. If you have any questions, please go to the reception desk.';
 }
 
 else {
@@ -160,7 +175,10 @@ $docid = $doctorIDresult['pc_aid'];
 
 $lookupdoctor = "SELECT * FROM users where ID = '".$docid."';";
 $doctornameresult = mysqli_fetch_assoc(mysqli_query($dbc, $lookupdoctor));
-echo "Thank you. <br>You have checked in for your appointment with Dr. " . $doctornameresult['lname'] . ".";
+echo '
+<p><img src="tick.png" width=100px></p>
+<br>
+Thank you. <br>You have checked in for your appointment with Dr. ' . $doctornameresult['lname'] . '.';
 
 // Create the form reference
 

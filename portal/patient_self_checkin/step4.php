@@ -7,12 +7,34 @@
 <!-- Latest compiled and minified JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
-<script>
+<style>
+
+.btn-lg {
+
+  width: 150px;
+  height: 100px;
+  margin: 5;
+  font-size: 30px;
+}
+
 .col-sm-3 {
 
     text-align: center;
 }
-</script>
+
+h2 { 
+
+text-align: center; }
+
+ body {
+    font-family: sans-serif;
+    background-color: #638fd0;
+
+    background: -webkit-radial-gradient(circle, white, #638fd0);
+    background: -moz-radial-gradient(circle, white, #638fd0);
+  }
+
+</style>
 
 <?php
 

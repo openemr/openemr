@@ -32,40 +32,51 @@ if ($GLOBALS['self_checkin_enable']==1) {
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <div id="welcomeText">
-<h1>Welcome to the Surgery</h1>
-<h2>Self Check In</h2>
-<p>Touch your sex to begin</p>
+<p><img style="text-align: center" width="500px" src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png'/></p>
+
+<h1>Welcome to Self Check In</h1>
+<h1>Touch your sex to begin</h1>
+<br>
+<br>
 </div>
 
 <style type="text/css">
-    
-    #welcomeText {
+  
+  #welcomeText {
 
-        text-align: center;
-    }
-table {
+    text-align: center;
+  }
+  table {
     border-collapse: collapse;
     width: 100%;
     font-size: 24pt;
-}
+  }
 
-th, td {
+  th, td {
     text-align: left;
     padding: 8px;
-}
+  }
 
-tr:nth-child(even){background-color: #f2f2f2}
+  tr:nth-child(even){background-color: #f2f2f2}
 
-.col-sm-6 {
+  .col-sm-6 {
 
     text-align: center;
-}
+  }
+
+  body {
+    font-family: sans-serif;
+    background-color: #638fd0;
+
+    background: -webkit-radial-gradient(circle, white, #638fd0);
+    background: -moz-radial-gradient(circle, white, #638fd0);
+  }
 
 </style>
 
 <div class="row">
-  <div class="col-sm-6"><a href="step2.php?sex=Male" style="width: 400px; height: 200px;" class="btn btn-lg btn-default">Male</a></div>
-  <div class="col-sm-6"><a href="step2.php?sex=Female" style="width: 400px; height: 200px;" class="btn btn-lg btn-default">Female</a></div>
+  <div class="col-sm-6"><a href="step2.php?sex=Male" style="width: 400px; height: 300px;" class="btn btn-lg btn-default">Male<br><br><img height="200px" src="male.png"></a></div>
+  <div class="col-sm-6"><a href="step2.php?sex=Female" style="width: 400px; height: 300px;" class="btn btn-lg btn-default">Female<br><br><img height="200px" src="female.png"></a></div>
 </div>
 
 <!--
