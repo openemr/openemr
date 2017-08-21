@@ -208,7 +208,8 @@ mysqli_query($dbc, $patient_tracker_element_UPDATE);
 
 ?>
 
-<!-- <meta http-equiv="refresh" content="6;url=/" /> -->
+<!-- Send user back to start to allow next patient to use the kiosk-->
+<meta http-equiv="refresh" content="6;url=/portal/patient_self_checkin/" />
 
 </body>
 </html>
