@@ -1,5 +1,5 @@
 <?php
-
+$ignoreAuth = true;
 require_once "../../interface/globals.php";
 require_once $GLOBALS['webserver_root'] . '/sites/default/sqlconf.php';
 
