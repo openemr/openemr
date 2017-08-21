@@ -44,9 +44,7 @@ text-align: center; }
 </style>
 
 <?php
-
 if ($GLOBALS['self_checkin_enable']==1) {
-
     // Store variable from previous step
     $sex = htmlspecialchars($_GET['sex']);
     $month = htmlspecialchars($_GET['month']);

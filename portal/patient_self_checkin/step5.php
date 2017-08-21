@@ -102,9 +102,7 @@ if ($patient_id==null) {
 	<p><img src="cross.png" width=100px></p>
 	<br>
 	<h1>Sorry. We could not find you in the database, please go to the reception desk to check in.</h1>';
-}
-
-else {
+} else {
     echo '<style type="text/css">
 	
 body {
@@ -137,8 +135,7 @@ AND pc_eventDate = '".$date."'";
 	<p><img src="tick.png" width=100px></p>
 	<br>
 	You have already checked in. If you have any questions, please go to the reception desk.';
-    }
-    else {
+    } else {
         // Change appt status
         $apptsql = "UPDATE openemr_postcalendar_events 
 SET `pc_apptstatus` = '@', `pc_time` = '".$timeRN."' 
