@@ -38,8 +38,8 @@ function sendSelection(value)
     <thead>
         <tr>
             <th><?php echo xl('Provider')?></th>
-            <th><?php echo xl('User Id') ?></th>
-            <th><?php echo xl('NPI') ?></th>
+                <th><?php echo xl('User Id') ?></th>
+                <th><?php echo xl('NPI') ?></th>
         </tr>
     </thead>
     <tbody>
@@ -48,7 +48,7 @@ while ($row = sqlFetchArray($users)) {
     $data = json_encode($row);
 ?>
 <tr>
-    <td><button onclick='sendSelection(<?php echo $data;?>)'><?php echo text$row['fname'] . ' ' . $row['lname'])?></button></td>
+    <td><button onclick='sendSelection(<?php echo $data;?>)'><?php echo text($row['fname'] . ' ' . $row['lname'])?></button></td>
     <td><?php echo text($row['id']) ?></td>
     <td><?php echo text($row['npi']) ?></td>
  </tr>

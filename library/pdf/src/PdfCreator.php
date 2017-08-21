@@ -12,7 +12,6 @@
 namespace OpenEMR\Pdf;
 
 use Knp\Snappy\Pdf;
-
 use Symfony\Component\Debug\ExceptionHandler;
 
 class PdfCreator
@@ -24,20 +23,24 @@ class PdfCreator
 
     private function getBinaryPath()
     {
-        global $webserver_root;
+
+        $binroot = $GLOBALS['vendor_dir'] . "/openemr/wkhtmltopdf-openemr/bin";
+
         // This will not necessarily reflect actual machine bus width but php bus size.
         $intsize = strlen(decbin(~ 0));
         if (empty(strstr(php_uname("m"), '64'))) {
-            $bit = "32bit";
+            $bit = "32";
         } else {
-            $bit = "64bit";
+            $bit = "64";
         }
         try {
             $thisos = strtolower(php_uname());
-            if (strpos($thisos, "win") !== false) {
-                $wkexe = $webserver_root . "/library/wkhtmltopdf/win/$bit/wkhtmltopdf.exe";
+            if (strpos($thisos, "darwin") !== false) {
+                $wkexe = $binroot . "/osx/wkhtmltopdf" . $bit . "-osx";
+            } elseif (strpos($thisos, "win") !== false) {
+                $wkexe = $binroot . "/win/wkhtmltopdf" . $bit . ".exe";
             } elseif (strpos($thisos, "linux") !== false) {
-                $wkexe = $webserver_root . "/library/wkhtmltopdf/linux/$bit/wkhtmltopdf";
+                $wkexe = $binroot . "/linux/wkhtmltopdf" . $bit . "-linux";
             } else {
                 throw new ExceptionHandler(xlt("Can not determine OS!"));
             }
