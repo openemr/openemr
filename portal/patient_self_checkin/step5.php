@@ -1,4 +1,7 @@
-<?php require_once "../../interface/globals.php"; ?>
+<?php 
+$ignoreAuth = true;
+require_once "../../interface/globals.php"; 
+?>
 
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
@@ -222,7 +225,7 @@ VALUES ('".$lastseq['id']."', '".$timeRN."', '@', '".$newseq."', 'SelfCheckin');
 ?>
 
 <!-- Send user back to start to allow next patient to use the kiosk-->
-<meta http-equiv="refresh" content="6;url=/portal/patient_self_checkin/" />
+<meta http-equiv="refresh" content="12;url=/portal/patient_self_checkin/" />
 
 </body>
 </html>
