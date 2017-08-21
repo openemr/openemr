@@ -44,8 +44,10 @@ class FormReviewOfSystems extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormReviewOfSystems($id = "", $_prefix = "")
+    function __construct($id = "", $_prefix = "")
     {
+        parent::__construct();
+
         if (is_numeric($id)) {
             $this->id = $id;
         } else {
@@ -61,16 +63,9 @@ class FormReviewOfSystems extends ORDataObject
         }
     }
 
-    function toString($html = false)
+    function __toString()
     {
-        $string .= "\n"
-            ."ID: " . $this->id . "\n";
-
-        if ($html) {
-            return nl2br($string);
-        } else {
-            return $string;
-        }
+        return "ID: " . $this->id . "\n";
     }
 
     function populate()

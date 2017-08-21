@@ -18,7 +18,7 @@ class ORDataObject
 
     function persist()
     {
-        $sql = "REPLACE INTO " . $_prefix . $this->_table . " SET ";
+        $sql = "REPLACE INTO " . $this->_prefix . $this->_table . " SET ";
         //echo "<br><br>";
         $fields = sqlListFields($this->_table);
         $db = get_db();

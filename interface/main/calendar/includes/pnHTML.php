@@ -176,13 +176,11 @@ class pnHTML
      |                             Methods: Base                                    |
      *==============================================================================*/
 
+
     /**
-     * Constructor
-     *
-     * @access public
-     * @return boolean Always returns true
+     * pnHTML constructor.
      */
-    function pnHTML()
+    function __construct()
     {
         $this->header = array ();
         $this->output = '';
@@ -344,10 +342,7 @@ class pnHTML
     {
         ob_start();
         include 'header.php';
-//        print '<table width="100%" border="0" cellpadding="0" cellspacing="0">';
-/* Fixes bug 16 Neo submitted by keops 14/09/2002
- */
-          print '<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td align="left" valign="top">';
+        print '<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td align="left" valign="top">';
 
         $output = ob_get_contents();
         @ob_end_clean();
@@ -403,7 +398,7 @@ class pnHTML
     {
         // Quick check to ensure that we have work to do
         if ($total <= $perpage) {
-            return;
+            return true;
         }
 
         $compoutput = new pnHTML();
