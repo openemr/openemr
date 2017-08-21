@@ -1,6 +1,6 @@
-<?php 
+<?php
 $ignoreAuth = true;
-require_once "../../interface/globals.php"; 
+require_once "../../interface/globals.php";
 ?>
 
 <!-- Latest compiled and minified CSS -->
