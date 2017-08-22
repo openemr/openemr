@@ -9,6 +9,7 @@ if (!$GLOBALS['self_checkin_enable'] == 1) {
 }
 
 Header::setupHeader();;
+
 ?>
 
 <link rel="stylesheet" type="text/css" href="/interface/themes/selfCheckIn.css">

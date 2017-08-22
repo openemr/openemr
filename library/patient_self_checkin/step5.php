@@ -16,7 +16,9 @@ if (!$GLOBALS['self_checkin_enable'] == 1) {
 <head>
     <title>Check In</title>
 <?php
+
 Header::setupHeader();;
+
 ?>
 </head>
 <body class="step5">
@@ -73,11 +75,10 @@ $patient_id = mysqli_fetch_array(mysqli_query($dbc, $PIDQuery));
 
 if ($patient_id==null) {
     echo '
-	<p><img src="cross.png" width=100px></p>
+	<p><i class="fa fa-times fa-3x" aria-hidden="true"></i></p>
 	<br>
 	<h1>Sorry. We could not find you in the database, please go to the reception desk to check in.</h1>';
 } else {
-
     $id = $patient_id['pid'];
 
     // Ensure the patient hasn't already checked in...
@@ -91,7 +92,7 @@ AND pc_eventDate = '".$date."'";
 
     if ($patientcheckresult['pc_apptstatus'] == "@") {
         echo '
-	<p><img src="tick.png" width=100px></p>
+	<p><i class="fa fa-check fa-3x" aria-hidden="true"></i></p>
 	<br>
 	You have already checked in. If you have any questions, please go to the reception desk.';
     } else {
@@ -142,7 +143,7 @@ and pc_eventDate = '".$date."';";
         $lookupdoctor = "SELECT * FROM users where ID = '".$docid."';";
         $doctornameresult = mysqli_fetch_assoc(mysqli_query($dbc, $lookupdoctor));
         echo '
-<p><img src="tick.png" width=100px></p>
+<p><i class="fa fa-check fa-3x" aria-hidden="true"></i></p>
 <br>
 Thank you. <br>You have checked in for your appointment with Dr. ' . $doctornameresult['lname'] . '.';
 
