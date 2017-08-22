@@ -1,0 +1,29 @@
+#welcomeText {
+
+    text-align: center;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 24pt;
+}
+
+th, td {
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even){background-color: #f2f2f2}
+
+.col-sm-6 {
+
+    text-align: center;
+}
+
+body {
+    font-family: sans-serif;
+    background-color: #638fd0;
+
+    background: -webkit-radial-gradient(circle, white, #638fd0);
+    background: -moz-radial-gradient(circle, white, #638fd0);
+}

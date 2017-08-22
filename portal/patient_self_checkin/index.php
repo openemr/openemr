@@ -14,31 +14,28 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  * @link      http://www.open-emr.org
  */
+use OpenEMR\Core\Header;
 
 $ignoreAuth = true;
 require_once "../../interface/globals.php";
-require_once $GLOBALS['srcdir'].'/sql.inc';
 if (!$GLOBALS['self_checkin_enable'] == 1) {
     die("This feature has not been enabled");
 }
 
 ?>
 
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-      crossorigin="anonymous">
+<!--Header and Bootstrap inclusion-->
+<html>
 
-<!-- Optional theme -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
-      integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
-      crossorigin="anonymous">
+<head>
 
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
-        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-        crossorigin="anonymous"></script>
+    <?php
+    Header::setupHeader();;
+?>
 
+</head>
+
+<body>
 <div id="welcomeText">
 <p>
     <img style="text-align: center" width="500px"
@@ -51,39 +48,7 @@ if (!$GLOBALS['self_checkin_enable'] == 1) {
 <br>
 </div>
 
-<style type="text/css">
-
-  #welcomeText {
-
-    text-align: center;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    font-size: 24pt;
-  }
-
-  th, td {
-    text-align: left;
-    padding: 8px;
-  }
-
-  tr:nth-child(even){background-color: #f2f2f2}
-
-  .col-sm-6 {
-
-    text-align: center;
-  }
-
-  body {
-    font-family: sans-serif;
-    background-color: #638fd0;
-
-    background: -webkit-radial-gradient(circle, white, #638fd0);
-    background: -moz-radial-gradient(circle, white, #638fd0);
-  }
-
-</style>
+<link rel="stylesheet" type="text/css" href="/interface/themes/selfCheckIn.css">
 
 <div class="row">
   <div class="col-sm-6"><a href="step2.php?sex=Male"
@@ -101,15 +66,5 @@ if (!$GLOBALS['self_checkin_enable'] == 1) {
           <img height="200px" src="female.png"></a>
   </div>
 </div>
-
-<!--
-
-<table class="tg">
-  <tr>
-    <th class="tg-yw4l">First Name</th>
-    <th class="tg-yw4l">Last Name</th>
-    <th class="tg-yw4l">Tap to check in</th>
-  </tr>
-
-<br>
-<br> -->
+</body>
+</html>
