@@ -18,7 +18,10 @@
 $ignoreAuth = true;
 require_once "../../interface/globals.php";
 require_once $GLOBALS['srcdir'].'/sql.inc';
-if ($GLOBALS['self_checkin_enable']==1) {
+if (!$GLOBALS['self_checkin_enable'] == 1) {
+    die("This feature has not been enabled");
+}
+
 ?>
 
 <!-- Latest compiled and minified CSS -->
@@ -110,11 +113,3 @@ if ($GLOBALS['self_checkin_enable']==1) {
 
 <br>
 <br> -->
-
-
-<?php
-} // end 'if enabled?' if statement
-else {
-    echo "This feature is not enabled.";
-}
-?>
