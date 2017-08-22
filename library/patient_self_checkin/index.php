@@ -43,28 +43,17 @@ if (!$GLOBALS['self_checkin_enable'] == 1) {
 </p>
 
 <h1>Welcome to Self Check In</h1>
-<h1>Touch your sex to begin</h1>
-<br>
-<br>
+<h1>Touch below to begin</h1>
 </div>
 
 <link rel="stylesheet" type="text/css" href="/interface/themes/selfCheckIn.css">
 
+<div class="container welcome">
 <div class="row">
-  <div class="col-sm-6"><a href="step2.php?sex=Male"
-                           style="width: 400px;
-                           height: 300px;"
-                           class="btn btn-lg btn-default">Male
-          <br><br>
-          <img height="200px" src="male.png">
-      </a>
-  </div>
-  <div class="col-sm-6"><a href="step2.php?sex=Female"
-                           style="width: 400px;
-                           height: 300px;"
-                           class="btn btn-lg btn-default">Female<br><br>
-          <img height="200px" src="female.png"></a>
-  </div>
+  <a href="step2.php" class="btn btn-lg btn-default">Start</a>
+
 </div>
+</div>
+
 </body>
 </html>

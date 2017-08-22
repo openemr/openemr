@@ -1,61 +1,33 @@
 <?php
+
+use OpenEMR\Core\Header;
+
 $ignoreAuth = true;
 require_once "../../interface/globals.php";
+if (!$GLOBALS['self_checkin_enable'] == 1) {
+    die("This feature has not been enabled");
+}
 ?>
 
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u">
-
-<!-- Optional theme -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
-      integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp">
-
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
-        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
-
-</script>
+<link rel="stylesheet" type="text/css" href="/interface/themes/selfCheckIn.css">
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
+    <title>Check In</title>
+<?php
+Header::setupHeader();;
+?>
 </head>
-<body>
-
-<style>
-
-body {
-    font-family: sans-serif;
-    background-color: #638fd0;
-    background: -webkit-radial-gradient(circle, white, #638fd0);
-    background: -moz-radial-gradient(circle, white, #638fd0);
-  }
-
-  img {
-    text-align: center;
-}
-
-h1 {
-    text-align: center;
-}
-
-p {
-    text-align: center;
-}
-
-</style>
+<body class="step5">
 
 <p>
     <img style="text-align: center"
          width="500px" src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png'/>
 </p>
-<!-- <img align="center" src="physician-icon-png-15318.png" width="100"><br> -->
 
 <?php
 
-$sex = htmlspecialchars($_GET['sex']);
 $month = htmlspecialchars($_GET['month']);
 $birthday = htmlspecialchars($_GET['date']);
 $surname = htmlspecialchars($_GET['surname']);
@@ -89,13 +61,12 @@ $implodedArray = implode(',', $PIDArrayValues);
 
 // Get patient ID based on the data provided.
 // Criteria: a) has an appointment today i.e. their patient ID is one of the ones in the appointment list for today
-// b) Matches all three demographics asked earlier - dob, surname, sex
+// b) Matches all three demographics asked earlier - dob, surname
 
 $PIDQuery = "SELECT pid
 FROM patient_data
 WHERE lname LIKE '" . $surname . "%' 
-AND dob LIKE '%-" . $month ."-" . $birthday . "' 
-AND sex = '" . $sex ."' 
+AND dob LIKE '%-" . $month ."-" . $birthday . "'  
 AND id IN (".$implodedArray.")";
 
 $patient_id = mysqli_fetch_array(mysqli_query($dbc, $PIDQuery));
@@ -106,21 +77,6 @@ if ($patient_id==null) {
 	<br>
 	<h1>Sorry. We could not find you in the database, please go to the reception desk to check in.</h1>';
 } else {
-    echo '<style type="text/css">
-	
-body {
-
-	background-color: green;
-	text-align: center;
-	font-size: 24pt;
-}
-
-img {
-
-	text-align: center;
-}
-
-</style>';
 
     $id = $patient_id['pid'];
 
@@ -225,7 +181,7 @@ VALUES ('".$lastseq['id']."', '".$timeRN."', '@', '".$newseq."', 'SelfCheckin');
 ?>
 
 <!-- Send user back to start to allow next patient to use the kiosk-->
-<meta http-equiv="refresh" content="12;url=/portal/patient_self_checkin/" />
+<!-- <meta http-equiv="refresh" content="12;url=/library/patient_self_checkin/" /> -->
 
 </body>
 </html>
