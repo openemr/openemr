@@ -1043,36 +1043,34 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
         // Segment NTE (Third Party Organization Notes) omitted.
         // Segment PS1 (Purchased Service Information) omitted.
         // Segment HCP (Line Pricing/Repricing Information) omitted.
-    }
 
     // Loop 2410, Drug Information. Medicaid insurers seem to want this
     // with HCPCS codes.
     //
-    $ndc = $claim->cptNDCID($prockey);
+        $ndc = $claim->cptNDCID($prockey);
 
-    if ($ndc) {
-        ++$edicount;
-    }
-    $out .= "LIN" . // Drug Identification. Page 500+ (Addendum pg 71).
-    "*" .         // Per addendum, LIN01 is not used.
-    "*" . "N4" .
-    "*" . $ndc .
-    "~\n";
+        if ($ndc) {
+            ++$edicount;
+            $out .= "LIN" . // Drug Identification. Page 500+ (Addendum pg 71).
+            "*" .         // Per addendum, LIN01 is not used.
+            "*" . "N4" .
+            "*" . $ndc .
+            "~\n";
 
-    if (!preg_match('/^\d\d\d\d\d-\d\d\d\d-\d\d$/', $ndc, $tmp) && !preg_match('/^\d{11}$/', $ndc)) {
-        $log .= "*** NDC code '$ndc' has invalid format!\n";
-    }
+            if (!preg_match('/^\d\d\d\d\d-\d\d\d\d-\d\d$/', $ndc, $tmp) && !preg_match('/^\d{11}$/', $ndc)) {
+                $log .= "*** NDC code '$ndc' has invalid format!\n";
+            }
 
-    ++$edicount;
-    $out .= "CTP" . // Drug Pricing. Page 500+ (Addendum pg 74).
-    "*" .
-    "*" .
-    "*" .
-    "*" . $claim->cptNDCQuantity($prockey) .
-    "*" . $claim->cptNDCUOM($prockey) .
-    // Note: 5010 documents "ME" (Milligrams) as an additional unit of measure.
-    "~\n";
-
+            ++$edicount;
+            $out .= "CTP" . // Drug Pricing. Page 500+ (Addendum pg 74).
+            "*" .
+            "*" .
+            "*" .
+            "*" . $claim->cptNDCQuantity($prockey) .
+            "*" . $claim->cptNDCUOM($prockey) .
+            // Note: 5010 documents "ME" (Milligrams) as an additional unit of measure.
+            "~\n";
+        }
 
     // Segment REF (Prescription or Compound Drug Association Number) omitted.
 
@@ -1080,58 +1078,63 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     // Used if the rendering provider for this service line is different
     // from that in loop 2310B.
     //
-    if ($claim->providerNPI() != $claim->providerNPI($prockey)) {
-        ++$edicount;
-        $out .= "NM1" .       // Loop 2310B Rendering Provider
-        "*" . "82" .
-        "*" . "1" .
-        "*" . $claim->providerLastName($prockey) .
-        "*" . $claim->providerFirstName($prockey) .
-        "*" . $claim->providerMiddleName($prockey) .
-        "*" .
-        "*";
-        if ($claim->providerNPI($prockey)) {
-            $out .=
-            "*" . "XX" .
-            "*" . $claim->providerNPI($prockey);
-        } else {
-            $log .= "*** Rendering provider has no NPI.\n";
-        }
-        $out .= "~\n";
-
-        if ($claim->providerTaxonomy($prockey)) {
+        if ($claim->providerNPI() != $claim->providerNPI($prockey)) {
             ++$edicount;
-            $out .= "PRV" .
-            "*" . "PE" . // PErforming provider
-            "*" . "PXC" .
-            "*" . $claim->providerTaxonomy($prockey) .
-            "~\n";
-        }
+            $out .= "NM1" .       // Loop 2310B Rendering Provider
+            "*" . "82" .
+            "*" . "1" .
+            "*" . $claim->providerLastName($prockey) .
+            "*" . $claim->providerFirstName($prockey) .
+            "*" . $claim->providerMiddleName($prockey) .
+            "*" .
+            "*";
+            if ($claim->providerNPI($prockey)) {
+                $out .=
+                "*" . "XX" .
+                "*" . $claim->providerNPI($prockey);
+            } else {
+                $log .= "*** Rendering provider has no NPI.\n";
+            }
+            $out .= "~\n";
 
-        // Segment PRV*PE (Rendering Provider Specialty Information) omitted.
-        // Segment REF (Rendering Provider Secondary Identification) omitted.
-        // Segment NM1 (Purchased Service Provider Name) omitted.
-        // Segment REF (Purchased Service Provider Secondary Identification) omitted.
-        // Segment NM1,N3,N4 (Service Facility Location) omitted.
-        // Segment REF (Service Facility Location Secondary Identification) omitted.
-        // Segment NM1 (Supervising Provider Name) omitted.
-        // Segment REF (Supervising Provider Secondary Identification) omitted.
-        // Segment NM1,N3,N4 (Ordering Provider) omitted.
-        // Segment REF (Ordering Provider Secondary Identification) omitted.
-        // Segment PER (Ordering Provider Contact Information) omitted.
-        // Segment NM1 (Referring Provider Name) omitted.
-        // Segment REF (Referring Provider Secondary Identification) omitted.
-        // Segments NM1*PW, N3, N4 (Ambulance Pick-Up Location) omitted.
-        // Segments NM1*45, N3, N4 (Ambulance Drop-Off Location) omitted.
+            if ($claim->providerTaxonomy($prockey)) {
+                ++$edicount;
+                $out .= "PRV" .
+                "*" . "PE" . // PErforming provider
+                "*" . "PXC" .
+                "*" . $claim->providerTaxonomy($prockey) .
+                "~\n";
+            }
 
-        // REF*1C is required here for the Medicare provider number if NPI was
-        // specified in NM109.  Not sure if other payers require anything here.
-        ++$edicount;
-        $out .= "REF" .
-            "*" . $claim->providerNumberType($prockey) .
-            // Note: 5010 documents that type 1D (Medicaid) is changed to G2.
-            "*" . $claim->providerNumber($prockey) .
-            "~\n";
+            // Segment PRV*PE (Rendering Provider Specialty Information) omitted.
+            // Segment REF (Rendering Provider Secondary Identification) omitted.
+            // Segment NM1 (Purchased Service Provider Name) omitted.
+            // Segment REF (Purchased Service Provider Secondary Identification) omitted.
+            // Segment NM1,N3,N4 (Service Facility Location) omitted.
+            // Segment REF (Service Facility Location Secondary Identification) omitted.
+            // Segment NM1 (Supervising Provider Name) omitted.
+            // Segment REF (Supervising Provider Secondary Identification) omitted.
+            // Segment NM1,N3,N4 (Ordering Provider) omitted.
+            // Segment REF (Ordering Provider Secondary Identification) omitted.
+            // Segment PER (Ordering Provider Contact Information) omitted.
+            // Segment NM1 (Referring Provider Name) omitted.
+            // Segment REF (Referring Provider Secondary Identification) omitted.
+            // Segments NM1*PW, N3, N4 (Ambulance Pick-Up Location) omitted.
+            // Segments NM1*45, N3, N4 (Ambulance Drop-Off Location) omitted.
+
+            // REF*1C is required here for the Medicare provider number if NPI was
+            // specified in NM109.  Not sure if other payers require anything here.
+
+            // @TODO below appears to not belong in 5010??.
+            if (/* ! $CMS_5010 &&  */ $claim->providerNumber($prockey)) {
+                ++$edicount;
+                $out .= "REF" .
+                "*" . $claim->providerNumberType($prockey) .
+                // Note: 5010 documents that type 1D (Medicaid) is changed to G2.
+                "*" . $claim->providerNumber($prockey) .
+                "~\n";
+            }
+        } // end provider exception
 
         // Loop 2430, adjudication by previous payers.
         //
