@@ -30,7 +30,7 @@ if (!$GLOBALS['self_checkin_enable'] == 1) {
 <head>
 
     <?php
-Header::setupHeader();;
+    Header::setupHeader();
 ?>
 
 </head>

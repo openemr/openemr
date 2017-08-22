@@ -8,7 +8,7 @@ if (!$GLOBALS['self_checkin_enable'] == 1) {
     die("This feature has not been enabled");
 }
 
-Header::setupHeader();;
+Header::setupHeader();
 
 ?>
 

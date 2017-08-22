@@ -17,7 +17,7 @@ if (!$GLOBALS['self_checkin_enable'] == 1) {
     <title>Check In</title>
 <?php
 
-Header::setupHeader();;
+Header::setupHeader();
 
 ?>
 </head>
