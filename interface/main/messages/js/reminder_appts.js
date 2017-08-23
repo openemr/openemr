@@ -388,14 +388,7 @@ $(document).ready(function(){
                                                        
                                                        }
                                                        );
-                  $('[title]').qtip({
-                                    position: {
-                                    my: 'bottom Left',  // Position my top left...
-                                    at: 'bottom Left', // at the bottom right of...
-                                    target: 'mouse' // my target
-                                    }
-                                    }
-                                    );
+                  
                   $(".divTableRow").mouseover(function(){
                                               if ((!$(this).hasClass('divTableHeading'))&&
                                                   (!$(this).hasClass('greenish'))&&

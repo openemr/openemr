@@ -84,6 +84,7 @@ require_once("$srcdir/patient_tracker.inc.php");
         }
 
          echo "<html>\n<body>\n<script language='JavaScript'>\n";
+         echo " window.opener.document.flb.submit();\n";
          echo " window.close();\n";
          echo "</script></body></html>\n";
          exit();

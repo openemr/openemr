@@ -25,10 +25,14 @@ require_once "$srcdir/MedEx/API.php";
 
 // mdsupport - user_settings prefix
 $uspfx = substr( __FILE__, strlen( $webserver_root ) ) . '.';
-$setting_new_window = prevSetting( $uspfx, 'setting_new_window', 'form_new_window', ' ' );
+$setting_new_window = prevSetting( $uspfx, 'setting_new_window', 'setting_new_window', ' ' );
+$setting_bootstrap_submenu = prevSetting( $webserver_root, 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ' );
+if (($_POST['setting_new_window'])||($_POST['setting_bootstrap_submenu'])) { 
+  // These settings are not part of the form. We only ever change them via ajax so exit now.
+  // Currently only the flow boad and recall board point here to alter setting_bootstrap_menu.
+  exit();  
+}
 
-//define variables, future enhancement allow changing the to_date and from_date
-//to allow picking a date to review
 if ( !is_null( $_POST['form_provider'] ) ) {
   $provider = $_POST['form_provider'];
 } else if ( $_SESSION['userauthorized'] ) {
@@ -38,21 +42,25 @@ if ( !is_null( $_POST['form_provider'] ) ) {
 } else  { 
   $provider = null;
 }
+
 if ( $_POST['saveCALLback'] =="Save" ) {
   $sqlINSERT = "INSERT INTO medex_outgoing (msg_pc_eid,campaign_uid,msg_type,msg_reply,msg_extra_text)
                   VALUES
                 (?,?,'NOTES','CALLED',?)";
   sqlQuery( $sqlINSERT, array( $_POST['pc_eid'], $_POST['campaign_uid'], $_POST['txtCALLback'] ) );
 }
+
 $facility  = !is_null( $_POST['form_facility'] ) ? $_POST['form_facility'] : null;
+
 $form_apptstatus = !is_null( $_POST['form_apptstatus'] ) ? $_POST['form_apptstatus'] : null;
+
 $form_apptcat=null;
 if ( isset( $_POST['form_apptcat'] ) ) {
   if ( $form_apptcat!="all" ) {
     $form_apptcat=intval( $_POST['form_apptcat'] );
   }
 }
-/************************/
+
 $from_date = !is_null( $_REQUEST['datepicker1'] ) ? date( 'Y-m-d', strtotime( $_REQUEST['datepicker1'] ) ) : date( 'Y-m-d', strtotime( '-1 days' ) );
 
 if ( substr( $GLOBALS['ptkr_end_date'], 0, 1 ) == 'Y' ) {
@@ -173,7 +181,6 @@ if (!$_REQUEST['flb_table']) {
     <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
     <?php } ?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.css" />
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>" type="text/css">
@@ -184,9 +191,8 @@ if (!$_REQUEST['flb_table']) {
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/jquery-ui.min.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/moment-2-13-0/moment.js"></script>
     <script>
         var xljs1 = '<?php echo xl( 'Preferences updated successfully' ); ?>';
@@ -207,7 +213,6 @@ if (!$_REQUEST['flb_table']) {
         ?>
         var xljs_dateFormat = '<?php echo $date_format; ?>';
     </script>
-    <?php echo myLocalJS(); ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
     <script type="text/javascript">
         <?php require_once "$srcdir/restoreSession.php"; ?>
@@ -271,6 +276,13 @@ if (!$_REQUEST['flb_table']) {
         width: 70%;
       }
     </style>
+  <?php echo myLocalJS(); ?>
+   
+    <script>
+  
+  </script>
+
+
   </head>
 
   <body class="body_top">
@@ -279,9 +291,10 @@ if (!$_REQUEST['flb_table']) {
       $MedEx->display->navigation($logged_in);
   }
   ?>
+  <div class="container-fluid">
     <div class="row">
       <div class="col-sm-12">
-        <div class="showRFlow" id="show_flows" style="text-align:center;margin:40 auto;">
+        <div class="showRFlow" id="show_flows" style="text-align:center;margin:20 auto;">
           <?php
 
     $fac_sql = sqlStatement( "SELECT * FROM facility ORDER BY id" );
@@ -314,7 +327,7 @@ if (!$_REQUEST['flb_table']) {
       ?>
       <br />
       <form name="flb" id="flb" method="post">
-            <div class=" text-center row divTable" style="width: 75%;padding: 10px 10px 0px;margin: 10px auto;">
+        <div class=" text-center row divTable" style="width: 75%;padding: 10px 10px 0px;margin: 10px auto;">
               <div class="col-sm-<?php echo $col_width; ?> table-hover">
                 <select id="form_apptstatus" name="form_apptstatus" class="form-group">
                   <option value=''><?php echo xlt( "Appt Status: All" ); ?></option>
@@ -395,46 +408,37 @@ if (!$_REQUEST['flb_table']) {
               </div>
               <div name="message" id="message" class="warning"></div>
               </div>
-            </div>        
-      </form>
-
-    <div class="row divTable">
-      <div class="col-sm-12 text-center">
-  <!--      <h2><?php echo xlt( 'Appointments'); ?><?php
-        if ( count( $chk_prov ) == 1 ) {?>
-          <?php echo ' '.xlt( 'for' ) . ' '. text( reset( $chk_prov ) );
-        } 
-        ?></h2>
-        -->
-      </div>
-      <div class="col-sm-12 text-center small" style='margin:5px;'>
-        <?php
-          $statuses_output =  "<span style='margin:0px 10px;'><em>".xlt( 'Total patients' )  . ':</em> <span class="badge">' . text( $appointments_status['count_all'] )."</span></span>";
-          unset( $appointments_status['count_all'] );
-          foreach ( $appointments_status as $status_symbol => $count ) {
-            $statuses_output .= " | <span style='margin:0px 10px;'><em>" . text( xl_list_label( $statuses_list[$status_symbol] ) )  .":</em> <span class='badge'>" . $count."</span></span>";
-          }
-          echo $statuses_output;
-        ?>
-        <span class="pull-right">
-         <a id='setting_cog'><i class="fa fa-cog fa-2x fa-fw">&nbsp;</i></a>
-            <?php // Note that are unable to html escape below $setting_new_window, or else will break the code, secondary to white space issues. ?>
-         <input type='hidden' name='setting_new_window' id='setting_new_window' value='<?php echo $setting_new_window ?>' />
-         <label id='settings'><input type='checkbox' name='form_new_window' id='form_new_window' value='1'<?php echo $setting_new_window ?> />
-            <?php echo xlt( 'Open Patient in New Window' ); ?></label>
-           <a id='refreshme'><i class="fa fa-refresh fa-2x fa-fw">&nbsp;</i></a>
-        </span>
-      </div>
+        </div>        
+      </form>    
+      <div class="row divTable">
+        <div class="col-sm-12 text-center small" style='margin:5px;'>
+            <?php
+              $statuses_output =  "<span style='margin:0px 10px;'><em>".xlt( 'Total patients' )  . ':</em> <span class="badge">' . text( $appointments_status['count_all'] )."</span></span>";
+              unset( $appointments_status['count_all'] );
+              foreach ( $appointments_status as $status_symbol => $count ) {
+                $statuses_output .= " | <span style='margin:0px 10px;'><em>" . text( xl_list_label( $statuses_list[$status_symbol] ) )  .":</em> <span class='badge'>" . $count."</span></span>";
+              }
+              echo $statuses_output;
+            ?>
+            <span class="pull-right">
+              <a id='setting_cog'><i class="fa fa-cog fa-2x fa-fw">&nbsp;</i></a>
+              
+              <label for='setting_new_window' id='settings'>
+                <input type='checkbox' name='setting_new_window' id='setting_new_window' value='<?php echo $setting_new_window; ?>' <?php echo $setting_new_window; ?> />
+                <?php echo xlt( 'Open Patient in New Window' ); ?>
+              </label>
+              <a id='refreshme'><i class="fa fa-refresh fa-2x fa-fw">&nbsp;</i></a>
+            </span>
+        </div>
+      
     
-      <div class="col-sm-12 textclear" id="flb_table" name="flb_table">
+        <div class="col-sm-12 textclear" id="flb_table" name="flb_table">
         <?php 
   }
-      //end of if !$_REQUEST['flb_table']
-      ?>
-        <table class="table table-responsive table-condensed table-hover table-bordered">
+    //end of if !$_REQUEST['flb_table']
+    ?>
+    <table class="table table-responsive table-condensed table-hover table-bordered">
           <thead>
-       
-
             <tr bgcolor="#cccff" class="small bold  text-center">
               <?php if ( $GLOBALS['ptkr_show_pid'] ) { ?>
               <td class="dehead text-center">
@@ -757,18 +761,13 @@ if (!$_REQUEST['flb_table']) {
                               if ( ( $yestime == '1' ) && ( $timecheck >=1 ) && ( strtotime( $newarrive )!= '' ) ) {
                                 echo text( $timecheck . ' ' .( $timecheck >=2 ? xl( 'minutes' ): xl( 'minute' ) ) );
                               } else if ( $icon_here||$icon2_here||$icon_CALL ) {
-                                  echo  "<span style='font-size:0.6em;' onclick='return calendarpopup(". attr( $appt_eid ).",".attr( $date_squash ).")'>". implode( $icon_here ).$icon2_here."</span> ".$icon_CALL;
+                                  echo  "<span style='font-size:0.7em;' onclick='return calendarpopup(". attr( $appt_eid ).",".attr( $date_squash ).")'>". implode( $icon_here ).$icon2_here."</span> ".$icon_CALL;
                                 } else if ( $logged_in ) {
-                                //possible modalities
                                   $pat = $MedEx->display->possibleModalities($appointment);
-                                            echo "<span style='font-size:0.6em;'>".$pat['SMS'].$pat['AVM'].$pat['EMAIL']."</span>";
-                                            //possibleModalities($appointment);
-                                //echo "<span style='font-size:0.6em;'>".$icons['SMS']['NotAllowed']['html'].$icons['AVM']['ALLOWED']['html'].$icons['EMAIL']['NotAllowed']['html']."</span>";
+                                  echo "<span style='font-size:0.7em;'>".$pat['SMS'].$pat['AVM'].$pat['EMAIL']."</span>";
                               }
                               //end time in current status
                               echo "</td>";
-
-                              //put in possible modalities if empty?
                               ?>
                         
                         <td class="detail hidden-xs hidden-sm" align="center">
@@ -802,12 +801,12 @@ if (!$_REQUEST['flb_table']) {
                           <?php
                             if ( $prog_text >'' ) {
                               echo  '
-                                      <span title="MedEx Progress Report" class="qTip btn btn-primary" style="padding:5px;" onclick="SMS_bot(\''.attr( $appointment['pc_eid'] ).'\')">
+                                      <span  class="btn btn-primary" data-toggle="tooltip" title="'.$prog_text.'" style="padding:5px;" onclick="SMS_bot(\''.attr( $appointment['pc_eid'] ).'\')">
                                         
                                           <i class="fa fa-list-alt fa-inverse"></i>
                                       </span>
                                     
-                                    <div style="display:none;">'. $prog_text .'</div>
+                                    <div class="jqui" style="display:none;">'. $prog_text .'</div>
                                     ';
                             } else if ( strtotime( $newend ) != '' ) {
                                 echo oeFormatTime( $newend ) ;
@@ -850,12 +849,13 @@ if (!$_REQUEST['flb_table']) {
             } //end foreach
             ?>
           </tbody>
-        </table>
-      <?php 
+    </table>
+    <?php 
   if (!$_REQUEST['flb_table']) { ?>
           </div>
         </div>
       </div>
+    </div><?php //end container ?>
               <!-- form used to open a new top level window when a patient row is clicked -->
               <form name='fnew' method='post' target='_blank' action='../main/main_screen.php?auth=login&site=<?php echo attr( $_SESSION['site_id'] ); ?>'>
                 <input type='hidden' name='patientID'      value='0' />
@@ -891,24 +891,21 @@ function myLocalJS() {
             $( "#flb_table" ).html( data );
           });
     }
-
     // popup for patient tracker status
     function bpopup(tkid) {
      top.restoreSession();
      dlgopen('../patient_tracker/patient_tracker_status.php?tracker_id=' + tkid, '_blank', 500, 250);
      return false;
     }
-
     // popup for calendar add edit
     function calendarpopup(eid,date_squash) {
      top.restoreSession()
      dlgopen('../main/calendar/add_edit_event.php?eid=' + eid + '&date=' + date_squash, '_blank', 775, 500);
      return false;
     }
-
     // used to display the patient demographic and encounter screens
     function topatient(newpid, enc) {
-      if (document.getElementById('form_new_window').checked) {
+      if ($('#setting_new_window').val() =='checked') {
         openNewTopWindow(newpid,enc);
       }
       else {
@@ -921,13 +918,11 @@ function myLocalJS() {
         }
       }
     }
-
     function doCALLback(eventdate,eid,pccattype) {
       $("#progCALLback_"+eid).parent().removeClass('js-blink-infinite').css('animation-name','none');
       $("#progCALLback_"+eid).removeClass("hidden");
       auto_refresh = '';
     }
-
     // opens the demographic and encounter screens in a new window
     function openNewTopWindow(newpid,newencounterid) {
       document.fnew.patientID.value = newpid;
@@ -935,7 +930,6 @@ function myLocalJS() {
       top.restoreSession();
       document.fnew.submit();
     }
-
     function SMS_bot(eid) {
       top.restoreSession();
       //dlgopen('../main/messages/messages.php?nomenu=1&go=SMS_bot&pc_eid=' + eid,'_blank', 340,<?php echo $height; ?>);
@@ -945,21 +939,8 @@ function myLocalJS() {
       var oeto = '<?php echo attr( oeFormatShortDate( $to_date ) ); ?>';
       window.open('../main/messages/messages.php?nomenu=1&go=SMS_bot&pc_eid=' + eid+'&to='+to+'&from='+from+'&oeto='+oeto+'&oefrom='+oefrom,'SMS_bot', 'width=370,height=600,resizable=0');
       return false;
-  
-      var page = "../main/messages/messages.php?nomenu=1&go=SMS_bot&pc_eid=' + eid";
-
-      var $dialog = $('<div style="border:none;background-color:transparent;"></div>')
-      .html('<iframe style="border: 0px !important; " src="' + page + '" width="100%" height="100%"></iframe>')
-      .dialog({
-       autoOpen: false,
-       modal: true,
-       height: 625,
-       width: 430,
-       title: "MedEx",
-       hide: { effect: "slideUp", duration: 1000 }
-     });
-      $dialog.dialog('open');
     }
+
     $(document).ready(function() {
       $( "#datepicker1" ).datepicker({
                                    beforeShow: function() {
@@ -990,8 +971,6 @@ function myLocalJS() {
                                    }
                                    }); 
        
-        //loadlink(); // This will run on page load
-          //     refreshbegin('1','0');
         <?php
         if ( $GLOBALS['pat_trkr_timer'] != '0' ) { 
             ?>
@@ -1032,11 +1011,11 @@ function myLocalJS() {
       });
 
        
-      // mdsupport - Immediately post changes to form_new_window
-      $('#form_new_window').click(function () {
-        $('#setting_new_window').val(this.checked ? ' checked' : ' ');
+      // mdsupport - Immediately post changes to setting_new_window
+      $('#setting_new_window').click(function () {
+        $('#setting_new_window').val(this.checked ? 'checked' : ' ');
         $.post( "<?php echo basename( __FILE__ ) ?>", {
-          data: $('form#pattrk').serialize(),
+          'setting_new_window' : $('#setting_new_window').val(),
           success: function (data) {}
         });
       });
@@ -1054,20 +1033,6 @@ function myLocalJS() {
         e.preventDefault;
         refreshMe();
       });
-      $('*').each(function() {
-        if($(this).hasClass('qTip')){
-          var value = $(this).next('div:hidden').html();
-          var title = $(this).attr('title');
-          $('.qTip').qtip({
-            style: {classes: 'qtip-bootstrap' },
-            content: {
-              title: title,
-              text: value // The problem is here (on the `text` option)
-            }
-          });
-        }
-      });
-      
     });
 
   </script>

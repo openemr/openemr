@@ -24,9 +24,11 @@ require_once("$srcdir/log.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/classes/Document.class.php");
 require_once("$srcdir/gprelations.inc.php");
+require_once "$srcdir/user.inc";
 require_once("$srcdir/MedEx/API.php");
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
+
 if ($GLOBALS['medex_enable'] == '1') {
     $logged_in = $MedEx->login();
     if ($_REQUEST['msg']) {
@@ -34,7 +36,9 @@ if ($GLOBALS['medex_enable'] == '1') {
         exit();
     }
 }
-
+// mdsupport - user_settings prefix
+$uspfx = $webserver_root;
+$setting_bootstrap_submenu = prevSetting( $uspfx, 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ' );
 ?><html>
   <head>
     <title><?php echo xlt('Message Center'); ?></title>
@@ -92,42 +96,40 @@ if ($GLOBALS['medex_enable'] == '1') {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
       label { font-weight:400;}
-      </style>
+    </style>
   </head>
 
   <body class="body_top">
+    <?php
+    if (($GLOBALS['medex_enable'] == '1')&&(empty($_REQUEST['nomenu']))) {
+        $MedEx->display->navigation($logged_in);
+    } 
+    
+    if (!empty($_GET['go'])) { ?>
         <?php
-        if (($GLOBALS['medex_enable'] == '1')&&(empty($_REQUEST['nomenu']))) {
-            $MedEx->display->navigation($logged_in);
-        } 
-        ?>
-
-        <?php if (!empty($_GET['go'])) { ?>
-            <?php
-            if (($_REQUEST['go']=="setup")&&(!$logged_in)) {
-                $stage = $_REQUEST['stage'];
-                if (!is_numeric($stage)) {
-                    echo "<br /><br /><span class='title'>$stage ".xlt('Warning').": ".xlt('This is not a valid request').".</span>";
-                } else {
-                    $MedEx->setup->MedExBank($stage);
-                }
-            } elseif ($_REQUEST['go']=="addRecall") {
-                $MedEx->display->display_add_recall();
-            } else if ($_REQUEST['go']=='Recalls') {
-                $MedEx->display->display_recalls($logged_in);
-            } elseif ((($_REQUEST['go']=="setup")||($_REQUEST['go']=='Preferences'))&&($logged_in)) {
-                $MedEx->display->preferences();
-            } elseif ($_REQUEST['go']=='icons') {
-                $MedEx->display->icon_template();
-            } elseif ($_REQUEST['go']=='SMS_bot') {
-                $MedEx->display->SMS_bot($logged_in);
+        if (($_REQUEST['go']=="setup")&&(!$logged_in)) {
+            $stage = $_REQUEST['stage'];
+            if (!is_numeric($stage)) {
+                echo "<br /><br /><span class='title'>$stage ".xlt('Warning').": ".xlt('This is not a valid request').".</span>";
             } else {
-                echo xlt('Warning').": ".xlt('Navigation error').". ".xlt('Please behave').".";
+                $MedEx->setup->MedExBank($stage);
             }
-            ?>
-        <?php } else {
-      //original message.php stuff
-        ?>
+        } elseif ($_REQUEST['go']=="addRecall") {
+            $MedEx->display->display_add_recall();
+        } else if ($_REQUEST['go']=='Recalls') {
+            $MedEx->display->display_recalls($logged_in);
+        } elseif ((($_REQUEST['go']=="setup")||($_REQUEST['go']=='Preferences'))&&($logged_in)) {
+            $MedEx->display->preferences();
+        } elseif ($_REQUEST['go']=='icons') {
+            $MedEx->display->icon_template();
+        } elseif ($_REQUEST['go']=='SMS_bot') {
+            $MedEx->display->SMS_bot($logged_in);
+        } else {
+            echo xlt('Warning').": ".xlt('Navigation error').". ".xlt('Please behave').".";
+        }
+    } else {
+        //original message.php stuff
+    ?>
     <div class="container">
     
       <div class="row">
