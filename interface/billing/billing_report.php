@@ -98,8 +98,6 @@ $oauthorized = $my_authorized;
 <head>
 
 <?php Header::setupHeader(['datetime-picker','common']); ?>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
 <script type="text/javascript">
 
 function select_all() {
@@ -373,8 +371,9 @@ document.onclick=TakeActionOnHide;
     <p style='margin-top: 5px; margin-bottom: 5px; margin-left: 5px; text-align: left;'>
         <div class='title'><?php echo xlt('Billing Manager') ?></div>
     </p>
+
     <form name='the_form' method='post' action='billing_report.php' onsubmit='return top.restoreSession()' style="display: inline">
-        <?php Header::setupHeader('datetime-picker'); ?>
+
 <script type="text/javascript">
  var mypcc = '1';
 </script>

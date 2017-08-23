@@ -273,7 +273,6 @@ if ($fend > $count) {
     <link rel="stylesheet" href="<?php echo attr($css_header);?>" type="text/css">
     <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
     <script type="text/javascript" src="../../../library/textformat.js"></script>
-    <?php if ($institutional) { ?>
     <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
     <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-12-1/themes/base/jquery-ui.min.css" rel="stylesheet" type="text/css" />
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/jquery-ui.min.js"></script>
@@ -281,11 +280,12 @@ if ($fend > $count) {
     .ui-autocomplete { max-height: 350px; max-width: 35%; overflow-y: auto; overflow-x: hidden; }
 </style>
     <script>
+    <?php if ($institutional) { ?>
     $( function() {
         var cache = {};
         $( ".revcode" ).autocomplete({
-              minLength: 1,
-              source: function( request, response ) {
+            minLength: 1,
+            source: function( request, response ) {
                 var term = request.term;
                 request.code_group = "revenue_code";
                 if ( term in cache ) {
@@ -296,14 +296,13 @@ if ($fend > $count) {
                   cache[ term ] = data;
                   response( data );
                 });
-              }
-            }).dblclick(function(event) {
-                $(this).autocomplete('search'," ");
-            });
+            }
+        }).dblclick(function(event) {
+            $(this).autocomplete('search'," ");
         });
-    </script>
+    });
     <?php } ?>
-    <script>
+
         // This is for callback by the find-code popup.
         // Appends to or erases the current list of related codes.
         function set_related(codetype, code, selector, codedesc) {

@@ -1125,14 +1125,9 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
             // REF*1C is required here for the Medicare provider number if NPI was
             // specified in NM109.  Not sure if other payers require anything here.
 
-            // @TODO below appears to not belong in 5010??.
-            if (/* ! $CMS_5010 &&  */ $claim->providerNumber($prockey)) {
-                ++$edicount;
-                $out .= "REF" .
-                "*" . $claim->providerNumberType($prockey) .
-                // Note: 5010 documents that type 1D (Medicaid) is changed to G2.
-                "*" . $claim->providerNumber($prockey) .
-                "~\n";
+            if ($claim->providerNumberType($prockey) == "G2") {
+                ++$edicount; $out .= "REF" . "*" . $claim->providerNumberType($prockey) .
+                "*" . $claim->providerNumber($prockey) . "~\n";
             }
         } // end provider exception
 

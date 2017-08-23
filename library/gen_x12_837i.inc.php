@@ -6,7 +6,7 @@
  * @link    http://www.open-emr.org
  * @author  Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
- * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(dirname(__FILE__) . "/invoice_summary.inc.php");
@@ -1175,12 +1175,8 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
 
             // REF*1C is required here for the Medicare provider number if NPI was
             // specified in NM109. Not sure if other payers require anything here.
-
-            // @TODO below appears to not belong in 5010 - ???!
-            if (/* ! $CMS_5010 &&  */ $claim->providerNumber($prockey)) {
-                ++ $edicount;
-                $out .= "REF" . "*" . $claim->providerNumberType($prockey) .
-                // Note: 5010 documents that type 1D (Medicaid) is changed to G2.
+            if ($claim->providerNumberType($prockey) == "G2") {
+                ++$edicount; $out .= "REF" . "*" . $claim->providerNumberType($prockey) .
                 "*" . $claim->providerNumber($prockey) . "~\n";
             }
         } // provider exception

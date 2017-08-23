@@ -35,7 +35,7 @@ if ($isAuthorized !== true) {
 <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 <meta charset="utf-8" />
 <?php if ($isAuthorized !== true) {?>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
  <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
  <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-12-1/themes/base/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
@@ -198,10 +198,10 @@ var encounter;
 var align = true;
 var isTemplate;
 var ub04id = new Array();
-payerid = '<?php echo $payerid;?>';
-pid = <?php echo $pid;?>;
-encounter = <?php echo $encounter;?>;
-isTemplate = <?php echo ($isAuthorized === true ? $isAuthorized : 0); ?>;
+payerid = '<?php echo attr($payerid);?>';
+pid = <?php echo attr($pid);?>;
+encounter = <?php echo attr($encounter);?>;
+isTemplate = <?php echo attr(($isAuthorized === true ? $isAuthorized : 0)); ?>;
 ub04id = <?php echo $ub04id;?>;
 
 function adjustForm()
@@ -335,8 +335,8 @@ function postClaim(action)
         var ii = i+1;
         var tmp = document.getElementById("ub04id"+ ii.toString()).value;
         if(tmp){
-            var row = el.offsetTop.toString() //+ "px";
-            var col = el.offsetLeft.toString() //+ "px";
+            var row = el.offsetTop.toString();
+            var col = el.offsetLeft.toString();
             var max = el.getAttribute('maxlength');
             var ta = window.getComputedStyle(el,null).getPropertyValue("text-align");
             var w = window.getComputedStyle(el,null).getPropertyValue("width");
@@ -354,7 +354,7 @@ function postClaim(action)
         if (xhr.status === 200) {
             console.log(this.responseText?this.responseText:'no response');
             if(this.responseText == 'done')
-                alert("<?php echo xl("Save Completed")?>");
+                alert("<?php echo xls("Save Completed")?>");
         }
     };
     if(action == 'payer_save'){
@@ -880,7 +880,7 @@ textarea{
 #ub04id377{left:798px; top:1010px; width:12px; height:14px; color: rgb(0,0,0); text-align:center;}
 #ub04id378{left:824px; top:1010px; width:95px; height:14px; color: rgb(0,0,0); text-align:left;}
 #ub04id379{left:662px; top:1028px; width:113px; height:14px; color: rgb(0,0,0); text-align:left;}
-#ub04id380{left:798px; top:1028px; width:23px; height:14px; color: rgb(0,0,0); text-align:left;    /*font:normal 10px 'Times New Roman', Times, serif;*/}
+#ub04id380{left:798px; top:1028px; width:23px; height:14px; color: rgb(0,0,0); text-align:left;}
 #ub04id381{left:821px; top:1028px; width:98px; height:14px; color: rgb(0,0,0); text-align:left;}
 #ub04id382{left:15px;  top:1045px; width:89px; height:14px; color: rgb(0,0,0); text-align:left;}
 #ub04id383{left:104px; top:1045px; width:77px; height:14px; color: rgb(0,0,0); text-align:right;}
@@ -891,7 +891,7 @@ textarea{
 #ub04id388{left:594px; top:1045px; width:170px; height:14px; color: rgb(0,0,0); text-align:left;}
 #ub04id389{left:790px; top:1045px; width:129px; height:14px; color: rgb(0,0,0); text-align:left;}
 #ub04id390{left:662px; top:1065px; width:113px; height:14px; color: rgb(0,0,0); text-align:left;}
-#ub04id391{left:798px; top:1065px; width:23px; height:14px; color: rgb(0,0,0); text-align:left;    /*font:normal 10px 'Times New Roman', Times, serif;*/}
+#ub04id391{left:798px; top:1065px; width:23px; height:14px; color: rgb(0,0,0); text-align:left;}
 #ub04id392{left:821px; top:1065px; width:98px; height:14px; color: rgb(0,0,0); text-align:left;}
 #ub04id393{left:15px;  top:1082px; width:89px; height:14px; color: rgb(0,0,0); text-align:left;}
 #ub04id394{left:104px; top:1082px; width:77px; height:14px; color: rgb(0,0,0); text-align:right;}
@@ -905,9 +905,9 @@ textarea{
 #ub04id402{left:303px; top:1102px; width:20px; height:14px; color: rgb(0,0,0); text-align:center;}
 #ub04id403{left:324px; top:1102px; width:110px; height:14px; color: rgb(0,0,0); text-align:left;}
 #ub04id404{left:436px; top:1102px; width:132px; height:14px; color: rgb(0,0,0); text-align:right;}
-#ub04id405{left:622px; top:1102px; width:22px; height:14px; color: rgb(0,0,0); text-align:left;    /*font:normal 10px 'Times New Roman', Times, serif;*/}
+#ub04id405{left:622px; top:1102px; width:22px; height:14px; color: rgb(0,0,0); text-align:left;}
 #ub04id406{left:662px; top:1102px; width:113px; height:14px; color: rgb(0,0,0); text-align:left;}
-#ub04id407{left:798px; top:1102px; width:23px; height:14px; color: rgb(0,0,0); text-align:left;    /*font:normal 10px 'Times New Roman', Times, serif;*/}
+#ub04id407{left:798px; top:1102px; width:23px; height:14px; color: rgb(0,0,0); text-align:left;}
 #ub04id408{left:821px; top:1102px; width:98px; height:14px; color: rgb(0,0,0); text-align:left;}
 #ub04id409{left:72px;  top:1102px; width:209px; height:14px; color: rgb(0,0,0); text-align:left;}
 #ub04id410{left:303px; top:1120px; width:20px; height:14px; color: rgb(0,0,0); text-align:center;}
@@ -919,10 +919,10 @@ textarea{
 #ub04id416{left:303px; top:1137px; width:20px; height:14px; color: rgb(0,0,0); text-align:center;}
 #ub04id417{left:324px; top:1137px; width:110px; height:14px; color: rgb(0,0,0); text-align:left;}
 #ub04id418{left:436px; top:1137px; width:132px; height:14px; color: rgb(0,0,0); text-align:right;}
-#ub04id419{left:622px; top:1137px; width:22px; height:14px; color: rgb(0,0,0); text-align:left;    /*font:normal 10px 'Times New Roman', Times, serif;*/}
+#ub04id419{left:622px; top:1137px; width:22px; height:14px; color: rgb(0,0,0); text-align:left;}
 #ub04id420{left:662px; top:1137px; width:113px; height:14px; color: rgb(0,0,0); text-align:left;}
 #ub04id421{left:821px; top:1137px; width:98px; height:14px; color: rgb(0,0,0); text-align:left;}
-#ub04id422{left:798px; top:1137px; width:23px; height:14px; color: rgb(0,0,0); text-align:left;    /*font:normal 10px 'Times New Roman', Times, serif;*/}
+#ub04id422{left:798px; top:1137px; width:23px; height:14px; color: rgb(0,0,0); text-align:left;}
 #ub04id423{left:19px;  top:1137px; width:263px; height:14px; color: rgb(0,0,0); text-align:left;}
 #ub04id424{left:303px; top:1155px; width:20px; height:14px; color: rgb(0,0,0); text-align:center;}
 #ub04id425{left:324px; top:1155px; width:110px; height:14px; color: rgb(0,0,0); text-align:left;}
@@ -935,18 +935,18 @@ textarea{
 <body onload="adjustForm();">
 <div class="container" id="formContainer">
 <?php if ($isAuthorized !== true) {?>
-<h3 class='formhide'><em>Claim Edit </em><button class="btn btn-xs btn-warning" onclick="myZoom()" >Zoom</button></h3>
+<h3 class='formhide'><em><?php echo xlt('Claim Edit') ?> </em><button class="btn btn-xs btn-warning" onclick="myZoom()" ><?php echo xlt('Zoom'); ?></button></h3>
 <div class="navbar-fixed-top formhide" id='menu'>
 <?php if ($pid && $encounter) {?>
-    <button class="btn btn-xs btn-success" onclick="disposeSave('form')" title="Save for printing with form">Pdf With Form</button>
-    <button class="btn btn-xs btn-success" onclick="disposeSave('noform')" title="Save for printing to a pre printed sheet">Pdf Without Form</button>
-    <button class="btn btn-xs btn-success" onclick="postClaim('batch_save')" title="Save claim for batch processing">Save Claim</button>
+    <button class="btn btn-xs btn-success" onclick="disposeSave('form')" title=<?php echo xlt("Save for printing with form") ?>><?php echo xlt('Pdf With Form'); ?></button>
+    <button class="btn btn-xs btn-success" onclick="disposeSave('noform')" title=<?php echo xlt("Save for printing to a pre printed sheet"); ?>><?php echo xlt('Pdf Without Form'); ?></button>
+    <button class="btn btn-xs btn-success" onclick="postClaim('batch_save')" title=<?php echo xlt("Save claim for batch processing"); ?>><?php echo xlt('Save Claim'); ?></button>
     <?php } else {?>
-    <button class="btn btn-xs btn-success" onclick="postClaim('payer_save')">Save Payer</button>
+    <button class="btn btn-xs btn-success" onclick="postClaim('payer_save')"><?php echo xlt('Save Payer'); ?></button>
     <?php } ?>
-    <button class="btn btn-xs btn-danger" onclick="resetClaim()" title="Reset claim form to Fee Sheet Version">Reset Version</button>
+    <button class="btn btn-xs btn-danger" onclick="resetClaim()" title=<?php echo xlt("Reset claim form to Fee Sheet Version"); ?>><?php echo xlt('Reset Version'); ?></button>
     <button class="btn btn-info btn-xs" type="button" onclick="window.scrollTo(0, 0);$('#formhelp').toggle()"><?php echo xlt('Help'); ?></button>
-    <button class="btn btn-xs btn-danger" onclick="cleanUp()">Return</button>
+    <button class="btn btn-xs btn-danger" onclick="cleanUp()"><?php echo xlt('Return'); ?></button>
 </div>
 <div id='formhelp' class='well' style='display:none; text-align:center; width: auto; margin: 5px auto;'>
     <h4>Help</h4>
@@ -961,7 +961,7 @@ textarea{
     </div>
    <button class="btn btn-primary btn-xs" type="button" onclick="$('#formhelp').toggle()"><?php echo xlt('Dismiss Help'); ?></button>
 </div>
-<?php } ?><?php //echo $url.$GLOBALS['web_root'] ?>
+<?php } ?>
 <div id="p1" class="pageArea" style="overflow: hidden; position: relative; width: 934px; height: 1210px;">
 <!-- Template background -->
 <div id="pg1" style="-webkit-user-select: none;"><img src="<?php echo $imgurl ?>/ub04.svg" id="frmbg" style="width:934px; height:1210px; background-color:white; -moz-transform:scale(1); z-index: 0;" /></div>

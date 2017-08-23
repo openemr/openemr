@@ -13,7 +13,6 @@ require_once("$srcdir/gen_x12_837i.inc.php");
 require_once("$srcdir/invoice_summary.inc.php");
 
 use OpenEMR\Billing\Claim;
-
 use OpenEMR\Pdf\PdfCreator;
 
 $dispose = isset($_POST['handler']) ? $_POST['handler'] : $_GET['handler'];
@@ -53,7 +52,7 @@ if ($dispose) {
         echo $ub04id;
         exit();
     }
-    die(xl('Do not know what to do!'));
+    die(xlt('Do not know what to do!'));
 }
 
 function get_payer_defaults($payerid)
@@ -81,7 +80,7 @@ function saveTemplate($encounter, $pid, $ub04id, $action = 'form')
         $ub04id = json_encode($ub04id);
         $isAuthorized = true;
         ob_start();
-        include(dirname(__file__) . "/ub04_form.php");
+        require(dirname(__file__) . "/ub04_form.php");
         $htmlin = ob_get_clean();
         $isAuthorized = false;
         ub04Dispose('download', $htmlin, "ub04_download.pdf", $action);
@@ -102,7 +101,7 @@ function buildTemplate($pid = '', $encounter = '', $htmlin, $action = 'form', &$
 
     $isAuthorized = true;
     ob_start();
-    include(dirname(__file__) . "/ub04_form.php");
+    require(dirname(__file__) . "/ub04_form.php");
     $htmlin = ob_get_clean();
     $isAuthorized = false;
 

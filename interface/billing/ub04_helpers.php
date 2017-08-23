@@ -37,9 +37,9 @@ function sendSelection(value)
 <table class="table table-striped">
     <thead>
         <tr>
-            <th><?php echo xl('Provider')?></th>
-                <th><?php echo xl('User Id') ?></th>
-                <th><?php echo xl('NPI') ?></th>
+            <th><?php echo xlt('Provider')?></th>
+                <th><?php echo xlt('User Id') ?></th>
+                <th><?php echo xlt('NPI') ?></th>
         </tr>
     </thead>
     <tbody>
