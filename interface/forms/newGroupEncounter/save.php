@@ -154,9 +154,9 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
  top.restoreSession();
 <?php if ($mode == 'new') { ?>
     //todo - checking necessary
- parent.left_nav.setEncounter(<?php echo "'" . attr(oeFormatShortDate($date)) . "', '" . attr($encounter) . "', window.name"; ?>);
+ parent.parent.frames["left_nav"].setEncounter(<?php echo "'" . attr(oeFormatShortDate($date)) . "', '" . attr($encounter) . "', window.name"; ?>);
 <?php } // end if new encounter ?>
- parent.left_nav.loadFrame('enc2', window.name, '<?php echo $nexturl; ?>');
+ parent.parent.frames["left_nav"].loadFrame('enc2', parent.name, '<?php echo $nexturl; ?>');
 </script>
 
 </body>
