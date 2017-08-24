@@ -1870,7 +1870,7 @@ class Display extends base
                       <div class="divTableCell center"><?php echo $icons['EMAIL']['READ']; ?></div>
                       <div class="divTableCell center"><?php echo $icons['EMAIL']['CONFIRMED']; ?></div>
                       <div class="divTableCell center"><?php echo $icons['EMAIL']['CALL']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['EMAIL']['FAILURE']; ?></div>
+                      <div class="divTableCell center"><?php echo $icons['EMAIL']['FAILED']; ?></div>
                       <div class="divTableCell center"><?php echo $icons['EMAIL']['EXTRA']; ?></div>
                       <div class="divTableCell center"><?php echo $icons['EMAIL']['STOP']; ?></div>
                     </div>
@@ -1883,7 +1883,7 @@ class Display extends base
                       <div class="divTableCell center"><?php echo $icons['SMS']['READ']; ?></div>
                       <div class="divTableCell center"><?php echo $icons['SMS']['CONFIRMED']; ?></div>
                       <div class="divTableCell center"><?php echo $icons['SMS']['CALL']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['SMS']['FAILURE']; ?></div>
+                      <div class="divTableCell center"><?php echo $icons['SMS']['FAILED']; ?></div>
                       <div class="divTableCell center"><?php echo $icons['SMS']['EXTRA']; ?></div>
                       <div class="divTableCell center"><?php echo $icons['SMS']['STOP']; ?></div>
                     </div>
@@ -1896,7 +1896,7 @@ class Display extends base
                       <div class="divTableCell center"><?php echo $icons['AVM']['READ']; ?></div>
                       <div class="divTableCell center"><?php echo $icons['AVM']['CONFIRMED']; ?></div>
                       <div class="divTableCell center"><?php echo $icons['AVM']['CALL']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['AVM']['FAILURE']; ?></div>
+                      <div class="divTableCell center"><?php echo $icons['AVM']['FAILED']; ?></div>
                       <div class="divTableCell center"><?php echo $icons['AVM']['EXTRA']; ?></div>
                       <div class="divTableCell center"><?php echo $icons['AVM']['STOP']; ?></div>
                     </div>
