@@ -9,11 +9,12 @@
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
  */
 require_once("../globals.php");
+require_once("ub04_codes.inc.php");
 
 $lookup = isset($_GET["code_group"]) ? filter_input(INPUT_GET, 'code_group') : "";
 $term = isset($_GET["term"]) ? filter_input(INPUT_GET, 'term') : '';
 if ($lookup != "") {
-    get_codes_list($lookup, $term);
+    lookup_codes($lookup, $term);
     exit();
 }
 
@@ -38,8 +39,8 @@ function sendSelection(value)
     <thead>
         <tr>
             <th><?php echo xlt('Provider')?></th>
-                <th><?php echo xlt('User Id') ?></th>
-                <th><?php echo xlt('NPI') ?></th>
+            <th><?php echo xlt('User Id') ?></th>
+            <th><?php echo xlt('NPI') ?></th>
         </tr>
     </thead>
     <tbody>
@@ -58,6 +59,26 @@ while ($row = sqlFetchArray($users)) {
 </body>
 </html>
 <?php
+function lookup_codes($group, $term)
+{
+    global $ub04_codes;
+    $gotem = array();
+
+    foreach ($ub04_codes as $k => $v) {
+        if ($v['code_group'] != $group) {
+            continue;
+        }
+        $s = "/" . $term . "/i";
+        $label = $v['code'] . " : " . $v['desc'] . ($v['desc1'] ? (" :: " . $v['desc1']) : "");
+        if (preg_match($s, $label)) {
+            $gotem[] = array(
+                'label' => htmlspecialchars($label, ENT_QUOTES),
+                'value' => $v['code']
+            );
+        }
+    }
+    echo json_encode($gotem);
+}
 /**
  * Lookup lists
 * @param lookup group string $group

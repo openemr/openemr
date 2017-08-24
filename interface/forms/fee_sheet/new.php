@@ -473,7 +473,7 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
 // If Save or Save-and-Close was clicked, save the new and modified billing
 // lines; then if no error, redirect to $GLOBALS['form_exit_url'].
 //
-if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
+if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'] || $_POST['bn_save_stay'])) {
     $main_provid = 0 + $_POST['ProviderID'];
     $main_supid  = 0 + $_POST['SupervisorID'];
 
@@ -499,7 +499,7 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
         // duplicated from the database.
         unset($_POST['bill']);
         unset($_POST['prod']);
-    } else { // not running as ajax
+    } elseif (!isset($_POST['bn_save_stay'])) { // not running as ajax
         // If appropriate, update the status of the related appointment to
         // "In exam room".
         updateAppointmentStatus($fs->pid, $fs->visit_date, '<');
@@ -524,7 +524,6 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
             "&ptid={$fs->pid}&enid={$fs->encounter}&rde=$rapid_data_entry");
         } else {
             // Otherwise return to the normal encounter summary frameset.
-            // formJump doesn't work in case of fee sheet called from Fees->Fee Sheet -use header instead.
             //
             $to = $GLOBALS['form_exit_url'];
             formHeader("Redirecting....");
@@ -602,6 +601,26 @@ if ($_POST['newcodes']) {
     }
 }
 ?>
+function reinitForm(){
+    var cache = {};
+    $( ".revcode" ).autocomplete({
+        minLength: 1,
+        source: function( request, response ) {
+            var term = request.term;
+            request.code_group = "revenue_code";
+            if ( term in cache ) {
+              response( cache[ term ] );
+              return;
+            }
+            $.getJSON( "<?php echo $GLOBALS['web_root'] ?>/interface/billing/ub04_helpers.php", request, function( data, status, xhr ) {
+              cache[ term ] = data;
+              response( data );
+            })
+        }
+    }).dblclick(function(event) {
+        $(this).autocomplete('search'," ");
+       });
+}
 
 // This is invoked by <select onchange> for the various dropdowns,
 // including search results.
@@ -1306,7 +1325,8 @@ if ($_POST['newcodes'] && !$alertmsg) {
 // Write the form's line items.
 echoServiceLines();
 echoProductLines();
-
+// Ensure DOM is updated.
+echo "<script>reinitForm();</script>";
 ?>
 </table>
 </p>
@@ -1374,11 +1394,11 @@ if (true) {
 &nbsp; &nbsp; &nbsp;
 
 <?php if (!$isBilled) { // visit is not yet billed ?>
-<input type='submit' name='bn_save' value='<?php echo xla('Save');?>'
+<input type='submit' name='bn_save' value='<?php echo xla('Save'); ?>' />
+<input type='submit' name='bn_save_stay' value='<?php echo xla('Save Current'); ?>' />
 <?php if ($rapid_data_entry) {
     echo " style='background-color:#cc0000';color:#ffffff'";
 } ?>
-/>
 <?php if ($GLOBALS['ippf_specific']) { // start ippf-only stuff ?>
 <?php if ($fs->hasCharges) { // unbilled with charges ?>
 <input type='submit' name='bn_save_close' value='<?php echo xla('Save and Checkout'); ?>' />
@@ -1388,7 +1408,7 @@ if (true) {
 &nbsp;
 <?php } // end ippf-only ?>
 <input type='submit' name='bn_refresh' onclick='return this.clicked = true;'
-value='<?php echo xla('Refresh');?>'>
+value='<?php echo xla('Refresh');?>' />
 &nbsp;
 <?php } else { // visit is billed ?>
 <?php if ($fs->hasCharges) { // billed with charges ?>
@@ -1442,31 +1462,13 @@ if ($alertmsg) {
 } ?>
 <script>
 var translated_price_header="<?php echo xlt("Price");?>";
-$( function() {
-    var cache = {};
-    $( ".revcode" ).autocomplete({
-        minLength: 1,
-        source: function( request, response ) {
-            var term = request.term;
-            request.code_group = "revenue_code";
-            if ( term in cache ) {
-              response( cache[ term ] );
-              return;
-            }
-            $.getJSON( "<?php echo $GLOBALS['web_root'] ?>/interface/billing/ub04_helpers.php", request, function( data, status, xhr ) {
-              cache[ term ] = data;
-              response( data );
-            })
-        }
-    }).dblclick(function(event) {
-        $(this).autocomplete('search'," ");
-       });
-});
+
 $( "[name='search_term']" ).keydown(function(event){
     if(event.keyCode==13){
         $("[name=bn_search]").trigger('click');
         return false;
      }
  });
+
 $("[name=search_term]").focus();
 </script>

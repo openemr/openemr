@@ -149,7 +149,7 @@ $( document ).ready(function() {
           minLength: 1,
           source: function( request, response ) {
             var term = request.term;
-            request.code_group = "ub_condition_code";
+            request.code_group = "condition_code";
             if ( term in cache ) {
               response( cache[ term ] );
               return;
