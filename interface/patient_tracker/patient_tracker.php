@@ -385,7 +385,7 @@ if (!$_REQUEST['flb_table']) {
               <div class="col-sm-<?php echo $col_width." ".$last_col_width; ?> text-center" >
                 <div class="text-center" style="margin: 0 auto;">
                   <b><u>MedEx <?php echo xlt( 'Reminders' ); ?></u></b><br />
-                  <div class="text-left" style="width: 70%;margin: 0 auto;">
+                  <div class="text-left" style="width: 70%;margin: 5px auto;">
                     <?php echo $current_events; ?>
                   </div>
                 </div>
@@ -442,10 +442,7 @@ if (!$_REQUEST['flb_table']) {
                 <?php  echo xlt( 'Encounter' ); ?>
               </td>
               <?php } ?>
-              <td class="dehead visible-xs text-center">
-                <?php  echo xlt( 'Room' ); ?>
-              </td>
-
+              
               <?php if ( $GLOBALS['ptkr_date_range'] ) { ?>
               <td class="dehead hidden-xs hidden-sm text-center">
                 <?php  echo xlt( 'Appt Date' ); ?>
@@ -463,9 +460,13 @@ if (!$_REQUEST['flb_table']) {
               <td class="dehead hidden-xs hidden-sm text-center">
                 <?php  echo xlt( 'Appt Status' ); ?>
               </td>
-              <td class="dehead hidden-xs hidden-sm text-center">
+              <td class="dehead hidden-xs text-center">
                 <?php  echo xlt( 'Current Status' ); ?>
               </td>
+              <td class="dehead visible-xs text-center">
+                <?php  echo xlt( 'Current' ); ?>
+              </td>
+
               <?php if ( count( $chk_prov ) > 1 ) { ?>
               <td class="dehead text-center">
                 <?php  echo xlt( 'Provider' ); ?>
