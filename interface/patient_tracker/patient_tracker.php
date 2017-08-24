@@ -342,8 +342,25 @@ if (!$_REQUEST['flb_table']) {
                     echo    ">".xlt( $apptstat['title'] ) ."</option>";
                   }
                   echo "</select>";
+
+                  if ( $GLOBALS['ptkr_show_visit_type'] ) {
                   ?>
-                  <select class="form-group" id="form_facility" name="form_facility" style="<?php
+                    <select id="form_apptcat" name="form_apptcat" class="form-group">
+                      <?php
+                      $categories=fetchAppointmentCategories();
+                      echo "<option value='all'>".xlt( "All Visits" )."</option>";
+                      while ( $cat=sqlFetchArray( $categories ) ) {
+                        echo "<option value='".attr( $cat['id'] )."'";
+                        if ( $cat['id']==$_POST['form_apptcat'] ) {
+                          echo " selected='true' ";
+                        }
+                        echo    ">".text( xl_appt_category( $cat['category'] ) )."</option>";
+                      }
+                      echo "</select>";
+                    } ?><input type="text" placeholder="Patient Name" class="form-control input-sm" id="form_patient_name" name="form_patient_name" value="<?php echo ( $form_patient_name ) ? attr( $form_patient_name ) : ""; ?>">
+              </div>
+              <div class="col-sm-<?php echo $col_width; ?>">
+                <select class="form-group" id="form_facility" name="form_facility" style="<?php
                     if ( $count_facs <'1' ) {
                       echo "display:none;";
                     }
@@ -355,11 +372,7 @@ if (!$_REQUEST['flb_table']) {
                   echo "display:none;"; } ?>">
                   <option value="" selected><?php echo xlt( 'All Providers' ); ?></option>
                   <?php echo $select_provs; ?>
-                </select>
-              </div>
-              <div class="col-sm-<?php echo $col_width; ?>">
-                <input type="text" placeholder="Patient Name" class="form-control input-sm" id="form_patient_name" name="form_patient_name" value="<?php echo ( $form_patient_name ) ? attr( $form_patient_name ) : ""; ?>">
-                <input placeholder="Patient ID" class="form-control input-sm" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ( $form_patient_id ) ? attr( $form_patient_id ) : ""; ?>">
+                </select><input placeholder="Patient ID" class="form-control input-sm" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ( $form_patient_id ) ? attr( $form_patient_id ) : ""; ?>">
               </div>
               <div class="col-sm-<?php echo $col_width; ?>">
                 <div style="width: 80%;margin: 0 auto;" class="input-append">
@@ -442,7 +455,13 @@ if (!$_REQUEST['flb_table']) {
                 <?php  echo xlt( 'Encounter' ); ?>
               </td>
               <?php } ?>
-              
+              <td class="dehead hidden-xs text-center">
+                <?php  echo xlt( 'Exam Room #' ); ?>
+              </td>
+              <td class="dehead visible-xs text-center">
+                <?php  echo xlt( 'Room' ); ?>
+              </td>
+
               <?php if ( $GLOBALS['ptkr_date_range'] ) { ?>
               <td class="dehead hidden-xs hidden-sm text-center">
                 <?php  echo xlt( 'Appt Date' ); ?>
@@ -466,7 +485,9 @@ if (!$_REQUEST['flb_table']) {
               <td class="dehead visible-xs text-center">
                 <?php  echo xlt( 'Current' ); ?>
               </td>
-
+              <td class="dehead hidden-xs hidden-sm text-center" max-width="150px">
+                <?php  echo xlt( 'Visit Type' ); ?>
+              </td>
               <?php if ( count( $chk_prov ) > 1 ) { ?>
               <td class="dehead text-center">
                 <?php  echo xlt( 'Provider' ); ?>
@@ -685,8 +706,11 @@ if (!$_REQUEST['flb_table']) {
                                 <?php if ( $appt_enc != 0 ) {
                                 echo text( $appt_enc );} ?>
                           </td>
-                            <?php } 
-                            if ( $GLOBALS['ptkr_date_range'] ) { ?>
+                            <?php } ?>
+                          <td class="detail" align="center">
+                                <?php echo getListItemTitle( 'patient_flow_board_rooms', $appt_room );?>
+                          </td>
+                            <?php if ( $GLOBALS['ptkr_date_range'] ) { ?>
                           <td class="detail hidden-xs hidden-sm" align="center">
                                 <?php echo oeFormatShortDate( $date_appt ); ?>
                           </td>
@@ -742,6 +766,10 @@ if (!$_REQUEST['flb_table']) {
                               //end time in current status
                               echo "</td>";
                               ?>
+                        
+                        <td class="detail hidden-xs hidden-sm" align="center">
+                          <?php echo text( xl_appt_category( $appointment['pc_title'] ) ) ?>
+                        </td>
                           <?php
                             if ( count( $chk_prov ) > 1 ) { ?>
                         <td class="detail text-center">
