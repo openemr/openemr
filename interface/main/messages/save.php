@@ -17,7 +17,7 @@ require_once "$srcdir/forms.inc";
 require_once "$srcdir/patient.inc";
 require_once "$srcdir/MedEx/API.php";
 
-$MedEx = new MedExApi\MedEx('api.MedExBank.com');
+$MedEx = new MedExApi\MedEx('MedExBank.com');
 //you need admin privileges to update this.
 if ($_REQUEST['go'] =='Preferences') {
     $result     = array();
@@ -129,7 +129,8 @@ if ($_REQUEST['MedEx']=="start") {
             $response_prob['show'] = xlt("We ran into some problems connecting to the MedEx servers from your EHR").".<br>
 				".xlt('Proceed to')." <a href='https://medexbank.com/cart/upload/'>MedEx Bank</a>.<br />
 				<div class='center left' >
-					<ul><li> ".xlt('Login using your email/password')." </li>
+					<ul style='text-align: left;'>
+                        <li> ".xlt('Login using your email/password')." </li>
 						<li> ".xlt('Confirm your practice information')."</li>
 						<li> ".xlt('Refine the stock message templates as needed')."</li>
 						<li> ".xlt('Activate your subscription plan')."</li>
