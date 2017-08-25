@@ -354,11 +354,11 @@ if (!$_REQUEST['flb_table']) {
 
                   </div>
                   <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
-                    <select class="form-group" id="form_facility" name="form_facility" style="<?php
+                    <select class="form-group" id="form_facility" name="form_facility" style=""<?php
                       if ( $count_facs <'1' ) {
-                        echo "visibility:hidden;";
+                        echo "disabled";
                       }
-                      ?>"  onchange="refineMe('facility');">
+                      ?>  onchange="refineMe('facility');">
                       <option value="" selected><?php echo xlt( 'All Facilities' ); ?></option>
                       <?php  echo $select_facs;  ?>
                     </select>
@@ -373,11 +373,11 @@ if (!$_REQUEST['flb_table']) {
 
                       ?>
 
-                    <select class="form-group" id="form_provider" name="form_provider" style="<?php 
+                    <select class="form-group" id="form_provider" name="form_provider" <?php 
                       if ( $count_provs <'2' ) {
-                        echo "visibility:hidden;"; 
+                        echo "disabled"; 
                       } 
-                      ?>"  onchange="refineMe('provider');">
+                      ?>  onchange="refineMe('provider');">
                       <option value="" selected><?php echo xlt( 'All Providers' ); ?></option>
 
                       <?php 
