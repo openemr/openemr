@@ -15,7 +15,6 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once "../globals.php";
 require_once "$srcdir/patient.inc";
 require_once "$srcdir/options.inc.php";
@@ -102,6 +101,11 @@ while ( $lrow = sqlFetchArray( $lres ) ) {
   $statuses_list[$lrow['option_id']] = $title;
 }
 
+$chk_prov = array();  // list of providers with appointments
+// Scan appointments for additional info
+foreach ( $appointments as $apt ) {
+  $chk_prov[$apt['uprovider_id']] = $apt['ulname'] . ', ' . $apt['ufname'] . ' ' . $apt['umname'];
+}
 
 $MedEx = new MedExApi\MedEx( 'MedExBank.com' );
 if ( $GLOBALS['medex_enable'] == '1' ) {
@@ -156,10 +160,10 @@ if ( $GLOBALS['pat_trkr_timer'] == '0' ) {
 // 2.Refine results by facility and provider using jquery on cached results
 //   ie. further requests to view facility/provider within page can be done fast through javascript, no page reload needed.
 if ( !$_REQUEST['facility_selector'] ) {
-  $_REQUEST['facility_selector'] = 'all';
+//  $_REQUEST['facility_selector'] = 'all';
 }
 if ( !$_REQUEST['provider_selector'] ) {
-  $_REQUEST['provider_selector'] = 'all';
+//  $_REQUEST['provider_selector'] = 'all';
 }
 
 if ( $GLOBALS['pat_trkr_timer'] == '0' ) {
@@ -193,7 +197,7 @@ if (!$_REQUEST['flb_table']) {
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/jquery-ui.min.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/moment-2-13-0/moment.js"></script>
+    <Xscript type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/moment-2-13-0/moment.js"></script>
     <script>
         var xljs1 = '<?php echo xl( 'Preferences updated successfully' ); ?>';
         var xljs_NOTE = '<?php echo xl( 'NOTE' ); ?>';
@@ -295,160 +299,173 @@ if (!$_REQUEST['flb_table']) {
     <div class="row">
       <div class="col-sm-12">
         <div class="showRFlow" id="show_flows" style="text-align:center;margin:20 auto;">
-          <?php
-
-    $fac_sql = sqlStatement( "SELECT * FROM facility ORDER BY id" );
-    while ( $fac = sqlFetchArray( $fac_sql ) ) {
-      $true = ($fac['id'] == $_POST['form_facility']) ? "selected=true" : '';
-      $select_facs .= "<option value=".attr( $fac['id'] )." ".$true.">".text( $fac['name'] )."</option>\n";
-      $count_facs++;
-    }
-    $prov_sql = sqlStatement( "SELECT * FROM users WHERE authorized != 0 AND active = 1 ORDER BY lname, fname" );
-    while ( $prov = sqlFetchArray( $prov_sql ) ) {
-      $prov_name = $prov['fname']." ".$prov['lname'];
-      if ( !empty( $prov['suffix'] ) ) {
-        $prov_name .= ', '.text( $prov['suffix'] );
-      }
-      $true = ($prov['id'] == $_POST['form_provider']) ? "selected=true" : '';
-      $select_provs .="<option value=".attr( $prov['id'] )." ".$true.">".text( $prov_name )."</option>\n";
-      $count_provs++;
-    }
-
-    ?>
           <div class="title"><?php echo xlt( 'Flow Board' ); ?></div>
           <div name="div_response" id="div_response nodisplay"></div>
           <?php
-      if ( $GLOBALS['medex_enable'] == '1' ) {
-        $col_width="3";
-      } else {
-        $col_width="4";
-        $last_col_width="nodisplay";
-      }
-      ?>
-      <br />
-      <form name="flb" id="flb" method="post">
-        <div class=" text-center row divTable" style="width: 75%;padding: 10px 10px 0px;margin: 10px auto;">
-              <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
-                <?php 
-                  //$xl_All = xla('Appt{{abbreviation ofr Appointment}} Status: All');
-                  //generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>$xl_All),$_POST['form_apptstatus']);
-                  //remove and replace Matrix code to add bootstrap class form-group and padding
-                
-                ?>
-                <select id="form_apptcat" name="form_apptcat" class="form-group">
-                  <?php
-                  $categories=fetchAppointmentCategories();
-                  echo "<option value='ALL'>".xlt("Categories")."</option>";
-                  while($cat=sqlFetchArray($categories))
-                  {
-                      echo "<option value='".attr($cat['id'])."'";
-                      if($cat['id']==$_POST['form_apptcat'])
+          if ( $GLOBALS['medex_enable'] == '1' ) {
+            $col_width="3";
+          } else {
+            $col_width="4";
+            $last_col_width="nodisplay";
+          }
+          ?>
+          <br />
+          <form name="flb" id="flb" method="post">
+            <div class=" text-center row divTable" style="width: 75%;padding: 10px 10px 0px;margin: 10px auto;">
+                  <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
+                    <?php 
+                      //$xl_All = xla('Appt{{abbreviation ofr Appointment}} Status: All');
+                      //generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>$xl_All),$_POST['form_apptstatus']);
+                      //remove and replace Matrix code to add bootstrap class form-group and padding
+                    ?>
+                    <select id="form_apptcat" name="form_apptcat" class="form-group" onchange="refineMe('apptcat');">
+                      <?php
+                      $categories=fetchAppointmentCategories();
+                      echo "<option value=''>".xlt("Visit Categories")."</option>";
+                      while($cat=sqlFetchArray($categories))
                       {
-                          echo " selected='true' ";
+                          echo "<option value='".attr($cat['id'])."'";
+                          if($cat['id']==$_POST['form_apptcat'])
+                          {
+                              echo " selected='true' ";
+                          }
+                          echo    ">".text(xl_appt_category($cat['category']))."</option>";
                       }
-                      echo    ">".text(xl_appt_category($cat['category']))."</option>";
-                  }
-                  ?>
-                </select>
-                
-                <select id="form_apptstatus" name="form_apptstatus" class="form-group">
-                  <option value=''><?php echo xlt( "Appt Status: All" ); ?></option>
+                      ?>
+                    </select>
+                    
+                    <select id="form_apptstatus" name="form_apptstatus" class="form-group" onchange="refineMe('apptstatus');">
+                      <option value=''><?php echo xlt( "Visit Status" ); ?></option>
 
-                  <?php
-                  $apptstats=sqlStatement( "SELECT * FROM list_options WHERE list_id = 'apptstat' AND activity = 1 order by seq" );
-                  while ( $apptstat=sqlFetchArray( $apptstats ) ) {
-                    echo "<option value='".attr( $apptstat['option_id'] )."'";
-                    if ( $apptstat['option_id']==$_POST['form_apptstatus'] ) {
-                      echo " selected='true' ";
-                    }
-                    echo    ">".xlt( $apptstat['title'] ) ."</option>";
-                  }
-                  ?>
-                </select>
+                      <?php
+                      $apptstats=sqlStatement( "SELECT * FROM list_options WHERE list_id = 'apptstat' AND activity = 1 order by seq" );
+                      while ( $apptstat=sqlFetchArray( $apptstats ) ) {
+                        echo "<option value='".attr( $apptstat['option_id'] )."'";
+                        if ( $apptstat['option_id']==$_POST['form_apptstatus'] ) {
+                          echo " selected='true' ";
+                        }
+                        echo    ">".xlt( $apptstat['title'] ) ."</option>";
+                      }
+                      ?>
+                    </select>
 
-                <input type="text" style="max-width:200px;" placeholder="<?php echo attr('Patient Name'); ?>" class="form-control input-sm" id="form_patient_name" name="form_patient_name" value="<?php echo ( $form_patient_name ) ? attr( $form_patient_name ) : ""; ?>">
-             
+                    <input type="text" style="max-width:200px;" placeholder="<?php echo attr('Patient Name'); ?>" class="form-control input-sm" id="form_patient_name" name="form_patient_name" value="<?php echo ( $form_patient_name ) ? attr( $form_patient_name ) : ""; ?>">
+                 
 
-              </div>
-              <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
-                <select class="form-group" id="form_facility" name="form_facility" style="<?php
-                  if ( $count_facs <'1' ) {
-                    echo "display:none;";
-                  }
-                  ?>">
-                  <option value="" selected><?php echo xlt( 'All Facilities' ); ?></option>
-                  <?php  echo $select_facs;  ?>
-                </select>
-
-                <select class="form-group" id="form_provider" name="form_provider" style="<?php if ( $count_provs <'1' ) {
-                  echo "display:none;"; } ?>">
-                  <option value="" selected><?php echo xlt( 'All Providers' ); ?></option>
-                  <?php echo $select_provs; ?>
-                </select>
-
-                <input placeholder="<?php echo attr('Patient ID'); ?>"  style="max-width:200px;" class="form-control input-sm" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ( $form_patient_id ) ? attr( $form_patient_id ) : ""; ?>">
-              </div>
-              <div class="col-sm-<?php echo $col_width; ?>">
-                <div style="margin: 0px auto;" class="input-append">
-                    <table class="table-hover table-condensed" style="margin:0px auto;">
-                      <tr><td class="text-right" style="vertical-align:bottom;">
-                        <label for="flow_from"><?php echo xlt('From'); ?>:</label></td><td>
-                        <input type="date" id="datepicker1" name="datepicker1"
-                                data-format="<?php echo $date_format; ?>"
-                                class="form-control datepicker input-sm" value="<?php echo attr( $disp_from_date ); ?>" style="max-width:140px;min-width:85px;text-align: center;">
-                      </td></tr>
-                      <tr><td class="text-right" style="vertical-align:bottom;">
-                        <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To'); ?>:</label></td><td>
-                        <input type="date" id="datepicker2" name="datepicker2"
-                                data-format="<?php echo $date_format; ?>"
-                                class="form-control datepicker input-sm" value="<?php echo attr( $disp_to_date ); ?>" style="max-width:140px;min-width:85px;text-align: center;">
-                      </td></tr>
-                      <tr><td class="text-center" colspan="2">
-                        <input href="#" class="css_button btn ui-buttons ui-widget ui-corner-all news" type="submit" id="filter_submit" value="<?php echo xla( 'Filter' ); ?>">
-                      </td></tr>
-                    </table>
-                </div>
-              </div>
-              <div class="col-sm-<?php echo $col_width." ".$last_col_width; ?> text-center" >
-                <div class="text-center" style="margin: 0 auto;">
-                  <b><u>MedEx <?php echo xlt( 'Reminders' ); ?></u></b><br />
-                  <div class="text-left" style="width: 70%;margin: 5px auto;">
-                    <?php echo $current_events; ?>
                   </div>
-                </div>
-              </div>
-              <div name="message" id="message" class="warning"></div>
-              </div>
-        </div>        
-      </form>    
-      <div class="row divTable">
-        <div class="col-sm-12 text-center small" style='margin:5px;'>
-            <?php
-              $statuses_output =  "<span style='margin:0px 10px;'><em>".xlt( 'Total patients' )  . ':</em> <span class="badge">' . text( $appointments_status['count_all'] )."</span></span>";
-              unset( $appointments_status['count_all'] );
-              foreach ( $appointments_status as $status_symbol => $count ) {
-                $statuses_output .= " | <span style='margin:0px 10px;'><em>" . text( xl_list_label( $statuses_list[$status_symbol] ) )  .":</em> <span class='badge'>" . $count."</span></span>";
-              }
-              echo $statuses_output;
-            ?>
-            <span class="pull-right">
-              <a id='setting_cog'><i class="fa fa-cog fa-2x fa-fw">&nbsp;</i></a>
-              
-              <label for='setting_new_window' id='settings'>
-                <input type='checkbox' name='setting_new_window' id='setting_new_window' value='<?php echo $setting_new_window; ?>' <?php echo $setting_new_window; ?> />
-                <?php echo xlt( 'Open Patient in New Window' ); ?>
-              </label>
-              <a id='refreshme'><i class="fa fa-refresh fa-2x fa-fw">&nbsp;</i></a>
-            </span>
-        </div>
+                  <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
+                    <select class="form-group" id="form_facility" name="form_facility" style="<?php
+                      if ( $count_facs <'1' ) {
+                        echo "visibility:hidden;";
+                      }
+                      ?>"  onchange="refineMe('facility');">
+                      <option value="" selected><?php echo xlt( 'All Facilities' ); ?></option>
+                      <?php  echo $select_facs;  ?>
+                    </select>
+
+                    <?php 
+                                      # Build a drop-down list of providers.
+                        $query = "SELECT id, lname, fname FROM users WHERE ".
+                            "authorized = 1  and active = 1 ORDER BY lname, fname"; #(CHEMED) facility filter
+                        $ures = sqlStatement($query);
+                        //a year ago @matrix-amiel Adding filters to flow board and counting of statuses  
+                        $count_provs = count(($ures));
+
+                      ?>
+
+                    <select class="form-group" id="form_provider" name="form_provider" style="<?php 
+                      if ( $count_provs <'2' ) {
+                        echo "visibility:hidden;"; 
+                      } 
+                      ?>"  onchange="refineMe('provider');">
+                      <option value="" selected><?php echo xlt( 'All Providers' ); ?></option>
+
+                      <?php 
+                                      # Build a drop-down list of providers.
+                        $query = "SELECT id, lname, fname FROM users WHERE ".
+                            "authorized = 1  and active = 1 ORDER BY lname, fname"; #(CHEMED) facility filter
+                        $ures = sqlStatement($query);
+                        //a year ago @matrix-amiel Adding filters to flow board and counting of statuses  
+                        while ($urow = sqlFetchArray($ures)) {
+                            $provid = $urow['id'];
+                            echo "    <option value='" . attr($provid) . "'";
+                            if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']){
+                                echo " selected";
+                            } elseif(!isset($_POST['form_provider'])&& $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']){
+                                echo " selected";
+                            }
+                            echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
+                        }
+                        ?>
+                    </select>
+
+                    <input placeholder="<?php echo attr('Patient ID'); ?>"  style="max-width:200px;" class="form-control input-sm" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ( $form_patient_id ) ? attr( $form_patient_id ) : ""; ?>">
+                  </div>
+                  <div class="col-sm-<?php echo $col_width; ?>">
+                    <div style="margin: 0px auto;" class="input-append">
+                        <table class="table-hover table-condensed" style="margin:0px auto;">
+                          <tr><td class="text-right" style="vertical-align:bottom;">
+                            <label for="flow_from"><?php echo xlt('From'); ?>:</label></td><td>
+                            <input type="date" id="datepicker1" name="datepicker1"
+                                    data-format="<?php echo $date_format; ?>"
+                                    class="form-control datepicker input-sm" value="<?php echo attr( $disp_from_date ); ?>" style="max-width:140px;min-width:85px;text-align: center;">
+                          </td></tr>
+                          <tr><td class="text-right" style="vertical-align:bottom;">
+                            <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To'); ?>:</label></td><td>
+                            <input type="date" id="datepicker2" name="datepicker2"
+                                    data-format="<?php echo $date_format; ?>"
+                                    class="form-control datepicker input-sm" value="<?php echo attr( $disp_to_date ); ?>" style="max-width:140px;min-width:85px;text-align: center;">
+                          </td></tr>
+                          <tr><td class="text-center" colspan="2">
+                            <input href="#" class="css_button btn ui-buttons ui-widget ui-corner-all news" type="submit" id="filter_submit" value="<?php echo xla( 'Filter' ); ?>">
+                            <?php //if ($_POST['form_refresh'] || $_POST['form_orderby'] ) { ?>
+                                <a href='#' class='css_button' id='printbutton'>
+                                    <span> <?php echo xlt('Print'); ?> </span> </a>
+            <?php //} ?>
+                          </td></tr>
+                        </table>
+                    </div>
+                  </div>
+                  <div class="col-sm-<?php echo $col_width." ".$last_col_width; ?> text-center" >
+                    <div class="text-center" style="margin: 0 auto;">
+                      <b><u>MedEx <?php echo xlt( 'Reminders' ); ?></u></b><br />
+                      <div class="text-left" style="width: 70%;margin: 5px auto;">
+                        <?php echo $current_events; ?>
+                      </div>
+                    </div>
+                  </div>
+                  <div name="message" id="message" class="warning"></div>
+                  </div>
+            </div>        
+          </form>    
+          <div class="row divTable">
+            <div class="col-sm-12 text-center small" style='margin:5px;'>
+                <?php
+                  $statuses_output =  "<span style='margin:0px 10px;'><em>".xlt( 'Total patients' )  . ':</em> <span class="badge">' . text( $appointments_status['count_all'] )."</span></span>";
+                  unset( $appointments_status['count_all'] );
+                  foreach ( $appointments_status as $status_symbol => $count ) {
+                    $statuses_output .= " | <span style='margin:0px 10px;'><em>" . text( xl_list_label( $statuses_list[$status_symbol] ) )  .":</em> <span class='badge'>" . $count."</span></span>";
+                  }
+                  echo $statuses_output;
+                ?>
+                <span class="pull-right">
+                  <a id='setting_cog'><i class="fa fa-cog fa-2x fa-fw">&nbsp;</i></a>
+                  
+                  <label for='setting_new_window' id='settings'>
+                    <input type='checkbox' name='setting_new_window' id='setting_new_window' value='<?php echo $setting_new_window; ?>' <?php echo $setting_new_window; ?> />
+                    <?php echo xlt( 'Open Patient in New Window' ); ?>
+                  </label>
+                  <a id='refreshme'><i class="fa fa-refresh fa-2x fa-fw">&nbsp;</i></a>
+                </span>
+            </div>
       
     
         <div class="col-sm-12 textclear" id="flb_table" name="flb_table">
         <?php 
-  }
-    //end of if !$_REQUEST['flb_table']
-    ?>
-    <table class="table table-responsive table-condensed table-hover table-bordered">
+}
+        //end of if !$_REQUEST['flb_table']
+        ?>
+        <table class="table table-responsive table-condensed table-hover table-bordered">
           <thead>
             <tr bgcolor="#cccff" class="small bold  text-center">
               <?php if ( $GLOBALS['ptkr_show_pid'] ) { ?>
@@ -465,17 +482,11 @@ if (!$_REQUEST['flb_table']) {
               </td>
               <?php } ?>
               <?php if ( $GLOBALS['ptkr_show_encounter'] ) { ?>
-              <td class="dehead text-center">
+              <td class="dehead text-center hidden-xs hidden-sm">
                 <?php  echo xlt( 'Encounter' ); ?>
               </td>
               <?php } ?>
-              <td class="dehead hidden-xs text-center">
-                <?php  echo xlt( 'Exam Room #' ); ?>
-              </td>
-              <td class="dehead visible-xs text-center">
-                <?php  echo xlt( 'Room' ); ?>
-              </td>
-
+              
               <?php if ( $GLOBALS['ptkr_date_range'] ) { ?>
               <td class="dehead hidden-xs hidden-sm text-center">
                 <?php  echo xlt( 'Appt Date' ); ?>
@@ -499,11 +510,9 @@ if (!$_REQUEST['flb_table']) {
               <td class="dehead visible-xs text-center">
                 <?php  echo xlt( 'Current' ); ?>
               </td>
-              <td class="dehead hidden-xs hidden-sm text-center" max-width="150px">
-                <?php  echo xlt( 'Visit Type' ); ?>
-              </td>
+
               <?php if ( count( $chk_prov ) > 1 ) { ?>
-              <td class="dehead text-center">
+              <td class="dehead text-center hidden-xs hidden-sm">
                 <?php  echo xlt( 'Provider' ); ?>
               </td>
               <?php } ?>
@@ -520,10 +529,10 @@ if (!$_REQUEST['flb_table']) {
                 <?php  echo xlt( 'Updated By' ); ?>
               </td>
               <?php if ( $GLOBALS['drug_screen'] ) { ?>
-              <td class="dehead center">
+              <td class="dehead center hidden-xs hidden-sm">
                 <?php  echo xlt( 'Random Drug Screen' ); ?>
               </td>
-              <td class="dehead center">
+              <td class="dehead center hidden-xs hidden-sm">
                 <?php  echo xlt( 'Drug Screen Completed' ); ?>
               </td>
               <?php } ?>
@@ -686,12 +695,13 @@ if (!$_REQUEST['flb_table']) {
               }
                 
               echo '<tr bgcolor="'.$bgcolor.'" 
-                        class="apptstat_'.attr($appointment['status']).' 
-                              facstat_'.attr($appointment['pc_facility']).' 
-                              facility_'.attr($recall['r_facility']).' 
-                              provider_'.attr($appointment['r_provider']).' text-small "
-                              id="pid_'.attr($recall['pid']).'"
-                              bgcolor="'.attr($bgcolor).'" >'; 
+                        class="ALL_appts
+                              apptstatus_'.attr($appointment['status']).' 
+                              facstatus_'.attr($appointment['pc_facility']).' 
+                              facility_'.attr($appointment['pc_facility']).' 
+                              provider_'.attr($appointment['uprovider_id']).' text-small "
+                        id="pid_'.attr($appointment['pc_pid']).'"
+                        bgcolor="'.attr($bgcolor).'" >';  
               if ( $GLOBALS['ptkr_show_pid'] ) { 
                 ?>
                 <td class="detail" align="center">
@@ -700,168 +710,167 @@ if (!$_REQUEST['flb_table']) {
                   <?php 
               } 
               ?>
-                          <td class="detail text-center hidden-xs hidden-sm">
-                            <a href="#" onclick="return topatient('<?php echo attr( $appt_pid );?>','<?php echo attr( $appt_enc );?>')" >
-                                <?php echo text( $ptname ); ?></a>
-                          </td>
-                          <td class="detail text-center visible-xs visible-sm" style"white-space: normal;">
-                            <a href="#" onclick="return topatient('<?php echo attr( $appt_pid );?>','<?php echo attr( $appt_enc );?>')" >
-                                <?php echo text( $ptname_short ); ?></a>
-                          </td>
-                            
-                            <!-- reason -->
-                            <?php if ( $GLOBALS['ptkr_visit_reason'] ) { ?>
-                          <td class="detail hidden-xs" align="center">
-                                <?php echo text( $reason_visit ) ?>
-                          </td>
-                            <?php } ?>
-                            <?php if ( $GLOBALS['ptkr_show_encounter'] ) { ?>
-                          <td class="detail" align="center">
-                                <?php if ( $appt_enc != 0 ) {
-                                echo text( $appt_enc );} ?>
-                          </td>
-                            <?php } ?>
-                          <td class="detail" align="center">
-                                <?php echo getListItemTitle( 'patient_flow_board_rooms', $appt_room );?>
-                          </td>
-                            <?php if ( $GLOBALS['ptkr_date_range'] ) { ?>
-                          <td class="detail hidden-xs hidden-sm" align="center">
-                                <?php echo oeFormatShortDate( $date_appt ); ?>
-                          </td>
-                            <?php } ?>
-                          <td class="detail" align="center">
-                            <?php echo oeFormatTime( $appt_time ) ?>
-                          </td>
-                          <td class="detail text-center">
-                              <?php
-                              if ( $newarrive ) {
-                                echo oeFormatTime( $newarrive );
-                              }
-                              ?>
-                          </td>
-                          <td class="detail hidden-xs hidden-sm text-center small">
-                            <?php if ( empty( $tracker_id ) ) { //for appt not yet with tracker id and for recurring appt ?>
-                            <a onclick="return calendarpopup(<?php echo attr( $appt_eid ).",".attr( $date_squash ); // calls popup for add edit calendar event?>)">
-                              <?php } else { ?>
-                            <a onclick="return bpopup(<?php echo attr( $tracker_id ); // calls popup for patient tracker status?>)">
-                              <?php }
-                                echo text( getListItemTitle( "apptstat", $status ) ); // drop down list for appointment status
-                              ?>
-                            </a>
-                          </td>
+                <td class="detail text-center hidden-xs hidden-sm">
+                  <a href="#" onclick="return topatient('<?php echo attr( $appt_pid );?>','<?php echo attr( $appt_enc );?>')" >
+                      <?php echo text( $ptname ); ?></a>
+                </td>
+                <td class="detail text-center visible-xs visible-sm" style"white-space: normal;">
+                  <a href="#" onclick="return topatient('<?php echo attr( $appt_pid );?>','<?php echo attr( $appt_enc );?>')" >
+                      <?php echo text( $ptname_short ); ?></a>
+                </td>
+                  
+                  <!-- reason -->
+                  <?php if ( $GLOBALS['ptkr_visit_reason'] ) { ?>
+                <td class="detail hidden-xs" align="center">
+                      <?php echo text( $reason_visit ) ?>
+                </td>
+                  <?php } ?>
+                  <?php if ( $GLOBALS['ptkr_show_encounter'] ) { ?>
+                <td class="detail" align="center">
+                      <?php if ( $appt_enc != 0 ) {
+                      echo text( $appt_enc );} ?>
+                </td>
+                  <?php } 
+                  if ( $GLOBALS['ptkr_date_range'] ) { ?>
+                <td class="detail hidden-xs hidden-sm" align="center">
+                      <?php echo oeFormatShortDate( $date_appt ); ?>
+                </td>
+                  <?php } ?>
+                <td class="detail" align="center">
+                  <?php echo oeFormatTime( $appt_time ) ?>
+                </td>
+                <td class="detail text-center hidden-xs hidden-sm">
+                    <?php
+                    if ( $newarrive ) {
+                      echo oeFormatTime( $newarrive );
+                    }
+                    ?>
+                </td>
+                <td class="detail hidden-xs hidden-sm text-center small">
+                  <?php if ( empty( $tracker_id ) ) { //for appt not yet with tracker id and for recurring appt ?>
+                  <a onclick="return calendarpopup(<?php echo attr( $appt_eid ).",".attr( $date_squash ); // calls popup for add edit calendar event?>)">
+                    <?php } else { ?>
+                  <a onclick="return bpopup(<?php echo attr( $tracker_id ); // calls popup for patient tracker status?>)">
+                    <?php }
+                      echo text( getListItemTitle( "apptstat", $status ) ); // drop down list for appointment status
+                    ?>
+                  </a>
+                </td>
 
-                            <?php
-                              //time in current status
-                              $to_time = strtotime( date( "Y-m-d H:i:s" ) );
-                              $yestime = '0';
-                              if ( strtotime( $newend ) != '' ) {
-                                $from_time = strtotime( $newarrive );
-                                $to_time = strtotime( $newend );
-                                $yestime = '0';
-                              } else {
-                                $from_time = strtotime( $appointment['start_datetime'] );
-                                $yestime = '1';
-                              }
+                  <?php
+                    //time in current status
+                    $to_time = strtotime( date( "Y-m-d H:i:s" ) );
+                    $yestime = '0';
+                    if ( strtotime( $newend ) != '' ) {
+                      $from_time = strtotime( $newarrive );
+                      $to_time = strtotime( $newend );
+                      $yestime = '0';
+                    } else {
+                      $from_time = strtotime( $appointment['start_datetime'] );
+                      $yestime = '1';
+                    }
 
-                              $timecheck = round( abs( $to_time - $from_time ) / 60, 0 );
-                              if ( $timecheck >= $statalert && ( $statalert > '0' ) ) { // Determine if the time in status limit has been reached.
-                                echo "<td class='text-center  js-blink-infinite small small'>  "; // and if so blink
-                              } else {
-                                echo "<td class='detail text-center'> "; // and if not do not blink
-                              }
-                              if ( ( $yestime == '1' ) && ( $timecheck >=1 ) && ( strtotime( $newarrive )!= '' ) ) {
-                                echo text( $timecheck . ' ' .( $timecheck >=2 ? xl( 'minutes' ): xl( 'minute' ) ) );
-                              } else if ( $icon_here||$icon2_here||$icon_CALL ) {
-                                  echo  "<span style='font-size:0.7em;' onclick='return calendarpopup(". attr( $appt_eid ).",".attr( $date_squash ).")'>". implode( $icon_here ).$icon2_here."</span> ".$icon_CALL;
-                                } else if ( $logged_in ) {
-                                  $pat = $MedEx->display->possibleModalities($appointment);
-                                  echo "<span style='font-size:0.7em;'>".$pat['SMS'].$pat['AVM'].$pat['EMAIL']."</span>";
-                              }
-                              //end time in current status
-                              echo "</td>";
-                              ?>
-                        
-                        <td class="detail hidden-xs hidden-sm" align="center">
-                          <?php echo text( xl_appt_category( $appointment['pc_title'] ) ) ?>
-                        </td>
-                          <?php
-                            if ( count( $chk_prov ) > 1 ) { ?>
-                        <td class="detail text-center">
-                              <?php echo text( $docname ); ?>
-                        </td>
-                          <?php
-                            } ?>
-                        <td class="detail text-center">
-                          <?php
-                            // total time in practice
-                            if ( strtotime( $newend ) != '' ) {
-                              $from_time = strtotime( $newarrive );
-                              $to_time = strtotime( $newend );
+                    $timecheck = round( abs( $to_time - $from_time ) / 60, 0 );
+                    if ( $timecheck >= $statalert && ( $statalert > '0' ) ) { // Determine if the time in status limit has been reached.
+                      echo "<td class='text-center  js-blink-infinite small small'>  "; // and if so blink
+                    } else {
+                      echo "<td class='detail text-center'> "; // and if not do not blink
+                    }
+                    if ( ( $yestime == '1' ) && ( $timecheck >=1 ) && ( strtotime( $newarrive )!= '' ) ) {
+                      echo text( $timecheck . ' ' .( $timecheck >=2 ? xl( 'minutes' ): xl( 'minute' ) ) );
+                    } else if ( $icon_here||$icon2_here||$icon_CALL ) {
+                        echo  "<span style='font-size:0.7em;' onclick='return calendarpopup(". attr( $appt_eid ).",".attr( $date_squash ).")'>". implode( $icon_here ).$icon2_here."</span> ".$icon_CALL;
+                      } else if ( $logged_in ) {
+                        $pat = $MedEx->display->possibleModalities($appointment);
+                        echo "<span style='font-size:0.7em;'>".$pat['SMS'].$pat['AVM'].$pat['EMAIL']."</span>";
+                    }
+                    //end time in current status
+                    echo "</td>";
+                    ?>
+                <?php
+                  if ( count( $chk_prov ) > 1 ) { ?>
+              <td class="detail text-center hidden-xs">
+                    <?php echo text( $docname ); ?>
+              </td>
+                <?php
+                  } ?>
+              <td class="detail text-center">
+                <?php
+                  // total time in practice
+                  if ( strtotime( $newend ) != '' ) {
+                    $from_time = strtotime( $newarrive );
+                    $to_time = strtotime( $newend );
+                  } else {
+                    $from_time = strtotime( $newarrive );
+                    $to_time = strtotime( date( "Y-m-d H:i:s" ) );
+                  }
+                  $timecheck2 = round( abs( $to_time - $from_time ) / 60, 0 );
+                  if ( strtotime( $newarrive ) != '' && ( $timecheck2 >=1 ) ) {
+                    echo text( $timecheck2 . ' ' .( $timecheck2 >=2 ? xl( 'minutes' ): xl( 'minute' ) ) );
+                  }
+                  // end total time in practice
+                  echo text( $appointment['pc_time'] ); ?>
+              </td>
+              <td class="detail hidden-xs text-center">
+                <?php
+                  if ( $prog_text >'' ) {
+                    echo  '
+                            <span  class="btn btn-primary" data-toggle="tooltip" title="'.$prog_text.'" style="padding:5px;" onclick="SMS_bot(\''.attr( $appointment['pc_eid'] ).'\')">
+                              
+                                <i class="fa fa-list-alt fa-inverse"></i>
+                            </span>
+                          
+                          <div class="jqui" style="display:none;">'. $prog_text .'</div>
+                          ';
+                  } else if ( strtotime( $newend ) != '' ) {
+                      echo oeFormatTime( $newend ) ;
+                    }
+                ?>
+              </td>
+              <td class="detail hidden-xs hidden-sm" align="center">
+                <?php echo text( $appointment['user'] ) ?>
+              </td>
+                <?php 
+                if ( $GLOBALS['drug_screen'] ) { 
+                  if ( strtotime( $newarrive ) != '' ) { ?>
+                    <td class="detail hidden-xs hidden-sm" align="center">
+                      <?php 
+                        if ( text( $appointment['random_drug_test'] ) == '1' ) {
+                              echo xl( 'Yes' );
                             } else {
-                              $from_time = strtotime( $newarrive );
-                              $to_time = strtotime( date( "Y-m-d H:i:s" ) );
-                            }
-                            $timecheck2 = round( abs( $to_time - $from_time ) / 60, 0 );
-                            if ( strtotime( $newarrive ) != '' && ( $timecheck2 >=1 ) ) {
-                              echo text( $timecheck2 . ' ' .( $timecheck2 >=2 ? xl( 'minutes' ): xl( 'minute' ) ) );
-                            }
-                            // end total time in practice
-                            echo text( $appointment['pc_time'] ); ?>
-                        </td>
-                        <td class="detail hidden-xs text-center">
-                          <?php
-                            if ( $prog_text >'' ) {
-                              echo  '
-                                      <span  class="btn btn-primary" data-toggle="tooltip" title="'.$prog_text.'" style="padding:5px;" onclick="SMS_bot(\''.attr( $appointment['pc_eid'] ).'\')">
-                                        
-                                          <i class="fa fa-list-alt fa-inverse"></i>
-                                      </span>
-                                    
-                                    <div class="jqui" style="display:none;">'. $prog_text .'</div>
-                                    ';
-                            } else if ( strtotime( $newend ) != '' ) {
-                                echo oeFormatTime( $newend ) ;
-                              }
-                          ?>
-                        </td>
-                        <td class="detail hidden-xs hidden-sm" align="center">
-                          <?php echo text( $appointment['user'] ) ?>
-                        </td>
+                              echo xl( 'No' ); 
+                            } ?>
+                    </td>
                           <?php 
-                          if ( $GLOBALS['drug_screen'] ) { 
-                                  if ( strtotime( $newarrive ) != '' ) { ?>
-                                    <td class="detail" align="center">
-                                            <?php 
-                                              if ( text( $appointment['random_drug_test'] ) == '1' ) {
-                                                    echo xl( 'Yes' );
-                                                  } else {
-                                                    echo xl( 'No' ); 
-                                                  } ?>
-                                    </td>
-                                      <?php 
-                                  }  ?>
-                                  <?php 
-                                  if ( strtotime( $newarrive ) != '' && $appointment['random_drug_test'] == '1' ) { ?>
-                                  <td class="detail" align="center">
-                                    <?php if ( strtotime( $newend ) != '' ) { // the following block allows the check box for drug screens to be disabled once the status is check out ?>
-                                    <input type=checkbox  disabled='disable' class="drug_screen_completed" id="<?php echo htmlspecialchars( $appointment['pt_tracker_id'], ENT_NOQUOTES ) ?>"  <?php if ( $appointment['drug_screen_completed'] == "1" ) {
-                                    echo "checked";}?>>
-                                      <?php } else { ?>
-                                      <input type=checkbox  class="drug_screen_completed" id='<?php echo htmlspecialchars( $appointment['pt_tracker_id'], ENT_NOQUOTES ) ?>' name="drug_screen_completed" <?php if ( $appointment['drug_screen_completed'] == "1" ) {
-                                        echo "checked";}?>>
-                                        <?php } ?>
-                                      </td>
-                                      <?php } else {
-                                          echo "  <td>"; 
-                                        }  
-                          } ?>
-                      </tr>
+                  }  ?>
+                  <?php 
+                  if ( strtotime( $newarrive ) != '' && $appointment['random_drug_test'] == '1' ) { ?>
+                    <td class="detail hidden-xs hidden-sm" align="center">
+                      <?php 
+                      if ( strtotime( $newend ) != '' ) { 
+                        // the following block allows the check box for drug screens to be disabled once the status is check out ?>
+                        <input type=checkbox  disabled='disable' class="drug_screen_completed" id="<?php echo htmlspecialchars( $appointment['pt_tracker_id'], ENT_NOQUOTES ) ?>"  <?php if ( $appointment['drug_screen_completed'] == "1" ) {
+                        echo "checked";}?>>
+                        <?php 
+                      } else { 
+                        ?>
+                        <input type=checkbox  class="drug_screen_completed" id='<?php echo htmlspecialchars( $appointment['pt_tracker_id'], ENT_NOQUOTES ) ?>' name="drug_screen_completed" <?php if ( $appointment['drug_screen_completed'] == "1" ) {
+                        echo "checked";}?>>
+                        <?php 
+                      } ?>
+                    </td>
+                    <?php 
+                  } else {
+                    echo "  </td>"; 
+                  }  
+                } ?>
+            </tr>
                       <?php
-            } //end foreach
-            ?>
+          } //end foreach
+          ?>
           </tbody>
-    </table>
-    <?php 
+        </table>
+        <?php 
   if (!$_REQUEST['flb_table']) { ?>
           </div>
         </div>
@@ -894,13 +903,26 @@ function myLocalJS() {
           form_facility     : $("#form_facility").val(),
           form_provider     : $("#form_provider").val(),
           form_apptstatus   : $("#form_apptstatus").val(),
-          form_patient_name : $("#form_patient_naem").val(),
+          form_patient_name : $("#form_patient_name").val(),
           form_patient_id   : $("#form_patient_id").val(),
           form_apptcat      : $("#form_apptcat").val()
         }).done(
           function( data ) {
             $( "#flb_table" ).html( data );
           });
+    }
+    function refineMe(){
+      var apptcat = $("#form_apptstatus").val();
+      var apptstat = $("#form_apptstatus").val();
+      var fac = $("#form_facility").val();
+      var prov = $("#form_provider").val();
+      if (apptcat != 'All') {
+        $(".ALL_appts").not('.apptstatus_'+apptcat).slideToggle();
+      }
+      if (apptstat != '') {
+        $(".ALL_appts").not('.apptstatus_'+apptstat).slideToggle();
+      }
+
     }
     // popup for patient tracker status
     function bpopup(tkid) {
@@ -941,13 +963,13 @@ function myLocalJS() {
       top.restoreSession();
       document.fnew.submit();
     }
+    //opens the two-way SMS phone app
     function SMS_bot(eid) {
       top.restoreSession();
-      //dlgopen('../main/messages/messages.php?nomenu=1&go=SMS_bot&pc_eid=' + eid,'_blank', 340,<?php echo $height; ?>);
-      var from = '<?php echo attr( $from_date ); ?>';
-      var to = '<?php echo attr( $to_date ); ?>';
-      var oefrom = '<?php echo attr( oeFormatShortDate( $from_date ) ); ?>';
-      var oeto = '<?php echo attr( oeFormatShortDate( $to_date ) ); ?>';
+      var from    = '<?php echo attr( $from_date ); ?>';
+      var to      = '<?php echo attr( $to_date ); ?>';
+      var oefrom  = '<?php echo attr( oeFormatShortDate( $from_date ) ); ?>';
+      var oeto    = '<?php echo attr( oeFormatShortDate( $to_date ) ); ?>';
       window.open('../main/messages/messages.php?nomenu=1&go=SMS_bot&pc_eid=' + eid+'&to='+to+'&from='+from+'&oeto='+oeto+'&oefrom='+oefrom,'SMS_bot', 'width=370,height=600,resizable=0');
       return false;
     }
@@ -1042,6 +1064,7 @@ function myLocalJS() {
 
       $('#filter_submit').click(function (e) {
         e.preventDefault;
+        top.restoreSession;
         refreshMe();
       });
     });
