@@ -1080,6 +1080,10 @@ font-size:9pt;
     background: none repeat scroll 0% 0% #FEF3CF;
 }
 
+#navigation-slide ul li a.collapsed_lv3{
+    background: none repeat scroll 0% 0% #eeeeee;
+}
+
 #navigation-slide ul li a.expanded_lv2{
     background: #999; /* for non-css3 browsers */
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefdcf', endColorstr='#fefdcf'); /* for IE */
@@ -1087,6 +1091,15 @@ font-size:9pt;
     background: -moz-linear-gradient(center top , #fefdcf,#fefdcf) repeat scroll 0% 0% transparent;
     background: none repeat scroll 0% 0% #fefdcf;
 }
+
+#navigation-slide ul li a.expanded_lv3{
+    background: #999; /* for non-css3 browsers */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#eeeeee'); /* for IE */
+    background: -webkit-gradient(linear, left top, left bottom, from(#eeeeee), to(#eeeeee)); /* for webkit browsers */
+    background: -moz-linear-gradient(center top , #eeeeee,#eeeeee) repeat scroll 0% 0% transparent;
+    background: none repeat scroll 0% 0% #eeeeee;
+}
+
 body dl {
     background-color: #C9DBF2;
     border-bottom: 0.1pt solid black;

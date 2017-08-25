@@ -278,7 +278,8 @@ function getCodeDescriptions($codes)
 
 // Write one option line to the form.
 //
-function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = '', $notes = '', $codes = '', $tog1 = '', $tog2 = '', $active = '', $subtype = '')
+function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping='', $notes='',
+    $codes='', $tog1='', $tog2='', $active='1', $subtype='')
 {
     global $opt_line_no, $list_id;
     ++$opt_line_no;
@@ -399,10 +400,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
     } else {
         echo "  <td>";
         echo "<input type='text' name='opt[$opt_line_no][notes]' value='" .
-            attr($notes) . "' size='25' class='optin' ";
-        if ($list_id == 'lbfnames') {
-            echo "onclick='edit_layout_props($opt_line_no)' ";
-        }
+            attr($notes) . "' size='25' maxlength='255' class='optin' ";
         echo "/>";
         echo "</td>\n";
     }
@@ -821,12 +819,6 @@ function writeITLine($it_array)
             dlgopen('../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("clinical_term", "csv")) ?>', '_blank', 500, 400);
         }
 
-        // This invokes the popup to edit properties in the "notes" column.
-        function edit_layout_props(lineno) {
-            var layoutid = document.forms[0]['opt[' + lineno + '][id]'].value;
-            dlgopen('edit_layout_props.php?layout_id=' + layoutid + '&lineno=' + lineno, '_blank', 600, 300);
-        }
-
         // This is for callback by the find-code popup.
         function set_related(codetype, code, selector, codedesc) {
             if (typeof(current_sel_name) == 'undefined' && typeof(current_sel_clin_term) == 'undefined') {
@@ -902,6 +894,23 @@ function writeITLine($it_array)
                         }
                         if (parseInt(f[ikey + '[ct_id]'].value) == parseInt(f[jkey + '[ct_id]'].value)) {
                             alert('<?php echo xl('Error: duplicated ID on line') ?>' + ' ' + j);
+                            return;
+                        }
+                    }
+                }
+            }
+            else if (f['opt[1][id]']) {
+                // Check for duplicate IDs.
+                for (var i = 1; f['opt[' + i + '][id]']; ++i) {
+                    var ikey = 'opt[' + i + '][id]';
+                    if (f[ikey].value == '') continue;
+                    for (var j = i+1; f['opt[' + j + '][id]']; ++j) {
+                        var jkey = 'opt[' + j + '][id]';
+                        if (f[ikey].value.toUpperCase() == f[jkey].value.toUpperCase()) {
+                            alert('<?php echo xls('Error: duplicated ID') ?>' + ': ' + f[jkey].value);
+                            f[jkey].scrollIntoView();
+                            f[jkey].focus();
+                            f[jkey].select();
                             return;
                         }
                     }

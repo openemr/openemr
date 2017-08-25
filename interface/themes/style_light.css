@@ -112,9 +112,9 @@ a:hover {
     top:0;
     background-color:#FFFFFF !important;
     z-index:100;
-     }
+}
 
-    .menuBar .container{
+.menuBar ~ .container{
     margin-top:95px;
 }
 
@@ -1124,7 +1124,9 @@ div.notab-right {
   background-color: #d7d7d7;
 }
 #navigation-slide li a.collapsed_lv2:before,
-#navigation-slide * li a.collapsed_lv2:before {
+#navigation-slide * li a.collapsed_lv2:before,
+#navigation-slide li a.collapsed_lv3:before,
+#navigation-slide * li a.collapsed_lv3:before {
   content: "&nbsp;";
   width: 0;
   height: 0;
@@ -1142,7 +1144,9 @@ div.notab-right {
   background: #cbe6f7;
 }
 #navigation-slide li a.expanded_lv2:before,
-#navigation-slide * li a.expanded_lv2:before {
+#navigation-slide * li a.expanded_lv2:before,
+#navigation-slide li a.expanded_lv3:before,
+#navigation-slide * li a.expanded_lv3:before {
   content: "&nbsp;";
   width: 0;
   height: 0;

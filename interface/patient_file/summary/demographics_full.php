@@ -58,7 +58,7 @@ if ($GLOBALS['insurance_information'] != '0') {
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'DEM' AND uor > 0 " .
-  "ORDER BY group_name, seq");
+  "ORDER BY group_id, seq");
 ?>
 <html>
 <head>
@@ -136,6 +136,10 @@ $(document).ready(function(){
       return msg;              // Gecko, WebKit, Chrome <34
     }
   });
+
+  if (window.checkSkipConditions) {
+    checkSkipConditions();
+  }
 });
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -488,6 +492,7 @@ $display_style = 'block';
 
 $group_seq=0; // this gives the DIV blocks unique IDs
 
+$condition_str = '';
 ?>
 <br>
   <div class="section-header">
@@ -802,6 +807,12 @@ foreach ($policy_types as $key => $value) {
 <br>
 
 <script language="JavaScript">
+
+// Array of skip conditions for the checkSkipConditions() function.
+var skipArray = [
+<?php echo $condition_str; ?>
+];
+
 // hard code validation for old validation, in the new validation possible to add match rules
 <?php if ($GLOBALS['new_validate'] == 0) { ?>
  // fix inconsistently formatted phone numbers from the database
@@ -842,19 +853,6 @@ $use_validate_js=$GLOBALS['new_validate'];
 <script language='JavaScript'>
     var duplicateFieldsArray=[];
 
-
-    // Array of skip conditions for the checkSkipConditions() function.
-    var skipArray = [
-        <?php echo $condition_str; ?>
-    ];
-    checkSkipConditions();
-    $("input").change(function() {
-        checkSkipConditions();
-    });
-    $("select").change(function() {
-        checkSkipConditions();
-    });
-
 //This code deals with demographics before save action -
     <?php if (($GLOBALS['gbl_edit_patient_form'] == '1') && (checkIfPatientValidationHookIsActive())) :?>
 
@@ -885,7 +883,7 @@ $use_validate_js=$GLOBALS['new_validate'];
             $mfres = sqlStatement("SELECT field_id FROM layout_options " .
                 "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' AND " .
                 "(edit_options LIKE '%D%' OR edit_options LIKE '%E%')  " .
-                "ORDER BY group_name, seq");
+                "ORDER BY group_id, seq");
             while ($mfrow = sqlFetchArray($mfres)) {
                 $field_id  = $mfrow['field_id'];
                 if (strpos($field_id, 'em_') === 0) {

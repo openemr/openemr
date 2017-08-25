@@ -106,9 +106,12 @@ function update_visit_forms(&$menu_list)
 {
     $baseURL = "/interface/patient_file/encounter/load_form.php?formname=";
     $menu_list->children = array();
-  // LBF Visit forms
-    $lres = sqlStatement("SELECT * FROM list_options " .
-    "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
+
+    $lres = sqlStatement("SELECT grp_form_id AS option_id, grp_title AS title, grp_aco_spec " .
+    "FROM layout_group_properties WHERE " .
+    "grp_form_id LIKE 'LBF%' AND grp_group_id = '' AND grp_activity = 1 " .
+    "ORDER BY grp_seq, grp_title");
+
     while ($lrow = sqlFetchArray($lres)) {
         $option_id = $lrow['option_id']; // should start with LBF
         $title = $lrow['title'];
@@ -119,14 +122,12 @@ function update_visit_forms(&$menu_list)
         $formEntry->requirement = 2;
         $formEntry->target = 'enc';
         // Plug in ACO attribute, if any, of this LBF.
-        $jobj = json_decode($lrow['notes'], true);
-        if (!empty($jobj['aco'])) {
-            $tmp = explode('|', $jobj['aco']);
+        if (!empty($lrow['grp_aco_spec'])) {
+            $tmp = explode('|', $lrow['grp_aco_spec']);
             if (!empty($tmp[1])) {
                 $formEntry->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
             }
         }
-
         array_push($menu_list->children, $formEntry);
     }
 
