@@ -328,7 +328,29 @@ if (!$_REQUEST['flb_table']) {
       <br />
       <form name="flb" id="flb" method="post">
         <div class=" text-center row divTable" style="width: 75%;padding: 10px 10px 0px;margin: 10px auto;">
-              <div class="col-sm-<?php echo $col_width; ?> table-hover">
+              <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
+                <?php 
+                  //$xl_All = xla('Appt{{abbreviation ofr Appointment}} Status: All');
+                  //generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>$xl_All),$_POST['form_apptstatus']);
+                  //remove and replace Matrix code to add bootstrap class form-group and padding
+                
+                ?>
+                <select id="form_apptcat" name="form_apptcat" class="form-group">
+                  <?php
+                  $categories=fetchAppointmentCategories();
+                  echo "<option value='ALL'>".xlt("Categories")."</option>";
+                  while($cat=sqlFetchArray($categories))
+                  {
+                      echo "<option value='".attr($cat['id'])."'";
+                      if($cat['id']==$_POST['form_apptcat'])
+                      {
+                          echo " selected='true' ";
+                      }
+                      echo    ">".text(xl_appt_category($cat['category']))."</option>";
+                  }
+                  ?>
+                </select>
+                
                 <select id="form_apptstatus" name="form_apptstatus" class="form-group">
                   <option value=''><?php echo xlt( "Appt Status: All" ); ?></option>
 
@@ -341,53 +363,45 @@ if (!$_REQUEST['flb_table']) {
                     }
                     echo    ">".xlt( $apptstat['title'] ) ."</option>";
                   }
-                  echo "</select>";
-
-                  if ( $GLOBALS['ptkr_show_visit_type'] ) {
                   ?>
-                    <select id="form_apptcat" name="form_apptcat" class="form-group">
-                      <?php
-                      $categories=fetchAppointmentCategories();
-                      echo "<option value='all'>".xlt( "All Visits" )."</option>";
-                      while ( $cat=sqlFetchArray( $categories ) ) {
-                        echo "<option value='".attr( $cat['id'] )."'";
-                        if ( $cat['id']==$_POST['form_apptcat'] ) {
-                          echo " selected='true' ";
-                        }
-                        echo    ">".text( xl_appt_category( $cat['category'] ) )."</option>";
-                      }
-                      echo "</select>";
-                    } ?><input type="text" placeholder="Patient Name" class="form-control input-sm" id="form_patient_name" name="form_patient_name" value="<?php echo ( $form_patient_name ) ? attr( $form_patient_name ) : ""; ?>">
+                </select>
+
+                <input type="text" style="max-width:200px;" placeholder="<?php echo attr('Patient Name'); ?>" class="form-control input-sm" id="form_patient_name" name="form_patient_name" value="<?php echo ( $form_patient_name ) ? attr( $form_patient_name ) : ""; ?>">
+             
+
               </div>
-              <div class="col-sm-<?php echo $col_width; ?>">
+              <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
                 <select class="form-group" id="form_facility" name="form_facility" style="<?php
-                    if ( $count_facs <'1' ) {
-                      echo "display:none;";
-                    }
-                    ?>">
+                  if ( $count_facs <'1' ) {
+                    echo "display:none;";
+                  }
+                  ?>">
                   <option value="" selected><?php echo xlt( 'All Facilities' ); ?></option>
                   <?php  echo $select_facs;  ?>
                 </select>
+
                 <select class="form-group" id="form_provider" name="form_provider" style="<?php if ( $count_provs <'1' ) {
                   echo "display:none;"; } ?>">
                   <option value="" selected><?php echo xlt( 'All Providers' ); ?></option>
                   <?php echo $select_provs; ?>
-                </select><input placeholder="Patient ID" class="form-control input-sm" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ( $form_patient_id ) ? attr( $form_patient_id ) : ""; ?>">
+                </select>
+
+                <input placeholder="<?php echo attr('Patient ID'); ?>"  style="max-width:200px;" class="form-control input-sm" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ( $form_patient_id ) ? attr( $form_patient_id ) : ""; ?>">
               </div>
               <div class="col-sm-<?php echo $col_width; ?>">
-                <div style="width: 80%;margin: 0 auto;" class="input-append">
-                    <table class="table-hover table-condensed" style="margin:0px;">
+                <div style="margin: 0px auto;" class="input-append">
+                    <table class="table-hover table-condensed" style="margin:0px auto;">
                       <tr><td class="text-right" style="vertical-align:bottom;">
-                        <label for="flow_from"><?php echo 'From'; ?>:</label></td><td>
+                        <label for="flow_from"><?php echo xlt('From'); ?>:</label></td><td>
                         <input type="date" id="datepicker1" name="datepicker1"
                                 data-format="<?php echo $date_format; ?>"
-                                class="form-control datepicker input-sm" value="<?php echo attr( $disp_from_date ); ?>" style="max-width:140px;text-align: center;">
+                                class="form-control datepicker input-sm" value="<?php echo attr( $disp_from_date ); ?>" style="max-width:140px;min-width:85px;text-align: center;">
                       </td></tr>
                       <tr><td class="text-right" style="vertical-align:bottom;">
-                        <label for="flow_to">&nbsp;&nbsp;<?php echo 'To'; ?>:</label></td><td>
+                        <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To'); ?>:</label></td><td>
                         <input type="date" id="datepicker2" name="datepicker2"
                                 data-format="<?php echo $date_format; ?>"
-                                class="form-control datepicker input-sm" value="<?php echo attr( $disp_to_date ); ?>" style="max-width:140px;text-align: center;">
+                                class="form-control datepicker input-sm" value="<?php echo attr( $disp_to_date ); ?>" style="max-width:140px;min-width:85px;text-align: center;">
                       </td></tr>
                       <tr><td class="text-center" colspan="2">
                         <input href="#" class="css_button btn ui-buttons ui-widget ui-corner-all news" type="submit" id="filter_submit" value="<?php echo xla( 'Filter' ); ?>">
