@@ -227,7 +227,7 @@ while ($row = sqlFetchArray($res)) {
 </body>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
-<?php 
+<?php
 // mdsupport - inline fancybox transition
 $md_fbtrans = array(
     'trig_table' => 'mymaintable',
