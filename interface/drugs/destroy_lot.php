@@ -172,7 +172,7 @@ if ($_POST['form_save']) {
 <input type='submit' name='form_save' value='<?php echo xla('Submit') ;?>' />
 
 &nbsp;
-<input type='button' value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
+<input id='btnCancel' type='button' value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
 </p>
 
 </center>
