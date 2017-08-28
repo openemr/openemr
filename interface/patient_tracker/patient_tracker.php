@@ -471,10 +471,10 @@ if (!$_REQUEST['flb_table']) {
                   <td class="dehead hidden-xs text-center">
                     <?php  echo xlt( 'Current Status' ); ?>
                   </td>
-                  <?php if ($_REQUEST['kiosk'] != '1') { ?>
                   <td class="dehead visible-xs hidden-sm hidden-md hidden-lg text-center">
                     <?php  echo xlt( 'Current' ); ?>
                   </td>
+                  <?php if ($_REQUEST['kiosk'] != '1') { ?>
                   <td class="dehead hidden-xs visible-sm visible-md visible-lg text-center">
                     <?php  echo xlt('Visit Type'); ?>
                   </td>
@@ -493,17 +493,22 @@ if (!$_REQUEST['flb_table']) {
                   <td class="dehead  visible-xs hidden-sm hidden-md hidden-lg text-center">
                     <?php  echo xlt( 'Out Time' ); ?>
                   </td>
+                <?php 
+                if ($_REQUEST['kiosk'] !='1') {  ?>
                   <td class="dehead hidden-xs hidden-sm text-center" name="kiosk_hide">
                     <?php  echo xlt( 'Updated By' ); ?>
                   </td>
-                  <?php if ( $GLOBALS['drug_screen'] ) { ?>
-                  <td class="dehead center hidden-xs "  name="kiosk_hide">
-                    <?php  echo xlt( 'Random Drug Screen' ); ?>
-                  </td>
-                  <td class="dehead center hidden-xs "  name="kiosk_hide">
-                    <?php  echo xlt( 'Drug Screen Completed' ); ?>
-                  </td>
-                  <?php } ?>
+                  <?php 
+                  if ( $GLOBALS['drug_screen'] ) { ?>
+                    <td class="dehead center hidden-xs "  name="kiosk_hide">
+                      <?php  echo xlt( 'Random Drug Screen' ); ?>
+                    </td>
+                    <td class="dehead center hidden-xs "  name="kiosk_hide">
+                      <?php  echo xlt( 'Drug Screen Completed' ); ?>
+                    </td>
+                  <?php 
+                  } 
+                }?>
                 </tr>
               </thead>
               <tbody>
@@ -804,6 +809,8 @@ if (!$_REQUEST['flb_table']) {
                       } 
                     ?>
                   </td>
+                  <?php 
+                if ($_REQUEST['kiosk'] !='1') {  ?>
                   <td class="detail hidden-xs hidden-sm text-center" name="kiosk_hide">
                     <?php echo text( $appointment['user'] ) ?>
                   </td>
@@ -840,7 +847,8 @@ if (!$_REQUEST['flb_table']) {
                       } else {
                         echo "  </td>"; 
                       }  
-                    } ?>
+                    }
+                }  ?>
                 </tr>
                           <?php
               } //end foreach
