@@ -445,13 +445,13 @@ if (!$_REQUEST['flb_table']) {
                     <?php  echo xlt( 'Reason' ); ?>
                   </td>
                   <?php } ?>
-                  <?php if ( $GLOBALS['ptkr_show_encounter'] ) { ?>
-                  <td class="dehead text-center hidden-xs hidden-sm" name="kiosk_hide">
+                  <?php if ( $GLOBALS['ptkr_show_encounter']  && ($_REQUEST['kiosk'] !='1')) { ?>
+                    <td class="dehead text-center hidden-xs hidden-sm" name="kiosk_hide">
                     <?php  echo xlt( 'Encounter' ); ?>
                   </td>
                   <?php } ?>
                   
-                  <?php if ( $GLOBALS['ptkr_date_range']&& ($_REQUEST['kiosk'] !='1')) { ?>
+                  <?php if ( $GLOBALS['ptkr_date_range'] && ($_REQUEST['kiosk'] !='1')) { ?>
                   <td class="dehead hidden-xs text-center" name="kiosk_hide">
                     <?php  echo xlt( 'Appt Date' ); ?>
                   </td>
@@ -972,6 +972,10 @@ function myLocalJS() {
         if ((pnameV > '') && pnameRE.test(d.pname)) { meets_pname=true; }
         return meets_pname && meets_pid && meets_cat && meets_stat && meets_fac && meets_prov;
       }).show();
+      <?php
+      if ($_REQUEST['kiosk'] =='1') { ?>
+        $("#kiosk_hide").hide();
+      <?php } ?>
     }
 
     // popup for patient tracker status
