@@ -205,6 +205,7 @@ CREATE TABLE `billing` (
   `notecodes` varchar(25) NOT NULL default '',
   `external_id` VARCHAR(20) DEFAULT NULL,
   `pricelevel` varchar(31) default '',
+  `revenue_code` varchar(6) NOT NULL default '' COMMENT 'Item revenue code',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
@@ -312,6 +313,7 @@ CREATE TABLE `claims` (
   `process_file` varchar(255) default NULL,
   `target` varchar(30) default NULL,
   `x12_partner_id` int(11) NOT NULL default '0',
+  `submitted_claim` text COMMENT 'This claims form claim data',
   PRIMARY KEY  (`patient_id`,`encounter_id`,`version`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
@@ -719,6 +721,7 @@ CREATE TABLE `codes` (
   `active` TINYINT(1) DEFAULT 1 COMMENT '0 = inactive, 1 = active',
   `reportable` TINYINT(1) DEFAULT 0 COMMENT '0 = non-reportable, 1 = reportable',
   `financial_reporting` TINYINT(1) DEFAULT 0 COMMENT '0 = negative, 1 = considered important code in financial reporting',
+  `revenue_code` varchar(6) NOT NULL default '' COMMENT 'Item revenue code',
   PRIMARY KEY  (`id`),
   KEY `code` (`code`),
   KEY `code_type` (`code_type`)

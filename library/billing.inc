@@ -38,16 +38,17 @@ function addBilling(
     $justify = '',
     $billed = 0,
     $notecodes = '',
-    $pricelevel = ''
+    $pricelevel = '',
+    $revenue_code = ""
 ) {
 
     $sql = "insert into billing (date, encounter, code_type, code, code_text, " .
     "pid, authorized, user, groupname, activity, billed, provider_id, " .
-    "modifier, units, fee, ndc_info, justify, notecodes, pricelevel) values (" .
-    "NOW(), ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "modifier, units, fee, ndc_info, justify, notecodes, pricelevel, revenue_code) values (" .
+    "NOW(), ?, ?, ?, ?, ?, ?, ?, ?,  1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     return sqlInsert($sql, array($encounter_id,$code_type,$code,$code_text,$pid,$authorized,
-    $_SESSION['authId'],$_SESSION['authProvider'],$billed,$provider,$modifier,$units,$fee,
-    $ndc_info,$justify,$notecodes,$pricelevel));
+        $_SESSION['authId'],$_SESSION['authProvider'],$billed,$provider,$modifier,$units,$fee,
+    $ndc_info,$justify,$notecodes,$pricelevel,$revenue_code));
 }
 
 function authorizeBilling($id, $authorized = "1")
@@ -66,7 +67,7 @@ function clearBilling($id)
 }
 
 // This function supports the Billing page (billing_process.php),
-// and initiation of secondary processing (sl_eob.inc.php). 
+// and initiation of secondary processing (sl_eob.inc.php).
 // It is called in the following situations:
 //
 // * billing_process.php sets bill_time, bill_process, payer and target on
@@ -106,7 +107,8 @@ function updateClaim(
     $process_file = '',
     $target = '',
     $partner_id = -1,
-    $crossover = 0
+    $crossover = 0,
+    $submitted_claim = ''
 ) {
 
     if (!$newversion) {
@@ -201,6 +203,8 @@ function updateClaim(
         sqlStatement("UPDATE billing SET $billset WHERE " .
         "encounter = '$encounter_id' AND pid='$patient_id' AND activity = 1");
     }
+
+    $claimset .= ", submitted_claim = '$submitted_claim'";
 
   // If a new claim version is requested, insert its row.
   //

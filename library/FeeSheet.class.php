@@ -324,6 +324,7 @@ class FeeSheet
 
         $codetype    = $args['codetype'];
         $code        = $args['code'];
+        $revenue_code    = isset($args['revenue_code']) ? $args['revenue_code'] : '';
         $modifier    = isset($args['modifier']) ? $args['modifier'] : '';
         $code_text   = isset($args['code_text']) ? $args['code_text'] : '';
         $units       = isset($args['units']) ? $args['units'] : 0;
@@ -359,7 +360,7 @@ class FeeSheet
 
         // Get the matching entry from the codes table.
         $sqlArray = array();
-        $query = "SELECT id, units, code_text FROM codes WHERE " .
+        $query = "SELECT id, units, code_text, revenue_code FROM codes WHERE " .
         "code_type = ? AND code = ?";
         array_push($sqlArray, $code_types[$codetype]['id'], $code);
         if ($modifier) {
@@ -371,7 +372,7 @@ class FeeSheet
 
         $result = sqlQuery($query, $sqlArray);
         $codes_id = $result['id'];
-
+        $revenue_code = $revenue_code ? $revenue_code : $result['revenue_code'];
         if (!$code_text) {
             $code_text = $result['code_text'];
             if (empty($units)) {
@@ -392,11 +393,12 @@ class FeeSheet
         $fee = sprintf('%01.2f', $fee);
 
         $li['hidden']['code_type'] = $codetype;
-        $li['hidden']['code'     ] = $code;
-        $li['hidden']['mod'      ] = $modifier;
-        $li['hidden']['billed'   ] = $billed;
-        $li['hidden']['id'       ] = $id;
-        $li['hidden']['codes_id' ] = $codes_id;
+        $li['hidden']['code'] = $code;
+        $li['hidden']['revenue_code'] = $revenue_code;
+        $li['hidden']['mod'] = $modifier;
+        $li['hidden']['billed'] = $billed;
+        $li['hidden']['id'] = $id;
+        $li['hidden']['codes_id'] = $codes_id;
 
         // This logic is only used for family planning clinics, and then only when
         // the option is chosen to use or auto-generate Contraception forms.
@@ -432,6 +434,7 @@ class FeeSheet
         }
 
         $li['code'     ] = $codetype == 'COPAY' ? '' : $code;
+        $li['revenue_code'      ] = $revenue_code;
         $li['mod'      ] = $modifier;
         $li['fee'      ] = $fee;
         $li['price'    ] = $fee / $units;
@@ -583,6 +586,7 @@ class FeeSheet
                 'id'          => $iter['id'],
                 'codetype'    => $iter['code_type'],
                 'code'        => trim($iter['code']),
+                'revenue_code'    => trim($iter["revenue_code"]),
                 'modifier'    => trim($iter["modifier"]),
                 'code_text'   => trim($iter['code_text']),
                 'units'       => $iter['units'],
@@ -753,6 +757,7 @@ class FeeSheet
                 $units     = empty($iter['units']) ? 1 : intval($iter['units']);
                 $price     = empty($iter['price']) ? 0 : (0 + trim($iter['price']));
                 $pricelevel = empty($iter['pricelevel']) ? '' : $iter['pricelevel'];
+                $revenue_code  = empty($iter['revenue_code']) ? '' : trim($iter['revenue_code']);
                 $modifier  = empty($iter['mod']) ? '' : trim($iter['mod']);
                 $justify   = empty($iter['justify'  ]) ? '' : trim($iter['justify']);
                 $notecodes = empty($iter['notecodes']) ? '' : trim($iter['notecodes']);
@@ -888,6 +893,10 @@ class FeeSheet
                                 $tmparr['notecodes'  ] = $notecodes;
                             }
 
+                            if (isset($iter['revenue_code'])) {
+                                $tmparr['revenue_code'] = $revenue_code;
+                            }
+
                             foreach ($tmparr as $key => $value) {
                                 if ($tmp[$key] != $value) {
                                     if ('fee'         == $key) {
@@ -926,7 +935,8 @@ class FeeSheet
                         $justify,
                         0,
                         $notecodes,
-                        $pricelevel
+                        $pricelevel,
+                        $revenue_code
                     );
                 }
             } // end for

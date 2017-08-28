@@ -48,7 +48,7 @@ class Claim
 // Make sure dates have no formatting and zero filled becomes blank
 // Handles date time stamp formats as well
 
-    private function cleanDate($date_field)
+    public function cleanDate($date_field)
     {
         $cleandate = str_replace('-', '', substr($date_field, 0, 10));
 
@@ -156,7 +156,7 @@ class Claim
         "b.user, b.groupname, b.authorized, b.encounter, b.code_text, b.billed, " .
         "b.activity, b.payer_id, b.bill_process, b.bill_date, b.process_date, " .
         "b.process_file, b.modifier, b.units, b.fee, b.justify, b.target, b.x12_partner_id, " .
-        "b.ndc_info, b.notecodes, ct.ct_diag " .
+        "b.ndc_info, b.notecodes, b.revenue_code, ct.ct_diag " .
         "FROM billing as b INNER JOIN code_types as ct " .
         "ON b.code_type = ct.ct_key " .
         "WHERE ct.ct_claim = '1' AND ct.ct_active = '1' AND " .
@@ -1278,7 +1278,7 @@ class Claim
     {
         return $this->cleanDate($this->billing_options['hospitalization_date_from']);
     }
-  
+
     public function hospitalizedFromDateValid()
     {
         return $this->hospitalizedFrom()!=='';
@@ -1337,7 +1337,7 @@ class Claim
     {
         return $this->x12Clean(trim($this->billing_options['comments']));
     }
-  
+
     public function miscOnsetDate()
     {
         return $this->cleanDate($this->billing_options['onset_date']);
@@ -1352,7 +1352,7 @@ class Claim
     {
         return $this->cleanDate($this->billing_options['date_initial_treatment']);
     }
-  
+
     public function dateInitialTreatmentValid()
     {
         return $this->dateInitialTreatment()!=='';
