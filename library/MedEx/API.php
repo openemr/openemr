@@ -1519,180 +1519,177 @@ class Display extends base
     {
         global $result_pat;
         ?>
-        <div class="row">
-            <div class="col-sm-2"></div>
-            <div class="col-sm-8">
-
-                <div id="add_recall" class="showReminders">
+        <div class="container-fluid">
+            <div class="row-fluid showReminders clear text-center">
+                <div id="add_recall" class="col-sm-12">
                     <div class="title"><?php echo xlt('New Recall'); ?></div>
                     <div name="div_response" id="div_response"><?php echo xlt('Create a reminder to schedule a future visit'); ?> .</div>
-                    <div id="add_recall">
-                        <form name="addRecall" id="addRecall">
-                            <input type="hidden" name="go" id="go" value="addRecall">
-                            <input type="hidden" name="action" id="go" value="addRecall">
-                            <div class="newRecall float_left" >
-                                <div class="divTableBody">
-                                    <div class="divTableRow">
-                                        <div class="divTableCell divTableHeading"><?php echo xlt('Name'); ?></div>
-                                        <div class="divTableCell recall_name">
-                                            <input type="text" name="new_recall_name" id="new_recall_name" 
-                                                onclick="recall_name_click(this)" 
-                                                value="<?php echo attr($result_pat['fname'])." ".attr($result_pat['lname']); ?>">
-                                            <input type="hidden" name="new_pid" id="new_pid" value="<?php echo attr($result_pat['id']); ?>">
-                                        </div>
-                                    </div>
-                                    <div class="divTableRow">
-                                        <div class="divTableCell divTableHeading"><?php echo xlt('Recall When'); ?></div>
-                                        <div class="divTableCell indent20">
-                                             <span class="bold"><?php echo xlt('Last Visit'); ?>: </span><input type="text" value="" name="DOLV" id="DOLV">
-                                            <br />
-                                            <!-- Feel free to add in any dates you would like to show here...
-                                            <input type="radio" name="new_recall_when" id="new_recall_when_6mos" value="180">
-                                            <label for="new_recall_when_6mos" class="input-helper input-helper--checkbox">+ 6 <?php echo xlt('months'); ?></label><br />
-                                            -->
-                                            <input type="radio" name="new_recall_when" id="new_recall_when_1yr" value="365">
-                                            <label for="new_recall_when_1yr" class="input-helper input-helper--checkbox"><?php echo xlt('Plus 1 year'); ?></label><br />
-                                            <input type="radio" name="new_recall_when" id="new_recall_when_2yr" value="730">
-                                                <label for="new_recall_when_2yr" class="input-helper input-helper--checkbox"><?php echo xlt('Plus 2 years'); ?></label><br />
-                                            <input type="radio" name="new_recall_when" id="new_recall_when_3yr" value="1095">
-                                                <label for="new_recall_when_3yr" class="input-helper input-helper--checkbox"><?php echo xlt('Plus 3 years'); ?></label><br />
-                                                <span class="bold"> <?php echo xlt('Date'); ?>:</span> <input type="text" id="datepicker2" name="datepicker2" value="" style="width:100px;">
-                                        </div>
-                                    </div>
-                                    <div class="divTableRow">
-                                        <div class="divTableCell divTableHeading"><?php echo xlt('Recall Reason'); ?></div>
-                                        <div class="divTableCell">
-                                            <input type="text" name="new_reason" id="new_reason" value="<?php echo attr(rtrim("|", trim($result_pat['PLAN']))); ?>">
-                                        </div>
-                                    </div>
-                                    <div class="divTableRow">
-                                        <div class="divTableCell divTableHeading"><?php echo xlt('Provider'); ?></div>
-                                        <div class="divTableCell">
-                                            <?php
-                                            $ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE authorized != 0 AND active = 1 ORDER BY lname, fname");
-                                            //This is an internal practice function so ignore the suffix as extraneous information.  We know who we are.
-                                            $defaultProvider = $_SESSION['authUserID'];
-                                            // or, if we have chosen a provider in the calendar, default to them
-                                            // choose the first one if multiple have been selected
-                                            if (count($_SESSION['pc_username']) >= 1) {
-                                                // get the numeric ID of the first provider in the array
-                                                $pc_username = $_SESSION['pc_username'];
-                                                $firstProvider = sqlFetchArray(sqlStatement("select id from users where username=?", array($pc_username[0])));
-                                                $defaultProvider = $firstProvider['id'];
-                                            }
-                                            // if we clicked on a provider's schedule to add the event, use THAT.
-                                            if ($userid) {
-                                                $defaultProvider = $userid;
-                                            }
-                                            
-                                            echo "<select name='new_provider' id='new_provider' style='padding:4px;' />";
-                                            while ($urow = sqlFetchArray($ures)) {
-                                                echo "    <option value='" . attr($urow['id']) . "'";
-                                                if ($urow['id'] == $defaultProvider) {
-                                                    echo " selected";
-                                                }
-                                                echo ">" . text($urow['lname']);
-                                                if ($urow['fname']) {
-                                                    echo ", " . text($urow['fname']);
-                                                }
-                                                echo "</option>\n";
-                                            }
-                                            echo "</select>";
-                                        ?>
-                                        </div>
-                                    </div>
-                                    <div class="divTableRow">
-                                        <div class="divTableCell divTableHeading"><?php echo xlt('Facility'); ?></div>
-                                        <div class="divTableCell">
-                                            <select name="new_facility" id="new_facility" style="padding: 4px;">
-                                                <?php
-                                                    $qsql = sqlStatement("SELECT id, name, primary_business_entity FROM facility WHERE service_location != 0");
-                                                while ($facrow = sqlFetchArray($qsql)) {
-                                                    if ($facrow['primary_business_entity'] == '1') {
-                                                        $selected = 'selected="selected"';
-                                                        echo "<option value='" . attr($facrow['id']) . "' $selected>" . text($facrow['name']) . "</option>";
-                                                    } else {
-                                                        $selected = '';
-                                                        echo "<option value='" . attr($facrow['id']) . "' $selected>" . text($facrow['name']) . "</option>";
-                                                    }
-                                                }
-                                                    ?>
-                                              </select>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <div class="newRecall float_right">
-                                <div class="divTableBody">
-                                    <div class="divTableRow news">
-                                        <div class="divTableCell divTableHeading"><?php echo xlt('DOB'); ?></div>
-                                        <div class="divTableCell">&nbsp;&nbsp;
-                                        <?php
-                                        $DOB = oeFormatShortDate($result_pat['DOB']);
-                                        ?>
-                                        <span name="new_DOB" id="new_DOB" style="width:90px;"><?php echo text($DOB); ?></span> - 
-                                             <span id="new_age" name="new_age"><?php echo text($result_pat['age']); ?></span></div>
-                                    </div>
-                                    <div class="divTableRow news">
-                                        <div class="divTableCell divTableHeading"><?php echo xlt('Address'); ?></div>
-                                        <div class="divTableCell">
-                                            <input type="text" name="new_address" id="new_address" style="width:200px;" value="<?php echo attr($result_pat['street']); ?>"><br />
-                                            <input type="text" name="new_city" id="new_city" style="width:100px;" value="<?php echo attr($result_pat['city']); ?>">
-                                            <input type="text" name="new_state" id="new_state" style="width:30px;" value="<?php echo attr($result_pat['state']); ?>">
-                                            <input type="text" name="new_postal_code" id="new_postal_code" style="width:50px;" value="<?php echo attr($result_pat['postal_code']); ?>"></div>
-                                    </div>
-                                    <div class="divTableRow news">
-                                        <div class="divTableCell divTableHeading phone_home"><?php echo xlt('Home Phone'); ?></div>
-                                        <div class="divTableCell"><input type="text" name="new_phone_home" id="new_phone_home" style="width:200px;" value="<?php echo attr($result_pat['phone_home']); ?>"></div>
-                                    </div>
-                                    <div class="divTableRow news">
-                                        <div class="divTableCell divTableHeading phone_cell"><?php echo xlt('Mobile Phone'); ?></div>
-                                        <div class="divTableCell"><input type="text" name="new_phone_cell" id="new_phone_cell" style="width:200px;" value="<?php echo attr($result_pat['phone_cell']); ?>"></div>
-                                    </div>
-                                    <div class="divTableRow news">
-                                        <div class="divTableCell divTableHeading msg_sent" title="<?php echo xla('Text Message'); ?>"><?php echo xlt('SMS OK'); ?></div>
-                                
-                                        <div class="divTableCell indent20">
-                                            <input type="radio" name="new_allowsms" id="new_allowsms_yes" value="YES"> <label for="new_allowsms_yes"><?php echo xlt('YES'); ?></label>
-                                            &nbsp;&nbsp; 
-                                            <input type="radio" name="new_allowsms" id="new_allowsms_no" value="NO"> <label for="new_allowsms_no"><?php echo xlt('NO'); ?></label>
-                                        </div>
-                                    </div>
-                                    <div class="divTableRow indent20">
-                                        <div class="divTableCell divTableHeading msg_how" title="<?php echo xla('Automated Voice Message'); ?>"><?php echo xlt('AVM OK'); ?></div>
-                                        <div class="divTableCell indent20">
-                                            <input type="radio" name="new_voice" id="new_voice_yes" value="YES"> <label for="new_voice_yes"><?php echo xlt('YES'); ?></label>
-                                            &nbsp;&nbsp; 
-                                            <input type="radio" name="new_voice" id="new_voice_no" value="NO"> <label for="new_voice_no"><?php echo xlt('NO'); ?></label>
-                                        </div>
-                                    </div>
-                                    <div class="divTableRow news">
-                                        <div class="divTableCell divTableHeading phone_cell"><?php echo xlt('E-Mail'); ?></div>
-                                        <div class="divTableCell"><input type="text" name="new_email" id="new_email" style="width:200px;" value="<?php echo attr($result_pat['email']); ?>"></div>
-                                    </div>
-                                    
-                                    <div class="divTableRow news">
-                                        <div class="divTableCell divTableHeading msg_when"><?php echo xlt('E-mail OK'); ?></div>
-                                        <div class="divTableCell indent20">
-                                            <input type="radio" name="new_email_allow" id="new_email_yes" value="YES"> <label for="new_email_yes"><?php echo xlt('YES'); ?></label>
-                                            &nbsp;&nbsp; 
-                                            <input type="radio" name="new_email_allow" id="new_email_no" value="NO"> <label for="new_email_no"><?php echo xlt('NO'); ?></label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="clear center" style="width:100%;clear:both;font-size:1.1em;">
-                                <input class="css_button btn" onclick="add_this_recall();"  style="width:100px;" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new">
-                                <br />
-                                <em>* <?php echo xlt('N.B.{{Nota bene}}')." ".xlt('Demographic changes made here are recorded system-wide'); ?>.</em>
-                            </div>
-                        </form>
-                    </div>
                 </div>
             </div>
-            <div class="col-sm-2"></div>
+            <form name="addRecall" id="addRecall">
+                <div class="row-fluid  clear text-center">
+                    <input type="hidden" name="go" id="go" value="addRecall">
+                    <input type="hidden" name="action" id="go" value="addRecall">
+                    <div class="col-sm-6 text-right">
+                        <div class="divTableBody">
+                            <div class="divTableRow">
+                                <div class="divTableCell divTableHeading"><?php echo xlt('Name'); ?></div>
+                                <div class="divTableCell recall_name">
+                                    <input type="text" name="new_recall_name" id="new_recall_name" 
+                                        onclick="recall_name_click(this)" 
+                                        value="<?php echo attr($result_pat['fname'])." ".attr($result_pat['lname']); ?>">
+                                    <input type="hidden" name="new_pid" id="new_pid" value="<?php echo attr($result_pat['id']); ?>">
+                                </div>
+                            </div>
+                            <div class="divTableRow">
+                                <div class="divTableCell divTableHeading"><?php echo xlt('Recall When'); ?></div>
+                                <div class="divTableCell indent20">
+                                     <span class="bold"><?php echo xlt('Last Visit'); ?>: </span><input type="text" value="" name="DOLV" id="DOLV">
+                                    <br />
+                                    <!-- Feel free to add in any dates you would like to show here...
+                                    <input type="radio" name="new_recall_when" id="new_recall_when_6mos" value="180">
+                                    <label for="new_recall_when_6mos" class="input-helper input-helper--checkbox">+ 6 <?php echo xlt('months'); ?></label><br />
+                                    -->
+                                    <input type="radio" name="new_recall_when" id="new_recall_when_1yr" value="365">
+                                    <label for="new_recall_when_1yr" class="input-helper input-helper--checkbox"><?php echo xlt('Plus 1 year'); ?></label><br />
+                                    <input type="radio" name="new_recall_when" id="new_recall_when_2yr" value="730">
+                                        <label for="new_recall_when_2yr" class="input-helper input-helper--checkbox"><?php echo xlt('Plus 2 years'); ?></label><br />
+                                    <input type="radio" name="new_recall_when" id="new_recall_when_3yr" value="1095">
+                                        <label for="new_recall_when_3yr" class="input-helper input-helper--checkbox"><?php echo xlt('Plus 3 years'); ?></label><br />
+                                        <span class="bold"> <?php echo xlt('Date'); ?>:</span> <input type="text" id="datepicker2" name="datepicker2" value="" style="width:100px;">
+                                </div>
+                            </div>
+                            <div class="divTableRow">
+                                <div class="divTableCell divTableHeading"><?php echo xlt('Recall Reason'); ?></div>
+                                <div class="divTableCell">
+                                    <input type="text" name="new_reason" id="new_reason" value="<?php echo attr(rtrim("|", trim($result_pat['PLAN']))); ?>">
+                                </div>
+                            </div>
+                            <div class="divTableRow">
+                                <div class="divTableCell divTableHeading"><?php echo xlt('Provider'); ?></div>
+                                <div class="divTableCell">
+                                    <?php
+                                    $ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE authorized != 0 AND active = 1 ORDER BY lname, fname");
+                                    //This is an internal practice function so ignore the suffix as extraneous information.  We know who we are.
+                                    $defaultProvider = $_SESSION['authUserID'];
+                                    // or, if we have chosen a provider in the calendar, default to them
+                                    // choose the first one if multiple have been selected
+                                    if (count($_SESSION['pc_username']) >= 1) {
+                                        // get the numeric ID of the first provider in the array
+                                        $pc_username = $_SESSION['pc_username'];
+                                        $firstProvider = sqlFetchArray(sqlStatement("select id from users where username=?", array($pc_username[0])));
+                                        $defaultProvider = $firstProvider['id'];
+                                    }
+                                    // if we clicked on a provider's schedule to add the event, use THAT.
+                                    if ($userid) {
+                                        $defaultProvider = $userid;
+                                    }
+                                    
+                                    echo "<select name='new_provider' id='new_provider' style='padding:4px;' />";
+                                    while ($urow = sqlFetchArray($ures)) {
+                                        echo "    <option value='" . attr($urow['id']) . "'";
+                                        if ($urow['id'] == $defaultProvider) {
+                                            echo " selected";
+                                        }
+                                        echo ">" . text($urow['lname']);
+                                        if ($urow['fname']) {
+                                            echo ", " . text($urow['fname']);
+                                        }
+                                        echo "</option>\n";
+                                    }
+                                    echo "</select>";
+                                ?>
+                                </div>
+                            </div>
+                            <div class="divTableRow">
+                                <div class="divTableCell divTableHeading"><?php echo xlt('Facility'); ?></div>
+                                <div class="divTableCell">
+                                    <select name="new_facility" id="new_facility" style="padding: 4px;">
+                                        <?php
+                                            $qsql = sqlStatement("SELECT id, name, primary_business_entity FROM facility WHERE service_location != 0");
+                                        while ($facrow = sqlFetchArray($qsql)) {
+                                            if ($facrow['primary_business_entity'] == '1') {
+                                                $selected = 'selected="selected"';
+                                                echo "<option value='" . attr($facrow['id']) . "' $selected>" . text($facrow['name']) . "</option>";
+                                            } else {
+                                                $selected = '';
+                                                echo "<option value='" . attr($facrow['id']) . "' $selected>" . text($facrow['name']) . "</option>";
+                                            }
+                                        }
+                                            ?>
+                                      </select>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 text-center">
+                        <div class="divTableBody">
+                            <div class="divTableRow news">
+                                <div class="divTableCell divTableHeading"><?php echo xlt('DOB'); ?></div>
+                                <div class="divTableCell">&nbsp;&nbsp;
+                                <?php
+                                $DOB = oeFormatShortDate($result_pat['DOB']);
+                                ?>
+                                <span name="new_DOB" id="new_DOB" style="width:90px;"><?php echo text($DOB); ?></span> - 
+                                     <span id="new_age" name="new_age"><?php echo text($result_pat['age']); ?></span></div>
+                            </div>
+                            <div class="divTableRow news">
+                                <div class="divTableCell divTableHeading"><?php echo xlt('Address'); ?></div>
+                                <div class="divTableCell">
+                                    <input type="text" name="new_address" id="new_address" style="width:200px;" value="<?php echo attr($result_pat['street']); ?>"><br />
+                                    <input type="text" name="new_city" id="new_city" style="width:100px;" value="<?php echo attr($result_pat['city']); ?>">
+                                    <input type="text" name="new_state" id="new_state" style="width:30px;" value="<?php echo attr($result_pat['state']); ?>">
+                                    <input type="text" name="new_postal_code" id="new_postal_code" style="width:50px;" value="<?php echo attr($result_pat['postal_code']); ?>"></div>
+                            </div>
+                            <div class="divTableRow news">
+                                <div class="divTableCell divTableHeading phone_home"><?php echo xlt('Home Phone'); ?></div>
+                                <div class="divTableCell"><input type="text" name="new_phone_home" id="new_phone_home" style="width:200px;" value="<?php echo attr($result_pat['phone_home']); ?>"></div>
+                            </div>
+                            <div class="divTableRow news">
+                                <div class="divTableCell divTableHeading phone_cell"><?php echo xlt('Mobile Phone'); ?></div>
+                                <div class="divTableCell"><input type="text" name="new_phone_cell" id="new_phone_cell" style="width:200px;" value="<?php echo attr($result_pat['phone_cell']); ?>"></div>
+                            </div>
+                            <div class="divTableRow news">
+                                <div class="divTableCell divTableHeading msg_sent" title="<?php echo xla('Text Message'); ?>"><?php echo xlt('SMS OK'); ?></div>
+                        
+                                <div class="divTableCell indent20">
+                                    <input type="radio" name="new_allowsms" id="new_allowsms_yes" value="YES"> <label for="new_allowsms_yes"><?php echo xlt('YES'); ?></label>
+                                    &nbsp;&nbsp; 
+                                    <input type="radio" name="new_allowsms" id="new_allowsms_no" value="NO"> <label for="new_allowsms_no"><?php echo xlt('NO'); ?></label>
+                                </div>
+                            </div>
+                            <div class="divTableRow indent20">
+                                <div class="divTableCell divTableHeading msg_how" title="<?php echo xla('Automated Voice Message'); ?>"><?php echo xlt('AVM OK'); ?></div>
+                                <div class="divTableCell indent20">
+                                    <input type="radio" name="new_voice" id="new_voice_yes" value="YES"> <label for="new_voice_yes"><?php echo xlt('YES'); ?></label>
+                                    &nbsp;&nbsp; 
+                                    <input type="radio" name="new_voice" id="new_voice_no" value="NO"> <label for="new_voice_no"><?php echo xlt('NO'); ?></label>
+                                </div>
+                            </div>
+                            <div class="divTableRow news">
+                                <div class="divTableCell divTableHeading phone_cell"><?php echo xlt('E-Mail'); ?></div>
+                                <div class="divTableCell"><input type="text" name="new_email" id="new_email" style="width:200px;" value="<?php echo attr($result_pat['email']); ?>"></div>
+                            </div>
+                            
+                            <div class="divTableRow news">
+                                <div class="divTableCell divTableHeading msg_when"><?php echo xlt('E-mail OK'); ?></div>
+                                <div class="divTableCell indent20">
+                                    <input type="radio" name="new_email_allow" id="new_email_yes" value="YES"> <label for="new_email_yes"><?php echo xlt('YES'); ?></label>
+                                    &nbsp;&nbsp; 
+                                    <input type="radio" name="new_email_allow" id="new_email_no" value="NO"> <label for="new_email_no"><?php echo xlt('NO'); ?></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row-fluid clear center" style="width:100%;clear:both;font-size:1.1em;">
+                    <input class="css_button btn" onclick="add_this_recall();"  style="width:100px;" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new">
+                    <br />
+                    <em>* <?php echo xlt('N.B.{{Nota bene}}')." ".xlt('Demographic changes made here are recorded system-wide'); ?>.</em>
+                </div>
+            </form>
         </div>
         <?php
     }
