@@ -239,7 +239,7 @@ if (!$_REQUEST['flb_table']) {
     <div class="container-fluid">
       <div class="row-fluid" id="flb_selectors" style="display:<?php echo attr($setting_selectors); ?>">
         <div class="col-sm-12">
-          <div class="showRFlow" id="show_flows" style="text-align:center;margin:20 auto;">
+          <div class="showRFlow" id="show_flows" style="text-align:center;margin:20 auto;" name="kiosk_hide">
             <div class="title"><?php echo xlt( 'Flow Board' ); ?></div>
             <div name="div_response" id="div_response" class="nodisplay"></div>
             <?php
