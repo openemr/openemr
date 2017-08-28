@@ -440,7 +440,7 @@ if (!$_REQUEST['flb_table']) {
                   <td class="dehead text-center" max-width="150px">
                     <?php  echo xlt( 'Patient' ); ?>
                   </td>
-                  <?php if ( $GLOBALS['ptkr_visit_reason'] ) { ?>
+                  <?php if ( $GLOBALS['ptkr_visit_reason'] && ($_REQUEST['kiosk'] !='1')) { ?>
                   <td class="dehead hidden-xs text-center" name="kiosk_hide">
                     <?php  echo xlt( 'Reason' ); ?>
                   </td>
@@ -451,7 +451,7 @@ if (!$_REQUEST['flb_table']) {
                   </td>
                   <?php } ?>
                   
-                  <?php if ( $GLOBALS['ptkr_date_range'] ) { ?>
+                  <?php if ( $GLOBALS['ptkr_date_range']&& ($_REQUEST['kiosk'] !='1')) { ?>
                   <td class="dehead hidden-xs text-center" name="kiosk_hide">
                     <?php  echo xlt( 'Appt Date' ); ?>
                   </td>
@@ -669,13 +669,14 @@ if (!$_REQUEST['flb_table']) {
                             data-pname="'.attr( $ptname ).'"
                             class="text-small"
                             bgcolor="'.attr($bgcolor).'" >';  
-                  if ( $GLOBALS['ptkr_show_pid'] ) { 
+                  if ( $GLOBALS['ptkr_show_pid'] && ($_REQUEST['kiosk'] !='1')) { 
                     ?>
-                    <td class="detail hidden-xs" align="center" name="kiosk_hide">
+                    <td class="detail hidden-xs" align="center">
                       <?php echo text( $appt_pid ); ?>
                     </td>
                       <?php 
                   } 
+                  if ($_REQUEST['kiosk'] !='1') {
                   ?>
                     <td class="detail text-center hidden-xs" name="kiosk_hide">
                       <a href="#" onclick="return topatient('<?php echo attr( $appt_pid );?>','<?php echo attr( $appt_enc );?>')" >
@@ -685,26 +686,26 @@ if (!$_REQUEST['flb_table']) {
                       <a href="#" onclick="return topatient('<?php echo attr( $appt_pid );?>','<?php echo attr( $appt_enc );?>')" >
                           <?php echo text( $ptname_short ); ?></a>
                     </td>
-                    <?php if ($_REQUEST['kiosk']=='1') { ?>
+                  <?php } else { ?>
                     <td class="detail text-center" style="white-space: normal;" name="kiosk_show">
                       <a href="#" onclick="return topatient('<?php echo attr( $appt_pid );?>','<?php echo attr( $appt_enc );?>')" >
                           <?php echo text( $ptname_short ); ?></a>
                     </td>
-                    <?php } ?>
+                  <?php } ?>
                       
                       <!-- reason -->
-                      <?php if ( $GLOBALS['ptkr_visit_reason'] ) { ?>
+                  <?php if (( $GLOBALS['ptkr_visit_reason'] ) && ($_REQUEST['kiosk'] !='1')) { ?>
                     <td class="detail hidden-xs text-center" name="kiosk_hide">
                           <?php echo text( $reason_visit ) ?>
                     </td>
-                      <?php } ?>
-                      <?php if ( $GLOBALS['ptkr_show_encounter'] ) { ?>
+                  <?php } ?>
+                      <?php if ( $GLOBALS['ptkr_show_encounter'] && ($_REQUEST['kiosk'] !='1')) { ?>
                     <td class="detail hidden-xs hidden-sm text-center" name="kiosk_hide">
                           <?php if ( $appt_enc != 0 ) {
                           echo text( $appt_enc );} ?>
                     </td>
                       <?php } 
-                      if ( $GLOBALS['ptkr_date_range'] ) { ?>
+                      if ( $GLOBALS['ptkr_date_range'] && ($_REQUEST['kiosk'] !='1') ) { ?>
                     <td class="detail hidden-xs text-center" name="kiosk_hide">
                           <?php echo oeFormatShortDate( $date_appt ); ?>
                     </td>
@@ -759,11 +760,11 @@ if (!$_REQUEST['flb_table']) {
                         }
                         //end time in current status
                         echo "</td>";
-                        ?>
+                    if ($_REQUEST['kiosk'] !='1') {    ?>
                   <td class="detail hidden-xs text-center" name="kiosk_hide">
                     <?php  echo xlt($appointment['pc_title']);  ?>
                   </td>
-                    <?php
+                    <?php }
                       if ( count( $chk_prov ) > 1 ) { ?>
                   <td class="detail text-center hidden-xs">
                         <?php echo text( $docname ); ?>
@@ -927,7 +928,8 @@ function myLocalJS() {
           form_apptstatus   : $("#form_apptstatus").val(),
           form_patient_name : $("#form_patient_name").val(),
           form_patient_id   : $("#form_patient_id").val(),
-          form_apptcat      : $("#form_apptcat").val()
+          form_apptcat      : $("#form_apptcat").val(),
+          kiosk             : "<?php if ($_REQUEST['kiosk'] =='1') { echo '1'; } else { echo '0'; } ?>"
         }).done(
           function( data ) {
             $( "#flb_table" ).html( data );
@@ -1024,6 +1026,7 @@ function myLocalJS() {
           $("[name='kiosk_hide']").hide();
           $("[name='kiosk_show']").show();
           $("#patient_caret").hide();
+
          
       <?php } else { ?>
         $("[name='kiosk_show']").hide();
