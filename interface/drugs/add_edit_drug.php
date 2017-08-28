@@ -1,18 +1,24 @@
 <?php
- // Copyright (C) 2006-2011 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
-
-
-
-
- require_once("../globals.php");
+/**
+ * Drug Inventory Management
+ *
+ * @package      OpenEMR
+ * @link         http://www.open-emr.org
+ * @author       Rod Roark <rod@sunsetsystems.com>
+ * @author       Roberto Vasquez <robertogagliotta@gmail.com>
+ * @copyright    Copyright (C) 2006-2011 Rod Roark <rod@sunsetsystems.com>
+ * @copyright    Copyright (C) 2017 <robertogagliotta@gmail.com>
+ * @license      https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+ 
+require_once("../globals.php");
  require_once("$srcdir/acl.inc");
  require_once("drugs.inc.php");
  require_once("$srcdir/options.inc.php");
+
+use OpenEMR\Services\DrugService;
+
+$drugService = new DrugService();
 
  $alertmsg = '';
  $drug_id = $_REQUEST['drug'];
@@ -176,55 +182,50 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
     $new_drug = false;
     if ($drug_id) {
         if ($_POST['form_save']) { // updating an existing drug
-            sqlStatement("UPDATE drugs SET " .
-            "name = '"           . escapedff('form_name')          . "', " .
-            "ndc_number = '"     . escapedff('form_ndc_number')    . "', " .
-            "drug_code = '"      . escapedff('form_drug_code')    . "', " .
-            "on_order = '"       . escapedff('form_on_order')      . "', " .
-            "reorder_point = '"  . escapedff('form_reorder_point') . "', " .
-            "max_level = '"      . escapedff('form_max_level')     . "', " .
-            "form = '"           . escapedff('form_form')          . "', " .
-            "size = '"           . escapedff('form_size')          . "', " .
-            "unit = '"           . escapedff('form_unit')          . "', " .
-            "route = '"          . escapedff('form_route')         . "', " .
-            "cyp_factor = '"     . numericff('form_cyp_factor')    . "', " .
-            "related_code = '"   . escapedff('form_related_code')  . "', " .
-            "allow_multiple = "  . (empty($_POST['form_allow_multiple' ]) ? 0 : 1) . ", " .
-            "allow_combining = " . (empty($_POST['form_allow_combining']) ? 0 : 1) . ", " .
-            "active = "          . (empty($_POST['form_active']) ? 0 : 1) . " " .
-            "WHERE drug_id = ?", array($drug_id));
-            sqlStatement("DELETE FROM drug_templates WHERE drug_id = ?", array($drug_id));
+           $updateDrug = array(
+            "name" => escapedff('form_name'),
+            "ndc_number" => escapedff('form_ndc_number'),
+            "drug_code" => escapedff('form_drug_code'),
+            "on_order" => escapedff('form_on_order'),
+            "reorder_point" => escapedff('form_reorder_point'),
+            "max_level" => escapedff('form_max_level'),
+            "form" => escapedff('form_form'),
+            "size" => escapedff('form_sixe'),
+            "unit" => escapedff('form_unit'),
+            "route" => escapedff('form_route'),
+            "cyp_factor" => numericff('form_cyp_factor'),
+            "related_code" => escapedff('form_related_code'),
+            "allow_multiple" => (empty($_POST['form_allow_multiple' ]) ? 0 : 1),
+            "allow_combining" => (empty($_POST['form_allow_combining']) ? 0 : 1),
+            "active" => (empty($_POST['form_active']) ? 0 : 1)      
+           );
+           $updateDrug_id = $drugService->updateDrug($updateDrug, $drug_id);
+
         } else { // deleting
             if (acl_check('admin', 'super')) {
-                sqlStatement("DELETE FROM drug_inventory WHERE drug_id = ?", array($drug_id));
-                sqlStatement("DELETE FROM drug_templates WHERE drug_id = ?", array($drug_id));
-                sqlStatement("DELETE FROM drugs WHERE drug_id = ?", array($drug_id));
-                sqlStatement("DELETE FROM prices WHERE pr_id = ? AND pr_selector != ''", array($drug_id));
+               $delete_drug_id = $drugService->deleteDrug($drug_id);
             }
         }
     } else if ($_POST['form_save']) { // saving a new drug
         $new_drug = true;
-        $drug_id = sqlInsert("INSERT INTO drugs ( " .
-        "name, ndc_number, drug_code, on_order, reorder_point, max_level, form, " .
-        "size, unit, route, cyp_factor, related_code, " .
-        "allow_multiple, allow_combining, active " .
-        ") VALUES ( " .
-        "'" . escapedff('form_name')          . "', " .
-        "'" . escapedff('form_ndc_number')    . "', " .
-        "'" . escapedff('form_drug_code')    . "', " .
-        "'" . escapedff('form_on_order')      . "', " .
-        "'" . escapedff('form_reorder_point') . "', " .
-        "'" . escapedff('form_max_level')     . "', " .
-        "'" . escapedff('form_form')          . "', " .
-        "'" . escapedff('form_size')          . "', " .
-        "'" . escapedff('form_unit')          . "', " .
-        "'" . escapedff('form_route')         . "', " .
-        "'" . numericff('form_cyp_factor')    . "', " .
-        "'" . escapedff('form_related_code')  . "', " .
-        (empty($_POST['form_allow_multiple' ]) ? 0 : 1) . ", " .
-        (empty($_POST['form_allow_combining']) ? 0 : 1) . ", " .
-        (empty($_POST['form_active']) ? 0 : 1)        .
-        ")");
+           $addDrug = array(
+            "name" => escapedff('form_name'),
+            "ndc_number" => escapedff('form_ndc_number'),
+            "drug_code" => escapedff('form_drug_code'),
+            "on_order" => escapedff('form_on_order'),
+            "reorder_point" => escapedff('form_reorder_point'),
+            "max_level" => escapedff('form_max_level'),
+            "form" => escapedff('form_form'),
+            "size" => escapedff('form_sixe'),
+            "unit" => escapedff('form_unit'),
+            "route" => escapedff('form_route'),
+            "cyp_factor" => numericff('form_cyp_factor'),
+            "related_code" => escapedff('form_related_code'),
+            "allow_multiple" => (empty($_POST['form_allow_multiple' ]) ? 0 : 1),
+            "allow_combining" => (empty($_POST['form_allow_combining']) ? 0 : 1),
+            "active" => (empty($_POST['form_active']) ? 0 : 1)      
+           );
+          $drug_id = $drugService->insertDrug($addDrug);
     }
 
     if ($_POST['form_save'] && $drug_id) {
@@ -235,7 +236,8 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
             $tmpl["1"]['selector'] = $_POST['form_name'];
         }
 
-        sqlStatement("DELETE FROM prices WHERE pr_id = ? AND pr_selector != ''", array($drug_id));
+        $drugService->deletePrices($drug_id);
+        //sqlStatement("DELETE FROM prices WHERE pr_id = ? AND pr_selector != ''", array($drug_id));
         for ($lino = 1; isset($tmpl["$lino"]['selector']); ++$lino) {
             $iter = $tmpl["$lino"];
             $selector = trim($iter['selector']);
@@ -246,17 +248,8 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
                         $taxrates .= "$key:";
                     }
                 }
-
-                sqlInsert(
-                    "INSERT INTO drug_templates ( " .
-                    "drug_id, selector, dosage, period, quantity, refills, taxrates " .
-                    ") VALUES ( ?, ?, ?, ?, ?, ?, ? )",
-                    array($drug_id, $selector, trim($iter['dosage']), trim($iter['period']),
-                    trim($iter['quantity']),
-                    trim($iter['refills']),
-                    $taxrates)
-                );
-
+               
+              $drugService->insertTemplate($drug_id, $selector, trim($iter['dosage']), trim($iter['period']), trim($iter['quantity']), trim($iter['refills']), $taxrates);
                 // Add prices for this drug ID and selector.
                 foreach ($iter['price'] as $key => $value) {
                          $value = $value + 0;
