@@ -8,8 +8,6 @@
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
  */
 
-body {
-}
 
 h1 {
     margin: 0 10px;
@@ -174,6 +172,7 @@ width: 98%;
  .divTableRow {
   display: table-row;
   border-radius: 8px;
+  background-color: white;
  }
  .divTableCell, .divTableHead {
   border: 0.5px solid #c0c0c0;
@@ -276,20 +275,7 @@ float: right;
  .center {
   text-align: center;
  }
- input[type=text]:focus{
-  background-color: yellow;
- }
- input[type="text"],input[type="password"],select,textarea{
-  text-align: left;
-  display: inline-block;
-  border: 1px solid #CCC !important;
-  box-shadow: 0px 1px 3px #DDD inset ;
-  border-radius: 4px;
-  margin:3px 3px 3px 15px;
-  box-sizing: border-box;
-  max-width:90%;
-  padding:4px;
- }
+
  input[type="radio"] {
   padding-left:15px;
  }
@@ -414,7 +400,6 @@ text-align:left;
 #div_response { min-height:25px;text-align:center; color:red;}
 #addRecall { width: 100%; }
 #new_recall { width:70%;margin: 0 auto;}
-#add_recall { width:850px; }
 td.right { width: 30%; }
 
 .borderShadow {
