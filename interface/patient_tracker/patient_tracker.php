@@ -787,18 +787,18 @@ if (!$_REQUEST['flb_table']) {
                   </td>
                   <td class="detail text-center">
                     <?php
+                     
+                      if ( strtotime( $newend ) != '' ) {
+                          echo oeFormatTime( $newend )."<br />" ;
+                      }
                       if ( $prog_text >'' ) {
                         echo  '
                                 <span  class="btn btn-primary" data-toggle="tooltip" title="'.$prog_text.'" style="padding:5px;" onclick="SMS_bot(\''.attr( $appointment['pc_eid'] ).'\')">
-                                  
-                                    <i class="fa fa-list-alt fa-inverse"></i>
+                                  <i class="fa fa-list-alt fa-inverse"></i>
                                 </span>
-                              
                               <div class="jqui" style="display:none;">'. $prog_text .'</div>
                               ';
-                      } else if ( strtotime( $newend ) != '' ) {
-                          echo oeFormatTime( $newend ) ;
-                        }
+                      } 
                     ?>
                   </td>
                   <td class="detail hidden-xs hidden-sm text-center" name="kiosk_hide">
