@@ -352,24 +352,25 @@ function goMedEx() {
 }
 /****  END FUNCTIONS RELATED TO NAVIGATION *****/
 
-function show_this(color) {
-    if (color == 'ALL') {
-        $(".ALL").removeClass('nodisplay');
-    } else {
-        $(".ALL").addClass('nodisplay');
-        $('.'+color).removeClass('nodisplay');
-    }
-    var fac = "facility_"+$("#facility_selector").val();
-    var prov = "provider_"+$("#provider_selector").val();
-    if ($("#facility_selector").val() != "all")  { $('div.ALL').not('[class*='+fac+']').addClass('nodisplay');}
-    if ($("#provider_selector").val() != "all")  { $('div.ALL').not('.'+prov).addClass('nodisplay'); }
+function show_this(local_status=''){
+    var facV        = $("#form_facility").val();
+    var provV       = $("#form_provider").val();
+    
+        //and hide what we don't want to show
+    $('.ALL').hide().filter(function(){
+                                           var d = $(this).data();
+                                           if ((local_status =='') || (local_status == d.status)) { meets_stat=true; } else { meets_stat=false; }
+                                           if ((facV === '') || (facV == d.facility)) { meets_fac=true; } else { meets_fac=false; }
+                                           if ((provV === '') || (provV = d.provider)) { meets_prov=true; } else { meets_prov=false; }
+                                           return meets_stat && meets_fac && meets_prov;
+                                           }).show();
 }
 
+//in bootstrap_menu.js
 function tabYourIt(tabNAME,url) {
     parent.left_nav.loadFrame('1',tabNAME,url);
 }
 $(document).ready(function(){
-                  
                   //bootstrap menu functions
                   $('.dropdown').hover(function() {
                                        $(".dropdown").removeClass('open');
@@ -380,15 +381,11 @@ $(document).ready(function(){
                                        $("[class='dropdown']").removeClass('open');
                                        $(this).parent().removeClass('open');
                                        });
-                  
                   $("[class='dropdown-toggle']").hover(function(){
                                                        $(".dropdown").removeClass('open');
                                                        $(this).parent().addClass('open');
                                                        //$(this).find('.dropdown-menu').first().stop(true, true).delay(250).slideDown();
-                                                       
-                                                       }
-                                                       );
-                  
+                                                       });
                   $(".divTableRow").mouseover(function(){
                                               if ((!$(this).hasClass('divTableHeading'))&&
                                                   (!$(this).hasClass('greenish'))&&
@@ -405,30 +402,6 @@ $(document).ready(function(){
                                                        now = dolv.add($(this).val(),'days').format('YYYY-MM-DD');
                                                        $("#datepicker2").val(now);
                                                        });
-                  $("[name='tabs']").click(function() {
-                                           $("[name='tabs']").removeClass('no_bot_border');
-                                           $(this).addClass('no_bot_border');
-                                           show_just = this.id.match(/tab_(.*)$/);
-                                           var dcolor = show_just[1];
-                                           if (show_just[1] == 'ALL') {
-                                           $(".ALL").removeClass('nodisplay');
-                                           $("[name='visible_cols']").removeClass('fa-toggle-off').addClass('fa-toggle-on');
-                                           $('#reminder_wrap').removeClass('whitish')
-                                           .removeClass('reddish')
-                                           .removeClass('greenish')
-                                           .removeClass('yellowish')
-                                           .addClass('whitish');
-                                           } else {
-                                           $(".ALL").addClass('nodisplay');
-                                           $("."+show_just[1]).removeClass('nodisplay');
-                                           $('#reminder_wrap').removeClass('whitish')
-                                           .removeClass('reddish')
-                                           .removeClass('greenish')
-                                           .removeClass('yellowish')
-                                           .addClass(dcolor);
-                                           }
-                                           //reminder_wrap div needs to change color too.
-                                           });
                   $(".update").on('change',function(e) {
                                   var formData = $("form#save_prefs").serialize();
                                   var url = "save.php";
@@ -443,63 +416,7 @@ $(document).ready(function(){
                                                  setTimeout(function() {
                                                             $("#div_response").html('<br />');
                                                             }, 2000);
-                                                 
                                                  });
                                   });
-                  $("#facility_selector").on('change',function(e) {
-                                             show_this('ALL');
-                                             $('div[class*=facility_]').removeClass('nodisplay');
-                                             //show what we want
-                                             var facValue = $("#facility_selector").val();
-                                             var provValue = $("#provider_selector").val();
-                                             
-                                             if (facValue =="all") {
-                                                 //show them all
-                                                 if ((provValue != 'all')||(typeof provValue == undefined)) {
-                                                     $('div[class*=provider_]').addClass('nodisplay');
-                                                     $('div[class*=provider_'+provValue+']').removeClass('nodisplay');
-                                                 } else {
-                                                     $('div[class*=facility_]').removeClass('nodisplay');
-                                                 }
-                                             } else if (provValue >'') {
-                                                  if (provValue == 'all') {
-                                                     $('div[class*=facility_]').addClass('nodisplay');
-                                                     $('div[class*=facility_'+facValue+']').removeClass('nodisplay');
-                                                 } else {
-                                                     $('div[class*=facility_]').addClass('nodisplay');
-                                                     var elems = document.getElementsByClassName('facility_'+facValue+' provider_'+provValue);
-                                                     for (var i = 0; i < elems.length; i++) {
-                                                         $('#'+elems[i].id).removeClass('nodisplay');
-                                                     }
-                                                 }
-                                             } else {
-                                                  $('div[class*=provider_'+facValue+']').removeClass('nodisplay');
-                                              }
-                                         });
-                  $("#provider_selector").on('change',function(e) {
-                                             show_this('ALL');
-                                             $('div[class*=provider_]').removeClass('nodisplay');
-                                             var facValue = $("#facility_selector").val();
-                                             var provValue = $("#provider_selector").val();
-                                             if ((provValue =="all")||(typeof provValue == 'undefined')) {
-                                                 //show them all
-                                                 if (facValue != 'all') {
-                                                     $('div[class*=facility_]').addClass('nodisplay');
-                                                     $('div[class*=facility_'+facValue+']').removeClass('nodisplay');
-                                                 }
-                                             } else {
-                                                 if (facValue == 'all') {
-                                                     $('div[class*=provider_]').addClass('nodisplay');
-                                                     $('div[class*=provider_'+provValue+']').removeClass('nodisplay');
-                                                 } else {
-                                                     $('div[class*=provider_]').addClass('nodisplay');
-                                                     var elems = document.getElementsByClassName('facility_'+facValue+' provider_'+provValue);
-                                                     for (var i = 0; i < elems.length; i++) {
-                                                         $('#'+elems[i].id).removeClass('nodisplay');
-                                                     }
-                                                 }
-                                             }
-                                             });
-                  
                   });
 

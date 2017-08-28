@@ -775,7 +775,7 @@ class Display extends base
             } ?> menu_arrow" style="position:fixed;left:5px;top:5px;z-index:1001;" id="patient_caret" onclick='toggle_menu();' aria-hidden="true"></i>
                
         <nav id="navbar_oe" class="bgcolor2 navbar-fixed-top navbar-custom navbar-bright navbar-inner" 
-            style="font-size:0.8em;<?php if ($setting_bootstrap_submenu == 'hide') { echo 'display: none;'; } ?>" 
+            style="font-size:0.9em;<?php if ($setting_bootstrap_submenu == 'hide') { echo 'display: none;'; } ?>" 
             data-role="page banner navigation">
             <!-- Brand and toggle get grouped for better mobile display -->
                 <div class="container-fluid">
@@ -807,7 +807,7 @@ class Display extends base
                                         <?php
                                     } 
                                     ?>
-                                    <li id="icons" name="icons"><a onclick="doRecallclick_edit('icons');"><?php echo xlt('Icon Chart'); ?></a></li>
+                                    <li id="icons" name="icons"><a onclick="doRecallclick_edit('icons');"><?php echo xlt('Icon Legend'); ?></a></li>
                                 </ul>
                             </li>
                             <?php
@@ -915,7 +915,7 @@ class Display extends base
                                                 </div>
                                             </div>
                                             <div class="divTableRow">
-                                                <div class="divTableCell divTableHeading"><?php echo xlt('Process Reminders for Facility'); ?></div>
+                                                <div class="divTableCell divTableHeading"><?php echo xlt('Process Messages for Facility'); ?></div>
                                                 <div class="divTableCell indent20">
                                                 <?php
                                                 $count="1";
@@ -1049,8 +1049,9 @@ class Display extends base
         global $MedEx;
         //let's get all the recalls the user requests, or if no dates set (initial state get old and some future)
         $from_date = !is_null($_REQUEST['datepicker1']) ? date('Y-m-d',strtotime($_REQUEST['datepicker1'])) : date('Y-m-d', strtotime('-6 months'));
+        //limit date range for initial Board to keep us sane and not tax the server too much
         
-         if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
+        if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
             $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
             $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d'), date('Y')+$ptkr_time);
         } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'M') {
@@ -1061,11 +1062,12 @@ class Display extends base
              $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d')+$ptkr_time, date('Y'));
         }
         $to_date = date('Y-m-d',$ptkr_future_time);
+        //prevSetting to_date?
         $to_date = !is_null($_REQUEST['datepicker2']) ? date('Y-m-d',strtotime($_REQUEST['datepicker2'])) : $to_date;
         
         $recalls = $this->get_recalls($from_date, $to_date);
-        $from_date = oeFormatShortDate($from_date);
-        $to_date = oeFormatShortDate($to_date);
+        $disp_from_date = oeFormatShortDate($from_date);
+        $disp_to_date = oeFormatShortDate($to_date);
         
             // if all we don't use MedEx, there is no need to display the progress tabs, all recall processing is manual.
         if (!$logged_in) {
@@ -1101,96 +1103,167 @@ class Display extends base
                 return false;
             }
         </script>
-      <div class="container-fluid">
-          <div class="row">
-            <div class="col-sm-12">
-                <div class="showRecalls" id="show_recalls" style="text-align:center;margin:40 auto;">
-                    <?php
-                    if ($logged_in) {
-                        foreach ($results['events'] as $event) {
-                            if ($event['M_group'] != 'RECALL') {
-                                continue;
-                            }
-                            $icon = $this->get_icon($event['M_type'], 'SCHEDULED');
-                            if ($event['E_timing'] =='1') {
-                                $action = "before";
-                            }
-                            if ($event['E_timing'] =='2') {
-                                $action = "before (PM)";
-                            }
-                            if ($event['E_timing'] =='3') {
-                                $action = "after";
-                            }
-                            if ($event['E_timing'] =='4') {
-                                $action = "after (PM)";
-                            }
-                            $current_events .=  $icon." ".$event['E_fire_time']." ".xlt('days')." ".xlt($action)."<br />";
-                        }
-                        ?>
-                        <div class="borderShadow" style="position:absolute;top:20px;right:10px;width:200px;font-size:0.9em;">
-                            <a class="fa fw fa-plus-square" title="<?php echo xla('Add a New Recall'); ?>" id="BUTTON_new_recall_menu" style="float:left;" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=addRecall"></a>
-                            <b><u>MedEx <?php echo xlt('Recall Schedule'); ?></u></b><br />
-                            <span>
-                                <?php echo $current_events; ?>
-                            </span>
-                        </div>
-                        <?php
-                    }
 
-                    $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
-                    while ($fac = sqlFetchArray($fac_sql)) {
-                        $select_facs .= "<option value=".attr($fac['id']).">".text($fac['name'])."</option>\n";
-                        $count_facs++;
-                    }
-                    $prov_sql = sqlStatement("SELECT * FROM users WHERE authorized != 0 AND active = 1 ORDER BY lname, fname");
-                    while ($prov = sqlFetchArray($prov_sql)) {
-                        $prov_name = $prov['fname']." ".$prov['lname'];
-                        if (!empty($prov['suffix'])) {
-                            $prov_name .= ', '.text($prov['suffix']);
-                        }
-                        $select_provs .="<option value=".attr($prov['id']).">".text($prov_name)."</option>\n";
-                        $count_provs++;
-                    }
-                    ?>
-                    <div class="title"><?php echo xlt('Recall Board'); ?></div>
-                    <div name="div_response" id="div_response"><?php echo xlt('Persons needing a recall, no appt scheduled yet'); ?>.</div>
-                    <?php
-                    if (($count_provs > '1') || ($count_facs > '1')) {
-                        ?>
-                    <div>
-                        <form name="pattrk" id="pattrk" action="messages.php">
-                            <input id="go" name="go" type="hidden" value="Recalls">
-                            <select id="facility_selector" name="facility_selector" style="<?php if ($count_facs <'2') {
-                                echo "display:none;"; } ?>">
-                                <option value="all" selected><?php echo xlt('All Facilities'); ?></option>
-                                <?php
-                                echo $select_facs;
-                                ?>
-                                </select>
-                                <select id="provider_selector" name="provider_selector" style="<?php if ($count_provs <'2') {
-                                    echo "display:none;"; } ?>">
-                                    <option value="all" selected><?php echo xlt('All Providers'); ?></option>
-                                    <?php
-                                    echo $select_provs;
-                                    ?>
+
+    <div class="container-fluid">
+      <div class="row-fluid" id="rcb_selectors" style="display:<?php echo attr($setting_selectors); ?>">
+        <div class="col-sm-12">
+            <div class="showRFlow text-center" id="show_recalls_params" style="margin:20 auto;">
+                <div class="title"><?php echo xlt( 'Recall Board' ); ?></div>
+                <div name="div_response" id="div_response"><?php echo xlt('Persons needing a recall, no appt scheduled yet'); ?>.</div>
+                <?php
+                if ( $GLOBALS['medex_enable'] == '1' ) {
+                  $col_width="3";
+                } else {
+                  $col_width="4";
+                  $last_col_width="nodisplay";
+                }
+                ?>
+                <br />
+                <div class=" text-center row divTable" style="width: 85%;float:unset;margin: 0px auto;">
+                    <form name="rcb" id="rcb" method="post">
+                        <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
+                            <input placeholder="<?php echo attr('Patient ID'); ?>"  style="max-width:200px;" class="form-control input-sm" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ( $form_patient_id ) ? attr( $form_patient_id ) : ""; ?>">
+                            
+                            <input type="text" style="max-width:200px;" placeholder="<?php echo attr('Patient Name'); ?>" class="form-control input-sm" id="form_patient_name" name="form_patient_name" value="<?php echo ( $form_patient_name ) ? attr( $form_patient_name ) : ""; ?>">
+                        </div>
+
+                        <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
+                            <select class="form-group" id="form_facility" name="form_facility" 
+                                <?php 
+                                  $fac_sql = sqlStatement( "SELECT * FROM facility ORDER BY id" );
+                                  while ( $fac = sqlFetchArray( $fac_sql ) ) {
+                                    $true = ($fac['id'] == $_POST['form_facility']) ? "selected=true" : '';
+                                    $select_facs .= "<option value=".attr( $fac['id'] )." ".$true.">".text( $fac['name'] )."</option>\n";
+                                    $count_facs++;
+                                  }
+                                  if ( $count_facs <'1' ) {
+                                  echo "disabled";
+                                }
+                                ?>  onchange="show_this();">
+                                <option value=""><?php echo xlt( 'All Facilities' ); ?></option>
+                                <?php  echo $select_facs;  ?>
                             </select>
-                            <label for="recall_from"><?php echo ('From'); ?>:</label><input id="datepicker1" name="datepicker1" value="<?php echo attr($from_date); ?>" style="width:100px;text-align: center;" type="text">
-                            <label for="recall_to"><?php echo ('To'); ?>:</label><input id="datepicker2" name="datepicker2" value="<?php echo attr($to_date); ?>" style="width:100px;text-align: center;" type="text">
-                            <input href="#" class="css_button btn ui-buttons ui-widget ui-corner-all news btn" type="submit" onsubmit='return top.restoreSession();' value="<?php echo xla('Filter'); ?>">
-                        </form>
-                    </div>
-                    <?php } ?>        
+                                <?php 
+                                                # Build a drop-down list of providers.
+                                  $query = "SELECT id, lname, fname FROM users WHERE ".
+                                      "authorized = 1  and active = 1 ORDER BY lname, fname"; #(CHEMED) facility filter
+                                  $ures = sqlStatement($query);
+                                  //a year ago @matrix-amiel Adding filters to flow board and counting of statuses  
+                                  $count_provs = count(sqlFetchArray($ures));
+                                    ?>
+                            <select class="form-group" id="form_provider" name="form_provider" <?php 
+                                if ( $count_provs <'2' ) {
+                                  echo "disabled"; 
+                                } 
+                                ?> style="max-width: 200px;"  onchange="show_this();">
+                                <option value="" selected><?php echo xlt( 'All Providers' ); ?></option>
+
+                                <?php 
+                                  // Build a drop-down list of ACTIVE providers.
+                                  $query = "SELECT id, lname, fname FROM users WHERE ".
+                                      "authorized = 1  and active = 1 ORDER BY lname, fname"; #(CHEMED) facility filter
+
+                                  $ures = sqlStatement($query);
+                                  //a year ago @matrix-amiel Adding filters to flow board and counting of statuses  
+                                  while ($urow = sqlFetchArray($ures)) {
+                                      $provid = $urow['id'];
+                                      echo "    <option value='" . attr($provid) . "'";
+                                      if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']){
+                                          echo " selected";
+                                      } elseif(!isset($_POST['form_provider'])&& $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']){
+                                          echo " selected";
+                                      }
+                                      echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
+                                  }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="col-sm-<?php echo $col_width; ?>">
+                          <div style="margin: 0px auto;" class="input-append">
+                            <table class="table-hover table-condensed" style="margin:0px auto;">
+                              <tr><td class="text-right" style="vertical-align:bottom;">
+                                <label for="flow_from"><?php echo xlt('From'); ?>:</label></td><td>
+                                <input type="date" id="datepicker1" name="datepicker1"
+                                        data-format="<?php echo $date_format; ?>"
+                                        class="form-control datepicker input-sm text-center" value="<?php echo attr( $disp_from_date ); ?>" style="max-width:140px;min-width:85px;">
+                              </td></tr>
+                              <tr><td class="text-right" style="vertical-align:bottom;">
+                                <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To'); ?>:</label></td><td>
+                                <input type="date" id="datepicker2" name="datepicker2"
+                                        data-format="<?php echo $date_format; ?>"
+                                        class="form-control datepicker input-sm text-center" value="<?php echo attr( $disp_to_date ); ?>" style="max-width:140px;min-width:85px;text-align: center;">
+                              </td></tr>
+                              <tr><td class="text-center" colspan="2">
+                                <input href="#" class="css_button btn ui-buttons ui-widget ui-corner-all news" type="submit" id="filter_submit" value="<?php echo xla( 'Filter' ); ?>">
+                                </td>
+                              </tr>
+                            </table>
+                          </div>
+                        </div>
+                        <div class="col-sm-<?php echo $col_width." ".$last_col_width; ?> text-center" >
+                            <?php
+                            if ( $GLOBALS['medex_enable'] == '1' ) {
+                                if ($logged_in) {
+                                    foreach ($results['events'] as $event) {
+                                        if ($event['M_group'] != 'RECALL') {
+                                            continue;
+                                        }
+                                        $icon = $this->get_icon($event['M_type'], 'SCHEDULED');
+                                        if ($event['E_timing'] =='1') {
+                                            $action = "before";
+                                        }
+                                        if ($event['E_timing'] =='2') {
+                                            $action = "before (PM)";
+                                        }
+                                        if ($event['E_timing'] =='3') {
+                                            $action = "after";
+                                        }
+                                        if ($event['E_timing'] =='4') {
+                                            $action = "after (PM)";
+                                        }
+                                        $current_events .=  $icon." ".$event['E_fire_time']." ".xlt('days')." ".xlt($action)."<br />";
+                                    }
+                                }
+                                ?>
+                                <a class="fa fw fa-plus-square-o" title="<?php echo xla('Add a New Recall'); ?>" id="BUTTON_new_recall_menu" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=addRecall"></a>
+                                <b><u>MedEx <?php echo xlt('Recall Schedule'); ?></u></b><br />
+                                <span>
+                                    <?php echo $current_events; ?>
+                                </span>
+                            </div>
+                          </div>
+                          <?php } ?>
+                        </div>
+                        <div name="message" id="message" class="warning"></div>
+                        </div>
+                    </form> 
+                </div>        
+            </div>
+        </div>
+
+        <div class="row-fluid">
+            <div class="col-sm-12 text-center">
+                <div class="showRecalls" id="show_recalls" style="margin:0px auto;">
                     <div name="message" id="message" class="warning"></div>
+                    <span class="text-right fa-stack fa-lg pull_right small" id="rcb_caret" onclick="toggleRcbSelectors();" title="Show/Hide the Filters" 
+                        style="color:<?php echo $color = ($setting_selectors=='none') ? 'red' : 'black'; ?>;position:relative;float:right;right:0px;top:0px;">
+                    <i class="fa fa-square-o fa-stack-2x"></i>
+                    <i id="print_caret" class='fa fa-caret-<?php echo $caret = ($rcb_selectors=='none') ? 'down' : 'up'; ?> fa-stack-1x'></i>
+                </span>
                     <ul class="nav nav-tabs <?php echo attr($reminder_bar); ?>">
-                        <li class="active whitish"><a onclick="show_this('ALL');" data-toggle="tab"><?php echo xlt('All'); ?></a></li>
+                        <li class="active whitish"><a onclick="show_this();" data-toggle="tab"><?php echo xlt('All'); ?></a></li>
                         <li class="whitish"><a onclick="show_this('whitish');" data-toggle="tab"><?php echo xlt('Events Scheduled'); ?></a></li>
                         <li class="yellowish"><a onclick="show_this('yellowish');" data-toggle="tab"><?php echo xlt('In-process'); ?></a></li>
                         <li class="reddish"><a onclick="show_this('reddish');" data-toggle="tab"><?php echo xlt('Manual Processing Required'); ?></a></li>
                         <li class="greenish"><a onclick="show_this('greenish');" data-toggle="tab"><?php echo xlt('Recently Completed'); ?></a></li>
                     </ul>
+
                     <div class="tab-content">
-                        <div class="tab-pane active" id="tab-all">
-                            <?php
+                     
+                       <div class="tab-pane active" id="tab-all">     
+
+                        <?php
                                 $this->recall_board_top($logged_in);
                                 echo $processed['ALL'];
                                 $this->recall_board_bot($logged_in);
@@ -1199,6 +1272,8 @@ class Display extends base
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
             <?php
             $content = ob_get_clean();
             echo $content;
@@ -1231,7 +1306,12 @@ class Display extends base
                 $show['status'] = 'whitish';
             }
             ob_start();
-            echo '<div class="nodisplay divTableRow ALL '.attr($show['status']).' '.attr($show['plan']).' facility_'.attr($recall['r_facility']).' provider_'.attr($recall['r_provider']).'" id="remind_'.attr($recall['pid']).'">';
+            echo '<div class="divTableRow ALL '.attr($show['status']).'"
+                 data-status="'.attr($show['status']).'"
+                 data-plan="'.attr($show['plan']).'"
+                 data-facility="'.attr($recall['r_facility']).'"
+                 data-provider="'.attr($recall['r_provider']).'" 
+                 id="recall_'.attr($recall['pid']).'">';
             echo '<div class="divTableCell center"><a href="#" onclick="show_patient(\''.attr($recall['pid']).'\');"> '.text($recall['fname']).' '.text($recall['lname']).'</a></div>';
 
             echo '<div class="divTableCell appt_date">'.oeFormatShortDate($recall['r_eventDate']);
@@ -1312,27 +1392,52 @@ class Display extends base
     private function recall_board_top($logged_in)
     {
         ?>
-        <div class="divTable" style="text-align:center;margin:0px auto 30px;width:100%;">
-            <div class="divTableBody">   
-                <div class="sticky divTableRow divTableHeading">
-                    <div class="divTableCell center" style="width:10%;"><?php echo xlt('Name'); ?></div>
-                    <div class="divTableCell center" style="width:10%;"><?php echo xlt('Recall'); ?></div>
-                    
-                    <div class="divTableCell center phones" style="width:10%;"><?php echo xlt('Contacts'); ?></div>
-                    <div class="divTableCell center msg_resp"><?php echo xlt('Postcards'); ?><br />
-                        <span onclick="top.restoreSession();checkAll('postcards',true);" class="fa fa-square-o fa-lg" id="chk_postcards"></span>
-                        &nbsp;&nbsp;
-                        <span onclick="process_this('postcards');" class="fa fa-print fa-lg"></span>
-                    </div>
-                    <div class="divTableCell center msg_resp"><?php echo xlt('Labels'); ?><br />
-                        <span onclick="checkAll('labels',true);" class="fa fa-square-o fa-lg" id="chk_labels"></span>
-                        &nbsp;&nbsp;
-                        <span onclick="process_this('labels');" class="fa fa-print fa-lg"></span>
-                    </div>
-                    <div class="divTableCell center msg_resp"><?php echo xlt('Office').": ".xlt('Phone'); ?></div>
-                    <div class="divTableCell center msg_notes"><?php echo xlt('Notes'); ?></div>
-                    <div class="divTableCell center msg_notes"><?php echo xlt('Progress'); ?></div>
+        <script>
+            function toggleRcbSelectors() {
+                if ($("#rcb_selectors").css('display') == 'none') {
+                    $.post( "<?php echo $GLOBALS['webroot']."/interface/patient_tracker/patient_tracker.php"; ?>", {
+                        'rcb_selectors' : 'block',
+                        success: function (data) {
+                            $("#rcb_selectors").slideToggle();
+                            $("#rcb_caret").css('color','#000');
+                        }
+                    });
+                } else {
+                    $.post( "<?php echo $GLOBALS['webroot']."/interface/patient_tracker/patient_tracker.php"; ?>", {
+                        'rcb_selectors' : 'none',
+                        success: function (data) {
+                            $("#rcb_selectors").slideToggle();
+                            $("#rcb_caret").css('color','red');
+                        }
+                    });
+                }
+                $("#print_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');
+            }
+        </script>
+
+        <div class="divTable text-center" id="rcb_table" style="margin:0px auto 30px;width:100%;">
+            <div class="sticky divTableRow divTableHeading">
+                <div class="divTableCell center" style="width:10%;"><?php echo xlt('Name'); ?></div>
+                <div class="divTableCell center" style="width:10%;"><?php echo xlt('Recall'); ?></div>
+                
+                <div class="divTableCell center phones" style="width:10%;"><?php echo xlt('Contacts'); ?></div>
+                <div class="divTableCell center msg_resp"><?php echo xlt('Postcards'); ?><br />
+                    <span onclick="top.restoreSession();checkAll('postcards',true);" class="fa fa-square-o fa-lg" id="chk_postcards"></span>
+                    &nbsp;&nbsp;
+                    <span onclick="process_this('postcards');" class="fa fa-print fa-lg"></span>
                 </div>
+                <div class="divTableCell center msg_resp"><?php echo xlt('Labels'); ?><br />
+                    <span onclick="checkAll('labels',true);" class="fa fa-square-o fa-lg" id="chk_labels"></span>
+                    &nbsp;&nbsp;
+                    <span onclick="process_this('labels');" class="fa fa-print fa-lg"></span>
+                </div>
+                <div class="divTableCell center msg_resp"><?php echo xlt('Office').": ".xlt('Phone'); ?></div>
+                <div class="divTableCell center msg_notes"><?php echo xlt('Notes'); ?></div>
+                <div class="divTableCell center msg_notes"><?php echo xlt('Progress'); ?>
+                </div>
+              
+            </div>
+            <div class="divTableBody">   
         <?php
     }
     private function recall_board_bot($logged_in)
@@ -1347,17 +1452,6 @@ class Display extends base
         // Recalls are requests to schedule a future appointment.
         // Thus there is no r_appt_time (NULL) but there is a DATE set.
 
-        //limit date range for initial Board to keep us sane and not tax the server too much
-        if ($from_date=='') {
-            $from_date = date("Y-m-d", strtotime('-6 months'));
-        } else {
-            $from_date = date("Y-m-d", strtotime($from_date));
-        }
-        if ($to_date=='') {
-            $to_date = date("Y-m-d", strtotime('+3 months'));
-        } else {
-            $to_date = date("Y-m-d", strtotime($to_date));
-        }
         $query = "Select * from medex_recalls,patient_data as pat 
                     where pat.pid=medex_recalls.r_pid and 
                     r_eventDate >= ? and 
