@@ -75,6 +75,7 @@ if ($_REQUEST['kiosk'] =='1') {
   $to_date = date( 'Y-m-d' );
   $from_date = date( 'Y-m-d' );
 }
+$datetime = date("Y-m-d H:i:s");
 $appointments = fetch_Patient_Tracker_Events( $from_date, $to_date, '', '', '', '', $form_patient_name, $form_patient_id  ); 
 $appointments = sortAppointments( $appointments, 'date', 'time' );
 //grouping of the count of every status
@@ -671,7 +672,7 @@ if (!$_REQUEST['flb_table']) {
                   if ( $GLOBALS['ptkr_show_pid'] ) { 
                     ?>
                     <td class="detail hidden-xs" align="center" name="kiosk_hide">
-                      <?php echo text( $appt_pid ) ?>
+                      <?php echo text( $appt_pid ); ?>
                     </td>
                       <?php 
                   } 
@@ -684,11 +685,12 @@ if (!$_REQUEST['flb_table']) {
                       <a href="#" onclick="return topatient('<?php echo attr( $appt_pid );?>','<?php echo attr( $appt_enc );?>')" >
                           <?php echo text( $ptname_short ); ?></a>
                     </td>
-
+                    <?php if ($_REQUEST['kiosk']=='1') { ?>
                     <td class="detail text-center" style="white-space: normal;" name="kiosk_show">
                       <a href="#" onclick="return topatient('<?php echo attr( $appt_pid );?>','<?php echo attr( $appt_enc );?>')" >
                           <?php echo text( $ptname_short ); ?></a>
                     </td>
+                    <?php } ?>
                       
                       <!-- reason -->
                       <?php if ( $GLOBALS['ptkr_visit_reason'] ) { ?>
