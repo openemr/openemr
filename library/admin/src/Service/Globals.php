@@ -112,9 +112,11 @@ class Globals
                         $fieldValue = ($fieldValue) ? SHA1($fieldValue) : $fieldValueOld;
                     }
 
-                    if (!isset($oldGlobals[$fieldId])
-                        || (isset($oldGlobals[$fieldId]) && $oldGlobals[$fieldId]['gl_value'] !== $fieldValue)
-                    ) {
+                    $oldValueExits = (isset($oldGlobals[$fieldId]));
+                    $oldValue = $oldGlobals[$fieldId]['gl_value'];
+
+                    // If we enter this block, we need to update the database
+                    if (!$oldValueExits || ($oldValueExits && $oldValue !== $fieldValue)) {
                         // Must be able to support mcrypt for auditlog
                         if ($force_off_enable_auditlog_encryption && ($fieldId == 'enable_auditlog_encryption')) {
                             error_log("OpenEMR Error: Unable to support auditlog encryption since the php
@@ -131,10 +133,8 @@ class Globals
                         }
 
                         sqlStatement("DELETE FROM globals WHERE gl_name = ?", [$fieldId]);
-                        sqlStatement(
-                            "INSERT INTO globals (gl_name, gl_index, gl_value) VALUES (?, ?, ?)",
-                            [$fieldId, 0, $fieldValue]
-                        );
+                        $insertSql = "INSERT INTO globals (gl_name, gl_index, gl_value) VALUES (?, ?, ?)";
+                        sqlStatement($insertSql, [$fieldId, 0, $fieldValue]);
                     }
                     ++$i;
                 }

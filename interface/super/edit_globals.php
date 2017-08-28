@@ -47,7 +47,7 @@ $formAction = ($userMode) ? "?mode=user" : "";
 <head>
 <?php
 // If we are saving user_specific globals.
-if ($userMode && $r->isMethod('post')):
+if ($userMode && $r->isMethod('post') && $r->request->get('form_save')):
     $globalsService->saveUserSettings($r, $GLOBALS_METADATA, $USER_SPECIFIC_TABS, $USER_SPECIFIC_TABS);
 ?>
 <script type='text/javascript'>
@@ -104,7 +104,7 @@ if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
 }
 
 // If we are saving main globals.
-if (!$userMode && $r->isMethod('post')) :
+if (!$userMode && $r->isMethod('post') && $r->request->get('form_save')):
     $globalsService->saveGlobalSettings($r, $GLOBALS_METADATA);
     ?>
 <script type='text/javascript'>
@@ -555,7 +555,7 @@ $menuList = $menuBuilder->generateMainMenu($base);
 </body>
 
 <script type="text/javascript">
-$(document).ready(function(){
+$(function() {
     $('.srch div').wrapInner("<mark></mark>");
     $('.tab-pane .row.srch :first-child').find('div.srch:first').each(function () {
         var srch_div = $(this).closest('div').prevAll().length + 1;
@@ -576,6 +576,7 @@ $(document).ready(function(){
         }
     });
     $("#link-save-changes").on('click', function(e) {
+        $("#theform").append('<input type="hidden" name="form_save" value="1">');
         $("#theform").submit();
     });
     // Use the counter ($i) to make the form user friendly for user-specific globals use
