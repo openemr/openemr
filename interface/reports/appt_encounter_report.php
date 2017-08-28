@@ -47,7 +47,9 @@ require_once("$srcdir/patient.inc");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/billing.inc");
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
  $errmsg  = "";
  $alertmsg = ''; // not used yet but maybe later

@@ -31,7 +31,9 @@ require_once("../library/clinical_rules.php");
 require_once "$srcdir/report_database.inc";
 require_once "qrda_functions.php";
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 //Remove time limit, since script can take many minutes
 set_time_limit(0);

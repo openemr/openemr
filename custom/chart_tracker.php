@@ -24,6 +24,8 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Services\ChartTrackerService;
+use OpenEMR\Services\UserService;
 
 $form_newid   = isset($_POST['form_newid'  ]) ? trim($_POST['form_newid'  ]) : '';
 $form_curpid  = isset($_POST['form_curpid' ]) ? trim($_POST['form_curpid' ]) : '';
@@ -87,7 +89,7 @@ if ($form_newloc || $form_newuser) {
     $tracker->setWhen(new \DateTime(date('Y-m-d H:i:s')));
     $tracker->setUserId($form_newuser);
     $tracker->setLocation($form_newloc);
-    $chartTrackerService = new \services\ChartTrackerService();
+    $chartTrackerService = new ChartTrackerService();
     $chartTrackerService->trackPatientLocation($tracker);
     echo "<div class='alert alert-success'>" . xlt('Save Successful for chart ID') . " " . "'" . text($form_curid) . "'.</div>";
 }
@@ -111,7 +113,7 @@ if ($form_newid) {
 
 <?php
 if (!empty($row)) {
-    $userService = new \services\UserService();
+    $userService = new UserService();
     $ct_userid   = $row['ct_userid'];
     $ct_location = $row['ct_location'];
     $current_location = xlt('Unassigned');

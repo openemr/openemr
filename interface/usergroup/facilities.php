@@ -2,7 +2,9 @@
 require_once("../globals.php");
 require_once("../../library/acl.inc");
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 $alertmsg = '';
 

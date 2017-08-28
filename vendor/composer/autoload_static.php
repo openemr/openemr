@@ -28,10 +28,6 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
     );
 
     public static $prefixLengthsPsr4 = array (
-        's' => 
-        array (
-            'services\\' => 9,
-        ),
         'r' => 
         array (
             'repositories\\' => 13,
@@ -77,6 +73,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         ),
         'O' => 
         array (
+            'OpenEMR\\Services\\' => 17,
             'OpenEMR\\Sample\\' => 15,
             'OpenEMR\\Reminder\\' => 17,
             'OpenEMR\\Menu\\' => 13,
@@ -110,10 +107,6 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
     );
 
     public static $prefixDirsPsr4 = array (
-        'services\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/services',
-        ),
         'repositories\\' => 
         array (
             0 => __DIR__ . '/../..' . '/repositories',
@@ -201,6 +194,10 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
+        ),
+        'OpenEMR\\Services\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/services',
         ),
         'OpenEMR\\Sample\\' => 
         array (
@@ -1700,6 +1697,13 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OpenEMR\\Reminder\\BirthdayReminder' => __DIR__ . '/../..' . '/library/reminder/src/BirthdayReminder.php',
         'OpenEMR\\Sample\\Event\\SampleEvent' => __DIR__ . '/../..' . '/library/sample/src/Event/SampleEvent.php',
         'OpenEMR\\Sample\\Event\\SampleSubscriber' => __DIR__ . '/../..' . '/library/sample/src/Event/SampleSubscriber.php',
+        'OpenEMR\\Services\\ChartTrackerService' => __DIR__ . '/../..' . '/services/ChartTrackerService.php',
+        'OpenEMR\\Services\\FacilityService' => __DIR__ . '/../..' . '/services/FacilityService.php',
+        'OpenEMR\\Services\\ONoteService' => __DIR__ . '/../..' . '/services/ONoteService.php',
+        'OpenEMR\\Services\\PatientService' => __DIR__ . '/../..' . '/services/PatientService.php',
+        'OpenEMR\\Services\\ProductRegistrationService' => __DIR__ . '/../..' . '/services/ProductRegistrationService.php',
+        'OpenEMR\\Services\\UserService' => __DIR__ . '/../..' . '/services/UserService.php',
+        'OpenEMR\\Services\\VersionService' => __DIR__ . '/../..' . '/services/VersionService.php',
         'PDFBarcode' => __DIR__ . '/..' . '/mpdf/mpdf/classes/barcode.php',
         'PDF_Label' => __DIR__ . '/../..' . '/library/classes/PDF_Label.php',
         'PHPExcel' => __DIR__ . '/..' . '/phpoffice/phpexcel/Classes/PHPExcel.php',
@@ -4737,13 +4741,6 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'repositories\\ProductRegistrationRepository' => __DIR__ . '/../..' . '/repositories/ProductRegistrationRepository.php',
         'repositories\\UserRepository' => __DIR__ . '/../..' . '/repositories/UserRepository.php',
         'repositories\\VersionRepository' => __DIR__ . '/../..' . '/repositories/VersionRepository.php',
-        'services\\ChartTrackerService' => __DIR__ . '/../..' . '/services/ChartTrackerService.php',
-        'services\\FacilityService' => __DIR__ . '/../..' . '/services/FacilityService.php',
-        'services\\ONoteService' => __DIR__ . '/../..' . '/services/ONoteService.php',
-        'services\\PatientService' => __DIR__ . '/../..' . '/services/PatientService.php',
-        'services\\ProductRegistrationService' => __DIR__ . '/../..' . '/services/ProductRegistrationService.php',
-        'services\\UserService' => __DIR__ . '/../..' . '/services/UserService.php',
-        'services\\VersionService' => __DIR__ . '/../..' . '/services/VersionService.php',
         'tocontents' => __DIR__ . '/..' . '/mpdf/mpdf/classes/tocontents.php',
         'wmf' => __DIR__ . '/..' . '/mpdf/mpdf/classes/wmf.php',
     );

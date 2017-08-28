@@ -29,7 +29,9 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/encounter.inc");
 require_once("$srcdir/acl.inc");
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 $date             = (isset($_POST['form_date']))            ? $_POST['form_date'] : '';
 $onset_date       = (isset($_POST['form_onset_date']))      ? $_POST['form_onset_date'] : '';

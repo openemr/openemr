@@ -6,6 +6,9 @@
 
 require_once(dirname(__FILE__) . "/../library/forms.inc");
 
+use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\PatientService;
+
 class C_Document extends Controller
 {
 
@@ -21,8 +24,8 @@ class C_Document extends Controller
     function __construct($template_mod = "general")
     {
         parent::__construct();
-        $this->facilityService = new \services\FacilityService();
-        $this->patientService = new \services\PatientService();
+        $this->facilityService = new FacilityService();
+        $this->patientService = new PatientService();
         $this->documents = array();
         $this->template_mod = $template_mod;
         $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);

@@ -22,7 +22,9 @@
  * @link       http://www.open-emr.org
  */
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 function getErxPath()
 {

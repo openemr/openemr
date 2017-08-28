@@ -15,13 +15,15 @@ require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once("../../library/acl.inc");
 
+use OpenEMR\Services\FacilityService;
+
 // Might want something different here.
 //
 if (! acl_check('acct', 'rep')) {
     die("Unauthorized access.");
 }
 
-$facilityService = new \services\FacilityService();
+$facilityService = new FacilityService();
 
 $from_date     = fixDate($_POST['form_from_date']);
 $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';

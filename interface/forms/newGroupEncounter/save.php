@@ -36,7 +36,9 @@ require_once("$srcdir/encounter.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/formdata.inc.php");
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 $group_id = $_SESSION['therapy_group'];
 $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
