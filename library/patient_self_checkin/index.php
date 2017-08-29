@@ -42,15 +42,16 @@ if (!$GLOBALS['self_checkin_enable'] == 1) {
         src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png'/>
 </p>
 
-<h1>Welcome to Self Check In</h1>
-<h1>Touch below to begin</h1>
+<h1><?php echo xlt("Welcome to Self Check In"); ?></h1>
+<h1><?php echo xlt("Touch below to begin"); ?></h1>
+
 </div>
 
 <link rel="stylesheet" type="text/css" href="/interface/themes/selfCheckIn.css">
 
 <div class="container welcome">
 <div class="row">
-  <a href="step2.php" class="btn btn-lg btn-default">Start</a>
+  <a href="step2.php" class="btn btn-lg btn-default"><?php echo xlt("Start"); ?></a>
 
 </div>
 </div>

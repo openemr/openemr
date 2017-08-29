@@ -14,7 +14,8 @@ if (!$GLOBALS['self_checkin_enable'] == 1) {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Check In</title>
+
+    <title><?php echo xlt("Check In"); ?></title>
 <?php
 
 Header::setupHeader();
@@ -76,8 +77,8 @@ $patient_id = mysqli_fetch_array(mysqli_query($dbc, $PIDQuery));
 if ($patient_id==null) {
     echo '
 	<p><i class="fa fa-times fa-3x" aria-hidden="true"></i></p>
-	<br>
-	<h1>Sorry. We could not find you in the database, please go to the reception desk to check in.</h1>';
+	<br>' . '
+	<h1>' . xlt("Sorry. We could not find you in the database, please go to the reception desk to check in.") . '</h1>';
 } else {
     $id = $patient_id['pid'];
 
@@ -93,8 +94,7 @@ AND pc_eventDate = '".$date."'";
     if ($patientcheckresult['pc_apptstatus'] == "@") {
         echo '
 	<p><i class="fa fa-check fa-3x" aria-hidden="true"></i></p>
-	<br>
-	You have already checked in. If you have any questions, please go to the reception desk.';
+	<br>' . xlt("You have already checked in. If you have any questions, please go to the reception desk.") . '';
     } else {
         // Change appt status
         $apptsql = "UPDATE openemr_postcalendar_events 
@@ -144,8 +144,8 @@ and pc_eventDate = '".$date."';";
         $doctornameresult = mysqli_fetch_assoc(mysqli_query($dbc, $lookupdoctor));
         echo '
 <p><i class="fa fa-check fa-3x" aria-hidden="true"></i></p>
-<br>
-Thank you. <br>You have checked in for your appointment with Dr. ' . $doctornameresult['lname'] . '.';
+<br>' . 
+xlt("Thank you.") . '<br>' . xlt("You have checked in for your appointment with Dr. ") . $doctornameresult['lname'] . '.';
 
         // Create the form reference
 
@@ -182,7 +182,7 @@ VALUES ('".$lastseq['id']."', '".$timeRN."', '@', '".$newseq."', 'SelfCheckin');
 ?>
 
 <!-- Send user back to start to allow next patient to use the kiosk-->
-<!-- <meta http-equiv="refresh" content="12;url=/library/patient_self_checkin/" /> -->
+<meta http-equiv="refresh" content="12;url=/library/patient_self_checkin/" />
 
 </body>
 </html>

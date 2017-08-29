@@ -20,7 +20,8 @@ $month = htmlspecialchars($_GET['month']);
 $date = htmlspecialchars($_GET['date']);
 ?>
 
-<h2>Select the FIRST letter of your SURNAME</h2>
+
+<h2><?php echo xlt("Select the FIRST letter of your SURNAME"); ?></h2>
 
 <div class="surname">
 <div class="row">

@@ -19,7 +19,7 @@ Header::setupHeader();
 $month = htmlspecialchars($_GET['month']);
 ?>
 
-<h2>Select your date of birth</h2>
+<h2><?php echo xlt("Select your date of birth"); ?></h2>
 
 <div class="dates">
 <div class="row">
