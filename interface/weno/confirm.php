@@ -161,12 +161,12 @@ $mailOrder = $tData->mailOrderPharmacy();
             $('#success').html("<i class='fa fa-refresh fa-spin fa-3x fa-fw'></i>");
 
             $.each(jsonArray, function(index, value){
-                var send = value;
+
                 $.ajax({
                     type: 'POST',
                     dataType: 'JSON',
                     url: 'https://apa.openmedpractice.com/apa/interface/weno/receivingrx.php?',
-                    data: {"scripts": send},
+                    data: {"scripts": value},
 
                     success: function(response){
                         console.log(response);

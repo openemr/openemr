@@ -5,6 +5,7 @@
  * @package OpenEMR
  * @link    http://www.open-emr.org
  * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author  Brady Miller 
  * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -14,13 +15,14 @@ require_once("../globals.php");
 require_once($srcdir."/patient.inc");
 use OpenEMR\Rx\Weno\TransmitData;
 
+
 $date = date("Y-m-d");
 $pid = $GLOBALS['pid'];
 $uid = $_SESSION['authUserID'];
 
+//Randomly generate number for each order unique ID
 $i = rand();
 $fillData = filter_input(INPUT_GET, "getJson");
-
 
 $fill = explode(",", $fillData);
 
@@ -64,20 +66,20 @@ foreach ($fill as $data) {
         ),
         array(
             "provider" => array(
-                "provlname"       => $proData[1]['fname'],
-                "provfname"       => $proData[1]['lname'],
-                "provnpi"         => $proData[1]['npi'],
-                "facilityfax"     => str_replace("-", "", $proData[1]['fax']),
-                "facilityphone"   => str_replace("-", "", $proData[1]['phone']),
-                "facilityname"    => $proData[1]['name'],
-                "facilitystreet"  => $proData[1]['street'],
-                "facilitycity"    => $proData[1]['city'],
-                "facilitystate"   => $proData[1]['state'],
-                "facilityzip"     => $proData[1]['postal_code'],
-                "qualifier"       => $proData[1]['weno_prov_id'],
-                "wenoAccountId"   => $proData[0][0]['gl_value'],
-                "wenoAccountPass" => $proData[0][1]['gl_value'],
-                "wenoClinicId"    => $proData[1]['weno_prov_id']
+                "provlname"       => $proData[0]['fname'],
+                "provfname"       => $proData[0]['lname'],
+                "provnpi"         => $proData[0]['npi'],
+                "facilityfax"     => str_replace("-", "", $proData[0]['fax']),
+                "facilityphone"   => str_replace("-", "", $proData[0]['phone']),
+                "facilityname"    => $proData[0]['name'],
+                "facilitystreet"  => $proData[0]['street'],
+                "facilitycity"    => $proData[0]['city'],
+                "facilitystate"   => $proData[0]['state'],
+                "facilityzip"     => $proData[0]['postal_code'],
+                "qualifier"       => $proData[0]['weno_prov_id'],
+                "wenoAccountId"   => $GLOBALS['weno_account_id'],
+                "wenoAccountPass" => $GLOBALS['weno_account_pass'],
+                "wenoClinicId"    => $proData[0]['weno_prov_id']
             )
         ),
         array(
@@ -106,7 +108,7 @@ foreach ($fill as $data) {
     // Convert the array to json
     $completeJson = json_encode($completeArray);
 
-    
+
 
     // echo json
     echo $completeJson;
