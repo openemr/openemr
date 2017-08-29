@@ -753,7 +753,7 @@ class Display extends base
         <script>
         function toggle_menu() {
             $("#navbar_oe").slideToggle();
-            if ($("#navbar_oe").css('visibility') == 'hidden') {
+            if ($("#navbar_oe").is(':visible')) {
                 $.post( "<?php echo $GLOBALS['webroot']."/interface/patient_tracker/patient_tracker.php"; ?>", {
                     'setting_bootstrap_submenu' : 'show',
                     success: function (data) {}
@@ -774,7 +774,7 @@ class Display extends base
                 echo 'up';
             } ?> menu_arrow" style="position:fixed;left:5px;top:5px;z-index:1001;" id="patient_caret" onclick='toggle_menu();' aria-hidden="true"></i>
                
-        <nav id="navbar_oe" class="bgcolor2 navbar-fixed-top navbar-custom navbar-bright navbar-inner" 
+        <nav id="navbar_oe" class="bgcolor2 navbar-fixed-top navbar-custom navbar-bright navbar-inner" name="kiosk_hide" 
             style="font-size:0.9em;<?php if ($setting_bootstrap_submenu == 'hide') { echo 'display: none;'; } ?>" 
             data-role="page banner navigation">
             <!-- Brand and toggle get grouped for better mobile display -->
@@ -1047,7 +1047,11 @@ class Display extends base
     public function display_recalls($logged_in)
     {
         global $MedEx;
-        //let's get all the recalls the user requests, or if no dates set (initial state get old and some future)
+        global $rcb_selectors;
+        global $rcb_facility;
+        global $rcb_provider;
+
+        //let's get all the recalls the user requests, or if no dates set use defaults
         $from_date = !is_null($_REQUEST['datepicker1']) ? date('Y-m-d',strtotime($_REQUEST['datepicker1'])) : date('Y-m-d', strtotime('-6 months'));
         //limit date range for initial Board to keep us sane and not tax the server too much
         
@@ -1081,164 +1085,145 @@ class Display extends base
         $processed = $this->recall_board_process($logged_in, $recalls, $events, $status);
         ob_start();
 
-        //we need to respect facility and provider requests if submitted.
-        // 1.Retrieve everything for a given date range.
-        // 2.Refine results by facility and provider using jquery on cached results
-        //   ie. further requests to view facility/provider within page can be done fast through javascript, no page reload needed.
-        if (!$_REQUEST['facility_selector']) {
-            $_REQUEST['facility_selector'] = 'all';
-        }
-        if (!$_REQUEST['provider_selector']) {
-            $_REQUEST['provider_selector'] = 'all';
-        }
         ?>
-        <script>
-            $(document).ready(function() {
-                $("#facility_selector").val('<?php echo attr($_REQUEST['facility_selector']); ?>').change();
-                $("#provider_selector").val('<?php echo attr($_REQUEST['provider_selector']); ?>').change();
-            });
-            function SMS_bot(eid) {
-                top.restoreSession()
-                window.open('messages.php?nomenu=1&go=SMS_bot&pc_eid=' + eid,'SMS_bot', 'width=370,height=600,resizable=0');
-                return false;
-            }
-        </script>
-
-
     <div class="container-fluid">
-      <div class="row-fluid" id="rcb_selectors" style="display:<?php echo attr($setting_selectors); ?>">
-        <div class="col-sm-12">
-            <div class="showRFlow text-center" id="show_recalls_params" style="margin:20 auto;">
-                <div class="title"><?php echo xlt( 'Recall Board' ); ?></div>
-                <div name="div_response" id="div_response"><?php echo xlt('Persons needing a recall, no appt scheduled yet'); ?>.</div>
-                <?php
-                if ( $GLOBALS['medex_enable'] == '1' ) {
-                  $col_width="3";
-                } else {
-                  $col_width="4";
-                  $last_col_width="nodisplay";
-                }
-                ?>
-                <br />
-                <div class=" text-center row divTable" style="width: 85%;float:unset;margin: 0px auto;">
-                    <form name="rcb" id="rcb" method="post">
-                        <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
-                            <input placeholder="<?php echo attr('Patient ID'); ?>"  style="max-width:200px;" class="form-control input-sm" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ( $form_patient_id ) ? attr( $form_patient_id ) : ""; ?>">
-                            
-                            <input type="text" style="max-width:200px;" placeholder="<?php echo attr('Patient Name'); ?>" class="form-control input-sm" id="form_patient_name" name="form_patient_name" value="<?php echo ( $form_patient_name ) ? attr( $form_patient_name ) : ""; ?>">
-                        </div>
+        <div class="row-fluid" id="rcb_selectors" style="display:<?php echo attr($rcb_selectors); ?>">
+            <div class="col-sm-12">
+                <div class="showRFlow text-center" id="show_recalls_params" style="margin:20 auto;">
+                    <div class="title"><?php echo xlt( 'Recall Board' ); ?></div>
+                    <div name="div_response" id="div_response"><?php echo xlt('Persons needing a recall, no appt scheduled yet'); ?>.</div>
+                    <?php
+                    if ( $GLOBALS['medex_enable'] == '1' ) {
+                      $col_width="3";
+                    } else {
+                      $col_width="4";
+                      $last_col_width="nodisplay";
+                    }
+                    ?>
+                    <br />
+                    <form method="post">
+                        <input type="hidden" name="go" value="Recalls">
+                        <div class=" text-center row divTable" style="width: 85%;float:unset;margin: 0px auto;">
+                            <form name="rcb" id="rcb" method="post">
+                                <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
+                                    <input placeholder="<?php echo attr('Patient ID'); ?>"  style="max-width:200px;" class="form-control input-sm" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ( $form_patient_id ) ? attr( $form_patient_id ) : ""; ?>">
+                                    
+                                    <input type="text" style="max-width:200px;" placeholder="<?php echo attr('Patient Name'); ?>" class="form-control input-sm" id="form_patient_name" name="form_patient_name" value="<?php echo ( $form_patient_name ) ? attr( $form_patient_name ) : ""; ?>">
+                                </div>
 
-                        <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
-                            <select class="form-group" id="form_facility" name="form_facility" 
-                                <?php 
-                                  $fac_sql = sqlStatement( "SELECT * FROM facility ORDER BY id" );
-                                  while ( $fac = sqlFetchArray( $fac_sql ) ) {
-                                    $true = ($fac['id'] == $_POST['form_facility']) ? "selected=true" : '';
-                                    $select_facs .= "<option value=".attr( $fac['id'] )." ".$true.">".text( $fac['name'] )."</option>\n";
-                                    $count_facs++;
-                                  }
-                                  if ( $count_facs <'1' ) {
-                                  echo "disabled";
-                                }
-                                ?>  onchange="show_this();">
-                                <option value=""><?php echo xlt( 'All Facilities' ); ?></option>
-                                <?php  echo $select_facs;  ?>
-                            </select>
-                                <?php 
-                                                # Build a drop-down list of providers.
-                                  $query = "SELECT id, lname, fname FROM users WHERE ".
-                                      "authorized = 1  and active = 1 ORDER BY lname, fname"; #(CHEMED) facility filter
-                                  $ures = sqlStatement($query);
-                                  //a year ago @matrix-amiel Adding filters to flow board and counting of statuses  
-                                  $count_provs = count(sqlFetchArray($ures));
-                                    ?>
-                            <select class="form-group" id="form_provider" name="form_provider" <?php 
-                                if ( $count_provs <'2' ) {
-                                  echo "disabled"; 
-                                } 
-                                ?> style="max-width: 200px;"  onchange="show_this();">
-                                <option value="" selected><?php echo xlt( 'All Providers' ); ?></option>
+                                <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
+                                    <select class="form-group" id="form_facility" name="form_facility" 
+                                        <?php 
+                                          $fac_sql = sqlStatement( "SELECT * FROM facility ORDER BY id" );
+                                          while ( $fac = sqlFetchArray( $fac_sql ) ) {
+                                            $true = ($fac['id'] == $rcb_facility) ? "selected=true" : '';
+                                            $select_facs .= "<option value=".attr( $fac['id'] )." ".$true.">".text( $fac['name'] )."</option>\n";
+                                            $count_facs++;
+                                          }
+                                          if ( $count_facs <'1' ) {
+                                          echo "disabled";
+                                        }
+                                        ?>  onchange="show_this();">
+                                        <option value=""><?php echo xlt( 'All Facilities' ); ?></option>
+                                        <?php  echo $select_facs;  ?>
+                                    </select>
+                                        <?php 
+                                                        # Build a drop-down list of providers.
+                                          $query = "SELECT id, lname, fname FROM users WHERE ".
+                                              "authorized = 1  and active = 1 ORDER BY lname, fname"; #(CHEMED) facility filter
+                                          $ures = sqlStatement($query);
+                                          //a year ago @matrix-amiel Adding filters to flow board and counting of statuses  
+                                          $count_provs = count(sqlFetchArray($ures));
+                                            ?>
+                                    <select class="form-group" id="form_provider" name="form_provider" <?php 
+                                        if ( $count_provs <'2' ) {
+                                          echo "disabled"; 
+                                        } 
+                                        ?> style="max-width: 200px;"  onchange="show_this();">
+                                        <option value="" selected><?php echo xlt( 'All Providers' ); ?></option>
 
-                                <?php 
-                                  // Build a drop-down list of ACTIVE providers.
-                                  $query = "SELECT id, lname, fname FROM users WHERE ".
-                                      "authorized = 1  and active = 1 ORDER BY lname, fname"; #(CHEMED) facility filter
+                                        <?php 
+                                          // Build a drop-down list of ACTIVE providers.
+                                          $query = "SELECT id, lname, fname FROM users WHERE ".
+                                              "authorized = 1  and active = 1 ORDER BY lname, fname"; #(CHEMED) facility filter
 
-                                  $ures = sqlStatement($query);
-                                  //a year ago @matrix-amiel Adding filters to flow board and counting of statuses  
-                                  while ($urow = sqlFetchArray($ures)) {
-                                      $provid = $urow['id'];
-                                      echo "    <option value='" . attr($provid) . "'";
-                                      if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']){
-                                          echo " selected";
-                                      } elseif(!isset($_POST['form_provider'])&& $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']){
-                                          echo " selected";
-                                      }
-                                      echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
-                                  }
-                                ?>
-                            </select>
-                        </div>
-                        <div class="col-sm-<?php echo $col_width; ?>">
-                          <div style="margin: 0px auto;" class="input-append">
-                            <table class="table-hover table-condensed" style="margin:0px auto;">
-                              <tr><td class="text-right" style="vertical-align:bottom;">
-                                <label for="flow_from"><?php echo xlt('From'); ?>:</label></td><td>
-                                <input type="date" id="datepicker1" name="datepicker1"
-                                        data-format="<?php echo $date_format; ?>"
-                                        class="form-control datepicker input-sm text-center" value="<?php echo attr( $disp_from_date ); ?>" style="max-width:140px;min-width:85px;">
-                              </td></tr>
-                              <tr><td class="text-right" style="vertical-align:bottom;">
-                                <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To'); ?>:</label></td><td>
-                                <input type="date" id="datepicker2" name="datepicker2"
-                                        data-format="<?php echo $date_format; ?>"
-                                        class="form-control datepicker input-sm text-center" value="<?php echo attr( $disp_to_date ); ?>" style="max-width:140px;min-width:85px;text-align: center;">
-                              </td></tr>
-                              <tr><td class="text-center" colspan="2">
-                                <input href="#" class="css_button btn ui-buttons ui-widget ui-corner-all news" type="submit" id="filter_submit" value="<?php echo xla( 'Filter' ); ?>">
-                                </td>
-                              </tr>
-                            </table>
-                          </div>
-                        </div>
-                        <div class="col-sm-<?php echo $col_width." ".$last_col_width; ?> text-center" >
-                            <?php
-                            if ( $GLOBALS['medex_enable'] == '1' ) {
-                                if ($logged_in) {
-                                    foreach ($results['events'] as $event) {
-                                        if ($event['M_group'] != 'RECALL') {
-                                            continue;
+                                          $ures = sqlStatement($query);
+                                          //a year ago @matrix-amiel Adding filters to flow board and counting of statuses  
+                                          while ($urow = sqlFetchArray($ures)) {
+                                              $provid = $urow['id'];
+                                              echo "    <option value='" . attr($provid) . "'";
+                                              if (isset($rcb_provider) && $provid == $_POST['form_provider']){
+                                                  echo " selected";
+                                              } elseif(!isset($_POST['form_provider'])&& $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']){
+                                                  echo " selected";
+                                              }
+                                              echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
+                                          }
+                                        ?>
+                                    </select>
+                                </div>
+                                <div class="col-sm-<?php echo $col_width; ?>">
+                                  <div style="margin: 0px auto;" class="input-append">
+                                    <table class="table-hover table-condensed" style="margin:0px auto;">
+                                      <tr><td class="text-right" style="vertical-align:bottom;">
+                                        <label for="flow_from"><?php echo xlt('From'); ?>:</label></td><td>
+                                        <input type="date" id="datepicker1" name="datepicker1"
+                                                data-format="<?php echo $date_format; ?>"
+                                                class="form-control datepicker input-sm text-center" value="<?php echo attr( $disp_from_date ); ?>" style="max-width:140px;min-width:85px;">
+                                      </td></tr>
+                                      <tr><td class="text-right" style="vertical-align:bottom;">
+                                        <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To'); ?>:</label></td><td>
+                                        <input type="date" id="datepicker2" name="datepicker2"
+                                                data-format="<?php echo $date_format; ?>"
+                                                class="form-control datepicker input-sm text-center" value="<?php echo attr( $disp_to_date ); ?>" style="max-width:140px;min-width:85px;text-align: center;">
+                                      </td></tr>
+                                      <tr><td class="text-center" colspan="2">
+                                        <input href="#" class="css_button btn ui-buttons ui-widget ui-corner-all news" type="submit" id="filter_submit" value="<?php echo xla( 'Filter' ); ?>">
+                                        </td>
+                                      </tr>
+                                    </table>
+                                  </div>
+                                </div>
+                                <div class="col-sm-<?php echo $col_width." ".$last_col_width; ?> text-center" >
+                                    <?php
+                                    if ( $GLOBALS['medex_enable'] == '1' ) {
+                                        if ($logged_in) {
+                                            foreach ($results['events'] as $event) {
+                                                if ($event['M_group'] != 'RECALL') {
+                                                    continue;
+                                                }
+                                                $icon = $this->get_icon($event['M_type'], 'SCHEDULED');
+                                                if ($event['E_timing'] =='1') {
+                                                    $action = "before";
+                                                }
+                                                if ($event['E_timing'] =='2') {
+                                                    $action = "before (PM)";
+                                                }
+                                                if ($event['E_timing'] =='3') {
+                                                    $action = "after";
+                                                }
+                                                if ($event['E_timing'] =='4') {
+                                                    $action = "after (PM)";
+                                                }
+                                                $current_events .=  $icon." ".$event['E_fire_time']." ".xlt('days')." ".xlt($action)."<br />";
+                                            }
                                         }
-                                        $icon = $this->get_icon($event['M_type'], 'SCHEDULED');
-                                        if ($event['E_timing'] =='1') {
-                                            $action = "before";
-                                        }
-                                        if ($event['E_timing'] =='2') {
-                                            $action = "before (PM)";
-                                        }
-                                        if ($event['E_timing'] =='3') {
-                                            $action = "after";
-                                        }
-                                        if ($event['E_timing'] =='4') {
-                                            $action = "after (PM)";
-                                        }
-                                        $current_events .=  $icon." ".$event['E_fire_time']." ".xlt('days')." ".xlt($action)."<br />";
-                                    }
-                                }
-                                ?>
-                                <a class="fa fw fa-plus-square-o" title="<?php echo xla('Add a New Recall'); ?>" id="BUTTON_new_recall_menu" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=addRecall"></a>
-                                <b><u>MedEx <?php echo xlt('Recall Schedule'); ?></u></b><br />
-                                <span>
-                                    <?php echo $current_events; ?>
-                                </span>
-                            </div>
-                          </div>
-                          <?php } ?>
-                        </div>
-                        <div name="message" id="message" class="warning"></div>
-                        </div>
-                    </form> 
-                </div>        
+                                        ?>
+                                        <a class="fa fw fa-plus-square-o" title="<?php echo xla('Add a New Recall'); ?>" id="BUTTON_new_recall_menu" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=addRecall"></a>
+                                        <b><u>MedEx <?php echo xlt('Recall Schedule'); ?></u></b><br />
+                                        <span>
+                                            <?php echo $current_events; ?>
+                                        </span>
+                                    </div>
+                                  </div>
+                                  <?php } ?>
+                                </div>
+                                <div name="message" id="message" class="warning"></div>
+                                </div>
+                            </form> 
+                        </div> 
+                    </form>       
+                </div>
             </div>
         </div>
 
@@ -1249,7 +1234,7 @@ class Display extends base
                     <span class="text-right fa-stack fa-lg pull_right small" id="rcb_caret" onclick="toggleRcbSelectors();" title="Show/Hide the Filters" 
                         style="color:<?php echo $color = ($setting_selectors=='none') ? 'red' : 'black'; ?>;position:relative;float:right;right:0px;top:0px;">
                     <i class="fa fa-square-o fa-stack-2x"></i>
-                    <i id="print_caret" class='fa fa-caret-<?php echo $caret = ($rcb_selectors=='none') ? 'down' : 'up'; ?> fa-stack-1x'></i>
+                    <i id="print_caret" class='fa fa-caret-<?php echo $caret = ($rcb_selectors==='none') ? 'down' : 'up'; ?> fa-stack-1x'></i>
                 </span>
                     <ul class="nav nav-tabs <?php echo attr($reminder_bar); ?>">
                         <li class="active whitish"><a onclick="show_this();" data-toggle="tab"><?php echo xlt('All'); ?></a></li>
@@ -1274,6 +1259,23 @@ class Display extends base
             </div>
         </div>
     </div>
+    <?php
+        //we need to respect facility and provider requests if submitted.
+        // 1.Retrieve everything for a given date range.
+        // 2.Refine results by facility and provider using jquery on cached results
+        //   ie. further requests to view facility/provider within page can be done fast through javascript, no page reload needed.
+        ?>
+        <script>
+            $(document).ready(function() {
+                $("#facility_selector").val('<?php echo attr($rcb_facility); ?>').change();
+                $("#provider_selector").val('<?php echo attr($rcb_provider); ?>').change();
+            });
+            function SMS_bot(eid) {
+                top.restoreSession()
+                window.open('messages.php?nomenu=1&go=SMS_bot&pc_eid=' + eid,'SMS_bot', 'width=370,height=600,resizable=0');
+                return false;
+            }
+        </script>
             <?php
             $content = ob_get_clean();
             echo $content;
@@ -1394,8 +1396,8 @@ class Display extends base
         ?>
         <script>
             function toggleRcbSelectors() {
-                if ($("#rcb_selectors").css('display') == 'none') {
-                    $.post( "<?php echo $GLOBALS['webroot']."/interface/patient_tracker/patient_tracker.php"; ?>", {
+                if ($("#rcb_selectors").css('display') === 'none') {
+                    $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
                         'rcb_selectors' : 'block',
                         success: function (data) {
                             $("#rcb_selectors").slideToggle();
@@ -1403,7 +1405,7 @@ class Display extends base
                         }
                     });
                 } else {
-                    $.post( "<?php echo $GLOBALS['webroot']."/interface/patient_tracker/patient_tracker.php"; ?>", {
+                    $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
                         'rcb_selectors' : 'none',
                         success: function (data) {
                             $("#rcb_selectors").slideToggle();

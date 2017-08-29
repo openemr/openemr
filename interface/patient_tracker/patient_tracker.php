@@ -26,24 +26,20 @@ require_once "$srcdir/MedEx/API.php";
 // mdsupport - user_settings prefix
 $uspfx = substr( __FILE__, strlen( $webserver_root ) ) . '.';
 $setting_new_window         = prevSetting( $uspfx, 'setting_new_window', 'setting_new_window', ' ' );
-// flow board and recall board share the next two settings:
-$setting_bootstrap_submenu  = prevSetting( $webserver_root, 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ' );
-$setting_selectors          = prevSetting( $webserver_root, 'setting_selectors', 'setting_selectors', 'block' );
-$rcb_selectors              = prevSetting( $webserver_root, 'rcb_selectors', 'rcb_selectors', 'block' );
-
-$form_apptcat               = prevSetting( $webserver_root, 'form_apptcat', 'form_apptcat','' );
-$form_apptstatus            = prevSetting( $webserver_root, 'form_apptstatus', 'form_apptstatus', '' );
-$facility                   = prevSetting( $webserver_root, 'form_facility', 'form_facility', '' );
-$provider                   = prevSetting( $webserver_root, 'form_provider', 'form_provider', $_SESSION['authUserID'] );
+// flow board and recall board share bootstrap settings:
+$setting_bootstrap_submenu  = prevSetting( '', 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ' );
+$setting_selectors          = prevSetting( $uspfx, 'setting_selectors', 'setting_selectors', 'block' );
+$form_apptcat               = prevSetting( $uspfx, 'form_apptcat', 'form_apptcat','' );
+$form_apptstatus            = prevSetting( $uspfx, 'form_apptstatus', 'form_apptstatus', '' );
+$facility                   = prevSetting( $uspfx, 'form_facility', 'form_facility', '' );
+$provider                   = prevSetting( $uspfx, 'form_provider', 'form_provider', $_SESSION['authUserID'] );
 
 if (($_POST['setting_new_window'])||
     ($_POST['setting_bootstrap_submenu'])||
-    ($_POST['rcb_selectors'])||
     ($_POST['setting_selectors'])) { 
   // These are not form elements. We only ever change them via ajax, so exit now.
   exit();  
 }
-
 if ( $_POST['saveCALLback'] =="Save" ) {
   $sqlINSERT = "INSERT INTO medex_outgoing (msg_pc_eid,campaign_uid,msg_type,msg_reply,msg_extra_text)
                   VALUES
@@ -974,7 +970,7 @@ function myLocalJS() {
       }).show();
       <?php
       if ($_REQUEST['kiosk'] =='1') { ?>
-        $("#kiosk_hide").hide();
+        $("[name='kiosk_hide']").hide();
       <?php } ?>
     }
 

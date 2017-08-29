@@ -36,9 +36,21 @@ if ($GLOBALS['medex_enable'] == '1') {
         exit();
     }
 }
-// mdsupport - user_settings prefix
-$uspfx = $webserver_root;
-$setting_bootstrap_submenu = prevSetting( $uspfx, 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ' );
+
+$setting_bootstrap_submenu  = prevSetting( '', 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ' );
+//use $uspfx as the first variable for page/script specific user settings instead of '' (which is like a global but you have to request it).
+$uspfx = substr( __FILE__, strlen( $webserver_root ) ) . '.';
+$rcb_selectors              = prevSetting( $uspfx, 'rcb_selectors', 'rcb_selectors', 'block' );
+$rcb_facility               = prevSetting( $uspfx, 'form_facility', 'form_facility', '' );
+$rcb_provider               = prevSetting( $uspfx, 'form_provider', 'form_provider', $_SESSION['authUserID'] );
+        
+
+if (($_POST['setting_bootstrap_submenu'])||
+    ($_POST['rcb_selectors'])) { 
+  // These are not form elements. We only ever change them via ajax, so exit now.
+  exit();  
+}
+
 ?><html>
   <head>
     <title><?php echo xlt('Message Center'); ?></title>
