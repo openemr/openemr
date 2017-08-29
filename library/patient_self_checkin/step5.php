@@ -144,8 +144,8 @@ and pc_eventDate = '".$date."';";
         $doctornameresult = mysqli_fetch_assoc(mysqli_query($dbc, $lookupdoctor));
         echo '
 <p><i class="fa fa-check fa-3x" aria-hidden="true"></i></p>
-<br>' . 
-xlt("Thank you.") . '<br>' . xlt("You have checked in for your appointment with Dr. ") . $doctornameresult['lname'] . '.';
+<br>' .
+        xlt("Thank you.") . '<br>' . xlt("You have checked in for your appointment with Dr. ") . $doctornameresult['lname'] . '.';
 
         // Create the form reference
 
