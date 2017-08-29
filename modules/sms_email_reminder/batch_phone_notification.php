@@ -28,7 +28,9 @@ chdir($current_dir);
 require_once("../../interface/globals.php");
 require_once("$srcdir/maviq_phone_api.php");
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 $type = "Phone";
 $before_trigger_hours = 72; // 3 days is default

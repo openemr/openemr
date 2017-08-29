@@ -28,7 +28,9 @@ require_once("$srcdir/billing.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/report.inc");
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 $startdate = $enddate = "";
 if (empty($_POST['start']) || empty($_POST['end'])) {

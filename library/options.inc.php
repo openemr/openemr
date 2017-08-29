@@ -41,7 +41,9 @@ require_once("patient.inc");
 require_once("lists.inc");
 require_once(dirname(dirname(__FILE__)) . "/custom/code_types.inc.php");
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 $date_init = "";
 

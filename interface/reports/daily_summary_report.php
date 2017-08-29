@@ -29,13 +29,14 @@
 
 
 
-use OpenEMR\Core\Header;
-
 require_once("../globals.php");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/appointments.inc.php";
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Core\Header;
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 $selectedFromDate = isset($_POST['form_from_date']) ? $_POST['form_from_date'] : date('Y-m-d'); // From date filter
 $selectedToDate = isset($_POST['form_to_date']) ? $_POST['form_to_date'] : date('Y-m-d');   // To date filter

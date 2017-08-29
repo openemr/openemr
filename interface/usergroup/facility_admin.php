@@ -1,9 +1,11 @@
 <?php
-include_once("../globals.php");
+require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 if (isset($_GET["fid"])) {
     $my_fid = $_GET["fid"];

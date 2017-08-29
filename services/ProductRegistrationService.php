@@ -19,7 +19,7 @@
  * @link    http://www.open-emr.org
  */
 
-namespace services;
+namespace OpenEMR\Services;
 
 require_once($GLOBALS['fileroot'] . "/interface/main/exceptions/invalid_email_exception.php");
 require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/generic_product_registration_exception.php");
@@ -43,7 +43,7 @@ class ProductRegistrationService
      */
     public function __construct()
     {
-        $this->logger = new \common\logging\Logger("\services\ProductRegistrationService");
+        $this->logger = new \common\logging\Logger("\OpenEMR\Services\ProductRegistrationService");
         $database = \common\database\Connector::Instance();
         $entityManager = $database->entityManager;
         $this->repository = $entityManager->getRepository('\entities\ProductRegistration');

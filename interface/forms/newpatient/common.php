@@ -22,7 +22,9 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 if ($GLOBALS['enable_group_therapy']) {
     require_once("$srcdir/group.inc");

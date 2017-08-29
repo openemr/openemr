@@ -23,9 +23,11 @@
 * @link      http://www.open-emr.org
 */
 
+use OpenEMR\Services\VersionService;
+
 // Making global to be accessed in subsequent function scopes
 global $versionService;
-$versionService = new \services\VersionService();
+$versionService = new VersionService();
 
 /**
  * Returns the current access control version.

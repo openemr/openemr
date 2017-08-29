@@ -514,7 +514,7 @@ if (!empty($special_timeout)) {
     $timeout = intval($special_timeout);
 }
 
-$versionService = new \services\VersionService();
+$versionService = new \OpenEMR\Services\VersionService();
 $version = $versionService->fetch();
 
 if (!empty($version)) {

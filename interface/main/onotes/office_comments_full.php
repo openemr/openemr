@@ -19,12 +19,12 @@
  */
 
 
+require_once("../../globals.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Services\ONoteService;
 
-include_once("../../globals.php");
-
-$oNoteService = new \services\ONoteService();
+$oNoteService = new ONoteService();
 
 //the number of records to display per screen
 $N = 10;

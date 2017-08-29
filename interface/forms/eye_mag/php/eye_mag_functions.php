@@ -29,7 +29,9 @@ require_once(dirname(__FILE__)."/../../../../custom/code_types.inc.php");
 require_once(dirname(__FILE__)."/../../../../library/options.inc.php");
 global $PMSFH;
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 /**
  *  This function returns HTML old record selector widget when needed (4 input values)

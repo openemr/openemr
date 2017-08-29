@@ -52,10 +52,12 @@ require_once(dirname(__FILE__) ."/../../../library/lists.inc");
 require_once(dirname(__FILE__) ."/../../../library/forms.inc");
 require_once(dirname(__FILE__) ."/../../../library/patient.inc");
 
+use OpenEMR\Services\FacilityService;
+
 $form_name = "eye_mag";
 $form_folder = "eye_mag";
 
-$facilityService = new \services\FacilityService();
+$facilityService = new FacilityService();
 
 require_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
 

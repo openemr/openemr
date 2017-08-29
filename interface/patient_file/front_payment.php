@@ -20,9 +20,12 @@ require_once("$srcdir/invoice_summary.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
+
+use OpenEMR\Services\FacilityService;
+
 $pid = $_REQUEST['hidden_patient_code'] > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
 
-$facilityService = new \services\FacilityService();
+$facilityService = new FacilityService();
 
 ?>
 <html>

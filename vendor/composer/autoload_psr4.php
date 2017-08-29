@@ -6,7 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'services\\' => array($baseDir . '/services'),
     'repositories\\' => array($baseDir . '/repositories'),
     'phpseclib\\' => array($vendorDir . '/phpseclib/phpseclib/phpseclib'),
     'entities\\' => array($baseDir . '/entities'),
@@ -29,6 +28,7 @@ return array(
     'Symfony\\Component\\Console\\' => array($vendorDir . '/symfony/console'),
     'Symfony\\Component\\Config\\' => array($vendorDir . '/symfony/config'),
     'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),
+    'OpenEMR\\Services\\' => array($baseDir . '/services'),
     'OpenEMR\\Sample\\' => array($baseDir . '/library/sample/src'),
     'OpenEMR\\Reminder\\' => array($baseDir . '/library/reminder/src'),
     'OpenEMR\\Menu\\' => array($baseDir . '/library/menu/src'),

@@ -26,7 +26,9 @@ $ignoreAuth = true; // no login required
 require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
 
-$versionService = new \services\VersionService();
+use OpenEMR\Services\VersionService;
+
+$versionService = new VersionService();
 
 // Fetching current version because it was updated by the sql_upgrade_fx
 // script and this script will further modify it.

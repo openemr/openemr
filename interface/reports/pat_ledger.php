@@ -25,15 +25,16 @@
  */
 
 
-use OpenEMR\Core\Header;
-
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['srcdir'].'/appointments.inc.php');
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Core\Header;
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 $enc_units = $total_units = 0;
 $enc_chg = $total_chg = 0;

@@ -17,7 +17,9 @@ require_once("../../library/patient.inc");
 require_once("../../library/acl.inc");
 require_once("../../custom/code_types.inc.php");
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 function thisLineItem($row, $codetype, $code)
 {
