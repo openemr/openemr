@@ -511,3 +511,8 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #IfColumn x12_partners x12_version
 ALTER TABLE `x12_partners` DROP COLUMN `x12_version`;
 #EndIf
+
+#IfNotRow2D list_options list_id page_validation option_id add_edit_event#theform_prov
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES
+('page_validation', 'add_edit_event#theform_prov', '/interface/main/calendar/add_edit_event.php?prov=true', 170, 0, 0, '', '{}', '', 0, 0, 1, '', 1);
+#EndIf
