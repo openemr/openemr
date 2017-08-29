@@ -7,9 +7,22 @@
  * path - $GLOBALS key specifying the path
  * pid - patient id to be used for all selected documents
  * category - encoded category description to assign all selected documents
- * owner - owner of all selected documents
  * limit - Maximum number of files to be imported
  * in_situ - Retain documents in current folder
+ *
+ * Examples:
+ * 1. To import received faxes:
+ *    a. Set 'Scanner Directory' to network location where a fax machine can save received files
+ *    b. Schedule cronjob '/usr/bin/php -f /var/www/html/emr/custom/zutil.cli.doc_import.php site=default'
+ *    c. View and process received faxes using 'New Documents' menu.
+ *
+ * 2. To import collection of medical record files for a specific patient:
+ *    a. Save files in Scanner Directory
+ *    b. For patient nnn and category 'Patient Records', access this script online with request parameters as:
+ *       zutil.cli.doc_import?site=default&pid=nnn&category=Patient+Records&limit=1000
+ *
+ * 3. Use in_situ=true option to create document records without relocating the files.
+ *    This option requires good understanding of current functionality.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -38,7 +51,7 @@ foreach ($arg as $key => $def) {
 }
 
 require_once(dirname(__FILE__, 2)."/interface/globals.php");
-require_once ("$srcdir/documents.php");
+require_once("$srcdir/documents.php");
 
 if (isset($GLOBALS[$arg['path']])) {
     $arg['path'] = $GLOBALS[$arg['path']];
@@ -120,8 +133,7 @@ foreach ($docs as $doc) {
         $objDoc->populate();
         // mdsupport - Need set_category method for the Document
         if (is_numeric($objDoc->get_id())) {
-            sqlInsert("INSERT INTO categories_to_documents(category_id, document_id) VALUES(?,?)",
-                array($arg['category'], $objDoc->get_id()));
+            sqlInsert("INSERT INTO categories_to_documents(category_id, document_id) VALUES(?,?)", array($arg['category'], $objDoc->get_id()));
         }
         printf('%s - %s%s', $doc_pathname, (is_numeric($objDoc->get_id()) ? $objDoc->get_url() : xl('Documents setup error')), "\n");
     } else {
@@ -151,4 +163,3 @@ foreach ($docs as $doc) {
         break;
     }
 }
-?>
