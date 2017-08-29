@@ -232,8 +232,8 @@ if (!$_REQUEST['flb_table']) {
         $MedEx->display->navigation($logged_in);
     }
     ?>
-    <div class="container-fluid">
-      <div class="row-fluid" id="flb_selectors" style="display:<?php echo attr($setting_selectors); ?>">
+    <div class="container-fluid" style="margin-top: 20px;">
+      <div class="row-fluid" id="flb_selectors" style="display:<?php echo attr($setting_selectors); ?>;">
         <div class="col-sm-12">
           <div class="showRFlow" id="show_flows" style="text-align:center;margin:20 auto;" name="kiosk_hide">
             <div class="title"><?php echo xlt( 'Flow Board' ); ?></div>
@@ -286,7 +286,7 @@ if (!$_REQUEST['flb_table']) {
                         ?>
                       </select>
 
-                      <input type="text" style="max-width:200px;" placeholder="<?php echo attr('Patient Name'); ?>" 
+                      <input type="text" style="max-width:200px;margin:3px auto;" placeholder="<?php echo xla('Patient Name'); ?>" 
                              class="form-control input-sm" id="form_patient_name" name="form_patient_name" 
                              value="<?php echo ( $form_patient_name ) ? attr( $form_patient_name ) : ""; ?>"
                              onKeyUp="refineMe();">
@@ -343,27 +343,40 @@ if (!$_REQUEST['flb_table']) {
                           }
                         ?>
                       </select>
-                      <input placeholder="<?php echo attr('Patient ID'); ?>"  style="max-width:200px;" class="form-control input-sm" type="text" id="form_patient_id" name="form_patient_id" 
+                      <input placeholder="<?php echo xla('Patient ID'); ?>"  style="max-width:200px;margin:3px auto;" class="form-control input-sm" type="text" id="form_patient_id" name="form_patient_id" 
                       value="<?php echo ( $form_patient_id ) ? attr( $form_patient_id ) : ""; ?>"
                       onKeyUp="refineMe();">
                     </div>
                     <div class="col-sm-<?php echo $col_width; ?>">
                       <div style="margin: 0px auto;" class="input-append">
                         <table class="table-hover table-condensed" style="margin:0px auto;">
-                          <tr><td class="text-right" style="vertical-align:bottom;">
-                            <label for="flow_from"><?php echo xlt('From'); ?>:</label></td><td>
-                            <input type="date" id="datepicker1" name="datepicker1"
+                           <?php 
+                          if ( $GLOBALS['ptkr_date_range'] ) { 
+                             $type = 'date';
+                             $style= 'visibility=visible;';
+                          } else {
+                            $type = 'hidden';
+                            $style= 'visibility=hidden;';
+                          } ?>
+                          <tr style="<?php echo $style; ?>">
+                            <td class="text-right" style="vertical-align:bottom;<?php echo $style; ?>">
+                              <label for="flow_from"><?php echo xlt('From'); ?>:</label></td><td>
+                              <input type="date" id="datepicker1" name="datepicker1"
                                     data-format="<?php echo $date_format; ?>"
                                     class="form-control datepicker input-sm text-center" value="<?php echo attr( $disp_from_date ); ?>" style="max-width:140px;min-width:85px;">
-                          </td></tr>
-                          <tr><td class="text-right" style="vertical-align:bottom;">
-                            <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To'); ?>:</label></td><td>
-                            <input type="date" id="datepicker2" name="datepicker2"
+                            </td>
+                          </tr>
+                          <tr style="<?php echo $style; ?>">
+                            <td class="text-right" style="vertical-align:bottom;">
+                              <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To'); ?>:</label></td><td>
+                              <input type="date" id="datepicker2" name="datepicker2"
                                     data-format="<?php echo $date_format; ?>"
                                     class="form-control datepicker input-sm text-center" value="<?php echo attr( $disp_to_date ); ?>" style="max-width:140px;min-width:85px;">
-                          </td></tr>
-                          <tr><td class="text-center" colspan="2">
-                            <input href="#" class="css_button btn ui-buttons ui-widget ui-corner-all news" type="submit" id="filter_submit" value="<?php echo xla( 'Filter' ); ?>">
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-center" colspan="2">
+                              <input href="#" class="css_button btn ui-buttons ui-widget ui-corner-all news" type="submit" id="filter_submit" value="<?php echo xla( 'Filter' ); ?>">
                             </td>
                           </tr>
                         </table>
@@ -511,6 +524,9 @@ if (!$_REQUEST['flb_table']) {
                 <?php
                 $prev_appt_date_time = "";
                 foreach ( $appointments as $appointment ) {
+                  // Collect appt date and set up squashed date for use below
+                  $date_appt = $appointment['pc_eventDate'];
+                  $date_squash = str_replace( "-", "", $date_appt );
                   if ( empty( $room ) && ( $logged_in ) ) {
                     //Patient has not arrived yet, display MedEx Reminder info
                     //one icon per type of response.
@@ -527,10 +543,6 @@ if (!$_REQUEST['flb_table']) {
                     $CALLED='';
                     $FINAL='';
                     $icon_CALL = '';
-
-                    // Collect appt date and set up squashed date for use below
-                    $date_appt = $appointment['pc_eventDate'];
-                    $date_squash = str_replace( "-", "", $date_appt );
 
                     $query = "Select * from medex_outgoing where msg_pc_eid =? order by msg_date";
                     $myMedEx = sqlStatement( $query, array( $appointment['eid'] ) );
@@ -875,7 +887,8 @@ exit;
 function myLocalJS() {
   ?>
   <script type="text/javascript">
-  //this can be refined to redact HIPAA material using @media print options.
+    var auto_refresh =null;
+    //this can be refined to redact HIPAA material using @media print options.
     function print_FLB() {
       window.print();
     }
@@ -953,7 +966,7 @@ function myLocalJS() {
       var pidV        = String($("#form_patient_id").val());
       var pidRE       = new RegExp(pidV, 'g');
       var pnameV      = $("#form_patient_name").val();
-      var pnameRE     = new RegExp(pnameV, 'g');
+      var pnameRE     = new RegExp(pnameV, 'ig');
 
       //and hide what we don't want to show
       $('#flb_table tbody tr').hide().filter(function(){
@@ -1004,7 +1017,7 @@ function myLocalJS() {
     function doCALLback(eventdate,eid,pccattype) {
       $("#progCALLback_"+eid).parent().removeClass('js-blink-infinite').css('animation-name','none');
       $("#progCALLback_"+eid).removeClass("hidden");
-      auto_refresh = '';
+      clearInterval(auto_refresh);
     }
     // opens the demographic and encounter screens in a new window
     function openNewTopWindow(newpid,newencounterid) {
@@ -1074,7 +1087,8 @@ function myLocalJS() {
           var reftime="<?php echo attr( $GLOBALS['pat_trkr_timer'] ); ?>";
           var parsetime=reftime.split(":");
           parsetime=(parsetime[0]*60)+(parsetime[1]*1)*1000;
-          var auto_refresh = setInterval(function(){
+          if (auto_refresh)clearInteral(auto_refresh);
+          auto_refresh = setInterval(function(){
             refreshMe() // this will run after every parsetime seconds
             }, parsetime);
           <?php 

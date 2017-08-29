@@ -223,12 +223,18 @@ class Practice extends Base
             $fields3['MedEx_lastupdated']   = $urow['MedEx_lastupdated'];
             $fields3['ME_providers']        = $urow['ME_providers'];
         }
+        //send notes
         $this->curl->setUrl($this->MedEx->getUrl('custom/sync_responses&token='.$token));
         $this->curl->setData($fields3);
         $this->curl->makeRequest();
         $responses = $this->curl->getResponse();
         foreach ($responses['messages'] as $data) {
             //check to see if this response is present already
+            $log = "/tmp/API.log";
+            $stdlog = fopen($log, 'a');
+            $req_dump = print_r($data, TRUE);
+            fputs($stdlog,"API:: Syncing outgoing/ingoing :: data:\n".$req_dump."\n");
+        
             $data['msg_extra'] = $data['msg_extra']?:'';
             $sqlQuery ="SELECT * from medex_outgoing where msg_pc_eid=? and campaign_uid=? and msg_type=? and msg_reply=?";//" and msg_extra_text=?";
             $checker = sqlStatement($sqlQuery, array($data['e_pc_eid'],$data['campaign_uid'], $data['M_type'],$data['msg_reply']));//,$data['msg_extra']));
@@ -238,7 +244,7 @@ class Practice extends Base
         }
         $sqlUPDATE = "UPDATE medex_prefs set MedEx_lastupdated=utc_timestamp()";
         sqlStatement($sqlUPDATE);
-
+        //4.  sync notes 
         if (!empty($tell_MedEx['DELETE_MSG'])) {
             $this->curl->setUrl($this->MedEx->getUrl('custom/remMessaging&token='.$token));
             $this->curl->setData($tell_MedEx['DELETE_MSG']);
@@ -712,6 +718,10 @@ class Callback extends Base
             $this->MedEx->logging->log_this($log);
             sqlQuery($sqlUPDATE, array($data['patient_id']));
         }
+        if (($data['msg_type']=="SMS")&&($data['msg_reply']=="Other")) {
+            //this requires attention.  Send up the FLAG!
+            $this->MedEx->logging->new_message($data);
+        }
         if (($data['msg_reply']=="SENT")||($data['msg_reply']=="READ")) {
             $sqlDELETE = "DELETE FROM medex_outgoing where msg_pc_eid=? and msg_reply='To Send'";
             $log['sql']=$sqlDELETE;
@@ -752,17 +762,24 @@ class Display extends base
         ?>
         <script>
         function toggle_menu() {
-            $("#navbar_oe").slideToggle();
-            if ($("#navbar_oe").is(':visible')) {
-                $.post( "<?php echo $GLOBALS['webroot']."/interface/patient_tracker/patient_tracker.php"; ?>", {
+            //$("#navbar_oe").slideToggle();
+            var x = document.getElementById('navbar_oe');
+            if (x.style.display === 'none') {
+                $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
                     'setting_bootstrap_submenu' : 'show',
-                    success: function (data) {}
+                    success: function (data) {
+                        x.style.display = 'block';
+                    }
                     });
+                
             } else {
-                $.post( "<?php echo $GLOBALS['webroot']."/interface/patient_tracker/patient_tracker.php"; ?>", {
+                $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
                     'setting_bootstrap_submenu' : 'hide',
-                    success: function (data) {}
+                    success: function (data) {
+                        x.style.display = 'none';
+                    }
                 });
+                
             }
             $("#patient_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');
         }
@@ -1266,15 +1283,36 @@ class Display extends base
         //   ie. further requests to view facility/provider within page can be done fast through javascript, no page reload needed.
         ?>
         <script>
-            $(document).ready(function() {
-                $("#facility_selector").val('<?php echo attr($rcb_facility); ?>').change();
-                $("#provider_selector").val('<?php echo attr($rcb_provider); ?>').change();
-            });
+            function toggleRcbSelectors() {
+                if ($("#rcb_selectors").css('display') === 'none') {
+                    $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
+                        'rcb_selectors' : 'block',
+                        success: function (data) {
+                            $("#rcb_selectors").slideToggle();
+                            $("#rcb_caret").css('color','#000');
+                        }
+                    });
+                } else {
+                    $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
+                        'rcb_selectors' : 'none',
+                        success: function (data) {
+                            $("#rcb_selectors").slideToggle();
+                            $("#rcb_caret").css('color','red');
+                        }
+                    });
+                }
+                $("#print_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');
+            }
             function SMS_bot(eid) {
                 top.restoreSession()
                 window.open('messages.php?nomenu=1&go=SMS_bot&pc_eid=' + eid,'SMS_bot', 'width=370,height=600,resizable=0');
                 return false;
             }
+            $(document).ready(function() {
+                $("#form_facility").change();
+                $("#form_provider").change();
+            });
+           
         </script>
             <?php
             $content = ob_get_clean();
@@ -1282,6 +1320,7 @@ class Display extends base
     }
     private function recall_board_process($logged_in, $recalls, $events = '', $status = '')
     {
+        global $MedEx;
         $process = array();
         if (empty($recalls)) {
             return;
@@ -1293,7 +1332,7 @@ class Display extends base
         }
         $prov_sql = sqlStatement("SELECT * FROM users WHERE authorized != 0 AND active = 1 ORDER BY lname, fname");
         while ($prov = sqlFetchArray($prov_sql)) {
-            $provider[$prov['id']] = $prov['fname']." ".$prov['lname'];
+            $provider[$prov['id']] = $prov['fname'][0]." ".$prov['lname'];
             if (!empty($prov['suffix'])) {
                 $provider[$prov['id']] .= ', '.$prov['suffix'];
             }
@@ -1313,14 +1352,26 @@ class Display extends base
                  data-plan="'.attr($show['plan']).'"
                  data-facility="'.attr($recall['r_facility']).'"
                  data-provider="'.attr($recall['r_provider']).'" 
-                 id="recall_'.attr($recall['pid']).'">';
-            echo '<div class="divTableCell center"><a href="#" onclick="show_patient(\''.attr($recall['pid']).'\');"> '.text($recall['fname']).' '.text($recall['lname']).'</a></div>';
+                 data-pname="'.attr($recall['fname']." ".$recall['lname']).'"
+                 id="recall_'.attr($recall['pid']).'" style="display:none;">';
+
+            $query = "select cal.pc_eventDate,pat.DOB from openemr_postcalendar_events as cal join patient_data as pat on cal.pc_pid=pat.pid where cal.pc_pid =? order by cal.pc_eventDate DESC LIMIT 1";
+            $result2 = sqlQuery($query, array( $recall['pid'] ));
+            $last_visit = $result2['pc_eventDate'];
+            $DOB = oeFormatShortDate($result2['DOB']);
+            $age = $MedEx->events->getAge($result2['DOB']);
+            echo '<div class="divTableCell center"><a href="#" onclick="show_patient(\''.attr($recall['pid']).'\');"> '.text($recall['fname']).' '.text($recall['lname']).'</a>';
+            echo '<br /><span class="small" title="'.xla("Date of Birth and Age").'">DOB: '.text($DOB).' ('.$age.')</span>';
+            if ( $GLOBALS['ptkr_show_pid'] ) { 
+                echo '<br /><span title="'.xla("Patient ID").'" class="small">PID: '.text($recall['pid']).'</span>';
+            }
+            echo '<br /><span title='.xla("Most recent visit").' class="small">Last Visit: '.oeFormatShortDate($last_visit).'</span></div>';
 
             echo '<div class="divTableCell appt_date">'.oeFormatShortDate($recall['r_eventDate']);
             if ($recall['r_reason']>'') {
                 echo '<br />'.text($recall['r_reason']);
             }
-            if (strlen($provider[$recall['r_provider']]) > 17) {
+            if (strlen($provider[$recall['r_provider']]) > 14) {
                 $provider[$recall['r_provider']] = substr($provider[$recall['r_provider']], 0, 14)."...";
             }
             if (strlen($facility[$recall['r_facility']]) > 20) {
@@ -1328,19 +1379,21 @@ class Display extends base
             }
 
             if ($count_providers > '1') {
-                echo "<br />".text($provider[$recall['r_provider']]);
+                echo "<br /><span title='Provider'>".text($provider[$recall['r_provider']])."</span>";
             }
             if ($count_facilities > '1') {
-                echo "<br />".text($facility[$recall['r_facility']])."<br />";
+                echo "<br /><span title='Facility'>".text($facility[$recall['r_facility']])."</span><br />";
             }
 
             echo '</div>';
             echo '<div class="divTableCell phones">';
             if ($recall['phone_cell'] >'') {
                 echo 'C: '.text($recall['phone_cell'])."<br />";
+            //    echo 'C:'.substr($recall['phone_cell'], 0, 2).'-XXX-XXXX<br />';
             }
             if ($recall['phone_home'] >'') {
                 echo 'H: '.text($recall['phone_home'])."<br />";
+                //echo 'H:'.substr($recall['phone_home'], 0, 2).'-XXX-XXXX<br />';
             }
             if ($recall['email'] >'') {
                 $mailto = $recall['email'];
@@ -1394,29 +1447,6 @@ class Display extends base
     private function recall_board_top($logged_in)
     {
         ?>
-        <script>
-            function toggleRcbSelectors() {
-                if ($("#rcb_selectors").css('display') === 'none') {
-                    $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
-                        'rcb_selectors' : 'block',
-                        success: function (data) {
-                            $("#rcb_selectors").slideToggle();
-                            $("#rcb_caret").css('color','#000');
-                        }
-                    });
-                } else {
-                    $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
-                        'rcb_selectors' : 'none',
-                        success: function (data) {
-                            $("#rcb_selectors").slideToggle();
-                            $("#rcb_caret").css('color','red');
-                        }
-                    });
-                }
-                $("#print_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');
-            }
-        </script>
-
         <div class="divTable text-center" id="rcb_table" style="margin:0px auto 30px;width:100%;">
             <div class="sticky divTableRow divTableHeading">
                 <div class="divTableCell center" style="width:10%;"><?php echo xlt('Name'); ?></div>
