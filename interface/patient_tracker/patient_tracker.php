@@ -1052,7 +1052,32 @@ function myLocalJS() {
       <?php } else { ?>
         $("[name='kiosk_show']").hide();
          <?php } ?>
-      $( "#datepicker1" ).datepicker({
+         // The "Today button" just highlights today's date.  
+         // This overrides the showToday function to show Today AND select it, not just highlight it.
+         // This is how it is expected to work and now it does.
+         $.datepicker._gotoToday = function(id) {
+            var target = $(id);
+            var inst = this._getInst(target[0]);
+            if (this._get(inst, 'gotoCurrent') && inst.currentDay) {
+                    inst.selectedDay = inst.currentDay;
+                    inst.drawMonth = inst.selectedMonth = inst.currentMonth;
+                    inst.drawYear = inst.selectedYear = inst.currentYear;
+            }
+            else {
+                    var date = new Date();
+                    inst.selectedDay = date.getDate();
+                    inst.drawMonth = inst.selectedMonth = date.getMonth();
+                    inst.drawYear = inst.selectedYear = date.getFullYear();
+                    // the below two lines are new
+                    this._setDateDatepicker(target, date);
+                    this._selectDate(id, this._getDateDatepicker(target));
+            }
+            this._notifyChange(inst);
+            this._adjustDate(target);
+        }
+
+
+        $( "#datepicker1" ).datepicker({
                                    beforeShow: function() {
                                    setTimeout(function(){
                                               $('.ui-datepicker').css('z-index', 99999999999999);
@@ -1062,8 +1087,13 @@ function myLocalJS() {
                                    defaultDate: "-1d",
                                    showButtonPanel: true,
                                    dateFormat: xljs_dateFormat,
+                                   scrollInput: false,
+                                   scrollMonth: false,
+                                   closeOnDateSelect:true,
+                                   todayButton:true,
+                                   defaultSelect:true,
                                    onSelect: function(dateText, inst) {
-                                   $('#'+inst.id).attr('value',dateText);
+                                    $('#'+inst.id).attr('value',dateText);
                                    }
                                    });
         $( "#datepicker2" ).datepicker({
@@ -1076,8 +1106,13 @@ function myLocalJS() {
                                    defaultDate: "+2d",
                                    showButtonPanel: true,
                                    dateFormat: xljs_dateFormat,
+                                   scrollInput: false,
+                                   scrollMonth: false,
+                                   closeOnDateSelect:true,
+                                   todayButton:true,
+                                   defaultSelect:true,
                                    onSelect: function(dateText, inst) {
-                                   $('#'+inst.id).attr('value',dateText);
+                                    $('#'+inst.id).attr('value',dateText);
                                    }
                                    }); 
        
