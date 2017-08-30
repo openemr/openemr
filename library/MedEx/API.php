@@ -1377,7 +1377,7 @@ class Display extends base
             if ( $GLOBALS['ptkr_show_pid'] ) { 
                 echo '<br /><span title="'.xla("Patient ID").'" class="small">PID: '.text($recall['pid']).'</span>';
             }
-            echo '<br /><span title='.xla("Most recent visit").' class="small">Last Visit: '.oeFormatShortDate($last_visit).'</span>';
+            echo '<br /><span title="'.xla("Most recent visit").'" class="small">Last Visit: '.oeFormatShortDate($last_visit).'</span>';
             echo '<br /><span class="small" title="'.xla("Date of Birth and Age").'">DOB: '.text($DOB).' ('.$age.')</span>';
             echo '</div>';
 
