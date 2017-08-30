@@ -13,6 +13,7 @@ While this setup is mostly automated, you are asked to fill in certain details t
 3. ▶ [Secure Domain Setup](chapters/03-Secure-Domain-Setup.md)
 4. 📝 [VPN Access](chapters/04-VPN-Access.md)
 5. 🎛 [Administration](chapters/05-Administration.md)
+6. ☁ [Stack Operations](chapters/06-Stack-Operations.md)
 
 ## License
 
