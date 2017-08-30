@@ -1573,11 +1573,11 @@ class Display extends base
                 </div>
             </div>
             <form name="addRecall" id="addRecall">
-                <div class="row-fluid  clear text-center">
+                <div class="row-fluid divTable float_center">
                     <input type="hidden" name="go" id="go" value="addRecall">
                     <input type="hidden" name="action" id="go" value="addRecall">
                     <div class="col-sm-6 text-right">
-                        <div class="divTableBody">
+                        <div class="divTableBody pull-right">
                             <div class="divTableRow">
                                 <div class="divTableCell divTableHeading"><?php echo xlt('Name'); ?></div>
                                 <div class="divTableCell recall_name">

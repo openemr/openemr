@@ -118,18 +118,12 @@ width: 98%;
   border-style: ridge;
   padding: 10px;
  }
- .float_left {
-  float:left;
- }
- .float_right {
-  float:right;
- }
- .divTable{
+  .divTable{
   display: table;
   float: left;
   background: white;
   border: 1px solid #000;
-  box-shadow: 2px 3px 9px #000;
+  box-shadow: 2px 3px 9px #c0c0c0;
   border-radius: 8px;
   padding: 10px;
   margin: 15px;
@@ -188,6 +182,16 @@ width: 98%;
   text-align:right;
   padding:5px;
   width:80px;
+ }
+ .float_left {
+  float:left;
+ }
+ .float_right {
+  float:right;
+ }
+ .float_center {
+ 	float:unset;
+ 	margin: 15px auto;
  }
  .Wide {
   width:100%;
@@ -389,7 +393,7 @@ float: right;
   background-color: #fff
 }
 
-.showReminders { display: inline-block;width: 100%;text-align:center;margin:40px auto 0px; }
+.showReminders { display: inline-block;width: 100%;text-align:center;margin:20px auto 0px; }
 .middle-third {
   width: 33%;
 position: relative;
@@ -398,7 +402,7 @@ text-align:left;
 }
 #div_response { min-height:25px;text-align:center; color:red;}
 #addRecall { width: 100%; }
-#new_recall { width:70%;margin: 0 auto;}
+#new_recall { width:70%;margin: 10px; auto;}
 td.right { width: 30%; }
 
 .borderShadow {
