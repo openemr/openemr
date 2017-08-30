@@ -1,6 +1,6 @@
 _[< previous chapter](03-Secure-Domain-Setup.md) | [next chapter >](05-Administration.md)_
 
-# ☁ VPN Access
+# 📝 VPN Access
 
 You can use a VPN, or virtual private network, to tunnel into the Amazon VPC and connect directly to protected resources like the database and the application servers. However, you won't need to do so when you first create your stack &mdash; feel free to skip this for now and come back to it only after you need to explore or troubleshoot your OpenEMR installation.
 
