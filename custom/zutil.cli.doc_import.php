@@ -92,14 +92,14 @@ $ext2mime = array(
     "html" => "text/html"
 );
 
-printf('%s %s %s (%s)%s', xl('Import'), $arg['limit'], xl('documents'), $arg['path'], "\n");
+printf('%s %s %s (%s)%s', xlt('Import'), text($arg['limit']), xlt('documents'), text($arg['path']), "\n");
 
 $docs = new DirectoryIterator($arg['path']);
 foreach ($docs as $doc) {
     if ($doc->isDot()) {
         continue;
     }
-    
+
     $doc_pathname = $doc->getPathname();
     $doc_url = "file://".$doc_pathname;
 
@@ -135,7 +135,7 @@ foreach ($docs as $doc) {
         if (is_numeric($objDoc->get_id())) {
             sqlInsert("INSERT INTO categories_to_documents(category_id, document_id) VALUES(?,?)", array($arg['category'], $objDoc->get_id()));
         }
-        printf('%s - %s%s', $doc_pathname, (is_numeric($objDoc->get_id()) ? $objDoc->get_url() : xl('Documents setup error')), "\n");
+        printf('%s - %s%s', text($doc_pathname), (is_numeric($objDoc->get_id()) ? text($objDoc->get_url()) : xlt('Documents setup error')), "\n");
     } else {
         // Too many parameters for the function make the following setup necessary for readability.
         $doc_params = array(
@@ -151,11 +151,11 @@ foreach ($docs as $doc) {
             'path_depth' => '1',
         );
         $new_doc = call_user_func_array('addNewDocument', $doc_params);
-        printf('%s - %s%s', $doc_pathname, (isset($new_doc) ? $new_doc->get_url() : xl('Documents setup error')), "\n");
+        printf('%s - %s%s', text($doc_pathname), (isset($new_doc) ? text($new_doc->get_url()) : xlt('Documents setup error')), "\n");
         if (!$new_doc) {
             die();
         } elseif (!unlink($doc_pathname)) {
-            printf('%s - %s', $doc_pathname, xl('Original file deletion error'));
+            printf('%s - %s', text($doc_pathname), xlt('Original file deletion error'));
             die();
         }
     }
