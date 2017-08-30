@@ -1123,9 +1123,21 @@ class Display extends base
                         <div class=" text-center row divTable" style="width: 85%;float:unset;margin: 0px auto;">
                             <form name="rcb" id="rcb" method="post">
                                 <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
-                                    <input placeholder="<?php echo attr('Patient ID'); ?>"  style="max-width:200px;" class="form-control input-sm" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ( $form_patient_id ) ? attr( $form_patient_id ) : ""; ?>">
+                                    <input placeholder="<?php echo attr('Patient ID'); ?>"  
+                                        style="max-width:200px;" 
+                                        class="form-control input-sm" 
+                                        type="text" id="form_patient_id" 
+                                        name="form_patient_id" 
+                                        value="<?php echo ( $form_patient_id ) ? attr( $form_patient_id ) : ""; ?>"
+                                        onKeyUp="show_this();">
                                     
-                                    <input type="text" style="max-width:200px;" placeholder="<?php echo attr('Patient Name'); ?>" class="form-control input-sm" id="form_patient_name" name="form_patient_name" value="<?php echo ( $form_patient_name ) ? attr( $form_patient_name ) : ""; ?>">
+                                    <input type="text" 
+                                        style="max-width:200px;" 
+                                        placeholder="<?php echo attr('Patient Name'); ?>" 
+                                        class="form-control input-sm" id="form_patient_name" 
+                                        name="form_patient_name" 
+                                        value="<?php echo ( $form_patient_name ) ? attr( $form_patient_name ) : ""; ?>"
+                                        onKeyUp="show_this();">
                                 </div>
 
                                 <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">

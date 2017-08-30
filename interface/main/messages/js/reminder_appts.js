@@ -378,8 +378,8 @@ function goMedEx() {
 function show_this(){
     var facV        = $("#form_facility").val();
     var provV       = $("#form_provider").val();
-    var pidV        = String($("#form_patient_id").val());
-    var pidRE       = new RegExp(pidV, 'g');
+    var pidV        = $("#form_patient_id").val();
+    var pidRE       = new RegExp(pidV, 'ig');
     var pnameV      = $("#form_patient_name").val();
     var pnameRE     = new RegExp(pnameV, 'ig');
     
