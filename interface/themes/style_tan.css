@@ -9,6 +9,7 @@ body {
     /* set the base font and size for all DOM children */
     font-family: 'source_sans_pro','FontAwesome'; 
     content: "\f0c4";
+    font-size:1em;
 }
 
 a {
