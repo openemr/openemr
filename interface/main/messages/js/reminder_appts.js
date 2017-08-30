@@ -375,24 +375,33 @@ function goMedEx() {
 }
 /****  END FUNCTIONS RELATED TO NAVIGATION *****/
 
-function show_this(local_status=''){
+function show_this(){
     var facV        = $("#form_facility").val();
     var provV       = $("#form_provider").val();
+    var pidV        = String($("#form_patient_id").val());
+    var pidRE       = new RegExp(pidV, 'g');
+    var pnameV      = $("#form_patient_name").val();
+    var pnameRE     = new RegExp(pnameV, 'ig');
     
         //and hide what we don't want to show
     $('.ALL').hide().filter(function(){
-                                           var d = $(this).data();
-                                           if ((local_status =='') || (local_status == d.status)) { meets_stat=true; } else { meets_stat=false; }
-                                           if ((facV === '') || (facV == d.facility)) { meets_fac=true; } else { meets_fac=false; }
-                                           if ((provV === '') || (provV = d.provider)) { meets_prov=true; } else { meets_prov=false; }
-                                           return meets_stat && meets_fac && meets_prov;
-                                           }).show();
+                            var d = $(this).data();
+                            if ((facV === '') || (facV == d.facility)) { meets_fac=true; } else { meets_fac=false; }
+                            if ((provV === '') || (provV = d.provider)) { meets_prov=true; } else { meets_prov=false; }
+                            if ((pidV === '')) { meets_pid=true; } else { meets_pid=false; }
+                            if ((pidV > '') && pidRE.test(d.pid)) { meets_pid=true; }
+                            if ((pnameV === '')) { meets_pname=true; } else { meets_pname=false; }
+                            if ((pnameV > '') && pnameRE.test(d.pname)) { meets_pname=true; }
+                            return meets_fac && meets_prov && meets_pid && meets_pname;
+                          }).show('4000','linear');
 }
 
 //in bootstrap_menu.js
 function tabYourIt(tabNAME,url) {
     parent.left_nav.loadFrame('1',tabNAME,url);
 }
+
+    
 $(document).ready(function(){
                   //bootstrap menu functions
                   $('.dropdown').hover(function() {

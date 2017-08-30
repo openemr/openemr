@@ -1353,6 +1353,7 @@ class Display extends base
                  data-facility="'.attr($recall['r_facility']).'"
                  data-provider="'.attr($recall['r_provider']).'" 
                  data-pname="'.attr($recall['fname']." ".$recall['lname']).'"
+                 data-pid="'.attr($recall['pid']).'"
                  id="recall_'.attr($recall['pid']).'" style="display:none;">';
 
             $query = "select cal.pc_eventDate,pat.DOB from openemr_postcalendar_events as cal join patient_data as pat on cal.pc_pid=pat.pid where cal.pc_pid =? order by cal.pc_eventDate DESC LIMIT 1";
@@ -1361,11 +1362,12 @@ class Display extends base
             $DOB = oeFormatShortDate($result2['DOB']);
             $age = $MedEx->events->getAge($result2['DOB']);
             echo '<div class="divTableCell center"><a href="#" onclick="show_patient(\''.attr($recall['pid']).'\');"> '.text($recall['fname']).' '.text($recall['lname']).'</a>';
-            echo '<br /><span class="small" title="'.xla("Date of Birth and Age").'">DOB: '.text($DOB).' ('.$age.')</span>';
             if ( $GLOBALS['ptkr_show_pid'] ) { 
                 echo '<br /><span title="'.xla("Patient ID").'" class="small">PID: '.text($recall['pid']).'</span>';
             }
-            echo '<br /><span title='.xla("Most recent visit").' class="small">Last Visit: '.oeFormatShortDate($last_visit).'</span></div>';
+            echo '<br /><span title='.xla("Most recent visit").' class="small">Last Visit: '.oeFormatShortDate($last_visit).'</span>';
+            echo '<br /><span class="small" title="'.xla("Date of Birth and Age").'">DOB: '.text($DOB).' ('.$age.')</span>';
+            echo '</div>';
 
             echo '<div class="divTableCell appt_date">'.oeFormatShortDate($recall['r_eventDate']);
             if ($recall['r_reason']>'') {
