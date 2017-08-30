@@ -1,4 +1,4 @@
-_[< previous chapter](04-VPN-Access.md)_
+_[< previous chapter](04-VPN-Access.md) | [next chapter >](06-Stack-Operations.md)_
 
 # 🎛 Administration
 
