@@ -25,7 +25,9 @@
  * @link http://www.open-emr.org
  */
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 /**
  *  This function creates a task as a record in the form_taskman DB_table.

@@ -16,13 +16,15 @@ include_once("../globals.php");
 include_once("../../library/patient.inc");
 include_once("../../library/acl.inc");
 
+use OpenEMR\Services\FacilityService;
+
 // Might want something different here.
 //
 if (! acl_check('acct', 'rep')) {
     die("Unauthorized access.");
 }
 
-$facilityService = new \services\FacilityService();
+$facilityService = new FacilityService();
 
 $report_type = empty($_GET['t']) ? 'i' : $_GET['t'];
 

@@ -14,9 +14,11 @@ require_once("../../library/acl.inc");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
-use OpenEMR\Menu\MainMenuRole;
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Menu\MainMenuRole;
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 if (!$_GET["id"] || !acl_check('admin', 'users')) {
     exit();

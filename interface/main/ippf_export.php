@@ -13,11 +13,13 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Services\FacilityService;
+
 if (!acl_check('admin', 'super')) {
     die("Not authorized!");
 }
 
-$facilityService = new \services\FacilityService();
+$facilityService = new FacilityService();
 
 //////////////////////////////////////////////////////////////////////
 //                            XML Stuff                             //

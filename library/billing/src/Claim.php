@@ -13,6 +13,7 @@
 namespace OpenEMR\Billing;
 
 use InsuranceCompany;
+use OpenEMR\Services\FacilityService;
 
 class Claim
 {
@@ -143,7 +144,7 @@ class Claim
         $this->diags = array();
         $this->copay = 0;
 
-        $this->facilityService = new \services\FacilityService();
+        $this->facilityService = new FacilityService();
 
         // We need the encounter date before we can identify the payers.
         $sql = "SELECT * FROM form_encounter WHERE " .
@@ -390,7 +391,7 @@ class Claim
                     } else if (preg_match('/Ins(\d)/i', $rsn, $tmp) && $tmp[1] != $insnumber) {
                         continue; // it's for some other payer
                     } else if ($insnumber == '1') {
-                        if (preg_match("/\$\s*adjust code (\S+)/i", $rsn, $tmp)) {
+                        if (preg_match("/Adjust code (\S+)/i", $rsn, $tmp)) {
                             $rcode = $tmp[1]; // from 835
                         } else if ($chg) {
                             // Other adjustments default to Ins1.
@@ -1278,7 +1279,7 @@ class Claim
     {
         return $this->cleanDate($this->billing_options['hospitalization_date_from']);
     }
-  
+
     public function hospitalizedFromDateValid()
     {
         return $this->hospitalizedFrom()!=='';
@@ -1337,7 +1338,7 @@ class Claim
     {
         return $this->x12Clean(trim($this->billing_options['comments']));
     }
-  
+
     public function miscOnsetDate()
     {
         return $this->cleanDate($this->billing_options['onset_date']);
@@ -1352,7 +1353,7 @@ class Claim
     {
         return $this->cleanDate($this->billing_options['date_initial_treatment']);
     }
-  
+
     public function dateInitialTreatmentValid()
     {
         return $this->dateInitialTreatment()!=='';

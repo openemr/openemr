@@ -8,7 +8,9 @@
  * of the License, or (at your option) any later version.
  */
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 // These are for sports team use:
 $PLAYER_FITNESSES = array(

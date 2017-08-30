@@ -34,8 +34,10 @@ class FormPriorAuth extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormPriorAuth($id = "", $_prefix = "")
+    function __construct($id = "", $_prefix = "")
     {
+        parent::__construct();
+
         if (is_numeric($id)) {
             $this->id = $id;
         } else {
@@ -52,43 +54,42 @@ class FormPriorAuth extends ORDataObject
         }
     }
 
-    function toString($html = false)
+    function __toString()
     {
-        $string .= "\n"
-            ."ID: " . $this->id . "\n";
-
-        if ($html) {
-            return nl2br($string);
-        } else {
-            return $string;
-        }
+        return "ID: " . $this->id . "\n";
     }
+
     function set_id($id)
     {
         if (!empty($id) && is_numeric($id)) {
             $this->id = $id;
         }
     }
+
     function get_id()
     {
         return $this->id;
     }
+
     function set_pid($pid)
     {
         if (!empty($pid) && is_numeric($pid)) {
             $this->pid = $pid;
         }
     }
+
     function get_pid()
     {
         return $this->pid;
     }
+
     function set_activity($tf)
     {
         if (!empty($tf) && is_numeric($tf)) {
             $this->activity = $tf;
         }
     }
+
     function get_activity()
     {
         return $this->activity;

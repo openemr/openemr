@@ -119,7 +119,7 @@ if ($_GET['group'] == true) {
     $collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php?group=true");
 } elseif ($_GET['prov']) {
     //providers tab
-    $collectthis = '';
+    $collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php?prov=true");
 } else { //patient tab
     $collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php");
 }

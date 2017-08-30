@@ -18,14 +18,16 @@
  * @link    http://www.open-emr.org
  */
 
-use OpenEMR\Core\Header;
 
-include_once("../../globals.php");
+require_once("../../globals.php");
+
+use OpenEMR\Core\Header;
+use OpenEMR\Services\ONoteService;
 
 //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
 $N = 10;
 
-$oNoteService = new \services\ONoteService();
+$oNoteService = new ONoteService();
 ?>
 
 <html>

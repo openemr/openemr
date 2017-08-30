@@ -11,7 +11,7 @@
 
 namespace OpenEMR\Menu;
 
-use services\UserService;
+use OpenEMR\Services\UserService;
 
 class MainMenuRole
 {

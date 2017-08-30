@@ -7,10 +7,13 @@
 // of the License, or (at your option) any later version.
 
 // This reports checkins and checkouts for a specified patient's chart.
-use OpenEMR\Core\Header;
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
+
+use OpenEMR\Core\Header;
+use OpenEMR\Services\PatientService;
+
 ?>
 <html>
 <head>
@@ -73,7 +76,7 @@ $query = "SELECT ct.ct_when, " .
 sqlStatement("DROP TEMPORARY TABLE IF EXISTS cttemp");
 sqlStatement("CREATE TEMPORARY TABLE cttemp SELECT " .
   "ct_pid, MAX(ct_when) AS ct_when FROM chart_tracker GROUP BY ct_pid");
-$res = \services\PatientService::getChartTrackerInformation();
+$res = PatientService::getChartTrackerInformation();
 $data_ctr = 0;
 while ($row = sqlFetchArray($res)) {
     if ($data_ctr == 0) { ?>

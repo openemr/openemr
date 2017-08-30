@@ -6,6 +6,9 @@
 
 require_once(dirname(__FILE__) . "/../library/forms.inc");
 
+use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\PatientService;
+
 class C_Document extends Controller
 {
 
@@ -21,8 +24,8 @@ class C_Document extends Controller
     function __construct($template_mod = "general")
     {
         parent::__construct();
-        $this->facilityService = new \services\FacilityService();
-        $this->patientService = new \services\PatientService();
+        $this->facilityService = new FacilityService();
+        $this->patientService = new PatientService();
         $this->documents = array();
         $this->template_mod = $template_mod;
         $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
@@ -1156,7 +1159,7 @@ class C_Document extends Controller
                         'link' => $link,
                         'icon' => $icon,
                         'expandedIcon' => $expandedIcon,
-                        'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCR&doc_id=" . $doc['document_id'] . "','CCR');")
+                        'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCR&doc_id=" . $doc['document_id'] . "','_blank');")
                                 )));
                     } elseif ($this->tree->get_node_name($id) == "CCD") {
                                 $current_node->addItem(new HTML_TreeNode(array(
@@ -1164,7 +1167,7 @@ class C_Document extends Controller
                         'link' => $link,
                         'icon' => $icon,
                         'expandedIcon' => $expandedIcon,
-                        'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCD&doc_id=" . $doc['document_id'] . "','CCD');")
+                        'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCD&doc_id=" . $doc['document_id'] . "','_blank');")
                                 )));
                     } else {
                                 $current_node->addItem(new HTML_TreeNode(array(

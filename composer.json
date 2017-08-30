@@ -66,7 +66,7 @@
             "common\\http\\": "common/http",
             "common\\utils\\": "common/utils",
             "entities\\": "entities",
-            "services\\": "services",
+            "OpenEMR\\Services\\": "services",
             "repositories\\": "repositories",
             "OpenEMR\\Encounter\\Services\\": "interface/patient_file/encounter/Services",
             "OpenEMR\\Admin\\": "library/admin/src",

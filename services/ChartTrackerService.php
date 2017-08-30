@@ -20,7 +20,7 @@
  * @link    http://www.open-emr.org
  */
 
-namespace services;
+namespace OpenEMR\Services;
 
 class ChartTrackerService
 {
@@ -41,7 +41,7 @@ class ChartTrackerService
      */
     public function __construct()
     {
-        $this->logger = new \common\logging\Logger("\services\ChartTrackerService");
+        $this->logger = new \common\logging\Logger("\OpenEMR\Services\ChartTrackerService");
         $database = \common\database\Connector::Instance();
         $entityManager = $database->entityManager;
         $this->repository = $entityManager->getRepository('\entities\ChartTracker');

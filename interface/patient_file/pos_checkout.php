@@ -62,7 +62,9 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/billing.inc");
 require_once("../../custom/code_types.inc.php");
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 $currdecimals = $GLOBALS['currency_decimals'];
 

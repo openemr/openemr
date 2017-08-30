@@ -120,7 +120,7 @@ class sms
     * @return object New SMS object.
     * @access public
     */
-    function sms()
+    function __construct()
     {
         if ($this->use_ssl) {
             $this->base   = "http://api.clickatell.com/http";
