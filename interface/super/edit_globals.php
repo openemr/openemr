@@ -48,7 +48,7 @@ $formAction = ($userMode) ? "?mode=user" : "";
 <?php
 // If we are saving user_specific globals.
 if ($userMode && $r->isMethod('post') && $r->request->get('form_save')):
-    $globalsService->saveUserSettings($r, $GLOBALS_METADATA, $USER_SPECIFIC_TABS, $USER_SPECIFIC_TABS);
+    $globalsService->saveUserSettings($r, $GLOBALS_METADATA, $USER_SPECIFIC_TABS, $USER_SPECIFIC_GLOBALS);
 ?>
 <script type='text/javascript'>
 if (parent.left_nav.location) {

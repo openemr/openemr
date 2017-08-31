@@ -41,10 +41,8 @@ class Globals
                     continue;
                 }
 
-                list($fieldName, $fieldType, $fieldDef, $fieldDesc) = $fieldArr;
-
                 $label = "global:{$fieldId}";
-                $fieldValue = $request->request->get("form_{$i}");
+                $fieldValue = trim($request->request->get("form_{$i}"));
                 setUserSetting($label, $fieldValue, $_SESSION['authId'], false);
 
                 if ($request->request->get("toggle_{$i}") === "YES") {
@@ -153,7 +151,7 @@ class Globals
             auditSQLAuditTamper($auditLogStatusFieldNew);
         }
     }
-    
+
     public function handleAltServices($serviceID, $name = '', $sinterval = 1)
     {
         $sql = "SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name = ?";
