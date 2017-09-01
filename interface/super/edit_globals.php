@@ -47,7 +47,7 @@ $formAction = ($userMode) ? "?mode=user" : "";
 <head>
 <?php
 // If we are saving user_specific globals.
-if ($userMode && $r->isMethod('post') && $r->request->get('form_save')):
+if ($userMode && $r->isMethod('post') && $r->request->get('form_save')) :
     $globalsService->saveUserSettings($r, $GLOBALS_METADATA, $USER_SPECIFIC_TABS, $USER_SPECIFIC_GLOBALS);
 ?>
 <script type='text/javascript'>
@@ -104,7 +104,7 @@ if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
 }
 
 // If we are saving main globals.
-if (!$userMode && $r->isMethod('post') && $r->request->get('form_save')):
+if (!$userMode && $r->isMethod('post') && $r->request->get('form_save')) :
     $globalsService->saveGlobalSettings($r, $GLOBALS_METADATA);
     ?>
 <script type='text/javascript'>
@@ -539,7 +539,6 @@ $menuList = $menuBuilder->generateMainMenu($base);
                     echo " </div>\n";
                     echo " </div>\n";
                 }
-                $i++;
             }
             ?>
             <div class="tab-pane" role="tabpanel" id="hookedDetail">
@@ -580,8 +579,8 @@ $(function() {
         $("#theform").submit();
     });
     // Use the counter ($i) to make the form user friendly for user-specific globals use
-    <?php if ($userMode): ?>
-        <?php for ($j = 0; $j <= $i; $j++): ?>
+    <?php if ($userMode) : ?>
+        <?php for ($j = 0; $j <= $i; $j++) : ?>
             $("#form_<?php echo $j ?>").change(function () {
                 $("#toggle_<?php echo $j ?>").prop('checked', false);
             });

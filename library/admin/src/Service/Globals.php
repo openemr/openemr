@@ -35,7 +35,6 @@ class Globals
             if (!in_array($name, $userSpecificTabs)) {
                 continue;
             }
-
             foreach ($arr as $fieldId => $fieldArr) {
                 if (!in_array($fieldId, $userSpecificGlobals)) {
                     continue;
@@ -77,7 +76,6 @@ class Globals
         $oldGlobals = sqlGetAssoc($sql, false, true);
 
         $i = 0;
-
         foreach ($globalsMeta as $name => $array) {
             foreach ($array as $fieldId => $fieldArray) {
                 list($fieldName, $fieldType, $fieldDef, $fieldDesc) = $fieldArray;
@@ -104,17 +102,17 @@ class Globals
                         }
                     }
                 } else {
-                    $fieldValue = $r->request->get("form_{$i}", "");
+                    $fieldValue = trim($r->request->get("form_{$i}"));
 
                     if ($fieldType == "pwd") {
                         $fieldValue = ($fieldValue) ? SHA1($fieldValue) : $fieldValueOld;
                     }
 
-                    $oldValueExits = (isset($oldGlobals[$fieldId]));
+                    $oldValueExists = (isset($oldGlobals[$fieldId]));
                     $oldValue = $oldGlobals[$fieldId]['gl_value'];
 
                     // If we enter this block, we need to update the database
-                    if (!$oldValueExits || ($oldValueExits && $oldValue !== $fieldValue)) {
+                    if (!$oldValueExists || ($oldValueExists && $oldValue !== $fieldValue)) {
                         // Must be able to support mcrypt for auditlog
                         if ($force_off_enable_auditlog_encryption && ($fieldId == 'enable_auditlog_encryption')) {
                             error_log("OpenEMR Error: Unable to support auditlog encryption since the php
@@ -124,7 +122,7 @@ class Globals
 
                         switch ($fieldId) {
                             case 'first_day_week':
-                                $sql = "UPDATE openemr_module_vars SET pn_value = ? 
+                                $sql = "UPDATE openemr_module_vars SET pn_value = ?
                                         WHERE pn_name = 'pcFirstDayOfWeek'";
                                 sqlStatement($sql, [$fieldValue]);
                                 break;
@@ -134,10 +132,12 @@ class Globals
                         $insertSql = "INSERT INTO globals (gl_name, gl_index, gl_value) VALUES (?, ?, ?)";
                         sqlStatement($insertSql, [$fieldId, 0, $fieldValue]);
                     }
-                    ++$i;
                 }
+
+                ++$i;
             }
         }
+
 
         $this->checkCreateCouchDB();
         $this->checkBackgroundServices();
@@ -199,7 +199,7 @@ class Globals
 
     public function checkCreateCouchDB()
     {
-        if(empty($GLOBALS['document_storage_method'])) {
+        if (empty($GLOBALS['document_storage_method'])) {
             return false;
         }
 
@@ -251,5 +251,4 @@ class Globals
           WHERE name=?";
         return sqlStatement($sql, [$active, $interval, $interval, $name]);
     }
-
 }
