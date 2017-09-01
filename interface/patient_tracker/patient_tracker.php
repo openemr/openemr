@@ -67,10 +67,6 @@ $form_patient_id = !is_null( $_POST['form_patient_id'] ) ? $_POST['form_patient_
 
 // get all appts for date range and refine view client side.  very fast...
 $appointments = array();
-if ($_REQUEST['kiosk'] =='1') {
-  $to_date = date( 'Y-m-d' );
-  $from_date = date( 'Y-m-d' );
-}
 $datetime = date("Y-m-d H:i:s");
 $appointments = fetch_Patient_Tracker_Events( $from_date, $to_date, '', '', '', '', $form_patient_name, $form_patient_id  ); 
 $appointments = sortAppointments( $appointments, 'date', 'time' );
@@ -223,7 +219,7 @@ if (!$_REQUEST['flb_table']) {
         width: 70%;
       }
     </style>
-    <?php echo myLocalJS(); ?>
+    
   </head>
 
   <body class="body_top">
@@ -377,6 +373,7 @@ if (!$_REQUEST['flb_table']) {
                           <tr>
                             <td class="text-center" colspan="2">
                               <input href="#" class="css_button btn ui-buttons ui-widget ui-corner-all news" type="submit" id="filter_submit" value="<?php echo xla( 'Filter' ); ?>">
+                              <input type="hidden" id="kiosk" name="kiosk" value="<?php echo attr($_REQUEST['kiosk']); ?>">
                             </td>
                           </tr>
                         </table>
@@ -874,7 +871,7 @@ if (!$_REQUEST['flb_table']) {
       <input type='hidden' name='encounterID'    value='0' />
     </form>
 
-
+<?php echo myLocalJS(); ?>
               <?php
               echo "</body></html>";
 } //end of second !$_REQUEST['flb_table']
@@ -889,12 +886,29 @@ function myLocalJS() {
   <script type="text/javascript">
     var auto_refresh =null;
     //this can be refined to redact HIPAA material using @media print options.
+    window.parent.$("[name='lst']").attr('allowFullscreen','true');
+
+    function kiosk_FLB() {
+      var i = document.getElementById("flb_table");
+      $("#kiosk").val('1');
+      $("#kiosk_hide").hide();
+      refreshMe();
+      // go full-screen
+      if (i.requestFullscreen) {
+        i.requestFullscreen();
+      } else if (i.webkitRequestFullscreen) {
+        i.webkitRequestFullscreen();
+      } else if (i.mozRequestFullScreen) {
+        i.mozRequestFullScreen();
+      } else if (i.msRequestFullscreen) {
+        i.msRequestFullscreen();
+      }
+    }
+
     function print_FLB() {
       window.print();
     }
-    function kiosk_FLB() {
-      window.open('patient_tracker.php?kiosk=1','Kiosk Flow Board', 'width='+screen.availWidth+', height='+screen.availHeight+', top=0, left=0, screenX=0, screenY=0, fullscreen=yes');
-    }
+   
 
     function maxWindow() {
         window.moveTo(0, 0);
@@ -946,7 +960,7 @@ function myLocalJS() {
           form_patient_name : $("#form_patient_name").val(),
           form_patient_id   : $("#form_patient_id").val(),
           form_apptcat      : $("#form_apptcat").val(),
-          kiosk             : "<?php if ($_REQUEST['kiosk'] =='1') { echo '1'; } else { echo '0'; } ?>"
+          kiosk             : $("#kiosk").val()
         }).done(
           function( data ) {
             $( "#flb_table" ).html( data );
@@ -1048,32 +1062,31 @@ function myLocalJS() {
           $("[name='kiosk_show']").show();
           $("#patient_caret").hide();
 
-         
       <?php } else { ?>
         $("[name='kiosk_show']").hide();
-         <?php } ?>
-         // The "Today button" just highlights today's date.  
-         // This overrides the showToday function to show Today AND select it, not just highlight it.
-         // This is how it is expected to work and now it does.
-         $.datepicker._gotoToday = function(id) {
-            var target = $(id);
-            var inst = this._getInst(target[0]);
-            if (this._get(inst, 'gotoCurrent') && inst.currentDay) {
-                    inst.selectedDay = inst.currentDay;
-                    inst.drawMonth = inst.selectedMonth = inst.currentMonth;
-                    inst.drawYear = inst.selectedYear = inst.currentYear;
-            }
-            else {
-                    var date = new Date();
-                    inst.selectedDay = date.getDate();
-                    inst.drawMonth = inst.selectedMonth = date.getMonth();
-                    inst.drawYear = inst.selectedYear = date.getFullYear();
-                    // the below two lines are new
-                    this._setDateDatepicker(target, date);
-                    this._selectDate(id, this._getDateDatepicker(target));
-            }
-            this._notifyChange(inst);
-            this._adjustDate(target);
+        <?php } ?>
+        // The "Today button" just highlights today's date.  
+        // This overrides the showToday function to show Today AND select it, not just highlight it.
+        // This is how it is expected to work and now it does.
+        $.datepicker._gotoToday = function(id) {
+          var target = $(id);
+          var inst = this._getInst(target[0]);
+          if (this._get(inst, 'gotoCurrent') && inst.currentDay) {
+                  inst.selectedDay = inst.currentDay;
+                  inst.drawMonth = inst.selectedMonth = inst.currentMonth;
+                  inst.drawYear = inst.selectedYear = inst.currentYear;
+          }
+          else {
+                  var date = new Date();
+                  inst.selectedDay = date.getDate();
+                  inst.drawMonth = inst.selectedMonth = date.getMonth();
+                  inst.drawYear = inst.selectedYear = date.getFullYear();
+                  // the below two lines are new
+                  this._setDateDatepicker(target, date);
+                  this._selectDate(id, this._getDateDatepicker(target));
+          }
+          this._notifyChange(inst);
+          this._adjustDate(target);
         }
 
 
