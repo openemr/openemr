@@ -25,7 +25,8 @@ require_once(dirname(__FILE__).'/../globals.php');
  * This class extends the ORDataObject class, to model the contents of an image-based form.
  *
  */
-abstract class AbstractClickmapModel extends ORDataObject {
+abstract class AbstractClickmapModel extends ORDataObject
+{
 
     /**
      * The row to persist information to/from.
@@ -92,7 +93,10 @@ abstract class AbstractClickmapModel extends ORDataObject {
      * @param id
      *  The index of a row in the given table to initialize form contents from.
      */
-    public function AbstractClickmapModel($table, $id="") {
+    public function __construct($table, $id = "")
+    {
+        parent::__construct();
+
         /* Only accept numeric IDs as arguments. */
         if (is_numeric($id)) {
             $this->id = $id;
@@ -126,7 +130,8 @@ abstract class AbstractClickmapModel extends ORDataObject {
     /**
      * @brief Fill in this object's members with the contents from the database representing the stored form.
      */
-    function populate() {
+    function populate()
+    {
         /* Run our parent's implementation. */
         parent::populate();
     }
@@ -134,103 +139,101 @@ abstract class AbstractClickmapModel extends ORDataObject {
     /**
      * @brief Store the current structure members representing the form into the database.
      */
-    function persist() {
+    function persist()
+    {
         /* Run our parent's implementation. */
         parent::persist();
     }
 
     /* The rest of this object consists of set_ and get_ pairs, for setting and getting the value of variables that are members of this object. */
 
-    function get_id() {
+    function get_id()
+    {
         return $this->id;
     }
 
-    function set_id($id) {
+    function set_id($id)
+    {
         if (!empty($id) && is_numeric($id)) {
             $this->id = $id;
+        } else {
+            trigger_error('API violation: set function called with empty or non numeric string.', E_USER_WARNING);
         }
-	else
-	{
-	    trigger_error('API violation: set function called with empty or non numeric string.', E_USER_WARNING);
-	}
     }
 
-    function get_pid() {
+    function get_pid()
+    {
         return $this->pid;
     }
 
-    function set_pid($pid) {
+    function set_pid($pid)
+    {
         if (!empty($pid) && is_numeric($pid)) {
             $this->pid = $pid;
+        } else {
+            trigger_error('API violation: set function called with empty or non numeric string.', E_USER_WARNING);
         }
-	else
-	{
-	    trigger_error('API violation: set function called with empty or non numeric string.', E_USER_WARNING);
-	}
     }
 
-    function get_activity() {
+    function get_activity()
+    {
         return $this->activity;
     }
 
-    function set_activity($tf) {
+    function set_activity($tf)
+    {
         if (!empty($tf) && is_numeric($tf)) {
             $this->activity = $tf;
+        } else {
+            trigger_error('API violation: set function called with empty or non numeric string.', E_USER_WARNING);
         }
-	else
-	{
-	    trigger_error('API violation: set function called with empty or non numeric string.', E_USER_WARNING);
-	}
     }
 
     /* get_date()
      *
      */
-    function get_date() {
+    function get_date()
+    {
         return $this->date;
     }
 
     /* set_date()
      *
      */
-    function set_date($dt) {
+    function set_date($dt)
+    {
         if (!empty($dt)) {
             $this->date = $dt;
+        } else {
+            trigger_error('API violation: set function called with empty string.', E_USER_WARNING);
         }
-	else
-	{
-	    trigger_error('API violation: set function called with empty string.', E_USER_WARNING);
-	}
     }
 
-    function get_user() {
+    function get_user()
+    {
         return $this->user;
     }
 
-    function set_user($u) {
+    function set_user($u)
+    {
         if (!empty($u)) {
             $this->user = $u;
+        } else {
+            trigger_error('API violation: set function called with empty string.', E_USER_WARNING);
         }
-	else
-	{
-	    trigger_error('API violation: set function called with empty string.', E_USER_WARNING);
-	}
     }
 
-    function get_data() {
+    function get_data()
+    {
         return $this->data;
     }
 
-    function set_data($data) {
+    function set_data($data)
+    {
         if (!empty($data)) {
             $this->data = $data;
+        } else {
+            trigger_error('API violation: set function called with empty string.', E_USER_WARNING);
         }
-	else
-	{
-	    trigger_error('API violation: set function called with empty string.', E_USER_WARNING);
-	}
     }
-
 }
-
-?>

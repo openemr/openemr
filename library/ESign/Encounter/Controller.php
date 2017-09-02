@@ -4,7 +4,7 @@ namespace ESign;
 
 /**
  * Encounter controller implementation
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  *
@@ -34,9 +34,9 @@ class Encounter_Controller extends Abstract_Controller
 {
     public function esign_is_encounter_locked()
     {
-        $encounterId = $this->getRequest()->getParam( 'encounterId', '' );
-        $signable = new Encounter_Signable( $encounterId );
-        echo json_encode( $signable->isLocked() );
+        $encounterId = $this->getRequest()->getParam('encounterId', '');
+        $signable = new Encounter_Signable($encounterId);
+        echo json_encode($signable->isLocked());
         exit;
     }
     
@@ -44,71 +44,73 @@ class Encounter_Controller extends Abstract_Controller
     {
         $form = new \stdClass();
         $form->table = 'form_encounter';
-        $form->encounterId = $this->getRequest()->getParam( 'encounterid', 0 );
+        $form->encounterId = $this->getRequest()->getParam('encounterid', 0);
         $form->userId = $GLOBALS['authUserID'];
         $form->action = '#';
-        $signable = new Encounter_Signable( $form->encounterId );
+        $signable = new Encounter_Signable($form->encounterId);
         $form->showLock = false;
-        if ( $signable->isLocked() === false &&
+        if ($signable->isLocked() === false &&
             $GLOBALS['lock_esign_all'] &&
             $GLOBALS['esign_lock_toggle'] ) {
             $form->showLock = true;
         }
         
         $this->_view->form = $form;
-        $this->setViewScript( 'encounter/esign_form.php' );
+        $this->setViewScript('encounter/esign_form.php');
         $this->render();
     }
     
     public function esign_log_view()
     {
-        $encounterId = $this->getRequest()->getParam( 'encounterId', '' );
-        $signable = new Encounter_Signable( $encounterId ); // Contains features that make object signable
-        $log = new Encounter_Log( $encounterId ); // Make the log behavior
-        $html = $log->getHtml( $signable );
+        $encounterId = $this->getRequest()->getParam('encounterId', '');
+        $signable = new Encounter_Signable($encounterId); // Contains features that make object signable
+        $log = new Encounter_Log($encounterId); // Make the log behavior
+        $html = $log->getHtml($signable);
         echo $html;
         exit;
     }
     
     /**
-     * 
+     *
      * @return multitype:string
      */
     public function esign_form_submit()
     {
         $message = '';
         $status = self::STATUS_FAILURE;
-        $password = $this->getRequest()->getParam( 'password', '' );
-        $encounterId = $this->getRequest()->getParam( 'encounterId', '' );
-        // Lock if 'Lock e-signed encounters and their forms' option is set, 
+        $password = $this->getRequest()->getParam('password', '');
+        $encounterId = $this->getRequest()->getParam('encounterId', '');
+        // Lock if 'Lock e-signed encounters and their forms' option is set,
         // unless esign_lock_toggle option is enable in globals, then check the request param
         $lock = false;
-        if ( $GLOBALS['lock_esign_all'] ) {
+        if ($GLOBALS['lock_esign_all']) {
             $lock = true;
-            if ( $GLOBALS['esign_lock_toggle'] ) {
-                $lock = ( $this->getRequest()->getParam( 'lock', '' ) == 'on' ) ? true : false;
+            if ($GLOBALS['esign_lock_toggle']) {
+                $lock = ( $this->getRequest()->getParam('lock', '') == 'on' ) ? true : false;
             }
         }
             
-        $amendment = $this->getRequest()->getParam( 'amendment', '' );
-        if ( confirm_user_password( $_SESSION['authUser'], $password ) ) {
-            $signable = new Encounter_Signable( $encounterId );
-            if ( $signable->sign( $_SESSION['authUserID'], $lock, $amendment ) ) {
-                $message = xlt( "Form signed successfully" );
+        $amendment = $this->getRequest()->getParam('amendment', '');
+        if (confirm_user_password($_SESSION['authUser'], $password)) {
+            $signable = new Encounter_Signable($encounterId);
+            if ($signable->sign($_SESSION['authUserID'], $lock, $amendment)) {
+                $message = xlt("Form signed successfully");
                 $status = self::STATUS_SUCCESS;
             } else {
-                $message = xlt( "An error occured signing the form" );
+                $message = xlt("An error occured signing the form");
             }
         } else {
-            $message = xlt( "The password you entered is invalid" );
+            $message = xlt("The password you entered is invalid");
         }
-        $response = new Response( $status, $message );
+
+        $response = new Response($status, $message);
         $response->encounterId = $encounterId;
         $response->locked = $lock;
-        if ( $lock ) {
+        if ($lock) {
             $response->editButtonHtml = "<a href=# class='css_button_small form-edit-button-locked'><span>".xlt('Locked')."</span></a>";
         }
-        echo json_encode( $response );
+
+        echo json_encode($response);
         exit;
     }
 }

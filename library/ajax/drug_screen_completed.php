@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * 
+ *
  * @author  Terry Hill <terry@lillysystems.com>
  * @link    http://www.open-emr.org
  *
@@ -23,20 +23,19 @@
  *
  */
 
-$sanitize_all_escapes = true;
-$fake_register_globals = false;
+
+
 
 require_once("../../interface/globals.php");
 
 $drugval = '0';
 if ($_POST['testcomplete'] =='true') {
-	$drugval = '1';
+    $drugval = '1';
 }
 
 $tracker_id = $_POST['trackerid'];
-  if($tracker_id != 0)
-  {
-           sqlStatement("UPDATE patient_tracker SET " .
-			   "drug_screen_completed = ? " .
-               "WHERE id =? ", array($drugval,$tracker_id));
-  }
+if ($tracker_id != 0) {
+       sqlStatement("UPDATE patient_tracker SET " .
+           "drug_screen_completed = ? " .
+           "WHERE id =? ", array($drugval,$tracker_id));
+}

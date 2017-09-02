@@ -34,8 +34,8 @@
  */
 
 if (phpversion() >= "4.2.0") {
-	if ( ini_get('register_globals') != 1 ) {
-		$supers = array('_REQUEST',
+    if (ini_get('register_globals') != 1) {
+        $supers = array('_REQUEST',
                                 '_ENV',
                                 '_SERVER',
                                 '_POST',
@@ -45,15 +45,17 @@ if (phpversion() >= "4.2.0") {
                                 '_FILES',
                                 '_GLOBALS' );
 
-		foreach( $supers as $__s) {
-			if ( (isset($$__s) == true) && (is_array( $$__s ) == true) ) extract( $$__s, EXTR_OVERWRITE );
-		}
-		unset($supers);
-	}
-} else {
-	if ( ini_get('register_globals') != 1 ) {
+        foreach ($supers as $__s) {
+            if ((isset($$__s) == true) && (is_array($$__s) == true)) {
+                extract($$__s, EXTR_OVERWRITE);
+            }
+        }
 
-		$supers = array('HTTP_POST_VARS',
+        unset($supers);
+    }
+} else {
+    if (ini_get('register_globals') != 1) {
+        $supers = array('HTTP_POST_VARS',
                                 'HTTP_GET_VARS',
                                 'HTTP_COOKIE_VARS',
                                 'GLOBALS',
@@ -62,11 +64,14 @@ if (phpversion() >= "4.2.0") {
                                 'HTTP_ENV_VARS'
                                  );
 
-		foreach( $supers as $__s) {
-			if ( (isset($$__s) == true) && (is_array( $$__s ) == true) ) extract( $$__s, EXTR_OVERWRITE );
-		}
-		unset($supers);
-	}
+        foreach ($supers as $__s) {
+            if ((isset($$__s) == true) && (is_array($$__s) == true)) {
+                extract($$__s, EXTR_OVERWRITE);
+            }
+        }
+
+        unset($supers);
+    }
 }
 
 /*
@@ -94,14 +99,14 @@ define('_PNPERMS_UNREGISTERED', '0');
  * Core version informations - should be upgraded on each release for
  * better control on config settings
  */
-define('_PN_VERSION_NUM',       "0.7.2.6-Phoenix");
-define('_PN_VERSION_ID',        "PostNuke");
-define('_PN_VERSION_SUB',       "Phoenix");
+define('_PN_VERSION_NUM', "0.7.2.6-Phoenix");
+define('_PN_VERSION_ID', "PostNuke");
+define('_PN_VERSION_SUB', "Phoenix");
 
 /*
  * Fake module for config vars
  */
-define('_PN_CONFIG_MODULE',     '/PNConfig');
+define('_PN_CONFIG_MODULE', '/PNConfig');
 
 /*
  *
@@ -116,7 +121,8 @@ define('_PN_CONFIG_MODULE',     '/PNConfig');
  * @returns true|false
  * @return none
  */
-function pnConfigInit() {
+function pnConfigInit()
+{
     global $pnconfig;
 
     list($dbconn) = pnDBGetConn();
@@ -133,14 +139,16 @@ function pnConfigInit() {
               FROM $table
               WHERE $columns[modname]='" . pnVarPrepForStore(_PN_CONFIG_MODULE) . "'";
     $dbresult = $dbconn->Execute($query);
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return false;
     }
+
     if ($dbresult->EOF) {
         $dbresult->Close();
         return false;
     }
-    while(!$dbresult->EOF) {
+
+    while (!$dbresult->EOF) {
         list($k, $v) = $dbresult->fields;
         $dbresult->MoveNext();
         if (($k != 'dbtype') && ($k != 'dbhost') && ($k != 'dbuname') && ($k != 'dbpass')
@@ -149,6 +157,7 @@ function pnConfigInit() {
             $pnconfig[$k] = $v;
         }
     }
+
     $dbresult->Close();
     return true;
 }
@@ -186,9 +195,10 @@ function pnConfigGetVar($name)
         /*
          * In any case of error return false
          */
-        if($dbconn->ErrorNo() != 0) {
+        if ($dbconn->ErrorNo() != 0) {
             return false;
         }
+
         if ($dbresult->EOF) {
             $dbresult->Close();
             return false;
@@ -238,7 +248,7 @@ function pnConfigSetVar($name, $value)
      */
     $must_insert = true;
     global $pnconfig;
-    foreach($pnconfig as $k => $v) {
+    foreach ($pnconfig as $k => $v) {
         /*
          * Test if the key name is in the array
          */
@@ -253,6 +263,7 @@ function pnConfigSetVar($name, $value)
             if ($v == $value) {
                 return true;
             }
+
             /*
              * End loop after success
              */
@@ -291,8 +302,9 @@ function pnConfigSetVar($name, $value)
                    WHERE $columns[modname]='" . pnVarPrepForStore(_PN_CONFIG_MODULE) . "'
                    AND $columns[name]='" . pnVarPrepForStore($name) . "'";
     }
+
     $dbconn->Execute($query);
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return false;
     }
 
@@ -383,13 +395,14 @@ function pnInit()
         $pnconfig['dbpass'] = base64_decode($pnconfig['dbpass']);
         $pnconfig['encoded'] = 0;
     }
+
     // Connect to database
     if (!pnDBInit()) {
         die('Database initialisation failed');
     }
 
     // debugger if required
-    if ($pndebug['debug']){
+    if ($pndebug['debug']) {
         include_once 'includes/lensdebug.inc.php';
         global $dbg, $debug_sqlcalls;
         $dbg = new LensDebug();
@@ -402,7 +415,7 @@ function pnInit()
     // Set compression on if desired
     //
     if (pnConfigGetVar('UseCompression') == 1) {
-    ob_start("ob_gzhandler");
+        ob_start("ob_gzhandler");
     }
 
     // Other includes
@@ -414,7 +427,7 @@ function pnInit()
         die('Session setup failed');
     }
 
-	if (!pnSessionInit()) {
+    if (!pnSessionInit()) {
         die('Session initialisation failed');
     }
 
@@ -430,12 +443,13 @@ function pnInit()
     }
 
     // Load global language defines
-    if (isset ($lang) && file_exists('language/' . pnVarPrepForOS($lang) . '/global.php')) {
+    if (isset($lang) && file_exists('language/' . pnVarPrepForOS($lang) . '/global.php')) {
         $currentlang = $lang;
     } else {
         $currentlang = pnConfigGetVar('language');
         pnSessionSetVar('lang', $currentlang);
     }
+
     include 'language/' . pnVarPrepForOS($currentlang) . '/global.php';
 
     include 'modules/NS-Languages/api.php';
@@ -445,9 +459,10 @@ function pnInit()
 
         $pnAntiCrackerMode = pnConfigGetVar('pnAntiCracker');
 
-        if ( $pnAntiCrackerMode == 1 ) {
-                pnSecureInput();
-        }
+    if ($pnAntiCrackerMode == 1) {
+        pnSecureInput();
+    }
+
     // Banner system
     include 'includes/pnBanners.php';
 
@@ -493,9 +508,9 @@ function pnDBInit()
     $dbconn->port = $dbport;
     $dbh = $dbconn->Connect($dbhost, $dbuname, $dbpass, $dbname);
     if (!$dbh) {
-    	//$dbpass = "";
+        //$dbpass = "";
         //die("$dbtype://$dbuname:$dbpass@$dbhost/$dbname failed to connect" . $dbconn->ErrorMsg());
-		die("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n<html>\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-1\">\n<title>PostNuke powered Website</title>\n</head>\n<body>\n<center>\n<h1>Problem in Database Connection</h1>\n<br /><br />\n<h5>This Website is powered by PostNuke</h5>\n<a href=\"http://www.postnuke.com\" target=\"_blank\"><img src=\"images/powered/postnuke.butn.gif\" border=\"0\" alt=\"Web site powered by PostNuke\" hspace=\"10\" /></a> <a href=\"http://php.weblogs.com/ADODB\" target=\"_blank\"><img src=\"images/powered/adodb2.gif\" alt=\"ADODB database library\" border=\"0\" hspace=\"10\" /></a><a href=\"http://www.php.net\" target=\"_blank\"><img src=\"images/powered/php2.gif\" alt=\"PHP Scripting Language\" border=\"0\" hspace=\"10\" /></a><br />\n<h5>Although this site is running the PostNuke software<br />it has no other connection to the PostNuke Developers.<br />Please refrain from sending messages about this site or its content<br />to the PostNuke team, the end will result in an ignored e-mail.</h5>\n</center>\n</body>\n</html>");
+        die("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n<html>\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-1\">\n<title>PostNuke powered Website</title>\n</head>\n<body>\n<center>\n<h1>Problem in Database Connection</h1>\n<br /><br />\n<h5>This Website is powered by PostNuke</h5>\n<a href=\"http://www.postnuke.com\" target=\"_blank\"><img src=\"images/powered/postnuke.butn.gif\" border=\"0\" alt=\"Web site powered by PostNuke\" hspace=\"10\" /></a> <a href=\"http://php.weblogs.com/ADODB\" target=\"_blank\"><img src=\"images/powered/adodb2.gif\" alt=\"ADODB database library\" border=\"0\" hspace=\"10\" /></a><a href=\"http://www.php.net\" target=\"_blank\"><img src=\"images/powered/php2.gif\" alt=\"PHP Scripting Language\" border=\"0\" hspace=\"10\" /></a><br />\n<h5>Although this site is running the PostNuke software<br />it has no other connection to the PostNuke Developers.<br />Please refrain from sending messages about this site or its content<br />to the PostNuke team, the end will result in an ignored e-mail.</h5>\n</center>\n</body>\n</html>");
     }
     
     // Modified 5/2009 by BM for UTF-8 project
@@ -505,6 +520,7 @@ function pnDBInit()
             error_log("PHP custom error: from postnuke interface/main/calendar/includes/pnAPI.php - Unable to set up UTF8 encoding with mysql database", 0);
         }
     }
+
     // ---------------------------------------
 
     //Turn off STRICT SQL
@@ -520,6 +536,9 @@ function pnDBInit()
     if (strcmp($dbtype, 'oci8') == 0) {
         $dbconn->Execute("alter session set NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS'");
     }
+
+    // Sync MySQL time zone with PHP time zone.
+    $dbconn->Execute("SET time_zone = '" . (new DateTime())->format("P") . "'");
 
     return true;
 }
@@ -576,30 +595,27 @@ function pnVarCleanFromInput()
     foreach (func_get_args() as $var) {
     // Get var
         global $$var;
-	if (empty($var)) {
+        if (empty($var)) {
             return;
         }
+
         $ourvar = $$var;
         if (!isset($ourvar)) {
-            array_push($resarray, NULL);
+            array_push($resarray, null);
             continue;
         }
+
         if (empty($ourvar)) {
             array_push($resarray, $ourvar);
             continue;
         }
 
-        // Clean var
-        if (check_magic_quotes()) {
-            pnStripslashes($ourvar);
-        }
         if (!pnSecAuthAction(0, '::', '::', ACCESS_ADMIN)) {
             $ourvar = preg_replace($search, $replace, $ourvar);
         }
 
         // Add to result array
         array_push($resarray, $ourvar);
-
     }
 
     // Return vars
@@ -618,11 +634,12 @@ function pnVarCleanFromInput()
  * @access private
  * @param any variables or arrays to be stripslashed
  */
-function pnStripslashes (&$value) {
-    if(!is_array($value)) {
+function pnStripslashes(&$value)
+{
+    if (!is_array($value)) {
         $value = stripslashes($value);
     } else {
-        array_walk($value,'pnStripslashes');
+        array_walk($value, 'pnStripslashes');
     }
 }
 
@@ -647,19 +664,22 @@ function pnVarPrepForDisplay()
     $resarray = array();
 
     foreach (func_get_args() as $ourvar) {
-
         // Prepare var
         $ourvar = htmlspecialchars($ourvar);
 
-        $ourvar = preg_replace_callback($search, function ($m) {
+        $ourvar = preg_replace_callback(
+            $search,
+            function ($m) {
 
-            $output = "";
-            for ($i = 0; $i < (strlen($m[0])); $i++) {
-                $output .= '&#' . ord($m[0][$i]) . ';';
-            }
-            return $output;
-        },
-        $ourvar);
+                $output = "";
+                for ($i = 0; $i < (strlen($m[0])); $i++) {
+                    $output .= '&#' . ord($m[0][$i]) . ';';
+                }
+
+                return $output;
+            },
+            $ourvar
+        );
 
 
         // Add to array
@@ -701,8 +721,8 @@ function pnVarPrepHTMLDisplay()
 
     if (!isset($allowedhtml)) {
         $allowedhtml = array();
-        foreach(pnConfigGetVar('AllowableHTML') as $k=>$v) {
-            switch($v) {
+        foreach (pnConfigGetVar('AllowableHTML') as $k => $v) {
+            switch ($v) {
                 case 0:
                     break;
                 case 1:
@@ -722,21 +742,25 @@ function pnVarPrepHTMLDisplay()
 
         // Prepare var
         $ourvar = htmlspecialchars($ourvar);
-        $ourvar = preg_replace_callback($search,
+        $ourvar = preg_replace_callback(
+            $search,
             function ($matches) {
                 return "&#" .
                 sprintf("%03d", ord($matches[1])) .
                 ";&#064;&#" .
                 sprintf("%03d", ord($matches[2])) . ";";
             },
-            $ourvar);
+            $ourvar
+        );
 
         // Fix the HTML that we want
-        $ourvar = preg_replace_callback('/\022([^\024]*)\024/',
+        $ourvar = preg_replace_callback(
+            '/\022([^\024]*)\024/',
             function ($matches) {
                 return '<' . strtr("$matches[1]", array('&gt;' => '>', '&lt;' => '<', '&quot;' => '\"')) . '>';
-            }
-        , $ourvar);
+            },
+            $ourvar
+        );
 
         // Fix entities if required
         if (pnConfigGetVar('htmlentities')) {
@@ -770,7 +794,6 @@ function pnVarPrepForStore()
 {
     $resarray = array();
     foreach (func_get_args() as $ourvar) {
-
         // Prepare var
         if (!get_magic_quotes_runtime()) {
             $ourvar = addslashes($ourvar);
@@ -814,7 +837,6 @@ function pnVarPrepForOS()
 
     $resarray = array();
     foreach (func_get_args() as $ourvar) {
-
         // Parse out bad things
         $ourvar = preg_replace($search, $replace, $ourvar);
 
@@ -872,7 +894,6 @@ function pnVarCensor()
 
     $resarray = array();
     foreach (func_get_args() as $ourvar) {
-
         if ($docensor) {
             // Parse out nasty words
             $ourvar = preg_replace($search, $replace, $ourvar);
@@ -902,49 +923,52 @@ function pnVarCensor()
  * @returns bool
  * @return true if the validation was successful, false otherwise
  */
-function pnVarValidate($var, $type, $args=0)
+function pnVarValidate($var, $type, $args = 0)
 {
- switch ($type) {
-    case 'email':
-        // all characters must be 7 bit ascii
-        $length = strlen($var);
-        $idx = 0;
-        while($length--) {
-           $c = $var[$idx++];
-           if(ord($c) > 127){
-              return false;
-           }
-        }
-        $regexp = '/^(?:[^\s\000-\037\177\(\)<>@,;:\\"\[\]]\.?)+@(?:[^\s\000-\037\177\(\)<>@,;:\\\"\[\]]\.?)+\.[a-z]{2,6}$/Ui';
-        if(preg_match($regexp,$var)) {
-            return true;
-        } else {
-            return false;
-        }
-        break;
+    switch ($type) {
+        case 'email':
+            // all characters must be 7 bit ascii
+            $length = strlen($var);
+            $idx = 0;
+            while ($length--) {
+                $c = $var[$idx++];
+                if (ord($c) > 127) {
+                    return false;
+                }
+            }
 
-    case 'url':
-        // all characters must be 7 bit ascii
-        $length = strlen($var);
-        $idx = 0;
-        while($length--) {
-           $c = $var[$idx++];
-           if(ord($c) > 127){
-             return false;
-           }
-        }
-        $regexp = '/^([!\$\046-\073=\077-\132_\141-\172~]|(?:%[a-f0-9]{2}))+$/i';
-        if(!preg_match($regexp, $var)) {
-            return false;
-        }
-        $url_array = @parse_url($var);
-        if(empty($url_array)) {
-            return false;
-        } else {
-            return !empty($url_array['scheme']);
-        }
-        break;
-   }
+            $regexp = '/^(?:[^\s\000-\037\177\(\)<>@,;:\\"\[\]]\.?)+@(?:[^\s\000-\037\177\(\)<>@,;:\\\"\[\]]\.?)+\.[a-z]{2,6}$/Ui';
+            if (preg_match($regexp, $var)) {
+                return true;
+            } else {
+                return false;
+            }
+            break;
+
+        case 'url':
+             // all characters must be 7 bit ascii
+             $length = strlen($var);
+             $idx = 0;
+            while ($length--) {
+                $c = $var[$idx++];
+                if (ord($c) > 127) {
+                    return false;
+                }
+            }
+
+                $regexp = '/^([!\$\046-\073=\077-\132_\141-\172~]|(?:%[a-f0-9]{2}))+$/i';
+            if (!preg_match($regexp, $var)) {
+                return false;
+            }
+
+                $url_array = @parse_url($var);
+            if (empty($url_array)) {
+                return false;
+            } else {
+                return !empty($url_array['scheme']);
+            }
+            break;
+    }
 }
 
 /**
@@ -955,7 +979,7 @@ function pnVarValidate($var, $type, $args=0)
  * @param filename the filename the assertion occurs in
  * @param line the line number the assertion occurs in
  */
-function pnAssert($assertion, $file='Unknown', $line='Unknown', $msg='')
+function pnAssert($assertion, $file = 'Unknown', $line = 'Unknown', $msg = '')
 {
     if ($assertion) {
         return;
@@ -988,6 +1012,7 @@ function pnGetStatusMsg()
     if (!empty($errmsg)) {
         return $errmsg;
     }
+
     return $msg;
 }
 
@@ -1020,15 +1045,15 @@ function pnThemeLoad($thistheme)
     }
 */
 // eugenio themeover 20020413
-    if (@file(WHERE_IS_PERSO."themes/$thistheme/theme.php"))
-        { include WHERE_IS_PERSO."themes/$thistheme/theme.php"; }
-    else
-        {
+    if (@file(WHERE_IS_PERSO."themes/$thistheme/theme.php")) {
+        include WHERE_IS_PERSO."themes/$thistheme/theme.php";
+    } else {
         include "themes/$thistheme/theme.php";
-        }
+    }
+
     // end of modification
-    $loaded = 1;
-    return true;
+        $loaded = 1;
+        return true;
 }
 
 function pnThemeGetVar($name)
@@ -1056,6 +1081,7 @@ function pnGetBaseURI()
     } else {
         $path = getenv('REQUEST_URI');
     }
+
     if ((empty($path)) ||
         (substr($path, -1, 1) == '/')) {
         // REQUEST_URI was empty or pointed to a path
@@ -1096,8 +1122,9 @@ function pnGetBaseURL()
     } else {
         $server = $HTTP_SERVER_VARS['HTTP_HOST'];
     }
+
     // IIS sets HTTPS=off
-    if ( (isset($HTTP_SERVER_VARS['HTTPS']) && $HTTP_SERVER_VARS['HTTPS'] != 'off') || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ) {
+    if ((isset($HTTP_SERVER_VARS['HTTPS']) && $HTTP_SERVER_VARS['HTTPS'] != 'off') || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')) {
         $proto = 'https://';
     } else {
         $proto = 'http://';
@@ -1133,7 +1160,6 @@ function pnRedirect($redirecturl)
 
         Header("Location: $baseurl$redirecturl");
     }
-
 }
 
 /**
@@ -1166,10 +1192,12 @@ function pnLocalReferer()
 
 // Hack - we need this for themes, but will get rid of it soon
 if (!function_exists('GetUserTime')) {
-    function GetUserTime($time) {
+    function GetUserTime($time)
+    {
         if (pnUserLoggedIn()) {
             $time += (pnUserGetVar('timezone_offset') - pnConfigGetVar('timezone_offset')) * 3600;
         }
+
         return($time);
     }
 }
@@ -1184,27 +1212,30 @@ if (!function_exists('GetUserTime')) {
  * @returns bool
  * @return true if the email was sent, false if not
  */
-function pnMail($to, $subject, $message, $headers, $debug=0)
+function pnMail($to, $subject, $message, $headers, $debug = 0)
 {
     // Language translations
-    switch(pnUserGetLang()) {
+    switch (pnUserGetLang()) {
         case 'rus':
-        if (!empty($headers)) $headers .= "\n";
+            if (!empty($headers)) {
+                $headers .= "\n";
+            }
+
             $headers .= "Content-Type: text/plain; charset=koi8-r";
-            $subject = convert_cyr_string($subject,"w","k");
-            $message = convert_cyr_string($message,"w","k");
-            $headers = convert_cyr_string($headers,"w","k");
+            $subject = convert_cyr_string($subject, "w", "k");
+            $message = convert_cyr_string($message, "w", "k");
+            $headers = convert_cyr_string($headers, "w", "k");
             break;
     }
     
     // Debug
     if ($debug) {
-    	echo "Mail To: ".$to."<br>";
-    	echo "Mail Subject: ".$subject."<br>";
-    	echo "Mail Message: ".$message."<br>";
-    	echo "Mail Headers: ".$headers."<br>";
-	}
-	
+        echo "Mail To: ".$to."<br>";
+        echo "Mail Subject: ".$subject."<br>";
+        echo "Mail Message: ".$message."<br>";
+        echo "Mail Headers: ".$headers."<br>";
+    }
+    
     // Mail message
     // do not display error messages [class007]
     $return = @mail($to, $subject, $message, $headers);
@@ -1215,7 +1246,8 @@ function pnMail($to, $subject, $message, $headers, $debug=0)
    attacks, thanks to webmedic, Timax, larsneo.
  */
 
-function pnSecureInput() {
+function pnSecureInput()
+{
 
 /*      Lets validate the current php version and set globals
         accordingly.
@@ -1225,30 +1257,25 @@ function pnSecureInput() {
 
 //require('includes/htmlfilter.inc');
 
-if ( phpversion() >= "4.2.0" ) {
-
-$HTTP_GET_VARS          = $_GET;
-$HTTP_POST_VARS         = $_POST;
-$HTTP_COOKIE_VARS       = $_COOKIE;
-
-} else {
-
-global $HTTP_GET_VARS, $HTTP_POST_VARS, $HTTP_COOKIE_VARS;
-
-}
+    if (phpversion() >= "4.2.0") {
+        $HTTP_GET_VARS          = $_GET;
+        $HTTP_POST_VARS         = $_POST;
+        $HTTP_COOKIE_VARS       = $_COOKIE;
+    } else {
+        global $HTTP_GET_VARS, $HTTP_POST_VARS, $HTTP_COOKIE_VARS;
+    }
 
 // Cross-Site Scripting attack defense - Sent by larsneo
 // some syntax checking against injected javascript
 // extended by Neo
 
-if (count($HTTP_GET_VARS) > 0) {
-
-/*        Lets now sanitize the GET vars
- */
+    if (count($HTTP_GET_VARS) > 0) {
+        /*        Lets now sanitize the GET vars
+         */
 
 
         foreach ($HTTP_GET_VARS as $secvalue) {
-        	if (!is_array($secvalue)) {
+            if (!is_array($secvalue)) {
                 if ((preg_match("/<[^>]*script*\"?[^>]*>/i", $secvalue)) ||
                         (preg_match("/.*[[:space:]](or|and)[[:space:]].*(=|like).*/i", $secvalue)) ||
                         (preg_match("/<[^>]*object*\"?[^>]*>/i", $secvalue)) ||
@@ -1266,17 +1293,16 @@ if (count($HTTP_GET_VARS) > 0) {
                         //pnMailHackAttempt(__FILE__,__LINE__,'pnSecurity Alert','Intrusion detection.');
                         //Header("Location: index.php");
                 }
-        	}
+            }
         }
-}
+    }
 
 /*        Lets now sanitize the POST vars
  */
 
-if ( count($HTTP_POST_VARS) > 0) {
-
+    if (count($HTTP_POST_VARS) > 0) {
         foreach ($HTTP_POST_VARS as $secvalue) {
-        	if (!is_array($secvalue)) {
+            if (!is_array($secvalue)) {
                 if ((preg_match("/<[^>]*script*\"?[^>]*>/i", $secvalue)) ||
                         (preg_match("/<[^>]*object*\"?[^>]*>/i", $secvalue)) ||
                         (preg_match("/<[^>]*iframe*\"?[^>]*>/i", $secvalue)) ||
@@ -1287,22 +1313,19 @@ if ( count($HTTP_POST_VARS) > 0) {
                         (preg_match("/<[^>]*cookie*\"?[^>]*>/i", $secvalue)) ||
                         (preg_match("/<[^>]*meta*\"?[^>]*>/i", $secvalue))
                         ) {
-
                         //pnMailHackAttempt(__FILE__,__LINE__,'pnSecurity Alert','Intrusion detection.');
                         //Header("Location: index.php");
                 }
-         	}
+            }
         }
-
-}
+    }
 
 /*        Lets now sanitize the COOKIE vars
  */
 
-if ( count($HTTP_COOKIE_VARS) > 0) {
-
+    if (count($HTTP_COOKIE_VARS) > 0) {
         foreach ($HTTP_COOKIE_VARS as $secvalue) {
-			if (!is_array($secvalue)) {
+            if (!is_array($secvalue)) {
                 if ((preg_match("/<[^>]*script*\"?[^>]*>/i", $secvalue)) ||
                         (preg_match("/.*[[:space:]](or|and)[[:space:]].*(=|like).*/i", $secvalue)) ||
                         (preg_match("/<[^>]*object*\"?[^>]*>/i", $secvalue)) ||
@@ -1317,15 +1340,12 @@ if ( count($HTTP_COOKIE_VARS) > 0) {
                         (preg_match("/<[^>]*cookie*\"?[^>]*>/i", $secvalue)) ||
                         (preg_match("/<[^>]*img*\"?[^>]*>/i", $secvalue))
                         ) {
-
-                        pnMailHackAttempt(__FILE__,__LINE__,'pnSecurity Alert','Intrusion detection.');
+                        pnMailHackAttempt(__FILE__, __LINE__, 'pnSecurity Alert', 'Intrusion detection.');
                         //Header("Location: index.php");
                 }
-        	}
+            }
         }
-}
-
-
+    }
 } # End of secure Input
 
 /*         Function that compares the current php version on the
@@ -1334,53 +1354,53 @@ if ( count($HTTP_COOKIE_VARS) > 0) {
 
 // Deprecate function reverting to php detecion function
 
-function pnPhpVersionCheck($vercheck) {
+function pnPhpVersionCheck($vercheck)
+{
 
-$minver = str_replace(".","", $vercheck);
-$curver = str_replace(".","", phpversion());
+    $minver = str_replace(".", "", $vercheck);
+    $curver = str_replace(".", "", phpversion());
 
-        if($curver >= $minver){
-                return true;
-                } else {
-                return false;
-        }
+    if ($curver >= $minver) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
-function pnMailHackAttempt( $detecting_file        =        "(no filename available)",
-                            $detecting_line        =        "(no line number available)",
-                            $hack_type             =        "(no type given)",
-                            $message               =        "(no message given)" ) {
+function pnMailHackAttempt(
+    $detecting_file = "(no filename available)",
+    $detecting_line = "(no line number available)",
+    $hack_type = "(no type given)",
+    $message = "(no message given)"
+) {
 
 # Backwards compatibility fix with php 4.0.x and 4.1.x or greater Neo
 
-if (phpversion() >= "4.2.0") {
+    if (phpversion() >= "4.2.0") {
+        $_pv  = $_POST;
+        $_gv  = $_GET;
+        $_rv  = $_REQUEST;
+        $_sv  = $_SERVER;
+        $_ev  = $_ENV;
+        $_cv  = $_COOKIE;
+        $_fv  = $_FILES;
+        $_snv = $_SESSION;
+    } else {
+        global $HTTP_POST_VARS, $HTTP_GET_VARS, $HTTP_SERVER_VARS, $HTTP_ENV_VARS, $HTTP_COOKIE_VARS, $HTTP_POST_FILES, $HTTP_SESSION_VARS;
 
-		$_pv  = $_POST;
-		$_gv  = $_GET;
-		$_rv  = $_REQUEST;
-		$_sv  = $_SERVER;
-		$_ev  = $_ENV;
-		$_cv  = $_COOKIE;
-		$_fv  = $_FILES;
-		$_snv = $_SESSION;
-		
-	} else {
+        $_pv  = $HTTP_POST_VARS;
+        $_gv  = $HTTP_GET_VARS;
+        $_rv  = array();
+        $_sv  = $HTTP_SERVER_VARS;
+        $_ev  = $HTTP_ENV_VARS;
+        $_cv  = $HTTP_COOKIE_VARS;
+        $_fv  = $HTTP_POST_FILES;
+        $_snv = $HTTP_SESSION_VARS;
+    }
 
-	global $HTTP_POST_VARS, $HTTP_GET_VARS, $HTTP_SERVER_VARS, $HTTP_ENV_VARS, $HTTP_COOKIE_VARS, $HTTP_POST_FILES, $HTTP_SESSION_VARS;
-
-		$_pv  = $HTTP_POST_VARS;
-		$_gv  = $HTTP_GET_VARS;
-		$_rv  = array();
-		$_sv  = $HTTP_SERVER_VARS;
-		$_ev  = $HTTP_ENV_VARS;
-		$_cv  = $HTTP_COOKIE_VARS;
-		$_fv  = $HTTP_POST_FILES;
-		$_snv = $HTTP_SESSION_VARS;
-
-}
         $output         =        "Attention site admin of ".pnConfigGetVar('sitename').",\n";
-        $output        .=        "On ".ml_ftime( _DATEBRIEF, ( GetUserTime( time( ) ) ) );
-        $output        .=        " at ". ml_ftime( _TIMEBRIEF, ( GetUserTime( time( ) ) ) );
+        $output        .=        "On ".ml_ftime(_DATEBRIEF, ( GetUserTime(time()) ));
+        $output        .=        " at ". ml_ftime(_TIMEBRIEF, ( GetUserTime(time()) ));
         $output        .=        " the Postnuke code has detected that somebody tried to"
                            ." send information to your site that may have been intended"
                            ." as a hack. Do not panic, it may be harmless: maybe this"
@@ -1397,29 +1417,29 @@ if (phpversion() >= "4.2.0") {
         $output        .=        "Information about this user:\n";
         $output        .=        "=====================================\n";
 
-        if ( !pnUserLoggedIn() ) {
-                $output        .=  "This person is not logged in.\n";
-        } else {
-                $output .=        "Postnuke username:  ".pnUserGetVar('uname') ."\n"
-                                   ."Registered email of this Postnuke user: ". pnUserGetVar('email')."\n"
-                                   ."Registered real name of this Postnuke user: ".pnUserGetVar('name') ."\n";
-        }
+    if (!pnUserLoggedIn()) {
+        $output        .=  "This person is not logged in.\n";
+    } else {
+        $output .=        "Postnuke username:  ".pnUserGetVar('uname') ."\n"
+                           ."Registered email of this Postnuke user: ". pnUserGetVar('email')."\n"
+                           ."Registered real name of this Postnuke user: ".pnUserGetVar('name') ."\n";
+    }
 
         $output        .=        "IP numbers: [note: when you are dealing with a real cracker "
                            ."these IP numbers might not be from the actual computer he is "
                            ."working on]"
-                           ."\n\t IP according to HTTP_CLIENT_IP: ".getenv( 'HTTP_CLIENT_IP' )
-                           ."\n\t IP according to REMOTE_ADDR: ".getenv( 'REMOTE_ADDR' )
-                           ."\n\t IP according to GetHostByName(\$REMOTE_ADDR): ".GetHostByName( $REMOTE_ADDR )
+                           ."\n\t IP according to HTTP_CLIENT_IP: ".getenv('HTTP_CLIENT_IP')
+                           ."\n\t IP according to REMOTE_ADDR: ".getenv('REMOTE_ADDR')
+                           ."\n\t IP according to GetHostByName(\$REMOTE_ADDR): ".GetHostByName($REMOTE_ADDR)
                            ."\n\n";
 
         $output .=        "\n=====================================\n";
         $output .=        "Information in the \$_REQUEST array\n";
         $output .=        "=====================================\n";
 
-        while ( list ( $key, $value ) = each ( $_rv ) ) {
-                $output .= "REQUEST * $key : $value\n";
-        }
+    while (list ( $key, $value ) = each($_rv)) {
+        $output .= "REQUEST * $key : $value\n";
+    }
 
         $output .=        "\n=====================================\n";
         $output .=        "Information in the \$_GET array\n";
@@ -1427,18 +1447,18 @@ if (phpversion() >= "4.2.0") {
         $output .=        "in the URL string or in a 'GET' type form.\n";
         $output        .=        "=====================================\n";
 
-        while ( list ( $key, $value ) = each ( $_gv ) ) {
-                $output .= "GET * $key : $value\n";
-        }
+    while (list ( $key, $value ) = each($_gv)) {
+        $output .= "GET * $key : $value\n";
+    }
 
         $output        .=        "\n=====================================\n";
         $output        .=        "Information in the \$_POST array\n";
         $output        .=        "This is about visible and invisible form elements.\n";
         $output        .=        "=====================================\n";
 
-        while ( list ( $key, $value ) = each ( $_pv ) ) {
-                $output .= "POST * $key : $value\n";
-        }
+    while (list ( $key, $value ) = each($_pv)) {
+        $output .= "POST * $key : $value\n";
+    }
 
         $output        .=        "\n=====================================\n";
         $output        .=         "Browser information\n";
@@ -1448,41 +1468,41 @@ if (phpversion() >= "4.2.0") {
         $output        .=        "HTTP_USER_AGENT: ".$HTTP_USER_AGENT ."\n";
 
         $browser = (array) get_browser();
-        while ( list ( $key, $value ) = each ( $browser ) ) {
-                $output .= "BROWSER * $key : $value\n";
-        }
+    while (list ( $key, $value ) = each($browser)) {
+        $output .= "BROWSER * $key : $value\n";
+    }
 
         $output        .=        "\n=====================================\n";
         $output        .=        "Information in the \$_SERVER array\n";
         $output        .=        "=====================================\n";
 
-        while ( list ( $key, $value ) = each ( $_sv ) ) {
-                $output .= "SERVER * $key : $value\n";
-        }
+    while (list ( $key, $value ) = each($_sv)) {
+        $output .= "SERVER * $key : $value\n";
+    }
 
         $output        .=        "\n=====================================\n";
         $output        .=        "Information in the \$_ENV array\n";
         $output        .=        "=====================================\n";
 
-        while ( list ( $key, $value ) = each ( $_ev ) ) {
-                $output .= "ENV * $key : $value\n";
-        }
+    while (list ( $key, $value ) = each($_ev)) {
+        $output .= "ENV * $key : $value\n";
+    }
 
         $output        .=        "\n=====================================\n";
         $output        .=  "Information in the \$_COOKIE array\n";
         $output        .=        "=====================================\n";
 
-        while ( list ( $key, $value ) = each ( $_cv ) )  {
-                $output .= "COOKIE * $key : $value\n";
-        }
+    while (list ( $key, $value ) = each($_cv)) {
+        $output .= "COOKIE * $key : $value\n";
+    }
 
         $output        .=        "\n=====================================\n";
         $output        .=        "Information in the \$_FILES array\n";
         $output        .=        "=====================================\n";
 
-        while ( list ( $key, $value ) = each ( $_fv ) ) {
-                $output .= "FILES * $key : $value\n";
-        }
+    while (list ( $key, $value ) = each($_fv)) {
+        $output .= "FILES * $key : $value\n";
+    }
 
         $output        .=        "\n=====================================\n";
         $output        .=        "Information in the \$_SESSION array\n";
@@ -1490,19 +1510,17 @@ if (phpversion() >= "4.2.0") {
         $output .=  "  starting with PNSV are PostNukeSessionVariables.\n";
         $output        .=        "=====================================\n";
 
-        while ( list ( $key, $value ) = each ( $_snv ) ) {
-                $output .= "SESSION * $key : $value\n";
-        }
+    while (list ( $key, $value ) = each($_snv)) {
+        $output .= "SESSION * $key : $value\n";
+    }
 
-		$sitename = pnConfigGetVar('sitename');
-		$adminmail = pnConfigGetVar('adminmail');
+        $sitename = pnConfigGetVar('sitename');
+        $adminmail = pnConfigGetVar('adminmail');
 
         $headers = "From: $sitename <$adminmail>\n"
                           ."X-Priority: 1 (Highest)\n";
 
-        pnMail($adminmail, 'Attempted hack on your site? (type: '.$hack_type.')', $output, $headers );
+        pnMail($adminmail, 'Attempted hack on your site? (type: '.$hack_type.')', $output, $headers);
 
         return;
 }
-
-?>

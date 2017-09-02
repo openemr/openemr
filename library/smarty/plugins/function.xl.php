@@ -26,15 +26,14 @@
 
 function smarty_function_xl($params, &$smarty)
 {
-	if (empty($params['t'])) {
-		$smarty->trigger_error("xk: missing 't' parameter");
-        	return;
-	} else {
-        	$translate = $params['t'];
-	}
+    if (empty($params['t'])) {
+        $smarty->trigger_error("xk: missing 't' parameter");
+            return;
+    } else {
+            $translate = $params['t'];
+    }
 
-	xl($translate,'e');
+    xl($translate, 'e');
 }
 
 /* vim: set expandtab: */
-?>

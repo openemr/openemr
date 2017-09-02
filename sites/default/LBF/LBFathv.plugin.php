@@ -13,10 +13,11 @@
 // section of the page.  This in turn defines desired javaScript
 // functions.
 //
-function LBFathv_javascript() {
-  global $formid;
+function LBFathv_javascript()
+{
+    global $formid;
 
-  echo "// Compute Body Mass Index.
+    echo "// Compute Body Mass Index.
 function athvComputeBMI() {
  var f = document.forms[0];
  var bmi = 0;
@@ -30,10 +31,10 @@ function athvComputeBMI() {
   bmi = weight / height / height * 703;
   bmi = bmi.toFixed(1);
   if      (bmi > 42  ) stat = '" . xl('Obesity III') . "';
-  else if (bmi > 34  ) stat = '" . xl('Obesity II' ) . "';
-  else if (bmi > 30  ) stat = '" . xl('Obesity I'  ) . "';
-  else if (bmi > 27  ) stat = '" . xl('Overweight' ) . "';
-  else if (bmi > 18.5) stat = '" . xl('Normal'     ) . "';
+  else if (bmi > 34  ) stat = '" . xl('Obesity II') . "';
+  else if (bmi > 30  ) stat = '" . xl('Obesity I') . "';
+  else if (bmi > 27  ) stat = '" . xl('Overweight') . "';
+  else if (bmi > 18.5) stat = '" . xl('Normal') . "';
   else                 stat = '" . xl('Underweight') . "';
  }
  if (f.form_bmi) f.form_bmi.value = bmi;
@@ -41,7 +42,7 @@ function athvComputeBMI() {
 }
 ";
 
-  echo "// Height in cm has changed.
+    echo "// Height in cm has changed.
 function athv_height_cm_changed() {
  var f = document.forms[0];
  var cm = f.form_height_cm.value;
@@ -56,7 +57,7 @@ function athv_height_cm_changed() {
 }
 ";
 
-  echo "// Height in inches has changed.
+    echo "// Height in inches has changed.
 function athv_height_in_changed() {
  var f = document.forms[0];
  var inch = f.form_height_in.value;
@@ -71,7 +72,7 @@ function athv_height_in_changed() {
 }
 ";
 
-  echo "// Weight in kg has changed.
+    echo "// Weight in kg has changed.
 function athv_weight_kg_changed() {
  var f = document.forms[0];
  var kg = f.form_weight_kg.value;
@@ -86,7 +87,7 @@ function athv_weight_kg_changed() {
 }
 ";
 
-  echo "// Weight in lbs has changed.
+    echo "// Weight in lbs has changed.
 function athv_weight_lbs_changed() {
  var f = document.forms[0];
  var lbs = f.form_weight_lbs.value;
@@ -101,7 +102,7 @@ function athv_weight_lbs_changed() {
 }
 ";
 
-  echo "// Temperature in centigrade has changed.
+    echo "// Temperature in centigrade has changed.
 function athv_temperature_c_changed() {
  var f = document.forms[0];
  var tc = f.form_temperature_c.value;
@@ -115,7 +116,7 @@ function athv_temperature_c_changed() {
 }
 ";
 
-  echo "// Temperature in farenheit has changed.
+    echo "// Temperature in farenheit has changed.
 function athv_temperature_f_changed() {
  var f = document.forms[0];
  var tf = f.form_temperature_f.value;
@@ -128,15 +129,15 @@ function athv_temperature_f_changed() {
  }
 }
 ";
-
 }
 
 // The purpose of this function is to create JavaScript that is run
 // once when the page is loaded.
 //
-function LBFathv_javascript_onload() {
+function LBFathv_javascript_onload()
+{
 
-  echo "
+    echo "
 var f = document.forms[0];
 if (f.form_weight_lbs && f.form_weight_kg) {
  // Set onchange handlers to convert kg to lbs and vice versa.
@@ -161,7 +162,4 @@ if (f.form_bmi_status) {
  f.form_bmi_status.readOnly = true;
 }
 ";
-
 }
-?>
-

@@ -23,63 +23,60 @@
  * @link    http://www.open-emr.org
  */
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 require_once(dirname(__FILE__) . "/../parse_patient_xml.php");
 
-if($_REQUEST["ccr_ajax"] == "yes"){
-  $doc_id = $_REQUEST["document_id"];
-  $d = new Document($doc_id);
-  $url =  $d->get_url();
-  $storagemethod = $d->get_storagemethod();
-  $couch_docid = $d->get_couch_docid();
-  $couch_revid = $d->get_couch_revid();
-  if($storagemethod == 1){
-    $couch = new CouchDB();
-    $data = array($GLOBALS['couchdb_dbase'],$couch_docid);
-    $resp = $couch->retrieve_doc($data);
-    $content = $resp->data;
-    if($content=='' && $GLOBALS['couchdb_log']==1){
-      $log_content = date('Y-m-d H:i:s')." ==> Retrieving document\r\n";
-      $log_content = date('Y-m-d H:i:s')." ==> URL: ".$url."\r\n";
-      $log_content .= date('Y-m-d H:i:s')." ==> CouchDB Document Id: ".$couch_docid."\r\n";
-      $log_content .= date('Y-m-d H:i:s')." ==> CouchDB Revision Id: ".$couch_revid."\r\n";
-      $log_content .= date('Y-m-d H:i:s')." ==> Failed to fetch document content from CouchDB.\r\n";
-      $log_content .= date('Y-m-d H:i:s')." ==> Will try to download file from HardDisk if exists.\r\n\r\n";
-      $this->document_upload_download_log($d->get_foreign_id(),$log_content);
-      die(xlt("File retrieval from CouchDB failed"));
+if ($_REQUEST["ccr_ajax"] == "yes") {
+    $doc_id = $_REQUEST["document_id"];
+    $d = new Document($doc_id);
+    $url =  $d->get_url();
+    $storagemethod = $d->get_storagemethod();
+    $couch_docid = $d->get_couch_docid();
+    $couch_revid = $d->get_couch_revid();
+    if ($storagemethod == 1) {
+        $couch = new CouchDB();
+        $data = array($GLOBALS['couchdb_dbase'],$couch_docid);
+        $resp = $couch->retrieve_doc($data);
+        $content = $resp->data;
+        if ($content=='' && $GLOBALS['couchdb_log']==1) {
+            $log_content = date('Y-m-d H:i:s')." ==> Retrieving document\r\n";
+            $log_content = date('Y-m-d H:i:s')." ==> URL: ".$url."\r\n";
+            $log_content .= date('Y-m-d H:i:s')." ==> CouchDB Document Id: ".$couch_docid."\r\n";
+            $log_content .= date('Y-m-d H:i:s')." ==> CouchDB Revision Id: ".$couch_revid."\r\n";
+            $log_content .= date('Y-m-d H:i:s')." ==> Failed to fetch document content from CouchDB.\r\n";
+            $log_content .= date('Y-m-d H:i:s')." ==> Will try to download file from HardDisk if exists.\r\n\r\n";
+            $this->document_upload_download_log($d->get_foreign_id(), $log_content);
+            die(xlt("File retrieval from CouchDB failed"));
+        }
+
+        $content = base64_decode($content);
+    } else {
+        $url = preg_replace("|^(.*)://|", "", $url);
+        $from_all = explode("/", $url);
+        $from_filename = array_pop($from_all);
+        $from_pathname_array = array();
+        for ($i=0; $i<$d->get_path_depth(); $i++) {
+            $from_pathname_array[] = array_pop($from_all);
+        }
+
+        $from_pathname_array = array_reverse($from_pathname_array);
+        $from_pathname = implode("/", $from_pathname_array);
+        $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
+        if (!file_exists($temp_url)) {
+            echo xlt('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it') . '.' . $temp_url;
+        } else {
+            $content = file_get_contents($temp_url);
+        }
     }
-    $content = base64_decode($content);
-  }else{
-    $url = preg_replace("|^(.*)://|","",$url);
-    $from_all = explode("/",$url);
-    $from_filename = array_pop($from_all);
-    $from_pathname_array = array();
-    for ($i=0;$i<$d->get_path_depth();$i++) {
-      $from_pathname_array[] = array_pop($from_all);
-    }
-    $from_pathname_array = array_reverse($from_pathname_array);
-    $from_pathname = implode("/",$from_pathname_array);
-    $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
-    if (!file_exists($temp_url)) {
-      echo xlt('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it') . '.' . $temp_url;
-    }else{
-      $content = file_get_contents($temp_url);
-    }
-  }
+
   //fields to which the corresponding elements are to be inserted
   //format - level 1 key is the main tag in the XML eg:- //Problems or //Problems/Problem according to the content in the XML.
   //level 2 key is 'table name:field name' and level 2 value is the sub tag under the main tag given in level 1 key
   //eg:- 'Type/Text' if the XML format is '//Problems/Problem/Type/Text' or 'id/@extension' if it is an attribute
   //level 2 key can be 'table name:#some value' for checking whether a particular tag exits in the XML section
-  $field_mapping = array(
+    $field_mapping = array(
     '//Problems/Problem' => array(
       'lists1:diagnosis' => 'Description/Code/Value',
       'lists1:comments' => 'CommentID',
@@ -128,74 +125,81 @@ if($_REQUEST["ccr_ajax"] == "yes"){
       'patient_data:postal_code' => 'Address/PostalCode',
       'patient_data:phone_contact' => 'Telephone/Value',
     ),
-  );
-  if(!empty($content)){
-    $var = array();
-    $res = parseXmlStream($content,$field_mapping);
-    $var = array(
-      'approval_status' => 1,
-      'type' => 11,
-      'ip_address' => $_SERVER['REMOTE_ADDR'],
     );
-    foreach($res as $sections=>$details){
-      foreach($details as $cnt=>$vals){
-        foreach($vals as $key=>$val){
-          if(array_key_exists('#Type',$res[$sections][$cnt])){
-            if($key == 'postal_code'){
-              $var['field_name_value_array']['misc_address_book'][$cnt]['zip'] = $val;
-            }elseif($key == 'phone_contact'){
-              $var['field_name_value_array']['misc_address_book'][$cnt]['phone'] = $val;
-            }elseif($key == 'abname'){
-              $values = explode(' ',$val);
-              if($values[0]){
-                $var['field_name_value_array']['misc_address_book'][$cnt]['lname'] = $values[0];
-              }
-              if($values[1]){
-                $var['field_name_value_array']['misc_address_book'][$cnt]['fname'] = $values[1];
-              }
-            }else{
-              $var['field_name_value_array']['misc_address_book'][$cnt][$key] = $val;
+    if (!empty($content)) {
+        $var = array();
+        $res = parseXmlStream($content, $field_mapping);
+        $var = array(
+        'approval_status' => 1,
+        'type' => 11,
+        'ip_address' => $_SERVER['REMOTE_ADDR'],
+        );
+        foreach ($res as $sections => $details) {
+            foreach ($details as $cnt => $vals) {
+                foreach ($vals as $key => $val) {
+                    if (array_key_exists('#Type', $res[$sections][$cnt])) {
+                        if ($key == 'postal_code') {
+                            $var['field_name_value_array']['misc_address_book'][$cnt]['zip'] = $val;
+                        } elseif ($key == 'phone_contact') {
+                              $var['field_name_value_array']['misc_address_book'][$cnt]['phone'] = $val;
+                        } elseif ($key == 'abname') {
+                              $values = explode(' ', $val);
+                            if ($values[0]) {
+                                $var['field_name_value_array']['misc_address_book'][$cnt]['lname'] = $values[0];
+                            }
+
+                            if ($values[1]) {
+                                $var['field_name_value_array']['misc_address_book'][$cnt]['fname'] = $values[1];
+                            }
+                        } else {
+                              $var['field_name_value_array']['misc_address_book'][$cnt][$key] = $val;
+                        }
+
+                        $var['entry_identification_array']['misc_address_book'][$cnt] = $cnt;
+                    } else {
+                        if ($sections == 'lists1' && $key == 'activity') {
+                            if ($val == 'Active') {
+                                $val = 1;
+                            } else {
+                                $val = 0;
+                            }
+                        }
+
+                        if ($sections == 'lists2' && $key == 'type') {
+                            if (strpos($val, "-")) {
+                                $vals = explode("-", $val);
+                                $val = $vals[0];
+                            } else {
+                                $val = "";
+                            }
+                        }
+
+                        if ($sections == 'prescriptions' && $key == 'active') {
+                            if ($val == 'Active') {
+                                $val = 1;
+                            } else {
+                                $val = 0;
+                            }
+                        }
+
+                            $var['field_name_value_array'][$sections][$cnt][$key] = $val;
+                            $var['entry_identification_array'][$sections][$cnt] = $cnt;
+                    }
+                }
+
+                if (array_key_exists('#Type', $var['field_name_value_array']['misc_address_book'][$cnt])) {
+                      unset($var['field_name_value_array']['misc_address_book'][$cnt]['#Type']);
+                }
             }
-            $var['entry_identification_array']['misc_address_book'][$cnt] = $cnt;
-          }else{
-            if($sections == 'lists1' && $key == 'activity'){
-              if($val == 'Active'){
-                $val = 1;
-              }else{
-                $val = 0;
-              }
-            }
-            if($sections == 'lists2' && $key == 'type'){
-              if(strpos($val,"-")){
-                $vals = explode("-",$val);
-                $val = $vals[0];
-              }else{
-                $val = "";
-              }
-            }
-            if($sections == 'prescriptions' && $key == 'active'){
-              if($val == 'Active'){
-                $val = 1;
-              }else{
-                $val = 0;
-              }
-            }
-            $var['field_name_value_array'][$sections][$cnt][$key] = $val;
-            $var['entry_identification_array'][$sections][$cnt] = $cnt;
-          }
         }
-        if(array_key_exists('#Type',$var['field_name_value_array']['misc_address_book'][$cnt])){
-          unset($var['field_name_value_array']['misc_address_book'][$cnt]['#Type']);
-        }
-      }
+
+        $var['field_name_value_array']['documents'][0]['id'] = $doc_id;
+        insert_ccr_into_audit_data($var);
+        $d->update_imported($doc_id);
+        echo xlt('Successfully Imported the details. Please approve the patient from the Pending Approval Screen').'.';
+    } else {
+        exit(xlt('Could not read the file'));
     }
-    $var['field_name_value_array']['documents'][0]['id'] = $doc_id;
-    insert_ccr_into_audit_data($var);
-    $d->update_imported($doc_id);
-    echo xlt('Successfully Imported the details. Please approve the patient from the Pending Approval Screen').'.';
-  }else{
-    exit(xlt('Could not read the file'));
-  }
-  exit;
+
+    exit;
 }
-?>

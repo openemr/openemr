@@ -21,8 +21,8 @@
 // Given a list ID, name of a target form field and a default value, this creates
 // JavaScript that will write Option values into the target selection list.
 
-$fake_register_globals = false;
-$sanitize_all_escapes  = true;
+
+
 
 require_once("../globals.php");
 
@@ -37,8 +37,7 @@ echo "var itemsel = document.forms[0]['$target'];\n";
 echo "var j = 0;\n";
 echo "itemsel.options[j++] = new Option('-- " . xls('Please Select') . " --','',false,false);\n";
 while ($row = sqlFetchArray($res)) {
-  $tmp = addslashes($row['option_id']);
-  $def = $row['option_id'] == $current ? 'true' : 'false';
-  echo "itemsel.options[j++] = new Option('$tmp','$tmp',$def,$def);\n";
+    $tmp = addslashes($row['option_id']);
+    $def = $row['option_id'] == $current ? 'true' : 'false';
+    echo "itemsel.options[j++] = new Option('$tmp','$tmp',$def,$def);\n";
 }
-?>

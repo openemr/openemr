@@ -4,7 +4,7 @@ namespace ESign;
 
 /**
  * Verifiable Interface.
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -32,7 +32,7 @@ interface VerifiableIF
     public function verify();
     
     /**
-     * Get the data in an array 
+     * Get the data in an array
      */
     public function getData();
 }

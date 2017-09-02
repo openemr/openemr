@@ -26,6 +26,7 @@ html {
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
 }
+@import "core.css";
 
 body {
   margin: 0;
@@ -9762,7 +9763,6 @@ div.notab-right {
 
 /* flow board filters*/
 #flow_board_parameters{
-  width: 1041px;
   margin: 25px auto;
   background-color: #ececec;
 }
@@ -9961,4 +9961,28 @@ table.dataTable#therapy_groups_list tbody td{
 #file_type_whitelist .top-list{
     margin: 20px 20px 2px 20px;
 
+}
+
+.sidebar {
+    background-color: #f8f8f8;
+    font-size: 95%;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.sidebar .submenu {
+    padding-left:15px;
+    font-size:90%;
+}
+
+.sidebar ul.mainmenu {
+    padding-bottom: 55px;
+}
+
+.btn-default {
+    color: #444444 !important;
+}
+
+.btn-link {
+    color: #444444 !important;
 }

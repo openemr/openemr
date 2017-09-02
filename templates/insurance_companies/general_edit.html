@@ -1,121 +1,142 @@
+{**
+ * Insurance company edit
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *}
+<form name="insurancecompany" method="post" action="{$FORM_ACTION}" class='form-horizontal' onsubmit="return top.restoreSession()">
+    <!-- it is important that the hidden form_id field be listed first, when it is called it populates any old information attached with the id, this allows for partial edits
+    if it were called last, the settings from the form would be overwritten with the old information-->
+    <input type="hidden" name="form_id" value="{$insurancecompany->id|escape:'html'}">
+    {if $insurancecompany->get_inactive() eq 1 }
+    <div class="form-group">
+        <label for="inactive" class="control-label col-sm-2">{xl t='Reactivate'|escape:'html'}</label>
+        <div class="col-sm-8">
+            <input type="checkbox" id="inactive" name="inactive" class="checkbox" value="0" />
+        </div>
+    </div>
+    {/if}
+    {if $insurancecompany->get_inactive() eq 0 }
+    <div class="form-group">
+        <label for="inactive" class="control-label col-sm-2">{xl t='Deactivate'|escape:'html'}</label>
+        <div class="col-sm-8">
+            <input type="checkbox" id="inactive" name="inactive" class="checkbox" value="1" />
+        </div>
+    </div>
+    {/if}
+    <div class="form-group">
+        <label for="name" class="control-label col-sm-2">{xl t='Name'|escape:'html'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="name" name="name" class="form-control" aria-describedby="nameHelpBox" value="{$insurancecompany->get_name()|escape:'html'}" onKeyDown="PreventIt(event)">
+            <span id="nameHelpBox" class="help-block">({xl t='Required'|escape:'html'})</span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="attn" class="control-label col-sm-2">{xl t='Attn'|escape:'html'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="attn" name="attn" class="form-control" value="{$insurancecompany->get_attn()|escape:'html'}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="address_line1" class="control-label col-sm-2">{xl t='Address'|escape:'html'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="address_line1" name="address_line1" class="form-control" value="{$insurancecompany->address->line1|escape:'html'}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="address_line2" class="control-label col-sm-2">{xl t='Address'|escape:'html'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="address_line2" name="address_line2" class="form-control" value="{$insurancecompany->address->line2|escape:'html'}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="city" class="control-label col-sm-2">{xl t='City'|escape:'html'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="city" name="city" class="form-control" value="{$insurancecompany->address->city|escape:'html'}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="state" class="control-label col-sm-2">{xl t='State'|escape:'html'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="2" id="state" name="state" class="form-control" value="{$insurancecompany->address->state|escape:'html'}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="zip" class="control-label col-sm-2">{xl t='Zip Code'|escape:'html'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="zip" name="zip" class="form-control" value="{$insurancecompany->address->zip|escape:'html'}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="phone" class="control-label col-sm-2">{xl t='Phone'|escape:'html'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="phone" name="phone" class="form-control" value="{$insurancecompany->get_phone()|escape:'html'}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="cms_id" class="control-label col-sm-2">{xl t='CMS ID'|escape:'html'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="cms_id" name="cms_id" class="form-control" value="{$insurancecompany->get_cms_id()|escape:'html'}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    {if $SUPPORT_ENCOUNTER_CLAIMS}
+        <div class="form-group">
+            <label for="alt_cms_id" class="control-label col-sm-2">{xl t='CMS ID For Encounter Claims'}</label>
+            <div class="col-sm-8">
+                <input type="text" id="alt_cms_id" name="alt_cms_id" class="form-control" value="{$insurancecompany->get_alt_cms_id()|escape:'html'}" onKeyDown="PreventIt(event)">
+            </div>
+        </div>
+    {/if}
+    <div class="form-group">
+        <label for="ins_type_code" class="control-label col-sm-2">{xl t='Payer Type'|escape:'html'}</label>
+        <div class="col-sm-8">
+            <select id="ins_type_code" name="ins_type_code" class="form-control">
+                {html_options options=$insurancecompany->ins_type_code_array selected=$insurancecompany->get_ins_type_code()}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="x12_default_partner_id" class="control-label col-sm-2">{xl t='Default X12 Partner'|escape:'html'}</label>
+        <div class="col-sm-8">
+            <select id="x12_default_partner_id" name="x12_default_partner_id" class="form-control">
+                {html_options options=$x12_partners selected=$insurancecompany->get_x12_default_partner_id()}
+            </select>
+        </div>
+    </div>
+    <div class="btn-group col-sm-offset-2">
+        <a href="javascript:submit_insurancecompany();" class="btn btn-default btn-save" onclick="top.restoreSession()">
+            {xl t='Save'|escape:'html'}
+        </a>
+        <a href="controller.php?practice_settings&insurance_company&action=list" class="btn btn-link btn-cancel" onclick="top.restoreSession()">
+            {xl t='Cancel'|escape:'html'}
+        </a>
+    </div>
+    <input type="hidden" name="id" value="{$insurancecompany->id|escape:'html'}" />
+    <input type="hidden" name="process" value="{$PROCESS|escape:'html'}" />
+</form>
+
 {literal}
 <script language="javascript">
-function submit_insurancecompany() {
-    if(document.insurancecompany.name.value.length>0) { 
-        top.restoreSession();
-	    document.insurancecompany.submit();
-		//Z&H Removed redirection
-    } else{
-        document.insurancecompany.name.style.backgroundColor="red";
-        document.insurancecompany.name.focus();
+    function submit_insurancecompany() {
+        if(document.insurancecompany.name.value.length>0) {
+            top.restoreSession();
+            document.insurancecompany.submit();
+            //Z&H Removed redirection
+        } else{
+            document.insurancecompany.name.style.backgroundColor="red";
+            document.insurancecompany.name.focus();
+        }
     }
-}
 
-function jsWaitForDelay(delay) {
-     var startTime = new Date();
-     var endTime = null;
-     do {
-        endTime = new Date();
-     } while ((endTime - startTime) < delay);
-}
+    function jsWaitForDelay(delay) {
+        var startTime = new Date();
+        var endTime = null;
+        do {
+            endTime = new Date();
+        } while ((endTime - startTime) < delay);
+    }
 </script>
 {/literal}
-<form name="insurancecompany" method="post" action="{$FORM_ACTION}">
-<!-- it is important that the hidden form_id field be listed first, when it is called it populates any old information attached with the id, this allows for partial edits
-		if it were called last, the settings from the form would be overwritten with the old information-->
-<input type="hidden" name="form_id" value="{$insurancecompany->id}" />
-<table style="font-size:9pt;" width="500px" CELLSPACING="0" CELLPADDING="3">
-<tr>
-	<td width="220px" VALIGN="MIDDLE" >{xl t='Name'}</td>
-	<td VALIGN="MIDDLE" >
-		<input type="text" size="40" name="name" value="{$insurancecompany->get_name()}" onKeyDown="PreventIt(event)" /> ({xl t='Required'})
-	</td>
-</tr>
-<tr>
-	<td VALIGN="MIDDLE" >{xl t='Attn'}</td>
-	<td VALIGN="MIDDLE" >
-		<input type="text" size="40" name="attn" value="{$insurancecompany->get_attn()}" onKeyDown="PreventIt(event)" />
-	</td>
-</tr>
-
-<tr>
-	<td VALIGN="MIDDLE" >{xl t='Address'}</td>
-	<td VALIGN="MIDDLE" >
-		<input type="text" size="40" name="address_line1" value="{$insurancecompany->address->line1}" onKeyDown="PreventIt(event)" />
-	</td>
-</tr>
-<tr>
-	<td VALIGN="MIDDLE" >{xl t='Address'}</td>
-	<td VALIGN="MIDDLE" >
-		<input type="text" size="40" name="address_line2" value="{$insurancecompany->address->line2}" onKeyDown="PreventIt(event)" />
-	</td>
-</tr>
-<tr>
-	<td VALIGN="MIDDLE" >{xl t='City, State Zip'}</td>
-	<td VALIGN="MIDDLE" >
-		<input type="text" size="25" name="city" value="{$insurancecompany->address->city}" onKeyDown="PreventIt(event)" /> , <input type="text" size="2" maxlength="2" name="state" value="{$insurancecompany->address->state}" onKeyDown="PreventIt(event)" /> <input type="text" size="5" name="zip" value="{$insurancecompany->address->zip}" onKeyDown="PreventIt(event)" />
-	</td>
-</tr>
-<tr>
-	<td VALIGN="MIDDLE" >{xl t='Phone'}</td>
-	<td VALIGN="MIDDLE" >
-		<input TYPE="TEXT" NAME="phone" SIZE="12" VALUE="{$insurancecompany->get_phone()}" onKeyDown="PreventIt(event)" />
-	</td>
-</tr>
-<tr>
-	<td VALIGN="MIDDLE" >{xl t='CMS ID'}</td>
-	<td VALIGN="MIDDLE" >
-		<input type="text" size="15" name="cms_id" value="{$insurancecompany->get_cms_id()}" onKeyDown="PreventIt(event)" />
-{php} if ($GLOBALS['support_encounter_claims']) { {/php}
-    &nbsp;&nbsp;{xl t='For Encounter Claims'}:
-		<input type="text" size="15" name="alt_cms_id" value="{$insurancecompany->get_alt_cms_id()}" onKeyDown="PreventIt(event)" />
-{php} } {/php}
-	</td>
-</tr>
-<tr>
-	<td VALIGN="MIDDLE">{xl t='Payer Type'}</td>
-	<td VALIGN="MIDDLE">
-		{html_options name="ins_type_code" options=$insurancecompany->ins_type_code_array selected=$insurancecompany->get_ins_type_code()}
-	</td>
-</tr>
-<!--
-This is now deprecated use the newer x12 partner code instead
-<tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE">X12 Receiver ID</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE">
-		<input type="text" name="x12_receiver_id" value="{$insurancecompany->get_x12_receiver_id()}" >
-	</td>
-</tr>-->
-<tr>
-	<td VALIGN="MIDDLE">{xl t='Default X12 Partner'}</td>
-	<td VALIGN="MIDDLE">
-		{html_options name="x12_default_partner_id" options=$x12_partners selected=$insurancecompany->get_x12_default_partner_id()}
-	</td>
-</tr>
-{if $insurancecompany->get_inactive() eq 1 }
-<tr>
-     <td VALIGN="MIDDLE" >{xl t='Reactivate'}</td>
-     <td VALIGN="MIDDLE" >
- <input type='checkbox'  name='inactive' value="0"   /> 
-
-    </td>
-</tr>
-{/if}
-{if $insurancecompany->get_inactive() eq 0 }
-<tr>
-     <td VALIGN="MIDDLE" >{xl t='Deactivate'}</td>
-     <td VALIGN="MIDDLE" >
- <input type='checkbox'  name='inactive' value="1"   /> 
-
-    </td>
-</tr>
-{/if}
-<tr height="25"><td colspan=2>&nbsp;</td></tr>
-<tr>
-	<td colspan="2"><a href="javascript:submit_insurancecompany();" class="css_button"><span>{xl t='Save'}</span></a><a href="controller.php?practice_settings&insurance_company&action=list" class="css_button" onclick="top.restoreSession()">
-<span>{xl t='Cancel'}</span></a></td>
-</tr>
-</table>
-<input type="hidden" name="id" value="{$insurancecompany->id}" />
-<input type="hidden" name="process" value="{$PROCESS}" />
-</form>

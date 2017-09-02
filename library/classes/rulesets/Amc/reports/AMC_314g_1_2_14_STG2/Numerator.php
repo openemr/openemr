@@ -28,7 +28,7 @@ class AMC_314g_1_2_14_STG2_Numerator implements AmcFilterIF
         return "AMC_314g_1_2_14_STG2 Numerator";
     }
     
-    public function test( AmcPatient $patient, $beginDate, $endDate )
+    public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // Need to meet following criteria:
         //  -Offsite patient portal is turned on.
@@ -45,12 +45,11 @@ class AMC_314g_1_2_14_STG2_Numerator implements AmcFilterIF
         }
                 
         $portalQry = "SELECT count(*) as cnt FROM `patient_access_offsite` WHERE pid=?";
-        $check = sqlQuery( $portalQry, array($patient->id) );
-        if ($check['cnt'] > 0){
+        $check = sqlQuery($portalQry, array($patient->id));
+        if ($check['cnt'] > 0) {
             return true;
         } else {
             return false;
         }
     }
 }
-?>

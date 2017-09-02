@@ -18,8 +18,8 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 require_once("../../globals.php");
 ?>
 <html>
@@ -41,7 +41,7 @@ require_once("../../globals.php");
 </tr>
 <tr>
 <td>
-<?php if ($GLOBALS['rx_show_drug-drug']){ ?>
+<?php if ($GLOBALS['rx_show_drug-drug']) { ?>
     <a href="<?php echo $GLOBALS['webroot']?>/interface/weno/drug-drug.php"  target='RxRight' class="css_button" onclick="top.restoreSession()">
     <span><?php echo xlt('Drug-Drug');?></span></a>
 <?php } ?>

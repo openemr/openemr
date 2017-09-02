@@ -20,7 +20,7 @@ class CqmResult implements RsResultIF
     public $numerator; // Number of patients that pass target
     public $percentage; // Calculated percentage
 
-    public function __construct( $rowRule, $numeratorLabel, $populationLabel, $totalPatients, $denominator, $denom_exclusion, $numerator, $percentage,$ipp,$denom_exception)
+    public function __construct($rowRule, $numeratorLabel, $populationLabel, $totalPatients, $denominator, $denom_exclusion, $numerator, $percentage, $ipp, $denom_exception)
     {
         $this->rule = $rowRule;
         $this->numeratorLabel = $numeratorLabel;
@@ -33,47 +33,44 @@ class CqmResult implements RsResultIF
         $this->numerator = $numerator;
         $this->percentage = $percentage;
 
-        // If itemization is turned on, then record the itemized_test_id 
+        // If itemization is turned on, then record the itemized_test_id
         if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
             $this->itemized_test_id = array('itemized_test_id' => $GLOBALS['report_itemized_test_id_iterator']);
         }
-
     }
 
     public function format()
     {
-    	$concatenated_label = '';
-	if ( $this->numeratorLabel != "Numerator" ) {
-		if ( $this->populationLabel != "Population Criteria" ) {
-			$concatenated_label = $this->populationLabel . ", " . $this->numeratorLabel;
-		}
-		else {
-			$concatenated_label = $this->numeratorLabel;
-		}
-	}
-	else {
-		if ( $this->populationLabel != "Population Criteria" ) {
-			$concatenated_label = $this->populationLabel;
-		}
-	}
-    	
+        $concatenated_label = '';
+        if ($this->numeratorLabel != "Numerator") {
+            if ($this->populationLabel != "Population Criteria") {
+                $concatenated_label = $this->populationLabel . ", " . $this->numeratorLabel;
+            } else {
+                $concatenated_label = $this->numeratorLabel;
+            }
+        } else {
+            if ($this->populationLabel != "Population Criteria") {
+                $concatenated_label = $this->populationLabel;
+            }
+        }
+        
         $rowFormat = array(
-        	'is_main'=>TRUE, // TO DO: figure out way to do this when multiple groups.
+            'is_main'=>true, // TO DO: figure out way to do this when multiple groups.
             'population_label' => $this->populationLabel,
             'numerator_label' => $this->numeratorLabel,
-        	'concatenated_label' => $concatenated_label,
+            'concatenated_label' => $concatenated_label,
             'total_patients' => $this->totalPatients,
             'excluded' => $this->denom_exclusion,
             'pass_filter' => $this->denominator,
             'pass_target' => $this->numerator,
             'percentage' => $this->percentage,
-        	'initial_population' => $this->ipp,
-        	'exception' => $this->denom_exception);
-            $rowFormat = array_merge( $rowFormat, $this->rule );
+            'initial_population' => $this->ipp,
+            'exception' => $this->denom_exception);
+            $rowFormat = array_merge($rowFormat, $this->rule);
 
-        // If itemization is turned on, then record the itemized_test_id 
+        // If itemization is turned on, then record the itemized_test_id
         if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-            $rowFormat = array_merge( $rowFormat, $this->itemized_test_id );
+            $rowFormat = array_merge($rowFormat, $this->itemized_test_id);
         }
         
         return $rowFormat;

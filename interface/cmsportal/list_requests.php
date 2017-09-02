@@ -1,25 +1,16 @@
 <?php
 /**
-* Fetch and list pending requests from the WordPress portal.
-*
-* Copyright (C) 2014 Rod Roark <rod@sunsetsystems.com>
-*
-* LICENSE: This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by the Free
-* Software Foundation; either version 2 of the License, or (at your option) any
-* later version.
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-* FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License along with
-* this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
-*
-* @package   OpenEMR
-* @author    Rod Roark <rod@sunsetsystems.com>
-*/
+ * Fetch and list pending requests from the WordPress portal.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2014 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-$sanitize_all_escapes = true;
-$fake_register_globals = false;
 
 require_once("../globals.php");
 require_once("$srcdir/log.inc");
@@ -34,13 +25,19 @@ require_once("portal.inc.php");
  * @param  string  $value   List item identifier.
  * @return string  The item's title.
  */
-function getListItem($listid, $value) {
-  $lrow = sqlQuery("SELECT title FROM list_options " .
-    "WHERE list_id = ? AND option_id = ? AND activity = 1",
-    array($listid, $value));
-  $tmp = xl_list_label($lrow['title']);
-  if (empty($tmp)) $tmp = "($report_status)";
-  return $tmp;
+function getListItem($listid, $value)
+{
+    $lrow = sqlQuery(
+        "SELECT title FROM list_options " .
+        "WHERE list_id = ? AND option_id = ? AND activity = 1",
+        array($listid, $value)
+    );
+    $tmp = xl_list_label($lrow['title']);
+    if (empty($tmp)) {
+        $tmp = "($report_status)";
+    }
+
+    return $tmp;
 }
 
 /**
@@ -49,52 +46,71 @@ function getListItem($listid, $value) {
  * @param  string  $s  Input text.
  * @return string  Output text.
  */
-function myCellText($s) {
-  if ($s === '') return '&nbsp;';
-  return text($s);
+function myCellText($s)
+{
+    if ($s === '') {
+        return '&nbsp;';
+    }
+
+    return text($s);
 }
 
 // Get patient name from OpenEMR, or empty if not there.
-function patientNameFromLogin($login) {
-  $ptname = '';
-  if ($login) {
-    $tmp = sqlQuery("SELECT fname, lname, mname, pid " .
-      "FROM patient_data WHERE cmsportal_login = ? ORDER BY id LIMIT 1",
-      array($login));
-    if (!empty($tmp['pid'])) {
-      $ptname = $tmp['lname'];
-      if ($tmp['fname'] || $tmp['mname']) $ptname .= ',';
-      if ($tmp['fname']) $ptname .= ' ' . $tmp['fname'];
-      if ($tmp['mname']) $ptname .= ' ' . $tmp['mname'];
+function patientNameFromLogin($login)
+{
+    $ptname = '';
+    if ($login) {
+        $tmp = sqlQuery(
+            "SELECT fname, lname, mname, pid " .
+            "FROM patient_data WHERE cmsportal_login = ? ORDER BY id LIMIT 1",
+            array($login)
+        );
+        if (!empty($tmp['pid'])) {
+              $ptname = $tmp['lname'];
+            if ($tmp['fname'] || $tmp['mname']) {
+                $ptname .= ',';
+            }
+
+            if ($tmp['fname']) {
+                $ptname .= ' ' . $tmp['fname'];
+            }
+
+            if ($tmp['mname']) {
+                $ptname .= ' ' . $tmp['mname'];
+            }
+        }
     }
-  }
-  return $ptname;
+
+    return $ptname;
 }
 
 // Check authorization.
 $thisauth = acl_check('patients', 'med');
-if (!$thisauth) die(xlt('Not authorized'));
+if (!$thisauth) {
+    die(xlt('Not authorized'));
+}
 
 $errmsg = '';
 
 // If Delete clicked, delete selected posts/messages from the portal.
 if (!empty($_POST['bn_delete'])) {
-  if (is_array($_POST['form_req_cb'])) {
-    foreach ($_POST['form_req_cb'] as $postid) {
-      $result = cms_portal_call(array('action' => 'delpost', 'postid' => $postid));
-      if ($result['errmsg']) {
-        die(text($result['errmsg']));
-      }
+    if (is_array($_POST['form_req_cb'])) {
+        foreach ($_POST['form_req_cb'] as $postid) {
+            $result = cms_portal_call(array('action' => 'delpost', 'postid' => $postid));
+            if ($result['errmsg']) {
+                die(text($result['errmsg']));
+            }
+        }
     }
-  }
-  if (is_array($_POST['form_msg_cb'])) {
-    foreach ($_POST['form_msg_cb'] as $messageid) {
-      $result = cms_portal_call(array('action' => 'delmessage', 'messageid' => $messageid));
-      if ($result['errmsg']) {
-        die(text($result['errmsg']));
-      }
+
+    if (is_array($_POST['form_msg_cb'])) {
+        foreach ($_POST['form_msg_cb'] as $messageid) {
+            $result = cms_portal_call(array('action' => 'delmessage', 'messageid' => $messageid));
+            if ($result['errmsg']) {
+                die(text($result['errmsg']));
+            }
+        }
     }
-  }
 }
 ?>
 <html>
@@ -102,6 +118,8 @@ if (!empty($_POST['bn_delete'])) {
 <?php html_header_show();?>
 
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <title><?php echo xlt('Portal Requests'); ?></title>
 
 <style>
@@ -112,17 +130,12 @@ a, a:visited, a:hover { color:#0000cc; }
 
 </style>
 
-<style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
-
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
-
-var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 function myRestoreSession() {
  // This works whether we are a popup or in the OpenEMR frameset.
@@ -160,7 +173,7 @@ function openRequest(postid, type) {
  // TBD: more types to be handled
 
  {
-  alert('<?php echo xla('Request type not implemented') ?>: ' + type);
+  alert('<?php echo xls('Request type not implemented') ?>: ' + type);
  }
  //
  // To open results in the "other" frame:
@@ -174,6 +187,16 @@ function openMessage(messageid) {
  myRestoreSession();
  document.location.href = 'upload_form.php?messageid=' + messageid;
 }
+
+$(document).ready(function() {
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+});
 
 </script>
 
@@ -199,7 +222,7 @@ $result = cms_portal_call(array(
 ));
 
 if ($result['errmsg']) {
-  echo "<font color='red'>" . text($result['errmsg']) . "</font><br />\n";
+    echo "<font color='red'>" . text($result['errmsg']) . "</font><br />\n";
 }
 ?>
 <center>
@@ -207,23 +230,15 @@ if ($result['errmsg']) {
 <table width='100%'>
  <tr>
   <td class='text' align='center'>
-   <?php echo xlt('From'); ?>:
-   <input type='text' size='8' name='form_from_date' id='form_from_date'
+    <?php echo xlt('From'); ?>:
+   <input type='text' size='8' class='datepicker' name='form_from_date' id='form_from_date'
     value='<?php echo attr($form_from_date); ?>'
-    title='<?php echo xla('yyyy-mm-dd'); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php echo xla('Click here to choose a date'); ?>' />
+    title='<?php echo xla('yyyy-mm-dd'); ?>' />
    &nbsp;
-   <?php echo xlt('To'); ?>:
-   <input type='text' size='8' name='form_to_date' id='form_to_date'
+    <?php echo xlt('To'); ?>:
+   <input type='text' size='8' class='datepicker' name='form_to_date' id='form_to_date'
     value='<?php echo attr($form_to_date); ?>'
-    title='<?php echo xla('yyyy-mm-dd'); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php echo xla('Click here to choose a date'); ?>' />
+    title='<?php echo xla('yyyy-mm-dd'); ?>' />
    &nbsp;
    <input type='submit' name='form_refresh' value=<?php echo xla('Submit'); ?>>
   </td>
@@ -238,11 +253,11 @@ if ($result['errmsg']) {
  </tr>
 
  <tr class='head'>
-  <th><?php echo xlt('Portal ID'   ); ?></td>
-  <th><?php echo xlt('Name in EMR' ); ?></td>
-  <th><?php echo xlt('Date/Time'   ); ?></td>
+  <th><?php echo xlt('Portal ID'); ?></td>
+  <th><?php echo xlt('Name in EMR'); ?></td>
+  <th><?php echo xlt('Date/Time'); ?></td>
   <th><?php echo xlt('Request Type'); ?></td>
-  <th><?php echo xlt('Delete'      ); ?></td>
+  <th><?php echo xlt('Delete'); ?></td>
  </tr>
 
 <?php
@@ -251,38 +266,38 @@ if ($result['errmsg']) {
 $v1 = each($result['list']);
 $v2 = each($result['messages']);
 while ($v1 || $v2) {
-  echo " <tr class='detail' bgcolor='#ddddff'>\n";
-  if (!$v2 || $v1 && $v1[1]['datetime'] < $v2[1]['datetime']) {
-    $postid = $v1[1]['postid'];
-    $ptname = patientNameFromLogin($v1[1]['user']);
-    echo "  <td>" . text($v1[1]['user']) . "</td>\n";
-    echo "  <td>" . text($ptname       ) . "</td>\n";
-    echo "  <td style='cursor:pointer;color:blue;'";
-    echo " onclick=\"openRequest(" .
+    echo " <tr class='detail' bgcolor='#ddddff'>\n";
+    if (!$v2 || $v1 && $v1[1]['datetime'] < $v2[1]['datetime']) {
+        $postid = $v1[1]['postid'];
+        $ptname = patientNameFromLogin($v1[1]['user']);
+        echo "  <td>" . text($v1[1]['user']) . "</td>\n";
+        echo "  <td>" . text($ptname) . "</td>\n";
+        echo "  <td style='cursor:pointer;color:blue;'";
+        echo " onclick=\"openRequest(" .
          "'" . addslashes($postid)      . "'," .
          "'" . addslashes($v1[1]['type']) . "'"  .
          ")\">" . text($v1[1]['datetime']) . "</td>\n";
-    echo "  <td>" . text($v1[1]['type'    ]) . "</td>\n";
-    echo "  <td align='center'><input type='checkbox' name='form_req_cb[" .
+        echo "  <td>" . text($v1[1]['type'    ]) . "</td>\n";
+        echo "  <td align='center'><input type='checkbox' name='form_req_cb[" .
          attr($postid) . "]' value='" . attr($postid) . "' /></td>\n";
-    $v1 = each($result['list']);
-  }
-  else {
-    $messageid = $v2[1]['messageid'];
-    $ptname = patientNameFromLogin($v2[1]['user']);
-    echo "  <td>" . text($v2[1]['user']) . "</td>\n";
-    echo "  <td>" . text($ptname       ) . "</td>\n";
-    echo "  <td style='cursor:pointer;color:blue;'";
-    echo " onclick=\"openMessage(" .
+        $v1 = each($result['list']);
+    } else {
+        $messageid = $v2[1]['messageid'];
+        $ptname = patientNameFromLogin($v2[1]['user']);
+        echo "  <td>" . text($v2[1]['user']) . "</td>\n";
+        echo "  <td>" . text($ptname) . "</td>\n";
+        echo "  <td style='cursor:pointer;color:blue;'";
+        echo " onclick=\"openMessage(" .
          "'" . addslashes($messageid)      . "'" .
          ")\">" . text($v2[1]['datetime']) . "</td>\n";
-    echo "  <td>" . text($v2[1]['user'] == $v2[1]['fromuser'] ?
+        echo "  <td>" . text($v2[1]['user'] == $v2[1]['fromuser'] ?
          xl('Message from patient') : xl('Message to patient')) . "</td>\n";
-    echo "  <td align='center'><input type='checkbox' name='form_msg_cb[" .
-         attr($messageid) . "]' value='" . attr($messageid) . "' /></td>\n";
-    $v2 = each($result['messages']);
-  }
-  echo " </tr>\n";
+        echo "  <td align='center'><input type='checkbox' name='form_msg_cb[" .
+           attr($messageid) . "]' value='" . attr($messageid) . "' /></td>\n";
+        $v2 = each($result['messages']);
+    }
+
+    echo " </tr>\n";
 }
 ?>
 
@@ -295,17 +310,6 @@ while ($v1 || $v2) {
 </p>
 
 </center>
-
-<script language='JavaScript'>
-
-// Initialize calendar widgets for "from" and "to" dates.
-Calendar.setup({inputField:'form_from_date', ifFormat:'%Y-%m-%d',
- button:'img_from_date'});
-Calendar.setup({inputField:'form_to_date', ifFormat:'%Y-%m-%d',
- button:'img_to_date'});
-
-</script>
-
 </form>
 </body>
 </html>

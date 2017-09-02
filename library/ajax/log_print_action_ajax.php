@@ -20,8 +20,8 @@
 
 // AJAX handler for logging a printing action.
 
-$fake_register_globals = false;
-$sanitize_all_escapes  = true;
+
+
 
 require_once("../../interface/globals.php");
 require_once("$srcdir/log.inc");
@@ -32,4 +32,3 @@ $h2t->width = 0;
 $h2t->_convert(false);
 
 newEvent("print", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $h2t->get_text());
-?>

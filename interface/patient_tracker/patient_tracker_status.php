@@ -26,8 +26,8 @@
  *
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -53,7 +53,7 @@ require_once("$srcdir/patient_tracker.inc.php");
                             "LEFT JOIN patient_tracker_element " .
                             "ON patient_tracker.id = patient_tracker_element.pt_tracker_id " .
                             "AND patient_tracker.lastseq = patient_tracker_element.seq " .
-                            "WHERE patient_tracker.id =?",array($_GET['tracker_id']));
+                            "WHERE patient_tracker.id =?", array($_GET['tracker_id']));
 
     $tkpid = $trow['pid'];
     $appttime = $trow['appttime'];
@@ -61,43 +61,41 @@ require_once("$srcdir/patient_tracker.inc.php");
     $pceid = $trow['eid'];
     $theroom = '';
 
-  if ($_POST['statustype'] !='') {
-    $status = $_POST['statustype'];
-    if (strlen($_POST['roomnum']) != 0) {
-       $theroom = $_POST['roomnum'];
+    if ($_POST['statustype'] !='') {
+        $status = $_POST['statustype'];
+        if (strlen($_POST['roomnum']) != 0) {
+             $theroom = $_POST['roomnum'];
+        }
+
+        # Manage tracker status. Also auto create encounter, if applicable.
+        if (!empty($tkpid)) {
+            if ($GLOBALS['auto_create_new_encounters'] && $apptdate == date('Y-m-d') && (is_checkin($status) == '1') && !is_tracker_encounter_exist($apptdate, $appttime, $tkpid, $pceid)) {
+                 # Gather information for encounter fields
+                 $genenc = sqlQuery("select pc_catid as category, pc_hometext as reason, pc_aid as provider, pc_facility as facility, pc_billing_location as billing_facility " .
+                           "from openemr_postcalendar_events where pc_eid =? ", array($pceid));
+                 $encounter = todaysEncounterCheck($tkpid, $apptdate, $genenc['reason'], $genenc['facility'], $genenc['billing_facility'], $genenc['provider'], $genenc['category'], false);
+                 # Capture the appt status and room number for patient tracker. This will map the encounter to it also.
+                if (!empty($pceid)) {
+                      manage_tracker_status($apptdate, $appttime, $pceid, $tkpid, $_SESSION["authUser"], $status, $theroom, $encounter);
+                }
+            } else {
+                # Capture the appt status and room number for patient tracker.
+                if (!empty($pceid)) {
+                    manage_tracker_status($apptdate, $appttime, $pceid, $tkpid, $_SESSION["authUser"], $status, $theroom);
+                }
+            }
+        }
+
+         echo "<html>\n<body>\n<script language='JavaScript'>\n";
+         echo " window.opener.document.pattrk.submit();\n";
+         echo " window.close();\n";
+         echo "</script></body></html>\n";
+         exit();
     }
 
-    # Manage tracker status. Also auto create encounter, if applicable.
-    if (!empty($tkpid)) {
-     if ($GLOBALS['auto_create_new_encounters'] && $apptdate == date('Y-m-d') && (is_checkin($status) == '1') && !is_tracker_encounter_exist($apptdate,$appttime,$tkpid,$pceid))
-	 {
-        # Gather information for encounter fields
-        $genenc = sqlQuery("select pc_catid as category, pc_hometext as reason, pc_aid as provider, pc_facility as facility, pc_billing_location as billing_facility " .
-                           "from openemr_postcalendar_events where pc_eid =? " , array($pceid));
-        $encounter = todaysEncounterCheck($tkpid, $apptdate, $genenc['reason'], $genenc['facility'], $genenc['billing_facility'], $genenc['provider'], $genenc['category'],false);
-        # Capture the appt status and room number for patient tracker. This will map the encounter to it also.
-        if (!empty($pceid)) {
-        manage_tracker_status($apptdate,$appttime,$pceid,$tkpid,$_SESSION["authUser"],$status,$theroom,$encounter);
-	 }
-      }
-      else
-      {
-        # Capture the appt status and room number for patient tracker.
-        if (!empty($pceid)) {
-          manage_tracker_status($apptdate,$appttime,$pceid,$tkpid,$_SESSION["authUser"],$status,$theroom);
-        }
-      }
-     }
-
-     echo "<html>\n<body>\n<script language='JavaScript'>\n";
-     echo " window.opener.document.pattrk.submit();\n";
-     echo " window.close();\n";
-     echo "</script></body></html>\n";
-     exit();
-  }
      #get the patient name for display
      $row = sqlQuery("select fname, lname " .
-     "from patient_data where pid =? limit 1" , array($tkpid));
+     "from patient_data where pid =? limit 1", array($tkpid));
 
 ?>
  </head>
@@ -110,13 +108,13 @@ require_once("$srcdir/patient_tracker.inc.php");
     <span class=text><?php  echo xlt('Status Type'); ?>: </span><br>
 <?php
     # Generate drop down list for status.
-	echo generate_select_list('statustype', 'apptstat',$trow['laststatus'], xl('Status Type'));
+    echo generate_select_list('statustype', 'apptstat', $trow['laststatus'], xl('Status Type'));
 ?>
-	<br><br>
-	<span class=text><?php  echo xlt('Exam Room Number'); ?>: </span><br>
+    <br><br>
+    <span class=text><?php  echo xlt('Exam Room Number'); ?>: </span><br>
 <?php
     # Generate drop down list for room number.
-	echo generate_select_list('roomnum', 'patient_flow_board_rooms',$trow['lastroom'], xl('Exam Room Number'));
+    echo generate_select_list('roomnum', 'patient_flow_board_rooms', $trow['lastroom'], xl('Exam Room Number'));
 ?>
 <br><br>
     <tr>

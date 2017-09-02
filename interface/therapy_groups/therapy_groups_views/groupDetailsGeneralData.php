@@ -24,7 +24,16 @@
  * @link    http://www.open-emr.org
  */
 ?>
+
+
+<?php $edit = acl_check("groups", "gadd", false, 'write');?>
+<?php $edit_encounter = acl_check("groups", "glog", false, 'write');?>
+<?php $view = acl_check("groups", "gadd", false, 'view');?>
+
+
 <?php require 'header.php'; ?>
+<?php if ($view || $edit) :?>
+
 <main id="group-details">
     <div class="container-group">
         <span class="hidden title"><?php echo text($groupData['group_name']);?></span>
@@ -38,14 +47,17 @@
                         </ul>
                     </div>
                     <div class="col-md-4 col-sm-4">
-                        <button onclick="newGroup()"><?php echo xlt('Add encounter'); ?></button>
-
-                        <?php if($readonly == ''): ?>
+                        <?php if ($edit) :?>
+                            <?php if ($edit_encounter) :?>
+                                <button onclick="newGroup()"><?php echo xlt('Add encounter'); ?></button>
+                            <?php endif;?>
+                        <?php if ($readonly == '') : ?>
                             <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr($groupData['group_id']); ?>'"><?php echo xlt('Cancel');?></button>
                             <button  id="saveUpdates" class="float-right"><?php echo xlt('Save');?></button>
-                        <?php else: ?>
+                        <?php else : ?>
                             <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&editGroup=1&group_id=' . attr($groupData['group_id']); ?>'"><?php echo xlt('Update');?></button>
                         <?php endif; ?>
+                        <?php endif;?>
                     </div>
                 </div>
                 <div class="row">
@@ -75,7 +87,7 @@
                                             </div>
                                             <div class="col-md-6 col-sm-6">
                                                 <select name="group_status" class="full-width"  value="<?php echo attr($groupData['group_status']);?>" <?php echo $readonly; ?>>
-                                                    <?php foreach($statuses as $key => $status): ?>
+                                                    <?php foreach ($statuses as $key => $status) : ?>
                                                         <option value="<?php echo attr($key);?>" <?php echo $key == $groupData['group_status'] ? 'selected' : ''; ?>><?php echo xlt($status); ?></option>
                                                     <?php endforeach; ?>
                                                 </select>
@@ -113,7 +125,7 @@
                                                 <span class="bold"><?php echo xlt('Starting date'); ?>:</span>
                                             </div>
                                             <div class="col-md-offset1 col-md-6 col-sm-6">
-                                                <input type="text" name="group_start_date" class="full-width datepicker"  value="<?php echo attr($groupData['group_start_date']);?>" <?php echo $readonly; ?>>
+                                                <input type="text" name="group_start_date" class="full-width datepicker"  value="<?php echo attr(oeFormatShortDate($groupData['group_start_date']));?>" <?php echo $readonly; ?>>
                                             </div>
                                         </div>
                                     </div>
@@ -123,7 +135,7 @@
                                                 <span class="bold"><?php echo xlt('Ending date'); ?>:</span>
                                             </div>
                                             <div class="col-md-6 col-sm-6">
-                                                <input type="text" name="group_end_date" class="full-width datepicker"  value="<?php echo $groupData['group_end_date'] == '0000-00-00' ? '' : attr($groupData['group_end_date']) ;?>" <?php echo $readonly; ?>>
+                                                <input type="text" name="group_end_date" class="full-width datepicker"  value="<?php echo $groupData['group_end_date'] == '0000-00-00' ? '' : attr(oeFormatShortDate($groupData['group_end_date'])) ;?>" <?php echo $readonly; ?>>
                                             </div>
                                         </div>
                                     </div>
@@ -136,7 +148,7 @@
                                             </div>
                                             <div class="col-md-8 col-sm-7">
                                                 <select name="counselors[]" multiple class="full-width" <?php echo $readonly; ?>>
-                                                    <?php foreach($users as $user): ?>
+                                                    <?php foreach ($users as $user) : ?>
                                                         <option value="<?php echo attr($user['id']);?>" <?php echo !is_null($groupData['counselors']) && in_array($user['id'], $groupData['counselors']) ? 'selected' : '';?>><?php echo text($user['fname'] . ' ' . $user['lname']);?></option>
                                                     <?php endforeach; ?>
                                                 </select>
@@ -168,13 +180,15 @@
                                 </div>
                                 <div class="row group-row">
                                     <div class="col-md-9 col-sm 12">
-                                        <?php if($savingStatus == 'exist'): ?>
-                                            <div id="exist-group"><h4 class="group-error-msg"><?php echo text($message) ?></h4><button id="cancel-save"><?php echo xlt('cancel') ?></button><button type="submit" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button></div>
+                                        <?php if ($savingStatus == 'exist') : ?>
+                                            <div id="exist-group"><h4 class="group-error-msg"><?php echo text($message) ?></h4>   <?php if ($edit) :
+?><button id="cancel-save"><?php echo xlt('cancel') ?></button><button type="submit" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button><?php
+                                                                                              endif;?></div>
                                         <?php endif ?>
-                                        <?php if($savingStatus == 'success'): ?>
+                                        <?php if ($savingStatus == 'success') : ?>
                                             <h4 class="group-success-msg"><?php echo text($message) ?></h4>
                                         <?php endif ?>
-                                        <?php if($savingStatus == 'failed'): ?>
+                                        <?php if ($savingStatus == 'failed') : ?>
                                             <h4 class="group-serror-msg"><?php echo text($message) ?></h4>
                                         <?php endif ?>
                                     </div>
@@ -195,7 +209,7 @@
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
-            <?php $datetimepicker_formatInput = false; ?>
+            <?php $datetimepicker_formatInput = true; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
@@ -241,15 +255,15 @@
     EncounterIdArray=new Array;
     Count=0;
     <?php
-    if(sqlNumRows($result4)>0)
-    while($rowresult4 = sqlFetchArray($result4))
-    {
-    ?>
-    EncounterIdArray[Count]='<?php echo attr($rowresult4['encounter']); ?>';
+    if (sqlNumRows($result4)>0) {
+        while ($rowresult4 = sqlFetchArray($result4)) {
+        ?>
+        EncounterIdArray[Count]='<?php echo attr($rowresult4['encounter']); ?>';
     EncounterDateArray[Count]='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>';
     CalendarCategoryArray[Count]='<?php echo attr(xl_appt_category($rowresult4['pc_catname'])); ?>';
     Count++;
     <?php
+        }
     }
     ?>
     top.window.parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
@@ -258,3 +272,15 @@
 <?php validateUsingPageRules($_SERVER['PHP_SELF'] . '?method=groupDetails');?>
 <?php require 'footer.php'; ?>
 
+<?php else :?>
+
+    <div class="container">
+
+        <div class="row alert alert-info">
+            <h1 class="col-md-12"><i class="col-md-3 glyphicon glyphicon-alert"></i><span class="col-md-6"><?php echo xlt("access not allowed");?></span></h1>
+        </div>
+    </div>
+
+
+
+<?php endif;?>

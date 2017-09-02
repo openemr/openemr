@@ -21,9 +21,6 @@
  */
 
 // removed as jquery is already called in messages page (if you need to use jQuery, uncomment it futher down)
-// not neeeded as messages page handles this
-//       $fake_register_globals=false;
-//       $sanitize_all_escapes=true;
 require_once('../../globals.php');
 require_once("$srcdir/dated_reminder_functions.php");
 
@@ -45,23 +42,24 @@ require_once("$srcdir/dated_reminder_functions.php");
 // HANDEL AJAX TO MARK REMINDERS AS READ
 // Javascript will send a post
 // ----------------------------------------------------------------------------
-    if(isset($_POST['drR'])){
-        // set as processed
-          setReminderAsProcessed($_POST['drR']);
-        // ----- get updated data
-          $reminders = RemindersArray($days_to_show,$today,$alerts_to_show);
-        // ----- echo for ajax to use
-          echo getRemindersHTML($reminders,$today);
-        // stop any other output
-          exit;
-    }
+if (isset($_POST['drR'])) {
+    // set as processed
+    setReminderAsProcessed($_POST['drR']);
+    // ----- get updated data
+    $reminders = RemindersArray($days_to_show, $today, $alerts_to_show);
+    // ----- echo for ajax to use
+    echo getRemindersHTML($reminders, $today);
+    // stop any other output
+    exit;
+}
+
 //-----------------------------------------------------------------------------
 // END HANDEL AJAX TO MARK REMINDERS AS READ
 // ----------------------------------------------------------------------------
 
-      $reminders = RemindersArray($days_to_show,$today,$alerts_to_show);
+      $reminders = RemindersArray($days_to_show, $today, $alerts_to_show);
 
-      ?>
+        ?>
 
       <style type="text/css">
          div.dr{
@@ -90,7 +88,9 @@ require_once("$srcdir/dated_reminder_functions.php");
       </style>
       <script type="text/javascript">
          $(document).ready(function (){
-            <?php if(!$hasAlerts) echo '$(".hideDR").html("<span>'.xla('Show Reminders').'</span>"); $(".drHide").hide();'; ?>
+            <?php if (!$hasAlerts) {
+                echo '$(".hideDR").html("<span>'.xla('Show Reminders').'</span>"); $(".drHide").hide();';
+} ?>
             $(".hideDR").click(function(){
               if($(this).html() == "<span><?php echo xla('Hide Reminders') ?></span>"){
                 $(this).html("<span><?php echo xla('Show Reminders') ?></span>");
@@ -150,10 +150,10 @@ require_once("$srcdir/dated_reminder_functions.php");
 
             function goPid(pid) {
               top.restoreSession();
-              <?php
+                <?php
                   echo "  top.RTop.location = '../../patient_file/summary/demographics.php' " .
                   "+ '?set_pid=' + pid;\n";
-              ?>
+                ?>
 }
       </script>
 
@@ -166,7 +166,7 @@ require_once("$srcdir/dated_reminder_functions.php");
                         .'<p><a onclick="openAddScreen(0)" class="css_button_small" href="#"><span>'.xlt('Send A Dated Reminder').'</span></a></p></div>
                         </td><td class="drHide drTD">';
 
-          $pdHTML .= getRemindersHTML($reminders,$today);
+          $pdHTML .= getRemindersHTML($reminders, $today);
           $pdHTML .= '</td></tr></table></div>';
           // print output
           echo $pdHTML;

@@ -6,18 +6,18 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
-class Controller_detail extends BaseController {
+class Controller_detail extends BaseController
+{
 
-    function _action_view() {
+    function _action_view()
+    {
         $ruleId = _get('id');
-        $rule = $this->getRuleManager()->getRule( $ruleId );
-        if ( is_null( $rule ) ) {
+        $rule = $this->getRuleManager()->getRule($ruleId);
+        if (is_null($rule)) {
             $this->redirect("index.php?action=browse!list");
         } else {
             $this->viewBean->rule = $rule;
-            $this->set_view( "view.php" );
+            $this->set_view("view.php");
         }
     }
-
 }
-?>

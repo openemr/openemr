@@ -25,12 +25,6 @@
 //
 // +------------------------------------------------------------------------------+
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes = $_POST['true'];
-
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals = $_POST['false'];
-
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
@@ -61,32 +55,33 @@ if ($id && $id != 0) {
     } else {
         $newid = 1;
     }
+
     addForm($encounter, "Observation Form", $newid, "observation", $_SESSION["pid"], $userauthorized);
 }
 
 
 $code_desc = array_filter($code_desc);
 if (!empty($code_desc)) {
-    foreach ($code_desc as $key => $codeval):
-      if($code[$key] == 'SS003') {
-        $ob_value[$key] = $ob_value_phin[$key];
-        $ob_unit_value = "";
-      }
-      elseif($code[$key] == '8661-1') {
-        $ob_unit_value = "";
-      }
-      elseif($code[$key] == '21612-7') {
-         if(! empty($ob_unit)) {
-           foreach ($ob_unit as $key1 => $val):
-             if($key1 == 0)
-              $ob_unit_value = $ob_unit[$key1];
-             else {
-               if($key1 == $key)
-                 $ob_unit_value = $ob_unit[$key1];
-             }
-           endforeach;
-         }
-      }
+    foreach ($code_desc as $key => $codeval) :
+        if ($code[$key] == 'SS003') {
+            $ob_value[$key] = $ob_value_phin[$key];
+            $ob_unit_value = "";
+        } elseif ($code[$key] == '8661-1') {
+            $ob_unit_value = "";
+        } elseif ($code[$key] == '21612-7') {
+            if (! empty($ob_unit)) {
+                foreach ($ob_unit as $key1 => $val) :
+                    if ($key1 == 0) {
+                        $ob_unit_value = $ob_unit[$key1];
+                    } else {
+                        if ($key1 == $key) {
+                            $ob_unit_value = $ob_unit[$key1];
+                        }
+                    }
+                endforeach;
+            }
+        }
+
         $sets = "id     = ". add_escape_custom($newid) .",
             pid         = ". add_escape_custom($_SESSION["pid"]) .",
             groupname   = '" . add_escape_custom($_SESSION["authProvider"]) . "',
@@ -105,8 +100,8 @@ if (!empty($code_desc)) {
         sqlInsert("INSERT INTO form_observation SET $sets");
     endforeach;
 }
+
 $_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();
-?>

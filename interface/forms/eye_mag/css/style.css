@@ -419,7 +419,6 @@ background-color: red;
     position:relative; 
     box-shadow: 5px 5px 9px #888888;
     margin: 1px 2px 1px 2px; 
-    position:relative; 
     border: 1.00pt solid #000000; 
     background: #ffffff;
     font-family:  "FontAwesome",Arial,Serif, Arial;
@@ -2041,6 +2040,6 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
     box-shadow: 5px 5px 9px #888888;
 }
 .status_on {
-    background-color: red;
+    background-color: #d3f2d3;
     box-shadow: 0 0 0px 0px #C0C0C0;
 }

@@ -6,149 +6,171 @@
 // as published by the Free Software Foundation; either version 2
 
 
-define("EVENT_VEHICLE",1);
-define("EVENT_WORK_RELATED",2);
-define("EVENT_SLIP_FALL",3);
-define("EVENT_OTHER",4);
+define("EVENT_VEHICLE", 1);
+define("EVENT_WORK_RELATED", 2);
+define("EVENT_SLIP_FALL", 3);
+define("EVENT_OTHER", 4);
 
 
 /**
  * class FormHpTjePrimary
  *
  */
-class FormNursingNotes extends ORDataObject {
+class FormNursingNotes extends ORDataObject
+{
 
-	/**
-	 *
-	 * @access public
-	 */
-
-
-	/**
-	 *
-	 * static
-	 */
-	var $id;
-	var $date;
-	var $pid;
-	var $user;
-	var $groupname;
-	var $activity;
-	var $assessment;
-	var $procedures;
-	var $discharge;
+    /**
+     *
+     * @access public
+     */
 
 
-	/**
-	 * Constructor sets all Form attributes to their default value
-	 */
+    /**
+     *
+     * static
+     */
+    var $id;
+    var $date;
+    var $pid;
+    var $user;
+    var $groupname;
+    var $activity;
+    var $assessment;
+    var $procedures;
+    var $discharge;
 
-	function FormNursingNotes($id= "", $_prefix = "")	{
-		if (is_numeric($id)) {
-			$this->id = $id;
-		}
-		else {
-			$id = "";
-			$this->date = date("Y-m-d H:i:s");
-		}
+    /**
+     * Constructor sets all Form attributes to their default value
+     */
 
-		$this->_table = "form_nursing_notes";
-		$this->activity = 1;
-		$this->pid = $GLOBALS['pid'];
-		if ($id != "") {
-			$this->populate();
-			//$this->date = $this->get_date();
-		}
-	}
-	function populate() {
-		parent::populate();
-		//$this->temp_methods = parent::_load_enum("temp_locations",false);
-	}
+    function __construct($id = "", $_prefix = "")
+    {
+        parent::__construct();
 
-	function toString($html = false) {
-		$string .= "\n"
-			."ID: " . $this->id . "\n";
+        if (is_numeric($id)) {
+            $this->id = $id;
+        } else {
+            $id = "";
+            $this->date = date("Y-m-d H:i:s");
+        }
 
-		if ($html) {
-			return nl2br($string);
-		}
-		else {
-			return $string;
-		}
-	}
-	function set_id($id) {
-		if (!empty($id) && is_numeric($id)) {
-			$this->id = $id;
-		}
-	}
-	function get_id() {
-		return $this->id;
-	}
-	function set_pid($pid) {
-		if (!empty($pid) && is_numeric($pid)) {
-			$this->pid = $pid;
-		}
-	}
-	function get_pid() {
-		return $this->pid;
-	}
+        $this->_table = "form_nursing_notes";
+        $this->activity = 1;
+        $this->pid = $GLOBALS['pid'];
+        if ($id != "") {
+            $this->populate();
+            //$this->date = $this->get_date();
+        }
+    }
+    function populate()
+    {
+        parent::populate();
+        //$this->temp_methods = parent::_load_enum("temp_locations",false);
+    }
 
-	function get_date() {
-		return $this->date;
-	}
-	function set_date($dt) {
-		if (!empty($dt)) {
-			$this->date = $dt;
-		}
-	}
-	function get_user() {
-		return $this->user;
-	}
-	function set_user($u) {
-		if(!empty($u)){
-			$this->user = $u;
-		}
-	}
+    function __toString()
+    {
+        return "ID: " . $this->id . "\n";
+    }
 
-	function set_activity($tf) {
-		if (!empty($tf) && is_numeric($tf)) {
-			$this->activity = $tf;
-		}
-	}
-	function get_activity() {
-		return $this->activity;
-	}
+    function set_id($id)
+    {
+        if (!empty($id) && is_numeric($id)) {
+            $this->id = $id;
+        }
+    }
 
-	function get_assessment() {
-		return $this->assessment;
-	}
-	function set_assessment($data) {
-		if(!empty($data)){
-			$this->assessment = $data;
-		}
-	}
+    function get_id()
+    {
+        return $this->id;
+    }
 
-	function get_procedures() {
-		return $this->procedures;
-	}
-	function set_procedures($data) {
-		if(!empty($data)){
-			$this->procedures = $data;
-		}
-	}
+    function set_pid($pid)
+    {
+        if (!empty($pid) && is_numeric($pid)) {
+            $this->pid = $pid;
+        }
+    }
 
-	function get_discharge() {
-		return $this->discharge;
-	}
-	function set_discharge($data) {
-		if(!empty($data)){
-			$this->discharge = $data;
-		}
-	}
+    function get_pid()
+    {
+        return $this->pid;
+    }
 
-	function persist() {
-		parent::persist();
-	}
-}	// end of Form
+    function get_date()
+    {
+        return $this->date;
+    }
 
-?>
+    function set_date($dt)
+    {
+        if (!empty($dt)) {
+            $this->date = $dt;
+        }
+    }
+
+    function get_user()
+    {
+        return $this->user;
+    }
+
+    function set_user($u)
+    {
+        if (!empty($u)) {
+            $this->user = $u;
+        }
+    }
+
+    function set_activity($tf)
+    {
+        if (!empty($tf) && is_numeric($tf)) {
+            $this->activity = $tf;
+        }
+    }
+
+    function get_activity()
+    {
+        return $this->activity;
+    }
+
+    function get_assessment()
+    {
+        return $this->assessment;
+    }
+
+    function set_assessment($data)
+    {
+        if (!empty($data)) {
+            $this->assessment = $data;
+        }
+    }
+
+    function get_procedures()
+    {
+        return $this->procedures;
+    }
+
+    function set_procedures($data)
+    {
+        if (!empty($data)) {
+            $this->procedures = $data;
+        }
+    }
+
+    function get_discharge()
+    {
+        return $this->discharge;
+    }
+
+    function set_discharge($data)
+    {
+        if (!empty($data)) {
+            $this->discharge = $data;
+        }
+    }
+
+    function persist()
+    {
+        parent::persist();
+    }
+}   // end of Form

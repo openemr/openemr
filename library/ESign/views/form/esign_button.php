@@ -1,7 +1,7 @@
-<?php 
+<?php
 /**
  * ESign button view script for form module
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@
  **/
 ?>
 <a target="<?php echo $this->target; ?>" href="#esign-mask-content"
-	class="esign-button-form css_button_small"
-	data-formdir="<?php echo attr( $this->formDir ); ?>"
-	data-formid="<?php echo attr( $this->formId ); ?>"
-	data-encounterid="<?php echo attr( $this->encounterId ); ?>"><span><?php echo xlt('eSign'); ?></span></a>
+    class="esign-button-form css_button_small"
+    data-formdir="<?php echo attr($this->formDir); ?>"
+    data-formid="<?php echo attr($this->formId); ?>"
+    data-encounterid="<?php echo attr($this->encounterId); ?>"><span><?php echo xlt('eSign'); ?></span></a>

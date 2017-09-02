@@ -13,21 +13,21 @@ include_once("../../globals.php");
 </head>
 <body class="body_top">
 
-<span class="title"><?php xl('Walt Pennington','e'); ?></span><br>
+<span class="title"><?php xl('Walt Pennington', 'e'); ?></span><br>
 
 
 <table border=0 cellpadding=0>
 
 <tr>
-<td><div class="text"><?php xl('Info test 1','e'); ?></div></td>
-<td><div class="text"><?php xl('Info test 2','e'); ?></div></td>
-<td><div class="text"><?php xl('Info test 3','e'); ?></div></td>
+<td><div class="text"><?php xl('Info test 1', 'e'); ?></div></td>
+<td><div class="text"><?php xl('Info test 2', 'e'); ?></div></td>
+<td><div class="text"><?php xl('Info test 3', 'e'); ?></div></td>
 </tr>
 
 <tr>
-<td><div class="text"><?php xl('Info test 4','e'); ?></div></td>
-<td><div class="text"><?php xl('Info test 5','e'); ?></div></td>
-<td><div class="text"><?php xl('Info test 6','e'); ?></div></td>
+<td><div class="text"><?php xl('Info test 4', 'e'); ?></div></td>
+<td><div class="text"><?php xl('Info test 5', 'e'); ?></div></td>
+<td><div class="text"><?php xl('Info test 6', 'e'); ?></div></td>
 </tr>
 
 </table>

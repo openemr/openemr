@@ -19,8 +19,8 @@
  * @author  Rod Roark <rod@sunsetsystems.com>
  */
 
-$sanitize_all_escapes = true;
-$fake_register_globals = false;
+
+
 
 require_once("../globals.php");
 require_once("portal.inc.php");
@@ -33,6 +33,5 @@ $result = cms_portal_call(array(
 ));
 
 if ($result['errmsg']) {
- echo xl('Failed to add patient to portal') . ": " . $result['errmsg'];
+    echo xl('Failed to add patient to portal') . ": " . $result['errmsg'];
 }
-?>

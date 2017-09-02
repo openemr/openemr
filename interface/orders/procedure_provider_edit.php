@@ -19,8 +19,6 @@
 * @author    Rod Roark <rod@sunsetsystems.com>
 */
 
-$sanitize_all_escapes = true;
-$fake_register_globals =false;
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
@@ -31,9 +29,10 @@ $ppid = $_REQUEST['ppid'];
 
 $info_msg = "";
 
-function invalue($name) {
-  $fld = add_escape_custom(trim($_POST[$name]));
-  return "'$fld'";
+function invalue($name)
+{
+    $fld = add_escape_custom(trim($_POST[$name]));
+    return "'$fld'";
 }
 
 ?>
@@ -69,10 +68,10 @@ td { font-size:10pt; }
 // If we are saving, then save and close the window.
 //
 if ($_POST['form_save']) {
-   $org_qry = "SELECT organization FROM users WHERE id = ?";
-   $org_res = sqlQuery($org_qry, array($_POST['form_name']));
-   $org_name = $org_res['organization'];
-   $sets =
+    $org_qry = "SELECT organization FROM users WHERE id = ?";
+    $org_res = sqlQuery($org_qry, array($_POST['form_name']));
+    $org_name = $org_res['organization'];
+    $sets =
     "name = '"  .add_escape_custom($org_name). "', " .
     "lab_director = "         . invalue('form_name')         . ", " .
     "npi = "          . invalue('form_npi')          . ", " .
@@ -89,33 +88,34 @@ if ($_POST['form_save']) {
     "orders_path = "  . invalue('form_orders_path')  . ", " .
     "results_path = " . invalue('form_results_path') . ", " .
     "notes = "        . invalue('form_notes');
-  if ($ppid) {
-    $query = "UPDATE procedure_providers SET $sets " .
-      "WHERE ppid = '"  . add_escape_custom($ppid) . "'";
-    sqlStatement($query);
-  }
-  else {
-    $ppid = sqlInsert("INSERT INTO procedure_providers SET $sets");
-  }
-}
-else if ($_POST['form_delete']) {
-  if ($ppid) {
-    sqlStatement("DELETE FROM procedure_providers WHERE ppid = ?", array($ppid));
-  }
+    if ($ppid) {
+        $query = "UPDATE procedure_providers SET $sets " .
+        "WHERE ppid = '"  . add_escape_custom($ppid) . "'";
+        sqlStatement($query);
+    } else {
+        $ppid = sqlInsert("INSERT INTO procedure_providers SET $sets");
+    }
+} else if ($_POST['form_delete']) {
+    if ($ppid) {
+        sqlStatement("DELETE FROM procedure_providers WHERE ppid = ?", array($ppid));
+    }
 }
 
 if ($_POST['form_save'] || $_POST['form_delete']) {
   // Close this window and redisplay the updated list.
-  echo "<script language='JavaScript'>\n";
-  if ($info_msg) echo " alert('" . addslashes($info_msg) . "');\n";
-  echo " window.close();\n";
-  echo " if (opener.refreshme) opener.refreshme();\n";
-  echo "</script></body></html>\n";
-  exit();
+    echo "<script language='JavaScript'>\n";
+    if ($info_msg) {
+        echo " alert('" . addslashes($info_msg) . "');\n";
+    }
+
+    echo " window.close();\n";
+    echo " if (opener.refreshme) opener.refreshme();\n";
+    echo "</script></body></html>\n";
+    exit();
 }
 
 if ($ppid) {
-  $row = sqlQuery("SELECT * FROM procedure_providers WHERE ppid = ?", array($ppid));
+    $row = sqlQuery("SELECT * FROM procedure_providers WHERE ppid = ?", array($ppid));
 }
 
 $lab_org_query = "SELECT id, organization FROM users WHERE abook_type = 'ord_lab'";
@@ -124,10 +124,11 @@ while ($org_row = sqlFetchArray($org_res)) {
     $lab_org_name = $org_row['organization'];
     $selected = '';
     if ($ppid) {
-        if($row['lab_director'] == $org_row['id']){
+        if ($row['lab_director'] == $org_row['id']) {
             $selected = "SELECTED";
         }
     }
+
     $optionsStr .= "<option value='".attr($org_row['id'])."' $selected>".  text($lab_org_name)."</option>";
 }
 ?>
@@ -140,8 +141,8 @@ while ($org_row = sqlFetchArray($org_res)) {
  <tr>
   <td nowrap><b><?php echo xlt('Name'); ?>:</b></td>
   <td>
-	<select name='form_name' id='form_name' class='inputtext' style='width:150px'>
-          <?php echo $optionsStr; ?>
+    <select name='form_name' id='form_name' class='inputtext' style='width:150px'>
+            <?php echo $optionsStr; ?>
     </select>
   </td>
  </tr>
@@ -157,7 +158,7 @@ while ($org_row = sqlFetchArray($org_res)) {
  <tr>
   <td nowrap><b><?php echo xlt('Sender IDs'); ?>:</b></td>
   <td>
-   <?php echo xlt('Application'); ?>:
+    <?php echo xlt('Application'); ?>:
    <input type='text' size='10' name='form_send_app_id' maxlength='100'
     value='<?php echo attr($row['send_app_id']); ?>'
     title='<?php echo xla('MSH-3.1'); ?>'
@@ -173,7 +174,7 @@ while ($org_row = sqlFetchArray($org_res)) {
  <tr>
   <td nowrap><b><?php echo xlt('Receiver IDs'); ?>:</b></td>
   <td>
-   <?php echo xlt('Application'); ?>:
+    <?php echo xlt('Application'); ?>:
    <input type='text' size='10' name='form_recv_app_id' maxlength='100'
     value='<?php echo attr($row['recv_app_id']); ?>'
     title='<?php echo xla('MSH-5.1'); ?>'
@@ -191,14 +192,16 @@ while ($org_row = sqlFetchArray($org_res)) {
   <td>
    <select name='form_DorP' title='<?php echo xla('MSH-11'); ?>'>
 <?php
-foreach(array(
+foreach (array(
   'D' => xl('Debugging'),
   'P' => xl('Production'),
-  ) as $key => $value)
-{
-  echo "    <option value='" . attr($key) . "'";
-  if ($key == $row['DorP']) echo " selected";
-  echo ">" . text($value) . "</option>\n";
+  ) as $key => $value) {
+    echo "    <option value='" . attr($key) . "'";
+    if ($key == $row['DorP']) {
+        echo " selected";
+    }
+
+    echo ">" . text($value) . "</option>\n";
 }
 ?>
    </select>
@@ -210,30 +213,34 @@ foreach(array(
   <td>
    <select name='form_protocol'>
 <?php
-foreach(array(
+foreach (array(
   // Add to this list as more protocols are supported.
   'DL'   => xl('Download'),
   'SFTP' => xl('SFTP'),
   'FS'   => xl('Local Filesystem'),
-  ) as $key => $value)
-{
-  echo "    <option value='" . attr($key) . "'";
-  if ($key == $row['protocol']) echo " selected";
-  echo ">" . text($value) . "</option>\n";
+  ) as $key => $value) {
+    echo "    <option value='" . attr($key) . "'";
+    if ($key == $row['protocol']) {
+        echo " selected";
+    }
+
+    echo ">" . text($value) . "</option>\n";
 }
 ?>
    </select>
    &nbsp;
    <select name='form_direction'>
 <?php
-foreach(array(
+foreach (array(
   'B' => xl('Bidirectional'),
   'R' => xl('Results Only'),
-  ) as $key => $value)
-{
-  echo "    <option value='" . attr($key) . "'";
-  if ($key == $row['direction']) echo " selected";
-  echo ">" . text($value) . "</option>\n";
+  ) as $key => $value) {
+    echo "    <option value='" . attr($key) . "'";
+    if ($key == $row['direction']) {
+        echo " selected";
+    }
+
+    echo ">" . text($value) . "</option>\n";
 }
 ?>
    </select>

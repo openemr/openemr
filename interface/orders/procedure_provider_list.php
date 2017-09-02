@@ -19,8 +19,9 @@
 * @author    Rod Roark <rod@sunsetsystems.com>
 */
 
-$sanitize_all_escapes = true;
-$fake_register_globals = false;
+
+
+use OpenEMR\Core\Header;
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
@@ -37,18 +38,18 @@ $res = sqlStatement($query);
 <html>
 
 <head>
-
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<?php Header::setupHeader(); ?>
 <title><?php echo xlt('Procedure Providers'); ?></title>
 
 <?php if ($popup) { ?>
 <script type="text/javascript" src="../../library/topdialog.js"></script>
 <?php } ?>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 
-<?php if ($popup) require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php if ($popup) {
+    require($GLOBALS['srcdir'] . "/restoreSession.php");
+} ?>
 
 // Callback from popups to refresh this display.
 function refreshme() {
@@ -73,48 +74,47 @@ function doedclick_edit(ppid) {
 </head>
 
 <body class="body_top">
+<div class="container">
+   <div class="row">
+       <div class="col-xs-12">
+           <form method='post' action='procedure_provider_list.php'>
+               <div class="page-header">
+                   <h1><?php echo xlt('Procedure Providers');?></h1>
+               </div>
+               <div class="btn-group">
+                   <button type="button" name="form_search" class="btn btn-default btn-refresh" onclick="refreshme()"><?php echo xlt('Refresh');?></button>
+                   <button type="button" class="btn btn-default btn-add" onclick="doedclick_add()"><?php echo xlt('Add New');?></button>
+               </div>
 
-<div id="addressbook_list">
-<form method='post' action='procedure_provider_list.php'>
+               <table class="table table-striped table-hover">
+                   <thead>
+                   <tr>
+                       <th title='<?php echo xla('Click to view or edit'); ?>'><?php echo xlt('Name'); ?></th>
+                       <th><?php echo xlt('NPI'); ?></th>
+                       <th><?php echo xlt('Protocol'); ?></th>
+                   </tr>
+                   </thead>
+                   <tbody>
+                    <?php
+                    while ($row = sqlFetchArray($res)) {
+                        if (acl_check('admin', 'practice')) {
+                            $trTitle = xl('Edit') . ' ' . $row['name'];
+                            echo " <tr class='detail' style='cursor:pointer' " .
+                               "onclick='doedclick_edit(" . $row['ppid'] . ")' title='" . attr($trTitle) . "'>\n";
+                        } else {
+                            $trTitle = $displayName . " (" . xl("Not Allowed to Edit") . ")";
+                            echo " <tr class='detail $bgclass' title='" . attr($trTitle) . "'>\n";
+                        }
 
-<table>
- <tr class='search'> <!-- bgcolor='#ddddff' -->
-  <td>
-   <input type='submit' class='button' name='form_search' value='<?php echo xla("Refresh")?>' />
-   <input type='button' class='button' value='<?php echo xla("Add New"); ?>' onclick='doedclick_add()' />
-  </td>
- </tr>
-</table>
-
-<table>
- <tr class='head'>
-  <td title='<?php echo xla('Click to view or edit'); ?>'><?php echo xlt('Name'); ?></td>
-  <td><?php echo xlt('NPI'); ?></td>
-  <td><?php echo xlt('Protocol'); ?></td>
- </tr>
-
-<?php
- $encount = 0;
- while ($row = sqlFetchArray($res)) {
-  ++$encount;
-  $bgclass = (($encount & 1) ? "evenrow" : "oddrow");
-
-  if (acl_check('admin', 'practice' )) {
-   $trTitle = xl('Edit') . ' ' . $row['name'];
-   echo " <tr class='detail $bgclass' style='cursor:pointer' " .
-        "onclick='doedclick_edit(" . $row['ppid'] . ")' title='" . attr($trTitle) . "'>\n";
-  }
-  else {
-   $trTitle = $displayName . " (" . xl("Not Allowed to Edit") . ")";
-   echo " <tr class='detail $bgclass' title='" . attr($trTitle) . "'>\n";
-  }
-  echo "  <td>" . text($row['name']    ) . "</td>\n";
-  echo "  <td>" . text($row['npi']     ) . "</td>\n";
-  echo "  <td>" . text($row['protocol']) . "</td>\n";
-  echo " </tr>\n";
- }
-?>
-</table>
-
+                        echo "  <td>" . text($row['name']) . "</td>\n";
+                        echo "  <td>" . text($row['npi']) . "</td>\n";
+                        echo "  <td>" . text($row['protocol']) . "</td>\n";
+                        echo " </tr>\n";
+                    }
+                    ?>
+                   </tbody>
+               </table>
+       </div>
+   </div>
 </body>
 </html>

@@ -176,13 +176,11 @@ class pnHTML
      |                             Methods: Base                                    |
      *==============================================================================*/
 
+
     /**
-     * Constructor
-     *
-     * @access public
-     * @return boolean Always returns true
+     * pnHTML constructor.
      */
-    function pnHTML()
+    function __construct()
     {
         $this->header = array ();
         $this->output = '';
@@ -219,22 +217,18 @@ class pnHTML
     function SetOutputMode($st)
     {
         $pre = $this->GetOutputMode();
-        switch ($st)
-        {
+        switch ($st) {
             default:
             case _PNH_KEEPOUTPUT:
-            {
                 // The ONLY time this should be accessed directly
                 $this->return = _PNH_KEEPOUTPUT;
                 break;
-            }
             case _PNH_RETURNOUTPUT:
-            {
                 // The ONLY time this should be accessed directly
                 $this->return = _PNH_RETURNOUTPUT;
                 break;
-            }
         }
+
         return $pre;
     }
 
@@ -264,22 +258,18 @@ class pnHTML
     function SetInputMode($st)
     {
         $pre = $this->GetInputMode();
-        switch ($st)
-        {
+        switch ($st) {
             case _PNH_VERBATIMINPUT:
-            {
                 // The ONLY time this should be accessed directly
                 $this->parse = _PNH_VERBATIMINPUT;
                 break;
-            }
             default:
             case _PNH_PARSEINPUT:
-            {
                 // The ONLY time this should be accessed directly
                 $this->parse = _PNH_PARSEINPUT;
                 break;
-            }
         }
+
         return $pre;
     }
 
@@ -325,13 +315,12 @@ class pnHTML
     function PrintPage()
     {
         // Headers set by the system
-        foreach ($this->header as $headerline)
-        {
+        foreach ($this->header as $headerline) {
             header($headerline);
         }
 
         // Other headers
-		// Removed as per patch #264 bvdbos 
+        // Removed as per patch #264 bvdbos
         // header('Content-length: ' . strlen($this->output));
 
         print $this->output;
@@ -353,16 +342,12 @@ class pnHTML
     {
         ob_start();
         include 'header.php';
-//        print '<table width="100%" border="0" cellpadding="0" cellspacing="0">';
-/* Fixes bug 16 Neo submitted by keops 14/09/2002
- */
-		  print '<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td align="left" valign="top">';
+        print '<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td align="left" valign="top">';
 
         $output = ob_get_contents();
         @ob_end_clean();
 
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->output .= $output;
@@ -380,20 +365,19 @@ class pnHTML
     function EndPage()
     {
         global $index;
-        if (pnVarCleanFromInput('module'))
-        {
+        if (pnVarCleanFromInput('module')) {
             $index = 0;
         } else {
             $index = 1;
         }
+
         ob_start();
         print '</td></tr></table>';
         include 'footer.php';
         $output = ob_get_contents();
         @ob_end_clean();
 
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->output .= $output;
@@ -410,13 +394,13 @@ class pnHTML
      * @param string $urltemplate template for url, will replace '%%' with item number
      * @param integer $perpage number of links to display (default=10)
      */
-    function Pager($startnum, $total, $urltemplate, $perpage=10)
+    function Pager($startnum, $total, $urltemplate, $perpage = 10)
     {
         // Quick check to ensure that we have work to do
-        if ($total <= $perpage)
-        {
-            return;
+        if ($total <= $perpage) {
+            return true;
         }
+
         $compoutput = new pnHTML();
 
         if (empty($startnum)) {
@@ -426,6 +410,7 @@ class pnHTML
         if (empty($perpage)) {
             $perpage = 10;
         }
+
         // Make << and >> do paging properly
         // Display subset of pages if large number
 
@@ -441,15 +426,14 @@ class pnHTML
         } else {
             $compoutput->Text('<<');
         }
+
         $compoutput->Text(' ');
 
         // Show following items
         $pagenum = 1;
 
-        for ($curnum = 1; $curnum <= $total; $curnum += $perpage)
-        {
-            if (($startnum < $curnum) || ($startnum > ($curnum + $perpage - 1)))
-            {
+        for ($curnum = 1; $curnum <= $total; $curnum += $perpage) {
+            if (($startnum < $curnum) || ($startnum > ($curnum + $perpage - 1))) {
                 // Not on this page - show link
                 $url = preg_replace('/%%/', $curnum, $urltemplate);
                 $compoutput->URL($url, $pagenum);
@@ -458,8 +442,10 @@ class pnHTML
                 // On this page - show text
                 $compoutput->Text($pagenum.' ');
             }
+
             $pagenum++;
         }
+
         if (($curnum >= $perpage+1) && ($startnum < $curnum-$perpage)) {
             $url = preg_replace('/%%/', $curnum-$perpage, $urltemplate);
             $compoutput->URL($url, '>>');
@@ -467,8 +453,7 @@ class pnHTML
             $compoutput->Text('>>');
         }
 
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             $compoutput->SetOutputMode(_PNH_RETURNOUTPUT);
             return $compoutput->PrintPage();
         } else {
@@ -488,7 +473,7 @@ class pnHTML
      * otherwise null
      * @todo This function is broken, do not use it!
      */
-    function Redirect($url, $waittime=3)
+    function Redirect($url, $waittime = 3)
     {
         global $HTTP_SERVER_VARS;
 
@@ -509,15 +494,13 @@ class pnHTML
         $url = preg_replace('!^/*!', '', $url);
 
         // Make redirect line
-        if (empty ($path))
-        {
+        if (empty($path)) {
             $output = "Location: http://$server/$url";
         } else {
             $output = "Location: http://$server/$path/$url";
         }
 
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->header[] = $output;
@@ -535,7 +518,7 @@ class pnHTML
      *
      * @access public
      */
-    function ConfirmAction($confirm_text, $confirm_url, $cancel_text, $cancel_url, $arg=array ())
+    function ConfirmAction($confirm_text, $confirm_url, $cancel_text, $cancel_url, $arg = array ())
     {
         $compoutput = new pnHTML();
         $compoutput->FormStart($confirm_url);
@@ -550,8 +533,7 @@ class pnHTML
         $compoutput->Linebreak(2);
         $compoutput->URL($cancel_url, $cancel_text);
         $compoutput->FormEnd();
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             $compoutput->SetOutputMode(_PNH_RETURNOUTPUT);
             return $compoutput->PrintPage();
         } else {
@@ -574,13 +556,11 @@ class pnHTML
      */
     function Text($text)
     {
-        if ($this->GetInputMode() == _PNH_PARSEINPUT)
-        {
+        if ($this->GetInputMode() == _PNH_PARSEINPUT) {
             $text = pnVarPrepForDisplay($text);
         }
 
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $text;
         } else {
             $this->output .= $text;
@@ -599,16 +579,15 @@ class pnHTML
     {
         $output = '<center><font class="pn-title">';
 
-        if ($this->GetInputMode() == _PNH_PARSEINPUT)
-        {
+        if ($this->GetInputMode() == _PNH_PARSEINPUT) {
             $output .= pnVarPrepForDisplay($text);
         } else {
             $output .= $text;
         }
+
         $output .= '</font></center><br />';
 
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->output .= $output;
@@ -625,8 +604,7 @@ class pnHTML
      */
     function BoldText($text)
     {
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return '<b>'.pnVarPrepForDisplay($text).'</b>';
         } else {
             $this->output .= '<b>'.pnVarPrepForDisplay($text).'</b>';
@@ -641,15 +619,14 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function Linebreak($numbreaks=1)
+    function Linebreak($numbreaks = 1)
     {
         $out = '';
-        for ($i=0; $i<$numbreaks; $i++)
-        {
+        for ($i=0; $i<$numbreaks; $i++) {
             $out .= '<br />';
         }
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $out;
         } else {
             $this->output .= $out;
@@ -668,24 +645,22 @@ class pnHTML
      */
     function URL($url, $text)
     {
-        if (empty ($url))
-        {
+        if (empty($url)) {
             return;
         }
 
         $output = '<a href="'.$url.'">';
-        if (!empty($text))
-        {
-            if ($this->GetInputMode() == _PNH_PARSEINPUT)
-            {
+        if (!empty($text)) {
+            if ($this->GetInputMode() == _PNH_PARSEINPUT) {
                 $text = pnVarPrepForDisplay($text);
             }
+
             $output .= $text;
         }
+
         $output .= '</a>';
 
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->output .= $output;
@@ -708,47 +683,46 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function TableStart($title='', $headers=array(), $border=0, $width='100%', $cellpadding=0, $cellspacing=0)
+    function TableStart($title = '', $headers = array(), $border = 0, $width = '100%', $cellpadding = 0, $cellspacing = 0)
     {
 
         // Wrap the user table in our own invisible table to make the title sit properly
-        $output = '<table border="'.$border.'"'.((empty ($width)) ? '' : ' width="'.$width.'"').' cellpadding="'.$cellpadding.'" cellspacing="'.$cellspacing."\">\n";
-        if (!empty ($title))
-        {
-            if ($this->GetInputMode() == _PNH_PARSEINPUT)
-            {
+        $output = '<table border="'.$border.'"'.((empty($width)) ? '' : ' width="'.$width.'"').' cellpadding="'.$cellpadding.'" cellspacing="'.$cellspacing."\">\n";
+        if (!empty($title)) {
+            if ($this->GetInputMode() == _PNH_PARSEINPUT) {
                 $title = pnVarPrepForDisplay($title);
             }
+
             $output .= '<tr><th align="center">'. $title .'</th></tr>' . "\n";
         }
+
         $output .= "<tr><td>\n";
 
-        if ($this->GetInputMode() == _PNH_PARSEINPUT)
-        {
+        if ($this->GetInputMode() == _PNH_PARSEINPUT) {
             $border = pnVarPrepForDisplay($border);
         }
+
         $output .= '<table border="' . $border . '" width="100%">';
 
         // Add column headers
-        if (!empty ($headers))
-        {
+        if (!empty($headers)) {
             $output .= '<tr>';
-            foreach ($headers as $head)
-            {
-                if (empty ($head))
-                {
+            foreach ($headers as $head) {
+                if (empty($head)) {
                     $head = '&nbsp;';
                 }
-                if ($this->GetInputMode() == _PNH_PARSEINPUT)
-                {
+
+                if ($this->GetInputMode() == _PNH_PARSEINPUT) {
                     $head = pnVarPrepForDisplay($head);
                 }
+
                 $output .= '<th>' . $head . '</th>';
             }
+
             $output .= '</tr>';
         }
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->output .= $output;
@@ -764,11 +738,10 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function TableRowStart($align='center', $valign='middle')
+    function TableRowStart($align = 'center', $valign = 'middle')
     {
         $output = '<tr align="'.$align.'" valign="'.$valign.'">';
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->output .= $output;
@@ -786,11 +759,10 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function TableColStart($colspan=1, $align='center', $valign='middle', $rowspan=1)
+    function TableColStart($colspan = 1, $align = 'center', $valign = 'middle', $rowspan = 1)
     {
         $output = '<td colspan="'.$colspan.'" rowspan="'.$rowspan.'" align="'.$align.'" valign="'.$valign.'">';
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->output .= $output;
@@ -807,8 +779,7 @@ class pnHTML
     function TableColEnd()
     {
         $output = '</td>';
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->output .= $output;
@@ -825,8 +796,7 @@ class pnHTML
     function TableRowEnd()
     {
         $output = '</tr>';
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->output .= $output;
@@ -843,8 +813,7 @@ class pnHTML
     function TableEnd()
     {
         $output = '</table></td></tr></table>';
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->output .= $output;
@@ -861,51 +830,48 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function TableAddRow($row, $align='center', $valign='middle')
+    function TableAddRow($row, $align = 'center', $valign = 'middle')
     {
-        if (empty ($row))
-        {
+        if (empty($row)) {
             return;
         }
+
         $output = '<tr align="'.$align.'" valign="'.$valign.'">';
         // test to see if we are using the latest array style
-        if (is_array($row[0]))
-        {
+        if (is_array($row[0])) {
             // new style
-            foreach ($row as $rowitem)
-            {
-                if (!isset($rowitem['content']))
-                {
+            foreach ($row as $rowitem) {
+                if (!isset($rowitem['content'])) {
                     $rowitem['content'] = '&nbsp;';
                 }
-                if ($this->GetInputMode())
-                {
+
+                if ($this->GetInputMode()) {
                     $rowitem['content'] = pnVarPrepForDisplay($rowitem['content']);
                 }
+
                 $output .= '<td'
-                    .((empty ($rowitem['align'])) ? '' : ' align="'.$rowitem['align'].'"')
-                    .((empty ($rowitem['valign'])) ? '' : ' valign="'.$rowitem['valign'].'"')
+                    .((empty($rowitem['align'])) ? '' : ' align="'.$rowitem['align'].'"')
+                    .((empty($rowitem['valign'])) ? '' : ' valign="'.$rowitem['valign'].'"')
                     .'>'.$rowitem['content'].'</td>'
                 ;
             }
         } else {
             // old style
-            foreach ($row as $rowitem)
-            {
-                if (!isset($rowitem))
-                {
+            foreach ($row as $rowitem) {
+                if (!isset($rowitem)) {
                     $rowitem = '&nbsp;';
                 }
-                if ($this->GetInputMode() == _PNH_PARSEINPUT)
-                {
+
+                if ($this->GetInputMode() == _PNH_PARSEINPUT) {
                     $rowitem = pnVarPrepForDisplay($rowitem);
                 }
+
                 $output .= '<td>' . $rowitem . '</td>';
             }
         }
+
         $output .= '</tr>';
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->output .= $output;
@@ -929,11 +895,10 @@ class pnHTML
         $output = '<form'
             .' action="'.pnVarPrepForDisplay($action).'"'
             .' method="post"'
-            .' enctype="'.((empty ($this->fileupload)) ? 'application/x-www-form-urlencoded' : 'multipart/form-data').'"'
+            .' enctype="'.((empty($this->fileupload)) ? 'application/x-www-form-urlencoded' : 'multipart/form-data').'"'
             .'>'
         ;
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->output .= $output;
@@ -951,8 +916,7 @@ class pnHTML
     {
         $output = '</form>';
 
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->output .= $output;
@@ -969,19 +933,18 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function FormSubmit($label='Submit', $accesskey='')
+    function FormSubmit($label = 'Submit', $accesskey = '')
     {
         $this->tabindex++;
         $output = '<input'
             .' type="submit"'
             .' value="'.pnVarPrepForDisplay($label).'"'
             .' align="middle"'
-            .((empty ($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
+            .((empty($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
             .' tabindex="'.$this->tabindex.'"'
             .' />'
         ;
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->output .= $output;
@@ -1003,12 +966,12 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function FormText($fieldname, $contents='', $size=16, $maxlength=64, $password=false, $accesskey='')
+    function FormText($fieldname, $contents = '', $size = 16, $maxlength = 64, $password = false, $accesskey = '')
     {
-        if (empty ($fieldname))
-        {
+        if (empty($fieldname)) {
             return;
         }
+
         $this->tabindex++;
         $output = '<input'
             .' type="'.(($password) ? 'password' : 'text').'"'
@@ -1017,12 +980,11 @@ class pnHTML
             .' value="'.pnVarPrepForDisplay($contents).'"'
             .' size="'.pnVarPrepForDisplay($size).'"'
             .' maxlength="'.pnVarPrepForDisplay($maxlength).'"'
-            .((empty ($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
+            .((empty($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
             .' tabindex="'.$this->tabindex.'"'
             .' />'
         ;
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->output .= $output;
@@ -1044,12 +1006,12 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function FormTextArea($fieldname, $contents='', $rows=6, $cols=40, $wrap='soft', $accesskey='')
+    function FormTextArea($fieldname, $contents = '', $rows = 6, $cols = 40, $wrap = 'soft', $accesskey = '')
     {
-        if (empty ($fieldname))
-        {
+        if (empty($fieldname)) {
             return;
         }
+
         $this->tabindex++;
         $output = '<textarea'
             .' name="'.pnVarPrepForDisplay($fieldname).'"'
@@ -1057,14 +1019,13 @@ class pnHTML
             .' wrap="'.(($wrap = 'soft') ? 'soft' : 'hard').'"' // not proper HTML, but too useful to abandon yet
             .' rows="'.pnVarPrepForDisplay($rows).'"'
             .' cols="'.pnVarPrepForDisplay($cols).'"'
-            .((empty ($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
+            .((empty($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
             .' tabindex="'.$this->tabindex.'"'
             .'>'
             .pnVarPrepForDisplay($contents)
             .'</textarea>'
         ;
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->output .= $output;
@@ -1080,17 +1041,15 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function FormHidden($fieldname, $value='')
+    function FormHidden($fieldname, $value = '')
     {
-        if (empty ($fieldname))
-        {
+        if (empty($fieldname)) {
             return;
         }
-        if (is_array($fieldname))
-        {
+
+        if (is_array($fieldname)) {
             $output = '';
-            foreach ($fieldname as $n=>$v)
-            {
+            foreach ($fieldname as $n => $v) {
                 $output .= '<input'
                     .' type="hidden"'
                     .' name="'.pnVarPrepForDisplay($n).'"'
@@ -1108,8 +1067,8 @@ class pnHTML
                 .' />'
             ;
         }
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->output .= $output;
@@ -1138,17 +1097,21 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function FormSelectMultiple($fieldname, $data, $multiple=0, $size=1, $selected = '', $accesskey='', $disable = false, $readonly = false)
+    function FormSelectMultiple($fieldname, $data, $multiple = 0, $size = 1, $selected = '', $accesskey = '', $disable = false, $readonly = false)
     {
-        if (empty ($fieldname))
-        {
+        if (empty($fieldname)) {
             return;
         }
-		$disable_text = "";
-		if ($disable)
-			$disable_text = " disabled ";
-		if ($readonly)
-			$disable_text = " disabled  ";
+
+        $disable_text = "";
+        if ($disable) {
+            $disable_text = " disabled ";
+        }
+
+        if ($readonly) {
+            $disable_text = " disabled  ";
+        }
+
         $this->tabindex++;
 
         // Set up selected if required
@@ -1161,33 +1124,32 @@ class pnHTML
         }
 
         $c = count($data);
-        if ($c < $size)
-        {
+        if ($c < $size) {
             $size = $c;
         }
+
         $output = '<select'
             .' name="'.pnVarPrepForDisplay($fieldname).'"'
             .' id="'.pnVarPrepForDisplay($fieldname).'"'
             .' size="'.pnVarPrepForDisplay($size).'"'
             .(($multiple == 1) ? ' multiple="multiple"' : '')
-            .((empty ($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
+            .((empty($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
             .' tabindex="'.$this->tabindex.'"'
-			.' ' . $disable_text
+            .' ' . $disable_text
             .'>'
         ;
-        foreach ($data as $datum)
-        {
+        foreach ($data as $datum) {
             $output .= '<option'
                 .' value="'.pnVarPrepForDisplay($datum['id']).'"'
-                .((empty ($datum['selected'])) ? '' : ' selected="selected"')
+                .((empty($datum['selected'])) ? '' : ' selected="selected"')
                 .'>'
                 .pnVarPrepForDisplay($datum['name'])
                 .'</option>'
             ;
         }
+
         $output .= '</select>';
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->output .= $output;
@@ -1208,12 +1170,12 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function FormCheckbox($fieldname, $checked=false, $value='1', $type='checkbox', $accesskey='')
+    function FormCheckbox($fieldname, $checked = false, $value = '1', $type = 'checkbox', $accesskey = '')
     {
-        if (empty ($fieldname))
-        {
+        if (empty($fieldname)) {
             return;
         }
+
         $this->tabindex++;
         $output = '<input'
             .' type="'.(($type == 'checkbox') ? 'checkbox' : 'radio').'"'
@@ -1221,12 +1183,11 @@ class pnHTML
             .' id="'.pnVarPrepForDisplay($fieldname).'"'
             .' value="'.pnVarPrepForDisplay($value).'"'
             .(($checked) ? ' checked="checked"' : '')
-            .((empty ($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
+            .((empty($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
             .' tabindex="'.$this->tabindex.'"'
             .' />'
         ;
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->output .= $output;
@@ -1246,12 +1207,12 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function FormFile($fieldname, $size=32, $maxsize=1000000, $accesskey='')
+    function FormFile($fieldname, $size = 32, $maxsize = 1000000, $accesskey = '')
     {
-        if (empty ($fieldname))
-        {
+        if (empty($fieldname)) {
             return;
         }
+
         $this->tabindex++;
         $output = '<input type="hidden" name="MAX_FILE_SIZE" value="'.pnVarPrepForDisplay($maxsize).'" />';
         $output .= '<input'
@@ -1259,16 +1220,14 @@ class pnHTML
             .' name="'.pnVarPrepForDisplay($fieldname).'"'
             .' id="'.pnVarPrepForDisplay($fieldname).'"'
             .' size="'.pnVarPrepForDisplay($size).'"'
-            .((empty ($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
+            .((empty($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
             .' tabindex="'.$this->tabindex.'"'
             .' />'
         ;
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
-        {
+        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
             return $output;
         } else {
             $this->output .= $output;
         }
     }
 }
-?>

@@ -24,4 +24,3 @@ echo $c->default_action_process($_POST);
 
 /* return to the encounter. */
 @formJump();
-?>

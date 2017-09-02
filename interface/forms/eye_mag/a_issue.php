@@ -5,24 +5,17 @@
  *
  * Originally culled from /interface/patient_file/summary and adapted...
  *
- * Copyright (C) 2005-2011 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2015-6 Ray Magauran <magauran@MedFetch.com>
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author Ray Magauran <magauran@MedFetch.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Ray Magauran <magauran@MedFetch.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2005-2011 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2015-2016 Ray Magauran <magauran@MedFetch.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
 $form_folder= "eye_mag";
 require_once('../../globals.php');
 require_once($GLOBALS['srcdir'].'/lists.inc');
@@ -45,35 +38,51 @@ $encounter = 0 + (empty($_REQUEST['encounter']) ? $_SESSION['encounter'] : $_REQ
 $issue = $_REQUEST['issue'];
 $deletion = $_REQUEST['deletion'];
 $form_save = $_REQUEST['form_save'];
-if (!$pid) $pid = $_SESSION['pid'];
+if (!$pid) {
+    $pid = $_SESSION['pid'];
+}
+
 $form_id = $_REQUEST['form_id'];
 $form_type = $_REQUEST['form_type'];
 $uniqueID = $_REQUEST['uniqueID'];
 
-if ($issue && !acl_check('patients','med','','write') ) die(xlt("Edit is not authorized!"));
-if ( !acl_check('patients','med','',array('write','addonly') )) die(xlt("Add is not authorized!"));
+if ($issue && !acl_check('patients', 'med', '', 'write')) {
+    die(xlt("Edit is not authorized!"));
+}
+
+if (!acl_check('patients', 'med', '', array('write','addonly'))) {
+    die(xlt("Add is not authorized!"));
+}
+
 $PMSFH = build_PMSFH($pid);
 $patient = getPatientData($pid, "*");
-$providerID   = findProvider($pid,$encounter);
-if (!$_SESSION['providerID'] && $providerID)  ($_SESSION['providerID'] = $providerID);
+$providerID   = findProvider($pid, $encounter);
+if (!$_SESSION['providerID'] && $providerID) {
+    ($_SESSION['providerID'] = $providerID);
+}
 
 $irow = array();
 if ($issue) {
-  $irow = sqlQuery("SELECT * FROM lists WHERE id = ?",array($issue));
+    $irow = sqlQuery("SELECT * FROM lists WHERE id = ?", array($issue));
 } else if ($thistype) {
-  $irow['type'] = $thistype;
-  $irow['subtype'] = $subtype;
+    $irow['type'] = $thistype;
+    $irow['subtype'] = $subtype;
 }
+
 if (!empty($irow['type'])) {
-  foreach ($ISSUE_TYPES as $key => $value) {
-    if ($key == $irow['type']) break;
-    ++$type_index;
-  }
+    foreach ($ISSUE_TYPES as $key => $value) {
+        if ($key == $irow['type']) {
+            break;
+        }
+
+        ++$type_index;
+    }
 }
+
 $given="ROSGENERAL,ROSHEENT,ROSCV,ROSPULM,ROSGI,ROSGU,ROSDERM,ROSNEURO,ROSPSYCH,ROSMUSCULO,ROSIMMUNO,ROSENDOCRINE";
 $query="SELECT $given from form_eye_mag where id=? and pid=?";
-$rres = sqlQuery($query,array($form_id,$pid));
-foreach (explode(',',$given) as $item) {
+$rres = sqlQuery($query, array($form_id,$pid));
+foreach (explode(',', $given) as $item) {
     $$item = $rres[$item];
 }
 
@@ -83,16 +92,11 @@ foreach (explode(',',$given) as $item) {
     <script language="JavaScript">
                     <?php       require_once("$srcdir/restoreSession.php");  ?>
     </script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/main/tabs/js/include_opener.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style type="text/css">@import url(<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.css);</style>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.js"></script>
-    <?php require_once($GLOBALS['srcdir'].'/dynarch_calendar_en.inc.php'); ?>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar_setup.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
     <script language="JavaScript">
-     var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
      var aitypes = new Array(); // issue type attributes
      var aopts   = new Array(); // Option objects
         <?php
@@ -100,73 +104,75 @@ foreach (explode(',',$given) as $item) {
         // If the provider has more 2 items already defined in the last month, they are collated
         // and ranked by frequency, sort alphabetically and <=10 are listed.
         // If not, we use the defaults from list_options/
-      $i='0';
+        $i='0';
 
-      foreach ($PMSFH[0] as $key => $value) {
-        echo " aopts['" . attr($key) . "'] = [];\n";
-        $local ='1';
-        echo " aitypes['" . attr($key). "'] = '0';\n";
-        if ($key =="PMH") { // "0" = medical_problem_issue_list leave out Dental "4"
-          $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and
+        foreach ($PMSFH[0] as $key => $value) {
+            echo " aopts['" . attr($key) . "'] = [];\n";
+            $local ='1';
+            echo " aitypes['" . attr($key). "'] = '0';\n";
+            if ($key =="PMH") { // "0" = medical_problem_issue_list leave out Dental "4"
+                $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and
             subtype = '' and pid in (select pid from form_encounter where provider_id =?
             and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("medical_problem",$_SESSION['providerID']));
 
-          if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-            $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'",array("medical_problem_issue_list"));
-          }
-        } elseif ($key =="Medication") {
-          $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and
+                if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
+                      $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", array("medical_problem_issue_list"));
+                }
+            } elseif ($key =="Medication") {
+                $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and
             subtype = '' and pid in (select pid from form_encounter where provider_id =?
             and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("medication",$_SESSION['providerID']));
-          if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-            $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'",array("medication_issue_list"));
-          }
-        } elseif ($key =="Surgery") {
-          $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and
+                if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
+                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", array("medication_issue_list"));
+                }
+            } elseif ($key =="Surgery") {
+                $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and
             subtype = '' and pid in (select pid from form_encounter where provider_id =?
             and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("surgery",$_SESSION['providerID']));
-          if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-            $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'",array("surgery_issue_list"));
-          }
-        } elseif ($key =="Allergy") {
-          $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and
+                if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
+                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", array("surgery_issue_list"));
+                }
+            } elseif ($key =="Allergy") {
+                $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and
             subtype = '' and pid in (select pid from form_encounter where provider_id =?
             and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("allergy",$_SESSION['providerID']));
-          if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-            $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'",array("allergy_issue_list"));
-          }
-        } elseif ($key == "POH") { // POH medical group
-          $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'medical_problem' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
-          $qry = sqlStatement($query,array($_SESSION['providerID']));
-          if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-            $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'medical_problem_issue_list' and subtype = 'eye'");
-          }
-        } elseif ($key == "POS") { // POS surgery group
-          $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'surgery' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
-          $qry = sqlStatement($query,array($_SESSION['providerID']));
-          if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-            $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'surgery_issue_list' and subtype = 'eye'");
-          }
-        } elseif ($key == "FH") {
-          $local = "";
-          $qry = "";
-        } elseif ($key == "SOCH") {
-          $local = "";
-          $qry = "";
-        } elseif ($key == "ROS") {
-          $local = "";
-          $qry = "";
-        }
-        if ($local =="1") { // leave FH/SocHx/ROS for later - done below separately
-          while($res = sqlFetchArray($qry)){ //Should we take the top 10 and display alphabetically?
-            echo " aopts['" .attr($key). "'][aopts['" .attr($key). "'].length] = new Option('".attr(trim($res['option_id']))."', '".attr(xl_list_label(trim($res['title'])))."', false, false);\n";
-            if ($res['codes']) {
-              echo " aopts['" .attr($key). "'][aopts['" .attr($key). "'].length-1].setAttribute('data-code','".attr(trim($res['codes']))."');\n";
+                if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
+                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", array("allergy_issue_list"));
+                }
+            } elseif ($key == "POH") { // POH medical group
+                $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'medical_problem' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
+                $qry = sqlStatement($query, array($_SESSION['providerID']));
+                if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
+                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'medical_problem_issue_list' and subtype = 'eye'");
+                }
+            } elseif ($key == "POS") { // POS surgery group
+                $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'surgery' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
+                $qry = sqlStatement($query, array($_SESSION['providerID']));
+                if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
+                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'surgery_issue_list' and subtype = 'eye'");
+                }
+            } elseif ($key == "FH") {
+                $local = "";
+                $qry = "";
+            } elseif ($key == "SOCH") {
+                $local = "";
+                $qry = "";
+            } elseif ($key == "ROS") {
+                $local = "";
+                $qry = "";
             }
-          }
+
+            if ($local =="1") { // leave FH/SocHx/ROS for later - done below separately
+                while ($res = sqlFetchArray($qry)) { //Should we take the top 10 and display alphabetically?
+                    echo " aopts['" .attr($key). "'][aopts['" .attr($key). "'].length] = new Option('".attr(trim($res['option_id']))."', '".attr(xl_list_label(trim($res['title'])))."', false, false);\n";
+                    if ($res['codes']) {
+                        echo " aopts['" .attr($key). "'][aopts['" .attr($key). "'].length-1].setAttribute('data-code','".attr(trim($res['codes']))."');\n";
+                    }
+                }
+            }
+
+            ++$i;
         }
-        ++$i;
-      }
 
     ?>
 
@@ -297,7 +303,7 @@ foreach (explode(',',$given) as $item) {
     function refreshIssue() {  parent.refresh_page(); }
     function submit_this_form() {
         var url = "../../forms/eye_mag/save.php?PMSFH_save=1&mode=update&form_save=1";
-        var formData = $("form#theform").serialize();
+        var formData = $("form#theform2").serialize();
         var f = document.forms[0];
         top.restoreSession();
         $.ajax({
@@ -411,19 +417,17 @@ foreach (explode(',',$given) as $item) {
     function sel_diagnosis() {
       var f = document.forms[0];
       term = f.form_title.value;
-      <?php
-      if(($irow['type'] == 'PMH') ||($irow['type'] == 'POH'))
-      {
-        ?>
-      dlgopen('../../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("medical_problem","csv")) ?>&search_term='+term, '_blank', 500, 400);
         <?php
-      }
-      else{
+        if (($irow['type'] == 'PMH') ||($irow['type'] == 'POH')) {
+            ?>
+          dlgopen('../../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("medical_problem", "csv")) ?>&search_term='+term, '_blank', 500, 400);
+            <?php
+        } else {
+            ?>
+          dlgopen('../../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")) ?>&search_term='+term, '_blank', 500, 400);
+            <?php
+        }
         ?>
-      dlgopen('../../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis","csv")) ?>&search_term='+term, '_blank', 500, 400);
-        <?php
-      }
-      ?>
       f.form_save.focus();
     }
 
@@ -532,20 +536,20 @@ foreach (explode(',',$given) as $item) {
       //Added on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
      var code_options_js = Array();
 
-     <?php
-     $smoke_codes = getSmokeCodes();
+        <?php
+        $smoke_codes = getSmokeCodes();
 
-     foreach ($smoke_codes as $val => $code) {
+        foreach ($smoke_codes as $val => $code) {
                 echo "code_options_js"."['" . attr($val) . "']='" . attr($code) . "';\n";
-          }
-     ?>
+        }
+        ?>
 
     </script>
     <!-- Add Font stuff for the look and feel.  -->
 
       <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
-      <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
       <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+      <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
       <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/excite-bike/jquery-ui.css">
       <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
       <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
@@ -598,20 +602,24 @@ foreach (explode(',',$given) as $item) {
          .navy {
           background-color: navy !important;
          }
+         form {
+          margin:7px auto;
+         }
 
       </style>
 
       <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
-      <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-11-1/index.js"></script>
+      <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-11-3/index.js"></script>
       <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
       <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
       <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.js"></script>
       <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/shortcut.js-2-01-B/shortcut.js"></script>
+      <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
       <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
   </head>
   <body>
     <div id="page" style="text-align: justify; text-justify: newspaper;">
-      <form method='POST' name='theform' id='theform'
+      <form method='POST' name='theform2' id='theform2'
       action='a_issue.php?pid=<?php echo attr($pid); ?>&encounter=<?php echo attr($encounter); ?>'
        onsubmit='return validate();'
        >
@@ -619,25 +627,45 @@ foreach (explode(',',$given) as $item) {
        <input type="hidden" name="issue" id="issue" value = "<?php echo attr($issue); ?>">
        <input type="hidden" name="uniqueID" id="uniqueID" value = "<?php echo attr($uniqueID); ?>">
        <div class="issues">
-          <?php
-          $output ='';
-          global $counter_header;
-          $count_header='0';
-          $output= array();
-          foreach ($PMSFH[0] as $key => $value) {
-            $checked = '';
-            if ($key == "POH") {  $checked = " checked='checked' "; }
-            $key_short_title = $key;
-            if ($key == "Medication") {$key_short_title = "Meds"; $title = "Medications"; }
-            if ($key == "Problem") {$key_short_title = "PMH"; $title = "Past Medical History"; }
-            if ($key == "Surgery") {$key_short_title = "Surg"; $title = "Surgery History"; }
-            if ($key == "SOCH") {$key_short_title = "Soc"; $title = "Social History"; }
-            $HELLO[attr($key)] = '<input type="radio" name="form_type" id="PMSFH_'.attr($key).'" value="'.attr($key).'" '.$checked.' onclick="top.restoreSession();newtype(\''.attr($key).'\');" /><span>'.
+            <?php
+            $output ='';
+            global $counter_header;
+            $count_header='0';
+            $output= array();
+            foreach ($PMSFH[0] as $key => $value) {
+                $checked = '';
+                if ($key == "POH") {
+                    $checked = " checked='checked' ";
+                }
+
+                $key_short_title = $key;
+                if ($key == "Medication") {
+                    $key_short_title = "Meds";
+                    $title = "Medications";
+                }
+
+                if ($key == "Problem") {
+                    $key_short_title = "PMH";
+                    $title = "Past Medical History";
+                }
+
+                if ($key == "Surgery") {
+                    $key_short_title = "Surg";
+                    $title = "Surgery History";
+                }
+
+                if ($key == "SOCH") {
+                    $key_short_title = "Soc";
+                    $title = "Social History";
+                }
+
+                $HELLO[attr($key)] = '<input type="radio" name="form_type" id="PMSFH_'.attr($key).'" value="'.attr($key).'" '.$checked.' onclick="top.restoreSession();newtype(\''.attr($key).'\');" /><span>'.
                             '<label class="input-helper input-helper--checkbox" for="PMSFH_'.attr($key).'" title="'.xla($title).'">' . xlt($key_short_title) . '</label></span>&nbsp;';
-          }
+            }
+
           //put them in the desired display order
-          echo $HELLO['POH'].$HELLO['POS'].$HELLO['PMH'].$HELLO['Medication'].$HELLO['Surgery'].$HELLO['Allergy'].$HELLO['FH'].$HELLO['SOCH'].$HELLO['ROS'];
-          ?>
+            echo $HELLO['POH'].$HELLO['POS'].$HELLO['PMH'].$HELLO['Medication'].$HELLO['Surgery'].$HELLO['Allergy'].$HELLO['FH'].$HELLO['SOCH'].$HELLO['ROS'];
+            ?>
         </div>
       <div class="borderShadow" style="text-align:left;margin-top:7px;width:95%;">
         <table  border='0' width='95%'>
@@ -666,36 +694,28 @@ foreach (explode(',',$given) as $item) {
           <tr id='row_begindate'>
             <td nowrap class="right"><b id="onset"><?php echo xlt('Onset'); ?>:</b></td>
             <td>
-             <input type='text' size='10' name='form_begin' id='form_begin'
+             <input type='text' class='datepicker' size='10' name='form_begin' id='form_begin'
               value='<?php echo attr($irow['begdate']) ?>'¸ 
               style="width: 80px;"
-              onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
               title='<?php echo xla('yyyy-mm-dd date of onset, surgery or start of medication'); ?>' />
-             <img src='<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif' align='absbottom' width='15' height='15'
-              id='img_begin' border='0' alt='[?]' style='cursor:pointer'
-              title='<?php echo xla('Click here to choose a date'); ?>' />
             </td>
             <td id='row_enddate' nowrap><input type='checkbox' name='form_active' id='form_active' value='1' <?php echo attr($irow['enddate']) ? "checked" : ""; ?>
               onclick='top.restoreSession();resolvedClicked(this);'
               title='<?php echo xla('Indicates if this issue is currently active'); ?>' />
-              <b id="resolved"><?php echo xlt('Resolved'); ?>:</b>&nbsp;<input type='text' size='10' name='form_end' id='form_end'
+              <b id="resolved"><?php echo xlt('Resolved'); ?>:</b>&nbsp;<input type='text' class='datepicker' size='10' name='form_end' id='form_end'
               style="width: 80px;"
               value='<?php echo attr($irow['enddate']) ?>'
-              onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
               title='<?php echo xla('yyyy-mm-dd date of recovery or end of medication'); ?>' />
-             <img src='<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif' align='absbottom' width='15' height='15'
-              id='img_end' border='0' alt='[?]' style='cursor:pointer'
-              title='<?php echo xla('Click here to choose a date'); ?>' />
             </td>
            </tr>
 
            <tr id='row_occurrence'>
             <td valign='top'  class="right" nowrap><b><?php echo xlt('Course'); ?>:</b></td>
             <td colspan="3">
-             <?php
+                <?php
               // Modified 6/2009 by BM to incorporate the occurrence items into the list_options listings
-              generate_form_field(array('data_type'=>1,'field_id'=>'occur','list_id'=>'occurrence','empty_title'=>'SKIP'), $irow['occurrence']);
-             ?><a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=occurrence" target="RTop"
+                generate_form_field(array('data_type'=>1,'field_id'=>'occur','list_id'=>'occurrence','empty_title'=>'SKIP'), $irow['occurrence']);
+                ?><a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=occurrence" target="RTop"
                 title="<?php echo xla('Click here to Edit the Course/Occurrence List'); ?>" style="color:black;"><i class="fa fa-pencil fa-fw"></i></a>
             </td>
            </tr>
@@ -705,11 +725,14 @@ foreach (explode(',',$given) as $item) {
             <td colspan="3">
              <select name='form_classification' id='form_classification'>
                 <?php
-               foreach ($ISSUE_CLASSIFICATIONS as $key => $value) {
-                echo "   <option value='".attr($key)."'";
-                if ($key == $irow['classification']) echo " selected";
-                echo ">".text($value)."\n";
-               }
+                foreach ($ISSUE_CLASSIFICATIONS as $key => $value) {
+                    echo "   <option value='".attr($key)."'";
+                    if ($key == $irow['classification']) {
+                        echo " selected";
+                    }
+
+                    echo ">".text($value)."\n";
+                }
                 ?>
              </select>
             </td>
@@ -732,7 +755,11 @@ foreach (explode(',',$given) as $item) {
             <td class="right" nowrap><b id="by_whom"><?php echo xlt('Eye Med'); ?>:</b></td>
             <td  colspan="3"><?php echo $irow['subtype']; ?>
               <input type='checkbox' name='form_eye_subtype' id='form_eye_subtype' value='1'
-              <?php if ($irow['subtype'] =='eye') echo "checked"; ?> style="margin:3px 3px 3px 5px;"
+                <?php
+                if ($irow['subtype'] =='eye') {
+                    echo "checked";
+                }
+                ?> style="margin:3px 3px 3px 5px;"
               title='<?php echo xla('Indicates if this issue is an ophthalmic-specific medication'); ?>' />
             </td>
           </tr>
@@ -746,9 +773,9 @@ foreach (explode(',',$given) as $item) {
           <tr id="row_outcome">
             <td valign='top'  class="right" nowrap><b><?php echo xlt('Outcome'); ?>:</b></td>
             <td>
-             <?php
-              echo generate_select_list('form_outcome', 'outcome', $irow['outcome'], '', '', '', 'outcomeClicked(this);');
-             ?>
+                <?php
+                echo generate_select_list('form_outcome', 'outcome', $irow['outcome'], '', '', '', 'outcomeClicked(this);');
+                ?>
             </td>
           </tr>
           <tr id="row_destination">
@@ -758,79 +785,80 @@ foreach (explode(',',$given) as $item) {
              <input type='text' size='40' name='form_destination' value='<?php echo attr($irow['destination']) ?>'
               title='GP, Secondary care specialist, etc.' />
             <?php } else { // leave this here for now, please -- Rod ?>
-             <?php echo rbinput('form_destination', '1', 'GP'                 , 'destination') ?>&nbsp;
-             <?php echo rbinput('form_destination', '2', 'Secondary care spec', 'destination') ?>&nbsp;
-             <?php echo rbinput('form_destination', '3', 'GP via physio'      , 'destination') ?>&nbsp;
-             <?php echo rbinput('form_destination', '4', 'GP via podiatry'    , 'destination') ?>
+                <?php echo rbinput('form_destination', '1', 'GP', 'destination') ?>&nbsp;
+                <?php echo rbinput('form_destination', '2', 'Secondary care spec', 'destination') ?>&nbsp;
+                <?php echo rbinput('form_destination', '3', 'GP via physio', 'destination') ?>&nbsp;
+                <?php echo rbinput('form_destination', '4', 'GP via podiatry', 'destination') ?>
             <?php } ?>
             </td>
           </tr>
         </table>
         <table id="row_social" width="100%">
-              <?php
+                <?php
                 $given ="*";
                 $dateStart=$_POST['dateState'];
                 $dateEnd=$_POST['dateEnd'];
                 if ($dateStart && $dateEnd) {
-                      $result1 = sqlQuery("select $given from history_data where pid = ? and date >= ? and date <= ? order by date DESC limit 0,1", array($pid,$dateStart,$dateEnd) );
-                  }
-                  else if ($dateStart && !$dateEnd) {
-                      $result1 = sqlQuery("select $given from history_data where pid = ? and date >= ? order by date DESC limit 0,1", array($pid,$dateStart) );
-                  }
-                  else if (!$dateStart && $dateEnd) {
-                      $result1 = sqlQuery("select $given from history_data where pid = ? and date <= ? order by date DESC limit 0,1", array($pid,$dateEnd) );
-                  }
-                  else {
-                      $result1 = sqlQuery("select $given from history_data where pid=? order by date DESC limit 0,1", array($pid) );
-                  }
-
-                  $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
-                  "WHERE form_id = 'HIS' AND group_name = '4Lifestyle' AND uor > 0 " .
-                  "ORDER BY seq");
-                while ($group_fields = sqlFetchArray($group_fields_query)) {
-                    $titlecols  = $group_fields['titlecols'];
-                    $datacols   = $group_fields['datacols'];
-                    $data_type  = $group_fields['data_type'];
-                    $field_id   = $group_fields['field_id'];
-                    $list_id    = $group_fields['list_id'];
-                    $currvalue  = '';
-                if (isset($result1[$field_id])) $currvalue = $result1[$field_id];
-                if ($data_type == 28 || $data_type == 32) {
-                    $tmp = explode('|', $currvalue);
-                    switch(count($tmp)) {
-                      case "4": {
-                        $result2[$field_id]['resnote'] = $tmp[0];
-                        $result2[$field_id]['restype'] = $tmp[1];
-                        $result2[$field_id]['resdate'] = $tmp[2];
-                        $result2[$field_id]['reslist'] = $tmp[3];
-                      } break;
-                      case "3": {
-                        $result2[$field_id]['resnote'] = $tmp[0];
-                        $result2[$field_id]['restype'] = $tmp[1];
-                        $result2[$field_id]['resdate'] = $tmp[2];
-                      } break;
-                      case "2": {
-                        $result2[$field_id]['resnote'] = $tmp[0];
-                        $result2[$field_id]['restype'] = $tmp[1];
-                        $result2[$field_id]['resdate'] = "";
-                      } break;
-                      case "1": {
-                        $result2[$field_id]['resnote'] = $tmp[0];
-                        $result2[$field_id]['resdate'] = $result2[$field_id]['restype'] = "";
-                      } break;
-                      default: {
-                        $result2[$field_id]['restype'] = $result2[$field_id]['resdate'] = $result2[$field_id]['resnote'] = "";
-                      } break;
-                    }
-                    $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
-                    $fldlength = htmlspecialchars( $fldlength, ENT_QUOTES);
-                    $result2[$field_id]['resnote'] = htmlspecialchars( $result2[$field_id]['resnote'], ENT_QUOTES);
-                    $result2[$field_id]['resdate'] = htmlspecialchars( $result2[$field_id]['resdate'], ENT_QUOTES);
-                  } else if ($data_type == 2) {
-                     $result2[$field_id]['resnote'] = nl2br(htmlspecialchars($currvalue,ENT_NOQUOTES));
-                  }
+                      $result1 = sqlQuery("select $given from history_data where pid = ? and date >= ? and date <= ? order by date DESC limit 0,1", array($pid,$dateStart,$dateEnd));
+                } else if ($dateStart && !$dateEnd) {
+                    $result1 = sqlQuery("select $given from history_data where pid = ? and date >= ? order by date DESC limit 0,1", array($pid,$dateStart));
+                } else if (!$dateStart && $dateEnd) {
+                    $result1 = sqlQuery("select $given from history_data where pid = ? and date <= ? order by date DESC limit 0,1", array($pid,$dateEnd));
+                } else {
+                    $result1 = sqlQuery("select $given from history_data where pid=? order by date DESC limit 0,1", array($pid));
                 }
-              ?>
+
+                    $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
+                    "WHERE form_id = 'HIS' AND group_name = '4Lifestyle' AND uor > 0 " .
+                    "ORDER BY seq");
+                    while ($group_fields = sqlFetchArray($group_fields_query)) {
+                        $titlecols  = $group_fields['titlecols'];
+                        $datacols   = $group_fields['datacols'];
+                        $data_type  = $group_fields['data_type'];
+                        $field_id   = $group_fields['field_id'];
+                        $list_id    = $group_fields['list_id'];
+                        $currvalue  = '';
+                        if (isset($result1[$field_id])) {
+                            $currvalue = $result1[$field_id];
+                        }
+
+                        if ($data_type == 28 || $data_type == 32) {
+                            $tmp = explode('|', $currvalue);
+                            switch (count($tmp)) {
+                                case "4":
+                                    $result2[$field_id]['resnote'] = $tmp[0];
+                                    $result2[$field_id]['restype'] = $tmp[1];
+                                    $result2[$field_id]['resdate'] = $tmp[2];
+                                    $result2[$field_id]['reslist'] = $tmp[3];
+                                    break;
+                                case "3":
+                                    $result2[$field_id]['resnote'] = $tmp[0];
+                                    $result2[$field_id]['restype'] = $tmp[1];
+                                    $result2[$field_id]['resdate'] = $tmp[2];
+                                    break;
+                                case "2":
+                                    $result2[$field_id]['resnote'] = $tmp[0];
+                                    $result2[$field_id]['restype'] = $tmp[1];
+                                    $result2[$field_id]['resdate'] = "";
+                                    break;
+                                case "1":
+                                    $result2[$field_id]['resnote'] = $tmp[0];
+                                    $result2[$field_id]['resdate'] = $result2[$field_id]['restype'] = "";
+                                    break;
+                                default:
+                                    $result2[$field_id]['restype'] = $result2[$field_id]['resdate'] = $result2[$field_id]['resnote'] = "";
+                                    break;
+                            }
+
+                            $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
+                            $fldlength = htmlspecialchars($fldlength, ENT_QUOTES);
+                            $result2[$field_id]['resnote'] = htmlspecialchars($result2[$field_id]['resnote'], ENT_QUOTES);
+                            $result2[$field_id]['resdate'] = htmlspecialchars($result2[$field_id]['resdate'], ENT_QUOTES);
+                        } else if ($data_type == 2) {
+                             $result2[$field_id]['resnote'] = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
+                        }
+                    }
+                ?>
               <style>
                 .data td{
                   font-size:0.7em;
@@ -853,15 +881,33 @@ foreach (explode(',',$given) as $item) {
                     <td></td>
                     <td colspan="2">
                       <select name="form_tobacco" id="form_tobacco" onchange="radioChange(this.options[this.selectedIndex].value)" title="<?php xla('Tobacco use'); ?>">
-                        <option value="" <?php if ($result2['tobacco']['reslist'] =='') echo "selected"; ?>><?php echo xlt('Unassigned'); ?></option>
-                        <option value="1" <?php if ($result2['tobacco']['reslist'] =='1') echo "selected"; ?>><?php echo xlt('Current every day smoker'); ?></option>
-                        <option value="2" <?php if ($result2['tobacco']['reslist'] =='2') echo "selected"; ?>><?php echo xlt('Current some day smoker'); ?></option>
-                        <option value="3" <?php if ($result2['tobacco']['reslist'] =='3') echo "selected"; ?>><?php echo xlt('Former smoker'); ?></option>
-                        <option value="4" <?php if ($result2['tobacco']['reslist'] =='4') echo "selected"; ?>><?php echo xlt('Never smoker'); ?></option>
-                        <option value="5" <?php if ($result2['tobacco']['reslist'] =='5') echo "selected"; ?>><?php echo xlt('Smoker, current status unknown'); ?></option>
-                        <option value="9" <?php if ($result2['tobacco']['reslist'] =='9') echo "selected"; ?>><?php echo xlt('Unknown if ever smoked'); ?></option>
-                        <option value="15" <?php if ($result2['tobacco']['reslist'] =='15') echo "selected"; ?>><?php echo xlt('Heavy tobacco smoker'); ?></option>
-                        <option value="16" <?php if ($result2['tobacco']['reslist'] =='16') echo "selected"; ?>><?php echo xlt('Light tobacco smoker'); ?></option>
+                        <option value="" <?php if ($result2['tobacco']['reslist'] =='') {
+                            echo "selected";
+} ?>><?php echo xlt('Unassigned'); ?></option>
+                        <option value="1" <?php if ($result2['tobacco']['reslist'] =='1') {
+                            echo "selected";
+} ?>><?php echo xlt('Current every day smoker'); ?></option>
+                        <option value="2" <?php if ($result2['tobacco']['reslist'] =='2') {
+                            echo "selected";
+} ?>><?php echo xlt('Current some day smoker'); ?></option>
+                        <option value="3" <?php if ($result2['tobacco']['reslist'] =='3') {
+                            echo "selected";
+} ?>><?php echo xlt('Former smoker'); ?></option>
+                        <option value="4" <?php if ($result2['tobacco']['reslist'] =='4') {
+                            echo "selected";
+} ?>><?php echo xlt('Never smoker'); ?></option>
+                        <option value="5" <?php if ($result2['tobacco']['reslist'] =='5') {
+                            echo "selected";
+} ?>><?php echo xlt('Smoker, current status unknown'); ?></option>
+                        <option value="9" <?php if ($result2['tobacco']['reslist'] =='9') {
+                            echo "selected";
+} ?>><?php echo xlt('Unknown if ever smoked'); ?></option>
+                        <option value="15" <?php if ($result2['tobacco']['reslist'] =='15') {
+                            echo "selected";
+} ?>><?php echo xlt('Heavy tobacco smoker'); ?></option>
+                        <option value="16" <?php if ($result2['tobacco']['reslist'] =='16') {
+                            echo "selected";
+} ?>><?php echo xlt('Light tobacco smoker'); ?></option>
                       </select>
                     </td>
                     <td nowrap><span style="text-decoration:underline;padding-right:3px;">Never</span></td>
@@ -877,24 +923,26 @@ foreach (explode(',',$given) as $item) {
                           <td><input type="text" name="form_text_tobacco" id="form_box" size="20" value="<?php echo attr($PMSFH[0]['SOCH']['tobacco']['resnote']); ?>">&nbsp;</td>
                           <td class="bold">&nbsp;&nbsp;</td>
                           <td class="text">
-                            <input type="radio" name="radio_tobacco" id="radio_tobacco[current]" value="currenttobacco" onclick="smoking_statusClicked(this)" <?php if ($result2['tobacco']['restype'] =='currenttobacco') echo "checked"; ?>><?php echo xlt('Current'); ?>&nbsp;</td>
-                          <td class="text"><input type="radio" name="radio_tobacco" id="radio_tobacco[quit]" value="quittobacco" onclick="smoking_statusClicked(this)" <?php if ($result2['tobacco']['restype'] =='quittobacco') echo "checked"; ?>><?php echo xlt('Quit'); ?>&nbsp;</td>
+                            <input type="radio" name="radio_tobacco" id="radio_tobacco[current]" value="currenttobacco" onclick="smoking_statusClicked(this)" <?php if ($result2['tobacco']['restype'] =='currenttobacco') {
+                                echo "checked";
+} ?>><?php echo xlt('Current'); ?>&nbsp;</td>
+                          <td class="text"><input type="radio" name="radio_tobacco" id="radio_tobacco[quit]" value="quittobacco" onclick="smoking_statusClicked(this)" <?php if ($result2['tobacco']['restype'] =='quittobacco') {
+                                echo "checked";
+} ?>><?php echo xlt('Quit'); ?>&nbsp;</td>
                           <td class="text" onclick='top.restoreSession();resolvedClicked(this);'>
-                            <input type="text" size="6"
+                            <input type="text" class="datepicker" size="6"
                             name="date_tobacco" id="date_tobacco"
                             value="<?php echo attr($result2['tobacco']['resdate']); ?>"
-                            title="<?php echo xla('Tobacco use'); ?>"
-                            onkeyup="datekeyup(this,mypcc)"
-                            onblur="dateblur(this,mypcc)"><img src="<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif" align="absbottom"
-                            width="15" height="15"
-                            id="img_tobacco"
-                            border="0" alt="[?]" style="cursor:pointer"
-                            title="<?php echo xla('Click here to choose a date'); ?>">&nbsp;
+                            title="<?php echo xla('Tobacco use'); ?>">
                           </td>
                           <td class="text">
-                            <input type="radio" name="radio_tobacco" id="radio_tobacco[never]" value="nevertobacco" onclick="smoking_statusClicked(this)" <?php if ($result2['tobacco']['restype'] =='nevertobacco') echo "checked"; ?>><?php echo xlt('Never'); ?>&nbsp;
+                            <input type="radio" name="radio_tobacco" id="radio_tobacco[never]" value="nevertobacco" onclick="smoking_statusClicked(this)" <?php if ($result2['tobacco']['restype'] =='nevertobacco') {
+                                echo "checked";
+} ?>><?php echo xlt('Never'); ?>&nbsp;
                           </td>
-                          <td><input name="radio_tobacco" type="radio" id="radio_tobacco[not_applicable]" <?php if ($PMSFH[0]['SOCH']['tobacco']['restype'] =='not_applicable') echo "checked"; ?> value="not_applicabletobacco">
+                          <td><input name="radio_tobacco" type="radio" id="radio_tobacco[not_applicable]" <?php if ($PMSFH[0]['SOCH']['tobacco']['restype'] =='not_applicable') {
+                                echo "checked";
+} ?> value="not_applicabletobacco">
                           <label class="fa fa-history input-helper  nodisplay" for="radio_tobacco[not_applicable]"></label>
                           </td>
                         </tr>
@@ -910,11 +958,19 @@ foreach (explode(',',$given) as $item) {
                           <tr>
                             <td><input type="text" name="form_coffee" id="form_box" size="20" value="<?php echo attr($result2['coffee']['resnote']); ?>">&nbsp;</td>
                             <td class="bold">&nbsp;&nbsp;</td>
-                            <td class="text"><input type="radio" name="radio_coffee" id="radio_coffee[current]" value="currentcoffee" <?php if ($PMSFH[0]['SOCH']['coffee']['restype'] =='currentcoffee') echo "checked"; ?>><?php echo xlt('Current'); ?>&nbsp;</td>
-                            <td class="text"><input type="radio" name="radio_coffee" id="radio_coffee[quit]" value="quitcoffee" <?php if ($PMSFH[0]['SOCH']['coffee']['restype'] =='quitcoffee') echo "checked"; ?>><?php echo xlt('Quit'); ?>&nbsp;</td>
-                            <td class="text"><input type="text" size="6" name="date_coffee" id="date_coffee" value="" title="<?php echo xla('Caffeine consumption'); ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)"><img src="<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif" align="absbottom" width="15" height="15" id="img_coffee" border="0" alt="[?]" style="cursor:pointer" title="<?php echo xla('Click here to choose a date'); ?>">&nbsp;</td>
-                            <td class="text"><input type="radio" name="radio_coffee" id="radio_coffee[never]" value="nevercoffee" <?php if ($PMSFH[0]['SOCH']['coffee']['restype'] =='nevercoffee') echo "checked"; ?>><?php echo xlt('Never'); ?>&nbsp;</td>
-                            <td><input name="radio_coffee" type="radio" id="radio_coffee[not_applicable]" <?php if ($PMSFH[0]['SOCH']['coffee']['restype'] =='not_applicable') echo "checked"; ?> value="not_applicablecoffee">
+                            <td class="text"><input type="radio" name="radio_coffee" id="radio_coffee[current]" value="currentcoffee" <?php if ($PMSFH[0]['SOCH']['coffee']['restype'] =='currentcoffee') {
+                                echo "checked";
+} ?>><?php echo xlt('Current'); ?>&nbsp;</td>
+                            <td class="text"><input type="radio" name="radio_coffee" id="radio_coffee[quit]" value="quitcoffee" <?php if ($PMSFH[0]['SOCH']['coffee']['restype'] =='quitcoffee') {
+                                echo "checked";
+} ?>><?php echo xlt('Quit'); ?>&nbsp;</td>
+                            <td class="text"><input type="text" class="datepicker" size="6" name="date_coffee" id="date_coffee" value="" title="<?php echo xla('Caffeine consumption'); ?>">&nbsp;</td>
+                            <td class="text"><input type="radio" name="radio_coffee" id="radio_coffee[never]" value="nevercoffee" <?php if ($PMSFH[0]['SOCH']['coffee']['restype'] =='nevercoffee') {
+                                echo "checked";
+} ?>><?php echo xlt('Never'); ?>&nbsp;</td>
+                            <td><input name="radio_coffee" type="radio" id="radio_coffee[not_applicable]" <?php if ($PMSFH[0]['SOCH']['coffee']['restype'] =='not_applicable') {
+                                echo "checked";
+} ?> value="not_applicablecoffee">
                               <label class="fa fa-history input-helper nodisplay" for="radio_coffee[not_applicable]"></label>
                               </td>
                           </tr>
@@ -928,11 +984,19 @@ foreach (explode(',',$given) as $item) {
                     <td class="text data" colspan="4">
                       <table cellpadding="0" cellspacing="0">
                         <tbody>
-                          <tr><td><input type="text" name="form_alcohol" id="form_box" size="20" value="<?php echo attr($result2['alcohol']['resnote']); ?>">&nbsp;</td><td class="bold">&nbsp;&nbsp;</td><td class="text"><input type="radio" name="radio_alcohol" id="radio_alcohol[current]" value="currentalcohol" <?php if ($PMSFH[0]['SOCH']['alcohol']['restype'] =='currentalcohol') echo "checked"; ?>><?php echo xlt('Current'); ?>&nbsp;</td>
-                            <td class="text"><input type="radio" name="radio_alcohol" id="radio_alcohol[quit]" value="quitalcohol" <?php if ($PMSFH[0]['SOCH']['alcohol']['restype'] =='quitalcohol') echo "checked"; ?>><?php echo xlt('Quit'); ?>&nbsp;</td>
-                            <td class="text"><input type="text" size="6" name="date_alcohol" id="date_alcohol" value="" title="<?php echo xla('Alcohol consumption'); ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)"><img src="<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif" align="absbottom" width="15" height="15" id="img_alcohol" border="0" alt="[?]" style="cursor:pointer" title="<?php echo attr('Click here to choose a date'); ?>">&nbsp;</td>
-                            <td class="text"><input type="radio" name="radio_alcohol" id="radio_alcohol[never]" value="neveralcohol" <?php if ($PMSFH[0]['SOCH']['alcohol']['restype'] =='neveralcohol') echo "checked"; ?>><?php echo xlt('Never'); ?>&nbsp;</td>
-                            <td><input name="radio_alcohol" type="radio" id="radio_alcohol[not_applicable]" value="not_applicablealcohol" <?php if ($PMSFH[0]['SOCH']['alcohol']['restype'] =='not_applicable') echo "checked"; ?>>
+                          <tr><td><input type="text" name="form_alcohol" id="form_box" size="20" value="<?php echo attr($result2['alcohol']['resnote']); ?>">&nbsp;</td><td class="bold">&nbsp;&nbsp;</td><td class="text"><input type="radio" name="radio_alcohol" id="radio_alcohol[current]" value="currentalcohol" <?php if ($PMSFH[0]['SOCH']['alcohol']['restype'] =='currentalcohol') {
+                                echo "checked";
+} ?>><?php echo xlt('Current'); ?>&nbsp;</td>
+                            <td class="text"><input type="radio" name="radio_alcohol" id="radio_alcohol[quit]" value="quitalcohol" <?php if ($PMSFH[0]['SOCH']['alcohol']['restype'] =='quitalcohol') {
+                                echo "checked";
+} ?>><?php echo xlt('Quit'); ?>&nbsp;</td>
+                            <td class="text"><input type="text" size="6" class="datepicker" name="date_alcohol" id="date_alcohol" value="" title="<?php echo xla('Alcohol consumption'); ?>">&nbsp;</td>
+                            <td class="text"><input type="radio" name="radio_alcohol" id="radio_alcohol[never]" value="neveralcohol" <?php if ($PMSFH[0]['SOCH']['alcohol']['restype'] =='neveralcohol') {
+                                echo "checked";
+} ?>><?php echo xlt('Never'); ?>&nbsp;</td>
+                            <td><input name="radio_alcohol" type="radio" id="radio_alcohol[not_applicable]" value="not_applicablealcohol" <?php if ($PMSFH[0]['SOCH']['alcohol']['restype'] =='not_applicable') {
+                                echo "checked";
+} ?>>
                           <label class="fa fa-history input-helper nodisplay" for="radio_alcohol[not_applicable]"></label>
 
                           </td>
@@ -949,11 +1013,19 @@ foreach (explode(',',$given) as $item) {
                         <tbody>
                           <tr>
                             <td><input type="text" name="form_recreational_drugs" id="form_box" size="20" value="<?php echo attr($result2['recreational_drugs']['resnote']); ?>">&nbsp;</td><td class="bold">&nbsp;&nbsp;</td>
-                            <td class="text"><input type="radio" name="radio_recreational_drugs" id="radio_recreational_drugs[current]" value="currentrecreational_drugs" <?php if ($PMSFH[0]['SOCH']['recreational_drugs']['restype'] =='currentrecreational_drugs') echo "checked"; ?>><?php echo xlt('Current'); ?>&nbsp;</td>
-                            <td class="text"><input type="radio" name="radio_recreational_drugs" id="radio_recreational_drugs[quit]" value="quitrecreational_drugs" <?php if ($PMSFH[0]['SOCH']['recreational_drugs']['restype'] =='quitrecreational_drugs') echo "checked"; ?>><?php echo xlt('Quit'); ?>&nbsp;</td>
-                            <td class="text"><input type="text" size="6" name="date_recreational_drugs" id="date_recreational_drugs" value="" title="<?php echo xla('Recreational drug use'); ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)"><img src="<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif" align="absbottom" width="15" height="15" id="img_recreational_drugs" border="0" alt="[?]" style="cursor:pointer" title="<?php echo xla('Click here to choose a date'); ?>">&nbsp;</td>
-                            <td class="text"><input type="radio" name="radio_recreational_drugs" id="radio_recreational_drugs[never]" value="neverrecreational_drugs" <?php if ($PMSFH[0]['SOCH']['recreational_drugs']['restype'] =='neverrecreational_drugs') echo "checked"; ?>><?php echo xlt('Never'); ?>&nbsp;</td>
-                            <td><input name="radio_recreational_drugs" type="radio" id="radio_recreational_drugs[not_applicable]" <?php if ($PMSFH[0]['SOCH']['recreational_drugs']['restype'] =='not_applicable') echo "checked"; ?> value="not_applicablerecreational_drugs">
+                            <td class="text"><input type="radio" name="radio_recreational_drugs" id="radio_recreational_drugs[current]" value="currentrecreational_drugs" <?php if ($PMSFH[0]['SOCH']['recreational_drugs']['restype'] =='currentrecreational_drugs') {
+                                echo "checked";
+} ?>><?php echo xlt('Current'); ?>&nbsp;</td>
+                            <td class="text"><input type="radio" name="radio_recreational_drugs" id="radio_recreational_drugs[quit]" value="quitrecreational_drugs" <?php if ($PMSFH[0]['SOCH']['recreational_drugs']['restype'] =='quitrecreational_drugs') {
+                                echo "checked";
+} ?>><?php echo xlt('Quit'); ?>&nbsp;</td>
+                            <td class="text"><input type="text" size="6" class="datepicker" name="date_recreational_drugs" id="date_recreational_drugs" value="" title="<?php echo xla('Recreational drug use'); ?>">&nbsp;</td>
+                            <td class="text"><input type="radio" name="radio_recreational_drugs" id="radio_recreational_drugs[never]" value="neverrecreational_drugs" <?php if ($PMSFH[0]['SOCH']['recreational_drugs']['restype'] =='neverrecreational_drugs') {
+                                echo "checked";
+} ?>><?php echo xlt('Never'); ?>&nbsp;</td>
+                            <td><input name="radio_recreational_drugs" type="radio" id="radio_recreational_drugs[not_applicable]" <?php if ($PMSFH[0]['SOCH']['recreational_drugs']['restype'] =='not_applicable') {
+                                echo "checked";
+} ?> value="not_applicablerecreational_drugs">
                           <label class="fa fa-history input-helper nodisplay" for="radio_recreational_drugs[not_applicable]"></label>
                         </td>
                           </tr>
@@ -965,11 +1037,19 @@ foreach (explode(',',$given) as $item) {
                   <tr class="nodisplay" >
                     <td class="right"  nowrap><?php echo xlt('Counseling'); ?>:</td>
                     <td class="text data" colspan="4">
-                      <table cellpadding="0" cellspacing="0"><tbody><tr><td><input type="text" name="form_counseling" id="form_box" size="20" value="<?php echo attr($result2['counseling']['resnote']); ?>">&nbsp;</td><td class="bold">&nbsp;&nbsp;</td><td class="text"><input type="radio" name="radio_counseling" id="radio_counseling[current]" value="currentcounseling" <?php if ($PMSFH[0]['SOCH']['counseling']['restype'] =='currentcounseling') echo "checked"; ?>><?php echo xlt('Current'); ?>&nbsp;</td>
-                    <td class="text"><input type="radio" name="radio_counseling" id="radio_counseling[quit]" value="quitcounseling" <?php if ($PMSFH[0]['SOCH']['counseling']['restype'] =='quitcounseling') echo "checked"; ?>><?php echo xlt('Quit'); ?>&nbsp;</td>
-                    <td class="text"><input type="text" size="6" name="date_counseling" id="date_counseling" value="" title="<?php echo xla('Counseling activities') ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)"><img src="<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif" align="absbottom" width="15" height="15" id="img_counseling" border="0" alt="[?]" style="cursor:pointer" title="<?php echo xla('Click here to choose a date'); ?>">&nbsp;</td>
-                    <td class="text"><input type="radio" name="radio_counseling" id="radio_counseling[never]" value="nevercounseling" <?php if ($PMSFH[0]['SOCH']['counseling']['restype'] =='nevercounseling') echo "checked"; ?>><?php echo xlt('Never'); ?>&nbsp;</td>
-                    <td><input name="radio_counseling" type="radio" id="radio_counseling[not_applicable]" value="not_applicablecounseling" <?php if ($PMSFH[0]['SOCH']['counseling']['restype'] =='not_applicable') echo "checked"; ?>>
+                      <table cellpadding="0" cellspacing="0"><tbody><tr><td><input type="text" name="form_counseling" id="form_box" size="20" value="<?php echo attr($result2['counseling']['resnote']); ?>">&nbsp;</td><td class="bold">&nbsp;&nbsp;</td><td class="text"><input type="radio" name="radio_counseling" id="radio_counseling[current]" value="currentcounseling" <?php if ($PMSFH[0]['SOCH']['counseling']['restype'] =='currentcounseling') {
+                            echo "checked";
+} ?>><?php echo xlt('Current'); ?>&nbsp;</td>
+                    <td class="text"><input type="radio" name="radio_counseling" id="radio_counseling[quit]" value="quitcounseling" <?php if ($PMSFH[0]['SOCH']['counseling']['restype'] =='quitcounseling') {
+                        echo "checked";
+} ?>><?php echo xlt('Quit'); ?>&nbsp;</td>
+                    <td class="text"><input type="text" size="6" class="datepicker" name="date_counseling" id="date_counseling" value="" title="<?php echo xla('Counseling activities') ?>">&nbsp;</td>
+                    <td class="text"><input type="radio" name="radio_counseling" id="radio_counseling[never]" value="nevercounseling" <?php if ($PMSFH[0]['SOCH']['counseling']['restype'] =='nevercounseling') {
+                        echo "checked";
+} ?>><?php echo xlt('Never'); ?>&nbsp;</td>
+                    <td><input name="radio_counseling" type="radio" id="radio_counseling[not_applicable]" value="not_applicablecounseling" <?php if ($PMSFH[0]['SOCH']['counseling']['restype'] =='not_applicable') {
+                        echo "checked";
+} ?>>
                       <label class="fa fa-history input-helper nodisplay" for="radio_counseling[not_applicable]"></label>
                     </td>
                   </tr></tbody></table></td></tr>
@@ -979,11 +1059,19 @@ foreach (explode(',',$given) as $item) {
                     <?php echo xlt('Exercise'); ?>:</td>
                     <td class="text data" colspan="4">
                       <table cellpadding="0" cellspacing="0">
-                        <tbody><tr><td><input type="text" name="form_exercise_patterns" id="form_box" size="20" value="<?php echo attr($result2['exercise_patterns']['resnote']); ?>">&nbsp;</td><td class="bold">&nbsp;&nbsp;</td><td class="text"><input type="radio" name="radio_exercise_patterns" id="radio_exercise_patterns[current]" value="currentexercise_patterns" <?php if ($PMSFH[0]['SOCH']['exercise_patterns']['restype'] =='currentexercise_patterns') echo "checked"; ?>><?php echo xlt('Current'); ?>&nbsp;</td>
-                        <td class="text"><input type="radio" name="radio_exercise_patterns" id="radio_exercise_patterns[quit]" value="quitexercise_patterns" <?php if ($PMSFH[0]['SOCH']['exercise_patterns']['restype'] =='quitexercise_patterns') echo "checked"; ?>><?php echo xlt('Quit') ?>&nbsp;</td>
-                        <td class="text"><input type="text" name="date_exercise_patterns" id="date_exercise_patterns" value="" title="<?php echo xla('Exercise patterns') ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)"><img src="<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif" align="absbottom" width="15" height="15" id="img_exercise_patterns" border="0" alt="[?]" style="cursor:pointer" title="<?php echo xla('Click here to choose a date'); ?>">&nbsp;</td>
-                        <td class="text"><input type="radio" name="radio_exercise_patterns" id="radio_exercise_patterns[never]" value="neverexercise_patterns"<?php if ($PMSFH[0]['SOCH']['exercise_patterns']['restype'] =='neverexercise_patterns') echo "checked"; ?>><?php echo xlt('Never') ?>&nbsp;</td>
-                        <td><input name="radio_exercise_patterns" type="radio" id="radio_exercise_patterns[not_applicable]" <?php if ($PMSFH[0]['SOCH']['exercise_patterns']['restype'] =='not_applicable') echo "checked"; ?> value="not_applicableexercise_patterns"><label class="fa fa-history input-helper nodisplay" for="radio_exercise_patterns[not_applicable]"></label>
+                        <tbody><tr><td><input type="text" name="form_exercise_patterns" id="form_box" size="20" value="<?php echo attr($result2['exercise_patterns']['resnote']); ?>">&nbsp;</td><td class="bold">&nbsp;&nbsp;</td><td class="text"><input type="radio" name="radio_exercise_patterns" id="radio_exercise_patterns[current]" value="currentexercise_patterns" <?php if ($PMSFH[0]['SOCH']['exercise_patterns']['restype'] =='currentexercise_patterns') {
+                            echo "checked";
+} ?>><?php echo xlt('Current'); ?>&nbsp;</td>
+                        <td class="text"><input type="radio" name="radio_exercise_patterns" id="radio_exercise_patterns[quit]" value="quitexercise_patterns" <?php if ($PMSFH[0]['SOCH']['exercise_patterns']['restype'] =='quitexercise_patterns') {
+                            echo "checked";
+} ?>><?php echo xlt('Quit') ?>&nbsp;</td>
+                        <td class="text"><input type="text" class="datepicker" name="date_exercise_patterns" id="date_exercise_patterns" value="" title="<?php echo xla('Exercise patterns') ?>">&nbsp;</td>
+                        <td class="text"><input type="radio" name="radio_exercise_patterns" id="radio_exercise_patterns[never]" value="neverexercise_patterns"<?php if ($PMSFH[0]['SOCH']['exercise_patterns']['restype'] =='neverexercise_patterns') {
+                            echo "checked";
+} ?>><?php echo xlt('Never') ?>&nbsp;</td>
+                        <td><input name="radio_exercise_patterns" type="radio" id="radio_exercise_patterns[not_applicable]" <?php if ($PMSFH[0]['SOCH']['exercise_patterns']['restype'] =='not_applicable') {
+                            echo "checked";
+} ?> value="not_applicableexercise_patterns"><label class="fa fa-history input-helper nodisplay" for="radio_exercise_patterns[not_applicable]"></label>
                         </td>
                           </tr>
                         </tbody>
@@ -995,11 +1083,19 @@ foreach (explode(',',$given) as $item) {
                     <td class="right"  nowrap><?php echo xlt('Hazardous Activities'); ?>:</td>
                     <td class="text data" colspan="4">
                       <table cellpadding="0" cellspacing="0">
-                        <tbody><tr><td><input type="text" name="form_hazardous_activities" id="form_box" size="20" value="<?php echo attr($result2['hazardous_activities']['resnote']); ?>">&nbsp;</td><td class="bold">&nbsp;&nbsp;</td><td class="text"><input type="radio" name="radio_hazardous_activities" id="radio_hazardous_activities[current]" value="currenthazardous_activities" <?php if ($PMSFH[0]['SOCH']['hazardous_activities']['restype'] =='currenthazardous_activities') echo "checked"; ?>><?php echo xlt('Current'); ?>&nbsp;</td>
-                        <td class="text"><input type="radio" name="radio_hazardous_activities" id="radio_hazardous_activities[quit]" value="quithazardous_activities" <?php if ($PMSFH[0]['SOCH']['hazardous_activities']['restype'] =='quithazardous_activities') echo "checked"; ?>><?php echo xlt('Quit') ?>&nbsp;</td>
-                        <td class="text"><input type="text" name="date_hazardous_activities" id="date_hazardous_activities" value="" title="<?php echo xla('Hazardous activities') ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)"><img src="<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif" align="absbottom" width="15" height="15" id="img_hazardous_activities" border="0" alt="[?]" style="cursor:pointer" title="<?php echo xla('Click here to choose a date'); ?>">&nbsp;</td>
-                        <td class="text"><input type="radio" name="radio_hazardous_activities" id="radio_hazardous_activities[never]" value="neverhazardous_activities" <?php if ($PMSFH[0]['SOCH']['hazardous_activities']['restype'] =='neverhazardous_activities') echo "checked"; ?>><?php echo xlt('Never') ?>&nbsp;</td>
-                        <td><input name="radio_hazardous_activities" type="radio" id="radio_hazardous_activities[not_applicable]" <?php if ($PMSFH[0]['SOCH']['hazardous_activities']['restype'] =='not_applicable') echo "checked"; ?> value="not_applicablehazardous_activities" onclick="hazardous_activities_statusClicked(this)"><label class="fa fa-history input-helper nodisplay" for="radio_hazardous_activities[not_applicable]"></label>
+                        <tbody><tr><td><input type="text" name="form_hazardous_activities" id="form_box" size="20" value="<?php echo attr($result2['hazardous_activities']['resnote']); ?>">&nbsp;</td><td class="bold">&nbsp;&nbsp;</td><td class="text"><input type="radio" name="radio_hazardous_activities" id="radio_hazardous_activities[current]" value="currenthazardous_activities" <?php if ($PMSFH[0]['SOCH']['hazardous_activities']['restype'] =='currenthazardous_activities') {
+                            echo "checked";
+} ?>><?php echo xlt('Current'); ?>&nbsp;</td>
+                        <td class="text"><input type="radio" name="radio_hazardous_activities" id="radio_hazardous_activities[quit]" value="quithazardous_activities" <?php if ($PMSFH[0]['SOCH']['hazardous_activities']['restype'] =='quithazardous_activities') {
+                            echo "checked";
+} ?>><?php echo xlt('Quit') ?>&nbsp;</td>
+                        <td class="text"><input type="text" class="datepicker" name="date_hazardous_activities" id="date_hazardous_activities" value="" title="<?php echo xla('Hazardous activities') ?>">&nbsp;</td>
+                        <td class="text"><input type="radio" name="radio_hazardous_activities" id="radio_hazardous_activities[never]" value="neverhazardous_activities" <?php if ($PMSFH[0]['SOCH']['hazardous_activities']['restype'] =='neverhazardous_activities') {
+                            echo "checked";
+} ?>><?php echo xlt('Never') ?>&nbsp;</td>
+                        <td><input name="radio_hazardous_activities" type="radio" id="radio_hazardous_activities[not_applicable]" <?php if ($PMSFH[0]['SOCH']['hazardous_activities']['restype'] =='not_applicable') {
+                            echo "checked";
+} ?> value="not_applicablehazardous_activities" onclick="hazardous_activities_statusClicked(this)"><label class="fa fa-history input-helper nodisplay" for="radio_hazardous_activities[not_applicable]"></label>
                         </td>
                         </tr>
                         </tbody>
@@ -1027,64 +1123,92 @@ foreach (explode(',',$given) as $item) {
         <table id="row_FH" name="row_FH" width="90%">
           <tr>
             <td class="right" nowrap><?php echo xlt('Glaucoma'); ?>:</td>
-            <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext11" name="radio_usertext11" <?php if (!$result1['usertext11']) echo "checked='checked'"; ?>>
+            <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext11" name="radio_usertext11" <?php if (!$result1['usertext11']) {
+                echo "checked='checked'";
+} ?>>
               <input type="text" name="usertext11" id="usertext11" onclick='clear_option(this)' value="<?php echo attr($result1['usertext11']); ?>"></td>
             <td class="right" nowrap><?php echo xlt('Cataract'); ?>:</td>
-            <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext12" name="radio_usertext12" <?php if (!$result1['usertext12']) echo "checked='checked'"; ?>>
+            <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext12" name="radio_usertext12" <?php if (!$result1['usertext12']) {
+                echo "checked='checked'";
+} ?>>
               <input type="text" name="usertext12" id="usertext12" onclick='clear_option(this)' value="<?php echo attr($result1['usertext12']); ?>"></td>
           </tr>
           <tr>
             <td class="right" nowrap><?php echo xlt('AMD{{age related macular degeneration}}'); ?>:</td>
-            <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext13" name="radio_usertext13" <?php if (!$result1['usertext13']) echo "checked='checked'"; ?>>
+            <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext13" name="radio_usertext13" <?php if (!$result1['usertext13']) {
+                echo "checked='checked'";
+} ?>>
               <input type="text" name="usertext13" id="usertext13" onclick='clear_option(this)' value="<?php echo attr($result1['usertext13']); ?>"></td>
             <td class="right" nowrap><?php echo xlt('RD{{retinal detachment}}'); ?>:</td>
-            <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext14" name="radio_usertext14" <?php if (!$result1['usertext14']) echo "checked='checked'"; ?>>
+            <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext14" name="radio_usertext14" <?php if (!$result1['usertext14']) {
+                echo "checked='checked'";
+} ?>>
               <input type="text" name="usertext14" id="usertext14" onclick='clear_option(this)' value="<?php echo attr($result1['usertext14']); ?>"></td>
           </tr>
           <tr>
             <td class="right" nowrap><?php echo xlt('Blindness'); ?>:</td>
-            <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext15" name="radio_usertext15" <?php if (!$result1['usertext15']) echo "checked='checked'"; ?>>
+            <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext15" name="radio_usertext15" <?php if (!$result1['usertext15']) {
+                echo "checked='checked'";
+} ?>>
               <input type="text" name="usertext15" id="usertext15" onclick='clear_option(this)' value="<?php echo attr($result1['usertext15']); ?>"></td>
             <td class="right" nowrap><?php echo xlt('Amblyopia'); ?>:</td>
-            <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext16" name="radio_usertext16" <?php if (!$result1['usertext16']) echo "checked='checked'"; ?>>
+            <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext16" name="radio_usertext16" <?php if (!$result1['usertext16']) {
+                echo "checked='checked'";
+} ?>>
               <input type="text" name="usertext16" id="usertext16" onclick='clear_option(this)' value="<?php echo attr($result1['usertext16']); ?>"></td>
           </tr>
           <tr>
             <td class="right" nowrap><?php echo xlt('Strabismus'); ?>:</td>
-            <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext17" name="radio_usertext17" <?php if (!$result1['usertext17']) echo "checked='checked'"; ?>>
+            <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext17" name="radio_usertext17" <?php if (!$result1['usertext17']) {
+                echo "checked='checked'";
+} ?>>
               <input type="text" name="usertext17" id="usertext17" onclick='clear_option(this)' value="<?php echo attr($result1['usertext17']); ?>"></td>
             <td class="right" nowrap><?php echo xlt('Epilepsy'); ?>:</td>
             <td class="text data">
-              <input type="radio" onclick='negate_radio(this);' id="radio_relatives_epilepsy" name="radio_relatives_epilepsy" <?php if (!$result1['relatives_epilepsy']) echo "checked='checked'"; ?>>
+              <input type="radio" onclick='negate_radio(this);' id="radio_relatives_epilepsy" name="radio_relatives_epilepsy" <?php if (!$result1['relatives_epilepsy']) {
+                    echo "checked='checked'";
+} ?>>
               <input type="text" name="relatives_epilepsy" id="relatives_epilepsy" onclick='clear_option(this)' value="<?php echo attr($result1['relatives_epilepsy']); ?>"></td>
           </tr>
           <tr>
             <td class="right" nowrap><?php echo xlt('Cancer'); ?>:</td>
             <td class="text data">
-              <input type="radio" onclick='negate_radio(this);' id="radio_relatives_cancer" name="radio_relatives_cancer" <?php if (!$result1['relatives_cancer']) echo "checked='checked'"; ?>>
+              <input type="radio" onclick='negate_radio(this);' id="radio_relatives_cancer" name="radio_relatives_cancer" <?php if (!$result1['relatives_cancer']) {
+                    echo "checked='checked'";
+} ?>>
               <input type="text" name="relatives_cancer" id="relatives_cancer" onclick='clear_option(this)' value="<?php echo attr($result1['relatives_cancer']); ?>"></td>
             <td class="right" nowrap><?php echo xlt('Diabetes'); ?>:</td>
             <td class="text data">
-              <input type="radio" onclick='negate_radio(this);' id="radio_relatives_diabetes" name="radio_relatives_diabetes" <?php if (!$result1['relatives_diabetes']) echo "checked='checked'"; ?>>
+              <input type="radio" onclick='negate_radio(this);' id="radio_relatives_diabetes" name="radio_relatives_diabetes" <?php if (!$result1['relatives_diabetes']) {
+                    echo "checked='checked'";
+} ?>>
               <input type="text" name="relatives_diabetes" id="relatives_diabetes" onclick='clear_option(this)' value="<?php echo attr($result1['relatives_diabetes']); ?>"></td>
           </tr>
           <tr>
             <td class="right" nowrap><?php echo xlt('HTN{{hypertension}}'); ?>:</td>
             <td class="text data">
-              <input type="radio" onclick='negate_radio(this);' id="radio_relatives_high_blood_pressure" name="radio_relatives_high_blood_pressure" <?php if (!$result1['relatives_high_blood_pressure']) echo "checked='checked'"; ?>>
+              <input type="radio" onclick='negate_radio(this);' id="radio_relatives_high_blood_pressure" name="radio_relatives_high_blood_pressure" <?php if (!$result1['relatives_high_blood_pressure']) {
+                    echo "checked='checked'";
+} ?>>
               <input type="text" name="relatives_high_blood_pressure" id="relatives_high_blood_pressure" onclick='clear_option(this)' value="<?php echo attr($result1['relatives_high_blood_pressure']); ?>"></td>
             <td class="right" nowrap><?php echo xlt('Cardiac'); ?>:</td>
             <td class="text data">
-              <input type="radio" onclick='negate_radio(this);' id="radio_relatives_heart_problems" name="radio_relatives_heart_problems" <?php if (!$result1['relatives_heart_problems']) echo "checked='checked'"; ?>>
+              <input type="radio" onclick='negate_radio(this);' id="radio_relatives_heart_problems" name="radio_relatives_heart_problems" <?php if (!$result1['relatives_heart_problems']) {
+                    echo "checked='checked'";
+} ?>>
               <input type="text" name="relatives_heart_problems" id="relatives_heart_problems" onclick='clear_option(this)' value="<?php echo attr($result1['relatives_heart_problems']); ?>"></td>
           </tr>
           <tr>
             <td class="right" nowrap><?php echo xlt('Stroke'); ?>:</td>
             <td class="text data">
-              <input type="radio" onclick='negate_radio(this);' id="radio_relatives_stroke" name="radio_relatives_stroke" <?php if (!$result1['relatives_stroke']) echo "checked='checked'"; ?>>
+              <input type="radio" onclick='negate_radio(this);' id="radio_relatives_stroke" name="radio_relatives_stroke" <?php if (!$result1['relatives_stroke']) {
+                    echo "checked='checked'";
+} ?>>
               <input type="text" name="relatives_stroke" id="relatives_stroke" onclick='clear_option(this)' value="<?php echo attr($result1['relatives_stroke']); ?>"></td>
             <td class="right" nowrap><?php echo xlt('Other'); ?>:</td>
-            <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext18" name="radio_usertext18" <?php if (!$result1['usertext18']) echo "checked='checked'"; ?>>
+            <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext18" name="radio_usertext18" <?php if (!$result1['usertext18']) {
+                echo "checked='checked'";
+} ?>>
               <input type="text" name="usertext18" id="usertext18" onclick='clear_option(this)' value="<?php echo attr($result1['usertext18']); ?>"></td>
           </tr>
         </table>
@@ -1106,61 +1230,85 @@ foreach (explode(',',$given) as $item) {
           <tr>
             <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('General'); ?>:</label></td>
             <td>
-              <input type="radio" onclick='negate_radio(this);' id="radio_ROSGENERAL" name="radio_ROSGENERAL" <?php if (!$ROSGENERAL) echo "checked='checked'"; ?>>
+              <input type="radio" onclick='negate_radio(this);' id="radio_ROSGENERAL" name="radio_ROSGENERAL" <?php if (!$ROSGENERAL) {
+                    echo "checked='checked'";
+} ?>>
               <input type="text" name="ROSGENERAL" id="ROSGENERAL" onclick='clear_option(this)' value="<?php echo attr($ROSGENERAL); ?>"></td>
             <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('HEENT'); ?>:</td>
             <td>
-              <input type="radio" onclick='negate_radio(this);' id="radio_ROSHEENT" name="radio_ROSHEENT"<?php if (!$ROSHEENT) echo "checked='checked'"; ?>>
+              <input type="radio" onclick='negate_radio(this);' id="radio_ROSHEENT" name="radio_ROSHEENT"<?php if (!$ROSHEENT) {
+                    echo "checked='checked'";
+} ?>>
               <input type="text" name="ROSHEENT" id="ROSHEENT" onclick='clear_option(this)' value="<?php echo attr($ROSHEENT); ?>"></td>
           </tr>
           <tr>
             <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('CV{{Cardiovascular}}'); ?>:</td>
             <td>
-              <input type="radio" onclick='negate_radio(this);' id="radio_ROSCV" name="radio_ROSCV"<?php if (!$ROSCV) echo "checked='checked'"; ?>>
+              <input type="radio" onclick='negate_radio(this);' id="radio_ROSCV" name="radio_ROSCV"<?php if (!$ROSCV) {
+                    echo "checked='checked'";
+} ?>>
               <input type="text" name="ROSCV" id="ROSCV" onclick='clear_option(this)' value="<?php echo attr($ROSCV); ?>"></td>
             <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('Pulmonary'); ?>:</td>
             <td>
-              <input type="radio" onclick='negate_radio(this);' id="radio_ROSPULM" name="radio_ROSPULM"<?php if (!$ROSPULM) echo "checked='checked'"; ?>>
+              <input type="radio" onclick='negate_radio(this);' id="radio_ROSPULM" name="radio_ROSPULM"<?php if (!$ROSPULM) {
+                    echo "checked='checked'";
+} ?>>
               <input type="text" name="ROSPULM" id="ROSPULM" onclick='clear_option(this)' value="<?php echo attr($ROSPULM); ?>"></td>
             </tr>
           <tr>
             <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('GI{{Gastrointestinal}}'); ?>:</td>
             <td>
-              <input type="radio" onclick='negate_radio(this);' id="radio_ROSGI" name="radio_ROSGI"<?php if (!$ROSGI) echo "checked='checked'"; ?>>
+              <input type="radio" onclick='negate_radio(this);' id="radio_ROSGI" name="radio_ROSGI"<?php if (!$ROSGI) {
+                    echo "checked='checked'";
+} ?>>
               <input type="text" name="ROSGI" id="ROSGI" onclick='clear_option(this)' value="<?php echo attr($ROSGI); ?>"></td>
             <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('GU{{Genitourinary}}'); ?>:</td>
             <td>
-              <input type="radio" onclick='negate_radio(this);' id="radio_ROSGU" name="radio_ROSGU"<?php if (!$ROSGU) echo "checked='checked'"; ?>>
+              <input type="radio" onclick='negate_radio(this);' id="radio_ROSGU" name="radio_ROSGU"<?php if (!$ROSGU) {
+                    echo "checked='checked'";
+} ?>>
               <input type="text" name="ROSGU" id="ROSGU" onclick='clear_option(this)' value="<?php echo attr($ROSGU); ?>"></td>
           </tr>
           <tr>
             <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('Derm{{dermatologic}}'); ?>:</td>
             <td>
-              <input type="radio" onclick='negate_radio(this);' id="radio_ROSDERM" name="radio_ROSDERM"<?php if (!$ROSDERM) echo "checked='checked'"; ?>>
+              <input type="radio" onclick='negate_radio(this);' id="radio_ROSDERM" name="radio_ROSDERM"<?php if (!$ROSDERM) {
+                    echo "checked='checked'";
+} ?>>
               <input type="text" name="ROSDERM" id="ROSDERM" onclick='clear_option(this)' value="<?php echo attr($ROSDERM); ?>"></td>
             <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('Neuro{{neurologic}}'); ?>:</td>
             <td>
-              <input type="radio" onclick='negate_radio(this);' id="radio_ROSNEURO" name="radio_ROSNEURO"<?php if (!$ROSNEURO) echo "checked='checked'"; ?>>
+              <input type="radio" onclick='negate_radio(this);' id="radio_ROSNEURO" name="radio_ROSNEURO"<?php if (!$ROSNEURO) {
+                    echo "checked='checked'";
+} ?>>
               <input type="text" name="ROSNEURO" id="ROSNEURO" onclick='clear_option(this)' value="<?php echo attr($ROSNEURO); ?>"></td>
           </tr>
           <tr>
             <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('Psych{{psychiatric}}'); ?>:</td>
             <td>
-              <input type="radio" onclick='negate_radio(this);' id="radio_ROSPSYCH" name="radio_ROSPSYCH"<?php if (!$ROSPSYCH) echo "checked='checked'"; ?>>
+              <input type="radio" onclick='negate_radio(this);' id="radio_ROSPSYCH" name="radio_ROSPSYCH"<?php if (!$ROSPSYCH) {
+                    echo "checked='checked'";
+} ?>>
               <input type="text" name="ROSPSYCH" id="ROSPSYCH" onclick='clear_option(this)' value="<?php echo attr($ROSPSYCH); ?>"></td>
             <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('Musculo{{musculoskeletal}}'); ?>:</td>
             <td>
-              <input type="radio" onclick='negate_radio(this);' id="radio_ROSMUSCULO" name="radio_ROSMUSCULO"<?php if (!$ROSMUSCULO) echo "checked='checked'"; ?>>
+              <input type="radio" onclick='negate_radio(this);' id="radio_ROSMUSCULO" name="radio_ROSMUSCULO"<?php if (!$ROSMUSCULO) {
+                    echo "checked='checked'";
+} ?>>
               <input type="text" name="ROSMUSCULO" id="ROSMUSCULO" onclick='clear_option(this)' value="<?php echo attr($ROSMUSCULO); ?>"></td>
             </tr>
           <tr>
             <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('Immuno{{immunologic}}'); ?>:</td>
             <td>
-              <input type="radio" onclick='negate_radio(this);' id="radio_ROSIMMUNO" name="radio_ROSIMMUNO"<?php if (!$ROSIMMUNO) echo "checked='checked'"; ?>>
+              <input type="radio" onclick='negate_radio(this);' id="radio_ROSIMMUNO" name="radio_ROSIMMUNO"<?php if (!$ROSIMMUNO) {
+                    echo "checked='checked'";
+} ?>>
               <input type="text" name="ROSIMMUNO" id="ROSIMMUNO" onclick='clear_option(this)' value="<?php echo attr($ROSIMMUNO); ?>"></td>
             <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('Endocrine'); ?>:</td>
             <td>
-              <input type="radio" onclick='negate_radio(this);' id="radio_ROSENDOCRINE" name="radio_ROSENDOCRINE"<?php if (!$ROSENDOCRINE) echo "checked='checked'"; ?>>
+              <input type="radio" onclick='negate_radio(this);' id="radio_ROSENDOCRINE" name="radio_ROSENDOCRINE"<?php if (!$ROSENDOCRINE) {
+                    echo "checked='checked'";
+} ?>>
               <input type="text" name="ROSENDOCRINE" id="ROSENDOCRINE" onclick='clear_option(this)' value="<?php echo attr($ROSENDOCRINE); ?>"></td>
             </tr>
           <tr><td></td></tr>
@@ -1179,7 +1327,7 @@ foreach (explode(',',$given) as $item) {
           <input type='button' id='form_save' name='form_save'
           class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only navy"
           onclick='top.restoreSession();submit_this_form();' value='<?php echo xla('Save'); ?>' />
-          <?php
+            <?php
               $display_delete = "nodisplay";
             ?>
           &nbsp;
@@ -1195,26 +1343,30 @@ foreach (explode(',',$given) as $item) {
       </form>
     </div>
     <script language='JavaScript'>
-       newtype('<?php if (!$form_index) { echo "POH"; } else { echo $type_index; } ?>');
-       Calendar.setup({inputField:"form_begin", ifFormat:"%Y-%m-%d", button:"img_begin"});
-       Calendar.setup({inputField:"form_end", ifFormat:"%Y-%m-%d", button:"img_end"});
-       <?php
-       $has_cal ="tobacco,coffee,alcohol,recreational_drugs,exercise_patterns";
-       foreach (explode(',',$has_cal) as $item) {
-        echo 'Calendar.setup({inputField:"date_'.$item.'", ifFormat:"%Y-%m-%d", button:"img_'.$item.'"});';
-       } ?>
+       newtype('<?php if (!$form_index) {
+            echo "POH";
+} else {
+    echo $type_index;
+} ?>');
 
-      $(document).ready(function() {
-        $('[title]').qtip({
-                      position: {
-                        my: 'top Right',  // Position my top left...
-                        at: 'bottom Left', // at the bottom right of...
-                        target: 'mouse' // my target
-                      }
-                    });
-        //$("textarea,text").css("background-color","#FFF8DC");
+        $(document).ready(function() {
+            $('[title]').qtip({
+                position: {
+                    my: 'top Right',  // Position my top left...
+                    at: 'bottom Left', // at the bottom right of...
+                    target: 'mouse' // my target
+                }
+            });
+            //$("textarea,text").css("background-color","#FFF8DC");
 
-      });
+            $('.datepicker').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = false; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+        });
     </script>
   </body>
 </html>

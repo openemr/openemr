@@ -4,7 +4,7 @@ namespace ESign;
 
 /**
  * Implementation of form configuration
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or

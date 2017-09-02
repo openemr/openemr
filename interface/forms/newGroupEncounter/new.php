@@ -22,8 +22,8 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 include_once("../../globals.php");
 include_once("$srcdir/acl.inc");
@@ -48,5 +48,8 @@ if (($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) ||
 }*/
 
 $viewmode = false;
-require_once("common.php");
-?>
+if (acl_check("groups", "glog", false, 'write')) {
+    require_once("common.php");
+} else {
+    echo xlt("access not allowed");
+}

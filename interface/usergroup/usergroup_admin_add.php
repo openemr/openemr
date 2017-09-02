@@ -1,8 +1,23 @@
 <?php
+/**
+ * Add new user.
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 require_once("../globals.php");
 require_once("../../library/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
+
+use OpenEMR\Menu\MainMenuRole;
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 $alertmsg = '';
 
@@ -30,8 +45,7 @@ $alertmsg = '';
 $collectthis = collectValidationPageRules("/interface/usergroup/usergroup_admin_add.php");
 if (empty($collectthis)) {
     $collectthis = "undefined";
-}
-else {
+} else {
     $collectthis = $collectthis["new_user"]["rules"];
 }
 ?>
@@ -45,15 +59,15 @@ var collectvalidation = <?php echo($collectthis); ?>;
 
 function trimAll(sString)
 {
-	while (sString.substring(0,1) == ' ')
-	{
-		sString = sString.substring(1, sString.length);
-	}
-	while (sString.substring(sString.length-1, sString.length) == ' ')
-	{
-		sString = sString.substring(0,sString.length-1);
-	}
-	return sString;
+    while (sString.substring(0,1) == ' ')
+    {
+        sString = sString.substring(1, sString.length);
+    }
+    while (sString.substring(sString.length-1, sString.length) == ' ')
+    {
+        sString = sString.substring(0,sString.length-1);
+    }
+    return sString;
 }
 
 function submitform() {
@@ -70,13 +84,29 @@ function submitform() {
       if(password != "") {
          var pwdresult = passwordvalidate(password);
          if(pwdresult == 0){
-            alert("<?php echo xl('The password must be at least eight characters, and should'); echo '\n'; echo xl('contain at least three of the four following items:'); echo '\n'; echo xl('A number'); echo '\n'; echo xl('A lowercase letter'); echo '\n'; echo xl('An uppercase letter'); echo '\n'; echo xl('A special character');echo '('; echo xl('not a letter or number'); echo ').'; echo '\n'; echo xl('For example:'); echo ' healthCare@09'; ?>");
+            alert("<?php echo xl('The password must be at least eight characters, and should');
+            echo '\n';
+            echo xl('contain at least three of the four following items:');
+            echo '\n';
+            echo xl('A number');
+            echo '\n';
+            echo xl('A lowercase letter');
+            echo '\n';
+            echo xl('An uppercase letter');
+            echo '\n';
+            echo xl('A special character');
+            echo '(';
+            echo xl('not a letter or number');
+            echo ').';
+            echo '\n';
+            echo xl('For example:');
+            echo ' healthCare@09'; ?>");
             return false;
          }
       }
    } //secure_pwd if ends here
 
-   <?php if($GLOBALS['erx_enable']){ ?>
+    <?php if ($GLOBALS['erx_enable']) { ?>
    alertMsg='';
    f=document.forms[0];
    for(i=0;i<f.length;i++){
@@ -119,7 +149,7 @@ function submitform() {
       alert(alertMsg);
       return false;
    }
-   <?php } // End erx_enable only include block?>
+    <?php } // End erx_enable only include block?>
 
     document.forms[0].submit();
     parent.$.fn.fancybox.close();
@@ -140,12 +170,12 @@ function authorized_clicked() {
 </head>
 <body class="body_top">
 <table><tr><td>
-<span class="title"><?php xl('Add User','e'); ?></span>&nbsp;</td>
+<span class="title"><?php xl('Add User', 'e'); ?></span>&nbsp;</td>
 <td>
 <a class="css_button" name='form_save' id='form_save' href='#' onclick="return submitform()">
-	<span><?php xl('Save','e');?></span></a>
+    <span><?php xl('Save', 'e');?></span></a>
 <a class="css_button large_button" id='cancel' href='#'>
-	<span class='css_button_span large_button_span'><?php xl('Cancel','e');?></span>
+    <span class='css_button_span large_button_span'><?php xl('Cancel', 'e');?></span>
 </a>
 </td></tr></table>
 <br><br>
@@ -161,129 +191,140 @@ function authorized_clicked() {
 <span class="bold">&nbsp;</span>
 <table border=0 cellpadding=0 cellspacing=0 style="width:600px;">
 <tr>
-<td style="width:150px;"><span class="text"><?php xl('Username','e'); ?>: </span></td><td  style="width:220px;"><input type=entry name="rumple" style="width:120px;"> <span class="mandatory">&nbsp;*</span></td>
-    <?php if(!$GLOBALS['use_active_directory']) { ?>
-<td style="width:150px;"><span class="text"><?php xl('Password','e'); ?>: </span></td><td style="width:250px;"><input type="password" style="width:120px;" name="stiltskin"><span class="mandatory">&nbsp;*</span></td>
-    <?php }else{ ?>
+<td style="width:150px;"><span class="text"><?php xl('Username', 'e'); ?>: </span></td><td  style="width:220px;"><input type=entry name="rumple" style="width:120px;"> <span class="mandatory">&nbsp;*</span></td>
+    <?php if (!$GLOBALS['use_active_directory']) { ?>
+<td style="width:150px;"><span class="text"><?php xl('Password', 'e'); ?>: </span></td><td style="width:250px;"><input type="password" style="width:120px;" name="stiltskin"><span class="mandatory">&nbsp;*</span></td>
+    <?php } else { ?>
         <td> <input type="hidden" value="124" name="stiltskin" /></td>
     <?php } ?>
 </tr>
 <tr>
     <td style="width:150px;"></td><td  style="width:220px;"></span></td>
-    <TD style="width:200px;"><span class=text><?php xl('Your Password','e'); ?>: </span></TD>
+    <TD style="width:200px;"><span class=text><?php xl('Your Password', 'e'); ?>: </span></TD>
     <TD class='text' style="width:280px;"><input type='password' name=adminPass style="width:120px;"  value="" autocomplete='off'><font class="mandatory">*</font></TD>
 
 </tr>
 <tr>
-<td><span class="text"<?php if ($GLOBALS['disable_non_default_groups']) echo " style='display:none'"; ?>><?php xl('Groupname','e'); ?>: </span></td>
+<td><span class="text"<?php if ($GLOBALS['disable_non_default_groups']) {
+    echo " style='display:none'";
+} ?>><?php xl('Groupname', 'e'); ?>: </span></td>
 <td>
-<select name=groupname<?php if ($GLOBALS['disable_non_default_groups']) echo " style='display:none'"; ?>>
+<select name=groupname<?php if ($GLOBALS['disable_non_default_groups']) {
+    echo " style='display:none'";
+} ?>>
 <?php
 $res = sqlStatement("select distinct name from groups");
 $result2 = array();
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-  $result2[$iter] = $row;
+for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+    $result2[$iter] = $row;
+}
+
 foreach ($result2 as $iter) {
-  print "<option value='".$iter{"name"}."'>" . $iter{"name"} . "</option>\n";
+    print "<option value='".$iter{"name"}."'>" . $iter{"name"} . "</option>\n";
 }
 ?>
 </select></td>
-<td><span class="text"><?php xl('Provider','e'); ?>: </span></td><td>
+<td><span class="text"><?php xl('Provider', 'e'); ?>: </span></td><td>
  <input type='checkbox' name='authorized' value='1' onclick='authorized_clicked()' />
- &nbsp;&nbsp;<span class='text'><?php xl('Calendar','e'); ?>:
+ &nbsp;&nbsp;<span class='text'><?php xl('Calendar', 'e'); ?>:
  <input type='checkbox' name='calendar' disabled />
 </td>
 </tr>
 <tr>
-<td><span class="text"><?php xl('First Name','e'); ?>: </span></td><td><input type=entry name='fname' id='fname' style="width:120px;"><span class="mandatory">&nbsp;*</span></td>
-<td><span class="text"><?php xl('Middle Name','e'); ?>: </span></td><td><input type=entry name='mname' style="width:120px;"></td>
+<td><span class="text"><?php xl('First Name', 'e'); ?>: </span></td><td><input type=entry name='fname' id='fname' style="width:120px;"><span class="mandatory">&nbsp;*</span></td>
+<td><span class="text"><?php xl('Middle Name', 'e'); ?>: </span></td><td><input type=entry name='mname' style="width:120px;"></td>
 </tr>
 <tr>
-<td><span class="text"><?php xl('Last Name','e'); ?>: </span></td><td><input type=entry name='lname' id='lname' style="width:120px;"><span class="mandatory">&nbsp;*</span></td>
-<td><span class="text"><?php xl('Default Facility','e'); ?>: </span></td><td><select style="width:120px;" name=facility_id>
+<td><span class="text"><?php xl('Last Name', 'e'); ?>: </span></td><td><input type=entry name='lname' id='lname' style="width:120px;"><span class="mandatory">&nbsp;*</span></td>
+<td><span class="text"><?php xl('Default Facility', 'e'); ?>: </span></td><td><select style="width:120px;" name=facility_id>
 <?php
-$fres = sqlStatement("select * from facility where service_location != 0 order by name");
+$fres = $facilityService->getAllServiceLocations();
 if ($fres) {
-  for ($iter = 0;$frow = sqlFetchArray($fres);$iter++)
-    $result[$iter] = $frow;
-  foreach($result as $iter) {
-?>
-<option value="<?php echo $iter{'id'};?>"><?php echo $iter{'name'};?></option>
+    for ($iter = 0; $iter < sizeof($fres); $iter++) {
+        $result[$iter] = $fres[$iter];
+    }
+
+    foreach ($result as $iter) {
+    ?>
+    <option value="<?php echo $iter{'id'};?>"><?php echo $iter{'name'};?></option>
 <?php
-  }
+    }
 }
 ?>
 </select></td>
 </tr>
 <tr>
-<td><span class="text"><?php xl('Federal Tax ID','e'); ?>: </span></td><td><input type=entry name='federaltaxid' style="width:120px;"></td>
-<td><span class="text"><?php xl('Federal Drug ID','e'); ?>: </span></td><td><input type=entry name='federaldrugid' style="width:120px;"></td>
+<td><span class="text"><?php xl('Federal Tax ID', 'e'); ?>: </span></td><td><input type=entry name='federaltaxid' style="width:120px;"></td>
+<td><span class="text"><?php xl('Federal Drug ID', 'e'); ?>: </span></td><td><input type=entry name='federaldrugid' style="width:120px;"></td>
 </tr>
 <tr>
-<td><span class="text"><?php xl('UPIN','e'); ?>: </span></td><td><input type="entry" name="upin" style="width:120px;"></td>
-<td class='text'><?php xl('See Authorizations','e'); ?>: </td>
+<td><span class="text"><?php xl('UPIN', 'e'); ?>: </span></td><td><input type="entry" name="upin" style="width:120px;"></td>
+<td class='text'><?php xl('See Authorizations', 'e'); ?>: </td>
 <td><select name="see_auth" style="width:120px;">
 <?php
- foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value)
- {
-  echo " <option value='$key'";
-  echo ">$value</option>\n";
- }
+foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value) {
+    echo " <option value='$key'";
+    echo ">$value</option>\n";
+}
 ?>
 </select></td>
 
 <tr>
-<td><span class="text"><?php xl('NPI','e'); ?>: </span></td><td><input type="entry" name="npi" style="width:120px;"></td>
-<td><span class="text"><?php xl('Job Description','e'); ?>: </span></td><td><input type="entry" name="specialty" style="width:120px;"></td>
+<td><span class="text"><?php xl('NPI', 'e'); ?>: </span></td><td><input type="entry" name="npi" style="width:120px;"></td>
+<td><span class="text"><?php xl('Job Description', 'e'); ?>: </span></td><td><input type="entry" name="specialty" style="width:120px;"></td>
 </tr>
 
 <tr>
-	<td>
-		<span class="text"><?php xl('Provider Type','e'); ?>: </span>
-	</td>
-	<td>
-		<?php echo generate_select_list("physician_type", "physician_type", '','',xl('Select Type'),'physician_type_class','','',''); ?>
-	</td>
+    <td>
+        <span class="text"><?php xl('Provider Type', 'e'); ?>: </span>
+    </td>
+    <td>
+        <?php echo generate_select_list("physician_type", "physician_type", '', '', xl('Select Type'), 'physician_type_class', '', '', ''); ?>
+    </td>
+  <td>
+    <span class="text"><?php echo xlt('Main Menu Role'); ?>: </span>
+  </td>
+  <td>
+    <?php echo MainMenuRole::displayMainMenuRoleSelector(); ?>
+  </td>
 </tr>
 
-<!-- (CHEMED) Calendar UI preference -->
 <tr>
-<td><span class="text"><?php xl('Taxonomy','e'); ?>: </span></td>
+<td><span class="text"><?php xl('Taxonomy', 'e'); ?>: </span></td>
 <td><input type="entry" name="taxonomy" style="width:120px;" value="207Q00000X"></td>
-<td><span class="text"><?php xl('Calendar UI','e'); ?>: </span></td><td><select name="cal_ui" style="width:120px;">
-<?php
- foreach (array(3 => xl('Outlook'), 1 => xl('Original'), 2 => xl('Fancy')) as $key => $value)
- {
-  echo " <option value='$key'>$value</option>\n";
- }
-?>
-</select></td>
-</tr>
-<!-- END (CHEMED) Calendar UI preference -->
+<td>&nbsp;</td><td>&nbsp;</td></tr>
 
 <tr>
-<td><span class="text"><?php xl('State License Number','e'); ?>: </span></td>
+<td><span class="text"><?php xl('State License Number', 'e'); ?>: </span></td>
 <td><input type="text" name="state_license_number" style="width:120px;"></td>
-<td class='text'><?php xl('NewCrop eRX Role','e'); ?>:</td>
+<td class='text'><?php xl('NewCrop eRX Role', 'e'); ?>:</td>
 <td>
-  <?php echo generate_select_list("erxrole", "newcrop_erx_role", '','','--Select Role--','','','',array('style'=>'width:120px')); ?>
+    <?php echo generate_select_list("erxrole", "newcrop_erx_role", '', '', '--Select Role--', '', '', '', array('style'=>'width:120px')); ?>
 </td>
 </tr>
 
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
 <tr>
- <td class="text"><?php xl('Default Warehouse','e'); ?>: </td>
+ <td class="text"><?php xl('Default Warehouse', 'e'); ?>: </td>
  <td class='text'>
 <?php
-echo generate_select_list('default_warehouse', 'warehouse',
-  '', '');
+echo generate_select_list(
+    'default_warehouse',
+    'warehouse',
+    '',
+    ''
+);
 ?>
  </td>
- <td class="text"><?php xl('Invoice Refno Pool','e'); ?>: </td>
+ <td class="text"><?php xl('Invoice Refno Pool', 'e'); ?>: </td>
  <td class='text'>
 <?php
-echo generate_select_list('irnpool', 'irnpool', '',
-  xl('Invoice reference number pool, if used'));
+echo generate_select_list(
+    'irnpool',
+    'irnpool',
+    '',
+    xl('Invoice reference number pool, if used')
+);
 ?>
  </td>
 </tr>
@@ -291,33 +332,32 @@ echo generate_select_list('irnpool', 'irnpool', '',
 
 <?php
  // List the access control groups if phpgacl installed
- if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
+if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
 ?>
-  <tr>
-  <td class='text'><?php xl('Access Control','e'); ?>:</td>
-  <td><select name="access_group[]" multiple style="width:120px;">
-  <?php
-   $list_acl_groups = acl_get_group_title_list();
-   $default_acl_group = 'Administrators';
-   foreach ($list_acl_groups as $value) {
+ <tr>
+<td class='text'><?php xl('Access Control', 'e'); ?>:</td>
+ <td><select name="access_group[]" multiple style="width:120px;">
+<?php
+  $list_acl_groups = acl_get_group_title_list();
+  $default_acl_group = 'Administrators';
+foreach ($list_acl_groups as $value) {
     if ($default_acl_group == $value) {
-     // Modified 6-2009 by BM - Translate group name if applicable
-     echo " <option value='$value' selected>" . xl_gacl_group($value) . "</option>\n";
+        // Modified 6-2009 by BM - Translate group name if applicable
+        echo " <option value='$value' selected>" . xl_gacl_group($value) . "</option>\n";
+    } else {
+        // Modified 6-2009 by BM - Translate group name if applicable
+        echo " <option value='$value'>" . xl_gacl_group($value) . "</option>\n";
     }
-    else {
-     // Modified 6-2009 by BM - Translate group name if applicable
-     echo " <option value='$value'>" . xl_gacl_group($value) . "</option>\n";
-    }
-   }
-  ?>
+}
+    ?>
   </select></td>
-  <td><span class="text"><?php xl('Additional Info','e'); ?>: </span></td>
+  <td><span class="text"><?php xl('Additional Info', 'e'); ?>: </span></td>
   <td><textarea name=info style="width:120px;" cols=27 rows=4 wrap=auto></textarea></td>
 
   </tr>
   <tr height="25"><td colspan="4">&nbsp;</td></tr>
 <?php
- }
+}
 ?>
 
 </table>
@@ -329,71 +369,81 @@ echo generate_select_list('irnpool', 'irnpool', '',
 
 </tr>
 
-<tr<?php if ($GLOBALS['disable_non_default_groups']) echo " style='display:none'"; ?>>
+<tr<?php if ($GLOBALS['disable_non_default_groups']) {
+    echo " style='display:none'";
+} ?>>
 
 <td valign=top>
 <form name='new_group' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
 <br>
 <input type=hidden name=mode value=new_group>
-<span class="bold"><?php xl('New Group','e'); ?>:</span>
+<span class="bold"><?php xl('New Group', 'e'); ?>:</span>
 </td><td>
-<span class="text"><?php xl('Groupname','e'); ?>: </span><input type=entry name=groupname size=10>
+<span class="text"><?php xl('Groupname', 'e'); ?>: </span><input type=entry name=groupname size=10>
 &nbsp;&nbsp;&nbsp;
-<span class="text"><?php xl('Initial User','e'); ?>: </span>
+<span class="text"><?php xl('Initial User', 'e'); ?>: </span>
 <select name=rumple>
 <?php
 $res = sqlStatement("select distinct username from users where username != ''");
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-  $result[$iter] = $row;
+for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+    $result[$iter] = $row;
+}
+
 foreach ($result as $iter) {
-  print "<option value='".$iter{"username"}."'>" . $iter{"username"} . "</option>\n";
+    print "<option value='".$iter{"username"}."'>" . $iter{"username"} . "</option>\n";
 }
 ?>
 </select>
 &nbsp;&nbsp;&nbsp;
-<input type="submit" value=<?php xl('Save','e'); ?>>
+<input type="submit" value=<?php xl('Save', 'e'); ?>>
 </form>
 </td>
 
 </tr>
 
-<tr <?php if ($GLOBALS['disable_non_default_groups']) echo " style='display:none'"; ?>>
+<tr <?php if ($GLOBALS['disable_non_default_groups']) {
+    echo " style='display:none'";
+} ?>>
 
 <td valign=top>
 <form name='new_group' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
 <input type=hidden name=mode value=new_group>
-<span class="bold"><?php xl('Add User To Group','e'); ?>:</span>
+<span class="bold"><?php xl('Add User To Group', 'e'); ?>:</span>
 </td><td>
 <span class="text">
-<?php xl('User','e'); ?>
+<?php xl('User', 'e'); ?>
 : </span>
 <select name=rumple>
 <?php
 $res = sqlStatement("select distinct username from users where username != ''");
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-  $result3[$iter] = $row;
+for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+    $result3[$iter] = $row;
+}
+
 foreach ($result3 as $iter) {
-  print "<option value='".$iter{"username"}."'>" . $iter{"username"} . "</option>\n";
+    print "<option value='".$iter{"username"}."'>" . $iter{"username"} . "</option>\n";
 }
 ?>
 </select>
 &nbsp;&nbsp;&nbsp;
-<span class="text"><?php xl('Groupname','e'); ?>: </span>
+<span class="text"><?php xl('Groupname', 'e'); ?>: </span>
 <select name=groupname>
 <?php
 $res = sqlStatement("select distinct name from groups");
 $result2 = array();
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-  $result2[$iter] = $row;
+for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+    $result2[$iter] = $row;
+}
+
 foreach ($result2 as $iter) {
-  print "<option value='".$iter{"name"}."'>" . $iter{"name"} . "</option>\n";
+    print "<option value='".$iter{"name"}."'>" . $iter{"name"} . "</option>\n";
 }
 ?>
 </select>
 &nbsp;&nbsp;&nbsp;
-<input type="submit" value=<?php xl('Add User To Group','e'); ?>>
+<input type="submit" value=<?php xl('Add User To Group', 'e'); ?>>
 </form>
 </td>
 </tr>
@@ -402,33 +452,34 @@ foreach ($result2 as $iter) {
 
 <?php
 if (empty($GLOBALS['disable_non_default_groups'])) {
-  $res = sqlStatement("select * from groups order by name");
-  for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-    $result5[$iter] = $row;
+    $res = sqlStatement("select * from groups order by name");
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+        $result5[$iter] = $row;
+    }
 
-  foreach ($result5 as $iter) {
-    $grouplist{$iter{"name"}} .= $iter{"user"} .
-      "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
-      $iter{"id"} . "' onclick='top.restoreSession()'>Remove</a>), ";
-  }
+    foreach ($result5 as $iter) {
+        $grouplist{$iter{"name"}} .= $iter{"user"} .
+        "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
+        $iter{"id"} . "' onclick='top.restoreSession()'>Remove</a>), ";
+    }
 
-  foreach ($grouplist as $groupname => $list) {
-    print "<span class='bold'>" . $groupname . "</span><br>\n<span class='text'>" .
-      substr($list,0,strlen($list)-2) . "</span><br>\n";
-  }
+    foreach ($grouplist as $groupname => $list) {
+        print "<span class='bold'>" . $groupname . "</span><br>\n<span class='text'>" .
+        substr($list, 0, strlen($list)-2) . "</span><br>\n";
+    }
 }
 ?>
 
 <script language="JavaScript">
 <?php
-  if ($alertmsg = trim($alertmsg)) {
+if ($alertmsg = trim($alertmsg)) {
     echo "alert('$alertmsg');\n";
-  }
+}
 ?>
 $(document).ready(function(){
     $("#cancel").click(function() {
-		  parent.$.fn.fancybox.close();
-	 });
+          parent.$.fn.fancybox.close();
+     });
 
 });
 </script>

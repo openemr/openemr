@@ -9,7 +9,8 @@
 include_once("../../globals.php");
 include_once($GLOBALS["srcdir"] . "/api.inc");
 
-function strength_conditioning_report($pid, $encounter, $cols, $id) {
+function strength_conditioning_report($pid, $encounter, $cols, $id)
+{
  /****
  $cols = 1; // force always 1 column
  $count = 0;
@@ -44,4 +45,3 @@ function strength_conditioning_report($pid, $encounter, $cols, $id) {
  }
  ****/
 }
-?>

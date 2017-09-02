@@ -21,27 +21,28 @@
 
 /**
  * Benchmark::Timer
- * 
+ *
  * Purpose:
- * 
+ *
  *     Timing Script Execution, Generating Profiling Information
- * 
+ *
  * Example:
- * 
+ *
  *     $timer = new Benchmark_Timer;
- * 
+ *
  *     $timer->start();
  *     $timer->setMarker('Marker 1');
  *     $timer->stop();
- * 
+ *
  *     $profiling = $timer->getProfiling();
- * 
+ *
  * @author   Sebastian Bergmann <sb@sebastian-bergmann.de>
  * @version  $Revision$
  * @access   public
  */
 
-class Benchmark_Timer {
+class Benchmark_Timer
+{
     /**
      * Contains the markers
      *
@@ -56,7 +57,8 @@ class Benchmark_Timer {
      * @see    setMarker(), stop()
      * @access public
      */
-    function start() {
+    function start()
+    {
         $this->setMarker('Start');
     }
 
@@ -66,7 +68,8 @@ class Benchmark_Timer {
      * @see    setMarker(), start()
      * @access public
      */
-    function stop() {
+    function stop()
+    {
         $this->setMarker('Stop');
     }
 
@@ -77,7 +80,8 @@ class Benchmark_Timer {
      * @see    start(), stop()
      * @access public
      */
-    function setMarker($name) {
+    function setMarker($name)
+    {
         $microtime = explode(' ', microtime());
         $this->markers[$name] = $microtime[1] . substr($microtime[0], 1);
     }
@@ -90,7 +94,8 @@ class Benchmark_Timer {
      * @return double  $time_elapsed time elapsed between $start and $end
      * @access public
      */
-    function timeElapsed($start = 'Start', $end = 'Stop') {
+    function timeElapsed($start = 'Start', $end = 'Stop')
+    {
         if (extension_loaded('bcmath')) {
             return bcsub($this->markers[$end], $this->markers[$start], 6);
         } else {
@@ -109,7 +114,8 @@ class Benchmark_Timer {
      * @return array $profiling
      * @access public
      */
-    function getProfiling() {
+    function getProfiling()
+    {
         $i = 0;
         $total = 0;
         $result = array();
@@ -119,7 +125,7 @@ class Benchmark_Timer {
                 $diff = '-';
             } else {
                 if (extension_loaded('bcmath')) {
-                    $diff  = bcsub($time,  $temp, 6);
+                    $diff  = bcsub($time, $temp, 6);
                     $total = bcadd($total, $diff, 6);
                 } else {
                     $diff  = $time - $temp;
@@ -139,4 +145,3 @@ class Benchmark_Timer {
         return $result;
     }
 }
-?>

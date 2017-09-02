@@ -27,13 +27,16 @@
  *
  */
 
-$fake_register_globals = false;
-$sanitize_all_escapes = true;
+
 
 require_once("../globals.php");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/appointments.inc.php";
 
+use OpenEMR\Core\Header;
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 $selectedFromDate = isset($_POST['form_from_date']) ? $_POST['form_from_date'] : date('Y-m-d'); // From date filter
 $selectedToDate = isset($_POST['form_to_date']) ? $_POST['form_to_date'] : date('Y-m-d');   // To date filter
@@ -46,13 +49,9 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
 
 <html>
     <head>
-        <?php html_header_show(); ?>
-        <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
-        <script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+        <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
+
         <script type="text/javascript">
 
 
@@ -106,43 +105,45 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                             <div style='float: left'>
                                 <table class='text'>
                                     <tr>
-                                        <td class='label'><?php echo xlt('Facility'); ?>:</td>
+                                        <td class='control-label'><?php echo xlt('Facility'); ?>:</td>
                                         <td><?php dropdown_facility($selectedFacility, 'form_facility', false); ?></td>
-                                        <td class='label'><?php echo xlt('From'); ?>:</td>
+                                        <td class='control-label'><?php echo xlt('From'); ?>:</td>
                                         <td>
                                             <input type='text' name='form_from_date' id="form_from_date"
-                                                   class='datepicker'
+                                                   class='datepicker form-control'
                                                    size='10' value='<?php echo attr($from_date) ?>'
                                                    title='yyyy-mm-dd'>
                                         </td>
-                                        <td class='label'><?php echo xlt('To'); ?>:</td>
+                                        <td class='control-label'><?php echo xlt('To'); ?>:</td>
                                         <td>
                                             <input type='text' name='form_to_date' id="form_to_date"
-                                                   class='datepicker'
+                                                   class='datepicker form-control'
                                                    size='10' value='<?php echo attr($to_date) ?>'
                                                    title='yyyy-mm-dd'>
                                         </td>
+                                        <td class='control-label'><?php echo xlt('Provider'); ?>:</td>
+                                        <td>
+                                            <?php
+                                            generate_form_field(array('data_type' => 10, 'field_id' => 'provider',
+                                            'empty_title' => '-- All Providers --'), $selectedProvider);
+                                            ?>
+                                        </td>
                                 </table>
                             </div>
-                        </td>
-                        <td class='label'><?php echo xlt('Provider'); ?>:</td>
-                        <td>
-                            <?php
-                            generate_form_field(array('data_type' => 10, 'field_id' => 'provider',
-                                'empty_title' => '-- All Providers --'), $selectedProvider);
-                            ?>
                         </td>
                         <td align='left' valign='middle' height="100%">
                             <table style='border-left: 1px solid; width: 100%; height: 100%'>
                                 <tr>
                                     <td>
-                                        <div style='margin-left: 15px'>
-                                            <a href='#' class='css_button' onclick='return submitForm();'>
-                                                <span> <?php echo xlt('Submit'); ?> </span>
-                                            </a>
-                                            <a href='' class="css_button" id='new0' onClick=" return top.window.parent.left_nav.loadFrame2('new0', 'RTop', 'reports/daily_summary_report.php')">
-                                               <span><?php echo xlt('Reset'); ?></span>
-                                            </a>
+                                        <div class="text-center">
+                                            <div class="btn-group" role="group">
+                                                <a href='#' class='btn btn-default btn-save' onclick='return submitForm();'>
+                                                    <?php echo xlt('Submit'); ?>
+                                                </a>
+                                                <a href='' class="btn btn-default btn-refresh" id='new0' onClick=" return top.window.parent.left_nav.loadFrame2('new0', 'RTop', 'reports/daily_summary_report.php')">
+                                                    <?php echo xlt('Reset'); ?>
+                                                </a>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -160,6 +161,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
         if (!empty($selectedFromDate) && !empty($selectedToDate)) {
             $dateSet = 1;
         }
+
         if (isset($selectedFacility) && !empty($selectedFacility)) {
             $facilitySet = 1;
         }
@@ -171,18 +173,19 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
         $whereTotalVisitConditions = $whereTotalPaymentConditions = $wherePaidConditions = $whereNewPatientConditions = '1 = 1 ';
 
         // fetch all facility from the table
-        $facilityReacords = sqlStatement("SELECT `id`,`name` from facility");
-        while ($facilityList = sqlFetchArray($facilityReacords)) {
+        $facilityRecords = $facilityService->getAll();
+        foreach ($facilityRecords as $facilityList) {
             if (1 === $facilitySet && $facilityList['id'] == $selectedFacility) {
                 $facilities[$facilityList['id']] = $facilityList['name'];
             }
+
             if (empty($selectedFacility)) {
                 $facilities[$facilityList['id']] = $facilityList['name'];
             }
         }
 
         // define provider and facility as null
-        $providerID = $facilityID = NULL;
+        $providerID = $facilityID = null;
         // define all the bindarray variables as initial blank array
         $sqlBindArrayAppointment = $sqlBindArrayTotalVisit = $sqlBindArrayTotalPayment = $sqlBindArrayPaid = $sqlBindArrayNewPatient = array();
 
@@ -240,7 +243,6 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
         $totalAppointmentSql = fetchAppointments($from_date, $to_date, null, $providerID, $facilityID);
         if (count($totalAppointmentSql) > 0) { // check if $totalAppointmentSql array has value
             foreach ($totalAppointmentSql as $appointment) {
-
                 $eventDate = $appointment['pc_eventDate'];
                 $facility = $appointment['name'];
                 $providerName = $appointment['ufname'] . ' ' . $appointment['ulname'];
@@ -249,16 +251,20 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                 if (!isset($totalAppointment[$eventDate])) {
                     $totalAppointment[$eventDate] = [];
                 }
+
                 if (!isset($totalAppointment[$eventDate][$facility])) {
                     $totalAppointment[$eventDate][$facility] = [];
                 }
+
                 if (!isset($totalAppointment[$eventDate][$facility][$providerName])) {
                     $totalAppointment[$eventDate][$facility][$providerName] = [];
                 }
+
                 // initialize the number of appointment to 0
                 if (!isset($totalAppointment[$eventDate][$facility][$providerName]['appointments'])) {
                     $totalAppointment[$eventDate][$facility][$providerName]['appointments'] = 0;
                 }
+
                 // increment the number of appointments
                 $totalAppointment[$eventDate][$facility][$providerName]['appointments']++;
             }
@@ -364,6 +370,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                                             } else {
                                                 $dueAmount = number_format(0, 2);
                                             }
+
                                             echo text($dueAmount);
                                             ?>
                                         </td>
@@ -399,8 +406,8 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                     ?>
                     <tr>
                         <td colspan="9" style="text-align:center;font-weight:bold;"> <?php echo xlt("There are no record(s) found."); ?></td>
-                    </tr>
-                <?php } ?>
+                    </tr><?php
+                } ?>
 
             </table>
         </div>

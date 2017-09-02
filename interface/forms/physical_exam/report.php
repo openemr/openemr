@@ -10,44 +10,48 @@ include_once(dirname(__FILE__).'/../../globals.php');
 include_once($GLOBALS["srcdir"] . "/api.inc");
 include_once("lines.php");
 
-function physical_exam_report($pid, $encounter, $cols, $id) {
- global $pelines;
+function physical_exam_report($pid, $encounter, $cols, $id)
+{
+    global $pelines;
 
- $rows = array();
- $res = sqlStatement("SELECT * FROM form_physical_exam WHERE forms_id = '$id'");
- while ($row = sqlFetchArray($res)) {
-  $rows[$row['line_id']] = $row;
- }
+    $rows = array();
+    $res = sqlStatement("SELECT * FROM form_physical_exam WHERE forms_id = '$id'");
+    while ($row = sqlFetchArray($res)) {
+        $rows[$row['line_id']] = $row;
+    }
 
- echo "<table cellpadding='0' cellspacing='0'>\n";
+    echo "<table cellpadding='0' cellspacing='0'>\n";
 
- foreach ($pelines as $sysname => $sysarray) {
-  $sysnamedisp = xl($sysname);
-  foreach ($sysarray as $line_id => $description) {
-   $linedbrow = $rows[$line_id];
-   if (!($linedbrow['wnl'] || $linedbrow['abn'] || $linedbrow['diagnosis'] ||
-    $linedbrow['comments'])) continue;
-   if ($sysname != '*') { // observation line
-    echo " <tr>\n";
-    echo "  <td class='text' align='center'>" . ($linedbrow['wnl'] ? "WNL" : "") . "&nbsp;&nbsp;</td>\n";
-    echo "  <td class='text' align='center'>" . ($linedbrow['abn'] ? "ABN1" : "") . "&nbsp;&nbsp;</td>\n";
-    echo "  <td class='text' nowrap>$sysnamedisp&nbsp;&nbsp;</td>\n";
-    echo "  <td class='text' nowrap>$description&nbsp;&nbsp;</td>\n";
-    echo "  <td class='text'>" . $linedbrow['diagnosis'] . "&nbsp;&nbsp;</td>\n";
-    echo "  <td class='text'>" . htmlentities($linedbrow['comments']) . "</td>\n";
-    echo " </tr>\n";
-   } else { // treatment line
-    echo " <tr>\n";
-    echo "  <td class='text' align='center'>" . ($linedbrow['wnl'] ? "Y" : "") . "&nbsp;&nbsp;</td>\n";
-    echo "  <td class='text' align='center'>&nbsp;&nbsp;</td>\n";
-    echo "  <td class='text' colspan='2' nowrap>$description&nbsp;&nbsp;</td>\n";
-    echo "  <td class='text' colspan='2'>" . htmlentities($linedbrow['comments']) . "</td>\n";
-    echo " </tr>\n";
-   }
-   $sysnamedisp = '';
-  } // end of line
- } // end of system name
+    foreach ($pelines as $sysname => $sysarray) {
+        $sysnamedisp = xl($sysname);
+        foreach ($sysarray as $line_id => $description) {
+            $linedbrow = $rows[$line_id];
+            if (!($linedbrow['wnl'] || $linedbrow['abn'] || $linedbrow['diagnosis'] ||
+             $linedbrow['comments'])) {
+                continue;
+            }
 
- echo "</table>\n";
+            if ($sysname != '*') { // observation line
+                   echo " <tr>\n";
+                   echo "  <td class='text' align='center'>" . ($linedbrow['wnl'] ? "WNL" : "") . "&nbsp;&nbsp;</td>\n";
+                   echo "  <td class='text' align='center'>" . ($linedbrow['abn'] ? "ABN1" : "") . "&nbsp;&nbsp;</td>\n";
+                   echo "  <td class='text' nowrap>$sysnamedisp&nbsp;&nbsp;</td>\n";
+                   echo "  <td class='text' nowrap>$description&nbsp;&nbsp;</td>\n";
+                   echo "  <td class='text'>" . $linedbrow['diagnosis'] . "&nbsp;&nbsp;</td>\n";
+                   echo "  <td class='text'>" . htmlentities($linedbrow['comments']) . "</td>\n";
+                   echo " </tr>\n";
+            } else { // treatment line
+                     echo " <tr>\n";
+                     echo "  <td class='text' align='center'>" . ($linedbrow['wnl'] ? "Y" : "") . "&nbsp;&nbsp;</td>\n";
+                     echo "  <td class='text' align='center'>&nbsp;&nbsp;</td>\n";
+                     echo "  <td class='text' colspan='2' nowrap>$description&nbsp;&nbsp;</td>\n";
+                     echo "  <td class='text' colspan='2'>" . htmlentities($linedbrow['comments']) . "</td>\n";
+                     echo " </tr>\n";
+            }
+
+            $sysnamedisp = '';
+        } // end of line
+    } // end of system name
+
+    echo "</table>\n";
 }
-?> 

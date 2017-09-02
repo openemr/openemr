@@ -1,3 +1,22 @@
+<?php
+/**
+ * Generated DocBlock
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  andres_paglayan <andres_paglayan>
+ * @author  cornfeed <jdough823@gmail.com>
+ * @author  fndtn357 <fndtn357@gmail.com>
+ * @author  Robert Down <robertdown@live.com>
+ * @author  sunsetsystems <sunsetsystems>
+ * @copyright Copyright (c) 2005 andres_paglayan <andres_paglayan>
+ * @copyright Copyright (c) 2011 cornfeed <jdough823@gmail.com>
+ * @copyright Copyright (c) 2012 fndtn357 <fndtn357@gmail.com>
+ * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2007 sunsetsystems <sunsetsystems>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+?>
 <!-- Forms generated from formsWiz -->
 <?php
 include_once("../../globals.php");
@@ -13,7 +32,9 @@ $obj = formFetch("form_hearingtest", $_GET["id"]);
 ?>
 <form method=post action="<?php echo $rootdir?>/forms/hearingtest/save.php?mode=update&id=<?php echo $_GET["id"];?>" name="my_form">
 <span class="title">Hearing Test</span><Br><br>
-<input type=checkbox name="with_hearing_aid"  <?php if ($obj{"with_hearing_aid"} == "on") {echo "checked";};?>><span class=text>With hearing Aid?</span><br>
+<input type=checkbox name="with_hearing_aid"  <?php if ($obj{"with_hearing_aid"} == "on") {
+    echo "checked";
+};?>><span class=text>With hearing Aid?</span><br>
 <table>
 <tr>
 <td>

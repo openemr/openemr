@@ -27,30 +27,30 @@ use Zend\InputFilter\InputFilterInterface;
 
 class Ccr implements InputFilterAwareInterface
 {
-	protected $inputFilter;
+    protected $inputFilter;
 
-	public function exchangeArray($data)
-	{
-	    
-	}
-	
-	public function getArrayCopy()
-	{
-	    return get_object_vars($this);
-	}
-	
-	public function setInputFilter(InputFilterInterface $inputFilter)
-	{
-	    throw new \Exception("Not used");
-	}
-	
-	public function getInputFilter()
-	{
-		if (!$this->inputFilter) {
-			$inputFilter = new InputFilter();
-			$factory     = new InputFactory();
-			$this->inputFilter = $inputFilter;
-		}
-		return $this->inputFilter;
-	}
+    public function exchangeArray($data)
+    {
+    }
+    
+    public function getArrayCopy()
+    {
+        return get_object_vars($this);
+    }
+    
+    public function setInputFilter(InputFilterInterface $inputFilter)
+    {
+        throw new \Exception("Not used");
+    }
+    
+    public function getInputFilter()
+    {
+        if (!$this->inputFilter) {
+            $inputFilter = new InputFilter();
+            $factory     = new InputFactory();
+            $this->inputFilter = $inputFilter;
+        }
+
+        return $this->inputFilter;
+    }
 }

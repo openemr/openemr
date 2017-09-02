@@ -1,3 +1,20 @@
+<?php
+/**
+ * Generated DocBlock
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  ophthal <magauran@ophthal.org>
+ * @author  sunsetsystems <sunsetsystems>
+ * @author  JP-DEV\sjpad <sjpadgett@gmail.com>
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2016 ophthal <magauran@ophthal.org>
+ * @copyright Copyright (c) 2007 sunsetsystems <sunsetsystems>
+ * @copyright Copyright (c) 2017 JP-DEV\sjpad <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2015 Rod Roark <rod@sunsetsystems.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+?>
 // login.php makes sure the session ID captured here is different for each
 // new login.  We maintain it here because most browsers do not have separate
 // cookie storage for different top-level windows.  This function should be
@@ -17,7 +34,7 @@ function restoreSession() {
 <?php if ($GLOBALS['restore_sessions'] == 2) { ?>
    alert('Changing session ID from\n"' + c[1] + '" to\n"' + oemr_session_id + '"');
 <?php } ?>
-   document.cookie = oemr_session_name + '=' + oemr_session_id + '; path=/';
+   document.cookie = oemr_session_name + '=' + oemr_session_id + '; path=<?php echo($web_root ? $web_root : '/');?>';
   }
  }
 <?php } ?>

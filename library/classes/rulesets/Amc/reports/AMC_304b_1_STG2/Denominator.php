@@ -30,9 +30,8 @@ class AMC_304b_1_STG2_Denominator implements AmcFilterIF
         return "AMC_304b_1_STG2 Denominator";
     }
 
-    public function test( AmcPatient $patient, $beginDate, $endDate )
+    public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         return true;
     }
-    
 }

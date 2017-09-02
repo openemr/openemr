@@ -1,11 +1,11 @@
-<?php 
+<?php
 include_once("../globals.php");
 ?>
 
 <html>
 <head>
 <?php html_header_show();?>
-<title><?php xl('Navigation','e'); ?></title>
+<title><?php xl('Navigation', 'e'); ?></title>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
@@ -20,16 +20,16 @@ include_once("../globals.php");
 <td style="text-align:left;">
 <input type="textbox" size="10" name="patient">
 <select name="findBy" size=1> 
-<option value="Last" selected><?php xl('Last Name','e');?></option>
-<option value="ID"><?php xl('ID','e');?></option>
-<option value="SSN"><?php xl('SSN','e');?></option>
-<option value="DOB"><?php xl('DOB','e');?></option>
+<option value="Last" selected><?php xl('Last Name', 'e');?></option>
+<option value="ID"><?php xl('ID', 'e');?></option>
+<option value="SSN"><?php xl('SSN', 'e');?></option>
+<option value="DOB"><?php xl('DOB', 'e');?></option>
 </select>
-<a href="javascript:top.restoreSession();document.find_patient.action='../main/finder/patient_finder.php';document.find_patient.submit();" class=link>&nbsp;<?php xl('Find Patient','e');?></a>
+<a href="javascript:top.restoreSession();document.find_patient.action='../main/finder/patient_finder.php';document.find_patient.submit();" class=link>&nbsp;<?php xl('Find Patient', 'e');?></a>
 </td>
 
 <td style="text-align:right">
-<a href="../main/main_screen.php" target="_top" class="logout" onclick="top.restoreSession()"><?php xl('Back','e'); ?></a>&nbsp;&nbsp;
+<a href="../main/main_screen.php" target="_top" class="logout" onclick="top.restoreSession()"><?php xl('Back', 'e'); ?></a>&nbsp;&nbsp;
 </td>
 
 </tr>

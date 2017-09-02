@@ -19,11 +19,13 @@
  */
 
 namespace Patientvalidation\Model;
+
 use Zend\Db\Sql\Expression;
 use Zend\Db\TableGateway\TableGateway;
 use Zend\Db\Sql\Predicate;
 use \Application\Model\ApplicationTable;
 use Zend\Db\Adapter\Adapter;
+
 class PatientDataTable
 {
 

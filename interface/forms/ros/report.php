@@ -3,90 +3,110 @@
 include_once(dirname(__FILE__).'/../../globals.php');
 include_once($GLOBALS["srcdir"]."/api.inc");
 
-function ros_report( $pid, $encounter, $cols, $id) {
+function ros_report($pid, $encounter, $cols, $id)
+{
 
     $count = 0;
-    
+
     $data = formFetch("form_ros", $id);
 
     if ($data) {
+        $cmap = array(
+                "id" => '',
+                "pid" => '',
+                "user" => '',
+                "groupname" => '',
+                "activity" => '',
+                "authorized" => '',
+                "date" => '',
+
+                // This maps a label to custom text. For example "glaucoma_history" should be
+                // displayed as "Glaucoma Family History". If this wasn't specified, the code
+                // will display it as "Glaucoma History" due to some clever string manipulation.
+                // Acronyms are handled in this map as well.
+                "glaucoma_history" => "Glaucoma Family History",
+                "irritation" => "Eye Irritation",
+                "redness" => "Eye Redness",
+                "discharge" => "ENT Discharge",
+                "pain" => "ENT Pain",
+                "biopsy" => "Breast Biopsy",
+                "hemoptsyis" => "Hemoptysis",
+                "copd" => "COPD",
+                "pnd" => "PND",
+                "doe" => "DOE",
+                "peripheal" => "Peripheral",
+                "legpain_cramping" => "Leg Pain/Cramping",
+                "frequency" => "Urine Frequency",
+                "urgency" => "Urine Urgency",
+                "utis" => "UTIs",
+                "hesitancy" => "Urine Hesitancy",
+                "dribbling" => "Urine Dribbling",
+                "stream" => "Urine Stream",
+                "g" => "Female G",
+                "p" => "Female P",
+                "lc" => "Female LC",
+                "ap" => "Female AP",
+                "mearche" => "Menarche",
+                "lmp" => "LMP",
+                "f_frequency" => "Menstrual Frequency",
+                "f_flow" => "Menstrual Flow",
+                "f_symptoms" => "Female Symptoms",
+                "f_hirsutism" => "Hirsutism/Striae",
+                "swelling" => "Musc Swelling",
+                "m_redness" => "Musc Redness",
+                "m_warm" => "Musc Warm",
+                "m_stiffness" => "Musc Stiffness",
+                "m_aches" => "Musc Aches",
+                "fms" => "FMS",
+                "loc" => "LOC",
+                "tia" => "TIA",
+                "n_numbness" => "Neuro Numbness",
+                "n_weakness" => "Neuro Weakness",
+                "n_headache" => "Headache",
+                "s_cancer" => "Skin Cancer",
+                "s_acne" => "Acne",
+                "s_other" => "Skin Other",
+                "s_disease" => "Skin Disease",
+                "p_diagnosis" => "Psych Diagnosis",
+                "p_medication" => "Psych Medication",
+                "abnormal_blood" => "Endo Abnormal Blood",
+                "fh_blood_problems" => "FH Blood Problems",
+                "hiv" => "HIV",
+                "hai_status" => "HAI Status",
+        );
+         
         print "<div id='form_ros_values'><table class='report_results'><tr>";
-    
-        foreach($data as $key => $value) {
-            if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" || $key == "activity" ||
-                $key == "authorized" ||  $key == "date" || $value == "" || $value == "0000-00-00 00:00:00")
-            {
-    	        continue;
+
+        foreach ($data as $key => $value) {
+            if (isset($cmap[$key])) {
+                if ($cmap[$key] == '') {
+                    continue;
+                }
+
+                $key = $cmap[$key];
+            } else {
+                $key = ucwords(str_replace("_", " ", $key));
             }
 
-            // skip the N/A values -- cfapress, Jan 2009
-            if ($value == "N/A") { continue; }
-            
-            if ($value == "on") { $value = "yes"; }
-    
-            $key=ucwords(str_replace("_"," ",$key));
-	    
-	    //added by BM 07-2009 to clarify labels
-	    if ($key == "Glaucoma History") { $key = "Glaucoma Family History"; }
-	    if ($key == "Irritation") { $key = "Eye Irritation"; }
-	    if ($key == "Redness") { $key = "Eye Redness"; }
-	    if ($key == "Discharge") { $key = "ENT Discharge"; }
-	    if ($key == "Pain") { $key = "ENT Pain"; }
-	    if ($key == "Biopsy") { $key = "Breast Biopsy"; }
-	    if ($key == "Hemoptsyis") { $key = "Hemoptysis"; }
-	    if ($key == "Copd") { $key = "COPD"; }
-	    if ($key == "Pnd") { $key = "PND"; }
-	    if ($key == "Doe") { $key = "DOE"; }
-	    if ($key == "Peripheal") { $key = "Peripheral"; }
-	    if ($key == "Legpain Cramping") { $key = "Leg Pain/Cramping"; }
-	    if ($key == "Frequency") { $key = "Urine Frequency"; }
-	    if ($key == "Urgency") { $key = "Urine Urgency"; }
-	    if ($key == "Utis") { $key = "UTIs"; }
-	    if ($key == "Hesitancy") { $key = "Urine Hesitancy"; }
-	    if ($key == "Dribbling") { $key = "Urine Dribbling"; }
-	    if ($key == "Stream") { $key = "Urine Stream"; }
-	    if ($key == "G") { $key = "Female G"; }
-	    if ($key == "P") { $key = "Female P"; }
-	    if ($key == "Lc") { $key = "Female LC"; }
-	    if ($key == "Ap") { $key = "Female AP"; }
-	    if ($key == "Mearche") { $key = "Menarche"; }
-	    if ($key == "Lmp") { $key = "LMP"; }
-	    if ($key == "F Frequency") { $key = "Menstrual Frequency"; }
-	    if ($key == "F Flow") { $key = "Menstrual Flow"; }
-	    if ($key == "F Symptoms") { $key = "Female Symptoms"; }
-	    if ($key == "F Hirsutism") { $key = "Hirsutism/Striae"; }
-	    if ($key == "Swelling") { $key = "Musc Swelling"; }
-	    if ($key == "M Redness") { $key = "Musc Redness"; }
-	    if ($key == "M Warm") { $key = "Musc Warm"; }
-	    if ($key == "M Stiffness") { $key = "Musc Stiffness"; }
-	    if ($key == "M Aches") { $key = "Musc Aches"; }
-	    if ($key == "Fms") { $key = "FMS"; }
-	    if ($key == "Loc") { $key = "LOC"; }
-	    if ($key == "Tia") { $key = "TIA"; }
-	    if ($key == "N Numbness") { $key = "Neuro Numbness"; }
-	    if ($key == "N Weakness") { $key = "Neuro Weakness"; }
-	    if ($key == "N Headache") { $key = "Headache"; }
-	    if ($key == "S Cancer") { $key = "Skin Cancer"; }
-	    if ($key == "S Acne") { $key = "Acne"; }
-	    if ($key == "S Other") { $key = "Skin Other"; }
-	    if ($key == "S Disease") { $key = "Skin Disease"; }
-	    if ($key == "P Diagnosis") { $key = "Psych Diagnosis"; }
-	    if ($key == "P Medication") { $key = "Psych Medication"; }
-	    if ($key == "Abnormal Blood") { $key = "Endo Abnormal Blood"; }
-	    if ($key == "Fh Blood Problems") { $key = "FH Blood Problems"; }
-	    if ($key == "Hiv") { $key = "HIV"; }
-	    if ($key == "Hai Status") { $key = "HAI Status"; }
-	    
-	    //modified by BM 07-2009 for internationalization
-	    print "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . xl($value) . "</span></td>";
+            // skip the N/A values -- cfapress, Jan 2009 OR blank or zero date values
+            if ($value == "N/A" || $value == "" ||
+                $value == "0000-00-00" || $value == "0000-00-00 00:00:00") {
+                continue;
+            }
+
+            if ($value == "on") {
+                $value = "yes";
+            }
+                
+            printf("<td><span class=bold>%s: </span><span class=text>%s</span></td>", xl($key), xl($value));
             $count++;
-            
+
             if ($count == $cols) {
                 $count = 0;
                 print "</tr><tr>\n";
             }
         }
     }
+
     print "</tr></table></div>";
 }
-?> 

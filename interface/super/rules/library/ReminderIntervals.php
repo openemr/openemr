@@ -12,11 +12,13 @@
  * @author aron
  *
  */
-class ReminderIntervals {
+class ReminderIntervals
+{
 
     var $detailMap;
 
-    function __construct() {
+    function __construct()
+    {
         $this->detailMap = array();
     }
 
@@ -24,20 +26,24 @@ class ReminderIntervals {
      * Adds a ReminderIntervalDetail to the collection, which is a map
      * @param ReminderIntervalDetail $detail
      */
-    function addDetail( $detail ) {
+    function addDetail($detail)
+    {
         $details = $this->detailMap[ $detail->intervalType->code ];
-        if ( is_null( $details ) ) {
+        if (is_null($details)) {
             $details = array();
         }
-        array_push( $details, $detail );
+
+        array_push($details, $detail);
         $this->detailMap[ $detail->intervalType->code ] = $details;
     }
 
-    function getTypes() {
+    function getTypes()
+    {
         $types = array();
-        foreach ( array_keys( $this->detailMap ) as $code )  {
-            array_push( $types, ReminderIntervalType::from( $code ) );
+        foreach (array_keys($this->detailMap) as $code) {
+            array_push($types, ReminderIntervalType::from($code));
         }
+
         return $types;
     }
 
@@ -47,14 +53,15 @@ class ReminderIntervals {
      * @param ReminderIntervalRange $range
      * @return array
      */
-    function getDetailFor( $type, $range = null ) {
+    function getDetailFor($type, $range = null)
+    {
         $details = $this->detailMap[ $type->code ];
-        if (is_null($range) ) {
+        if (is_null($range)) {
             return $details;
         }
 
-        foreach( $details as $detail ) {
-            if ( $detail->intervalRange == $range ) {
+        foreach ($details as $detail) {
+            if ($detail->intervalRange == $range) {
                 return $detail;
             }
         }
@@ -62,17 +69,18 @@ class ReminderIntervals {
         return null;
     }
 
-    function displayDetails( $type ) {
+    function displayDetails($type)
+    {
         $details = $this->getDetailFor($type);
         $display = "";
-        foreach( $details as $detail ) {
-            if ( $display != "" ) {
+        foreach ($details as $detail) {
+            if ($display != "") {
                 $display .= ", ";
             }
+
             $display .= $detail->display();
         }
+
         return $display;
     }
-
 }
-?>

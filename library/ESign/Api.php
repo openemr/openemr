@@ -4,7 +4,7 @@ namespace ESign;
 
 /**
  * Top-level API and helper functions for the ESign module
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -43,42 +43,42 @@ class Api
     public function formConfigToJson()
     {
         $configuration = new Form_Configuration();
-        return $this->configToJson( $configuration );
+        return $this->configToJson($configuration);
     }
     
-    public function createFormESign( $formId, $formDir, $encounterId )
+    public function createFormESign($formId, $formDir, $encounterId)
     {
-        $factory = new Form_Factory( $formId, $formDir, $encounterId );
-        $esign = $this->createESign( $factory );
+        $factory = new Form_Factory($formId, $formDir, $encounterId);
+        $esign = $this->createESign($factory);
         return $esign;
     }
     
     public function encounterConfigToJson()
     {
         $configuration = new Encounter_Configuration();
-        return $this->configToJson( $configuration );
+        return $this->configToJson($configuration);
     }
     
-    public function createEncounterESign( $encounterId )
+    public function createEncounterESign($encounterId)
     {
-        $factory = new Encounter_Factory( $encounterId );
-        $esign = $this->createESign( $factory );
+        $factory = new Encounter_Factory($encounterId);
+        $esign = $this->createESign($factory);
         return $esign;
     }
     
-    public function createEncounterSignable( $encounterId )
+    public function createEncounterSignable($encounterId)
     {
-        $signable = new Encounter_Signable( $encounterId );
+        $signable = new Encounter_Signable($encounterId);
         return $signable;
     }
     
-    public function createESign( FactoryIF $factory )
+    public function createESign(FactoryIF $factory)
     {
         $configuration = $factory->createConfiguration();
         $signable = $factory->createSignable();
         $button = $factory->createButton();
         $log = $factory->createLog();
-        $esign = new ESign( $configuration, $signable, $button, $log );
+        $esign = new ESign($configuration, $signable, $button, $log);
         return $esign;
     }
     
@@ -87,7 +87,7 @@ class Api
      *
      * @return string
      */
-    public function configToJson( ConfigurationIF $configuration )
+    public function configToJson(ConfigurationIF $configuration)
     {
         $params = array(
             'baseUrl' => $configuration->getBaseUrl(),
@@ -97,24 +97,23 @@ class Api
             'module' => $configuration->getModule()
         );
     
-        $json = json_encode( $params );
+        $json = json_encode($params);
         return $json;
     }
 
-    public function sign( SignableIF $signable, $userId, $lock = false, $amendment = null  )
+    public function sign(SignableIF $signable, $userId, $lock = false, $amendment = null)
     {
         try {
-            $ret = $signable->sign( $userId, $lock, $amendment );
+            $ret = $signable->sign($userId, $lock, $amendment);
             return $ret;
-        } catch ( \Exception $e ) {
-            error_log( $e->getMessage() );
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
             return false;
         }
     }
     
-    public function lock( SignableIF $signable, $userId, $amendment = null )
+    public function lock(SignableIF $signable, $userId, $amendment = null)
     {
-        return $this->sign( $signable, $userId, true, $amendment );
+        return $this->sign($signable, $userId, true, $amendment);
     }
-    
 }

@@ -2,10 +2,10 @@
 
 namespace ESign;
 
-/** 
-* Allows routing to the correct controller and method using the 
+/**
+* Allows routing to the correct controller and method using the
 * request string
-* 
+*
 * Copyright (C) 2013 OEMR 501c3 www.oemr.org
 *
 * LICENSE: This program is free software; you can redistribute it and/or
@@ -32,12 +32,12 @@ class Router
     public function route()
     {
         $request = new Request();
-        $moduleParam = $request->getParam( 'module' );
-        $Module = ucfirst( $moduleParam );
+        $moduleParam = $request->getParam('module');
+        $Module = ucfirst($moduleParam);
         require_once $GLOBALS['srcdir'].'/ESign/'.$Module.'/Controller.php';
         $controllerClass = "\\ESign\\".$Module."_Controller";
         $controller = new $controllerClass( $request );
-        if ( $controller instanceof Abstract_Controller ) {
+        if ($controller instanceof Abstract_Controller) {
             $controller->run();
         }
     }

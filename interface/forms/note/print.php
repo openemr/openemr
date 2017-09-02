@@ -1,19 +1,22 @@
 <?php
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 formHeader("Form: note");
 $returnurl = 'encounter_top.php';
-$provider_results = sqlQuery("select fname, lname from users where username=?",array($_SESSION{"authUser"}));
+$provider_results = sqlQuery("select fname, lname from users where username=?", array($_SESSION{"authUser"}));
 
 /* name of this form */
 $form_name = "note";
 
 // get the record from the database
-if ($_GET['id'] != "") $obj = formFetch("form_".$form_name, $_GET["id"]);
+if ($_GET['id'] != "") {
+    $obj = formFetch("form_".$form_name, $_GET["id"]);
+}
+
 /* remove the time-of-day from the date fields */
 if ($obj['date_of_signature'] != "") {
     $dateparts = explode(" ", $obj['date_of_signature']);
@@ -25,7 +28,7 @@ if ($obj['date_of_signature'] != "") {
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 <!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
 
 </head>
 <body class="body_top">
@@ -35,8 +38,12 @@ if ($obj['date_of_signature'] != "") {
 <?php echo xlt('Printed'); ?> <?php echo dateformat(); ?>
 <br><br>
 <select name="note_type">
-<option value="WORK NOTE" <?php if ($obj['note_type']=="WORK NOTE") echo " SELECTED"; ?>><?php echo xlt('WORK NOTE'); ?></option>
-<option value="SCHOOL NOTE" <?php if ($obj['note_type']=="SCHOOL NOTE") echo " SELECTED"; ?>><?php echo xlt('SCHOOL NOTE'); ?></option>
+<option value="WORK NOTE" <?php if ($obj['note_type']=="WORK NOTE") {
+    echo " SELECTED";
+} ?>><?php echo xlt('WORK NOTE'); ?></option>
+<option value="SCHOOL NOTE" <?php if ($obj['note_type']=="SCHOOL NOTE") {
+    echo " SELECTED";
+} ?>><?php echo xlt('SCHOOL NOTE'); ?></option>
 </select>
 <br>
 <b><?php echo xlt('MESSAGE:'); ?></b>

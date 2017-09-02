@@ -50,7 +50,7 @@ body {
  * Patient Demographics are a custom layout.
  *============================================================*/
 
-#DEM .label {
+#DEM .label_custom {
 
     text-align: left;
 }
@@ -204,32 +204,32 @@ float:right;
 
 ul.tabNav { margin: 0; padding: 0; }
 ul.tabNav { float: right; }
-ul.tabNav li { float: right; 
-               margin: 0 1px 0 0; 
+ul.tabNav li { float: right;
+               margin: 0 1px 0 0;
                padding: 6px 0 0;
     text-align: right;
 }
-ul.tabNav li.current { 
+ul.tabNav li.current {
     padding-top: 0;
     text-align: right;
 }
-ul.tabNav a { 
-   padding: 4px 4px 5px 4px; 
+ul.tabNav a {
+   padding: 4px 4px 5px 4px;
 }
 ul.tabNav li.current a {padding: 8px; }
 
-div.tabContainer { 
+div.tabContainer {
     float: right;
 }
 
 div.tab table td {
-	padding-right: 1px; 
+	padding-right: 1px;
 }
 /*
 * REPORTS
 */
 
-#report_parameters table table td.label {
+#report_parameters table table td.label_custom {
 	text-align: left;
 }
 
@@ -299,7 +299,7 @@ text-align:right;
 
 /* Calander */
 #bottomLeft{
-    
+
     float: right !important;
 }
 #bigCal{
@@ -309,22 +309,22 @@ text-align:right;
 
 /*miscellaneous*/
 .misc-internet-search{
-    float: right !important;  
+    float: right !important;
 }
 
 form#new_note div{
-    
+
     float: none !important;
 }
 /* record_disclosure.php */
 #record-disclosure, #record-disclosure>div {
-    
+
     float:none !important;
-    
+
 }
 /* newpatient/common.php  */
 form#new-encounter-form div{
-    
+
     float: none !important;
     display: inherit;
 }
@@ -349,7 +349,7 @@ table#main-title tr td:nth-child(2){
     text-align: center !important;
 }
 table#main-title tr td:nth-child(2) div, table#main-title tr td:nth-child(3) div{
-    float: none !important; 
+    float: none !important;
 }
 table#main-title tr td:nth-child(3){
     text-align: center !important;
@@ -368,7 +368,7 @@ table#main-title tr td:nth-child(4) table{
 .demographics-box>div{
     float: none !important;
     position: absolute;
-} 
+}
 .demographics-box>div:first-child{
     width: 55% !important;
 }
@@ -398,7 +398,7 @@ body>.nav{
 }
 
 
-/* ajax_template.html */ 
+/* ajax_template.html */
 
 #dateNAV img{
     display: none;
@@ -409,19 +409,19 @@ body>.nav{
     height: 15.5px;
 }
 #dateNav>a:nth-child(2){
-    
+
     background-image: url(../main/calendar/modules/PostCalendar/pntemplates/default/images/rightbtn.gif);
     margin-right: 10px;
-} 
+}
 #dateNav>a:nth-child(3){
-    
+
     background-image: url(../main/calendar/modules/PostCalendar/pntemplates/default/images/leftbtn.gif);
-  
-} 
+
+}
 
 /* /main/messages/messages.php */
 td.amount-msg{
-    
+
     text-align: left !important;
     direction: ltr;
 }
@@ -438,7 +438,7 @@ td.amount-msg{
     float: right !important;
 }
 .ui-dialog .ui-dialog-title{
-    
+
     float: none !important;
 }
 
@@ -446,7 +446,7 @@ td.amount-msg{
 /*  /library/js/datatables/media/css/demo_table.css */
 
 #pt_table_paginate #pt_table_next{
-    
+
     float: none !important;
      background: url('../../library/css/images/back_disabled.png') no-repeat top left !important;
      display: inline-block;
@@ -457,7 +457,7 @@ td.amount-msg{
 }
 
 #pt_table_paginate #pt_table_previous{
-    
+
     float: none !important;
      background: url('../../library/css/images/forward_disabled.png') no-repeat top right !important;
      display: inline-block;
@@ -473,7 +473,7 @@ td.amount-msg{
 
 /* /templates/documents/general_view.html */
 #documents_actions form[name^=document]>div>div, #documents_actions form[name=notes]>div>div{
-    
+
     float: none !important;
     display: inline-block;
 }
@@ -500,7 +500,7 @@ td.amount-msg{
 }
 
 .tabs-container ul.tabs li{
-    
+
     float: none !important;
 }
 .container_body .viewport .overview{
@@ -519,11 +519,11 @@ td.amount-msg{
     float: right !important;
 }
 .setup-carecoordination ul.virtualpage_system_based_forms{
-    
+
     float: right !important;
-} 
+}
 .setup-carecoordination .ca-ca-in-2{
-    
+
     float: right;
     padding-right: 2% !important;
     float: right !important;
@@ -544,7 +544,7 @@ div#portal-buttons-bottom{
     padding: 5px 15px;
 }
 
-#DEM .label, #report_parameters table table td.label {
+#DEM .label_custom, #report_parameters table table td.label_custom {
     text-align: left !important;
 }
 

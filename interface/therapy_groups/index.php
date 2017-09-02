@@ -24,9 +24,6 @@
  * @link    http://www.open-emr.org
  */
 
-//security model flags:
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
 
 require_once dirname(__FILE__) . '/../globals.php';
 require_once dirname(__FILE__) . '/therapy_groups_controllers/therapy_groups_controller.php';
@@ -34,7 +31,7 @@ require_once dirname(__FILE__) . '/therapy_groups_controllers/participants_contr
 
 $method = $_GET['method'];
 
-switch($method){
+switch ($method) {
     case 'addGroup':
         $controller = new TherapyGroupsController();
         $controller->index();
@@ -46,20 +43,22 @@ switch($method){
         break;
 
     case 'groupDetails':
-        if(!isset($_GET['group_id'])){
+        if (!isset($_GET['group_id'])) {
             die('Missing group ID');
         }
+
         $controller = new TherapyGroupsController();
-        if($_GET['group_id'] == 'from_session'){
+        if ($_GET['group_id'] == 'from_session') {
             $controller->index($therapy_group);
         } else {
             $controller->index($_GET['group_id']);
         }
         break;
     case 'groupParticipants':
-        if(!isset($_GET['group_id'])){
+        if (!isset($_GET['group_id'])) {
             die('Missing group ID');
         }
+
         $controller = new ParticipantsController();
         $controller->index($_GET['group_id']);
         break;

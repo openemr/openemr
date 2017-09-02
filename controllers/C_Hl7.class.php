@@ -1,32 +1,37 @@
 <?php
 
 
-class C_Hl7 extends Controller {
+class C_Hl7 extends Controller
+{
 
-    function __construct($template_mod = "general") {
-    	parent::__construct();
-    	$this->template_mod = $template_mod;
-    	$this->assign("STYLE", $GLOBALS['style']);
+    function __construct($template_mod = "general")
+    {
+        parent::__construct();
+        $this->template_mod = $template_mod;
+        $this->assign("STYLE", $GLOBALS['style']);
     }
 
-    function default_action() {
-		return $this->fetch($GLOBALS['template_dir'] . "hl7/" . $this->template_mod . "_parse.html");
-	}
-	function default_action_process() {
-		$msg = '';
-		if ($_POST['process'] == "true") {
-			$msg = $_POST['hl7data'];
-		}
-		$hp = new Parser_HL7v2($msg);
-		$err = $hp->parse();
-		//print_r($hp);
-		if (!empty($err)) {
-			$this->assign("hl7_message_err", nl2br("Error:<br>" . $err));
-		}
-		$this->assign("hl7_array", $hp->composite_array());
-		return;
-	}
+    function default_action()
+    {
+        return $this->fetch($GLOBALS['template_dir'] . "hl7/" . $this->template_mod . "_parse.html");
+    }
+    function default_action_process()
+    {
+        $msg = '';
+        if ($_POST['process'] == "true") {
+            $msg = $_POST['hl7data'];
+        }
 
+        $hp = new Parser_HL7v2($msg);
+        $err = $hp->parse();
+        //print_r($hp);
+        if (!empty($err)) {
+            $this->assign("hl7_message_err", nl2br("Error:<br>" . $err));
+        }
+
+        $this->assign("hl7_array", $hp->composite_array());
+        return;
+    }
 }
 
 
@@ -42,5 +47,3 @@ $hp = new Parser_HL7v2($msg);
 print_r($hp->MSH);
 echo "<br><br>";
 print_r($hp->EVN);*/
-
-?>

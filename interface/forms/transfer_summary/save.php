@@ -19,18 +19,13 @@
  * @link    http://www.open-emr.org
  */
  
-  //SANITIZE ALL ESCAPES
- $sanitize_all_escapes=$_POST['true'];
-
- //STOP FAKE REGISTER GLOBALS
- $fake_register_globals=$_POST['false'];
   
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
 
 if (! $encounter) { // comes from globals.php
- die(xl("Internal error: we do not seem to be in an encounter!"));
+    die(xl("Internal error: we do not seem to be in an encounter!"));
 }
 
 
@@ -50,17 +45,14 @@ $sets = "pid = {$_SESSION["pid"]},
   overall_status_of_discharge                    = '" . add_escape_custom($_POST["overall_status_of_discharge"]) ."'";
 
   
-  if (empty($id)) {
-  $newid = sqlInsert("INSERT INTO form_transfer_summary SET $sets");
-  addForm($encounter, "Transfer Summary", $newid, "transfer_summary", $pid, $userauthorized);
-}
-else {
-  sqlStatement("UPDATE form_transfer_summary SET $sets WHERE id = '". add_escape_custom("$id"). "'");
+if (empty($id)) {
+    $newid = sqlInsert("INSERT INTO form_transfer_summary SET $sets");
+    addForm($encounter, "Transfer Summary", $newid, "transfer_summary", $pid, $userauthorized);
+} else {
+    sqlStatement("UPDATE form_transfer_summary SET $sets WHERE id = '". add_escape_custom("$id"). "'");
 }
 
 $_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();
-?>
-

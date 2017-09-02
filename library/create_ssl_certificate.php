@@ -32,32 +32,46 @@
  * @param $organizationalUnitName - Organization Unit Name
  * @return array [ CSR data, privatekey ], or 'false' on error.
  */
-function create_csr($commonName, $emailAddress, $countryName, $stateOrProvinceName,
-                    $localityName, $organizationName, $organizationalUnitName) {
+function create_csr(
+    $commonName,
+    $emailAddress,
+    $countryName,
+    $stateOrProvinceName,
+    $localityName,
+    $organizationName,
+    $organizationalUnitName
+) {
 
-    if ($commonName == "")
+    if ($commonName == "") {
         return false;
+    }
 
     /* Build the Distinguished Name (DN) for the certificate */
     $dn = array("commonName" => $commonName);
 
-    if($emailAddress)
+    if ($emailAddress) {
         $dn = array_merge($dn, array("emailAddress" => $emailAddress));
+    }
 
-    if ($countryName)
+    if ($countryName) {
         $dn = array_merge($dn, array("countryName" => $countryName));
+    }
 
-    if ($stateOrProvinceName)
+    if ($stateOrProvinceName) {
         $dn = array_merge($dn, array("stateOrProvinceName" => $stateOrProvinceName));
+    }
 
-    if ($localityName)
+    if ($localityName) {
         $dn = array_merge($dn, array("localityName" => $localityName));
+    }
 
-    if ($organizationName)
+    if ($organizationName) {
         $dn = array_merge($dn, array("organizationName" => $organizationName));
+    }
 
-    if ($organizationalUnitName)
+    if ($organizationalUnitName) {
         $dn = array_merge($dn, array("organizationalUnitName" => $organizationalUnitName));
+    }
 
     /* OpenSSL functions need the path to the openssl.cnf file */
     $opensslConf = $GLOBALS['webserver_root'] . "/library/openssl.cnf";
@@ -73,6 +87,7 @@ function create_csr($commonName, $emailAddress, $countryName, $stateOrProvinceNa
     if ($csr === false) {
         return false;
     }
+
     return array($csr, $privkey);
 }
 
@@ -85,12 +100,13 @@ function create_csr($commonName, $emailAddress, $countryName, $stateOrProvinceNa
  * @param $cakey   - The Certificate Authority private key data to sign with.
  * @return data    - A signed certificate, or false on error.
  */
-function create_crt($privkey, $csr, $cacert, $cakey) {
+function create_crt($privkey, $csr, $cacert, $cakey)
+{
 
     $opensslConf = $GLOBALS['webserver_root'] . "/library/openssl.cnf";
     $config = array('config' => $opensslConf);
 
-    $cert = openssl_csr_sign($csr, $cacert ,$cakey, 3650, $config,rand(1000,9999));
+    $cert = openssl_csr_sign($csr, $cacert, $cakey, 3650, $config, rand(1000, 9999));
     return $cert;
 }
 
@@ -105,7 +121,8 @@ function create_crt($privkey, $csr, $cacert, $cakey) {
  * @param $valid_days   - validity in number of days for the user certificate
  * @return string       - The client certificate signed by the Certificate Authority, or false on error.
  */
-function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $cakey, $valid_days) {
+function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $cakey, $valid_days)
+{
 
     $opensslConf = $GLOBALS['webserver_root'] . "/library/openssl.cnf";
     $config = array('config' => $opensslConf);
@@ -115,7 +132,9 @@ function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $
     if ($arr === false) {
         return false;
     }
-    $csr = $arr[0]; $privkey = $arr[1];
+
+    $csr = $arr[0];
+    $privkey = $arr[1];
 
     /* user id is used as serial number to sign a certificate */
     $serial = 0;
@@ -124,8 +143,14 @@ function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $
         $serial = $row['id'];
     }
 
-    $cert = openssl_csr_sign($csr, file_get_contents($cacert), file_get_contents($cakey),
-                             $valid_days, $config, $serial);
+    $cert = openssl_csr_sign(
+        $csr,
+        file_get_contents($cacert),
+        file_get_contents($cakey),
+        $valid_days,
+        $config,
+        $serial
+    );
 
     if ($cert === false) {
         return false;
@@ -137,7 +162,6 @@ function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $
     if (openssl_pkcs12_export($cert, $p12Out, $privkey, "") === false) {
         return false;
     }
+
     return $p12Out;
 }
-
-?>

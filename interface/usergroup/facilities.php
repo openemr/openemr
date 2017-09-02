@@ -2,62 +2,76 @@
 require_once("../globals.php");
 require_once("../../library/acl.inc");
 
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
+
 $alertmsg = '';
 
 /*		Inserting New facility					*/
 if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] != "admin_facility") {
-  $insert_id=sqlInsert("INSERT INTO facility SET " .
-  "name = '"         . trim(formData('facility'    )) . "', " .
-  "phone = '"        . trim(formData('phone'       )) . "', " .
-  "fax = '"          . trim(formData('fax'         )) . "', " .
-  "street = '"       . trim(formData('street'      )) . "', " .
-  "city = '"         . trim(formData('city'        )) . "', " .
-  "state = '"        . trim(formData('state'       )) . "', " .
-  "postal_code = '"  . trim(formData('postal_code' )) . "', " .
-  "country_code = '" . trim(formData('country_code')) . "', " .
-  "federal_ein = '"  . trim(formData('federal_ein' )) . "', " .
-  "website = '"      . trim(formData('website'     )) . "', " .
-  "email = '"      	 . trim(formData('email'       )) . "', " .
-  "color = '"  . trim(formData('ncolor' )) . "', " .
-  "service_location = '"  . trim(formData('service_location' )) . "', " .
-  "billing_location = '"  . trim(formData('billing_location' )) . "', " .
-  "accepts_assignment = '"  . trim(formData('accepts_assignment' )) . "', " .
-  "pos_code = '"  . trim(formData('pos_code' )) . "', " .
-  "domain_identifier = '"  . trim(formData('domain_identifier' )) . "', " .
-  "attn = '"  . trim(formData('attn' )) . "', " .
-  "tax_id_type = '"  . trim(formData('tax_id_type' )) . "', " .
-  "primary_business_entity = '"  . trim(formData('primary_business_entity' )) . "', ".
-  "facility_npi = '" . trim(formData('facility_npi')) . "',".
-  "facility_code = '" . trim(formData('facility_id')) . "'");
+    $newFacility = array(
+      "name" => trim(isset($_POST["facility"]) ? $_POST["facility"] : ''),
+      "phone" => trim(isset($_POST["phone"]) ? $_POST["phone"] : ''),
+      "fax" => trim(isset($_POST["fax"]) ? $_POST["fax"] : ''),
+      "street" => trim(isset($_POST["street"]) ? $_POST["street"] : ''),
+      "city" => trim(isset($_POST["city"]) ? $_POST["city"] : ''),
+      "state" => trim(isset($_POST["state"]) ? $_POST["state"] : ''),
+      "postal_code" => trim(isset($_POST["postal_code"]) ? $_POST["postal_code"] : ''),
+      "country_code" => trim(isset($_POST["country_code"]) ? $_POST["country_code"] : ''),
+      "federal_ein" => trim(isset($_POST["federal_ein"]) ? $_POST["federal_ein"] : ''),
+      "website" => trim(isset($_POST["website"]) ? $_POST["website"] : ''),
+      "email" => trim(isset($_POST["email"]) ? $_POST["email"] : ''),
+      "color" => trim(isset($_POST["ncolor"]) ? $_POST["ncolor"] : ''),
+      "service_location" => trim(isset($_POST["service_location"]) ? $_POST["service_location"] : ''),
+      "billing_location" => trim(isset($_POST["billing_location"]) ? $_POST["billing_location"] : ''),
+      "accepts_assignment" => trim(isset($_POST["accepts_assignment"]) ? $_POST["accepts_assignment"] : ''),
+      "pos_code" => trim(isset($_POST["pos_code"]) ? $_POST["pos_code"] : ''),
+      "domain_identifier" => trim(isset($_POST["domain_identifier"]) ? $_POST["domain_identifier"] : ''),
+      "attn" => trim(isset($_POST["attn"]) ? $_POST["attn"] : ''),
+      "tax_id_type" =>  trim(isset($_POST["tax_id_type"]) ? $_POST["tax_id_type"] : ''),
+      "primary_business_entity" => trim(isset($_POST["primary_business_entity"]) ? $_POST["primary_business_entity"] : ''),
+      "facility_npi" => trim(isset($_POST["facility_npi"]) ? $_POST["facility_npi"] : ''),
+      "facility_code" => trim(isset($_POST["facility_id"]) ? $_POST["facility_id"] : '')
+    );
+
+    $insert_id = $facilityService->insert($newFacility);
 }
 
 /*		Editing existing facility					*/
-if ($_POST["mode"] == "facility" && $_POST["newmode"] == "admin_facility")
-{
-	sqlStatement("update facility set
-		name='" . trim(formData('facility')) . "',
-		phone='" . trim(formData('phone')) . "',
-		fax='" . trim(formData('fax')) . "',
-		street='" . trim(formData('street')) . "',
-		city='" . trim(formData('city')) . "',
-		state='" . trim(formData('state')) . "',
-		postal_code='" . trim(formData('postal_code')) . "',
-		country_code='" . trim(formData('country_code')) . "',
-		federal_ein='" . trim(formData('federal_ein')) . "',
-		website='" . trim(formData('website')) . "',
-		email='" . trim(formData('email')) . "',
-		color='" . trim(formData('ncolor')) . "',
-		service_location='" . trim(formData('service_location')) . "',
-		billing_location='" . trim(formData('billing_location')) . "',
-		accepts_assignment='" . trim(formData('accepts_assignment')) . "',
-		pos_code='" . trim(formData('pos_code')) . "',
-		domain_identifier='" . trim(formData('domain_identifier')) . "',
-		facility_npi='" . trim(formData('facility_npi')) . "',
-		attn='" . trim(formData('attn')) . "' ,
-		primary_business_entity='" . trim(formData('primary_business_entity')) . "' ,
-		tax_id_type='" . trim(formData('tax_id_type')) . "' ,
-    facility_code = '" . trim(formData('facility_id')) . "'
-	where id='" . trim(formData('fid')) . "'" );
+if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] == "admin_facility") {
+    $newFacility = array(
+      "fid" => trim(isset($_POST["fid"]) ? $_POST["fid"] : ''),
+      "name" => trim(isset($_POST["facility"]) ? $_POST["facility"] : ''),
+      "phone" => trim(isset($_POST["phone"]) ? $_POST["phone"] : ''),
+      "fax" => trim(isset($_POST["fax"]) ? $_POST["fax"] : ''),
+      "street" => trim(isset($_POST["street"]) ? $_POST["street"] : ''),
+      "city" => trim(isset($_POST["city"]) ? $_POST["city"] : ''),
+      "state" => trim(isset($_POST["state"]) ? $_POST["state"] : ''),
+      "postal_code" => trim(isset($_POST["postal_code"]) ? $_POST["postal_code"] : ''),
+      "country_code" => trim(isset($_POST["country_code"]) ? $_POST["country_code"] : ''),
+      "federal_ein" => trim(isset($_POST["federal_ein"]) ? $_POST["federal_ein"] : ''),
+      "website" => trim(isset($_POST["website"]) ? $_POST["website"] : ''),
+      "email" => trim(isset($_POST["email"]) ? $_POST["email"] : ''),
+      "color" => trim(isset($_POST["ncolor"]) ? $_POST["ncolor"] : ''),
+      "service_location" => trim(isset($_POST["service_location"]) ? $_POST["service_location"] : ''),
+      "billing_location" => trim(isset($_POST["billing_location"]) ? $_POST["billing_location"] : ''),
+      "accepts_assignment" => trim(isset($_POST["accepts_assignment"]) ? $_POST["accepts_assignment"] : ''),
+      "pos_code" => trim(isset($_POST["pos_code"]) ? $_POST["pos_code"] : ''),
+      "domain_identifier" => trim(isset($_POST["domain_identifier"]) ? $_POST["domain_identifier"] : ''),
+      "attn" => trim(isset($_POST["attn"]) ? $_POST["attn"] : ''),
+      "tax_id_type" =>  trim(isset($_POST["tax_id_type"]) ? $_POST["tax_id_type"] : ''),
+      "primary_business_entity" => trim(isset($_POST["primary_business_entity"]) ? $_POST["primary_business_entity"] : ''),
+      "facility_npi" => trim(isset($_POST["facility_npi"]) ? $_POST["facility_npi"] : ''),
+      "facility_code" => trim(isset($_POST["facility_id"]) ? $_POST["facility_id"] : '')
+    );
+
+    $facilityService->update($newFacility);
+
+    // Update facility name for all users with this facility.
+    // This is necassary because some provider based code uses facility name for lookups instead of facility id.
+    //
+    $facilityService->updateUsersFacility($newFacility['name'], $newFacility['fid']);
 }
 
 ?>
@@ -80,20 +94,20 @@ $(document).ready(function(){
     enable_modals();
 
     // special size for
-	$(".addfac_modal").fancybox( {
-		'overlayOpacity' : 0.0,
-		'showCloseButton' : true,
-		'frameHeight' : 460,
-		'frameWidth' : 650
-	});
+    $(".addfac_modal").fancybox( {
+        'overlayOpacity' : 0.0,
+        'showCloseButton' : true,
+        'frameHeight' : 460,
+        'frameWidth' : 650
+    });
 
     // special size for
-	$(".medium_modal").fancybox( {
-		'overlayOpacity' : 0.0,
-		'showCloseButton' : true,
-		'frameHeight' : 460,
-		'frameWidth' : 650
-	});
+    $(".medium_modal").fancybox( {
+        'overlayOpacity' : 0.0,
+        'showCloseButton' : true,
+        'frameHeight' : 460,
+        'frameWidth' : 650
+    });
 
 });
 
@@ -105,60 +119,70 @@ $(document).ready(function(){
 
 <div>
     <div>
-	<table><tr><td>
-        <b><?php xl('Facilities','e'); ?></b>&nbsp;</td><td>
-		 <a href="facilities_add.php" class="iframe addfac_modal css_button"><span><?php xl('Add','e');?></span></a>
-		 </td></tr>
-	</table>
+    <table><tr><td>
+        <b><?php xl('Facilities', 'e'); ?></b>&nbsp;</td><td>
+         <a href="facilities_add.php" class="iframe addfac_modal css_button"><span><?php xl('Add', 'e');?></span></a>
+         </td></tr>
+    </table>
     </div>
     <div class="tabContainer" style="width:550px;">
         <div>
 <table cellpadding="1" cellspacing="0" class="showborder">
-	<tr class="showborder_head" height="22">
-		<th style="border-style:1px solid #000" width="140px"><?php xl('Name','e'); ?></th>
-		<th style="border-style:1px solid #000" width="320px"><?php xl('Address','e'); ?></th>
-		<th style="border-style:1px solid #000"><?php xl('Phone','e'); ?></th>
+    <tr class="showborder_head" height="22">
+        <th style="border-style:1px solid #000" width="140px"><?php xl('Name', 'e'); ?></th>
+        <th style="border-style:1px solid #000" width="320px"><?php xl('Address', 'e'); ?></th>
+        <th style="border-style:1px solid #000"><?php xl('Phone', 'e'); ?></th>
     </tr>
-     <?php
+        <?php
         $fres = 0;
-        $fres = sqlStatement("select * from facility order by name");
+        $fres = $facilityService->getAll();
         if ($fres) {
-          $result2 = array();
-          for ($iter3 = 0;$frow = sqlFetchArray($fres);$iter3++)
-            $result2[$iter3] = $frow;
-          foreach($result2 as $iter3) {
-			$varstreet="";//these are assigned conditionally below,blank assignment is done so that old values doesn't get propagated to next level.
-			$varcity="";
-			$varstate="";
-          $varstreet=$iter3{street };
-          if ($iter3{street }!="")$varstreet=$iter3{street }.",";
-          if ($iter3{city}!="")$varcity=$iter3{city}.",";
-          if ($iter3{state}!="")$varstate=$iter3{state}.",";
-    ?>
-    <tr height="22">
-       <td valign="top" class="text"><b><a href="facility_admin.php?fid=<?php echo $iter3{id};?>" class="iframe medium_modal"><span><?php echo htmlspecialchars($iter3{name});?></span></a></b>&nbsp;</td>
-       <td valign="top" class="text"><?php echo htmlspecialchars($varstreet.$varcity.$varstate.$iter3{country_code}." ".$iter3{postal_code}); ?>&nbsp;</td>
-       <td><?php echo htmlspecialchars($iter3{phone});?>&nbsp;</td>
+            $result2 = array();
+            for ($iter3 = 0; $iter3 < sizeof($fres); $iter3++) {
+                $result2[$iter3] = $fres[$iter3];
+            }
+
+            foreach ($result2 as $iter3) {
+                $varstreet="";//these are assigned conditionally below,blank assignment is done so that old values doesn't get propagated to next level.
+                $varcity="";
+                $varstate="";
+                $varstreet=$iter3["street"];
+                if ($iter3["street"]!="") {
+                    $varstreet=$iter3["street"].",";
+                }
+
+                if ($iter3["city"]!="") {
+                    $varcity=$iter3["city"].",";
+                }
+
+                if ($iter3["state"]!="") {
+                    $varstate=$iter3["state"].",";
+                }
+        ?>
+      <tr height="22">
+         <td valign="top" class="text"><b><a href="facility_admin.php?fid=<?php echo $iter3["id"];?>" class="iframe medium_modal"><span><?php echo htmlspecialchars($iter3["name"]);?></span></a></b>&nbsp;</td>
+         <td valign="top" class="text"><?php echo htmlspecialchars($varstreet.$varcity.$varstate.$iter3["country_code"]." ".$iter3["postal_code"]); ?>&nbsp;</td>
+         <td><?php echo htmlspecialchars($iter3["phone"]);?>&nbsp;</td>
     </tr>
-<?php
-  }
-}
- if (count($result2)<=0)
-  {?>
-  <tr height="25">
-		<td colspan="3"  style="text-align:center;font-weight:bold;"> <?php echo xl( "Currently there are no facilities." ); ?></td>
-	</tr>
-  <?php }
-?>
-	</table>
+    <?php
+            }
+        }
+
+        if (count($result2)<=0) {?>
+         <tr height="25">
+               <td colspan="3"  style="text-align:center;font-weight:bold;"> <?php echo xl("Currently there are no facilities."); ?></td>
+    </tr>
+        <?php
+        } ?>
+    </table>
         </div>
     </div>
 </div>
 <script language="JavaScript">
 <?php
-  if ($alertmsg = trim($alertmsg)) {
+if ($alertmsg = trim($alertmsg)) {
     echo "alert('$alertmsg');\n";
-  }
+}
 ?>
 </script>
 

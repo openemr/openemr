@@ -28,12 +28,8 @@
  * @link    http://open-emr.org
  */
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
 
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
 
 
 require_once("../globals.php");
@@ -42,12 +38,12 @@ require_once("$srcdir/acl.inc");
 
 // Ensure authorized
 if (!acl_check('admin', 'users')) {
-  die(xlt("Unauthorized"));
+    die(xlt("Unauthorized"));
 }
 
 // Ensure variables exist
 if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
-  die(xlt("Error"));
+    die(xlt("Error"));
 }
 
 ?>
@@ -71,24 +67,24 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
 <script language="JavaScript">
 
 function submitform() {
-	top.restoreSession();
-	var flag=0;
-	function trimAll(sString)
-	{
-		while (sString.substring(0,1) == ' ')
-		{
-			sString = sString.substring(1, sString.length);
-		}
-		while (sString.substring(sString.length-1, sString.length) == ' ')
-		{
-			sString = sString.substring(0,sString.length-1);
-		}
-		return sString;
-	}
-	if(flag == 0){
-		document.forms[0].submit();
-		parent.$.fn.fancybox.close();
-	}
+    top.restoreSession();
+    var flag=0;
+    function trimAll(sString)
+    {
+        while (sString.substring(0,1) == ' ')
+        {
+            sString = sString.substring(1, sString.length);
+        }
+        while (sString.substring(sString.length-1, sString.length) == ' ')
+        {
+            sString = sString.substring(0,sString.length-1);
+        }
+        return sString;
+    }
+    if(flag == 0){
+        document.forms[0].submit();
+        parent.$.fn.fancybox.close();
+    }
 
 
 
@@ -96,8 +92,8 @@ function submitform() {
 
 $(document).ready(function(){
     $("#cancel").click(function() {
-		  parent.$.fn.fancybox.close();
-	 });
+          parent.$.fn.fancybox.close();
+     });
 
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
@@ -122,18 +118,18 @@ $(document).ready(function(){
 
 <?php
 // Collect user information
-$user_info = sqlQuery("select * from `users` WHERE `id` = ?", array($_GET["user_id"]) );
+$user_info = sqlQuery("select * from `users` WHERE `id` = ?", array($_GET["user_id"]));
 
 // Collect facility information
-$fac_info = sqlQuery("select * from `facility` where `id` = ?", array($_GET["fac_id"]) );
+$fac_info = sqlQuery("select * from `facility` where `id` = ?", array($_GET["fac_id"]));
 
 // Collect layout information and store them in an array
 $l_res = sqlStatement("SELECT * FROM layout_options " .
                       "WHERE form_id = 'FACUSR' AND uor > 0 AND field_id != '' " .
                       "ORDER BY group_name, seq");
 $l_arr = array();
-for($i=0; $row=sqlFetchArray($l_res); $i++) {
-  $l_arr[$i]=$row;
+for ($i=0; $row=sqlFetchArray($l_res); $i++) {
+    $l_arr[$i]=$row;
 }
 ?>
 
@@ -159,35 +155,35 @@ for($i=0; $row=sqlFetchArray($l_res); $i++) {
 
 <table border=0 cellpadding=0 cellspacing=0>
 <tr>
-	<td>
-		<span class=text><?php echo xlt('User'); ?>: </span>
-	</td>
-	<td>
-		<span class=text><?php echo text($user_info['username']); ?> </span>
-	</td>
+    <td>
+        <span class=text><?php echo xlt('User'); ?>: </span>
+    </td>
+    <td>
+        <span class=text><?php echo text($user_info['username']); ?> </span>
+    </td>
 </tr>
 
 <tr>
-	<td>
-		<span class=text><?php echo xlt('Facility'); ?>: </span>
-	</td>
-	<td>
-		<span class=text><?php echo text($fac_info['name']); ?> </span>
-	</td>
+    <td>
+        <span class=text><?php echo xlt('Facility'); ?>: </span>
+    </td>
+    <td>
+        <span class=text><?php echo text($fac_info['name']); ?> </span>
+    </td>
 </tr>
 
 <?php foreach ($l_arr as $layout_entry) { ?>
   <tr>
-	<td style="width:180px;">
-		<span class=text><?php echo text(xl_layout_label($layout_entry['title'])) ?>: </span>
-	</td>
-	<td style="width:270px;">
+    <td style="width:180px;">
+        <span class=text><?php echo text(xl_layout_label($layout_entry['title'])) ?>: </span>
+    </td>
+    <td style="width:270px;">
                 <?php
                 $entry_data = sqlQuery("SELECT `field_value` FROM `facility_user_ids` " .
-                                       "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user_info['id'],$fac_info['id'],$layout_entry['field_id']) );
-                echo "<td><span class='text'>" . generate_form_field($layout_entry,$entry_data['field_value']) . "&nbsp;</td>";
+                                       "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user_info['id'],$fac_info['id'],$layout_entry['field_id']));
+                echo "<td><span class='text'>" . generate_form_field($layout_entry, $entry_data['field_value']) . "&nbsp;</td>";
                 ?>
-	</td>
+    </td>
   </tr>
 <?php } ?>
 

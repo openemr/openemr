@@ -33,7 +33,7 @@
  // Deprecated surgery date items that should be shown only if there
  // is data, and which should be moved to the lists table:
  //
- $obsoletes = array(
+  $obsoletes = array(
   'cataract_surgery' => xl('Cataract Surgery'),
   'tonsillectomy'    => xl('Tonsillectomy'),
   'appendectomy'     => xl('Appendectomy'),
@@ -43,5 +43,4 @@
   'hernia_repair'    => xl('Hernia Repair'),
   'hip_replacement'  => xl('Hip Replacement'),
   'knee_replacement' => xl('Knee Replacement')
- );
-?>
+  );

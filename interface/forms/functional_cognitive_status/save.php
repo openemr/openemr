@@ -25,12 +25,6 @@
 //
 // +------------------------------------------------------------------------------+
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes = $_POST['true'];
-
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals = $_POST['false'];
-
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
@@ -57,12 +51,14 @@ if ($id && $id != 0) {
     } else {
         $newid = 1;
     }
+
     addForm($encounter, "Functional and Cognitive Status Form", $newid, "functional_cognitive_status", $_SESSION["pid"], $userauthorized);
 }
+
 $code_text = array_filter($code_text);
 
 if (!empty($code_text)) {
-    foreach ($code_text as $key => $codeval):
+    foreach ($code_text as $key => $codeval) :
         $sets = "id    = ". add_escape_custom($newid) .",
             pid        = ". add_escape_custom($_SESSION["pid"]) .",
             groupname  = '" . add_escape_custom($_SESSION["authProvider"]) . "',
@@ -77,9 +73,8 @@ if (!empty($code_text)) {
         sqlInsert("INSERT INTO form_functional_cognitive_status SET $sets");
     endforeach;
 }
+
 $_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();
-?>
-

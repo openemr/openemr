@@ -5,7 +5,7 @@ namespace ESign;
 /**
  * LBF Form implementation of SignableIF interface, which represents an
  * object that can be signed, locked and/or amended.
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -32,21 +32,21 @@ class Form_LBF_Signable extends Form_Signable implements SignableIF
 {
     /**
      * Get the data in an array for this form.
-     * 
+     *
      * get the lbf form key, and all the entries associates with that key
-     * 
+     *
      * @see \ESign\SignableIF::getData()
      */
     public function getData()
     {
         // First we have to get the form_id from the forms tagle because that's our key to the lbf_data table
         $statement = "SELECT form_id FROM forms WHERE id = ?";
-        $row = sqlQuery( $statement, array( $this->_formId ) );
+        $row = sqlQuery($statement, array( $this->_formId ));
         // Now we can look for the data in the lbf_data table.
         $data = array();
-        if ( $row ) {
-            $fres = sqlStatement( "SELECT field_id, field_value FROM lbf_data WHERE form_id = ?", array( $row['form_id'] ) );
-            while ( $frow = sqlFetchArray( $fres ) ) {
+        if ($row) {
+            $fres = sqlStatement("SELECT field_id, field_value FROM lbf_data WHERE form_id = ?", array( $row['form_id'] ));
+            while ($frow = sqlFetchArray($fres)) {
                 $data[$frow['field_id']] = $frow['field_value'];
             }
         }

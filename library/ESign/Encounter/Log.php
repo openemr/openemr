@@ -5,7 +5,7 @@ namespace ESign;
 /**
  * Encounter implementation of LogIF interface, which is used to
  * display the signature log.
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -33,33 +33,33 @@ class Encounter_Log implements LogIF
     protected $_viewer = null;
     
     /**
-     * Create a new instance of Encounter_Log. 
-     * 
+     * Create a new instance of Encounter_Log.
+     *
      * We pass custom variables needed to render log through
      * the constructor because they aren't necessarily available
      * through the SignableIF interface when render() function is called.
-     * 
+     *
      * @param unknown $encounterId
      */
-    public function __construct( $encounterId )
+    public function __construct($encounterId)
     {
         $this->_viewer = new Viewer();
         $this->_viewer->encounterId = $encounterId;
         $this->_viewer->logId = "encounter-".$encounterId;
     }
     
-    public function render( SignableIF $signable )
+    public function render(SignableIF $signable)
     {
         $this->_viewer->signatures = $signable->getSignatures();
         $this->_viewer->verified = $signable->verify();
-        return $this->_viewer->render( $this );
+        return $this->_viewer->render($this);
     }
     
-    public function getHtml( SignableIF $signable )
+    public function getHtml(SignableIF $signable)
     {
         $this->_viewer->verified = $signable->verify();
         $this->_viewer->signatures = $signable->getSignatures();
-        return $this->_viewer->getHtml( $this );
+        return $this->_viewer->getHtml($this);
     }
     
     public function getViewScript()
@@ -75,7 +75,7 @@ class Encounter_Log implements LogIF
     public function isViewable()
     {
         $viewable = false;
-        if ( $GLOBALS['esign_all'] ) {
+        if ($GLOBALS['esign_all']) {
             $viewable = true;
         }
         

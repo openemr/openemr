@@ -11,31 +11,33 @@
  *
  * @author aron
  */
-class RuleCriteriaListsBuilder extends RuleCriteriaBuilder {
+class RuleCriteriaListsBuilder extends RuleCriteriaBuilder
+{
 
     /**
      * @return RuleCriteriaType
      */
-    function resolveRuleCriteriaType( $method, $methodDetail, $value ) {
-        if (strpos($method, "lists") ) {
-            if ( $methodDetail == 'medical_problem' ) {
+    function resolveRuleCriteriaType($method, $methodDetail, $value)
+    {
+        if (strpos($method, "lists")) {
+            if ($methodDetail == 'medical_problem') {
                 $exploded = explode("::", $value);
-                if ( $exploded[0] == "CUSTOM" ) {
+                if ($exploded[0] == "CUSTOM") {
                     // its a medical issue
-                    return RuleCriteriaType::from( RuleCriteriaType::issue );
+                    return RuleCriteriaType::from(RuleCriteriaType::issue);
                 } else {
                     // assume its a diagnosis
-                    return RuleCriteriaType::from( RuleCriteriaType::diagnosis );
+                    return RuleCriteriaType::from(RuleCriteriaType::diagnosis);
                 }
-            } else if ( $methodDetail == 'medication' ) {
+            } else if ($methodDetail == 'medication') {
                 // its a medication
-                return RuleCriteriaType::from( RuleCriteriaType::medication );
-            } else if ( $methodDetail == 'allergy' ) {
+                return RuleCriteriaType::from(RuleCriteriaType::medication);
+            } else if ($methodDetail == 'allergy') {
                 // its a medication
-                return RuleCriteriaType::from( RuleCriteriaType::allergy );
-            } else if ( $methodDetail == 'surgery' ) {
+                return RuleCriteriaType::from(RuleCriteriaType::allergy);
+            } else if ($methodDetail == 'surgery') {
                 // its a medication
-                return RuleCriteriaType::from( RuleCriteriaType::surgery );
+                return RuleCriteriaType::from(RuleCriteriaType::surgery);
             }
         }
 
@@ -47,29 +49,31 @@ class RuleCriteriaListsBuilder extends RuleCriteriaBuilder {
      * @param RuleCriteriaType $ruleCriteriaType
      * @return RuleCriteria
      */
-    function build( $ruleCriteriaType, $value, $methodDetail ) {
+    function build($ruleCriteriaType, $value, $methodDetail)
+    {
         $exploded = explode("::", $value);
 
-        if ( $ruleCriteriaType->code == 'issue' ) {
-            return new RuleCriteriaMedicalIssue( xl( "Medical Issue" ), $exploded[1] );
+        if ($ruleCriteriaType->code == 'issue') {
+            return new RuleCriteriaMedicalIssue(xl("Medical Issue"), $exploded[1]);
         }
 
-        if ( $ruleCriteriaType->code == 'diagnosis' ) {
-            return new RuleCriteriaDiagnosis( xl( "Diagnosis" ), $exploded[0], $exploded[1] );
+        if ($ruleCriteriaType->code == 'diagnosis') {
+            return new RuleCriteriaDiagnosis(xl("Diagnosis"), $exploded[0], $exploded[1]);
         }
 
-        if ( $ruleCriteriaType->code == 'medication' ) {
-            return new RuleCriteriaMedication( xl( "Medication" ), $value );
+        if ($ruleCriteriaType->code == 'medication') {
+            return new RuleCriteriaMedication(xl("Medication"), $value);
         }
 
-        if ( $ruleCriteriaType->code == 'surgery' ) {
-            return new RuleCriteriaSurgery( xl( "Surgery" ), $value );
+        if ($ruleCriteriaType->code == 'surgery') {
+            return new RuleCriteriaSurgery(xl("Surgery"), $value);
         }
 
 
-        if ( $ruleCriteriaType->code == 'allergy' ) {
-            return new RuleCriteriaAllergy( xl( "Allergy" ), $value );
+        if ($ruleCriteriaType->code == 'allergy') {
+            return new RuleCriteriaAllergy(xl("Allergy"), $value);
         }
+
         // its unknown
         return null;
     }
@@ -78,29 +82,28 @@ class RuleCriteriaListsBuilder extends RuleCriteriaBuilder {
      *
      * @param RuleCriteriaType $criteriaType
      */
-    function newInstance( $ruleCriteriaType ) {
-        if ( $ruleCriteriaType->code == 'issue' ) {
-            return new RuleCriteriaMedicalIssue( xl( "Medical Issue" ) );
+    function newInstance($ruleCriteriaType)
+    {
+        if ($ruleCriteriaType->code == 'issue') {
+            return new RuleCriteriaMedicalIssue(xl("Medical Issue"));
         }
 
-        if ( $ruleCriteriaType->code == 'diagnosis' ) {
-            return new RuleCriteriaDiagnosis( xl( "Diagnosis" )  );
+        if ($ruleCriteriaType->code == 'diagnosis') {
+            return new RuleCriteriaDiagnosis(xl("Diagnosis"));
         }
 
-        if ( $ruleCriteriaType->code == 'medication' ) {
-            return new RuleCriteriaMedication( xl( "Medication" ) );
+        if ($ruleCriteriaType->code == 'medication') {
+            return new RuleCriteriaMedication(xl("Medication"));
         }
 
-        if ( $ruleCriteriaType->code == 'surgery' ) {
-            return new RuleCriteriaSurgery( xl( "Surgery" ) );
+        if ($ruleCriteriaType->code == 'surgery') {
+            return new RuleCriteriaSurgery(xl("Surgery"));
         }
 
-        if ( $ruleCriteriaType->code == 'allergy' ) {
-            return new RuleCriteriaAllergy( xl( "Allergy" ) );
+        if ($ruleCriteriaType->code == 'allergy') {
+            return new RuleCriteriaAllergy(xl("Allergy"));
         }
 
         return null;
     }
-
 }
-?>

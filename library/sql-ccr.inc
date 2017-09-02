@@ -21,26 +21,27 @@
  */
 
 
-if($_POST['ccrAction'] == 'generate'){
-  if(isset($_POST['show_date'])){
-    $set = "on";
-    $start = $_POST['Start'];
-    $start = $start." 00:00:00";
-    $end = $_POST['End'];
-    $end = $end." 23:59:59";
-  }
+if ($_POST['ccrAction'] == 'generate') {
+    if (isset($_POST['show_date'])) {
+        $set = "on";
+        $start = $_POST['Start'];
+        $start = $start." 00:00:00";
+        $end = $_POST['End'];
+        $end = $end." 23:59:59";
+    }
 }
 
-function getHeaderData() {
+function getHeaderData()
+{
 
 // Reserved for future use
-	
 }
 
-function getMedicationData() {
-	global $pid,$set,$start,$end;
-  if($set == "on"){
-    $sql = " 
+function getMedicationData()
+{
+    global $pid,$set,$start,$end;
+    if ($set == "on") {
+        $sql = " 
       SELECT prescriptions.date_added ,
         prescriptions.patient_id,
         prescriptions.start_date,
@@ -85,9 +86,9 @@ function getMedicationData() {
       WHERE `type` = 'medication' 
         AND pid = ?
         AND `date` BETWEEN ? AND ?";
-    $result = sqlStatement($sql, array($pid,$start,$end,$pid,$start,$end) );
-  }else{
-    $sql = " 
+        $result = sqlStatement($sql, array($pid,$start,$end,$pid,$start,$end));
+    } else {
+        $sql = " 
       SELECT prescriptions.date_added ,
         prescriptions.patient_id,
         prescriptions.start_date,
@@ -130,15 +131,17 @@ function getMedicationData() {
         lists 
       WHERE `type` = 'medication' 
         AND pid = ?";
-    $result = sqlStatement($sql, array($pid,$pid) );
-  }
-	return $result;
+        $result = sqlStatement($sql, array($pid,$pid));
+    }
+
+    return $result;
 }
 
-function getImmunizationData() {
-	global $pid,$set,$start,$end;
-  if($set == "on"){
-    $sql = "SELECT
+function getImmunizationData()
+{
+    global $pid,$set,$start,$end;
+    if ($set == "on") {
+        $sql = "SELECT
       immunizations.administered_date,
       immunizations.patient_id,
       immunizations.vis_date,
@@ -151,9 +154,9 @@ function getImmunizationData() {
     LEFT JOIN code_types ON codes.code_type = code_types.ct_id
     WHERE immunizations.patient_id = ? AND code_types.ct_key = 'CVX' AND immunizations.added_erroneously = 0
     AND create_date BETWEEN ? AND ?" ;
-    $result = sqlStatement($sql, array($pid,$start,$end) );
-  }else{
-    $sql = "SELECT
+        $result = sqlStatement($sql, array($pid,$start,$end));
+    } else {
+        $sql = "SELECT
       immunizations.administered_date,
       immunizations.patient_id,
       immunizations.vis_date,
@@ -165,17 +168,19 @@ function getImmunizationData() {
     LEFT JOIN codes ON immunizations.cvx_code = codes.code
     LEFT JOIN code_types ON codes.code_type = code_types.ct_id
     WHERE immunizations.patient_id = ? AND immunizations.added_erroneously = 0 AND code_types.ct_key = 'CVX'";
-    $result = sqlStatement($sql, array($pid) );
-  }
-	return $result;
+        $result = sqlStatement($sql, array($pid));
+    }
+
+    return $result;
 }
 
 
-function getProcedureData() {
+function getProcedureData()
+{
 
-	global $pid,$set,$start,$end;
-  if($set == "on"){
-    $sql = " 
+    global $pid,$set,$start,$end;
+    if ($set == "on") {
+        $sql = " 
     SELECT 
       lists.title as proc_title,
       lists.date as `date`,
@@ -233,9 +238,9 @@ function getProcedureData() {
     WHERE po.patient_id = ?
     AND prs.date BETWEEN ? AND ?";
   
-    $result = sqlStatement($sql, array($pid,$start,$end,$pid,$start,$end) );
-  }else{
-    $sql = " 
+        $result = sqlStatement($sql, array($pid,$start,$end,$pid,$start,$end));
+    } else {
+        $sql = " 
     SELECT 
       lists.title as proc_title,
       lists.date as `date`,
@@ -291,13 +296,15 @@ function getProcedureData() {
         AND pt.units = lo.option_id AND lo.activity = 1
     WHERE po.patient_id = ? ";
   
-    $result = sqlStatement($sql, array($pid,$pid) );
-  }
-	return $result;
+        $result = sqlStatement($sql, array($pid,$pid));
+    }
+
+    return $result;
 }
 
 
-function getProblemData() {
+function getProblemData()
+{
 
   # Note we are hard-coding (only allowing) problems that have been coded to ICD9. Would
   #  be easy to upgrade this to other codesets in future (ICD10,SNOMED) by using already
@@ -307,9 +314,9 @@ function getProblemData() {
   #  problems with one diagnostic code set in order to maintain previous behavior
   #  (this will likely need to be dealt with at some point; ie. support multiple dx codes per problem).
 
-	global $pid,$set,$start,$end;
-  if($set == "on"){
-    $sql = " 
+    global $pid,$set,$start,$end;
+    if ($set == "on") {
+        $sql = " 
     SELECT fe.encounter, fe.reason, fe.provider_id, u.title, u.fname, u.lname, 
       fe.facility_id, f.street, f.city, f.state, ie.list_id, l.pid, l.title AS prob_title, l.diagnosis, 
       l.outcome, l.groupname, l.begdate, l.enddate, l.type, l.comments , l.date
@@ -321,9 +328,9 @@ function getProblemData() {
     WHERE l.type = 'medical_problem' AND l.pid=? AND l.diagnosis LIKE 'ICD9:%'
     AND l.diagnosis NOT LIKE '%;%'
     AND l.date BETWEEN ? AND ?";
-    $result = sqlStatement($sql, array($pid,$start,$end) );
-  }else{
-    $sql = " 
+        $result = sqlStatement($sql, array($pid,$start,$end));
+    } else {
+        $sql = " 
     SELECT fe.encounter, fe.reason, fe.provider_id, u.title, u.fname, u.lname, 
       fe.facility_id, f.street, f.city, f.state, ie.list_id, l.pid, l.title AS prob_title, l.diagnosis, 
       l.outcome, l.groupname, l.begdate, l.enddate, l.type, l.comments , l.date
@@ -334,17 +341,19 @@ function getProblemData() {
     LEFT JOIN users AS u ON fe.provider_id = u.id
     WHERE l.type = 'medical_problem' AND l.pid=? AND l.diagnosis LIKE 'ICD9:%'
     AND l.diagnosis NOT LIKE '%;%'";
-    $result = sqlStatement($sql, array($pid) );
-  }
-	return $result;
+        $result = sqlStatement($sql, array($pid));
+    }
+
+    return $result;
 }
 
 
-function getAlertData() {
+function getAlertData()
+{
 
-	global $pid,$set,$start,$end;
-  if($set == "on"){
-	$sql = " 
+    global $pid,$set,$start,$end;
+    if ($set == "on") {
+        $sql = " 
     select fe.reason, fe.provider_id, fe.facility_id, fe.encounter,
       ie.list_id, l.pid, l.title as alert_title, l.outcome, 
       l.groupname, l.begdate, l.enddate, l.type, l.diagnosis, l.date ,
@@ -364,9 +373,9 @@ function getAlertData() {
     where l.type = 'allergy' and l.pid=?
     AND l.date BETWEEN ? AND ?";
     
-    $result = sqlStatement($sql, array($pid,$start,$end) );
-  }else{
-    $sql = " 
+        $result = sqlStatement($sql, array($pid,$start,$end));
+    } else {
+        $sql = " 
     select fe.reason, fe.provider_id, fe.facility_id, fe.encounter,
       ie.list_id, l.pid, l.title as alert_title, l.outcome, 
       l.groupname, l.begdate, l.enddate, l.type, l.diagnosis, l.date ,
@@ -385,17 +394,19 @@ function getAlertData() {
     on cd.code = SUBSTRING(l.diagnosis, LOCATE(':',l.diagnosis)+1)
     where l.type = 'allergy' and l.pid=?";
       
-    $result = sqlStatement($sql, array($pid) );
-  }
-	return $result;
+        $result = sqlStatement($sql, array($pid));
+    }
+
+    return $result;
 }
 
 
-function getResultData() {
+function getResultData()
+{
 
-	global $pid,$set,$start,$end;
-  if($set == "on"){
-    $sql = "
+    global $pid,$set,$start,$end;
+    if ($set == "on") {
+        $sql = "
       SELECT 
         prs.procedure_result_id as `pid`,
         pt.name as `name`,
@@ -426,10 +437,10 @@ function getResultData() {
           ON lo.list_id = 'proc_unit' AND pt.units = lo.option_id AND lo.activity = 1
       WHERE po.patient_id=?
       AND prs.date BETWEEN ? AND ?";
-		
-    $result = sqlStatement($sql, array($pid,$start,$end) );
-  }else{
-    $sql = "
+        
+        $result = sqlStatement($sql, array($pid,$start,$end));
+    } else {
+        $sql = "
       SELECT 
         prs.procedure_result_id as `pid`,
         pt.name as `name`,
@@ -459,29 +470,31 @@ function getResultData() {
         LEFT JOIN list_options AS lo
           ON lo.list_id = 'proc_unit' AND pt.units = lo.option_id AND lo.activity = 1
       WHERE po.patient_id=?";
-		
-    $result = sqlStatement($sql, array($pid) );
-  }
-	return $result;
+        
+        $result = sqlStatement($sql, array($pid));
+    }
+
+    return $result;
 }
 
 
-function getActorData() {
-	global $pid;
+function getActorData()
+{
+    global $pid;
 
-	$sql = " 
+    $sql = " 
 	select fname, lname, DOB, sex, pid, street, city, state, postal_code, phone_contact
 	from patient_data
 	where pid=?";
-		
-	$result[0] = sqlStatement($sql, array($pid) );
+        
+    $result[0] = sqlStatement($sql, array($pid));
   
-  $sql2 = " 
+    $sql2 = " 
 	SELECT * FROM users AS u LEFT JOIN facility AS f ON u.facility_id = f.id WHERE u.id=?";
-		
-	$result[1] = sqlStatement($sql2, array($_SESSION['authUserID']) );
+        
+    $result[1] = sqlStatement($sql2, array($_SESSION['authUserID']));
   
-  $sql3 = "
+    $sql3 = "
   SELECT 
     u.ppid AS id, u.name AS lname, '' AS fname, '' AS city, '' AS state, '' AS zip, '' AS phone
   FROM
@@ -497,25 +510,24 @@ function getActorData() {
     AND lo.list_id = 'proc_type' 
     AND lo.option_id = 'ord'
     GROUP BY u.ppid";
-		
-	$result[2] = sqlStatement($sql3, array($pid) );
+        
+    $result[2] = sqlStatement($sql3, array($pid));
   
-	return $result;
+    return $result;
 }
 
 
-function getReportFilename() {
-  global $pid;
+function getReportFilename()
+{
+    global $pid;
 
-  $sql = "
+    $sql = "
     select fname, lname, pid
     from patient_data
     where pid=?";
 
-  $result = sqlQuery($sql, array($pid) );
-	$result_filename = $result['lname']."-".$result['fname']."-".$result['pid']."-".date("mdY",time());
+    $result = sqlQuery($sql, array($pid));
+    $result_filename = $result['lname']."-".$result['fname']."-".$result['pid']."-".date("mdY", time());
 
-  return $result_filename;
+    return $result_filename;
 }
-
-?>

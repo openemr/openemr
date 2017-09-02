@@ -80,8 +80,6 @@ body
     flex-direction: column;
     margin: 0;
     padding: 0;
-    border-left: 1pt solid black;
-    border-right: 1pt solid black;
 }
 
 #framesDisplay > div > iframe
@@ -284,6 +282,17 @@ div.closeDlgIframe {
 .patientInfo .clear:hover
 {
     color:red;
+}
+
+.patientInfo .patientPicture
+{
+    margin-top: -1px;
+    margin-right: 7px;
+}
+
+.patientInfo .patientPicture img
+{
+    height: 50px;
 }
 
 .top {

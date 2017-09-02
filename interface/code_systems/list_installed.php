@@ -25,13 +25,7 @@
  */
 
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
 
 require_once("../../interface/globals.php");
 require_once("$srcdir/acl.inc");
@@ -45,8 +39,8 @@ if (!acl_check('admin', 'super')) {
 $db = isset($_GET['db']) ? $_GET['db'] : '0';
 
 // Ordering by the imported_date with tiebreaker being the revision_date
-$rez = sqlStatement("SELECT DATE_FORMAT(`revision_date`,'%Y-%m-%d') as `revision_date`, `revision_version`, `name` FROM `standardized_tables_track` WHERE upper(`name`) = ? ORDER BY `imported_date` DESC, `revision_date` DESC", array($db) );
-for($iter=0; $row=sqlFetchArray($rez); $iter++) {
+$rez = sqlStatement("SELECT DATE_FORMAT(`revision_date`,'%Y-%m-%d') as `revision_date`, `revision_version`, `name` FROM `standardized_tables_track` WHERE upper(`name`) = ? ORDER BY `imported_date` DESC, `revision_date` DESC", array($db));
+for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
     $sqlReturn[$iter]=$row;
 }
 
@@ -64,6 +58,7 @@ if (empty($sqlReturn)) {
         <br>
 <?php
     }
+
     // Always show the first item of query results
 ?>
     <div class="atr"><?php echo xlt("Name") . ": " . text($sqlReturn[0]['name']); ?> </div>

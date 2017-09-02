@@ -18,8 +18,8 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 include_once("../../globals.php");
 include_once("$srcdir/acl.inc");
@@ -29,9 +29,8 @@ $disabled = "disabled";
 
 // If we are allowed to change encounter dates...
 if (acl_check('encounters', 'date_a')) {
-  $disabled = "";
+    $disabled = "";
 }
 
 $viewmode = true;
 require_once("common.php");
-?>

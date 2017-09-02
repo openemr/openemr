@@ -20,8 +20,8 @@
  * @link    http://www.open-emr.org
  */
 
-$sanitize_all_escapes  = true;
-$fake_register_globals = false;
+
+
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
@@ -31,7 +31,9 @@ $info_msg = "";
 
 // Check authorization.
 $thisauth = acl_check('admin', 'super');
-if (!$thisauth) die(xlt('Not authorized'));
+if (!$thisauth) {
+    die(xlt('Not authorized'));
+}
 
 $opt_line_no = intval($_GET['lineno']);
 ?>
@@ -58,30 +60,34 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 var target = opener.document.forms[0]['opt[<?php echo $opt_line_no; ?>][notes]'];
 
 $(document).ready(function () {
-  var f = document.forms[0];
-  var jobj = {};
-  if (target.value.length) {
-    try {
-      jobj = JSON.parse(target.value);
+    var jobj = {};
+    if (target.value.length) {
+        try {
+            jobj = JSON.parse(target.value);
+            $("#fm_props").find('input,select').each(function() {
+                var fm_prop = $(this).prop('name').slice(5);
+                if ((typeof(jobj[fm_prop]) !== 'undefined') && (fm_prop !== '')) {
+                    $(this).val(jobj[fm_prop]);
+                }
+            });
+        }
+        catch (e) {
+            alert('<?php echo xls('Invalid data, will be ignored and replaced.'); ?>');
+        }
     }
-    catch (e) {
-      alert('<?php echo xls('Invalid data, will be ignored and replaced.'); ?>');
-    }
-  }
-  if (jobj['size'    ]) f.form_size.value     = jobj['size'];
-  if (jobj['columns' ]) f.form_columns.value  = jobj['columns'];
-  if (jobj['aco'     ]) f.form_aco.value      = jobj['aco'];
 });
 
 // Onclick handler for Submit button.
 function submitProps() {
-  var f = document.forms[0];
-  var jobj = {};
-  if (f.form_size.value          ) jobj['size'    ] = f.form_size.value;
-  if (f.form_columns.value != '4') jobj['columns' ] = f.form_columns.value;
-  if (f.form_aco.value           ) jobj['aco'     ] = f.form_aco.value;
-  target.value = JSON.stringify(jobj);
-  window.close();
+    var jobj = {};
+    $("#fm_props").find('input,select').each(function() {
+        var fm_prop = $(this).prop('name').slice(5);
+        if (($(this).val() !== '') && (fm_prop !== '')) {
+            jobj[fm_prop] = $(this).val();
+        }
+    });
+    target.value = ((Object.keys(jobj).length > 0) ? JSON.stringify(jobj) : '');
+    window.close();
 }
 
 </script>
@@ -90,23 +96,24 @@ function submitProps() {
 
 <body class="body_top">
 
-<form method='post'>
+<form id='fm_props' method='post'>
 <center>
 
 <table border='0' width='100%'>
 
  <tr>
   <td valign='top' nowrap>
-   <?php echo xlt('Layout Columns'); ?>
+    <?php echo xlt('Layout Columns'); ?>
   </td>
   <td>
    <select name='form_columns'>
 <?php
-  for ($cols = 2; $cols <= 10; ++$cols) {
-    echo "<option value='$cols'";
-    if ($cols == 4) echo " selected";
-    echo ">$cols</option>\n";
-  }
+  echo "<option value=''>" . xlt('Default') . " (4)</option>\n";
+for ($cols = 2; $cols <= 10; ++$cols) {
+    if ($cols != 4) {
+        echo "<option value='$cols'>$cols</option>\n";
+    }
+}
 ?>
    </select>
   </td>
@@ -114,16 +121,16 @@ function submitProps() {
 
  <tr>
   <td valign='top' nowrap>
-   <?php echo xlt('Font Size'); ?>
+    <?php echo xlt('Font Size'); ?>
   </td>
   <td>
    <select name='form_size'>
 <?php
   echo "<option value=''>" . xlt('Default') . "</option>\n";
-  for ($size = 5; $size <= 15; ++$size) {
+for ($size = 5; $size <= 15; ++$size) {
     echo "<option value='$size'";
     echo ">$size</option>\n";
-  }
+}
 ?>
    </select>
   </td>
@@ -131,32 +138,22 @@ function submitProps() {
 
  <tr>
   <td valign='top' nowrap>
-   <?php echo xlt('Access Control'); ?>
+    <?php echo xlt('Access Control'); ?>
   </td>
   <td>
    <select name='form_aco'>
     <option value=''></option>
-<?php
-  $gacl = new gacl_api();
-  // collect and sort all aco objects
-  $list_aco_objects = $gacl->get_objects(NULL, 0, 'ACO');
-  ksort($list_aco_objects);
-  foreach ($list_aco_objects as $seckey => $dummy) {
-    if (empty($dummy)) continue;
-    asort($list_aco_objects[$seckey]);
-    $aco_section_data = $gacl->get_section_data($seckey, 'ACO');
-    $aco_section_title = $aco_section_data[3];
-    echo " <optgroup label='" . xla($aco_section_title) . "'>\n";
-    foreach($list_aco_objects[$seckey] as $acokey) {
-      $aco_id = $gacl->get_object_id($seckey, $acokey,'ACO');
-      $aco_data = $gacl->get_object_data($aco_id, 'ACO');
-      $aco_title = $aco_data[0][3];
-      echo "  <option value='" . attr("$seckey|$acokey") . "'>" . xlt($aco_title) . "</option>\n";
-    }
-    echo " </optgroup>\n";
-  }
-?>
+    <?php echo gen_aco_html_options(); ?>
    </select>
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' nowrap>
+   <label for='form_category'><?php echo xlt('Category'); ?></label>
+  </td>
+  <td>
+   <input type="text" id='form_category' name='form_category' size="40">
   </td>
  </tr>
 
@@ -174,8 +171,8 @@ function submitProps() {
 <script language='JavaScript'>
 <?php
 if ($info_msg) {
-  echo " alert('".addslashes($info_msg)."');\n";
-  echo " window.close();\n";
+    echo " alert('".addslashes($info_msg)."');\n";
+    echo " window.close();\n";
 }
 ?>
 </script>

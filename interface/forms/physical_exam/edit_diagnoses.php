@@ -12,13 +12,15 @@
  $line_id = $_REQUEST['lineid'];
  $info_msg = "";
 
- if ($issue && !acl_check('patients', 'med','','write')) die("Edit is not authorized!");
+if ($issue && !acl_check('patients', 'med', '', 'write')) {
+    die("Edit is not authorized!");
+}
 ?>
 <html>
 <head>
 <?php html_header_show();?>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>    
-<title><?php xl('Edit Diagnoses for','e');?><?php echo $line_id ?></title>
+<title><?php xl('Edit Diagnoses for', 'e');?><?php echo $line_id ?></title>
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 
 <script language="JavaScript">
@@ -30,38 +32,41 @@
 <?php
  // If we are saving, then save and close the window.
  //
- if ($_POST['form_save']) {
-  $query = "DELETE FROM form_physical_exam_diagnoses WHERE line_id = '$line_id'";
-  sqlStatement($query);
+if ($_POST['form_save']) {
+    $query = "DELETE FROM form_physical_exam_diagnoses WHERE line_id = '$line_id'";
+    sqlStatement($query);
 
-  $form_diagnoses = $_POST['form_diagnosis'];
-  $form_orderings = $_POST['form_ordering'];
-  foreach ($form_diagnoses as $i => $diagnosis) {
-   if ($diagnosis) {
-    $ordering = $form_orderings[$i];
-    $query = "INSERT INTO form_physical_exam_diagnoses ( " .
-     "line_id, ordering, diagnosis " .
-     ") VALUES ( " .
-     "'$line_id', '$ordering', '$diagnosis' " .
-     ")";
-    sqlInsert($query);
-   }
-  }
+    $form_diagnoses = $_POST['form_diagnosis'];
+    $form_orderings = $_POST['form_ordering'];
+    foreach ($form_diagnoses as $i => $diagnosis) {
+        if ($diagnosis) {
+            $ordering = $form_orderings[$i];
+            $query = "INSERT INTO form_physical_exam_diagnoses ( " .
+            "line_id, ordering, diagnosis " .
+            ") VALUES ( " .
+            "'$line_id', '$ordering', '$diagnosis' " .
+            ")";
+            sqlInsert($query);
+        }
+    }
 
   // Close this window and redisplay the updated encounter form.
   //
-  echo "<script language='JavaScript'>\n";
-  if ($info_msg) echo " alert('$info_msg');\n";
-  echo " window.close();\n";
+    echo "<script language='JavaScript'>\n";
+    if ($info_msg) {
+        echo " alert('$info_msg');\n";
+    }
+
+    echo " window.close();\n";
   // echo " opener.location.reload();\n";
-  echo " if (opener.refreshme) opener.refreshme();\n";
-  echo "</script></body></html>\n";
-  exit();
- }
+    echo " if (opener.refreshme) opener.refreshme();\n";
+    echo "</script></body></html>\n";
+    exit();
+}
 
  $dres = sqlStatement(
-  "SELECT * FROM form_physical_exam_diagnoses WHERE " .
-  "line_id = '$line_id' ORDER BY ordering, diagnosis"
+     "SELECT * FROM form_physical_exam_diagnoses WHERE " .
+     "line_id = '$line_id' ORDER BY ordering, diagnosis"
  );
 ?>
 <form method='post' name='theform' action='edit_diagnoses.php?lineid=<?php  echo $line_id ?>'
@@ -71,8 +76,8 @@
 <table border='0' width='100%'>
 
  <tr>
-  <td width='5%'><?php xl('Order','e'); ?></td>
-  <td width='95%'><?php xl('Diagnosis','e'); ?></td>
+  <td width='5%'><?php xl('Order', 'e'); ?></td>
+  <td width='95%'><?php xl('Diagnosis', 'e'); ?></td>
  </tr>
 
 <?php for ($i = 1; $drow = sqlFetchArray($dres); ++$i) { ?>
@@ -92,10 +97,10 @@
 </table>
 
 <p>
-<input type='submit' name='form_save' value='<?php xl('Save','e'); ?>' />
+<input type='submit' name='form_save' value='<?php xl('Save', 'e'); ?>' />
 
 &nbsp;
-<input type='button' value='<?php xl('Cancel','e'); ?>' onclick='window.close()' />
+<input type='button' value='<?php xl('Cancel', 'e'); ?>' onclick='window.close()' />
 </p>
 
 </center>

@@ -22,8 +22,8 @@
 
 set_time_limit(0);
 
-$sanitize_all_escapes  = true;
-$fake_register_globals = false;
+
+
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
@@ -32,7 +32,9 @@ require_once("$srcdir/log.inc");
 // Set this to true for production use. If false you will get a "dry run" with no updates.
 $PRODUCTION = true;
 
-if (!acl_check('admin', 'super')) die(xlt('Not authorized'));
+if (!acl_check('admin', 'super')) {
+    die(xlt('Not authorized'));
+}
 ?>
 <html>
 
@@ -72,123 +74,161 @@ function sel_patient(ename, epid) {
 
 <?php
 
-function deleteRows($tblname, $colname, $source_pid) {
-  global $PRODUCTION;
-  $crow = sqlQuery("SELECT COUNT(*) AS count FROM `$tblname` WHERE `$colname` = $source_pid");
-  $count = $crow['count'];
-  if ($count) {
-    $sql = "DELETE FROM `$tblname` WHERE `$colname` = $source_pid";
-    echo "<br />$sql ($count)";
-    if ($PRODUCTION) sqlStatement($sql);
-  }
+function deleteRows($tblname, $colname, $source_pid)
+{
+    global $PRODUCTION;
+    $crow = sqlQuery("SELECT COUNT(*) AS count FROM `$tblname` WHERE `$colname` = $source_pid");
+    $count = $crow['count'];
+    if ($count) {
+        $sql = "DELETE FROM `$tblname` WHERE `$colname` = $source_pid";
+        echo "<br />$sql ($count)";
+        if ($PRODUCTION) {
+            sqlStatement($sql);
+        }
+    }
 }
 
-function updateRows($tblname, $colname, $source_pid, $target_pid) {
-  global $PRODUCTION;
-  $crow = sqlQuery("SELECT COUNT(*) AS count FROM `$tblname` WHERE `$colname` = $source_pid");
-  $count = $crow['count'];
-  if ($count) {
-    $sql = "UPDATE `$tblname` SET `$colname` = '$target_pid' WHERE `$colname` = $source_pid";
-    echo "<br />$sql ($count)";
-    if ($PRODUCTION) sqlStatement($sql);
-  }
+function updateRows($tblname, $colname, $source_pid, $target_pid)
+{
+    global $PRODUCTION;
+    $crow = sqlQuery("SELECT COUNT(*) AS count FROM `$tblname` WHERE `$colname` = $source_pid");
+    $count = $crow['count'];
+    if ($count) {
+        $sql = "UPDATE `$tblname` SET `$colname` = '$target_pid' WHERE `$colname` = $source_pid";
+        echo "<br />$sql ($count)";
+        if ($PRODUCTION) {
+            sqlStatement($sql);
+        }
+    }
 }
 
 if (!empty($_POST['form_submit'])) {
-  $target_pid = intval($_POST['form_target_pid']);
-  $source_pid = intval($_POST['form_source_pid']);
+    $target_pid = intval($_POST['form_target_pid']);
+    $source_pid = intval($_POST['form_source_pid']);
 
-  if ($target_pid == $source_pid) die(xlt('Target and source pid may not be the same!'));
+    if ($target_pid == $source_pid) {
+        die(xlt('Target and source pid may not be the same!'));
+    }
 
-  $tprow = sqlQuery("SELECT * FROM patient_data WHERE pid = ?", array($target_pid));
-  $sprow = sqlQuery("SELECT * FROM patient_data WHERE pid = ?", array($source_pid));
+    $tprow = sqlQuery("SELECT * FROM patient_data WHERE pid = ?", array($target_pid));
+    $sprow = sqlQuery("SELECT * FROM patient_data WHERE pid = ?", array($source_pid));
 
   // Do some checking to make sure source and target exist and are the same person.
-  if (empty($tprow['pid'])) die(xlt('Target patient not found'));
-  if (empty($sprow['pid'])) die(xlt('Source patient not found'));
-  if ($tprow['ss'] != $sprow['ss']) die(xlt('Target and source SSN do not match'));
-  if (empty($tprow['DOB']) || $tprow['DOB'] == '0000-00-00') die(xlt('Target patient has no DOB'));
-  if (empty($sprow['DOB']) || $sprow['DOB'] == '0000-00-00') die(xlt('Source patient has no DOB'));
-  if ($tprow['DOB'] != $sprow['DOB']) die(xlt('Target and source DOB do not match'));
+    if (empty($tprow['pid'])) {
+        die(xlt('Target patient not found'));
+    }
 
-  $tdocdir = "$OE_SITE_DIR/documents/$target_pid";
-  $sdocdir = "$OE_SITE_DIR/documents/$source_pid";
-  $sencdir = "$sdocdir/encounters";
-  $tencdir = "$tdocdir/encounters";
+    if (empty($sprow['pid'])) {
+        die(xlt('Source patient not found'));
+    }
+
+    if ($tprow['ss'] != $sprow['ss']) {
+        die(xlt('Target and source SSN do not match'));
+    }
+
+    if (empty($tprow['DOB']) || $tprow['DOB'] == '0000-00-00') {
+        die(xlt('Target patient has no DOB'));
+    }
+
+    if (empty($sprow['DOB']) || $sprow['DOB'] == '0000-00-00') {
+        die(xlt('Source patient has no DOB'));
+    }
+
+    if ($tprow['DOB'] != $sprow['DOB']) {
+        die(xlt('Target and source DOB do not match'));
+    }
+
+    $tdocdir = "$OE_SITE_DIR/documents/$target_pid";
+    $sdocdir = "$OE_SITE_DIR/documents/$source_pid";
+    $sencdir = "$sdocdir/encounters";
+    $tencdir = "$tdocdir/encounters";
 
   // Change normal documents first as that could fail if CouchDB connection fails.
-  $dres = sqlStatement("SELECT * FROM `documents` WHERE `foreign_id` = '$source_pid'");
-  while ($drow = sqlFetchArray($dres)) {
-    $d = new Document($drow['id']);
-    echo "<br />" . xlt('Changing patient ID for document') . ' ' . text($d->get_url_file());
-    if ($PRODUCTION) {
-      if (!$d->change_patient($target_pid)) {
-        die("<br />" . xlt('Change failed! CouchDB connect error?'));
-      }
+    $dres = sqlStatement("SELECT * FROM `documents` WHERE `foreign_id` = '$source_pid'");
+    while ($drow = sqlFetchArray($dres)) {
+        $d = new Document($drow['id']);
+        echo "<br />" . xlt('Changing patient ID for document') . ' ' . text($d->get_url_file());
+        if ($PRODUCTION) {
+            if (!$d->change_patient($target_pid)) {
+                die("<br />" . xlt('Change failed! CouchDB connect error?'));
+            }
+        }
     }
-  }
 
   // Move scanned encounter documents and delete their container.
-  if (is_dir($sencdir)) {
-    if ($PRODUCTION && !file_exists($tdocdir)) mkdir($tdocdir);
-    if ($PRODUCTION && !file_exists($tencdir)) mkdir($tencdir);
-    $dh = opendir($sencdir);
-    if (!$dh) die(xlt('Cannot read directory') . " '$sencdir'");
-    while (false !== ($sfname = readdir($dh))) {
-      if ($sfname == '.' || $sfname == '..') continue;
-      if ($sfname == 'index.html') {
-        echo "<br />" . xlt('Deleting') . " $sencdir/$sfname";
-        if ($PRODUCTION) {
-          if (!unlink("$sencdir/$sfname"))
-            die("<br />" . xlt('Delete failed!'));
+    if (is_dir($sencdir)) {
+        if ($PRODUCTION && !file_exists($tdocdir)) {
+            mkdir($tdocdir);
         }
-        continue;
-      }
-      echo "<br />" . xlt('Moving') . " $sencdir/$sfname " . xlt('to') . " $tencdir/$sfname";
-      if ($PRODUCTION) {
-        if (!rename("$sencdir/$sfname", "$tencdir/$sfname"))
-          die("<br />" . xlt('Move failed!'));
-      }
-    }
-    closedir($dh);
-    echo "<br />" . xlt('Deleting') . " $sencdir";
-    if ($PRODUCTION) {
-      if (!rmdir($sencdir))
-        echo "<br />" . xlt('Directory delete failed; continuing.');
-    }
-  }
 
-  $tres = sqlStatement("SHOW TABLES");
-  while ($trow = sqlFetchArray($tres)) {
-    $tblname = array_shift($trow);
-    if ($tblname == 'patient_data' || $tblname == 'history_data' || $tblname == 'insurance_data') {
-      deleteRows($tblname, 'pid', $source_pid);
-    }
-    else if ($tblname == 'chart_tracker') {
-      updateRows($tblname, 'ct_pid', $source_pid, $target_pid);
-    }
-    else if ($tblname == 'documents') {
-      // Documents already handled.
-    }
-    else if ($tblname == 'openemr_postcalendar_events') {
-      updateRows($tblname, 'pc_pid', $source_pid, $target_pid);
-    }
-    else if ($tblname == 'log') {
-      // Don't mess with log data.
-    }
-    else {
-      $crow = sqlQuery("SHOW COLUMNS FROM `$tblname` WHERE " .
-        "`Field` LIKE 'pid' OR `Field` LIKE 'patient_id'");
-      if (!empty($crow['Field'])) {
-        $colname = $crow['Field'];
-        updateRows($tblname, $colname, $source_pid, $target_pid);
-      }
-    }
-  }
+        if ($PRODUCTION && !file_exists($tencdir)) {
+            mkdir($tencdir);
+        }
 
-  echo "<br />" . xlt('Merge complete.');
+        $dh = opendir($sencdir);
+        if (!$dh) {
+            die(xlt('Cannot read directory') . " '$sencdir'");
+        }
 
-  exit(0);
+        while (false !== ($sfname = readdir($dh))) {
+            if ($sfname == '.' || $sfname == '..') {
+                continue;
+            }
+
+            if ($sfname == 'index.html') {
+                echo "<br />" . xlt('Deleting') . " $sencdir/$sfname";
+                if ($PRODUCTION) {
+                    if (!unlink("$sencdir/$sfname")) {
+                        die("<br />" . xlt('Delete failed!'));
+                    }
+                }
+
+                continue;
+            }
+
+            echo "<br />" . xlt('Moving') . " $sencdir/$sfname " . xlt('to') . " $tencdir/$sfname";
+            if ($PRODUCTION) {
+                if (!rename("$sencdir/$sfname", "$tencdir/$sfname")) {
+                    die("<br />" . xlt('Move failed!'));
+                }
+            }
+        }
+
+        closedir($dh);
+        echo "<br />" . xlt('Deleting') . " $sencdir";
+        if ($PRODUCTION) {
+            if (!rmdir($sencdir)) {
+                echo "<br />" . xlt('Directory delete failed; continuing.');
+            }
+        }
+    }
+
+    $tres = sqlStatement("SHOW TABLES");
+    while ($trow = sqlFetchArray($tres)) {
+        $tblname = array_shift($trow);
+        if ($tblname == 'patient_data' || $tblname == 'history_data' || $tblname == 'insurance_data') {
+            deleteRows($tblname, 'pid', $source_pid);
+        } else if ($tblname == 'chart_tracker') {
+            updateRows($tblname, 'ct_pid', $source_pid, $target_pid);
+        } else if ($tblname == 'documents') {
+            // Documents already handled.
+        } else if ($tblname == 'openemr_postcalendar_events') {
+            updateRows($tblname, 'pc_pid', $source_pid, $target_pid);
+        } else if ($tblname == 'log') {
+            // Don't mess with log data.
+        } else {
+            $crow = sqlQuery("SHOW COLUMNS FROM `$tblname` WHERE " .
+            "`Field` LIKE 'pid' OR `Field` LIKE 'patient_id'");
+            if (!empty($crow['Field'])) {
+                  $colname = $crow['Field'];
+                  updateRows($tblname, $colname, $source_pid, $target_pid);
+            }
+        }
+    }
+
+    echo "<br />" . xlt('Merge complete.');
+
+    exit(0);
 }
 ?>
 
@@ -201,7 +241,7 @@ if (!empty($_POST['form_submit'])) {
 <table style='width:90%'>
  <tr>
   <td>
-   <?php echo xlt('Target Patient') ?>
+    <?php echo xlt('Target Patient') ?>
   </td>
   <td>
    <input type='text' size='30' name='form_target_patient'
@@ -211,12 +251,12 @@ if (!empty($_POST['form_submit'])) {
    <input type='hidden' name='form_target_pid' value='0' />
   </td>
   <td>
-   <?php echo xlt('This is the main chart that is to receive the merged data.'); ?>
+    <?php echo xlt('This is the main chart that is to receive the merged data.'); ?>
   </td>
  </tr>
  <tr>
   <td>
-   <?php echo xlt('Source Patient') ?>
+    <?php echo xlt('Source Patient') ?>
   </td>
   <td>
    <input type='text' size='30' name='form_source_patient'
@@ -226,7 +266,7 @@ if (!empty($_POST['form_submit'])) {
    <input type='hidden' name='form_source_pid' value='0' />
   </td>
   <td>
-   <?php echo xlt('This is the chart that is to be merged into the main chart and then deleted.'); ?>
+    <?php echo xlt('This is the chart that is to be merged into the main chart and then deleted.'); ?>
   </td>
  </tr>
 </table>

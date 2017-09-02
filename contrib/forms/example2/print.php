@@ -26,10 +26,12 @@ if ($record['form_date'] != "") {
     $dateparts = explode(" ", $record['form_date']);
     $record['form_date'] = $dateparts[0];
 }
+
 if ($record['dob'] != "") {
     $dateparts = explode(" ", $record['dob']);
     $record['dob'] = $dateparts[0];
 }
+
 if ($record['sig_date'] != "") {
     $dateparts = explode(" ", $record['sig_date']);
     $record['sig_date'] = $dateparts[0];
@@ -40,7 +42,7 @@ if ($record['sig_date'] != "") {
 <?php html_header_show();?>
 
 <!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
 
 <!-- page styles -->
@@ -54,7 +56,7 @@ if ($record['sig_date'] != "") {
 Printed on <?php echo date("F d, Y", time()); ?>
 
 <form method=post action="">
-<span class="title"><?php xl($form_name,'e'); ?></span><br>
+<span class="title"><?php xl($form_name, 'e'); ?></span><br>
 
 <!-- container for the main body of the form -->
 <div id="print_form_container">
@@ -65,7 +67,7 @@ Printed on <?php echo date("F d, Y", time()); ?>
 Date:
    <input type='text' size='10' name='form_date' id='form_date'
     value='<?php echo stripslashes($record['form_date']);?>'
-    title='<?php xl('yyyy-mm-dd','e'); ?>'
+    title='<?php xl('yyyy-mm-dd', 'e'); ?>'
     />
 </td></tr>
 <tr><td>
@@ -73,7 +75,7 @@ Name: <input id="name" name="name" type="text" size="50" maxlength="250" value="
 Date of Birth:
    <input type='text' size='10' name='dob' id='dob'
     value='<?php echo stripslashes($record['dob']);?>'
-    title='<?php xl('yyyy-mm-dd Date of Birth','e'); ?>'
+    title='<?php xl('yyyy-mm-dd Date of Birth', 'e'); ?>'
     />
 </td></tr>
 <tr><td>
@@ -91,14 +93,18 @@ Use this space to express notes <br>
 <br><br>
 <div style="text-align:right;">
 Signature? 
-<input type="radio" id="sig" name="sig" value="y" <?php if ($record["sig"] == 'y') echo "CHECKED"; ?>>Yes
+<input type="radio" id="sig" name="sig" value="y" <?php if ($record["sig"] == 'y') {
+    echo "CHECKED";
+} ?>>Yes
 /
-<input type="radio" id="sig" name="sig" value="n" <?php if ($record["sig"] == 'n') echo "CHECKED"; ?>>No
+<input type="radio" id="sig" name="sig" value="n" <?php if ($record["sig"] == 'n') {
+    echo "CHECKED";
+} ?>>No
 &nbsp;&nbsp;
 Date of signature: 
    <input type='text' size='10' name='sig_date' id='sig_date'
     value='<?php echo stripslashes($record['sig_date']);?>'
-    title='<?php xl('yyyy-mm-dd','e'); ?>' />
+    title='<?php xl('yyyy-mm-dd', 'e'); ?>' />
 </div>
 </div>
 

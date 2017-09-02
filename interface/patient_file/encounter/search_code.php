@@ -36,11 +36,11 @@ $code_type = $_GET['type'];
 <form name="search_form" id="search_form" method="post" action="search_code.php?type=<?php echo $code_type ?>">
 <input type="hidden" name="mode" value="search">
 
-<span class="title"><?php echo $code_type ?> <?php xl('Codes','e'); ?></span><br>
+<span class="title"><?php echo $code_type ?> <?php xl('Codes', 'e'); ?></span><br>
 
 <input type="textbox" id="text" name="text" size=15>
 
-<input type='submit' id="submitbtn" name="submitbtn" value='<?php xl('Search','e'); ?>'>
+<input type='submit' id="submitbtn" name="submitbtn" value='<?php xl('Search', 'e'); ?>'>
 <div id="searchspinner" style="display: inline; visibility:hidden;"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif"></div>
 
 </form>
@@ -57,7 +57,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
   //   $code_types[$code_type]['id'] . "' ORDER BY code LIMIT " . ($M + 1);
 
   // The above is obsolete now, fees come from the prices table:
-  $sql = "SELECT codes.*, prices.pr_price FROM codes " .
+    $sql = "SELECT codes.*, prices.pr_price FROM codes " .
     "LEFT OUTER JOIN patient_data ON patient_data.pid = '$pid' " .
     "LEFT OUTER JOIN prices ON prices.pr_id = codes.id AND " .
     "prices.pr_selector = '' AND " .
@@ -69,21 +69,20 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
     " LIMIT " . ($M + 1).
     "";
 
-	if ($res = sqlStatement($sql) ) {
-		for($iter=0; $row=sqlFetchArray($res); $iter++)
-		{
-			$result[$iter] = $row;
-		}
+    if ($res = sqlStatement($sql)) {
+        for ($iter=0; $row=sqlFetchArray($res); $iter++) {
+            $result[$iter] = $row;
+        }
+
         echo "<div id='resultsummary' style='background-color:lightgreen;'>";
         if (count($result) > $M) {
             echo "Showing the first ".$M." results";
-        }
-        else if (count($result) == 0) {
+        } else if (count($result) == 0) {
             echo "No results found";
-        }
-        else {
+        } else {
             echo "Showing all ".count($result)." results";
         }
+
         echo "</div>";
 ?>
 <div id="results">
@@ -118,7 +117,7 @@ if ($result) {
         $total++;
 
         if ($total == $M) {
-            echo "</span><span class=alert>".xl('Some codes were not displayed.')."</span>\n";
+            echo "</span><span class='alert-custom'>".xl('Some codes were not displayed.')."</span>\n";
             break;
         }
     }
@@ -127,7 +126,7 @@ if ($result) {
 </td></tr></table>
 </div>
 <?php
-	}
+    }
 }
 ?>
 

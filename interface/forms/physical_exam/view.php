@@ -7,4 +7,3 @@
 // of the License, or (at your option) any later version.
 
 include_once("new.php");
-?>

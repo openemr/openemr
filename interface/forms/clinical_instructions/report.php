@@ -27,7 +27,8 @@
 
 include_once(dirname(__FILE__).'/../../globals.php');
 include_once($GLOBALS["srcdir"]."/api.inc");
-function clinical_instructions_report($pid, $encounter, $cols, $id) {
+function clinical_instructions_report($pid, $encounter, $cols, $id)
+{
     $count = 0;
     $data = formFetch("form_clinical_instructions", $id);
     if ($data) {
@@ -43,4 +44,4 @@ function clinical_instructions_report($pid, $encounter, $cols, $id) {
         <?php
     }
 }
-?> 
+?>

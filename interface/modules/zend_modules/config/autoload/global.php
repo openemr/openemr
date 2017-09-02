@@ -15,7 +15,9 @@
  */
 
 // If to use utf-8 or not in my sql query
-$utf8 =  ($GLOBALS['disable_utf8_flag']) ? array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET sql_mode = \'\'') : array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\', sql_mode = \'\'');
+$tmp = $GLOBALS['disable_utf8_flag'] ? "SET sql_mode = ''" : "SET NAMES 'UTF8', sql_mode = ''";
+$tmp .= ", time_zone = '" . (new DateTime())->format("P") . "'";
+$utf8 = array(PDO::MYSQL_ATTR_INIT_COMMAND => $tmp);
 
 // Sets default factory using the default database
 $factories = array(
@@ -28,15 +30,13 @@ $factories = array(
 );
 
 // This settings can be change in the global settings under security tab
-if($GLOBALS['allow_multiple_databases']){
-
+if ($GLOBALS['allow_multiple_databases']) {
     // Open pdo connection
     $dbh = new PDO('mysql:dbname=' . $GLOBALS['dbase'] . ';host=' . $GLOBALS['host'], $GLOBALS['login'], $GLOBALS['pass']);
     $adapters = array();
     $res = $dbh->prepare('SELECT * FROM multiple_db');
-    if($res->execute()){
+    if ($res->execute()) {
         foreach ($res->fetchAll() as $row) {
-
             // Create new adapters using data from database
             $adapters[$row['namespace']] = array(
                 'driver' => 'Pdo',
@@ -50,13 +50,13 @@ if($GLOBALS['allow_multiple_databases']){
             // Create new factories using data from custom database
             $factories[$row['namespace']] = function ($serviceManager) use ($row) {
                 $adapterAbstractServiceFactory = new Zend\Db\Adapter\AdapterAbstractServiceFactory();
-                $adapter = $adapterAbstractServiceFactory->createServiceWithName($serviceManager,'',$row['namespace']);
+                $adapter = $adapterAbstractServiceFactory->createServiceWithName($serviceManager, '', $row['namespace']);
                 return $adapter;
             };
         }
     }
-    $dbh = null; // Close pdo connection
 
+    $dbh = null; // Close pdo connection
 }
 
 
@@ -83,7 +83,8 @@ return array(
  * @param $value
  * @return bool|string
  */
-function my_encrypt($data) {
+function my_encrypt($data)
+{
     // Remove the base64 encoding from our key
     $encryption_key = base64_decode($GLOBALS['safe_key_database']);
     // Generate an initialization vector
@@ -100,7 +101,8 @@ function my_encrypt($data) {
  * @return bool|string
  */
 
-function my_decrypt($data) {
+function my_decrypt($data)
+{
     // Remove the base64 encoding from our key
     $encryption_key = base64_decode($GLOBALS['safe_key_database']);
     // To decrypt, split the encrypted data from our IV - our unique separator used was "::"

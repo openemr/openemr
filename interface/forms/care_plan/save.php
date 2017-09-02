@@ -26,12 +26,6 @@
 //
 // +------------------------------------------------------------------------------+
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes = $_POST['true'];
-
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals = $_POST['false'];
-
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
@@ -59,16 +53,17 @@ if ($id && $id != 0) {
     } else {
         $newid = 1;
     }
+
     addForm($encounter, "Care Plan Form", $newid, "care_plan", $_SESSION["pid"], $userauthorized);
 }
 
 $count = array_filter($count);
 if (!empty($count)) {
-    foreach ($count as $key => $codeval):
-      $code_val = $code[$key] ? $code[$key] : 0;
-      $codetext_val = $code_text[$key] ? $code_text[$key] :'NULL';
-      $description_val = $code_des[$key] ? $code_des[$key] : 'NULL';
-      $care_plan_type_val = $care_plan_type[$key] ? $care_plan_type[$key] : 'NULL';
+    foreach ($count as $key => $codeval) :
+        $code_val = $code[$key] ? $code[$key] : 0;
+        $codetext_val = $code_text[$key] ? $code_text[$key] :'NULL';
+        $description_val = $code_des[$key] ? $code_des[$key] : 'NULL';
+        $care_plan_type_val = $care_plan_type[$key] ? $care_plan_type[$key] : 'NULL';
         $sets = "id    = ". add_escape_custom($newid) .",
             pid        = ". add_escape_custom($_SESSION["pid"]) .",
             groupname  = '" . add_escape_custom($_SESSION["authProvider"]) . "',
@@ -84,9 +79,8 @@ if (!empty($count)) {
         sqlInsert("INSERT INTO form_care_plan SET $sets");
     endforeach;
 }
+
 $_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();
-?>
-

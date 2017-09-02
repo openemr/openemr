@@ -15,16 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
- * @package OpenEMR 
+ * @package OpenEMR
  * @author  ViSolve Inc <services@visolve.com>
  * @link    http://www.open-emr.org
  */
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
 
 require_once("../../interface/globals.php");
 

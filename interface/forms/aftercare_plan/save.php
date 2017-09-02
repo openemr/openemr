@@ -19,19 +19,15 @@
  * @link    http://www.open-emr.org
  */
  
- //SANITIZE ALL ESCAPES
- $sanitize_all_escapes=$_POST['true'];
-
- //STOP FAKE REGISTER GLOBALS
- $fake_register_globals=$_POST['false'];
 
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
 
 if (! $encounter) { // comes from globals.php
- die(xl("Internal error: we do not seem to be in an encounter!"));
+    die(xl("Internal error: we do not seem to be in an encounter!"));
 }
+
 $id = 0 + (isset($_GET['id']) ? $_GET['id'] : '');
 
 $sets = "pid = {$_SESSION["pid"]},
@@ -51,16 +47,14 @@ $sets = "pid = {$_SESSION["pid"]},
   goal_c_relapse_potential_I                    =  '" . add_escape_custom($_POST["goal_c_relapse_potential_I"]) . "'";
 
   
-  if (empty($id)) {
-  $newid = sqlInsert("INSERT INTO form_aftercare_plan SET $sets");
-  addForm($encounter, "Aftercare Plan", $newid, "aftercare_plan", $pid, $userauthorized);
-}
-else {
-  sqlStatement("UPDATE form_aftercare_plan SET $sets WHERE id = '". add_escape_custom("$id"). "'");
+if (empty($id)) {
+    $newid = sqlInsert("INSERT INTO form_aftercare_plan SET $sets");
+    addForm($encounter, "Aftercare Plan", $newid, "aftercare_plan", $pid, $userauthorized);
+} else {
+    sqlStatement("UPDATE form_aftercare_plan SET $sets WHERE id = '". add_escape_custom("$id"). "'");
 }
 
 $_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();
-?>

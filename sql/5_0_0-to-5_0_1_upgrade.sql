@@ -268,7 +268,251 @@ CREATE TABLE `form_therapy_groups_attendance` (
 ) ENGINE=InnoDB ;
 #EndIf
 
-
 #IfNotRow2D list_options list_id lists option_id files_white_list
 INSERT INTO list_options (`list_id`, `option_id`, `title`) VALUES ('lists', 'files_white_list', 'Files type white list');
+#EndIf
+
+#IfNotTable onsite_documents
+CREATE TABLE `onsite_documents` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `pid` int(10) UNSIGNED DEFAULT NULL,
+  `facility` int(10) UNSIGNED DEFAULT NULL,
+  `provider` int(10) UNSIGNED DEFAULT NULL,
+  `encounter` int(10) UNSIGNED DEFAULT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `doc_type` varchar(255) NOT NULL,
+  `patient_signed_status` smallint(5) UNSIGNED NOT NULL,
+  `patient_signed_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `authorize_signed_time` datetime DEFAULT NULL,
+  `accept_signed_status` smallint(5) NOT NULL,
+  `authorizing_signator` varchar(50) NOT NULL,
+  `review_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `denial_reason` varchar(255) NOT NULL,
+  `authorized_signature` text,
+  `patient_signature` text,
+  `full_document` blob,
+  `file_name` varchar(255) NOT NULL,
+  `file_path` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+#EndIf
+
+#IfNotTable onsite_mail
+CREATE TABLE `onsite_mail` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `date` datetime DEFAULT NULL,
+  `owner` bigint(20) DEFAULT NULL,
+  `user` varchar(255) DEFAULT NULL,
+  `groupname` varchar(255) DEFAULT NULL,
+  `activity` tinyint(4) DEFAULT NULL,
+  `authorized` tinyint(4) DEFAULT NULL,
+  `header` varchar(255) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `body` longtext,
+  `recipient_id` varchar(128) DEFAULT NULL,
+  `recipient_name` varchar(255) DEFAULT NULL,
+  `sender_id` varchar(128) DEFAULT NULL,
+  `sender_name` varchar(255) DEFAULT NULL,
+  `assigned_to` varchar(255) DEFAULT NULL,
+  `deleted` tinyint(4) DEFAULT '0' COMMENT 'flag indicates note is deleted',
+  `delete_date` datetime DEFAULT NULL,
+  `mtype` varchar(128) DEFAULT NULL,
+  `message_status` varchar(20) NOT NULL DEFAULT 'New',
+  `mail_chain` int(11) DEFAULT NULL,
+  `reply_mail_chain` int(11) DEFAULT NULL,
+  `is_msg_encrypted` tinyint(2) DEFAULT '0' COMMENT 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted',
+  PRIMARY KEY (`id`),
+  KEY `pid` (`owner`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+#EndIf
+
+#IfNotTable onsite_messages
+CREATE TABLE `onsite_messages` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(64) NOT NULL,
+  `message` longtext,
+  `ip` varchar(15) NOT NULL,
+  `date` datetime NOT NULL,
+  `sender_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'who sent id',
+ `recip_id` varchar(255) NOT NULL COMMENT 'who to id array',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB COMMENT='Portal messages' AUTO_INCREMENT=1 ;
+#EndIf
+
+#IfNotTable onsite_online
+CREATE TABLE `onsite_online` (
+  `hash` varchar(32) NOT NULL,
+  `ip` varchar(15) NOT NULL,
+  `last_update` datetime NOT NULL,
+  `username` varchar(64) NOT NULL,
+  `userid` int(11) UNSIGNED DEFAULT NULL,
+  PRIMARY KEY (`hash`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotTable onsite_portal_activity
+CREATE TABLE `onsite_portal_activity` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `date` datetime DEFAULT NULL,
+  `patient_id` bigint(20) DEFAULT NULL,
+  `activity` varchar(255) DEFAULT NULL,
+  `require_audit` tinyint(1) DEFAULT '1',
+  `pending_action` varchar(255) DEFAULT NULL,
+  `action_taken` varchar(255) DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `narrative` longtext,
+  `table_action` longtext,
+  `table_args` longtext,
+  `action_user` int(11) DEFAULT NULL,
+  `action_taken_time` datetime DEFAULT NULL,
+  `checksum` longtext,
+  PRIMARY KEY (`id`),
+  KEY `date` (`date`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+#EndIf
+
+#IfNotTable onsite_signatures
+CREATE TABLE `onsite_signatures` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `status` varchar(128) NOT NULL DEFAULT 'waiting',
+  `type` varchar(128) NOT NULL,
+  `created` int(11) NOT NULL,
+  `lastmod` datetime NOT NULL,
+  `pid` bigint(20) DEFAULT NULL,
+  `encounter` int(11) DEFAULT NULL,
+  `user` varchar(255) DEFAULT NULL,
+  `activity` tinyint(4) NOT NULL DEFAULT '0',
+  `authorized` tinyint(4) DEFAULT NULL,
+  `signator` varchar(255) NOT NULL,
+  `sig_image` text,
+  `signature` text,
+  `sig_hash` varchar(128) NOT NULL,
+  `ip` varchar(46) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `pid` (`pid`,`user`),
+  KEY `encounter` (`encounter`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+#EndIf
+
+#IfNotRow categories name Onsite Portal
+INSERT INTO categories select (select MAX(id) from categories) + 1, 'Onsite Portal', '', 1, rght, rght + 5 from categories where name = 'Categories';
+INSERT INTO categories select (select MAX(id) from categories) + 1, 'Patient', '', (select id from categories where name = 'Onsite Portal'), rght + 1, rght + 2 from categories where name = 'Categories';
+INSERT INTO categories select (select MAX(id) from categories) + 1, 'Reviewed', '', (select id from categories where name = 'Onsite Portal'), rght + 3, rght + 4 from categories where name = 'Categories';
+UPDATE categories SET rght = rght + 6 WHERE name = 'Categories';
+UPDATE categories_seq SET id = (select MAX(id) from categories);
+#EndIf
+
+#IfNotRow2D list_options list_id apptstat option_id ^
+INSERT INTO list_options ( `list_id`, `option_id`, `title`, `seq`, `is_default`, `notes` ) VALUES ('apptstat','^','^ Pending',70,0,'FEFDCF|0');
+#EndIf
+
+#IfMissingColumn registry aco_spec
+ALTER TABLE `registry` ADD `aco_spec` varchar(63) NOT NULL default 'encounters|notes';
+UPDATE `registry` SET `aco_spec` = 'patients|appt'     WHERE directory = 'newpatient';
+UPDATE `registry` SET `aco_spec` = 'patients|appt'     WHERE directory = 'newGroupEncounter';
+UPDATE `registry` SET `aco_spec` = 'encounters|coding' WHERE directory = 'fee_sheet';
+UPDATE `registry` SET `aco_spec` = 'encounters|coding' WHERE directory = 'misc_billing_options';
+UPDATE `registry` SET `aco_spec` = 'patients|lab'      WHERE directory = 'procedure_order';
+#EndIf
+
+#IfNotColumnType lbf_data field_value longtext
+ALTER TABLE `lbf_data` CHANGE `field_value` `field_value` longtext;
+#EndIf
+
+#IfMissingColumn issue_types aco_spec
+ALTER TABLE `issue_types` ADD `aco_spec` varchar(63) NOT NULL default 'patients|med';
+#EndIf
+
+#IfMissingColumn categories aco_spec
+ALTER TABLE `categories` ADD `aco_spec` varchar(63) NOT NULL default 'patients|docs';
+#EndIf
+
+#IfNotRow background_services name ccdaservice
+INSERT INTO `background_services` (`name`, `title`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES ('ccdaservice', 'C-CDA Node Service', 1, 'runCheck', '/ccdaservice/ssmanager.php', 95);
+ALTER TABLE `background_services` CHANGE `running` `running` TINYINT(1) NOT NULL DEFAULT '-1' COMMENT 'True indicates managed service is busy. Skip this interval.';
+#EndIf
+
+#IfNotColumnType onsite_mail owner varchar(128)
+ALTER TABLE `onsite_mail` CHANGE `owner` `owner` varchar(128) DEFAULT NULL;
+#Endif
+
+#IfNotColumnType openemr_postcalendar_events pc_facility int(11)
+ALTER TABLE `openemr_postcalendar_events` CHANGE `pc_facility` `pc_facility` int(11) NOT NULL DEFAULT '0' COMMENT 'facility id for this event';
+#Endif
+
+#IfMissingColumn form_misc_billing_options onset_date
+ALTER TABLE `form_misc_billing_options` ADD `onset_date` date default NULL;
+UPDATE `list_options` SET `option_id` = 'DK', `title` = 'Ordering Provider' WHERE `list_id` = 'provider_qualifier_code' AND `option_id` = 'dk';
+UPDATE `list_options` SET `option_id` = 'DN', `title` = 'Referring Provider', `is_default` = '1' WHERE `list_id` = 'provider_qualifier_code' AND `option_id` = 'dn';
+#EndIF
+
+#IfNotRow2D list_options list_id provider_qualifier_code option_id DQ
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('provider_qualifier_code', 'DQ', 'Supervising Provider', '30', '0');
+#EndIf
+
+#IfMissingColumn users main_menu_role
+ALTER TABLE `users` ADD `main_menu_role` VARCHAR(50) NOT NULL DEFAULT 'standard';
+#EndIf
+
+#IfMissingColumn openemr_postcalendar_categories aco_spec
+ALTER TABLE `openemr_postcalendar_categories` ADD COLUMN `aco_spec` VARCHAR(63) NOT NULL DEFAULT 'encounters|notes';
+#EndIf
+#IfNotRow2D list_options list_id lists option_id apps
+INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','apps','Apps');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','*OpenEMR','main/main_screen.php',10,1,0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','Calendar','main/calendar/index.php',20,0,0);
+#EndIf
+
+#IfNotColumnType list_options list_id varchar(100)
+ALTER TABLE `list_options` CHANGE `list_id` `list_id` VARCHAR(100) NOT NULL DEFAULT '';
+#EndIf
+
+#IfNotColumnType list_options option_id varchar(100)
+ALTER TABLE `list_options` CHANGE `option_id` `option_id` VARCHAR(100) NOT NULL DEFAULT '';
+#EndIf
+
+#IfNotColumnType layout_options list_id varchar(100)
+ALTER TABLE `layout_options` CHANGE `list_id` `list_id` VARCHAR(100) NOT NULL DEFAULT '';
+#EndIf
+
+#IfNotColumnType layout_options list_backup_id varchar(100)
+ALTER TABLE `layout_options` CHANGE `list_backup_id` `list_backup_id` VARCHAR(100) NOT NULL DEFAULT '';
+#EndIf
+
+#IfNotTable patient_birthday_alert
+CREATE TABLE `patient_birthday_alert` (
+  `pid` bigint(20) NOT NULL DEFAULT 0,
+  `user_id` bigint(20) NOT NULL DEFAULT 0,
+  `turned_off_on` date NOT NULL,
+  PRIMARY KEY  (`pid`,`user_id`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2017-10-01 load_filename 2018-ICD-10-PCS-Order-File.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2017-10-01', '2018-ICD-10-PCS-Order-File.zip', '264b342310236f2b3927062d2c72cfe3');
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2017-10-01 load_filename 2018-ICD-10-CM-General-Equivalence-Mappings.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2017-10-01', '2018-ICD-10-CM-General-Equivalence-Mappings.zip', '787a025fdcf6e1da1a85be779004f670');
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2017-10-01 load_filename 2018-ICD-10-Code-Dedcriptions.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2017-10-01', '2018-ICD-10-Code-Dedcriptions.zip', '6f9c77440132e30f565222ca9bb6599c');
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2017-10-01 load_filename 2018-ICD-10-PCS-General-Equivalence-Mappings.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2017-10-01', '2018-ICD-10-PCS-General-Equivalence-Mappings.zip', 'bb73c80e272da28712887d7979b1cebf');
+#EndIf
+
+#IfColumn x12_partners x12_version
+ALTER TABLE `x12_partners` DROP COLUMN `x12_version`;
+#EndIf
+
+#IfNotRow2D list_options list_id page_validation option_id add_edit_event#theform_prov
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES
+('page_validation', 'add_edit_event#theform_prov', '/interface/main/calendar/add_edit_event.php?prov=true', 170, '{}', 1);
 #EndIf

@@ -17,8 +17,8 @@
  * @author  Rod Roark <rod@sunsetsystems.com>
  */
 
-$sanitize_all_escapes = true;
-$fake_register_globals = false;
+
+
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -28,10 +28,10 @@ require_once("portal.inc.php");
 $postid = intval($_REQUEST['postid']);
 
 if ($postid) {
-  $result = cms_portal_call(array('action' => 'getpost', 'postid' => $postid));
-  if ($result['errmsg']) {
-    die(text($result['errmsg']));
-  }
+    $result = cms_portal_call(array('action' => 'getpost', 'postid' => $postid));
+    if ($result['errmsg']) {
+        die(text($result['errmsg']));
+    }
 }
 ?>
 <html>
@@ -104,132 +104,161 @@ function openPatient(ptid) {
 $login_matches = 0;
 $login_pid = '';
 if ($postid) {
-  $clarr = array();
-  $clsql = "0";
+    $clarr = array();
+    $clsql = "0";
   // Portal Login
-  $cmsportal_login = trim($result['post']['user']);
-  if ($cmsportal_login !== '') {
-    $clsql .= " + ((cmsportal_login IS NOT NULL AND cmsportal_login = ?) * 100)";
-    $clarr[] = $cmsportal_login;
-  }
-  // First name.
-  $fname = trim($result['fields']['fname']);
-  if ($fname !== '') {
-    $clsql .= " + ((fname IS NOT NULL AND fname = ?) * 5)";
-    $clarr[] = $fname;
-  }
-  // Last name.
-  $lname = trim($result['fields']['lname']);
-  if ($lname !== '') {
-    $clsql .= " + ((lname IS NOT NULL AND lname = ?) * 5)";
-    $clarr[] = $lname;
-  }
-  // Birth date.
-  $dob = fixDate(trim($result['fields']['dob']), '');
-  if ($dob !== '') {
-    $clsql .= " + ((DOB IS NOT NULL AND DOB = ?) * 5)";
-    $clarr[] = $dob;
-  }
-  // SSN match is worth a lot and we allow for matching on last 4 digits.
-  $ssn = preg_replace('/[^0-9]/', '', $result['fields']['ss']);
-  if (strlen($ssn) > 3) {
-    $clsql .= " + ((ss IS NOT NULL AND ss LIKE ?) * 10)";
-    $clarr[] = "%$ssn";
-  }
-  // Zip code makes it unnecessary to match on city and state.
-  $zip = preg_replace('/[^0-9]/', '', $result['fields']['postal_code']);
-  $zip = substr($zip, 0, 5);
-  if (strlen($zip) == 5) {
-    $clsql .= " + ((postal_code IS NOT NULL AND postal_code LIKE ?) * 2)";
-    $clarr[] = "$zip%";
-  }
-  // This generates a REGEXP query that matches the first 2 words of the street address.
-  if (preg_match('/^\W*(\w+)\W+(\w+)/', $result['fields']['street'], $matches)) {
-    $clsql .= " + ((street IS NOT NULL AND street REGEXP '^[^[:alnum:]]*";
-    $clsql .= $matches[1];
-    $clsql .= "[^[:alnum:]]+";
-    $clsql .= $matches[2];
-    $clsql .= "[[:>:]]') * 2)";
-  }
+    $cmsportal_login = trim($result['post']['user']);
+    if ($cmsportal_login !== '') {
+        $clsql .= " + ((cmsportal_login IS NOT NULL AND cmsportal_login = ?) * 100)";
+        $clarr[] = $cmsportal_login;
+    }
 
-  $sql = "SELECT $clsql AS closeness, " .
+  // First name.
+    $fname = trim($result['fields']['fname']);
+    if ($fname !== '') {
+        $clsql .= " + ((fname IS NOT NULL AND fname = ?) * 5)";
+        $clarr[] = $fname;
+    }
+
+  // Last name.
+    $lname = trim($result['fields']['lname']);
+    if ($lname !== '') {
+        $clsql .= " + ((lname IS NOT NULL AND lname = ?) * 5)";
+        $clarr[] = $lname;
+    }
+
+  // Birth date.
+    $dob = fixDate(trim($result['fields']['dob']), '');
+    if ($dob !== '') {
+        $clsql .= " + ((DOB IS NOT NULL AND DOB = ?) * 5)";
+        $clarr[] = $dob;
+    }
+
+  // SSN match is worth a lot and we allow for matching on last 4 digits.
+    $ssn = preg_replace('/[^0-9]/', '', $result['fields']['ss']);
+    if (strlen($ssn) > 3) {
+        $clsql .= " + ((ss IS NOT NULL AND ss LIKE ?) * 10)";
+        $clarr[] = "%$ssn";
+    }
+
+  // Zip code makes it unnecessary to match on city and state.
+    $zip = preg_replace('/[^0-9]/', '', $result['fields']['postal_code']);
+    $zip = substr($zip, 0, 5);
+    if (strlen($zip) == 5) {
+        $clsql .= " + ((postal_code IS NOT NULL AND postal_code LIKE ?) * 2)";
+        $clarr[] = "$zip%";
+    }
+
+  // This generates a REGEXP query that matches the first 2 words of the street address.
+    if (preg_match('/^\W*(\w+)\W+(\w+)/', $result['fields']['street'], $matches)) {
+        $clsql .= " + ((street IS NOT NULL AND street REGEXP '^[^[:alnum:]]*";
+        $clsql .= $matches[1];
+        $clsql .= "[^[:alnum:]]+";
+        $clsql .= $matches[2];
+        $clsql .= "[[:>:]]') * 2)";
+    }
+
+    $sql = "SELECT $clsql AS closeness, " .
     "pid, cmsportal_login, fname, lname, mname, DOB, ss, postal_code, " .
     "street, phone_biz, phone_home, phone_cell, phone_contact " .
     "FROM patient_data " .
     "ORDER BY closeness DESC, lname, fname LIMIT 10";
-  $res = sqlStatement($sql, $clarr);
+    $res = sqlStatement($sql, $clarr);
 
   // echo "<!-- $sql -->\n"; // debugging
 
-  $phone = $result['fields']['phone_biz'];
-  if (empty($phone)) $phone = $result['fields']['phone_home'];
-  if (empty($phone)) $phone = $result['fields']['phone_cell'];
-  if (empty($phone)) $phone = $result['fields']['phone_contact'];
+    $phone = $result['fields']['phone_biz'];
+    if (empty($phone)) {
+        $phone = $result['fields']['phone_home'];
+    }
+
+    if (empty($phone)) {
+        $phone = $result['fields']['phone_cell'];
+    }
+
+    if (empty($phone)) {
+        $phone = $result['fields']['phone_contact'];
+    }
 ?>
 
 <div id="searchResults">
  <table>
   <tr>
    <th><?php echo xlt('Portal ID'); ?></th>
-   <th><?php echo xlt('Name'     ); ?></th>
-   <th><?php echo xlt('Phone'    ); ?></th>
-   <th><?php echo xlt('SS'       ); ?></th>
-   <th><?php echo xlt('DOB'      ); ?></th>
-   <th><?php echo xlt('Address'  ); ?></th>
+   <th><?php echo xlt('Name'); ?></th>
+   <th><?php echo xlt('Phone'); ?></th>
+   <th><?php echo xlt('SS'); ?></th>
+   <th><?php echo xlt('DOB'); ?></th>
+   <th><?php echo xlt('Address'); ?></th>
   </tr>
   <tr>
    <th style='font-weight:normal'><?php echo text($result['post']['user']); ?></th>
    <th style='font-weight:normal'><?php echo text("$lname, $fname"); ?></th>
    <th style='font-weight:normal'><?php echo text($phone); ?></th>
-   <th style='font-weight:normal'><?php echo text($ssn  ); ?></th>
-   <th style='font-weight:normal'><?php echo text($dob  ); ?></th>
+   <th style='font-weight:normal'><?php echo text($ssn); ?></th>
+   <th style='font-weight:normal'><?php echo text($dob); ?></th>
    <th style='font-weight:normal'><?php echo text($result['fields']['street'] . ' ' . $zip); ?></th>
   </tr>
 
 <?php
-  while ($row = sqlFetchArray($res)) {
-    if ($row['closeness'] == 0) continue;
+while ($row = sqlFetchArray($res)) {
+    if ($row['closeness'] == 0) {
+        continue;
+    }
+
     if ($row['closeness'] >= 100) {
-      ++$login_matches;
-      $login_pid = $row['pid'];
-    }
-    else {
+        ++$login_matches;
+        $login_pid = $row['pid'];
+    } else {
       // We have a match on login name but this is not one, so ignore it.
-      if ($login_matches) continue;
+        if ($login_matches) {
+            continue;
+        }
     }
+
     $phone = $row['phone_biz'];
-    if (empty($phone)) $phone = $row['phone_home'];
-    if (empty($phone)) $phone = $row['phone_cell'];
-    if (empty($phone)) $phone = $row['phone_contact'];
+    if (empty($phone)) {
+        $phone = $row['phone_home'];
+    }
+
+    if (empty($phone)) {
+        $phone = $row['phone_cell'];
+    }
+
+    if (empty($phone)) {
+        $phone = $row['phone_contact'];
+    }
 
     echo "  <tr class='oneresult'";
     echo " onclick=\"openPatient(" .
-         "'" . addslashes($row['pid']) . "'"  .
-         ")\">\n";
+     "'" . addslashes($row['pid']) . "'"  .
+     ")\">\n";
     echo "   <td";
     if ($row['cmsportal_login'] !== '' && $result['post']['user'] !== $row['cmsportal_login']) {
-      echo " style='color:red' title='" . xla('Portal ID does not match request from portal!') . "'";
+        echo " style='color:red' title='" . xla('Portal ID does not match request from portal!') . "'";
     }
+
     echo ">" . text($row['cmsportal_login']) . "</td>\n";
-    echo "   <td>" . text($row['lname'] . ", " . $row['fname']      ) . "</td>\n";
-    echo "   <td>" . text($phone                                    ) . "</td>\n";
-    echo "   <td>" . text($row['ss']                                ) . "</td>\n";
-    echo "   <td>" . text($row['DOB']                               ) . "</td>\n";
+    echo "   <td>" . text($row['lname'] . ", " . $row['fname']) . "</td>\n";
+    echo "   <td>" . text($phone) . "</td>\n";
+    echo "   <td>" . text($row['ss']) . "</td>\n";
+    echo "   <td>" . text($row['DOB']) . "</td>\n";
     echo "   <td>" . text($row['street'] . ' ' . $row['postal_code']) . "</td>\n";
     echo "  </tr>\n";
-  }
+}
 ?>
  </table>
 </div>
 <?php
 }
+
 if ($login_matches == 1) {
   // There is exactly one match by portal login name, this must be it.
   // There should not be more than one, but if there is then we will
   // leave them onscreen and let the user choose.
-  echo "<script language='JavaScript'>\n";
-  echo "openPatient('" . addslashes($login_pid) . "');\n";
-  echo "</script>\n";
+    echo "<script language='JavaScript'>\n";
+    echo "openPatient('" . addslashes($login_pid) . "');\n";
+    echo "</script>\n";
 }
 ?>
 

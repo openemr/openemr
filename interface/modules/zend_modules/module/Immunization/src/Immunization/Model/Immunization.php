@@ -27,11 +27,10 @@ use Zend\InputFilter\InputFilterInterface;
 
 class Immunization implements InputFilterAwareInterface
 {
-	protected $inputFilter;
+    protected $inputFilter;
 
     public function exchangeArray($data)
     {
-		
     }
     
     public function getArrayCopy()
@@ -50,7 +49,8 @@ class Immunization implements InputFilterAwareInterface
             $inputFilter = new InputFilter();
             $factory     = new InputFactory();
             $this->inputFilter = $inputFilter;
-	}
-	return $this->inputFilter;
+        }
+
+        return $this->inputFilter;
     }
 }

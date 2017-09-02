@@ -24,11 +24,6 @@
 // Author:   Jacob Paul <jacob@zhservices.com>
 //
 // +------------------------------------------------------------------------------+
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes = $_POST['true'];
-
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals = $_POST['false'];
 
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
@@ -47,8 +42,7 @@ if ($id && $id != 0) {
     $newid = sqlInsert("INSERT INTO form_clinical_instructions (pid,encounter,user,instruction) VALUES (?,?,?,?)", array($pid, $encounter, $_SESSION['authUser'], $instruction));
     addForm($encounter, "Clinical Instructions", $newid, "clinical_instructions", $pid, $userauthorized);
 }
+
 formHeader("Redirecting....");
 formJump();
 formFooter();
-?>
-

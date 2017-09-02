@@ -19,23 +19,19 @@
  * @author  Visolve <services@visolve.com>
  * @link    http://www.open-emr.org
  */
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 require_once("../../interface/globals.php");
 require_once("../pid.inc");
 require_once("../group.inc");
 
 //Setpid function is called on receiving an ajax request.
-if(($_POST['func']=="unset_pid"))
-{
-	setpid(0);
+if (($_POST['func']=="unset_pid")) {
+    setpid(0);
 }
 
 //Setpid function is called on receiving an ajax request.
-if(($_POST['func']=="unset_gid"))
-{
+if (($_POST['func']=="unset_gid")) {
     unsetGroup();
 }
-
-?> 

@@ -11,7 +11,7 @@ require_once($GLOBALS["srcdir"] . "/api.inc");
 require_once($GLOBALS["srcdir"] . "/options.inc.php");
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 
-function procedure_order_report($pid, $encounter, $cols, $id) {
-  generate_order_report($id);
+function procedure_order_report($pid, $encounter, $cols, $id)
+{
+    generate_order_report($id);
 }
-?>

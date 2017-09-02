@@ -2,7 +2,7 @@
 /**
  * Instanciate a router and route the interface request to the appropriate
  * controller and method in the ESign/ library directory.
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -23,10 +23,7 @@
  **/
 
 use ESign\Router;
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
+
 require_once "../globals.php";
 require_once $GLOBALS['srcdir']."/ESign/Router.php";
 $router = new Router();

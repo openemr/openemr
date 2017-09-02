@@ -27,27 +27,37 @@ $scale_file_age = -1;
 $row = array();
 
 if (! $encounter) { // comes from globals.php
- die("Internal error: we do not seem to be in an encounter!");
+    die("Internal error: we do not seem to be in an encounter!");
 }
+
 // encode a string from a form field for database writing.
-function form2db($fldval) {
- $fldval = trim($fldval);
- $fldval = formDataCore($fldval);
- return $fldval;
+function form2db($fldval)
+{
+    $fldval = trim($fldval);
+    $fldval = formDataCore($fldval);
+    return $fldval;
 }
 
-function rbvalue($rbname) {
- $tmp = $_POST[$rbname];
- if (! $tmp) return "NULL";
- return "'$tmp'";
+function rbvalue($rbname)
+{
+    $tmp = $_POST[$rbname];
+    if (! $tmp) {
+        return "NULL";
+    }
+
+    return "'$tmp'";
 }
 
-function rbinput($name, $value, $desc, $colname) {
- global $row;
- $ret  = "<input type='radio' name='$name' value='$value'";
- if ($row[$colname] == $value) $ret .= " checked";
- $ret .= " />$desc";
- return $ret;
+function rbinput($name, $value, $desc, $colname)
+{
+    global $row;
+    $ret  = "<input type='radio' name='$name' value='$value'";
+    if ($row[$colname] == $value) {
+        $ret .= " checked";
+    }
+
+    $ret .= " />$desc";
+    return $ret;
 }
 
 $formid = $_GET['id'];
@@ -55,75 +65,71 @@ $formid = $_GET['id'];
 // If Save was clicked, save the info.
 //
 if ($_POST['bn_save']) {
-
  // If updating an existing form...
  //
- if ($formid) {
-  $query = "UPDATE form_body_composition SET "      .
-   "body_type = "             . rbvalue('form_body_type') . ", "  .
-   "height = '"               . form2db($_POST['form_height'])     . "', " .
-   "weight = '"               . form2db($_POST['form_weight'])     . "', " .
-   "bmi = '"                  . form2db($_POST['form_bmi'])        . "', " .
-   "bmr = '"                  . form2db($_POST['form_bmr'])        . "', " .
-   "impedance = '"            . form2db($_POST['form_impedance'])  . "', " .
-   "fat_pct = '"              . form2db($_POST['form_fat_pct'])    . "', " .
-   "fat_mass = '"             . form2db($_POST['form_fat_mass'])   . "', " .
-   "ffm = '"                  . form2db($_POST['form_ffm'])        . "', " .
-   "tbw = '"                  . form2db($_POST['form_tbw'])        . "', " .
-   "other = '"                . form2db($_POST['form_other'])      . "' "  .
-   "WHERE id = '$formid'";
-  sqlStatement($query);
- }
-
- // If adding a new form...
+    if ($formid) {
+        $query = "UPDATE form_body_composition SET "      .
+         "body_type = "             . rbvalue('form_body_type') . ", "  .
+         "height = '"               . form2db($_POST['form_height'])     . "', " .
+         "weight = '"               . form2db($_POST['form_weight'])     . "', " .
+         "bmi = '"                  . form2db($_POST['form_bmi'])        . "', " .
+         "bmr = '"                  . form2db($_POST['form_bmr'])        . "', " .
+         "impedance = '"            . form2db($_POST['form_impedance'])  . "', " .
+         "fat_pct = '"              . form2db($_POST['form_fat_pct'])    . "', " .
+         "fat_mass = '"             . form2db($_POST['form_fat_mass'])   . "', " .
+         "ffm = '"                  . form2db($_POST['form_ffm'])        . "', " .
+         "tbw = '"                  . form2db($_POST['form_tbw'])        . "', " .
+         "other = '"                . form2db($_POST['form_other'])      . "' "  .
+         "WHERE id = '$formid'";
+        sqlStatement($query);
+    } // If adding a new form...
  //
- else {
-  $query = "INSERT INTO form_body_composition ( " .
-   "body_type, height, weight, bmi, bmr, impedance, fat_pct, " .
-   "fat_mass, ffm, tbw, other " .
-   ") VALUES ( " .
-   rbvalue('form_body_type')      . ", "  .
-   "'" . form2db($_POST['form_height'])    . "', " .
-   "'" . form2db($_POST['form_weight'])    . "', " .
-   "'" . form2db($_POST['form_bmi'])       . "', " .
-   "'" . form2db($_POST['form_bmr'])       . "', " .
-   "'" . form2db($_POST['form_impedance']) . "', " .
-   "'" . form2db($_POST['form_fat_pct'])   . "', " .
-   "'" . form2db($_POST['form_fat_mass'])  . "', " .
-   "'" . form2db($_POST['form_ffm'])       . "', " .
-   "'" . form2db($_POST['form_tbw'])       . "', " .
-   "'" . form2db($_POST['form_other'])     . "' "  .
-   ")";
-  $newid = sqlInsert($query);
-  addForm($encounter, "Body Composition", $newid, "body_composition", $pid, $userauthorized);
- }
+    else {
+        $query = "INSERT INTO form_body_composition ( " .
+         "body_type, height, weight, bmi, bmr, impedance, fat_pct, " .
+         "fat_mass, ffm, tbw, other " .
+         ") VALUES ( " .
+         rbvalue('form_body_type')      . ", "  .
+         "'" . form2db($_POST['form_height'])    . "', " .
+         "'" . form2db($_POST['form_weight'])    . "', " .
+         "'" . form2db($_POST['form_bmi'])       . "', " .
+         "'" . form2db($_POST['form_bmr'])       . "', " .
+         "'" . form2db($_POST['form_impedance']) . "', " .
+         "'" . form2db($_POST['form_fat_pct'])   . "', " .
+         "'" . form2db($_POST['form_fat_mass'])  . "', " .
+         "'" . form2db($_POST['form_ffm'])       . "', " .
+         "'" . form2db($_POST['form_tbw'])       . "', " .
+         "'" . form2db($_POST['form_other'])     . "' "  .
+         ")";
+        $newid = sqlInsert($query);
+        addForm($encounter, "Body Composition", $newid, "body_composition", $pid, $userauthorized);
+    }
 
- formHeader("Redirecting....");
- formJump();
- formFooter();
- exit;
+    formHeader("Redirecting....");
+    formJump();
+    formFooter();
+    exit;
 }
 
 if ($formid) {
- $row = sqlQuery ("SELECT * FROM form_body_composition WHERE " .
-  "id = '$formid' AND activity = '1'") ;
-}
-else {
+    $row = sqlQuery("SELECT * FROM form_body_composition WHERE " .
+    "id = '$formid' AND activity = '1'") ;
+} else {
  // Get the most recent scale reading.
- $items = explode(',', trim(file_get_contents($scale_file_name)));
- if ($items && count($items) > 11) {
-  $scale_file_age = round((time() - filemtime($scale_file_name)) / 60);
-  $row['body_type'] = $items[0] ? 'Athletic' : 'Standard';
-  $row['height']    = $items[2];
-  $row['weight']    = $items[3];
-  $row['bmi']       = $items[10];
-  $row['bmr']       = $items[11];
-  $row['impedance'] = $items[4];
-  $row['fat_pct']   = $items[5];
-  $row['fat_mass']  = $items[6];
-  $row['ffm']       = $items[7];
-  $row['tbw']       = $items[8];
- }
+    $items = explode(',', trim(file_get_contents($scale_file_name)));
+    if ($items && count($items) > 11) {
+        $scale_file_age = round((time() - filemtime($scale_file_name)) / 60);
+        $row['body_type'] = $items[0] ? 'Athletic' : 'Standard';
+        $row['height']    = $items[2];
+        $row['weight']    = $items[3];
+        $row['bmi']       = $items[10];
+        $row['bmr']       = $items[11];
+        $row['impedance'] = $items[4];
+        $row['fat_pct']   = $items[5];
+        $row['fat_mass']  = $items[6];
+        $row['ffm']       = $items[7];
+        $row['tbw']       = $items[8];
+    }
 }
 ?>
 <html>
@@ -150,8 +156,8 @@ else {
  <tr>
   <td width='5%' nowrap>Body Type</td>
   <td colspan='2' nowrap>
-   <?php echo rbinput('form_body_type', 'Standard', 'Standard', 'body_type') ?>&nbsp;
-   <?php echo rbinput('form_body_type', 'Athletic', 'Athletic', 'body_type') ?>&nbsp;
+    <?php echo rbinput('form_body_type', 'Standard', 'Standard', 'body_type') ?>&nbsp;
+    <?php echo rbinput('form_body_type', 'Athletic', 'Athletic', 'body_type') ?>&nbsp;
   </td>
  </tr>
 
@@ -174,11 +180,11 @@ else {
   </td>
   <td align='center' nowrap>
 <?php
- if ($scale_file_age >= 0) {
-  echo "<font color='blue'>This reading was taken $scale_file_age minutes ago.</font>\n";
- } else {
-  echo "&nbsp;\n";
- }
+if ($scale_file_age >= 0) {
+    echo "<font color='blue'>This reading was taken $scale_file_age minutes ago.</font>\n";
+} else {
+    echo "&nbsp;\n";
+}
 ?>
   </td>
  </tr>

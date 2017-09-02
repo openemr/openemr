@@ -25,21 +25,29 @@ include_once("$srcdir/forms.inc");
 $row = array();
 
 if (! $encounter) { // comes from globals.php
- die("Internal error: we do not seem to be in an encounter!");
+    die("Internal error: we do not seem to be in an encounter!");
 }
 
-function rbvalue($rbname) {
- $tmp = $_POST[$rbname];
- if (! $tmp) return "NULL";
- return "'$tmp'";
+function rbvalue($rbname)
+{
+    $tmp = $_POST[$rbname];
+    if (! $tmp) {
+        return "NULL";
+    }
+
+    return "'$tmp'";
 }
 
-function rbinput($name, $value, $desc, $colname) {
- global $row;
- $ret  = "<input type='radio' name='$name' value='$value'";
- if ($row[$colname] == $value) $ret .= " checked";
- $ret .= " />$desc";
- return $ret;
+function rbinput($name, $value, $desc, $colname)
+{
+    global $row;
+    $ret  = "<input type='radio' name='$name' value='$value'";
+    if ($row[$colname] == $value) {
+        $ret .= " checked";
+    }
+
+    $ret .= " />$desc";
+    return $ret;
 }
 
 $formid = $_GET['id'];
@@ -47,70 +55,67 @@ $formid = $_GET['id'];
 // If Save was clicked, save the info.
 //
 if ($_POST['bn_save']) {
-
  // If updating an existing form...
  //
- if ($formid) {
-  $query = "UPDATE form_sports_fitness SET "      .
-   "height_meters = '"        . $_POST['form_height_meters']        . "', " .
-   "weight_kg = '"            . $_POST['form_weight_kg']            . "', " .
-   "skin_folds_9x = '"        . $_POST['form_skin_folds_9x']        . "', " .
-   "skin_folds_5x = '"        . $_POST['form_skin_folds_5x']        . "', " .
-   "pct_body_fat = '"         . $_POST['form_pct_body_fat']         . "', " .
-   "method_body_fat = "       . rbvalue('form_method_body_fat')     . ", "  .
-   "pulse = '"                . $_POST['form_pulse']                . "', " .
-   "bps = '"                  . $_POST['form_bps']                  . "', " .
-   "bpd = '"                  . $_POST['form_bpd']                  . "', " .
-   "beep_level = '"           . $_POST['form_beep_level']           . "', " .
-   "beep_shuttles = '"        . $_POST['form_beep_shuttles']        . "', " .
-   "beep_vo2_max = '"         . $_POST['form_beep_vo2_max']         . "', " .
-   "vertical_jump_meters = '" . $_POST['form_vertical_jump_meters'] . "', " .
-   "agility_505 = '"          . $_POST['form_agility_505']          . "', " .
-   "sit_and_reach_cm = '"     . $_POST['form_sit_and_reach_cm']     . "', " .
-   "other = '"                . $_POST['form_other']                . "' "  .
-   "WHERE id = '$formid'";
-  sqlStatement($query);
- }
-
- // If adding a new form...
+    if ($formid) {
+        $query = "UPDATE form_sports_fitness SET "      .
+         "height_meters = '"        . $_POST['form_height_meters']        . "', " .
+         "weight_kg = '"            . $_POST['form_weight_kg']            . "', " .
+         "skin_folds_9x = '"        . $_POST['form_skin_folds_9x']        . "', " .
+         "skin_folds_5x = '"        . $_POST['form_skin_folds_5x']        . "', " .
+         "pct_body_fat = '"         . $_POST['form_pct_body_fat']         . "', " .
+         "method_body_fat = "       . rbvalue('form_method_body_fat')     . ", "  .
+         "pulse = '"                . $_POST['form_pulse']                . "', " .
+         "bps = '"                  . $_POST['form_bps']                  . "', " .
+         "bpd = '"                  . $_POST['form_bpd']                  . "', " .
+         "beep_level = '"           . $_POST['form_beep_level']           . "', " .
+         "beep_shuttles = '"        . $_POST['form_beep_shuttles']        . "', " .
+         "beep_vo2_max = '"         . $_POST['form_beep_vo2_max']         . "', " .
+         "vertical_jump_meters = '" . $_POST['form_vertical_jump_meters'] . "', " .
+         "agility_505 = '"          . $_POST['form_agility_505']          . "', " .
+         "sit_and_reach_cm = '"     . $_POST['form_sit_and_reach_cm']     . "', " .
+         "other = '"                . $_POST['form_other']                . "' "  .
+         "WHERE id = '$formid'";
+        sqlStatement($query);
+    } // If adding a new form...
  //
- else {
-  $query = "INSERT INTO form_sports_fitness ( " .
-   "height_meters, weight_kg, skin_folds_9x, skin_folds_5x, " .
-   "pct_body_fat, method_body_fat, pulse, bps, bpd, " .
-   "beep_level, beep_shuttles, beep_vo2_max, " .
-   "vertical_jump_meters, agility_505, sit_and_reach_cm, other " .
-   ") VALUES ( " .
-   "'" . $_POST['form_height_meters']        . "', " .
-   "'" . $_POST['form_weight_kg']            . "', " .
-   "'" . $_POST['form_skin_folds_9x']        . "', " .
-   "'" . $_POST['form_skin_folds_5x']        . "', " .
-   "'" . $_POST['form_pct_body_fat']         . "', " .
-   rbvalue('form_method_body_fat')           . ", "  .
-   "'" . $_POST['form_pulse']                . "', " .
-   "'" . $_POST['form_bps']                  . "', " .
-   "'" . $_POST['form_bpd']                  . "', " .
-   "'" . $_POST['form_beep_level']           . "', " .
-   "'" . $_POST['form_beep_shuttles']        . "', " .
-   "'" . $_POST['form_beep_vo2_max']         . "', " .
-   "'" . $_POST['form_vertical_jump_meters'] . "', " .
-   "'" . $_POST['form_agility_505']          . "', " .
-   "'" . $_POST['form_sit_and_reach_cm']     . "', " .
-   "'" . $_POST['form_other']                . "' "  .
-   ")";
-  $newid = sqlInsert($query);
-  addForm($encounter, "Sports Fitness", $newid, "sports_fitness", $pid, $userauthorized);
- }
+    else {
+        $query = "INSERT INTO form_sports_fitness ( " .
+         "height_meters, weight_kg, skin_folds_9x, skin_folds_5x, " .
+         "pct_body_fat, method_body_fat, pulse, bps, bpd, " .
+         "beep_level, beep_shuttles, beep_vo2_max, " .
+         "vertical_jump_meters, agility_505, sit_and_reach_cm, other " .
+         ") VALUES ( " .
+         "'" . $_POST['form_height_meters']        . "', " .
+         "'" . $_POST['form_weight_kg']            . "', " .
+         "'" . $_POST['form_skin_folds_9x']        . "', " .
+         "'" . $_POST['form_skin_folds_5x']        . "', " .
+         "'" . $_POST['form_pct_body_fat']         . "', " .
+         rbvalue('form_method_body_fat')           . ", "  .
+         "'" . $_POST['form_pulse']                . "', " .
+         "'" . $_POST['form_bps']                  . "', " .
+         "'" . $_POST['form_bpd']                  . "', " .
+         "'" . $_POST['form_beep_level']           . "', " .
+         "'" . $_POST['form_beep_shuttles']        . "', " .
+         "'" . $_POST['form_beep_vo2_max']         . "', " .
+         "'" . $_POST['form_vertical_jump_meters'] . "', " .
+         "'" . $_POST['form_agility_505']          . "', " .
+         "'" . $_POST['form_sit_and_reach_cm']     . "', " .
+         "'" . $_POST['form_other']                . "' "  .
+         ")";
+        $newid = sqlInsert($query);
+        addForm($encounter, "Sports Fitness", $newid, "sports_fitness", $pid, $userauthorized);
+    }
 
- formHeader("Redirecting....");
- formJump();
- formFooter();
- exit;
+    formHeader("Redirecting....");
+    formJump();
+    formFooter();
+    exit;
 }
 
 if ($formid) {
- $row = sqlQuery ("SELECT * FROM form_sports_fitness WHERE " .
-  "id = '$formid' AND activity = '1'") ;
+    $row = sqlQuery("SELECT * FROM form_sports_fitness WHERE " .
+    "id = '$formid' AND activity = '1'") ;
 }
 ?>
 <html>
@@ -225,9 +230,9 @@ if ($formid) {
     <tr>
      <td colspan='6' nowrap>
       B.F. Method Used:&nbsp;
-      <?php echo rbinput('form_method_body_fat', 'Caliper'    , 'Caliper'    , 'method_body_fat') ?>&nbsp;
-      <?php echo rbinput('form_method_body_fat', 'Electronic' , 'Electronic' , 'method_body_fat') ?>&nbsp;
-      <?php echo rbinput('form_method_body_fat', 'Hydrostatic', 'Hydrostatic', 'method_body_fat') ?>
+        <?php echo rbinput('form_method_body_fat', 'Caliper', 'Caliper', 'method_body_fat') ?>&nbsp;
+        <?php echo rbinput('form_method_body_fat', 'Electronic', 'Electronic', 'method_body_fat') ?>&nbsp;
+        <?php echo rbinput('form_method_body_fat', 'Hydrostatic', 'Hydrostatic', 'method_body_fat') ?>
      </td>
     </tr>
    </table>

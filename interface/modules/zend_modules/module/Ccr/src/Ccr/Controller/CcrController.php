@@ -34,7 +34,7 @@ class CcrController extends AbstractActionController
     
     public function __construct()
     {
-        $this->listenerObject	= new Listener;
+        $this->listenerObject   = new Listener;
     }
     
     /*
@@ -44,9 +44,10 @@ class CcrController extends AbstractActionController
     {
         $action = $this->getRequest()->getPost('action');
         $am_id  = $this->getRequest()->getPost('am_id');
-        if($action == 'add_new_patient'){
+        if ($action == 'add_new_patient') {
             $this->getCcrTable()->insert_patient($am_id);
         }
+
         $category_details = $this->getCcrTable()->fetch_cat_id('CCR');
         
         $time_start     = date('Y-m-d H:i:s');
@@ -54,15 +55,14 @@ class CcrController extends AbstractActionController
         $uploaded_documents     = array();
         $uploaded_documents     = $this->getCcrTable()->fetch_uploaded_documents(array('user' => $_SESSION['authId'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')));
         
-        if($uploaded_documents[0]['id'] > 0){
+        if ($uploaded_documents[0]['id'] > 0) {
             $_REQUEST["document_id"]    = $uploaded_documents[0]['id'];
             $_REQUEST["batch_import"]   = 'YES';
             $this->importAction();
-        }
-        else{
+        } else {
             $result = \Documents\Plugin\Documents::fetchXmlDocuments();
-            foreach($result as $row){
-                if($row['doc_type'] == 'CCR'){
+            foreach ($result as $row) {
+                if ($row['doc_type'] == 'CCR') {
                     $_REQUEST["document_id"] = $row['doc_id'];
                     $this->importAction();
                     \Documents\Model\DocumentsTable::updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
@@ -90,20 +90,21 @@ class CcrController extends AbstractActionController
     public function importAction()
     {
         $request     = $this->getRequest();
-        if($request->getQuery('document_id')) {
-          $_REQUEST["document_id"] = $request->getQuery('document_id');
-          $category_details  	     = $this->getCcrTable()->fetch_cat_id('CCR');
-          \Documents\Controller\DocumentsController::getDocumentsTable()->updateDocumentCategory($category_details[0]['id'],$_REQUEST["document_id"]);
+        if ($request->getQuery('document_id')) {
+            $_REQUEST["document_id"] = $request->getQuery('document_id');
+            $category_details          = $this->getCcrTable()->fetch_cat_id('CCR');
+            \Documents\Controller\DocumentsController::getDocumentsTable()->updateDocumentCategory($category_details[0]['id'], $_REQUEST["document_id"]);
         }
+
         $doc_id     = $_REQUEST["document_id"];
         $content    = $this->getCcrTable()->getDocument($doc_id);
-        if($request->getQuery('document_id')) {
-          $replace    = array('<ccr:ContinuityOfCareRecord xsi:schemaLocation="urn:astm-org:CCR CCRV1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ccr="urn:astm-org:CCR">','ccr:');
-          $to_replace = array('<ContinuityOfCareRecord xmlns="urn:astm-org:CCR">','');
-          $content    = str_replace($replace,$to_replace, $content);
-          $content    = preg_replace('/BirthName/', 'CurrentName', $content, 2);
-           
+        if ($request->getQuery('document_id')) {
+            $replace    = array('<ccr:ContinuityOfCareRecord xsi:schemaLocation="urn:astm-org:CCR CCRV1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ccr="urn:astm-org:CCR">','ccr:');
+            $to_replace = array('<ContinuityOfCareRecord xmlns="urn:astm-org:CCR">','');
+            $content    = str_replace($replace, $to_replace, $content);
+            $content    = preg_replace('/BirthName/', 'CurrentName', $content, 2);
         }
+
         //fields to which the corresponding elements are to be inserted
         //format - level 1 key is the main tag in the XML eg:- //Problems or //Problems/Problem according to the content in the XML.
         //level 2 key is 'table name:field name' and level 2 value is the sub tag under the main tag given in level 1 key
@@ -161,87 +162,85 @@ class CcrController extends AbstractActionController
             'patient_data:phone_contact'    => 'Telephone/Value',
           ),
         );
-        if(!empty($content)){
+        if (!empty($content)) {
             $var = array();
-            $res = $this->getCcrTable()->parseXmlStream($content,$field_mapping);
+            $res = $this->getCcrTable()->parseXmlStream($content, $field_mapping);
             $var = array(
                 'approval_status' => 1,
                 'type' => 11,
                 'ip_address' => $_SERVER['REMOTE_ADDR'],
             );
-            foreach($res as $sections=>$details){
-                foreach($details as $cnt=>$vals){
-                    foreach($vals as $key=>$val){
-                        if(array_key_exists('#Type',$res[$sections][$cnt])){
-                            if($key == 'postal_code'){
+            foreach ($res as $sections => $details) {
+                foreach ($details as $cnt => $vals) {
+                    foreach ($vals as $key => $val) {
+                        if (array_key_exists('#Type', $res[$sections][$cnt])) {
+                            if ($key == 'postal_code') {
                                 $var['field_name_value_array']['misc_address_book'][$cnt]['zip'] = $val;
-                            }
-                            elseif($key == 'phone_contact'){
+                            } elseif ($key == 'phone_contact') {
                                 $var['field_name_value_array']['misc_address_book'][$cnt]['phone'] = $val;
-                            }
-                            elseif($key == 'abname'){
-                                $values = explode(' ',$val);
-                                if($values[0]){
+                            } elseif ($key == 'abname') {
+                                $values = explode(' ', $val);
+                                if ($values[0]) {
                                     $var['field_name_value_array']['misc_address_book'][$cnt]['lname'] = $values[0];
                                 }
-                                if($values[1]){
+
+                                if ($values[1]) {
                                     $var['field_name_value_array']['misc_address_book'][$cnt]['fname'] = $values[1];
                                 }
-                            }
-                            else{
+                            } else {
                                 $var['field_name_value_array']['misc_address_book'][$cnt][$key] = $val;
                             }
+
                             $var['entry_identification_array']['misc_address_book'][$cnt] = $cnt;
-                        }
-                        else{
-                            if($sections == 'lists1' && $key == 'activity'){
-                                if($val == 'Active'){
+                        } else {
+                            if ($sections == 'lists1' && $key == 'activity') {
+                                if ($val == 'Active') {
                                     $val = 1;
-                                }
-                                else{
+                                } else {
                                     $val = 0;
                                 }
                             }
-                            if($sections == 'lists2' && $key == 'type'){
-                                if(strpos($val,"-")){
-                                    $vals = explode("-",$val);
+
+                            if ($sections == 'lists2' && $key == 'type') {
+                                if (strpos($val, "-")) {
+                                    $vals = explode("-", $val);
                                     $val = $vals[0];
-                                }
-                                else{
+                                } else {
                                     $val = "";
                                 }
                             }
-                            if($sections == 'prescriptions' && $key == 'active'){
-                                if($val == 'Active'){
+
+                            if ($sections == 'prescriptions' && $key == 'active') {
+                                if ($val == 'Active') {
                                     $val = 1;
-                                }
-                                else{
+                                } else {
                                     $val = 0;
                                 }
                             }
+
                             $var['field_name_value_array'][$sections][$cnt][$key] = $val;
                             $var['entry_identification_array'][$sections][$cnt] = $cnt;
                         }
                     }
-                    if(array_key_exists('#Type',$var['field_name_value_array']['misc_address_book'][$cnt])){
+
+                    if (array_key_exists('#Type', $var['field_name_value_array']['misc_address_book'][$cnt])) {
                         unset($var['field_name_value_array']['misc_address_book'][$cnt]['#Type']);
                     }
                 }
             }
+
             $var['field_name_value_array']['documents'][0]['id'] = $doc_id;
             $audit_master_id = $this->getCcrTable()->insert_ccr_into_audit_data($var);
             $this->getCcrTable()->update_imported($doc_id);
             $this->getCcrTable()->update_document($doc_id, $audit_master_id);
             
-            if($_REQUEST["batch_import"]   == 'YES'){
+            if ($_REQUEST["batch_import"]   == 'YES') {
                 return;
-            }
-            else{
+            } else {
                 //echo('Imported');
                 //exit;
             }
-        }
-        else{
+        } else {
             //exit('Could not read the file');
         }
     }
@@ -261,13 +260,12 @@ class CcrController extends AbstractActionController
         $pid                = $request->getQuery('pid') ? $request->getQuery('pid') : $request->getPost('pid', null);
         $document_id        = $request->getQuery('document_id') ? $request->getQuery('document_id') : $request->getPost('document_id', null);
         
-        if($request->getPost('setval') == 'approve'){
+        if ($request->getPost('setval') == 'approve') {
             $this->getCcrTable()->insertApprovedData($_REQUEST);
-            return $this->redirect()->toRoute('ccr',array('action'=>'index'));
-        }
-        else if($request->getPost('setval') == 'discard'){
+            return $this->redirect()->toRoute('ccr', array('action'=>'index'));
+        } else if ($request->getPost('setval') == 'discard') {
             $this->getCcrTable()->discardCCRData(array('audit_master_id' => $audit_master_id));
-            return $this->redirect()->toRoute('ccr',array('action'=>'index'));
+            return $this->redirect()->toRoute('ccr', array('action'=>'index'));
         }
         
         $demographics       = $this->getCcrTable()->getDemographics(array('audit_master_id' => $audit_master_id));
@@ -313,7 +311,7 @@ class CcrController extends AbstractActionController
     
     /**
     * Table Gateway
-    * 
+    *
     * @return type
     */
     public function getCcrTable()
@@ -322,6 +320,7 @@ class CcrController extends AbstractActionController
             $sm = $this->getServiceLocator();
             $this->ccrTable = $sm->get('Ccr\Model\CcrTable');
         }
+
         return $this->ccrTable;
     }
 }

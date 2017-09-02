@@ -1,3 +1,18 @@
+<?php
+/**
+ * Generated DocBlock
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  andres_paglayan <andres_paglayan>
+ * @author  cfapress <cfapress>
+ * @author  sunsetsystems <sunsetsystems>
+ * @copyright Copyright (c) 2005 andres_paglayan <andres_paglayan>
+ * @copyright Copyright (c) 2008 cfapress <cfapress>
+ * @copyright Copyright (c) 2007 sunsetsystems <sunsetsystems>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+?>
 <!-- Form generated from formsWiz -->
 <?php
 include_once("../../globals.php");

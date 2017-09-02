@@ -6,7 +6,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-require_once( 'ClinicalType.php' );
+require_once('ClinicalType.php');
 
 class Allergy extends ClinicalType
 {
@@ -30,11 +30,13 @@ class Allergy extends ClinicalType
     const INFLUENZA_IMMUN = 'med_allergy_flu_immun';
     const EGGS = 'subst_allergy_eggs';
     
-    public function getListType() {
+    public function getListType()
+    {
         return 'allergy';
     }
     
-    public function getListId() {
+    public function getListId()
+    {
         return 'Clinical_Rules_Allergy_Types';
     }
     
@@ -46,17 +48,18 @@ class Allergy extends ClinicalType
      * 	@param	(date) $beginDate		Lower bound on date to check for allergy
      * 	@param	(date) $endDate			Upper bound on date to check for allergy
      */
-    public function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null )
+    public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
     {
-        $data = Codes::lookup( $this->getOptionId() );
+        $data = Codes::lookup($this->getOptionId());
         $type = $this->getListType();
-        foreach( $data as $codeType => $codes ) {
-            foreach ( $codes as $code ) {
-                if ( exist_lists_item( $patient->id, $type, $codeType.'::'.$code, $endDate ) ) {
+        foreach ($data as $codeType => $codes) {
+            foreach ($codes as $code) {
+                if (exist_lists_item($patient->id, $type, $codeType.'::'.$code, $endDate)) {
                     return true;
                 }
             }
         }
+
         return false;
     }
 }

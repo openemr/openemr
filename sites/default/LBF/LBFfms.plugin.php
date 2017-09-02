@@ -14,10 +14,11 @@
 // section of the page.  This in turn defines desired javaScript
 // functions.
 //
-function LBFfms_javascript() {
-  global $formid;
+function LBFfms_javascript()
+{
+    global $formid;
 
-  echo "// Array identifying the numeric '0-3' fields.
+    echo "// Array identifying the numeric '0-3' fields.
 var fms_numeric = [
  'squat',
  'hurdle_l',
@@ -29,7 +30,7 @@ var fms_numeric = [
  'rotary_l'];
 ";
 
-  echo "// A numeric '0-3' field has changed.
+    echo "// A numeric '0-3' field has changed.
 function fms_numeric_changed(e) {
  var f = document.forms[0];
  // Check if the entry is a valid digit.
@@ -64,14 +65,14 @@ function fms_numeric_changed(e) {
  f.form_total.value = sum;
 }
 ";
-
 }
 
 // The purpose of this function is to create JavaScript that is run
 // once when the page is loaded.
 //
-function LBFfms_javascript_onload() {
-  echo "
+function LBFfms_javascript_onload()
+{
+    echo "
 var f = document.forms[0];
 for (var i = 0; i < fms_numeric.length; ++i) {
  var namepref = 'form_' + fms_numeric[i];
@@ -86,6 +87,4 @@ for (var i = 0; i < fms_numeric.length; ++i) {
 }
 f.form_total.readOnly = true;
 ";
-
 }
-?>

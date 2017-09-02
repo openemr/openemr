@@ -47,9 +47,9 @@ formHeader("Pediatric Pain Evaluation");
 
 <?php
 
-	$obj=array(); // just to avoid undeclared var warning
+    $obj=array(); // just to avoid undeclared var warning
 
-	include ('form.php'); // to use a single file for both, empty and editing
+    include('form.php'); // to use a single file for both, empty and editing
 
 ?>
 
@@ -76,4 +76,3 @@ formHeader("Pediatric Pain Evaluation");
 formFooter();
 
 ?>
-

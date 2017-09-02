@@ -6,13 +6,13 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-require_once( 'AbstractAmcReport.php' );
+require_once('AbstractAmcReport.php');
 
 class AMC_Unimplemented extends AbstractAmcReport implements RsUnimplementedIF
 {
     public function __construct()
     {
-        parent::__construct( array(), array(), null );
+        parent::__construct(array(), array(), null);
     }
 
     public function getObjectToCount()

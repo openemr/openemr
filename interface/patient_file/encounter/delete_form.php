@@ -20,8 +20,8 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 include_once("../../globals.php");
 
@@ -43,8 +43,11 @@ $returnurl = 'encounter_top.php';
 if ($_POST['confirm']) {
     // set the deleted flag of the indicated form
     $sql = "update forms set deleted=1 where id= ?";
-    if ($_POST['id'] != "*" && $_POST['id'] != '') sqlInsert($sql, array($_POST['id']));
-    // log the event   
+    if ($_POST['id'] != "*" && $_POST['id'] != '') {
+        sqlInsert($sql, array($_POST['id']));
+    }
+
+    // log the event
     newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Form ".$_POST['formname']." deleted from Encounter ".$_POST['encounter']);
 
     // redirect back to the encounter
@@ -60,7 +63,7 @@ if ($_POST['confirm']) {
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 <!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
 
 </head>
 

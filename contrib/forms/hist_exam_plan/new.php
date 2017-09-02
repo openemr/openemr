@@ -25,7 +25,7 @@ include_once("$srcdir/forms.inc");
 $row = array();
 
 if (! $encounter) { // comes from globals.php
- die("Internal error: we do not seem to be in an encounter!");
+    die("Internal error: we do not seem to be in an encounter!");
 }
 
 $formid = $_GET['id'];
@@ -33,41 +33,38 @@ $formid = $_GET['id'];
 // If Save was clicked, save the info.
 //
 if ($_POST['bn_save']) {
-
  // If updating an existing form...
  //
- if ($formid) {
-  $query = "UPDATE form_hist_exam_plan SET "      .
-   "history = '"     . $_POST['form_history']     . "', " .
-   "examination = '" . $_POST['form_examination'] . "', " .
-   "plan = '"        . $_POST['form_plan']        . "' "  .
-   "WHERE id = '$formid'";
-  sqlStatement($query);
- }
-
- // If adding a new form...
+    if ($formid) {
+        $query = "UPDATE form_hist_exam_plan SET "      .
+         "history = '"     . $_POST['form_history']     . "', " .
+         "examination = '" . $_POST['form_examination'] . "', " .
+         "plan = '"        . $_POST['form_plan']        . "' "  .
+         "WHERE id = '$formid'";
+        sqlStatement($query);
+    } // If adding a new form...
  //
- else {
-  $query = "INSERT INTO form_hist_exam_plan ( " .
-   "history, examination, plan " .
-   ") VALUES ( " .
-   "'" . $_POST['form_history']     . "', " .
-   "'" . $_POST['form_examination'] . "', " .
-   "'" . $_POST['form_plan']        . "' "  .
-   ")";
-  $newid = sqlInsert($query);
-  addForm($encounter, "Hist/Exam/Plan", $newid, "hist_exam_plan", $pid, $userauthorized);
- }
+    else {
+        $query = "INSERT INTO form_hist_exam_plan ( " .
+         "history, examination, plan " .
+         ") VALUES ( " .
+         "'" . $_POST['form_history']     . "', " .
+         "'" . $_POST['form_examination'] . "', " .
+         "'" . $_POST['form_plan']        . "' "  .
+         ")";
+        $newid = sqlInsert($query);
+        addForm($encounter, "Hist/Exam/Plan", $newid, "hist_exam_plan", $pid, $userauthorized);
+    }
 
- formHeader("Redirecting....");
- formJump();
- formFooter();
- exit;
+    formHeader("Redirecting....");
+    formJump();
+    formFooter();
+    exit;
 }
 
 if ($formid) {
- $row = sqlQuery ("SELECT * FROM form_hist_exam_plan WHERE " .
-  "id = '$formid' AND activity = '1'") ;
+    $row = sqlQuery("SELECT * FROM form_hist_exam_plan WHERE " .
+    "id = '$formid' AND activity = '1'") ;
 }
 ?>
 <html>

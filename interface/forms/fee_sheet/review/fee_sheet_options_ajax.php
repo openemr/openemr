@@ -1,7 +1,7 @@
 <?php
 /**
  * Controller for getting information about fee sheet options
- * 
+ *
  * Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -19,24 +19,21 @@
  * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @link    http://www.open-emr.org
  */
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 require_once("../../../globals.php");
 require_once("fee_sheet_options_queries.php");
 
-if(!acl_check('acct', 'bill'))
-{
+if (!acl_check('acct', 'bill')) {
     header("HTTP/1.0 403 Forbidden");
     echo "Not authorized for billing";
     return false;
 }
-if (isset($_REQUEST['pricelevel']))
-{
+
+if (isset($_REQUEST['pricelevel'])) {
     $pricelevel=$_REQUEST['pricelevel'];
-}
-else
-{
+} else {
     $pricelevel='standard';
 }
 
@@ -45,4 +42,3 @@ $retval=array();
 $retval['fee_sheet_options']=$fso;
 $retval['pricelevel']=$pricelevel;
 echo json_encode($retval);
-?>

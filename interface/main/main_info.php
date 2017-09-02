@@ -18,8 +18,8 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 require_once("../globals.php");
 ?>
@@ -31,21 +31,21 @@ require_once("../globals.php");
 <!-- The DOCTYPE is set above to XHTML to put IE into Sttrict Mode so we can get a viewport width -->
 <script type='text/javascript' language='JavaScript'>
 function GetInnerX () {
-	var x;
-	if (self.innerHeight) // all except Explorer
-	{
-		x = self.innerWidth;
-	}
-	else if (document.documentElement && document.documentElement.clientHeight)
-		// Explorer 6 Strict Mode
-	{
-		x = document.documentElement.clientWidth;
-	}
-	else if (document.body) // other Explorers
-	{
-		x = document.body.clientWidth;
-	}
-	return x;
+    var x;
+    if (self.innerHeight) // all except Explorer
+    {
+        x = self.innerWidth;
+    }
+    else if (document.documentElement && document.documentElement.clientHeight)
+        // Explorer 6 Strict Mode
+    {
+        x = document.documentElement.clientWidth;
+    }
+    else if (document.body) // other Explorers
+    {
+        x = document.body.clientWidth;
+    }
+    return x;
 }
 
 var x = GetInnerX();
@@ -55,7 +55,9 @@ var framesrc = '<frame ';
 
 // this allows us to keep our viewtype between screens -- JRM calendar_view_type
 $viewtype = $GLOBALS['calendar_view_type'];
-if (isset($_SESSION['viewtype'])) { $viewtype = $_SESSION['viewtype']; }
+if (isset($_SESSION['viewtype'])) {
+    $viewtype = $_SESSION['viewtype'];
+}
 
 // this allows us to keep our selected providers between screens -- JRM
 $pcuStr = "pc_username=".$_SESSION['authUser'];
@@ -67,15 +69,13 @@ if (isset($_SESSION['pc_username'])) {
         foreach ($_SESSION['pc_username'] as $pcu) {
             $pcuStr .= "&pc_username[]=".$pcu;
         }
-    }
-    else {
+    } else {
         // two possibilities here
         // 1) pc_username is an array with a single element
         // 2) pc_username is just a string, not an array
         if (is_string($_SESSION['pc_username'])) {
             $pcuStr .= "&pc_username[]=".$_SESSION['pc_username'];
-        }
-        else {
+        } else {
             $pcuStr .= "&pc_username[]=".$_SESSION['pc_username'][0];
         }
     }
@@ -84,11 +84,9 @@ if (isset($_SESSION['pc_username'])) {
 // different frame source page depending on session vars
 if ($_SESSION['userauthorized'] && $GLOBALS['docs_see_entire_calendar']) {
     $framesrc = "calendar/index.php?module=PostCalendar&viewtype=".$viewtype."&func=view";
-}
-else if ($_SESSION['userauthorized']) {
+} else if ($_SESSION['userauthorized']) {
     $framesrc = "calendar/index.php?module=PostCalendar&viewtype=".$viewtype."&func=view&".$pcuStr;
-}
-else {
+} else {
     $framesrc = "calendar/index.php?module=PostCalendar&func=view&viewtype=".$viewtype;
 }
 ?>
@@ -102,7 +100,7 @@ framesrc += '&framewidth='+x+'"   name="Calendar" scrolling="auto" frameborder="
 
 <!-- (CHEMED) -->
 <script type='text/javascript' language='JavaScript'>
-    document.write('<frameset rows="*" cols="*" name="Main" frameborder="NO" border="0" framespacing="0"  <?php if ($_SESSION['cal_ui'] == 2) {echo 'onResize="window.location.href = window.location.href;"'; }?> >');
+    document.write('<frameset rows="*" cols="*" name="Main" frameborder="NO" border="0" framespacing="0" >');
     document.write(framesrc);
     document.write('</frameset>');
     document.close();

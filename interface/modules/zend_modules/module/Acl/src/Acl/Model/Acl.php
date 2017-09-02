@@ -34,7 +34,6 @@ class Acl implements InputFilterAwareInterface
 
     public function exchangeArray($data)
     {
-	
     }
     public function getArrayCopy()
     {
@@ -52,7 +51,8 @@ class Acl implements InputFilterAwareInterface
             $factory     = new InputFactory();
 
             $this->inputFilter = $inputFilter;
-		}
-		return $this->inputFilter;
+        }
+
+        return $this->inputFilter;
     }
 }

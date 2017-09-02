@@ -12,12 +12,11 @@
  * the max length of the string
  */
 
-function NBSPPadSuffix ($strInfo, $intMaxLength)
+function NBSPPadSuffix($strInfo, $intMaxLength)
 {
     $intN = $intMaxLength - strlen($strInfo);
 
-    while ($intN > 0)
-    {
+    while ($intN > 0) {
         $strInfo = sprintf("%s&nbsp;", $strInfo);
         $intN--;
     }
@@ -30,25 +29,36 @@ function NBSPPadSuffix ($strInfo, $intMaxLength)
  * properly quote the passed value
  * or return NULL if there is no value at all
  */
-function SQLQuote ($strValue)
+function SQLQuote($strValue)
 {
     /* are we quoting a number or string? */
 
     if (is_string($strValue) == true) {
         /* It's a string */
 
-        if (strlen($strValue) == 0) { return "NULL"; }
-        if ($strValue == NULL) { return "NULL"; }
+        if (strlen($strValue) == 0) {
+            return "NULL";
+        }
+
+        if ($strValue == null) {
+            return "NULL";
+        }
+
         /* remove any '\' values */
         $strValue = preg_replace("/\\\/", '', $strValue);
         return "'". preg_replace("/\'/", "''", $strValue) ."'";
-    }
-    else {
+    } else {
         /* It's a number */
 
-        if (is_null($strValue)) { return "NULL"; }
-        if ($strValue == 0) { return "0"; }
-        else { return $strValue; }
+        if (is_null($strValue)) {
+            return "NULL";
+        }
+
+        if ($strValue == 0) {
+            return "0";
+        } else {
+            return $strValue;
+        }
     }
 }
 
@@ -57,20 +67,18 @@ function SQLQuote ($strValue)
  * Get the HTML (GET or POST) parameters
  */
 
-function GetParameters ()
+function GetParameters()
 {
     if ($_SERVER["REQUEST_METHOD"]=="POST") {
         foreach ($_POST as $key => $value) {
 //            echo $key."=".$value."<br>\n";
             $parameters[$key] = $value;
         }
-    }
-    else if ($_SERVER["REQUEST_METHOD"]=="GET") {
+    } else if ($_SERVER["REQUEST_METHOD"]=="GET") {
         foreach ($_GET as $key => $value) {
             $parameters[$key] = $value;
         }
     }
+
     return $parameters;
 }
-
-?>

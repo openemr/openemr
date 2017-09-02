@@ -24,26 +24,26 @@
  * @param $title
  * @return array of validation rules and forms names
  */
-function collectValidationPageRules($title,$active=true){
+function collectValidationPageRules($title, $active = true)
+{
 
     // Note from Rod: Not sure what the purpose is of $active because nothing calls it with a false value.
 
-    if($active){
+    if ($active) {
         $sql = sqlStatement("SELECT * " .
-            "FROM `list_options` WHERE list_id=? AND activity=?  AND title = ?",array('page_validation',1,$title));
-    }
-    else {
+            "FROM `list_options` WHERE list_id=? AND activity=?  AND title = ?", array('page_validation',1,$title));
+    } else {
         $sql = sqlStatement("SELECT * " .
             "FROM `list_options` WHERE list_id=? AND title=?", array('page_validation', $title));
     }
 
     $dataArray=array();
-    while($row = sqlFetchArray($sql) ) {
+    while ($row = sqlFetchArray($sql)) {
         $formPageNameArray = explode('#', $row['option_id']);
         $dataArray[$formPageNameArray[1]]=array('page_name' => $formPageNameArray[0] ,'rules' => $row['notes']);
     }
-    return $dataArray;
 
+    return $dataArray;
 }
 
 /**this function creates client side validation rules for each <form> declared in list : Patient Validation - patient_validation
@@ -55,11 +55,9 @@ function validateUsingPageRules($fileNamePath)
 
     $path='';
 
-    if($GLOBALS['webroot']!='')
-    {
-        $path= str_replace($GLOBALS['webroot'], '',$fileNamePath);
-    }
-    else{
+    if ($GLOBALS['webroot']!='') {
+        $path= str_replace($GLOBALS['webroot'], '', $fileNamePath);
+    } else {
         $path=$fileNamePath;
     }
 
@@ -67,9 +65,6 @@ function validateUsingPageRules($fileNamePath)
 //if we would like to get all the page forms rules we need to call collectValidationPageRules($title) this way there is a
     $collectThis=collectValidationPageRules($path);
     if ($collectThis) {
-
-
-
         print '<!---Start of page  form validation-->';
         print '<!--//include new rules of submitme functionallity-->';
         echo("\r\n");
@@ -132,4 +127,3 @@ function validateUsingPageRules($fileNamePath)
         print '<!---End of page  form validation-->';
     }
 }
-

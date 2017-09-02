@@ -18,8 +18,10 @@
  * @link    http://www.open-emr.org
  */
 
-class GenericProductRegistrationException extends Exception {
-    public function errorMessage() {
+class GenericProductRegistrationException extends Exception
+{
+    public function errorMessage()
+    {
         return $this->getMessage();
     }
 }

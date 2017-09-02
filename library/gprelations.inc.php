@@ -25,26 +25,26 @@
 // used. However expansion is anticipated, as well as the opportunity to
 // obsolete the issue_encounter table.
 
-function isGpRelation($type1, $id1, $type2, $id2) {
-  $tmp = sqlQuery("SELECT count(*) AS count FROM gprelations WHERE " .
+function isGpRelation($type1, $id1, $type2, $id2)
+{
+    $tmp = sqlQuery("SELECT count(*) AS count FROM gprelations WHERE " .
     "type1 = ? AND id1 = ? AND " .
-    "type2 = ? AND id2 = ?", array($type1, $id1, $type2, $id2) );
-  return !empty($tmp['count']);
+    "type2 = ? AND id2 = ?", array($type1, $id1, $type2, $id2));
+    return !empty($tmp['count']);
 }
 
-function setGpRelation($type1, $id1, $type2, $id2, $set=TRUE) {
-  if (isGpRelation($type1, $id1, $type2, $id2)) {
-    if (!$set) {
-      sqlStatement("DELETE FROM gprelations WHERE " .
-        "type1 = ? AND id1 = ? AND type2 = ? AND id2 = ?", array($type1, $id1, $type2, $id2) );
+function setGpRelation($type1, $id1, $type2, $id2, $set = true)
+{
+    if (isGpRelation($type1, $id1, $type2, $id2)) {
+        if (!$set) {
+            sqlStatement("DELETE FROM gprelations WHERE " .
+            "type1 = ? AND id1 = ? AND type2 = ? AND id2 = ?", array($type1, $id1, $type2, $id2));
+        }
+    } else {
+        if ($set) {
+            sqlStatement("INSERT INTO gprelations " .
+            "( type1, id1, type2, id2 ) VALUES " .
+            "( ?, ?, ?, ? )", array($type1, $id1, $type2, $id2));
+        }
     }
-  }
-  else {
-    if ($set) {
-      sqlStatement("INSERT INTO gprelations " .
-        "( type1, id1, type2, id2 ) VALUES " .
-        "( ?, ?, ?, ? )", array($type1, $id1, $type2, $id2) );
-    }
-  }
 }
-?>

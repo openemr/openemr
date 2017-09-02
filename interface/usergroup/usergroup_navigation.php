@@ -4,7 +4,7 @@ include_once("../../library/acl.inc");
 ?>
 <html>
 <head>
-<title><?php xl('Navigation','e'); ?></title>
+<title><?php xl('Navigation', 'e'); ?></title>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
@@ -20,7 +20,7 @@ include_once("../../library/acl.inc");
 <td valign="middle" nowrap>
 &nbsp;&nbsp;<a class=menu target=Main href="facilities.php"
  onclick="top.restoreSession()"
- title="Add or Edit Facilities"><?php xl('Facilities','e'); ?></a>&nbsp;
+ title="Add or Edit Facilities"><?php xl('Facilities', 'e'); ?></a>&nbsp;
 </td>
 <?php } ?>
 
@@ -28,7 +28,7 @@ include_once("../../library/acl.inc");
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="usergroup_admin.php"
  onclick="top.restoreSession()"
- title="Add or Edit Users and Groups"><?php xl('Users','e'); ?></a>&nbsp;
+ title="Add or Edit Users and Groups"><?php xl('Users', 'e'); ?></a>&nbsp;
 </td>
 <?php } ?>
 
@@ -36,7 +36,7 @@ include_once("../../library/acl.inc");
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../forms_admin/forms_admin.php"
  onclick="top.restoreSession()"
- title="Activate New Forms"><?php xl('Forms','e'); ?></a>&nbsp;
+ title="Activate New Forms"><?php xl('Forms', 'e'); ?></a>&nbsp;
 </td>
 <?php } ?>
 
@@ -44,7 +44,7 @@ include_once("../../library/acl.inc");
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="<?php echo $GLOBALS['webroot']?>/controller.php?practice_settings"
  onclick="top.restoreSession()"
- title="Practice Settings"><?php xl('Practice','e');?></a>&nbsp;
+ title="Practice Settings"><?php xl('Practice', 'e');?></a>&nbsp;
 </td>
 <?php } ?>
 
@@ -52,23 +52,15 @@ include_once("../../library/acl.inc");
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="adminacl.php"
  onclick="top.restoreSession()"
- title="Access Control List Administration"><?php xl('ACL','e');?></a>&nbsp;
+ title="Access Control List Administration"><?php xl('ACL', 'e');?></a>&nbsp;
 </td>
 <?php } ?>
-	
+    
 <?php if (acl_check('admin', 'calendar')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig"
  onclick="top.restoreSession()"
- title="Calendar Settings"><?php xl('Calendar','e'); ?></a>&nbsp;
-</td>
-<?php } ?>
-
-<?php if ( (!$GLOBALS['disable_phpmyadmin_link']) && (acl_check('admin', 'database')) ) { ?>
-<td valign="middle" nowrap>
-&nbsp;<a class=menu target=Main href="../../phpmyadmin/index.php"
- onclick="top.restoreSession()"
- title="Database Reporting"><?php xl('Database','e'); ?></a>&nbsp;
+ title="Calendar Settings"><?php xl('Calendar', 'e'); ?></a>&nbsp;
 </td>
 <?php } ?>
 
@@ -76,7 +68,7 @@ include_once("../../library/acl.inc");
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../batchcom/batchcom.php"
  onclick="top.restoreSession()"
-   title="Batch Communication and Export"><?php xl('Notification','e');?></a>&nbsp;
+   title="Batch Communication and Export"><?php xl('Notification', 'e');?></a>&nbsp;
      </td>
 <?php } ?>
 
@@ -84,7 +76,7 @@ include_once("../../library/acl.inc");
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../drugs/drug_inventory.php"
  onclick="top.restoreSession()"
- title="Drug Inventory Management"><?php xl('Drugs','e');?></a>&nbsp;
+ title="Drug Inventory Management"><?php xl('Drugs', 'e');?></a>&nbsp;
 </td>
 <?php } ?>
 
@@ -92,7 +84,7 @@ include_once("../../library/acl.inc");
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../language/language.php"
  onclick="top.restoreSession()"
- title="Language Management"><?php xl('Language','e'); ?></a>&nbsp;
+ title="Language Management"><?php xl('Language', 'e'); ?></a>&nbsp;
 </td>
 <?php } ?>
 
@@ -100,27 +92,27 @@ include_once("../../library/acl.inc");
 <td valign="middle" nowrap>
 &nbsp;<a class="menu" target=Main href="../super/edit_globals.php"
  onclick="top.restoreSession()"
- title="Global System Parameters"><?php xl('Globals','e'); ?></a>&nbsp;
+ title="Global System Parameters"><?php xl('Globals', 'e'); ?></a>&nbsp;
 </td>
 <td valign="middle" nowrap>
 &nbsp;<a class="menu" target=Main href="../super/edit_list.php"
  onclick="top.restoreSession()"
- title="Selection List Management"><?php xl('Lists','e'); ?></a>&nbsp;
+ title="Selection List Management"><?php xl('Lists', 'e'); ?></a>&nbsp;
 </td>
 <td valign="middle" nowrap>
 &nbsp;<a class="menu" target=Main href="../super/edit_layout.php"
  onclick="top.restoreSession()"
- title="Form Layout Management"><?php xl('Layouts','e'); ?></a>&nbsp;
+ title="Form Layout Management"><?php xl('Layouts', 'e'); ?></a>&nbsp;
 </td>
 <td valign="middle" nowrap>
 &nbsp;<a class="menu" target=Main href="../super/manage_site_files.php"
  onclick="top.restoreSession()"
- title="Site Files Management"><?php xl('Files','e'); ?></a>&nbsp;
+ title="Site Files Management"><?php xl('Files', 'e'); ?></a>&nbsp;
 </td>
 <td valign="middle" nowrap>
 &nbsp;<a class="menu" target=Main href="../main/backup.php"
  onclick="top.restoreSession()"
- title="System Backup"><?php xl('Backup','e'); ?></a>&nbsp;
+ title="System Backup"><?php xl('Backup', 'e'); ?></a>&nbsp;
 </td>
 <?php } ?>
 
@@ -128,7 +120,7 @@ include_once("../../library/acl.inc");
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="<?php echo $rootdir?>/logview/logview.php"
  onclick="top.restoreSession()"
- title="View Logs"><?php xl('Logs','e'); ?></a>&nbsp;
+ title="View Logs"><?php xl('Logs', 'e'); ?></a>&nbsp;
 </td>
 <?php } ?>
 

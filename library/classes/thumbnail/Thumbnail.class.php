@@ -33,18 +33,16 @@ class Thumbnail
     public function __construct($max_size = null)
     {
         //validate that GD extension was enabled
-        if (!extension_loaded('gd'))
-        {
+        if (!extension_loaded('gd')) {
             error_log('Thumbnail generator error: Missing GD extension');
             die('Abort. Thumbnail generator error : Missing GD extension');
         }
 
-        if(!is_null($max_size)) {
+        if (!is_null($max_size)) {
             $this->max_size = $max_size;
         } else {
             $this->max_size = self::MAX_SIZE;
         }
-
     }
 
     /**
@@ -52,15 +50,15 @@ class Thumbnail
      * @param (string) path to file
      * @return (boolean)
      */
-    public function file_support_thumbnail($file){
+    public function file_support_thumbnail($file)
+    {
 
         $info = getimagesize($file);
 
         $type = isset($info['type']) ? $info['type'] : $info[2];
 
         // Check support of file type
-        if ( !(imagetypes() & $type) )
-        {
+        if (!(imagetypes() & $type)) {
             // Server does not support file type
             return false;
         }
@@ -82,7 +80,7 @@ class Thumbnail
             $info =  getimagesize($file);
         }
 
-        if(!$info) {
+        if (!$info) {
             error_log("Can't open file $file for generate thumbnail");
             return false;
         }
@@ -99,19 +97,14 @@ class Thumbnail
         $sourceImage = imagecreatefromstring($content_file);
 
         // Calculate a proportional width and height no larger than the max size.
-        if ( ($width <= $this->max_size) && ($height <= $this->max_size) )
-        {
+        if (($width <= $this->max_size) && ($height <= $this->max_size)) {
             // Input is smaller than thumbnail, do nothing
             return $sourceImage;
-        }
-        elseif ( ($wRatio * $height) < $this->max_size )
-        {
+        } elseif (($wRatio * $height) < $this->max_size) {
             // Image is horizontal
             $tHeight = ceil($wRatio * $height);
             $tWidth  = $this->max_size;
-        }
-        else
-        {
+        } else {
             // Image is vertical
             $tWidth  = ceil($hRatio * $width);
             $tHeight = $this->max_size;
@@ -119,8 +112,7 @@ class Thumbnail
 
         $thumb = imagecreatetruecolor($tWidth, $tHeight);
 
-        if ( $sourceImage === false )
-        {
+        if ($sourceImage === false) {
             // Could not load image
             return false;
         }
@@ -130,7 +122,6 @@ class Thumbnail
         imagedestroy($sourceImage);
 
         return $thumb;
-
     }
 
     /**
@@ -142,8 +133,7 @@ class Thumbnail
      */
     public function image_to_file($resource_file, $fileName, $quality = 80)
     {
-        if ( !$resource_file || file_exists($fileName) )
-        {
+        if (!$resource_file || file_exists($fileName)) {
             return false;
         }
 
@@ -176,10 +166,9 @@ class Thumbnail
      *  @param (optional) (int) quality for 'jpeg' type
      *  @return false if failed
      */
-    private function create_file($image_resource, $file_name = null ,$quality = 80)
+    private function create_file($image_resource, $file_name = null, $quality = 80)
     {
-        switch ( $this->thumbnail_type )
-        {
+        switch ($this->thumbnail_type) {
             case 'gif':
                 $file = imagegif($image_resource, $file_name);
                 break;
@@ -196,8 +185,7 @@ class Thumbnail
             default:
                 return false;
         }
+
         return $file;
     }
-
-
 }

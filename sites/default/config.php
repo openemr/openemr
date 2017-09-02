@@ -1,9 +1,9 @@
 <?php
 //used differently by different applications, intuit programs only like numbers
-$GLOBALS['oer_config']['ofx']['bankid'] 	= "123456789";
+$GLOBALS['oer_config']['ofx']['bankid']     = "123456789";
 
 //you can use this to match to an existing account in you accounting application
-$GLOBALS['oer_config']['ofx']['acctid'] 	= "123456789";
+$GLOBALS['oer_config']['ofx']['acctid']     = "123456789";
 
 //use FL for FLORIDA compatible format, leave blank for default
 $GLOBALS['oer_config']['prescriptions']['format'] = "";
@@ -61,4 +61,3 @@ $GLOBALS['oer_config']['druglabels']['logo'] = dirname(__FILE__) .
   "/../../interface/pic/" . $GLOBALS['oer_config']['druglabels']['logo_pic'];
 
 $GLOBALS['oer_config']['documents']['repository'] = $GLOBALS['oer_config']['documents']['repopath'];
-?>

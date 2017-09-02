@@ -6,7 +6,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-require_once( 'ClinicalType.php' );
+require_once('ClinicalType.php');
 
 class LabResult extends ClinicalType
 {
@@ -20,18 +20,18 @@ class LabResult extends ClinicalType
         return 'Clinical_Rules_Lab_Res_Types';
     }
     
-    public function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null )
+    public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
     {
-        $data = Codes::lookup( $this->getOptionId() );
+        $data = Codes::lookup($this->getOptionId());
         
-        $range = new Range( Range::NEG_INF, Range::POS_INF );
-        if ( isset( $options[self::OPTION_RANGE] ) &&
-            is_a( $options[self::OPTION_RANGE], 'Range' ) ) {
+        $range = new Range(Range::NEG_INF, Range::POS_INF);
+        if (isset($options[self::OPTION_RANGE]) &&
+            is_a($options[self::OPTION_RANGE], 'Range') ) {
             $range = $options[self::OPTION_RANGE];
         }
         
-        foreach( $data as $codeType => $codes ) {
-            foreach ( $codes as $code ) {
+        foreach ($data as $codeType => $codes) {
+            foreach ($codes as $code) {
                 // search through vitals to find the most recent lab result in the date range
                 // if the result value is within range using Range->test(val), return true
                 $sql = "SELECT procedure_result.result, procedure_result.date " .
@@ -54,24 +54,27 @@ class LabResult extends ClinicalType
                     "procedure_report.date_collected <= ? AND " .
                     "procedure_order.patient_id = ? ";
 
-                if ( $range->lowerBound != Range::NEG_INF ) {
+                if ($range->lowerBound != Range::NEG_INF) {
                     $sql .= "AND procedure_result.result >= ? ";
                 }
-                if ( $range->upperBound != Range::POS_INF ) {
+
+                if ($range->upperBound != Range::POS_INF) {
                     $sql .= "AND procedure_result.result < ? ";
                 }
                 
                 $bindings = array( $codeType.':'.$code, $code, $beginDate, $endDate, $patient->id );
-                if ( $range->lowerBound != Range::NEG_INF ) {
+                if ($range->lowerBound != Range::NEG_INF) {
                     $bindings []= $range->lowerBound;
                 }
-                if ( $range->upperBound != Range::POS_INF ) {
+
+                if ($range->upperBound != Range::POS_INF) {
                     $bindings []= $range->upperBound;
                 }
-                $result = sqlStatement( $sql, $bindings );
+
+                $result = sqlStatement($sql, $bindings);
                 
                 $number = sqlNumRows($result);
-                if ( $number > 0 ) {
+                if ($number > 0) {
                     return true;
                 }
             }

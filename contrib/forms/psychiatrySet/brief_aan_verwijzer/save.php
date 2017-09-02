@@ -10,35 +10,27 @@ include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
 
-foreach ($_POST as $k => $var)
-{
-  $_POST[$k] = add_escape_custom($var);
+foreach ($_POST as $k => $var) {
+    $_POST[$k] = add_escape_custom($var);
   // echo "$var\n";
 }
 
-if($encounter == "") $encounter = date("Ymd");
+if ($encounter == "") {
+    $encounter = date("Ymd");
+}
 
-if( $_GET["mode"] == "new" )
-{
-    if( $_GET["id"] != '' )
-    {
-      $_GET["id"] = '0';
-      $newid = formSubmit( "form_brief_aan_verwijzer", $_POST, $_GET["id"], $userauthorized );
+if ($_GET["mode"] == "new") {
+    if ($_GET["id"] != '') {
+        $_GET["id"] = '0';
+        $newid = formSubmit("form_brief_aan_verwijzer", $_POST, $_GET["id"], $userauthorized);
       // add shoul be here or downoutside if block ?
-    addForm( $encounter, "Psychiatric Brief Letter", $newid, "brief_aan_verwijzer", $pid, $userauthorized );
-      
-    } else
-    {
-      $_POST['autosave_flag'] = 0;
-      $newid = formUpdate( "form_brief_aan_verwijzer", $_POST, $_GET["saveid"], $userauthorized );
+        addForm($encounter, "Psychiatric Brief Letter", $newid, "brief_aan_verwijzer", $pid, $userauthorized);
+    } else {
+        $_POST['autosave_flag'] = 0;
+        $newid = formUpdate("form_brief_aan_verwijzer", $_POST, $_GET["saveid"], $userauthorized);
     }
-    
-    
-
-} elseif( $_GET["mode"] == "update" )
-{
-
-  $strSql = "UPDATE form_brief_aan_verwijzer
+} elseif ($_GET["mode"] == "update") {
+    $strSql = "UPDATE form_brief_aan_verwijzer
                 SET pid = ".$_SESSION["pid"].", groupname='".$_SESSION["authProvider"]."', user='".$_SESSION["authUser"]."', 
                 authorized=$userauthorized, activity=1, date = NOW(), 
                 introductie='".$_POST["introductie"]."',
@@ -51,12 +43,10 @@ if( $_GET["mode"] == "new" )
                 autosave_datetime=NOW() 
                   WHERE id = ".$_GET['id'].";";
 
-  sqlQuery( $strSql );
-
+    sqlQuery($strSql);
 }
 
 $_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();
-?>

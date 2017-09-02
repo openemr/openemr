@@ -24,9 +24,9 @@ flush();
 
 echo "Creating Tables<br>";
 flush();
-if (!sqlStatement($create))
-	die("failed!");
+if (!sqlStatement($create)) {
+    die("failed!");
+}
 
 echo "Success!<br>";
 flush();
-?>

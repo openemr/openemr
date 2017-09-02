@@ -22,15 +22,13 @@
 
 set_time_limit(0);
 
-// Disable magic quotes and fake register globals.
-$sanitize_all_escapes = true;
-$fake_register_globals = false;
-
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'] . '/acl.inc');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
-if (!acl_check('admin', 'super')) die(xlt('Not authorized'));
+if (!acl_check('admin', 'super')) {
+    die(xlt('Not authorized'));
+}
 
 $form_replace = !empty($_POST['form_replace']);
 $code_type = empty($_POST['form_code_type']) ? '' : $_POST['form_code_type'];
@@ -53,81 +51,103 @@ $code_type = empty($_POST['form_code_type']) ? '' : $_POST['form_code_type'];
 <?php
 // Handle uploads.
 if (!empty($_POST['bn_upload'])) {
-  if (empty($code_types[$code_type])) die(xlt('Code type not yet defined') . ": '$code_type'");
-  $code_type_id = $code_types[$code_type]['id'];
-  $tmp_name = $_FILES['form_file']['tmp_name'];
+    if (empty($code_types[$code_type])) {
+        die(xlt('Code type not yet defined') . ": '$code_type'");
+    }
 
-  $inscount = 0;
-  $repcount = 0;
-  $seen_codes = array();
+    $code_type_id = $code_types[$code_type]['id'];
+    $tmp_name = $_FILES['form_file']['tmp_name'];
 
-  if (is_uploaded_file($tmp_name) && $_FILES['form_file']['size']) {
-    $zipin = new ZipArchive;
-    $eres = null;
-    if ($zipin->open($tmp_name) === true) {
-      // Must be a zip archive.
-      for ($i = 0; $i < $zipin->numFiles; ++$i) {
-        $ename = $zipin->getNameIndex($i);
-        // TBD: Expand the following test as other code types are supported.
-        if ($code_type == 'RXCUI' && basename($ename) == 'RXNCONSO.RRF') {
-          $eres = $zipin->getStream($ename);
-          break;
+    $inscount = 0;
+    $repcount = 0;
+    $seen_codes = array();
+
+    if (is_uploaded_file($tmp_name) && $_FILES['form_file']['size']) {
+        $zipin = new ZipArchive;
+        $eres = null;
+        if ($zipin->open($tmp_name) === true) {
+            // Must be a zip archive.
+            for ($i = 0; $i < $zipin->numFiles; ++$i) {
+                $ename = $zipin->getNameIndex($i);
+                // TBD: Expand the following test as other code types are supported.
+                if ($code_type == 'RXCUI' && basename($ename) == 'RXNCONSO.RRF') {
+                    $eres = $zipin->getStream($ename);
+                    break;
+                }
+            }
+        } else {
+            $eres = fopen($tmp_name, 'r');
         }
-      }
-    }
-    else {
-      $eres = fopen($tmp_name, 'r');
-    }
 
-    if (empty($eres)) die(xlt('Unable to locate the data in this file.'));
-
-    if ($form_replace) {
-      sqlStatement("DELETE FROM codes WHERE code_type = ?", array($code_type_id));
-    }
-
-
-    // Settings to drastically speed up import with InnoDB
-    sqlStatementNoLog("SET autocommit=0");
-    sqlStatementNoLog("START TRANSACTION");
-    while (($line = fgets($eres)) !== false) {
-
-      if ($code_type == 'RXCUI') {
-        $a = explode('|', $line);
-        if (count($a) < 18    ) continue;
-        if ($a[17] != '4096'  ) continue;
-        if ($a[11] != 'RXNORM') continue;
-        $code = $a[0];
-        if (isset($seen_codes[$code])) continue;
-        $seen_codes[$code] = 1;
-        ++$inscount;
-        if (!$form_replace) {
-          $tmp = sqlQuery("SELECT id FROM codes WHERE code_type = ? AND code = ? LIMIT 1",
-            array($code_type_id, $code));
-          if ($tmp['id']) {
-            sqlStatementNoLog("UPDATE codes SET code_text = ? WHERE code_type = ? AND code = ?",
-              array($a[14], $code_type_id, $code));
-            ++$repcount;
-            continue;
-          }
+        if (empty($eres)) {
+            die(xlt('Unable to locate the data in this file.'));
         }
-        sqlStatementNoLog("INSERT INTO codes SET code_type = ?, code = ?, code_text = ?, " .
-          "fee = 0, units = 0",
-          array($code_type_id, $code, $a[14]));
-        ++$inscount;
-      }
 
-      // TBD: Clone/adapt the above for each new code type.
+        if ($form_replace) {
+            sqlStatement("DELETE FROM codes WHERE code_type = ?", array($code_type_id));
+        }
 
+
+        // Settings to drastically speed up import with InnoDB
+        sqlStatementNoLog("SET autocommit=0");
+        sqlStatementNoLog("START TRANSACTION");
+        while (($line = fgets($eres)) !== false) {
+            if ($code_type == 'RXCUI') {
+                $a = explode('|', $line);
+                if (count($a) < 18) {
+                    continue;
+                }
+
+                if ($a[17] != '4096') {
+                    continue;
+                }
+
+                if ($a[11] != 'RXNORM') {
+                    continue;
+                }
+
+                $code = $a[0];
+                if (isset($seen_codes[$code])) {
+                    continue;
+                }
+
+                $seen_codes[$code] = 1;
+                ++$inscount;
+                if (!$form_replace) {
+                    $tmp = sqlQuery(
+                        "SELECT id FROM codes WHERE code_type = ? AND code = ? LIMIT 1",
+                        array($code_type_id, $code)
+                    );
+                    if ($tmp['id']) {
+                              sqlStatementNoLog(
+                                  "UPDATE codes SET code_text = ? WHERE code_type = ? AND code = ?",
+                                  array($a[14], $code_type_id, $code)
+                              );
+                              ++$repcount;
+                              continue;
+                    }
+                }
+
+                sqlStatementNoLog(
+                    "INSERT INTO codes SET code_type = ?, code = ?, code_text = ?, " .
+                    "fee = 0, units = 0",
+                    array($code_type_id, $code, $a[14])
+                );
+                ++$inscount;
+            }
+
+            // TBD: Clone/adapt the above for each new code type.
+        }
+
+        // Settings to drastically speed up import with InnoDB
+        sqlStatementNoLog("COMMIT");
+        sqlStatementNoLog("SET autocommit=1");
+
+        fclose($eres);
+        $zipin->close();
     }
-    // Settings to drastically speed up import with InnoDB
-    sqlStatementNoLog("COMMIT");
-    sqlStatementNoLog("SET autocommit=1");
 
-    fclose($eres);
-    $zipin->close();
-  }
-
-  echo "<p style='color:green'>" .
+    echo "<p style='color:green'>" .
        xlt('LOAD SUCCESSFUL. Codes inserted') . ": $inscount, " .
        xlt('replaced') . ": $repcount" .
        "</p>\n";
@@ -143,18 +163,18 @@ if (!empty($_POST['bn_upload'])) {
 <table border='1' cellpadding='4'>
  <tr bgcolor='#dddddd' class='dehead'>
   <td align='center' colspan='2'>
-   <?php echo xlt('Install Code Set'); ?>
+    <?php echo xlt('Install Code Set'); ?>
   </td>
  </tr>
  <tr>
   <td class='detail' nowrap>
-   <?php echo xlt('Code Type'); ?>
+    <?php echo xlt('Code Type'); ?>
   </td>
   <td>
    <select name='form_code_type'>
 <?php
 foreach (array('RXCUI') as $codetype) {
-  echo "    <option value='$codetype'>$codetype</option>\n";
+    echo "    <option value='$codetype'>$codetype</option>\n";
 }
 ?>
    </select>
@@ -162,7 +182,7 @@ foreach (array('RXCUI') as $codetype) {
  </tr>
  <tr>
   <td class='detail' nowrap>
-   <?php echo htmlspecialchars(xl('Source File')); ?>
+    <?php echo htmlspecialchars(xl('Source File')); ?>
    <input type="hidden" name="MAX_FILE_SIZE" value="350000000" />
   </td>
   <td class='detail' nowrap>
@@ -171,7 +191,7 @@ foreach (array('RXCUI') as $codetype) {
  </tr>
  <tr>
   <td class='detail' >
-   <?php echo xlt('Replace entire code set'); ?>
+    <?php echo xlt('Replace entire code set'); ?>
   </td>
   <td class='detail' >
    <input type='checkbox' name='form_replace' value='1' checked />

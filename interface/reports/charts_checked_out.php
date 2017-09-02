@@ -10,13 +10,18 @@
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
+
+use OpenEMR\Core\Header;
+use OpenEMR\Services\PatientService;
+
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
-<title><?php xl('Charts Checked Out','e'); ?></title>
 
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+<title><?php xl('Charts Checked Out', 'e'); ?></title>
+
+<?php Header::setupHeader(); ?>
+
 <style type="text/css">
 
 /* specifically include & exclude from printing */
@@ -47,7 +52,7 @@ require_once("$srcdir/patient.inc");
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Charts Checked Out','e'); ?></span>
+<span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Charts Checked Out', 'e'); ?></span>
 
 <div id="report_results">
 <br/>
@@ -71,44 +76,33 @@ $query = "SELECT ct.ct_when, " .
 sqlStatement("DROP TEMPORARY TABLE IF EXISTS cttemp");
 sqlStatement("CREATE TEMPORARY TABLE cttemp SELECT " .
   "ct_pid, MAX(ct_when) AS ct_when FROM chart_tracker GROUP BY ct_pid");
-$query = "SELECT ct.ct_when, " .
-  "u.username, u.fname AS ufname, u.mname AS umname, u.lname AS ulname, " .
-  "p.pubpid, p.fname, p.mname, p.lname " .
-  "FROM chart_tracker AS ct " .
-  "JOIN cttemp ON cttemp.ct_pid = ct.ct_pid AND cttemp.ct_when = ct.ct_when " .
-  "LEFT OUTER JOIN users AS u ON u.id = ct.ct_userid " .
-  "LEFT OUTER JOIN patient_data AS p ON p.pid = ct.ct_pid " .
-  "WHERE ct.ct_userid != 0 " .
-  "ORDER BY p.pubpid";
-
-$res = sqlStatement($query);
-
+$res = PatientService::getChartTrackerInformation();
 $data_ctr = 0;
 while ($row = sqlFetchArray($res)) {
-
-if ( $data_ctr == 0 ) { ?>
-<table>
- <thead>
-  <th> <?php xl('Chart','e'); ?> </th>
-  <th> <?php xl('Patient','e'); ?> </th>
-  <th> <?php xl('Location','e'); ?> </th>
-  <th> <?php xl('As Of','e'); ?> </th>
- </thead>
- <tbody>
-<?php  } ?>
+    if ($data_ctr == 0) { ?>
+    <table>
+     <thead>
+          <th> <?php xl('Chart', 'e'); ?> </th>
+          <th> <?php xl('Patient', 'e'); ?> </th>
+          <th> <?php xl('Location', 'e'); ?> </th>
+          <th> <?php xl('As Of', 'e'); ?> </th>
+     </thead>
+     <tbody>
+    <?php
+    } ?>
 
  <tr>
   <td>
-   <?php echo $row['pubpid']; ?>
+    <?php echo $row['pubpid']; ?>
   </td>
   <td>
-   <?php echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']; ?>
+    <?php echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']; ?>
   </td>
   <td>
-   <?php echo $row['ulname'] . ', ' . $row['ufname'] . ' ' . $row['umname']; ?>
+    <?php echo $row['ulname'] . ', ' . $row['ufname'] . ' ' . $row['umname']; ?>
   </td>
   <td>
-   <?php echo oeFormatShortDate(substr($row['ct_when'], 0, 10)) . substr($row['ct_when'], 10); ?>
+    <?php echo oeFormatShortDate(substr($row['ct_when'], 0, 10)) . substr($row['ct_when'], 10); ?>
   </td>
  </tr>
 <?php
@@ -116,8 +110,8 @@ if ( $data_ctr == 0 ) { ?>
 $data_ctr++;
 } // end while
 
-if ( $data_ctr < 1 ) { ?>
-<span class='text'><?php xl('There are no charts checked out.','e'); ?></span>
+if ($data_ctr < 1) { ?>
+<span class='text'><?php xl('There are no charts checked out.', 'e'); ?></span>
 <?php
 }
 ?>

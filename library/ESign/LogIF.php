@@ -4,7 +4,7 @@ namespace ESign;
 
 /**
  * Interface for the ESign log
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -30,6 +30,6 @@ require_once $GLOBALS['srcdir'].'/ESign/SignableIF.php';
 interface LogIF extends ViewableIF
 {
     public function isViewable();
-    public function render( SignableIF $signable );
-    public function getHtml( SignableIF $signable );
+    public function render(SignableIF $signable);
+    public function getHtml(SignableIF $signable);
 }

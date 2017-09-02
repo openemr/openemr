@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
  * Copyright (C) 2016 Amiel Elboim <amielel@matrix.co.il>
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,6 +27,10 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/group.inc");
 require_once("$srcdir/classes/POSRef.class.php");
 
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
+
 $months = array("01","02","03","04","05","06","07","08","09","10","11","12");
 $days = array("01","02","03","04","05","06","07","08","09","10","11","12","13","14",
   "15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31");
@@ -33,20 +38,21 @@ $thisyear = date("Y");
 $years = array($thisyear-1, $thisyear, $thisyear+1, $thisyear+2);
 
 if ($viewmode) {
-  $id = (isset($_REQUEST['id'])) ? $_REQUEST['id'] : '';
-  $result = sqlQuery("SELECT * FROM form_groups_encounter WHERE id = ?", array($id));
-  $encounter = $result['encounter'];
-  if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
-    echo "<body>\n<html>\n";
-    echo "<p>" . xlt('You are not authorized to see this encounter.') . "</p>\n";
-    echo "</body>\n</html>\n";
-    exit();
-  }
+    $id = (isset($_REQUEST['id'])) ? $_REQUEST['id'] : '';
+    $result = sqlQuery("SELECT * FROM form_groups_encounter WHERE id = ?", array($id));
+    $encounter = $result['encounter'];
+    if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
+        echo "<body>\n<html>\n";
+        echo "<p>" . xlt('You are not authorized to see this encounter.') . "</p>\n";
+        echo "</body>\n</html>\n";
+        exit();
+    }
 }
 
 // Sort comparison for sensitivities by their order attribute.
-function sensitivity_compare($a, $b) {
-  return ($a[2] < $b[2]) ? -1 : 1;
+function sensitivity_compare($a, $b)
+{
+    return ($a[2] < $b[2]) ? -1 : 1;
 }
 
 /*// get issues
@@ -62,12 +68,14 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.css" media="screen" />
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.pack.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/overlib_mini.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <!-- validation library -->
 <?php
@@ -75,11 +83,6 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 $use_validate_js = 1;
 require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
-<!-- pop up calendar -->
-<style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/ajax/facility_ajax_jav.inc.php"); ?>
 <script language="JavaScript">
 
@@ -99,17 +102,16 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
  }
 */
 
- <?php
+    <?php
  //Gets validation rules from Page Validation list.
- //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call. 
- $collectthis = collectValidationPageRules("/interface/forms/newGroupEncounter/common.php");
- if (empty($collectthis)) {
-   $collectthis = "undefined";
- }
- else {
-   $collectthis = $collectthis["new-encounter-form"]["rules"];
- }
- ?>
+ //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
+    $collectthis = collectValidationPageRules("/interface/forms/newGroupEncounter/common.php");
+    if (empty($collectthis)) {
+         $collectthis = "undefined";
+    } else {
+         $collectthis = $collectthis["new-encounter-form"]["rules"];
+    }
+    ?>
  var collectvalidation = <?php echo($collectthis); ?>;
  $(document).ready(function(){
    window.saveClicked = function(event) {
@@ -119,6 +121,14 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
        $('#new-encounter-form').submit();
      }
    }
+
+  $('.datepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
 
    enable_big_modals();
  });
@@ -170,15 +180,15 @@ function cancelClicked() {
 <div>
     <div style = 'float:left; margin-left:8px;margin-top:-3px'>
       <a href="javascript:saveClicked(undefined);" class="css_button link_submit"><span><?php echo xlt('Save'); ?></span></a>
-      <?php if ($viewmode || !isset($_GET["autoloaded"]) || $_GET["autoloaded"] != "1") { ?>
+        <?php if ($viewmode || !isset($_GET["autoloaded"]) || $_GET["autoloaded"] != "1") { ?>
     </div>
     <div style = 'float:left; margin-top:-3px'>
       <a href="<?php echo "$rootdir/patient_file/encounter/encounter_top.php"; ?>"
         class="css_button link_submit" onClick="top.restoreSession()"><span><?php echo xlt('Cancel'); ?></span></a>
-  <?php } else { // not $viewmode ?>
+    <?php } else { // not $viewmode ?>
       <a href="" class="css_button link_submit" onClick="return cancelClicked()">
       <span><?php echo xlt('Cancel'); ?></span></a>
-  <?php } // end not $viewmode ?>
+    <?php } // end not $viewmode ?>
     </div>
  </div>
 
@@ -195,20 +205,29 @@ function cancelClicked() {
      <td class='bold' nowrap><?php echo xlt('Visit Category'); ?>:</td>
      <td class='text'>
       <select name='pc_catid' id='pc_catid'>
-	<option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
-<?php
- $cres = sqlStatement("SELECT pc_catid, pc_catname, pc_cattype " .
-  "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq ");
- while ($crow = sqlFetchArray($cres)) {
-  $catid = $crow['pc_catid'];
-  if ($crow['pc_cattype'] != 3) continue;
-  echo "       <option value='" . attr($catid) . "'";
-  // mark therapy group's category as selected
-  if(!$viewmode && $crow['pc_cattype'] == 3) echo " selected";
-  if ($viewmode && $crow['pc_catid'] == $result['pc_catid']) echo " selected";
-  echo ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
- }
-?>
+    <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
+    <?php
+    $cres = sqlStatement("SELECT pc_catid, pc_catname, pc_cattype " .
+    "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq ");
+    while ($crow = sqlFetchArray($cres)) {
+        $catid = $crow['pc_catid'];
+        if ($crow['pc_cattype'] != 3) {
+            continue;
+        }
+
+        echo "       <option value='" . attr($catid) . "'";
+    // mark therapy group's category as selected
+        if (!$viewmode && $crow['pc_cattype'] == 3) {
+            echo " selected";
+        }
+
+        if ($viewmode && $crow['pc_catid'] == $result['pc_catid']) {
+            echo " selected";
+        }
+
+        echo ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
+    }
+    ?>
       </select>
      </td>
     </tr>
@@ -220,38 +239,38 @@ function cancelClicked() {
 <?php
 
 if ($viewmode) {
-  $def_facility = $result['facility_id'];
+    $def_facility = $result['facility_id'];
 } else {
-  $dres = sqlStatement("select facility_id from users where username = ?", array($_SESSION['authUser']));
-  $drow = sqlFetchArray($dres);
-  $def_facility = $drow['facility_id'];
+    $dres = sqlStatement("select facility_id from users where username = ?", array($_SESSION['authUser']));
+    $drow = sqlFetchArray($dres);
+    $def_facility = $drow['facility_id'];
 }
-$fres = sqlStatement("select * from facility where service_location != 0 order by name");
-if ($fres) {
-  $fresult = array();
-  for ($iter = 0; $frow = sqlFetchArray($fres); $iter++)
-    $fresult[$iter] = $frow;
-  foreach($fresult as $iter) {
-?>
-       <option value="<?php echo attr($iter['id']); ?>" <?php if ($def_facility == $iter['id']) echo "selected";?>><?php echo text($iter['name']); ?></option>
+
+$facilities = $facilityService->getAllServiceLocations();
+if ($facilities) {
+    foreach ($facilities as $iter) {
+    ?>
+       <option value="<?php echo attr($iter['id']); ?>" <?php if ($def_facility == $iter['id']) {
+            echo "selected";
+}?>><?php echo text($iter['name']); ?></option>
 <?php
-  }
- }
+    }
+}
 ?>
       </select>
      </td>
     </tr>
-	<tr>
-		<td class='bold' nowrap><?php echo xlt('Billing Facility'); ?>:</td>
-		<td class='text'>
-			<div id="ajaxdiv">
-			<?php
-			billing_facility('billing_facility',$result['billing_facility']);
-			?>
-			</div>
-		</td>
+    <tr>
+        <td class='bold' nowrap><?php echo xlt('Billing Facility'); ?>:</td>
+        <td class='text'>
+            <div id="ajaxdiv">
+            <?php
+            billing_facility('billing_facility', $result['billing_facility']);
+            ?>
+            </div>
+        </td>
      </tr>
-        <?php if($GLOBALS['set_pos_code_encounter']){ ?>
+        <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
         <tr>
             <td><span class='bold' nowrap><?php echo xlt('POS Code'); ?>: </span></td>
             <td colspan="6">
@@ -262,51 +281,62 @@ if ($fres) {
 
                 foreach ($pc->get_pos_ref() as $pos) {
                     echo "<option value=\"" . attr($pos["code"]) . "\" ";
-					if($pos["code"] == $result['pos_code']) echo "selected";
+                    if ($pos["code"] == $result['pos_code']) {
+                        echo "selected";
+                    }
+
                     echo ">" . text($pos['code'])  . ": ". xlt($pos['title']);
                     echo "</option>\n";
-
                 }
 
                 ?>
                 </select>
             </td>
        </tr>
-       <?php } ?>
+        <?php } ?>
     <tr>
 <?php
  $sensitivities = acl_get_sensitivities();
- if ($sensitivities && count($sensitivities)) {
-  usort($sensitivities, "sensitivity_compare");
+if ($sensitivities && count($sensitivities)) {
+    usort($sensitivities, "sensitivity_compare");
 ?>
-     <td class='bold' nowrap><?php echo xlt('Sensitivity:'); ?></td>
-     <td class='text'>
-      <select name='form_sensitivity'>
+   <td class='bold' nowrap><?php echo xlt('Sensitivity:'); ?></td>
+    <td class='text'>
+     <select name='form_sensitivity'>
 <?php
-  foreach ($sensitivities as $value) {
+foreach ($sensitivities as $value) {
    // Omit sensitivities to which this user does not have access.
-   if (acl_check('sensitivities', $value[1])) {
-    echo "       <option value='" . attr($value[1]) . "'";
-    if ($viewmode && $result['sensitivity'] == $value[1]) echo " selected";
-    echo ">" . xlt($value[3]) . "</option>\n";
-   }
-  }
-  echo "       <option value=''";
-  if ($viewmode && !$result['sensitivity']) echo " selected";
-  echo ">" . xlt('None'). "</option>\n";
+    if (acl_check('sensitivities', $value[1])) {
+        echo "       <option value='" . attr($value[1]) . "'";
+        if ($viewmode && $result['sensitivity'] == $value[1]) {
+            echo " selected";
+        }
+
+        echo ">" . xlt($value[3]) . "</option>\n";
+    }
+}
+
+echo "       <option value=''";
+if ($viewmode && !$result['sensitivity']) {
+    echo " selected";
+}
+
+echo ">" . xlt('None'). "</option>\n";
 ?>
-      </select>
-     </td>
+     </select>
+    </td>
 <?php
- } else {
+} else {
 ?>
-     <td colspan='2'><!-- sensitivities not used --></td>
+    <td colspan='2'><!-- sensitivities not used --></td>
 <?php
- }
+}
 ?>
     </tr>
 
-    <tr<?php if (!$GLOBALS['gbl_visit_referral_source']) echo " style='visibility:hidden;'"; ?>>
+    <tr<?php if (!$GLOBALS['gbl_visit_referral_source']) {
+        echo " style='visibility:hidden;'";
+} ?>>
      <td class='bold' nowrap><?php echo xlt('Referral Source'); ?>:</td>
      <td class='text'>
 <?php
@@ -318,32 +348,26 @@ if ($fres) {
     <tr>
      <td class='bold' nowrap><?php echo xlt('Date of Service'); ?>:</td>
      <td class='text' nowrap>
-      <input type='text' size='10' name='form_date' id='form_date' <?php echo $disabled ?>
+      <input type='text' size='10' class='datepicker' name='form_date' id='form_date' <?php echo $disabled ?>
        value='<?php echo $viewmode ? substr($result['date'], 0, 10) : date('Y-m-d'); ?>'
-       title='<?php echo xla('yyyy-mm-dd Date of service'); ?>'
-       onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-        <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-        id='img_form_date' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
-        title='<?php echo xla('Click here to choose a date'); ?>'>
+       title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
      </td>
     </tr>
 
-    <tr<?php if ($GLOBALS['ippf_specific']) echo " style='visibility:hidden;'"; ?>>
+    <tr<?php if ($GLOBALS['ippf_specific']) {
+        echo " style='visibility:hidden;'";
+} ?>>
      <td class='bold' nowrap><?php echo xlt('Additional Date:'); ?></td>
      <td class='text' nowrap><!-- default is blank so that while generating claim the date is blank. -->
-      <input type='text' size='10' name='form_onset_date' id='form_onset_date'
-       value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? substr($result['onset_date'], 0, 10) : ''; ?>' 
-       title='<?php echo xla('yyyy-mm-dd Date of onset or hospitalization'); ?>'
-       onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-        <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-        id='img_form_onset_date' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
-        title='<?php echo xla('Click here to choose a date'); ?>'>
+      <input type='text' size='10' class='datepicker' name='form_onset_date' id='form_onset_date'
+       value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? substr($result['onset_date'], 0, 10) : ''; ?>'
+       title='<?php echo xla('yyyy-mm-dd Date of onset or hospitalization'); ?>' />
      </td>
     </tr>
-	<tr>
+    <tr>
      <td class='text' colspan='2' style='padding-top:1em'>
-	 </td>
-    </tr> 
+     </td>
+    </tr>
    </table>
 
   </td>
@@ -363,13 +387,10 @@ if ($fres) {
 </body>
 
 <script language="javascript">
-/* required for popup calendar */
-Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_form_date"});
-Calendar.setup({inputField:"form_onset_date", ifFormat:"%Y-%m-%d", button:"img_form_onset_date"});
 <?php
 if (!$viewmode) { ?>
  function duplicateVisit(enc, datestr) {
-    if (!confirm('<?php echo xls("A visit already exists for this patient today. Click Cancel to open it, or OK to proceed with creating a new one.") ?>')) {
+    if (!confirm('<?php echo xls("A visit already exists for this group today. Click Cancel to open it, or OK to proceed with creating a new one.") ?>')) {
             // User pressed the cancel button, so re-direct to today's encounter
             top.restoreSession();
             parent.left_nav.setEncounter(datestr, enc, window.name);
@@ -377,7 +398,7 @@ if (!$viewmode) { ?>
             return;
         }
         // otherwise just continue normally
-    }    
+    }
 <?php
 
   // Search for an encounter from today
@@ -388,13 +409,13 @@ if (!$viewmode) { ?>
     " AND fe.date <= ? " .
     " AND " .
     "f.formdir = 'newGroupEncounter' AND f.form_id = fe.id AND f.deleted = 0 " .
-    "ORDER BY fe.encounter DESC LIMIT 1",array($therapy_group,date('Y-m-d 00:00:00'),date('Y-m-d 23:59:59')));
+    "ORDER BY fe.encounter DESC LIMIT 1", array($therapy_group,date('Y-m-d 00:00:00'),date('Y-m-d 23:59:59')));
 
-  if (!empty($erow['encounter'])) {
+if (!empty($erow['encounter'])) {
     // If there is an encounter from today then present the duplicate visit dialog
     echo "duplicateVisit('" . $erow['encounter'] . "', '" .
-      oeFormatShortDate(substr($erow['date'], 0, 10)) . "');\n";
-  }
+    oeFormatShortDate(substr($erow['date'], 0, 10)) . "');\n";
+}
 }
 ?>
 </script>

@@ -19,54 +19,57 @@
 * @author    Rod Roark <rod@sunsetsystems.com>
 */
 
-$sanitize_all_escapes = true;
-$fake_register_globals = false;
+
+
 
 require_once(dirname(__FILE__) . '/../globals.php');
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 
 // Check authorization.
 $thisauth = acl_check('patients', 'med');
-if (!$thisauth) die(xl('Not authorized'));
+if (!$thisauth) {
+    die(xl('Not authorized'));
+}
 
 $orderid = intval($_GET['orderid']);
 
 $finals_only = empty($_POST['form_showall']);
 
 if (!empty($_POST['form_sign']) && !empty($_POST['form_sign_list'])) {
-  if (!acl_check('patients', 'sign')) {
-    die(xl('Not authorized to sign results'));
-  }
+    if (!acl_check('patients', 'sign')) {
+        die(xl('Not authorized to sign results'));
+    }
+
   // When signing results we are careful to sign only those reports that were
   // in the sending form. While this will usually be all the reports linked to
   // the order it's possible for a new report to come in while viewing these,
   // and it would be very bad to sign results that nobody has seen!
-  $arrSign = explode(',', $_POST['form_sign_list']);
-  foreach ($arrSign as $id) {
-  sqlStatement("UPDATE procedure_report SET " .
-    "review_status = 'reviewed' WHERE " .
-    "procedure_report_id = ?", array($id));
-  }
+    $arrSign = explode(',', $_POST['form_sign_list']);
+    foreach ($arrSign as $id) {
+        sqlStatement("UPDATE procedure_report SET " .
+        "review_status = 'reviewed' WHERE " .
+        "procedure_report_id = ?", array($id));
+    }
 }
 
 // This mess generates a PDF report and sends it to the patient.
 if (!empty($_POST['form_send_to_portal'])) {
   // Borrowing the general strategy here from custom_report.php.
   // See also: http://wiki.spipu.net/doku.php?id=html2pdf:en:v3:output
-  require_once("$srcdir/html2pdf/html2pdf.class.php");
-  require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
-  $pdf = new HTML2PDF('P', 'Letter', 'en');
-  ob_start();
-  echo "<link rel='stylesheet' type='text/css' href='$webserver_root/interface/themes/style_pdf.css'>\n";
-  echo "<link rel='stylesheet' type='text/css' href='$webserver_root/library/ESign/css/esign_report.css'>\n";
-  $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
-  generate_order_report($orderid, false, true, $finals_only);
-  $GLOBALS['PATIENT_REPORT_ACTIVE'] = false;
+    require_once("$srcdir/html2pdf/html2pdf.class.php");
+    require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
+    $pdf = new HTML2PDF('P', 'Letter', 'en');
+    ob_start();
+    echo "<link rel='stylesheet' type='text/css' href='$webserver_root/interface/themes/style_pdf.css'>\n";
+    echo "<link rel='stylesheet' type='text/css' href='$webserver_root/library/ESign/css/esign_report.css'>\n";
+    $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
+    generate_order_report($orderid, false, true, $finals_only);
+    $GLOBALS['PATIENT_REPORT_ACTIVE'] = false;
   // echo ob_get_clean(); exit(); // debugging
-  $pdf->writeHTML(ob_get_clean(), false);
-  $contents = $pdf->Output('', true);
+    $pdf->writeHTML(ob_get_clean(), false);
+    $contents = $pdf->Output('', true);
   // Send message with PDF as attachment.
-  $result = cms_portal_call(array(
+    $result = cms_portal_call(array(
     'action'   => 'putmessage',
     'user'     => $_POST['form_send_to_portal'],
     'title'    => xl('Your Lab Results'),
@@ -74,8 +77,10 @@ if (!empty($_POST['form_send_to_portal'])) {
     'filename' => 'results.pdf',
     'mimetype' => 'application/pdf',
     'contents' => base64_encode($contents),
-  ));
-  if ($result['errmsg']) die(text($result['errmsg']));
+    ));
+    if ($result['errmsg']) {
+        die(text($result['errmsg']));
+    }
 }
 ?>
 <html>
@@ -100,9 +105,8 @@ body {
 <body>
 <?php
 if (empty($_POST['form_sign'])) {
-  generate_order_report($orderid, true, true, $finals_only);
-}
-else {
+    generate_order_report($orderid, true, true, $finals_only);
+} else {
 ?>
 <script language='JavaScript'>
  if (opener.document.forms && opener.document.forms[0]) {

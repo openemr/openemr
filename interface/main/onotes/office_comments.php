@@ -18,25 +18,23 @@
  * @link    http://www.open-emr.org
  */
 
-include_once("../../globals.php");
+
+require_once("../../globals.php");
+
+use OpenEMR\Core\Header;
+use OpenEMR\Services\ONoteService;
 
 //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
 $N = 10;
 
-$oNoteService = new \services\ONoteService();
+$oNoteService = new ONoteService();
 ?>
 
 <html>
 <head>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
-<?php } ?>
+<?php Header::setupHeader(); ?>
 
-<script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-11-1/index.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
 </head>
 <body class="body_top">
 
@@ -54,45 +52,43 @@ $oNoteService = new \services\ONoteService();
 $notes = $oNoteService->getNotes(1, 0, ($N + 1));
 
 //retrieve all active notes
-if($notes) {
+if ($notes) {
+    $notes_count = 0;//number of notes so far displayed
+    foreach ($notes as $note) {
+        if ($notes_count >= $N) {
+            //we have more active notes to print, but we've reached our display maximum (defined at top of this file)
+            $notice  = '';
+            $notice .= '<div class="alert alert-info">';
+            $notice .= '  <a href=\'office_comments_full.php?active=-1\' onclick=\'top.restoreSession()\'>'.xlt("Some office notes were not displayed. Click here to view all.").'</a>';
+            $notice .= '</div>';
+            print $notice;
+            break;
+        }
 
-$notes_count = 0;//number of notes so far displayed
-foreach ($notes as $note) {
-    if ($notes_count >= $N) {
-        //we have more active notes to print, but we've reached our display maximum (defined at top of this file)
-        $notice  = '';
-        $notice .= '<div class="alert alert-info">';
-        $notice .= '  <a href=\'office_comments_full.php?active=-1\' onclick=\'top.restoreSession()\'>'.xlt("Some office notes were not displayed. Click here to view all.").'</a>';
-        $notice .= '</div>';
-        print $notice;
-        break;
+        $date = $note->getDate()->format('Y-m-d');
+        $date = oeFormatShortDate($date);
+
+        $todaysDate = new DateTime();
+        if ($todaysDate->format('Y-m-d') == $date) {
+            $date_string = xl("Today") . ", " . $date;
+        } else {
+            $date_string = $date;
+        }
+
+            $card  = '';
+            $card .= '<div class="panel panel-default">';
+            $card .= '    <div class="panel-heading">';
+            $card .= '        <h3 class="panel-title">'.text($date_string).' <strong>('.text($note->getUser()->getUsername()).')</strong></h3>';
+            $card .= '    </div>';
+            $card .= '    <div class="panel-body">';
+            $card .=          nl2br(text($note->getBody()));
+            $card .= '    </div>';
+            $card .= '</div>';
+
+            print $card;
+
+            $notes_count++;
     }
-
-    $date = $note->getDate()->format('Y-m-d');
-    $date = oeFormatShortDate($date);
-
-    $todaysDate = new DateTime();
-    if ($todaysDate->format('Y-m-d') == $date) {
-        $date_string = xl("Today") . ", " . $date;
-    } else {
-        $date_string = $date;
-    }
-
-    $card  = '';
-    $card .= '<div class="panel panel-default">';
-    $card .= '    <div class="panel-heading">';
-    $card .= '        <h3 class="panel-title">'.text($date_string).' <strong>('.text($note->getUser()->getUsername()).')</strong></h3>';
-    $card .= '    </div>';
-    $card .= '    <div class="panel-body">';
-    $card .=          text($note->getBody());
-    $card .= '    </div>';
-    $card .= '</div>';
-
-    print $card;
-
-    $notes_count++;
-}
-
 }
 ?>
 
