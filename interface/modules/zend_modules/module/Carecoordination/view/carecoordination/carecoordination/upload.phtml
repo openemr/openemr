@@ -429,7 +429,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                                     }
                                     ?>
                                         <a style="text-decoration: none;" target="_blank" href="<?php echo $this->basePath();?>/documents/documents/retrieve/<?php echo $this->escapeHtml($row['document_id']);?>">
-                                          <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath();?>/css/icons/view.png" title='<?php echo $this->listenerObject->z_xlt("View details");?>'
+                                          <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath();?>/css/icons/view.png" title='<?php echo $this->listenerObject->z_xlt("View details");?>'>
                                         </a>&nbsp;&nbsp;
                                         <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath();?>/css/icons/add_patient.png" title='<?php echo $this->listenerObject->z_xlt("Add as new patient");?>' class="add_new_patient" id="add_new_patient|<?php echo $this->escapeHtml($row['amid']);?>|<?php echo $this->escapeHtml($row['document_id'])."|".$this->escapeHtml($row['pid']);?>">
                                     <?php
