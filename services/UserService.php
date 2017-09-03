@@ -37,7 +37,7 @@ class UserService
     {
         $database = \common\database\Connector::Instance();
         $entityManager = $database->entityManager;
-        $this->repository = $entityManager->getRepository('\entities\User');
+        $this->repository = $entityManager->getRepository('\OpenEMR\Entities\User');
     }
 
     /**

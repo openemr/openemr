@@ -28,17 +28,9 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
     );
 
     public static $prefixLengthsPsr4 = array (
-        'r' => 
-        array (
-            'repositories\\' => 13,
-        ),
         'p' => 
         array (
             'phpseclib\\' => 10,
-        ),
-        'e' => 
-        array (
-            'entities\\' => 9,
         ),
         'c' => 
         array (
@@ -75,9 +67,11 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         array (
             'OpenEMR\\Services\\' => 17,
             'OpenEMR\\Sample\\' => 15,
+            'OpenEMR\\Repositories\\' => 21,
             'OpenEMR\\Reminder\\' => 17,
             'OpenEMR\\Pdf\\' => 12,
             'OpenEMR\\Menu\\' => 13,
+            'OpenEMR\\Entities\\' => 17,
             'OpenEMR\\Encounter\\Services\\' => 27,
             'OpenEMR\\Core\\' => 13,
             'OpenEMR\\Calendar\\' => 17,
@@ -108,17 +102,9 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
     );
 
     public static $prefixDirsPsr4 = array (
-        'repositories\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/repositories',
-        ),
         'phpseclib\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib',
-        ),
-        'entities\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/entities',
         ),
         'common\\utils\\' => 
         array (
@@ -204,6 +190,10 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         array (
             0 => __DIR__ . '/../..' . '/library/sample/src',
         ),
+        'OpenEMR\\Repositories\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/repositories',
+        ),
         'OpenEMR\\Reminder\\' => 
         array (
             0 => __DIR__ . '/../..' . '/library/reminder/src',
@@ -215,6 +205,10 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OpenEMR\\Menu\\' => 
         array (
             0 => __DIR__ . '/../..' . '/library/menu/src',
+        ),
+        'OpenEMR\\Entities\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/entities',
         ),
         'OpenEMR\\Encounter\\Services\\' => 
         array (
@@ -1698,9 +1692,19 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OpenEMR\\Core\\Header' => __DIR__ . '/../..' . '/library/core/src/Header.php',
         'OpenEMR\\Core\\Kernel' => __DIR__ . '/../..' . '/library/core/src/Kernel.php',
         'OpenEMR\\Encounter\\Services\\ViewHelper' => __DIR__ . '/../..' . '/interface/patient_file/encounter/Services/ViewHelper.php',
+        'OpenEMR\\Entities\\ChartTracker' => __DIR__ . '/../..' . '/entities/ChartTracker.php',
+        'OpenEMR\\Entities\\ONote' => __DIR__ . '/../..' . '/entities/ONote.php',
+        'OpenEMR\\Entities\\ProductRegistration' => __DIR__ . '/../..' . '/entities/ProductRegistration.php',
+        'OpenEMR\\Entities\\User' => __DIR__ . '/../..' . '/entities/User.php',
+        'OpenEMR\\Entities\\Version' => __DIR__ . '/../..' . '/entities/Version.php',
         'OpenEMR\\Menu\\MainMenuRole' => __DIR__ . '/../..' . '/library/menu/src/MainMenuRole.php',
         'OpenEMR\\Pdf\\PdfCreator' => __DIR__ . '/../..' . '/library/pdf/src/PdfCreator.php',
         'OpenEMR\\Reminder\\BirthdayReminder' => __DIR__ . '/../..' . '/library/reminder/src/BirthdayReminder.php',
+        'OpenEMR\\Repositories\\ChartTrackerRepository' => __DIR__ . '/../..' . '/repositories/ChartTrackerRepository.php',
+        'OpenEMR\\Repositories\\ONoteRepository' => __DIR__ . '/../..' . '/repositories/ONoteRepository.php',
+        'OpenEMR\\Repositories\\ProductRegistrationRepository' => __DIR__ . '/../..' . '/repositories/ProductRegistrationRepository.php',
+        'OpenEMR\\Repositories\\UserRepository' => __DIR__ . '/../..' . '/repositories/UserRepository.php',
+        'OpenEMR\\Repositories\\VersionRepository' => __DIR__ . '/../..' . '/repositories/VersionRepository.php',
         'OpenEMR\\Sample\\Event\\SampleEvent' => __DIR__ . '/../..' . '/library/sample/src/Event/SampleEvent.php',
         'OpenEMR\\Sample\\Event\\SampleSubscriber' => __DIR__ . '/../..' . '/library/sample/src/Event/SampleSubscriber.php',
         'OpenEMR\\Services\\ChartTrackerService' => __DIR__ . '/../..' . '/services/ChartTrackerService.php',
@@ -4703,11 +4707,6 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'cssmgr' => __DIR__ . '/..' . '/mpdf/mpdf/classes/cssmgr.php',
         'directw' => __DIR__ . '/..' . '/mpdf/mpdf/classes/directw.php',
         'eFPDF' => __DIR__ . '/../..' . '/library/classes/PDF_Label.php',
-        'entities\\ChartTracker' => __DIR__ . '/../..' . '/entities/ChartTracker.php',
-        'entities\\ONote' => __DIR__ . '/../..' . '/entities/ONote.php',
-        'entities\\ProductRegistration' => __DIR__ . '/../..' . '/entities/ProductRegistration.php',
-        'entities\\User' => __DIR__ . '/../..' . '/entities/User.php',
-        'entities\\Version' => __DIR__ . '/../..' . '/entities/Version.php',
         'fpdi_pdf_parser' => __DIR__ . '/..' . '/setasign/fpdi/fpdi_pdf_parser.php',
         'grad' => __DIR__ . '/..' . '/mpdf/mpdf/classes/grad.php',
         'html2text' => __DIR__ . '/../..' . '/library/classes/html2text.class.php',
@@ -4742,11 +4741,6 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'phpseclib\\Net\\SSH2' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Net/SSH2.php',
         'phpseclib\\System\\SSH\\Agent' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/System/SSH/Agent.php',
         'phpseclib\\System\\SSH\\Agent\\Identity' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/System/SSH/Agent/Identity.php',
-        'repositories\\ChartTrackerRepository' => __DIR__ . '/../..' . '/repositories/ChartTrackerRepository.php',
-        'repositories\\ONoteRepository' => __DIR__ . '/../..' . '/repositories/ONoteRepository.php',
-        'repositories\\ProductRegistrationRepository' => __DIR__ . '/../..' . '/repositories/ProductRegistrationRepository.php',
-        'repositories\\UserRepository' => __DIR__ . '/../..' . '/repositories/UserRepository.php',
-        'repositories\\VersionRepository' => __DIR__ . '/../..' . '/repositories/VersionRepository.php',
         'tocontents' => __DIR__ . '/..' . '/mpdf/mpdf/classes/tocontents.php',
         'wmf' => __DIR__ . '/..' . '/mpdf/mpdf/classes/wmf.php',
     );

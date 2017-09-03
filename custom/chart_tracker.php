@@ -24,6 +24,7 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Entities\ChartTracker;
 use OpenEMR\Services\ChartTrackerService;
 use OpenEMR\Services\UserService;
 
@@ -84,7 +85,7 @@ function userSelect() {
 // This is the place for status messages.
 
 if ($form_newloc || $form_newuser) {
-    $tracker = new \entities\ChartTracker();
+    $tracker = new ChartTracker();
     $tracker->setPid($form_curpid);
     $tracker->setWhen(new \DateTime(date('Y-m-d H:i:s')));
     $tracker->setUserId($form_newuser);

@@ -44,7 +44,7 @@ class ChartTrackerService
         $this->logger = new \common\logging\Logger("\OpenEMR\Services\ChartTrackerService");
         $database = \common\database\Connector::Instance();
         $entityManager = $database->entityManager;
-        $this->repository = $entityManager->getRepository('\entities\ChartTracker');
+        $this->repository = $entityManager->getRepository('\OpenEMR\Entities\ChartTracker');
     }
 
     /**

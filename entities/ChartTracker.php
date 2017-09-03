@@ -20,7 +20,7 @@
  * @link    http://www.open-emr.org
  */
 
-namespace entities;
+namespace OpenEMR\Entities;
 
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Table;
@@ -29,7 +29,7 @@ use Doctrine\ORM\Mapping\Id;
 
 /**
  * @Table(name="chart_tracker")
- * @Entity(repositoryClass="repositories\ChartTrackerRepository")
+ * @Entity(repositoryClass="OpenEMR\Repositories\ChartTrackerRepository")
  */
 class ChartTracker
 {

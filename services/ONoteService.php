@@ -22,6 +22,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Entities\ONote;
 use OpenEMR\Services\UserService;
 
 class ONoteService
@@ -50,7 +51,7 @@ class ONoteService
         $this->logger = new \common\logging\Logger("\OpenEMR\Services\ONoteService");
         $database = \common\database\Connector::Instance();
         $entityManager = $database->entityManager;
-        $this->repository = $entityManager->getRepository('\entities\ONote');
+        $this->repository = $entityManager->getRepository('\OpenEMR\Entities\ONote');
         $this->userService = new UserService();
     }
 
@@ -62,7 +63,7 @@ class ONoteService
      */
     public function add($body)
     {
-        $newNote = new \entities\ONote();
+        $newNote = new ONote();
         $newNote->setBody($body);
         $newNote->setGroupName($this->userService->getCurrentlyLoggedInUserGroup());
         $newNote->setUser($this->userService->getCurrentlyLoggedInUser());

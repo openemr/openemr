@@ -46,7 +46,7 @@ class ProductRegistrationService
         $this->logger = new \common\logging\Logger("\OpenEMR\Services\ProductRegistrationService");
         $database = \common\database\Connector::Instance();
         $entityManager = $database->entityManager;
-        $this->repository = $entityManager->getRepository('\entities\ProductRegistration');
+        $this->repository = $entityManager->getRepository('\OpenEMR\Entities\ProductRegistration');
     }
 
     public function getProductStatus()
