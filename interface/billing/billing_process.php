@@ -242,7 +242,7 @@ function process_form($ar)
                     $segs = explode("~\n", generate_x12_837I($patient_id, $encounter, $log, $ub04id));
                     fwrite($hlog, $log);
                     append_claim($segs);
-                    if (! updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename)) {
+                    if (! updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename, 'X12-837I', - 1, 0, json_encode($ub04id))) {
                         $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
                     }
                 } elseif (isset($ar['bn_process_hcfa'])) {
@@ -288,7 +288,7 @@ function process_form($ar)
                     $log = "";
                     $template[] = buildTemplate($patient_id, $encounter, "", "", $log);
                     fwrite($hlog, $log);
-                    if (! updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename, 'ub04')) {
+                    if (! updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename, 'ub04', - 1, 0, json_encode($ub04id))) {
                         $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
                     }
                 } elseif (isset($ar['bn_hcfa_txt_file'])) {

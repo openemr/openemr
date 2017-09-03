@@ -196,7 +196,7 @@ function echoServiceLines()
             " disabled /></td>\n";
         } else { // not billed
             if ($institutional) {
-                if ($codetype != 'COPAY') { // @TODO Not sure if we want rev codes for dianosis && $codetype != 'ICD10'
+                if ($codetype != 'COPAY' && $codetype != 'ICD10') {
                     echo "  <td class='billcell'><input type='text' class='revcode' name='bill[" . attr($lino) . "][revenue_code]' " .
                         "title='" . xla("Revenue Code for this item. Type for hints/search") . "' " .
                         "value='" . attr($revenue_code) . "' size='4'></td>\n";
@@ -485,6 +485,10 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'] || $_POST['bn_sa
         $_POST['default_warehouse'],
         $_POST['bn_save_close']
     );
+
+    if ($_POST['bn_save_stay']) {
+        $current_checksum = $fs->visitChecksum();
+    }
 
   // Note: Taxes are computed at checkout time (in pos_checkout.php which
   // also posts to SL).  Currently taxes with insurance claims make no sense,
@@ -1340,8 +1344,14 @@ echo "<span class='billcell'><b>\n";
 echo xlt('Providers') . ": &nbsp;";
 
 echo "&nbsp;&nbsp;" . xlt('Rendering') . "\n";
-$default_rid = isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : $fs->provider_id;
-echo $fs->genProviderSelect('ProviderID', '-- '.xl("Please Select").' --', $default_rid, $isBilled);
+if ($GLOBALS['default_rendering_provider'] == '0') {
+    $default_rid = '';
+} elseif ($GLOBALS['default_rendering_provider'] == '1') {
+    $default_rid = $fs->provider_id;
+} else {
+    $default_rid = isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : $fs->provider_id;
+}
+echo $fs->genProviderSelect('ProviderID', '-- ' . xl("Please Select") . ' --', $default_rid, $isBilled);
 
 if (!$GLOBALS['ippf_specific']) {
     echo "&nbsp;&nbsp;" . xlt('Supervising') . "\n";

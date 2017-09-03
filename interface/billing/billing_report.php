@@ -182,7 +182,7 @@ function popUB04(pid,enc) {
     var href = "<?php echo $GLOBALS['web_root']?>/interface/billing/ub04_form.php?pid="+pid+"&enc="+enc
 
     var h = (screen.height-130).toString();
-    window.open(href, '', 'location=0,scrollbars=yes,centerscreen=yes,width=1148,height='+h+'');
+    window.open(href, '', 'location=0,scrollbars=yes,centerscreen=yes,width=1200,height='+h+'');
     //window.open(href);
     return true;
 }
@@ -563,7 +563,7 @@ if (! isset($_REQUEST['mode'])) { // default case
         <li><button type="submit" class="btn btn-link" name="bn_x12" onclick="MarkAsCleared(1)"
              title="<?php echo xla('Generate and download X12 batch')?>"><?php echo xla('Generate X12')?></button></li>
         <?php if ($GLOBALS['ub04_support']) { ?>
-        <li><button type="submit" class="btn btn-link" name="bn_ub04_x12" onclick="MarkAsCleared(1)"
+        <li><button type="submit" class="btn btn-link" name="bn_ub04_x12"
             title="<?php echo xla('Generate Institutional X12 837I')?>"><?php echo xla('Generate X12 837I')?></button></li>
         <?php } ?>
         <?php if ($GLOBALS['support_encounter_claims']) { ?>
@@ -592,9 +592,9 @@ if (! isset($_REQUEST['mode'])) { // default case
     <button type="button" class="subbtn dropdown-toggle" data-toggle="dropdown" name="bn_process_ub04_support"
         title="<?php echo xla('A claim must be selected to enable this menu.')?>"><?php echo xla('UB04 FORM')?><span class="caret"></span></button>
     <ul class="dropdown-menu" role="menu">
-        <li><button type="submit" class="btn btn-link" name="bn_process_ub04_form" onclick="MarkAsCleared(2)"
+        <li><button type="submit" class="btn btn-link" name="bn_process_ub04_form"
             title="<?php echo xla('Generate and download UB-04 CMS1450 with form')?>"><?php echo xla('UB04 FORM PDF')?></button></li>
-        <li><button type="submit" class="btn btn-link" name="bn_process_ub04" onclick="MarkAsCleared(2)"
+        <li><button type="submit" class="btn btn-link" name="bn_process_ub04"
             title="<?php echo xla('Generate and download UB-04 CMS1450')?>"><?php echo xla('UB04 TEXT PDF')?></button></li>
     </ul>
 </span>

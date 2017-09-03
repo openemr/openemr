@@ -512,6 +512,11 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 ALTER TABLE `x12_partners` DROP COLUMN `x12_version`;
 #EndIf
 
+#IfNotRow2D list_options list_id page_validation option_id add_edit_event#theform_prov
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES
+('page_validation', 'add_edit_event#theform_prov', '/interface/main/calendar/add_edit_event.php?prov=true', 170, '{}', 1);
+#EndIf
+
 #IfMissingColumn claims submitted_claim
 ALTER TABLE `claims` ADD COLUMN `submitted_claim` TEXT COMMENT 'This claims form claim data';
 #EndIf

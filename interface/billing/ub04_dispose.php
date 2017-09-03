@@ -142,17 +142,19 @@ function ub04Dispose($dispose = 'download', $htmlin = "", $filename = "ub04.pdf"
             $PdfCreator = new PdfCreator();
             $pdfwkout = $PdfCreator->getPdf($htmlin, $options);
 
-            $fh = @fopen($form_filename, 'w');
-            if ($fh) {
-                fwrite($fh, $pdfwkout);
-                fclose($fh);
-            }
+            /*
+             * $fh = @fopen($form_filename, 'w'); // Future Use!
+             * if ($fh) {
+             * fwrite($fh, $pdfwkout);
+             * fclose($fh);
+             * }
+             */
 
             header("Pragma: public");
             header("Expires: 0");
             header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
             header('Content-Type: application/pdf');
-            header("Content-Disposition: inline; filename=$filename");
+            header("Content-Disposition: download; filename=$filename");
             header("Content-Description: File Transfer");
             echo $pdfwkout;
         }
@@ -186,7 +188,7 @@ function exist_ub04_claim($pid, $encounter, $flag = false)
 
 function get_ub04_array($pid, $encounter, &$log = "")
 {
-    // @TODO Add better logging!
+
     $exist_ub04 = exist_ub04_claim($pid, $encounter);
     if ($exist_ub04) {
         $log .= "*** Info: Using saved edited claim.";
@@ -295,10 +297,10 @@ function get_ub04_array($pid, $encounter, &$log = "")
         $sdate = substr($tmp, 4, 2) . substr($tmp, 6, 2) . substr($tmp, 2, 2);
         $ub04id[$os] = $claim->procs[$mcnt][revenue_code]; // 42. REVENUE CODE, Line 1-23 */
         $ub04id[++ $os] = strtoupper($revcode2[$mcnt][code_text]); /* 43. REVENUE DESCRIPTION, Line 1-23 */
-        $ub04id[++ $os] = $revcode2[$mcnt][code]; /* 44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 1-23 */
+        $ub04id[++ $os] = trim($revcode2[$mcnt][code] . ' ' . $revcode2[$mcnt][modifier]); /* 44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 1-23 */
         $ub04id[++ $os] = $sdate; /* 45. SERVICE DATE, Line 1-23 */
         $ub04id[++ $os] = $revcode2[$mcnt][units]; /* 46. SERVICE UNITS, Line 1-23 */
-        $ub04id[++ $os] = str_replace('.', ' ', sprintf('%8.2f', $revcode2[$mcnt][fee])); /* 47. TOTAL CHARGES, Line 1-23 */
+        $ub04id[++ $os] = str_replace('.', '  ', sprintf('%8.2f', $revcode2[$mcnt][fee])); /* 47. TOTAL CHARGES, Line 1-23 */
         $ub04id[++ $os] = ''; /* 48. NON-COVERED CHARGES, Line 1-23 */
         $os += 2;
     }
@@ -306,7 +308,7 @@ function get_ub04_array($pid, $encounter, &$log = "")
     $ub04id[276] = '1'; /* 43. CLAIM PAGE NUMBER */
     $ub04id[277] = '1'; /* 43. TOTAL NUMBER OF CLAIM PAGES */
     $ub04id[278] = date('mdy', $today); /* 45. CREATION DATE, Line 23 */
-    $ub04id[279] = str_replace('.', ' ', sprintf('%8.2f', $clm_total_charges)); /* 47. TOTAL OF TOTAL CHARGES, Line 23 */
+    $ub04id[279] = str_replace('.', '  ', sprintf('%8.2f', $clm_total_charges)); /* 47. TOTAL OF TOTAL CHARGES, Line 23 */
     if (! $clm_total_charges) {
         $log .= "* Claim total is zero charges!\n";
     }
@@ -338,19 +340,26 @@ function get_ub04_array($pid, $encounter, &$log = "")
     $ub04id[369] = $diagnosis[2] ? substr($diagnosis[2], 0, 7) : ''; /* 70b. PATIENT'S REASON FOR VISIT */
     $ub04id[370] = $diagnosis[3] ? substr($diagnosis[3], 0, 7) : ''; /* 70c. PATIENT'S REASON FOR VISIT */
 
+    $payer_os = 0;
+    if (empty($claim->payerName(0))) {
+        $payer_os = 1;
+    }
     $ub04id[282] = $claim->facilityNPI(); /* 56. NATIONAL PROVIDER IDENTIFIER - BILLING PROVIDER */
-    $ub04id[283] = $claim->payerName(0); /* 50a. PRIMARY PAYER NAME */
-    $ub04id[284] = $claim->planName(0); /* 51a. PRIMARY PAYER HEALTH PLAN ID */
+    $ub04id[283] = $claim->payerName($payer_os); /* 50a. PRIMARY PAYER NAME */
+    $ub04id[284] = $claim->planName($payer_os); /* 51a. PRIMARY PAYER HEALTH PLAN ID */
     $ub04id[285] = 'Y'; /* 52a. RELEASE OF INFORMATION CERTIFICATION INDICATOR, PRIMARY PAYER */
     $tmp = $claim->billingFacilityAssignment() ? 'Y' : 'N';
     $ub04id[286] = $tmp; /* 53a. ASSIGNMENT OF BENEFITS CERTIFICATION INDICATOR, PRIMARY PAYER */
-    $ub04id[287] = ''; /* 54a. PRIMARY PAYER PRIOR PAYMENTS */
-    $ub04id[288] = ''; /* 55a. PRIMARY PAYER ESTIMATED AMOUNT DUE */
-    $ub04id[290] = $claim->payerName(1); /* 50b. SECONDARY PAYER NAME */
-    $ub04id[291] = $claim->planName(1); /* 51b. SECONDARY PAYER HEALTH PLAN ID */
-    $ub04id[292] = 'Y'; /* 52b. RELEASE OF INFORMATION CERTIFICATION INDICATOR, SECONDARY PAYER */
-    $tmp = (null !== $claim->payerName(1)) && $claim->billingFacilityAssignment() ? 'Y' : 'N';
-    $ub04id[293] = $tmp; /* 53b. ASSIGNMENT OF BENEFITS CERTIFICATION INDICATOR, SECONDARY PAYER */
+    //$ub04id[287] = ''; /* 54a. PRIMARY PAYER PRIOR PAYMENTS */
+    //$ub04id[288] = ''; /* 55a. PRIMARY PAYER ESTIMATED AMOUNT DUE */
+    if (!empty($claim->payerName($payer_os + 1))) {
+        $ub04id[290] = $claim->payerName($payer_os + 1); /* 50b. SECONDARY PAYER NAME */
+        $ub04id[291] = $claim->planName($payer_os + 1); /* 51b. SECONDARY PAYER HEALTH PLAN ID */
+        $ub04id[292] = 'Y'; /* 52b. RELEASE OF INFORMATION CERTIFICATION INDICATOR, SECONDARY PAYER */
+        $tmp = (null !== $claim->payerName($payer_os + 1)) && $claim->billingFacilityAssignment() ? 'Y' : 'N';
+        $ub04id[293] = $tmp; /* 53b. ASSIGNMENT OF BENEFITS CERTIFICATION INDICATOR, SECONDARY PAYER */
+    }
+
     if ($claim->insuredMiddleName()) {
         $tmp = $claim->insuredLastName() . ', ' . $claim->insuredFirstName() . ' ' . substr($claim->insuredMiddleName(), 0, 1);
     } else {
@@ -359,74 +368,8 @@ function get_ub04_array($pid, $encounter, &$log = "")
     $ub04id[304] = $tmp; /* 58a. INSURED'S NAME - PRIMARY PLAN */
     $ub04id[305] = $claim->insuredRelationship(); /* 59a. PATIENT'S RELATIONSHIP TO INSURED - PRIMARY PLAN */
     $ub04id[306] = $claim->policyNumber(); /* 60a. INSURED'S UNIQUE IDENTIFIER - PRIMARY PLAN */
-    $ub04id[307] = ''; /* 61a. INSURED'S GROUP NAME - PRIMARY PLAN */
+    $ub04id[307] = $claim->groupName(); /* 61a. INSURED'S GROUP NAME - PRIMARY PLAN */
     $ub04id[308] = $claim->groupNumber(); /* 62a. INSURANCE GROUP NUMBER - PRIMARY PLAN */
 
     return $ub04id;
-}
-
-/**
- * mPDF Generator
- *
- * @param
- *            String Html $content
- */
-function topdf($content)
-{
-    $pdf = new mPDF($GLOBALS['pdf_language'], $GLOBALS['pdf_size'], '8', 'times', 0, 0, 0, 0, '', '', $GLOBALS['pdf_layout']);
-    $pdf->setDefaultFont('timesnewroman');
-    $pdf->dpi = 110;
-    // $pdf->img_dpi = 600;
-
-    $pdf->writeHTML($content, false);
-
-    $pdfwkout = $pdf->Output($fn, "S");
-    $form_filename = $GLOBALS['OE_SITE_DIR'] . "/documents/temp/form.pdf";
-    $fh = @fopen($form_filename, 'w');
-    if ($fh) {
-        fwrite($fh, $pdfwkout);
-        fclose($fh);
-    }
-}
-
-/**
- * Generate Html
- *
- * @param array $ub04id
- * @param array $loc
- * @return string
- */
-function gen_ub04_template(&$ub04id, &$loc)
-{
-    $div = "";
-    $html = "<!DOCTYPE html ><html><body>";
-    $html .= '<div id="pg1" style="-webkit-user-select: none;">';
-    $html .= '<img src="' . $GLOBALS["images_static_relative"] . '/ub04.png" style="width:100%; height:1210px; position: relative; background:white; -moz-transform:scale(1); z-index: 0;" />';
-    $html .= '</div>';
-    foreach ($loc as $l) {
-        /*
-         * $mm = 0.264583333;
-         * $top = $l['top'] * $mm;// * 0.7217928902627512;
-         * $left = $l['left'] * $mm;//* 0.7217928902627512;
-         * $fld = $l['fld'];
-         * $max = $l['max'];
-         * $align = $l['align'];
-         * $w = substr($l['width'], 0,strpos($l['width'], "px")) * $mm; //$l['width'];
-         */
-        $top = $l['top'] . 'px';
-        $left = $l['left'] . 'px';
-        $fld = $l['fld'];
-        $max = $l['max'];
-        $align = $l['align'];
-        $w = $l['width'];
-        $data = $ub04id[$fld];
-
-        if ($data) {
-            // $w = (iconv_strlen($data, "UTF-8")*8) . 'px';
-            $div .= "<div style='z-index: 2; left: $left; top: $top; position: absolute; width: $w; height:15px; background: transparent;'>";
-            $div .= $ub04id[$fld] . "</div>\n";
-        }
-    }
-    $html .= $div . "</body></html>";
-    return $html;
 }

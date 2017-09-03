@@ -26,7 +26,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
     $claim = new Claim($pid, $encounter);
     $edicount = 0;
 
-    $log .= "Generating claim $pid-$encounter for " .
+    $log .= "Generating 837I claim $pid-$encounter for " .
     $claim->patientFirstName()  . ' ' .
     $claim->patientMiddleName() . ' ' .
     $claim->patientLastName()   . ' on ' .
@@ -105,8 +105,8 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
             "*TE" .
             "*" . $claim->billingContactPhone();
         $out .= "~\n";
-        ++$edicount;
 
+        ++$edicount;
 
         $out .= "NM1" .       // Loop 1000B Receiver stays in the 837I
             "*" . "40" .
@@ -829,18 +829,6 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
             $log .= "*** Referrer has no NPI.\n";
         }
         $out .= "~\n";
-
-        /* if (! $CMS_5010 && $claim->referrerTaxonomy()) {
-            ++ $edicount;
-            $out .= "PRV" . "*RF" . // ReFerring provider
-            "*ZZ" . "*" . $claim->referrerTaxonomy() . "~\n";
-        }
-
-        if (! CMS_5010 && $claim->referrerUPIN()) {
-            ++ $edicount;
-            $out .= "REF" . // Referring Provider Secondary Identification
-            "*1G" . "*" . $claim->referrerUPIN() . "~\n";
-        } */
     }
 
     // Loop 2310E, Supervising Provider
@@ -1004,15 +992,17 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
             $tmpcode = '1';
         }
         $getrevcd = $claim->cptCode($tlh);
-        $sql = "SELECT * FROM codes WHERE code_type = ? and code = ? ORDER BY related_code DESC";
+        $sql = "SELECT * FROM codes WHERE code_type = ? and code = ? ORDER BY revenue_code DESC";
         $revcode[$tlh] = sqlQuery($sql, array(
             $tmpcode,
             $getrevcd
         ));
     }
 
+
     for ($prockey = 0; $prockey < $proccount; ++ $prockey) {
         $os = 99 + ($loopcount * 8); // Form revenue code offset
+        $dosos = 102 + ($loopcount * 8); // Procedure date of service form start offset-add 8 for loop
         ++ $loopcount;
 
         ++ $edicount;
@@ -1039,10 +1029,6 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
             $log .= "*** Procedure '" . $claim->cptKey($prockey) . "' has no charges!\n";
         }
 
-        if (empty($dia)) {
-            $log .= "*** Procedure '" . $claim->cptKey($prockey) . "' is not justified!\n";
-        }
-
         // Segment SV5 (Durable Medical Equipment Service) omitted.
         // Segment PWK (Line Supplemental Information) omitted.
         // Segment PWK (Durable Medical Equipment Certificate of Medical Necessity Indicator) omitted.
@@ -1054,8 +1040,8 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
 
         ++ $edicount;
 
-        $out .= "DTP" . // Date of Service. Page 435.
-        "*" . "472" . "*" . "D8" . "*" . $claim->serviceDate() . "~\n";
+        $out .= "DTP" . // Date of Service. Needs to be when service preformed.
+            "*" . "472" . "*" . "D8" . "*" . $ub04id[$dosos] . "~\n"; //$claim->serviceDate()
 
         $testnote = rtrim($claim->cptNotecodes($prockey));
         if (! empty($testnote)) {
