@@ -91,7 +91,6 @@ while ( $lrow = sqlFetchArray( $lres ) ) {
 
 $chk_prov = array();  // list of providers with appointments
 // Scan appointments for additional info 
-// seems silly we are building this array twice?
 foreach ( $appointments as $apt ) {
   $chk_prov[$apt['uprovider_id']] = $apt['ulname'] . ', ' . $apt['ufname'] . ' ' . $apt['umname'];
 }
@@ -305,13 +304,21 @@ if (!$_REQUEST['flb_table']) {
                       </select>
 
                       <?php 
-                                        # Build a drop-down list of providers.
+                          // Build a drop-down list of ACTIVE providers.
                           $query = "SELECT id, lname, fname FROM users WHERE ".
                               "authorized = 1  and active = 1 ORDER BY lname, fname"; #(CHEMED) facility filter
                           $ures = sqlStatement($query);
-                          //a year ago @matrix-amiel Adding filters to flow board and counting of statuses  
-                          $count_provs = count(($ures));
-
+                          while ($urow = sqlFetchArray($ures)) {
+                            $provid = $urow['id'];
+                            $select_provs .= "    <option value='" . attr($provid) . "'";
+                            if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']){
+                                $select_provs .= " selected";
+                            } elseif(!isset($_POST['form_provider'])&& $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']){
+                                $select_provs .= " selected";
+                            }
+                            $select_provs .= ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
+                            $count_provs++;
+                          }
                         ?>
 
                       <select class="form-group" id="form_provider" name="form_provider" <?php 
@@ -322,21 +329,7 @@ if (!$_REQUEST['flb_table']) {
                         <option value="" selected><?php echo xlt( 'All Providers' ); ?></option>
 
                         <?php 
-                          // Build a drop-down list of ACTIVE providers.
-                          $query = "SELECT id, lname, fname FROM users WHERE ".
-                              "authorized = 1  and active = 1 ORDER BY lname, fname"; #(CHEMED) facility filter
-                          $ures = sqlStatement($query);
-                          //a year ago @matrix-amiel Adding filters to flow board and counting of statuses  
-                          while ($urow = sqlFetchArray($ures)) {
-                              $provid = $urow['id'];
-                              echo "    <option value='" . attr($provid) . "'";
-                              if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']){
-                                  echo " selected";
-                              } elseif(!isset($_POST['form_provider'])&& $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']){
-                                  echo " selected";
-                              }
-                              echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
-                          }
+                         echo $select_provs;
                         ?>
                       </select>
                       <input placeholder="<?php echo xla('Patient ID'); ?>"  style="max-width:200px;margin:3px auto;" class="form-control input-sm" type="text" id="form_patient_id" name="form_patient_id" 
@@ -639,9 +632,6 @@ if (!$_REQUEST['flb_table']) {
                   }
 
                   // Collect variables and do some processing
-                  $chk_prov = array();  // list of providers with appointments
-
-                  $chk_prov[$appointment['uprovider_id']] = $appointment['ulname'] . ', ' . $appointment['ufname'] . ' ' . $appointment['umname'];
                   $docname  = $chk_prov[$appointment['uprovider_id']];
                   if ( strlen( $docname )<= 3 ) continue;
                   $ptname = $appointment['lname'] . ', ' . $appointment['fname'] . ' ' . $appointment['mname'];
@@ -988,7 +978,7 @@ function myLocalJS() {
         if ((apptcatV === '') || (apptcatV == d.apptcat)) { meets_cat=true; } else { meets_cat=false;};
         if ((apptstatV === '') || (apptstatV == d.apptstatus)) { meets_stat=true; } else { meets_stat=false; }
         if ((facV === '') || (facV == d.facility)) { meets_fac=true; } else { meets_fac=false; }
-        if ((provV === '') || (provV = d.provider)) { meets_prov=true; } else { meets_prov=false; }
+        if ((provV === '') || (provV == d.provider)) { meets_prov=true; } else { meets_prov=false; }
         if ((pidV === '')) { meets_pid=true; } else { meets_pid=false; }
         if ((pidV > '')&&pidRE.test(d.pid)) { meets_pid=true; }
         if ((pnameV === '')) { meets_pname=true; } else { meets_pname=false; }
