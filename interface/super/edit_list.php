@@ -33,6 +33,7 @@ use OpenEMR\Core\Header;
 
 // Below allows the list to default to the first item on the list
 //   when list_id is blank.
+$blank_list_id = '';
 if (empty($_REQUEST['list_id'])) {
     $list_id = 'language';
     $blank_list_id = true;
