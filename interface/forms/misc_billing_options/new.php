@@ -67,7 +67,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
     </script>
   </head>
   <body class="body_top">
-    <form method="post" <?php echo "name='my_form' " . "action='$rootdir/forms/misc_billing_options/save.php?id=" . attr($formid) . "'>\n";?>
+    <form method="post" <?php echo "name='my_form' " . "action='$rootdir/forms/misc_billing_options/save.php?id=" . attr($formid) . "'\n";?>>
       <h4><?php echo xlt('Miscellaneous Billing Options for HCFA-1500'); ?></h4>
       <label for="box10a"><?php echo xlt('Box 10. a. Employment related:'); ?></label>
       <input type="checkbox" name="employment_related" id="box10a" value="1" <?php if ($obj['employment_related'] == "1") {
