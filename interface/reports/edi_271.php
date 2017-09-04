@@ -74,7 +74,7 @@ if (isset($_FILES) && !empty($_FILES)) {
                     }
                 } else {
                     foreach ($DataSegment271[$i] as $datastrings) {
-                        $Segments271[$j] = explode("*", $datastrings);
+                        $Segments271[$j] = explode("~", $datastrings);
 
                         $segment         = $Segments271[$j][0];
 
