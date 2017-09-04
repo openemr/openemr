@@ -516,3 +516,16 @@ ALTER TABLE `x12_partners` DROP COLUMN `x12_version`;
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES
 ('page_validation', 'add_edit_event#theform_prov', '/interface/main/calendar/add_edit_event.php?prov=true', 170, '{}', 1);
 #EndIf
+
+#IfMissingColumn claims submitted_claim
+ALTER TABLE `claims` ADD COLUMN `submitted_claim` TEXT COMMENT 'This claims form claim data';
+#EndIf
+
+#IfMissingColumn billing revenue_code
+ALTER TABLE `billing` ADD COLUMN `revenue_code` varchar(6) NOT NULL DEFAULT "" COMMENT 'Item revenue code';
+#EndIf
+
+#IfMissingColumn codes revenue_code
+ALTER TABLE `codes` ADD COLUMN `revenue_code` varchar(6) NOT NULL DEFAULT "" COMMENT 'Item revenue code';
+#EndIf
+

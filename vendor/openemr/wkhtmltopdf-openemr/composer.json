@@ -1,0 +1,28 @@
+{
+  "name": "openemr/wkhtmltopdf-openemr",
+  "description": "Convert html to pdf using webkit (qtwebkit). Static linked binary for 32 bit and 64 bit systems.",
+  "keywords": [
+    "pdf",
+    "wkhtmltopdf",
+    "convert",
+    "binary",
+    "htmltopdf"
+  ],
+  "license": "LGPL Version 3",
+  "homepage": "http://wkhtmltopdf.org/",
+  "authors": [
+    {
+      "name": "OpenEMR Group",
+      "email": "",
+      "homepage": ""
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/openemr/wkhtmltopdf-openemr/issues"
+  },
+  "minimum-stability": "stable",
+  "require": {
+  },
+  "suggest": {
+  }
+}
