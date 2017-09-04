@@ -33,8 +33,7 @@
         "symfony/yaml" : "2.8.*",
         "phpoffice/phpexcel" : "1.8.1",
         "ezyang/htmlpurifier" : "4.9.3",
-        "knplabs/knp-snappy" : "^0.5.0",
-        "openemr/wkhtmltopdf-openemr" : "0.12.4.1"
+        "knplabs/knp-snappy" : "^0.5.0"
     },
     "require-dev" : {
         "phing/phing" : "2.14.0",
