@@ -332,7 +332,7 @@ if ($fend > $count) {
  </tr>
 </table>
 
-<div id="searchResultsHeader">
+<div id="searchResultsHeader" class="head">
 <table>
 <tr>
 <th class="srName"><?php echo htmlspecialchars(xl('Name'), ENT_NOQUOTES);?></th>

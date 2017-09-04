@@ -347,8 +347,8 @@ $('.datepicker').datetimepicker({
 <table border='0' cellspacing='5' cellpadding='1'>
 
 <tr>
-<td valign='top' class='dehead' nowrap>
-<?php xl('Rows', 'e'); ?>:
+<td valign='top' nowrap>
+<span class='dehead'  style="padding: 0px 5px "><?php xl('Rows', 'e'); ?>:</span>
 </td>
 <td valign='top' class='detail'>
  <select name='form_by' title='Left column of report'>
@@ -411,8 +411,8 @@ foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Onl
 </td>
 </tr>
 <tr>
-<td valign='top' class='dehead' nowrap>
-<?php xl('Columns', 'e'); ?>:
+<td valign='top' nowrap>
+<span class='dehead'  style="padding: 0px 5px "><?php xl('Columns','e'); ?>:</span>
 </td>
 <td valign='top' class='detail'>
  <select name='form_show[]' size='4' multiple
@@ -436,8 +436,8 @@ foreach ($arr_show as $key => $value) {
 </td>
 </tr>
 <tr>
-<td valign='top' class='dehead' nowrap>
-<?php xl('To', 'e'); ?>:
+<td valign='top'  nowrap>
+   <span class='dehead'  style="padding: 0px 5px "><?php xl('To','e'); ?>:</span>
 </td>
 <td colspan='3' valign='top' class='detail' nowrap>
 <?php
