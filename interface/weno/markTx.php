@@ -18,12 +18,11 @@ $e_script = explode("-", $script);
 if ($e_script[0] === "NewRx") {
     //See if the value is set
     $check = "SELECT ntx FROM prescriptions WHERE id = ?";
-    $getVal = sqlStatement($check, array($e_script[1]));
-    $val = sqlFetchArray($getVal);
-    
+    $getVal = sqlQuery($check, array($e_script[1]));
+
     //If the value is not set to 1 then set it for new rx to transmit
     // ToDo add transmit date
-    if (empty($val['ntx'])) {
+    if (empty($getVal['ntx'])) {
         $sql = "UPDATE prescriptions SET ntx = '1', txDate = ? WHERE id = ?";
         sqlStatement($sql, array($date, $e_script[1]));
     }

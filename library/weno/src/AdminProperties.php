@@ -30,7 +30,7 @@ class AdminProperties
 
         sqlInsert($sqlNarc);
 
-          return "Narcotic drugs imported<br>";
+          return xlt("Narcotic drugs imported");
     }//end of create tables
 
     public function drugTableInfo()

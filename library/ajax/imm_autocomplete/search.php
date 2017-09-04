@@ -31,7 +31,6 @@ if (!empty($_GET['term'])) {
     while ($row = sqlFetchArray($res)) {
         $return_arr[] =  $row['lot_number'] ;
     }
-
     /* Toss back results as json encoded array. */
     echo json_encode($return_arr);
 }

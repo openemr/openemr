@@ -35,6 +35,8 @@ select{
 <script type="text/javascript" src="{$WEBROOT}/library/js/jquery.bgiframe.min.js"></script>
 <script type="text/javascript" src="{$WEBROOT}/library/js/jquery.dimensions.pack.js"></script>
 <script type="text/javascript" src="{$WEBROOT}/library/js/jquery.autocomplete.pack.js"></script>
+<script type="text/javascript" src="{php} echo $GLOBALS['assets_static_relative']; {/php}/jquery-min-1-9-1/index.js"></script>
+<script type="text/javascript" src="{php} echo $GLOBALS['assets_static_relative']; {/php}/jquery-ui-1-12-1/jquery-ui.js"></script>
 
 {literal}
 <script language='JavaScript'>
@@ -265,22 +267,17 @@ select{
 {$ENDING_JAVASCRIPT}
 </script>
 </form>
-<!-- Has to be loaded after the form -->
-<script type="text/javascript" src="{php} echo $GLOBALS['assets_static_relative']; {/php}/jquery-min-1-9-1/index.js"></script>
-<script type="text/javascript" src="{php} echo $GLOBALS['assets_static_relative']; {/php}/jquery-ui-1-12-1/jquery-ui.js"></script>
 
 {literal}
 <!-- for the fancy jQuery stuff -->
 <script type="text/javascript">
 
 $(function() {
-    
     //Drug form autocomplete to text box.
     $(".wDrug").autocomplete({
         source: "library/ajax/drug_autocomplete/search.php",
         minLength: 3
-    });                
-
+    });
 });
 
 function submitfun() {
