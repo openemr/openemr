@@ -1,4 +1,5 @@
 @import "core.css";
+@import "oemr-bs3-override.css";
 
 /* This file is only used as a style sheet for */
 /*   lone scripts such as setup.php */
