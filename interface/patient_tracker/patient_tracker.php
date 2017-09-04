@@ -876,7 +876,7 @@ function myLocalJS() {
   <script type="text/javascript">
     var auto_refresh =null;
     //this can be refined to redact HIPAA material using @media print options.
-    window.parent.$("[name='lst']").attr('allowFullscreen','true');
+    window.parent.$("[name='flb']").attr('allowFullscreen','true');
 
     function kiosk_FLB() {
       var i = document.getElementById("flb_table");
@@ -978,7 +978,7 @@ function myLocalJS() {
         if ((apptcatV === '') || (apptcatV == d.apptcat)) { meets_cat=true; } else { meets_cat=false;};
         if ((apptstatV === '') || (apptstatV == d.apptstatus)) { meets_stat=true; } else { meets_stat=false; }
         if ((facV === '') || (facV == d.facility)) { meets_fac=true; } else { meets_fac=false; }
-        if ((provV === '') || (provV == d.provider)) { meets_prov=true; } else { meets_prov=false; }
+        if ((provV === '') || (provV = d.provider)) { meets_prov=true; } else { meets_prov=false; }
         if ((pidV === '')) { meets_pid=true; } else { meets_pid=false; }
         if ((pidV > '')&&pidRE.test(d.pid)) { meets_pid=true; }
         if ((pnameV === '')) { meets_pname=true; } else { meets_pname=false; }
