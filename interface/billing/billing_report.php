@@ -409,8 +409,12 @@ if ($daysheet) {
         xl("X12 Partner"),
         xl("User")
     );
-    $ThisPageSearchCriteriaKeyMaster = "form_encounter.date,billing.date,claims.process_time,claims.target,patient_data.fname," . "form_encounter.pid,claims.payer_id,form_encounter.encounter,insurance_data.provider,billing.id,billing.billed," . "billing.authorized,form_encounter.last_level_billed,billing.x12_partner_id,billing.user";
-    $ThisPageSearchCriteriaDataTypeMaster = "datetime,datetime,datetime,radio,text_like," . "text,include,text,radio,radio,radio," . "radio_like,radio,query_drop_down,text";
+    $ThisPageSearchCriteriaKeyMaster = "form_encounter.date,billing.date,claims.process_time,claims.target,patient_data.fname," .
+        "form_encounter.pid,claims.payer_id,form_encounter.encounter,insurance_data.provider,billing.id,billing.billed," .
+        "billing.authorized,form_encounter.last_level_billed,billing.x12_partner_id,billing.user";
+    $ThisPageSearchCriteriaDataTypeMaster = "datetime,datetime,datetime,radio,text_like," .
+        "text,include,text,radio,radio,radio," .
+        "radio_like,radio,query_drop_down,text";
 } else {
     $ThisPageSearchCriteriaDisplayMaster = array(
         xl("Date of Service"),
@@ -428,8 +432,12 @@ if ($daysheet) {
         xl("Last Level Billed"),
         xl("X12 Partner")
     );
-    $ThisPageSearchCriteriaKeyMaster = "form_encounter.date,billing.date,claims.process_time,claims.target,patient_data.fname," . "form_encounter.pid,claims.payer_id,form_encounter.encounter,insurance_data.provider,billing.id,billing.billed," . "billing.authorized,form_encounter.last_level_billed,billing.x12_partner_id";
-    $ThisPageSearchCriteriaDataTypeMaster = "datetime,datetime,datetime,radio,text_like," . "text,include,text,radio,radio,radio," . "radio_like,radio,query_drop_down";
+    $ThisPageSearchCriteriaKeyMaster = "form_encounter.date,billing.date,claims.process_time,claims.target,patient_data.fname," .
+        "form_encounter.pid,claims.payer_id,form_encounter.encounter,insurance_data.provider,billing.id,billing.billed," .
+        "billing.authorized,form_encounter.last_level_billed,billing.x12_partner_id";
+    $ThisPageSearchCriteriaDataTypeMaster = "datetime,datetime,datetime,radio,text_like," .
+        "text,include,text,radio,radio,radio," .
+        "radio_like,radio,query_drop_down";
 }
 // The below section is needed if there is any 'radio' or 'radio_like' type in the $ThisPageSearchCriteriaDataTypeMaster
 // $ThisPageSearchCriteriaDisplayRadioMaster,$ThisPageSearchCriteriaRadioKeyMaster ==>For each radio data type this pair comes.
@@ -736,7 +744,10 @@ if ($ret = getBillsBetween("%")) {
         // if it had no selected billing items but does have non-selected
         // billing items, then it is not of interest.
         if (! $iter['id']) {
-            $res = sqlQuery("SELECT count(*) AS count FROM billing WHERE " . "encounter = ? AND " . "pid=? AND " . "activity = 1", array(
+            $res = sqlQuery("SELECT count(*) AS count FROM billing WHERE " .
+                "encounter = ? AND " .
+                "pid=? AND " .
+                "activity = 1", array(
                 $iter['enc_encounter'],
                 $iter['enc_pid']
             ));
@@ -779,7 +790,10 @@ if ($ret = getBillsBetween("%")) {
             //
             $skipping = false;
             if ($my_authorized == '1') {
-                $res = sqlQuery("select count(*) as count from billing where " . "encounter = ? and " . "pid=? and " . "activity = 1 and authorized = 0", array(
+                $res = sqlQuery("select count(*) as count from billing where " .
+                    "encounter = ? and " .
+                    "pid=? and " .
+                    "activity = 1 and authorized = 0", array(
                     $iter['enc_encounter'],
                     $iter['enc_pid']
                 ));
@@ -796,7 +810,11 @@ if ($ret = getBillsBetween("%")) {
             // If not we will highlight their name in red.
             // TBD: more checking here.
             //
-            $res = sqlQuery("select count(*) as count from insurance_data where " . "pid = ? and " . "type='primary' and " . "subscriber_lname is not null and " . "subscriber_lname != '' limit 1", array(
+            $res = sqlQuery("select count(*) as count from insurance_data where " .
+                "pid = ? and " .
+                "type='primary' and " .
+                "subscriber_lname is not null and " .
+                "subscriber_lname != '' limit 1", array(
                 $iter['enc_pid']
             ));
             $namecolor = ($res['count'] > 0) ? "black" : "#ff7777";
@@ -814,7 +832,8 @@ if ($ret = getBillsBetween("%")) {
             $lhtml .= "&nbsp;<span class=bold><font color='$namecolor'>" . text($ptname) . "</font></span><span class=small>&nbsp;(" . text($iter['enc_pid']) . "-" . text($iter['enc_encounter']) . ")</span>";
 
             // Encounter details are stored to javacript as array.
-            $result4 = sqlStatement("SELECT fe.encounter,fe.date,fe.billing_note,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " . " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array(
+            $result4 = sqlStatement("SELECT fe.encounter,fe.date,fe.billing_note,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
+                " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array(
                 $iter['enc_pid']
             ));
             if (sqlNumRows($result4) > 0) {
@@ -849,7 +868,10 @@ if ($ret = getBillsBetween("%")) {
             $lhtml .= "&nbsp;<a class=\"btn btn-xs btn-default\" role=\"button\" " . "href=\"javascript:window.topatient(" . $iter['enc_pid'] . ",'" . addslashes($name['pubpid']) . "','" . addslashes($ptname) . "'," . $iter['enc_encounter'] . ",'" . oeFormatShortDate($raw_encounter_date) . "',' " . xl('DOB') . ": " . oeFormatShortDate($name['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAge($name['DOB_YMD']) . "');
                  top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . $iter['enc_pid'] . "],EncounterDateArray[" . $iter['enc_pid'] . "], CalendarCategoryArray[" . $iter['enc_pid'] . "])\">" . xlt('Patient') . "</a>";
             if ($ub04_support && isset($iter['billed'])) {
-                $c = sqlQuery("SELECT submitted_claim AS status FROM claims WHERE " . "encounter_id = ? AND " . "patient_id=? " . "ORDER BY version DESC LIMIT 1", array(
+                $c = sqlQuery("SELECT submitted_claim AS status FROM claims WHERE " .
+                    "encounter_id = ? AND " .
+                    "patient_id=? " .
+                    "ORDER BY version DESC LIMIT 1", array(
                     $iter['enc_encounter'],
                     $iter['enc_pid']
                 ));
@@ -869,7 +891,13 @@ if ($ret = getBillsBetween("%")) {
                 $lhtml .= "&nbsp;<span class=text>Bill: ";
                 $lhtml .= "<select name='claims[" . attr($this_encounter_id) . "][payer]' style='background-color:$bgcolor'>";
 
-                $query = "SELECT id.provider AS id, id.type, id.date, " . "ic.x12_default_partner_id AS ic_x12id, ic.name AS provider " . "FROM insurance_data AS id, insurance_companies AS ic WHERE " . "ic.id = id.provider AND " . "id.pid = ? AND " . "id.date <= ? " . "ORDER BY id.type ASC, id.date DESC";
+                $query = "SELECT id.provider AS id, id.type, id.date, " .
+                    "ic.x12_default_partner_id AS ic_x12id, ic.name AS provider " .
+                    "FROM insurance_data AS id, insurance_companies AS ic WHERE " .
+                    "ic.id = id.provider AND " .
+                    "id.pid = ? AND " .
+                    "id.date <= ? " .
+                    "ORDER BY id.type ASC, id.date DESC";
 
                 $result = sqlStatement($query, array(
                     $iter['enc_pid'],
@@ -928,7 +956,13 @@ if ($ret = getBillsBetween("%")) {
                 $lastcrow = false;
 
                 while ($crow = sqlFetchArray($cres)) {
-                    $query = "SELECT id.type, ic.name " . "FROM insurance_data AS id, insurance_companies AS ic WHERE " . "id.pid = ? AND " . "id.provider = ? AND " . "id.date <= ? AND " . "ic.id = id.provider " . "ORDER BY id.type ASC, id.date DESC";
+                    $query = "SELECT id.type, ic.name " .
+                        "FROM insurance_data AS id, insurance_companies AS ic WHERE " .
+                        "id.pid = ? AND " .
+                        "id.provider = ? AND " .
+                        "id.date <= ? AND " .
+                        "ic.id = id.provider " .
+                        "ORDER BY id.type ASC, id.date DESC";
 
                     $irow = sqlQuery($query, array(
                         $iter['enc_pid'],
@@ -1078,7 +1112,8 @@ if ($ret = getBillsBetween("%")) {
         if ($last_encounter_id != $this_encounter_id) {
             $rhtml2 = "";
             $rowcnt = 0;
-            $resMoneyGot = sqlStatement("SELECT pay_amount as PatientPay,date(post_time) as date FROM ar_activity where " . "pid = ? and encounter = ? and payer_type=0 and account_code='PCP'", array(
+            $resMoneyGot = sqlStatement("SELECT pay_amount as PatientPay,date(post_time) as date FROM ar_activity where " .
+                "pid = ? and encounter = ? and payer_type=0 and account_code='PCP'", array(
                 $iter['enc_pid'],
                 $iter['enc_encounter']
             ));
