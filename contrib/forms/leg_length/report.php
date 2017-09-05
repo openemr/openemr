@@ -24,33 +24,6 @@ function leg_length_report($pid, $encounter, $cols, $id)
             <td>
                 <palign="justify">&nbsp;</p>
 
-
-			</td>
-			<td>
-				<p><b>RIGHT</b></p>
-			</td>
-			<td>
-				<p><b>LEFT</b></p>
-			</td>
-		</tr>
-
-		<tr valign="top">
-			<td>
-				<p><b>AE</b></p>
-			</td>
-			<td>
-				<p><?php echo $data["AE_left"]?>&nbsp;</p>
-			</td>
-			<td>
-				<p><?php echo $data["AE_right"]?>&nbsp;</p>
-			</td>
-		</tr>
-		<tr valign="top">
-			<td>
-				<p><b>BE</b></p>
-			</td>
-			<td>
-
             </td>
             <td>
                 <p><b>RIGHT</b></p>
@@ -77,7 +50,6 @@ function leg_length_report($pid, $encounter, $cols, $id)
             </td>
             <td>
 
-
                 <p><?php echo $data["BE_left"]?>&nbsp;</p>
             </td>
             <td>
@@ -86,33 +58,6 @@ function leg_length_report($pid, $encounter, $cols, $id)
         </tr>
         <tr valign="top">
             <td width="40" height="3">
-
-
-				<p><b>AK</b></p>
-			</td>
-			<td>
-				<p><?php echo $data["AK_left"]?>&nbsp;</p>
-			</td>
-			<td>
-				<p><?php echo $data["AK_right"]?>&nbsp;</p>
-
-			</td>
-		</tr>
-		<tr valign="top">
-			<td>
-				<p><b>K</b></p>
-			</td>
-			<td>
-				<p><?php echo $data["K_left"]?>&nbsp;</p>
-
-			</td>
-			<td>
-				<p><?php echo $data["K_right"]?>&nbsp;</p>
-			</td>
-		</tr>
-		<tr valign="top">
-			<td>
-				<p><b>BK</b></p>
 
                 <p><b>AK</b></p>
             </td>
@@ -140,7 +85,6 @@ function leg_length_report($pid, $encounter, $cols, $id)
             <td>
                 <p><b>BK</b></p>
 
-
             </td>
             <td>
                 <p><?php echo $data["BK_left"]?>&nbsp;</p>
@@ -149,25 +93,6 @@ function leg_length_report($pid, $encounter, $cols, $id)
                 <p><?php echo $data["BK_right"]?>&nbsp;</p>
             </td>
         </tr>
-
-
-		<tr valign="top">
-			<td>
-				<p><b>ASIS</b></p>
-			</td>
-			<td>
-				<p><?php echo $data["ASIS_left"]?>&nbsp;</p>
-			</td>
-			<td>
-
-				<p><?php echo $data["ASIS_right"]?>&nbsp;</p>
-			</td>
-		</tr>
-		<tr valign="top">
-			<td width="40">
-				<p><b>UMB</b></p>
-			</td>
-			<td>
 
         <tr valign="top">
             <td>
@@ -186,7 +111,6 @@ function leg_length_report($pid, $encounter, $cols, $id)
                 <p><b>UMB</b></p>
             </td>
             <td>
-
 
                 <p><?php echo $data["UMB_left"]?>&nbsp;</p>
             </td>
