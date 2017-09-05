@@ -161,30 +161,6 @@ function edih_upload_sftp()
 
 /* ** add this function to edih_io.php */
 function edih_disp_sftp_upload() {
-
-	// sftp file upload
-	// imaginary form and POST values
-	$str_html = '';
-	if (isset($_POST['post_sftp'])) {
-	$la = (isset($_POST['post_sftp'])) ? filter_input(INPUT_POST, 'post_sftp', FILTER_SANITIZE_STRING)  : ;
-	$x12ptnr = (isset($_POST['sftp_select'])) ? filter_input(INPUT_POST, 'sftp_select', FILTER_SANITIZE_STRING) :;
-	// 
-	if (($la == 'get_sftp') && $x12ptnr) {
-		// yet to be written -- gets x12 partner info and does sftp download
-		$is_sftp = edih_sftp_connect($x12ptnr);
-		//
-		$f_array = ($is_sftp) ? edih_upload_sftp() : false; 
-		if ( is_array($f_array) && count($f_array) ) {
-			$str_html .= edih_sort_upload($f_array);
-		} else {
-			$str_html .= "sftp connection did not get any files <br />".PHP_EOL;
-		}
-	} else {
-		$str_html .= "sftp file transfer invalid input <br />" . PHP_EOL;
-	}
-	//
-	return $str_html;
-
     // sftp file upload
     // imaginary form and POST values
     $str_html = '';
@@ -208,7 +184,6 @@ if (isset($_POST['post_sftp'])) {
 
     //
     return $str_html;
-
 }
 
 /* ** edih_view.php needs a form to give user control over sftp uploads */
