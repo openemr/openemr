@@ -142,8 +142,8 @@ class ONoteRepository extends EntityRepository
     public function findAllHqlExample()
     {
         // $sql  = "SELECT o ";
-        // $sql .= "FROM entities\\ONote o ";
-        // $sql .= "JOIN entities\\User u ";
+        // $sql .= "FROM ONote o ";
+        // $sql .= "JOIN User u ";
         // $sql .= "WITH o.user = u.username";
 
         // return $this->_em->createQuery($sql)->getResult();

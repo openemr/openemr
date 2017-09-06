@@ -21,6 +21,8 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Entities\ProductRegistration;
+
 require_once($GLOBALS['fileroot'] . "/interface/main/exceptions/invalid_email_exception.php");
 require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/generic_product_registration_exception.php");
 require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/duplicate_registration_exception.php");
@@ -65,7 +67,7 @@ class ProductRegistrationService
         }
 
         if (empty($row)) {
-            $row = new \entities\ProductRegistration();
+            $row = new ProductRegistration();
             $row->setStatusAsString('UNREGISTERED');
         } else if ($id !== 'null') {
             $row->setStatusAsString('REGISTERED');
@@ -104,7 +106,7 @@ class ProductRegistrationService
             case 201:
                 $responseBodyParsed = json_decode($responseBodyRaw);
 
-                $entry = new \entities\ProductRegistration();
+                $entry = new ProductRegistration();
                 $entry->setRegistrationId($responseBodyParsed->productId);
                 $entry->setEmail($email);
                 $entry->setOptOut(false);
@@ -129,7 +131,7 @@ class ProductRegistrationService
     private function optOutStrategy()
     {
         $this->logger->debug('Attempting to opt out of product registration');
-        $entry = new \entities\ProductRegistration();
+        $entry = new ProductRegistration();
         $entry->setRegistrationId('null');
         $entry->setEmail(null);
         $entry->setOptOut(true);
