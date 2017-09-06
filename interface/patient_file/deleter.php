@@ -355,7 +355,7 @@ if ($_POST['form_submit']) {
                     "payer_id = 0 AND " .
                     "reference = '" . add_escape_custom($payrow['source']) . "' AND " .
                     "pay_total = '" . add_escape_custom($tpmt) . "' AND " .
-                    "(SELECT COUNT(*) FROM ar_activity where ar_activity.session_id = ar_session.session_id) = 0 " .
+                    "(SELECT COUNT(*) FROM ar_activity where ar_activity.session_id = ar_session.session_id) " .
                     "ORDER BY session_id DESC LIMIT 1"
                 );
             }
