@@ -1431,6 +1431,18 @@
               "patients",
               "med"
             ]
+          },
+          {
+            "label": "Dictation Review",
+            "menu_id": "rep0",
+            "target": "rep",
+            "url": "/interface/reports/dictation_review.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "patients",
+              "med"
+            ]
           }
         ],
         "requirement": 0
