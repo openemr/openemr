@@ -11,7 +11,7 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace entities;
+namespace OpenEMR\Entities;
 
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Table;
@@ -23,7 +23,7 @@ use Doctrine\ORM\Mapping\GeneratedValue;
 
 /**
  * @Table(name="users")
- * @Entity(repositoryClass="repositories\UserRepository")
+ * @Entity(repositoryClass="OpenEMR\Repositories\UserRepository")
  */
 class User
 {

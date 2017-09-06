@@ -20,9 +20,9 @@
  * @link    http://www.openmedpractice.com
  */
 
-namespace repositories;
+namespace OpenEMR\Repositories;
 
-use entities\ProductRegistration;
+use OpenEMR\Entities\ProductRegistration;
 use Doctrine\ORM\EntityRepository;
 
 class ProductRegistrationRepository extends EntityRepository
@@ -48,7 +48,7 @@ class ProductRegistrationRepository extends EntityRepository
      * @param $registration registration information.
      * @return the id.
      */
-    public function save(\entities\ProductRegistration $entry)
+    public function save(ProductRegistration $entry)
     {
         $this->_em->persist($entry);
         $this->_em->flush();

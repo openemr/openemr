@@ -6,9 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'repositories\\' => array($baseDir . '/repositories'),
     'phpseclib\\' => array($vendorDir . '/phpseclib/phpseclib/phpseclib'),
-    'entities\\' => array($baseDir . '/entities'),
     'common\\utils\\' => array($baseDir . '/common/utils'),
     'common\\logging\\' => array($baseDir . '/common/logging'),
     'common\\http\\' => array($baseDir . '/common/http'),
@@ -30,9 +28,11 @@ return array(
     'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),
     'OpenEMR\\Services\\' => array($baseDir . '/services'),
     'OpenEMR\\Sample\\' => array($baseDir . '/library/sample/src'),
+    'OpenEMR\\Repositories\\' => array($baseDir . '/repositories'),
     'OpenEMR\\Reminder\\' => array($baseDir . '/library/reminder/src'),
     'OpenEMR\\Pdf\\' => array($baseDir . '/library/pdf/src'),
     'OpenEMR\\Menu\\' => array($baseDir . '/library/menu/src'),
+    'OpenEMR\\Entities\\' => array($baseDir . '/entities'),
     'OpenEMR\\Encounter\\Services\\' => array($baseDir . '/interface/patient_file/encounter/Services'),
     'OpenEMR\\Core\\' => array($baseDir . '/library/core/src'),
     'OpenEMR\\Calendar\\' => array($baseDir . '/library/calendar/src'),

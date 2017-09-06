@@ -20,10 +20,10 @@
  * @link    http://www.open-emr.org
  */
 
-namespace repositories;
+namespace OpenEMR\Repositories;
 
-use entities\Version;
 use Doctrine\ORM\EntityRepository;
+use OpenEMR\Entities\Version;
 
 class VersionRepository extends EntityRepository
 {

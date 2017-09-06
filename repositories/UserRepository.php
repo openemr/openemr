@@ -21,7 +21,7 @@
  * @link    http://www.open-emr.org
  */
 
-namespace repositories;
+namespace OpenEMR\Repositories;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\Common\Collections\Criteria;

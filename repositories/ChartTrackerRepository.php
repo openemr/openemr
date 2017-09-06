@@ -20,9 +20,9 @@
  * @link    http://www.open-emr.org
  */
 
-namespace repositories;
+namespace OpenEMR\Repositories;
 
-use entities\ChartTracker;
+use OpenEMR\Entities\ChartTracker;
 use Doctrine\ORM\EntityRepository;
 
 class ChartTrackerRepository extends EntityRepository
@@ -34,7 +34,7 @@ class ChartTrackerRepository extends EntityRepository
      * @param $tracker chart tracker information.
      * @return the pid.
      */
-    public function save(\entities\ChartTracker $chartTracker)
+    public function save(ChartTracker $chartTracker)
     {
         $this->_em->persist($chartTracker);
         $this->_em->flush();

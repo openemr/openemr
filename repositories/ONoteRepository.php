@@ -20,9 +20,10 @@
  * @link    http://www.open-emr.org
  */
 
-namespace repositories;
+namespace OpenEMR\Repositories;
 
 use Doctrine\ORM\EntityRepository;
+use OpenEMR\Entities\ONote;
 
 class ONoteRepository extends EntityRepository
 {
@@ -32,7 +33,7 @@ class ONoteRepository extends EntityRepository
      * @param $note The new office note.
      * @return the new id.
      */
-    public function save(\entities\ONote $note)
+    public function save(ONote $note)
     {
         $this->_em->persist($note);
         $this->_em->flush();
@@ -141,8 +142,8 @@ class ONoteRepository extends EntityRepository
     public function findAllHqlExample()
     {
         // $sql  = "SELECT o ";
-        // $sql .= "FROM entities\\ONote o ";
-        // $sql .= "JOIN entities\\User u ";
+        // $sql .= "FROM ONote o ";
+        // $sql .= "JOIN User u ";
         // $sql .= "WITH o.user = u.username";
 
         // return $this->_em->createQuery($sql)->getResult();
