@@ -350,7 +350,7 @@ if (!$_REQUEST['flb_table']) {
                           <tr style="<?php echo $style; ?>">
                             <td class="text-right" style="vertical-align:bottom;<?php echo $style; ?>">
                               <label for="flow_from"><?php echo xlt('From'); ?>:</label></td><td>
-                              <input type="date" id="datepicker1" name="datepicker1"
+                              <input type="text" id="datepicker1" name="datepicker1"
                                     data-format="<?php echo $date_format; ?>"
                                     class="form-control datepicker input-sm text-center" value="<?php echo attr( $disp_from_date ); ?>" style="max-width:140px;min-width:85px;">
                             </td>
@@ -358,7 +358,7 @@ if (!$_REQUEST['flb_table']) {
                           <tr style="<?php echo $style; ?>">
                             <td class="text-right" style="vertical-align:bottom;">
                               <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To'); ?>:</label></td><td>
-                              <input type="date" id="datepicker2" name="datepicker2"
+                              <input type="text" id="datepicker2" name="datepicker2"
                                     data-format="<?php echo $date_format; ?>"
                                     class="form-control datepicker input-sm text-center" value="<?php echo attr( $disp_to_date ); ?>" style="max-width:140px;min-width:85px;">
                             </td>
@@ -978,7 +978,7 @@ function myLocalJS() {
         if ((apptcatV === '') || (apptcatV == d.apptcat)) { meets_cat=true; } else { meets_cat=false;};
         if ((apptstatV === '') || (apptstatV == d.apptstatus)) { meets_stat=true; } else { meets_stat=false; }
         if ((facV === '') || (facV == d.facility)) { meets_fac=true; } else { meets_fac=false; }
-        if ((provV === '') || (provV = d.provider)) { meets_prov=true; } else { meets_prov=false; }
+        if ((provV === '') || (provV == d.provider)) { meets_prov=true; } else { meets_prov=false; }
         if ((pidV === '')) { meets_pid=true; } else { meets_pid=false; }
         if ((pidV > '')&&pidRE.test(d.pid)) { meets_pid=true; }
         if ((pnameV === '')) { meets_pname=true; } else { meets_pname=false; }
