@@ -23,7 +23,9 @@ $zip->close();
  echo text($lines). "<br>";
   
  $i = 2;
-
+// Settings to drastically speed up import with InnoDB
+sqlStatementNoLog("SET autocommit=0");
+sqlStatementNoLog("START TRANSACTION");
 do {
     $fileName = new SplFileObject($file);
     $fileName->seek($i);
