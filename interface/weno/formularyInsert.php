@@ -39,3 +39,7 @@ do {
 
     $i++;
 } while ($i < $lines);
+
+// Settings to drastically speed up import with InnoDB
+sqlStatementNoLog("COMMIT");
+sqlStatementNoLog("SET autocommit=1");
