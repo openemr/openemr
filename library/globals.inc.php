@@ -2629,6 +2629,34 @@ $GLOBALS_METADATA = array(
             xl('Log all NewCrop eRx Requests and / or Responses.'),
         ),
 
+       'weno_rx_enable' => array(
+            xl('Enable Weno eRx Service'),
+            'bool',
+            '0',
+            xl('Enable Weno eRx Service.') . ' ' . xl('Contact Open Med Practice, www.openmedpractice.com for subscribing to the Weno Free eRx service.')
+        ),
+
+        'weno_account_id' => array(
+            xl('Weno eRx Account Id'),
+            'text',
+            '',
+            xl('Account Id issued for Weno eRx service.')
+        ),
+
+        'weno_account_pass' => array(
+            xl('Weno eRx Account Pass'),
+            'text',
+            '',
+            xl('Account Id issued for Weno eRx service.')
+        ),
+
+        'weno_provider_id' => array(
+            xl('Weno eRx Clinic ID'),
+            'text',
+            '',
+            xl('Account Id issued for Your clinics eRx service.')
+        ),
+
         'ccda_alt_service_enable' => array(
             xl('Enable C-CDA Alternate Service'),
             array(

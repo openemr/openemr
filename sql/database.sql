@@ -1204,8 +1204,57 @@ CREATE  TABLE `erx_ttl_touch` (
   PRIMARY KEY (`patient_id`, `process`)
 ) ENGINE = InnoDB COMMENT = 'Store records last update per patient data process' ;
 
------------------------------------------------------------
+-- --------------------------------------------------------
+--
+-- Table structure for table `erx_drug_paid`
+--
+DROP TABLE IF EXISTS `erx_drug_paid`;
+CREATE TABLE IF NOT EXISTS `erx_drug_paid` (
+  `drugid` int(11) NOT NULL AUTO_INCREMENT,
+  `drug_label_name` varchar(45) NOT NULL,
+  `ahfs_descr` varchar(45) NOT NULL,
+  `ndc` bigint(12) NOT NULL,
+  `price_per_unit` decimal(5,2) NOT NULL,
+  `avg_price` decimal(6,2) NOT NULL,
+  `avg_price_paid` int(6) NOT NULL,
+  `avg_savings` decimal(6,2) NOT NULL,
+  `avg_percent` decimal(6,2) NOT NULL,
+   PRIMARY KEY (`drugid`)
+   ) ENGINE=InnoDB;
 
+-- --------------------------------------------------------
+--
+-- Table structure for table `erx_rx_log`
+--
+DROP TABLE IF EXISTS `erx_rx_log`;
+CREATE TABLE IF NOT EXISTS `erx_rx_log` (
+ `id` int(20) NOT NULL AUTO_INCREMENT,
+ `prescription_id` int(6) NOT NULL,
+ `date` varchar(25) NOT NULL,
+ `time` varchar(15) NOT NULL,
+ `code` int(6) NOT NULL,
+ `status` text,
+ `message_id` varchar(100) DEFAULT NULL,
+ `read` int(1) DEFAULT NULL,
+ PRIMARY KEY (`id`)
+  ) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `erx_narcotics`
+--
+DROP TABLE IF EXISTS `erx_narcotics`;
+CREATE TABLE IF NOT EXISTS `erx_narcotics` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `drug` varchar(255) NOT NULL,
+  `dea_number` varchar(5) NOT NULL,
+  `csa_sch` varchar(2) NOT NULL,
+  `narc` varchar(2) NOT NULL,
+  `other_names` varchar(255) NOT NULL,
+   PRIMARY KEY (`id`)
+  ) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
 --
 -- Table structure for table `standardized_tables_track`
 --
@@ -3221,6 +3270,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('state','OK','Oklahoma'            ,37,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('state','OR','Oregon'              ,38,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('state','PA','Pennsylvania'        ,39,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('state','PR','Puerto Rico'         ,39,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('state','RI','Rhode Island'        ,40,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('state','SC','South Carolina'      ,41,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('state','SD','South Dakota'        ,42,0);
@@ -5555,6 +5605,8 @@ CREATE TABLE `pharmacies` (
   `name` varchar(255) default NULL,
   `transmit_method` int(11) NOT NULL default '1',
   `email` varchar(255) default NULL,
+  `ncpdp` int(12) DEFAULT NULL,
+  `npi` int(12) DEFAULT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB;
 
@@ -5774,6 +5826,9 @@ CREATE TABLE `prescriptions` (
   `end_date` date default NULL,
   `indication` text,
   `prn` VARCHAR(30) DEFAULT NULL,
+  `ntx` INT(2) DEFAULT NULL,
+  `rtx` INT(2) DEFAULT NULL,
+  `txDate` DATE NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `patient_id` (`patient_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
@@ -6714,6 +6769,7 @@ CREATE TABLE `users` (
   `default_warehouse` varchar(31) NOT NULL DEFAULT '',
   `irnpool` varchar(31) NOT NULL DEFAULT '',
   `state_license_number` VARCHAR(25) DEFAULT NULL,
+  `weno_prov_id` VARCHAR(15) DEFAULT NULL,
   `newcrop_user_role` VARCHAR(30) DEFAULT NULL,
   `cpoe` tinyint(1) NULL DEFAULT NULL,
   `physician_type` VARCHAR(50) DEFAULT NULL,

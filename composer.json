@@ -78,7 +78,8 @@
             "OpenEMR\\Sample\\" : "library/sample/src",
             "OpenEMR\\Reminder\\" : "library/reminder/src",
             "OpenEMR\\Billing\\" : "library/billing/src",
-            "OpenEMR\\Pdf\\" : "library/pdf/src"
+            "OpenEMR\\Pdf\\" : "library/pdf/src",
+            "OpenEMR\\Rx\\Weno\\" : "library/weno/src"
         }
     },
     "config" : {

@@ -47,6 +47,7 @@ class C_Prescription extends Controller
         $this->pconfig = $GLOBALS['oer_config']['prescriptions'];
         $this->assign("CSS_HEADER", $GLOBALS['css_header']);
         $this->assign("WEB_ROOT", $GLOBALS['webroot']);
+        $this->assign('GLOBALS', $GLOBALS);
         $this->RxList = new RxList();
 
         if ($GLOBALS['inhouse_pharmacy']) {

@@ -102,6 +102,22 @@ class Pharmacy extends ORDataObject
     {
         return $this->name;
     }
+    function set_npi($npi)
+    {
+        $this->npi = $npi;
+    }
+    function get_npi()
+    {
+        return $this->npi;
+    }
+    function set_ncpdp($ncpdp)
+    {
+        $this->ncpdp = $ncpdp;
+    }
+    function get_ncpdp()
+    {
+        return $this->ncpdp;
+    }
     function set_email($email)
     {
         $this->email = $email;
