@@ -46,8 +46,7 @@ if ( $_POST['saveCALLback'] =="Save" ) {
                 (?,?,'NOTES','CALLED',?)";
   sqlQuery( $sqlINSERT, array( $_POST['pc_eid'], $_POST['campaign_uid'], $_POST['txtCALLback'] ) );
 }
-
-$from_date = !is_null( $_REQUEST['datepicker1'] ) ? date( 'Y-m-d', strtotime( $_REQUEST['datepicker1'] ) ) : date( 'Y-m-d', strtotime( '-1 days' ) );
+$from_date = !is_null( $_REQUEST['datepicker1'] ) ? date( 'Y-m-d', strtotime( $_REQUEST['datepicker1'] ) ) : date( 'Y-m-d' );
 
 if ( substr( $GLOBALS['ptkr_end_date'], 0, 1 ) == 'Y' ) {
   $ptkr_time = substr( $GLOBALS['ptkr_end_date'], 1, 1 );
@@ -223,7 +222,7 @@ if (!$_REQUEST['flb_table']) {
 
   <body class="body_top">
     <?php
-    if ( ( $GLOBALS['medex_enable'] == '1' )&&( empty( $_REQUEST['nomenu'] ) ) ) {
+    if (( $GLOBALS['medex_enable'] == '1' ) && ( empty( $_REQUEST['nomenu'] ))) {
         $MedEx->display->navigation($logged_in);
     }
     ?>
@@ -338,17 +337,17 @@ if (!$_REQUEST['flb_table']) {
                     </div>
                     <div class="col-sm-<?php echo $col_width; ?>">
                       <div style="margin: 0px auto;" class="input-append">
-                        <table class="table-hover table-condensed" style="margin:0px auto;">
+                        <table class="table-condensed" style="margin:0px auto;">
                            <?php 
-                          if ( $GLOBALS['ptkr_date_range'] ) { 
+                          if ( $GLOBALS['ptkr_date_range'] =='1') { 
                              $type = 'date';
-                             $style= 'visibility=visible;';
+                             $style= '';
                           } else {
                             $type = 'hidden';
-                            $style= 'visibility=hidden;';
+                            $style= 'display:none;';
                           } ?>
                           <tr style="<?php echo $style; ?>">
-                            <td class="text-right" style="vertical-align:bottom;<?php echo $style; ?>">
+                            <td class="text-right" style="vertical-align:bottom;">
                               <label for="flow_from"><?php echo xlt('From'); ?>:</label></td><td>
                               <input type="text" id="datepicker1" name="datepicker1"
                                     data-format="<?php echo $date_format; ?>"
@@ -439,18 +438,18 @@ if (!$_REQUEST['flb_table']) {
                   <td class="dehead text-center" max-width="150px">
                     <?php  echo xlt( 'Patient' ); ?>
                   </td>
-                  <?php if ( $GLOBALS['ptkr_visit_reason'] && ($_REQUEST['kiosk'] !='1')) { ?>
+                  <?php if ( $GLOBALS['ptkr_visit_reason'] ) { ?>
                   <td class="dehead hidden-xs text-center" name="kiosk_hide">
                     <?php  echo xlt( 'Reason' ); ?>
                   </td>
                   <?php } ?>
-                  <?php if ( $GLOBALS['ptkr_show_encounter']  && ($_REQUEST['kiosk'] !='1')) { ?>
+                  <?php if ( $GLOBALS['ptkr_show_encounter'] ) { ?>
                     <td class="dehead text-center hidden-xs hidden-sm" name="kiosk_hide">
                     <?php  echo xlt( 'Encounter' ); ?>
                   </td>
                   <?php } ?>
                   
-                  <?php if ( $GLOBALS['ptkr_date_range'] && ($_REQUEST['kiosk'] !='1')) { ?>
+                  <?php if ( $GLOBALS['ptkr_date_range'] =='1') { ?>
                   <td class="dehead hidden-xs text-center" name="kiosk_hide">
                     <?php  echo xlt( 'Appt Date' ); ?>
                   </td>
@@ -473,12 +472,10 @@ if (!$_REQUEST['flb_table']) {
                   <td class="dehead visible-xs hidden-sm hidden-md hidden-lg text-center">
                     <?php  echo xlt( 'Current' ); ?>
                   </td>
-                  <?php if ($_REQUEST['kiosk'] != '1') { ?>
-                  <td class="dehead hidden-xs visible-sm visible-md visible-lg text-center">
+                  <td class="dehead hidden-xs text-center" name="kiosk_hide">
                     <?php  echo xlt('Visit Type'); ?>
                   </td>
-                  <?php } 
-                  if ( count( $chk_prov ) > 1 ) { ?>
+                  <?php if ( count( $chk_prov ) > 1 ) { ?>
                   <td class="dehead text-center hidden-xs">
                     <?php  echo xlt( 'Provider' ); ?>
                   </td>
@@ -492,12 +489,14 @@ if (!$_REQUEST['flb_table']) {
                   <td class="dehead  visible-xs hidden-sm hidden-md hidden-lg text-center">
                     <?php  echo xlt( 'Out Time' ); ?>
                   </td>
-                <?php 
-                if ($_REQUEST['kiosk'] !='1') {  ?>
+                  <?php
+                    if ( $GLOBALS['ptkr_show_staff'] ) { ?>
                   <td class="dehead hidden-xs hidden-sm text-center" name="kiosk_hide">
                     <?php  echo xlt( 'Updated By' ); ?>
                   </td>
                   <?php 
+                    }
+                  if ($_REQUEST['kiosk'] !='1') {  
                   if ( $GLOBALS['drug_screen'] ) { ?>
                     <td class="dehead center hidden-xs "  name="kiosk_hide">
                       <?php  echo xlt( 'Random Drug Screen' ); ?>
@@ -669,14 +668,14 @@ if (!$_REQUEST['flb_table']) {
                             data-pname="'.attr( $ptname ).'"
                             class="text-small"
                             bgcolor="'.attr($bgcolor).'" >';  
-                  if ( $GLOBALS['ptkr_show_pid'] && ($_REQUEST['kiosk'] !='1')) { 
+                  if ( $GLOBALS['ptkr_show_pid'] ) { 
                     ?>
-                    <td class="detail hidden-xs" align="center">
+                    <td class="detail hidden-xs" align="center"  name="kiosk_hide">
                       <?php echo text( $appt_pid ); ?>
                     </td>
                       <?php 
                   } 
-                  if ($_REQUEST['kiosk'] !='1') {
+                  
                   ?>
                     <td class="detail text-center hidden-xs" name="kiosk_hide">
                       <a href="#" onclick="return topatient('<?php echo attr( $appt_pid );?>','<?php echo attr( $appt_enc );?>')" >
@@ -686,28 +685,28 @@ if (!$_REQUEST['flb_table']) {
                       <a href="#" onclick="return topatient('<?php echo attr( $appt_pid );?>','<?php echo attr( $appt_enc );?>')" >
                           <?php echo text( $ptname_short ); ?></a>
                     </td>
-                  <?php } else { ?>
+                  
                     <td class="detail text-center" style="white-space: normal;" name="kiosk_show">
                       <a href="#" onclick="return topatient('<?php echo attr( $appt_pid );?>','<?php echo attr( $appt_enc );?>')" >
                           <?php echo text( $ptname_short ); ?></a>
                     </td>
-                  <?php } ?>
                       
                       <!-- reason -->
-                  <?php if (( $GLOBALS['ptkr_visit_reason'] ) && ($_REQUEST['kiosk'] !='1')) { ?>
+                  <?php if ( $GLOBALS['ptkr_visit_reason'] ) { ?>
                     <td class="detail hidden-xs text-center" name="kiosk_hide">
                           <?php echo text( $reason_visit ) ?>
                     </td>
                   <?php } ?>
-                      <?php if ( $GLOBALS['ptkr_show_encounter'] && ($_REQUEST['kiosk'] !='1')) { ?>
+                      <?php if ( $GLOBALS['ptkr_show_encounter'] ) { ?>
                     <td class="detail hidden-xs hidden-sm text-center" name="kiosk_hide">
                           <?php if ( $appt_enc != 0 ) {
                           echo text( $appt_enc );} ?>
                     </td>
                       <?php } 
-                      if ( $GLOBALS['ptkr_date_range'] && ($_REQUEST['kiosk'] !='1') ) { ?>
+                      if ( $GLOBALS['ptkr_date_range'] =='1') { ?>
                     <td class="detail hidden-xs text-center" name="kiosk_hide">
-                          <?php echo oeFormatShortDate( $date_appt ); ?>
+                        <?php echo oeFormatShortDate( $appointment['pc_eventDate'] ); 
+                        ?>
                     </td>
                       <?php } ?>
                     <td class="detail" align="center">
@@ -760,12 +759,12 @@ if (!$_REQUEST['flb_table']) {
                         }
                         //end time in current status
                         echo "</td>";
-                    if ($_REQUEST['kiosk'] !='1') {    ?>
+                      ?>
                   <td class="detail hidden-xs text-center" name="kiosk_hide">
                     <?php  echo xlt($appointment['pc_title']);  ?>
                   </td>
-                    <?php }
-                      if ( count( $chk_prov ) > 1 ) { ?>
+                    <?php 
+                      if ( count( $chk_prov ) > 1 ) { ?>                  
                   <td class="detail text-center hidden-xs">
                         <?php echo text( $docname ); ?>
                   </td>
@@ -805,20 +804,22 @@ if (!$_REQUEST['flb_table']) {
                     ?>
                   </td>
                   <?php 
-                if ($_REQUEST['kiosk'] !='1') {  ?>
-                  <td class="detail hidden-xs hidden-sm text-center" name="kiosk_hide">
-                    <?php echo text( $appointment['user'] ) ?>
-                  </td>
-                    <?php 
+                    if ( $GLOBALS['ptkr_show_staff'] =='1' ) { 
+                        ?>
+                      <td class="detail hidden-xs hidden-sm text-center" name="kiosk_hide">
+                        <?php echo text( $appointment['user'] ) ?>
+                      </td>
+                        <?php 
+                    }
                     if ( $GLOBALS['drug_screen'] ) { 
                       if ( strtotime( $newarrive ) != '' ) { ?>
                         <td class="detail hidden-xs text-center" name="kiosk_hide">
                           <?php 
                             if ( text( $appointment['random_drug_test'] ) == '1' ) {
-                                  echo xl( 'Yes' );
-                                } else {
-                                  echo xl( 'No' ); 
-                                } ?>
+                              echo xl( 'Yes' );
+                            } else {
+                              echo xl( 'No' ); 
+                            } ?>
                         </td>
                               <?php 
                       }  ?>
@@ -843,9 +844,9 @@ if (!$_REQUEST['flb_table']) {
                         echo "  </td>"; 
                       }  
                     }
-                }  ?>
+                    ?>
                 </tr>
-                          <?php
+                <?php
               } //end foreach
               ?>
               </tbody>
@@ -877,43 +878,19 @@ function myLocalJS() {
     var auto_refresh =null;
     //this can be refined to redact HIPAA material using @media print options.
     window.parent.$("[name='flb']").attr('allowFullscreen','true');
+    <?php
+      if ($_REQUEST['kiosk'] =='1') { ?>
+        $("[name='kiosk_hide']").hide();
+        $("[name='kiosk_show']").show();
 
-    function kiosk_FLB() {
-      var i = document.getElementById("flb_table");
-      $("#kiosk").val('1');
-      $("#kiosk_hide").hide();
-      refreshMe();
-      // go full-screen
-      if (i.requestFullscreen) {
-        i.requestFullscreen();
-      } else if (i.webkitRequestFullscreen) {
-        i.webkitRequestFullscreen();
-      } else if (i.mozRequestFullScreen) {
-        i.mozRequestFullScreen();
-      } else if (i.msRequestFullscreen) {
-        i.msRequestFullscreen();
-      }
-    }
-
+      <?php } else  { ?>
+        $("[name='kiosk_hide']").show();
+        $("[name='kiosk_show']").hide();
+    <?php  }   ?>
     function print_FLB() {
       window.print();
     }
-   
-
-    function maxWindow() {
-        window.moveTo(0, 0);
-        if (document.all) {
-            top.window.resizeTo(screen.availWidth, screen.availHeight);
-        }
-
-        else if (document.layers || document.getElementById) {
-            if (top.window.outerHeight < screen.availHeight || top.window.outerWidth < screen.availWidth) {
-                top.window.outerHeight = screen.availHeight;
-                top.window.outerWidth = screen.availWidth;
-            }
-        }
-    }
-
+  
     function toggleSelectors() {
       if ($("#flb_selectors").css('display') == 'none') {
           $.post( "<?php echo $GLOBALS['webroot']."/interface/patient_tracker/patient_tracker.php"; ?>", {
@@ -954,6 +931,14 @@ function myLocalJS() {
         }).done(
           function( data ) {
             $( "#flb_table" ).html( data );
+            if ($("#kiosk").val()=='') {
+              $("[name='kiosk_hide']").show();
+              $("[name='kiosk_show']").hide();
+            } else {
+              $("[name='kiosk_hide']").hide();
+              $("[name='kiosk_show']").show();
+            }
+
             refineMe();
           });
     }
@@ -985,10 +970,6 @@ function myLocalJS() {
         if ((pnameV > '') && pnameRE.test(d.pname)) { meets_pname=true; }
         return meets_pname && meets_pid && meets_cat && meets_stat && meets_fac && meets_prov;
       }).show();
-      <?php
-      if ($_REQUEST['kiosk'] =='1') { ?>
-        $("[name='kiosk_hide']").hide();
-      <?php } ?>
     }
 
     // popup for patient tracker status
@@ -1040,25 +1021,58 @@ function myLocalJS() {
       window.open('../main/messages/messages.php?nomenu=1&go=SMS_bot&pc_eid=' + eid+'&to='+to+'&from='+from+'&oeto='+oeto+'&oefrom='+oefrom,'SMS_bot', 'width=370,height=600,resizable=0');
       return false;
     }
+   
+    function kiosk_FLB() {
+        $("#kiosk").val('1');
+        $("[name='kiosk_hide']").hide();
+        $("[name='kiosk_show']").show();
+        var i = document.getElementById("flb_table");
+         // go full-screen
+        if (i.requestFullscreen) {
+          i.requestFullscreen();
+        } else if (i.webkitRequestFullscreen) {
+          i.webkitRequestFullscreen();
+        } else if (i.mozRequestFullScreen) {
+          i.mozRequestFullScreen();
+        } else if (i.msRequestFullscreen) {
+          i.msRequestFullscreen();
+        }
+       // refreshMe();
+    }
 
     $(document).ready(function() {
       refineMe();
-      <?php if ($_REQUEST['kiosk']=='1') { ?>
-          window.onload = maxWindow;
-          $("#status_summary").hide();
-          $("#pull_kiosk_right").hide();
-          $("#pt_name_full").hide();
-          $("[name='kiosk_hide']").hide();
-          $("[name='kiosk_show']").show();
-          $("#patient_caret").hide();
+      $("#kiosk").val('');
+      $("[name='kiosk_hide']").show();
+      $("[name='kiosk_show']").hide();
+      
 
-      <?php } else { ?>
-        $("[name='kiosk_show']").hide();
-        <?php } ?>
-        // The "Today button" just highlights today's date.  
-        // This overrides the showToday function to show Today AND select it, not just highlight it.
-        // This is how it is expected to work and now it does.
-        $.datepicker._gotoToday = function(id) {
+    onresize = function() {
+      var state = 1 >= outerHeight - innerHeight ? "fullscreen" : "windowed";
+          if( window.state == state ) return;
+      window.state = state;
+      var event = document.createEvent("Event");
+            event.initEvent(state, true, true);
+            window.dispatchEvent( event );
+      };
+
+    addEventListener('windowed', function(e){ 
+      $("#kiosk").val('');
+      $("[name='kiosk_hide']").show();
+      $("[name='kiosk_show']").hide();
+      //alert(e.type);
+    }, false );
+    addEventListener('fullscreen', function(e){ 
+      $("#kiosk").val('1');
+      $("[name='kiosk_hide']").hide();
+      $("[name='kiosk_show']").show();
+      //alert(e.type);
+      }, false );
+
+      // The "Today button" just highlights today's date.  
+      // This overrides the showToday function to show Today AND select it, not just highlight it.
+      // This is how it is expected to work and now it does.
+      $.datepicker._gotoToday = function(id) {
           var target = $(id);
           var inst = this._getInst(target[0]);
           if (this._get(inst, 'gotoCurrent') && inst.currentDay) {
@@ -1077,7 +1091,7 @@ function myLocalJS() {
           }
           this._notifyChange(inst);
           this._adjustDate(target);
-        }
+        };
 
 
         $( "#datepicker1" ).datepicker({
