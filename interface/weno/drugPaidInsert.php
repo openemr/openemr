@@ -10,12 +10,19 @@
  */
 
 
-
 require_once('../globals.php');
 
 $drugs = file_get_contents('../../contrib/weno/drugspaidinsert.sql');
 
-sqlInsert($drugs);
+// Settings to drastically speed up import with InnoDB
+sqlStatementNoLog("SET autocommit=0");
+sqlStatementNoLog("START TRANSACTION");
+
+sqlStatementNoLog($drugs);
+
+// Settings to drastically speed up import with InnoDB
+sqlStatementNoLog("COMMIT");
+sqlStatementNoLog("SET autocommit=1");
 
 header('Location: ' . $_SERVER['HTTP_REFERER']);
 exit;

@@ -547,15 +547,15 @@ ALTER TABLE `prescriptions` ADD `txDate` DATE NOT NULL;
 #Endif
 
 #IfMissingColumn pharmacies ncpdp
-ALTER TABLE `pharmacies` ADD `ncpdp` INT(12) NULL;
+ALTER TABLE `pharmacies` ADD `ncpdp` INT(12) DEFAULT NULL;
 #Endif
 
 #IfMissingColumn pharmacies npi
-ALTER TABLE `pharmacies` ADD `npi` INT(12) NULL;  
+ALTER TABLE `pharmacies` ADD `npi` INT(12) DEFAULT NULL;
 #Endif
 
-#IfNotRow2D list_options list_id page_validation option_id PR title Puerto Rico
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('state','PR','Puerto Rico'         ,39,0);
+#IfNotRow2Dx2 list_options list_id page_validation option_id PR title Puerto Rico
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('state','PR','Puerto Rico',39,0);
 #Endif
 
 #IfNotTable erx_drug_paid
@@ -580,7 +580,7 @@ CREATE TABLE `erx_rx_log` (
  `date` varchar(25) NOT NULL,
  `time` varchar(15) NOT NULL,
  `code` int(6) NOT NULL,
- `status` text NOT NULL,
+ `status` text,
  `message_id` varchar(100) DEFAULT NULL,
  `read` int(1) DEFAULT NULL,
  PRIMARY KEY (`id`)

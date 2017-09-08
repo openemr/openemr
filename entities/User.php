@@ -326,6 +326,11 @@ class User
      */
     private $mainMenuRole;
 
+    /**
+     * @Column(name="weno_prov_id", type="string")
+     */
+    private $wenoProvId;
+
     public function getId()
     {
         return $this->id;
@@ -896,6 +901,16 @@ class User
         $this->mainMenuRole = $value;
     }
 
+    public function getWenoProvId()
+    {
+        return $this->wenoProvId;
+    }
+
+    public function setWenoProvId($value)
+    {
+        $this->wenoProvId = $value;
+    }
+
     /**
      * ToString of the entire object.
      *
@@ -959,7 +974,8 @@ class User
                "newCropUserRole: '" . $this->getNewCropUserRole() . "' " .
                "cpoe: '" . $this->getCpoe() . "' " .
                "physicianType: '" . $this->getPhysicianType() . "' " .
-               "mainMenuRole: '" . $this->getMainMenuRole() . "' ";
+               "mainMenuRole: '" . $this->getMainMenuRole() . "' " .
+               "wenoProvId: '" . $this->getWenoProvId() . "' ";
     }
 
     /**

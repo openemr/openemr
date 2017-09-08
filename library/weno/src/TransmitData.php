@@ -14,10 +14,11 @@ namespace OpenEMR\Rx\Weno;
 
 class TransmitData
 {
-    
+
     public function __construct()
-    {}
-    
+    {
+    }
+
     public function getDrugList($pid, $date)
     {
 
@@ -28,14 +29,14 @@ class TransmitData
 
     public function getProviderFacility($uid)
     {
-        
+
         $sql = "SELECT a.fname, a.lname, a.npi, a.weno_prov_id, b.name, b.phone, b.fax, b.street, b.city, b.state, 
 				b.postal_code FROM `users` AS a, facility AS b WHERE a.id = ? AND 
 				a.facility_id = b.id ";
 
-                $pFinfo = sqlQuery($sql, array($uid));
-                    
-         return array($pFinfo);
+        $pFinfo = sqlQuery($sql, array($uid));
+
+        return array($pFinfo);
     }
 
     public function findPharmacy($id)
@@ -43,7 +44,7 @@ class TransmitData
         //$sql = "SELECT store_name, NCPDP, NPI, Pharmacy_Phone, Pharmacy_Fax FROM erx_pharmacies WHERE id = ?";
         $sql = "SELECT name, ncpdp, npi FROM pharmacies WHERE id = ? ";
         $find = sqlQuery($sql, array($id));
-        
+
         $nSql = "SELECT area_code, prefix, type, number FROM phone_numbers WHERE foreign_id = ?";
         $numbers = sqlStatement($nSql, array($id));
 
@@ -51,10 +52,10 @@ class TransmitData
         while ($row = sqlFetchArray($numbers)) {
             $numberArray[] = $row;
         }
-      
+
         return array($find, $numberArray);
     }
-    
+
     public function oneDrug($id)
     {
         $sql = "SELECT date_Added,date_Modified,drug,drug_id,dosage,refills,quantity,note FROM prescriptions WHERE id = ?";

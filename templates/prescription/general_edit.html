@@ -1,10 +1,10 @@
 <html>
 <head>
-{php}html_header_show();{/php}
+{headerShow}
 
 <link rel="stylesheet" href="{$CSS_HEADER}" type="text/css">
-<link rel="stylesheet" href="{$WEBROOT}/interface/themes/jquery.autocomplete.css" type="text/css">
-<link rel="stylesheet" href="{$WEBROOT}/library/js/jquery-ui.min.css" type="text/css" />
+<link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/themes/base/jquery-ui.min.css" type="text/css" />
+
 {literal}
 <style type="text/css">
 
@@ -31,12 +31,9 @@ select{
 {literal}
 {/literal}
 <!---Gen Look up-->
-<script type="text/javascript" src="{$WEBROOT}/library/dialog.js?v={php} echo $v_js_includes; {/php}"></script>
-<script type="text/javascript" src="{$WEBROOT}/library/js/jquery.bgiframe.min.js"></script>
-<script type="text/javascript" src="{$WEBROOT}/library/js/jquery.dimensions.pack.js"></script>
-<script type="text/javascript" src="{$WEBROOT}/library/js/jquery.autocomplete.pack.js"></script>
-<script type="text/javascript" src="{php} echo $GLOBALS['assets_static_relative']; {/php}/jquery-min-1-9-1/index.js"></script>
-<script type="text/javascript" src="{php} echo $GLOBALS['assets_static_relative']; {/php}/jquery-ui-1-12-1/jquery-ui.js"></script>
+<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="{$WEBROOT}/library/dialog.js?v={$GLOBALS.v_js_includes}"></script>
+<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/jquery-ui.js"></script>
 
 {literal}
 <script language='JavaScript'>
@@ -119,7 +116,7 @@ select{
 </td></tr>
 </table>
 
-{php} if ($GLOBALS['enable_amc_prompting']) { {/php}
+{if $GLOBALS.enable_amc_prompting}
   <div style='float:right;margin-right:25px;border-style:solid;border-width:1px;'>
     <div style='float:left;margin:5px 5px 5px 5px;'>
       {amcCollect amc_id='e_prescribe_amc' patient_id=$prescription->patient->id object_category='prescriptions' object_id=$prescription->id}
@@ -148,7 +145,7 @@ select{
 
     </div>
   </div>
-{php} } {/php}
+{/if}
 
 <table CELLSPACING="0" CELLPADDING="3" BORDER="0">
 <tr>
@@ -175,7 +172,7 @@ select{
 <tr>
   <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Drug'}</td>
   <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-            <input type="input" size="20" name="drug" id="drug" class="wDrug" value="{$prescription->drug}"/>
+            <input type="input" size="20" name="drug" id="drug" value="{$prescription->drug}"/>
             <a href="javascript:;" id="druglookup" class="small" name="B4" onclick="$('#hiddendiv').show(); document.getElementById('hiddendiv').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;52&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">
             ({xl t='click here to search'})</a>
             <div id=hiddendiv style="display:none">&nbsp;</div>
@@ -272,14 +269,6 @@ select{
 <!-- for the fancy jQuery stuff -->
 <script type="text/javascript">
 
-$(function() {
-    //Drug form autocomplete to text box.
-    $(".wDrug").autocomplete({
-        source: "library/ajax/drug_autocomplete/search.php",
-        minLength: 3
-    });
-});
-
 function submitfun() {
     top.restoreSession();
     if (CheckForErrors(this)) {
@@ -297,25 +286,31 @@ function iframetopardiv(string){
     $('#hiddendiv').hide();
 }
 
-function iframetopardiv(string){
-    var name=string
-    document.getElementById('pharmacy').value=name;
-    $("#hiddendiv").html( "&nbsp;" );
-    $('#hiddendiv').hide();
-}
-
 function cancelParlookup () {
     $('#hiddendiv').hide();
     $("#hiddendiv").html( "&nbsp;" );
 }
 
 $().ready(function() {
-    $("#drug").autocomplete('library/ajax/prescription_drugname_lookup.php',
-                            {
-                            width: 200,
-                            scrollHeight: 100,
-                            selectFirst: true
-                            });
+
+    {/literal}
+    {if $GLOBALS.weno_rx_enable}
+        {literal}
+        $('#drug').autocomplete({
+            source: 'library/ajax/drug_autocomplete/search.php',
+            minLength: 3
+        });
+        {/literal}
+    {else}
+        {literal}
+        $('#drug').autocomplete({
+            source: 'library/ajax/prescription_drugname_lookup.php',
+            minLength: 1
+        });
+        {/literal}
+    {/if}
+    {literal}
+
     $("#drug").focus();
     $("#prescribe").submit(function() { return CheckForErrors(this) });
     $("#druglookup").click(function() { DoDrugLookup(this) });

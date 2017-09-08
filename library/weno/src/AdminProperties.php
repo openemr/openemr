@@ -15,9 +15,8 @@ class AdminProperties
 {
 
     public function __construct()
-    {}
-
-
+    {
+    }
 
     public function addNarcotics()
     {
@@ -27,14 +26,18 @@ class AdminProperties
   *
   */
         $sqlNarc = file_get_contents('../../contrib/weno/narc.sql');
-// Settings to drastically speed up import with InnoDB
+
+        // Settings to drastically speed up import with InnoDB
         sqlStatementNoLog("SET autocommit=0");
         sqlStatementNoLog("START TRANSACTION");
+
         sqlStatementNoLog($sqlNarc);
-// Settings to drastically speed up import with InnoDB
+
+        // Settings to drastically speed up import with InnoDB
         sqlStatementNoLog("COMMIT");
         sqlStatementNoLog("SET autocommit=1");
-          return xlt("Narcotic drugs imported");
+
+        return xlt("Narcotic drugs imported");
     }
 
     public function drugTableInfo()

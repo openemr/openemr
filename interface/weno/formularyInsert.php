@@ -9,27 +9,27 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
- require_once("../globals.php");
- 
- echo xlt("Trying")."<BR>";
+require_once("../globals.php");
+
+echo xlt("Trying")."<BR>";
 
 $zip = new ZipArchive;
 $zip->open('FormularyFiles.zip');
 $zip->extractTo($GLOBALS['temporary_files_dir']);
 $zip->close();
 
- $file = $GLOBALS['temporary_files_dir'] . "./Weno Exchange LLC/BSureFormulary.txt";
- $lines = count(file($file));
- echo text($lines). "<br>";
-  
- $i = 2;
+$file = $GLOBALS['temporary_files_dir'] . "./Weno Exchange LLC/BSureFormulary.txt";
+$lines = count(file($file));
+echo text($lines). "<br>";
+
+$i = 2;
 // Settings to drastically speed up import with InnoDB
 sqlStatementNoLog("SET autocommit=0");
 sqlStatementNoLog("START TRANSACTION");
 do {
     $fileName = new SplFileObject($file);
     $fileName->seek($i);
- 
+
     $in = explode("|", $fileName);
 
     $ndc = $in[2];
