@@ -73,7 +73,8 @@ $mailOrder = $tData->mailOrderPharmacy();
     <h3><?php echo xlt("Select Pharmacy"); ?></h3>
     <?php echo xlt("Patient Default"); ?> <br>
     <input type = 'radio' name = "pharmacy" id = 'patientPharmacy' value="<?php print attr($patientPharmacy['pharmacy_id']) ?>" checked="checked">
-    <?php if (!$patientPharmacy['name']) {
+    <?php
+    if (!$patientPharmacy['name']) {
         print "<b>".xlt("Please set pharmacy in patient\'s chart!")."</b><br> <br>";
     } else {
         print text($patientPharmacy['name']);

@@ -15,7 +15,6 @@ require_once("../globals.php");
 require_once($srcdir."/patient.inc");
 use OpenEMR\Rx\Weno\TransmitData;
 
-
 $date = date("Y-m-d");
 $pid = $GLOBALS['pid'];
 $uid = $_SESSION['authUserID'];
