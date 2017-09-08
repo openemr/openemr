@@ -1,0 +1,198 @@
+<html><head>
+</head>
+<body> 
+<form>
+<hr>
+<h1> Obstetrics_Form </h1>
+<hr>
+<input type="submit" name="submit form" value="submit form" /><br>
+<br>
+<h3>LMP</h3>
+
+<table>
+
+<tr><td>
+<span class='text'><?php xl('Lmp (yyyy-mm-dd): ','e') ?></span>
+</td><td>
+<input type='text' size='10' name='lmp' id='lmp' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd last date of this event' />
+<img src='../../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
+id='img_lmp' border='0' alt='[?]' style='cursor:pointer'
+title='Click here to choose a date'>
+<script>
+Calendar.setup({inputField:'lmp', ifFormat:'%Y-%m-%d', button:'img_lmp'});
+</script>
+</td></tr>
+
+</table>
+
+<table>
+
+<tr><td>
+<span class='text'><?php xl('Edc (yyyy-mm-dd): ','e') ?></span>
+</td><td>
+<input type='text' size='10' name='edc' id='edc' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd last date of this event' />
+<img src='../../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
+id='img_edc' border='0' alt='[?]' style='cursor:pointer'
+title='Click here to choose a date'>
+<script>
+Calendar.setup({inputField:'edc', ifFormat:'%Y-%m-%d', button:'img_edc'});
+</script>
+</td></tr>
+
+</table>
+<br>
+<h3>Gestational Age</h3>
+
+<table>
+
+<tr><td>Weeks</td> <td><input type="text" name="weeks"  /></td></tr>
+
+</table>
+
+<table>
+
+<tr><td>Days</td> <td><input type="text" name="days"  /></td></tr>
+
+</table>
+<br>
+<h3>Patient History</h3>
+
+<table>
+
+<tr><td>Supplements</td> <td><textarea name="supplements"  rows="4" cols="40"></textarea></td></tr>
+
+</table>
+
+<table>
+
+<tr><td>Treatments</td> <td><textarea name="treatments"  rows="4" cols="40"></textarea></td></tr>
+
+</table>
+<br>
+<h3>Physical Exam</h3>
+
+<table>
+
+<tr><td>Height of fundus</td> <td><input type="text" name="height_of_fundus"  /></td></tr>
+
+</table>
+<br>
+<h3>Lab Results</h3>
+<br>
+<h4>CBC</h4>
+
+<table>
+
+<tr><td>Hemoglobin</td> <td><input type="text" name="hemoglobin"  /></td></tr>
+
+</table>
+
+<table>
+
+<tr><td>Platelets</td> <td><input type="text" name="platelets"  /></td></tr>
+
+</table>
+<br>
+<h4>Urinalysis</h4>
+
+<table>
+
+<tr><td>Urinalysis</td> <td><textarea name="urinalysis"  rows="4" cols="40"></textarea></td></tr>
+
+</table>
+
+<table>
+
+<tr><td>Urine culture</td> <td><textarea name="urine_culture"  rows="4" cols="40"></textarea></td></tr>
+
+</table>
+<br>
+<h4>Blood Group</h4>
+
+<table>
+
+<tr><td>Abo and rh</td> <td><input type="text" name="abo_and_rh"  /></td></tr>
+
+</table>
+
+<table>
+
+<tr><td>Coombs test</td> <td><input type="text" name="coombs_test"  /></td></tr>
+
+</table>
+<br>
+<h4>Serology</h4>
+
+<table>
+
+<tr><td>Syphillis rpr</td> <td><input type="text" name="syphillis_rpr"  /></td></tr>
+
+</table>
+
+<table>
+
+<tr><td>Hepatitis b</td> <td><input type="text" name="hepatitis_b"  /></td></tr>
+
+</table>
+
+<table>
+
+<tr><td>Hiv</td> <td><input type="text" name="hiv"  /></td></tr>
+
+</table>
+<br>
+<h4>Cultures</h4>
+
+<table>
+
+<tr><td>Group b streptococcus culture</td> <td><input type="text" name="group_b_streptococcus_culture"  /></td></tr>
+
+</table>
+<br>
+<h4>Other tests</h4>
+
+<table>
+
+<tr><td>Glucose challenge test</td> <td><input type="text" name="glucose_challenge_test"  /></td></tr>
+
+</table>
+
+<table>
+
+<tr><td>Others</td> <td><textarea name="others"  rows="4" cols="40"></textarea></td></tr>
+
+</table>
+<br>
+<h3>Ultrasound</h3>
+
+<table>
+
+<tr><td>Fetal heart</td> <td><label><input type="radio" name="fetal_heart" value="Documented" />Documented</label> <label><input type="radio" name="fetal_heart" value="Not Seen" />Not Seen</label></td></tr>
+
+</table>
+
+<table>
+
+<tr><td>Ultrasound notes</td> <td><textarea name="ultrasound_notes"  rows="4" cols="40"></textarea></td></tr>
+
+</table>
+<br>
+<h3>Current Problems</h3>
+
+<table>
+
+<tr><td>Problem list</td> <td><textarea name="problem_list"  rows="4" cols="40"></textarea></td></tr>
+
+</table>
+<br>
+<h3>Notes</h3>
+
+<table>
+
+<tr><td>Other notes</td> <td><textarea name="other_notes"  rows="4" cols="40"></textarea></td></tr>
+
+</table>
+<table></table><input type="submit" name="submit form" value="submit form" />
+</form>
+</body>
+</html>
