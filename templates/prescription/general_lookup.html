@@ -1,7 +1,18 @@
+{**
+ * Prescription General Lookup
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *}
 <html>
 <head>
-{php}html_header_show();{/php}
-<link rel="stylesheet" href="{php}echo $GLOBALS['css_header']; {/php}" type="text/css">
+
+{headerShow}
+
+<link rel="stylesheet" href="{$GLOBALS.css_header}" type="text/css">
 <script language="Javascript">
 {literal}
 		function my_process () {
@@ -51,9 +62,9 @@ textarea {
         {html_options name="drug" values=$drug_values options=$drug_options}<br/>
         </div>
         <div>
-            <a href="javascript:;" onClick="my_process(); return true;">Select</a> |
-            <a href="javascript:;" class="button" onClick="parent.cancelParlookup();">Cancel</a> |
-            <a href="{$CONTROLLER_THIS}" onclick="top.restoreSession()">{xl t='New Search'}</a>
+            <a href="javascript:;" onClick="my_process(); return true;">{xl t='Select'|escape:'html'}</a> |
+            <a href="javascript:;" class="button" onClick="parent.cancelParlookup();">{xl t='Cancel'|escape:'html'}</a> |
+            <a href="{$CONTROLLER_THIS}" onclick="top.restoreSession()">{xl t='New Search'|escape:'html'}</a>
         </div>
 	{else}
 		{$NO_RESULTS}
@@ -61,13 +72,13 @@ textarea {
 		<input TYPE="HIDDEN" NAME="varname" VALUE=""/>
 		<input TYPE="HIDDEN" NAME="formname" VALUE=""/>
 		<input TYPE="HIDDEN" NAME="submitname" VALUE=""/>
-		<input TYPE="HIDDEN" NAME="action" VALUE="{xl t='Search'}">
+		<input TYPE="HIDDEN" NAME="action" VALUE="{xl t='Search'|escape:'html'}">
 		<div ALIGN="CENTER" CLASS="infobox">
-			<input TYPE="TEXT" NAME="drug" VALUE="{$drug}"/>
-			<input TYPE="SUBMIT" NAME="action" VALUE="{xl t='Search'}" class="button"/>
-			<input TYPE="BUTTON" VALUE="{xl t='Cancel'}" class="button" onClick="parent.cancelParlookup();"/>
+			<input TYPE="TEXT" NAME="drug" VALUE="{$drug|escape:'html'}"/>
+			<input TYPE="SUBMIT" NAME="action" VALUE="{xl t='Search'|escape:'html'}" class="button"/>
+			<input TYPE="BUTTON" VALUE="{xl t='Cancel'|escape:'html'}" class="button" onClick="parent.cancelParlookup();"/>
 		</div>
-		<input type="hidden" name="process" value="{$PROCESS}" />
+		<input type="hidden" name="process" value="{$PROCESS|escape:'html'}" />
 
 	{/if}</form>
 	</div>

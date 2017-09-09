@@ -42,8 +42,6 @@ class C_PatientFinder extends Controller
 
         $this->assign('hidden_ispid', $isPid);
 
-        $this->assign('GLOBALS', $GLOBALS);
-
         return $this->fetch($GLOBALS['template_dir'] . "patient_finder/" . $this->template_mod . "_find.html");
     }
 

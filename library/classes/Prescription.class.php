@@ -77,7 +77,7 @@ require_once(dirname(__FILE__) . "/../lists.inc");
 //   in the forms and output.
 function load_drug_attributes($id)
 {
-    $res = sqlStatement("SELECT * FROM list_options WHERE list_id = '$id' AND activity = 1 ORDER BY seq");
+    $res = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq", array($id));
     while ($row = sqlFetchArray($res)) {
         if ($row['title'] == '') {
              $arr[$row['option_id']] = ' ';
@@ -195,7 +195,7 @@ class Prescription extends ORDataObject
             $this->active = 1;
 
         $this->ntx = 0;
-        
+
         for ($i=0; $i<21; $i++) {
             $this->refills_array[$i] = sprintf("%02d", $i);
         }
@@ -594,7 +594,7 @@ class Prescription extends ORDataObject
                 $drug = $drug[0];
         }
         $this->drug = $drug;
-        
+
         if ($GLOBALS['weno_rx_enable']) {
             $sql = "SELECT NDC FROM erx_drug_paid WHERE drug_label_name LIKE ? ";
             $val = array('%'.$drug.'%');
@@ -772,7 +772,7 @@ class Prescription extends ORDataObject
         $patient_id,
         $order_by = "active DESC, date_modified DESC, date_added DESC"
     ) {
-    
+
         $prescriptions = array();
         $p = new Prescription();
         $sql = "SELECT id FROM  " . $p->_table . " WHERE patient_id = " .

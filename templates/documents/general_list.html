@@ -38,7 +38,7 @@ overflow: auto;
 {/literal}
 <script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/jquery-ui.min.js"></script>
-<script type="text/javascript" src="{$WEBROOT}/library/js/DocumentTreeMenu.js"></script>
+<script type="text/javascript" src="{$GLOBALS.webroot}/library/js/DocumentTreeMenu.js"></script>
 <script type="text/javascript" src="{$GLOBALS.assets_static_relative}/dropzone-4-3-0/dist/dropzone.js"></script>
 <script type="text/javascript" src="library/dialog.js?v={$GLOBALS.v_js_includes}"></script>
 <script type="text/javascript" src="library/textformat.js?v={$GLOBALS.v_js_includes}"></script>
@@ -90,7 +90,7 @@ else{
 }
 $(function() {
     $( "#selectPatient" ).autocomplete({
-    	source: "{/literal}{$WEBROOT}{literal}/library/ajax/document_helpers.php",
+    	source: "{/literal}{$GLOBALS.webroot}{literal}/library/ajax/document_helpers.php",
     	focus: function(event, sel) {
             event.preventDefault();
         },
@@ -101,7 +101,7 @@ $(function() {
             	return false;
             }
             $(this).val(sel.item.label);
-            location.href = "{/literal}{$WEBROOT}{literal}/controller.php?document&list&patient_id="+sel.item.value+"&patient_name=" + sel.item.label;
+            location.href = "{/literal}{$GLOBALS.webroot}{literal}/controller.php?document&list&patient_id="+sel.item.value+"&patient_name=" + sel.item.label;
             $("#pid").text(sel.item.value);
         },
         minLength: 0

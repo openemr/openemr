@@ -1,8 +1,19 @@
+{**
+ * Prescription list
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *}
 <html>
 <head>
-{php}html_header_show();{/php}
-<link rel="stylesheet" href="{php}echo $GLOBALS['css_header']; {/php}" type="text/css">
-<script type="text/javascript" src="{php} echo $GLOBALS['assets_static_relative']; {/php}/jquery-min-1-2-2/index.js"></script>
+
+{headerShow}
+
+<link rel="stylesheet" href="{$GLOBALS.css_header}" type="text/css">
+<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-min-1-2-2/index.js"></script>
 
 {literal}
 <style type="text/css" title="mystyles" media="all">
@@ -36,7 +47,7 @@ function changeLinkHref_All(id,addValue,value) {
     }
     else { //remove value from href
         document.getElementById(id).href = document.getElementById(id).href.replace(myRegExp,'');
-		// TajEmo Work By CB 2012/06/14 02:17:16 PM remove the target change
+        // TajEmo Work By CB 2012/06/14 02:17:16 PM remove the target change
     //document.getElementById(id).target = '';
     }
 }
@@ -78,26 +89,26 @@ var CheckForChecks = function(chk) {
 
 function Checking(chk) {
     var len=chk.length;
-	var foundone=false;
+    var foundone=false;
 
     if (len==undefined) {
-			if (chk.checked == true){
-				foundone=true;
-			}
-	}
-	else {
-		for (pr = 0; pr < chk.length; pr++){
-			if (chk[pr].checked == true) {
-				foundone=true;
-			}
-		}
-	}
-	if (foundone) {
-		return true;
-	} else {
-		alert("{/literal}{xl t='Please select at least one prescription!'}{literal}");
-		return false;
-	}
+            if (chk.checked == true){
+                foundone=true;
+            }
+    }
+    else {
+        for (pr = 0; pr < chk.length; pr++){
+            if (chk[pr].checked == true) {
+                foundone=true;
+            }
+        }
+    }
+    if (foundone) {
+        return true;
+    } else {
+        alert("{/literal}{xl t='Please select at least one prescription!'}{literal}");
+        return false;
+    }
 }
 
 $(document).ready(function(){
@@ -115,7 +126,7 @@ $(document).ready(function(){
 <body class="body_top">
 
 {if $prescriptions}
-<span class="title"><b>{xl t='List'}</b></span>
+<span class="title"><b>{xl t='List'|escape:'html'}</b></span>
 
 <div id="prescription_list">
 
@@ -128,25 +139,25 @@ $(document).ready(function(){
                 <table>
                     <tr>
                         <td>
-                            <a id="multiprint" href="{$CONTROLLER}prescription&multiprint&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Download'} ({xl t='PDF'})</span></a>
+                            <a id="multiprint" href="{$CONTROLLER}prescription&multiprint&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Download'|escape:'html'} ({xl t='PDF'|escape:'html'})</span></a>
                         </td>
                         <td>
                           <!-- TajEmo work by CB 2012/06/14 02:16:32 PM target="_script" opens better -->
-                            <a target="_script" id="multiprintcss" href="{$CONTROLLER}prescription&multiprintcss&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='View Printable Version'} ({xl t='HTML'})</span></a>
+                            <a target="_script" id="multiprintcss" href="{$CONTROLLER}prescription&multiprintcss&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='View Printable Version'|escape:'html'} ({xl t='HTML'|escape:'html'})</span></a>
                         </td>
                         <td style="border-style:none;">
-                            <a id="multiprintToFax" href="{$CONTROLLER}prescription&multiprintfax&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Download'} ({xl t='Fax'})</span></a>
+                            <a id="multiprintToFax" href="{$CONTROLLER}prescription&multiprintfax&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Download'|escape:'html'} ({xl t='Fax'|escape:'html'})</span></a>
                         </td>
 
-                {php} if ($GLOBALS['weno_rx_enable']) { {/php}
-						<td style="border-style:none;">
-                            <a id="multiprintToFax" href="{$WEBROOT}/interface/weno/validate.php" onclick="top.restoreSession()" class="css_button"><span>{xl t='Transmit'} {xl t='Rx'}</span></a>
-                        </td>
-				{php} } {/php}
+                        {if $GLOBALS.weno_rx_enable}
+                            <td style="border-style:none;">
+                                <a id="multiprintToFax" href="{$GLOBALS.webroot}/interface/weno/validate.php" onclick="top.restoreSession()" class="css_button"><span>{xl t='Transmit'|escape:'html'} {xl t='Rx'|escape:'html'}</span></a>
+                            </td>
+                        {/if}
                         {if $CAMOS_FORM == true}
-                        <td>
-                            <a id="four_panel_rx" href="{$WEBROOT}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()" class="css_button"><span>{xl t='View Four Panel'}</span></a>
-                        </td>
+                            <td>
+                                <a id="four_panel_rx" href="{$GLOBALS.webroot}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()" class="css_button"><span>{xl t='View Four Panel'|escape:'html'}</span></a>
+                            </td>
                         {/if}
                     </tr>
                 </table>
@@ -155,8 +166,8 @@ $(document).ready(function(){
                 <table>
                 <tr>
                     <td>
-                        <a href="#" class="small" onClick="Check(document.presc.check_list);"><span>{xl t='Check All'}</span></a> |
-                        <a href="#" class="small" onClick="Uncheck(document.presc.check_list);"><span>{xl t='Clear All'}</span></a>
+                        <a href="#" class="small" onClick="Check(document.presc.check_list);"><span>{xl t='Check All'|escape:'html'}</span></a> |
+                        <a href="#" class="small" onClick="Uncheck(document.presc.check_list);"><span>{xl t='Clear All'|escape:'html'}</span></a>
                     </td>
                 </tr>
                 </table>
@@ -170,92 +181,92 @@ $(document).ready(function(){
     <tr>
        <!-- TajEmo Changes 2012/06/14 02:01:43 PM by CB added Heading for checkbox column -->
         <th width="8px">&nbsp;</th>
-		    <th width="8px">&nbsp;</th>
+            <th width="8px">&nbsp;</th>
 
-        <th width="70px">{xl t='Drug'}</th>
-		<th width="70px">{xl t='RxNorm'}</th>
-        <th width="70px">{xl t='Created'}<br />{xl t='Changed'}</th>
-        <th width="20px">{xl t='Dosage'}</th>
-        <th width="20px">{xl t='Qty'}.</th>
-        <th>{xl t='Unit'}</th>
-		<th width="20px">{xl t='Refills'}</th>
-        <th>{xl t='Provider'}</th>
-{php} if ($GLOBALS['weno_rx_enable']) { {/php}
-		<th>{xl t='Send'}<br>{xl t='NewRx'}</th>
-		<th>{xl t='Refill'}<br>{xl t='Rx'}</th>
-		<th>{xl t='Last'}<br>{xl t='Tx Date'}</th>
-{php} } {/php}
+        <th width="70px">{xl t='Drug'|escape:'html'}</th>
+        <th width="70px">{xl t='RxNorm'|escape:'html'}</th>
+        <th width="70px">{xl t='Created'|escape:'html'}<br />{xl t='Changed'|escape:'html'}</th>
+        <th width="20px">{xl t='Dosage'|escape:'html'}</th>
+        <th width="20px">{xl t='Qty'|escape:'html'}.</th>
+        <th>{xl t='Unit'|escape:'html'}</th>
+        <th width="20px">{xl t='Refills'|escape:'html'}</th>
+        <th>{xl t='Provider'|escape:'html'}</th>
+        {if $GLOBALS.weno_rx_enable}
+            <th>{xl t='Send'|escape:'html'}<br>{xl t='NewRx'}|escape:'html'</th>
+            <th>{xl t='Refill'|escape:'html'}<br>{xl t='Rx'|escape:'html'}</th>
+            <th>{xl t='Last'|escape:'html'}<br>{xl t='Tx Date'|escape:'html'}</th>
+        {/if}
     </tr>
 
-	{foreach from=$prescriptions item=prescription}
+    {foreach from=$prescriptions item=prescription}
   <!-- TajEmo Changes 2012/06/14 02:03:17 PM by CB added cursor:pointer for easier user understanding -->
-  <tr style="cursor:pointer" id="{$prescription->id}" class="showborder onescript {if $prescription->active <= 0} inactive{/if}" title="{xl t='Click to view/edit'}">
-	 <td align="center">
-      <input class="check_list" id="check_list" type="checkbox" value="{$prescription->id}" {if $prescription->encounter == $prescription->get_encounter() && $prescription->active > 0}checked="checked" {/if}onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintcss',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="{xl t='Select for printing'}">
+  <tr style="cursor:pointer" id="{$prescription->id|escape:'html'}" class="showborder onescript {if $prescription->active <= 0} inactive{/if}" title="{xl t='Click to view/edit'|escape:'html'}">
+     <td align="center">
+      <input class="check_list" id="check_list" type="checkbox" value="{$prescription->id|escape:'html'}" {if $prescription->encounter == $prescription->get_encounter() && $prescription->active > 0}checked="checked" {/if}onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintcss',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="{xl t='Select for printing'|escape:'html'}">
     </td>
-	{if $prescription->erx_source==0}
+    {if $prescription->erx_source==0}
     <td class="editscript"  id="{$prescription->id}">
-        <a class='editscript css_button_small' id='{$prescription->id}' href="controller.php?prescription&edit&id={$prescription->id}" style="margin-top:-2px"><span>{xl t='Edit'}</span></a>
+        <a class='editscript css_button_small' id='{$prescription->id}' href="controller.php?prescription&edit&id={$prescription->id}" style="margin-top:-2px"><span>{xl t='Edit'|escape:'html'}</span></a>
       <!-- TajEmo Changes 2012/06/14 02:02:22 PM by CB commented out, to avoid duplicate display of drug name
         {if $prescription->active > 0}<b>{/if}{$prescription->drug}{if $prescription->active > 0}</b>{/if}&nbsp;
       -->
     </td>
-	<td class="editscript"  id="{$prescription->id}">
-	{if $prescription->active > 0}<b>{/if}{$prescription->drug|escape:"html"}{if $prescription->active > 0}</b>{/if}&nbsp;
-  <br />{$prescription->note|escape:"html"}
+    <td class="editscript"  id="{$prescription->id}">
+    {if $prescription->active > 0}<b>{/if}{$prescription->drug|escape:'html'}{if $prescription->active > 0}</b>{/if}&nbsp;
+  <br />{$prescription->note||escape:'html'}
     </td>
-	{else}
+    {else}
   <td>&nbsp;</td>
     <td id="{$prescription->id}">
-	{if $prescription->active > 0}<b>{/if}{$prescription->drug|escape:"html"}{if $prescription->active > 0}</b>{/if}&nbsp;
-  <br />{$prescription->note|escape:"html"}
+    {if $prescription->active > 0}<b>{/if}{$prescription->drug|escape:'html'}{if $prescription->active > 0}</b>{/if}&nbsp;
+  <br />{$prescription->note|escape:'html'}
     </td>
-	{/if}
+    {/if}
     <td id="{$prescription->id}">
-      {$prescription->rxnorm_drugcode|escape:"html"}&nbsp;
-    </td>
-    <td id="{$prescription->id}">
-      {$prescription->date_added}<br />
-      {$prescription->date_modified}&nbsp;
+      {$prescription->rxnorm_drugcode|escape:'html'}&nbsp;
     </td>
     <td id="{$prescription->id}">
-      {$prescription->get_dosage_display()|escape:"html"} &nbsp;
+      {$prescription->date_added|escape:'html'}<br />
+      {$prescription->date_modified|escape:'html'}&nbsp;
     </td>
-	{if $prescription->erx_source==0}
+    <td id="{$prescription->id}">
+      {$prescription->get_dosage_display()|escape:'html'} &nbsp;
+    </td>
+    {if $prescription->erx_source==0}
     <td class="editscript" id="{$prescription->id}">
-      {$prescription->quantity|escape:"html"} &nbsp;
+      {$prescription->quantity|escape:'html'} &nbsp;
     </td>
-	{else}
-	<td id="{$prescription->id}">
-      {$prescription->quantity|escape:"html"} &nbsp;
-    </td>
-	{/if}
+    {else}
     <td id="{$prescription->id}">
-       {$prescription->get_size()|escape:"html"} {$prescription->get_unit_display()}&nbsp;
+      {$prescription->quantity|escape:'html'} &nbsp;
     </td>
+    {/if}
     <td id="{$prescription->id}">
-      {$prescription->refills} &nbsp;
+       {$prescription->get_size()|escape:'html'} {$prescription->get_unit_display()|escape:'html'}&nbsp;
     </td>
     <td id="{$prescription->id}">
-      {$prescription->provider->get_name_display()}&nbsp;
+      {$prescription->refills|escape:'html'} &nbsp;
     </td>
-{php} if ($GLOBALS['weno_rx_enable']) { {/php}
-	 <td align="center">
-	 {if $prescription->ntx == 0}
-      <input class="check_list" id="NewRx-{$smarty.foreach.rx.index}" type="checkbox" value="{$prescription->id}" onClick="markTx('NewRx-{$prescription->id}');" title={xl t="Select to transmit"}>
-     {/if}
-     </td>
-	 <td align="center">
-     {if $prescription->ntx == 1}
-      <input class="check_list" id="RefillRx-{$smarty.foreach.rx.index}" type="checkbox" value="{$prescription->id}" onClick="markTx('RefillRx-{$prescription->id}');" title={xl t="Select to transmit"}>
-	 {/if}
-     </td>
-	 <td id="{$prescription->id}" align="center">
-      {$prescription->txDate}
-     </td>
-{php} } {/php}
+    <td id="{$prescription->id}">
+      {$prescription->provider->get_name_display()|escape:'html'}&nbsp;
+    </td>
+    {if $GLOBALS.weno_rx_enable}
+        <td align="center">
+        {if $prescription->ntx == 0}
+            <input class="check_list" id="NewRx-{$smarty.foreach.rx.index|escape:'html'}" type="checkbox" value="{$prescription->id|escape:'html'}" onClick="markTx('NewRx-{$prescription->id|escape:'html'}');" title={xl t="Select to transmit"|escape:'html'}>
+        {/if}
+        </td>
+        <td align="center">
+        {if $prescription->ntx == 1}
+            <input class="check_list" id="RefillRx-{$smarty.foreach.rx.index|escape:'html'}" type="checkbox" value="{$prescription->id|escape:'html'}" onClick="markTx('RefillRx-{$prescription->id|escape:'html'}');" title={xl t="Select to transmit"|escape:'html'}>
+        {/if}
+        </td>
+        <td id="{$prescription->id|escape:'html'}" align="center">
+        {$prescription->txDate|escape:'html'}
+        </td>
+    {/if}
   </tr>
-	{/foreach}
+    {/foreach}
 
 </table>
 
@@ -263,7 +274,7 @@ $(document).ready(function(){
 </div>
 
 {else}
-<div class="text" style="margin-top:10px">{xl t='There are currently no prescriptions'}.</div>
+<div class="text" style="margin-top:10px">{xl t='There are currently no prescriptions'|escape:'html'}.</div>
 {/if}
 
 </body>
@@ -282,7 +293,7 @@ $(".onescript").mouseout(function() { $(this).children().toggleClass("highlight"
 var ShowScript = function(eObj) {
     top.restoreSession();
     objID = eObj.id;
-    document.location.href="{/literal}{$WEB_ROOT}{literal}/controller.php?prescription&edit&id="+objID;
+    document.location.href="{/literal}{$GLOBALS.webroot}{literal}/controller.php?prescription&edit&id="+objID;
     return true;
 };
 

@@ -45,9 +45,6 @@ class C_Prescription extends Controller
         $this->assign("WEIGHT_LOSS_CLINIC", $GLOBALS['weight_loss_clinic']);
         $this->assign("SIMPLIFIED_PRESCRIPTIONS", $GLOBALS['simplified_prescriptions']);
         $this->pconfig = $GLOBALS['oer_config']['prescriptions'];
-        $this->assign("CSS_HEADER", $GLOBALS['css_header']);
-        $this->assign("WEB_ROOT", $GLOBALS['webroot']);
-        $this->assign('GLOBALS', $GLOBALS);
         $this->RxList = new RxList();
 
         if ($GLOBALS['inhouse_pharmacy']) {
