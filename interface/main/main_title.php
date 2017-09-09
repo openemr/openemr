@@ -2,20 +2,25 @@
 /**
  * main_title.php - The main titlebar, at the top of the 'concurrent' layout.
  */
-
+use OpenEMR\Core\Header;
 include_once('../globals.php');
 ?>
+<!DOCTYPE html>
 <html>
 <head>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader();?>
 <style type="text/css">
-      .hidden {
-        display:none;
-      }
-      .visible{
-        display:block;
-      }
+    .hidden {
+    display:none;
+    }
+    .visible{
+    display:block;
+    }
+    a, a:hover, a:visited{
+    color: black;
+    text-decoration: none;
+    }
 </style>
 
 <script type="text/javascript" language="javascript">
