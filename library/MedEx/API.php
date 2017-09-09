@@ -761,128 +761,129 @@ class Display extends base
                 
         ?>
         <script>
-        function toggle_menu() {
-            //$("#navbar_oe").slideToggle();
-            var x = document.getElementById('navbar_oe');
-            if (x.style.display === 'none') {
-                $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
-                    'setting_bootstrap_submenu' : 'show',
-                    success: function (data) {
-                        x.style.display = 'block';
-                    }
+            function toggle_menu() {
+                //$("#navbar_oe").slideToggle();
+                var x = document.getElementById('hide_nav');
+                if (x.style.display === 'none') {
+                    $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
+                        'setting_bootstrap_submenu' : 'show',
+                        success: function (data) {
+                            x.style.display = 'block';
+                        }
+                        });
+                    
+                } else {
+                    $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
+                        'setting_bootstrap_submenu' : 'hide',
+                        success: function (data) {
+                            x.style.display = 'none';
+                        }
                     });
-                
-            } else {
-                $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
-                    'setting_bootstrap_submenu' : 'hide',
-                    success: function (data) {
-                        x.style.display = 'none';
-                    }
-                });
-                
-            }
+                }
             $("#patient_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');
-        }
+            }
         </script>
         <i class="fa fa-caret-<?php 
             if ($setting_bootstrap_submenu == 'hide') {
                 echo 'down';
             } else {
                 echo 'up';
-            } ?> menu_arrow" style="position:fixed;left:5px;top:5px;z-index:1001;" id="patient_caret" onclick='toggle_menu();' aria-hidden="true"></i>
-               
-        <nav id="navbar_oe" class="bgcolor2 navbar-fixed-top navbar-custom navbar-bright navbar-inner" name="kiosk_hide" 
-            style="font-size:0.9em;<?php if ($setting_bootstrap_submenu == 'hide') { echo 'display: none;'; } ?>" 
-            data-role="page banner navigation">
-            <!-- Brand and toggle get grouped for better mobile display -->
-                <div class="container-fluid">
-                <div class="navbar-header brand">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#oer-navbar-collapse-1">
-                        <span class="sr-only"><?php echo xlt("Toggle navigation"); ?></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                </div>
-                <div class="navbar-collapse collapse" id="oer-navbar-collapse-1">
-                    <ul class="navbar-nav">
-                        <?php
-                        if ($GLOBALS['medex_enable'] == '1') {
-                            ?>
-                            <li class="dropdown">
-                                <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
-                                <ul class="bgcolor2 dropdown-menu" role="menu">
-                                    <?php 
-                                    if ($logged_in) { 
-                                        ?>
-                                        <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class=""><a onclick="tabYourIt('prefs','main/messages/messages.php?go=Preferences');"><?php echo xlt("Preferences"); ?></a></li>
+            } ?> menu_arrow" style="position:fixed;left:5px;top:5px;z-index:1031;" id="patient_caret" onclick='toggle_menu();' aria-hidden="true"></i>
+        <div id="hide_nav" style="<?php if ($setting_bootstrap_submenu == 'hide') { echo "display:none;"; } ?>">      
+            <nav id="navbar_oe" class="bgcolor2 navbar-fixed-top navbar-custom navbar-bright navbar-inner" name="kiosk_hide" 
+                style="font-size:0.9em;" 
+                data-role="page banner navigation">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="container-fluid">
+                    <div class="navbar-header brand">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#oer-navbar-collapse-1">
+                            <span class="sr-only"><?php echo xlt("Toggle navigation"); ?></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                    </div>
+                    <div class="navbar-collapse collapse" id="oer-navbar-collapse-1">
+                        <ul class="navbar-nav">
+                            <?php
+                            if ($GLOBALS['medex_enable'] == '1') {
+                                ?>
+                                <li class="dropdown">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
+                                    <ul class="bgcolor2 dropdown-menu" role="menu">
                                         <?php 
-                                    } else { 
+                                        if ($logged_in) { 
+                                            ?>
+                                            <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class=""><a onclick="tabYourIt('prefs','main/messages/messages.php?go=Preferences');"><?php echo xlt("Preferences"); ?></a></li>
+                                            <?php 
+                                        } else { 
+                                            ?>
+                                            <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class="">
+                                            <a href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=setup&stage=1"><?php echo xlt("Setup MedEx"); ?></a></li>
+                                            <?php
+                                        } 
                                         ?>
-                                        <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class="">
-                                        <a href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=setup&stage=1"><?php echo xlt("Setup MedEx"); ?></a></li>
-                                        <?php
-                                    } 
-                                    ?>
-                                    <li id="icons" name="icons"><a onclick="doRecallclick_edit('icons');"><?php echo xlt('Icon Legend'); ?></a></li>
+                                        <li id="icons" name="icons"><a onclick="doRecallclick_edit('icons');"><?php echo xlt('Icon Legend'); ?></a></li>
+                                    </ul>
+                                </li>
+                                <?php
+                            }
+                            ?>
+                            
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_msg" role="button" aria-expanded="true"><?php echo xlt("Messages"); ?> </a>
+                                <ul class="bgcolor2 dropdown-menu" role="menu">
+                                    <li id="menu_new_msg"> <a href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?showall=no&sortby=users.lname&sortorder=asc&begin=0&task=addnew&form_active=1"> <?php echo xlt("New Message"); ?></a></li>
+
+                                    <li class="divider"><hr /></li>
+
+                                    <li id="menu_new_msg"> <a href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=no&form_active=1"> <?php echo xlt("My Messages"); ?></a></li>
+                                    <li id="menu_all_msg"> <a href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("All Messages"); ?></a></li>
+
+                                    <li class="divider"><hr /></li>
+                                    
+                                    <li id="menu_active_msg"> <a href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("Active Messages"); ?></a></li>
+                                    <li id="menu_inactive_msg"> <a href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?form_inactive=1"> <?php echo xlt("Inactive Messages"); ?></a></li>
+                                    <li id="menu_log_msg"> <a onclick="openLogScreen();" > <?php echo xlt("Message Log"); ?></a></li>
                                 </ul>
                             </li>
-                            <?php
-                        }
-                        ?>
-                        
-                        <li class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_msg" role="button" aria-expanded="true"><?php echo xlt("Messages"); ?> </a>
-                            <ul class="bgcolor2 dropdown-menu" role="menu">
-                                <li id="menu_new_msg"> <a href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?showall=no&sortby=users.lname&sortorder=asc&begin=0&task=addnew&form_active=1"> <?php echo xlt("New Message"); ?></a></li>
-
-                                <li class="divider"><hr /></li>
-
-                                <li id="menu_new_msg"> <a href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=no&form_active=1"> <?php echo xlt("My Messages"); ?></a></li>
-                                <li id="menu_all_msg"> <a href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("All Messages"); ?></a></li>
-
-                                <li class="divider"><hr /></li>
-                                
-                                <li id="menu_active_msg"> <a href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("Active Messages"); ?></a></li>
-                                <li id="menu_inactive_msg"> <a href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?form_inactive=1"> <?php echo xlt("Inactive Messages"); ?></a></li>
-                                <li id="menu_log_msg"> <a onclick="openLogScreen();" > <?php echo xlt("Message Log"); ?></a></li>
-                            </ul>
-                        </li>
-                        <?php 
-                        if ($logged_in) { 
-                            ?>
-                            <li class="dropdown" > <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Appt. Reminders"); ?> </a>
-                                 <ul class="bgcolor2 dropdown-menu" role="menu">
-                                    <li><a id="BUTTON_ApRem_menu" onclick="tabYourIt('cal','main/main_info.php');"> <?php echo xlt("Calendar"); ?></a></li>
-                                    <li class="divider"><hr /></li>
-                                    <li id="menu_pend_recalls" name="menu_pend_recalls"> <a id="BUTTON_pend_recalls_menu" onclick="tabYourIt('flb','patient_tracker/patient_tracker.php?skip_timeout_reset=1');"> <?php echo xlt("Flow Board"); ?></a></li>
-                                    <li class="divider"><hr /></li>
-                                    <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap left' target='_MedEx' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Reminder Campaigns"); ?></a></li>
-                                </ul>
-                             </li>
-                            <?php 
-                        } 
-                        ?>
-                         <li class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Patient Recalls"); ?> </a>
-                            <ul class="bgcolor2 dropdown-menu" role="menu">
-                                <li id="menu_new_recall" name="menu_new_recall"> <a id="BUTTON_new_recall_menu" onclick="tabYourIt('rcb','main/messages/messages.php?go=addRecall');"> <?php echo xlt("New Recall"); ?></a></li>
-                                <li id="menu_pend_recalls" name="menu_pend_recalls"> <a  onclick="goReminderRecall('Recalls');" id="BUTTON_pend_recalls_menu" href="#"> <?php echo xlt("Recall Board"); ?></a></li>
                             <?php 
                             if ($logged_in) { 
                                 ?>
-                                 <li class="divider"><hr /></li>
-                                <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap left' target='_blank' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Recall Campaigns"); ?></a></li>
+                                <li class="dropdown" > <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Appt. Reminders"); ?> </a>
+                                     <ul class="bgcolor2 dropdown-menu" role="menu">
+                                        <li><a id="BUTTON_ApRem_menu" onclick="tabYourIt('cal','main/main_info.php');"> <?php echo xlt("Calendar"); ?></a></li>
+                                        <li class="divider"><hr /></li>
+                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> <a id="BUTTON_pend_recalls_menu" onclick="tabYourIt('flb','patient_tracker/patient_tracker.php?skip_timeout_reset=1');"> <?php echo xlt("Flow Board"); ?></a></li>
+                                        <li class="divider"><hr /></li>
+                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap left' target='_MedEx' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Reminder Campaigns"); ?></a></li>
+                                    </ul>
+                                 </li>
                                 <?php 
                             } 
-                            ?>
-                            </ul>
-                        </li>
-                    </ul>
-                </div><!-- /.navbar-collapse -->
-            </div>
-        </nav>
 
+                            if ( $GLOBALS['disable_rcb'] != '1' ) { ?>
+                                <li class="dropdown">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Patient Recalls"); ?> </a>
+                                    <ul class="bgcolor2 dropdown-menu" role="menu">
+                                        <li id="menu_new_recall" name="menu_new_recall"> <a id="BUTTON_new_recall_menu" onclick="tabYourIt('rcb','main/messages/messages.php?go=addRecall');"> <?php echo xlt("New Recall"); ?></a></li>
+                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> <a  onclick="goReminderRecall('Recalls');" id="BUTTON_pend_recalls_menu" href="#"> <?php echo xlt("Recall Board"); ?></a></li>
+                                    <?php 
+                                    if ($logged_in) { 
+                                        ?>
+                                         <li class="divider"><hr /></li>
+                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap left' target='_blank' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Recall Campaigns"); ?></a></li>
+                                        <?php 
+                                    } 
+                                    ?>
+                                    </ul>
+                                </li>
+                            <?php  }  ?>
+                        </ul>
+                    </div><!-- /.navbar-collapse -->
+                </div>
+            </nav>
+        </div>
         <?php
         if ($GLOBALS['medex_enable'] == '1') {
             $error=$this->MedEx->getLastError();
@@ -905,15 +906,16 @@ class Display extends base
         }
         ?>
         <div class="row">
-            <div class="col-sm-12">
-                <div class="showRecalls" id="show_recalls" style="text-align:center;margin:40px auto;">
+            <div class="col-sm-6 col-sm-offset-2 text-center">
+                <div class="showRecalls" id="show_recalls">
                     <div class="title"><?php echo xlt('Reminder/Recall Preferences'); ?></div>
-                    <div name="div_response" id="div_response"><br /></div>
+                    <div name="div_response" id="div_response" class="form-inline"><br /></div>
                         <form action="#" name="save_prefs" id="save_prefs">
                             <div class="row">
                                 <div class="col-sm-1"><input type="hidden" name="go" id="go" value="Preferences">
                                 </div>
-                                <div class="col-sm-10 div-center" id="daform2"><div class="divTable2">
+                                <div class="col-sm-10 div-center" id="daform2">
+                                    <div class="divTable2">
                                         <div class="divTableBody prefs">
                                             <div class="divTableRow">
                                                 <div class="divTableCell divTableHeading"><?php echo xlt('General'); ?></div>
@@ -932,7 +934,7 @@ class Display extends base
                                                 </div>
                                             </div>
                                             <div class="divTableRow">
-                                                <div class="divTableCell divTableHeading"><?php echo xlt('Process Messages for Facility'); ?></div>
+                                                <div class="divTableCell divTableHeading"><?php echo xlt('Facility Messages'); ?></div>
                                                 <div class="divTableCell indent20">
                                                 <?php
                                                 $count="1";
@@ -956,7 +958,7 @@ class Display extends base
                                                 </div>
                                             </div>
                                             <div class="divTableRow">
-                                                <div class="divTableCell divTableHeading"><?php echo xlt('Process Reminders for Provider'); ?></div>
+                                                <div class="divTableCell divTableHeading"><?php echo xlt('Provider Messages'); ?></div>
                                                 <div class="divTableCell indent20">
                                                 <?php
                                                 $count="1";
@@ -988,12 +990,8 @@ class Display extends base
                                                     <input type="checkbox" class="update" name="LABELS_local" id="LABELS_local" value="1" <?php if ($prefs['LABELS_local']) {
                                                         echo "checked='checked'";} ?> />
                                                     <label for="LABELS_local" class="input-helper input-helper--checkbox" title='<?php echo xla('Check if you plan to use Avery Labels for Reminders or Recalls'); ?>'>
-                                                    <?php echo xlt('Use Labels'); ?></label> 
-                                                    <table id="LABELS_local_details" name="LABELS_local_details" class="<?php echo attr($show_local_only); ?>">
-                                                        <tr>
-                                                            <td colspan="2">
-                                                                <?php echo xlt('Avery Label'); ?>: 
-                                                                <select class="update" id="chart_label_type" name="chart_label_type">
+                                                    <?php echo xlt('Use Avery Labels'); ?></label> 
+                                                    <select class="update form-control" id="chart_label_type" name="chart_label_type">
                                                                     <option value='1' <?php if ($prefs['LABELS_choice'] == '1') {
                                                                         echo "selected";} ?>>5160</option>
                                                                     <option value='2' <?php if ($prefs['LABELS_choice'] == '2') {
@@ -1011,9 +1009,7 @@ class Display extends base
                                                                     <option value='8' <?php if ($prefs['LABELS_choice'] == '8') {
                                                                         echo "selected";} ?>>3422</option>
                                                                 </select>
-                                                            </td>
-                                                        </tr>
-                                                    </table>
+                                                            
                                                 </div>
                                             </div>
                                             <div class="divTableRow">
@@ -1027,7 +1023,8 @@ class Display extends base
                                                         echo "checked='checked'";} ?>" />
                                                     <label for="POSTCARDS_remote" name="POSTCARDS_remote" class="input-helper input-helper--checkbox" title='<?php echo xla('Check if you plan to send postcards via MedEx'); ?>'><?php echo xlt('Print remotely'); ?></label>
                                                 -->
-                                                    <label for="postcards_top" title="<?php echo xla('Custom text for Flow Board postcards. After changing text, print samples before printing mass quantities!'); ?>"><u><?php echo xlt('Custom Greeting'); ?>:</u></label><br /><textarea rows=3 columns=70 id="postcard_top" name="postcard_top" class="update" style="font-weight:400;"><?php echo nl2br(text($prefs['postcard_top'])); ?></textarea>
+                                                    <label for="postcards_top" title="<?php echo xla('Custom text for Flow Board postcards. After changing text, print samples before printing mass quantities!'); ?>"><u><?php echo xlt('Custom Greeting'); ?>:</u></label><br />
+                                                    <textarea rows=3 columns=70 id="postcard_top" name="postcard_top" class="update form-control" style="font-weight:400;"><?php echo nl2br(text($prefs['postcard_top'])); ?></textarea>
                                                 </div>
                                             </div>
                                             <?php
@@ -1118,10 +1115,10 @@ class Display extends base
                     }
                     ?>
                     <br />
-                    <form method="post">
+                    <form name="rcb" id="rcb" method="post">
                         <input type="hidden" name="go" value="Recalls">
                         <div class=" text-center row divTable" style="width: 85%;float:unset;margin: 0px auto;">
-                            <form name="rcb" id="rcb" method="post">
+                            
                                 <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
                                     <input placeholder="<?php echo attr('Patient ID'); ?>"  
                                         style="max-width:200px;" 
@@ -1248,8 +1245,7 @@ class Display extends base
                                   <?php } ?>
                                 </div>
                                 <div name="message" id="message" class="warning"></div>
-                                </div>
-                            </form> 
+                            </div>
                         </div> 
                     </form>       
                 </div>
@@ -1276,8 +1272,7 @@ class Display extends base
                     <div class="tab-content">
                      
                        <div class="tab-pane active" id="tab-all">     
-
-                        <?php
+                            <?php
                                 $this->recall_board_top($logged_in);
                                 echo $processed['ALL'];
                                 $this->recall_board_bot($logged_in);
@@ -1321,8 +1316,8 @@ class Display extends base
                 return false;
             }
             $(document).ready(function() {
-                $("#form_facility").change();
-                $("#form_provider").change();
+                show_this();
+                //$("#form_provider").change();
             });
            
         </script>
@@ -1375,10 +1370,10 @@ class Display extends base
             $age = $MedEx->events->getAge($result2['DOB']);
             echo '<div class="divTableCell center"><a href="#" onclick="show_patient(\''.attr($recall['pid']).'\');"> '.text($recall['fname']).' '.text($recall['lname']).'</a>';
             if ( $GLOBALS['ptkr_show_pid'] ) { 
-                echo '<br /><span title="'.xla("Patient ID").'" class="small">PID: '.text($recall['pid']).'</span>';
+                echo '<br /><span title="'.xla("Patient ID").'" class="small">'. xlt('PID').': '.text($recall['pid']).'</span>';
             }
             echo '<br /><span title="'.xla("Most recent visit").'" class="small">Last Visit: '.oeFormatShortDate($last_visit).'</span>';
-            echo '<br /><span class="small" title="'.xla("Date of Birth and Age").'">DOB: '.text($DOB).' ('.$age.')</span>';
+            echo '<br /><span class="small" title="'.xla("Date of Birth and Age").'">'. xlt('DOB').': '.text($DOB).' ('.$age.')</span>';
             echo '</div>';
 
             echo '<div class="divTableCell appt_date">'.oeFormatShortDate($recall['r_eventDate']);
@@ -1393,10 +1388,10 @@ class Display extends base
             }
 
             if ($count_providers > '1') {
-                echo "<br /><span title='Provider'>".text($provider[$recall['r_provider']])."</span>";
+                echo "<br /><span title='".xla('Provider')."'>".text($provider[$recall['r_provider']])."</span>";
             }
-            if ($count_facilities > '1') {
-                echo "<br /><span title='Facility'>".text($facility[$recall['r_facility']])."</span><br />";
+            if ( ( $count_facilities > '1' ) && ( $_REQUEST['form_facility'] =='' ) ) {
+                echo "<br /><span title='".xla('Facility')."'>".text($facility[$recall['r_facility']])."</span><br />";
             }
 
             echo '</div>';
@@ -1479,7 +1474,7 @@ class Display extends base
                 </div>
                 <div class="divTableCell center msg_resp"><?php echo xlt('Office').": ".xlt('Phone'); ?></div>
                 <div class="divTableCell center msg_notes"><?php echo xlt('Notes'); ?></div>
-                <div class="divTableCell center msg_notes"><?php echo xlt('Progress'); ?>
+                <div class="divTableCell center"><?php echo xlt('Progress'); ?>
                 </div>
               
             </div>
@@ -1572,43 +1567,44 @@ class Display extends base
                     <div name="div_response" id="div_response"><?php echo xlt('Create a reminder to schedule a future visit'); ?> .</div>
                 </div>
             </div>
-            <form name="addRecall" id="addRecall">
-                <div class="row-fluid divTable float_center">
+            <div class="row-fluid divTable float_center">
+                <form name="addRecall" id="addRecall" class="form-inline" >
                     <input type="hidden" name="go" id="go" value="addRecall">
                     <input type="hidden" name="action" id="go" value="addRecall">
-                    <div class="col-sm-6 text-right">
+                    <div class="col-sm-6 text-right form-group form-group-sm">
                         <div class="divTableBody pull-right">
                             <div class="divTableRow">
                                 <div class="divTableCell divTableHeading"><?php echo xlt('Name'); ?></div>
                                 <div class="divTableCell recall_name">
-                                    <input type="text" name="new_recall_name" id="new_recall_name" 
+                                    <input type="text" name="new_recall_name" id="new_recall_name" class="form-control"
                                         onclick="recall_name_click(this)" 
-                                        value="<?php echo attr($result_pat['fname'])." ".attr($result_pat['lname']); ?>">
+                                        value="<?php echo attr($result_pat['fname'])." ".attr($result_pat['lname']); ?>" style="width:225px;">
                                     <input type="hidden" name="new_pid" id="new_pid" value="<?php echo attr($result_pat['id']); ?>">
                                 </div>
                             </div>
                             <div class="divTableRow">
                                 <div class="divTableCell divTableHeading"><?php echo xlt('Recall When'); ?></div>
-                                <div class="divTableCell indent20">
-                                     <span class="bold"><?php echo xlt('Last Visit'); ?>: </span><input type="text" value="" name="DOLV" id="DOLV">
+                                <div class="divTableCell indent20" style="width:250px;">
+                                     <span class="bold"><?php echo xlt('Last Visit'); ?>: </span><input type="text" value="" name="DOLV" id="DOLV" class="form-control">
                                     <br />
                                     <!-- Feel free to add in any dates you would like to show here...
                                     <input type="radio" name="new_recall_when" id="new_recall_when_6mos" value="180">
                                     <label for="new_recall_when_6mos" class="input-helper input-helper--checkbox">+ 6 <?php echo xlt('months'); ?></label><br />
                                     -->
-                                    <input type="radio" name="new_recall_when" id="new_recall_when_1yr" value="365">
-                                    <label for="new_recall_when_1yr" class="input-helper input-helper--checkbox"><?php echo xlt('Plus 1 year'); ?></label><br />
-                                    <input type="radio" name="new_recall_when" id="new_recall_when_2yr" value="730">
-                                        <label for="new_recall_when_2yr" class="input-helper input-helper--checkbox"><?php echo xlt('Plus 2 years'); ?></label><br />
-                                    <input type="radio" name="new_recall_when" id="new_recall_when_3yr" value="1095">
-                                        <label for="new_recall_when_3yr" class="input-helper input-helper--checkbox"><?php echo xlt('Plus 3 years'); ?></label><br />
-                                        <span class="bold"> <?php echo xlt('Date'); ?>:</span> <input type="text" id="datepicker2" name="datepicker2" value="" style="width:100px;">
+                                    <label for="new_recall_when_1yr" class="indent20 input-helper input-helper--checkbox"><input type="radio" name="new_recall_when" id="new_recall_when_1yr" value="365" class="form-control">
+                                    <?php echo xlt('plus 1 year'); ?></label><br />
+                                    <label for="new_recall_when_2yr" class="indent20 input-helper input-helper--checkbox"><input type="radio" name="new_recall_when" id="new_recall_when_2yr" value="730" class="form-control">
+                                        <?php echo xlt('plus 2 years'); ?></label><br />
+                                    <label for="new_recall_when_3yr" class="indent20 input-helper input-helper--checkbox"><input type="radio" name="new_recall_when" id="new_recall_when_3yr" value="1095" class="form-control">
+                                        <?php echo xlt('plus 3 years'); ?></label><br />
+                                        <span class="bold"> <?php echo xlt('Date'); ?>:</span> <input class="form-control" type="text" id="datepicker2" name="datepicker2" value="">
                                 </div>
                             </div>
                             <div class="divTableRow">
                                 <div class="divTableCell divTableHeading"><?php echo xlt('Recall Reason'); ?></div>
                                 <div class="divTableCell">
-                                    <input type="text" name="new_reason" id="new_reason" value="<?php echo attr(rtrim("|", trim($result_pat['PLAN']))); ?>">
+                                    <input class="form-control" type="text"  style="width:225px;" name="new_reason" id="new_reason" value="<?php 
+                                    if ($result_pat['PLAN'] > '') { echo attr(rtrim("|", trim($result_pat['PLAN']))); } ?>">
                                 </div>
                             </div>
                             <div class="divTableRow">
@@ -1631,7 +1627,7 @@ class Display extends base
                                         $defaultProvider = $userid;
                                     }
                                     
-                                    echo "<select name='new_provider' id='new_provider' style='padding:4px;' />";
+                                    echo "<select  class='form-control' name='new_provider' id='new_provider' style='width:225px;'>";
                                     while ($urow = sqlFetchArray($ures)) {
                                         echo "    <option value='" . attr($urow['id']) . "'";
                                         if ($urow['id'] == $defaultProvider) {
@@ -1650,7 +1646,7 @@ class Display extends base
                             <div class="divTableRow">
                                 <div class="divTableCell divTableHeading"><?php echo xlt('Facility'); ?></div>
                                 <div class="divTableCell">
-                                    <select name="new_facility" id="new_facility" style="padding: 4px;">
+                                    <select  class="form-control" name="new_facility" id="new_facility" style="width:225px;">
                                         <?php
                                             $qsql = sqlStatement("SELECT id, name, primary_business_entity FROM facility WHERE service_location != 0");
                                         while ($facrow = sqlFetchArray($qsql)) {
@@ -1670,7 +1666,7 @@ class Display extends base
                         </div>
                     </div>
 
-                    <div class="col-sm-6 text-center">
+                    <div class="col-sm-6 text-center form-group form-group-sm">
                         <div class="divTableBody">
                             <div class="divTableRow news">
                                 <div class="divTableCell divTableHeading"><?php echo xlt('DOB'); ?></div>
@@ -1684,58 +1680,59 @@ class Display extends base
                             <div class="divTableRow news">
                                 <div class="divTableCell divTableHeading"><?php echo xlt('Address'); ?></div>
                                 <div class="divTableCell">
-                                    <input type="text" name="new_address" id="new_address" style="width:200px;" value="<?php echo attr($result_pat['street']); ?>"><br />
-                                    <input type="text" name="new_city" id="new_city" style="width:100px;" value="<?php echo attr($result_pat['city']); ?>">
-                                    <input type="text" name="new_state" id="new_state" style="width:30px;" value="<?php echo attr($result_pat['state']); ?>">
-                                    <input type="text" name="new_postal_code" id="new_postal_code" style="width:50px;" value="<?php echo attr($result_pat['postal_code']); ?>"></div>
+                                    <input type="text"  class="form-control" name="new_address" id="new_address" style="width:200px;" value="<?php echo attr($result_pat['street']); ?>"><br />
+                                    <input type="text"  class="form-control" name="new_city" id="new_city" style="width:100px;" value="<?php echo attr($result_pat['city']); ?>">
+                                    <input type="text"  class="form-control" name="new_state" id="new_state" style="width:30px;" value="<?php echo attr($result_pat['state']); ?>">
+                                    <input type="text"  class="form-control" name="new_postal_code" id="new_postal_code" style="width:50px;" value="<?php echo attr($result_pat['postal_code']); ?>"></div>
                             </div>
                             <div class="divTableRow news">
                                 <div class="divTableCell divTableHeading phone_home"><?php echo xlt('Home Phone'); ?></div>
-                                <div class="divTableCell"><input type="text" name="new_phone_home" id="new_phone_home" style="width:200px;" value="<?php echo attr($result_pat['phone_home']); ?>"></div>
+                                <div class="divTableCell"><input type="text" name="new_phone_home" id="new_phone_home" class="form-control" value="<?php echo attr($result_pat['phone_home']); ?>"></div>
                             </div>
                             <div class="divTableRow news">
                                 <div class="divTableCell divTableHeading phone_cell"><?php echo xlt('Mobile Phone'); ?></div>
-                                <div class="divTableCell"><input type="text" name="new_phone_cell" id="new_phone_cell" style="width:200px;" value="<?php echo attr($result_pat['phone_cell']); ?>"></div>
+                                <div class="divTableCell"><input type="text" name="new_phone_cell" id="new_phone_cell" class="form-control" value="<?php echo attr($result_pat['phone_cell']); ?>"></div>
                             </div>
                             <div class="divTableRow news">
                                 <div class="divTableCell divTableHeading msg_sent" title="<?php echo xla('Text Message'); ?>"><?php echo xlt('SMS OK'); ?></div>
                         
                                 <div class="divTableCell indent20">
-                                    <input type="radio" name="new_allowsms" id="new_allowsms_yes" value="YES"> <label for="new_allowsms_yes"><?php echo xlt('YES'); ?></label>
+                                    <input type="radio" class="form-control" name="new_allowsms" id="new_allowsms_yes" value="YES"> <label for="new_allowsms_yes"><?php echo xlt('YES'); ?></label>
                                     &nbsp;&nbsp; 
-                                    <input type="radio" name="new_allowsms" id="new_allowsms_no" value="NO"> <label for="new_allowsms_no"><?php echo xlt('NO'); ?></label>
+                                    <input type="radio" class="form-control" name="new_allowsms" id="new_allowsms_no" value="NO"> <label for="new_allowsms_no"><?php echo xlt('NO'); ?></label>
                                 </div>
                             </div>
                             <div class="divTableRow indent20">
                                 <div class="divTableCell divTableHeading msg_how" title="<?php echo xla('Automated Voice Message'); ?>"><?php echo xlt('AVM OK'); ?></div>
                                 <div class="divTableCell indent20">
-                                    <input type="radio" name="new_voice" id="new_voice_yes" value="YES"> <label for="new_voice_yes"><?php echo xlt('YES'); ?></label>
+                                    <input type="radio" class="form-control" name="new_voice" id="new_voice_yes" value="YES"> <label for="new_voice_yes"><?php echo xlt('YES'); ?></label>
                                     &nbsp;&nbsp; 
-                                    <input type="radio" name="new_voice" id="new_voice_no" value="NO"> <label for="new_voice_no"><?php echo xlt('NO'); ?></label>
+                                    <input type="radio" class="form-control" name="new_voice" id="new_voice_no" value="NO"> <label for="new_voice_no"><?php echo xlt('NO'); ?></label>
                                 </div>
                             </div>
                             <div class="divTableRow news">
                                 <div class="divTableCell divTableHeading phone_cell"><?php echo xlt('E-Mail'); ?></div>
-                                <div class="divTableCell"><input type="text" name="new_email" id="new_email" style="width:200px;" value="<?php echo attr($result_pat['email']); ?>"></div>
+                                <div class="divTableCell"><input type="email" name="new_email" id="new_email" class="form-control" style="width:225px;" value="<?php echo attr($result_pat['email']); ?>"></div>
                             </div>
                             
                             <div class="divTableRow news">
                                 <div class="divTableCell divTableHeading msg_when"><?php echo xlt('E-mail OK'); ?></div>
                                 <div class="divTableCell indent20">
-                                    <input type="radio" name="new_email_allow" id="new_email_yes" value="YES"> <label for="new_email_yes"><?php echo xlt('YES'); ?></label>
+                                    <input type="radio" class="form-control" name="new_email_allow" id="new_email_yes" value="YES"> <label for="new_email_yes"><?php echo xlt('YES'); ?></label>
                                     &nbsp;&nbsp; 
-                                    <input type="radio" name="new_email_allow" id="new_email_no" value="NO"> <label for="new_email_no"><?php echo xlt('NO'); ?></label>
+                                    <input type="radio" class="form-control" name="new_email_allow" id="new_email_no" value="NO"> <label for="new_email_no"><?php echo xlt('NO'); ?></label>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="row-fluid clear center" style="width:100%;clear:both;font-size:1.1em;">
-                    <input class="css_button btn" onclick="add_this_recall();"  style="width:100px;" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new">
-                    <br />
-                    <em>* <?php echo xlt('N.B.{{Nota bene}}')." ".xlt('Demographic changes made here are recorded system-wide'); ?>.</em>
-                </div>
-            </form>
+                </form>
+            </div>
+            <div class="row-fluid clear center" style="width:100%;clear:both;font-size:1.1em;">
+                <input class="css_button btn" onclick="add_this_recall();" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new">
+                <br />
+                <em>* <?php echo xlt('N.B.{{Nota bene}}')." ".xlt('Demographic changes made here are recorded system-wide'); ?>.</em>
+            </div>
+        
         </div>
         <?php
     }
@@ -1881,7 +1878,7 @@ class Display extends base
          */
         $camps='0';
         foreach ($events as $event) {
-            if ($event['M_group'] != "RECALL") {
+            if ( $event['M_group'] != "RECALL" ) {
                 continue;
             }
             $pat = $this->possibleModalities($recall);
@@ -1920,6 +1917,8 @@ class Display extends base
             $show['progression'] .= "<a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap left' target='_MedEx'>".
                                     $show['campaign'][$event['C_UID']]['icon']." ".text($show['campaign'][$event['C_UID']]['executed'])."</a><br />";
         }
+        
+
 
         // Show recall row status via background color.
         // If an appt was made < 16hrs ago, make it green(completed) and $show['DONE'] = 1
