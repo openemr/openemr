@@ -74,18 +74,18 @@ class C_Prescription extends Controller
                 }
 
                 $drug_attributes .=    "['"  .
-                    $row['name']       . "',"  . //  0
-                    $row['form']       . ",'"  . //  1
-                    $row['dosage']     . "','" . //  2
-                    $row['size']       . "',"  . //  3
-                    $row['unit']       . ","   . //  4
-                    $row['route']      . ","   . //  5
-                    $row['period']     . ","   . //  6
-                    $row['substitute'] . ","   . //  7
-                    $row['quantity']   . ","   . //  8
-                    $row['refills']    . ","   . //  9
-                    $row['quantity']   . ","   . //  10 quantity per_refill
-                    $row['drug_code']  . "]";    //  11 rxnorm drug code
+                    attr($row['name'])       . "',"  . //  0
+                    attr($row['form'])       . ",'"  . //  1
+                    attr($row['dosage'])     . "','" . //  2
+                    attr($row['size'])       . "',"  . //  3
+                    attr($row['unit'])       . ","   . //  4
+                    attr($row['route'])      . ","   . //  5
+                    attr($row['period'])     . ","   . //  6
+                    attr($row['substitute']) . ","   . //  7
+                    attr($row['quantity'])   . ","   . //  8
+                    attr($row['refills'])    . ","   . //  9
+                    attr($row['quantity'])   . ","   . //  10 quantity per_refill
+                    attr($row['drug_code'])  . "]";    //  11 rxnorm drug code
             }
 
             $this->assign("DRUG_ARRAY_VALUES", $drug_array_values);
