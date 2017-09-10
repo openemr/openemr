@@ -213,7 +213,7 @@ $(document).ready(function(){
     </td>
     <td class="editscript"  id="{$prescription->id}">
     {if $prescription->active > 0}<b>{/if}{$prescription->drug|escape:'html'}{if $prescription->active > 0}</b>{/if}&nbsp;
-  <br />{$prescription->note||escape:'html'}
+  <br />{$prescription->note|escape:'html'}
     </td>
     {else}
   <td>&nbsp;</td>
