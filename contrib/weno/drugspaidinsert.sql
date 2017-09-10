@@ -1,8 +1,3 @@
-
---
--- Dumping data for table `erx_drug_paid`
---
-
 INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (1, 'PHENTERMINE  TAB 37.5MG       ', 'AMPHETAMINE DERIVATIVES  ', 2147483647, '0.56', '37.22', 18, '19.00', '51.03'),
 (2, 'HYDROCO/APAP TAB 10-325MG     ', 'OPIATE AGONISTS          ', 406012501, '0.25', '73.54', 26, '47.67', '64.81'),
@@ -38077,7 +38072,3 @@ INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `
 (37996, 'Isocal HN Plus Oral Liquid', '', 87065244, '0.01', '0.00', 0, '0.00', '0.00'),
 (37997, 'Choice DM TF Oral Liquid', '', 87065302, '0.01', '0.00', 0, '0.00', '0.00'),
 (37998, 'Choice DM TF Oral Liquid', '', 87065345, '0.01', '0.00', 0, '0.00', '0.00');
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
