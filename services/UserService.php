@@ -23,6 +23,8 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\Connector;
+
 class UserService
 {
     /**
@@ -35,7 +37,7 @@ class UserService
      */
     public function __construct()
     {
-        $database = \common\database\Connector::Instance();
+        $database = Connector::Instance();
         $entityManager = $database->entityManager;
         $this->repository = $entityManager->getRepository('\OpenEMR\Entities\User');
     }

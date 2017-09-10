@@ -3,7 +3,7 @@
 // Checks if the server's PHP version is compatible with OpenEMR:
 require_once(dirname(__FILE__) . "/../common/compatibility/Checker.php");
 
-use OpenEMR\Checker;
+use OpenEMR\Common\Checker;
 use OpenEMR\Core\Kernel;
 use Dotenv\Dotenv;
 

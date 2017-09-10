@@ -7,11 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'phpseclib\\' => array($vendorDir . '/phpseclib/phpseclib/phpseclib'),
-    'common\\utils\\' => array($baseDir . '/common/utils'),
-    'common\\logging\\' => array($baseDir . '/common/logging'),
-    'common\\http\\' => array($baseDir . '/common/http'),
-    'common\\database\\' => array($baseDir . '/common/database'),
-    'common\\' => array($baseDir . '/common'),
     'Zend\\' => array($vendorDir . '/zendframework/zendframework/library/Zend'),
     'Symfony\\Polyfill\\Php55\\' => array($vendorDir . '/symfony/polyfill-php55'),
     'Symfony\\Polyfill\\Php54\\' => array($vendorDir . '/symfony/polyfill-php54'),
@@ -36,6 +31,7 @@ return array(
     'OpenEMR\\Entities\\' => array($baseDir . '/entities'),
     'OpenEMR\\Encounter\\Services\\' => array($baseDir . '/interface/patient_file/encounter/Services'),
     'OpenEMR\\Core\\' => array($baseDir . '/library/core/src'),
+    'OpenEMR\\Common\\' => array($baseDir . '/common'),
     'OpenEMR\\Calendar\\' => array($baseDir . '/library/calendar/src'),
     'OpenEMR\\Billing\\' => array($baseDir . '/library/billing/src'),
     'OpenEMR\\Admin\\' => array($baseDir . '/library/admin/src'),

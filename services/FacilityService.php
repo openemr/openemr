@@ -22,6 +22,8 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Utils\QueryUtils;
+
 class FacilityService
 {
     /**
@@ -243,7 +245,7 @@ class FacilityService
         $sql .= "        FAC.extra_validation";
         $sql .= " FROM facility FAC";
 
-        return \common\utils\QueryUtils::selectHelper($sql, $map);
+        return QueryUtils::selectHelper($sql, $map);
     }
 
     private function getPrimaryBusinessEntityLegacy()

@@ -37,11 +37,12 @@
  * @link    http://www.open-emr.org
  */
 
-namespace common\database;
+namespace OpenEMR\Common\Database;
 
 use \Doctrine\ORM\Tools\Setup;
 use \Doctrine\ORM\EntityManager;
-use \common\database\Auditor;
+use OpenEMR\Common\Database\Auditor;
+use OpenEMR\Common\Logging\Logger;
 
 final class Connector
 {
@@ -60,7 +61,7 @@ final class Connector
      */
     private function __construct()
     {
-        $this->logger = new \common\logging\Logger("\common\database\Connector");
+        $this->logger = new Logger("\OpenEMR\Common\Database\Connector");
         $this->createConnection();
     }
 

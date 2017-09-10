@@ -22,6 +22,8 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\Connector;
+use OpenEMR\Common\Logging\Logger;
 use OpenEMR\Entities\Version;
 
 class VersionService
@@ -42,8 +44,8 @@ class VersionService
      */
     public function __construct()
     {
-        $this->logger = new \common\logging\Logger("\OpenEMR\Services\VersionService");
-        $database = \common\database\Connector::Instance();
+        $this->logger = new Logger("\OpenEMR\Services\VersionService");
+        $database = Connector::Instance();
         $entityManager = $database->entityManager;
         $this->repository = $entityManager->getRepository('\OpenEMR\Entities\Version');
     }

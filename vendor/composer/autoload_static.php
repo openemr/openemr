@@ -32,14 +32,6 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         array (
             'phpseclib\\' => 10,
         ),
-        'c' => 
-        array (
-            'common\\utils\\' => 13,
-            'common\\logging\\' => 15,
-            'common\\http\\' => 12,
-            'common\\database\\' => 16,
-            'common\\' => 7,
-        ),
         'Z' => 
         array (
             'Zend\\' => 5,
@@ -75,6 +67,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
             'OpenEMR\\Entities\\' => 17,
             'OpenEMR\\Encounter\\Services\\' => 27,
             'OpenEMR\\Core\\' => 13,
+            'OpenEMR\\Common\\' => 15,
             'OpenEMR\\Calendar\\' => 17,
             'OpenEMR\\Billing\\' => 16,
             'OpenEMR\\Admin\\' => 14,
@@ -106,26 +99,6 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'phpseclib\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib',
-        ),
-        'common\\utils\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/common/utils',
-        ),
-        'common\\logging\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/common/logging',
-        ),
-        'common\\http\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/common/http',
-        ),
-        'common\\database\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/common/database',
-        ),
-        'common\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/common',
         ),
         'Zend\\' => 
         array (
@@ -222,6 +195,10 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OpenEMR\\Core\\' => 
         array (
             0 => __DIR__ . '/../..' . '/library/core/src',
+        ),
+        'OpenEMR\\Common\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/common',
         ),
         'OpenEMR\\Calendar\\' => 
         array (
@@ -1693,6 +1670,13 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OpenEMR\\Admin\\Service\\AdminMenuBuilder' => __DIR__ . '/../..' . '/library/admin/src/Service/AdminMenuBuilder.php',
         'OpenEMR\\Billing\\Claim' => __DIR__ . '/../..' . '/library/billing/src/Claim.php',
         'OpenEMR\\Calendar\\EventListener\\CalendarSubscriber' => __DIR__ . '/../..' . '/library/calendar/src/EventListener/CalendarSubscriber.php',
+        'OpenEMR\\Common\\Checker' => __DIR__ . '/../..' . '/common/compatibility/Checker.php',
+        'OpenEMR\\Common\\Database\\Auditor' => __DIR__ . '/../..' . '/common/database/Auditor.php',
+        'OpenEMR\\Common\\Database\\Connector' => __DIR__ . '/../..' . '/common/database/Connector.php',
+        'OpenEMR\\Common\\Http\\HttpResponseHelper' => __DIR__ . '/../..' . '/common/http/HttpResponseHelper.php',
+        'OpenEMR\\Common\\Logging\\Logger' => __DIR__ . '/../..' . '/common/logging/Logger.php',
+        'OpenEMR\\Common\\Utils\\QueryUtils' => __DIR__ . '/../..' . '/common/utils/QueryUtils.php',
+        'OpenEMR\\Common\\Utils\\StringUtils' => __DIR__ . '/../..' . '/common/utils/StringUtils.php',
         'OpenEMR\\Core\\Controller' => __DIR__ . '/../..' . '/library/core/src/Controller.php',
         'OpenEMR\\Core\\Header' => __DIR__ . '/../..' . '/library/core/src/Header.php',
         'OpenEMR\\Core\\Kernel' => __DIR__ . '/../..' . '/library/core/src/Kernel.php',
@@ -4705,12 +4689,6 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'Zend\\XmlRpc\\Value\\Struct' => __DIR__ . '/..' . '/zendframework/zendframework/library/Zend/XmlRpc/Value/Struct.php',
         'Zend\\XmlRpc\\Value\\Text' => __DIR__ . '/..' . '/zendframework/zendframework/library/Zend/XmlRpc/Value/Text.php',
         'bmp' => __DIR__ . '/..' . '/mpdf/mpdf/classes/bmp.php',
-        'common\\database\\Auditor' => __DIR__ . '/../..' . '/common/database/Auditor.php',
-        'common\\database\\Connector' => __DIR__ . '/../..' . '/common/database/Connector.php',
-        'common\\http\\HttpResponseHelper' => __DIR__ . '/../..' . '/common/http/HttpResponseHelper.php',
-        'common\\logging\\Logger' => __DIR__ . '/../..' . '/common/logging/Logger.php',
-        'common\\utils\\QueryUtils' => __DIR__ . '/../..' . '/common/utils/QueryUtils.php',
-        'common\\utils\\StringUtils' => __DIR__ . '/../..' . '/common/utils/StringUtils.php',
         'cssmgr' => __DIR__ . '/..' . '/mpdf/mpdf/classes/cssmgr.php',
         'directw' => __DIR__ . '/..' . '/mpdf/mpdf/classes/directw.php',
         'eFPDF' => __DIR__ . '/../..' . '/library/classes/PDF_Label.php',
