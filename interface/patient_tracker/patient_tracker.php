@@ -181,6 +181,9 @@ border: 1px solid #ddd ! Important;
    min-width: 1600px; !Important
    
 }
+a {
+    color:black;
+}
 </style>
 
 </head>
@@ -197,15 +200,15 @@ if ($GLOBALS['pat_trkr_timer'] == '0') {
 ?>
 
 <body class="body_top">
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
             <div class="col-xs-12">
-                <div class="page-header clearfix">
-                   <h2 id="header_title" class="clearfix"><span id='header_text'><?php echo xlt("Flow Board"); ?></span><a class="pull-right" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#000000"><i class="fa fa-question-circle" aria-hidden="true"></i></a></h2>
+                 <div class="page-header clearfix">
+                   <h2 class="clearfix"><span id='header_text'><?php echo xlt("Flow Board"); ?></span> &nbsp;<a href="#form_filter" data-toggle="collapse"><i class="fa fa-filter fa-2x small" aria-hidden="true" title="<?php echo xla('Show/Hide Filter'); ?>"></i></a><a class="pull-right" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#000000"><i class="fa fa-question-circle" aria-hidden="true"></i></a></h2>
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div id="form_filter" class="row collapse">
             <div class="col-xs-12">
                 <form method='post' name='theform' id='theform'
                     action='<?php echo $action_page; ?>'
@@ -227,7 +230,7 @@ if ($GLOBALS['pat_trkr_timer'] == '0') {
                             <fieldset>
                                 <div class="row">
                                     <div class="col-xs-12  oe-custom-line" style="padding-top:10px">
-                                        <div class=" col-xs-4">
+                                        <div class=" col-xs-3">
                                             <label class="control-label" for="form_provider"><?php echo xlt('Provider'); ?>:</label> 
                                             <?php
                                             // Build a drop-down list of providers.
@@ -249,11 +252,11 @@ if ($GLOBALS['pat_trkr_timer'] == '0') {
                                             echo "   </select>\n";
                                             ?>
                                         </div>
-                                        <div class=" col-xs-4">
+                                        <div class=" col-xs-2">
                                             <label class="control-label" for="form_apptstatus"><?php echo xlt('Status'); //status code drop down creation ?>:</label> 
                                             <?php generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'All'), $_POST['form_apptstatus']);?>
                                         </div>
-                                        <div class=" col-xs-4">
+                                        <div class=" col-xs-2">
                                             <label class="control-label" for="form_apptcat"><?php echo xlt('Category') //category drop down creation ?>:</label>
                                             <select id="form_apptcat" name="form_apptcat" class='form-control'>
                                                 <?php
@@ -269,15 +272,12 @@ if ($GLOBALS['pat_trkr_timer'] == '0') {
                                                 ?>
                                             </select>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                     <div class="col-xs-10 col-lg-offset-2 oe-custom-line">
-                                        <div class=" col-xs-5">
+                                    
+                                        <div class=" col-xs-2">
                                             <label class="control-label" for="form_patient_id"><?php echo xlt('Patient ID') ?>:</label> 
                                             <input type="text" id="patient_id" name="form_patient_id" class="form-control" value="<?php echo ($form_patient_id) ? attr($form_patient_id) : ""; ?>">
                                         </div>
-                                        <div class=" col-xs-5">
+                                        <div class=" col-xs-3">
                                             <label class="control-label" for="patient_name"><?php echo xlt('Patient Name') ?>:</label> 
                                             <input type="text" id="patient_name" name="form_patient_name" class="form-control" value="<?php echo ($form_patient_name) ? attr($form_patient_name) : ""; ?>">
                                         </div>
@@ -659,7 +659,7 @@ if ($GLOBALS['pat_trkr_timer'] == '0') {
         </div>
     </div>
     <script>
-        $( document ).ready(function() {
+        $(document).ready(function() {
             $('#help-href').click (function(){
                 document.getElementById('targetiframe').src ='http://www.open-emr.org/wiki/index.php/Patient_Flow_Board';
             })
