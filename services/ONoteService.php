@@ -22,6 +22,8 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\Connector;
+use OpenEMR\Common\Logging\Logger;
 use OpenEMR\Entities\ONote;
 use OpenEMR\Services\UserService;
 
@@ -48,8 +50,8 @@ class ONoteService
      */
     public function __construct()
     {
-        $this->logger = new \common\logging\Logger("\OpenEMR\Services\ONoteService");
-        $database = \common\database\Connector::Instance();
+        $this->logger = new Logger("\OpenEMR\Services\ONoteService");
+        $database = Connector::Instance();
         $entityManager = $database->entityManager;
         $this->repository = $entityManager->getRepository('\OpenEMR\Entities\ONote');
         $this->userService = new UserService();

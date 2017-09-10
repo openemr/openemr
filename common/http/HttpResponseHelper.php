@@ -18,7 +18,7 @@
  * @link    http://www.open-emr.org
  */
 
-namespace common\http;
+namespace OpenEMR\Common\Http;
 
 class HttpResponseHelper
 {
