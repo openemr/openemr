@@ -33,7 +33,7 @@ if (!acl_check('admin', 'super')) {
 }
 
 if ($GLOBALS['weno_rx_enable'] != 1) {
-    print xlt("You must activate Weno first! Go to Admnistration, Globals, Connectors");
+    print xlt("You must activate Weno first! Go to Administration, Globals, Connectors");
     exit;
 } else {
     print xlt("Weno Service is Enabled")."<br><br>";
