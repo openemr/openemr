@@ -42,7 +42,6 @@ namespace OpenEMR\Common\Database;
 use \Doctrine\ORM\Tools\Setup;
 use \Doctrine\ORM\EntityManager;
 use OpenEMR\Common\Database\Auditor;
-use OpenEMR\Common\Database\Connector;
 use OpenEMR\Common\Logging\Logger;
 
 final class Connector
