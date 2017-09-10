@@ -554,7 +554,7 @@ ALTER TABLE `pharmacies` ADD `ncpdp` INT(12) DEFAULT NULL;
 ALTER TABLE `pharmacies` ADD `npi` INT(12) DEFAULT NULL;
 #Endif
 
-#IfNotRow2Dx2 list_options list_id page_validation option_id PR title Puerto Rico
+#IfNotRow2Dx2 list_options list_id state option_id PR title Puerto Rico
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('state','PR','Puerto Rico',39,0);
 #Endif
 
@@ -598,4 +598,3 @@ CREATE TABLE `erx_narcotics` (
    PRIMARY KEY (`id`)
   ) ENGINE=InnoDB;
 #Endif
-
