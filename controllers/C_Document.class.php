@@ -1039,8 +1039,6 @@ class C_Document extends Controller
         $this->assign('used_msg', $used_msg);
         $this->assign('demo_pid', $_SESSION['pid']);
 
-        $this->assign('GLOBALS', $GLOBALS);
-
         return $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_list.html");
     }
 
