@@ -16,7 +16,7 @@
             <div class="col-xs-12">
                 <form name="soap" method="post" action="{$FORM_ACTION}/interface/forms/soap/save.php" onsubmit="return top.restoreSession()">
                     <fieldset>
-                            <legend class="">{xl t='Subjective'|escape:'html'}</legend>
+                            <legend>{xl t='Subjective'|escape:'html'}</legend>
                                 <div class="form-group" >
                                     <div class="col-sm-10 col-sm-offset-1">
                                         <textarea name="subjective" class="form-control" cols="40" rows="6">{$data->get_subjective()|escape:'html'}</textarea>
@@ -24,7 +24,7 @@
                                 </div>
                     </fieldset>
                     <fieldset>
-                            <legend class="">{xl t='Objective'|escape:'html'}</legend>
+                            <legend>{xl t='Objective'|escape:'html'}</legend>
                                 <div class="form-group">
                                     <div class="col-sm-10 col-sm-offset-1">
                                         <textarea name="objective" class="form-control" cols="60" rows="6">{$data->get_objective()|escape:'html'}</textarea>
@@ -32,7 +32,7 @@
                                 </div>
                     </fieldset>
                     <fieldset>
-                            <legend class="">{xl t='Assessment'|escape:'html'}</legend>
+                            <legend>{xl t='Assessment'|escape:'html'}</legend>
                                 <div class="form-group">
                                     <div class="col-sm-10 col-sm-offset-1">
                                         <textarea name="assessment" class="form-control" cols="60" rows="6">{$data->get_assessment()|escape:'html'}</textarea>
@@ -40,7 +40,7 @@
                                 </div>
                     </fieldset>
                     <fieldset>
-                            <legend class="">{xl t='Plan'|escape:'html'}</legend>
+                            <legend>{xl t='Plan'|escape:'html'}</legend>
                                 <div class="form-group">
                                     <div class="col-sm-10 col-sm-offset-1">
                                         <textarea name="plan" class="form-control" cols="60" rows="6">{$data->get_plan()|escape:'html'}</textarea>
@@ -49,10 +49,10 @@
                     </fieldset>
                     <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
                     <div class="form-group clearfix">
-                        <div class="col-sm-12 text-left position-override">
-                            <div class="btn-group btn-group-pinch" role="group">
+                        <div class="col-sm-10 col-lg-offset-1 text-left position-override">
+                            <div class="btn-group oe-opt-btn-group-pinch" role="group">
                                 <button type="submit" class="btn btn-default btn-save" name="Submit">{xl t='Save'|escape:'html'}</button>
-                                <button type="button" class="btn btn-link btn-cancel btn-separate-left"onclick="top.restoreSession(); location.href='{$DONT_SAVE_LINK}';">{xl t='Cancel'|escape:'html'}</button>
+                                <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left"onclick="top.restoreSession(); location.href='{$DONT_SAVE_LINK}';">{xl t='Cancel'|escape:'html'}</button>
                             </div>
                             <input type="hidden" name="id" value="{$data->get_id()|escape:'html'}" />
                             <input type="hidden" name="activity" value="{$data->get_activity()|escape:'html'}">
