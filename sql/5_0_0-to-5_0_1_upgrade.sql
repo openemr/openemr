@@ -499,7 +499,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 ('ICD10', 'CMS', '2017-10-01', '2018-ICD-10-CM-General-Equivalence-Mappings.zip', '787a025fdcf6e1da1a85be779004f670');
 #EndIf
 
-#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2017-10-01 load_filename 2018-ICD-10-Code-Descriptions.zip
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2017-10-01 load_filename 2018-ICD-10-Code-Dedcriptions.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2017-10-01', '2018-ICD-10-Code-Descriptions.zip', '6f9c77440132e30f565222ca9bb6599c');
 #EndIf
@@ -598,3 +598,5 @@ CREATE TABLE `erx_narcotics` (
    PRIMARY KEY (`id`)
   ) ENGINE=InnoDB;
 #Endif
+
+UPDATE `supported_external_dataloads` SET `load_filename`='2018-ICD-10-Code-Descriptions.zip' WHERE `load_filename`='2018-ICD-10-Code-Dedcriptions.zip' AND `load_release_date`='2017-10-01';
