@@ -1058,6 +1058,13 @@ $GLOBALS_METADATA = array(
             xl('Default selection for rendering provider in fee sheet.')
         ),
 
+        'show_payment_history' => array(
+            xl('Show all payment history in Patient Ledger'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('Turn on to show all payment history in Patient Ledger')
+        ),
+
         'support_fee_sheet_line_item_provider' => array(
             xl('Support provider in line item in fee sheet'),
             'bool',                           // data type

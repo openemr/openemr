@@ -349,15 +349,19 @@ if ($_POST['form_submit']) {
             } else {
                 // Encounter is 0! Seems this happens for pre-payments.
                 $tpmt = sprintf("%01.2f", $payrow['amount1'] + $payrow['amount2']);
-                row_delete(
-                    "ar_session",
-                    "patient_id = '" . add_escape_custom($patient_id) . "' AND " .
-                    "payer_id = 0 AND " .
-                    "reference = '" . add_escape_custom($payrow['source']) . "' AND " .
-                    "pay_total = '" . add_escape_custom($tpmt) . "' AND " .
-                    "(SELECT COUNT(*) FROM ar_activity where ar_activity.session_id = ar_session.session_id) = 0 " .
-                    "ORDER BY session_id DESC LIMIT 1"
-                );
+                // Patched out 09/06/17- If this is prepayment can't see need for ar_activity when prepayments not stored there? In this case passed in session id is valid.
+                // Was causing delete of wrong prepayment session in the case of delete from checkout undo and/or front receipt delete if payment happens to be same
+                // amount of a previous prepayment. Much tested but look here if problems in postings.
+                //
+                /* row_delete("ar_session",
+                 "patient_id = ' " . add_escape_custom($patient_id) . " ' AND " .
+                 "payer_id = 0 AND " .
+                 "reference = '" . add_escape_custom($payrow['source']) . "' AND " .
+                 "pay_total = '" . add_escape_custom($tpmt) . "' AND " .
+                 "(SELECT COUNT(*) FROM ar_activity where ar_activity.session_id = ar_session.session_id) = 0 " .
+                 "ORDER BY session_id DESC LIMIT 1"); */
+
+                row_delete("ar_session", "session_id = '" . add_escape_custom($ref_id) . "'");
             }
 
             row_delete("payments", "id = '" . add_escape_custom($payrow['id']) . "'");

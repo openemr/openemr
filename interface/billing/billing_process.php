@@ -205,7 +205,7 @@ function process_form($ar)
             } elseif (isset($ar['bn_ub04_x12'])) {
                 $ub04id = get_ub04_array($patient_id, $encounter);
                 $ub_save = json_encode($ub04id);
-                $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', $target, $claim_array['partner'], 0, $ub_save);
+                $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', $target, $claim_array['partner'] . '-837I', 0, $ub_save);
             } elseif (isset($ar['bn_process_ub04_form']) || isset($ar['bn_process_ub04'])) {
                 $ub04id = get_ub04_array($patient_id, $encounter);
                 $ub_save = json_encode($ub04id);

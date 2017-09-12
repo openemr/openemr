@@ -19,7 +19,7 @@ if ($lookup != "") {
 }
 
 // Falling through for user dialog.
-$users = sqlStatementNoLog("SELECT id,fname,lname,npi FROM users WHERE " . "authorized=? AND active=?", array(1,1));
+$users = sqlStatementNoLog("SELECT id,fname,lname,npi,taxonomy FROM users WHERE " . "authorized=? AND active=?", array(1,1));
 ?>
 <html>
 <head>
@@ -41,6 +41,7 @@ function sendSelection(value)
             <th><?php echo xlt('Provider')?></th>
             <th><?php echo xlt('User Id') ?></th>
             <th><?php echo xlt('NPI') ?></th>
+            <th><?php echo xlt('Taxonomy') ?></th>
         </tr>
     </thead>
     <tbody>
@@ -52,6 +53,7 @@ while ($row = sqlFetchArray($users)) {
     <td><button onclick='sendSelection(<?php echo $data;?>)'><?php echo text($row['fname'] . ' ' . $row['lname'])?></button></td>
     <td><?php echo text($row['id']) ?></td>
     <td><?php echo text($row['npi']) ?></td>
+    <td><?php echo text($row['taxonomy']) ?></td>
  </tr>
 <?php } ?>
 </tbody>
