@@ -652,7 +652,7 @@ CREATE TABLE `layout_group_properties` (
   grp_products    varchar(4095)  not null default '',
   grp_diags       varchar(4095)  not null default '',
   PRIMARY KEY (grp_form_id, grp_group_id)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 ALTER TABLE layout_options ADD COLUMN group_id VARCHAR(31) NOT NULL default '' AFTER group_name;
 #ConvertLayoutProperties
 ALTER TABLE layout_options DROP COLUMN group_name;

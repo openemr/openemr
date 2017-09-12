@@ -2763,7 +2763,7 @@ CREATE TABLE `layout_group_properties` (
   grp_products    varchar(4095)  not null default '',
   grp_diags       varchar(4095)  not null default '',
   PRIMARY KEY (grp_form_id, grp_group_id)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 -- 
 -- Table structure for table `layout_options`
@@ -4315,25 +4315,6 @@ INSERT INTO list_options (`list_id`,`option_id`,`title`) VALUES ('lists','issue_
 -- Issue Subtypes List
 INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','issue_subtypes','Issue Subtypes');
 INSERT INTO list_options (list_id, option_id,title, seq) VALUES ('issue_subtypes', 'eye', 'Eye',10);
-
--- Gender List
-INSERT INTO list_options (list_id, option_id, title, seq, is_default) VALUES ('lists','Gender','Gender', 1,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('Gender','Fem' ,'Female',10,1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('Gender','Male','Male'  ,20,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('Gender','FTM' ,'FTM'   ,30,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('Gender','MTF' ,'MTF'   ,40,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('Gender','Oth' ,'Other' ,50,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('Gender','NS','Not Specified',60,0);
-
--- Sexual_Orientation List
-INSERT INTO list_options (list_id, option_id, title, seq, is_default) VALUES ('lists','Sexual_Orientation','Sexual Orientation', 1,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('Sexual_Orientation','Bis','Bisexual'     ,10,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('Sexual_Orientation','Gay','Gay'          ,20,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('Sexual_Orientation','Het','Heterosexual' ,30,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('Sexual_Orientation','Les','Lesbian'      ,40,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('Sexual_Orientation','Msm','MSM'          ,50,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('Sexual_Orientation','Oth','Other'        ,60,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('Sexual_Orientation','NS' ,'Not Specified',70,0);
 
 -- Insurance Types List
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists','insurance_types','Insurance Types',1);

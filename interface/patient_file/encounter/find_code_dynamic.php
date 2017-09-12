@@ -1,16 +1,14 @@
 <?php
-/* Copyright (C) 2015-2017 Rod Roark <rod@sunsetsystems.com>
+/**
+ * Interactive code finder.
+ * For DataTables documentation see: http://legacy.datatables.net/
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2015-2017 Rod Roark <rod@sunsetsystems.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-// For DataTables documentation see: http://legacy.datatables.net/
-
-$fake_register_globals = false;
-$sanitize_all_escapes  = true;
 
 require_once('../../globals.php');
 require_once($GLOBALS['srcdir'] . '/patient.inc');
@@ -46,7 +44,7 @@ $layout_id = empty($_GET['layout_id']) ? '' : $_GET['layout_id'];
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-dt-1-10-13/css/jquery.dataTables.min.css" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-dt-1-3-2/css/colReorder.dataTables.min.css" type="text/css">
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-10-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-1-10-13/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 
@@ -72,14 +70,14 @@ $(document).ready(function() {
   "aoColumns": [{"sWidth":"10%"}, null],
   // This callback function passes some form data on each call to the ajax handler.
   "fnServerParams": function (aoData) {
-    aoData.push({"name": "what", "value": "<?php echo $what; ?>"});
+    aoData.push({"name": "what", "value": "<?php echo attr($what); ?>"});
 <?php if ($what == 'codes') { ?>
     aoData.push({"name": "codetype", "value": document.forms[0].form_code_type.value});
     aoData.push({"name": "inactive", "value": (document.forms[0].form_include_inactive.checked ? 1 : 0)});
 <?php } else if ($what == 'fields') { ?>
-    aoData.push({"name": "source", "value": "<?php echo $source; ?>"});
+    aoData.push({"name": "source", "value": "<?php echo attr($source); ?>"});
 <?php } else if ($what == 'groups') { ?>
-    aoData.push({"name": "layout_id", "value": "<?php echo $layout_id; ?>"});
+    aoData.push({"name": "layout_id", "value": "<?php echo attr($layout_id); ?>"});
 <?php } ?>
   },
   // Drawing a row, apply styling if it is previously selected.

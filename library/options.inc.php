@@ -812,7 +812,7 @@ function generate_form_field($frow, $currvalue)
                     }
                     echo "<tr>";
                 }
-                echo "<td width='$tdpct%' nowrap>";
+                echo "<td width='" . attr($tdpct) . "%' nowrap>";
                 echo "<input type='checkbox' name='form_{$field_id_esc}[$option_id_esc]'" .
                 "id='form_{$field_id_esc}[$option_id_esc]' class='form-control' value='1' $lbfonchange";
                 if (in_array($option_id, $avalue)) {
@@ -1054,7 +1054,7 @@ function generate_form_field($frow, $currvalue)
                 echo "<tr>";
             }
 
-            echo "<td width='$tdpct%'>";
+            echo "<td width='" . attr($tdpct) . "%'>";
             echo "<input type='radio' name='form_{$field_id_esc}' class='form-control' id='form_{$field_id_esc}[$option_id_esc]'" .
             " value='$option_id_esc' $lbfonchange";
             if ((strlen($currvalue) == 0 && $lrow['is_default']) ||
@@ -1625,7 +1625,7 @@ function generate_print_field($frow, $currvalue)
 
                     echo "<tr>";
                 }
-                echo "<td width='$tdpct%'>";
+                echo "<td width='" . attr($tdpct) . "%'>";
                 echo "<input type='checkbox'";
                 if (in_array($option_id, $avalue)) {
                     echo " checked";
@@ -1788,7 +1788,7 @@ function generate_print_field($frow, $currvalue)
 
                 echo "<tr>";
             }
-            echo "<td width='$tdpct%'>";
+            echo "<td width='" . attr($tdpct) . "%'>";
             echo "<input type='radio'";
             if (strlen($currvalue)  > 0 && $option_id == $currvalue) {
                 // Do not use defaults for these printable forms.
@@ -1921,7 +1921,7 @@ function generate_print_field($frow, $currvalue)
                 if ($count) echo "</tr>";
                 echo "<tr>";
             }
-            echo "<td width='$tdpct%'>";
+            echo "<td width='" . attr($tdpct) . "%'>";
             echo "<input type='radio'";
             if (strlen($currvalue)  > 0 && $option_id == $currvalue) {
                 // Do not use defaults for these printable forms.
@@ -2081,24 +2081,18 @@ function generate_display_field($frow, $currvalue)
     else if ($data_type == 15) {
         $s = '';
         if (!empty($currvalue)) {
-          $relcodes = explode(';', $currvalue);
-          foreach ($relcodes as $codestring) {
-            if ($codestring === '') continue;
-            list($codetype, $code) = explode(':', $codestring);
-            $query = "SELECT c.code_text FROM codes AS c, code_types AS ct WHERE " .
-              "ct.ct_key = '$codetype' AND " .
-              "c.code_type = ct.ct_id AND " .
-              "c.code = '$code' AND c.active = 1 " .
-              "ORDER BY c.id LIMIT 1";
-            $nrow = sqlQuery($query);
-            if ($s !== '') $s .= '; ';
-            if (!empty($nrow['code_text'])) {
-              $s .= $nrow['code_text'];
+            $relcodes = explode(';', $currvalue);
+            foreach ($relcodes as $codestring) {
+                if ($codestring === '') continue;
+                $tmp = lookup_code_descriptions($codestring);
+                if ($s !== '') $s .= '; ';
+                if (!empty($tmp)) {
+                    $s .= $tmp;
+                }
+                else {
+                    $s .= $codestring . ' (' . xl('not found') . ')';
+                }
             }
-            else {
-              $s .= $codestring . ' (' . xl('not found') . ')';
-            }
-          }
         }
     } // insurance company list
     else if ($data_type == 16) {

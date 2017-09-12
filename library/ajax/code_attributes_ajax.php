@@ -1,32 +1,19 @@
 <?php
 /**
- * Copyright (C) 2015-2017 Rod Roark <rod@sunsetsystems.com>
+ * Given a code type, code, selector and price level for a service or product, this creates
+ * JavaScript that will call the user's handler passing the following arguments:
+ * code type, code, description, price, warehouse options.
+ * Upload designated service codes as "services=" attributes for designated layouts.
+ * This supports specifying related codes to determine the service codes to be used.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2015-2017 Rod Roark <rod@sunsetsystems.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// Given a code type, code, selector and price level for a service or product, this creates
-// JavaScript that will call the user's handler passing the following arguments:
-// code type, code, description, price, warehouse options.
-
-$fake_register_globals = false;
-$sanitize_all_escapes  = true;
-
 require_once("../../interface/globals.php");
-require_once("$srcdir/formdata.inc.php");
 require_once("$fileroot/custom/code_types.inc.php");
 require_once("$fileroot/interface/drugs/drugs.inc.php");
 
@@ -52,7 +39,7 @@ function write_code_info($codetype, $code, $selector, $pricelevel) {
       "WHERE list_id = 'warehouse' AND activity = 1 ORDER BY seq, title");
     $wh .= "<option value=''></option>";
     while ($lrow = sqlFetchArray($lres)) {
-      $wh .= "<option value='" . $lrow['option_id'] . "'";
+      $wh .= "<option value='" . attr($lrow['option_id']) . "'";
       $has_inventory = sellDrug($code, 1, 0, 0, 0, 0, '', '', $lrow['option_id'], true);
       if ($has_inventory && (
           (strlen($defaultwh) == 0 && $lrow['is_default']           ) ||
@@ -64,17 +51,30 @@ function write_code_info($codetype, $code, $selector, $pricelevel) {
         // Disable this warehouse option if not selected and has no inventory.
         if (!$has_inventory) $wh .= " disabled";
       }
-      $wh .= ">" . xl_list_label($lrow['title']) . "</option>";
+      $wh .= ">" . text(xl_list_label($lrow['title'])) . "</option>";
     }
   }
   else {
-    $crow = sqlQuery("SELECT c.code_text, p.pr_price " .
-      "FROM codes AS c " .
-      "LEFT JOIN prices AS p ON p.pr_id = c.id AND p.pr_selector = '' AND p.pr_level = ? " .
-      "WHERE c.code_type = ? AND c.code = ? LIMIT 1",
-      array($pricelevel, $code_types[$codetype]['id'], $code));
-    $desc = $crow['code_text'];
-    $price = empty($crow['pr_price']) ? 0 : (0 + $crow['pr_price']);
+    // not PROD
+    $cres = return_code_information($codetype, $code, false);
+    $desc = '';
+    $price = 0;
+    if ($crow = sqlFetchArray($cres)) {
+      $desc = $crow['code_text'];
+      if ($code_types[$codetype]['fee']) {
+        if ($code_types[$codetype]['external'] == 0) {
+          $prow = sqlQuery("SELECT pr_price " .
+            "FROM prices WHERE pr_id = ? AND pr_selector = '' AND pr_level = ? " .
+            "LIMIT 1",
+            array($crow['id'], $pricelevel));
+          if (!empty($prow['pr_price'])) $price = 0 + $prow['pr_price'];
+        }
+        else {
+          // external code set with fees, prices table not supported
+          $price = 0 + $crow['fee'];
+        }
+      }
+    }
   }
 
   // error_log("Warehouse string is: " . $wh); // debugging

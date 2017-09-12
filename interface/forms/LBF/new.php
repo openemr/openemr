@@ -11,7 +11,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
@@ -171,6 +170,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
         // trust that it's OK to clear any field that is defined in the layout but not returned
         // by the form.
         //
+        if ($data_type == 31) continue; // skip static text fields
         $value = get_layout_form_value($frow);
         // If edit option P or Q, save to the appropriate different table and skip the rest.
         $source = $frow['source'];
@@ -666,7 +666,7 @@ function code_attributes_handler(codetype, code, desc, price, warehouses) {
 }
 
 function warehouse_changed(sel) {
- if (!confirm('<?php echo xl('Do you really want to change Warehouse?'); ?>')) {
+ if (!confirm('<?php echo xls('Do you really want to change Warehouse?'); ?>')) {
   // They clicked Cancel so reset selection to its default state.
   for (var i = 0; i < sel.options.length; ++i) {
    sel.options[i].selected = sel.options[i].defaultSelected;
@@ -741,9 +741,9 @@ if (function_exists($formname . '_javascript')) {
       while ($irow = sqlFetchArray($ires)) {
         $issueid = $irow['id'];
         $issuedate = oeFormatShortDate(empty($irow['begdate']) ? $irow['date'] : $irow['begdate']);
-        echo " <option value='$issueid'";
+        echo " <option value='" . attr($issueid) . "'";
         if ($issueid == $form_issue_id) echo " selected";
-        echo ">$issuedate " . text($irow['title']) . "</option>\n";
+        echo ">" . text("$issuedate " . $irow['title']) . "</option>\n";
       }
       echo "</select>\n";
     }
@@ -933,8 +933,8 @@ while ($frow = sqlFetchArray($fres)) {
 
         if ($subtitle) {
             // There is a group subtitle so show it.
-            echo "<tr><td class='bold' style='color:#0000ff' colspan='$CPR'>" . text($subtitle) . "</td></tr>\n";
-            echo "<tr><td class='bold' style='height:4pt' colspan='$CPR'></td></tr>\n";
+            echo "<tr><td class='bold' style='color:#0000ff' colspan='" . attr($CPR) . "'>" . text($subtitle) . "</td></tr>\n";
+            echo "<tr><td class='bold' style='height:4pt' colspan='" . attr($CPR) . "'></td></tr>\n";
         }
 
             $display_style = 'none';
@@ -1115,16 +1115,13 @@ if (isset($LBF_SERVICES_SECTION)) {
               if ($count) echo " </tr>\n";
               echo " <tr>\n";
             }
-            echo "  <td width='$tdpct%'>";
+            echo "  <td width='" . attr($tdpct) . "%'>";
             echo "<input type='checkbox' id='form_fs_services[$codes_esc]' " .
               "onclick='fs_service_clicked(this)' value='" . attr($cbval) . "'";
             if ($fs->code_is_in_fee_sheet) echo " checked";
             list($codetype, $code) = explode(':', $codestring);
-            $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
-              "code_type = ? AND code = ? AND active = 1 " .
-              "ORDER BY id LIMIT 1",
-              array($code_types[$codetype]['id'], $code));
-            $title = empty($crow['code_text']) ? $code : xl_list_label($crow['code_text']);
+            $title = lookup_code_descriptions($codestring);
+            $title = empty($title) ? $code : xl_list_label($title);
             echo " />" . htmlspecialchars($title, ENT_NOQUOTES);
             echo "</td>\n";
             ++$count;
@@ -1183,7 +1180,7 @@ if (isset($LBF_SERVICES_SECTION)) {
           "   <input type='checkbox' name='form_fs_bill[$lino][del]' " .
           "value='1'" . ($li['del'] ? " checked" : "") . " />\n";
         foreach ($li['hidden'] as $hname => $hvalue) {
-            echo "   <input type='hidden' name='form_fs_bill[$lino][$hname]' value='" . attr($hvalue) . "' />\n";
+            echo "   <input type='hidden' name='form_fs_bill[$lino][" . attr($hname) . "]' value='" . attr($hvalue) . "' />\n";
         }
         echo "  </td>\n";
         echo " </tr>\n";
@@ -1220,7 +1217,7 @@ if (isset($LBF_PRODUCTS_SECTION)) {
                 if ($count) echo " </tr>\n";
                 echo " <tr>\n";
             }
-            echo "  <td width='$tdpct%'>";
+            echo "  <td width='" . attr($tdpct) . "%'>";
             echo "<input type='checkbox' id='form_fs_products[$codes_esc]' " .
               "onclick='fs_product_clicked(this)' value='" . attr($cbval) . "'";
             if ($fs->code_is_in_fee_sheet) echo " checked";
@@ -1267,7 +1264,7 @@ if (isset($LBF_PRODUCTS_SECTION)) {
           "   <input type='checkbox' name='form_fs_prod[$lino][del]' " .
           "value='1'" . ($li['del'] ? " checked" : "") . " />\n";
         foreach ($li['hidden'] as $hname => $hvalue) {
-            echo "   <input type='hidden' name='form_fs_prod[$lino][$hname]' value='" . attr($hvalue) . "' />\n";
+            echo "   <input type='hidden' name='form_fs_prod[$lino][" . attr($hname) . "]' value='" . attr($hvalue) . "' />\n";
         }
         echo "  </td>\n";
         echo " </tr>\n";
@@ -1304,16 +1301,13 @@ if (isset($LBF_DIAGS_SECTION)) {
                 if ($count) echo " </tr>\n";
                 echo " <tr>\n";
             }
-            echo "  <td width='$tdpct%'>";
+            echo "  <td width='" . attr($tdpct) . "%'>";
             echo "<input type='checkbox' id='form_fs_diags[$codes_esc]' " .
               "onclick='fs_diag_clicked(this)' value='" . attr($cbval) . "'";
             if ($fs->code_is_in_fee_sheet) echo " checked";
             list($codetype, $code) = explode(':', $codestring);
-            $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
-              "code_type = ? AND code = ? AND active = 1 " .
-              "ORDER BY id LIMIT 1",
-              array($code_types[$codetype]['id'], $code));
-            $title = empty($crow['code_text']) ? $code : xl_list_label($crow['code_text']);
+            $title = lookup_code_descriptions($codestring);
+            $title = empty($title) ? $code : xl_list_label($title);
             echo " />" . htmlspecialchars($title, ENT_NOQUOTES);
             echo "</td>\n";
             ++$count;
@@ -1345,7 +1339,7 @@ if (isset($LBF_DIAGS_SECTION)) {
           "   <input type='checkbox' name='form_fs_bill[$lino][del]' " .
           "value='1'" . ($li['del'] ? " checked" : "") . " />\n";
         foreach ($li['hidden'] as $hname => $hvalue) {
-            echo "   <input type='hidden' name='form_fs_bill[$lino][$hname]' value='" . attr($hvalue) . "' />\n";
+            echo "   <input type='hidden' name='form_fs_bill[$lino][" . attr($hname) . "]' value='" . attr($hvalue) . "' />\n";
         }
         echo "  </td>\n";
         echo " </tr>\n";

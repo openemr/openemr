@@ -134,12 +134,6 @@ jQuery(document).ready( function($) {
         }
     );
 
-    /******************************************************************
-    $(".onerow").mouseover(function() { $(this).toggleClass("highlight"); });
-    $(".onerow").mouseout(function() { $(this).toggleClass("highlight"); });
-    $(".onerow").click(function() { GotoForm(this); });
-    ******************************************************************/
-
     $("#prov_edu_res").click(function() {
         if ( $('#prov_edu_res').prop('checked') ) {
             var mode = "add";
@@ -948,10 +942,6 @@ foreach ($docs_list as $doc_iter) {
             echo '<tr title="' . xl('Edit form') . '" '.
                   'id="'.$formdir.'~'.$iter['form_id'].'">';
         } else {
-            /**********************************************************
-            echo '<tr title="' . xl('Edit form') . '" '.
-                  'id="'.$formdir.'~'.$iter['form_id'].'" class="text onerow">';
-            **********************************************************/
             echo '<tr id="' . $formdir . '~' . $iter['form_id'] . '" class="text onerow">';
         }
 
@@ -977,9 +967,9 @@ foreach ($docs_list as $doc_iter) {
         }
         echo "<div class='form_header'>";
         echo "<a href='#' onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos'>" .
-          "<div class='formname'>$form_name</div> " .
+          "<div class='formname'>" . text($form_name) . "</div> " .
           "by " . text($form_author) . " " .
-          "(<span id=spanid_$divnos class=\"indicator\">" . ($divnos == 1 ? xl('Collapse') : xl('Expand')) . "</span>)</a>";
+          "(<span id=spanid_$divnos class=\"indicator\">" . ($divnos == 1 ? xlt('Collapse') : xlt('Expand')) . "</span>)</a>";
         echo "</div>";
 
         // a link to edit the form

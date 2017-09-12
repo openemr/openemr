@@ -180,17 +180,24 @@ function checkSkipConditions() {
               continue;
           }
       }
+
+      // Find the target row and count its cells, accounting for colspans.
+      var trgrow = trgelem1 ? trgelem1.parentNode : trgelem2.parentNode;
+      var rowcells = 0;
+      for (var itmp = 0; itmp < trgrow.cells.length; ++itmp) {
+        rowcells += trgrow.cells[itmp].colSpan;
+      }
+
       // If the item occupies a whole row then undisplay its row, otherwise hide its cells.
       var colspan = 0;
       if (trgelem1) colspan += trgelem1.colSpan;
       if (trgelem2) colspan += trgelem2.colSpan;
-      if (colspan < 4) {
+      if (colspan < rowcells) {
         if (trgelem1) trgelem1.style.visibility = condition ? 'hidden' : 'visible';
         if (trgelem2) trgelem2.style.visibility = condition ? 'hidden' : 'visible';
       }
       else {
-        if (trgelem1) trgelem1.parentNode.style.display = condition ? 'none' : '';
-        else          trgelem2.parentNode.style.display = condition ? 'none' : '';
+        trgrow.style.display = condition ? 'none' : '';
       }
     }
     else if (condition) { // action starts with "value="

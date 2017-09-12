@@ -136,12 +136,14 @@ function form_delete($formdir, $formid, $patient_id, $encounter_id)
     $formdir = ($formdir == 'newpatient') ? 'encounter' : $formdir;
     $formdir = ($formdir == 'newGroupEncounter') ? 'groups_encounter' : $formdir;
     if (substr($formdir, 0, 3) == 'LBF') {
-        row_delete("lbf_data", "form_id = '$formid'");
+        row_delete("lbf_data", "form_id = '" . add_escape_custom($formid) . "'");
         // Delete the visit's "source=visit" attributes that are not used by any other form.
-        $where = "pid = '$patient_id' AND encounter = '$encounter_id' AND field_id NOT IN (" .
+        $where = "pid = '" . add_escape_custom($patient_id) . "' AND encounter = '" .
+          add_escape_custom($encounter_id) . "' AND field_id NOT IN (" .
           "SELECT lo.field_id FROM forms AS f, layout_options AS lo WHERE " .
-          "f.pid = '$patient_id' AND f.encounter = '$encounter_id' AND f.formdir LIKE 'LBF%' AND " .
-          "f.deleted = 0 AND f.form_id != '$formid' AND " .
+          "f.pid = '" . add_escape_custom($patient_id) . "' AND f.encounter = '" .
+          add_escape_custom($encounter_id) . "' AND f.formdir LIKE 'LBF%' AND " .
+          "f.deleted = 0 AND f.form_id != '" . add_escape_custom($formid) . "' AND " .
           "lo.form_id = f.formdir AND lo.source = 'E' AND lo.uor > 0)";
         // echo "<!-- $where -->\n"; // debugging
         row_delete("shared_attributes", $where);

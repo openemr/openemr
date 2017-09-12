@@ -344,7 +344,7 @@ $gfres = sqlStatement("SELECT grp_form_id FROM layout_group_properties WHERE " .
   "ORDER BY grp_seq, grp_title");
 while ($gfrow = sqlFetchArray($gfres)) {
 ?>
-    $("#<?php echo $gfrow['grp_form_id']; ?>_ps_expand").load("lbf_fragment.php?formname=<?php echo $gfrow['grp_form_id']; ?>");
+    $("#<?php echo attr($gfrow['grp_form_id']); ?>_ps_expand").load("lbf_fragment.php?formname=<?php echo attr($gfrow['grp_form_id']); ?>");
 <?php
 }
 ?>
@@ -506,16 +506,16 @@ if (!empty($grparr['']['grp_size'])) {
 ?>
 /* Override font sizes in the theme. */
 #DEM .groupname {
-  font-size: <?php echo $FONTSIZE; ?>pt;
+  font-size: <?php echo attr($FONTSIZE); ?>pt;
 }
 #DEM .label {
-  font-size: <?php echo $FONTSIZE; ?>pt;
+  font-size: <?php echo attr($FONTSIZE); ?>pt;
 }
 #DEM .data {
-  font-size: <?php echo $FONTSIZE; ?>pt;
+  font-size: <?php echo attr($FONTSIZE); ?>pt;
 }
 #DEM .data td {
-  font-size: <?php echo $FONTSIZE; ?>pt;
+  font-size: <?php echo attr($FONTSIZE); ?>pt;
 }
 <?php } ?>
 

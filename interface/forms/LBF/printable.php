@@ -6,8 +6,6 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-
-
 require_once("../../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
@@ -85,13 +83,13 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 td {
  font-family: Arial;
  font-weight: normal;
- font-size: <?php echo $FONTSIZE; ?>pt;
+ font-size: <?php echo text($FONTSIZE); ?>pt;
 }
 <?php } else { ?>
 body, td {
  font-family: Arial, Helvetica, sans-serif;
  font-weight: normal;
- font-size: <?php echo $FONTSIZE; ?>pt;
+ font-size: <?php echo text($FONTSIZE); ?>pt;
 }
 body {
  padding: 5pt 5pt 5pt 5pt;
@@ -184,7 +182,7 @@ for ($lcols = 1; $lcols < $CPR; ++$lcols) {
  width: 33%;
  vertical-align: top;
  text-align: right;
- font-size: <?php echo $FONTSIZE; ?>pt;
+ font-size: <?php echo text($FONTSIZE); ?>pt;
 }
 .ftitlecellm {
  width: 34%;
@@ -352,8 +350,8 @@ while ($frow = sqlFetchArray($fres)) {
         echo "</tr>\n";
         if ($subtitle) {
             // There is a group subtitle so show it.
-            echo "<tr><td class='bold' style='color:#0000ff' colspan='$CPR'>" . text($subtitle) . "</td></tr>\n";
-            echo "<tr><td class='bold' style='height:4pt' colspan='$CPR'></td></tr>\n";
+            echo "<tr><td class='bold' style='color:#0000ff' colspan='" . attr($CPR) . "'>" . text($subtitle) . "</td></tr>\n";
+            echo "<tr><td class='bold' style='height:4pt' colspan='" . attr($CPR) . "'></td></tr>\n";
         }
         $group_table_active = true;
     }
@@ -372,7 +370,7 @@ while ($frow = sqlFetchArray($fres)) {
     // Handle starting of a new label cell.
     if ($titlecols > 0) {
         end_cell();
-        echo "<td colspan='$titlecols' ";
+        echo "<td colspan='" . attr($titlecols) . "' ";
         echo "class='lcols$titlecols stuff " . (($frow['uor'] == 2) ? "required'" : "bold'");
         if ($cell_count == 2) echo " style='padding-left:10pt'";
         // echo " nowrap>"; // html2pdf misbehaves with this.
@@ -395,7 +393,7 @@ while ($frow = sqlFetchArray($fres)) {
     // Handle starting of a new data cell.
     if ($datacols > 0) {
         end_cell();
-        echo "<td colspan='$datacols' class='dcols$datacols stuff under' style='";
+        echo "<td colspan='" . attr($datacols) . "' class='dcols$datacols stuff under' style='";
         if ($cell_count > 0) echo "padding-left:5pt;";
         if (in_array($data_type, array(21,27,40))) {
             // Omit underscore for checkboxes, radio buttons and images.

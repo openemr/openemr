@@ -3,32 +3,15 @@
  * Upload designated service codes as "services=" attributes for designated layouts.
  * This supports specifying related codes to determine the service codes to be used.
  *
- * Copyright (C) 2016 Rod Roark <rod@sunsetsystems.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2016 Rod Roark <rod@sunsetsystems.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-// Disable magic quotes and fake register globals.
-$sanitize_all_escapes = true;
-$fake_register_globals = false;
 
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'] . '/acl.inc');
-require_once($GLOBALS['srcdir'] . '/htmlspecialchars.inc.php');
-require_once($GLOBALS['srcdir'] . '/formdata.inc.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 if (!acl_check('admin', 'super')) die(xlt('Not authorized'));
@@ -99,7 +82,7 @@ if (!empty($_POST['bn_upload'])) {
         }
       }
       if ($codecount == 0) {
-        echo "<p style='color:red'>" . xlt('No matches for') . " '$tmp'.</p>\n";
+        echo "<p style='color:red'>" . xlt('No matches for') . " '" . text($tmp) . "'.</p>\n";
       }
     } // end while
     fclose($eres);
@@ -152,7 +135,7 @@ if (!empty($_POST['bn_upload'])) {
  </tr>
  <tr bgcolor='#dddddd'>
   <td align='center' class='detail' colspan='2'>
-   <input type='submit' name='bn_upload' value='<?php echo xlt('Upload and Apply') ?>' />
+   <input type='submit' name='bn_upload' value='<?php echo xla('Upload and Apply') ?>' />
   </td>
  </tr>
 </table>
@@ -175,7 +158,7 @@ $lastcat = '';
 $lastlayout = '';
 
 $res = sqlStatement("SELECT grp_form_id, grp_title, grp_mapping, grp_services FROM layout_group_properties " .
-  "WHERE grp_group_id = '' AND activity = 1 AND grp_services != '' ORDER BY grp_mapping, grp_title, grp_form_id");
+  "WHERE grp_group_id = '' AND grp_activity = 1 AND grp_services != '' ORDER BY grp_mapping, grp_title, grp_form_id");
 
 while ($row = sqlFetchArray($res)) {
   // $jobj = json_decode($row['notes'], true);

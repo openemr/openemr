@@ -1,18 +1,16 @@
 <?php
-// Copyright (C) 2015-2017 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
-$sanitize_all_escapes  = true;
-$fake_register_globals = false;
+/**
+ * Interactive code finder AJAX support.
+ * For DataTables documentation see: http://legacy.datatables.net/
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2015-2017 Rod Roark <rod@sunsetsystems.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 require_once("../../globals.php");
-require_once("$srcdir/formdata.inc.php");
-require_once("$srcdir/formatting.inc.php");
-// require_once("$srcdir/jsonwrapper/jsonwrapper.php");
 require_once("$srcdir/options.inc.php");
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
@@ -24,6 +22,7 @@ $limit = '';
 if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
   $limit = "LIMIT " . escape_limit($iDisplayStart) . ", " . escape_limit($iDisplayLength);
 }
+$searchTerm = isset($_GET['sSearch']) ? $_GET['sSearch'] : '';
 
 // What we are picking from: codes, fields, lists or groups
 $what = $_GET['what'];
@@ -140,6 +139,7 @@ function genFieldIdString($row) {
 // Column sorting parameters.
 //
 $orderby = '';
+$ordermode = null;
 $fe_column = 0;
 $fe_reverse = false;
 if (isset($_GET['iSortCol_0'])) {
@@ -158,10 +158,12 @@ if (isset($_GET['iSortCol_0'])) {
 
       if ($what == 'codes') {
         if ($iSortCol == 0) {
-          $orderby .= $prod ? "d.drug_id $sSortDir, t.selector $sSortDir" : "c.code $sSortDir";
+          // $orderby .= $prod ? "d.drug_id $sSortDir, t.selector $sSortDir" : "c.code $sSortDir";
+          $ordermode = array('code', 'description');
         }
         else {
-          $orderby .= $prod ? "d.name $sSortDir" : "c.code_text $sSortDir";
+          // $orderby .= $prod ? "d.name $sSortDir" : "c.code_text $sSortDir";
+          $ordermode = array('description', 'code');
         }
       }
       else if ($what == 'fields') {
@@ -199,27 +201,7 @@ if (isset($_GET['iSortCol_0'])) {
 }
 
 if ($what == 'codes') {
-  $sellist = $prod ?
-    "CONCAT(d.drug_id, '|', COALESCE(t.selector, '')) AS code, d.name AS description, '$codetype' AS codetype" :
-    "CONCAT(c.code, '|') AS code, c.code_text AS description, '$codetype' AS codetype";
-  $where1 = '';
-  $where2 = '';
-  if ($prod) {
-    $from = "drugs AS d LEFT JOIN drug_templates AS t ON t.drug_id = d.drug_id";
-    if (!$include_inactive) $where1 = "WHERE d.active = 1";
-  }
-  else {
-    $from = "codes AS c";
-    $where1 = "WHERE c.code_type = '$ncodetype'";
-    if (!$include_inactive) $where1 .= " AND c.active = 1";
-  }
-  if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
-    $sSearch = add_escape_custom($_GET['sSearch']);
-    $where2 = empty($where1) ? "WHERE " : " AND ";
-    $where2 .= ($prod ?
-      "(d.name LIKE '%$sSearch%' OR t.selector LIKE '%$sSearch%')" :
-      "(c.code LIKE '%$sSearch%' OR c.code_text LIKE '%$sSearch%')");
-  }
+  // Nothing to do here.
 }
 else if ($what == 'fields') {
   if ($source == 'V') {
@@ -241,18 +223,18 @@ else if ($what == 'fields') {
       "MIN(lo.fld_rows    ) AS fld_rows";
     $orderby = "GROUP BY lo.field_id $orderby";
     $from = "layout_options AS lo";
-    $where1 = "WHERE lo.form_id LIKE '$layout_id' AND lo.uor > 0 AND lo.source = 'E'";
-    if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
-      $sSearch = add_escape_custom($_GET['sSearch']);
+    $where1 = "WHERE lo.form_id LIKE '" . add_escape_custom($layout_id) . "' AND lo.uor > 0 AND lo.source = 'E'";
+    if ($searchTerm !== "") {
+      $sSearch = add_escape_custom($searchTerm);
       $where2 = "AND (lo.field_id LIKE '%$sSearch%' OR lo.title LIKE '%$sSearch%')";
     }
   }
   else if ($source == 'D' || $source == 'H') {
     $sellist = "lo.*";
     $from = "layout_options AS lo";
-    $where1 = "WHERE lo.form_id LIKE '$layout_id' AND lo.uor > 0";
-    if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
-      $sSearch = add_escape_custom($_GET['sSearch']);
+    $where1 = "WHERE lo.form_id LIKE " . add_escape_custom($layout_id) . " AND lo.uor > 0";
+    if ($searchTerm !== "") {
+      $sSearch = add_escape_custom($searchTerm);
       $where2 = "AND (lo.field_id LIKE '%$sSearch%' OR lo.title LIKE '%$sSearch%')";
     }
   }
@@ -261,29 +243,33 @@ else if ($what == 'lists') {
   $sellist = "li.option_id AS code, li.title AS description";
   $from = "list_options AS li";
   $where1 = "WHERE li.list_id LIKE 'lists' AND li.activity = 1";
-  if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
-    $sSearch = add_escape_custom($_GET['sSearch']);
+  if ($searchTerm !== "") {
+    $sSearch = add_escape_custom($searchTerm);
     $where2 = "AND (li.list_id LIKE '%$sSearch%' OR li.title LIKE '%$sSearch%')";
   }
 }
 else if ($what == 'groups') {
   $sellist .= "DISTINCT lo.group_id AS code, lp.grp_title AS description";
   $from = "layout_options AS lo, layout_group_properties AS lp";
-  $where1 = "WHERE lo.form_id LIKE '$layout_id' AND lp.grp_form_id = lo.form_id AND lp.grp_group_id = lo.group_id";
-  if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
-    $sSearch = add_escape_custom($_GET['sSearch']);
+  $where1 = "WHERE lo.form_id LIKE '" . add_escape_custom($layout_id) . "' AND lp.grp_form_id = lo.form_id AND lp.grp_group_id = lo.group_id";
+  if ($searchTerm !== "") {
+    $sSearch = add_escape_custom($searchTerm);
     $where2 = "AND lp.grp_title LIKE '%$sSearch%'";
   }
 }
 else {
-  error_log(xl('Invalid request to find_code_dynamic_ajax.php'));
+  error_log('Invalid request to find_code_dynamic_ajax.php');
   exit();
 }
 
 if ($what == 'fields' && $source == 'V') {
-  $fe_array = feSearchSort(empty($_GET['sSearch']) ? '' : $_GET['sSearch'], $fe_column, $fe_reverse);
+  $fe_array = feSearchSort($searchTerm, $fe_column, $fe_reverse);
   $iTotal = count($form_encounter_layout);
   $iFilteredTotal = count($fe_array);
+}
+else if ($what == 'codes') {
+    $iTotal = main_code_set_search($codetype, '', null, null, !$include_inactive, null, true);
+    $iFilteredTotal = main_code_set_search($codetype, $searchTerm, null, null, !$include_inactive, null, true);
 }
 else {
   // Get total number of rows with no filtering.
@@ -309,6 +295,21 @@ if ($what == 'fields' && $source == 'V') {
     $out['aaData'][] = $arow;
   }
 }
+
+else if ($what == 'codes') {
+    $res = main_code_set_search($codetype, $searchTerm, null, null, !$include_inactive, $ordermode);
+    while ($row = sqlFetchArray($res)) {
+        $arow = array('DT_RowId' => genFieldIdString(array(
+          'code' => $row['code'],
+          'description' => $row['code_text'],
+          'codetype' => $codetype,
+        )));
+        $arow[] = str_replace('|', ':', rtrim($row['code'], '|'));
+        $arow[] = $row['code_text'];
+        $out['aaData'][] = $arow;
+    }
+}
+
 else {
   $query = "SELECT $sellist FROM $from $where1 $where2 $orderby $limit";
   $res = sqlStatement($query);

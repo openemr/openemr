@@ -104,7 +104,7 @@ require_once("../interface/globals.php");
       . "FROM layout_options "
       . "WHERE form_id='DEM' "
       . "AND field_id not like 'em\_%' AND uor != 0 "
-      . "ORDER BY group_id,seq"
+      . "ORDER BY group_id,seq";
 
         echo "<table>";
 

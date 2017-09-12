@@ -18,9 +18,6 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals = false;
-$sanitize_all_escapes  = true;
-
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/log.inc");
@@ -272,7 +269,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
         if ($action == 'value') $action = 'value=' . $iter['value'];
 
         // Skip conditions for the line are stored as a serialized array.
-        $condarr = array('action' => strip_escape_custom($action));
+        $condarr = array('action' => $action);
         $cix = 0;
         for (; !empty($iter['condition_id'][$cix]); ++$cix) {
           $andor = empty($iter['condition_andor'][$cix]) ? '' : $iter['condition_andor'][$cix];
@@ -1104,7 +1101,7 @@ function cidChanged(lino, seq) {
 // This invokes the popup to edit layout properties or add a new layout.
 function edit_layout_props(groupid) {
  dlgopen('edit_layout_props.php?layout_id=<?php echo attr($layout_id); ?>&group_id=' + groupid,
-  '_blank', 600, 550);
+  '_blank', 700, 550);
 }
 
 // callback from edit_layout_props.php:
@@ -1316,8 +1313,8 @@ while ($row = sqlFetchArray($res)) {
 <?php echo xlt('Parent'); ?>:
 <?php echo genGroupSelector('renamegroupparent', $layout_id); ?>
 <br>
-<input type="button" class="saverenamegroup" value=<?php echo xla('Rename Group'); ?> />
-<input type="button" class="cancelrenamegroup" value=<?php echo xla('Cancel'); ?> />
+<input type="button" class="saverenamegroup" value="<?php echo xla('Rename Group'); ?>" />
+<input type="button" class="cancelrenamegroup" value="<?php echo xla('Cancel'); ?>" />
 </div>
 
 <!-- template DIV that appears when user chooses to add a new group -->
@@ -1835,15 +1832,15 @@ $(document).ready(function(){
     // show the popup choice of lists
     var ShowLists = function(btnObj) {
         window.open('../patient_file/encounter/find_code_dynamic.php?what=lists',
-          'lists', 'width=600,height=600,scrollbars=yes');
+          'lists', 'width=700,height=600,scrollbars=yes');
         selectedfield = btnObj;
     };
     
     // show the popup choice of groups
     var ShowGroups = function(btnObj) {
         if (!myChangeCheck()) return;
-        window.open('../patient_file/encounter/find_code_dynamic.php?what=groups&layout_id=<?php echo $layout_id;?>',
-          'groups', 'width=600,height=600,scrollbars=yes');
+        window.open('../patient_file/encounter/find_code_dynamic.php?what=groups&layout_id=<?php echo addslashes($layout_id); ?>',
+          'groups', 'width=700,height=600,scrollbars=yes');
     };
     
     // Show context DD for NationNotes
@@ -1934,7 +1931,7 @@ function FieldIDClicked(elem) {
   if (srcval == 'F') return;
   // Otherwise pop up the selection window.
   window.open('../patient_file/encounter/find_code_dynamic.php?what=fields&source='
-    + srcval, 'fields', 'width=600,height=600,scrollbars=yes');
+    + srcval, 'fields', 'width=700,height=600,scrollbars=yes');
 <?php } ?>
 }
 
