@@ -176,7 +176,7 @@ function create_HTML_statement($stmt)
 
   // Text only labels
 
-    $label_addressee = xl('ADDRESSEE');
+    $label_addressee = xl('ADDRESSED TO');
     $label_remitto = xl('REMIT TO');
     $label_chartnum = xl('Chart Number');
     $label_insinfo = xl('Insurance information on file');
@@ -403,15 +403,15 @@ function create_HTML_statement($stmt)
     }
 
     $out .= ' </pre>
-  <div style="width:7in;border-top:1pt solid black;"><br />';
-    $out .= " <table style='width:6.0in;margin-left:40px;'><tr>";
-    $out .= '<td style="width:3.0in;"><b>'
+  <div style="width:7.0in;border-top:1pt solid black;"><br />';
+    $out .= " <table style='width:7.0in;margin:auto;'><tr>";
+    $out .= '<td style="margin:auto;"></td><td style="width:3.0in;"><b>'
       .$label_addressee.'</b><br />'
       .$stmt['to'][0].'<br />'
       .$stmt['to'][1].'<br />'
       .$stmt['to'][2].'
-      </td>
-      <td style="width:3.0in;"><b>'.$label_remitto.'</b><br />'
+      </td><td style="width:0.5in;"></td>
+      <td style="margin:auto;"><b>'.$label_remitto.'</b><br />'
       .$remit_name.'<br />'
       .$remit_addr.'<br />'
       .$remit_csz.'
@@ -572,7 +572,7 @@ function create_statement($stmt)
 
   // Text only labels
 
-    $label_addressee = xl('ADDRESSEE');
+    $label_addressee = xl('ADDRESSED TO');
     $label_remitto = xl('REMIT TO');
     $label_chartnum = xl('Chart Number');
     $label_insinfo = xl('Insurance information on file');
@@ -871,7 +871,7 @@ function osp_create_HTML_statement($stmt)
 
   // Text only labels
 
-    $label_addressee = xl('ADDRESSEE');
+    $label_addressee = xl('ADDRESSED TO');
     $label_remitto = xl('REMIT TO');
     $label_chartnum = xl('Chart Number');
     $label_insinfo = xl('Insurance information on file');
