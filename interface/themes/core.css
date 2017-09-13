@@ -89,6 +89,9 @@ button[href*="deleter"]:before {
 .btn-undo::before {
     content: '\f0e2\00a0\00a0';
 }
+.btn-update::before {
+    content: '\f01e\00a0\00a0';
+}
 .btn-download::before {
     content: '\f019\00a0\00a0';
 }
@@ -96,7 +99,12 @@ button[href*="deleter"]:before {
 .btn-mail::before {
     content: '\f0e0\00a0\00a0';
 }
-
+.btn-calendar::before {
+    content: '\f073\00a0\00a0';
+}
 .btn-graph::before {
     content: '\f201\00a0\00a0';
+}
+.btn-filter::before {
+    content: '\f0b0\00a0\00a0';
 }
