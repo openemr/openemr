@@ -1,0 +1,42 @@
+language: php
+sudo: false
+
+matrix:
+  include:
+    - php: 5.3
+      env: AUTOLOAD=1
+    - php: 5.3
+      env: AUTOLOAD=0
+    - php: 5.4
+      env: AUTOLOAD=1
+    - php: 5.4
+      env: AUTOLOAD=0
+    - php: 5.5
+      env: AUTOLOAD=1
+    - php: 5.5
+      env: AUTOLOAD=0
+    - php: 5.6
+      env: AUTOLOAD=1
+    - php: 5.6
+      env: AUTOLOAD=0
+    - php: 7.0
+      env: AUTOLOAD=1
+    - php: 7.0
+      env: AUTOLOAD=0
+    - php: 7.1
+      env: AUTOLOAD=1
+    - php: 7.1
+      env: AUTOLOAD=0
+    - php: hhvm
+      dist: trusty
+      env: AUTOLOAD=1
+    - php: hhvm
+      dist: trusty
+      env: AUTOLOAD=0
+
+cache:
+  directories:
+    - $HOME/.composer/cache/files
+
+script: ./build.php ${AUTOLOAD}
+after_script: ./vendor/bin/coveralls -v
