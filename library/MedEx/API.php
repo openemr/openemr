@@ -1310,9 +1310,9 @@ class Display extends base
                 }
                 $("#print_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');
             }
-            function SMS_bot(eid) {
+            function SMS_bot(pid) {
                 top.restoreSession()
-                window.open('messages.php?nomenu=1&go=SMS_bot&pc_eid=' + eid,'SMS_bot', 'width=370,height=600,resizable=0');
+                window.open('messages.php?nomenu=1&go=SMS_bot&pid=' + pid,'SMS_bot', 'width=370,height=600,resizable=0');
                 return false;
             }
             $(document).ready(function() {

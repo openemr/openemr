@@ -438,13 +438,13 @@ if (!$_REQUEST['flb_table']) {
                   <td class="dehead text-center" max-width="150px">
                     <?php  echo xlt( 'Patient' ); ?>
                   </td>
-                  <?php if ( $GLOBALS['ptkr_visit_reason'] ) { ?>
+                  <?php if ( $GLOBALS['ptkr_visit_reason'] =='1' ) { ?>
                   <td class="dehead hidden-xs text-center" name="kiosk_hide">
                     <?php  echo xlt( 'Reason' ); ?>
                   </td>
                   <?php } ?>
                   <?php if ( $GLOBALS['ptkr_show_encounter'] ) { ?>
-                    <td class="dehead text-center hidden-xs hidden-sm" name="kiosk_hide">
+                  <td class="dehead text-center hidden-xs hidden-sm" name="kiosk_hide">
                     <?php  echo xlt( 'Encounter' ); ?>
                   </td>
                   <?php } ?>
@@ -497,16 +497,16 @@ if (!$_REQUEST['flb_table']) {
                   <?php 
                     }
                   if ($_REQUEST['kiosk'] !='1') {  
-                  if ( $GLOBALS['drug_screen'] ) { ?>
-                    <td class="dehead center hidden-xs "  name="kiosk_hide">
-                      <?php  echo xlt( 'Random Drug Screen' ); ?>
-                    </td>
-                    <td class="dehead center hidden-xs "  name="kiosk_hide">
-                      <?php  echo xlt( 'Drug Screen Completed' ); ?>
-                    </td>
-                  <?php 
-                  } 
-                }?>
+                    if ( $GLOBALS['drug_screen'] ) { ?>
+                      <td class="dehead center hidden-xs "  name="kiosk_hide">
+                        <?php  echo xlt( 'Random Drug Screen' ); ?>
+                      </td>
+                      <td class="dehead center hidden-xs "  name="kiosk_hide">
+                        <?php  echo xlt( 'Drug Screen Completed' ); ?>
+                      </td>
+                      <?php 
+                    } 
+                  } ?>
                 </tr>
               </thead>
               <tbody>
@@ -795,7 +795,7 @@ if (!$_REQUEST['flb_table']) {
                       }
                       if ( $prog_text >'' ) {
                         echo  '
-                                <span  class="btn btn-primary" data-toggle="tooltip" title="'.$prog_text.'" style="padding:5px;" onclick="SMS_bot(\''.attr( $appointment['pc_eid'] ).'\')">
+                                <span  class="btn btn-primary" data-toggle="tooltip" title="'.$prog_text.'" style="padding:5px;" onclick="SMS_bot(\''.attr( $appt_pid ).'\');">
                                   <i class="fa fa-list-alt fa-inverse"></i>
                                 </span>
                               <div class="jqui" style="display:none;">'. $prog_text .'</div>
@@ -1012,13 +1012,13 @@ function myLocalJS() {
       document.fnew.submit();
     }
     //opens the two-way SMS phone app
-    function SMS_bot(eid) {
+    function SMS_bot(pid) {
       top.restoreSession();
       var from    = '<?php echo attr( $from_date ); ?>';
       var to      = '<?php echo attr( $to_date ); ?>';
       var oefrom  = '<?php echo attr( oeFormatShortDate( $from_date ) ); ?>';
       var oeto    = '<?php echo attr( oeFormatShortDate( $to_date ) ); ?>';
-      window.open('../main/messages/messages.php?nomenu=1&go=SMS_bot&pc_eid=' + eid+'&to='+to+'&from='+from+'&oeto='+oeto+'&oefrom='+oefrom,'SMS_bot', 'width=370,height=600,resizable=0');
+      window.open('../main/messages/messages.php?nomenu=1&go=SMS_bot&pid='+pid+'&to='+to+'&from='+from+'&oeto='+oeto+'&oefrom='+oefrom,'SMS_bot', 'width=370,height=600,resizable=0');
       return false;
     }
    
