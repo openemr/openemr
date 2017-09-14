@@ -391,7 +391,10 @@ function create_HTML_statement($stmt)
     $out .="      </td><td style=width:2.0in;vertical-align:middle;'>";
     $practice_cards = $GLOBALS['OE_SITE_DIR']. "/images/visa_mc_disc_credit_card_logos_176x35.gif";
     if (file_exists($GLOBALS['OE_SITE_DIR']."/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
-        $out .= "<img src='$practice_cards' style='width:100%;margin:4px auto;'><br /><p>\n".$label_totaldue.": ".$stmt['amount']."</p>";
+        $out .= "<img src='$practice_cards' style='width:100%;margin:4px auto;'><br /><p>\n<b>". $label_totaldue . "</b>: " .
+        $stmt['amount']. "<br/>". xla('Payment Tracking Id') . ": ". text($stmt['pid'])."</p>";
+    } else {
+        $out .= "<br /><p><b>". $label_totaldue . "</b>: " . $stmt['amount']. "<br/>". xla('Payment Tracking Id') . ": ". text($stmt['pid'])."</p>";
     }
 
     $out .="</td></tr></table>";
