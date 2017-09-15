@@ -533,31 +533,31 @@ ALTER TABLE `codes` ADD COLUMN `revenue_code` varchar(6) NOT NULL DEFAULT "" COM
 
 #IfMissingColumn users weno_prov_id
 ALTER TABLE `users` ADD `weno_prov_id` VARCHAR(15) DEFAULT NULL;
-#Endif
+#EndIf
 
 #IfMissingColumn prescriptions ntx
 ALTER TABLE `prescriptions` ADD `ntx` INT(2) DEFAULT NULL;
-#Endif
+#EndIf
 
 #IfMissingColumn prescriptions rtx
 ALTER TABLE `prescriptions` ADD `rtx` INT(2) DEFAULT NULL;
-#Endif
+#EndIf
 
 #IfMissingColumn prescriptions txDate
 ALTER TABLE `prescriptions` ADD `txDate` DATE NOT NULL;
-#Endif
+#EndIf
 
 #IfMissingColumn pharmacies ncpdp
 ALTER TABLE `pharmacies` ADD `ncpdp` INT(12) DEFAULT NULL;
-#Endif
+#EndIf
 
 #IfMissingColumn pharmacies npi
 ALTER TABLE `pharmacies` ADD `npi` INT(12) DEFAULT NULL;
-#Endif
+#EndIf
 
 #IfNotRow2Dx2 list_options list_id state option_id PR title Puerto Rico
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('state','PR','Puerto Rico',39,0);
-#Endif
+#EndIf
 
 #IfNotTable erx_drug_paid
 CREATE TABLE `erx_drug_paid` (
@@ -572,7 +572,7 @@ CREATE TABLE `erx_drug_paid` (
   `avg_percent` decimal(6,2) NOT NULL,
    PRIMARY KEY (`drugid`)
    ) ENGINE=InnoDB;
-#Endif
+#EndIf
 
 #IfNotTable erx_rx_log
 CREATE TABLE `erx_rx_log` (
@@ -586,7 +586,7 @@ CREATE TABLE `erx_rx_log` (
  `read` int(1) DEFAULT NULL,
  PRIMARY KEY (`id`)
   ) ENGINE=InnoDB;
-#Endif
+#EndIf
 
 #IfNotTable erx_narcotics
 CREATE TABLE `erx_narcotics` (
@@ -598,7 +598,7 @@ CREATE TABLE `erx_narcotics` (
   `other_names` varchar(255) NOT NULL,
    PRIMARY KEY (`id`)
   ) ENGINE=InnoDB;
-#Endif
+#EndIf
 
 UPDATE `globals` SET `gl_value`='style_red.css' WHERE `gl_name`='css_header' AND `gl_value`='style_flat_red.css';
 UPDATE `globals` SET `gl_value`='style_manila.css' WHERE `gl_name`='css_header' AND `gl_value`='style_tan.css';
