@@ -600,3 +600,20 @@ CREATE TABLE `erx_narcotics` (
   ) ENGINE=InnoDB;
 #Endif
 
+UPDATE `globals` SET `gl_value`='style_red.css' WHERE `gl_name`='css_header' AND `gl_value`='style_flat_red.css';
+UPDATE `globals` SET `gl_value`='style_manila.css' WHERE `gl_name`='css_header' AND `gl_value`='style_tan.css';
+UPDATE `globals` SET `gl_value`='style_light.css' WHERE `gl_name`='css_header' AND (`gl_value`='style_babyblu.css'
+ OR `gl_value`='style_metal.css'
+ OR `gl_value`='style_oemr.css'
+ OR `gl_value`='style_purple.css'
+ OR `gl_value`='style_radiant.css'
+ OR `gl_value`='style_sky_blue.css');
+
+UPDATE `user_settings` SET `setting_value`='style_red.css' WHERE `setting_label`='global:css_header' AND `setting_value`='style_flat_red.css';
+UPDATE `user_settings` SET `setting_value`='style_manila.css' WHERE `setting_label`='global:css_header' AND `setting_value`='style_tan.css';
+UPDATE `user_settings` SET `setting_value`='style_light.css' WHERE `setting_label`='global:css_header' AND (`setting_value`='style_babyblu.css'
+ OR `setting_value`='style_metal.css'
+ OR `setting_value`='style_oemr.css'
+ OR `setting_value`='style_purple.css'
+ OR `setting_value`='style_radiant.css'
+ OR `setting_value`='style_sky_blue.css');
