@@ -168,7 +168,7 @@ $GLOBALS_METADATA = array(
             xl('Tabs Layout Theme (need to logout/login after change this setting)'),
             'tabs_css',
             'tabs_style_full.css',
-            xl('Theme of the tabs layout (need to logout and then login to see this new setting).')
+            xl('Theme of the tabs layout (need to logout and then login to see this new setting). Note this is only applicable if use the Light or Manila general theme below.')
         ),
 
         'css_header' => array(
