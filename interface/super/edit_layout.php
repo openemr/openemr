@@ -211,31 +211,30 @@ function swapGroups($id1, $id2)
     }
 }
 
+function tableNameFromLayout($layout_id)
+{
+    // Skip layouts that store data in vertical tables.
+    if (substr($layout_id,0,3) == 'LBF' || substr($layout_id,0,3) == 'LBT' || $layout_id == "FACUSR") {
+        return '';
+    }
+    if      ($layout_id == "DEM") $tablename = "patient_data";
+    else if ($layout_id == "HIS") $tablename = "history_data";
+    else if ($layout_id == "SRH") $tablename = "lists_ippf_srh";
+    else if ($layout_id == "CON") $tablename = "lists_ippf_con";
+    else if ($layout_id == "GCA") $tablename = "lists_ippf_gcac";
+    else die(xlt('Internal error in tableNameFromLayout') . '(' . text($layout_id) . ')');
+    return $tablename;
+}
+
 // Call this when adding or removing a layout field.  This will create or drop
 // the corresponding table column when appropriate.  Table columns are not
 // dropped if they contain any non-empty values.
 function addOrDeleteColumn($layout_id, $field_id, $add = true)
 {
-    // Skip layouts that store data in vertical tables.
-    if (substr($layout_id, 0, 3) == 'LBF' || substr($layout_id, 0, 3) == 'LBT' || $layout_id == "FACUSR") {
-        return;
-    }
+    $tablename = tableNameFromLayout($layout_id);
+    if (!$tablename) return;
 
-    if ($layout_id == "DEM") {
-        $tablename = "patient_data";
-    } else if ($layout_id == "HIS") {
-        $tablename = "history_data";
-    } else if ($layout_id == "SRH") {
-        $tablename = "lists_ippf_srh";
-    } else if ($layout_id == "CON") {
-        $tablename = "lists_ippf_con";
-    } else if ($layout_id == "GCA") {
-        $tablename = "lists_ippf_gcac";
-    } else {
-        die('Internal error in addOrDeleteColumn()');
-    }
-
-  // Check if the column currently exists.
+    // Check if the column currently exists.
     $tmp = sqlQuery("SHOW COLUMNS FROM `$tablename` LIKE '$field_id'");
     $column_exists = !empty($tmp);
 
@@ -263,6 +262,54 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
             );
         }
     }
+}
+
+// Call this before renaming a layout field.
+// Renames the table column (if applicable) and returns a result status:
+//  -1 = There is no table for this layout (not an error).
+//   0 = Rename successful.
+//   2 = There is no column having the old name.
+//   3 = There is already a column having the new name.
+//
+function renameColumn($layout_id, $old_field_id, $new_field_id)
+{
+    $tablename = tableNameFromLayout($layout_id);
+    if (!$tablename) {
+        return -1; // Indicate rename is not relevant.
+    }
+    // Make sure old column exists.
+    $colarr = sqlQuery("SHOW COLUMNS FROM `$tablename` LIKE ?", array($old_field_id));
+    if (empty($colarr)) {
+        // Error, old name does not exist.
+        return 2;
+    }
+    // Make sure new column does not exist.
+    $tmp = sqlQuery("SHOW COLUMNS FROM `$tablename` LIKE ?", array($new_field_id));
+    if (!empty($tmp)) {
+        // Error, new name already in use.
+        return 3;
+    }
+    // With MySQL you can't change just the name, you have to specify the column definition too.
+    $colstr = $colarr['Type'];
+    if ($colarr['Null'] == 'NO') {
+        $colstr .= " NOT NULL";
+    }
+    if ($colarr['Default'] !== null) {
+        $colstr .= " DEFAULT '" . add_escape_custom($colarr['Default']) . "'";
+    }
+    if ($colarr['Extra']) {
+        $colstr .= " " . $colarr['Extra'];
+    }
+    $query = "ALTER TABLE `$tablename` CHANGE `$old_field_id` `$new_field_id` $colstr";
+    sqlStatement($query);
+    newEvent(
+        "alter_table",
+        $_SESSION['authUser'],
+        $_SESSION['authProvider'],
+        1,
+        "$tablename RENAME $old_field_id TO $new_field_id $colstr"
+    );
+    return 0; // Indicate rename done and successful.
 }
 
 // Check authorization.
@@ -309,6 +356,12 @@ if ($_POST['formaction'] == "save" && $layout_id) {
         $conditions = $cix ? serialize($condarr) : '';
 
         if ($field_id) {
+            if ($field_id != $field_id_original) {
+                if (renameColumn($layout_id, $field_id_original, $field_id) > 0) {
+                    // If column rename had an error then don't rename it here.
+                    $field_id = $field_id_original;
+                }
+            }
             sqlStatement("UPDATE layout_options SET " .
                 "field_id = '"      . formDataCore($field_id)      . "', " .
                 "source = '"        . formTrim($iter['source'])    . "', " .
