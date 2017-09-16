@@ -20,7 +20,7 @@ $iDisplayStart  = isset($_GET['iDisplayStart' ]) ? 0 + $_GET['iDisplayStart' ] :
 $iDisplayLength = isset($_GET['iDisplayLength']) ? 0 + $_GET['iDisplayLength'] : -1;
 $limit = '';
 if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
-  $limit = "LIMIT " . escape_limit($iDisplayStart) . ", " . escape_limit($iDisplayLength);
+    $limit = "LIMIT " . escape_limit($iDisplayStart) . ", " . escape_limit($iDisplayLength);
 }
 $searchTerm = isset($_GET['sSearch']) ? $_GET['sSearch'] : '';
 
@@ -29,19 +29,23 @@ $what = $_GET['what'];
 $layout_id = '';
 
 if ($what == 'codes') {
-  $codetype = $_GET['codetype'];
-  $prod = $codetype == 'PROD';
-  $ncodetype = $code_types[$codetype]['id'];
-  $include_inactive = !empty($_GET['inactive']);
-}
-else if ($what == 'fields') {
-  $source = empty($_GET['source']) ? 'D' : $_GET['source'];
-  if ($source == 'D') $layout_id = 'DEM'; else
-  if ($source == 'H') $layout_id = 'HIS'; else
-  if ($source == 'E') $layout_id = 'LBF%';
-}
-else if ($what == 'groups') {
-  if (!empty($_GET['layout_id'])) $layout_id = $_GET['layout_id'];
+    $codetype = $_GET['codetype'];
+    $prod = $codetype == 'PROD';
+    $ncodetype = $code_types[$codetype]['id'];
+    $include_inactive = !empty($_GET['inactive']);
+} else if ($what == 'fields') {
+    $source = empty($_GET['source']) ? 'D' : $_GET['source'];
+    if ($source == 'D') {
+        $layout_id = 'DEM';
+    } else if ($source == 'H') {
+        $layout_id = 'HIS';
+    } else if ($source == 'E') {
+        $layout_id = 'LBF%';
+    }
+} else if ($what == 'groups') {
+    if (!empty($_GET['layout_id'])) {
+        $layout_id = $_GET['layout_id'];
+    }
 }
 
 $form_encounter_layout = array(
@@ -110,30 +114,34 @@ $form_encounter_layout = array(
        ),
 );
 
-function feSearchSort($search='', $column=0, $reverse=false) {
-  global $form_encounter_layout;
-  $arr = array();
-  foreach ($form_encounter_layout as $feitem) {
-    if ($search && stripos($feitem['field_id'], $search) === false &&
-      stripos($feitem['title'], $search) === false ) {
-      continue;
+function feSearchSort($search = '', $column = 0, $reverse = false)
+{
+    global $form_encounter_layout;
+    $arr = array();
+    foreach ($form_encounter_layout as $feitem) {
+        if ($search && stripos($feitem['field_id'], $search) === false &&
+        stripos($feitem['title'], $search) === false ) {
+            continue;
+        }
+        $feitem['fld_length' ] = 20;
+        $feitem['max_length' ] = 0;
+        $feitem['titlecols'  ] = 1;
+        $feitem['datacols'   ] = 3;
+        $feitem['description'] = '';
+        $feitem['fld_rows'   ] = 0;
+        $key = $column ? 'title' : 'field_id';
+        $arr[$feitem[$key]] = $feitem;
     }
-    $feitem['fld_length' ] = 20;
-    $feitem['max_length' ] = 0;
-    $feitem['titlecols'  ] = 1;
-    $feitem['datacols'   ] = 3;
-    $feitem['description'] = '';
-    $feitem['fld_rows'   ] = 0;
-    $key = $column ? 'title' : 'field_id';
-    $arr[$feitem[$key]] = $feitem;
-  }
-  ksort($arr);
-  if ($reverse) $arr = array_reverse($arr);
-  return $arr;
+    ksort($arr);
+    if ($reverse) {
+        $arr = array_reverse($arr);
+    }
+    return $arr;
 }
 
-function genFieldIdString($row) {
-  return 'CID|' . json_encode($row);
+function genFieldIdString($row)
+{
+    return 'CID|' . json_encode($row);
 }
 
 // Column sorting parameters.
@@ -143,139 +151,123 @@ $ordermode = null;
 $fe_column = 0;
 $fe_reverse = false;
 if (isset($_GET['iSortCol_0'])) {
-	for ($i = 0; $i < intval($_GET['iSortingCols']); ++$i) {
-    $iSortCol = intval($_GET["iSortCol_$i"]);
-		if ($_GET["bSortable_$iSortCol"] == "true" ) {
-      $sSortDir = escape_sort_order($_GET["sSortDir_$i"]); // ASC or DESC
+    for ($i = 0; $i < intval($_GET['iSortingCols']); ++$i) {
+        $iSortCol = intval($_GET["iSortCol_$i"]);
+        if ($_GET["bSortable_$iSortCol"] == "true") {
+            $sSortDir = escape_sort_order($_GET["sSortDir_$i"]); // ASC or DESC
       // We are to sort on column # $iSortCol in direction $sSortDir.
-      $orderby .= $orderby ? ', ' : 'ORDER BY ';
+            $orderby .= $orderby ? ', ' : 'ORDER BY ';
 
       // Note the primary sort column and direction for later logic.
-      if ($i == 0) {
-        $fe_column = $iSortCol;
-        $fe_reverse = $sSortDir == 'DESC';
-      }
+            if ($i == 0) {
+                $fe_column = $iSortCol;
+                $fe_reverse = $sSortDir == 'DESC';
+            }
 
-      if ($what == 'codes') {
-        if ($iSortCol == 0) {
-          // $orderby .= $prod ? "d.drug_id $sSortDir, t.selector $sSortDir" : "c.code $sSortDir";
-          $ordermode = array('code', 'description');
+            if ($what == 'codes') {
+                if ($iSortCol == 0) {
+                  // $orderby .= $prod ? "d.drug_id $sSortDir, t.selector $sSortDir" : "c.code $sSortDir";
+                    $ordermode = array('code', 'description');
+                } else {
+                  // $orderby .= $prod ? "d.name $sSortDir" : "c.code_text $sSortDir";
+                    $ordermode = array('description', 'code');
+                }
+            } else if ($what == 'fields') {
+                if ($source == 'V') {
+                  // No action needed here.
+                } else {
+                  // Remaining sources (D, H, E) come from a layout.
+                    if ($iSortCol == 0) {
+                        $orderby .= "lo.field_id $sSortDir";
+                    } else {
+                        $orderby .= "lo.title $sSortDir";
+                    }
+                }
+            } else if ($what == 'lists') {
+                if ($iSortCol == 0) {
+                    $orderby .= "li.list_id $sSortDir";
+                } else {
+                    $orderby .= "li.option_id $sSortDir";
+                }
+            } else if ($what == 'groups') {
+                if ($iSortCol == 0) {
+                    $orderby .= "code $sSortDir";
+                } else {
+                    $orderby .= "description $sSortDir";
+                }
+            }
         }
-        else {
-          // $orderby .= $prod ? "d.name $sSortDir" : "c.code_text $sSortDir";
-          $ordermode = array('description', 'code');
-        }
-      }
-      else if ($what == 'fields') {
-        if ($source == 'V') {
-          // No action needed here.
-        }
-        else {
-          // Remaining sources (D, H, E) come from a layout.
-          if ($iSortCol == 0) {
-            $orderby .= "lo.field_id $sSortDir";
-          }
-          else {
-            $orderby .= "lo.title $sSortDir";
-          }
-        }
-      }
-      else if ($what == 'lists') {
-        if ($iSortCol == 0) {
-          $orderby .= "li.list_id $sSortDir";
-        }
-        else {
-          $orderby .= "li.option_id $sSortDir";
-        }
-      }
-      else if ($what == 'groups') {
-        if ($iSortCol == 0) {
-          $orderby .= "code $sSortDir";
-        }
-        else {
-          $orderby .= "description $sSortDir";
-        }
-      }
-		}
-	}
+    }
 }
 
 if ($what == 'codes') {
   // Nothing to do here.
-}
-else if ($what == 'fields') {
-  if ($source == 'V') {
-    // No setup needed.
-  }
-  else if ($source == 'E') {
-    $sellist = "lo.field_id, " .
-      "MIN(lo.group_id    ) AS group_id, "     .
-      "MIN(lo.title       ) AS title, "        .
-      "MIN(lo.data_type   ) AS data_type, "    .
-      "MIN(lo.uor         ) AS uor, "          .
-      "MIN(lo.fld_length  ) AS fld_length, "   .
-      "MIN(lo.max_length  ) AS max_length, "   .
-      "MIN(lo.list_id     ) AS list_id, "      .
-      "MIN(lo.titlecols   ) AS titlecols, "    .
-      "MIN(lo.datacols    ) AS datacols, "     .
-      "MIN(lo.edit_options) AS edit_options, " .
-      "MIN(lo.description ) AS description, "  .
-      "MIN(lo.fld_rows    ) AS fld_rows";
-    $orderby = "GROUP BY lo.field_id $orderby";
-    $from = "layout_options AS lo";
-    $where1 = "WHERE lo.form_id LIKE '" . add_escape_custom($layout_id) . "' AND lo.uor > 0 AND lo.source = 'E'";
-    if ($searchTerm !== "") {
-      $sSearch = add_escape_custom($searchTerm);
-      $where2 = "AND (lo.field_id LIKE '%$sSearch%' OR lo.title LIKE '%$sSearch%')";
+} else if ($what == 'fields') {
+    if ($source == 'V') {
+      // No setup needed.
+    } else if ($source == 'E') {
+        $sellist = "lo.field_id, " .
+        "MIN(lo.group_id    ) AS group_id, "     .
+        "MIN(lo.title       ) AS title, "        .
+        "MIN(lo.data_type   ) AS data_type, "    .
+        "MIN(lo.uor         ) AS uor, "          .
+        "MIN(lo.fld_length  ) AS fld_length, "   .
+        "MIN(lo.max_length  ) AS max_length, "   .
+        "MIN(lo.list_id     ) AS list_id, "      .
+        "MIN(lo.titlecols   ) AS titlecols, "    .
+        "MIN(lo.datacols    ) AS datacols, "     .
+        "MIN(lo.edit_options) AS edit_options, " .
+        "MIN(lo.description ) AS description, "  .
+        "MIN(lo.fld_rows    ) AS fld_rows";
+        $orderby = "GROUP BY lo.field_id $orderby";
+        $from = "layout_options AS lo";
+        $where1 = "WHERE lo.form_id LIKE '" . add_escape_custom($layout_id) . "' AND lo.uor > 0 AND lo.source = 'E'";
+        if ($searchTerm !== "") {
+            $sSearch = add_escape_custom($searchTerm);
+            $where2 = "AND (lo.field_id LIKE '%$sSearch%' OR lo.title LIKE '%$sSearch%')";
+        }
+    } else if ($source == 'D' || $source == 'H') {
+        $sellist = "lo.*";
+        $from = "layout_options AS lo";
+        $where1 = "WHERE lo.form_id LIKE " . add_escape_custom($layout_id) . " AND lo.uor > 0";
+        if ($searchTerm !== "") {
+            $sSearch = add_escape_custom($searchTerm);
+            $where2 = "AND (lo.field_id LIKE '%$sSearch%' OR lo.title LIKE '%$sSearch%')";
+        }
     }
-  }
-  else if ($source == 'D' || $source == 'H') {
-    $sellist = "lo.*";
-    $from = "layout_options AS lo";
-    $where1 = "WHERE lo.form_id LIKE " . add_escape_custom($layout_id) . " AND lo.uor > 0";
+} else if ($what == 'lists') {
+    $sellist = "li.option_id AS code, li.title AS description";
+    $from = "list_options AS li";
+    $where1 = "WHERE li.list_id LIKE 'lists' AND li.activity = 1";
     if ($searchTerm !== "") {
-      $sSearch = add_escape_custom($searchTerm);
-      $where2 = "AND (lo.field_id LIKE '%$sSearch%' OR lo.title LIKE '%$sSearch%')";
+        $sSearch = add_escape_custom($searchTerm);
+        $where2 = "AND (li.list_id LIKE '%$sSearch%' OR li.title LIKE '%$sSearch%')";
     }
-  }
-}
-else if ($what == 'lists') {
-  $sellist = "li.option_id AS code, li.title AS description";
-  $from = "list_options AS li";
-  $where1 = "WHERE li.list_id LIKE 'lists' AND li.activity = 1";
-  if ($searchTerm !== "") {
-    $sSearch = add_escape_custom($searchTerm);
-    $where2 = "AND (li.list_id LIKE '%$sSearch%' OR li.title LIKE '%$sSearch%')";
-  }
-}
-else if ($what == 'groups') {
-  $sellist .= "DISTINCT lo.group_id AS code, lp.grp_title AS description";
-  $from = "layout_options AS lo, layout_group_properties AS lp";
-  $where1 = "WHERE lo.form_id LIKE '" . add_escape_custom($layout_id) . "' AND lp.grp_form_id = lo.form_id AND lp.grp_group_id = lo.group_id";
-  if ($searchTerm !== "") {
-    $sSearch = add_escape_custom($searchTerm);
-    $where2 = "AND lp.grp_title LIKE '%$sSearch%'";
-  }
-}
-else {
-  error_log('Invalid request to find_code_dynamic_ajax.php');
-  exit();
+} else if ($what == 'groups') {
+    $sellist .= "DISTINCT lo.group_id AS code, lp.grp_title AS description";
+    $from = "layout_options AS lo, layout_group_properties AS lp";
+    $where1 = "WHERE lo.form_id LIKE '" . add_escape_custom($layout_id) . "' AND lp.grp_form_id = lo.form_id AND lp.grp_group_id = lo.group_id";
+    if ($searchTerm !== "") {
+        $sSearch = add_escape_custom($searchTerm);
+        $where2 = "AND lp.grp_title LIKE '%$sSearch%'";
+    }
+} else {
+    error_log('Invalid request to find_code_dynamic_ajax.php');
+    exit();
 }
 
 if ($what == 'fields' && $source == 'V') {
-  $fe_array = feSearchSort($searchTerm, $fe_column, $fe_reverse);
-  $iTotal = count($form_encounter_layout);
-  $iFilteredTotal = count($fe_array);
-}
-else if ($what == 'codes') {
+    $fe_array = feSearchSort($searchTerm, $fe_column, $fe_reverse);
+    $iTotal = count($form_encounter_layout);
+    $iFilteredTotal = count($fe_array);
+} else if ($what == 'codes') {
     $iTotal = main_code_set_search($codetype, '', null, null, !$include_inactive, null, true);
     $iFilteredTotal = main_code_set_search($codetype, $searchTerm, null, null, !$include_inactive, null, true);
-}
-else {
+} else {
   // Get total number of rows with no filtering.
-  $iTotal = sqlNumRows(sqlStatement("SELECT $sellist FROM $from $where1 $orderby"));
+    $iTotal = sqlNumRows(sqlStatement("SELECT $sellist FROM $from $where1 $orderby"));
   // Get total number of rows after filtering.
-  $iFilteredTotal = sqlNumRows(sqlStatement("SELECT $sellist FROM $from $where1 $where2 $orderby"));
+    $iFilteredTotal = sqlNumRows(sqlStatement("SELECT $sellist FROM $from $where1 $where2 $orderby"));
 }
 
 // Build the output data array.
@@ -288,15 +280,13 @@ $out = array(
 );
 
 if ($what == 'fields' && $source == 'V') {
-  foreach ($fe_array as $feitem) {
-    $arow = array('DT_RowId' => genFieldIdString($feitem));
-    $arow[] = $feitem['field_id'];
-    $arow[] = $feitem['title'];
-    $out['aaData'][] = $arow;
-  }
-}
-
-else if ($what == 'codes') {
+    foreach ($fe_array as $feitem) {
+        $arow = array('DT_RowId' => genFieldIdString($feitem));
+        $arow[] = $feitem['field_id'];
+        $arow[] = $feitem['title'];
+        $out['aaData'][] = $arow;
+    }
+} else if ($what == 'codes') {
     $res = main_code_set_search($codetype, $searchTerm, null, null, !$include_inactive, $ordermode);
     while ($row = sqlFetchArray($res)) {
         $arow = array('DT_RowId' => genFieldIdString(array(
@@ -308,23 +298,20 @@ else if ($what == 'codes') {
         $arow[] = $row['code_text'];
         $out['aaData'][] = $arow;
     }
-}
-
-else {
-  $query = "SELECT $sellist FROM $from $where1 $where2 $orderby $limit";
-  $res = sqlStatement($query);
-  while ($row = sqlFetchArray($res)) {
-    $arow = array('DT_RowId' => genFieldIdString($row));
-    if ($what == 'fields') {
-      $arow[] = $row['field_id'];
-      $arow[] = $row['title'];
+} else {
+    $query = "SELECT $sellist FROM $from $where1 $where2 $orderby $limit";
+    $res = sqlStatement($query);
+    while ($row = sqlFetchArray($res)) {
+        $arow = array('DT_RowId' => genFieldIdString($row));
+        if ($what == 'fields') {
+            $arow[] = $row['field_id'];
+            $arow[] = $row['title'];
+        } else {
+            $arow[] = str_replace('|', ':', rtrim($row['code'], '|'));
+            $arow[] = $row['description'];
+        }
+        $out['aaData'][] = $arow;
     }
-    else {
-      $arow[] = str_replace('|', ':', rtrim($row['code'], '|'));
-      $arow[] = $row['description'];
-    }
-    $out['aaData'][] = $arow;
-  }
 }
 
 // error_log($query); // debugging

@@ -21,7 +21,9 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false)
     $grparr = array();
     getLayoutProperties($formname, $grparr, '*');
     // Check access control.
-    if (!empty($grparr['']['grp_aco_spec'])) $LBF_ACO = explode('|', $grparr['']['grp_aco_spec']);
+    if (!empty($grparr['']['grp_aco_spec'])) {
+        $LBF_ACO = explode('|', $grparr['']['grp_aco_spec']);
+    }
     if (!acl_check('admin', 'super') && !empty($LBF_ACO)) {
         if (!acl_check($LBF_ACO[0], $LBF_ACO[1])) {
             die(xlt('Access denied'));

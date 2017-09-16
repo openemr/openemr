@@ -502,7 +502,7 @@ $(window).load(function() {
 $grparr = array();
 getLayoutProperties('DEM', $grparr, 'grp_size');
 if (!empty($grparr['']['grp_size'])) {
-  $FONTSIZE = $grparr['']['grp_size'];
+    $FONTSIZE = $grparr['']['grp_size'];
 ?>
 /* Override font sizes in the theme. */
 #DEM .groupname {

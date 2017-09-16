@@ -1202,8 +1202,12 @@ $regrows = getFormsByCategory(); // defined in registry.inc
 foreach ($regrows as $entry) {
     $option_id = $entry['directory'];
     $title = trim($entry['nickname']);
-    if ($option_id == 'fee_sheet' ) continue;
-    if ($option_id == 'newpatient') continue;
+    if ($option_id == 'fee_sheet') {
+        continue;
+    }
+    if ($option_id == 'newpatient') {
+        continue;
+    }
     // Check permission to create forms of this type.
     $tmp = explode('|', $entry['aco_spec']);
     if (!empty($tmp[1])) {
@@ -1211,9 +1215,13 @@ foreach ($regrows as $entry) {
             continue;
         }
     }
-    if (empty($title)) $title = $entry['name'];
+    if (empty($title)) {
+        $title = $entry['name'];
+    }
     if ($entry['category'] != $reglastcat) {
-        if ($reglastcat) echo "        </ul></li>\n";
+        if ($reglastcat) {
+            echo "        </ul></li>\n";
+        }
         echo "        <li><a class='collapsed_lv3'><span>" . xlt($entry['category']) . "</span></a><ul>\n";
         $reglastcat = $entry['category'];
     }
@@ -1225,7 +1233,9 @@ foreach ($regrows as $entry) {
         "patient_file/encounter/load_form.php?formname=" . urlencode($option_id)
     );
 }
-if ($reglastcat) echo "        </ul></li>\n";
+if ($reglastcat) {
+    echo "        </ul></li>\n";
+}
 ?>
         </ul>
       </li>
@@ -1714,8 +1724,8 @@ if ($reglastcat) echo "        </ul></li>\n";
         <ul>
 <?php
     echo "        <li><a class='collapsed_lv3'><span>" . xlt('Core') . "</span></a><ul>\n";
-    genPopLink(xl('Demographics'),'../patient_file/summary/demographics_print.php');
-    genPopLink(xl('Superbill/Fee Sheet'),'../patient_file/printed_fee_sheet.php');
+    genPopLink(xl('Demographics'), '../patient_file/summary/demographics_print.php');
+    genPopLink(xl('Superbill/Fee Sheet'), '../patient_file/printed_fee_sheet.php');
     // genPopLink(xl('Referral'),'../patient_file/transaction/print_referral.php');
     echo "        </ul></li>\n";
 
@@ -1723,24 +1733,30 @@ if ($reglastcat) echo "        </ul></li>\n";
     //
     $reglastcat = '';
     $regrows = getFormsByCategory('1', true); // defined in registry.inc
-    foreach ($regrows as $entry) {
-      $option_id = $entry['directory'];
-      $title = trim($entry['nickname']);
-      $tmp = explode('|', $entry['aco_spec']);
-      if (!empty($tmp[1])) {
-          if (!acl_check($tmp[0], $tmp[1])) {
-              continue;
-          }
-      }
-      if (empty($title)) $title = $entry['name'];
-      if ($entry['category'] != $reglastcat) {
-          if ($reglastcat) echo "        </ul></li>\n";
-          echo "        <li><a class='collapsed_lv3'><span>" . xlt($entry['category']) . "</span></a><ul>\n";
-          $reglastcat = $entry['category'];
-      }
-      genPopLink(xl_form_title($title), "../forms/LBF/printable.php?formname=" . urlencode($option_id));
+foreach ($regrows as $entry) {
+    $option_id = $entry['directory'];
+    $title = trim($entry['nickname']);
+    $tmp = explode('|', $entry['aco_spec']);
+    if (!empty($tmp[1])) {
+        if (!acl_check($tmp[0], $tmp[1])) {
+            continue;
+        }
     }
-    if ($reglastcat) echo "        </ul></li>\n";
+    if (empty($title)) {
+        $title = $entry['name'];
+    }
+    if ($entry['category'] != $reglastcat) {
+        if ($reglastcat) {
+            echo "        </ul></li>\n";
+        }
+        echo "        <li><a class='collapsed_lv3'><span>" . xlt($entry['category']) . "</span></a><ul>\n";
+        $reglastcat = $entry['category'];
+    }
+    genPopLink(xl_form_title($title), "../forms/LBF/printable.php?formname=" . urlencode($option_id));
+}
+if ($reglastcat) {
+    echo "        </ul></li>\n";
+}
 ?>
         </ul>
       </li>

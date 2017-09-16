@@ -32,7 +32,7 @@ $(document).ready(function(){
 $grparr = array();
 getLayoutProperties('HIS', $grparr, 'grp_size');
 if (!empty($grparr['']['grp_size'])) {
-  $FONTSIZE = $grparr['']['grp_size'];
+    $FONTSIZE = $grparr['']['grp_size'];
 ?>
 /* Override font sizes in the theme. */
 #HIS .groupname {

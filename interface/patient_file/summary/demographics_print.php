@@ -15,10 +15,9 @@ require_once("../../globals.php");
 // Option to substitute a custom version of this script.
 if (!empty($GLOBALS['gbl_rapid_workflow']) &&
     $GLOBALS['gbl_rapid_workflow'] == 'LBFmsivd' &&
-    file_exists('../../../custom/demographics_print.php'))
-{
-  include('../../../custom/demographics_print.php');
-  exit();
+    file_exists('../../../custom/demographics_print.php')) {
+    include('../../../custom/demographics_print.php');
+    exit();
 }
 
 require_once("$srcdir/acl.inc");
@@ -26,7 +25,9 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 
 $patientid = empty($_REQUEST['patientid']) ? 0 : 0 + $_REQUEST['patientid'];
-if ($patientid < 0) $patientid = 0 + $pid; // -1 means current pid
+if ($patientid < 0) {
+    $patientid = 0 + $pid; // -1 means current pid
+}
 
 // True if to display as a form to complete, false to display as information.
 $isform = empty($_REQUEST['isform']) ? 0 : 1;
@@ -36,11 +37,11 @@ $isform = empty($_REQUEST['isform']) ? 0 : 1;
 $PDF_OUTPUT = ($patientid && $isform) ? false : true;
 
 if ($PDF_OUTPUT) {
-  require_once("$srcdir/html2pdf/vendor/autoload.php");
-  $pdf = new HTML2PDF('P', 'Letter', 'en');
-  $pdf->setTestTdInOnePage(false); // Turn off error message for TD contents too big.
-  $pdf->pdf->SetDisplayMode('real');
-  ob_start();
+    require_once("$srcdir/html2pdf/vendor/autoload.php");
+    $pdf = new HTML2PDF('P', 'Letter', 'en');
+    $pdf->setTestTdInOnePage(false); // Turn off error message for TD contents too big.
+    $pdf->pdf->SetDisplayMode('real');
+    ob_start();
 }
 
 $CPR = 4; // cells per row
@@ -50,14 +51,16 @@ $erow = array();
 $irow = array();
 
 if ($patientid) {
-  $prow = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD"); 
-  $erow = getEmployerData($pid);
+    $prow = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
+    $erow = getEmployerData($pid);
   // Check authorization.
-  $thisauth = acl_check('patients', 'demo');
-  if (!$thisauth)
-    die(xl('Demographics not authorized'));
-  if ($prow['squad'] && ! acl_check('squads', $prow['squad']))
-    die(xl('You are not authorized to access this squad'));
+    $thisauth = acl_check('patients', 'demo');
+    if (!$thisauth) {
+        die(xl('Demographics not authorized'));
+    }
+    if ($prow['squad'] && ! acl_check('squads', $prow['squad'])) {
+        die(xl('You are not authorized to access this squad'));
+    }
   // $irow = getInsuranceProviders(); // needed?
 }
 
@@ -108,11 +111,11 @@ div.section {
   // html2pdf screws up the div borders when a div overflows to a second page.
   // Our temporary solution is to turn off the borders in the case where this
   // is likely to happen (i.e. where all form options are listed).
-  if (!$isform) {
+if (!$isform) {
 ?>
- border-style: solid;
- border-width: 1px;
- border-color: #000000;
+border-style: solid;
+border-width: 1px;
+border-color: #000000;
 <?php } ?>
  padding: 5pt;
 }
@@ -179,10 +182,9 @@ td.dcols3 { width: 80%; }
 $logo = '';
 $ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
 if (is_file("$webserver_root/$ma_logo_path")) {
-  $logo = "<img src='$web_root/$ma_logo_path' style='height:" . round(9 * 5.14) . "pt' />";
-}
-else {
-  $logo = "<!-- '$ma_logo_path' does not exist. -->";
+    $logo = "<img src='$web_root/$ma_logo_path' style='height:" . round(9 * 5.14) . "pt' />";
+} else {
+    $logo = "<!-- '$ma_logo_path' does not exist. -->";
 }
 echo genFacilityTitle(xl('Registration Form'), -1, $logo);
 
@@ -220,23 +222,25 @@ function end_group()
     }
 }
 
-function getContent() {
-  global $web_root, $webserver_root;
-  $content = ob_get_clean();
+function getContent()
+{
+    global $web_root, $webserver_root;
+    $content = ob_get_clean();
   // Fix a nasty html2pdf bug - it ignores document root!
-  $i = 0;
-  $wrlen = strlen($web_root);
-  $wsrlen = strlen($webserver_root);
-  while (true) {
-    $i = stripos($content, " src='/", $i + 1);
-    if ($i === false) break;
-    if (substr($content, $i+6, $wrlen) === $web_root &&
-        substr($content, $i+6, $wsrlen) !== $webserver_root)
-    {
-      $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
+    $i = 0;
+    $wrlen = strlen($web_root);
+    $wsrlen = strlen($webserver_root);
+    while (true) {
+        $i = stripos($content, " src='/", $i + 1);
+        if ($i === false) {
+            break;
+        }
+        if (substr($content, $i+6, $wrlen) === $web_root &&
+        substr($content, $i+6, $wsrlen) !== $webserver_root) {
+            $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
+        }
     }
-  }
-  return $content;
+    return $content;
 }
 
 $last_group = '';
@@ -254,9 +258,13 @@ while ($frow = sqlFetchArray($fres)) {
 
     if (strpos($field_id, 'em_') === 0) {
         $tmp = substr($field_id, 3);
-        if (isset($erow[$tmp])) $currvalue = $erow[$tmp];
+        if (isset($erow[$tmp])) {
+            $currvalue = $erow[$tmp];
+        }
     } else {
-        if (isset($prow[$field_id])) $currvalue = $prow[$field_id];
+        if (isset($prow[$field_id])) {
+            $currvalue = $prow[$field_id];
+        }
     }
 
   // Handle a data category (group) change.
@@ -269,7 +277,7 @@ while ($frow = sqlFetchArray($fres)) {
         // nasty html2pdf bug. When a table overflows to the next page, vertical
         // positioning for whatever follows it is off and can cause overlap.
         if (strlen($last_group) > 0) {
-          echo "</nobreak><br /><div><table><tr><td>&nbsp;</td></tr></table></div><br />\n";
+            echo "</nobreak><br /><div><table><tr><td>&nbsp;</td></tr></table></div><br />\n";
         }
 
         // This is also for html2pdf. Telling it that the following stuff should
@@ -328,7 +336,9 @@ while ($frow = sqlFetchArray($fres)) {
           echo " class='under'";
         }
         *****************************************************************/
-        if ($cell_count > 0) echo " style='padding-left:5pt;'";
+        if ($cell_count > 0) {
+            echo " style='padding-left:5pt;'";
+        }
         echo ">";
         $cell_count += $datacols;
     }
@@ -337,10 +347,11 @@ while ($frow = sqlFetchArray($fres)) {
 
     if ($isform) {
         generate_print_field($frow, $currvalue);
-    }
-    else {
+    } else {
         $s = generate_display_field($frow, $currvalue);
-        if ($s === '') $s = '&nbsp;';
+        if ($s === '') {
+            $s = '&nbsp;';
+        }
         echo $s;
     }
 }
@@ -348,19 +359,20 @@ while ($frow = sqlFetchArray($fres)) {
 end_group();
 
 // Ending the last nobreak section for html2pdf.
-if (strlen($last_group) > 0) echo "</nobreak>\n";
+if (strlen($last_group) > 0) {
+    echo "</nobreak>\n";
+}
 ?>
 
 </form>
 
 <?php
 if ($PDF_OUTPUT) {
-  $content = getContent();
+    $content = getContent();
   // $pdf->setDefaultFont('Arial');
-  $pdf->writeHTML($content, false);
-  $pdf->Output('Demographics_form.pdf', 'D'); // D = Download, I = Inline
-}
-else {
+    $pdf->writeHTML($content, false);
+    $pdf->Output('Demographics_form.pdf', 'D'); // D = Download, I = Inline
+} else {
 ?>
 <!-- This should really be in the onload handler but that seems to be unreliable and can crash Firefox 3. -->
 <script language='JavaScript'>

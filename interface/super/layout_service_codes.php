@@ -14,14 +14,19 @@ require_once('../globals.php');
 require_once($GLOBALS['srcdir'] . '/acl.inc');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
-if (!acl_check('admin', 'super')) die(xlt('Not authorized'));
+if (!acl_check('admin', 'super')) {
+    die(xlt('Not authorized'));
+}
 
 $form_dryrun = !empty($_POST['form_dryrun']);
 
-function applyCode($layoutid, $codetype, $code, $description) {
-  global $thecodes;
-  if (!isset($thecodes[$layoutid])) $thecodes[$layoutid] = array();
-  $thecodes[$layoutid]["$codetype:$code"] = $description;
+function applyCode($layoutid, $codetype, $code, $description)
+{
+    global $thecodes;
+    if (!isset($thecodes[$layoutid])) {
+        $thecodes[$layoutid] = array();
+    }
+    $thecodes[$layoutid]["$codetype:$code"] = $description;
 }
 
 ?>
@@ -43,64 +48,78 @@ function applyCode($layoutid, $codetype, $code, $description) {
 <?php
 // Handle uploads.
 if (!empty($_POST['bn_upload'])) {
-  $thecodes = array();
-  $tmp_name = $_FILES['form_file']['tmp_name'];
+    $thecodes = array();
+    $tmp_name = $_FILES['form_file']['tmp_name'];
 
-  if (is_uploaded_file($tmp_name) && $_FILES['form_file']['size']) {
-    $fhcsv = fopen($tmp_name, 'r');
-    if (empty($fhcsv)) die(xlt('Cannot open') . text(" '$tmp_name'"));
-
-    // Columns are:
-    // 0 - Layout ID, e.g. LBFVIA
-    // 1 - Code type, e.g. IPPF2
-    // 2 - Code
-    //
-    while (!feof($fhcsv)) {
-      $codecount = 0;
-      $acsv = fgetcsv($fhcsv, 1024);
-      if (count($acsv) < 3) continue;
-      $layoutid = trim($acsv[0]);
-      $codetype = trim($acsv[1]);
-      $code     = trim($acsv[2]);
-      if (empty($layoutid) || empty($codetype) || empty($code)) continue;
-      // If this is already a Fee Sheet code, add it.
-      if (empty($code_types[$codetype]['nofs'])) {
-        applyCode($layoutid, $codetype, $code, xl('Direct'));
-        ++$codecount;
-      }
-      // Add all Fee Sheet codes that relate to this code.
-      foreach ($code_types as $ct_key => $ct_arr) {
-        if (!$ct_arr['active'] || $ct_arr['nofs']) continue;
-        $tmp = "$codetype:$code";
-        $relres = sqlStatement("SELECT code, code_text FROM codes WHERE code_type = ? AND " .
-          "(related_code LIKE ? OR related_code LIKE ? OR related_code LIKE ? OR related_code LIKE ?) " .
-          "AND active = 1 ORDER BY code",
-          array($ct_arr['id'], $tmp, "$tmp;%", "%;$tmp", "%;$tmp;%"));
-        while ($relrow = sqlFetchArray($relres)) {
-          applyCode($layoutid, $ct_key, $relrow['code'], $relrow['code_text']);
-          ++$codecount;
+    if (is_uploaded_file($tmp_name) && $_FILES['form_file']['size']) {
+        $fhcsv = fopen($tmp_name, 'r');
+        if (empty($fhcsv)) {
+            die(xlt('Cannot open') . text(" '$tmp_name'"));
         }
-      }
-      if ($codecount == 0) {
-        echo "<p style='color:red'>" . xlt('No matches for') . " '" . text($tmp) . "'.</p>\n";
-      }
-    } // end while
-    fclose($eres);
 
-    // Now zap the found service codes into the parameters for each layout.
-    foreach ($thecodes as $layoutid => $arr) {
-      $services = '';
-      foreach ($arr as $key => $description) {
-        if ($services) $services .= ';';
-        $services .= $key;
-      }
-      if (!$form_dryrun) {
-        sqlStatement("UPDATE layout_group_properties SET grp_services = ? WHERE " .
-          "grp_form_id = ? AND grp_group_id = ''",
-          array($services, $layoutid));
-      }
-    }
-  } // end upload logic
+      // Columns are:
+      // 0 - Layout ID, e.g. LBFVIA
+      // 1 - Code type, e.g. IPPF2
+      // 2 - Code
+      //
+        while (!feof($fhcsv)) {
+            $codecount = 0;
+            $acsv = fgetcsv($fhcsv, 1024);
+            if (count($acsv) < 3) {
+                continue;
+            }
+            $layoutid = trim($acsv[0]);
+            $codetype = trim($acsv[1]);
+            $code     = trim($acsv[2]);
+            if (empty($layoutid) || empty($codetype) || empty($code)) {
+                continue;
+            }
+          // If this is already a Fee Sheet code, add it.
+            if (empty($code_types[$codetype]['nofs'])) {
+                applyCode($layoutid, $codetype, $code, xl('Direct'));
+                ++$codecount;
+            }
+          // Add all Fee Sheet codes that relate to this code.
+            foreach ($code_types as $ct_key => $ct_arr) {
+                if (!$ct_arr['active'] || $ct_arr['nofs']) {
+                    continue;
+                }
+                $tmp = "$codetype:$code";
+                $relres = sqlStatement(
+                    "SELECT code, code_text FROM codes WHERE code_type = ? AND " .
+                    "(related_code LIKE ? OR related_code LIKE ? OR related_code LIKE ? OR related_code LIKE ?) " .
+                    "AND active = 1 ORDER BY code",
+                    array($ct_arr['id'], $tmp, "$tmp;%", "%;$tmp", "%;$tmp;%")
+                );
+                while ($relrow = sqlFetchArray($relres)) {
+                    applyCode($layoutid, $ct_key, $relrow['code'], $relrow['code_text']);
+                    ++$codecount;
+                }
+            }
+            if ($codecount == 0) {
+                echo "<p style='color:red'>" . xlt('No matches for') . " '" . text($tmp) . "'.</p>\n";
+            }
+        } // end while
+        fclose($eres);
+
+      // Now zap the found service codes into the parameters for each layout.
+        foreach ($thecodes as $layoutid => $arr) {
+            $services = '';
+            foreach ($arr as $key => $description) {
+                if ($services) {
+                    $services .= ';';
+                }
+                $services .= $key;
+            }
+            if (!$form_dryrun) {
+                sqlStatement(
+                    "UPDATE layout_group_properties SET grp_services = ? WHERE " .
+                    "grp_form_id = ? AND grp_group_id = ''",
+                    array($services, $layoutid)
+                );
+            }
+        }
+    } // end upload logic
 }
 
 ?>
@@ -113,12 +132,12 @@ if (!empty($_POST['bn_upload'])) {
 <table border='1' cellpadding='4'>
  <tr bgcolor='#dddddd' class='dehead'>
   <td align='center' colspan='2'>
-   <?php echo xlt('Install Layout Service Codes'); ?>
+    <?php echo xlt('Install Layout Service Codes'); ?>
   </td>
  </tr>
  <tr>
   <td class='detail' nowrap>
-   <?php echo htmlspecialchars(xl('Source CSV File')); ?>
+    <?php echo htmlspecialchars(xl('Source CSV File')); ?>
    <input type="hidden" name="MAX_FILE_SIZE" value="350000000" />
   </td>
   <td class='detail' nowrap>
@@ -127,7 +146,7 @@ if (!empty($_POST['bn_upload'])) {
  </tr>
  <tr>
   <td class='detail' nowrap>
-   <?php echo xlt('Test only, skip updates'); ?>
+    <?php echo xlt('Test only, skip updates'); ?>
   </td>
   <td class='detail' >
    <input type='checkbox' name='form_dryrun' value='1' checked />
@@ -162,39 +181,43 @@ $res = sqlStatement("SELECT grp_form_id, grp_title, grp_mapping, grp_services FR
 
 while ($row = sqlFetchArray($res)) {
   // $jobj = json_decode($row['notes'], true);
-  if ($row['grp_services'] == '*') $row['grp_services'] = '';
-  $codes = explode(';', $row['grp_services']);
-  foreach ($codes as $codestring) {
-    echo " <tr>\n";
-
-    echo "  <td class='detail'>";
-    if ($row['grp_mapping'] != $lastcat) {
-      $lastcat = $row['grp_mapping'];
-      echo text($lastcat);
+    if ($row['grp_services'] == '*') {
+        $row['grp_services'] = '';
     }
-    echo "&nbsp;</td>\n";
+    $codes = explode(';', $row['grp_services']);
+    foreach ($codes as $codestring) {
+        echo " <tr>\n";
 
-    echo "  <td class='detail'>";
-    if ($row['grp_form_id'] != $lastlayout) {
-      $lastlayout = $row['grp_form_id'];
-      echo text($row['grp_title']);
+        echo "  <td class='detail'>";
+        if ($row['grp_mapping'] != $lastcat) {
+            $lastcat = $row['grp_mapping'];
+            echo text($lastcat);
+        }
+        echo "&nbsp;</td>\n";
+
+        echo "  <td class='detail'>";
+        if ($row['grp_form_id'] != $lastlayout) {
+            $lastlayout = $row['grp_form_id'];
+            echo text($row['grp_title']);
+        }
+        echo "&nbsp;</td>\n";
+
+        echo "  <td class='detail'>";
+        echo text($codestring);
+        echo "</td>\n";
+
+        echo "  <td class='detail'>\n";
+        list ($codetype, $code) = explode(':', $codestring);
+        $crow = sqlQuery(
+            "SELECT code_text FROM codes WHERE " .
+            "code_type = ? AND code = ? AND active = 1 " .
+            "ORDER BY id LIMIT 1",
+            array($code_types[$codetype]['id'], $code)
+        );
+        echo text($crow['code_text']);
+        echo "&nbsp;</td>\n";
+        echo " </tr>\n";
     }
-    echo "&nbsp;</td>\n";
-
-    echo "  <td class='detail'>";
-    echo text($codestring);
-    echo "</td>\n";
-
-    echo "  <td class='detail'>\n";
-    list ($codetype, $code) = explode(':', $codestring);
-    $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
-      "code_type = ? AND code = ? AND active = 1 " .
-      "ORDER BY id LIMIT 1",
-      array($code_types[$codetype]['id'], $code));
-    echo text($crow['code_text']);
-    echo "&nbsp;</td>\n";
-    echo " </tr>\n";
-  }
 }
 ?>
 </table>

@@ -352,10 +352,9 @@ if (empty($frow)) {
 $logo = '';
 $ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
 if (is_file("$webserver_root/$ma_logo_path")) {
-  $logo = "<img src='$web_root/$ma_logo_path' style='height:" . round(9 * 5.14) . "pt' />";
-}
-else {
-  $logo = "<!-- '$ma_logo_path' does not exist. -->";
+    $logo = "<img src='$web_root/$ma_logo_path' style='height:" . round(9 * 5.14) . "pt' />";
+} else {
+    $logo = "<!-- '$ma_logo_path' does not exist. -->";
 }
 
 // Loop on array of PIDS
@@ -371,7 +370,6 @@ foreach ($pid_list as $pid) {
     $cindex = 0;
 
     while (--$pages >= 0) {
-
         $html .= genFacilityTitle(xl('Superbill/Fee Sheet'), -1, $logo);
 
         $html .="

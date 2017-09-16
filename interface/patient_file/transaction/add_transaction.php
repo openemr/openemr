@@ -362,10 +362,12 @@ $ttres = sqlStatement("SELECT grp_form_id, grp_title " .
   "grp_form_id LIKE 'LBT%' AND grp_group_id = '' ORDER BY grp_seq, grp_title");
 echo "<select name='title' id='title' onchange='titleChanged()'>\n";
 while ($ttrow = sqlFetchArray($ttres)) {
-  $thisid = $ttrow['grp_form_id'];
-  echo "<option value='" . attr($thisid) . "'";
-  if ($thisid == $form_id) echo ' selected';
-  echo ">" . text($ttrow['grp_title']) . "</option>\n";
+    $thisid = $ttrow['grp_form_id'];
+    echo "<option value='" . attr($thisid) . "'";
+    if ($thisid == $form_id) {
+        echo ' selected';
+    }
+    echo ">" . text($ttrow['grp_title']) . "</option>\n";
 }
 echo "</select>\n";
 ?>

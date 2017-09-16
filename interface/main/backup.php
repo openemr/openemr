@@ -348,9 +348,9 @@ if ($form_step == 101) {
     $lres = sqlStatement("SELECT grp_form_id, grp_title FROM layout_group_properties WHERE " .
       "grp_group_id = '' AND grp_activity = 1 ORDER BY grp_form_id");
     while ($lrow = sqlFetchArray($lres)) {
-      $key = $lrow['grp_form_id'];
-      echo "<option value='" . attr($key) . "'";
-      echo ">" . text($key) . ": " . text(xl_layout_label($lrow['grp_title'])) . "</option>\n";
+        $key = $lrow['grp_form_id'];
+        echo "<option value='" . attr($key) . "'";
+        echo ">" . text($key) . ": " . text(xl_layout_label($lrow['grp_title'])) . "</option>\n";
     }
 
     echo "</select>\n";
@@ -462,8 +462,7 @@ if ($form_step == 102) {
                 if (IS_WINDOWS) {
                     # windows will place the quotes in the outputted code if they are there. we removed them here.
                     $cmd .= "echo \"DELETE FROM layout_group_properties WHERE grp_form_id = '$layoutid';\" >> $EXPORT_FILE &;";
-                }
-                else {
+                } else {
                     $cmd .= "echo \"DELETE FROM layout_group_properties WHERE grp_form_id = '$layoutid';\" >> $EXPORT_FILE;";
                 }
                 $cmd .= $dumppfx .
@@ -472,8 +471,7 @@ if ($form_step == 102) {
                 if (IS_WINDOWS) {
                     # windows uses the & to join statements.
                     $cmd .= " >> $EXPORT_FILE & ";
-                }
-                else {
+                } else {
                     $cmd .= " >> $EXPORT_FILE;";
                 }
                 $cmd .= $dumppfx .

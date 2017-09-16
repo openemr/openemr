@@ -28,7 +28,9 @@ $alertmsg = "";
 
 // Check authorization.
 $thisauth = acl_check('admin', 'super');
-if (!$thisauth) die(xl('Not authorized'));
+if (!$thisauth) {
+    die(xl('Not authorized'));
+}
 
 $layout_id = empty($_GET['layout_id']) ? '' : $_GET['layout_id'];
 $group_id  = empty($_GET['group_id' ]) ? '' : $_GET['group_id' ];
@@ -117,8 +119,7 @@ if ($_POST['form_submit'] && !$alertmsg) {
             $_POST['form_subtitle'],
             intval($_POST['form_columns']),
         );
-    }
-    else {
+    } else {
         $sets =
             "grp_title = ?, "      .
             "grp_subtitle = ?, "   .
@@ -152,31 +153,34 @@ if ($_POST['form_submit'] && !$alertmsg) {
 
     if ($layout_id) {
       // They have edited an existing layout.
-      $sqlvars[] = $layout_id;
-      $sqlvars[] = $group_id;
-      sqlStatement("UPDATE layout_group_properties SET $sets " .
-          "WHERE grp_form_id = ? AND grp_group_id = ?",
-          $sqlvars);
-    }
-    else if (!$group_id) {
+        $sqlvars[] = $layout_id;
+        $sqlvars[] = $group_id;
+        sqlStatement(
+            "UPDATE layout_group_properties SET $sets " .
+            "WHERE grp_form_id = ? AND grp_group_id = ?",
+            $sqlvars
+        );
+    } else if (!$group_id) {
         // They want to add a new layout. New groups not supported here.
         $form_form_id = $_POST['form_form_id'];
         if (preg_match('/(LBF|LBT)[0-9A-Za-z_]+/', $form_form_id)) {
-            $tmp = sqlQuery("SELECT grp_form_id FROM layout_group_properties WHERE " .
+            $tmp = sqlQuery(
+                "SELECT grp_form_id FROM layout_group_properties WHERE " .
                 "grp_form_id = ? AND grp_group_id = ''",
-                array($form_form_id));
+                array($form_form_id)
+            );
             if (empty($row)) {
                 $sqlvars[] = $form_form_id;
-                sqlStatement("INSERT INTO layout_group_properties " .
+                sqlStatement(
+                    "INSERT INTO layout_group_properties " .
                     "SET $sets, grp_form_id = ?, grp_group_id = ''",
-                    $sqlvars);
+                    $sqlvars
+                );
                 $layout_id = $form_form_id;
-            }
-            else {
+            } else {
                 $alertmsg = xl('This layout ID already exists');
             }
-        }
-        else {
+        } else {
             $alertmsg = xl('Invalid layout ID');
         }
     }
@@ -211,10 +215,14 @@ $row = array(
 );
 
 if ($layout_id) {
-    $row = sqlQuery("SELECT * FROM layout_group_properties WHERE " .
+    $row = sqlQuery(
+        "SELECT * FROM layout_group_properties WHERE " .
         "grp_form_id = ? AND grp_group_id = ?",
-        array($layout_id, $group_id));
-    if (empty($row)) die(xlt('This layout does not exist.'));
+        array($layout_id, $group_id)
+    );
+    if (empty($row)) {
+        die(xlt('This layout does not exist.'));
+    }
 }
 ?>
 
@@ -225,7 +233,7 @@ if ($layout_id) {
 <?php if (empty($layout_id)) { ?>
  <tr>
   <td valign='top' width='1%' nowrap>
-   <?php echo xlt('Layout ID'); ?>
+    <?php echo xlt('Layout ID'); ?>
   </td>
   <td>
    <input type='text' size='31' maxlength='31' name='form_form_id'
@@ -238,7 +246,7 @@ if ($layout_id) {
 <?php if (empty($group_id)) { ?>
  <tr>
   <td valign='top' width='1%' nowrap>
-   <?php echo xlt('Title'); ?>
+    <?php echo xlt('Title'); ?>
   </td>
   <td>
    <input type='text' size='40' name='form_title' style='width:100%'
@@ -249,7 +257,7 @@ if ($layout_id) {
 
  <tr>
   <td valign='top' width='1%' nowrap>
-   <?php echo xlt('Subtitle'); ?>
+    <?php echo xlt('Subtitle'); ?>
   </td>
   <td>
    <input type='text' size='40' name='form_subtitle' style='width:100%'
@@ -261,7 +269,7 @@ if ($layout_id) {
 
  <tr>
   <td valign='top' width='1%' nowrap>
-   <?php echo xlt('Category'); ?>
+    <?php echo xlt('Category'); ?>
   </td>
   <td>
    <input type='text' size='40' name='form_mapping' style='width:100%'
@@ -271,16 +279,17 @@ if ($layout_id) {
 
  <tr>
   <td valign='top' width='1%' nowrap>
-   <?php echo xlt('Active'); ?>
+    <?php echo xlt('Active'); ?>
   </td>
   <td>
-   <input type='checkbox' name='form_activity' <?php if ($row['grp_activity']) echo "checked"; ?> />
+   <input type='checkbox' name='form_activity' <?php if ($row['grp_activity']) {
+        echo "checked";} ?> />
   </td>
  </tr>
 
  <tr>
   <td valign='top' width='1%' nowrap>
-   <?php echo xlt('Sequence'); ?>
+    <?php echo xlt('Sequence'); ?>
   </td>
   <td>
    <input type='text' size='4' name='form_seq'
@@ -290,7 +299,7 @@ if ($layout_id) {
 
  <tr>
   <td valign='top' width='1%' nowrap>
-   <?php echo xlt('Repeats'); ?>
+    <?php echo xlt('Repeats'); ?>
   </td>
   <td>
    <input type='text' size='4' name='form_repeats'
@@ -302,17 +311,19 @@ if ($layout_id) {
 
  <tr>
   <td valign='top' nowrap>
-   <?php echo xlt('Layout Columns'); ?>
+    <?php echo xlt('Layout Columns'); ?>
   </td>
   <td>
    <select name='form_columns'>
 <?php
   echo "<option value='0'>" . xlt('Default') . "</option>\n";
-  for ($cols = 2; $cols <= 10; ++$cols) {
+for ($cols = 2; $cols <= 10; ++$cols) {
     echo "<option value='$cols'";
-    if ($cols == $row['grp_columns']) echo " selected";
+    if ($cols == $row['grp_columns']) {
+        echo " selected";
+    }
     echo ">$cols</option>\n";
-  }
+}
 ?>
    </select>
   </td>
@@ -322,17 +333,19 @@ if ($layout_id) {
 
  <tr>
   <td valign='top' nowrap>
-   <?php echo xlt('Font Size'); ?>
+    <?php echo xlt('Font Size'); ?>
   </td>
   <td>
    <select name='form_size'>
 <?php
   echo "<option value='0'>" . xlt('Default') . "</option>\n";
-  for ($size = 5; $size <= 15; ++$size) {
+for ($size = 5; $size <= 15; ++$size) {
     echo "<option value='$size'";
-    if ($size == $row['grp_size']) echo " selected";
+    if ($size == $row['grp_size']) {
+        echo " selected";
+    }
     echo ">$size</option>\n";
-  }
+}
 ?>
    </select>
   </td>
@@ -340,20 +353,24 @@ if ($layout_id) {
 
  <tr>
   <td valign='top' nowrap>
-   <?php echo xlt('Issue Type'); ?>
+    <?php echo xlt('Issue Type'); ?>
   </td>
   <td>
    <select name='form_issue'>
     <option value=''></option>
 <?php
-  $itres = sqlStatement("SELECT type, singular FROM issue_types " .
-    "WHERE category = ? AND active = 1 ORDER BY singular",
-    array($GLOBALS['ippf_specific'] ? 'ippf_specific' : 'default'));
-  while ($itrow = sqlFetchArray($itres)) {
+  $itres = sqlStatement(
+      "SELECT type, singular FROM issue_types " .
+      "WHERE category = ? AND active = 1 ORDER BY singular",
+      array($GLOBALS['ippf_specific'] ? 'ippf_specific' : 'default')
+  );
+while ($itrow = sqlFetchArray($itres)) {
     echo "<option value='" . attr($itrow['type']) . "'";
-    if ($itrow['type'] == $row['grp_issue_type']) echo " selected";
+    if ($itrow['type'] == $row['grp_issue_type']) {
+        echo " selected";
+    }
     echo ">" . xlt($itrow['singular']) . "</option>\n";
-  }
+}
 ?>
    </select>
   </td>
@@ -361,7 +378,7 @@ if ($layout_id) {
 
  <tr>
   <td valign='top' nowrap>
-   <?php echo xlt('Access Control'); ?>
+    <?php echo xlt('Access Control'); ?>
   </td>
   <td>
    <select name='form_aco'>
@@ -369,24 +386,28 @@ if ($layout_id) {
 <?php
   $gacl = new gacl_api();
   // collect and sort all aco objects
-  $list_aco_objects = $gacl->get_objects(NULL, 0, 'ACO');
+  $list_aco_objects = $gacl->get_objects(null, 0, 'ACO');
   ksort($list_aco_objects);
-  foreach ($list_aco_objects as $seckey => $dummy) {
-    if (empty($dummy)) continue;
+foreach ($list_aco_objects as $seckey => $dummy) {
+    if (empty($dummy)) {
+        continue;
+    }
     asort($list_aco_objects[$seckey]);
     $aco_section_data = $gacl->get_section_data($seckey, 'ACO');
     $aco_section_title = $aco_section_data[3];
     echo " <optgroup label='" . xla($aco_section_title) . "'>\n";
-    foreach($list_aco_objects[$seckey] as $acokey) {
-      $aco_id = $gacl->get_object_id($seckey, $acokey, 'ACO');
-      $aco_data = $gacl->get_object_data($aco_id, 'ACO');
-      $aco_title = $aco_data[0][3];
-      echo "  <option value='" . attr("$seckey|$acokey") . "'";
-      if ("$seckey|$acokey" == $row['grp_aco_spec']) echo " selected";
-      echo ">" . xla($aco_title) . "</option>\n";
+    foreach ($list_aco_objects[$seckey] as $acokey) {
+        $aco_id = $gacl->get_object_id($seckey, $acokey, 'ACO');
+        $aco_data = $gacl->get_object_data($aco_id, 'ACO');
+        $aco_title = $aco_data[0][3];
+        echo "  <option value='" . attr("$seckey|$acokey") . "'";
+        if ("$seckey|$acokey" == $row['grp_aco_spec']) {
+            echo " selected";
+        }
+        echo ">" . xla($aco_title) . "</option>\n";
     }
     echo " </optgroup>\n";
-  }
+}
 ?>
    </select>
   </td>
@@ -394,34 +415,40 @@ if ($layout_id) {
 
  <tr>
   <td valign='top' width='1%' nowrap>
-   <input type='checkbox' name='form_services' <?php if ($row['grp_services']) echo "checked"; ?> />
-   <?php echo xlt('Show Services Section'); ?>
+   <input type='checkbox' name='form_services' <?php if ($row['grp_services']) {
+        echo "checked";} ?> />
+    <?php echo xlt('Show Services Section'); ?>
   </td>
   <td>
    <input type='text' size='40' name='form_services_codes' onclick='sel_related(this, "MA")' style='width:100%'
-    value='<?php if ($row['grp_services'] != '*') echo attr($row['grp_services']); ?>' />
+    value='<?php if ($row['grp_services'] != '*') {
+        echo attr($row['grp_services']);} ?>' />
   </td>
  </tr>
 
  <tr>
   <td valign='top' width='1%' nowrap>
-   <input type='checkbox' name='form_products' <?php if ($row['grp_products']) echo "checked"; ?> />
-   <?php echo xlt('Show Products Section'); ?>
+   <input type='checkbox' name='form_products' <?php if ($row['grp_products']) {
+        echo "checked";} ?> />
+    <?php echo xlt('Show Products Section'); ?>
   </td>
   <td>
    <input type='text' size='40' name='form_products_codes' onclick='sel_related(this, "PROD")' style='width:100%'
-    value='<?php if ($row['grp_products'] != '*') echo attr($row['grp_products']); ?>' />
+    value='<?php if ($row['grp_products'] != '*') {
+        echo attr($row['grp_products']);} ?>' />
   </td>
  </tr>
 
  <tr>
   <td valign='top' width='1%' nowrap>
-   <input type='checkbox' name='form_diags' <?php if ($row['grp_diags']) echo "checked"; ?> />
-   <?php echo xlt('Show Diagnoses Section'); ?>
+   <input type='checkbox' name='form_diags' <?php if ($row['grp_diags']) {
+        echo "checked";} ?> />
+    <?php echo xlt('Show Diagnoses Section'); ?>
   </td>
   <td>
    <input type='text' size='40' name='form_diags_codes' onclick='sel_related(this, "ICD10")' style='width:100%'
-    value='<?php if ($row['grp_diags'] != '*') echo attr($row['grp_diags']); ?>' />
+    value='<?php if ($row['grp_diags'] != '*') {
+        echo attr($row['grp_diags']);} ?>' />
   </td>
  </tr>
 

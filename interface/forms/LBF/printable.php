@@ -19,10 +19,14 @@ $FONTSIZE = 9;
 $formname = isset($_GET['formname']) ? $_GET['formname'] : '';
 
 $patientid = empty($_REQUEST['patientid']) ? 0 : (0 + $_REQUEST['patientid']);
-if ($patientid < 0) $patientid = 0 + $pid; // -1 means current pid
+if ($patientid < 0) {
+    $patientid = 0 + $pid; // -1 means current pid
+}
 
 $visitid = empty($_REQUEST['visitid']) ? 0 : (0 + $_REQUEST['visitid']);
-if ($visitid < 0) $visitid = 0 + $encounter; // -1 means current encounter
+if ($visitid < 0) {
+    $visitid = 0 + $encounter; // -1 means current encounter
+}
 
 $formid = empty($_REQUEST['formid']) ? 0 : (0 + $_REQUEST['formid']);
 
@@ -35,14 +39,26 @@ $grparr = array();
 getLayoutProperties($formname, $grparr, '*');
 $lobj = $grparr[''];
 $formtitle = $lobj['grp_title'];
-if (!empty($lobj['grp_columns'])) $CPR = intval($lobj['grp_columns']);
-if (!empty($lobj['grp_size'   ])) $FONTSIZE = intval($lobj['grp_size']);
-if ($lobj['grp_services']) $LBF_SERVICES_SECTION = $lobj['grp_services'] == '*' ? '' : $lobj['grp_services'];
-if ($lobj['grp_products']) $LBF_PRODUCTS_SECTION = $lobj['grp_products'] == '*' ? '' : $lobj['grp_products'];
-if ($lobj['grp_diags'   ]) $LBF_DIAGS_SECTION    = $lobj['grp_diags'   ] == '*' ? '' : $lobj['grp_diags'   ];
+if (!empty($lobj['grp_columns'])) {
+    $CPR = intval($lobj['grp_columns']);
+}
+if (!empty($lobj['grp_size'   ])) {
+    $FONTSIZE = intval($lobj['grp_size']);
+}
+if ($lobj['grp_services']) {
+    $LBF_SERVICES_SECTION = $lobj['grp_services'] == '*' ? '' : $lobj['grp_services'];
+}
+if ($lobj['grp_products']) {
+    $LBF_PRODUCTS_SECTION = $lobj['grp_products'] == '*' ? '' : $lobj['grp_products'];
+}
+if ($lobj['grp_diags'   ]) {
+    $LBF_DIAGS_SECTION    = $lobj['grp_diags'   ] == '*' ? '' : $lobj['grp_diags'   ];
+}
 
 // Check access control.
-if (!empty($lobj['aco_spec'])) $LBF_ACO = explode('|', $lobj['aco_spec']);
+if (!empty($lobj['aco_spec'])) {
+    $LBF_ACO = explode('|', $lobj['aco_spec']);
+}
 if (!acl_check('admin', 'super') && !empty($LBF_ACO)) {
     if (!acl_check($LBF_ACO[0], $LBF_ACO[1])) {
         die(xlt('Access denied'));
@@ -121,11 +137,11 @@ div.section {
   // html2pdf screws up the div borders when a div overflows to a second page.
   // Our temporary solution is to turn off the borders in the case where this
   // is likely to happen (i.e. where all form options are listed).
-  if (!$isform) {
+if (!$isform) {
 ?>
- border-style: solid;
- border-width: 1px;
- border-color: #ffffff #ffffff #ffffff #ffffff;
+border-style: solid;
+border-width: 1px;
+border-color: #ffffff #ffffff #ffffff #ffffff;
 <?php } // below was 2 5 5 5 ?>
  padding: 0pt 5pt 0pt 5pt;
 }
@@ -206,10 +222,9 @@ $logo = '';
 $ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
 if (is_file("$webserver_root/$ma_logo_path")) {
   // Would use max-height here but html2pdf does not support it.
-  $logo = "<img src='$web_root/$ma_logo_path' style='height:" . round($FONTSIZE * 5.14) . "pt' />";
-}
-else {
-  $logo = "<!-- '$ma_logo_path' does not exist. -->";
+    $logo = "<img src='$web_root/$ma_logo_path' style='height:" . round($FONTSIZE * 5.14) . "pt' />";
+} else {
+    $logo = "<!-- '$ma_logo_path' does not exist. -->";
 }
 echo genFacilityTitle($formtitle, -1, $logo);
 ?>
@@ -248,7 +263,8 @@ function end_row()
     }
 }
 
-function getContent() {
+function getContent()
+{
     global $web_root, $webserver_root;
     $content = ob_get_clean();
     // Fix a nasty html2pdf bug - it ignores document root!
@@ -257,10 +273,11 @@ function getContent() {
     $wsrlen = strlen($webserver_root);
     while (true) {
         $i = stripos($content, " src='/", $i + 1);
-        if ($i === false) break;
+        if ($i === false) {
+            break;
+        }
         if (substr($content, $i+6, $wrlen) === $web_root &&
-            substr($content, $i+6, $wsrlen) !== $webserver_root)
-        {
+            substr($content, $i+6, $wsrlen) !== $webserver_root) {
             $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
         }
     }
@@ -292,21 +309,27 @@ while ($frow = sqlFetchArray($fres)) {
 
     // Skip this field if skip conditions call for that.
     // Note this also accumulates info for subsequent skip tests.
-    if (isSkipped($frow, $currvalue) == 'skip') continue;
+    if (isSkipped($frow, $currvalue) == 'skip') {
+        continue;
+    }
 
-    if ($currvalue === FALSE) {
+    if ($currvalue === false) {
         // Should not happen.
         error_log("Function lbf_current_value() failed for field '$field_id'.");
         continue;
     }
 
     // Skip this field if its do-not-print option is set.
-    if (strpos($edit_options, 'X') !== FALSE) continue;
+    if (strpos($edit_options, 'X') !== false) {
+        continue;
+    }
 
     $this_levels = $this_group;
     $i = 0;
     $mincount = min(strlen($this_levels), strlen($group_levels));
-    while ($i < $mincount && $this_levels[$i] == $group_levels[$i]) ++$i;
+    while ($i < $mincount && $this_levels[$i] == $group_levels[$i]) {
+        ++$i;
+    }
     // $i is now the number of initial matching levels.
 
     // If ending a group or starting a subgroup, terminate the current row and its table.
@@ -372,7 +395,9 @@ while ($frow = sqlFetchArray($fres)) {
         end_cell();
         echo "<td colspan='" . attr($titlecols) . "' ";
         echo "class='lcols$titlecols stuff " . (($frow['uor'] == 2) ? "required'" : "bold'");
-        if ($cell_count == 2) echo " style='padding-left:10pt'";
+        if ($cell_count == 2) {
+            echo " style='padding-left:10pt'";
+        }
         // echo " nowrap>"; // html2pdf misbehaves with this.
         echo ">";
         $cell_count += $titlecols;
@@ -383,8 +408,7 @@ while ($frow = sqlFetchArray($fres)) {
 
     if ($frow['title']) {
         echo (text(xl_layout_label($frow['title'])));
-    }
-    else {
+    } else {
         echo "&nbsp;";
     }
 
@@ -394,7 +418,9 @@ while ($frow = sqlFetchArray($fres)) {
     if ($datacols > 0) {
         end_cell();
         echo "<td colspan='" . attr($datacols) . "' class='dcols$datacols stuff under' style='";
-        if ($cell_count > 0) echo "padding-left:5pt;";
+        if ($cell_count > 0) {
+            echo "padding-left:5pt;";
+        }
         if (in_array($data_type, array(21,27,40))) {
             // Omit underscore for checkboxes, radio buttons and images.
             echo "border-width:0 0 0 0;";
@@ -407,10 +433,11 @@ while ($frow = sqlFetchArray($fres)) {
 
     if ($isform) {
         generate_print_field($frow, $currvalue);
-    }
-    else {
+    } else {
         $s = generate_display_field($frow, $currvalue);
-        if ($s === '') $s = '&nbsp;';
+        if ($s === '') {
+            $s = '&nbsp;';
+        }
         echo $s;
     }
 }
@@ -437,7 +464,9 @@ if ($fs && isset($LBF_SERVICES_SECTION)) {
     $s = '';
     foreach ($fs->serviceitems as $lino => $li) {
         // Skip diagnoses; those would be in the Diagnoses section below.
-        if ($code_types[$li['codetype']]['diag']) continue;
+        if ($code_types[$li['codetype']]['diag']) {
+            continue;
+        }
         $s .= "  <tr>\n";
         $s .= "   <td class='text'>" . text($li['code']) . "&nbsp;</td>\n";
         $s .= "   <td class='text'>" . text($li['code_text']) . "&nbsp;</td>\n";
@@ -482,7 +511,9 @@ if ($fs && isset($LBF_DIAGS_SECTION)) {
     $s = '';
     foreach ($fs->serviceitems as $lino => $li) {
         // Skip anything that is not a diagnosis; those are in the Services section above.
-        if (!$code_types[$li['codetype']]['diag']) continue;
+        if (!$code_types[$li['codetype']]['diag']) {
+            continue;
+        }
         $s .= "  <tr>\n";
         $s .= "   <td class='text'>" . text($li['code']) . "&nbsp;</td>\n";
         $s .= "   <td class='text'>" . text($li['code_text']) . "&nbsp;</td>\n";
@@ -509,8 +540,7 @@ if ($PDF_OUTPUT) {
     $content = getContent();
     $pdf->writeHTML($content, false);
     $pdf->Output('form.pdf', 'I'); // D = Download, I = Inline
-}
-else {
+} else {
 ?>
 <script language='JavaScript'>
  var win = top.printLogPrint ? top : opener.top;

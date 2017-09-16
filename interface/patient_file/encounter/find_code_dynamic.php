@@ -22,7 +22,9 @@ $what = empty($_GET['what']) ? 'codes' : $_GET['what'];
 
 // For what == codes
 $codetype = empty($_GET['codetype']) ? '' : $_GET['codetype'];
-if (!empty($codetype)) $allowed_codes = split_csv_line($codetype);
+if (!empty($codetype)) {
+    $allowed_codes = split_csv_line($codetype);
+}
 // This is the html element of the target script where the selected code will be stored.
 $target_element = empty($_GET['target_element']) ? '' : $_GET['target_element'];
 
@@ -95,10 +97,10 @@ $(document).ready(function() {
    "sInfoEmpty"   : "<?php echo xla('Nothing to show'); ?>",
    "sInfoFiltered": "(<?php echo xla('filtered from') . ' _MAX_ ' . xla('total entries'); ?>)",
    "oPaginate"    : {
-    "sFirst"      : "<?php echo xla('First'   ); ?>",
+    "sFirst"      : "<?php echo xla('First'); ?>",
     "sPrevious"   : "<?php echo xla('Previous'); ?>",
-    "sNext"       : "<?php echo xla('Next'    ); ?>",
-    "sLast"       : "<?php echo xla('Last'    ); ?>"
+    "sNext"       : "<?php echo xla('Next'); ?>",
+    "sLast"       : "<?php echo xla('Last'); ?>"
    }
   }
  });
@@ -241,40 +243,39 @@ $string_target_element = empty($target_element) ? '?' : "?target_element=" . raw
 <?php
 echo "<p>\n";
 if ($what == 'codes') {
-  if (isset($allowed_codes)) {
-    if (count($allowed_codes) == 1) {
-      echo "<input type='text' name='form_code_type' value='" . attr($codetype) . "' size='5' readonly>\n";
+    if (isset($allowed_codes)) {
+        if (count($allowed_codes) == 1) {
+            echo "<input type='text' name='form_code_type' value='" . attr($codetype) . "' size='5' readonly>\n";
+        } else {
+            echo "<select name='form_code_type' onchange='oTable.fnDraw()'>\n";
+            foreach ($allowed_codes as $code) {
+                echo " <option value='" . attr($code) . "'>" . xlt($code_types[$code]['label']) . "</option>\n";
+            }
+            echo "</select>\n";
+        }
     } else {
-      echo "<select name='form_code_type' onchange='oTable.fnDraw()'>\n";
-      foreach ($allowed_codes as $code) {
-        echo " <option value='" . attr($code) . "'>" . xlt($code_types[$code]['label']) . "</option>\n";
-      }
-      echo "</select>\n";
+        echo "<select name='form_code_type' onchange='oTable.fnDraw()'>\n";
+        foreach ($code_types as $key => $value) {
+            echo " <option value='" . attr($key) . "'";
+            echo ">" . xlt($value['label']) . "</option>\n";
+        }
+        echo " <option value='PROD'";
+        echo ">" . xlt("Product") . "</option>\n";
+        echo "   </select>\n";
     }
-  }
-  else {
-    echo "<select name='form_code_type' onchange='oTable.fnDraw()'>\n";
-    foreach ($code_types as $key => $value) {
-      echo " <option value='" . attr($key) . "'";
-      echo ">" . xlt($value['label']) . "</option>\n";
-    }
-    echo " <option value='PROD'";
-    echo ">" . xlt("Product") . "</option>\n";
-    echo "   </select>\n";
-  }
-  echo "&nbsp;&nbsp;\n";
-  echo "<input type='checkbox' name='form_include_inactive' value='1' onclick='oTable.fnDraw()' />" .
+    echo "&nbsp;&nbsp;\n";
+    echo "<input type='checkbox' name='form_include_inactive' value='1' onclick='oTable.fnDraw()' />" .
     xlt('Include Inactive') . "\n";
-  echo "&nbsp;&nbsp;\n";
-  echo "<input type='button' value='" . xla('Delete') . "' onclick='delcode()' />\n";
-  echo "<select name='form_delcodes'>\n";
-  echo " <option value=''>" . xlt('All') . "</option>\n";
-  echo "</select>\n";
-  echo "&nbsp;&nbsp;\n";
-  echo "<input type='button' value='" . xla('Close') . "' onclick='window.close()' />\n";
+    echo "&nbsp;&nbsp;\n";
+    echo "<input type='button' value='" . xla('Delete') . "' onclick='delcode()' />\n";
+    echo "<select name='form_delcodes'>\n";
+    echo " <option value=''>" . xlt('All') . "</option>\n";
+    echo "</select>\n";
+    echo "&nbsp;&nbsp;\n";
+    echo "<input type='button' value='" . xla('Close') . "' onclick='window.close()' />\n";
 }
 if ($what == 'lists') {
-  echo "<input type='button' value='" . xla('Delete') . "' onclick='SelectList({\"code\":\"\"})' />\n";
+    echo "<input type='button' value='" . xla('Delete') . "' onclick='SelectList({\"code\":\"\"})' />\n";
 }
 echo "</p>\n";
 ?>

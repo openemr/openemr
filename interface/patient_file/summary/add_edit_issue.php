@@ -674,12 +674,14 @@ $(document).ready(function() {
 // Build html tab data for each visit form linked to this issue.
 $tabcontents = '';
 if ($issue) {
-    $vres = sqlStatement("SELECT f.id, f.encounter, f.form_name, f.form_id, f.formdir, fe.date " .
+    $vres = sqlStatement(
+        "SELECT f.id, f.encounter, f.form_name, f.form_id, f.formdir, fe.date " .
         "FROM forms AS f, form_encounter AS fe WHERE " .
         "f.pid = ? AND f.issue_id = ? AND f.deleted = 0 AND " .
         "fe.pid = f.pid and fe.encounter = f.encounter " .
         "ORDER BY fe.date DESC, f.id DESC",
-        array($thispid, $issue));
+        array($thispid, $issue)
+    );
     while ($vrow = sqlFetchArray($vres)) {
         $formdir = $vrow['formdir'];
         $formid  = $vrow['form_id'];

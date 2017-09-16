@@ -300,10 +300,10 @@ function expandcollapse(atr) {
     var text = document.getElementById(myspanid);
     if (!ele) continue;
     if (atr == "expand") {
-      ele.style.display = "block"; text.innerHTML = "<?php xl('Collapse','e'); ?>";
+      ele.style.display = "block"; text.innerHTML = "<?php xl('Collapse', 'e'); ?>";
     }
     else {
-      ele.style.display = "none" ; text.innerHTML = "<?php xl('Expand'  ,'e'); ?>";
+      ele.style.display = "none" ; text.innerHTML = "<?php xl('Expand', 'e'); ?>";
     }
   }
 }
@@ -886,11 +886,14 @@ foreach ($docs_list as $doc_iter) {
 <br/>
 
 <?php
-  if ($pass_sens_squad &&
-    ($result = getFormByEncounter($attendant_id, $encounter,
-    "id, date, form_id, form_name, formdir, user, deleted",
-    "", "FIND_IN_SET(formdir,'newpatient') DESC, form_name")))
-  {
+if ($pass_sens_squad &&
+    ($result = getFormByEncounter(
+        $attendant_id,
+        $encounter,
+        "id, date, form_id, form_name, formdir, user, deleted",
+        "",
+        "FIND_IN_SET(formdir,'newpatient') DESC, form_name"
+    ))) {
     echo "<table width='100%' id='partable'>";
     $divnos = 1;
     foreach ($result as $iter) {
@@ -905,7 +908,8 @@ foreach ($docs_list as $doc_iter) {
 
         if (substr($formdir, 0, 3) == 'LBF') {
             // Skip LBF forms that we are not authorized to see.
-            $lrow = sqlQuery("SELECT grp_aco_spec " .
+            $lrow = sqlQuery(
+                "SELECT grp_aco_spec " .
                 "FROM layout_group_properties WHERE " .
                 "grp_form_id = ? AND grp_group_id = '' AND grp_activity = 1",
                 array($formdir)
@@ -951,7 +955,7 @@ foreach ($docs_list as $doc_iter) {
         $form_name = ($formdir == 'newpatient') ? xl('Visit Summary') : xl_form_title($iter['form_name']);
 
         // Create the ESign instance for this form
-        $esign = $esignApi->createFormESign($iter['id'], $formdir, $encounter );
+        $esign = $esignApi->createFormESign($iter['id'], $formdir, $encounter);
 
         // echo "<tr>"; // Removed as bug fix.
 
@@ -960,10 +964,9 @@ foreach ($docs_list as $doc_iter) {
         // Figure out the correct author (encounter authors are the '$providerNameRes', while other
         // form authors are the '$user['fname'] . "  " . $user['lname']').
         if ($formdir == 'newpatient') {
-          $form_author = $providerNameRes;
-        }
-        else {
-          $form_author = $user['fname'] . "  " . $user['lname'];
+            $form_author = $providerNameRes;
+        } else {
+            $form_author = $user['fname'] . "  " . $user['lname'];
         }
         echo "<div class='form_header'>";
         echo "<a href='#' onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos'>" .
@@ -981,7 +984,6 @@ foreach ($docs_list as $doc_iter) {
         } else {
             if ((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '', 'write') and $is_group == 0 and $authPostCalendarCategoryWrite)
             or (((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '', 'write')) and $is_group and acl_check("groups", "glog", false, 'write')) and $authPostCalendarCategoryWrite)) {
-
                 echo "<a class='css_button_small form-edit-button' " .
                         "id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "' " .
                         // "target='Forms' " .
@@ -1002,7 +1004,7 @@ foreach ($docs_list as $doc_iter) {
 
         if (substr($formdir, 0, 3) == 'LBF') {
           // A link for a nice printout of the LBF
-          echo "<a target='_blank' " .
+            echo "<a target='_blank' " .
             "href='$rootdir/forms/LBF/printable.php?"   .
             "formname="   . urlencode($formdir)         .
             "&formid="    . urlencode($iter['form_id']) .

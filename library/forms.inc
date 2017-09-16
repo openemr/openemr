@@ -31,9 +31,14 @@ function getFormsByPid($pid, $cols = "*")
     return sqlQuery("select $cols from forms where pid = '$pid' and deleted = 0");
 }
 
-function getFormByEncounter($attendant_id, $encounter, $cols = "form_id, form_name", $name = "",
-    $orderby="FIND_IN_SET(formdir,'vitals') DESC, date DESC")
-{
+function getFormByEncounter(
+    $attendant_id,
+    $encounter,
+    $cols = "form_id, form_name",
+    $name = "",
+    $orderby = "FIND_IN_SET(formdir,'vitals') DESC, date DESC"
+) {
+
     global $attendant_type;
     $arraySqlBind = array();
     $sql = "select $cols from forms where encounter = ? and deleted = 0 ";
@@ -173,7 +178,7 @@ function getFormNameByFormdirAndFormid($formdir, $form_id)
 
 function getFormIdByFormdirAndFormid($formdir, $form_id)
 {
-    $result = sqlQuery("select id from forms where formdir = ? and form_id = ? and deleted = 0 ", array( $formdir, $form_id ) );
+    $result = sqlQuery("select id from forms where formdir = ? and form_id = ? and deleted = 0 ", array( $formdir, $form_id ));
     return $result['id'];
 }
 
