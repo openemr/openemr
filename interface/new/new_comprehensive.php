@@ -6,7 +6,7 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2009-2010 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2009-2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -32,13 +32,16 @@ $searchcolor = empty($GLOBALS['layout_search_color']) ?
 $WITH_SEARCH = ($GLOBALS['full_new_patient_form'] == '1' || $GLOBALS['full_new_patient_form'] == '2' );
 $SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3' || $GLOBALS['full_new_patient_form'] == '4');
 
+$grparr = array();
+getLayoutProperties('DEM', $grparr);
+
 function getLayoutRes()
 {
     global $SHORT_FORM;
     return sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
     ($SHORT_FORM ? "AND ( uor > 1 OR edit_options LIKE '%N%' ) " : "") .
-    "ORDER BY group_name, seq");
+    "ORDER BY group_id, seq");
 }
 
 // Determine layout field search treatment from its data type:
@@ -488,15 +491,19 @@ $item_count    = 0;
 $display_style = 'block';
 $group_seq     = 0; // this gives the DIV blocks unique IDs
 
+$condition_str = '';
+
 while ($frow = sqlFetchArray($fres)) {
-    $this_group = $frow['group_name'];
+    $this_group = $frow['group_id'];
     $titlecols  = $frow['titlecols'];
     $datacols   = $frow['datacols'];
     $data_type  = $frow['data_type'];
     $field_id   = $frow['field_id'];
     $list_id    = $frow['list_id'];
     $currvalue  = '';
-    $condition_str = get_conditions_str($condition_str, $group_fields);
+
+    // Accumulate action conditions into a JSON expression for the browser side.
+    accumActionConditions($field_id, $condition_str, $frow['conditions']);
 
     if (strpos($field_id, 'em_') === 0) {
         $tmp = substr($field_id, 3);
@@ -514,7 +521,8 @@ while ($frow = sqlFetchArray($fres)) {
         if (!$SHORT_FORM) {
             end_group();
             $group_seq++;    // ID for DIV tags
-            $group_name = substr($this_group, 1);
+            $group_name = $grparr[$this_group]['grp_title'];
+
             if (strlen($last_group) > 0) {
                 echo "<br />";
             }
@@ -879,7 +887,7 @@ enable_modals();
         $mfres = sqlStatement("SELECT * FROM layout_options " .
             "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' AND " .
             "(edit_options LIKE '%D%' OR  edit_options LIKE '%W%' )" .
-            "ORDER BY group_name, seq");
+            "ORDER BY group_id, seq");
         while ($mfrow = sqlFetchArray($mfres)) {
             $field_id  = $mfrow['field_id'];
             if (strpos($field_id, 'em_') === 0) {

@@ -22,9 +22,6 @@
 * @link      http://www.open-emr.org
 */
 
-
-
-
 require_once("../../globals.php");
 require_once("$srcdir/transactions.inc");
 require_once("$srcdir/options.inc.php");
@@ -45,6 +42,10 @@ $mode    = empty($_POST['mode' ]) ? '' : $_POST['mode' ];
 // $inmode    = $_GET['inmode'];
 $body_onload_code = "";
 
+// Load array of properties for this layout and its groups.
+$grparr = array();
+getLayoutProperties($form_id, $grparr);
+
 if ($mode) {
     $sets = "title = ?, user = ?, groupname = ?, authorized = ?, date = NOW()";
     $sqlBindArray = array($form_id, $_SESSION['authUser'], $_SESSION['authProvider'], $userauthorized);
@@ -60,7 +61,7 @@ if ($mode) {
 
     $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = ? AND uor > 0 AND field_id != '' " .
-    "ORDER BY group_name, seq", array($form_id));
+    "ORDER BY group_id, seq", array($form_id));
 
     while ($frow = sqlFetchArray($fres)) {
         $data_type = $frow['data_type'];
@@ -355,7 +356,21 @@ div.tab {
     <table class="text">
         <tr><td>
         <?php echo xlt('Transaction Type'); ?>:&nbsp;</td><td>
-    <?php echo generate_select_list('title', 'transactions', $form_id, '', '', '', 'titleChanged()'); ?>
+<?php
+$ttres = sqlStatement("SELECT grp_form_id, grp_title " .
+  "FROM layout_group_properties WHERE " .
+  "grp_form_id LIKE 'LBT%' AND grp_group_id = '' ORDER BY grp_seq, grp_title");
+echo "<select name='title' id='title' onchange='titleChanged()'>\n";
+while ($ttrow = sqlFetchArray($ttres)) {
+    $thisid = $ttrow['grp_form_id'];
+    echo "<option value='" . attr($thisid) . "'";
+    if ($thisid == $form_id) {
+        echo ' selected';
+    }
+    echo ">" . text($ttrow['grp_title']) . "</option>\n";
+}
+echo "</select>\n";
+?>
         </td></tr>
     </table>
 
@@ -397,15 +412,15 @@ div.tab {
 <?php
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = ? AND uor > 0 " .
-  "ORDER BY group_name, seq", array($form_id));
+  "ORDER BY group_id, seq", array($form_id));
 $last_group = '';
 
 while ($frow = sqlFetchArray($fres)) {
-    $this_group = $frow['group_name'];
-  // Handle a data category (group) change.
+    $this_group = $frow['group_id'];
+    // Handle a data category (group) change.
     if (strcmp($this_group, $last_group) != 0) {
         $group_seq  = substr($this_group, 0, 1);
-        $group_name = substr($this_group, 1);
+        $group_name = $grparr[$this_group]['grp_title'];
         $last_group = $this_group;
         if ($group_seq == 1) {
             echo "<li class='current'>";
@@ -422,144 +437,123 @@ while ($frow = sqlFetchArray($fres)) {
 ?>
                         </ul>
                         <div class="tabContainer">
+<?php
+$fres = sqlStatement("SELECT * FROM layout_options " .
+  "WHERE form_id = ? AND uor > 0 " .
+  "ORDER BY group_id, seq", array($form_id));
 
-                                <?php
-                                $fres = sqlStatement("SELECT * FROM layout_options " .
-                                "WHERE form_id = ? AND uor > 0 " .
-                                "ORDER BY group_name, seq", array($form_id));
+$last_group = '';
+$cell_count = 0;
+$item_count = 0;
+$display_style = 'block';
+$condition_str = '';
 
-                                $last_group = '';
-                                $cell_count = 0;
-                                $item_count = 0;
-                                $display_style = 'block';
-                                $condition_str = '';
+while ($frow = sqlFetchArray($fres)) {
+    $this_group = $frow['group_id'];
+    $titlecols  = $frow['titlecols'];
+    $datacols   = $frow['datacols'];
+    $data_type  = $frow['data_type'];
+    $field_id   = $frow['field_id'];
+    $list_id    = $frow['list_id'];
 
-                                while ($frow = sqlFetchArray($fres)) {
-                                                                  $this_group = $frow['group_name'];
-                                                                  $titlecols  = $frow['titlecols'];
-                                                                  $datacols   = $frow['datacols'];
-                                                                  $data_type  = $frow['data_type'];
-                                                                  $field_id   = $frow['field_id'];
-                                                                  $list_id    = $frow['list_id'];
+    // Accumulate action conditions into a JSON expression for the browser side.
+    accumActionConditions($field_id, $condition_str, $frow['conditions']);
 
-                                                                  // Accumulate skip conditions into a JSON expression for the browser side.
-                                                                  // Cloned from interface/forms/LBF/new.php.
-                                                                  $conditions = empty($frow['conditions']) ? array() : unserialize($frow['conditions']);
-                                    foreach ($conditions as $condition) {
-                                        if (empty($condition['id'])) {
-                                            continue;
-                                        }
+    $currvalue  = '';
+    if (isset($trow[$field_id])) {
+        $currvalue = $trow[$field_id];
+    }
 
-                                        $andor = empty($condition['andor']) ? '' : $condition['andor'];
-                                        if ($condition_str) {
-                                            $condition_str .= ",\n";
-                                        }
+    // Handle special-case default values.
+    if (!$currvalue && !$transid && $form_id == 'LBTref') {
+        if ($field_id == 'refer_date') {
+            $currvalue = date('Y-m-d');
+        } else if ($field_id == 'body' && $transid > 0) {
+             $tmp = sqlQuery("SELECT reason FROM form_encounter WHERE " .
+              "pid = ? ORDER BY date DESC LIMIT 1", array($pid));
+            if (!empty($tmp)) {
+                $currvalue = $tmp['reason'];
+            }
+        }
+    }
 
-                                        $condition_str .= "{" .
-                                        "target:'"   . addslashes($field_id)              . "', " .
-                                        "id:'"       . addslashes($condition['id'])       . "', " .
-                                        "itemid:'"   . addslashes($condition['itemid'])   . "', " .
-                                        "operator:'" . addslashes($condition['operator']) . "', " .
-                                        "value:'"    . addslashes($condition['value'])    . "', " .
-                                        "andor:'"    . addslashes($andor)                 . "'}";
-                                    }
+    // Handle a data category (group) change.
+    if (strcmp($this_group, $last_group) != 0) {
+        end_group();
+        $group_seq  = substr($this_group, 0, 1);
+        $group_name = $grparr[$this_group]['grp_title'];
+        $last_group = $this_group;
+        $group_seq_esc = attr($group_seq);
+        if ($group_seq == 1) {
+            echo "<div class='tab current' id='div_$group_seq_esc'>";
+        } else {
+            echo "<div class='tab' id='div_$group_seq_esc'>";
+        }
 
-                                                                  $currvalue  = '';
-                                    if (isset($trow[$field_id])) {
-                                        $currvalue = $trow[$field_id];
-                                    }
+        echo " <table border='0' cellpadding='0'>\n";
+        $display_style = 'none';
+    }
 
-                                                                  // Handle special-case default values.
-                                    if (!$currvalue && !$transid && $form_id == 'LBTref') {
-                                        if ($field_id == 'refer_date') {
-                                            $currvalue = date('Y-m-d');
-                                        } else if ($field_id == 'body' && $transid > 0) {
-                                             $tmp = sqlQuery("SELECT reason FROM form_encounter WHERE " .
-                                              "pid = ? ORDER BY date DESC LIMIT 1", array($pid));
-                                            if (!empty($tmp)) {
-                                                $currvalue = $tmp['reason'];
-                                            }
-                                        }
-                                    }
+    // Handle starting of a new row.
+    if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
+        end_row();
+        echo " <tr>";
+    }
 
-                                                                  // Handle a data category (group) change.
-                                    if (strcmp($this_group, $last_group) != 0) {
-                                        end_group();
-                                        $group_seq  = substr($this_group, 0, 1);
-                                        $group_name = substr($this_group, 1);
-                                        $last_group = $this_group;
-                                        $group_seq_esc = attr($group_seq);
-                                        if ($group_seq == 1) {
-                                            echo "<div class='tab current' id='div_$group_seq_esc'>";
-                                        } else {
-                                            echo "<div class='tab' id='div_$group_seq_esc'>";
-                                        }
+    if ($item_count == 0 && $titlecols == 0) {
+        $titlecols = 1;
+    }
 
-                                        echo " <table border='0' cellpadding='0'>\n";
-                                        $display_style = 'none';
-                                    }
+    // Handle starting of a new label cell.
+    if ($titlecols > 0) {
+        end_cell();
+        $titlecols_esc = attr($titlecols);
+        echo "<td width='70' valign='top' colspan='$titlecols_esc'";
+        echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
+        if ($cell_count == 2) {
+            echo " style='padding-left:10pt'";
+        }
 
-                                                                  // Handle starting of a new row.
-                                    if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
-                                        end_row();
-                                        echo " <tr>";
-                                    }
+        // This ID is used by action conditions.
+        echo " id='label_id_" . attr($field_id) . "'";
+        echo ">";
+        $cell_count += $titlecols;
+    }
 
-                                    if ($item_count == 0 && $titlecols == 0) {
-                                        $titlecols = 1;
-                                    }
+    ++$item_count;
 
-                                                                  // Handle starting of a new label cell.
-                                    if ($titlecols > 0) {
-                                        end_cell();
-                                        $titlecols_esc = attr($titlecols);
-                                        echo "<td width='70' valign='top' colspan='$titlecols_esc'";
-                                        echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
-                                        if ($cell_count == 2) {
-                                            echo " style='padding-left:10pt'";
-                                        }
+    echo "<b>";
 
-                                        // This ID is used by skip conditions.
-                                        echo " id='label_id_" . attr($field_id) . "'";
-                                        echo ">";
-                                        $cell_count += $titlecols;
-                                    }
+    // Modified 6-09 by BM - Translate if applicable
+    if ($frow['title']) {
+        echo (text(xl_layout_label($frow['title'])) . ":");
+    } else {
+        echo "&nbsp;";
+    }
 
-                                                                  ++$item_count;
+     echo "</b>";
 
-                                                                  echo "<b>";
+    // Handle starting of a new data cell.
+    if ($datacols > 0) {
+        end_cell();
+        $datacols_esc = attr($datacols);
+        echo "<td valign='top' colspan='$datacols_esc' class='text'";
+        // This ID is used by action conditions.
+        echo " id='value_id_" . attr($field_id) . "'";
+        if ($cell_count > 0) {
+            echo " style='padding-left:5pt'";
+        }
 
-                                                                  // Modified 6-09 by BM - Translate if applicable
-                                    if ($frow['title']) {
-                                        echo (text(xl_layout_label($frow['title'])) . ":");
-                                    } else {
-                                        echo "&nbsp;";
-                                    }
+        echo ">";
+        $cell_count += $datacols;
+    }
 
-                                                                  echo "</b>";
+    ++$item_count;
+    generate_form_field($frow, $currvalue);
+    echo "</div>";
+}
 
-                                                                  // Handle starting of a new data cell.
-                                    if ($datacols > 0) {
-                                        end_cell();
-                                        $datacols_esc = attr($datacols);
-                                        echo "<td valign='top' colspan='$datacols_esc' class='text'";
-                                        // This ID is used by skip conditions.
-                                        echo " id='value_id_" . attr($field_id) . "'";
-                                        if ($cell_count > 0) {
-                                            echo " style='padding-left:5pt'";
-                                        }
-
-                                        echo ">";
-                                        $cell_count += $datacols;
-                                    }
-
-                                                                  ++$item_count;
-                                                                  generate_form_field($frow, $currvalue);
-                                                                  echo "</div>";
-                                }
-
-                                end_group();
-
+end_group();
 ?>
 </div></div>
 </div>
@@ -573,7 +567,7 @@ while ($frow = sqlFetchArray($fres)) {
 
 <script language="JavaScript">
 
-// Array of skip conditions for the checkSkipConditions() function.
+// Array of action conditions for the checkSkipConditions() function.
 var skipArray = [
 <?php echo $condition_str; ?>
 ];

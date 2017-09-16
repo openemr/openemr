@@ -339,14 +339,15 @@ $(document).ready(function(){
     $("#labdata_ps_expand").load("labdata_fragment.php");
 <?php
 // Initialize for each applicable LBF form.
-$gfres = sqlStatement("SELECT option_id FROM list_options WHERE " .
-"list_id = 'lbfnames' AND option_value > 0 AND activity = 1 ORDER BY seq, title");
-while ($gfrow = sqlFetchArray($gfres)) { ?>
-    $("#<?php echo $gfrow['option_id']; ?>_ps_expand").load("lbf_fragment.php?formname=<?php echo $gfrow['option_id']; ?>");<?php
-}
-
+$gfres = sqlStatement("SELECT grp_form_id FROM layout_group_properties WHERE " .
+  "grp_form_id LIKE 'LBF%' AND grp_group_id = '' AND grp_repeats > 0 AND grp_activity = 1 " .
+  "ORDER BY grp_seq, grp_title");
+while ($gfrow = sqlFetchArray($gfres)) {
 ?>
-
+    $("#<?php echo attr($gfrow['grp_form_id']); ?>_ps_expand").load("lbf_fragment.php?formname=<?php echo attr($gfrow['grp_form_id']); ?>");
+<?php
+}
+?>
     // fancy box
     enable_modals();
 
@@ -490,10 +491,34 @@ $(window).load(function() {
 </script>
 
 <style type="css/text">
+
 #pnotes_ps_expand {
   height:auto;
   width:100%;
 }
+
+<?php
+// This is for layout font size override.
+$grparr = array();
+getLayoutProperties('DEM', $grparr, 'grp_size');
+if (!empty($grparr['']['grp_size'])) {
+    $FONTSIZE = $grparr['']['grp_size'];
+?>
+/* Override font sizes in the theme. */
+#DEM .groupname {
+  font-size: <?php echo attr($FONTSIZE); ?>pt;
+}
+#DEM .label {
+  font-size: <?php echo attr($FONTSIZE); ?>pt;
+}
+#DEM .data {
+  font-size: <?php echo attr($FONTSIZE); ?>pt;
+}
+#DEM .data td {
+  font-size: <?php echo attr($FONTSIZE); ?>pt;
+}
+<?php } ?>
+
 </style>
 
 </head>
@@ -1285,13 +1310,13 @@ if ($existVitals) {
 // This generates a section similar to Vitals for each LBF form that
 // supports charting.  The form ID is used as the "widget label".
 //
-$gfres = sqlStatement("SELECT option_id, title, notes FROM list_options WHERE " .
-    "list_id = 'lbfnames' AND " .
-    "option_value > 0 AND activity = 1 " .
-    "ORDER BY seq, title");
+$gfres = sqlStatement("SELECT grp_form_id AS option_id, grp_title AS title, grp_aco_spec " .
+  "FROM layout_group_properties WHERE " .
+  "grp_form_id LIKE 'LBF%' AND grp_group_id = '' AND grp_repeats > 0 AND grp_activity = 1 " .
+  "ORDER BY grp_seq, grp_title");
 while ($gfrow = sqlFetchArray($gfres)) {
-    $jobj = json_decode($gfrow['notes'], true);
-    $LBF_ACO = empty($jobj['aco']) ? false : explode('|', $jobj['aco']);
+    // $jobj = json_decode($gfrow['notes'], true);
+    $LBF_ACO = empty($gfrow['grp_aco_spec']) ? false : explode('|', $gfrow['grp_aco_spec']);
     if ($LBF_ACO && !acl_check($LBF_ACO[0], $LBF_ACO[1])) {
         continue;
     } ?>

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2014-2016 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2014-2017 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,29 +22,25 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/log.inc");
 
-$layouts = array(
-  'DEM' => xl('Demographics'),
-  'HIS' => xl('History'),
-  'FACUSR' => xl('Facility Specific User Information')
-);
-if ($GLOBALS['ippf_specific']) {
-    $layouts['GCA'] = xl('Abortion Issues');
-    $layouts['CON'] = xl('Contraception Issues');
+function collectLayoutNames($condition, $mapping = '')
+{
+    global $layouts;
+    $gres = sqlStatement("SELECT grp_form_id, grp_title, grp_mapping " .
+      "FROM layout_group_properties WHERE " .
+      "grp_group_id = '' AND grp_activity = 1 AND $condition " .
+      "ORDER BY grp_mapping, grp_seq, grp_title");
+    while ($grow = sqlFetchArray($gres)) {
+        $tmp = $mapping ? $mapping : $grow['grp_mapping'];
+        if (!$tmp) {
+            $tmp = '(' . xl('No Name') . ')';
+        }
+        $layouts[$grow['grp_form_id']] = array($tmp, $grow['grp_title']);
+    }
 }
-
-// Include Layout Based Transaction Forms.
-$lres = sqlStatement("SELECT * FROM list_options " .
-  "WHERE list_id = 'transactions' AND activity = 1 ORDER BY seq, title");
-while ($lrow = sqlFetchArray($lres)) {
-    $layouts[$lrow['option_id']] = xl_list_label($lrow['title']);
-}
-
-// Include Layout Based Encounter Forms.
-$lres = sqlStatement("SELECT * FROM list_options " .
-  "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
-while ($lrow = sqlFetchArray($lres)) {
-    $layouts[$lrow['option_id']] = xl_list_label($lrow['title']);
-}
+$layouts = array();
+collectLayoutNames("grp_form_id NOT LIKE 'LBF%' AND grp_form_id NOT LIKE 'LBT%'", xl('Core'));
+collectLayoutNames("grp_form_id LIKE 'LBT%'", xl('Transactions'));
+collectLayoutNames("grp_form_id LIKE 'LBF%'", '');
 
 // Include predefined Validation Rules from list
 $validations = array();
@@ -68,17 +64,17 @@ $datatypes = array(
   "15" => xl("Billing codes"),
   "16" => xl("Insurances"),
   "18" => xl("Visit Categories"),
-  "21" => xl("Checkbox list"),
+  "21" => xl("Checkbox(es)"),
   "22" => xl("Textbox list"),
   "23" => xl("Exam results"),
   "24" => xl("Patient allergies"),
-  "25" => xl("Checkbox w/text"),
+  "25" => xl("Checkboxes w/text"),
   "26" => xl("List box w/add"),
   "27" => xl("Radio buttons"),
   "28" => xl("Lifestyle status"),
   "31" => xl("Static Text"),
   "32" => xl("Smoking Status"),
-  "33" => xl("Race and Ethnicity"),
+  "33" => xl("Race/Ethnicity"),
   "34" => xl("NationNotes"),
   "35" => xl("Facilities"),
   "36" => xl("Multiple Select List"),
@@ -106,11 +102,121 @@ function nextGroupOrder($order)
     return $order;
 }
 
+// This returns HTML for a <select> that allows choice of a layout group.
+// Included also are parent groups containing only sub-groups.  Groups are listed
+// in the same order as they appear in the layout.
+//
+function genGroupSelector($name, $layout_id, $default = '')
+{
+    $res = sqlStatement(
+        "SELECT grp_group_id, grp_title " .
+        "FROM layout_group_properties WHERE " .
+        "grp_form_id = ? AND grp_group_id != '' ORDER BY grp_group_id",
+        array($layout_id)
+    );
+    $s  = "<select name='" . xla($name) . "'>";
+    $s .= "<option value=''>" . xlt('None') . "</option>";
+    $arr = array();
+    $arrid = '';
+    while ($row = sqlFetchArray($res)) {
+        $thisid = $row['grp_group_id'];
+        $i = 0;
+      // Compute number of initial matching groups.
+        while ($i < strlen($thisid) && $i < strlen($arrid) && $thisid[$i] == $arrid[$i]) {
+            ++$i;
+        }
+        $arr = array_slice($arr, 0, $i); // discard the rest
+        while ($i < (strlen($arrid) - 1)) {
+            $arr[$i++] = '???'; // should not happen
+        }
+        $arr[$i] = $row['grp_title'];
+        $gval = '';
+        foreach ($arr as $part) {
+            if ($gval) {
+                $gval .= ' / ';
+            }
+            $gval .= $part;
+        }
+        $s .= "<option value='" . attr($thisid) . "'";
+        if ($thisid == $default) {
+            $s .= ' selected';
+        }
+        $s .= ">" . text($gval) . "</option>";
+    }
+    $s .= "</select>";
+    return $s;
+}
+
+// Compute a new group ID that will become layout_options.group_id and
+// layout_group_properties.grp_group_id.
+// $parent is a string of zero or more sequence prefix characters.
+// If there is a nonempty $parent then its ID will be the prefix for the
+// new ID and the sequence prefix will be computed within the parent.
+//
+function genGroupId($parent)
+{
+    global $layout_id;
+    $results = sqlStatement(
+        "SELECT grp_group_id " .
+        "FROM layout_group_properties WHERE " .
+        "grp_form_id = ? AND grp_group_id LIKE ?",
+        array($layout_id, "$parent_%")
+    );
+    $maxnum = '1';
+    while ($result = sqlFetchArray($results)) {
+        $tmp = substr($result['grp_group_id'], strlen($parent), 1);
+        if ($tmp >= $maxnum) {
+            $maxnum = nextGroupOrder($tmp);
+        }
+    }
+    return $parent . $maxnum;
+}
+
+// Changes a group's ID from and to the specified IDs. This also works for groups
+// that have sub-groups, in which case only the appropriate parent portion of
+// the ID is changed.
+//
+function fuzzyRename($from, $to)
+{
+    global $layout_id;
+
+    $query = "UPDATE layout_options SET group_id = concat(?, substr(group_id, ?)) " .
+    "WHERE form_id = ? AND group_id LIKE ?";
+    sqlStatement($query, array($to, strlen($from) + 1, $layout_id, "$from%"));
+
+    $query = "UPDATE layout_group_properties SET grp_group_id = concat(?, substr(grp_group_id, ?)) " .
+    "WHERE grp_form_id = ? AND grp_group_id LIKE ?";
+    sqlStatement($query, array($to, strlen($from) + 1, $layout_id, "$from%"));
+}
+
+// Swaps the positions of two groups.  To the degree they have matching parents,
+// only the first differing child positions are swapped.
+//
+function swapGroups($id1, $id2)
+{
+    $i = 0;
+    while ($i < strlen($id1) && $i < strlen($id2) && $id1[$i] == $id2[$i]) {
+        ++$i;
+    }
+  // $i is now the number of matching characters/levels.
+    if ($i < strlen($id1) && $i < strlen($id2)) {
+        $common = substr($id1, 0, $i);
+        $pfx1   = substr($id1, $i, 1);
+        $pfx2   = substr($id2, $i, 1);
+        $tmpname = $common . '#';
+      // To avoid collision use 3 renames.
+        fuzzyRename($common . $pfx1, $common . '#');
+        fuzzyRename($common . $pfx2, $common . $pfx1);
+        fuzzyRename($common . '#', $common . $pfx2);
+    }
+}
+
 // Call this when adding or removing a layout field.  This will create or drop
 // the corresponding table column when appropriate.  Table columns are not
 // dropped if they contain any non-empty values.
 function addOrDeleteColumn($layout_id, $field_id, $add = true)
 {
+    // Skip layouts that store data in vertical tables.
     if (substr($layout_id, 0, 3) == 'LBF' || substr($layout_id, 0, 3) == 'LBT' || $layout_id == "FACUSR") {
         return;
     }
@@ -179,12 +285,18 @@ if ($_POST['formaction'] == "save" && $layout_id) {
     for ($lino = 1; isset($fld[$lino]['id']); ++$lino) {
         $iter = $fld[$lino];
         $field_id = formTrim($iter['id']);
-        $data_type = formTrim($iter['data_type']);
+        $field_id_original = formTrim($iter['originalid']);
+        $data_type = formTrim($iter['datatype']);
         $listval = $data_type == 34 ? formTrim($iter['contextName']) : formTrim($iter['list_id']);
+        $action = $iter['action'];
+        if ($action == 'value') {
+            $action = 'value=' . $iter['value'];
+        }
 
         // Skip conditions for the line are stored as a serialized array.
-        $condarr = array();
-        for ($cix = 0; !empty($iter['condition_id'][$cix]); ++$cix) {
+        $condarr = array('action' => $action);
+        $cix = 0;
+        for (; !empty($iter['condition_id'][$cix]); ++$cix) {
             $andor = empty($iter['condition_andor'][$cix]) ? '' : $iter['condition_andor'][$cix];
             $condarr[$cix] = array(
             'id'       => strip_escape_custom($iter['condition_id'      ][$cix]),
@@ -194,13 +306,14 @@ if ($_POST['formaction'] == "save" && $layout_id) {
             'andor'    => strip_escape_custom($andor),
             );
         }
+        $conditions = $cix ? serialize($condarr) : '';
 
-        $conditions = empty($condarr) ? '' : serialize($condarr);
         if ($field_id) {
             sqlStatement("UPDATE layout_options SET " .
+                "field_id = '"      . formDataCore($field_id)      . "', " .
                 "source = '"        . formTrim($iter['source'])    . "', " .
-                "title = '"         . formTrim($iter['title'])     . "', " .
-                "group_name = '"    . formTrim($iter['group'])     . "', " .
+                "title = '"         . formDataCore($iter['title'])     . "', " .
+                "group_id = '"    . formTrim($iter['group'])     . "', " .
                 "seq = '"           . formTrim($iter['seq'])       . "', " .
                 "uor = '"           . formTrim($iter['uor'])       . "', " .
                 "fld_length = '"    . formTrim($iter['lengthWidth'])    . "', " .
@@ -216,7 +329,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
                 "description = '"   . formTrim($iter['desc'])      . "', " .
                 "conditions = '"    . add_escape_custom($conditions) . "', " .
                 "validation = '"   . formTrim($iter['validation'])   . "' " .
-                "WHERE form_id = '$layout_id' AND field_id = '$field_id'");
+                "WHERE form_id = '$layout_id' AND field_id = '$field_id_original'");
         }
     }
 } else if ($_POST['formaction'] == "addfield" && $layout_id) {
@@ -225,14 +338,14 @@ if ($_POST['formaction'] == "save" && $layout_id) {
     $max_length = $data_type == 3 ? 3 : 255;
     $listval = $data_type == 34 ? formTrim($_POST['contextName']) : formTrim($_POST['newlistid']);
     sqlStatement("INSERT INTO layout_options (" .
-      " form_id, source, field_id, title, group_name, seq, uor, fld_length, fld_rows" .
+      " form_id, source, field_id, title, group_id, seq, uor, fld_length, fld_rows" .
       ", titlecols, datacols, data_type, edit_options, default_value, description" .
       ", max_length, list_id, list_backup_id " .
       ") VALUES ( " .
       "'"  . formTrim($_POST['layout_id']) . "'" .
       ",'" . formTrim($_POST['newsource']) . "'" .
       ",'" . formTrim($_POST['newid']) . "'" .
-      ",'" . formTrim($_POST['newtitle']) . "'" .
+      ",'" . formDataCore($_POST['newtitle']) . "'" .
       ",'" . formTrim($_POST['newfieldgroupid']) . "'" .
       ",'" . formTrim($_POST['newseq']) . "'" .
       ",'" . formTrim($_POST['newuor']) . "'" .
@@ -252,9 +365,9 @@ if ($_POST['formaction'] == "save" && $layout_id) {
 } else if ($_POST['formaction'] == "movefields" && $layout_id) {
     // Move field(s) to a new group in the layout
     $sqlstmt = "UPDATE layout_options SET ".
-                " group_name='". $_POST['targetgroup']."' ".
+                " group_id = '" . $_POST['targetgroup'] . "' " .
                 " WHERE ".
-                " form_id = '".$_POST['layout_id']."' ".
+                " form_id = '" . $_POST['layout_id'] . "' ".
                 " AND field_id IN (";
     $comma = "";
     foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
@@ -282,34 +395,31 @@ if ($_POST['formaction'] == "save" && $layout_id) {
         addOrDeleteColumn($layout_id, $onefield, false);
     }
 } else if ($_POST['formaction'] == "addgroup" && $layout_id) {
-    // all group names are prefixed with a number indicating their display order
-    // this new group is prefixed with the net highest number given the
-    // layout_id
-    $results = sqlStatement("select distinct(group_name) as gname ".
-                        " from layout_options where ".
-                        " form_id = '".$_POST['layout_id']."'");
-    $maxnum = '1';
-    while ($result = sqlFetchArray($results)) {
-        $tmp = substr($result['gname'], 0, 1);
-        if ($tmp >= $maxnum) {
-            $maxnum = nextGroupOrder($tmp);
-        }
-    }
+    // Generate new value for layout_items.group_id.
+    $newgroupid = genGroupId($_POST['newgroupparent']);
+
+    sqlStatement(
+        "INSERT INTO layout_group_properties SET " .
+        "grp_form_id = ?, " .
+        "grp_group_id = ?, " .
+        "grp_title = ?",
+        array($layout_id, $newgroupid, $_POST['newgroupname'])
+    );
 
     $data_type = formTrim($_POST['gnewdatatype']);
     $max_length = $data_type == 3 ? 3 : 255;
     $listval = $data_type == 34 ? formTrim($_POST['gcontextName']) : formTrim($_POST['gnewlistid']);
     // add a new group to the layout, with the defined field
     sqlStatement("INSERT INTO layout_options (" .
-      " form_id, source, field_id, title, group_name, seq, uor, fld_length, fld_rows" .
+      " form_id, source, field_id, title, group_id, seq, uor, fld_length, fld_rows" .
       ", titlecols, datacols, data_type, edit_options, default_value, description" .
       ", max_length, list_id, list_backup_id " .
       ") VALUES ( " .
       "'"  . formTrim($_POST['layout_id']) . "'" .
       ",'" . formTrim($_POST['gnewsource']) . "'" .
       ",'" . formTrim($_POST['gnewid']) . "'" .
-      ",'" . formTrim($_POST['gnewtitle']) . "'" .
-      ",'" . formTrim($maxnum . $_POST['newgroupname']) . "'" .
+      ",'" . formDataCore($_POST['gnewtitle']) . "'" .
+      ",'" . formTrim($newgroupid)                . "'" .
       ",'" . formTrim($_POST['gnewseq']) . "'" .
       ",'" . formTrim($_POST['gnewuor']) . "'" .
       ",'" . formTrim($_POST['gnewlengthWidth']) . "'" .
@@ -325,7 +435,8 @@ if ($_POST['formaction'] == "save" && $layout_id) {
       ",'" . formTrim($_POST['gnewbackuplistid']) . "'" .
       " )");
     addOrDeleteColumn($layout_id, formTrim($_POST['gnewid']), true);
-} else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
+} /**********************************************************************
+else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
     // drop the fields from the related table (this is critical)
     $res = sqlStatement("SELECT field_id FROM layout_options WHERE " .
       "form_id = '" . $_POST['layout_id'] . "' ".
@@ -337,60 +448,60 @@ if ($_POST['formaction'] == "save" && $layout_id) {
     // Delete an entire group from the form
     sqlStatement("DELETE FROM layout_options WHERE ".
                 " form_id = '".$_POST['layout_id']."' ".
-                " AND group_name = '".$_POST['deletegroupname']."'");
-} else if ($_POST['formaction'] == "movegroup" && $layout_id) {
-    $results = sqlStatement("SELECT DISTINCT(group_name) AS gname " .
-    "FROM layout_options WHERE form_id = '$layout_id' " .
-    "ORDER BY gname");
-    $garray = array();
-    $i = 0;
-    while ($result = sqlFetchArray($results)) {
-        if ($result['gname'] == $_POST['movegroupname']) {
-            if ($_POST['movedirection'] == 'up') { // moving up
-                if ($i > 0) {
-                    $garray[$i] = $garray[$i - 1];
-                    $garray[$i - 1] = $result['gname'];
-                    $i++;
-                } else {
-                    $garray[$i++] = $result['gname'];
-                }
-            } else { // moving down
-                $garray[$i++] = '';
-                $garray[$i++] = $result['gname'];
+                " AND group_name = '".$_POST['deletegroupname']."'"
+                );
+}
+**********************************************************************/
+
+else if ($_POST['formaction'] == "movegroup" && $layout_id) {
+  // Note that in some cases below the swapGroups() call will do nothing.
+    $res = sqlStatement(
+        "SELECT DISTINCT group_id " .
+        "FROM layout_options WHERE form_id = ? ORDER BY group_id",
+        array($layout_id)
+    );
+    $row = sqlFetchArray($res);
+    $id1 = $row['group_id'];
+    while ($row = sqlFetchArray($res)) {
+        $id2 = $row['group_id'];
+        if ($_POST['movedirection'] == 'up') { // moving up
+            if ($id2 == $_POST['movegroupname']) {
+                swapGroups($id2, $id1);
+                break;
             }
-        } else if ($i > 1 && $garray[$i - 2] == '') {
-            $garray[$i - 2] = $result['gname'];
-        } else {
-            $garray[$i++] = $result['gname'];
+        } else { // moving down
+            if ($id1 == $_POST['movegroupname']) {
+                swapGroups($id1, $id2);
+                break;
+            }
         }
+        $id1 = $id2;
     }
-
-    $nextord = '1';
-    foreach ($garray as $value) {
-        if ($value === '') {
-            continue;
-        }
-
-        $newname = $nextord . substr($value, 1);
-        sqlStatement("UPDATE layout_options SET " .
-        "group_name = '$newname' WHERE " .
-        "form_id = '$layout_id' AND " .
-        "group_name = '$value'");
-        $nextord = nextGroupOrder($nextord);
+} // Renaming a group. This might include moving to a different parent group.
+else if ($_POST['formaction'] == "renamegroup" && $layout_id) {
+    $newparent = $_POST['renamegroupparent'];  // this is an ID
+    $oldid     = $_POST['renameoldgroupname']; // this is an ID
+    $oldparent = substr($oldid, 0, -1);
+    $newid = $oldid;
+    if ($newparent != $oldparent) {
+      // Different parent, generate a new child prefix character.
+        $newid = genGroupId($newparent);
+        sqlStatement(
+            "UPDATE layout_options SET group_id = ? " .
+            "WHERE form_id = ? AND group_id = ?",
+            array($newid, $layout_id, $oldid)
+        );
     }
-} else if ($_POST['formaction'] == "renamegroup" && $layout_id) {
-    $currpos = substr($_POST['renameoldgroupname'], 0, 1);
-  // update the database rows
-    sqlStatement("UPDATE layout_options SET " .
-    "group_name = '" . $currpos . $_POST['renamegroupname'] . "' ".
-    "WHERE form_id = '$layout_id' AND ".
-    "group_name = '" . $_POST['renameoldgroupname'] . "'");
+    $query = "UPDATE layout_group_properties SET " .
+    "grp_group_id = ?, grp_title = ? " .
+    "WHERE grp_form_id = ? AND grp_group_id = ?";
+    sqlStatement($query, array($newid, $_POST['renamegroupname'], $layout_id, $oldid));
 }
 
 // Get the selected form's elements.
 if ($layout_id) {
     $res = sqlStatement("SELECT * FROM layout_options WHERE " .
-    "form_id = '$layout_id' ORDER BY group_name, seq");
+    "form_id = '$layout_id' ORDER BY group_id, seq");
 }
 
 // global counter for field numbers
@@ -406,7 +517,7 @@ function genFieldOptionList($current = '')
     global $layout_id;
     $option_list = "<option value=''>-- " . xlt('Please Select') . " --</option>";
     if ($layout_id) {
-        $query = "SELECT field_id FROM layout_options WHERE form_id = ? ORDER BY group_name, seq";
+        $query = "SELECT field_id FROM layout_options WHERE form_id = ? ORDER BY group_id, seq";
         $res = sqlStatement($query, array($layout_id));
         while ($row = sqlFetchArray($res)) {
             $field_id = $row['field_id'];
@@ -414,11 +525,9 @@ function genFieldOptionList($current = '')
             if ($field_id == $current) {
                 $option_list .= " selected";
             }
-
             $option_list .= ">" . text($field_id) . "</option>";
         }
     }
-
     return $option_list;
 }
 
@@ -436,20 +545,23 @@ function writeFieldLine($linedata)
     echo "  <td class='optcell' style='width:4%' nowrap>";
     // tuck the group_name INPUT in here
     echo "<input type='hidden' name='fld[$fld_line_no][group]' value='" .
-         htmlspecialchars($linedata['group_name'], ENT_QUOTES) . "' class='optin' />";
+         htmlspecialchars($linedata['group_id'], ENT_QUOTES) . "' class='optin' />";
+    // Original field ID.
+    echo "<input type='hidden' name='fld[$fld_line_no][originalid]' value='" .
+         attr($linedata['field_id']) . "' />";
 
     echo "<input type='checkbox' class='selectfield' ".
-            "name='".$linedata['group_name']."~".$linedata['field_id']."' ".
-            "id='".$linedata['group_name']."~".$linedata['field_id']."' ".
-            "title='".htmlspecialchars(xl('Select field', ENT_QUOTES))."'>";
+            "name='"  . $linedata['group_id'] . "~" . $linedata['field_id'] . "' " .
+            "id='"    . $linedata['group_id'] . "~" . $linedata['field_id'] . "' " .
+            "title='" . xla('Select field') . "' />";
 
     echo "<input type='text' name='fld[$fld_line_no][seq]' id='fld[$fld_line_no][seq]' value='" .
-      htmlspecialchars($linedata['seq'], ENT_QUOTES) . "' size='2' maxlength='3' " .
-      "class='optin' style='width:36pt' />";
+      htmlspecialchars($linedata['seq'], ENT_QUOTES) . "' size='2' maxlength='4' " .
+      "class='optin' style='width:32pt' />";
     echo "</td>\n";
 
     echo "  <td align='center' class='optcell' $lbfonly style='width:3%'>";
-    echo "<select name='fld[$fld_line_no][source]' class='optin noselect' $lbfonly>";
+    echo "<select name='fld[$fld_line_no][source]' class='optin' $lbfonly>";
     foreach ($sources as $key => $value) {
         echo "<option value='" . attr($key) . "'";
         if ($key == $linedata['source']) {
@@ -462,19 +574,13 @@ function writeFieldLine($linedata)
     echo "</select>";
     echo "</td>\n";
 
-    echo "  <td align='left' class='optcell' style='width:10%'>";
+    echo "  <td align='left' class='optcell' style='width:12%'>";
     echo "<input type='text' name='fld[$fld_line_no][id]' value='" .
-         htmlspecialchars($linedata['field_id'], ENT_QUOTES) . "' size='15' maxlength='63'
-         class='optin noselect' style='width:100%' />";
-         // class='optin noselect' onclick='FieldIDClicked(this)' />";
-    /*
-    echo "<input type='hidden' name='fld[$fld_line_no][id]' value='" .
-         htmlspecialchars($linedata['field_id'], ENT_QUOTES) . "' />";
-    echo htmlspecialchars($linedata['field_id'], ENT_QUOTES);
-    */
+         htmlspecialchars($linedata['field_id'], ENT_QUOTES) . "' size='15' maxlength='63' " .
+         "class='optin' style='width:100%' onclick='FieldIDClicked(this)' />";
     echo "</td>\n";
   
-    echo "  <td align='center' class='optcell' style='width:12%'>";
+    echo "  <td align='center' class='optcell' style='width:20%'>";
     echo "<input type='text' id='fld[$fld_line_no][title]' name='fld[$fld_line_no][title]' value='" .
          htmlspecialchars($linedata['title'], ENT_QUOTES) . "' size='15' maxlength='63' class='optin' style='width:100%' />";
     echo "</td>\n";
@@ -498,8 +604,8 @@ function writeFieldLine($linedata)
     echo "</select>";
     echo "</td>\n";
   
-    echo "  <td align='center' class='optcell' style='width:8%'>";
-    echo "<select name='fld[$fld_line_no][data_type]' id='fld[$fld_line_no][data_type]' onchange=NationNotesContext('".$fld_line_no."',this.value)>";
+    echo "  <td align='center' class='optcell' style='width:10%'>";
+    echo "<select name='fld[$fld_line_no][datatype]' id='fld[$fld_line_no][datatype]' onchange=NationNotesContext('".$fld_line_no."',this.value)>";
     echo "<option value=''></option>";
     global $datatypes;
     foreach ($datatypes as $key => $value) {
@@ -601,17 +707,17 @@ function writeFieldLine($linedata)
     echo "</td>\n";
     //Backup List End
 
-    echo "  <td align='center' class='optcell' style='width:4%'>";
+    echo "  <td align='center' class='optcell' style='width:2%'>";
     echo "<input type='text' name='fld[$fld_line_no][titlecols]' value='" .
          htmlspecialchars($linedata['titlecols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' style='width:100%' />";
     echo "</td>\n";
   
-    echo "  <td align='center' class='optcell' style='width:4%'>";
+    echo "  <td align='center' class='optcell' style='width:2%'>";
     echo "<input type='text' name='fld[$fld_line_no][datacols]' value='" .
          htmlspecialchars($linedata['datacols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' style='width:100%' />";
     echo "</td>\n";
   
-    echo "  <td align='center' class='optcell' style='width:5%' title='" .
+    echo "  <td align='center' class='optcell' style='width:4%' title='" .
           "A = " . xla('Age') .
         ", B = " . xla('Gestational Age') .
         ", C = " . xla('Capitalize') .
@@ -619,6 +725,7 @@ function writeFieldLine($linedata)
         ", E = " . xla('Dup Check on only Edit') .
         ", W = " . xla('Dup Check on only New') .
         ", G = " . xla('Graphable') .
+        ", I = " . xla('Initially Open Group') .
         ", L = " . xla('Lab Order') .
         ", N = " . xla('New Patient Form') .
         ", O = " . xla('Order Processor') .
@@ -627,6 +734,7 @@ function writeFieldLine($linedata)
         ", T = " . xla('Description is default text') .
         ", U = " . xla('Capitalize all') .
         ", V = " . xla('Vendor') .
+        ", X = " . xla('Do Not Print') .
         ", 0 = " . xla('Read Only') .
         ", 1 = " . xla('Write Once') .
         ", 2 = " . xla('Billing Code Descriptions') .
@@ -636,37 +744,16 @@ function writeFieldLine($linedata)
       htmlspecialchars($linedata['edit_options'], ENT_QUOTES) . "' size='3' " .
       "maxlength='36' class='optin' style='width:100%' />";
     echo "</td>\n";
- 
-    /*****************************************************************
-    echo "  <td align='center' class='optcell'>";
-    if ($linedata['data_type'] == 2) {
-      echo "<input type='text' name='fld[$fld_line_no][default]' value='" .
-           htmlspecialchars($linedata['default_value'], ENT_QUOTES) . "' size='10' maxlength='63' class='optin' />";
-    } else {
-      echo "&nbsp;";
-    }
-    echo "</td>\n";
-  
-    echo "  <td align='center' class='optcell'>";
-    echo "<input type='text' name='fld[$fld_line_no][desc]' value='" .
-         htmlspecialchars($linedata['description'], ENT_QUOTES) . "' size='20' maxlength='63' class='optin' />";
-    echo "</td>\n";
-
-    // if not english and showing layout labels, then show the translation of Description
-    if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-     echo "<td align='center' class='translation'>" . htmlspecialchars(xl($linedata['description']), ENT_QUOTES) . "</td>\n";
-    }
-    *****************************************************************/
 
     if ($linedata['data_type'] == 31) {
-        echo "  <td align='center' class='optcell' style='width:24%'>";
+        echo "  <td align='center' class='optcell' style='width:16%'>";
         echo "<textarea name='fld[$fld_line_no][desc]' rows='3' cols='35' class='optin' style='width:100%'>" .
            $linedata['description'] . "</textarea>";
         echo "<input type='hidden' name='fld[$fld_line_no][default]' value='" .
          htmlspecialchars($linedata['default_value'], ENT_QUOTES) . "' />";
         echo "</td>\n";
     } else {
-        echo "  <td align='center' class='optcell' style='width:24%'>";
+        echo "  <td align='center' class='optcell' style='width:16%'>";
         echo "<input type='text' name='fld[$fld_line_no][desc]' value='" .
         htmlspecialchars($linedata['description'], ENT_QUOTES) .
         "' size='30' class='optin' style='width:100%' />";
@@ -697,15 +784,24 @@ function writeFieldLine($linedata)
     $conditions = empty($linedata['conditions']) ?
       array(0 => array('id' => '', 'itemid' => '', 'operator' => '', 'value' => '')) :
       unserialize($linedata['conditions']);
+    $action = empty($conditions['action']) ? 'skip' : $conditions['action'];
+    $action_value = $action == 'skip' ? '' : substr($action, 6);
     //
     $extra_html .= "<div id='ext_$fld_line_no' " .
       "style='position:absolute;width:750px;border:1px solid black;" .
       "padding:2px;background-color:#cccccc;visibility:hidden;" .
-      "z-index:1000;left:-1000px;top:0px;font-size:9pt;'>\n" .
+      "z-index:1000;left:-1000px;top:0px;font-size:8pt;'>\n" .
       "<table width='100%'>\n" .
       " <tr>\n" .
-      "  <th colspan='3' align='left' class='bold'>\"" . text($linedata['field_id']) . "\" " .
-      xlt('will be hidden if') . ":</th>\n" .
+      "  <th colspan='3' align='left' class='bold'>" .
+      xlt('For') . " " . text($linedata['field_id']) . " " .
+      "<select name='fld[$fld_line_no][action]' onchange='actionChanged($fld_line_no)'>" .
+      "<option value='skip'  " . ($action == 'skip' ? 'selected' : '') . ">" . xlt('hide this field') . "</option>" .
+      "<option value='value' " . ($action != 'skip' ? 'selected' : '') . ">" . xlt('set value to') . "</option>" .
+      "</select>" .
+      "<input type='text' name='fld[$fld_line_no][value]' value='" . attr($action_value) . "' size='15' />" .
+      " " . xlt('if') .
+      "</th>\n" .
       "  <th colspan='2' align='right' class='text'><input type='button' " .
       "value='" . xla('Close') . "' onclick='extShow($fld_line_no, false)' />&nbsp;</th>\n" .
       " </tr>\n" .
@@ -718,6 +814,9 @@ function writeFieldLine($linedata)
       " </tr>\n";
     // There may be multiple condition lines for each field.
     foreach ($conditions as $i => $condition) {
+        if (!is_numeric($i)) {
+            continue; // skip if 'action'
+        }
         $extra_html .=
         " <tr>\n" .
         "  <td align='left'>\n" .
@@ -753,7 +852,7 @@ function writeFieldLine($linedata)
         "   <input type='text' name='fld[$fld_line_no][condition_value][$i]' value='" .
         attr($condition['value']) . "' size='15' maxlength='63' />\n" .
         "  </td>\n";
-        if (count($conditions) == $i + 1) {
+        if (!isset($conditions[$i + 1])) {
             $extra_html .=
             "  <td align='right' title='" . xla('Add a condition') . "'>\n" .
             "   <input type='button' value='+' onclick='extAddCondition($fld_line_no,this)' />\n" .
@@ -829,16 +928,18 @@ function writeFieldLine($linedata)
 
 <!-- supporting javascript code -->
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 
 <title><?php  xl('Layout Editor', 'e'); ?></title>
 
 <style>
-tr.head   { font-size:10pt; background-color:#cccccc; }
-tr.detail { font-size:10pt; }
-td        { font-size:10pt; }
-input     { font-size:10pt; }
+tr.head   { font-size:8pt; background-color:#cccccc; }
+tr.detail { font-size:8pt; }
+td        { font-size:8pt; }
+input     { font-size:8pt; }
+select    { font-size:8pt; }
 a, a:visited, a:hover { color:#0000cc; }
 .optcell  { }
 .optin    { background: transparent; }
@@ -865,7 +966,7 @@ a, a:visited, a:hover { color:#0000cc; }
 .layouts_title { font-size: 110%; }
 .translation {
     color: green;
-    font-size:10pt;
+    font-size:8pt;
 }
 .highlight * {
     border: 2px solid blue;
@@ -917,6 +1018,14 @@ function extShow(lino, show) {
  else {
   extdiv = null;
  }
+}
+
+// Show or hide the value field for a "Set value to" condition.
+function actionChanged(lino) {
+  var f = document.forms[0];
+  var eaction = f['fld[' + lino + '][action]'];
+  var evalue  = f['fld[' + lino + '][value]'];
+  evalue.style.display = eaction.value == 'skip' ? 'none' : '';
 }
 
 // Add an extra condition line for the given row.
@@ -995,7 +1104,7 @@ function setListItemOptions(lino, seq, init) {
   var current = init ? f[target].value : '';
   f[target].options.length = 0;
   // Get the corresponding data type and list ID.
-  var data_type = f['fld[' + i + '][data_type]'].value;
+  var data_type = f['fld[' + i + '][datatype]'].value;
   var list_id   = f['fld[' + i + '][list_id]'].value;
   // WARNING: If new data types are defined the following test may need enhancing.
   // We're getting out if the type does not generate multiple fields with different names.
@@ -1016,6 +1125,17 @@ function setListItemOptions(lino, seq, init) {
 function cidChanged(lino, seq) {
   changeColor(lino);
   setListItemOptions(lino, seq, false);
+}
+
+// This invokes the popup to edit layout properties or add a new layout.
+function edit_layout_props(groupid) {
+ dlgopen('edit_layout_props.php?layout_id=<?php echo attr($layout_id); ?>&group_id=' + groupid,
+  '_blank', 700, 550);
+}
+
+// callback from edit_layout_props.php:
+function refreshme(layout_id) {
+ location.href = 'edit_layout.php?layout_id=' + layout_id;
 }
 
 // This is called whenever a validation rule field ID selection is changed.
@@ -1066,7 +1186,9 @@ function myChangeCheck() {
 <input type="hidden" name="deletefieldid" id="deletefieldid" value="">
 <input type="hidden" name="deletefieldgroup" id="deletefieldgroup" value="">
 <!-- elements used to identify a group to delete -->
+<!--
 <input type="hidden" name="deletegroupname" id="deletegroupname" value="">
+-->
 <!-- elements used to change the group order -->
 <input type="hidden" name="movegroupname" id="movegroupname" value="">
 <input type="hidden" name="movedirection" id="movedirection" value="">
@@ -1079,58 +1201,96 @@ function myChangeCheck() {
 <select name='layout_id' id='layout_id'>
  <option value=''>-- <?php echo xl('Select') ?> --</option>
 <?php
+$lastgroup = '';
 foreach ($layouts as $key => $value) {
-    echo " <option value='$key'";
+    if ($value[0] != $lastgroup) {
+        if ($lastgroup) {
+            echo " </optgroup>\n";
+        }
+        echo " <optgroup label='" . attr($value[0]) . "'>\n";
+        $lastgroup = $value[0];
+    }
+    echo "  <option value='" . attr($key) . "'";
     if ($key == $layout_id) {
         echo " selected";
     }
-
-    echo ">$value</option>\n";
+    echo ">" . text($value[1]) . "</option>\n";
+}
+if ($lastgroup) {
+    echo " </optgroup>\n";
 }
 ?>
-</select></div><div><p>
+</select>
+
+</div><div><p>
 <?php if ($layout_id) { ?>
-<input type='button' class='addgroup' id='addgroup' value=<?php xl('Add Group', 'e', '\'', '\''); ?>/>
+<input type='button' value='<?php echo xla('Layout Properties'); ?>' onclick='edit_layout_props("")' />&nbsp;
+<input type='button' class='addgroup'  id='addgroup'  value='<?php echo xla('Add Group'); ?>' />
 <span style="font-size:90%"> &nbsp;
 <input type='button' name='save' id='save' value='<?php xl('Save Changes', 'e'); ?>' /></span> &nbsp;&nbsp;
 <?php xl('With selected:', 'e');?>
 <input type='button' name='deletefields' id='deletefields' value='<?php xl('Delete', 'e'); ?>' style="font-size:90%" disabled="disabled" />
 <input type='button' name='movefields' id='movefields' value='<?php xl('Move to...', 'e'); ?>' style="font-size:90%" disabled="disabled" /></span>
+<?php } else { ?>
+<input type='button' value='<?php echo xla('New Layout'); ?>' onclick='edit_layout_props("")' />&nbsp;
+<?php } ?>
 </p></div>
 </div>
 <div class="container">
-<?php } ?>
+
 <?php
-$prevgroup = "!@#asdf1234"; // an unlikely group name
+// Load array of properties for this layout and its groups.
+$grparr = array();
+$gres = sqlStatement("SELECT * FROM layout_group_properties WHERE grp_form_id = ? " .
+  "ORDER BY grp_group_id", array($layout_id));
+while ($grow = sqlFetchArray($gres)) {
+    $grparr[$grow['grp_group_id']] = $grow;
+}
+
+$prevgroup = "!@#asdf1234"; // an unlikely group ID
 $firstgroup = true; // flag indicates it's the first group to be displayed
+
 while ($row = sqlFetchArray($res)) {
-    if ($row['group_name'] != $prevgroup) {
+    $group_id = $row['group_id'];
+    if ($group_id != $prevgroup) {
         if ($firstgroup == false) {
             echo "</tbody></table></div>\n";
         }
-
-        echo "<div id='".$row['group_name']."' class='group'>";
+        echo "<div id='" . $group_id . "' class='group'>";
         echo "<div class='text bold layouts_title' style='position:relative; background-color: #eef'>";
-        // echo preg_replace("/^\d+/", "", $row['group_name']);
-        echo substr($row['group_name'], 1);
-        echo "&nbsp; ";
+
+        // Get the fully qualified descriptive name of this group (i.e. including ancestor names).
+        $gdispname = '';
+        for ($i = 1; $i <= strlen($group_id); ++$i) {
+            if ($gdispname) {
+                $gdispname .= ' / ';
+            }
+            $gdispname .= $grparr[substr($group_id, 0, $i)]['grp_title'];
+        }
+        $gmyname = $grparr[$group_id]['grp_title'];
+
+        echo text($gdispname);
+
         // if not english and set to translate layout labels, then show the translation of group name
         if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-            // echo "<span class='translation'>>>&nbsp; " . xl(preg_replace("/^\d+/", "", $row['group_name'])) . "</span>";
-            echo "<span class='translation'>>>&nbsp; " . xl(substr($row['group_name'], 1)) . "</span>";
+            echo "<span class='translation'&gt;&gt;&gt;&nbsp; " . xlt($gdispname) . "</span>";
             echo "&nbsp; ";
         }
 
         echo "&nbsp; ";
-        echo " <input type='button' class='addfield' id='addto~".$row['group_name']."' value='" . xl('Add Field') . "'/>";
+        echo " <input type='button' class='addfield' id='addto~$group_id' value='" . xla('Add Field') . "'/>";
         echo "&nbsp; &nbsp; ";
-        echo " <input type='button' class='renamegroup' id='".$row['group_name']."' value='" . xl('Rename Group') . "'/>";
+        echo " <input type='button' class='renamegroup' id='$group_id~$gmyname' value='" . xla('Rename Group') . "'/>";
+        /******************************************************************
         echo "&nbsp; &nbsp; ";
-        echo " <input type='button' class='deletegroup' id='".$row['group_name']."' value='" . xl('Delete Group') . "'/>";
+        echo " <input type='button' class='deletegroup' id='$group_id' value='" . xl('Delete Group') . "'/>";
+        ******************************************************************/
         echo "&nbsp; &nbsp; ";
-        echo " <input type='button' class='movegroup' id='".$row['group_name']."~up' value='" . xl('Move Up') . "'/>";
+        echo " <input type='button' class='movegroup' id='$group_id~up' value='" . xl('Move Up') . "'/>";
         echo "&nbsp; &nbsp; ";
-        echo " <input type='button' class='movegroup' id='".$row['group_name']."~down' value='" . xl('Move Down') . "'/>";
+        echo " <input type='button' class='movegroup' id='$group_id~down' value='" . xl('Move Down') . "'/>";
+        echo "&nbsp; &nbsp; ";
+        echo "<input type='button' value='" . xla('Group Properties') . "' onclick='edit_layout_props(\"$group_id\")' />";
         echo "</div>";
         $firstgroup = false;
     ?>
@@ -1168,7 +1328,7 @@ while ($row = sqlFetchArray($res)) {
     } // end if-group_name
 
     writeFieldLine($row);
-    $prevgroup = $row['group_name'];
+    $prevgroup = $group_id;
 } // end while loop
 
 ?>
@@ -1180,18 +1340,28 @@ while ($row = sqlFetchArray($res)) {
 </form>
 
 <!-- template DIV that appears when user chooses to rename an existing group -->
-<div id="renamegroupdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: lightgrey;">
-<input type="hidden" name="renameoldgroupname" id="renameoldgroupname" value="">
-<?php xl('Group Name', 'e'); ?>: <input type="textbox" size="20" maxlength="30" name="renamegroupname" id="renamegroupname">
+<div id="renamegroupdetail"
+ style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: lightgrey;">
+<input type="hidden" name="renameoldgroupname" id="renameoldgroupname" value="" />
+<?php echo xlt('Group Name'); ?>:
+<input type="textbox" size="20" maxlength="30" name="renamegroupname" id="renamegroupname" />
+&nbsp;&nbsp;
+<?php echo xlt('Parent'); ?>:
+<?php echo genGroupSelector('renamegroupparent', $layout_id); ?>
 <br>
-<input type="button" class="saverenamegroup" value=<?php xl('Rename Group', 'e', '\'', '\''); ?>>
-<input type="button" class="cancelrenamegroup" value=<?php xl('Cancel', 'e', '\'', '\''); ?>>
+<input type="button" class="saverenamegroup" value="<?php echo xla('Rename Group'); ?>" />
+<input type="button" class="cancelrenamegroup" value="<?php echo xla('Cancel'); ?>" />
 </div>
 
 <!-- template DIV that appears when user chooses to add a new group -->
-<div id="groupdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: lightgrey;">
+<div id="groupdetail"
+ style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: lightgrey;">
 <span class='bold'>
-<?php xl('Group Name', 'e'); ?>: <input type="textbox" size="20" maxlength="30" name="newgroupname" id="newgroupname">
+<?php echo xlt('Group Name'); ?>:
+<input type="textbox" size="20" maxlength="30" name="newgroupname" id="newgroupname" />
+&nbsp;&nbsp;
+<?php echo xlt('Parent'); ?>:
+<?php echo genGroupSelector('newgroupparent', $layout_id); ?>
 <br>
 <table style="border-collapse: collapse; margin-top: 5px;">
 <thead>
@@ -1214,7 +1384,7 @@ while ($row = sqlFetchArray($res)) {
 </thead>
 <tbody>
 <tr class='center'>
-<td ><input type="textbox" name="gnewseq" id="gnewseq" value="" size="2" maxlength="3"> </td>
+<td ><input type="textbox" name="gnewseq" id="gnewseq" value="" size="2" maxlength="4"> </td>
 <td<?php echo " $lbfonly"; ?>>
 <select name='gnewsource' id='gnewsource'>
 <?php
@@ -1263,7 +1433,7 @@ foreach ($datatypes as $key => $value) {
 <td><input type="textbox" name="gnewdatacols" id="gnewdatacols" value="" size="3" maxlength="3"> </td>
 <td><input type="textbox" name="gnewedit_options" id="gnewedit_options" value="" size="3" maxlength="36">
     <input type="hidden"  name="gnewdefault" id="gnewdefault" value="" /> </td>
-<td><input type="textbox" name="gnewdesc" id="gnewdesc" value="" size="30" maxlength="63"> </td>
+<td><input type="textbox" name="gnewdesc" id="gnewdesc" value="" size="30"> </td>
 </tr>
 </tbody>
 </table>
@@ -1297,7 +1467,7 @@ foreach ($datatypes as $key => $value) {
  </thead>
  <tbody>
   <tr class='center'>
-   <td ><input type="textbox" name="newseq" id="newseq" value="" size="2" maxlength="3"> </td>
+   <td ><input type="textbox" name="newseq" id="newseq" value="" size="2" maxlength="4"> </td>
    <td<?php echo " $lbfonly"; ?>>
     <select name='newsource' id='newsource'>
 <?php
@@ -1346,7 +1516,7 @@ foreach ($datatypes as $key => $value) {
    <td><input type="textbox" name="newdatacols" id="newdatacols" value="" size="3" maxlength="3"> </td>
    <td><input type="textbox" name="newedit_options" id="newedit_options" value="" size="3" maxlength="36">
        <input type="hidden"  name="newdefault" id="newdefault" value="" /> </td>
-   <td><input type="textbox" name="newdesc" id="newdesc" value="" size="30" maxlength="63"> </td>
+   <td><input type="textbox" name="newdesc" id="newdesc" value="" size="30"> </td>
   </tr>
   <tr>
    <td colspan="9">
@@ -1398,10 +1568,11 @@ $(document).ready(function(){
       }
       mySubmit();
     });
-
     $(".addgroup").click(function() { AddGroup(this); });
     $(".savenewgroup").click(function() { SaveNewGroup(this); });
+    /******************************************************************
     $(".deletegroup").click(function() { DeleteGroup(this); });
+    ******************************************************************/
     $(".cancelnewgroup").click(function() { CancelNewGroup(this); });
     $(".movegroup").click(function() { MoveGroup(this); });
     $(".renamegroup").click(function() { RenameGroup(this); });
@@ -1437,8 +1608,18 @@ $(document).ready(function(){
 
     // Save the changes made to the form
     var SaveChanges = function () {
-        $("#formaction").val("save");
-        mySubmit();
+      var f = document.forms[0];
+      for (var i = 1; f['fld['+i+'][id]']; ++i) {
+        var ival = f['fld['+i+'][id]'].value;
+        for (var j = i + 1; f['fld['+j+'][id]']; ++j) {
+          if (ival == f['fld['+j+'][id]'].value || ival == f['fld['+j+'][originalid]'].value) {
+            alert('<?php echo xls('Error: Duplicated field ID'); ?>: ' + ival);
+            return;
+          }
+        }
+      }
+      $("#formaction").val("save");
+      mySubmit();
     }
 
     /****************************************************/
@@ -1475,9 +1656,9 @@ $(document).ready(function(){
 
         // now, check the first group field values
         
-        // seq must be numeric and less than 999
-        if (! IsNumeric($("#gnewseq").val(), 0, 999)) {
-            alert("<?php xl('Order must be a number between 1 and 999', 'e'); ?>");
+        // seq must be numeric and <= 9999
+        if (! IsNumeric($("#gnewseq").val(), 0, 9999)) {
+            alert("<?php xl('Order must be a number between 1 and 9999', 'e'); ?>");
             return false;
         }
         // length must be numeric and less than 999
@@ -1493,11 +1674,6 @@ $(document).ready(function(){
         // datacols must be numeric and less than 100
         if (! IsNumeric($("#gnewdatacols").val(), 0, 999)) {
             alert("<?php xl('DataCols must be a number between 1 and 999', 'e'); ?>");
-            return false;
-        }
-        // some fields cannot be blank
-        if ($("#gnewtitle").val() == "") {
-            alert("<?php xl('Label cannot be blank', 'e'); ?>");
             return false;
         }
         // the id field can only have letters, numbers and underscores
@@ -1520,6 +1696,7 @@ $(document).ready(function(){
         mySubmit();
     }
 
+    /******************************************************************
     // actually delete an entire group from the database
     var DeleteGroup = function(btnObj) {
         var parts = $(btnObj).attr("id");
@@ -1531,6 +1708,7 @@ $(document).ready(function(){
             $("#theform").submit();
         }
     };
+    ******************************************************************/
 
     // just hide the new field DIV
     var CancelNewGroup = function(btnObj) {
@@ -1539,6 +1717,7 @@ $(document).ready(function(){
         $('#groupdetail').css('display', 'none');
         // reset the new group values to a default
         $('#groupdetail > #newgroupname').val("");
+        $('#groupdetail > #newgroupparent').val("");
         $("#save").attr("disabled", false);
     };
 
@@ -1563,8 +1742,11 @@ $(document).ready(function(){
         $('#renamegroupdetail').css('visibility', 'visible');
         $('#renamegroupdetail').css('display', 'block');
         $(btnObj).parent().append($("#renamegroupdetail"));
-        $('#renameoldgroupname').val($(btnObj).attr("id"));
-        $('#renamegroupname').val($(btnObj).attr("id").replace(/^\d+/, ""));
+        var parts = $(btnObj).attr("id").split("~");
+        $('#renameoldgroupname').val(parts[0]); // this is actually the existing group ID
+        $('#renamegroupname').val(parts[1]);    // the textual name of just this group
+        var i = parts[0].length;
+        $('[name=renamegroupparent]').val(i > 0 ? parts[0].substr(0, i-1) : ''); // parent ID
     }
 
     // save the new group to the form
@@ -1591,6 +1773,7 @@ $(document).ready(function(){
         // reset the rename group values to a default
         $('#renameoldgroupname').val("");
         $('#renamegroupname').val("");
+        $('#renamegroupparent').val("");
     };
 
     /****************************************************/
@@ -1637,9 +1820,9 @@ $(document).ready(function(){
     var SaveNewField = function(btnObj) {
         // check the new field values for correct formatting
     
-        // seq must be numeric and less than 999
-        if (! IsNumeric($("#newseq").val(), 0, 999)) {
-            alert("<?php xl('Order must be a number between 1 and 999', 'e'); ?>");
+        // seq must be numeric and <= 9999
+        if (! IsNumeric($("#newseq").val(), 0, 9999)) {
+            alert("<?php xl('Order must be a number between 1 and 9999', 'e'); ?>");
             return false;
         }
         // length must be numeric and less than 999
@@ -1655,11 +1838,6 @@ $(document).ready(function(){
         // datacols must be numeric and less than 100
         if (! IsNumeric($("#newdatacols").val(), 0, 999)) {
             alert("<?php xl('DataCols must be a number between 1 and 999', 'e'); ?>");
-            return false;
-        }
-        // some fields cannot be blank
-        if ($("#newtitle").val() == "") {
-            alert("<?php xl('Label cannot be blank', 'e'); ?>");
             return false;
         }
         // the id field can only have letters, numbers and underscores
@@ -1689,14 +1867,16 @@ $(document).ready(function(){
 
     // show the popup choice of lists
     var ShowLists = function(btnObj) {
-        window.open("./show_lists_popup.php", "lists", "width=300,height=500,scrollbars=yes");
+        window.open('../patient_file/encounter/find_code_dynamic.php?what=lists',
+          'lists', 'width=700,height=600,scrollbars=yes');
         selectedfield = btnObj;
     };
     
     // show the popup choice of groups
     var ShowGroups = function(btnObj) {
         if (!myChangeCheck()) return;
-        window.open("./show_groups_popup.php?layout_id=<?php echo $layout_id;?>", "groups", "width=300,height=300,scrollbars=yes");
+        window.open('../patient_file/encounter/find_code_dynamic.php?what=groups&layout_id=<?php echo addslashes($layout_id); ?>',
+          'groups', 'width=700,height=600,scrollbars=yes');
     };
     
     // Show context DD for NationNotes
@@ -1721,12 +1901,13 @@ $(document).ready(function(){
       }
     };
 
-    // Initialize the list item selectors in skip conditions.
+    // Initialize list item selectors and value field visibilities in skip conditions.
     var f = document.forms[0];
     for (var lino = 1; f['fld[' + lino + '][id]']; ++lino) {
       for (var seq = 0; f['fld[' + lino + '][condition_itemid][' + seq + ']']; ++seq) {
         setListItemOptions(lino, seq, true);
       }
+      actionChanged(lino);
     }
 
   // Support for beforeunload handler.
@@ -1785,8 +1966,8 @@ function FieldIDClicked(elem) {
   // If the field ID is for the local form, allow direct entry.
   if (srcval == 'F') return;
   // Otherwise pop up the selection window.
-  window.open('./field_id_popup.php?source=' + srcval, 'fields',
-    'width=600,height=600,scrollbars=yes');
+  window.open('../patient_file/encounter/find_code_dynamic.php?what=fields&source='
+    + srcval, 'fields', 'width=700,height=600,scrollbars=yes');
 <?php } ?>
 }
 
@@ -1799,7 +1980,7 @@ function SetField(field_id, title, data_type, uor, fld_length, max_length,
   elemFromPart('uor'         ).value = uor;
   elemFromPart('lengthWidth' ).value = fld_length;
   elemFromPart('maxSize'     ).value = max_length;
-  elemFromPart('listid'      ).value = list_id;
+  elemFromPart('list_id'     ).value = list_id;
   elemFromPart('titlecols'   ).value = titlecols;
   elemFromPart('datacols'    ).value = datacols;
   elemFromPart('edit_options').value = edit_options;

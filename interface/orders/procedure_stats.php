@@ -80,7 +80,7 @@ $arr_titles = array(); // will contain column headers
 $lres = sqlStatement("SELECT field_id, title, data_type, list_id, description " .
   "FROM layout_options WHERE " .
   "form_id = 'DEM' AND uor > 0 AND field_id NOT LIKE 'em%' " .
-  "ORDER BY group_name, seq, title");
+  "ORDER BY group_id, seq, title");
 while ($lrow = sqlFetchArray($lres)) {
     $fid = $lrow['field_id'];
     if ($fid == 'fname' || $fid == 'mname' || $fid == 'lname') {

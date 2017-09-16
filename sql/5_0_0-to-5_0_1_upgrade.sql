@@ -617,3 +617,47 @@ UPDATE `user_settings` SET `setting_value`='style_light.css' WHERE `setting_labe
  OR `setting_value`='style_purple.css'
  OR `setting_value`='style_radiant.css'
  OR `setting_value`='style_sky_blue.css');
+
+#IfNotColumnType facility country_code varchar(30)
+ALTER TABLE `facility` CHANGE `country_code` `country_code` varchar(30) NOT NULL default '';
+#EndIf
+
+#IfNotColumnType layout_options group_name varchar(255)
+ALTER TABLE `layout_options` CHANGE `group_name` `group_name` varchar(255) NOT NULL default '';
+#EndIf
+
+#IfMissingColumn forms issue_id
+ALTER TABLE `forms` ADD COLUMN `issue_id` bigint(20) NOT NULL default 0 COMMENT 'references lists.id to identify a case';
+#EndIf
+
+#IfMissingColumn forms provider_id
+ALTER TABLE `forms` ADD COLUMN `provider_id` bigint(20) NOT NULL default 0 COMMENT 'references users.id to identify a provider';
+#EndIf
+
+#IfNotTable layout_group_properties
+CREATE TABLE `layout_group_properties` (
+  grp_form_id     varchar(31)    not null,
+  grp_group_id    varchar(31)    not null default '' comment 'empty when representing the whole form',
+  grp_title       varchar(63)    not null default '' comment 'descriptive name of the form or group',
+  grp_subtitle    varchar(63)    not null default '' comment 'for display under the title',
+  grp_mapping     varchar(31)    not null default '' comment 'the form category',
+  grp_seq         int(11)        not null default 0  comment 'optional order within mapping',
+  grp_activity    tinyint(1)     not null default 1,
+  grp_repeats     int(11)        not null default 0,
+  grp_columns     int(11)        not null default 0,
+  grp_size        int(11)        not null default 0,
+  grp_issue_type  varchar(75)    not null default '',
+  grp_aco_spec    varchar(63)    not null default '',
+  grp_services    varchar(4095)  not null default '',
+  grp_products    varchar(4095)  not null default '',
+  grp_diags       varchar(4095)  not null default '',
+  PRIMARY KEY (grp_form_id, grp_group_id)
+) ENGINE=InnoDB;
+ALTER TABLE layout_options ADD COLUMN group_id VARCHAR(31) NOT NULL default '' AFTER group_name;
+#ConvertLayoutProperties
+ALTER TABLE layout_options DROP COLUMN group_name;
+DELETE FROM list_options WHERE list_id = 'lbfnames';
+DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'lbfnames';
+DELETE FROM list_options WHERE list_id = 'transactions';
+DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'transactions';
+#EndIf

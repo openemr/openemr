@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2014-2016 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2014-2017 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // Called to recompute displayed age dynamically when the corresponding date is
 // changed. Must generate the same age formats as the oeFormatAge() function.
 //
-function updateAgeString(fieldid, asof, format) {
+function updateAgeString(fieldid, asof, format, description) {
   var datefld = document.getElementById('form_' + fieldid);
   var f = datefld.form;
   var age = '';
@@ -28,7 +28,8 @@ function updateAgeString(fieldid, asof, format) {
     var days  = Math.round(msecs / (24 * 60 * 60 * 1000));
     var weeks = Math.floor(days / 7);
     days = days % 7;
-    age = '<?php echo xls('Gest age') ?> ' +
+    if (description == '') description = '<?php echo xls('Gest age') ?>';
+    age = description + ' ' +
       weeks + (weeks == 1 ? ' <?php echo xls('week') ?>' : ' <?php echo xls('weeks') ?>') + ' ' +
       days  + (days  == 1 ? ' <?php echo xls('day') ?>' : ' <?php echo xls('days') ?>');
   }
@@ -50,7 +51,8 @@ function updateAgeString(fieldid, asof, format) {
         age = age + ' ' + (ageInMonths == 1 ? '<?php echo xls('month') ?>' : '<?php echo xls('months') ?>'); 
       }
     }
-    if (age != '') age = '<?php echo xls('Age') ?> ' + age;
+    if (description == '') description = '<?php echo xls('Age') ?>';
+    if (age != '') age = description + ' ' + age;
   }
   document.getElementById('span_' + fieldid).innerHTML = age;
 }
@@ -60,7 +62,6 @@ function updateAgeString(fieldid, asof, format) {
 //
 var cskerror = false; // to avoid repeating error messages
 function checkSkipConditions() {
-    
   var myerror = cskerror;
   var prevandor = '';
   var prevcond = false;
@@ -71,6 +72,7 @@ function checkSkipConditions() {
     var operator = skipArray[i].operator;
     var value    = skipArray[i].value;
     var is_radio = false;
+    var action   = skipArray[i].action;
     var tofind = id;
 
     if (itemid) tofind += '[' + itemid + ']';
@@ -85,7 +87,6 @@ function checkSkipConditions() {
     }
     if (srcelem == null) srcelem = document.getElementById('radio_' + tofind);
     if (srcelem == null) srcelem = document.getElementById('form_' + tofind) ;
-
     if (srcelem == null) srcelem = document.getElementById('text_' + tofind);
 
     if (srcelem == null) {
@@ -158,36 +159,61 @@ function checkSkipConditions() {
     var j = i + 1;
     if (j < skipArray.length && skipArray[j].target == target) continue;
 
-    // At this point condition indicates if the target should be hidden.
+    // At this point condition indicates the target should be hidden or have its value set.
 
-    var trgelem1 = document.getElementById('label_id_' + target);
-    var trgelem2 = document.getElementById('value_id_' + target);
+    if (action == 'skip') {
+      var trgelem1 = document.getElementById('label_id_' + target);
+      var trgelem2 = document.getElementById('value_id_text_' + target);
+      if (trgelem2 == null) {
+        trgelem2 = document.getElementById('value_id_' + target);
+      }
 
-    if (trgelem1 == null && trgelem2 == null) {
-        var trgelem1 = document.getElementById('label_' + target);
-        var trgelem2 = document.getElementById('text_' + target);
-        if(trgelem2 == null){
-            trgelem2 = document.getElementById('form_' + target);
-        }
-        if (trgelem1 == null && trgelem2 == null) {
-            if (!cskerror) alert('<?php echo xls('Cannot find a skip target field for'); ?> "' + target + '"');
-            myerror = true;
-            continue;
-        }
+      if (trgelem1 == null && trgelem2 == null) {
+          var trgelem1 = document.getElementById('label_' + target);
+          var trgelem2 = document.getElementById('text_' + target);
+          if(trgelem2 == null){
+              trgelem2 = document.getElementById('form_' + target);
+          }
+          if (trgelem1 == null && trgelem2 == null) {
+              if (!cskerror) alert('<?php echo xls('Cannot find a skip target field for'); ?> "' + target + '"');
+              myerror = true;
+              continue;
+          }
+      }
+
+      // Find the target row and count its cells, accounting for colspans.
+      var trgrow = trgelem1 ? trgelem1.parentNode : trgelem2.parentNode;
+      var rowcells = 0;
+      for (var itmp = 0; itmp < trgrow.cells.length; ++itmp) {
+        rowcells += trgrow.cells[itmp].colSpan;
+      }
+
+      // If the item occupies a whole row then undisplay its row, otherwise hide its cells.
+      var colspan = 0;
+      if (trgelem1) colspan += trgelem1.colSpan;
+      if (trgelem2) colspan += trgelem2.colSpan;
+      if (colspan < rowcells) {
+        if (trgelem1) trgelem1.style.visibility = condition ? 'hidden' : 'visible';
+        if (trgelem2) trgelem2.style.visibility = condition ? 'hidden' : 'visible';
+      }
+      else {
+        trgrow.style.display = condition ? 'none' : '';
+      }
     }
-    // If the item occupies a whole row then undisplay its row, otherwise hide its cells.
-    var colspan = 0;
-    if (trgelem1 && trgelem1.colSpan !=undefined )
-        colspan += trgelem1.colSpan;
-    if (trgelem2 && trgelem2.colSpan !=undefined)
-        colspan += trgelem2.colSpan;
-    if (colspan < 4) {
-      if (trgelem1) trgelem1.style.visibility = condition ? 'hidden' : 'visible';
-      if (trgelem2) trgelem2.style.visibility = condition ? 'hidden' : 'visible';
-    }
-    else {
-      if (trgelem1) trgelem1.parentNode.style.display = condition ? 'none' : '';
-      else          trgelem2.parentNode.style.display = condition ? 'none' : '';
+    else if (condition) { // action starts with "value="
+      var trgelem = document.getElementById('form_' + target);
+      if (trgelem == null) {
+        if (!cskerror) alert('Cannot find a value target field "' + trgelem + '"');
+        myerror = true;
+        continue;
+      }
+      var action_value = action.substring(6);
+      if (trgelem.type == 'checkbox') {
+        trgelem.checked = !(action_value == '0' || action_value == '');
+      }
+      else {
+        trgelem.value = action_value;
+      }
     }
   }
   // If any errors, all show in the first pass and none in subsequent passes.

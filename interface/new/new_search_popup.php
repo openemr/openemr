@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2010, 2017 Rod Roark <rod@sunsetsystems.com>
 // Some code was adapted from patient_select.php.
 //
 // This program is free software; you can redistribute it and/or
@@ -216,7 +216,7 @@ $tres = sqlStatement("SELECT field_id, title FROM layout_options " .
   "( uor > 1 OR uor > 0 AND edit_options LIKE '%D%' ) AND " .
   "field_id NOT LIKE 'title' AND " .
   "field_id NOT LIKE '_name' " .
-  "ORDER BY group_name, seq, title LIMIT 9");
+  "ORDER BY group_id, seq, title LIMIT 9");
 
 while ($trow = sqlFetchArray($tres)) {
     $extracols[$trow['field_id']] = $trow['title'];

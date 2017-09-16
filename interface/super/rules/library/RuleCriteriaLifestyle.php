@@ -47,10 +47,10 @@ class RuleCriteriaLifestyle extends RuleCriteria
 
     function getOptions()
     {
-
         $stmt = sqlStatement(
-            "SELECT field_id, title FROM layout_options "
-            ."WHERE form_id = 'HIS' AND group_name LIKE '%Lifestyle%'"
+            "SELECT lo.field_id, lo.title FROM layout_options AS lo, layout_group_properties AS lp "
+            . "WHERE lo.form_id = 'HIS' AND lp.grp_form_id = lo.form_id AND lp.grp_group_id = lo.group_id "
+            . "AND lp.grp_title LIKE '%Lifestyle%'"
         );
 
         $options = array();

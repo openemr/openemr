@@ -25,6 +25,31 @@ $(document).ready(function(){
     tabbify();
 });
 </script>
+
+<style type="text/css">
+<?php
+// This is for layout font size override.
+$grparr = array();
+getLayoutProperties('HIS', $grparr, 'grp_size');
+if (!empty($grparr['']['grp_size'])) {
+    $FONTSIZE = $grparr['']['grp_size'];
+?>
+/* Override font sizes in the theme. */
+#HIS .groupname {
+  font-size: <?php echo attr($FONTSIZE); ?>pt;
+}
+#HIS .label {
+  font-size: <?php echo attr($FONTSIZE); ?>pt;
+}
+#HIS .data {
+  font-size: <?php echo attr($FONTSIZE); ?>pt;
+}
+#HIS .data td {
+  font-size: <?php echo attr($FONTSIZE); ?>pt;
+}
+<?php } ?>
+</style>
+
 </head>
 <body class="body_top">
 

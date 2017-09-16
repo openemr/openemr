@@ -23,7 +23,7 @@ if ($is_lbf) {
     $default = sqlQuery(
         "SELECT field_id, title FROM layout_options WHERE " .
         "form_id = ? AND uor > 0 AND edit_options LIKE '%G%' " .
-        "ORDER BY group_name DESC, seq DESC, title DESC LIMIT 1",
+        "ORDER BY group_id DESC, seq DESC, title DESC LIMIT 1",
         array($formname)
     );
 }
@@ -126,7 +126,9 @@ $(document).ready(function(){
 
   // show blood pressure graph by default
 <?php if ($is_lbf) { ?>
+<?php if (!empty($default)) { ?>
   show_graph('<?php echo $formname; ?>','<?php echo $default['field_id']; ?>','<?php echo $default['title']; ?>');
+<?php } ?>
 <?php } else { ?>
   show_graph('form_vitals','bps','');
 <?php } ?>

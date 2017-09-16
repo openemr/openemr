@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2008-2015 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008-2017 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,10 +17,11 @@ $template_file = $GLOBALS['OE_SITE_DIR'] . "/referral_template.html";
 
 $TEMPLATE_LABELS = array(
   'label_clinic_id'             => htmlspecialchars(xl('Clinic ID')),
+  'label_client_id'             => htmlspecialchars(xl('Client ID')),
   'label_control_no'            => htmlspecialchars(xl('Control No.')),
   'label_date'                  => htmlspecialchars(xl('Date')),
   'label_webpage_title'         => htmlspecialchars(xl('Referral Form')),
-  'label_form1_title'           => htmlspecialchars(xl('REFERRAL FORM')),
+  'label_form1_title'           => htmlspecialchars(xl('Referral Form')),
   'label_name'                  => htmlspecialchars(xl('Name')),
   'label_age'                   => htmlspecialchars(xl('Age')),
   'label_gender'                => htmlspecialchars(xl('Gender')),
@@ -39,7 +40,7 @@ $TEMPLATE_LABELS = array(
   'label_wt'                    => htmlspecialchars(xl('Weight')),
   'label_ref_name_sig'          => htmlspecialchars(xl('Referer name and signature')),
   'label_special_name_sig'      => htmlspecialchars(xl('Specialist name and signature')),
-  'label_form2_title'           => htmlspecialchars(xl('COUNTER REFERRAL FORM')),
+  'label_form2_title'           => htmlspecialchars(xl('Counter Referral Form')),
   'label_findings'              => htmlspecialchars(xl('Findings')),
   'label_final_diagnosis'       => htmlspecialchars(xl('Final Diagnosis')),
   'label_services_provided'     => htmlspecialchars(xl('Services provided')),
@@ -137,6 +138,13 @@ if (empty($facrow['facility_npi'])) {
     $facrow['facility_npi'] = '&nbsp;';
 }
 
+// Generate link to MA logo if it exists.
+$logo = "<!-- '$ma_logo_path' does not exist. -->";
+$ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
+if (is_file("$webserver_root/$ma_logo_path")) {
+    $logo = "<img src='$web_root/$ma_logo_path' style='height:" . round(9 * 5.14) . "pt' />";
+}
+
 $s = '';
 $fh = fopen($template_file, 'r');
 while (!feof($fh)) {
@@ -145,8 +153,8 @@ while (!feof($fh)) {
 
 fclose($fh);
 
-$s = str_replace("{header1}", genFacilityTitle($TEMPLATE_LABELS['label_form1_title'], -1), $s);
-$s = str_replace("{header2}", genFacilityTitle($TEMPLATE_LABELS['label_form2_title'], -1), $s);
+$s = str_replace("{header1}", genFacilityTitle($TEMPLATE_LABELS['label_form1_title'], -1, $logo), $s);
+$s = str_replace("{header2}", genFacilityTitle($TEMPLATE_LABELS['label_form2_title'], -1, $logo), $s);
 
 $s = str_replace("{fac_name}", $facrow['name'], $s);
 $s = str_replace("{fac_facility_npi}", $facrow['facility_npi'], $s);
@@ -155,7 +163,7 @@ $s = str_replace("{ref_pid}", $patient_id, $s);
 $s = str_replace("{pt_age}", $patient_age, $s);
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
-  "WHERE form_id = 'LBTref' ORDER BY group_name, seq");
+  "WHERE form_id = 'LBTref' ORDER BY group_id, seq");
 while ($frow = sqlFetchArray($fres)) {
     $data_type = $frow['data_type'];
     $field_id  = $frow['field_id'];

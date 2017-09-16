@@ -809,7 +809,7 @@ foreach (explode(',', $given) as $item) {
                 }
 
                     $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
-                    "WHERE form_id = 'HIS' AND group_name = '4Lifestyle' AND uor > 0 " .
+                    "WHERE form_id = 'HIS' AND group_id = '4' AND uor > 0 " .
                     "ORDER BY seq");
                     while ($group_fields = sqlFetchArray($group_fields_query)) {
                         $titlecols  = $group_fields['titlecols'];

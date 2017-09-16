@@ -27,11 +27,10 @@ $my_files = array(
   'letter_templates/custom_pdf.php',
 );
 // Append LBF plugin filenames to the array.
-$lres = sqlStatement('SELECT * FROM list_options ' .
-  "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
+$lres = sqlStatement('SELECT grp_form_id FROM layout_group_properties ' .
+    "WHERE grp_form_id LIKE 'LBF%' AND grp_group_id = '' AND grp_activity = 1 ORDER BY grp_seq, grp_title");
 while ($lrow = sqlFetchArray($lres)) {
-    $option_id = $lrow['option_id']; // should start with LBF
-    $title = $lrow['title'];
+    $option_id = $lrow['grp_form_id']; // should start with LBF
     $my_files[] = "LBF/$option_id.plugin.php";
 }
 

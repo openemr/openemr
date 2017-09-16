@@ -5,14 +5,14 @@ $GLOBALS['form_exit_url'] = "$rootdir/patient_file/encounter/encounter_top.php";
 
 function getFormById($id, $cols = "*")
 {
-    $sql = "select $cols from forms where id='$id' order by date DESC limit 0,1";
+    $sql = "select $cols from forms where id='$id' and deleted = 0 order by date DESC limit 0,1";
     //echo $sql . "<br />";
     return sqlQuery($sql);
 }
 
 function getFormInfoById($id, $cols = "*")
 {
-    $sql = "select $cols from forms where id='$id' order by date DESC limit 0,1";
+    $sql = "select $cols from forms where id = '$id' and deleted = 0 order by date DESC limit 0,1";
     //echo $sql . "<br />";
     $result =  sqlQuery($sql);
     if ($result['formdir'] == "newpatient") {
@@ -28,14 +28,20 @@ function getFormInfoById($id, $cols = "*")
 
 function getFormsByPid($pid, $cols = "*")
 {
-    return sqlQuery("select $cols from forms where pid ='$pid'");
+    return sqlQuery("select $cols from forms where pid = '$pid' and deleted = 0");
 }
 
-function getFormByEncounter($attendant_id, $encounter, $cols = "form_id, form_name", $name = "")
-{
+function getFormByEncounter(
+    $attendant_id,
+    $encounter,
+    $cols = "form_id, form_name",
+    $name = "",
+    $orderby = "FIND_IN_SET(formdir,'vitals') DESC, date DESC"
+) {
+
     global $attendant_type;
     $arraySqlBind = array();
-    $sql = "select $cols from forms where encounter = ? ";
+    $sql = "select $cols from forms where encounter = ? and deleted = 0 ";
     array_push($arraySqlBind, $encounter);
     if (!empty($name)) {
         $sql .= "and form_name=? ";
@@ -49,8 +55,9 @@ function getFormByEncounter($attendant_id, $encounter, $cols = "form_id, form_na
     }
 
     array_push($arraySqlBind, $attendant_id);
-  // This puts vitals first in the list, and newpatient last:
-    $sql .= "ORDER BY FIND_IN_SET(formdir,'vitals') DESC, date DESC";
+
+    // Default $orderby puts vitals first in the list, and newpatient last:
+    $sql .= "ORDER BY $orderby";
 
     $res = sqlStatement($sql, $arraySqlBind);
 
@@ -105,7 +112,7 @@ function addForm(
 
 function authorizeForm($id, $authorized = "1")
 {
-    sqlQuery("update forms set authorized = '$authorized' where id = '$id'");
+    sqlQuery("update forms set authorized = '$authorized' where id = '$id' and deleted = 0");
 }
 
 function getEncounters($pid, $dateStart = '', $dateEnd = '', $encounterRuleType = '')
@@ -166,18 +173,18 @@ function getProviderIdOfEncounter($encounter)
 
 function getFormNameByFormdirAndFormid($formdir, $form_id)
 {
-        return sqlQuery("select form_name from forms where formdir='$formdir' and form_id='$form_id'");
+        return sqlQuery("select form_name from forms where formdir = '$formdir' and form_id = '$form_id' and deleted = 0");
 }
 
 function getFormIdByFormdirAndFormid($formdir, $form_id)
 {
-    $result = sqlQuery("select id from forms where formdir = ? and form_id =? ", array( $formdir, $form_id ));
+    $result = sqlQuery("select id from forms where formdir = ? and form_id = ? and deleted = 0 ", array( $formdir, $form_id ));
     return $result['id'];
 }
 
 function getFormNameByFormdir($formdir)
 {
-    return sqlQuery("select form_name from forms where formdir='$formdir'");
+    return sqlQuery("select form_name from forms where formdir = '$formdir' and deleted = 0");
 }
 
 function getDocumentsByEncounter($patientID = null, $encounterID = null)
