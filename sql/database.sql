@@ -1286,7 +1286,7 @@ CREATE TABLE `facility` (
   `city` varchar(255) default NULL,
   `state` varchar(50) default NULL,
   `postal_code` varchar(11) default NULL,
-  `country_code` varchar(10) default NULL,
+  `country_code` varchar(30) NOT NULL default '',
   `federal_ein` varchar(15) default NULL,
   `website` varchar(255) default NULL,
   `email` varchar(255) default NULL,
