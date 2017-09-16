@@ -278,7 +278,7 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
             $_SESSION['language_direction'] == 'rtl' ? true : false
         );
         ob_start();
-        echo readfile($file_to_send, "r");//this file contains the HTML to be converted to pdf.
+        readfile($file_to_send, "r");//this file contains the HTML to be converted to pdf.
         //echo $file;
         $content = ob_get_clean();
 
