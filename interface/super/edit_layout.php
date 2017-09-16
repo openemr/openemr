@@ -214,15 +214,22 @@ function swapGroups($id1, $id2)
 function tableNameFromLayout($layout_id)
 {
     // Skip layouts that store data in vertical tables.
-    if (substr($layout_id,0,3) == 'LBF' || substr($layout_id,0,3) == 'LBT' || $layout_id == "FACUSR") {
+    if (substr($layout_id, 0, 3) == 'LBF' || substr($layout_id, 0, 3) == 'LBT' || $layout_id == "FACUSR") {
         return '';
     }
-    if      ($layout_id == "DEM") $tablename = "patient_data";
-    else if ($layout_id == "HIS") $tablename = "history_data";
-    else if ($layout_id == "SRH") $tablename = "lists_ippf_srh";
-    else if ($layout_id == "CON") $tablename = "lists_ippf_con";
-    else if ($layout_id == "GCA") $tablename = "lists_ippf_gcac";
-    else die(xlt('Internal error in tableNameFromLayout') . '(' . text($layout_id) . ')');
+    if ($layout_id == "DEM") {
+        $tablename = "patient_data";
+    } elseif ($layout_id == "HIS") {
+        $tablename = "history_data";
+    } elseif ($layout_id == "SRH") {
+        $tablename = "lists_ippf_srh";
+    } elseif ($layout_id == "CON") {
+        $tablename = "lists_ippf_con";
+    } elseif ($layout_id == "GCA") {
+        $tablename = "lists_ippf_gcac";
+    } else {
+        die(xlt('Internal error in tableNameFromLayout') . '(' . text($layout_id) . ')');
+    }
     return $tablename;
 }
 
@@ -232,8 +239,9 @@ function tableNameFromLayout($layout_id)
 function addOrDeleteColumn($layout_id, $field_id, $add = true)
 {
     $tablename = tableNameFromLayout($layout_id);
-    if (!$tablename) return;
-
+    if (!$tablename) {
+        return;
+    }
     // Check if the column currently exists.
     $tmp = sqlQuery("SHOW COLUMNS FROM `$tablename` LIKE '$field_id'");
     $column_exists = !empty($tmp);
@@ -247,7 +255,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
             1,
             "$tablename ADD $field_id"
         );
-    } else if (!$add && $column_exists) {
+    } elseif (!$add && $column_exists) {
         // Do not drop a column that has any data.
         $tmp = sqlQuery("SELECT `$field_id` FROM `$tablename` WHERE " .
         "`$field_id` IS NOT NULL AND `$field_id` != '' LIMIT 1");
