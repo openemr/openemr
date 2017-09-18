@@ -158,20 +158,20 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
     //todo - checking necessary
     if(parent.left_nav) {
         parent.left_nav.setEncounter(<?php echo "'" . attr(oeFormatShortDate($date)) . "', '" . attr($encounter) . "', window.name"; ?>);
-        console.log('new - parent.left_nav is defined');
+        //console.log('new - parent.left_nav is defined');
     }
     else {
         parent.parent.frames["left_nav"].setEncounter(<?php echo "'" . attr(oeFormatShortDate($date)) . "', '" . attr($encounter) . "', window.name"; ?>);
-        console.log('new - parent.left_nav is undefined');
+        //console.log('new - parent.left_nav is undefined');
     }
 <?php } // end if new encounter ?>
     if(parent.left_nav) {
         parent.left_nav.loadFrame('enc2', window.name, '<?php echo $nexturl; ?>');
-        console.log('modify - parent.left_nav is defined');
+        //console.log('modify - parent.left_nav is defined');
     }
     else {
         parent.parent.frames["left_nav"].loadFrame('enc2', parent.name, '<?php echo $nexturl; ?>');
-        console.log('modify - parent.left_nav is undefined');
+        //console.log('modify - parent.left_nav is undefined');
     }
 </script>
 
