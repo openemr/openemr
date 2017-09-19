@@ -65,7 +65,7 @@ if (!acl_check('admin', 'super')) {
 }
 
 $form_step   = isset($_POST['form_step']) ? trim($_POST['form_step']) : '0';
-$form_status = isset($_POST['form_status' ]) ? trim($_POST['form_status' ]) : '';
+$form_status = isset($_POST['form_status' ]) ? text(trim($_POST['form_status' ])) : '';
 
 if (!empty($_POST['form_import'])) {
     $form_step = 1;
@@ -535,7 +535,7 @@ if ($form_step == 2) {
 </table>
 
 <input type='hidden' name='form_step' value='<?php echo attr($form_step); ?>' />
-<input type='hidden' name='form_status' value='<?php echo $form_status; ?>' />
+<input type='hidden' name='form_status' value='<?php echo attr($form_status); ?>' />
 
 </form>
 
