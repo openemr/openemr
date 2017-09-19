@@ -211,7 +211,7 @@ if ($next < $total) {
                  <span id='status_span'></span>
                  <div id='processing' style='margin:10px;display:none;'><img src='../../pic/ajax-loader.gif'/></div>
                 <?php } else { ?>
-                <a href='patient_reminders.php?patient_id=<?php echo $patient_id; ?>&mode=<?php echo $mode; ?>' class='css_button' onclick='top.restoreSession()'>
+                <a href='patient_reminders.php?patient_id=<?php echo attr($patient_id); ?>&mode=<?php echo attr($mode); ?>' class='css_button' onclick='top.restoreSession()'>
                   <span><?php echo htmlspecialchars(xl('Refresh'), ENT_NOQUOTES); ?></span>
                 </a>
                 <?php } ?>

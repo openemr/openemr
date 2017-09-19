@@ -19,7 +19,7 @@ if (isset($_GET["set_encounter"])) {
         setpid($set_pid);
     }
 
-    setencounter($_GET["set_encounter"]);
+    setencounter(attr($_GET["set_encounter"]));
 }
 ?>
 <html>
