@@ -274,7 +274,7 @@ if ($viewmode) {
 $facilities = $facilityService->getAllServiceLocations();
 if ($facilities) {
     foreach ($facilities as $iter) {
-        if ($iter['billing_location'] == 1){
+        if ($iter['billing_location'] == 1) {
             $posCode = $iter['pos_code'];
         }
     ?>
