@@ -24,6 +24,12 @@
  require_once("$srcdir/patient.inc");
  require_once("lib/portal_mail.inc");
 
+if ($_SESSION['register'] == true) {
+    session_destroy();
+    header('Location: '.$landingpage.'&w');
+    exit();
+}
+
 if (!isset($_SESSION['portal_init'])) {
     $_SESSION['portal_init'] = true;
 }

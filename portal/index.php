@@ -274,7 +274,8 @@ if (!(isset($_SESSION['password_update']))) {
 } ?>
 
         <tr>
-            <td colspan=2><br><center><input type="submit" value="<?php echo xlt('Log In');?>" /></center></td>
+            <td colspan=2><br><center><input type="submit" value="<?php echo xlt('Log In');?>" />
+            <input type="button" onclick="location.replace('./account/register.php')" value="<?php echo xlt('Register');?>" /></center></td>
         </tr>
         </table>
             <?php if (!(empty($hiddenLanguageField))) {
