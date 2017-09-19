@@ -274,6 +274,9 @@ if ($viewmode) {
 $facilities = $facilityService->getAllServiceLocations();
 if ($facilities) {
     foreach ($facilities as $iter) {
+        if($iter['billing_location'] == 1){
+            $posCode = $iter['pos_code'];
+        }
     ?>
        <option value="<?php echo attr($iter['id']); ?>" <?php if ($def_facility == $iter['id']) {
             echo "selected";
@@ -306,7 +309,7 @@ if ($facilities) {
 
                 foreach ($pc->get_pos_ref() as $pos) {
                     echo "<option value=\"" . attr($pos["code"]) . "\" ";
-                    if ($pos["code"] == $result['pos_code']) {
+                    if ($pos["code"] == $result['pos_code'] || $pos["code"] == $posCode) {
                         echo "selected";
                     }
 
