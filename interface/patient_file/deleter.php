@@ -409,7 +409,8 @@ if ($_POST['form_submit']) {
     }
 
     if ($encounterid) { //this code need to be same as 'parent.imdeleted($encounterid)' when the popup is div like
-        echo "window.opener.imdeleted(" . attr($encounterid) . ");\n";
+        // convert all characters to HTML entities to prevent xss attack with additional parentheses
+        echo "window.opener.imdeleted(" . htmlentities($encounterid, ENT_HTML5) . ");\n";
     } else {
         echo " if (opener && opener.imdeleted) opener.imdeleted(); else parent.imdeleted();\n";
     }
