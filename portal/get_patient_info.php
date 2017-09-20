@@ -116,7 +116,8 @@ if (empty($auth[COL_POR_SALT])) {
         $auth[COL_ID]
     ));
 } else {
-    if (oemr_password_hash($plain_code, $auth[COL_POR_SALT]) != $auth[COL_POR_PWD]) {
+    $tmp = oemr_password_hash($plain_code, $auth[COL_POR_SALT]);
+    if ($tmp != $auth[COL_POR_PWD]) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid password'), '', '0');
         session_destroy();
         header('Location: ' . $landingpage . '&w');
@@ -147,6 +148,7 @@ if ($userData = sqlQuery($sql, array(
 
     if ($userData['allow_patient_portal'] != "YES") {
         // Patient has not authorized portal, so escape
+        $logit->portalLog('login attempt', '', ($_POST['uname'] . ':allow portal turned off'), '', '0');
         session_destroy();
         header('Location: ' . $landingpage . '&w');
         exit();

@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-<html>
 <?php
 /**
  *
@@ -33,9 +31,9 @@
      *  $row['city'] or $row['postalCode'] e.t.c.. The keys do not match table columns ie postalCode here is postal_code in table.
      *  */
     $row = array();
-    if ($this->trow ) {
-        $row = $this->trow;
-    }
+if ($this->trow) {
+    $row = $this->trow;
+}
 
     echo "<script>var register='" . attr($this->register) . "';var recid='" . attr($this->recid) . "';var webRoot='" . $GLOBALS['web_root'] . "';var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cuser) . "';</script>";
     $_SESSION['whereto'] = 'profilepanel';

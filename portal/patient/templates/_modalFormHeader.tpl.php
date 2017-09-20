@@ -21,6 +21,8 @@
  * @link http://www.open-emr.org
  */
 ?>
+<!DOCTYPE html>
+<html>
 <head>
 <meta charset="utf-8">
 

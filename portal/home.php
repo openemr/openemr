@@ -67,8 +67,8 @@ $(document).ready(function(){
     });
     $("#appointmentslist").load("./get_appointments.php", { 'embeddedScreen' : true  }, function() {
         $("#reports").load("./report/portal_patient_report.php?pid='<?php echo attr($pid) ?>'", { 'embeddedScreen' : true  }, function() {
-       /*  $("#payment").load("./portal_payment.php", { 'embeddedScreen' : true  }, function() {
-            }); */
+         $("#payment").load("./portal_payment.php", { 'embeddedScreen' : true  }, function() {
+            });/* */
         });
     });
     $("#medicationlist").load("./get_medications.php", { 'embeddedScreen' : true  }, function() {
@@ -195,14 +195,14 @@ $(document).ready(function(){
                 </div><!-- /.col -->
             </div><!-- /.row -->
             <div class="row">
-                <!--<div class="col-sm-12">
+               <div class="col-sm-12">
                     <div class="panel panel-primary collapse" id="paymentpanel">
                         <header class="panel-heading"> <?php echo xlt('Payments'); ?> </header>
                         <div id="payment" class="panel-body"></div>
                         <div class="panel-footer">
                         </div>
                     </div>
-                </div> /.col -->
+                </div> <!--/.col  -->
             </div>
             <div class="row">
                 <div class="col-sm-12">

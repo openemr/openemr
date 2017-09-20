@@ -6,6 +6,8 @@ if ($_SESSION['patient_portal_onsite_two'] && $_SESSION['pid']) {
 
 require_once("../../interface/globals.php");
 include_once("$srcdir/patient.inc");
+require_once(dirname(__FILE__) . "/../lib/portal_mail.inc");
+require_once("$srcdir/pnotes.inc");
 
 $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
 
@@ -49,7 +51,40 @@ if ($action == 'new_insurance') {
     exit();
 }
 
+if ($action == 'notify_admin') {
+    $pid = $_REQUEST['pid'];
+    $provider = $_REQUEST['provider'];
+    $rtn = notify_admin($pid, $provider);
+    echo "$rtn";
+
+    exit();
+}
+
+if ($action == 'cleanup') {
+    unset($_SESSION['patient_portal_onsite_two']);
+    unset($_SESSION['authUser']);
+    unset($_SESSION['pid']);
+    unset($_SESSION['site_id']);
+    unset($_SESSION['register']);
+    echo 'gone';
+    session_destroy(); // I know, makes little sense.
+}
+
 exit();
+
+/* Library functions */
+
+function notify_admin($pid, $provider)
+{
+
+    $note = xlt("New patient registration received from patient portal. Reminder to check for possible new appointment");
+    $title = xlt("New Patient");
+    $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($provider));
+
+    $rtn = addPnote($pid, $note, 1, 1, $title, $user['username'], '', 'New');
+
+    return $rtn;
+}
 
 function is_new($dob, $lname = '', $fname = '')
 {

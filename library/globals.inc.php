@@ -2421,6 +2421,13 @@ $GLOBALS_METADATA = array(
             xl('Website link for the Version 2 Onsite Patient Portal.')
         ),
 
+        'portal_onsite_two_register' => array(
+            xl('Allow Version 2 Onsite New Patient Registration Widget'),
+            'bool',                           // data type
+            '1',
+            xl('Enable Version 2 Onsite Patient Portal new patient to self register.')
+        ),
+
         'portal_onsite_enable' => array(
             xl('Enable Version 1 Onsite Patient Portal'),
             'bool',                           // data type
@@ -2636,7 +2643,7 @@ $GLOBALS_METADATA = array(
             xl('Log all NewCrop eRx Requests and / or Responses.'),
         ),
 
-       'weno_rx_enable' => array(
+        'weno_rx_enable' => array(
             xl('Enable Weno eRx Service'),
             'bool',
             '0',

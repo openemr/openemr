@@ -35,6 +35,8 @@
     //includes
     require_once('../interface/globals.php');
 
+    use OpenEMR\Core\Header;
+
     ini_set("error_log", E_ERROR || ~E_NOTICE);
     //exit if portal is turned off
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
@@ -105,10 +107,11 @@ if (!(isset($_SESSION['password_update']))) {
 <html>
 <head>
     <title><?php echo xlt('Patient Portal Login'); ?></title>
-
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js"></script>
+<?php Header::setupHeader(['datetime-picker']); ?>
+    <!-- <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js"></script> -->
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery.gritter-1-7-4/js/jquery.gritter.min.js"></script>
-
+    <!-- <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script> -->
     <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery.gritter-1-7-4/css/jquery.gritter.css" />
     <link rel="stylesheet" type="text/css" href="assets/css/base.css?v=<?php echo $v_js_includes; ?>" />
 
@@ -169,30 +172,39 @@ if (!(isset($_SESSION['password_update']))) {
             return pass;
         }
     </script>
-    <style type="text/css">
-    body {
-        font-family: sans-serif;
-        background-color: #638fd0;
+<style type="text/css">
+body {
+     font-family: sans-serif;
+/*  background-color: #638fd0;
 
-        background: -webkit-radial-gradient(circle, white, #638fd0);
-        background: -moz-radial-gradient(circle, white, #638fd0);
-    }
-
-    </style>
-
-
+    background: -webkit-radial-gradient(circle, white, #638fd0);
+    background: -moz-radial-gradient(circle, white, #638fd0); */
+}
+input[type="password"] {
+    background: #ffffff;
+    border: 1px solid #444444;
+    padding: 3px;
+    margin: 3px;
+}
+input[type="email"] {
+    background: #ffffff;
+    border: 1px solid #444444;
+    padding: 3px;
+    margin: 3px;
+}
+</style>
 </head>
 <body>
 <br><br>
-    <center>
+<div class="container">
 
     <?php if (isset($_SESSION['password_update'])||isset($_GET['password_update'])) {
         $_SESSION['password_update']=1;
         ?>
-      <div id="wrapper" class="centerwrapper">
+      <div id="wrapper" class="centerwrapper" style="text-align:center;">
         <h2 class="title"><?php echo xlt('Please Enter a New Password'); ?></h2>
         <form action="get_patient_info.php" method="POST" onsubmit="return process_new_pass()" >
-            <table>
+            <table style="width:100%">
                 <tr>
                     <td class="algnRight"><?php echo xlt('User Name'); ?></td>
                     <td><input name="uname" id="uname" type="text" autocomplete="off" value="<?php echo attr($_SESSION['portal_username']); ?>"/></td>
@@ -200,7 +212,7 @@ if (!(isset($_SESSION['password_update']))) {
                 <tr>
                     <td class="algnRight"><?php echo xlt('Current Password');?></>
                     <td>
-                        <input name="pass" id="pass" type="password" autocomplete="off" />
+                        <input name="pass" id="pass" type="password" autocomplete="off" value="" />
                     </td>
                 </tr>
                 <tr>
@@ -215,6 +227,12 @@ if (!(isset($_SESSION['password_update']))) {
                         <input name="pass_new_confirm" id="pass_new_confirm" type="password" />
                     </td>
                 </tr>
+                 <tr>
+                    <td class="algnRight"><?php echo xlt('Confirm Email Address');?></>
+                    <td>
+                        <input name="passaddon" id="passaddon" placeholder="Your on file email address" type="email" autocomplete="off" value=""  />
+                    </td>
+                </tr>
                 <tr>
                     <td colspan=2><br><center><input type="submit" value="<?php echo xlt('Log In');?>" /></center></td>
                 </tr>
@@ -226,21 +244,22 @@ if (!(isset($_SESSION['password_update']))) {
       </div>
 
     <?php } else { ?>
-      <div id="wrapper" class="centerwrapper">
+    <div id="wrapper" class="centerwrapper" style="text-align:center;" >
     <h2 class="title"><?php echo xlt('Patient Portal Login'); ?></h2>
-    <form action="get_patient_info.php" method="POST" onsubmit="return process()" >
-        <table>
+    <form  action="get_patient_info.php" method="POST" onsubmit="return process()" >
+        <table style="width:100%">
         <tr>
             <td class="algnRight"><?php echo xlt('User Name'); ?></td>
             <td><input name="uname" id="uname" type="text" autocomplete="on" /></td>
         </tr>
         <tr>
-            <td class="algnRight"><?php echo xlt('Password');?></>
-            <td>
-            <input name="pass" id="pass" type="password" required autocomplete="on" /><input name="passaddon" id="passaddon" placeholder="Email" type="email" autocomplete="on" />
-            </td>
+            <td class="algnRight"><?php echo xlt('Password');?></td>
+            <td><input name="pass" id="pass" type="password" required autocomplete="on" /></td>
         </tr>
-
+        <tr>
+            <td class="algnRight"><?php echo xlt('Email');?></td>
+            <td><input name="passaddon" id="passaddon" placeholder="On file Email" type="email" autocomplete="on" /></td>
+        </tr>
                 <?php if ($GLOBALS['language_menu_login']) { ?>
                     <?php if (count($result3) != 1) { ?>
                   <tr>
@@ -261,7 +280,6 @@ if (!(isset($_SESSION['password_update']))) {
                                         if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
                                             continue; // skip the dummy language
                                         }
-
                                         echo "<option value='".htmlspecialchars($iter['lang_id'], ENT_QUOTES)."'>".htmlspecialchars($iter['trans_lang_description'], ENT_NOQUOTES)."</option>\n";
                                     }
                                 }
@@ -272,22 +290,26 @@ if (!(isset($_SESSION['password_update']))) {
                   </tr>
                 <?php }
 } ?>
-
         <tr>
-            <td colspan=2><br><center><input type="submit" value="<?php echo xlt('Log In');?>" />
-            <input type="button" onclick="location.replace('./account/register.php')" value="<?php echo xlt('Register');?>" /></center></td>
+            <td colspan=2><br>
+            <?php if ($GLOBALS['portal_onsite_two_register']) { ?>
+                <input type="button" onclick="location.replace('./account/register.php')" value="<?php echo xlt('Register');?>" /></center>
+            <?php } ?>
+                <input class="pull-right" type="submit" value="<?php echo xlt('Log In');?>" />
+            </td>
         </tr>
         </table>
             <?php if (!(empty($hiddenLanguageField))) {
                 echo $hiddenLanguageField;
 } ?>
     </form>
-
         <div class="copyright"><?php echo xlt('Powered by');?> OpenEMR</div>
-      </div><div><img src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png'/></div>
-    <?php } ?>
+      </div>
+      <div><img src='<?php echo $GLOBALS['images_static_relative']; ?>/login-logo.png'/></div>
 
-    </center>
+    <?php } ?> <!--  logon wrapper -->
+</div>
+
 
 <script type="text/javascript">
       $(document).ready(function() {

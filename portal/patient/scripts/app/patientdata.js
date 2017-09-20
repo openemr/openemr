@@ -244,12 +244,6 @@ var page = {
 		$('#'+a+'InputContainer span.help-inline').html('');
 		$('#'+a+'InputContainer span.help-inline').html( '<a class="editval" style="color:red;font-size:16px" onclick="page.revertVal(this); return false;" data-tstate=chart data-id="'+a+'">'+v+'</a>');
 		$('#'+a+'InputContainer span.help-inline').show();
-		/*if( !$("#donePatientButton").is(":visible") ){
-			$("#donePatientButton").show();
-		}
-		if( !$("#savePatientButton").is(":visible") ){
-			$('#savePatientButton').show();
-		}*/
 	},
 	revertVal:function( el ){
 		var a = $(el).data('id');
