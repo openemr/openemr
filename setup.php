@@ -133,7 +133,7 @@ if (file_exists($OE_SITE_DIR)) {
 <HTML>
 <HEAD>
 <TITLE>OpenEMR Setup Tool</TITLE>
-<LINK REL=STYLESHEET HREF="interface/themes/style_sky_blue.css">
+<LINK REL=STYLESHEET HREF="interface/themes/style_blue.css">
 <link rel="shortcut icon" href="public/images/favicon.ico" />
 
 <style>
