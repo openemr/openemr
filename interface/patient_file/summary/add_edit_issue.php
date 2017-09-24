@@ -45,7 +45,7 @@ if (isset($ISSUE_TYPES['ippf_gcac'])) {
     }
 }
 
-$issue = $_REQUEST['issue'];
+$issue = filter_var($_REQUEST['issue'], FILTER_VALIDATE_INT);
 $thispid = 0 + (empty($_REQUEST['thispid']) ? $pid : $_REQUEST['thispid']);
 $info_msg = "";
 
