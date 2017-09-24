@@ -65,7 +65,7 @@ if (!acl_check('admin', 'super')) {
 }
 
 $form_step   = isset($_POST['form_step']) ? trim($_POST['form_step']) : '0';
-$form_status = isset($_POST['form_status' ]) ? text(trim($_POST['form_status' ])) : '';
+$form_status = isset($_POST['form_status' ]) ? trim($_POST['form_status' ]) : '';
 
 if (!empty($_POST['form_import'])) {
     $form_step = 1;
@@ -155,7 +155,7 @@ if ($form_step == 1) {
         $lab_id = getLabID($form_vendor);
 
         $form_status .= xlt('Applying') . "...<br />";
-        echo nl2br($form_status);
+        echo nl2br(text($form_status));
 
         $fhcsv = fopen($_FILES['userfile']['tmp_name'], "r");
 
@@ -524,7 +524,7 @@ if ($form_step == 1) {
 
 if ($form_step == 2) {
     $form_status .= xlt('Done') . ".";
-    echo nl2br($form_status);
+    echo nl2br(text($form_status));
 }
 
 ++$form_step;

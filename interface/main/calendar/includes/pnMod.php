@@ -700,7 +700,7 @@ function pnModURL($modname, $type = 'user', $func = 'main', $args = array(), $pa
     //this may break windows path accesses?
     $path = preg_replace("/[^\.\/a-zA-Z0-9]/", "", $path)
     ;
-    //convert url characters html entities
+    //Escapes several special chars
     $url=attr($url);
     // The URL
     $final_url = pnGetBaseURL() . $path . $url;
