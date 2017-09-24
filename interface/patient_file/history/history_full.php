@@ -248,7 +248,7 @@ div.tab {
                 <input type='hidden' name='mode' value='save'>
 
                 <div class="page-header">
-                    <h1><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?>&nbsp;<small><?php echo htmlspecialchars(xl('History & Lifestyle'), ENT_NOQUOTES); ?></h1>
+                    <h2><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?>&nbsp;<small><?php echo htmlspecialchars(xl('History & Lifestyle'), ENT_NOQUOTES); ?></h2>
                 </div>
                 <div class="btn-group">
                     <button type="submit" class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>
