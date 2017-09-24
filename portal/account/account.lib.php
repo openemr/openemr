@@ -1,16 +1,80 @@
 <?php
-/**
- * Ajax Library for Register
- *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
- * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
- */
-/* Library functions for register*/
+session_start();
+if ($_SESSION['patient_portal_onsite_two'] && $_SESSION['pid']) {
+    $ignoreAuth_onsite_portal_two = true;
+}
 
-function notifyAdmin($pid, $provider)
+require_once("../../interface/globals.php");
+include_once("$srcdir/patient.inc");
+require_once(dirname(__FILE__) . "/../lib/portal_mail.inc");
+require_once("$srcdir/pnotes.inc");
+
+$action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
+
+if ($action == 'set_lang') {
+    $_SESSION['language_choice'] = (int) $_REQUEST['value'];
+    echo 'okay';
+    exit();
+}
+
+if ($action == 'get_newpid') {
+    $rtn = is_new($_REQUEST['dob'], $_REQUEST['last'], $_REQUEST['first']);
+    if ((int) $rtn != 0) {
+        echo xlt("This account already exists.") . "\r\n\r\n" . xlt("If you are having troubles logging into your account.") . "\r\n" . xlt("Please contact your provider.") . "\r\n" .
+             xla("Reference this Account Id: ") . $rtn;
+        exit();
+    }
+    $rtn = attr(get_newPid());
+    echo "$rtn";
+
+    exit();
+}
+
+if ($action == 'is_new') {
+    $rtn = is_new($_REQUEST['dob'], $_REQUEST['last'], $_REQUEST['first']);
+    echo "$rtn";
+
+    exit();
+}
+
+if ($action == 'do_signup') {
+    $rtn = do_credentials($_REQUEST['pid']);
+    echo "$rtn";
+
+    exit();
+}
+
+if ($action == 'new_insurance') {
+    $pid = $_REQUEST['pid'];
+    save_insurance($pid);
+
+    exit();
+}
+
+if ($action == 'notify_admin') {
+    $pid = $_REQUEST['pid'];
+    $provider = $_REQUEST['provider'];
+    $rtn = notify_admin($pid, $provider);
+    echo "$rtn";
+
+    exit();
+}
+
+if ($action == 'cleanup') {
+    unset($_SESSION['patient_portal_onsite_two']);
+    unset($_SESSION['authUser']);
+    unset($_SESSION['pid']);
+    unset($_SESSION['site_id']);
+    unset($_SESSION['register']);
+    echo 'gone';
+    session_destroy(); // I know, makes little sense.
+}
+
+exit();
+
+/* Library functions */
+
+function notify_admin($pid, $provider)
 {
 
     $note = xlt("New patient registration received from patient portal. Reminder to check for possible new appointment");
@@ -22,7 +86,7 @@ function notifyAdmin($pid, $provider)
     return $rtn;
 }
 
-function isNew($dob, $lname = '', $fname = '')
+function is_new($dob, $lname = '', $fname = '')
 {
     $last = '%' . trim($lname) . '%';
     $first = '%' . trim($fname) . '%';
@@ -35,11 +99,11 @@ function isNew($dob, $lname = '', $fname = '')
             $first,
             $dob
         )
-        );
+    );
     return $row['pid'] ? $row['pid'] : 0;
 }
 
-function saveInsurance($pid)
+function save_insurance($pid)
 {
     newInsuranceData(
         $pid = $pid,
@@ -71,12 +135,12 @@ function saveInsurance($pid)
         $effective_date = $_REQUEST['date'],
         $accept_assignment = "TRUE",
         $policy_type = ""
-        );
+    );
     newInsuranceData($pid, "secondary");
     newInsuranceData($pid, "tertiary");
 }
 
-function getNewPid()
+function get_newPid()
 {
     $result = sqlQuery("select max(pid)+1 as pid from patient_data");
     $newpid = 1;
@@ -141,7 +205,7 @@ function messageCreate($uname, $pass)
     return $message;
 }
 
-function doCredentials($pid)
+function do_credentials($pid)
 {
     global $srcdir;
     require_once("$srcdir/authentication/common_operations.php");

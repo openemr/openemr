@@ -139,11 +139,9 @@
                             <li data-toggle="pill"><a href="#ledgerpanel" data-toggle="collapse"
                                 data-parent="#panelgroup"> <i class="fa fa-folder-open"></i> <span><?php echo xlt('Ledger'); ?></span>
                             </a></li>
-                            <?php if ($GLOBALS['portal_two_payments']) { ?>
-                                <li data-toggle="pill"><a href="#paymentpanel" data-toggle="collapse"
-                                    data-parent="#panelgroup"> <i class="fa fa-credit-card"></i> <span><?php echo xlt('Make Payment'); ?></span>
-                                </a></li>
-                            <?php } ?>
+                            <li data-toggle="pill"><a href="#paymentpanel" data-toggle="collapse"
+                                data-parent="#panelgroup"> <i class="fa fa-credit-card"></i> <span><?php echo xlt('Make Payment'); ?></span>
+                            </a></li><!--  -->
                         </ul></li>
                     <li class="dropdown reporting-menu"><a href="#"
                         class="dropdown-toggle" data-toggle="dropdown"> <i
