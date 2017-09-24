@@ -1,23 +1,29 @@
 <?php
-//For some reason linked session wants to stick around. Think I have it covered?
-unset($_SESSION['itsme']);
-session_destroy();
+/**
+ * Portal Registration Wizard
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+ */
+
 session_start();
 session_regenerate_id(true);
 
+unset($_SESSION['itsme']);
 $_SESSION['patient_portal_onsite_two'] = true;
 $_SESSION['authUser'] = 'portal-user';
 $_SESSION['pid'] = true;
-$_SESSION['site_id'] = 'default';
 $_SESSION['register'] = true;
 
+$_SESSION['site_id'] = isset($_SESSION['site_id']) ? $_SESSION['site_id'] : 'default';
 $landingpage = "index.php?site=" . $_SESSION['site_id'];
 
 $ignoreAuth_onsite_portal_two = true;
 
 require_once("../../interface/globals.php");
-
-// use OpenEMR\Core\Header; // see later comment.
 
 $res2 = sqlStatement("select * from lang_languages where lang_description = ?", array(
     $GLOBALS['language_default']
@@ -71,7 +77,6 @@ if ($GLOBALS['language_menu_login']) {
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <title><?php echo xlt('New Patient'); ?> | <?php echo xlt('Register'); ?></title>
 <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 <meta name="description" content="Developed By sjpadgett@gmail.com">
@@ -87,8 +92,6 @@ if ($GLOBALS['language_menu_login']) {
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/emodal-1-2-65/dist/eModal.js"></script>
-
-<?php //Header::setupHeader(['datetime-picker']); ?> <!-- @TODO This is nice but style sheet steps on bootstrap styles to the point of losing funtionality, especially buttons -->
 
 <script>
 var newPid = 0;
@@ -231,7 +234,7 @@ $(document).ready(function () {
 
     $("#insuranceForm").submit(function (e) {
         e.preventDefault();
-        var url = "account.lib.php?action=new_insurance&pid=" + newPid;
+        var url = "account.php?action=new_insurance&pid=" + newPid;
         $.ajax({
             url: url,
             type: 'post',
@@ -253,7 +256,7 @@ $(document).ready(function () {
 
 });
 
-function doCredentials(pid) { //@TODO Could get rid of and call callServer direct.
+function doCredentials(pid) {
     callServer('do_signup', pid);
 }
 
@@ -299,14 +302,14 @@ function callServer(action, value, value2, last, first) {
             'pid': value
         };
     }
-    if (action == 'notify_admin') {
+    else if (action == 'notify_admin') {
         data = {
             'action': action,
             'pid': value,
             'provider': value2
         };
     }
-    if (action == 'cleanup') {
+    else if (action == 'cleanup') {
         data = {
             'action': action
         };
@@ -314,48 +317,46 @@ function callServer(action, value, value2, last, first) {
     // The magic that is jquery ajax.l
     $.ajax({
         type : 'GET',
-        url : 'account.lib.php',
+        url : 'account.php',
         data : data
     }).done(function (rtn) {
         if (action == "cleanup") {
             window.location.href = "./../index.php" // Goto landing page.
         }
-        if (action == "set_lang") {
+        else if (action == "set_lang") {
             window.location.href = window.location.href;
         }
-        if (action == "get_newpid") {
-            if (parseInt(rtn) > 0) { // set pid for restfull save
+        else if (action == "get_newpid") {
+            if (parseInt(rtn) > 0) {
                 newPid = rtn;
                 $("#profileFrame").contents().find('input#pubpid').val(newPid);
                 $("#profileFrame").contents().find('input#pid').val(newPid);
-            } else { // After error alert app exit to landing page.
-                eModal.alert(rtn); // Existing user error. Error message is translated in account.lib.php. :)
+            }
+            else {
+                // After error alert app exit to landing page.
+                // Existing user error. Error message is translated in account.lib.php.
+                eModal.alert(rtn);
             }
         }
-        if (action == 'do_signup') {
+        else if (action == 'do_signup') {
             if (rtn == "") {
                 var message = "<?php echo xlt('Unable to either create credentials or send email.'); ?>";
                 alert(message);
                 return false;
             }
-
             // For production. Here we're finished so do signup closing alert and then cleanup.
             callServer('notify_admin', newPid, provider); // pnote notify to selected provider
-            // I left alert below for ease of testing.
-            //alert(rtn); // sync alert.. rtn holds username and password for testing. @TODO disable for production.
+            // alert below for ease of testing.
+            // alert(rtn); // sync alert.. rtn holds username and password for testing.
 
-            var message = "<?php echo xlt(" Your new credentials have been sent.Check your email inbox and also possibly your spam folder." .
-                                    " Once you log into your patient portal feel free to make an appointment or send us a secure message." . " We look forward to seeing you soon."); ?>"
-
-                eModal.alert(message); // This is an async call. The modal close event exits us to portal landing page after cleanup.
-
+            var message = "<?php echo xlt(" Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>"
+            eModal.alert(message); // This is an async call. The modal close event exits us to portal landing page after cleanup.
         }
-    }).fail(function (err) { // @TODO Where nobody wants to go. Maybe something better here besides ooops!
-        var message = "<?php echo xlt('Something went wrong.' + " "+ err) ?>";
+    }).fail(function (err) {
+        var message = "<?php echo xlt('Something went wrong.') ?>" + " "+ err;
         alert(message);
     });
 }
-
 </script>
 </head>
 <body>
@@ -421,19 +422,19 @@ function callServer(action, value, value2, last, first) {
                                     <div class="form-group inline">
                                         <label class="control-label" for="fname"><?php echo xlt('First')?></label>
                                         <div class="controls inline-inputs">
-                                            <input type="text" class="form-control" id="fname" required placeholder="<?php echo xla('First Name'); ?>">
+                                            <input type="text" class="form-control" id="fname" required placeholder="<?php echo xlt('First Name'); ?>">
                                         </div>
                                     </div>
                                     <div class="form-group inline">
                                         <label class="control-label" for="mname"><?php echo xlt('Middle')?></label>
                                         <div class="controls inline-inputs">
-                                            <input type="text" class="form-control" id="mname" placeholder="<?php echo xla('Full or Initial'); ?>">
+                                            <input type="text" class="form-control" id="mname" placeholder="<?php echo xlt('Full or Initial'); ?>">
                                         </div>
                                     </div>
                                     <div class="form-group inline">
                                         <label class="control-label" for="lname"><?php echo xlt('Last Name')?></label>
                                         <div class="controls inline-inputs">
-                                            <input type="text" class="form-control" id="lname" required placeholder="<?php echo xla('Enter Last'); ?>">
+                                            <input type="text" class="form-control" id="lname" required placeholder="<?php echo xlt('Enter Last'); ?>">
                                         </div>
                                     </div>
                                 </div>
@@ -442,7 +443,7 @@ function callServer(action, value, value2, last, first) {
                                 <label class="control-label" for="dob"><?php echo xlt('Birth Date')?></label>
                                 <div class="controls inline-inputs">
                                     <div class="input-group">
-                                        <input id="dob" type="text" required class="form-control datepicker" placeholder="<?php echo xla('YYYY-MM-DD'); ?>" />
+                                        <input id="dob" type="text" required class="form-control datepicker" placeholder="<?php echo xlt('YYYY-MM-DD'); ?>" />
                                     </div>
                                 </div>
                             </div>
@@ -462,7 +463,7 @@ function callServer(action, value, value2, last, first) {
             </div>
         </form>
 <!-- Profile Form -->
-        <form class="form-inline" id="profileForm" role="form" action="account.lib.php" method="post">
+        <form class="form-inline" id="profileForm" role="form" action="account.php" method="post">
             <div class="row setup-content" id="step-2" style="display: none">
                 <div class="col-md-9 col-md-offset-2 text-center">
                     <fieldset>
@@ -488,37 +489,37 @@ function callServer(action, value, value2, last, first) {
                             <div class="form-group inline">
                                 <label class="control-label" for="provider"><?php echo xlt('Insurance Company')?></label>
                                 <div class="controls inline-inputs">
-                                    <input type="text" class="form-control" name="provider" required placeholder="<?php echo xla('Insurance Company'); ?>">
+                                    <input type="text" class="form-control" name="provider" required placeholder="<?php echo xlt('Insurance Company'); ?>">
                                 </div>
                             </div>
                             <div class="form-group inline">
                                 <label class="control-label" for=""><?php echo xlt('Plan Name')?></label>
                                 <div class="controls inline-inputs">
-                                    <input type="text" class="form-control" name="plan_name" required placeholder="<?php echo xla('Required'); ?>">
+                                    <input type="text" class="form-control" name="plan_name" required placeholder="<?php echo xlt('Required'); ?>">
                                 </div>
                             </div>
                             <div class="form-group inline">
                                 <label class="control-label" for=""><?php echo xlt('Policy Number')?></label>
                                 <div class="controls inline-inputs">
-                                    <input type="text" class="form-control" name="policy_number" required placeholder="<?php echo xla('Required'); ?>">
+                                    <input type="text" class="form-control" name="policy_number" required placeholder="<?php echo xlt('Required'); ?>">
                                 </div>
                             </div>
                             <div class="form-group inline">
                                 <label class="control-label" for=""><?php echo xlt('Group Number')?></label>
                                 <div class="controls inline-inputs">
-                                    <input type="text" class="form-control" name="group_number" required placeholder="<?php echo xla('Required'); ?>">
+                                    <input type="text" class="form-control" name="group_number" required placeholder="<?php echo xlt('Required'); ?>">
                                 </div>
                             </div>
                             <div class="form-group inline">
                                 <label class="control-label" for=""><?php echo xlt('Policy Begin Date')?></label>
                                 <div class="controls inline-inputs">
-                                    <input type="text" class="form-control datepicker" name="date" placeholder="<?php echo xla('Policy effective date'); ?>">
+                                    <input type="text" class="form-control datepicker" name="date" placeholder="<?php echo xlt('Policy effective date'); ?>">
                                 </div>
                             </div>
                             <div class="form-group inline">
-                                <label class="control-label" for=""><?php echo xla('Co-Payment')?></label>
+                                <label class="control-label" for=""><?php echo xlt('Co-Payment')?></label>
                                 <div class="controls inline-inputs">
-                                    <input type="number" class="form-control" name="copay" placeholder="<?php echo xla('Plan copay if known'); ?>">
+                                    <input type="number" class="form-control" name="copay" placeholder="<?php echo xlt('Plan copay if known'); ?>">
                                 </div>
                             </div>
                         </div>
@@ -538,10 +539,7 @@ function callServer(action, value, value2, last, first) {
                             <h4 class='bg-success'><?php echo xlt("All set. Click Send Request below to finish registration") ?></h4>
                             <hr>
                             <p>
-                            <?php echo xlt("An e-mail with your new account credentials will be sent to the e-mail address supplied earlier.
-                            You may still review or edit any part of your information by using the top step buttons to go to the appropriate panels.
-                            Note to be sure you have given your correct e-mail address.
-                            If after receiving credentials and you have trouble with access to the portal, please contact administration.")?>
+                            <?php echo xlt("An e-mail with your new account credentials will be sent to the e-mail address supplied earlier. You may still review or edit any part of your information by using the top step buttons to go to the appropriate panels. Note to be sure you have given your correct e-mail address. If after receiving credentials and you have trouble with access to the portal, please contact administration.") ?>
                             </p>
                         </div>
                         <button class="btn btn-primary prevBtn btn-sm pull-left" type="button"><?php echo xlt('Previous') ?></button>

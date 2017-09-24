@@ -67,8 +67,9 @@ $(document).ready(function(){
     });
     $("#appointmentslist").load("./get_appointments.php", { 'embeddedScreen' : true  }, function() {
         $("#reports").load("./report/portal_patient_report.php?pid='<?php echo attr($pid) ?>'", { 'embeddedScreen' : true  }, function() {
-         $("#payment").load("./portal_payment.php", { 'embeddedScreen' : true  }, function() {
-            });/* */
+            <?php if ($GLOBALS['portal_two_payments']) { ?>
+                $("#payment").load("./portal_payment.php", { 'embeddedScreen' : true  }, function() { });
+            <?php } ?>
         });
     });
     $("#medicationlist").load("./get_medications.php", { 'embeddedScreen' : true  }, function() {
@@ -194,6 +195,7 @@ $(document).ready(function(){
                     </div><!-- /.panel -->
                 </div><!-- /.col -->
             </div><!-- /.row -->
+            <?php if ($GLOBALS['portal_two_payments']) { ?>
             <div class="row">
                <div class="col-sm-12">
                     <div class="panel panel-primary collapse" id="paymentpanel">
@@ -204,6 +206,7 @@ $(document).ready(function(){
                     </div>
                 </div> <!--/.col  -->
             </div>
+            <?php } ?>
             <div class="row">
                 <div class="col-sm-12">
                     <div class="panel panel-primary collapse" style="padding-top:0;padding-bottom:0;" id="messagespanel">
