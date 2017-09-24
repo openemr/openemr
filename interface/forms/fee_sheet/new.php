@@ -109,7 +109,7 @@ function echoServiceLines()
         echo " <tr>\n";
 
         echo "  <td class='billcell'>$strike1" .
-        ($codetype == 'COPAY' ? xl($codetype) : $codetype) . $strike2;
+        ($codetype == 'COPAY' ? xl($codetype) : text($codetype)) . $strike2;
         // if the line to ouput is copay, show the date here passed as $ndc_info,
         // since this variable is not applicable in the case of copay.
         if ($codetype == 'COPAY') {
@@ -118,7 +118,7 @@ function echoServiceLines()
         }
 
         if ($id) {
-            echo "<input type='hidden' name='bill[" . attr($lino) . "][id]' value='$id' />";
+            echo "<input type='hidden' name='bill[" . attr($lino) . "][id]' value='" . attr($id) . "' />";
         }
 
         echo "<input type='hidden' name='bill[" . attr($lino) . "][code_type]' value='" . attr($codetype) . "' />";
