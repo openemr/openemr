@@ -242,13 +242,22 @@ if ($next < $total) {
       </thead>
       <tbody>
 <?php
+
+      //Escape sort by parameter
+      $escapedsortby = explode(',', $sortby);
+      foreach ($escapedsortby as $key => $columnName){
+          $escapedsortby[$key] = escape_sql_column_name(trim($columnName), array('patient_reminders','patient_data'));
+      }
+      $escapedsortby = implode(', ', $escapedsortby);
+
       $sql = "SELECT a.id, a.due_status, a.category, a.item, a.date_created, a.date_sent, a.voice_status, " .
                     "a.sms_status, a.email_status, a.mail_status, b.fname, b.lname, b.hipaa_allowemail, b.hipaa_allowsms " .
         "FROM `patient_reminders` as a, `patient_data` as b " .
         "WHERE a.active='1' AND a.pid=b.pid " . $add_sql .
-        "ORDER BY  ? ? "  .
-        "LIMIT ?,?";
-      array_push($sqlBindArray, $sortby, $sortorder, $begin,$listnumber);
+        "ORDER BY " . $escapedsortby . " " .
+          escape_sort_order($sortorder) . " " .
+        "LIMIT " . escape_limit($begin) . ", " .
+          escape_limit($listnumber);
       $result = sqlStatement($sql, $sqlBindArray);
 while ($myrow = sqlFetchArray($result)) { ?>
         <tr>
