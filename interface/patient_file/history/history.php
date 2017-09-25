@@ -79,7 +79,7 @@ if (!empty($grparr['']['grp_size'])) {
 
             <?php if (acl_check('patients', 'med', '', array('write','addonly'))) { ?>
                 <div class="page-header">
-                    <h1><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?> <small><?php echo xl("History & Lifestyle");?></small></h1>
+                    <h2><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?> <small><?php echo xl("History & Lifestyle");?></small></h2>
                 </div>
                 <div>
                     <div class="btn-group">

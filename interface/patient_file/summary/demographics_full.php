@@ -433,7 +433,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
         <div class="row">
             <div class="col-xs-12">
                 <div class="page-header">
-                    <h1><?php echo xlt('Edit Current Patient');?></h1>
+                    <h2><?php echo xlt('Edit Current Patient');?></h2>
                 </div>
             </div>
             <div class="col-xs-12">
