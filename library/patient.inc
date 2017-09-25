@@ -563,7 +563,8 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
 
     $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     if ($limit != "all") {
-        $sql .= " LIMIT $start, $limit";
+        $sql .= " limit ?, ?";
+        array_push($sqlBindArray, $start, $limit);
     }
 
     $rez = sqlStatement($sql, $sqlBindArray);
@@ -641,7 +642,8 @@ function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, provid
 
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     if ($limit != "all") {
-        $sql .= " limit $start, $limit";
+        $sql .= " limit ?, ?";
+        array_push($sqlBindArray, $start, $limit);
     }
 
     $rez = sqlStatement($sql, $sqlBindArray);
@@ -670,7 +672,8 @@ function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, f
 
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     if ($limit != "all") {
-        $sql .= " limit $start, $limit";
+        $sql .= " limit ?, ?";
+        array_push($sqlBindArray, $start, $limit);
     }
 
     $rez = sqlStatement($sql, $sqlBindArray);
@@ -737,7 +740,8 @@ function getByPatientDemographicsFilter(
 
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     if ($limit != "all") {
-        $sql .= " limit $start, $limit";
+        $sql .= " limit ?, ?";
+        array_push($sqlBindArray, $start, $limit);
     }
 
     $rez = sqlStatement($sql, $sqlBindArray);
@@ -754,6 +758,7 @@ function getByPatientDemographicsFilter(
 // orig function getPatientPID($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 function getPatientPID($args)
 {
+    $sqlBindArray = array();
     $pid = "%";
     $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS";
     $orderby = "lname ASC, fname ASC";
@@ -794,10 +799,11 @@ function getPatientPID($args)
 
     $sql="select $given from patient_data where pid $command '$pid' order by $orderby";
     if ($limit != "all") {
-        $sql .= " limit $start, $limit";
+        $sql .= " limit ?, ?";
+        array_push($sqlBindArray, $start, $limit);
     }
 
-    $rez = sqlStatement($sql);
+    $rez = sqlStatement($sql, $sqlBindArray);
     for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
     }
@@ -840,7 +846,8 @@ function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $ord
     $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
 
     if ($limit != "all") {
-        $sql .= " LIMIT $start, $limit";
+        $sql .= " limit ?, ?";
+        array_push($sqlBindArray, $start, $limit);;
     }
 
     $rez = sqlStatement($sql, $sqlBindArray);
@@ -860,7 +867,8 @@ function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, provid
     array_push($sqlBindArray, $ss."%");
     $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     if ($limit != "all") {
-        $sql .= " LIMIT $start, $limit";
+        $sql .= " limit ?, ?";
+        array_push($sqlBindArray, $start, $limit);
     }
 
     $rez = sqlStatement($sql, $sqlBindArray);
@@ -881,7 +889,8 @@ function getPatientPhone($phone = "%", $given = "pid, id, lname, fname, mname, p
     array_push($sqlBindArray, $phone);
     $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     if ($limit != "all") {
-        $sql .= " LIMIT $start, $limit";
+        $sql .= " limit ?, ?";
+        array_push($sqlBindArray, $start, $limit);
     }
 
     $rez = sqlStatement($sql, $sqlBindArray);
@@ -895,13 +904,16 @@ function getPatientPhone($phone = "%", $given = "pid, id, lname, fname, mname, p
 
 function getPatientIds($given = "pid, id, lname, fname, mname", $orderby = "id ASC", $limit = "all", $start = "0")
 {
+    $sqlBindArray = array();
+
     $sql="select $given from patient_data order by $orderby";
 
     if ($limit != "all") {
-        $sql .= " limit $start, $limit";
+        $sql .= " limit ?, ?";
+        array_push($sqlBindArray, $start, $limit);
     }
 
-    $rez = sqlStatement($sql);
+    $rez = sqlStatement($sql, $sqlBindArray);
     for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
     }

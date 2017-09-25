@@ -192,8 +192,9 @@ if ($popup) {
     }
 
     $sql = "SELECT $given FROM patient_data " .
-    "WHERE $where ORDER BY $orderby LIMIT $fstart, $sqllimit";
-    $rez = sqlStatement($sql, $sqlBindArray);
+    "WHERE $where ORDER BY $orderby LIMIT ? , $sqllimit";
+
+    $rez = sqlStatement($sql, array_merge($sqlBindArray, array($fstart)));
     $result = array();
     while ($row = sqlFetchArray($rez)) {
         $result[] = $row;

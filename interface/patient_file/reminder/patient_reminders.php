@@ -246,10 +246,9 @@ if ($next < $total) {
                     "a.sms_status, a.email_status, a.mail_status, b.fname, b.lname, b.hipaa_allowemail, b.hipaa_allowsms " .
         "FROM `patient_reminders` as a, `patient_data` as b " .
         "WHERE a.active='1' AND a.pid=b.pid " . $add_sql .
-        "ORDER BY " . add_escape_custom($sortby) . " " .
-        add_escape_custom($sortorder) . " " .
-        "LIMIT " . add_escape_custom($begin) . ", " .
-        add_escape_custom($listnumber);
+        "ORDER BY  ? ? "  .
+        "LIMIT ?,?";
+      array_push($sqlBindArray, $sortby, $sortorder, $begin,$listnumber);
       $result = sqlStatement($sql, $sqlBindArray);
 while ($myrow = sqlFetchArray($result)) { ?>
         <tr>
