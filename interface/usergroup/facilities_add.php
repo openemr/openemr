@@ -16,6 +16,7 @@ $alertmsg = '';
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-9-1/index.js"></script>
+<script src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-migrate-1.2.1.min.js"></script> 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui.js"></script>
@@ -158,6 +159,8 @@ var cp = new ColorPicker('window');
   // Runs when a color is clicked
 function pickColor(color) {
     document.getElementById('ncolor').value = color;
+    document.getElementById('ncolor').classList.remove("error-border");
+    document.getElementById('error_ncolor').innerHTML = '';
 }
 var field;
 function pick(anchorname,target) {

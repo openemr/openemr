@@ -115,29 +115,45 @@ function submitme(new_validate,e,form_id, constraints) {
                     delete constraints[new_key];
                 }
             }
-
-            //error conatins an list of the elements and their errors
-            //set false full message because the name of the input not can be translated
-            var errors = validate(elements, constraints, {fullMessages: false});
-            if (typeof  errors !== 'undefined') {
-                //prevent default if trigger is submit button
-                if(typeof (e) !== 'undefined') {
-                    e.preventDefault();
+            /*
+            * Check if exist translation for current error message else return default message.
+            * In addition you can adding custom error message to the constraints json according validate.js instructions and add the translation here
+            * @param message
+            **/
+            function getErrorMessage(message){
+                //enable to translate error message
+                //todo - adding all the translations string from validate.js
+                // console.log(message);
+                switch (message){
+                    case 'Patient Name Required':
+                        return '<?php echo xla('Patient Name Required');?>';
+                    case 'An end date later than the start date is required for repeated events!':
+                       return '<?php echo xla('An end date later than the start date is required for repeated events!');?>';
+                    case 'Required field missing: Please enter the User Name':
+                        return '<?php echo xla('Required field missing: Please enter the User Name', 'e');?>';
+                    case 'Please enter the password':
+                        return '<?php echo xla('Please enter the password'); ?>';
+                    case 'Required field missing: Please enter the First name':
+                        return '<?php echo xla('Required field missing: Please enter the First name');?>';
+                    case 'Required field missing: Please enter the Last name':
+                        return '<?php echo xla('Required field missing: Please enter the Last name');?>';
+                    default:
+                       return '<?php echo xla('is not valid');?>';
                 }
-                showErrors(form, errors);
-                valid = false;
-            }else{
-                somethingChanged = false;
             }
+            /*
+            * hide error message
+            * @param element
+            **/
+            function hideErrors(input, id){
+                $(input).removeClass('error-border');
+                $("#error_" + id).text('');
 
-            //In case there were errors they are displayed with this functionn
-            function showErrors(form, errors) {
-
-                for (var key in errors) {
-                    element = $('[name="'+ key + '"]');
-                    if (errors.hasOwnProperty(key)) {
-                        appendError(element, key, errors[key][0])
-                    }
+                var parent_div = $(input).parents('div.tab');
+                if($(parent_div).is('div')) {
+                    var div_id = $(parent_div).attr('id');
+                    var type_tab = div_id.substr(4);
+                    $('a#header_tab_'+type_tab).css('color', 'black');
                 }
             }
             /**
@@ -201,47 +217,31 @@ function submitme(new_validate,e,form_id, constraints) {
                 }
 
             }
-            /*
-            * hide error message
-            * @param element
-            **/
-            function hideErrors(input, id){
-                $(input).removeClass('error-border');
-                $("#error_" + id).text('');
+            //In case there were errors they are displayed with this functionn
+            function showErrors(form, errors) {
 
-                var parent_div = $(input).parents('div.tab');
-                if($(parent_div).is('div')) {
-                    var div_id = $(parent_div).attr('id');
-                    var type_tab = div_id.substr(4);
-                    $('a#header_tab_'+type_tab).css('color', 'black');
+                for (var key in errors) {
+                    element = $('[name="'+ key + '"]');
+                    if (errors.hasOwnProperty(key)) {
+                        appendError(element, key, errors[key][0])
+                    }
                 }
             }
-            /*
-            * Check if exist translation for current error message else return default message.
-            * In addition you can adding custom error message to the constraints json according validate.js instructions and add the translation here
-            * @param message
-            **/
-            function getErrorMessage(message){
-                //enable to translate error message
-                //todo - adding all the translations string from validate.js
-                // console.log(message);
-                switch (message){
-                    case 'Patient Name Required':
-                        return '<?php echo xla('Patient Name Required');?>';
-                    case 'An end date later than the start date is required for repeated events!':
-                       return '<?php echo xla('An end date later than the start date is required for repeated events!');?>';
-                    case 'Required field missing: Please enter the User Name':
-                        return '<?php echo xla('Required field missing: Please enter the User Name', 'e');?>';
-                    case 'Please enter the password':
-                        return '<?php echo xla('Please enter the password'); ?>';
-                    case 'Required field missing: Please enter the First name':
-                        return '<?php echo xla('Required field missing: Please enter the First name');?>';
-                    case 'Required field missing: Please enter the Last name':
-                        return '<?php echo xla('Required field missing: Please enter the Last name');?>';
-                    default:
-                       return '<?php echo xla('is not valid');?>';
+
+            //error conatins an list of the elements and their errors
+            //set false full message because the name of the input not can be translated
+            var errors = validate(elements, constraints, {fullMessages: false});
+            if (typeof  errors !== 'undefined') {
+                //prevent default if trigger is submit button
+                if(typeof (e) !== 'undefined') {
+                    e.preventDefault();
                 }
+                showErrors(form, errors);
+                valid = false;
+            }else{
+                somethingChanged = false;
             }
+
             //the result of validation
             return valid;
         }

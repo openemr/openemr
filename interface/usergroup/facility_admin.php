@@ -123,6 +123,8 @@ parent.$.fn.fancybox.close();
         // Runs when a color is clicked
         function pickColor(color) {
             document.getElementById('ncolor').value = color;
+            document.getElementById('ncolor').classList.remove("error-border");
+            document.getElementById('error_ncolor').innerHTML = '';
         }
         var field;
         function pick(anchorname,target) {
