@@ -311,7 +311,7 @@ function printlog_before_print() {
 </script>
 </head>
 <body bgcolor='#ffffff'>
-<form name='theform' method='post' action='printed_fee_sheet.php?fill=" . htmlspecialchars($form_fill, ENT_QUOTES) . "'
+<form name='theform' method='post' action='printed_fee_sheet.php?fill=" . attr($form_fill) . "'
 onsubmit='return opener.top.restoreSession()'>
 <center>";
 

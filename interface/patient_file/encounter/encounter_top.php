@@ -18,10 +18,8 @@ if (isset($_GET["set_encounter"])) {
     if ($set_pid && $set_pid != $_SESSION["pid"]) {
         setpid($set_pid);
     }
-    $set_encounter = filter_var($_GET["set_encounter"],FILTER_VALIDATE_INT);
-    if ($set_encounter) {
-        setencounter($set_encounter);
-    }
+
+    setencounter($_GET["set_encounter"]);
 }
 ?>
 <html>
