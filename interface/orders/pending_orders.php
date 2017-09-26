@@ -202,7 +202,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
     if ($form_facility) {
         $query .= " AND fe.facility_id = ?";
-        array_push($sqlBindArray,$form_facility);
+        array_push($sqlBindArray, $form_facility);
     }
 
     $query .= " ORDER BY pd.lname, pd.fname, pd.mname, po.patient_id, " .
