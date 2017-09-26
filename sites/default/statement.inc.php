@@ -394,11 +394,11 @@ function create_HTML_statement($stmt)
         $out .= "<img src='$practice_cards' style='width:100%;margin:4px auto;'><br /><p>\n<b>".
             $label_totaldue . "</b>: " . $stmt['amount']. "<br/>". xla('Payment Tracking Id') . ": "
             . text($stmt['pid'])."</p>";
-        $out .= "<br /><p> Amount Paid: _______ Check #:</p>";
+        $out .= "<br /><p>".  xla(Amount Paid) . ": _______ " . xla(Check) . " #:</p>";
     } else {
         $out .= "<br /><p><b>". $label_totaldue . "</b>: " . $stmt['amount']. "<br/>".
             xla('Payment Tracking Id') . ": ". text($stmt['pid'])."</p>";
-        $out .= "<br /><p> Amount Paid: _______ Check #:</p>";
+        $out .= "<br /><p>".  xla(Amount Paid) . ": _______ " . xla(Check) . " #:</p>";
     }
 
     $out .="</td></tr></table>";
