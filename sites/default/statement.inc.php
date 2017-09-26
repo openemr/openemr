@@ -391,10 +391,14 @@ function create_HTML_statement($stmt)
     $out .="      </td><td style=width:2.0in;vertical-align:middle;'>";
     $practice_cards = $GLOBALS['OE_SITE_DIR']. "/images/visa_mc_disc_credit_card_logos_176x35.gif";
     if (file_exists($GLOBALS['OE_SITE_DIR']."/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
-        $out .= "<img src='$practice_cards' style='width:100%;margin:4px auto;'><br /><p>\n<b>". $label_totaldue . "</b>: " .
-        $stmt['amount']. "<br/>". xla('Payment Tracking Id') . ": ". text($stmt['pid'])."</p>";
+        $out .= "<img src='$practice_cards' style='width:100%;margin:4px auto;'><br /><p>\n<b>".
+            $label_totaldue . "</b>: " . $stmt['amount']. "<br/>". xla('Payment Tracking Id') . ": "
+            . text($stmt['pid'])."</p>";
+        $out .= "<br /><p> Amount Paid: _______ Check #:</p>";
     } else {
-        $out .= "<br /><p><b>". $label_totaldue . "</b>: " . $stmt['amount']. "<br/>". xla('Payment Tracking Id') . ": ". text($stmt['pid'])."</p>";
+        $out .= "<br /><p><b>". $label_totaldue . "</b>: " . $stmt['amount']. "<br/>".
+            xla('Payment Tracking Id') . ": ". text($stmt['pid'])."</p>";
+        $out .= "<br /><p> Amount Paid: _______ Check #:</p>";
     }
 
     $out .="</td></tr></table>";
@@ -786,13 +790,15 @@ function create_statement($stmt)
             $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
             $next_appoint_time = substr($events[$j]['pc_startTime'], 0, 5);
             if (strlen(umname) != 0) {
-                $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] . ' ' .  $events[$j]['ulname'];
+                $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] .
+                    ' ' .  $events[$j]['ulname'];
             } else {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' .  $events[$j]['ulname'];
             }
 
             if (strlen($next_appoint_time) != 0) {
-                $label_plsnote[$j] = xlt('Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') . ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider);
+                $label_plsnote[$j] = xlt('Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') .
+                    ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider);
                 $out .= sprintf("%-s\n", $label_plsnote[$j]);
             }
 
