@@ -324,7 +324,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                             <?php if ($GLOBALS['portal_onsite_two_register']) { ?>
                                 <button class="btn btn-default pull-left"  onclick="location.replace('./account/register.php')"><?php echo xlt('Register');?></button>
                             <?php } ?>
-                            <?php if (isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
+                            <?php if ($GLOBALS['portal_two_pass_reset'] && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
                                <button class="btn btn-danger" onclick="location.replace('./index.php?requestNew=1')" style="margin-left:10px"><?php echo xlt('Reset Credentials');?></button>
                             <?php } ?>
                                 <button  class="btn btn-success pull-right" type="submit" ><?php echo xlt('Log In');?></button>

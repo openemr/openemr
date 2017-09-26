@@ -2435,6 +2435,13 @@ $GLOBALS_METADATA = array(
             xl('Allow Version 2 Onsite Patient to make payments online.')
         ),
 
+        'portal_two_pass_reset' => array(
+            xl('Allow Version 2 Patients to Reset Credentials'),
+            'bool',                           // data type
+            '0',
+            xl('Patient may change their logon from portal login dialog.')
+        ),
+
         'portal_onsite_enable' => array(
             xl('Enable Version 1 Onsite Patient Portal'),
             'bool',                           // data type
