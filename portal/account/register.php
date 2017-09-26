@@ -353,7 +353,7 @@ function callServer(action, value, value2, last, first) {
             eModal.alert(message); // This is an async call. The modal close event exits us to portal landing page after cleanup.
         }
     }).fail(function (err) {
-        var message = "<?php echo xlt('Something went wrong.') ?>" + " "+ err;
+        var message = "<?php echo xlt('Something went wrong.') ?>";
         alert(message);
     });
 }
@@ -390,9 +390,9 @@ function callServer(action, value, value2, last, first) {
                         <div class="well">
                         <?php if ($GLOBALS['language_menu_login']) { ?>
                         <?php if (count($result3) != 1) { ?>
-                        <div class="form-group">
+                        <div class="form-group row">
                             <label for="selLanguage"><?php echo xlt('Language'); ?></label>
-                            <select class="form-control" id="selLanguage" name=languageChoice size="1">
+                            <select class="form-control" id="selLanguage" name="languageChoice">
                             <?php
                                 echo "<option selected='selected' value='" . htmlspecialchars($defaultLangID, ENT_QUOTES) . "'>" .
                                      htmlspecialchars(xl('Default') . " - " . xl($defaultLangName), ENT_NOQUOTES) . "</option>\n";

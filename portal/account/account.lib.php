@@ -22,20 +22,29 @@ function notifyAdmin($pid, $provider)
     return $rtn;
 }
 
-function isNew($dob, $lname = '', $fname = '')
+function isNew($dob = '', $lname = '', $fname = '', $email = '')
 {
     $last = '%' . trim($lname) . '%';
     $first = '%' . trim($fname) . '%';
     $dob = '%' . trim($dob) . '%';
-
-    $row = sqlQuery(
-        "select pid from patient_data Where patient_data.lname LIKE ? And patient_data.fname LIKE ? And patient_data.DOB LIKE ? order by date limit 0,1",
-        array(
+    $semail = '%' . trim($email) . '%';
+    $sql = "select pid from patient_data Where patient_data.lname LIKE ? And patient_data.fname LIKE ? And patient_data.DOB LIKE ? order by date limit 0,1";
+    $data = array(
+        $last,
+        $first,
+        $dob
+    );
+    if ($email) {
+        $sql = "select pid from patient_data Where patient_data.lname LIKE ? And patient_data.fname LIKE ? And patient_data.DOB LIKE ? And patient_data.email LIKE ? order by date limit 0,1";
+        $data = array(
             $last,
             $first,
-            $dob
-        )
-    );
+            $dob,
+            $semail
+        );
+    }
+    $row = sqlQuery($sql, $data);
+
     return $row['pid'] ? $row['pid'] : 0;
 }
 

@@ -27,7 +27,8 @@ if ($action == 'set_lang') {
     echo 'okay';
     exit();
 } elseif ($action == 'get_newpid') {
-    $rtn = isNew($_REQUEST['dob'], $_REQUEST['last'], $_REQUEST['first']);
+    $email = isset($_REQUEST['email']) ? $_REQUEST['email'] : '';
+    $rtn = isNew($_REQUEST['dob'], $_REQUEST['last'], $_REQUEST['first'], $email);
     if ((int) $rtn != 0) {
         echo xlt("This account already exists.") . "\r\n\r\n" . xlt("If you are having troubles logging into your account.") . "\r\n" . xlt("Please contact your provider.") . "\r\n" . xlt("Reference this Account Id: ") . $rtn;
         exit();
@@ -37,7 +38,8 @@ if ($action == 'set_lang') {
 
     exit();
 } elseif ($action == 'is_new') {
-    $rtn = isNew($_REQUEST['dob'], $_REQUEST['last'], $_REQUEST['first']);
+    $email = isset($_REQUEST['email']) ? $_REQUEST['email'] : '';
+    $rtn = isNew($_REQUEST['dob'], $_REQUEST['last'], $_REQUEST['first'], $email);
     echo "$rtn";
 
     exit();

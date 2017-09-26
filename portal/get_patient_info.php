@@ -95,7 +95,7 @@ $auth = privQuery($sql, array(
 if ($auth === false) {
     $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid username'), '', '0');
     session_destroy();
-    header('Location: ' . $landingpage . '&w');
+    header('Location: ' . $landingpage . '&w&u');
     exit();
 }
 
@@ -103,7 +103,7 @@ if (empty($auth[COL_POR_SALT])) {
     if (SHA1($plain_code) != $auth[COL_POR_PWD]) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':pass not salted'), '', '0');
         session_destroy();
-        header('Location: ' . $landingpage . '&w');
+        header('Location: ' . $landingpage . '&w&p');
         exit();
     }
 
@@ -120,7 +120,7 @@ if (empty($auth[COL_POR_SALT])) {
     if ($tmp != $auth[COL_POR_PWD]) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid password'), '', '0');
         session_destroy();
-        header('Location: ' . $landingpage . '&w');
+        header('Location: ' . $landingpage . '&w&p');
         exit();
     }
 }
