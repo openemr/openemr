@@ -395,11 +395,11 @@ function create_HTML_statement($stmt)
         $out .= "<img src='$practice_cards' style='width:100%; margin:4px auto;'><br /><p>\n<b>" .
             $label_totaldue . "</b>: " . $stmt['amount']. "<br/>". xlt('Payment Tracking Id') . ": " .
             text($stmt['pid']) . "</p>";
-        $out .= "<br /><p>" . xlt(Amount Paid) . ": _______ " . xlt(Check) . " #:</p>";
+        $out .= "<br /><p>" . xlt('Amount Paid') . ": _______ " . xlt(Check) . " #:</p>";
     } else {
         $out .= "<br /><p><b>" . $label_totaldue . "</b>: " . $stmt['amount'] . "<br/>".
             xlt('Payment Tracking Id') . ": " . text($stmt['pid']) . "</p>";
-        $out .= "<br /><p>" . xlt(Amount Paid) . ": _______ " . xlt(Check) . " #:</p>";
+        $out .= "<br /><p>" . xlt('Amount Paid') . ": _______ " . xlt(Check) . " #:</p>";
     }
 
     $out .="</td></tr></table>";
