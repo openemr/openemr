@@ -13,8 +13,8 @@
 function notifyAdmin($pid, $provider)
 {
 
-    $note = xlt("New patient registration received from patient portal. Reminder to check for possible new appointment");
-    $title = xlt("New Patient");
+    $note = xl("New patient registration received from patient portal. Reminder to check for possible new appointment");
+    $title = xl("New Patient");
     $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($provider));
 
     $rtn = addPnote($pid, $note, 1, 1, $title, $user['username'], '', 'New');

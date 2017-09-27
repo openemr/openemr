@@ -181,31 +181,31 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                     <td><input name="uname" id="uname" type="text" autocomplete="off" value="<?php echo attr($_SESSION['portal_username']); ?>"/></td>
                 </tr>
                 <tr>
-                    <td class="algnRight"><?php echo xlt('Current Password');?>/>
+                    <td class="algnRight"><?php echo xlt('Current Password');?></td>
                     <td>
                         <input name="pass" id="pass" type="password" autocomplete="off" value="" />
                     </td>
                 </tr>
                 <tr>
-                    <td class="algnRight"><?php echo xlt('New Password');?>/>
+                    <td class="algnRight"><?php echo xlt('New Password');?></td>
                     <td>
                         <input name="pass_new" id="pass_new" type="password" />
                     </td>
                 </tr>
                 <tr>
-                    <td class="algnRight"><?php echo xlt('Confirm New Password');?>/>
+                    <td class="algnRight"><?php echo xlt('Confirm New Password');?></td>
                     <td>
                         <input name="pass_new_confirm" id="pass_new_confirm" type="password" />
                     </td>
                 </tr>
                  <tr>
-                    <td class="algnRight"><?php echo xlt('Confirm Email Address');?></>
+                    <td class="algnRight"><?php echo xlt('Confirm Email Address');?></td>
                     <td>
-                        <input name="passaddon" id="passaddon" placeholder="Your on file email address" type="email" autocomplete="off" value=""  />
+                        <input name="passaddon" id="passaddon" placeholder="<?php echo xla('Your on file email address'); ?>" type="email" autocomplete="off" value=""  />
                     </td>
                 </tr>
                 <tr>
-                    <td colspan=2><br><input class="pull-right" type="submit" value="<?php echo xlt('Log In');?>" /></td>
+                    <td colspan=2><br><input class="pull-right" type="submit" value="<?php echo xla('Log In');?>" /></td>
                 </tr>
             </table>
         </form>
@@ -223,20 +223,20 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                             <div class="form-group inline">
                                 <label class="control-label" for="fname"><?php echo xlt('First')?></label>
                                 <div class="controls inline-inputs">
-                                    <input type="text" class="form-control" id="fname" required placeholder="<?php echo xlt('First Name'); ?>">
+                                    <input type="text" class="form-control" id="fname" required placeholder="<?php echo xla('First Name'); ?>">
                                 </div>
                             </div>
                             <div class="form-group inline">
                                 <label class="control-label" for="lname"><?php echo xlt('Last Name')?></label>
                                 <div class="controls inline-inputs">
-                                    <input type="text" class="form-control" id="lname" required placeholder="<?php echo xlt('Enter Last'); ?>">
+                                    <input type="text" class="form-control" id="lname" required placeholder="<?php echo xla('Enter Last'); ?>">
                                 </div>
                             </div>
                             <div class="form-group inline">
                                 <label class="control-label" for="dob"><?php echo xlt('Birth Date')?></label>
                                 <div class="controls inline-inputs">
                                     <div class="input-group">
-                                        <input id="dob" type="text" required class="form-control datepicker" placeholder="<?php echo xlt('YYYY-MM-DD'); ?>" />
+                                        <input id="dob" type="text" required class="form-control datepicker" placeholder="<?php echo xla('YYYY-MM-DD'); ?>" />
                                     </div>
                                 </div>
                             </div></div>
@@ -245,7 +245,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                     <label class="control-label" for="emailInput"><?php echo xlt('Enter E-Mail Address')?></label>
                                     <div class="controls inline-inputs">
                                         <input id="emailInput" type="email" class="form-control" style="width: 100%" required
-                                            placeholder="<?php echo xlt('Must be current email address on file.'); ?>" maxlength="100">
+                                            placeholder="<?php echo xla('Must be current email address on file.'); ?>" maxlength="100">
                                     </div>
                                 </div>
                             </div>
@@ -286,7 +286,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                 <div class="col-sm-12 form-group">
                                     <label class="control-label" for="passaddon"><?php echo xlt('E-Mail Address')?></label>
                                     <div class="controls inline-inputs">
-                                        <input class="form-control" style="width: 100%" name="passaddon" id="passaddon" placeholder="on file email" type="email" autocomplete="on" />
+                                        <input class="form-control" style="width: 100%" name="passaddon" id="passaddon" placeholder="<?php echo xla('on file email'); ?>" type="email" autocomplete="on" />
                                     </div>
                                 </div>
                             </div>
@@ -426,7 +426,7 @@ function callServer(action, value, value2, last, first) {
         }
         else if (action == "is_new") {
             if (parseInt(rtn) > 0) {
-                var yes = confirm('<?php echo xlt("Account is validated. Send new credentials?") ?>');
+                var yes = confirm('<?php echo xls("Account is validated. Send new credentials?") ?>');
                 if(!yes)
                     callServer('cleanup');
                 else
@@ -434,7 +434,7 @@ function callServer(action, value, value2, last, first) {
             }
             else {
                 // After error alert app exit to landing page.
-                var message = "<?php echo xlt('Unable to find your records. Be sure to use your correct Dob, First and Last name and Email of record. If you have opted out of email with none on file then leave blank.'); ?>";
+                var message = "<?php echo xls('Unable to find your records. Be sure to use your correct Dob, First and Last name and Email of record. If you have opted out of email with none on file then leave blank.'); ?>";
                 eModal.alert(message);
             }
         }
@@ -445,11 +445,11 @@ function callServer(action, value, value2, last, first) {
                 return false;
             }
             //alert(rtn); // sync alert.. rtn holds username and password for testing.
-            var message = "<?php echo xlt(" Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>"
+            var message = "<?php echo xls(" Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>"
             eModal.alert(message); // This is an async call. The modal close event exits us to portal landing page after cleanup.
         }
     }).fail(function (err) {
-        var message = "<?php echo xlt('Something went wrong.') ?>";
+        var message = "<?php echo xls('Something went wrong.') ?>";
         alert(message);
     });
 }

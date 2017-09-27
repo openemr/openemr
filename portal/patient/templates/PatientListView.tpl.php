@@ -303,7 +303,7 @@ body{
                     </div>
                 </div>
                 <div class="form-group inline" id="languageInputContainer">
-                    <label class="control-label" for="language"><?php echo xlt('Prefered Language')?></label>
+                    <label class="control-label" for="language"><?php echo xlt('Preferred Language')?></label>
                     <div class="controls inline-inputs">
                         <input type="text" class="form-control" id="language" placeholder="<?php echo xla('Language'); ?>" value="<%= _.escape(item.get('language') || '') %>">
                         <span class="help-inline"></span>

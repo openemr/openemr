@@ -340,7 +340,7 @@ function callServer(action, value, value2, last, first) {
         }
         else if (action == 'do_signup') {
             if (rtn == "") {
-                var message = "<?php echo xlt('Unable to either create credentials or send email.'); ?>";
+                var message = "<?php echo xls('Unable to either create credentials or send email.'); ?>";
                 alert(message);
                 return false;
             }
@@ -349,11 +349,11 @@ function callServer(action, value, value2, last, first) {
             // alert below for ease of testing.
             // alert(rtn); // sync alert.. rtn holds username and password for testing.
 
-            var message = "<?php echo xlt(" Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>"
+            var message = "<?php echo xls("Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>"
             eModal.alert(message); // This is an async call. The modal close event exits us to portal landing page after cleanup.
         }
     }).fail(function (err) {
-        var message = "<?php echo xlt('Something went wrong.') ?>";
+        var message = "<?php echo xls('Something went wrong.') ?>";
         alert(message);
     });
 }
@@ -422,19 +422,19 @@ function callServer(action, value, value2, last, first) {
                                     <div class="form-group inline">
                                         <label class="control-label" for="fname"><?php echo xlt('First')?></label>
                                         <div class="controls inline-inputs">
-                                            <input type="text" class="form-control" id="fname" required placeholder="<?php echo xlt('First Name'); ?>">
+                                            <input type="text" class="form-control" id="fname" required placeholder="<?php echo xla('First Name'); ?>">
                                         </div>
                                     </div>
                                     <div class="form-group inline">
                                         <label class="control-label" for="mname"><?php echo xlt('Middle')?></label>
                                         <div class="controls inline-inputs">
-                                            <input type="text" class="form-control" id="mname" placeholder="<?php echo xlt('Full or Initial'); ?>">
+                                            <input type="text" class="form-control" id="mname" placeholder="<?php echo xla('Full or Initial'); ?>">
                                         </div>
                                     </div>
                                     <div class="form-group inline">
                                         <label class="control-label" for="lname"><?php echo xlt('Last Name')?></label>
                                         <div class="controls inline-inputs">
-                                            <input type="text" class="form-control" id="lname" required placeholder="<?php echo xlt('Enter Last'); ?>">
+                                            <input type="text" class="form-control" id="lname" required placeholder="<?php echo xla('Enter Last'); ?>">
                                         </div>
                                     </div>
                                 </div>
@@ -443,7 +443,7 @@ function callServer(action, value, value2, last, first) {
                                 <label class="control-label" for="dob"><?php echo xlt('Birth Date')?></label>
                                 <div class="controls inline-inputs">
                                     <div class="input-group">
-                                        <input id="dob" type="text" required class="form-control datepicker" placeholder="<?php echo xlt('YYYY-MM-DD'); ?>" />
+                                        <input id="dob" type="text" required class="form-control datepicker" placeholder="<?php echo xla('YYYY-MM-DD'); ?>" />
                                     </div>
                                 </div>
                             </div>
@@ -452,7 +452,7 @@ function callServer(action, value, value2, last, first) {
                                     <label class="control-label" for="email"><?php echo xlt('Enter E-Mail Address')?></label>
                                     <div class="controls inline-inputs">
                                         <input id="emailInput" type="email" class="form-control" style="width: 100%" required
-                                            placeholder="<?php echo xlt('Enter email address to receive registration info.'); ?>" maxlength="100">
+                                            placeholder="<?php echo xla('Enter email address to receive registration info.'); ?>" maxlength="100">
                                     </div>
                                 </div>
                             </div>
@@ -489,37 +489,37 @@ function callServer(action, value, value2, last, first) {
                             <div class="form-group inline">
                                 <label class="control-label" for="provider"><?php echo xlt('Insurance Company')?></label>
                                 <div class="controls inline-inputs">
-                                    <input type="text" class="form-control" name="provider" required placeholder="<?php echo xlt('Insurance Company'); ?>">
+                                    <input type="text" class="form-control" name="provider" required placeholder="<?php echo xla('Insurance Company'); ?>">
                                 </div>
                             </div>
                             <div class="form-group inline">
                                 <label class="control-label" for=""><?php echo xlt('Plan Name')?></label>
                                 <div class="controls inline-inputs">
-                                    <input type="text" class="form-control" name="plan_name" required placeholder="<?php echo xlt('Required'); ?>">
+                                    <input type="text" class="form-control" name="plan_name" required placeholder="<?php echo xla('Required'); ?>">
                                 </div>
                             </div>
                             <div class="form-group inline">
                                 <label class="control-label" for=""><?php echo xlt('Policy Number')?></label>
                                 <div class="controls inline-inputs">
-                                    <input type="text" class="form-control" name="policy_number" required placeholder="<?php echo xlt('Required'); ?>">
+                                    <input type="text" class="form-control" name="policy_number" required placeholder="<?php echo xla('Required'); ?>">
                                 </div>
                             </div>
                             <div class="form-group inline">
                                 <label class="control-label" for=""><?php echo xlt('Group Number')?></label>
                                 <div class="controls inline-inputs">
-                                    <input type="text" class="form-control" name="group_number" required placeholder="<?php echo xlt('Required'); ?>">
+                                    <input type="text" class="form-control" name="group_number" required placeholder="<?php echo xla('Required'); ?>">
                                 </div>
                             </div>
                             <div class="form-group inline">
                                 <label class="control-label" for=""><?php echo xlt('Policy Begin Date')?></label>
                                 <div class="controls inline-inputs">
-                                    <input type="text" class="form-control datepicker" name="date" placeholder="<?php echo xlt('Policy effective date'); ?>">
+                                    <input type="text" class="form-control datepicker" name="date" placeholder="<?php echo xla('Policy effective date'); ?>">
                                 </div>
                             </div>
                             <div class="form-group inline">
                                 <label class="control-label" for=""><?php echo xlt('Co-Payment')?></label>
                                 <div class="controls inline-inputs">
-                                    <input type="number" class="form-control" name="copay" placeholder="<?php echo xlt('Plan copay if known'); ?>">
+                                    <input type="number" class="form-control" name="copay" placeholder="<?php echo xla('Plan copay if known'); ?>">
                                 </div>
                             </div>
                         </div>
