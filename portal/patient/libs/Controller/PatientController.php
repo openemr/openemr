@@ -60,7 +60,9 @@ class PatientController extends AppBaseController
      */
     public function ListView()
     {
-        $rid = $pid = $user = $encounter = 0;
+
+        $rid = $pid = $user = $encounter = $register = 0;
+
         if (isset($_GET['id'])) {
             $rid = ( int ) $_GET['id'];
         }
@@ -77,10 +79,16 @@ class PatientController extends AppBaseController
             $encounter = $_GET['enc'];
         }
 
+        if (isset($_GET['register'])) {
+            $register = $_GET['register'];
+        }
+
         $this->Assign('recid', $rid);
         $this->Assign('cpid', $pid);
         $this->Assign('cuser', $user);
         $this->Assign('encounter', $encounter);
+        $this->Assign('register', $register);
+        $trow = array();
         $ptdata = $this->startupQuery($pid);
         foreach ($ptdata[0] as $key => $v) {
             $trow[lcfirst($key)] = $v;
@@ -131,7 +139,7 @@ class PatientController extends AppBaseController
             $page = RequestUtil::Get('page');
 
             // return all results
-            $patientdata = $this->Phreezer->Query('PatientReporter', $criteria);
+            $patientdata = $this->Phreezer->Query('Patient', $criteria);
             $output->rows = $patientdata->ToObjectArray(true, $this->SimpleObjectParams());
             $output->totalResults = count($output->rows);
             $output->totalPages = 1;
@@ -255,7 +263,7 @@ class PatientController extends AppBaseController
             $errors = $patient->GetValidationErrors();
 
             if (count($errors) > 0) {
-                $this->RenderErrorJSON('Please check the form for errors', $errors);
+                $this->RenderErrorJSON('Please check the form for errors' . $errors, $errors);
             } else {
                 $patient->Save();
                 $this->RenderJSON($patient, $this->JSONPCallback(), true, $this->SimpleObjectParams());

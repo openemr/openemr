@@ -2421,6 +2421,27 @@ $GLOBALS_METADATA = array(
             xl('Website link for the Version 2 Onsite Patient Portal.')
         ),
 
+        'portal_onsite_two_register' => array(
+            xl('Allow Version 2 Onsite New Patient Registration Widget'),
+            'bool',                           // data type
+            '1',
+            xl('Enable Version 2 Onsite Patient Portal new patient to self register.')
+        ),
+
+        'portal_two_payments' => array(
+            xl('Allow Version 2 Onsite Online Payments'),
+            'bool',                           // data type
+            '0',
+            xl('Allow Version 2 Onsite Patient to make payments online.')
+        ),
+
+        'portal_two_pass_reset' => array(
+            xl('Allow Version 2 Patients to Reset Credentials'),
+            'bool',                           // data type
+            '0',
+            xl('Patient may change their logon from portal login dialog.')
+        ),
+
         'portal_onsite_enable' => array(
             xl('Enable Version 1 Onsite Patient Portal'),
             'bool',                           // data type
@@ -2636,7 +2657,7 @@ $GLOBALS_METADATA = array(
             xl('Log all NewCrop eRx Requests and / or Responses.'),
         ),
 
-       'weno_rx_enable' => array(
+        'weno_rx_enable' => array(
             xl('Enable Weno eRx Service'),
             'bool',
             '0',

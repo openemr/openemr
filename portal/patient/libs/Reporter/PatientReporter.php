@@ -41,9 +41,6 @@ class PatientReporter extends Reporter
 {
 
     // the properties in this class must match the columns returned by GetCustomQuery().
-    // 'CustomFieldExample' is an example that is not part of the `patient_data` table
-    public $CustomFieldExample;
-
     public $Id;
     public $Title;
     public $Language;
@@ -147,8 +144,7 @@ class PatientReporter extends Reporter
     static function GetCustomQuery($criteria)
     {
         $sql = "select
-			'custom value here...' as CustomFieldExample
-			,`patient_data`.`id` as Id
+			 `patient_data`.`id` as Id
 			,`patient_data`.`title` as Title
 			,`patient_data`.`language` as Language
 			,`patient_data`.`financial` as Financial
@@ -245,6 +241,10 @@ class PatientReporter extends Reporter
         // be sure to escape any user input with $criteria->Escape()
         $sql .= $criteria->GetWhere();
         $sql .= $criteria->GetOrder();
+
+        if ($criteria->Pid_Equals == 0) {
+            $sql = "DESCRIBE patient_data";
+        }
 
         return $sql;
     }
