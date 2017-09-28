@@ -155,7 +155,7 @@ if ($form_step == 1) {
         $lab_id = getLabID($form_vendor);
 
         $form_status .= xlt('Applying') . "...<br />";
-        echo nl2br($form_status);
+        echo nl2br(text($form_status));
 
         $fhcsv = fopen($_FILES['userfile']['tmp_name'], "r");
 
@@ -524,7 +524,7 @@ if ($form_step == 1) {
 
 if ($form_step == 2) {
     $form_status .= xlt('Done') . ".";
-    echo nl2br($form_status);
+    echo nl2br(text($form_status));
 }
 
 ++$form_step;
@@ -535,7 +535,7 @@ if ($form_step == 2) {
 </table>
 
 <input type='hidden' name='form_step' value='<?php echo attr($form_step); ?>' />
-<input type='hidden' name='form_status' value='<?php echo $form_status; ?>' />
+<input type='hidden' name='form_status' value='<?php echo attr($form_status); ?>' />
 
 </form>
 

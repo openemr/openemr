@@ -422,7 +422,7 @@ if ($_POST['form_submit']) {
     }
 
     if ($encounterid) { //this code need to be same as 'parent.imdeleted($encounterid)' when the popup is div like
-        echo "window.opener.imdeleted(" . attr($encounterid) . ");\n";
+        echo "window.opener.imdeleted('" . attr($encounterid) . "');\n";
     } else {
         echo " if (opener && opener.imdeleted) opener.imdeleted(); else parent.imdeleted();\n";
     }

@@ -211,7 +211,7 @@ if ($next < $total) {
                  <span id='status_span'></span>
                  <div id='processing' style='margin:10px;display:none;'><img src='../../pic/ajax-loader.gif'/></div>
                 <?php } else { ?>
-                <a href='patient_reminders.php?patient_id=<?php echo $patient_id; ?>&mode=<?php echo $mode; ?>' class='css_button' onclick='top.restoreSession()'>
+                <a href='patient_reminders.php?patient_id=<?php echo attr($patient_id); ?>&mode=<?php echo attr($mode); ?>' class='css_button' onclick='top.restoreSession()'>
                   <span><?php echo htmlspecialchars(xl('Refresh'), ENT_NOQUOTES); ?></span>
                 </a>
                 <?php } ?>
@@ -242,15 +242,23 @@ if ($next < $total) {
       </thead>
       <tbody>
 <?php
-      $sql = "SELECT a.id, a.due_status, a.category, a.item, a.date_created, a.date_sent, a.voice_status, " .
-                    "a.sms_status, a.email_status, a.mail_status, b.fname, b.lname, b.hipaa_allowemail, b.hipaa_allowsms " .
-        "FROM `patient_reminders` as a, `patient_data` as b " .
-        "WHERE a.active='1' AND a.pid=b.pid " . $add_sql .
-        "ORDER BY " . add_escape_custom($sortby) . " " .
-        add_escape_custom($sortorder) . " " .
-        "LIMIT " . add_escape_custom($begin) . ", " .
-        add_escape_custom($listnumber);
-      $result = sqlStatement($sql, $sqlBindArray);
+
+//Escape sort by parameter
+$escapedsortby = explode(',', $sortby);
+foreach ($escapedsortby as $key => $columnName) {
+    $escapedsortby[$key] = escape_sql_column_name(trim($columnName), array('patient_reminders','patient_data'));
+}
+$escapedsortby = implode(', ', $escapedsortby);
+
+$sql = "SELECT a.id, a.due_status, a.category, a.item, a.date_created, a.date_sent, a.voice_status, " .
+            "a.sms_status, a.email_status, a.mail_status, b.fname, b.lname, b.hipaa_allowemail, b.hipaa_allowsms " .
+"FROM `patient_reminders` as a, `patient_data` as b " .
+"WHERE a.active='1' AND a.pid=b.pid " . $add_sql .
+"ORDER BY " . $escapedsortby . " " .
+  escape_sort_order($sortorder) . " " .
+"LIMIT " . escape_limit($begin) . ", " .
+  escape_limit($listnumber);
+$result = sqlStatement($sql, $sqlBindArray);
 while ($myrow = sqlFetchArray($result)) { ?>
         <tr>
           <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $myrow['category']) . " : " .

@@ -303,8 +303,8 @@ $urlparms = "docid=$docid&orderid=$orderid";
     </div>
 
     <input type='hidden' name='mode' id="mode" value="new">
-    <input type='hidden' name='offset' id="offset" value="<?php echo $offset; ?>">
-    <input type='hidden' name='offset_sent' id="offset_sent" value="<?php echo $offset_sent; ?>">
+    <input type='hidden' name='offset' id="offset" value="<?php echo attr($offset); ?>">
+    <input type='hidden' name='offset_sent' id="offset_sent" value="<?php echo attr($offset_sent); ?>">
     <input type='hidden' name='form_active' id="form_active" value="<?php echo htmlspecialchars($form_active, ENT_QUOTES); ?>">
     <input type='hidden' name='form_inactive' id="form_inactive" value="<?php echo htmlspecialchars($form_inactive, ENT_QUOTES); ?>">
     <input type='hidden' name='noteid' id="noteid" value="<?php echo htmlspecialchars($noteid, ENT_QUOTES); ?>">
@@ -366,8 +366,8 @@ if ($billing_note) {
 <!-- start of previous notes DIV -->
 <div class=pat_notes>
 <input type='hidden' name='mode' value="update">
-<input type='hidden' name='offset' id='offset' value="<?php echo $offset; ?>">
-<input type='hidden' name='offset_sent' id='offset_sent' value="<?php echo $offset_sent; ?>">
+<input type='hidden' name='offset' id='offset' value="<?php echo attr($offset); ?>">
+<input type='hidden' name='offset_sent' id='offset_sent' value="<?php echo attr($offset_sent); ?>">
 <input type='hidden' name='noteid' id='noteid' value="0">
 <table border='0' cellpadding="1" class="text">
 <?php if ($result != "") : ?>

@@ -324,7 +324,7 @@ if ($printable) {
 <?php
 
 // include ALL form's report.php files
-$inclookupres = sqlStatement("select distinct formdir from forms where pid = '$pid' AND deleted=0");
+$inclookupres = sqlStatement("select distinct formdir from forms where pid = ? AND deleted=0", array($pid));
 while ($result = sqlFetchArray($inclookupres)) {
   // include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
     $formdir = $result['formdir'];
