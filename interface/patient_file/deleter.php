@@ -32,7 +32,7 @@ require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/sl_eob.inc.php');
 
  $patient     = $_REQUEST['patient'];
- $encounterid = filter_var($_REQUEST['encounterid'], FILTER_VALIDATE_INT);
+ $encounterid = $_REQUEST['encounterid'];
  $formid      = $_REQUEST['formid'];
  $issue       = $_REQUEST['issue'];
  $document    = $_REQUEST['document'];
@@ -409,7 +409,7 @@ if ($_POST['form_submit']) {
     }
 
     if ($encounterid) { //this code need to be same as 'parent.imdeleted($encounterid)' when the popup is div like
-        echo "window.opener.imdeleted(" . attr($encounterid) . ");\n";
+        echo "window.opener.imdeleted('" . attr($encounterid) . "');\n";
     } else {
         echo " if (opener && opener.imdeleted) opener.imdeleted(); else parent.imdeleted();\n";
     }
