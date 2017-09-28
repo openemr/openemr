@@ -174,7 +174,7 @@ $GLOBALS_METADATA = array(
         'css_header' => array(
             xl('General Theme (need to logout/login after change this setting)'),
             'css',
-            'style_light.css',
+            'style_cobalt_blue.css',
             xl('Pick a general theme (need to logout/login after change this setting).')
         ),
 
@@ -2402,6 +2402,51 @@ $GLOBALS_METADATA = array(
             xl('Location where scans are stored.')
         ),
     ),
+    //CC Tab
+//
+    'CC Gateway' => array(
+      
+        'enable_stripe' => array(
+            xl('Enable Stripe CC Processing'),
+            'bool',
+            '0',
+            xl('Enable the stripe.com credit card processing of payments')		 
+        ),
+
+        's_key_stripe' => array(
+            xl('S_KEY'),
+            'text',
+            'sk_test_BQokikJOvBiI2HlWgH4olfQ2',
+            xl('This is the demo secret key, it must be replaced with your account key'), 
+        ),
+
+        'pk_key_stripe' => array(
+            xl('PK_KEY'),
+            'text',
+            'pk_test_6pRNASCoBOKtIshFeQd4XMUh',
+            xl('This is the demo key, it must be replaced with your account key'),	  
+        ),
+        /*'enable_just_collect_cash_check' => array(
+            xl('Enable Just Collect Cash/Check'),
+            'bool',
+            '0',
+            xl('Enable ability to just collect cash or check payment without specific encounter')		 
+        ),*/
+        
+        'stripe_currency' => [
+            xl('Currency'),
+            'stripe_currency',
+            'USD_TD', //default US Dollar Two Decimals
+            xl('Select the currency'),
+        ],
+
+        'receipt_company' => array(
+            xl('Receipt on Behalf of'),
+            'text',
+            'Your Practice Name',
+            xl('Please replace with name of your practise'), 
+        ),
+    ), 
 
     // Portal Tab
     //
@@ -2419,27 +2464,6 @@ $GLOBALS_METADATA = array(
             'text',                           // data type
             'https://your_web_site.com/openemr/portal',
             xl('Website link for the Version 2 Onsite Patient Portal.')
-        ),
-
-        'portal_onsite_two_register' => array(
-            xl('Allow Version 2 Onsite New Patient Registration Widget'),
-            'bool',                           // data type
-            '1',
-            xl('Enable Version 2 Onsite Patient Portal new patient to self register.')
-        ),
-
-        'portal_two_payments' => array(
-            xl('Allow Version 2 Onsite Online Payments'),
-            'bool',                           // data type
-            '0',
-            xl('Allow Version 2 Onsite Patient to make payments online.')
-        ),
-
-        'portal_two_pass_reset' => array(
-            xl('Allow Version 2 Patients to Reset Credentials'),
-            'bool',                           // data type
-            '0',
-            xl('Patient may change their logon from portal login dialog.')
         ),
 
         'portal_onsite_enable' => array(
@@ -2657,7 +2681,7 @@ $GLOBALS_METADATA = array(
             xl('Log all NewCrop eRx Requests and / or Responses.'),
         ),
 
-        'weno_rx_enable' => array(
+       'weno_rx_enable' => array(
             xl('Enable Weno eRx Service'),
             'bool',
             '0',

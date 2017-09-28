@@ -1,0 +1,406 @@
+	body {
+		font:1rem Arial,sans-serif;
+		color:#1a1a1a;
+	}
+
+	a {
+		text-decoration:none;
+		color:#4281A4;
+		transition: .3s color;
+	}
+
+	a:hover {
+		color: #314CB6;
+	}
+
+	.error {
+		width:100%;
+		padding:.5em;
+		background-color: #D7F75B;
+	}
+
+	.navigation span,
+	.navigation a {
+		display: inline-block;
+		padding:0.5rem;
+	}
+
+	#wrap {
+		margin:50px auto;
+		width: 960px;
+	}
+
+	table {
+		width:100%;
+		border-collapse:collapse;
+	}
+
+	th {
+		text-align:left;
+	}
+
+	tbody > tr:nth-child(odd) {
+		background:#f3faf1;
+	}
+
+	tbody > tr:nth-child(even) {
+		border-top: 1px solid #e5e5e5;
+		border-bottom: 1px solid #e5e5e5;
+	}
+
+	td:first-child {
+		width:25px;
+	}
+
+	/*td:nth-child(3) {
+		width:10%;
+	}*/
+	thead {
+		
+		background-color:#90cf7e;
+		
+	}
+	thead th,
+	tbody td {
+		padding:.5rem;
+		line-height:1.4rem;
+	}
+
+	.top_nav {
+		background:#f3faf1;
+	}
+
+	#register_message {
+	position: absolute;
+	z-index:5;
+	margin-left:20px;
+	margin-top:-16px;
+	}
+
+	#login_message {
+	z-index:4;
+	margin-left:860px;
+	margin-top:-15px;
+	}
+
+	#register {
+	position: absolute;
+	z-index:2;
+	margin-left:20px;
+	}
+
+	#login {
+	margin-left:860px;
+	}
+
+	h4 {
+	margin-left:10px;
+	}
+	.totals{
+	   font-weight: bold;
+	   background-color: yellow;
+	}
+	#totals.tr{
+	   font-weight: bold;
+	   background-color: yellow;
+	}
+	.num-data {
+		text-align:right;
+	}
+	.prominent:hover{
+		font-weight:bold;
+		font-size: 1.15em;
+		box-shadow: 5px 5px 5px #aaaaaa;
+		
+	}
+	
+	/* styling for the modal div - begin */
+	
+	.modal-wrapper { /* The div that shows/hides. */ 
+					display:none ; /* starts out hidden */ 
+					z-index:40001; /* High z-index to ensure it appears above all content */ 
+				} 
+	.modal-overlay { /* Shades out background when selector is active */ 
+					position:fixed; 
+					width:100%; 
+					height:100%; 
+					background-color:black; 
+					opacity:.5; /* Sets opacity so it's partly transparent */ 
+					-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)"; /* IE transparency */ 
+					filter:alpha(opacity=50); /* More IE transparency */ 
+					z-index:40001; 
+				} 
+	.modal-vertical { /* Fixed position to provide the vertical offset */ 
+					position:fixed; 
+					top:30%; 
+					width:100%; 
+					z-index:40002; /* ensures box appears above overlay */ 
+				} 
+	.popup-modal { /* The actual box, centered in the fixed-position div */ 
+					width:405px; /* Whatever width you want the box to be */ 
+					/*height:150px;*/
+					position:relative; 
+					margin:0 auto; 
+					/* Everything below is just visual styling */ 
+					background-color:white; 
+					padding:10px; 
+					border:1px solid black;
+					box-shadow: 5px 5px 5px #aaaaaa;
+				}
+
+	#closeModal { 	position:absolute; top:-12px; /* Half the icon's height */ 
+					right:-12px; /* half the icon's width */ 
+					z-index:50; 
+				} 
+				
+	.check-dark	{
+					background:#FF9900; /*#379AFE;*/
+					
+				}
+	
+	.cash-dark	{
+					background:#A274BA;
+					
+				}
+	
+	.credit-dark{
+					background:#7FBB6D;
+					
+				}
+	.check-light{
+					background:#FFFAF4; /*#EFF6FC;*/
+				}
+	
+	.cash-light{
+					background:#F7F4FF;
+				}
+	
+	.credit-light{
+					background:#F3FAF1;
+				}
+				
+	.collector-dark{
+					background:#0674E1;
+				}
+				
+	.collector-light{
+					background:#E3F0FC; 
+				}
+				
+	.modal-header{
+					padding:5px;
+					font-size: 22px;
+					font-weight:bold;
+					color:white;
+					text-align:center;
+				}
+	.modal-body	{
+					padding:20px 5px 20px 0px;
+				}
+				
+	.warning	{
+					color:#C3333E;
+					
+				}
+	.good		{
+					color: #0674E1;
+					
+				}
+	.highlight  {
+					background:#FDFD7A;
+				}
+				
+	.line-left	{
+					float:left;
+					width:80%;
+					text-align:right;
+					font-size: 17px;
+					
+				}
+	.line-right	{
+					float:left;
+					width:20%;
+					text-align:right;
+					font-size: 18px;
+					font-weight:bold;
+				}
+	.line-total	{
+					margin-top:10px;
+				}
+	
+	/* styling for the modal div - end*/
+	
+	.check-dark{
+					background:#FF9900; /*#379AFE;*/
+		}
+		
+		.cash-dark{
+					background:#A274BA;
+		}
+		
+		.credit-dark{
+					background:#7FBB6D;
+		}
+		.check-light{
+					background:#FFFAF4; /*#EFF6FC;*/
+		}
+		
+		.cash-light{
+					background:#F7F4FF;
+		}
+		
+		.credit-light{
+					background:#F3FAF1;
+		}
+		  
+		form    {
+		/*background:#F3FAF1;*/
+		margin:auto;
+		position:relative;
+		width:550px;
+		
+		font-family: Tahoma, Geneva, sans-serif;
+		font-size: 14px;
+		line-height: 24px;
+		font-weight: 600;
+		text-decoration: none;
+		-webkit-border-radius: 0px;
+		-moz-border-radius: 0px;
+		border-radius: 0px;
+		padding:10px;
+		border: 1px solid #999;
+		border: inset 1px solid #333;
+		-webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+		-moz-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+		box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+		}
+		
+		input  {
+		width:375px;
+		margin:5px 0px 5px 0px;
+		padding: 0px 5px 0px 5px;
+		display:block;
+		background-color:#FFFFCC;
+		border: 1px solid #999;
+		height: 25px;
+		-webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+		-moz-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+		box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+		-moz-box-sizing: border-box;
+		-webkit-box-sizing: border-box;
+		box-sizing: border-box;
+		}
+		
+		textarea#comment {
+		width:375px;
+		height:50px;
+		display:block;
+		border: 1px solid #999;
+		-webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+		-moz-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+		box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+		}
+		select{
+			display:block;
+			width:375px;
+			height: 25px;
+			border: 1px solid #999;
+			margin:5px 0px 5px 0px;
+			padding: 0px 3px 0px 3px;
+			-webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+			-moz-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+			box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+			-moz-box-sizing: border-box;
+			-webkit-box-sizing: border-box;
+			box-sizing: border-box;
+		}
+		
+		#button-blue {
+			
+			font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+			float:right;
+			width: 100px;
+			border: #fbfbfb solid 2px;
+			cursor:pointer;
+			/*background-color: #7fbb6d;*/
+			color:white;
+			/*font-size:24px;*/
+			padding-top:3px;
+			padding-bottom:22px;
+			-webkit-transition: all 0.3s;
+			-moz-transition: all 0.3s;
+			transition: all 0.3s;
+			  margin-top:-4px;
+			  margin-right:10px;
+			  font-weight:700;
+			  height: 25px;
+		}
+		.submit-button{
+			margin: 20px 0px 5px 20px;
+			float:right;
+		}
+		 h3{
+			/*background: #7FBB6D;*/
+			 color:#000000;
+			 padding: 10px;
+			 text-align:center;
+		 }
+	
+	
+	/*styling for process payment*/
+	
+	
+	
+	
+	/*styling for process payment - end*/
+	
+	/*styling range selector for reports*/
+	
+		.range-select {
+		  display: inline;
+		  margin: 5px;
+		  width: 100px;
+		  font-family: sans-serif;
+		  appearance: none;
+		  box-shadow: none;
+		  border-radius: none;
+		}
+		.range-select input[type="text"]:focus {
+		  outline: none;
+		}
+		.sel-md{
+			
+			width:200px;
+		}
+		
+		.scw table{
+			border-collapse:separate;
+		}
+		.center{
+			margin:auto;
+			text-align:center;
+		}
+		.range-submit-button{
+		font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+		width: 75px;
+		border: #fbfbfb solid 2px;
+		cursor:pointer;
+		background-color: #7fbb6d;
+		color:black;
+		-webkit-transition: all 0.3s;
+		-moz-transition: all 0.3s;
+		transition: all 0.3s;
+		margin:5px;
+		margin-right:10px;
+		font-weight:700;
+		
+		}
+		.sel-img-button{
+			display:inline; 
+			width:24px; 
+			height:24px; 
+			vertical-align:bottom; 
+			background:transparent; 
+			border:none;
+		}
+	/*styling range selector for reports -end*/

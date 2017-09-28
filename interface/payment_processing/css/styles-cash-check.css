@@ -1,0 +1,36 @@
+/**
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ * 
+ * @author Sherwin Gaddis <sherwingaddis@gmail.com>, Ranganath Pathak <pathak01@hotmail.com>
+ * @copyright Copyright (c) 2016, Sherwin Gaddis, Ranganath Pathak
+ * @version 1.0 
+ * @license http://opensource.org/licenses/gpl-license.php GNU Public License
+ */
+
+#form-div {
+			background-color:#F6FFF0; /* orig rgba(205,228,251,0.4)*/
+			}
+#heading{
+			background-color: #379001; /* orig #3498DB*/
+			color:white;
+		}
+
+fieldset {
+		border: 1px solid #379001;
+		}
+#button-blue{
+			
+			border: #fbfbfb solid 2px;
+			background-color: #379001;
+			color:white;
+		}

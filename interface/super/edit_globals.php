@@ -127,7 +127,7 @@ function handleAltServices($this_serviceid, $gln = '', $sinterval = 1)
     updateBackgroundService($this_serviceid, $bs_active, $bs_interval);
     if (!$bs_active && $this_serviceid == 'ccdaservice') {
         require_once(dirname(__FILE__)."/../../ccdaservice/ssmanager.php");
-
+        
         service_shutdown(0);
     }
 }
@@ -311,7 +311,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
     checkCreateCDB();
     checkBackgroundServices();
     handleAltServices('ccdaservice', 'ccda_alt_service_enable', 1);
-
+  
   // July 1, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
   // If Audit Logging status has changed, log it.
     $auditLogStatusNew = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'enable_auditlog'");
@@ -401,7 +401,7 @@ input     { font-size:10pt; }
 <span style='float: right;'>
     <input name='srch_desc' size='20'
         value='<?php echo (!empty($_POST['srch_desc']) ? htmlspecialchars($_POST['srch_desc']) : '') ?>' />
-    <input type='submit' name='form_search' value='<?php echo xla('Search'); ?>' />
+    <input type='submit' name='form_search' id='globals_form_search' value='<?php echo xla('Search'); ?>' />
 </span>
 
 <ul class="tabNav">
@@ -421,6 +421,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
 <div class="tabContainer">
 <?php
 $i = 0;
+
 foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
         echo " <div class='tab" . ($i ? "" : " current") .
@@ -623,56 +624,74 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                     }
 
                                 echo "</select>";
-                } else if ($fldtype == 'css' || $fldtype == 'tabs_css') {
+                } else if ($fldtype == 'css') {
                     if ($userMode) {
                         $globalTitle = $globalValue;
                     }
-                    $themedir = "$webserver_root/interface/themes";
-                    $dh = opendir($themedir);
+
+                              $themedir = "$webserver_root/interface/themes";
+                              $dh = opendir($themedir);
                     if ($dh) {
-                        // Collect styles
-                        $styleArray = array();
+                        echo "  <select name='form_$i' id='form_$i'>\n";
                         while (false !== ($tfname = readdir($dh))) {
-                            // Only show files that contain tabs_style_ or style_ as options
-                            if ($fldtype == 'tabs_css') {
-                                $patternStyle = 'tabs_style_';
-                            } else { // $fldtype == 'css'
-                                $patternStyle = 'style_';
-                            }
-                            if ($tfname == 'style_blue.css' ||
-                                $tfname == 'style_pdf.css' ||
-                                !preg_match("/^" . $patternStyle . ".*\.css$/", $tfname)) {
+                            // Only show files that contain style_ as options
+                            //  Skip style_blue.css since this is used for
+                            //  lone scripts such as setup.php
+                            //  Also skip style_pdf.css which is for PDFs and not screen output
+                            if (!preg_match("/^style_.*\.css$/", $tfname) ||
+                              $tfname == 'style_blue.css' || $tfname == 'style_pdf.css') {
                                 continue;
                             }
 
-                            if ($fldtype == 'tabs_css') {
-                                // Drop the "tabs_style_" part and any replace any underscores with spaces
-                                $styleDisplayName = str_replace("_", " ", substr($tfname, 11));
-                            } else { // $fldtype == 'css'
-                                // Drop the "style_" part and any replace any underscores with spaces
-                                $styleDisplayName = str_replace("_", " ", substr($tfname, 6));
-                            }
+                            echo "<option value='" . attr($tfname) . "'";
+                            // Drop the "style_" part and any replace any underscores with spaces
+                            $styleDisplayName = str_replace("_", " ", substr($tfname, 6));
                             // Strip the ".css" and uppercase the first character
                             $styleDisplayName = ucfirst(str_replace(".css", "", $styleDisplayName));
-
-                            $styleArray[$tfname] = $styleDisplayName;
-                        }
-                        // Alphabetize styles
-                        asort($styleArray);
-                        // Generate style selector
-                        echo "<select name='form_$i' id='form_$i'>\n";
-                        foreach ($styleArray as $styleKey => $styleValue) {
-                            echo "<option value='" . attr($styleKey) . "'";
-                            if ($styleKey == $fldvalue) {
+                            if ($tfname == $fldvalue) {
                                 echo " selected";
                             }
+
                             echo ">";
-                            echo text($styleValue);
+                            echo text($styleDisplayName);
                             echo "</option>\n";
                         }
-                        echo "</select>\n";
+
+                        closedir($dh);
+                        echo "  </select>\n";
                     }
-                    closedir($dh);
+                } else if ($fldtype == 'tabs_css') {
+                    if ($userMode) {
+                        $globalTitle = $globalValue;
+                    }
+
+                              $themedir = "$webserver_root/interface/themes";
+                              $dh = opendir($themedir);
+                    if ($dh) {
+                        echo "  <select name='form_$i' id='form_$i'>\n";
+                        while (false !== ($tfname = readdir($dh))) {
+                            // Only show files that contain tabs_style_ as options
+                            if (!preg_match("/^tabs_style_.*\.css$/", $tfname)) {
+                                continue;
+                            }
+
+                            echo "<option value='" . attr($tfname) . "'";
+                            // Drop the "tabs_style_" part and any replace any underscores with spaces
+                            $styleDisplayName = str_replace("_", " ", substr($tfname, 11));
+                            // Strip the ".css" and uppercase the first character
+                            $styleDisplayName = ucfirst(str_replace(".css", "", $styleDisplayName));
+                            if ($tfname == $fldvalue) {
+                                echo " selected";
+                            }
+
+                            echo ">";
+                            echo text($styleDisplayName);
+                            echo "</option>\n";
+                        }
+
+                        closedir($dh);
+                        echo "  </select>\n";
+                    }
                 } else if ($fldtype == 'hour') {
                     if ($userMode) {
                         $globalTitle = $globalValue;
@@ -700,6 +719,40 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                     }
 
                               echo "  </select>\n";
+                } else if ($fldtype == 'stripe_currency') {
+                        $sql = "SELECT currency,
+                                       CONCAT(`currency_code`,'_',`decimal`) AS curr_code_decimal,
+                                       currency_code,
+                                       currency_hex
+                                FROM currencies
+                                ORDER BY id";
+                        $result = sqlStatement($sql);
+                        echo "<select name=\"form_{$i}\" id=\"form_{$i}\">\n";
+                            echo "<option value='USD_TD'>" . xlt('United States Dollar'). " - " . '&#x24' . "</option>";
+                            while ($row = sqlFetchArray($result)) {
+                                $curr_code_decimal = $row['curr_code_decimal'];//stored in table globals
+                                $currency_code = $row['currency_code'];
+                                $currency = $row['currency'];
+                                $currency_hex = $row['currency_hex'];
+                                if(!empty($currency_hex)) { 
+                                    $arr_currency_hex = explode(",", $currency_hex);
+                                    foreach ($arr_currency_hex as $value) {
+                                        $currency_symbol .= "&#x".trim($value);
+                                    }
+                                } else {
+                                    $currency_symbol = $currency_code; // displays 3 letter currency code if no symbol
+                                }
+                                $currency_display = $currency . " - " . $currency_symbol;
+                                
+                                $optionStr = '<option value="%curr_code_decimal%"%selected%>%currency_display%</option>';
+                                $optionStr = str_replace("%curr_code_decimal%", attr($curr_code_decimal), $optionStr);
+                                $optionStr = str_replace("%currency_display%", xlt($currency). " - " . $currency_symbol, $optionStr);
+                                $selected = ($fldvalue ==  $curr_code_decimal) ? " selected" : "";
+                                $optionStr = str_replace("%selected%", $selected, $optionStr); 
+                                echo $optionStr;
+                                $currency_symbol = "";
+                            }
+                        echo "</select>";
                 }
 
                 if ($userMode) {

@@ -1,0 +1,272 @@
+/**
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ * 
+ * @author Sherwin Gaddis <sherwingaddis@gmail.com>, Ranganath Pathak <pathak01@hotmail.com>
+ * @copyright Copyright (c) 2016, Sherwin Gaddis, Ranganath Pathak
+ * @version 1.0 
+ * @license http://opensource.org/licenses/gpl-license.php GNU Public License
+ */
+
+ .cc-container {
+			width: 550px ;
+			margin-left: auto ;
+			margin-right: auto ;
+			font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+			
+			  
+		}
+				
+		#form-div {
+			background-color:rgba(205,228,251,0.4);
+			padding-left:25px;
+			padding-right:25px;
+			padding-top:5px;
+			padding-bottom:50px;
+			width: 250px;
+			float: left;
+			left: 50%;
+			position: absolute;
+			margin-top:30px;
+			margin-left: -260px;
+			-moz-border-radius: 7px;
+			-webkit-border-radius: 7px;
+		}
+		
+		#heading{
+			
+			font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+			background-color: #3498DB;
+			color:white;
+			
+		}
+		
+		#heading h3{
+			 text-align: center;
+			 padding:3px;
+		}
+		
+		fieldset {
+			padding-top: 1.5 em;
+			padding-right: 1.5 em;
+			padding-bottom: 1.5 em;
+			padding-left: 2 em;
+
+			font:80%/1 sans-serif;
+			border:1px solid #3498DB;
+			width:90%;
+			
+		}
+		
+		legend {
+			padding: 0.2em 0.5em;
+			font-size:90%;
+			text-align:left;
+		}
+	   input{
+			width:175px;
+			display:block;
+			border: 1px solid #999;
+			height: 25px;
+			-webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+			-moz-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+			box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+			margin-right:auto;
+			margin-left:auto;
+		}
+		textarea#comment {
+			display: block;
+			width:175px;
+			height:75px;
+			margin-right:auto;
+			margin-left:auto;
+		}
+		
+		.bloc { 
+			display:inline-block;
+			vertical-align:top; 
+			overflow:hidden; 
+			border:solid grey 1px; 
+			margin-right:auto;
+			margin-left:2em;
+			
+		}
+		.bloc select {
+			width:195px;
+			padding:10px; 
+			margin:-5px -20px -5px -5px;
+		}
+			
+		#button-blue{
+			font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+			float:right;
+			width: 45%;
+			border: #fbfbfb solid 2px;
+			cursor:pointer;
+			background-color: #3498db;
+			color:white;
+			/*font-size:24px;*/
+			padding-top:5px;
+			padding-bottom:22px;
+			-webkit-transition: all 0.3s;
+			-moz-transition: all 0.3s;
+			transition: all 0.3s;
+			  margin-top:-4px;
+			  font-weight:700;
+			  height: 25px;
+				
+		}
+		
+		
+		#button-blue button{
+			
+			padding-top:5px;
+			padding-bottom:0px;
+		}
+		.success {
+			font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+			font-weight:700;
+			font-size:0.8em;
+		}
+	 
+	 .stripe-button-pp{
+			float:right;
+			width: 50%;
+		overflow:hidden;
+		display:inline-block;
+		visibility:visible !important;
+		/*background-image:-webkit-linear-gradient(#28a0e5,#015e94);
+		background-image:-moz-linear-gradient(#28a0e5,#015e94);
+		background-image:-ms-linear-gradient(#28a0e5,#015e94);
+		background-image:-o-linear-gradient(#28a0e5,#015e94);
+		background-image:-webkit-linear-gradient(#28a0e5,#015e94);
+		background-image:-moz-linear-gradient(#28a0e5,#015e94);
+		background-image:-ms-linear-gradient(#28a0e5,#015e94);
+		background-image:-o-linear-gradient(#28a0e5,#015e94);
+		background-image:linear-gradient(#28a0e5,#015e94);*/
+		-webkit-font-smoothing:antialiased;
+		border:0;
+		padding:1px;
+		text-decoration:none;
+		-webkit-border-radius:5px;
+		-moz-border-radius:5px;
+		-ms-border-radius:5px;
+		-o-border-radius:5px;
+		border-radius:5px;
+		/*-webkit-box-shadow:0 1px 0 rgba(0,0,0,0.2);
+		-moz-box-shadow:0 1px 0 rgba(0,0,0,0.2);
+		-ms-box-shadow:0 1px 0 rgba(0,0,0,0.2);
+		-o-box-shadow:0 1px 0 rgba(0,0,0,0.2);
+		box-shadow:0 1px 0 rgba(0,0,0,0.2);*/
+		-webkit-touch-callout:none;
+		-webkit-tap-highlight-color:transparent;
+		-webkit-user-select:none;
+		-moz-user-select:none;
+		-ms-user-select:none;
+		-o-user-select:none;
+		user-select:none;
+		cursor:pointer
+	}
+	
+	.stripe-button-pp span{
+	display:block;
+	position:relative;
+	padding:0 12px;
+	height:30px;
+	line-height:30px;
+	/*background:#1275ff;*/
+	background-image:-webkit-linear-gradient(#7dc5ee,#008cdd 85%,#30a2e4);
+	background-image:-moz-linear-gradient(#7dc5ee,#008cdd 85%,#30a2e4);
+	background-image:-ms-linear-gradient(#7dc5ee,#008cdd 85%,#30a2e4);
+	background-image:-o-linear-gradient(#7dc5ee,#008cdd 85%,#30a2e4);
+	background-image:-webkit-linear-gradient(#7dc5ee,#008cdd 85%,#30a2e4);
+	background-image:-moz-linear-gradient(#7dc5ee,#008cdd 85%,#30a2e4);
+	background-image:-ms-linear-gradient(#7dc5ee,#008cdd 85%,#30a2e4);
+	background-image:-o-linear-gradient(#7dc5ee,#008cdd 85%,#30a2e4);
+	background-image:linear-gradient(#7dc5ee,#008cdd 85%,#30a2e4);
+	font-size:14px;
+	color:#fff;
+	font-weight:bold;
+	font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+	text-shadow:0 -1px 0 rgba(0,0,0,0.25);
+	-webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,0.25);
+	-moz-box-shadow:inset 0 1px 0 rgba(255,255,255,0.25);
+	-ms-box-shadow:inset 0 1px 0 rgba(255,255,255,0.25);
+	-o-box-shadow:inset 0 1px 0 rgba(255,255,255,0.25);
+	box-shadow:inset 0 1px 0 rgba(255,255,255,0.25);
+	-webkit-border-radius:4px;
+	-moz-border-radius:4px;
+	-ms-border-radius:4px;
+	-o-border-radius:4px;
+	border-radius:4px
+}
+
+/* needed for index.php*/
+
+#payment-for{
+				padding-top:0em; 
+				padding-bottom:0em;
+}
+
+#full-name {
+				margin:2px 2px 4px 2px;
+}
+
+#span-legend{
+				font-size:75%;
+}
+
+
+
+/* needed for receipt.php*/
+
+#receipt-container{
+				width:80%
+}
+
+
+.right-float{
+				float:right;
+}
+
+.left-float{
+				float:left;
+}
+
+.both-clear{
+				clear: both;
+}
+
+.center-text{
+				text-align:center;
+}
+.highlight{
+				background-color:yellow;
+}
+
+.warning{
+				font-weight:bold; 
+				color:red; 
+				background-color:yellow;
+}
+
+@media print {
+ body { margin: 0; 
+		background-image: none;
+	}
+ p, h4, ul, ol, td, a { font-size: 12pt; }
+ h1 { font-size: 24pt; } 
+ h2 { font-size: 18pt; } 
+ h3 { font-size: 14pt; } 
+ h5 { font-size: 10pt; }
+.noprint { display: none; }
+}

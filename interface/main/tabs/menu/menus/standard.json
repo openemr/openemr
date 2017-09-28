@@ -417,6 +417,45 @@
         ]
       },
       {
+        "label": "Stripe Credit Card",
+        "menu_id": "str0",
+        "target": "str",
+        "url": "/interface/payment_processing/stripe/index.php",
+        "children": [],
+        "requirement": 1,
+        "global_req_strict":"enable_stripe"
+      },
+      {
+        "label":"Just View Cash/Check/Credit",
+        "menu_id":"jvc0",
+        "target":"jvc","url":"/interface/payment_processing/reports/credit_cash_check_charges_detailed_totals_pp.php",
+        "children":[],
+        "requirement":0,
+        "global_req_strict": [
+           "enable_stripe"
+        ]
+      },
+      {
+        "label":"Just Assign Cash/Check/Credit",
+        "menu_id":"jac0",
+        "target":"jac","url":"/interface/payment_processing/reports/credit_cash_check_charges_detailed_totals_assign_pp.php",
+        "children":[],
+        "requirement":0,
+        "acl_req": [
+            [
+            "admin",
+            "super"
+            ],
+            [
+            "acct",
+            "bill"
+            ]
+        ],
+        "global_req_strict": [
+            "enable_stripe"
+        ]
+      },	
+      {
         "label": "Billing",
         "menu_id": "bil0",
         "target": "bil",

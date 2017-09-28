@@ -130,6 +130,10 @@ $primary_docs = array(
 'cht' => array(xl('Chart Trk') , 0, '../custom/chart_tracker.php'),
 'imp' => array(xl('Import')    , 0, '../custom/import.php'),
 'bil' => array(xl('Billing')   , 0, 'billing/billing_report.php'),
+'str' => array(xl('Stripe'),      1, 'payment_processing/stripe/index.php'),
+'jcc' => array(xl('Just Collect'),      0, 'payment_processing/cash_check/index.php'),// added R Pathak
+'jac' => array(xl('Just Assign'),      0, 'payment_processing/reports/credit_cash_check_charges_detailed_totals_assign_pp.php'),// added R Pathak
+'jvc' => array(xl('Just View'),      0, 'payment_processing/reports/credit_cash_check_charges_detailed_totals_pp.php'),// added R Pathak
 'sup' => array(xl('Superbill') , 0, 'patient_file/encounter/superbill_custom_full.php'),
 'aun' => array(xl('Authorizations'), 0, 'main/authorizations/authorizations.php'),
 'new' => array(xl('New Pt')    , 0, 'new/new.php'),
@@ -1284,6 +1288,20 @@ if ($reglastcat) {
 } ?>
         <?php if (acl_check('acct', 'bill', '', 'write')) {
             genMiscLink('RBot', 'bil', '1', xl('Checkout'), 'patient_file/pos_checkout.php?framed=1');
+} ?>
+        <?php if ($GLOBALS['enable_stripe']) {
+            genTreeLink('RTop','str','Stripe '. xl('Credit Card'));
+} ?>
+        <?php if ($GLOBALS['enable_just_collect_cash_check']) {
+            //genTreeLink('RTop','jcc',xl('Just Collect Cash/Check'));
+} ?> 
+        <?php if ($GLOBALS['enable_stripe'] || $GLOBALS['enable_just_collect_cash_check']) {
+                if(acl_check('admin', 'super') || acl_check('acct', 'bill')) {
+                    genTreeLink('RTop','jac',xl('Just Assign Cash/Check/Credit'));
+                }
+                else {
+                    genTreeLink('RTop','jvc',xl('Just View Cash/Check/Credit'));
+                }
 } ?>
         <?php if (!$GLOBALS['simplified_demographics'] && (acl_check('acct', 'bill', '', 'write') || acl_check('acct', 'eob', '', 'write'))) {
             genTreeLink('RTop', 'bil', xl('Billing'));
