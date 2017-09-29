@@ -269,47 +269,45 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
         }
     }
 
+    if (isset($fs)) {
+        $bill = is_array($_POST['form_fs_bill']) ? $_POST['form_fs_bill'] : null;
+        $prod = is_array($_POST['form_fs_prod']) ? $_POST['form_fs_prod'] : null;
+        $alertmsg = $fs->checkInventory($prod);
+        // If there is an inventory error then no services or products will be saved, and
+        // the form will be redisplayed with an error alert and everything else saved.
+        if (!$alertmsg) {
+            $fs->save($bill, $prod, null, null);
+            $fs->updatePriceLevel($_POST['form_fs_pricelevel']);
+        }
+    }
+
+    if (!$formid) {
+        $formid = $newid;
+    }
+
     if (!$alertmsg && !$from_issue_form && empty($_POST['bn_save_continue'])) {
-        if (isset($fs)) {
-            $bill = is_array($_POST['form_fs_bill']) ? $_POST['form_fs_bill'] : null;
-            $prod = is_array($_POST['form_fs_prod']) ? $_POST['form_fs_prod'] : null;
-            $alertmsg = $fs->checkInventory($prod);
-            // If there is an inventory error then no services or products will be saved, and
-            // the form will be redisplayed with an error alert and everything else saved.
-            if (!$alertmsg) {
-                $fs->save($bill, $prod, null, null);
-                $fs->updatePriceLevel($_POST['form_fs_pricelevel']);
+        // Support custom behavior at save time, such as going to another form.
+        if (function_exists($formname . '_save_exit')) {
+            if (call_user_func($formname . '_save_exit')) {
+                exit;
             }
         }
-
-        if (!$formid) {
-            $formid = $newid;
+        formHeader("Redirecting....");
+        // If Save and Print, write the JavaScript to open a window for printing.
+        if (!empty($_POST['bn_save_print'])) {
+            echo "<script language='Javascript'>\n"            .
+                "top.restoreSession();\n"                        .
+                "window.open('$rootdir/forms/LBF/printable.php?" .
+                "formname="   . urlencode($formname)            .
+                "&formid="    . urlencode($formid)            .
+                "&visitid="   . urlencode($visitid)            .
+                "&patientid=" . urlencode($pid)            .
+                "', '_blank');\n"                                .
+                "</script>\n";
         }
-
-        if (!$alertmsg && !$from_issue_form && empty($_POST['bn_save_continue'])) {
-            // Support custom behavior at save time, such as going to another form.
-            if (function_exists($formname . '_save_exit')) {
-                if (call_user_func($formname . '_save_exit')) {
-                    exit;
-                }
-            }
-            formHeader("Redirecting....");
-            // If Save and Print, write the JavaScript to open a window for printing.
-            if (!empty($_POST['bn_save_print'])) {
-                echo "<script language='Javascript'>\n"            .
-                    "top.restoreSession();\n"                        .
-                    "window.open('$rootdir/forms/LBF/printable.php?" .
-                    "formname="   . urlencode($formname)            .
-                    "&formid="    . urlencode($formid)            .
-                    "&visitid="   . urlencode($visitid)            .
-                    "&patientid=" . urlencode($pid)            .
-                    "', '_blank');\n"                                .
-                    "</script>\n";
-            }
-            formJump();
-            formFooter();
-            exit;
-        }
+        formJump();
+        formFooter();
+        exit;
     }
 }
 
