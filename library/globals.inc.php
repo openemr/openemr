@@ -1550,42 +1550,42 @@ $GLOBALS_METADATA = array(
             xl("Allow Check In before the appointment's time.")
         ),
         'disable_pat_trkr' => array(
-            xl('Disable Patient Flow Board'),
+            xl('Flow Board: Disable '),
             'bool',                           // data type
             '0',                              // default
-            xl('Do not display the patient flow board.')
+            xl('Completely remove the ability to display the Patient Flow Board.')
         ),
 
         'ptkr_visit_reason' => array(
-            xl('Show Visit Reason in Patient Flow Board'),
+            xl('Flow Board: Show Visit Reason'),
             'bool',                           // data type
             '0',                              // default = false
             xl('When Checked, Visit Reason Will Show in Patient Flow Board.')
         ),
 
         'ptkr_show_pid' => array(
-            xl('Show Patient ID in Patient Flow Board'),
+            xl('Flow Board: Show Patient ID'),
             'bool',                           // data type
             '1',                              // default = true
             xl('When Checked, Patient ID Will Show in Patient Flow Board.')
         ),
 
         'ptkr_show_encounter' => array(
-            xl('Show Patient Encounter Number in Patient Flow Board'),
+            xl('Flow Board: Show Encounter Number'),
             'bool',                           // data type
             '1',                              // default = true
             xl('When Checked, Patient Encounter Number Will Show in Patient Flow Board.')
         ),
 
         'ptkr_date_range' => array(
-            xl('Allow Date Range in Patient Flow Board'),
+            xl('Flow Board: Allow Date Range'),
             'bool',                          // data type
             '1',                             // default = true
             xl('This Allows a Date Range to be Selected in Patient Flow Board.')
         ),
 
         'ptkr_end_date' => array(
-            xl('Ending Date for Patient Flow Board'),
+            xl('Flow Board: Ending Date'),
             array(
                 'Y1' => xl('One Year Ahead'),
                 'Y2' => xl('Two Years Ahead'),
@@ -1599,7 +1599,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'pat_trkr_timer' => array(
-            xl('Patient Flow Board Timer Interval'),
+            xl('Flow Board: Timer Interval'),
             array(
                 '0' => xl('No automatic refresh'),
                 '0:10' => '10',
@@ -1612,6 +1612,15 @@ $GLOBALS_METADATA = array(
             '0:20',                              // default
             xl('The screen refresh time in Seconds for the Patient Flow Board Screen.')
         ),
+
+        'disable_rcb' => array(
+          xl('Recall Board: Disable '),
+          'bool',                           // data type
+          '0',                              // default
+          xl('Do not display the Recall Board.')
+        ),
+
+ 
 
         'checkout_roll_off' => array(
             xl('Number of Minutes to display completed checkouts'),
