@@ -375,7 +375,7 @@ function goMedEx() {
 }
 /****  END FUNCTIONS RELATED TO NAVIGATION *****/
 
-function show_this(colorish='') {
+function show_this(){
     var facV        = $("#form_facility").val();
     var provV       = $("#form_provider").val();
     var pidV        = $("#form_patient_id").val();
@@ -383,18 +383,17 @@ function show_this(colorish='') {
     var pnameV      = $("#form_patient_name").val();
     var pnameRE     = new RegExp(pnameV, 'ig');
     
+        //and hide what we don't want to show
     $('.ALL').hide().filter(function(){
                             var d = $(this).data();
-                            if ((facV == '') || (facV == d.facility)) { meets_fac=true; } else { meets_fac=false; }
-                            if ((provV == '') || (provV == d.provider)) { meets_prov=true; } else { meets_prov=false; }
-                            if (pidV =='') { meets_pid=true; } else { meets_pid=false; }
+                            if ((facV === '') || (facV == d.facility)) { meets_fac=true; } else { meets_fac=false; }
+                            if ((provV === '') || (provV = d.provider)) { meets_prov=true; } else { meets_prov=false; }
+                            if ((pidV === '')) { meets_pid=true; } else { meets_pid=false; }
                             if ((pidV > '') && pidRE.test(d.pid)) { meets_pid=true; }
-                            if (pnameV == '') { meets_pname=true; } else { meets_pname=false; }
+                            if ((pnameV === '')) { meets_pname=true; } else { meets_pname=false; }
                             if ((pnameV > '') && pnameRE.test(d.pname)) { meets_pname=true; }
-                            if ((colorish === '') || (colorish == d.status )) { meets_color=true; } else { meets_color=false; }
-                            //alert(meets_fac +' = '+ meets_prov +' = '+ meets_pid +' = '+ meets_pname +' = '+ meets_color);
-                            return meets_fac && meets_prov && meets_pid && meets_pname && meets_color;
-                            }).show('4000','linear');
+                            return meets_fac && meets_prov && meets_pid && meets_pname;
+                          }).show('4000','linear');
 }
 
 //in bootstrap_menu.js

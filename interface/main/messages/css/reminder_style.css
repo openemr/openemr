@@ -327,6 +327,22 @@ float: right;
   top: 10px;
   right: 20px;
  }
+ .reminder_button {
+  background: #063f80;
+  color: white !important;
+  display: inline-block;
+  font-weight: 300;
+  margin: 4px;
+  vertical-align: middle;
+  text-decoration: none;
+  padding: 5px;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.8em;
+  box-shadow: 2px 1px 4px #88888B;
+  min-width: 70px;
+  text-align: center;
+ }
  table {
   font-size:1em;
   width: 100%;
