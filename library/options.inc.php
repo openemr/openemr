@@ -443,7 +443,7 @@ function generate_form_field($frow, $currvalue)
         " rows='$textRows' $lbfonchange $disabled" .
         ">" . $currescaped . "</textarea>";
     } // date
-    else if ($data_type == 4) {
+    else if ($data_type == 4 || $data_type == 5) {
         $age_asof_date = ''; // optionalAge() sets this
         $age_format = strpos($frow['edit_options'], 'A') === false ? 3 : 0;
         $agestr = optionalAge($frow, $currvalue, $age_asof_date, $description);
@@ -456,9 +456,13 @@ function generate_form_field($frow, $currvalue)
             $onchange_string = "onchange=\"if (typeof(updateAgeString) == 'function') " .
             "updateAgeString('$field_id','$age_asof_date', $age_format, '$description')\"";
         }
-
-        echo "<input type='text' size='10' class='datepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
-        " value='" . substr($currescaped, 0, 10) . "'";
+        if ($data_type == 4) {
+            echo "<input type='text' size='10' class='datepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
+            " value='" . substr($currescaped, 0, 10) . "'";
+        } else if ($data_type == 5) {
+            echo "<input type='text' size='20' class='datetimepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
+            " value='" . substr($currescaped, 0, 20) . "'";
+        }
         if (!$agestr) {
             echo " title='$description'";
         }
@@ -1248,7 +1252,7 @@ function generate_form_field($frow, $currvalue)
     else if ($data_type == 34) {
         $arr = explode("|*|*|*|", $currvalue);
         echo "<a href='../../../library/custom_template/custom_template.php?type=form_{$field_id}&contextName=".htmlspecialchars($list_id_esc, ENT_QUOTES)."' class='iframe_medium' style='text-decoration:none;color:black;'>";
-        echo "<div id='form_{$field_id}_div' class='text-area'>".htmlspecialchars($arr[0], ENT_QUOTES)."</div>";
+        echo "<div id='form_{$field_id}_div' class='text-area' style='min-width:100pt'>" . $arr[0] . "</div>";
         echo "<div style='display:none'><textarea name='form_{$field_id}' id='form_{$field_id}' class='form-control' style='display:none' $lbfonchange $disabled>" . $currvalue . "</textarea></div>";
         echo "</a>";
     } //facilities drop-down list
@@ -1402,7 +1406,7 @@ function generate_print_field($frow, $currvalue)
         " rows='$maxlength'>" .
         $currescaped . "</textarea>";
     } // date
-    else if ($data_type == 4) {
+    else if ($data_type == 4 || $data_type == 5) {
         $age_asof_date = '';
         $agestr = optionalAge($frow, $currvalue, $age_asof_date, $description);
         if ($currvalue === '') {
@@ -2027,7 +2031,7 @@ function generate_display_field($frow, $currvalue)
     else if ($data_type == 3) {
         $s = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
     } // date
-    else if ($data_type == 4) {
+    else if ($data_type == 4 || $data_type == 5) {
         $asof = ''; //not used here, but set to prevent a php warning when call optionalAge
         $s = '';
         $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
@@ -2036,7 +2040,11 @@ function generate_display_field($frow, $currvalue)
         if ($currvalue === '') {
             $s .= '&nbsp;';
         } else {
-            $s .= text(oeFormatShortDate($currvalue));
+            if ($data_type == 4) {
+                $s .= text(oeFormatShortDate($currvalue));
+            } else {
+                $s .= text(oeFormatDateTime($currvalue));
+            }
             if ($agestr) {
                 $s .= "&nbsp;(" . text($agestr) . ")";
             }
@@ -2449,7 +2457,7 @@ function generate_plaintext_field($frow, $currvalue)
     else if ($data_type == 2 || $data_type == 3 || $data_type == 15) {
         $s = $currvalue;
     } // date
-    else if ($data_type == 4) {
+    else if ($data_type == 4 || $data_type == 5) {
         $s = oeFormatShortDate($currvalue);
         $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
         $age_asof_date = '';

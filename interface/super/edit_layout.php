@@ -56,6 +56,7 @@ $datatypes = array(
   "2"  => xl("Textbox"),
   "3"  => xl("Textarea"),
   "4"  => xl("Text-date"),
+  "5"  => xl("Text-date and time"),
   "10" => xl("Providers"),
   "11" => xl("Providers NPI"),
   "12" => xl("Pharmacies"),
