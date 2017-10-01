@@ -700,8 +700,7 @@ function pnModURL($modname, $type = 'user', $func = 'main', $args = array(), $pa
     //this may break windows path accesses?
     $path = preg_replace("/[^\.\/a-zA-Z0-9]/", "", $path)
     ;
-    //Escapes several special chars
-    $url=attr($url);
+
     // The URL
     $final_url = pnGetBaseURL() . $path . $url;
     return $final_url;
@@ -802,7 +801,7 @@ function pnModRegisterHook(
     $hookfunc
 ) {
 
-    
+
     // Get database info
     list($dbconn) = pnDBGetConn();
     $pntable = pnDBGetTables();
@@ -853,7 +852,7 @@ function pnModUnregisterHook(
     $hookfunc
 ) {
 
-    
+
     // Get database info
     list($dbconn) = pnDBGetConn();
     $pntable = pnDBGetTables();
@@ -905,7 +904,7 @@ function pnModCallHooks($hookobject, $hookaction, $hookid, $extrainfo)
             AND $hookscolumn[object] = '" . pnVarPrepForStore($hookobject) . "'
             AND $hookscolumn[action] = '" . pnVarPrepForStore($hookaction) . "'";
     $result = $dbconn->Execute($sql);
-                  
+
     if ($dbconn->ErrorNo() != 0) {
         return null;
     }
