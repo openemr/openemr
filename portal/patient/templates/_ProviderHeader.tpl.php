@@ -28,7 +28,7 @@
 
         <title><?php $this->eprint($this->title); ?></title>
         <meta content="width=device-width, initial-scale=1, user-scalable=yes" name="viewport">
-        <base href="<?php $this->eprint($this->ROOT_URL); ?>" />
+        <!-- <base href="<?php //$this->eprint($this->ROOT_URL); ?>" /> -->
         <meta name="description" content="Provider Portal" />
         <meta name="author" content="Dashboard | sjpadgett@gmail.com" />
 
@@ -43,9 +43,9 @@
         <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" type="text/css" />
         <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signpad.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
 
-        <script type="text/javascript" src="scripts/libs/LAB.min.js"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
         <script type="text/javascript">
-            $LAB.setGlobalDefaults({BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"});
+            /* $LAB.setGlobalDefaults({BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"}); */
             $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js")
                 //.script("../sign/assets/signpad.js")
                 .script("<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
