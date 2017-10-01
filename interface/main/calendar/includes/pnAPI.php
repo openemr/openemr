@@ -1071,13 +1071,13 @@ function pnThemeGetVar($name)
  */
 function pnGetBaseURI()
 {
-    global $HTTP_SERVER_VARS;
+    // global $HTTP_SERVER_VARS; // depreciated
 
     // Get the name of this URI
 
     // Start of with REQUEST_URI
-    if (isset($HTTP_SERVER_VARS['REQUEST_URI'])) {
-        $path = $HTTP_SERVER_VARS['REQUEST_URI'];
+    if (isset($_SERVER['REQUEST_URI'])) {
+        $path = $_SERVER['REQUEST_URI'];
     } else {
         $path = getenv('REQUEST_URI');
     }
@@ -1090,8 +1090,8 @@ function pnGetBaseURI()
         if (empty($path)) {
             // No luck there either
             // Try SCRIPT_NAME
-            if (isset($HTTP_SERVER_VARS['SCRIPT_NAME'])) {
-                $path = $HTTP_SERVER_VARS['SCRIPT_NAME'];
+            if (isset($_SERVER['SCRIPT_NAME'])) {
+                $path = $_SERVER['SCRIPT_NAME'];
             } else {
                 $path = getenv('SCRIPT_NAME');
             }
@@ -1115,16 +1115,16 @@ function pnGetBaseURI()
  */
 function pnGetBaseURL()
 {
-    global $HTTP_SERVER_VARS;
+    // global $HTTP_SERVER_VARS; // depreciated
 
-    if (empty($HTTP_SERVER_VARS['HTTP_HOST'])) {
+    if (empty($_SERVER['HTTP_HOST'])) {
         $server = getenv('HTTP_HOST');
     } else {
-        $server = $HTTP_SERVER_VARS['HTTP_HOST'];
+        $server = $_SERVER['HTTP_HOST'];
     }
 
     // IIS sets HTTPS=off
-    if ((isset($HTTP_SERVER_VARS['HTTPS']) && $HTTP_SERVER_VARS['HTTPS'] != 'off') || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')) {
+    if ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')) {
         $proto = 'https://';
     } else {
         $proto = 'http://';
@@ -1169,18 +1169,18 @@ function pnRedirect($redirecturl)
  */
 function pnLocalReferer()
 {
-    global $HTTP_SERVER_VARS;
+    // global $HTTP_SERVER_VARS; // depreciated
 
-    if (empty($HTTP_SERVER_VARS['HTTP_HOST'])) {
+    if (empty($_SERVER['HTTP_HOST'])) {
         $server = getenv('HTTP_HOST');
     } else {
-        $server = $HTTP_SERVER_VARS['HTTP_HOST'];
+        $server = $_SERVER['HTTP_HOST'];
     }
 
-    if (empty($HTTP_SERVER_VARS['HTTP_REFERER'])) {
+    if (empty($_SERVER['HTTP_REFERER'])) {
         $referer = getenv('HTTP_REFERER');
     } else {
-        $referer = $HTTP_SERVER_VARS['HTTP_REFERER'];
+        $referer = $_SERVER['HTTP_REFERER'];
     }
 
     if (empty($referer) || preg_match("!^http://$server/!", $referer)) {
@@ -1391,7 +1391,7 @@ function pnMailHackAttempt(
         $_pv  = $HTTP_POST_VARS;
         $_gv  = $HTTP_GET_VARS;
         $_rv  = array();
-        $_sv  = $HTTP_SERVER_VARS;
+        $_sv  = $_SERVER;
         $_ev  = $HTTP_ENV_VARS;
         $_cv  = $HTTP_COOKIE_VARS;
         $_fv  = $HTTP_POST_FILES;

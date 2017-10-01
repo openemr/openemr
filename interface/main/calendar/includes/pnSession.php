@@ -35,13 +35,13 @@
  */
 function pnSessionSetup()
 {
-    global $HTTP_SERVER_VARS;
+    // global $HTTP_SERVER_VARS; // depreciated
     $path = pnGetBaseURI();
     if (empty($path)) {
         $path = '/';
     }
 
-    $host = $HTTP_SERVER_VARS['HTTP_HOST'];
+    $host = $_SERVER['HTTP_HOST'];
     if (empty($host)) {
         $host = getenv('HTTP_HOST');
     }
@@ -188,7 +188,7 @@ function pnSessionDelVar($name)
 function pnSessionInit()
 {
 
-    global $HTTP_SERVER_VARS;
+    // global $HTTP_SERVER_VARS; // depreciated
     list($dbconn) = pnDBGetConn();
     $pntable = pnDBGetTables();
 
@@ -216,13 +216,13 @@ function pnSessionInit()
     $sessid = session_id();
 
     // Get (actual) client IP addr
-    $ipaddr = $HTTP_SERVER_VARS['REMOTE_ADDR'];
+    $ipaddr = $_SERVER['REMOTE_ADDR'];
     if (empty($ipaddr)) {
         $ipaddr = getenv('REMOTE_ADDR');
     }
 
-    if (!empty($HTTP_SERVER_VARS['HTTP_CLIENT_IP'])) {
-        $ipaddr = $HTTP_SERVER_VARS['HTTP_CLIENT_IP'];
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $ipaddr = $_SERVER['HTTP_CLIENT_IP'];
     }
 
     $tmpipaddr = getenv('HTTP_CLIENT_IP');
@@ -230,8 +230,8 @@ function pnSessionInit()
         $ipaddr = $tmpipaddr;
     }
 
-    if (!empty($HTTP_SERVER_VARS['HTTP_X_FORWARDED_FOR'])) {
-        $ipaddr = preg_replace('/,.*/', '', $HTTP_SERVER_VARS['HTTP_X_FORWARDED_FOR']);
+    if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $ipaddr = preg_replace('/,.*/', '', $_SERVER['HTTP_X_FORWARDED_FOR']);
     }
 
     $tmpipaddr = getenv('HTTP_X_FORWARDED_FOR');

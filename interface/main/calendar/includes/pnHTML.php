@@ -475,14 +475,14 @@ class pnHTML
      */
     function Redirect($url, $waittime = 3)
     {
-        global $HTTP_SERVER_VARS;
+        // global $HTTP_SERVER_VARS; // depreciated
 
-        $server = $HTTP_SERVER_VARS['HTTP_HOST'];
+        $server = $_SERVER['HTTP_HOST'];
         if (empty($server)) {
             $server = getenv('HTTP_HOST');
         }
 
-        $self = $HTTP_SERVER_VARS['PHP_SELF'];
+        $self = $_SERVER['PHP_SELF'];
         if (empty($self)) {
             $self = getenv('PHP_SELF');
         }
