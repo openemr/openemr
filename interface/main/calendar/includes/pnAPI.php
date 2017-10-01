@@ -1116,7 +1116,7 @@ function pnGetBaseURI()
 function pnGetBaseURL()
 {
 
-    // Removed majority of this function in 10/2018 to just use relative path
+    // Removed majority of this function in 10/2017 to just use relative path
     // (the full path would break in some https server setups)
 
     $path = pnGetBaseURI();
