@@ -50,13 +50,13 @@ while ($lrow = sqlFetchArray($lres)) {
     $validations[$lrow['option_id']] = xl_list_label($lrow['title']);
 }
 
+// Field modifier objects in script
 // array of the data_types of the fields
 $datatypes = array(
   "1"  => xl("List box"),
   "2"  => xl("Textbox"),
   "3"  => xl("Textarea"),
   "4"  => xl("Text-date"),
-  "5"  => xl("Text-date and time"),
   "10" => xl("Providers"),
   "11" => xl("Providers NPI"),
   "12" => xl("Pharmacies"),
@@ -779,34 +779,12 @@ function writeFieldLine($linedata)
          htmlspecialchars($linedata['datacols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' style='width:100%' />";
     echo "</td>\n";
   
-    echo "  <td align='center' class='optcell' style='width:4%' title='" .
-          "A = " . xla('Age') .
-        ", B = " . xla('Gestational Age') .
-        ", C = " . xla('Capitalize') .
-        ", D = " . xla('Dup Check') .
-        ", E = " . xla('Dup Check on only Edit') .
-        ", W = " . xla('Dup Check on only New') .
-        ", G = " . xla('Graphable') .
-        ", I = " . xla('Initially Open Group') .
-        ", L = " . xla('Lab Order') .
-        ", N = " . xla('New Patient Form') .
-        ", O = " . xla('Order Processor') .
-        ", P = " . xla('Default to previous value') .
-        ", R = " . xla('Distributor') .
-        ", T = " . xla('Description is default text') .
-        ", U = " . xla('Capitalize all') .
-        ", V = " . xla('Vendor') .
-        ", X = " . xla('Do Not Print') .
-        ", 0 = " . xla('Read Only') .
-        ", 1 = " . xla('Write Once') .
-        ", 2 = " . xla('Billing Code Descriptions') .
-
-        "'>";
+    echo "  <td align='center' class='optcell' style='width:6%' title='" . xla("Add modifiers for this field type. You may select more than one.") . "'>";
     echo "<input type='text' name='fld[$fld_line_no][edit_options]' value='" .
       htmlspecialchars($linedata['edit_options'], ENT_QUOTES) . "' size='3' " .
-      "maxlength='36' class='optin' style='width:100%' />";
+      "maxlength='36' class='typeAddons optin' style='width:100%' multiple='multiple' />";
     echo "</td>\n";
-
+    
     if ($linedata['data_type'] == 31) {
         echo "  <td align='center' class='optcell' style='width:16%'>";
         echo "<textarea name='fld[$fld_line_no][desc]' rows='3' cols='35' class='optin' style='width:100%'>" .
@@ -989,10 +967,12 @@ function writeFieldLine($linedata)
 <?php html_header_show();?>
 
 <!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
+<link  href="<?php echo $GLOBALS['assets_static_relative']; ?>/select2-4-0/dist/css/select2.css" rel="stylesheet" />
+<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/select2-4-0/dist/js/select2.full.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <title><?php  xl('Layout Editor', 'e'); ?></title>
 
@@ -1035,7 +1015,18 @@ a, a:visited, a:hover { color:#0000cc; }
     background-color: yellow;
     color: black;
 }
-
+.select2-container--classic .select2-selection--multiple {
+    cursor: pointer;
+    border-color: #000;
+    margin-left: 5px;
+    display: block;
+    min-width: 150px;
+    min-height: 26px;
+}
+.select2-search__field {
+    cursor: pointer;
+    width: 0 !important;
+}
 </style> 
 
 <script language="JavaScript">
@@ -1241,7 +1232,7 @@ function myChangeCheck() {
 </head>
 
 <body class="body_top admin-layout">
-
+<div class="container-responsive">
 <form method='post' name='theform' id='theform' action='edit_layout.php'>
 <input type="hidden" name="formaction" id="formaction" value="">
 <!-- elements used to identify a field to delete -->
@@ -1257,10 +1248,10 @@ function myChangeCheck() {
 <!-- elements used to select more than one field -->
 <input type="hidden" name="selectedfields" id="selectedfields" value="">
 <input type="hidden" id="targetgroup" name="targetgroup" value="">
-<div class="menubar">
-<div>
+<div class="lbfmenubar">
+<span>
 <b><?php xl('Edit layout', 'e'); ?>:</b>&nbsp;
-<select name='layout_id' id='layout_id'>
+<select name='layout_id' id='layout_id' class='form-control' style='display:inline-block;margin-bottom:5px;width:15%;'>
  <option value=''>-- <?php echo xl('Select') ?> --</option>
 <?php
 $lastgroup = '';
@@ -1283,8 +1274,8 @@ if ($lastgroup) {
 }
 ?>
 </select>
-
-</div><div><p>
+</span>
+<div><p>
 <?php if ($layout_id) { ?>
 <input type='button' value='<?php echo xla('Layout Properties'); ?>' onclick='edit_layout_props("")' />&nbsp;
 <input type='button' class='addgroup'  id='addgroup'  value='<?php echo xla('Add Group'); ?>' />
@@ -1298,7 +1289,6 @@ if ($lastgroup) {
 <?php } ?>
 </p></div>
 </div>
-<div class="container">
 
 <?php
 // Load array of properties for this layout and its groups.
@@ -1395,7 +1385,7 @@ while ($row = sqlFetchArray($res)) {
 
 ?>
 </tbody>
-</table></div>
+</table>
 
 <?php echo $extra_html; ?>
 
@@ -1493,7 +1483,7 @@ foreach ($datatypes as $key => $value) {
 <td><input type="textbox" name="gnewbackuplistid" id="gnewbackuplistid" value="" size="8" maxlength="100" class="listid"></td>
 <td><input type="textbox" name="gnewtitlecols" id="gnewtitlecols" value="" size="3" maxlength="3"> </td>
 <td><input type="textbox" name="gnewdatacols" id="gnewdatacols" value="" size="3" maxlength="3"> </td>
-<td><input type="textbox" name="gnewedit_options" id="gnewedit_options" value="" size="3" maxlength="36">
+<td><input type="textbox" name="gnewedit_options" id="gnewedit_options" class="typeAddons"  style='width:100%' multiple='multiple' value="" size="3" maxlength="36">
     <input type="hidden"  name="gnewdefault" id="gnewdefault" value="" /> </td>
 <td><input type="textbox" name="gnewdesc" id="gnewdesc" value="" size="30"> </td>
 </tr>
@@ -1576,7 +1566,7 @@ foreach ($datatypes as $key => $value) {
    <td><input type="textbox" name="newbackuplistid" id="newbackuplistid" value="" size="8" maxlength="31" class="listid"></td>
    <td><input type="textbox" name="newtitlecols" id="newtitlecols" value="" size="3" maxlength="3"> </td>
    <td><input type="textbox" name="newdatacols" id="newdatacols" value="" size="3" maxlength="3"> </td>
-   <td><input type="textbox" name="newedit_options" id="newedit_options" value="" size="3" maxlength="36">
+   <td><input type="textbox" name="newedit_options" id="newedit_options"  multiple='multiple' class='typeAddons'  style='width:100%' value="">
        <input type="hidden"  name="newdefault" id="newdefault" value="" /> </td>
    <td><input type="textbox" name="newdesc" id="newdesc" value="" size="30"> </td>
   </tr>
@@ -1589,11 +1579,35 @@ foreach ($datatypes as $key => $value) {
  </tbody>
 </table>
 </div>
-
+</div>
 </body>
 
 <script language="javascript">
-
+/* Field modifier objects - heading towards context based.
+    Used by Select2 so rtl may be enabled*/
+<?php echo "var fldOptions = [
+	{id: 'A',text:'" . xla('Age') . "'},
+	{id: 'B',text:'" . xla('Gestational Age') . "'},
+	{id: 'F',text:'" . xla('Add Time to Date') . "',ctx:'4'},
+	{id: 'C',text:'" . xla('Capitalize') . "'},
+	{id: 'D',text:'" . xla('Dup Check') . "'},
+	{id: 'E',text:'" . xla('Dup Check on only Edit') . "'},
+	{id: 'W',text:'" . xla('Dup Check on only New') . "'},
+	{id: 'G',text:'" . xla('Graphable') . "'},
+	{id: 'I',text:'" . xla('Initially Open Group') . "'},
+	{id: 'L',text:'" . xla('Lab Order') . "'},
+	{id: 'N',text:'" . xla('New Patient Form') . "'},
+	{id: 'O',text:'" . xla('Order Processor') . "'},
+	{id: 'P',text:'" . xla('Default to previous value') . "'},
+	{id: 'R',text:'" . xla('Distributor') . "'},
+	{id: 'T',text:'" . xla('Description is default text') . "'},
+	{id: 'U',text:'" . xla('Capitalize all') . "'},
+	{id: 'V',text:'" . xla('Vendor') . "'},
+	{id: 'X',text:'" . xla('Do Not Print') . "'},
+	{id: '0',text:'" . xla('Read Only') . "'},
+	{id: '1',text:'" . xla('Write Once') . "'},
+	{id: '2',text:'" . xla('Billing Code Descriptions') . "'}]";
+?>
 // used when selecting a list-name for a field
 var selectedfield;
 
@@ -1622,6 +1636,17 @@ function getNextSeq(group) {
 // jQuery stuff to make the page a little easier to use
 
 $(document).ready(function(){
+    $(function () {
+        $('.typeAddons').select2({
+            data: fldOptions,
+            theme: 'classic',
+            placeholder: 'Select options',
+            closeOnSelect: true,
+            minimumResultsForSearch: 'Infinity',
+            containerCssClass: ':all:',
+            allowClear: true
+        }); 
+    });
     $("#save").click(function() { SaveChanges(); });
     $("#layout_id").change(function() {
       if (!myChangeCheck()) {
@@ -1984,7 +2009,7 @@ $(document).ready(function(){
     }
   });
 
-});
+}); /* Ready */
 
 function NationNotesContext(lineitem,val){
   if(val==34){
