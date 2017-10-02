@@ -54,7 +54,11 @@ if (($_POST['setting_bootstrap_submenu'])||
 ?><html>
   <head>
     <title><?php echo xlt('Message Center'); ?></title>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/excite-bike/jquery-ui.css">
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
+     <script src="https://code.jquery.com/jquery-migrate-3.0.1.js"></script>
+    
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/themes/excite-bike/jquery-ui.css">
     <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
     <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
     <?php } ?>
@@ -70,11 +74,10 @@ if (($_POST['setting_bootstrap_submenu'])||
 
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/moment-2-13-0/moment.js"></script>
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>
         var xljs1 = '<?php echo xl('Preferences updated successfully'); ?>';
@@ -109,6 +112,7 @@ if (($_POST['setting_bootstrap_submenu'])||
     <style>
       label { font-weight:400;}
     </style>
+
   </head>
 
   <body class="body_top">
@@ -145,9 +149,9 @@ if (($_POST['setting_bootstrap_submenu'])||
         ?>
         <div class="container">
             <div class="row">
-                <div class="col-sm-4 text-center col-offset-sm-2">
+                <div class="col-sm-4 text-left col-offset-sm-2">
                     <div>
-                      <span class="title" style="width:100%;"><?php echo xlt('Messages'); ?></span>
+                      <span class="title text-left"><?php echo xlt('Messages'); ?></span>
                         <?php
                           // TajEmo Work by CB 2012/01/11 02:51:25 PM adding dated reminders
                           // I am asuming that at this point security checks have been performed
@@ -166,6 +170,24 @@ if (($_POST['setting_bootstrap_submenu'])||
                           <a class="css_button_small" onclick="goReminderRecall('Recalls');"><span><?php echo xlt('Recall Board'); ?></span></a>
                           &nbsp;
                         </div>
+                        <?php  
+                    }  ?>
+                </div>
+                <div class="col-sm-3 text-center">
+                    <?php 
+                    if ( $logged_in ) { ?>
+                        <div class="">
+                            <span class="title"><?php echo xlt('SMS Zone'); ?></span>
+                            <br /><br />
+                            
+                            <form id="smsForm" class="input-group">
+                                <input id="SMS_patient" type="text" style="margin:0px;" class="form-control" placeholder="Patient Name" />
+                                <span class="input-group-addon"  onclick="SMS_direct();"><i class="glyphicon glyphicon-phone"></i></span>
+                                <input type="hidden" id="sms_pid">
+                                <input type="hidden" name="sms_mobile">
+                            </form>
+                        </div>
+   
                         <?php  
                     }  ?>
                 </div>
@@ -207,6 +229,7 @@ if (($_POST['setting_bootstrap_submenu'])||
                             }
                         }
                         ?>
+
                       <table>
                         <tr>
                           <td>
@@ -654,50 +677,63 @@ if (($_POST['setting_bootstrap_submenu'])||
             <div class="col-sm-2"></div>
         </div>
         <script language="javascript">
-                      // jQuery stuff to make the page a little easier to use
-                      $(document).ready(function(){
+                    $(function() {
+                        var f = $("#smsForm");
+                            $( "#SMS_patient" ).autocomplete({
+                                    source: "save.php?go=sms_search",
+                                    minLength: 2,
+                                    select: function(event, ui) { 
+                                        event.preventDefault();
+                                        $("#SMS_patient").val(ui.item.label+' '+ui.item.mobile);
+                                        $("#sms_pid").val(ui.item.pid),
+                                        $("#sms_mobile").val(ui.item.mobile)
+                                }
+                            });
+                        });
+                    $(document).ready(function(){
                         $("#newnote").click(function() { NewNote(); });
                         $("#printnote").click(function() { PrintNote(); });
-                        obj = document.getElementById("form_message_status");
+                        var obj = $("#form_message_status");
                         obj.onchange = function(){SaveNote();};
                         $("#cancel").click(function() { CancelNote(); });
                         $("#note").focus();
-                        var NewNote = function () {
+                        
+                       });
+                    var NewNote = function () {
                           top.restoreSession();
                           if (document.forms[0].reply_to.value.length == 0 || document.forms[0].reply_to.value == '0') {
-                           alert('<?php echo htmlspecialchars(xl('Please choose a patient'), ENT_QUOTES); ?>');
+                             alert('<?php echo htmlspecialchars(xl('Please choose a patient'), ENT_QUOTES); ?>');
                          }
                          else if (document.forms[0].assigned_to.value.length == 0 &&
-                           document.getElementById("form_message_status").value != 'Done')
+                             document.getElementById("form_message_status").value != 'Done')
                          {
-                           alert('<?php echo addslashes(xl('Recipient required unless status is Done')); ?>');
+                             alert('<?php echo addslashes(xl('Recipient required unless status is Done')); ?>');
                          }
                          else
                          {
                           $("#new_note").submit();
-                        }
-                        }
+                            }
+                    }
+                    var PrintNote = function () {
+                        top.restoreSession();
+                        window.open('../../patient_file/summary/pnotes_print.php?noteid=<?php echo htmlspecialchars($noteid, ENT_QUOTES); ?>', '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
+                    }
 
-                        var PrintNote = function () {
-                          top.restoreSession();
-                          window.open('../../patient_file/summary/pnotes_print.php?noteid=<?php echo htmlspecialchars($noteid, ENT_QUOTES); ?>', '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
-                        }
-
-                        var SaveNote = function () {
-                            <?php if ($noteid) { ?>
+                    var SaveNote = function () {
+                        <?php if ($noteid) { ?>
                             top.restoreSession();
                             $("#task").val("save");
                             $("#new_note").submit();
-                            <?php } ?>
-                          }
+                        <?php } ?>
+                    }
 
-                          var CancelNote = function () {
-                            top.restoreSession();
-                            $("#task").val("");
-                            $("#new_note").submit();
-                          }
-                      });
-                      function gotoReport(doc_id,pname,pid,pubpid,str_dob){
+                    var CancelNote = function () {
+                        top.restoreSession();
+                        $("#task").val("");
+                        $("#new_note").submit();
+                    }
+               
+                    function gotoReport(doc_id,pname,pid,pubpid,str_dob){
                         EncounterDateArray=new Array;
                         CalendarCategoryArray=new Array;
                         EncounterIdArray=new Array;
@@ -706,11 +742,11 @@ if (($_POST['setting_bootstrap_submenu'])||
                         if (isset($enc_list) && sqlNumRows($enc_list) >0) {
                             while ($row = sqlFetchArray($enc_list)) {
                                 ?>
-                              EncounterIdArray[Count]='<?php echo attr($row['encounter']); ?>';
-                            EncounterDateArray[Count]='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($row['date'])))); ?>';
-                            CalendarCategoryArray[Count]='<?php echo attr(xl_appt_category($row['pc_catname'])); ?>';
-                            Count++;
-                            <?php
+                                EncounterIdArray[Count]='<?php echo attr($row['encounter']); ?>';
+                                EncounterDateArray[Count]='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($row['date'])))); ?>';
+                                CalendarCategoryArray[Count]='<?php echo attr(xl_appt_category($row['pc_catname'])); ?>';
+                                Count++;
+                                <?php
                             }
                         }
                         ?>
@@ -720,7 +756,7 @@ if (($_POST['setting_bootstrap_submenu'])||
                           url:'<?php echo $GLOBALS['webroot']."/library/ajax/set_pt.php";?>',
                           data:{set_pid: pid},
                           async: false
-                        });
+                      });
                         parent.left_nav.setPatient(pname,pid,pubpid,'',str_dob);
                         parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
                         <?php if ($GLOBALS['new_tabs_layout']) { ?>
@@ -729,48 +765,58 @@ if (($_POST['setting_bootstrap_submenu'])||
                           parent.left_nav.loadFrame('dem1', 'pat', paturl);
                           parent.left_nav.loadFrame('doc0', 'enc', docurl);
                           top.activateTabByName('enc',true);
-                            <?php } else { ?>
+                          <?php } else { ?>
                             var docurl  = '<?php  echo $GLOBALS['webroot'] . "/controller.php?document&view"; ?>' + "&patient_id=" + pid + "&document_id=" + doc_id + "&";
                             var paturl  = '<?php  echo $GLOBALS['webroot'] . "/interface/patient_file/summary/demographics.php?pid="; ?>' + pid;
                             var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
                             parent.frames[othername].location.href = paturl;
                             location.href = docurl;
                             <?php } ?>
-                      }
+                        }
                        // This is for callback by the find-patient popup.
-                      function setpatient(pid, lname, fname, dob) {
-                        var f = document.forms[0];
-                        f.form_patient.value = lname + ', ' + fname;
-                        f.reply_to.value = pid;
-                        <?php if ($noteid) { ?>
-                        //used when direct messaging service inserts a pnote with indeterminate patient
-                        //to allow the user to assign the message to a patient.
-                        top.restoreSession();
-                        $("#task").val("savePatient");
-                        $("#new_note").submit();
-                        <?php } ?>
-                      }
+                       function setpatient(pid, lname, fname, dob) {
+                            var f = document.forms[0];
+                            f.form_patient.value = lname + ', ' + fname;
+                            f.reply_to.value = pid;
+                            <?php if ($noteid) { ?>
+                            //used when direct messaging service inserts a pnote with indeterminate patient
+                            //to allow the user to assign the message to a patient.
+                            top.restoreSession();
+                            $("#task").val("savePatient");
+                            $("#new_note").submit();
+                            <?php } ?>
+                        }
 
                        // This invokes the find-patient popup.
-                      function sel_patient() {
-                        dlgopen('../../main/calendar/find_patient_popup.php', '_blank', 500, 400);
-                      }
+                       function sel_patient() {
+                            dlgopen('../../main/calendar/find_patient_popup.php', '_blank', 500, 400);
+                        }
 
-                      function addtolist(sel){
+                    function addtolist(sel){
                         var itemtext = document.getElementById('assigned_to_text');
                         var item = document.getElementById('assigned_to');
                         if(sel.value != '--'){
-                          if(item.value){
-                            if(item.value.indexOf(sel.value) == -1){
-                              itemtext.value = itemtext.value +' ; '+ sel.options[sel.selectedIndex].text;
-                              item.value = item.value +';'+ sel.value;
+                            if(item.value){
+                                if(item.value.indexOf(sel.value) == -1){
+                                    itemtext.value = itemtext.value +' ; '+ sel.options[sel.selectedIndex].text;
+                                    item.value = item.value +';'+ sel.value;
+                                }
+                            } else {
+                                itemtext.value = sel.options[sel.selectedIndex].text;
+                                item.value = sel.value;
                             }
-                          }else{
-                            itemtext.value = sel.options[sel.selectedIndex].text;
-                            item.value = sel.value;
-                          }
                         }
-                      }
+                    }
+
+                    function SMS_direct() {
+                        var pid = $("#sms_pid").val();
+                        if (pid ==''){
+                            alert('MedEx needs a phone number... Search for a patient to send a SMS message to.');
+                        } else {
+                            top.restoreSession();
+                            window.open('messages.php?nomenu=1&go=SMS_bot&pid='+pid,'SMS_bot', 'width=370,height=600,resizable=0');                    
+                        }
+                    }
         </script>
         <?php
     }   ?>
