@@ -1115,24 +1115,9 @@ function pnGetBaseURI()
  */
 function pnGetBaseURL()
 {
-    global $HTTP_SERVER_VARS;
-
-    if (empty($HTTP_SERVER_VARS['HTTP_HOST'])) {
-        $server = getenv('HTTP_HOST');
-    } else {
-        $server = $HTTP_SERVER_VARS['HTTP_HOST'];
-    }
-
-    // IIS sets HTTPS=off
-    if ((isset($HTTP_SERVER_VARS['HTTPS']) && $HTTP_SERVER_VARS['HTTPS'] != 'off') || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')) {
-        $proto = 'https://';
-    } else {
-        $proto = 'http://';
-    }
-
     $path = pnGetBaseURI();
 
-    return "$proto$server$path/";
+    return "$path/";
 }
 
 /**

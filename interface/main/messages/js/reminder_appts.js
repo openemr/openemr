@@ -85,8 +85,6 @@ function setpatient(pid, lname, fname, dob) {
     var f = document.forms['addRecall'];
     f.new_recall_name.value = lname + ', ' + fname;//+ '&nbsp; ('+dob+')'+''+pid;
                                                    //go get the rest of the data
-                                                   //var id_here = document.getElementById('myCanvas_'+zone);
-                                                   //var dataURL = id_here.toDataURL();
     top.restoreSession();
     $.ajax({
            type: "POST",

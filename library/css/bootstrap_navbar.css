@@ -3,10 +3,10 @@
 .navbar-fixed-top {
     background-color: #C9DBF2;
 padding: 0px;
-border-bottom: 0.1pt solid black;
+border-bottom: 0.1pt solid #7b777760;
 -moz-box-shadow: 0 0 10px #000;
 -webkit-box-shadow: 0 0 10px #000;
-box-shadow: 0 0 10px #000;
+box-shadow: 0 0 10px #7b777760;
 z-index: 1000;
 }
 

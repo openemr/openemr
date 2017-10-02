@@ -16,14 +16,30 @@ require_once "$srcdir/api.inc";
 require_once "$srcdir/forms.inc";
 require_once "$srcdir/patient.inc";
 require_once "$srcdir/MedEx/API.php";
+require_once("$srcdir/formatting.inc.php");
+
+
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
+if ($_REQUEST['go'] =='sms_search') {
+    $param      = "%".$_GET['term']."%";
+    $query      = "SELECT * FROM patient_data where fname like ? or lname like ?";
+    $result     = sqlStatement($query, array( $param, $param ));
+    while ($frow = sqlFetchArray($result)) {
+          //$field_id  = $frow['field_id'];
+          //$newdata[$field_id] = get_layout_form_value($frow);
+        $data['Label']  = 'Name';
+        $data['value']  = $frow['fname']." ".$frow['lname'];
+        $data['pid']    = $frow['pid'];
+        $data['mobile'] = $frow['phone_cell'];
+        $results[]      = $data;
+    }
+    //echo $query. " -- ".$param;
+    echo json_encode( $results );
+    exit;
+}
 //you need admin privileges to update this.
 if ($_REQUEST['go'] =='Preferences') {
-    $result     = array();
-    $query      = "SELECT * FROM users where id = ?";
-    $user_data  = sqlQuery($query, array( $_SESSION['authUserID'] ));
-
     if (acl_check('admin', 'super')) {
         $sql = "UPDATE `medex_prefs` set `ME_facilities`=?,`ME_providers`=?,`ME_hipaa_default_override`=?,
 			`PHONE_country_code`=? ,`MSGS_default_yes`=?,
@@ -57,24 +73,24 @@ if ($_REQUEST['MedEx']=="start") {
         $query = "SELECT * from facility where primary_business_entity='1' limit 1";
         $facility = sqlFetchArray(sqlStatement($query));
 
-        $data['firstname']   = $user_data['fname'];
-        $data['lastname']   = $user_data['lname'];
-        $data['username']   = $_SESSION['authUser'];
-        $data['password']   = $_REQUEST['new_password'];
-        $data['email']    = $_REQUEST['new_email'];
-        $data['telephone']   = $facility['phone'];
-        $data['fax']    = $facility['fax'];
-        $data['company']   = $facility['name'];
-        $data['address_1']   = $facility['street'];
-        $data['city']    = $facility['city'];
-        $data['state']    = $facility['state'];
-        $data['postcode']   = $facility['postal_code'];
-        $data['country']   = $facility['country_code'];
-        $data['sender_name'] = $user_data['fname']. " " .$user_data['lname'];
-        $data['sender_email'] = $facility['email'];
-        $data['callerid']  = $facility['phone'];
-        $data['MedEx']   = "1";
-        $data['ipaddress']  = $_SERVER['REMOTE_ADDR'];
+        $data['firstname']      = $user_data['fname'];
+        $data['lastname']       = $user_data['lname'];
+        $data['username']       = $_SESSION['authUser'];
+        $data['password']       = $_REQUEST['new_password'];
+        $data['email']          = $_REQUEST['new_email'];
+        $data['telephone']      = $facility['phone'];
+        $data['fax']            = $facility['fax'];
+        $data['company']        = $facility['name'];
+        $data['address_1']      = $facility['street'];
+        $data['city']           = $facility['city'];
+        $data['state']          = $facility['state'];
+        $data['postcode']       = $facility['postal_code'];
+        $data['country']        = $facility['country_code'];
+        $data['sender_name']    = $user_data['fname']. " " .$user_data['lname'];
+        $data['sender_email']   = $facility['email'];
+        $data['callerid']       = $facility['phone'];
+        $data['MedEx']          = "1";
+        $data['ipaddress']      = $_SERVER['REMOTE_ADDR'];
 
         $prefix ='http://';
         if ($_SERVER["SSL_TLS_SNI"]) {
@@ -108,17 +124,17 @@ if ($_REQUEST['MedEx']=="start") {
             sqlStatement($sqlINSERT, array( $response['customer_id'], $response['API_key'], $_POST['new_email'], $facilities, $providers, "1", "1", "1", "1", "5160" ));
             sqlQuery("UPDATE `background_services` set `active`='1',`execute_interval`='29' where `name`='MedEx'");
         }
+
         $logged_in = $MedEx->login();
-
+        
         if ($logged_in) {
-            $token   = $logged_in['token'];
-            $practice  = $MedEx->practice->sync($token);
-            $token   = $logged_in['token'];
+            $token      = $logged_in['token'];
+            $practice   = $MedEx->practice->sync($token);
+            $token      = $logged_in['token'];
 
-            $response  = $MedEx->practice->sync($token);
-            $campaigns = $MedEx->campaign->events($token);
-            $response  = $MedEx->events->generate($token, $campaigns['events']);
-
+            $response   = $MedEx->practice->sync($token);
+            $campaigns  = $MedEx->campaign->events($token);
+            $response   = $MedEx->events->generate($token, $campaigns['events']);
             $response['success'] = "OK BABY!";
             $response['show'] =  xlt("Sign-up successful for")." ".$data['company']. ".<br />".xlt("Proceeding to Preferences").".<br />".
                 xlt("If this page does not refresh, reload the Messages page manually").".<br />";

@@ -32,8 +32,8 @@ $MedEx = new MedExApi\MedEx('MedExBank.com');
 if ($GLOBALS['medex_enable'] == '1') {
     $logged_in = $MedEx->login();
     if ($_REQUEST['SMS_bot']) {
-        $MedEx->display->SMS_bot($logged_in);
-        exit();
+       $MedEx->display->SMS_bot($logged_in);
+    exit();
     }
 }
 

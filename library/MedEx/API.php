@@ -1,6 +1,6 @@
 <?php
 namespace MedExApi;
-
+error_reporting(0);
 /**
  * /library/MedEx/API.php
  *
@@ -172,7 +172,7 @@ class Practice extends Base
         //2. Make sure any recalls don't have appointments just scheduled
         //3. Sync any responses received on MedEx that we didn't see already.
         //     Send and Receive everything since last timestamp/update noted in medex_prefs and check.
-        //      Finally we may have manually made an appointment (which deletes a Recall) or manually confirmed an appt too.
+        //     Finally we may have manually made an appointment (which deletes a Recall) or manually confirmed an appt too.
         //4. We need to send this data to MedEx so it stops processing events that are confirmed/completed.
         
         //1. Check to see if anything pending was cancelled/changed.
@@ -216,26 +216,22 @@ class Practice extends Base
         }
 
         //3. Sync any responses received on MedEx that we didn't see already.
-        //get last update
+        //   get last update
         $sqlQuery = "SELECT * from medex_prefs";
         $my_status = sqlStatement($sqlQuery);
         while ($urow = sqlFetchArray($my_status)) {
             $fields3['MedEx_lastupdated']   = $urow['MedEx_lastupdated'];
             $fields3['ME_providers']        = $urow['ME_providers'];
         }
-        //send notes
+        // send notes
         $this->curl->setUrl($this->MedEx->getUrl('custom/sync_responses&token='.$token));
         $this->curl->setData($fields3);
         $this->curl->makeRequest();
         $responses = $this->curl->getResponse();
         foreach ($responses['messages'] as $data) {
             //check to see if this response is present already
-            $log = "/tmp/API.log";
-            $stdlog = fopen($log, 'a');
-            $req_dump = print_r($data, TRUE);
-            fputs($stdlog,"API:: Syncing outgoing/ingoing :: data:\n".$req_dump."\n");
-        
             $data['msg_extra'] = $data['msg_extra']?:'';
+            //note for sms_bot there maybe repeat "reply" values.  we now show medex_uid.  just use that instead...
             $sqlQuery ="SELECT * from medex_outgoing where msg_pc_eid=? and campaign_uid=? and msg_type=? and msg_reply=?";//" and msg_extra_text=?";
             $checker = sqlStatement($sqlQuery, array($data['e_pc_eid'],$data['campaign_uid'], $data['M_type'],$data['msg_reply']));//,$data['msg_extra']));
             if (sqlNumRows($checker)=='0') { //if this isn't already here, add it to local DB.
@@ -321,6 +317,7 @@ class Events extends Base
         // -->If Friday, send all appts matching campaign fire_Time + 2 days
         // For past appts, we also don't want to send messages on the weekend, so do them Friday.
         // -->If Friday, send all appts matching campaign fire_Time + 2 days works for past appts also.
+
         foreach ($events as $event) {
             /**
              * If it is a PM event, it needs to run after 6PM to generate the requested appt list
@@ -336,6 +333,7 @@ class Events extends Base
                     continue;
                 }
             }
+
             if ($event['M_group'] == 'REMINDER') {
                 if ($event['time_order'] > '0') { // future appts
                     $interval ="+";
@@ -371,7 +369,8 @@ class Events extends Base
                 // It is Friday.  2 days ahead is Sunday, but Monday's would run on Saturday and Tuesday's on Sunday.
                 // We should run them all on Friday...  So load them that way now.
                 $today=date("l");
-                if ($today =="Sunday") {
+               
+                if (($today =="Sunday")||($today =="Saturday")) {
                     continue;
                 }
                 if ($today == "Friday") {
@@ -464,9 +463,11 @@ class Events extends Base
                             ORDER BY r_eventDate";
                 $result = sqlStatement($query);
                 $recall3 = array();
+ 
                 while ($recall = sqlFetchArray($result)) {
                     // Can we run the rule - is the modality possible?
                     list($response,$results) = $this->MedEx->checkModality($event, $recall);
+
                     if ($results==false) {
                         continue; //not happening - either not allowed or not possible
                     }
@@ -477,6 +478,7 @@ class Events extends Base
                     // Recall Board will auto-delete this from recall board after 16 hours.
                     // If you don't load the Recall Board, we need to run this check w/ this cron command also.
                     $show = $this->MedEx->display->show_progress_recall($recall, $event);
+                    
                     if ($show['DONE'] == '1') {
                         // It's done/finished, about to be deleted, so don't process this RECALL, o/w do it
                         // MedEx doesn't make RECALL appts, so we need to tell MedEx it is done, or do we?
@@ -490,6 +492,7 @@ class Events extends Base
                         $RECALLS_completed[] = $recall;
                         continue;
                     }
+         
                     if ($show['status']!=="reddish") {
                         // OK there is status for this recall.  Something happened.  Maybe something was sent.
                         // Maybe despite everything there has been no appointment yet (yellowish) or it was just
@@ -508,6 +511,7 @@ class Events extends Base
                         if ($this->recursive_array_search("recall_".$recall['r_pid'], $appt3)) {
                             continue; }
                     }
+    
                     $count_recalls++;
                     $recall2 = array();
                     $recall2['pc_pid']        = $recall['r_pid'];
@@ -548,6 +552,7 @@ class Events extends Base
         if (!empty($RECALLS_completed)) {
             $hipaa = $this->process_deletes($token, $RECALLS_completed);
         }
+       
         if (!empty($appt3)) {
             $hipaa = $this->process($token, $appt3);
         }
@@ -670,13 +675,7 @@ class Callback extends Base
         }
         //logging should follow openEMR conventions, this doesn't but it works for now
         $data['TIMER'] = date(DATE_RFC2822);
-        $this->MedEx->logging->log_this($data);
-        //Store responses in TABLE medex_outgoing
-        $sqlINSERT = "INSERT INTO medex_outgoing (msg_pc_eid, campaign_uid, msg_type, msg_reply, msg_extra_text, msg_date, medex_uid) 
-                        VALUES (?,?,?,?,?,utc_timestamp(),?)";
-        sqlQuery($sqlINSERT, array($data['pc_eid'],$data['campaign_uid'], $data['M_type'],$data['msg_reply'],$data['msg_extra'],$data['msg_uid']));
-        
-        //process AVM responses
+         //process AVM responses
         if (!$data['patient_id']) {
             if ($data['e_pid']) {
                 $data['patient_id'] = $data['e_pid'];
@@ -686,6 +685,11 @@ class Callback extends Base
                 $data['patient_id'] = $patient['pid'];
             }
         }
+        $this->MedEx->logging->log_this($data);
+        //Store responses in TABLE medex_outgoing
+        $sqlINSERT = "INSERT INTO medex_outgoing (msg_pc_eid, msg_pid, campaign_uid, msg_type, msg_reply, msg_extra_text, msg_date, medex_uid) 
+                        VALUES (?,?,?,?,?,utc_timestamp(),?)";
+        sqlQuery($sqlINSERT, array($data['pc_eid'],$data['patient_id'], $data['campaign_uid'], $data['M_type'],$data['msg_reply'],$data['msg_extra'],$data['msg_uid']));
             
         if ($data['msg_reply']=="CONFIRMED") {
             $sqlUPDATE = "UPDATE openemr_postcalendar_events set pc_apptstatus = ? where pc_eid=?";
@@ -704,7 +708,7 @@ class Callback extends Base
         } elseif (($data['msg_type']=="AVM") && ($data['msg_reply']=="STOP")) {
             //if reply = "STOP" update patient demographics to disallow this mode of communication
             $sqlUPDATE = "UPDATE patient_data set hipaa_voice = 'NO' where pid=?";
-            $log['sql']=$sqlUPDATE;
+            $log['sql'] = $sqlUPDATE;
             sqlQuery($sqlUPDATE, array($data['patient_id']));
             $this->MedEx->logging->log_this($log);
         } elseif (($data['msg_type']=="SMS") && ($data['msg_reply']=="STOP")) {
@@ -741,14 +745,18 @@ class Logging extends base
     public function log_this($data)
     {
         //look in the openEMR files to figure out how to log this.
-        $log = "/tmp/myhipaa.log" ;
-        $stdlog = fopen($log, 'a');
+        $log = "/tmp/medex.log" ;
+        $std_log = fopen($log, 'a') or die(print_r(error_get_last(),true));
         $timed = date(DATE_RFC2822);
-        fputs($stdlog, "\n".$timed."\n");
-        foreach ($data as $key => $value) {
-            fputs($stdlog, $key.": ".$value."\n");
+        fputs($std_log, "**********************\nlibrary/MedEx/API.php fn log_this(data):  ".$timed."\n");
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                fputs($stdlog, $key.": ".$value."\n");
+            }
+        } else {
+            fputs($std_log,"\n".$data. "\n");
         }
-        fclose($stdlog);
+        fclose($std_log);
         return true;
     }
 }
@@ -1778,6 +1786,7 @@ class Display extends base
         $query = "select * from openemr_postcalendar_events WHERE 
                   pc_eventDate >= CURDATE() and pc_pid =? and pc_eventDate > (? - INTERVAL 90 DAY)  and pc_time >  (CURDATE()- INTERVAL 16 HOUR)";
         $count = sqlFetchArray(sqlStatement($query, array($recall['r_pid'],$recall['r_eventDate'])));
+
         if ($count) {
             $sqlDELETE = "DELETE from medex_outgoing where msg_pc_eid = ?";
             sqlStatement($sqlDELETE, array('recall_'.$recall['pid']));
@@ -1802,14 +1811,16 @@ class Display extends base
         $sql ="SELECT * from medex_outgoing where msg_pc_eid = ?  order by msg_date asc";
         $result = sqlStatement($sql, array('recall_'.$recall['pid']));
         $something_happened='';
+
         while ($progress = sqlFetchArray($result)) {
             $i = $progress['campaign_uid'];//if this is a manual entry, this ==0.
-            
+
             $phpdate = strtotime($progress['msg_date']);
             $when = oeFormatShortDate(date('Y-m-d', $phpdate))." @ ".date('g:iA', $phpdate);
-
+            
             if (is_numeric($progress['msg_reply'])) { // it was manually added by id
                 $sql2 = "SELECT * from users where id =?";
+
                 $who  = sqlQuery($sql2, array($progress['msg_reply']));
                 $who_name = $who['fname']." ".$who['lname'];
                 //Manually generated actions
@@ -1862,9 +1873,12 @@ class Display extends base
                 }
                 $show['campaign'][$i]['icon'] = $icon;
             }
+
             $something_happened=true;
         }
         $show['progression'] .= $show['EMAIL']['text'].$show['SMS']['text'].$show['AVM']['text'];
+
+
         // Let's look at the MedEx events:
         // Show the DATE when a Campaign event will be run for a given patient
         /*
@@ -1916,6 +1930,8 @@ class Display extends base
             $show['progression'] .= "<a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap left' target='_MedEx'>".
                                     $show['campaign'][$event['C_UID']]['icon']." ".text($show['campaign'][$event['C_UID']]['executed'])."</a><br />";
         }
+        
+
 
         // Show recall row status via background color.
         // If an appt was made < 16hrs ago, make it green(completed) and $show['DONE'] = 1
@@ -2068,6 +2084,7 @@ class Display extends base
      */
     public function SMS_bot($logged_in)
     {
+
         $fields = array();
         $fields = $_REQUEST;
         $this->curl->setUrl($this->MedEx->getUrl('custom/SMS_bot&token='.$logged_in['token']));
@@ -2091,47 +2108,41 @@ class Setup extends Base
         if ($stage =='1') {
         ?>
         <div class="row">
-             <div class="col-sm-1"></div>
-             <div class="col-sm-10 center">
-                <div id="setup_1" class="showReminders borderShadow">
+            <div class="col-sm-10 center col-xs-offset-1">
+                <div id="setup_1">
                     <div class="title row">MedEx</div>
-            <div class="row showReminders ">
-                        <div class="col-sm-1"></div>
-                        <div class="col-sm-10 center">
-                <em><a href="https://www.medexbank.com">MedEx</a> <?php echo xlt('provides a secure patient communication platform'); ?>.</em>
-            </div>
-            <div class="col-sm-1"></div>
-           </div>
-                   <div class="row showReminders ">
-                        <div class="col-sm-1"></div>
-                        <div class="col-sm-5 left">
-                      <h3 class="title"><?php echo xlt('Targets'); ?>:</h3>
-                            <ul>
-                                    <li> <?php echo xlt('Scheduled Appointments'); ?></li>
-                                    <li> <?php echo xlt('Patient Recalls'); ?></li>
-                        <li> <?php echo xlt('Patient Surveys'); ?></li>
-                                </ul>
+                    <div class="row showReminders ">
+                        <div class="col-sm-10 center col-xs-offset-1">
+                            <em>
+                                <?php echo xlt('Using technology to improve productivity'); ?>.
+                            </em>
                         </div>
-                        <div class="col-sm-1"></div>
-                        <div class="col-sm-4 left">
-                        <h3 class="title"><?php echo xlt('Channels'); ?>:</h3>
-                            <ul>
-                            <li> <?php echo xlt('SMS Messages'); ?></li>
-                            <li> <?php echo xlt('Voice Mesages'); ?></li>
-                            <li> <?php echo xlt('E-mail Messaging'); ?></li>
-                            <li> <?php echo xlt('Postcards'); ?></li>
-                            <li> <?php echo xlt('Address Labels'); ?></li>
+                    </div>
+                    <div class="row showReminders ">
+                        <div class="col-sm-5 col-xs-offset-1 text-center">
+                            <h3 class="title"><?php echo xlt('Targets'); ?>:</h3>
+                            <ul class="text-left" style="margin-left:125px;">
+                                <li> <?php echo xlt('Appointment Reminders'); ?></li>
+                                <li> <?php echo xlt('Patient Recalls'); ?></li>
+                                <li> <?php echo xlt('Patient Surveys'); ?></li>
                             </ul>
                         </div>
-                        <div class="col-sm-1"></div>
+                        <div class="col-sm-4 col-xs-offset-1 text-left">
+                            <h3 class="title"><?php echo xlt('Channels'); ?>:</h3>
+                            <ul class="text-left" style="margin-left:75px;">
+                                <li> <?php echo xlt('SMS Messages'); ?></li>
+                                <li> <?php echo xlt('Voice Mesages'); ?></li>
+                                <li> <?php echo xlt('E-mail Messaging'); ?></li>
+                                <li> <?php echo xlt('Postcards'); ?></li>
+                                <li> <?php echo xlt('Address Labels'); ?></li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="align-center row showReminders">
+                    <div class="text-center row showReminders">
                         <input value="<?php echo xla('Sign-up'); ?>" onclick="goReminderRecall('setup&stage=2');" class="btn">
-                        <br /><br />
                     </div>
                 </div>
             </div>
-            <div class="col-sm-1"></div>
         </div>
 
             <?php
