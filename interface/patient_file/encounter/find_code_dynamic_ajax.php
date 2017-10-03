@@ -287,7 +287,23 @@ if ($what == 'fields' && $source == 'V') {
         $out['aaData'][] = $arow;
     }
 } else if ($what == 'codes') {
-    $res = main_code_set_search($codetype, $searchTerm, null, null, !$include_inactive, $ordermode);
+    $start = null;
+    $number = null;
+    if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
+        $start  = (int) $iDisplayStart;
+        $number = (int) $iDisplayLength;
+    }
+    $res = main_code_set_search(
+        $codetype,
+        $searchTerm,
+        null,
+        null,
+        !$include_inactive,
+        $ordermode,
+        false,
+        $start,
+        $number
+    );
     while ($row = sqlFetchArray($res)) {
         $arow = array('DT_RowId' => genFieldIdString(array(
           'code' => $row['code'],

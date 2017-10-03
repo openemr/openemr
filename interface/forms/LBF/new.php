@@ -444,7 +444,7 @@ function set_related(codetype, code, selector, codedesc) {
     '?codetype='   + encodeURIComponent(codetype) +
     '&code='       + encodeURIComponent(code) +
     '&selector='   + encodeURIComponent(selector) +
-    '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel.value));
+    '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""));
   }
   return '';
  }
@@ -665,7 +665,7 @@ function fs_diag_clicked(cb) {
   $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php' +
     '?codetype='   + encodeURIComponent(a[0]) +
     '&code='       + encodeURIComponent(a[1]) +
-    '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel.value));
+    '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""));
 }
 
 // Respond to selecting a package of codes.
@@ -675,7 +675,7 @@ function fs_package_selected(sel) {
   if (sel.value) {
     $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php' +
       '?list='       + encodeURIComponent(sel.value) +
-      '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel.value));
+      '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""));
   }
   sel.selectedIndex = 0;
 }
@@ -1389,7 +1389,7 @@ if (isset($LBF_DIAGS_SECTION)) {
     }
 
     // A row for Search.
-    $ctype = 'ICD9,ICD10';
+    $ctype = collect_codetypes('diagnosis', 'csv');
     echo "<p class='bold'>";
     echo "<input type='button' value='" . xla('Search Diagnoses') . "' onclick='sel_related(null,\"$ctype\")' />";
     echo "</p>\n";

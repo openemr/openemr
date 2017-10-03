@@ -64,7 +64,7 @@ function write_code_info($codetype, $code, $selector, $pricelevel)
         $desc = '';
         $price = 0;
         if ($crow = sqlFetchArray($cres)) {
-            $desc = $crow['code_text'];
+            $desc = trim($crow['code_text']);
             if ($code_types[$codetype]['fee']) {
                 if ($code_types[$codetype]['external'] == 0) {
                     $prow = sqlQuery(
