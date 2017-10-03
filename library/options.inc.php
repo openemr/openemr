@@ -461,7 +461,7 @@ function generate_form_field($frow, $currvalue)
             if (!$modtmp) {
                 echo "<input type='text' size='10' class='datepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
                 " value='" . substr($currescaped, 0, 10) . "'";
-            } else {
+            } else if ($modtmp) {
                     echo "<input type='text' size='20' class='datetimepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
                     " value='" . substr($currescaped, 0, 20) . "'";
             }
@@ -2046,7 +2046,7 @@ function generate_display_field($frow, $currvalue)
             $modtmp = strpos($frow['edit_options'], 'F') === false ? 0 : 1;
             if (!$modtmp) {
                 $s .= text(oeFormatShortDate($currvalue));
-            } else {
+            } else if ($modtmp) {
                 $s .= text(oeFormatDateTime($currvalue));
             }
             if ($agestr) {
