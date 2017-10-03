@@ -1599,7 +1599,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'pat_trkr_timer' => array(
-            xl('Flow Board: Timer Interval'),
+            xl('Flow Board: Timer Refresh Interval'),
             array(
                 '0' => xl('No automatic refresh'),
                 '0:10' => '10',
@@ -1613,6 +1613,41 @@ $GLOBALS_METADATA = array(
             xl('The screen refresh time in Seconds for the Patient Flow Board Screen.')
         ),
 
+        'checkout_roll_off' => array(
+            xl('Flow Board: display completed checkouts (minutes)'),
+            'num',
+            '0',                       // default
+            xl('Flow Board will only display completed checkouts for this many minutes. Zero is continuous display.')
+        ),
+
+        'drug_screen' => array(
+            xl('Flow Board: Enable Random Drug Testing'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Allow Patient Flow Board to Select Patients for Drug Testing.')
+        ),
+
+        'drug_testing_percentage' => array(
+            xl('Flow Board: Percentage of Patients to Drug Test'),
+            'num',
+            '33',                       // default
+            xl('Percentage of Patients to select for Random Drug Testing.')
+        ),
+
+        'maximum_drug_test_yearly' => array(
+            xl('Flow Board: Max tests per Patient per year'),
+            'num',
+            '0',                       // default
+            xl('Maximum number of times a Patient can be tested in a year. Zero is no limit.')
+        ),
+
+        'submit_changes_for_all_appts_at_once' => array(
+            xl('Flow Board: Submit Changes For All Appts At Once'),
+            'bool',                           // data type
+            '1',                              // default
+            xl('Enables to submit changes for all appointments of a recurrence at once.')
+        ),
+
         'disable_rcb' => array(
           xl('Recall Board: Disable '),
           'bool',                           // data type
@@ -1621,41 +1656,6 @@ $GLOBALS_METADATA = array(
         ),
 
  
-
-        'checkout_roll_off' => array(
-            xl('Number of Minutes to display completed checkouts'),
-            'num',
-            '0',                       // default
-            xl('Number of Minutes to display completed checkouts. Zero is continuous display')
-        ),
-
-        'drug_screen' => array(
-            xl('Enable Random Drug Testing'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Allow Patient Flow Board to Select Patients for Drug Testing.')
-        ),
-
-        'drug_testing_percentage' => array(
-            xl('Percentage of Patients to Drug Test'),
-            'num',
-            '33',                       // default
-            xl('Percentage of Patients to select for Random Drug Testing.')
-        ),
-
-        'maximum_drug_test_yearly' => array(
-            xl('Maximum number of times a Patient can be tested in a year'),
-            'num',
-            '0',                       // default
-            xl('Maximum number of times a Patient can be tested in a year. Zero is no limit.')
-        ),
-
-        'submit_changes_for_all_appts_at_once' => array(
-            xl('Submit Changes For All Appts At Once'),
-            'bool',                           // data type
-            '1',                              // default
-            xl('Enables to submit changes for all appointments of a recurrence at once.')
-        ),
 
 
     ),
