@@ -516,7 +516,7 @@ if (!$_REQUEST['flb_table']) {
                   // Collect appt date and set up squashed date for use below
                   $date_appt = $appointment['pc_eventDate'];
                   $date_squash = str_replace( "-", "", $date_appt );
-                  if ( empty( $room ) && ( $logged_in ) ) {
+                  if ( empty( $appointment['room'] ) && ( $logged_in ) ) {
                     //Patient has not arrived yet, display MedEx Reminder info
                     //one icon per type of response.
                     //If there was a SMS dialog, display it as a mouseover/title
@@ -725,7 +725,11 @@ if (!$_REQUEST['flb_table']) {
                         <?php } else { ?>
                       <a onclick="return bpopup(<?php echo attr( $tracker_id ); // calls popup for patient tracker status?>)">
                         <?php }
-                          echo text( getListItemTitle( "apptstat", $status ) ); // drop down list for appointment status
+                          if ($appointment['room']) {
+                            echo getListItemTitle('patient_flow_board_rooms', $appt_room);
+                          } else {
+                            echo text( getListItemTitle( "apptstat", $status ) ); // drop down list for appointment status
+                          }
                         ?>
                       </a>
                     </td>
