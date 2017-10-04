@@ -22,4 +22,3 @@ if (isset($_GET["set_encounter"])) {
     setencounter($_GET["set_encounter"]);
 }
 include("forms.php");
-?>
