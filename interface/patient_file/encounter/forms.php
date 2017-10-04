@@ -1017,8 +1017,7 @@ if ($pass_sens_squad &&
         if (acl_check('admin', 'super')) {
             if ($formdir != 'newpatient' && $formdir != 'newGroupEncounter') {
                 // a link to delete the form from the encounter
-                echo "<a target='Forms'" .
-                    " href='$rootdir/patient_file/encounter/delete_form.php?" .
+                echo "<a href='$rootdir/patient_file/encounter/delete_form.php?" .
                     "formname=" . $formdir .
                     "&id=" . $iter['id'] .
                     "&encounter=". $encounter.

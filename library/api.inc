@@ -77,8 +77,7 @@ function formJump($address = "0")
     if ($address == "0") {
         $address = "{$GLOBALS['rootdir']}/patient_file/encounter/$returnurl";
     }
-
-    echo "\n<script language='Javascript'>top.restoreSession();parent.window.location='$address';</script>\n";
+    echo "\n<script language='Javascript'>top.restoreSession();window.location='$address';</script>\n";
     exit;
 }
 
