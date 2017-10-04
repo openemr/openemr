@@ -21,12 +21,5 @@ if (isset($_GET["set_encounter"])) {
 
     setencounter($_GET["set_encounter"]);
 }
+include("forms.php");
 ?>
-<html>
-<head>
-<?php html_header_show();?>
-</head>
-<frameset cols="*">
- <frame src="forms.php" name="Forms" scrolling="auto">
-</frameset>
-</html>
