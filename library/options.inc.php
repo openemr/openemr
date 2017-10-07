@@ -456,9 +456,16 @@ function generate_form_field($frow, $currvalue)
             $onchange_string = "onchange=\"if (typeof(updateAgeString) == 'function') " .
             "updateAgeString('$field_id','$age_asof_date', $age_format, '$description')\"";
         }
-
-        echo "<input type='text' size='10' class='datepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
-        " value='" . substr($currescaped, 0, 10) . "'";
+        if ($data_type == 4) {
+            $modtmp = strpos($frow['edit_options'], 'F') === false ? 0 : 1;
+            if (!$modtmp) {
+                echo "<input type='text' size='10' class='datepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
+                " value='" . substr($currescaped, 0, 10) . "'";
+            } else {
+                    echo "<input type='text' size='20' class='datetimepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
+                    " value='" . substr($currescaped, 0, 20) . "'";
+            }
+        }
         if (!$agestr) {
             echo " title='$description'";
         }
@@ -2036,7 +2043,12 @@ function generate_display_field($frow, $currvalue)
         if ($currvalue === '') {
             $s .= '&nbsp;';
         } else {
-            $s .= text(oeFormatShortDate($currvalue));
+            $modtmp = strpos($frow['edit_options'], 'F') === false ? 0 : 1;
+            if (!$modtmp) {
+                $s .= text(oeFormatShortDate($currvalue));
+            } else {
+                $s .= text(oeFormatDateTime($currvalue));
+            }
             if ($agestr) {
                 $s .= "&nbsp;(" . text($agestr) . ")";
             }

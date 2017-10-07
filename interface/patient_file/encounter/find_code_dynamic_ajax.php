@@ -229,7 +229,7 @@ if ($what == 'codes') {
     } else if ($source == 'D' || $source == 'H') {
         $sellist = "lo.*";
         $from = "layout_options AS lo";
-        $where1 = "WHERE lo.form_id LIKE " . add_escape_custom($layout_id) . " AND lo.uor > 0";
+        $where1 = "WHERE lo.form_id LIKE '" . add_escape_custom($layout_id) . "' AND lo.uor > 0";
         if ($searchTerm !== "") {
             $sSearch = add_escape_custom($searchTerm);
             $where2 = "AND (lo.field_id LIKE '%$sSearch%' OR lo.title LIKE '%$sSearch%')";
