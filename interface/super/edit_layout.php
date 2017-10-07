@@ -1,21 +1,16 @@
 <?php
 /**
- * Copyright (C) 2014-2017 Rod Roark <rod@sunsetsystems.com>
+ * Edit layouts gui
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2014-2017 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../globals.php");
@@ -602,10 +597,10 @@ function writeFieldLine($linedata)
     global $fld_line_no, $sources, $lbfonly, $extra_html,$validations;
     ++$fld_line_no;
     $checked = $linedata['default_value'] ? " checked" : "";
-  
+
     //echo " <tr bgcolor='$bgcolor'>\n";
     echo " <tr id='fld[$fld_line_no]' class='".($fld_line_no % 2 ? 'even' : 'odd')."'>\n";
-  
+
     echo "  <td class='optcell' nowrap>";
     // tuck the group_name INPUT in here
     echo "<input type='hidden' name='fld[$fld_line_no][group]' value='" .
@@ -643,7 +638,7 @@ function writeFieldLine($linedata)
          htmlspecialchars($linedata['field_id'], ENT_QUOTES) . "' size='15' maxlength='63' " .
          "class='optin' style='width:100%' onclick='FieldIDClicked(this)' />";
     echo "</td>\n";
-  
+
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' id='fld[$fld_line_no][title]' name='fld[$fld_line_no][title]' value='" .
          htmlspecialchars($linedata['title'], ENT_QUOTES) . "' size='15' maxlength='63' class='optin' style='width:100%' />";
@@ -653,7 +648,7 @@ function writeFieldLine($linedata)
     if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
         echo "<td align='center' class='translation' >" . htmlspecialchars(xl($linedata['title']), ENT_QUOTES) . "</td>\n";
     }
-    
+
     echo "  <td align='center' class='optcell'>";
     echo "<select class='form-control' name='fld[$fld_line_no][uor]' class='optin'>";
     foreach (array(0 =>xl('Unused'), 1 =>xl('Optional'), 2 =>xl('Required')) as $key => $value) {
@@ -667,7 +662,7 @@ function writeFieldLine($linedata)
 
     echo "</select>";
     echo "</td>\n";
-  
+
     echo "  <td align='center' class='optcell'>";
     echo "<select class='form-control' name='fld[$fld_line_no][datatype]' id='fld[$fld_line_no][datatype]' onchange=NationNotesContext('".$fld_line_no."',this.value)>";
     echo "<option value=''></option>";
@@ -737,7 +732,7 @@ function writeFieldLine($linedata)
         htmlspecialchars($linedata['list_id'], ENT_QUOTES) . "'".$type.
         " size='6' maxlength='100' class='optin listid' style='width:100%;cursor:pointer'".
         "title='". xl('Choose list') . "' />";
-    
+
         echo "<select class='form-control' name='fld[$fld_line_no][contextName]' id='fld[$fld_line_no][contextName]' ".$disp.">";
         $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
         while ($row = sqlFetchArray($res)) {
@@ -775,7 +770,7 @@ function writeFieldLine($linedata)
     echo "<input type='text' name='fld[$fld_line_no][titlecols]' value='" .
          htmlspecialchars($linedata['titlecols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' style='width:100%' />";
     echo "</td>\n";
-  
+
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' name='fld[$fld_line_no][datacols]' value='" .
          htmlspecialchars($linedata['datacols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' style='width:100%' />";
@@ -791,7 +786,7 @@ function writeFieldLine($linedata)
     echo "  <td align='center' class='optcell' title='" . xla("Add modifiers for this field type. You may select more than one.") . "'>";
     echo "<select id='fld[$fld_line_no][edit_options]' name='fld[$fld_line_no][edit_options][]' class='typeAddons optin' size=3 multiple data-set='" .
     trim($linedata['edit_options']) . "' ></select></td>\n";
-    
+
     if ($linedata['data_type'] == 31) {
         echo "  <td align='center' class='optcell'>";
         echo "<textarea name='fld[$fld_line_no][desc]' rows='3' cols='35' class='optin' style='width:100%'>" .
@@ -942,7 +937,7 @@ function writeFieldLine($linedata)
     " </tr>\n".
     " <tr>\n" .
     "  <td align='left' title='" . xla('Select a validation rule') . "'>\n" .
-        
+
 
     "   <select name='fld[$fld_line_no][validation]' onchange='valChanged($fld_line_no)'>\n" .
     "   <option value=''";
@@ -971,9 +966,7 @@ function writeFieldLine($linedata)
 <html>
 
 <head>
-<?php // html_header_show();?>
 
-<!-- supporting javascript code -->
 <?php Header::setupHeader('select2'); ?>
 
 <title><?php  xl('Layout Editor', 'e'); ?></title>
@@ -990,13 +983,13 @@ a, a:visited, a:hover { color:#0000cc; }
 .group {
     margin: 0pt 0pt 8pt 0pt;
     padding :0pt;
-    width: 100%;   
+    width: 100%;
 }
 
 .group table {
     border-collapse: collapse;
     width: 100%;
-    
+
 }
 .orgTable .odd td {
     background-color: #ddddff;
@@ -1031,7 +1024,7 @@ a, a:visited, a:hover { color:#0000cc; }
     cursor: pointer;
     opacity: 0.99 !important;
 }
-</style> 
+</style>
 
 <script>
 // Helper functions for positioning the floating divs.
@@ -1359,7 +1352,7 @@ while ($row = sqlFetchArray($res)) {
     <?php // if not english and showing layout label translations, then show translation header for title
     if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
         echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";
-    } ?>        
+    } ?>
       <th style='width:6%'><?php xl('UOR', 'e'); ?></th>
       <th style='width:10%'><?php xl('Data Type', 'e'); ?></th>
       <th style='width:1%'><?php xl('Size', 'e'); ?></th>
@@ -1643,7 +1636,7 @@ function getNextSeq(group) {
 // jQuery stuff to make the page a little easier to use
 
 $(document).ready(function(){
-    
+
     $(function () {
         $('.typeAddons').select2({
             data: fldOptions,
@@ -1655,8 +1648,8 @@ $(document).ready(function(){
             containerCssClass: ':all:',
             dir: langDirection,
             allowClear: false
-        }); 
-    }); 
+        });
+    });
       // Populate field option selects
     $(function() {
       $('.typeAddons').each(function(i, obj) {
@@ -1667,7 +1660,7 @@ $(document).ready(function(){
       });
       somethingChanged = false;
     });
-    
+
     $("#save").click(function() { SaveChanges(); });
     $("#layout_id").change(function() {
       if (!myChangeCheck()) {
@@ -1688,7 +1681,7 @@ $(document).ready(function(){
     $(".cancelrenamegroup").click(function() { CancelRenameGroup(this); });
     $(".addfield").click(function() { AddField(this); });
     $("#deletefields").click(function() { DeleteFields(this); });
-    $(".selectfield").click(function() { 
+    $(".selectfield").click(function() {
         var TRparent = $(this).parent().parent();
         $(TRparent).children("td").toggleClass("highlight");
         // disable the delete-move buttons
@@ -1699,7 +1692,7 @@ $(document).ready(function(){
             if ($(this).prop("checked") == true) {
                 $("#deletefields").removeAttr("disabled");
                 $("#movefields").removeAttr("disabled");
-              
+
             }
         });
     });
@@ -1708,7 +1701,7 @@ $(document).ready(function(){
     $(".cancelnewfield").click(function() { CancelNewField(this); });
     $("#newtitle").blur(function() { if ($("#newid").val() == "") $("#newid").val($("#newtitle").val()); });
     $("#newdatatype").change(function() { ChangeList(this.value);});
-    $("#gnewdatatype").change(function() { ChangeListg(this.value);}); 
+    $("#gnewdatatype").change(function() { ChangeListg(this.value);});
     $(".listid").click(function() { ShowLists(this); });
 
     // special class that skips the element
@@ -1763,7 +1756,7 @@ $(document).ready(function(){
         $("#newgroupname").val(validname);
 
         // now, check the first group field values
-        
+
         // seq must be numeric and <= 9999
         if (! IsNumeric($("#gnewseq").val(), 0, 9999)) {
             alert("<?php xl('Order must be a number between 1 and 9999', 'e'); ?>");
@@ -1911,7 +1904,7 @@ $(document).ready(function(){
             var delim = "";
             $(".selectfield").each(function(i) {
                 // build a list of selected field names to be moved
-                if ($(this).attr("checked") == true) {
+                if ($(this).prop("checked")) {
                     var parts = this.id.split("~");
                     var currval = $("#selectedfields").val();
                     $("#selectedfields").val(currval+delim+parts[1]);
@@ -1923,11 +1916,11 @@ $(document).ready(function(){
             mySubmit();
         }
     };
-    
+
     // save the new field to the form
     var SaveNewField = function(btnObj) {
         // check the new field values for correct formatting
-    
+
         // seq must be numeric and <= 9999
         if (! IsNumeric($("#newseq").val(), 0, 9999)) {
             alert("<?php xl('Order must be a number between 1 and 9999', 'e'); ?>");
@@ -1957,12 +1950,12 @@ $(document).ready(function(){
         // similarly with the backuplistid field
         validid = $("#newbackuplistid").val().replace(/(\s|\W)/g, "_");
         $("#newbackuplistid").val(validid);
-    
+
         // submit the form to add a new field to a specific group
         $("#formaction").val("addfield");
         mySubmit();
     };
-    
+
     // just hide the new field DIV
     var CancelNewField = function(btnObj) {
         // hide the field details DIV
@@ -1979,14 +1972,14 @@ $(document).ready(function(){
           'lists', 'width=700,height=600,scrollbars=yes');
         selectedfield = btnObj;
     };
-    
+
     // show the popup choice of groups
     var ShowGroups = function(btnObj) {
         if (!myChangeCheck()) return;
         window.open('../patient_file/encounter/find_code_dynamic.php?what=groups&layout_id=<?php echo addslashes($layout_id); ?>',
           'groups', 'width=700,height=600,scrollbars=yes');
     };
-    
+
     // Show context DD for NationNotes
     var ChangeList = function(btnObj){
       if(btnObj==34){
@@ -2017,7 +2010,7 @@ $(document).ready(function(){
       }
       actionChanged(lino);
     }
-    
+
   // Support for beforeunload handler.
   $('tbody input, tbody select, tbody textarea').not('.selectfield').change(function() {
     somethingChanged = true;
@@ -2109,7 +2102,7 @@ function MoveFields(targetgroup) {
     var delim = "";
     $(".selectfield").each(function(i) {
         // build a list of selected field names to be moved
-        if ($(this).attr("checked") == true) {
+        if ($(this).prop("checked")) {
             var parts = this.id.split("~");
             var currval = $("#selectedfields").val();
             $("#selectedfields").val(currval+delim+parts[1]);
@@ -2144,7 +2137,7 @@ function ResetNewFieldValues () {
 function IsNumeric(value, min, max) {
     if (value == "" || value == null) return false;
     if (! IsN(value) ||
-        parseInt(value) < min || 
+        parseInt(value) < min ||
         parseInt(value) > max)
         return false;
 
