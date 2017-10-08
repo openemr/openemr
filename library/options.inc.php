@@ -1255,8 +1255,9 @@ function generate_form_field($frow, $currvalue)
     else if ($data_type == 34) {
         $arr = explode("|*|*|*|", $currvalue);
         echo "<a href='../../../library/custom_template/custom_template.php?type=form_{$field_id}&contextName=".htmlspecialchars($list_id_esc, ENT_QUOTES)."' class='iframe_medium' style='text-decoration:none;color:black;'>";
-        echo "<div id='form_{$field_id}_div' class='text-area' style='min-width:100pt'>" . $arr[0] . "</div>";
-        echo "<div style='display:none'><textarea name='form_{$field_id}' id='form_{$field_id}' class='form-control' style='display:none' $lbfonchange $disabled>" . $currvalue . "</textarea></div>";
+        $htmlPurifier = new HTMLPurifier();
+        echo "<div id='form_{$field_id}_div' class='text-area' style='min-width:100pt'>" . $htmlPurifier->purify($arr[0]) . "</div>";
+        echo "<div style='display:none'><textarea name='form_{$field_id}' id='form_{$field_id}' class='form-control' style='display:none' $lbfonchange $disabled>" . $htmlPurifier->purify($currvalue) . "</textarea></div>";
         echo "</a>";
     } //facilities drop-down list
     else if ($data_type == 35) {
@@ -2390,8 +2391,9 @@ function generate_display_field($frow, $currvalue)
         $s .= parse_static_text($frow);
     } else if ($data_type == 34) {
         $arr = explode("|*|*|*|", $currvalue);
+        $htmlPurifier = new HTMLPurifier();
         for ($i=0; $i<sizeof($arr); $i++) {
-            $s.=$arr[$i];
+            $s .= $htmlPurifier->purify($arr[$i]);
         }
     } // facility
     else if ($data_type == 35) {
