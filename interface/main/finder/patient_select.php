@@ -193,7 +193,6 @@ if ($popup) {
 
     $sql = "SELECT $given FROM patient_data " .
     "WHERE $where ORDER BY " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
-
     $rez = sqlStatement($sql, $sqlBindArray);
     $result = array();
     while ($row = sqlFetchArray($rez)) {
@@ -333,7 +332,7 @@ if ($fend > $count) {
  </tr>
 </table>
 
-<div id="searchResultsHeader">
+<div id="searchResultsHeader" class="head">
 <table>
 <tr>
 <th class="srName"><?php echo htmlspecialchars(xl('Name'), ENT_NOQUOTES);?></th>

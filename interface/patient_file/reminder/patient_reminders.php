@@ -23,7 +23,7 @@ require_once "$srcdir/report_database.inc";
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/font-awesome-4-6-3/css/font-awesome.css" type="text/css">
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
@@ -32,6 +32,11 @@ require_once "$srcdir/report_database.inc";
 <script LANGUAGE="JavaScript">
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 </script>
+<style>
+a.arrowhead, a:hover.arrowhead, a:visited.arrowhead{
+  color: black;
+}
+</style>
 
 </head>
 
@@ -99,25 +104,21 @@ if ($sortby == "") {
 if ($sortorder == "") {
     $sortorder = "asc";
 }
-
-for ($i = 0; $i < count($sort); $i++) {
-    $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) ."&mode=" . attr($mode) . "&sortby=" . attr($sort[$i]) . "&sortorder=asc\" onclick=\"top.restoreSession()\">" .
-    "<img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."\"></a>";
+for($i = 0; $i < count($sort); $i++) {
+  $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr($patient_id) ."&mode=" . attr($mode) . "&sortby=" . attr($sort[$i]) . "&sortorder=asc\" onclick=\"top.restoreSession()\"  title = " .htmlspecialchars(xl('Sort Up'), ENT_QUOTES).">" .
+    "<i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
 }
-
-for ($i = 0; $i < count($sort); $i++) {
-    if ($sortby == $sort[$i]) {
-        switch ($sortorder) {
-            case "asc":
-                $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=desc\" onclick=\"top.restoreSession()\">" .
-                          "<img src=\"../../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."\"></a>";
-                break;
-            case "desc":
-                $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=asc\" onclick=\"top.restoreSession()\">" .
-                          "<img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Down'), ENT_QUOTES)."\"></a>";
-                break;
-        } break;
-    }
+for($i = 0; $i < count($sort); $i++) {
+  if($sortby == $sort[$i]) {
+    switch($sortorder) {
+      case "asc"      : $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=desc\" onclick=\"top.restoreSession()\"   title = " .htmlspecialchars(xl('Sort Up'), ENT_QUOTES).">" .
+                          "<i class='fa fa-sort-asc fa-lg' aria-hidden='true'></i></a>";
+                        break;
+      case "desc"     : $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=asc\" onclick=\"top.restoreSession()\"  title = " .htmlspecialchars(xl('Sort Down'), ENT_QUOTES).">" .
+                          "<i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
+                        break;
+    } break;
+  }
 }
 
 // This is for managing page numbering and display beneath the Patient Reminders table.
@@ -242,23 +243,23 @@ if ($next < $total) {
       </thead>
       <tbody>
 <?php
+      
+    //Escape sort by parameter
+    $escapedsortby = explode(',', $sortby);
+    foreach ($escapedsortby as $key => $columnName) {
+        $escapedsortby[$key] = escape_sql_column_name(trim($columnName), array('patient_reminders','patient_data'));
+    }
+    $escapedsortby = implode(', ', $escapedsortby);
 
-//Escape sort by parameter
-$escapedsortby = explode(',', $sortby);
-foreach ($escapedsortby as $key => $columnName) {
-    $escapedsortby[$key] = escape_sql_column_name(trim($columnName), array('patient_reminders','patient_data'));
-}
-$escapedsortby = implode(', ', $escapedsortby);
-
-$sql = "SELECT a.id, a.due_status, a.category, a.item, a.date_created, a.date_sent, a.voice_status, " .
-            "a.sms_status, a.email_status, a.mail_status, b.fname, b.lname, b.hipaa_allowemail, b.hipaa_allowsms " .
-"FROM `patient_reminders` as a, `patient_data` as b " .
-"WHERE a.active='1' AND a.pid=b.pid " . $add_sql .
-"ORDER BY " . $escapedsortby . " " .
-  escape_sort_order($sortorder) . " " .
-"LIMIT " . escape_limit($begin) . ", " .
-  escape_limit($listnumber);
-$result = sqlStatement($sql, $sqlBindArray);
+    $sql = "SELECT a.id, a.due_status, a.category, a.item, a.date_created, a.date_sent, a.voice_status, " .
+                "a.sms_status, a.email_status, a.mail_status, b.fname, b.lname, b.hipaa_allowemail, b.hipaa_allowsms " .
+    "FROM `patient_reminders` as a, `patient_data` as b " .
+    "WHERE a.active='1' AND a.pid=b.pid " . $add_sql .
+    "ORDER BY " . $escapedsortby . " " .
+      escape_sort_order($sortorder) . " " .
+    "LIMIT " . escape_limit($begin) . ", " .
+      escape_limit($listnumber);
+    $result = sqlStatement($sql, $sqlBindArray);
 while ($myrow = sqlFetchArray($result)) { ?>
         <tr>
           <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $myrow['category']) . " : " .
