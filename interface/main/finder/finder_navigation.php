@@ -36,6 +36,9 @@ include_once("../../globals.php");
 <option value="DOB" <?php if ($_REQUEST['findBy'] == 'DOB') {
     echo 'selected';
 } ?>><?php xl('DOB', 'e');?></option>
+<option value="Any" <?php if ($_REQUEST['findBy'] == 'Any') {
+    echo 'selected';
+} ?>><?php xl('Any', 'e');?></option>
 </select>
 <a href="javascript:top.restoreSession();document.find_patient.action='<?php echo $rootdir?>/main/finder/patient_finder.php';document.find_patient.submit();" class="link">&nbsp;<?php xl('Find Patient', 'e');?></a>
 </td>
