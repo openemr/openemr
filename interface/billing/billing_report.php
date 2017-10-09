@@ -901,7 +901,7 @@ function MarkAsCleared(Type) {
                                 $divnos = $divnos + 1;
                                 $lhtml .= "&nbsp;&nbsp;&nbsp;<a  onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos' href=\"JavaScript:void(0);" . "\">(<span id=spanid_$divnos class=\"indicator\">" . htmlspecialchars(xl('Expand'), ENT_QUOTES) . '</span>)<br></a>';
                                 if ($GLOBALS['notes_to_display_in_Billing'] == 2 || $GLOBALS['notes_to_display_in_Billing'] == 3) {
-                                    $lhtml .= '<span style="margin-left: 20px; font-weight bold; color: red">' . text($billing_note) . '</span>';
+                                    $lhtml .= '<span style="margin-left: 20px; font-weight: bold; color: red">' . text($billing_note) . '</span>';
                                 }
 
                                 if ($iter['id']) {
@@ -962,7 +962,7 @@ function MarkAsCleared(Type) {
                                     $DivPut = 'yes';
 
                                     if ($GLOBALS['notes_to_display_in_Billing'] == 1 || $GLOBALS['notes_to_display_in_Billing'] == 3) {
-                                        $lhtml .= "<br><span style='margin-left: 20px; font-weight bold; color: green'>" . text($enc_billing_note) . "</span>";
+                                        $lhtml .= "<br><span style='margin-left: 20px; font-weight: bold; color: green'>" . text($enc_billing_note) . "</span>";
                                     }
                                     $lhtml .= "<br>\n&nbsp;<div   id='divid_$divnos' style='display:none'>" . text(oeFormatShortDate(substr($iter['date'], 0, 10))) . text(substr($iter['date'], 10, 6)) . " " . xlt("Encounter was coded");
 

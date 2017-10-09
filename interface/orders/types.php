@@ -351,7 +351,8 @@ function recolor() {
             })
        
         }); 
-
+          
+    </script>
 </body>
 </html>
 
