@@ -296,7 +296,7 @@ if ($fend > $count) {
     ?>
 <?php if ($count > $fend) { ?>
    &nbsp;&nbsp;
-   <a href="javascript:submitList(<?php echo $MAXSHOW ?>)">
+   <a href="javascript:submitList(<?php echo $MAXSHOW; ?>)">
     &gt;&gt;
    </a>
 <?php } ?>
