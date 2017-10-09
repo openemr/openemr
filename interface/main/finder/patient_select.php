@@ -183,7 +183,7 @@ if ($popup) {
     }
 
     $sql = "SELECT $given FROM patient_data " .
-    "WHERE $where LIMIT " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
+    "WHERE $where ORDER BY $orderby LIMIT " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
 
     $rez = sqlStatement($sql, $sqlBindArray);
     $result = array();
