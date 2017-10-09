@@ -661,10 +661,16 @@ if ($GLOBALS['pat_trkr_timer'] == '0') {
     <script>
         $(document).ready(function() {
             $('#help-href').click (function(){
-                document.getElementById('targetiframe').src ='http://www.open-emr.org/wiki/index.php/Patient_Flow_Board';
+                <?php
+                if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443){
+                    echo "alert ('". xlt('Your main page was loaded over HTTPS but you are requesting an insecure resource over HTTP. This request has been blocked, the content must be served over HTTPS.')."');";
+                    echo "return;";
+                } else {
+                    echo "document.getElementById('targetiframe').src = 'http://http://www.open-emr.org/wiki/index.php/Patient_Flow_Board';";
+                }
+                ?>
             })
-       
-        });
+        }); 
     </script>
     <script type="text/javascript">
   $(document).ready(function() {
