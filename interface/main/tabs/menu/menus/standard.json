@@ -60,6 +60,18 @@
         ]
       },
       {
+        "label": "Finder",
+        "menu_id": "fin1",
+        "target": "pat",
+        "url": "/interface/main/finder/patient_finder.php",
+        "children": [],
+        "requirement": 0,
+        "acl_req": [
+          "patients",
+          "demo"
+        ]
+      },
+      {
         "label": "New/Search",
         "menu_id": "new0",
         "target": "pat",
