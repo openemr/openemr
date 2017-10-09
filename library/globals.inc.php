@@ -1,4 +1,4 @@
-<?php
+ <?php
 // Copyright (C) 2010-2015 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -174,7 +174,7 @@ $GLOBALS_METADATA = array(
         'css_header' => array(
             xl('General Theme (need to logout/login after change this setting)'),
             'css',
-            'style_light.css',
+            'style_forest_green.css',
             xl('Pick a general theme (need to logout/login after change this setting).')
         ),
 

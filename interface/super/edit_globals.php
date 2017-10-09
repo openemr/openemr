@@ -401,7 +401,7 @@ input     { font-size:10pt; }
 <span style='float: right;'>
     <input name='srch_desc' size='20'
         value='<?php echo (!empty($_POST['srch_desc']) ? htmlspecialchars($_POST['srch_desc']) : '') ?>' />
-    <input type='submit' name='form_search' value='<?php echo xla('Search'); ?>' />
+    <input type='submit' name='form_search' id='globals_form_search' value='<?php echo xla('Search'); ?>' />
 </span>
 
 <ul class="tabNav">

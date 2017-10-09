@@ -5,6 +5,7 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
+use OpenEMR\Core\Header;
 
 require_once("../globals.php");
 
@@ -68,8 +69,8 @@ while ($row = sqlFetchArray($res)) {
     echo "<td class=\"col3\">" . htmlspecialchars($row['procedure_code'], ENT_QUOTES) . "</td>";
     echo "<td class=\"col4\">" . htmlspecialchars($row['description'], ENT_QUOTES) . "</td>";
     echo "<td class=\"col5\">";
-    echo "<span onclick=\"enode($chid)\" class=\"haskids\">[" . xl('Edit') . "]</span>";
-    echo "<span onclick=\"anode($chid)\" class=\"haskids\"> [" . xl('Add') . "]</span>";
+    echo "<span style=\"color:#000000;\" onclick=\"enode($chid)\" class=\"haskids fa fa-pencil fa-lg\" title=".xl("Edit")."></span>";
+    echo "<span style=\"color:#000000; margin-left:30px\" onclick=\"anode($chid)\" class=\"haskids fa fa-plus fa-lg\" title=".xl("Add")." ></span>";
     echo "</td>";
     echo "</tr>";
 }
