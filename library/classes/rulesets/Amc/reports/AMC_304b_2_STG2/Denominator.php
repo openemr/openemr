@@ -36,10 +36,11 @@ class AMC_304b_2_STG2_Denominator implements AmcFilterIF
 
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
+        $eprescribe = amcCollect('e_prescribe_amc',$patient->id,'prescriptions',$patient->object['id']); 
         // Check if prescription is for a controlled substance
         $controlledSubstanceCheck = amcCollect('e_prescribe_cont_subst_amc', $patient->id, 'prescriptions', $patient->object['id']);
         // Exclude controlled substances
-        if (empty($controlledSubstanceCheck)) {
+        if (empty($controlledSubstanceCheck) && !(empty($eprescribe))) {
             // Not a controlled substance, so include in denominator.
             return true;
         } else {

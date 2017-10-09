@@ -32,6 +32,9 @@ class AMC_304b_1_STG2_Denominator implements AmcFilterIF
 
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
-        return true;
+	$eprescribe = amcCollect('e_prescribe_amc',$patient->id,'prescriptions',$patient->object['id']);
+	if ( !(empty($eprescribe)) ) {
+		return true;
+	}
     }
 }
