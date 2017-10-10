@@ -1035,10 +1035,10 @@ $title = array(xl('Fee Sheet for'), $name, $date);
                             <div class="col-lg-4 col-sm-12 clearfix">    
                                 <div class="form-group clearfix"> 
                                     <div class="col-xs-8">
-                                        <input type='text' class="form-control" name='search_term1' value=''>
+                                        <input type='text' class="form-control" name='search_term' value=''>
                                     </div>
                                     <div class="col-xs-1">
-                                        <input type='submit'  name='bn_search1' value='<?php echo xla('Search');?>' onclick='return this.clicked = true;'>
+                                        <input type='submit'  name='bn_search' value='<?php echo xla('Search');?>' onclick='return this.clicked = true;'>
                                         
                                     </div>
                                 </div>
@@ -1052,8 +1052,8 @@ $title = array(xl('Fee Sheet for'), $name, $date);
                                     // There's no limit on the number of results!
                                     //
                                     $numrows = 0;
-                                    if ($_POST['bn_search1'] && $_POST['search_term1']) {
-                                        $res = main_code_set_search($search_type,$_POST['search_term1']);
+                                    if ($_POST['bn_search'] && $_POST['search_term']) {
+                                        $res = main_code_set_search($search_type,$_POST['search_term']);
                                         if (!empty($res)) {
                                             $numrows = sqlNumRows($res);
                                         }
@@ -1541,13 +1541,13 @@ $title = array(xl('Fee Sheet for'), $name, $date);
     </script>
     
     <?php 
-    $search_term = $_POST['search_term1'];
-    if($numrows && $_POST['bn_search1']){
+    $search_term = $_POST['search_term'];
+    if($numrows && $_POST['bn_search']){
         echo "<script>";
             echo "alert( $numrows + ' results returned for search term \"$search_term\"')";
         echo "</script>";
     }
-    elseif (!$nnumrows && $_POST['bn_search1']){
+    elseif (!$nnumrows && $_POST['bn_search']){
         echo "<script>";
             echo "alert( 'No results returned for search term \"$search_term\". Please try a different search')";
         echo "</script>";
