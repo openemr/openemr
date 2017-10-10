@@ -236,6 +236,19 @@ function recolor() {
  });
 }
 
+function close_iframe(){
+ var dialogDiv=top.$("#dialogDiv");
+                var frameName=window.name
+                var body=top.$("body");
+                    var removeFrame=body.find("iframe[name='"+frameName+"']");
+                    removeFrame.remove();
+                    var removeDiv=body.find("div.dialogIframe[name='"+frameName+"']");
+                    removeDiv.remove();
+                    if(body.children("div.dialogIframe").length===0)
+                    {
+                        dialogDiv.hide();
+                    };
+}
 </script>
 
 </head>
@@ -273,7 +286,7 @@ if (isset($_GET['formseq'])) {
 <?php if ($popup) { ?>
 <input type='submit' name='form_save' value='<?php xl('Save', 'e'); ?>' />
 &nbsp;
-<input type='button' value=<?php xl('Cancel', 'e'); ?> onclick='window.close()' />
+<input type='button' value=<?php xl('Cancel', 'e'); ?> onclick='window.close();close_iframe()' />
 &nbsp;
 <?php } ?>
 <input type='button' value='<?php xl('Add Top Level', 'e'); ?>' onclick='anode(0)' />
