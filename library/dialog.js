@@ -77,6 +77,32 @@ function grabfocus(w) {
  return false;
 }
 
+// This is called from del_related() which in turn is invoked by find_code_dynamic.php.
+// Deletes the specified codetype:code from the indicated input text element.
+function my_del_related(s, elem, usetitle) {
+  if (!s) {
+    // Deleting everything.
+    elem.value = '';
+    if (usetitle) {
+      elem.title = '';
+    }
+    return;
+  }
+  // Convert the codes and their descriptions to arrays for easy manipulation.
+  var acodes  = elem.value.split(';');
+  var i = acodes.indexOf(s);
+  if (i < 0) {
+    return; // not found, should not happen
+  }
+  // Delete the indicated code and description and convert back to strings.
+  acodes.splice(i, 1);
+  elem.value = acodes.join(';');
+  if (usetitle) {
+    var atitles = elem.title.split(';');
+    atitles.splice(i, 1);
+    elem.title = atitles.join(';');
+  }
+}
 
 function dialogID()
 {
