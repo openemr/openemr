@@ -351,7 +351,7 @@ while ($frow = sqlFetchArray($fres)) {
     }
 
     // Skip this field if its do-not-print option is set.
-    if (strpos($edit_options, 'X') !== false) {
+    if (isOption($edit_options, 'X') !== false) {
         continue;
     }
 
@@ -414,9 +414,9 @@ while ($frow = sqlFetchArray($fres)) {
     if (($cell_count + $titlecols + $datacols) > $CPR || $cell_count == 0) {
         end_row();
         // echo "  <tr style='height:30pt'>";
-        if (strpos($edit_options, 'RS')) {
+        if (isOption($edit_options, 'RS')) {
             echo " <tr class='RS'>";
-        } else if (strpos($edit_options, 'RO')) {
+        } else if (isOption($edit_options, 'RO')) {
             echo " <tr class='RO'>";
         } else {
             echo " <tr>";
@@ -454,9 +454,9 @@ while ($frow = sqlFetchArray($fres)) {
     // Handle starting of a new data cell.
     if ($datacols > 0) {
         end_cell();
-        if (strpos($edit_options, 'DS')) {
+        if (isOption($edit_options, 'DS')) {
             echo "<td colspan='" . attr($datacols) . "' class='dcols$datacols stuff under RS' style='";
-        } else if (strpos($edit_options, 'DO')) {
+        } else if (isOption($edit_options, 'DO')) {
             echo "<td colspan='" . attr($datacols) . "' class='dcols$datacols stuff under RO' style='";
         } else {
             echo "<td colspan='" . attr($datacols) . "' class='dcols$datacols stuff under' style='";

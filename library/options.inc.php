@@ -65,15 +65,15 @@ function optionalAge($frow, $date, &$asof, $description = '')
     }
 
     $date = substr($date, 0, 10);
-    if (strpos($frow['edit_options'], 'A') !== false) {
+    if (isOption($frow['edit_options'], 'A') !== false) {
         $format = 0;
-    } else if (strpos($frow['edit_options'], 'B') !== false) {
+    } else if (isOption($frow['edit_options'], 'B') !== false) {
         $format = 3;
     } else {
         return '';
     }
 
-    if (strpos($frow['form_id'], 'LBF') === 0) {
+    if (isOption($frow['form_id'], 'LBF') === 0) {
         $tmp = sqlQuery(
             "SELECT date FROM form_encounter WHERE " .
             "pid = ? AND encounter = ? ORDER BY id DESC LIMIT 1",
@@ -329,7 +329,7 @@ function generate_form_field($frow, $currvalue)
 
   // Support edit option T which assigns the (possibly very long) description as
   // the default value.
-    if (strpos($frow['edit_options'], 'T') !== false) {
+    if (isOption($frow['edit_options'], 'T') !== false) {
         if (strlen($currescaped) == 0) {
             $currescaped = $description;
         }
@@ -356,7 +356,7 @@ function generate_form_field($frow, $currvalue)
         $empty_title = "Unassigned";
     }
 
-    $disabled = strpos($frow['edit_options'], '0') === false ? '' : 'disabled';
+    $disabled = isOption($frow['edit_options'], '0') === false ? '' : 'disabled';
 
     $lbfchange = (
         strpos($frow['form_id'], 'LBF') === 0 ||
@@ -401,9 +401,9 @@ function generate_form_field($frow, $currvalue)
         " title='$description'" .
         " value='$currescaped'";
         $tmp = $lbfchange;
-        if (strpos($frow['edit_options'], 'C') !== false) {
+        if (isOption($frow['edit_options'], 'C') !== false) {
             $tmp .= "capitalizeMe(this);";
-        } else if (strpos($frow['edit_options'], 'U') !== false) {
+        } else if (isOption($frow['edit_options'], 'U') !== false) {
             $tmp .= "this.value = this.value.toUpperCase();";
         }
 
@@ -421,7 +421,7 @@ function generate_form_field($frow, $currvalue)
             echo " onblur='maskblur(this,\"$tmp\")'";
         }
 
-        if (strpos($frow['edit_options'], '1') !== false && strlen($currescaped) > 0) {
+        if (isOption($frow['edit_options'], '1') !== false && strlen($currescaped) > 0) {
             echo " readonly";
         }
 
@@ -445,7 +445,7 @@ function generate_form_field($frow, $currvalue)
     } // date
     else if ($data_type == 4) {
         $age_asof_date = ''; // optionalAge() sets this
-        $age_format = strpos($frow['edit_options'], 'A') === false ? 3 : 0;
+        $age_format = isOption($frow['edit_options'], 'A') === false ? 3 : 0;
         $agestr = optionalAge($frow, $currvalue, $age_asof_date, $description);
         if ($agestr) {
             echo "<table cellpadding='0' cellspacing='0'><tr><td class='text'>";
@@ -457,7 +457,7 @@ function generate_form_field($frow, $currvalue)
             "updateAgeString('$field_id','$age_asof_date', $age_format, '$description')\"";
         }
         if ($data_type == 4) {
-            $modtmp = strpos($frow['edit_options'], 'F') === false ? 0 : 1;
+            $modtmp = isOption($frow['edit_options'], 'F') === false ? 0 : 1;
             if (!$modtmp) {
                 echo "<input type='text' size='10' class='datepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
                 " value='" . substr($currescaped, 0, 10) . "'";
@@ -596,13 +596,13 @@ function generate_form_field($frow, $currvalue)
   // Alternatively the letter R in edit_options means that abook_type
   // must be "dist", indicating the Distributor type.
     else if ($data_type == 14) {
-        if (strpos($frow['edit_options'], 'L') !== false) {
+        if (isOption($frow['edit_options'], 'L') !== false) {
             $tmp = "abook_type = 'ord_lab'";
-        } else if (strpos($frow['edit_options'], 'O') !== false) {
+        } else if (isOption($frow['edit_options'], 'O') !== false) {
             $tmp = "abook_type LIKE 'ord\\_%'";
-        } else if (strpos($frow['edit_options'], 'V') !== false) {
+        } else if (isOption($frow['edit_options'], 'V') !== false) {
             $tmp = "abook_type LIKE 'vendor%'";
-        } else if (strpos($frow['edit_options'], 'R') !== false) {
+        } else if (isOption($frow['edit_options'], 'R') !== false) {
             $tmp = "abook_type LIKE 'dist'";
         } else {
             $tmp = "( username = '' OR authorized = 1 )";
@@ -655,7 +655,7 @@ function generate_form_field($frow, $currvalue)
         }
 
         //
-        if (strpos($frow['edit_options'], '2') !== false && substr($frow['form_id'], 0, 3) == 'LBF') {
+        if (isOption($frow['edit_options'], '2') !== false && substr($frow['form_id'], 0, 3) == 'LBF') {
             // Option "2" generates a hidden input for the codes, and a matching visible field
             // displaying their descriptions. First step is computing the description string.
             $currdescstring = '';
@@ -2043,7 +2043,7 @@ function generate_display_field($frow, $currvalue)
         if ($currvalue === '') {
             $s .= '&nbsp;';
         } else {
-            $modtmp = strpos($frow['edit_options'], 'F') === false ? 0 : 1;
+            $modtmp = isOption($frow['edit_options'], 'F') === false ? 0 : 1;
             if (!$modtmp) {
                 $s .= text(oeFormatShortDate($currvalue));
             } else {
@@ -3132,7 +3132,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                 $skip_this_field = isSkipped($group_fields, $currvalue) == 'skip';
 
                 // Skip this field if its do-not-print option is set.
-                if (strpos($edit_options, 'X') !== false) {
+                if (isOption($edit_options, 'X') !== false) {
                     $skip_this_field = true;
                 }
 
@@ -3964,6 +3964,30 @@ EOD;
     }
 
     return $s;
+}
+
+/**
+ * Test if modifier($test) is in array of options for data type.
+ *
+ * @param json array $options or could be string of form "ABCU"
+ * @param string $test
+ * @return boolean
+ */
+function isOption($options, $test)
+{
+    if (empty($options) || empty($test)) {
+        return false; // why bother?
+    }
+    if (strpos($options, ',') === false) { // could be string of char's or single element of json
+        json_decode($options);
+        if (is_string($options) && ! (json_last_error() === JSON_ERROR_NONE)) { // nope, it's string.
+            $t = str_split(trim($options)); // very good chance it's legacy modifier string.
+            $options = json_encode($t); // make it array.
+        }
+    }
+    $options = json_decode($options);
+    
+    return in_array($test, $options, true) ? true : false; // finally!
 }
 
 ?>
