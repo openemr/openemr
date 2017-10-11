@@ -68,13 +68,31 @@ if (!acl_check('admin', 'super') && !empty($LBF_ACO)) {
 // Html2pdf fails to generate checked checkboxes properly, so write plain HTML
 // if we are doing a visit-specific form to be completed.
 $PDF_OUTPUT = ($formid && $isform) ? false : true;
-// $PDF_OUTPUT = false; // debugging
+//$PDF_OUTPUT = false; // debugging
 
 if ($PDF_OUTPUT) {
-    require_once("$srcdir/html2pdf/vendor/autoload.php");
-    $pdf = new HTML2PDF('P', 'Letter', 'en');
-    $pdf->setTestTdInOnePage(false); // Turn off error message for TD contents too big.
-    $pdf->pdf->SetDisplayMode('real');
+    $pdf = new mPDF(
+        $GLOBALS['pdf_language'],
+        $GLOBALS['pdf_size'],
+        '', // default font size (pt)
+        '',
+        $GLOBALS['pdf_left_margin'],
+        $GLOBALS['pdf_right_margin'],
+        $GLOBALS['pdf_top_margin'],
+        $GLOBALS['pdf_bottom_margin'],
+        '', // default header margin
+        '', // default footer margin
+        $GLOBALS['pdf_layout']
+    );
+    $pdf->SetDisplayMode('real');
+    $pdf->shrink_tables_to_fit = 1;
+    $keep_table_proportions = true;
+    $pdf->use_kwt = true;
+    $pdf->autoScriptToLang = true;
+    if ($_SESSION['language_direction'] == 'rtl') {
+        $pdf->SetDirectionality('rtl');
+    }
+    
     ob_start();
 }
 
@@ -146,6 +164,7 @@ border-color: #ffffff #ffffff #ffffff #ffffff;
  padding: 0pt 5pt 0pt 5pt;
 }
 div.section table {
+ border-collapse: collapse;
  width: 100%;
 }
 div.section td.stuff {
@@ -179,7 +198,19 @@ for ($lcols = 1; $lcols < $CPR; ++$lcols) {
 
 .under {
  border-style: solid;
+ border-width: 0 0 0px 0;
+ border-color: #999999;
+}
+
+.RS {
+ border-style: solid;
  border-width: 0 0 1px 0;
+ border-color: #999999;
+}
+
+.RO {
+ border-style: solid;
+ border-width: 1px 1px 1px 1px !important;
  border-color: #999999;
 }
 
@@ -383,7 +414,13 @@ while ($frow = sqlFetchArray($fres)) {
     if (($cell_count + $titlecols + $datacols) > $CPR || $cell_count == 0) {
         end_row();
         // echo "  <tr style='height:30pt'>";
-        echo "  <tr>";
+        if (strpos($edit_options, 'RS')) {
+            echo " <tr class='RS'>";
+        } else if (strpos($edit_options, 'RO')) {
+            echo " <tr class='RO'>";
+        } else {
+            echo " <tr>";
+        }
     }
 
     if ($item_count == 0 && $titlecols == 0) {
@@ -417,7 +454,14 @@ while ($frow = sqlFetchArray($fres)) {
     // Handle starting of a new data cell.
     if ($datacols > 0) {
         end_cell();
-        echo "<td colspan='" . attr($datacols) . "' class='dcols$datacols stuff under' style='";
+        if (strpos($edit_options, 'DS')) {
+            echo "<td colspan='" . attr($datacols) . "' class='dcols$datacols stuff under RS' style='";
+        } else if (strpos($edit_options, 'DO')) {
+            echo "<td colspan='" . attr($datacols) . "' class='dcols$datacols stuff under RO' style='";
+        } else {
+            echo "<td colspan='" . attr($datacols) . "' class='dcols$datacols stuff under' style='";
+        }
+        
         if ($cell_count > 0) {
             echo "padding-left:5pt;";
         }

@@ -330,6 +330,10 @@ td, input, select, textarea {
  font-size: 10pt;
 }
 
+.table > tbody > tr > td{
+ border-top: 0;
+}
+
 div.section {
  border: solid;
  border-width: 1px;
@@ -343,6 +347,19 @@ div.section {
     display: inline;
     height: auto;
 }
+
+.RS {
+ border-style: solid;
+ border-width: 0 0 1px 0;
+ border-color: #999999;
+}
+
+.RO {
+ border-style: solid;
+ border-width: 1px 1px 1px 1px !important;
+ border-color: #999999;
+}
+
 </style>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
@@ -714,7 +731,7 @@ if (function_exists($formname . '_javascript')) {
 
 <body class="body_top"<?php if ($from_issue_form) {
     echo " style='background-color:#ffffff'";} ?>>
-
+<div class='container'>
 <?php
   echo "<form method='post' " .
        "action='$rootdir/forms/LBF/new.php?formname=$formname&id=$formid&portalid=$portalid' " .
@@ -735,7 +752,7 @@ if (!$from_trend_form) {
     "f.formdir = 'newpatient' AND f.deleted = 0 AND " .
     "fe.id = f.form_id LIMIT 1", array($pid, $visitid)); ?>
 
-    <div class="container">
+    <div class="container-responsive">
         <div class="row">
             <div class="col-xs-12">
                 <div class="page-header">
@@ -961,7 +978,7 @@ while ($frow = sqlFetchArray($fres)) {
             }
 
             echo " /><b>" . text(xl_layout_label($group_name)) . "</b></span>\n";
-            echo "<div id='div_" . attr($group_seq) . "' class='section' style='display:" . attr($display_style) . ";'>\n";
+            echo "<div id='div_" . attr($group_seq) . "' class='section table-responsive' style='display:" . attr($display_style) . ";'>\n";
         }
 
         $group_table_active = true;
@@ -1013,7 +1030,14 @@ while ($frow = sqlFetchArray($fres)) {
 // Handle starting of a new row.
     if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
             end_row();
+        if (strpos($edit_options, 'RS')) {
+            echo " <tr class='RS'>";
+        } else if (strpos($edit_options, 'RO')) {
+            echo " <tr class='RO'>";
+        } else {
             echo " <tr>";
+        }
+            
             // Clear historical data string.
         foreach ($historical_ids as $key => $dummy) {
             $historical_ids[$key] = '';
@@ -1073,7 +1097,14 @@ while ($frow = sqlFetchArray($fres)) {
 // Handle starting of a new data cell.
     if ($datacols > 0) {
             end_cell();
+        if (strpos($edit_options, 'DS')) {
+            echo "<td valign='top' colspan='" . attr($datacols) . "' class='text RS'";
+        }
+        if (strpos($edit_options, 'DO')) {
+            echo "<td valign='top' colspan='" . attr($datacols) . "' class='text RO'";
+        } else {
             echo "<td valign='top' colspan='" . attr($datacols) . "' class='text'";
+        }
             // This ID is used by action conditions.
             echo " id='value_id_" . attr($field_id) . "'";
         if ($cell_count > 0) {
@@ -1533,6 +1564,6 @@ if ($alertmsg) {
 }
 ?>
 </script>
-
+</div>
 </body>
 </html>
