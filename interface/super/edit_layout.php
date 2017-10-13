@@ -1030,9 +1030,7 @@ a, a:visited, a:hover { color:#0000cc; }
 .tips {
     display: none;
 }
-.menubar {
-z-index: 0;
-}
+
 </style> 
 
 <script>
@@ -1297,12 +1295,12 @@ if ($lastgroup) {
 
 <div id="tips" class="container tips"><section class="panel panel-primary">
   <header class="panel-heading">
-   <h3 class="panel-title">Usage Tips</h3>
+   <h3 class="panel-title"><?php echo xlt('Usage Tips') ?></h3>
   </header>
   <div class="panel-body">
    <ul>
 <?php
-    echo "<li>" . xlt("Clicking Options will present a multiselection drop menu to add behaviors to the selected data type.") . "</li>";
+    echo "<li>" . xlt("Clicking Options will present a multiselection drop menu to add behaviors to the selected data type. Typing after selection allows search in options.") . "</li>";
     echo "<li>" . xlt("The options for Outline and Border will either wrap a row in thin border or add a border to the bottom of an item.") . "</li>";
     echo "<li>" . xlt("If a field's Label Col = 0 the label will immediately follow the previous data field in the Order sequence, on the same line as the Data field.") . "</li>";
     echo "<li>" . xlt("If a field's Data Col = 0 the data field will immediately follow its label field on the same line") . "</li>";
@@ -1693,7 +1691,7 @@ $(document).ready(function(){
       $('.typeAddons').each(function(i, obj) {
           var v = $(this).data('set')
           if(typeof v !== 'undefined' && v > ""){
-            $(this).select2().val(v).trigger("change")
+            $(this).val(v).trigger("change")
           }
       });
       somethingChanged = false;
