@@ -603,10 +603,22 @@ function set_related(codetype, code, selector, codedesc) {
  if(title == '') f.form_title.value = codedesc;
 }
 
+// This is for callback by the find-code popup.
+// Returns the array of currently selected codes with each element in codetype:code format.
+function get_related() {
+    return document.forms[0].form_diagnosis.value.split(';');
+}
+
+// This is for callback by the find-code popup.
+// Deletes the specified codetype:code from the currently selected list.
+function del_related(s) {
+    my_del_related(s, document.forms[0].form_diagnosis, false);
+}
+
 // This invokes the find-code popup.
 function sel_diagnosis() {
 <?php
-$url = '../encounter/find_code_popup.php?codetype=';
+$url = '../encounter/find_code_dynamic.php?codetype=';
 if ($irow['type'] == 'medical_problem') {
     $url .= collect_codetypes("medical_problem", "csv");
 } else {
@@ -623,7 +635,7 @@ if ($irow['type'] == 'medical_problem') {
     }
 }
 ?>
- dlgopen('<?php echo $url; ?>', '_blank', 700, 500);
+ dlgopen('<?php echo $url; ?>', '_blank', 900, 600);
 }
 
 // Check for errors when the form is submitted.

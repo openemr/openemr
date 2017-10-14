@@ -747,7 +747,11 @@ function writeITLine($it_array)
                 theme: "bootstrap"
             });
         });
+
+        // Keeping track of code picker requests.
         var current_lino = 0;
+        var current_sel_name = '';
+        var current_sel_clin_term = '';
 
         // Helper function to set the contents of a div.
         // This is for Fee Sheet administration.
@@ -812,54 +816,36 @@ function writeITLine($it_array)
         // This invokes the find-code popup.
         // For Fee Sheet administration.
         function select_code(lino) {
+            current_sel_name = '';
+            current_sel_clin_term = '';
             current_lino = lino;
-            dlgopen('../patient_file/encounter/find_code_popup.php', '_blank', 700, 400);
+            dlgopen('../patient_file/encounter/find_code_dynamic.php', '_blank', 900, 600);
             return false;
         }
 
         // This invokes the find-code popup.
         // For CVX/immunization code administration.
         function sel_cvxcode(e) {
+            current_sel_clin_term = '';
             current_sel_name = e.name;
-            dlgopen('../patient_file/encounter/find_code_popup.php?codetype=CVX', '_blank', 500, 400);
+            dlgopen('../patient_file/encounter/find_code_dynamic.php?codetype=CVX', '_blank', 900, 600);
         }
 
         // This invokes the find-code popup.
         // For CVX/immunization code administration.
         function select_clin_term_code(e) {
+            current_sel_name = '';
             current_sel_clin_term = e.name;
-            dlgopen('../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("clinical_term", "csv")) ?>', '_blank', 500, 400);
+            dlgopen('../patient_file/encounter/find_code_dynamic.php?codetype=<?php echo attr(collect_codetypes("clinical_term", "csv")); ?>', '_blank', 900, 600);
         }
 
         // This is for callback by the find-code popup.
         function set_related(codetype, code, selector, codedesc) {
-            if (typeof(current_sel_name) == 'undefined' && typeof(current_sel_clin_term) == 'undefined') {
-                // Coming from Fee Sheet edit
-                var f = document.forms[0];
-                var celem = f['opt[' + current_lino + '][codes]'];
-                var delem = f['opt[' + current_lino + '][descs]'];
-                var i = 0;
-                while ((i = codedesc.indexOf('~')) >= 0) {
-                    codedesc = codedesc.substring(0, i) + ' ' + codedesc.substring(i + 1);
-                }
-                if (code) {
-                    if (celem.value) {
-                        celem.value += '~';
-                        delem.value += '~';
-                    }
-                    celem.value += codetype + '|' + code + '|' + selector;
-                    if (codetype == 'PROD') delem.value += code + ':' + selector + ' ' + codedesc;
-                    else delem.value += codetype + ':' + code + ' ' + codedesc;
-                } else {
-                    celem.value = '';
-                    delem.value = '';
-                }
-                displayCodes(current_lino);
-            }
-            else if (typeof(current_sel_name) == 'undefined') {
+            var f = document.forms[0];
+            if (current_sel_clin_term) {
                 // Coming from the Clinical Terms Code(s) edit
-                var f = document.forms[0][current_sel_clin_term];
-                var s = f.value;
+                var e = f[current_sel_clin_term];
+                var s = e.value;
                 if (code) {
                     if (s.length > 0) s += ';';
                     s += codetype + ':' + code;
@@ -867,20 +853,75 @@ function writeITLine($it_array)
                 else {
                     s = '';
                 }
-                f.value = s;
+                e.value = s;
             }
-            else {
+            else if (current_sel_name) {
                 // Coming from Immunizations edit
-                var f = document.forms[0][current_sel_name];
-                var s = f.value;
+                var e = f[current_sel_name];
+                var s = e.value;
                 if (code) {
                     s = code;
                 }
                 else {
                     s = '0';
                 }
-                f.value = s;
+                e.value = s;
             }
+            else {
+                // Coming from Fee Sheet edit
+                var celem = f['opt[' + current_lino + '][codes]'];
+                var delem = f['opt[' + current_lino + '][descs]'];
+                var i = 0;
+                while ((i = codedesc.indexOf('~')) >= 0) {
+                    codedesc = codedesc.substring(0, i) + ' ' + codedesc.substring(i+1);
+                }
+                if (code) {
+                    if (celem.value) {
+                        celem.value += '~';
+                        delem.value += '~';
+                    }
+                    celem.value += codetype + '|' + code + '|' + selector;
+                    if (codetype == 'PROD') {
+                        delem.value += code + ':' + selector + ' ' + codedesc;
+                    } else {
+                        delem.value += codetype + ':' + code + ' ' + codedesc;
+                    }
+                } else {
+                    celem.value = '';
+                    delem.value = '';
+                }
+                displayCodes(current_lino);
+            }
+        }
+
+        // This is for callback by the find-code popup.
+        // Deletes the specified codetype:code from the currently selected list.
+        function del_related(s) {
+            var f = document.forms[0];
+            if (current_sel_clin_term) {
+                // Coming from the Clinical Terms Code(s) edit
+                my_del_related(s, f[current_sel_clin_term], false);
+            }
+            else if (current_sel_name) {
+                // Coming from Immunizations edit
+                f[current_sel_name].value = '0';
+            }
+            else {
+                // Coming from Fee Sheet edit
+                f['opt[' + current_lino + '][codes]'].value = '';
+                f['opt[' + current_lino + '][descs]'].value = '';
+                displayCodes(current_lino);
+            }
+        }
+
+        // This is for callback by the find-code popup.
+        // Returns the array of currently selected codes with each element in codetype:code format.
+        function get_related() {
+            var f = document.forms[0];
+            if (current_sel_clin_term) {
+                return f[current_sel_clin_term].value.split(';');
+            }
+            return new Array();
         }
 
         // Called when a "default" checkbox is clicked.  Clears all the others.

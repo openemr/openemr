@@ -4,9 +4,6 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-
-
-
 require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
@@ -318,6 +315,19 @@ if ($fend > $count) {
             f.related_desc.value = s;
         }
 
+        // This is for callback by the find-code popup.
+        // Returns the array of currently selected codes with each element in codetype:code format.
+        function get_related() {
+            return document.forms[0].related_code.value.split(';');
+        }
+
+        // This is for callback by the find-code popup.
+        // Deletes the specified codetype:code from the currently selected list.
+        function del_related(s) {
+            my_del_related(s, document.forms[0].related_code, false);
+            my_del_related(s, document.forms[0].related_desc, false);
+        }
+
         // This invokes the find-code popup.
         function sel_related() {
             var f = document.forms[0];
@@ -341,7 +351,7 @@ if ($fend > $count) {
                 alert('<?php echo addslashes(xl('This code type does not accept relations.')); ?>');
                 return;
             }
-            dlgopen('find_code_popup.php', '_blank', 500, 400);
+            dlgopen('find_code_dynamic.php', '_blank', 900, 600);
         }
 
         // Some validation for saving a new code entry.
