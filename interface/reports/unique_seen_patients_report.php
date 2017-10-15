@@ -165,7 +165,7 @@ $(document).ready(function() {
            <td>
                <div class="text-center">
          <div class="btn-group" role="group">
-                     <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                     <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#form_labels").val(""); $("#theform").submit();'>
                         <?php echo xlt('Submit'); ?>
                      </a>
                     <?php if ($_POST['form_refresh']) { ?>
