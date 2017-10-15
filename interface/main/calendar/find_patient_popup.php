@@ -193,7 +193,7 @@ if (isset($_GET["res"])) {
 <?php elseif (count($result) == 0) : ?>
 <div id="searchstatus" class="noResults"><?php echo htmlspecialchars(xl('No records found. Please expand your search criteria.'), ENT_NOQUOTES); ?>
 <br>
-<!--VicarePlus :: If pflag is set the new patient create link will not be displayed --!>
+<!--VicarePlus :: If pflag is set the new patient create link will not be displayed -->
 <a class="noresult" href='find_patient_popup.php?res=noresult' <?php if (isset($_GET['pflag'])) {
 ?> style="display:none;" <?php
 } ?>  ><?php echo htmlspecialchars(xl('Click Here to add a new patient.'), ENT_NOQUOTES); ?></a>
@@ -206,7 +206,7 @@ if (isset($_GET["res"])) {
 
 <?php if (isset($result)) : ?>
 
-<div id="searchResultsHeader">
+<div id="searchResultsHeader" class="head">
 <table>
  <tr>
   <th class="srName"><?php echo htmlspecialchars(xl('Name'), ENT_NOQUOTES); ?></th>
