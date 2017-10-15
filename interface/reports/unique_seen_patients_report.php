@@ -28,8 +28,8 @@ use OpenEMR\Core\Header;
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 
- $from_date = fixDate($_POST['form_from_date'], date('Y-01-01'));
- $to_date   = fixDate($_POST['form_to_date'], date('Y-12-31'));
+$form_from_date = (!empty($_POST['form_from_date'])) ?  DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01');
+$form_to_date   = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-12-31');
 
 if ($_POST['form_labels']) {
     header("Pragma: public");
@@ -82,7 +82,7 @@ $(document).ready(function() {
  $('.datepicker').datetimepicker({
     <?php $datetimepicker_timepicker = false; ?>
     <?php $datetimepicker_showseconds = false; ?>
-    <?php $datetimepicker_formatInput = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
     <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
  });
@@ -123,7 +123,7 @@ $(document).ready(function() {
 <span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Unique Seen Patients', 'e'); ?></span>
 
 <div id="report_parameters_daterange">
-<?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
+<?php echo oeFormatShortDate($form_from_date) ." &nbsp; to &nbsp; ". oeFormatShortDate($form_to_date); ?>
 </div>
 
 <form name='theform' method='post' action='unique_seen_patients_report.php' id='theform'>
@@ -143,15 +143,13 @@ $(document).ready(function() {
                 <?php xl('Visits From', 'e'); ?>:
            </td>
            <td>
-             <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
-               title='yyyy-mm-dd'>
+             <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo oeFormatShortDate($form_from_date); ?>'>
            </td>
            <td class='control-label'>
                 <?php xl('To', 'e'); ?>:
            </td>
            <td>
-             <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
-               title='yyyy-mm-dd'>
+             <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo oeFormatShortDate($form_to_date); ?>'>
            </td>
        </tr>
    </table>
@@ -215,8 +213,8 @@ if ($_POST['form_refresh'] || $_POST['form_labels']) {
     "FROM patient_data AS p " .
     "JOIN form_encounter AS e ON " .
     "e.pid = p.pid AND " .
-    "e.date >= '$from_date 00:00:00' AND " .
-    "e.date <= '$to_date 23:59:59' " .
+    "e.date >= '$form_from_date 00:00:00' AND " .
+    "e.date <= '$form_to_date 23:59:59' " .
     "LEFT OUTER JOIN insurance_data AS i1 ON " .
     "i1.pid = p.pid AND i1.type = 'primary' " .
     "LEFT OUTER JOIN insurance_companies AS c1 ON " .
