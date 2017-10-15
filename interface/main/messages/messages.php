@@ -56,7 +56,7 @@ if (($_POST['setting_bootstrap_submenu'])||
     <title><?php echo xlt('Message Center'); ?></title>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
-     <script src="https://code.jquery.com/jquery-migrate-3.0.1.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-migrate/jquery-migrate-3.0.0.min.js"></script>
     
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/themes/excite-bike/jquery-ui.css">
     <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
@@ -181,10 +181,11 @@ if (($_POST['setting_bootstrap_submenu'])||
                             <br /><br />
                             
                             <form id="smsForm" class="input-group">
-                                <input id="SMS_patient" type="text" style="margin:0px;" class="form-control" placeholder="Patient Name" />
+                                <input id="SMS_patient" type="text" style="margin:0px;max-width:100%;" class="form-control" placeholder="Patient Name" />
                                 <span class="input-group-addon"  onclick="SMS_direct();"><i class="glyphicon glyphicon-phone"></i></span>
                                 <input type="hidden" id="sms_pid">
-                                <input type="hidden" name="sms_mobile">
+                                <input type="hidden" id="sms_mobile" value="">
+                                <input type="hidden" id="sms_allow" value="">
                             </form>
                         </div>
    
@@ -686,10 +687,16 @@ if (($_POST['setting_bootstrap_submenu'])||
                                         event.preventDefault();
                                         $("#SMS_patient").val(ui.item.label+' '+ui.item.mobile);
                                         $("#sms_pid").val(ui.item.pid),
-                                        $("#sms_mobile").val(ui.item.mobile)
-                                }
-                            });
+                                        $("#sms_mobile").val(ui.item.mobile),
+                                        $("#sms_allow").val(ui.item.allow)
+
+                            }
                         });
+                    });
+                    jQuery.ui.autocomplete.prototype._resizeMenu = function () {
+                        var ul = this.menu.element;
+                        ul.outerWidth(this.element.outerWidth());
+                    }
                     $(document).ready(function(){
                         $("#newnote").click(function() { NewNote(); });
                         $("#printnote").click(function() { PrintNote(); });
@@ -697,8 +704,8 @@ if (($_POST['setting_bootstrap_submenu'])||
                         obj.onchange = function(){SaveNote();};
                         $("#cancel").click(function() { CancelNote(); });
                         $("#note").focus();
-                        
-                       });
+                    });
+                    
                     var NewNote = function () {
                           top.restoreSession();
                           if (document.forms[0].reply_to.value.length == 0 || document.forms[0].reply_to.value == '0') {
@@ -809,12 +816,16 @@ if (($_POST['setting_bootstrap_submenu'])||
                     }
 
                     function SMS_direct() {
-                        var pid = $("#sms_pid").val();
-                        if (pid ==''){
-                            alert('MedEx needs a phone number... Search for a patient to send a SMS message to.');
+                        var pid     = $("#sms_pid").val();
+                        var m       = $("#sms_mobile").val();
+                        var allow   = $("#sms_allow").val();
+                        if ((pid =='')||(m=='')){
+                            alert('MedEx needs a valid mobile number to send SMS messages...');
+                        } else if (allow == 'NO') {
+                            alert('This patient does not allow SMS messaging!');
                         } else {
                             top.restoreSession();
-                            window.open('messages.php?nomenu=1&go=SMS_bot&pid='+pid,'SMS_bot', 'width=370,height=600,resizable=0');                    
+                            window.open('messages.php?nomenu=1&go=SMS_bot&pid='+pid+'&m='+m,'SMS_bot', 'width=370,height=600,resizable=0');                    
                         }
                     }
         </script>

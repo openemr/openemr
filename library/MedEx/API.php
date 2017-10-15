@@ -58,11 +58,12 @@ class CurlRequest
     public function makeRequest()
     {
         $this->handle = curl_init($this->url);
+        
+        curl_setopt($this->handle, CURLOPT_VERBOSE,1);
         curl_setopt($this->handle, CURLOPT_HEADER, true);
         curl_setopt($this->handle, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($this->handle, CURLOPT_POST, true);
-        curl_setopt($this->handle, CURLOPT_SSL_VERIFYPEER, true);//changed when certificates done -
-        //some may need this to = false if cert authority list not on their server
+        curl_setopt($this->handle, CURLOPT_SSL_VERIFYPEER, true);
         curl_setopt($this->handle, CURLOPT_POSTFIELDS, http_build_query($this->postData).'&MedEx=remote');
         if (!empty($this->cookies)) {
             curl_setopt($this->handle, CURLOPT_COOKIE, $this->getCookies());
@@ -86,7 +87,8 @@ class CurlRequest
     }
     public function setUrl($url)
     {
-        $this->url = $url;}
+        $this->url = $url;
+    }
     public function setData($postData)
     {
         $this->postData = $postData; }
@@ -2074,6 +2076,22 @@ class Display extends base
 
         <?php
     }
+
+    public function syncPat($pid,$logged_in) {
+        $sqlSync = "select pid,fname,mname,lname,phone_home,phone_cell,email,street,city,state,postal_code,country_code from patient_data where pid=?";
+        $data = sqlQuery($sqlSync, array($pid));
+        $this->curl->setUrl($this->MedEx->getUrl('custom/syncPat&token='.$logged_in['token']));
+        $this->curl->setData($data);
+        $this->curl->makeRequest();
+        $response = $this->curl->getResponse();
+
+        if (isset($response['success'])) {
+            return $response;
+        } else if (isset($response['error'])) {
+            $this->lastError = $response['error'];
+        }
+        return $this->lastError;
+    }
     /**
      *  This function displays a pop-up window containing an image of a phone with a record of our messaging activity.
      *  It is fired from the Flow board.
@@ -2087,6 +2105,7 @@ class Display extends base
 
         $fields = array();
         $fields = $_REQUEST;
+        $this->syncPat($_REQUEST['pid'],$logged_in);
         $this->curl->setUrl($this->MedEx->getUrl('custom/SMS_bot&token='.$logged_in['token']));
         $this->curl->setData($fields);
         $this->curl->makeRequest();
@@ -2431,7 +2450,7 @@ class MedEx
         if ($sessionFile == 'cookiejar_MedExAPI') {
             $sessionFile = $GLOBALS['temporary_files_dir'].'/cookiejar_MedExAPI';
         }
-        $this->url      = rtrim('http://'.preg_replace('/^https?\:\/\//', '', $url), '/') . '/cart/upload/index.php?route=api/';
+        $this->url      = rtrim('https://'.preg_replace('/^https?\:\/\//', '', $url), '/') . '/cart/upload/index.php?route=api/';
         $this->curl     = new CurlRequest($sessionFile);
         $this->practice = new Practice($this);
         $this->campaign = new Campaign($this);

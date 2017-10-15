@@ -1543,12 +1543,21 @@ $GLOBALS_METADATA = array(
             '1',                              // default
             xl('Automatically create a new encounter when an appointment check in status is selected.')
         ),
+        
         'allow_early_check_in' => array(
             xl('Allow Early Check In'),
             'bool',                           // data type
             '1',                              // default
             xl("Allow Check In before the appointment's time.")
         ),
+
+        'submit_changes_for_all_appts_at_once' => array(
+            xl('Submit Changes For All Appts At Once'),
+            'bool',                           // data type
+            '1',                              // default
+            xl('Enables to submit changes for all appointments of a recurrence at once.')
+        ),
+
         'disable_pat_trkr' => array(
             xl('Flow Board: Disable '),
             'bool',                           // data type
@@ -1639,13 +1648,6 @@ $GLOBALS_METADATA = array(
             'num',
             '0',                       // default
             xl('Maximum number of times a Patient can be tested in a year. Zero is no limit.')
-        ),
-
-        'submit_changes_for_all_appts_at_once' => array(
-            xl('Flow Board: Submit Changes For All Appts At Once'),
-            'bool',                           // data type
-            '1',                              // default
-            xl('Enables to submit changes for all appointments of a recurrence at once.')
         ),
 
         'disable_rcb' => array(

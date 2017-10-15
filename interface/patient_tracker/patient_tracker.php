@@ -725,7 +725,7 @@ if (!$_REQUEST['flb_table']) {
                         <?php } else { ?>
                       <a onclick="return bpopup(<?php echo attr( $tracker_id ); // calls popup for patient tracker status?>)">
                         <?php }
-                          if ($appointment['room']) {
+                          if ($appointment['room']>'') {
                             echo getListItemTitle('patient_flow_board_rooms', $appt_room);
                           } else {
                             echo text( getListItemTitle( "apptstat", $status ) ); // drop down list for appointment status
