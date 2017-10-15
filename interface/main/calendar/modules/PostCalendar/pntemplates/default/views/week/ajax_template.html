@@ -157,10 +157,10 @@ $timeslotHeightUnit="px";
 <input type="hidden" name="jumpdate" id="jumpdate" value="">
 <input type="hidden" name="viewtype" id="viewtype" value="[-php-]echo $viewtype;[-/php-]">
 [-php-]
-echo "   <a href='#' title='" . xl("New Appointment") . "' onclick='newEvt(1, 9, 00, $Date, 0, 0)' class='css_button'>
+echo "   <a href='#' title='" . xl("New Appointment") . "' onclick='newEvt(1, 9, 00, $Date, 0, 0)' class='css_button css_button_icon'>
             <i class='fa fa-plus' aria-hidden='true'></i></a>\n";
 echo "   <a href='#' title='" . xl("Search Appointment") . "'
-            onclick='top.restoreSession();location=\"index.php?module=PostCalendar&func=search\"' class='css_button'>
+            onclick='top.restoreSession();location=\"index.php?module=PostCalendar&func=search\"' class='css_button css_button_icon'>
             <i class='fa fa-search' aria-hidden='true'></i></a>\n";
 [-/php-]
 </div>
@@ -170,22 +170,22 @@ echo "   <a href='#' title='" . xl("Search Appointment") . "'
 <a href='#' name='bnsubmit' value='[-php-]echo xl ("Today")[-/php-]' onClick='GoToToday(theform);'  class='css_button'/><span>[-php-] echo xl("Today")[-/php-]</span></a>
 [-php-]
 echo "   <a id='prevweek' href='$PREV_WEEK_URL' onclick='top.restoreSession()' title='" . xl("Previous Week") . "'>
-            <i class='fa fa-arrow-left' aria-hidden='true'></i></a>\n";
+            <i class='fa fa-chevron-circle-left chevron_color' aria-hidden='true'></i></a>\n";
 $atmp = array_keys($A_EVENTS);
 echo date('d', strtotime($atmp[0])) . " " . xl(date('M', strtotime($atmp[0]))) . " " . date('Y', strtotime($atmp[0]));
 echo " - ";
 echo date('d', strtotime($atmp[count($atmp)-1])) . " " . xl(date('M', strtotime($atmp[count($atmp)-1]))) . " " . date('Y', strtotime($atmp[count($atmp)-1]));
 echo "   <a id='nextweek' href='$NEXT_WEEK_URL' onclick='top.restoreSession()' title='" . xl("Next Week") . "'>
-            <i class='fa fa-arrow-right' aria-hidden='true'></i></a>\n";
+            <i class= 'fa fa-chevron-circle-right chevron_color' aria-hidden='true'></i></a>\n";
 [-/php-]
 </div>
 
 <div id="viewPicker">
 [-php-]
 
-echo "   <a href='#' id='printview' title='" . xl("View Printable Version") . "' class='css_button'>
+echo "  <a href='#' id='printview' title='" . xl("View Printable Version") . "' class='css_button css_button_icon'>
             <i class='fa fa-print' aria-hidden='true'></i></a>\n";
-echo "   <a href='#' title='" . xl("Refresh") . "' onclick='javascript:refreshme()' class='css_button'>
+echo "   <a href='#' title='" . xl("Refresh") . "' onclick='javascript:refreshme()' class='css_button css_button_icon'>
             <i class='fa fa-refresh' aria-hidden='true'></i></a>\n";
 echo "   <a href='#' type='button' id='dayview' title='" .htmlspecialchars( xl('Day View'), ENT_QUOTES). "' class='css_button'/><span>".htmlspecialchars( xl('Day'), ENT_QUOTES) ."</span></a>\n";
 echo "   <a href='#' type='button' id='weekview' title='" .htmlspecialchars( xl('Week View'), ENT_QUOTES). "' class='css_button'/><span>".htmlspecialchars( xl('Week'), ENT_QUOTES)."</span></a>\n";
