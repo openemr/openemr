@@ -1054,7 +1054,13 @@ while ($frow = sqlFetchArray($fres)) {
 // Handle starting of a new label cell.
     if ($titlecols > 0) {
             end_cell();
+        if (isOption($edit_options, 'SP')) {
+            $datacols = 0;
+            $titlecols = $CPR;
+            echo "<td valign='top' colspan='" . attr($titlecols) . "'";
+        } else {
             echo "<td valign='top' colspan='" . attr($titlecols) . "' nowrap";
+        }
             echo " class='";
             echo ($frow['uor'] == 2) ? "required" : "bold";
         if ($graphable) {

@@ -430,6 +430,10 @@ while ($frow = sqlFetchArray($fres)) {
     // Handle starting of a new label cell.
     if ($titlecols > 0) {
         end_cell();
+        if (isOption($edit_options, 'SP')) {
+            $datacols = 0;
+            $titlecols = $CPR;
+        }
         echo "<td colspan='" . attr($titlecols) . "' ";
         echo "class='lcols$titlecols stuff " . (($frow['uor'] == 2) ? "required'" : "bold'");
         if ($cell_count == 2) {

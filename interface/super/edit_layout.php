@@ -1300,13 +1300,14 @@ if ($lastgroup) {
   <div class="panel-body">
    <ul>
 <?php
-    echo "<li>" . xlt("Clicking Options will present a multiselection drop menu to add behaviors to the selected data type. Typing after selection allows search in options.") . "</li>";
+    echo "<li>" . xlt("Clicking Options will present a multiselection drop menu to add behaviors to the selected data type. Typing after pull down activates allows search in options.") . "</li>";
+    echo "<li>" . xlt("The option Span Entire Row is useful when using Static Text in allowing text to wrap and span entire row regardless of column settings. Another use could be to create an empty row as spacer or add additional option Add Bottom Border to create a line break.Only Bottom Border Row is useful here.") . "</li>";
     echo "<li>" . xlt("The options for Outline and Border will either wrap a row in thin border or add a border to the bottom of an item.") . "</li>";
     echo "<li>" . xlt("If a field's Label Col = 0 the label will immediately follow the previous data field in the Order sequence, on the same line as the Data field.") . "</li>";
     echo "<li>" . xlt("If a field's Data Col = 0 the data field will immediately follow its label field on the same line") . "</li>";
     echo "<li>" . xlt("If a field's Label Col = 1 the label field will go to a new line unless the previous field's total column values (Label + Data) is less than number of Layout columns from Group Properties or Layout Properties.") . "</li>";
     echo "<li>" . xlt("Generally, the first field in a group should be Label Cols = 1 Data Cols = number of Layout columns from Group Properties.") . "</li>";
-    echo "<li>" . xlt("Then make subsequent fields in the same row, Label = 0 Data = 0") . "</li>";
+    echo "<li>" . xlt("Make subsequent fields in the same row, Label = 0 Data = 0 and ensure enough columns are available from previous items to allow space for this new item. Otherwise result could be unpredictable") . "</li>";
     //echo "<li>" . xlt("") . "</li>";
     echo "<li>" . xlt("Please see http://www.open-emr.org/wiki/index.php/LBV_Forms for more on this topic") . "</li>";
 ?>
@@ -1634,7 +1635,8 @@ foreach ($datatypes as $key => $value) {
         {id: 'RS',text:'" . xla('Add Bottom Border Row') . "'},
         {id: 'RO',text:'" . xla('Outline Entire Row') . "'},
         {id: 'DS',text:'" . xla('Add Data Bottom Border') . "'},
-        {id: 'DO',text:'" . xla('Outline Data Col') . "'}
+        {id: 'DO',text:'" . xla('Outline Data Col') . "'},
+        {id: 'SP',text:'" . xla('Span Entire Row') . "'}
     ]},
     {id: '0',text:'" . xla('Read Only') . "'},
 	{id: '1',text:'" . xla('Write Once') . "'},
