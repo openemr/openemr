@@ -597,10 +597,10 @@ function writeFieldLine($linedata)
     global $fld_line_no, $sources, $lbfonly, $extra_html,$validations;
     ++$fld_line_no;
     $checked = $linedata['default_value'] ? " checked" : "";
-
+  
     //echo " <tr bgcolor='$bgcolor'>\n";
     echo " <tr id='fld[$fld_line_no]' class='".($fld_line_no % 2 ? 'even' : 'odd')."'>\n";
-
+  
     echo "  <td class='optcell' nowrap>";
     // tuck the group_name INPUT in here
     echo "<input type='hidden' name='fld[$fld_line_no][group]' value='" .
@@ -638,7 +638,7 @@ function writeFieldLine($linedata)
          htmlspecialchars($linedata['field_id'], ENT_QUOTES) . "' size='15' maxlength='63' " .
          "class='optin' style='width:100%' onclick='FieldIDClicked(this)' />";
     echo "</td>\n";
-
+  
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' id='fld[$fld_line_no][title]' name='fld[$fld_line_no][title]' value='" .
          htmlspecialchars($linedata['title'], ENT_QUOTES) . "' size='15' maxlength='63' class='optin' style='width:100%' />";
@@ -648,7 +648,7 @@ function writeFieldLine($linedata)
     if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
         echo "<td align='center' class='translation' >" . htmlspecialchars(xl($linedata['title']), ENT_QUOTES) . "</td>\n";
     }
-
+    
     echo "  <td align='center' class='optcell'>";
     echo "<select class='form-control' name='fld[$fld_line_no][uor]' class='optin'>";
     foreach (array(0 =>xl('Unused'), 1 =>xl('Optional'), 2 =>xl('Required')) as $key => $value) {
@@ -662,7 +662,7 @@ function writeFieldLine($linedata)
 
     echo "</select>";
     echo "</td>\n";
-
+  
     echo "  <td align='center' class='optcell'>";
     echo "<select class='form-control' name='fld[$fld_line_no][datatype]' id='fld[$fld_line_no][datatype]' onchange=NationNotesContext('".$fld_line_no."',this.value)>";
     echo "<option value=''></option>";
@@ -732,7 +732,7 @@ function writeFieldLine($linedata)
         htmlspecialchars($linedata['list_id'], ENT_QUOTES) . "'".$type.
         " size='6' maxlength='100' class='optin listid' style='width:100%;cursor:pointer'".
         "title='". xl('Choose list') . "' />";
-
+    
         echo "<select class='form-control' name='fld[$fld_line_no][contextName]' id='fld[$fld_line_no][contextName]' ".$disp.">";
         $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
         while ($row = sqlFetchArray($res)) {
@@ -770,7 +770,7 @@ function writeFieldLine($linedata)
     echo "<input type='text' name='fld[$fld_line_no][titlecols]' value='" .
          htmlspecialchars($linedata['titlecols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' style='width:100%' />";
     echo "</td>\n";
-
+  
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' name='fld[$fld_line_no][datacols]' value='" .
          htmlspecialchars($linedata['datacols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' style='width:100%' />";
@@ -786,7 +786,7 @@ function writeFieldLine($linedata)
     echo "  <td align='center' class='optcell' title='" . xla("Add modifiers for this field type. You may select more than one.") . "'>";
     echo "<select id='fld[$fld_line_no][edit_options]' name='fld[$fld_line_no][edit_options][]' class='typeAddons optin' size=3 multiple data-set='" .
     trim($linedata['edit_options']) . "' ></select></td>\n";
-
+    
     if ($linedata['data_type'] == 31) {
         echo "  <td align='center' class='optcell'>";
         echo "<textarea name='fld[$fld_line_no][desc]' rows='3' cols='35' class='optin' style='width:100%'>" .
@@ -937,7 +937,7 @@ function writeFieldLine($linedata)
     " </tr>\n".
     " <tr>\n" .
     "  <td align='left' title='" . xla('Select a validation rule') . "'>\n" .
-
+        
 
     "   <select name='fld[$fld_line_no][validation]' onchange='valChanged($fld_line_no)'>\n" .
     "   <option value=''";
@@ -969,6 +969,8 @@ function writeFieldLine($linedata)
 
 <?php Header::setupHeader('select2'); ?>
 
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/emodal-1-2-65/dist/eModal.min.js"></script>
+
 <title><?php  xl('Layout Editor', 'e'); ?></title>
 
 <style>
@@ -983,13 +985,13 @@ a, a:visited, a:hover { color:#0000cc; }
 .group {
     margin: 0pt 0pt 8pt 0pt;
     padding :0pt;
-    width: 100%;
+    width: 100%;   
 }
 
 .group table {
     border-collapse: collapse;
     width: 100%;
-
+    
 }
 .orgTable .odd td {
     background-color: #ddddff;
@@ -1024,7 +1026,14 @@ a, a:visited, a:hover { color:#0000cc; }
     cursor: pointer;
     opacity: 0.99 !important;
 }
-</style>
+.select2-dropdown {
+    opacity: 0.99 !important;
+}
+.tips {
+    display: none;
+}
+
+</style> 
 
 <script>
 // Helper functions for positioning the floating divs.
@@ -1244,10 +1253,11 @@ function myChangeCheck() {
 <!-- elements used to select more than one field -->
 <input type="hidden" name="selectedfields" id="selectedfields" value="">
 <input type="hidden" id="targetgroup" name="targetgroup" value="">
-<div class="lbfmenubar">
-<span>
+
+<div class="menubar" style='padding:5px 0;'>
+
 <b><?php xl('Edit layout', 'e'); ?>:</b>&nbsp;
-<select name='layout_id' id='layout_id' class='form-control' style='display:inline-block;margin-bottom:5px;width:15%;'>
+<select name='layout_id' id='layout_id' class='form-control' style='display:inline-block;margin-bottom:5px;width:20%;'>
  <option value=''>-- <?php echo xl('Select') ?> --</option>
 <?php
 $lastgroup = '';
@@ -1270,22 +1280,45 @@ if ($lastgroup) {
 }
 ?>
 </select>
-</span>
-<div><p>
+
 <?php if ($layout_id) { ?>
 <input type='button' value='<?php echo xla('Layout Properties'); ?>' onclick='edit_layout_props("")' />&nbsp;
 <input type='button' class='addgroup'  id='addgroup'  value='<?php echo xla('Add Group'); ?>' />
 <span style="font-size:90%"> &nbsp;
-<input type='button' class="btn btn-danger"name='save' id='save' value='<?php xl('Save Changes', 'e'); ?>' /></span> &nbsp;&nbsp;
+<input type='button' class="btn btn-danger" name='save' id='save' value='<?php xl('Save Changes', 'e'); ?>' /></span> &nbsp;&nbsp;
 <?php xl('With selected:', 'e');?>
 <input type='button' name='deletefields' id='deletefields' value='<?php xl('Delete', 'e'); ?>' style="font-size:90%" disabled="disabled" />
-<input type='button' name='movefields' id='movefields' value='<?php xl('Move to...', 'e'); ?>' style="font-size:90%" disabled="disabled" /></span>
+<input type='button' name='movefields' id='movefields' value='<?php xl('Move to...', 'e'); ?>' style="font-size:90%" disabled="disabled" />
+<input type='button' value='<?php echo xla('Tips'); ?>' onclick='$("#tips").toggle();' />&nbsp;
+<input type='button' value='<?php echo xla('Encounter Preview'); ?>' onclick='layoutLook();' />
+
 <?php } else { ?>
 <input type='button' value='<?php echo xla('New Layout'); ?>' onclick='edit_layout_props("")' />&nbsp;
 <?php } ?>
-</p></div>
-</div>
 
+<div id="tips" class="container tips"><section class="panel panel-primary">
+  <header class="panel-heading">
+   <h3 class="panel-title"><?php echo xlt('Usage Tips') ?></h3>
+  </header>
+  <div class="panel-body">
+   <ul>
+<?php
+    echo "<li>" . xlt("Clicking Options will present a multiselection drop menu to add behaviors to the selected data type. Typing after pull down activates allows search in options.") . "</li>";
+    echo "<li>" . xlt("The option Span Entire Row is useful when using Static Text in allowing text to wrap and span entire row regardless of column settings. Another use could be to create an empty row as spacer or add additional option Add Bottom Border to create a line break.Only Bottom Border Row is useful here.") . "</li>";
+    echo "<li>" . xlt("The options for Outline and Border will either wrap a row in thin border or add a border to the bottom of an item.") . "</li>";
+    echo "<li>" . xlt("If a field's Label Col = 0 the label will immediately follow the previous data field in the Order sequence, on the same line as the Data field.") . "</li>";
+    echo "<li>" . xlt("If a field's Data Col = 0 the data field will immediately follow its label field on the same line") . "</li>";
+    echo "<li>" . xlt("If a field's Label Col = 1 the label field will go to a new line unless the previous field's total column values (Label + Data) is less than number of Layout columns from Group Properties or Layout Properties.") . "</li>";
+    echo "<li>" . xlt("Generally, the first field in a group should be Label Cols = 1 Data Cols = number of Layout columns from Group Properties.") . "</li>";
+    echo "<li>" . xlt("Make subsequent fields in the same row, Label = 0 Data = 0 and ensure enough columns are available from previous items to allow space for this new item. Otherwise result could be unpredictable") . "</li>";
+    echo "<li>" . xlt("The Encounter Preview button is useful for showing encounter type layout forms as seen when using form in an encounter. Note, this feature is only useful for showing encounter forms and won't display system forms like Demographics") . "</li>";
+    //echo "<li>" . xlt("") . "</li>";
+    echo "<li>" . xlt("Please see http://www.open-emr.org/wiki/index.php/LBV_Forms for more on this topic") . "</li>";
+?>
+   </ul>
+   <button class='btn btn-xs btn-success pull-right' onclick='$("#tips").toggle();return false;'><?php echo xlt('Dismiss')?></button>
+  </div>
+</section></div></div>
 <?php
 // Load array of properties for this layout and its groups.
 $grparr = array();
@@ -1303,9 +1336,11 @@ while ($row = sqlFetchArray($res)) {
     if ($group_id != $prevgroup) {
         if ($firstgroup == false) {
             echo "</tbody></table></div>\n";
+            echo "<div id='" . $group_id . "' class='group'>";
+        } else { // making first group flag useful for maintaining top fixed nav bar.
+            echo "<div id='" . $group_id . "' class='group' style='padding-top:40px'>";
         }
-        echo "<div id='" . $group_id . "' class='group'>";
-        echo "<div class='text bold layouts_title' style='position:relative; background-color: #eef'>";
+        echo "<div class='text bold layouts_title' style='position:relative; background-color: #c9dbf2;'>";
 
         // Get the fully qualified descriptive name of this group (i.e. including ancestor names).
         $gdispname = '';
@@ -1352,16 +1387,16 @@ while ($row = sqlFetchArray($res)) {
     <?php // if not english and showing layout label translations, then show translation header for title
     if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
         echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";
-    } ?>
+    } ?>        
       <th style='width:6%'><?php xl('UOR', 'e'); ?></th>
       <th style='width:10%'><?php xl('Data Type', 'e'); ?></th>
       <th style='width:1%'><?php xl('Size', 'e'); ?></th>
-      <th style='width:1%'><?php xl('Max Size', 'e'); ?></th>
+      <th style='width:3%'><?php xl('Max Size', 'e'); ?></th>
       <th style='width:10%'><?php xl('List', 'e'); ?></th>
       <th style='width:10%'><?php xl('Backup List', 'e'); ?></th>
       <th style='width:1%'><?php xl('Label Cols', 'e'); ?></th>
       <th style='width:1%'><?php xl('Data Cols', 'e'); ?></th>
-      <th style='width:5%'><?php xl('Options', 'e'); ?></th>
+      <th style='width:10%'><?php xl('Options', 'e'); ?></th>
       <th style='width:20%'><?php xl('Description', 'e'); ?></th>
         <?php // if not english and showing layout label translations, then show translation header for description
         if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
@@ -1600,7 +1635,14 @@ foreach ($datatypes as $key => $value) {
 	{id: 'U',text:'" . xla('Capitalize all') . "'},
 	{id: 'V',text:'" . xla('Vendor') . "'},
 	{id: 'X',text:'" . xla('Do Not Print') . "'},
-	{id: '0',text:'" . xla('Read Only') . "'},
+    {id:'grp',text:'" . xla('Stylings') . "',children:[
+        {id: 'RS',text:'" . xla('Add Bottom Border Row') . "'},
+        {id: 'RO',text:'" . xla('Outline Entire Row') . "'},
+        {id: 'DS',text:'" . xla('Add Data Bottom Border') . "'},
+        {id: 'DO',text:'" . xla('Outline Data Col') . "'},
+        {id: 'SP',text:'" . xla('Span Entire Row') . "'}
+    ]},
+    {id: '0',text:'" . xla('Read Only') . "'},
 	{id: '1',text:'" . xla('Write Once') . "'},
 	{id: '2',text:'" . xla('Billing Code Descriptions') . "'}];\n";
 
@@ -1636,7 +1678,7 @@ function getNextSeq(group) {
 // jQuery stuff to make the page a little easier to use
 
 $(document).ready(function(){
-
+    
     $(function () {
         $('.typeAddons').select2({
             data: fldOptions,
@@ -1648,19 +1690,19 @@ $(document).ready(function(){
             containerCssClass: ':all:',
             dir: langDirection,
             allowClear: false
-        });
-    });
+        }); 
+    }); 
       // Populate field option selects
     $(function() {
       $('.typeAddons').each(function(i, obj) {
           var v = $(this).data('set')
           if(typeof v !== 'undefined' && v > ""){
-            $(this).select2().val(v).trigger("change")
+            $(this).val(v).trigger("change")
           }
       });
       somethingChanged = false;
     });
-
+    
     $("#save").click(function() { SaveChanges(); });
     $("#layout_id").change(function() {
       if (!myChangeCheck()) {
@@ -1681,7 +1723,7 @@ $(document).ready(function(){
     $(".cancelrenamegroup").click(function() { CancelRenameGroup(this); });
     $(".addfield").click(function() { AddField(this); });
     $("#deletefields").click(function() { DeleteFields(this); });
-    $(".selectfield").click(function() {
+    $(".selectfield").click(function() { 
         var TRparent = $(this).parent().parent();
         $(TRparent).children("td").toggleClass("highlight");
         // disable the delete-move buttons
@@ -1692,7 +1734,7 @@ $(document).ready(function(){
             if ($(this).prop("checked") == true) {
                 $("#deletefields").removeAttr("disabled");
                 $("#movefields").removeAttr("disabled");
-
+              
             }
         });
     });
@@ -1701,7 +1743,7 @@ $(document).ready(function(){
     $(".cancelnewfield").click(function() { CancelNewField(this); });
     $("#newtitle").blur(function() { if ($("#newid").val() == "") $("#newid").val($("#newtitle").val()); });
     $("#newdatatype").change(function() { ChangeList(this.value);});
-    $("#gnewdatatype").change(function() { ChangeListg(this.value);});
+    $("#gnewdatatype").change(function() { ChangeListg(this.value);}); 
     $(".listid").click(function() { ShowLists(this); });
 
     // special class that skips the element
@@ -1734,7 +1776,9 @@ $(document).ready(function(){
         // show the field details DIV
         $('#groupdetail').css('visibility', 'visible');
         $('#groupdetail').css('display', 'block');
-        $(btnObj).parent().append($("#groupdetail"));
+        $('#groupdetail').css('margin-top', '85px');
+        $(btnObj).parent().after($("#groupdetail"));
+        $("html, body").animate({ scrollTop: 0 }, "slow");
         $('#groupdetail > #newgroupname').focus();
         // Assign a sensible default sequence number.
         $('#gnewseq').val(10);
@@ -1756,7 +1800,7 @@ $(document).ready(function(){
         $("#newgroupname").val(validname);
 
         // now, check the first group field values
-
+        
         // seq must be numeric and <= 9999
         if (! IsNumeric($("#gnewseq").val(), 0, 9999)) {
             alert("<?php xl('Order must be a number between 1 and 9999', 'e'); ?>");
@@ -1904,7 +1948,7 @@ $(document).ready(function(){
             var delim = "";
             $(".selectfield").each(function(i) {
                 // build a list of selected field names to be moved
-                if ($(this).prop("checked")) {
+                if ($(this).prop("checked") == true) {
                     var parts = this.id.split("~");
                     var currval = $("#selectedfields").val();
                     $("#selectedfields").val(currval+delim+parts[1]);
@@ -1916,11 +1960,11 @@ $(document).ready(function(){
             mySubmit();
         }
     };
-
+    
     // save the new field to the form
     var SaveNewField = function(btnObj) {
         // check the new field values for correct formatting
-
+    
         // seq must be numeric and <= 9999
         if (! IsNumeric($("#newseq").val(), 0, 9999)) {
             alert("<?php xl('Order must be a number between 1 and 9999', 'e'); ?>");
@@ -1950,12 +1994,12 @@ $(document).ready(function(){
         // similarly with the backuplistid field
         validid = $("#newbackuplistid").val().replace(/(\s|\W)/g, "_");
         $("#newbackuplistid").val(validid);
-
+    
         // submit the form to add a new field to a specific group
         $("#formaction").val("addfield");
         mySubmit();
     };
-
+    
     // just hide the new field DIV
     var CancelNewField = function(btnObj) {
         // hide the field details DIV
@@ -1972,14 +2016,14 @@ $(document).ready(function(){
           'lists', 'width=700,height=600,scrollbars=yes');
         selectedfield = btnObj;
     };
-
+    
     // show the popup choice of groups
     var ShowGroups = function(btnObj) {
         if (!myChangeCheck()) return;
         window.open('../patient_file/encounter/find_code_dynamic.php?what=groups&layout_id=<?php echo addslashes($layout_id); ?>',
           'groups', 'width=700,height=600,scrollbars=yes');
     };
-
+    
     // Show context DD for NationNotes
     var ChangeList = function(btnObj){
       if(btnObj==34){
@@ -2010,7 +2054,7 @@ $(document).ready(function(){
       }
       actionChanged(lino);
     }
-
+    
   // Support for beforeunload handler.
   $('tbody input, tbody select, tbody textarea').not('.selectfield').change(function() {
     somethingChanged = true;
@@ -2024,6 +2068,23 @@ $(document).ready(function(){
   });
 
 }); /* Ready Done */
+
+function layoutLook(){
+    var form = "<?php echo $layout_id;?>";
+    var btnName = "<?php echo xlt('Back To Editor');?>";
+    var url = "../patient_file/encounter/view_form.php?isShow&id=0&formname=" + form;
+    var title = "<?php echo xlt('LBF Encounter Form Preview');?>";
+    eModal.setEModalOptions({
+        loadingHtml: '<span class="fa fa-circle-o-notch fa-spin fa-3x text-primary"></span><h4><?php echo xlt('Loading Form');?></h4>'
+    });
+    var params = {
+        buttons: [{ text: btnName, style: 'success btn-md', close:true}],
+        size: eModal.size.xl,
+        title: title,
+        url: url
+    };
+    return eModal.iframe(params);
+}
 
 function NationNotesContext(lineitem,val){
   if(val==34){
@@ -2102,7 +2163,7 @@ function MoveFields(targetgroup) {
     var delim = "";
     $(".selectfield").each(function(i) {
         // build a list of selected field names to be moved
-        if ($(this).prop("checked")) {
+        if ($(this).prop("checked") == true) {
             var parts = this.id.split("~");
             var currval = $("#selectedfields").val();
             $("#selectedfields").val(currval+delim+parts[1]);
@@ -2137,7 +2198,7 @@ function ResetNewFieldValues () {
 function IsNumeric(value, min, max) {
     if (value == "" || value == null) return false;
     if (! IsN(value) ||
-        parseInt(value) < min ||
+        parseInt(value) < min || 
         parseInt(value) > max)
         return false;
 
