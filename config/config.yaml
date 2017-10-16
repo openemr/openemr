@@ -79,3 +79,6 @@ assets:
     jscolor:
         basePath: %assets_static_relative%/jscolor-2-0-4/
         script: jscolor.js
+    emodal:
+        basePath: %assets_static_relative%/emodal-1-2-65/dist/
+        script: eModal.min.js
