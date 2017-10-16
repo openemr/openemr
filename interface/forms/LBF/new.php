@@ -68,7 +68,9 @@ function end_row()
 // $is_lbf is defined in trend_form.php and indicates that we are being
 // invoked from there; in that case the current encounter is irrelevant.
 $from_trend_form = !empty($is_lbf);
-
+// Yet another invocation from somewhere other than encounter.
+// don't show any action buttons.
+$from_lbf_edit = isset($_GET['isShow']) ? true : false;
 // This is true if the page is loaded into an iframe in add_edit_issue.php.
 $from_issue_form = !empty($_REQUEST['from_issue_form']);
 
@@ -91,7 +93,7 @@ if ($formid && !$visitid) {
     }
 }
 
-if (!$from_trend_form && !$visitid) {
+if (!$from_trend_form && !$visitid && !$from_lbf_edit) {
     die("Internal error: we do not seem to be in an encounter!");
 }
 
@@ -1467,7 +1469,7 @@ if (isset($LBF_DIAGS_SECTION)) {
                 <div class="btn-group">
 
 <?php
-if (!$from_trend_form) {
+if (!$from_trend_form && !$from_lbf_edit) {
     // Generate price level selector if we are doing services or products.
     if (isset($LBF_SERVICES_SECTION) || isset($LBF_PRODUCTS_SECTION)) {
         echo xlt('Price Level') . ": ";
@@ -1512,7 +1514,7 @@ if ($form_is_graphable) {
 } // end not from issue form
 ?>
 <?php
-} else { // $from_trend_form is true
+} elseif (!$from_lbf_edit) { // $from_trend_form is true but lbf edit doesn't want button
 ?>
                         <button type='button' class="btn btn-default btn-back" onclick='window.history.back();'>
                             <?php echo xlt('Back') ?>

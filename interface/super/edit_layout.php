@@ -969,6 +969,8 @@ function writeFieldLine($linedata)
 
 <?php Header::setupHeader('select2'); ?>
 
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/emodal-1-2-65/dist/emodal.min.js"></script>
+
 <title><?php  xl('Layout Editor', 'e'); ?></title>
 
 <style>
@@ -1253,7 +1255,7 @@ function myChangeCheck() {
 <input type="hidden" id="targetgroup" name="targetgroup" value="">
 
 <div class="menubar" style='padding:5px 0;'>
-<span>
+
 <b><?php xl('Edit layout', 'e'); ?>:</b>&nbsp;
 <select name='layout_id' id='layout_id' class='form-control' style='display:inline-block;margin-bottom:5px;width:20%;'>
  <option value=''>-- <?php echo xl('Select') ?> --</option>
@@ -1278,17 +1280,18 @@ if ($lastgroup) {
 }
 ?>
 </select>
-</span>
+
 <?php if ($layout_id) { ?>
 <input type='button' value='<?php echo xla('Layout Properties'); ?>' onclick='edit_layout_props("")' />&nbsp;
 <input type='button' class='addgroup'  id='addgroup'  value='<?php echo xla('Add Group'); ?>' />
 <span style="font-size:90%"> &nbsp;
-<input type='button' class="btn btn-danger"name='save' id='save' value='<?php xl('Save Changes', 'e'); ?>' /></span> &nbsp;&nbsp;
+<input type='button' class="btn btn-danger" name='save' id='save' value='<?php xl('Save Changes', 'e'); ?>' /></span> &nbsp;&nbsp;
 <?php xl('With selected:', 'e');?>
 <input type='button' name='deletefields' id='deletefields' value='<?php xl('Delete', 'e'); ?>' style="font-size:90%" disabled="disabled" />
 <input type='button' name='movefields' id='movefields' value='<?php xl('Move to...', 'e'); ?>' style="font-size:90%" disabled="disabled" />
 <input type='button' value='<?php echo xla('Tips'); ?>' onclick='$("#tips").toggle();' />&nbsp;
-</span>
+<input type='button' value='<?php echo xla('Encounter Preview'); ?>' onclick='layoutLook();' />
+
 <?php } else { ?>
 <input type='button' value='<?php echo xla('New Layout'); ?>' onclick='edit_layout_props("")' />&nbsp;
 <?php } ?>
@@ -1308,6 +1311,7 @@ if ($lastgroup) {
     echo "<li>" . xlt("If a field's Label Col = 1 the label field will go to a new line unless the previous field's total column values (Label + Data) is less than number of Layout columns from Group Properties or Layout Properties.") . "</li>";
     echo "<li>" . xlt("Generally, the first field in a group should be Label Cols = 1 Data Cols = number of Layout columns from Group Properties.") . "</li>";
     echo "<li>" . xlt("Make subsequent fields in the same row, Label = 0 Data = 0 and ensure enough columns are available from previous items to allow space for this new item. Otherwise result could be unpredictable") . "</li>";
+    echo "<li>" . xlt("Use the Encounter Preview button for showing encounter type layout forms as seen when using form in an encounter. Note, this feature is only useful for showing encounter forms and won't display system forms like Demographics") . "</li>";
     //echo "<li>" . xlt("") . "</li>";
     echo "<li>" . xlt("Please see http://www.open-emr.org/wiki/index.php/LBV_Forms for more on this topic") . "</li>";
 ?>
@@ -2064,6 +2068,23 @@ $(document).ready(function(){
   });
 
 }); /* Ready Done */
+
+function layoutLook(){
+    var form = "<?php echo $layout_id;?>";
+    var btnName = "<?php echo xlt('Back To Editor');?>";
+    var url = "../patient_file/encounter/view_form.php?isShow&id=0&formname=" + form;
+    var title = "<?php echo xlt('LBF Encounter Form Preview');?>";
+    eModal.setEModalOptions({
+        loadingHtml: '<span class="fa fa-circle-o-notch fa-spin fa-3x text-primary"></span><h4><?php echo xlt('Loading Form');?></h4>'
+    });
+    var params = {
+        buttons: [{ text: btnName, style: 'success btn-md', close:true}],
+        size: eModal.size.xl,
+        title: title,
+        url: url
+    };
+    return eModal.iframe(params);
+}
 
 function NationNotesContext(lineitem,val){
   if(val==34){
