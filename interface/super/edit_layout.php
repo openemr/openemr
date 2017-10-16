@@ -969,7 +969,7 @@ function writeFieldLine($linedata)
 
 <?php Header::setupHeader('select2'); ?>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/emodal-1-2-65/dist/emodal.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/emodal-1-2-65/dist/eModal.min.js"></script>
 
 <title><?php  xl('Layout Editor', 'e'); ?></title>
 
@@ -1311,7 +1311,7 @@ if ($lastgroup) {
     echo "<li>" . xlt("If a field's Label Col = 1 the label field will go to a new line unless the previous field's total column values (Label + Data) is less than number of Layout columns from Group Properties or Layout Properties.") . "</li>";
     echo "<li>" . xlt("Generally, the first field in a group should be Label Cols = 1 Data Cols = number of Layout columns from Group Properties.") . "</li>";
     echo "<li>" . xlt("Make subsequent fields in the same row, Label = 0 Data = 0 and ensure enough columns are available from previous items to allow space for this new item. Otherwise result could be unpredictable") . "</li>";
-    echo "<li>" . xlt("Use the Encounter Preview button for showing encounter type layout forms as seen when using form in an encounter. Note, this feature is only useful for showing encounter forms and won't display system forms like Demographics") . "</li>";
+    echo "<li>" . xlt("The Encounter Preview button is useful for showing encounter type layout forms as seen when using form in an encounter. Note, this feature is only useful for showing encounter forms and won't display system forms like Demographics") . "</li>";
     //echo "<li>" . xlt("") . "</li>";
     echo "<li>" . xlt("Please see http://www.open-emr.org/wiki/index.php/LBV_Forms for more on this topic") . "</li>";
 ?>
