@@ -155,9 +155,9 @@ $url = "open-emr.org/wiki/index.php/OpenEMR_".$open_emr_ver."_Users_Guide";
 				<a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" title = "<?php xl('Home','e'); ?>"><i class='fa fa-home fa-2x top-nav-icons' aria-hidden='true'></i></a>
 				<a href="http://<?php echo $url;?>" target="RTop" id="help_link" title = "<?php xl('Manual','e'); ?>"><i class='fa fa-question fa-2x top-nav-icons' aria-hidden='true'></i></a>
 				<a  href=""  onclick="return bpopup()"  title="<?php echo xlt('About'); ?>"><i class='fa fa-info fa-2x top-nav-icons' aria-hidden='true'></i></a>
-				<a href="" id="user_settings" onclick="userPreference();  return false;" title="<?php echo xlt('User Settings')?>"><i class="fa fa-cog fa-2x top-nav-icons" aria-hidden="true"></i></a>
-				<a href="" id="user_password" onclick="changePassword(); return false; " title="<?php echo xlt('User Password')?>"><i class="fa fa-unlock-alt fa-2x top-nav-icons" aria-hidden="true"></i></a>
-				<a href="../logout.php" target="_top"  id="logout_link" onclick="top.restoreSession()" title = "<?php echo htmlspecialchars( xl('Logout'), ENT_QUOTES) ?>"i class='fa fa-sign-out fa-2x top-nav-icons' aria-hidden='true'></i></a>
+				<a href="" id="user_settings" onclick="userPreference();  return false;" title="<?php echo xla('User Settings')?>"><i class="fa fa-cog fa-2x top-nav-icons" aria-hidden="true"></i></a>
+				<a href="" id="user_password" onclick="changePassword(); return false; " title="<?php echo xla('User Password')?>"><i class="fa fa-unlock-alt fa-2x top-nav-icons" aria-hidden="true"></i></a>
+				<a href="../logout.php" target="_top"  id="logout_link" onclick="top.restoreSession()" title = "<?php echo xla('Logout') ?>"><i class="fa fa-sign-out fa-2x top-nav-icons" aria-hidden="true"></i></a>
 			</td>
 		</tr>
 		<tr>

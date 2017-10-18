@@ -1817,6 +1817,12 @@ ul.ext-tab-head li.child-active {
     font-weight: 700;
     color: #000000 !Important;
 }
+.navbar-default .navbar-brand {
+    color: #000000 !Important;
+}
+.navbar-default .navbar-nav>li>a {
+    color: #000000 !Important;
+}
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 bootstrap nav menu*~~~~~~~~~~~~~~~~~*/
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 bootstrap *~~~~~~~~~~~~~~~~~~~~~~~~~*/

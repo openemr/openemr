@@ -675,7 +675,11 @@ tr.odd {
     } td.even {
     background-color: #ffffff;
 }
-
+/* The top navigation icon styling*/
+.top-nav-icons {
+    margin-right: 15px;
+    margin-top: 5px
+}
 /*
  * CSS BUTTONS
 */
@@ -744,7 +748,7 @@ input[type="text"] {
 }
 
 #logout_link:before {
-  content: "X";
+ /* content: "X";*/
 }
 #logout_link span {
   display: none;

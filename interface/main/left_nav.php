@@ -1057,7 +1057,8 @@ $(document).ready(function(){
     $("#navigation-slide > li  > a#pfb0").prepend('<i class="fa fa-fw fa-list-alt  fa-2x"></i>&nbsp;');
     $("#navigation-slide > li  > a#msg0").prepend('<i class="fa fa-fw fa-envelope-o  fa-2x"></i>&nbsp;');
     $("#navigation-slide > li  > a#app0").prepend('<i class="fa fa-fw fa-user  fa-2x"></i>&nbsp;');
-    $("#navigation-slide > li  > a#ppo0").prepend('<i class="fa fa-fw fa-user  fa-2x"></i>&nbsp;');
+    $("#navigation-slide > li  > a#aop0").prepend('<i class="fa fa-fw fa-tachometer  fa-2x"></i>&nbsp;');
+    $("#navigation-slide > li  > a#ppo0").prepend('<i class="fa fa-fw fa-users  fa-2x"></i>&nbsp;');
     $("#navigation-slide > li  > a#repimg").prepend('<i class="fa fa-fw fa-area-chart  fa-2x"></i>&nbsp;');
     $("#navigation-slide > li  > a#feeimg").prepend('<i class="fa fa-fw fa-dollar  fa-2x"></i>&nbsp;');
     $("#navigation-slide > li  > a#adm0").prepend('<i class="fa fa-fw fa-list-ol  fa-2x"></i>&nbsp;');
