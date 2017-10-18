@@ -29,10 +29,12 @@
  // form parameter docid can be passed to restrict the display to a document.
  $docid = empty($_REQUEST['docid']) ? 0 : 0 + $_REQUEST['docid'];
 ?>
+<?php if($GLOBALS['notes_widget'] == 1){ ?>
 <ul class="tabNav">
   <li class="current" ><a href="#"><?php echo htmlspecialchars(xl('Inbox'), ENT_NOQUOTES); ?></a></li>
   <li><a href="#"><?php echo htmlspecialchars(xl('Sent Items'), ENT_NOQUOTES); ?></a></li>
 </ul>
+<?php } ?>
 <div class='tabContainer' >
   <div class='tab current' >
     <?php
@@ -76,10 +78,12 @@
             $notes_count = 0;//number of notes so far displayed
             echo "<tr class='text' style='border-bottom:2px solid #000;' >\n";
             echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('From'), ENT_NOQUOTES) ."</b></td>\n";
+            if($GLOBALS['notes_widget'] == 2){ echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('To'), ENT_NOQUOTES) ."</b></td>\n"; }
             echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('Date'), ENT_NOQUOTES) ."</b></td>\n";
             echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('Subject'), ENT_NOQUOTES) ."</b></td>\n";
             echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('Content'), ENT_NOQUOTES) ."</b></td>\n";
-            echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('Status'), ENT_NOQUOTES) ."</b></td>\n";
+            if($GLOBALS['notes_widget'] == 1){ echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('Status'), ENT_NOQUOTES) ."</b></td>\n"; }
+            if($GLOBALS['notes_widget'] == 2){ echo "<td valign='top' class='text' ></td>\n"; }
             echo "</tr>\n";
             foreach ($result as $iter) {
                 $has_note = 1;
@@ -98,6 +102,11 @@
                 echo " <tr class='text' id='".htmlspecialchars($iter['id'], ENT_QUOTES)."' style='border-bottom:1px dashed;height:30px;' >\n";
 
                 // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
+                if($GLOBALS['notes_widget'] == 2) {
+                    echo "  <td valign='top' class='text'>";
+                    echo generate_display_field(array('data_type' => '1', 'list_id' => 'message_status'), $iter['message_status']);
+                    echo "</td>\n";
+                }
                 echo "<td valign='top' class='text'>".htmlspecialchars($iter['user'], ENT_NOQUOTES)."</td>\n";
                 echo "<td valign='top' class='text'>".htmlspecialchars($iter['date'], ENT_NOQUOTES)."</td>\n";
                 echo "  <td valign='top' class='text'><b>";
@@ -105,9 +114,17 @@
                 echo "</b></td>\n";
 
                 echo "  <td valign='top' class='text'>$body</td>\n";
-                echo "  <td valign='top' class='text'>";
-                echo generate_display_field(array('data_type'=>'1','list_id'=>'message_status'), $iter['message_status']);
-                echo "</td>\n";
+                if($GLOBALS['notes_widget'] == 1) {
+                    echo "  <td valign='top' class='text'>";
+                    echo generate_display_field(array('data_type' => '1', 'list_id' => 'message_status'), $iter['message_status']);
+                    echo "</td>\n";
+                }
+                if($GLOBALS['notes_widget'] == 2) {
+                    echo "  <td valign='top' class='text'>";
+                    echo generate_display_field(array('data_type' => '1', 'list_id' => 'message_status'), $iter['message_status']);
+                    echo "</td>\n";
+                }
+
                 echo " </tr>\n";
 
                 $notes_count++;
@@ -143,6 +160,7 @@
         <br/><?php
     } ?>
     </div>
+    <?php if($GLOBALS['notes_widget'] == 1){ ?>
     <div class='tab'>
     <?php
     //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
@@ -226,6 +244,7 @@
     <br/><?php
     } ?>
   </div>
+  <?php } ?>
 </div>
 
 <script language="javascript">
