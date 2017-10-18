@@ -548,7 +548,7 @@ if (! isset($_REQUEST['mode'])) { // default case
             </tr>
             <tr>
                 <td>&nbsp;</td>
-                <td><button onclick="select_all()" class="btn btn-default btn-sm"><?php  echo xlt('Select All') ?></button></td>
+                <td><button onclick="select_all(); return false;" class="btn btn-default btn-sm"><?php  echo xlt('Select All') ?></button></td>
             </tr>
         </table>
     </td>
