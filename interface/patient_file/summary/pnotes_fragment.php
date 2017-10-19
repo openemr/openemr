@@ -89,25 +89,27 @@
                 $has_note = 1;
 
                 $body = $iter['body'];
-                if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
-                    $body = nl2br(htmlspecialchars(oeFormatPatientNote($body), ENT_NOQUOTES));
-                } else {
-                    $body = htmlspecialchars(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date'])) .
-                    ' (' . $iter['user'] . ') ', ENT_NOQUOTES) .
-                    nl2br(htmlspecialchars(oeFormatPatientNote($body), ENT_NOQUOTES));
+                if($GLOBALS['notes_widget'] == 2) {
+                    $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '', $body);
                 }
-
+                else{
+                    if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
+                        $body = nl2br(htmlspecialchars(oeFormatPatientNote($body), ENT_NOQUOTES));
+                    } else {
+                        $body = htmlspecialchars(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date'])) .
+                                ' (' . $iter['user'] . ') ', ENT_NOQUOTES) .
+                            nl2br(htmlspecialchars(oeFormatPatientNote($body), ENT_NOQUOTES));
+                    }
+                }
                 $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}'.$patientname.'${2}', $body);
                 $body = strlen($body) > 120 ? substr($body, 0, 120)."<b>.......</b>" : $body;
                 echo " <tr class='text' id='".htmlspecialchars($iter['id'], ENT_QUOTES)."' style='border-bottom:1px dashed;height:30px;' >\n";
 
                 // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-                if($GLOBALS['notes_widget'] == 2) {
-                    echo "  <td valign='top' class='text'>";
-                    echo generate_display_field(array('data_type' => '1', 'list_id' => 'message_status'), $iter['message_status']);
-                    echo "</td>\n";
-                }
                 echo "<td valign='top' class='text'>".htmlspecialchars($iter['user'], ENT_NOQUOTES)."</td>\n";
+                if($GLOBALS['notes_widget'] == 2) {
+                    echo "<td valign='top' class='text'>".htmlspecialchars($iter['assigned_to'], ENT_NOQUOTES)."</td>\n";
+                }
                 echo "<td valign='top' class='text'>".htmlspecialchars($iter['date'], ENT_NOQUOTES)."</td>\n";
                 echo "  <td valign='top' class='text'><b>";
                 echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
@@ -120,11 +122,8 @@
                     echo "</td>\n";
                 }
                 if($GLOBALS['notes_widget'] == 2) {
-                    echo "  <td valign='top' class='text'>";
-                    echo generate_display_field(array('data_type' => '1', 'list_id' => 'message_status'), $iter['message_status']);
-                    echo "</td>\n";
+                    echo "<td valign='top' class='text'>".htmlspecialchars('Completed', ENT_NOQUOTES)."</td>\n";
                 }
-
                 echo " </tr>\n";
 
                 $notes_count++;
