@@ -2545,8 +2545,8 @@ $GLOBALS_METADATA = array(
             xl('Enable NewCrop eRx Service'),
             'bool',
             '0',
-            xl('Enable NewCrop eRx Service.') + ' ' +
-            xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing to the NewCrop eRx service.')
+            xl('Enable NewCrop eRx Service.') . ' ' .
+            xl('Contact mi-squared at http://www.mi-squared.com/products-services/openemr/ or ZH Healthcare at https://blueehr.com/contact-us/ for subscribing to the NewCrop eRx service.')
         ),
 
         'erx_newcrop_path' => array(
