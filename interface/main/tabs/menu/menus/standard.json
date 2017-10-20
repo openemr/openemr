@@ -41,7 +41,11 @@
         "acl_req": [
           "patients",
           "appt"
-        ] 
+        ],
+    "global_req_strict": [
+      "!disable_rcb"
+    ]
+
    },
 
   {
