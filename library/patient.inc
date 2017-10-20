@@ -159,7 +159,7 @@ function getInsuranceProvidersExtra()
 
 function getProviders()
 {
-    $returnval = array("");
+    $returnval = array();
     $sql = "select fname, lname, suffix from users where authorized = 1 and " .
         "active = 1 and username != ''";
     $rez = sqlStatement($sql);
