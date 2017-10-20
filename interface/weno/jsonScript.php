@@ -76,10 +76,10 @@ foreach ($fill as $data) {
                 "facilitycity"    => $proData[0]['city'],
                 "facilitystate"   => $proData[0]['state'],
                 "facilityzip"     => $proData[0]['postal_code'],
-                "qualifier"       => $proData[0]['weno_prov_id'],
+                "qualifier"       => $GLOBALS['weno_provider_id'] . ':' . $proData[0]['weno_prov_id'],
                 "wenoAccountId"   => $GLOBALS['weno_account_id'],
                 "wenoAccountPass" => $GLOBALS['weno_account_pass'],
-                "wenoClinicId"    => $proData[0]['weno_prov_id']
+                "wenoClinicId"    => $GLOBALS['weno_provider_id'] . ':' . $proData[0]['weno_prov_id']
             )
         ),
         array(
