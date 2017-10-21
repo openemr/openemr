@@ -12,6 +12,7 @@
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015-2017 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Ray Magauran <magauran@medexbank.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -41,10 +42,10 @@ if (($_POST['setting_new_window'])||
     exit();
 }
 if ($_POST['saveCALLback'] =="Save") {
-    $sqlINSERT = "INSERT INTO medex_outgoing (msg_pc_eid,campaign_uid,msg_type,msg_reply,msg_extra_text)
+    $sqlINSERT = "INSERT INTO medex_outgoing (msg_pc_eid,msg_pid,campaign_uid,msg_type,msg_reply,msg_extra_text)
                   VALUES
-                (?,?,'NOTES','CALLED',?)";
-    sqlQuery($sqlINSERT, array( $_POST['pc_eid'], $_POST['campaign_uid'], $_POST['txtCALLback'] ));
+                (?,?,?,'NOTES','CALLED',?)";
+    sqlQuery($sqlINSERT, array( $_POST['pc_eid'], $_POST['pc_pid'], $_POST['campaign_uid'], $_POST['txtCALLback'] ));
 }
 $from_date = !is_null($_REQUEST['datepicker1']) ? date('Y-m-d', strtotime($_REQUEST['datepicker1'])) : date('Y-m-d');
 
@@ -192,17 +193,18 @@ if (!$_REQUEST['flb_table']) {
         color:black;
         padding:5px;
       }
-      .divTable {
-        display: table;
-        font-size: 1.0em;
-        background: white;
-        border: 1px solid #000;
-        box-shadow: 0px 0px 9px #C0C0C0;
-        border-radius: 8px;
-        padding: 10px;
-        width:100%;
-        margin:0px auto;
-      }
+      .divTable{
+      display: table;
+      font-size: 0.9em;
+      background: white;
+      box-shadow: 2px 3px 9px #c0c0c0;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 15px auto;
+      min-width:400px;
+      overflow: hidden;
+     }
+     
       .title {
         font-family: Georgia, serif;
         font-weight: bold;
@@ -513,10 +515,10 @@ if (!$_REQUEST['flb_table']) {
                     $date_appt = $appointment['pc_eventDate'];
                     $date_squash = str_replace("-", "", $date_appt);
                     if (empty($appointment['room']) && ( $logged_in )) {
-                      //Patient has not arrived yet, display MedEx Reminder info
-                      //one icon per type of response.
-                      //If there was a SMS dialog, display it as a mouseover/title
-                      //Display date received also as mouseover title.
+                        //Patient has not arrived yet, display MedEx Reminder info
+                        //one icon per type of response.
+                        //If there was a SMS dialog, display it as a mouseover/title
+                        //Display date received also as mouseover title.
                         $other_title = '';
                         $title = '';
                         $icon2_here ='';
@@ -531,21 +533,21 @@ if (!$_REQUEST['flb_table']) {
 
                         $query = "Select * from medex_outgoing where msg_pc_eid =? order by msg_date";
                         $myMedEx = sqlStatement($query, array( $appointment['eid'] ));
-                      /**
-                     * Each row for this pc_eid in the medex_outgoing table represents an event.
-                     * Every event is recorded in $prog_text.
-                     * A modality is represented by an icon (eg mail icon, phone icon, text icon).
-                     * The state of the Modality is represented by the color of the icon:
-                     *      CONFIRMED       =   green
-                     *      READ            =   blue
-                     *      FAILED          =   pink
-                     *      SENT/in process =   yellow
-                     *      SCHEDULED       =   white
-                     * Icons are displayed in their highest state.
-                     */
+                        /**
+                         * Each row for this pc_eid in the medex_outgoing table represents an event.
+                         * Every event is recorded in $prog_text.
+                         * A modality is represented by an icon (eg mail icon, phone icon, text icon).
+                         * The state of the Modality is represented by the color of the icon:
+                         *      CONFIRMED       =   green
+                         *      READ            =   blue
+                         *      FAILED          =   pink
+                         *      SENT/in process =   yellow
+                         *      SCHEDULED       =   white
+                         * Icons are displayed in their highest state.
+                         */
                         $FINAL='';
                         while ($row = sqlFetchArray($myMedEx)) {
-                          // Need to convert $row['msg_date'] to localtime (stored as GMT & then oeFormatShortDate it.
+                          // Need to convert $row['msg_date'] to localtime (stored as GMT) & then oeFormatShortDate it.
                           // I believe there is a new GLOBAL for server timezone???  If so, it will be easy.
                           // If not we need to import it from Medex through medex_preferences.  It should really be in openEMR though.
                           // Delete when we figure this out.
@@ -601,6 +603,7 @@ if (!$_REQUEST['flb_table']) {
                                       <form  method='post'>
                                         <h4>Call Back Notes:</h4>
                                         <input type='hidden' name='pc_eid' id='pc_eid' value='".$appointment['eid']."'>
+                                        <input type='hidden' name='pc_pid' id='pc_pid' value='".$appointment['pc_pid']."'>
                                         <input type='hidden' name='campaign_uid' id='campaign_uid' value='".$row['campaign_uid']."'>
                                         <textarea name='txtCALLback' id='txtCALLback' rows=6 cols=20></textarea>
                                         <input type='submit' name='saveCALLback' id='saveCALLback' value='Save'>
