@@ -32,10 +32,11 @@ if ($_REQUEST['go'] =='sms_search') {
         $data['value']  = $frow['fname']." ".$frow['lname'];
         $data['pid']    = $frow['pid'];
         $data['mobile'] = $frow['phone_cell'];
+        $data['allow']  = $frow['hipaa_allowsms'];
         $results[]      = $data;
     }
     //echo $query. " -- ".$param;
-    echo json_encode($results);
+    echo json_encode( $results );
     exit;
 }
 //you need admin privileges to update this.

@@ -163,7 +163,7 @@ if (($_POST['setting_bootstrap_submenu'])||
                         <div>
                           <span class="title"><?php echo xlt('Recalls'); ?></span>
                           <br /><br />
-                          <a class="css_button_small" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=addRecall"><span><?php echo xlt('New Recall'); ?></span></a>
+                          <a class="css_button_small" onclick="goReminderRecall('addRecall');"><span><?php echo xlt('New Recall'); ?></span></a>
                           &nbsp;
                           <a class="css_button_small" onclick="goReminderRecall('Recalls');"><span><?php echo xlt('Recall Board'); ?></span></a>
                           &nbsp;
