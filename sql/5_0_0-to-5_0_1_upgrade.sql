@@ -717,6 +717,7 @@ INSERT INTO `medex_icons` (`i_UID`, `msg_type`, `msg_status`, `i_description`, `
 #IfNotTable medex_outgoing
 CREATE TABLE `medex_outgoing` (
   `msg_uid` int(11) NOT NULL AUTO_INCREMENT,
+  `msg_pid` int(11) NOT NULL,
   `msg_pc_eid` varchar(11) NOT NULL,
   `campaign_uid` int(11) NOT NULL DEFAULT '0',
   `msg_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -744,8 +745,8 @@ CREATE TABLE `medex_prefs` (
   `LABELS_local` varchar(3) DEFAULT NULL,
   `LABELS_choice` varchar(50) DEFAULT NULL,
   `combine_time` tinyint(4) DEFAULT NULL,
-  `notify` varchar(100) DEFAULT NULL,
   `postcard_top` varchar(255) DEFAULT NULL,
+  `SMS_phone` varchar(25) DEFAULT NULL,
   `MedEx_lastupdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY `ME_username` (`ME_username`)
 ) ENGINE=InnoDB;

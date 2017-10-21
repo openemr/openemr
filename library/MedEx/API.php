@@ -691,7 +691,7 @@ class Callback extends Base
         $this->MedEx->logging->log_this($data);
         //Store responses in TABLE medex_outgoing
         $sqlINSERT = "INSERT INTO medex_outgoing (msg_pc_eid, msg_pid, campaign_uid, msg_type, msg_reply, msg_extra_text, msg_date, medex_uid) 
-                        VALUES (?,?,?,?,?,utc_timestamp(),?)";
+                        VALUES (?,?,?,?,?,?,utc_timestamp(),?)";
         sqlQuery($sqlINSERT, array($data['pc_eid'],$data['patient_id'], $data['campaign_uid'], $data['M_type'],$data['msg_reply'],$data['msg_extra'],$data['msg_uid']));
             
         if ($data['msg_reply']=="CONFIRMED") {
@@ -859,14 +859,24 @@ class Display extends base
                                 </ul>
                             </li>
                             <?php
-                            if ($logged_in) {
+                            if (($logged_in) && 
+                                ($GLOBALS['disable_calendar'] != '1') ||
+                                ($GLOBALS['disable_pat_trkr'] != '1'))
+                                {
                                 ?>
                                 <li class="dropdown" > <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Appt. Reminders"); ?> </a>
-                                     <ul class="bgcolor2 dropdown-menu" role="menu">
+                                    <ul class="bgcolor2 dropdown-menu" role="menu">
+                                        <?php 
+                                        if ($GLOBALS['disable_calendar'] != '1') {  ?>
                                         <li><a id="BUTTON_ApRem_menu" onclick="tabYourIt('cal','main/main_info.php');"> <?php echo xlt("Calendar"); ?></a></li>
                                         <li class="divider"><hr /></li>
+                                        <?php 
+                                        }
+                                        if ($GLOBALS['disable_pat_trkr'] != '1') {
+                                        ?>
                                         <li id="menu_pend_recalls" name="menu_pend_recalls"> <a id="BUTTON_pend_recalls_menu" onclick="tabYourIt('flb','patient_tracker/patient_tracker.php?skip_timeout_reset=1');"> <?php echo xlt("Flow Board"); ?></a></li>
                                         <li class="divider"><hr /></li>
+                                        <?php }  ?>
                                         <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap left' target='_MedEx' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Reminder Campaigns"); ?></a></li>
                                     </ul>
                                  </li>
@@ -920,7 +930,7 @@ class Display extends base
         <div class="row">
             <div class="col-sm-6 col-sm-offset-2 text-center">
                 <div class="showRecalls" id="show_recalls">
-                    <div class="title"><?php echo xlt('Reminder/Recall Preferences'); ?></div>
+                    <div class="title"><?php echo xlt('MedEx Preferences'); ?></div>
                     <div name="div_response" id="div_response" class="form-inline"><br /></div>
                         <form action="#" name="save_prefs" id="save_prefs">
                             <div class="row">
@@ -2558,4 +2568,3 @@ class MedEx
     }
 }
 //class InvalidDataException extends \Exception {}
-?>

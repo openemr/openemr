@@ -20,9 +20,12 @@ h1 {
     line-height: 1.5em;
     color: #693;
 }
+.nav-tabs {
+  border-bottom: none;
+}
 .nav-tabs > li {
-  border:0.5px solid black;
-  margin-bottom:-2px;
+  border:0.5px solid #c0c0c0;
+  margin-bottom:0px;
 }
 .nav-tabs > li .active{
   border-bottom:none;
@@ -32,10 +35,10 @@ h1 {
   border:none;
 }
 .nav-tabs > li.active > a {
-	border:none;
+  border:none;
 }
 .nav-tabs > li.active > a, .nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover {
-	border:unset;
+  border:unset;
 }
  .main_container {
   text-align:center;
@@ -109,20 +112,24 @@ width: 98%;
   width:400px;
   background-color:white;
   display:inline-table;
-    box-shadow: 2px 1px 2px #7b777760;
+  box-shadow: 2px 1px 2px #c0c0c0;
   border-radius: 0px 0px 5px 5px;
   margin: 15px auto;
   overflow: hidden;
-  border: 2px solid #839E99;
+  border: 0.5px solid #c0c0c0;
   border-radius: 8px;
   border-style: ridge;
   padding: 10px;
  }
+ label {
+  vertical-align: bottom;
+ }
   .divTable{
   display: table;
   float: left;
+  font-size: 0.9em;
   background: white;
-  border: 1px solid #000;
+  border: 0.5px solid #c0c0c0;
   box-shadow: 2px 3px 9px #c0c0c0;
   border-radius: 8px;
   padding: 10px;
@@ -132,10 +139,10 @@ width: 98%;
  }
 .divTable2{
   display: table;
-  font-size: 1.0em;
+  font-size: 0.9em;
   background: white;
-  border: 1px solid #000;
-  box-shadow: 2px 3px 9px #000;
+  border: 0.5px solid #c0c0c0;
+  box-shadow: 2px 3px 9px #c0c0c0;
   border-radius: 8px;
   padding: 10px;
   position:relative;
@@ -190,8 +197,8 @@ width: 98%;
   float:right;
  }
  .float_center {
- 	float:unset;
- 	margin: 15px auto;
+  float:unset;
+  margin: 15px auto;
  }
  .Wide {
   width:100%;
@@ -360,7 +367,7 @@ float: right;
   width:65px;
 }
 .msg_manual {
-	width:100px;
+  width:100px;
 }
 .msg_notes {
   width:125px;
@@ -424,7 +431,7 @@ td.right { width: 30%; }
   text-decoration: underline;
   font-weight:600;
 }
-.prefs {
+.Xprefs {
   font-size: 1.2em;
   margin: 0em 0em 1em 0em;
   font-weight:600;
@@ -448,10 +455,10 @@ td.right { width: 30%; }
   width:0px;
 }
 .messages {
-	font-family: "Open sans","FontAwesome",Arial,Serif, Arial;
-	padding: 20px;
-	font-size: 1.0em;
-	margin: 2px auto;
+  font-family: "Open sans","FontAwesome",Arial,Serif, Arial;
+  padding: 20px;
+  font-size: 1.0em;
+  margin: 2px auto;
 }
 .messages  table  td {
   padding: 15px 5px 15px 0px;
@@ -479,26 +486,26 @@ td.right { width: 30%; }
   box-shadow: 3px 3px 3px #7b777760;
 }
 .signup_help {
-	color:red;
-	margin:0 15px;
-	padding:0 15px;
-	font-feature-settings: normal;
-	font-kerning: auto;
-	font-language-override: normal;
-	font-size: 0.8em;
-	font-size-adjust: none;
-	font-stretch: normal;
-	font-style: normal;
-	font-synthesis: weight style;
-	font-variant: normal;
-	font-variant-alternates: normal;
-	font-variant-caps: normal;
-	font-variant-east-asian: normal;
-	font-variant-ligatures: normal;
-	font-variant-numeric: normal;
-	font-variant-position: normal;
-	font-weight: 700;
-	line-height: 15.2167px;
+  color:red;
+  margin:0 15px;
+  padding:0 15px;
+  font-feature-settings: normal;
+  font-kerning: auto;
+  font-language-override: normal;
+  font-size: 0.8em;
+  font-size-adjust: none;
+  font-stretch: normal;
+  font-style: normal;
+  font-synthesis: weight style;
+  font-variant: normal;
+  font-variant-alternates: normal;
+  font-variant-caps: normal;
+  font-variant-east-asian: normal;
+  font-variant-ligatures: normal;
+  font-variant-numeric: normal;
+  font-variant-position: normal;
+  font-weight: 700;
+  line-height: 15.2167px;
 }
 .div_title {
   position:relative;
