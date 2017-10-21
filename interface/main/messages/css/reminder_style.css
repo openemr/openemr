@@ -45,7 +45,11 @@ h1 {
   margin:25px auto;
  }
 .sticky {
-  position: -webkit-sticky;position: sticky;top: 130px;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 12px;
+  opacity: 1.0;
+  z-index: 999;
 }
 .flow tr:nth-child(even){
   background-color: #f1f8ee;
@@ -124,7 +128,7 @@ width: 98%;
  label {
   vertical-align: bottom;
  }
-  .divTable{
+.divTable{
   display: table;
   float: left;
   font-size: 0.9em;
@@ -133,10 +137,8 @@ width: 98%;
   box-shadow: 2px 3px 9px #c0c0c0;
   border-radius: 8px;
   padding: 10px;
-  margin: 15px;
-  min-width:400px;
-  width: 65%;
- }
+  margin: 15px auto;
+}
 .divTable2{
   display: table;
   font-size: 0.9em;
@@ -147,7 +149,7 @@ width: 98%;
   padding: 10px;
   position:relative;
   display:inline-block;
-  margin: 15px;
+  margin: 15px auto;
   vertical-align: top;
 }
 .divTable3{
@@ -180,7 +182,6 @@ width: 98%;
   vertical-align: middle;
   min-height: 29px;
   padding: 5px 10px;
-  text-align: left;
   border-radius: 3px;
  }
  .divTableHeading {
@@ -198,9 +199,8 @@ width: 98%;
  }
  .float_center {
   float:unset;
-  margin: 15px auto;
- }
- .Wide {
+}
+.Wide {
   width:100%;
  }
 
@@ -279,14 +279,8 @@ right: 0px;
 top: 0px;
 float: right;
  }
- .left {
-  text-align: left;
- }
- .center {
-  text-align: center;
- }
 
- input[type="radio"] {
+input[type="radio"] {
   padding-left:15px;
  }
 

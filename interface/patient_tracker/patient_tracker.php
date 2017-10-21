@@ -205,7 +205,7 @@ if (!$_REQUEST['flb_table']) {
       overflow: hidden;
      }
      
-      .title {
+    .title {
         font-family: Georgia, serif;
         font-weight: bold;
         padding: 3px 10px;

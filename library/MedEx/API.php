@@ -877,7 +877,7 @@ class Display extends base
                                         <li id="menu_pend_recalls" name="menu_pend_recalls"> <a id="BUTTON_pend_recalls_menu" onclick="tabYourIt('flb','patient_tracker/patient_tracker.php?skip_timeout_reset=1');"> <?php echo xlt("Flow Board"); ?></a></li>
                                         <li class="divider"><hr /></li>
                                         <?php }  ?>
-                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap left' target='_MedEx' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Reminder Campaigns"); ?></a></li>
+                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap text-left' target='_MedEx' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Reminder Campaigns"); ?></a></li>
                                     </ul>
                                  </li>
                                 <?php
@@ -893,7 +893,7 @@ class Display extends base
                                     if ($logged_in) {
                                         ?>
                                          <li class="divider"><hr /></li>
-                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap left' target='_blank' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Recall Campaigns"); ?></a></li>
+                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap text-left' target='_blank' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Recall Campaigns"); ?></a></li>
                                         <?php
                                     }
                                     ?>
@@ -1223,7 +1223,7 @@ class Display extends base
                                         <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To'); ?>:</label></td><td>
                                         <input type="date" id="datepicker2" name="datepicker2"
                                                 data-format="<?php echo $date_format; ?>"
-                                                class="form-control datepicker input-sm text-center" value="<?php echo attr($disp_to_date); ?>" style="max-width:140px;min-width:85px;text-align: center;">
+                                                class="form-control datepicker input-sm text-center" value="<?php echo attr($disp_to_date); ?>" style="max-width:140px;min-width:85px;">
                                       </td></tr>
                                       <tr><td class="text-center" colspan="2">
                                         <input href="#" class="css_button btn ui-buttons ui-widget ui-corner-all news" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>">
@@ -1389,7 +1389,7 @@ class Display extends base
             $last_visit = $result2['pc_eventDate'];
             $DOB = oeFormatShortDate($result2['DOB']);
             $age = $MedEx->events->getAge($result2['DOB']);
-            echo '<div class="divTableCell center"><a href="#" onclick="show_patient(\''.attr($recall['pid']).'\');"> '.text($recall['fname']).' '.text($recall['lname']).'</a>';
+            echo '<div class="divTableCell text-center"><a href="#" onclick="show_patient(\''.attr($recall['pid']).'\');"> '.text($recall['fname']).' '.text($recall['lname']).'</a>';
             if ($GLOBALS['ptkr_show_pid']) {
                 echo '<br /><span title="'.xla("Patient ID").'" class="small">'. xlt('PID').': '.text($recall['pid']).'</span>';
             }
@@ -1439,33 +1439,33 @@ class Display extends base
             echo '</div>';
            
             if ($show['postcard'] > '') {
-                echo '<div class="divTableCell center postcards">'.text($show['postcard']).'</div>';
+                echo '<div class="divTableCell text-center postcards">'.text($show['postcard']).'</div>';
             } else {
-                echo '<div class="divTableCell center postcards"><input type="checkbox" name="postcards" id="postcards[]" value="'.attr($recall['pid']).'"></div>';
+                echo '<div class="divTableCell text-center postcards"><input type="checkbox" name="postcards" id="postcards[]" value="'.attr($recall['pid']).'"></div>';
             }
         
             if ($show['label'] > '') {
-                echo '<div class="divTableCell center labels">'.text($show['label']).'</div>';
+                echo '<div class="divTableCell text-center labels">'.text($show['label']).'</div>';
             } else {
-                echo '<div class="divTableCell center labels"><input type="checkbox" name="labels" id="labels[]" value="'.attr($recall['pid']).'"></div>';
+                echo '<div class="divTableCell text-center labels"><input type="checkbox" name="labels" id="labels[]" value="'.attr($recall['pid']).'"></div>';
             }
-            echo '  <div class="divTableCell center msg_manual"><span class="fa fa-fw spaced_icon" >
+            echo '  <div class="divTableCell text-center msg_manual"><span class="fa fa-fw spaced_icon" >
                         <input type="checkbox" name="msg_phone" id="msg_phone_'.attr($recall['pid']).'" onclick="process_this(\'phone\',\''.attr($recall['pid']).'\',\''.attr($recall['r_ID']).'\')" />
                 </span>';
             echo '    <span title="'.xla('Scheduling').'" class="fa fa-calendar-check-o fa-fw" onclick="newEvt(\''.attr($recall['pid']).'\',\'\');">
                 </span>';
             echo '</div>';
 
-            echo '  <div class="divTableCell left msg_resp">';
+            echo '  <div class="divTableCell text-left msg_resp">';
                 //    if phone call made show each in progress
             echo '<textarea onblur="process_this(\'notes\',\''.attr($recall['pid']).'\',\''.attr($recall['r_ID']).'\');" name="msg_notes" id="msg_notes_'.attr($recall['pid']).'" style="width:90%;height:30px;">'.nl2br(text($recall['NOTES'])).'</textarea>';
             echo '</div>';
-            echo '  <div class="divTableCell left msg_resp">
+            echo '  <div class="divTableCell text-left msg_resp">
             <i class="top_right_corner fa fa-times" onclick="delete_Recall(\''.attr($recall['pid']).'\',\''.attr($recall['r_ID']).'\')"></i> ';
             echo $show['progression'];
                 
             if ($show['appt']) {
-                echo "<span onclick=\"newEvt('".attr($prog['pid'])."','".attr($show['pc_eid'])."');\" class='btn btn-danger center' title='".xla('Appointment made by')." ".attr($prog['who'])." ".xla('on')." ".attr($prog['when'])."'><b>".xlt('Appt{{Appointment}}').":</b> ".text($show['appt'])."<br />";
+                echo "<span onclick=\"newEvt('".attr($prog['pid'])."','".attr($show['pc_eid'])."');\" class='btn btn-danger text-center' title='".xla('Appointment made by')." ".attr($prog['who'])." ".xla('on')." ".attr($prog['when'])."'><b>".xlt('Appt{{Appointment}}').":</b> ".text($show['appt'])."<br />";
             }
             echo '</div>';
             echo '</div>';
@@ -1479,23 +1479,23 @@ class Display extends base
         ?>
         <div class="divTable text-center" id="rcb_table" style="margin:0px auto 30px;width:100%;">
             <div class="sticky divTableRow divTableHeading">
-                <div class="divTableCell center" style="width:10%;"><?php echo xlt('Name'); ?></div>
-                <div class="divTableCell center" style="width:10%;"><?php echo xlt('Recall'); ?></div>
+                <div class="divTableCell text-center" style="width:10%;"><?php echo xlt('Name'); ?></div>
+                <div class="divTableCell text-center" style="width:10%;"><?php echo xlt('Recall'); ?></div>
                 
-                <div class="divTableCell center phones" style="width:10%;"><?php echo xlt('Contacts'); ?></div>
-                <div class="divTableCell center msg_resp"><?php echo xlt('Postcards'); ?><br />
+                <div class="divTableCell text-center phones" style="width:10%;"><?php echo xlt('Contacts'); ?></div>
+                <div class="divTableCell text-center msg_resp"><?php echo xlt('Postcards'); ?><br />
                     <span onclick="top.restoreSession();checkAll('postcards',true);" class="fa fa-square-o fa-lg" id="chk_postcards"></span>
                     &nbsp;&nbsp;
                     <span onclick="process_this('postcards');" class="fa fa-print fa-lg"></span>
                 </div>
-                <div class="divTableCell center msg_resp"><?php echo xlt('Labels'); ?><br />
+                <div class="divTableCell text-center msg_resp"><?php echo xlt('Labels'); ?><br />
                     <span onclick="checkAll('labels',true);" class="fa fa-square-o fa-lg" id="chk_labels"></span>
                     &nbsp;&nbsp;
                     <span onclick="process_this('labels');" class="fa fa-print fa-lg"></span>
                 </div>
-                <div class="divTableCell center msg_resp"><?php echo xlt('Office').": ".xlt('Phone'); ?></div>
-                <div class="divTableCell center msg_notes"><?php echo xlt('Notes'); ?></div>
-                <div class="divTableCell center"><?php echo xlt('Progress'); ?>
+                <div class="divTableCell text-center msg_resp"><?php echo xlt('Office').": ".xlt('Phone'); ?></div>
+                <div class="divTableCell text-center msg_notes"><?php echo xlt('Notes'); ?></div>
+                <div class="divTableCell text-center"><?php echo xlt('Progress'); ?>
                 </div>
               
             </div>
@@ -1605,7 +1605,7 @@ class Display extends base
                             </div>
                             <div class="divTableRow">
                                 <div class="divTableCell divTableHeading"><?php echo xlt('Recall When'); ?></div>
-                                <div class="divTableCell indent20" style="width:250px;">
+                                <div class="divTableCell indent20">
                                      <span class="bold"><?php echo xlt('Last Visit'); ?>: </span><input type="text" value="" name="DOLV" id="DOLV" class="form-control">
                                     <br />
                                     <!-- Feel free to add in any dates you would like to show here...
@@ -1649,7 +1649,7 @@ class Display extends base
                                         $defaultProvider = $userid;
                                     }
                                     
-                                    echo "<select  class='form-control' name='new_provider' id='new_provider' style='width:225px;'>";
+                                    echo "<select  class='form-control' name='new_provider' id='new_provider' style='width:95%;'>";
                                     while ($urow = sqlFetchArray($ures)) {
                                         echo "    <option value='" . attr($urow['id']) . "'";
                                         if ($urow['id'] == $defaultProvider) {
@@ -1668,7 +1668,7 @@ class Display extends base
                             <div class="divTableRow">
                                 <div class="divTableCell divTableHeading"><?php echo xlt('Facility'); ?></div>
                                 <div class="divTableCell">
-                                    <select  class="form-control" name="new_facility" id="new_facility" style="width:225px;">
+                                    <select  class="form-control" name="new_facility" id="new_facility" style="width:95%;">
                                         <?php
                                             $qsql = sqlStatement("SELECT id, name, primary_business_entity FROM facility WHERE service_location != 0");
                                         while ($facrow = sqlFetchArray($qsql)) {
@@ -1749,10 +1749,11 @@ class Display extends base
                     </div>
                 </form>
             </div>
-            <div class="row-fluid clear center" style="width:100%;clear:both;font-size:1.1em;">
+            <div class="row-fluid text-center">
                 <input class="css_button btn" onclick="add_this_recall();" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new">
-                <br />
-                <em>* <?php echo xlt('N.B.{{Nota bene}}')." ".xlt('Demographic changes made here are recorded system-wide'); ?>.</em>
+                <p>
+                    <em class="small text-muted">* <?php echo xlt('N.B.{{Nota bene}}')." ".xlt('Demographic changes made here are recorded system-wide'); ?>.</em>
+                </p>
             </div>
         
         </div>
@@ -1942,7 +1943,7 @@ class Display extends base
                 $execute = oeFormatShortDate($recall_date);
                 $show['campaign'][$event['C_UID']]['executed'] = $execute;
             }
-            $show['progression'] .= "<a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap left' target='_MedEx'>".
+            $show['progression'] .= "<a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap text-left' target='_MedEx'>".
                                     $show['campaign'][$event['C_UID']]['icon']." ".text($show['campaign'][$event['C_UID']]['executed'])."</a><br />";
         }
         
@@ -2012,74 +2013,74 @@ class Display extends base
                 <div class="divTable" style="margin:30px auto;width:100%;">
                   <div class="divTableBody">   
                     <div class="divTableRow divTableHeading">
-                      <div class="divTableCell center"><?php echo xlt('Message'); ?></div>
-                      <div class="divTableCell center"><?php echo xlt('Possible'); ?></div>
-                      <div class="divTableCell center"><?php echo xlt('Not Possible'); ?></div>
-                      <div class="divTableCell center"><?php echo xlt('Scheduled'); ?></div>
-                      <div class="divTableCell center"><?php echo xlt('Sent')."<br />".xlt('In-process'); ?></div>
-                      <div class="divTableCell center"><?php echo xlt('Read')."<br />".xlt('Delivered');
+                      <div class="divTableCell text-center"><?php echo xlt('Message'); ?></div>
+                      <div class="divTableCell text-center"><?php echo xlt('Possible'); ?></div>
+                      <div class="divTableCell text-center"><?php echo xlt('Not Possible'); ?></div>
+                      <div class="divTableCell text-center"><?php echo xlt('Scheduled'); ?></div>
+                      <div class="divTableCell text-center"><?php echo xlt('Sent')."<br />".xlt('In-process'); ?></div>
+                      <div class="divTableCell text-center"><?php echo xlt('Read')."<br />".xlt('Delivered');
                         ; ?></div>
-                      <div class="divTableCell center"><?php echo xlt('Confirmed'); ?></div>
-                      <div class="divTableCell center"><?php echo xlt('Callback'); ?></div>
-                      <div class="divTableCell center"><?php echo xlt('Failure'); ?></div>
-                      <div class="divTableCell center"><?php echo xlt('Extras'); ?></div>
-                      <div class="divTableCell center"><?php echo xlt('STOP'); ?></div>
+                      <div class="divTableCell text-center"><?php echo xlt('Confirmed'); ?></div>
+                      <div class="divTableCell text-center"><?php echo xlt('Callback'); ?></div>
+                      <div class="divTableCell text-center"><?php echo xlt('Failure'); ?></div>
+                      <div class="divTableCell text-center"><?php echo xlt('Extras'); ?></div>
+                      <div class="divTableCell text-center"><?php echo xlt('STOP'); ?></div>
                     </div>
                     <div class="divTableRow">
-                      <div class="divTableCell center"><?php echo xlt('EMAIL'); ?></div>
-                      <div class="divTableCell center"><?php echo $icons['EMAIL']['ALLOWED']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['EMAIL']['NotAllowed']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['EMAIL']['SCHEDULED']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['EMAIL']['SENT']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['EMAIL']['READ']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['EMAIL']['CONFIRMED']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['EMAIL']['CALL']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['EMAIL']['FAILED']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['EMAIL']['EXTRA']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['EMAIL']['STOP']; ?></div>
+                      <div class="divTableCell text-center"><?php echo xlt('EMAIL'); ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['EMAIL']['ALLOWED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['EMAIL']['NotAllowed']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['EMAIL']['SCHEDULED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['EMAIL']['SENT']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['EMAIL']['READ']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['EMAIL']['CONFIRMED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['EMAIL']['CALL']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['EMAIL']['FAILED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['EMAIL']['EXTRA']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['EMAIL']['STOP']; ?></div>
                     </div>
                     <div class="divTableRow">
-                      <div class="divTableCell center"><?php echo xlt('SMS'); ?></div>
-                      <div class="divTableCell center"><?php echo $icons['SMS']['ALLOWED']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['SMS']['NotAllowed']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['SMS']['SCHEDULED']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['SMS']['SENT']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['SMS']['READ']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['SMS']['CONFIRMED']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['SMS']['CALL']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['SMS']['FAILED']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['SMS']['EXTRA']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['SMS']['STOP']; ?></div>
+                      <div class="divTableCell text-center"><?php echo xlt('SMS'); ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['SMS']['ALLOWED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['SMS']['NotAllowed']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['SMS']['SCHEDULED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['SMS']['SENT']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['SMS']['READ']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['SMS']['CONFIRMED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['SMS']['CALL']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['SMS']['FAILED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['SMS']['EXTRA']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['SMS']['STOP']; ?></div>
                     </div>
                     <div class="divTableRow">
-                      <div class="divTableCell center"><?php echo xlt('AVM'); ?></div>
-                      <div class="divTableCell center"><?php echo $icons['AVM']['ALLOWED']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['AVM']['NotAllowed']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['AVM']['SCHEDULED']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['AVM']['SENT']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['AVM']['READ']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['AVM']['CONFIRMED']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['AVM']['CALL']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['AVM']['FAILED']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['AVM']['EXTRA']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['AVM']['STOP']; ?></div>
+                      <div class="divTableCell text-center"><?php echo xlt('AVM'); ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['AVM']['ALLOWED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['AVM']['NotAllowed']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['AVM']['SCHEDULED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['AVM']['SENT']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['AVM']['READ']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['AVM']['CONFIRMED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['AVM']['CALL']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['AVM']['FAILED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['AVM']['EXTRA']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['AVM']['STOP']; ?></div>
                     </div>
                     <?php
                     //When we have added PostCards to MedEx, we can display this.
                     //Until then this would just add confusion.
                 /*
                     <div class="divTableRow">
-                      <div class="divTableCell center"><?php echo xlt('POSTCARD'); ?></div>
-                      <div class="divTableCell center"><?php echo $icons['POSTCARD']['ALLOWED']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['POSTCARD']['NotAllowed']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['POSTCARD']['SCHEDULED']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['POSTCARD']['SENT']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['POSTCARD']['READ']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['POSTCARD']['CONFIRMED']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['POSTCARD']['CALL']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['POSTCARD']['FAILURE']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['POSTCARD']['EXTRA']; ?></div>
-                      <div class="divTableCell center"><?php echo $icons['POSTCARD']['STOP']; ?></div>
+                      <div class="divTableCell text-center"><?php echo xlt('POSTCARD'); ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['POSTCARD']['ALLOWED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['POSTCARD']['NotAllowed']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['POSTCARD']['SCHEDULED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['POSTCARD']['SENT']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['POSTCARD']['READ']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['POSTCARD']['CONFIRMED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['POSTCARD']['CALL']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['POSTCARD']['FAILURE']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['POSTCARD']['EXTRA']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['POSTCARD']['STOP']; ?></div>
                     </div>
                   </div>
                   */
@@ -2141,11 +2142,11 @@ class Setup extends Base
         if ($stage =='1') {
         ?>
         <div class="row">
-            <div class="col-sm-10 center col-xs-offset-1">
+            <div class="col-sm-10 text-center col-xs-offset-1">
                 <div id="setup_1">
                     <div class="title row">MedEx</div>
                     <div class="row showReminders ">
-                        <div class="col-sm-10 center col-xs-offset-1">
+                        <div class="col-sm-10 text-center col-xs-offset-1">
                             <em>
                                 <?php echo xlt('Using technology to improve productivity'); ?>.
                             </em>
@@ -2184,13 +2185,13 @@ class Setup extends Base
         <div class="row">
             <form name="medex_start" id="medex_start">
                 <div class="col-sm-1"></div>
-                <div class="col-sm-10 center">
+                <div class="col-sm-10 text-center">
                     <div id="setup_1" class="showReminders borderShadow">
                         <div class="title row fa"><?php echo xlt('Register'); ?>: MedEx Bank</div>
                         <div class="row showReminders">
                             <div class="col-sm-1">
                             </div>
-                            <div class="fa col-sm-10 center">
+                            <div class="fa col-sm-10 text-center">
                                 <div class="divTable4 fa" id="answer" name="answer">
                                     <div class="divTableBody">
                                         <div class="divTableRow">
@@ -2227,13 +2228,13 @@ class Setup extends Base
                                         </div>
                                     </div>
                                 </div>
-                                <div id="ihvread" name="ihvread" class="fa left">
+                                <div id="ihvread" name="ihvread" class="fa text-left">
                                     <input type="checkbox" class="updated required" name="TERMS_yes" id="TERMS_yes" required>
                                     <label for="TERMS_yes" class="input-helper input-helper--checkbox" title="<?php echo xla('Terms and Conditions'); ?>"><?php echo xlt('I have read and my practice agrees to the'); ?> 
                                         <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=5','TERMS',800, 600);">MedEx <?php echo xlt('Terms and Conditions'); ?></a></label><br />
                                     <input type="checkbox" class="updated required" name="BusAgree_yes" id="BusAgree_yes" required>
                                     <label for="BusAgree_yes" class="input-helper input-helper--checkbox" title="<?php echo xla('HIPAA Agreement'); ?>"><?php echo xlt('I have read and accept the'); ?> 
-                                    <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=8','HIPAA Bus Agree',800, 600);">MedEx <?php echo xlt('HIPAA Business Associate Agreement'); ?></a></label>
+                                    <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=8','Bus Assoc Agree',800, 600);">MedEx <?php echo xlt('Business Associate Agreement'); ?></a></label>
                                     <br />
                     <div class="align-center row showReminders">
                                     <input value="Register" class="btn" onclick="signUp();" value="<?php echo xlt('Register'); ?>" />
