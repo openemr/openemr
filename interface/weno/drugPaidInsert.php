@@ -20,6 +20,9 @@ sqlStatementNoLog("SET autocommit=0");
 sqlStatementNoLog("START TRANSACTION");
 
 foreach ($drugsArray as $drug) {
+    if (empty($drug)) {
+        continue;
+    }
     sqlStatementNoLog($drug);
 }
 

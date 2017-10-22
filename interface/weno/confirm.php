@@ -140,7 +140,7 @@ $mailOrder = $tData->mailOrderPharmacy();
                 //this is to create the json script to be transmitted
                 $.ajax({
                     //feeds the json generator
-                    url: 'jsonscript.php?getJson='+pharm_Id+','+value,
+                    url: 'jsonScript.php?getJson='+pharm_Id+','+value,
 
                     success: function(response){
                         console.log(response);
@@ -157,39 +157,51 @@ $mailOrder = $tData->mailOrderPharmacy();
         }); //end of confirm button
 
         //Transmit order(s)
-        $('#order').click(function(){
-
+        $('#order').click(function() {
             $('#success').html("<i class='fa fa-refresh fa-spin fa-3x fa-fw'></i>");
+            var request = [];
+            var responses = [];
+            // Lets not talk to user here because most likely won't make to user anyway.
+            // So we'll batch the ajax calls with an apply and promise so everyone is happy.
+            // This isn't foolproof so look here if not batching large json requests.
+            $.each(jsonArray, function(index, value) {
+                request.push(
+                    $.ajax({
+                        type: 'POST',
+                        dataType: 'JSON',
+                        url: 'https://apa.openmedpractice.com/apa/interface/weno/receivingrx.php?',
+                        data: {"scripts": value},
 
-            $.each(jsonArray, function(index, value){
-
-                $.ajax({
-                    type: 'POST',
-                    dataType: 'JSON',
-                    url: 'https://apa.openmedpractice.com/apa/interface/weno/receivingrx.php?',
-                    data: {"scripts": value},
-
-                    success: function(response){
-                        console.log(response);
-
-                        $('#success').html('<p>'+response+'</p>');
-
-                    },
-                    error: function(xhr, status, error){
-                        console.log(xhr);
-                        console.log(status);
-                        console.log(error);
-                        console.warn(xhr.responseText);
-                    }
-                }); //end of ajax call
+                        success: function (response) {
+                            responses.push(response);
+                        },
+                        error: function (xhr, status, error) {
+                            console.log(xhr);
+                            console.log(status);
+                            console.log(error);
+                            console.warn(xhr.responseText);
+                        }
+                    }) //end of ajax push
+                );
             }); // end of each loop
 
-            $("#transmit").toggle();
-        });
+            $("#transmit").toggle(); // turn off xmit button for spinner
 
+            // here we apply actual weno server requests and I've been promised
+            // a done event to present results to user in one shot.
+            $.when.apply(null, request).done(function() {
+                // all done with our requests, lets announce what weno says.
+                var announce = '<?php echo xlt("Send Complete - Prescription(s) Return Status");?>';
+                $('#success').html('<p><h4 class="bg-info">' + announce + '</h4></p>');
+                $.each(responses, function (index, response) {
+                    console.log('result: ' + response);
+                    $('#success').append('<p>' + response + '</p>');
+                });
+            });
+
+        }); // That's it for click event.
 
     }); //end of doc ready
-
 
 </script>
 <br>

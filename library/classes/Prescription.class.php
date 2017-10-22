@@ -591,7 +591,7 @@ class Prescription extends ORDataObject
     {
         if ($GLOBALS['weno_rx_enable']) {
                 $drug = explode("-", $drug); //striping the price from the drug name.
-                $drug = $drug[0];
+                $drug = trim($drug[0]);
         }
         $this->drug = $drug;
 
@@ -606,6 +606,15 @@ class Prescription extends ORDataObject
     }
     function get_drug()
     {
+        if ($GLOBALS['weno_rx_enable']) {
+            $drug = trim($this->drug);
+            $sql = "SELECT NDC FROM erx_drug_paid WHERE drug_label_name LIKE ? ";
+            $val = array('%'.$drug.'%');
+            $ndc = sqlQuery($sql, $val);
+            $drug_id = $ndc['NDC'];
+            //Save this drug id
+            $this->drug_id = $drug_id;
+        }
         return $this->drug;
     }
     function set_ntx($ntx)
