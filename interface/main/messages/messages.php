@@ -128,14 +128,7 @@ switch ($task) {
         $form_note_type = $_POST['form_note_type'];
         $form_message_status = $_POST['form_message_status'];
 
-        //Need to do this because sometimes there will be multiple patients separated by semicolon, sometimes 1 patient with semicolon, and sometimes 1 patient without semicolon
-        if (strpos($_POST['reply_to'], ';') !== false){
-            $reply_to = substr($_POST['reply_to'], 0, -1);
-        }
-        else{
-            $reply_to = $_POST['reply_to'];
-        }
-        $reply_to = explode(';', $reply_to);
+        $reply_to = explode(';', rtrim($_POST['reply_to'], ';'));
 
         $assigned_to_list = explode(';', $_POST['assigned_to']);
         foreach ($assigned_to_list as $assigned_to) {
