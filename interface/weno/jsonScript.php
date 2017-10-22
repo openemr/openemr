@@ -59,6 +59,7 @@ foreach ($fill as $data) {
                 "fname"  => $pInfo['fname'],
                 "street" => $pInfo['street'],
                 "city"   => $pInfo['city'],
+                "state"  => $pInfo['state'],
                 "postal" => $pInfo['postal_code'],
                 "DOB"    => $pInfo['DOB'],
                 "Sex"    => $sex
@@ -69,8 +70,8 @@ foreach ($fill as $data) {
                 "provlname"       => $proData[0]['fname'],
                 "provfname"       => $proData[0]['lname'],
                 "provnpi"         => $proData[0]['npi'],
-                "facilityfax"     => str_replace("-", "", $proData[0]['fax']),
-                "facilityphone"   => str_replace("-", "", $proData[0]['phone']),
+                "facilityfax"     => preg_replace("/[^0-9]/", "", $proData[0]['fax']),
+                "facilityphone"   => preg_replace("/[^0-9]/", "", $proData[0]['phone']),
                 "facilityname"    => $proData[0]['name'],
                 "facilitystreet"  => $proData[0]['street'],
                 "facilitycity"    => $proData[0]['city'],

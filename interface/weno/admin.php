@@ -17,14 +17,21 @@ use OpenEMR\Rx\Weno\AdminProperties;
 $tables   = new AdminProperties();
 
 ?>
-<html>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
 <head>
      <title><?php print xlt("Weno Admin"); ?></title>
         <?php Header::setupHeader(); ?>
 
 </head>
-<body class="body_top">
-<div class="container">
+<style>
+.row.text-center > div {
+    display: inline-block;
+    float: none;
+}
+</style>
+<body class="body_top text-center">
+<div class="container center-block">
 <?php
 
 // check to make sure only administrators access this page.
@@ -39,8 +46,6 @@ if ($GLOBALS['weno_rx_enable'] != 1) {
     print xlt("Weno Service is Enabled")."<br><br>";
 }
 
-
-
    $drugData = $tables->drugTableInfo();
 if (!$drugData['ndc']) {
     echo "<a href='drugPaidInsert.php' class='btn btn-default'>".xlt("Import Formularies")."</a> <br>".xlt("Be patient this may take a while");
@@ -50,26 +55,31 @@ if (!$drugData['ndc']) {
 
 ?>
 
-<h3><?php echo xlt("Select State to Import for Pharmacy"); ?></h3>
+<h3><?php echo xlt("Select State and City to Import for Pharmacy"); ?></h3>
 
-<form method="post" action="import_pharmacies.php" >
-    <div class="col-lg-2">
-    <?php echo generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'list_id'=>$GLOBALS['state_list'], 'field_id'=>'state'), ''); ?>
-    </div>
+    <form method="post" action="import_pharmacies.php" class="form-inline text-center">
 
+        <div class="row text-center">
+            <div class="form-group well col-lg-5 text-center">
+                <?php echo generate_form_field(array('data_type' => $GLOBALS['state_data_type'], 'list_id' => $GLOBALS['state_list'], 'field_id' => 'state'), ''); ?>
+                <input type="text" class="form-control" id="form_city" name="form_city" placeholder="Enter City"><br/><br/>
+                <button type="submit" class="btn btn-default   n-save" value=><?php echo xlt("Import Pharmacies"); ?></button>
+                <h4><?php echo xlt("Be patient, this can take a while."); ?></h4>
+            </div>
+        </div>
 
-    <button type="submit" class="btn btn-default btn-save" value= ><?php echo xlt("Import Pharmacies"); ?></button>
-
-    <br>
-<p><?php echo xlt("Be patient, this can take a while."); ?></p>
-</form>
+    </form>
 <br><br>
 
 <?php if (!empty($finish)) {
     echo $finish . xlt("with import");
 } ?>
 
-
 </div>
+<script>
+$(document).ready(function(){
+    $("#addtolistid_state").hide();
+ });
+</script>
 </body>
 </html>
