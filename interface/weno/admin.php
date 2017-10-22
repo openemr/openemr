@@ -62,7 +62,7 @@ if (!$drugData['ndc']) {
         <div class="row text-center">
             <div class="form-group well col-lg-5 text-center">
                 <?php echo generate_form_field(array('data_type' => $GLOBALS['state_data_type'], 'list_id' => $GLOBALS['state_list'], 'field_id' => 'state'), ''); ?>
-                <input type="text" class="form-control" id="form_city" name="form_city" placeholder="Enter City"><br/><br/>
+                <input type="text" class="form-control" id="form_city" name="form_city" placeholder="<?php echo xla('Enter City')?>"><br/><br/>
                 <button type="submit" class="btn btn-default   n-save" value=><?php echo xlt("Import Pharmacies"); ?></button>
                 <h4><?php echo xlt("Be patient, this can take a while."); ?></h4>
             </div>
