@@ -83,9 +83,8 @@ $res = sqlStatement($query, $sqlBindArray);
 
 
 <head>
-    <?php Header::setupHeader(['common']); ?>
-    <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.3.4.css" media="screen" />
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.3.4.js"></script>
+
+<?php Header::setupHeader(['common']); ?>
 
 <title><?php echo xlt('Address Book'); ?></title>
 
@@ -214,27 +213,16 @@ function refreshme() {
 // Process click to pop up the add window.
 function doedclick_add(type) {
  top.restoreSession();
- dlgopen('addrbook_edit.php?type=' + type, '_blank', 700, 750);
+ dlgopen('addrbook_edit.php?type=' + type, '_blank', 650, 750);
 }
 
 // Process click to pop up the edit window.
 function doedclick_edit(userid) {
  top.restoreSession();
- dlgopen('addrbook_edit.php?userid=' + userid, '_blank', 700, 725);
+ dlgopen('addrbook_edit.php?userid=' + userid, '_blank', 650, 750);
 }
 
-$(document).ready(function(){
-  // initialise fancy box
-  enable_big_modals();
-
-  // initialise a link
-  $(".addrbookedit_modal").fancybox( {
-    'overlayOpacity' : 0.0,
-    'showCloseButton' : true,
-    'frameHeight' : 550,
-    'frameWidth' : 700
-  });
-});
+// Removed .ready and fancy box (no longer used here) - 10/23/17 sjp
 
 </script>
 </div>
