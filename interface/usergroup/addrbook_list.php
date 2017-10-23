@@ -21,6 +21,7 @@
  require_once("../globals.php");
  require_once("$srcdir/acl.inc");
  require_once("$srcdir/options.inc.php");
+ use OpenEMR\Core\Header;
 
  $popup = empty($_GET['popup']) ? 0 : 1;
 
@@ -76,11 +77,16 @@ if ($form_lname) {
 $query .= " LIMIT 500";
 $res = sqlStatement($query, $sqlBindArray);
 ?>
+
 <html>
 
-<head>
 
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+
+<head>
+    <?php Header::setupHeader(['common']); ?>
+    <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.3.4.css" media="screen" />
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.3.4.js"></script>
+
 <title><?php echo xlt('Address Book'); ?></title>
 
 <!-- style tag moved into proper CSS file -->
@@ -88,9 +94,9 @@ $res = sqlStatement($query, $sqlBindArray);
 </head>
 
 <body class="body_top">
-
+<div class="container-fluid">
 <div id="addressbook_list">
-<form method='post' action='addrbook_list.php' onsubmit='return top.restoreSession()'>
+<form class='form-inline' method='post' action='addrbook_list.php' onsubmit='return top.restoreSession()'>
 
 <table>
  <tr class='search'> <!-- bgcolor='#ddddff' -->
@@ -122,30 +128,30 @@ $res = sqlStatement($query, $sqlBindArray);
 </td>
 </tr>
 </table>
-
-<table>
- <tr class='head'>
-  <td title='<?php echo xla('Click to view or edit'); ?>'><?php echo xlt('Organization'); ?></td>
-  <td><?php echo xlt('Name'); ?></td>
-  <td><?php echo xlt('Local'); ?></td><!-- empty for external -->
-  <td><?php echo xlt('Type'); ?></td>
-  <td><?php echo xlt('Specialty'); ?></td>
-  <td><?php echo xlt('Phone'); ?></td>
-  <td><?php echo xlt('Mobile'); ?></td>
-  <td><?php echo xlt('Fax'); ?></td>
-  <td><?php echo xlt('Email'); ?></td>
-  <td><?php echo xlt('Street'); ?></td>
-  <td><?php echo xlt('City'); ?></td>
-  <td><?php echo xlt('State'); ?></td>
-  <td><?php echo xlt('Postal'); ?></td>
- </tr>
+<br/>
+<table class="table table-bordered table-condensed table-hover">
+ <thead class='bg-primary'>
+  <th title='<?php echo xla('Click to view or edit'); ?>'><?php echo xlt('Organization'); ?></th>
+  <th><?php echo xlt('Name'); ?></th>
+  <th><?php echo xlt('Local'); ?></th><!-- empty for external -->
+  <th><?php echo xlt('Type'); ?></th>
+  <th><?php echo xlt('Specialty'); ?></th>
+  <th><?php echo xlt('Phone'); ?></th>
+  <th><?php echo xlt('Mobile'); ?></th>
+  <th><?php echo xlt('Fax'); ?></th>
+  <th><?php echo xlt('Email'); ?></th>
+  <th><?php echo xlt('Street'); ?></th>
+  <th><?php echo xlt('City'); ?></th>
+  <th><?php echo xlt('State'); ?></th>
+  <th><?php echo xlt('Postal'); ?></th>
+ </thead>
 
 <?php
  $encount = 0;
 while ($row = sqlFetchArray($res)) {
     ++$encount;
   //$bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
-    $bgclass = (($encount & 1) ? "evenrow" : "oddrow");
+    $bgclass = (($encount & 1) ? "info" : "");
     $username = $row['username'];
     if (! $row['active']) {
         $username = '--';
@@ -208,18 +214,18 @@ function refreshme() {
 // Process click to pop up the add window.
 function doedclick_add(type) {
  top.restoreSession();
- dlgopen('addrbook_edit.php?type=' + type, '_blank', 700, 550);
+ dlgopen('addrbook_edit.php?type=' + type, '_blank', 700, 750);
 }
 
 // Process click to pop up the edit window.
 function doedclick_edit(userid) {
  top.restoreSession();
- dlgopen('addrbook_edit.php?userid=' + userid, '_blank', 700, 550);
+ dlgopen('addrbook_edit.php?userid=' + userid, '_blank', 700, 725);
 }
 
 $(document).ready(function(){
   // initialise fancy box
-  enable_modals();
+  enable_big_modals();
 
   // initialise a link
   $(".addrbookedit_modal").fancybox( {
@@ -231,6 +237,6 @@ $(document).ready(function(){
 });
 
 </script>
-
+</div>
 </body>
 </html>
