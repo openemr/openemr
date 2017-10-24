@@ -392,6 +392,7 @@ if ($result != "") {
     echo "  <th>" . (($docid || $orderid) ? xlt('Linked') : '') . "</th>\n";
     echo "  <th>" . xlt('Type') . "</th>\n";
     echo "  <th>" . xlt('Content') . "</th>\n";
+    echo "  <th>" . xlt('Status') . "</th>\n";
     echo " </tr>\n";
 
     $result_count = 0;
@@ -477,6 +478,9 @@ if ($result != "") {
 
         echo "  <td class='notecell' id='".htmlspecialchars($row_note_id, ENT_QUOTES)."'>\n";
         echo "   $body";
+        echo "  </td>\n";
+        echo "  <td class='notecell' id='".htmlspecialchars($row_note_id, ENT_QUOTES)."'>\n";
+        echo $iter['message_status'];
         echo "  </td>\n";
         echo " </tr>\n";
 
