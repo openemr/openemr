@@ -227,7 +227,7 @@
                    return  e.preventDefault();
                 }
                 if(typeof $('#end-date'+i).val() == 'string'){
-                    if(moment($('#end-date'+i).val()).isBefore($('#start-date'+i).val())){
+                    if(moment(DateToYYYYMMDD_js($('#end-date'+i).val())).isBefore(DateToYYYYMMDD_js($('#start-date'+i).val()))){
                         $('#end-date'+i).addClass('error-border').after('<p class="error-message" id="error-end-date' + i + '" ><?php echo xlt('End date must be equal or bigger than start date');?></p>');
                         $('#end-date'+i).on('focus', function(){
                             $(this).removeClass('error-border');
