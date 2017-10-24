@@ -145,7 +145,7 @@ while ($row = sqlFetchArray($res)) {
         } else if ($colname == 'DOB' || $colname == 'regdate' || $colname == 'ad_reviewed' || $colname == 'userdate1') {
             $arow[] = oeFormatShortDate($row[$colname]);
         } else {
-            $arow[] = $row[$colname];
+            $arow[] = xls($row[$colname]);
         }
     }
 
