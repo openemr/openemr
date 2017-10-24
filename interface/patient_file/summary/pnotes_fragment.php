@@ -28,6 +28,12 @@
 
  // form parameter docid can be passed to restrict the display to a document.
  $docid = empty($_REQUEST['docid']) ? 0 : 0 + $_REQUEST['docid'];
+
+ //ajax for type 2 notes widget
+ if(isset($_GET['docUpdateId'])){
+     return disappearPnote($_GET['docUpdateId']);
+ }
+
 ?>
 <?php if($GLOBALS['notes_widget'] == 1){ ?>
 <ul class="tabNav">
@@ -102,7 +108,9 @@
                     }
                 }
                 $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}'.$patientname.'${2}', $body);
-                $body = strlen($body) > 120 ? substr($body, 0, 120)."<b>.......</b>" : $body;
+                if($GLOBALS['notes_widget'] == 1) {
+                    $body = strlen($body) > 120 ? substr($body, 0, 120) . "<b>.......</b>" : $body;
+                }
                 echo " <tr class='text' id='".htmlspecialchars($iter['id'], ENT_QUOTES)."' style='border-bottom:1px dashed;height:30px;' >\n";
 
                 // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
@@ -122,7 +130,7 @@
                     echo "</td>\n";
                 }
                 if($GLOBALS['notes_widget'] == 2) {
-                    echo "<td valign='top' class='text'>".htmlspecialchars('Completed', ENT_NOQUOTES)."</td>\n";
+                    echo "<td valign='top' class='text'><button data-id='" . $iter['id'] . "' class='complete_btn'>" . htmlspecialchars('Completed', ENT_NOQUOTES) . "</button></td>\n";
                 }
                 echo " </tr>\n";
 
@@ -254,6 +262,22 @@ tabbify();
 $(document).ready(function(){
     $(".noterow").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".noterow").mouseout(function() { $(this).toggleClass("highlight"); });
+
+    //Ajax call for type 2 note widget
+    $(".complete_btn").on("click", function(){
+        //console.log($(this).attr('data-id'));
+        var btn = $(this);
+        $.ajax({
+            method: "GET",
+            url: "pnotes_fragment.php?docUpdateId=" + btn.attr('data-id'),
+        })
+            .done(function() {
+                btn.prop("disabled",true);
+                btn.unbind('mouseenter mouseleave');
+                btn.css('background-color', 'gray');
+            });
+    });
+
 });
 
 </script>
