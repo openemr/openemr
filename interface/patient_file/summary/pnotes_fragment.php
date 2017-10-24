@@ -78,7 +78,7 @@
             $notes_count = 0;//number of notes so far displayed
             echo "<tr class='text' style='border-bottom:2px solid #000;' >\n";
             echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('From'), ENT_NOQUOTES) ."</b></td>\n";
-            if($GLOBALS['notes_widget'] == 2){ echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('To'), ENT_NOQUOTES) ."</b></td>\n"; }
+            if($GLOBALS['notes_widget'] == 2){ echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('To'), ENT_NOQUOTES) ."</b></td>\n"; } //if using style 2 of notes widget, show receiver
             echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('Date'), ENT_NOQUOTES) ."</b></td>\n";
             echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('Subject'), ENT_NOQUOTES) ."</b></td>\n";
             echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('Content'), ENT_NOQUOTES) ."</b></td>\n";
@@ -89,7 +89,7 @@
                 $has_note = 1;
 
                 $body = $iter['body'];
-                if($GLOBALS['notes_widget'] == 2) {
+                if($GLOBALS['notes_widget'] == 2) { //if using style 2 of notes widget, don't show date and user details in note body
                     $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '', $body);
                 }
                 else{
@@ -107,7 +107,7 @@
 
                 // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
                 echo "<td valign='top' class='text'>".htmlspecialchars($iter['user'], ENT_NOQUOTES)."</td>\n";
-                if($GLOBALS['notes_widget'] == 2) {
+                if($GLOBALS['notes_widget'] == 2) { //if using style 2 of notes widget, show receiver
                     echo "<td valign='top' class='text'>".htmlspecialchars($iter['assigned_to'], ENT_NOQUOTES)."</td>\n";
                 }
                 echo "<td valign='top' class='text'>".htmlspecialchars($iter['date'], ENT_NOQUOTES)."</td>\n";
