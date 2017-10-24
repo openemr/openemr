@@ -46,6 +46,9 @@
     <script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
     <script src="<?php echo $GLOBALS['web_root'];?>/library/topdialog.js"></script>
     <script src="<?php echo $GLOBALS['web_root'];?>/library/dialog.js"></script>
+    <script>
+    <?php require $GLOBALS['srcdir'] . "/formatting_DateToYYYYMMDD_js.js.php" ?>
+    </script>
 </head>
 
 <body class="body_top therapy_group">
