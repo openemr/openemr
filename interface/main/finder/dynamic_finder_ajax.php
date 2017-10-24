@@ -145,7 +145,7 @@ while ($row = sqlFetchArray($res)) {
         } else if ($colname == 'DOB' || $colname == 'regdate' || $colname == 'ad_reviewed' || $colname == 'userdate1') {
             $arow[] = oeFormatShortDate($row[$colname]);
         } else {
-            $arow[] = xls($row[$colname]);
+            $arow[] = xl($row[$colname]);
         }
     }
 
@@ -156,4 +156,5 @@ while ($row = sqlFetchArray($res)) {
 
 // Dump the output array as JSON.
 //
-echo json_encode($out);
+// Encoding with options for escaping a special chars - JSON_HEX_TAG (<)(>), JSON_HEX_AMP(&), JSON_HEX_APOS('), JSON_HEX_QUOT(").
+echo json_encode($out, 15);
