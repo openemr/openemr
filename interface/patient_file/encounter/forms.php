@@ -892,7 +892,7 @@ if ($pass_sens_squad &&
         $encounter,
         "id, date, form_id, form_name, formdir, user, deleted",
         "",
-        "FIND_IN_SET(formdir,'newpatient') DESC, form_name"
+        "FIND_IN_SET(formdir,'newpatient') DESC, form_name, date DESC"
     ))) {
     echo "<table width='100%' id='partable'>";
     $divnos = 1;
