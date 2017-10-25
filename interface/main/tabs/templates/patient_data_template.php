@@ -54,6 +54,9 @@
         <span class="patientDataColumn">
         <!-- ko if: patient -->
         <!-- ko with: patient -->
+            <a class="btn btn-xs btn-link" data-bind="click: clickEncounterList" href="#" title="<?php echo xla("Visit History");?>">
+                <i class="fa fa-refresh"></i>
+            </a>
             <a class="btn btn-xs btn-link" data-bind="click: clickNewEncounter" href="#" title="<?php echo xla("New Encounter");?>">
                 <i class="fa fa-plus"></i>
             </a>

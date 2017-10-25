@@ -192,6 +192,11 @@ function clickNewEncounter(data,evt)
     newEncounter();
 }
 
+function clickEncounterList(data,evt)
+{
+    encounterList();
+}
+
 function clickNewGroupEncounter(data,evt)
 {
     newTherapyGroupEncounter();
