@@ -32,9 +32,9 @@
 // T = Use description as default Text
 // U = Capitalize all letters (text fields)
 // V = Vendor types only (address book)
-// 0 = Read Only - the input element's "disabled" property is set
 // 1 = Write Once (not editable when not empty) (text fields)
 // 2 = Show descriptions instead of codes for billing code input
+// 3 = Read Only - the input element's "disabled" property is set
 
 require_once("user.inc");
 require_once("patient.inc");
@@ -356,7 +356,7 @@ function generate_form_field($frow, $currvalue)
         $empty_title = "Unassigned";
     }
 
-    $disabled = isOption($frow['edit_options'], '0') === false ? '' : 'disabled';
+    $disabled = isOption($frow['edit_options'], '3') === false ? '' : 'disabled';
 
     $lbfchange = (
         strpos($frow['form_id'], 'LBF') === 0 ||
@@ -3986,8 +3986,8 @@ function isOption($options, $test)
         }
     }
     $options = json_decode($options);
-    
-    return in_array($test, $options, true) ? true : false; // finally!
+
+    return !is_null($options) && in_array($test, $options, true) ? true : false; // finally!
 }
 
 ?>
