@@ -605,7 +605,7 @@ for ($i = 0; $i < $blank_lines; ++$i) {
 <?php } ?>
 
 &nbsp;
-<input type='button' value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
+<input id='btnCancel' type='button' value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
 
 </p>
 

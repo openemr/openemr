@@ -168,7 +168,6 @@ function submitform() {
     <?php } ?>
     if(flag == 0){
                     document.forms[0].submit();
-                    parent.$.fn.fancybox.close();
     }
 }
 //Getting the list of selected item in ACL
@@ -463,14 +462,6 @@ Display red alert if entered password matched one of last three passwords/Displa
 
 <INPUT TYPE="HIDDEN" NAME="secure_pwd" VALUE="<?php echo $GLOBALS['secure_password']; ?>">
 </FORM>
-<script language="JavaScript">
-$(document).ready(function(){
-    $("#cancel").click(function() {
-          parent.$.fn.fancybox.close();
-     });
-
-});
-</script>
 </BODY>
 
 </HTML>

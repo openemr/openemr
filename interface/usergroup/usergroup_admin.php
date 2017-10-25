@@ -383,6 +383,14 @@ if (isset($_GET["mode"])) {
 
 $form_inactive = empty($_REQUEST['form_inactive']) ? false : true;
 
+// mdsupport - inline fancybox transition
+$md_fbtrans = array(
+    'trig_table' => 'tbl-fbtr',
+    'cancel' => array(
+            'fb1' => '#cancel',
+    ),
+);
+$alertmsg = trim($alertmsg);
 ?>
 <html>
 <head>
@@ -393,46 +401,17 @@ $form_inactive = empty($_REQUEST['form_inactive']) ? false : true;
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.css" type="text/css">
 <?php endif; ?>
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.easydrag.handler.beta2.js"></script>
-<script type="text/javascript">
-
-$(document).ready(function(){
-
-    // fancy box
-    enable_modals();
-
-    tabbify();
-
-    // special size for
-    $(".iframe_medium").fancybox( {
-        'overlayOpacity' : 0.0,
-        'showCloseButton' : true,
-        'frameHeight' : 450,
-        'frameWidth' : 660
-    });
-
-    $(function(){
-        // add drag and drop functionality to fancybox
-        $("#fancy_outer").easydrag();
-    });
-});
-
-function authorized_clicked() {
- var f = document.forms[0];
- f.calendar.disabled = !f.authorized.checked;
- f.calendar.checked  =  f.authorized.checked;
-}
-
-</script>
 
 </head>
 <body class="body_top">
-
+<?php
+// mdsupport - retaining annoying logic of discarding input and then showing errors
+if (!empty($alertmsg)) {?>
+<div class="alert alert-danger alert-dismissable">
+  <a class="close" data-dismiss="alert" aria-label="close">&times;</a>
+  <h5 id='alert-msg'><?php echo $alertmsg ?></h5>
+</div>
+<?php }?>
 <div class="container">
     <div class="row">
         <div class="col-xs-12">
@@ -441,10 +420,10 @@ function authorized_clicked() {
             </div>
         </div>
     </div>
-    <div class="row">
+    <div id="opt-row-1" class="row">
         <div class="col-xs-12">
             <div class="btn-group">
-                <a href="usergroup_admin_add.php" class="iframe_medium btn btn-default btn-add"><?php xl('Add User', 'e'); ?></a>
+                <a class="btn btn-default btn-add btn-add-user"><?php xl('Add User', 'e'); ?></a>
                 <a href="facility_user.php" class="btn btn-default"><?php xl('View Facility Specific User Information', 'e'); ?></a>
             </div>
             <form name='userlist' method='post' style="display: inline;" class="form-inline" class="pull-right" action='usergroup_admin.php' onsubmit='return top.restoreSession()'>
@@ -472,7 +451,7 @@ function authorized_clicked() {
             }
 
             ?>
-            <table class="table table-striped">
+            <table id='tbl-fbtr' name='tbl-fbtr' class="table table-striped table-hover table-condensed">
                 <thead>
                 <tr>
                     <th><?php xl('Username', 'e'); ?></th>
@@ -500,9 +479,8 @@ function authorized_clicked() {
                             $iter{"authorized"} = "";
                         }
 
-                        print "<tr>
-                            <td><b><a href='user_admin.php?id=" . $iter{"id"} .
-                            "' class='iframe_medium' onclick='top.restoreSession()'>" . $iter{"username"} . "</a></b>" ."&nbsp;</td>
+                        print "<tr data-uid=" . $iter{"id"} .">
+                            <td><b>" . $iter{"username"} . "</b>" ."&nbsp;</td>
                             <td>" . attr($iter{"fname"}) . ' ' . attr($iter{"lname"}) ."&nbsp;</td>
                             <td>" . attr($iter{"info"}) . "&nbsp;</td>
                             <td align='left'><span>" .$iter{"authorized"} . "&nbsp;</td>";
@@ -513,6 +491,9 @@ function authorized_clicked() {
                     ?>
                 </tbody>
             </table>
+            <div style='display: none;' id="div_fbtrans">
+                <iframe id="if_fbtrans" style="width: 100%; height: 0; border:0;"></iframe>
+            </div>
             <?php
             if (empty($GLOBALS['disable_non_default_groups'])) {
                 $res = sqlStatement("select * from groups order by name");
@@ -535,12 +516,54 @@ function authorized_clicked() {
         </div>
     </div>
 </div>
-<script language="JavaScript">
-<?php
-if ($alertmsg = trim($alertmsg)) {
-    echo "alert('$alertmsg');\n";
-}
-?>
-</script>
 </body>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
+<!-- 
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.easydrag.handler.beta2.js"></script>
+ -->
+<script type="text/javascript">
+var md_fbtrans = <?php echo json_encode($md_fbtrans); ?>;
+var md_ifht = window.innerHeight * 0.9;
+function locReload() {
+    location.href = "<?php echo $_SERVER['PHP_SELF'] ?>";
+}
+$('.btn-add-user').on('click', function() {
+    $('#if_fbtrans').data('cancel', md_fbtrans.cancel.fb1);
+    $('#'+md_fbtrans.trig_table).css('display', 'none');
+    if_inline("usergroup_admin_add.php");
+});
+$(document).ready(function(){
+
+    $('#'+md_fbtrans.trig_table +' tbody tr ').addClass('md_fbtrans collapse');
+    $('.collapse').collapse();
+
+});
+$('#if_fbtrans').on('load', function(){
+    var iframe = $(this).contents();
+    iframe.find("form").on('submit', function(){
+        setTimeout(locReload, 2000);
+    });
+    iframe.find($(this).data("cancel")).on("click", function() {
+        locReload();
+    });
+});
+function if_inline(sel_src) {
+    $('#'+md_fbtrans.trig_table).find('[onclick]').removeAttr('href onclick');
+    $("#opt-row-1").css('display', 'none');
+    $(".md_fbtrans.collapse").collapse('toggle');
+    $('#if_fbtrans').css('height', md_ifht);
+    $('#if_fbtrans').attr('src', sel_src);
+    $('#div_fbtrans').css('display', 'block');
+    $('#'+md_fbtrans.trig_table).addClass('alert alert-warning');
+    // $('#if_fbtrans').easydrag();
+}
+$('#'+md_fbtrans.trig_table +' tbody tr').on("click", function() {
+    $(this).removeClass('collapse');
+    $('#'+md_fbtrans.trig_table +' tbody tr').unbind('click');
+    $('#if_fbtrans').data('cancel', md_fbtrans.cancel.fb1);
+    if_inline('user_admin.php?id=' + $(this).data('uid'));
+});
+</script>
 </html>

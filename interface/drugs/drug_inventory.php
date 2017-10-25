@@ -1,18 +1,18 @@
 <?php
- // Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+// Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
 
- require_once("../globals.php");
- require_once("$srcdir/acl.inc");
- require_once("drugs.inc.php");
- require_once("$srcdir/options.inc.php");
+require_once("../globals.php");
+require_once("$srcdir/acl.inc");
+require_once("drugs.inc.php");
+require_once("$srcdir/options.inc.php");
 
- // Check authorization.
- $thisauth = acl_check('admin', 'drugs');
+// Check authorization.
+$thisauth = acl_check('admin', 'drugs');
 if (!$thisauth) {
     die(xlt('Not authorized'));
 }
@@ -20,31 +20,31 @@ if (!$thisauth) {
 // For each sorting option, specify the ORDER BY argument.
 //
 $ORDERHASH = array(
-  'prod' => 'd.name, d.drug_id, di.expiration, di.lot_number',
-  'ndc'  => 'd.ndc_number, d.name, d.drug_id, di.expiration, di.lot_number',
-  'form' => 'lof.title, d.name, d.drug_id, di.expiration, di.lot_number',
-  'lot'  => 'di.lot_number, d.name, d.drug_id, di.expiration',
-  'wh'   => 'lo.title, d.name, d.drug_id, di.expiration, di.lot_number',
-  'qoh'  => 'di.on_hand, d.name, d.drug_id, di.expiration, di.lot_number',
-  'exp'  => 'di.expiration, d.name, d.drug_id, di.lot_number',
+    'prod' => 'd.name, d.drug_id, di.expiration, di.lot_number',
+    'ndc'  => 'd.ndc_number, d.name, d.drug_id, di.expiration, di.lot_number',
+    'form' => 'lof.title, d.name, d.drug_id, di.expiration, di.lot_number',
+    'lot'  => 'di.lot_number, d.name, d.drug_id, di.expiration',
+    'wh'   => 'lo.title, d.name, d.drug_id, di.expiration, di.lot_number',
+    'qoh'  => 'di.on_hand, d.name, d.drug_id, di.expiration, di.lot_number',
+    'exp'  => 'di.expiration, d.name, d.drug_id, di.lot_number',
 );
 
 // Get the order hash array value and key for this request.
 $form_orderby = $ORDERHASH[$_REQUEST['form_orderby']] ? $_REQUEST['form_orderby'] : 'prod';
 $orderby = $ORDERHASH[$form_orderby];
 
- // get drugs
- $res = sqlStatement("SELECT d.*, " .
-  "di.inventory_id, di.lot_number, di.expiration, di.manufacturer, " .
-  "di.on_hand, lo.title " .
-  "FROM drugs AS d " .
-  "LEFT JOIN drug_inventory AS di ON di.drug_id = d.drug_id " .
-  "AND di.destroy_date IS NULL " .
-  "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
-  "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
-  "LEFT JOIN list_options AS lof ON lof.list_id = 'drug_form' AND " .
-  "lof.option_id = d.form AND lof.activity = 1 " .
-  "ORDER BY $orderby");
+// get drugs
+$res = sqlStatement("SELECT d.*, " .
+    "di.inventory_id, di.lot_number, di.expiration, di.manufacturer, " .
+    "di.on_hand, lo.title " .
+    "FROM drugs AS d " .
+    "LEFT JOIN drug_inventory AS di ON di.drug_id = d.drug_id " .
+    "AND di.destroy_date IS NULL " .
+    "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
+    "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
+    "LEFT JOIN list_options AS lof ON lof.list_id = 'drug_form' AND " .
+    "lof.option_id = d.form AND lof.activity = 1 " .
+    "ORDER BY d.active DESC, $orderby");
 ?>
 <html>
 
@@ -69,7 +69,6 @@ table.mymaintable td {
 </style>
 
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 <script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
@@ -97,11 +96,6 @@ function dosort(orderby) {
  f.submit();
  return false;
 }
-
-$(document).ready(function() {
-  oeFixedHeaderSetup(document.getElementById('mymaintable'));
-});
-
 </script>
 
 </head>
@@ -184,7 +178,7 @@ while ($row = sqlFetchArray($res)) {
         ++$encount;
         $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
         $lastid = $row['drug_id'];
-        echo " <tr class='detail' bgcolor='$bgcolor'>\n";
+        echo " <tr data-drug=".attr($lastid)." class='detail' bgcolor='$bgcolor'>\n";
         echo "  <td onclick='dodclick(".attr($lastid).")'>" .
         "<a href='' onclick='return false'>" .
         text($row['name']) . "</a></td>\n";
@@ -200,7 +194,7 @@ while ($row = sqlFetchArray($res)) {
         echo "  <td onclick='doiclick(".attr($lastid).",0)' title='" . xla('Add new lot and transaction') . "'>" .
         "<a href='' onclick='return false'>" . xlt('New') . "</a></td>\n";
     } else {
-        echo " <tr class='detail' bgcolor='$bgcolor'>\n";
+        echo " <tr data-drug=".attr($lastid)." class='detail' bgcolor='$bgcolor'>\n";
         echo "  <td colspan='7'>&nbsp;</td>\n";
     }
 
@@ -221,11 +215,70 @@ while ($row = sqlFetchArray($res)) {
 </table>
 
 <center><p>
- <input type='button' value='<?php echo xla('Add Drug'); ?>' onclick='dodclick(0)' />
+ <input id='btnDrugAdd' type='button' value='<?php echo xla('Add Drug'); ?>' onclick='dodclick(0)' />
 </p></center>
 
 <input type="hidden" name="form_orderby" value="<?php echo attr($form_orderby) ?>" />
 
 </form>
+<div style='display: none;' id="div_fbtrans">
+    <iframe id="if_fbtrans" style="width: 100%; height: 0; border:0;"></iframe>
+</div>
 </body>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
+<?php
+// mdsupport - inline fancybox transition
+$md_fbtrans = array(
+    'trig_table' => 'mymaintable',
+    'cancel' => array(
+        'dodclick' => '#btnCancel',
+        'doiclick' => '#btnCancel',
+),
+);
+?>
+<script type="text/javascript">
+var md_fbtrans = <?php echo json_encode($md_fbtrans); ?>;
+var md_ifht = window.innerHeight * 0.9;
+$(document).ready(function () {
+    oeFixedHeaderSetup(document.getElementById('mymaintable'));
+
+    $('#'+md_fbtrans.trig_table +' tbody tr ').addClass('md_fbtrans collapse');
+    $('.collapse').collapse();
+});
+$('#if_fbtrans').on('load', function(){
+    var iframe = $(this).contents();
+
+    iframe.find("form").on('submit', function(){
+        setTimeout(refreshme, 2000);
+    });
+
+    iframe.find($(this).data("cancel")).on("click", function() {
+        refreshme();
+    });
+ });
+function if_inline(sel_src) {
+    $('#'+md_fbtrans.trig_table).find('[onclick]').removeAttr('href onclick');
+    $("#btnDrugAdd").css('display', 'none');
+    $(".md_fbtrans.collapse").collapse('toggle');
+    $('#if_fbtrans').css('height', md_ifht);
+    $('#if_fbtrans').attr('src', sel_src);
+    $('#div_fbtrans').css('display', 'block');
+}
+// Edit drug properties.
+function dodclick(id) {
+//  Substitute actions for - dlgopen('add_edit_drug.php?drug=' + id, '_blank', 725, 475);
+    $('tr[data-drug="'+id+'"]').removeClass('collapse');
+    $('#if_fbtrans').data('cancel', md_fbtrans.cancel.dodclick);
+    if_inline('add_edit_drug.php?drug=' + id);
+}
+
+//Add/Edit lots.
+function doiclick(id, lot) {
+//  Substitute actions for - dlgopen('add_edit_lot.php?drug=' + id + '&lot=' + lot, '_blank', 600, 475);
+    $('tr[data-drug="'+id+'"]').removeClass('collapse');
+    $('#if_fbtrans').data('cancel', md_fbtrans.cancel.doiclick);
+    if_inline('add_edit_lot.php?drug=' + id + '&lot=' + lot);
+}
+</script>
 </html>
