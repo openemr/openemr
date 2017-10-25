@@ -50,13 +50,13 @@ CREATE TABLE `amc_misc_data` (
 DROP TABLE IF EXISTS `amendments`;
 CREATE TABLE IF NOT EXISTS `amendments` (
   `amendment_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Amendment ID',
-  `amendment_date` date	NOT NULL COMMENT 'Amendement request date',
+  `amendment_date` date NOT NULL COMMENT 'Amendement request date',
   `amendment_by` varchar(50) NOT NULL COMMENT 'Amendment requested from',
   `amendment_status` varchar(50) NULL COMMENT 'Amendment status accepted/rejected/null',
   `pid` int(11) NOT NULL COMMENT 'Patient ID from patient_data',
   `amendment_desc` text COMMENT 'Amendment Details',
   `created_by` int(11) NOT NULL COMMENT 'references users.id for session owner',
-  `modified_by`	int(11) NULL COMMENT 'references users.id for session owner',
+  `modified_by` int(11) NULL COMMENT 'references users.id for session owner',
   `created_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'created time',
   `modified_time` timestamp NULL COMMENT 'modified time',
   PRIMARY KEY amendments_id(`amendment_id`),
@@ -151,6 +151,9 @@ CREATE TABLE `background_services` (
 INSERT INTO `background_services` (`name`, `title`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('ccdaservice', 'C-CDA Node Service', 1, 'runCheck', '/ccdaservice/ssmanager.php', 95),
 ('phimail', 'phiMail Direct Messaging Service', 5, 'phimail_check', '/library/direct_message_check.inc', 100);
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
+('MedEx', 'MedEx Messaging Service', 0, 0, '2017-05-09 17:39:10', 0, 'start_MedEx', '/library/MedEx/medex_background.php', 100);
+
 -----------------------------------------------------------
 
 --
@@ -886,7 +889,7 @@ CREATE TABLE `documents` (
   `path_depth` TINYINT DEFAULT '1' COMMENT 'Depth of path to use in url to find document. Not applicable for CouchDB.',
   `imported` TINYINT DEFAULT 0 NULL COMMENT 'Parsing status for CCR/CCD/CCDA importing',
   `encounter_id` bigint(20) NOT NULL DEFAULT '0' COMMENT 'Encounter id if tagged',
-  `encounter_check`	TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'If encounter is created while tagging',
+  `encounter_check` TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'If encounter is created while tagging',
   `audit_master_approval_status` TINYINT NOT NULL DEFAULT 1 COMMENT 'approval_status from audit_master table',
   `audit_master_id` int(11) default NULL,
   `documentationOf` varchar(255) DEFAULT NULL,
@@ -3575,6 +3578,10 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, to
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('apptstat','$'       ,'$ Coding done'       ,60,0,'C0FF96|0');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('apptstat','%'       ,'% Canceled < 24h'    ,65,0,'BFBFBF|0');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('apptstat','^'       ,'^ Pending'           ,70,0,'FEFDCF|0');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, activity) VALUES ('apptstat','AVM'     ,'AVM Confirmed'       ,80,0,'F0FFE8|0',1);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, activity) VALUES ('apptstat','SMS'     ,'SMS Confirmed'       ,85,0,'F0FFE8|0',1);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, activity) VALUES ('apptstat','EMAIL'   ,'EMAIL Confimed'      ,90,0,'FFEBE3|0',1);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, activity) VALUES ('apptstat','CALL'    ,'Callback requested'  ,95,0,'FFDBE2|5',1);
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'    ,'warehouse','Warehouses',21,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('warehouse','onsite'   ,'On Site'   , 5,0);
@@ -10010,9 +10017,9 @@ CREATE TABLE `therapy_groups_participant_attendance` (
 
 DROP TABLE IF EXISTS `therapy_groups_counselors`;
 CREATE TABLE `therapy_groups_counselors`(
-	`group_id` int(11) NOT NULL,
-	`user_id` int(11) NOT NULL,
-	PRIMARY KEY (`group_id`,`user_id`)
+    `group_id` int(11) NOT NULL,
+    `user_id` int(11) NOT NULL,
+    PRIMARY KEY (`group_id`,`user_id`)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `form_groups_encounter`;
@@ -10048,14 +10055,14 @@ CREATE TABLE `form_groups_encounter` (
 
 DROP TABLE IF EXISTS `form_therapy_groups_attendance`;
 CREATE TABLE `form_therapy_groups_attendance` (
-  id	bigint(20) auto_increment,
-  date	date,
-  group_id	int(11),
-  user	varchar(255),
-  groupname	varchar(255),
-  authorized	tinyint(4),
-  encounter_id	int(11),
-  activity	tinyint(4),
+  id    bigint(20) auto_increment,
+  date  date,
+  group_id  int(11),
+  user  varchar(255),
+  groupname varchar(255),
+  authorized    tinyint(4),
+  encounter_id  int(11),
+  activity  tinyint(4),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB ;
 
@@ -10065,4 +10072,130 @@ CREATE TABLE `patient_birthday_alert` (
   `user_id` bigint(20) NOT NULL DEFAULT 0,
   `turned_off_on` date NOT NULL,
   PRIMARY KEY  (`pid`,`user_id`)
+) ENGINE=InnoDB;
+
+--
+-- Table structure for table `medex_icons`
+--
+
+CREATE TABLE IF NOT EXISTS `medex_icons` (
+  `i_UID` int(11) NOT NULL AUTO_INCREMENT,
+  `msg_type` varchar(50) NOT NULL,
+  `msg_status` varchar(10) NOT NULL,
+  `i_description` varchar(255),
+  `i_html` text,
+  `i_blob` longtext,
+  PRIMARY KEY (`i_UID`)
+) ENGINE=InnoDB;
+
+--
+-- Dumping data for table `medex_icons`
+--
+
+INSERT INTO `medex_icons` (`i_UID`, `msg_type`, `msg_status`, `i_description`, `i_html`, `i_blob`) VALUES
+(1, 'SMS', 'ALLOWED', '', '<i title="SMS is possible." class="fa fa-commenting-o fa-fw"></i>', ''),
+(2, 'SMS', 'NotAllowed', '', '<span class="fa-stack" title="SMS not possible"><i class="fa fa-commenting-o fa-stack-1x fa-fw"></i><i class="fa fa-ban fa-stack-2x text-danger"></i></span>', ''),
+(3, 'SMS', 'SCHEDULED', '', '<span class="btn scheduled" title="SMS scheduled"><i class="fa fa-commenting-o fa-fw"></i></span>', ''),
+(4, 'SMS', 'SENT', '', '<span class="btn" title="SMS Sent - in process" style="padding:5px;background-color:yellow;color:black;"><i class="fa fa-commenting-o fa-fw"></i></span>', ''),
+(5, 'SMS', 'READ', '', '<span class="btn" title="SMS Delivered - waiting for response" aria-label="SMS Delivered" style="padding:5px;background-color:#146abd;"><i class="fa fa-commenting-o fa-inverse fa-flip-horizontal fa-fw" aria-hidden="true"></i></span>', ''),
+(6, 'SMS', 'FAILED', '', '<span class="btn" title="SMS Failed to be delivered" style="padding:5px;background-color:#ffc4c4;color:#000;"><i class="fa fa-commenting-o fa-fw"></i></span>', ''),
+(7, 'SMS', 'CONFIRMED', '', '<span class="btn" title="Confirmed by SMS" style="padding:5px;background-color:green;"><i class="fa fa-commenting-o fa-inverse fa-fw"></i></span>', ''),
+(8, 'SMS', 'CALL', '', '<span class="btn btn-success" style="padding:5px;background-color: red;" title="Patient requests Office Call">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', ''),
+(9, 'SMS', 'EXTRA', '', '<span class="btn" title="EXTRA" style="padding:5px;background-color:#000;color:#fff;"><i class="fa fa-terminal fa-fw"></i></span>', ''),
+(10, 'SMS', 'STOP', '', '<span class="btn btn-danger" title="OptOut of SMS Messaging. Demographics updated." aria-label=\'Optout SMS\'><i class="fa fa-commenting" aria-hidden="true"> STOP</i></span>', ''),
+(11, 'AVM', 'ALLOWED', '', '<span title="Automated Voice Messages are possible" class="fa fa-phone fa-fw"></span>', ''),
+(12, 'AVM', 'NotAllowed', '', '<span class="fa-stack" title="Automated Voice Messages are not allowed"><i class="fa fa-phone fa-fw fa-stack-1x"></i><i class="fa fa-ban fa-stack-2x text-danger"></i></span>', ''),
+(13, 'AVM', 'SCHEDULED', '', '<span class="btn scheduled" title="AVM scheduled"><i class="fa fa-phone fa-fw"></i></span>', ''),
+(14, 'AVM', 'SENT', '', '<span class="btn" title="AVM in process, no response" style="padding:5px;background-color:yellow;color:black;"><i class="fa fa-volume-control-phone fa-fw"></i></span>', ''),
+(15, 'AVM', 'FAILED', '', '<span class="btn" title="AVM: Failed.  Check patient\'s phone numbers." style="padding:5px;background-color:#ffc4c4;color:#000;"><i class="fa fa-phone fa-fw"></i></span>', ''),
+(16, 'AVM', 'CONFIRMED', '', '<span class="btn" title="Confirmed by AVM" style="padding:5px;background-color:green;"><i class="fa fa-phone fa-inverse fa-fw"></i></span>', ''),
+(17, 'AVM', 'CALL', '', '<span class="btn btn-success" style="padding:5px;background-color: red;" title="Patient requests Office Call">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', ''),
+(18, 'AVM', 'Other', '', '<span class="fa-stack fa-lg"><i class="fa fa-square fa-stack-2x"></i><i class="fa fa-terminal fa-fw fa-stack-1x fa-inverse"></i></span>', ''),
+(19, 'AVM', 'STOP', '', '<span class="btn btn-danger" title="OptOut of Voice Messaging. Demographics updated." aria-label="Optout AVM"><i class="fa fa-phone" aria-hidden="true"> STOP</i></span>', ''),
+(20, 'EMAIL', 'ALLOWED', '', '<span title="EMAIL is possible" class="fa fa-envelope-o fa-fw"></span>', ''),
+(21, 'EMAIL', 'NotAllowed', '', '<span class="fa-stack" title="EMAIL is not possible"><i class="fa fa-envelope-o fa-fw fa-stack-1x"></i><i class="fa fa-ban fa-stack-2x text-danger"></i></span>', ''),
+(22, 'EMAIL', 'SCHEDULED', '', '<span class="btn scheduled" title="EMAIL scheduled"><i class="fa fa-envelope-o fa-fw"></i></span>', ''),
+(23, 'EMAIL', 'SENT', '', '<span class="btn" style="padding:5px;background-color:yellow;color:black;" title="EMAIL Message sent, not opened"><i class="fa fa-envelope-o fa-fw"></i></span>', ''),
+(24, 'EMAIL', 'READ', '', '<a class="btn" style="padding:5px;background-color:#146abd;" title="E-Mail was read/opened by patient" aria-label="Confirmed via email"><i class="fa fa-envelope-o fa-inverse fa-fw" aria-hidden="true"></i></a>', ''),
+(25, 'EMAIL', 'FAILED', '', '<span class="btn" title="EMAIL: Failed.  Check patient\'s email address." style="padding:5px;background-color:#ffc4c4;color:#000;"><i class="fa fa-envelope-o fa-fw"></i></span>', ''),
+(26, 'EMAIL', 'CONFIRMED', '', '<a class="btn btn-success" style="padding:5px;background-color: green;" title="Confirmed by E-Mail" aria-label="Confirmed via email"><i class="fa fa-envelope-o fa-fw" aria-hidden="true"></i></a>', ''),
+(27, 'EMAIL', 'CALL', '', '<span class="btn btn-success" style="padding:5px;background-color: red;" title="Patient requests Office Call">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', ''),
+(28, 'EMAIL', 'Other', '', '<span class="fa-stack fa-lg"><i class="fa fa-square fa-stack-2x"></i><i class="fa fa-terminal fa-fw fa-stack-1x fa-inverse fa-fw"></i></span>', ''),
+(29, 'EMAIL', 'STOP', '', '<span class="btn btn-danger" title="OptOut of EMAIL Messaging. Demographics updated." aria-label="Optout EMAIL"><i class="fa fa-envelope-o" aria-hidden="true"> STOP</i></span>', ''),
+(30, 'POSTCARD', 'SENT', '', '<span class="btn" title="Postcard Sent - in process" style="padding:5px;background-color:yellow;color:black"><i class="fa fa-image fa-fw"></i></span>', ''),
+(31, 'POSTCARD', 'READ', '', '<a class="btn" style="padding:5px;background-color:#146abd;" title="e-Postcard was delivered" aria-label="Postcard Delivered"><i class="fa fa-image fa-fw" aria-hidden="true"></i></a>', ''),
+(32, 'POSTCARD', 'FAILED', '', '<span class="fa-stack fa-lg" title="Delivery Failure - check Address for this patient"><i class="fa fa-image fa-fw fa-stack-1x"></i><i class="fa fa-ban fa-stack-2x text-danger"></i></span>', ''),
+(33, 'POSTCARD', 'SCHEDULED', '', '<span class="btn scheduled" title="Postcard Campaign Event is scheduled."><i class="fa fa-image fa-fw"></i></span>', ''),
+(36, 'AVM', 'READ', '', '<span class="btn" title="AVM completed - waiting for manual response" aria-label="AVM Delivered" style="padding:5px;background-color:#146abd;"><i class="fa fa-inverse fa-phone fa-fw" aria-hidden="true"></i></span>', ''),
+(37, 'SMS', 'CALLED', '', '<span class="btn btn-success" style="padding:5px;background-color:#146abd;" title="Patient requests Office Call: COMPLETED">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', ''),
+(38, 'AVM', 'CALLED', '', '<span class="btn btn-success" style="padding:5px;background-color:#146abd;" title="Patient requests Office Call: COMPLETED">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', ''),
+(39, 'EMAIL', 'CALLED', '', '<span class="btn btn-success" style="padding:5px;background-color:#146abd;" title="Patient requests Office Call: COMPLETED">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', '');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `medex_outgoing`
+--
+
+CREATE TABLE IF NOT EXISTS `medex_outgoing` (
+  `msg_uid` int(11) NOT NULL AUTO_INCREMENT,
+  `msg_pid` int(11) NOT NULL,
+  `msg_pc_eid` varchar(11) NOT NULL,
+  `campaign_uid` int(11) NOT NULL DEFAULT '0',
+  `msg_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `msg_type` varchar(50) NOT NULL,
+  `msg_reply` varchar(50) DEFAULT NULL,
+  `msg_extra_text` text,
+  `medex_uid` varchar(11),
+  PRIMARY KEY (`msg_uid`),
+  UNIQUE KEY `msg_eid` (`msg_uid`,`msg_pc_eid`)
+) ENGINE=InnoDB;
+
+--
+-- Dumping data for table `medex_outgoing`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `medex_prefs`
+--
+
+CREATE TABLE IF NOT EXISTS `medex_prefs` (
+  `MedEx_id` int(11) DEFAULT '0',
+  `ME_username` varchar(100) DEFAULT NULL,
+  `ME_api_key` text,
+  `ME_facilities` varchar(50) DEFAULT NULL,
+  `ME_providers` varchar(100) DEFAULT NULL,
+  `ME_hipaa_default_override` varchar(3) DEFAULT NULL,
+  `PHONE_country_code` int(4) NOT NULL DEFAULT '1',
+  `MSGS_default_yes` varchar(3) DEFAULT NULL,
+  `POSTCARDS_local` varchar(3) DEFAULT NULL,
+  `POSTCARDS_remote` varchar(3) DEFAULT NULL,
+  `LABELS_local` varchar(3) DEFAULT NULL,
+  `LABELS_choice` varchar(50) DEFAULT NULL,
+  `combine_time` tinyint(4) DEFAULT NULL,
+  `postcard_top` varchar(255) DEFAULT NULL,
+  `SMS_phone` varchar(25) DEFAULT NULL,
+  UNIQUE KEY `ME_username` (`ME_username`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `medex_recalls`
+--
+
+CREATE TABLE IF NOT EXISTS `medex_recalls` (
+  `r_ID` int(11) NOT NULL AUTO_INCREMENT,
+  `r_PRACTID` int(11) NOT NULL,
+  `r_pid` int(11) NOT NULL COMMENT 'PatientID from pat_data',
+  `r_eventDate` date NOT NULL COMMENT 'Date of Appt or Recall',
+  `r_facility` int(11) NOT NULL,
+  `r_provider` int(11) NOT NULL,
+  `r_reason` varchar(255) DEFAULT NULL,
+  `r_created` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`r_ID`),
+  UNIQUE KEY `r_PRACTID` (`r_PRACTID`,`r_pid`)
 ) ENGINE=InnoDB;

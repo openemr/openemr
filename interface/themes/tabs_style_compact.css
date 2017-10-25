@@ -80,6 +80,8 @@ body
     flex-direction: column;
     margin: 0;
     padding: 0;
+    border-left: 1pt solid black;
+    border-right: 1pt solid black;
 }
 
 #framesDisplay > div > iframe
@@ -304,6 +306,7 @@ div.closeDlgIframe {
     float: left;
     padding:0px 0px;
     white-space: nowrap;
+    text-shadow: 0 1px 0 #f3f3f3;
 }
 .appMenu > span:hover
 {
@@ -388,10 +391,7 @@ div.closeDlgIframe {
 .body_top {
     background-color: #C9DBF2;
     padding:0px;
-    border-bottom:0.1pt solid black;
-    -moz-box-shadow:    0 0 10px #000;
-    -webkit-box-shadow:  0 0 10px #000;
-    box-shadow:          0 0 10px #000;
+    box-shadow:0 0 10px #939393;
     z-index:10;
 }
 .body_title {
