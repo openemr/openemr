@@ -480,7 +480,7 @@ if ($result != "") {
         echo "   $body";
         echo "  </td>\n";
         echo "  <td class='notecell' id='".htmlspecialchars($row_note_id, ENT_QUOTES)."'>\n";
-        echo $iter['message_status'];
+        echo getListItemTitle("message_status", $iter['message_status']);
         echo "  </td>\n";
         echo " </tr>\n";
 
