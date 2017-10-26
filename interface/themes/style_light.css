@@ -715,6 +715,11 @@ a:hover {
 tr.odd, td.even {
   background-color: #ffffff !important;
 }
+/* The top navigation icon styling*/
+.top-nav-icons {
+    margin-right: 15px;
+    margin-top: 5px
+}
 
 /*
  * CSS BUTTONS
@@ -805,9 +810,6 @@ input[type="text"] {
   margin: 3px;
 }
 
-#logout_link:before {
-  content: "X";
-}
 #logout_link span {
   display: none;
 }

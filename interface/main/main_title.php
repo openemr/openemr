@@ -4,18 +4,26 @@
  */
 
 include_once('../globals.php');
+
+use OpenEMR\Core\Header;
+
 ?>
+<!DOCTYPE html>
 <html>
 <head>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader();?>
 <style type="text/css">
-      .hidden {
-        display:none;
-      }
-      .visible{
-        display:block;
-      }
+    .hidden {
+    display:none;
+    }
+    .visible{
+    display:block;
+    }
+    a, a:hover, a:visited{
+    color: black;
+    text-decoration: none;
+    }
 </style>
 
 <script type="text/javascript" language="javascript">
@@ -119,6 +127,13 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
         <a class="text" style='vertical-align:text-bottom;' href="main_title.php" id='showMenuLink' onclick='javascript:showhideMenu();return false;'><?php xl('Hide Menu', 'e'); ?></a></B>
     </td></tr></table>
 
+
+<?php //RP_MODIFIED 2016-05-06
+
+$open_emr_ver = "$v_major.$v_minor.$v_patch";
+$url = "open-emr.org/wiki/index.php/OpenEMR_".$open_emr_ver."_Users_Guide";
+
+?>
 </td>
 <td style="margin:3px 0px 3px 0px;vertical-align:middle;">
         <div style='margin-left:10px; float:left; display:none' id="current_patient_block">
@@ -137,22 +152,42 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 </td>
 
 <td align="right">
-    <table cellspacing="0" cellpadding="1" style="margin:0px 3px 0px 0px;"><tr>
-        <td align="right" class="text" style="vertical-align:text-bottom;"><a id="homeButton" href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home', 'e'); ?></a>
-        &nbsp;|&nbsp;
-        <a  href=""  onclick="return bpopup()" ><?php echo xlt('About'); ?></a>&nbsp;
-        <td align="right" style="vertical-align:top;"><a href="../logout.php" target="_top" class="css_button_small" style='float:right;' id="logout_link" onclick="top.restoreSession()" >
-            <span><?php echo htmlspecialchars(xl('Logout'), ENT_QUOTES) ?></span></a></td>
-    </tr><tr>
-        <td colspan='2' valign="baseline" align='right'><B>
-            <span class="text title_bar_top" title="<?php echo htmlspecialchars(xl('Authorization group') .': '.$_SESSION['authGroup'], ENT_QUOTES); ?>"><?php echo htmlspecialchars($res{"fname"}.' '.$res{"lname"}, ENT_NOQUOTES); ?></span></span></td>
-        </tr></table>
+    <table cellspacing="0" cellpadding="1" style="margin:0px 3px 0px 0px;">
+        <tr>
+            <td align="right" class="text" style="vertical-align:text-bottom;">
+                <a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" title = "<?php xl('Home', 'e'); ?>"><i class='fa fa-home fa-2x top-nav-icons' aria-hidden='true'></i></a>
+                <a href="http://<?php echo $url;?>" target="_blank" id="help_link" title = "<?php xl('Manual', 'e'); ?>"><i class='fa fa-question fa-2x top-nav-icons' aria-hidden='true'></i></a>
+                <a href="" onclick="return bpopup()"  title="<?php echo xlt('About'); ?>"><i class='fa fa-info fa-2x top-nav-icons' aria-hidden='true'></i></a>
+                <a href="" id="user_settings" onclick="userPreference(); return false;" title="<?php echo xla('User Settings')?>"><i class="fa fa-cog fa-2x top-nav-icons" aria-hidden="true"></i></a>
+                <a href="" id="user_password" onclick="changePassword(); return false;" title="<?php echo xla('User Password')?>"><i class="fa fa-unlock-alt fa-2x top-nav-icons" aria-hidden="true"></i></a>
+                <a href="../logout.php" target="_top"  id="logout_link" onclick="top.restoreSession()" title = "<?php echo xla('Logout') ?>"><i class="fa fa-sign-out fa-2x top-nav-icons" aria-hidden="true"></i></a>
+            </td>
+        </tr>
+        <tr>
+            <td colspan='2' valign="baseline" align='right'>
+                <span class="text title_bar_top" title="<?php echo htmlspecialchars(xl('Authorization group') .': '.$_SESSION['authGroup'], ENT_QUOTES); ?>"><a href='main_title.php' onclick="<?php echo $javascript;?>" title=""><?php echo htmlspecialchars($res{"fname"}.' '.$res{"lname"}, ENT_NOQUOTES); ?></a></span>
+            </td>
+        </tr>
+    </table>
 </td>
 </tr>
 </table>
 
 <script type="text/javascript" language="javascript">
 parent.loadedFrameCount += 1;
+
+
+function userPreference() {
+    top.restoreSession();
+    top.frames['RTop'].location='../super/edit_globals.php?mode=user';
+    top.frames['RBot'].location='../main/messages/messages.php?form_active=1';
+}
+function changePassword() {
+    top.restoreSession();
+    top.frames['RTop'].location='../usergroup/user_info.php';
+    top.frames['RBot'].location='messages/messages.php?form_active=1';
+}
+
 </script>
 
 </body>
