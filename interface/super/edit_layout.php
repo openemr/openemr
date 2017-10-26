@@ -1640,9 +1640,9 @@ foreach ($datatypes as $key => $value) {
         {id: 'DO',text:'" . xla('Outline Data Col') . "'},
         {id: 'SP',text:'" . xla('Span Entire Row') . "'}
     ]},
-    {id: '0',text:'" . xla('Read Only') . "'},
 	{id: '1',text:'" . xla('Write Once') . "'},
-	{id: '2',text:'" . xla('Billing Code Descriptions') . "'}];\n";
+	{id: '2',text:'" . xla('Billing Code Descriptions') . "'},
+	{id: '3',text:'" . xla('Read Only') . "'}];\n";
 
 // Language direction for select2
 echo 'var langDirection = "' . $_SESSION['language_direction'] . '";';

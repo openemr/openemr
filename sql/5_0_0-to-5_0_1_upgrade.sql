@@ -661,3 +661,7 @@ DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'lbfnames';
 DELETE FROM list_options WHERE list_id = 'transactions';
 DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'transactions';
 #EndIf
+
+#IfRow2D layout_options source F edit_options %0%
+UPDATE layout_options SET edit_options = REPLACE(edit_options, '0', '3') WHERE edit_options LIKE '%0%';
+#EndIf
