@@ -118,7 +118,7 @@
                 if($GLOBALS['notes_widget'] == 2) { //if using style 2 of notes widget, show receiver
                     echo "<td valign='top' class='text'>".htmlspecialchars($iter['assigned_to'], ENT_NOQUOTES)."</td>\n";
                 }
-                echo "<td valign='top' class='text'>".htmlspecialchars($iter['date'], ENT_NOQUOTES)."</td>\n";
+                echo "<td valign='top' class='text'>".htmlspecialchars(date('Y-m-d H:i', strtotime($iter['date'])), ENT_NOQUOTES)."</td>\n";
                 echo "  <td valign='top' class='text'><b>";
                 echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
                 echo "</b></td>\n";
