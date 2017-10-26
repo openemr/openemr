@@ -125,10 +125,8 @@ width: 98%;
   border-style: ridge;
   padding: 10px;
  }
- label {
-  vertical-align: bottom;
- }
-.divTable{
+ 
+ .divTable{
   display: table;
   float: left;
   font-size: 0.9em;
@@ -175,6 +173,7 @@ width: 98%;
   display: table-row;
   border-radius: 8px;
   background-color: white;
+  text-align:left;
  }
  .divTableCell, .divTableHead {
   border: 0.5px solid #c0c0c0;
