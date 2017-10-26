@@ -746,7 +746,6 @@ CREATE TABLE `medex_prefs` (
   `LABELS_choice` varchar(50) DEFAULT NULL,
   `combine_time` tinyint(4) DEFAULT NULL,
   `postcard_top` varchar(255) DEFAULT NULL,
-  `SMS_phone` varchar(25) DEFAULT NULL,
   `MedEx_lastupdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY `ME_username` (`ME_username`)
 ) ENGINE=InnoDB;
