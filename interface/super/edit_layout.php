@@ -318,6 +318,12 @@ function renameColumn($layout_id, $old_field_id, $new_field_id)
     return 0; // Indicate rename done and successful.
 }
 
+// Test options array for save
+function encodeModifier($jsonArray)
+{
+    return $jsonArray !== null ? json_encode($jsonArray) : "";
+}
+
 // Check authorization.
 $thisauth = acl_check('admin', 'super');
 if (!$thisauth) {
@@ -383,7 +389,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
                 "data_type= '$data_type', "                                .
                 "list_id= '"        . $listval   . "', " .
                 "list_backup_id= '"        . formTrim($iter['list_backup_id'])   . "', " .
-                "edit_options = '"  . json_encode($iter['edit_options']) . "', " .
+                "edit_options = '"  . encodeModifier($iter['edit_options']) . "', " .
                 "default_value = '" . formTrim($iter['default'])   . "', " .
                 "description = '"   . formTrim($iter['desc'])      . "', " .
                 "conditions = '"    . add_escape_custom($conditions) . "', " .
@@ -413,7 +419,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
       ",'" . formTrim($_POST['newtitlecols']) . "'" .
       ",'" . formTrim($_POST['newdatacols']) . "'" .
       ",'$data_type'"                                  .
-        ",'" . json_encode($_POST['newedit_options']) . "'" .
+        ",'" . encodeModifier($_POST['newedit_options']) . "'" .
       ",'" . formTrim($_POST['newdefault']) . "'" .
       ",'" . formTrim($_POST['newdesc']) . "'" .
       ",'"    . formTrim($_POST['newmaxSize'])    . "'"                                 .
@@ -486,7 +492,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
       ",'" . formTrim($_POST['gnewtitlecols']) . "'" .
       ",'" . formTrim($_POST['gnewdatacols']) . "'" .
       ",'$data_type'"                                   .
-        ",'" . json_encode($_POST['gnewedit_options']) . "'" .
+        ",'" . encodeModifier($_POST['gnewedit_options']) . "'" .
       ",'" . formTrim($_POST['gnewdefault']) . "'" .
       ",'" . formTrim($_POST['gnewdesc']) . "'" .
       ",'"    . formTrim($_POST['gnewmaxSize'])    . "'"                                  .
