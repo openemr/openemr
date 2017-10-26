@@ -1,17 +1,22 @@
 <?php
-// Copyright (C) 2008-2015 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
-// This module creates statistical reports related to family planning
-// and sexual and reproductive health.
+/**
+ * This module creates statistical reports related to family planning
+ * and sexual and reproductive health.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2008-2015 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 include_once("../globals.php");
 include_once("../../library/patient.inc");
 include_once("../../library/acl.inc");
+
+use OpenEMR\Services\FacilityService;
 
 // Might want something different here.
 //
@@ -19,7 +24,7 @@ if (! acl_check('acct', 'rep')) {
     die("Unauthorized access.");
 }
 
-$facilityService = new \services\FacilityService();
+$facilityService = new FacilityService();
 
 $report_type = empty($_GET['t']) ? 'i' : $_GET['t'];
 
@@ -1043,18 +1048,21 @@ if ($form_output == 3) {
 <head>
 <?php html_header_show(); ?>
 <title><?php echo $report_title; ?></title>
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+
+<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <style type="text/css">
 body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
 .dehead    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
 .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
 </style>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+
 <script language="JavaScript">
-var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 // Begin experimental code
 
@@ -1088,6 +1096,16 @@ f['form_show[]'].style.visibility = isdis;
 
 // End experimental code
 
+$(document).ready(function() {
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+});
+
 </script>
 </head>
 
@@ -1103,9 +1121,7 @@ action='ippf_statistics.php?t=<?php echo $report_type ?>'>
 <table border='0' cellspacing='5' cellpadding='1'>
 
 <!-- Begin experimental code -->
-<tr<?php if (empty($arr_report)) {
-    echo " style='display:none'";
-} ?>>
+<tr<?php echo (empty($arr_report)) ? " style='display:none'" : ""; ?>>
 <td valign='top' class='dehead' nowrap>
 <?php xl('Report', 'e'); ?>:
 </td>
@@ -1245,17 +1261,11 @@ echo "      </select>\n";
   <tr>
    <td colspan='2' class='detail' nowrap>
     <?php xl('From', 'e'); ?>
-  <input type='text' name='form_from_date' id='form_from_date' size='10' value='<?php echo $from_date ?>'
-     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='Start date yyyy-mm-dd'>
-    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-     id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-   title='<?php xl('Click here to choose a date', 'e'); ?>'>
+  <input type='text' class='datepicker' name='form_from_date' id='form_from_date' size='10' value='<?php echo $from_date ?>'
+     title='Start date yyyy-mm-dd'>
     <?php xl('To', 'e'); ?>
-  <input type='text' name='form_to_date' id='form_to_date' size='10' value='<?php echo $to_date ?>'
-     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='End date yyyy-mm-dd'>
-    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-     id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-   title='<?php xl('Click here to choose a date', 'e'); ?>'>
+  <input type='text' class='datepicker' name='form_to_date' id='form_to_date' size='10' value='<?php echo $to_date ?>'
+     title='End date yyyy-mm-dd'>
    </td>
   </tr>
  </table>
@@ -1702,8 +1712,6 @@ if ($form_output != 3) {
 
 <script language='JavaScript'>
 selreport();
-Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
-Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
 <?php if ($form_output == 2) { ?>
  var win = top.printLogPrint ? top : opener.top;
  win.printLogPrint(window);

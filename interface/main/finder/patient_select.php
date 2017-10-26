@@ -2,20 +2,11 @@
 /**
  * Patient selector screen.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
  * @package OpenEMR
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @author Brady Miller <brady.g.miller@gmail.com>
+ * @copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @link http://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -35,7 +26,7 @@ $from_page = isset($_REQUEST['from_page']) ? $_REQUEST['from_page'] : "";
 <html>
 <head>
 <?php html_header_show();?>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>    
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <style>
@@ -51,11 +42,11 @@ form {
     font-weight: bold;
     padding: 3px;
 }
-#searchResultsHeader { 
+#searchResultsHeader {
     width: 100%;
     background-color: lightgrey;
 }
-#searchResultsHeader table { 
+#searchResultsHeader table {
     width: 96%;  /* not 100% because the 'searchResults' table has a scrollbar */
     border-collapse: collapse;
 }
@@ -96,7 +87,7 @@ form {
 }
 .oneResult { }
 .billing { color: red; font-weight: bold; }
-.highlight { 
+.highlight {
     background-color: #336699;
     color: white;
 }
@@ -151,7 +142,7 @@ if ($popup) {
     $where = "1 = 1";
     $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
-    "ORDER BY group_name, seq");
+    "ORDER BY group_id, seq");
     while ($frow = sqlFetchArray($fres)) {
         $field_id  = $frow['field_id'];
         if (strpos($field_id, 'em_') === 0) {
@@ -192,7 +183,8 @@ if ($popup) {
     }
 
     $sql = "SELECT $given FROM patient_data " .
-    "WHERE $where ORDER BY $orderby LIMIT $fstart, $sqllimit";
+    "WHERE $where ORDER BY $orderby LIMIT " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
+
     $rez = sqlStatement($sql, $sqlBindArray);
     $result = array();
     while ($row = sqlFetchArray($rez)) {
@@ -293,7 +285,7 @@ if ($fend > $count) {
 }
 ?>
 <?php if ($fstart) { ?>
-   <a href="javascript:submitList(-<?php echo $MAXSHOW ?>)">
+   <a href="javascript:submitList(-<?php echo $MAXSHOW; ?>)">
     &lt;&lt;
    </a>
    &nbsp;&nbsp;
@@ -304,7 +296,7 @@ if ($fend > $count) {
     ?>
 <?php if ($count > $fend) { ?>
    &nbsp;&nbsp;
-   <a href="javascript:submitList(<?php echo $MAXSHOW ?>)">
+   <a href="javascript:submitList(<?php echo $MAXSHOW; ?>)">
     &gt;&gt;
    </a>
 <?php } ?>
@@ -332,7 +324,7 @@ if ($fend > $count) {
  </tr>
 </table>
 
-<div id="searchResultsHeader">
+<div id="searchResultsHeader" class="head">
 <table>
 <tr>
 <th class="srName"><?php echo htmlspecialchars(xl('Name'), ENT_NOQUOTES);?></th>
@@ -372,7 +364,7 @@ if (!$popup && preg_match('/^(\d+)\s*(.*)/', $patient, $matches) > 0) {
     "field_id NOT LIKE 'ss' AND " .
     "field_id NOT LIKE 'DOB' AND " .
     "field_id NOT LIKE 'pubpid' " .
-    "ORDER BY group_name, seq LIMIT 5");
+    "ORDER BY group_id, seq LIMIT 5");
     while ($trow = sqlFetchArray($tres)) {
         $extracols[$trow['field_id']] = $trow;
         echo "<th class='srMisc'>" . htmlspecialchars(xl($trow['title']), ENT_NOQUOTES) . "</th>\n";
@@ -418,19 +410,19 @@ if ($result) {
         //end of phone number display setup, now display the phone number(s)
         echo "<td class='srPhone' title='".htmlspecialchars($all_other_phones, ENT_QUOTES)."'>" .
         htmlspecialchars($iter['phone_home'], ENT_NOQUOTES) . "</td>\n";
-        
+
         echo "<td class='srSS'>" . htmlspecialchars($iter['ss'], ENT_NOQUOTES) . "</td>";
         if ($iter{"DOB"} != "0000-00-00 00:00:00") {
             echo "<td class='srDOB'>" . htmlspecialchars($iter['DOB_TS'], ENT_NOQUOTES) . "</td>";
         } else {
             echo "<td class='srDOB'>&nbsp;</td>";
         }
-        
+
         echo "<td class='srID'>" . htmlspecialchars($iter['pubpid'], ENT_NOQUOTES) . "</td>";
 
         if (empty($GLOBALS['patient_search_results_style'])) {
             echo "<td class='srPID'>" . htmlspecialchars($iter['pid'], ENT_NOQUOTES) . "</td>";
-          
+
           //setup for display of encounter date info
             $encounter_count = 0;
             $day_diff = '';

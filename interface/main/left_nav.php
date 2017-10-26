@@ -90,6 +90,7 @@ require_once($GLOBALS['fileroot']."/library/acl.inc");
 require_once($GLOBALS['fileroot']."/custom/code_types.inc.php");
 require_once($GLOBALS['fileroot']."/library/patient.inc");
 require_once($GLOBALS['fileroot']."/library/lists.inc");
+require_once($GLOBALS['fileroot']."/library/registry.inc");
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 require_once $GLOBALS['srcdir'].'/user.inc';
 
@@ -1027,6 +1028,7 @@ $(document).ready(function(){
   if(1 == <?php echo $GLOBALS['menu_styling_vertical'] ?>){
     $("#navigation-slide > li > a.collapsed + ul").slideToggle("medium");
     $("#navigation-slide > li > ul > li > a.collapsed_lv2 + ul").slideToggle("medium");
+    $("#navigation-slide > li > ul > li > ul > li > a.collapsed_lv3 + ul").slideToggle("medium");
     $("#navigation-slide > li > a.expanded").click(function() {
       $("#navigation-slide > li > a.expanded").not(this).toggleClass("expanded").toggleClass("collapsed").parent().find('> ul').slideToggle("medium");
       $(this).toggleClass("expanded").toggleClass("collapsed").parent().find('> ul').slideToggle("medium");
@@ -1039,23 +1041,32 @@ $(document).ready(function(){
       $("#navigation-slide > li > a.expanded").next("ul").find("li > a.expanded_lv2").not(this).toggleClass("expanded_lv2").toggleClass("collapsed_lv2").parent().find('> ul').slideToggle("medium");
       $(this).toggleClass("expanded_lv2").toggleClass("collapsed_lv2").parent().find('> ul').slideToggle("medium");
     });
+    $("#navigation-slide > li  > ul > li  > ul > li > a.expanded_lv3").click(function() {
+      $("#navigation-slide > li > ul > li > a.expanded").next("ul").find("li > a.expanded_lv3").not(this).toggleClass("expanded_lv3").toggleClass("collapsed_lv3").parent().find('> ul').slideToggle("medium");
+      $(this).toggleClass("expanded_lv3").toggleClass("collapsed_lv3").parent().find('> ul').slideToggle("medium");
+    });
     $("#navigation-slide > li  > ul > li > a.collapsed_lv2").click(function() {
       $("#navigation-slide > li > a.expanded").next("ul").find("li > a.expanded_lv2").not(this).toggleClass("expanded_lv2").toggleClass("collapsed_lv2").parent().find('> ul').slideToggle("medium");
       $(this).toggleClass("expanded_lv2").toggleClass("collapsed_lv2").parent().find('> ul').slideToggle("medium");
     });
-    $("#navigation-slide > li  > a#cal0").prepend('<i class="fa fa-fw fa-calendar"></i>&nbsp;');
-    $("#navigation-slide > li  > a#pfb0").prepend('<i class="fa fa-fw fa-list-alt"></i>&nbsp;');
-    $("#navigation-slide > li  > a#msg0").prepend('<i class="fa fa-fw fa-envelope-o"></i>&nbsp;');
-    $("#navigation-slide > li  > a#app0").prepend('<i class="fa fa-fw fa-user"></i>&nbsp;');
-    $("#navigation-slide > li  > a#ppo0").prepend('<i class="fa fa-fw fa-users"></i>&nbsp;');
-    $("#navigation-slide > li  > a#repimg").prepend('<i class="fa fa-fw fa-area-chart"></i>&nbsp;');
-    $("#navigation-slide > li  > a#feeimg").prepend('<i class="fa fa-fw fa-dollar"></i>&nbsp;');
-    $("#navigation-slide > li  > a#adm0").prepend('<i class="fa fa-fw fa-list-ol"></i>&nbsp;');
-    $("#navigation-slide > li  > a#invimg").prepend('<i class="fa fa-fw fa-list-ol"></i>&nbsp;');
-    $("#navigation-slide > li  > a#admimg").prepend('<i class="fa fa-fw fa-cogs"></i>&nbsp;');
-    $("#navigation-slide > li  > a#misimg").prepend('<i class="fa fa-fw fa-cog"></i>&nbsp;');
-    $("#navigation-slide > li  > a#proimg").prepend('<i class="fa fa-fw fa-stethoscope"></i>&nbsp;');
-        $("#navigation-slide > li  > a#modimg").prepend('<i class="fa fa-fw fa-puzzle-piece"></i>&nbsp;');
+    $("#navigation-slide > li  > ul > li  > ul > li > a.collapsed_lv3").click(function() {
+      $("#navigation-slide > li  > ul > li > a.expanded").next("ul").find("li > a.expanded_lv3").not(this).toggleClass("expanded_lv3").toggleClass("collapsed_lv3").parent().find('> ul').slideToggle("medium");
+      $(this).toggleClass("expanded_lv2").toggleClass("collapsed_lv2").parent().find('> ul').slideToggle("medium");
+    });
+    $("#navigation-slide > li  > a#cal0").prepend('<i class="fa fa-fw fa-calendar fa-2x"></i>&nbsp;');
+    $("#navigation-slide > li  > a#pfb0").prepend('<i class="fa fa-fw fa-list-alt fa-2x"></i>&nbsp;');
+    $("#navigation-slide > li  > a#msg0").prepend('<i class="fa fa-fw fa-envelope-o fa-2x"></i>&nbsp;');
+    $("#navigation-slide > li  > a#app0").prepend('<i class="fa fa-fw fa-user fa-2x"></i>&nbsp;');
+    $("#navigation-slide > li  > a#aop0").prepend('<i class="fa fa-fw fa-tachometer fa-2x"></i>&nbsp;');
+    $("#navigation-slide > li  > a#ppo0").prepend('<i class="fa fa-fw fa-users fa-2x"></i>&nbsp;');
+    $("#navigation-slide > li  > a#repimg").prepend('<i class="fa fa-fw fa-area-chart fa-2x"></i>&nbsp;');
+    $("#navigation-slide > li  > a#feeimg").prepend('<i class="fa fa-fw fa-dollar fa-2x"></i>&nbsp;');
+    $("#navigation-slide > li  > a#adm0").prepend('<i class="fa fa-fw fa-list-ol fa-2x"></i>&nbsp;');
+    $("#navigation-slide > li  > a#invimg").prepend('<i class="fa fa-fw fa-list-ol fa-2x"></i>&nbsp;');
+    $("#navigation-slide > li  > a#admimg").prepend('<i class="fa fa-fw fa-cogs fa-2x"></i>&nbsp;');
+    $("#navigation-slide > li  > a#misimg").prepend('<i class="fa fa-fw fa-cog fa-2x"></i>&nbsp;');
+    $("#navigation-slide > li  > a#proimg").prepend('<i class="fa fa-fw fa-stethoscope fa-2x"></i>&nbsp;');
+    $("#navigation-slide > li  > a#modimg").prepend('<i class="fa fa-fw fa-puzzle-piece fa-2x"></i>&nbsp;');
     $("#navigation-slide > li").each(function(index) {
       if($(" > ul > li", this).size() == 0){
         $(" > a", this).addClass("collapsed");
@@ -1066,8 +1077,10 @@ $(document).ready(function(){
     //Remove the links (used by the sliding menu) that will break treeview
     $('a.collapsed').each(function() { $(this).replaceWith('<span>'+$(this).text()+'</span>'); });
     $('a.collapsed_lv2').each(function() { $(this).replaceWith('<span>'+$(this).text()+'</span>'); });
+    $('a.collapsed_lv3').each(function() { $(this).replaceWith('<span>'+$(this).text()+'</span>'); });
     $('a.expanded').each(function() { $(this).replaceWith('<span>'+$(this).text()+'</span>'); });
     $('a.expanded_lv2').each(function() { $(this).replaceWith('<span>'+$(this).text()+'</span>'); });
+    $('a.expanded_lv3').each(function() { $(this).replaceWith('<span>'+$(this).text()+'</span>'); });
 
     // Initiate treeview
     $("#navigation").treeview({
@@ -1143,7 +1156,7 @@ if ($GLOBALS['gbl_portal_cms_enable'] && acl_check('patientportal', 'portal')) {
 }
 ?>
 
-  <li class="open"><a class="expanded" id="patimg" ><i class="fa fa-fw fa-user"></i>&nbsp;<span><?php xl('Patient/Client', 'e') ?></span></a>
+  <li class="open"><a class="collapsed" id="patimg" ><i class="fa fa-fw fa-user fa-2x"></i>&nbsp;<span><?php xl('Patient/Client', 'e') ?></span></a>
     <ul>
         <?php if (acl_check('patients', 'demo')) {
             genMiscLink('RTop', 'fin', '0', xl('Patients'), 'main/finder/dynamic_finder.php');
@@ -1185,65 +1198,44 @@ if ($GLOBALS['gbl_portal_cms_enable'] && acl_check('patientportal', 'portal')) {
 <?php
 // Generate the items for visit forms, both traditional and LBF.
 //
-$lres = sqlStatement("SELECT * FROM list_options " .
-  "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
-while ($lrow = sqlFetchArray($lres)) {
-    $option_id = $lrow['option_id']; // should start with LBF
-    $title = $lrow['title'];
-  // Check ACO attribute, if any, of this LBF.
-    $jobj = json_decode($lrow['notes'], true);
-    if (!empty($jobj['aco'])) {
-        $tmp = explode('|', $jobj['aco']);
-        if (!acl_check($tmp[0], $tmp[1], '', 'write')) {
+$reglastcat = '';
+$regrows = getFormsByCategory(); // defined in registry.inc
+foreach ($regrows as $entry) {
+    $option_id = $entry['directory'];
+    $title = trim($entry['nickname']);
+    if ($option_id == 'fee_sheet') {
+        continue;
+    }
+    if ($option_id == 'newpatient') {
+        continue;
+    }
+    // Check permission to create forms of this type.
+    $tmp = explode('|', $entry['aco_spec']);
+    if (!empty($tmp[1])) {
+        if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly')) {
             continue;
         }
     }
-
+    if (empty($title)) {
+        $title = $entry['name'];
+    }
+    if ($entry['category'] != $reglastcat) {
+        if ($reglastcat) {
+            echo "        </ul></li>\n";
+        }
+        echo "        <li><a class='collapsed_lv3'><span>" . xlt($entry['category']) . "</span></a><ul>\n";
+        $reglastcat = $entry['category'];
+    }
     genMiscLink(
         'RBot',
         'cod',
         '2',
         xl_form_title($title),
-        "patient_file/encounter/load_form.php?formname=$option_id"
+        "patient_file/encounter/load_form.php?formname=" . urlencode($option_id)
     );
 }
-
-//
-include_once("$srcdir/registry.inc");
-$reg = getRegistered();
-if (!empty($reg)) {
-    foreach ($reg as $entry) {
-        $option_id = $entry['directory'];
-        $title = trim($entry['nickname']);
-        if ($option_id == 'fee_sheet') {
-            continue;
-        }
-
-        if ($option_id == 'newpatient') {
-            continue;
-        }
-
-        // Check permission to create forms of this type.
-        $tmp = explode('|', $entry['aco_spec']);
-        if (!empty($tmp[1])) {
-            if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly')) {
-                continue;
-            }
-        }
-
-        if (empty($title)) {
-            $title = $entry['name'];
-        }
-
-        genMiscLink(
-            'RBot',
-            'cod',
-            '2',
-            xl_form_title($title),
-            "patient_file/encounter/load_form.php?formname=" .
-            urlencode($option_id)
-        );
-    }
+if ($reglastcat) {
+    echo "        </ul></li>\n";
 }
 ?>
         </ul>
@@ -1731,26 +1723,41 @@ if (!empty($reg)) {
 
       <li><a class="collapsed_lv2"><span><?php xl('Blank Forms', 'e') ?></span></a>
         <ul>
-            <?php genPopLink(xl('Demographics'), '../patient_file/summary/demographics_print.php'); ?>
-            <?php genPopLink(xl('Superbill/Fee Sheet'), '../patient_file/printed_fee_sheet.php'); ?>
-            <?php genPopLink(xl('Referral'), '../patient_file/transaction/print_referral.php'); ?>
 <?php
-    $lres = sqlStatement("SELECT * FROM list_options " .
-    "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
-    while ($lrow = sqlFetchArray($lres)) {
-        $option_id = $lrow['option_id']; // should start with LBF
-        $title = $lrow['title'];
-        // Check ACO attribute, if any, of this LBF.
-        $jobj = json_decode($lrow['notes'], true);
-        if (!empty($jobj['aco'])) {
-            $tmp = explode('|', $jobj['aco']);
-            if (!acl_check($tmp[0], $tmp[1])) {
-                continue;
-            }
-        }
+    echo "        <li><a class='collapsed_lv3'><span>" . xlt('Core') . "</span></a><ul>\n";
+    genPopLink(xl('Demographics'), '../patient_file/summary/demographics_print.php');
+    genPopLink(xl('Superbill/Fee Sheet'), '../patient_file/printed_fee_sheet.php');
+    // genPopLink(xl('Referral'),'../patient_file/transaction/print_referral.php');
+    echo "        </ul></li>\n";
 
-        genPopLink($title, "../forms/LBF/printable.php?formname=$option_id");
+    // Generate the blank form items for LBF visit forms.
+    //
+    $reglastcat = '';
+    $regrows = getFormsByCategory('1', true); // defined in registry.inc
+foreach ($regrows as $entry) {
+    $option_id = $entry['directory'];
+    $title = trim($entry['nickname']);
+    $tmp = explode('|', $entry['aco_spec']);
+    if (!empty($tmp[1])) {
+        if (!acl_check($tmp[0], $tmp[1])) {
+            continue;
+        }
     }
+    if (empty($title)) {
+        $title = $entry['name'];
+    }
+    if ($entry['category'] != $reglastcat) {
+        if ($reglastcat) {
+            echo "        </ul></li>\n";
+        }
+        echo "        <li><a class='collapsed_lv3'><span>" . xlt($entry['category']) . "</span></a><ul>\n";
+        $reglastcat = $entry['category'];
+    }
+    genPopLink(xl_form_title($title), "../forms/LBF/printable.php?formname=" . urlencode($option_id));
+}
+if ($reglastcat) {
+    echo "        </ul></li>\n";
+}
 ?>
         </ul>
       </li>

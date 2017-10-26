@@ -39,14 +39,12 @@ class C_Prescription extends Controller
         parent::__construct();
 
         $this->template_mod = $template_mod;
-        $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
+        $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("TOP_ACTION", $GLOBALS['webroot']."/controller.php?" . "prescription" . "&");
         $this->assign("STYLE", $GLOBALS['style']);
         $this->assign("WEIGHT_LOSS_CLINIC", $GLOBALS['weight_loss_clinic']);
         $this->assign("SIMPLIFIED_PRESCRIPTIONS", $GLOBALS['simplified_prescriptions']);
         $this->pconfig = $GLOBALS['oer_config']['prescriptions'];
-        $this->assign("CSS_HEADER", $GLOBALS['css_header']);
-        $this->assign("WEB_ROOT", $GLOBALS['webroot']);
         $this->RxList = new RxList();
 
         if ($GLOBALS['inhouse_pharmacy']) {
@@ -76,18 +74,18 @@ class C_Prescription extends Controller
                 }
 
                 $drug_attributes .=    "['"  .
-                    $row['name']       . "',"  . //  0
-                    $row['form']       . ",'"  . //  1
-                    $row['dosage']     . "','" . //  2
-                    $row['size']       . "',"  . //  3
-                    $row['unit']       . ","   . //  4
-                    $row['route']      . ","   . //  5
-                    $row['period']     . ","   . //  6
-                    $row['substitute'] . ","   . //  7
-                    $row['quantity']   . ","   . //  8
-                    $row['refills']    . ","   . //  9
-                    $row['quantity']   . ","   . //  10 quantity per_refill
-                    $row['drug_code']  . "]";    //  11 rxnorm drug code
+                    attr($row['name'])       . "',"  . //  0
+                    attr($row['form'])       . ",'"  . //  1
+                    attr($row['dosage'])     . "','" . //  2
+                    attr($row['size'])       . "',"  . //  3
+                    attr($row['unit'])       . ","   . //  4
+                    attr($row['route'])      . ","   . //  5
+                    attr($row['period'])     . ","   . //  6
+                    attr($row['substitute']) . ","   . //  7
+                    attr($row['quantity'])   . ","   . //  8
+                    attr($row['refills'])    . ","   . //  9
+                    attr($row['quantity'])   . ","   . //  10 quantity per_refill
+                    attr($row['drug_code'])  . "]";    //  11 rxnorm drug code
             }
 
             $this->assign("DRUG_ARRAY_VALUES", $drug_array_values);

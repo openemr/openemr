@@ -55,7 +55,7 @@ A:{visited: #000000;}
 	font-weight: bold;
 }
 
-.alert {
+.alert-custom {
 	font-family: sans-serif;
 	font-size: 70%;
 	color: #FF0000;

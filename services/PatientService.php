@@ -20,7 +20,7 @@
  * @link    http://www.open-emr.org
  */
 
-namespace services;
+namespace OpenEMR\Services;
 
 class PatientService
 {

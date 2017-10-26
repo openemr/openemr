@@ -22,10 +22,20 @@
  *
 **/
 
+// Warning. If you set $allow_cloning_setup to true, this is a potential security vulnerability.
+// Recommend setting it back to false (or removing this setup.php script entirely) after you
+//  are done with the cloning setup procedure.
+$allow_cloning_setup = false;
+if (!$allow_cloning_setup && !empty($_REQUEST['clone_database'])) {
+    die("To turn on support for cloning setup, need to edit this script and change \$allow_cloning_setup to true. After you are done setting up the cloning, ensure you change \$allow_cloning_setup back to false or remove this script altogether");
+}
+
 // Checks if the server's PHP version is compatible with OpenEMR:
 require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
 
-$response = OpenEMR\Checker::checkPhpVersion();
+use OpenEMR\Common\Checker;
+
+$response = Checker::checkPhpVersion();
 if ($response !== true) {
     die($response);
 }
@@ -123,7 +133,7 @@ if (file_exists($OE_SITE_DIR)) {
 <HTML>
 <HEAD>
 <TITLE>OpenEMR Setup Tool</TITLE>
-<LINK REL=STYLESHEET HREF="interface/themes/style_sky_blue.css">
+<LINK REL=STYLESHEET HREF="interface/themes/style_blue.css">
 <link rel="shortcut icon" href="public/images/favicon.ico" />
 
 <style>
@@ -433,7 +443,7 @@ if (($config == 1) && ($state < 4)) {
             }
 
             // Only pertinent if cloning another installation database
-            if (! empty($installer->clone_database)) {
+            if ($allow_cloning_setup && !empty($installer->clone_database)) {
                 echo "Dumping source database...";
                 flush();
                 if (! $installer->create_dumpfiles()) {
@@ -554,7 +564,7 @@ if (($config == 1) && ($state < 4)) {
                 flush();
             }
 
-            if (! empty($installer->clone_database)) {
+            if ($allow_cloning_setup && !empty($installer->clone_database)) {
                 // Database was cloned, skip ACL setup.
                 echo "Click 'continue' for further instructions.";
                 $next_state = 7;
@@ -563,15 +573,18 @@ if (($config == 1) && ($state < 4)) {
                 $next_state = 4;
             }
 
-              echo "
+            echo "
 <FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='$next_state'>
 <INPUT TYPE='HIDDEN' NAME='site' VALUE='$site_id'>\n
 <INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$installer->iuser'>
 <INPUT TYPE='HIDDEN' NAME='iuserpass' VALUE='$installer->iuserpass'>
 <INPUT TYPE='HIDDEN' NAME='iuname' VALUE='$installer->iuname'>
-<INPUT TYPE='HIDDEN' NAME='iufname' VALUE='$installer->iufname'>
-<INPUT TYPE='HIDDEN' NAME='clone_database' VALUE='$installer->clone_database'>
+<INPUT TYPE='HIDDEN' NAME='iufname' VALUE='$installer->iufname'>";
+            if ($allow_cloning_setup) {
+                echo "<INPUT TYPE='HIDDEN' NAME='clone_database' VALUE='$installer->clone_database'>";
+            }
+            echo "
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
 

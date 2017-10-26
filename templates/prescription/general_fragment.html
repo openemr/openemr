@@ -1,14 +1,23 @@
+{**
+ * Prescription General Fragment
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *}
 <table>
   {if empty($prescriptions)}
         <tr class='text'>
-                <td>&nbsp;&nbsp;{xl t='None'}</td>
+                <td>&nbsp;&nbsp;{xl t='None'|escape:'html'}</td>
         </tr>
   {/if}
 	{foreach from=$prescriptions item=prescription}
   {if $prescription->get_active() > 0}
 	<tr class='text'>
-		<td>{$prescription->drug}</td>
-		<td>{$prescription->get_dosage_display()}</td>
+		<td>{$prescription->drug|escape:'html'}</td>
+		<td>{$prescription->get_dosage_display()|escape:'html'}</td>
 	</tr>
   {/if}
 	{/foreach}

@@ -1,25 +1,21 @@
+{**
+* general document list
+*
+* @package   OpenEMR
+* @link      http://www.open-emr.org
+* @author    Brady Miller <brady.g.miller@gmail.com>
+* @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+*}
 <html>
 <head>
-{php}html_header_show();{/php}
-{php}$this->assign('GLOBALS', $GLOBALS);{/php}
-{php}
-$is_new = isset($_GET['patient_name']) ? 1 : false;
-$place_hld = isset($_GET['patient_name']) ? filter_input(INPUT_GET, 'patient_name') : xl("Patient search or select.");
-$cur_pid = isset($_GET['patient_id']) ? filter_input(INPUT_GET, 'patient_id') : '';
-$used_msg = xl('Current patient unavailable here. Use Patient Documents');
-if ($cur_pid == '00' ) {
-    $cur_pid = '0';
-    $is_new = 1;
-}
-$this->assign('is_new', $is_new);
-$this->assign('place_hld', $place_hld);
-$this->assign('cur_pid', $cur_pid);
-$this->assign('used_msg', $used_msg);
-$this->assign('demo_pid', $_SESSION['pid']);
-{/php}
+
+{headerShow}
+
 <link rel="stylesheet" href="{$GLOBALS.css_header}" type="text/css">
 <link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone-4-3-0/dist/dropzone.css">
 <link href="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 {literal}
 <style type="text/css">
 .ui-autocomplete {
@@ -40,8 +36,13 @@ overflow: auto;
 }
 </style>
 {/literal}
-<script type="text/javascript" src="{$WEBROOT}/library/js/DocumentTreeMenu.js"></script>
+<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+<script type="text/javascript" src="{$GLOBALS.webroot}/library/js/DocumentTreeMenu.js"></script>
 <script type="text/javascript" src="{$GLOBALS.assets_static_relative}/dropzone-4-3-0/dist/dropzone.js"></script>
+<script type="text/javascript" src="library/dialog.js?v={$GLOBALS.v_js_includes}"></script>
+<script type="text/javascript" src="library/textformat.js?v={$GLOBALS.v_js_includes}"></script>
+<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script type="text/javascript">
     // dropzone javascript asset translation(s)
@@ -51,37 +52,35 @@ overflow: auto;
 </head>
 <!--<body bgcolor="{$STYLE.BGCOLOR2}">-->
 <!-- ViSolve - Call expandAll function on loading of the page if global value 'expand_document' is set -->
-{php} if ($GLOBALS['expand_document_tree']) {  {/php}
+{if $GLOBALS.expand_document_tree}
   <body class="body_top" onload="javascript:objTreeMenu_1.expandAll();return false;">
-{php} } else { {/php}
+{else}
   <body class="body_top">
-{php} } {/php}
+{/if}
 
 <div id="documents_list">
     <div class="ui-widget"style="float:right;">
         <button id='pid' class="pBtn" type="button" style="float:right;">0</button>
-         <input id="selectPatient" type="text" placeholder="{$place_hld}">
+         <input id="selectPatient" type="text" placeholder="{$place_hld|escape:'html'}">
     </div>
-<a id="list_collapse" href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">&nbsp;({xl t='Collapse all'})</a>
-<div class="title">{xl t='Documents'}</div>
+<a id="list_collapse" href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">&nbsp;({xl t='Collapse all'|escape:'html'})</a>
+<div class="title">{xl t='Documents'|escape:'html'}</div>
 {$tree_html}
 </div>
 <div id="documents_actions">
 		{if $message}
-			<div class='text' style="margin-bottom:-10px; margin-top:-8px"><i>{$message}</i></div><br>
+			<div class='text' style="margin-bottom:-10px; margin-top:-8px"><i>{$message|escape:'html'}</i></div><br>
 		{/if}
 		{if $messages}
-            <div class='text' style="margin-bottom:-10px; margin-top:-8px"><i>{$messages}</i></div><br>
+            <div class='text' style="margin-bottom:-10px; margin-top:-8px"><i>{$messages|escape:'html'}</i></div><br>
 		{/if}
 		{$activity}
 </div>
-<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/jquery-ui.min.js"></script>
 <script type="text/javascript">
-var curpid = "{$cur_pid}";
-var newVersion="{$is_new}";
-var demoPid = "{$demo_pid}";
-var inUseMsg = "{$used_msg}";
+var curpid = "{$cur_pid|escape:'html'}";
+var newVersion="{$is_new|escape:'html'}";
+var demoPid = "{$demo_pid|escape:'html'}";
+var inUseMsg = "{$used_msg|escape:'html'}";
 {literal}
 if(curpid == demoPid && !newVersion){
     $(".ui-widget").hide();
@@ -91,18 +90,18 @@ else{
 }
 $(function() {
     $( "#selectPatient" ).autocomplete({
-    	source: "{/literal}{$WEBROOT}{literal}/library/ajax/document_helpers.php",
+    	source: "{/literal}{$GLOBALS.webroot}{literal}/library/ajax/document_helpers.php",
     	focus: function(event, sel) {
             event.preventDefault();
         },
         select: function(event, sel) {
             event.preventDefault();
-            if (sel.item.value == '00' && ! sel.item.label.match('{/literal}{xl t="Reset"}{literal}')){
+            if (sel.item.value == '00' && ! sel.item.label.match('{/literal}{xl t="Reset"|escape:"html"}{literal}')){
             	alert(inUseMsg);
             	return false;
             }
             $(this).val(sel.item.label);
-            location.href = "{/literal}{$WEBROOT}{literal}/controller.php?document&list&patient_id="+sel.item.value+"&patient_name=" + sel.item.label;
+            location.href = "{/literal}{$GLOBALS.webroot}{literal}/controller.php?document&list&patient_id="+sel.item.value+"&patient_name=" + sel.item.label;
             $("#pid").text(sel.item.value);
         },
         minLength: 0
@@ -115,7 +114,11 @@ $(".pBtn").click(function(event) {
         $input.val('');
 });
 $("#list_collapse").detach().appendTo("#objTreeMenu_1_node_1 nobr");
-{/literal}
+
+$(document).ready(function(){{/literal}
+    {datetimepickerSupport}
+{literal}});{/literal}
+
 </script>
 </body>
 </html>

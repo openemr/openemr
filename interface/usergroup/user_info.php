@@ -1,15 +1,31 @@
 <?php
-include_once("../globals.php");
-include_once("$srcdir/auth.inc");
+/**
+ * User password change tool
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
+ */
+
+require_once("../globals.php");
+require_once("$srcdir/auth.inc");
+
+use OpenEMR\Core\Header;
+
 if ($GLOBALS['use_active_directory']) {
     exit();
 }
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
+<title><?php echo xlt('Change Password'); ?></title>
+
 <script src="checkpwd_validation.js" type="text/javascript"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 
 <script language='JavaScript'>
 //Validating password and display message if password field is empty - starts
@@ -39,10 +55,7 @@ function update_password()
 
 </script>
 </head>
-<body class="body_top">
-
-<span class="title"><?php echo xlt('Password Change'); ?></span>
-<br><br>
+<body class="body_top" onload="document.forms[0].curPass.focus()">
 
 <?php
 
@@ -51,46 +64,66 @@ $res = sqlStatement("select fname,lname,username from users where id=?", array($
 $row = sqlFetchArray($res);
       $iter=$row;
 ?>
-<div id="display_msg">
+<div class="container">
+   <div class="row">
+      <div class="col-xs-12">
+         <div class="page-header">
+            <h3><?php echo xlt('Change Password'); ?></h3>
+         </div>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-xs-12">
+        <div id="display_msg"></div>
+      </div>
+   </div>
+
+  <div class="row">
+     <div class="col-xs-12">
+        <form method='post' action='user_info.php' class='form-horizontal' onsubmit='return update_password()'>
+        <input type=hidden name=secure_pwd value="<?php echo $GLOBALS['secure_password']; ?>">
+        <div class="form-group">
+           <label class='control-label col-sm-2'><?php echo xlt('Full Name') . ":"; ?></label>
+           <div class="col-sm-10">
+           <p class="form-control-static"><?php echo text($iter["fname"]) . " " . text($iter["lname"]) ?></p>
+           </div>
+        </div>
+        <div class="form-group">
+           <label class='control-label col-sm-2'><?php echo xlt('User Name') . ":"; ?></label>
+           <div class="col-sm-10">
+           <p class="form-control-static"><?php echo text($iter["username"]) ?></p>
+           </div>
+        </div>
+        <div class="form-group">
+           <label for='curPass' class='control-label col-sm-2'><?php echo xlt('Current Password') . ":"; ?></label>
+           <div class='col-sm-3'>
+           <input type='password' class='form-control'  name='curPass'  id='curPass' value="" autocomplete='off'>
+           </div>
+        </div>
+        <div class="form-group">
+           <label class='control-label col-sm-2'><?php echo xlt('New Password') . ":"; ?></label>
+           <div class='col-sm-3'>
+           <input type='password' class='form-control' name='newPass'  value="" autocomplete='off'>
+           </div>
+        </div>
+        <div class="form-group">
+           <label class='control-label col-sm-2'><?php echo xlt('Repeat New Password') . ":"; ?></label>
+           <div class='col-sm-3'>
+           <input type='password' class='form-control' name=newPass2  value="" autocomplete='off'>
+           </div>
+        </div>
+        <div class="form-group">
+           <div class='col-sm-offset-2 col-sm-10'>
+              <button type="Submit" class='btn btn-default btn-save'><?php echo xlt('Save Changes'); ?></button>
+           </div>
+        </div>
+        </form>
+     </div>
+  </div>
 </div>
-<br>
-<FORM NAME="user_form" METHOD="POST" ACTION="user_info.php"
- onsubmit="top.restoreSession()">
-<input type=hidden name=secure_pwd value="<?php echo $GLOBALS['secure_password']; ?>">
-<TABLE>
-<TR>
-<TD><span class=text><?php xl('Full Name', 'e'); ?>: </span></TD>
-<TD><span class=text><?php echo htmlspecialchars($iter["fname"] . " " . $iter["lname"], ENT_NOQUOTES); ?></span></td>
-</TR>
 
-<TR>
-<TD><span class=text><?php xl('Username', 'e'); ?>: </span></TD>
-<TD><span class=text><?php echo $iter["username"]; ?></span></td>
-</TR>
-
-<TR>
-<TD><span class=text><?php xl('Current Password', 'e'); ?>: </span></TD>
-<TD><input type=password name=curPass size=20 value="" autocomplete='off'></td>
-</TR>
-
-<TR>
-<TD><span class=text><?php xl('New Password', 'e'); ?>: </span></TD>
-<TD><input type=password name=newPass size=20 value="" autocomplete='off'></td>
-</TR>
-<TR>
-<TD><span class=text><?php xl('Repeat New Password', 'e'); ?>: </span></TD>
-<TD><input type=password name=newPass2 size=20 value="" autocomplete='off'></td>
-</TR>
-
-</TABLE>
-<br>&nbsp;&nbsp;&nbsp;
-<INPUT TYPE="Submit" VALUE=<?php echo xla('Save Changes'); ?> onClick="return update_password()">
-
-</FORM>
-
-<br><br>
-</BODY>
-</HTML>
+</body>
+</html>
 
 <?php
 //  da39a3ee5e6b4b0d3255bfef95601890afd80709 == blank

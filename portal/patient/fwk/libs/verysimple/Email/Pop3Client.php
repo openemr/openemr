@@ -17,7 +17,7 @@ class Pop3Client
     private $mbox;
     private $do_delete = false;
     public static $VERSION = "1.1";
-    function Pop3Client()
+    function __construct()
     {
         if (! function_exists("imap_open")) {
             require_once('PEAR.php');

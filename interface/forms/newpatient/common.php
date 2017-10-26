@@ -22,7 +22,9 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 if ($GLOBALS['enable_group_therapy']) {
     require_once("$srcdir/group.inc");
@@ -272,6 +274,9 @@ if ($viewmode) {
 $facilities = $facilityService->getAllServiceLocations();
 if ($facilities) {
     foreach ($facilities as $iter) {
+        if ($iter['billing_location'] == 1) {
+            $posCode = $iter['pos_code'];
+        }
     ?>
        <option value="<?php echo attr($iter['id']); ?>" <?php if ($def_facility == $iter['id']) {
             echo "selected";
@@ -304,7 +309,7 @@ if ($facilities) {
 
                 foreach ($pc->get_pos_ref() as $pos) {
                     echo "<option value=\"" . attr($pos["code"]) . "\" ";
-                    if ($pos["code"] == $result['pos_code']) {
+                    if ($pos["code"] == $result['pos_code'] || $pos["code"] == $posCode) {
                         echo "selected";
                     }
 

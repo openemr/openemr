@@ -60,6 +60,8 @@
         },
     },
     yearStart: '1900',
+    scrollInput: false,
+    scrollMonth: false,
     rtl: <?php echo ($_SESSION['language_direction'] == 'rtl') ? "true" : "false"; ?>,
     <?php if ($datetimepicker_timepicker) { ?>
         <?php if ($datetimepicker_showseconds) { ?>

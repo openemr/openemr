@@ -13,7 +13,9 @@
 // Checks if the server's PHP version is compatible with OpenEMR:
 require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
 
-$response = OpenEMR\Checker::checkPhpVersion();
+use OpenEMR\Common\Checker;
+
+$response = Checker::checkPhpVersion();
 if ($response !== true) {
     die($response);
 }
@@ -26,7 +28,9 @@ $ignoreAuth = true; // no login required
 require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
 
-$versionService = new \services\VersionService();
+use OpenEMR\Services\VersionService;
+
+$versionService = new VersionService();
 
 // Fetching current version because it was updated by the sql_upgrade_fx
 // script and this script will further modify it.

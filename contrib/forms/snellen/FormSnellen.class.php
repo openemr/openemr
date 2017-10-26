@@ -44,8 +44,10 @@ class FormSnellen extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormSnellen($id = "", $_prefix = "")
+    function __construct($id = "", $_prefix = "")
     {
+        parent::__construct();
+
         if (is_numeric($id)) {
             $this->id = $id;
         } else {
@@ -67,7 +69,7 @@ class FormSnellen extends ORDataObject
         //$this->temp_methods = parent::_load_enum("temp_locations",false);
     }
 
-    function toString($html = false)
+    function __toString()
     {
         $string .= "\n"
             ."ID: " . $this->id . "\n";

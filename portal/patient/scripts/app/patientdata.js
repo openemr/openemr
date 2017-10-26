@@ -79,8 +79,13 @@ var page = {
 		this.collectionView.on('rendered',function(){
 			if(!page.isInitialized){
 				var m = page.patientData.first();
+				m = (m === undefined) ? "" : m;
+				if(m){
+					if(m.get('pid') < 1){
+						m = "";
+					}
+				}
 				page.showDetailForm(m);
-
 			}
 			page.isInitialized = true;
 			page.isInitializing = false;
@@ -97,7 +102,6 @@ var page = {
 		this.modelView.templateEl = $("#patientModelTemplate");
 
 		this.modelView.on('rendered',function(){ // model rendered
-
 			$(function (){
 				$('.jquery-date-picker').datetimepicker({
 					i18n:{
@@ -110,6 +114,8 @@ var page = {
 				    yearStart: datepicker_yearStart,
 				    rtl: datepicker_rtl,
 				    format: datepicker_format,
+				    scrollInput: datepicker_scrollInput,
+				    scrollMonth: datepicker_scrollMonth,
 				    timepicker:false
 	            });
 			});
@@ -146,9 +152,7 @@ var page = {
 								page.patient.get('refProviderid') == item.get( 'id')
 						));/**/
 					});
-					//dd.combobox();
-					//ddd.combobox();
-					//dddd.combobox();
+					
 				if( page.portalpatient.get('pid') ){
 					$("#replaceAllButton").show();
 					page.isEdited = true;
@@ -199,6 +203,8 @@ var page = {
 				    rtl: datetimepicker_rtl,
 				    format: datetimepicker_format,
 				    step: datetimepicker_step,
+				    scrollInput: datepicker_scrollInput,
+				    scrollMonth: datepicker_scrollMonth,
 				    timepicker:true
 				});
 			});
@@ -238,12 +244,6 @@ var page = {
 		$('#'+a+'InputContainer span.help-inline').html('');
 		$('#'+a+'InputContainer span.help-inline').html( '<a class="editval" style="color:red;font-size:16px" onclick="page.revertVal(this); return false;" data-tstate=chart data-id="'+a+'">'+v+'</a>');
 		$('#'+a+'InputContainer span.help-inline').show();
-		/*if( !$("#donePatientButton").is(":visible") ){
-			$("#donePatientButton").show();
-		}
-		if( !$("#savePatientButton").is(":visible") ){
-			$('#savePatientButton').show();
-		}*/
 	},
 	revertVal:function( el ){
 		var a = $(el).data('id');
@@ -387,8 +387,8 @@ var page = {
 
 		app.showProgress('modelLoader');
 
-if( live != 1 )
-	page.patient.urlRoot = 'api/portalpatient';
+		if( live != 1 )
+			page.patient.urlRoot = 'api/portalpatient';
 
 page.patient.save({
 			'title': $('select#title').val(),
@@ -410,15 +410,15 @@ page.patient.save({
 			'phoneBiz': $('input#phoneBiz').val(),
 			'phoneContact': $('input#phoneContact').val(),
 			'phoneCell': $('input#phoneCell').val(),
-			'pharmacyId': $('input#pharmacyId').val(),
+			'pharmacyId': $('input#pharmacyId').val() || 0,
 			'status': $('select#status').val(),
 			'contactRelationship': $('input#contactRelationship').val(),
-			'date': $('input#date').val()+' '+$('input#date-time').val(),
+			'date': $('input#date').val(),
 			'sex': $('select#sex').val(),
 			'referrer': $('input#referrer').val(),
 			'referrerid': $('input#referrerid').val(),
 			'providerid': $('select#providerid').val(),
-			'refProviderid': $('select#refProviderid').val(),
+			'refProviderid': $('select#refProviderid').val() || 0,
 			'email': $('input#email').val(),
 			'emailDirect': $('input#emailDirect').val(),
 			'ethnoracial': $('input#ethnoracial').val(),
@@ -452,12 +452,12 @@ page.patient.save({
 			'allowImmRegUse': $('input[name=allowImmRegUse]:checked').val(),
 			'allowImmInfoShare': $('input[name=allowImmInfoShare]:checked').val(),
 			'allowHealthInfoEx': $('input[name=allowHealthInfoEx]:checked').val(),
-			//'allowPatientPortal': $('input[name=allowPatientPortal]:checked').val(),
+			'allowPatientPortal': $('input[name=allowPatientPortal]:checked').val(),
 			//'deceasedDate': $('input#deceasedDate').val()+' '+$('input#deceasedDate-time').val(),
 			//'deceasedReason': $('input#deceasedReason').val(),
 			'soapImportStatus': $('input#soapImportStatus').val(),
 			//'cmsportalLogin': $('input#cmsportalLogin').val(),
-			'careTeam': $('select#careTeam').val(),
+			'careTeam': $('select#careTeam').val() || 0,
 			'county': $('input#county').val(),
 			'industry': $('textarea#industry').val(),
 			'note': $('textarea#note').val()
@@ -467,10 +467,13 @@ page.patient.save({
 				if( live != 1){
 					setTimeout("app.appendAlert('Patient was sucessfully " + (isNew ? "inserted" : "updated") + "','alert-success',2000,'collectionAlert')",200);
 					setTimeout("window.location.href ='"+webRoot+"/portal/home.php'",2500);
-					}
-				else
+				}
+				else if( live == 1 && register != '0'){ // for testing
+					//alert('Save Success')
+				}
+				else {
 					eModal.close(true)
-
+				}
 				app.hideProgress('modelLoader');
 				if (isNew) {
 					page.renderModelView(false);

@@ -51,6 +51,8 @@
         <delete dir="${dir.vendor}/psr/log/Psr/Log/Test" verbose="true"/>
         <delete dir="${dir.vendor}/rospdf/pdf-php/examples" verbose="true"/>
         <delete dir="${dir.vendor}/smarty/smarty/demo" verbose="true"/>
+        <delete dir="${dir.vendor}/stripe/stripe-php/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/stripe/stripe-php/examples" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/config/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/console/Tester" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/console/Tests" verbose="true"/>
@@ -60,6 +62,7 @@
         <delete dir="${dir.vendor}/symfony/event-dispatcher/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/filesystem/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/http-foundation/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/process/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/yaml/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/twig/twig/doc" verbose="true"/>
         <delete dir="${dir.vendor}/twig/twig/test" verbose="true"/>

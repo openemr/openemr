@@ -6,23 +6,25 @@
  * @package OpenEMR
  * @link    http://www.open-emr.org
  * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author    Sharon Cohen <sharonco@matrix.co.il>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Sharon Cohen <sharonco@matrix.co.il>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
- require_once("../../globals.php");
- require_once("$srcdir/patient.inc");
- require_once("$srcdir/acl.inc");
- require_once("$srcdir/options.inc.php");
- require_once("../history/history.inc.php");
- require_once("$srcdir/edi.inc");
- require_once("$srcdir/invoice_summary.inc.php");
- require_once("$srcdir/clinical_rules.php");
- require_once("$srcdir/options.js.php");
- require_once("$srcdir/group.inc");
- ////////////
- require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
+require_once("../../globals.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/options.inc.php");
+require_once("../history/history.inc.php");
+require_once("$srcdir/edi.inc");
+require_once("$srcdir/invoice_summary.inc.php");
+require_once("$srcdir/clinical_rules.php");
+require_once("$srcdir/options.js.php");
+require_once("$srcdir/group.inc");
+require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
+use OpenEMR\Reminder\BirthdayReminder;
 
 if (isset($_GET['set_pid'])) {
     include_once("$srcdir/pid.inc");
@@ -291,8 +293,8 @@ $(document).ready(function(){
         $(".rx_modal").fancybox( {
                 'overlayOpacity' : 0.0,
                 'showCloseButton' : true,
-                'frameHeight' : 500,
-                'frameWidth' : 800,
+                'frameHeight' : 600,
+                'frameWidth' : 1200,
             'centerOnScroll' : false,
             'callbackOnClose' : function()  {
                 refreshme();
@@ -337,13 +339,15 @@ $(document).ready(function(){
     $("#labdata_ps_expand").load("labdata_fragment.php");
 <?php
 // Initialize for each applicable LBF form.
-$gfres = sqlStatement("SELECT option_id FROM list_options WHERE " .
-"list_id = 'lbfnames' AND option_value > 0 AND activity = 1 ORDER BY seq, title");
-while ($gfrow = sqlFetchArray($gfres)) { ?>
-    $("#<?php echo $gfrow['option_id']; ?>_ps_expand").load("lbf_fragment.php?formname=<?php echo $gfrow['option_id']; ?>");<?php
+$gfres = sqlStatement("SELECT grp_form_id FROM layout_group_properties WHERE " .
+  "grp_form_id LIKE 'LBF%' AND grp_group_id = '' AND grp_repeats > 0 AND grp_activity = 1 " .
+  "ORDER BY grp_seq, grp_title");
+while ($gfrow = sqlFetchArray($gfres)) {
+?>
+    $("#<?php echo attr($gfrow['grp_form_id']); ?>_ps_expand").load("lbf_fragment.php?formname=<?php echo attr($gfrow['grp_form_id']); ?>");
+<?php
 }
 ?>
-
     // fancy box
     enable_modals();
 
@@ -382,16 +386,49 @@ while ($gfrow = sqlFetchArray($gfres)) { ?>
             'centerOnScroll' : false
   });
 
-    <?php if ($active_reminders || $all_allergy_alerts) { ?>
+  function openReminderPopup() {
+      $("#reminder_popup_link").fancybox({
+          'overlayOpacity' : 0.0,
+          'showCloseButton' : true,
+          'frameHeight' : 500,
+          'frameWidth' : 500,
+          'centerOnScroll' : false,
+      }).trigger('click');
+  }
+
+
+<?php if ($GLOBALS['patient_birthday_alert']) {
+    // To display the birthday alert:
+    //  1. The patient is not deceased
+    //  2. The birthday is today (or in the past depending on global selection)
+    //  3. The notification has not been turned off (or shown depending on global selection) for this year
+    $birthdayAlert = new BirthdayReminder($pid, $_SESSION['authId']);
+    if ($birthdayAlert->isDisplayBirthdayAlert()) {
+    ?>
     // show the active reminder modal
-    $("#reminder_popup_link").fancybox({
-      'overlayOpacity' : 0.0,
-      'showCloseButton' : true,
-      'frameHeight' : 500,
-      'frameWidth' : 500,
-      'centerOnScroll' : false
+    $("#birthday_popup").fancybox({
+        'overlayOpacity' : 0.0,
+        'showCloseButton' : true,
+        'frameHeight' : 170,
+        'frameWidth' : 200,
+        'centerOnScroll' : false,
+        'callbackOnClose' : function () {
+            <?php if ($active_reminders || $all_allergy_alerts) { ?>
+                //working only with setTimeout 0, must call openReminderPopup only ofter callbackOnClose is finished (fancybox v1 isn't support multi instances)
+                setTimeout(function () {
+                    openReminderPopup();
+                });
+            <?php }?>
+        }
     }).trigger('click');
-    <?php } ?>
+    <?php } elseif ($active_reminders || $all_allergy_alerts) { ?>
+    openReminderPopup();
+    <?php }?>
+<?php } elseif ($active_reminders || $all_allergy_alerts) { ?>
+    openReminderPopup();
+<?php }?>
+
+
 
 });
 
@@ -454,18 +491,43 @@ $(window).load(function() {
 </script>
 
 <style type="css/text">
+
 #pnotes_ps_expand {
   height:auto;
   width:100%;
 }
+
+<?php
+// This is for layout font size override.
+$grparr = array();
+getLayoutProperties('DEM', $grparr, 'grp_size');
+if (!empty($grparr['']['grp_size'])) {
+    $FONTSIZE = $grparr['']['grp_size'];
+?>
+/* Override font sizes in the theme. */
+#DEM .groupname {
+  font-size: <?php echo attr($FONTSIZE); ?>pt;
+}
+#DEM .label {
+  font-size: <?php echo attr($FONTSIZE); ?>pt;
+}
+#DEM .data {
+  font-size: <?php echo attr($FONTSIZE); ?>pt;
+}
+#DEM .data td {
+  font-size: <?php echo attr($FONTSIZE); ?>pt;
+}
+<?php } ?>
+
 </style>
 
 </head>
 
 <body class="body_top patient-demographics">
 
-<a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='visibility: false;' class='iframe' onclick='top.restoreSession()'></a>
+<a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='display: none;' class='iframe' onclick='top.restoreSession()'></a>
 
+<a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr($pid); ?>&user_id=<?php echo attr($_SESSION['authId']); ?>' id='birthday_popup' style='display: none;' class='iframe' onclick='top.restoreSession()'></a>
 <?php
 $thisauth = acl_check('patients', 'demo');
 if ($thisauth) {
@@ -891,9 +953,11 @@ if ($insurance_count > 0) {
                                 <tr>
                                  <td valign='top' colspan='3'>
                                   <span class='text'>
-                                    <?php if (strcmp($enddate, 'Present') != 0) {
+                                    <?php
+                                    if (strcmp($enddate, 'Present') != 0) {
                                         echo htmlspecialchars(xl("Old"), ENT_NOQUOTES)." ";
-} ?>
+                                    }
+                                    ?>
                                     <?php $tempinstype=ucfirst($instype);
                                     echo htmlspecialchars(xl($tempinstype.' Insurance'), ENT_NOQUOTES); ?>
                                     <?php if (strcmp($row['date'], '0000-00-00') != 0) { ?>
@@ -937,9 +1001,11 @@ if ($insurance_count > 0) {
                                     <?php echo htmlspecialchars(xl('S.S.'), ENT_NOQUOTES); ?>:
                                     <?php echo htmlspecialchars($row['subscriber_ss'], ENT_NOQUOTES); ?><br>
                                     <?php echo htmlspecialchars(xl('D.O.B.'), ENT_NOQUOTES); ?>:
-                                    <?php if ($row['subscriber_DOB'] != "0000-00-00 00:00:00") {
+                                    <?php
+                                    if ($row['subscriber_DOB'] != "0000-00-00 00:00:00") {
                                         echo htmlspecialchars($row['subscriber_DOB'], ENT_NOQUOTES);
-} ?><br>
+                                    }
+                                    ?><br>
                                     <?php echo htmlspecialchars(xl('Phone'), ENT_NOQUOTES); ?>:
                                     <?php echo htmlspecialchars($row['subscriber_phone'], ENT_NOQUOTES); ?>
                                   </span>
@@ -948,14 +1014,16 @@ if ($insurance_count > 0) {
                                   <span class='bold'><?php echo htmlspecialchars(xl('Subscriber Address'), ENT_NOQUOTES); ?>: </span><br>
                                   <span class='text'><?php echo htmlspecialchars($row['subscriber_street'], ENT_NOQUOTES); ?><br>
                                     <?php echo htmlspecialchars($row['subscriber_city'], ENT_NOQUOTES); ?>
-                                    <?php if ($row['subscriber_state'] != "") {
+                                    <?php
+                                    if ($row['subscriber_state'] != "") {
                                         echo ", ";
-}
+                                    }
 
                                     echo htmlspecialchars($row['subscriber_state'], ENT_NOQUOTES); ?>
-                                    <?php if ($row['subscriber_country'] != "") {
+                                    <?php
+                                    if ($row['subscriber_country'] != "") {
                                         echo ", ";
-}
+                                    }
 
                                     echo htmlspecialchars($row['subscriber_country'], ENT_NOQUOTES); ?>
                                     <?php echo " " . htmlspecialchars($row['subscriber_postal_code'], ENT_NOQUOTES); ?></span>
@@ -965,14 +1033,16 @@ if ($insurance_count > 0) {
                                   <span class='text'><?php echo htmlspecialchars($row['subscriber_employer'], ENT_NOQUOTES); ?><br>
                                     <?php echo htmlspecialchars($row['subscriber_employer_street'], ENT_NOQUOTES); ?><br>
                                     <?php echo htmlspecialchars($row['subscriber_employer_city'], ENT_NOQUOTES); ?>
-                                    <?php if ($row['subscriber_employer_city'] != "") {
+                                    <?php
+                                    if ($row['subscriber_employer_city'] != "") {
                                         echo ", ";
-}
+                                    }
 
                                     echo htmlspecialchars($row['subscriber_employer_state'], ENT_NOQUOTES); ?>
-                                    <?php if ($row['subscriber_employer_country'] != "") {
+                                    <?php
+                                    if ($row['subscriber_employer_country'] != "") {
                                         echo ", ";
-}
+                                    }
 
                                     echo htmlspecialchars($row['subscriber_employer_country'], ENT_NOQUOTES); ?>
                                     <?php echo " " . htmlspecialchars($row['subscriber_employer_postal_code'], ENT_NOQUOTES); ?>
@@ -989,12 +1059,16 @@ if ($insurance_count > 0) {
                   <br />
                                 <?php } ?>
                                   <span class='bold'><?php echo htmlspecialchars(xl('Accept Assignment'), ENT_NOQUOTES); ?>:</span>
-                                  <span class='text'><?php if ($row['accept_assignment'] == "TRUE") {
-                                        echo xl("YES");
-} ?>
-                                    <?php if ($row['accept_assignment'] == "FALSE") {
-                                        echo xl("NO");
-} ?></span>
+                                  <span class='text'>
+                                <?php
+                                if ($row['accept_assignment'] == "TRUE") {
+                                    echo xl("YES");
+                                }
+                                if ($row['accept_assignment'] == "FALSE") {
+                                    echo xl("NO");
+                                }
+                                ?>
+                                  </span>
                                 <?php if (!empty($row['policy_type'])) { ?>
                   <br />
                                   <span class='bold'><?php echo htmlspecialchars(xl('Secondary Medicare Type'), ENT_NOQUOTES); ?>: </span>
@@ -1034,7 +1108,7 @@ if ($insurance_count > 0) {
             <td width='650px'>
 <?php
 // Notes expand collapse widget
-$widgetTitle = xl("Notes");
+$widgetTitle = xl("Messages");
 $widgetLabel = "pnotes";
 $widgetButtonLabel = xl("Edit");
 $widgetButtonLink = "pnotes_full.php?form_active=1";
@@ -1236,13 +1310,13 @@ if ($existVitals) {
 // This generates a section similar to Vitals for each LBF form that
 // supports charting.  The form ID is used as the "widget label".
 //
-$gfres = sqlStatement("SELECT option_id, title, notes FROM list_options WHERE " .
-    "list_id = 'lbfnames' AND " .
-    "option_value > 0 AND activity = 1 " .
-    "ORDER BY seq, title");
+$gfres = sqlStatement("SELECT grp_form_id AS option_id, grp_title AS title, grp_aco_spec " .
+  "FROM layout_group_properties WHERE " .
+  "grp_form_id LIKE 'LBF%' AND grp_group_id = '' AND grp_repeats > 0 AND grp_activity = 1 " .
+  "ORDER BY grp_seq, grp_title");
 while ($gfrow = sqlFetchArray($gfres)) {
-    $jobj = json_decode($gfrow['notes'], true);
-    $LBF_ACO = empty($jobj['aco']) ? false : explode('|', $jobj['aco']);
+    // $jobj = json_decode($gfrow['notes'], true);
+    $LBF_ACO = empty($gfrow['grp_aco_spec']) ? false : explode('|', $gfrow['grp_aco_spec']);
     if ($LBF_ACO && !acl_check($LBF_ACO[0], $LBF_ACO[1])) {
         continue;
     } ?>

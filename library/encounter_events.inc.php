@@ -165,7 +165,7 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
     }
 
     $dos = $enc_date ? $enc_date : $today;
-    $visit_reason = $reason ? $reason : 'Please indicate visit reason';
+    $visit_reason = $reason ? $reason : xl('Please indicate visit reason');
     $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", array($_SESSION["authUserID"]));
     $username = $tmprow['username'];
     $facility = $tmprow['facility'];
@@ -224,7 +224,7 @@ function todaysTherapyGroupEncounterCheck($group_id, $enc_date = '', $reason = '
     }
 
     $dos = $enc_date ? $enc_date : $today;
-    $visit_reason = $reason ? $reason : 'Please indicate visit reason';
+    $visit_reason = $reason ? $reason : xl('Please indicate visit reason');
     $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", array($_SESSION["authUserID"]));
     $username = $tmprow['username'];
     $facility = $tmprow['facility'];

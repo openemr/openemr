@@ -35,7 +35,7 @@
  * @link    http://www.open-emr.org
  */
 
-namespace common\logging;
+namespace OpenEMR\Common\Logging;
 
 class Logger
 {

@@ -25,15 +25,16 @@
  */
 
 
-use OpenEMR\Core\Header;
-
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['srcdir'].'/appointments.inc.php');
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Core\Header;
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 $enc_units = $total_units = 0;
 $enc_chg = $total_chg = 0;
@@ -161,8 +162,8 @@ function PrintEncFooter()
     echo "<tr bgcolor='#DDFFFF'>";
     echo "<td colspan='3'>&nbsp;</td>";
     echo "<td class='detail'>". xlt('Encounter Balance').":</td>";
-    echo "<td class='detail' style='text-align: right;'>".text($enc_units)."</td>";
-    echo "<td class='detail' style='text-align: right;'>".text(oeFormatMoney($enc_chg))."</td>";
+    echo "<td class='detail' style='text-align: center;'>".text($enc_units)."</td>";
+    echo "<td class='detail' style='text-align: center;'>".text(oeFormatMoney($enc_chg))."</td>";
     echo "<td class='detail' style='text-align: right;'>".text(oeFormatMoney($enc_pmt))."</td>";
     echo "<td class='detail' style='text-align: right;'>".text(oeFormatMoney($enc_adj))."</td>";
     echo "<td class='detail' style='text-align: right;'>".text(oeFormatMoney($enc_bal))."</td>";
@@ -173,9 +174,13 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
     global $enc_pmt, $total_pmt, $enc_adj, $total_adj, $enc_bal, $total_bal;
     global $bgcolor, $orow, $enc_units, $enc_chg;
     foreach ($detail as $pmt) {
+        $uap_flag = false;
         if ($unassigned) {
             if (($pmt['pay_total'] - $pmt['applied']) == 0) {
-                continue;
+                if (!$GLOBALS['show_payment_history']) {
+                    continue;
+                }
+                $uap_flag = true;
             }
         }
 
@@ -215,7 +220,12 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
 
             $description .= '['.$memo.']';
         }
-
+        if ($uap_flag === true) {
+            if ($description) {
+                $description .= ' ';
+            }
+            $description .= '{Pay History}';
+        }
         $print .= "<td class='detail' colspan='2'>".
                                       text($description)."&nbsp;</td>";
         $payer = ($pmt['name'] == '') ? xl('Patient') : $pmt['name'];
@@ -231,9 +241,9 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
         $print .= "<td class='detail'>".text($type)."&nbsp;</td>";
         if ($unassigned) {
               $pmt_amt = $pmt['pay_total'] - $pmt['applied'];
-              $uac_bal = oeFormatMoney($pmt_amt * -1);
-              $uac_appl = oeFormatMoney($pmt['applied']);
-              $uac_total = oeFormatMoney($pmt['pay_total']);
+              $uac_bal = $pmt_amt * -1;
+              $uac_appl = $pmt['applied'];
+              $uac_total = $pmt['pay_total'];
               $pmt_amt = $pmt['pay_total'];
               $total_pmt = $total_pmt - $uac_bal;
         } else {
@@ -258,10 +268,13 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
             $print_adj = oeFormatMoney($adj_amt);
         }
 
-        $print .= "<td class='detail' style='text-align: right;'>".text($uac_appl)."&nbsp;</td>";
+        $print_appl = $uac_appl ? oeFormatMoney($uac_appl) : "";
+        $print_bal = $uac_bal ? oeFormatMoney($uac_bal) : "";
+
+        $print .= "<td class='detail' style='text-align: center;'>".text($print_appl)."&nbsp;</td>";
         $print .= "<td class='detail' style='text-align: right;'>".text($print_pmt)."&nbsp;</td>";
         $print .= "<td class='detail' style='text-align: right;'>".text($print_adj)."&nbsp;</td>";
-        $print .= "<td class='detail' style='text-align: right;'>".text($uac_bal)."&nbsp;</td>";
+        $print .= "<td class='detail' style='text-align: right;'>".text($print_bal)."&nbsp;</td>";
         $print .= "</tr>\n";
         echo $print;
         if ($pmt['follow_up_note'] != '') {
@@ -750,8 +763,8 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             }
 
             $print .= "<td class='detail'>".text($bill)."&nbsp;/&nbsp;".text($who)."</td>";
-            $print .= "<td class='detail' style='text-align: right;'>". text($erow['units'])."</td>";
-            $print .= "<td class='detail' style='text-align: right;'>". text(oeFormatMoney($erow['fee']))."</td>";
+            $print .= "<td class='detail' style='text-align: center;'>". text($erow['units'])."</td>";
+            $print .= "<td class='detail' style='text-align: center;'>". text(oeFormatMoney($erow['fee']))."</td>";
             $print .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
             $print .= "</tr>\n";
 
@@ -808,8 +821,8 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         echo "<tr bgcolor='#DDFFFF'>\n";
         echo " <td colspan='2'>&nbsp;</td>";
         echo " <td class='bold' colspan='2'>" . xlt("Grand Total") ."</td>\n";
-        echo " <td class='bold' style='text-align: right;'>". text($total_units) ."</td>\n";
-        echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_chg)) ."</td>\n";
+        echo " <td class='bold' style='text-align: center;'>". text($total_units) ."</td>\n";
+        echo " <td class='bold' style='text-align: center;'>". text(oeFormatMoney($total_chg)) ."</td>\n";
         echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_pmt)) ."</td>\n";
         echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_adj)) ."</td>\n";
         echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_bal)) . "</td>\n";

@@ -28,29 +28,9 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
     );
 
     public static $prefixLengthsPsr4 = array (
-        's' => 
-        array (
-            'services\\' => 9,
-        ),
-        'r' => 
-        array (
-            'repositories\\' => 13,
-        ),
         'p' => 
         array (
             'phpseclib\\' => 10,
-        ),
-        'e' => 
-        array (
-            'entities\\' => 9,
-        ),
-        'c' => 
-        array (
-            'common\\utils\\' => 13,
-            'common\\logging\\' => 15,
-            'common\\http\\' => 12,
-            'common\\database\\' => 16,
-            'common\\' => 7,
         ),
         'Z' => 
         array (
@@ -62,6 +42,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
             'Symfony\\Polyfill\\Php54\\' => 23,
             'Symfony\\Polyfill\\Mbstring\\' => 26,
             'Symfony\\Component\\Yaml\\' => 23,
+            'Symfony\\Component\\Process\\' => 26,
             'Symfony\\Component\\HttpFoundation\\' => 33,
             'Symfony\\Component\\Filesystem\\' => 29,
             'Symfony\\Component\\EventDispatcher\\' => 34,
@@ -69,6 +50,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
             'Symfony\\Component\\Debug\\' => 24,
             'Symfony\\Component\\Console\\' => 26,
             'Symfony\\Component\\Config\\' => 25,
+            'Stripe\\' => 7,
         ),
         'P' => 
         array (
@@ -76,12 +58,24 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         ),
         'O' => 
         array (
+            'OpenEMR\\Services\\' => 17,
             'OpenEMR\\Sample\\' => 15,
+            'OpenEMR\\Rx\\Weno\\' => 16,
+            'OpenEMR\\Repositories\\' => 21,
+            'OpenEMR\\Reminder\\' => 17,
+            'OpenEMR\\Pdf\\' => 12,
             'OpenEMR\\Menu\\' => 13,
+            'OpenEMR\\Entities\\' => 17,
             'OpenEMR\\Encounter\\Services\\' => 27,
             'OpenEMR\\Core\\' => 13,
+            'OpenEMR\\Common\\' => 15,
             'OpenEMR\\Calendar\\' => 17,
+            'OpenEMR\\Billing\\' => 16,
             'OpenEMR\\Admin\\' => 14,
+        ),
+        'K' => 
+        array (
+            'Knp\\Snappy\\' => 11,
         ),
         'I' => 
         array (
@@ -103,41 +97,9 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
     );
 
     public static $prefixDirsPsr4 = array (
-        'services\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/services',
-        ),
-        'repositories\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/repositories',
-        ),
         'phpseclib\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib',
-        ),
-        'entities\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/entities',
-        ),
-        'common\\utils\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/common/utils',
-        ),
-        'common\\logging\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/common/logging',
-        ),
-        'common\\http\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/common/http',
-        ),
-        'common\\database\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/common/database',
-        ),
-        'common\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/common',
         ),
         'Zend\\' => 
         array (
@@ -158,6 +120,10 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'Symfony\\Component\\Yaml\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/yaml',
+        ),
+        'Symfony\\Component\\Process\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/process',
         ),
         'Symfony\\Component\\HttpFoundation\\' => 
         array (
@@ -187,17 +153,45 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         array (
             0 => __DIR__ . '/..' . '/symfony/config',
         ),
+        'Stripe\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/stripe/stripe-php/lib',
+        ),
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
+        ),
+        'OpenEMR\\Services\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/services',
         ),
         'OpenEMR\\Sample\\' => 
         array (
             0 => __DIR__ . '/../..' . '/library/sample/src',
         ),
+        'OpenEMR\\Rx\\Weno\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/library/weno/src',
+        ),
+        'OpenEMR\\Repositories\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/repositories',
+        ),
+        'OpenEMR\\Reminder\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/library/reminder/src',
+        ),
+        'OpenEMR\\Pdf\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/library/pdf/src',
+        ),
         'OpenEMR\\Menu\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/library/menu',
+            0 => __DIR__ . '/../..' . '/library/menu/src',
+        ),
+        'OpenEMR\\Entities\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/entities',
         ),
         'OpenEMR\\Encounter\\Services\\' => 
         array (
@@ -207,13 +201,25 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         array (
             0 => __DIR__ . '/../..' . '/library/core/src',
         ),
+        'OpenEMR\\Common\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/common',
+        ),
         'OpenEMR\\Calendar\\' => 
         array (
             0 => __DIR__ . '/../..' . '/library/calendar/src',
         ),
+        'OpenEMR\\Billing\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/library/billing/src',
+        ),
         'OpenEMR\\Admin\\' => 
         array (
             0 => __DIR__ . '/../..' . '/library/admin/src',
+        ),
+        'Knp\\Snappy\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/knplabs/knp-snappy/src/Knp/Snappy',
         ),
         'Illuminate\\Support\\' => 
         array (
@@ -1651,6 +1657,11 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'Installer' => __DIR__ . '/../..' . '/library/classes/Installer.class.php',
         'InsuranceCompany' => __DIR__ . '/../..' . '/library/classes/InsuranceCompany.class.php',
         'InsuranceNumbers' => __DIR__ . '/../..' . '/library/classes/InsuranceNumbers.class.php',
+        'Knp\\Snappy\\AbstractGenerator' => __DIR__ . '/..' . '/knplabs/knp-snappy/src/Knp/Snappy/AbstractGenerator.php',
+        'Knp\\Snappy\\Exception\\FileAlreadyExistsException' => __DIR__ . '/..' . '/knplabs/knp-snappy/src/Knp/Snappy/Exception/FileAlreadyExistsException.php',
+        'Knp\\Snappy\\GeneratorInterface' => __DIR__ . '/..' . '/knplabs/knp-snappy/src/Knp/Snappy/GeneratorInterface.php',
+        'Knp\\Snappy\\Image' => __DIR__ . '/..' . '/knplabs/knp-snappy/src/Knp/Snappy/Image.php',
+        'Knp\\Snappy\\Pdf' => __DIR__ . '/..' . '/knplabs/knp-snappy/src/Knp/Snappy/Pdf.php',
         'MYANMAR' => __DIR__ . '/..' . '/mpdf/mpdf/classes/myanmar.php',
         'MyMailer' => __DIR__ . '/../..' . '/library/classes/postmaster.php',
         'Note' => __DIR__ . '/../..' . '/library/classes/Note.class.php',
@@ -1662,14 +1673,43 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OpenEMR\\Admin\\Controller\\AdminController' => __DIR__ . '/../..' . '/library/admin/src/Controller/AdminController.php',
         'OpenEMR\\Admin\\Event\\MenuEvent' => __DIR__ . '/../..' . '/library/admin/src/Event/MenuEvent.php',
         'OpenEMR\\Admin\\Service\\AdminMenuBuilder' => __DIR__ . '/../..' . '/library/admin/src/Service/AdminMenuBuilder.php',
+        'OpenEMR\\Billing\\Claim' => __DIR__ . '/../..' . '/library/billing/src/Claim.php',
         'OpenEMR\\Calendar\\EventListener\\CalendarSubscriber' => __DIR__ . '/../..' . '/library/calendar/src/EventListener/CalendarSubscriber.php',
+        'OpenEMR\\Common\\Checker' => __DIR__ . '/../..' . '/common/compatibility/Checker.php',
+        'OpenEMR\\Common\\Database\\Auditor' => __DIR__ . '/../..' . '/common/database/Auditor.php',
+        'OpenEMR\\Common\\Database\\Connector' => __DIR__ . '/../..' . '/common/database/Connector.php',
+        'OpenEMR\\Common\\Http\\HttpResponseHelper' => __DIR__ . '/../..' . '/common/http/HttpResponseHelper.php',
+        'OpenEMR\\Common\\Logging\\Logger' => __DIR__ . '/../..' . '/common/logging/Logger.php',
+        'OpenEMR\\Common\\Utils\\QueryUtils' => __DIR__ . '/../..' . '/common/utils/QueryUtils.php',
+        'OpenEMR\\Common\\Utils\\StringUtils' => __DIR__ . '/../..' . '/common/utils/StringUtils.php',
         'OpenEMR\\Core\\Controller' => __DIR__ . '/../..' . '/library/core/src/Controller.php',
         'OpenEMR\\Core\\Header' => __DIR__ . '/../..' . '/library/core/src/Header.php',
         'OpenEMR\\Core\\Kernel' => __DIR__ . '/../..' . '/library/core/src/Kernel.php',
         'OpenEMR\\Encounter\\Services\\ViewHelper' => __DIR__ . '/../..' . '/interface/patient_file/encounter/Services/ViewHelper.php',
-        'OpenEMR\\Menu\\MainMenuRole' => __DIR__ . '/../..' . '/library/menu/MainMenuRole.php',
+        'OpenEMR\\Entities\\ChartTracker' => __DIR__ . '/../..' . '/entities/ChartTracker.php',
+        'OpenEMR\\Entities\\ONote' => __DIR__ . '/../..' . '/entities/ONote.php',
+        'OpenEMR\\Entities\\ProductRegistration' => __DIR__ . '/../..' . '/entities/ProductRegistration.php',
+        'OpenEMR\\Entities\\User' => __DIR__ . '/../..' . '/entities/User.php',
+        'OpenEMR\\Entities\\Version' => __DIR__ . '/../..' . '/entities/Version.php',
+        'OpenEMR\\Menu\\MainMenuRole' => __DIR__ . '/../..' . '/library/menu/src/MainMenuRole.php',
+        'OpenEMR\\Pdf\\PdfCreator' => __DIR__ . '/../..' . '/library/pdf/src/PdfCreator.php',
+        'OpenEMR\\Reminder\\BirthdayReminder' => __DIR__ . '/../..' . '/library/reminder/src/BirthdayReminder.php',
+        'OpenEMR\\Repositories\\ChartTrackerRepository' => __DIR__ . '/../..' . '/repositories/ChartTrackerRepository.php',
+        'OpenEMR\\Repositories\\ONoteRepository' => __DIR__ . '/../..' . '/repositories/ONoteRepository.php',
+        'OpenEMR\\Repositories\\ProductRegistrationRepository' => __DIR__ . '/../..' . '/repositories/ProductRegistrationRepository.php',
+        'OpenEMR\\Repositories\\UserRepository' => __DIR__ . '/../..' . '/repositories/UserRepository.php',
+        'OpenEMR\\Repositories\\VersionRepository' => __DIR__ . '/../..' . '/repositories/VersionRepository.php',
+        'OpenEMR\\Rx\\Weno\\AdminProperties' => __DIR__ . '/../..' . '/library/weno/src/AdminProperties.php',
+        'OpenEMR\\Rx\\Weno\\TransmitData' => __DIR__ . '/../..' . '/library/weno/src/TransmitData.php',
         'OpenEMR\\Sample\\Event\\SampleEvent' => __DIR__ . '/../..' . '/library/sample/src/Event/SampleEvent.php',
         'OpenEMR\\Sample\\Event\\SampleSubscriber' => __DIR__ . '/../..' . '/library/sample/src/Event/SampleSubscriber.php',
+        'OpenEMR\\Services\\ChartTrackerService' => __DIR__ . '/../..' . '/services/ChartTrackerService.php',
+        'OpenEMR\\Services\\FacilityService' => __DIR__ . '/../..' . '/services/FacilityService.php',
+        'OpenEMR\\Services\\ONoteService' => __DIR__ . '/../..' . '/services/ONoteService.php',
+        'OpenEMR\\Services\\PatientService' => __DIR__ . '/../..' . '/services/PatientService.php',
+        'OpenEMR\\Services\\ProductRegistrationService' => __DIR__ . '/../..' . '/services/ProductRegistrationService.php',
+        'OpenEMR\\Services\\UserService' => __DIR__ . '/../..' . '/services/UserService.php',
+        'OpenEMR\\Services\\VersionService' => __DIR__ . '/../..' . '/services/VersionService.php',
         'PDFBarcode' => __DIR__ . '/..' . '/mpdf/mpdf/classes/barcode.php',
         'PDF_Label' => __DIR__ . '/../..' . '/library/classes/PDF_Label.php',
         'PHPExcel' => __DIR__ . '/..' . '/phpoffice/phpexcel/Classes/PHPExcel.php',
@@ -1901,6 +1941,81 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'SessionHandlerInterface' => __DIR__ . '/..' . '/symfony/polyfill-php54/Resources/stubs/SessionHandlerInterface.php',
         'Smarty' => __DIR__ . '/..' . '/smarty/smarty/libs/Smarty.class.php',
         'Smarty_Compiler' => __DIR__ . '/..' . '/smarty/smarty/libs/Smarty_Compiler.class.php',
+        'Stripe\\Account' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Account.php',
+        'Stripe\\AlipayAccount' => __DIR__ . '/..' . '/stripe/stripe-php/lib/AlipayAccount.php',
+        'Stripe\\ApiRequestor' => __DIR__ . '/..' . '/stripe/stripe-php/lib/ApiRequestor.php',
+        'Stripe\\ApiResource' => __DIR__ . '/..' . '/stripe/stripe-php/lib/ApiResource.php',
+        'Stripe\\ApiResponse' => __DIR__ . '/..' . '/stripe/stripe-php/lib/ApiResponse.php',
+        'Stripe\\ApplePayDomain' => __DIR__ . '/..' . '/stripe/stripe-php/lib/ApplePayDomain.php',
+        'Stripe\\ApplicationFee' => __DIR__ . '/..' . '/stripe/stripe-php/lib/ApplicationFee.php',
+        'Stripe\\ApplicationFeeRefund' => __DIR__ . '/..' . '/stripe/stripe-php/lib/ApplicationFeeRefund.php',
+        'Stripe\\AttachedObject' => __DIR__ . '/..' . '/stripe/stripe-php/lib/AttachedObject.php',
+        'Stripe\\Balance' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Balance.php',
+        'Stripe\\BalanceTransaction' => __DIR__ . '/..' . '/stripe/stripe-php/lib/BalanceTransaction.php',
+        'Stripe\\BankAccount' => __DIR__ . '/..' . '/stripe/stripe-php/lib/BankAccount.php',
+        'Stripe\\BitcoinReceiver' => __DIR__ . '/..' . '/stripe/stripe-php/lib/BitcoinReceiver.php',
+        'Stripe\\BitcoinTransaction' => __DIR__ . '/..' . '/stripe/stripe-php/lib/BitcoinTransaction.php',
+        'Stripe\\Card' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Card.php',
+        'Stripe\\Charge' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Charge.php',
+        'Stripe\\Collection' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Collection.php',
+        'Stripe\\CountrySpec' => __DIR__ . '/..' . '/stripe/stripe-php/lib/CountrySpec.php',
+        'Stripe\\Coupon' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Coupon.php',
+        'Stripe\\Customer' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Customer.php',
+        'Stripe\\Dispute' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Dispute.php',
+        'Stripe\\EphemeralKey' => __DIR__ . '/..' . '/stripe/stripe-php/lib/EphemeralKey.php',
+        'Stripe\\Error\\Api' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Error/Api.php',
+        'Stripe\\Error\\ApiConnection' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Error/ApiConnection.php',
+        'Stripe\\Error\\Authentication' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Error/Authentication.php',
+        'Stripe\\Error\\Base' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Error/Base.php',
+        'Stripe\\Error\\Card' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Error/Card.php',
+        'Stripe\\Error\\InvalidRequest' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Error/InvalidRequest.php',
+        'Stripe\\Error\\OAuth\\InvalidClient' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Error/OAuth/InvalidClient.php',
+        'Stripe\\Error\\OAuth\\InvalidGrant' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Error/OAuth/InvalidGrant.php',
+        'Stripe\\Error\\OAuth\\InvalidRequest' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Error/OAuth/InvalidRequest.php',
+        'Stripe\\Error\\OAuth\\InvalidScope' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Error/OAuth/InvalidScope.php',
+        'Stripe\\Error\\OAuth\\OAuthBase' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Error/OAuth/OAuthBase.php',
+        'Stripe\\Error\\OAuth\\UnsupportedGrantType' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Error/OAuth/UnsupportedGrantType.php',
+        'Stripe\\Error\\OAuth\\UnsupportedResponseType' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Error/OAuth/UnsupportedResponseType.php',
+        'Stripe\\Error\\Permission' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Error/Permission.php',
+        'Stripe\\Error\\RateLimit' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Error/RateLimit.php',
+        'Stripe\\Error\\SignatureVerification' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Error/SignatureVerification.php',
+        'Stripe\\Event' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Event.php',
+        'Stripe\\ExternalAccount' => __DIR__ . '/..' . '/stripe/stripe-php/lib/ExternalAccount.php',
+        'Stripe\\FileUpload' => __DIR__ . '/..' . '/stripe/stripe-php/lib/FileUpload.php',
+        'Stripe\\HttpClient\\ClientInterface' => __DIR__ . '/..' . '/stripe/stripe-php/lib/HttpClient/ClientInterface.php',
+        'Stripe\\HttpClient\\CurlClient' => __DIR__ . '/..' . '/stripe/stripe-php/lib/HttpClient/CurlClient.php',
+        'Stripe\\Invoice' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Invoice.php',
+        'Stripe\\InvoiceItem' => __DIR__ . '/..' . '/stripe/stripe-php/lib/InvoiceItem.php',
+        'Stripe\\JsonSerializable' => __DIR__ . '/..' . '/stripe/stripe-php/lib/JsonSerializable.php',
+        'Stripe\\LoginLink' => __DIR__ . '/..' . '/stripe/stripe-php/lib/LoginLink.php',
+        'Stripe\\OAuth' => __DIR__ . '/..' . '/stripe/stripe-php/lib/OAuth.php',
+        'Stripe\\Order' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Order.php',
+        'Stripe\\OrderReturn' => __DIR__ . '/..' . '/stripe/stripe-php/lib/OrderReturn.php',
+        'Stripe\\Payout' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Payout.php',
+        'Stripe\\Plan' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Plan.php',
+        'Stripe\\Product' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Product.php',
+        'Stripe\\Recipient' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Recipient.php',
+        'Stripe\\RecipientTransfer' => __DIR__ . '/..' . '/stripe/stripe-php/lib/RecipientTransfer.php',
+        'Stripe\\Refund' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Refund.php',
+        'Stripe\\SKU' => __DIR__ . '/..' . '/stripe/stripe-php/lib/SKU.php',
+        'Stripe\\SingletonApiResource' => __DIR__ . '/..' . '/stripe/stripe-php/lib/SingletonApiResource.php',
+        'Stripe\\Source' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Source.php',
+        'Stripe\\Stripe' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Stripe.php',
+        'Stripe\\StripeObject' => __DIR__ . '/..' . '/stripe/stripe-php/lib/StripeObject.php',
+        'Stripe\\Subscription' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Subscription.php',
+        'Stripe\\SubscriptionItem' => __DIR__ . '/..' . '/stripe/stripe-php/lib/SubscriptionItem.php',
+        'Stripe\\ThreeDSecure' => __DIR__ . '/..' . '/stripe/stripe-php/lib/ThreeDSecure.php',
+        'Stripe\\Token' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Token.php',
+        'Stripe\\Transfer' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Transfer.php',
+        'Stripe\\TransferReversal' => __DIR__ . '/..' . '/stripe/stripe-php/lib/TransferReversal.php',
+        'Stripe\\Util\\AutoPagingIterator' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Util/AutoPagingIterator.php',
+        'Stripe\\Util\\DefaultLogger' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Util/DefaultLogger.php',
+        'Stripe\\Util\\LoggerInterface' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Util/LoggerInterface.php',
+        'Stripe\\Util\\RequestOptions' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Util/RequestOptions.php',
+        'Stripe\\Util\\Set' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Util/Set.php',
+        'Stripe\\Util\\Util' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Util/Util.php',
+        'Stripe\\Webhook' => __DIR__ . '/..' . '/stripe/stripe-php/lib/Webhook.php',
+        'Stripe\\WebhookSignature' => __DIR__ . '/..' . '/stripe/stripe-php/lib/WebhookSignature.php',
         'Svg\\DefaultStyle' => __DIR__ . '/..' . '/phenx/php-svg-lib/src/Svg/DefaultStyle.php',
         'Svg\\Document' => __DIR__ . '/..' . '/phenx/php-svg-lib/src/Svg/Document.php',
         'Svg\\Style' => __DIR__ . '/..' . '/phenx/php-svg-lib/src/Svg/Style.php',
@@ -2242,6 +2357,23 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'Symfony\\Component\\HttpFoundation\\Session\\Storage\\Proxy\\SessionHandlerProxy' => __DIR__ . '/..' . '/symfony/http-foundation/Session/Storage/Proxy/SessionHandlerProxy.php',
         'Symfony\\Component\\HttpFoundation\\Session\\Storage\\SessionStorageInterface' => __DIR__ . '/..' . '/symfony/http-foundation/Session/Storage/SessionStorageInterface.php',
         'Symfony\\Component\\HttpFoundation\\StreamedResponse' => __DIR__ . '/..' . '/symfony/http-foundation/StreamedResponse.php',
+        'Symfony\\Component\\Process\\Exception\\ExceptionInterface' => __DIR__ . '/..' . '/symfony/process/Exception/ExceptionInterface.php',
+        'Symfony\\Component\\Process\\Exception\\InvalidArgumentException' => __DIR__ . '/..' . '/symfony/process/Exception/InvalidArgumentException.php',
+        'Symfony\\Component\\Process\\Exception\\LogicException' => __DIR__ . '/..' . '/symfony/process/Exception/LogicException.php',
+        'Symfony\\Component\\Process\\Exception\\ProcessFailedException' => __DIR__ . '/..' . '/symfony/process/Exception/ProcessFailedException.php',
+        'Symfony\\Component\\Process\\Exception\\ProcessTimedOutException' => __DIR__ . '/..' . '/symfony/process/Exception/ProcessTimedOutException.php',
+        'Symfony\\Component\\Process\\Exception\\RuntimeException' => __DIR__ . '/..' . '/symfony/process/Exception/RuntimeException.php',
+        'Symfony\\Component\\Process\\ExecutableFinder' => __DIR__ . '/..' . '/symfony/process/ExecutableFinder.php',
+        'Symfony\\Component\\Process\\InputStream' => __DIR__ . '/..' . '/symfony/process/InputStream.php',
+        'Symfony\\Component\\Process\\PhpExecutableFinder' => __DIR__ . '/..' . '/symfony/process/PhpExecutableFinder.php',
+        'Symfony\\Component\\Process\\PhpProcess' => __DIR__ . '/..' . '/symfony/process/PhpProcess.php',
+        'Symfony\\Component\\Process\\Pipes\\AbstractPipes' => __DIR__ . '/..' . '/symfony/process/Pipes/AbstractPipes.php',
+        'Symfony\\Component\\Process\\Pipes\\PipesInterface' => __DIR__ . '/..' . '/symfony/process/Pipes/PipesInterface.php',
+        'Symfony\\Component\\Process\\Pipes\\UnixPipes' => __DIR__ . '/..' . '/symfony/process/Pipes/UnixPipes.php',
+        'Symfony\\Component\\Process\\Pipes\\WindowsPipes' => __DIR__ . '/..' . '/symfony/process/Pipes/WindowsPipes.php',
+        'Symfony\\Component\\Process\\Process' => __DIR__ . '/..' . '/symfony/process/Process.php',
+        'Symfony\\Component\\Process\\ProcessBuilder' => __DIR__ . '/..' . '/symfony/process/ProcessBuilder.php',
+        'Symfony\\Component\\Process\\ProcessUtils' => __DIR__ . '/..' . '/symfony/process/ProcessUtils.php',
         'Symfony\\Component\\Yaml\\Dumper' => __DIR__ . '/..' . '/symfony/yaml/Dumper.php',
         'Symfony\\Component\\Yaml\\Escaper' => __DIR__ . '/..' . '/symfony/yaml/Escaper.php',
         'Symfony\\Component\\Yaml\\Exception\\DumpException' => __DIR__ . '/..' . '/symfony/yaml/Exception/DumpException.php',
@@ -4637,20 +4769,9 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'Zend\\XmlRpc\\Value\\Struct' => __DIR__ . '/..' . '/zendframework/zendframework/library/Zend/XmlRpc/Value/Struct.php',
         'Zend\\XmlRpc\\Value\\Text' => __DIR__ . '/..' . '/zendframework/zendframework/library/Zend/XmlRpc/Value/Text.php',
         'bmp' => __DIR__ . '/..' . '/mpdf/mpdf/classes/bmp.php',
-        'common\\database\\Auditor' => __DIR__ . '/../..' . '/common/database/Auditor.php',
-        'common\\database\\Connector' => __DIR__ . '/../..' . '/common/database/Connector.php',
-        'common\\http\\HttpResponseHelper' => __DIR__ . '/../..' . '/common/http/HttpResponseHelper.php',
-        'common\\logging\\Logger' => __DIR__ . '/../..' . '/common/logging/Logger.php',
-        'common\\utils\\QueryUtils' => __DIR__ . '/../..' . '/common/utils/QueryUtils.php',
-        'common\\utils\\StringUtils' => __DIR__ . '/../..' . '/common/utils/StringUtils.php',
         'cssmgr' => __DIR__ . '/..' . '/mpdf/mpdf/classes/cssmgr.php',
         'directw' => __DIR__ . '/..' . '/mpdf/mpdf/classes/directw.php',
         'eFPDF' => __DIR__ . '/../..' . '/library/classes/PDF_Label.php',
-        'entities\\ChartTracker' => __DIR__ . '/../..' . '/entities/ChartTracker.php',
-        'entities\\ONote' => __DIR__ . '/../..' . '/entities/ONote.php',
-        'entities\\ProductRegistration' => __DIR__ . '/../..' . '/entities/ProductRegistration.php',
-        'entities\\User' => __DIR__ . '/../..' . '/entities/User.php',
-        'entities\\Version' => __DIR__ . '/../..' . '/entities/Version.php',
         'fpdi_pdf_parser' => __DIR__ . '/..' . '/setasign/fpdi/fpdi_pdf_parser.php',
         'grad' => __DIR__ . '/..' . '/mpdf/mpdf/classes/grad.php',
         'html2text' => __DIR__ . '/../..' . '/library/classes/html2text.class.php',
@@ -4685,18 +4806,6 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'phpseclib\\Net\\SSH2' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Net/SSH2.php',
         'phpseclib\\System\\SSH\\Agent' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/System/SSH/Agent.php',
         'phpseclib\\System\\SSH\\Agent\\Identity' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/System/SSH/Agent/Identity.php',
-        'repositories\\ChartTrackerRepository' => __DIR__ . '/../..' . '/repositories/ChartTrackerRepository.php',
-        'repositories\\ONoteRepository' => __DIR__ . '/../..' . '/repositories/ONoteRepository.php',
-        'repositories\\ProductRegistrationRepository' => __DIR__ . '/../..' . '/repositories/ProductRegistrationRepository.php',
-        'repositories\\UserRepository' => __DIR__ . '/../..' . '/repositories/UserRepository.php',
-        'repositories\\VersionRepository' => __DIR__ . '/../..' . '/repositories/VersionRepository.php',
-        'services\\ChartTrackerService' => __DIR__ . '/../..' . '/services/ChartTrackerService.php',
-        'services\\FacilityService' => __DIR__ . '/../..' . '/services/FacilityService.php',
-        'services\\ONoteService' => __DIR__ . '/../..' . '/services/ONoteService.php',
-        'services\\PatientService' => __DIR__ . '/../..' . '/services/PatientService.php',
-        'services\\ProductRegistrationService' => __DIR__ . '/../..' . '/services/ProductRegistrationService.php',
-        'services\\UserService' => __DIR__ . '/../..' . '/services/UserService.php',
-        'services\\VersionService' => __DIR__ . '/../..' . '/services/VersionService.php',
         'tocontents' => __DIR__ . '/..' . '/mpdf/mpdf/classes/tocontents.php',
         'wmf' => __DIR__ . '/..' . '/mpdf/mpdf/classes/wmf.php',
     );

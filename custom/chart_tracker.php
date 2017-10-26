@@ -1,27 +1,19 @@
 <?php
 /**
+ * The Chart Tracker feature facilitates the old traditional paper charts updates.
  * This feature requires a new list:
  * <pre>
  *   INSERT INTO list_options VALUES ('lists','chartloc','Chart Storage Locations',51,0,0);
  * </pre>
  *
- * Copyright (C) 2008-2012 Rod Roark <rod@sunsetsystems.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
  * @package OpenEMR
+ * @link    http://www.open-emr.org
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @author  Roberto Vasquez <robertogagliotta@gmail.com>
+ * @Copyright (C) 2008-2012 Rod Roark <rod@sunsetsystems.com>
+ * @Copyright (C) 2011-2017 Brady Miller <brady.g.miller@gmail.com>
+ * @Copyright (C) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
  */
 
 
@@ -30,6 +22,11 @@
 require_once("../interface/globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
+
+use OpenEMR\Core\Header;
+use OpenEMR\Entities\ChartTracker;
+use OpenEMR\Services\ChartTrackerService;
+use OpenEMR\Services\UserService;
 
 $form_newid   = isset($_POST['form_newid'  ]) ? trim($_POST['form_newid'  ]) : '';
 $form_curpid  = isset($_POST['form_curpid' ]) ? trim($_POST['form_curpid' ]) : '';
@@ -46,7 +43,7 @@ if ($form_newuser) {
 <html>
 
 <head>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<?php Header::setupHeader(); ?>
 <title><?php echo xlt('Chart Tracker'); ?></title>
 
 <script language="JavaScript">
@@ -72,27 +69,30 @@ function userSelect() {
 </head>
 
 <body class="body_top">
+<div class="container">
 
-<?php
-echo "<span class='title'>" . xlt('Chart Tracker') . "</span>\n";
-?>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="page-header">
+                <h1><?php echo xlt('Chart Tracker'); ?></h1>
+            </div>
+         </div>
+    </div>
 
-<center>
-&nbsp;<br />
-<form method='post' action='chart_tracker.php' onsubmit='return top.restoreSession()'>
+<form method='post' action='chart_tracker.php' class='form-horizontal' onsubmit='return top.restoreSession()'>
 
 <?php
 // This is the place for status messages.
 
 if ($form_newloc || $form_newuser) {
-    $tracker = new \entities\ChartTracker();
+    $tracker = new ChartTracker();
     $tracker->setPid($form_curpid);
     $tracker->setWhen(new \DateTime(date('Y-m-d H:i:s')));
     $tracker->setUserId($form_newuser);
     $tracker->setLocation($form_newloc);
-    $chartTrackerService = new \services\ChartTrackerService();
+    $chartTrackerService = new ChartTrackerService();
     $chartTrackerService->trackPatientLocation($tracker);
-    echo "<font color='green'>" . xlt('Save Successful for chart ID') . " " . "'" . text($form_curid) . "'.</font><br />";
+    echo "<div class='alert alert-success'>" . xlt('Save Successful for chart ID') . " " . "'" . text($form_curid) . "'.</div>";
 }
 
 $row = array();
@@ -107,16 +107,14 @@ if ($form_newid) {
     "ORDER BY pd.pid ASC, ct.ct_when DESC LIMIT 1";
     $row = sqlQuery($query, array($form_newid));
     if (empty($row)) {
-        echo "<font color='red'>" . xlt('Chart ID') . " " . "'" . text($form_newid) . "' " . xlt('not found') . "!</font><br />";
+        echo "<div class='alert alert-danger'>" . xlt('Chart ID') . " " . "'" . text($form_newid) . "' " . xlt('not found') . "!</div>";
     }
 }
 ?>
 
-<table>
-
 <?php
 if (!empty($row)) {
-    $userService = new \services\UserService();
+    $userService = new UserService();
     $ct_userid   = $row['ct_userid'];
     $ct_location = $row['ct_location'];
     $current_location = xlt('Unassigned');
@@ -126,89 +124,93 @@ if (!empty($row)) {
     } else if ($ct_location) {
         $current_location = generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'), $ct_location);
     }
-
-    echo " <tr>\n";
-    echo "  <td class='bold'>" . xlt('Patient ID') . ":</td>\n";
-    echo "  <td class='text'>" . text($row['pubpid']) .
-       "<input type='hidden' name='form_curpid' value='" . attr($row['pid']) . "' />" .
-       "<input type='hidden' name='form_curid' value='" . attr($row['pubpid']) . "' /></td>\n";
-    echo " </tr>\n";
-
-    echo " <tr>\n";
-    echo "  <td class='bold'>" . xlt('Name') . ":</td>\n";
-    echo "  <td class='text'>" . text($row['lname'] . ", " . $row['fname'] . " " . $row['mname']) . "</td>\n";
-    echo " </tr>\n";
-
-    echo " <tr>\n";
-    echo "  <td class='bold'>" . xlt('DOB') . ":</td>\n";
-    echo "  <td class='text'>" . text($row['DOB']) . "</td>\n";
-    echo " </tr>\n";
-
-    echo " <tr>\n";
-    echo "  <td class='bold'>" . xlt('SSN') . ":</td>\n";
-    echo "  <td class='text'>" . text($row['ss']) . "</td>\n";
-    echo " </tr>\n";
-
-    echo " <tr>\n";
-    echo "  <td class='bold'>" . xlt('Current Location') . ":</td>\n";
-  // Note that $current_location has already been html escaped
-    echo "  <td class='text'>$current_location</td>\n";
-    echo " </tr>\n";
-
-    echo " <tr>\n";
-    echo "  <td class='bold'>" . xlt('Check In To') . ":</td>\n";
-    echo " <td class='text'>";
-    generate_form_field(array('data_type'=>1,'field_id'=>'newloc','list_id'=>'chartloc','empty_title'=>''), '');
-    echo " </td>\n";
-    echo " </tr>\n";
-
-    echo " <tr>\n";
-    echo "  <td class='bold'>" . xlt('Or Out To') . ":</td>\n";
-    echo "  <td class='text'><select name='form_newuser' onchange='userSelect()'>\n";
-    echo "   <option value=''></option>";
-
-    $users = $userService->getActiveUsers();
-
-    foreach ($users as $activeUser) {
-        echo "    <option value='" . attr($activeUser->getId()) . "'";
-        echo ">" . text($activeUser->getLname()) . ', ' . text($activeUser->getFname()) . ' ' . text($activeUser->getMname()) .
-        "</option>\n";
-    }
-
-    echo "  </select></td>\n";
-    echo " </tr>\n";
-
-    echo " <tr>\n";
-    echo "  <td>&nbsp;</td>\n";
-    echo "  <td class='text'><input type='submit' name='form_save' value='" . xlt('Save') . "' /></td>\n";
-    echo " </tr>\n";
-
-    echo " <tr>\n";
-    echo "  <td class='text' colspan='2'>&nbsp;</td>\n";
-    echo " </tr>\n";
-}
 ?>
 
- <tr>
-  <td class='bold'>
-    <?php echo xlt('New Patient ID'); ?>: &nbsp;
-  </td>
-  <td class='text'>
-   <input type='text' name='form_newid' size='10' value=''
-    class='inputtext' title='<?php echo xla("Type or scan the patient identifier here") ?>' />
-  </td>
- </tr>
+    <div class="row">
+        <div class="col-sm-6 well">
+            <div class="form-group">
+                <label for="form_pat_id" class='control-label col-sm-3'><?php echo xlt('Patient ID') . ":"; ?></label>
+                <div class='col-sm-9'>
+                    <p class="form-control-static"><?php echo text($row['pid']) ?></p>
+                    <input type='hidden' name='form_curpid' value='<?php echo attr($row['pid']); ?>'  />
+                    <input type='hidden' name='form_curid' value='<?php echo attr($row['pubpid']); ?>' />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="form_pat_id" class='control-label col-sm-3'><?php echo xlt('Name') . ":"; ?></label>
+                <div class='col-sm-9'>
+                    <p class="form-control-static"><?php echo text($row['lname'] . ", " . $row['fname'] . " " . $row['mname']) ?></p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="form_pat_id" class='control-label col-sm-3'><?php echo xlt('DOB') . ":"; ?></label>
+                <div class='col-sm-9'>
+                    <p class="form-control-static"><?php echo text($row['DOB']) ?></p>
+                </div>
+              </div>
+            <div class="form-group">
+                <label for="form_pat_id" class='control-label col-sm-3'><?php echo xlt('SSN') . ":"; ?></label>
+                <div class='col-sm-9'>
+                    <p class="form-control-static"><?php echo text($row['ss']) ?></p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="form_pat_id" class='control-label col-sm-3'><?php echo xlt('Current Location') . ":"; ?></label>
+                <div class='col-sm-9'>
+                    <p class="form-control-static"><?php echo text($current_location) ?></p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="form_curr_loc" class='control-label col-sm-3'><?php echo xlt('Check In To') . ":"; ?></label>
+                <div class='col-sm-9'>
+                    <?php generate_form_field(array('data_type'=>1,'field_id'=>'newloc','list_id'=>'chartloc','empty_title'=>''), ''); ?>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="form_out_to" class='control-label col-sm-3'><?php echo xlt('Our Out To') . ":"; ?></label>
+                <div class='col-sm-9'>
+                    <select name='form_newuser' class='form-control' onchange='userSelect()'>
+                        <option value=''></option>
+                        <?php
+                        $users = $userService->getActiveUsers();
 
- <tr>
-  <td class='bold'>&nbsp;</td>
-  <td class='text'>
-   <input type='submit' class='button' name='form_lookup' value='<?php echo xla("Look Up"); ?>' />
-  </td>
- </tr>
+                        foreach ($users as $activeUser) {
+                            echo "    <option value='" . attr($activeUser->getId()) . "'";
+                            echo ">" . text($activeUser->getLname()) . ', ' . text($activeUser->getFname()) . ' ' . text($activeUser->getMname()) .
+                            "</option>\n";
+                        }
+                        ?>
+                    </select>
+                </div>
+            </div>
+        <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-9">
+                    <button type='submit' class='btn btn-default btn-save' name='form_save'><?php echo xlt("Save"); ?></button>
+            </div>
+        </div>
+    </div>
 
-</table>
 
+<?php
+}
+?>
+    <div class="row">
+        <div class="col-sm-6 well">
+            <div class="form-group">
+                <label for='form_newid' class='control-label col-sm-3'><?php echo xlt('New Patient ID') . ":"; ?></label>
+                <div class='col-sm-9'>
+                   <input type='text' name='form_newid' id='form_newid' class='form-control' title='<?php echo xla('Type or scan the patient identifier here'); ?>'>
+                </div>
+            </div>
+            <div class="form-group">
+            <div class='col-sm-offset-3 col-sm-9'>
+                <button type='submit' class='btn btn-default btn-search' name='form_lookup'><?php echo xlt("Look Up"); ?></button>
+            </div>
+        </div>
+    </div>
 </form>
-</center>
+
+</div>
+
 </body>
 </html>

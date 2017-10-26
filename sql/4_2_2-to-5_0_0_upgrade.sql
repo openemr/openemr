@@ -127,6 +127,7 @@ ALTER TABLE `procedure_order_code` MODIFY `procedure_order_seq` int(11) NOT NULL
 ALTER TABLE `procedure_order_code` ENGINE="InnoDB";
 #EndIf
 
+
 --
 -- Other tables do not need special treatment before conversion to InnoDB.
 -- Warning: running this query can take a long time.

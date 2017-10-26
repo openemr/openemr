@@ -5,20 +5,16 @@
  *
  * Originally culled from /interface/patient_file/summary and adapted...
  *
- * Copyright (C) 2005-2011 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2015-6 Ray Magauran <magauran@MedFetch.com>
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author Ray Magauran <magauran@MedFetch.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Ray Magauran <magauran@MedFetch.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2005-2011 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2015-2016 Ray Magauran <magauran@MedFetch.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 $form_folder= "eye_mag";
 require_once('../../globals.php');
@@ -96,16 +92,11 @@ foreach (explode(',', $given) as $item) {
     <script language="JavaScript">
                     <?php       require_once("$srcdir/restoreSession.php");  ?>
     </script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/main/tabs/js/include_opener.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style type="text/css">@import url(<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.css);</style>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.js"></script>
-    <?php require_once($GLOBALS['srcdir'].'/dynarch_calendar_en.inc.php'); ?>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar_setup.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
     <script language="JavaScript">
-     var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
      var aitypes = new Array(); // issue type attributes
      var aopts   = new Array(); // Option objects
         <?php
@@ -557,8 +548,8 @@ foreach (explode(',', $given) as $item) {
     <!-- Add Font stuff for the look and feel.  -->
 
       <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
-      <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
       <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+      <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
       <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/excite-bike/jquery-ui.css">
       <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
       <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
@@ -614,7 +605,7 @@ foreach (explode(',', $given) as $item) {
          form {
           margin:7px auto;
          }
-         
+
       </style>
 
       <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
@@ -623,6 +614,7 @@ foreach (explode(',', $given) as $item) {
       <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
       <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.js"></script>
       <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/shortcut.js-2-01-B/shortcut.js"></script>
+      <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
       <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
   </head>
   <body>
@@ -702,26 +694,18 @@ foreach (explode(',', $given) as $item) {
           <tr id='row_begindate'>
             <td nowrap class="right"><b id="onset"><?php echo xlt('Onset'); ?>:</b></td>
             <td>
-             <input type='text' size='10' name='form_begin' id='form_begin'
+             <input type='text' class='datepicker' size='10' name='form_begin' id='form_begin'
               value='<?php echo attr($irow['begdate']) ?>'¸ 
               style="width: 80px;"
-              onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
               title='<?php echo xla('yyyy-mm-dd date of onset, surgery or start of medication'); ?>' />
-             <img src='<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif' align='absbottom' width='15' height='15'
-              id='img_begin' border='0' alt='[?]' style='cursor:pointer'
-              title='<?php echo xla('Click here to choose a date'); ?>' />
             </td>
             <td id='row_enddate' nowrap><input type='checkbox' name='form_active' id='form_active' value='1' <?php echo attr($irow['enddate']) ? "checked" : ""; ?>
               onclick='top.restoreSession();resolvedClicked(this);'
               title='<?php echo xla('Indicates if this issue is currently active'); ?>' />
-              <b id="resolved"><?php echo xlt('Resolved'); ?>:</b>&nbsp;<input type='text' size='10' name='form_end' id='form_end'
+              <b id="resolved"><?php echo xlt('Resolved'); ?>:</b>&nbsp;<input type='text' class='datepicker' size='10' name='form_end' id='form_end'
               style="width: 80px;"
               value='<?php echo attr($irow['enddate']) ?>'
-              onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
               title='<?php echo xla('yyyy-mm-dd date of recovery or end of medication'); ?>' />
-             <img src='<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif' align='absbottom' width='15' height='15'
-              id='img_end' border='0' alt='[?]' style='cursor:pointer'
-              title='<?php echo xla('Click here to choose a date'); ?>' />
             </td>
            </tr>
 
@@ -825,7 +809,7 @@ foreach (explode(',', $given) as $item) {
                 }
 
                     $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
-                    "WHERE form_id = 'HIS' AND group_name = '4Lifestyle' AND uor > 0 " .
+                    "WHERE form_id = 'HIS' AND group_id = '4' AND uor > 0 " .
                     "ORDER BY seq");
                     while ($group_fields = sqlFetchArray($group_fields_query)) {
                         $titlecols  = $group_fields['titlecols'];
@@ -946,16 +930,10 @@ foreach (explode(',', $given) as $item) {
                                 echo "checked";
 } ?>><?php echo xlt('Quit'); ?>&nbsp;</td>
                           <td class="text" onclick='top.restoreSession();resolvedClicked(this);'>
-                            <input type="text" size="6"
+                            <input type="text" class="datepicker" size="6"
                             name="date_tobacco" id="date_tobacco"
                             value="<?php echo attr($result2['tobacco']['resdate']); ?>"
-                            title="<?php echo xla('Tobacco use'); ?>"
-                            onkeyup="datekeyup(this,mypcc)"
-                            onblur="dateblur(this,mypcc)"><img src="<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif" align="absbottom"
-                            width="15" height="15"
-                            id="img_tobacco"
-                            border="0" alt="[?]" style="cursor:pointer"
-                            title="<?php echo xla('Click here to choose a date'); ?>">&nbsp;
+                            title="<?php echo xla('Tobacco use'); ?>">
                           </td>
                           <td class="text">
                             <input type="radio" name="radio_tobacco" id="radio_tobacco[never]" value="nevertobacco" onclick="smoking_statusClicked(this)" <?php if ($result2['tobacco']['restype'] =='nevertobacco') {
@@ -986,7 +964,7 @@ foreach (explode(',', $given) as $item) {
                             <td class="text"><input type="radio" name="radio_coffee" id="radio_coffee[quit]" value="quitcoffee" <?php if ($PMSFH[0]['SOCH']['coffee']['restype'] =='quitcoffee') {
                                 echo "checked";
 } ?>><?php echo xlt('Quit'); ?>&nbsp;</td>
-                            <td class="text"><input type="text" size="6" name="date_coffee" id="date_coffee" value="" title="<?php echo xla('Caffeine consumption'); ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)"><img src="<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif" align="absbottom" width="15" height="15" id="img_coffee" border="0" alt="[?]" style="cursor:pointer" title="<?php echo xla('Click here to choose a date'); ?>">&nbsp;</td>
+                            <td class="text"><input type="text" class="datepicker" size="6" name="date_coffee" id="date_coffee" value="" title="<?php echo xla('Caffeine consumption'); ?>">&nbsp;</td>
                             <td class="text"><input type="radio" name="radio_coffee" id="radio_coffee[never]" value="nevercoffee" <?php if ($PMSFH[0]['SOCH']['coffee']['restype'] =='nevercoffee') {
                                 echo "checked";
 } ?>><?php echo xlt('Never'); ?>&nbsp;</td>
@@ -1012,7 +990,7 @@ foreach (explode(',', $given) as $item) {
                             <td class="text"><input type="radio" name="radio_alcohol" id="radio_alcohol[quit]" value="quitalcohol" <?php if ($PMSFH[0]['SOCH']['alcohol']['restype'] =='quitalcohol') {
                                 echo "checked";
 } ?>><?php echo xlt('Quit'); ?>&nbsp;</td>
-                            <td class="text"><input type="text" size="6" name="date_alcohol" id="date_alcohol" value="" title="<?php echo xla('Alcohol consumption'); ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)"><img src="<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif" align="absbottom" width="15" height="15" id="img_alcohol" border="0" alt="[?]" style="cursor:pointer" title="<?php echo attr('Click here to choose a date'); ?>">&nbsp;</td>
+                            <td class="text"><input type="text" size="6" class="datepicker" name="date_alcohol" id="date_alcohol" value="" title="<?php echo xla('Alcohol consumption'); ?>">&nbsp;</td>
                             <td class="text"><input type="radio" name="radio_alcohol" id="radio_alcohol[never]" value="neveralcohol" <?php if ($PMSFH[0]['SOCH']['alcohol']['restype'] =='neveralcohol') {
                                 echo "checked";
 } ?>><?php echo xlt('Never'); ?>&nbsp;</td>
@@ -1041,7 +1019,7 @@ foreach (explode(',', $given) as $item) {
                             <td class="text"><input type="radio" name="radio_recreational_drugs" id="radio_recreational_drugs[quit]" value="quitrecreational_drugs" <?php if ($PMSFH[0]['SOCH']['recreational_drugs']['restype'] =='quitrecreational_drugs') {
                                 echo "checked";
 } ?>><?php echo xlt('Quit'); ?>&nbsp;</td>
-                            <td class="text"><input type="text" size="6" name="date_recreational_drugs" id="date_recreational_drugs" value="" title="<?php echo xla('Recreational drug use'); ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)"><img src="<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif" align="absbottom" width="15" height="15" id="img_recreational_drugs" border="0" alt="[?]" style="cursor:pointer" title="<?php echo xla('Click here to choose a date'); ?>">&nbsp;</td>
+                            <td class="text"><input type="text" size="6" class="datepicker" name="date_recreational_drugs" id="date_recreational_drugs" value="" title="<?php echo xla('Recreational drug use'); ?>">&nbsp;</td>
                             <td class="text"><input type="radio" name="radio_recreational_drugs" id="radio_recreational_drugs[never]" value="neverrecreational_drugs" <?php if ($PMSFH[0]['SOCH']['recreational_drugs']['restype'] =='neverrecreational_drugs') {
                                 echo "checked";
 } ?>><?php echo xlt('Never'); ?>&nbsp;</td>
@@ -1065,7 +1043,7 @@ foreach (explode(',', $given) as $item) {
                     <td class="text"><input type="radio" name="radio_counseling" id="radio_counseling[quit]" value="quitcounseling" <?php if ($PMSFH[0]['SOCH']['counseling']['restype'] =='quitcounseling') {
                         echo "checked";
 } ?>><?php echo xlt('Quit'); ?>&nbsp;</td>
-                    <td class="text"><input type="text" size="6" name="date_counseling" id="date_counseling" value="" title="<?php echo xla('Counseling activities') ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)"><img src="<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif" align="absbottom" width="15" height="15" id="img_counseling" border="0" alt="[?]" style="cursor:pointer" title="<?php echo xla('Click here to choose a date'); ?>">&nbsp;</td>
+                    <td class="text"><input type="text" size="6" class="datepicker" name="date_counseling" id="date_counseling" value="" title="<?php echo xla('Counseling activities') ?>">&nbsp;</td>
                     <td class="text"><input type="radio" name="radio_counseling" id="radio_counseling[never]" value="nevercounseling" <?php if ($PMSFH[0]['SOCH']['counseling']['restype'] =='nevercounseling') {
                         echo "checked";
 } ?>><?php echo xlt('Never'); ?>&nbsp;</td>
@@ -1087,7 +1065,7 @@ foreach (explode(',', $given) as $item) {
                         <td class="text"><input type="radio" name="radio_exercise_patterns" id="radio_exercise_patterns[quit]" value="quitexercise_patterns" <?php if ($PMSFH[0]['SOCH']['exercise_patterns']['restype'] =='quitexercise_patterns') {
                             echo "checked";
 } ?>><?php echo xlt('Quit') ?>&nbsp;</td>
-                        <td class="text"><input type="text" name="date_exercise_patterns" id="date_exercise_patterns" value="" title="<?php echo xla('Exercise patterns') ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)"><img src="<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif" align="absbottom" width="15" height="15" id="img_exercise_patterns" border="0" alt="[?]" style="cursor:pointer" title="<?php echo xla('Click here to choose a date'); ?>">&nbsp;</td>
+                        <td class="text"><input type="text" class="datepicker" name="date_exercise_patterns" id="date_exercise_patterns" value="" title="<?php echo xla('Exercise patterns') ?>">&nbsp;</td>
                         <td class="text"><input type="radio" name="radio_exercise_patterns" id="radio_exercise_patterns[never]" value="neverexercise_patterns"<?php if ($PMSFH[0]['SOCH']['exercise_patterns']['restype'] =='neverexercise_patterns') {
                             echo "checked";
 } ?>><?php echo xlt('Never') ?>&nbsp;</td>
@@ -1111,7 +1089,7 @@ foreach (explode(',', $given) as $item) {
                         <td class="text"><input type="radio" name="radio_hazardous_activities" id="radio_hazardous_activities[quit]" value="quithazardous_activities" <?php if ($PMSFH[0]['SOCH']['hazardous_activities']['restype'] =='quithazardous_activities') {
                             echo "checked";
 } ?>><?php echo xlt('Quit') ?>&nbsp;</td>
-                        <td class="text"><input type="text" name="date_hazardous_activities" id="date_hazardous_activities" value="" title="<?php echo xla('Hazardous activities') ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)"><img src="<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif" align="absbottom" width="15" height="15" id="img_hazardous_activities" border="0" alt="[?]" style="cursor:pointer" title="<?php echo xla('Click here to choose a date'); ?>">&nbsp;</td>
+                        <td class="text"><input type="text" class="datepicker" name="date_hazardous_activities" id="date_hazardous_activities" value="" title="<?php echo xla('Hazardous activities') ?>">&nbsp;</td>
                         <td class="text"><input type="radio" name="radio_hazardous_activities" id="radio_hazardous_activities[never]" value="neverhazardous_activities" <?php if ($PMSFH[0]['SOCH']['hazardous_activities']['restype'] =='neverhazardous_activities') {
                             echo "checked";
 } ?>><?php echo xlt('Never') ?>&nbsp;</td>
@@ -1370,25 +1348,25 @@ foreach (explode(',', $given) as $item) {
 } else {
     echo $type_index;
 } ?>');
-       Calendar.setup({inputField:"form_begin", ifFormat:"%Y-%m-%d", button:"img_begin"});
-       Calendar.setup({inputField:"form_end", ifFormat:"%Y-%m-%d", button:"img_end"});
-        <?php
-        $has_cal ="tobacco,coffee,alcohol,recreational_drugs,exercise_patterns";
-        foreach (explode(',', $has_cal) as $item) {
-            echo 'Calendar.setup({inputField:"date_'.$item.'", ifFormat:"%Y-%m-%d", button:"img_'.$item.'"});';
-        } ?>
 
-      $(document).ready(function() {
-        $('[title]').qtip({
-                      position: {
-                        my: 'top Right',  // Position my top left...
-                        at: 'bottom Left', // at the bottom right of...
-                        target: 'mouse' // my target
-                      }
-                    });
-        //$("textarea,text").css("background-color","#FFF8DC");
+        $(document).ready(function() {
+            $('[title]').qtip({
+                position: {
+                    my: 'top Right',  // Position my top left...
+                    at: 'bottom Left', // at the bottom right of...
+                    target: 'mouse' // my target
+                }
+            });
+            //$("textarea,text").css("background-color","#FFF8DC");
 
-      });
+            $('.datepicker').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = false; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+        });
     </script>
   </body>
 </html>

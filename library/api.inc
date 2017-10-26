@@ -1,7 +1,7 @@
 <?php
 //our api for 3rd party developers
-include_once("../../globals.php");
-include_once("{$GLOBALS['srcdir']}/billing.inc");
+require_once(dirname(__FILE__) . "/../interface/globals.php");
+require_once("{$GLOBALS['srcdir']}/billing.inc");
 
 $GLOBALS['form_exit_url'] = "$rootdir/patient_file/encounter/encounter_top.php";
 
@@ -77,7 +77,6 @@ function formJump($address = "0")
     if ($address == "0") {
         $address = "{$GLOBALS['rootdir']}/patient_file/encounter/$returnurl";
     }
-
     echo "\n<script language='Javascript'>top.restoreSession();window.location='$address';</script>\n";
     exit;
 }

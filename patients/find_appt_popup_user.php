@@ -1,10 +1,15 @@
 <?php
- // Copyright (C) 2005-2006, 2013 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ * find appt popup
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2005-2006 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 // Note from Rod 2013-01-22:
 // This module needs to be refactored to share the same code that is in
@@ -32,8 +37,8 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite'])) {
 
 $ignoreAuth = 1;
 
- include_once("../interface/globals.php");
- include_once("$srcdir/patient.inc");
+require_once("../interface/globals.php");
+require_once("$srcdir/patient.inc");
 
  // Exit if the modify calendar for portal flag is not set
 if (!($GLOBALS['portal_onsite_appt_modify'])) {
@@ -308,15 +313,10 @@ if ($_REQUEST['providerid']) {
 <?php html_header_show(); ?>
 <title><?php xl('Find Available Appointments', 'e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
-<!-- for the pop up calendar -->
-<style type="text/css">@import url(../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="../library/dynarch_calendar_en.js"></script>
-<script type="text/javascript" src="../library/dynarch_calendar_setup.js"></script>
-
-<!-- for ajax-y stuff -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
 
@@ -346,11 +346,11 @@ form {
     font-weight: bold;
     padding: 3px;
 }
-#searchResultsHeader { 
+#searchResultsHeader {
     width: 100%;
     background-color: lightgrey;
 }
-#searchResultsHeader table { 
+#searchResultsHeader table {
     width: 96%;  /* not 100% because the 'searchResults' table has a scrollbar */
     border-collapse: collapse;
 }
@@ -359,7 +359,7 @@ form {
 }
 #searchResults {
     width: 100%;
-    height: 350px; 
+    height: 350px;
     overflow: auto;
 }
 
@@ -397,13 +397,8 @@ form {
     <?php xl('Start date:', 'e'); ?>
 
 
-   <input type='text' name='startdate' id='startdate' size='10' value='<?php echo $sdate ?>'
+   <input type='text' class='datepicker' name='startdate' id='startdate' size='10' value='<?php echo $sdate ?>'
     title='yyyy-mm-dd starting date for search'/>
-    
-   <img src='../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date', 'e'); ?>'>
-
 
     <?php xl('for', 'e'); ?>
    <input type='text' name='searchdays' size='3' value='<?php echo $searchdays ?>'
@@ -424,7 +419,7 @@ form {
 </div>
 
 <div id="searchResults">
-<table> 
+<table>
 <?php
     $lastdate = "";
     $ampmFlag = "am"; // establish an AM-PM line break flag
@@ -457,7 +452,7 @@ for ($i = 0; $i < $slotcount; ++$i) {
         echo "<div id='am'>AM ";
         $ampmFlag = "am";  // reset the AMPM flag
     }
-        
+
     $ampm = date('a', $utime);
     if ($ampmFlag != $ampm) {
         echo "</div><div id='pm'>PM ";
@@ -498,10 +493,7 @@ if ($lastdate) {
 </form>
 </body>
 
-<!-- for the pop up calendar -->
 <script language='JavaScript'>
- Calendar.setup({inputField:"startdate", ifFormat:"%Y-%m-%d", button:"img_date"});
-
 // jQuery stuff to make the page a little easier to use
 
 $(document).ready(function(){
@@ -510,6 +502,14 @@ $(document).ready(function(){
     $(".oneresult a").mouseover(function () { $(this).toggleClass("blue_highlight"); $(this).children().toggleClass("blue_highlight"); });
     $(".oneresult a").mouseout(function() { $(this).toggleClass("blue_highlight"); $(this).children().toggleClass("blue_highlight"); });
     //$(".event").dblclick(function() { EditEvent(this); });
+
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
 });
 
 </script>

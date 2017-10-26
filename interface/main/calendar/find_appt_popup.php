@@ -378,7 +378,7 @@ form {
 
 <?php if (!empty($slots)) : ?>
 
-<div id="searchResultsHeader">
+<div id="searchResultsHeader" class="head">
 <table>
  <tr>
   <th class="srDate"><?php echo xlt('Day'); ?></th>

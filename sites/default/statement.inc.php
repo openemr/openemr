@@ -1,25 +1,26 @@
 <?php
-
-// Copyright (C) 2005-2006  Rod Roark <rod@sunsetsystems.com>
-// Copyright (C) 2016       Raymond Magauran <magauran@medfetch.com>
-//
-// Windows compatibility mods 2009 Bill Cernansky [mi-squared.com]
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// Updated by Medical Information Integration, LLC to support download
-//  and multi OS use - tony@mi-squared..com 12-2009
-
-//////////////////////////////////////////////////////////////////////
-// This is a template for printing patient statements and collection
-// letters.  You must customize it to suit your practice.  If your
-// needs are simple then you do not need programming experience to do
-// this - just read the comments and make appropriate substitutions.
-// All you really need to do is replace the [strings in brackets].
-//////////////////////////////////////////////////////////////////////
+/* This is a template for printing patient statements and collection
+ * letters.  You must customize it to suit your practice.  If your
+ * needs are simple then you do not need programming experience to do
+ * this - just read the comments and make appropriate substitutions.
+ * All you really need to do is replace the [strings in brackets].
+ *
+ * @package OpenEMR
+ * @author Rod Roark <rod@sunsetsystems.com>
+ * @author Bill Cernansky <bill@mi-squared.com>
+ * @author Tony McCormick <tony@mi-squared.com>
+ * @author Raymond Magauran <magauran@medfetch.com>
+ * @author Jerry Padgett <sjpadgett@gmail.com>
+ * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2006 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2009 Bill Cernansky <bill@mi-squared.com>
+ * @copyright Copyright (c) 2009 Tony McCormick <tony@mi-squared.com>
+ * @copyright Copyright (c) 2016 Raymond Magauran <magauran@medfetch.com>
+ * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2017 Stephen Waite <stephen.waite@cmsvt.com>
+ * @link https://github.com/openemr/openemr/tree/master
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 // The location/name of a temporary file to hold printable statements.
 // May want to alter these names to allow multi-site installs out-of-the-box
@@ -176,7 +177,7 @@ function create_HTML_statement($stmt)
 
   // Text only labels
 
-    $label_addressee = xl('ADDRESSEE');
+    $label_addressee = xl('ADDRESSED TO');
     $label_remitto = xl('REMIT TO');
     $label_chartnum = xl('Chart Number');
     $label_insinfo = xl('Insurance information on file');
@@ -185,6 +186,7 @@ function create_HTML_statement($stmt)
     $label_cards = xl('VISA/MC/Discovery/HSA');
     $label_cardnum = xl('Card');
     $label_expiry = xl('Exp');
+    $label_cvv = xl('CVV');
     $label_sign = xl('Signature');
     $label_retpay = xl('Please return this bottom part with your payment');
     $label_pgbrk = xl('STATEMENT SUMMARY');
@@ -385,12 +387,19 @@ function create_HTML_statement($stmt)
  ';
     $out .= $label_payby.' '.$label_cards;
     $out .= "<br /><br />";
-    $out .= $label_cardnum .': __________________________________  '.$label_expiry.': ___ / _____ <br /><br />';
-    $out .= $label_sign .'  ____________________________<br />';
+    $out .= $label_cardnum .': __________________________________  '.$label_expiry.': ___ / ____ '.$label_cvv.':____<br /><br />';
+    $out .= $label_sign .'  ______________________________________________<br />';
     $out .="      </td><td style=width:2.0in;vertical-align:middle;'>";
-          $practice_cards = $GLOBALS['webroot']."/sites/" . $_SESSION['site_id'] . "/images/visa_mc_disc_credit_card_logos_176x35.gif";
+    $practice_cards = $GLOBALS['OE_SITE_DIR']. "/images/visa_mc_disc_credit_card_logos_176x35.gif";
     if (file_exists($GLOBALS['OE_SITE_DIR']."/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
-        $out .= "<img src='$practice_cards' style='width:100%;margin:4px auto;'><br /><p>\n".$label_totaldue.": ".$stmt['amount']."</p>";
+        $out .= "<img src='$practice_cards' style='width:100%; margin:4px auto;'><br /><p>\n<b>" .
+            $label_totaldue . "</b>: " . $stmt['amount']. "<br/>". xlt('Payment Tracking Id') . ": " .
+            text($stmt['pid']);
+        $out .= "<br />" . xlt('Amount Paid') . ": _______ " . xlt('Check') . " #:</p>";
+    } else {
+        $out .= "<br /><p><b>" . $label_totaldue . "</b>: " . $stmt['amount'] . "<br/>".
+            xlt('Payment Tracking Id') . ": " . text($stmt['pid']) . "</p>";
+        $out .= "<br /><p>" . xlt('Amount Paid') . ": _______ " . xlt('Check') . " #:</p>";
     }
 
     $out .="</td></tr></table>";
@@ -402,15 +411,15 @@ function create_HTML_statement($stmt)
     }
 
     $out .= ' </pre>
-  <div style="width:7in;border-top:1pt solid black;"><br />';
-    $out .= " <table style='width:6.0in;margin-left:40px;'><tr>";
-    $out .= '<td style="width:3.0in;"><b>'
+  <div style="width:7.0in;border-top:1pt solid black;"><br />';
+    $out .= " <table style='width:7.0in;margin:auto;'><tr>";
+    $out .= '<td style="margin:auto;"></td><td style="width:3.0in;"><b>'
       .$label_addressee.'</b><br />'
       .$stmt['to'][0].'<br />'
       .$stmt['to'][1].'<br />'
       .$stmt['to'][2].'
-      </td>
-      <td style="width:3.0in;"><b>'.$label_remitto.'</b><br />'
+      </td><td style="width:0.5in;"></td>
+      <td style="margin:auto;"><b>'.$label_remitto.'</b><br />'
       .$remit_name.'<br />'
       .$remit_addr.'<br />'
       .$remit_csz.'
@@ -571,7 +580,7 @@ function create_statement($stmt)
 
   // Text only labels
 
-    $label_addressee = xl('ADDRESSEE');
+    $label_addressee = xl('ADDRESSED TO');
     $label_remitto = xl('REMIT TO');
     $label_chartnum = xl('Chart Number');
     $label_insinfo = xl('Insurance information on file');
@@ -580,6 +589,7 @@ function create_statement($stmt)
     $label_cards = xl('VISA/MC/Discovery/HSA');
     $label_cardnum = xl('Card');
     $label_expiry = xl('Exp');
+    $label_cvv = xl('CVV');
     $label_sign = xl('Signature');
     $label_retpay = xl('Return above part with your payment');
     $label_pgbrk = xl('STATEMENT SUMMARY');
@@ -615,9 +625,10 @@ function create_statement($stmt)
     $out .= sprintf("%-32s\n", $label_payby.' '.$label_cards);
     $out .= "\n";
     $out .= sprintf(
-        "%s_____________________  %s______ %s___________________%s\n\n",
+        "%s_____________________  %s______ %s______ %s___________________\n\n",
         $label_cardnum,
         $label_expiry,
+        $label_cvv,
         $label_sign
     );
     $out .= sprintf("-----------------------------------------------------------------\n");
@@ -780,13 +791,15 @@ function create_statement($stmt)
             $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
             $next_appoint_time = substr($events[$j]['pc_startTime'], 0, 5);
             if (strlen(umname) != 0) {
-                $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] . ' ' .  $events[$j]['ulname'];
+                $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] .
+                    ' ' .  $events[$j]['ulname'];
             } else {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' .  $events[$j]['ulname'];
             }
 
             if (strlen($next_appoint_time) != 0) {
-                $label_plsnote[$j] = xlt('Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') . ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider);
+                $label_plsnote[$j] = xlt('Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') .
+                    ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider);
                 $out .= sprintf("%-s\n", $label_plsnote[$j]);
             }
 
@@ -868,7 +881,7 @@ function osp_create_HTML_statement($stmt)
 
   // Text only labels
 
-    $label_addressee = xl('ADDRESSEE');
+    $label_addressee = xl('ADDRESSED TO');
     $label_remitto = xl('REMIT TO');
     $label_chartnum = xl('Chart Number');
     $label_insinfo = xl('Insurance information on file');
@@ -1074,7 +1087,7 @@ function osp_create_HTML_statement($stmt)
     $out .= $label_cardnum .': {TextInput}  '.$label_expiry.': {smTextInput} / {smTextInput} <br /><br />';
     $out .= $label_sign .'  {PatientSignature}<br />';
     $out .="      </td><td style=width:2.0in;vertical-align:middle;'>";
-          $practice_cards = $GLOBALS['webroot']."/sites/" . $_SESSION['site_id'] . "/images/visa_mc_disc_credit_card_logos_176x35.gif";
+    $practice_cards = $GLOBALS['OE_SITE_DIR']. "/images/visa_mc_disc_credit_card_logos_176x35.gif";
     if (file_exists($GLOBALS['OE_SITE_DIR']."/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
       //$out .= "<img onclick='getPayment()' src='$practice_cards' style='width:100%;margin:4px auto;'><br /><p>\n".$label_totaldue.": ".$stmt['amount']."</p>";
         $out .= "<br /><p>".$label_totaldue.": ".$stmt['amount']."</p>";

@@ -101,8 +101,10 @@ class TherapyGroupsController extends BaseController
         $userModel = $this->loadModel('Users');
 
         //Get group events
-        $events = $eventsModel->getGroupEvents($groupId);
-        $data['events'] = $events;
+        if ($groupId) {
+            $events = $eventsModel->getGroupEvents($groupId);
+            $data['events'] = $events;
+        }
 
         //Get users
         $users = $userModel->getAllUsers();

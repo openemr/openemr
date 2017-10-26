@@ -57,7 +57,7 @@ a:hover {
     font-weight: bold;
 }
 
-.alert {
+.alert-custom {
     font-size: 70%;
     color: #FF0000;
     text-decoration: none;
@@ -883,6 +883,20 @@ font-size:9pt;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefdcf', endColorstr='#ffac84'); /* for IE */
     background: -webkit-gradient(linear, left top, left bottom, from(#fefdcf), to(#ffac84)); /* for webkit browsers */
     background: -moz-linear-gradient(top,  #fefdcf,  #ffac84); /* for firefox 3.6+ */
+}
+
+#navigation-slide ul li a.collapsed_lv3{
+    background: #999; /* for non-css3 browsers */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#aaaaaa', endColorstr='#eeeeee'); /* for IE */
+    background: -webkit-gradient(linear, left top, left bottom, from(#aaaaaa), to(#eeeeee)); /* for webkit browsers */
+    background: -moz-linear-gradient(top,  #aaaaaa,  #eeeeee); /* for firefox 3.6+ */
+}
+
+#navigation-slide ul li a.expanded_lv3{
+    background: #999; /* for non-css3 browsers */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#aaaaaa'); /* for IE */
+    background: -webkit-gradient(linear, left top, left bottom, from(#eeeeee), to(#aaaaaa)); /* for webkit browsers */
+    background: -moz-linear-gradient(top,  #eeeeee,  #aaaaaa); /* for firefox 3.6+ */
 }
 
 #sddm li

@@ -93,8 +93,10 @@ abstract class AbstractClickmapModel extends ORDataObject
      * @param id
      *  The index of a row in the given table to initialize form contents from.
      */
-    public function AbstractClickmapModel($table, $id = "")
+    public function __construct($table, $id = "")
     {
+        parent::__construct();
+
         /* Only accept numeric IDs as arguments. */
         if (is_numeric($id)) {
             $this->id = $id;

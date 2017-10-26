@@ -14,10 +14,9 @@ class C_InsuranceNumbers extends Controller
         $this->providers = array();
         $this->insurance_numbers = array();
         $this->template_mod = $template_mod;
-        $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
+        $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings&insurance_numbers&");
         $this->assign("STYLE", $GLOBALS['style']);
-        $this->assign("WEB_ROOT", $GLOBALS['webroot']);
     }
 
     function default_action()
@@ -84,6 +83,13 @@ class C_InsuranceNumbers extends Controller
 
         $this->assign("provider", $this->providers[0]);
         $this->assign("ins", $this->insurance_numbers[0]);
+
+        if ($_GET['showform'] == "true") {
+            $this->assign("show_edit_gui", true);
+        } else {
+            $this->assign("show_edit_gui", false);
+        }
+
         return $this->fetch($GLOBALS['template_dir'] . "insurance_numbers/" . $this->template_mod . "_edit.html");
     }
 

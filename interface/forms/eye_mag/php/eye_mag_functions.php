@@ -29,7 +29,9 @@ require_once(dirname(__FILE__)."/../../../../custom/code_types.inc.php");
 require_once(dirname(__FILE__)."/../../../../library/options.inc.php");
 global $PMSFH;
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 /**
  *  This function returns HTML old record selector widget when needed (4 input values)
@@ -1708,7 +1710,7 @@ function build_PMSFH($pid)
     $result1 = sqlQuery("select * from history_data where pid=? order by date DESC limit 0,1", array($pid));
 
     $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
-    "WHERE form_id = 'HIS' AND group_name = '4Lifestyle' AND uor > 0 " .
+    "WHERE form_id = 'HIS' AND group_id = '4' AND uor > 0 " .
     "ORDER BY seq");
     while ($group_fields = sqlFetchArray($group_fields_query)) {
         $titlecols  = $group_fields['titlecols'];
@@ -1832,7 +1834,7 @@ function build_PMSFH($pid)
     Suicide:
     */
     $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
-    "WHERE form_id = 'HIS' AND group_name = '3Relatives' AND uor > 0 " .
+    "WHERE form_id = 'HIS' AND group_id = '3' AND uor > 0 " .
     "ORDER BY seq");
     while ($group_fields = sqlFetchArray($group_fields_query)) {
         $titlecols  = $group_fields['titlecols'];

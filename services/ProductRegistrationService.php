@@ -19,7 +19,11 @@
  * @link    http://www.open-emr.org
  */
 
-namespace services;
+namespace OpenEMR\Services;
+
+use OpenEMR\Common\Database\Connector;
+use OpenEMR\Common\Logging\Logger;
+use OpenEMR\Entities\ProductRegistration;
 
 require_once($GLOBALS['fileroot'] . "/interface/main/exceptions/invalid_email_exception.php");
 require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/generic_product_registration_exception.php");
@@ -43,10 +47,10 @@ class ProductRegistrationService
      */
     public function __construct()
     {
-        $this->logger = new \common\logging\Logger("\services\ProductRegistrationService");
-        $database = \common\database\Connector::Instance();
+        $this->logger = new Logger("\OpenEMR\Services\ProductRegistrationService");
+        $database = Connector::Instance();
         $entityManager = $database->entityManager;
-        $this->repository = $entityManager->getRepository('\entities\ProductRegistration');
+        $this->repository = $entityManager->getRepository('\OpenEMR\Entities\ProductRegistration');
     }
 
     public function getProductStatus()
@@ -65,7 +69,7 @@ class ProductRegistrationService
         }
 
         if (empty($row)) {
-            $row = new \entities\ProductRegistration();
+            $row = new ProductRegistration();
             $row->setStatusAsString('UNREGISTERED');
         } else if ($id !== 'null') {
             $row->setStatusAsString('REGISTERED');
@@ -104,7 +108,7 @@ class ProductRegistrationService
             case 201:
                 $responseBodyParsed = json_decode($responseBodyRaw);
 
-                $entry = new \entities\ProductRegistration();
+                $entry = new ProductRegistration();
                 $entry->setRegistrationId($responseBodyParsed->productId);
                 $entry->setEmail($email);
                 $entry->setOptOut(false);
@@ -129,7 +133,7 @@ class ProductRegistrationService
     private function optOutStrategy()
     {
         $this->logger->debug('Attempting to opt out of product registration');
-        $entry = new \entities\ProductRegistration();
+        $entry = new ProductRegistration();
         $entry->setRegistrationId('null');
         $entry->setEmail(null);
         $entry->setOptOut(true);

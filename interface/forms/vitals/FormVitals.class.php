@@ -58,6 +58,8 @@ class FormVitals extends ORDataObject
         } else {
             $id = "";
             $this->date = $this->get_date();
+            $this->user = $_SESSION['authUser'];
+            $this->groupname = $_SESSION['authGroup'];
         }
 
         $this->_table = "form_vitals";
@@ -148,6 +150,18 @@ class FormVitals extends ORDataObject
             $this->user = $u;
         }
     }
+
+    function get_groupname()
+    {
+        return $this->groupname;
+    }
+    function set_groupname($g)
+    {
+        if (!empty($g)) {
+            $this->groupname = $g;
+        }
+    }
+
     function get_bps()
     {
         return $this->bps;

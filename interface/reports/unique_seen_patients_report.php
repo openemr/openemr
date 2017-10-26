@@ -3,33 +3,22 @@
  * This report lists patients that were seen within a given date
  * range.
  *
- *  Copyright (C) 2006-2015 Rod Roark <rod@sunsetsystems.com>
- *  Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2006-2015 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-use OpenEMR\Core\Header;
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 
- $from_date = fixDate($_POST['form_from_date'], date('Y-01-01'));
- $to_date   = fixDate($_POST['form_to_date'], date('Y-12-31'));
+use OpenEMR\Core\Header;
+
+$form_from_date = (!empty($_POST['form_from_date'])) ?  DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01');
+$form_to_date   = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-12-31');
 
 if ($_POST['form_labels']) {
     header("Pragma: public");
@@ -67,25 +56,23 @@ if ($_POST['form_labels']) {
    }
 }
 </style>
-<title><?php xl('Front Office Receipts', 'e'); ?></title>
+<title><?php echo xlt('Front Office Receipts'); ?></title>
 
 <?php Header::setupHeader('datetime-picker'); ?>
 
 <script language="JavaScript">
 
-var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
-
 $(document).ready(function() {
- var win = top.printLogSetup ? top : opener.top;
- win.printLogSetup(document.getElementById('printbutton'));
+    var win = top.printLogSetup ? top : opener.top;
+    win.printLogSetup(document.getElementById('printbutton'));
 
- $('.datepicker').datetimepicker({
-    <?php $datetimepicker_timepicker = false; ?>
-    <?php $datetimepicker_showseconds = false; ?>
-    <?php $datetimepicker_formatInput = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
- });
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = true; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+     });
 });
 
 </script>
@@ -120,13 +107,13 @@ $(document).ready(function() {
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-<span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Unique Seen Patients', 'e'); ?></span>
+<span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Unique Seen Patients'); ?></span>
 
 <div id="report_parameters_daterange">
-<?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
+<?php echo oeFormatShortDate($form_from_date) ." &nbsp; " . xlt("to") . " &nbsp; ". oeFormatShortDate($form_to_date); ?>
 </div>
 
-<form name='theform' method='post' action='unique_seen_patients_report.php' id='theform'>
+<form name='theform' method='post' action='unique_seen_patients_report.php' id='theform' onsubmit='return top.restoreSession()'>
 
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
@@ -140,18 +127,16 @@ $(document).ready(function() {
    <table class='text'>
        <tr>
            <td class='control-label'>
-                <?php xl('Visits From', 'e'); ?>:
+                <?php echo xlt('Visits From'); ?>:
            </td>
            <td>
-             <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
-               title='yyyy-mm-dd'>
+             <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo oeFormatShortDate($form_from_date); ?>'>
            </td>
            <td class='control-label'>
-                <?php xl('To', 'e'); ?>:
+                <?php echo xlt('To'); ?>:
            </td>
            <td>
-             <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
-               title='yyyy-mm-dd'>
+             <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo oeFormatShortDate($form_to_date); ?>'>
            </td>
        </tr>
    </table>
@@ -165,7 +150,7 @@ $(document).ready(function() {
            <td>
                <div class="text-center">
          <div class="btn-group" role="group">
-                     <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                     <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#form_labels").val(""); $("#theform").submit();'>
                         <?php echo xlt('Submit'); ?>
                      </a>
                     <?php if ($_POST['form_refresh']) { ?>
@@ -190,14 +175,14 @@ $(document).ready(function() {
 <table>
 
 <thead>
-<th> <?php xl('Last Visit', 'e'); ?> </th>
-<th> <?php xl('Patient', 'e'); ?> </th>
-<th align='right'> <?php xl('Visits', 'e'); ?> </th>
-<th align='right'> <?php xl('Age', 'e'); ?> </th>
-<th> <?php xl('Sex', 'e'); ?> </th>
-<th> <?php xl('Race', 'e'); ?> </th>
-<th> <?php xl('Primary Insurance', 'e'); ?> </th>
-<th> <?php xl('Secondary Insurance', 'e'); ?> </th>
+<th> <?php echo xlt('Last Visit'); ?> </th>
+<th> <?php echo xlt('Patient'); ?> </th>
+<th align='right'> <?php echo xlt('Visits'); ?> </th>
+<th align='right'> <?php echo xlt('Age'); ?> </th>
+<th> <?php echo xlt('Sex'); ?> </th>
+<th> <?php echo xlt('Race'); ?> </th>
+<th> <?php echo xlt('Primary Insurance'); ?> </th>
+<th> <?php echo xlt('Secondary Insurance'); ?> </th>
 </thead>
 <tbody>
 <?php
@@ -215,8 +200,8 @@ if ($_POST['form_refresh'] || $_POST['form_labels']) {
     "FROM patient_data AS p " .
     "JOIN form_encounter AS e ON " .
     "e.pid = p.pid AND " .
-    "e.date >= '$from_date 00:00:00' AND " .
-    "e.date <= '$to_date 23:59:59' " .
+    "e.date >= ? AND " .
+    "e.date <= ? " .
     "LEFT OUTER JOIN insurance_data AS i1 ON " .
     "i1.pid = p.pid AND i1.type = 'primary' " .
     "LEFT OUTER JOIN insurance_companies AS c1 ON " .
@@ -227,7 +212,7 @@ if ($_POST['form_refresh'] || $_POST['form_labels']) {
     "c2.id = i2.provider " .
     "GROUP BY p.lname, p.fname, p.mname, p.pid, i1.date, i2.date " .
     "ORDER BY p.lname, p.fname, p.mname, p.pid, i1.date DESC, i2.date DESC";
-    $res = sqlStatement($query);
+    $res = sqlStatement($query, array($form_from_date . ' 00:00:00', $form_to_date . ' 23:59:59'));
 
     $prevpid = 0;
     while ($row = sqlFetchArray($res)) {
@@ -262,25 +247,25 @@ if ($_POST['form_refresh'] || $_POST['form_labels']) {
         <?php echo oeFormatShortDate(substr($row['edate'], 0, 10)) ?>
    </td>
    <td>
-        <?php echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] ?>
+        <?php echo text($row['lname']) . ', ' . text($row['fname']) . ' ' . text($row['mname']); ?>
    </td>
    <td style="text-align:center">
-        <?php echo $row['ecount'] ?>
+        <?php echo text($row['ecount']); ?>
    </td>
    <td>
-        <?php echo $age ?>
+        <?php echo text($age); ?>
    </td>
    <td>
-        <?php echo $row['sex'] ?>
+        <?php echo text($row['sex']); ?>
    </td>
    <td>
-        <?php echo $row['ethnoracial'] ?>
+        <?php echo text($row['ethnoracial']); ?>
    </td>
    <td>
-        <?php echo $row['cname1'] ?>
+        <?php echo text($row['cname1']); ?>
    </td>
    <td>
-        <?php echo $row['cname2'] ?>
+        <?php echo text($row['cname2']); ?>
    </td>
   </tr>
     <?php
@@ -292,10 +277,10 @@ if ($_POST['form_refresh'] || $_POST['form_labels']) {
     ?>
    <tr class='report_totals'>
     <td colspan='2'>
-        <?php xl('Total Number of Patients', 'e'); ?>
+        <?php echo xlt('Total Number of Patients'); ?>
   </td>
   <td style="padding-left: 20px;">
-        <?php echo $totalpts ?>
+        <?php echo text($totalpts); ?>
   </td>
   <td colspan='5'>&nbsp;</td>
  </tr>

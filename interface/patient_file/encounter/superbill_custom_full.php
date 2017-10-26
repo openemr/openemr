@@ -4,9 +4,6 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-
-
-
 require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
@@ -21,6 +18,8 @@ if (!($thisauthwrite || $thisauthview)) {
     echo "</body>\n</html>\n";
     exit();
 }
+// For revenue codes
+$institutional = $GLOBALS['ub04_support'] == "1" ? true : false;
 
 // Translation for form fields.
 function ffescape($field)
@@ -49,6 +48,7 @@ $related_code = '';
 $active = 1;
 $reportable = 0;
 $financial_reporting = 0;
+$revenue_code = '';
 
 if (isset($mode) && $thisauthwrite) {
     $code_id    = empty($_POST['code_id']) ? '' : $_POST['code_id'] + 0;
@@ -62,6 +62,7 @@ if (isset($mode) && $thisauthwrite) {
     $active     = empty($_POST['active']) ? 0 : 1;
     $reportable = empty($_POST['reportable']) ? 0 : 1; // dx reporting
     $financial_reporting = empty($_POST['financial_reporting']) ? 0 : 1; // financial service reporting
+    $revenue_code = $_POST['revenue_code'];
 
     $taxrates = "";
     if (!empty($_POST['taxrate'])) {
@@ -93,6 +94,7 @@ if (isset($mode) && $thisauthwrite) {
                 "taxrates = '"     . ffescape($taxrates)     . "', " .
                 "active = "        . add_escape_custom($active) . ", " .
                 "financial_reporting = " . add_escape_custom($financial_reporting) . ", " .
+                "revenue_code = '" . ffescape($revenue_code) . "', " .
                 "reportable = "    . add_escape_custom($reportable);
             if ($code_id) {
                 $query = "UPDATE codes SET $sql WHERE id = ?";
@@ -120,6 +122,7 @@ if (isset($mode) && $thisauthwrite) {
                 $taxrates = '';
                 $active = 1;
                 $reportable = 0;
+                $revenue_code = '';
             }
         }
     } else if ($mode == "edit") { // someone clicked [Edit]
@@ -133,6 +136,7 @@ if (isset($mode) && $thisauthwrite) {
             // $units        = $row['units'];
             $superbill    = $row['superbill'];
             $related_code = $row['related_code'];
+            $revenue_code = $row['revenue_code'];
             $cyp_factor   = $row['cyp_factor'];
             $taxrates     = $row['taxrates'];
             $active       = 0 + $row['active'];
@@ -154,6 +158,7 @@ if (isset($mode) && $thisauthwrite) {
             // $units        = $row['units'];
             $superbill    = $row['superbill'];
             $related_code = $row['related_code'];
+            $revenue_code = $row['revenue_code'];
             $cyp_factor   = $row['cyp_factor'];
             $taxrates     = $row['taxrates'];
             $active       = $row['active'];
@@ -173,6 +178,7 @@ if (isset($mode) && $thisauthwrite) {
         $modifier   = $_POST['modifier'];
         $superbill  = $_POST['form_superbill'];
         $related_code = $_POST['related_code'];
+        $revenue_code = $_POST['revenue_code'];
         $cyp_factor = $_POST['cyp_factor'] + 0;
         $active     = empty($_POST['active']) ? 0 : 1;
         $reportable = empty($_POST['reportable']) ? 0 : 1; // dx reporting
@@ -260,11 +266,39 @@ if ($fend > $count) {
 <head>
     <title><?php echo xlt("Codes"); ?></title>
     <?php html_header_show(); ?>
+
     <link rel="stylesheet" href="<?php echo attr($css_header);?>" type="text/css">
     <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
     <script type="text/javascript" src="../../../library/textformat.js"></script>
-
-    <script language="JavaScript">
+    <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+    <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-12-1/themes/base/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+<style>
+    .ui-autocomplete { max-height: 350px; max-width: 35%; overflow-y: auto; overflow-x: hidden; }
+</style>
+    <script>
+    <?php if ($institutional) { ?>
+    $( function() {
+        var cache = {};
+        $( ".revcode" ).autocomplete({
+            minLength: 1,
+            source: function( request, response ) {
+                var term = request.term;
+                request.code_group = "revenue_code";
+                if ( term in cache ) {
+                  response( cache[ term ] );
+                  return;
+                }
+                $.getJSON( "<?php echo $GLOBALS['web_root'] ?>/interface/billing/ub04_helpers.php", request, function( data, status, xhr ) {
+                  cache[ term ] = data;
+                  response( data );
+                });
+            }
+        }).dblclick(function(event) {
+            $(this).autocomplete('search'," ");
+        });
+    });
+    <?php } ?>
 
         // This is for callback by the find-code popup.
         // Appends to or erases the current list of related codes.
@@ -279,6 +313,19 @@ if ($fend > $count) {
             }
             f.related_code.value = s;
             f.related_desc.value = s;
+        }
+
+        // This is for callback by the find-code popup.
+        // Returns the array of currently selected codes with each element in codetype:code format.
+        function get_related() {
+            return document.forms[0].related_code.value.split(';');
+        }
+
+        // This is for callback by the find-code popup.
+        // Deletes the specified codetype:code from the currently selected list.
+        function del_related(s) {
+            my_del_related(s, document.forms[0].related_code, false);
+            my_del_related(s, document.forms[0].related_desc, false);
         }
 
         // This invokes the find-code popup.
@@ -304,7 +351,7 @@ if ($fend > $count) {
                 alert('<?php echo addslashes(xl('This code type does not accept relations.')); ?>');
                 return;
             }
-            dlgopen('find_code_popup.php', '_blank', 500, 400);
+            dlgopen('find_code_dynamic.php', '_blank', 900, 600);
         }
 
         // Some validation for saving a new code entry.
@@ -478,13 +525,19 @@ if ($fend > $count) {
                 <td><?php echo xlt('Description'); ?>:</td>
                 <td></td>
                 <td>
-
                     <?php if ($mode == "modify") { ?>
                         <input type='text' size='50' name="code_text" readonly="readonly" value='<?php echo attr($code_text) ?>'>
                     <?php } else { ?>
                         <input type='text' size='50' name="code_text" value='<?php echo attr($code_text) ?>'>
                     <?php } ?>
-
+                <?php if ($institutional) { ?>
+                    <?php echo xlt('Revenue Code'); ?>:
+                    <?php if ($mode == "modify") { ?>
+                        <input type='text' size='6' name="revenue_code" readonly="readonly" value='<?php echo attr($revenue_code) ?>'>
+                    <?php } else { ?>
+                        <input type='text' size='6' class='revcode' name="revenue_code" title='<?php echo xla('Type to search and select revenue code'); ?>' value='<?php echo attr($revenue_code) ?>'>
+                    <?php } ?>
+                <?php } ?>
                 </td>
             </tr>
 
@@ -517,6 +570,7 @@ if ($fend > $count) {
                     <input type='text' size='10' maxlength='20' name="cyp_factor" value='<?php echo attr($cyp_factor) ?>'>
                 </td>
             </tr>
+
 
             <tr<?php if (!related_codes_are_used()) {
                 echo " style='display:none'";
@@ -656,6 +710,9 @@ if ($fend > $count) {
     <tr>
         <td><span class='bold'><?php echo xlt('Code'); ?></span></td>
         <td><span class='bold'><?php echo xlt('Mod'); ?></span></td>
+        <?php if ($institutional) { ?>
+            <td><span class='bold'><?php echo xlt('Revenue'); ?></span></td>
+        <?php } ?>
         <td><span class='bold'><?php echo xlt('Act'); ?></span></td>
         <td><span class='bold'><?php echo xlt('Dx Rep'); ?></span></td>
         <td><span class='bold'><?php echo xlt('Serv Rep'); ?></span></td>
@@ -702,6 +759,9 @@ if ($fend > $count) {
             echo " <tr>\n";
             echo "  <td class='text'>" . text($iter["code"]) . "</td>\n";
             echo "  <td class='text'>" . text($iter["modifier"]) . "</td>\n";
+            if ($institutional) {
+                echo "  <td class='text'>" . ($iter['revenue_code'] > '' ? text($iter['revenue_code']) : 'none') ."</td>\n";
+            }
             if ($iter["code_external"] > 0) {
                 // If there is no entry in codes sql table, then default to active
                 //  (this is reason for including NULL below)

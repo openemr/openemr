@@ -339,6 +339,140 @@ function MigrateTableEngine($table, $engine)
     return true;
 }
 
+function convertLayoutProperties()
+{
+    $res = sqlStatement("SELECT DISTINCT form_id FROM layout_options ORDER BY form_id");
+    while ($row = sqlFetchArray($res)) {
+        $form_id = $row['form_id'];
+        $props = array(
+        'title'    => 'Unknown',
+        'mapping'  => 'Core',
+        'notes'    => '',
+        'activity' => '1',
+        'option_value' => '0',
+        );
+        if (substr($form_id, 0, 3) == 'LBF') {
+            $props = sqlQuery(
+                "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'lbfnames' AND option_id = ?",
+                array($form_id)
+            );
+            if (empty($props)) {
+                continue;
+            }
+            if (empty($props['mapping'])) {
+                $props['mapping'] = 'Clinical';
+            }
+        } else if (substr($form_id, 0, 3) == 'LBT') {
+            $props = sqlQuery(
+                "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'transactions' AND option_id = ?",
+                array($form_id)
+            );
+            if (empty($props)) {
+                continue;
+            }
+            if (empty($props['mapping'])) {
+                $props['mapping'] = 'Transactions';
+            }
+        } else if ($form_id == 'DEM') {
+            $props['title'] = 'Demographics';
+        } else if ($form_id == 'HIS') {
+            $props['title'] = 'History';
+        } else if ($form_id == 'FACUSR') {
+            $props['title'] = 'Facility Specific User Information';
+        } else if ($form_id == 'CON') {
+            $props['title'] = 'Contraception Issues';
+        } else if ($form_id == 'GCA') {
+            $props['title'] = 'Abortion Issues';
+        } else if ($form_id == 'SRH') {
+            $props['title'] = 'IPPF SRH Data';
+        }
+
+        $query = "INSERT INTO layout_group_properties SET " .
+        "grp_form_id = ?, " .
+        "grp_group_id = '', " .
+        "grp_title = ?, " .
+        "grp_mapping = ?, " .
+        "grp_activity = ?, " .
+        "grp_repeats = ?";
+        $sqlvars = array($form_id, $props['title'], $props['mapping'], $props['activity'], $props['option_value']);
+        if ($props['notes']) {
+            $jobj = json_decode($props['notes'], true);
+            if (isset($jobj['columns'])) {
+                $query .= ", grp_columns = ?";
+                $sqlvars[] = $jobj['columns'];
+            }
+            if (isset($jobj['size'])) {
+                $query .= ", grp_size = ?";
+                $sqlvars[] = $jobj['size'];
+            }
+            if (isset($jobj['issue'])) {
+                $query .= ", grp_issue_type = ?";
+                $sqlvars[] = $jobj['issue'];
+            }
+            if (isset($jobj['aco'])) {
+                $query .= ", grp_aco_spec = ?";
+                $sqlvars[] = $jobj['aco'];
+            }
+            if (isset($jobj['services'])) {
+                $query .= ", grp_services = ?";
+              // if present but empty, means all services
+                $sqlvars[] = $jobj['services'] ? $jobj['services'] : '*';
+            }
+            if (isset($jobj['products'])) {
+                $query .= ", grp_products = ?";
+              // if present but empty, means all products
+                $sqlvars[] = $jobj['products'] ? $jobj['products'] : '*';
+            }
+            if (isset($jobj['diags'])) {
+                $query .= ", grp_diags = ?";
+              // if present but empty, means all diags
+                $sqlvars[] = $jobj['diags'] ? $jobj['diags'] : '*';
+            }
+        }
+        sqlStatement($query, $sqlvars);
+
+        $gres = sqlStatement(
+            "SELECT DISTINCT group_name FROM layout_options WHERE form_id = ? ORDER BY group_name",
+            array($form_id)
+        );
+
+      // For each group within this layout...
+        while ($grow = sqlFetchArray($gres)) {
+            $group_name = $grow['group_name'];
+            $group_id = '';
+            $title = '';
+            $a = explode('|', $group_name);
+            foreach ($a as $tmp) {
+                $group_id .= substr($tmp, 0, 1);
+                $title = substr($tmp, 1);
+            }
+            sqlStatement(
+                "UPDATE layout_options SET group_id = ? WHERE form_id = ? AND group_name = ?",
+                array($group_id, $form_id, $group_name)
+            );
+            $query = "INSERT IGNORE INTO layout_group_properties SET " .
+            "grp_form_id = ?, " .
+            "grp_group_id = ?, " .
+            "grp_title = '" . add_escape_custom($title) . "'";
+          // grp_title not using $sqlvars because of a bug causing '' to become '0'.
+            $sqlvars = array($form_id, $group_id);
+          /****************************************************************
+          if ($props['notes']) {
+            if (isset($jobj['columns'])) {
+              $query .= ", grp_columns = ?";
+              $sqlvars[] = $jobj['columns'];
+            }
+            if (isset($jobj['size'])) {
+              $query .= ", grp_size = ?";
+              $sqlvars[] = $jobj['size'];
+            }
+          }
+          ****************************************************************/
+          // echo $query; foreach ($sqlvars as $tmp) echo " '$tmp'"; echo "<br />\n"; // debugging
+            sqlStatement($query, $sqlvars);
+        } // end group
+    } // end form
+}
 
 /**
 * Upgrade or patch the database with a selected upgrade/patch file.
@@ -731,6 +865,13 @@ function upgradeFromSqlFile($filename)
 
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
+            }
+        } else if (preg_match('/^#ConvertLayoutProperties/', $line)) {
+            if ($skipping) {
+                echo "<font color='green'>Skipping section $line</font><br />\n";
+            } else {
+                echo "Converting layout properties ...<br />\n";
+                convertLayoutProperties();
             }
         } else if (preg_match('/^#EndIf/', $line)) {
             $skipping = false;

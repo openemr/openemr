@@ -22,9 +22,10 @@
  * @link    http://www.open-emr.org
  */
 
-namespace common\database;
+namespace OpenEMR\Common\Database;
 
 use \Doctrine\DBAL\Logging\SQLLogger;
+use OpenEMR\Common\Logging\Logger;
 
 final class Auditor implements SQLLogger
 {
@@ -54,7 +55,7 @@ final class Auditor implements SQLLogger
      */
     public function __construct()
     {
-        $this->logger = new \common\logging\Logger("\common\database\Auditor");
+        $this->logger = new Logger("\OpenEMR\Common\Database\Auditor");
     }
 
     /**

@@ -11,7 +11,7 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace entities;
+namespace OpenEMR\Entities;
 
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Table;
@@ -23,7 +23,7 @@ use Doctrine\ORM\Mapping\GeneratedValue;
 
 /**
  * @Table(name="users")
- * @Entity(repositoryClass="repositories\UserRepository")
+ * @Entity(repositoryClass="OpenEMR\Repositories\UserRepository")
  */
 class User
 {
@@ -325,6 +325,11 @@ class User
      * @Column(name="main_menu_role", type="string")
      */
     private $mainMenuRole;
+
+    /**
+     * @Column(name="weno_prov_id", type="string")
+     */
+    private $wenoProvId;
 
     public function getId()
     {
@@ -896,6 +901,16 @@ class User
         $this->mainMenuRole = $value;
     }
 
+    public function getWenoProvId()
+    {
+        return $this->wenoProvId;
+    }
+
+    public function setWenoProvId($value)
+    {
+        $this->wenoProvId = $value;
+    }
+
     /**
      * ToString of the entire object.
      *
@@ -959,7 +974,8 @@ class User
                "newCropUserRole: '" . $this->getNewCropUserRole() . "' " .
                "cpoe: '" . $this->getCpoe() . "' " .
                "physicianType: '" . $this->getPhysicianType() . "' " .
-               "mainMenuRole: '" . $this->getMainMenuRole() . "' ";
+               "mainMenuRole: '" . $this->getMainMenuRole() . "' " .
+               "wenoProvId: '" . $this->getWenoProvId() . "' ";
     }
 
     /**

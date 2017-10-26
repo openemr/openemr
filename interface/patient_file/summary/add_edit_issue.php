@@ -2,7 +2,7 @@
 /**
  * add or edit a medical problem.
  *
- * Copyright (C) 2005-2011 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2005-2016 Rod Roark <rod@sunsetsystems.com>
  * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -362,7 +362,7 @@ if ($_POST['form_save']) {
     }
 
     echo " var myboss = opener ? opener : parent;\n";
-    echo " if (myboss.refreshIssue) myboss.refreshIssue($issue,'$tmp_title');\n";
+    echo " if (myboss.refreshIssue) myboss.refreshIssue('" . attr($issue) . "','$tmp_title');\n";
     echo " else if (myboss.reloadIssues) myboss.reloadIssues();\n";
     echo " else myboss.location.reload();\n";
     echo " if (parent.$ && parent.$.fancybox) parent.$.fancybox.close();\n";
@@ -397,8 +397,7 @@ if (!empty($irow['type'])) {
 <html>
 <head>
 <?php html_header_show();?>
-
-<title><?php echo $issue ? xlt('Edit') : xlt('Add New'); ?><?php echo " ".xlt('Issue'); ?></title>
+<title><?php echo ($issue ? xlt('Edit') : xlt('Add New')) . ' ' . xlt('Issue'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
@@ -417,12 +416,16 @@ div.section {
  padding: 5pt;
 }
 
+/* Override theme's selected tab top color so it matches tab contents. */
+ul.tabNav li.current a { background:#ffffff; }
+
 </style>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 
@@ -600,10 +603,22 @@ function set_related(codetype, code, selector, codedesc) {
  if(title == '') f.form_title.value = codedesc;
 }
 
+// This is for callback by the find-code popup.
+// Returns the array of currently selected codes with each element in codetype:code format.
+function get_related() {
+    return document.forms[0].form_diagnosis.value.split(';');
+}
+
+// This is for callback by the find-code popup.
+// Deletes the specified codetype:code from the currently selected list.
+function del_related(s) {
+    my_del_related(s, document.forms[0].form_diagnosis, false);
+}
+
 // This invokes the find-code popup.
 function sel_diagnosis() {
 <?php
-$url = '../encounter/find_code_popup.php?codetype=';
+$url = '../encounter/find_code_dynamic.php?codetype=';
 if ($irow['type'] == 'medical_problem') {
     $url .= collect_codetypes("medical_problem", "csv");
 } else {
@@ -620,7 +635,7 @@ if ($irow['type'] == 'medical_problem') {
     }
 }
 ?>
- dlgopen('<?php echo $url; ?>', '_blank', 700, 500);
+ dlgopen('<?php echo $url; ?>', '_blank', 900, 600);
 }
 
 // Check for errors when the form is submitted.
@@ -664,6 +679,39 @@ $(document).ready(function() {
 </head>
 
 <body class="body_top" style="padding-right:0.5em">
+
+<ul class="tabNav">
+ <li class='current'><a href='#'><?php echo xlt('Issue'); ?></a></li>
+<?php
+// Build html tab data for each visit form linked to this issue.
+$tabcontents = '';
+if ($issue) {
+    $vres = sqlStatement(
+        "SELECT f.id, f.encounter, f.form_name, f.form_id, f.formdir, fe.date " .
+        "FROM forms AS f, form_encounter AS fe WHERE " .
+        "f.pid = ? AND f.issue_id = ? AND f.deleted = 0 AND " .
+        "fe.pid = f.pid and fe.encounter = f.encounter " .
+        "ORDER BY fe.date DESC, f.id DESC",
+        array($thispid, $issue)
+    );
+    while ($vrow = sqlFetchArray($vres)) {
+        $formdir = $vrow['formdir'];
+        $formid  = $vrow['form_id'];
+        $visitid = $vrow['encounter'];
+        echo " <li><a href='#'>" . oeFormatShortDate(substr($vrow['date'], 0, 10)) . ' ' .
+            text($vrow['form_name']) . "</a></li>\n";
+        $tabcontents .= "<div class='tab' style='height:90%;width:98%;'>\n";
+        $tabcontents .= "<iframe frameborder='0' style='height:100%;width:100%;' " .
+            "src='../../forms/LBF/new.php?formname=$formdir&id=$formid&visitid=$visitid&from_issue_form=1'" .
+            ">Oops</iframe>\n";
+        $tabcontents .= "</div>\n";
+    }
+}
+?>
+</ul>
+
+<div class="tabContainer">
+<div class='tab current' style='height:auto;width:97%;'>
 
 <form method='post' name='theform'
  action='add_edit_issue.php?issue=<?php echo attr($issue); ?>&thispid=<?php echo attr($thispid); ?>&thisenc=<?php echo attr($thisenc); ?>'
@@ -901,8 +949,17 @@ if ($ISSUE_TYPES['ippf_gcac']) {
 </center>
 
 </form>
+
+</div>
+
+<?php echo $tabcontents; ?>
+
+</div>
+
 <script language='JavaScript'>
  newtype(<?php echo $type_index ?>);
+ // Set up the tabbed UI.
+ tabbify();
 </script>
 
 <?php validateUsingPageRules($_SERVER['PHP_SELF']);?>

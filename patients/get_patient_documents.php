@@ -6,33 +6,18 @@
  * The original author did not pursue this but I thought it would be a good addition to
  * the patient portal
  *
- * Copyright (C) 2015 Terry Hill <terry@lillysystems.com>
- * Copyright (C) 2012 Giorgos Vasilakos <giorg.vasilakos@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
  * @package OpenEMR
  * @author Terry Hill <terry@lilysystems.com>
  * @author Giorgos Vasilakos <giorg.vasilakos@gmail.com>
+ * @copyright Copyright (C) 2015 Terry Hill <terry@lillysystems.com>
+ * @copyright Copyright (C) 2012 Giorgos Vasilakos <giorg.vasilakos@gmail.com>
  * @link http://www.open-emr.org
- *
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
     require_once("verify_session.php");
     include_once("$srcdir/documents.php");
     require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
-
-    // TODO: see if this can be removed (test in PHP 5 and 7)... throwing a warning
-    use C_Document;
 
     // get the temporary folder
     $tmp = $GLOBALS['temporary_files_dir'];

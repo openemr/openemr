@@ -123,7 +123,7 @@ class BillingExport
   // Creating a BillingExport object opens the output file.
   // Filename format is "transYYYYMMDDHHMMSS.txt".
   //
-    function BillingExport()
+    function __construct()
     {
         $this->tmpname = $this->TMP_DIR . '/trans' . date("YmdHis") . '.txt';
         $this->tmpfh = fopen($this->tmpname, 'w');

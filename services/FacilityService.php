@@ -20,7 +20,9 @@
  * @link    http://www.open-emr.org
  */
 
-namespace services;
+namespace OpenEMR\Services;
+
+use OpenEMR\Common\Utils\QueryUtils;
 
 class FacilityService
 {
@@ -199,6 +201,15 @@ class FacilityService
         return sqlInsert($sql);
     }
 
+    public function updateUsersFacility($facility_name, $facility_id)
+    {
+        $sql = " UPDATE users SET";
+        $sql .= " facility='" . add_escape_custom($facility_name) . "'";
+        $sql .= " WHERE facility_id='" . add_escape_custom($facility_id) . "'";
+
+        return sqlStatement($sql);
+    }
+
     /**
      * Shared getter for the various specific facility getters.
      *
@@ -234,7 +245,7 @@ class FacilityService
         $sql .= "        FAC.extra_validation";
         $sql .= " FROM facility FAC";
 
-        return \common\utils\QueryUtils::selectHelper($sql, $map);
+        return QueryUtils::selectHelper($sql, $map);
     }
 
     private function getPrimaryBusinessEntityLegacy()

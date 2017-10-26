@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenEMR;
+namespace OpenEMR\Common;
 
 /**
  * Check if the server's PHP version is compatible with OpenEMR.

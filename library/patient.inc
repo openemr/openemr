@@ -8,7 +8,9 @@
  * of the License, or (at your option) any later version.
  */
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 // These are for sports team use:
 $PLAYER_FITNESSES = array(
@@ -157,7 +159,7 @@ function getInsuranceProvidersExtra()
 
 function getProviders()
 {
-    $returnval = array("");
+    $returnval = array();
     $sql = "select fname, lname, suffix from users where authorized = 1 and " .
         "active = 1 and username != ''";
     $rez = sqlStatement($sql);
@@ -205,7 +207,12 @@ function genFacilityTitle($repname = '', $facid = 0)
     $s = '';
     $s .= "<table class='ftitletable'>\n";
     $s .= " <tr>\n";
-    $s .= "  <td class='ftitlecell1'>$repname</td>\n";
+    if (empty($logo)) {
+        $s .= "  <td class='ftitlecell1'>$repname</td>\n";
+    } else {
+        $s .= "  <td class='ftitlecell1'>$logo</td>\n";
+        $s .= "  <td class='ftitlecellm'>$repname</td>\n";
+    }
     $s .= "  <td class='ftitlecell2'>\n";
     $r = getFacility($facid);
     if (!empty($r)) {
@@ -561,7 +568,7 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
 
     $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     if ($limit != "all") {
-        $sql .= " LIMIT $start, $limit";
+        $sql .= " limit " . escape_limit($start) . ", " . escape_limit($limit);
     }
 
     $rez = sqlStatement($sql, $sqlBindArray);
@@ -639,7 +646,7 @@ function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, provid
 
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     if ($limit != "all") {
-        $sql .= " limit $start, $limit";
+        $sql .= " limit " . escape_limit($start) . ", " . escape_limit($limit);
     }
 
     $rez = sqlStatement($sql, $sqlBindArray);
@@ -653,7 +660,10 @@ function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, provid
 
 function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
-    $layoutCols = sqlStatement("SELECT field_id FROM layout_options WHERE form_id='DEM' AND group_name not like (? ) AND uor !=0", array("%".Employer."%"));
+    $layoutCols = sqlStatement(
+        "SELECT field_id FROM layout_options WHERE form_id = 'DEM' AND field_id not like ? AND uor !=0",
+        array('em\_%')
+    );
 
     $sqlBindArray = array();
     $where = "";
@@ -668,7 +678,7 @@ function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, f
 
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     if ($limit != "all") {
-        $sql .= " limit $start, $limit";
+        $sql .= " limit " . escape_limit($start) . ", " . escape_limit($limit);
     }
 
     $rez = sqlStatement($sql, $sqlBindArray);
@@ -735,7 +745,7 @@ function getByPatientDemographicsFilter(
 
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     if ($limit != "all") {
-        $sql .= " limit $start, $limit";
+        $sql .= " limit " . escape_limit($start) . ", " . escape_limit($limit);
     }
 
     $rez = sqlStatement($sql, $sqlBindArray);
@@ -792,7 +802,7 @@ function getPatientPID($args)
 
     $sql="select $given from patient_data where pid $command '$pid' order by $orderby";
     if ($limit != "all") {
-        $sql .= " limit $start, $limit";
+        $sql .= " limit " . escape_limit($start) . ", " . escape_limit($limit);
     }
 
     $rez = sqlStatement($sql);
@@ -838,7 +848,7 @@ function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $ord
     $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
 
     if ($limit != "all") {
-        $sql .= " LIMIT $start, $limit";
+        $sql .= " limit " . escape_limit($start) . ", " . escape_limit($limit);
     }
 
     $rez = sqlStatement($sql, $sqlBindArray);
@@ -858,7 +868,7 @@ function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, provid
     array_push($sqlBindArray, $ss."%");
     $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     if ($limit != "all") {
-        $sql .= " LIMIT $start, $limit";
+        $sql .= " limit " . escape_limit($start) . ", " . escape_limit($limit);
     }
 
     $rez = sqlStatement($sql, $sqlBindArray);
@@ -879,7 +889,7 @@ function getPatientPhone($phone = "%", $given = "pid, id, lname, fname, mname, p
     array_push($sqlBindArray, $phone);
     $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     if ($limit != "all") {
-        $sql .= " LIMIT $start, $limit";
+        $sql .= " limit " . escape_limit($start) . ", " . escape_limit($limit);
     }
 
     $rez = sqlStatement($sql, $sqlBindArray);
@@ -896,7 +906,7 @@ function getPatientIds($given = "pid, id, lname, fname, mname", $orderby = "id A
     $sql="select $given from patient_data order by $orderby";
 
     if ($limit != "all") {
-        $sql .= " limit $start, $limit";
+        $sql .= " limit " . escape_limit($start) . ", " . escape_limit($limit);
     }
 
     $rez = sqlStatement($sql);

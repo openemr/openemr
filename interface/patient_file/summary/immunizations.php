@@ -19,9 +19,6 @@
  * @link    http://www.open-emr.org
  */
 
-
-
-
 include_once("../../globals.php");
 include_once("$srcdir/options.inc.php");
 include_once("$srcdir/immunization_helper.php");
@@ -1036,10 +1033,26 @@ function set_related(codetype, code, selector, codedesc) {
     }
 }
 
+// This is for callback by the find-code popup.
+// Returns the array of currently selected codes with each element in codetype:code format.
+function get_related() {
+    return new Array();
+}
+
+// This is for callback by the find-code popup.
+// Deletes the specified codetype:code from the currently selected list.
+function del_related(s) {
+    var e = document.forms[0][current_sel_name];
+    e.value = '';
+    $("#cvx_description").text('');
+    $("#form_immunization_id").attr("value", "");
+    $("#form_immunization_id").change();
+}
+
 // This invokes the find-code popup.
 function sel_cvxcode(e) {
  current_sel_name = e.name;
- dlgopen('../encounter/find_code_popup.php?codetype=CVX', '_blank', 500, 400);
+ dlgopen('../encounter/find_code_dynamic.php?codetype=CVX', '_blank', 900, 600);
 }
 
 // This ensures the cvx centric entry is filled.

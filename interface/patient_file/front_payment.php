@@ -20,9 +20,12 @@ require_once("$srcdir/invoice_summary.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
+
+use OpenEMR\Services\FacilityService;
+
 $pid = $_REQUEST['hidden_patient_code'] > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
 
-$facilityService = new \services\FacilityService();
+$facilityService = new FacilityService();
 
 ?>
 <html>
@@ -182,7 +185,9 @@ if ($_POST['form_save']) {
             if ($amount = 0 + $payment) {
                  $zero_enc=$enc;
                 if ($_REQUEST['radio_type_of_payment']=='invoice_balance') {
-                    ;
+                    if (!$enc) {
+                        $enc = calendar_arrived($form_pid);
+                    }
                 } else {
                     if (!$enc) {
                            $enc = calendar_arrived($form_pid);
@@ -313,26 +318,26 @@ if ($_POST['form_save']) {
                                      $amount=0;
                             }
 
-                                              sqlBeginTrans();
-                                              $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $enc));
-                                              sqlStatement(
-                                                  "insert into ar_activity set "    .
-                                                  "pid = ?"       .
-                                                  ", encounter = ?"     .
-                                                  ", sequence_no = ?"     .
-                                                                            ", code_type = ?"      .
-                                                  ", code = ?"      .
-                                                  ", modifier = ?"      .
-                                                  ", payer_type = ?"   .
-                                                  ", post_time = now() " .
-                                                  ", post_user = ?" .
-                                                  ", session_id = ?"    .
-                                                  ", pay_amount = ?" .
-                                                  ", adj_amount = ?"    .
-                                                  ", account_code = 'PP'",
-                                                  array($form_pid,$enc,$sequence_no['increment'],$Codetype,$Code,$Modifier,0,$_SESSION['authUserID'],$payment_id,$insert_value,0)
-                                              );
-                                                sqlCommitTrans();
+                              sqlBeginTrans();
+                              $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $enc));
+                              sqlStatement(
+                                  "insert into ar_activity set "    .
+                                  "pid = ?"       .
+                                  ", encounter = ?"     .
+                                  ", sequence_no = ?"     .
+                                  ", code_type = ?"      .
+                                  ", code = ?"      .
+                                  ", modifier = ?"      .
+                                  ", payer_type = ?"   .
+                                  ", post_time = now() " .
+                                  ", post_user = ?" .
+                                  ", session_id = ?"    .
+                                  ", pay_amount = ?" .
+                                  ", adj_amount = ?"    .
+                                  ", account_code = 'PP'",
+                                  array($form_pid,$enc,$sequence_no['increment'],$Codetype,$Code,$Modifier,0,$_SESSION['authUserID'],$payment_id,$insert_value,0)
+                              );
+                              sqlCommitTrans();
                         }//if
                     }//while
                     if ($amount!=0) {//if any excess is there.
@@ -343,7 +348,7 @@ if ($_POST['form_save']) {
                                     "pid = ?"       .
                                     ", encounter = ?"     .
                                     ", sequence_no = ?"     .
-                                           ", code_type = ?"      .
+                                    ", code_type = ?"      .
                                     ", code = ?"      .
                                     ", modifier = ?"      .
                                     ", payer_type = ?"   .
@@ -643,21 +648,26 @@ function validate()
   ok=-1;
   top.restoreSession();
   issue='no';
-   if(((document.getElementById('form_method').options[document.getElementById('form_method').selectedIndex].value=='check_payment' ||
-      document.getElementById('form_method').options[document.getElementById('form_method').selectedIndex].value=='bank_draft') &&
-       document.getElementById('check_number').value=='' ))
-   {
+  if(((document.getElementById('form_method').options[document.getElementById('form_method').selectedIndex].value=='check_payment' ||
+          document.getElementById('form_method').options[document.getElementById('form_method').selectedIndex].value=='bank_draft') &&
+           document.getElementById('check_number').value=='' ))
+    {
     alert("<?php echo addslashes(xl('Please Fill the Check/Ref Number')) ?>");
     document.getElementById('check_number').focus();
     return false;
    }
 
-  if(document.getElementById('radio_type_of_payment_self1').checked==false && document.getElementById('radio_type_of_payment_self2').checked==false   && document.getElementById('radio_type_of_payment1').checked==false && document.getElementById('radio_type_of_payment2').checked==false  && document.getElementById('radio_type_of_payment5').checked==false  && document.getElementById('radio_type_of_payment4').checked==false)
+  if(document.getElementById('radio_type_of_payment_self1').checked==false &&
+          document.getElementById('radio_type_of_payment1').checked==false &&
+          document.getElementById('radio_type_of_payment2').checked==false &&
+          document.getElementById('radio_type_of_payment4').checked==false)
    {
       alert("<?php echo addslashes(xl('Please Select Type Of Payment.')) ?>");
       return false;
    }
-  if(document.getElementById('radio_type_of_payment_self1').checked==true || document.getElementById('radio_type_of_payment_self2').checked==true || document.getElementById('radio_type_of_payment1').checked==true || document.getElementById('radio_type_of_payment5').checked==true)
+
+  if(document.getElementById('radio_type_of_payment_self1').checked==true ||
+          document.getElementById('radio_type_of_payment1').checked==true)
    {
      for (var i = 0; i < f.elements.length; ++i)
      {
@@ -667,7 +677,7 @@ function validate()
       {
        if(elem.value*1>0)
         {//A warning message, if the amount is posted with out encounter.
-         if(confirm("<?php echo addslashes(xl('Are you sure to post for today?')) ?>"))
+           if(confirm("<?php echo addslashes(xlt('If patient has appointment click OK to create encounter otherwise, cancel and create encounter.')) ?>"))
           {
            ok=1;
           }
@@ -689,7 +699,7 @@ function validate()
      {
       var elem = f.elements[i];
       var ename = elem.name;
-      if (ename.indexOf('form_upay[') == 0) //Today is this text box.
+      if (ename.indexOf('form_upay[0') == 0) //Today is this text box.
       {
        if(f.form_paytotal.value*1!=elem.value*1)//Total CO-PAY is not posted against today
         {//A warning message, if the amount is posted against an old encounter.
@@ -709,13 +719,11 @@ function validate()
    }//Co Pay
  else if(document.getElementById('radio_type_of_payment2').checked==true)//Invoice Balance
   {
-   if(document.getElementById('Today').innerHTML=='')
-    {
      for (var i = 0; i < f.elements.length; ++i)
       {
        var elem = f.elements[i];
        var ename = elem.name;
-       if (ename.indexOf('form_upay[') == 0)
+       if (ename.indexOf('form_upay[0') == 0)
         {
          if (elem.value*1 > 0)
           {
@@ -725,7 +733,6 @@ function validate()
          break;
        }
       }
-    }
   }
  if(ok==-1)
   {
@@ -764,13 +771,13 @@ function make_it_hide_enc_pay()
   for (var i = 1; ; ++i)
   {
     var td_inspaid_elem = document.getElementById('td_inspaid_'+i)
-        var td_patient_copay_elem = document.getElementById('td_patient_copay_'+i)
+    var td_patient_copay_elem = document.getElementById('td_patient_copay_'+i)
     var td_copay_elem = document.getElementById('td_copay_'+i)
     var balance_elem = document.getElementById('balance_'+i)
    if (td_inspaid_elem)
    {
     td_inspaid_elem.style.display="none";
-        td_patient_copay_elem.style.display="none";
+    td_patient_copay_elem.style.display="none";
     td_copay_elem.style.display="none";
     balance_elem.style.display="none";
    }
@@ -781,7 +788,7 @@ function make_it_hide_enc_pay()
   }
   document.getElementById('td_total_4').style.display="none";
   document.getElementById('td_total_7').style.display="none";
-    document.getElementById('td_total_8').style.display="none";
+  document.getElementById('td_total_8').style.display="none";
   document.getElementById('td_total_6').style.display="none";
 
   document.getElementById('table_display').width="420px";
@@ -795,7 +802,7 @@ function make_visible()
   document.getElementById('td_head_total_charge').style.display="none";
   document.getElementById('td_head_insurance_payment').style.display="none";
   document.getElementById('td_head_patient_payment').style.display="none";
-    document.getElementById('td_head_patient_co_pay').style.display="none";
+  document.getElementById('td_head_patient_co_pay').style.display="none";
   document.getElementById('td_head_co_pay').style.display="none";
   document.getElementById('td_head_insurance_balance').style.display="none";
   document.getElementById('td_head_patient_balance').style.display="none";
@@ -804,7 +811,7 @@ function make_visible()
    var td_charges_elem = document.getElementById('td_charges_'+i)
    var td_inspaid_elem = document.getElementById('td_inspaid_'+i)
    var td_ptpaid_elem = document.getElementById('td_ptpaid_'+i)
-     var td_patient_copay_elem = document.getElementById('td_patient_copay_'+i)
+   var td_patient_copay_elem = document.getElementById('td_patient_copay_'+i)
    var td_copay_elem = document.getElementById('td_copay_'+i)
    var balance_elem = document.getElementById('balance_'+i)
    var duept_elem = document.getElementById('duept_'+i)
@@ -824,7 +831,7 @@ function make_visible()
    }
   }
   document.getElementById('td_total_7').style.display="";
-    document.getElementById('td_total_8').style.display="";
+  document.getElementById('td_total_8').style.display="";
   document.getElementById('td_total_1').style.display="none";
   document.getElementById('td_total_2').style.display="none";
   document.getElementById('td_total_3').style.display="none";
@@ -842,7 +849,7 @@ function make_it_hide()
   document.getElementById('td_head_insurance_payment').style.display="";
   document.getElementById('td_head_patient_payment').style.display="";
   document.getElementById('td_head_patient_co_pay').style.display="";
-    document.getElementById('td_head_co_pay').style.display="";
+  document.getElementById('td_head_co_pay').style.display="";
   document.getElementById('td_head_insurance_balance').style.display="";
   document.getElementById('td_head_patient_balance').style.display="";
   for (var i = 1; ; ++i)
@@ -859,7 +866,7 @@ function make_it_hide()
     td_charges_elem.style.display="";
     td_inspaid_elem.style.display="";
     td_ptpaid_elem.style.display="";
-        td_patient_copay_elem.style.display="";
+    td_patient_copay_elem.style.display="";
     td_copay_elem.style.display="";
     balance_elem.style.display="";
     duept_elem.style.display="";
@@ -875,7 +882,7 @@ function make_it_hide()
   document.getElementById('td_total_4').style.display="";
   document.getElementById('td_total_5').style.display="";
   document.getElementById('td_total_6').style.display="";
-    document.getElementById('td_total_7').style.display="";
+  document.getElementById('td_total_7').style.display="";
   document.getElementById('td_total_8').style.display="";
 
   document.getElementById('table_display').width="635px";

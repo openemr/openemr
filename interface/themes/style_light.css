@@ -1,5 +1,88 @@
 @import "core.css";
 
+/*below section is override bootstrap 3 for openemr and some new classes all prefixed with oe-*/
+.form-group {
+  margin-bottom: 5px !Important;
+}
+legend {
+  border-bottom: 2px solid #E5E5E5 !Important;
+  background: #E5E5E5 !Important;
+  padding-left: 10px !Important;
+}
+.form-horizontal .control-label {
+  padding-top: 2px;
+}
+fieldset {
+  background-color: #F2F2F2!Important;
+  margin-bottom: 10px!Important;
+  padding: 0px 0px 15px 0px!Important;
+}
+.btn-link.btn-cancel:focus, .btn-link.btn-cancel:hover {
+
+}
+.btn-link.btn-cancel {
+
+}
+.btn-link.btn-cancel.active, .btn-link.btn-cancel.focus,
+.btn-link.btn-cancel:active, .btn-link.btn-cancel:focus,
+.btn-link.btn-cancel:hover, .open>.dropdown-toggle.btn-link.btn-cancel {
+
+}
+.btn-separate-left,  .oe-opt-btn-separate-left{
+
+}
+.btn-group>.btn:first-child:not(:last-child):not(.dropdown-toggle) {
+
+}
+.btn-group-pinch>.btn:nth-last-child(2):not(.dropdown-toggle), .oe-opt-btn-group-pinch>.btn:nth-last-child(2):not(.dropdown-toggle) {
+
+}
+.oe-custom-line{
+  padding-bottom:5px;
+}
+.oe-large {
+  display: inline-block;
+}
+.oe-small {
+  display: none;
+}
+.oe-show-hide {
+  display: none;
+}
+.oe-legend-radio{
+  font-size:12px;
+  padding:5px 5px 0px 0px;
+}
+.oe-bold-black {
+  font-weight: 700;
+  color: black;
+}
+.oe-payment-select {
+  width: 80px !important;
+  text-align: right;
+  font-size: 12px;
+}
+.oe-ckbox-label{
+  padding-left: 30px;
+  font-weight: 500;
+}
+.oe-file-div{
+  padding:10px 15px;
+}
+.oe-modal-dialog{
+  width:65% !Important;
+}
+.oe-btn-circle {
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  padding: 6px 0;
+  font-size: 12px;
+  line-height: 1.428571429;
+  border-radius: 15px;
+}
+/*above section is override bootstrap 3 for openemr and some new classes all prefixed with oe-*/
+
 body {
     font-family: lato, Helvetica, Sans-Serif;
     font-size: 14px;
@@ -29,9 +112,9 @@ a:hover {
     top:0;
     background-color:#FFFFFF !important;
     z-index:100;
-     }
+}
 
-    .menuBar .container{
+.menuBar ~ .container{
     margin-top:95px;
 }
 
@@ -67,7 +150,7 @@ a:hover {
   font-size: 0.9em;
 }
 
-.alert {
+.alert-custom {
   background-color: #FF0000 !important;
   color: #fff !important;
 }
@@ -632,6 +715,11 @@ a:hover {
 tr.odd, td.even {
   background-color: #ffffff !important;
 }
+/* The top navigation icon styling*/
+.top-nav-icons {
+    margin-right: 15px;
+    margin-top: 5px
+}
 
 /*
  * CSS BUTTONS
@@ -722,9 +810,6 @@ input[type="text"] {
   margin: 3px;
 }
 
-#logout_link:before {
-  content: "X";
-}
 #logout_link span {
   display: none;
 }
@@ -1041,7 +1126,9 @@ div.notab-right {
   background-color: #d7d7d7;
 }
 #navigation-slide li a.collapsed_lv2:before,
-#navigation-slide * li a.collapsed_lv2:before {
+#navigation-slide * li a.collapsed_lv2:before,
+#navigation-slide li a.collapsed_lv3:before,
+#navigation-slide * li a.collapsed_lv3:before {
   content: "&nbsp;";
   width: 0;
   height: 0;
@@ -1059,7 +1146,9 @@ div.notab-right {
   background: #cbe6f7;
 }
 #navigation-slide li a.expanded_lv2:before,
-#navigation-slide * li a.expanded_lv2:before {
+#navigation-slide * li a.expanded_lv2:before,
+#navigation-slide li a.expanded_lv3:before,
+#navigation-slide * li a.expanded_lv3:before {
   content: "&nbsp;";
   width: 0;
   height: 0;
@@ -1492,7 +1581,7 @@ table.dataTable#therapy_groups_list tbody td{
     padding-bottom: 55px;
 }
 
-.alert-danger {
+.alert-danger-custom {
   background-color: #FF0000 !important;
   color: #fff !important;
 }

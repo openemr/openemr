@@ -111,7 +111,7 @@ class Mime_Types
      *
      * @param mixed $mime_types
      */
-    function Mime_Types($mime_types = null)
+    function __construct($mime_types = null)
     {
         if (is_string($mime_types)) {
             $this->load_file($mime_types);

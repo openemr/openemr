@@ -129,6 +129,7 @@ VALUES ('page_validation','add_edit_event#theform_groups','/interface/main/calen
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'common#new-encounter-form', '/interface/forms/newGroupEncounter/common.php', 160, '{pc_catid:{exclusion: ["_blank"]}}', 1);
 #EndIf
 
+
 #IfNotTable therapy_groups
 CREATE TABLE `therapy_groups` (
   `group_id` int(11) NOT NULL auto_increment,
@@ -461,4 +462,202 @@ ALTER TABLE `openemr_postcalendar_categories` ADD COLUMN `aco_spec` VARCHAR(63) 
 INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','apps','Apps');
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','*OpenEMR','main/main_screen.php',10,1,0);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','Calendar','main/calendar/index.php',20,0,0);
+#EndIf
+
+#IfNotColumnType list_options list_id varchar(100)
+ALTER TABLE `list_options` CHANGE `list_id` `list_id` VARCHAR(100) NOT NULL DEFAULT '';
+#EndIf
+
+#IfNotColumnType list_options option_id varchar(100)
+ALTER TABLE `list_options` CHANGE `option_id` `option_id` VARCHAR(100) NOT NULL DEFAULT '';
+#EndIf
+
+#IfNotColumnType layout_options list_id varchar(100)
+ALTER TABLE `layout_options` CHANGE `list_id` `list_id` VARCHAR(100) NOT NULL DEFAULT '';
+#EndIf
+
+#IfNotColumnType layout_options list_backup_id varchar(100)
+ALTER TABLE `layout_options` CHANGE `list_backup_id` `list_backup_id` VARCHAR(100) NOT NULL DEFAULT '';
+#EndIf
+
+#IfNotTable patient_birthday_alert
+CREATE TABLE `patient_birthday_alert` (
+  `pid` bigint(20) NOT NULL DEFAULT 0,
+  `user_id` bigint(20) NOT NULL DEFAULT 0,
+  `turned_off_on` date NOT NULL,
+  PRIMARY KEY  (`pid`,`user_id`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2017-10-01 load_filename 2018-ICD-10-PCS-Order-File.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2017-10-01', '2018-ICD-10-PCS-Order-File.zip', '264b342310236f2b3927062d2c72cfe3');
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2017-10-01 load_filename 2018-ICD-10-CM-General-Equivalence-Mappings.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2017-10-01', '2018-ICD-10-CM-General-Equivalence-Mappings.zip', '787a025fdcf6e1da1a85be779004f670');
+#EndIf
+
+UPDATE `supported_external_dataloads` SET `load_filename`='2018-ICD-10-Code-Descriptions.zip' WHERE `load_filename`='2018-ICD-10-Code-Dedcriptions.zip' AND `load_release_date`='2017-10-01';
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2017-10-01 load_filename 2018-ICD-10-Code-Descriptions.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2017-10-01', '2018-ICD-10-Code-Descriptions.zip', '6f9c77440132e30f565222ca9bb6599c');
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2017-10-01 load_filename 2018-ICD-10-PCS-General-Equivalence-Mappings.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2017-10-01', '2018-ICD-10-PCS-General-Equivalence-Mappings.zip', 'bb73c80e272da28712887d7979b1cebf');
+#EndIf
+
+#IfColumn x12_partners x12_version
+ALTER TABLE `x12_partners` DROP COLUMN `x12_version`;
+#EndIf
+
+#IfNotRow2D list_options list_id page_validation option_id add_edit_event#theform_prov
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES
+('page_validation', 'add_edit_event#theform_prov', '/interface/main/calendar/add_edit_event.php?prov=true', 170, '{}', 1);
+#EndIf
+
+#IfMissingColumn claims submitted_claim
+ALTER TABLE `claims` ADD COLUMN `submitted_claim` TEXT COMMENT 'This claims form claim data';
+#EndIf
+
+#IfMissingColumn billing revenue_code
+ALTER TABLE `billing` ADD COLUMN `revenue_code` varchar(6) NOT NULL DEFAULT "" COMMENT 'Item revenue code';
+#EndIf
+
+#IfMissingColumn codes revenue_code
+ALTER TABLE `codes` ADD COLUMN `revenue_code` varchar(6) NOT NULL DEFAULT "" COMMENT 'Item revenue code';
+#EndIf
+
+#IfMissingColumn users weno_prov_id
+ALTER TABLE `users` ADD `weno_prov_id` VARCHAR(15) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn prescriptions ntx
+ALTER TABLE `prescriptions` ADD `ntx` INT(2) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn prescriptions rtx
+ALTER TABLE `prescriptions` ADD `rtx` INT(2) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn prescriptions txDate
+ALTER TABLE `prescriptions` ADD `txDate` DATE NOT NULL;
+#EndIf
+
+#IfMissingColumn pharmacies ncpdp
+ALTER TABLE `pharmacies` ADD `ncpdp` INT(12) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn pharmacies npi
+ALTER TABLE `pharmacies` ADD `npi` INT(12) DEFAULT NULL;
+#EndIf
+
+#IfNotRow2Dx2 list_options list_id state option_id PR title Puerto Rico
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('state','PR','Puerto Rico',39,0);
+#EndIf
+
+#IfNotTable erx_drug_paid
+CREATE TABLE `erx_drug_paid` (
+  `drugid` int(11) NOT NULL AUTO_INCREMENT,
+  `drug_label_name` varchar(45) NOT NULL,
+  `ahfs_descr` varchar(45) NOT NULL,
+  `ndc` bigint(12) NOT NULL,
+  `price_per_unit` decimal(5,2) NOT NULL,
+  `avg_price` decimal(6,2) NOT NULL,
+  `avg_price_paid` int(6) NOT NULL,
+  `avg_savings` decimal(6,2) NOT NULL,
+  `avg_percent` decimal(6,2) NOT NULL,
+   PRIMARY KEY (`drugid`)
+   ) ENGINE=InnoDB;
+#EndIf
+
+#IfNotTable erx_rx_log
+CREATE TABLE `erx_rx_log` (
+ `id` int(20) NOT NULL AUTO_INCREMENT,
+ `prescription_id` int(6) NOT NULL,
+ `date` varchar(25) NOT NULL,
+ `time` varchar(15) NOT NULL,
+ `code` int(6) NOT NULL,
+ `status` text,
+ `message_id` varchar(100) DEFAULT NULL,
+ `read` int(1) DEFAULT NULL,
+ PRIMARY KEY (`id`)
+  ) ENGINE=InnoDB;
+#EndIf
+
+#IfNotTable erx_narcotics
+CREATE TABLE `erx_narcotics` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `drug` varchar(255) NOT NULL,
+  `dea_number` varchar(5) NOT NULL,
+  `csa_sch` varchar(2) NOT NULL,
+  `narc` varchar(2) NOT NULL,
+  `other_names` varchar(255) NOT NULL,
+   PRIMARY KEY (`id`)
+  ) ENGINE=InnoDB;
+#EndIf
+
+UPDATE `globals` SET `gl_value`='style_red.css' WHERE `gl_name`='css_header' AND `gl_value`='style_flat_red.css';
+UPDATE `globals` SET `gl_value`='style_manila.css' WHERE `gl_name`='css_header' AND `gl_value`='style_tan.css';
+UPDATE `globals` SET `gl_value`='style_light.css' WHERE `gl_name`='css_header' AND (`gl_value`='style_babyblu.css'
+ OR `gl_value`='style_metal.css'
+ OR `gl_value`='style_oemr.css'
+ OR `gl_value`='style_purple.css'
+ OR `gl_value`='style_radiant.css'
+ OR `gl_value`='style_sky_blue.css');
+
+UPDATE `user_settings` SET `setting_value`='style_red.css' WHERE `setting_label`='global:css_header' AND `setting_value`='style_flat_red.css';
+UPDATE `user_settings` SET `setting_value`='style_manila.css' WHERE `setting_label`='global:css_header' AND `setting_value`='style_tan.css';
+UPDATE `user_settings` SET `setting_value`='style_light.css' WHERE `setting_label`='global:css_header' AND (`setting_value`='style_babyblu.css'
+ OR `setting_value`='style_metal.css'
+ OR `setting_value`='style_oemr.css'
+ OR `setting_value`='style_purple.css'
+ OR `setting_value`='style_radiant.css'
+ OR `setting_value`='style_sky_blue.css');
+
+#IfNotColumnType facility country_code varchar(30)
+ALTER TABLE `facility` CHANGE `country_code` `country_code` varchar(30) NOT NULL default '';
+#EndIf
+
+#IfNotColumnType layout_options group_name varchar(255)
+ALTER TABLE `layout_options` CHANGE `group_name` `group_name` varchar(255) NOT NULL default '';
+#EndIf
+
+#IfMissingColumn forms issue_id
+ALTER TABLE `forms` ADD COLUMN `issue_id` bigint(20) NOT NULL default 0 COMMENT 'references lists.id to identify a case';
+#EndIf
+
+#IfMissingColumn forms provider_id
+ALTER TABLE `forms` ADD COLUMN `provider_id` bigint(20) NOT NULL default 0 COMMENT 'references users.id to identify a provider';
+#EndIf
+
+#IfNotTable layout_group_properties
+CREATE TABLE `layout_group_properties` (
+  grp_form_id     varchar(31)    not null,
+  grp_group_id    varchar(31)    not null default '' comment 'empty when representing the whole form',
+  grp_title       varchar(63)    not null default '' comment 'descriptive name of the form or group',
+  grp_subtitle    varchar(63)    not null default '' comment 'for display under the title',
+  grp_mapping     varchar(31)    not null default '' comment 'the form category',
+  grp_seq         int(11)        not null default 0  comment 'optional order within mapping',
+  grp_activity    tinyint(1)     not null default 1,
+  grp_repeats     int(11)        not null default 0,
+  grp_columns     int(11)        not null default 0,
+  grp_size        int(11)        not null default 0,
+  grp_issue_type  varchar(75)    not null default '',
+  grp_aco_spec    varchar(63)    not null default '',
+  grp_services    varchar(4095)  not null default '',
+  grp_products    varchar(4095)  not null default '',
+  grp_diags       varchar(4095)  not null default '',
+  PRIMARY KEY (grp_form_id, grp_group_id)
+) ENGINE=InnoDB;
+ALTER TABLE layout_options ADD COLUMN group_id VARCHAR(31) NOT NULL default '' AFTER group_name;
+#ConvertLayoutProperties
+ALTER TABLE layout_options DROP COLUMN group_name;
+DELETE FROM list_options WHERE list_id = 'lbfnames';
+DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'lbfnames';
+DELETE FROM list_options WHERE list_id = 'transactions';
+DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'transactions';
 #EndIf

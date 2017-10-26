@@ -382,10 +382,9 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
         } else {
             $trans_comments = preg_replace($patterns, $replace, $iter["comments"]);
         }
-
         ?>
        <TR class="oneresult">
-        <TD class="text"><?php echo oeFormatShortDate(substr($iter["date"], 0, 10)) . substr($iter["date"], 10) ?></TD>
+        <TD class="text"><?php echo oeFormatDateTime($iter["date"]); ?></TD>
     <TD class="text"><?php echo preg_replace('/select$/', 'Query', $iter["event"]); //Convert select term to Query for MU2 requirements ?></TD>
     <TD class="text"><?php echo $iter["category"]?></TD>
     <TD class="text"><?php echo $iter["user"]?></TD>

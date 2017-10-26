@@ -2,11 +2,13 @@
 
 
 
-include_once("../../globals.php");
-include_once("$srcdir/options.inc.php");
-include_once("$srcdir/immunization_helper.php");
+require_once("../../globals.php");
+require_once("$srcdir/options.inc.php");
+require_once("$srcdir/immunization_helper.php");
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 //collect facility data
 $res = $facilityService->getFacilityForUserFormatted($_SESSION['authId']);

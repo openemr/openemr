@@ -117,7 +117,7 @@ if ($result) {
         $total++;
 
         if ($total == $M) {
-            echo "</span><span class=alert>".xl('Some codes were not displayed.')."</span>\n";
+            echo "</span><span class='alert-custom'>".xl('Some codes were not displayed.')."</span>\n";
             break;
         }
     }

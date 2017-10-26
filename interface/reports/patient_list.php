@@ -3,31 +3,20 @@
  * This report lists patients that were seen within a given date
  * range, or all patients if no date range is entered.
  *
- * Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2006-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Core\Header;
+require_once("../globals.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/options.inc.php");
 
- require_once("../globals.php");
- require_once("$srcdir/patient.inc");
- require_once("$srcdir/options.inc.php");
+use OpenEMR\Core\Header;
 
 // Prepare a string for CSV export.
 function qescape($str)
@@ -36,8 +25,8 @@ function qescape($str)
     return str_replace('"', '\\"', $str);
 }
 
- $from_date = DateToYYYYMMDD($_POST['form_from_date']);
- $to_date   = DateToYYYYMMDD($_POST['form_to_date']);
+$from_date = DateToYYYYMMDD($_POST['form_from_date']);
+$to_date   = DateToYYYYMMDD($_POST['form_to_date']);
 if (empty($to_date) && !empty($from_date)) {
     $to_date = date('Y-12-31');
 }
@@ -61,24 +50,23 @@ if ($_POST['form_csvexport']) {
 <html>
 <head>
 
-<title><?php xl('Patient List', 'e'); ?></title>
+<title><?php echo xlt('Patient List'); ?></title>
 
 <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
+
 <script language="JavaScript">
- var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 $(document).ready(function() {
-  oeFixedHeaderSetup(document.getElementById('mymaintable'));
-  top.printLogSetup(document.getElementById('printbutton'));
+    oeFixedHeaderSetup(document.getElementById('mymaintable'));
+    top.printLogSetup(document.getElementById('printbutton'));
 
-  $('.datepicker').datetimepicker({
-    <?php $datetimepicker_timepicker = false; ?>
-    <?php $datetimepicker_showseconds = false; ?>
-    <?php $datetimepicker_formatInput = true; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-  });
-
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = true; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
 });
 
 </script>
@@ -121,11 +109,11 @@ $(document).ready(function() {
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-<span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Patient List', 'e'); ?></span>
+<span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Patient List'); ?></span>
 
 <div id="report_parameters_daterange">
 <?php if (!(empty($to_date) && empty($from_date))) { ?>
-    <?php echo date("d F Y", strtotime($from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($to_date)); ?>
+    <?php echo oeFormatShortDate($from_date) ." &nbsp; " . xlt('to') . " &nbsp; " . oeFormatShortDate($to_date); ?>
 <?php } ?>
 </div>
 
@@ -144,7 +132,7 @@ $(document).ready(function() {
     <table class='text'>
         <tr>
       <td class='control-label'>
-        <?php xl('Provider', 'e'); ?>:
+        <?php echo xlt('Provider'); ?>:
       </td>
       <td>
             <?php
@@ -153,13 +141,13 @@ $(document).ready(function() {
             ?>
       </td>
             <td class='control-label'>
-                <?php xl('Visits From', 'e'); ?>:
+                <?php echo xlt('Visits From'); ?>:
             </td>
             <td>
                <input class='datepicker form-control' type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo oeFormatShortDate($from_date) ?>'>
             </td>
             <td class='control-label'>
-                <?php xl('To', 'e'); ?>:
+                <?php echo xlt('To'); ?>:
             </td>
             <td>
                <input class='datepicker form-control' type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo oeFormatShortDate($to_date) ?>'>
@@ -184,7 +172,7 @@ $(document).ready(function() {
                     </a>
                     <?php if ($_POST['form_refresh']) { ?>
                       <a href='#' id='printbutton' class='btn btn-default btn-print'>
-                            <?php xl('Print', 'e'); ?>
+                            <?php echo xlt('Print'); ?>
                       </a>
                     <?php } ?>
               </div>
@@ -220,20 +208,21 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
   <div id="report_results">
   <table id='mymaintable'>
    <thead>
-    <th> <?php xl('Last Visit', 'e'); ?> </th>
-    <th> <?php xl('Patient', 'e'); ?> </th>
-    <th> <?php xl('ID', 'e'); ?> </th>
-    <th> <?php xl('Street', 'e'); ?> </th>
-    <th> <?php xl('City', 'e'); ?> </th>
-    <th> <?php xl('State', 'e'); ?> </th>
-    <th> <?php xl('Zip', 'e'); ?> </th>
-    <th> <?php xl('Home Phone', 'e'); ?> </th>
-    <th> <?php xl('Work Phone', 'e'); ?> </th>
+    <th> <?php echo xlt('Last Visit'); ?> </th>
+    <th> <?php echo xlt('Patient'); ?> </th>
+    <th> <?php echo xlt('ID'); ?> </th>
+    <th> <?php echo xlt('Street'); ?> </th>
+    <th> <?php echo xlt('City'); ?> </th>
+    <th> <?php echo xlt('State'); ?> </th>
+    <th> <?php echo xlt('Zip'); ?> </th>
+    <th> <?php echo xlt('Home Phone'); ?> </th>
+    <th> <?php echo xlt('Work Phone'); ?> </th>
  </thead>
  <tbody>
 <?php
     } // end not export
     $totalpts = 0;
+    $sqlArrayBind = array();
     $query = "SELECT " .
     "p.fname, p.mname, p.lname, p.street, p.city, p.state, " .
     "p.postal_code, p.phone_home, p.phone_biz, p.pid, p.pubpid, " .
@@ -244,15 +233,18 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     if (!empty($from_date)) {
         $query .= "JOIN form_encounter AS e ON " .
         "e.pid = p.pid AND " .
-        "e.date >= '$from_date 00:00:00' AND " .
-        "e.date <= '$to_date 23:59:59' ";
+        "e.date >= ? AND " .
+        "e.date <= ? ";
+        array_push($sqlArrayBind, $from_date .' 00:00:00', $to_date . ' 23:59:59');
         if ($form_provider) {
-            $query .= "AND e.provider_id = '$form_provider' ";
+            $query .= "AND e.provider_id = ? ";
+            array_push($sqlArrayBind, $form_provider);
         }
     } else {
         if ($form_provider) {
             $query .= "JOIN form_encounter AS e ON " .
-            "e.pid = p.pid AND e.provider_id = '$form_provider' ";
+            "e.pid = p.pid AND e.provider_id = ? ";
+            array_push($sqlArrayBind, $form_provider);
         } else {
             $query .= "LEFT OUTER JOIN form_encounter AS e ON " .
             "e.pid = p.pid ";
@@ -270,7 +262,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     "c2.id = i2.provider " .
     "GROUP BY p.lname, p.fname, p.mname, p.pid, i1.date, i2.date " .
     "ORDER BY p.lname, p.fname, p.mname, p.pid, i1.date DESC, i2.date DESC";
-    $res = sqlStatement($query);
+    $res = sqlStatement($query, $sqlArrayBind);
 
     $prevpid = 0;
     while ($row = sqlFetchArray($res)) {
@@ -309,31 +301,31 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         ?>
        <tr>
         <td>
-        <?php echo oeFormatShortDate(substr($row['edate'], 0, 10)) ?>
+        <?php echo oeFormatShortDate(substr($row['edate'], 0, 10)); ?>
    </td>
    <td>
-        <?php echo htmlspecialchars($row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']) ?>
+        <?php echo text($row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']); ?>
    </td>
    <td>
-        <?php echo $row['pubpid'] ?>
+        <?php echo text($row['pubpid']); ?>
    </td>
    <td>
-        <?php echo $row['street'] ?>
+        <?php echo text($row['street']); ?>
    </td>
    <td>
-        <?php echo $row['city'] ?>
+        <?php echo text($row['city']); ?>
    </td>
    <td>
-        <?php echo $row['state'] ?>
+        <?php echo text($row['state']); ?>
    </td>
    <td>
-        <?php echo $row['postal_code'] ?>
+        <?php echo text($row['postal_code']); ?>
    </td>
    <td>
-        <?php echo $row['phone_home'] ?>
+        <?php echo text($row['phone_home']); ?>
    </td>
    <td>
-        <?php echo $row['phone_biz'] ?>
+        <?php echo text($row['phone_biz']); ?>
    </td>
   </tr>
     <?php
@@ -345,9 +337,9 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
    <tr class="report_totals">
     <td colspan='9'>
-        <?php xl('Total Number of Patients', 'e'); ?>
+        <?php echo xlt('Total Number of Patients'); ?>
    :
-        <?php echo $totalpts ?>
+        <?php echo text($totalpts); ?>
   </td>
  </tr>
 
@@ -361,7 +353,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 if (!$_POST['form_refresh'] && !$_POST['form_csvexport']) {
 ?>
 <div class='text'>
-    <?php echo xl('Please input search criteria above, and click Submit to view results.', 'e'); ?>
+    <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
 </div>
 <?php
 }

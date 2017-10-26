@@ -20,7 +20,7 @@
  * @link    http://www.open-emr.org
  */
 
-namespace entities;
+namespace OpenEMR\Entities;
 
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Table;
@@ -32,7 +32,7 @@ use Doctrine\ORM\Mapping\GeneratedValue;
 
 /**
  * @Table(name="onotes")
- * @Entity(repositoryClass="repositories\ONoteRepository")
+ * @Entity(repositoryClass="OpenEMR\Repositories\ONoteRepository")
  */
 class ONote
 {

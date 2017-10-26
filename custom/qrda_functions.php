@@ -21,7 +21,9 @@
  * @link    http://www.open-emr.org
  */
 
-  $facilityService = new \services\FacilityService();
+  use OpenEMR\Services\FacilityService;
+
+  $facilityService = new FacilityService();
 
     // Functions for QRDA Category I (or) III 2014 XML format.
 

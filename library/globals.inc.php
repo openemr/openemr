@@ -63,6 +63,7 @@
 //   Spanish (Spain)                // xl('Spanish (Spain)')
 //   Swedish                        // xl('Swedish')
 //   Tamil                          // xl('Tamil')
+//   Thai                           // xl('Thai')
 //   Turkish                        // xl('Turkish')
 //   Ukrainian                      // xl('Ukrainian')
 //   Urdu                           // xl('Urdu')
@@ -97,12 +98,14 @@ $USER_SPECIFIC_TABS = array('Appearance',
     'Locale',
     'Report',
     'Calendar',
+    'CDR',
     'Connectors');
 $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'new_tabs_layout',
     'theme_tabs_layout',
     'css_header',
     'menu_styling_vertical',
+    'default_encounter_view',
     'gbl_pt_list_page_size',
     'gbl_pt_list_new_window',
     'units_of_measurement',
@@ -116,6 +119,8 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'pat_trkr_timer',
     'ptkr_visit_reason',
     'checkout_roll_off',
+    'patient_birthday_alert',
+    'patient_birthday_alert_manual_off',
     'erx_import_status_message');
 
 // Gets array of time zones supported by PHP.
@@ -163,7 +168,7 @@ $GLOBALS_METADATA = array(
             xl('Tabs Layout Theme (need to logout/login after change this setting)'),
             'tabs_css',
             'tabs_style_full.css',
-            xl('Theme of the tabs layout (need to logout and then login to see this new setting).')
+            xl('Theme of the tabs layout (need to logout and then login to see this new setting). Note this is only applicable if use the Light or Manila general theme below.')
         ),
 
         'css_header' => array(
@@ -227,7 +232,7 @@ $GLOBALS_METADATA = array(
         'gbl_nav_area_width' => array(
             xl('Navigation Area Width'),
             'num',
-            '150',
+            '175',
             xl('Width in pixels of the left navigation frame.')
         ),
 
@@ -864,59 +869,6 @@ $GLOBALS_METADATA = array(
             xl('This will use the custom immunizations list rather than the standard CVX immunization list.')
         ),
 
-        'preprinted_cms_1500' => array(
-            xl('Prints the CMS 1500 on the Preprinted form'),
-            'bool',                           // data type
-            '0',                              // default = false
-            xl('Prints the CMS 1500 on the Preprinted form')
-        ),
-
-        'cms_top_margin_default' => array(
-            xl('Default top print margin for CMS 1500'),
-            'num', // data type
-            '24', // default
-            xl('This is the default top print margin for CMS 1500. It will adjust the final printed output up or down.')
-        ),
-
-        'cms_left_margin_default' => array(
-            xl('Default left print margin for CMS 1500'),
-            'num', // data type
-            '20', // default
-            xl('This is the default left print margin for CMS 1500. It will adjust the final printed output left or right.')
-        ),
-
-        'cms_1500' => array(
-            xl('CMS 1500 Paper Form Format'),
-            array(
-                '0' => xl('08/05{{CMS 1500 format date revision setting in globals}}'),
-                '1' => xl('02/12{{CMS 1500 format date revision setting in globals}}'),
-            ),
-            '1',                              // default
-            xl('This specifies which revision of the form the billing module should generate')
-        ),
-
-        'cms_1500_box_31_format' => array(
-            xl('CMS 1500: Box 31 Format'),
-            array(
-                '0' => xl('Signature on File'),
-                '1' => xl('Firstname Lastname'),
-                '2' => xl('None'),
-            ),
-            '0',                              // default
-            xl('This specifies whether to include date in Box 31.')
-        ),
-
-        'cms_1500_box_31_date' => array(
-            xl('CMS 1500: Date in Box 31 (Signature)'),
-            array(
-                '0' => xl('None'),
-                '1' => xl('Date of Service'),
-                '2' => xl('Today'),
-            ),
-            '0',                              // default
-            xl('This specifies whether to include date in Box 31.')
-        ),
-
         'amendments' => array(
             xl('Amendments'),
             'bool',                           // data type
@@ -937,7 +889,7 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',                              // default
             xl('Observation Results in Immunization')
-        ),
+        )
 
     ),
     // Report Tab
@@ -1014,11 +966,103 @@ $GLOBALS_METADATA = array(
 
     'Billing' => array(
 
+        'ub04_support' => array(
+            xl('Activate UB04/837I Claim Support'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Allow institutional claims support.')
+        ),
+
+        'top_ubmargin_default' => array(
+            xl('Default top print margin for UB04'),
+            'num', // data type
+            '14', // default
+            xl('This is the default top print margin for UB04. It will adjust the final printed output up or down.')
+        ),
+
+        'left_ubmargin_default' => array(
+            xl('Default left print margin for UB04'),
+            'num', // data type
+            '11', // default
+            xl('This is the default left print margin for UB04. It will adjust the final printed output left or right.')
+        ),
+
+        'cms_top_margin_default' => array(
+            xl('Default top print margin for CMS 1500'),
+            'num', // data type
+            '24', // default
+            xl('This is the default top print margin for CMS 1500. It will adjust the final printed output up or down.')
+        ),
+
+        'cms_left_margin_default' => array(
+            xl('Default left print margin for CMS 1500'),
+            'num', // data type
+            '20', // default
+            xl('This is the default left print margin for CMS 1500. It will adjust the final printed output left or right.')
+        ),
+
+        'preprinted_cms_1500' => array(
+            xl('Prints the CMS 1500 on the Preprinted form'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Overlay CMS 1500 on the Preprinted form')
+        ),
+
+        'cms_1500' => array(
+            xl('CMS 1500 Paper Form Format'),
+            array(
+                '0' => xl('08/05{{CMS 1500 format date revision setting in globals}}'),
+                '1' => xl('02/12{{CMS 1500 format date revision setting in globals}}'),
+            ),
+            '1',                              // default
+            xl('This specifies which revision of the form the billing module should generate')
+        ),
+
+        'cms_1500_box_31_format' => array(
+            xl('CMS 1500: Box 31 Format'),
+            array(
+                '0' => xl('Signature on File'),
+                '1' => xl('Firstname Lastname'),
+                '2' => xl('None'),
+            ),
+            '0',                              // default
+            xl('This specifies whether to include date in Box 31.')
+        ),
+
+        'cms_1500_box_31_date' => array(
+            xl('CMS 1500: Date in Box 31 (Signature)'),
+            array(
+                '0' => xl('None'),
+                '1' => xl('Date of Service'),
+                '2' => xl('Today'),
+            ),
+            '0',                              // default
+            xl('This specifies whether to include date in Box 31.')
+        ),
+
         'default_search_code_type' => array(
             xl('Default Search Code Type'),
-            'all_code_types',                           // data type
+            'all_code_types',  // data type
             'ICD10',                 // default
             xl('The default code type to search for in the Fee Sheet.')
+        ),
+
+        'default_rendering_provider' => array(
+            xl('Default Rendering Provider in Fee Sheet'),
+            array(
+                '0' => xl('Please Select'),
+                '1' => xl('Current Provider'),
+                '2' => xl('Current Logged in User'),
+            ),
+            '1',
+            xl('Default selection for rendering provider in fee sheet.')
+        ),
+
+        'show_payment_history' => array(
+            xl('Show all payment history in Patient Ledger'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('Turn on to show all payment history in Patient Ledger')
         ),
 
         'support_fee_sheet_line_item_provider' => array(
@@ -2055,6 +2099,22 @@ $GLOBALS_METADATA = array(
             '5',                               // default
             xl('Dated reminders maximum alerts to show')
         ),
+        'patient_birthday_alert' => array(
+            xl('Alert on patient birthday'),
+            array(
+                '0' => xl('No alert'),
+                '1' => xl('Alert only on birthday'),
+                '2' => xl('Alert on and after birthday')
+            ),
+            '1',                              // default
+            xl('Alert on patient birthday')
+        ),
+        'patient_birthday_alert_manual_off' => array(
+            xl('Patient birthday alert requires turning off'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Patient birthday alert requires turning off')
+        )
     ),
 
     // Logging
@@ -2361,6 +2421,27 @@ $GLOBALS_METADATA = array(
             xl('Website link for the Version 2 Onsite Patient Portal.')
         ),
 
+        'portal_onsite_two_register' => array(
+            xl('Allow Version 2 Onsite New Patient Registration Widget'),
+            'bool',                           // data type
+            '1',
+            xl('Enable Version 2 Onsite Patient Portal new patient to self register.')
+        ),
+
+        'portal_two_payments' => array(
+            xl('Allow Version 2 Onsite Online Payments'),
+            'bool',                           // data type
+            '0',
+            xl('Allow Version 2 Onsite Patient to make payments online.')
+        ),
+
+        'portal_two_pass_reset' => array(
+            xl('Allow Version 2 Patients to Reset Credentials'),
+            'bool',                           // data type
+            '0',
+            xl('Patient may change their logon from portal login dialog.')
+        ),
+
         'portal_onsite_enable' => array(
             xl('Enable Version 1 Onsite Patient Portal'),
             'bool',                           // data type
@@ -2464,8 +2545,8 @@ $GLOBALS_METADATA = array(
             xl('Enable NewCrop eRx Service'),
             'bool',
             '0',
-            xl('Enable NewCrop eRx Service.') + ' ' +
-            xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing to the NewCrop eRx service.')
+            xl('Enable NewCrop eRx Service.') . ' ' .
+            xl('Contact mi-squared at http://www.mi-squared.com/products-services/openemr/ or ZH Healthcare at https://blueehr.com/contact-us/ for subscribing to the NewCrop eRx service.')
         ),
 
         'erx_newcrop_path' => array(
@@ -2574,6 +2655,34 @@ $GLOBALS_METADATA = array(
             ),
             '0',
             xl('Log all NewCrop eRx Requests and / or Responses.'),
+        ),
+
+        'weno_rx_enable' => array(
+            xl('Enable Weno eRx Service'),
+            'bool',
+            '0',
+            xl('Enable Weno eRx Service.') . ' ' . xl('Contact Open Med Practice, www.openmedpractice.com for subscribing to the Weno Free eRx service.')
+        ),
+
+        'weno_account_id' => array(
+            xl('Weno eRx Account Id'),
+            'text',
+            '',
+            xl('Account Id issued for Weno eRx service.')
+        ),
+
+        'weno_account_pass' => array(
+            xl('Weno eRx Account Pass'),
+            'text',
+            '',
+            xl('Account Id issued for Weno eRx service.')
+        ),
+
+        'weno_provider_id' => array(
+            xl('Weno eRx Clinic ID'),
+            'text',
+            '',
+            xl('Account Id issued for Your clinics eRx service.')
         ),
 
         'ccda_alt_service_enable' => array(

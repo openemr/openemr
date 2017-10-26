@@ -29,10 +29,11 @@
  */
 
 
+require_once("../globals.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Services\VersionService;
 
-require_once("../globals.php");
 ?>
 <html>
 <head>
@@ -108,7 +109,7 @@ require_once("../globals.php");
     </script>
 </head>
 <?php
-$versionService = new \services\VersionService();
+$versionService = new VersionService();
 $version = $versionService->fetch();
 ?>
 <body class="body_top">

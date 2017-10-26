@@ -15,7 +15,9 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/billing.inc");
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 function genColumn($ix)
 {
@@ -273,16 +275,26 @@ height: ${header_height}pt;
 margin: 0 0 8pt 0;
 }
 .ftitlecell1 {
-vertical-align: top;
-text-align: left;
-font-size: 14pt;
-font-weight: bold;
+ width: 33%;
+ vertical-align: top;
+ text-align: left;
+ font-size: 14pt;
+ font-weight: bold;
 }
 .ftitlecell2 {
-vertical-align: top;
-text-align: right;
-font-size: 9pt;
+ width: 33%;
+ vertical-align: top;
+ text-align: right;
+ font-size: 9pt;
 }
+.ftitlecellm {
+ width: 34%;
+ vertical-align: top;
+ text-align: center;
+ font-size: 14pt;
+ font-weight: bold;
+}
+
 div.pagebreak {
 page-break-after: always;
 height: ${page_height}pt;
@@ -309,7 +321,7 @@ function printlog_before_print() {
 </script>
 </head>
 <body bgcolor='#ffffff'>
-<form name='theform' method='post' action='printed_fee_sheet.php?fill=$form_fill'
+<form name='theform' method='post' action='printed_fee_sheet.php?fill=" . attr($form_fill) . "'
 onsubmit='return opener.top.restoreSession()'>
 <center>";
 
@@ -337,6 +349,14 @@ if (empty($frow)) {
     $alertmsg = xl("No Primary Business Entity selected in facility list");
 }
 
+$logo = '';
+$ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
+if (is_file("$webserver_root/$ma_logo_path")) {
+    $logo = "<img src='$web_root/$ma_logo_path' style='height:" . round(9 * 5.14) . "pt' />";
+} else {
+    $logo = "<!-- '$ma_logo_path' does not exist. -->";
+}
+
 // Loop on array of PIDS
 $saved_pages = $pages; //Save calculated page count of a single fee sheet
 
@@ -350,7 +370,7 @@ foreach ($pid_list as $pid) {
     $cindex = 0;
 
     while (--$pages >= 0) {
-        $html .= genFacilityTitle(xl('Superbill/Fee Sheet'), -1);
+        $html .= genFacilityTitle(xl('Superbill/Fee Sheet'), -1, $logo);
 
         $html .="
 <table class='bordertbl' cellspacing='0' cellpadding='0' width='100%'>

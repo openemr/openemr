@@ -1,33 +1,34 @@
 <?php
-// Copyright (C) 2008 Jason Morrill <jason@italktech.net>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This file use is used specifically to look up drug names when
-// writing a prescription. See the file:
-//    templates/prescriptions/general_edit.html
-// for additional information
-//
-// Important - Ensure that display_errors=Off in php.ini settings.
-//
-include_once("../../interface/globals.php");
+/**
+ * This file use is used specifically to look up drug names when
+ * writing a prescription. See the file:
+ *    templates/prescriptions/general_edit.html
+ * for additional information
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jason Morrill <jason@italktech.net>
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2008 Jason Morrill <jason@italktech.net>
+ * @copyright Copyright (c) 2017 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-$q = formData("q", "G", true);
-if (!$q) {
-    return;
-}
+require_once("../../interface/globals.php");
 
-$limit = $_GET['limit'];
+if (isset($_GET['term'])) {
+    $return_arr = array();
+    $term = filter_input(INPUT_GET, "term");
 
-$sql = "select drug_id, name from drugs where ".
-            " name like ('".$q."%')".
-            " order by name ".
-            " limit ".$limit;
-$rez = sqlStatement($sql);
+    $sql = "SELECT `drug_id`, `name` FROM `drugs` WHERE `name` LIKE ? ORDER BY `name`";
+    $val = array($term.'%');
+    $res = sqlStatement($sql, $val);
+    while ($row = sqlFetchArray($res)) {
+        $return_arr[] =  $row['name'] . " - ". $row['drug_id'];
+    }
 
-while ($row = sqlFetchArray($rez)) {
-    echo $row['name']."|".$row['drug_id']."\n";
+    /* Toss back results as json encoded array. */
+    echo json_encode($return_arr);
 }

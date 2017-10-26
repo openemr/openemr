@@ -15,9 +15,12 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Allow phone notification as a cronjob
+require_once(dirname(__FILE__, 3)."/library/allow_cronjobs.php");
+
+use OpenEMR\Services\FacilityService;
+
 $backpic = "";
-//phone notification
-$ignoreAuth = 1;
 
 //Set the working directory to the path of the file
 $current_dir = dirname($_SERVER['SCRIPT_FILENAME']);
@@ -28,7 +31,7 @@ chdir($current_dir);
 require_once("../../interface/globals.php");
 require_once("$srcdir/maviq_phone_api.php");
 
-$facilityService = new \services\FacilityService();
+$facilityService = new FacilityService();
 
 $type = "Phone";
 $before_trigger_hours = 72; // 3 days is default

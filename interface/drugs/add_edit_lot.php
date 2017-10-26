@@ -1,12 +1,15 @@
 <?php
-// Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
-
+/**
+ * add and edit lot
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2006-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once("../globals.php");
@@ -114,21 +117,18 @@ if (!$drug_id) {
 <title><?php echo $lot_id ? xlt("Edit") : xlt("Add New");
 xlt('Lot', 'e', ' '); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <style>
 td { font-size:10pt; }
 </style>
 
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-<style  type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
-
- var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  function validate() {
   var f = document.forms[0];
@@ -185,6 +185,15 @@ td { font-size:10pt; }
   document.getElementById('row_distributor').style.display = showDistributor ? '' : 'none';
  }
 
+    $(document).ready(function(){
+        $('.datepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = false; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+        });
+    });
 </script>
 
 </head>
@@ -353,13 +362,9 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
  <tr>
   <td valign='top' nowrap><b><?php echo xlt('Expiration'); ?>:</b></td>
   <td>
-   <input type='text' size='10' name='form_expiration' id='form_expiration'
+   <input type='text' class='datepicker' size='10' name='form_expiration' id='form_expiration'
     value='<?php echo attr($row['expiration']) ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='<?php echo xla('yyyy-mm-dd date of expiration'); ?>' />
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_expiration' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php echo xla('Click here to choose a date'); ?>'>
   </td>
  </tr>
 
@@ -442,13 +447,9 @@ generate_form_field(array('data_type' => 14, 'field_id' => 'distributor_id',
  <tr id='row_sale_date'>
   <td valign='top' nowrap><b><?php echo xlt('Date'); ?>:</b></td>
   <td>
-   <input type='text' size='10' name='form_sale_date' id='form_sale_date'
+   <input type='text' class='datepicker' size='10' name='form_sale_date' id='form_sale_date'
     value='<?php echo attr(date('Y-m-d')) ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='<?php echo xla('yyyy-mm-dd date of purchase or transfer'); ?>' />
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_sale_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php echo xla('Click here to choose a date'); ?>'>
   </td>
  </tr>
 
@@ -520,8 +521,6 @@ while ($lrow = sqlFetchArray($lres)) {
 </center>
 </form>
 <script language='JavaScript'>
- Calendar.setup({inputField:"form_expiration", ifFormat:"%Y-%m-%d", button:"img_expiration"});
- Calendar.setup({inputField:"form_sale_date", ifFormat:"%Y-%m-%d", button:"img_sale_date"});
 <?php
 if ($info_msg) {
     echo " alert('".addslashes($info_msg)."');\n";

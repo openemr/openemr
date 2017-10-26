@@ -38,8 +38,10 @@ class FormEvaluation extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormEvaluation($id = "", $_prefix = "")
+    function __construct($id = "", $_prefix = "")
     {
+        parent::__construct();
+
         if (is_numeric($id)) {
             $this->id = $id;
         } else {
@@ -69,10 +71,13 @@ class FormEvaluation extends ORDataObject
         }
     }
 
+    /**
+     * @param bool $html
+     * @return string
+     */
     function toString($html = false)
     {
-        $string .= "\n"
-            ."ID: " . $this->id . "\n";
+        $string = "\n" ."ID: " . $this->id . "\n";
 
         if ($html) {
             return nl2br($string);
@@ -299,7 +304,7 @@ class FormEvaluation extends ORDataObject
 
         //at is array temp
         //a is array
-        //a_bottom is the textually identified rows of a checkbox group
+        //a_bottom is the textually identified rows of a checkbox group, removed from code since not used yet
 
         $at[1]['appearance_normal_development']     =  "Normal Developement";
         $at[1]['appearance_normal_body_habitus']    =  "Normal Body Habitus";
@@ -308,7 +313,6 @@ class FormEvaluation extends ORDataObject
         $a['General Appearance'] = $at;
 
         $at = array();
-        $a_bottom = array();
         $at[1]['eyes_conjunctiva_lids_nl']  =  "Conjunctiva and Lids NL";
         $at[1]['eyes_pupils_iris_nl']   =  "Pupils and Iris' NL";
         $at[1]['eyes_optic_disks_nl']   =  "Optic Disks NL";
@@ -321,7 +325,6 @@ class FormEvaluation extends ORDataObject
         $a['Eyes'] = $at;
 
         $at = array();
-        $a_bottom = array();
         $at[1]['ent_external_ears_nose_nl']     =  "External Ears and Nose NL";
         $at[1]['ent_external_auditory_canals_nl']   =  "External Auditory Canals NL";
         $at[1]['ent_tm_nl']     =  "TM's NL";
@@ -330,7 +333,6 @@ class FormEvaluation extends ORDataObject
         $a['ENT'] = $at;
 
         $at = array();
-        $a_bottom = array();
         $at[1]['neck_no_neck_masses']   =  "No neck masses";
         $at[1]['neck_symetrical']   =  "Symetrical";
         $at[1]['neck_trachea_midline']  =  "Trachea Midline";
@@ -339,7 +341,6 @@ class FormEvaluation extends ORDataObject
         $a['Neck'] = $at;
 
         $at = array();
-        $a_bottom = array();
         $at[1]['respiratory_nl_effort']     =  "NL Effort";
         $at[1]['respiratory_no_dullness_to_percussion']     =  "No Dullness to Percussion";
         $at[1]['respiratory_no_rhonci_or_rails']    =  "No Rhonci or Rails";
@@ -348,7 +349,6 @@ class FormEvaluation extends ORDataObject
         $a['Respiratory'] = $at;
 
         $at = array();
-        $a_bottom = array();
         $at[1]['cv_no_lifts_or_thrills']    =  "No Lifts or Thrills";
         $at[1]['cv_pmi_fifth_ic_mc_line']   =  "PMI 5th IC MC Line";
         $at[1]['cv_nl_s1_s2']   =  "NL S1/S2";
@@ -361,7 +361,6 @@ class FormEvaluation extends ORDataObject
         $a['CV'] = $at;
 
         $at = array();
-        $a_bottom = array();
         $at[1]['gastrointestinal_abdomen_soft_nontender']   =  "Abdomen soft, nontender";
         $at[1]['gastrointestinal_no_fluid']     =  "No Fluid";
         $at[1]['gastrointestinal_no_hepatosplenomegally']   =  "No HepatoSplenomegally";
@@ -371,7 +370,6 @@ class FormEvaluation extends ORDataObject
         $a['GastroIntestinal'] = $at;
 
         $at = array();
-        $a_bottom = array();
         $at[1]['gu_male_scrotum_testis_nl']     =  "Scrotum and Testis NL";
         $at[1]['gu_male_penis_nl_without_legions']  =  "Penis NL, Without legions";
         $at[1]['gu_male_prostate_nl']   =  "Prostate NL";
@@ -380,7 +378,6 @@ class FormEvaluation extends ORDataObject
         $a['GU (male)'] = $at;
 
         $at = array();
-        $a_bottom = array();
         $at[1]['gu_female_external_genitalia_nl']   =  "External Genitalia NL";
         $at[1]['gu_female_urethra_nl']  =  "Urethra NL";
         $at[1]['gu_female_bladder_nl']  =  "Bladder NL";
@@ -393,7 +390,6 @@ class FormEvaluation extends ORDataObject
         $a['GU (female)'] = $at;
 
         $at = array();
-        $a_bottom = array();
         $at[1]['lymphatics_no_cervical_nodes_palpable']     =  "No Cervical nodes Palpable";
         $at[1]['lymphatics_no_axillary_nodes_palpable']     =  "No Axillary Nodes Palpable";
         $at[1]['lymphatics_no_inguinal_nodes_palpable']     =  "No Inguinal Nodes Palpable";
@@ -401,7 +397,6 @@ class FormEvaluation extends ORDataObject
         $a['Lymphatics'] = $at;
 
         $at = array();
-        $a_bottom = array();
         $at[1]['musculoskeletal_gait_normal']   =  "Gait Normal";
         $at[1]['musculoskeletal_nl_symmetry']   =  "NL Symmetry";
         $at[1]['musculoskeletal_nl_tone']   =  "NL Tone";
@@ -413,7 +408,6 @@ class FormEvaluation extends ORDataObject
         $a['Musculoskeletal'] = $at;
 
         $at = array();
-        $a_bottom = array();
         $at[1]['neurologic_alert_oriented_xthree']  =  "Alert and Oriented x3";
         $at[1]['neurologic_normal_memory']  =  "Normal Memory";
         $at[1]['neurologic_cn_ii_xii_intact_to_confrontation']  =  "CN II-XII Intact to Confrontation";
@@ -433,7 +427,6 @@ class FormEvaluation extends ORDataObject
         $a['Neurologic'] = $at;
 
         $at = array();
-        $a_bottom = array();
         $at[1]['psychiatric_nl_judgement_insight']  =  "NL Judgement/Insight";
         $at[1]['psychiatric_nl_mood']   =  "NL Mood";
         $at[1]['psychiatric_nl_affect']     =  "NL Affect";

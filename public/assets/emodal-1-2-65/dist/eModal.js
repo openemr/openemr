@@ -433,7 +433,7 @@
                 .replace('%1%', defaultSettings.loadingHtml);
 
             var message = $(html)
-                .load(iframeReady);
+                .on('load', iframeReady);
 
             return alert({
                 async: true,

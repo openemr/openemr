@@ -39,10 +39,11 @@ require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 if ($GLOBALS['gbl_portal_cms_enable']) {
     require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
 }
-
 require_once("$srcdir/appointments.inc.php");
 
-$facilityService = new \services\FacilityService();
+use OpenEMR\Services\FacilityService;
+
+$facilityService = new FacilityService();
 
 // For those who care that this is the patient report.
 $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
@@ -64,11 +65,11 @@ if ($PDF_OUTPUT) {
         '', // default footer margin
         $GLOBALS['pdf_layout']
     ); // Globals default is 'P'
-      
+
       $pdf->shrink_tables_to_fit = 1;
       $keep_table_proportions = true;
       $pdf->use_kwt = true;
-      
+
  // set 'dejavusans' for now. which is supported by a lot of languages - http://dejavu-fonts.org/wiki/Main_Page
  // TODO: can have this selected as setting in globals after we have more experience with this to fully support internationalization. Don't think this is issue here.
        $pdf->setDefaultFont('dejavusans'); // see config_fonts.php/config_lang2fonts.php for OTL font declarations for different languages/fonts. Important for auto font select getting right font for lanaguage.
@@ -221,7 +222,7 @@ if ($printable) {
   // in HTML view it's just one line at the top of page 1
     echo '<page_header style="text-align:right;" class="custom-tag"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS'] . '</page_header>    ';
     echo '<page_footer style="text-align:right;" class="custom-tag">' . xlt('Generated on') . ' ' . oeFormatShortDate() . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
-        
+
     // Use logo if it exists as 'practice_logo.gif' in the site dir
     // old code used the global custom dir which is no longer a valid
     $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
@@ -323,7 +324,7 @@ if ($printable) {
 <?php
 
 // include ALL form's report.php files
-$inclookupres = sqlStatement("select distinct formdir from forms where pid = '$pid' AND deleted=0");
+$inclookupres = sqlStatement("select distinct formdir from forms where pid = ? AND deleted=0", array($pid));
 while ($result = sqlFetchArray($inclookupres)) {
   // include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
     $formdir = $result['formdir'];
@@ -569,8 +570,7 @@ foreach ($ar as $key => $val) {
                     echo "<h3>" . xl('Document') . " '" . $fname ."'</h3>";
                 }
 
-                $n = new Note();
-                $notes = $n->notes_factory($d->get_id());
+                $notes = $d->get_notes();
                 if (!empty($notes)) {
                     echo "<table>";
                 }
@@ -655,13 +655,13 @@ foreach ($ar as $key => $val) {
                             $itpl = $pdf->importPage($i+1);
                             $pdf->useTemplate($itpl);
                         }
-                        
+
                         // Make sure whatever follows is on a new page.
                        // $pdf->AddPage(); // Only needed for signature line. Patched out 04/20/2017 sjpadgett.
-                        
+
                         // Resume output buffering and the above-closed tags.
                         ob_start();
-                        
+
                         echo "<div><div class='text documents'>\n";
                     } else {
                         if (! is_file($to_file)) {

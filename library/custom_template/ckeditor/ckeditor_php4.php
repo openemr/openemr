@@ -97,7 +97,7 @@ class CKEditor
 	 *
 	 *  @param $basePath (string) URL to the %CKEditor installation directory (optional).
 	 */
-	function CKEditor($basePath = null) {
+	function __construct($basePath = null) {
 		if (!empty($basePath)) {
 			$this->basePath = $basePath;
 		}
@@ -138,7 +138,7 @@ class CKEditor
 		foreach ($this->textareaAttributes as $key => $val) {
 			$attr.= " " . $key . '="' . str_replace('"', '&quot;', $val) . '"';
 		}
-		$out = "<textarea name=\"" . $name . "\"" . $attr . ">" . htmlspecialchars($value) . "</textarea>\n";
+		$out = "<textarea name=\"" . $name . "\" " . $attr . ">" . htmlspecialchars($value) . "</textarea>\n";
 		if (!$this->initialized) {
 			$out .= $this->init();
 		}

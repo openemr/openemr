@@ -4,34 +4,25 @@
  * that are seen within a given time period.  Each patient that had
  * a visit is counted only once, regardless of how many visits.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+include_once("../globals.php");
+include_once("../../library/patient.inc");
+include_once("../../library/acl.inc");
 
 use OpenEMR\Core\Header;
 
- include_once("../globals.php");
- include_once("../../library/patient.inc");
- include_once("../../library/acl.inc");
+// Might want something different here.
+//
+// if (! acl_check('acct', 'rep')) die("Unauthorized access.");
 
- // Might want something different here.
- //
- // if (! acl_check('acct', 'rep')) die("Unauthorized access.");
-
- $from_date = fixDate($_POST['form_from_date']);
- $to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
+$form_from_date = (!empty($_POST['form_from_date'])) ?  DateToYYYYMMDD($_POST['form_from_date']) : '';
+$form_to_date   = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 
 if ($_POST['form_csvexport']) {
     header("Pragma: public");
@@ -40,7 +31,7 @@ if ($_POST['form_csvexport']) {
     header("Content-Type: application/force-download");
     header("Content-Disposition: attachment; filename=insurance_distribution.csv");
     header("Content-Description: File Transfer");
-  // CSV headers:
+    // CSV headers:
     if (true) {
         echo '"Insurance",';
         echo '"Charges",';
@@ -53,25 +44,23 @@ if ($_POST['form_csvexport']) {
 <html>
 <head>
 
-<title><?php xl('Patient Insurance Distribution', 'e'); ?></title>
+<title><?php echo xlt('Patient Insurance Distribution'); ?></title>
 
 <?php Header::setupHeader('datetime-picker'); ?>
+
 <script language="JavaScript">
- var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+    $(document).ready(function() {
+    var win = top.printLogSetup ? top : opener.top;
+    win.printLogSetup(document.getElementById('printbutton'));
 
- $(document).ready(function() {
-  var win = top.printLogSetup ? top : opener.top;
-  win.printLogSetup(document.getElementById('printbutton'));
-
-  $('.datepicker').datetimepicker({
-    <?php $datetimepicker_timepicker = false; ?>
-    <?php $datetimepicker_showseconds = false; ?>
-    <?php $datetimepicker_formatInput = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-  });
- });
-
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = true; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+        });
+    });
 </script>
 
 <style type="text/css">
@@ -107,13 +96,13 @@ if ($_POST['form_csvexport']) {
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-<span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Patient Insurance Distribution', 'e'); ?></span>
+<span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Patient Insurance Distribution'); ?></span>
 
 <div id="report_parameters_daterange">
-<?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
+<?php echo oeFormatShortDate($form_from_date) . " &nbsp; " . xlt("to") . " &nbsp; ". oeFormatShortDate($form_to_date); ?>
 </div>
 
-<form name='theform' method='post' action='insurance_allocation_report.php' id='theform'>
+<form name='theform' method='post' action='insurance_allocation_report.php' id='theform' onsubmit='return top.restoreSession()'>
 
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
@@ -127,18 +116,16 @@ if ($_POST['form_csvexport']) {
     <table class='text'>
         <tr>
             <td class='control-label'>
-                <?php xl('From', 'e'); ?>:
+                <?php echo xlt('From'); ?>:
             </td>
             <td>
-               <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
-                title='yyyy-mm-dd'>
+               <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo oeFormatShortDate($form_from_date); ?>'>
             </td>
             <td class='control-label'>
-                <?php xl('To', 'e'); ?>:
+                <?php echo xlt('To'); ?>:
             </td>
             <td>
-               <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
-                title='yyyy-mm-dd'>
+               <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo oeFormatShortDate($form_to_date); ?>'>
             </td>
         </tr>
     </table>
@@ -152,7 +139,7 @@ if ($_POST['form_csvexport']) {
             <td>
                 <div class="text-center">
           <div class="btn-group" role="group">
-                      <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                      <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#form_csvexport").val(""); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
                       </a>
                         <?php if ($_POST['form_refresh']) { ?>
@@ -179,28 +166,25 @@ if ($_POST['form_csvexport']) {
 <table>
 
  <thead>
-  <th align='left'> <?php xl('Primary Insurance', 'e'); ?> </th>
-  <th align='right'> <?php xl('Charges', 'e'); ?> </th>
-  <th align='right'> <?php xl('Visits', 'e'); ?> </th>
-  <th align='right'> <?php xl('Patients', 'e'); ?> </th>
-  <th align='right'> <?php xl('Pt %', 'e'); ?> </th>
+  <th align='left'> <?php echo xlt('Primary Insurance'); ?> </th>
+  <th align='right'> <?php echo xlt('Charges'); ?> </th>
+  <th align='right'> <?php echo xlt('Visits'); ?> </th>
+  <th align='right'> <?php echo xlt('Patients'); ?> </th>
+  <th align='right'> <?php echo xlt('Pt %'); ?> </th>
  </thead>
  <tbody>
 <?php
 } // end not export
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
-    $from_date = fixDate($_POST['form_from_date']);
-    $to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
-
     $query = "SELECT b.pid, b.encounter, SUM(b.fee) AS charges, " .
     "MAX(fe.date) AS date " .
     "FROM form_encounter AS fe, billing AS b " .
-    "WHERE fe.date >= '$from_date' AND fe.date <= '$to_date' " .
+    "WHERE fe.date >= ? AND fe.date <= ? " .
     "AND b.pid = fe.pid AND b.encounter = fe.encounter " .
     "AND b.code_type != 'COPAY' AND b.activity > 0 AND b.fee != 0 " .
     "GROUP BY b.pid, b.encounter ORDER BY b.pid, b.encounter";
 
-    $res = sqlStatement($query);
+    $res = sqlStatement($query, array((!empty($form_from_date)) ? $form_from_date : '0000-00-00', $form_to_date));
     $insarr = array();
     $prev_pid = 0;
     $patcount = 0;
@@ -210,11 +194,11 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         $encounter_date = $row['date'];
         $irow = sqlQuery("SELECT insurance_companies.name " .
         "FROM insurance_data, insurance_companies WHERE " .
-        "insurance_data.pid = $patient_id AND " .
+        "insurance_data.pid = ? AND " .
         "insurance_data.type = 'primary' AND " .
-        "insurance_data.date <= '$encounter_date' AND " .
+        "insurance_data.date <= ? AND " .
         "insurance_companies.id = insurance_data.provider " .
-        "ORDER BY insurance_data.date DESC LIMIT 1");
+        "ORDER BY insurance_data.date DESC LIMIT 1", array($patient_id, $encounter_date));
         $plan = $irow['name'] ? $irow['name'] : '-- No Insurance --';
         $insarr[$plan]['visits'] += 1;
         $insarr[$plan]['charges'] += sprintf('%0.2f', $row['charges']);
@@ -238,16 +222,16 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         ?>
      <tr>
       <td>
-            <?php echo $key ?>
+            <?php echo text($key); ?>
   </td>
   <td align='right'>
-        <?php echo oeFormatMoney($val['charges']) ?>
+        <?php echo oeFormatMoney($val['charges']); ?>
   </td>
   <td align='right'>
-        <?php echo $val['visits'] ?>
+        <?php echo text($val['visits']); ?>
   </td>
   <td align='right'>
-        <?php echo $val['patients'] ?>
+        <?php echo text($val['patients']); ?>
   </td>
   <td align='right'>
         <?php printf("%.1f", $val['patients'] * 100 / $patcount) ?>

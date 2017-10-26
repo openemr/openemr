@@ -52,10 +52,12 @@ require_once(dirname(__FILE__) ."/../../../library/lists.inc");
 require_once(dirname(__FILE__) ."/../../../library/forms.inc");
 require_once(dirname(__FILE__) ."/../../../library/patient.inc");
 
+use OpenEMR\Services\FacilityService;
+
 $form_name = "eye_mag";
 $form_folder = "eye_mag";
 
-$facilityService = new \services\FacilityService();
+$facilityService = new FacilityService();
 
 require_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
 
@@ -2069,7 +2071,7 @@ function display_draw_image($zone, $encounter, $pid)
         $couch_docid = $d->get_couch_docid();
         $couch_revid = $d->get_couch_revid();
         $extension = substr($fname, strrpos($fname, "."));
-        $notes = Note::notes_factory($d->get_id());
+        $notes = $d->get_notes();
         if (!empty($notes)) {
             echo "<table>";
         }

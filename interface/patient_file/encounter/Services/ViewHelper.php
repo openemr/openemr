@@ -181,7 +181,11 @@ class ViewHelper
      */
     static function getLayoutBasedForms()
     {
-        $sql = "SELECT * FROM list_options WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title";
+        $sql = "SELECT grp_form_id AS option_id, grp_title AS title, grp_aco_spec " .
+        "FROM layout_group_properties WHERE " .
+        "grp_form_id LIKE 'LBF%' AND grp_group_id = '' AND grp_activity = 1 " .
+        "ORDER BY grp_seq, grp_title";
+
         $result = sqlStatement($sql);
         $return = array();
         if (sqlNumRows($result)) {
@@ -189,14 +193,12 @@ class ViewHelper
                 $optionId = $row['option_id'];
                 $encodedOptionId = urlencode($optionId);
                 $title = $row['title'];
-                $jobj = json_decode($row['notes'], true);
-                if (!empty($jobj['aco'])) {
-                    $tmp = explode('|', $jobj['aco']);
+                if (!empty($row['grp_aco_spec'])) {
+                    $tmp = explode('|', $row['grp_aco_spec']);
                     if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly')) {
                         continue;
                     }
                 }
-
                 $row = [
                     'href' => "{$GLOBALS['rootdir']}/patient_file/encounter/load_form.php?formname={$encodedOptionId}",
                     'name' => xl_form_title($title),

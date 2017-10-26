@@ -64,7 +64,7 @@ function checkCreateCDB()
         $couch = new CouchDB();
         if (!$couch->check_connection()) {
             echo "<script type='text/javascript'>alert('".addslashes(xl("CouchDB Connection Failed."))."');</script>";
-            return;
+            return false;
         }
 
         if ($GLOBALS['couchdb_host'] || $GLOBALS['couchdb_port'] || $GLOBALS['couchdb_dbase']) {
@@ -93,10 +93,10 @@ function updateBackgroundService($name, $active, $interval)
  * To prevent an unexpected service call during startup or shutdown, follow these rules:
  * 1. Any "startup" operations should occur _before_ the updateBackgroundService() call.
  * 2. Any "shutdown" operations should occur _after_ the updateBackgroundService() call. If these operations
- * would cause errors in a running service call, it would be best to make the shutdown function itself
+ * would cause errors in a running service call, it would be best to make the shutdown function itself is
  * a background service that is activated here, does nothing if active=1 or running=1 for the
- * parent service, then deactivates itself by setting active=0 when it is done shutting the parent service
- * down. This will prevent nonresponsiveness to the user by waiting for a service to finish.
+ * parent service.  Then it deactivates itself by setting active=0 when it is done shutting the parent service
+ * down. This will prevent non-responsiveness to the user by waiting for a service to finish.
  * 3. If any "previous" values for globals are required for startup/shutdown logic, they need to be
  * copied to a temp variable before the while($globalsrow...) loop.
  * @author EMR Direct
@@ -127,7 +127,7 @@ function handleAltServices($this_serviceid, $gln = '', $sinterval = 1)
     updateBackgroundService($this_serviceid, $bs_active, $bs_interval);
     if (!$bs_active && $this_serviceid == 'ccdaservice') {
         require_once(dirname(__FILE__)."/../../ccdaservice/ssmanager.php");
-        
+
         service_shutdown(0);
     }
 }
@@ -311,7 +311,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
     checkCreateCDB();
     checkBackgroundServices();
     handleAltServices('ccdaservice', 'ccda_alt_service_enable', 1);
-  
+
   // July 1, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
   // If Audit Logging status has changed, log it.
     $auditLogStatusNew = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'enable_auditlog'");
@@ -401,7 +401,7 @@ input     { font-size:10pt; }
 <span style='float: right;'>
     <input name='srch_desc' size='20'
         value='<?php echo (!empty($_POST['srch_desc']) ? htmlspecialchars($_POST['srch_desc']) : '') ?>' />
-    <input type='submit' name='form_search' value='<?php echo xla('Search'); ?>' />
+    <input type='submit' name='form_search' id='globals_form_search' value='<?php echo xla('Search'); ?>' />
 </span>
 
 <ul class="tabNav">
@@ -623,74 +623,56 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                     }
 
                                 echo "</select>";
-                } else if ($fldtype == 'css') {
+                } else if ($fldtype == 'css' || $fldtype == 'tabs_css') {
                     if ($userMode) {
                         $globalTitle = $globalValue;
                     }
-
-                              $themedir = "$webserver_root/interface/themes";
-                              $dh = opendir($themedir);
+                    $themedir = "$webserver_root/interface/themes";
+                    $dh = opendir($themedir);
                     if ($dh) {
-                        echo "  <select name='form_$i' id='form_$i'>\n";
+                        // Collect styles
+                        $styleArray = array();
                         while (false !== ($tfname = readdir($dh))) {
-                            // Only show files that contain style_ as options
-                            //  Skip style_blue.css since this is used for
-                            //  lone scripts such as setup.php
-                            //  Also skip style_pdf.css which is for PDFs and not screen output
-                            if (!preg_match("/^style_.*\.css$/", $tfname) ||
-                              $tfname == 'style_blue.css' || $tfname == 'style_pdf.css') {
+                            // Only show files that contain tabs_style_ or style_ as options
+                            if ($fldtype == 'tabs_css') {
+                                $patternStyle = 'tabs_style_';
+                            } else { // $fldtype == 'css'
+                                $patternStyle = 'style_';
+                            }
+                            if ($tfname == 'style_blue.css' ||
+                                $tfname == 'style_pdf.css' ||
+                                !preg_match("/^" . $patternStyle . ".*\.css$/", $tfname)) {
                                 continue;
                             }
 
-                            echo "<option value='" . attr($tfname) . "'";
-                            // Drop the "style_" part and any replace any underscores with spaces
-                            $styleDisplayName = str_replace("_", " ", substr($tfname, 6));
+                            if ($fldtype == 'tabs_css') {
+                                // Drop the "tabs_style_" part and any replace any underscores with spaces
+                                $styleDisplayName = str_replace("_", " ", substr($tfname, 11));
+                            } else { // $fldtype == 'css'
+                                // Drop the "style_" part and any replace any underscores with spaces
+                                $styleDisplayName = str_replace("_", " ", substr($tfname, 6));
+                            }
                             // Strip the ".css" and uppercase the first character
                             $styleDisplayName = ucfirst(str_replace(".css", "", $styleDisplayName));
-                            if ($tfname == $fldvalue) {
+
+                            $styleArray[$tfname] = $styleDisplayName;
+                        }
+                        // Alphabetize styles
+                        asort($styleArray);
+                        // Generate style selector
+                        echo "<select name='form_$i' id='form_$i'>\n";
+                        foreach ($styleArray as $styleKey => $styleValue) {
+                            echo "<option value='" . attr($styleKey) . "'";
+                            if ($styleKey == $fldvalue) {
                                 echo " selected";
                             }
-
                             echo ">";
-                            echo text($styleDisplayName);
+                            echo text($styleValue);
                             echo "</option>\n";
                         }
-
-                        closedir($dh);
-                        echo "  </select>\n";
+                        echo "</select>\n";
                     }
-                } else if ($fldtype == 'tabs_css') {
-                    if ($userMode) {
-                        $globalTitle = $globalValue;
-                    }
-
-                              $themedir = "$webserver_root/interface/themes";
-                              $dh = opendir($themedir);
-                    if ($dh) {
-                        echo "  <select name='form_$i' id='form_$i'>\n";
-                        while (false !== ($tfname = readdir($dh))) {
-                            // Only show files that contain tabs_style_ as options
-                            if (!preg_match("/^tabs_style_.*\.css$/", $tfname)) {
-                                continue;
-                            }
-
-                            echo "<option value='" . attr($tfname) . "'";
-                            // Drop the "tabs_style_" part and any replace any underscores with spaces
-                            $styleDisplayName = str_replace("_", " ", substr($tfname, 11));
-                            // Strip the ".css" and uppercase the first character
-                            $styleDisplayName = ucfirst(str_replace(".css", "", $styleDisplayName));
-                            if ($tfname == $fldvalue) {
-                                echo " selected";
-                            }
-
-                            echo ">";
-                            echo text($styleDisplayName);
-                            echo "</option>\n";
-                        }
-
-                        closedir($dh);
-                        echo "  </select>\n";
-                    }
+                    closedir($dh);
                 } else if ($fldtype == 'hour') {
                     if ($userMode) {
                         $globalTitle = $globalValue;

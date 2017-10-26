@@ -177,6 +177,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     $from_date = $form_from_date;
     $to_date   = $form_to_date;
 
+    $sqlBindArray = array();
     $query = "SELECT po.patient_id, po.date_ordered, " .
     "pd.pubpid, " .
     "CONCAT(pd.lname, ', ', pd.fname, ' ', pd.mname) AS patient_name, " .
@@ -200,13 +201,14 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
   // TBD: What if preliminary and final reports for the same order?
 
     if ($form_facility) {
-        $query .= " AND fe.facility_id = '$form_facility'";
+        $query .= " AND fe.facility_id = ?";
+        array_push($sqlBindArray, $form_facility);
     }
 
     $query .= " ORDER BY pd.lname, pd.fname, pd.mname, po.patient_id, " .
     "po.date_ordered, po.procedure_order_id";
 
-    $res = sqlStatement($query);
+    $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
         thisLineItem($row);
     }

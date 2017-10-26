@@ -22,7 +22,7 @@
             <div class="patientInfo" style="float: left">
               <!-- ko if: patient -->
                   <div data-bind="with: patient" class="patientPicture">
-                      <img data-bind="attr: {src: patient_picture()}"
+                      <img data-bind="attr: {src: patient_picture}"
                            class="img-thumbnail"
                            onError="this.src = '<?php echo $GLOBALS['images_static_relative']; ?>/patient-picture-default.png'" />
                   </div>
@@ -54,6 +54,9 @@
         <span class="patientDataColumn">
         <!-- ko if: patient -->
         <!-- ko with: patient -->
+            <a class="btn btn-xs btn-link" data-bind="click: clickEncounterList" href="#" title="<?php echo xla("Visit History");?>">
+                <i class="fa fa-refresh"></i>
+            </a>
             <a class="btn btn-xs btn-link" data-bind="click: clickNewEncounter" href="#" title="<?php echo xla("New Encounter");?>">
                 <i class="fa fa-plus"></i>
             </a>

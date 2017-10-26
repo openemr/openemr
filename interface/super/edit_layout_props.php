@@ -20,22 +20,20 @@
  * @link    http://www.open-emr.org
  */
 
-
-
-
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$phpgacl_location/gacl_api.class.php");
 
-$info_msg = "";
+$alertmsg = "";
 
 // Check authorization.
 $thisauth = acl_check('admin', 'super');
 if (!$thisauth) {
-    die(xlt('Not authorized'));
+    die(xl('Not authorized'));
 }
 
-$opt_line_no = intval($_GET['lineno']);
+$layout_id = empty($_GET['layout_id']) ? '' : $_GET['layout_id'];
+$group_id  = empty($_GET['group_id' ]) ? '' : $_GET['group_id' ];
 ?>
 <html>
 <head>
@@ -57,37 +55,52 @@ td { font-size:10pt; }
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
-var target = opener.document.forms[0]['opt[<?php echo $opt_line_no; ?>][notes]'];
 
-$(document).ready(function () {
-    var jobj = {};
-    if (target.value.length) {
-        try {
-            jobj = JSON.parse(target.value);
-            $("#fm_props").find('input,select').each(function() {
-                var fm_prop = $(this).prop('name').slice(5);
-                if ((typeof(jobj[fm_prop]) !== 'undefined') && (fm_prop !== '')) {
-                    $(this).val(jobj[fm_prop]);
-                }
-            });
-        }
-        catch (e) {
-            alert('<?php echo xls('Invalid data, will be ignored and replaced.'); ?>');
-        }
-    }
-});
+// The name of the input element to receive a found code.
+var current_sel_name = '';
 
-// Onclick handler for Submit button.
-function submitProps() {
-    var jobj = {};
-    $("#fm_props").find('input,select').each(function() {
-        var fm_prop = $(this).prop('name').slice(5);
-        if (($(this).val() !== '') && (fm_prop !== '')) {
-            jobj[fm_prop] = $(this).val();
-        }
-    });
-    target.value = ((Object.keys(jobj).length > 0) ? JSON.stringify(jobj) : '');
-    window.close();
+// This invokes the "dynamic" find-code popup.
+function sel_related(elem, codetype) {
+ current_sel_name = elem ? elem.name : '';
+ var url = '<?php echo $rootdir ?>/patient_file/encounter/find_code_dynamic.php';
+ if (codetype) url += '?codetype=' + codetype;
+ dlgopen(url, '_blank', 800, 500);
+}
+
+// This is for callback by the find-code popup.
+// Appends to or erases the current list of related codes.
+function set_related(codetype, code, selector, codedesc) {
+ var f = document.forms[0];
+ // frc will be the input element containing the codes.
+ var frc = f[current_sel_name];
+ var s = frc.value;
+ if (code) {
+  if (s.length > 0) {
+   s  += ';';
+  }
+  s  += codetype + ':' + code;
+ } else {
+  s  = '';
+ }
+ frc.value = s;
+ return '';
+}
+
+// This is for callback by the find-code popup.
+// Deletes the specified codetype:code from the active input element.
+function del_related(s) {
+  var f = document.forms[0];
+  my_del_related(s, f[current_sel_name], false);
+}
+
+// This is for callback by the find-code popup.
+// Returns the array of currently selected codes with each element in codetype:code format.
+function get_related() {
+  var f = document.forms[0];
+  if (current_sel_name) {
+    return f[current_sel_name].value.split(';');
+  }
+  return new Array();
 }
 
 </script>
@@ -96,10 +109,205 @@ function submitProps() {
 
 <body class="body_top">
 
-<form id='fm_props' method='post'>
+<?php
+if ($_POST['form_submit'] && !$alertmsg) {
+    if ($group_id) {
+        $sets =
+            "grp_subtitle = ?, "   .
+            "grp_columns = ?";
+        $sqlvars = array(
+            $_POST['form_subtitle'],
+            intval($_POST['form_columns']),
+        );
+    } else {
+        $sets =
+            "grp_title = ?, "      .
+            "grp_subtitle = ?, "   .
+            "grp_mapping = ?, "    .
+            "grp_seq = ?, "        .
+            "grp_activity = ?, "   .
+            "grp_repeats = ?, "    .
+            "grp_columns = ?, "    .
+            "grp_size = ?, "       .
+            "grp_issue_type = ?, " .
+            "grp_aco_spec = ?, "   .
+            "grp_services = ?, "   .
+            "grp_products = ?, "   .
+            "grp_diags = ?";
+        $sqlvars = array(
+            $_POST['form_title'],
+            $_POST['form_subtitle'],
+            $_POST['form_mapping'],
+            intval($_POST['form_seq']),
+            empty($_POST['form_activity']) ? 0 : 1,
+            intval($_POST['form_repeats']),
+            intval($_POST['form_columns']),
+            intval($_POST['form_size']),
+            $_POST['form_issue'],
+            $_POST['form_aco'],
+            empty($_POST['form_services']) ? '' : (empty($_POST['form_services_codes']) ? '*' : $_POST['form_services_codes']),
+            empty($_POST['form_products']) ? '' : (empty($_POST['form_products_codes']) ? '*' : $_POST['form_products_codes']),
+            empty($_POST['form_diags'   ]) ? '' : (empty($_POST['form_diags_codes'   ]) ? '*' : $_POST['form_diags_codes'   ]),
+        );
+    }
+
+    if ($layout_id) {
+      // They have edited an existing layout.
+        $sqlvars[] = $layout_id;
+        $sqlvars[] = $group_id;
+        sqlStatement(
+            "UPDATE layout_group_properties SET $sets " .
+            "WHERE grp_form_id = ? AND grp_group_id = ?",
+            $sqlvars
+        );
+    } else if (!$group_id) {
+        // They want to add a new layout. New groups not supported here.
+        $form_form_id = $_POST['form_form_id'];
+        if (preg_match('/(LBF|LBT)[0-9A-Za-z_]+/', $form_form_id)) {
+            $tmp = sqlQuery(
+                "SELECT grp_form_id FROM layout_group_properties WHERE " .
+                "grp_form_id = ? AND grp_group_id = ''",
+                array($form_form_id)
+            );
+            if (empty($row)) {
+                $sqlvars[] = $form_form_id;
+                sqlStatement(
+                    "INSERT INTO layout_group_properties " .
+                    "SET $sets, grp_form_id = ?, grp_group_id = ''",
+                    $sqlvars
+                );
+                $layout_id = $form_form_id;
+            } else {
+                $alertmsg = xl('This layout ID already exists');
+            }
+        } else {
+            $alertmsg = xl('Invalid layout ID');
+        }
+    }
+
+    // Close this window and redisplay the layout editor.
+    //
+    echo "<script language='JavaScript'>\n";
+    if ($alertmsg) {
+        echo " alert('" . addslashes($alertmsg) . "');\n";
+    }
+    echo " if (opener.refreshme) opener.refreshme('" . attr($layout_id) . "');\n";
+    echo " window.close();\n";
+    echo "</script></body></html>\n";
+    exit();
+}
+
+$row = array(
+    'grp_form_id'    => '',
+    'grp_title'      => '',
+    'grp_subtitle'   => '',
+    'grp_mapping'    => 'Clinical',
+    'grp_seq'        => '0',
+    'grp_activity'   => '1',
+    'grp_repeats'    => '0',
+    'grp_columns'    => '4',
+    'grp_size'       => '9',
+    'grp_issue_type' => '',
+    'grp_aco_spec'   => '',
+    'grp_services'   => '',
+    'grp_products'   => '',
+    'grp_diags'      => '',
+);
+
+if ($layout_id) {
+    $row = sqlQuery(
+        "SELECT * FROM layout_group_properties WHERE " .
+        "grp_form_id = ? AND grp_group_id = ?",
+        array($layout_id, $group_id)
+    );
+    if (empty($row)) {
+        die(xlt('This layout does not exist.'));
+    }
+}
+?>
+
+<form method='post' action='edit_layout_props.php?<?php echo "layout_id=" . attr($layout_id) . "&group_id=" . attr($group_id); ?>'>
 <center>
 
 <table border='0' width='100%'>
+<?php if (empty($layout_id)) { ?>
+ <tr>
+  <td valign='top' width='1%' nowrap>
+    <?php echo xlt('Layout ID'); ?>
+  </td>
+  <td>
+   <input type='text' size='31' maxlength='31' name='form_form_id'
+    value='' /><br />
+    <?php echo xlt('Visit form ID must start with LBF. Transaction form ID must start with LBT.') ?>
+  </td>
+ </tr>
+<?php } ?>
+
+<?php if (empty($group_id)) { ?>
+ <tr>
+  <td valign='top' width='1%' nowrap>
+    <?php echo xlt('Title'); ?>
+  </td>
+  <td>
+   <input type='text' size='40' name='form_title' style='width:100%'
+    value='<?php echo attr($row['grp_title']); ?>' />
+  </td>
+ </tr>
+<?php } ?>
+
+ <tr>
+  <td valign='top' width='1%' nowrap>
+    <?php echo xlt('Subtitle'); ?>
+  </td>
+  <td>
+   <input type='text' size='40' name='form_subtitle' style='width:100%'
+    value='<?php echo attr($row['grp_subtitle']); ?>' />
+  </td>
+ </tr>
+
+<?php if (empty($group_id)) { ?>
+
+ <tr>
+  <td valign='top' width='1%' nowrap>
+    <?php echo xlt('Category'); ?>
+  </td>
+  <td>
+   <input type='text' size='40' name='form_mapping' style='width:100%'
+    value='<?php echo attr($row['grp_mapping']); ?>' />
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' width='1%' nowrap>
+    <?php echo xlt('Active'); ?>
+  </td>
+  <td>
+   <input type='checkbox' name='form_activity' <?php if ($row['grp_activity']) {
+        echo "checked";} ?> />
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' width='1%' nowrap>
+    <?php echo xlt('Sequence'); ?>
+  </td>
+  <td>
+   <input type='text' size='4' name='form_seq'
+    value='<?php echo attr($row['grp_seq']); ?>' />
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' width='1%' nowrap>
+    <?php echo xlt('Repeats'); ?>
+  </td>
+  <td>
+   <input type='text' size='4' name='form_repeats'
+    value='<?php echo attr($row['grp_repeats']); ?>' />
+  </td>
+ </tr>
+
+<?php } ?>
 
  <tr>
   <td valign='top' nowrap>
@@ -108,16 +316,20 @@ function submitProps() {
   <td>
    <select name='form_columns'>
 <?php
-  echo "<option value=''>" . xlt('Default') . " (4)</option>\n";
+  echo "<option value='0'>" . xlt('Default') . "</option>\n";
 for ($cols = 2; $cols <= 10; ++$cols) {
-    if ($cols != 4) {
-        echo "<option value='$cols'>$cols</option>\n";
+    echo "<option value='$cols'";
+    if ($cols == $row['grp_columns']) {
+        echo " selected";
     }
+    echo ">$cols</option>\n";
 }
 ?>
    </select>
   </td>
  </tr>
+
+<?php if (empty($group_id)) { ?>
 
  <tr>
   <td valign='top' nowrap>
@@ -126,10 +338,38 @@ for ($cols = 2; $cols <= 10; ++$cols) {
   <td>
    <select name='form_size'>
 <?php
-  echo "<option value=''>" . xlt('Default') . "</option>\n";
+  echo "<option value='0'>" . xlt('Default') . "</option>\n";
 for ($size = 5; $size <= 15; ++$size) {
     echo "<option value='$size'";
+    if ($size == $row['grp_size']) {
+        echo " selected";
+    }
     echo ">$size</option>\n";
+}
+?>
+   </select>
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' nowrap>
+    <?php echo xlt('Issue Type'); ?>
+  </td>
+  <td>
+   <select name='form_issue'>
+    <option value=''></option>
+<?php
+  $itres = sqlStatement(
+      "SELECT type, singular FROM issue_types " .
+      "WHERE category = ? AND active = 1 ORDER BY singular",
+      array($GLOBALS['ippf_specific'] ? 'ippf_specific' : 'default')
+  );
+while ($itrow = sqlFetchArray($itres)) {
+    echo "<option value='" . attr($itrow['type']) . "'";
+    if ($itrow['type'] == $row['grp_issue_type']) {
+        echo " selected";
+    }
+    echo ">" . xlt($itrow['singular']) . "</option>\n";
 }
 ?>
    </select>
@@ -143,24 +383,81 @@ for ($size = 5; $size <= 15; ++$size) {
   <td>
    <select name='form_aco'>
     <option value=''></option>
-    <?php echo gen_aco_html_options(); ?>
+<?php
+  $gacl = new gacl_api();
+  // collect and sort all aco objects
+  $list_aco_objects = $gacl->get_objects(null, 0, 'ACO');
+  ksort($list_aco_objects);
+foreach ($list_aco_objects as $seckey => $dummy) {
+    if (empty($dummy)) {
+        continue;
+    }
+    asort($list_aco_objects[$seckey]);
+    $aco_section_data = $gacl->get_section_data($seckey, 'ACO');
+    $aco_section_title = $aco_section_data[3];
+    echo " <optgroup label='" . xla($aco_section_title) . "'>\n";
+    foreach ($list_aco_objects[$seckey] as $acokey) {
+        $aco_id = $gacl->get_object_id($seckey, $acokey, 'ACO');
+        $aco_data = $gacl->get_object_data($aco_id, 'ACO');
+        $aco_title = $aco_data[0][3];
+        echo "  <option value='" . attr("$seckey|$acokey") . "'";
+        if ("$seckey|$acokey" == $row['grp_aco_spec']) {
+            echo " selected";
+        }
+        echo ">" . xla($aco_title) . "</option>\n";
+    }
+    echo " </optgroup>\n";
+}
+?>
    </select>
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap>
-   <label for='form_category'><?php echo xlt('Category'); ?></label>
+  <td valign='top' width='1%' nowrap>
+   <input type='checkbox' name='form_services' <?php if ($row['grp_services']) {
+        echo "checked";} ?> />
+    <?php echo xlt('Show Services Section'); ?>
   </td>
   <td>
-   <input type="text" id='form_category' name='form_category' size="40">
+   <input type='text' size='40' name='form_services_codes' onclick='sel_related(this, "MA")' style='width:100%'
+    value='<?php if ($row['grp_services'] != '*') {
+        echo attr($row['grp_services']);} ?>' />
   </td>
  </tr>
+
+ <tr>
+  <td valign='top' width='1%' nowrap>
+   <input type='checkbox' name='form_products' <?php if ($row['grp_products']) {
+        echo "checked";} ?> />
+    <?php echo xlt('Show Products Section'); ?>
+  </td>
+  <td>
+   <input type='text' size='40' name='form_products_codes' onclick='sel_related(this, "PROD")' style='width:100%'
+    value='<?php if ($row['grp_products'] != '*') {
+        echo attr($row['grp_products']);} ?>' />
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' width='1%' nowrap>
+   <input type='checkbox' name='form_diags' <?php if ($row['grp_diags']) {
+        echo "checked";} ?> />
+    <?php echo xlt('Show Diagnoses Section'); ?>
+  </td>
+  <td>
+   <input type='text' size='40' name='form_diags_codes' onclick='sel_related(this, "ICD10")' style='width:100%'
+    value='<?php if ($row['grp_diags'] != '*') {
+        echo attr($row['grp_diags']);} ?>' />
+  </td>
+ </tr>
+
+<?php } ?>
 
 </table>
 
 <p>
-<input type='button' value='<?php echo xla('Submit'); ?>' onclick='submitProps()' />
+<input type='submit' name='form_submit' value='<?php echo xla('Submit'); ?>' />
 
 &nbsp;
 <input type='button' value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
@@ -170,8 +467,8 @@ for ($size = 5; $size <= 15; ++$size) {
 </form>
 <script language='JavaScript'>
 <?php
-if ($info_msg) {
-    echo " alert('".addslashes($info_msg)."');\n";
+if ($alertmsg) {
+    echo " alert('" . addslashes($alertmsg) . "');\n";
     echo " window.close();\n";
 }
 ?>

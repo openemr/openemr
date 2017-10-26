@@ -9,7 +9,7 @@
 function oeFormatMoney($amount, $symbol = false)
 {
     $s = number_format(
-        $amount,
+        floatval($amount),
         $GLOBALS['currency_decimals'],
         $GLOBALS['currency_dec_point'],
         $GLOBALS['currency_thousands_sep']
@@ -28,7 +28,7 @@ function oeFormatShortDate($date = 'today', $showYear = true)
         $date = date('Y-m-d');
     }
 
-    if (strlen($date) == 10) {
+    if (strlen($date) >= 10) {
         // assume input is yyyy-mm-dd
         if ($GLOBALS['date_display_format'] == 1) {      // mm/dd/yyyy, note year is added below
             $newDate = substr($date, 5, 2) . '/' . substr($date, 8, 2);
@@ -72,6 +72,44 @@ function oeFormatTime($time, $format = "")
     }
 
     return $formatted;
+}
+
+/**
+ * Returns the complete formatted datetime string according the global date and time format
+ * @param $datetime
+ * @return string
+ */
+function oeFormatDateTime($datetime)
+{
+    echo oeFormatShortDate(substr($datetime, 0, 10)) . " " . oeFormatTime(substr($datetime, 10));
+}
+
+/**
+ * Returns the complete formatted datetime string according the global date and time format
+ * @param $timestamp
+ * @return string
+ */
+function oeTimestampFormatDateTime($timestamp)
+{
+    if (!$timestamp) {
+        $timestamp = strtotime(date('Y-m-d H:i'));
+    }
+
+    if ($GLOBALS['time_display_format'] == 0) {
+        $timeFormat = 'H:i';
+    } else { // $GLOBALS['time_display_format'] == 1
+        $timeFormat = 'g:i a';
+    }
+
+    if ($GLOBALS['date_display_format'] == 1) { // mm/dd/yyyy
+        $newDate = date('m/d/Y ' . $timeFormat, $timestamp);
+    } else if ($GLOBALS['date_display_format'] == 2) { // dd/mm/yyyy
+        $newDate = date('d/m/Y ' . $timeFormat, $timestamp);
+    } else { // yyyy-mm-dd
+        $newDate = date('Y-m-d ' . $timeFormat, $timestamp);
+    }
+
+    return $newDate;
 }
 
 // Format short date from time.

@@ -39,13 +39,14 @@ class FormNursingNotes extends ORDataObject
     var $procedures;
     var $discharge;
 
-
     /**
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormNursingNotes($id = "", $_prefix = "")
+    function __construct($id = "", $_prefix = "")
     {
+        parent::__construct();
+
         if (is_numeric($id)) {
             $this->id = $id;
         } else {
@@ -67,33 +68,30 @@ class FormNursingNotes extends ORDataObject
         //$this->temp_methods = parent::_load_enum("temp_locations",false);
     }
 
-    function toString($html = false)
+    function __toString()
     {
-        $string .= "\n"
-            ."ID: " . $this->id . "\n";
-
-        if ($html) {
-            return nl2br($string);
-        } else {
-            return $string;
-        }
+        return "ID: " . $this->id . "\n";
     }
+
     function set_id($id)
     {
         if (!empty($id) && is_numeric($id)) {
             $this->id = $id;
         }
     }
+
     function get_id()
     {
         return $this->id;
     }
+
     function set_pid($pid)
     {
         if (!empty($pid) && is_numeric($pid)) {
             $this->pid = $pid;
         }
     }
+
     function get_pid()
     {
         return $this->pid;
@@ -103,16 +101,19 @@ class FormNursingNotes extends ORDataObject
     {
         return $this->date;
     }
+
     function set_date($dt)
     {
         if (!empty($dt)) {
             $this->date = $dt;
         }
     }
+
     function get_user()
     {
         return $this->user;
     }
+
     function set_user($u)
     {
         if (!empty($u)) {
@@ -126,6 +127,7 @@ class FormNursingNotes extends ORDataObject
             $this->activity = $tf;
         }
     }
+
     function get_activity()
     {
         return $this->activity;
@@ -135,6 +137,7 @@ class FormNursingNotes extends ORDataObject
     {
         return $this->assessment;
     }
+
     function set_assessment($data)
     {
         if (!empty($data)) {
@@ -146,6 +149,7 @@ class FormNursingNotes extends ORDataObject
     {
         return $this->procedures;
     }
+
     function set_procedures($data)
     {
         if (!empty($data)) {
@@ -157,6 +161,7 @@ class FormNursingNotes extends ORDataObject
     {
         return $this->discharge;
     }
+
     function set_discharge($data)
     {
         if (!empty($data)) {

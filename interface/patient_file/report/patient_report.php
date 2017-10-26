@@ -328,7 +328,7 @@ $res = sqlStatement("SELECT forms.encounter, forms.form_id, forms.form_name, " .
                     "forms.pid = '$pid' AND form_encounter.pid = '$pid' AND " .
                     "form_encounter.encounter = forms.encounter " .
                     " AND forms.deleted=0 ". // --JRM--
-                    "ORDER BY form_encounter.date DESC, fdate ASC");
+                    "ORDER BY form_encounter.encounter DESC, form_encounter.date DESC, fdate ASC");
 $res2 = sqlStatement("SELECT name FROM registry ORDER BY priority");
 $html_strings = array();
 $registry_form_name = array();

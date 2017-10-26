@@ -55,8 +55,10 @@ class FormLegLength extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormLegLength($id = "", $_prefix = "")
+    function __construct($id = "", $_prefix = "")
     {
+        parent::__construct();
+
         if (is_numeric($id)) {
             $this->id = $id;
         } else {
@@ -72,39 +74,37 @@ class FormLegLength extends ORDataObject
             //$this->date = $this->get_date();
         }
     }
+
     function populate()
     {
         parent::populate();
         //$this->temp_methods = parent::_load_enum("temp_locations",false);
     }
 
-    function toString($html = false)
+    function __toString()
     {
-        $string .= "\n"
-            ."ID: " . $this->id . "\n";
-
-        if ($html) {
-            return nl2br($string);
-        } else {
-            return $string;
-        }
+        return "ID: " . $this->id . "\n";
     }
+
     function set_id($id)
     {
         if (!empty($id) && is_numeric($id)) {
             $this->id = $id;
         }
     }
+
     function get_id()
     {
         return $this->id;
     }
+
     function set_pid($pid)
     {
         if (!empty($pid) && is_numeric($pid)) {
             $this->pid = $pid;
         }
     }
+
     function get_pid()
     {
         return $this->pid;
@@ -114,16 +114,19 @@ class FormLegLength extends ORDataObject
     {
         return $this->date;
     }
+
     function set_date($dt)
     {
         if (!empty($dt)) {
             $this->date = $dt;
         }
     }
+
     function get_user()
     {
         return $this->user;
     }
+
     function set_user($u)
     {
         if (!empty($u)) {
@@ -137,6 +140,7 @@ class FormLegLength extends ORDataObject
             $this->activity = $tf;
         }
     }
+
     function get_activity()
     {
         return $this->activity;
@@ -147,18 +151,18 @@ class FormLegLength extends ORDataObject
         parent::persist();
     }
 
-    //
-
     function get_AE_left()
     {
         return $this->AE_left;
     }
+
     function set_AE_left($tf)
     {
         if (true) {
             $this->AE_left = $tf;
         }
     }
+
     function get_AE_right()
     {
         return $this->AE_right;
@@ -170,6 +174,7 @@ class FormLegLength extends ORDataObject
             $this->AE_right = $tf;
         }
     }
+
     function get_BE_left()
     {
         return $this->BE_left;
@@ -181,6 +186,7 @@ class FormLegLength extends ORDataObject
             $this->BE_left = $tf;
         }
     }
+
     function get_BE_right()
     {
         return $this->BE_right;
@@ -192,26 +198,31 @@ class FormLegLength extends ORDataObject
             $this->BE_right = $tf;
         }
     }
+
     function get_AK_left()
     {
         return $this->AK_left;
     }
+
     function set_AK_left($tf)
     {
         if (true) {
             $this->AK_left = $tf;
         }
     }
+
     function get_AK_right()
     {
         return $this->AK_right;
     }
+
     function set_AK_right($tf)
     {
         if (true) {
             $this->AK_right = $tf;
         }
     }
+
     function get_K_left()
     {
         return $this->K_left;
@@ -223,6 +234,7 @@ class FormLegLength extends ORDataObject
             $this->K_left = $tf;
         }
     }
+
     function get_K_right()
     {
         return $this->K_right;
@@ -234,6 +246,7 @@ class FormLegLength extends ORDataObject
             $this->K_right = $tf;
         }
     }
+
     function get_BK_left()
     {
         return $this->BK_left;
@@ -245,6 +258,7 @@ class FormLegLength extends ORDataObject
             $this->BK_left = $tf;
         }
     }
+
     function get_BK_right()
     {
         return $this->BK_right;
@@ -256,6 +270,7 @@ class FormLegLength extends ORDataObject
             $this->BK_right = $tf;
         }
     }
+
     function get_ASIS_left()
     {
         return $this->ASIS_left;
@@ -267,6 +282,7 @@ class FormLegLength extends ORDataObject
             $this->ASIS_left = $tf;
         }
     }
+
     function get_ASIS_right()
     {
         return $this->ASIS_right;
@@ -278,6 +294,7 @@ class FormLegLength extends ORDataObject
             $this->ASIS_right = $tf;
         }
     }
+
     function get_UMB_left()
     {
         return $this->UMB_left;
@@ -289,6 +306,7 @@ class FormLegLength extends ORDataObject
             $this->UMB_left = $tf;
         }
     }
+
     function get_UMB_right()
     {
         return $this->UMB_right;
@@ -304,10 +322,12 @@ class FormLegLength extends ORDataObject
     // ----- notes -----
 
     var $notes;
+
     function get_notes()
     {
         return $this->notes;
     }
+
     function set_notes($data)
     {
         if (!empty($data)) {

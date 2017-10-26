@@ -20,9 +20,11 @@
  * @link    http://www.open-emr.org
  */
 
-namespace services;
+namespace OpenEMR\Services;
 
-use entities\Version;
+use OpenEMR\Common\Database\Connector;
+use OpenEMR\Common\Logging\Logger;
+use OpenEMR\Entities\Version;
 
 class VersionService
 {
@@ -42,10 +44,10 @@ class VersionService
      */
     public function __construct()
     {
-        $this->logger = new \common\logging\Logger("\services\VersionService");
-        $database = \common\database\Connector::Instance();
+        $this->logger = new Logger("\OpenEMR\Services\VersionService");
+        $database = Connector::Instance();
         $entityManager = $database->entityManager;
-        $this->repository = $entityManager->getRepository('\entities\Version');
+        $this->repository = $entityManager->getRepository('\OpenEMR\Entities\Version');
     }
 
     /**

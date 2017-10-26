@@ -762,4 +762,13 @@ class Document extends ORDataObject
         // Link the new note to the document.
         setGpRelation(1, $this->get_id(), 6, $noteid);
     }
+
+  /**
+   * Return note objects associated with this document using Note::notes_factory
+   *
+   */
+    function get_notes()
+    {
+        return (Note::notes_factory($this->get_id()));
+    }
 } // end of Document

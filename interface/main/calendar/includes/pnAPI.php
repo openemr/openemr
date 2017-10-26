@@ -512,7 +512,7 @@ function pnDBInit()
         //die("$dbtype://$dbuname:$dbpass@$dbhost/$dbname failed to connect" . $dbconn->ErrorMsg());
         die("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n<html>\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-1\">\n<title>PostNuke powered Website</title>\n</head>\n<body>\n<center>\n<h1>Problem in Database Connection</h1>\n<br /><br />\n<h5>This Website is powered by PostNuke</h5>\n<a href=\"http://www.postnuke.com\" target=\"_blank\"><img src=\"images/powered/postnuke.butn.gif\" border=\"0\" alt=\"Web site powered by PostNuke\" hspace=\"10\" /></a> <a href=\"http://php.weblogs.com/ADODB\" target=\"_blank\"><img src=\"images/powered/adodb2.gif\" alt=\"ADODB database library\" border=\"0\" hspace=\"10\" /></a><a href=\"http://www.php.net\" target=\"_blank\"><img src=\"images/powered/php2.gif\" alt=\"PHP Scripting Language\" border=\"0\" hspace=\"10\" /></a><br />\n<h5>Although this site is running the PostNuke software<br />it has no other connection to the PostNuke Developers.<br />Please refrain from sending messages about this site or its content<br />to the PostNuke team, the end will result in an ignored e-mail.</h5>\n</center>\n</body>\n</html>");
     }
-    
+
     // Modified 5/2009 by BM for UTF-8 project
     if ($pnconfig['utf8Flag']) {
         $success_flag = $dbconn->Execute("SET NAMES 'utf8'");
@@ -528,7 +528,7 @@ function pnDBInit()
     if (!$sql_strict_set_success) {
         error_log("PHP custom error: from postnuke interface/main/calendar/includes/pnAPI.php - Unable to set strict sql setting", 0);
     }
-    
+
     global $ADODB_FETCH_MODE;
     $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
@@ -1115,24 +1115,13 @@ function pnGetBaseURI()
  */
 function pnGetBaseURL()
 {
-    global $HTTP_SERVER_VARS;
 
-    if (empty($HTTP_SERVER_VARS['HTTP_HOST'])) {
-        $server = getenv('HTTP_HOST');
-    } else {
-        $server = $HTTP_SERVER_VARS['HTTP_HOST'];
-    }
-
-    // IIS sets HTTPS=off
-    if ((isset($HTTP_SERVER_VARS['HTTPS']) && $HTTP_SERVER_VARS['HTTPS'] != 'off') || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')) {
-        $proto = 'https://';
-    } else {
-        $proto = 'http://';
-    }
+    // Removed majority of this function in 10/2017 to just use relative path
+    // (the full path would break in some https server setups)
 
     $path = pnGetBaseURI();
 
-    return "$proto$server$path/";
+    return "$path/";
 }
 
 /**
@@ -1227,7 +1216,7 @@ function pnMail($to, $subject, $message, $headers, $debug = 0)
             $headers = convert_cyr_string($headers, "w", "k");
             break;
     }
-    
+
     // Debug
     if ($debug) {
         echo "Mail To: ".$to."<br>";
@@ -1235,7 +1224,7 @@ function pnMail($to, $subject, $message, $headers, $debug = 0)
         echo "Mail Message: ".$message."<br>";
         echo "Mail Headers: ".$headers."<br>";
     }
-    
+
     // Mail message
     // do not display error messages [class007]
     $return = @mail($to, $subject, $message, $headers);

@@ -7,7 +7,7 @@ class Handler_HL7v2
 
     var $parser;
 
-    function Handler_HL7v2($parser)
+    function __construct($parser)
     {
         $this->parser = &$parser;
     }

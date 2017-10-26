@@ -1,6 +1,16 @@
+{**
+* Patient search
+*
+* @package   OpenEMR
+* @link      http://www.open-emr.org
+* @author    Brady Miller <brady.g.miller@gmail.com>
+* @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+*}
 <html>
 <head>
-{php}html_header_show();{/php}
+
+{headerShow}
 
 {literal}
  <style type="text/css" title="mystyles" media="all">
@@ -29,50 +39,49 @@ a {
 -->
 </style>
 {/literal}
-<link rel="stylesheet" href="{php}echo $GLOBALS['css_header'];{/php}" type="text/css">
+<link rel="stylesheet" href="{$GLOBALS.css_header}" type="text/css">
 </head>
-<body bgcolor="{$STYLE.BGCOLOR2}">
+<body class="body_top">
 <form name="patientfinder" method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
 <table>
 	<tr>
-		<td>{xl t='Name'}</td>
+		<td>{xl t='Name'|escape:'html'}</td>
 		<td>
 			<input type="text" size="40" name="searchstring" value=""/>
 		</td>
 	</tr>
 	<tr>
 		<td>
-			<input type="submit" value="{xl t='search'}"/>
+			<input type="submit" value="{xl t='Search'|escape:'html'}"/>
 		</td>
 	</tr>
 </table>
-<input type="hidden" name="process" value="{$PROCESS}" />
-<input type="hidden" name="pid" value="{$hidden_ispid}" />
+<input type="hidden" name="process" value="{$PROCESS|escape:'html'}" />
+<input type="hidden" name="pid" value="{$hidden_ispid|escape:'html'}" />
 </form>
 <table>
 {if count($result_set) > 0}
 	<tr>
-		<td>{xl t='Results Found For Search'} '{$search_string}'</td>
+		<td>{xl t='Results Found For Search'|escape:'html'} '{$search_string|escape:'html'}'</td>
 	</tr>
 	<tr>
-		<td>{xl t='Name'}</td><td>{xl t='DOB'}</td><td>{xl t='Patient ID'}</td>
+		<td>{xl t='Name'|escape:'html'}</td><td>{xl t='DOB'|escape:'html'}</td><td>{xl t='Patient ID'|escape:'html'}</td>
 {/if}
 {foreach  name="search_results" from=$result_set  item=result}
 	<tr>
 		<td>
-			<a href="javascript:{literal}{}{/literal}" onclick="window.opener.document.{$form_id}.value='{if $ispub == true }{$result.pubpid}{else}{$result.pid}{/if}'; window.opener.document.{$form_name}.value='{$result.name}'; window.close();">{$result.name}</a>
+			<a href="javascript:{literal}{}{/literal}" onclick="window.opener.document.{$form_id|escape:'html'}.value='{if $ispub == true }{$result.pubpid|escape:'html'}{else}{$result.pid|escape:'html'}{/if}'; window.opener.document.{$form_name|escape:'html'}.value='{$result.name|escape:'html'}'; window.close();">{$result.name|escape:'html'}</a>
 		</td>
-		<td>{$result.DOB}</td>
-		<td>{$result.pubpid}</td>
+		<td>{$result.DOB|escape:'html'}</td>
+		<td>{$result.pubpid|escape:'html'}</td>
 	</tr>
 {foreachelse}
 	{if is_array($result_set)}
 	<tr>
-		<td>{xl t='No Results Found For Search'} '{$search_string}'</td>
+		<td>{xl t='No Results Found For Search'|escape:'html'} '{$search_string|escape:'html'}'</td>
 	</tr>
 	{/if}
 {/foreach}
 	</table>
   </body>
 </html>
-  

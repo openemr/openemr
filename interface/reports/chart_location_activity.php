@@ -9,11 +9,12 @@
 // This reports checkins and checkouts for a specified patient's chart.
 
 
-use OpenEMR\Core\Header;
-
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
+
+use OpenEMR\Core\Header;
+use OpenEMR\Services\PatientService;
 
 $form_patient_id = trim($_POST['form_patient_id']);
 ?>
@@ -157,7 +158,7 @@ if ($_POST['form_refresh'] || !empty($ptrow)) {
 <?php
 $row = array();
 if (!empty($ptrow)) {
-    $res = \services\PatientService::getChartTrackerInformationActivity($curr_pid);
+    $res = PatientService::getChartTrackerInformationActivity($curr_pid);
     while ($row = sqlFetchArray($res)) {
     ?>
    <tr>

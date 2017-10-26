@@ -14,7 +14,7 @@ class C_DocumentCategory extends Controller
         parent::__construct();
         $this->document_categories = array();
         $this->template_mod = $template_mod;
-        $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
+        $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings&document_category&");
         $this->link = $GLOBALS['webroot']."/controller.php?" . "document_category&";
         $this->assign("STYLE", $GLOBALS['style']);

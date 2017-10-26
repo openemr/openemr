@@ -33,6 +33,7 @@ use OpenEMR\Core\Header;
 
 // Below allows the list to default to the first item on the list
 //   when list_id is blank.
+$blank_list_id = '';
 if (empty($_REQUEST['list_id'])) {
     $list_id = 'language';
     $blank_list_id = true;
@@ -277,8 +278,21 @@ function getCodeDescriptions($codes)
 
 // Write one option line to the form.
 //
-function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = '', $notes = '', $codes = '', $tog1 = '', $tog2 = '', $active = '', $subtype = '')
-{
+function writeOptionLine(
+    $option_id,
+    $title,
+    $seq,
+    $default,
+    $value,
+    $mapping = '',
+    $notes = '',
+    $codes = '',
+    $tog1 = '',
+    $tog2 = '',
+    $active = '1',
+    $subtype = ''
+) {
+
     global $opt_line_no, $list_id;
     ++$opt_line_no;
     $bgcolor = "#" . (($opt_line_no & 1) ? "ddddff" : "ffdddd");
@@ -398,10 +412,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
     } else {
         echo "  <td>";
         echo "<input type='text' name='opt[$opt_line_no][notes]' value='" .
-            attr($notes) . "' size='25' class='optin' ";
-        if ($list_id == 'lbfnames') {
-            echo "onclick='edit_layout_props($opt_line_no)' ";
-        }
+            attr($notes) . "' size='25' maxlength='255' class='optin' ";
         echo "/>";
         echo "</td>\n";
     }
@@ -736,7 +747,11 @@ function writeITLine($it_array)
                 theme: "bootstrap"
             });
         });
+
+        // Keeping track of code picker requests.
         var current_lino = 0;
+        var current_sel_name = '';
+        var current_sel_clin_term = '';
 
         // Helper function to set the contents of a div.
         // This is for Fee Sheet administration.
@@ -801,60 +816,36 @@ function writeITLine($it_array)
         // This invokes the find-code popup.
         // For Fee Sheet administration.
         function select_code(lino) {
+            current_sel_name = '';
+            current_sel_clin_term = '';
             current_lino = lino;
-            dlgopen('../patient_file/encounter/find_code_popup.php', '_blank', 700, 400);
+            dlgopen('../patient_file/encounter/find_code_dynamic.php', '_blank', 900, 600);
             return false;
         }
 
         // This invokes the find-code popup.
         // For CVX/immunization code administration.
         function sel_cvxcode(e) {
+            current_sel_clin_term = '';
             current_sel_name = e.name;
-            dlgopen('../patient_file/encounter/find_code_popup.php?codetype=CVX', '_blank', 500, 400);
+            dlgopen('../patient_file/encounter/find_code_dynamic.php?codetype=CVX', '_blank', 900, 600);
         }
 
         // This invokes the find-code popup.
         // For CVX/immunization code administration.
         function select_clin_term_code(e) {
+            current_sel_name = '';
             current_sel_clin_term = e.name;
-            dlgopen('../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("clinical_term", "csv")) ?>', '_blank', 500, 400);
-        }
-
-        // This invokes the popup to edit properties in the "notes" column.
-        function edit_layout_props(lineno) {
-            var layoutid = document.forms[0]['opt[' + lineno + '][id]'].value;
-            dlgopen('edit_layout_props.php?layout_id=' + layoutid + '&lineno=' + lineno, '_blank', 600, 300);
+            dlgopen('../patient_file/encounter/find_code_dynamic.php?codetype=<?php echo attr(collect_codetypes("clinical_term", "csv")); ?>', '_blank', 900, 600);
         }
 
         // This is for callback by the find-code popup.
         function set_related(codetype, code, selector, codedesc) {
-            if (typeof(current_sel_name) == 'undefined' && typeof(current_sel_clin_term) == 'undefined') {
-                // Coming from Fee Sheet edit
-                var f = document.forms[0];
-                var celem = f['opt[' + current_lino + '][codes]'];
-                var delem = f['opt[' + current_lino + '][descs]'];
-                var i = 0;
-                while ((i = codedesc.indexOf('~')) >= 0) {
-                    codedesc = codedesc.substring(0, i) + ' ' + codedesc.substring(i + 1);
-                }
-                if (code) {
-                    if (celem.value) {
-                        celem.value += '~';
-                        delem.value += '~';
-                    }
-                    celem.value += codetype + '|' + code + '|' + selector;
-                    if (codetype == 'PROD') delem.value += code + ':' + selector + ' ' + codedesc;
-                    else delem.value += codetype + ':' + code + ' ' + codedesc;
-                } else {
-                    celem.value = '';
-                    delem.value = '';
-                }
-                displayCodes(current_lino);
-            }
-            else if (typeof(current_sel_name) == 'undefined') {
+            var f = document.forms[0];
+            if (current_sel_clin_term) {
                 // Coming from the Clinical Terms Code(s) edit
-                var f = document.forms[0][current_sel_clin_term];
-                var s = f.value;
+                var e = f[current_sel_clin_term];
+                var s = e.value;
                 if (code) {
                     if (s.length > 0) s += ';';
                     s += codetype + ':' + code;
@@ -862,20 +853,75 @@ function writeITLine($it_array)
                 else {
                     s = '';
                 }
-                f.value = s;
+                e.value = s;
             }
-            else {
+            else if (current_sel_name) {
                 // Coming from Immunizations edit
-                var f = document.forms[0][current_sel_name];
-                var s = f.value;
+                var e = f[current_sel_name];
+                var s = e.value;
                 if (code) {
                     s = code;
                 }
                 else {
                     s = '0';
                 }
-                f.value = s;
+                e.value = s;
             }
+            else {
+                // Coming from Fee Sheet edit
+                var celem = f['opt[' + current_lino + '][codes]'];
+                var delem = f['opt[' + current_lino + '][descs]'];
+                var i = 0;
+                while ((i = codedesc.indexOf('~')) >= 0) {
+                    codedesc = codedesc.substring(0, i) + ' ' + codedesc.substring(i+1);
+                }
+                if (code) {
+                    if (celem.value) {
+                        celem.value += '~';
+                        delem.value += '~';
+                    }
+                    celem.value += codetype + '|' + code + '|' + selector;
+                    if (codetype == 'PROD') {
+                        delem.value += code + ':' + selector + ' ' + codedesc;
+                    } else {
+                        delem.value += codetype + ':' + code + ' ' + codedesc;
+                    }
+                } else {
+                    celem.value = '';
+                    delem.value = '';
+                }
+                displayCodes(current_lino);
+            }
+        }
+
+        // This is for callback by the find-code popup.
+        // Deletes the specified codetype:code from the currently selected list.
+        function del_related(s) {
+            var f = document.forms[0];
+            if (current_sel_clin_term) {
+                // Coming from the Clinical Terms Code(s) edit
+                my_del_related(s, f[current_sel_clin_term], false);
+            }
+            else if (current_sel_name) {
+                // Coming from Immunizations edit
+                f[current_sel_name].value = '0';
+            }
+            else {
+                // Coming from Fee Sheet edit
+                f['opt[' + current_lino + '][codes]'].value = '';
+                f['opt[' + current_lino + '][descs]'].value = '';
+                displayCodes(current_lino);
+            }
+        }
+
+        // This is for callback by the find-code popup.
+        // Returns the array of currently selected codes with each element in codetype:code format.
+        function get_related() {
+            var f = document.forms[0];
+            if (current_sel_clin_term) {
+                return f[current_sel_clin_term].value.split(';');
+            }
+            return new Array();
         }
 
         // Called when a "default" checkbox is clicked.  Clears all the others.
@@ -901,6 +947,23 @@ function writeITLine($it_array)
                         }
                         if (parseInt(f[ikey + '[ct_id]'].value) == parseInt(f[jkey + '[ct_id]'].value)) {
                             alert('<?php echo xl('Error: duplicated ID on line') ?>' + ' ' + j);
+                            return;
+                        }
+                    }
+                }
+            }
+            else if (f['opt[1][id]']) {
+                // Check for duplicate IDs.
+                for (var i = 1; f['opt[' + i + '][id]']; ++i) {
+                    var ikey = 'opt[' + i + '][id]';
+                    if (f[ikey].value == '') continue;
+                    for (var j = i+1; f['opt[' + j + '][id]']; ++j) {
+                        var jkey = 'opt[' + j + '][id]';
+                        if (f[ikey].value.toUpperCase() == f[jkey].value.toUpperCase()) {
+                            alert('<?php echo xls('Error: duplicated ID') ?>' + ': ' + f[jkey].value);
+                            f[jkey].scrollIntoView();
+                            f[jkey].focus();
+                            f[jkey].select();
                             return;
                         }
                     }
@@ -1228,7 +1291,7 @@ if ($GLOBALS['ippf_specific']) { ?>
                     <label for="newlistname"
                            class="control-label"><?php xl('List Name', 'e'); ?></label>
                     <input type="text" size="20" class="form-control"
-                           maxlength="30" name="newlistname" id="newlistname">
+                           maxlength="100" name="newlistname" id="newlistname">
                     <input type="hidden" name="formaction" value="addlist">
 
                 </div>

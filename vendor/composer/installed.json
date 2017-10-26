@@ -2571,96 +2571,178 @@
         ]
     },
     {
-        "name": "phing/phing",
-        "version": "2.14.0",
-        "version_normalized": "2.14.0.0",
+        "name": "symfony/process",
+        "version": "v3.3.6",
+        "version_normalized": "3.3.6.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/phingofficial/phing.git",
-            "reference": "7dd73c83c377623def54b58121f46b4dcb35dd61"
+            "url": "https://github.com/symfony/process.git",
+            "reference": "07432804942b9f6dd7b7377faf9920af5f95d70a"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/phingofficial/phing/zipball/7dd73c83c377623def54b58121f46b4dcb35dd61",
-            "reference": "7dd73c83c377623def54b58121f46b4dcb35dd61",
+            "url": "https://api.github.com/repos/symfony/process/zipball/07432804942b9f6dd7b7377faf9920af5f95d70a",
+            "reference": "07432804942b9f6dd7b7377faf9920af5f95d70a",
             "shasum": ""
         },
         "require": {
-            "php": ">=5.2.0"
+            "php": ">=5.5.9"
         },
-        "require-dev": {
-            "ext-pdo_sqlite": "*",
-            "lastcraft/simpletest": "@dev",
-            "mikey179/vfsstream": "^1.6",
-            "pdepend/pdepend": "2.x",
-            "pear/archive_tar": "1.4.x",
-            "pear/http_request2": "dev-trunk",
-            "pear/net_growl": "dev-trunk",
-            "pear/pear-core-minimal": "1.10.1",
-            "pear/versioncontrol_git": "@dev",
-            "pear/versioncontrol_svn": "~0.5",
-            "phpdocumentor/phpdocumentor": "2.x",
-            "phploc/phploc": "~2.0.6",
-            "phpmd/phpmd": "~2.2",
-            "phpunit/phpunit": ">=3.7",
-            "sebastian/git": "~1.0",
-            "sebastian/phpcpd": "2.x",
-            "squizlabs/php_codesniffer": "~2.2",
-            "symfony/yaml": "~2.7"
-        },
-        "suggest": {
-            "pdepend/pdepend": "PHP version of JDepend",
-            "pear/archive_tar": "Tar file management class",
-            "pear/versioncontrol_git": "A library that provides OO interface to handle Git repository",
-            "pear/versioncontrol_svn": "A simple OO-style interface for Subversion, the free/open-source version control system",
-            "phpdocumentor/phpdocumentor": "Documentation Generator for PHP",
-            "phploc/phploc": "A tool for quickly measuring the size of a PHP project",
-            "phpmd/phpmd": "PHP version of PMD tool",
-            "phpunit/php-code-coverage": "Library that provides collection, processing, and rendering functionality for PHP code coverage information",
-            "phpunit/phpunit": "The PHP Unit Testing Framework",
-            "sebastian/phpcpd": "Copy/Paste Detector (CPD) for PHP code",
-            "tedivm/jshrink": "Javascript Minifier built in PHP"
-        },
-        "time": "2016-03-10T21:39:23+00:00",
-        "bin": [
-            "bin/phing"
-        ],
+        "time": "2017-07-13T13:05:09+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "2.14.x-dev"
+                "dev-master": "3.3-dev"
             }
         },
         "installation-source": "dist",
         "autoload": {
-            "classmap": [
-                "classes/phing/"
+            "psr-4": {
+                "Symfony\\Component\\Process\\": ""
+            },
+            "exclude-from-classmap": [
+                "/Tests/"
             ]
         },
         "notification-url": "https://packagist.org/downloads/",
-        "include-path": [
-            "classes"
-        ],
         "license": [
-            "LGPL-3.0"
+            "MIT"
         ],
         "authors": [
             {
-                "name": "Michiel Rook",
-                "email": "mrook@php.net"
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
             },
             {
-                "name": "Phing Community",
-                "homepage": "https://www.phing.info/trac/wiki/Development/Contributors"
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
             }
         ],
-        "description": "PHing Is Not GNU make; it's a PHP project build system or build tool based on Apache Ant.",
-        "homepage": "https://www.phing.info/",
+        "description": "Symfony Process Component",
+        "homepage": "https://symfony.com"
+    },
+    {
+        "name": "knplabs/knp-snappy",
+        "version": "v0.5.0",
+        "version_normalized": "0.5.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/KnpLabs/snappy.git",
+            "reference": "370da31fa92a8e583e34558c589e630647617a38"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/KnpLabs/snappy/zipball/370da31fa92a8e583e34558c589e630647617a38",
+            "reference": "370da31fa92a8e583e34558c589e630647617a38",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "symfony/process": "~2.3|~3.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~4.7"
+        },
+        "suggest": {
+            "h4cc/wkhtmltoimage-amd64": "Provides wkhtmltoimage-amd64 binary for Linux-compatible machines, use version `~0.12` as dependency",
+            "h4cc/wkhtmltoimage-i386": "Provides wkhtmltoimage-i386 binary for Linux-compatible machines, use version `~0.12` as dependency",
+            "h4cc/wkhtmltopdf-amd64": "Provides wkhtmltopdf-amd64 binary for Linux-compatible machines, use version `~0.12` as dependency",
+            "h4cc/wkhtmltopdf-i386": "Provides wkhtmltopdf-i386 binary for Linux-compatible machines, use version `~0.12` as dependency",
+            "wemersonjanuario/wkhtmltopdf-windows": "Provides wkhtmltopdf executable for Windows, use version `~0.12` as dependency"
+        },
+        "time": "2017-06-16T07:50:40+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "0.5.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Knp\\Snappy\\": "src/Knp/Snappy"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "KnpLabs Team",
+                "homepage": "http://knplabs.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "http://github.com/KnpLabs/snappy/contributors"
+            }
+        ],
+        "description": "PHP5 library allowing thumbnail, snapshot or PDF generation from a url or a html page. Wrapper for wkhtmltopdf/wkhtmltoimage.",
+        "homepage": "http://github.com/KnpLabs/snappy",
         "keywords": [
-            "build",
-            "phing",
-            "task",
-            "tool"
+            "knp",
+            "knplabs",
+            "pdf",
+            "snapshot",
+            "thumbnail",
+            "wkhtmltopdf"
+        ]
+    },
+    {
+        "name": "stripe/stripe-php",
+        "version": "v5.2.0",
+        "version_normalized": "5.2.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/stripe/stripe-php.git",
+            "reference": "7b4a4c18a36c460291399c6a34920b7dabc11c57"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/stripe/stripe-php/zipball/7b4a4c18a36c460291399c6a34920b7dabc11c57",
+            "reference": "7b4a4c18a36c460291399c6a34920b7dabc11c57",
+            "shasum": ""
+        },
+        "require": {
+            "ext-curl": "*",
+            "ext-json": "*",
+            "ext-mbstring": "*",
+            "php": ">=5.3.3"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~4.0",
+            "satooshi/php-coveralls": "~0.6.1",
+            "squizlabs/php_codesniffer": "~2.0"
+        },
+        "time": "2017-08-29T12:47:40+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.0-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Stripe\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Stripe and contributors",
+                "homepage": "https://github.com/stripe/stripe-php/contributors"
+            }
+        ],
+        "description": "Stripe PHP Library",
+        "homepage": "https://stripe.com/",
+        "keywords": [
+            "api",
+            "payment processing",
+            "stripe"
         ]
     }
 ]

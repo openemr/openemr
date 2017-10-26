@@ -4,30 +4,19 @@
  * encounters within the specified time period for patients without
  * insurance.
  *
- *  Copyright (C) 2005-2015 Rod Roark <rod@sunsetsystems.com>
- *  Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2005-2015 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-use OpenEMR\Core\Header;
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
+
+use OpenEMR\Core\Header;
 
 $alertmsg = '';
 
@@ -40,8 +29,8 @@ function bucks($amount)
     return "";
 }
 
-$form_start_date = fixDate($_POST['form_start_date'], date("Y-01-01"));
-$form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
+$form_start_date = (!empty($_POST['form_start_date'])) ?  DateToYYYYMMDD($_POST['form_start_date']) : date('Y-01-01');
+$form_end_date  = (!empty($_POST['form_end_date'])) ? DateToYYYYMMDD($_POST['form_end_date']) : date('Y-m-d');
 
 ?>
 <html>
@@ -76,22 +65,22 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
 
 <?php Header::setupHeader('datetime-picker'); ?>
 
-<title><?php xl('Indigent Patients Report', 'e')?></title>
+<title><?php echo xlt('Indigent Patients Report')?></title>
 
 <script language="JavaScript">
 
- $(document).ready(function() {
-  var win = top.printLogSetup ? top : opener.top;
-  win.printLogSetup(document.getElementById('printbutton'));
+    $(document).ready(function() {
+        var win = top.printLogSetup ? top : opener.top;
+        win.printLogSetup(document.getElementById('printbutton'));
 
-  $('.datepicker').datetimepicker({
-    <?php $datetimepicker_timepicker = false; ?>
-    <?php $datetimepicker_showseconds = false; ?>
-    <?php $datetimepicker_formatInput = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-  });
- });
+        $('.datepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = true; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+        });
+    });
 
 </script>
 
@@ -99,9 +88,9 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Indigent Patients', 'e'); ?></span>
+<span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Indigent Patients'); ?></span>
 
-<form method='post' action='indigent_patients_report.php' id='theform'>
+<form method='post' action='indigent_patients_report.php' id='theform' onsubmit='return top.restoreSession()'>
 
 <div id="report_parameters">
 
@@ -115,18 +104,16 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
     <table class='text'>
         <tr>
             <td class='control-label'>
-                <?php xl('Visits From', 'e'); ?>:
+                <?php echo xlt('Visits From'); ?>:
             </td>
             <td>
-               <input type='text' class='datepicker form-control' name='form_start_date' id="form_start_date" size='10' value='<?php echo $form_start_date ?>'
-                title='yyyy-mm-dd'>
+               <input type='text' class='datepicker form-control' name='form_start_date' id="form_start_date" size='10' value='<?php echo oeFormatShortDate($form_start_date); ?>'>
             </td>
             <td class='control-label'>
                 <?php xl('To', 'e'); ?>:
             </td>
             <td>
-               <input type='text' class='datepicker form-control' name='form_end_date' id="form_end_date" size='10' value='<?php echo $form_end_date ?>'
-                title='yyyy-mm-dd'>
+               <input type='text' class='datepicker form-control' name='form_end_date' id="form_end_date" size='10' value='<?php echo oeFormatShortDate($form_end_date); ?>'>
             </td>
         </tr>
     </table>
@@ -163,41 +150,44 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
 
  <thead bgcolor="#dddddd">
   <th>
-   &nbsp;<?php xl('Patient', 'e')?>
+   &nbsp;<?php echo xlt('Patient'); ?>
   </th>
   <th>
-   &nbsp;<?php xl('SSN', 'e')?>
+   &nbsp;<?php echo xlt('SSN'); ?>
   </th>
   <th>
-   &nbsp;<?php xl('Invoice', 'e')?>
+   &nbsp;<?php echo xlt('Invoice'); ?>
   </th>
   <th>
-   &nbsp;<?php xl('Svc Date', 'e')?>
+   &nbsp;<?php echo xlt('Svc Date'); ?>
   </th>
   <th>
-   &nbsp;<?php xl('Due Date', 'e')?>
+   &nbsp;<?php echo xlt('Due Date'); ?>
   </th>
   <th align="right">
-    <?php xl('Amount', 'e')?>&nbsp;
+    <?php echo xlt('Amount'); ?>&nbsp;
   </th>
   <th align="right">
-    <?php xl('Paid', 'e')?>&nbsp;
+    <?php echo xlt('Paid'); ?>&nbsp;
   </th>
   <th align="right">
-    <?php xl('Balance', 'e')?>&nbsp;
+    <?php echo xlt('Balance'); ?>&nbsp;
   </th>
  </thead>
 
 <?php
 if ($_POST['form_refresh']) {
     $where = "";
+    $sqlBindArray = array();
 
     if ($form_start_date) {
-        $where .= " AND e.date >= '$form_start_date'";
+        $where .= " AND e.date >= ?";
+        array_push($sqlBindArray, $form_start_date);
     }
 
     if ($form_end_date) {
-        $where .= " AND e.date <= '$form_end_date'";
+        $where .= " AND e.date <= ?";
+        array_push($sqlBindArray, $form_end_date);
     }
 
     $rez = sqlStatement("SELECT " .
@@ -205,7 +195,7 @@ if ($_POST['form_refresh']) {
     "FROM form_encounter AS e, patient_data AS p, insurance_data AS i " .
     "WHERE p.pid = e.pid AND i.pid = e.pid AND i.type = 'primary' " .
     "AND i.provider = ''$where " .
-    "ORDER BY p.lname, p.fname, p.mname, p.pid, e.date");
+    "ORDER BY p.lname, p.fname, p.mname, p.pid, e.date", $sqlBindArray);
 
     $total_amount = 0;
     $total_paid   = 0;
@@ -216,19 +206,19 @@ if ($_POST['form_refresh']) {
         $invnumber = $row['pid'] . "." . $row['encounter'];
         $inv_duedate = '';
         $arow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " .
-        "pid = '$patient_id' AND encounter = '$encounter_id'");
+        "pid = ? AND encounter = ?", array($patient_id, $encounter_id));
         $inv_amount = $arow['amount'];
         $arow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
-          "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
-          "activity = 1 AND code_type != 'COPAY'");
+          "pid = ? AND encounter = ? AND " .
+          "activity = 1 AND code_type != 'COPAY'", array($patient_id, $encounter_id));
         $inv_amount += $arow['amount'];
         $arow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
-          "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
-          "activity = 1 AND code_type = 'COPAY'");
+          "pid = ? AND encounter = ? AND " .
+          "activity = 1 AND code_type = 'COPAY'", array($patient_id, $encounter_id));
         $inv_paid = 0 - $arow['amount'];
         $arow = sqlQuery("SELECT SUM(pay_amount) AS pay, " .
           "sum(adj_amount) AS adj FROM ar_activity WHERE " .
-          "pid = '$patient_id' AND encounter = '$encounter_id'");
+          "pid = ? AND encounter = ?", array($patient_id, $encounter_id));
         $inv_paid   += $arow['pay'];
         $inv_amount -= $arow['adj'];
         $total_amount += bucks($inv_amount);
@@ -238,28 +228,28 @@ if ($_POST['form_refresh']) {
     ?>
   <tr bgcolor='<?php  echo $bgcolor ?>'>
 <td class="detail">
- &nbsp;<?php  echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] ?>
+ &nbsp;<?php echo text($row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']); ?>
 </td>
 <td class="detail">
- &nbsp;<?php  echo $row['ss'] ?>
+ &nbsp;<?php echo text($row['ss']); ?>
 </td>
 <td class="detail">
- &nbsp;<?php  echo $invnumber ?></a>
+ &nbsp;<?php echo text($invnumber); ?></a>
 </td>
 <td class="detail">
- &nbsp;<?php  echo oeFormatShortDate(substr($row['date'], 0, 10)) ?>
+ &nbsp;<?php echo oeFormatShortDate(substr($row['date'], 0, 10)); ?>
 </td>
 <td class="detail">
- &nbsp;<?php  echo oeFormatShortDate($inv_duedate) ?>
+ &nbsp;<?php echo oeFormatShortDate($inv_duedate); ?>
 </td>
 <td class="detail" align="right">
-    <?php  echo bucks($inv_amount) ?>&nbsp;
+    <?php echo bucks($inv_amount); ?>&nbsp;
 </td>
 <td class="detail" align="right">
-    <?php  echo bucks($inv_paid) ?>&nbsp;
+    <?php echo bucks($inv_paid); ?>&nbsp;
 </td>
 <td class="detail" align="right">
-    <?php  echo bucks($inv_amount - $inv_paid) ?>&nbsp;
+    <?php echo bucks($inv_amount - $inv_paid); ?>&nbsp;
 </td>
 </tr>
 <?php
@@ -267,7 +257,7 @@ if ($_POST['form_refresh']) {
 ?>
 <tr bgcolor='#dddddd'>
 <td class="detail">
-&nbsp;<?php xl('Totals', 'e'); ?>
+&nbsp;<?php echo xlt('Totals'); ?>
 </td>
 <td class="detail">
  &nbsp;
@@ -282,13 +272,13 @@ if ($_POST['form_refresh']) {
  &nbsp;
 </td>
 <td class="detail" align="right">
-<?php  echo bucks($total_amount) ?>&nbsp;
+<?php echo bucks($total_amount); ?>&nbsp;
 </td>
 <td class="detail" align="right">
-<?php  echo bucks($total_paid) ?>&nbsp;
+<?php echo bucks($total_paid); ?>&nbsp;
 </td>
 <td class="detail" align="right">
-<?php  echo bucks($total_amount - $total_paid) ?>&nbsp;
+<?php echo bucks($total_amount - $total_paid); ?>&nbsp;
 </td>
 </tr>
 <?php
@@ -302,7 +292,7 @@ if ($_POST['form_refresh']) {
 <script>
 <?php
 if ($alertmsg) {
-    echo "alert('$alertmsg');\n";
+    echo "alert('" . addslashes($alertmsg) . "');\n";
 }
 ?>
 </script>

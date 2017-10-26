@@ -1047,6 +1047,18 @@
             ]
           },
           {
+            "label":"Weno Management",
+            "menu_id":"adm0",
+            "target":"adm",
+            "url":"/interface/weno/admin.php",
+            "children":[],
+            "requirement":0,
+            "acl_req": [
+              "admin",
+              "super"
+            ]
+          },
+          {
             "label": "Audit Log Tamper",
             "menu_id": "adm0",
             "target": "adm",

@@ -12,10 +12,9 @@ class C_PracticeSettings extends Controller
     {
         parent::__construct();
         $this->template_mod = $template_mod;
-        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . $_SERVER['QUERY_STRING']);
+        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("TOP_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings" . "&");
         $this->assign("STYLE", $GLOBALS['style']);
-        $this->assign("CSS_HEADER", $GLOBALS['css_header']);
         $this->direction = ($GLOBALS['_SESSION']['language_direction'] == 'rtl') ? 'right' : 'left';
     }
 

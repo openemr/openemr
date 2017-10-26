@@ -74,8 +74,11 @@ assets:
         basePath: %assets_static_relative%/
         script: select2-4-0/dist/js/select2.full.js
         link:
-            - select2-bootstrap-theme-0-1-0/dist/select2-bootstrap.css
             - select2-4-0/dist/css/select2.css
+            - select2-bootstrap-theme-0-1-0/dist/select2-bootstrap.css
     jscolor:
         basePath: %assets_static_relative%/jscolor-2-0-4/
         script: jscolor.js
+    emodal:
+        basePath: %assets_static_relative%/emodal-1-2-65/dist/
+        script: eModal.min.js

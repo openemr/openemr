@@ -18,7 +18,7 @@
  * @link    http://www.open-emr.org
  */
 
-namespace common\utils;
+namespace OpenEMR\Common\Utils;
 
 class StringUtils
 {

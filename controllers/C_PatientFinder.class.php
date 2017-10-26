@@ -12,7 +12,7 @@ class C_PatientFinder extends Controller
         parent::__construct();
         $this->_db = $GLOBALS['adodb']['db'];
         $this->template_mod = $template_mod;
-        $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
+        $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . attr($_SERVER['QUERY_STRING']));
         ///////////////////////////////////
         //// What should this be?????
         //////////////////////////////////
@@ -33,15 +33,7 @@ class C_PatientFinder extends Controller
     function find_action($form_id, $form_name, $pid)
     {
         $isPid = false;
-        //fix any magic quotes meddling
 
-        $form_id = strip_escape_custom($form_id);
-        $form_name = strip_escape_custom($form_name);
-        $pid = strip_escape_custom($pid);
-
-        //prevent javascript injection, whitespace and semi-colons are the worry
-        $form_id = preg_replace("/[^A-Za-z0-9\[\]\_\']/iS", "", urldecode($form_id));
-        $form_name = preg_replace("/[^A-Za-z0-9\[\]\_\']/iS", "", urldecode($form_name));
         $this->assign('form_id', $form_id);
         $this->assign('form_name', $form_name);
         if (!empty($pid)) {

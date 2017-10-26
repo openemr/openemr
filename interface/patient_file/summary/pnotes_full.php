@@ -268,7 +268,7 @@ $urlparms = "docid=$docid&orderid=$orderid";
 ?>
 
     <div>
-        <span class="title"><?php echo xlt('Patient Notes') . $title_docname; ?></span>
+        <span class="title"><?php echo xlt('Patient Messages') . $title_docname; ?></span>
     </div>
     <div id='namecontainer_pnotes' class='namecontainer_pnotes' style='float:left;margin-right:10px'>
         <?php echo htmlspecialchars(xl('for'), ENT_NOQUOTES);?>&nbsp;<span class="title">
@@ -303,8 +303,8 @@ $urlparms = "docid=$docid&orderid=$orderid";
     </div>
 
     <input type='hidden' name='mode' id="mode" value="new">
-    <input type='hidden' name='offset' id="offset" value="<?php echo $offset; ?>">
-    <input type='hidden' name='offset_sent' id="offset_sent" value="<?php echo $offset_sent; ?>">
+    <input type='hidden' name='offset' id="offset" value="<?php echo attr($offset); ?>">
+    <input type='hidden' name='offset_sent' id="offset_sent" value="<?php echo attr($offset_sent); ?>">
     <input type='hidden' name='form_active' id="form_active" value="<?php echo htmlspecialchars($form_active, ENT_QUOTES); ?>">
     <input type='hidden' name='form_inactive' id="form_inactive" value="<?php echo htmlspecialchars($form_inactive, ENT_QUOTES); ?>">
     <input type='hidden' name='noteid' id="noteid" value="<?php echo htmlspecialchars($noteid, ENT_QUOTES); ?>">
@@ -366,8 +366,8 @@ if ($billing_note) {
 <!-- start of previous notes DIV -->
 <div class=pat_notes>
 <input type='hidden' name='mode' value="update">
-<input type='hidden' name='offset' id='offset' value="<?php echo $offset; ?>">
-<input type='hidden' name='offset_sent' id='offset_sent' value="<?php echo $offset_sent; ?>">
+<input type='hidden' name='offset' id='offset' value="<?php echo attr($offset); ?>">
+<input type='hidden' name='offset_sent' id='offset_sent' value="<?php echo attr($offset_sent); ?>">
 <input type='hidden' name='noteid' id='noteid' value="0">
 <table border='0' cellpadding="1" class="text">
 <?php if ($result != "") : ?>
@@ -392,6 +392,7 @@ if ($result != "") {
     echo "  <th>" . (($docid || $orderid) ? xlt('Linked') : '') . "</th>\n";
     echo "  <th>" . xlt('Type') . "</th>\n";
     echo "  <th>" . xlt('Content') . "</th>\n";
+    echo "  <th>" . xlt('Status') . "</th>\n";
     echo " </tr>\n";
 
     $result_count = 0;
@@ -477,6 +478,9 @@ if ($result != "") {
 
         echo "  <td class='notecell' id='".htmlspecialchars($row_note_id, ENT_QUOTES)."'>\n";
         echo "   $body";
+        echo "  </td>\n";
+        echo "  <td class='notecell' id='".htmlspecialchars($row_note_id, ENT_QUOTES)."'>\n";
+        echo getListItemTitle("message_status", $iter['message_status']);
         echo "  </td>\n";
         echo " </tr>\n";
 

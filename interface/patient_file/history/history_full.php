@@ -206,6 +206,10 @@ $(document).ready(function(){
         <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
+
+    if (window.checkSkipConditions) {
+        checkSkipConditions();
+    }
 });
 </script>
 
@@ -233,13 +237,8 @@ div.tab {
                 newHistoryData($pid);
                 $result = getHistoryData($pid);
             }
+            $condition_str = '';
 
-            $fres = sqlStatement("SELECT * FROM layout_options " .
-              "WHERE form_id = 'HIS' AND uor > 0 " .
-              "ORDER BY group_name, seq");
-            ?>
-
-            <?php
             /*Get the constraint from the DB-> LBF forms accordinf the form_id*/
             $constraints = LBF_Validation::generate_validate_constraints("HIS");
             ?>
@@ -249,7 +248,7 @@ div.tab {
                 <input type='hidden' name='mode' value='save'>
 
                 <div class="page-header">
-                    <h1><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?>&nbsp;<small><?php echo htmlspecialchars(xl('History & Lifestyle'), ENT_NOQUOTES); ?></h1>
+                    <h2><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?>&nbsp;<small><?php echo htmlspecialchars(xl('History & Lifestyle'), ENT_NOQUOTES); ?></h2>
                 </div>
                 <div class="btn-group">
                     <button type="submit" class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>
@@ -280,7 +279,14 @@ div.tab {
 </body>
 
 <script language="JavaScript">
+
+// Array of skip conditions for the checkSkipConditions() function.
+var skipArray = [
+<?php echo $condition_str; ?>
+];
+
 <?php echo $date_init; // setup for popup calendars ?>
+
 </script>
 
 <script language='JavaScript'>

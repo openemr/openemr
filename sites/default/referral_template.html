@@ -54,16 +54,24 @@
       margin: 0 0 0 0;
     }
     .ftitlecell1 {
+      width: 33%;
       vertical-align: top;
       text-align: left;
       font-size: 14pt;
       font-weight: bold;
     }
     .ftitlecell2 {
+      width: 33%;
       vertical-align: top;
       text-align: right;
       font-size: 9pt;
-      padding-right: 10pt;
+    }
+    .ftitlecellm {
+      width: 34%;
+      vertical-align: top;
+      text-align: center;
+      font-size: 14pt;
+      font-weight: bold;
     }
     hr {
       border: 0;
@@ -97,24 +105,41 @@
    </td>
    <td style="text-align:right;width:10%;white-space:nowrap">
     <table border='1' style="padding:2px;border-spacing:0;border-collapse:collapse">
+     <!--
      <tr>
       <td style="white-space:nowrap">{label_clinic_id}</td>
       <td style='width:60pt;white-space:nowrap'>{fac_facility_npi}</td>
      </tr>
+     -->
      <tr>
-      <td style="white-space:nowrap">{label_clinic_id}</td>
-      <td style="white-space:nowrap">{ref_pid}</td>
+      <td style="white-space:nowrap">{label_client_id}</td>
+      <td style="white-space:nowrap">{pt_pubpid}&nbsp;</td>
      </tr>
+     <!--
      <tr>
       <td style="white-space:nowrap">{label_control_no}</td>
       <td style="white-space:nowrap">{ref_id}</td>
      </tr>
+     -->
      <tr>
       <td style="white-space:nowrap">{label_date}</td>
-      <td style="white-space:nowrap">{ref_refer_date}&nbsp;</td>
+      <td style="white-space:nowrap;min-width:54pt">{ref_refer_date}&nbsp;</td>
      </tr>
     </table>
    </td>
+  </tr>
+ </table>
+
+ <br />&nbsp;<br />{label_history_summary}:
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_bp} &nbsp;</td>
+   <td class='under'>{v_bps}/{v_bpd}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_ht} &nbsp;</td>
+   <td class='under'>{v_height}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_wt} &nbsp;</td>
+   <td class='under'>{v_weight}&nbsp;</td>
   </tr>
  </table>
 
@@ -183,23 +208,27 @@
     {header1}
     <span class='subhead'>{label_subhead_patient}</span>
    </td>
-   <td style="text-align:right;width:10%;white-space:nowrap">
+   <td style="text-align:right;vertical-align:top;width:10%;white-space:nowrap">
     <table border='1' style="padding:2px;border-spacing:0;border-collapse:collapse">
+     <!--
      <tr>
       <td style="white-space:nowrap">{label_clinic_id}</td>
       <td style='width:60pt;white-space:nowrap'>{fac_facility_npi}</td>
      </tr>
+     -->
      <tr>
-      <td style="white-space:nowrap">{label_clinic_id}</td>
-      <td style="white-space:nowrap">{ref_pid}</td>
+      <td style="white-space:nowrap">{label_client_id}</td>
+      <td style="white-space:nowrap">{pt_pubpid}&nbsp;</td>
      </tr>
+     <!--
      <tr>
       <td style="white-space:nowrap">{label_control_no}</td>
       <td style="white-space:nowrap">{ref_id}</td>
      </tr>
+     -->
      <tr>
       <td style="white-space:nowrap">{label_date}</td>
-      <td style="white-space:nowrap">{ref_refer_date}&nbsp;</td>
+      <td style="white-space:nowrap;min-width:54pt">{ref_refer_date}&nbsp;</td>
      </tr>
     </table>
    </td>
@@ -282,23 +311,27 @@
     {header2}
     <span class='subhead'>{label_subhead_referred}</span>
    </td>
-   <td style="text-align:right;width:10%;white-space:nowrap">
+   <td style="text-align:right;vertical-align:top;width:10%;white-space:nowrap">
     <table border='1' style="padding:2px;border-spacing:0;border-collapse:collapse">
+     <!--
      <tr>
       <td style="white-space:nowrap">{label_clinic_id}</td>
       <td style='width:60pt;white-space:nowrap'>{fac_facility_npi}</td>
      </tr>
+     -->
      <tr>
-      <td style="white-space:nowrap">{label_clinic_id}</td>
-      <td style="white-space:nowrap">{ref_pid}</td>
+      <td style="white-space:nowrap">{label_client_id}</td>
+      <td style="white-space:nowrap">{pt_pubpid}&nbsp;</td>
      </tr>
+     <!--
      <tr>
       <td style="white-space:nowrap">{label_control_no}</td>
       <td style="white-space:nowrap">{ref_id}</td>
      </tr>
+     -->
      <tr>
       <td style="white-space:nowrap">{label_date}</td>
-      <td style="white-space:nowrap">{ref_reply_date}&nbsp;</td>
+      <td style="white-space:nowrap;min-width:54pt">{ref_reply_date}&nbsp;</td>
      </tr>
     </table>
    </td>

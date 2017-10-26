@@ -134,10 +134,6 @@ jQuery(document).ready( function($) {
         }
     );
 
-    $(".onerow").mouseover(function() { $(this).toggleClass("highlight"); });
-    $(".onerow").mouseout(function() { $(this).toggleClass("highlight"); });
-    $(".onerow").click(function() { GotoForm(this); });
-
     $("#prov_edu_res").click(function() {
         if ( $('#prov_edu_res').prop('checked') ) {
             var mode = "add";
@@ -297,28 +293,19 @@ if (!isset($_GET['attachid'])) {
 </script>
 
 <script language="javascript">
-function expandcollapse(atr){
-    if(atr == "expand") {
-        for(i=1;i<15;i++){
-            var mydivid="divid_"+i;var myspanid="spanid_"+i;
-                var ele = document.getElementById(mydivid); var text = document.getElementById(myspanid);
-                if (typeof(ele) != 'undefined' && ele != null)
-                    ele.style.display = "block";
-                if (typeof(text) != 'undefined' && text != null)
-                    text.innerHTML = "<?php xl('Collapse', 'e'); ?>";
-        }
+function expandcollapse(atr) {
+  for (var i = 1; i < 15; ++i) {
+    var mydivid="divid_" + i; var myspanid = "spanid_" + i;
+    var ele = document.getElementById(mydivid);
+    var text = document.getElementById(myspanid);
+    if (!ele) continue;
+    if (atr == "expand") {
+      ele.style.display = "block"; text.innerHTML = "<?php xl('Collapse', 'e'); ?>";
     }
     else {
-        for(i=1;i<15;i++){
-            var mydivid="divid_"+i;var myspanid="spanid_"+i;
-                var ele = document.getElementById(mydivid); var text = document.getElementById(myspanid);
-                if (typeof(ele) != 'undefined' && ele != null)
-                    ele.style.display = "none";
-                if (typeof(text) != 'undefined' && text != null)
-                    text.innerHTML = "<?php xl('Expand', 'e'); ?>";
-        }
+      ele.style.display = "none" ; text.innerHTML = "<?php xl('Expand', 'e'); ?>";
     }
-
+  }
 }
 
 function divtoggle(spanid, divid) {
@@ -341,15 +328,25 @@ function divtoggle(spanid, divid) {
         padding:8px;
     }
 
-    div.form_header_controls {
-        float:left;margin-bottom:2px;
-    }
-
     div.form_header {
         float:left;
+        min-width:300pt;
+    }
+
+    div.form_header_controls {
+        float:left;
+        margin-bottom:2px;
         margin-left:6px;
     }
 
+    div.formname {
+        float:left;
+        min-width:120pt;
+        font-weight:bold;
+        padding:0px;
+        margin:0px;
+    }
+    
     .encounter-summary-container {
         float:left;
         width:100%;
@@ -577,8 +574,11 @@ if ($StringEcho) {
 // This shows Layout Based Form names just like the above.
 //
 if ($encounterLocked === false) {
-    $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
+    $lres = sqlStatement("SELECT grp_form_id AS option_id, grp_title AS title, grp_aco_spec " .
+    "FROM layout_group_properties WHERE " .
+    "grp_form_id LIKE 'LBF%' AND grp_group_id = '' AND grp_activity = 1 " .
+    "ORDER BY grp_seq, grp_title");
+
     if (sqlNumRows($lres)) {
         if (!$StringEcho) {
             $StringEcho= '<ul id="sddm">';
@@ -589,9 +589,8 @@ if ($encounterLocked === false) {
             $option_id = $lrow['option_id']; // should start with LBF
             $title = $lrow['title'];
             // Check ACO attribute, if any, of this LBF.
-            $jobj = json_decode($lrow['notes'], true);
-            if (!empty($jobj['aco'])) {
-                $tmp = explode('|', $jobj['aco']);
+            if (!empty($lrow['grp_aco_spec'])) {
+                $tmp = explode('|', $lrow['grp_aco_spec']);
                 if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly')) {
                     continue;
                 }
@@ -887,10 +886,16 @@ foreach ($docs_list as $doc_iter) {
 <br/>
 
 <?php
-
-if (($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encounter, "id, date, form_id, form_name, formdir, user, deleted"))) {
+if ($pass_sens_squad &&
+    ($result = getFormByEncounter(
+        $attendant_id,
+        $encounter,
+        "id, date, form_id, form_name, formdir, user, deleted",
+        "",
+        "FIND_IN_SET(formdir,'newpatient') DESC, form_name, date DESC"
+    ))) {
     echo "<table width='100%' id='partable'>";
-    $divnos=1;
+    $divnos = 1;
     foreach ($result as $iter) {
         $formdir = $iter['formdir'];
 
@@ -902,16 +907,16 @@ if (($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encounte
         $aco_spec = false;
 
         if (substr($formdir, 0, 3) == 'LBF') {
-          // Skip LBF forms that we are not authorized to see.
+            // Skip LBF forms that we are not authorized to see.
             $lrow = sqlQuery(
-                "SELECT * FROM list_options WHERE " .
-                "list_id = 'lbfnames' AND option_id = ? AND activity = 1",
+                "SELECT grp_aco_spec " .
+                "FROM layout_group_properties WHERE " .
+                "grp_form_id = ? AND grp_group_id = '' AND grp_activity = 1",
                 array($formdir)
             );
             if (!empty($lrow)) {
-                $jobj = json_decode($lrow['notes'], true);
-                if (!empty($jobj['aco'])) {
-                    $aco_spec = explode('|', $jobj['aco']);
+                if (!empty($lrow['grp_aco_spec'])) {
+                    $aco_spec = explode('|', $lrow['grp_aco_spec']);
                     if (!acl_check($aco_spec[0], $aco_spec[1])) {
                         continue;
                     }
@@ -941,19 +946,35 @@ if (($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encounte
             echo '<tr title="' . xl('Edit form') . '" '.
                   'id="'.$formdir.'~'.$iter['form_id'].'">';
         } else {
-            echo '<tr title="' . xl('Edit form') . '" '.
-                  'id="'.$formdir.'~'.$iter['form_id'].'" class="text onerow">';
+            echo '<tr id="' . $formdir . '~' . $iter['form_id'] . '" class="text onerow">';
         }
 
         $acl_groups = acl_check("groups", "glog", false, 'write') ? true : false;
         $user = getNameFromUsername($iter['user']);
 
-        $form_name = ($formdir == 'newpatient') ? xl('Patient Encounter') : xl_form_title($iter['form_name']);
+        $form_name = ($formdir == 'newpatient') ? xl('Visit Summary') : xl_form_title($iter['form_name']);
 
         // Create the ESign instance for this form
         $esign = $esignApi->createFormESign($iter['id'], $formdir, $encounter);
-        echo "<tr>";
+
+        // echo "<tr>"; // Removed as bug fix.
+
         echo "<td style='border-bottom:1px solid'>";
+
+        // Figure out the correct author (encounter authors are the '$providerNameRes', while other
+        // form authors are the '$user['fname'] . "  " . $user['lname']').
+        if ($formdir == 'newpatient') {
+            $form_author = $providerNameRes;
+        } else {
+            $form_author = $user['fname'] . "  " . $user['lname'];
+        }
+        echo "<div class='form_header'>";
+        echo "<a href='#' onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos'>" .
+          "<div class='formname'>" . text($form_name) . "</div> " .
+          "by " . text($form_author) . " " .
+          "(<span id=spanid_$divnos class=\"indicator\">" . ($divnos == 1 ? xlt('Collapse') : xlt('Expand')) . "</span>)</a>";
+        echo "</div>";
+
         // a link to edit the form
         echo "<div class='form_header_controls'>";
 
@@ -963,11 +984,14 @@ if (($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encounte
         } else {
             if ((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '', 'write') and $is_group == 0 and $authPostCalendarCategoryWrite)
             or (((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '', 'write')) and $is_group and acl_check("groups", "glog", false, 'write')) and $authPostCalendarCategoryWrite)) {
-                echo "<a class='css_button_small form-edit-button' id='form-edit-button-".attr($formdir)."-".attr($iter['id'])."' target='".
-                    "_parent" .
-                    "' href='$rootdir/patient_file/encounter/view_form.php?" .
-                    "formname=" . attr($formdir) . "&id=" . attr($iter['form_id']) .
-                    "' onclick='top.restoreSession()'>";
+                echo "<a class='css_button_small form-edit-button' " .
+                        "id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "' " .
+                        // "target='Forms' " .
+                        "href='$rootdir/patient_file/encounter/view_form.php?" .
+                        "formname=" . attr($formdir) . "&id=" . attr($iter['form_id']) . "' " .
+                        "title='" . xla('Edit this form') . "' " .
+                        "onclick='top.restoreSession()'>";
+
                 echo "<span>" . xlt('Edit') . "</span></a>";
             }
         }
@@ -978,11 +1002,22 @@ if (($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encounte
             }
         }
 
+        if (substr($formdir, 0, 3) == 'LBF') {
+          // A link for a nice printout of the LBF
+            echo "<a target='_blank' " .
+            "href='$rootdir/forms/LBF/printable.php?"   .
+            "formname="   . urlencode($formdir)         .
+            "&formid="    . urlencode($iter['form_id']) .
+            "&visitid="   . urlencode($encounter)       .
+            "&patientid=" . urlencode($pid)             .
+            "' class='css_button_small' title='" . xl('Print this form') .
+            "' onclick='top.restoreSession()'><span>" . xlt('Print') . "</span></a>";
+        }
+
         if (acl_check('admin', 'super')) {
             if ($formdir != 'newpatient' && $formdir != 'newGroupEncounter') {
                 // a link to delete the form from the encounter
-                echo "<a target='_parent'" .
-                    " href='$rootdir/patient_file/encounter/delete_form.php?" .
+                echo "<a href='$rootdir/patient_file/encounter/delete_form.php?" .
                     "formname=" . $formdir .
                     "&id=" . $iter['id'] .
                     "&encounter=". $encounter.
@@ -992,22 +1027,13 @@ if (($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encounte
                 ?><a href='javascript:;' class='css_button_small' style='color:gray'><span><?php xl('Delete', 'e'); ?></span></a><?php
             }
         }
-
-        echo "<div class='form_header'>";
-
-        // Figure out the correct author (encounter authors are the '$providerNameRes', while other
-        // form authors are the '$user['fname'] . "  " . $user['lname']').
-        if ($formdir == 'newpatient') {
-            $form_author = $providerNameRes;
-        } else {
-            $form_author = $user['fname'] . "  " . $user['lname'];
-        }
-        echo "<a href='#' onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos'><b>$form_name</b> <span class='text'>". xl('by')." ". htmlspecialchars($form_author) . "</span> (<span id=spanid_$divnos class=\"indicator\">" . xl('Collapse') . "</span>)</a></div>";
+        echo "</div>\n"; // Added as bug fix.
 
         echo "</td>\n";
         echo "</tr>";
         echo "<tr>";
-        echo "<td valign='top' class='formrow'><div class='tab' id='divid_$divnos' style='display:block'>";
+        echo "<td valign='top' class='formrow'><div class='tab' id='divid_$divnos' ";
+        echo "style='display:" . ($divnos == 1 ? 'block' : 'none') . "'>";
 
         // Use the form's report.php for display.  Forms with names starting with LBF
         // are list-based forms sharing a single collection of code.

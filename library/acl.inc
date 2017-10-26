@@ -62,6 +62,7 @@
   //   drugs       Pharmacy Dispensary
   //   acl         ACL Administration
   //   multipledb  Multipledb
+  //   menu        Menu
   //
   // Section "acct" (Accounting):
   //   bill        Billing (write optional)
