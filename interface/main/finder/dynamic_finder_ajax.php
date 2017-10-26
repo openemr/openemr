@@ -8,6 +8,7 @@
 // of the License, or (at your option) any later version.
 
 require_once("../../globals.php");
+require_once($GLOBALS['srcdir']."/options.inc.php");
 
 $popup = empty($_REQUEST['popup']) ? 0 : 1;
 
@@ -145,7 +146,13 @@ while ($row = sqlFetchArray($res)) {
         } else if ($colname == 'DOB' || $colname == 'regdate' || $colname == 'ad_reviewed' || $colname == 'userdate1') {
             $arow[] = oeFormatShortDate($row[$colname]);
         } else {
-            $arow[] = xl($row[$colname]);
+            $frow = sqlQuery(
+                "SELECT * FROM layout_options " .
+                "WHERE form_id = 'DEM' AND field_id = ? LIMIT 1",
+                array($colname)
+            );
+
+            $arow[] = generate_plaintext_field($frow,$row[$colname]);
         }
     }
 
