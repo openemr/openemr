@@ -3975,7 +3975,7 @@ EOD;
  */
 function isOption($options, $test)
 {
-    if (empty($options) || empty($test)) {
+    if (empty($options) || !isset($test)) {
         return false; // why bother?
     }
     if (strpos($options, ',') === false) { // could be string of char's or single element of json
@@ -3987,7 +3987,6 @@ function isOption($options, $test)
     }
     $options = json_decode($options);
     
-    return in_array($test, $options, true) ? true : false; // finally!
+    return !is_null($options) && in_array($test, $options, true) ? true : false; // finally!
 }
-
 ?>
