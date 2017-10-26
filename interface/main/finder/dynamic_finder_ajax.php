@@ -122,6 +122,15 @@ $out = array(
   "iTotalDisplayRecords" => $iFilteredTotal,
   "aaData"               => array()
 );
+
+// save into variable data about fields of 'patient_data' from 'layout_options'
+$fieldsInfo = array();
+$quoteSellist = preg_replace('/(\w+)/i','"${1}"', str_replace('`','',$sellist));
+$res = sqlStatement('SELECT data_type, field_id, list_id FROM layout_options WHERE form_id = "DEM" AND field_id IN(' . $quoteSellist . ')');
+while ($row = sqlFetchArray($res)) {
+    $fieldsInfo[$row['field_id']] = $row;
+}
+
 $query = "SELECT $sellist FROM patient_data $where $orderby $limit";
 $res = sqlStatement($query);
 while ($row = sqlFetchArray($res)) {
@@ -143,16 +152,8 @@ while ($row = sqlFetchArray($res)) {
             }
 
             $arow[] = $name;
-        } else if ($colname == 'DOB' || $colname == 'regdate' || $colname == 'ad_reviewed' || $colname == 'userdate1') {
-            $arow[] = oeFormatShortDate($row[$colname]);
         } else {
-            $frow = sqlQuery(
-                "SELECT * FROM layout_options " .
-                "WHERE form_id = 'DEM' AND field_id = ? LIMIT 1",
-                array($colname)
-            );
-
-            $arow[] = generate_plaintext_field($frow,$row[$colname]);
+            $arow[] = isset($fieldsInfo[$colname]) ? generate_plaintext_field($fieldsInfo[$colname],$row[$colname]) : $row[$colname];
         }
     }
 
