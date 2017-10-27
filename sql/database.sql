@@ -111,6 +111,8 @@ CREATE TABLE `audit_master` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
+-----------------------------------------------------------
+
 --
 -- Table structure for table `audit_details`
 --
@@ -125,6 +127,8 @@ CREATE TABLE `audit_details` (
   `entry_identification` VARCHAR(255) NOT NULL DEFAULT '1' COMMENT 'Used when multiple entry occurs from the same table.1 means no multiple entry',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
+
+-----------------------------------------------------------
 
 --
 -- Table structure for table `background_services`
@@ -144,13 +148,16 @@ CREATE TABLE `background_services` (
   PRIMARY KEY  (`name`)
 ) ENGINE=InnoDB;
 
+
+
 --
--- Dumping data for table `background_services`
+-- Inserting data for table `background_services`
 --
 
 INSERT INTO `background_services` (`name`, `title`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('ccdaservice', 'C-CDA Node Service', 1, 'runCheck', '/ccdaservice/ssmanager.php', 95),
 ('phimail', 'phiMail Direct Messaging Service', 5, 'phimail_check', '/library/direct_message_check.inc', 100);
+
 -----------------------------------------------------------
 
 --
@@ -231,8 +238,9 @@ CREATE TABLE `categories` (
 ) ENGINE=InnoDB;
 
 --
--- Dumping data for table `categories`
+-- Inserting data for table `categories`
 --
+
 INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 57, 'patients|docs');
 INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 2, 'patients|docs');
 INSERT INTO `categories` VALUES (3, 'Medical Record', '', 1, 3, 4, 'patients|docs');
@@ -262,6 +270,7 @@ INSERT INTO `categories` VALUES (26, 'Drawings - Eye', '', 17, 47, 48, 'patients
 INSERT INTO `categories` VALUES (27, 'Onsite Portal', '', 1, 51, 56, 'patients|docs');
 INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 52, 53, 'patients|docs');
 INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 54, 55, 'patients|docs');
+
 -----------------------------------------------------------
 
 --
@@ -275,7 +284,7 @@ CREATE TABLE `categories_seq` (
 ) ENGINE=InnoDB;
 
 --
--- Dumping data for table `categories_seq`
+-- Inserting data for table `categories_seq`
 --
 
 INSERT INTO `categories_seq` VALUES (29);
@@ -336,27 +345,61 @@ CREATE TABLE `clinical_plans` (
 ) ENGINE=InnoDB ;
 
 --
--- Clinical Quality Measure (CMQ) plans
+-- Inserting data for Clinical Quality Measure (CQM) plans
 --
--- Measure Group A: Diabetes Mellitus
+--   Inserting data for Measure Group A: Diabetes Mellitus
+--
+
 INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_measure_group` ) VALUES ('dm_plan_cqm', 0, 0, 1, 1, 'A');
--- Measure Group C: Chronic Kidney Disease (CKD)
+
+--
+--   Inserting data for Measure Group C: Chronic Kidney Disease (CKD)
+--
+
 INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_measure_group` ) VALUES ('ckd_plan_cqm', 0, 0, 1, 1, 'C');
--- Measure Group D: Preventative Care
+
+--
+--   Inserting data for Measure Group D: Preventative Care
+--
+
 INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_measure_group` ) VALUES ('prevent_plan_cqm', 0, 0, 1, 1, 'D');
--- Measure Group E: Perioperative Care
+
+--
+--   Inserting data for Measure Group E: Perioperative Care
+--
+
 INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_measure_group` ) VALUES ('periop_plan_cqm', 0, 0, 1, 1, 'E');
--- Measure Group F: Rheumatoid Arthritis
+
+--
+--   Inserting data for Measure Group F: Rheumatoid Arthritis
+--
+
 INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_measure_group` ) VALUES ('rheum_arth_plan_cqm', 0, 0, 1, 1, 'F');
--- Measure Group G: Back Pain
+
+--
+--    Inserting data for Measure Group G: Back Pain
+--
+
 INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_measure_group` ) VALUES ('back_pain_plan_cqm', 0, 0, 1, 1, 'G');
--- Measure Group H: Coronary Artery Bypass Graft (CABG)
+
+--
+--   Inserting data for Measure Group H: Coronary Artery Bypass Graft (CABG)
+--
+
 INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_measure_group` ) VALUES ('cabg_plan_cqm', 0, 0, 1, 1, 'H');
+
 --
--- Standard clinical plans
+-- Inserting data for Standard clinical plans
 --
--- Diabetes Mellitus
+--   Inserting data for Diabetes Mellitus
+--
+
 INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_measure_group` ) VALUES ('dm_plan', 0, 1, 0, '');
+
+--
+--   Inserting data for Prevention Plan
+--
+
 INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_measure_group` ) VALUES ('prevent_plan', 0, 1, 0, '');
 
 -----------------------------------------------------------
@@ -373,60 +416,151 @@ CREATE TABLE `clinical_plans_rules` (
 ) ENGINE=InnoDB ;
 
 --
--- Clinical Quality Measure (CMQ) plans to rules mappings
+-- Inserting data for Clinical Quality Measure (CQM) plans to rules mappings
 --
--- Measure Group A: Diabetes Mellitus
---   NQF 0059 (PQRI 1)   Diabetes: HbA1c Poor Control
+--   Inserting data for Measure Group A: Diabetes Mellitus
+--
+--     Inserting data for NQF 0059 (PQRI 1)   Diabetes: HbA1c Poor Control
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('dm_plan_cqm', 'rule_dm_a1c_cqm');
---   NQF 0064 (PQRI 2)   Diabetes: LDL Management & Control
+
+--
+--     Inserting data for NQF 0064 (PQRI 2)   Diabetes: LDL Management & Control
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('dm_plan_cqm', 'rule_dm_ldl_cqm');
---   NQF 0061 (PQRI 3)   Diabetes: Blood Pressure Management
+
+--
+--     Inserting data for NQF 0061 (PQRI 3)   Diabetes: Blood Pressure Management
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('dm_plan_cqm', 'rule_dm_bp_control_cqm');
---   NQF 0055 (PQRI 117) Diabetes: Eye Exam
+
+--
+--     Inserting data for NQF 0055 (PQRI 117) Diabetes: Eye Exam
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('dm_plan_cqm', 'rule_dm_eye_cqm');
---   NQF 0056 (PQRI 163) Diabetes: Foot Exam
+
+--
+--     Inserting data for NQF 0056 (PQRI 163) Diabetes: Foot Exam
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('dm_plan_cqm', 'rule_dm_foot_cqm');
--- Measure Group D: Preventative Care
---   NQF 0041 (PQRI 110) Influenza Immunization for Patients >= 50 Years Old
+
+--
+-- Inserting data for Measure Group D: Preventative Care
+--
+--   Inserting data for NQF 0041 (PQRI 110) Influenza Immunization for Patients >= 50 Years Old
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('prevent_plan_cqm', 'rule_influenza_ge_50_cqm');
---   NQF 0043 (PQRI 111) Pneumonia Vaccination Status for Older Adults
+
+--
+--   Inserting data for NQF 0043 (PQRI 111) Pneumonia Vaccination Status for Older Adults
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('prevent_plan_cqm', 'rule_pneumovacc_ge_65_cqm');
---   NQF 0421 (PQRI 128) Adult Weight Screening and Follow-Up
+
+--
+--   Inserting data for NQF 0421 (PQRI 128) Adult Weight Screening and Follow-Up
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('prevent_plan_cqm', 'rule_adult_wt_screen_fu_cqm');
+
 --
--- Standard clinical plans to rules mappings
+-- Inserting data for Standard clinical plans to rules mappings
 --
--- Diabetes Mellitus
---   Hemoglobin A1C
+--   Inserting data for Diabetes Mellitus
+--
+--     Inserting data for Hemoglobin A1C
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('dm_plan', 'rule_dm_hemo_a1c');
---   Urine Microalbumin
+
+--
+--     Inserting data for Urine Microalbumin
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('dm_plan', 'rule_dm_urine_alb');
---   Eye Exam
+
+--
+--     Inserting data for Eye Exam
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('dm_plan', 'rule_dm_eye');
---   Foot Exam
+
+--
+--     Inserting data for Foot Exam
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('dm_plan', 'rule_dm_foot');
--- Preventative Care
---   Hypertension: Blood Pressure Measurement
+
+--
+--   Inserting data for Preventative Care
+--
+--     Inserting data for Hypertension: Blood Pressure Measurement
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('prevent_plan', 'rule_htn_bp_measure');
---   Tobacco Use Assessment
+
+--
+--     Inserting data for Tobacco Use Assessment
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('prevent_plan', 'rule_tob_use_assess');
---   Tobacco Cessation Intervention
+
+--
+--     Inserting data for Tobacco Cessation Intervention
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('prevent_plan', 'rule_tob_cess_inter');
---   Adult Weight Screening and Follow-Up
+
+--
+--     Inserting data for Adult Weight Screening and Follow-Up
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('prevent_plan', 'rule_adult_wt_screen_fu');
---   Weight Assessment and Counseling for Children and Adolescents
+
+--
+--     Inserting data for Weight Assessment and Counseling for Children and Adolescents
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('prevent_plan', 'rule_wt_assess_couns_child');
---   Influenza Immunization for Patients >= 50 Years Old
+
+--
+--    Inserting data for Influenza Immunization for Patients >= 50 Years Old
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('prevent_plan', 'rule_influenza_ge_50');
---   Pneumonia Vaccination Status for Older Adults
+
+--
+--    Inserting data for Pneumonia Vaccination Status for Older Adults
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('prevent_plan', 'rule_pneumovacc_ge_65');
---   Cancer Screening: Mammogram
+
+--
+--    Inserting data for Cancer Screening: Mammogram
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('prevent_plan', 'rule_cs_mammo');
---   Cancer Screening: Pap Smear
+
+--
+--    Inserting data for Cancer Screening: Pap Smear
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('prevent_plan', 'rule_cs_pap');
---   Cancer Screening: Colon Cancer Screening
+
+--
+--    Inserting data for Cancer Screening: Colon Cancer Screening
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('prevent_plan', 'rule_cs_colon');
---   Cancer Screening: Prostate Cancer Screening
+
+--
+--    Inserting data for Cancer Screening: Prostate Cancer Screening
+--
+
 INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('prevent_plan', 'rule_cs_prostate');
 
 -----------------------------------------------------------
@@ -463,145 +597,344 @@ CREATE TABLE `clinical_rules` (
 ) ENGINE=InnoDB ;
 
 --
--- Automated Measure Calculation (AMC) rules
+-- Inserting data for Automated Measure Calculation (AMC) rules
 --
--- MU 170.302(c) Maintain an up-to-date problem list of current and active diagnoses (2014-MU-AMC:170.314(g)(1)/(2)–4)
+--   Inserting data for MU 170.302(c) Maintain an up-to-date problem list of current and active diagnoses (2014-MU-AMC:170.314(g)(1)/(2)–4)
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `amc_2014_flag`, `amc_code_2014`, `patient_reminder_flag`, `amc_2014_stage1_flag` ) VALUES ('problem_list_amc', 0, 0, 0, 0, '', '', 1, 1, '170.302(c)', 1, '170.314(g)(1)/(2)–4', 0, 1);
--- MU 170.302(d) Maintain active medication list
+
+--
+--   Inserting data for MU 170.302(d) Maintain active medication list
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `amc_2014_flag`, `amc_code_2014`, `patient_reminder_flag`, `amc_2014_stage1_flag` ) VALUES ('med_list_amc', 0, 0, 0, 0, '', '', 1, 1, '170.302(d)', 1, '170.314(g)(1)/(2)–5', 0, 1);
--- MU 170.302(e) Maintain active medication allergy list
+
+--
+--   Inserting data for MU 170.302(e) Maintain active medication allergy list
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `amc_2014_flag`, `amc_code_2014`, `patient_reminder_flag`, `amc_2014_stage1_flag` ) VALUES ('med_allergy_list_amc', 0, 0, 0, 0, '', '', 1, 1, '170.302(e)', 1, '170.314(g)(1)/(2)–6', 0, 1);
--- MU 170.302(f) Record and chart changes in vital signs
+
+--
+--   Inserting data for MU 170.302(f) Record and chart changes in vital signs
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('record_vitals_amc', 0, 0, 0, 0, '', '', 1, 1, '170.302(f)', 0);
--- MU 170.302(g) Record smoking status for patients 13 years old or older
+
+--
+--   Inserting data for MU 170.302(g) Record smoking status for patients 13 years old or older
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `amc_2014_flag`, `amc_code_2014`, `patient_reminder_flag`, `amc_2014_stage1_flag`, `amc_2014_stage2_flag` ) VALUES ('record_smoke_amc', 0, 0, 0, 0, '', '', 1, 1, '170.302(g)', 1, '170.314(g)(1)/(2)–11', 0, 1, 1);
--- MU 170.302(h) Incorporate clinical lab-test results into certified EHR technology as
---               structured data
+
+--
+--   Inserting data for MU 170.302(h) Incorporate clinical lab-test results into certified EHR technology as structured data
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `amc_2014_flag`, `amc_code_2014`, `patient_reminder_flag`, `amc_2014_stage1_flag`, `amc_2014_stage2_flag` ) VALUES ('lab_result_amc', 0, 0, 0, 0, '', '', 1, 1, '170.302(h)', 1, '170.314(g)(1)/(2)–12', 0, 1, 1);
--- MU 170.302(j) The EP, eligible hospital or CAH who receives a patient from another
---               setting of care or provider of care or believes an encounter is relevant
---               should perform medication reconciliation
+
+--
+--   Inserting data for MU 170.302(j) The EP, eligible hospital or CAH who receives a patient from another
+--     setting of care or provider of care or believes an encounter is relevant
+--     should perform medication reconciliation
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `amc_2014_flag`, `amc_code_2014`, `patient_reminder_flag`, `amc_2014_stage1_flag`, `amc_2014_stage2_flag` ) VALUES ('med_reconc_amc', 0, 0, 0, 0, '', '', 1, 1, '170.302(j)', 1, '170.314(g)(1)/(2)–17', 0, 1, 1);
--- MU 170.302(m) Use certified EHR technology to identify patient-specific education resources
---              and provide those resources to the patient if appropriate
+
+--
+--   Inserting data for MU 170.302(m) Use certified EHR technology to identify patient-specific education resources
+--     and provide those resources to the patient if appropriate
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `patient_reminder_flag`, `amc_2014_flag`, `amc_code_2014`, `amc_2014_stage1_flag` ) VALUES ('patient_edu_amc', 0, 0, 0, 0, '', '', 1, 1, '170.302(m)', 0, 1, '170.314(g)(1)/(2)–16', 1);
--- MU 170.304(a) Use CPOE for medication orders directly entered by any licensed healthcare
---              professional who can enter orders into the medical record per state, local
---              and professional guidelines
+
+--
+--   Inserting data for MU 170.304(a) Use CPOE for medication orders directly entered by any licensed healthcare
+--     professional who can enter orders into the medical record per state, local
+--     and professional guidelines
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `patient_reminder_flag`, `amc_2014_flag`, `amc_code_2014`, `amc_2014_stage1_flag` ) VALUES ('cpoe_med_amc', 0, 0, 0, 0, '', '', 1, 1, '170.304(a)', 0, 1, '170.314(g)(1)/(2)–7', 1);
--- MU 170.304(b) Generate and transmit permissible prescriptions electronically (eRx)
+
+--
+--   Inserting data for MU 170.304(b) Generate and transmit permissible prescriptions electronically (eRx)
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('e_prescribe_amc', 0, 0, 0, 0, '', '', 1, 1, '170.304(b)', 0);
--- MU 170.304(c) Record demographics
+
+--
+--   Inserting data for MU 170.304(c) Record demographics
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `amc_2014_flag`, `amc_code_2014`, `patient_reminder_flag`, `amc_2014_stage1_flag`, `amc_2014_stage2_flag` ) VALUES ('record_dem_amc', 0, 0, 0, 0, '', '', 1, 1, '170.304(c)', 1, '170.314(g)(1)/(2)–9', 0, 1, 1);
--- MU 170.304(d) Send reminders to patients per patient preference for preventive/follow up care
+
+--
+--   Inserting data for MU 170.304(d) Send reminders to patients per patient preference for preventive/follow up care
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `patient_reminder_flag`, `amc_2014_flag`, `amc_code_2014`, `amc_2014_stage1_flag` ) VALUES ('send_reminder_amc', 0, 0, 0, 0, '', '', 1, 1, '170.304(d)', 0, 1, '170.314(g)(1)/(2)–13', 1);
--- MU 170.304(f) Provide patients with an electronic copy of their health information
+
+--
+--   Inserting data for MU 170.304(f) Provide patients with an electronic copy of their health information
 --               (including diagnostic test results, problem list, medication lists,
 --               medication allergies), upon request
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('provide_rec_pat_amc', 0, 0, 0, 0, '', '', 1, 1, '170.304(f)', 0);
--- MU 170.304(g) Provide patients with timely electronic access to their health information
+
+--
+--   Inserting data for MU 170.304(g) Provide patients with timely electronic access to their health information
 --              (including lab results, problem list, medication lists, medication allergies)
 --              within four business days of the information being available to the EP
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('timely_access_amc', 0, 0, 0, 0, '', '', 1, 1, '170.304(g)', 0);
--- MU 170.304(h) Provide clinical summaries for patients for each office visit
+
+--
+--   Inserting data for MU 170.304(h) Provide clinical summaries for patients for each office visit
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `patient_reminder_flag`, `amc_2014_flag`, `amc_code_2014`, `amc_2014_stage1_flag` ) VALUES ('provide_sum_pat_amc', 0, 0, 0, 0, '', '', 1, 1, '170.304(h)', 0, 1, '170.314(g)(1)/(2)–15', 1);
--- MU 170.304(i) The EP, eligible hospital or CAH who transitions their patient to
+
+--
+--   Inserting data for MU 170.304(i) The EP, eligible hospital or CAH who transitions their patient to
 --               another setting of care or provider of care or refers their patient to
 --               another provider of care should provide summary of care record for
 --               each transition of care or referral
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('send_sum_amc', 0, 0, 0, 0, '', '', 1, 1, '170.304(i)', 0);
+
 --
--- Clinical Quality Measure (CQM) rules
+-- Inserting data for Clinical Quality Measure (CQM) rules
 --
--- NQF 0013 Hypertension: Blood Pressure Measurement
+--   Inserting data for NQF 0013 Hypertension: Blood Pressure Measurement
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `cqm_2014_flag` ) VALUES ('rule_htn_bp_measure_cqm', 0, 0, 0, 1, 1, '0018', '', 0, '', 0, 1);
--- NQF 0028a Tobacco Use Assessment
+
+--
+--   Inserting data for NQF 0028a Tobacco Use Assessment
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_tob_use_assess_cqm', 0, 0, 0, 1, 1, '0028a', '', 0, '', 0);
--- NQF 0028b Tobacco Cessation Intervention
+
+--
+--   Inserting data for NQF 0028b Tobacco Cessation Intervention
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_tob_cess_inter_cqm', 0, 0, 0, 1, 1, '0028b', '', 0, '', 0);
--- NQF 0421 (PQRI 128) Adult Weight Screening and Follow-Up
+
+--
+--   Inserting data for NQF 0421 (PQRI 128) Adult Weight Screening and Follow-Up
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `cqm_2014_flag` ) VALUES ('rule_adult_wt_screen_fu_cqm', 0, 0, 0, 1, 1, '0421', '128', 0, '', 0, 1);
--- NQF 0024 Weight Assessment and Counseling for Children and Adolescents
+
+--
+--   Inserting data for NQF 0024 Weight Assessment and Counseling for Children and Adolescents
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, cqm_2014_flag ) VALUES ('rule_wt_assess_couns_child_cqm', 0, 0, 0, 1, 1, '0024', '', 0, '', 0, 1);
--- NQF 0041 (PQRI 110) Influenza Immunization for Patients >= 50 Years Old
+
+--
+--   Inserting data for NQF 0041 (PQRI 110) Influenza Immunization for Patients >= 50 Years Old
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `cqm_2014_flag` ) VALUES ('rule_influenza_ge_50_cqm', 0, 0, 0, 1, 1, '0041', '110', 0, '', 0, 1);
--- NQF 0038 Childhood immunization Status
+
+--
+--   Inserting data for NQF 0038 Childhood immunization Status
+--
+
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_child_immun_stat_cqm', 0, 0, 0, 1, 1, '0038', '', 0, '', 0);
--- NQF 0043 (PQRI 111) Pneumonia Vaccination Status for Older Adults
+
+--
+--   Inserting data for NQF 0043 (PQRI 111) Pneumonia Vaccination Status for Older Adults
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `cqm_2014_flag` ) VALUES ('rule_pneumovacc_ge_65_cqm', 0, 0, 0, 1, 1, '0043', '111', 0, '', 0, 1);
--- NQF 0055 (PQRI 117) Diabetes: Eye Exam
+
+--
+--   Inserting data for NQF 0055 (PQRI 117) Diabetes: Eye Exam
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_eye_cqm', 0, 0, 0, 1, 1, '0055', '117', 0, '', 0);
--- NQF 0056 (PQRI 163) Diabetes: Foot Exam
+
+--
+--   Inserting data for NQF 0056 (PQRI 163) Diabetes: Foot Exam
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_foot_cqm', 0, 0, 0, 1, 1, '0056', '163', 0, '', 0);
--- NQF 0059 (PQRI 1) Diabetes: HbA1c Poor Control
+
+--
+--   Inserting data for NQF 0059 (PQRI 1) Diabetes: HbA1c Poor Control
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `cqm_2014_flag` ) VALUES ('rule_dm_a1c_cqm', 0, 0, 0, 1, 1, '0059', '1', 0, '', 0, 1);
--- NQF 0061 (PQRI 3) Diabetes: Blood Pressure Management
+
+--
+--   Inserting data for NQF 0061 (PQRI 3) Diabetes: Blood Pressure Management
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_bp_control_cqm', 0, 0, 0, 1, 1, '0061', '3', 0, '', 0);
--- NQF 0064 (PQRI 2) Diabetes: LDL Management & Control
+
+--
+--   Inserting data for NQF 0064 (PQRI 2) Diabetes: LDL Management & Control
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_ldl_cqm', 0, 0, 0, 1, 1, '0064', '2', 0, '', 0);
--- NQF 0002 Rule Children Pharyngitis
+
+--
+--   Inserting data for NQF 0002 Rule Children Pharyngitis
+--
+
 INSERT INTO `clinical_rules` (`id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `amc_2011_flag`, `amc_2014_flag`, `amc_code_2014`, `cqm_2011_flag`, `cqm_2014_flag`) VALUES
 ('rule_children_pharyngitis_cqm', 0, 0, 0, 1, '0002', '', 0, '', 0, 0, 0, '', 1, 1);
--- NQF 0101 Rule Fall Screening
+
+--
+--   Inserting data for NQF 0101 Rule Fall Screening
+--
+
 INSERT INTO `clinical_rules` (`id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `amc_2011_flag`, `amc_2014_flag`, `amc_code_2014`, `cqm_2011_flag`, `cqm_2014_flag`) VALUES
 ('rule_fall_screening_cqm', 0, 0, 0, 1, '0101', '', 0, '', 0, 0, 0, '', 1, 1);
--- NQF 0384 Rule Pain Intensity
+
+--
+--   Inserting data for NQF 0384 Rule Pain Intensity
+--
+
 INSERT INTO `clinical_rules` (`id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `amc_2011_flag`, `amc_2014_flag`, `amc_code_2014`, `cqm_2011_flag`, `cqm_2014_flag`) VALUES
 ('rule_pain_intensity_cqm', 0, 0, 0, 1, '0384', '', 0, '', 0, 0, 0, '', 1, 1);
--- NQF 0038 Rule Child Immunization Status
+
+--
+--   Inserting data for NQF 0038 Rule Child Immunization Status
+--
+
 INSERT INTO `clinical_rules` (`id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `amc_2011_flag`, `amc_2014_flag`, `amc_code_2014`, `cqm_2011_flag`, `cqm_2014_flag`, `amc_2014_stage1_flag`, `amc_2014_stage2_flag`) VALUES
 ('rule_child_immun_stat_2014_cqm', 0, 0, 0, 1, '0038', '', 0, '', 0, 0, 0, '', 0, 1, 0, 0);
--- NQF 0028 Rule Tobacco Use
+
+--
+--   Inserting data for NQF 0028 Rule Tobacco Use
+--
+
 INSERT INTO `clinical_rules` (`id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `amc_2011_flag`, `amc_2014_flag`, `amc_code_2014`, `cqm_2011_flag`, `cqm_2014_flag`, `amc_2014_stage1_flag`, `amc_2014_stage2_flag`) VALUES
 ('rule_tob_use_2014_cqm', 0, 0, 0, 1, '0028', '', 0, '', 0, 0, 0, '', 0, 1, 0, 0);
+
 --
--- Standard clinical rules
+-- Inserting data for Standard clinical rules
 --
--- Hypertension: Blood Pressure Measurement
+--   Inserting data for Hypertension: Blood Pressure Measurement
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_htn_bp_measure', 0, 0, 1, 0, '', '', 0, '', 0);
--- Tobacco Use Assessment
+
+--
+--   Inserting data for Tobacco Use Assessment
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_tob_use_assess', 0, 0, 1, 0, '', '', 0, '', 0);
--- Tobacco Cessation Intervention
+
+--
+--   Inserting data for Tobacco Cessation Intervention
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_tob_cess_inter', 0, 0, 1, 0, '', '', 0, '', 0);
--- Adult Weight Screening and Follow-Up
+
+--
+--   Inserting data for Adult Weight Screening and Follow-Up
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_adult_wt_screen_fu', 0, 0, 1, 0, '', '', 0, '', 0);
--- Weight Assessment and Counseling for Children and Adolescents
+
+--
+--   Inserting data for Weight Assessment and Counseling for Children and Adolescents
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_wt_assess_couns_child', 0, 0, 1, 0, '', '', 0, '', 0);
--- Influenza Immunization for Patients >= 50 Years Old
+
+--
+--   Inserting data for Influenza Immunization for Patients >= 50 Years Old
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_influenza_ge_50', 0, 0, 1, 0, '', '', 0, '', 0);
--- Pneumonia Vaccination Status for Older Adults
+
+--
+--   Inserting data for Pneumonia Vaccination Status for Older Adults
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_pneumovacc_ge_65', 0, 0, 1, 0, '', '', 0, '', 0);
--- Diabetes: Hemoglobin A1C
+
+--
+--   Inserting data for Diabetes: Hemoglobin A1C
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_hemo_a1c', 0, 0, 1, 0, '', '', 0, '', 0);
--- Diabetes: Urine Microalbumin
+
+--
+--   Inserting data for Diabetes: Urine Microalbumin
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_urine_alb', 0, 0, 1, 0, '', '', 0, '', 0);
--- Diabetes: Eye Exam
+
+--
+--   Inserting data for Diabetes: Eye Exam
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_eye', 0, 0, 1, 0, '', '', 0, '', 0);
--- Diabetes: Foot Exam
+
+--
+--   Inserting data for Diabetes: Foot Exam
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_foot', 0, 0, 1, 0, '', '', 0, '', 0);
--- Cancer Screening: Mammogram
+
+--
+--   Inserting data for Cancer Screening: Mammogram
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_cs_mammo', 0, 0, 1, 0, '', '', 0, '', 0);
--- Cancer Screening: Pap Smear
+
+--
+--   Inserting data for Cancer Screening: Pap Smear
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_cs_pap', 0, 0, 1, 0, '', '', 0, '', 0);
--- Cancer Screening: Colon Cancer Screening
+
+--
+--   Inserting data for Cancer Screening: Colon Cancer Screening
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_cs_colon', 0, 0, 1, 0, '', '', 0, '', 0);
--- Cancer Screening: Prostate Cancer Screening
+
+--
+--   Inserting data for Cancer Screening: Prostate Cancer Screening
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_cs_prostate', 0, 0, 1, 0, '', '', 0, '', 0);
+
 --
--- Rules to specifically demonstrate passing of NIST criteria
+-- Inserting data for Rules to specifically demonstrate passing of NIST criteria
 --
--- Coumadin Management - INR Monitoring
+--   Inserting data for Coumadin Management - INR Monitoring
+--
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_inr_monitor', 0, 0, 1, 0, '', '', 0, '', 0);
+
 --
--- Rule to specifically demonstrate MU2 for CDR engine
+-- Inserting data for Rule to specifically demonstrate MU2 for CDR engine
 --
+
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `access_control` ) VALUES ('rule_socsec_entry', 0, 0, 0, 0, '', '', 0, '', 0, 'admin:practice');
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_penicillin_allergy', 0, 0, 0, 0, '', '', 0, '', 0);
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_blood_pressure', 0, 0, 0, 0, '', '', 0, '', 0);
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_inr_measure', 0, 0, 0, 0, '', '', 0, '', 0);
+
 --
--- MU2 AMC rules
+-- Inserting data for MU2 AMC rules
 --
+
 INSERT INTO `clinical_rules`
 (`id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `amc_2011_flag`, `amc_2014_flag`, `amc_code_2014`, `cqm_2011_flag`, `cqm_2014_flag`, `amc_2014_stage1_flag`, `amc_2014_stage2_flag`) VALUES
 ('image_results_amc', 0, 0, 0, 0, '', '', 1, '', 0, 0, 1, '170.314(g)(1)/(2)–20', 0, 0, 0, 1);
@@ -675,7 +1008,6 @@ INSERT INTO `clinical_rules`
 (`id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `amc_2011_flag`, `amc_2014_flag`, `amc_code_2014`, `cqm_2011_flag`, `cqm_2014_flag`, `amc_2014_stage1_flag`, `amc_2014_stage2_flag`) VALUES
 ('e_prescribe_2_stage2_amc', 0, 0, 0, 0, '', '', 1, '170.304(b)', 0, 0, 1, '170.314(g)(1)/(2)–8', 0, 0, 0, 1);
 
-
 -----------------------------------------------------------
 
 --
@@ -696,7 +1028,6 @@ CREATE TABLE `clinical_rules_log` (
   KEY `uid` (`uid`),
   KEY `category` (`category`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
-
 
 -----------------------------------------------------------
 
@@ -791,7 +1122,7 @@ CREATE TABLE `config_seq` (
 ) ENGINE=InnoDB;
 
 --
--- Dumping data for table `config_seq`
+-- Inserting data for table `config_seq`
 --
 
 INSERT INTO `config_seq` VALUES (0);
@@ -967,7 +1298,7 @@ CREATE TABLE `documents_legal_categories` (
 ) ENGINE=InnoDB AUTO_INCREMENT=7 ;
 
 --
--- Dumping data for table `documents_legal_categories`
+-- Inserting data for table `documents_legal_categories`
 --
 
 INSERT INTO `documents_legal_categories` (`dlc_id`, `dlc_category_type`, `dlc_category_name`, `dlc_category_parent`) VALUES
@@ -1139,7 +1470,8 @@ CREATE TABLE `employer_data` (
 --
 -- Table structure for table `enc_category_map`
 --
--- Mapping of rule encounter categories to category ids from the event category in openemr_postcalendar_categories
+--   Mapping of rule encounter categories to category ids
+--   from the event category in openemr_postcalendar_categories
 --
 
 DROP TABLE IF EXISTS `enc_category_map`;
@@ -1148,6 +1480,10 @@ CREATE TABLE `enc_category_map` (
   `main_cat_id` int(11) NOT NULL DEFAULT 0 COMMENT 'category id from event category in openemr_postcalendar_categories',
   KEY  (`rule_enc_id`,`main_cat_id`)
 ) ENGINE=InnoDB ;
+
+--
+-- Inserting data for table `enc_category_map`
+--
 
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_outpatient', 5);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_outpatient', 9);
@@ -1187,13 +1523,11 @@ INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_inf
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_influenza', 10);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_ophthal_serv', 14);
 
-
 -----------------------------------------------------------
 
 --
 -- Table structure for table `erx_ttl_touch`
---
--- Store records last update per patient data process
+--   Store records last update per patient data process
 --
 
 DROP TABLE IF EXISTS `erx_ttl_touch`;
@@ -1204,10 +1538,12 @@ CREATE  TABLE `erx_ttl_touch` (
   PRIMARY KEY (`patient_id`, `process`)
 ) ENGINE = InnoDB COMMENT = 'Store records last update per patient data process' ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
+
 --
 -- Table structure for table `erx_drug_paid`
 --
+
 DROP TABLE IF EXISTS `erx_drug_paid`;
 CREATE TABLE IF NOT EXISTS `erx_drug_paid` (
   `drugid` int(11) NOT NULL AUTO_INCREMENT,
@@ -1222,10 +1558,12 @@ CREATE TABLE IF NOT EXISTS `erx_drug_paid` (
    PRIMARY KEY (`drugid`)
    ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
+
 --
 -- Table structure for table `erx_rx_log`
 --
+
 DROP TABLE IF EXISTS `erx_rx_log`;
 CREATE TABLE IF NOT EXISTS `erx_rx_log` (
  `id` int(20) NOT NULL AUTO_INCREMENT,
@@ -1239,10 +1577,12 @@ CREATE TABLE IF NOT EXISTS `erx_rx_log` (
  PRIMARY KEY (`id`)
   ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
+
 --
 -- Table structure for table `erx_narcotics`
 --
+
 DROP TABLE IF EXISTS `erx_narcotics`;
 CREATE TABLE IF NOT EXISTS `erx_narcotics` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1254,7 +1594,8 @@ CREATE TABLE IF NOT EXISTS `erx_narcotics` (
    PRIMARY KEY (`id`)
   ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
+
 --
 -- Table structure for table `standardized_tables_track`
 --
@@ -1307,11 +1648,10 @@ CREATE TABLE `facility` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 ;
 
 --
--- Dumping data for table `facility`
+-- Inserting data for table `facility`
 --
 
 INSERT INTO `facility` VALUES (3, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 0, NULL, '', '', '', '', '','#99FFFF','0', '', '1');
-
 
 -----------------------------------------------------------
 
@@ -1344,7 +1684,7 @@ CREATE TABLE `fee_sheet_options` (
 ) ENGINE=InnoDB;
 
 --
--- Dumping data for table `fee_sheet_options`
+-- Inserting data for table `fee_sheet_options`
 --
 
 INSERT INTO `fee_sheet_options` VALUES ('1New Patient', '1Brief', 'CPT4|99201|');
@@ -1836,7 +2176,7 @@ CREATE TABLE `geo_country_reference` (
 ) ENGINE=InnoDB AUTO_INCREMENT=240 ;
 
 --
--- Dumping data for table `geo_country_reference`
+-- Inserting data for table `geo_country_reference`
 --
 
 INSERT INTO `geo_country_reference` VALUES (1, 'Afghanistan', 'AF', 'AFG');
@@ -2095,7 +2435,7 @@ CREATE TABLE `geo_zone_reference` (
 ) ENGINE=InnoDB AUTO_INCREMENT=83 ;
 
 --
--- Dumping data for table `geo_zone_reference`
+-- Inserting data for table `geo_zone_reference`
 --
 
 INSERT INTO `geo_zone_reference` VALUES (1, 223, 'AL', 'Alabama');
@@ -2668,7 +3008,7 @@ CREATE TABLE `issue_types` (
 ) ENGINE=InnoDB;
 
 --
--- Dumping data for table `issue_types`
+-- Inserting data for table `issue_types`
 --
 
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('10','default','medical_problem','Medical Problems','Problem','P','0','1');
@@ -2697,6 +3037,8 @@ CREATE TABLE `lang_constants` (
   KEY `constant_name` (`constant_name`(100))
 ) ENGINE=InnoDB ;
 
+-----------------------------------------------------------
+
 --
 -- Table structure for table `lang_definitions`
 --
@@ -2710,6 +3052,8 @@ CREATE TABLE `lang_definitions` (
   UNIQUE KEY `def_id` (`def_id`),
   KEY `cons_id` (`cons_id`)
 ) ENGINE=InnoDB ;
+
+-----------------------------------------------------------
 
 --
 -- Table structure for table `lang_languages`
@@ -2725,7 +3069,7 @@ CREATE TABLE `lang_languages` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 ;
 
 --
--- Dumping data for table `lang_languages`
+-- Inserting data for table `lang_languages`
 --
 
 INSERT INTO `lang_languages` VALUES (1, 'en', 'English', 0);
@@ -2746,6 +3090,11 @@ CREATE TABLE `lang_custom` (
 
 -----------------------------------------------------------
 
+--
+-- Table structure for table `layout_group_properties`
+--
+
+DROP TABLE IF EXISTS `layout_group_properties`;
 CREATE TABLE `layout_group_properties` (
   grp_form_id     varchar(31)    not null,
   grp_group_id    varchar(31)    not null default '' comment 'empty when representing the whole form',
@@ -2764,6 +3113,40 @@ CREATE TABLE `layout_group_properties` (
   grp_diags       varchar(4095)  not null default '',
   PRIMARY KEY (grp_form_id, grp_group_id)
 ) ENGINE=InnoDB;
+
+--
+-- Inserting data for table `layout_group_properties`
+--
+
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '' , 'Demographics', 'Core');
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '1', 'Who'         , ''    );
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '2', 'Contact'     , ''    );
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '3', 'Choices'     , ''    );
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '4', 'Employer'    , ''    );
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '5', 'Stats'       , ''    );
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '6', 'Misc'        , ''    );
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '8', 'Guardian'    , ''    );
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTref', '' , 'Referral'        , 'Transactions');
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTref', '1', 'Referral'        , ''            );
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTref', '2', 'Counter-Referral', ''            );
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTptreq', '' , 'Patient Request', 'Transactions');
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTptreq', '1', ''               , ''    );
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTphreq', '' , 'Physician Request', 'Transactions');
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTphreq', '1', ''                 , ''    );
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTlegal', '' , 'Legal', 'Transactions');
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTlegal', '1', ''     , ''    );
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTbill', '' , 'Billing', 'Transactions');
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTbill', '1', ''       , ''    );
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('HIS', '' , 'History'       , 'Core');
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('HIS', '1', 'General'       , ''    );
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('HIS', '2', 'Family History', ''    );
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('HIS', '3', 'Relatives'     , ''    );
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('HIS', '4', 'Lifestyle'     , ''    );
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('HIS', '5', 'Other'         , ''    );
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('FACUSR', '' , 'Facility Specific User Information', 'Core');
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('FACUSR', '1', 'General'                           , ''    );
+
+-----------------------------------------------------------
 
 -- 
 -- Table structure for table `layout_options`
@@ -2794,14 +3177,10 @@ CREATE TABLE `layout_options` (
   PRIMARY KEY  (`form_id`,`field_id`,`seq`)
 ) ENGINE=InnoDB;
 
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '' , 'Demographics', 'Core');
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '1', 'Who'         , ''    );
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '2', 'Contact'     , ''    );
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '3', 'Choices'     , ''    );
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '4', 'Employer'    , ''    );
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '5', 'Stats'       , ''    );
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '6', 'Misc'        , ''    );
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '8', 'Guardian'    , ''    );
+--
+-- Inserting data for table `layout_options`
+--
+
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'title', '1', 'Name', 1, 1, 1, 0, 0, 'titles', 1, 1, '', 'N', 'Title', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'fname', '1', '', 2, 2, 2, 10, 63, '', 0, 0, '', 'CD', 'First Name', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'mname', '1', '', 3, 2, 1, 2, 63, '', 0, 0, '', 'C', 'Middle Name', 0);
@@ -2904,10 +3283,6 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardianphone'  , '8', 'Phone'  ,90, 2, 1,20,63, '', 1, 1, '', '', 'Phone', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardianworkphone'  , '8', 'Work Phone'  ,100, 2, 1,20,63, '', 1, 1, '', '', 'Work Phone', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardianemail'  , '8', 'Email'  ,110, 2, 1,20,63, '', 1, 1, '', '', 'Guardian Email Address', 0);
-
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTref', '' , 'Referral'        , 'Transactions');
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTref', '1', 'Referral'        , ''            );
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTref', '2', 'Counter-Referral', ''            );
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTref','refer_date'      ,'1','Referral Date'                  , 1, 4,2, 0,  0,''         ,1,1,'C','D','Date of referral', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTref','refer_from'      ,'1','Refer By'                       , 2,10,2, 0,  0,''         ,1,1,'' ,'' ,'Referral By', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTref','refer_external'  ,'1','External Referral'              , 3, 1,1, 0,  0,'boolean'  ,1,1,'' ,'' ,'External referral?', 0);
@@ -2926,29 +3301,10 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTref','reply_services'  ,'2','Services Provided'      ,16, 3,1,30,  0,''         ,1,1,'' ,'' ,'Service provided by specialist', 3);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTref','reply_recommend' ,'2','Recommendations'        ,17, 3,1,30,  0,''         ,1,1,'' ,'' ,'Recommendations by specialist', 3);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTref','reply_rx_refer'  ,'2','Prescriptions/Referrals',18, 3,1,30,  0,''         ,1,1,'' ,'' ,'Prescriptions and/or referrals by specialist', 3);
-
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTptreq', '' , 'Patient Request', 'Transactions');
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTptreq', '1', ''               , ''    );
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTptreq','body','1','Details',10,3,2,30,0,'',1,3,'','','Content',5);
-
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTphreq', '' , 'Physician Request', 'Transactions');
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTphreq', '1', ''                 , ''    );
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTphreq','body','1','Details',10,3,2,30,0,'',1,3,'','','Content',5);
-
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTlegal', '' , 'Legal', 'Transactions');
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTlegal', '1', ''     , ''    );
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTlegal','body','1','Details',10,3,2,30,0,'',1,3,'','','Content',5);
-
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTbill', '' , 'Billing', 'Transactions');
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTbill', '1', ''       , ''    );
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTbill' ,'body','1','Details',10,3,2,30,0,'',1,3,'','','Content',5);
-
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('HIS', '' , 'History'       , 'Core');
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('HIS', '1', 'General'       , ''    );
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('HIS', '2', 'Family History', ''    );
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('HIS', '3', 'Relatives'     , ''    );
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('HIS', '4', 'Lifestyle'     , ''    );
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('HIS', '5', 'Other'         , ''    );
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','usertext11'       ,'1'       ,'Risk Factors',1,21,1,0,0,'riskfactors',1,1,'','' ,'Risk Factors', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','exams'            ,'1'       ,'Exams/Tests' ,2,23,1,0,0,'exams'      ,1,1,'','' ,'Exam and test results', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','history_father'   ,'2','Father'                 , 1, 2,1,20,  0,'',1,1,'','' ,'', 0);
@@ -2986,11 +3342,9 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','additional_history','5','Additional History',5, 3,1,30,  0,'',1,3,'' ,'' ,'Additional history notes', 3);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','userarea11'        ,'5','User Defined Area 11',6,3,0,30,0,'',1,3,'','','User Defined', 3);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','userarea12'        ,'5','User Defined Area 12',7,3,0,30,0,'',1,3,'','','User Defined', 3);
-
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('FACUSR', '' , 'Facility Specific User Information', 'Core');
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('FACUSR', '1', 'General'                           , ''    );
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('FACUSR', 'provider_id', '1', 'Provider ID', 1, 2, 1, 15, 63, '', 1, 1, '', '', 'Provider ID at Specified Facility', 0);
--- --------------------------------------------------------
+
+-----------------------------------------------------------
 
 --
 -- Table structure for table `list_options`
@@ -3017,7 +3371,7 @@ CREATE TABLE `list_options` (
 ) ENGINE=InnoDB;
 
 --
--- Dumping data for table `list_options`
+-- Inserting data for table `list_options`
 --
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('yesno', 'NO', 'NO', 1, 0, 'N');
@@ -3447,7 +3801,6 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'exams'        ,'Exams/Tests'        , 7,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'feesheet'     ,'Fee Sheet'          , 8,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'language'     ,'Language'           , 9,0);
--- INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'lbfnames'     ,'Layout-Based Visit Forms',9,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'marital'      ,'Marital Status'     ,10,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'pricelevel'   ,'Price Level'        ,11,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'ethrace'      ,'Race/Ethnicity'     ,12,0);
@@ -3697,12 +4050,6 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('eligibility', 'eligible', 'Eligible', 10, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('eligibility', 'ineligible', 'Ineligible', 20, 0);
 
--- INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists', 'transactions', 'Layout-Based Transaction Forms', 9, 0);
--- INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('transactions', 'LBTptreq', 'Patient Request'  , 20, 0);
--- INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('transactions', 'LBTphreq', 'Physician Request', 30, 0);
--- INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('transactions', 'LBTlegal', 'Legal'            , 40, 0);
--- INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('transactions', 'LBTbill' , 'Billing'          , 50, 0);
-
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'   ,'payment_adjustment_code','Payment Adjustment Code', 1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_adjustment_code', 'family_payment', 'Family Payment', 20, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_adjustment_code', 'group_payment', 'Group Payment', 30, 0);
@@ -3722,7 +4069,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_method', 'check_payment', 'Check Payment', 10, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_method', 'credit_card', 'Credit Card', 30, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_method', 'electronic', 'Electronic', 40, 0);
-insert into `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) values('payment_method','authorize_net','Authorize.net','60','0','0','','');
+INSERT into `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) values('payment_method','authorize_net','Authorize.net','60','0','0','','');
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'   ,'payment_sort_by','Payment Sort By', 1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_sort_by', 'check_date', 'Check Date', 20, 0);
@@ -3751,7 +4098,10 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('date_master_criteria', 'last_calendar_year', 'Last Calendar Year', 70, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('date_master_criteria', 'custom', 'Custom', 80, 0);
 
--- Clinical Plan Titles
+--
+--  Clinical Plan Titles
+--
+
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('lists' ,'clinical_plans','Clinical Plans', 3, 0);
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('clinical_plans', 'dm_plan_cqm', 'Diabetes Mellitus', 5, 0);
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('clinical_plans', 'ckd_plan_cqm', 'Chronic Kidney Disease (CKD)', 10, 0);
@@ -3763,7 +4113,10 @@ INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('clinical_plans', 'dm_plan', 'Diabetes Mellitus', 500, 0);
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('clinical_plans', 'prevent_plan', 'Preventative Care', 510, 0);
 
+--
 -- Clinical Rule Titles
+--
+
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('lists' ,'clinical_rules','Clinical Rules', 3, 0);
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('clinical_rules', 'problem_list_amc', 'Maintain an up-to-date problem list of current and active diagnoses.', 5, 0);
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('clinical_rules', 'med_list_amc', 'Maintain active medication list.', 10, 0);
@@ -3827,8 +4180,6 @@ INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('clinical_rules', 'rule_inr_measure', 'Measure INR', 1620, 0);
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('clinical_rules', 'rule_appt_reminder', 'Appointment Reminder Rule', 2000, 0);
 
-
-
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES
 ('clinical_rules', 'image_results_amc', 'Image Results', 3000, 0, 0, '', '', '', 0, 0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES
@@ -3878,7 +4229,10 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES
 ('clinical_rules', 'e_prescribe_2_stage2_amc', 'Generate and transmit permissible prescriptions electronically (Not including controlled substances).', 50, 0, 0, '', '', '', 0, 0);
 
+--
 -- order types
+--
+
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','order_type','Order Types', 1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('order_type','procedure','Procedure',10,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('order_type','intervention','Intervention',20,0);
@@ -3889,8 +4243,10 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('order_type','imaging','Imaging',70,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('order_type','enc_checkup_procedure','Encounter Checkup Procedure',80,0);
 
-
+--
 -- Clinical Rule Target Methods
+--
+
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('lists' ,'rule_targets', 'Clinical Rule Target Methods', 3, 0);
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_targets' ,'target_database', 'Database', 10, 0);
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_targets' ,'target_interval', 'Interval', 20, 0);
@@ -3898,6 +4254,7 @@ INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_targets' ,'target_appt', 'Appointment', 30, 0);
 
 -- Clinical Rule Target Intervals
+
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('lists' ,'rule_target_intervals', 'Clinical Rules Target Intervals', 3, 0);
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_target_intervals' ,'year', 'Year', 10, 0);
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_target_intervals' ,'month', 'Month', 20, 0);
@@ -4239,15 +4596,15 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('nat
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('nation_notes_replace_buttons','No','No',20);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('nation_notes_replace_buttons','Normal','Normal',30);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('nation_notes_replace_buttons','Abnormal','Abnormal',40);
-insert into `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) values('lists','payment_gateways','Payment Gateways','297','1','0','','');
-insert into `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) values('payment_gateways','authorize_net','Authorize.net','1','0','0','','');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) values('lists','payment_gateways','Payment Gateways','297','1','0','','');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) values('payment_gateways','authorize_net','Authorize.net','1','0','0','','');
 
-insert into list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('lists','ptlistcols','Patient List Columns','1','0','','');
-insert into list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','name'      ,'Full Name'     ,'10','3','','');
-insert into list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','phone_home','Home Phone'    ,'20','3','','');
-insert into list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','ss'        ,'SSN'           ,'30','3','','');
-insert into list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','DOB'       ,'Date of Birth' ,'40','3','','');
-insert into list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','pubpid'    ,'External ID'   ,'50','3','','');
+INSERT INTO list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('lists','ptlistcols','Patient List Columns','1','0','','');
+INSERT INTO list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','name'      ,'Full Name'     ,'10','3','','');
+INSERT INTO list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','phone_home','Home Phone'    ,'20','3','','');
+INSERT INTO list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','ss'        ,'SSN'           ,'30','3','','');
+INSERT INTO list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','DOB'       ,'Date of Birth' ,'40','3','','');
+INSERT INTO list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','pubpid'    ,'External ID'   ,'50','3','','');
 
 -- Medical Problem Issue List
 INSERT INTO list_options(list_id,option_id,title) VALUES ('lists','medical_problem_issue_list','Medical Problem Issue List');
@@ -4348,7 +4705,7 @@ INSERT INTO list_options (list_id, option_id, notes,title, seq) VALUES ('religio
 INSERT INTO list_options (list_id, option_id, notes,title, seq) VALUES ('religious_affiliation','animism','1006','Animism','55');
 INSERT INTO list_options (list_id, option_id, notes,title, seq) VALUES ('religious_affiliation','assembly_of_god','1061','Assembly of God','65');
 INSERT INTO list_options (list_id, option_id, notes,title, seq) VALUES ('religious_affiliation','atheism','1007','Atheism','75');
-INSERT INTO list_options (list_id, option_id, notes,title, seq) VALUES ('religious_affiliation','babi_bahai_faiths','1008','Babi & Baha\'I faiths','85');
+INSERT INTO list_options (list_id, option_id, notes,title, seq) VALUES ('religious_affiliation','babi_bahai_faiths','1008',"Babi & Baha'I faiths",'85');
 INSERT INTO list_options (list_id, option_id, notes,title, seq) VALUES ('religious_affiliation','baptist','1009','Baptist','95');
 INSERT INTO list_options (list_id, option_id, notes,title, seq) VALUES ('religious_affiliation','bon','1010','Bon','105');
 INSERT INTO list_options (list_id, option_id, notes,title, seq) VALUES ('religious_affiliation','brethren','1062','Brethren','115');
@@ -4376,7 +4733,7 @@ INSERT INTO list_options (list_id, option_id, notes,title, seq) VALUES ('religio
 INSERT INTO list_options (list_id, option_id, notes,title, seq) VALUES ('religious_affiliation','independent','1022','Independent','335');
 INSERT INTO list_options (list_id, option_id, notes,title, seq) VALUES ('religious_affiliation','islam','1023','Islam','345');
 INSERT INTO list_options (list_id, option_id, notes,title, seq) VALUES ('religious_affiliation','jainism','1024','Jainism','355');
-INSERT INTO list_options (list_id, option_id, notes,title, seq) VALUES ('religious_affiliation','jehovahs_witnesses','1025','Jehovah\'s Witnesses','365');
+INSERT INTO list_options (list_id, option_id, notes,title, seq) VALUES ('religious_affiliation','jehovahs_witnesses','1025',"Jehovah's Witnesses",'365');
 INSERT INTO list_options (list_id, option_id, notes,title, seq) VALUES ('religious_affiliation','judaism','1026','Judaism','375');
 INSERT INTO list_options (list_id, option_id, notes,title, seq) VALUES ('religious_affiliation','latter_day_saints','1027','Latter Day Saints','385');
 INSERT INTO list_options (list_id, option_id, notes,title, seq) VALUES ('religious_affiliation','lutheran','1028','Lutheran','395');
@@ -4736,8 +5093,6 @@ INSERT INTO list_options (list_id,option_id,title,seq,notes,activity) VALUES ('f
 INSERT INTO list_options (list_id,option_id,title,seq,notes,activity) VALUES ('formdir_keys','procedure_order','"tbl":"procedure_order","id":"procedure_order_id"',20,'Lab order header table has non-std name and id',1);
 INSERT INTO list_options (list_id,option_id,title,seq,notes,activity) VALUES ('formdir_keys','physical_exam','"id":"forms_id","limit":"*"',30,'Physical exam form table has non-std id and n records',1);
 
-
------------------------------------------------------------
 -- provider_qualifier_code
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','provider_qualifier_code','Provider Qualifier Code', 1,0);
@@ -4746,12 +5101,16 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('provider_qualifier_code','DQ','Supervising Provider',30,0);
 
 -- Files type white list
+
 INSERT INTO list_options (`list_id`, `option_id`, `title`) VALUES ('lists', 'files_white_list', 'Files type white list');
 
 -- Sample Apps (Disabled)
+
 INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','apps','Apps');
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','*OpenEMR','main/main_screen.php',10,1,0);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','Calendar','main/calendar/index.php',20,0,0);
+
+-----------------------------------------------------------
 
 --
 -- Table structure for table `lists`
@@ -4841,6 +5200,8 @@ CREATE TABLE `log` (
 --
 -- Table structure for table `modules`
 --
+
+DROP TABLE IF EXISTS `modules`;
 CREATE TABLE `modules` (
   `mod_id` INT(11) NOT NULL AUTO_INCREMENT,
   `mod_name` VARCHAR(64) NOT NULL DEFAULT '0',
@@ -4868,6 +5229,8 @@ CREATE TABLE `modules` (
 --
 -- Table structure for table `module_acl_group_settings`
 --
+
+DROP TABLE IF EXISTS `module_acl_group_settings`;
 CREATE TABLE `module_acl_group_settings` (
   `module_id` int(11) NOT NULL,
   `group_id` int(11) NOT NULL,
@@ -4881,6 +5244,8 @@ CREATE TABLE `module_acl_group_settings` (
 --
 -- Table structure for table `module_acl_sections`
 --
+
+DROP TABLE IF EXISTS `module_acl_sections`;
 CREATE TABLE `module_acl_sections` (
   `section_id` int(11) DEFAULT NULL,
   `section_name` varchar(255) DEFAULT NULL,
@@ -4894,6 +5259,8 @@ CREATE TABLE `module_acl_sections` (
 --
 -- Table structure for table `module_acl_user_settings`
 --
+
+DROP TABLE IF EXISTS `module_acl_user_settings`;
 CREATE TABLE `module_acl_user_settings` (
   `module_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -4907,6 +5274,8 @@ CREATE TABLE `module_acl_user_settings` (
 --
 -- Table structure for table `module_configuration`
 --
+
+DROP TABLE IF EXISTS `module_configuration`;
 CREATE TABLE `module_configuration` (
   `module_config_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `module_id` int(10) unsigned NOT NULL,
@@ -4920,6 +5289,8 @@ CREATE TABLE `module_configuration` (
 --
 -- Table structure for table `modules_hooks_settings`
 --
+
+DROP TABLE IF EXISTS `modules_hooks_settings`;
 CREATE TABLE `modules_hooks_settings` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `mod_id` int(11) DEFAULT NULL,
@@ -4933,6 +5304,8 @@ CREATE TABLE `modules_hooks_settings` (
 --
 -- Table structure for table `modules_settings`
 --
+
+DROP TABLE IF EXISTS `modules_settings`;
 CREATE TABLE `modules_settings` (
   `mod_id` INT(11) DEFAULT NULL,
   `fld_type` SMALLINT(6) DEFAULT NULL COMMENT '1=>ACL,2=>preferences,3=>hooks',
@@ -5043,7 +5416,6 @@ CREATE TABLE `onsite_mail` (
   KEY `pid` (`owner`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
-
 -----------------------------------------------------------
 
 --
@@ -5061,7 +5433,6 @@ CREATE TABLE `onsite_messages` (
   `recip_id` varchar(255) NOT NULL COMMENT 'who to id array',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB COMMENT='Portal messages' AUTO_INCREMENT=1 ;
-
 
 -----------------------------------------------------------
 
@@ -5104,7 +5475,6 @@ CREATE TABLE `onsite_portal_activity` (
   PRIMARY KEY (`id`),
   KEY `date` (`date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
-
 
 -----------------------------------------------------------
 
@@ -5152,7 +5522,7 @@ CREATE TABLE `openemr_module_vars` (
 ) ENGINE=InnoDB AUTO_INCREMENT=235 ;
 
 --
--- Dumping data for table `openemr_module_vars`
+-- Inserting data for table `openemr_module_vars`
 --
 
 INSERT INTO `openemr_module_vars` VALUES (234, 'PostCalendar', 'pcNotifyEmail', '');
@@ -5198,7 +5568,7 @@ CREATE TABLE `openemr_modules` (
 ) ENGINE=InnoDB AUTO_INCREMENT=47 ;
 
 --
--- Dumping data for table `openemr_modules`
+-- Inserting data for table `openemr_modules`
 --
 
 INSERT INTO `openemr_modules` VALUES (46, 'PostCalendar', 2, 'PostCalendar', 'PostNuke Calendar Module', 0, 'PostCalendar', '4.0.0', 1, 1, 3);
@@ -5234,7 +5604,7 @@ CREATE TABLE `openemr_postcalendar_categories` (
 ) ENGINE=InnoDB AUTO_INCREMENT=11 ;
 
 --
--- Dumping data for table `openemr_postcalendar_categories`
+-- Inserting data for table `openemr_postcalendar_categories`
 --
 
 INSERT INTO `openemr_postcalendar_categories` VALUES (5, 'Office Visit', '#FFFFCC', 'Normal Office Visit', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,5,'encounters|notes');
@@ -5495,6 +5865,7 @@ CREATE TABLE `patient_data` (
 -- Table structure for table `patient_portal_menu`
 --
 
+DROP TABLE IF EXISTS `patient_portal_menu`;
 CREATE TABLE `patient_portal_menu` (
   `patient_portal_menu_id` INT(11) NOT NULL AUTO_INCREMENT,
   `patient_portal_menu_group_id` INT(11) DEFAULT NULL,
@@ -5626,6 +5997,8 @@ CREATE TABLE `payments` (
 --
 -- Table structure for table `payment_gateway_details`
 --
+
+DROP TABLE IF EXISTS `payment_gateway_details`;
 CREATE TABLE `payment_gateway_details` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `service_name` varchar(100) DEFAULT NULL,
@@ -5688,7 +6061,7 @@ CREATE TABLE `pma_bookmark` (
 ) ENGINE=InnoDB COMMENT='Bookmarks' AUTO_INCREMENT=10 ;
 
 --
--- Dumping data for table `pma_bookmark`
+-- Inserting data for table `pma_bookmark`
 --
 
 INSERT INTO `pma_bookmark` VALUES (2, 'openemr', 'openemr', 'Aggregate Race Statistics', 'SELECT ethnoracial as "Race/Ethnicity", count(*) as Count FROM  `patient_data` WHERE 1 group by ethnoracial');
@@ -5915,7 +6288,7 @@ CREATE TABLE `registry` (
 ) ENGINE=InnoDB AUTO_INCREMENT=22 ;
 
 --
--- Dumping data for table `registry`
+-- Inserting data for table `registry`
 --
 
 INSERT INTO `registry` VALUES ('New Encounter Form', 1, 'newpatient', 1, 1, 1, '2003-09-14 15:16:45', 0, 'Administrative', '',1,0,'patients|appt');
@@ -5940,6 +6313,7 @@ INSERT INTO `registry` VALUES ('New Group Encounter Form', 1, 'newGroupEncounter
 --
 -- Table structure for table `report_itemized`
 -- (goal is optimize insert performance, so only one key)
+--
 
 DROP TABLE IF EXISTS `report_itemized`;
 CREATE TABLE `report_itemized` (
@@ -5983,6 +6357,7 @@ CREATE TABLE `rule_action` (
 --
 -- Standard clinical rule actions
 --
+
 INSERT INTO `rule_action` ( `id`, `group_id`, `category`, `item` ) VALUES ('rule_htn_bp_measure', 1, 'act_cat_measure', 'act_bp');
 INSERT INTO `rule_action` ( `id`, `group_id`, `category`, `item` ) VALUES ('rule_tob_use_assess', 1, 'act_cat_assess', 'act_tobacco');
 INSERT INTO `rule_action` ( `id`, `group_id`, `category`, `item` ) VALUES ('rule_tob_cess_inter', 1, 'act_cat_inter', 'act_tobacco');
@@ -6067,6 +6442,8 @@ CREATE TABLE `rule_filter` (
 -- Standard clinical rule filters
 --
 -- Hypertension: Blood Pressure Measurement
+--
+
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_htn_bp_measure', 1, 0, 'filt_lists', 'medical_problem', 'CUSTOM::HTN');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_htn_bp_measure', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::401.0');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_htn_bp_measure', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::401.1');
@@ -6095,20 +6472,32 @@ INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `me
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_htn_bp_measure', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::404.91');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_htn_bp_measure', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::404.92');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_htn_bp_measure', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::404.93');
+
 -- Tobacco Use Assessment
 -- no filters
 -- Tobacco Cessation Intervention
+
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_tob_cess_inter', 1, 1, 'filt_database', '', 'LIFESTYLE::tobacco::current');
+
 -- Adult Weight Screening and Follow-Up
+
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_adult_wt_screen_fu', 1, 1, 'filt_age_min', 'year', '18');
+
 -- Weight Assessment and Counseling for Children and Adolescents
+
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_wt_assess_couns_child', 1, 1, 'filt_age_max', 'year', '18');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_wt_assess_couns_child', 1, 1, 'filt_age_min', 'year', '2');
+
 -- Influenza Immunization for Patients >= 50 Years Old
+
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_influenza_ge_50', 1, 1, 'filt_age_min', 'year', '50');
+
 -- Pneumonia Vaccination Status for Older Adults
+
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_pneumovacc_ge_65', 1, 1, 'filt_age_min', 'year', '65');
+
 -- Diabetes: Hemoglobin A1C
+
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_hemo_a1c', 1, 0, 'filt_lists', 'medical_problem', 'CUSTOM::diabetes');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_hemo_a1c', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::250');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_hemo_a1c', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::250.0');
@@ -6170,7 +6559,9 @@ INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `me
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_hemo_a1c', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::648.02');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_hemo_a1c', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::648.03');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_hemo_a1c', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::648.04');
+
 -- Diabetes: Urine Microalbumin
+
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_urine_alb', 1, 0, 'filt_lists', 'medical_problem', 'CUSTOM::diabetes');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_urine_alb', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::250');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_urine_alb', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::250.0');
@@ -6232,7 +6623,9 @@ INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `me
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_urine_alb', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::648.02');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_urine_alb', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::648.03');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_urine_alb', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::648.04');
+
 -- Diabetes: Eye Exam
+
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_eye', 1, 0, 'filt_lists', 'medical_problem', 'CUSTOM::diabetes');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_eye', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::250');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_eye', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::250.0');
@@ -6294,7 +6687,9 @@ INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `me
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_eye', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::648.02');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_eye', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::648.03');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_eye', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::648.04');
+
 -- Diabetes: Foot Exam
+
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_foot', 1, 0, 'filt_lists', 'medical_problem', 'CUSTOM::diabetes');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_foot', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::250');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_foot', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::250.0');
@@ -6356,24 +6751,37 @@ INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `me
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_foot', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::648.02');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_foot', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::648.03');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_dm_foot', 1, 0, 'filt_lists', 'medical_problem', 'ICD9::648.04');
+
 -- Cancer Screening: Mammogram
+
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_cs_mammo', 1, 1, 'filt_age_min', 'year', '40');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_cs_mammo', 1, 1, 'filt_sex', '', 'Female');
+
 -- Cancer Screening: Pap Smear
+
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_cs_pap', 1, 1, 'filt_age_min', 'year', '18');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_cs_pap', 1, 1, 'filt_sex', '', 'Female');
+
 -- Cancer Screening: Colon Cancer Screening
+
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_cs_colon', 1, 1, 'filt_age_min', 'year', '50');
+
 -- Cancer Screening: Prostate Cancer Screening
+
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_cs_prostate', 1, 1, 'filt_age_min', 'year', '50');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_cs_prostate', 1, 1, 'filt_sex', '', 'Male');
+
 --
 -- Rule filters to specifically demonstrate passing of NIST criteria
 --
 -- Coumadin Management - INR Monitoring
+--
+
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_inr_monitor', 1, 0, 'filt_lists', 'medication', 'coumadin');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_inr_monitor', 1, 0, 'filt_lists', 'medication', 'warfarin');
+
 -- Penicillin Allergy Assessment
+
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_penicillin_allergy', 1, 0, 'filt_lists', 'allergy', 'penicillin');
 
 -----------------------------------------------------------
@@ -6625,7 +7033,7 @@ CREATE TABLE `sequences` (
 ) ENGINE=InnoDB;
 
 --
--- Dumping data for table `sequences`
+-- Inserting data for table `sequences`
 --
 
 INSERT INTO `sequences` VALUES (1);
@@ -6647,7 +7055,7 @@ CREATE TABLE `supported_external_dataloads` (
 ) ENGINE=InnoDB;
 
 --
--- Dumping data for table `supported_external_dataloads`
+-- Inserting data for table `supported_external_dataloads`
 --
 
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
@@ -6734,6 +7142,8 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 ('ICD10', 'CMS', '2017-10-01', '2018-ICD-10-PCS-General-Equivalence-Mappings.zip', 'bb73c80e272da28712887d7979b1cebf');
 
 -----------------------------------------------------------
+
+--
 -- Table structure for table `transactions`
 --
 
@@ -6820,17 +7230,19 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
 --
--- Dumping data for table `users`
+-- Inserting data for table `users`
 --
 -- NOTE THIS IS DONE AFTER INSTALLATION WHERE THE sql/official_additional_users.sql script is called durig setup
 --  (so these inserts can be found in the sql/official_additional_users.sql script)
-
+--
 
 -----------------------------------------------------------
 
 --
 -- Table structure for table `user_secure`
 --
+
+DROP TABLE IF EXISTS `users_secure`;
 CREATE TABLE `users_secure` (
   `id` bigint(20) NOT NULL,
   `username` varchar(255) DEFAULT NULL,
@@ -6851,6 +7263,7 @@ CREATE TABLE `users_secure` (
 -- Table structure for table `user_settings`
 --
 
+DROP TABLE IF EXISTS `user_settings`;
 CREATE TABLE `user_settings` (
   `setting_user`  bigint(20)   NOT NULL DEFAULT 0,
   `setting_label` varchar(100)  NOT NULL,
@@ -6859,7 +7272,7 @@ CREATE TABLE `user_settings` (
 ) ENGINE=InnoDB;
 
 --
--- Dumping data for table `user_settings`
+-- Inserting data for table `user_settings`
 --
 
 INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'allergy_ps_expand', '1');
@@ -6934,6 +7347,8 @@ CREATE TABLE `x12_partners` (
 ) ENGINE=InnoDB;
 
 --------------------------------------------------------------------------------------
+
+--
 -- Table structure for table `automatic_notification`
 --
 
@@ -6953,7 +7368,7 @@ CREATE TABLE `automatic_notification` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 ;
 
 --
--- Dumping data for table `automatic_notification`
+-- Inserting data for table `automatic_notification`
 --
 
 INSERT INTO `automatic_notification` (`notification_id`, `sms_gateway_type`, `next_app_date`, `next_app_time`, `provider_name`, `message`, `email_sender`, `email_subject`, `type`, `notification_sent_date`) VALUES (1, 'CLICKATELL', '0000-00-00', ':', 'EMR GROUP 1 .. SMS', 'Welcome to EMR GROUP 1.. SMS', '', '', 'SMS', '0000-00-00 00:00:00'),
@@ -7004,13 +7419,18 @@ CREATE TABLE `notification_settings` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 ;
 
 --
--- Dumping data for table `notification_settings`
+-- Inserting data for table `notification_settings`
 --
 
 INSERT INTO `notification_settings` (`SettingsId`, `Send_SMS_Before_Hours`, `Send_Email_Before_Hours`, `SMS_gateway_username`, `SMS_gateway_password`, `SMS_gateway_apikey`, `type`) VALUES (1, 150, 150, 'sms username', 'sms password', 'sms api key', 'SMS/Email Settings');
 
 ----------------------------------------------------------------------
 
+--
+-- Table structure for table `chart_tracker`
+--
+
+DROP TABLE IF EXISTS `chart_tracker`;
 CREATE TABLE chart_tracker (
   ct_pid            int(11)       NOT NULL,
   ct_when           datetime      NOT NULL,
@@ -7019,6 +7439,13 @@ CREATE TABLE chart_tracker (
   PRIMARY KEY (ct_pid, ct_when)
 ) ENGINE=InnoDB;
 
+--------------------------------------------------------------------------------------
+
+--
+-- Table structure for table `ar_session`
+--
+
+DROP TABLE IF EXISTS `ar_session`;
 CREATE TABLE ar_session (
   session_id     int unsigned  NOT NULL AUTO_INCREMENT,
   payer_id       int(11)       NOT NULL            COMMENT '0=pt else references insurance_companies.id',
@@ -7042,6 +7469,13 @@ CREATE TABLE ar_session (
   KEY deposit_date (deposit_date)
 ) ENGINE=InnoDB;
 
+--------------------------------------------------------------------------------------
+
+--
+-- Table structure for table `ar_activity`
+--
+
+DROP TABLE IF EXISTS `ar_activity`;
 CREATE TABLE ar_activity (
   pid            int(11)       NOT NULL,
   encounter      int(11)       NOT NULL,
@@ -7065,6 +7499,13 @@ CREATE TABLE ar_activity (
   KEY session_id (session_id)
 ) ENGINE=InnoDB;
 
+--------------------------------------------------------------------------------------
+
+--
+-- Table structure for table `users_facility`
+--
+
+DROP TABLE IF EXISTS `users_facility`;
 CREATE TABLE `users_facility` (
   `tablename` varchar(64) NOT NULL,
   `table_id` int(11) NOT NULL,
@@ -7072,6 +7513,13 @@ CREATE TABLE `users_facility` (
   PRIMARY KEY (`tablename`,`table_id`,`facility_id`)
 ) ENGINE=InnoDB COMMENT='joins users or patient_data to facility table';
 
+--------------------------------------------------------------------------------------
+
+--
+-- Table structure for table `lbf_data`
+--
+
+DROP TABLE IF EXISTS `lbf_data`;
 CREATE TABLE `lbf_data` (
   `form_id`     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'references forms.form_id',
   `field_id`    varchar(31)  NOT NULL COMMENT 'references layout_options.field_id',
@@ -7079,6 +7527,13 @@ CREATE TABLE `lbf_data` (
   PRIMARY KEY (`form_id`,`field_id`)
 ) ENGINE=InnoDB COMMENT='contains all data from layout-based forms';
 
+--------------------------------------------------------------------------------------
+
+--
+-- Table structure for table `lbt_data`
+--
+
+DROP TABLE IF EXISTS `lbt_data`;
 CREATE TABLE `lbt_data` (
   `form_id`     bigint(20)   NOT NULL COMMENT 'references transactions.id',
   `field_id`    varchar(31)  NOT NULL COMMENT 'references layout_options.field_id',
@@ -7086,6 +7541,13 @@ CREATE TABLE `lbt_data` (
   PRIMARY KEY (`form_id`,`field_id`)
 ) ENGINE=InnoDB COMMENT='contains all data from layout-based transactions';
 
+--------------------------------------------------------------------------------------
+
+--
+-- Table structure for table `gprelations`
+--
+
+DROP TABLE IF EXISTS `gprelations`;
 CREATE TABLE gprelations (
   type1 int(2)     NOT NULL,
   id1   bigint(20) NOT NULL,
@@ -7095,6 +7557,13 @@ CREATE TABLE gprelations (
   KEY key2  (type2,id2)
 ) ENGINE=InnoDB COMMENT='general purpose relations';
 
+--------------------------------------------------------------------------------------
+
+--
+-- Table structure for table `procedure_providers`
+--
+
+DROP TABLE IF EXISTS `procedure_providers`;
 CREATE TABLE `procedure_providers` (
   `ppid`         bigint(20)   NOT NULL auto_increment,
   `name`         varchar(255) NOT NULL DEFAULT '',
@@ -7116,6 +7585,13 @@ CREATE TABLE `procedure_providers` (
   PRIMARY KEY (`ppid`)
 ) ENGINE=InnoDB;
 
+--------------------------------------------------------------------------------------
+
+--
+-- Table structure for table `procedure_type`
+--
+
+DROP TABLE IF EXISTS `procedure_type`;
 CREATE TABLE `procedure_type` (
   `procedure_type_id`   bigint(20)   NOT NULL AUTO_INCREMENT,
   `parent`              bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references procedure_type.procedure_type_id',
@@ -7139,6 +7615,13 @@ CREATE TABLE `procedure_type` (
   KEY parent (parent)
 ) ENGINE=InnoDB;
 
+--------------------------------------------------------------------------------------
+
+--
+-- Table structure for table `procedure_questions`
+--
+
+DROP TABLE IF EXISTS `procedure_questions`;
 CREATE TABLE `procedure_questions` (
   `lab_id`              bigint(20)   NOT NULL DEFAULT 0   COMMENT 'references procedure_providers.ppid to identify the lab',
   `procedure_code`      varchar(31)  NOT NULL DEFAULT ''  COMMENT 'references procedure_type.procedure_code to identify this order type',
@@ -7154,6 +7637,13 @@ CREATE TABLE `procedure_questions` (
   PRIMARY KEY (`lab_id`, `procedure_code`, `question_code`)
 ) ENGINE=InnoDB;
 
+--------------------------------------------------------------------------------------
+
+--
+-- Table structure for table `procedure_order`
+--
+
+DROP TABLE IF EXISTS `procedure_order`;
 CREATE TABLE `procedure_order` (
   `procedure_order_id`     bigint(20)   NOT NULL AUTO_INCREMENT,
   `provider_id`            bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references users.id, the ordering provider',
@@ -7179,6 +7669,13 @@ CREATE TABLE `procedure_order` (
   KEY `patient_id` (`patient_id`)
 ) ENGINE=InnoDB;
 
+--------------------------------------------------------------------------------------
+
+--
+-- Table structure for table `procedure_order_code`
+--
+
+DROP TABLE IF EXISTS `procedure_order_code`;
 CREATE TABLE `procedure_order_code` (
   `procedure_order_id`  bigint(20)  NOT NULL                COMMENT 'references procedure_order.procedure_order_id',
   `procedure_order_seq` int(11)     NOT NULL COMMENT 'Supports multiple tests per order. Procedure_order_seq, incremented in code',
@@ -7191,6 +7688,13 @@ CREATE TABLE `procedure_order_code` (
   PRIMARY KEY (`procedure_order_id`, `procedure_order_seq`)
 ) ENGINE=InnoDB;
 
+--------------------------------------------------------------------------------------
+
+--
+-- Table structure for table `procedure_answers`
+--
+
+DROP TABLE IF EXISTS `procedure_answers`;
 CREATE TABLE `procedure_answers` (
   `procedure_order_id`  bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references procedure_order.procedure_order_id',
   `procedure_order_seq` int(11)      NOT NULL DEFAULT 0  COMMENT 'references procedure_order_code.procedure_order_seq',
@@ -7200,6 +7704,13 @@ CREATE TABLE `procedure_answers` (
   PRIMARY KEY (`procedure_order_id`, `procedure_order_seq`, `question_code`, `answer_seq`)
 ) ENGINE=InnoDB;
 
+--------------------------------------------------------------------------------------
+
+--
+-- Table structure for table `procedure_report`
+--
+
+DROP TABLE IF EXISTS `procedure_report`;
 CREATE TABLE `procedure_report` (
   `procedure_report_id` bigint(20)     NOT NULL AUTO_INCREMENT,
   `procedure_order_id`  bigint(20)     DEFAULT NULL   COMMENT 'references procedure_order.procedure_order_id',
@@ -7217,6 +7728,13 @@ CREATE TABLE `procedure_report` (
   KEY procedure_order_id (procedure_order_id)
 ) ENGINE=InnoDB;
 
+--------------------------------------------------------------------------------------
+
+--
+-- Table structure for table `procedure_result`
+--
+
+DROP TABLE IF EXISTS `procedure_result`;
 CREATE TABLE `procedure_result` (
   `procedure_result_id` bigint(20)   NOT NULL AUTO_INCREMENT,
   `procedure_report_id` bigint(20)   NOT NULL            COMMENT 'references procedure_report.procedure_report_id',
@@ -7236,6 +7754,13 @@ CREATE TABLE `procedure_result` (
   KEY procedure_report_id (procedure_report_id)
 ) ENGINE=InnoDB;
 
+--------------------------------------------------------------------------------------
+
+--
+-- Table structure for table `globals`
+--
+
+DROP TABLE IF EXISTS `globals`;
 CREATE TABLE `globals` (
   `gl_name`             varchar(63)    NOT NULL,
   `gl_index`            int(11)        NOT NULL DEFAULT 0,
@@ -7243,6 +7768,13 @@ CREATE TABLE `globals` (
   PRIMARY KEY (`gl_name`, `gl_index`)
 ) ENGINE=InnoDB;
 
+--------------------------------------------------------------------------------------
+
+--
+-- Table structure for table `code_types`
+--
+
+DROP TABLE IF EXISTS `code_types`;
 CREATE TABLE code_types (
   ct_key  varchar(15) NOT NULL           COMMENT 'short alphanumeric name',
   ct_id   int(11)     UNIQUE NOT NULL    COMMENT 'numeric identifier',
@@ -7755,7 +8287,7 @@ INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUE
 INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','marshall','1932-3','Marshall', '0',4550);
 INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','marshallese','2090-9','Marshallese', '0',4560);
 INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','marshantucket_pequot','1454-8','Marshantucket Pequot', '0',4570);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','marys_igloo','1889-5',"Mary's Igloo", '0',4580);
+INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','marys_igloo','1889-5',"Mary\'s Igloo", '0',4580);
 INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mashpee_wampanoag','1681-6','Mashpee Wampanoag', '0',4590);
 INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','matinecock','1326-8','Matinecock', '0',4600);
 INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mattaponi','1354-0','Mattaponi', '0',4610);
@@ -8249,10 +8781,8 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `ac
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform_groups','/interface/main/calendar/add_edit_event.php?group=true',150, '{form_group:{presence: true}}', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform_prov', '/interface/main/calendar/add_edit_event.php?prov=true', 170, '{}',  1);
 
-
-
-
 -- list_options for `form_eye_mag`
+
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'    ,'CTLManufacturer', 'Eye Contact Lens Manufacturer list', 1, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLManufacturer', 'BNL', 'Bausch&Lomb', 10, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLManufacturer', 'CibaVision', 'Ciba Vision', 20, 0);
@@ -8880,7 +9410,6 @@ INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, 
 
 -----------------------------------------------------------
 
------------------------------------------------------------
 --
 -- Table structure for table `extended_log`
 --
@@ -8898,6 +9427,13 @@ CREATE TABLE `extended_log` (
   KEY `patient_id` (`patient_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
+-----------------------------------------------------------
+
+--
+-- Table structure for table `version`
+--
+
+DROP TABLE IF EXISTS `version`;
 CREATE TABLE version (
   v_major    int(11)     NOT NULL DEFAULT 0,
   v_minor    int(11)     NOT NULL DEFAULT 0,
@@ -8907,13 +9443,20 @@ CREATE TABLE version (
   v_database int(11)     NOT NULL DEFAULT 0,
   v_acl      int(11)     NOT NULL DEFAULT 0
 ) ENGINE=InnoDB;
+
+--
+-- Inserting data for table `version`
+--
+
 INSERT INTO version (v_major, v_minor, v_patch, v_realpatch, v_tag, v_database, v_acl) VALUES (0, 0, 0, 0, '', 0, 0);
+
 -----------------------------------------------------------
 
 --
 -- Table structure for table `customlists`
 --
 
+DROP TABLE IF EXISTS `customlists`;
 CREATE TABLE `customlists` (
   `cl_list_slno` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `cl_list_id` int(10) unsigned NOT NULL COMMENT 'ID OF THE lIST FOR NEW TAKE SELECT MAX(cl_list_id)+1',
@@ -8927,16 +9470,23 @@ CREATE TABLE `customlists` (
   `cl_creator` int(11) DEFAULT NULL,
   PRIMARY KEY (`cl_list_slno`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
+
+--
+-- Inserting data for table `customlists`
+--
+
 INSERT INTO customlists(cl_list_id,cl_list_type,cl_list_item_long) VALUES (1,2,'Subjective');
 INSERT INTO customlists(cl_list_id,cl_list_type,cl_list_item_long) VALUES (2,2,'Objective');
 INSERT INTO customlists(cl_list_id,cl_list_type,cl_list_item_long) VALUES (3,2,'Assessment');
 INSERT INTO customlists(cl_list_id,cl_list_type,cl_list_item_long) VALUES (4,2,'Plan');
+
 -----------------------------------------------------------
 
 --
 -- Table structure for table `template_users`
 --
 
+DROP TABLE IF EXISTS `template_users`;
 CREATE TABLE `template_users` (
   `tu_id` int(11) NOT NULL AUTO_INCREMENT,
   `tu_user_id` int(11) DEFAULT NULL,
@@ -8947,6 +9497,13 @@ CREATE TABLE `template_users` (
   UNIQUE KEY `templateuser` (`tu_user_id`,`tu_template_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
+-----------------------------------------------------------
+
+--
+-- Table structure for table `product_warehouse`
+--
+
+DROP TABLE IF EXISTS `product_warehouse`;
 CREATE TABLE `product_warehouse` (
   `pw_drug_id`   int(11) NOT NULL,
   `pw_warehouse` varchar(31) NOT NULL,
@@ -8961,6 +9518,7 @@ CREATE TABLE `product_warehouse` (
 -- Table structure for table `misc_address_book`
 --
 
+DROP TABLE IF EXISTS `misc_address_book`;
 CREATE TABLE `misc_address_book` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `fname` varchar(255) DEFAULT NULL,
@@ -8976,11 +9534,11 @@ CREATE TABLE `misc_address_book` (
 
 -----------------------------------------------------------
 
------------------------------------------------------------
 --
 -- Table structure for table `esign_signatures`
 --
 
+DROP TABLE IF EXISTS `esign_signatures`;
 CREATE TABLE `esign_signatures` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `tid` int(11) NOT NULL COMMENT 'Table row ID for signature',
@@ -8996,6 +9554,8 @@ CREATE TABLE `esign_signatures` (
   KEY `table` (`table`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
+-----------------------------------------------------------
+
 --
 -- Table structure for table `log_comment_encrypt`
 --
@@ -9009,6 +9569,13 @@ CREATE TABLE IF NOT EXISTS `log_comment_encrypt` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
+-----------------------------------------------------------
+
+--
+-- Table structure for table `shared_attributes`
+--
+
+DROP TABLE IF EXISTS `shared_attributes`;
 CREATE TABLE `shared_attributes` (
   `pid`          bigint(20)   NOT NULL,
   `encounter`    bigint(20)   NOT NULL COMMENT '0 if patient attribute, else encounter attribute',
@@ -9021,10 +9588,11 @@ CREATE TABLE `shared_attributes` (
 
 -----------------------------------------------------------
 
------------------------------------------------------------
 --
 -- Table structure for table `ccda_components`
 --
+
+DROP TABLE IF EXISTS `ccda_components`;
 CREATE TABLE ccda_components (
   ccda_components_id int(11) NOT NULL AUTO_INCREMENT,
   ccda_components_field varchar(100) DEFAULT NULL,
@@ -9032,35 +9600,41 @@ CREATE TABLE ccda_components (
   ccda_type int(11) NOT NULL COMMENT '0=>sections,1=>components',
   PRIMARY KEY (ccda_components_id)
 ) ENGINE=InnoDB AUTO_INCREMENT=23 ;
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('1','progress_note','Progress Notes',0);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('2','consultation_note','Consultation Note',0);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('3','continuity_care_document','Continuity Care Document',0);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('4','diagnostic_image_reporting','Diagnostic Image Reporting',0);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('5','discharge_summary','Discharge Summary',0);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('6','history_physical_note','History and Physical Note',0);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('7','operative_note','Operative Note',0);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('8','procedure_note','Procedure Note',0);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('9','unstructured_document','Unstructured Document',0);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('10','allergies','Allergies',1);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('11','medications','Medications',1);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('12','problems','Problems',1);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('13','immunizations','Immunizations',1);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('14','procedures','Procedures',1);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('15','results','Results',1);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('16','plan_of_care','Plan Of Care',1);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('17','vitals','Vitals',1);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('18','social_history','Social History',1);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('19','encounters','Encounters',1);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('20','functional_status','Functional Status',1);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('21','referral','Reason for Referral',1);
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('22','instructions','Instructions',1);
+
+--
+-- Inserting data for table `ccda_components`
+--
+
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('1','progress_note','Progress Notes',0);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('2','consultation_note','Consultation Note',0);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('3','continuity_care_document','Continuity Care Document',0);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('4','diagnostic_image_reporting','Diagnostic Image Reporting',0);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('5','discharge_summary','Discharge Summary',0);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('6','history_physical_note','History and Physical Note',0);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('7','operative_note','Operative Note',0);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('8','procedure_note','Procedure Note',0);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('9','unstructured_document','Unstructured Document',0);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('10','allergies','Allergies',1);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('11','medications','Medications',1);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('12','problems','Problems',1);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('13','immunizations','Immunizations',1);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('14','procedures','Procedures',1);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('15','results','Results',1);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('16','plan_of_care','Plan Of Care',1);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('17','vitals','Vitals',1);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('18','social_history','Social History',1);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('19','encounters','Encounters',1);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('20','functional_status','Functional Status',1);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('21','referral','Reason for Referral',1);
+INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('22','instructions','Instructions',1);
+
 -----------------------------------------------------------
 
-
------------------------------------------------------------
 --
 -- Table structure for table `ccda_sections`
 --
+
+DROP TABLE IF EXISTS `ccda_sections`;
 CREATE TABLE ccda_sections (
   ccda_sections_id int(11) NOT NULL AUTO_INCREMENT,
   ccda_components_id int(11) DEFAULT NULL,
@@ -9069,68 +9643,75 @@ CREATE TABLE ccda_sections (
   ccda_sections_req_mapping tinyint(4) NOT NULL DEFAULT '1',
   PRIMARY KEY (ccda_sections_id)
 ) ENGINE=InnoDB AUTO_INCREMENT=46 ;
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('1','1','assessment_plan','Assessment and Plan','1');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('2','2','assessment_plan','Assessment and Plan','1');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('3','2','history_of_present_illness','History of Present Illness','1');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('4','2','physical_exam','Physical Exam','1');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('5','2','reason_of_visit','Reason for Referral/Reason for Visit','1');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('6','3','allergies','Allergies','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('7','3','medications','Medications','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('8','3','problem_list','Problem List','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('9','3','procedures','Procedures','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('10','3','results','Results','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('11','4','report','Report','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('12','5','allergies','Allergies','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('13','5','hospital_course','Hospital Course','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('14','5','hospital_discharge_diagnosis','Hospital Discharge Diagnosis','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('15','5','hospital_discharge_medications','Hospital Discharge Medications','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('16','5','plan_of_care','Plan of Care','1');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('17','6','allergies','Allergies','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('19','6','chief_complaint','Chief Complaint / Reason for Visit','1');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('21','6','family_history','Family History','1');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('22','6','general_status','General Status','1');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('23','6','hpi_past_med','History of Past Illness (Past Medical History)','1');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('24','6','hpi','History of Present Illness','1');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('25','6','medications','Medications','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('26','6','physical_exam','Physical Exam','1');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('28','6','results','Results','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('29','6','review_of_systems','Review of Systems','1');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('30','6','social_history','Social History','1');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('31','6','vital_signs','Vital Signs','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('32','7','anesthesia','Anesthesia','1');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('33','7','complications','Complications','1');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('34','7','post_operative_diagnosis','Post Operative Diagnosis','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('35','7','pre_operative_diagnosis','Pre Operative Diagnosis','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('36','7','procedure_estimated_blood_loss','Procedure Estimated Blood Loss','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('37','7','procedure_findings','Procedure Findings','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('38','7','procedure_specimens_taken','Procedure Specimens Taken','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('39','7','procedure_description','Procedure Description','1');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('40','8','assessment_plan','Assessment and Plan','1');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('41','8','complications','Complications','1');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('42','8','postprocedure_diagnosis','Postprocedure Diagnosis','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('43','8','procedure_description','Procedure Description','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('44','8','procedure_indications','Procedure Indications','0');
-insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('45','9','unstructured_doc','Document','0');
+
+--
+-- Inserting data for table `ccda_sections`
+--
+
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('1','1','assessment_plan','Assessment and Plan','1');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('2','2','assessment_plan','Assessment and Plan','1');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('3','2','history_of_present_illness','History of Present Illness','1');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('4','2','physical_exam','Physical Exam','1');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('5','2','reason_of_visit','Reason for Referral/Reason for Visit','1');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('6','3','allergies','Allergies','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('7','3','medications','Medications','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('8','3','problem_list','Problem List','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('9','3','procedures','Procedures','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('10','3','results','Results','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('11','4','report','Report','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('12','5','allergies','Allergies','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('13','5','hospital_course','Hospital Course','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('14','5','hospital_discharge_diagnosis','Hospital Discharge Diagnosis','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('15','5','hospital_discharge_medications','Hospital Discharge Medications','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('16','5','plan_of_care','Plan of Care','1');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('17','6','allergies','Allergies','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('19','6','chief_complaint','Chief Complaint / Reason for Visit','1');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('21','6','family_history','Family History','1');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('22','6','general_status','General Status','1');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('23','6','hpi_past_med','History of Past Illness (Past Medical History)','1');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('24','6','hpi','History of Present Illness','1');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('25','6','medications','Medications','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('26','6','physical_exam','Physical Exam','1');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('28','6','results','Results','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('29','6','review_of_systems','Review of Systems','1');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('30','6','social_history','Social History','1');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('31','6','vital_signs','Vital Signs','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('32','7','anesthesia','Anesthesia','1');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('33','7','complications','Complications','1');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('34','7','post_operative_diagnosis','Post Operative Diagnosis','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('35','7','pre_operative_diagnosis','Pre Operative Diagnosis','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('36','7','procedure_estimated_blood_loss','Procedure Estimated Blood Loss','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('37','7','procedure_findings','Procedure Findings','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('38','7','procedure_specimens_taken','Procedure Specimens Taken','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('39','7','procedure_description','Procedure Description','1');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('40','8','assessment_plan','Assessment and Plan','1');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('41','8','complications','Complications','1');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('42','8','postprocedure_diagnosis','Postprocedure Diagnosis','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('43','8','procedure_description','Procedure Description','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('44','8','procedure_indications','Procedure Indications','0');
+INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('45','9','unstructured_doc','Document','0');
+
 -----------------------------------------------------------
 
-
------------------------------------------------------------
 --
 -- Table structure for table `ccda_field_mapping`
 --
+
+DROP TABLE IF EXISTS `ccda_field_mapping`;
 CREATE TABLE ccda_field_mapping (
   id int(11) NOT NULL AUTO_INCREMENT,
   table_id int(11) DEFAULT NULL,
   ccda_field varchar(100) DEFAULT NULL,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
------------------------------------------------------------
-
 
 -----------------------------------------------------------
+
 --
 -- Table structure for table `ccda`
 --
+
+DROP TABLE IF EXISTS `ccda`;
 CREATE TABLE ccda (
   id INT(11) NOT NULL AUTO_INCREMENT,
   pid BIGINT(20) DEFAULT NULL,
@@ -9148,13 +9729,14 @@ CREATE TABLE ccda (
   PRIMARY KEY (id),
   UNIQUE KEY unique_key (pid,encounter,time)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
------------------------------------------------------------
-
 
 -----------------------------------------------------------
+
 --
 -- Table structure for table `ccda_table_mapping`
 --
+
+DROP TABLE IF EXISTS `ccda_table_mapping`;
 CREATE TABLE ccda_table_mapping (
   id int(11) NOT NULL AUTO_INCREMENT,
   ccda_component varchar(100) DEFAULT NULL,
@@ -9167,12 +9749,14 @@ CREATE TABLE ccda_table_mapping (
   timestamp timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
------------------------------------------------------------
 
 -----------------------------------------------------------
+
 --
 -- Table structure for table `external_procedures`
 --
+
+DROP TABLE IF EXISTS `external_procedures`;
 CREATE TABLE `external_procedures` (
   `ep_id` int(11) NOT NULL AUTO_INCREMENT,
   `ep_date` date DEFAULT NULL,
@@ -9185,12 +9769,14 @@ CREATE TABLE `external_procedures` (
   `ep_external_id` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`ep_id`)
 ) ENGINE=InnoDB;
------------------------------------------------------------
 
 -----------------------------------------------------------
+
 --
 -- Table structure for table `external_encounters`
 --
+
+DROP TABLE IF EXISTS `external_encounters`;
 CREATE TABLE `external_encounters` (
   `ee_id` int(11) NOT NULL AUTO_INCREMENT,
   `ee_date` date DEFAULT NULL,
@@ -9201,12 +9787,14 @@ CREATE TABLE `external_encounters` (
   `ee_external_id` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`ee_id`)
 ) ENGINE=InnoDB;
------------------------------------------------------------
 
 -----------------------------------------------------------
+
 --
 -- Table structure for table `form_care_plan`
 --
+
+DROP TABLE IF EXISTS `form_care_plan`;
 CREATE TABLE `form_care_plan` (
   `id` bigint(20) NOT NULL,
   `date` date DEFAULT NULL,
@@ -9222,12 +9810,14 @@ CREATE TABLE `form_care_plan` (
   `external_id` varchar(30) DEFAULT NULL,
   `care_plan_type` varchar(30) DEFAULT NULL
 ) ENGINE=InnoDB;
------------------------------------------------------------
 
 -----------------------------------------------------------
+
 --
 -- Table structure for table `form_functional_cognitive_status`
 --
+
+DROP TABLE IF EXISTS `form_functional_cognitive_status`;
 CREATE TABLE `form_functional_cognitive_status` (
   `id` bigint(20) NOT NULL,
   `date` date DEFAULT NULL,
@@ -9242,12 +9832,14 @@ CREATE TABLE `form_functional_cognitive_status` (
   `description` text,
   `external_id` varchar(30) DEFAULT NULL
 ) ENGINE=InnoDB;
------------------------------------------------------------
 
 -----------------------------------------------------------
+
 --
 -- Table structure for table `form_observation`
 --
+
+DROP TABLE IF EXISTS `form_observation`;
 CREATE TABLE `form_observation` (
   `id` bigint(20) NOT NULL,
   `date` DATE DEFAULT NULL,
@@ -9265,12 +9857,14 @@ CREATE TABLE `form_observation` (
   `code_type` varchar(255),
   `table_code` varchar(255)
 ) ENGINE=InnoDB;
------------------------------------------------------------
 
 -----------------------------------------------------------
+
 --
 -- Table structure for table `form_clinical_instructions`
 --
+
+DROP TABLE IF EXISTS `form_clinical_instructions`;
 CREATE TABLE `form_clinical_instructions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `pid` bigint(20) DEFAULT NULL,
@@ -9281,12 +9875,14 @@ CREATE TABLE `form_clinical_instructions` (
   `activity` TINYINT DEFAULT 1 NULL,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB;
------------------------------------------------------------
 
 -----------------------------------------------------------
+
 --
 -- Table structure for table 'valueset'
 --
+
+DROP TABLE IF EXISTS `valueset`;
 CREATE TABLE `valueset` (
   `nqf_code` varchar(255) NOT NULL DEFAULT '',
   `code` varchar(255) NOT NULL DEFAULT '',
@@ -9298,9 +9894,13 @@ CREATE TABLE `valueset` (
   PRIMARY KEY (`nqf_code`,`code`,`valueset`)
 ) ENGINE=InnoDB;
 
--- ------------------------------------------------------
+---------------------------------------------------------
+
+--
 -- Table structure for table `immunization_observation`
 --
+
+DROP TABLE IF EXISTS `immunization_observation`;
 CREATE TABLE `immunization_observation` (
   `imo_id` int(11) NOT NULL AUTO_INCREMENT,
   `imo_im_id` int(11) NOT NULL,
@@ -9316,11 +9916,14 @@ CREATE TABLE `immunization_observation` (
   `imo_date_observation` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`imo_id`)
 ) ENGINE=InnoDB;
+
 -----------------------------------------------------------
------------------------------------------------------------
+
 --
 -- Table structure for table 'calendar external'
 --
+
+DROP TABLE IF EXISTS `calendar_external`;
 CREATE TABLE calendar_external (
   `id` INT NOT NULL AUTO_INCREMENT,
   `date` DATE NOT NULL,
@@ -9329,440 +9932,454 @@ CREATE TABLE calendar_external (
   PRIMARY KEY (`id`)) ENGINE=InnoDB;
 
 -----------------------------------------------------------
+
 --
--- Tables for Eye Module
+-- Table structure for table `form_eye_mag_dispense`
 --
+
 DROP TABLE IF EXISTS `form_eye_mag_dispense`;
 CREATE TABLE `form_eye_mag_dispense` (
-`id` bigint(20) NOT NULL AUTO_INCREMENT,
-`date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-`encounter` bigint(20) NULL,
-`pid` bigint(20) DEFAULT NULL,
-`user` varchar(255) DEFAULT NULL,
-`groupname` varchar(255) DEFAULT NULL,
-`authorized` tinyint(4) DEFAULT NULL,
-`activity` tinyint(4) DEFAULT NULL,
-`REFDATE` DATETIME NULL DEFAULT NULL,
-`REFTYPE` varchar(10) DEFAULT NULL,
-`RXTYPE` varchar(20)DEFAULT NULL,
-`ODSPH` varchar(10) DEFAULT NULL,
-`ODCYL` varchar(10) DEFAULT NULL,
-`ODAXIS` varchar(10) DEFAULT NULL,
-`OSSPH` varchar(10) DEFAULT NULL,
-`OSCYL` varchar(10) DEFAULT NULL,
-`OSAXIS` varchar(10) DEFAULT NULL,
-`ODMIDADD` varchar(10) DEFAULT NULL,
-`OSMIDADD` varchar(10) DEFAULT NULL,
-`ODADD` varchar(10) DEFAULT NULL,
-`OSADD` varchar(10) DEFAULT NULL,
-`ODHPD` varchar(20) DEFAULT NULL,
-`ODHBASE` varchar(20) DEFAULT NULL,
-`ODVPD` varchar(20) DEFAULT NULL,
-`ODVBASE` varchar(20) DEFAULT NULL,
-`ODSLABOFF` varchar(20) DEFAULT NULL,
-`ODVERTEXDIST` varchar(20) DEFAULT NULL,
-`OSHPD` varchar(20) DEFAULT NULL,
-`OSHBASE` varchar(20) DEFAULT NULL,
-`OSVPD` varchar(20) DEFAULT NULL,
-`OSVBASE` varchar(20) DEFAULT NULL,
-`OSSLABOFF` varchar(20) DEFAULT NULL,
-`OSVERTEXDIST` varchar(20) DEFAULT NULL,
-`ODMPDD` varchar(20) DEFAULT NULL,
-`ODMPDN` varchar(20) DEFAULT NULL,
-`OSMPDD` varchar(20) DEFAULT NULL,
-`OSMPDN` varchar(20) DEFAULT NULL,
-`BPDD` varchar(20) DEFAULT NULL,
-`BPDN` varchar(20) DEFAULT NULL,
-`LENS_MATERIAL` varchar(20) DEFAULT NULL,
-`LENS_TREATMENTS` varchar(100) DEFAULT NULL,
-`CTLMANUFACTUREROD` varchar(25) DEFAULT NULL,
-`CTLMANUFACTUREROS` varchar(25) DEFAULT NULL,
-`CTLSUPPLIEROD` varchar(25) DEFAULT NULL,
-`CTLSUPPLIEROS` varchar(25) DEFAULT NULL,
-`CTLBRANDOD` varchar(50) DEFAULT NULL,
-`CTLBRANDOS` varchar(50) DEFAULT NULL,
-`ODDIAM` varchar(50) DEFAULT NULL,
-`ODBC` varchar(50) DEFAULT NULL,
-`OSDIAM` varchar(50) DEFAULT NULL,
-`OSBC` varchar(50) DEFAULT NULL,
-`RXCOMMENTS` text,
-`COMMENTS` text,
-PRIMARY KEY (`id`),
-UNIQUE KEY `pid` (`pid`,`encounter`,`id`)
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `encounter` bigint(20) NULL,
+  `pid` bigint(20) DEFAULT NULL,
+  `user` varchar(255) DEFAULT NULL,
+  `groupname` varchar(255) DEFAULT NULL,
+  `authorized` tinyint(4) DEFAULT NULL,
+  `activity` tinyint(4) DEFAULT NULL,
+  `REFDATE` DATETIME NULL DEFAULT NULL,
+  `REFTYPE` varchar(10) DEFAULT NULL,
+  `RXTYPE` varchar(20)DEFAULT NULL,
+  `ODSPH` varchar(10) DEFAULT NULL,
+  `ODCYL` varchar(10) DEFAULT NULL,
+  `ODAXIS` varchar(10) DEFAULT NULL,
+  `OSSPH` varchar(10) DEFAULT NULL,
+  `OSCYL` varchar(10) DEFAULT NULL,
+  `OSAXIS` varchar(10) DEFAULT NULL,
+  `ODMIDADD` varchar(10) DEFAULT NULL,
+  `OSMIDADD` varchar(10) DEFAULT NULL,
+  `ODADD` varchar(10) DEFAULT NULL,
+  `OSADD` varchar(10) DEFAULT NULL,
+  `ODHPD` varchar(20) DEFAULT NULL,
+  `ODHBASE` varchar(20) DEFAULT NULL,
+  `ODVPD` varchar(20) DEFAULT NULL,
+  `ODVBASE` varchar(20) DEFAULT NULL,
+  `ODSLABOFF` varchar(20) DEFAULT NULL,
+  `ODVERTEXDIST` varchar(20) DEFAULT NULL,
+  `OSHPD` varchar(20) DEFAULT NULL,
+  `OSHBASE` varchar(20) DEFAULT NULL,
+  `OSVPD` varchar(20) DEFAULT NULL,
+  `OSVBASE` varchar(20) DEFAULT NULL,
+  `OSSLABOFF` varchar(20) DEFAULT NULL,
+  `OSVERTEXDIST` varchar(20) DEFAULT NULL,
+  `ODMPDD` varchar(20) DEFAULT NULL,
+  `ODMPDN` varchar(20) DEFAULT NULL,
+  `OSMPDD` varchar(20) DEFAULT NULL,
+  `OSMPDN` varchar(20) DEFAULT NULL,
+  `BPDD` varchar(20) DEFAULT NULL,
+  `BPDN` varchar(20) DEFAULT NULL,
+  `LENS_MATERIAL` varchar(20) DEFAULT NULL,
+  `LENS_TREATMENTS` varchar(100) DEFAULT NULL,
+  `CTLMANUFACTUREROD` varchar(25) DEFAULT NULL,
+  `CTLMANUFACTUREROS` varchar(25) DEFAULT NULL,
+  `CTLSUPPLIEROD` varchar(25) DEFAULT NULL,
+  `CTLSUPPLIEROS` varchar(25) DEFAULT NULL,
+  `CTLBRANDOD` varchar(50) DEFAULT NULL,
+  `CTLBRANDOS` varchar(50) DEFAULT NULL,
+  `ODDIAM` varchar(50) DEFAULT NULL,
+  `ODBC` varchar(50) DEFAULT NULL,
+  `OSDIAM` varchar(50) DEFAULT NULL,
+  `OSBC` varchar(50) DEFAULT NULL,
+  `RXCOMMENTS` text,
+  `COMMENTS` text,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `pid` (`pid`,`encounter`,`id`)
 ) ENGINE=InnoDB;
+
+-----------------------------------------------------------
+
+--
+-- Table structure for table `form_eye_mag`
+--
 
 DROP TABLE IF EXISTS `form_eye_mag`;
 CREATE TABLE `form_eye_mag` (
-`id` bigint(20) NOT NULL AUTO_INCREMENT,
-`date` datetime DEFAULT NULL,
-`pid` bigint(20) DEFAULT NULL,
-`user` varchar(255) DEFAULT NULL,
-`groupname` varchar(255) DEFAULT NULL,
-`authorized` tinyint(4) DEFAULT NULL,
-`activity` tinyint(4) DEFAULT NULL,
-`Narrative` text,
-`VISITTYPE` varchar(50) DEFAULT NULL,
-`CC1` text,
-`HPI1` text,
-`QUALITY1` text,
-`TIMING1` text,
-`DURATION1` text,
-`CONTEXT1` text,
-`SEVERITY1` text,
-`MODIFY1` text,
-`ASSOCIATED1` text,
-`LOCATION1` text,
-`CHRONIC1`  text,
-`CHRONIC2`text,
-`CHRONIC3`text,
-`CC2` text,
-`HPI2` text,
-`QUALITY2` text,
-`TIMING2` text,
-`DURATION2` text,
-`CONTEXT2` text,
-`SEVERITY2` text,
-`MODIFY2` text,
-`ASSOCIATED2` text,
-`LOCATION2` text,
-`CC3` text,
-`HPI3` text,
-`QUALITY3` text,
-`TIMING3` text,
-`DURATION3` text,
-`CONTEXT3` text,
-`SEVERITY3` text,
-`MODIFY3` text,
-`ASSOCIATED3` text,
-`LOCATION3` text,
-`ROSGENERAL` text,
-`ROSHEENT` text,
-`ROSCV` text,
-`ROSPULM` text,
-`ROSGI` text,
-`ROSGU` text,
-`ROSDERM` text,
-`ROSNEURO` text,
-`ROSPSYCH` text,
-`ROSMUSCULO` text,
-`ROSIMMUNO` text,
-`ROSENDOCRINE` text,
-`alert` char(3) DEFAULT 'yes',
-`oriented` char(3) DEFAULT 'TPP',
-`confused` char(3) DEFAULT 'nml',
-`SCODVA` varchar(20) DEFAULT NULL,
-`SCOSVA` varchar(20) DEFAULT NULL,
-`PHODVA` varchar(20) DEFAULT NULL,
-`PHOSVA` varchar(20) DEFAULT NULL,
-`WODVA` varchar(20) DEFAULT NULL,
-`WOSVA` varchar(20) DEFAULT NULL,
-`CTLODVA` varchar(20) DEFAULT NULL,
-`CTLOSVA` varchar(20) DEFAULT NULL,
-`MRODVA` varchar(20) DEFAULT NULL,
-`MROSVA` varchar(20) DEFAULT NULL,
-`SCNEARODVA` varchar(20) DEFAULT NULL,
-`SCNEAROSVA` varchar(20) DEFAULT NULL,
-`WNEARODVA` varchar(10) DEFAULT NULL,
-`WNEAROSVA` varchar(10) DEFAULT NULL,
-`MRNEARODVA` varchar(20) DEFAULT NULL,
-`MRNEAROSVA` varchar(20) DEFAULT NULL,
-`GLAREODVA` varchar(20) DEFAULT NULL,
-`GLAREOSVA` varchar(20) DEFAULT NULL,
-`GLARECOMMENTS` varchar(100) DEFAULT NULL,
-`ARODVA` varchar(20) DEFAULT NULL,
-`AROSVA` varchar(20) DEFAULT NULL,
-`CRODVA` varchar(20) DEFAULT NULL,
-`CROSVA` varchar(20) DEFAULT NULL,
-`CTLODVA1` varchar(20) DEFAULT NULL,
-`CTLOSVA1` varchar(20) DEFAULT NULL,
-`PAMODVA` varchar(20) DEFAULT NULL,
-`PAMOSVA` varchar(20) DEFAULT NULL,
-`LIODVA` varchar(20) DEFAULT NULL,
-`LIOSVA` varchar(20) DEFAULT NULL,
-`NVOCHECKED` varchar(20) DEFAULT NULL,
-`ADDCHECKED` varchar(20) DEFAULT NULL,
-`MRODSPH` varchar(20) DEFAULT NULL,
-`MRODCYL` varchar(20) DEFAULT NULL,
-`MRODAXIS` varchar(20) DEFAULT NULL,
-`MRODPRISM` varchar(20) DEFAULT NULL,
-`MRODBASE` varchar(20) DEFAULT NULL,
-`MRODADD` varchar(20) DEFAULT NULL,
-`MROSSPH` varchar(20) DEFAULT NULL,
-`MROSCYL` varchar(20) DEFAULT NULL,
-`MROSAXIS` varchar(20) DEFAULT NULL,
-`MROSPRISM` varchar(20) DEFAULT NULL,
-`MROSBASE` varchar(20) DEFAULT NULL,
-`MROSADD` varchar(20) DEFAULT NULL,
-`MRODNEARSPHERE` varchar(20) DEFAULT NULL,
-`MRODNEARCYL` varchar(20) DEFAULT NULL,
-`MRODNEARAXIS` varchar(20) DEFAULT NULL,
-`MRODPRISMNEAR` varchar(20) DEFAULT NULL,
-`MRODBASENEAR` varchar(20) DEFAULT NULL,
-`MROSNEARSHPERE` varchar(20) DEFAULT NULL,
-`MROSNEARCYL` varchar(20) DEFAULT NULL,
-`MROSNEARAXIS` varchar(20) DEFAULT NULL,
-`MROSPRISMNEAR` varchar(20) DEFAULT NULL,
-`MROSBASENEAR` varchar(20) DEFAULT NULL,
-`CRODSPH` varchar(20) DEFAULT NULL,
-`CRODCYL` varchar(20) DEFAULT NULL,
-`CRODAXIS` varchar(20) DEFAULT NULL,
-`CROSSPH` varchar(20) DEFAULT NULL,
-`CROSCYL` varchar(20) DEFAULT NULL,
-`CROSAXIS` varchar(20) DEFAULT NULL,
-`CRCOMMENTS` varchar(255) DEFAULT NULL,
-`BALANCED` varchar(2) DEFAULT NULL,
-`DIL_RISKS` varchar(2) DEFAULT 'on',
-`WETTYPE` VARCHAR(10) DEFAULT NULL,
-`ATROPINE` VARCHAR(25) DEFAULT NULL,
-`CYCLOMYDRIL` VARCHAR(25) DEFAULT NULL,
-`TROPICAMIDE` VARCHAR(25) DEFAULT NULL,
-`CYCLOGYL` VARCHAR(25) DEFAULT NULL,
-`NEO25` VARCHAR(25) DEFAULT NULL,
-`ARODSPH` varchar(10) DEFAULT NULL,
-`ARODCYL` varchar(10) DEFAULT NULL,
-`ARODAXIS` varchar(10) DEFAULT NULL,
-`AROSSPH` varchar(10) DEFAULT NULL,
-`AROSCYL` varchar(10) DEFAULT NULL,
-`AROSAXIS` varchar(10) DEFAULT NULL,
-`ARODADD` varchar(10) DEFAULT NULL,
-`AROSADD` varchar(10) DEFAULT NULL,
-`ARNEARODVA` varchar(10) DEFAULT NULL,
-`ARNEAROSVA` varchar(10) DEFAULT NULL,
-`ARODPRISM` varchar(20) DEFAULT NULL,
-`AROSPRISM` varchar(20) DEFAULT NULL,
-`CTLODSPH` varchar(50) DEFAULT NULL,
-`CTLODCYL` varchar(50) DEFAULT NULL,
-`CTLODAXIS` varchar(50) DEFAULT NULL,
-`CTLODBC` varchar(50) DEFAULT NULL,
-`CTLODDIAM` varchar(50) DEFAULT NULL,
-`CTLOSSPH` varchar(50) DEFAULT NULL,
-`CTLOSCYL` varchar(50) DEFAULT NULL,
-`CTLOSAXIS` varchar(50) DEFAULT NULL,
-`CTLOSBC` varchar(50) DEFAULT NULL,
-`CTLOSDIAM` varchar(50) DEFAULT NULL,
-`CTL_COMMENTS` text,
-`CTLMANUFACTUREROD` varchar(50) DEFAULT NULL,
-`CTLSUPPLIEROD` varchar(50) DEFAULT NULL,
-`CTLBRANDOD` varchar(50) DEFAULT NULL,
-`CTLMANUFACTUREROS` varchar(50) DEFAULT NULL,
-`CTLSUPPLIEROS` varchar(50) DEFAULT NULL,
-`CTLBRANDOS` varchar(50) DEFAULT NULL,
-`CTLODADD` varchar(50) DEFAULT NULL,
-`CTLOSADD` varchar(50) DEFAULT NULL,
-`ODIOPAP` varchar(50) DEFAULT NULL,
-`OSIOPAP` varchar(50) DEFAULT NULL,
-`ODIOPTPN` varchar(10) DEFAULT NULL,
-`OSIOPTPN` varchar(10) DEFAULT NULL,
-`ODIOPFTN` varchar(10) DEFAULT NULL,
-`OSIOPFTN` varchar(10) DEFAULT NULL,
-`ODIOPPOST`varchar(10) DEFAULT NULL,
-`OSIOPPOST` varchar(10) DEFAULT NULL,
-`ODIOPTARGET`varchar(10) DEFAULT NULL,
-`OSIOPTARGET` varchar(10) DEFAULT NULL,
-`IOPTIME` time DEFAULT NULL,
-`IOPPOSTTIME` time DEFAULT NULL,
-`AMSLEROD` smallint(1) DEFAULT NULL,
-`AMSLEROS` smallint(1) DEFAULT NULL,
-`ODK1` varchar(50) DEFAULT NULL,
-`ODK2` varchar(50) DEFAULT NULL,
-`ODK2AXIS` varchar(50) DEFAULT NULL,
-`OSK1` varchar(50) DEFAULT NULL,
-`OSK2` varchar(50) DEFAULT NULL,
-`OSK2AXIS` varchar(50) DEFAULT NULL,
-`ODAXIALLENGTH` varchar(50) DEFAULT NULL,
-`OSAXIALLENGTH` varchar(50) DEFAULT NULL,
-`ODACD` varchar(50) DEFAULT NULL,
-`OSACD` varchar(50) DEFAULT NULL,
-`ODW2W` varchar(10) DEFAULT NULL,
-`OSW2W` varchar(10) DEFAULT NULL,
-`ODLT` varchar(20) DEFAULT NULL,
-`OSLT` varchar(20) DEFAULT NULL,
-`ODPDMeasured` varchar(25) DEFAULT NULL,
-`OSPDMeasured` varchar(25) DEFAULT NULL,
-`ACT` char(3) DEFAULT 'on',
-`ACT1CCDIST` varchar(50) DEFAULT NULL,
-`ACT2CCDIST` varchar(50) DEFAULT NULL,
-`ACT3CCDIST` varchar(50) DEFAULT NULL,
-`ACT4CCDIST` varchar(50) DEFAULT NULL,
-`ACT5CCDIST` varchar(50) DEFAULT NULL,
-`ACT6CCDIST` varchar(50) DEFAULT NULL,
-`ACT7CCDIST` varchar(50) DEFAULT NULL,
-`ACT8CCDIST` varchar(50) DEFAULT NULL,
-`ACT9CCDIST` varchar(50) DEFAULT NULL,
-`ACT10CCDIST` varchar(50) DEFAULT NULL,
-`ACT11CCDIST` varchar(50) DEFAULT NULL,
-`ACT1SCDIST` varchar(50) DEFAULT NULL,
-`ACT2SCDIST` varchar(50) DEFAULT NULL,
-`ACT3SCDIST` varchar(50) DEFAULT NULL,
-`ACT4SCDIST` varchar(50) DEFAULT NULL,
-`ACT5SCDIST` varchar(50) DEFAULT NULL,
-`ACT6SCDIST` varchar(50) DEFAULT NULL,
-`ACT7SCDIST` varchar(50) DEFAULT NULL,
-`ACT8SCDIST` varchar(50) DEFAULT NULL,
-`ACT9SCDIST` varchar(50) DEFAULT NULL,
-`ACT10SCDIST` varchar(50) DEFAULT NULL,
-`ACT11SCDIST` varchar(50) DEFAULT NULL,
-`ACT1SCNEAR` varchar(50) DEFAULT NULL,
-`ACT2SCNEAR` varchar(50) DEFAULT NULL,
-`ACT3SCNEAR` varchar(50) DEFAULT NULL,
-`ACT4SCNEAR` varchar(50) DEFAULT NULL,
-`ACT5SCNEAR` varchar(50) DEFAULT NULL,
-`ACT6SCNEAR` varchar(50) DEFAULT NULL,
-`ACT7SCNEAR` varchar(50) DEFAULT NULL,
-`ACT8SCNEAR` varchar(50) DEFAULT NULL,
-`ACT9SCNEAR` varchar(50) DEFAULT NULL,
-`ACT10SCNEAR` varchar(50) DEFAULT NULL,
-`ACT11SCNEAR` varchar(50) DEFAULT NULL,
-`ACT1CCNEAR` varchar(50) DEFAULT NULL,
-`ACT2CCNEAR` varchar(50) DEFAULT NULL,
-`ACT3CCNEAR` varchar(50) DEFAULT NULL,
-`ACT4CCNEAR` varchar(50) DEFAULT NULL,
-`ACT5CCNEAR` varchar(50) DEFAULT NULL,
-`ACT6CCNEAR` varchar(50) DEFAULT NULL,
-`ACT7CCNEAR` varchar(50) DEFAULT NULL,
-`ACT8CCNEAR` varchar(50) DEFAULT NULL,
-`ACT9CCNEAR` varchar(50) DEFAULT NULL,
-`ACT10CCNEAR` varchar(50) DEFAULT NULL,
-`ACT11CCNEAR` varchar(50) DEFAULT NULL,
-`ODVF1` tinyint(1) DEFAULT NULL,
-`ODVF2` tinyint(1) DEFAULT NULL,
-`ODVF3` tinyint(1) DEFAULT NULL,
-`ODVF4` tinyint(1) DEFAULT NULL,
-`OSVF1` tinyint(1) DEFAULT NULL,
-`OSVF2` tinyint(1) DEFAULT NULL,
-`OSVF3` tinyint(1) DEFAULT NULL,
-`OSVF4` tinyint(1) DEFAULT NULL,
-`MOTILITYNORMAL` char(3) DEFAULT 'on',
-`MOTILITY_RS` int(1) DEFAULT NULL,
-`MOTILITY_RI` int(1) DEFAULT NULL,
-`MOTILITY_RR` int(1) DEFAULT NULL,
-`MOTILITY_RL` int(1) DEFAULT NULL,
-`MOTILITY_LS` int(1) DEFAULT NULL,
-`MOTILITY_LI` int(1) DEFAULT NULL,
-`MOTILITY_LR` int(1) DEFAULT NULL,
-`MOTILITY_LL` int(1) DEFAULT NULL,
-`MOTILITY_RRSO` int(1) DEFAULT NULL,
-`MOTILITY_RLSO` int(1) DEFAULT NULL,
-`MOTILITY_RRIO` int(1) DEFAULT NULL,
-`MOTILITY_RLIO` int(1) DEFAULT NULL,
-`MOTILITY_LRSO` int(1) DEFAULT NULL,
-`MOTILITY_LLSO` int(1) DEFAULT NULL,
-`MOTILITY_LRIO` int(1) DEFAULT NULL,
-`MOTILITY_LLIO` int(1) DEFAULT NULL,
-`STEREOPSIS` varchar(25) DEFAULT NULL,
-`ODNPA` varchar(50) DEFAULT NULL,
-`OSNPA` varchar(50) DEFAULT NULL,
-`VERTFUSAMPS` varchar(50) DEFAULT NULL,
-`DIVERGENCEAMPS` varchar(50) DEFAULT NULL,
-`NPC` varchar(10) DEFAULT NULL,
-`DACCDIST` varchar(10) DEFAULT NULL,
-`DACCNEAR` varchar(10) DEFAULT NULL,
-`CACCDIST` varchar(10) DEFAULT NULL,
-`CACCNEAR` varchar(10) DEFAULT NULL,
-`ODCOLOR` varchar(5) DEFAULT NULL,
-`OSCOLOR` varchar(5) DEFAULT NULL,
-`ODCOINS` varchar(5) DEFAULT NULL,
-`OSCOINS` varchar(5) DEFAULT NULL,
-`ODREDDESAT` varchar(10) DEFAULT NULL,
-`OSREDDESAT` varchar(10) DEFAULT NULL,
-`NEURO_COMMENTS` text,
-`RUL` text,
-`LUL` text,
-`RLL` text,
-`LLL` text,
-`RBROW` text,
-`LBROW` text,
-`RMCT` text,
-`LMCT` text,
-`RADNEXA` varchar(255) DEFAULT NULL,
-`LADNEXA` varchar(255) DEFAULT NULL,
-`RMRD` varchar(25) DEFAULT NULL,
-`LMRD` varchar(25) DEFAULT NULL,
-`RLF` varchar(50) DEFAULT NULL,
-`LLF` varchar(50) DEFAULT NULL,
-`RVFISSURE` varchar(10) DEFAULT NULL,
-`LVFISSURE` varchar(10) DEFAULT NULL,
-`ODHERTEL` varchar(10) DEFAULT NULL,
-`OSHERTEL` varchar(10) DEFAULT NULL,
-`HERTELBASE` varchar(10) DEFAULT NULL,
-`RCAROTID` varchar(50) DEFAULT NULL,
-`LCAROTID` varchar(50) DEFAULT NULL,
-`RTEMPART` varchar(50) DEFAULT NULL,
-`LTEMPART` varchar(50) DEFAULT NULL,
-`RCNV` varchar(50) DEFAULT NULL,
-`LCNV` varchar(50) DEFAULT NULL,
-`RCNVII` varchar(50) DEFAULT NULL,
-`LCNVII` varchar(50) DEFAULT NULL,
-`EXT_COMMENTS` text,
-`ODSCHIRMER1` varchar(50) DEFAULT NULL,
-`OSSCHRIMER1` varchar(50) DEFAULT NULL,
-`ODSCHRIMER2` varchar(50) DEFAULT NULL,
-`OSSCHRIMER2` varchar(50) DEFAULT NULL,
-`OSCONJ` text,
-`ODCONJ` text,
-`ODCORNEA` text,
-`OSCORNEA` text,
-`ODAC` text,
-`OSAC` text,
-`ODLENS` text,
-`OSLENS` text,
-`ODIRIS` text,
-`OSIRIS` text,
-`ODKTHICKNESS` varchar(20) DEFAULT NULL,
-`OSKTHICKNESS` varchar(20) DEFAULT NULL,
-`ODGONIO` varchar(50) DEFAULT NULL,
-`OSGONIO` varchar(50) DEFAULT NULL,
-`ANTSEG_COMMENTS` text,
-`PUPIL_NORMAL` varchar(2) DEFAULT '1',
-`ODPUPILSIZE1` varchar(20) DEFAULT NULL,
-`ODPUPILSIZE2` varchar(20) DEFAULT NULL,
-`ODPUPILREACTIVITY` varchar(10) DEFAULT NULL,
-`ODAPD` varchar(10) DEFAULT NULL,
-`OSPUPILSIZE1` varchar(20) DEFAULT NULL,
-`OSPUPILSIZE2` varchar(20) DEFAULT NULL,
-`OSPUPILREACTIVITY` varchar(10) DEFAULT NULL,
-`OSAPD` varchar(20) DEFAULT NULL,
-`DIMODPUPILSIZE1` varchar(20) DEFAULT NULL,
-`DIMODPUPILSIZE2` varchar(20) DEFAULT NULL,
-`DIMODPUPILREACTIVITY` varchar(10) DEFAULT NULL,
-`DIMOSPUPILSIZE1` varchar(20) DEFAULT NULL,
-`DIMOSPUPILSIZE2` varchar(20) DEFAULT NULL,
-`DIMOSPUPILREACTIVITY` varchar(10) DEFAULT NULL,
-`PUPIL_COMMENTS` text,
-`ODVFCONFRONTATION1` int(1) DEFAULT NULL,
-`ODVFCONFRONTATION2` int(1) DEFAULT NULL,
-`ODVFCONFRONTATION3` int(1) DEFAULT NULL,
-`ODVFCONFRONTATION4` int(1) DEFAULT NULL,
-`ODVFCONFRONTATION5` int(1) DEFAULT NULL,
-`OSVFCONFRONTATION1` int(1) DEFAULT NULL,
-`OSVFCONFRONTATION2` int(1) DEFAULT NULL,
-`OSVFCONFRONTATION3` int(1) DEFAULT NULL,
-`OSVFCONFRONTATION4` int(1) DEFAULT NULL,
-`OSVFCONFRONTATION5` int(1) DEFAULT NULL,
-`ODDISC` varchar(100) DEFAULT NULL,
-`OSDISC` varchar(100) DEFAULT NULL,
-`ODCUP` varchar(100) DEFAULT NULL,
-`OSCUP` varchar(100) DEFAULT NULL,
-`ODMACULA` varchar(100) DEFAULT NULL,
-`OSMACULA` varchar(100) DEFAULT NULL,
-`ODVESSELS` varchar(100) DEFAULT NULL,
-`OSVESSELS` varchar(100) DEFAULT NULL,
-`ODPERIPH` varchar(100) DEFAULT NULL,
-`OSPERIPH` varchar(100) DEFAULT NULL,
-`ODCMT` varchar(50) DEFAULT NULL,
-`OSCMT` varchar(50) DEFAULT NULL,
-`RETINA_COMMENTS` text,
-`IMP` text,
-`PLAN` text,
-`Technician` varchar(50) DEFAULT NULL,
-`Doctor` varchar(50) DEFAULT NULL,
-`Resource` varchar(50) DEFAULT NULL,
-`LOCKED` VARCHAR( 3 ) NULL DEFAULT NULL,
-`LOCKEDDATE` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-`LOCKEDBY` varchar(50) DEFAULT NULL,
-`FINISHED` varchar(25) DEFAULT NULL,
-PRIMARY KEY (`id`)
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `date` datetime DEFAULT NULL,
+  `pid` bigint(20) DEFAULT NULL,
+  `user` varchar(255) DEFAULT NULL,
+  `groupname` varchar(255) DEFAULT NULL,
+  `authorized` tinyint(4) DEFAULT NULL,
+  `activity` tinyint(4) DEFAULT NULL,
+  `Narrative` text,
+  `VISITTYPE` varchar(50) DEFAULT NULL,
+  `CC1` text,
+  `HPI1` text,
+  `QUALITY1` text,
+  `TIMING1` text,
+  `DURATION1` text,
+  `CONTEXT1` text,
+  `SEVERITY1` text,
+  `MODIFY1` text,
+  `ASSOCIATED1` text,
+  `LOCATION1` text,
+  `CHRONIC1`  text,
+  `CHRONIC2`text,
+  `CHRONIC3`text,
+  `CC2` text,
+  `HPI2` text,
+  `QUALITY2` text,
+  `TIMING2` text,
+  `DURATION2` text,
+  `CONTEXT2` text,
+  `SEVERITY2` text,
+  `MODIFY2` text,
+  `ASSOCIATED2` text,
+  `LOCATION2` text,
+  `CC3` text,
+  `HPI3` text,
+  `QUALITY3` text,
+  `TIMING3` text,
+  `DURATION3` text,
+  `CONTEXT3` text,
+  `SEVERITY3` text,
+  `MODIFY3` text,
+  `ASSOCIATED3` text,
+  `LOCATION3` text,
+  `ROSGENERAL` text,
+  `ROSHEENT` text,
+  `ROSCV` text,
+  `ROSPULM` text,
+  `ROSGI` text,
+  `ROSGU` text,
+  `ROSDERM` text,
+  `ROSNEURO` text,
+  `ROSPSYCH` text,
+  `ROSMUSCULO` text,
+  `ROSIMMUNO` text,
+  `ROSENDOCRINE` text,
+  `alert` char(3) DEFAULT 'yes',
+  `oriented` char(3) DEFAULT 'TPP',
+  `confused` char(3) DEFAULT 'nml',
+  `SCODVA` varchar(20) DEFAULT NULL,
+  `SCOSVA` varchar(20) DEFAULT NULL,
+  `PHODVA` varchar(20) DEFAULT NULL,
+  `PHOSVA` varchar(20) DEFAULT NULL,
+  `WODVA` varchar(20) DEFAULT NULL,
+  `WOSVA` varchar(20) DEFAULT NULL,
+  `CTLODVA` varchar(20) DEFAULT NULL,
+  `CTLOSVA` varchar(20) DEFAULT NULL,
+  `MRODVA` varchar(20) DEFAULT NULL,
+  `MROSVA` varchar(20) DEFAULT NULL,
+  `SCNEARODVA` varchar(20) DEFAULT NULL,
+  `SCNEAROSVA` varchar(20) DEFAULT NULL,
+  `WNEARODVA` varchar(10) DEFAULT NULL,
+  `WNEAROSVA` varchar(10) DEFAULT NULL,
+  `MRNEARODVA` varchar(20) DEFAULT NULL,
+  `MRNEAROSVA` varchar(20) DEFAULT NULL,
+  `GLAREODVA` varchar(20) DEFAULT NULL,
+  `GLAREOSVA` varchar(20) DEFAULT NULL,
+  `GLARECOMMENTS` varchar(100) DEFAULT NULL,
+  `ARODVA` varchar(20) DEFAULT NULL,
+  `AROSVA` varchar(20) DEFAULT NULL,
+  `CRODVA` varchar(20) DEFAULT NULL,
+  `CROSVA` varchar(20) DEFAULT NULL,
+  `CTLODVA1` varchar(20) DEFAULT NULL,
+  `CTLOSVA1` varchar(20) DEFAULT NULL,
+  `PAMODVA` varchar(20) DEFAULT NULL,
+  `PAMOSVA` varchar(20) DEFAULT NULL,
+  `LIODVA` varchar(20) DEFAULT NULL,
+  `LIOSVA` varchar(20) DEFAULT NULL,
+  `NVOCHECKED` varchar(20) DEFAULT NULL,
+  `ADDCHECKED` varchar(20) DEFAULT NULL,
+  `MRODSPH` varchar(20) DEFAULT NULL,
+  `MRODCYL` varchar(20) DEFAULT NULL,
+  `MRODAXIS` varchar(20) DEFAULT NULL,
+  `MRODPRISM` varchar(20) DEFAULT NULL,
+  `MRODBASE` varchar(20) DEFAULT NULL,
+  `MRODADD` varchar(20) DEFAULT NULL,
+  `MROSSPH` varchar(20) DEFAULT NULL,
+  `MROSCYL` varchar(20) DEFAULT NULL,
+  `MROSAXIS` varchar(20) DEFAULT NULL,
+  `MROSPRISM` varchar(20) DEFAULT NULL,
+  `MROSBASE` varchar(20) DEFAULT NULL,
+  `MROSADD` varchar(20) DEFAULT NULL,
+  `MRODNEARSPHERE` varchar(20) DEFAULT NULL,
+  `MRODNEARCYL` varchar(20) DEFAULT NULL,
+  `MRODNEARAXIS` varchar(20) DEFAULT NULL,
+  `MRODPRISMNEAR` varchar(20) DEFAULT NULL,
+  `MRODBASENEAR` varchar(20) DEFAULT NULL,
+  `MROSNEARSHPERE` varchar(20) DEFAULT NULL,
+  `MROSNEARCYL` varchar(20) DEFAULT NULL,
+  `MROSNEARAXIS` varchar(20) DEFAULT NULL,
+  `MROSPRISMNEAR` varchar(20) DEFAULT NULL,
+  `MROSBASENEAR` varchar(20) DEFAULT NULL,
+  `CRODSPH` varchar(20) DEFAULT NULL,
+  `CRODCYL` varchar(20) DEFAULT NULL,
+  `CRODAXIS` varchar(20) DEFAULT NULL,
+  `CROSSPH` varchar(20) DEFAULT NULL,
+  `CROSCYL` varchar(20) DEFAULT NULL,
+  `CROSAXIS` varchar(20) DEFAULT NULL,
+  `CRCOMMENTS` varchar(255) DEFAULT NULL,
+  `BALANCED` varchar(2) DEFAULT NULL,
+  `DIL_RISKS` varchar(2) DEFAULT 'on',
+  `WETTYPE` VARCHAR(10) DEFAULT NULL,
+  `ATROPINE` VARCHAR(25) DEFAULT NULL,
+  `CYCLOMYDRIL` VARCHAR(25) DEFAULT NULL,
+  `TROPICAMIDE` VARCHAR(25) DEFAULT NULL,
+  `CYCLOGYL` VARCHAR(25) DEFAULT NULL,
+  `NEO25` VARCHAR(25) DEFAULT NULL,
+  `ARODSPH` varchar(10) DEFAULT NULL,
+  `ARODCYL` varchar(10) DEFAULT NULL,
+  `ARODAXIS` varchar(10) DEFAULT NULL,
+  `AROSSPH` varchar(10) DEFAULT NULL,
+  `AROSCYL` varchar(10) DEFAULT NULL,
+  `AROSAXIS` varchar(10) DEFAULT NULL,
+  `ARODADD` varchar(10) DEFAULT NULL,
+  `AROSADD` varchar(10) DEFAULT NULL,
+  `ARNEARODVA` varchar(10) DEFAULT NULL,
+  `ARNEAROSVA` varchar(10) DEFAULT NULL,
+  `ARODPRISM` varchar(20) DEFAULT NULL,
+  `AROSPRISM` varchar(20) DEFAULT NULL,
+  `CTLODSPH` varchar(50) DEFAULT NULL,
+  `CTLODCYL` varchar(50) DEFAULT NULL,
+  `CTLODAXIS` varchar(50) DEFAULT NULL,
+  `CTLODBC` varchar(50) DEFAULT NULL,
+  `CTLODDIAM` varchar(50) DEFAULT NULL,
+  `CTLOSSPH` varchar(50) DEFAULT NULL,
+  `CTLOSCYL` varchar(50) DEFAULT NULL,
+  `CTLOSAXIS` varchar(50) DEFAULT NULL,
+  `CTLOSBC` varchar(50) DEFAULT NULL,
+  `CTLOSDIAM` varchar(50) DEFAULT NULL,
+  `CTL_COMMENTS` text,
+  `CTLMANUFACTUREROD` varchar(50) DEFAULT NULL,
+  `CTLSUPPLIEROD` varchar(50) DEFAULT NULL,
+  `CTLBRANDOD` varchar(50) DEFAULT NULL,
+  `CTLMANUFACTUREROS` varchar(50) DEFAULT NULL,
+  `CTLSUPPLIEROS` varchar(50) DEFAULT NULL,
+  `CTLBRANDOS` varchar(50) DEFAULT NULL,
+  `CTLODADD` varchar(50) DEFAULT NULL,
+  `CTLOSADD` varchar(50) DEFAULT NULL,
+  `ODIOPAP` varchar(50) DEFAULT NULL,
+  `OSIOPAP` varchar(50) DEFAULT NULL,
+  `ODIOPTPN` varchar(10) DEFAULT NULL,
+  `OSIOPTPN` varchar(10) DEFAULT NULL,
+  `ODIOPFTN` varchar(10) DEFAULT NULL,
+  `OSIOPFTN` varchar(10) DEFAULT NULL,
+  `ODIOPPOST`varchar(10) DEFAULT NULL,
+  `OSIOPPOST` varchar(10) DEFAULT NULL,
+  `ODIOPTARGET`varchar(10) DEFAULT NULL,
+  `OSIOPTARGET` varchar(10) DEFAULT NULL,
+  `IOPTIME` time DEFAULT NULL,
+  `IOPPOSTTIME` time DEFAULT NULL,
+  `AMSLEROD` smallint(1) DEFAULT NULL,
+  `AMSLEROS` smallint(1) DEFAULT NULL,
+  `ODK1` varchar(50) DEFAULT NULL,
+  `ODK2` varchar(50) DEFAULT NULL,
+  `ODK2AXIS` varchar(50) DEFAULT NULL,
+  `OSK1` varchar(50) DEFAULT NULL,
+  `OSK2` varchar(50) DEFAULT NULL,
+  `OSK2AXIS` varchar(50) DEFAULT NULL,
+  `ODAXIALLENGTH` varchar(50) DEFAULT NULL,
+  `OSAXIALLENGTH` varchar(50) DEFAULT NULL,
+  `ODACD` varchar(50) DEFAULT NULL,
+  `OSACD` varchar(50) DEFAULT NULL,
+  `ODW2W` varchar(10) DEFAULT NULL,
+  `OSW2W` varchar(10) DEFAULT NULL,
+  `ODLT` varchar(20) DEFAULT NULL,
+  `OSLT` varchar(20) DEFAULT NULL,
+  `ODPDMeasured` varchar(25) DEFAULT NULL,
+  `OSPDMeasured` varchar(25) DEFAULT NULL,
+  `ACT` char(3) DEFAULT 'on',
+  `ACT1CCDIST` varchar(50) DEFAULT NULL,
+  `ACT2CCDIST` varchar(50) DEFAULT NULL,
+  `ACT3CCDIST` varchar(50) DEFAULT NULL,
+  `ACT4CCDIST` varchar(50) DEFAULT NULL,
+  `ACT5CCDIST` varchar(50) DEFAULT NULL,
+  `ACT6CCDIST` varchar(50) DEFAULT NULL,
+  `ACT7CCDIST` varchar(50) DEFAULT NULL,
+  `ACT8CCDIST` varchar(50) DEFAULT NULL,
+  `ACT9CCDIST` varchar(50) DEFAULT NULL,
+  `ACT10CCDIST` varchar(50) DEFAULT NULL,
+  `ACT11CCDIST` varchar(50) DEFAULT NULL,
+  `ACT1SCDIST` varchar(50) DEFAULT NULL,
+  `ACT2SCDIST` varchar(50) DEFAULT NULL,
+  `ACT3SCDIST` varchar(50) DEFAULT NULL,
+  `ACT4SCDIST` varchar(50) DEFAULT NULL,
+  `ACT5SCDIST` varchar(50) DEFAULT NULL,
+  `ACT6SCDIST` varchar(50) DEFAULT NULL,
+  `ACT7SCDIST` varchar(50) DEFAULT NULL,
+  `ACT8SCDIST` varchar(50) DEFAULT NULL,
+  `ACT9SCDIST` varchar(50) DEFAULT NULL,
+  `ACT10SCDIST` varchar(50) DEFAULT NULL,
+  `ACT11SCDIST` varchar(50) DEFAULT NULL,
+  `ACT1SCNEAR` varchar(50) DEFAULT NULL,
+  `ACT2SCNEAR` varchar(50) DEFAULT NULL,
+  `ACT3SCNEAR` varchar(50) DEFAULT NULL,
+  `ACT4SCNEAR` varchar(50) DEFAULT NULL,
+  `ACT5SCNEAR` varchar(50) DEFAULT NULL,
+  `ACT6SCNEAR` varchar(50) DEFAULT NULL,
+  `ACT7SCNEAR` varchar(50) DEFAULT NULL,
+  `ACT8SCNEAR` varchar(50) DEFAULT NULL,
+  `ACT9SCNEAR` varchar(50) DEFAULT NULL,
+  `ACT10SCNEAR` varchar(50) DEFAULT NULL,
+  `ACT11SCNEAR` varchar(50) DEFAULT NULL,
+  `ACT1CCNEAR` varchar(50) DEFAULT NULL,
+  `ACT2CCNEAR` varchar(50) DEFAULT NULL,
+  `ACT3CCNEAR` varchar(50) DEFAULT NULL,
+  `ACT4CCNEAR` varchar(50) DEFAULT NULL,
+  `ACT5CCNEAR` varchar(50) DEFAULT NULL,
+  `ACT6CCNEAR` varchar(50) DEFAULT NULL,
+  `ACT7CCNEAR` varchar(50) DEFAULT NULL,
+  `ACT8CCNEAR` varchar(50) DEFAULT NULL,
+  `ACT9CCNEAR` varchar(50) DEFAULT NULL,
+  `ACT10CCNEAR` varchar(50) DEFAULT NULL,
+  `ACT11CCNEAR` varchar(50) DEFAULT NULL,
+  `ODVF1` tinyint(1) DEFAULT NULL,
+  `ODVF2` tinyint(1) DEFAULT NULL,
+  `ODVF3` tinyint(1) DEFAULT NULL,
+  `ODVF4` tinyint(1) DEFAULT NULL,
+  `OSVF1` tinyint(1) DEFAULT NULL,
+  `OSVF2` tinyint(1) DEFAULT NULL,
+  `OSVF3` tinyint(1) DEFAULT NULL,
+  `OSVF4` tinyint(1) DEFAULT NULL,
+  `MOTILITYNORMAL` char(3) DEFAULT 'on',
+  `MOTILITY_RS` int(1) DEFAULT NULL,
+  `MOTILITY_RI` int(1) DEFAULT NULL,
+  `MOTILITY_RR` int(1) DEFAULT NULL,
+  `MOTILITY_RL` int(1) DEFAULT NULL,
+  `MOTILITY_LS` int(1) DEFAULT NULL,
+  `MOTILITY_LI` int(1) DEFAULT NULL,
+  `MOTILITY_LR` int(1) DEFAULT NULL,
+  `MOTILITY_LL` int(1) DEFAULT NULL,
+  `MOTILITY_RRSO` int(1) DEFAULT NULL,
+  `MOTILITY_RLSO` int(1) DEFAULT NULL,
+  `MOTILITY_RRIO` int(1) DEFAULT NULL,
+  `MOTILITY_RLIO` int(1) DEFAULT NULL,
+  `MOTILITY_LRSO` int(1) DEFAULT NULL,
+  `MOTILITY_LLSO` int(1) DEFAULT NULL,
+  `MOTILITY_LRIO` int(1) DEFAULT NULL,
+  `MOTILITY_LLIO` int(1) DEFAULT NULL,
+  `STEREOPSIS` varchar(25) DEFAULT NULL,
+  `ODNPA` varchar(50) DEFAULT NULL,
+  `OSNPA` varchar(50) DEFAULT NULL,
+  `VERTFUSAMPS` varchar(50) DEFAULT NULL,
+  `DIVERGENCEAMPS` varchar(50) DEFAULT NULL,
+  `NPC` varchar(10) DEFAULT NULL,
+  `DACCDIST` varchar(10) DEFAULT NULL,
+  `DACCNEAR` varchar(10) DEFAULT NULL,
+  `CACCDIST` varchar(10) DEFAULT NULL,
+  `CACCNEAR` varchar(10) DEFAULT NULL,
+  `ODCOLOR` varchar(5) DEFAULT NULL,
+  `OSCOLOR` varchar(5) DEFAULT NULL,
+  `ODCOINS` varchar(5) DEFAULT NULL,
+  `OSCOINS` varchar(5) DEFAULT NULL,
+  `ODREDDESAT` varchar(10) DEFAULT NULL,
+  `OSREDDESAT` varchar(10) DEFAULT NULL,
+  `NEURO_COMMENTS` text,
+  `RUL` text,
+  `LUL` text,
+  `RLL` text,
+  `LLL` text,
+  `RBROW` text,
+  `LBROW` text,
+  `RMCT` text,
+  `LMCT` text,
+  `RADNEXA` varchar(255) DEFAULT NULL,
+  `LADNEXA` varchar(255) DEFAULT NULL,
+  `RMRD` varchar(25) DEFAULT NULL,
+  `LMRD` varchar(25) DEFAULT NULL,
+  `RLF` varchar(50) DEFAULT NULL,
+  `LLF` varchar(50) DEFAULT NULL,
+  `RVFISSURE` varchar(10) DEFAULT NULL,
+  `LVFISSURE` varchar(10) DEFAULT NULL,
+  `ODHERTEL` varchar(10) DEFAULT NULL,
+  `OSHERTEL` varchar(10) DEFAULT NULL,
+  `HERTELBASE` varchar(10) DEFAULT NULL,
+  `RCAROTID` varchar(50) DEFAULT NULL,
+  `LCAROTID` varchar(50) DEFAULT NULL,
+  `RTEMPART` varchar(50) DEFAULT NULL,
+  `LTEMPART` varchar(50) DEFAULT NULL,
+  `RCNV` varchar(50) DEFAULT NULL,
+  `LCNV` varchar(50) DEFAULT NULL,
+  `RCNVII` varchar(50) DEFAULT NULL,
+  `LCNVII` varchar(50) DEFAULT NULL,
+  `EXT_COMMENTS` text,
+  `ODSCHIRMER1` varchar(50) DEFAULT NULL,
+  `OSSCHRIMER1` varchar(50) DEFAULT NULL,
+  `ODSCHRIMER2` varchar(50) DEFAULT NULL,
+  `OSSCHRIMER2` varchar(50) DEFAULT NULL,
+  `OSCONJ` text,
+  `ODCONJ` text,
+  `ODCORNEA` text,
+  `OSCORNEA` text,
+  `ODAC` text,
+  `OSAC` text,
+  `ODLENS` text,
+  `OSLENS` text,
+  `ODIRIS` text,
+  `OSIRIS` text,
+  `ODKTHICKNESS` varchar(20) DEFAULT NULL,
+  `OSKTHICKNESS` varchar(20) DEFAULT NULL,
+  `ODGONIO` varchar(50) DEFAULT NULL,
+  `OSGONIO` varchar(50) DEFAULT NULL,
+  `ANTSEG_COMMENTS` text,
+  `PUPIL_NORMAL` varchar(2) DEFAULT '1',
+  `ODPUPILSIZE1` varchar(20) DEFAULT NULL,
+  `ODPUPILSIZE2` varchar(20) DEFAULT NULL,
+  `ODPUPILREACTIVITY` varchar(10) DEFAULT NULL,
+  `ODAPD` varchar(10) DEFAULT NULL,
+  `OSPUPILSIZE1` varchar(20) DEFAULT NULL,
+  `OSPUPILSIZE2` varchar(20) DEFAULT NULL,
+  `OSPUPILREACTIVITY` varchar(10) DEFAULT NULL,
+  `OSAPD` varchar(20) DEFAULT NULL,
+  `DIMODPUPILSIZE1` varchar(20) DEFAULT NULL,
+  `DIMODPUPILSIZE2` varchar(20) DEFAULT NULL,
+  `DIMODPUPILREACTIVITY` varchar(10) DEFAULT NULL,
+  `DIMOSPUPILSIZE1` varchar(20) DEFAULT NULL,
+  `DIMOSPUPILSIZE2` varchar(20) DEFAULT NULL,
+  `DIMOSPUPILREACTIVITY` varchar(10) DEFAULT NULL,
+  `PUPIL_COMMENTS` text,
+  `ODVFCONFRONTATION1` int(1) DEFAULT NULL,
+  `ODVFCONFRONTATION2` int(1) DEFAULT NULL,
+  `ODVFCONFRONTATION3` int(1) DEFAULT NULL,
+  `ODVFCONFRONTATION4` int(1) DEFAULT NULL,
+  `ODVFCONFRONTATION5` int(1) DEFAULT NULL,
+  `OSVFCONFRONTATION1` int(1) DEFAULT NULL,
+  `OSVFCONFRONTATION2` int(1) DEFAULT NULL,
+  `OSVFCONFRONTATION3` int(1) DEFAULT NULL,
+  `OSVFCONFRONTATION4` int(1) DEFAULT NULL,
+  `OSVFCONFRONTATION5` int(1) DEFAULT NULL,
+  `ODDISC` varchar(100) DEFAULT NULL,
+  `OSDISC` varchar(100) DEFAULT NULL,
+  `ODCUP` varchar(100) DEFAULT NULL,
+  `OSCUP` varchar(100) DEFAULT NULL,
+  `ODMACULA` varchar(100) DEFAULT NULL,
+  `OSMACULA` varchar(100) DEFAULT NULL,
+  `ODVESSELS` varchar(100) DEFAULT NULL,
+  `OSVESSELS` varchar(100) DEFAULT NULL,
+  `ODPERIPH` varchar(100) DEFAULT NULL,
+  `OSPERIPH` varchar(100) DEFAULT NULL,
+  `ODCMT` varchar(50) DEFAULT NULL,
+  `OSCMT` varchar(50) DEFAULT NULL,
+  `RETINA_COMMENTS` text,
+  `IMP` text,
+  `PLAN` text,
+  `Technician` varchar(50) DEFAULT NULL,
+  `Doctor` varchar(50) DEFAULT NULL,
+  `Resource` varchar(50) DEFAULT NULL,
+  `LOCKED` VARCHAR( 3 ) NULL DEFAULT NULL,
+  `LOCKEDDATE` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `LOCKEDBY` varchar(50) DEFAULT NULL,
+  `FINISHED` varchar(25) DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM;
+
+-----------------------------------------------------------
+
+--
+-- Table structure for table `form_eye_mag_prefs`
+--
 
 DROP TABLE IF EXISTS `form_eye_mag_prefs`;
 CREATE TABLE `form_eye_mag_prefs` (
@@ -9780,6 +10397,10 @@ CREATE TABLE `form_eye_mag_prefs` (
   `UNSPEC` varchar(50) NOT NULL,
   UNIQUE KEY `id` (`id`,`PEZONE`,`LOCATION`,`selection`)
 ) ENGINE=InnoDB;
+
+--
+-- Inserting data for table `form_eye_mag_prefs`
+--
 
 INSERT INTO `form_eye_mag_prefs` (`PEZONE`, `LOCATION`, `LOCATION_text`, `id`, `selection`, `ZONE_ORDER`, `GOVALUE`, `ordering`, `FILL_ACTION`, `GORIGHT`, `GOLEFT`, `UNSPEC`) VALUES
 ('PREFS', 'ACT_SHOW', 'ACT Show', 2048, 'ACT_SHOW', 65, 'CCDIST', 15, 'ADD', '', '', ''),
@@ -9820,37 +10441,55 @@ INSERT INTO `form_eye_mag_prefs` (`PEZONE`, `LOCATION`, `LOCATION_text`, `id`, `
 ('PREFS', 'W_width', 'Detailed Rx', 2048, 'W_width', 80, '100', '', '', '', '', ''),
 ('PREFS', 'MR_width','Detailed MR', 2048, 'MR_width', 81, '110', '', '', '', '', '');
 
+-----------------------------------------------------------
+
+--
+-- Table structure for table `form_eye_mag_orders`
+--
+
 DROP TABLE IF EXISTS `form_eye_mag_orders`;
 CREATE TABLE `form_eye_mag_orders` (
-`id` bigint(20) NOT NULL AUTO_INCREMENT,
-`ORDER_PID` bigint(20) NOT NULL,
-`ORDER_DETAILS` varchar(255) NOT NULL,
-`ORDER_STATUS` varchar(50) DEFAULT NULL,
-`ORDER_PRIORITY` varchar(50) DEFAULT NULL,
-`ORDER_DATE_PLACED` date NOT NULL,
-`ORDER_PLACED_BYWHOM` varchar(50) DEFAULT NULL,
-`ORDER_DATE_COMPLETED` date DEFAULT NULL,
-`ORDER_COMPLETED_BYWHOM` varchar(50) DEFAULT NULL,
-PRIMARY KEY (`id`),
-UNIQUE KEY `VISIT_ID` (`ORDER_PID`,`ORDER_DETAILS`,`ORDER_DATE_PLACED`,`ORDER_PLACED_BYWHOM`,`ORDER_DATE_COMPLETED`)
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `ORDER_PID` bigint(20) NOT NULL,
+  `ORDER_DETAILS` varchar(255) NOT NULL,
+  `ORDER_STATUS` varchar(50) DEFAULT NULL,
+  `ORDER_PRIORITY` varchar(50) DEFAULT NULL,
+  `ORDER_DATE_PLACED` date NOT NULL,
+  `ORDER_PLACED_BYWHOM` varchar(50) DEFAULT NULL,
+  `ORDER_DATE_COMPLETED` date DEFAULT NULL,
+  `ORDER_COMPLETED_BYWHOM` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `VISIT_ID` (`ORDER_PID`,`ORDER_DETAILS`,`ORDER_DATE_PLACED`,`ORDER_PLACED_BYWHOM`,`ORDER_DATE_COMPLETED`)
 ) ENGINE=InnoDB;
+
+-----------------------------------------------------------
+
+--
+-- Table structure for table `form_eye_mag_impplan`
+--
 
 DROP TABLE IF EXISTS `form_eye_mag_impplan`;
 CREATE TABLE `form_eye_mag_impplan` (
-`id` int(11) NOT NULL AUTO_INCREMENT,
-`form_id` bigint(20) NOT NULL,
-`pid` bigint(20) NOT NULL,
-`title` varchar(255) NOT NULL,
-`code` varchar(50) DEFAULT NULL,
-`codetype` varchar(50) DEFAULT NULL,
-`codedesc` varchar(255) DEFAULT NULL,
-`codetext` varchar(255) DEFAULT NULL,
-`plan` varchar(3000) DEFAULT NULL,
-`PMSFH_link` varchar(50) DEFAULT NULL,
-`IMPPLAN_order` tinyint(4) DEFAULT NULL,
-PRIMARY KEY (`id`),
-UNIQUE KEY `second_index` (`form_id`,`pid`,`title`,`plan`(20))
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `form_id` bigint(20) NOT NULL,
+  `pid` bigint(20) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `code` varchar(50) DEFAULT NULL,
+  `codetype` varchar(50) DEFAULT NULL,
+  `codedesc` varchar(255) DEFAULT NULL,
+  `codetext` varchar(255) DEFAULT NULL,
+  `plan` varchar(3000) DEFAULT NULL,
+  `PMSFH_link` varchar(50) DEFAULT NULL,
+  `IMPPLAN_order` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `second_index` (`form_id`,`pid`,`title`,`plan`(20))
 ) ENGINE=InnoDB;
+
+-----------------------------------------------------------
+
+--
+-- Table structure for table `form_eye_mag_wearing`
+--
 
 DROP TABLE IF EXISTS `form_eye_mag_wearing`;
 CREATE TABLE `form_eye_mag_wearing` (
@@ -9899,6 +10538,12 @@ CREATE TABLE `form_eye_mag_wearing` (
   UNIQUE KEY `FORM_ID` (`FORM_ID`,`ENCOUNTER`,`PID`,`RX_NUMBER`)
 ) ENGINE=InnoDB;
 
+-----------------------------------------------------------
+
+--
+-- Table structure for table `form_taskman`
+--
+
 DROP TABLE IF EXISTS `form_taskman`;
 CREATE TABLE `form_taskman` (
     `ID` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -9915,11 +10560,12 @@ CREATE TABLE `form_taskman` (
     PRIMARY KEY (`ID`)
 ) ENGINE=INNODB;
 
--- End of Eye Module tables
--- ----------------------------------------------------
+-------------------------------------------------------
 --
 -- Table structure for table 'product_registration'
 --
+
+DROP TABLE IF EXISTS `product_registration`;
 CREATE TABLE `product_registration` (
   `registration_id` char(36) NOT NULL DEFAULT '',
   `email` varchar(255) NULL,
@@ -9927,7 +10573,12 @@ CREATE TABLE `product_registration` (
   PRIMARY KEY (`registration_id`)
 ) ENGINE=InnoDB;
 
--- Table to copy log contents for audit log tamper resistance check.
+-------------------------------------------------------
+
+--
+-- Table structure for table 'log_validator'
+--
+
 DROP TABLE IF EXISTS `log_validator`;
 CREATE TABLE `log_validator` (
   `log_id` bigint(20) NOT NULL,
@@ -9935,7 +10586,12 @@ CREATE TABLE `log_validator` (
   PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB;
 
--- Table to save code history log
+-------------------------------------------------------
+
+--
+-- Table structure for table 'codes_history'
+--
+
 DROP TABLE IF EXISTS `codes_history`;
 CREATE TABLE `codes_history` (
   `log_id` bigint(20) NOT NULL auto_increment,
@@ -9955,7 +10611,12 @@ CREATE TABLE `codes_history` (
    PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB;
 
--- Table to store multiple db connection details
+-------------------------------------------------------
+
+--
+-- Table structure for table 'multiple_db' to store multiple db connection details
+--
+
 DROP TABLE IF EXISTS `multiple_db`;
 CREATE TABLE `multiple_db` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -9970,10 +10631,12 @@ CREATE TABLE `multiple_db` (
      PRIMARY KEY (id)
   ) ENGINE=InnoDB;
 
--- -------------------------------------------------------
+----------------------------------------------------------
+
 --
--- Tables for therapy groups
+-- Table structure for `therapy_groups`
 --
+
 DROP TABLE IF EXISTS `therapy_groups`;
 CREATE TABLE `therapy_groups` (
   `group_id` int(11) NOT NULL auto_increment,
@@ -9988,6 +10651,12 @@ CREATE TABLE `therapy_groups` (
   PRIMARY KEY  (`group_id`)
 ) ENGINE=InnoDB;
 
+----------------------------------------------------------
+
+--
+-- Table structure for `therapy_groups_participants`
+--
+
 DROP TABLE IF EXISTS `therapy_groups_participants`;
 CREATE TABLE `therapy_groups_participants` (
   `group_id` int(11) NOT NULL,
@@ -9999,6 +10668,12 @@ CREATE TABLE `therapy_groups_participants` (
   PRIMARY KEY (`group_id`,`pid`)
 ) ENGINE=InnoDB;
 
+----------------------------------------------------------
+
+--
+-- Table structure for `therapy_groups_participant_attendance`
+--
+
 DROP TABLE IF EXISTS `therapy_groups_participant_attendance`;
 CREATE TABLE `therapy_groups_participant_attendance` (
   `form_id` int(11) NOT NULL ,
@@ -10008,12 +10683,24 @@ CREATE TABLE `therapy_groups_participant_attendance` (
   PRIMARY KEY (`form_id`,`pid`)
 ) ENGINE=InnoDB;
 
+----------------------------------------------------------
+
+--
+-- Table structure for `therapy_groups_counselors`
+--
+
 DROP TABLE IF EXISTS `therapy_groups_counselors`;
 CREATE TABLE `therapy_groups_counselors`(
 	`group_id` int(11) NOT NULL,
 	`user_id` int(11) NOT NULL,
 	PRIMARY KEY (`group_id`,`user_id`)
 ) ENGINE=InnoDB;
+
+----------------------------------------------------------
+
+--
+-- Table structure for `form_groups_encounter`
+--
 
 DROP TABLE IF EXISTS `form_groups_encounter`;
 CREATE TABLE `form_groups_encounter` (
@@ -10046,18 +10733,30 @@ CREATE TABLE `form_groups_encounter` (
   KEY `encounter_date` (`date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
+----------------------------------------------------------
+
+--
+-- Table structure for `form_therapy_groups_attendance`
+--
+
 DROP TABLE IF EXISTS `form_therapy_groups_attendance`;
 CREATE TABLE `form_therapy_groups_attendance` (
-  id	bigint(20) auto_increment,
-  date	date,
-  group_id	int(11),
-  user	varchar(255),
-  groupname	varchar(255),
-  authorized	tinyint(4),
-  encounter_id	int(11),
+  `id`	bigint(20) auto_increment,
+  `date`	date,
+  `group_id`	int(11),
+  `user`	varchar(255),
+  `groupname`	varchar(255),
+  `authorized`	tinyint(4),
+  `encounter_id`	int(11),
   activity	tinyint(4),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB ;
+
+----------------------------------------------------------
+
+--
+-- Table structure for `patient_birthday_alert`
+--
 
 DROP TABLE IF EXISTS `patient_birthday_alert`;
 CREATE TABLE `patient_birthday_alert` (
