@@ -1471,7 +1471,7 @@ class FormROS extends ORDataObject
 
     function get_options()
     {
-        $ret = array("N/A" => xl('N/A'),"YES" => xl('YES'),"NO" => xl('NO'));
+        $ret = array("N/A" => xlt('N/A'),"YES" => xlt('YES'),"NO" => xlt('NO'));
         return $ret;
     }
 

@@ -4,6 +4,7 @@ include_once(dirname(__FILE__).'/../../globals.php');
 include_once($GLOBALS["srcdir"]."/api.inc");
 function dictation_report($pid, $encounter, $cols, $id)
 {
+    $cols = 1; // force always 1 column
     $count = 0;
     $data = formFetch("form_dictation", $id);
     if ($data) {
@@ -20,8 +21,8 @@ function dictation_report($pid, $encounter, $cols, $id)
             }
 
             $key=ucwords(str_replace("_", " ", $key));
-            print "<tr><td><span class=bold>" . xlt($key) . ": </span><span class=text>" .
-            nl2br(text($value)) . "</span></td></tr>";
+            print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" .
+            nl2br(text($value)) . "</span></td>";
             $count++;
             if ($count == $cols) {
                 $count = 0;
