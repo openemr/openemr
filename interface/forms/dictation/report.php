@@ -20,8 +20,8 @@ function dictation_report($pid, $encounter, $cols, $id)
             }
 
             $key=ucwords(str_replace("_", " ", $key));
-            print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" .
-            nl2br(text($value)) . "</span></td>";
+            print "<tr><td><span class=bold>" . xlt($key) . ": </span><span class=text>" .
+            nl2br(text($value)) . "</span></td></tr>";
             $count++;
             if ($count == $cols) {
                 $count = 0;

@@ -23,12 +23,12 @@
 // Author:   Jacob Paul <jacob@zhservices.com>
 //
 // +------------------------------------------------------------------------------+
+use OpenEMR\Core\Header;
 
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
-
 formHeader("Form:Clinical Instructions Form");
 $returnurl = 'encounter_top.php';
 $formid = 0 + (isset($_GET['id']) ? $_GET['id'] : '');
@@ -36,28 +36,41 @@ $check_res = $formid ? formFetch("form_clinical_instructions", $formid) : array(
 ?>
 <html>
     <head>
-        <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+        <?php Header::setupHeader(); ?>
     </head>
     <body class="body_top">
-        <p><span class="forms-title"><?php echo xlt('Clinical Instructions Form'); ?></span></p>
-        </br>
-        <?php echo "<form method='post' name='my_form' " . "action='$rootdir/forms/clinical_instructions/save.php?id=" . attr($formid) . "'>\n"; ?>
-        <table style="">
-            <tr id="">
-                <td>
-                    <label>
-                        <?php echo xlt('Instructions').':'; ?>
-                    </label>
-                </td>
-                <td>
-                    <textarea name="instruction" id ="instruction" style="width:500px;height:100px;"><?php echo text($check_res['instruction']); ?></textarea>
-                </td>
-                <td>
-                    <input type='submit'  value='<?php echo xla('Save'); ?>' class="button-css">&nbsp; 
-                </td>
-            </tr>
-        </table>
-    </form>    
+        <div class="container">
+            <div class="row">
+                
+                    <div class="page-header">
+                        <h2><?php echo xlt('Clinical Instructions Form'); ?></h2>
+                    </div>
+                
+            </div>
+            <div class="row">
+                    <?php echo "<form method='post' name='my_form' " . "action='$rootdir/forms/clinical_instructions/save.php?id=" . attr($formid) . "'>\n"; ?>
+                        <fieldset>
+                        <legend class=""><?php echo xlt('Instructions'); ?></legend>
+                            <div class="form-group">
+                                <div class="col-sm-10 col-sm-offset-1">
+                                    <textarea name="instruction" id ="instruction"  class="form-control" cols="80" rows="5" ><?php echo text($check_res['instruction']); ?></textarea>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
+                        <div class="form-group clearfix">
+                            <div class="col-sm-12 text-left position-override">
+                                <div class="btn-group btn-group-pinch" role="group">
+                                    <button type='submit' onclick='top.restoreSession()' class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>
+                                    <button type="button" class="btn btn-link btn-cancel btn-separate-left"onclick="top.restoreSession(); location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>';"><?php echo xlt('Cancel');?></button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </form>
+            </div>
+        </div>
+            
     <?php
     formFooter();
     ?>
