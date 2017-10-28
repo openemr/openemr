@@ -16,10 +16,10 @@
  * along with this program; if not, write to the Free Software                  *
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
  \********************************************************************************/
- 
-/* 
-*  Here /interface/globals.php is not referred, because it includes auth.inc. 
-*   auth.inc verifies for user authentication information & login session variables. 
+
+/*
+*  Here /interface/globals.php is not referred, because it includes auth.inc.
+*   auth.inc verifies for user authentication information & login session variables.
 *  Pass these variables $webserver_root & $_GLOBALS[backup_log_dir] as parameters for CRON.
 */
 include_once("$argv[1]/library/sqlconf.php");
@@ -31,5 +31,5 @@ if (!file_exists($BACKUP_EVENTLOG_DIR)) {
 }
 
 $BACKUP_EVENTLOG_DIR=$BACKUP_EVENTLOG_DIR.'/eventlog_'.$backuptime.'.sql';
-$cmd=$argv[1].'/interface/main/backuplog.sh '.$sqlconf["login"].' '.$sqlconf["pass"].' '.$sqlconf["dbase"].' '.$BACKUP_EVENTLOG_DIR.' '.$sqlconf["host"];
+$cmd=$argv[1].'/interface/main/backuplog.sh '.$sqlconf["login"].' '.$sqlconf["pass"].' '.$sqlconf["dbase"].' '.$BACKUP_EVENTLOG_DIR.' '.$sqlconf["host"].' '.$sqlconf["port"];
 system($cmd);
