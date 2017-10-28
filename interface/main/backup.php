@@ -43,8 +43,8 @@ if (!function_exists('gzopen') && function_exists('gzopen64'))
         return gzopen64($filename, $mode, $use_include_path);
       }
     }
-    
-    
+
+
 if (!acl_check('admin', 'super')) die(xl('Not authorized','','','!'));
 
 include_once("Archive/Tar.php");
@@ -181,7 +181,7 @@ if ($form_step == 1) {
     //include routines during backup when de-identification is enabled
     $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
     " -p" . escapeshellarg($sqlconf["pass"]) .
-    " -h" . escapeshellarg($sqlconf["host"]) .
+    " -h " . escapeshellarg($sqlconf["host"]) .
     " --port=".escapeshellarg($sqlconf["port"]) .
     " --routines".
     " --opt --quote-names -r $file_to_compress " .
@@ -191,7 +191,7 @@ if ($form_step == 1) {
   {
     $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
     " -p" . escapeshellarg($sqlconf["pass"]) .
-    " -h" . escapeshellarg($sqlconf["host"]) .
+    " -h " . escapeshellarg($sqlconf["host"]) .
     " --port=".escapeshellarg($sqlconf["port"]) .
     " --opt --quote-names -r $file_to_compress " .
     escapeshellarg($sqlconf["dbase"]);
@@ -363,6 +363,8 @@ if ($form_step == 102)
       {
         $cmd .= "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
                 " -p" . escapeshellarg($sqlconf["pass"]) .
+                " -h " . escapeshellarg($sqlconf["host"]) .
+                " --port=".escapeshellarg($sqlconf["port"]) .
                 " --opt --quote-names " .
                 escapeshellarg($sqlconf["dbase"]) . " $tables";
                 if (IS_WINDOWS)
@@ -379,6 +381,8 @@ if ($form_step == 102)
       }
       $dumppfx = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
                  " -p" . escapeshellarg($sqlconf["pass"]) .
+                 " -h " . escapeshellarg($sqlconf["host"]) . 
+                 " --port=".escapeshellarg($sqlconf["port"]) .
                  " --skip-opt --quote-names --complete-insert --no-create-info";
       // Individual lists.
       if (is_array($_POST['form_sel_lists']))
@@ -494,8 +498,11 @@ if ($form_step == 202) {
     if (move_uploaded_file($_FILES['userfile']['tmp_name'], $EXPORT_FILE)) {
       $form_status .= xl('Applying') . "...<br />";
       echo nl2br($form_status);
-      $cmd = "$mysql_cmd -u" . escapeshellarg($sqlconf["login"]) .
-        " -p" . escapeshellarg($sqlconf["pass"]) . " " .
+      $cmd = "$mysql_cmd -u " . escapeshellarg($sqlconf["login"]) .
+        " -p" . escapeshellarg($sqlconf["pass"]) .
+        " -h " . escapeshellarg($sqlconf["host"]) .
+        " --port=".escapeshellarg($sqlconf["port"]) .
+        " " .
         escapeshellarg($sqlconf["dbase"]) .
         " < $EXPORT_FILE";
     }
@@ -541,6 +548,8 @@ $res=sqlStatement("rename table log_validator to log_validator_backup, log_valid
 echo "<br>";
   $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
     " -p" . escapeshellarg($sqlconf["pass"]) .
+    " -h " . escapeshellarg($sqlconf["host"]) .
+    " --port=".escapeshellarg($sqlconf["port"]) .
     " --opt --quote-names -r $BACKUP_EVENTLOG_FILE " .
     escapeshellarg($sqlconf["dbase"]) ." --tables log_comment_encrypt_backup log_backup log_validator_backup";
 # Set Eventlog Flag when it is done
