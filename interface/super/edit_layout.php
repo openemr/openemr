@@ -782,9 +782,9 @@ function writeFieldLine($linedata)
          htmlspecialchars($linedata['datacols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' style='width:100%' />";
     echo "</td>\n";
     /* Below for compatabilty with existing string modifiers. */
-    if (strpos($linedata['edit_options'], ',') === false && ! empty($linedata['edit_options'])) {
-        json_decode($linedata['edit_options']);
-        if (is_string($linedata['edit_options']) && ! (json_last_error() === JSON_ERROR_NONE)) { // hopefully string of characters.
+    if (strpos($linedata['edit_options'], ',') === false && isset($linedata['edit_options'])) {
+        $t = json_decode($linedata['edit_options']);
+        if (json_last_error() !== JSON_ERROR_NONE || $t === 0) { // hopefully string of characters and 0 handled.
             $t = str_split(trim($linedata['edit_options']));
             $linedata['edit_options'] = json_encode($t); // convert to array select understands.
         }
