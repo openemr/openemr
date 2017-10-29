@@ -1282,7 +1282,7 @@ function generate_form_field($frow, $currvalue)
             $description,
             $showEmpty ? $empty_title : '',
             '',
-            $onchange,
+            $lbfchange,
             '',
             null,
             true,
