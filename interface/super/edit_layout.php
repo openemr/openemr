@@ -2090,21 +2090,25 @@ function layoutLook(){
     return eModal.iframe(params);
 }
 
-function NationNotesContext(lineitem,val){
-  if(val==34){
-    document.getElementById("fld["+lineitem+"][contextName]").style.display='';
-    document.getElementById("fld["+lineitem+"][list_id]").style.display='none';
-    document.getElementById("fld["+lineitem+"][list_id]").value='';
-  }
-  else{
-    document.getElementById("fld["+lineitem+"][list_id]").style.display='';
-    document.getElementById("fld["+lineitem+"][contextName]").style.display='none';
-    document.getElementById("fld["+lineitem+"][list_id]").value='';
-  }
+function NationNotesContext(lineitem, val) {
+    // Check if function is needed.
+    if (!document.body.contains("fld[" + lineitem + "][contextName]") && !document.getElementById("fld[" + lineitem + "][list_id]")) {
+        return false; // these elements don't exist yet so do nothing.
+    }
+    if (val == 34) {
+        document.getElementById("fld[" + lineitem + "][contextName]").style.display = '';
+        document.getElementById("fld[" + lineitem + "][list_id]").style.display = 'none';
+        document.getElementById("fld[" + lineitem + "][list_id]").value = '';
+    }
+    else {
+        document.getElementById("fld[" + lineitem + "][list_id]").style.display = '';
+        document.getElementById("fld[" + lineitem + "][contextName]").style.display = 'none';
+        document.getElementById("fld[" + lineitem + "][list_id]").value = '';
+    }
 }
 
 function SetList(listid) {
-  $(selectedfield).val(listid);
+    $(selectedfield).val(listid);
 }
 
 //////////////////////////////////////////////////////////////////////
