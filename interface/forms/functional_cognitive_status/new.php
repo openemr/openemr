@@ -1,40 +1,27 @@
 <?php
-// +-----------------------------------------------------------------------------+
-// Copyright (C) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-// Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
-//
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-//
-// A copy of the GNU General Public License is included along with this program:
-// openemr/interface/login/GnuGPL.html
-// For more information write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
-// Author:   Jacob T Paul <jacob@zhservices.com>
-//           Vinish K <vinish@zhservices.com>
-//           Brady Miller <brady.g.miller@gmail.com>
-//
-// +------------------------------------------------------------------------------+
+/**
+ * Functional cognitive status form.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jacob T Paul <jacob@zhservices.com>
+ * @author    Vinish K <vinish@zhservices.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
+
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
-formHeader("Form:Functional and Cognitive Status Form");
+use OpenEMR\Core\Header;
+
 $returnurl = 'encounter_top.php';
 $formid = 0 + (isset($_GET['id']) ? $_GET['id'] : '');
 if ($formid) {
@@ -44,7 +31,6 @@ if ($formid) {
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
-
     $check_res = $all;
 }
 
@@ -52,19 +38,18 @@ $check_res = $formid ? $check_res : array();
 ?>
 <html>
     <head>
-        <?php html_header_show(); ?>
+        <title><?php echo xlt("Functional and Cognitive Status"); ?></title>
 
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+        <?php Header::setupHeader(['datetime-picker']);?>
 
-        <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+        <style type="text/css" title="mystyles" media="all">
+            @media only screen and (max-width: 768px) {
+                [class*="col-"] {
+                width: 100%;
+                text-align:left!Important;
+            }
+        </style>
 
-    </head>
-
-    <body class="body_top">
         <script type="text/javascript">
 
             function duplicateRow(e) {
@@ -107,9 +92,8 @@ $check_res = $formid ? $check_res : array();
             function deleteRow(rowId)
             {
                 if (rowId != 'tb_row_1') {
-                    var table = document.getElementById("functional_cognitive_status");
-                    var rowIndex = document.getElementById(rowId).rowIndex;
-                    table.deleteRow(rowIndex);
+                    var elem = document.getElementById(rowId);
+                    elem.parentNode.removeChild(elem);
                 }
             }
 
@@ -155,88 +139,100 @@ $check_res = $formid ? $check_res : array();
                     });
                 });
             });
-
         </script>
-        <p><span class="forms-title"><?php echo xlt('Functional and Cognitive Status Form'); ?></span></p>
-        </br>
-        <?php echo "<form method='post' name='my_form' " . "action='$rootdir/forms/functional_cognitive_status/save.php?id=" . attr($formid) . "'>\n"; ?>
-        <table id="functional_cognitive_status" border="0">
+    </head>
+    <body class="body_top">
+        <div class="container">
+            <div class="row">
+                <div class="page-header">
+                    <h2><?php echo xlt('Functional and Cognitive Status Form'); ?></h2>
+                </div>
+            </div>
+            <div class="row">
+                <form method='post' name='my_form' action='<?php echo $rootdir; ?>/forms/functional_cognitive_status/save.php?id=<?php echo attr($formid); ?>'>
+                    <fieldset>
+                        <legend><?php echo xlt('Enter Details'); ?></legend>
+                        <?php
+                        if (!empty($check_res)) {
+                            foreach ($check_res as $key => $obj) { ?>
+                                <div class="tb_row" id="tb_row_<?php echo attr($key) + 1; ?>">
+                                    <div class="form-group">
+                                        <div class=" forms col-xs-3">
+                                            <label for="code_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Code'); ?>:</label>
+                                            <input type="text" id="code_<?php echo attr($key) + 1; ?>"  name="code[]" class="form-control code" value="<?php echo text($obj{"code"}); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
+                                            <span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext help-block"></span>
+                                            <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo text($obj{"codetext"}); ?>">
+                                        </div>
+                                        <div class="forms col-xs-4">
+                                            <label for="description_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Description'); ?>:</label>
+                                            <textarea name="description[]"  id="description_<?php echo attr($key) + 1; ?>" class="form-control description" rows="3" ><?php echo text($obj{"description"}); ?></textarea>
+                                        </div>
+                                        <div class="forms col-xs-2">
+                                            <label for="code_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Date'); ?>:</label>
+                                            <input type='text' id="code_date_<?php echo attr($key) + 1; ?>" name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj{"date"}); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
+                                        </div>
+                                        <div class="forms col-xs-2">
+                                            <label for="activity_1" class="h5"><?php echo xlt('Active'); ?>:&nbsp;</label>
+                                            <br>
+                                            <input type="checkbox" name="activity[]" onclick="checkVal(this.id);" id="activity_<?php echo $key + 1; ?>" value="<?php echo attr($obj{"activity"}); ?>" <?php echo ($obj{"activity"} == 1) ? "checked='checked'" : ""; ?> class="activity">
+                                            <input  type="hidden" name="activity1[]" id="activity1_<?php echo $key + 1; ?>" value="<?php echo attr($obj{"activity"}); ?>" class="activity1">
+                                        </div>
+                                            <div class="forms col-xs-1" style="padding-top:35px">
+                                                <i class="fa fa-plus-circle fa-2x" aria-hidden="true" onclick="duplicateRow(this.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'></i>
+                                                <i class="fa fa-times-circle fa-2x text-danger"  aria-hidden="true" onclick="deleteRow(this.parentElement.parentElement.parentElement.id);"  title='<?php echo xla('Click here to delete the row'); ?>'></i>
+                                            </div>
+                                        <div class="clearfix"></div>
+                                        <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1;?>">
+                                    </div>
+                                </div>
+                            <?php
+                            }
+                        } else { ?>
+                            <div class="tb_row" id="tb_row_1">
+                            <div class="form-group">
+                                <div class=" forms col-xs-3">
+                                    <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
+                                    <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo text($obj{"code"}); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
+                                    <span id="displaytext_1"  class="displaytext help-block"></span>
+                                    <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo text($obj{"codetext"}); ?>">
+                                </div>
+                                <div class="forms col-xs-5">
+                                    <label for="description_1" class="h5"><?php echo xlt('Description'); ?>:</label>
+                                    <textarea name="description[]"  id="description_1" class="form-control description"  rows="3" ><?php echo text($obj{"description"}); ?></textarea>
+                                </div>
+                                <div class="forms col-xs-2">
+                                    <label for="code_date_1" class="h5"><?php echo xlt('Date'); ?>:</label>
+                                    <input type='text' id="code_date_1"  name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj{"date"}); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
+                                </div>
+                                <div class="forms col-xs-1">
+                                    <label for="activity_1" class="h5"><?php echo xlt('Active'); ?>:&nbsp;</label>
+                                    <br>
+                                    <input type="checkbox" name="activity[]" onclick="checkVal(this.id);" id="activity_1" value="0" class="activity">
+                                    <input type="hidden" name="activity1[]" id="activity1_1" value="0" class="activity1">
+                                </div>
+                                <div class="forms col-xs-1 " style="padding-top:35px">
+                                    <i class="fa fa-plus-circle fa-2x" aria-hidden="true" onclick="duplicateRow(this.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'></i>
+                                    <i class="fa fa-times-circle fa-2x text-danger"  aria-hidden="true" onclick="deleteRow(this.parentElement.parentElement.parentElement.id);"  title='<?php echo xla('Click here to delete the row'); ?>'></i>
+                                </div>
+                                <div class="clearfix"></div>
+                                <input type="hidden" name="count[]" id="count_1" class="count" value="1">
+                            </div>
+                        </div>
+                        <?php }
+                        ?>
+                    </fieldset>
+                    <div class="form-group clearfix">
+                        <div class="col-sm-12 position-override">
+                            <div class="btn-group oe-opt-btn-group-pinch" role="group">
+                                <button type="submit" onclick="top.restoreSession()" class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>
+                                <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>'"><?php echo xlt('Cancel');?></button>
+                                <input type="hidden" id="clickId" value="">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>
 
-            <?php
-            if (!empty($check_res)) {
-                foreach ($check_res as $key => $obj) {
-                    ?>
-                    <tr class="tb_row" id="tb_row_<?php echo $key + 1; ?>">
-                        <td align="left" class="forms"><?php echo xlt('Code'); ?>:</td>
-                        <td class="forms">
-                            <input type="text" id="code_<?php echo $key + 1; ?>" style="width:210px" name="code[]" class="code" value="<?php echo text($obj{"code"}); ?>" onclick='sel_code(this.parentElement.parentElement.id);'><br>
-                            <span id="displaytext_<?php echo $key + 1; ?>" style="width:210px !important;display: block;font-size:13px;color: blue;" class="displaytext"><?php echo text($obj{"codetext"}); ?></span>
-                            <input type="hidden" id="codetext_<?php echo $key + 1; ?>" name="codetext[]" class="codetext" value="<?php echo text($obj{"codetext"}); ?>">
-                        </td>
-                        <td align="left" class="forms"><?php echo xlt('Description'); ?>:</td>
-                        <td class="forms">
-                            <textarea rows="4" id="description_<?php echo $key + 1; ?>" cols="30" name="description[]" class="description"><?php echo text($obj{"description"}); ?></textarea>
-                        </td>
-                        <td align="left" class="forms"><?php echo xlt('Date'); ?>:</td>
-                        <td class="forms">
-                            <input type='text' id="code_date_<?php echo $key + 1; ?>" size='10' name='code_date[]' class="code_date datepicker" <?php echo attr($disabled) ?> value='<?php echo attr($obj{"date"}); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
-                        </td>
-                        <td align="left" class="forms"><?php echo xlt('Active'); ?>:</td>
-                        <td>
-                            <input type="checkbox" name="activity[]" onclick="checkVal(this.id);" id="activity_<?php echo $key + 1; ?>" value="<?php echo text($obj{"activity"}); ?>" <?php if ($obj{"activity"} == 1) {
-                                echo "checked='checked'";
-} ?> class="activity">
-                            <input type="hidden" name="activity1[]" id="activity1_<?php echo $key + 1; ?>" value="<?php echo text($obj{"activity"}); ?>" class="activity1">
-                        </td>
-                        <td>
-                            <img src='../../pic/add.png' onclick="duplicateRow(this.parentElement.parentElement);" align='absbottom' width='27' height='24' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to duplicate the row'); ?>'>
-                            <img src='../../pic/remove.png' onclick="deleteRow(this.parentElement.parentElement.id);" align='absbottom' width='24' height='22' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to delete the row'); ?>'>
-                        </td>
-                </tr>
-                <?php
-                }
-            } else {
-                ?>
-                <tr class="tb_row" id="tb_row_1">
-                <td align="left" class="forms"><?php echo xlt('Code'); ?>:</td>
-                <td class="forms">
-                    <input type="text" id="code_1" name="code[]" class="code" style="width:210px" value="<?php echo text($obj{"code"}); ?>" onclick='sel_code(this.parentElement.parentElement.id);'><br>
-                    <span id="displaytext_1" style="width:210px !important;display: block;font-size:13px;color: blue;" class="displaytext"></span>
-                    <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo text($obj{"codetext"}); ?>">
-                </td>
-                <td align="left" class="forms"><?php echo xlt('Description'); ?>:</td>
-                <td class="forms">
-                    <textarea rows="4" id="description_1" cols="30" name="description[]" class="description"><?php echo text($obj{"description"}); ?></textarea>
-                </td>
-                <td align="left" class="forms"><?php echo xlt('Date'); ?>:</td>
-                <td class="forms">
-                    <input type='text' id="code_date_1" size='10' name='code_date[]' class="code_date datepicker" <?php echo attr($disabled) ?> value='<?php echo attr($obj{"date"}); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
-                </td>
-                <td align="left" class="forms"><?php echo xlt('Active'); ?>:</td>
-                <td>
-                    <input type="checkbox" name="activity[]" onclick="checkVal(this.id);" id="activity_1" value="0" class="activity">
-                    <input type="hidden" name="activity1[]" id="activity1_1" value="0" class="activity1">
-                </td>
-                <td>
-                    <img src='../../pic/add.png' onclick="duplicateRow(this.parentElement.parentElement);" align='absbottom' width='27' height='24' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to duplicate the row'); ?>'>
-                    <img src='../../pic/remove.png' onclick="deleteRow(this.parentElement.parentElement.id);" align='absbottom' width='24' height='22' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to delete the row'); ?>'>
-                </td>
-            </tr>
-            <?php
-            } ?>
-
-    <tr>
-        <td align="left" colspan="5" style="padding-bottom:7px;"></td>
-    </tr>
-    <tr>
-        <td colspan="2"></td>
-        <td colspan="3">
-            <input type="hidden" id="clickId" value="">
-            <input type='submit'  value='<?php echo xla('Save'); ?>' class="button-css">&nbsp;
-        </td>
-    </tr>
-</table>
-</form>
-<?php
-formFooter();
-?>
