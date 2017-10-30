@@ -2430,7 +2430,7 @@ function generate_display_field($frow, $currvalue)
 }
 
 // Generate plain text versions of selected LBF field types.
-// Currently used by interface/patient_file/download_template.php.
+// Currently used by interface/patient_file/download_template.php and interface/main/finder/dynamic_finder_ajax.php.
 // More field types might need to be supported here in the future.
 //
 function generate_plaintext_field($frow, $currvalue)
