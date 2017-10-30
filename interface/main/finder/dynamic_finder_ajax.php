@@ -125,7 +125,7 @@ $out = array(
 
 // save into variable data about fields of 'patient_data' from 'layout_options'
 $fieldsInfo = array();
-$quoteSellist = preg_replace('/(\w+)/i','"${1}"', str_replace('`','',$sellist));
+$quoteSellist = preg_replace('/(\w+)/i', '"${1}"', str_replace('`', '', $sellist));
 $res = sqlStatement('SELECT data_type, field_id, list_id FROM layout_options WHERE form_id = "DEM" AND field_id IN(' . $quoteSellist . ')');
 while ($row = sqlFetchArray($res)) {
     $fieldsInfo[$row['field_id']] = $row;
@@ -153,7 +153,7 @@ while ($row = sqlFetchArray($res)) {
 
             $arow[] = $name;
         } else {
-            $arow[] = isset($fieldsInfo[$colname]) ? generate_plaintext_field($fieldsInfo[$colname],$row[$colname]) : $row[$colname];
+            $arow[] = isset($fieldsInfo[$colname]) ? generate_plaintext_field($fieldsInfo[$colname], $row[$colname]) : $row[$colname];
         }
     }
 
