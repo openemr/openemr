@@ -8,6 +8,7 @@
 // of the License, or (at your option) any later version.
 
 require_once("../../globals.php");
+require_once($GLOBALS['srcdir']."/options.inc.php");
 
 $popup = empty($_REQUEST['popup']) ? 0 : 1;
 
@@ -121,6 +122,15 @@ $out = array(
   "iTotalDisplayRecords" => $iFilteredTotal,
   "aaData"               => array()
 );
+
+// save into variable data about fields of 'patient_data' from 'layout_options'
+$fieldsInfo = array();
+$quoteSellist = preg_replace('/(\w+)/i', '"${1}"', str_replace('`', '', $sellist));
+$res = sqlStatement('SELECT data_type, field_id, list_id FROM layout_options WHERE form_id = "DEM" AND field_id IN(' . $quoteSellist . ')');
+while ($row = sqlFetchArray($res)) {
+    $fieldsInfo[$row['field_id']] = $row;
+}
+
 $query = "SELECT $sellist FROM patient_data $where $orderby $limit";
 $res = sqlStatement($query);
 while ($row = sqlFetchArray($res)) {
@@ -142,10 +152,8 @@ while ($row = sqlFetchArray($res)) {
             }
 
             $arow[] = $name;
-        } else if ($colname == 'DOB' || $colname == 'regdate' || $colname == 'ad_reviewed' || $colname == 'userdate1') {
-            $arow[] = oeFormatShortDate($row[$colname]);
         } else {
-            $arow[] = $row[$colname];
+            $arow[] = isset($fieldsInfo[$colname]) ? generate_plaintext_field($fieldsInfo[$colname], $row[$colname]) : $row[$colname];
         }
     }
 
@@ -156,4 +164,5 @@ while ($row = sqlFetchArray($res)) {
 
 // Dump the output array as JSON.
 //
-echo json_encode($out);
+// Encoding with options for escaping a special chars - JSON_HEX_TAG (<)(>), JSON_HEX_AMP(&), JSON_HEX_APOS('), JSON_HEX_QUOT(").
+echo json_encode($out, 15);

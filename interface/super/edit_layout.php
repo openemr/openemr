@@ -318,6 +318,12 @@ function renameColumn($layout_id, $old_field_id, $new_field_id)
     return 0; // Indicate rename done and successful.
 }
 
+// Test options array for save
+function encodeModifier($jsonArray)
+{
+    return $jsonArray !== null ? json_encode($jsonArray) : "";
+}
+
 // Check authorization.
 $thisauth = acl_check('admin', 'super');
 if (!$thisauth) {
@@ -383,7 +389,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
                 "data_type= '$data_type', "                                .
                 "list_id= '"        . $listval   . "', " .
                 "list_backup_id= '"        . formTrim($iter['list_backup_id'])   . "', " .
-                "edit_options = '"  . json_encode($iter['edit_options']) . "', " .
+                "edit_options = '"  . encodeModifier($iter['edit_options']) . "', " .
                 "default_value = '" . formTrim($iter['default'])   . "', " .
                 "description = '"   . formTrim($iter['desc'])      . "', " .
                 "conditions = '"    . add_escape_custom($conditions) . "', " .
@@ -413,7 +419,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
       ",'" . formTrim($_POST['newtitlecols']) . "'" .
       ",'" . formTrim($_POST['newdatacols']) . "'" .
       ",'$data_type'"                                  .
-        ",'" . json_encode($_POST['newedit_options']) . "'" .
+        ",'" . encodeModifier($_POST['newedit_options']) . "'" .
       ",'" . formTrim($_POST['newdefault']) . "'" .
       ",'" . formTrim($_POST['newdesc']) . "'" .
       ",'"    . formTrim($_POST['newmaxSize'])    . "'"                                 .
@@ -486,7 +492,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
       ",'" . formTrim($_POST['gnewtitlecols']) . "'" .
       ",'" . formTrim($_POST['gnewdatacols']) . "'" .
       ",'$data_type'"                                   .
-        ",'" . json_encode($_POST['gnewedit_options']) . "'" .
+        ",'" . encodeModifier($_POST['gnewedit_options']) . "'" .
       ",'" . formTrim($_POST['gnewdefault']) . "'" .
       ",'" . formTrim($_POST['gnewdesc']) . "'" .
       ",'"    . formTrim($_POST['gnewmaxSize'])    . "'"                                  .
@@ -776,9 +782,9 @@ function writeFieldLine($linedata)
          htmlspecialchars($linedata['datacols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' style='width:100%' />";
     echo "</td>\n";
     /* Below for compatabilty with existing string modifiers. */
-    if (strpos($linedata['edit_options'], ',') === false && ! empty($linedata['edit_options'])) {
-        json_decode($linedata['edit_options']);
-        if (is_string($linedata['edit_options']) && ! (json_last_error() === JSON_ERROR_NONE)) { // hopefully string of characters.
+    if (strpos($linedata['edit_options'], ',') === false && isset($linedata['edit_options'])) {
+        $t = json_decode($linedata['edit_options']);
+        if (json_last_error() !== JSON_ERROR_NONE || $t === 0) { // hopefully string of characters and 0 handled.
             $t = str_split(trim($linedata['edit_options']));
             $linedata['edit_options'] = json_encode($t); // convert to array select understands.
         }
@@ -2084,21 +2090,25 @@ function layoutLook(){
     return eModal.iframe(params);
 }
 
-function NationNotesContext(lineitem,val){
-  if(val==34){
-    document.getElementById("fld["+lineitem+"][contextName]").style.display='';
-    document.getElementById("fld["+lineitem+"][list_id]").style.display='none';
-    document.getElementById("fld["+lineitem+"][list_id]").value='';
-  }
-  else{
-    document.getElementById("fld["+lineitem+"][list_id]").style.display='';
-    document.getElementById("fld["+lineitem+"][contextName]").style.display='none';
-    document.getElementById("fld["+lineitem+"][list_id]").value='';
-  }
+function NationNotesContext(lineitem, val) {
+    // Check if function is needed.
+    if (!document.body.contains("fld[" + lineitem + "][contextName]") && !document.getElementById("fld[" + lineitem + "][list_id]")) {
+        return false; // these elements don't exist yet so do nothing.
+    }
+    if (val == 34) {
+        document.getElementById("fld[" + lineitem + "][contextName]").style.display = '';
+        document.getElementById("fld[" + lineitem + "][list_id]").style.display = 'none';
+        document.getElementById("fld[" + lineitem + "][list_id]").value = '';
+    }
+    else {
+        document.getElementById("fld[" + lineitem + "][list_id]").style.display = '';
+        document.getElementById("fld[" + lineitem + "][contextName]").style.display = 'none';
+        document.getElementById("fld[" + lineitem + "][list_id]").value = '';
+    }
 }
 
 function SetList(listid) {
-  $(selectedfield).val(listid);
+    $(selectedfield).val(listid);
 }
 
 //////////////////////////////////////////////////////////////////////

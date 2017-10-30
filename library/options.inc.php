@@ -1282,7 +1282,7 @@ function generate_form_field($frow, $currvalue)
             $description,
             $showEmpty ? $empty_title : '',
             '',
-            $onchange,
+            $lbfchange,
             '',
             null,
             true,
@@ -2430,7 +2430,7 @@ function generate_display_field($frow, $currvalue)
 }
 
 // Generate plain text versions of selected LBF field types.
-// Currently used by interface/patient_file/download_template.php.
+// Currently used by interface/patient_file/download_template.php and interface/main/finder/dynamic_finder_ajax.php.
 // More field types might need to be supported here in the future.
 //
 function generate_plaintext_field($frow, $currvalue)
@@ -3975,7 +3975,7 @@ EOD;
  */
 function isOption($options, $test)
 {
-    if (empty($options) || empty($test)) {
+    if (empty($options) || !isset($test)) {
         return false; // why bother?
     }
     if (strpos($options, ',') === false) { // could be string of char's or single element of json
@@ -3987,7 +3987,6 @@ function isOption($options, $test)
     }
     $options = json_decode($options);
     
-    return in_array($test, $options, true) ? true : false; // finally!
+    return !is_null($options) && in_array($test, $options, true) ? true : false; // finally!
 }
-
 ?>
