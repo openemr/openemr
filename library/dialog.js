@@ -114,69 +114,117 @@ function dialogID()
   return s4() + s4() + s4() + s4() + s4() + + s4() + s4() + s4();
 }
 
-if(top.tab_mode)
-{
-    dlgOpenWindow=dlgopen;
-    dlgopen=function(url,winname,width,height,forceNewWindow)
-    {
+if (top.tab_mode) {
+    dlgOpenWindow = dlgopen;
+    dlgopen = function (url, winname, width, height, forceNewWindow, title) {
         top.restoreSession();
 
-        if(forceNewWindow)
-        {
-            return dlgOpenWindow(url,winname,width,height);
+        if (forceNewWindow) {
+            return dlgOpenWindow(url, winname, width, height);
         }
-        width=width+20;
-        height=height+20;
+
         var fullURL;
-        if(url[0]==="/")
-        {
-            fullURL=url
+        if (url[0] === "/") {
+            fullURL = url
         }
-        else
-        {
-            fullURL=window.location.href.substr(0,window.location.href.lastIndexOf("/")+1)+url;
-        }
-        var dialogDiv=top.$("#dialogDiv");
-        var dlgIframe={};
-        if(winname!=="_blank")
-        {
-            dlgIframe=dialogDiv.find("iframe[name='"+winname+"']");
-        }
-        else
-        {
-            winname=dialogID();
+        else {
+            fullURL = window.location.href.substr(0, window.location.href.lastIndexOf("/") + 1) + url;
         }
 
+        var dialogDiv = top.$("#dialogDiv");
+        var dlgIframe = {};
+        if (winname !== "_blank") { // @TODO Check if bug below
+            // even if a frame is given this dlgIframe was over written by dlgIframe below.
+            // a bug or not needed any longer ... check for intent or where/how used.
+            dlgIframe = dialogDiv.find("iframe[name='" + winname + "']");
+        }
+        else {
+            winname = dialogID();
+        }
 
-        dlgIframe=top.$("<iframe></iframe>");
-        dlgIframe.attr("name",winname);
+        // dlgIframe = top.$("<iframe></iframe>");
+        // dlgIframe.attr("name", winname);
 
-        var dlgDivContainer=top.$("<div class='dialogIframe'></div>");
-        var closeDlg=top.$("<div class='closeDlgIframe'></div>");
-        dlgDivContainer.append(closeDlg);
-        closeDlg.click(function()
-        {
-            var body=top.$("body");
-            var closeItems=body.find("[name='"+winname+"']");
-            closeItems.remove();
-            if(body.children("div.dialogIframe").length===0)
-            {
-                dialogDiv.hide();
-            };
-        })
-        dlgDivContainer.attr("name",winname);
-        dlgDivContainer.append(dlgIframe);
-        dlgDivContainer.css({"left":(top.$("body").width()-width)/2
-                       ,"top": "5em"
-                       ,"height":height
-                       ,"width":width});
+        // Convert legacy dialog size to percentages and css classes.
+        if(width < 401) mSize = 'modal-sm';
+        else if(width < 801) mSize = 'modal-md';
+        else if(width < 1001) mSize = 'modal-lg';
+        else mSize = 'modal-xl';
+        //var mSize = 'modal-xl'; // test
+        if(mSize == 'modal-sm') msSize = '<style>.modal-sm{width:20%;}</style>';
+        else if(mSize == 'modal-md') msSize = '<style>.modal-md{width:40%;}</style>';
+        else if(mSize == 'modal-lg') msSize = '<style>.modal-lg{width:60%;}</style>';
+        else msSize = '<style>.modal-xl{width:96%;}</style>';
 
+        // Build modal html
+        title = title > "" ? title : "OpenEMR";
+        var mTitle = "<h4>"+title+"</h4>";
+        var waitHtml = '<div class="loadProgress text-center"><span><h5>Loading</h5>'+
+            '<span class="fa fa-circle-o-notch fa-spin fa-3x text-primary"></span>'+
+            '</span></div>';
+        var mhtml = ('<div id="dialogModal" class="modal fade" tabindex="-1" role="dialog">%99%' +
+            '<div class="modal-dialog %3%"><div class="modal-content"><div class="modal-header">%4%%1%</div>'+
+            '<div class="closeDlgIframe" data-dismiss="modal" ></div>'+
+            /*'<div class="modal-body"></div>' +*/
+            '<iframe id="mIframe" class="embed-responsive-item modalIframe" name="%0%" frameborder=0 '+
+                'style="width:100%;height:87.5vh;overflow-y:auto;display:block;" src="%2%"></iframe>' +
+            '</div></div></div>')
+            .replace('%0%', winname)
+            .replace('%1%', waitHtml)
+            .replace('%2%', fullURL)
+            .replace('%3%', mSize)
+            .replace('%4%', mTitle)
+            .replace('%99%', msSize !== "default" ? msSize : '');
+
+        var dlgDivContainer = top.$(mhtml);
+        dlgDivContainer.attr("name", winname);
         top.$("body").append(dlgDivContainer);
-        top.set_opener(winname,window);
-        dlgIframe.get(0).src=fullURL;
 
-        dialogDiv.show();
+        top.set_opener(winname, window); // @TODO Leave for now. Not sure this is needed any longer!
 
+        // Setup events needed to detect a window.close, cleanup and auto size modal height on show.
+        top.$("body").find("[name='" + winname + "']").on('load', function (e) {
+            var fht = this.contentDocument.activeElement.offsetHeight;
+            var vpht = top.window.innerHeight;
+            var size = (fht / vpht * 100) + 5;
+            this.style.maxHeight = '95vh';
+            this.style.height = size + 'vh';
 
-    }
+            $(this).parent().find('div.loadProgress')
+                .fadeOut(function () {
+                    $(this).remove();
+                });
+
+            this.contentWindow.onunload = function (e) {
+                top.$('#dialogModal').modal('hide');
+                console.log('window close event fired!');
+            };
+        });
+
+        // Setup resize and drag
+        top.$('.modal-content').resizable({
+            alsoResize: ".modalIframe",
+            classes: {
+                "ui-resizable": "highlight"
+            }
+        });
+        top.$('.modal-dialog').draggable();
+
+        top.$('#dialogModal').on('show.bs.modal', function () {
+            $(this).find('.modal-content').css({
+                'max-height': '100%'
+            });
+        });
+
+        // Remove modal html on close.
+        top.$('#dialogModal').on('hidden.bs.modal', function (e) {
+            top.$('.modal-content').resizable( "destroy" );
+            $(this).remove();
+        });
+
+        // Show Modal
+        top.$('#dialogModal').modal()
+
+    };
+
 }

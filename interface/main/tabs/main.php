@@ -107,7 +107,7 @@ function isEncounterLocked( encounterId ) {
 var webroot_url="<?php echo $web_root; ?>";
 </script>
 
-<?php Header::setupHeader(["knockout","tabs-theme"]); ?>
+<?php Header::setupHeader(["knockout","tabs-theme",'jquery-ui','jquery-ui-sunny']); ?>
 
 
 <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />

@@ -1192,7 +1192,7 @@ function cidChanged(lino, seq) {
 // This invokes the popup to edit layout properties or add a new layout.
 function edit_layout_props(groupid) {
  dlgopen('edit_layout_props.php?layout_id=<?php echo attr($layout_id); ?>&group_id=' + groupid,
-  '_blank', 700, 550);
+  '_blank', 700, 550, '', 'Layout Properties');
 }
 
 // callback from edit_layout_props.php:
@@ -2078,16 +2078,8 @@ function layoutLook(){
     var btnName = "<?php echo xla('Back To Editor');?>";
     var url = "../patient_file/encounter/view_form.php?isShow&id=0&formname=" + form;
     var title = "<?php echo xla('LBF Encounter Form Preview');?>";
-    eModal.setEModalOptions({
-        loadingHtml: '<span class="fa fa-circle-o-notch fa-spin fa-3x text-primary"></span><h4><?php echo xla('Loading Form');?></h4>'
-    });
-    var params = {
-        buttons: [{ text: btnName, style: 'success btn-md', close:true}],
-        size: eModal.size.xl,
-        title: title,
-        url: url
-    };
-    return eModal.iframe(params);
+    dlgopen(url, '_blank', 1000, 400, '', title);
+    return false;
 }
 
 function NationNotesContext(lineitem, val) {
