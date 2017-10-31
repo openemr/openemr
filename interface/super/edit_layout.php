@@ -2092,7 +2092,7 @@ function layoutLook(){
 
 function NationNotesContext(lineitem, val) {
     // Check if function is needed.
-    if (!document.body.contains("fld[" + lineitem + "][contextName]") && !document.getElementById("fld[" + lineitem + "][list_id]")) {
+    if (!document.getElementById("fld[" + lineitem + "][contextName]") || !document.getElementById("fld[" + lineitem + "][list_id]")) {
         return false; // these elements don't exist yet so do nothing.
     }
     if (val == 34) {
