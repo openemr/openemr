@@ -346,7 +346,7 @@ function divtoggle(spanid, divid) {
         padding:0px;
         margin:0px;
     }
-    
+
     .encounter-summary-container {
         float:left;
         width:100%;
@@ -367,11 +367,7 @@ function divtoggle(spanid, divid) {
 function openNewForm(sel) {
   top.restoreSession();
   FormNameValueArray = sel.split('formname=');
-  if(FormNameValueArray[1] == 'newpatient' || FormNameValueArray[1] == 'newGroupEncounter')
-  {
-    parent.location.href = sel;
-  }
-  else if (!parent.Forms)
+  if (!parent.Forms)
   {
     location.href = sel;
   }
