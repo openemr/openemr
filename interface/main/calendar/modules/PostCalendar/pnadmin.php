@@ -1469,7 +1469,7 @@ function postcalendar_admin_categoriesUpdate()
 /**
 * Creates a new category
 */
-function postcalendar_admin_categories($msg = '', $e = '', $args)
+function postcalendar_admin_categories($msg = '', $e = '', $args = array())
 {
     if (!PC_ACCESS_ADD) {
         return _POSTCALENDARNOAUTH; }
