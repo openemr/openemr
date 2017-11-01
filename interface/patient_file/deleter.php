@@ -205,12 +205,17 @@ document.deletefrm.submit();
 }
 // Java script function for closing the popup
 function popup_close() {
-    if(parent.$==undefined) {
-        window.close();
-     }
-     else {
-        parent.$.fn.fancybox.close();
-     }
+	if(parent.$==undefined) {
+	  	window.close();
+	 }
+	 //back to main screen after delete action
+	else if(parent.$.fn.fancybox == undefined)
+	{
+		top.frames.document.getElementsByClassName('closeDlgIframe')[0].click();
+	}
+	 else {
+	  	parent.$.fn.fancybox.close(); 
+	 }	  
 }
 </script>
 </head>
@@ -416,21 +421,22 @@ if ($_POST['form_submit']) {
 
   // Close this window and tell our opener that it's done.
   //
-    echo "<script language='JavaScript'>\n";
-    if ($info_msg) {
-        echo " alert('" . addslashes($info_msg) . "');\n";
-    }
-
-    if ($encounterid) { //this code need to be same as 'parent.imdeleted($encounterid)' when the popup is div like
-        echo "window.opener.imdeleted('" . attr($encounterid) . "');\n";
-    } else {
-        echo " if (opener && opener.imdeleted) opener.imdeleted(); else parent.imdeleted();\n";
-    }
-
-    echo " window.close();\n";
-    echo "</script></body></html>\n";
-    exit();
-}
+  echo "<script language='JavaScript'>\n";
+  if ($info_msg) echo " alert('" . addslashes($info_msg) . "');\n";
+  if ($encounterid) //this code need to be same as 'parent.imdeleted($encounterid)' when the popup is div like
+  {
+  
+    echo "window.opener.imdeleted(" . attr($encounterid) . ");\n";
+  }
+  else
+  {
+    echo " if (opener && opener.imdeleted) opener.imdeleted(); else parent.imdeleted();\n";
+  }
+  echo " window.close();\n";
+  //back to main screen after delete action
+  echo "</script><br><button class='css_button closewindow' onclick='popup_close()'>Back</button></body></html>\n";
+  exit();
+ }
 ?>
 
 <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo attr($patient) ?>&encounterid=<?php echo attr($encounterid) ?>&formid=<?php echo attr($formid) ?>&issue=<?php echo attr($issue) ?>&document=<?php echo attr($document) ?>&payment=<?php echo attr($payment) ?>&billing=<?php echo attr($billing) ?>&transaction=<?php echo attr($transaction) ?>' onsubmit="javascript:alert('1');document.deleform.submit();">
