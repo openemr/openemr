@@ -2182,7 +2182,7 @@ function postcalendar_admin_categoryDetail($args)
     return $output->GetOutput();
 }
 
-function postcalendar_admin_categoryLimits($msg = '', $e = '', $args)
+function postcalendar_admin_categoryLimits($msg = '', $e = '', $args = array())
 {
     if (!PC_ACCESS_ADD) {
         return _POSTCALENDARNOAUTH; }
