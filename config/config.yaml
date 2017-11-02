@@ -27,6 +27,10 @@ assets:
         basePath: %assets_static_relative%/bootstrap-sidebar-0-2-2/dist/
         script: js/sidebar.js
         link: css/sidebar.css
+    main-theme:
+        alreadyBuilt: true
+        link: %css_header%
+        autoload: true
     tabs-theme:
         basePath: %webroot%/interface/themes/
         link: %theme_tabs_layout%
