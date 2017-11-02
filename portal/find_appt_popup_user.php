@@ -324,11 +324,11 @@ if ($_REQUEST['startdate'] && preg_match(
 <head>
 <?php html_header_show(); ?>
 <title><?php xl('Find Available Appointments', 'e'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
     <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
 <?php } ?>
+<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 
