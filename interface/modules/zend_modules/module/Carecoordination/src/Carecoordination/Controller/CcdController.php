@@ -16,7 +16,7 @@
 *    You should have received a copy of the GNU Affero General Public License
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *
-*    @author  Riju KP <rijukp@zhservices.com>
+*    @author  Riju KP <rijukp@zhservices.com> 
 * +------------------------------------------------------------------------------+
 */
 namespace Carecoordination\Controller;
@@ -35,11 +35,11 @@ use xmltoarray_parser_htmlfix;
 class CcdController extends AbstractActionController
 {
     protected $ccdTable;
-    public function __construct($sm = null)
+    public function __construct($sm)
     {
         $this->listenerObject = new Listener;
     }
-
+    
     /*
     * Upload CCD file
     */
@@ -48,7 +48,7 @@ class CcdController extends AbstractActionController
         $request          = $this->getRequest();
         $upload           = $request->getPost('upload');
         $category_details = \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->fetch_cat_id('CCD');
-
+      
         if ($upload == 1) {
             $time_start         = date('Y-m-d H:i:s');
             $cdoc               = \Documents\Controller\DocumentsController::uploadAction();
@@ -69,7 +69,7 @@ class CcdController extends AbstractActionController
                 }
             }
         }
-
+      
         $records = \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCD','type' => '13'));
         $view = new ViewModel(array(
           'records'       => $records,
@@ -80,7 +80,7 @@ class CcdController extends AbstractActionController
         ));
         return $view;
     }
-
+    
     /*
     * Function to import the data CCD file to audit tables.
     *
@@ -98,12 +98,12 @@ class CcdController extends AbstractActionController
 
         $document_id                      =    $_REQUEST["document_id"];
         $xml_content                      =    \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->getDocument($document_id);
-
+        
         $xmltoarray                       =    new \Zend\Config\Reader\Xml();
         $array                            =    $xmltoarray->fromString((string) $xml_content);
-
+        
         $this->getCcdTable()->import($array, $document_id);
-
+        
         $view = new ViewModel();
         $view->setTerminal(true);
         return $view;
