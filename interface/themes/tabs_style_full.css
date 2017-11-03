@@ -384,10 +384,9 @@ div.closeDlgIframe:before {
  * --Robert Down */
 .menuLabel
 {
-    font-size: 0.95em;
     color: #333;
     padding: 15px 10px;
-    font-weight: 600;
+    font-weight: 700;
 }
 .menuLabel:hover {
     background: #CCE3F8;
@@ -401,7 +400,6 @@ div.menuLabel:hover {
 
 /** Sub menu **/
 .menuEntries li .menuLabel {
-    font-size: 0.9em;
     display: block;
     padding: 10px 20px;
 }
