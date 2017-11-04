@@ -70,7 +70,6 @@ class Header
     {
         try {
             html_header_show();
-            echo self::loadTheme();
             echo self::includeAsset($assets);
         } catch (\InvalidArgumentException $e) {
             error_log($e->getMessage());
@@ -104,9 +103,10 @@ class Header
 
         foreach ($map as $k => $opts) {
             $autoload = (isset($opts['autoload'])) ? $opts['autoload'] : false;
+            $alreadyBuilt = (isset($opts['alreadyBuilt'])) ? $opts['alreadyBuilt'] : false;
             $rtl = (isset($opts['rtl'])) ? $opts['rtl'] : false;
             if ($autoload === true || in_array($k, $assets)) {
-                $tmp = self::buildAsset($opts);
+                $tmp = self::buildAsset($opts, $alreadyBuilt);
 
                 foreach ($tmp['scripts'] as $s) {
                     $scripts[] = $s;
@@ -117,7 +117,7 @@ class Header
                 }
 
                 if ($rtl && $_SESSION['language_direction'] == 'rtl') {
-                    $tmpRtl = self::buildAsset($rtl);
+                    $tmpRtl = self::buildAsset($rtl, $alreadyBuilt);
                     foreach ($tmpRtl['scripts'] as $s) {
                         $scripts[] = $s;
                     }
@@ -138,9 +138,10 @@ class Header
      * Build an html element from config options.
      *
      * @var array $opts Options
+     * @var boolean $alreadyBuilt - This means the path with cache busting segment has already been built
      * @return array Array with `scripts` and `links` keys which contain arrays of elements
      */
-    private static function buildAsset($opts = array())
+    private static function buildAsset($opts = array(), $alreadyBuilt = false)
     {
         $script = (isset($opts['script'])) ? $opts['script'] : false;
         $link = (isset($opts['link'])) ? $opts['link'] : false;
@@ -151,7 +152,11 @@ class Header
 
         if ($script) {
             $script = self::parsePlaceholders($script);
-            $path = self::createFullPath($basePath, $script);
+            if ($alreadyBuilt) {
+                $path = $script;
+            } else {
+                $path = self::createFullPath($basePath, $script);
+            }
             $scripts[] = self::createElement($path, 'script');
         }
 
@@ -166,18 +171,16 @@ class Header
 
             foreach ($link as $l) {
                 $l = self::parsePlaceholders($l);
-                $path = self::createFullPath($basePath, $l);
+                if ($alreadyBuilt) {
+                    $path = $l;
+                } else {
+                    $path = self::createFullPath($basePath, $l);
+                }
                 $links[] = self::createElement($path, 'link');
             }
         }
 
         return ['scripts' => $scripts, 'links' => $links];
-    }
-
-    private static function loadTheme()
-    {
-        $link = '<link rel="stylesheet" href="%css_header%" type="text/css">';
-        return self::parsePlaceholders($link);
     }
 
     /**

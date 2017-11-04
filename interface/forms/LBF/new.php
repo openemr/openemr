@@ -317,11 +317,11 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 <html>
 <head>
 <?php html_header_show();?>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
 <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
 <?php } ?>
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
@@ -970,7 +970,7 @@ while ($frow = sqlFetchArray($fres)) {
             // Must have edit option "I" in first item for its group to be initially open.
             $display_style = isOption($edit_options, 'I') === false ? 'none' : 'block';
         }
- 
+
             // If group name is blank, no checkbox or div.
         if (strlen($gname)) {
             echo "<br /><span class='bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " .
@@ -1039,7 +1039,7 @@ while ($frow = sqlFetchArray($fres)) {
         } else {
             echo " <tr>";
         }
-            
+
             // Clear historical data string.
         foreach ($historical_ids as $key => $dummy) {
             $historical_ids[$key] = '';
