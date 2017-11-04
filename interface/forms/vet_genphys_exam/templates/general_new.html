@@ -1,0 +1,449 @@
+<html>
+<head>
+{php}html_header_show();{/php}
+{literal}
+<!--// version 0.9  Copyright (C) 2017 Roland Wick <ronhen_at_yandex_com>
+TO DO : Temperature and Weight are taken from today's vitals entry if done by member clin. staff = not functional yet
+        internationalization C/F Kg/Lb
+ 
+-->
+ <style type="text/css" title="mystyles" media="all">
+<!--
+td {
+	font-size:11pt;
+	font-family:sans-serif;
+}
+li{
+	font-size:11pt;
+	font-family:sans-serif;
+	margin-left: 15px;
+}
+a {
+	font-size:11pt;
+	font-family:helvetica;
+}
+.title {
+	font-family: sans-serif;
+	font-size: 12pt;
+	font-weight: bold;
+	text-decoration: none;
+	color: #000000;
+}
+
+.form_text{
+	font-family: sans-serif;
+	font-size: 9pt;
+	text-decoration: none;
+	color: #000000;
+}
+
+-->
+</style>
+{/literal} 
+</head>
+<body bgcolor="{$STYLE.BGCOLOR2}">
+
+<form name="vet_genphys_exam" method="post" action="{$FORM_ACTION}/interface/forms/vet_genphys_exam/save.php"
+ onsubmit="return top.restoreSession()">
+<p><span class="title">{xl t="Vet General Physical Exam"}</span> -- <span class="text"> {xl t="Provider"}:<input type=text name='user' size="38" value="{$data->get_user()}"/> -- {xl t="Species"}<input type=text name='Species' size="38" value="{$data->get_species()}"/>
+<table width="65%" border="0px">
+  <tr> 
+    <td class="label">{xl t="Date/Time"}:</td>
+    <td class="text"><input type="text" name="date" value="{$data->get_date()}"</td>
+    <td class="label">{xl t="Presenting complaint"}</td>
+    <td class="text"><input type=text name="presenting_complaint" size="50" value="{$data->get_presenting_complaint()}"/></td>
+  </tr>
+
+  <tr> 
+    <td class="label">{xl t="Consciousness"}:</td>
+    <td class="text"><select name="consciousness" id="consciousness"/>
+    		<option value="BALR" {if $data->get_consciousness() == "BALR"  || $data->get_consciousness() == 1 } selected{/if}>{xl t="bright/alert/responsive"}</option>
+			<option value="UNHY" {if $data->get_consciousness() == "UNHY"  || $data->get_consciousness() == 2 } selected{/if}>{xl t="uncontrolled/hyperexcitable"}</option>
+			<option value="SOPO" {if $data->get_consciousness() == "SOPO"  || $data->get_consciousness() == 3 } selected{/if}>{xl t="sopor"}</option>
+			<option value='STUP' {if $data->get_consciousness() == "STUP"  || $data->get_consciousness() == 4 } selected{/if}>{xl t="stupor"}</option>
+			<option value='COMA' {if $data->get_consciousness() == "COMA"  || $data->get_consciousness() == 5 } selected{/if}>{xl t="coma"}</option>
+			</select></td>
+    <td class="label">{xl t="Behaviour"}: </td>
+    <td class="text"><select name="behaviour" id="behaviour"/>
+    		<option value="BAL" {if $data->get_behaviour() == "BAL"  || $data->get_behaviour() == 1 } selected{/if}>{xl t="balanced"}</option>
+			<option value="UNC" {if $data->get_behaviour() == "UNC"  || $data->get_behaviour() == 2 } selected{/if}>{xl t="uncertain"}</option>
+			<option value="ANX" {if $data->get_behaviour() == "ANX"  || $data->get_behaviour() == 3 } selected{/if}>{xl t="anxious"}</option>
+			<option value="FEA" {if $data->get_behaviour() == "FEA"  || $data->get_behaviour() == 4 } selected{/if}>{xl t="fearful"}</option>
+			<option value="AGR" {if $data->get_behaviour() == "AGR"  || $data->get_behaviour() == 5 } selected{/if}>{xl t="aggressive"}</option>
+			</select></td>
+  </tr>
+  
+  <tr> 
+    <td class="label">{xl t="Gait"}</td>
+    <td class="text"><input type=text name="gait" size="40" value="{$data->get_gait()}"/></td>
+    <td class="label">{xl t="Notes"}:</td>
+    <td class="text"><input type=text name="general_notes" size="50" value="{$data->get_general_notes()}"/></td>
+ </tr>
+ 
+  <tr> 
+    <td class="label">{xl t="Gen. condition"}</td>
+    <td class="text"><select name="general_condition" id="general_condition"/>
+    		<option value="A" {if $data->get_general_condition() == "A"  || $data->get_general_condition() == 1 } selected{/if}>{xl t="normal"}</option>
+			<option value="B" {if $data->get_general_condition() == "B"  || $data->get_general_condition() == 2 } selected{/if}>{xl t="minimally disturbed"}</option>
+			<option value="C" {if $data->get_general_condition() == "C"  || $data->get_general_condition() == 3 } selected{/if}>{xl t="disturbed"}</option>
+			<option value="D" {if $data->get_general_condition() == "D"  || $data->get_general_condition() == 4 } selected{/if}>{xl t="clearly disturbed"}</option>
+			</select></td>
+				
+    <td class="label">{xl t="BWSc"} :</td>
+    <td class="text"><select name="bws_bodyscore" id="bws_bodyscore"/>
+    		<option value=""> unassigned</option>
+			<option value="1/5" {if $data->get_bws_bodyscore() == "1/5"  || $data->get_bws_bodyscore() == 1 } selected{/if}>{xl t="cachectic 1/5"}</option>
+			<option value="2/5" {if $data->get_bws_bodyscore() == "2/5"  || $data->get_bws_bodyscore() == 2 } selected{/if}>{xl t="underweight 2/5"}</option>
+			<option value="3/5" {if $data->get_bws_bodyscore() == "3/5"  || $data->get_bws_bodyscore() == 3 } selected{/if}>{xl t="ideal 3/5"}</option>
+			<option value="4/5" {if $data->get_bws_bodyscore() == "4/5"  || $data->get_bws_bodyscore() == 4 } selected{/if}>{xl t="overweight 4/5"}</option>
+			<option value="5/5" {if $data->get_bws_bodyscore() == "5/5"  || $data->get_bws_bodyscore() == 5 } selected{/if}>{xl t="adipose 5/5"}</option>
+			</select></td>
+  </tr>
+
+  <tr> 
+    <td class="label">{xl t="Body posture"}</td>
+    <td class="text"><input type=text name="body_posture" size="40" value="{$data->get_body_posture()}"/></td>
+    <td class="label">{xl t="Care condition"}</td>
+    <td class="text"><select name="care_condition" id="care_condition"/>
+    		<option value="">{xl t="unassigned"}</option> 
+			<option value="1" {if $data->get_care_condition() == "1"  || $data->get_care_condition() == 1 } selected{/if}>{xl t="very well groomed"}</option>
+			<option value="2" {if $data->get_care_condition() == "2"  || $data->get_care_condition() == 2 } selected{/if}>{xl t="well groomed</option>"}
+			<option value="3" {if $data->get_care_condition() == "3"  || $data->get_care_condition() == 3 } selected{/if}>{xl t="minimal</option>"}
+			<option value="4" {if $data->get_care_condition() == "4"  || $data->get_care_condition() == 4 } selected{/if}>{xl t="neglected</option>"}
+			</select></td>
+    
+  </tr>
+
+   <tr> 
+    <td class="label">{xl t="Weight"}:</td>
+    <td class="text">{$data->get_weight()} Kg.</td>
+    <td class="label">{xl t="Temperature"}: </td>
+    <td class="text">{$data->get_temperature()} &deg; C</td>
+  </tr>
+
+  <tr> 
+    <td class="label">{xl t="Anamnesis"} :</td>
+    <td class="text">&nbsp;</td>
+    <td class="label">&nbsp;</td>
+    <td class="text">&nbsp;</td>
+    
+  </tr>
+  <tr> 
+    <td style="background-color:#ffffcc;" colspan="4" height="64"><textarea name="anamnesis" cols="120" rows="4">{$data->get_anamnesis()}</textarea></td>
+  </tr>
+ 
+   <tr> 
+    <td colspan="2"><span class="title"><u>{xl t="Circulation"}:</u></span></td>
+    <td colspan="2"><span class="title"><u>{xl t="Respiration"}:</u></span></td>
+  </tr>
+ 
+  <tr> 
+    <td class="label">{xl t="Heart Frequency"}</td>
+    <td class="text"><input type=text name="heart_frequency" size="4" value="{$data->get_heart_frequency()}"/></td>
+    <td class="label">{xl t="Resp. frequency"}</td>
+    <td class="text"><input type=text name="respiration_frequency" size="4" value="{$data->get_respiration_frequency()}"/></td>
+  </tr>
+
+  <tr> 
+    <td class="label">{xl t="Heart tones"}</td>
+    <td class="text"><select name="heart_tones" id="heart_tones"/>
+    		<option value="">{xl t="unassigned"}</option>
+			<option value="pure" {if $data->get_heart_tones() == "pure"  || $data->get_heart_tones() == 1 } selected{/if}>{xl t="pure"}</option>
+			<option value="impure" {if $data->get_heart_tones() == "impure"  || $data->get_heart_tones() == 2 } selected{/if}>{xl t="impure"}</option>
+			</select></td>
+    <td class="label">{xl t="Respiration type"}</td>
+    <td class="text"><select name="respiration_type" id="respiration_type"/>
+    		<option value=""> unassigned</option>
+			<option value="ABDO" {if $data->get_respiration_type() == "ABDO"  || $data->get_respiration_type() == 1 } selected{/if}>{xl t="abdominal"}</option>
+			<option value="COAB" {if $data->get_respiration_type() == "COAB"  || $data->get_respiration_type() == 2 } selected{/if}>{xl t="costoabdominal"}</option>
+			<option value="COST" {if $data->get_respiration_type() == "COST"  || $data->get_respiration_type() == 3 } selected{/if}>{xl t="costal"}</option>
+			<option value="LALT" {if $data->get_respiration_type() == "LALT"  || $data->get_respiration_type() == 4 } selected{/if}>{xl t="laboured/alternating"}</option>
+			</select></td>
+    
+  </tr>
+ 
+  <tr> 
+    <td class="label">{xl t="Heart murmur"}</td>
+    <td class="text"><select name="heart_murmur" id="heart_murmur"/>
+    		<option value="0" {if $data->get_heart_murmur() == "0"  || $data->get_heart_murmur() == 0 } selected{/if}>{xl t="not audible"}</option>
+			<option value="1" {if $data->get_heart_murmur() == "1"  || $data->get_heart_murmur() == 1 } selected{/if}>{xl t="Grade I"}</option>
+			<option value="2" {if $data->get_heart_murmur() == "2"  || $data->get_heart_murmur() == 2 } selected{/if}>{xl t="Grade II"}</option>
+			<option value="3" {if $data->get_heart_murmur() == "3"  || $data->get_heart_murmur() == 3 } selected{/if}>{xl t="Grade III"}</option>
+			<option value="4" {if $data->get_heart_murmur() == "4"  || $data->get_heart_murmur() == 4 } selected{/if}>{xl t="Grade IV"}</option>
+			<option value="5" {if $data->get_heart_murmur() == "5"  || $data->get_heart_murmur() == 5 } selected{/if}>{xl t="Grade V"}</option>
+			<option value="6" {if $data->get_heart_murmur() == "6"  || $data->get_heart_murmur() == 6 } selected{/if}>{xl t="Grade VI"}</option>
+			</select></td>
+    <td class="label">{xl t="Resp. character"}</td>
+    <td class="text"><select name="respiration_character" id="respiration_character"/>
+    		<option value="">{xl t="unassigned"}</option>
+			<option value="ortho" {if $data->get_respiration_character() == "ortho"  || $data->get_respiration_character() == 1 } selected{/if}>{xl t="orthopnoe"}</option>
+			<option value="normo" {if $data->get_respiration_character() == "normo"  || $data->get_respiration_character() == 2 } selected{/if}>{xl t="normopnoe"}</option>
+			<option value="tachy" {if $data->get_respiration_character() == "tachy"  || $data->get_respiration_character() == 3 } selected{/if}>{xl t="tachypnoe"}</option>
+			<option value="dysp" {if $data->get_respiration_character() == "dysp"  || $data->get_respiration_character() == 4 } selected{/if}>{xl t="dyspnoe"}</option>
+			<option value="apno" {if $data->get_respiration_character() == "apno"  || $data->get_respiration_character() == 5 } selected{/if}>{xl t="apnoe"}</option>
+			<option value="hyper" {if $data->get_respiration_character() == "hyper"  || $data->get_respiration_character() == 6 } selected{/if}>{xl t="hyperpnoe"}</option>
+			<option value="hypo" {if $data->get_respiration_character() == "hypo"  || $data->get_respiration_character() == 7 } selected{/if}>{xl t="hypopnoe"}</option>
+			<option value="pant" {if $data->get_respiration_character() == "pant"  || $data->get_respiration_character() == 8 } selected{/if}>{xl t="panting"}</option>
+			<option value="gasp" {if $data->get_respiration_character() == "gasp"  || $data->get_respiration_character() == 9 } selected{/if}>{xl t="gasping"}</option>
+			</select></td>
+  </tr>
+
+  <tr> 
+    <td class="label">{xl t="Heart murmur phase"}</td>
+    <td class="text"><select name="heart_murmur_phase" id="heart_murmur_phase"/>
+    		<option value="">{xl t="unassigned"}</option>
+			<option value="systole" {if $data->get_heart_murmur_phase() == "systole"  || $data->get_heart_murmur_phase() == 1 } selected{/if}>{xl t="systolic"}</option>
+			<option value="diastole" {if $data->get_heart_murmur_phase() == "diastole"  || $data->get_heart_murmur_phase() == 2 } selected{/if}>{xl t="diastolic"}</option>
+			<option value="continu" {if $data->get_heart_murmur_phase() == "continu"  || $data->get_heart_murmur_phase() == 3 } selected{/if}>{xl t="continuous"}</option>
+			</select></td>
+    <td class="label" colspan="2">{xl t="Auscultation"}:
+	    <div style="border: 1px solid grey; background-color: ivory; width: 100%; position: relative;">
+    		<input type="checkbox" name="lungf_ausc_1" value="NRM" {if $data->get_lungf_ausc_1() == "NRM" } checked{/if} />{xl t="normal"}
+			<input type="checkbox" name="lungf_ausc_2" value="BRO" {if $data->get_lungf_ausc_2() == "BRO" } checked{/if} />{xl t="bronchial"}
+			<input type="checkbox" name="lungf_ausc_3" value="RHO" {if $data->get_lungf_ausc_3() == "RHO" } checked{/if} />{xl t="rhonchi"}
+			<input type="checkbox" name="lungf_ausc_4" value="SIB" {if $data->get_lungf_ausc_4() == "SIB" } checked{/if} />{xl t="wheeze"}
+			<input type="checkbox" name="lungf_ausc_5" value="CRP" {if $data->get_lungf_ausc_5() == "CRP" } checked{/if} />{xl t="fine crackle"}
+			<input type="checkbox" name="lungf_ausc_6" value="CRC" {if $data->get_lungf_ausc_6() == "CRC" } checked{/if} />{xl t="coarse crackle"}
+			<input type="checkbox" name="lungf_ausc_7" value="STR" {if $data->get_lungf_ausc_7() == "STR" } checked{/if} />{xl t="stridor"}
+			</div>
+    </td>
+  </tr>
+
+  <tr> 
+    <td class="label">{xl t="Pulse freq."}</td>
+    <td class="text"><input type=text name="pulse_frequency" size="4" value="{$data->get_pulse_frequency()}"/></td>
+    <td class="label">{xl t="Percussion"}</td>
+    <td class="text"><input type=ẗext name="lungfield_percussion" size="50" value="{$data->get_lungfield_percussion()}"/></td>
+  </tr>
+ 
+  <tr> 
+    <td class="label">{xl t="Pulse intensity"}</td>
+    <td class="text"><select name="pulse_intensity" id="pulse_intensity"/>
+    		<option value="1" {if $data->get_pulse_intensity() == "1"  || $data->get_pulse_intensity() == 1 } selected{/if}>{xl t="absent"}</option> 
+			<option value="2" {if $data->get_pulse_intensity() == "2"  || $data->get_pulse_intensity() == 2 } selected{/if}>{xl t="barely palpable"}</option>
+			<option value="3" {if $data->get_pulse_intensity() == "3"  || $data->get_pulse_intensity() == 3 } selected{/if}>{xl t="easily palpable"}</option>
+			<option value="4" {if $data->get_pulse_intensity() == "4"  || $data->get_pulse_intensity() == 4 } selected{/if}>{xl t="full"}</option>
+			<option value="5" {if $data->get_pulse_intensity() == "5"  || $data->get_pulse_intensity() == 5 } selected{/if}>{xl t="bounding/aneurysmal"}</option>
+			</select></td>
+    <td class="label" colspan="2">
+    <div style="border: 1px solid grey; background-color: ivory; width: 100%;"><span style="background-color: lightgrey;">{xl t="Upper Airways"} :</span>
+    		<input type="checkbox" name="up_airways_1" value="NORM" {if $data->get_up_airways_1() == "NORM" } checked{/if} />{xl t="normal"}
+			<input type="checkbox" name="up_airways_2" value="EXSU" {if $data->get_up_airways_2() == "EXSU" } checked{/if} />{xl t="nasal discharge"}
+			<input type="checkbox" name="up_airways_3" value="SRNM" {if $data->get_up_airways_3() == "SRNM" } checked{/if} />{xl t="sneezing"}
+			<input type="checkbox" name="up_airways_4" value="TUSS" {if $data->get_up_airways_4() == "TUSS" } checked{/if} />{xl t="coughing"}
+			<input type="checkbox" name="up_airways_5" value="STRI" {if $data->get_up_airways_5() == "STRI" } checked{/if} />{xl t="stridor"}
+			</div>			
+	 </td>
+  </tr>
+
+  <tr> 
+    <td class="label">{xl t="Pulse regularity"}</td>
+    <td class="text"><select name="pulse_regularity" id="pulse_regularity"/>
+    		<option value="REG" {if $data->get_pulse_regularity() == "REG"  || $data->get_pulse_regularity() == 1 } selected{/if}>{xl t="regular"}</option>
+			<option value="IRR" {if $data->get_pulse_regularity() == "IRR"  || $data->get_pulse_regularity() == 2 } selected{/if}>{xl t="irregular"}</option>
+			<option value="IMR" {if $data->get_pulse_regularity() == "IMR"  || $data->get_pulse_regularity() == 3 } selected{/if}>{xl t="intermittent, regular"}</option>
+			<option value="IMI" {if $data->get_pulse_regularity() == "IMI"  || $data->get_pulse_regularity() == 4 } selected{/if}>{xl t="intermittent, irregular"}</option>
+			</select></td>
+    <td class="label">{xl t="Upper Airways"} {xl t="Description"}</td>
+    <td class="text"><textarea name="upper_airways_2descr" cols="50" rows="2">{$data->get_upper_airways_2descr()}</textarea></td>
+    
+  </tr>
+ 
+  <tr> 
+    <td class="label">{xl t="Pulse equality"}</td>
+    <td class="text"><select name="pulse_equality" id="pulse_equality"/>
+    		<option value="equal" {if $data->get_pulse_equality() == "equal"  || $data->get_pulse_equality() == 2 } selected{/if}>{xl t="equal"}</option>
+			<option value="unequal" {if $data->get_pulse_equality() == "unequal"  || $data->get_pulse_equality() == 1 } selected{/if}>{xl t="unequal"}</option>
+			</select></td>
+    <td class="label">-----------------------------------</td>
+    <td class="text">&nbsp;</td>
+  </tr>
+
+  <tr> 
+    <td class="label">{xl t="Mucosae colour"}</td>
+    <td class="text"><select name="mucosae_colour" id="mucosae_colour"/>
+    		<option value="BWI" {if $data->get_mucosae_colour() == "BWI"  || $data->get_mucosae_colour() == 1 } selected{/if}>{xl t="pale/white"}</option>
+			<option value="NRR" {if $data->get_mucosae_colour() == "NRR"  || $data->get_mucosae_colour() == 2 } selected{/if}>{xl t="normal pink"}</option>
+			<option value="BRD" {if $data->get_mucosae_colour() == "BRD"  || $data->get_mucosae_colour() == 3 } selected{/if}>{xl t="brick red"}</option>
+			<option value="CYA" {if $data->get_mucosae_colour() == "CYA"  || $data->get_mucosae_colour() == 4 } selected{/if}>{xl t="cyanotic"}</option>
+			<option value="ICT" {if $data->get_mucosae_colour() == "ICT"  || $data->get_mucosae_colour() == 5 } selected{/if}>{xl t="icterus"}</option>
+			<option value="BRN" {if $data->get_mucosae_colour() == "BRN"  || $data->get_mucosae_colour() == 6 } selected{/if}>{xl t="brown"}</option>
+			<option value="PET" {if $data->get_mucosae_colour() == "PET"  || $data->get_mucosae_colour() == 7 } selected{/if}>{xl t="petechiae"}</option>
+			</select></td>
+	 <td class="label"><span class="title"><u>Palpation Abdomen</u></span></td>
+    <td class="text">&nbsp;</td>
+  </tr>
+ 
+  <tr> 
+    <td class="label">{xl t="Mucosae status"}</td>
+    <td class="text"><select name="mucosae_status" id="mucosae_status"/>
+    		<option value="1" {if $data->get_mucosae_status() == "1"  || $data->get_mucosae_status() == 1 } selected{/if}>{xl t="very dry"}</option> 
+			<option value="2" {if $data->get_mucosae_status() == "2"  || $data->get_mucosae_status() == 2 } selected{/if}>{xl t="dry"}</option>
+			<option value="3" {if $data->get_mucosae_status() == "3"  || $data->get_mucosae_status() == 3 } selected{/if}>{xl t="slightly moist"}</option>
+			<option value="4" {if $data->get_mucosae_status() == "4"  || $data->get_mucosae_status() == 4 } selected{/if}>{xl t="moist"}</option>
+			<option value="5" {if $data->get_mucosae_status() == "5"  || $data->get_mucosae_status() == 5 } selected{/if}>{xl t="very moist"}</option>
+			</select></td>
+    <td class="label">{xl t="Elasticity"}</td>
+    <td class="text"><select name="elasticity_abdomen" id="elasticity_abdomen"/>
+    		<option value="1" {if $data->get_elasticity_abdomen() == "1"  || $data->get_elasticity_abdomen() == 1 } selected{/if}>{xl t="weak"}</option>
+			<option value="2" {if $data->get_elasticity_abdomen() == "2"  || $data->get_elasticity_abdomen() == 2 } selected{/if}>{xl t="slightly tense"}</option>
+			<option value="3" {if $data->get_elasticity_abdomen() == "3"  || $data->get_elasticity_abdomen() == 3 } selected{/if}>{xl t="tense"}</option>
+			<option value="4" {if $data->get_elasticity_abdomen() == "4"  || $data->get_elasticity_abdomen() == 4 } selected{/if}>{xl t="very tense"}</option>
+			<option value="5" {if $data->get_elasticity_abdomen() == "5"  || $data->get_elasticity_abdomen() == 5 } selected{/if}>{xl t="very severely tense"}</option>
+			</select></td>
+   </tr>
+
+  <tr> 
+    <td class="label">{xl t="Muc. CRT"}</td>
+    <td class="text"><select name="mucosae_CRT" id="mucosae_CRT"/>
+    		<option value="-1" {if $data->get_mucosae_CRT() == "-1"  || $data->get_mucosae_CRT() == -1 } selected{/if}>{xl t="prompt (< 1sec)"}</option>
+			<option value="-2" {if $data->get_mucosae_CRT() == "-2"  || $data->get_mucosae_CRT() == -2 } selected{/if}>{xl t="prompt (< 2sec)"}</option>
+			<option value="+2" {if $data->get_mucosae_CRT() == "+2"  || $data->get_mucosae_CRT() == 2 } selected{/if}>{xl t="minimal delay (> 2 sec)"}</option>
+			<option value="+3" {if $data->get_mucosae_CRT() == "+3"  || $data->get_mucosae_CRT() == 3 } selected{/if}>{xl t="delayed (> 3 sec)"}</option>
+			</select></td>
+    <td class="label">{xl t="Sensibility"}</td>
+    <td class="text"><select name="sensibility_abdomen" id="sensibility_abdomen"/>
+    		<option value="0" {if $data->get_sensibility_abdomen() == "0"  || $data->get_sensibility_abdomen() == "" } selected{/if}>{xl t="not painful"}</option>
+			<option value="1" {if $data->get_sensibility_abdomen() == "1"  || $data->get_sensibility_abdomen() == 1 } selected{/if}>{xl t="uncertain pain"}</option>
+			<option value="2" {if $data->get_sensibility_abdomen() == "2"  || $data->get_sensibility_abdomen() == 2 } selected{/if}>{xl t="sensitive"}</option>
+			<option value="3+" {if $data->get_sensibility_abdomen() == "3+"  || $data->get_sensibility_abdomen() == 3 } selected{/if}>{xl t="painful"}</option>
+			<option value="4+" {if $data->get_sensibility_abdomen() == "4+"  || $data->get_sensibility_abdomen() == 4 } selected{/if}>{xl t="very painful"}</option>
+			</select></td>
+  </tr>
+
+  <tr> 
+    <td class="label">-----------------</td>
+    <td class="text">&nbsp;</td>
+    <td class="label">PABD {xl t="Other finding"}</td>
+    <td class="text"><textarea name='palp_abdomen_other' cols="50" rows="2">{$data->get_palp_abdomen_other()}</textarea></td>
+    
+  </tr>
+
+  <tr> 
+    <td class="label"><span class="title"><u>Skin:</u></span></td>
+    <td class="text">&nbsp;</td>
+    <td class="label">&nbsp;</td>
+    <td class="text">&nbsp;</td>
+    
+  </tr>
+
+  <tr> 
+    <td class="label">{xl t="Turgor"}</td>
+    <td class="text"><select name="skin_turgor" id="skin_turgor"/>
+    		<option value="-1" {if $data->get_skin_turgor() == "-1"  || $data->get_skin_turgor() == -1 } selected{/if}>{xl t="prompt (< 1sec)"}</option>
+			<option value="-2" {if $data->get_skin_turgor() == "-2"  || $data->get_skin_turgor() == -2 } selected{/if}>{xl t="prompt (< 2sec)"}</option>
+			<option value="+2" {if $data->get_skin_turgor() == "+2"  || $data->get_skin_turgor() == 2 } selected{/if}>{xl t="minimal delay (> 2 sec)"}</option>
+			<option value="+3" {if $data->get_skin_turgor() == "+3"  || $data->get_skin_turgor() == 3 } selected{/if}>{xl t="delayed (> 3 sec)"}</option>
+			</select></td>
+    <td class="label">{xl t="Thickness"}</td>
+    <td class="text"><input type=text name='skin_thickness' value="{$data->get_skin_thickness()}"/></td>
+  </tr>
+
+  <tr> 
+    <td class="label">{xl t="Colour"}</td>
+    <td class="text"><input type="text" name="skin_colour" size="40" value="{$data->get_skin_colour()}"/></td>
+    <td class="label">{xl t="Mobility"}</td>
+    <td class="text"><input type="text" name="skin_mobility" value="{$data->get_skin_mobility()}"/></td>
+  </tr>
+
+   <tr> 
+    <td class="label">{xl t="Integ. general"}</td>
+    <td class="text"><textarea name="integ_general" cols="40" rows="2" id="integ_general">{$data->get_integ_general()}</textarea></td>
+    <td class="label">{xl t="Integ. local"}:</td>
+    <td class="text"><textarea name="integ_local" cols="40" rows="2" id="integ_local">{$data->get_integ_local()}</textarea></td>		
+  </tr>
+
+  <tr> 
+    <td class="label">-----------------</td>
+    <td class="text">&nbsp;</td>
+    <td class="label">&nbsp;</td>
+    <td class="text">&nbsp;</td>
+  </tr>
+
+  <tr> 
+    <td class="label"><span class="title"><u>{xl t="Palpation"} LNN</u></span></td>
+    <td class="text">&nbsp;</td>
+    <td class="label">&nbsp;</td>
+    <td class="text">&nbsp;</td>
+  </tr>
+ 
+  <tr> 
+    <td class="label">Mandibulares</td>
+    <td class="text"><input type=text name='lnn_mandibulares' value="{$data->get_lnn_mandibulares()}"/></td>
+    <td class="label">Axillares</td>
+    <td class="text"><input type=text name='lnn_axillares' value="{$data->get_lnn_axillares()}"/></td>
+    
+  </tr>
+  <tr> 
+    <td class="label">Parotidei</td>
+    <td class="text"><input type=text name='lnn_parotidei' value="{$data->get_lnn_parotidei()}"/></td>
+    <td class="label">Axillares access</td>
+    <td class="text"><input type=text name='lnn_axill_access' value="{$data->get_lnn_axill_access()}"/></td>
+    
+  </tr>
+  <tr> 
+    <td class="label">Retropharyng.</td>
+    <td class="text"><input type=text name='lnn_retropharyng' value="{$data->get_lnn_retropharyng()}"/></td>
+    <td class="label">Inguinales</td>
+    <td class="text"><input type=text name='lnn_inguinales' value="{$data->get_lnn_inguinales()}"/></td>
+    
+  </tr>
+  <tr> 
+    <td class="label">Cervicales s.</td>
+    <td class="text"><input type=text name='lnn_cervicales' value="{$data->get_lnn_cervicales()}"/></td>
+    <td class="label">Poplitei</td>
+    <td class="text"><input type=text name='lnn_poplitei' value="{$data->get_lnn_poplitei()}"/></td>
+    
+  </tr>
+  <tr> 
+    <td class="label">------------------</td>
+    <td class="text">&nbsp;</td>
+    <td class="label">&nbsp;</td>
+    <td class="text">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td colspan="4">{xl t="Other findings"}</td>
+  </tr> 
+  <tr></tr>   
+    <td colspan="4"><textarea name='genphys_other_findings' cols="100" rows="3">{$data->get_genphys_other_findings()}</textarea></td>
+  </tr>
+  <tr> 
+    <td class="label">&nbsp;</td>
+    <td class="text">&nbsp;</td>
+    <td class="label">&nbsp;</td>
+    <td class="text">&nbsp;</td>
+    
+  </tr>
+  <tr> 
+    <td class="label">{xl t="Problem List"}</td>
+    <td class="text">&nbsp;</td>
+    <td class="label">&nbsp;</td>
+    <td class="text">&nbsp;</td>
+    
+  </tr>
+  <tr>
+    <td class="label">{xl t="Pres Dx"}</td>
+    <td class="text"><textarea name='presumptive_diagnosis' cols="40" rows="4">{$data->get_presumptive_diagnosis()}</textarea></td>
+    <td class="label">{xl t="Differentials"}</td>
+    <td class="text"><textarea name='differential_diagnosis' cols="40" rows="4">{$data->get_differential_diagnosis()}</textarea></td>
+    
+  </tr>
+ 
+</table>
+<p>&nbsp;</p>
+
+ 
+<table border=0 cellpadding=0 cellspacing=20px>
+	<tr>
+		<td><input type="submit" name="Submit" value="Save Form"></td>
+		<td><a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a></td>
+	</tr>
+</table>  -->
+
+<input type="hidden" name="id" value="{$data->get_id()}" />
+<input type="hidden" name="activity" value="{$data->get_activity()}">
+<input type="hidden" name="pid" value="{$data->get_pid()}">
+<input type="hidden" name="process" value="true">
+</form>
+</body>
+</html>
