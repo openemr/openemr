@@ -2078,7 +2078,7 @@ function layoutLook(){
     var btnName = "<?php echo xla('Back To Editor');?>";
     var url = "../patient_file/encounter/view_form.php?isShow&id=0&formname=" + form;
     var title = "<?php echo xla('LBF Encounter Form Preview');?>";
-    dlgopen(url, '_blank', 1000, 400, '', title);
+    dlgopen(url, '_blank', 'modal-lg', 400, '', title);
     return false;
 }
 

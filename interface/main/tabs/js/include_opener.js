@@ -30,18 +30,21 @@ if(top.tab_mode===true)
     }
 
     window.close=
-            function()
-            {
-                var dialogDiv=top.$("#dialogDiv");
-                var frameName=window.name
-                var body=top.$("body");
-                    var removeFrame=body.find("iframe[name='"+frameName+"']");
-                    removeFrame.remove();
-                    var removeDiv=body.find("div.dialogIframe[name='"+frameName+"']");
-                    removeDiv.remove();
-                    if(body.children("div.dialogIframe").length===0)
-                    {
-                        dialogDiv.hide();
-                    };
-                };
+        function () {
+            var dialogDiv = top.$("#dialogDiv");
+            var dialogModal = top.$('#dialogModal');
+            var frameName = window.name
+            var body = top.$("body");
+            var removeFrame = body.find("iframe[name='" + frameName + "']");
+            removeFrame.remove();
+            var removeDiv = body.find("div.dialogIframe[name='" + frameName + "']");
+            removeDiv.remove();
+            if (body.children("div.dialogIframe").length === 0) {
+                dialogDiv.hide();
+            };
+            if (body.children("div.modalIframe").length === 0) {
+                dialogModal.modal('hide')
+            };
+
+        };
 }
