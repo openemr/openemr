@@ -917,6 +917,7 @@ $use_validate_js=$GLOBALS['new_validate'];
 
             //Only if check for duplicates values are changed open the popup hook screen
             if(valueIsChanged) {
+                event.preventDefault();
                 //("value has changed for duplicate check inputs");
             url += '&page=edit&closeBeforeOpening=1&mf_id='+$("[name='db_id']").val();
             dlgopen(url, '_blank', 700, 500);
