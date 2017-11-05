@@ -1191,8 +1191,9 @@ function cidChanged(lino, seq) {
 
 // This invokes the popup to edit layout properties or add a new layout.
 function edit_layout_props(groupid) {
+ var title = "<?php echo xlt('Layout Properties');?>";
  dlgopen('edit_layout_props.php?layout_id=<?php echo attr($layout_id); ?>&group_id=' + groupid,
-  '_blank', 700, 550, '', 'Layout Properties');
+  '_blank', 'modal-sm', 550, '', title);
 }
 
 // callback from edit_layout_props.php:
@@ -2016,16 +2017,17 @@ $(document).ready(function(){
 
     // show the popup choice of lists
     var ShowLists = function(btnObj) {
-        window.open('../patient_file/encounter/find_code_dynamic.php?what=lists',
-          'lists', 'width=700,height=600,scrollbars=yes');
+        var title = "<?php echo xla('Select List');?>";
+        dlgopen('../patient_file/encounter/find_code_dynamic.php?what=lists',"_blank",'modal-md', 600,"", title);
         selectedfield = btnObj;
     };
 
     // show the popup choice of groups
     var ShowGroups = function(btnObj) {
         if (!myChangeCheck()) return;
-        window.open('../patient_file/encounter/find_code_dynamic.php?what=groups&layout_id=<?php echo addslashes($layout_id); ?>',
-          'groups', 'width=700,height=600,scrollbars=yes');
+        var title = "<?php echo xlt('Select Group');?>";
+        dlgopen('../patient_file/encounter/find_code_dynamic.php?what=groups&layout_id=<?php echo addslashes($layout_id); ?>',
+            "_blank",'modal-sm', 600,"", title);
     };
 
     // Show context DD for NationNotes
@@ -2077,7 +2079,7 @@ function layoutLook(){
     var form = "<?php echo attr($layout_id);?>";
     var btnName = "<?php echo xla('Back To Editor');?>";
     var url = "../patient_file/encounter/view_form.php?isShow&id=0&formname=" + form;
-    var title = "<?php echo xla('LBF Encounter Form Preview');?>";
+    var title = "<?php echo xlt('LBF Encounter Form Preview');?>";
     dlgopen(url, '_blank', 'modal-lg', 400, '', title);
     return false;
 }
@@ -2128,8 +2130,9 @@ function FieldIDClicked(elem) {
   // If the field ID is for the local form, allow direct entry.
   if (srcval == 'F') return;
   // Otherwise pop up the selection window.
-  window.open('../patient_file/encounter/find_code_dynamic.php?what=fields&source='
-    + srcval, 'fields', 'width=700,height=600,scrollbars=yes');
+  var title = "<?php echo xlt('Select Field');?>";
+  dlgopen('../patient_file/encounter/find_code_dynamic.php?what=fields&source='
+    + srcval, "_blank", "modal-sm", 600,"", title);
 <?php } ?>
 }
 

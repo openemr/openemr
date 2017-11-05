@@ -126,6 +126,19 @@ body
     display:block;
 }
 
+.ui-draggable:hover {
+    cursor: move;
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+}
+
+.ui-draggable:active {
+    cursor: move;
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
 .ui-icon-gripsmall-diagonal-se {
     background-position: -64px -224px;
 }
