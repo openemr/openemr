@@ -612,3 +612,8 @@ form#pattrk #inanewwindow>span{
 #white-list, #black-list{
     direction: ltr;
 }
+
+div.formname{
+    float: right !important;
+    padding-left: 10px !important;
+}
