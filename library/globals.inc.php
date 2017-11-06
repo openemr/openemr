@@ -2463,6 +2463,13 @@ $GLOBALS_METADATA = array(
             xl('Enables the ability to download documents in the Onsite Patient Portal by the user.')
         ),
 
+        'self_checkin_enable' => array(
+            xl('Enable Patient Self Check-in Kiosk'),
+            'bool',                           // data type
+            '1',
+            xl('Enables the ability for patients to check themselves in using a device such as a touch screen kiosk. If feature is enabled, it can be accessed at /portal/patient_self_checkin/')
+        ),
+
         'portal_offsite_enable' => array(
             xl('Enable Offsite Patient Portal'),
             'bool',                           // data type
