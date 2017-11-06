@@ -967,7 +967,7 @@ if ($pass_sens_squad &&
         echo "<div class='form_header'>";
         echo "<a href='#' onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos'>" .
           "<div class='formname'>" . text($form_name) . "</div> " .
-          "by " . text($form_author) . " " .
+          xlt('by') . " " . text($form_author) . " " .
           "(<span id=spanid_$divnos class=\"indicator\">" . ($divnos == 1 ? xlt('Collapse') : xlt('Expand')) . "</span>)</a>";
         echo "</div>";
 
