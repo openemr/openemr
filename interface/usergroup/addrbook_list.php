@@ -216,13 +216,13 @@ function refreshme() {
 // Process click to pop up the add window.
 function doedclick_add(type) {
  top.restoreSession();
- dlgopen('addrbook_edit.php?type=' + type, '_blank', 'modal-md', (screen.availHeight * 75/100));
+ dlgopen('addrbook_edit.php?type=' + type, '_blank', 650, (screen.availHeight * 75/100));
 }
 
 // Process click to pop up the edit window.
 function doedclick_edit(userid) {
  top.restoreSession();
- dlgopen('addrbook_edit.php?userid=' + userid, '_blank', 'modal-md', (screen.availHeight * 75/100));
+ dlgopen('addrbook_edit.php?userid=' + userid, '_blank', 650, (screen.availHeight * 75/100));
 }
 
 // Removed .ready and fancy box (no longer used here) - 10/23/17 sjp

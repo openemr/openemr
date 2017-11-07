@@ -1010,6 +1010,7 @@ if (empty($collectthis)) {
     }
 
 ?>
+<!DOCTYPE html>
 <html>
 <head>
 <?php html_header_show(); ?>
