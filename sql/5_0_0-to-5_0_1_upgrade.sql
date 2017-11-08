@@ -559,6 +559,24 @@ ALTER TABLE `pharmacies` ADD `npi` INT(12) DEFAULT NULL;
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('state','PR','Puerto Rico',39,0);
 #EndIf
 
+#IfNotTable prescription_fav_list
+CREATE TABLE `prescription_fav_list` (
+  `presc_id` int(11) DEFAULT NULL,
+  `provider_id` int(11) DEFAULT NULL,
+  `list_id` int(11) NOT NULL,
+  `list_name` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+#EndIf
+
+-- Indexes for table `prescription_fav_list`
+--
+ALTER TABLE `prescription_fav_list`
+  ADD PRIMARY KEY (`list_id`);
+
+ALTER TABLE `prescription_fav_list`
+  MODIFY `list_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+
 #IfNotTable erx_drug_paid
 CREATE TABLE `erx_drug_paid` (
   `drugid` int(11) NOT NULL AUTO_INCREMENT,
