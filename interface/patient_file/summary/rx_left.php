@@ -21,6 +21,59 @@
 
 
 require_once("../../globals.php");
+
+session_start();
+
+if(isset($_REQUEST['submit'])){
+
+    $res = sqlStatement("SELECT presc_id,provider_id,list_id,list_name FROM prescription_fav_list  WHERE list_name like ?",array($_REQUEST['submit']));
+    while ($row = sqlFetchArray($res)) {
+        //$rows[$row['line_id']] = $row;
+
+        $res2 = sqlStatement("SELECT patient_id,provider_id,encounter,date_added,active,drug,drug_id,size,form,quantity,dosage,route,substitute,note,`interval`,refills,per_refill FROM prescriptions  WHERE id = ? ",array($row['presc_id']));
+
+
+        $row2 = sqlFetchArray($res2);
+
+
+        $res3 = sqlStatement("SELECT id,drug FROM prescriptions  WHERE patient_id = ? AND drug LIKE ? LIMIT 1",array($pid,$row2['drug']));
+
+
+        if($row3 = sqlFetchArray($res3) ){
+            sqlQuery("UPDATE prescriptions SET provider_id = ?, date_modified = ?,active = 1 WHERE patient_id = ? AND id = ? ", array($_SESSION['authUserID'],date('Y-m-d'),$pid,$row3['id']));
+
+        }else{
+
+
+        sqlInsert("INSERT INTO prescriptions(".
+            "patient_id,provider_id,encounter,date_added,active,drug,drug_id,size,form,quantity,dosage,route,substitute,note,`interval`,refills,per_refill".
+            ") VALUES (".
+            "'".add_escape_custom($pid)."',".
+            "'".add_escape_custom($_SESSION['authUserID'])."',".
+            "'".add_escape_custom($_SESSION['encounter'])."',".
+            "'".add_escape_custom(date("Y-m-d"))."',".
+            "'".add_escape_custom(1)."',".
+            "'".add_escape_custom($row2['drug'])."',".
+            "'".add_escape_custom(0)."',".
+            "'".add_escape_custom($row2['size'])."',".
+            "'".add_escape_custom($row2['form'])."',".
+            "'".add_escape_custom($row2['quantity'])."',".
+            "'".add_escape_custom($row2['dosage'])."',".
+            "'".add_escape_custom($row2['route'])."',".
+            "'".add_escape_custom($row2['substitute'])."',".
+            "'".add_escape_custom($row2['note'])."',".
+            "'".add_escape_custom($row2['interval'])."',".
+            "'".add_escape_custom($row2['refills'])."',".
+            "'".add_escape_custom($row2['per_refill'])."')");
+        }
+
+
+
+    }
+
+
+
+}
 ?>
 <html>
 <head>
@@ -48,6 +101,26 @@ require_once("../../globals.php");
 </td>
 </tr>
 </table>
+    
+<div>
+    <form id="add_to_patient" >
+    <table border="0" cellpadding="0" width="100%">
+        <tbody>
+    <?php
+    $res = sqlStatement("SELECT presc_id,provider_id,list_id,list_name FROM prescription_fav_list  WHERE provider_id like ? GROUP BY list_name",array($_SESSION['authUserID']));
+    while ($row = sqlFetchArray($res)) {
+        //$rows[$row['line_id']] = $row;
 
+        echo "<tr>";
+        echo "<td> ".($row['list_name'])." </td>";
+        echo "<td> <button name='submit' onclick='top.restoreSession();' value='".$row['list_name']."'> add to patient</button> </td>";
+        echo "</tr>";
+
+    }
+
+    ?> </form>
+        </tbody></table>
+</div>
+    
 </body>
 </html>
