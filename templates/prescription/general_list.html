@@ -131,7 +131,7 @@ $(document).ready(function(){
 
 <div id="prescription_list">
 
-<form name="presc">
+<form name="presc" method="post" action="{$WEBROOT}/add_rxs_to_list.php">
 
 <div id="print_links">
     <table width="100%">
@@ -155,6 +155,9 @@ $(document).ready(function(){
                                 <a id="multiprintToFax" href="{$GLOBALS.webroot}/interface/weno/validate.php" onclick="top.restoreSession()" class="css_button"><span>{xl t='Transmit'|escape:'html'} {xl t='Rx'|escape:'html'}</span></a>
                             </td>
                         {/if}
+                        <td>
+                            <a id="add_rx" href="#" onclick="submitfav();" class="css_button"><span>{xl t='add To fav List'}</span></a>
+                        </td>
                         {if $CAMOS_FORM == true}
                             <td>
                                 <a id="four_panel_rx" href="{$GLOBALS.webroot}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()" class="css_button"><span>{xl t='View Four Panel'|escape:'html'}</span></a>
@@ -281,7 +284,12 @@ $(document).ready(function(){
 </body>
 {literal}
 <script language='JavaScript'>
+    function submitfav() {
+        top.restoreSession();
 
+            document.forms["favForm"].submit();
+
+    }
 $(document).ready(function(){
 $("#multiprint").click(function() { return CheckForChecks(document.presc.check_list); });
 $("#multiprintcss").click(function() { return CheckForChecks(document.presc.check_list); });
