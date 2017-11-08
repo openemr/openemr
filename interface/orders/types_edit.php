@@ -206,7 +206,7 @@ if ($_POST['form_save']) {
 if ($_POST['form_save'] || $_POST['form_delete']) {
   // Find out if this parent still has any children.
     $trow = sqlQuery("SELECT procedure_type_id FROM procedure_type WHERE parent = '$parent' LIMIT 1");
-    $haskids = empty($trow['procedure_type_id']) ? 'false' : 'true';
+  //  $haskids = empty($trow['procedure_type_id']) ? 'false' : 'true';
   // Close this window and redisplay the updated list.
     echo "<script language='JavaScript'>\n";
     if ($info_msg) {
@@ -214,7 +214,7 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
     }
 
     echo " window.close();\n";
-    echo " if (opener.refreshFamily) opener.refreshFamily($parent,$haskids);\n";
+    echo " if (opener.refreshFamily) opener.refreshFamily($parent,'true');\n";
     echo "</script></body></html>\n";
     exit();
 }
