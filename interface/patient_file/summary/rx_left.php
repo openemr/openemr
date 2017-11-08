@@ -123,4 +123,11 @@ if(isset($_REQUEST['submit'])){
 </div>
     
 </body>
+<?php
+if(isset($_REQUEST['submit'])){
+echo "<script type=\"text/javascript\">
+document.getElementById(\"alist\").click();
+</script>";
+}
+?>
 </html>
