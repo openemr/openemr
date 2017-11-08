@@ -86,6 +86,22 @@ class Installer
         return true;
     }
 
+    public function databaseNameIsValid($name)
+    {
+        if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
+            return false;
+        }
+        return true;
+    }
+
+    public function collateNameIsValid($name)
+    {
+        if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
+            return false;
+        }
+        return true;
+    }
+
     public function iuser_is_valid()
     {
         if (strpos($this->iuser, " ")) {
@@ -115,6 +131,8 @@ class Installer
 
         return true;
     }
+
+
 
     public function root_database_connection()
     {

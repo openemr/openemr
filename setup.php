@@ -389,9 +389,14 @@ if (($config == 1) && ($state < 4)) {
                 $error_step2_message .=  "Database Server Port, ";
             }
 
-            if (! $installer->char_is_valid($_REQUEST['dbname'])) {
+            if (! $installer->databaseNameIsValid($_REQUEST['dbname'])) {
                 $pass_step2_validation = false;
                 $error_step2_message .= "Database Name, ";
+            }
+
+            if (! $installer->collateNameIsValid($_REQUEST['collate'])) {
+                $pass_step2_validation = false;
+                $error_step2_message .= "Collation Name, ";
             }
 
             if (! $installer->char_is_valid($_REQUEST['login'])) {
