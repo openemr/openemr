@@ -86,7 +86,7 @@ if(isset($_REQUEST['submit'])){
 <table>
 <tr height="20px">
 <td>
-    <a href="<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo attr($pid); ?>"  target='RxRight' class="css_button" onclick="top.restoreSession()">
+    <a id="alist" href="<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo attr($pid); ?>"  target='RxRight' class="css_button" onclick="top.restoreSession()">
     <span><?php echo xlt('List');?></span></a>
     <a href="<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=&pid=<?php echo attr($pid); ?>"  target='RxRight' class="css_button" onclick="top.restoreSession()">
     <span><?php echo xlt('Add');?></span></a>
