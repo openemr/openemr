@@ -160,9 +160,9 @@ class Installer
 
     public function create_database()
     {
-        $sql = "create database $this->dbname";
+        $sql = "create database " . $this->escapeDatabaseName($this->dbname);
         if ($this->collate) {
-            $sql .= " character set utf8 collate $this->collate";
+            $sql .= " character set utf8 collate " . $this->escapeCollateName($this->collate);
             $this->set_collation();
         }
 
@@ -171,13 +171,13 @@ class Installer
 
     public function drop_database()
     {
-        $sql = "drop database if exists $this->dbname";
+        $sql = "drop database if exists " . $this->escapeDatabaseName($this->dbname);
         return $this->execute_sql($sql);
     }
 
     public function grant_privileges()
     {
-        return $this->execute_sql("GRANT ALL PRIVILEGES ON $this->dbname.* TO '$this->login'@'$this->loginhost' IDENTIFIED BY '$this->pass'");
+        return $this->execute_sql("GRANT ALL PRIVILEGES ON " . $this->escapeDatabaseName($this->dbname) . ".* TO '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'");
     }
 
     public function disconnect()
@@ -281,7 +281,7 @@ class Installer
     public function add_version_info()
     {
         include dirname(__FILE__) . "/../../version.php";
-        if ($this->execute_sql("UPDATE version SET v_major = '$v_major', v_minor = '$v_minor', v_patch = '$v_patch', v_realpatch = '$v_realpatch', v_tag = '$v_tag', v_database = '$v_database', v_acl = '$v_acl'") == false) {
+        if ($this->execute_sql("UPDATE version SET v_major = '" . $this->escapeSql($v_major) . "', v_minor = '" . $this->escapeSql($v_minor) . "', v_patch = '" . $this->escapeSql($v_patch) . "', v_realpatch = '" . $this->escapeSql($v_realpatch) . "', v_tag = '" . $this->escapeSql($v_tag) . "', v_database = '" . $this->escapeSql($v_database) . "', v_acl = '" . $this->escapeSql($v_acl) . "'") == false) {
             $this->error_message = "ERROR. Unable insert version information into database\n" .
             "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
             return false;
@@ -292,7 +292,7 @@ class Installer
 
     public function add_initial_user()
     {
-        if ($this->execute_sql("INSERT INTO groups (id, name, user) VALUES (1,'$this->igroup','$this->iuser')") == false) {
+        if ($this->execute_sql("INSERT INTO groups (id, name, user) VALUES (1,'" . $this->escapeSql($this->igroup) . "','" . $this->escapeSql($this->iuser) . "')") == false) {
             $this->error_message = "ERROR. Unable to add initial user group\n" .
             "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
             return false;
@@ -301,14 +301,14 @@ class Installer
         $password_hash = "NoLongerUsed";  // This is the value to insert into the password column in the "users" table. password details are now being stored in users_secure instead.
         $salt=oemr_password_salt();     // Uses the functions defined in library/authentication/password_hashing.php
         $hash=oemr_password_hash($this->iuserpass, $salt);
-        if ($this->execute_sql("INSERT INTO users (id, username, password, authorized, lname, fname, facility_id, calendar, cal_ui) VALUES (1,'$this->iuser','$password_hash',1,'$this->iuname','$this->iufname',3,1,3)") == false) {
+        if ($this->execute_sql("INSERT INTO users (id, username, password, authorized, lname, fname, facility_id, calendar, cal_ui) VALUES (1,'" . $this->escapeSql($this->iuser) . "','" . $this->escapeSql($password_hash) . "',1,'" . $this->escapeSql($this->iuname) . "','" . $this->escapeSql($this->iufname) . "',3,1,3)") == false) {
             $this->error_message = "ERROR. Unable to add initial user\n" .
             "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
             return false;
         }
 
         // Create the new style login credentials with blowfish and salt
-        if ($this->execute_sql("INSERT INTO users_secure (id, username, password, salt) VALUES (1,'$this->iuser','$hash','$salt')") == false) {
+        if ($this->execute_sql("INSERT INTO users_secure (id, username, password, salt) VALUES (1,'" . $this->escapeSql($this->iuser) . "','" . $this->escapeSql($hash) . "','" . $this->escapeSql($salt) . "')") == false) {
             $this->error_message = "ERROR. Unable to add initial user login credentials\n" .
             "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
             return false;
@@ -412,11 +412,11 @@ if ($it_died != 0) {
             foreach ($grparr as $fldid => $fldarr) {
                 list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
                 if (is_array($fldtype) || substr($fldtype, 0, 2) !== 'm_') {
-                    $res = $this->execute_sql("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
+                    $res = $this->execute_sql("SELECT count(*) AS count FROM globals WHERE gl_name = ' " . $this->escapeSql($fldid) . "'");
                     $row = mysqli_fetch_array($res, MYSQLI_ASSOC);
                     if (empty($row['count'])) {
                         $this->execute_sql("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-                           "VALUES ( '$fldid', '0', '$flddef' )");
+                           "VALUES ( '" . $this->escapeSql($fldid) . "', '0', '" . $this->escapeSql($flddef) . "' )");
                     }
                 }
             }
@@ -546,6 +546,29 @@ if ($it_died != 0) {
         }
 
         return true;
+    }
+
+    private function escapeSql($sql)
+    {
+        return mysqli_real_escape_string($this->dbh, $sql);
+    }
+
+    private function escapeDatabaseName($name)
+    {
+        if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
+            error_log("Illegal character(s) in database name");
+            die("Illegal character(s) in database name");
+        }
+        return $name;
+    }
+
+    private function escapeCollateName($name)
+    {
+        if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
+            error_log("Illegal character(s) in collation name");
+            die("Illegal character(s) in collation name");
+        }
+        return $name;
     }
 
     private function execute_sql($sql)
