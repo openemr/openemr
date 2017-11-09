@@ -94,9 +94,9 @@ fieldset {
 body {
     margin: 0px 0px 0px 2px;
     /* set the base font and size for all DOM children */
-    font-family: 'FontAwesome' !important;
+    font-family: 'FontAwesome';
     content: "\f0c4";
-    font-size: 1em;  /* set the base font size for all DOM children */
+    font-size: 12px;  /* set the base font size for all DOM children */
 }
 
 a {
@@ -688,7 +688,7 @@ tr.odd {
   background: #063f80;
   color: #ffffff !important;
   display: inline-block;
-  font-weight: 300;
+  font-weight: 600;
   margin-right: 3px;
   /* sliding doors padding */
   text-decoration: none;
@@ -713,7 +713,7 @@ tr.odd {
   background: #063f80;
   color: #ffffff !important;
   display: inline-block;
-  font-weight: 300;
+  font-weight: 600;
   margin: 4px;
   vertical-align: middle;
   /* sliding doors padding */

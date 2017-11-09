@@ -151,15 +151,15 @@ if ($editlid) {
     <tr>
         <td>
         <span class=text><?php echo htmlspecialchars(xl('Description of the Disclosure'), ENT_NOQUOTES); ?>:</span></td>
-        <?php if ($editlid) {
-        ?>
-        <td>
-        <textarea name=desc_disc wrap=auto rows=4 cols=30><?php echo htmlspecialchars($description, ENT_NOQUOTES); ?></textarea>
+        <?php if ($editlid) { ?>
+            <td>
+            <textarea name=desc_disc wrap=auto rows=4 cols=30><?php echo htmlspecialchars($description, ENT_NOQUOTES); ?></textarea>
         <?php } else {?>
-<td><tex<?php }?>
+            <td>
+            <textarea name=desc_disc wrap=auto rows=4 cols=30></textarea>
+        <?php }?>
         </td>
     </tr>
 </table>
 </form>
 </body>
-

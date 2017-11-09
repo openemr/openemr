@@ -70,6 +70,8 @@ class ParticipantsController extends BaseController
         $data['events'] = $this->groupEventsModel->getGroupEvents($groupId);
         $data['readonly'] = 'disabled';
         $data['participants'] = $this->groupParticipantsModel->getParticipants($groupId);
+        $statuses = array();
+        $names = array();
         foreach ($data['participants'] as $key => $row) {
             $statuses[$key]  = $row['group_patient_status'];
             $names[$key] = $row['lname'] . ' ' . $row['fname'];

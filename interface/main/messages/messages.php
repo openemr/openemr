@@ -289,6 +289,9 @@ if ($GLOBALS['portal_offsite_enable']) {
 ?>
    </select>
   </td>
+   <td>
+    <input type ="button" name="clear_user" class= "css_button" id = "clear_user" value="<?php echo htmlspecialchars(xl('Clear'), ENT_QUOTES); ?>" >
+</td>
  </tr>
 
 <?php
@@ -422,6 +425,13 @@ $(document).ready(function(){
         $("#task").val("");
         $("#new_note").submit();
     }
+
+   //clear button in messages
+   $("#clear_user").click(function(){
+        $("#assigned_to_text").val("<?php echo addslashes(xl('Select Users From The Dropdown List')); ?>");
+        $("#assigned_to").val("");
+        $("#users").val("--");
+ });
 });
  function gotoReport(doc_id,pname,pid,pubpid,str_dob){
         EncounterDateArray=new Array;

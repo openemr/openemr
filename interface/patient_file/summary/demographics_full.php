@@ -66,11 +66,11 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 
 <title><?php echo xlt('Edit Current Patient'); ?></title>
 
-<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
 <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
 <?php } ?>
+<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
@@ -917,6 +917,7 @@ $use_validate_js=$GLOBALS['new_validate'];
 
             //Only if check for duplicates values are changed open the popup hook screen
             if(valueIsChanged) {
+                event.preventDefault();
                 //("value has changed for duplicate check inputs");
             url += '&page=edit&closeBeforeOpening=1&mf_id='+$("[name='db_id']").val();
             dlgopen(url, '_blank', 700, 500);

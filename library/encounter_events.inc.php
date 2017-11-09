@@ -37,7 +37,9 @@ define('REPEAT_EVERY_WEEK', 1);
 define('REPEAT_EVERY_MONTH', 2);
 define('REPEAT_EVERY_YEAR', 3);
 define('REPEAT_EVERY_WORK_DAY', 4);
-    define('REPEAT_DAYS_EVERY_WEEK', 6);
+define('REPEAT_DAYS_EVERY_WEEK', 6);
+//===============================================================================
+$today=date('Y-m-d');
 //===============================================================================
 //Create event in calender as arrived
 function calendar_arrived($form_pid)

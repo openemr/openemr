@@ -17,8 +17,8 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *    @author  Vinish K <vinish@zhservices.com>
- *    @author  Chandni Babu <chandnib@zhservices.com> 
- *    @author  Riju KP <rijukp@zhservices.com> 
+ *    @author  Chandni Babu <chandnib@zhservices.com>
+ *    @author  Riju KP <rijukp@zhservices.com>
  * +------------------------------------------------------------------------------+
  */
 namespace Carecoordination\Controller;
@@ -37,7 +37,7 @@ use xmltoarray_parser_htmlfix;
 class CarecoordinationController extends AbstractActionController
 {
 
-    public function __construct($sm)
+    public function __construct($sm = null)
     {
         $this->listenerObject = new Listener;
         $this->date_format = \Application\Model\ApplicationTable::dateFormat($GLOBALS['date_display_format']);
@@ -297,9 +297,9 @@ class CarecoordinationController extends AbstractActionController
 
         $referral = $this->getCarecoordinationTable()->getReferralReason(array('pid' => $pid));
         $referral_audit = $this->getCarecoordinationTable()->createAuditArray($audit_master_id, 'referral');
-        
+
         $discharge_medication_audit = $this->getCarecoordinationTable()->createAuditArray($audit_master_id, 'discharge_medication');
-        
+
         $discharge_summary = array();
         $discharge_summary_audit = $this->getCarecoordinationTable()->createAuditArray($audit_master_id, 'discharge_summary');
 
@@ -366,7 +366,7 @@ class CarecoordinationController extends AbstractActionController
         ));
         return $view;
     }
-    
+
     public function getCCDAComponentsAction()
     {
         $request = $this->getRequest();
@@ -384,9 +384,9 @@ class CarecoordinationController extends AbstractActionController
         if (count($discharge_summary_audit)>0) {
             $components['discharge_summary'] = 'Dishcharge Summary';
         }
-        
+
         $components = array_diff($components, array('instructions' => 'Instructions'));
-        
+
         $temp = '<table>';
         foreach ($components as $key => $value) {
             $temp .='<tr class="se_in_9">
@@ -402,7 +402,7 @@ class CarecoordinationController extends AbstractActionController
         echo $temp;
         exit;
     }
-    
+
     public function getEachCCDAComponentDetailsAction()
     {
         $request   = $this->getRequest();
@@ -827,7 +827,7 @@ class CarecoordinationController extends AbstractActionController
                                           $temp .='</div>';
                 break;
         }
-        
+
         echo $temp;
         exit;
     }

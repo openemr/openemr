@@ -195,7 +195,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
             $erxprid = formData('erxprid', 'P');
             sqlStatement("update users set weno_prov_id = '$erxprid' where id = ? ", array($_POST["id"]));
         }
-      
+
         if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
             // Set the access control group of user
             $user_data = sqlFetchArray(sqlStatement("select username from users where id= ?", array($_POST["id"])));
@@ -387,11 +387,11 @@ $form_inactive = empty($_REQUEST['form_inactive']) ? false : true;
 <html>
 <head>
 <title><?php xl('User / Group', 'e');?></title>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
 <?php if ($_SESSION['language_direction'] == 'rtl') : ?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.css" type="text/css">
 <?php endif; ?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
