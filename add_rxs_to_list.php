@@ -27,10 +27,8 @@ if(isset($_REQUEST['check_list'])){
     echo "</form>";
 
 echo "<button type=\"submit\" form=\"form1\" value=\"Submit\">ADD</button>";
-// echo "<select></select>";
-//    foreach ($prescriptions as $pre_id){
-//        echo $pre_id."<br>";
-//    }
+
+    
 }else if (isset($_REQUEST['favlist'])&&!empty($_REQUEST['favlist'])){
 
     if(isset($_REQUEST['listname'])){
@@ -40,24 +38,17 @@ echo "<button type=\"submit\" form=\"form1\" value=\"Submit\">ADD</button>";
             die('login proplem');
         }
 
-        // truncate white list from list_options table
         sqlStatement("DELETE FROM `prescription_fav_list` WHERE `list_name` LIKE '%".$_REQUEST['listname']."%' ");
         foreach ($prescriptions as $pre_id) {
             sqlStatement("INSERT INTO `prescription_fav_list` (`list_id`, `presc_id`, `provider_id`, `list_name`)  VALUES (NULL , ?, ?, ?)", array($pre_id, $_SESSION['authUserID'],$_REQUEST['listname']));
         }
 
-
-
-//        foreach ($prescriptions as $pre_id){
-//            echo "<input type='hidden' name='favlist[]' value='$pre_id'> </input>";
-//        }
-
     }else{
-        die('Please Write name for your List');
+        die('Please Write name for your List'); // need to go back to list
     }
 
 }
 else{
 
-    echo "please select the prescriptions first";
+    echo "please select the prescriptions first"; // need to go back to list
 }
