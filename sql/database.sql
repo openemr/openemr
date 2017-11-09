@@ -6251,6 +6251,19 @@ CREATE TABLE `prescriptions` (
 -----------------------------------------------------------
 
 --
+-- Table structure for table `prescriptions`
+--
+DROP TABLE IF EXISTS `prescriptions`;
+ CREATE TABLE `prescription_fav_list` (
+   `presc_id` int(11) DEFAULT NULL,
+   `provider_id` int(11) DEFAULT NULL,
+   `list_id` int(11) NOT NULL AUTO_INCREMENT,
+   `list_name` varchar(255) NOT NULL,
+     PRIMARY KEY (`list_id`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-----------------------------------------------------------
+
+--
 -- Table structure for table `prices`
 --
 
