@@ -173,8 +173,7 @@ if (top.tab_mode) {
         }
 
         // Guess at initial responsive height. @TODO Make option for fixed modal size.
-        // mHeight = (height / top.window.innerHeight * 100) + 5 + 'vh';
-        mHeight = '0';
+        mHeight = (height / top.window.innerHeight * 100).toFixed(3) + 'vh';
 
         // Build modal html
         var mTitle = title > "" ? '<h4>' + title + '</h4>' : ''; // For now !title = !header and modal full height. Emulates legacy.
@@ -185,8 +184,7 @@ if (top.tab_mode) {
             '</div>';
 
         var headerhtml =
-            ('<div class="modal-header">%title%%wait%</div>')
-                .replace('%wait%', waitHtml)
+            ('<div class="modal-header">%title%</div>')
                 .replace('%title%', mTitle);
 
         var mhtml =
@@ -201,7 +199,7 @@ if (top.tab_mode) {
                 '</iframe></div></div></div></div>')
                 .replace('%winname%', winname)
                 .replace('%id%', winname)
-                .replace('%head%', mTitle !== "" ? headerhtml : waitHtml)
+                .replace('%head%', mTitle !== "" ? headerhtml : "")
                 .replace('%url%', fullURL)
                 .replace('%szClass%', mSize)
                 .replace('%initHeight%', mHeight) // May have use later for options.
@@ -225,7 +223,7 @@ if (top.tab_mode) {
                 //
                 setTimeout(function () {
                     SizeModal(e); // auto size
-                }, 500);
+                }, 250);
 
             });
 

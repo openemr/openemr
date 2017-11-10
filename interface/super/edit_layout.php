@@ -973,7 +973,7 @@ function writeFieldLine($linedata)
 
 <head>
 
-<?php Header::setupHeader(['select2','emodal']); ?>
+<?php Header::setupHeader(['select2']); ?>
 
 <title><?php  xl('Layout Editor', 'e'); ?></title>
 
@@ -1193,7 +1193,7 @@ function cidChanged(lino, seq) {
 function edit_layout_props(groupid) {
  var title = "<?php echo xlt('Layout Properties');?>";
  dlgopen('edit_layout_props.php?layout_id=<?php echo attr($layout_id); ?>&group_id=' + groupid,
-  '_blank', 'modal-sm', 550, '', title);
+  '_blank', 775, 550, "", title);
 }
 
 // callback from edit_layout_props.php:
@@ -2018,7 +2018,7 @@ $(document).ready(function(){
     // show the popup choice of lists
     var ShowLists = function(btnObj) {
         var title = "<?php echo xla('Select List');?>";
-        dlgopen('../patient_file/encounter/find_code_dynamic.php?what=lists',"_blank",'modal-md', 600,"", title);
+        dlgopen('../patient_file/encounter/find_code_dynamic.php?what=lists',"_blank", 850, 750, "", title);
         selectedfield = btnObj;
     };
 
@@ -2027,7 +2027,7 @@ $(document).ready(function(){
         if (!myChangeCheck()) return;
         var title = "<?php echo xlt('Select Group');?>";
         dlgopen('../patient_file/encounter/find_code_dynamic.php?what=groups&layout_id=<?php echo addslashes($layout_id); ?>',
-            "_blank",'modal-sm', 600,"", title);
+            "_blank",850, 600,"", title);
     };
 
     // Show context DD for NationNotes
@@ -2080,7 +2080,7 @@ function layoutLook(){
     var btnName = "<?php echo xla('Back To Editor');?>";
     var url = "../patient_file/encounter/view_form.php?isShow&id=0&formname=" + form;
     var title = "<?php echo xlt('LBF Encounter Form Preview');?>";
-    dlgopen(url, '_blank', 'modal-lg', 400, '', title);
+    dlgopen(url, '_blank', 1250, 800, "", title);
     return false;
 }
 
@@ -2132,7 +2132,7 @@ function FieldIDClicked(elem) {
   // Otherwise pop up the selection window.
   var title = "<?php echo xlt('Select Field');?>";
   dlgopen('../patient_file/encounter/find_code_dynamic.php?what=fields&source='
-    + srcval, "_blank", "modal-sm", 600,"", title);
+    + srcval, "_blank", 700, 600, "", title);
 <?php } ?>
 }
 
