@@ -430,7 +430,7 @@ if ($it_died != 0) {
             foreach ($grparr as $fldid => $fldarr) {
                 list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
                 if (is_array($fldtype) || substr($fldtype, 0, 2) !== 'm_') {
-                    $res = $this->execute_sql("SELECT count(*) AS count FROM globals WHERE gl_name = ' " . $this->escapeSql($fldid) . "'");
+                    $res = $this->execute_sql("SELECT count(*) AS count FROM globals WHERE gl_name = '" . $this->escapeSql($fldid) . "'");
                     $row = mysqli_fetch_array($res, MYSQLI_ASSOC);
                     if (empty($row['count'])) {
                         $this->execute_sql("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
