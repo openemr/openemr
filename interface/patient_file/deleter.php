@@ -205,7 +205,7 @@ document.deletefrm.submit();
 }
 // Java script function for closing the popup
 function popup_close() {
-    if(parent.$==undefined) {
+    if(parent.$.fn.fancybox === undefined) {
         window.close();
      }
      else {
