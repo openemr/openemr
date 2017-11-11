@@ -6251,9 +6251,9 @@ CREATE TABLE `prescriptions` (
 -----------------------------------------------------------
 
 --
--- Table structure for table `prescriptions`
+-- Table structure for table `prescription_fav_list`
 --
-DROP TABLE IF EXISTS `prescriptions`;
+DROP TABLE IF EXISTS `prescription_fav_list`;
  CREATE TABLE `prescription_fav_list` (
    `presc_id` int(11) DEFAULT NULL,
    `provider_id` int(11) DEFAULT NULL,
