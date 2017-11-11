@@ -24,28 +24,24 @@ require_once("../../globals.php");
 
 session_start();
 
-if(isset($_REQUEST['submit'])){
-
-    $res = sqlStatement("SELECT presc_id,provider_id,list_id,list_name FROM prescription_fav_list  WHERE list_name like ?",array($_REQUEST['submit']));
+if (isset($_REQUEST['submit'])) {
+    $res = sqlStatement("SELECT presc_id,provider_id,list_id,list_name FROM prescription_fav_list  WHERE list_name like ?", array($_REQUEST['submit']));
     while ($row = sqlFetchArray($res)) {
         //$rows[$row['line_id']] = $row;
 
-        $res2 = sqlStatement("SELECT patient_id,provider_id,encounter,date_added,active,drug,drug_id,size,form,quantity,dosage,route,substitute,note,`interval`,refills,per_refill FROM prescriptions  WHERE id = ? ",array($row['presc_id']));
+        $res2 = sqlStatement("SELECT patient_id,provider_id,encounter,date_added,active,drug,drug_id,size,form,quantity,dosage,route,substitute,note,`interval`,refills,per_refill FROM prescriptions  WHERE id = ? ", array($row['presc_id']));
 
 
         $row2 = sqlFetchArray($res2);
 
 
-        $res3 = sqlStatement("SELECT id,drug FROM prescriptions  WHERE patient_id = ? AND drug LIKE ? LIMIT 1",array($pid,$row2['drug']));
+        $res3 = sqlStatement("SELECT id,drug FROM prescriptions  WHERE patient_id = ? AND drug LIKE ? LIMIT 1", array($pid,$row2['drug']));
 
 
-        if($row3 = sqlFetchArray($res3) ){
+        if ($row3 = sqlFetchArray($res3)) {
             sqlQuery("UPDATE prescriptions SET provider_id = ?, date_modified = ?,active = 1 WHERE patient_id = ? AND id = ? ", array($_SESSION['authUserID'],date('Y-m-d'),$pid,$row3['id']));
-
-        }else{
-
-
-        sqlInsert("INSERT INTO prescriptions(".
+        } else {
+            sqlInsert("INSERT INTO prescriptions(".
             "patient_id,provider_id,encounter,date_added,active,drug,drug_id,size,form,quantity,dosage,route,substitute,note,`interval`,refills,per_refill".
             ") VALUES (".
             "'".add_escape_custom($pid)."',".
@@ -66,13 +62,7 @@ if(isset($_REQUEST['submit'])){
             "'".add_escape_custom($row2['refills'])."',".
             "'".add_escape_custom($row2['per_refill'])."')");
         }
-
-
-
     }
-
-
-
 }
 ?>
 <html>
@@ -107,7 +97,7 @@ if(isset($_REQUEST['submit'])){
     <table border="0" cellpadding="0" width="100%">
         <tbody>
     <?php
-    $res = sqlStatement("SELECT presc_id,provider_id,list_id,list_name FROM prescription_fav_list  WHERE provider_id like ? GROUP BY list_name",array($_SESSION['authUserID']));
+    $res = sqlStatement("SELECT presc_id,provider_id,list_id,list_name FROM prescription_fav_list  WHERE provider_id like ? GROUP BY list_name", array($_SESSION['authUserID']));
     while ($row = sqlFetchArray($res)) {
         //$rows[$row['line_id']] = $row;
 
@@ -115,7 +105,6 @@ if(isset($_REQUEST['submit'])){
         echo "<td> ".($row['list_name'])." </td>";
         echo "<td> <button name='submit' onclick='top.restoreSession();' value='".$row['list_name']."'> add to patient</button> </td>";
         echo "</tr>";
-
     }
 
     ?> </form>
@@ -124,8 +113,8 @@ if(isset($_REQUEST['submit'])){
     
 </body>
 <?php
-if(isset($_REQUEST['submit'])){
-echo "<script type=\"text/javascript\">
+if (isset($_REQUEST['submit'])) {
+    echo "<script type=\"text/javascript\">
 document.getElementById(\"alist\").click();
 </script>";
 }
