@@ -136,12 +136,15 @@ class Practice extends Base
                     $fields2['providers'][] = $urow;
                 }
             }
-        }
-        //get the facilities list:
-        $runQuery ="select * from facility order by name";
-        $ures = sqlStatement($runQuery);
-        while ($urow = sqlFetchArray($ures)) {
-            $fields2['facilities'][] = $urow;
+            //get the facilities list:
+            $facilities = explode('|', $urowME['ME_facilities']);
+            foreach ($facilities as $facility) {
+                $runQuery = "SELECT * FROM facility where id=?";
+                $ures = sqlStatement($runQuery, array($facility));
+                while ($urow = sqlFetchArray($ures)) {
+                    $fields2['facilities'][] = $urow;
+                }
+            }
         }
         //get the categories list:
         $runQuery = "SELECT pc_catid, pc_catname, pc_catdesc, pc_catcolor, pc_seq
@@ -307,6 +310,22 @@ class Events extends Base
         }
         return false;
     }
+
+    /**  
+     *  Messaging Campaigns are categorized by function: there are RECALLs, REMINDERs, SURVEYs and ANNOUNCEments (and later whatever comes down the pike).
+     *  To meet a campaign's goals, we schedule campaign events.
+     *  REMINDER and RECALL campaigns each have their own events which the user creates and personalizes.  
+     *      There is only one REMINDER Campaign and one RECALL Campaign.
+     *
+     *  SURVEYs and ANNOUNCEments can have unlimited campaigns, each with their own events...
+     *      You can ANNOUNCE a weather related closure (campaign) by SMS and AVM (events) going out now/ASAP 
+     *      AND 
+     *      at the same time also ANNOUNCE that in two months Dr. X will be out of the office and patient needs to reschedule (campaign) 
+     *      using SMS and email and voice (events) with messages gong out in 2 days, spread out over 6 business days...
+     *  So SURVEY AND ANNOUNCE events can have parent Campaigns they are attached to 
+     *  but RECALLS and REMINDERS do not (they are a RECALL or a REMINDER).
+     *  In this function we are generating all appts that match scheduled campaign events so MedEx can conduct the campaign events.
+     */
     public function generate($token, $events)
     {
         if (empty($events)) {
@@ -341,12 +360,6 @@ class Events extends Base
                 if ($event['time_order'] > '0') { // future appts
                     $interval ="+";
                     //NOTE IF you have customized the pc_appstatus flags, you need to adjust them here too.
-                    //Hunting a bug - error log via cron shows some appts do not have E_instructions set.
-                    //Should not be possible though.  For now if not set, set it to stop if confirmed:
-                    if (empty($event['E_instructions'])) {
-                        $event['E_instructions'] ='stop';
-                    }
-                    //remove when bug found
                     if ($event['E_instructions'] == "stop") {   //ie don't send this if it has been confirmed.
                                                                 // we will only send it if nothing has been done to the appointment status
                         $appt_status = " and pc_apptstatus='-'";//we only look at future appts w/ apptstatus == NONE ='-'
@@ -354,16 +367,21 @@ class Events extends Base
                     } elseif ($event['E_instructions'] == "always") {  //send anyway
                         $appt_status = " and pc_apptstatus != '%' 
                                          and pc_apptstatus != 'x' ";
+                    } else {
+                        $event['E_instructions'] ='stop';
                     }
                 } else {
                     // Past appts -> appts that are completed.
                     // Need to exclude appts that were cancelled or noshowed
                     // Use the flag in the list_options to note that the appointment is completed
-                    // in v2.0 we will have the option to do campaigns based on appstatus, eg. send message to NoShows etc
-                    // Time will tell when the demand for these features warrants adding them here.
-                    // Cool way to do MIPS post-appt activities!
-                    $interval ='-';//for now just use appts completed - this is defined by list_option->toggle_setting2=1 for Flow Board
+                     $interval ='-';// appts completed - this is defined by list_option->toggle_setting2=1 for Flow Board
                     $appt_status = " and pc_apptstatus in (SELECT option_id from list_options where toggle_setting_2='1' and list_id='appstat') ";
+                    //T_appt_stats = list of appstat(s) to restrict event to in a '|' separated list
+                    if ($event['T_appt_stats']>'') {
+                        $list = implode('|',$event['T_appt_stats']);
+                        $appt_status = " and pc_appstatus in (".$list.")";
+                    }
+                    //11.7.17 added above
                 }
                 $timing = (int)$event['E_fire_time']-1;//the minus one is a critical change
                 // if it is Friday do stuff as scheduled + 2 days more
@@ -503,16 +521,22 @@ class Events extends Base
                         continue;
                     }
 
-                    //OK  the list of recalls may include "older than today" recalls, they should only be included once...
-                    //If a recall date has passed (ie. loading recalls for the first time would included recalls that are already due,
-                    // not just upcoming.  If there are more than one campaign event that could fire for this
-                    // recall, we are only going to do the first one.  Generate one thing for MedEx to do for this event.
-                    // Think.  Maybe the practice schedule 2 Campaign Event Messages for the same day?  We would want to run both right?
-                    // Yes, so only limit recalls that are in the past to one event!  T
+                    // OK the list of recalls may include "older than today" recalls, they should only be included once...
+                    // Otherwise you'll be sending messages every day to recalls that have passed.  Not the intended work flow...
+                    // If a recall date has passed but no MedEx messages have been sent yet, we want to do something.
+                    // ie. loading recalls for the first time CAN include recalls that are already due, not just upcoming.  
+                    // If there is more than one campaign event that could fire for these "old recalls",
+                    // we are only going to do the first one.  Generate one thing for MedEx to do for this event.
+                    // Maybe the practice schedules 2 RECALL Campaign Event Messages for the same day?  We would want to run both right?
+                    // Yes, and for new ones, ones just due today, we will follow that directive.
+                    // However we will limit recalls that are in the past to one event!  
+                    // Note:  This only is an issue the first time loading a recall whose due date has already passed.
+                    // Now the question is why was this even an issue?  Something happened to add this logic...
                    
                     if (strtotime($recall['r_eventDate']) < mktime(0, 0, 0)) {
                         if ($this->recursive_array_search("recall_".$recall['r_pid'], $appt3)) {
-                            continue; }
+                            continue; 
+                        }
                     }
     
                     $count_recalls++;
@@ -549,6 +573,98 @@ class Events extends Base
                     $recall2['to']            = $results;
                     
                     $appt3[] = $recall2;
+                }
+            } else if ($event['M_group'] == 'ANNOUNCE') {
+
+                    
+                //  They are date limited to one day (date1), or may encompass a date range (date10-date11).
+                //  These events can be processed ASAP, or start on a specific date ($event['ann_deliv_sched_date'])
+                //      If a specific date is set, the event load may be spread out over 2/4/6 days 
+                //      to balance staff work-load (patients calling in or if enabled hitting "0" to auto-reach the office.  
+                //      MedEx server handles this load balancing.  
+                //  The event can be further limited by provider(s), facility.
+                //  Let's build that query now.
+
+                if (!empty($event['ann_deliv_sched_date'])) {
+                    $now = strtotime('now');
+                    $appt_date = strtotime($event['ann_deliv_sched_date']);
+                    if ($now < $appt_date) {
+                        //not ready to run, move on
+                        continue;
+                    }
+                }
+                if ($event['date_range']=='1') {
+                    //the announcement only affects appts on a single day 
+                    $target_dates = "pc_eventDate = '".$event['date1']."'";
+                } else if ($event['date_range']=='2') {
+                    //the event spans more than one day
+                    $target_dates = "pc_eventDate >= '".$event['date10']."' and pc_eventDate <= '".$event['date11']."'";
+                } else {
+                    continue;
+                    //we shouldn't get here so move to next event if we do
+                }
+                if (!empty($event['T_appt_stats'])) {
+                    $list = implode('|',$event['T_appt_stats']);
+                    $appt_status = " AND pc_appstatus in (".$list.")";
+                }
+                if (!empty($event['T_providers'])) {
+                    $list = implode('|',$event['T_providers']);
+                    $docs = " AND pc_aid in (".$list.") ";
+                }
+                if (!empty($event['T_facilities'])) {
+                    $list = implode('|',$event['T_facilitiess']);
+                    $places = " AND pc_facility in (".$list.") ";
+                }
+
+                $sql_ANNOUNCE = "SELECT * from openemr_postcalendar_events as cal 
+                                left join patient_data as pat on cal.pc_pid=pat.pid 
+                                WHERE (".$target_dates.") AND 
+                                    ".$places."
+                                    ".$docs."
+                                    ".$appt_status." 
+                                ORDER BY pc_eventDate,pc_startTime";
+                $result = sqlStatement($sql_ANNOUNCE);
+                while ($appt= sqlFetchArray($result)) {
+                    
+                        list($response,$results) = $this->MedEx->checkModality($event, $appt);
+                        if ($results==false) {
+                            continue; //not happening - either not allowed or not possible
+                        }
+                        $count_appts++;
+
+                        $appt2 = array();
+                        $appt2['pc_pid']        = $appt['pc_pid'];
+                        $appt2['e_C_UID']       = $event['C_UID'];
+                        $appt2['pc_eventDate']  = $appt['pc_eventDate'];
+                        $appt2['pc_startTime']  = $appt['pc_startTime'];
+                        $appt2['pc_eid']        = $appt['pc_eid'];
+                        $appt2['e_pc_eid']      = $appt['pc_eid'];
+                        $appt2['pc_aid']        = $appt['pc_aid'];
+                        $appt2['e_reason']      = (!empty($appt['e_reason']))?:'';
+                        $appt2['e_is_subEvent_of']= (!empty($appt['e_is_subEvent_of']))?:"0";
+                        $appt2['language']      = $appt['language'];
+                        $appt2['pc_facility']   = $appt['pc_facility'];
+                        $appt2['fname']         = $appt['fname'];
+                        $appt2['lname']         = $appt['lname'];
+                        $appt2['mname']         = $appt['mname'];
+                        $appt2['street']        = $appt['street'];
+                        $appt2['postal_code']   = $appt['postal_code'];
+                        $appt2['city']          = $appt['city'];
+                        $appt2['state']         = $appt['state'];
+                        $appt2['country_code']  = $appt['country_code'];
+                        $appt2['phone_home']    = $appt['phone_home'];
+                        $appt2['phone_cell']    = $appt['phone_cell'];
+                        $appt2['email']         = $appt['email'];
+                        $appt2['C_UID']         = $event['C_UID'];
+                        $appt2['E_fire_time']   = $event['E_fire_time'];
+                        $appt2['time_order']    = $event['time_order'];
+                        $appt2['M_type']        = $event['M_type'];
+                        $appt2['reply']         = "To Send";
+                        $appt2['extra']         = "QUEUED";
+                        $appt2['status']        = "SENT";
+                       
+                        $appt2['to']            = $results;
+                        $appt3[] = $appt2;
                 }
             }
         }
@@ -877,7 +993,7 @@ class Display extends base
                                         <li id="menu_pend_recalls" name="menu_pend_recalls"> <a id="BUTTON_pend_recalls_menu" onclick="tabYourIt('flb','patient_tracker/patient_tracker.php?skip_timeout_reset=1');"> <?php echo xlt("Flow Board"); ?></a></li>
                                         <li class="divider"><hr /></li>
                                         <?php }  ?>
-                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap text-left' target='_MedEx' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Reminder Campaigns"); ?></a></li>
+                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns&g=rem' target="_medex" class='nowrap text-left' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Reminder Campaigns"); ?></a></li>
                                     </ul>
                                  </li>
                                 <?php
@@ -893,13 +1009,55 @@ class Display extends base
                                     if ($logged_in) {
                                         ?>
                                          <li class="divider"><hr /></li>
-                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap text-left' target='_blank' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Recall Campaigns"); ?></a></li>
+                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns&g=rec' target="_medex" class='nowrap text-left' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Recall Campaigns"); ?></a></li>
                                         <?php
                                     }
                                     ?>
                                     </ul>
                                 </li>
-                            <?php  }  ?>
+                                <?php  
+                            }  
+
+                            if ($logged_in) {
+                                if  (!empty($logged_in['ANNOUNCE'])) {
+                                ?>
+                                <li class="dropdown">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Announcements"); ?> </a>
+                                    <ul class="bgcolor2 dropdown-menu" role="menu">
+                                        <li id="menu_new_recall" name="menu_new_recall"> 
+                                            <a id="BUTTON_new_announce_menu" 
+                                            href='https://medexbank.com/cart/upload/index.php?route=information/announcement&g=ann'
+                                            target="_medex"> <?php echo xlt("New Announcement"); ?></a>
+                                        </li>
+                                        <li id="menu_pend_announce" name="menu_pend_recalls"> 
+                                            <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns&g=ann' target="_medex" class='nowrap text-left' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Announcements"); ?></a></li>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <?php 
+                                }
+                                if  (!empty($logged_in['SURVEY'])) {
+                                    ?>
+                                
+                                <li class="dropdown">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Surveys"); ?> </a>
+                                    <ul class="bgcolor2 dropdown-menu" role="menu">
+                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> 
+                                            <a href='https://medexbank.com/cart/upload/index.php?route=information/surveys&g=sur' target="_medex" class='nowrap text-left' id="BUTTON_pend_recalls_menu"> 
+                                                <?php echo xlt("New Survey"); ?></a></li>
+                                            
+                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> 
+                                            <a href='https://medexbank.com/cart/upload/index.php?route=information/surveys&g=sur' target="_medex" class='nowrap text-left' id="BUTTON_pend_recalls_menu">
+                                            <?php echo xlt("Survey Test Campaigns"); ?></a></li>
+                                    </ul>
+                                </li>
+                                <?php
+                                }
+
+
+                            }
+
+                            ?>
                         </ul>
                     </div><!-- /.navbar-collapse -->
                 </div>
@@ -919,24 +1077,23 @@ class Display extends base
             }
         }
     }
-
     public function preferences($prefs = '')
     {
+        global $logged_in;
         if (empty($prefs)) {
             $prefs = sqlFetchArray(sqlStatement("SELECT * from medex_prefs"));
         }
             $this->MedEx->logging->log_this($log);
         ?>
         <div class="row">
-            <div class="col-sm-6 col-sm-offset-2 text-center">
+            <div class="col-sm-12 text-center">
                 <div class="showRecalls" id="show_recalls">
                     <div class="title"><?php echo xlt('MedEx Preferences'); ?></div>
                     <div name="div_response" id="div_response" class="form-inline"><br /></div>
-                        <form action="#" name="save_prefs" id="save_prefs">
+                    <form action="#" name="save_prefs" id="save_prefs">
                             <div class="row">
-                                <div class="col-sm-1"><input type="hidden" name="go" id="go" value="Preferences">
-                                </div>
-                                <div class="col-sm-10 div-center" id="daform2">
+                                <input type="hidden" name="go" id="go" value="Preferences">
+                                <div class="col-sm-5 div-center col-sm-offset-1" id="daform2">
                                     <div class="divTable2">
                                         <div class="divTableBody prefs">
                                             <div class="divTableRow">
@@ -1069,12 +1226,51 @@ class Display extends base
                                         </div>
                                     </div>
                                 </div>
+                                 <div class="col-sm-5 div-center" id="daform2">
+                                    <div class="divTable2">
+                                        <div class="divTableBody prefs">
+                                            <?php if (count($logged_in['products']['ordered'] > '0')) { ?>
+                                            <div class="divTableRow">
+                                                <div class="divTableCell divTableHeading"><?php echo xlt('Enabled Services'); ?></div>
+                                                <div class="divTableCell">
+                                                    <ul>
+                                                        <?php 
+                                                        foreach ($logged_in['products']['ordered'] as $service) {
+                                                            ?><li><a href="<?php echo $service['view']; ?>" target="_medex"><?php echo $service['model']; ?> </a></li>
+                                                            <?php 
+                                                            if ($service['product_id'] =='54') {
+                                                                ?>
+                                                                <div style="margin-left:10px;">Appointment Reminders<br />Patient Recalls<br />SMS Bot<br /></div>
+                                                                <?php
+                                                            }
+                                                        } ?>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <?php } 
+                                            if (!empty($logged_in['products']['not_ordered'])) { 
+                                                ?>
+                                            <div class="divTableRow">
+                                                <div class="divTableCell divTableHeading"><?php echo xlt('Available Services'); ?></div>
+                                                <div class="divTableCell">
+                                                    <ul>
+                                                        <?php 
+                                                        foreach ($logged_in['products']['not_ordered'] as $service) {
+                                                            ?><li><a href="<?php echo $service['view']; ?>" target="_medex"><?php echo $service['model']; ?> </a></li>
+                                                            <?php 
+                                                        } ?>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <?php } ?>
+                                        </div>
+                                    </div>
+                                </div>
                                <div class="col-sm-1"></div>
                             </div>
                             <div style="clear:both;text-align:center;" id="msg bottom"><br />
                             </div>
-                        </form>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -1339,10 +1535,9 @@ class Display extends base
             }
             $(document).ready(function() {
                 show_this();
-            });
-           
+            });           
         </script>
-            <?php
+        <?php
             $content = ob_get_clean();
             echo $content;
     }
@@ -2023,7 +2218,7 @@ class Display extends base
                       <div class="divTableCell text-center"><?php echo xlt('Confirmed'); ?></div>
                       <div class="divTableCell text-center"><?php echo xlt('Callback'); ?></div>
                       <div class="divTableCell text-center"><?php echo xlt('Failure'); ?></div>
-                      <div class="divTableCell text-center"><?php echo xlt('Extras'); ?></div>
+                      <div class="divTableCell text-center"><?php echo xlt('Replies'); ?></div>
                       <div class="divTableCell text-center"><?php echo xlt('STOP'); ?></div>
                     </div>
                     <div class="divTableRow">

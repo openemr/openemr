@@ -20,13 +20,14 @@ require_once(dirname(__FILE__)."/../../interface/globals.php");
 require_once(dirname(__FILE__)."/../patient.inc");
 require_once(dirname(__FILE__)."/../log.inc");
 require_once(dirname(__FILE__)."/API.php");
+require_once(dirname(__FILE__)."/../formatting.inc.php");
+
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 
 $logged_in = $MedEx->login();
 $log['Time']= date(DATE_RFC2822);
 $log['action'] = "MedEx.php fired";
-
 if ($logged_in) {
     if ((!empty($_POST['callback']))&&($_SERVER['REMOTE_ADDR']=='66.175.210.18')) {
         $data = json_decode($_POST, true);
@@ -38,6 +39,7 @@ if ($logged_in) {
     $response   = $MedEx->practice->sync($token);
     $campaigns  = $MedEx->campaign->events($token);
     $response   = $MedEx->events->generate($token, $campaigns['events']);
+
 } else {
     echo "not logged in";
     echo $MedEx->getLastError();

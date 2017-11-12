@@ -749,7 +749,7 @@ if ($appointment['room']>'') {
 
                         $timecheck = round(abs($to_time - $from_time) / 60, 0);
                         if ($timecheck >= $statalert && ( $statalert > '0' )) { // Determine if the time in status limit has been reached.
-                            echo "<td class='text-center  js-blink-infinite small small'>  "; // and if so blink
+                            echo "<td class='text-center  js-blink-infinite small'>  "; // and if so blink
                         } else {
                             echo "<td class='detail text-center'> "; // and if not do not blink
                         }
@@ -882,6 +882,7 @@ if ($appointment['room']>'') {
               <script type="text/javascript">
                 var auto_refresh =null;
                 //this can be refined to redact HIPAA material using @media print options.
+                top.restoreSession();
                 window.parent.$("[name='flb']").attr('allowFullscreen','true');
                 <?php
                 if ($_REQUEST['kiosk'] =='1') { ?>
@@ -922,6 +923,7 @@ if ($appointment['room']>'') {
                  * This function refreshes the whole flb_table according to our to/from dates.
                  */
                 function refreshMe(){
+                    top.restoreSession();
                     var posting = $.post( '../patient_tracker/patient_tracker.php', { 
                       flb_table         : '1',
                       datepicker1       : $("#datepicker1").val(),
