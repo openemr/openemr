@@ -325,6 +325,7 @@ function postcalendar_adminapi_addCategories($args)
     $pntable = pnDBGetTables();
     
     $name = pnVarPrepForStore($name);
+    $constantid = trim(pnVarPrepForStore($constantid));
     $desc = trim(pnVarPrepForStore($desc));
     $value_cat_type = pnVarPrepForStore($value_cat_type);
     $color = pnVarPrepForStore($color);
@@ -342,11 +343,11 @@ function postcalendar_adminapi_addCategories($args)
     $aco = pnVarPrepForStore($aco);
     
     $sql = "INSERT INTO $pntable[postcalendar_categories] 
-                                (pc_catid,pc_catname,pc_catdesc,pc_catcolor,
+                                (pc_catid,pc_catname,pc_constant_id,pc_catdesc,pc_catcolor,
                                 pc_recurrtype,pc_recurrspec,pc_recurrfreq,pc_duration,
     							pc_dailylimit,pc_end_date_flag,pc_end_date_type,
     							pc_end_date_freq,pc_end_all_day,pc_cattype,pc_active,pc_seq,aco_spec)
-                                VALUES ('','$name','$desc','$color',
+                                VALUES ('','$name','$constantid','$desc','$color',
                                 '$recurrtype','$recurrspec','$recurrfreq',
                                 '$duration','$limitid','$end_date_flag','$end_date_type',
                                 '$end_date_freq','$end_all_day','$value_cat_type','$active',$sequence,'$aco')";

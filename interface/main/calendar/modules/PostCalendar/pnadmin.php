@@ -1143,12 +1143,12 @@ EOF;
     $output->Text($header);
     $output->Text(postcalendar_adminmenu());
 
-    list($id,$del,$name,$value_cat_type,$desc,$color,
+    list($id,$del,$name,$constantid,$value_cat_type,$desc,$color,
         $event_repeat,$event_repeat_freq,
         $event_repeat_freq_type,$event_repeat_on_num,
         $event_repeat_on_day,$event_repeat_on_freq,$durationh,$durationm,
         $end_date_flag,$end_date_type,$end_date_freq,$end_all_day,$active,$sequence,$aco,
-        $newname,$newdesc,$newcolor,$new_event_repeat,$new_event_repeat_freq,
+        $newname,$newconstantid,$newdesc,$newcolor,$new_event_repeat,$new_event_repeat_freq,
         $new_event_repeat_freq_type,$new_event_repeat_on_num,$new_event_repeat_on_day,
         $new_event_repeat_on_freq,$new_durationh,$new_durationm,$new_limitid,$new_end_date_flag,
         $new_end_date_type,$new_end_date_freq,$new_end_all_day,$new_value_cat_type,$newactive,$newsequence,$newaco
@@ -1156,6 +1156,7 @@ EOF;
             'id',
             'del',
             'name',
+            'constantid',
             'value_cat_type',
             'desc',
             'color',
@@ -1175,6 +1176,7 @@ EOF;
             'sequence',
             'aco',
             'newname',
+            'newconstantid',
             'newdesc',
             'newcolor',
             'newevent_repeat',
@@ -1199,6 +1201,15 @@ EOF;
     foreach ($name as $i => $item) {
         if (empty($item)) {
             $output->Text(postcalendar_admin_categories($msg, "Category Names must contain a value!"));
+            return $output->GetOutput();
+        }
+        if (empty($constantid[$i])) {
+            $output->Text(postcalendar_admin_categories($msg, "Category Identifiers must contain a value!"));
+            return $output->GetOutput();
+        }
+        $tmp = $constantid[$i];
+        if (strpos(trim($tmp),' ')){
+            $output->Text(postcalendar_admin_categories($msg, "Category Identifiers must be one word!"));
             return $output->GetOutput();
         }
         $tmp = $color[$i];
@@ -1256,6 +1267,7 @@ EOF;
     }
     if (!empty($newname)) {
         $output->FormHidden('newname', $newname);
+        $output->FormHidden('newconstantid', $newconstantid);
         $output->FormHidden('newdesc', $newdesc);
         $output->FormHidden('newvalue_cat_type', $new_value_cat_type);
         $output->FormHidden('newcolor', $newcolor);
@@ -1279,6 +1291,7 @@ EOF;
     $output->FormHidden('id', serialize($id));
     $output->FormHidden('del', serialize($del));
     $output->FormHidden('name', serialize($name));
+    $output->FormHidden('constantid', serialize($constantid));
     $output->FormHidden('desc', serialize($desc));
     $output->FormHidden('value_cat_type', serialize($value_cat_type));
     $output->FormHidden('color', serialize($color));
@@ -1310,9 +1323,9 @@ function postcalendar_admin_categoriesUpdate()
     list($dbconn) = pnDBGetConn();
     $pntable = pnDBGetTables();
 
-    list($id,$del,$name,$value_cat_type,$desc,$color,
+    list($id,$del,$name,$constantid,$value_cat_type,$desc,$color,
         $event_repeat_array,$event_recurrspec_array,$dels,$durationh,$durationm,
-        $end_date_flag,$end_date_type,$end_date_freq,$end_all_day,$active,$sequence,$aco,$newname,$newdesc,$newcolor,
+        $end_date_flag,$end_date_type,$end_date_freq,$end_all_day,$active,$sequence,$aco,$newname,$newconstantid,$newdesc,$newcolor,
         $new_event_repeat,$new_event_recurrspec,$new_event_recurrfreq,
         $new_duration,$new_dailylimitid,$new_end_date_flag,$new_end_date_type,
         $new_end_date_freq,$new_end_all_day,$new_value_cat_type,$newactive,$newsequence,$newaco
@@ -1320,6 +1333,7 @@ function postcalendar_admin_categoriesUpdate()
             'id',
             'del',
             'name',
+            'constantid',
             'value_cat_type',
             'desc',
             'color',
@@ -1356,6 +1370,7 @@ function postcalendar_admin_categoriesUpdate()
     $id = unserialize($id);
     $del = unserialize($del);
     $name = unserialize($name);
+    $constantid = unserialize($constantid);
     $value_cat_type = unserialize($value_cat_type);
     $desc = unserialize($desc);
     $color = unserialize($color);
@@ -1402,6 +1417,7 @@ function postcalendar_admin_categoriesUpdate()
 
                 $update_sql = "UPDATE $pntable[postcalendar_categories]
 		                             SET pc_catname='".pnVarPrepForStore($name[$k])."',
+		                                 pc_constant_id='".trim(pnVarPrepForStore($constantid[$k]))."',
 		                                 pc_catdesc='".trim(pnVarPrepForStore($desc[$k]))."',
 		                                 pc_cattype='".trim(pnVarPrepForStore($value_cat_type[$k]))."',
 		                                 pc_catcolor='".pnVarPrepForStore($color[$k])."',
@@ -1449,7 +1465,7 @@ function postcalendar_admin_categoriesUpdate()
             __POSTCALENDAR__,
             'admin',
             'addCategories',
-            array('name'=>$newname,'desc'=>$newdesc,'value_cat_type'=>$new_value_cat_type,'color'=>$newcolor,'active'=>$newactive,'sequence'=>$newsequence, 'aco'=>$newaco,
+            array('name'=>$newname,'constantid' => $newconstantid,'desc'=>$newdesc,'value_cat_type'=>$new_value_cat_type,'color'=>$newcolor,'active'=>$newactive,'sequence'=>$newsequence, 'aco'=>$newaco,
             'repeat'=>$new_event_repeat,'spec'=>$new_event_recurrspec,
             'recurrfreq'=>$new_recurrfreq,'duration'=>$new_duration,'limitid'=>$new_dailylimitid,
             'end_date_flag'=>$new_end_date_flag,'end_date_type'=>$new_end_date_flag,
@@ -1541,6 +1557,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
     $tpl->assign('_PC_REP_CAT_TITLE_S', _PC_REP_CAT_TITLE_S);
     $tpl->assign('_PC_NEW_CAT_TITLE_S', _PC_NEW_CAT_TITLE_S);
     $tpl->assign('_PC_CAT_NAME', _PC_CAT_NAME);
+    $tpl->assign('_PC_CAT_CONSTANT_ID', _PC_CAT_CONSTANT_ID);
     $tpl->assign('_PC_CAT_TYPE', _PC_CAT_TYPE);
     $tpl->assign('_PC_CAT_NAME_XL', _PC_CAT_NAME_XL);
     $tpl->assign('_PC_CAT_DESC', _PC_CAT_DESC);
