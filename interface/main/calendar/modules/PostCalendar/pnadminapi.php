@@ -350,7 +350,7 @@ function postcalendar_adminapi_addCategories($args)
                                 VALUES ('','$name','$constantid','$desc','$color',
                                 '$recurrtype','$recurrspec','$recurrfreq',
                                 '$duration','$limitid','$end_date_flag','$end_date_type',
-                                '$end_date_freq','$end_all_day','$value_cat_type','$active',$sequence,'$aco')";
+                                '$end_date_freq','$end_all_day','$value_cat_type','$active','$sequence','$aco')";
                                 
                                 
     //print "sql is $sql \n";

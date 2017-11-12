@@ -1266,6 +1266,16 @@ EOF;
         $output->Linebreak();
     }
     if (!empty($newname)) {
+
+        if (empty($newconstantid)) {
+            $output->Text(postcalendar_admin_categories($msg, "Category Identifiers must contain a value!"));
+            return $output->GetOutput();
+        }
+        if (strpos(trim($newconstantid),' ')){
+            $output->Text(postcalendar_admin_categories($msg, "Category Identifiers must be one word!"));
+            return $output->GetOutput();
+        }
+
         $output->FormHidden('newname', $newname);
         $output->FormHidden('newconstantid', $newconstantid);
         $output->FormHidden('newdesc', $newdesc);
@@ -1350,6 +1360,7 @@ function postcalendar_admin_categoriesUpdate()
             'sequence',
             'aco',
             'newname',
+            'newconstantid',
             'newdesc',
             'newcolor',
             'newevent_repeat',
