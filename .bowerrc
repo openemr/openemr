@@ -16,6 +16,7 @@
     "moment",
     "php-date-formatter",
     "react",
+    "select2",
     "summernote",
     "underscore"
   ]

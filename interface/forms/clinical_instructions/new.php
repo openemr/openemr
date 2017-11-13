@@ -20,7 +20,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
-$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : '');
+$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : 0);
 $check_res = $formid ? formFetch("form_clinical_instructions", $formid) : array();
 ?>
 <html>

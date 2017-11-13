@@ -24,7 +24,7 @@ if (! $encounter) { // comes from globals.php
 }
 
 //only one misc billing form so grab if exists
-$formid   = 0 + formData('id', 'G');
+$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : 0);
 if (empty($formid)) {
     $mboquery = sqlquery("SELECT `fmbo`.`id` FROM `form_misc_billing_options` AS `fmbo`
                           INNER JOIN `forms` ON (`fmbo`.`id` = `forms`.`form_id`) WHERE
