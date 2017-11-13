@@ -29,7 +29,7 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 formHeader("Form:Transfer Summary");
 $returnurl = 'encounter_top.php';
-$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : '');
+$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : 0);
 $obj = $formid ? formFetch("form_transfer_summary", $formid) : array();
 
 ?>

@@ -86,7 +86,7 @@ function getListOptions($list_id, $fieldnames = array('option_id', 'title', 'seq
 
     return $output;
 }
-$formid = formData('id', 'G') + 0;
+$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : 0);
 
 // If Save or Transmit was clicked, save the info.
 //
