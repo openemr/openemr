@@ -1,0 +1,12 @@
+{
+  "name": "magic-wand-js",
+  "homepage": "https://github.com/Tamersoul/magic-wand-js",
+  "_release": "39d50ec17b",
+  "_resolution": {
+    "type": "commit",
+    "commit": "39d50ec17bfc060f2d360537a26a9420dd8970b6"
+  },
+  "_source": "git://github.com:Tamersoul/magic-wand-js.git",
+  "_target": "39d50ec17bfc060f2d360537a26a9420dd8970b6",
+  "_originalSource": "git://github.com:Tamersoul/magic-wand-js"
+}

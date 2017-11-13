@@ -1,0 +1,14 @@
+{
+  "name": "modernizr",
+  "homepage": "https://github.com/Modernizr/Modernizr",
+  "version": "3.5.0",
+  "_release": "3.5.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "v3.5.0",
+    "commit": "7db55bbfa9de67289892b94b60bf2f088c11d669"
+  },
+  "_source": "https://github.com/Modernizr/Modernizr.git",
+  "_target": "3.5.0",
+  "_originalSource": "modernizr"
+}

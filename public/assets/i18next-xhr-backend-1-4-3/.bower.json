@@ -1,0 +1,31 @@
+{
+  "name": "i18next-xhr-backend",
+  "main": "./i18nextXHRBackend.js",
+  "dependencies": {},
+  "ignore": [
+    "test/",
+    "dist/",
+    "src/",
+    "coverage/",
+    ".babelrc",
+    ".gitignore",
+    ".editorconfig",
+    ".eslintignore",
+    ".eslintrc",
+    ".npmignore",
+    "gulpfile.js",
+    "package.json",
+    "karma.conf.js"
+  ],
+  "homepage": "https://github.com/i18next/i18next-xhr-backend",
+  "version": "1.4.3",
+  "_release": "1.4.3",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.4.3",
+    "commit": "03f1dd2ce44fa725b12c3fe0da59c6c96f73b02d"
+  },
+  "_source": "https://github.com/i18next/i18next-xhr-backend.git",
+  "_target": "1.4.3",
+  "_originalSource": "i18next-xhr-backend"
+}
