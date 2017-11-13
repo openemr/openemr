@@ -96,6 +96,7 @@ define('_PC_ALL_DAY_CAT_TITLE', xl('All Day'));
 define('_PC_ALL_DAY_CAT_YES', xl('Yes'));
 define('_PC_ALL_DAY_CAT_NO', xl('No'));
 define('_PC_CAT_NAME', xl('Name'));
+define('_PC_CAT_CONSTANT_ID', xl('Identifier(one word)'));
 define('_PC_CAT_NAME_XL', xl('Name Translation'));
 define('_PC_CAT_DESC', xl('Description'));
 define('_PC_CAT_DESC_XL', xl('Description Translation'));

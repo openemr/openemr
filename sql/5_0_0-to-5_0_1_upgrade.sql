@@ -661,3 +661,8 @@ DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'lbfnames';
 DELETE FROM list_options WHERE list_id = 'transactions';
 DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'transactions';
 #EndIf
+
+#IfMissingColumn openemr_postcalendar_categories pc_constant_id
+ALTER TABLE `openemr_postcalendar_categories` ADD `pc_constant_id` VARCHAR (255) NOT NULL;
+UPDATE `openemr_postcalendar_categories` SET pc_constant_id = LOWER(REPLACE (pc_catname,' ', '_'));
+#EndIf
