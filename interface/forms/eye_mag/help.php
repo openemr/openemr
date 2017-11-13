@@ -58,7 +58,7 @@ if ($showit=='ext') {
     <meta name="author" content="openEMR: ophthalmology help">
     <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- jQuery library -->
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-11-3/index.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-10-2/index.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.js"></script>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/excite-bike/jquery-ui.css">
     <!-- Latest compiled JavaScript -->

@@ -1570,7 +1570,7 @@ function build_PMSFH($pid)
     $PMSFH_labels = array("POH", "POS", "PMH", "Surgery", "Medication", "Allergy", "SOCH", "FH", "ROS");
 
     foreach ($PMSFH_labels as $panel_type) {
-        $PMSFH[$panel_type] ='';
+        $PMSFH[$panel_type][] ='';
         $subtype = " and (subtype is NULL or subtype ='' )";
         $order = "ORDER BY title";
         if ($panel_type == "FH" || $panel_type == "SOCH" || $panel_type == "ROS") {

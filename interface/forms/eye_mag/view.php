@@ -36,6 +36,7 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/patient.inc");
+require_once("$srcdir/FeeSheetHtml.class.php");
 
 $form_name = "eye_mag";
 $form_folder = "eye_mag";
@@ -99,7 +100,7 @@ $prov_data    =  sqlQuery($query, array($providerID));
 global $priors;
 global $earlier;
 $PMSFH = build_PMSFH($pid);
-
+$fs = new FeeSheetHtml();
 /*
   Two windows anywhere with the same chart open is not compatible with the autosave feature.
   Data integrity problems will arise.
@@ -3518,7 +3519,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                         "WHERE superbill = ? AND active = 1 " .
                                         "ORDER BY code_text", array($prow['option_id']));
                                         while ($row = sqlFetchArray($res)) {
-                                            $ctkey = alphaCodeType($row['code_type']);
+                                            $ctkey = $fs->alphaCodeType($row['code_type']);
                                             if ($code_types[$ctkey]['nofs']) {
                                                 continue;
                                             }
