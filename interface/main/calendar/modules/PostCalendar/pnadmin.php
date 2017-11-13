@@ -1208,7 +1208,7 @@ EOF;
             return $output->GetOutput();
         }
         $tmp = $constantid[$i];
-        if (strpos(trim($tmp),' ')){
+        if (strpos(trim($tmp), ' ')) {
             $output->Text(postcalendar_admin_categories($msg, "Category Identifiers must be one word!"));
             return $output->GetOutput();
         }
@@ -1266,12 +1266,11 @@ EOF;
         $output->Linebreak();
     }
     if (!empty($newname)) {
-
         if (empty($newconstantid)) {
             $output->Text(postcalendar_admin_categories($msg, "Category Identifiers must contain a value!"));
             return $output->GetOutput();
         }
-        if (strpos(trim($newconstantid),' ')){
+        if (strpos(trim($newconstantid), ' ')) {
             $output->Text(postcalendar_admin_categories($msg, "Category Identifiers must be one word!"));
             return $output->GetOutput();
         }
