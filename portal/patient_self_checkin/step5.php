@@ -41,7 +41,7 @@ $timeRN = date("Y-m-d H:i:s");
 $date = date("y-m-d");
 echo "<h1> Time: " . $timeRN . "</h1><br>";
 
-require 'mySQL_connector.php';
+require './mySQL_connector.php';
 
 // Get the patient IDs of everyone with an appointment today. Enter them into an array which we can call upon later.
 
