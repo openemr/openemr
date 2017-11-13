@@ -39,12 +39,12 @@ require_once("$srcdir/acl.inc");
 
 // From Michael Brinson 2006-09-19:
 if (isset($_POST['pc_username'])) {
-    $_SESSION['pc_username'] = $_POST['pc_username'];
+    $_SESSION['pc_username'] = pnVarCleanFromInput($_POST['pc_username']);
 }
 
 //(CHEMED) Facility filter
 if (isset($_POST['all_users'])) {
-    $_SESSION['pc_username'] = $_POST['all_users'];
+    $_SESSION['pc_username'] = pnVarCleanFromInput($_POST['all_users']);
 }
 
 // bug fix to allow default selection of a provider
@@ -55,7 +55,7 @@ if (isset($_REQUEST['pc_username']) && $_REQUEST['pc_username']) {
 
 // (CHEMED) Get the width of vieport
 if (isset($_GET['framewidth'])) {
-    $_SESSION['pc_framewidth'] = $_GET['framewidth'];
+    $_SESSION['pc_framewidth'] = pnVarCleanFromInput($_GET['framewidth']);
 }
 
 // FACILITY FILTERING (lemonsoftware) (CHEMED)
@@ -82,13 +82,13 @@ if ($_SESSION['userauthorized'] != 1 && $GLOBALS['restrict_user_facility']) {
 }
 
 if (isset($_POST['pc_facility'])) {
-    $_SESSION['pc_facility'] = $_POST['pc_facility'];
+    $_SESSION['pc_facility'] = pnVarCleanFromInput($_POST['pc_facility']);
 }
 
 /********************************************************************/
 
 if (isset($_GET['pc_facility'])) {
-    $_SESSION['pc_facility'] = $_GET['pc_facility'];
+    $_SESSION['pc_facility'] = pnVarCleanFromInput($_GET['pc_facility']);
 }
 
 if ($GLOBALS['set_facility_cookie'] && ($_SESSION['pc_facility'] > 0)) {
