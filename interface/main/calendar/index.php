@@ -37,15 +37,24 @@ require_once "includes/pnre.inc.php";
 require_once 'includes/pnAPI.php';
 require_once("$srcdir/acl.inc");
 
-// From Michael Brinson 2006-09-19:
+/*
 if (isset($_POST['pc_username'])) {
     $_SESSION['pc_username'] = pnVarCleanFromInput($_POST['pc_username']);
 }
-
-//(CHEMED) Facility filter
 if (isset($_POST['all_users'])) {
     $_SESSION['pc_username'] = pnVarCleanFromInput($_POST['all_users']);
 }
+if (isset($_GET['framewidth'])) {
+    $_SESSION['pc_framewidth'] = pnVarCleanFromInput($_GET['framewidth']);
+}
+if (isset($_POST['pc_facility'])) {
+    $_SESSION['pc_facility'] = pnVarCleanFromInput($_POST['pc_facility']);
+}
+if (isset($_GET['pc_facility'])) {
+    $_SESSION['pc_facility'] = pnVarCleanFromInput($_GET['pc_facility']);
+}
+*/
+
 
 // bug fix to allow default selection of a provider
 // added 'if..POST' check -- JRM
@@ -53,10 +62,7 @@ if (isset($_REQUEST['pc_username']) && $_REQUEST['pc_username']) {
     $_SESSION['pc_username'] = $_REQUEST['pc_username'];
 }
 
-// (CHEMED) Get the width of vieport
-if (isset($_GET['framewidth'])) {
-    $_SESSION['pc_framewidth'] = pnVarCleanFromInput($_GET['framewidth']);
-}
+
 
 // FACILITY FILTERING (lemonsoftware) (CHEMED)
 $_SESSION['pc_facility'] = 0;
@@ -81,15 +87,10 @@ if ($_SESSION['userauthorized'] != 1 && $GLOBALS['restrict_user_facility']) {
     }
 }
 
-if (isset($_POST['pc_facility'])) {
-    $_SESSION['pc_facility'] = pnVarCleanFromInput($_POST['pc_facility']);
-}
 
 /********************************************************************/
 
-if (isset($_GET['pc_facility'])) {
-    $_SESSION['pc_facility'] = pnVarCleanFromInput($_GET['pc_facility']);
-}
+
 
 if ($GLOBALS['set_facility_cookie'] && ($_SESSION['pc_facility'] > 0)) {
     setcookie("pc_facility", $_SESSION['pc_facility'], time() + (3600 * 365));
