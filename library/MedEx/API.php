@@ -898,7 +898,8 @@ class Display extends base
             }
             function SMS_bot_list() {
                 top.restoreSession();
-                window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=list','SMS_bot', 'width=370,height=600,resizable=0');
+                var myWindow = window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=list','SMS_bot', 'width=370,height=600,resizable=0');
+                myWindow.focus();
                 return false;
             }
         </script>
