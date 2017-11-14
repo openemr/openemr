@@ -37,24 +37,15 @@ require_once "includes/pnre.inc.php";
 require_once 'includes/pnAPI.php';
 require_once("$srcdir/acl.inc");
 
-/*
+// From Michael Brinson 2006-09-19:
 if (isset($_POST['pc_username'])) {
-    $_SESSION['pc_username'] = pnVarCleanFromInput($_POST['pc_username']);
+    $_SESSION['pc_username'] = $_POST['pc_username'];
 }
-if (isset($_POST['all_users'])) {
-    $_SESSION['pc_username'] = pnVarCleanFromInput($_POST['all_users']);
-}
-if (isset($_GET['framewidth'])) {
-    $_SESSION['pc_framewidth'] = pnVarCleanFromInput($_GET['framewidth']);
-}
-if (isset($_POST['pc_facility'])) {
-    $_SESSION['pc_facility'] = pnVarCleanFromInput($_POST['pc_facility']);
-}
-if (isset($_GET['pc_facility'])) {
-    $_SESSION['pc_facility'] = pnVarCleanFromInput($_GET['pc_facility']);
-}
-*/
 
+//(CHEMED) Facility filter
+if (isset($_POST['all_users'])) {
+    $_SESSION['pc_username'] = $_POST['all_users'];
+}
 
 // bug fix to allow default selection of a provider
 // added 'if..POST' check -- JRM
@@ -62,14 +53,17 @@ if (isset($_REQUEST['pc_username']) && $_REQUEST['pc_username']) {
     $_SESSION['pc_username'] = $_REQUEST['pc_username'];
 }
 
-
+// (CHEMED) Get the width of vieport
+if (isset($_GET['framewidth'])) {
+    $_SESSION['pc_framewidth'] = $_GET['framewidth'];
+}
 
 // FACILITY FILTERING (lemonsoftware) (CHEMED)
 $_SESSION['pc_facility'] = 0;
 
 /*********************************************************************
 if ($_POST['pc_facility'])  $_SESSION['pc_facility'] = $_POST['pc_facility'];
-*********************************************************************/
+ *********************************************************************/
 if (isset($_COOKIE['pc_facility']) && $GLOBALS['set_facility_cookie']) {
     $_SESSION['pc_facility'] = $_COOKIE['pc_facility'];
 }
@@ -77,9 +71,9 @@ if (isset($_COOKIE['pc_facility']) && $GLOBALS['set_facility_cookie']) {
 // override the cookie if the user doesn't have access to that facility any more
 if ($_SESSION['userauthorized'] != 1 && $GLOBALS['restrict_user_facility']) {
     $facilities = getUserFacilities($_SESSION['authId']);
-  // use the first facility the user has access to, unless...
+    // use the first facility the user has access to, unless...
     $_SESSION['pc_facility'] = $facilities[0]['id'];
-  // if the cookie is in the users' facilities, use that.
+    // if the cookie is in the users' facilities, use that.
     foreach ($facilities as $facrow) {
         if (($facrow['id'] == $_COOKIE['pc_facility']) && $GLOBALS['set_facility_cookie']) {
             $_SESSION['pc_facility'] = $_COOKIE['pc_facility'];
@@ -87,10 +81,15 @@ if ($_SESSION['userauthorized'] != 1 && $GLOBALS['restrict_user_facility']) {
     }
 }
 
+if (isset($_POST['pc_facility'])) {
+    $_SESSION['pc_facility'] = $_POST['pc_facility'];
+}
 
 /********************************************************************/
 
-
+if (isset($_GET['pc_facility'])) {
+    $_SESSION['pc_facility'] = $_GET['pc_facility'];
+}
 
 if ($GLOBALS['set_facility_cookie'] && ($_SESSION['pc_facility'] > 0)) {
     setcookie("pc_facility", $_SESSION['pc_facility'], time() + (3600 * 365));
@@ -116,18 +115,18 @@ pnInit();
 
 // Get variables
 list($module,
-     $func,
-     $op,
-     $name,
-     $file,
-     $type,) = pnVarCleanFromInput(
-         'module',
-         'func',
-         'op',
-         'name',
-         'file',
-         'type'
-     );
+    $func,
+    $op,
+    $name,
+    $file,
+    $type,) = pnVarCleanFromInput(
+    'module',
+    'func',
+    'op',
+    'name',
+    'file',
+    'type'
+);
 
 // Defaults for variables
 if (isset($catid)) {
