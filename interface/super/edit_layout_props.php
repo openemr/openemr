@@ -381,7 +381,7 @@ while ($itrow = sqlFetchArray($itres)) {
     <?php echo xlt('Access Control'); ?>
   </td>
   <td>
-   <select name='form_aco'>
+   <select name='form_aco' style='width:100%'>
     <option value=''></option>
 <?php
   $gacl = new gacl_api();

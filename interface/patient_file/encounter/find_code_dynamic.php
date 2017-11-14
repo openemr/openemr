@@ -34,6 +34,7 @@ $source = empty($_GET['source']) ? 'D' : $_GET['source'];
 // For what == groups
 $layout_id = empty($_GET['layout_id']) ? '' : $_GET['layout_id'];
 ?>
+<!DOCTYPE html>
 <html>
 <head>
 <?php html_header_show(); ?>
