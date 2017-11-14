@@ -154,7 +154,7 @@ switch ($task) {
 
                 // There's no note ID, and/or it's assigned to the patient.
                 // In these cases a new note is created.
-                foreach($reply_to as $patient){
+                foreach ($reply_to as $patient) {
                     addPnote($patient, $note, $userauthorized, '1', $form_note_type, $assigned_to, '', $form_message_status);
                 }
             }
@@ -241,11 +241,12 @@ if ($reply_to) {
     $patientname = $prow['lname'] . ", " . $prow['fname'];
 }
 
- ?>
+    ?>
    <input type='text' size='10' name='form_patient' style='width:150px;' value='<?php echo htmlspecialchars($patientname, ENT_QUOTES); ?>' readonly/>
    <input type='hidden' name='reply_to' id='reply_to' value='<?php echo htmlspecialchars($reply_to, ENT_QUOTES) ?>' />
 
-   <?php if ($task=="addnew" || $result['pid']==0) echo  '<input type="button" value="' . xla('Add Patient') .  '" style="float: none; display: inline-block;" onclick="sel_patient()"/>'?>
+    <?php if ($task=="addnew" || $result['pid']==0) {
+        echo  '<input type="button" value="' . xla('Add Patient') .  '" style="float: none; display: inline-block;" onclick="sel_patient()"/>'; }?>
    <b><?php echo htmlspecialchars(xl('Status'), ENT_NOQUOTES); ?>:</b>
     <?php
     if ($form_message_status == "") {
