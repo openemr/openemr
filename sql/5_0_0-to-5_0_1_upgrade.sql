@@ -661,3 +661,8 @@ DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'lbfnames';
 DELETE FROM list_options WHERE list_id = 'transactions';
 DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'transactions';
 #EndIf
+
+
+#IfMissingColumn users show_in_reports
+ALTER TABLE `users` ADD `show_in_reports` BOOLEAN NOT NULL DEFAULT TRUE AFTER `main_menu_role`;
+#EndIf

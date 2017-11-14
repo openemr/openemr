@@ -304,6 +304,10 @@ foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key =>
 </tr>
 <tr>
 <td><span class="text"><?php echo xlt('Weno Provider ID'); ?>: </span></td><td><input type="text" name="erxprid" style="width:120px;"  value="<?php echo attr($iter["weno_prov_id"]); ?>"></td>
+<td>
+  &nbsp;<span class='text'><?php xl('Show in Reports', 'e'); ?>:
+    <input type='checkbox' name='show_in_reports' checked/>
+</td>
 </tr>
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
 <tr>

@@ -153,8 +153,9 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
         $tqvar  = $_POST["authorized"] ? 1 : 0;
         $actvar = $_POST["active"]     ? 1 : 0;
         $calvar = $_POST["calendar"]   ? 1 : 0;
+        $show_in_reports = $_POST["show_in_reports"]   ? 1 : 0;
 
-        sqlStatement("UPDATE users SET authorized = $tqvar, active = $actvar, " .
+        sqlStatement("UPDATE users SET show_in_reports = $show_in_reports, authorized = $tqvar, active = $actvar, " .
         "calendar = $calvar, see_auth = ? WHERE " .
         "id = ? ", array($_POST['see_auth'], $_POST["id"]));
       //Display message when Emergency Login user was activated
@@ -220,6 +221,7 @@ if (isset($_POST["mode"])) {
         // $_POST["info"] = addslashes($_POST["info"]);
 
         $calvar = $_POST["calendar"] ? 1 : 0;
+        $show_in_reports = $_POST["show_in_reports"] ? 1 : 0;
 
         $res = sqlStatement("select distinct username from users where username != ''");
         $doit = true;
@@ -264,6 +266,7 @@ if (isset($_POST["mode"])) {
             "', irnpool = '"       . trim(formData('irnpool')) .
             "', calendar = '"      . $calvar                         .
             "', pwd_expiration_date = '" . trim("$exp_date") .
+            "', show_in_reports = '"      . $show_in_reports .
             "'";
 
             $clearAdminPass=$_POST['adminPass'];

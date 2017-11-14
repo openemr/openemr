@@ -7226,6 +7226,7 @@ CREATE TABLE `users` (
   `cpoe` tinyint(1) NULL DEFAULT NULL,
   `physician_type` VARCHAR(50) DEFAULT NULL,
   `main_menu_role` VARCHAR(50) NOT NULL DEFAULT 'standard',
+  `show_in_reports` BOOLEAN NOT NULL DEFAULT TRUE,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
