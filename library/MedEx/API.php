@@ -283,18 +283,6 @@ class Campaign extends Base
         }
         return false;
     }
-    public function display_campaign_events($logged_in)
-    {
-        $this->curl->setUrl($this->MedEx->getUrl('account/edit&token='.$logged_in['token']));
-        $this->curl->makeRequest();
-        $response = $this->curl->getResponse();
-        if (isset($response['success'])) {
-            return $response;
-        } else if (isset($response['error'])) {
-            $this->lastError = $response['error'];
-        }
-        return false;
-    }
 }
 
 class Events extends Base
@@ -908,6 +896,11 @@ class Display extends base
                 }
             $("#patient_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');
             }
+            function SMS_bot_list() {
+                top.restoreSession();
+                window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=list','SMS_bot', 'width=370,height=600,resizable=0');
+                return false;
+            }
         </script>
         <i class="fa fa-caret-<?php
         if ($setting_bootstrap_submenu == 'hide') {
@@ -1019,6 +1012,26 @@ class Display extends base
                             }  
 
                             if ($logged_in) {
+                                 ?>
+                                <li class="dropdown">
+                                    <a class="dropdown-toggle" onclick="top.restoreSession;SMS_bot_list();" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("SMS Bot"); ?> 
+                                    <?php 
+                                    if ($logged_in['news']) { ?>
+                                        <span style="position: relative;
+                                                float:right;
+                                                margin-right:10px;
+                                                animation: blink 3s infinite;
+                                                color: red;font-weight:600;">
+                                                <span onclick="goNews();">
+                                                    <blink><i class="fa fa-bolt red" >&nbsp;New</i></blink>
+                                                </span>
+                                        </span>
+                                    <?php
+                                     }
+                                    ?></a>
+                                </li>
+                                <?php 
+                                
                                 if  (!empty($logged_in['ANNOUNCE'])) {
                                 ?>
                                 <li class="dropdown">
@@ -1258,6 +1271,11 @@ class Display extends base
                                                         foreach ($logged_in['products']['not_ordered'] as $service) {
                                                             ?><li><a href="<?php echo $service['view']; ?>" target="_medex"><?php echo $service['model']; ?> </a></li>
                                                             <?php 
+                                                            if ($service['product_id'] =='54') {
+                                                                ?>
+                                                                <div style="margin-left:10px;">Appointment Reminders<br />Patient Recalls<br />SMS Bot<br /></div>
+                                                                <?php
+                                                            }
                                                         } ?>
                                                     </ul>
                                                 </div>
@@ -1529,8 +1547,8 @@ class Display extends base
                 $("#print_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');
             }
             function SMS_bot(pid) {
-                top.restoreSession()
-                window.open('messages.php?nomenu=1&go=SMS_bot&pid=' + pid,'SMS_bot', 'width=370,height=600,resizable=0');
+                top.restoreSession();
+                window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages.php?nomenu=1&go=SMS_bot&pid=' + pid,'SMS_bot', 'width=370,height=600,resizable=0');
                 return false;
             }
             $(document).ready(function() {
