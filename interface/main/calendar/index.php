@@ -37,25 +37,32 @@ require_once "includes/pnre.inc.php";
 require_once 'includes/pnAPI.php';
 require_once("$srcdir/acl.inc");
 
+
+
 // From Michael Brinson 2006-09-19:
 if (isset($_POST['pc_username'])) {
-    $_SESSION['pc_username'] = $_POST['pc_username'];
+    $pc_username=$_POST['pc_username'];
+    $pc_username[0]=filter_var( $pc_username[0],FILTER_SANITIZE_STRING);
+    $_SESSION['pc_username'] = $pc_username;
 }
 
 //(CHEMED) Facility filter
 if (isset($_POST['all_users'])) {
-    $_SESSION['pc_username'] = $_POST['all_users'];
+    $_SESSION['pc_username'] = $_POST['all_users'];;
 }
 
 // bug fix to allow default selection of a provider
 // added 'if..POST' check -- JRM
 if (isset($_REQUEST['pc_username']) && $_REQUEST['pc_username']) {
-    $_SESSION['pc_username'] = $_REQUEST['pc_username'];
+    $pc_username=$_REQUEST['pc_username'];
+    $pc_username[0]=filter_var( $pc_username[0],FILTER_SANITIZE_STRING);
+    $_SESSION['pc_username'] = $pc_username;
 }
 
 // (CHEMED) Get the width of vieport
 if (isset($_GET['framewidth'])) {
-    $_SESSION['pc_framewidth'] = $_GET['framewidth'];
+    $framewidth=filter_var($_GET['framewidth'],FILTER_SANITIZE_NUMBER_FLOAT);
+    $_SESSION['pc_framewidth'] = $framewidth;
 }
 
 // FACILITY FILTERING (lemonsoftware) (CHEMED)
@@ -82,13 +89,15 @@ if ($_SESSION['userauthorized'] != 1 && $GLOBALS['restrict_user_facility']) {
 }
 
 if (isset($_POST['pc_facility'])) {
-    $_SESSION['pc_facility'] = $_POST['pc_facility'];
+    $pc_facility=filter_var( $_POST['pc_facility'],FILTER_SANITIZE_STRING);
+    $_SESSION['pc_facility'] = $pc_facility;
 }
 
 /********************************************************************/
 
 if (isset($_GET['pc_facility'])) {
-    $_SESSION['pc_facility'] = $_GET['pc_facility'];
+    $pc_facility=filter_var( $_GET['pc_facility'],FILTER_SANITIZE_STRING);
+    $_SESSION['pc_facility'] = $pc_facility;
 }
 
 if ($GLOBALS['set_facility_cookie'] && ($_SESSION['pc_facility'] > 0)) {
@@ -97,7 +106,8 @@ if ($GLOBALS['set_facility_cookie'] && ($_SESSION['pc_facility'] > 0)) {
 
 // Simplifying by just using request variable instead of checking for both post and get - KHY
 if (isset($_REQUEST['viewtype'])) {
-    $_SESSION['viewtype'] = $_REQUEST['viewtype'];
+    $viewtype=filter_var( $_REQUEST['viewtype'],FILTER_SANITIZE_STRING);
+    $_SESSION['viewtype'] = $viewtype;
 }
 
 
