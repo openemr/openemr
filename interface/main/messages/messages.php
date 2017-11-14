@@ -127,7 +127,9 @@ switch ($task) {
         $noteid = $_POST['noteid'];
         $form_note_type = $_POST['form_note_type'];
         $form_message_status = $_POST['form_message_status'];
-        $reply_to = $_POST['reply_to'];
+
+        $reply_to = explode(';', rtrim($_POST['reply_to'], ';'));
+
         $assigned_to_list = explode(';', $_POST['assigned_to']);
         foreach ($assigned_to_list as $assigned_to) {
             if ($noteid && $assigned_to != '-patient-') {
@@ -144,7 +146,7 @@ switch ($task) {
                     }
 
                     $pres = sqlQuery("SELECT lname, fname " .
-                    "FROM patient_data WHERE pid = ?", array($reply_to));
+                    "FROM patient_data WHERE pid = ?", array($reply_to[0]));
                     $patientname = $pres['lname'] . ", " . $pres['fname'];
                     $note .= "\n\n$patientname on ".$row['date']." wrote:\n\n";
                     $note .= $row['body'];
@@ -152,7 +154,9 @@ switch ($task) {
 
                 // There's no note ID, and/or it's assigned to the patient.
                 // In these cases a new note is created.
-                addPnote($reply_to, $note, $userauthorized, '1', $form_note_type, $assigned_to, '', $form_message_status);
+                foreach($reply_to as $patient){
+                    addPnote($patient, $note, $userauthorized, '1', $form_note_type, $assigned_to, '', $form_message_status);
+                }
             }
         }
         break;
@@ -237,16 +241,11 @@ if ($reply_to) {
     $patientname = $prow['lname'] . ", " . $prow['fname'];
 }
 
-if ($patientname == '') {
-    $patientname = xl('Click to select');
-} ?>
-   <input type='text' size='10' name='form_patient' style='width:150px;<?php
-      echo ($task=="addnew"?"cursor:pointer;cursor:hand;":"") ?>' value='<?php
-      echo htmlspecialchars($patientname, ENT_QUOTES); ?>' <?php
-      echo (($task=="addnew" || $result['pid']==0) ? "onclick='sel_patient()' readonly":"disabled") ?> title='<?php
-      echo ($task=="addnew"?(htmlspecialchars(xl('Click to select patient'), ENT_QUOTES)):"") ?>'  />
+ ?>
+   <input type='text' size='10' name='form_patient' style='width:150px;' value='<?php echo htmlspecialchars($patientname, ENT_QUOTES); ?>' readonly/>
    <input type='hidden' name='reply_to' id='reply_to' value='<?php echo htmlspecialchars($reply_to, ENT_QUOTES) ?>' />
-   &nbsp; &nbsp;
+
+   <?php if ($task=="addnew" || $result['pid']==0) echo  '<input type="button" value="' . xla('Add Patient') .  '" style="float: none; display: inline-block;" onclick="sel_patient()"/>'?>
    <b><?php echo htmlspecialchars(xl('Status'), ENT_NOQUOTES); ?>:</b>
     <?php
     if ($form_message_status == "") {
@@ -476,8 +475,8 @@ $(document).ready(function(){
  // This is for callback by the find-patient popup.
  function setpatient(pid, lname, fname, dob) {
   var f = document.forms[0];
-  f.form_patient.value = lname + ', ' + fname;
-  f.reply_to.value = pid;
+  f.form_patient.value += lname + ', ' + fname + '; ';
+  f.reply_to.value += pid + ';';
 <?php if ($noteid) { ?>
   //used when direct messaging service inserts a pnote with indeterminate patient
   //to allow the user to assign the message to a patient.
