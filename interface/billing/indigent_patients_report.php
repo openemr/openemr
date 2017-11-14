@@ -219,10 +219,10 @@ if ($_POST['form_refresh']) {
         $arow = sqlQuery("SELECT SUM(pay_amount) AS pay, " .
           "sum(adj_amount) AS adj FROM ar_activity WHERE " .
           "pid = ? AND encounter = ?", array($patient_id, $encounter_id));
-        $inv_paid   += $arow['pay'];
-        $inv_amount -= $arow['adj'];
-        $total_amount += bucks($inv_amount);
-        $total_paid   += bucks($inv_paid);
+        $inv_paid   += floatval($arow['pay']);
+        $inv_amount -= $floatval(arow['adj']);
+        $total_amount += $inv_amount;
+        $total_paid   += $inv_paid;
 
         $bgcolor = (($irow & 1) ? "#ffdddd" : "#ddddff");
     ?>

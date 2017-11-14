@@ -343,7 +343,7 @@ if ($form_batch) {
         $form_to_date = $form_from_date;
     }
 
-    $form_proc_type = formData('form_proc_type') + 0;
+    $form_proc_type = isset($_REQUEST['form_proc_type']) ? $_REQUEST['form_proc_type'] : 0;
     if (!$form_proc_type) {
         $form_proc_type = -1;
     }

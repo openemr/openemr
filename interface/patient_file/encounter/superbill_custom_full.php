@@ -58,7 +58,7 @@ if (isset($mode) && $thisauthwrite) {
     $modifier   = $_POST['modifier'];
     $superbill  = $_POST['form_superbill'];
     $related_code = $_POST['related_code'];
-    $cyp_factor = $_POST['cyp_factor'] + 0;
+    $cyp_factor = is_numeric($_POST['cyp_factor']) ? $_POST['cyp_factor'] + 0 : 0;
     $active     = empty($_POST['active']) ? 0 : 1;
     $reportable = empty($_POST['reportable']) ? 0 : 1; // dx reporting
     $financial_reporting = empty($_POST['financial_reporting']) ? 0 : 1; // financial service reporting
