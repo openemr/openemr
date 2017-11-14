@@ -112,14 +112,14 @@ function updateClaim(
 ) {
 
     if (!$newversion) {
-        $sql = "SELECT * FROM claims WHERE patient_id = '$patient_id' AND " .
-        "encounter_id = '$encounter_id' AND status > 0 AND status < 4 ";
+        $sql = "SELECT * FROM claims WHERE patient_id = ? AND " .
+        "encounter_id = ? AND status > 0 AND status < 4 ";
         if ($payer_id >= 0) {
             $sql .= "AND payer_id = '$payer_id' ";
         }
 
         $sql .= "ORDER BY version DESC LIMIT 1";
-        $row = sqlQuery($sql);
+        $row = sqlQuery($sql, array($patient_id, $encounter_id));
         if (!$row) {
             return 0;
         }
@@ -201,7 +201,7 @@ function updateClaim(
     if ($billset) {
         $billset = substr($billset, 2);
         sqlStatement("UPDATE billing SET $billset WHERE " .
-        "encounter = '$encounter_id' AND pid='$patient_id' AND activity = 1");
+        "encounter = ? AND pid= ? AND activity = 1", array($encounter_id, $patient_id));
     }
 
     $claimset .= ", submitted_claim = '$submitted_claim'";
@@ -232,8 +232,8 @@ function updateClaim(
         $version = sqlQuery("SELECT IFNULL(MAX(version),0) + 1 AS increment FROM claims WHERE patient_id = ? AND encounter_id = ?", array( $patient_id, $encounter_id ));
         if ($crossover<>1) {
             $sql .= "INSERT INTO claims SET " .
-              "patient_id = $patient_id, " .
-              "encounter_id = $encounter_id, " .
+              "patient_id = ?, " .
+              "encounter_id = ?, " .
               "bill_time = NOW() $claimset ," .
               "version = " . $version['increment'];
         } else {//Claim automatic forward case.startTra
@@ -244,16 +244,16 @@ function updateClaim(
               "version = " . $version['increment'];
         }
 
-        sqlStatement($sql);
+        sqlStatement($sql, array($patient_id, $encounter_id));
         sqlCommitTrans();
     } // Otherwise update the existing claim row.
   //
     else if ($claimset) {
         $claimset = substr($claimset, 2);
         sqlStatement("UPDATE claims SET $claimset WHERE " .
-        "patient_id = '$patient_id' AND encounter_id = '$encounter_id' AND " .
+        "patient_id = ? AND encounter_id = ? AND " .
         // "payer_id = '" . $row['payer_id'] . "' AND " .
-        "version = '" . $row['version'] . "'");
+        "version = '" . $row['version'] . "'", array($patient_id, $encounter_id));
     }
 
   // Whenever a claim is marked billed, update A/R accordingly.
@@ -262,7 +262,7 @@ function updateClaim(
         if ($payer_type > 0) {
             sqlStatement("UPDATE form_encounter SET " .
             "last_level_billed = '$payer_type' WHERE " .
-            "pid = '$patient_id' AND encounter = '$encounter_id'");
+            "pid = ? AND encounter = ?", array($patient_id, $encounter_id));
         }
     }
 
