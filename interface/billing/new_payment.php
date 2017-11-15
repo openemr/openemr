@@ -41,7 +41,7 @@ require_once("$srcdir/payment.inc.php");
 //===============================================================================
 // Initialisations
 $mode                    = isset($_POST['mode'])                   ? $_POST['mode']                   : '';
-$payment_id              = isset($_REQUEST['payment_id'])          ? $_REQUEST['payment_id']          : 0;
+$payment_id              = isset($_REQUEST['payment_id'])          ? $_REQUEST['payment_id'] + 0      : 0;
 $request_payment_id      = $payment_id ;
 $hidden_patient_code     = isset($_REQUEST['hidden_patient_code']) ? $_REQUEST['hidden_patient_code'] : '';
 $default_search_patient  = isset($_POST['default_search_patient']) ? $_POST['default_search_patient'] : '';
@@ -117,7 +117,7 @@ if ($mode == "PostPayments" || $mode == "FinishPayments") {
 
 //==============================================================================
 //===============================================================================
-$payment_id=$payment_id*1 > 0 ? $payment_id : $request_payment_id;
+$payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
 //===============================================================================
 
 //==============================================================================
