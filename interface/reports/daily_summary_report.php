@@ -366,7 +366,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                                         <td align="right">
                                             <?php
                                             if (isset($information['payments']) || isset($information['paidAmount'])) {
-                                                $dueAmount = number_format(str_replace(",", "", $information['payments']) - str_replace(",", "", $information['paidAmount']), 2);
+                                                $dueAmount = number_format(floatval(str_replace(",", "", $information['payments'])) - floatval(str_replace(",", "", $information['paidAmount'])), 2);
                                             } else {
                                                 $dueAmount = number_format(0, 2);
                                             }
@@ -380,8 +380,8 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                                         $totalAppointments += $information['appointments'];
                                         $totalNewRegisterPatient += $information['newPatient'];
                                         $totalVisits += $information['visits'];
-                                        $totalPayments += str_replace(",", "", $information['payments']);
-                                        $totalPaidAmount += str_replace(",", "", $information['paidAmount']);
+                                        $totalPayments += floatval(str_replace(",", "", $information['payments']));
+                                        $totalPaidAmount += floatval(str_replace(",", "", $information['paidAmount']));
                                         $totalDueAmount += $dueAmount;
                                     }
                                 }

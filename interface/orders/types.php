@@ -17,13 +17,13 @@ require_once("$srcdir/acl.inc");
 // item ID to select) will be provided, and maintenance may also be permitted.
 
 $popup = empty($_GET['popup']) ? 0 : 1;
-$order = formData('order', 'G') + 0;
-$labid = formData('labid', 'G') + 0;
+$order = isset($_GET['order']) ? $_GET['order'] + 0 : 0;
+$labid = isset($_GET['labid']) ? $_GET['labid'] + 0 : 0;
 
 // If Save was clicked, set the result, close the window and exit.
 //
 if ($popup && $_POST['form_save']) {
-    $form_order = formData('form_order') + 0;
+    $form_order = isset($_GET['form_order']) ? $_GET['form_order'] + 0 : 0;
     $ptrow = sqlQuery("SELECT name FROM procedure_type WHERE " .
     "procedure_type_id = '$form_order'");
     $name = addslashes($ptrow['name']);
