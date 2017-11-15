@@ -429,6 +429,9 @@ font-weight: bold;
     padding: 5px;
     margin: 5px;
 }
+#pnotes_ps_expand  div.tab table td {
+    padding-right: 10px;
+}
 
 
 /*=============================================================
