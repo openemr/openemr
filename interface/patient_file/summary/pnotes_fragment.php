@@ -107,7 +107,7 @@
                 echo "</b></td>\n";
 
                 echo "  <td valign='top' class='text'>$body</td>\n";
-                echo "<td valign='top' class='text'><button data-id='" . $iter['id'] . "' class='complete_btn'>" . htmlspecialchars('Completed', ENT_NOQUOTES) . "</button></td>\n";
+                echo "<td valign='top' class='text'><button data-id='" . attr($iter['id']) . "' class='complete_btn'>" . xlt('Completed') . "</button></td>\n";
                 echo " </tr>\n";
 
                 $notes_count++;
