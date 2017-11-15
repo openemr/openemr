@@ -48,7 +48,7 @@ if (isset($_POST['pc_username'])) {
 
 //(CHEMED) Facility filter
 if (isset($_POST['all_users'])) {
-    $_SESSION['pc_username'] = $_POST['all_users'];;
+    $_SESSION['pc_username'] = $_POST['all_users'];
 }
 
 // bug fix to allow default selection of a provider
