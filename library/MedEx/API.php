@@ -303,14 +303,15 @@ class Events extends Base
      *  Messaging Campaigns are categorized by function: there are RECALLs, REMINDERs, SURVEYs and ANNOUNCEments (and later whatever comes down the pike).
      *  To meet a campaign's goals, we schedule campaign events.
      *  REMINDER and RECALL campaigns each have their own events which the user creates and personalizes.  
-     *      There is only one REMINDER Campaign and one RECALL Campaign.
+     *      There is only one REMINDER Campaign and one RECALL Campaign, each with unlimited events.
      *
-     *  SURVEYs and ANNOUNCEments can have unlimited campaigns, each with their own events...
-     *      You can ANNOUNCE a weather related closure (campaign) by SMS and AVM (events) going out now/ASAP 
+     *      SURVEYs and ANNOUNCEments can have unlimited campaigns, each with their own events...
+     *          You can ANNOUNCE a weather related closure (campaign) by SMS and AVM (events) going out now/ASAP 
      *      AND 
-     *      at the same time also ANNOUNCE that in two months Dr. X will be out of the office and patient needs to reschedule (campaign) 
-     *      using SMS and email and voice (events) with messages gong out in 2 days, spread out over 6 business days...
-     *  So SURVEY AND ANNOUNCE events can have parent Campaigns they are attached to 
+     *          at the same time also ANNOUNCE that in two months Dr. X will be out of the office and patient needs to reschedule (campaign) 
+     *          using SMS and email and voice (events) with messages gong out in 2 days, spread out over 6 business days...
+     *
+     *  So SURVEY AND ANNOUNCE events have parent Campaigns they are attached to 
      *  but RECALLS and REMINDERS do not (they are a RECALL or a REMINDER).
      *  In this function we are generating all appts that match scheduled campaign events so MedEx can conduct the campaign events.
      */
@@ -898,7 +899,7 @@ class Display extends base
             }
             function SMS_bot_list() {
                 top.restoreSession();
-                var myWindow = window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=list','SMS_bot', 'width=370,height=600,resizable=0');
+                var myWindow = window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=new','SMS_bot', 'width=370,height=600,resizable=0');
                 myWindow.focus();
                 return false;
             }
@@ -1015,60 +1016,47 @@ class Display extends base
                             if ($logged_in) {
                                  ?>
                                 <li class="dropdown">
-                                    <a class="dropdown-toggle" onclick="top.restoreSession;SMS_bot_list();" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("SMS Bot"); ?> 
-                                    <?php 
-                                    if ($logged_in['news']) { ?>
-                                        <span style="position: relative;
-                                                float:right;
-                                                margin-right:10px;
-                                                animation: blink 3s infinite;
-                                                color: red;font-weight:600;">
-                                                <span onclick="goNews();">
-                                                    <blink><i class="fa fa-bolt red" >&nbsp;New</i></blink>
-                                                </span>
-                                        </span>
+                                    <a class="dropdown-toggle"  data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("SMS Bot"); ?> </a>
                                     <?php
+                                    if (!empty($logged_in['news'])) { ?>    
+                                        <style>
+                                            .blink {
+                                                animation-duration: 1s;
+                                                animation-name: blink;
+                                                animation-iteration-count: infinite;
+                                                animation-timing-function: steps(2, start);
+                                            }
+                                            @keyframes blink {
+                                                50% {
+                                                    visibility: hidden;
+                                                }
+                                            }
+
+                                        </style>
+                               
+                                        <span>
+                                        &nbsp;    <i class="fa fa-bolt red blink" ></i>
+                                        </span>
+                                    </a>
+                                        <?php
                                      }
-                                    ?></a>
-                                </li>
-                                <?php 
-                                
-                                if  (!empty($logged_in['ANNOUNCE'])) {
-                                ?>
-                                <li class="dropdown">
-                                    <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Announcements"); ?> </a>
+                                     ?>
+
                                     <ul class="bgcolor2 dropdown-menu" role="menu">
-                                        <li id="menu_new_recall" name="menu_new_recall"> 
-                                            <a id="BUTTON_new_announce_menu" 
-                                            href='https://medexbank.com/cart/upload/index.php?route=information/announcement&g=ann'
-                                            target="_medex"> <?php echo xlt("New Announcement"); ?></a>
-                                        </li>
-                                        <li id="menu_pend_announce" name="menu_pend_recalls"> 
-                                            <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns&g=ann' target="_medex" class='nowrap text-left' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Announcements"); ?></a></li>
+                                        <li id="menu_activateBot" name="menu_activateBot"> 
+                                            <a id="BUTTON_activateBot_menu" name="BUTTON_activateBot_menu"
+                                            onclick="top.restoreSession;SMS_bot_list();"> 
+                                            <?php echo xlt("Activate Bot"); ?></a>
                                         </li>
                                     </ul>
                                 </li>
-                                <?php 
-                                }
-                                if  (!empty($logged_in['SURVEY'])) {
-                                    ?>
-                                
-                                <li class="dropdown">
-                                    <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Surveys"); ?> </a>
-                                    <ul class="bgcolor2 dropdown-menu" role="menu">
-                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> 
-                                            <a href='https://medexbank.com/cart/upload/index.php?route=information/surveys&g=sur' target="_medex" class='nowrap text-left' id="BUTTON_pend_recalls_menu"> 
-                                                <?php echo xlt("New Survey"); ?></a></li>
-                                            
-                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> 
-                                            <a href='https://medexbank.com/cart/upload/index.php?route=information/surveys&g=sur' target="_medex" class='nowrap text-left' id="BUTTON_pend_recalls_menu">
-                                            <?php echo xlt("Survey Test Campaigns"); ?></a></li>
-                                    </ul>
-                                </li>
-                                <?php
-                                }
-
-
+                                    <?php 
+                                    
+                                if  (!empty($logged_in['products']['ordered'])) {
+                                    foreach ($logged_in['products']['not_ordered'] as $ordered) {
+                                        echo $ordered['menu'];
+                                    }
+                                }   
                             }
 
                             ?>
@@ -1964,7 +1952,7 @@ class Display extends base
                 </form>
             </div>
             <div class="row-fluid text-center">
-                <input class="css_button btn" onclick="add_this_recall();" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new">
+                <input class="btn" onclick="add_this_recall();" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new">
                 <p>
                     <em class="small text-muted">* <?php echo xlt('N.B.{{Nota bene}}')." ".xlt('Demographic changes made here are recorded system-wide'); ?>.</em>
                 </p>
