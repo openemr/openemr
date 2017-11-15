@@ -220,7 +220,7 @@ if ($_POST['form_refresh']) {
           "sum(adj_amount) AS adj FROM ar_activity WHERE " .
           "pid = ? AND encounter = ?", array($patient_id, $encounter_id));
         $inv_paid   += floatval($arow['pay']);
-        $inv_amount -= floatval(arow['adj']);
+        $inv_amount -= floatval($arow['adj']);
         $total_amount += $inv_amount;
         $total_paid   += $inv_paid;
 
