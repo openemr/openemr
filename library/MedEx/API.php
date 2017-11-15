@@ -969,31 +969,30 @@ class Display extends base
                                     <li id="menu_log_msg"> <a onclick="openLogScreen();" > <?php echo xlt("Message Log"); ?></a></li>
                                 </ul>
                             </li>
-                            <?php
-                            if (($logged_in) && 
-                                ($GLOBALS['disable_calendar'] != '1') ||
-                                ($GLOBALS['disable_pat_trkr'] != '1'))
-                                {
-                                ?>
-                                <li class="dropdown" > <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Appt. Reminders"); ?> </a>
-                                    <ul class="bgcolor2 dropdown-menu" role="menu">
-                                        <?php 
-                                        if ($GLOBALS['disable_calendar'] != '1') {  ?>
-                                        <li><a id="BUTTON_ApRem_menu" onclick="tabYourIt('cal','main/main_info.php');"> <?php echo xlt("Calendar"); ?></a></li>
-                                        <li class="divider"><hr /></li>
-                                        <?php 
-                                        }
-                                        if ($GLOBALS['disable_pat_trkr'] != '1') {
+                            <li class="dropdown" > <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Appt. Reminders"); ?> </a>
+                                <ul class="bgcolor2 dropdown-menu" role="menu">
+                                    <?php 
+                                    if ($GLOBALS['disable_calendar'] != '1') {  ?>
+                                    <li><a id="BUTTON_ApRem_menu" onclick="tabYourIt('cal','main/main_info.php');"> <?php echo xlt("Calendar"); ?></a></li>
+                                    <li class="divider"><hr /></li>
+                                    <?php 
+                                    }
+                                    if ($GLOBALS['disable_pat_trkr'] != '1') {
+                                    ?>
+                                    <li id="menu_pend_recalls" name="menu_pend_recalls"> <a id="BUTTON_pend_recalls_menu" onclick="tabYourIt('flb','patient_tracker/patient_tracker.php?skip_timeout_reset=1');"> <?php echo xlt("Flow Board"); ?></a></li>
+                                    <li class="divider"><hr /></li>
+                                    <?php }  
+                                    if ($logged_in) 
+                                    {
                                         ?>
-                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> <a id="BUTTON_pend_recalls_menu" onclick="tabYourIt('flb','patient_tracker/patient_tracker.php?skip_timeout_reset=1');"> <?php echo xlt("Flow Board"); ?></a></li>
-                                        <li class="divider"><hr /></li>
-                                        <?php }  ?>
                                         <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns&g=rem' target="_medex" class='nowrap text-left' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Reminder Campaigns"); ?></a></li>
-                                    </ul>
-                                 </li>
+                                        <?php
+                                    } 
+                                    ?>
+                                </ul>
+                             </li>
                                 <?php
-                            }
-
+                            
                             if ($GLOBALS['disable_rcb'] != '1') { ?>
                                 <li class="dropdown">
                                     <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Patient Recalls"); ?> </a>
@@ -1003,7 +1002,7 @@ class Display extends base
                                     <?php
                                     if ($logged_in) {
                                         ?>
-                                         <li class="divider"><hr /></li>
+                                        <li class="divider"><hr /></li>
                                         <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns&g=rec' target="_medex" class='nowrap text-left' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Recall Campaigns"); ?></a></li>
                                         <?php
                                     }
@@ -1012,48 +1011,10 @@ class Display extends base
                                 </li>
                                 <?php  
                             }  
-
-                            if ($logged_in) {
-                                 ?>
-                                <li class="dropdown">
-                                    <a class="dropdown-toggle"  data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("SMS Bot"); ?> </a>
-                                    <?php
-                                    if (!empty($logged_in['news'])) { ?>    
-                                        <style>
-                                            .blink {
-                                                animation-duration: 1s;
-                                                animation-name: blink;
-                                                animation-iteration-count: infinite;
-                                                animation-timing-function: steps(2, start);
-                                            }
-                                            @keyframes blink {
-                                                50% {
-                                                    visibility: hidden;
-                                                }
-                                            }
-
-                                        </style>
                                
-                                        <span>
-                                        &nbsp;    <i class="fa fa-bolt red blink" ></i>
-                                        </span>
-                                    </a>
-                                        <?php
-                                     }
-                                     ?>
-
-                                    <ul class="bgcolor2 dropdown-menu" role="menu">
-                                        <li id="menu_activateBot" name="menu_activateBot"> 
-                                            <a id="BUTTON_activateBot_menu" name="BUTTON_activateBot_menu"
-                                            onclick="top.restoreSession;SMS_bot_list();"> 
-                                            <?php echo xlt("Activate Bot"); ?></a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                    <?php 
-                                    
+                            if ($logged_in) {
                                 if  (!empty($logged_in['products']['ordered'])) {
-                                    foreach ($logged_in['products']['not_ordered'] as $ordered) {
+                                    foreach ($logged_in['products']['ordered'] as $ordered) {
                                         echo $ordered['menu'];
                                     }
                                 }   

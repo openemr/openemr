@@ -160,12 +160,12 @@ if (($_POST['setting_bootstrap_submenu'])||
                 <div class="col-sm-4 text-center">
                     <?php
                     if ($GLOBALS['disable_rcb'] != '1') { ?>
-                        <div>
+                        <div class="dr_container">
                           <span class="title"><?php echo xlt('Recalls'); ?></span>
                           <br /><br />
-                          <a class="css_button_small" onclick="goReminderRecall('addRecall');"><span><?php echo xlt('New Recall'); ?></span></a>
+                          <a class="css_button_small btn" onclick="goReminderRecall('addRecall');"><span><?php echo xlt('New Recall'); ?></span></a>
                           &nbsp;
-                          <a class="css_button_small" onclick="goReminderRecall('Recalls');"><span><?php echo xlt('Recall Board'); ?></span></a>
+                          <a class="css_button_small btn" onclick="goReminderRecall('Recalls');"><span><?php echo xlt('Recall Board'); ?></span></a>
                           &nbsp;
                         </div>
                         <?php
