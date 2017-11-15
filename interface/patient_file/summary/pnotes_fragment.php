@@ -30,12 +30,12 @@
  $docid = empty($_REQUEST['docid']) ? 0 : 0 + $_REQUEST['docid'];
 
  //ajax for type 2 notes widget
- if(isset($_GET['docUpdateId'])){
-     return disappearPnote($_GET['docUpdateId']);
- }
+if (isset($_GET['docUpdateId'])) {
+    return disappearPnote($_GET['docUpdateId']);
+}
 
 ?>
-<?php if($GLOBALS['portal_offsite_enable'] == 1){ ?>
+<?php if ($GLOBALS['portal_offsite_enable'] == 1) { ?>
 <ul class="tabNav">
   <li class="current" ><a href="#"><?php echo htmlspecialchars(xl('Inbox'), ENT_NOQUOTES); ?></a></li>
   <li><a href="#"><?php echo htmlspecialchars(xl('Sent Items'), ENT_NOQUOTES); ?></a></li>
@@ -143,7 +143,7 @@
         <br/><?php
     } ?>
     </div>
-    <?php if($GLOBALS['portal_offsite_enable'] == 1){ ?>
+    <?php if ($GLOBALS['portal_offsite_enable'] == 1) { ?>
         <div class='tab'>
             <?php
             //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
