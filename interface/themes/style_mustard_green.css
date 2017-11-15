@@ -1,7 +1,7 @@
 /**
  * Stylesheet for flat colors
  * The color palette is used to style the various elements in a consistent manner
- 
+
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -12,25 +12,25 @@
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- * 
+ *
  * @package OpenEMR
  * @author Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2017 Ranganath Pathak
- * @version 1.0 
+ * @version 1.0
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License
- * @link http://www.open-emr.org 
+ * @link http://www.open-emr.org
 */
 
 
-/* 
+/*
     COLOR PALETTE
-    #646C02 - Darkest Mustard Green*        
+    #646C02 - Darkest Mustard Green*
     #869003 - Darker Mustard Green*
     #A8B504 - Dark Mustard Green
     #C2CB4F - Mid Mustard Green
     #D3DA81 - Mid Pale Mustard Green*
     #DBE19A - Pale Mustard Green
-    #E2E7AE - Mid Pale Pale Mustard Green*    
+    #E2E7AE - Mid Pale Pale Mustard Green*
     #F1F3DA - Pale Pale Mustard Green*
     #E7E6F9 - Pale Purple~
     #FAFBF2 - Paler Mustard Green
@@ -170,8 +170,8 @@ a:hover {
     color: #000000;
 }
 /*=============================================================
- * Here we have taken variables from globals.php and turned them into CSS  
- * classes these should be used in place of the GLOBAL variables 
+ * Here we have taken variables from globals.php and turned them into CSS
+ * classes these should be used in place of the GLOBAL variables
  * -- JRM March 2008
  =============================================================*/
 
@@ -408,6 +408,9 @@ background-color:transparent;RP_MODIFIED 1/18/2016*/
     vertical-align: top;
     padding: 5px;
     margin: 5px;
+}
+#pnotes_ps_expand  div.tab table td {
+    padding-right: 10px;
 }
 /*=============================================================
  * Patient Stats
@@ -1279,7 +1282,7 @@ div.notab-right {
 .example_menu li.active li a {
     background: #e8e8e8;
 }
-#menu1 li.footer, #menu2 li.footer, #menu3 li.footer, #menu4 li.footer, #menu5 
+#menu1 li.footer, #menu2 li.footer, #menu3 li.footer, #menu4 li.footer, #menu5
 li.footer, .example_menu .footer {
     background: transparent url('footer.jpg') no-repeat 0 0;
     border-top: 2px solid #fff;
@@ -1437,7 +1440,7 @@ body.login {
 /*.patientEncounterList {
     background: #ffff9e !Important;
     border: 1px solid #869003;
- 
+
 }
  .patientEncounterList:hover{
     background: #F1F3DA  !important;
@@ -1447,7 +1450,7 @@ body.login {
     -webkit-transition: 0.2s linear all;
     -moz-transition: 0.2s linear all;
     transition: 0.2s linear all;
-    
+
     overflow: visible;
     height: auto;
     z-index:4;
@@ -1834,7 +1837,7 @@ fieldset {
     background-color: #E2E7AE !Important;
     margin-bottom: 10px!Important;
     padding: 0px 0px 15px 0px !Important;
-	
+
 }
 legend {
     border-bottom: 2px solid #A8B504 !Important;
@@ -1942,7 +1945,7 @@ textarea.form-control {
 	display: none;
 }
 .oe-legend-radio{
-    font-size:12px; 
+    font-size:12px;
     padding:5px 5px 0px 0px;
 }
 .oe-bold-black {

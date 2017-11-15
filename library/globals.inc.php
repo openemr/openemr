@@ -847,7 +847,7 @@ $GLOBALS_METADATA = array(
             '0',                              // default = false
             xl('This will force the Billing Widget in the Patient Summary screen to always be open.')
         ),
-
+        
         'activate_ccr_ccd_report' => array(
             xl('Activate CCR/CCD Reporting'),
             'bool',                           // data type
