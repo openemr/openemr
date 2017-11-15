@@ -201,7 +201,7 @@ function postcalendar_user_delete()
     //}
     unset($event);
 
-    $output->FormStart(pnModUrl(__POSTCALENDAR__, 'user', 'deleteevents'));
+    $output->FormStart(pnModUrl(__POSTCALENDAR__, 'user', 'deleteevents', array(), '',false));
     $output->FormHidden('pc_eid', $pc_event_id);
     $output->Text(_PC_DELETE_ARE_YOU_SURE.' ');
     $output->FormSubmit(_PC_ADMIN_YES);
