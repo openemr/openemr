@@ -7,7 +7,7 @@
 include_once("../../globals.php");
 
 $clean_formname=filter_var($_GET["formname"],FILTER_SANITIZE_STRING);
-$clean_id=$_GET["id"] + 0;
+$clean_id=sanitizeNumber($_GET["id"],'id');
 
 if (substr($clean_formname, 0, 3) === 'LBF') {
   // Use the List Based Forms engine for all LBFxxxxx forms.
