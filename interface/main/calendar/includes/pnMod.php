@@ -649,7 +649,7 @@ function pnModFunc($modname, $type = 'user', $func = 'main', $args = array())
  * @returns string
  * @return absolute URL for call
  */
-function pnModURL($modname, $type = 'user', $func = 'main', $args = array(), $path = '')
+function pnModURL($modname, $type = 'user', $func = 'main', $args = array(), $path = '', $escapeUrl = true)
 {
     if (empty($modname)) {
         return false;
@@ -698,8 +698,13 @@ function pnModURL($modname, $type = 'user', $func = 'main', $args = array(), $pa
 
     //remove characters not belonging in a path, prevent possible injection
     //this may break windows path accesses?
-    $path = preg_replace("/[^\.\/a-zA-Z0-9]/", "", $path)
-    ;
+    $path = preg_replace("/[^\.\/a-zA-Z0-9]/", "", $path);
+
+    //Escapes several special chars
+    if ($escapeUrl) {
+        $url=attr($url);
+    }
+
 
     // The URL
     $final_url = pnGetBaseURL() . $path . $url;

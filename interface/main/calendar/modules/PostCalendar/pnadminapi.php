@@ -113,7 +113,7 @@ function postcalendar_adminapi_buildAdminList($args)
     global $bgcolor1, $bgcolor2, $bgcolor3, $bgcolor4, $bgcolor5;
     global $textcolor1, $textcolor2;
     
-    $formUrl = pnModUrl(__POSTCALENDAR__, 'admin', 'adminevents');
+    $formUrl = pnModUrl(__POSTCALENDAR__, 'admin', 'adminevents', array(), '', false);
     $output->FormStart($formUrl);
     $output->Text('<table border="0" cellpadding="1" cellspacing="0" width="100%" bgcolor="'.$bgcolor2.'"><tr><td>');
     $output->Text('<table border="0" cellpadding="5" cellspacing="0" width="100%" bgcolor="'.$bgcolor1.'"><tr><td>');

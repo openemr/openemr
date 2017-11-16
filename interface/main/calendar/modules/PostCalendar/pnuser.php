@@ -201,7 +201,7 @@ function postcalendar_user_delete()
     //}
     unset($event);
 
-    $output->FormStart(pnModUrl(__POSTCALENDAR__, 'user', 'deleteevents'));
+    $output->FormStart(pnModUrl(__POSTCALENDAR__, 'user', 'deleteevents', array(), '',false));
     $output->FormHidden('pc_eid', $pc_event_id);
     $output->Text(_PC_DELETE_ARE_YOU_SURE.' ');
     $output->FormSubmit(_PC_ADMIN_YES);
@@ -317,7 +317,7 @@ function postcalendar_user_submit2($args)
         // get the theme globals :: is there a better way to do this?
         pnThemeLoad(pnUserGetTheme());
         $all_categories = pnModAPIFunc(__POSTCALENDAR__, 'admin', 'getCategories');
-        $output->Text('<form name="cats" method="post" action="'.pnModURL(__POSTCALENDAR__, 'user', 'submit2', $args).'">');
+        $output->Text('<form name="cats" method="post" action="'.pnModURL(__POSTCALENDAR__, 'user', 'submit2', $args, '', false).'">');
         $output->FormHidden('no_nav', $_GET['no_nav']);
         $output->FormHidden('event_startampm', $_GET['event_startampm']);
         $output->FormHidden('event_starttimeh', $_GET['event_starttimeh']);

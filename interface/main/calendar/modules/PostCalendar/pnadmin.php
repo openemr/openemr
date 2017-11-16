@@ -1256,7 +1256,7 @@ EOF;
         $dels = implode(',', $del);
         $delText = _PC_DELETE_CATS . $dels .'.';
     }
-    $output->FormStart(pnModURL(__POSTCALENDAR__, 'admin', 'categoriesUpdate'));
+    $output->FormStart(pnModURL(__POSTCALENDAR__, 'admin', 'categoriesUpdate', array(), '',false));
     $output->Text(_PC_ARE_YOU_SURE);
     $output->Linebreak(2);
     // deletions
