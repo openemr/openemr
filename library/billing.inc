@@ -115,8 +115,7 @@ function updateClaim(
     if (!$newversion) {
         $sql = "SELECT * FROM claims WHERE patient_id = ? AND " .
         "encounter_id = ? AND status > 0 AND status < 4 ";
-        $sqlBindArray[] = $patient_id;
-        $sqlBindArray[] = $encounter_id;
+        array_push($sqlBindArray, $patient_id, $encounter_id);
         if ($payer_id >= 0) {
             $sql .= "AND payer_id = ? ";
             $sqlBindArray[] = $payer_id;
@@ -222,8 +221,7 @@ function updateClaim(
     if ($billset) {
         $billset = substr($billset, 2);
         $sqlBindArray = $sqlBindBillset;
-        $sqlBindArray[] = $encounter_id;
-        $sqlBindArray[] = $patient_id;
+        array_push($sqlBindArray, $encounter_id, $patient_id);
         sqlStatement("UPDATE billing SET $billset WHERE " .
         "encounter = ? AND pid= ? AND activity = 1", $sqlBindArray);
     }
@@ -253,28 +251,25 @@ function updateClaim(
         "x12_partner_id = '$partner_id'";
         ****/
         sqlBeginTrans();
-        $sqlBindArray = array();
-        $sqlBindArray[] = $patient_id;
-        $sqlBindArray[] = $encounter_id;
-        $version = sqlQuery("SELECT IFNULL(MAX(version),0) + 1 AS increment FROM claims WHERE patient_id = ? AND encounter_id = ?", $sqlBindArray);
+        $version = sqlQuery("SELECT IFNULL(MAX(version),0) + 1 AS increment FROM claims WHERE patient_id = ? AND encounter_id = ?", array($patient_id, $encounter_id));
 
         $sqlBindArray = array();
-        $sqlBindArray[] = $patient_id;
-        $sqlBindArray[] = $encounter_id;
+        array_push($sqlBindArray, $patient_id, $encounter_id);
         if ($crossover<>1) {
             $sql .= "INSERT INTO claims SET " .
               "patient_id = ?, " .
               "encounter_id = ?, " .
               "bill_time = NOW() $claimset ," .
-              "version = " . $version['increment'];
+              "version = ?";
             $sqlBindArray = array_merge($sqlBindArray, $sqlBindClaimset);
+            array_push($sqlBindArray, $version['increment']);
         } else {//Claim automatic forward case.startTra
             $sql= "INSERT INTO claims SET " .
               "patient_id = ?, " .
               "encounter_id = ?, " .
               "bill_time = NOW(), status=? ," .
-              "version = " . $version['increment'];
-            $sqlBindArray[] = $status;
+              "version = ?";
+            array_push($sqlBindArray, $status, $version['increment']);
         }
 
         sqlStatement($sql, $sqlBindArray);
@@ -283,26 +278,20 @@ function updateClaim(
   //
     else if ($claimset) {
         $sqlBindArray = $sqlBindClaimset;
-        $sqlBindArray[] = $patient_id;
-        $sqlBindArray[] = $encounter_id;
+        array_push($sqlBindArray, $patient_id, $encounter_id, $row['version']);
         $claimset = substr($claimset, 2);
         sqlStatement("UPDATE claims SET $claimset WHERE " .
         "patient_id = ? AND encounter_id = ? AND " .
         // "payer_id = '" . $row['payer_id'] . "' AND " .
-        "version = '" . $row['version'] . "'", $sqlBindArray);
+        "version = ?", $sqlBindArray);
     }
 
   // Whenever a claim is marked billed, update A/R accordingly.
-  //
-    $sqlBindArray = array();
-    $sqlBindArray[] = $payer_type;
-    $sqlBindArray[] = $patient_id;
-    $sqlBindArray[] = $encounter_id;
     if ($status == 2) {
         if ($payer_type > 0) {
             sqlStatement("UPDATE form_encounter SET " .
             "last_level_billed = ? WHERE " .
-            "pid = ? AND encounter = ?", $sqlBindArray);
+            "pid = ? AND encounter = ?", array($payer_type, $patient_id, $encounter_id));
         }
     }
 
