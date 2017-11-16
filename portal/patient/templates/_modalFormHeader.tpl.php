@@ -29,7 +29,7 @@
 <title><?php $this->eprint($this->title); ?></title>
 <meta content="width=device-width, initial-scale=1, user-scalable=no"	name="viewport">
 
-<base href="<?php $this->eprint($this->ROOT_URL); ?>" />
+
 <meta name="description" content="Patient Profile" />
 <meta name="author" content="Form | sjpadgett@gmail.com" />
 
@@ -55,5 +55,7 @@
 $LAB.setGlobalDefaults({BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"});
 </script>
 
+<base href="<?php $this->eprint($this->ROOT_URL); ?>" />
+    
 </head>
 <body>
