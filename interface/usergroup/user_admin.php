@@ -440,7 +440,7 @@ foreach ($list_acl_groups as $value) {
     ?>
   </select></td>
   <td><span class=text><?php echo xlt('Additional Info'); ?>:</span></td>
-  <td><textarea style="width:150px;" name="comments" wrap=auto rows=4 cols=25><?php echo attr($iter["info"]); ?></textarea></td>
+  <td><textarea style="width:150px;" name="comments" wrap=auto rows=4 cols=25><?php echo text($iter["info"]); ?></textarea></td>
 
   </tr>
   <tr height="20" valign="bottom">
