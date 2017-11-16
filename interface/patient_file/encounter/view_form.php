@@ -6,17 +6,16 @@
 
 include_once("../../globals.php");
 
-$clean_formname=filter_var($_GET["formname"],FILTER_SANITIZE_STRING);
 $clean_id=sanitizeNumber($_GET["id"],'id');
 
-if (substr($clean_formname, 0, 3) === 'LBF') {
+if (substr($_GET["formname"], 0, 3) === 'LBF') {
   // Use the List Based Forms engine for all LBFxxxxx forms.
     include_once("$incdir/forms/LBF/view.php");
 } else {
   // ensure the path variable has no illegal characters
-    check_file_dir_name($clean_formname);
+    check_file_dir_name($_GET["formname"]);
 
-    include_once("$incdir/forms/" . $clean_formname . "/view.php");
+    include_once("$incdir/forms/" . $_GET["formname"] . "/view.php");
 }
 
 $id = $clean_id;
