@@ -174,11 +174,11 @@ if ($Date <> date('Ymd')) {
 <a href='#' name='bnsubmit' value='[-php-]echo xl ("Today")[-/php-]' onClick='GoToToday(theform);'  class='css_button'/><span>[-php-] echo xl("Today")[-/php-]</span></a>
 [-php-]
 }
-echo "   <a id='prevday' href='$PREV_DAY_URL' onclick='top.restoreSession()' title='" . xl("Previous Day") . "'>
+echo "   <a id='prevday' href='" . attr($PREV_DAY_URL) . "' onclick='top.restoreSession()' title='" . xl("Previous Day") . "'>
             <i class='fa fa-chevron-circle-left chevron_color' aria-hidden='true'></i></a>\n";
 $atmp = array_keys($A_EVENTS);
 echo dateformat (strtotime($atmp[0]),true);
-echo "   <a id='nextday' href='$NEXT_DAY_URL' onclick='top.restoreSession()' title='" . xl("Next Day") . "'>
+echo "   <a id='nextday' href='" . attr($NEXT_DAY_URL) . "' onclick='top.restoreSession()' title='" . xl("Next Day") . "'>
             <i class= 'fa fa-chevron-circle-right chevron_color' aria-hidden='true'></i></a>\n";
 [-/php-]
 </div>
