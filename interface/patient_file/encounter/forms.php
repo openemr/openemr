@@ -274,7 +274,7 @@ if (!isset($_GET['attachid'])) {
         $(".css_button").hide();
         $(".css_button_small").hide();
         $(".encounter-summary-column:first").show();
-        $(".title:first").text("<?php echo xls("Review"); ?> " + $(".title:first").text() + " ("+<?php echo addslashes($encounter); ?>+")");
+        $(".title:first").text("<?php echo xls("Review"); ?> " + $(".title:first").text() + " ( <?php echo addslashes($encounter); ?> )");
     <?php } ?>
 });
 
