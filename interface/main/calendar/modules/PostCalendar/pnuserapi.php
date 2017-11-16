@@ -433,10 +433,10 @@ function postcalendar_userapi_buildView($args)
             'view',
             array('tplview'=>$template_view,
             'viewtype'=>'day',
-            'Date'=>$prev_day,
-            'pc_username'=>$pc_username,
-            'pc_category'=>$category,
-            'pc_topic'=>$topic)
+            'Date'=>attr($prev_day),
+            'pc_username'=>attr($pc_username),
+            'pc_category'=>attr($category),
+            'pc_topic'=>attr($topic))
         );
 
         $pc_next_day = pnModURL(
@@ -445,10 +445,10 @@ function postcalendar_userapi_buildView($args)
             'view',
             array('tplview'=>$template_view,
             'viewtype'=>'day',
-            'Date'=>$next_day,
-            'pc_username'=>$pc_username,
-            'pc_category'=>$category,
-            'pc_topic'=>$topic)
+            'Date'=>attr($next_day),
+            'pc_username'=>attr($pc_username),
+            'pc_category'=>attr($category),
+            'pc_topic'=>attr($topic))
         );
 
         $prev_week = date('Ymd', mktime(0, 0, 0, $week_first_day_month, $week_first_day_date-7, $week_first_day_year));
@@ -458,20 +458,20 @@ function postcalendar_userapi_buildView($args)
             'user',
             'view',
             array('viewtype'=>'week',
-            'Date'=>$prev_week,
-            'pc_username'=>$pc_username,
-            'pc_category'=>$category,
-            'pc_topic'=>$topic)
+            'Date'=>attr($prev_week),
+            'pc_username'=>attr($pc_username),
+            'pc_category'=>attr($category),
+            'pc_topic'=>attr($topic))
         );
         $pc_next_week = pnModURL(
             __POSTCALENDAR__,
             'user',
             'view',
             array('viewtype'=>'week',
-            'Date'=>$next_week,
-            'pc_username'=>$pc_username,
-            'pc_category'=>$category,
-            'pc_topic'=>$topic)
+            'Date'=>attr($next_week),
+            'pc_username'=>attr($pc_username),
+            'pc_category'=>attr($category),
+            'pc_topic'=>attr($topic))
         );
 
         $prev_year = date('Ymd', mktime(0, 0, 0, 1, 1, $the_year-1));
@@ -481,20 +481,20 @@ function postcalendar_userapi_buildView($args)
             'user',
             'view',
             array('viewtype'=>'year',
-            'Date'=>$prev_year,
-            'pc_username'=>$pc_username,
-            'pc_category'=>$category,
-            'pc_topic'=>$topic)
+            'Date'=>attr($prev_year),
+            'pc_username'=>attr($pc_username),
+            'pc_category'=>attr($category),
+            'pc_topic'=>attr($topic))
         );
         $pc_next_year = pnModURL(
             __POSTCALENDAR__,
             'user',
             'view',
             array('viewtype'=>'year',
-            'Date'=>$next_year,
-            'pc_username'=>$pc_username,
-            'pc_category'=>$category,
-            'pc_topic'=>$topic)
+            'Date'=>attr($next_year),
+            'pc_username'=>attr($pc_username),
+            'pc_category'=>attr($category),
+            'pc_topic'=>attr($topic))
         );
 
         //=================================================================
