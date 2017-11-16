@@ -40,7 +40,7 @@
  */
 function text($text)
 {
-    return htmlspecialchars($text, ENT_NOQUOTES);
+    return htmlspecialchars($text, ENT_NOQUOTES, 'UTF-8', false);
 }
 
 /**
@@ -66,7 +66,7 @@ function text($text)
  */
 function attr($text)
 {
-    return htmlspecialchars($text, ENT_QUOTES);
+    return htmlspecialchars($text, ENT_QUOTES, 'UTF-8', false);
 }
 
 /**
