@@ -78,7 +78,7 @@ function isWhiteFile($file)
     return false;
 }
 
-// If the label contains any illegal characters, then the script will die.
+// check if a the first parameter contains a non-numeric value
 function sanitizeNumber($number,$name='')
 {
     $clean_number = $number +0 ;
