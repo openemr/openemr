@@ -42,9 +42,27 @@ require_once("$srcdir/gprelations.inc.php");
 
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/font-awesome-4-6-3/css/font-awesome.css" type="text/css">
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
+<style>
+a:hover.arrowhead{
+  color: black;
+}
+a.arrowhead{
+  color: black;
+}
+a:visited.arrowhead {
+   color: black;
+}
+a{
+	font-weight:700;
+}
+.display-message{
+	margin-top:5px;
+}
+</style>
 </head>
 
 <body class="body_top">
@@ -516,18 +534,18 @@ $(document).ready(function(){
     $sortorder = (isset($_REQUEST['sortorder'])  && ($_REQUEST['sortorder']!="")) ? $_REQUEST['sortorder']  : "asc";
     $begin = isset($_REQUEST['begin']) ? $_REQUEST['begin'] : 0;
 
-    for ($i = 0; $i < count($sort); $i++) {
-        $sortlink[$i] = "<a href=\"messages.php?show_all=".attr($showall)."&sortby=".attr($sort[$i])."&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."\"></a>";
+    for($i = 0; $i < count($sort); $i++) {
+        $sortlink[$i] = "<a  class='arrowhead' href=\"messages.php?show_all=".attr($showall)."&sortby=".attr($sort[$i])."&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\"><i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i>";
     }
 
     for ($i = 0; $i < count($sort); $i++) {
         if ($sortby == $sort[$i]) {
             switch ($sortorder) {
                 case "asc":
-                    $sortlink[$i] = "<a href=\"messages.php?show_all=".attr($showall)."&sortby=".attr($sortby)."&sortorder=desc&$activity_string_html\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."\"></a>";
+                    $sortlink[$i] = "<a class='arrowhead' href=\"messages.php?show_all=".attr($showall)."&sortby=".attr($sortby)."&sortorder=desc&$activity_string_html\" onclick=\"top.restoreSession()\"><i class='fa fa-sort-asc fa-lg' aria-hidden='true'></i>";
                     break;
                 case "desc":
-                    $sortlink[$i] = "<a href=\"messages.php?show_all=".attr($showall)."&sortby=".attr($sortby)."&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Down'), ENT_QUOTES)."\"></a>";
+                    $sortlink[$i] = "<a class='arrowhead' href=\"messages.php?show_all=".attr($showall)."&sortby=".attr($sortby)."&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\"><i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i>";
                     break;
             } break;
         }
@@ -569,7 +587,7 @@ $(document).ready(function(){
     <table width=100%><tr><td><table border=0 cellpadding=1 cellspacing=0 width=90%  style=\"border-left: 1px #000000 solid; border-right: 1px #000000 solid; border-top: 1px #000000 solid;\">
     <form name=MessageList action=\"messages.php?showall=".attr($showall)."&sortby=".attr($sortby)."&sortorder=".attr($sortorder)."&begin=".attr($begin)."&$activity_string_html\" method=post>
     <input type=hidden name=task value=delete>
-        <tr height=\"24\" style=\"background:lightgrey\">
+        <tr height=\"24\" style=\"background:lightgrey\" class=\"head\">
             <td align=\"center\" width=\"25\" style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\"><input type=checkbox id=\"checkAll\" onclick=\"selectAll()\"></td>
             <td width=\"20%\" style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\" class=bold>&nbsp;<b>" .
               htmlspecialchars(xl('From'), ENT_NOQUOTES) . "</b> $sortlink[0]</td>

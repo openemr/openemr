@@ -1589,3 +1589,7 @@ table.dataTable#therapy_groups_list tbody td{
   background-color: #FF0000 !important;
   color: #fff !important;
 }
+/* to align feesheet buttons*/
+div.category-display {
+   margin-left: 25px !Important;
+}

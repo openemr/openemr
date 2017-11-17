@@ -41,7 +41,8 @@ function add_review_button()
     var template=$("<div class='review'></div>").appendTo(td);
     template.attr("data-bind","template: {name: 'review-display', data: review}");
     // This makes the Review button first in the row.
-    $("[name='search_term']").parent().parent().prepend(td);
+   // $("[name='search_term']").parent().parent().prepend(td); // left the  original code alone
+	$("#copay_review tr:first").append(td);
     return td;
 }
 

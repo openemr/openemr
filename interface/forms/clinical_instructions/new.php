@@ -20,7 +20,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
-$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : 0);
+$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : '');
 $check_res = $formid ? formFetch("form_clinical_instructions", $formid) : array();
 ?>
 <html>
@@ -47,7 +47,7 @@ $check_res = $formid ? formFetch("form_clinical_instructions", $formid) : array(
                             </div>
                     </fieldset>
                     <div class="form-group clearfix">
-                        <div class="col-sm-12 col-sm-offset-1 position-override">
+                        <div class="col-sm-12 position-override">
                             <div class="btn-group oe-opt-btn-group-pinch" role="group">
                                 <button type='submit' onclick='top.restoreSession()' class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>
                                 <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>';"><?php echo xlt('Cancel');?></button>

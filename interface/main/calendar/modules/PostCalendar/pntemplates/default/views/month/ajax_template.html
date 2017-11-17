@@ -164,10 +164,10 @@ echo "   <a href='#' title='" . xl("Search Appointment") . "'
 <div id="dateNAV"">
 <a href='#' name='bnsubmit' value='[-php-]echo xl ("Today")[-/php-]' onClick='GoToToday(theform);'  class='css_button'/><span>[-php-] echo xl("Today")[-/php-]</span></a>
 [-php-]
-echo "   <a id='prevmonth' href='$PREV_MONTH_URL' onclick='top.restoreSession()' title='" . xl("Previous Month") . "'>
+echo "   <a id='prevmonth' href='$PREV_MONTH_URL' onclick='top.restoreSession()' title='" . xl("Previous Month") . "' style ='color:black'>
             <i class='fa fa-chevron-circle-left chevron_color' aria-hidden='true'></i></a>\n";;
 echo xl(date('F', strtotime($Date))) . " " . date('Y', strtotime($Date));
-echo "   <a id='nextmonth' href='$NEXT_MONTH_URL' onclick='top.restoreSession()' title='" . xl("Next Month") . "'>
+echo "   <a id='nextmonth' href='$NEXT_MONTH_URL' onclick='top.restoreSession()' title='" . xl("Next Month") . "' style ='color:black'>
            <i class= 'fa fa-chevron-circle-right chevron_color' aria-hidden='true'></i></a>\n";
 [-/php-]
 </div>

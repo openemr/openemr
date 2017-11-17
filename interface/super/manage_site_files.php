@@ -8,6 +8,7 @@
 
 // This module provides for editing site-specific text files and
 // for uploading site-specific image files.
+use OpenEMR\Core\Header;
 
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
@@ -44,7 +45,6 @@ $filepath = "$OE_SITE_DIR/$form_filename";
 
 $imagedir     = "$OE_SITE_DIR/images";
 $educationdir = "$OE_SITE_DIR/documents/education";
-
 if (!empty($_POST['bn_save'])) {
     if ($form_filename) {
         // Textareas, at least in Firefox, return a \r\n at the end of each line
@@ -194,215 +194,318 @@ if ($GLOBALS['secure_upload']) {
         }
     }
 }
-
-
 ?>
+<!DOCTYPE html>
 <html>
-
 <head>
-<title><?php echo xlt('File management'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-
-<style type="text/css">
- .dehead { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
- .detail { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
- #generate_thumb, #file_type_whitelist{
+    <?php Header::setupHeader(['common']);?>
+    <title><?php echo xlt('File management'); ?></title>
+    <style type="text/css">
+    .dehead { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
+    .detail { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
+    .head{
+        background-color:#DDDDDD;
+    }
+    /*#generate_thumb, #file_type_whitelist{
      width: 95%;
      margin: 50px auto;
      border: 2px solid dimgrey;
- }
- #generate_thumb table{
+    }
+    #generate_thumb table{
      font-size: 14px;
      text-align: center;
- }
- #generate_thumb table td{
+    }
+    #generate_thumb table td{
      border-right: 1px solid dimgrey;
      padding: 0 15px;
- }
-</style>
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
-
-<script language="JavaScript">
-// This is invoked when a filename selection changes in the drop-list.
-// In this case anything else entered into the form is discarded.
-function msfFileChanged() {
- top.restoreSession();
- document.forms[0].submit();
-}
-</script>
-
+    }*/
+    .oe-small{
+       font-size:0.8em;
+    }
+    .tooltp{
+        word-wrap: break-word;
+        width:100px;
+    }
+    select[id$="-list"] {
+        height:200px ! Important;
+    }
+    </style>
+    
+    <script language="JavaScript">
+    // This is invoked when a filename selection changes in the drop-list.
+    // In this case anything else entered into the form is discarded.
+    function msfFileChanged() {
+    top.restoreSession();
+    console.log("SELECT ACTION VAL " + $('#select_action').val()); 
+    $('#select-val').val( $('#select_action').val());
+    console.log("SELECT  VAL " + $('#select-val').val());
+    document.forms[0].submit();
+    }
+    </script>
 </head>
-
 <body class="body_top">
-<form method='post' action='manage_site_files.php' enctype='multipart/form-data'
- onsubmit='return top.restoreSession()'>
+    <div class='container'>
+        <div class="row">
+            <div class="col-xs-12">
+                 <div class="page-header clearfix">
+                   <h2 class="clearfix"><span id='header_text'><?php echo xlt("File Management"); ?></span><a class="pull-right" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#000000"><i class="fa fa-question-circle" aria-hidden="true"></i></a></h2>
+                </div>
+            </div>
+        </div>
+        <fieldset>
+        <legend>
+            
+            <span><?php echo xlt('Select Action'); ?></span>
+            <div class='pull-right' style='margin:7px 10px 5px 10px'>
+                <select id='select_action' class='form-control'>
+                    <option value=''><?php echo xlt('Select an action'); ?> ...</option>
+                    <option value='edit_files'><?php echo xlt('Edit Files'); ?></option>
+                    <option value='upload_images'><?php echo xlt('Upload Images'); ?></option>
+                    <option value='upload_pt_ed'><?php echo xlt('Upload Patient Education'); ?></option>
+                    <option value='thumbnails'><?php echo xlt('Generate Thumbnails'); ?></option>
+                    <?php 
+                        $mime = xlt('MIME White List');
+                        if ($GLOBALS['secure_upload']) {
+                            echo "<option value='mime_type'>$mime</option>";
+                        }
+                    
+                    ?>
+                </select>
+            </div>
+            
+        </legend>
+        <div class='row'>
+                <form action='manage_site_files.php' enctype='multipart/form-data' method=
+                'post' onsubmit='return top.restoreSession()'>
+                    <div class='col-xs-12' id='edit-files-div' style='display:none'>
+                        <div class='col-xs-12'>
+                        <fieldset>
+                                <h4 class='head clearfix ' style='padding:5px 10px'><?php echo htmlspecialchars(xl('Edit File in') . " $OE_SITE_DIR"); ?>
+                                    <div class='pull-right'>
+                                        <select name='form_filename' id='form_filename' class='form-control' onchange='msfFileChanged()'>
+                                            <option value=''><?php echo xlt('Please select a file to edit'); ?> ...</option>
+                                            <?php
+                                            foreach ($my_files as $filename) {
+                                                echo "    <option value='" . htmlspecialchars($filename, ENT_QUOTES) . "'";
+                                                if ($filename == $form_filename) {
+                                                    echo " selected";
+                                                }
 
-<center>
+                                                echo ">" . htmlspecialchars($filename) . "</option>\n";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                </h4>
+                                <textarea name='form_filedata' id='form_filedata' class='form-control' cols='80' rows='25'>
+                                    <?php
+                                    if ($form_filename) {
+                                        echo htmlspecialchars(@file_get_contents($filepath));
+                                    }
+                                    ?>
+                                </textarea>
+                        </fieldset>
+                        </div>
+                    </div>
+                    <div class='col-xs-12' id='upload-images-div' style='display:none'>
+                        <div class='col-xs-12'>
+                        <fieldset>
+                            <h4 class='head clearfix ' style='padding:5px 10px'><?php echo xlt('Upload Image'); ?> <i id='upload-image-tooltip' class="fa fa-info-circle text-primary oe-small h5" style='word-wrap:break-word;'aria-hidden="true"></i></h4>
+                             <div class='col-xs-6'>
+                                <div class="form-group">
+                                    <p><strong><?php echo htmlspecialchars(xl('Source File')); ?>:</strong>
+                                    <div class="input-group">
+                                        <label class="input-group-btn">
+                                            <span class="btn btn-default">
+                                                <?php echo xlt('Browse'); ?>&hellip;<input type="file" id="form_image" name="form_image" style="display: none;" >
+                                                <input name="MAX_FILE_SIZE" type="hidden" value="5000000"> 
+                                            </span>
+                                        </label>
+                                        <input type="text" id="selected-file" class="form-control" placeholder="<?php echo xlt('Click Browse and select one image file'); ?> ..." readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='col-xs-6'>
+                                <div class="form-group">
+                                <p><strong><?php echo htmlspecialchars(xl('Destination File')); ?>:</strong>
+                                <div class="input-group col-xs-12">
+                                <select name='form_dest_filename' class='form-control'>
+                                    <option value=''>
+                                        (<?php echo htmlspecialchars(xl('Use source filename')) ?>)
+                                    </option><?php
+                                      // Generate an <option> for each file already in the images directory.
+                                      $dh = opendir($imagedir);
+                                    if (!$dh) {
+                                        die(htmlspecialchars(xl('Cannot read directory') . " '$imagedir'"));
+                                    }
 
-<p>
-<table border='1' width='95%'>
+                                      $imagesslist = array();
+                                    while (false !== ($sfname = readdir($dh))) {
+                                        if (substr($sfname, 0, 1) == '.') {
+                                            continue;
+                                        }
 
- <tr bgcolor='#dddddd' class='dehead'>
-  <td colspan='2' align='center'><?php echo htmlspecialchars(xl('Edit File in') . " $OE_SITE_DIR"); ?></td>
- </tr>
+                                        if ($sfname == 'CVS') {
+                                            continue;
+                                        }
 
- <tr>
-  <td valign='top' class='detail' nowrap>
-   <select name='form_filename' onchange='msfFileChanged()'>
-    <option value=''></option>
-<?php
-foreach ($my_files as $filename) {
-    echo "    <option value='" . htmlspecialchars($filename, ENT_QUOTES) . "'";
-    if ($filename == $form_filename) {
-        echo " selected";
-    }
+                                        $imageslist[$sfname] = $sfname;
+                                    }
 
-    echo ">" . htmlspecialchars($filename) . "</option>\n";
-}
-?>
-   </select>
-   <br />
-   <textarea name='form_filedata' rows='25' style='width:100%'><?php
-    if ($form_filename) {
-        echo htmlspecialchars(@file_get_contents($filepath));
-    }
-?></textarea>
-  </td>
- </tr>
-
- <tr bgcolor='#dddddd' class='dehead'>
-  <td colspan='2' align='center'><?php echo htmlspecialchars(xl('Upload Image to') . " $imagedir"); ?></td>
- </tr>
-
- <tr>
-  <td valign='top' class='detail' nowrap>
-    <?php echo htmlspecialchars(xl('Source File')); ?>:
-   <input type="hidden" name="MAX_FILE_SIZE" value="12000000" />
-   <input type="file" name="form_image" size="40" />&nbsp;
-    <?php echo htmlspecialchars(xl('Destination Filename')) ?>:
-   <select name='form_dest_filename'>
-    <option value=''>(<?php echo htmlspecialchars(xl('Use source filename')) ?>)</option>
-<?php
-  // Generate an <option> for each file already in the images directory.
-  $dh = opendir($imagedir);
-if (!$dh) {
-    die(htmlspecialchars(xl('Cannot read directory') . " '$imagedir'"));
-}
-
-  $imagesslist = array();
-while (false !== ($sfname = readdir($dh))) {
-    if (substr($sfname, 0, 1) == '.') {
-        continue;
-    }
-
-    if ($sfname == 'CVS') {
-        continue;
-    }
-
-    $imageslist[$sfname] = $sfname;
-}
-
-  closedir($dh);
-  ksort($imageslist);
-foreach ($imageslist as $sfname) {
-    echo "    <option value='" . htmlspecialchars($sfname, ENT_QUOTES) . "'";
-    echo ">" . htmlspecialchars($sfname) . "</option>\n";
-}
-?>
-   </select>
-  </td>
- </tr>
-
- <tr bgcolor='#dddddd' class='dehead'>
-  <td colspan='2' align='center'><?php echo text(xl('Upload Patient Education PDF to') . " $educationdir"); ?></td>
- </tr>
- <tr>
-  <td valign='top' class='detail' nowrap>
-    <?php echo xlt('Source File'); ?>:
-   <input type="file" name="form_education" size="40" />&nbsp;
-    <?php echo xlt('Name must be like codetype_code_language.pdf, for example icd9_274.11_en.pdf'); ?>
-  </td>
- </tr>
-
-</table>
-
-<p>
-<input type='submit' name='bn_save' value='<?php echo htmlspecialchars(xl('Save')) ?>' />
-</p>
-
-</center>
-
-</form>
-
-<div id="generate_thumb">
-    <table style="width: 100%">
-        <tr>
-            <td class="thumb_title" style="width: 33%">
-                <b><?php echo xlt('Generate Thumbnails')?></b>
-            </td>
-            <td class="thumb_msg" style="width: 50%">
-                <span><?php echo $thumbnail_msg ?></span>
-            </td>
-            <td  class="thumb_form" style="width:17%;border-right:none">
-                <form method='post' action='manage_site_files.php#generate_thumb'>
-                    <input style="margin-top: 10px" type="submit" name="generate_thumbnails" value="<?php echo xla('Generate') ?>">
+                                      closedir($dh);
+                                      ksort($imageslist);
+                                    foreach ($imageslist as $sfname) {
+                                        echo "    <option value='" . htmlspecialchars($sfname, ENT_QUOTES) . "'";
+                                        echo ">" . htmlspecialchars($sfname) . "</option>\n";
+                                    }
+                                    ?>
+                                </select>
+                                </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        </div>
+                    </div>
+                    <div class='col-xs-12' id='upload-pt-edu-div' style='display:none'>
+                        <div class='col-xs-12'>
+                            <fieldset>
+                                <h4 class='head clearfix ' style='padding:5px 10px'><?php echo xlt('Upload Patient Education Material'); ?>  <i id='upload-pt-edu-tooltip' class="fa fa-info-circle text-primary h5 oe-small" title='' aria-hidden="true"></i></h4>
+                                 <div class='col-xs-12'>
+                                    <div class="form-group">
+                                        <div class="input-group"> 
+                                            <label class="input-group-btn">
+                                                <span class="btn btn-default">
+                                                    <?php echo xlt('Browse'); ?>&hellip;<input type="file" id="form_education" name="form_education" style="display: none;" >
+                                                </span>
+                                            </label>
+                                            <input type="text" id="selected-pt-edu" class="form-control" placeholder="<?php echo xlt('Click Browse and select one patient education file'); ?> ..." readonly>
+                                        </div>
+                                        <div class='col-xs-11 col-xs-offset-1'><p><strong><em><?php echo xlt('Name must be like codetype_code_language.pdf, for example icd9_274.11_en.pdf'); ?></em></strong></div>
+                                    </div>
+                                 </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
+                    <div class="form-group clearfix" id="button-div" style='display:none'>
+                        <div class="col-sm-12 text-left position-override">
+                            <div class="btn-group btn-group-pinch" role="group">
+                                <button type='submit' name='bn_save'  class="btn btn-default btn-save" value='<?php echo xla('Save') ?>'><?php echo xlt('Save') ?></button>
+                                <button class="btn btn-default btn-undo" type="reset"><?php echo xlt('Reset');?></button>
+                                <button class="btn btn-link btn-cancel btn-separate-left" href="#" onclick="CancelDistribute()"><?php echo xlt('Cancel');?></button>
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <input type='hidden' name='select-val' id='select-val' value = ''>
                 </form>
-            </td>
-        </tr>
-    </table>
-</div>
-
-<?php if ($GLOBALS['secure_upload']) { ?>
-
-<div id="file_type_whitelist">
-    <h2><?php echo xlt('Create custom white list of MIME content type of a files to secure your documents system');?></h2>
-    <form id="whitelist_form" method="post">
-        <div class="subject-black-list">
-            <div class="top-list">
-               <h2><?php echo xlt('Black list'); ?></h2>
-               <b><?php echo xlt('Filter');?>:</b> <input type="text" id="filter-black-list" >
+    </div>
+    <div class='row' id="generate_thumb" style='display:none'>
+        
+        <div class='col-xs-12'>
+            <div class='col-xs-12'>
+                <form action='manage_site_files.php#generate_thumb' method='post'>
+                    <fieldset>
+                        <h4 class='head clearfix ' style='padding:5px 10px'><?php echo xlt('Generate Thumbnails'); ?>  <i id='thumbnail-tooltip' class="fa fa-info-circle text-primary h5 oe-small" title='' aria-hidden="true"></i></h4>
+                        <div class='col-xs-12'>
+                            <p><?php echo xlt('Use this feature to generate thumbnails of images in the images directory');?>
+                        </div>
+                        <div class='col-xs-12'><span><?php echo $thumbnail_msg ?></span></div>
+                        <div class='col-xs-12'>
+                            
+                            <button name="generate_thumbnails" id="generate_thumbnails" class="btn btn-default btn-add" style="margin-top: 10px" type="submit" value="<?php echo xla('Generate') ?>"><?php echo xlt('Generate') ?></button>
+                           
+                        </div>
+                    </fieldset>
+                </form>
             </div>
-            <select multiple="multiple" id='black-list' class="form-control">
-                <?php
-                foreach ($mime_types as $type) {
-                    if (!in_array($type, $white_list)) {
-                        echo "<option value='" . attr($type) . "'> " . text($type) . "</option>";
-                    }
-                }
-                ?>
-            </select>
         </div>
-
-        <div class="subject-info-arrows">
-            <input type="button" id="btnAllRight" value=">>" /><br />
-            <input type="button" id="btnRight" value=">" /><br />
-            <input type="button" id="btnLeft" value="<" /><br />
-            <input type="button" id="btnAllLeft" value="<<" />
-        </div>
-
-        <div class="subject-white-list">
-            <div class="top-list">
-                <h2><?php echo xlt('White list'); ?></h2>
-                <b><?php echo xlt('Add manually');?>:</b> <input type="text" id="add-manually-input"> <input type="button" id="add-manually" value="+">
+    </div>
+    <?php if ($GLOBALS['secure_upload']) { ?>
+    <div class='row' id="file_type_whitelist" style="display:none">
+        <div class='col-xs-12'>
+		<div class='col-xs-12'>
+			<form id="whitelist_form" method="post" name="whitelist_form">
+				<fieldset>
+					<legend><?php echo xlt('Create custom white list'); ?>   <i id='mime-type-tooltip' class="fa fa-info-circle text-primary h5 oe-small" title='' aria-hidden="true"></i></legend>
+					<div class="subject-black-list col-lg-offset-1">
+						<div class="top-list">
+							<h2>
+							<?php echo xlt('Black list'); ?></h2><b><?php echo xlt('Filter');?>:</b>
+							<input id="filter-black-list" type="text">
+						</div><select class="form-control" id='black-list' multiple=
+						"multiple">
+							<?php
+							foreach ($mime_types as $type) {
+								if (!in_array($type, $white_list)) {
+									echo "<option value='" . attr($type) . "'> " . text($type) . "</option>";
+								}
+							}
+							?>
+						</select>
+					</div>
+					<div class="subject-info-arrows">
+						<input id="btnAllRight" type="button" value="&gt;&gt;"><br><br>
+						<input id="btnRight" type="button" value="&gt;"><br><br>
+						<input id="btnLeft" type="button" value="&lt;"><br><br>
+						<input id="btnAllLeft" type="button" value="&lt;&lt;">
+					</div>
+					<div class="subject-white-list">
+						<div class="top-list">
+							<h2>
+							<?php echo xlt('White list'); ?></h2><b><?php echo xlt('Add manually');?>:</b>
+							<input id="add-manually-input" type="text"> <button id=
+							"add-manually" type="button" class="btn btn-default btn-add" value="<?php echo xlt('Add');?>"><?php echo xlt('Add');?></button>
+						</div><select class="form-control" id='white-list' multiple=
+						"multiple" name="white_list[]">
+							<?php
+											foreach ($white_list as $type) {
+												echo "<option value='" . attr($type) . "'> " . text($type) . "</option>";
+											}
+											?>
+						</select>
+					</div>
+                    </fieldset>
+					<?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
+                    <div class="form-group clearfix">
+                        <div class="col-sm-12 col-sm-offset-1 position-override">
+                            <div class="btn-group btn-group-pinch" role="group">
+                                <button type="button" class="btn btn-default btn-save" id="submit-whitelist" onclick="top.restoreSession()" value="<?php echo xla('Save'); ?>"><?php echo xlt('Save'); ?></button>
+                                <input name="submit_form" type="hidden" value="1">
+                            </div>
+                        </div>
+                    </div>
+            </form>
+		<div>
+	</div>
+    </div>
+    </fieldset>
+    </div><!--End of container div-->
+    <div class="row">
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content oe-modal-content">
+                    <div class="modal-header clearfix"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="color:#000000; font-size:1.5em;">×</span></button></div>
+                    <div class="modal-body">
+                        <iframe src="" id="targetiframe" style="height:600px; width:100%; overflow-x: hidden; border:none" allowtransparency="true"></iframe>  
+                    </div>
+                    <div class="modal-footer" style="margin-top:0px;">
+                       <button class="btn btn-link btn-cancel pull-right" data-dismiss="modal" type="button"><?php echo xlt('close'); ?></button>
+                    </div>
+                </div>
             </div>
-            <select name="white_list[]" multiple="multiple" id='white-list' class="form-control">
-                <?php
-                foreach ($white_list as $type) {
-                    echo "<option value='" . attr($type) . "'> " . text($type) . "</option>";
-                }
-                ?>
-            </select>
         </div>
-        <div class="subject-info-save">
-            <input type="button" id="submit-whitelist" value="<?php echo xlt('Save'); ?>" />
-            <input type="hidden" name="submit_form" value="1" />
-        </div>
-    </form>
+    </div>
+    <script>
+        $( document ).ready(function() {
+            $('#help-href').click (function(){
+                document.getElementById('targetiframe').src ='manage_site_files_help.php';
+            })
+       
+        });
+    </script>
 
-</div>
-
-<script>
+    <script>
 
     (function () {
         $('#btnRight').click(function (e) {
@@ -479,7 +582,7 @@ foreach ($imageslist as $sfname) {
         $('#add-manually').on('click', function () {
             var new_type = $("#add-manually-input").val();
             if(new_type.length < 1)return;
-            $('#white-list').prepend("<option value="+new_type+">"+new_type+"</option>")
+            $('#white-list').prepend("<option value="+new_type+">"+new_type+"<\/option>")
         })
 
         $('#submit-whitelist').on('click', function () {
@@ -489,11 +592,174 @@ foreach ($imageslist as $sfname) {
 
     }(jQuery));
 
-</script>
+    </script>
+    
+    <?php } //End of if ($GLOBALS['secure_upload'])?>
+    <script>
+        $(document).ready(function() {
+            $('#select_action').on('change', function() {
+                if ($(this).val() == 'edit_files') {
+                    $('#edit-files-div').show();
+                    $('#upload-images-div').hide();
+                    $('#upload-pt-edu-div').hide();
+                    $('#generate_thumb').hide();
+                    $('#file_type_whitelist').hide();
+                    $('#button-div').show();
+                    $('#select-val').val('edit_files');
+                    $('#form_filename').val('');
+                    $('#form_filedata').val('');
+                } else if ($(this).val() == 'upload_images') {
+                    $('#edit-files-div').hide();
+                    $('#upload-images-div').show();
+                    $('#upload-pt-edu-div').hide();
+                    $('#generate_thumb').hide();
+                    $('#file_type_whitelist').hide();
+                    $('#button-div').show();
+                    $('#select-val').val('upload_images');
+                    $('#form_filename').val('');
+                    $('#form_filedata').val('');
+                } else if ($(this).val() == 'upload_pt_ed') {
+                    $('#edit-files-div').hide();
+                    $('#upload-images-div').hide();
+                    $('#upload-pt-edu-div').show();
+                    $('#generate_thumb').hide();
+                    $('#file_type_whitelist').hide();
+                    $('#button-div').show();
+                    $('#select-val').val('upload_pt_ed');
+                    $('#form_filename').val('');
+                    $('#form_filedata').val('');
+                } else if ($(this).val() == 'thumbnails') {
+                    $('#edit-files-div').hide();
+                    $('#upload-images-div').hide();
+                    $('#upload-pt-edu-div').hide();
+                    $('#generate_thumb').show();
+                    $('#file_type_whitelist').hide();
+                    $('#button-div').hide();
+                    $('#select-val').val('thumbnails');
+                    $('#form_filename').val(''); 
+                    $('#form_filedata').val('');
+                } else if ($(this).val() == 'mime_type') {
+                    $('#edit-files-div').hide();
+                    $('#upload-images-div').hide();
+                    $('#upload-pt-edu-div').hide();
+                    $('#generate_thumb').hide();
+                    $('#file_type_whitelist').show();
+                    $('#button-div').hide();
+                    $('#select-val').val('mime_type');
+                    $('#form_filename').val('');
+                    $('#form_filedata').val('');
+                }
+                else if ($(this).val() == '') {
+                    $('#edit-files-div').hide();
+                    $('#upload-images-div').hide();
+                    $('#upload-pt-edu-div').hide();
+                    $('#generate_thumb').hide();
+                    $('#file_type_whitelist').hide();
+                    $('#button-div').hide();
+                    $('#form_filename').val('');
+                    $('#form_filedata').val('');
+                }
+                //to empty file select if moving out withour saving
+                if ($(this).val() != 'upload_pt_ed') {
+                    var $el = $('#form_education');
+                    $el.wrap('<form>').closest('form').get(0).reset();
+                    $el.unwrap();
+                }
+                if ($(this).val() != 'upload_images') {
+                    var $el = $('#form_image');
+                    $el.wrap('<form>').closest('form').get(0).reset();
+                    $el.unwrap();
+                }
+                 if ($(this).val() != 'edit_files') {
+                    /* var $el = $('#form_filedata');
+                    $el.wrap('<form>').closest('form').get(0).reset();
+                    $el.unwrap(); */
+                    $('#form_filedata').val('');
+                }
+            });
+            var postSelVal = '<?php echo xla($_POST['select-val']);?>';
+            var postThumbnails = '';
+            var postMIME = '';
+            <?php 
+                if(isset($_POST['generate_thumbnails'])) {
+                    echo "var postThumbnails = 'thumbnails';";
+                }
+                if(isset($_POST['white_list'])) {
+                    echo "var postMIME = 'mime';";
+                }
+            ?>
+            $('#select_action').val(postSelVal);
+                       
+            if (postSelVal=='edit_files') {
+                $('#edit-files-div').show();
+                $('#button-div').show();
+               //$('#form_filename').val('postSelVal');
+            } else if (postSelVal=='upload_images') {
+                $('#upload-images-div').show();
+                $('#button-div').show();
+            } else if (postSelVal=='upload_pt_ed') {
+                $('#upload-pt-edu-div').show();
+                $('#button-div').show();
+            }
+            if (postThumbnails=='thumbnails') {
+                $('#generate_thumb').show();
+            } 
+            if (postMIME=='mime') {
+                $('#file_type_whitelist').show();
+            }
+        });
+    </script>
+    <script>
+        $(function() {
+            //https://www.abeautifulsite.net/whipping-file-inputs-into-shape-with-bootstrap-3
+            // We can attach the `fileselect` event to all file inputs on the page
+            $(document).on('change', ':file', function() {
+                var input = $(this),
+                numFiles = input.get(0).files ? input.get(0).files.length : 1,
+                label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+                input.trigger('fileselect', [numFiles, label]);
+            });
 
-
-<?php } ?>
-
+            // We can watch for our custom `fileselect` event like this
+            $(document).ready( function() {
+                $(':file').on('fileselect', function(event, numFiles, label) {
+                    var input = $(this).parents('.input-group').find(':text'),
+                    log = numFiles > 1 ? numFiles + ' files selected' : label;
+                    
+                    if( input.length ) {
+                    input.val(log);
+                    } 
+                    else {
+                    if( log ) alert(log);
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function(){
+       
+            
+           <?php if($GLOBALS[ "generate_doc_thumb"] == 1){ // to generate appropriate message if thumbnail is enabled
+                echo "var enableThumbnail = 1;";
+            } elseif ($GLOBALS[ "generate_doc_thumb"] == 0){
+                echo "var enableThumbnail = 0;";
+            }
+             $imagesdir = 'default/images';
+             $edudir = 'default/documents/education';
+            ?>
+            if (enableThumbnail==1) {
+                $('#thumbnail-tooltip').tooltip({title: '<?php echo xlt('Generate missing thumbnails of image files'); ?>'});
+            } else if (enableThumbnail==0) {
+               $('#thumbnail-tooltip').tooltip({title:'<?php echo xla("First enable Administration - Globals - Documents - Generate Thumbnail"); ?>'});
+               $('#generate_thumbnails').tooltip({title:'<?php echo xla("Please enable feature by selecting Administration - Globals - Documents - Generate Thumbnail"); ?>'});
+            }
+            
+            $('#upload-image-tooltip').tooltip({title: '<?php echo xla("Will upload an image file to the  $imagesdir directory. Application should have write permission to the images directory"); ?>'});
+            $('#upload-pt-edu-tooltip').tooltip({title: '<?php echo xla("Will upload a PDF file to the  $edudir directory.  Name must be like codetype_code_language.pdf, for example icd9_274.11_en.pdf"); ?>'});
+            $('#mime-type-tooltip').tooltip({title: '<?php echo xla("Create a white list of allowed MIME types that can be loaded into the sites/default/documents directory"); ?>'});
+        });
+        </script>
 </body>
 </html>
 

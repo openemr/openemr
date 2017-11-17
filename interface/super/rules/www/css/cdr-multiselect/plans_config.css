@@ -1,10 +1,10 @@
 .cdr-mappings {
-	display: table;
+	/*display: table;*/
 	margin-left:15px;
 }
 
 .cdr-buttons-class {
-	float:right;
+	/*float:right;*/
 }
  	
 /* Start by setting display:none to make this hidden.
@@ -12,7 +12,7 @@
  with position:fixed. Width, height, top and left speak
  speak for themselves. Background we set to 80% white with
  our animation centered, and no-repeating */
-.modal {
+.modal-p {
     display:    none;
     position:   fixed;
     z-index:    1000;
@@ -34,7 +34,7 @@ body.loading {
 
 /* Anytime the body has the loading class, our
    modal element will be visible */
-body.loading .modal {
+body.loading .modal-p {
     display: block;
 }
 

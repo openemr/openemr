@@ -23,7 +23,7 @@ require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
-$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : 0);
+$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : '');
 if ($formid) {
     $sql = "SELECT * FROM `form_functional_cognitive_status` WHERE id=? AND pid = ? AND encounter = ?";
     $res = sqlStatement($sql, array($formid,$_SESSION["pid"], $_SESSION["encounter"]));

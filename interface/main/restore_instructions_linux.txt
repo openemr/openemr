@@ -1,0 +1,45 @@
+Recovery
+
+For OpenEMR installations on a Linux server use the following method to restore the OpenEMR application.
+
+Brief explanation of what will happen:
+    - A compressed archive is being used to recover an OpenEMR installation
+    - The compressed archive (default name - `emr_backup.tar`) has 2 compressed archives - one containing the website data and the other the database data
+    - In addition there are 2 files - `openemr-setup.txt` containing details regarding the website and database and a script called `restore` that will be used for the actual restoration
+    - You will first delete the existing OpenEMR website and then recreate a new one with data from the compressed archive by running the `restore` script
+    
+IMPORTANT!! You will need the MySQL root user password to successfully complete this task.
+
+Copy the `emr_backup.tar` that was created into the home directory on the server that you want to install OpenEMR.
+
+If you have downloaded the backup directory `emr_backup.tar` on another machine you should move it to the home directory of a user on the server that you want to install OpenEMR.
+
+Open Terminal on the server that hosts the OpenEMR installation or ssh into it from another computer by using PuTTY for Windows or the terminal for a Mac or Linux.
+
+Extract the `openemr-setup.txt` file from the emr_backup.tar compressed folder by issuing the following command after the dollar sign: sudo ./tar -xvf emr_backup.tar openemr-setup.txt
+
+It contains details of the OpenEMR installation. To read its contents issue following command sudo ./cat openemr-setup.txt
+
+Select the data by highlighting with a mouse, press Ctrl + Insert to copy and Shift + Insert to paste into a text file.
+
+Extract the `restore` script from the emr_backup.tar compressed folder by issuing the following command sudo ./tar -xvf emr_backup.tar restore
+
+Make the `restore` script executable by issuing the following command sudo ./chmod 755 restore
+
+IMPORTANT!! Delete the openemr web directory.
+
+If you are on terminal or have logged in via ssh you can issue this command after the dollar sign: sudo rm -rf <path to website> i.e. ($ sudo rm -rf /var/www/html/openemr).
+
+IMPORTANT!! Be careful with this command , make sure that you have typed the correct path. It will delete the named directory and all its contents without any further warning.
+
+Issue this command after the dollar sign: sudo ./restore ($ sudo ./restore), 1 space after $ with no space before restore.
+
+Enter the path to the backup file: /home/<your home directory username>/emr_backup.tar
+
+Change values as needed by referring to the openemr-setup file that you had saved.
+
+Enter the MySQL root user password.
+
+Wait for the script to finish executing.
+
+If all goes well you should have a restored OpenEMR installation.

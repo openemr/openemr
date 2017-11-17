@@ -26,7 +26,7 @@
 ?>
 
 <link type="text/css" rel="stylesheet" href="<?php echo $GLOBALS['webroot'] . '/library/css/jquery-ui-1.8.21.custom.css'?>" />
-<link type="text/css" rel="stylesheet" href="<?php css_src('cdr-multiselect/common.css') ?>" />
+<!--<link type="text/css" rel="stylesheet" href="<?php css_src('cdr-multiselect/common.css') ?>" />-->
 <link type="text/css" rel="stylesheet" href="<?php css_src('cdr-multiselect/ui.multiselect.css') ?>" />
 <link type="text/css" rel="stylesheet" href="<?php css_src('cdr-multiselect/plans_config.css') ?>" />
 
@@ -279,7 +279,7 @@ $.extend($.ui.multiselect.locale, {
                         }                               
                     });
     
-                    $("#cdr_rules_select").multiselect({dividerLocation: 0.45});
+                    $("#cdr_rules_select").multiselect({dividerLocation: 0.49});
                     $("body").removeClass("loading");
                 });    
         } else {
@@ -314,7 +314,7 @@ $.extend($.ui.multiselect.locale, {
 
     $newPlan = function() {
         $('#new_plan_container')
-                        .append('<?php echo '<label>' . out(xl('Plan Name')) . ': </label>'; ?>')
+                        .append('<?php echo '<label>' . out(xl('New Plan Name')) . ': </label>'; ?>')
             .append('<input id="new_plan_name" type="text" name="new_plan_name">');
 
         $("#cdr-rules_cont").removeClass("overlay");
@@ -374,39 +374,59 @@ $.extend($.ui.multiselect.locale, {
     }   
 
 </script>
+<style>
+.multiselect {
+    width: 1050px;
+    height: auto;
+}
+</style>
 
 <div class="cdr-mappings">
-    <br/>
-    <div><b><?php echo out(xl('View Plan Rules')); ?></b></div>
-    <br/>
-    <div id="cdr_mappings_form-div" class="cdr-form">
-        <div class="cdr-plans">
-            <?php echo out(xl('Plan')) . ':'; ?>
-            <select id="cdr-plans-select" name="cdr-plans-select" class="cdr-plans-select-class">
-                             <option id="select_plan" value="select_plan">- <?php echo out(xl('SELECT PLAN')); ?> -</option>
-                <option id="divider" value="divider" disabled/>
-                <option id="add_new_plan" value="add_new_plan"><?php echo out(xl('ADD NEW PLAN')); ?></option>
-            </select>
-            <input title="<?php echo out(xl('Delete Plan')); ?>" id="delete_plan" class="delete_button" type="image" style="display: none;"/>
-        </div>  
-        <div id="new_plan_container"></div>
-        <div id="cdr_hide_show-div" style="display: none;">
-            <div id="plan_status_div" class="plan-status_div">
-                                <label id='plan-status-label'><?php echo out(xl('Status')) . ':'; ?></label>
-                <button id='cdr-status' disable><?php echo out(xl('Activate')); ?></button>
-            </div>
-            <br/>
-            
-            <div id="cdr-rules_cont">
-                <div id="cdr_rules" class="cdr-rules-class"></div>      
-            
-                <div id="cdr_buttons_div" class="cdr-buttons-class">
-                    <button id='cdr-button-cancel'><?php echo out(xl('Cancel')); ?></button>
-                    <button id='cdr-button-submit'><?php echo out(xl('Submit')); ?></button>
-                </div>
+    <div class="row">
+        <div class="col-xs-12">
+             <div class="page-header clearfix">
+               <h2 class="clearfix"><span id='header_text'><?php echo xlt("View Plan Rules"); ?></span>  &nbsp;<a href="index.php?action=browse!list" onclick="top.restoreSession()" ><i class="fa fa-arrow-circle-left fa-2x small" aria-hidden="true" title="<?php echo xla('Back to Rules'); ?>"></i></a><a class="pull-right" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#000000"><i class="fa fa-question-circle" aria-hidden="true"></i></a></h2>
             </div>
         </div>
     </div>
+    
+    <div id="cdr_mappings_form-div" class="cdr-form">
+        <fieldset>
+            <legend>
+                <span><?php echo xlt('Select Plan/Add New Plan'); ?></span>
+                <div class="pull-right" style='margin:11px 10px 5px 3px'>
+                    <i id="delete_plan" class="fa fa-trash" aria-hidden="true" style="display: none;" title="<?php echo out(xl('Delete Plan')); ?>"></i>
+                </div>
+                <div class='cdr-plans pull-right' style='margin:7px 10px 5px 10px'>
+                   
+                    <select id="cdr-plans-select" name="cdr-plans-select" class='form-control cdr-plans-select-class'>
+                        <option id="select_plan" value="select_plan">- <?php echo out(xl('SELECT PLAN')); ?> -</option>
+                        <option id="divider" value="divider" disabled/>
+                        <option id="add_new_plan" value="add_new_plan"><?php echo out(xl('ADD NEW PLAN')); ?></option>
+                    </select>
+                </div>
+            </legend>
+            
+            <div id="new_plan_container"></div>
+            <div id="cdr_hide_show-div" class="col-xs-12" style="display: none;">
+                <div id="plan_status_div" class="plan-status_div">
+                                    <label id='plan-status-label'><?php echo out(xl('Status')) . ':'; ?></label>
+                    <button id='cdr-status' disable><?php echo out(xl('Activate')); ?></button>
+                </div>
+                <br/><br>
+                
+                <div id="cdr-rules_cont">
+                    <div id="cdr_rules" class="cdr-rules-class"></div>      
+                    <br><br>
+                    <div id="cdr_buttons_div" class="cdr-buttons-class">
+                        <button id="cdr-button-submit" class="btn btn-default btn-save"><?php echo out(xl('Save')); ?></button>
+                        <button id="cdr-button-cancel" class="btn btn-link btn-cancel"><?php echo out(xl('Cancel')); ?></button>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    
 </div>
 
-<div class="modal"></div>
+<div class="modal-p"></div>

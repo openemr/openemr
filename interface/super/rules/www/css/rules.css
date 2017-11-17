@@ -132,7 +132,7 @@ root {
 #required_msg {
     margin-top:30px;
     width: 80%;
-    border-top: 1px solid;
+    /*border-top: 1px solid;*/
     display:none;
 }
 

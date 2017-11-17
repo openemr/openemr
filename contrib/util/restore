@@ -142,6 +142,10 @@ fi
 
 dlg_msg "Now you will be asked for the backup file." "By default this is named emr_backup.tar, although you may have saved it as something else."
 
+#default values
+OEDIR=/var/www/openemr
+webroot_name=openemr
+
 LOOKING=1
 while [ $LOOKING -eq 1 ]; do
   dlg_fselect "Enter path/name of backup file"
@@ -154,6 +158,21 @@ while [ $LOOKING -eq 1 ]; do
     dlg_info "Extracting $TARFILE ..."
     cd $BAKDIR
     tar -xf $TARFILE
+    #RP_ADDED to get names of OEDIR ans webroot name if different from default by reading values from openemr_setup.txt
+    filename=$BAKDIR/openemr_setup.txt
+    while IFS= read -r line || [[ -n "$line" ]]
+    do
+        if [[ "${line}" == *WEBSERVER_ROOT* ]]
+        then
+            webserver_root=$(cut -d ':' -f2 <<< "$line")
+            echo $webserver_root
+        elif [[ "${line}" == *WEB_ROOT_NAME* ]]
+        then
+            webroot_name=$(cut -d ':' -f2 <<< "$line")
+            echo $webroot_name
+        fi
+    done < "$filename"
+    
     if [ $? -ne 0 ]; then
       dlg_msg "Error: tar could not extract '$TARFILE'."
     else
@@ -163,16 +182,16 @@ while [ $LOOKING -eq 1 ]; do
 done
 
 # Extract the OpenEMR web directory tree.
-dlg_info "Extracting $BAKDIR/openemr.tar.gz ..."
-mkdir openemr
-cd openemr
-tar zxf ../openemr.tar.gz
+dlg_info "Extracting $BAKDIR/$webroot_name.tar.gz ..."
+mkdir $webroot_name
+cd $webroot_name
+tar zxf ../$webroot_name.tar.gz
 if [ $? -ne 0 ]; then
-  dlg_msg "Error: tar could not extract '$BAKDIR/openemr.tar.gz'."
+  dlg_msg "Error: tar could not extract '$BAKDIR/$webroot_name.tar.gz'."
   exit 1
 fi
 
-OEDIR=/var/www/openemr
+
 
 # Get the Site ID, it should be the only site backed up.
 SITEID=`ls -1 sites | head -n 1`
@@ -422,7 +441,7 @@ mysqladmin --password="$MYROOTPASS" --force drop $OEDBNAME 2> /dev/null
 
 dlg_info "Restoring OpenEMR database ..."
 cd $BAKDIR
-gunzip openemr.sql.gz
+gunzip $OEDBNAME.sql.gz
 if [ $? -ne 0 ]; then
   dlg_msg "Error: Could not decompress '$BAKDIR/openemr.sql.gz'."
   exit 1
@@ -440,7 +459,7 @@ if [ $? -ne 0 ]; then
 fi
 
 mysql --password="$MYROOTPASS" --execute "GRANT ALL PRIVILEGES ON $OEDBNAME.* TO '$OEDBUSER'@'localhost' IDENTIFIED BY '$OEDBPASS'" $OEDBNAME
-mysql --user=$OEDBUSER --password="$OEDBPASS" $OEDBNAME < openemr.sql
+mysql --user=$OEDBUSER --password="$OEDBPASS" $OEDBNAME < $OEDBNAME.sql
 if [ $? -ne 0 ]; then
   dlg_msg "Error: Restore to database '$OEDBNAME' failed."
   exit 1
