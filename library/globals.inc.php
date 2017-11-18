@@ -2421,13 +2421,6 @@ $GLOBALS_METADATA = array(
             xl('Website link for the Version 2 Onsite Patient Portal.')
         ),
 
-        'portal_onsite_two_force_https' => array(
-            xl('Force Portal Https Protocol (internal)'),
-            'bool',
-            '0',
-            xl('Force https protocol Url (portal internal only).')
-        ),
-
         'portal_onsite_two_register' => array(
             xl('Allow Version 2 Onsite New Patient Registration Widget'),
             'bool',                           // data type
