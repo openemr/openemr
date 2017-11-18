@@ -1,0 +1,233 @@
+{
+    "basics": {
+        "open": "Open",
+        "close": "Close",
+        "help": "Help",
+        "back": "Back",
+        "reset": "Reset",
+        "apply": "Apply",
+        "name": "Name",
+        "value": "Value",
+        "dicomTags": "DICOM Tags",
+        "columns": "Columns",
+        "group": "Group",
+        "element": "Element",
+        "vr": "VR",
+        "vl": "VL",
+        "presets": "Presets",
+        "toolbox": "Toolbox",
+        "history": "History",
+        "image": "Image",
+        "info": "Info",
+        "downloadState": "Download state",
+        "drawList": "Annotations",
+        "search": "Search",
+        "id": "ID",
+        "slice": "Slice",
+        "frame": "Frame",
+        "type": "Type",
+        "color": "Color",
+        "label": "Label",
+        "description": "Description",
+        "editMode": "Edit Mode",
+        "deleteDraws": "Delete All",
+        "visible": "Visible"
+    },
+    "colour": {
+        "Yellow": {
+            "name": "Yellow"
+        },
+        "Red": {
+            "name": "Red"
+        },
+        "White": {
+            "name": "White"
+        },
+        "Green": {
+            "name": "Green"
+        },
+        "Blue": {
+            "name": "Blue"
+        },
+        "Lime": {
+            "name": "Lime"
+        },
+        "Fuchsia": {
+            "name": "Fuchsia"
+        },
+        "Black": {
+            "name": "Black"
+        }
+    },
+    "unit": {
+        "mm": "mm",
+        "cm2": "cm2",
+        "degree": "\u00B0"
+    },
+    "help": {
+        "intro": {
+            "p0": "DWV (DICOM Web Viewer) is an open source zero footprint medical image viewer. It uses only javascript and HTML5 technologies, meaning that it can be run on any platform that provides a modern browser (laptop, tablet, phone and even modern TVs). It can load local or remote data in DICOM format (the standard for medical imaging data such as MR, CT, Echo, Mammo, NM...) and provides standard tools for its manipulation such as contrast, zoom, drag, possibility to draw regions on top of the image and imaging filters such as threshold and sharpening.",
+            "p1": "All DICOM tags are available in a searchable table, press the 'tags' or grid button. You can choose to display the image information overlay by pressing the 'info' or i button."
+        },
+        "tool_intro": "Each tool defines the possible user interactions. Here are the available tools:"
+    },
+    "tool": {
+        "WindowLevel": {
+            "name": "Window/Level",
+            "brief": "Changes the Window and Level of the image.",
+            "mouse_drag": "A single mouse drag changes the window in the horizontal direction and the level in the vertical one.",
+            "double_click": "A double click will center the window and level on the clicked intensity.",
+            "touch_drag": "A single touch drag changes the window in the horizontal direction and the level in the vertical one."
+        },
+        "ZoomAndPan": {
+            "name": "Zoom/Pan",
+            "brief": "The Zoom/Pan tool allows to zoom and pan the image.",
+            "mouse_wheel": "The mouse wheel is used to zoom the image.",
+            "mouse_drag": "A single mouse drag drags the image in the desired direction.",
+            "twotouch_pinch": "A pinch in or out allows to zoom the image.",
+            "touch_drag": "A single touch drag drags the image in the desired direction."
+        },
+        "Scroll": {
+            "name": "Scroll",
+            "brief": "The scroll tool allows to scroll through slices/frames. ",
+            "double_click": "A double click launches a slice or frame play. A single click stops it.",
+            "tap_and_hold": "A tap and hold launches a slice or frame play. A single tap stops it.",
+            "mouse_drag": "Drag the mouse vertically to change the slice, horizontally to change the frame. Keyboard shortcuts: CTRL + up or down arrow to change slices, CTRL + left or right arrow to change frames.",
+            "touch_drag": "Drag your finger vertically to change the slice, horizontally to change the frame."
+        },
+        "Draw": {
+            "name": "Draw",
+            "brief": "Allows to draw shapes on the image. Choose the shape and its colour from the drop down menus. Once created, shapes can be edited by selecting them. Anchors will appear and allow specific shape edition. Drag the shape on the top red cross to delete it. All actions are undoable.",
+            "mouse_drag": "A single mouse drag draws the desired shape. For the protractor, click to start, draw the first ray to the vertex, wait half a second and draw the second ray.",
+            "touch_drag": "A single touch drag draws the desired shape. For the protractor, tap to start, draw the first ray to the vertex, wait half a second and draw the second ray."
+        },
+        "Filter": {
+            "name": "Filter",
+            "brief": "A few simple image filters are available: a Threshold filter to limit the image intensities between a chosen minimum and maximum, a Sharpen filter to convolute the image with a sharpen matrix, a Sobel filter to get the gradient of the image in both directions."
+        },
+        "Livewire": {
+            "name": "Livewire",
+            "brief": "The Livewire tool is a semi-automatic segmentation tool that proposes to the user paths that follow intensity edges. Click once to initialise and then move the mouse to see the proposed paths. Click again to build your contour. The process stops when you click on the first root point. BEWARE: the process can take time!"
+        },
+        "Floodfill": {
+            "name": "Floodfill",
+            "brief": "The Floodfill tool is a semi-automatic segmentation tool that contours pixel of similar values.",
+            "click": "Click on pixel to create a contour based on its intensity.",
+            "tap": "Touch a pixel to create a contour based on its intensity."
+        },
+        "info": {
+            "position": "Pos = {{value}}",
+            "value": "Value = {{value}}",
+            "frame": "Frame = {{value}}",
+            "window_center": "WindowCenter = {{value}}",
+            "window_width": "WindowWidth = {{value}}"
+        }
+    },
+    "shape": {
+        "Line": {
+            "name": "Line"
+        },
+        "Ruler": {
+            "name": "Ruler"
+        },
+        "Protractor": {
+            "name": "Protractor"
+        },
+        "Rectangle": {
+            "name": "Rectangle"
+        },
+        "Roi": {
+            "name": "Roi"
+        },
+        "Ellipse": {
+            "name": "Ellipse"
+        },
+        "Arrow": {
+            "name": "Arrow"
+        },
+        "FreeHand": {
+            "name": "Free hand"
+        }
+    },
+    "io": {
+        "File": {
+            "name": "File"
+        },
+        "Url": {
+            "name": "Url"
+        },
+        "GoogleDrive": {
+            "name": "GoogleDrive",
+            "auth": {
+                "title": "Google Drive Authorization",
+                "body": "Please authorize DWV to access your Google Drive. \nThis is only needed the first time you connect.",
+                "button": "Authorize"
+            }
+        },
+        "Dropbox": {
+            "name": "Dropbox"
+        }
+    },
+    "filter": {
+        "Threshold": {
+            "name": "Threshold"
+        },
+        "Sharpen": {
+            "name": "Sharpen"
+        },
+        "Sobel": {
+            "name": "Sobel"
+        }
+    },
+    "colourmap": {
+        "plain": {
+            "name": "Plain"
+        },
+        "invplain": {
+            "name": "Invplain"
+        },
+        "rainbow": {
+            "name": "Rainbow"
+        },
+        "hot": {
+            "name": "Hot"
+        },
+        "hotiron": {
+            "name": "Hot Iron"
+        },
+        "pet": {
+            "name": "Pet"
+        },
+        "hotmetalblue": {
+            "name": "Hot Metal Blue"
+        },
+        "pet20step": {
+            "name": "Pet 20 steps"
+        }
+    },
+    "wl": {
+        "presets": {
+            "mediastinum": {
+                "name": "Mediastinum"
+            },
+            "lung": {
+                "name": "Lung"
+            },
+            "bone": {
+                "name": "Bone"
+            },
+            "brain": {
+                "name": "Brain"
+            },
+            "head": {
+                "name": "Head"
+            },
+            "manual": {
+                "name": "Manual"
+            },
+            "minmax": {
+                "name": "Min/Max"
+            }
+        }
+    }
+}
