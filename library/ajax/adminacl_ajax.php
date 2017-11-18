@@ -1,22 +1,22 @@
 <?php
-// Copyright (C) 2007 Brady Miller <brady.g.miller@gmail.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// 
-// This file contains functions that service ajax requests for 
-// ACL(php-gacl) administration within OpenEMR. All returns are 
-// done via xml.
-//
-// Important - Ensure that display_errors=Off in php.ini settings.
-//
-include_once("../../interface/globals.php");
-include_once("$srcdir/acl.inc");
-include_once("$srcdir/user.inc");
-include_once("$srcdir/calendar.inc");
+/**
+ * This file contains functions that service ajax requests for
+ * ACL(php-gacl) administration within OpenEMR. All returns are
+ * done via xml.
+ *
+ *  Important - Ensure that display_errors=Off in php.ini settings.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2007-2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+require_once("../../interface/globals.php");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/user.inc");
+require_once("$srcdir/calendar.inc");
 
 header("Content-type: text/xml");
 header("Cache-Control: no-cache");
@@ -59,7 +59,7 @@ if ($_POST["control"] == "membership") {
         //return membership data
         echo user_group_listings_xml($_POST["name"], $error);
     }
-    
+
     if ($_POST["action"] == "add") {
         if ($_POST["selection"][0] == "null") {
             //no selection, return soft error, and just return membership data
@@ -72,7 +72,7 @@ if ($_POST["control"] == "membership") {
         add_user_aros($_POST["name"], $_POST["selection"]);
         echo user_group_listings_xml($_POST["name"], $error);
     }
-    
+
     if ($_POST["action"] == "remove") {
         if ($_POST["selection"][0] == "null") {
             //no selection, return soft error, and just return membership data
@@ -111,7 +111,7 @@ if ($_POST["control"] == "acl") {
         //return acl titles with return values
         echo acl_listings_xml($error);
     }
-    
+
     if ($_POST["action"] == "add") {
         //validate form data
         $form_error = false;
@@ -161,7 +161,7 @@ if ($_POST["control"] == "acl") {
             echo error_xml($error);
         }
     }
-    
+
     if ($_POST["action"] == "remove") {
         //validate form data
         $form_error = false;
@@ -186,7 +186,7 @@ if ($_POST["control"] == "acl") {
             echo error_xml($error);
         }
     }
-    
+
     if ($_POST["action"] == "returns") {
         //simply return all the possible acl return_values
         echo return_values_xml($error);
@@ -200,7 +200,7 @@ if ($_POST["control"] == "aco") {
         //send acl data
         echo aco_listings_xml($_POST["name"], $_POST["return_value"], $error);
     }
- 
+
     if ($_POST["action"] == "add") {
         if ($_POST["selection"][0] == "null") {
             //no selection, return soft error, and just return data
@@ -213,7 +213,7 @@ if ($_POST["control"] == "aco") {
         acl_add_acos($_POST["name"], $_POST["return_value"], $_POST["selection"]);
         echo aco_listings_xml($_POST["name"], $_POST["return_value"], $error);
     }
-    
+
     if ($_POST["action"] == "remove") {
         if ($_POST["selection"][0] == "null") {
             //no selection, return soft error, and just return data
@@ -274,7 +274,7 @@ function username_listings_xml($err)
 }
 
 //
-// Returns user group listings(active and inactive lists) 
+// Returns user group listings(active and inactive lists)
 // via xml message.
 //   $username = username
 //   $err = error strings (array)
@@ -292,10 +292,10 @@ function user_group_listings_xml($username, $err)
         if ((!$username_acl_groups) || (!(in_array($value, $username_acl_groups)))) {
             $message .= "\t\t<group>\n";
             $message .= "\t\t\t<value>" . $value . "</value>\n";
-      
+
             // Modified 6-2009 by BM - Translate gacl group name if applicable
             $message .= "\t\t\t<label>" . xl_gacl_group($value) . "</label>\n";
-      
+
             $message .= "\t\t</group>\n";
         }
     }
@@ -309,7 +309,7 @@ function user_group_listings_xml($username, $err)
 
             // Modified 6-2009 by BM - Translate gacl group name if applicable
             $message .= "\t\t\t<label>" . xl_gacl_group($value) . "</label>\n";
-      
+
             $message .= "\t\t</group>\n";
         }
     }
@@ -334,7 +334,7 @@ function acl_listings_xml($err)
     global $phpgacl_location;
     include_once("$phpgacl_location/gacl_api.class.php");
     $gacl = new gacl_api();
- 
+
     $message = "<?xml version=\"1.0\"?>\n" .
     "<response>\n";
     foreach (acl_get_group_title_list() as $value) {
@@ -343,7 +343,7 @@ function acl_listings_xml($err)
             $acl = $gacl->get_acl($value2);
             $ret = $acl["return_value"];
             $note = $acl["note"];
-      
+
             // Modified 6-2009 by BM - Translate gacl group name if applicable
             //                         Translate return value
             //                         Translate description
@@ -369,7 +369,7 @@ function acl_listings_xml($err)
 
 //
 // Return aco listings by sections(active and inactive lists)
-// via xml message. 
+// via xml message.
 //   $group = group title (string)
 //   $return_value = return value (string)
 //   $err = error strings (array)
@@ -379,18 +379,18 @@ function aco_listings_xml($group, $return_value, $err)
     global $phpgacl_location;
     include_once("$phpgacl_location/gacl_api.class.php");
     $gacl = new gacl_api();
- 
+
  //collect and sort all aco objects
     $list_aco_objects = $gacl->get_objects(null, 0, 'ACO');
     foreach ($list_aco_objects as $key => $value) {
         asort($list_aco_objects[$key]);
     }
-    
+
  //collect aco objects within the specified acl(already sorted)
     $acl_id = $gacl->search_acl(false, false, false, false, $group, false, false, false, $return_value);
     $acl = $gacl->get_acl($acl_id[0]);
     $active_aco_objects = $acl["aco"];
-      
+
     $message = "<?xml version=\"1.0\"?>\n" .
     "<response>\n" .
     "\t<inactive>\n";
@@ -402,7 +402,7 @@ function aco_listings_xml($group, $return_value, $err)
                     $counter = $counter + 1;
                     $aco_section_data = $gacl->get_section_data($key, 'ACO');
                     $aco_section_title = $aco_section_data[3];
-    
+
                     // Modified 6-2009 by BM - Translate gacl aco section name
                     $message .= "\t\t<section>\n" .
                     "\t\t\t<name>" . xl($aco_section_title) . "</name>\n";
@@ -412,10 +412,10 @@ function aco_listings_xml($group, $return_value, $err)
                 $aco_data = $gacl->get_object_data($aco_id, 'ACO');
                 $aco_title = $aco_data[0][3];
                 $message .= "\t\t\t<aco>\n";
-       
+
                 // Modified 6-2009 by BM - Translate gacl aco name
                 $message .= "\t\t\t\t<title>" . xl($aco_title) . "</title>\n";
-       
+
                 $message .= "\t\t\t\t<id>" . $aco_id . "</id>\n";
                 $message .= "\t\t\t</aco>\n";
             }
@@ -431,20 +431,20 @@ function aco_listings_xml($group, $return_value, $err)
     foreach ($active_aco_objects as $key => $value) {
         $aco_section_data = $gacl->get_section_data($key, 'ACO');
         $aco_section_title = $aco_section_data[3];
-     
+
         // Modified 6-2009 by BM - Translate gacl aco section name
         $message .= "\t\t<section>\n" .
          "\t\t\t<name>" . xl($aco_section_title) . "</name>\n";
-     
+
         foreach ($active_aco_objects[$key] as $value2) {
             $aco_id = $gacl->get_object_id($key, $value2, 'ACO');
             $aco_data = $gacl->get_object_data($aco_id, 'ACO');
             $aco_title = $aco_data[0][3];
             $message .= "\t\t\t<aco>\n";
-      
+
             // Modified 6-2009 by BM - Translate gacl aco name
             $message .= "\t\t\t\t<title>" . xl($aco_title) . "</title>\n";
-      
+
             $message .= "\t\t\t\t<id>" . $aco_id . "</id>\n";
             $message .= "\t\t\t</aco>\n";
         }
@@ -473,7 +473,7 @@ function return_values_xml($err)
     include_once("$phpgacl_location/gacl_api.class.php");
     $gacl = new gacl_api();
     $returns = array();
- 
+
     $message = "<?xml version=\"1.0\"?>\n" .
     "<response>\n";
     foreach (acl_get_group_title_list() as $value) {
@@ -487,7 +487,7 @@ function return_values_xml($err)
                 $message .= "\t\t<returnid>" . $ret  . "</returnid>\n";
                 $message .= "\t\t<returntitle>" . xl($ret)  . "</returntitle>\n";
                 $message .= "\t</return>\n";
-    
+
                 array_push($returns, $ret);
             }
         }
@@ -504,7 +504,7 @@ function return_values_xml($err)
 }
 
 //
-// Returns error string(s) via xml   
+// Returns error string(s) via xml
 //   $err = error (string or array)
 //
 function error_xml($err)
