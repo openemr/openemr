@@ -31,15 +31,15 @@ $header_href_title = xlt('Advanced');
 
 <html>
 <head>
- <?php Header::setupHeader(['common']);?>
+    <?php Header::setupHeader(['common']);?>
  <script>
     $(document).ready(function(){
         var groupTitle = "<?php echo xla('This section allows you to create and remove groups and modify or grant access privileges to existing groups. Check the check box to display section'); ?>";
         $('#advanced-tooltip').tooltip({title: "<?php echo xla('Click to manually configure access control, recommended for advanced users'); ?>"}); 
-        $('#user-tooltip').tooltip({title: "<?php echo xla('Click the pencil icon to grant and remove access privileges to the selected user' ); ?>"});
+        $('#user-tooltip').tooltip({title: "<?php echo xla('Click the pencil icon to grant and remove access privileges to the selected user'); ?>"});
         $('#group-tooltip').tooltip({title: groupTitle});
-        $('#new-group-tooltip').tooltip({title: "<?php echo xla('Enter values in this section to create a new group also known as Access Request Object (ARO)' ); ?>"});
-        $('#remove-group-tooltip').tooltip({title: "<?php echo xla('Use this section to delete existing groups or Access Request Objects (AROs)' ); ?>"});
+        $('#new-group-tooltip').tooltip({title: "<?php echo xla('Enter values in this section to create a new group also known as Access Request Object (ARO)'); ?>"});
+        $('#remove-group-tooltip').tooltip({title: "<?php echo xla('Use this section to delete existing groups or Access Request Objects (AROs)'); ?>"});
     });
     /* $("#acl_show").change(function () {
             //stuff to do on mouse enter
@@ -552,7 +552,8 @@ $header_href_title = xlt('Advanced');
        <div class="row">
             <div class="col-xs-12">
                  <div class="page-header clearfix">
-                   <h2 class="clearfix"><span id='header_text'><?php echo xlt("Access Control List Administration"); ?></span> &nbsp;&nbsp;  <?php if($phpgacl_location) {echo "<a href='../../gacl/admin/acl_admin.php' onclick='top.restoreSession()'  title=''><i id='advanced-tooltip' class='fa fa-external-link fa-2x small' aria-hidden='true'></i> </a>";} ?><a class="pull-right" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#000000"><i class="fa fa-question-circle" aria-hidden="true"></i></a></h2>
+                   <h2 class="clearfix"><span id='header_text'><?php echo xlt("Access Control List Administration"); ?></span> &nbsp;&nbsp;  <?php if ($phpgacl_location) {
+                        echo "<a href='../../gacl/admin/acl_admin.php' onclick='top.restoreSession()'  title=''><i id='advanced-tooltip' class='fa fa-external-link fa-2x small' aria-hidden='true'></i> </a>";} ?><a class="pull-right" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#000000"><i class="fa fa-question-circle" aria-hidden="true"></i></a></h2>
                 </div>
             </div>
         </div>

@@ -104,21 +104,23 @@ if ($sortby == "") {
 if ($sortorder == "") {
     $sortorder = "asc";
 }
-for($i = 0; $i < count($sort); $i++) {
-  $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr($patient_id) ."&mode=" . attr($mode) . "&sortby=" . attr($sort[$i]) . "&sortorder=asc\" onclick=\"top.restoreSession()\"  title = " .htmlspecialchars(xl('Sort Up'), ENT_QUOTES).">" .
+for ($i = 0; $i < count($sort); $i++) {
+    $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr($patient_id) ."&mode=" . attr($mode) . "&sortby=" . attr($sort[$i]) . "&sortorder=asc\" onclick=\"top.restoreSession()\"  title = " .htmlspecialchars(xl('Sort Up'), ENT_QUOTES).">" .
     "<i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
 }
-for($i = 0; $i < count($sort); $i++) {
-  if($sortby == $sort[$i]) {
-    switch($sortorder) {
-      case "asc"      : $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=desc\" onclick=\"top.restoreSession()\"   title = " .htmlspecialchars(xl('Sort Up'), ENT_QUOTES).">" .
+for ($i = 0; $i < count($sort); $i++) {
+    if ($sortby == $sort[$i]) {
+        switch ($sortorder) {
+            case "asc":
+                $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=desc\" onclick=\"top.restoreSession()\"   title = " .htmlspecialchars(xl('Sort Up'), ENT_QUOTES).">" .
                           "<i class='fa fa-sort-asc fa-lg' aria-hidden='true'></i></a>";
-                        break;
-      case "desc"     : $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=asc\" onclick=\"top.restoreSession()\"  title = " .htmlspecialchars(xl('Sort Down'), ENT_QUOTES).">" .
+                break;
+            case "desc":
+                $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=asc\" onclick=\"top.restoreSession()\"  title = " .htmlspecialchars(xl('Sort Down'), ENT_QUOTES).">" .
                           "<i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
-                        break;
-    } break;
-  }
+                break;
+        } break;
+    }
 }
 
 // This is for managing page numbering and display beneath the Patient Reminders table.
@@ -246,9 +248,9 @@ if ($next < $total) {
       
     //Escape sort by parameter
     $escapedsortby = explode(',', $sortby);
-    foreach ($escapedsortby as $key => $columnName) {
-        $escapedsortby[$key] = escape_sql_column_name(trim($columnName), array('patient_reminders','patient_data'));
-    }
+foreach ($escapedsortby as $key => $columnName) {
+    $escapedsortby[$key] = escape_sql_column_name(trim($columnName), array('patient_reminders','patient_data'));
+}
     $escapedsortby = implode(', ', $escapedsortby);
 
     $sql = "SELECT a.id, a.due_status, a.category, a.item, a.date_created, a.date_sent, a.voice_status, " .

@@ -10,17 +10,17 @@
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- * 
+ *
  * @package OpenEMR
  * @author Ranganath Pathak <pathak01@hotmail.com>
  * @copyright Copyright (c) 2017 Ranganath Pathak
  * @version 1.0
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License
- * @link http://www.open-emr.org 
+ * @link http://www.open-emr.org
  */
 use OpenEMR\Core\Header;
 
-require_once ("../globals.php");
+require_once("../globals.php");
 ?>
 <!DOCTYPE HTML>
 <html>
