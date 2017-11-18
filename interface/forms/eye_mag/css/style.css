@@ -1,8 +1,8 @@
 /**
  * Style sheet for the Eye Form
- * 
- * Copyright (C) 2016 Raymond Magauran <magauran@MedFetch.com> 
- * 
+ *
+ * Copyright (C) 2016 Raymond Magauran <magauran@MedFetch.com>
+ *
  * LICENSE: This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as
  *  published by the Free Software Foundation, either version 3 of the
@@ -15,25 +15,25 @@
  *
  *  You should have received a copy of the GNU Affero General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * @package OpenEMR 
- * @author Ray Magauran <magauran@MedFetch.com> 
- * @link http://www.open-emr.org 
+ *
+ * @package OpenEMR
+ * @author Ray Magauran <magauran@MedFetch.com>
+ * @link http://www.open-emr.org
  */
 .pure-form input[type="text"],
-.pure-form input[type="password"], 
-.pure-form input[type="email"], 
-.pure-form input[type="url"], 
-.pure-form input[type="date"], 
-.pure-form input[type="month"], 
-.pure-form input[type="time"], 
-.pure-form input[type="datetime"], 
-.pure-form input[type="datetime-local"], 
-.pure-form input[type="week"], 
-.pure-form input[type="number"], 
-.pure-form input[type="search"], 
-.pure-form input[type="tel"], 
-.pure-form input[type="color"], 
+.pure-form input[type="password"],
+.pure-form input[type="email"],
+.pure-form input[type="url"],
+.pure-form input[type="date"],
+.pure-form input[type="month"],
+.pure-form input[type="time"],
+.pure-form input[type="datetime"],
+.pure-form input[type="datetime-local"],
+.pure-form input[type="week"],
+.pure-form input[type="number"],
+.pure-form input[type="search"],
+.pure-form input[type="tel"],
+.pure-form input[type="color"],
 .pure-form select, .pure-form textarea {
     padding: 0.2em 0.2em;
     display: inline-block;
@@ -91,7 +91,7 @@ a:active {
 .text_clinical {
     text-decoration: none;
     color: #000000;
-    font-family:Arial,Arial,sans-serif;     
+    font-family:Arial,Arial,sans-serif;
 }
 
 .text_clinical a b {
@@ -100,9 +100,9 @@ a:active {
     font-family: Arial, Arial,sans-serif;
 }
 
-.text_clinical a:hover 
-{ 
-    text-decoration: underline }
+.text_clinical a:hover
+{
+    text-decoration: underline;
 }
 .text_clinical th {
     text-decoration: underline;
@@ -117,17 +117,17 @@ a:active {
     height:180px;
 }
 
-.ACT { 
-    border: none; 
+.ACT {
+    border: none;
     outline: none;
     font-size:1.0em;
     text-align: center;
-    border:1pt solid black;justify-content:center; align-items:center;  
+    border:1pt solid black;justify-content:center; align-items:center;
     height:38px;
     width:38px;
 }
-textarea.ACT { 
-    border: none; 
+textarea.ACT {
+    border: none;
     outline: none;
     font-size:1em;
     text-align: center;
@@ -229,7 +229,7 @@ input[type=text] {
 /* REFRACTION PANEL */
 
 #REFRACTION_sections {
-    position:relative;display:inline-block;margin:5px auto;max-width:90%;margin:0px;
+    position:relative;display:inline-block;margin:5px auto;max-width:90%;margin:0;
 }
 
 .refraction_panel {
@@ -239,31 +239,31 @@ input[type=text] {
 
 .refraction2 {
     float: left;
-    border: 1.00pt solid #000000; 
-    padding: 0.1in; 
+    border: 1.00pt solid #000000;
+    padding: 0.1in;
     background: #ffffff;
     box-shadow: 10px 10px 50px #888888;
     border-radius: 8px;
-    margin-right: 4px; 
-    border:1pt solid; 
+    margin-right: 4px;
+    border:1pt solid;
     font-size:0.6em;
     webkit-box-flex: 0;
     -moz-box-flex: 0;
     box-flex: 0;
-    input[type="text"] {
-        width:20px;
-        padding: 0.2em 0.4em;
-        display: inline-block;
-    }
 }
+.refraction2 > input[type="text"] {
+     width:20px;
+     padding: 0.2em 0.4em;
+     display: inline-block;
+ }
 .refraction {
     display:inline-block;
     min-height:2.2in;
-    border: 1.00pt solid #000000; 
+    border: 1.00pt solid #000000;
     box-sizing: content-box !important;
     box-shadow: 10px 10px 5px #888888;
     border-radius: 8px;
-    margin: 8 auto;
+    margin: 8px auto;
     width:4.3in;
     font-size: 1.2em;
     font-family: Arial, Arial,sans-serif;
@@ -271,7 +271,7 @@ input[type=text] {
 #LayerVision_W {
     display:inline-block;
     min-height:2.2in;
-    margin: 8 auto;
+    margin: 8px auto;
     font-size: 1.0em;
     font-family: Arial, Arial,sans-serif;
     max-width:90%;
@@ -285,7 +285,7 @@ input[type=text] {
 .refraction td {
     text-align:center;
     font-size:0.9em;
-    vertical-align: text-middle;
+    vertical-align: middle;
     text-decoration: none;
     padding: 2px;
     white-space: nowrap;
@@ -293,8 +293,8 @@ input[type=text] {
 .refraction th {
     height:0.17in;
     text-align: left;
-    padding: 5 0 2 0;
-    color: black; 
+    padding: 5px 0 2px 0;
+    color: black;
 }
 .refraction ul {
     list-style-type: none;
@@ -333,7 +333,7 @@ input[type=text] {
     font-weight:600;
     text-align:right;
     padding-right:5px;
-    
+
 }
 
 
@@ -347,7 +347,7 @@ background-color: red;
 
 .sectionX {
     padding: 0in;
-    margin: 0 auto 10;
+    margin: 0 auto 10px;
     display: table-cell;
 }
 
@@ -368,22 +368,22 @@ background-color: red;
 .vitals {
     box-shadow: 1px 10px 5px #888888;
     border-radius: 8px;
-    position:relative; 
-    padding: 0.02in; 
+    position:relative;
+    padding: 0.02in;
     padding-left:10px;
-    border: 1.00pt solid #000000; 
+    border: 1.00pt solid #000000;
     background: #ffffff;
     font-family:  'FontAwesome',Arial,Serif, Arial;
-    font-size: 1.2em;
-    height: 1.05in;
+    font-size: 1.1em;
+    height: 1.1in;
     float:left;
-    margin-right: 3px; 
-    min-height: 1.05in;
+    margin-right: 3px;
+    min-height: 1.1in;
     text-align:left;
 }
 .vitals_right {
     float:right;
-    margin-right: 3px; 
+    margin-right: 3px;
 }
 .vitals tr td input{
     padding: 0.2em 0.4em;
@@ -411,19 +411,19 @@ background-color: red;
     text-align:center;
 }
 .TEXT_class {
-    margin: auto 5;
+    margin: auto 5px;
     min-height: 2.5in;
     text-align: left;
 }
 .borderShadow {
-    position:relative; 
+    position:relative;
     box-shadow: 5px 5px 9px #888888;
-    margin: 1px 2px 1px 2px; 
-    border: 1.00pt solid #000000; 
+    margin: 1px 2px 1px 2px;
+    border: 1.00pt solid #000000;
     background: #ffffff;
-    font-family:  "FontAwesome",Arial,Serif, Arial;
+    font-family: "FontAwesome",Arial,Serif, Arial;
     padding:6px;
-    font-size:1.2em;
+    font-size:1.0em;
     border-radius: 6px;
 }
 .borderShadow2 {
@@ -492,9 +492,10 @@ th {
 .QP_not {
     display:none;
 }
-/* This CSS is used ONLY by the form defined in this same folder 
+
+/* This CSS is used ONLY by the form defined in this same folder
  * customize it as you see fit for your specific form
- */ 
+ */
 /
 body
 {
@@ -533,7 +534,6 @@ body
     display:none !important;
     transition:display 500ms;
 }
-}
 .clear_both {
     clear:both;
 }
@@ -544,22 +544,22 @@ body
 .SideBarTabClass {
     top:0.01in;
     left:0in;
-    height:0..5in;
+    height:0.5in;
     width:2.2in;
     background:white;
     box-shadow: 1px 1px 1px #888888;
     border-radius: 8px;
 }
 .exam_section_left {
-    top:0px; 
-    float:left; 
-    min-height:385px;
-    width: 500px; 
-    margin: 5 auto ;
+    top:0px;
+    float:left;
+    min-height:400px;
+    width: 550px;
+    margin: 5px auto ;
     padding:10px;
 }
 .exam_section_left b {
-    
+
 }
 .size100 {
     display:inline-block;
@@ -568,14 +568,14 @@ body
 .size50 {
     display:inline-block;
     vertical-align:top;
-    min-height:375px;
+    min-height:385px;
 }
 .exam_section_right {
-    top:0px; 
-    float:left; 
-    min-height:385px;
-    width: 500px; 
-    margin: 5 auto ;
+    top:0px;
+    float:left;
+    min-height:400px;
+    width: 550px;
+    margin: 5px auto ;
     padding:10px;
 }
 textarea.EXTTEXT {
@@ -600,12 +600,12 @@ textarea.ANTSEGTEXT {
 }
 
 .canvas {
-    
+
    /* background:#29c7c4;*/
     background-image: url('../../../forms/eye_mag/images/beige013.jpg');
     background-size: 10% 10%;
     background-repeat: repeat;
- 
+
 }
 .AntSegSpan {
     /* OU OD OS
@@ -616,11 +616,11 @@ textarea.ANTSEGTEXT {
     padding-right:0.1in;
     box-shadow: 1px 1px 1px #888888;
     border-radius: 8px;
-    margin-right: 4px; 
-    position:relative; 
-    margin-right: 0.1in; 
-    padding: 0.1in; 
-    border: 1.00pt solid #000000; 
+    margin-right: 4px;
+    position:relative;
+    margin-right: 0.1in;
+    padding: 0.1in;
+    border: 1.00pt solid #000000;
     background: #C0C0C0;
     font-color:#000000;
     height:0.05in;
@@ -633,12 +633,12 @@ textarea.ANTSEGTEXT {
     height: 16px;
 }
 .button {
-    background-color: #E3E1B8; 
+    background-color: #E3E1B8;
     padding: 2px 4px;
     font: 13px sans-serif;
     text-decoration: none;
-    color:#050;   
-    font: bold 84% Arial, 'trebuchet ms',helvetica,sans-serif; 
+    color:#050;
+    font: bold 84% Arial, 'trebuchet ms',helvetica,sans-serif;
 }
 
 #tabs_container {
@@ -721,16 +721,16 @@ textarea.ANTSEGTEXT {
 }
 
 .tools input[type="button"] {
-    border: 1px solid black; 
-    height: 15px; 
-    width:10px; 
-    line-height: 15px; 
-    padding: 0 5px; 
-    vertical-align: middle; 
-    text-align: center; 
-    text-decoration: none; 
-    display: inline-block; 
-    color: black; 
+    border: 1px solid black;
+    height: 15px;
+    width:10px;
+    line-height: 15px;
+    padding: 0 5px;
+    vertical-align: middle;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    color: black;
     font-weight: bold;
 }
 .tools  {
@@ -752,9 +752,9 @@ margin-bottom: -3px;
 }
 
 /*
- 
+
 h1 {
-    
+
     font-size: 120%;
     font-weight: bold;
 }
@@ -799,7 +799,7 @@ h1 {
     font-weight: bold;
 }
 
-.bold { 
+.bold {
     font-size: 110%;
     font-weight: bold;
 }
@@ -825,7 +825,7 @@ h1 {
     border-top: 1px solid black;
 }
 */
-.bold { 
+.bold {
     font-weight: bold;
 }
 .underline {
@@ -890,7 +890,7 @@ h1 {
     padding:0.03in 0.03in 0.04in;
     min-width:35px;
 max-height: 18px;
-margin: 2 auto 2 auto;
+margin: 2px auto 2px auto;
 border: black;
 color: black;
 border-radius: 2px 2px 2px 2px;
@@ -910,7 +910,7 @@ height: 18px;
 }
 .eye_button:hover {
     background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #1e62d0), color-stop(1, #3d94f6) );
-    background:-moz-linear-gradient( center top, #1e62d0 5%, #3d94f6 100% );
+    background:-moz-linear-gradient( top, #1e62d0 5%, #3d94f6 100% );
     filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e62d0', endColorstr='#3d94f6');
     background-color:#1e62d0;
     color:white;
@@ -919,7 +919,7 @@ height: 18px;
     position:relative;
     top:1px;
     background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #1e62d0), color-stop(1, #3d94f6) );
-    background:-moz-linear-gradient( center top, #1e62d0 5%, #3d94f6 100% );
+    background:-moz-linear-gradient( top, #1e62d0 5%, #3d94f6 100% );
     filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e62d0', endColorstr='#3d94f6');
     background-color:#1e62d0;
     color:white;
@@ -953,14 +953,14 @@ height: 18px;
     padding:0.03in;
     min-width:35px;
     max-height: 18px;
-    margin: 2 auto 2 auto;
+    margin: 2px auto 2px auto;
     border: white;
     border-radius: 2px 2px 2px 2px;
     color: white;
     background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, navy), color-stop(1, #3d94f6) );
-    background:-moz-linear-gradient( center top, navy 5%, #3d94f6 100% );
+    background:-moz-linear-gradient( top, navy 5%, #3d94f6 100% );
     filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='navy', endColorstr='#3d94f6');
-    
+
 }
 .button_selected {
 
@@ -974,7 +974,7 @@ height: 18px;
         float:left;
         border-spacing:0px;
         cursor:pointer;
-        
+
         background: url("../images/eom.bmp") no-repeat center center;
         background-size: 90% 75%;
         height:0.80in;
@@ -983,7 +983,7 @@ height: 18px;
         margin:6px 10px 1px 2px;
 
 
-        
+
         /*cellspacing:poor IE support for  this*/
        /* border-collapse:separate;*/
     }
@@ -1001,7 +1001,7 @@ height: 18px;
        display:table-row;
        font-weight: 900;
        border-collapse:collapse;
-    
+
     }
     .divMidCell {
         float:left;/*fix for  buggy browsers*/
@@ -1009,7 +1009,7 @@ height: 18px;
         text-align:center;
         border-top:3px solid;
         border-collapse:collapse;
-    
+
     }
 
     .divCell
@@ -1022,12 +1022,12 @@ height: 18px;
         font-weight: 900;
         padding:0px;
         border-collapse:collapse;
-        color:#000000;   
+        color:#000000;
     }
     .top_right {
         vertical-align:top;
         position:absolute;
-        text-align:right; 
+        text-align:right;
         top:0.05in;
         font-size:1.4em;
         right:0.1in;
@@ -1064,7 +1064,7 @@ height: 18px;
         vertical-align: top;
         font-size:0.7em;
         color:red;
-        
+
     }
     .yellow {
         background-color: yellow;
@@ -1097,7 +1097,7 @@ height: 18px;
         text-align:center;
         min-width: 80px;
     }
-    
+
     .Clinical_header {
         width:100%;
 
@@ -1213,13 +1213,13 @@ height: 18px;
         padding: 0;
         margin: 0;
     }
-    
+
     #header li {
         float: left;
         background: url(../../../forms/eye_mag/images/tabright.gif) top right no-repeat;
         margin: 0;
     }
-    
+
     #header a {
         display: block;
         background: url(../../../forms/eye_mag/images/tableft.gif) top left no-repeat;
@@ -1227,31 +1227,31 @@ height: 18px;
         text-decoration: none;
         padding: 0.6em 1em 0.25em;
     }
-    
+
     #header a:hover {
         color: white;
     }
-    
+
     #header #selected {
         font-weight: bold;
         background-image: url(images/tabrightactive.gif);
     }
-    
+
     #header #selected a {
         background-image: url(images/tableftactive.gif);
         color: white;
     }
-    
+
     #content {
         clear: both;
         background: #c60;
         padding: 1em;
     }
-    
+
     p {
         margin: 0 0 1em 0;
     }
-    
+
     h1 {
         color: #c60;
         font: small-caps italic bold 1.9em Arial, arial, helvetica, sans-seif;
@@ -1264,8 +1264,8 @@ height: 18px;
         color: #1775D5;
         border-color: #89A9C7;
     }
-    
-    
+
+
 /* done testing ACT header tabs */
 /* ACT_TEXT test */
 .ACT_TEXT {
@@ -1314,13 +1314,13 @@ height: 18px;
     background-color: #2d6775;
     color: white;
     font-size:1.0em;
-    margin: 5;
+    margin: 5px;
     border-bottom: 1pt solid black;
     height:25px;
-    
+
 }
 .ACT_boxed {
-     width:45%;text-align:center;border:1pt solid black;padding:4 10 4 10;margin:4;font-weight:600;
+     width:45%;text-align:center;border:1pt solid black;padding:4px 10px 4px 10px;margin:4px;font-weight:600;
 }
 .ACT_box {
     position:relative;
@@ -1339,9 +1339,9 @@ b.ACT_box{
 /* do some full screen playing around */
 .fullscreen {
   position: absolute;
-  top:0; 
-  right:0; 
-  bottom:0; 
+  top:0;
+  right:0;
+  bottom:0;
   left:0;
   margin:0;
   box-sizing:border-box;
@@ -1362,7 +1362,7 @@ input[type=text].fullscreen {
 }
 
 .top_left {
-    position:absolute; 
+    position:absolute;
     left:0.05in;
     top:0.05in;
     border:none;
@@ -1382,12 +1382,13 @@ input[type=text].fullscreen {
     float:left;
     background-color:white;
   /*  height:2.5in; */
-    width:2.2in; 
+    width:2.2in;
     padding:2px 8px;
     text-align:left;
     font-size: 1.0em;
-    margin:3 auto;
+    margin:3px auto;
     border:1pt solid black;
+    z-index:11;
 }
 
 .QP_block {
@@ -1398,7 +1399,8 @@ input[type=text].fullscreen {
     padding:2px 8px;
     text-align:left;
     font-size: 1.0em;
-    margin:3 auto;
+    margin:3px auto;
+    z-index:11;
 }
 .QP {
     cursor:pointer;
@@ -1443,7 +1445,7 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
 
 .PRIORS_color {
     background-color: #CCF;
-    
+
 }
 
 .PRIORS textarea, input {
@@ -1466,10 +1468,10 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
     border-radius:0;
     top:0.0in;
 }
-  
+
 .navbar-custom {
     color:black; /* just changes the base font color */
-    padding:6 10 4;
+    padding:6px 10px 4px;
     margin:0;
 }
 .navbar-nav > li > a {
@@ -1507,9 +1509,9 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
 .navbar-brand {
     color:red;
     height:24px;
-    padding:10 5 0 10;
+    padding:10px 5px 0px 10px;
     margin: 10px 0px 2px 0px;
-    
+
 }
 .navbar-nav > li > .dropdown-menu {
     margin-top: 1px;
@@ -1520,7 +1522,7 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
     overflow: hidden;
     background-color: #C0C0C0; /*gba(131, 135, 146, 0.61);*/
 }
-.navbar-toggle {  
+.navbar-toggle {
     /* this is the responsive view shown when the screen is very narrow
     background-color:yellow;
     height:24px;
@@ -1531,20 +1533,20 @@ a:hover, a:focus {
 }
 .icon-bar {
     background-color:#C0C0C0; /* this turns the small screen menu "button" 's lines this color */
-    
+
 }
 .anchor {
     /* This creates anchors for the menu system that are offset for the fixed header.
      * The fields/anchors are added as blank elements (sorry) in view.php
      */
   display: none;
-  height: 1px; 
+  height: 1px;
   margin-top: -20px; /*same height as header*/
   visibility: hidden;
 }
 .sketch_tools {
-    width: 20px; 
-    height:65px; 
+    width: 20px;
+    height:65px;
 }
 .sketch_tools:active {
     color: red;
@@ -1570,14 +1572,14 @@ a:hover, a:focus {
     font-size: 1.1em;
 }
 .bottom_PMSFH_tab {
-    
+
     bottom:0px;
     right:10px;
     position:absolute;
     color:black;
     text-shadow: 0 0 2px #000; /* Firefox 3.5+, Opera 9+, Safari 1+, Chrome, IE10 */
     filter: progid:DXImageTransform.Microsoft.Glow(Color=#000000,Strength=1); /* IE<10 */
-    
+
 }
 .bottom_PMSFH_tab img{
     border-radius: 8px 0 0 8px;
@@ -1587,13 +1589,13 @@ a:hover, a:focus {
 }
 
 .left_PMSFH_tab {
-    
+
     right:0px;
     top:100px;
     position:absolute;
     border-radius: 0 0 0 8;
 
-   
+
 }
 .left_PMSFH_tab img{
     border-radius: 8px 0 0 8px;
@@ -1605,8 +1607,8 @@ a:hover, a:focus {
     position:absolute;
     display:block;
     float:left;
-    -webkit-transform: rotate(90deg); 
-    -moz-transform: rotate(90deg); 
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
     filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
     background:navy;
     box-shadow: inset 0 1 0px 0px white;
@@ -1617,19 +1619,19 @@ padding:3px;
 border: 1px solid #CCC;
     box-shadow: 0px 1px 3px #DDD inset;
     border-radius: 4px;
-    
-    
+
+
 }
 .left_menu_tab    a {
     color:white !important;
     font-size:1.0em;
 }
-    
-.QP_shorten 
+
+.QP_shorten
 {
 position: absolute;bottom:0.1in;clear:both;text-align:left;padding-left:25px;
 }
-.QP_lengthen 
+.QP_lengthen
 {
 position: absolute;bottom:0.1in;clear:both;text-align:left;padding-left:25px;
 }
@@ -1657,8 +1659,8 @@ position: absolute;bottom:0.1in;clear:both;text-align:left;padding-left:25px;
  #EXAM_KB {
     text-align:center;
     z-index:14100;
-    position: 'fixed'; 
-    top: '35px';
+    position: fixed;
+    top: 35px;
     left:0px;
     display:block;
 }
@@ -1674,7 +1676,7 @@ position: absolute;bottom:0.1in;clear:both;text-align:left;padding-left:25px;
         right:5px;
 }
 .ui-draggable-dragging {
-   box-shadow: 5px 5px 9px #red;
+   box-shadow: 5px 5px 9px red;
  }
 
 .ui-draggable-handle{
@@ -1685,19 +1687,19 @@ position: absolute;bottom:0.1in;clear:both;text-align:left;padding-left:25px;
 }
 .building_blocks {
     font-size: 1.0em;
-    
+
 }
-.building_blocks dt, dd {  
+.building_blocks dt, dd {
     font-size:0.9em;
     &:last-of-type {
-        border: 1px solid black; 
+        border: 1px solid black;
     }
     span {
         display: block;
         color: white;
     }
 }
-.building_blocks dt {     
+.building_blocks dt {
     background: #C9DBF2 none repeat scroll 0% 0%;
     color: black;
     font-size: 1.1em;
@@ -1710,11 +1712,12 @@ position: absolute;bottom:0.1in;clear:both;text-align:left;padding-left:25px;
     font-size:0.9em;
     background-color: white;
     box-shadow: 1px 1px 3px #888888;
-    border-radius: 8 8 8 8;
-    position:relative; 
-    margin: 4px; 
+    border-radius: 8px 8px 8px 8px;
+    position:relative;
+    margin: 4px;
     padding-bottom:4px;
-    border: 1.00pt solid #000000; 
+    border: 1.00pt solid #000000;
+
     &:last-of-type {
        border-top: 1px solid black;
        position: relative;
@@ -1751,7 +1754,7 @@ position: absolute;bottom:0.1in;clear:both;text-align:left;padding-left:25px;
 li .handle { display: inline-block; padding: 0.4em; }
 .ui-selecting { background: yellow; }
 .build_PLAN .ui-selecting .handle { background: red; }
-.ui-selected { background: #def; margin: 5px; font-size: 0.9em;}  
+.ui-selected { background: #def; margin: 5px; font-size: 0.9em;}
 .fake-textarea-disabled-4 {
     width: 4in;
     min-height:3em;
@@ -1838,7 +1841,7 @@ View.php
 #LayerVision { width: 2.2in; min-height: 1.05in;padding: 0.02in; border: 1.00pt solid #000000;float:left;}
 #tabs { font-size:0.5em;}
 #Lyr31 { position: absolute; top: 0.18in; left: 0.09in;width: 0.4in;height: 0.3in; border: none; padding: 0in;}
-#Lyr31 > font:nth-of-type(1) { font-face:'San Serif'; font-size:3.8em;}
+#Lyr31 > font:nth-of-type(1) { font-face:'San Serif'; font-size:3.2em;}
 #Lyr31 > font:nth-of-type(2) { font-face:arial; font-size:0.9em;}
 #more_visions_1,#more_visions_2 { position: absolute;top:0.47in;left:-0.25in;font-size: 0.9em;padding-right:4px;}
 #Visions_A > span:nth-of-type(2),#Visions_B > span:nth-of-type(2) { position:relative;left:0.31in;font-size: 0.8em;background-color: red:;}
@@ -1867,7 +1870,7 @@ View.php
     position: absolute; top: 0.18in; left: 0.09in; width: 0.37in;height: 0.45in; border: none; padding: 0in;
 }
 #Lyr41 > font:nth-of-type(1) {
-    font-face:arial; font-size:3.8em;
+    font-face:arial; font-size:3.2em;
 }
 #Lyr41 > font:nth-of-type(2) {
     font-face:arial; font-size: 0.9em;
@@ -1876,7 +1879,7 @@ View.php
      position: absolute;top: 0.30in;text-align: left;left: 0.55in;padding: 0in;font-size: 0.9em;
 }
 #Lyr42 input {
-    left: 0.5in; width: 0.25in; height: 0.18in; 
+    left: 0.5in; width: 0.25in; height: 0.18in;
 }
 #Lyr42 > span:nth-of-type(1) {
     position: absolute;top:0.5in;left:0.29in;font-size: 0.8em;
@@ -1909,7 +1912,7 @@ View.php
 .pupil_5 { border-left:1pt solid black;border-right:1pt solid black;border-top:1pt solid black;}
 .pupil_6 { border-top:1pt solid black;}
 .pupil_input,#ODPUPILSIZE1,#OSPUPILSIZE1,#ODPUPILSIZE2,#OSPUPILSIZE2,#DIMODPUPILSIZE1,#DIMODPUPILSIZE2,#DIMOSPUPILSIZE1,#DIMOSPUPILSIZE2 { width:0.25in;height:0.2in; white-space: nowrap; }
-.pupil_input_2,#ODPUPILREACTIVITY,#OSPUPILREACTIVITY { margin: 0 2 0 2;width:0.3in;height:0.2in; }
+.pupil_input_2,#ODPUPILREACTIVITY,#OSPUPILREACTIVITY { margin: 0 2px 0 2px;width:0.3in;height:0.2in; }
 #dim_pupils_panel { z-index:99;width:2.06in;float: right; }
 .border-bottom { border-bottom:1pt solid black;white-space: nowrap;}
 .border-top { border-top:1pt solid black;white-space: nowrap;}
@@ -1932,7 +1935,7 @@ textarea[name=COMMENTS_W] { width:100%;height:3.0em;}
 #ALL_keyboard_left {  color:#0C0C0C;size:0.6em;height: 6em;width:85%;margin:15px;z-index:100;}
 div[name=QP_11] { float:left;width:40px;text-align:left;}
 div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
-#NEURO_11 { font-size:0.8em;position:relative;float:right;text-align:center;width:238px;height:250px;z-index:1;margin:2px 0px 2px 2px;}
+#NEURO_11 { font-size:0.8em;position:relative;float:right;text-align:center;width:250px;height:265px;z-index:1;margin:2px 0px 2px 2px;}
 #NEURO_P_1,#IP_P_1 { position:absolute;top:0.05in;right:0.241in;}
 #NEURO_P_2 { float: right;padding-top: 4em;margin: 0em 1.5em;text-align: center; }
 #NEURO_P_3 { top:0in;padding-left:2.5em;margin: 0.5em auto; }
@@ -1949,7 +1952,7 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
 
 #DIL_RISKS {margin-left:100px;}
 #EXT_left_text {
-    height: 2.5in;text-align:left; 
+    height: 2.5in;text-align:left;
 }
 #EXT_left_1,#ANTSEG_left_1,#RETINA_left_1,#NEURO_left_1,
 #PRIORS_EXT_left_1,#PRIORS_ANTSEG_left_1,#PRIORS_RETINA_left_1,#PRIORS_NEURO_left_1 {
@@ -1957,23 +1960,23 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
 }
 #EXT_left_1 table:nth-of-type(1),
 #ANTSEG_left_1 table:nth-of-type(1),
-#RETINA_left_1 table:nth-of-type(1), 
+#RETINA_left_1 table:nth-of-type(1),
 #PRIORS_EXT_left_1 table:nth-of-type(1),
 #PRIORS_ANTSEG_left_1 table:nth-of-type(1),
 #PRIORS_RETINA_left_1 table:nth-of-type(1), {
     position:relative;float:right;text-align:right;font-size:0.7em;
 }
-#NEURO_color { border:1pt solid black;float:left;width:195px;padding: 5px 5px 5px 15px;text-align:center;margin:2 2;font-size:0.8em;font-weight:bold;}
-#NEURO_MOTILITY { float:left;font-size:0.9em;margin:2 2;padding:0px 15px;font-weight:bold;width:195px;}
+#NEURO_color { border:1pt solid black;float:left;width:195px;padding: 5px 5px 5px 15px;text-align:center;margin:2px 2px;font-size:0.8em;font-weight:bold;}
+#NEURO_MOTILITY { float:left;font-size:0.9em;margin:2px 2px;padding:0 15px;font-weight:bold;width:195px;}
 #NEURO_MOTILITY table { width:100%;}
 #EXT_left_1 table:nth-of-type(2),
 #PRIORS_EXT_left_1 table:nth-of-type(2),
 #ANTSEG_left_1 table:nth-of-type(2),
 #PRIORS_ANTSEG_left_1 table:nth-of-type(2),
-#RETINA_left_1 table:nth-of-type(2), 
+#RETINA_left_1 table:nth-of-type(2),
 #PRIORS_RETINA_left_1 table:nth-of-type(2) {
     text-align:center;font-size:1.0em;
-    width:175px;padding-left:2px;
+    width:100%;padding-left:2px;
 }
 .diagnosis {  padding-top:7px;padding-right:4px;}
 #EXT_keyboard_left {
@@ -2008,10 +2011,10 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
     border-collapse: separate;
     margin: 0px 10px 10px;
     font-size:0.8em;overflow:auto;
-    background-color: rgb(255, 248, 220); 
+    background-color: rgb(255, 248, 220);
     box-shadow:2px 2px 3px #C0C0C0;
     border:1pt solid black;
-    border-radius:3px; 
+    border-radius:3px;
     width:160px;
 }
 .oldies_prefix {
@@ -2020,7 +2023,7 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
     padding:1px 0px 0px 10px;
     margin:0px 0px 5px 0px;
     z-index:10;
-    white-space: nowrap; 
+    white-space: nowrap;
 }
 .PMSFH_table td {
         min-height:24px;min-width:1.6in;padding:5px;
