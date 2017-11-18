@@ -47,6 +47,9 @@
      "Droid Sans", /* 3 */
     "Helvetica Neue", sans-serif;
 }
+html{
+    font-size:14px;
+}
 /* RP_MODIFIED  2/09/2015, 1/17/2016*/
 body {
     margin: 0px 0px 0px 2px;
@@ -410,7 +413,7 @@ background-color:transparent;RP_MODIFIED 1/18/2016*/
     margin: 5px;
 }
 #pnotes_ps_expand  div.tab table td {
-    padding-right: 10px;
+  padding-right: 10px;
 }
 /*=============================================================
  * Patient Stats
@@ -715,6 +718,9 @@ select:focus {
     -webkit-transition: 0.2s linear all;
     -moz-transition: 0.2s linear all;
     transition: 0.2s linear all;
+}
+select[multiple] {
+  height:auto !Important;
 }
 .css_button_small, .css_button {
     display: inline-block;
@@ -1302,7 +1308,7 @@ li.footer, .example_menu .footer {
     display: inline-block;
     background-repeat: no-repeat;
     padding: 5px 14px 6px;
-    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+    text-shadow: none;
     color: #333;
     font-size: 12px !Important;
     line-height: 1 !Important;
@@ -1310,9 +1316,6 @@ li.footer, .example_menu .footer {
     -webkit-border-radius: 2px;
     -moz-border-radius: 2px;
     border-radius: 2px;
-    -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
-    -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
     -webkit-transition: 0.1s linear all;
     -moz-transition: 0.1s linear all;
     transition: 0.1s linear all;
@@ -1864,7 +1867,7 @@ textarea.form-control {
     background: #869003 !Important;
     color: #FFFFFF !Important;
     /*border-color:#FAFBF2!Important; #D3DA81*/
-    border-color: #646C02 !Important;
+    border-color: #869003 !Important;
 }
 .btn-link {
     background: #FAFBF2 !Important;
@@ -1895,9 +1898,14 @@ textarea.form-control {
 .btn-separate-left,  .oe-opt-btn-separate-left{
 	margin-left: 20px !Important;
 }
+.btn-group  .btn {
+    margin-right:2px !Important;
+}
 .btn-group>.btn:first-child:not(:last-child):not(.dropdown-toggle) {
-	border-top-right-radius: 3px !Important;
-	border-bottom-right-radius: 3px !Important;
+	border-top-right-radius: 0px !Important;
+    border-bottom-right-radius: 0px !Important;
+    border-bottom-left-radius: 3px !Important;
+    border-top-left-radius: 3px !Important;
 }
 .btn-group-pinch>.btn:nth-last-child(2):not(.dropdown-toggle), .oe-opt-btn-group-pinch>.btn:nth-last-child(2):not(.dropdown-toggle) {
 	border-top-right-radius: 3px !Important;
@@ -1931,6 +1939,7 @@ textarea.form-control {
 }
 .position-override{
         text-align:center !Important;
+        margin-left:0px;
     }
 .oe-custom-line{
    padding-bottom:5px;
