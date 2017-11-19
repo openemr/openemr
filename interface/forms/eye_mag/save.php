@@ -421,7 +421,10 @@ if ($_REQUEST["mode"] == "new") {
         $doc_id = $return['doc_id'];
         $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter
         sqlQuery($sql, array($encounter,$doc_id));
-        exit;
+
+        unlink($temp_filename);
+
+        exit();
     }
 
   // Store the IMPPLAN area.  This is separate from the rest of the form

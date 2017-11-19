@@ -505,5 +505,7 @@ function make_document($task)
     $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter
     sqlQuery($sql, array($encounter,$task['DOC_ID']));
 
+    unlink($temp_filename);
+
     return $task;
 }
