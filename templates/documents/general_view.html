@@ -314,7 +314,7 @@ function ImgProcedure() {literal}{{/literal}
             <div id="dwv" src="{$web_path}as_file=false">
                 <!-- Toolbar -->
                 <div class="toolbar"></div>
-                <div class="warn_diagnostic">Not For Diagnostic Use</div>
+                <div class="warn_diagnostic">{xl t='Not For Diagnostic Use'|escape:'html'}</div>
                 <!-- Layer Container -->
                 <div class="layerContainer">
                     <canvas class="imageLayer">Only for HTML5 compatible browsers...</canvas>
@@ -322,7 +322,6 @@ function ImgProcedure() {literal}{{/literal}
             </div><!-- /dwv -->
             <!-- Third party (dwv) -->
             <script type="text/javascript" src="{$assets_static_relative}/modernizr-3-5-0/dist/modernizr-build.js"></script>
-            <script type="text/javascript" src="{$assets_static_relative}/i18next-9-0-1/i18next.js"></script>
             <script type="text/javascript" src="{$assets_static_relative}/i18next-9-0-1/i18next.min.js"></script>
             <script type="text/javascript" src="{$assets_static_relative}/i18next-xhr-backend-1-4-3/i18nextXHRBackend.min.js"></script>
             <script type="text/javascript" src="{$assets_static_relative}/i18next-browser-languagedetector-2-0-0/i18nextBrowserLanguageDetector.min.js"></script>
@@ -330,7 +329,6 @@ function ImgProcedure() {literal}{{/literal}
             <script type="text/javascript" src="{$assets_static_relative}/magic-wand-js/js/magic-wand-min.js"></script>
             <script type="text/javascript" src="{$assets_static_relative}/jszip-3-1-5/dist/jszip.min.js"></script>
             <!-- Third party (viewer) -->
-            <script type="text/javascript" src="{$assets_static_relative}/jquery-ui-1-12-1/jquery-ui.min.js"></script>
             <script type="text/javascript" src="{$assets_static_relative}/flot-0-8-3/jquery.flot.js"></script>
             <!-- decoders -->
             <script type="text/javascript" src="{$assets_static_relative}/dwv-0-21-0/decoders/pdfjs/jpx.js"></script>
