@@ -17,27 +17,22 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/reminders.php");
 require_once("$srcdir/clinical_rules.php");
 require_once "$srcdir/report_database.inc";
+
+use OpenEMR\Core\Header;
 ?>
 
 <html>
 <head>
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/font-awesome-4-6-3/css/font-awesome.css" type="text/css">
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 
-<script LANGUAGE="JavaScript">
-var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
-</script>
-<style>
-a.arrowhead, a:hover.arrowhead, a:visited.arrowhead{
-  color: black;
-}
-</style>
+    <title><?php echo xlt("Patient Reminders"); ?></title>
 
+    <?php Header::setupHeader('common'); ?>
+
+    <style>
+        a.arrowhead, a:hover.arrowhead, a:visited.arrowhead{
+        color: black;
+    }
+    </style>
 </head>
 
 <?php
@@ -48,29 +43,29 @@ $sortorder = $_GET['sortorder'];
 $begin = $_GET['begin'];
 
 if (!empty($patient_id)) {
-  //Only update one patient
+    //Only update one patient
     $update_rem_log = update_reminders('', $patient_id);
 }
 
 if ($mode == "simple") {
-  // Collect the rules for the per patient rules selection tab
+    // Collect the rules for the per patient rules selection tab
     $rules_default = resolve_rules_sql('', '0', true);
 }
 
 ?>
 
 <script language="javascript">
-  // This is for callback by the find-patient popup.
-  function setpatient(pid, lname, fname, dob) {
-    var f = document.forms[0];
-    f.form_patient.value = lname + ', ' + fname;
-    f.patient_id.value = pid;
-  }
+    // This is for callback by the find-patient popup.
+    function setpatient(pid, lname, fname, dob) {
+        var f = document.forms[0];
+        f.form_patient.value = lname + ', ' + fname;
+        f.patient_id.value = pid;
+    }
 
-  // This invokes the find-patient popup.
-  function sel_patient() {
-    dlgopen('../../main/calendar/find_patient_popup.php', '_blank', 500, 400);
-  }
+    // This invokes the find-patient popup.
+    function sel_patient() {
+        dlgopen('../../main/calendar/find_patient_popup.php', '_blank', 500, 400);
+    }
 </script>
 
 <body class='body_top'>
@@ -158,13 +153,13 @@ if ($end < $start) {
 }
 
 if ($prev >= 0) {
-    $prevlink = "<a href=\"patient_reminders.php?patient_id=$patient_id&mode=$mode&sortby=$sortby&sortorder=$sortorder&begin=$prev\" onclick=\"top.restoreSession()\"><<</a>";
+    $prevlink = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($prev) . "\" onclick=\"top.restoreSession()\"><<</a>";
 } else {
     $prevlink = "<<";
 }
 
 if ($next < $total) {
-    $nextlink = "<a href=\"patient_reminders.php?patient_id=$patient_id&mode=$mode&sortby=$sortby&sortorder=$sortorder&begin=$next\" onclick=\"top.restoreSession()\">>></a>";
+    $nextlink = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($next) . "\" onclick=\"top.restoreSession()\">>></a>";
 } else {
     $nextlink = ">>";
 }
@@ -314,23 +309,19 @@ while ($myrow = sqlFetchArray($result)) { ?>
                     }
                 } ?>
               <select class="patient_reminder" name="<?php echo htmlspecialchars($rule['id'], ENT_NOQUOTES); ?>">
-                <option value="default" <?php if ($select == "default") {
-                    echo "selected";
-} ?>><?php echo htmlspecialchars(xl('Default'), ENT_NOQUOTES); ?></option>
-                <option value="on" <?php if ($select == "on") {
-                    echo "selected";
-} ?>><?php echo htmlspecialchars(xl('On'), ENT_NOQUOTES); ?></option>
-                <option value="off" <?php if ($select == "off") {
-                    echo "selected";
-} ?>><?php echo htmlspecialchars(xl('Off'), ENT_NOQUOTES); ?></option>
+                <option value="default" <?php echo ($select == "default") ? "selected" : ""; ?>><?php echo htmlspecialchars(xl('Default'), ENT_NOQUOTES); ?></option>
+                <option value="on" <?php echo ($select == "on") ? "selected" : ""; ?>><?php echo htmlspecialchars(xl('On'), ENT_NOQUOTES); ?></option>
+                <option value="off" <?php echo ($select == "off") ? "selected" : ""; ?>><?php echo htmlspecialchars(xl('Off'), ENT_NOQUOTES); ?></option>
               </select>
             </td>
             <td align="center" style="border-right:1px solid black;">
-                <?php if ($rule['patient_reminder_flag'] == "1") {
+                <?php
+                if ($rule['patient_reminder_flag'] == "1") {
                     echo htmlspecialchars(xl('On'), ENT_NOQUOTES);
-} else {
-    echo htmlspecialchars(xl('Off'), ENT_NOQUOTES);
-} ?>
+                } else {
+                    echo htmlspecialchars(xl('Off'), ENT_NOQUOTES);
+                }
+                ?>
             </td>
           </tr>
         <?php } ?>
@@ -417,4 +408,3 @@ $(document).ready(function(){
 </script>
 </body>
 </html>
-
