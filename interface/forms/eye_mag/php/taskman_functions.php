@@ -301,7 +301,7 @@ function make_document($task)
             $filename = "FAX_".$encounter."_".$to_data['lname']."_".$count.".pdf";
         }
     } else {
-        $category_name = "Encounters";
+        $category_name = "Encounters - Eye";
         $query = "select id from categories where name =?";
         $ID = sqlQuery($query, array($category_name));
         $category_id = $ID['id'];
