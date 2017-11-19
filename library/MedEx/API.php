@@ -2255,14 +2255,30 @@ class Display extends base
     }
 
     public function syncPat($pid, $logged_in)
-    {
-        $sqlSync = "select pid,fname,mname,lname,phone_home,phone_cell,email,street,city,state,postal_code,country_code from patient_data where pid=?";
-        $data = sqlQuery($sqlSync, array($pid));
-        $this->curl->setUrl($this->MedEx->getUrl('custom/syncPat&token='.$logged_in['token']));
-        $this->curl->setData($data);
-        $this->curl->makeRequest();
-        $response = $this->curl->getResponse();
-
+    {   
+        if($pid == 'pat_list') {
+            global $data;
+            $values = $_REQUEST['outpatient'];
+            $sqlSync = "select * from patient_data where fname like ? or lname like ? limit 20";
+            $datas = sqlStatement($sqlSync,array("%".$values."%","%".$values."%"));
+            while ($hit = sqlFetchArray($datas)) {
+                $data['list'][] = $hit;
+                $pid_list[] = $hit['pid'];
+            }
+            $this->curl->setUrl($this->MedEx->getUrl('custom/syncPat&token='.$logged_in['token']));
+            $this->curl->setData($data);
+            $this->curl->makeRequest();
+            $response = $this->curl->getResponse();
+            $response['pid_list'] = $pid_list;
+            $response['list_hits'] = $data['list'];
+        } else {
+            $sqlSync = "select * from patient_data where pid=?";
+            $data = sqlQuery($sqlSync, array($pid));
+            $this->curl->setUrl($this->MedEx->getUrl('custom/syncPat&token='.$logged_in['token']));
+            $this->curl->setData($data);
+            $this->curl->makeRequest();
+            $response = $this->curl->getResponse();
+        }
         if (isset($response['success'])) {
             return $response;
         } else if (isset($response['error'])) {
@@ -2280,10 +2296,15 @@ class Display extends base
      */
     public function SMS_bot($logged_in)
     {
-
         $fields = array();
         $fields = $_REQUEST;
-        $this->syncPat($_REQUEST['pid'], $logged_in);
+        if (!empty($_REQUEST['pid']) && $_REQUEST['pid'] != 'find') {
+            $responseA = $this->syncPat($_REQUEST['pid'], $logged_in);
+        } else if ($_REQUEST['show']=='pat_list') {
+            $responseA = $this->syncPat($_REQUEST['show'], $logged_in);
+            $fields['pid_list'] = $responseA['pid_list'];
+            $fields['list_hits']  = $responseA['list_hits'];
+        }
         $this->curl->setUrl($this->MedEx->getUrl('custom/SMS_bot&token='.$logged_in['token']));
         $this->curl->setData($fields);
         $this->curl->makeRequest();
