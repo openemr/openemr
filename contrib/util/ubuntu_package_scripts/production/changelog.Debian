@@ -1,3 +1,9 @@
+openemr (5.0.0-2) stable; urgency=low
+
+  * Security fixes
+
+ -- Brady Miller <brady@sparmy.com>  Sun, 19 Nov 2017 02:22:50 -0800
+
 openemr (5.0.0-1) stable; urgency=low
 
   * New upstream version
@@ -88,7 +94,7 @@ openemr (3.1.0-1) stable; urgency=low
   * New upstream version
 
  -- Amalu Obinna <amaluobinna@aol.com>  Fri, 21 Aug 2009 01:28:14 -0700
- 
+
 openemr (3.0.1-1) stable; urgency=low
 
   * Initial Release.
