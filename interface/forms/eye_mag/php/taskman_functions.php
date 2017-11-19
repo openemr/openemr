@@ -493,7 +493,7 @@ function make_document($task)
 
     $pdf->writeHTML($content, 0); // false or zero works for both mPDF and HTML2PDF
 
-    $tmpdir = sys_get_temp_dir(); // Best to get a known system temp directory to ensure a writable directory.
+    $tmpdir = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/'; // Best to get a known system temp directory to ensure a writable directory.
     $temp_filename = $tmpdir . $filename;
     $content_pdf = $pdf->Output($temp_filename, 'F');
     $type = "application/pdf";
