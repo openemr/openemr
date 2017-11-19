@@ -78,8 +78,8 @@ function isWhiteFile($file)
     return false;
 }
 
-// check if a the first parameter contains a non-numeric value
-function sanitizeNumber($number,$name='')
+// Sanitize a value to ensure it is a number.
+function sanitizeNumber($number)
 {
     $clean_number = $number +0 ;
 
@@ -87,7 +87,7 @@ function sanitizeNumber($number,$name='')
         return $clean_number;
     }
     else {
-        error_log('Custom validation error: Parameter '.$name.' contains non-numeric value (A numeric value expected)');
+        error_log('Custom validation error: Parameter contains non-numeric value (A numeric value expected)');
         return 0;
     }
 }

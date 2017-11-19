@@ -736,7 +736,7 @@ if (function_exists($formname . '_javascript')) {
 <div class='container'>
 <?php
   echo "<form method='post' " .
-       "action='$rootdir/forms/LBF/new.php?formnameformname=".attr($formname)."&id=$formid&portalid=$portalid' " .
+       "action='$rootdir/forms/LBF/new.php?formname=".attr($formname)."&id=$formid&portalid=$portalid' " .
        "onsubmit='return validate(this)'>\n";
 
   $cmsportal_login = '';
@@ -1553,7 +1553,7 @@ if (function_exists($formname . '_javascript_onload')) {
 // New form and this patient has a portal login and we have not loaded portal data.
 // Check if there is portal data pending for this patient and form type.
 if (!$alertmsg && !$formid && $GLOBALS['gbl_portal_cms_enable'] && $cmsportal_login && !$portalid) {
-    $portalres = cms_portal_call(array('action' => 'checkptform', 'form' => attr($formname), 'patient' => $cmsportal_login));
+    $portalres = cms_portal_call(array('action' => 'checkptform', 'form' => $formname, 'patient' => $cmsportal_login));
     if ($portalres['errmsg']) {
         die(text($portalres['errmsg'])); // TBD: Change to alertmsg
     }

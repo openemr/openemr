@@ -19,7 +19,7 @@ require_once("$srcdir/../controllers/C_Document.class.php");
 $reviewMode = false;
 if (!empty($_REQUEST['review_id'])) {
     $reviewMode = true;
-    $encounter=sanitizeNumber($_REQUEST['review_id'],'review_id');
+    $encounter=sanitizeNumber($_REQUEST['review_id']);
 }
 
 $is_group = ($attendant_type == 'gid') ? true : false;

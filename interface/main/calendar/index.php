@@ -61,7 +61,7 @@ if (isset($_REQUEST['pc_username']) && $_REQUEST['pc_username']) {
 
 // (CHEMED) Get the width of vieport
 if (isset($_GET['framewidth'])) {
-    $_SESSION['pc_framewidth'] = sanitizeNumber($_GET['framewidth'],'framewidth');
+    $_SESSION['pc_framewidth'] = sanitizeNumber($_GET['framewidth']);
 }
 
 // FACILITY FILTERING (lemonsoftware) (CHEMED)
