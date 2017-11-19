@@ -3591,7 +3591,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
     }
     ?>
        <!-- Navigation -->
-    <nav class="navbar-fixed-top navbar-custom navbar-bright navbar-inner" data-role="page banner navigation" style="margin-bottom: 0;z-index:1000000;font-size: 1.2em;">
+    <nav class="navbar-fixed-top navbar-custom navbar-bright navbar-inner" data-role="page banner navigation" style="margin-bottom: 0;z-index:1050;font-size: 1.2em;">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="container-fluid" style="margin-top:0px;padding:2px;">
             <div class="navbar-header brand" style="color:black;">
@@ -3603,7 +3603,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                 </button>
                 &nbsp;
                 <img src="<?php echo $GLOBALS['webroot']; ?>/sites/default/images/login_logo.gif" class="little_image">
-                <?php echo xlt('Eye Exam'); ?>
+                <span class="brand"><?php echo xlt('Eye Exam'); ?></span>
             </div>
             <div class="navbar-collapse collapse" id="oer-navbar-collapse-1">
                 <ul class="navbar-nav">

@@ -344,7 +344,7 @@ if ($_REQUEST["mode"] == "new") {
 
         /***********/
 
-        $pdf = new HTML2PDF(
+        /*$pdf = new HTML2PDF(
             $GLOBALS['pdf_layout'],
             $GLOBALS['pdf_size'],
             $GLOBALS['pdf_language'],
@@ -352,7 +352,27 @@ if ($_REQUEST["mode"] == "new") {
             'UTF-8', // default encoding setting is UTF-8
             array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
             $_SESSION['language_direction'] == 'rtl' ? true : false
+        );*/
+        $pdf = new mPDF(
+            $GLOBALS['pdf_language'],
+            $GLOBALS['pdf_size'],
+            '9',
+            '',
+            $GLOBALS['pdf_left_margin'],
+            $GLOBALS['pdf_right_margin'],
+            $GLOBALS['pdf_top_margin'],
+            $GLOBALS['pdf_bottom_margin'],
+            '', // default header margin
+            '', // default footer margin
+            $GLOBALS['pdf_layout']
         );
+        if ($_SESSION['language_direction'] == 'rtl') {
+            $pdf->SetDirectionality('rtl');
+        }
+        $pdf->shrink_tables_to_fit = 1;
+        $keep_table_proportions = true;
+        $pdf->use_kwt = true;
+
         ob_start();
         ?>
         <link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css" type="text/css">
@@ -386,9 +406,14 @@ if ($_REQUEST["mode"] == "new") {
                 $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
             }
         }
+        // Below is for including style sheet for report specific styles. Left here for future use.
+        //$styles = file_get_contents('../css/report.css');
+        //$pdf->writeHTML($styles, 1);
+        //$pdf->writeHTML($content, 2);
 
-        $pdf->writeHTML($content, false);
-        $temp_filename = '/tmp/'.$filename;
+        $pdf->writeHTML($content, false); // false or zero works for both mPDF and HTML2PDF
+        $tmpdir = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/'; // Best to get a known system temp directory to ensure a writable directory.
+        $temp_filename = $tmpdir . $filename;
         $content_pdf = $pdf->Output($temp_filename, 'F');
         $type = "application/pdf";
         $size = filesize($temp_filename);
@@ -396,7 +421,10 @@ if ($_REQUEST["mode"] == "new") {
         $doc_id = $return['doc_id'];
         $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter
         sqlQuery($sql, array($encounter,$doc_id));
-        exit;
+
+        unlink($temp_filename);
+
+        exit();
     }
 
   // Store the IMPPLAN area.  This is separate from the rest of the form
