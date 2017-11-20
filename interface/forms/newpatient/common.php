@@ -206,7 +206,7 @@ function cancelClicked() {
             <?php
             $visitSQL = "SELECT pc_catid, pc_catname, pc_cattype 
                        FROM openemr_postcalendar_categories
-                       WHERE pc_active = 1 ORDER BY pc_seq";
+                       WHERE pc_active = 1  and pc_cattype!=2 ORDER BY pc_seq";
             $visitResult = sqlStatement($visitSQL);
             $therapyGroupCategories = [];
 
