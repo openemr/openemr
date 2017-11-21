@@ -2,109 +2,84 @@
 /**
  * This report lists referrals for a given date range.
  *
- *  Copyright (C) 2008-2016 Rod Roark <rod@sunsetsystems.com>
- *  Copyright (C) 2016      Roberto Vasquez <robertogagliotta@gmail.com>
- *  Copyright (C) 2017      Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Roberto Vasquez <robertogagliotta@gmail.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2008-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2016 Roberto Vasquez <robertogagliotta@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+
+require_once("../globals.php");
+require_once("$srcdir/patient.inc");
+require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Core\Header;
 
- require_once("../globals.php");
- require_once("$srcdir/patient.inc");
- require_once "$srcdir/options.inc.php";
-
- $from_date = (isset($_POST['form_from_date']))  ? fixDate($_POST['form_from_date'], date('Y-m-d')) : '';
- $form_from_date = $from_date;
- $to_date   = (isset($_POST['form_to_date']))    ? fixDate($_POST['form_to_date'], date('Y-m-d')) : '';
-;
- $form_to_date = $to_date;
- $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
+$form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01');
+$form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
+$form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 ?>
 <html>
 <head>
+    <title><?php echo xlt('Referrals'); ?></title>
 
-<title><?php echo xlt('Referrals'); ?></title>
+    <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-<?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
+    <script language="JavaScript">
+        <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
-<script language="JavaScript">
+        $(document).ready(function() {
+            oeFixedHeaderSetup(document.getElementById('mymaintable'));
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
 
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+            $('.datepicker').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+        });
 
- var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+         // The OnClick handler for referral display.
 
- $(document).ready(function() {
-  oeFixedHeaderSetup(document.getElementById('mymaintable'));
-  var win = top.printLogSetup ? top : opener.top;
-  win.printLogSetup(document.getElementById('printbutton'));
+        function show_referral(transid) {
+            dlgopen('../patient_file/transaction/print_referral.php?transid=' + transid,
+                '_blank', 550, 400,true); // Force new window rather than iframe because of the dynamic generation of the content in print_referral.php
+            return false;
+        }
+    </script>
 
-  $('.datepicker').datetimepicker({
-    <?php $datetimepicker_timepicker = false; ?>
-    <?php $datetimepicker_showseconds = false; ?>
-    <?php $datetimepicker_formatInput = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-  });
- });
+    <style type="text/css">
+        /* specifically include & exclude from printing */
+        @media print {
+            #report_parameters {
+                visibility: hidden;
+                display: none;
+            }
+            #report_parameters_daterange {
+                visibility: visible;
+                display: inline;
+            }
+            #report_results table {
+               margin-top: 0px;
+            }
+        }
 
- // The OnClick handler for referral display.
-
- function show_referral(transid) {
-  dlgopen('../patient_file/transaction/print_referral.php?transid=' + transid,
-   '_blank', 550, 400,true); // Force new window rather than iframe because of the dynamic generation of the content in print_referral.php
-  return false;
- }
-
-</script>
-
-<style type="text/css">
-
-/* specifically include & exclude from printing */
-@media print {
-    #report_parameters {
-        visibility: hidden;
-        display: none;
-    }
-    #report_parameters_daterange {
-        visibility: visible;
-        display: inline;
-    }
-    #report_results table {
-       margin-top: 0px;
-    }
-}
-
-/* specifically exclude some from the screen */
-@media screen {
-    #report_parameters_daterange {
-        visibility: hidden;
-        display: none;
-    }
-}
-
-</style>
-
-<script language="JavaScript">
-
-</script>
-
+        /* specifically exclude some from the screen */
+        @media screen {
+            #report_parameters_daterange {
+                visibility: hidden;
+                display: none;
+            }
+        }
+    </style>
 </head>
 
 <body class="body_top">
@@ -112,7 +87,7 @@ use OpenEMR\Core\Header;
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Referrals'); ?></span>
 
 <div id="report_parameters_daterange">
-<?php echo text(date("d F Y", strtotime($form_from_date))) ." &nbsp; to &nbsp; ". text(date("d F Y", strtotime($form_to_date))); ?>
+<?php echo oeFormatShortDate($form_from_date) ." &nbsp; " . xlt('to') . " &nbsp; ". oeFormatShortDate($form_to_date); ?>
 </div>
 
 <form name='theform' id='theform' method='post' action='referrals_report.php' onsubmit='return top.restoreSession()'>
@@ -136,17 +111,15 @@ use OpenEMR\Core\Header;
                 <?php echo xlt('From'); ?>:
             </td>
             <td>
-               <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
-         class='datepicker form-control'
-                 title='<?php echo xla('yyyy-mm-dd') ?>'>
+               <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo oeFormatShortDate($form_from_date) ?>'
+         class='datepicker form-control'>
             </td>
             <td class='control-label'>
                 <?php echo xlt('To'); ?>:
             </td>
             <td>
-               <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
-         class='datepicker form-control'
-                 title='<?php echo xla('yyyy-mm-dd') ?>'>
+               <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo oeFormatShortDate($form_to_date) ?>'
+         class='datepicker form-control'>
             </td>
         </tr>
     </table>
@@ -214,7 +187,7 @@ if ($_POST['form_refresh']) {
     "WHERE t.title = 'LBTref' AND " .
     "d1.field_value >= ? AND d1.field_value <= ? " .
     "ORDER BY ut.organization, d1.field_value, t.id";
-    $res = sqlStatement($query, array($from_date, $to_date));
+    $res = sqlStatement($query, array($form_from_date, $form_to_date));
 
     while ($row = sqlFetchArray($res)) {
         // If a facility is specified, ignore rows that do not match.
@@ -233,13 +206,13 @@ if ($_POST['form_refresh']) {
     ?>
    <tr>
     <td>
-        <?php if ($row['organization']!=null || $row['organization']!='') {
+        <?php
+        if ($row['organization']!=null || $row['organization']!='') {
             echo text($row['organization']);
-} else {
-    echo text($row['referer_to']);
-}
-
-    ?>
+        } else {
+            echo text($row['referer_to']);
+        }
+        ?>
     </td>
     <td>
      <a href='#' onclick="return show_referral(<?php echo attr($row['id']); ?>)">
