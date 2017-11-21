@@ -85,7 +85,7 @@ $done = xlt('Done.  Will now send download.');
 $warning = xlt('WARNING: This will overwrite configuration information with data from the uploaded file');
 $use_feature = xlt('Use this feature only with newly installed sites, otherwise you will destroy references to/from existing data');
 $click_browse_and_select_one_configuration_file = xlt('Click Browse and select one configuration file usually named') . " openemr_config.sql";
-$browse = xlt('Browse'); 
+$browse = xlt('Browse');
 $success = "&nbsp;<i class='fa fa-check-circle text-success' aria-hidden='true'></i>&nbsp;";
 $failure = "&nbsp;<i class='a fa fa-times-circle text-danger' aria-hidden='true'></i>&nbsp;";
 
@@ -106,7 +106,7 @@ if (!empty($_POST['form_import'])) {
 
 //ViSolve: Assign Unique Number for the Log Creation
 if (!empty($_POST['form_backup'])) {
-    $form_step = 301; 
+    $form_step = 301;
 }
 
 // When true the current form will submit itself after a brief pause.
@@ -155,13 +155,13 @@ if ($form_step == 0) {
     $legend_text = xl('Backing up the data');
 } elseif ($form_step == 2 &&(!empty($phpgacl_location) && $gacl_object->_db_name != $sqlconf["dbase"])) {
     $legend_text = xl('Backing the phpGACL database');
-} elseif ($form_step == 4 || $form_step == 103 || $form_step == 203 ) {
+} elseif ($form_step == 4 || $form_step == 103 || $form_step == 203) {
     $legend_text = xl('Success') . " !!";
-}elseif ($form_step == 3 || ($form_step > 1 && $form_step < 6) ) {
+} elseif ($form_step == 3 || ($form_step > 1 && $form_step < 6)) {
     $legend_text = xl('Backing the openEMR website');
 } elseif ($form_step == 4 && (!empty($phpgacl_location)) && ($phpgacl_location != $srcdir."/../gacl")) {
     $legend_text = xl('Backing the phpGACL web directory');
-}  elseif ($form_step == 101) {
+} elseif ($form_step == 101) {
     $legend_text = xl('Select the configuration items to export');
 } elseif ($form_step == 103) {
     $legend_text = xl('Exported items sent to download');
@@ -225,8 +225,7 @@ if ($form_step == 0) {
                 $file_to_compress = '';  // if named, this iteration's file will be gzipped after it is created
                 $eventlog=0;  // Eventlog Flag
                 if ($form_step == 0) {
-                  
-               $div = <<<EOF
+                    $div = <<<EOF
                 <div class='col-xs-12'> 
                     <div class='form-group col-xs-12'> 
                     <button type='submit' id='form_create' name='form_create' class='btn btn-default btn-save' value='$BTN_TEXT_CREATE' />$BTN_TEXT_CREATE</button>
@@ -234,10 +233,10 @@ if ($form_step == 0) {
                     </div>
                 </div>
 EOF;
-echo $div; 
+                    echo $div;
                 // The config import/export feature is optional.
-                if (!empty($GLOBALS['configuration_import_export'])) {
-                    $div = <<<EOF
+                    if (!empty($GLOBALS['configuration_import_export'])) {
+                        $div = <<<EOF
                 <div class='col-xs-12'>
                     <div class='form-group col-xs-12'>
                        <button type='submit' name='form_export' class='btn btn-default btn-transmit' value='$BTN_TEXT_EXPORT'>$BTN_TEXT_EXPORT</button>
@@ -251,9 +250,9 @@ echo $div;
                     </div>
                 </div>
 EOF;
-echo $div;                 
-                }
-                $div = <<<EOF
+                        echo $div;
+                    }
+                    $div = <<<EOF
                 <div class='col-xs-12'>
                     <div class='form-group col-xs-12'>
                         <button type='submit' id='form_backup' name='form_backup' class='btn btn-default btn-save' value='$BTN_TEXT_CREATE_EVENTLOG'>$BTN_TEXT_CREATE_EVENTLOG</button>
@@ -261,9 +260,9 @@ echo $div;
                     </div>
                 </div>
 EOF;
-echo $div;              
-               } 
-               if ($form_step == 1) {
+                    echo $div;
+                }
+                if ($form_step == 1) {
                     $form_status .= "&nbsp;&nbsp;". xl('Dumping OpenEMR database') . "...<br />";
                     echo nl2br($form_status);
                     if (file_exists($TAR_FILE_PATH)) {
@@ -301,7 +300,7 @@ echo $div;
                         escapeshellarg($sqlconf["dbase"]);
                     }
 
-                    $auto_continue = true;
+                     $auto_continue = true;
                 }
                 if ($form_step == 2) {
                     if (!empty($phpgacl_location) && $gacl_object->_db_name != $sqlconf["dbase"]) {
@@ -384,7 +383,7 @@ echo $div;
                     $file_list = array('.');
                     
                     // Creates a openemr_setup file containing setup details
-                    $myfile = fopen("openemr_setup.txt", "w") or die ($failure . xl("Unable to open file!"));
+                    $myfile = fopen("openemr_setup.txt", "w") or die($failure . xl("Unable to open file!"));
                     $txt = "ORIGINAL WEBSITE AND DATABASE DETAILS"."\n";
                     fwrite($myfile, $txt);
                     $txt = "WEBSERVER_ROOT:". $GLOBALS['webserver_root'] ."\n";
@@ -405,8 +404,9 @@ echo $div;
                     
                     //copy the restore shell script
                     
-                    $file = "$webserver_root/contrib/util/restore"; $newfile = "restore";
-                    copy($file,$newfile);
+                    $file = "$webserver_root/contrib/util/restore";
+                    $newfile = "restore";
+                    copy($file, $newfile);
                                       
                     if (!create_tar_archive($TAR_FILE_PATH, '', $file_list)) {
                         die($failure . xl("Error: Unable to create downloadable archive"));
@@ -421,7 +421,7 @@ echo $div;
                     $auto_continue = true;
                 }
                 if ($form_step == 101) {
-                $div = <<<EOF
+                    $div = <<<EOF
                 <div class='col-xs-12'>
                     <div class='col-xs-12'>
                         <button type='submit' value= '$continue' class='btn btn-default btn-transmit'>$continue</button>
@@ -453,35 +453,35 @@ echo $div;
                         <h4 class='head clearfix ' style='padding:5px 10px'>$lists  <i id='lists-tooltip' class='fa fa-info-circle text-primary h5 oe-small' title='' aria-hidden='true' data-original-title=''></i><input type='checkbox'  id='sel_lists_checkbox' class='pull-right'  style='margin-top:10px !Important' value='1'></h4>
                         <select multiple id='sel_lists' name='form_sel_lists[]'  style='width:100%;' size='15'>
 EOF;
-echo $div;
+                    echo $div;
                         $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
                                 "list_id = 'lists' AND activity = 1 ORDER BY title, seq");
-                                while ($lrow = sqlFetchArray($lres)) {
-                                    echo "<option value='" . attr($lrow['option_id']) . "'";
-                                    echo ">" . text(xl_list_label($lrow['title'])) . "</option>\n";
-                                } 
-                $div = <<<EOF
+                    while ($lrow = sqlFetchArray($lres)) {
+                        echo "<option value='" . attr($lrow['option_id']) . "'";
+                        echo ">" . text(xl_list_label($lrow['title'])) . "</option>\n";
+                    }
+                    $div = <<<EOF
                         </select>
                     </div>
                     <div class='col-xs-4'>
                         <h4 class='head clearfix ' style='padding:5px 10px'>$layouts  <i id='layouts-tooltip' class='fa fa-info-circle text-primary h5 oe-small' title='' aria-hidden='true' data-original-title=''></i><input type='checkbox'  id='sel_layouts_checkbox' class='pull-right'  style='margin-top:10px !Important' value='1'></h4>
                         <select multiple id='sel_layouts' name='form_sel_layouts[]' style='width:100%' size='15'>
 EOF;
-echo $div;
+                    echo $div;
                         $lres = sqlStatement("SELECT grp_form_id, grp_title FROM layout_group_properties WHERE " .
                               "grp_group_id = '' AND grp_activity = 1 ORDER BY grp_form_id");
-                            while ($lrow = sqlFetchArray($lres)) {
-                                $key = $lrow['grp_form_id'];
-                                echo "<option value='" . attr($key) . "'";
-                                echo ">" . text($key) . ": " . text(xl_layout_label($lrow['grp_title'])) . "</option>\n";
-                            }
+                    while ($lrow = sqlFetchArray($lres)) {
+                        $key = $lrow['grp_form_id'];
+                        echo "<option value='" . attr($key) . "'";
+                        echo ">" . text($key) . ": " . text(xl_layout_label($lrow['grp_title'])) . "</option>\n";
+                    }
                         
-                $div = <<<EOF
+                    $div = <<<EOF
                         </select>
                     </div>
                 </div>
 EOF;
-echo $div;
+                    echo $div;
                 }
                 if ($form_step == 102) {
                     $tables = '';
@@ -629,7 +629,7 @@ echo $div;
                 }
 
                 if ($form_step == 201) {
-                $div= <<<EOF
+                    $div= <<<EOF
                 <div class='col-xs-12'>
                     <div class='col-xs-11 col-xs-offset-1'> <p><i class='fa fa-exclamation-triangle' style='color:red' aria-hidden='true'></i> <strong>$warning</strong>
                         <p><i class="fa fa-exclamation-triangle" style="color:red" aria-hidden="true"></i> <strong>$use_feature</strong></p>
@@ -657,7 +657,7 @@ echo $div;
                     </div>
                 </div>
 EOF;
-echo $div; 
+                    echo $div;
                 }
 
                 if ($form_step == 202) {
