@@ -504,7 +504,7 @@ class gacl_api extends gacl {
 
 			while (list($aco_section_value,$aco_value_array) = @each($aco_array)) {
 				foreach ($aco_value_array as $aco_value) {
-					if (!in_array($aco_value, $acl_array['aco'][$aco_section_value])) {
+					if (!is_array($acl_array['aco'][$aco_section_value]) || !in_array($aco_value, $acl_array['aco'][$aco_section_value])) {
 						$this->debug_text("append_acl(): ACO Section Value: $aco_section_value ACO VALUE: $aco_value");
 						$acl_array['aco'][$aco_section_value][] = $aco_value;
 						$update = 1;
@@ -3840,7 +3840,7 @@ class gacl_api extends gacl {
 
 		$query = "SELECT id, value, order_value, name, hidden FROM $table WHERE value='$section_value'";
 		$row = $this->db->GetRow($query);
-														    
+
 		if ($row) {
 			return $row;
 		}
