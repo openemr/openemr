@@ -547,8 +547,12 @@ if (empty($collectthis)) {
                     // this difference means that some providers from current was UNCHECKED
                     // so we must delete this event for them
                     $r1 = array_diff($providers_current, $providers_new);
+                    $old_eid = null;
                     if (count($r1)) {
                         foreach ($r1 as $to_be_removed) {
+                            if (!empty($_POST['form_gid'])) {
+                                $old_eid =  sqlQuery("SELECT pc_eid FROM openemr_postcalendar_events WHERE pc_aid=? AND pc_multiple=?", array($to_be_removed,$row['pc_multiple']));
+                            }
                             sqlQuery("DELETE FROM openemr_postcalendar_events WHERE pc_aid=? AND pc_multiple=?", array($to_be_removed,$row['pc_multiple']));
                         }
                     }
@@ -578,8 +582,13 @@ if (empty($collectthis)) {
                             $args['starttime'] = $starttime;
                             $args['endtime'] = $endtime;
                             $args['locationspec'] = $locationspec;
-                            InsertEvent($args);
+                            $new_eid = InsertEvent($args);
                         }
+                    }
+
+                    if (!is_null($old_eid) && !empty($old_eid)) {
+                       // update group encounter is connected to event.
+                        sqlQuery("UPDATE form_groups_encounter SET appt_id = ? WHERE appt_id = ?", array($new_eid, $old_eid['pc_eid']));
                     }
 
                     // after the two diffs above, we must update for remaining providers
