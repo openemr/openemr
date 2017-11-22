@@ -225,10 +225,12 @@ if ($printable) {
 
     // Use logo if it exists as 'practice_logo.gif' in the site dir
     // old code used the global custom dir which is no longer a valid
-    $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
-    $plogo = glob("$OE_SITE_DIR/images/practice_logo.{jpg,png,gif}", GLOB_BRACE);// let's give the user a little say in image format.
+    $practice_logo = "";
+    $plogo = glob("$OE_SITE_DIR/images/*");// let's give the user a little say in image format.
+    $plogo = preg_grep('~practice_logo\.(gif|png|jpg|jpeg)$~i', $plogo);
     if (! empty($plogo)) {
-        $practice_logo = $plogo[0];
+        $k = current(array_keys($plogo));
+        $practice_logo = $plogo[$k];
     }
 
     echo "<div><table width='795'><tbody><tr><td>";

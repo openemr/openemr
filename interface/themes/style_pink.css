@@ -1,7 +1,7 @@
 /**
  * Stylesheet for flat colors
  * The color palette is used to style the various elements in a consistent manner
- 
+
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -12,25 +12,25 @@
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- * 
+ *
  * @package OpenEMR
  * @author Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2017 Ranganath Pathak
- * @version 1.0 
+ * @version 1.0
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License
- * @link http://www.open-emr.org 
+ * @link http://www.open-emr.org
 */
 
 
-/* 
+/*
     COLOR PALETTE
-    #C02E7E - Darkest Pink*        
+    #C02E7E - Darkest Pink*
     #CF398B - Darker Pink*
     #D962A3 - Dark Pink
     #DC71AC - Mid Pink
     #E8A0C7 - Mid Pale Pink*
     #FABBE1 - Pale Pink
-    #F3CFE3 - Mid Pale Pale Pink*    
+    #F3CFE3 - Mid Pale Pale Pink*
     #F7DFEC - Pale Pale Pink*
     #E7E6F9 - Pale Purple~
     #FBEFF5 - Paler Pink
@@ -46,6 +46,9 @@
     "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
      "Droid Sans", /* 3 */
     "Helvetica Neue", sans-serif;
+}
+html{
+    font-size:14px;
 }
 /* RP_MODIFIED  2/09/2015, 1/17/2016*/
 body {
@@ -170,8 +173,8 @@ a:hover {
     color: #000000;
 }
 /*=============================================================
- * Here we have taken variables from globals.php and turned them into CSS  
- * classes these should be used in place of the GLOBAL variables 
+ * Here we have taken variables from globals.php and turned them into CSS
+ * classes these should be used in place of the GLOBAL variables
  * -- JRM March 2008
  =============================================================*/
 
@@ -408,6 +411,9 @@ background-color:transparent;RP_MODIFIED 1/18/2016*/
     vertical-align: top;
     padding: 5px;
     margin: 5px;
+}
+#pnotes_ps_expand  div.tab table td {
+  padding-right: 10px;
 }
 /*=============================================================
  * Patient Stats
@@ -712,6 +718,9 @@ select:focus {
     -webkit-transition: 0.2s linear all;
     -moz-transition: 0.2s linear all;
     transition: 0.2s linear all;
+}
+select[multiple] {
+  height:auto !Important;
 }
 .css_button_small, .css_button {
     display: inline-block;
@@ -1279,7 +1288,7 @@ div.notab-right {
 .example_menu li.active li a {
     background: #e8e8e8;
 }
-#menu1 li.footer, #menu2 li.footer, #menu3 li.footer, #menu4 li.footer, #menu5 
+#menu1 li.footer, #menu2 li.footer, #menu3 li.footer, #menu4 li.footer, #menu5
 li.footer, .example_menu .footer {
     background: transparent url('footer.jpg') no-repeat 0 0;
     border-top: 2px solid #fff;
@@ -1299,7 +1308,7 @@ li.footer, .example_menu .footer {
     display: inline-block;
     background-repeat: no-repeat;
     padding: 5px 14px 6px;
-    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+    text-shadow: none;
     color: #333;
     font-size: 12px !Important;
     line-height: 1 !Important;
@@ -1307,9 +1316,6 @@ li.footer, .example_menu .footer {
     -webkit-border-radius: 2px;
     -moz-border-radius: 2px;
     border-radius: 2px;
-    -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
-    -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
     -webkit-transition: 0.1s linear all;
     -moz-transition: 0.1s linear all;
     transition: 0.1s linear all;
@@ -1437,7 +1443,7 @@ body.login {
 /*.patientEncounterList {
     background: #ffff9e !Important;
     border: 1px solid #CF398B;
- 
+
 }
  .patientEncounterList:hover{
     background: #F7DFEC  !important;
@@ -1447,7 +1453,7 @@ body.login {
     -webkit-transition: 0.2s linear all;
     -moz-transition: 0.2s linear all;
     transition: 0.2s linear all;
-    
+
     overflow: visible;
     height: auto;
     z-index:4;
@@ -1834,7 +1840,7 @@ fieldset {
     background-color: #F3CFE3 !Important;
     margin-bottom: 10px!Important;
     padding: 0px 0px 15px 0px !Important;
-	
+
 }
 legend {
     border-bottom: 2px solid #D962A3 !Important;
@@ -1861,7 +1867,7 @@ textarea.form-control {
     background: #CF398B !Important;
     color: #FFFFFF !Important;
     /*border-color:#FBEFF5!Important; #E8A0C7*/
-    border-color: #C02E7E !Important;
+    border-color: #CF398B !Important;
 }
 .btn-link {
     background: #FBEFF5 !Important;
@@ -1892,9 +1898,14 @@ textarea.form-control {
 .btn-separate-left,  .oe-opt-btn-separate-left{
 	margin-left: 20px !Important;
 }
+.btn-group  .btn {
+    margin-right:2px !Important;
+}
 .btn-group>.btn:first-child:not(:last-child):not(.dropdown-toggle) {
-	border-top-right-radius: 3px !Important;
-	border-bottom-right-radius: 3px !Important;
+	border-top-right-radius: 0px !Important;
+    border-bottom-right-radius: 0px !Important;
+    border-bottom-left-radius: 3px !Important;
+    border-top-left-radius: 3px !Important;
 }
 .btn-group-pinch>.btn:nth-last-child(2):not(.dropdown-toggle), .oe-opt-btn-group-pinch>.btn:nth-last-child(2):not(.dropdown-toggle) {
 	border-top-right-radius: 3px !Important;
@@ -1928,6 +1939,7 @@ textarea.form-control {
 }
 .position-override{
         text-align:center !Important;
+        margin-left:0px;
     }
 .oe-custom-line{
    padding-bottom:5px;
@@ -1942,7 +1954,7 @@ textarea.form-control {
 	display: none;
 }
 .oe-legend-radio{
-    font-size:12px; 
+    font-size:12px;
     padding:5px 5px 0px 0px;
 }
 .oe-bold-black {

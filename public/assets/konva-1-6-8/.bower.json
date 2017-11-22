@@ -1,0 +1,41 @@
+{
+  "name": "konva",
+  "authors": [
+    "Anton Lavrenov",
+    "Eric Rowell"
+  ],
+  "homepage": "http://konvajs.github.io",
+  "description": "Konva is an HTML5 Canvas JavaScript framework that enables high performance animations, transitions, node nesting, layering, filtering, caching, event handling for desktop and mobile applications, and much more.",
+  "keywords": [
+    "canvas",
+    "animations",
+    "graphic",
+    "html5"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "test",
+    "resources",
+    "src",
+    "*.yml",
+    ".jshitrc",
+    ".npmignore",
+    "package.json",
+    ".travis.yml",
+    ".gitignore",
+    "Gruntfile.js",
+    "gulpfile.js"
+  ],
+  "main": "konva.min.js",
+  "version": "1.6.8",
+  "_release": "1.6.8",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.6.8",
+    "commit": "c993bfb544439f4947d4046bd256de7f538aac62"
+  },
+  "_source": "https://github.com/konvajs/konva.git",
+  "_target": "1.6.8",
+  "_originalSource": "konva"
+}

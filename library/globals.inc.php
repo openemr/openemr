@@ -847,7 +847,7 @@ $GLOBALS_METADATA = array(
             '0',                              // default = false
             xl('This will force the Billing Widget in the Patient Summary screen to always be open.')
         ),
-
+        
         'activate_ccr_ccd_report' => array(
             xl('Activate CCR/CCD Reporting'),
             'bool',                           // data type
@@ -2419,6 +2419,13 @@ $GLOBALS_METADATA = array(
             'text',                           // data type
             'https://your_web_site.com/openemr/portal',
             xl('Website link for the Version 2 Onsite Patient Portal.')
+        ),
+
+        'portal_onsite_two_basepath' => array(
+            xl('Portal Uses Server Base Path (internal)'),
+            'bool',
+            '0',
+            xl('Use servers protocol and host in urls (portal internal only).')
         ),
 
         'portal_onsite_two_register' => array(

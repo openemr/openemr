@@ -349,7 +349,7 @@ if (count($facilities) > 1) {
  echo "    <option value='__PC_ALL__'>"  .xl ("All Users"). "</option>\n";
  foreach ($provinfo as $doc) {
   $username = $doc['username'];
-  echo "    <option value='$username'";
+  echo "    <option value='" . attr($username) . "'";
   foreach ($providers as $provider)
    if ($provider['username'] == $username) echo " selected";
   echo ">" . htmlspecialchars($doc['lname'],ENT_QUOTES) . ", " . htmlspecialchars($doc['fname'],ENT_QUOTES) . "</option>\n";

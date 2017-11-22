@@ -24,15 +24,19 @@ namespace Carecoordination\Form;
 use Zend\Form\Form;
 use Zend\Db\Adapter\AdapterInterface;
 use \Application\Model\ApplicationTable;
+use Application\Listener\Listener;
 
 class ModuleconfigForm extends Form
 {
+    protected $zListener;
+
     public function __construct(AdapterInterface $dbAdapter)
     {
         $this->application  = new ApplicationTable;
+        $this->zListener = new Listener;
         parent::__construct('configuration');
         $this->setAttribute('method', 'post');
-        
+
         /*
 		* Automatic SignOff settings
 		*/
@@ -43,10 +47,10 @@ class ModuleconfigForm extends Form
                         'id'        => 'hie_auto_sign_off_id'
                     ),
                 'options' => array(
-                        'label'     => \Application\Listener\Listener::z_xlt('Auto Sign-Off [days]'),
+                        'label'     => $this->zListener->z_xlt('Auto Sign-Off [days]'),
                     ),
             ));
-        
+
         /*
 		* Automatic Tranfer settings
 		*/
@@ -57,12 +61,12 @@ class ModuleconfigForm extends Form
                         'id'        => 'hie_auto_send_id'
                     ),
                 'options' => array(
-                        'label'         => \Application\Listener\Listener::z_xlt('Auto Send'),
+                        'label'         => $this->zListener->z_xlt('Auto Send'),
                 'checked_value'     => 'yes',
                         'unchecked_value'   => 'no'
                     ),
             ));
-        
+
         /*
 		* Author settings
 		*/
@@ -77,11 +81,11 @@ class ModuleconfigForm extends Form
                     'id'        => 'hie_author_fname'
                 ),
                 'options' => array(
-                    'label'     => \Application\Listener\Listener::z_xlt('Author'),
+                    'label'     => $this->zListener->z_xlt('Author'),
                     'value_options' => $this->getProviders(),
                 ),
             ));
-        
+
         /*
 		* Data Enterer settings
 		*/
@@ -96,11 +100,11 @@ class ModuleconfigForm extends Form
                     'id'        => 'hie_data_enterer_id'
                 ),
                 'options' => array(
-                    'label'     => \Application\Listener\Listener::z_xlt('Data Enterer'),
+                    'label'     => $this->zListener->z_xlt('Data Enterer'),
                     'value_options' => $this->getUsersList(),
                 ),
             ));
-        
+
         /*
 		* Informant settings
 		*/
@@ -115,11 +119,11 @@ class ModuleconfigForm extends Form
                     'id'        => 'hie_informant_id'
                 ),
                 'options' => array(
-                    'label'     => \Application\Listener\Listener::z_xlt('Informant'),
+                    'label'     => $this->zListener->z_xlt('Informant'),
                     'value_options' => $this->getProviders(),
                 ),
             ));
-        
+
         /*
 		* Personal Informant settings
 		*/
@@ -130,10 +134,10 @@ class ModuleconfigForm extends Form
                         'id'    => 'hie_personal_informant_id'
                     ),
                 'options' => array(
-                        'label' => \Application\Listener\Listener::z_xlt('Informant'),
+                        'label' => $this->zListener->z_xlt('Informant'),
                     ),
             ));
-        
+
         /*
 		* Custodian settings
 		*/
@@ -148,11 +152,11 @@ class ModuleconfigForm extends Form
                     'id'        => 'hie_custodian_id'
                 ),
                 'options' => array(
-                    'label'     => \Application\Listener\Listener::z_xlt('Custodian'),
+                    'label'     => $this->zListener->z_xlt('Custodian'),
                     'value_options' => $this->getFacilities(),
                 ),
             ));
-        
+
         /*
 		* Legal Authenticator settings
 		*/
@@ -167,11 +171,11 @@ class ModuleconfigForm extends Form
                     'id'        => 'hie_legal_authenticator_id'
                 ),
                 'options' => array(
-                    'label'     => \Application\Listener\Listener::z_xlt('Legal Authenticator'),
+                    'label'     => $this->zListener->z_xlt('Legal Authenticator'),
                     'value_options' => $this->getUsers(),
                 ),
             ));
-        
+
         /*
 		* Authenticator settings
 		*/
@@ -186,11 +190,11 @@ class ModuleconfigForm extends Form
                     'id'        => 'hie_authenticator_id'
                 ),
                 'options' => array(
-                    'label'     => \Application\Listener\Listener::z_xlt('Authenticator'),
+                    'label'     => $this->zListener->z_xlt('Authenticator'),
                     'value_options' => $this->getUsers(),
                 ),
             ));
-        
+
         /*
 		* Primary Care Provider settings
 		*/
@@ -205,11 +209,11 @@ class ModuleconfigForm extends Form
                     'id'        => 'hie_primary_care_provider_id'
                 ),
                 'options' => array(
-                    'label'     => \Application\Listener\Listener::z_xlt('Primary Care Provider'),
+                    'label'     => $this->zListener->z_xlt('Primary Care Provider'),
                     'value_options' => $this->getProviders(),
                 ),
             ));
-        
+
         /*
 		* MIRTH IP settings
 		*/
@@ -220,10 +224,10 @@ class ModuleconfigForm extends Form
                         'id'    => 'hie_mirth_ip'
                     ),
                 'options' => array(
-                        'label' => \Application\Listener\Listener::z_xlt('Mirth IP'),
+                        'label' => $this->zListener->z_xlt('Mirth IP'),
                     ),
             ));
-        
+
         /*
 		* MIRTH Client ID
 		*/
@@ -234,10 +238,10 @@ class ModuleconfigForm extends Form
                         'id'    => 'hie_mirth_clientid'
                     ),
                 'options' => array(
-                        'label' => \Application\Listener\Listener::z_xlt('Client ID'),
+                        'label' => $this->zListener->z_xlt('Client ID'),
                     ),
             ));
-        
+
         /*
 		* MIRTH Username
 		*/
@@ -248,10 +252,10 @@ class ModuleconfigForm extends Form
                         'id'    => 'hie_mirth_username'
                     ),
                 'options' => array(
-                        'label' => \Application\Listener\Listener::z_xlt('Username'),
+                        'label' => $this->zListener->z_xlt('Username'),
                     ),
             ));
-        
+
         /*
 		* MIRTH Password
 		*/
@@ -262,11 +266,11 @@ class ModuleconfigForm extends Form
                         'id'    => 'hie_mirth_password'
                     ),
                 'options' => array(
-                        'label' => \Application\Listener\Listener::z_xlt('Password'),
+                        'label' => $this->zListener->z_xlt('Password'),
                     ),
             ));
     }
-    
+
     /**
     * Function getOptions
     * Get Select Options
@@ -283,7 +287,7 @@ class ModuleconfigForm extends Form
 
         return $users;
     }
-    
+
     public function getFacilities()
     {
         $users = array('0' => '');
@@ -294,7 +298,7 @@ class ModuleconfigForm extends Form
 
         return $users;
     }
-    
+
     public function getProviders()
     {
         $users = array('0' => '');
@@ -305,7 +309,7 @@ class ModuleconfigForm extends Form
 
         return $users;
     }
-    
+
     public function getUsersList()
     {
         $users = array('0' => '');

@@ -301,7 +301,7 @@ function make_document($task)
             $filename = "FAX_".$encounter."_".$to_data['lname']."_".$count.".pdf";
         }
     } else {
-        $category_name = "Encounters";
+        $category_name = "Encounters - Eye";
         $query = "select id from categories where name =?";
         $ID = sqlQuery($query, array($category_name));
         $category_id = $ID['id'];
@@ -317,7 +317,7 @@ function make_document($task)
         sqlQuery($sql, array("%".$filename));
     }
 
-    $pdf = new HTML2PDF(
+    /*$pdf = new HTML2PDF(
         $GLOBALS['pdf_layout'],
         $GLOBALS['pdf_size'],
         $GLOBALS['pdf_language'],
@@ -325,7 +325,27 @@ function make_document($task)
         'UTF-8', // default encoding setting is UTF-8
         array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
         $_SESSION['language_direction'] == 'rtl' ? true : false
+    );*/
+
+    $pdf = new mPDF(
+        $GLOBALS['pdf_language'],
+        $GLOBALS['pdf_size'],
+        '9',
+        '',
+        $GLOBALS['pdf_left_margin'],
+        $GLOBALS['pdf_right_margin'],
+        $GLOBALS['pdf_top_margin'],
+        $GLOBALS['pdf_bottom_margin'],
+        '', // default header margin
+        '', // default footer margin
+        $GLOBALS['pdf_layout']
     );
+    if ($_SESSION['language_direction'] == 'rtl') {
+        $pdf->SetDirectionality('rtl');
+    }
+    $pdf->shrink_tables_to_fit = 1;
+    $keep_table_proportions = true;
+    $pdf->use_kwt = true;
 
     ob_start();
     ?><html>
@@ -466,8 +486,15 @@ function make_document($task)
         }
     }
 
-    $pdf->writeHTML($content, false);
-    $temp_filename = '/tmp/'.$filename;
+    // Below is for including style sheet for report specific styles. Left here for future use.
+    //$styles = file_get_contents('../css/report.css');
+    //$pdf->writeHTML($styles, 1);
+    //$pdf->writeHTML($content, 2);
+
+    $pdf->writeHTML($content, 0); // false or zero works for both mPDF and HTML2PDF
+
+    $tmpdir = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/'; // Best to get a known system temp directory to ensure a writable directory.
+    $temp_filename = $tmpdir . $filename;
     $content_pdf = $pdf->Output($temp_filename, 'F');
     $type = "application/pdf";
     $size = filesize($temp_filename);
@@ -477,6 +504,8 @@ function make_document($task)
     $task['DOC_url'] = $filepath.'/'.$filename;
     $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter
     sqlQuery($sql, array($encounter,$task['DOC_ID']));
+
+    unlink($temp_filename);
 
     return $task;
 }

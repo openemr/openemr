@@ -1,0 +1,31 @@
+{
+  "name": "i18next-browser-languagedetector",
+  "main": "./i18nextBrowserLanguageDetector.js",
+  "dependencies": {},
+  "ignore": [
+    "test/",
+    "dist/",
+    "src/",
+    "coverage/",
+    ".babelrc",
+    ".gitignore",
+    ".editorconfig",
+    ".eslintignore",
+    ".eslintrc",
+    ".npmignore",
+    "gulpfile.js",
+    "package.json",
+    "karma.conf.js"
+  ],
+  "homepage": "https://github.com/i18next/i18next-browser-languageDetector",
+  "version": "2.0.0",
+  "_release": "2.0.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "v2.0.0",
+    "commit": "bba4ed909121a427c77e1c15aec2fce5c2d4e51c"
+  },
+  "_source": "https://github.com/i18next/i18next-browser-languageDetector.git",
+  "_target": "2.0.0",
+  "_originalSource": "i18next-browser-languagedetector"
+}

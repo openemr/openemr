@@ -33,6 +33,8 @@ require_once "$srcdir/options.inc.php";
 
 $from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
 $to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
+$records1 = array();
+$records2 = array();
 ?>
 <html>
     <head>
