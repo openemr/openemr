@@ -83,10 +83,9 @@ function sanitizeNumber($number)
 {
     $clean_number = $number +0 ;
 
-    if ($clean_number==$number){
+    if ($clean_number==$number) {
         return $clean_number;
-    }
-    else {
+    } else {
         error_log('Custom validation error: Parameter contains non-numeric value (A numeric value expected)');
         return $clean_number;
     }
