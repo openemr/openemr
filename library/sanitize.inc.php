@@ -88,6 +88,6 @@ function sanitizeNumber($number)
     }
     else {
         error_log('Custom validation error: Parameter contains non-numeric value (A numeric value expected)');
-        return 0;
+        return $clean_number;
     }
 }
