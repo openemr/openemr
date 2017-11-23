@@ -195,7 +195,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
             $erxprid = formData('erxprid', 'P');
             sqlStatement("update users set weno_prov_id = '$erxprid' where id = ? ", array($_POST["id"]));
         }
-
+      
         if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
             // Set the access control group of user
             $user_data = sqlFetchArray(sqlStatement("select username from users where id= ?", array($_POST["id"])));
@@ -387,6 +387,7 @@ $form_inactive = empty($_REQUEST['form_inactive']) ? false : true;
 <html>
 <head>
 <title><?php xl('User / Group', 'e');?></title>
+
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
 <?php if ($_SESSION['language_direction'] == 'rtl') : ?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.css" type="text/css">
@@ -437,7 +438,7 @@ function authorized_clicked() {
     <div class="row">
         <div class="col-xs-12">
             <div class="page-title">
-                <h1><?php xl('User / Groups', 'e');?></h1>
+                <h2><?php xl('User / Groups', 'e');?></h2>
             </div>
         </div>
     </div>
@@ -445,7 +446,7 @@ function authorized_clicked() {
         <div class="col-xs-12">
             <div class="btn-group">
                 <a href="usergroup_admin_add.php" class="iframe_medium btn btn-default btn-add"><?php xl('Add User', 'e'); ?></a>
-                <a href="facility_user.php" class="btn btn-default"><?php xl('View Facility Specific User Information', 'e'); ?></a>
+                <a href="facility_user.php" class="btn btn-default btn-show"><?php xl('View Facility Specific User Information', 'e'); ?></a>
             </div>
             <form name='userlist' method='post' style="display: inline;" class="form-inline" class="pull-right" action='usergroup_admin.php' onsubmit='return top.restoreSession()'>
                 <div class="checkbox">
@@ -472,47 +473,50 @@ function authorized_clicked() {
             }
 
             ?>
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th><?php xl('Username', 'e'); ?></th>
-                    <th><?php xl('Real Name', 'e'); ?></th>
-                    <th><?php xl('Additional Info', 'e'); ?></th>
-                    <th><?php xl('Authorized', 'e'); ?>?</th>
-                </tr>
-                <tbody>
-                    <?php
-                    $query = "SELECT * FROM users WHERE username != '' ";
-                    if (!$form_inactive) {
-                        $query .= "AND active = '1' ";
-                    }
-
-                    $query .= "ORDER BY username";
-                    $res = sqlStatement($query);
-                    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-                        $result4[$iter] = $row;
-                    }
-
-                    foreach ($result4 as $iter) {
-                        if ($iter{"authorized"}) {
-                            $iter{"authorized"} = xl('yes');
-                        } else {
-                            $iter{"authorized"} = "";
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th><?php xl('Username', 'e'); ?></th>
+                        <th><?php xl('Real Name', 'e'); ?></th>
+                        <th><?php xl('Additional Info', 'e'); ?></th>
+                        <th><?php xl('Authorized', 'e'); ?>?</th>
+                        <th></th>
+                    </tr>
+                    <tbody>
+                        <?php
+                        $query = "SELECT * FROM users WHERE username != '' ";
+                        if (!$form_inactive) {
+                            $query .= "AND active = '1' ";
                         }
 
-                        print "<tr>
-                            <td><b><a href='user_admin.php?id=" . $iter{"id"} .
-                            "' class='iframe_medium' onclick='top.restoreSession()'>" . $iter{"username"} . "</a></b>" ."&nbsp;</td>
-                            <td>" . attr($iter{"fname"}) . ' ' . attr($iter{"lname"}) ."&nbsp;</td>
-                            <td>" . attr($iter{"info"}) . "&nbsp;</td>
-                            <td align='left'><span>" .$iter{"authorized"} . "&nbsp;</td>";
-                        print "<td><!--<a href='usergroup_admin.php?mode=delete&id=" . $iter{"id"} .
-                            "' class='link_submit'>[Delete]</a>--></td>";
-                        print "</tr>\n";
-                    }
-                    ?>
-                </tbody>
-            </table>
+                        $query .= "ORDER BY username";
+                        $res = sqlStatement($query);
+                        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+                            $result4[$iter] = $row;
+                        }
+
+                        foreach ($result4 as $iter) {
+                            if ($iter{"authorized"}) {
+                                $iter{"authorized"} = xl('yes');
+                            } else {
+                                $iter{"authorized"} = "";
+                            }
+
+                            print "<tr>
+                                <td><b><a href='user_admin.php?id=" . $iter{"id"} .
+                                "' class='iframe_medium' onclick='top.restoreSession()'>" . $iter{"username"} . "</a></b>" ."&nbsp;</td>
+                                <td>" . attr($iter{"fname"}) . ' ' . attr($iter{"lname"}) ."&nbsp;</td>
+                                <td>" . attr($iter{"info"}) . "&nbsp;</td>
+                                <td align='left'><span>" .$iter{"authorized"} . "&nbsp;</td>";
+                            print "<td><!--<a href='usergroup_admin.php?mode=delete&id=" . $iter{"id"} .
+                                "' class='link_submit'>[Delete]</a>--></td>";
+                            print "</tr>\n";
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
             <?php
             if (empty($GLOBALS['disable_non_default_groups'])) {
                 $res = sqlStatement("select * from groups order by name");

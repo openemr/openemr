@@ -22,7 +22,7 @@ $message = isset($_GET['message']) ? $_GET['message'] : "";
 $from_page = isset($_REQUEST['from_page']) ? $_REQUEST['from_page'] : "";
 
 ?>
-
+<!DOCTYPE html>
 <html>
 <head>
 <?php html_header_show();?>

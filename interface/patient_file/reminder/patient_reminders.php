@@ -17,22 +17,22 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/reminders.php");
 require_once("$srcdir/clinical_rules.php");
 require_once "$srcdir/report_database.inc";
+
+use OpenEMR\Core\Header;
 ?>
 
 <html>
 <head>
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+    <title><?php echo xlt("Patient Reminders"); ?></title>
 
-<script LANGUAGE="JavaScript">
-var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
-</script>
+    <?php Header::setupHeader('common'); ?>
 
+    <style>
+        a.arrowhead, a:hover.arrowhead, a:visited.arrowhead{
+        color: black;
+    }
+    </style>
 </head>
 
 <?php
@@ -43,29 +43,29 @@ $sortorder = $_GET['sortorder'];
 $begin = $_GET['begin'];
 
 if (!empty($patient_id)) {
-  //Only update one patient
+    //Only update one patient
     $update_rem_log = update_reminders('', $patient_id);
 }
 
 if ($mode == "simple") {
-  // Collect the rules for the per patient rules selection tab
+    // Collect the rules for the per patient rules selection tab
     $rules_default = resolve_rules_sql('', '0', true);
 }
 
 ?>
 
 <script language="javascript">
-  // This is for callback by the find-patient popup.
-  function setpatient(pid, lname, fname, dob) {
-    var f = document.forms[0];
-    f.form_patient.value = lname + ', ' + fname;
-    f.patient_id.value = pid;
-  }
+    // This is for callback by the find-patient popup.
+    function setpatient(pid, lname, fname, dob) {
+        var f = document.forms[0];
+        f.form_patient.value = lname + ', ' + fname;
+        f.patient_id.value = pid;
+    }
 
-  // This invokes the find-patient popup.
-  function sel_patient() {
-    dlgopen('../../main/calendar/find_patient_popup.php', '_blank', 500, 400);
-  }
+    // This invokes the find-patient popup.
+    function sel_patient() {
+        dlgopen('../../main/calendar/find_patient_popup.php', '_blank', 500, 400);
+    }
 </script>
 
 <body class='body_top'>
@@ -99,22 +99,20 @@ if ($sortby == "") {
 if ($sortorder == "") {
     $sortorder = "asc";
 }
-
 for ($i = 0; $i < count($sort); $i++) {
-    $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) ."&mode=" . attr($mode) . "&sortby=" . attr($sort[$i]) . "&sortorder=asc\" onclick=\"top.restoreSession()\">" .
-    "<img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."\"></a>";
+    $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr($patient_id) ."&mode=" . attr($mode) . "&sortby=" . attr($sort[$i]) . "&sortorder=asc\" onclick=\"top.restoreSession()\"  title ='" .htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."'>" .
+    "<i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
 }
-
 for ($i = 0; $i < count($sort); $i++) {
     if ($sortby == $sort[$i]) {
         switch ($sortorder) {
             case "asc":
-                $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=desc\" onclick=\"top.restoreSession()\">" .
-                          "<img src=\"../../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."\"></a>";
+                $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=desc\" onclick=\"top.restoreSession()\"   title ='" .htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."'>" .
+                          "<i class='fa fa-sort-asc fa-lg' aria-hidden='true'></i></a>";
                 break;
             case "desc":
-                $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=asc\" onclick=\"top.restoreSession()\">" .
-                          "<img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Down'), ENT_QUOTES)."\"></a>";
+                $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=asc\" onclick=\"top.restoreSession()\"  title ='" .htmlspecialchars(xl('Sort Down'), ENT_QUOTES)."'>" .
+                          "<i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
                 break;
         } break;
     }
@@ -155,13 +153,13 @@ if ($end < $start) {
 }
 
 if ($prev >= 0) {
-    $prevlink = "<a href=\"patient_reminders.php?patient_id=$patient_id&mode=$mode&sortby=$sortby&sortorder=$sortorder&begin=$prev\" onclick=\"top.restoreSession()\"><<</a>";
+    $prevlink = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($prev) . "\" onclick=\"top.restoreSession()\"><<</a>";
 } else {
     $prevlink = "<<";
 }
 
 if ($next < $total) {
-    $nextlink = "<a href=\"patient_reminders.php?patient_id=$patient_id&mode=$mode&sortby=$sortby&sortorder=$sortorder&begin=$next\" onclick=\"top.restoreSession()\">>></a>";
+    $nextlink = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($next) . "\" onclick=\"top.restoreSession()\">>></a>";
 } else {
     $nextlink = ">>";
 }
@@ -243,22 +241,22 @@ if ($next < $total) {
       <tbody>
 <?php
 
-//Escape sort by parameter
-$escapedsortby = explode(',', $sortby);
+    //Escape sort by parameter
+    $escapedsortby = explode(',', $sortby);
 foreach ($escapedsortby as $key => $columnName) {
     $escapedsortby[$key] = escape_sql_column_name(trim($columnName), array('patient_reminders','patient_data'));
 }
-$escapedsortby = implode(', ', $escapedsortby);
+    $escapedsortby = implode(', ', $escapedsortby);
 
-$sql = "SELECT a.id, a.due_status, a.category, a.item, a.date_created, a.date_sent, a.voice_status, " .
-            "a.sms_status, a.email_status, a.mail_status, b.fname, b.lname, b.hipaa_allowemail, b.hipaa_allowsms " .
-"FROM `patient_reminders` as a, `patient_data` as b " .
-"WHERE a.active='1' AND a.pid=b.pid " . $add_sql .
-"ORDER BY " . $escapedsortby . " " .
-  escape_sort_order($sortorder) . " " .
-"LIMIT " . escape_limit($begin) . ", " .
-  escape_limit($listnumber);
-$result = sqlStatement($sql, $sqlBindArray);
+    $sql = "SELECT a.id, a.due_status, a.category, a.item, a.date_created, a.date_sent, a.voice_status, " .
+                "a.sms_status, a.email_status, a.mail_status, b.fname, b.lname, b.hipaa_allowemail, b.hipaa_allowsms " .
+    "FROM `patient_reminders` as a, `patient_data` as b " .
+    "WHERE a.active='1' AND a.pid=b.pid " . $add_sql .
+    "ORDER BY " . $escapedsortby . " " .
+      escape_sort_order($sortorder) . " " .
+    "LIMIT " . escape_limit($begin) . ", " .
+      escape_limit($listnumber);
+    $result = sqlStatement($sql, $sqlBindArray);
 while ($myrow = sqlFetchArray($result)) { ?>
         <tr>
           <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $myrow['category']) . " : " .
@@ -311,23 +309,19 @@ while ($myrow = sqlFetchArray($result)) { ?>
                     }
                 } ?>
               <select class="patient_reminder" name="<?php echo htmlspecialchars($rule['id'], ENT_NOQUOTES); ?>">
-                <option value="default" <?php if ($select == "default") {
-                    echo "selected";
-} ?>><?php echo htmlspecialchars(xl('Default'), ENT_NOQUOTES); ?></option>
-                <option value="on" <?php if ($select == "on") {
-                    echo "selected";
-} ?>><?php echo htmlspecialchars(xl('On'), ENT_NOQUOTES); ?></option>
-                <option value="off" <?php if ($select == "off") {
-                    echo "selected";
-} ?>><?php echo htmlspecialchars(xl('Off'), ENT_NOQUOTES); ?></option>
+                <option value="default" <?php echo ($select == "default") ? "selected" : ""; ?>><?php echo htmlspecialchars(xl('Default'), ENT_NOQUOTES); ?></option>
+                <option value="on" <?php echo ($select == "on") ? "selected" : ""; ?>><?php echo htmlspecialchars(xl('On'), ENT_NOQUOTES); ?></option>
+                <option value="off" <?php echo ($select == "off") ? "selected" : ""; ?>><?php echo htmlspecialchars(xl('Off'), ENT_NOQUOTES); ?></option>
               </select>
             </td>
             <td align="center" style="border-right:1px solid black;">
-                <?php if ($rule['patient_reminder_flag'] == "1") {
+                <?php
+                if ($rule['patient_reminder_flag'] == "1") {
                     echo htmlspecialchars(xl('On'), ENT_NOQUOTES);
-} else {
-    echo htmlspecialchars(xl('Off'), ENT_NOQUOTES);
-} ?>
+                } else {
+                    echo htmlspecialchars(xl('Off'), ENT_NOQUOTES);
+                }
+                ?>
             </td>
           </tr>
         <?php } ?>
@@ -414,4 +408,3 @@ $(document).ready(function(){
 </script>
 </body>
 </html>
-

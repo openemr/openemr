@@ -281,6 +281,7 @@ if (isset($_REQUEST['cktime'])) {
     // after this page is loaded.
 }
 ?>
+<!DOCTYPE html>
 <html>
 <head>
 <?php html_header_show(); ?>

@@ -36,6 +36,7 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/patient.inc");
+require_once("$srcdir/FeeSheetHtml.class.php");
 
 $form_name = "eye_mag";
 $form_folder = "eye_mag";
@@ -99,7 +100,7 @@ $prov_data    =  sqlQuery($query, array($providerID));
 global $priors;
 global $earlier;
 $PMSFH = build_PMSFH($pid);
-
+$fs = new FeeSheetHtml();
 /*
   Two windows anywhere with the same chart open is not compatible with the autosave feature.
   Data integrity problems will arise.
@@ -221,9 +222,10 @@ if ($refresh and $refresh != 'fullscreen') {
     </script>
 
     <!-- Add Font stuff for the look and feel.  -->
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
+
     <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/excite-bike/jquery-ui.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.css" />
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
@@ -290,7 +292,8 @@ if ($refresh and $refresh != 'fullscreen') {
        }
     </script>
   </head>
-  <body class="bgcolor2" background="<?php echo $GLOBALS['backpic']?>" topmargin=0 rightmargin=0 leftmargin=0 bottommargin=0 marginwidth=0 marginheight=0>
+  <!--Need a margin-top due to fixed nav-->
+  <body class="bgcolor2" background="<?php echo $GLOBALS['backpic']?>" style="margin:5px 0 0 0;">
     <?php
       $input_echo = menu_overhaul_top($pid, $encounter);
     ?><br /><br />
@@ -3518,7 +3521,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                         "WHERE superbill = ? AND active = 1 " .
                                         "ORDER BY code_text", array($prow['option_id']));
                                         while ($row = sqlFetchArray($res)) {
-                                            $ctkey = alphaCodeType($row['code_type']);
+                                            $ctkey = $fs->alphaCodeType($row['code_type']);
                                             if ($code_types[$ctkey]['nofs']) {
                                                 continue;
                                             }

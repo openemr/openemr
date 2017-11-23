@@ -29,7 +29,7 @@
 <title><?php $this->eprint($this->title); ?></title>
 <meta content="width=device-width, initial-scale=1, user-scalable=no"	name="viewport">
 
-<base href="<?php $this->eprint($this->ROOT_URL); ?>" />
+
 <meta name="description" content="Patient Profile" />
 <meta name="author" content="Form | sjpadgett@gmail.com" />
 
@@ -49,11 +49,10 @@
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-
+<base href="<?php $this->eprint($this->ROOT_URL); ?>" />
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
 <script type="text/javascript">
 $LAB.setGlobalDefaults({BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"});
 </script>
-
 </head>
 <body>

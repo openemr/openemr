@@ -602,7 +602,7 @@ function &postcalendar_userapi_getCategories()
     list($dbconn) = pnDBGetConn();
     $pntable = pnDBGetTables();
     $cat_table = $pntable['postcalendar_categories'];
-    $sql = "SELECT pc_catid,pc_catname,pc_catcolor,pc_catdesc,
+    $sql = "SELECT pc_catid,pc_catname,pc_constant_id,pc_catcolor,pc_catdesc,
             pc_recurrtype,pc_recurrspec,pc_recurrfreq,pc_duration,
             pc_dailylimit,pc_end_date_flag,pc_end_date_type,pc_end_date_freq,
             pc_end_all_day,pc_cattype,pc_active,pc_seq,aco_spec FROM $cat_table
@@ -619,7 +619,7 @@ function &postcalendar_userapi_getCategories()
 
     $categories = array();
     for ($i=0; !$result->EOF; $result->MoveNext()) {
-        list($catid,$catname,$catcolor,$catdesc,
+        list($catid,$catname,$constantid,$catcolor,$catdesc,
             $rtype,$rspec,$rfreq,$duration,$limit,$end_date_flag,
             $end_date_type,$end_date_freq,$end_all_day,$cattype,$active,$seq,$aco) = $result->fields;
         // check the category's permissions
@@ -629,6 +629,7 @@ function &postcalendar_userapi_getCategories()
 
         $categories[$i]['id']     = $catid;
         $categories[$i]['name']   = $catname;
+        $categories[$i]['constantid']   = $constantid;
         $categories[$i]['color']  = $catcolor;
         $categories[$i]['desc'] = $catdesc;
         $categories[$i]['value_cat_type'] = $cattype;

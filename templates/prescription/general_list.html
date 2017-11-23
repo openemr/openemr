@@ -34,6 +34,12 @@ function changeLinkHref(id,addValue,value) {
     }
 }
 
+function changeLinkHrefAll(addValue, value) {
+    changeLinkHref('multiprint', addValue, value);
+    changeLinkHref('multiprintcss', addValue, value);
+    changeLinkHref('multiprintToFax', addValue, value);
+}
+
 //uses jquery to update database table
 function markTx(oThis,id){
     var isChecked = oThis.checked ? 1 : 0; // @TODO this is better served if checkboxs are all checked on submit with one call to markTx
@@ -254,12 +260,12 @@ $(document).ready(function(){
     {if $GLOBALS.weno_rx_enable}
         <td align="center">
         {if $prescription->ntx == 0}
-            <input class="check_list" id="NewRx-{$smarty.foreach.rx.index|escape:'html'}" type="checkbox" {if $prescription->active < 1}disabled="disabled" {/if} value="{$prescription->id|escape:'html'}" {if $prescription->ntx > 0}checked="checked" {/if} onClick="markTx(this,'NewRx-{$prescription->id|escape:'html'}');" title={xl t="Select to transmit"|escape:'html'}>
+            <input class="check_list" id="NewRx-{$smarty.foreach.rx.index|escape:'html'}" type="checkbox" {if $prescription->active < 1}disabled="disabled" {/if} value="{$prescription->id|escape:'html'}" {if $prescription->ntx > 0 && $prescription->active > 0}checked="checked" {/if} onClick="markTx(this,'NewRx-{$prescription->id|escape:'html'}'); changeLinkHrefAll(this.checked, this.value);" title={xl t="Select to transmit"|escape:'html'}>
         {/if}
         </td>
         <td align="center">
         {if $prescription->ntx == 1}
-            <input class="check_list" id="RefillRx-{$smarty.foreach.rx.index|escape:'html'}" type="checkbox" {if $prescription->active < 1}disabled="disabled" {/if} value="{$prescription->id|escape:'html'}" {if $prescription->ntx > 0}checked="checked" {/if} onClick="markTx(this,'RefillRx-{$prescription->id|escape:'html'}');" title={xl t="Select to transmit"|escape:'html'}>
+            <input class="check_list" id="RefillRx-{$smarty.foreach.rx.index|escape:'html'}" type="checkbox" {if $prescription->active < 1}disabled="disabled" {/if} value="{$prescription->id|escape:'html'}" {if $prescription->ntx > 0 && $prescription->active > 0}checked="checked" {/if} onClick="markTx(this,'RefillRx-{$prescription->id|escape:'html'}'); changeLinkHrefAll(this.checked, this.value);" title={xl t="Select to transmit"|escape:'html'}>
         {/if}
         </td>
         <td id="{$prescription->id|escape:'html'}" align="center">

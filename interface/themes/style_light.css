@@ -470,6 +470,10 @@ a:hover {
   margin: 5px;
 }
 
+#pnotes_ps_expand  div.tab table td {
+  padding-right: 10px;
+}
+
 /*=============================================================
  * Patient Stats
  * seen in the patient stats screens
@@ -1584,4 +1588,8 @@ table.dataTable#therapy_groups_list tbody td{
 .alert-danger-custom {
   background-color: #FF0000 !important;
   color: #fff !important;
+}
+/* to align feesheet buttons*/
+div.category-display {
+   margin-left: 25px !Important;
 }

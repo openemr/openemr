@@ -30,18 +30,19 @@ if(top.tab_mode===true)
     }
 
     window.close=
-            function()
-            {
-                var dialogDiv=top.$("#dialogDiv");
-                var frameName=window.name
-                var body=top.$("body");
-                    var removeFrame=body.find("iframe[name='"+frameName+"']");
-                    removeFrame.remove();
-                    var removeDiv=body.find("div.dialogIframe[name='"+frameName+"']");
-                    removeDiv.remove();
-                    if(body.children("div.dialogIframe").length===0)
-                    {
-                        dialogDiv.hide();
-                    };
-                };
+        function () {
+            var dialogDiv = top.$("#dialogDiv");
+            var frameName = window.name;
+            var dialogModal = top.$('div#'+frameName); // This is a dynamic div.
+            var body = top.$("body");
+            var removeFrame = body.find("iframe[name='" + frameName + "']");
+            removeFrame.remove();
+            if (body.children("div.dialogIframe").length === 0) {
+                dialogDiv.hide();
+            };
+            if (dialogModal.length > 0) { // Will let modal's hidden event clean up.
+                dialogModal.modal('hide');
+            };
+
+        };
 }
