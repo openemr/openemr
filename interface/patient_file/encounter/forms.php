@@ -19,7 +19,7 @@ require_once("$srcdir/../controllers/C_Document.class.php");
 $reviewMode = false;
 if (!empty($_REQUEST['review_id'])) {
     $reviewMode = true;
-    $encounter=$_REQUEST['review_id'];
+    $encounter=sanitizeNumber($_REQUEST['review_id']);
 }
 
 $is_group = ($attendant_type == 'gid') ? true : false;
@@ -274,7 +274,7 @@ if (!isset($_GET['attachid'])) {
         $(".css_button").hide();
         $(".css_button_small").hide();
         $(".encounter-summary-column:first").show();
-        $(".title:first").text("<?php echo xls("Review"); ?> " + $(".title:first").text() + " (<?php echo addslashes($encounter); ?>)");
+        $(".title:first").text("<?php echo xls("Review"); ?> " + $(".title:first").text() + " ( <?php echo addslashes($encounter); ?> )");
     <?php } ?>
 });
 

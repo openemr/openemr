@@ -736,7 +736,7 @@ if (function_exists($formname . '_javascript')) {
 <div class='container'>
 <?php
   echo "<form method='post' " .
-       "action='$rootdir/forms/LBF/new.php?formname=$formname&id=$formid&portalid=$portalid' " .
+       "action='$rootdir/forms/LBF/new.php?formname=".attr($formname)."&id=$formid&portalid=$portalid' " .
        "onsubmit='return validate(this)'>\n";
 
   $cmsportal_login = '';
@@ -1562,7 +1562,7 @@ if (!$alertmsg && !$formid && $GLOBALS['gbl_portal_cms_enable'] && $cmsportal_lo
     if ($portalid) {
         echo "if (confirm('" . xls('The portal has data for this patient and form. Load it now?') . "')) {\n";
         echo " top.restoreSession();\n";
-        echo " document.location.href = 'load_form.php?formname=$formname&portalid=$portalid';\n";
+        echo " document.location.href = 'load_form.php?formname=".attr($formname)."&portalid=$portalid';\n";
         echo "}\n";
     }
 }

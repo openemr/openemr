@@ -77,3 +77,17 @@ function isWhiteFile($file)
 
     return false;
 }
+
+// Sanitize a value to ensure it is a number.
+function sanitizeNumber($number)
+{
+    $clean_number = $number +0 ;
+
+    if ($clean_number==$number){
+        return $clean_number;
+    }
+    else {
+        error_log('Custom validation error: Parameter contains non-numeric value (A numeric value expected)');
+        return 0;
+    }
+}

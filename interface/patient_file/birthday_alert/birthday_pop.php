@@ -38,8 +38,8 @@ use OpenEMR\Core\Header;
     <?php if ($GLOBALS['patient_birthday_alert_manual_off']) { ?>
         $("#turnOff").change(function () {
     <?php } ?>
-            var pid = <?php echo $_GET['pid']?>;
-            var user_id = <?php echo $_GET['user_id']?>;
+            var pid = <?php echo attr($_GET['pid'])?>;
+            var user_id = <?php echo attr($_GET['user_id'])?>;
             var value = $("#turnOff").prop('checked');
             var data =  {"pid": pid, "user_id": user_id, "turnOff": value};
             $.ajax({
