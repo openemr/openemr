@@ -1,7 +1,20 @@
 <?php
+/**
+ * Facilities.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Ranganath Pathak <pathak01@hotmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Ranganath Pathak <pathak01@hotmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 require_once("../globals.php");
 require_once("../../library/acl.inc");
 
+use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -75,12 +88,21 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] =
 }
 
 ?>
+<!DOCTYPE html >
 <html>
 <head>
+
+<title><?php echo xlt("Facilities") ; ?></title>
+
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
+<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.css" type="text/css">
+<?php } ?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui.js"></script>
@@ -112,79 +134,86 @@ $(document).ready(function(){
 });
 
 </script>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 
 <body class="body_top">
 
-<div>
-    <div>
-    <table><tr><td>
-        <b><?php xl('Facilities', 'e'); ?></b>&nbsp;</td><td>
-         <a href="facilities_add.php" class="iframe addfac_modal css_button"><span><?php xl('Add', 'e');?></span></a>
-         </td></tr>
-    </table>
-    </div>
-    <div class="tabContainer" style="width:550px;">
-        <div>
-<table cellpadding="1" cellspacing="0" class="showborder">
-    <tr class="showborder_head" height="22">
-        <th style="border-style:1px solid #000" width="140px"><?php xl('Name', 'e'); ?></th>
-        <th style="border-style:1px solid #000" width="320px"><?php xl('Address', 'e'); ?></th>
-        <th style="border-style:1px solid #000"><?php xl('Phone', 'e'); ?></th>
-    </tr>
-        <?php
-        $fres = 0;
-        $fres = $facilityService->getAll();
-        if ($fres) {
-            $result2 = array();
-            for ($iter3 = 0; $iter3 < sizeof($fres); $iter3++) {
-                $result2[$iter3] = $fres[$iter3];
-            }
-
-            foreach ($result2 as $iter3) {
-                $varstreet="";//these are assigned conditionally below,blank assignment is done so that old values doesn't get propagated to next level.
-                $varcity="";
-                $varstate="";
-                $varstreet=$iter3["street"];
-                if ($iter3["street"]!="") {
-                    $varstreet=$iter3["street"].",";
-                }
-
-                if ($iter3["city"]!="") {
-                    $varcity=$iter3["city"].",";
-                }
-
-                if ($iter3["state"]!="") {
-                    $varstate=$iter3["state"].",";
-                }
-        ?>
-      <tr height="22">
-         <td valign="top" class="text"><b><a href="facility_admin.php?fid=<?php echo $iter3["id"];?>" class="iframe medium_modal"><span><?php echo htmlspecialchars($iter3["name"]);?></span></a></b>&nbsp;</td>
-         <td valign="top" class="text"><?php echo htmlspecialchars($varstreet.$varcity.$varstate.$iter3["country_code"]." ".$iter3["postal_code"]); ?>&nbsp;</td>
-         <td><?php echo htmlspecialchars($iter3["phone"]);?>&nbsp;</td>
-    </tr>
-    <?php
-            }
-        }
-
-        if (count($result2)<=0) {?>
-         <tr height="25">
-               <td colspan="3"  style="text-align:center;font-weight:bold;"> <?php echo xl("Currently there are no facilities."); ?></td>
-    </tr>
-        <?php
-        } ?>
-    </table>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-12">
+            <div class="page-header clearfix">
+                <h2 class="clearfix"><?php echo xlt("Facilities") ; ?></h2>
+            </div>
+            <a href="facilities_add.php" class="iframe addfac_modal btn btn-default btn-add"><span><?php echo xlt('Add Facility');?></span></a>
+            </div>
         </div>
-    </div>
-</div>
-<script language="JavaScript">
-<?php
-if ($alertmsg = trim($alertmsg)) {
-    echo "alert('$alertmsg');\n";
-}
-?>
-</script>
+        <br>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th><?php echo xlt('Name'); ?></th>
+                                <th><?php echo xlt('Address'); ?></th>
+                                <th><?php echo xlt('Phone'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $fres = 0;
+                            $fres = $facilityService->getAll();
+                            if ($fres) {
+                                $result2 = array();
+                                for ($iter3 = 0; $iter3 < sizeof($fres); $iter3++) {
+                                    $result2[$iter3] = $fres[$iter3];
+                                }
+
+                                foreach ($result2 as $iter3) {
+                                    $varstreet="";//these are assigned conditionally below,blank assignment is done so that old values doesn't get propagated to next level.
+                                    $varcity="";
+                                    $varstate="";
+                                    $varstreet=$iter3["street"];
+                                    if ($iter3["street"]!="") {
+                                        $varstreet=$iter3["street"].",";
+                                    }
+
+                                    if ($iter3["city"]!="") {
+                                        $varcity=$iter3["city"].",";
+                                    }
+
+                                    if ($iter3["state"]!="") {
+                                        $varstate=$iter3["state"].",";
+                                    }
+                            ?>
+                            <tr height="22">
+                                 <td valign="top" class="text"><b><a href="facility_admin.php?fid=<?php echo attr($iter3["id"]); ?>" class="iframe medium_modal"><span><?php echo text($iter3["name"]);?></span></a></b>&nbsp;</td>
+                                 <td valign="top" class="text"><?php echo text($varstreet.$varcity.$varstate.$iter3["country_code"]." ".$iter3["postal_code"]); ?>&nbsp;</td>
+                                 <td><?php echo text($iter3["phone"]);?>&nbsp;</td>
+                            </tr>
+                            <?php
+                                }
+                            }
+
+                            if (count($result2)<=0) {?>
+                            <tr height="25">
+                                <td colspan="3"  style="text-align:center;font-weight:bold;"> <?php echo xlt("Currently there are no facilities."); ?></td>
+                            </tr>
+                            <?php
+                            } ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div><!-- end of div container -->
+    <script language="JavaScript">
+    <?php
+    if ($alertmsg = trim($alertmsg)) {
+        echo "alert('$alertmsg');\n";
+    }
+    ?>
+    </script>
 
 </body>
 </html>
