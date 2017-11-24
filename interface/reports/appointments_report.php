@@ -2,39 +2,24 @@
 /**
  * This report shows upcoming appointments with filtering and
  * sorting by patient, practitioner, appointment type, and date.
- * 2012-01-01 - Added display of home and cell phone and fixed header
- * 2015-06-19 - brought up to security standards terry@lillysystems.com
  *
- * Copyright (C) 2005-2016 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-
-
-use OpenEMR\Core\Header;
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/appointments.inc.php";
 require_once "$srcdir/clinical_rules.php";
+
+use OpenEMR\Core\Header;
 
 # Clear the pidList session whenever load this page.
 # This session will hold array of patients that are listed in this
@@ -45,13 +30,14 @@ unset($_SESSION['pidList']);
 $alertmsg = ''; // not used yet but maybe later
 $patient = $_REQUEST['patient'];
 
-if ($patient && ! $_POST['form_from_date']) {
+if ($patient && !isset($_POST['form_from_date'])) {
     // If a specific patient, default to 2 years ago.
     $tmp = date('Y') - 2;
     $from_date = date("$tmp-m-d");
+    $to_date = date('Y-m-d');
 } else {
-    $from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
-    $to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
+    $from_date = isset($_POST['form_from_date']) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
+    $to_date = isset($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 }
 
 $show_available_times = false;
@@ -69,7 +55,6 @@ if ($_POST['with_out_facility']) {
     $chk_with_out_facility = true;
 }
 
-//$to_date   = fixDate($_POST['form_to_date'], '');
 $provider  = $_POST['form_provider'];
 $facility  = $_POST['form_facility'];  //(CHEMED) facility filter
 $form_orderby = getComparisonOrder($_REQUEST['form_orderby']) ?  $_REQUEST['form_orderby'] : 'date';
@@ -119,71 +104,66 @@ function fetch_reminders($pid, $appt_date)
 <html>
 
 <head>
+    <title><?php echo xlt('Appointments Report'); ?></title>
 
-<title><?php echo xlt('Appointments Report'); ?></title>
+    <?php Header::setupHeader(["datetime-picker","report-helper"]); ?>
 
-<?php Header::setupHeader(["datetime-picker","report-helper"]); ?>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
 
-<script type="text/javascript">
+            $('.datepicker').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
 
- var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+        });
 
- $(document).ready(function() {
-  var win = top.printLogSetup ? top : opener.top;
-  win.printLogSetup(document.getElementById('printbutton'));
+        function dosort(orderby) {
+            var f = document.forms[0];
+            f.form_orderby.value = orderby;
+            f.submit();
+            return false;
+        }
 
-  $('.datepicker').datetimepicker({
-    <?php $datetimepicker_timepicker = false; ?>
-    <?php $datetimepicker_showseconds = false; ?>
-    <?php $datetimepicker_formatInput = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-  });
+        function oldEvt(eventid) {
+            dlgopen('../main/calendar/add_edit_event.php?eid=' + eventid, 'blank', 775, 500);
+        }
 
- });
+        function refreshme() {
+            // location.reload();
+            document.forms[0].submit();
+        }
+        </script>
 
- function dosort(orderby) {
-    var f = document.forms[0];
-    f.form_orderby.value = orderby;
-    f.submit();
-    return false;
- }
-
- function oldEvt(eventid) {
-    dlgopen('../main/calendar/add_edit_event.php?eid=' + eventid, 'blank', 775, 500);
- }
-
- function refreshme() {
-    // location.reload();
-    document.forms[0].submit();
- }
-
-</script>
-
-<style type="text/css">
-/* specifically include & exclude from printing */
-@media print {
-        #report_parameters {
+        <style type="text/css">
+        /* specifically include & exclude from printing */
+        @media print {
+            #report_parameters {
                 visibility: hidden;
                 display: none;
-        }
-        #report_parameters_daterange {
+            }
+            #report_parameters_daterange {
                 visibility: visible;
                 display: inline;
-        }
-        #report_results table {
+            }
+            #report_results table {
                 margin-top: 0px;
+            }
         }
-}
 
-/* specifically exclude some from the screen */
-@media screen {
-    #report_parameters_daterange {
-        visibility: hidden;
-        display: none;
-    }
-}
-</style>
+        /* specifically exclude some from the screen */
+        @media screen {
+            #report_parameters_daterange {
+                visibility: hidden;
+                display: none;
+            }
+        }
+        </style>
 </head>
 
 <body class="body_top">
@@ -194,7 +174,7 @@ function fetch_reminders($pid, $appt_date)
 
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Appointments'); ?></span>
 
-<div id="report_parameters_daterange"><?php echo date("d F Y", strtotime($from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($to_date)); #sets date range for calendars ?>
+<div id="report_parameters_daterange"><?php echo oeFormatShortDate($from_date) ." &nbsp; " . xlt('to') . " &nbsp; ". oeFormatShortDate($to_date); ?>
 </div>
 
 <form method='post' name='theform' id='theform' action='appointments_report.php' onsubmit='return top.restoreSession()'>
@@ -243,14 +223,12 @@ function fetch_reminders($pid, $appt_date)
                 <td class='control-label'><?php echo xlt('From'); ?>:</td>
                 <td><input type='text' name='form_from_date' id="form_from_date"
                     class='datepicker form-control'
-                    size='10' value='<?php echo attr($from_date) ?>'
-                    title='yyyy-mm-dd'>
+                    size='10' value='<?php echo oeFormatShortDate($from_date) ?>'>
                 </td>
                 <td class='control-label'><?php echo xlt('To'); ?>:</td>
                 <td><input type='text' name='form_to_date' id="form_to_date"
                     class='datepicker form-control'
-                    size='10' value='<?php echo attr($to_date) ?>'
-                    title='yyyy-mm-dd'>
+                    size='10' value='<?php echo oeFormatShortDate($to_date) ?>'>
                 </td>
             </tr>
 
@@ -280,9 +258,7 @@ function fetch_reminders($pid, $appt_date)
                 <td>
                     <div class="checkbox">
                         <label><input type='checkbox' name='form_show_available'
-                        <?php  if ($show_available_times) {
-                            echo ' checked';
-} ?>> <?php  echo xlt('Show Available Times'); # check this to show available times on the report ?>
+                        <?php  echo ($show_available_times) ? ' checked' : ''; ?>> <?php echo xlt('Show Available Times'); # check this to show available times on the report ?>
                         </label>
                     </div>
                 </td>
@@ -301,18 +277,14 @@ function fetch_reminders($pid, $appt_date)
                 <?php # these two selects will show entries that do not have a facility or a provider ?>
                 <td>
                     <div class="checkbox">
-                        <label><input type="checkbox" name="with_out_provider" id="with_out_provider" <?php if ($chk_with_out_provider) {
-                            echo "checked";
-}?>><?php echo xlt('Without Provider'); ?>
+                        <label><input type="checkbox" name="with_out_provider" id="with_out_provider" <?php echo ($chk_with_out_provider) ? "checked" : ""; ?>><?php echo xlt('Without Provider'); ?>
                         </label>
                     </div>
                 </td>
                 <td></td>
                 <td>
                     <div class="checkbox">
-                        <label><input type="checkbox" name="with_out_facility" id="with_out_facility" <?php if ($chk_with_out_facility) {
-                            echo "checked";
-}?>>&nbsp;<?php echo xlt('Without Facility'); ?>
+                        <label><input type="checkbox" name="with_out_facility" id="with_out_facility" <?php echo ($chk_with_out_facility) ? "checked" : ""; ?>>&nbsp;<?php echo xlt('Without Facility'); ?>
                         </label>
                     </div>
                 </td>
@@ -363,33 +335,23 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 
     <thead>
         <th><a href="nojs.php" onclick="return dosort('doctor')"
-    <?php if ($form_orderby == "doctor") {
-        echo " style=\"color:#00cc00\"";
-} ?>><?php  echo xlt('Provider'); ?>
+    <?php echo ($form_orderby == "doctor") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Provider'); ?>
         </a></th>
 
         <th <?php echo $showDate ? '' : 'style="display:none;"' ?>><a href="nojs.php" onclick="return dosort('date')"
-    <?php if ($form_orderby == "date") {
-        echo " style=\"color:#00cc00\"";
-} ?>><?php  echo xlt('Date'); ?></a>
+    <?php echo ($form_orderby == "date") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Date'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('time')"
-    <?php if ($form_orderby == "time") {
-        echo " style=\"color:#00cc00\"";
-} ?>><?php  echo xlt('Time'); ?></a>
+    <?php echo ($form_orderby == "time") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Time'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('patient')"
-    <?php if ($form_orderby == "patient") {
-        echo " style=\"color:#00cc00\"";
-} ?>><?php  echo xlt('Patient'); ?></a>
+    <?php echo ($form_orderby == "patient") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Patient'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('pubpid')"
-    <?php if ($form_orderby == "pubpid") {
-        echo " style=\"color:#00cc00\"";
-} ?>><?php  echo xlt('ID'); ?></a>
+    <?php echo ($form_orderby == "pubpid") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('ID'); ?></a>
         </th>
 
             <th><?php echo xlt('Home'); //Sorting by phone# not really useful ?></th>
@@ -397,15 +359,11 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
                 <th><?php echo xlt('Cell'); //Sorting by phone# not really useful ?></th>
 
         <th><a href="nojs.php" onclick="return dosort('type')"
-    <?php if ($form_orderby == "type") {
-        echo " style=\"color:#00cc00\"";
-} ?>><?php  echo xlt('Type'); ?></a>
+    <?php echo ($form_orderby == "type") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Type'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('status')"
-            <?php if ($form_orderby == "status") {
-                echo " style=\"color:#00cc00\"";
-} ?>><?php  echo xlt('Status'); ?></a>
+            <?php echo ($form_orderby == "status") ? " style=\"color:#00cc00\"" : ""; ?>><?php  echo xlt('Status'); ?></a>
         </th>
     </thead>
     <tbody>
@@ -480,19 +438,20 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
             <?php
                 //Appointment Status
             if ($pc_apptstatus != "") {
-                $frow['data_type']=1;
-                $frow['list_id']='apptstat';
-                generate_print_field($frow, $pc_apptstatus);
+                echo getListItemTitle('apptstat', $pc_apptstatus);
             }
             ?>
         </td>
     </tr>
 
-    <?php if ($patient_id && $incl_reminders) {
+    <?php
+    if ($patient_id && $incl_reminders) {
         // collect reminders first, so can skip it if empty
         $rems = fetch_reminders($patient_id, $appointment['pc_eventDate']);
-} ?>
-    <?php if ($patient_id && (!empty($rems) || !empty($appointment['pc_hometext']))) { // Not display of available slot or not showing reminders and comments empty ?>
+    }
+    ?>
+    <?php
+    if ($patient_id && (!empty($rems) || !empty($appointment['pc_hometext']))) { // Not display of available slot or not showing reminders and comments empty ?>
     <tr valign='top' id='p2.<?php echo attr($patient_id) ?>' >
        <td colspan=<?php echo $showDate ? '"3"' : '"2"' ?> class="detail" />
        <td colspan=<?php echo ($incl_reminders ? "3":"6") ?> class="detail" align='left'>
@@ -515,7 +474,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
         </td>
     </tr>
     <?php
-} // End of row 2 display
+    } // End of row 2 display
 
     $lastdocname = $docname;
     }
@@ -529,10 +488,11 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
     </tbody>
 </table>
 </div>
-<!-- end of search results --> <?php } else { ?>
+<!-- end of search results -->
+<?php } else { ?>
 <div class='text'><?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
 </div>
-    <?php } ?> <input type="hidden" name="form_orderby"
+<?php } ?> <input type="hidden" name="form_orderby"
     value="<?php echo attr($form_orderby) ?>" /> <input type="hidden"
     name="patient" value="<?php echo attr($patient) ?>" /> <input type='hidden'
     name='form_refresh' id='form_refresh' value='' /></form>
