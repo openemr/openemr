@@ -14,7 +14,6 @@
 require_once("../globals.php");
 require_once("../../library/acl.inc");
 
-use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
