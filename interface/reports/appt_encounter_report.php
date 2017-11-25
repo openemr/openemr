@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * This report cross-references appointments with encounters.
  * For a given date, show a line for each appointment with the
  * matching encounter, and also for each encounter that has no
@@ -18,44 +18,31 @@
  *   forms.encounter
  *   billing.pid_encounter
  *
- *
- * Copyright (C) 2005-2016 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author Rod Roark <rod@sunsetsystems.com>
- * @author Brady Miller <brady.g.miller@gmail.com>
- * @link http://www.open-emr.org
- *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Core\Header;
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/billing.inc");
 
+use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
 
- $errmsg  = "";
- $alertmsg = ''; // not used yet but maybe later
- $grand_total_charges    = 0;
- $grand_total_copays     = 0;
- $grand_total_encounters = 0;
+$errmsg  = "";
+$alertmsg = ''; // not used yet but maybe later
+$grand_total_charges    = 0;
+$grand_total_copays     = 0;
+$grand_total_encounters = 0;
 
 function postError($msg)
 {
@@ -64,13 +51,13 @@ function postError($msg)
         $errmsg .= '<br />';
     }
 
-    $errmsg .= $msg;
+    $errmsg .= text($msg);
 }
 
 function bucks($amount)
 {
     if ($amount) {
-        echo oeFormatMoney($amount);
+        return oeFormatMoney($amount);
     }
 }
 
@@ -83,19 +70,19 @@ function endDoctor(&$docrow)
 
     echo " <tr class='report_totals'>\n";
     echo "  <td colspan='5'>\n";
-    echo "   &nbsp;" . xl('Totals for', '', '', ' ') . $docrow['docname'] . "\n";
+    echo "   &nbsp;" . xlt('Totals for') . ' ' . text($docrow['docname']) . "\n";
     echo "  </td>\n";
     echo "  <td align='right'>\n";
-    echo "   &nbsp;" . $docrow['encounters'] . "&nbsp;\n";
+    echo "   &nbsp;" . text($docrow['encounters']) . "&nbsp;\n";
     echo "  </td>\n";
     echo "  <td align='right'>\n";
     echo "   &nbsp;";
-    bucks($docrow['charges']);
+    echo text(bucks($docrow['charges']));
     echo "&nbsp;\n";
     echo "  </td>\n";
     echo "  <td align='right'>\n";
     echo "   &nbsp;";
-    bucks($docrow['copays']);
+    echo text(bucks($docrow['copays']));
     echo "&nbsp;\n";
     echo "  </td>\n";
     echo "  <td colspan='2'>\n";
@@ -112,15 +99,13 @@ function endDoctor(&$docrow)
     $docrow['encounters']  = 0;
 }
 
- $form_facility  = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
- $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
- $form_to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
+$form_facility  = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
+$form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
+$form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 if ($_POST['form_refresh']) {
-    $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
-    $form_to_date = fixDate($_POST['form_to_date'], "");
-
-  // MySQL doesn't grok full outer joins so we do it the hard way.
-  //
+    // MySQL doesn't grok full outer joins so we do it the hard way.
+    //
+    $sqlBindArray = array();
     $query = "( " .
     "SELECT " .
     "e.pc_eventDate, e.pc_startTime, " .
@@ -133,20 +118,23 @@ if ($_POST['form_refresh']) {
     "ON fe.date = e.pc_eventDate AND fe.pid = e.pc_pid " .
     "LEFT OUTER JOIN forms AS f ON f.pid = fe.pid AND f.encounter = fe.encounter AND f.formdir = 'newpatient' " .
     "LEFT OUTER JOIN patient_data AS p ON p.pid = e.pc_pid " .
-   // "LEFT OUTER JOIN users AS u ON BINARY u.username = BINARY f.user WHERE ";
+    // "LEFT OUTER JOIN users AS u ON BINARY u.username = BINARY f.user WHERE ";
     "LEFT OUTER JOIN users AS u ON u.id = fe.provider_id WHERE ";
     if ($form_to_date) {
-        $query .= "e.pc_eventDate >= '$form_from_date' AND e.pc_eventDate <= '$form_to_date' ";
+        $query .= "e.pc_eventDate >= ? AND e.pc_eventDate <= ? ";
+        array_push($sqlBindArray, $form_from_date, $form_to_date);
     } else {
-        $query .= "e.pc_eventDate = '$form_from_date' ";
+        $query .= "e.pc_eventDate = ? ";
+        array_push($sqlBindArray, $form_from_date);
     }
 
     if ($form_facility !== '') {
-        $query .= "AND e.pc_facility = '" . add_escape_custom($form_facility) . "' ";
+        $query .= "AND e.pc_facility = ? ";
+        array_push($sqlBindArray, $form_facility);
     }
 
-  // $query .= "AND ( e.pc_catid = 5 OR e.pc_catid = 9 OR e.pc_catid = 10 ) " .
-    $query .= "AND e.pc_pid != '' AND e.pc_apptstatus != '?' " .
+    // $query .= "AND ( e.pc_catid = 5 OR e.pc_catid = 9 OR e.pc_catid = 10 ) " .
+    $query .= "AND e.pc_pid != '' AND e.pc_apptstatus != ? " .
     ") UNION ( " .
     "SELECT " .
     "e.pc_eventDate, e.pc_startTime, " .
@@ -157,88 +145,87 @@ if ($_POST['form_refresh']) {
     "FROM form_encounter AS fe " .
     "LEFT OUTER JOIN openemr_postcalendar_events AS e " .
     "ON fe.date = e.pc_eventDate AND fe.pid = e.pc_pid AND " .
-   // "( e.pc_catid = 5 OR e.pc_catid = 9 OR e.pc_catid = 10 ) " .
-    "e.pc_pid != '' AND e.pc_apptstatus != '?' " .
+    // "( e.pc_catid = 5 OR e.pc_catid = 9 OR e.pc_catid = 10 ) " .
+    "e.pc_pid != '' AND e.pc_apptstatus != ? " .
     "LEFT OUTER JOIN forms AS f ON f.pid = fe.pid AND f.encounter = fe.encounter AND f.formdir = 'newpatient' " .
     "LEFT OUTER JOIN patient_data AS p ON p.pid = fe.pid " .
-   // "LEFT OUTER JOIN users AS u ON BINARY u.username = BINARY f.user WHERE ";
+    // "LEFT OUTER JOIN users AS u ON BINARY u.username = BINARY f.user WHERE ";
     "LEFT OUTER JOIN users AS u ON u.id = fe.provider_id WHERE ";
+    array_push($sqlBindArray, '?', '?');
     if ($form_to_date) {
-       // $query .= "LEFT(fe.date, 10) >= '$form_from_date' AND LEFT(fe.date, 10) <= '$form_to_date' ";
-        $query .= "fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_to_date 23:59:59' ";
+        // $query .= "LEFT(fe.date, 10) >= '$form_from_date' AND LEFT(fe.date, 10) <= '$form_to_date' ";
+        $query .= "fe.date >= ? AND fe.date <= ? ";
+        array_push($sqlBindArray, $form_from_date.' 00:00:00', $form_to_date.' 23:59:59');
     } else {
        // $query .= "LEFT(fe.date, 10) = '$form_from_date' ";
-        $query .= "fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_from_date 23:59:59' ";
+        $query .= "fe.date >= ? AND fe.date <= ? ";
+        array_push($sqlBindArray, $form_from_date.' 00:00:00', $form_from_date.' 23:59:59');
     }
 
     if ($form_facility !== '') {
-        $query .= "AND fe.facility_id = '" . add_escape_custom($form_facility) . "' ";
+        $query .= "AND fe.facility_id = ? ";
+        array_push($sqlBindArray, $form_facility);
     }
 
     $query .= ") ORDER BY docname, IFNULL(pc_eventDate, encdate), pc_startTime";
 
-    $res = sqlStatement($query);
+    $res = sqlStatement($query, $sqlBindArray);
 }
 ?>
 <html>
 <head>
+    <title><?php echo xlt('Appointments and Encounters'); ?></title>
 
-<?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-<style type="text/css">
+    <style type="text/css">
+        /* specifically include & exclude from printing */
+        @media print {
+            #report_parameters {
+                visibility: hidden;
+                display: none;
+            }
+            #report_parameters_daterange {
+                visibility: visible;
+                display: inline;
+            }
+            #report_results table {
+               margin-top: 0px;
+            }
+        }
 
-/* specifically include & exclude from printing */
-@media print {
-    #report_parameters {
-        visibility: hidden;
-        display: none;
-    }
-    #report_parameters_daterange {
-        visibility: visible;
-        display: inline;
-    }
-    #report_results table {
-       margin-top: 0px;
-    }
-}
+        /* specifically exclude some from the screen */
+        @media screen {
+            #report_parameters_daterange {
+                visibility: hidden;
+                display: none;
+            }
+        }
+    </style>
 
-/* specifically exclude some from the screen */
-@media screen {
-    #report_parameters_daterange {
-        visibility: hidden;
-        display: none;
-    }
-}
+    <script LANGUAGE="JavaScript">
+        $(document).ready(function() {
+            oeFixedHeaderSetup(document.getElementById('mymaintable'));
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
 
-</style>
-<title><?php  xl('Appointments and Encounters', 'e'); ?></title>
-
-<script LANGUAGE="JavaScript">
-
-$(document).ready(function() {
-  oeFixedHeaderSetup(document.getElementById('mymaintable'));
-  var win = top.printLogSetup ? top : opener.top;
-  win.printLogSetup(document.getElementById('printbutton'));
-
-  $('.datepicker').datetimepicker({
-    <?php $datetimepicker_timepicker = false; ?>
-    <?php $datetimepicker_showseconds = false; ?>
-    <?php $datetimepicker_formatInput = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-  });
-});
-
-</script>
-
+            $('.datepicker').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+        });
+    </script>
 </head>
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Appointments and Encounters', 'e'); ?></span>
+<span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Appointments and Encounters'); ?></span>
 
 <div id="report_parameters_daterange">
-<?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
+    <?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt('to') . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
 </div>
 
 <form method='post' id='theform' action='appt_encounter_report.php' onsubmit='return top.restoreSession()'>
@@ -253,45 +240,44 @@ $(document).ready(function() {
     <table class='text'>
         <tr>
             <td class='control-label'>
-                <?php xl('Facility', 'e'); ?>:
+                <?php echo xlt('Facility'); ?>:
             </td>
             <td>
                 <?php
                  // Build a drop-down list of facilities.
                  //
                 $fres = $facilityService->getAll();
-                 echo "   <select name='form_facility' class='form-control'>\n";
-                 echo "    <option value=''>-- " . xl('All Facilities') . " --\n";
+                echo "   <select name='form_facility' class='form-control'>\n";
+                echo "    <option value=''>-- " . xlt('All Facilities') . " --\n";
                 foreach ($fres as $frow) {
-                         $facid = $frow['id'];
-                         echo "    <option value='$facid'";
+                    $facid = $frow['id'];
+                    echo "    <option value='" . attr($facid) . "'";
                     if ($facid == $form_facility) {
                         echo " selected";
                     }
-
-                         echo ">" . htmlspecialchars($frow['name']) . "\n";
+                    echo ">" . text($frow['name']) . "\n";
                 }
 
-                 echo "    <option value='0'";
+                echo "    <option value='0'";
                 if ($form_facility === '0') {
                     echo " selected";
                 }
 
-                 echo ">-- " . xl('Unspecified') . " --\n";
+                 echo ">-- " . xlt('Unspecified') . " --\n";
                  echo "   </select>\n";
                 ?>
             </td>
             <td class='control-label'>
-                <?php xl('DOS', 'e'); ?>:
+                <?php echo xlt('DOS'); ?>:
             </td>
             <td>
-               <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php  echo $form_from_date; ?>' >
+               <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>' >
             </td>
             <td class='control-label'>
-                <?php xl('To', 'e'); ?>:
+                <?php echo xlt('To'); ?>:
             </td>
             <td>
-               <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php  echo $form_to_date; ?>' >
+               <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php  echo attr(oeFormatShortDate($form_to_date)); ?>' >
             </td>
         </tr>
         <tr>
@@ -299,9 +285,7 @@ $(document).ready(function() {
             <td>
         <div class="checkbox">
                 <label><input type='checkbox' name='form_details'
-                  value='1'<?php if ($_POST['form_details']) {
-                        echo " checked";
-} ?>><?php xl('Details', 'e') ?></label>
+                  value='1'<?php echo ($_POST['form_details']) ? " checked" : ""; ?>><?php echo xlt('Details') ?></label>
         </div>
             </td>
         </tr>
@@ -342,16 +326,16 @@ if ($_POST['form_refresh']) {
 <table id='mymaintable'>
 
 <thead>
-<th> &nbsp;<?php  xl('Practitioner', 'e'); ?> </th>
-<th> &nbsp;<?php  xl('Date/Appt', 'e'); ?> </th>
-<th> &nbsp;<?php  xl('Patient', 'e'); ?> </th>
-<th> &nbsp;<?php  xl('ID', 'e'); ?> </th>
-<th align='right'> <?php  xl('Chart', 'e'); ?>&nbsp; </th>
-<th align='right'> <?php  xl('Encounter', 'e'); ?>&nbsp; </th>
-<th align='right'> <?php  xl('Charges', 'e'); ?>&nbsp; </th>
-<th align='right'> <?php  xl('Copays', 'e'); ?>&nbsp; </th>
-<th> <?php  xl('Billed', 'e'); ?> </th>
-<th> &nbsp;<?php  xl('Error', 'e'); ?> </th>
+<th> &nbsp;<?php echo xlt('Practitioner'); ?> </th>
+<th> &nbsp;<?php echo xlt('Date/Appt'); ?> </th>
+<th> &nbsp;<?php echo xlt('Patient'); ?> </th>
+<th> &nbsp;<?php echo xlt('ID'); ?> </th>
+<th align='right'> <?php echo xlt('Chart'); ?>&nbsp; </th>
+<th align='right'> <?php echo xlt('Encounter'); ?>&nbsp; </th>
+<th align='right'> <?php echo xlt('Charges'); ?>&nbsp; </th>
+<th align='right'> <?php echo xlt('Copays'); ?>&nbsp; </th>
+<th> <?php echo xlt('Billed'); ?> </th>
+<th> &nbsp;<?php echo xlt('Error'); ?> </th>
 </thead>
 <tbody>
 <?php
@@ -373,13 +357,13 @@ if ($res) {
         $copays  = 0;
         $gcac_related_visit = false;
 
-       // Scan the billing items for status and fee total.
-       //
+        // Scan the billing items for status and fee total.
+        //
         $query = "SELECT code_type, code, modifier, authorized, billed, fee, justify " .
         "FROM billing WHERE " .
-        "pid = '$patient_id' AND encounter = '$encounter' AND activity = 1";
-        $bres = sqlStatement($query);
-       //
+        "pid = ? AND encounter = ? AND activity = 1";
+        $bres = sqlStatement($query, array($patient_id, $encounter));
+        //
         while ($brow = sqlFetchArray($bres)) {
             $code_type = $brow['code_type'];
             if ($code_types[$code_type]['fee'] && !$brow['billed']) {
@@ -410,17 +394,18 @@ if ($res) {
             // Custom logic for IPPF to determine if a GCAC issue applies.
             if ($GLOBALS['ippf_specific']) {
                 if (!empty($code_types[$code_type]['fee'])) {
-                    $query = "SELECT related_code FROM codes WHERE code_type = '" .
-                    $code_types[$code_type]['id'] . "' AND " .
-                    "code = '" . $brow['code'] . "' AND ";
+                    $sqlBindArray = array();
+                    $query = "SELECT related_code FROM codes WHERE code_type = ? AND code = ? AND ";
+                    array_push($sqlBindArray, $code_types[$code_type]['id'], $brow['code']);
                     if ($brow['modifier']) {
-                        $query .= "modifier = '" . $brow['modifier'] . "'";
+                        $query .= "modifier = ?";
+                        array_push($sqlBindArray, $brow['modifier']);
                     } else {
                         $query .= "(modifier IS NULL OR modifier = '')";
                     }
 
                     $query .= " LIMIT 1";
-                    $tmp = sqlQuery($query);
+                    $tmp = sqlQuery($query, $sqlBindArray);
                     $relcodes = explode(';', $tmp['related_code']);
                     foreach ($relcodes as $codestring) {
                         if ($codestring === '') {
@@ -469,8 +454,8 @@ if ($res) {
        ******************************************************************/
         if ($gcac_related_visit) {
              $grow = sqlQuery("SELECT COUNT(*) AS count FROM forms " .
-             "WHERE pid = '$patient_id' AND encounter = '$encounter' AND " .
-             "deleted = 0 AND formdir = 'LBFgcac'");
+             "WHERE pid = ? AND encounter = ? AND " .
+             "deleted = 0 AND formdir = 'LBFgcac'", array($patient_id, $encounter));
             if (empty($grow['count'])) { // if there is no gcac form
                   postError(xl('GCAC visit form is missing'));
             }
@@ -500,7 +485,7 @@ if ($res) {
             ?>
          <tr>
           <td>
-            &nbsp;<?php  echo ($docname == $docrow['docname']) ? "" : $docname ?>
+            &nbsp;<?php echo ($docname == $docrow['docname']) ? "" : text($docname); ?>
    </td>
    <td>
       &nbsp;<?php
@@ -511,32 +496,32 @@ if ($res) {
      }
      *****************************************************************/
         if (empty($row['pc_eventDate'])) {
-            echo oeFormatShortDate(substr($row['encdate'], 0, 10));
+            echo text(oeFormatShortDate(substr($row['encdate'], 0, 10)));
         } else {
-            echo oeFormatShortDate($row['pc_eventDate']) . ' ' . substr($row['pc_startTime'], 0, 5);
+            echo text(oeFormatShortDate($row['pc_eventDate'])) . ' ' . text(substr($row['pc_startTime'], 0, 5));
         }
         ?>
          </td>
          <td>
-          &nbsp;<?php  echo $row['fname'] . " " . $row['lname'] ?>
+          &nbsp;<?php echo text($row['fname']) . " " . text($row['lname']); ?>
          </td>
          <td>
-          &nbsp;<?php  echo $row['pubpid'] ?>
+          &nbsp;<?php echo text($row['pubpid']); ?>
          </td>
          <td align='right'>
-            <?php  echo $row['pid'] ?>&nbsp;
+            <?php echo text($row['pid']); ?>&nbsp;
          </td>
          <td align='right'>
-            <?php  echo $encounter ?>&nbsp;
+            <?php echo text($encounter); ?>&nbsp;
          </td>
          <td align='right'>
-            <?php  bucks($charges) ?>&nbsp;
+            <?php echo text(bucks($charges)); ?>&nbsp;
          </td>
          <td align='right'>
-            <?php  bucks($copays) ?>&nbsp;
+            <?php echo text(bucks($copays)); ?>&nbsp;
          </td>
          <td>
-            <?php  echo $billed ?>
+            <?php echo text($billed); ?>
          </td>
          <td style='color:#cc0000'>
             <?php echo $errmsg; ?>&nbsp;
@@ -552,19 +537,19 @@ if ($res) {
 
     echo " <tr class='report_totals'>\n";
     echo "  <td colspan='5'>\n";
-    echo "   &nbsp;" . xl('Grand Totals') . "\n";
+    echo "   &nbsp;" . xlt('Grand Totals') . "\n";
     echo "  </td>\n";
     echo "  <td align='right'>\n";
-    echo "   &nbsp;" . $grand_total_encounters . "&nbsp;\n";
+    echo "   &nbsp;" . text($grand_total_encounters) . "&nbsp;\n";
     echo "  </td>\n";
     echo "  <td align='right'>\n";
     echo "   &nbsp;";
-    bucks($grand_total_charges);
+    echo text(bucks($grand_total_charges));
     echo "&nbsp;\n";
     echo "  </td>\n";
     echo "  <td align='right'>\n";
     echo "   &nbsp;";
-    bucks($grand_total_copays);
+    echo text(bucks($grand_total_copays));
     echo "&nbsp;\n";
     echo "  </td>\n";
     echo "  <td colspan='2'>\n";
@@ -578,7 +563,7 @@ if ($res) {
 </div> <!-- end the apptenc_report_results -->
 <?php } else { ?>
 <div class='text'>
-    <?php echo xl('Please input search criteria above, and click Submit to view results.', 'e'); ?>
+    <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
 </div>
 <?php } ?>
 
