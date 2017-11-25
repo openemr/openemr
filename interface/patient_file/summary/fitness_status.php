@@ -76,7 +76,7 @@ while ($row = sqlFetchArray($res)) {
     $auth_sensitivity = true;
 
     $href = "javascript:window.toencounter(" . $row['encounter'] . ",\"" .
-    oeFormatShortDate($raw_encounter_date) . "\")";
+        attr(oeFormatShortDate($raw_encounter_date)) . "\")";
     $linkbeg = "<a class='text' href='$href'>";
     $linkend = "</a>";
 

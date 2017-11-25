@@ -414,7 +414,7 @@ if (!$viewmode) { ?>
 if (!empty($erow['encounter'])) {
     // If there is an encounter from today then present the duplicate visit dialog
     echo "duplicateVisit('" . $erow['encounter'] . "', '" .
-    oeFormatShortDate(substr($erow['date'], 0, 10)) . "');\n";
+        text(oeFormatShortDate(substr($erow['date'], 0, 10))) . "');\n";
 }
 }
 ?>

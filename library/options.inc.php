@@ -2462,7 +2462,7 @@ function generate_plaintext_field($frow, $currvalue)
         $s = $currvalue;
     } // date
     else if ($data_type == 4) {
-        $s = oeFormatShortDate($currvalue);
+        $s = text(oeFormatShortDate($currvalue));
         $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
         $age_asof_date = '';
         // Optional display of age or gestational age.
@@ -3986,7 +3986,7 @@ function isOption($options, $test)
         }
     }
     $options = json_decode($options);
-    
+
     return !is_null($options) && in_array($test, $options, true) ? true : false; // finally!
 }
 ?>

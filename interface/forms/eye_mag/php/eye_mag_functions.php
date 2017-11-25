@@ -98,7 +98,7 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
                 $current = $i;
             }
 
-            $output .= "<option value='".attr($prior['id'])."' ".attr($selected).">".$oeexam_date."</option>";
+            $output .= "<option value='".attr($prior['id'])."' ".attr($selected).">".text($oeexam_date)."</option>";
             $selected ='';
             $i++;
         }
@@ -4113,7 +4113,7 @@ function report_header($pid, $direction = 'shell')
                 <td>
                 <em style="font-weight:bold;font-size:1.4em;"><?php echo text($titleres['fname']) . " " . text($titleres['lname']); ?></em><br />
                 <b style="font-weight:bold;"><?php echo xlt('DOB'); ?>:</b> <?php echo text($DOB); ?><br />
-                <b style="font-weight:bold;"><?php echo xlt('Generated on'); ?>:</b> <?php echo oeFormatShortDate(); ?><br />
+                <b style="font-weight:bold;"><?php echo xlt('Generated on'); ?>:</b> <?php echo text(oeFormatShortDate()); ?><br />
                 <b><?php echo xlt('Visit Date'); ?>:</b> <?php echo oeFormatSDFT(strtotime($visit_date)); ?><br />
                 <b><?php echo xlt('Provider') . ':</b> ' . text(getProviderName(getProviderIdOfEncounter($encounter))).'<br />'; ?>
 
@@ -4931,12 +4931,12 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                         if (($drug['row_subtype'] =="eye") && ($drug['enddate'] !== "")) {
                             $current_drugs .= "<tr><td colspan='2' class='GFS_td_1'><span name='QP_PMH_".attr($drug['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($drug['rowid'])."'
                                       onclick=\"alter_issue2('".attr(addslashes($drug['rowid']))."','Medication','$i');\">".text($drug['title'])."</span></td>
-                                      <td class='GFS_td'>".oeFormatShortDate($drug['begdate'])."</td></tr>";
+                                      <td class='GFS_td'>".text(oeFormatShortDate($drug['begdate']))."</td></tr>";
                         } else if (($drug['row_subtype'] =="eye")&&($drug['enddate'] > "")&&(strtotime($drug['enddate']) < strtotime($visit_date))) {//what meds have a subtype eye that are discontinued?
                             $hideme = "hideme_drugs nodisplay";
                             $FAILED_drugs .= "<tr class='".$hideme."'><td colspan='1' class='GFS_td_1'><span name='QP_PMH_".attr($drug['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($drug['rowid'])."'
                                       onclick=\"alter_issue2('".attr(addslashes($drug['rowid']))."','Medication','$i');\">".text($drug['title'])."</span></td>
-                                      <td class='GFS_td'>".oeFormatShortDate($drug['begdate'])."</td><td class='GFS_td'>".oeFormatShortDate($drug['enddate'])."</td></tr>";
+                                      <td class='GFS_td'>".text(oeFormatShortDate($drug['begdate']))."</td><td class='GFS_td'>".text(oeFormatShortDate($drug['enddate']))."</td></tr>";
                         }
 
                         $i++;

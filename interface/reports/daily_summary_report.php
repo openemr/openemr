@@ -92,13 +92,13 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                                         <td>
                                             <input type='text' name='form_from_date' id="form_from_date"
                                                    class='datepicker form-control'
-                                                   size='10' value='<?php echo oeFormatShortDate($from_date); ?>'>
+                                                   size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
                                         </td>
                                         <td class='control-label'><?php echo xlt('To'); ?>:</td>
                                         <td>
                                             <input type='text' name='form_to_date' id="form_to_date"
                                                    class='datepicker form-control'
-                                                   size='10' value='<?php echo oeFormatShortDate($to_date); ?>'>
+                                                   size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>'>
                                         </td>
                                         <td class='control-label'><?php echo xlt('Provider'); ?>:</td>
                                         <td>
@@ -311,7 +311,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
         ?>
 
         <div id="report_results" style="font-size: 12px">
-            <?php echo '<b>' . xlt('From') . '</b> ' . oeFormatShortDate($from_date) . ' <b>' . xlt('To') . '</b> ' . oeFormatShortDate($to_date); ?>
+            <?php echo '<b>' . xlt('From') . '</b> ' . text(oeFormatShortDate($from_date)) . ' <b>' . xlt('To') . '</b> ' . text(oeFormatShortDate($to_date)); ?>
 
             <table class="flowboard" cellpadding='5' cellspacing='2' id="ds_report">
                 <tr class="head">
@@ -334,7 +334,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                                 foreach ($dataValue[$facility] as $provider => $information) { // array which consists different/dynamic values
                                     ?>
                                     <tr>
-                                        <td><?php echo oeFormatShortDate($date) ?></td>
+                                        <td><?php echo text(oeFormatShortDate($date)); ?></td>
                                         <td><?php echo text($facility); ?></td>
                                         <td><?php echo text($provider); ?></td>
                                         <td><?php echo isset($information['appointments']) ? text($information['appointments']) : 0; ?></td>

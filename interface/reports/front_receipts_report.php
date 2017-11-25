@@ -209,7 +209,7 @@ if (true || $_POST['form_refresh']) {
    <tr>
     <td nowrap>
      <a href="javascript:show_receipt(<?php echo $row['pid'] . ",'$timestamp'"; ?>)">
-        <?php echo oeFormatShortDate(substr($row['dtime'], 0, 10)) . substr($row['dtime'], 10, 6); ?>
+        <?php echo text(oeFormatShortDate(substr($row['dtime'], 0, 10))) . substr($row['dtime'], 10, 6); ?>
    </a>
   </td>
   <td>

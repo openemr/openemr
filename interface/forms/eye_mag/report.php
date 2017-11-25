@@ -2081,7 +2081,7 @@ function display_draw_image($zone, $encounter, $pid)
             echo '<td>' . xlt('Note') . ' #' . $note->get_id() . '</td>';
             echo '</tr>';
             echo '<tr>';
-            echo '<td>' . xlt('Date') . ': ' . oeFormatShortDate($note->get_date()) . '</td>';
+            echo '<td>' . xlt('Date') . ': ' . text(oeFormatShortDate($note->get_date())) . '</td>';
             echo '</tr>';
             echo '<tr>';
             echo '<td>'.$note->get_note().'<br /><br /></td>';

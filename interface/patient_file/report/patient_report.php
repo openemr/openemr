@@ -456,8 +456,8 @@ while ($row = sqlFetchArray($res)) {
     echo " <tr>\n";
     echo "  <td align='center' class='text'>" .
        "<input type='checkbox' name='procedures[]' value='$poid' />&nbsp;&nbsp;</td>\n";
-    echo "  <td class='text'>" . oeFormatShortDate($row['date_ordered']) . "&nbsp;&nbsp;</td>\n";
-    echo "  <td class='text'>" . oeFormatShortDate($row['date']) . "&nbsp;&nbsp;</td>\n";
+    echo "  <td class='text'>" . text(oeFormatShortDate($row['date_ordered'])) . "&nbsp;&nbsp;</td>\n";
+    echo "  <td class='text'>" . text(oeFormatShortDate($row['date'])) . "&nbsp;&nbsp;</td>\n";
     echo "  <td class='text'>";
     $opres = sqlStatement(
         "SELECT procedure_code, procedure_name FROM procedure_order_code " .

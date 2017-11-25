@@ -168,7 +168,7 @@ if ($_POST['form_refresh']) {
         <?php echo $row['on_hand'] ?>
   </td>
   <td class='detail'>
-        <?php echo oeFormatShortDate($row['destroy_date']) ?>
+        <?php echo text(oeFormatShortDate($row['destroy_date'])); ?>
   </td>
   <td class='detail'>
         <?php echo $row['destroy_method'] ?>

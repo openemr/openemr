@@ -267,7 +267,7 @@ $(document).ready(function() {
             $created_date = date('Y-m-d', strtotime($row['created_time']));
             echo "<tr>";
             $userName = $row['lname'] . ", " . $row['fname'];
-            echo "<td align=left class=text>" . oeFormatShortDate($created_date) . "</td>";
+            echo "<td align=left class=text>" . text(oeFormatShortDate($created_date)) . "</td>";
             echo "<td align=left class=text>" . text($userName) . "</td>";
             echo "<td align=left class=text>" . ( ( $row['amendment_status'] ) ? generate_display_field(array('data_type'=>'1','list_id'=>'amendment_status'), $row['amendment_status']) : '') . "</td>";
             echo "<td align=left class=text>" . text($row['amendment_note']) . "</td>";

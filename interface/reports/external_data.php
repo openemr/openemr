@@ -154,7 +154,7 @@ $records2 = array();
                 foreach ($records1 as $value1) {
                     ?>
                     <tr>
-                        <td><span class="dm-ed-in-7"><?php echo oeFormatShortDate($value1['ee_date']); ?></span></td>
+                        <td><span class="dm-ed-in-7"><?php echo text(oeFormatShortDate($value1['ee_date'])); ?></span></td>
                         <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['ee_encounter_diagnosis'], ENT_NOQUOTES); ?></span></td>
                         <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['provider'], ENT_NOQUOTES); ?></span></td>
                         <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['facility'], ENT_NOQUOTES); ?></span></td>
@@ -188,7 +188,7 @@ $records2 = array();
 
                 foreach ($records2 as $value2) { ?>
                     <tr>
-                        <td><span class="dm-ed-in-7"><?php echo oeFormatShortDate($value2['ep_date']); ?></span></td>
+                        <td><span class="dm-ed-in-7"><?php echo text(oeFormatShortDate($value2['ep_date'])); ?></span></td>
                         <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['ep_code_type'] . ':' . $value2['ep_code'], ENT_NOQUOTES); ?></span></td>
                         <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['ep_code_text'], ENT_NOQUOTES); ?></span></td>
                         <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['facility'], ENT_NOQUOTES); ?></span></td>
