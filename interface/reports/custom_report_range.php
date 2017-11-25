@@ -201,15 +201,13 @@ if ($form_patient == '') {
                 <?php echo xlt('Start Date'); ?>:
             </td>
             <td>
-               <input type='text' class='datepicker' name='start' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($startdate)); ?>'
-                title='yyyy-mm-dd'>
+               <input type='text' class='datepicker' name='start' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($startdate)); ?>'>
             </td>
             <td class='label_custom'>
                 <?php echo xlt('End Date'); ?>:
             </td>
             <td>
-               <input type='text' class='datepicker' name='end' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($enddate)); ?>'
-                title='yyyy-mm-dd'>
+               <input type='text' class='datepicker' name='end' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($enddate)); ?>'>
             </td>
 
             <td>
