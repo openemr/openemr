@@ -1,26 +1,13 @@
 <?php
 /**
- *
  * Superbill Report
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-
-
 
 require_once(dirname(__file__)."/../globals.php");
 require_once("$srcdir/forms.inc");
@@ -39,8 +26,8 @@ if (empty($_POST['start']) || empty($_POST['end'])) {
     $enddate = date('Y-m-d', time());
 } else {
     // set dates
-    $startdate = $_POST['start'];
-    $enddate = $_POST['end'];
+    $startdate = DateToYYYYMMDD($_POST['start']);
+    $enddate = DateToYYYYMMDD($_POST['end']);
 }
 
 //Patient related stuff
@@ -170,7 +157,7 @@ if ($form_patient == '') {
   $('.datepicker').datetimepicker({
     <?php $datetimepicker_timepicker = false; ?>
     <?php $datetimepicker_showseconds = false; ?>
-    <?php $datetimepicker_formatInput = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
     <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
@@ -214,14 +201,14 @@ if ($form_patient == '') {
                 <?php echo xlt('Start Date'); ?>:
             </td>
             <td>
-               <input type='text' class='datepicker' name='start' id="form_from_date" size='10' value='<?php echo attr($startdate) ?>'
+               <input type='text' class='datepicker' name='start' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($startdate)); ?>'
                 title='yyyy-mm-dd'>
             </td>
             <td class='label_custom'>
                 <?php echo xlt('End Date'); ?>:
             </td>
             <td>
-               <input type='text' class='datepicker' name='end' id="form_to_date" size='10' value='<?php echo attr($enddate) ?>'
+               <input type='text' class='datepicker' name='end' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($enddate)); ?>'
                 title='yyyy-mm-dd'>
             </td>
 
@@ -229,7 +216,7 @@ if ($form_patient == '') {
             &nbsp;&nbsp;<span class='text'><?php echo xlt('Patient'); ?>: </span>
             </td>
             <td>
-            <input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo attr($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
+            <input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo ($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
             <input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
             </td>
             </tr>
@@ -365,7 +352,7 @@ foreach ($newpatient as $patient) {
             $bdate = strtotime($b['date']);
 
             echo "<tr>\n";
-            echo "<td class='text' style='font-size: 0.8em'>" . oeFormatShortDate(date("Y-m-d", $bdate)) . "<BR>" . date("h:i a", $bdate) . "</td>";
+            echo "<td class='text' style='font-size: 0.8em'>" . text(oeFormatShortDate(date("Y-m-d", $bdate))) . "<BR>" . date("h:i a", $bdate) . "</td>";
             echo "<td class='text'>" . text($b['provider_name']) . "</td>";
             echo "<td class='text'>";
             echo text($b['code_type']) . ":\t" . text($b['code']) . "&nbsp;". text($b['modifier']) . "&nbsp;&nbsp;&nbsp;" . text($b['code_text']) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
