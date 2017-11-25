@@ -54,9 +54,7 @@ dwv.i18nOnInitialised( function () {
 // check browser support
 dwv.browser.check();
 // initialise i18n
-var language = "en";
-var locale_path = "library/js/dwv";
-dwv.i18nInitialise(language, locale_path);
+dwv.i18nInitialise();
 
 // DOM ready?
 document.addEventListener("DOMContentLoaded", function (/*event*/) {

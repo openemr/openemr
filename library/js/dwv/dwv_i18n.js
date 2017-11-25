@@ -25,7 +25,7 @@ dwv.i18nLocalesPath = null;
 dwv.i18nInitialise = function (language, localesPath)
 {
     var lng = (typeof language === "undefined") ? "auto" : language;
-    var lpath = (typeof localesPath === "undefined") ? "../.." : localesPath;
+    var lpath = (typeof localesPath === "undefined") ? "public/assets/dwv-0-21-0" : localesPath;
     // store as global
     dwv.i18nLocalesPath = lpath;
     // i18n options: default 'en' language and
@@ -157,8 +157,7 @@ dwv.i18nPage = function () {
  */
 dwv.i18nGetLocalePath = function (filename) {
     var lng = i18next.language.substr(0, 2);
-    return dwv.i18nLocalesPath +
-        "/locales/" + lng + "/" + filename;
+    return dwv.i18nLocalesPath + "/locales/" + lng + "/" + filename;
 };
 
 /**
@@ -168,6 +167,5 @@ dwv.i18nGetLocalePath = function (filename) {
  */
 dwv.i18nGetFallbackLocalePath = function (filename) {
     var lng = i18next.languages[i18next.languages.length-1].substr(0, 2);
-    return dwv.i18nLocalesPath +
-        "/locales/" + lng + "/" + filename;
+    return dwv.i18nLocalesPath + "/locales/" + lng + "/" + filename;
 };
