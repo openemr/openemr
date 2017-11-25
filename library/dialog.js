@@ -154,7 +154,7 @@ if (top.tab_mode) {
             mWidth = (width / top.window.innerWidth * 100).toFixed(3) + '%';
             msSize = '<style>.modal-custom' + winname + ' {width:' + mWidth + ';}</style>';
             mSize = 'modal-custom' + winname;
-        } else if ($.inArray(width, sizeChoices)) {
+        } else if ($.inArray(width, sizeChoices) !== -1) {
             mSize = width; // is a modal class
         } else {
             msSize = 'default'; // standard B.S. modal default (modal-md)
@@ -173,7 +173,8 @@ if (top.tab_mode) {
         }
 
         // Guess at initial responsive height. @TODO Make option for fixed modal size.
-        mHeight = (height / top.window.innerHeight * 100).toFixed(3) + 'vh';
+        var vpht = top.window.innerHeight;
+        mHeight = height > 0 ? (height / vpht * 100).toFixed(4) + 'vh' : '';
 
         // Build modal html
         var mTitle = title > "" ? '<h4>' + title + '</h4>' : ''; // For now !title = !header and modal full height. Emulates legacy.
@@ -222,7 +223,7 @@ if (top.tab_mode) {
                 // Not sure why this is but, needed to get accurate content height for auto sizing!!
                 //
                 setTimeout(function () {
-                    SizeModal(e); // auto size
+                    SizeModaliFrame(e, !!title); // auto size
                 }, 250);
 
             });
@@ -278,20 +279,240 @@ if (top.tab_mode) {
 
 }
 
-// Do sizing based on view port and frame content length.
-function SizeModal(e) {
+/*
+* oeModal(url, winname, width, height, title, opts)
+*
+* @summary Stackable, resizable and draggable responsive ajax/iframe dialog modal.
+*
+* @param {string url} Content location.
+* @param {string winname} If set becomes modal id and/or iframes name. Or, one is created/assigned(iframes).
+* @param {number width|modalSize(modal-xlg)} For sizing: an number will be converted to a percentage of view port width.
+* @param {number height} Initial height. For iframe auto resize starts here.
+* @param {string title} If exist then header with title is created otherwise no header and content only.
+* @param {array opts} Dialogs options.
+* @returns {object} dialog object reference.
+* */
+function oeModal(url, winname, width, height, title, opts) {
+
+    // turn off both these if you don't want to have to load jquery-ui.
+    opts.allowDrag = opts.allowDrag ? opts.allowDrag : true; // default on.
+    opts.allowResize = opts.allowResize ? opts.allowResize : false; // default off
+
+    // Not sure this is needed as it once was.
+    // Several core timers refresh session anyway.
+    //
+    //top.restoreSession();
+
+    var mHeight, mWidth, mSize, msSize, $dlgContainer, fullURL; // a growing list...
+
+    var where = opts.type === 'iframe' ? top : window;
+    where.opener = window;
+
+    if (opts.url) {
+        fullUrl = opts.url;
+    }
+    if (url[0] === "/") {
+        fullURL = url
+    }
+    else {
+        fullURL = window.location.href.substr(0, window.location.href.lastIndexOf("/") + 1) + url;
+    }
+
+    if (!winname) {
+        winname = dialogID();
+    }
+
+    // Convert dialog size to percentages and/or css class.
+    var sizeChoices = ['modal-sm', 'modal-md', 'modal-mlg', 'modal-lg', 'modal-xl'];
+    if (Number.isInteger(width)) {
+        width = Math.abs(width);
+        mWidth = (width / window.innerWidth * 100).toFixed(4) + '%';
+        msSize = '<style>.modal-custom' + winname + ' {width:' + mWidth + ';}</style>';
+        mSize = 'modal-custom' + winname;
+    } else if ($.inArray(width, sizeChoices) !== -1) {
+        mSize = width; // is a modal class
+    } else {
+        msSize = 'default'; // standard B.S. modal default (modal-md)
+    }
+
+    if (mSize === 'modal-sm') {
+        msSize = '<style>.modal-sm {width:25%;}</style>';
+    } else if (mSize === 'modal-md') {
+        msSize = '<style>.modal-md {width:40%;}</style>';
+    } else if (mSize === 'modal-mlg') {
+        msSize = '<style>.modal-mlg {width:60%;}</style>';
+    } else if (mSize === 'modal-lg') {
+        msSize = '<style>.modal-lg {width:75%;}</style>';
+    } else if (mSize === 'modal-xlg') {
+        msSize = '<style>.modal-xl {width:96%;}</style>';
+    }
+
+    // Initial responsive height.
+    var vpht = where.innerHeight;
+    mHeight = height > 0 ? (height / vpht * 100).toFixed(4) + 'vh' : '';
+
+    // Build modal template
+    var mTitle = title > "" ? '<h4 class=modal-title>' + title + '</h4>' : ''; // For now !title = !header and modal full height. Emulates legacy.
+
+    var waitHtml =
+        '<div class="loadProgress text-center">' +
+        '<span class="fa fa-circle-o-notch fa-spin fa-3x text-primary"></span>' +
+        '</div>';
+
+    var headerhtml =
+        ('<div class="modal-header">' +
+            '<span><i class="close fa fa-close fa-2x fa-border fa-pull-right" data-dismiss=modal aria-hidden="true"></i></span>%title%</div>')
+            .replace('%title%', mTitle);
+    var frameHead =
+        ('<div class="modal-header">' +
+            '<span><i class="close fa fa-close fa-border fa-1x fa-pull-right" data-dismiss=modal aria-hidden="true"></i></span></div>');
+
+    var frameHtml =
+        ('<iframe id="mIframe" class="modalIframe" name="%winname%" frameborder=0 ' +
+            'style="width:100%;height:98.5%;overflow-y:auto;display:block;" src="%url%"></iframe>')
+            .replace('%winname%', winname)
+            .replace('%url%', fullURL);
+
+    var bodyStyles = (' style="height:%initHeight%;margin:auto;padding:0 2px;max-height:100%;"')
+        .replace('%initHeight%', mHeight);
+
+    var mhtml =
+        ('<div id="%id%" class="modal fade dialogModal" tabindex="-1" role="dialog">%sStyle%' +
+            '<div %dialogId% class="modal-dialog %szClass%" role="document">' +
+            '<div class="modal-content">' +
+            '%head%' +
+            '<div class="modal-body" %bodyStyles%>%wait%' +
+            '%body%' +
+            '</div></div></div></div>')
+            .replace('%id%', winname)
+            .replace('%sStyle%', msSize !== "default" ? msSize : '')
+            .replace('%dialogId%', opts.dialogId ? ('id="' + opts.dialogId + '"') : '')
+            .replace('%szClass%', mSize ? mSize : '')
+            .replace('%head%', mTitle !== "" ? headerhtml : frameHead)
+            .replace('%wait%', '') // maybe option later
+            .replace('%bodyStyles%', bodyStyles)
+            .replace('%body%', opts.type === 'iframe' ? frameHtml : '');
+
+    // Write modal html to window.
+    $dlgContainer = where.$(mhtml);
+    $dlgContainer.attr("name", winname);
+
+    if (opts.type !== 'iframe') {
+        var params = {
+            type: opts.type || '', // get/post if empty and has data object then post else get.
+            data: opts.data || opts.html || '', // ajax loads fetched content or supplied html. think alerts.
+            url: opts.url || fullURL,
+            dataType: opts.dataType || '' // xml/json/text etc.
+        };
+
+        dialogAjax(params, $dlgContainer);
+    }
+
+    // Write the completed template to calling document or 'where' window.
+    where.$("body").append($dlgContainer);
+
+    $(function () { // DOM Ready. Handle events and cleanup.
+
+        if (opts.type === 'iframe') {
+            var modalwin = where.$('body').find("[name='" + winname + "']");
+            $('div.modal-dialog', modalwin).css({'margin': '10px auto'});
+            modalwin.on('load', function (e) {
+                setTimeout(function () {
+                    SizeModaliFrame(e, !!title);
+                }, 150);
+            });
+        }
+
+        where.$('#' + winname).on('show.bs.modal', function () {
+            if (opts.allowResize) {
+                $('.modal-content', this).resizable({
+                    alsoResize: $('div.modal-body', this)
+                });
+            }
+
+            if (opts.allowDrag) {
+                $('.modal-dialog', this).draggable();
+            }
+
+            where.$('#' + winname).modal('handleUpdate'); // allow for scroll bar
+        });
+
+        where.$('#' + winname).on('shown.bs.modal', function () {
+            // Remove waitHtml spinner/loader etc.
+            $(this).parent().find('div.loadProgress')
+                .fadeOut(function () {
+                    $(this).remove();
+                });
+        });
+
+        // Remove modal html on close.
+        //
+        where.$('#' + winname).on('hidden.bs.modal', function () {
+            console.log('Modal hidden then removed!');
+            $(this).remove();
+        });
+
+        // this dialog close() function.
+        where.oeModalClose = function (id) { // @TODO add close by dialogs id.
+            $dlgContainer.modal('hide').off('hide.bs.modal');
+            return false;
+        };
+
+        // Show Modal
+        where.$('#' + winname).modal({backdrop: 'static', keyboard: true}, 'show');
+
+        return $dlgContainer; // return the dialog ref. looking towards deferring...
+    });
+
+}
+
+function dialogAjax(data, $dialog) {
+    var params = {
+        async: true,
+        url: data.url || data,
+        dataType: data.dataType || 'text'
+    };
+
+    if (data.url) {
+        $.extend(params, data);
+    }
+
+    $.ajax(params)
+        .done(aOkay)
+        .fail(oops);
+
+    return true;
+
+    function aOkay(html) {
+        $dialog.find('.modal-body').html(data.success ? data.success(html) : html);
+
+        return true;
+    }
+
+    function oops(r, s) {
+        var msg = data.error ?
+            data.error(r, s, params) :
+            '<div class="alert alert-danger">' +
+            '<strong>XHR Failed: </strong>URL [ ' + params.url + '].' + '</div>';
+
+        $dialog.find('.modal-body').html(msg);
+
+        return false;
+    }
+}
+
+function SizeModaliFrame(e, hasHeader) {
 
     var idoc = e.currentTarget.contentDocument ? e.currentTarget.contentDocument : e.currentTarget.contentWindow.document;
-    var frameContentHt = idoc.body.offsetHeight + 60; // add for pad.
-    var viewPortHt = top.window.innerHeight;
-    var size = (frameContentHt / viewPortHt * 100).toFixed(3); // scale to content plus 5% padding.
-    var header = $(e.currentTarget).parent('div.modal-header')[0] ? true : false; // if header missing we need to know.
+    var viewPortHt = Math.max(top.window.document.documentElement.clientHeight, top.window.innerHeight || 0);
+    var frameContentHt = Math.max(idoc.body.clientHeight, idoc.body.offsetHeight || 0) + 60;
 
+    var size = (frameContentHt / viewPortHt * 100).toFixed(4);
     if (size < 25) {
         size = 25; // set a min height percentage.
     } else if (size > 87.5) {
-        if (!header) { // no header so use all view port height that we dare.
-            size = 92.5;
+        if (!hasHeader) { // no header so use all view port height that we dare.
+            size = 94;
         }
         else {
             size = 87.5; // set max height and allow for a header.
@@ -299,9 +520,13 @@ function SizeModal(e) {
     }
 
     size = size + 'vh'; // will start the dialog as responsive. Any resize by user turns dialog to absolute positioning.
-    $(e.currentTarget).parent('div.modal-body').css({'padding-right': '10px', 'height': size}); // Set final size. Width was previously set.
 
-    console.log('Modal loaded and sized! Content:' + frameContentHt + ' Viewport:' + viewPortHt + ' Modal height:' + size);
+    $(e.currentTarget).parent('div.modal-body').css({'height': size}); // Set final size. Width was previously set.
 
-    return;
+    console.log('Modal loaded and sized! Content:' + frameContentHt + ' Viewport:' + viewPortHt + ' Modal height:' +
+        size + ' isHeader:' + (hasHeader ? 'True' : 'False'));
+
+    return size; // may be better to set size from calling scope..
 }
+
+
