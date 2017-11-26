@@ -204,9 +204,11 @@ function cancelClicked() {
       <select name='pc_catid' id='pc_catid'>
           <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
             <?php
+            //Bring only patient ang group categories
             $visitSQL = "SELECT pc_catid, pc_catname, pc_cattype 
                        FROM openemr_postcalendar_categories
-                       WHERE pc_active = 1  and pc_cattype!=2 ORDER BY pc_seq";
+                       WHERE pc_active = 1  and pc_cattype IN (0,3) ORDER BY pc_seq";
+
             $visitResult = sqlStatement($visitSQL);
             $therapyGroupCategories = [];
 
@@ -218,7 +220,7 @@ function cancelClicked() {
                     $therapyGroupCategories[] = $catId;
                 }
 
-                if (($catId < 9 && $catId != "5") || $catId === "_blank") {
+                if ($catId === "_blank") {
                     continue;
                 }
 
