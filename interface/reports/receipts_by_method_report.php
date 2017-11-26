@@ -150,7 +150,7 @@ function showLineItem(
         <?php echo $paymethodleft; $paymethodleft = "&nbsp;" ?>
   </td>
   <td>
-        <?php echo oeFormatShortDate($transdate) ?>
+        <?php echo text(oeFormatShortDate($transdate)); ?>
   </td>
   <td class="detail">
         <?php echo $invnumber ?>
@@ -183,7 +183,7 @@ if ($showing_ppd) {
     echo "  </td>\n";
 
     echo "  <td class='dehead'>\n";
-    echo "   " . oeFormatShortDate($dos) . "\n";
+    echo "   " . text(oeFormatShortDate($dos)) . "\n";
     echo "  </td>\n";
 }
 ?>

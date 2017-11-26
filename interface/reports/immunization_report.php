@@ -313,7 +313,7 @@ if ($_POST['form_get_hl7']==='true') {
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Immunization Registry'); ?></span>
 
 <div id="report_parameters_daterange">
-    <?php echo oeFormatShortDate($form_from_date) ." &nbsp; " . xlt('to') . " &nbsp; ". oeFormatShortDate($form_to_date); ?>
+    <?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt('to') . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
 </div>
 
 <form name='theform' id='theform' method='post' action='immunization_report.php' onsubmit='return top.restoreSession()'>
@@ -358,7 +358,7 @@ while ($crow = sqlFetchArray($cres)) {
           <td>
             <input type='text' name='form_from_date' id="form_from_date"
             class='datepicker form-control'
-            size='10' value='<?php echo oeFormatShortDate($form_from_date) ?>'>
+            size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
           </td>
           <td class='control-label'>
             <?php echo xlt('To'); ?>:
@@ -366,7 +366,7 @@ while ($crow = sqlFetchArray($cres)) {
           <td>
             <input type='text' name='form_to_date' id="form_to_date"
             class='datepicker form-control'
-            size='10' value='<?php echo oeFormatShortDate($form_to_date) ?>'>
+            size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
           </td>
         </tr>
       </table>

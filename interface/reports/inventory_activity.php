@@ -299,7 +299,7 @@ function thisLineItem(
                 </td>
             <?php } ?>
             <td class="dehead">
-                <?php echo oeFormatShortDate($transdate); ?>
+                <?php echo text(oeFormatShortDate($transdate)); ?>
             </td>
             <td class="detail">
                 <?php echo htmlspecialchars($invnumber); ?>

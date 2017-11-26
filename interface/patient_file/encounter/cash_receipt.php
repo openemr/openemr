@@ -67,7 +67,7 @@ if (file_exists($practice_logo)) {
 <a href="javascript:window.close();"><font class=title><?php print $titleres{"fname"} . " " . $titleres{"lname"};?></font></a><br><br>
 
 <table>
-<tr><td><?php xl('Generated on', 'e'); ?>:</td><td> <?php print oeFormatShortDate(date("Y-m-d"));?></td></tr>
+<tr><td><?php xl('Generated on', 'e'); ?>:</td><td> <?php print text(oeFormatShortDate(date("Y-m-d")));?></td></tr>
 <?php
 if ($date_result = sqlQuery("select date from form_encounter where encounter='" .
 $encounter . "' and pid='$pid'")) {
@@ -75,7 +75,7 @@ $encounter . "' and pid='$pid'")) {
     $raw_encounter_date = date("Y-m-d", strtotime($date_result{"date"}));
 }
 ?>
-<tr><td><?php xl('Date Of Service', 'e'); ?>: </td><td> <?php print oeFormatShortDate($raw_encounter_date);?></td></tr>
+<tr><td><?php xl('Date Of Service', 'e'); ?>: </td><td> <?php print text(oeFormatShortDate($raw_encounter_date));?></td></tr>
 </table>
 <br><br>
 <?php
@@ -230,7 +230,7 @@ foreach ($ar as $key => $val) {
                     echo '<td>'.xl('Note').' #' . $note->get_id() . '</td>';
                     echo '</tr>';
                     echo '<tr>';
-                    echo '<td>' . xl('Date') . ': ' . oeFormatShortDate($note->get_date()) . '</td>';
+                    echo '<td>' . xl('Date') . ': ' . text(oeFormatShortDate($note->get_date())) . '</td>';
                     echo '</tr>';
                     echo '<tr>';
                     echo '<td>'.$note->get_note().'<br><br></td>';
@@ -280,7 +280,7 @@ foreach ($ar as $key => $val) {
             }
 
             print "<span class='bold'>" . $formres{"form_name"} .
-            "</span><span class=text>(" . oeFormatShortDate(strtotime($dateres{"date"})) .
+            "</span><span class=text>(" . text(oeFormatShortDate(strtotime($dateres{"date"}))) .
             ")" . "</span><br>\n";
             call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
             if ($res[1] == 'newpatient') {

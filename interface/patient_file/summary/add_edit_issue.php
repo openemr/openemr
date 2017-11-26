@@ -698,7 +698,7 @@ if ($issue) {
         $formdir = $vrow['formdir'];
         $formid  = $vrow['form_id'];
         $visitid = $vrow['encounter'];
-        echo " <li><a href='#'>" . oeFormatShortDate(substr($vrow['date'], 0, 10)) . ' ' .
+        echo " <li><a href='#'>" . text(oeFormatShortDate(substr($vrow['date'], 0, 10))) . ' ' .
             text($vrow['form_name']) . "</a></li>\n";
         $tabcontents .= "<div class='tab' style='height:90%;width:98%;'>\n";
         $tabcontents .= "<iframe frameborder='0' style='height:100%;width:100%;' " .

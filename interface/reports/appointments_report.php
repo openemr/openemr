@@ -174,7 +174,7 @@ function fetch_reminders($pid, $appt_date)
 
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Appointments'); ?></span>
 
-<div id="report_parameters_daterange"><?php echo oeFormatShortDate($from_date) ." &nbsp; " . xlt('to') . " &nbsp; ". oeFormatShortDate($to_date); ?>
+<div id="report_parameters_daterange"><?php echo text(oeFormatShortDate($from_date)) ." &nbsp; " . xlt('to') . " &nbsp; ". text(oeFormatShortDate($to_date)); ?>
 </div>
 
 <form method='post' name='theform' id='theform' action='appointments_report.php' onsubmit='return top.restoreSession()'>
@@ -223,12 +223,12 @@ function fetch_reminders($pid, $appt_date)
                 <td class='control-label'><?php echo xlt('From'); ?>:</td>
                 <td><input type='text' name='form_from_date' id="form_from_date"
                     class='datepicker form-control'
-                    size='10' value='<?php echo oeFormatShortDate($from_date) ?>'>
+                    size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
                 </td>
                 <td class='control-label'><?php echo xlt('To'); ?>:</td>
                 <td><input type='text' name='form_to_date' id="form_to_date"
                     class='datepicker form-control'
-                    size='10' value='<?php echo oeFormatShortDate($to_date) ?>'>
+                    size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>'>
                 </td>
             </tr>
 

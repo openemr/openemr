@@ -102,7 +102,7 @@ while ($row = sqlFetchArray($res)) {
     <?php echo $row['ulname'] . ', ' . $row['ufname'] . ' ' . $row['umname']; ?>
   </td>
   <td>
-    <?php echo oeFormatShortDate(substr($row['ct_when'], 0, 10)) . substr($row['ct_when'], 10); ?>
+    <?php echo text(oeFormatShortDate(substr($row['ct_when'], 0, 10))) . substr($row['ct_when'], 10); ?>
   </td>
  </tr>
 <?php

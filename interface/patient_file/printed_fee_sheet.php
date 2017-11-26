@@ -480,7 +480,7 @@ foreach ($pid_list as $pid) {
                 if (!empty($encdata)) {
                     $html .= substr($encdata['date'], 0, 10);
                 } else {
-                    $html .= oeFormatShortDate(date('Y-m-d')) . "\n";
+                    $html .= text(oeFormatShortDate(date('Y-m-d'))) . "\n";
                 }
             }
 

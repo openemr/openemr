@@ -271,7 +271,7 @@ if ($result = getBillingByEncounter($pid, $encounter, "*")) {
                 oeFormatMoney($iter['code']) . "</b> " .
                 ucwords(strtolower($iter['code_text'])) .
                 ' ' . xl('payment entered on') . ' ' .
-                oeFormatShortDate(substr($iter['date'], 0, 10)) . substr($iter['date'], 10, 6) . "</a></td></tr>\n";
+                text(oeFormatShortDate(substr($iter['date'], 0, 10))) . substr($iter['date'], 10, 6) . "</a></td></tr>\n";
         } else {
             $billing_html[$iter["code_type"]] .=
                 "<tr><td>" . '<input  style="width: 11px;height: 11px;" name="code[proc][' .
