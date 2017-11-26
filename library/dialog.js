@@ -187,7 +187,7 @@ if (top.tab_mode) {
         var headerhtml =
             ('<div class="modal-header">%title%</div>')
                 .replace('%title%', mTitle);
-        
+
         var mhtml =
             ('<div id="%id%" class="modal fade dialogModal" tabindex="-1" role="dialog">%sStyle%' +
                 '<div class="modal-dialog %szClass%" role="document">' +
@@ -288,7 +288,7 @@ if (top.tab_mode) {
 function oeModal(url, winname, width, height, title, opts) {
 
     // turn off both these if you don't want to have to load jquery-ui.
-    opts.allowDrag = opts.allowDrag ? opts.allowDrag : true; // default on.
+    opts.allowDrag = opts.allowDrag ? opts.allowDrag : false; // default on.
     opts.allowResize = opts.allowResize ? opts.allowResize : false; // default off
 
     // Not sure this is needed as it once was.
@@ -413,7 +413,7 @@ function oeModal(url, winname, width, height, title, opts) {
             $('div.modal-dialog', modalwin).css({'margin': '15px auto'});
             modalwin.on('load', function (e) {
                 setTimeout(function () {
-                    SizeModaliFrame(e);
+                    SizeModaliFrame(e, height);
                 }, 150);
             });
         }
@@ -542,12 +542,13 @@ function oeModal(url, winname, width, height, title, opts) {
 
 }
 
-function SizeModaliFrame(e) {
+function SizeModaliFrame(e, minSize) {
 
     var idoc = e.currentTarget.contentDocument ? e.currentTarget.contentDocument : e.currentTarget.contentWindow.document;
     $(e.currentTarget).parent('div.modal-body').css({'height': ''});
     var viewPortHt = Math.max(top.window.document.documentElement.clientHeight, top.window.innerHeight || 0);
     var frameContentHt = Math.max($(idoc).height(), idoc.body.offsetHeight || 0) + 25;
+    frameContentHt = frameContentHt < minSize ? minSize : frameContentHt;
     var hasHeader = $(e.currentTarget).parents('div.modal-content').find('div.modal-header').length;
     var hasFooter = $(e.currentTarget).parents('div.modal-content').find('div.modal-footer').length;
     size = (frameContentHt / viewPortHt * 100).toFixed(4);
