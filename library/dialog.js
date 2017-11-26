@@ -187,14 +187,14 @@ if (top.tab_mode) {
         var headerhtml =
             ('<div class="modal-header">%title%</div>')
                 .replace('%title%', mTitle);
-
+        
         var mhtml =
             ('<div id="%id%" class="modal fade dialogModal" tabindex="-1" role="dialog">%sStyle%' +
                 '<div class="modal-dialog %szClass%" role="document">' +
                 '<div class="modal-content">' +
                 '%head%' +
                 '<div class="closeDlgIframe" data-dismiss="modal" ></div>' +
-                '<div class="modal-body" style="height:%initHeight%;">' +
+                '<div class="modal-body" style="height:%initHeight%;margin:auto;padding:0 2px;max-height:90vh%;overflow-y:auto;">' +
                 '<iframe id="mIframe" class="modalIframe" name="%winname%" frameborder=0 ' +
                 'style="width:100%;height:100%;overflow-y:auto;display:block;" src="%url%">' +
                 '</iframe></div></div></div></div>')
@@ -223,7 +223,7 @@ if (top.tab_mode) {
                 // Not sure why this is but, needed to get accurate content height for auto sizing!!
                 //
                 setTimeout(function () {
-                    SizeModaliFrame(e, !!title); // auto size
+                    SizeModaliFrame(e); // auto size
                 }, 250);
 
             });
@@ -231,13 +231,6 @@ if (top.tab_mode) {
             top.$('#' + winname).on('show.bs.modal', function () {
 
                 $('div.modal-dialog', this).css({'margin': '15px auto'});
-                // leave margins and padding to iframe content style.
-                $('div.modal-body', this).css({
-                    'width': 'auto',
-                    'margin': 'auto',
-                    'padding': 'auto',
-                    'max-height': '100%'
-                });
 
             });
 
@@ -284,13 +277,13 @@ if (top.tab_mode) {
 *
 * @summary Stackable, resizable and draggable responsive ajax/iframe dialog modal.
 *
-* @param {string url} Content location.
-* @param {string winname} If set becomes modal id and/or iframes name. Or, one is created/assigned(iframes).
-* @param {number width|modalSize(modal-xlg)} For sizing: an number will be converted to a percentage of view port width.
-* @param {number height} Initial height. For iframe auto resize starts here.
-* @param {string title} If exist then header with title is created otherwise no header and content only.
-* @param {array opts} Dialogs options.
-* @returns {object} dialog object reference.
+* @param {url} string Content location.
+* @param {String} winname If set becomes modal id and/or iframes name. Or, one is created/assigned(iframes).
+* @param {Number| String} width|modalSize(modal-xlg) For sizing: an number will be converted to a percentage of view port width.
+* @param {Number} height Initial height. For iframe auto resize starts here.
+* @param {String} title If exist then header with title is created otherwise no header and content only.
+* @param {Object} opts Dialogs options.
+* @returns {Object} dialog object reference.
 * */
 function oeModal(url, winname, width, height, title, opts) {
 
@@ -340,7 +333,7 @@ function oeModal(url, winname, width, height, title, opts) {
     } else if (mSize === 'modal-md') {
         msSize = '<style>.modal-md {width:40%;}</style>';
     } else if (mSize === 'modal-mlg') {
-        msSize = '<style>.modal-mlg {width:60%;}</style>';
+        msSize = '<style>.modal-mlg {width:55%;}</style>';
     } else if (mSize === 'modal-lg') {
         msSize = '<style>.modal-lg {width:75%;}</style>';
     } else if (mSize === 'modal-xlg') {
@@ -352,7 +345,7 @@ function oeModal(url, winname, width, height, title, opts) {
     mHeight = height > 0 ? (height / vpht * 100).toFixed(4) + 'vh' : '';
 
     // Build modal template
-    var mTitle = title > "" ? '<h4 class=modal-title>' + title + '</h4>' : ''; // For now !title = !header and modal full height. Emulates legacy.
+    var mTitle = title > "" ? '<h4 class=modal-title>' + title + '</h4>' : ''; // For now !title = !header and modal full height.
 
     var waitHtml =
         '<div class="loadProgress text-center">' +
@@ -361,19 +354,18 @@ function oeModal(url, winname, width, height, title, opts) {
 
     var headerhtml =
         ('<div class="modal-header">' +
-            '<span><i class="close fa fa-close fa-2x fa-border fa-pull-right" data-dismiss=modal aria-hidden="true"></i></span>%title%</div>')
+            '<span><i class="close fa fa-close fa-1x fa-border fa-pull-right" data-dismiss=modal aria-hidden="true"></i></span>%title%</div>')
             .replace('%title%', mTitle);
     var frameHead =
-        ('<div class="modal-header">' +
-            '<span><i class="close fa fa-close fa-border fa-1x fa-pull-right" data-dismiss=modal aria-hidden="true"></i></span></div>');
+        ('<span><i class="close fa fa-close fa-border fa-1x fa-pull-right" data-dismiss=modal aria-hidden="true"></i></span>');
 
     var frameHtml =
         ('<iframe id="mIframe" class="modalIframe" name="%winname%" frameborder=0 ' +
-            'style="width:100%;height:98.5%;overflow-y:auto;display:block;" src="%url%"></iframe>')
+            'style="width:100%;height:100%;overflow-y:auto;display:block;" src="%url%"></iframe>')
             .replace('%winname%', winname)
             .replace('%url%', fullURL);
 
-    var bodyStyles = (' style="height:%initHeight%;margin:auto;padding:0 2px;max-height:100%;"')
+    var bodyStyles = (' style="height:%initHeight%;margin:auto;padding:0 5px;max-height:100vh%;overflow-y:auto;"')
         .replace('%initHeight%', mHeight);
 
     var mhtml =
@@ -393,13 +385,16 @@ function oeModal(url, winname, width, height, title, opts) {
             .replace('%bodyStyles%', bodyStyles)
             .replace('%body%', opts.type === 'iframe' ? frameHtml : '');
 
-    // Write modal html to window.
+    // Write modal template.
+    //
     $dlgContainer = where.$(mhtml);
     $dlgContainer.attr("name", winname);
-
+    if (opts.buttons) {
+        $dlgContainer.find('.modal-content').append(buildFooter());
+    }
     if (opts.type !== 'iframe') {
         var params = {
-            type: opts.type || '', // get/post if empty and has data object then post else get.
+            type: opts.type || '', // get/post but if empty and has data object then post else get.
             data: opts.data || opts.html || '', // ajax loads fetched content or supplied html. think alerts.
             url: opts.url || fullURL,
             dataType: opts.dataType || '' // xml/json/text etc.
@@ -415,10 +410,10 @@ function oeModal(url, winname, width, height, title, opts) {
 
         if (opts.type === 'iframe') {
             var modalwin = where.$('body').find("[name='" + winname + "']");
-            $('div.modal-dialog', modalwin).css({'margin': '10px auto'});
+            $('div.modal-dialog', modalwin).css({'margin': '15px auto'});
             modalwin.on('load', function (e) {
                 setTimeout(function () {
-                    SizeModaliFrame(e, !!title);
+                    SizeModaliFrame(e);
                 }, 150);
             });
         }
@@ -452,79 +447,119 @@ function oeModal(url, winname, width, height, title, opts) {
             $(this).remove();
         });
 
-        // this dialog close() function.
+        // define this dialog close() function.
         where.oeModalClose = function (id) { // @TODO add close by dialogs id.
             $dlgContainer.modal('hide').off('hide.bs.modal');
             return false;
         };
 
-        // Show Modal
-        where.$('#' + winname).modal({backdrop: 'static', keyboard: true}, 'show');
+        // Show Modal @todo move to load/done event after ajax/iframe promise.
+        where.$('#' + winname).modal({backdrop: 'static', keyboard: true}, 'show'); // @todo add backdrop/keyboard to options
 
         return $dlgContainer; // return the dialog ref. looking towards deferring...
-    });
 
-}
+    }); // end events
 
-function dialogAjax(data, $dialog) {
-    var params = {
-        async: true,
-        url: data.url || data,
-        dataType: data.dataType || 'text'
-    };
+    function dialogAjax(data, $dialog) {
+        var params = {
+            async: true,
+            url: data.url || data,
+            dataType: data.dataType || 'text'
+        };
 
-    if (data.url) {
-        $.extend(params, data);
-    }
+        if (data.url) {
+            $.extend(params, data);
+        }
 
-    $.ajax(params)
-        .done(aOkay)
-        .fail(oops);
-
-    return true;
-
-    function aOkay(html) {
-        $dialog.find('.modal-body').html(data.success ? data.success(html) : html);
+        $.ajax(params)
+            .done(aOkay)
+            .fail(oops);
 
         return true;
+
+        function aOkay(html) {
+            $dialog.find('.modal-body').html(data.success ? data.success(html) : html);
+
+            return true;
+        }
+
+        function oops(r, s) {
+            var msg = data.error ?
+                data.error(r, s, params) :
+                '<div class="alert alert-danger">' +
+                '<strong><?php echo xlt("XHR Failed:") ?> </strong> [ ' + params.url + '].' + '</div>';
+
+            $dialog.find('.modal-body').html(msg);
+
+            return false;
+        }
     }
 
-    function oops(r, s) {
-        var msg = data.error ?
-            data.error(r, s, params) :
-            '<div class="alert alert-danger">' +
-            '<strong>XHR Failed: </strong>URL [ ' + params.url + '].' + '</div>';
+    function buildFooter() {
+        if (opts.buttons === false) {
+            return '';
+        }
+        var oFoot = $('<div>').addClass('modal-footer').prop('id', 'oefooter');
+        if (opts.buttons) {
+            for (var i = 0, k = opts.buttons.length; i < k; i++) {
+                var btnOp = opts.buttons[i];
+                var btn = $('<button>').addClass('btn btn-' + (btnOp.style || 'primary'));
 
-        $dialog.find('.modal-body').html(msg);
+                for (var index in btnOp) {
+                    if (btnOp.hasOwnProperty(index)) {
+                        switch (index) {
+                            case 'close':
+                                //add close event
+                                if (btnOp[index]) {
+                                    btn.attr('data-dismiss', 'modal')
+                                        .addClass('closeBtn');
+                                }
+                                break;
+                            case 'click':
+                                //binds button to click event of fn defined in calling document/form
+                                var fn = btnOp.click.bind($dlgContainer.find('.modal-content'));
+                                btn.click(fn);
+                                break;
+                            case 'text':
+                                btn.html(btnOp[index]);
+                                break;
+                            default:
+                                //all other possible HTML attributes to button element
+                                btn.attr(index, btnOp[index]);
+                        }
+                    }
+                }
 
-        return false;
+                oFoot.append(btn);
+            }
+        } else {
+            //if no buttons defined by user, add a standard close button.
+            oFoot.append('<button class="closeBtn btn btn-default" data-dismiss=modal type=button><?php echo xlt("Close") ?></button>');
+        }
+
+        return oFoot; // jquery object of modal footer.
     }
+
 }
 
-function SizeModaliFrame(e, hasHeader) {
+function SizeModaliFrame(e) {
 
     var idoc = e.currentTarget.contentDocument ? e.currentTarget.contentDocument : e.currentTarget.contentWindow.document;
+    $(e.currentTarget).parent('div.modal-body').css({'height': ''});
     var viewPortHt = Math.max(top.window.document.documentElement.clientHeight, top.window.innerHeight || 0);
-    var frameContentHt = Math.max(idoc.body.clientHeight, idoc.body.offsetHeight || 0) + 60;
-
-    var size = (frameContentHt / viewPortHt * 100).toFixed(4);
-    if (size < 25) {
-        size = 25; // set a min height percentage.
-    } else if (size > 87.5) {
-        if (!hasHeader) { // no header so use all view port height that we dare.
-            size = 94;
-        }
-        else {
-            size = 87.5; // set max height and allow for a header.
-        }
-    }
-
+    var frameContentHt = Math.max($(idoc).height(), idoc.body.offsetHeight || 0) + 25;
+    var hasHeader = $(e.currentTarget).parents('div.modal-content').find('div.modal-header').length;
+    var hasFooter = $(e.currentTarget).parents('div.modal-content').find('div.modal-footer').length;
+    size = (frameContentHt / viewPortHt * 100).toFixed(4);
+    var maxsize = hasHeader ? 90 : hasFooter ? 87.5 : 96;
+    maxsize = hasHeader && hasFooter ? 84 : maxsize;
+    maxsize = maxsize + 'vh';
     size = size + 'vh'; // will start the dialog as responsive. Any resize by user turns dialog to absolute positioning.
 
-    $(e.currentTarget).parent('div.modal-body').css({'height': size}); // Set final size. Width was previously set.
+    $(e.currentTarget).parent('div.modal-body').css({'height': size, 'max-height': maxsize}); // Set final size. Width was previously set.
 
     console.log('Modal loaded and sized! Content:' + frameContentHt + ' Viewport:' + viewPortHt + ' Modal height:' +
-        size + ' isHeader:' + (hasHeader ? 'True' : 'False'));
+        size + ' Max height:' + maxsize + ' isHeader:' + (hasHeader > 0 ? 'True' : 'False') + ' isFooter:' + (hasFooter > 0 ? 'True' : 'False'));
 
     return size; // may be better to set size from calling scope..
 }
