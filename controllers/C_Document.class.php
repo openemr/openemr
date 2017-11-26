@@ -287,7 +287,8 @@ class C_Document extends Controller {
 		$this->assign("NOTE_ACTION",$this->_link("note"));
 		$this->assign("MOVE_ACTION",$this->_link("move") . "document_id=" . $d->get_id() . "&process=true");
 		$this->assign("hide_encryption", $GLOBALS['hide_document_encryption'] );
-
+                $this->assign("assets_static_relative", $GLOBALS['assets_static_relative']);
+                $this->assign("webroot", $GLOBALS['webroot']);
 		// Added by Rod to support document delete:
 		$delete_string = '';
 		if (acl_check('admin', 'super')) {
