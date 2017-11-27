@@ -74,7 +74,8 @@ $(function() {
  * which then populates the form with the select patient data
  */
 function recall_name_click(field) {
-    dlgopen('../../main/calendar/find_patient_popup.php?pflag=0', '_blank', 500, 400);
+    dlgopen('/modules/calendar/find_patient_popup.php?pflag=0', '_blank', 500, 400);
+    preventDefault;
 }
 
 /*

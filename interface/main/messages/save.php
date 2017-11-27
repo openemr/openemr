@@ -26,8 +26,6 @@ if ($_REQUEST['go'] =='sms_search') {
     $query      = "SELECT * FROM patient_data where fname like ? or lname like ?";
     $result     = sqlStatement($query, array( $param, $param ));
     while ($frow = sqlFetchArray($result)) {
-          //$field_id  = $frow['field_id'];
-          //$newdata[$field_id] = get_layout_form_value($frow);
         $data['Label']  = 'Name';
         $data['value']  = $frow['fname']." ".$frow['lname'];
         $data['pid']    = $frow['pid'];
@@ -35,7 +33,6 @@ if ($_REQUEST['go'] =='sms_search') {
         $data['allow']  = $frow['hipaa_allowsms'];
         $results[]      = $data;
     }
-    //echo $query. " -- ".$param;
     echo json_encode( $results );
     exit;
 }
@@ -139,7 +136,6 @@ if ($_REQUEST['MedEx']=="start") {
             $response['success'] = "OK BABY!";
             $response['show'] =  xlt("Sign-up successful for")." ".$data['company']. ".<br />".xlt("Proceeding to Preferences").".<br />".
                 xlt("If this page does not refresh, reload the Messages page manually").".<br />";
-            //get js to reroute user to preferences.
             echo json_encode($response);
         } else {
             $response_prob=array();
