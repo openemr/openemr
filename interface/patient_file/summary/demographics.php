@@ -166,8 +166,11 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
+<!--<script type="text/javascript" src="<?php /*echo $GLOBALS['assets_static_relative']; */?>/jquery-min-1-7-2/index.js"></script>-->
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="<?php echo $url . $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
+    <script src="<?php echo $url . $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="../../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript" language="JavaScript">
@@ -237,11 +240,14 @@ function toggleIndicator(target,div) {
 // called from stats.php.
 //
 function editScripts(url) {
+
     var AddScript = function () {
-        top.frames['editScripts'].location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=&pid=<?php echo attr($pid);?>"
+        var iam = top.tab_mode ? top.frames.editScripts : window[0];
+        iam.location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=&pid=<?php echo attr($pid);?>"
     };
     var ListScripts = function () {
-        top.frames['editScripts'].location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo attr($pid); ?>"
+        var iam = top.tab_mode ? top.frames.editScripts : window[0];
+        iam.location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo attr($pid); ?>"
     };
     var title = '<?php echo xla('Prescriptions Add/Edit'); ?>';
 
@@ -499,7 +505,7 @@ if (sqlNumRows($result4)>0) {
 <?php } // end setting new encounter id (only if new pid is also set) ?>
 }
 
-$(window).load(function() {
+$(window).on('load', function() {
  setMyPatient();
 });
 

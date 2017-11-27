@@ -294,11 +294,15 @@ function oeModal(url, winname, width, height, title, opts) {
     // Not sure this is needed as it once was.
     // Several core timers refresh session anyway.
     //
-    //top.restoreSession();
+    top.restoreSession();
 
-    var mHeight, mWidth, mSize, msSize, $dlgContainer, fullURL; // a growing list...
+    var mHeight, mWidth, mSize, msSize, $dlgContainer, fullURL, where; // a growing list...
+    if (top.tab_mode) {
+        where = opts.type === 'iframe' ? top : window;
+    } else {
+        where = window;
+    }
 
-    var where = opts.type === 'iframe' ? top : window;
     where.opener = window;
 
     if (opts.url) {
@@ -545,8 +549,12 @@ function oeModal(url, winname, width, height, title, opts) {
 function SizeModaliFrame(e, minSize) {
 
     var idoc = e.currentTarget.contentDocument ? e.currentTarget.contentDocument : e.currentTarget.contentWindow.document;
-    $(e.currentTarget).parent('div.modal-body').css({'height': ''});
-    var viewPortHt = Math.max(top.window.document.documentElement.clientHeight, top.window.innerHeight || 0);
+    $(e.currentTarget).parent('div.modal-body').css({'height': 0});
+    if (top.tab_mode) {
+        var viewPortHt = Math.max(top.window.document.documentElement.clientHeight, top.window.innerHeight || 0);
+    } else {
+        var viewPortHt = Math.max(window.document.documentElement.clientHeight, window.innerHeight || 0);
+    }
     var frameContentHt = Math.max($(idoc).height(), idoc.body.offsetHeight || 0) + 25;
     frameContentHt = frameContentHt < minSize ? minSize : frameContentHt;
     var hasHeader = $(e.currentTarget).parents('div.modal-content').find('div.modal-header').length;
