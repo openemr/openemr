@@ -26,6 +26,7 @@ use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
 use Application\Listener\Listener;
+use Documents\Controller\DocumentsController;
 
 class CcrController extends AbstractActionController
 {
@@ -42,8 +43,9 @@ class CcrController extends AbstractActionController
     */
     public function indexAction()
     {
-        $action = $this->getRequest()->getPost('action');
-        $am_id  = $this->getRequest()->getPost('am_id');
+        $request = $this->getRequest();
+        $action = $request->getPost('action');
+        $am_id  = $request->getPost('am_id');
         if ($action == 'add_new_patient') {
             $this->getCcrTable()->insert_patient($am_id);
         }
@@ -51,7 +53,8 @@ class CcrController extends AbstractActionController
         $category_details = $this->getCcrTable()->fetch_cat_id('CCR');
         
         $time_start     = date('Y-m-d H:i:s');
-        $docid          = \Documents\Controller\DocumentsController::uploadAction();
+        $obj_doc        = new DocumentsController();
+        $docid          = $obj_doc->uploadAction($request);
         $uploaded_documents     = array();
         $uploaded_documents     = $this->getCcrTable()->fetch_uploaded_documents(array('user' => $_SESSION['authId'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')));
         
