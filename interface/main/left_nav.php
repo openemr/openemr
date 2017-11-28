@@ -232,8 +232,7 @@ function genTreeLink($frame, $name, $title, $mono = false)
     }
 }
 
-/**********************************************************************
-function genMiscLink($frame, $name, $level, $title, $url, $mono = false)
+function genMiscLink($frame, $name, $level, $title, $url, $mono = false, $encform = false)
 {
     global $disallowed;
     if (empty($disallowed[$name])) {
@@ -246,31 +245,10 @@ function genMiscLink($frame, $name, $level, $title, $url, $mono = false)
                 echo "forceSpec(false,true);";
             }
         }
-
-        echo "return loadFrame2('$id','$frame','" .
-            $url . "')\">" . $title . "</a></li>";
-    }
-}
-**********************************************************************/
-
-function genMiscLink($frame, $name, $level, $title, $url, $mono=false, $encform=false) {
-    global $disallowed;
-    if (empty($disallowed[$name])) {
-        $id = $name . $level;
-        echo "<li><a href='' id='$id' onclick=\"";
-        if ($mono) {
-            if ($frame == 'RTop') {
-                echo "forceSpec(true,false);";
-            }
-            else {
-                echo "forceSpec(false,true);";
-            }
-        }
         if ($encform) {
             // In this case $url is an encounter form name, not a URL.
             echo "loadNewForm('" . addslashes(trim($url)) . "', '" . addslashes(trim($title)) . "');";
-        }
-        else {
+        } else {
             echo "loadFrame2('$id','$frame','" . $url . "');";
         }
         echo "return false;\">" . text($title) . "</a></li>";

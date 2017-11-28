@@ -76,8 +76,7 @@ function formJump($address = '')
     if ($address) {
         echo "top.restoreSession();\n";
         echo "location.href = '" . addslashes($address) . "';\n";
-    }
-    else {
+    } else {
         echo "parent.closeTab(window.name, true);\n";
     }
     echo "</script>\n";

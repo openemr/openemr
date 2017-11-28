@@ -558,15 +558,16 @@ if (!empty($reg)) {
             } else {
                 $nickname = trim($entry['name']);
             }
-                if ($old_category != $new_category) {
-                    $new_category_ = $new_category;
-                    $new_category_ = str_replace(' ', '_', $new_category_);
-                    if ($old_category != '') {
-                        $StringEcho.= "</table></div></li>";}
-                    $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('$DivId');\" >$new_category</a><div id='$DivId' ><table border='0' cellspacing='0' cellpadding='0'>";
-                    $old_category = $new_category;
-                    $DivId++;
+            if ($old_category != $new_category) {
+                $new_category_ = $new_category;
+                $new_category_ = str_replace(' ', '_', $new_category_);
+                if ($old_category != '') {
+                    $StringEcho .= "</table></div></li>";
                 }
+                $StringEcho .= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('$DivId');\" >$new_category</a><div id='$DivId' ><table border='0' cellspacing='0' cellpadding='0'>";
+                $old_category = $new_category;
+                $DivId++;
+            }
             $StringEcho .= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=\"openNewForm('" .
                 $rootdir . "/patient_file/encounter/load_form.php?formname=" . urlencode($entry['directory']) .
                 "', '" . addslashes(xl_form_title($nickname)) . "')\" href='JavaScript:void(0);'>" .
@@ -606,11 +607,6 @@ if ($encounterLocked === false) {
                     continue;
                 }
             }
-            /**********************************************************
-            $StringEcho .= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a href='" .
-                $rootdir . '/patient_file/encounter/load_form.php?formname=' .
-                urlencode($option_id) . "' >" . xl_form_title($title) . "</a></td></tr>";
-            **********************************************************/
             $StringEcho .= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=\"openNewForm('" .
                 $rootdir . "/patient_file/encounter/load_form.php?formname=" . urlencode($option_id) .
                 "', '" . addslashes(xl_form_title($title)) . "')\" href='JavaScript:void(0);'>" .

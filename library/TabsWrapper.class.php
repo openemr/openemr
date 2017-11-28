@@ -36,8 +36,7 @@ class TabsWrapper
     // Commonly this is called once but you can make as many as you want, or none.
     //
     public function declareInitialTab(
-        // Literals not translated here because they are just examples.
-        $title   = 'Initial Tab',
+        $title = 'Initial Tab', // Literals not translated here because they are just examples.
         $content = '<p>Content of first tab.</p>',
         $closeable = false
     ) {
@@ -174,14 +173,6 @@ EOD;
     public function genHtml()
     {
         $s = '';
-
-        // Debugging:
-        /**************************************************************
-        $s .= <<<EOD
-<p><input type="button" value="Add a Tab" onclick="twAddTab('enctabs', 'Label', 'Content');" /></p>
-EOD;
-        **************************************************************/
-
         $s .= "<div id='{$this->tabsid}'><ul>\n";
         $i = 0;
         foreach ($this->tabs as $val) {
