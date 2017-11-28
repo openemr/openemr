@@ -309,7 +309,7 @@ class Events extends Base
      *          You can ANNOUNCE a weather related closure (campaign) by SMS and AVM (events) going out now/ASAP 
      *      AND 
      *          at the same time also ANNOUNCE that in two months Dr. X will be out of the office and patient needs to reschedule (campaign) 
-     *          using SMS and email and voice (events) with messages gong out in 2 days, spread out over 6 business days...
+     *          using SMS and email and voice (events) with messages going out 2 days from now, spread out over 6 business days...
      *
      *  So SURVEY AND ANNOUNCE events have parent Campaigns they are attached to 
      *  but RECALLS and REMINDERS do not (they are a RECALL or a REMINDER).
@@ -337,9 +337,10 @@ class Events extends Base
              * 2 = days before PM
              * 3 = days after
              * 4 = days after PM
+             * 5 = now, ASAP
              * So if it == 2 or 4, MedEx checks time of day (local timezone) and run if after 6PM.
              */
-            if (($event['E_timing'] == '2')||($event['E_timing'] == '2')) {
+            if (($event['E_timing'] == '2')||($event['E_timing'] == '4')) {
                 if (date('H') < 18) {
                     continue;
                 }
@@ -424,6 +425,7 @@ class Events extends Base
                         $appt2 = array();
                         $appt2['pc_pid']        = $appt['pc_pid'];
                         $appt2['e_C_UID']       = $event['C_UID'];
+                        
                         $appt2['pc_eventDate']  = $appt['pc_eventDate'];
                         $appt2['pc_startTime']  = $appt['pc_startTime'];
                         $appt2['pc_eid']        = $appt['pc_eid'];
@@ -444,6 +446,8 @@ class Events extends Base
                         $appt2['phone_home']    = $appt['phone_home'];
                         $appt2['phone_cell']    = $appt['phone_cell'];
                         $appt2['email']         = $appt['email'];
+                        $appt2['pc_apptstatus'] = $appt['pc_apptstatus'];
+
                         $appt2['C_UID']         = $event['C_UID'];
                         $appt2['E_fire_time']   = $event['E_fire_time'];
                         $appt2['time_order']    = $event['time_order'];
@@ -564,20 +568,18 @@ class Events extends Base
                     $appt3[] = $recall2;
                 }
             } else if ($event['M_group'] == 'ANNOUNCE') {
-
-                    
                 //  They are date limited to one day (date1), or may encompass a date range (date10-date11).
                 //  These events can be processed ASAP, or start on a specific date ($event['ann_deliv_sched_date'])
-                //      If a specific date is set, the event load may be spread out over 2/4/6 days 
-                //      to balance staff work-load (patients calling in or if enabled hitting "0" to auto-reach the office.  
+                //      If a specific date range is set, the event load may be spread out over 2/4/6 days 
+                //      to balance staff work-load (patients calling in or if enabled hitting "0" to auto-reach the office).  
                 //      MedEx server handles this load balancing.  
                 //  The event can be further limited by provider(s), facility.
                 //  Let's build that query now.
 
                 if (!empty($event['ann_deliv_sched_date'])) {
                     $now = strtotime('now');
-                    $appt_date = strtotime($event['ann_deliv_sched_date']);
-                    if ($now < $appt_date) {
+                    $delivery_date = strtotime($event['ann_deliv_sched_date']);
+                    if ($now < $delivery_date) {
                         //not ready to run, move on
                         continue;
                     }
@@ -593,15 +595,15 @@ class Events extends Base
                     //we shouldn't get here so move to next event if we do
                 }
                 if (!empty($event['T_appt_stats'])) {
-                    $list = implode('|',$event['T_appt_stats']);
+                    $list = implode(',',$event['T_appt_stats']);
                     $appt_status = " AND pc_appstatus in (".$list.")";
                 }
                 if (!empty($event['T_providers'])) {
-                    $list = implode('|',$event['T_providers']);
+                    $list = implode(',',$event['T_providers']);
                     $docs = " AND pc_aid in (".$list.") ";
                 }
                 if (!empty($event['T_facilities'])) {
-                    $list = implode('|',$event['T_facilitiess']);
+                    $list = implode(',',$event['T_facilitiess']);
                     $places = " AND pc_facility in (".$list.") ";
                 }
 
@@ -614,7 +616,6 @@ class Events extends Base
                                 ORDER BY pc_eventDate,pc_startTime";
                 $result = sqlStatement($sql_ANNOUNCE);
                 while ($appt= sqlFetchArray($result)) {
-                    
                         list($response,$results) = $this->MedEx->checkModality($event, $appt);
                         if ($results==false) {
                             continue; //not happening - either not allowed or not possible
@@ -644,10 +645,13 @@ class Events extends Base
                         $appt2['phone_home']    = $appt['phone_home'];
                         $appt2['phone_cell']    = $appt['phone_cell'];
                         $appt2['email']         = $appt['email'];
+                        $appt2['e_apptstatus'] = $appt['pc_apptstatus'];
+                        
                         $appt2['C_UID']         = $event['C_UID'];
                         $appt2['E_fire_time']   = $event['E_fire_time'];
                         $appt2['time_order']    = $event['time_order'];
                         $appt2['M_type']        = $event['M_type'];
+                        
                         $appt2['reply']         = "To Send";
                         $appt2['extra']         = "QUEUED";
                         $appt2['status']        = "SENT";
@@ -655,6 +659,12 @@ class Events extends Base
                         $appt2['to']            = $results;
                         $appt3[] = $appt2;
                 }
+            } else if ($event['M_group'] == 'DOB_RELATED') {
+                $sql = "SELECT * from patient_data 
+                        where 
+                            DOB > CURDATE() - INTERVAL ".$timing." DAY 
+                        AND 
+                            DOB < (curdate() - INTERVAL '".$timing.":1:1' DAY_MINUTE)) ";
             }
         }
         if (!empty($RECALLS_completed)) {
@@ -683,7 +693,7 @@ class Events extends Base
             $sqlUPDATE = "UPDATE medex_outgoing set msg_reply=?, msg_extra_text=?, msg_date=NOW()
                                 WHERE msg_pc_eid=? and campaign_uid=? and msg_type=? and msg_reply='To Send'";
             sqlQuery($sqlUPDATE, array($appt['reply'],$appt['extra'],$appt['pc_eid'],$appt['C_UID'], $appt['M_type']));
-            if (count($data['appts'])>'20') {
+            if (count($data['appts'])>'100') {
                 $this->curl->setUrl($this->MedEx->getUrl('custom/loadAppts&token='.$token));
                 $this->curl->setData($data);
                 $this->curl->makeRequest();
@@ -899,7 +909,7 @@ class Display extends base
             }
             function SMS_bot_list() {
                 top.restoreSession();
-                var myWindow = window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=new','SMS_bot', 'width=370,height=600,resizable=0');
+                var myWindow = window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=new','SMS_bot', 'width=383,height=600,resizable=0');
                 myWindow.focus();
                 return false;
             }
@@ -937,6 +947,7 @@ class Display extends base
                                         if ($logged_in) {
                                             ?>
                                             <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class=""><a onclick="tabYourIt('prefs','main/messages/messages.php?go=Preferences');"><?php echo xlt("Preferences"); ?></a></li>
+                                            <li id="icons" name="icons"><a onclick="doRecallclick_edit('icons');"><?php echo xlt('Icon Legend'); ?></a></li>
                                             <?php
                                         } else {
                                             ?>
@@ -945,8 +956,7 @@ class Display extends base
                                             <?php
                                         }
                                         ?>
-                                        <li id="icons" name="icons"><a onclick="doRecallclick_edit('icons');"><?php echo xlt('Icon Legend'); ?></a></li>
-                                    </ul>
+                                     </ul>
                                 </li>
                                 <?php
                             }
