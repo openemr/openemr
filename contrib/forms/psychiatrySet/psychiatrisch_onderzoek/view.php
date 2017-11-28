@@ -232,7 +232,7 @@ include_once("$srcdir/api.inc");
 <br><br>
 <a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save', 'e'); ?>]</a>
 <br>
-<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link_submit"
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link_submit"
  onclick="delete_autosave();top.restoreSession()">[<?php xl('Don\'t Save Changes', 'e'); ?>]</a>
 </form>
 

@@ -191,7 +191,7 @@ if ($formid && is_file($imagepath)) {
 &nbsp;
 <input type='button' value='Add Appointment' onclick='newEvt()' />
 &nbsp;
-<input type='button' value='Back' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
+<input type='button' value='Back' onclick="parent.closeTab(window.name, false)" />
 <?php if ($formrow['id'] && acl_check('admin', 'super')) { ?>
 &nbsp;
 <input type='button' value='Delete' onclick='deleteme()' style='color:red' />

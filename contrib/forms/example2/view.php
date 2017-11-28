@@ -155,7 +155,7 @@ Date of signature:
 
 $(document).ready(function(){
     $(".save").click(function() { top.restoreSession(); document.my_form.submit(); });
-    $(".dontsave").click(function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>'; });
+    $(".dontsave").click(function() { parent.closeTab(window.name, false); });
     $(".printform").click(function() { PrintForm(); });
 
     $('.datepicker').datetimepicker({
