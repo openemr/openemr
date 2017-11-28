@@ -676,7 +676,7 @@ if ($postCalendarCategoryACO) {
 }
 
 if ($attendant_type == 'pid' && is_numeric($pid)) {
-    echo '<span class="title">' . oeFormatShortDate($encounter_date) . " " . xlt("Encounter") . '</span>';
+    echo '<span class="title">' . text(oeFormatShortDate($encounter_date)) . " " . xlt("Encounter") . '</span>';
 
     // Check for no access to the patient's squad.
     $result = getPatientData($pid, "fname,lname,squad");
@@ -693,7 +693,7 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     }
     // for therapy group
 } else {
-    echo '<span class="title">' . oeFormatShortDate($encounter_date) . " " . xlt("Group Encounter") . '</span>';
+    echo '<span class="title">' . text(oeFormatShortDate($encounter_date)) . " " . xlt("Group Encounter") . '</span>';
     // Check for no access to the patient's squad.
     $result = getGroup($groupId);
     echo htmlspecialchars(xl('for ', '', ' ', ' ') . $result['group_name']);
@@ -872,7 +872,7 @@ foreach ($docs_list as $doc_iter) {
     }
 ?>
 <br>
-<a href="<?php echo $doc_url;?>" style="font-size:small;" onsubmit="return top.restoreSession()"><?php echo oeFormatShortDate($doc_iter[docdate]) . ": " . text(basename($doc_iter[url]));?></a>
+<a href="<?php echo $doc_url;?>" style="font-size:small;" onsubmit="return top.restoreSession()"><?php echo text(oeFormatShortDate($doc_iter[docdate])) . ": " . text(basename($doc_iter[url]));?></a>
 <?php if ($note != '') {?>
             <a href="javascript:void(0);" title="<?php echo attr($note);?>"><img src="../../../images/info.png"/></a>
     <?php }?>

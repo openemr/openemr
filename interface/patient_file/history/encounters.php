@@ -114,7 +114,7 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid)
             $noteResultSet = sqlStatement($queryString, array($documentrow['id']));
             $note = '';
             while ($row = sqlFetchArray($noteResultSet)) {
-                $note .= oeFormatShortDate(date('Y-m-d', strtotime($row['date']))) . " : " . attr($row['note']) . "\n";
+                $note .= attr(oeFormatShortDate(date('Y-m-d', strtotime($row['date'])))) . " : " . attr($row['note']) . "\n";
             }
             $docTitle = ( $note ) ? $note : xla("View document");
 

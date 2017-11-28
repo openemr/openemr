@@ -42,7 +42,7 @@ function printAmendment($amendmentID, $lastAmendment)
     echo "<table>";
     echo "<tr class=text>";
     echo "<td class=bold>" . xlt("Requested Date") . ":"  . "</td>";
-    echo "<td>". oeFormatShortDate($resultSet['amendment_date']) . "</td>";
+    echo "<td>". text(oeFormatShortDate($resultSet['amendment_date'])) . "</td>";
     echo "</tr>";
 
     echo "<tr class=text>";
@@ -77,7 +77,7 @@ function printAmendment($amendmentID, $lastAmendment)
     while ($row = sqlFetchArray($resultSet)) {
         echo "<tr class=text>";
         $created_date = date('Y-m-d', strtotime($row['created_time']));
-        echo "<td>" . oeFormatShortDate($created_date) . "</td>";
+        echo "<td>" . text(oeFormatShortDate($created_date)) . "</td>";
         echo "<td>" . text($row['lname']) . ", " . text($row['fname']) . "</td>";
         echo "<td>" . text($row['amendment_note']) . "</td>";
         echo "</tr>";

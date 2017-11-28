@@ -472,7 +472,7 @@ if ($orow['control_id']) {
   <td class="td-label" nowrap><?php echo xlt('Order Date'); ?></td>
   <td><?php echo myCellText(oeFormatShortDate($orow['date_ordered'])); ?></td>
   <td class="td-label" nowrap><?php echo xlt('Print Date'); ?></td>
-  <td><?php echo oeFormatShortDate(date('Y-m-d')); ?></td>
+  <td><?php echo text(oeFormatShortDate(date('Y-m-d'))); ?></td>
  </tr>
  <tr>
   <td class="td-label" nowrap><?php echo xlt('Order Status'); ?></td>

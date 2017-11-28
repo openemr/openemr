@@ -1017,10 +1017,10 @@ while ($row = sqlFetchArray($t_res)) {
      target="_blank"><?php echo $row['pid'] . '.' . $row['encounter']; ?></a>
    </td>
    <td class="detail">
-     &nbsp;<?php echo oeFormatShortDate($svcdate) ?>
+     &nbsp;<?php echo text(oeFormatShortDate($svcdate)); ?>
    </td>
    <td class="detail">
-     &nbsp;<?php echo oeFormatShortDate($last_stmt_date) ?>
+     &nbsp;<?php echo text(oeFormatShortDate($last_stmt_date)); ?>
    </td>
    <td class="detail" align="right">
         <?php bucks($row['charges']) ?>&nbsp;

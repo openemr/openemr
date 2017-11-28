@@ -435,7 +435,7 @@ foreach ($providers as $provider) {
         if ($Date == $dateFmt) { $currclass= "week_currday"; }
         echo "<td align='center' class='week_dateheader $currclass' style='width:".$colWidth."%;' >";
         echo "<a href='$gotoURL'>";
-        echo xl(date("D", strtotime($date))) . " " . oeFormatShortDate($date, false);
+        echo xl(date("D", strtotime($date))) . " " . text(oeFormatShortDate($date, false));
         echo "</a></td>";
     }
     echo " </tr>\n";

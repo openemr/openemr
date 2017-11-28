@@ -1001,7 +1001,7 @@ while ($frow = sqlFetchArray($fres)) {
             echo "<td colspan='" . attr($CPR) . "' align='right' class='bold'>";
             if (empty($is_lbf)) {
                     // Including actual date per IPPF request 2012-08-23.
-                    echo oeFormatShortDate(substr($enrow['date'], 0, 10));
+                    echo text(oeFormatShortDate(substr($enrow['date'], 0, 10)));
                     echo ' (' . htmlspecialchars(xl('Current')) . ')';
             }
 

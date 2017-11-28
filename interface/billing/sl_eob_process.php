@@ -97,7 +97,7 @@ function writeDetailLine(
     "  <td class='$class'>$ptname</td>\n" .
     "  <td class='$class'>$invnumber</td>\n" .
     "  <td class='$class'>$code</td>\n" .
-    "  <td class='$class'>" . oeFormatShortDate($date) . "</td>\n" .
+    "  <td class='$class'>" . text(oeFormatShortDate($date)) . "</td>\n" .
     "  <td class='$class'>$description</td>\n" .
     "  <td class='$class' align='right'>" . oeFormatMoney($amount) . "</td>\n" .
     "  <td class='$class' align='right'>" . oeFormatMoney($balance) . "</td>\n" .

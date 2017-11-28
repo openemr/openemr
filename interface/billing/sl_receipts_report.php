@@ -643,7 +643,7 @@ if ($_POST['form_refresh']) {
         <?php echo text($docnameleft); $docnameleft = " " ?>
   </td>
   <td class="detail">
-        <?php echo oeFormatShortDate($row['transdate']) ?>
+        <?php echo text(oeFormatShortDate($row['transdate'])); ?>
   </td>
     <?php if ($form_procedures) { ?>
   <td class="detail">

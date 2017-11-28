@@ -438,7 +438,7 @@ function insertAtCursor(myField, myValue) {
 
   <td>
    <input type='text' size='10' name='form_date' id='form_date' class='datepicker form-control'
-    value='<?php echo oeFormatShortDate(date('Y-m-d')); ?>'
+    value='<?php echo attr(oeFormatShortDate(date('Y-m-d'))); ?>'
     title='<?php echo xlt('Date of this letter'); ?>' />
   </td>
 

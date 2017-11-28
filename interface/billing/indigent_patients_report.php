@@ -107,13 +107,13 @@ $form_end_date  = (!empty($_POST['form_end_date'])) ? DateToYYYYMMDD($_POST['for
                 <?php echo xlt('Visits From'); ?>:
             </td>
             <td>
-               <input type='text' class='datepicker form-control' name='form_start_date' id="form_start_date" size='10' value='<?php echo oeFormatShortDate($form_start_date); ?>'>
+               <input type='text' class='datepicker form-control' name='form_start_date' id="form_start_date" size='10' value='<?php echo attr(oeFormatShortDate($form_start_date)); ?>'>
             </td>
             <td class='control-label'>
                 <?php xl('To', 'e'); ?>:
             </td>
             <td>
-               <input type='text' class='datepicker form-control' name='form_end_date' id="form_end_date" size='10' value='<?php echo oeFormatShortDate($form_end_date); ?>'>
+               <input type='text' class='datepicker form-control' name='form_end_date' id="form_end_date" size='10' value='<?php echo attr(oeFormatShortDate($form_end_date)); ?>'>
             </td>
         </tr>
     </table>
@@ -237,10 +237,10 @@ if ($_POST['form_refresh']) {
  &nbsp;<?php echo text($invnumber); ?></a>
 </td>
 <td class="detail">
- &nbsp;<?php echo oeFormatShortDate(substr($row['date'], 0, 10)); ?>
+ &nbsp;<?php echo text(oeFormatShortDate(substr($row['date'], 0, 10))); ?>
 </td>
 <td class="detail">
- &nbsp;<?php echo oeFormatShortDate($inv_duedate); ?>
+ &nbsp;<?php echo text(oeFormatShortDate($inv_duedate)); ?>
 </td>
 <td class="detail" align="right">
     <?php echo bucks($inv_amount); ?>&nbsp;
