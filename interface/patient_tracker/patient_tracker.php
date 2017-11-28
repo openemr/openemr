@@ -122,7 +122,7 @@ function bpopup(tkid) {
 // popup for calendar add edit
 function calendarpopup(eid,date_squash) {
  top.restoreSession()
- dlgopen('../main/calendar/add_edit_event.php?eid=' + eid + '&date=' + date_squash, '_blank', 775, 500);
+ dlgopen('../main/calendar/add_edit_event.php?eid=' + eid + '&date=' + date_squash, '_blank',  <?php echo $GLOBALS['add_edit_event_width']; ?>, <?php echo $GLOBALS['add_edit_event_height']; ?>);
  return false;
 }
 

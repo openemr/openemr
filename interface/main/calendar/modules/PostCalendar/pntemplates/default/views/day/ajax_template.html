@@ -43,16 +43,16 @@ $timeslotHeightUnit="px";
                 }
         }
     [-/php-]
-   ,'_blank', 775, 500);
+   ,'_blank', [-php-] echo $GLOBALS['add_edit_event_width'] ; [-/php-], [-php-] echo $GLOBALS['add_edit_event_height'] ; [-/php-]);
  }
 
  function oldEvt(eventdate, eventid, pccattype) {
-  dlgopen('add_edit_event.php?date='+eventdate+'&eid=' + eventid+'&prov=' + pccattype, '_blank', 775, 500);
+  dlgopen('add_edit_event.php?date='+eventdate+'&eid=' + eventid+'&prov=' + pccattype, '_blank', [-php-] echo $GLOBALS['add_edit_event_width'] ; [-/php-], [-php-] echo $GLOBALS['add_edit_event_height'] ; [-/php-]);
  }
 
  function oldGroupEvt(eventdate, eventid, pccattype){
   top.restoreSession();
-  dlgopen('add_edit_event.php?group=true&date='+eventdate+'&eid=' + eventid+'&prov=' + pccattype, '_blank', 775, 500);
+  dlgopen('add_edit_event.php?group=true&date='+eventdate+'&eid=' + eventid+'&prov=' + pccattype, '_blank', [-php-] echo $GLOBALS['add_edit_event_width'] ; [-/php-], [-php-] echo $GLOBALS['add_edit_event_height'] ; [-/php-]);
  }
 
  function goPid(pid) {
