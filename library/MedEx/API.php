@@ -1270,8 +1270,6 @@ class Display extends base
         $to_date = !is_null($_REQUEST['datepicker2']) ? date('Y-m-d', strtotime($_REQUEST['datepicker2'])) : $to_date;
         
         $recalls = $this->get_recalls($from_date, $to_date);
-        $disp_from_date = oeFormatShortDate($from_date);
-        $disp_to_date = oeFormatShortDate($to_date);
         
             // if all we don't use MedEx, there is no need to display the progress tabs, all recall processing is manual.
         if (!$logged_in) {
@@ -1379,15 +1377,18 @@ class Display extends base
                                     <table class="table-hover table-condensed" style="margin:0px auto;">
                                       <tr><td class="text-right" style="vertical-align:bottom;">
                                         <label for="flow_from"><?php echo xlt('From'); ?>:</label></td><td>
-                                        <input type="date" id="datepicker1" name="datepicker1"
+                                        <input type="date" data-provide="datepicker" id="datepicker1" name="datepicker1"
                                                 data-format="<?php echo $date_format; ?>"
-                                                class="form-control datepicker input-sm text-center" value="<?php echo attr($disp_from_date); ?>" style="max-width:140px;min-width:85px;">
+                                                class="form-control hasDatepicker datepicker input-sm text-center" 
+                                                value="<?php echo $from_date; ?>" 
+                                                style="max-width:140px;min-width:85px;">
+         
                                       </td></tr>
                                       <tr><td class="text-right" style="vertical-align:bottom;">
                                         <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To'); ?>:</label></td><td>
                                         <input type="date" id="datepicker2" name="datepicker2"
                                                 data-format="<?php echo $date_format; ?>"
-                                                class="form-control datepicker input-sm text-center" value="<?php echo attr($disp_to_date); ?>" style="max-width:140px;min-width:85px;">
+                                                class="form-control datepicker input-sm text-center hasDatepicker" value="<?php echo attr($to_date); ?>" style="max-width:140px;min-width:85px;">
                                       </td></tr>
                                       <tr><td class="text-center" colspan="2">
                                         <input href="#" class="css_button btn ui-buttons ui-widget ui-corner-all news" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>">
@@ -2462,7 +2463,7 @@ class Setup extends Base
                             if (obj.success) {
                                 $("#butme").html('<a href="messages.php?go=Preferences"><?php echo xlt('Preferences'); ?></a>');
                                 url="https://www.medexbank.com/cart/upload/";
-                                window.open(url, 'clinical', 'width=fullscreen,height=fullscreen,resizable=1,scrollbars=1,directories=0,titlebar=0,toolbar=0,location=0,status=0,menubar=0');
+                                window.open(url, 'clinical', 'resizable=1,scrollbars=1');
                 refresh_me();
                             }
                     });

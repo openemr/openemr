@@ -73,8 +73,6 @@ $appointments = sortAppointments($appointments, 'date', 'time');
 //grouping of the count of every status
 $appointments_status = getApptStatus($appointments);
 
-$disp_from_date = oeFormatShortDate($from_date);
-$disp_to_date = oeFormatShortDate($to_date);
 
 $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1", array( 'apptstat' ));
 while ($lrow = sqlFetchArray($lres)) {
@@ -347,17 +345,23 @@ if (!$_REQUEST['flb_table']) {
                           <tr style="<?php echo $style; ?>">
                             <td class="text-right" style="vertical-align:bottom;">
                               <label for="flow_from"><?php echo xlt('From'); ?>:</label></td><td>
-                              <input type="text" id="datepicker1" name="datepicker1"
+                              <input type="date" id="datepicker1" name="datepicker1"
+                                    data-provide="datepicker"
                                     data-format="<?php echo $date_format; ?>"
-                                    class="form-control datepicker input-sm text-center" value="<?php echo attr($disp_from_date); ?>" style="max-width:140px;min-width:85px;">
+                                    class="form-control hasDatepicker input-sm text-center" 
+                                    value="<?php echo attr($from_date); ?>" 
+                                    style="max-width:140px;min-width:85px;">
                             </td>
                           </tr>
                           <tr style="<?php echo $style; ?>">
                             <td class="text-right" style="vertical-align:bottom;">
                               <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To'); ?>:</label></td><td>
-                              <input type="text" id="datepicker2" name="datepicker2"
+                              <input type="date" id="datepicker2" name="datepicker2"
+                                    data-provide="datepicker"
                                     data-format="<?php echo $date_format; ?>"
-                                    class="form-control datepicker input-sm text-center" value="<?php echo attr($disp_to_date); ?>" style="max-width:140px;min-width:85px;">
+                                    class="form-control hasDatepicker input-sm text-center" 
+                                    value="<?php echo attr($to_date); ?>" 
+                                    style="max-width:140px;min-width:85px;">
                             </td>
                           </tr>
                           <tr>
@@ -1076,70 +1080,8 @@ if ($appointment['room']>'') {
                   //alert(e.type);
                   }, false );
 
-                  // The "Today button" just highlights today's date.  
-                  // This overrides the showToday function to show Today AND select it, not just highlight it.
-                  // This is how it is expected to work and now it does.
-                  $.datepicker._gotoToday = function(id) {
-                      var target = $(id);
-                      var inst = this._getInst(target[0]);
-                      if (this._get(inst, 'gotoCurrent') && inst.currentDay) {
-                              inst.selectedDay = inst.currentDay;
-                              inst.drawMonth = inst.selectedMonth = inst.currentMonth;
-                              inst.drawYear = inst.selectedYear = inst.currentYear;
-                      }
-                      else {
-                              var date = new Date();
-                              inst.selectedDay = date.getDate();
-                              inst.drawMonth = inst.selectedMonth = date.getMonth();
-                              inst.drawYear = inst.selectedYear = date.getFullYear();
-                              // the below two lines are new
-                              this._setDateDatepicker(target, date);
-                              this._selectDate(id, this._getDateDatepicker(target));
-                      }
-                      this._notifyChange(inst);
-                      this._adjustDate(target);
-                    };
-
-
-                    $( "#datepicker1" ).datepicker({
-                                               beforeShow: function() {
-                                               setTimeout(function(){
-                                              $('.ui-datepicker').css('z-index', 99999999999999);
-                                              }, 0);
-                                               },
-                                               changeYear: true,
-                                               defaultDate: "-1d",
-                                               showButtonPanel: true,
-                                               dateFormat: xljs_dateFormat,
-                                               scrollInput: false,
-                                               scrollMonth: false,
-                                               closeOnDateSelect:true,
-                                               todayButton:true,
-                                               defaultSelect:true,
-                                               onSelect: function(dateText, inst) {
-                                                $('#'+inst.id).attr('value',dateText);
-                                               }
-                                               });
-                    $( "#datepicker2" ).datepicker({
-                                               beforeShow: function() {
-                                               setTimeout(function(){
-                                              $('.ui-datepicker').css('z-index', 99999999999999);
-                                              }, 0);
-                                               },
-                                               changeYear: true,
-                                               defaultDate: "+2d",
-                                               showButtonPanel: true,
-                                               dateFormat: xljs_dateFormat,
-                                               scrollInput: false,
-                                               scrollMonth: false,
-                                               closeOnDateSelect:true,
-                                               todayButton:true,
-                                               defaultSelect:true,
-                                               onSelect: function(dateText, inst) {
-                                                $('#'+inst.id).attr('value',dateText);
-                                               }
-                                               }); 
-       
+                
+              
                     <?php
                     if ($GLOBALS['pat_trkr_timer'] != '0') {
                         ?>
@@ -1148,9 +1090,9 @@ if ($appointment['room']>'') {
                       parsetime=(parsetime[0]*60)+(parsetime[1]*1)*1000;
                       if (auto_refresh)clearInteral(auto_refresh);
                       auto_refresh = setInterval(function(){
-            refreshMe() // this will run after every parsetime seconds
-            }, parsetime);
-                        <?php
+                        refreshMe() // this will run after every parsetime seconds
+                      }, parsetime);
+                      <?php
                     }
                     ?>
 

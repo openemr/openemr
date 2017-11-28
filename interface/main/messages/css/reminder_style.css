@@ -20,12 +20,9 @@ h1 {
     line-height: 1.5em;
     color: #693;
 }
-.nav-tabs {
-  border-bottom: none;
-}
 .nav-tabs > li {
-  border:0.5px solid #c0c0c0;
-  margin-bottom:0px;
+  border:0.5px solid black;
+  margin-bottom:-2px;
 }
 .nav-tabs > li .active{
   border-bottom:none;
@@ -35,21 +32,17 @@ h1 {
   border:none;
 }
 .nav-tabs > li.active > a {
-  border:none;
+	border:none;
 }
 .nav-tabs > li.active > a, .nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover {
-  border:unset;
+	border:unset;
 }
  .main_container {
   text-align:center;
   margin:25px auto;
  }
 .sticky {
-  position: -webkit-sticky;
-  position: sticky;
-  top: 12px;
-  opacity: 1.0;
-  z-index: 999;
+  position: -webkit-sticky;position: sticky;top: 130px;
 }
 .flow tr:nth-child(even){
   background-color: #f1f8ee;
@@ -116,38 +109,38 @@ width: 98%;
   width:400px;
   background-color:white;
   display:inline-table;
-  box-shadow: 2px 1px 2px #c0c0c0;
+    box-shadow: 2px 1px 2px #7b777760;
   border-radius: 0px 0px 5px 5px;
   margin: 15px auto;
   overflow: hidden;
-  border: 0.5px solid #c0c0c0;
+  border: 2px solid #839E99;
   border-radius: 8px;
   border-style: ridge;
   padding: 10px;
  }
- 
- .divTable{
+  .divTable{
   display: table;
   float: left;
-  font-size: 0.9em;
   background: white;
-  border: 0.5px solid #c0c0c0;
+  border: 1px solid #000;
   box-shadow: 2px 3px 9px #c0c0c0;
   border-radius: 8px;
   padding: 10px;
-  margin: 15px auto;
-}
+  margin: 15px;
+  min-width:400px;
+  width: 65%;
+ }
 .divTable2{
   display: table;
-  font-size: 0.9em;
+  font-size: 1.0em;
   background: white;
-  border: 0.5px solid #c0c0c0;
-  box-shadow: 2px 3px 9px #c0c0c0;
+  border: 1px solid #000;
+  box-shadow: 2px 3px 9px #000;
   border-radius: 8px;
   padding: 10px;
   position:relative;
   display:inline-block;
-  margin: 15px auto;
+  margin: 15px;
   vertical-align: top;
 }
 .divTable3{
@@ -173,7 +166,6 @@ width: 98%;
   display: table-row;
   border-radius: 8px;
   background-color: white;
-  text-align:left;
  }
  .divTableCell, .divTableHead {
   border: 0.5px solid #c0c0c0;
@@ -181,6 +173,7 @@ width: 98%;
   vertical-align: middle;
   min-height: 29px;
   padding: 5px 10px;
+  text-align: left;
   border-radius: 3px;
  }
  .divTableHeading {
@@ -197,9 +190,10 @@ width: 98%;
   float:right;
  }
  .float_center {
-  float:unset;
-}
-.Wide {
+ 	float:unset;
+ 	margin: 15px auto;
+ }
+ .Wide {
   width:100%;
  }
 
@@ -419,13 +413,11 @@ td.right { width: 30%; }
     font-size:1.2em;
 }
 .prefs_default {
-  font-size: 1.2em;
   margin: 0em 0em 1em 0em;
   text-decoration: underline;
   font-weight:600;
 }
-.Xprefs {
-  font-size: 1.2em;
+.prefs {
   margin: 0em 0em 1em 0em;
   font-weight:600;
 }
@@ -448,10 +440,10 @@ td.right { width: 30%; }
   width:0px;
 }
 .messages {
-  font-family: "Open sans","FontAwesome",Arial,Serif, Arial;
-  padding: 20px;
-  font-size: 1.0em;
-  margin: 2px auto;
+	font-family: "Open sans","FontAwesome",Arial,Serif, Arial;
+	padding: 20px;
+	font-size: 1.0em;
+	margin: 2px auto;
 }
 .messages  table  td {
   padding: 15px 5px 15px 0px;
