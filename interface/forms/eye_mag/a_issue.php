@@ -304,7 +304,7 @@ foreach (explode(',', $given) as $item) {
     function refreshIssue() {  parent.refresh_page(); }
     function submit_this_form() {
         var url = "../../forms/eye_mag/save.php?PMSFH_save=1&mode=update&form_save=1";
-        var formData = $("form#theform2").serialize();
+        var formData = $("form#theform").serialize();
         var f = document.forms[0];
         top.restoreSession();
         $.ajax({
