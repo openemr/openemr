@@ -34,9 +34,10 @@ class TabsWrapper
 
     // Declare an initial tab that will not be dynamically created.
     // Commonly this is called once but you can make as many as you want, or none.
+    // Literal arguments below are not translated because they are just examples.
     //
     public function declareInitialTab(
-        $title = 'Initial Tab', // Literals not translated here because they are just examples.
+        $title = 'Initial Tab',
         $content = '<p>Content of first tab.</p>',
         $closeable = false
     ) {

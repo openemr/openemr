@@ -54,7 +54,7 @@ if (!empty($_GET['formname'])) {
     $url = $rootdir . "/patient_file/encounter/load_form.php?formname=" . urlencode($_GET['formname']);
     $tabset->declareInitialTab(
         $_GET['formdesc'],
-        "<iframe frameborder='0' style='height:100%;width:100%;' src='$url'>Oops</iframe>",
+        "<iframe name='enctabs-2' frameborder='0' style='height:100%;width:100%;' src='$url'>Oops</iframe>",
         true
     );
 }
