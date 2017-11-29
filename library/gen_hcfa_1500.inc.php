@@ -698,8 +698,7 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
         $middleName = $claim->providerMiddleName();
         $suffixName = $claim->providerSuffixName();
         $billingProviderName = $lastName . ", " . $firstName. ", " . $middleName. ", " . $suffixName;
-    }
-    put_hcfa(58, 50, 25, $billingProviderName);
+        put_hcfa(58, 50, 25, $billingProviderName);
     } else {
         put_hcfa(58, 50, 25, $claim->billingFacilityName());
     }
