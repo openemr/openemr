@@ -1,66 +1,56 @@
 <?php
-/*
+/**
  * main file for the 270 batch creation.
  * This report is the batch report required for batch eligibility verification.
  *
  * This program creates the batch for the x12 270 eligibility file
  *
- * Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
- * Copyright (C) 2010 MMF Systems, Inc
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://opensource.org/licenses/gpl-license.php.
- *
- * @package OpenEMR
- * @author Terry Hill <terry@lilysystems.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Terry Hill <terry@lilysystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010 MMF Systems, Inc
+ * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+
+require_once("../globals.php");
+require_once("$srcdir/forms.inc");
+require_once("$srcdir/billing.inc");
+require_once("$srcdir/patient.inc");
+require_once "$srcdir/options.inc.php";
+require_once("$srcdir/calendar.inc");
+require_once("$srcdir/edi.inc");
 
 use OpenEMR\Core\Header;
 
-    require_once("../globals.php");
-    require_once("$srcdir/forms.inc");
-    require_once("$srcdir/billing.inc");
-    require_once("$srcdir/patient.inc");
-    require_once "$srcdir/options.inc.php";
-    include_once("$srcdir/calendar.inc");
-    include_once("$srcdir/edi.inc");
+// Element data seperator
+$eleDataSep     = "*";
 
-    // Element data seperator
-    $eleDataSep     = "*";
+// Segment Terminator
+$segTer         = "~";
 
-    // Segment Terminator
-    $segTer         = "~";
+// Component Element seperator
+$compEleSep     = ":";
 
-    // Component Element seperator
-    $compEleSep     = ":";
+// filter conditions for the report and batch creation
 
-    // filter conditions for the report and batch creation
+$from_date      = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
+$to_date        = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
+$form_facility  = $_POST['form_facility'] ? $_POST['form_facility'] : '';
+$form_provider  = $_POST['form_users'] ? $_POST['form_users'] : '';
+$exclude_policy = $_POST['removedrows'] ? $_POST['removedrows'] : '';
+$X12info        = $_POST['form_x12'] ? explode("|", $_POST['form_x12']) : '';
 
-    $from_date      = fixDate($_POST['form_from_date'], date('Y-m-d'));
-    $to_date        = fixDate($_POST['form_to_date'], date('Y-m-d'));
-    $form_facility  = $_POST['form_facility'] ? $_POST['form_facility'] : '';
-    $form_provider  = $_POST['form_users'] ? $_POST['form_users'] : '';
-    $exclude_policy = $_POST['removedrows'] ? $_POST['removedrows'] : '';
-    $X12info        = $_POST['form_x12'] ? explode("|", $_POST['form_x12']) : '';
+//Set up the sql variable binding array (this prevents sql-injection attacks)
+$sqlBindArray = array();
 
-    //Set up the sql variable binding array (this prevents sql-injection attacks)
-    $sqlBindArray = array();
+$where  = "e.pc_pid IS NOT NULL AND e.pc_eventDate >= ?";
+array_push($sqlBindArray, $from_date);
 
-    $where  = "e.pc_pid IS NOT NULL AND e.pc_eventDate >= ?";
-    array_push($sqlBindArray, $from_date);
-
-    //$where .="and e.pc_eventDate = (select max(pc_eventDate) from openemr_postcalendar_events where pc_aid = d.id)";
+//$where .="and e.pc_eventDate = (select max(pc_eventDate) from openemr_postcalendar_events where pc_aid = d.id)";
 
 if ($to_date) {
     $where .= " AND e.pc_eventDate <= ?";
@@ -81,7 +71,7 @@ if ($exclude_policy != "") {
     $arrayExplode   =   explode(",", $exclude_policy);
                         array_walk($arrayExplode, 'arrFormated');
                         $exclude_policy = implode(",", $arrayExplode);
-                        $where .= " AND i.policy_number not in (".stripslashes($exclude_policy).")";
+                        $where .= " AND i.policy_number not in (".add_escape_custom($exclude_policy).")";
 }
 
     $where .= " AND (i.policy_number is not null and i.policy_number != '')";
@@ -158,7 +148,7 @@ if ($exclude_policy != "") {
 
     <head>
 
-        <title><?php echo htmlspecialchars(xl('Eligibility 270 Inquiry Batch'), ENT_NOQUOTES); ?></title>
+        <title><?php echo xlt('Eligibility 270 Inquiry Batch'); ?></title>
 
         <?php Header::setupHeader('datetime-picker'); ?>
 
@@ -191,9 +181,8 @@ if ($exclude_policy != "") {
 
         <script type="text/javascript">
 
-            var mypcc = "<?php echo htmlspecialchars($GLOBALS['phone_country_code'], ENT_QUOTES); ?>";
-            var stringDelete = "<?php echo htmlspecialchars(xl('Do you want to remove this record?'), ENT_QUOTES); ?>?";
-            var stringBatch  = "<?php echo htmlspecialchars(xl('Please select X12 partner, required to create the 270 batch'), ENT_QUOTES); ?>";
+            var stringDelete = "<?php echo xla('Do you want to remove this record?'); ?>?";
+            var stringBatch  = "<?php echo xla('Please select X12 partner, required to create the 270 batch'); ?>";
 
             // for form refresh
 
@@ -268,7 +257,7 @@ if ($exclude_policy != "") {
                 $('.datepicker').datetimepicker({
                     <?php $datetimepicker_timepicker = false; ?>
                     <?php $datetimepicker_showseconds = false; ?>
-                    <?php $datetimepicker_formatInput = false; ?>
+                    <?php $datetimepicker_formatInput = true; ?>
                     <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
@@ -282,12 +271,10 @@ if ($exclude_policy != "") {
         <!-- Required for the popup date selectors -->
         <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-        <span class='title'><?php echo htmlspecialchars(xl('Report'), ENT_NOQUOTES); ?> - <?php echo htmlspecialchars(xl('Eligibility 270 Inquiry Batch'), ENT_NOQUOTES); ?></span>
+        <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Eligibility 270 Inquiry Batch'); ?></span>
 
         <div id="report_parameters_daterange">
-            <?php echo htmlspecialchars(date("d F Y", strtotime($form_from_date)), ENT_NOQUOTES) .
-                " &nbsp; " . htmlspecialchars(xl('to'), ENT_NOQUOTES) .
-                "&nbsp; ". htmlspecialchars(date("d F Y", strtotime($form_to_date)), ENT_NOQUOTES); ?>
+            <?php echo text(oeFormatShortDate($form_from_date)) . " &nbsp; " . xlt('to') . "&nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
         </div>
 
         <form method='post' name='theform' id='theform' action='edi_270.php' onsubmit="return top.restoreSession()">
@@ -300,38 +287,37 @@ if ($exclude_policy != "") {
                                 <table class='text'>
                                     <tr>
                                         <td class='control-label'>
-                                            <?php xl('From', 'e'); ?>:
+                                            <?php echo xlt('From'); ?>:
                                         </td>
                                         <td>
-                                           <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo htmlspecialchars($from_date, ENT_QUOTES) ?>' title='yyyy-mm-dd'>
+                                           <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
                                         </td>
                                         <td class='control-label'>
-                                            <?php echo htmlspecialchars(xl('To'), ENT_NOQUOTES); ?>:
+                                            <?php echo xlt('To'); ?>:
                                         </td>
                                         <td>
-                                           <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo htmlspecialchars($to_date, ENT_QUOTES) ?>'
-                                            title='yyyy-mm-dd'>
+                                           <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>'>
                                         </td>
                                         <td>&nbsp;</td>
                                     </tr>
 
                                     <tr>
                                         <td class='control-label'>
-                                            <?php echo htmlspecialchars(xl('Facility'), ENT_NOQUOTES); ?>:
+                                            <?php echo xlt('Facility'); ?>:
                                         </td>
                                         <td>
                                             <?php dropdown_facility($form_facility, 'form_facility', false);  ?>
                                         </td>
                                         <td class='control-label'>
-                                            <?php echo htmlspecialchars(xl('Provider'), ENT_NOQUOTES); ?>:
+                                            <?php echo xlt('Provider'); ?>:
                                         </td>
                                         <td>
                                             <select name='form_users' class='form-control' onchange='form.submit();'>
-                                                <option value=''>-- <?php echo htmlspecialchars(xl('All'), ENT_NOQUOTES); ?> --</option>
+                                                <option value=''>-- <?php echo xlt('All'); ?> --</option>
                                                 <?php foreach ($providers as $user) : ?>
-                                                    <option value='<?php echo htmlspecialchars($user['id'], ENT_QUOTES); ?>'
+                                                    <option value='<?php echo attr($user['id']); ?>'
                                                         <?php echo $form_provider == $user['id'] ? " selected " : null; ?>
-                                                    ><?php echo htmlspecialchars($user['fname']." ".$user['lname'], ENT_NOQUOTES); ?></option>
+                                                    ><?php echo text($user['fname']." ".$user['lname']); ?></option>
                                                 <?php endforeach; ?>
                                             </select>
                                         </td>
@@ -341,23 +327,23 @@ if ($exclude_policy != "") {
 
                                     <tr>
                                         <td class='control-label'>
-                                            <?php echo htmlspecialchars(xl('X12 Partner'), ENT_NOQUOTES); ?>:
+                                            <?php echo xlt('X12 Partner'); ?>:
                                         </td>
                                         <td colspan='5'>
                                             <select name='form_x12' id='form_x12' class='form-control' onchange='return toggleMessage("emptyVald","form_x12");' >
-                                                        <option value=''>--<?php echo htmlspecialchars(xl('select'), ENT_NOQUOTES); ?>--</option>
+                                                        <option value=''>--<?php echo xlt('select'); ?>--</option>
                                                         <?php
                                                         if (isset($clearinghouses) && !empty($clearinghouses)) {
                                                             foreach ($clearinghouses as $clearinghouse) { ?>
-                                                                    <option value='<?php echo htmlspecialchars($clearinghouse['id']."|".$clearinghouse['id_number']."|".$clearinghouse['x12_sender_id']."|".$clearinghouse['x12_receiver_id']."|".$clearinghouse['x12_version']."|".$clearinghouse['processing_format'], ENT_QUOTES); ?>'
+                                                                    <option value='<?php echo attr($clearinghouse['id']."|".$clearinghouse['id_number']."|".$clearinghouse['x12_sender_id']."|".$clearinghouse['x12_receiver_id']."|".$clearinghouse['x12_version']."|".$clearinghouse['processing_format']); ?>'
                                                                         <?php echo $clearinghouse['id'] == $X12info[0] ? " selected " : null; ?>
-                                                                    ><?php echo htmlspecialchars($clearinghouse['name'], ENT_NOQUOTES); ?></option>
+                                                                    ><?php echo text($clearinghouse['name']); ?></option>
                                                             <?php
                                                             }
                                                         }
                                                         ?>
                                                 </select>
-                                                <span id='emptyVald' style='color:red;font-size:12px;'> * <?php echo htmlspecialchars(xl('Clearing house info required for EDI 270 batch creation.'), ENT_NOQUOTES); ?></span>
+                                                <span id='emptyVald' style='color:red;font-size:12px;'> * <?php echo xlt('Clearing house info required for EDI 270 batch creation.'); ?></span>
                                         </td>
                                     </tr>
                                 </table>
@@ -387,7 +373,7 @@ if ($exclude_policy != "") {
             </div>
 
             <div class='text'>
-                <?php echo htmlspecialchars(xl('Please choose date range criteria above, and click Refresh to view results.'), ENT_NOQUOTES); ?>
+                <?php echo xlt('Please choose date range criteria above, and click Refresh to view results.'); ?>
             </div>
 
         </form>
@@ -400,9 +386,10 @@ if ($exclude_policy != "") {
     </body>
 
     <script language='JavaScript'>
-        <?php if ($alertmsg) {
+        <?php
+        if ($alertmsg) {
             echo " alert('$alertmsg');\n";
-} ?>
+        } ?>
     </script>
 
 </html>

@@ -254,7 +254,7 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
             $dispArr[] = $icnt++;
         ?>
      <TR class="oneresult">
-          <TD class="text tamperColor"><?php echo oeFormatShortDate(substr($iter["date"], 0, 10)) . substr($iter["date"], 10) ?></TD>
+          <TD class="text tamperColor"><?php echo text(oeFormatShortDate(substr($iter["date"], 0, 10))) . substr($iter["date"], 10) ?></TD>
           <TD class="text tamperColor"><?php echo text($iter["user"]); ?></TD>
           <TD class="text tamperColor"><?php echo text($iter["patient_id"]);?></TD>
           <TD class="text tamperColor"><?php echo text($trans_comments);?></TD>

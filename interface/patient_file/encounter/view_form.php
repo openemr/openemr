@@ -6,6 +6,8 @@
 
 include_once("../../globals.php");
 
+$clean_id=sanitizeNumber($_GET["id"]);
+
 if (substr($_GET["formname"], 0, 3) === 'LBF') {
   // Use the List Based Forms engine for all LBFxxxxx forms.
     include_once("$incdir/forms/LBF/view.php");
@@ -16,4 +18,4 @@ if (substr($_GET["formname"], 0, 3) === 'LBF') {
     include_once("$incdir/forms/" . $_GET["formname"] . "/view.php");
 }
 
-$id = $_GET["id"];
+$id = $clean_id;

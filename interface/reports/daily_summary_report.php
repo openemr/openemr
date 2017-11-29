@@ -1,32 +1,18 @@
 <?php
-/*
+/**
  *  Daily Summary Report. (/interface/reports/daily_summary_report.php)
- *
  *
  *  This report shows date wise numbers of the Appointments Scheduled,
  *  New Patients, Visited patients, Total Charges, Total Co-pay and Balance amount for the selected facility & providers wise.
  *
- * Copyright (C) 2016 Rishabh Software
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author Rishabh Software
- * @author Brady Miller <brady.g.miller@gmail.com>
- * @link http://www.open-emr.org
- *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rishabh Software
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2016 Rishabh Software
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 
 require_once("../globals.php");
@@ -38,25 +24,20 @@ use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
 
-$selectedFromDate = isset($_POST['form_from_date']) ? $_POST['form_from_date'] : date('Y-m-d'); // From date filter
-$selectedToDate = isset($_POST['form_to_date']) ? $_POST['form_to_date'] : date('Y-m-d');   // To date filter
+$from_date = isset($_POST['form_from_date']) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d'); // From date filter
+$to_date = isset($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');   // To date filter
 $selectedFacility = isset($_POST['form_facility']) ? $_POST['form_facility'] : "";  // facility filter
 $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "";  // provider filter
-
-$from_date = fixDate($selectedFromDate, date('Y-m-d'));
-$to_date = fixDate($selectedToDate, date('Y-m-d'));
 ?>
 
 <html>
     <head>
 
+        <title><?php echo xlt('Daily Summary Report'); ?></title>
+
         <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
         <script type="text/javascript">
-
-
-            var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
-
             function submitForm() {
                 var fromDate = $("#form_from_date").val();
                 var toDate = $("#form_to_date").val();
@@ -83,7 +64,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                 $('.datepicker').datetimepicker({
                     <?php $datetimepicker_timepicker = false; ?>
                     <?php $datetimepicker_showseconds = false; ?>
-                    <?php $datetimepicker_formatInput = false; ?>
+                    <?php $datetimepicker_formatInput = true; ?>
                     <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
@@ -111,15 +92,13 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                                         <td>
                                             <input type='text' name='form_from_date' id="form_from_date"
                                                    class='datepicker form-control'
-                                                   size='10' value='<?php echo attr($from_date) ?>'
-                                                   title='yyyy-mm-dd'>
+                                                   size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
                                         </td>
                                         <td class='control-label'><?php echo xlt('To'); ?>:</td>
                                         <td>
                                             <input type='text' name='form_to_date' id="form_to_date"
                                                    class='datepicker form-control'
-                                                   size='10' value='<?php echo attr($to_date) ?>'
-                                                   title='yyyy-mm-dd'>
+                                                   size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>'>
                                         </td>
                                         <td class='control-label'><?php echo xlt('Provider'); ?>:</td>
                                         <td>
@@ -140,7 +119,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                                                 <a href='#' class='btn btn-default btn-save' onclick='return submitForm();'>
                                                     <?php echo xlt('Submit'); ?>
                                                 </a>
-                                                <a href='' class="btn btn-default btn-refresh" id='new0' onClick=" return top.window.parent.left_nav.loadFrame2('new0', 'RTop', 'reports/daily_summary_report.php')">
+                                                <a href='' class="btn btn-default btn-refresh" id='new0' onClick=" top.restoreSession(); window.location = window.location.href;">
                                                     <?php echo xlt('Reset'); ?>
                                                 </a>
                                             </div>
@@ -158,7 +137,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
 
         <?php
         $dateSet = $facilitySet = 0;
-        if (!empty($selectedFromDate) && !empty($selectedToDate)) {
+        if (!empty($from_date) && !empty($to_date)) {
             $dateSet = 1;
         }
 
@@ -217,13 +196,13 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
         // if date range wise search then append condition for date search
         if (1 === $dateSet) {
             $whereNewPatientConditions .= ' AND DATE(`OPE`.`pc_eventDate`) BETWEEN ? AND ?';
-            array_push($sqlBindArrayNewPatient, $selectedFromDate, $selectedToDate);
+            array_push($sqlBindArrayNewPatient, $from_date, $to_date);
             $whereTotalVisitConditions .= ' AND DATE(`fc`.`date`) BETWEEN ? AND ?';
-            array_push($sqlBindArrayTotalVisit, $selectedFromDate, $selectedToDate);
+            array_push($sqlBindArrayTotalVisit, $from_date, $to_date);
             $whereTotalPaymentConditions .= ' AND DATE(`b`.`date`) BETWEEN ? AND ?';
-            array_push($sqlBindArrayTotalPayment, $selectedFromDate, $selectedToDate);
+            array_push($sqlBindArrayTotalPayment, $from_date, $to_date);
             $wherePaidConditions .= ' AND DATE(`p`.`dtime`) BETWEEN ? AND ?';
-            array_push($sqlBindArrayPaid, $selectedFromDate, $selectedToDate);
+            array_push($sqlBindArrayPaid, $from_date, $to_date);
         }
 
         // if provider selected then append condition for provider
@@ -332,7 +311,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
         ?>
 
         <div id="report_results" style="font-size: 12px">
-            <?php echo '<b>' . xlt('From') . '</b> ' . $from_date . ' <b>' . xlt('To') . '</b> ' . $to_date; ?>
+            <?php echo '<b>' . xlt('From') . '</b> ' . text(oeFormatShortDate($from_date)) . ' <b>' . xlt('To') . '</b> ' . text(oeFormatShortDate($to_date)); ?>
 
             <table class="flowboard" cellpadding='5' cellspacing='2' id="ds_report">
                 <tr class="head">
@@ -355,7 +334,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                                 foreach ($dataValue[$facility] as $provider => $information) { // array which consists different/dynamic values
                                     ?>
                                     <tr>
-                                        <td><?php echo text($date) ?></td>
+                                        <td><?php echo text(oeFormatShortDate($date)); ?></td>
                                         <td><?php echo text($facility); ?></td>
                                         <td><?php echo text($provider); ?></td>
                                         <td><?php echo isset($information['appointments']) ? text($information['appointments']) : 0; ?></td>
@@ -412,5 +391,4 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
             </table>
         </div>
     </body>
-
 </html>

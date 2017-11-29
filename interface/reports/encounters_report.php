@@ -1,40 +1,29 @@
 <?php
-/*
+/**
  *  Encounters report.
  *
  *  This report shows past encounters with filtering and sorting,
  *  Added filtering to show encounters not e-signed, encounters e-signed and forms e-signed.
  *
- * Copyright (C) 2015 Terry Hill <terry@lillysystems.com>
- * Copyright (C) 2007-2016 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author Terry Hill <terry@lilysystems.com>
- * @author Rod Roark <rod@sunsetsystems.com>
- * @author Brady Miller <brady.g.miller@gmail.com>
- * @link http://www.open-emr.org
- *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Terry Hill <terry@lilysystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2007-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2015 Terry Hill <terry@lillysystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Core\Header;
 
 require_once("../globals.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/billing.inc");
 require_once("$srcdir/patient.inc");
 require_once "$srcdir/options.inc.php";
+
+use OpenEMR\Core\Header;
 
 $alertmsg = ''; // not used yet but maybe later
 
@@ -65,8 +54,8 @@ function show_doc_total($lastdocname, $doc_encounters)
     }
 }
 
-$form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
-$form_to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
+$form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
+$form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 $form_provider  = $_POST['form_provider'];
 $form_facility  = $_POST['form_facility'];
 $form_details   = $_POST['form_details'] ? true : false;
@@ -76,13 +65,13 @@ $form_not_esigned = $_POST['form_not_esigned'] ? true : false;
 $form_encounter_esigned = $_POST['form_encounter_esigned'] ? true : false;
 
 $form_orderby = $ORDERHASH[$_REQUEST['form_orderby']] ?
-  $_REQUEST['form_orderby'] : 'doctor';
+$_REQUEST['form_orderby'] : 'doctor';
 $orderby = $ORDERHASH[$form_orderby];
 
 // Get the info.
 //
-    $esign_fields = '';
-    $esign_joins = '';
+$esign_fields = '';
+$esign_joins = '';
 if ($form_encounter_esigned) {
     $esign_fields = ", es.table, es.tid ";
     $esign_joins = "LEFT OUTER JOIN esign_signatures AS es ON es.tid = fe.encounter ";
@@ -98,6 +87,8 @@ if ($form_not_esigned) {
     $esign_joins = "LEFT JOIN esign_signatures AS es on es.tid = fe.encounter ";
 }
 
+$sqlBindArray = array();
+
 $query = "SELECT " .
   "fe.encounter, fe.date, fe.reason, " .
   "f.formdir, f.form_name, " .
@@ -110,17 +101,21 @@ $query = "SELECT " .
   "$esign_joins" .
   "WHERE f.pid = fe.pid AND f.encounter = fe.encounter AND f.formdir = 'newpatient' ";
 if ($form_to_date) {
-    $query .= "AND fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_to_date 23:59:59' ";
+    $query .= "AND fe.date >= ? AND fe.date <= ? ";
+    array_push($sqlBindArray, $form_from_date . ' 00:00:00', $form_to_date . ' 23:59:59');
 } else {
-    $query .= "AND fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_from_date 23:59:59' ";
+    $query .= "AND fe.date >= ? AND fe.date <= ? ";
+    array_push($sqlBindArray, $form_from_date . ' 00:00:00', $form_from_date . ' 23:59:59');
 }
 
 if ($form_provider) {
-    $query .= "AND fe.provider_id = '$form_provider' ";
+    $query .= "AND fe.provider_id = ? ";
+    array_push($sqlBindArray, $form_provider);
 }
 
 if ($form_facility) {
-    $query .= "AND fe.facility_id = '$form_facility' ";
+    $query .= "AND fe.facility_id = ? ";
+    array_push($sqlBindArray, $form_facility);
 }
 
 if ($form_new_patients) {
@@ -141,73 +136,65 @@ if ($form_not_esigned) {
 
 $query .= "ORDER BY $orderby";
 
-$res = sqlStatement($query);
+$res = sqlStatement($query, $sqlBindArray);
 ?>
 <html>
 <head>
+    <title><?php echo xlt('Encounters Report'); ?></title>
 
-<title><?php echo xlt('Encounters Report'); ?></title>
+    <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-<?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
+    <style type="text/css">
+        /* specifically include & exclude from printing */
+        @media print {
+            #report_parameters {
+                visibility: hidden;
+                display: none;
+            }
+            #report_parameters_daterange {
+                visibility: visible;
+                display: inline;
+            }
+            #report_results table {
+               margin-top: 0px;
+            }
+        }
 
-<style type="text/css">
+        /* specifically exclude some from the screen */
+        @media screen {
+            #report_parameters_daterange {
+                visibility: hidden;
+                display: none;
+            }
+        }
+    </style>
 
-/* specifically include & exclude from printing */
-@media print {
-    #report_parameters {
-        visibility: hidden;
-        display: none;
-    }
-    #report_parameters_daterange {
-        visibility: visible;
-        display: inline;
-    }
-    #report_results table {
-       margin-top: 0px;
-    }
-}
+    <script LANGUAGE="JavaScript">
+        $(document).ready(function() {
+            oeFixedHeaderSetup(document.getElementById('mymaintable'));
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
 
-/* specifically exclude some from the screen */
-@media screen {
-    #report_parameters_daterange {
-        visibility: hidden;
-        display: none;
-    }
-}
+            $('.datepicker').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+        });
 
-</style>
+        function dosort(orderby) {
+            var f = document.forms[0];
+            f.form_orderby.value = orderby;
+            f.submit();
+            return false;
+        }
 
-<script LANGUAGE="JavaScript">
-
- var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
-
- $(document).ready(function() {
-  oeFixedHeaderSetup(document.getElementById('mymaintable'));
-  var win = top.printLogSetup ? top : opener.top;
-  win.printLogSetup(document.getElementById('printbutton'));
-
-  $('.datepicker').datetimepicker({
-    <?php $datetimepicker_timepicker = false; ?>
-    <?php $datetimepicker_showseconds = false; ?>
-    <?php $datetimepicker_formatInput = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-  });
- });
-
- function dosort(orderby) {
-  var f = document.forms[0];
-  f.form_orderby.value = orderby;
-  f.submit();
-  return false;
- }
-
- function refreshme() {
-  document.forms[0].submit();
- }
-
-</script>
-
+        function refreshme() {
+            document.forms[0].submit();
+        }
+    </script>
 </head>
 <body class="body_top">
 <!-- Required for the popup date selectors -->
@@ -216,7 +203,7 @@ $res = sqlStatement($query);
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Encounters'); ?></span>
 
 <div id="report_parameters_daterange">
-<?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
+<?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt('to') . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
 </div>
 
 <form method='post' name='theform' id='theform' action='encounters_report.php' onsubmit='return top.restoreSession()'>
@@ -272,51 +259,39 @@ $res = sqlStatement($query);
                 <?php echo xlt('From'); ?>:
             </td>
             <td>
-               <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
-                title='yyyy-mm-dd'>
+               <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
             </td>
             <td class='control-label'>
                 <?php echo xlt('To'); ?>:
             </td>
             <td>
-               <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
-                title='yyyy-mm-dd'>
+               <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
             </td>
         </tr>
     <tr>
       <td></td>
       <td>
         <div class="checkbox">
-          <label><input type='checkbox' name='form_details'<?php  if ($form_details) {
-                echo ' checked';
-} ?>>
+          <label><input type='checkbox' name='form_details'<?php echo ($form_details) ? ' checked' : ''; ?>>
             <?php echo xlt('Details'); ?></label>
         </div>
         <div class="checkbox">
-          <label><input type='checkbox' name='form_new_patients' title='<?php echo xla('First-time visits only'); ?>'<?php  if ($form_new_patients) {
-                echo ' checked';
-} ?>>
+          <label><input type='checkbox' name='form_new_patients' title='<?php echo xla('First-time visits only'); ?>'<?php echo ($form_new_patients) ? ' checked' : ''; ?>>
             <?php  echo xlt('New'); ?></label>
         </div>
       </td>
       <td></td>
       <td>
         <div class="checkbox">
-          <label><input type='checkbox' name='form_esigned'<?php  if ($form_esigned) {
-                echo ' checked';
-} ?>>
+          <label><input type='checkbox' name='form_esigned'<?php echo ($form_esigned) ? ' checked' : ''; ?>>
             <?php  echo xlt('Forms Esigned'); ?></label>
         </div>
         <div class="checkbox">
-          <label><input type='checkbox' name='form_encounter_esigned'<?php  if ($form_encounter_esigned) {
-                echo ' checked';
-} ?>>
+          <label><input type='checkbox' name='form_encounter_esigned'<?php echo ($form_encounter_esigned) ? ' checked' : ''; ?>>
             <?php  echo xlt('Encounter Esigned'); ?></label>
         </div>
         <div class="checkbox">
-          <label><input type='checkbox' name='form_not_esigned'<?php  if ($form_not_esigned) {
-                echo ' checked';
-} ?>>
+          <label><input type='checkbox' name='form_not_esigned'<?php echo ($form_not_esigned) ? ' checked' : ''; ?>>
             <?php echo xlt('Not Esigned'); ?></label>
         </div>
       </td>
@@ -360,27 +335,19 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 <?php if ($form_details) { ?>
   <th>
    <a href="nojs.php" onclick="return dosort('doctor')"
-    <?php if ($form_orderby == "doctor") {
-        echo " style=\"color:#00cc00\"";
-} ?>><?php echo xlt('Provider'); ?> </a>
+    <?php echo ($form_orderby == "doctor") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Provider'); ?> </a>
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('time')"
-    <?php if ($form_orderby == "time") {
-        echo " style=\"color:#00cc00\"";
-} ?>><?php echo xlt('Date'); ?></a>
+    <?php echo ($form_orderby == "time") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Date'); ?></a>
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('patient')"
-    <?php if ($form_orderby == "patient") {
-        echo " style=\"color:#00cc00\"";
-} ?>><?php echo xlt('Patient'); ?></a>
+    <?php echo ($form_orderby == "patient") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Patient'); ?></a>
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('pubpid')"
-    <?php if ($form_orderby == "pubpid") {
-        echo " style=\"color:#00cc00\"";
-} ?>><?php echo xlt('ID'); ?></a>
+    <?php echo ($form_orderby == "pubpid") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('ID'); ?></a>
   </th>
   <th>
     <?php echo xlt('Status'); ?>
@@ -390,9 +357,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('encounter')"
-    <?php if ($form_orderby == "encounter") {
-        echo " style=\"color:#00cc00\"";
-} ?>><?php echo xlt('Encounter Number'); ?></a>
+    <?php echo ($form_orderby == "encounter") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Encounter Number'); ?></a>
   </th>
   <th>
     <?php echo xlt('Form'); ?>
@@ -470,7 +435,7 @@ if ($res) {
 
             // Figure product sales into billing status.
             $sres = sqlStatement("SELECT billed FROM drug_sales " .
-            "WHERE pid = '{$row['pid']}' AND encounter = '{$row['encounter']}'");
+            "WHERE pid = ? AND encounter = ?", array($row['pid'], $row['encounter']));
             while ($srow = sqlFetchArray($sres)) {
                 if ($srow['billed']) {
                     ++$billed_count;

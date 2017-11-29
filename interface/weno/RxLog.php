@@ -38,7 +38,7 @@ print "<tr align='left'>
 <th>". xlt("Message") ."</th>
 </tr>";
 while ($row = sqlFetchArray($log)) {
-    print "<tr><td>" .text($row['prescription_id'])."</td><td>".oeFormatShortDate($row['date']).
+    print "<tr><td>" .text($row['prescription_id'])."</td><td>".text(oeFormatShortDate($row['date'])).
           "</td><td>".text($row['time'])."</td><td>".text($row['code'])."</td><td>".text($row['status']).
           "</td><td>".text($row['message_id'])."</td></tr>";
 }

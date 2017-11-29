@@ -861,11 +861,11 @@ if ($ret = getBillsBetween("%")) {
             <?php
 
             // Not sure why the next section seems to do nothing except post "To Encounter" button 2/17/09 JCH
-            $lhtml .= "&nbsp;<a class=\"btn btn-xs btn-default\" role=\"button\" " . "href=\"javascript:window.toencounter(" . $iter['enc_pid'] . ",'" . addslashes($name['pubpid']) . "','" . addslashes($ptname) . "'," . $iter['enc_encounter'] . ",'" . oeFormatShortDate($raw_encounter_date) . "',' " . xl('DOB') . ": " . oeFormatShortDate($name['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAge($name['DOB_YMD']) . "');
+            $lhtml .= "&nbsp;<a class=\"btn btn-xs btn-default\" role=\"button\" " . "href=\"javascript:window.toencounter(" . $iter['enc_pid'] . ",'" . addslashes($name['pubpid']) . "','" . addslashes($ptname) . "'," . $iter['enc_encounter'] . ",'" . addslashes(oeFormatShortDate($raw_encounter_date)) . "',' " . xl('DOB') . ": " . addslashes(oeFormatShortDate($name['DOB_YMD'])) . " " . xl('Age') . ": " . getPatientAge($name['DOB_YMD']) . "');
                  top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . $iter['enc_pid'] . "],EncounterDateArray[" . $iter['enc_pid'] . "], CalendarCategoryArray[" . $iter['enc_pid'] . "])\">" . xlt('Encounter') . " " . text(oeFormatShortDate($raw_encounter_date)) . "</a>";
 
             // Changed "To xxx" buttons to allow room for encounter date display 2/17/09 JCH
-            $lhtml .= "&nbsp;<a class=\"btn btn-xs btn-default\" role=\"button\" " . "href=\"javascript:window.topatient(" . $iter['enc_pid'] . ",'" . addslashes($name['pubpid']) . "','" . addslashes($ptname) . "'," . $iter['enc_encounter'] . ",'" . oeFormatShortDate($raw_encounter_date) . "',' " . xl('DOB') . ": " . oeFormatShortDate($name['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAge($name['DOB_YMD']) . "');
+            $lhtml .= "&nbsp;<a class=\"btn btn-xs btn-default\" role=\"button\" " . "href=\"javascript:window.topatient(" . $iter['enc_pid'] . ",'" . addslashes($name['pubpid']) . "','" . addslashes($ptname) . "'," . $iter['enc_encounter'] . ",'" . addslashes(oeFormatShortDate($raw_encounter_date)) . "',' " . xl('DOB') . ": " . addslashes(oeFormatShortDate($name['DOB_YMD'])) . " " . xl('Age') . ": " . getPatientAge($name['DOB_YMD']) . "');
                  top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . $iter['enc_pid'] . "],EncounterDateArray[" . $iter['enc_pid'] . "], CalendarCategoryArray[" . $iter['enc_pid'] . "])\">" . xlt('Patient') . "</a>";
             if ($ub04_support && isset($iter['billed'])) {
                 $c = sqlQuery("SELECT submitted_claim AS status FROM claims WHERE " .

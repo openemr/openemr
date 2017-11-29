@@ -111,15 +111,18 @@ function updateClaim(
     $submitted_claim = ''
 ) {
 
+    $sqlBindArray = array();
     if (!$newversion) {
-        $sql = "SELECT * FROM claims WHERE patient_id = '$patient_id' AND " .
-        "encounter_id = '$encounter_id' AND status > 0 AND status < 4 ";
+        $sql = "SELECT * FROM claims WHERE patient_id = ? AND " .
+        "encounter_id = ? AND status > 0 AND status < 4 ";
+        array_push($sqlBindArray, $patient_id, $encounter_id);
         if ($payer_id >= 0) {
-            $sql .= "AND payer_id = '$payer_id' ";
+            $sql .= "AND payer_id = ? ";
+            $sqlBindArray[] = $payer_id;
         }
 
         $sql .= "ORDER BY version DESC LIMIT 1";
-        $row = sqlQuery($sql);
+        $row = sqlQuery($sql, $sqlBindArray);
         if (!$row) {
             return 0;
         }
@@ -150,15 +153,19 @@ function updateClaim(
     }
 
     $claimset = "";
+    $sqlBindClaimset = array();
     $billset = "";
+    $sqlBindBillset = array();
     if (empty($payer_id) || $payer_id < 0) {
         $payer_id = 0;
     }
 
     if ($status==7) {//$status==7 is the claim denial case.
-        $claimset .= ", status = '$status'";
+        $claimset .= ", status = ?";
+        $sqlBindClaimset[] = $status;
     } elseif ($status >= 0) {
-        $claimset .= ", status = '$status'";
+        $claimset .= ", status = ?";
+        $sqlBindClaimset[] = $status;
         if ($status > 1) {
             $billset .= ", billed = 1";
             if ($status == 2) {
@@ -170,42 +177,57 @@ function updateClaim(
     }
 
     if ($status==7) {//$status==7 is the claim denial case.
-        $billset  .= ", bill_process = '$status'";
+        $billset  .= ", bill_process = ?";
+        $sqlBindBillset[] = $status;
     } elseif ($bill_process >= 0) {
-        $claimset .= ", bill_process = '$bill_process'";
-        $billset  .= ", bill_process = '$bill_process'";
+        $claimset .= ", bill_process = ?";
+        $sqlBindClaimset[] = $bill_process;
+        $billset  .= ", bill_process = ?";
+        $sqlBindBillset[] = $bill_process;
     }
 
     if ($status==7) {//$status==7 is the claim denial case.
-        $claimset  .= ", process_file = '$process_file'";//Denial reason code is stored here
+        $claimset  .= ", process_file = ?";//Denial reason code is stored here
+        $sqlBindClaimset[] = $process_file;
     } elseif ($process_file) {
-        $claimset .= ", process_file = '$process_file', process_time = NOW()";
-        $billset  .= ", process_file = '$process_file', process_date = NOW()";
+        $claimset .= ", process_file = ?, process_time = NOW()";
+        $sqlBindClaimset[] = $process_file;
+        $billset  .= ", process_file = ?, process_date = NOW()";
+        $sqlBindBillset[] = $process_file;
     }
 
     if ($target) {
-        $claimset .= ", target = '$target'";
-        $billset  .= ", target = '$target'";
+        $claimset .= ", target = ?";
+        $sqlBindClaimset[] = $target;
+        $billset  .= ", target = ?";
+        $sqlBindBillset[] = $target;
     }
 
     if ($payer_id >= 0) {
-        $claimset .= ", payer_id = '$payer_id', payer_type = '$payer_type'";
-        $billset  .= ", payer_id = '$payer_id'";
+        $claimset .= ", payer_id = ?, payer_type = ?";
+        $sqlBindClaimset[] = $payer_id;
+        $sqlBindClaimset[] = $payer_type;
+        $billset  .= ", payer_id = ?";
+        $sqlBindBillset[] = $payer_id;
     }
 
     if ($partner_id >= 0) {
-        $claimset .= ", x12_partner_id = '$partner_id'";
-        $billset  .= ", x12_partner_id = '$partner_id'";
+        $claimset .= ", x12_partner_id = ?";
+        $sqlBindClaimset[] = $partner_id;
+        $billset  .= ", x12_partner_id = ?";
+        $sqlBindBillset[] = $partner_id;
     }
 
     if ($billset) {
         $billset = substr($billset, 2);
+        $sqlBindArray = $sqlBindBillset;
+        array_push($sqlBindArray, $encounter_id, $patient_id);
         sqlStatement("UPDATE billing SET $billset WHERE " .
-        "encounter = '$encounter_id' AND pid='$patient_id' AND activity = 1");
+        "encounter = ? AND pid= ? AND activity = 1", $sqlBindArray);
     }
 
-    $claimset .= ", submitted_claim = '$submitted_claim'";
-
+    $claimset .= ", submitted_claim = ?";
+    $sqlBindClaimset[] = $submitted_claim;
   // If a new claim version is requested, insert its row.
   //
     if ($newversion) {
@@ -229,40 +251,47 @@ function updateClaim(
         "x12_partner_id = '$partner_id'";
         ****/
         sqlBeginTrans();
-        $version = sqlQuery("SELECT IFNULL(MAX(version),0) + 1 AS increment FROM claims WHERE patient_id = ? AND encounter_id = ?", array( $patient_id, $encounter_id ));
+        $version = sqlQuery("SELECT IFNULL(MAX(version),0) + 1 AS increment FROM claims WHERE patient_id = ? AND encounter_id = ?", array($patient_id, $encounter_id));
+
+        $sqlBindArray = array();
+        array_push($sqlBindArray, $patient_id, $encounter_id);
         if ($crossover<>1) {
             $sql .= "INSERT INTO claims SET " .
-              "patient_id = $patient_id, " .
-              "encounter_id = $encounter_id, " .
+              "patient_id = ?, " .
+              "encounter_id = ?, " .
               "bill_time = NOW() $claimset ," .
-              "version = " . $version['increment'];
+              "version = ?";
+            $sqlBindArray = array_merge($sqlBindArray, $sqlBindClaimset);
+            array_push($sqlBindArray, $version['increment']);
         } else {//Claim automatic forward case.startTra
             $sql= "INSERT INTO claims SET " .
-              "patient_id = $patient_id, " .
-              "encounter_id = $encounter_id, " .
-              "bill_time = NOW(), status=$status ," .
-              "version = " . $version['increment'];
+              "patient_id = ?, " .
+              "encounter_id = ?, " .
+              "bill_time = NOW(), status=? ," .
+              "version = ?";
+            array_push($sqlBindArray, $status, $version['increment']);
         }
 
-        sqlStatement($sql);
+        sqlStatement($sql, $sqlBindArray);
         sqlCommitTrans();
     } // Otherwise update the existing claim row.
   //
     else if ($claimset) {
+        $sqlBindArray = $sqlBindClaimset;
+        array_push($sqlBindArray, $patient_id, $encounter_id, $row['version']);
         $claimset = substr($claimset, 2);
         sqlStatement("UPDATE claims SET $claimset WHERE " .
-        "patient_id = '$patient_id' AND encounter_id = '$encounter_id' AND " .
+        "patient_id = ? AND encounter_id = ? AND " .
         // "payer_id = '" . $row['payer_id'] . "' AND " .
-        "version = '" . $row['version'] . "'");
+        "version = ?", $sqlBindArray);
     }
 
   // Whenever a claim is marked billed, update A/R accordingly.
-  //
     if ($status == 2) {
         if ($payer_type > 0) {
             sqlStatement("UPDATE form_encounter SET " .
-            "last_level_billed = '$payer_type' WHERE " .
-            "pid = '$patient_id' AND encounter = '$encounter_id'");
+            "last_level_billed = ? WHERE " .
+            "pid = ? AND encounter = ?", array($payer_type, $patient_id, $encounter_id));
         }
     }
 

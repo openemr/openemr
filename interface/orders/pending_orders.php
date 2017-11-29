@@ -51,7 +51,7 @@ function thisLineItem($row)
    <tr>
     <td class="detail"><?php echo $row['patient_name'  ]; ?></td>
     <td class="detail"><?php echo $row['pubpid'        ]; ?></td>
-    <td class="detail"><?php echo oeFormatShortDate($row['date_ordered'  ]); ?></td>
+    <td class="detail"><?php echo text(oeFormatShortDate($row['date_ordered'  ])); ?></td>
     <td class="detail"><?php echo $row['organization'  ]; ?></td>
     <td class="detail"><?php echo $provname; ?></td>
     <td class="detail"><?php echo $row['priority_name' ]; ?></td>

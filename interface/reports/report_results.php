@@ -3,84 +3,67 @@
  * Generic script to list stored reports. Part of the module to allow the tracking,
  * storing, and viewing of reports.
  *
- * Copyright (C) 2012-2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2012-2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-use OpenEMR\Core\Header;
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/clinical_rules.php";
 require_once "$srcdir/report_database.inc";
+
+use OpenEMR\Core\Header;
 ?>
 
 <html>
 
 <head>
 
-<title><?php echo htmlspecialchars(xl('Report Results/History'), ENT_NOQUOTES); ?></title>
+    <title><?php echo xlt('Report Results/History'); ?></title>
 
-<?php Header::setupHeader('datetime-picker'); ?>
+    <?php Header::setupHeader('datetime-picker'); ?>
 
-<script LANGUAGE="JavaScript">
-
- var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
-
-    $( document ).ready(function(){
-        $('.datepicker').datetimepicker({
-            <?php $datetimepicker_timepicker = true; ?>
-            <?php $datetimepicker_showseconds = true; ?>
-            <?php $datetimepicker_formatInput = false; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    <script LANGUAGE="JavaScript">
+        $( document ).ready(function(){
+            $('.datepicker').datetimepicker({
+                <?php $datetimepicker_timepicker = true; ?>
+                <?php $datetimepicker_showseconds = true; ?>
+                <?php $datetimepicker_formatInput = false; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
         });
-    });
+    </script>
 
-</script>
+    <style type="text/css">
+        /* specifically include & exclude from printing */
+        @media print {
+            #report_parameters {
+                visibility: hidden;
+                display: none;
+            }
+            #report_parameters_daterange {
+                visibility: visible;
+                display: inline;
+            }
+            #report_results table {
+               margin-top: 0px;
+            }
+        }
 
-<style type="text/css">
-
-/* specifically include & exclude from printing */
-@media print {
-    #report_parameters {
-        visibility: hidden;
-        display: none;
-    }
-    #report_parameters_daterange {
-        visibility: visible;
-        display: inline;
-    }
-    #report_results table {
-       margin-top: 0px;
-    }
-}
-
-/* specifically exclude some from the screen */
-@media screen {
-    #report_parameters_daterange {
-        visibility: hidden;
-        display: none;
-    }
-}
-
-</style>
+        /* specifically exclude some from the screen */
+        @media screen {
+            #report_parameters_daterange {
+                visibility: hidden;
+                display: none;
+            }
+        }
+    </style>
 </head>
 
 <body class="body_top">
@@ -88,7 +71,7 @@ require_once "$srcdir/report_database.inc";
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-<span class='title'><?php echo htmlspecialchars(xl('Report History/Results'), ENT_NOQUOTES); ?></span>
+<span class='title'><?php echo xlt('Report History/Results'); ?></span>
 
 <form method='post' name='theform' id='theform' action='report_results.php' onsubmit='return top.restoreSession()'>
 
@@ -103,23 +86,23 @@ require_once "$srcdir/report_database.inc";
 
                    <tr>
                       <td class='control-label'>
-                            <?php echo htmlspecialchars(xl('Begin Date'), ENT_NOQUOTES); ?>:
+                            <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
-                         <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo htmlspecialchars($_POST['form_begin_date'], ENT_QUOTES); ?>'
+                         <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo attr($_POST['form_begin_date']); ?>'
                             class='datepicker form-control'
-                            title='<?php echo htmlspecialchars(xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
+                            title='<?php echo xla('yyyy-mm-dd hh:mm:ss'); ?>'>
                       </td>
                    </tr>
 
                 <tr>
                         <td class='control-label'>
-                                <?php echo htmlspecialchars(xl('End Date'), ENT_NOQUOTES); ?>:
+                                <?php echo xlt('End Date'); ?>:
                         </td>
                         <td>
-                           <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo htmlspecialchars($_POST['form_end_date'], ENT_QUOTES); ?>'
+                           <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo attr($_POST['form_end_date']); ?>'
                                 class='datepicker form-control'
-                                title='<?php echo htmlspecialchars(xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
+                                title='<?php echo xla('yyyy-mm-dd hh:mm:ss'); ?>'>
                         </td>
                 </tr>
     </table>
@@ -158,22 +141,22 @@ require_once "$srcdir/report_database.inc";
 
  <thead>
   <th align='center'>
-    <?php echo htmlspecialchars(xl('Title'), ENT_NOQUOTES); ?>
+    <?php echo xlt('Title'); ?>
   </th>
 
   <th align='center'>
-    <?php echo htmlspecialchars(xl('Date'), ENT_NOQUOTES); ?>
+    <?php echo xlt('Date'); ?>
   </th>
 
   <th align='center'>
-    <?php echo htmlspecialchars(xl('Status'), ENT_NOQUOTES); ?>
+    <?php echo xlt('Status'); ?>
   </th>
 
  </thead>
  <tbody>  <!-- added for better print-ability -->
 <?php
 
- $res = listingReportDatabase($_POST['form_begin_date'], $_POST['form_end_date']);
+$res = listingReportDatabase($_POST['form_begin_date'], $_POST['form_end_date']);
 while ($row = sqlFetchArray($res)) {
   // Figure out the title and link
     if ($row['type'] == "cqm") {
@@ -300,4 +283,3 @@ while ($row = sqlFetchArray($res)) {
 </body>
 
 </html>
-

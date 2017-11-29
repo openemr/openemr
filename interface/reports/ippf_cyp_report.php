@@ -105,7 +105,7 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
             $productleft = "&nbsp;"; ?>
   </td>
   <td class="dehead">
-        <?php echo oeFormatShortDate($transdate); ?>
+        <?php echo text(oeFormatShortDate($transdate)); ?>
   </td>
   <td class="detail">
         <?php echo $invnumber; ?>
