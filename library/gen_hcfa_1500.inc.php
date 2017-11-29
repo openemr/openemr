@@ -692,39 +692,14 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
     put_hcfa(58, 23, 25, $claim->facilityName());
 
   // 33. Billing Provider: Name
-    if ($claim->federalIdType()=='SY') {
-        $tempName = $claim->billingFacilityName();
-        $partsName = explode(' ', $tempName);// entity == person
-        $num_parts = count($partsName);
-        switch ($num_parts) {
-            case "2":
-                $firstName = $partsName[0];
-                $lastName = $partsName[1];
-                $billingProviderName = $lastName . ", " . $firstName;
-                break;
-            case "3":
-                $firstName = $partsName[0];
-                $middleName = $partsName[1];
-                $lastName = $partsName[2];
-                $billingProviderName = $lastName . ", " . $firstName. ", " . $middleName;
-                break;
-            case "4":
-                $firstName = $partsName[0];
-                $middleName = $partsName[1];
-                $lastName = $partsName[2];
-                $suffixName = $partsName[3];
-                $billingProviderName = $lastName . ", " . $firstName. ", " . $middleName. ", " . $suffixName;
-                break;
-            default:
-                $log .= "*** individual name has more than 4 parts and may not be desirable on the claim form\n";
-                $firstName = $partsName[0];
-                $middleName = $partsName[1];
-                $lastName = $partsName[2];
-                $suffixName = $partsName[3];
-                $billingProviderName = $lastName . ", " . $firstName. ", " . $middleName. ", " . $suffixName;
-        }
-
-        put_hcfa(58, 50, 25, $billingProviderName);
+    if ($claim->federalIdType() == "SY") { // check entity type for NM*102 1 == person, 2 == non-person entity
+        $firstName = $claim->providerFirstName();
+        $lastName = $claim->providerLastName();
+        $middleName = $claim->providerMiddleName();
+        $suffixName = $claim->providerSuffixName();
+        $billingProviderName = $lastName . ", " . $firstName. ", " . $middleName. ", " . $suffixName;
+    }
+    put_hcfa(58, 50, 25, $billingProviderName);
     } else {
         put_hcfa(58, 50, 25, $claim->billingFacilityName());
     }
