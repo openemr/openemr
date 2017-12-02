@@ -56,7 +56,7 @@ $menu_json='[
     {"label":"Manage Modules","menu_id":"adm0","target":"pat","url":"/interface/modules/zend_modules/public/Installer","children":[],"requirement":0}],"requirement":0,"acl_req":["menus","modle"]},
   {"label":"Inventory","menu_id":"invimg","children":[
     {"label":"Management","menu_id":"adm0","target":"adm","url":"/interface/drugs/drug_inventory.php","children":[],"requirement":0,"acl_req":[["admin","super"],["admin","drugs"]]},
-    {"label":"Destroyed","menu_id":"adm0","target":"adm","url":"/interface/destroyed_drugs_report.php","children":[],"requirement":0}],"requirement":0,"acl_req":["admin","drugs"],"global_req":"inhouse_pharmacy"},
+    {"label":"Destroyed","menu_id":"adm0","target":"adm","url":"/interface/reports/destroyed_drugs_report.php","children":[],"requirement":0}],"requirement":0,"acl_req":["admin","drugs"],"global_req":"inhouse_pharmacy"},
   {"label":"Procedures","menu_id":"proimg","children":[
     {"label":"Providers","menu_id":"orl0","target":"pat","url":"/interface/orders/procedure_provider_list.php","children":[],"requirement":0},
     {"label":"Configuration","menu_id":"ort0","target":"pat","url":"/interface/orders/types.php","children":[],"requirement":0},
