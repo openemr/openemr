@@ -156,7 +156,7 @@ if (isset($mode)) {
   }
   // If codes history is enabled in the billing globals save data to codes history table
   if  ($GLOBALS['save_codes_history'] && $alertmsg=='' &&
-      ( $mode == "modify" || $mode == "add" || $mode == "modify_complete" || $mode == "delete" ) ){
+      ( $mode == "add" || $mode == "modify_complete" || $mode == "delete" ) ){
 
       $action_type= empty($_POST['code_id']) ? 'new' : $mode;
       $action_type= ($action_type=='add') ? 'update' : $action_type ;
