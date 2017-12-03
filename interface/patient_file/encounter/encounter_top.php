@@ -2,29 +2,19 @@
 /**
  * This contains the tab set for encounter forms.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see
- * http://www.gnu.org/licenses/licenses.html#GPL .
- *
- * @package OpenEMR
- * @license http://www.gnu.org/licenses/licenses.html#GPL GNU GPL V3+
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Rod Roark <rod@sunsetsystems.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(dirname(__FILE__).'/../../globals.php');
 require_once("$srcdir/pid.inc");
 require_once("$srcdir/encounter.inc");
 require_once("$srcdir/forms.inc");
-require_once("$srcdir/TabsWrapper.class.php");
+
+use OpenEMR\Tabs\TabsWrapper;
 
 if (isset($_GET["set_encounter"])) {
     // The billing page might also be setting a new pid.
