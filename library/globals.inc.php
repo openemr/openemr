@@ -464,6 +464,20 @@ $GLOBALS_METADATA = array(
             '0',                              // default = false
             xl('Show Mini Logo 2')
         ),
+        'add_edit_event_width' => array(
+            xl('Navigation Area Width'),
+            'num',
+            '755',
+            xl('Width in pixels of the Add Edit event window.')
+        ),
+
+
+        'add_edit_event_height' => array(
+            xl('Navigation Area Height'),
+            'num',
+            '500',
+            xl('Height in pixels of the Add Edit event window.')
+        ),
 
     ),
 

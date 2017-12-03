@@ -174,7 +174,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
  var mypcc = '<?php echo htmlspecialchars($GLOBALS['phone_country_code'], ENT_QUOTES); ?>';
  //////////
  function oldEvt(apptdate, eventid) {
-  dlgopen('../../main/calendar/add_edit_event.php?date=' + apptdate + '&eid=' + eventid, '_blank', 775, 500);
+  dlgopen('../../main/calendar/add_edit_event.php?date=' + apptdate + '&eid=' + eventid, '_blank', <?php echo $GLOBALS['add_edit_event_width']; ?>,   <?php echo $GLOBALS['add_edit_event_height']; ?>);
  }
 
  function advdirconfigure() {
@@ -202,7 +202,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
  }
 
  function newEvt() {
-  dlgopen('../../main/calendar/add_edit_event.php?patientid=<?php echo htmlspecialchars($pid, ENT_QUOTES); ?>', '_blank', 775, 500);
+  dlgopen('../../main/calendar/add_edit_event.php?patientid=<?php echo htmlspecialchars($pid, ENT_QUOTES); ?>', '_blank',  <?php echo $GLOBALS['add_edit_event_width']; ?>, <?php echo $GLOBALS['add_edit_event_height']; ?>);
   return false;
  }
 

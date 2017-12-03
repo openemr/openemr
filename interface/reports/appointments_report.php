@@ -130,10 +130,43 @@ function fetch_reminders($pid, $appt_date)
             return false;
         }
 
-        function oldEvt(eventid) {
-            dlgopen('../main/calendar/add_edit_event.php?eid=' + eventid, 'blank', 775, 500);
-        }
+<title><?php echo xlt('Appointments Report'); ?></title>
 
+<?php Header::setupHeader(["datetime-picker","report-helper"]); ?>
+
+<script type="text/javascript">
+
+ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+
+  $('.datepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+
+ });
+
+ function dosort(orderby) {
+    var f = document.forms[0];
+    f.form_orderby.value = orderby;
+    f.submit();
+    return false;
+ }
+
+ function oldEvt(eventid) {
+    dlgopen('../main/calendar/add_edit_event.php?eid=' + eventid, 'blank',  <?php echo $GLOBALS['add_edit_event_width']; ?>,  <?php echo $GLOBALS['add_edit_event_height']; ?>);
+ }
+
+ function refreshme() {
+    // location.reload();
+    document.forms[0].submit();
+ }
         function refreshme() {
             // location.reload();
             document.forms[0].submit();
