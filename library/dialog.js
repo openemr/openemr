@@ -362,13 +362,12 @@ function oeModal(url, winname, width, height, title, opts) {
             .replace('%title%', mTitle);
     var frameHead =
         ('<span><i class="close fa fa-close fa-border fa-1x fa-pull-right" data-dismiss=modal aria-hidden="true"></i></span>');
-    <!--style="width:100%;height:100%;overflow-y:auto;display:block;" -->
+
     var frameHtml =
-        ('<iframe id="modalframe" class="embed-responsive-item modalIframe" name="%winname%" frameborder=0 src="%url%"></iframe>')
+        ('<iframe id="mIframe" class="modalIframe" name="%winname%" frameborder=0 ' +
+            'style="width:100%;height:100%;overflow-y:auto;display:block;" src="%url%"></iframe>')
             .replace('%winname%', winname)
             .replace('%url%', fullURL);
-
-    var embedded = 'embed-responsive embed-responsive-16by9';
 
     var bodyStyles = (' style="height:%initHeight%;margin:auto;padding:0 5px;max-height:100vh%;overflow-y:auto;"')
         .replace('%initHeight%', mHeight);
@@ -378,7 +377,7 @@ function oeModal(url, winname, width, height, title, opts) {
             '<div %dialogId% class="modal-dialog %szClass%" role="document">' +
             '<div class="modal-content">' +
             '%head%' +
-            '<div class="modal-body %embedded%" %bodyStyles%>%wait%' +
+            '<div class="modal-body" %bodyStyles%>%wait%' +
             '%body%' +
             '</div></div></div></div>')
             .replace('%id%', winname)
@@ -388,7 +387,6 @@ function oeModal(url, winname, width, height, title, opts) {
             .replace('%head%', mTitle !== "" ? headerhtml : frameHead)
             .replace('%wait%', '') // maybe option later
             .replace('%bodyStyles%', bodyStyles)
-            .replace('%embedded%', opts.type === 'iframe' ? embedded : '')
             .replace('%body%', opts.type === 'iframe' ? frameHtml : '');
 
     // Write modal template.
@@ -428,9 +426,7 @@ function oeModal(url, winname, width, height, title, opts) {
             if (opts.allowResize) {
                 $('.modal-content', this).resizable({
                     alsoResize: $('div.modal-body', this)
-                }).on('resizestop', function (e, u) {
-                    // RESERVED
-                })
+                });
             }
 
             if (opts.allowDrag) {
@@ -557,11 +553,10 @@ function SizeModaliFrame(e, minSize) {
     if (top.tab_mode) {
         var viewPortHt = Math.max(top.window.document.documentElement.clientHeight, top.window.innerHeight || 0);
     } else {
-        var viewPortHt = window.innerHeight || 0;
+        var viewPortHt = Math.max(window.document.documentElement.clientHeight, window.innerHeight || 0);
     }
     var frameContentHt = Math.max($(idoc).height(), idoc.body.offsetHeight || 0) + 25;
     frameContentHt = frameContentHt < minSize ? minSize : frameContentHt;
-    frameContentHt = frameContentHt > viewPortHt ? viewPortHt : frameContentHt;
     var hasHeader = $(e.currentTarget).parents('div.modal-content').find('div.modal-header').length;
     var hasFooter = $(e.currentTarget).parents('div.modal-content').find('div.modal-footer').length;
     size = (frameContentHt / viewPortHt * 100).toFixed(4);
@@ -570,11 +565,10 @@ function SizeModaliFrame(e, minSize) {
     maxsize = maxsize + 'vh';
     size = size + 'vh'; // will start the dialog as responsive. Any resize by user turns dialog to absolute positioning.
 
-    $(e.currentTarget).parents('div.modal-content').height('');
     $(e.currentTarget).parent('div.modal-body').css({'height': size, 'max-height': maxsize}); // Set final size. Width was previously set.
 
     console.log('Modal loaded and sized! Content:' + frameContentHt + ' Viewport:' + viewPortHt + ' Modal height:' +
-        size + ' Max height:' + maxsize + ' isHeader:' + (hasHeader > 0 ? 'True ' : 'False ') + ' isFooter:' + (hasFooter > 0 ? 'True' : 'False'));
+        size + ' Max height:' + maxsize + ' isHeader:' + (hasHeader > 0 ? 'True' : 'False') + ' isFooter:' + (hasFooter > 0 ? 'True' : 'False'));
 
     return size; // may be better to set size from calling scope..
 }

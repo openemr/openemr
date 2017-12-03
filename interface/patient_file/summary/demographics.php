@@ -24,8 +24,6 @@ require_once("$srcdir/clinical_rules.php");
 require_once("$srcdir/options.js.php");
 require_once("$srcdir/group.inc");
 require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
-
-use OpenEMR\Core\Header;
 use OpenEMR\Reminder\BirthdayReminder;
 
 if (isset($_GET['set_pid'])) {
@@ -163,22 +161,18 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 <html>
 
 <head>
-<?php //html_header_show();?>
-<!--<link rel="stylesheet" href="<?php /*echo $css_header;*/?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="../../../library/textformat.js?v=<?php /*echo $v_js_includes; */?>"></script>
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php /*echo $v_js_includes; */?>"></script>
-
-<script type="text/javascript" src="<?php /*echo $GLOBALS['assets_static_relative']; */?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php /*echo $GLOBALS['assets_static_relative'] */?>/jquery-ui-1-12-1/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="<?php /*echo $url . $GLOBALS['assets_static_relative']; */?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-<script src="<?php /*echo $url . $GLOBALS['assets_static_relative']; */?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
-<script type="text/javascript" src="../../../library/js/common.js?v=<?php /*echo $v_js_includes; */?>"></script>-->
-
-    <?php Header::setupHeader(['common', 'jquery-ui', 'jquery-ui-sunny']); ?>
-    <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-    <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-
+<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<!--<script type="text/javascript" src="<?php /*echo $GLOBALS['assets_static_relative']; */?>/jquery-min-1-7-2/index.js"></script>-->
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="<?php echo $url . $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
+    <script src="<?php echo $url . $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="../../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript" language="JavaScript">
 
  var mypcc = '<?php echo htmlspecialchars($GLOBALS['phone_country_code'], ENT_QUOTES); ?>';
@@ -263,7 +257,7 @@ function editScripts(url) {
             {text: '<?php echo xla('List'); ?>', close: false, style: 'primary  btn-sm', click: ListScripts},
             {text: '<?php echo xla('Done'); ?>', close: true, style: 'success btn-sm', click: refreshme}
         ],
-        allowResize: true,
+        allowResize: false,
         allowDrag: true,
         dialogId: 'editscripts',
         type: 'iframe'
