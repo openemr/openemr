@@ -393,9 +393,11 @@ while ($row_currentMed=sqlFetchArray($res)) {
         $widgetButtonLink = $GLOBALS['webroot'] . "/interface/eRx.php?page=compose";
         $widgetButtonClass = "";
     } else {
+        $linkMethod = "javascript";
         $widgetTitle = xl('Prescription');
         $widgetButtonLabel = xl("Edit");
-        $widgetButtonLink = $GLOBALS['webroot'] . "/interface/patient_file/summary/rx_frameset.php";
+        $oeLink = $GLOBALS['webroot'] . "/controller.php?prescription&list&id=" . attr($pid);
+        $widgetButtonLink = 'editScripts("' . $oeLink . '")';
         $widgetButtonClass = "iframe rx_modal";
     }
 
