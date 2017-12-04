@@ -201,8 +201,9 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
  }
 
  function newEvt() {
-     dlgopen('../../main/calendar/add_edit_event.php?patientid=<?php echo htmlspecialchars($pid, ENT_QUOTES); ?>', '_blank', 775, 500);
-  return false;
+     let url = '../../main/calendar/add_edit_event.php?patientid=<?php echo htmlspecialchars($pid, ENT_QUOTES); ?>';
+     dlgopen(url, '_blank', 675, 300, '', 'Appointments');
+     return false;
  }
 
 function sendimage(pid, what) {

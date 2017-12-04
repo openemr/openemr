@@ -260,7 +260,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 
         where = wframe; // A moving target for Frames UI.
     }
-    
+
     // get url straight...
     if (opts.url) {
         url = opts.url;
@@ -314,7 +314,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     var headerhtml =
         ('<div class=modal-header><span type=button class="x close" data-dismiss=modal>' +
             '<span aria-hidden=true>&times;</span>' +
-            '<span class=sr-only>Close</span></span><h5 class=modal-title>%title%</h5></div>')
+            '</span><h5 class=modal-title>%title%</h5></div>')
             .replace('%title%', mTitle);
 
     var frameHead =
@@ -496,8 +496,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                             case 'close':
                                 //add close event
                                 if (btnOp[index]) {
-                                    btn.attr('data-dismiss', 'modal')
-                                        .addClass('closeBtn');
+                                    btn.attr('data-dismiss', 'modal');
                                 }
                                 break;
                             case 'click':

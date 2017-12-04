@@ -13,10 +13,10 @@
  *
  */
 
-
-
 include_once('../../globals.php');
 include_once("$srcdir/patient.inc");
+
+use OpenEMR\Core\Header;
 
 $info_msg = "";
 
@@ -42,10 +42,9 @@ if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
 <!DOCTYPE html>
 <html>
 <head>
-<?php html_header_show();?>
+    <?php Header::setupHeader(['common', 'datetime-picker', 'opener']); ?>
 <title><?php echo htmlspecialchars(xl('Patient Finder'), ENT_NOQUOTES); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+
 <style>
 form {
     padding: 0px;
@@ -54,46 +53,32 @@ form {
 #searchCriteria {
     text-align: center;
     width: 100%;
-    font-size: 0.8em;
+    /*font-size: 0.8em;*/
     background-color: #ddddff;
     font-weight: bold;
     padding: 3px;
 }
 #searchResultsHeader {
     width: 100%;
-    background-color: lightgrey;
-}
-#searchResultsHeader table {
-    width: 96%;  /* not 100% because the 'searchResults' table has a scrollbar */
+    /*background-color: #fff;*/
     border-collapse: collapse;
 }
 #searchResultsHeader th {
-    font-size: 0.7em;
+    /*font-size: 0.7em;*/
 }
 #searchResults {
     width: 100%;
-    height: 80%;
+    border-collapse: collapse;
+    background-color: white;
     overflow: auto;
 }
 
-/* search results column widths */
-.srName { width: 30%; }
-.srPhone { width: 21%; }
-.srSS { width: 17%; }
-.srDOB { width: 17%; }
-.srID { width: 15%; }
-
-#searchResults table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: white;
-}
 #searchResults tr {
     cursor: hand;
     cursor: pointer;
 }
 #searchResults td {
-    font-size: 0.7em;
+    /*font-size: 0.7em;*/
     border-bottom: 1px solid #eee;
 }
 .oneResult { }
@@ -161,7 +146,7 @@ if (isset($_GET["res"])) {
     echo "pflag=0";
 } ?>'>
     <?php echo htmlspecialchars(xl('Search by:'), ENT_NOQUOTES); ?>
-   <select name='searchby'>
+   <select name='searchby' class="input-sm">
     <option value="Last"><?php echo htmlspecialchars(xl('Name'), ENT_NOQUOTES); ?></option>
     <!-- (CHEMED) Search by phone number -->
     <option value="Phone"<?php if ($searchby == 'Phone') {
@@ -178,15 +163,14 @@ if (isset($_GET["res"])) {
 } ?>><?php echo htmlspecialchars(xl('DOB'), ENT_NOQUOTES); ?></option>
    </select>
     <?php echo htmlspecialchars(xl('for:'), ENT_NOQUOTES); ?>
-   <input type='text' id='searchparm' name='searchparm' size='12' value='<?php echo htmlspecialchars($_REQUEST['searchparm'], ENT_QUOTES); ?>'
+   <input type='text' class="input-sm" id='searchparm' name='searchparm' size='12' value='<?php echo htmlspecialchars($_REQUEST['searchparm'], ENT_QUOTES); ?>'
     title='<?php echo htmlspecialchars(xl('If name, any part of lastname or lastname,firstname'), ENT_QUOTES); ?>'>
    &nbsp;
    <input type='submit' id="submitbtn" value='<?php echo htmlspecialchars(xl('Search'), ENT_QUOTES); ?>'>
-   <!-- &nbsp; <input type='button' value='<?php echo htmlspecialchars(xl('Close'), ENT_QUOTES); ?>' onclick='window.close()' /> -->
+   <!-- &nbsp; <input type='button' value='<?php //echo htmlspecialchars(xl('Close'), ENT_QUOTES); ?>' onclick='window.close()' /> -->
    <div id="searchspinner"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif"></div>
 </form>
 </div>
-
 
 <?php if (! isset($_REQUEST['searchparm'])) : ?>
 <div id="searchstatus"><?php echo htmlspecialchars(xl('Enter your search criteria above'), ENT_NOQUOTES); ?></div>
@@ -206,8 +190,8 @@ if (isset($_GET["res"])) {
 
 <?php if (isset($result)) : ?>
 
-<div id="searchResultsHeader" class="head">
-<table class="table table-striped">
+<table class="table table-condensed">
+<thead id="searchResultsHeader" class="head">
  <tr>
   <th class="srName"><?php echo htmlspecialchars(xl('Name'), ENT_NOQUOTES); ?></th>
   <th class="srPhone"><?php echo htmlspecialchars(xl('Phone'), ENT_NOQUOTES); ?></th> <!-- (CHEMED) Search by phone number -->
@@ -215,10 +199,8 @@ if (isset($_GET["res"])) {
   <th class="srDOB"><?php echo htmlspecialchars(xl('DOB'), ENT_NOQUOTES); ?></th>
   <th class="srID"><?php echo htmlspecialchars(xl('ID'), ENT_NOQUOTES); ?></th>
  </tr>
-</div>
-
-<div id="searchResults">
-
+</thead>>
+<tbody id="searchResults">
 <?php
 foreach ($result as $iter) {
     $iterpid   = $iter['pid'];
@@ -249,8 +231,9 @@ foreach ($result as $iter) {
     echo " </tr>";
 }
 ?>
+</tbody>
 </table>
-</div>
+
 <?php endif; ?>
 
 <script language="javascript">
@@ -288,7 +271,6 @@ var SelectPatient = function (eObj) {
 
 </script>
 
-</center>
 </div>
 </body>
 </html>

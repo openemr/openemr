@@ -11,9 +11,9 @@
 <head>
 
 {headerShow}
-
-<link rel="stylesheet" href="{$GLOBALS.css_header}" type="text/css">
+<link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/bootstrap-3-3-4/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/themes/base/jquery-ui.min.css" type="text/css" />
+<link rel="stylesheet" href="{$GLOBALS.css_header}" type="text/css">
 
 {literal}
 <style type="text/css">
@@ -42,6 +42,7 @@ select{
 {/literal}
 <!---Gen Look up-->
 <script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-min-3-1-1/index.js"></script>
+<script src="{$GLOBALS.assets_static_relative}/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="{$GLOBALS.webroot}/library/dialog.js?v={$GLOBALS.v_js_includes}"></script>
 <script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/jquery-ui.js"></script>
 
@@ -115,10 +116,10 @@ select{
     {if $DRUG_ARRAY_VALUES}
     &nbsp; &nbsp; &nbsp; &nbsp;
         {if $prescription->get_refills() >= $prescription->get_dispensation_count()}
-            <input type="submit" name="disp_button" value="{xl t='Save and Dispense'|escape:'html'}" />
-            <input type="text" name="disp_quantity" size="2" maxlength="10" value="{$DISP_QUANTITY|escape:'html'}" />
+            <input type="submit" name="disp_button"class='css_button_small'  style="margin:0 5px 0 2px;" value="{xl t='Save and Dispense'|escape:'html'}" />
+            <input class="input-sm" type="text" name="disp_quantity" size="2" maxlength="10" value="{$DISP_QUANTITY|escape:'html'}" />
             units, $
-            <input type="text" name="disp_fee" size="5" maxlength="10" value="{$DISP_FEE|escape:'html'}" />
+            <input class="input-sm" type="text" name="disp_fee" size="5" maxlength="10" value="{$DISP_FEE|escape:'html'}" />
         {else}&nbsp;
             {xl t='prescription has reached its limit of'|escape:'html'} {$prescription->get_refills()|escape:'html'} {xl t='refills'|escape:'html'}.
         {/if}
@@ -183,7 +184,7 @@ select{
 <tr>
   <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Drug'|escape:'html'}</td>
   <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-            <input type="input" size="20" name="drug" id="drug" value="{$prescription->drug|escape:'html'}"/>
+            <input class="form-control" type="input" size="20" name="drug" id="drug" value="{$prescription->drug|escape:'html'}"/>
             <a href="javascript:;" id="druglookup" class="small" name="B4" onclick="$('#hiddendiv').show(); document.getElementById('hiddendiv').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;52&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">
             ({xl t='click here to search'|escape:'html'})</a>
             <div id=hiddendiv style="display:none">&nbsp;</div>
@@ -193,7 +194,7 @@ select{
 <tr>
   <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >&nbsp; {xl t='in-house'|escape:'html'}</td>
   <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-    <select name="drug_id" onchange="drugselected(this)">
+    <select class="input-sm" name="drug_id" onchange="drugselected(this)">
     {html_options values=$DRUG_ARRAY_VALUES output=$DRUG_ARRAY_OUTPUT selected=$prescription->get_drug_id()}
     </select>
         <input type="hidden" name="rxnorm_drugcode" value="{$prescription->rxnorm_drugcode|escape:'html'}">
@@ -203,7 +204,7 @@ select{
 <tr>
   <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Quantity'|escape:'html'}</td>
   <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-    <input TYPE="TEXT" NAME="quantity" id="quantity" SIZE="10" MAXLENGTH="31"
+    <input class="input-sm" TYPE="TEXT" NAME="quantity" id="quantity" SIZE="10" MAXLENGTH="31"
      VALUE="{$prescription->quantity|escape:'html'}"
      onchange="quantityChanged()" />
   </td>
@@ -215,23 +216,23 @@ select{
 {/if}
   <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Medicine Units'|escape:'html'}</td>
   <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-    <input TYPE="TEXT" NAME="size" id="size" SIZE="11" MAXLENGTH="10" VALUE="{$prescription->size|escape:'html'}"/>
-    <select name="unit" id="unit">{html_options options=$prescription->unit_array selected=$prescription->unit}</select>
+    <input class="input-sm" TYPE="TEXT" NAME="size" id="size" SIZE="11" MAXLENGTH="10" VALUE="{$prescription->size|escape:'html'}"/>
+    <select class="input-sm" name="unit" id="unit">{html_options options=$prescription->unit_array selected=$prescription->unit}</select>
   </td>
 </tr>
 <tr>
   <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Directions'|escape:'html'}</td>
   <td COLSPAN="2" class="text" ALIGN="LEFT" VALIGN="MIDDLE" >
 {if $SIMPLIFIED_PRESCRIPTIONS && !$prescription->form && !$prescription->route && !$prescription->interval}
-    <input TYPE="text" NAME="dosage" id="dosage" SIZE="30" MAXLENGTH="100" VALUE="{$prescription->dosage|escape:'html'}" />
+    <input class="input-sm" TYPE="text" NAME="dosage" id="dosage" SIZE="30" MAXLENGTH="100" VALUE="{$prescription->dosage|escape:'html'}" />
     <input type="hidden" name="form" id="form" value="0" />
     <input type="hidden" name="route" id="route" value="0" />
     <input type="hidden" name="interval" id="interval" value="0" />
 {else}
-    <input TYPE="TEXT" NAME="dosage" id="dosage" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->dosage|escape:'html'}"/> {xl t='in'|escape:'html'}
-    <select name="form" id="form">{html_options options=$prescription->form_array selected=$prescription->form}</select>
-    <select name="route" id="route">{html_options options=$prescription->route_array selected=$prescription->route}</select>
-    <select name="interval" id="interval">{html_options options=$prescription->interval_array selected=$prescription->interval}</select>
+    <input class="input-sm" TYPE="TEXT" NAME="dosage" id="dosage" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->dosage|escape:'html'}"/> {xl t='in'|escape:'html'}
+    <select class="input-sm" name="form" id="form">{html_options options=$prescription->form_array selected=$prescription->form}</select>
+    <select class="input-sm" name="route" id="route">{html_options options=$prescription->route_array selected=$prescription->route}</select>
+    <select class="input-sm" name="interval" id="interval">{html_options options=$prescription->interval_array selected=$prescription->interval}</select>
 {/if}
   </td>
 </tr>
@@ -243,14 +244,14 @@ select{
     <input TYPE="hidden" ID="per_refill" NAME="per_refill" VALUE="{$prescription->per_refill|escape:'html'}" />
 {else}
     &nbsp; &nbsp; # {xl t='of tablets'}:
-    <input TYPE="TEXT" ID="per_refill" NAME="per_refill" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->per_refill|escape:'html'}" />
+    <input class="input-sm" TYPE="TEXT" ID="per_refill" NAME="per_refill" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->per_refill|escape:'html'}" />
 {/if}
   </td>
 </tr>
 <tr>
   <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Notes'|escape:'html'}</td>
   <td COLSPAN="2" class="text" ALIGN="LEFT" VALIGN="MIDDLE" >
-  <textarea name="note" cols="30" rows="2" wrap="virtual">{$prescription->note|escape:'html'}</textarea>
+  <textarea class="form-control" name="note" cols="30" rows="2" wrap="virtual">{$prescription->note|escape:'html'}</textarea>
   </td>
 </tr>
 <tr>
