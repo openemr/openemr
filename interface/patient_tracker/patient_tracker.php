@@ -434,10 +434,10 @@ foreach ($appointments as $appointment) {
     <?php echo getListItemTitle('patient_flow_board_rooms', $appt_room);?>
      </td>
      <td class="detail" align="center">
-     <?php echo text(oeFormatTime($appt_time)); ?>
+        <?php echo text(oeFormatTime($appt_time)); ?>
      </td>
      <td class="detail" align="center">
-     <?php echo ($newarrive ? text(oeFormatTime($newarrive)) : '&nbsp;') ?>
+        <?php echo ($newarrive ? text(oeFormatTime($newarrive)) : '&nbsp;') ?>
      </td>
      <td class="detail" align="center">
     <?php if (empty($tracker_id)) { #for appt not yet with tracker id and for recurring appt ?>
