@@ -12,9 +12,7 @@
  */
 
 $ignoreAuth=true;
-$_SERVER['REQUEST_URI'] = '';
-$_SERVER['SERVER_NAME'] = 'oculoplasticsllc.com'; //PUT your server name here
-$_SERVER['HTTP_HOST']   = 'default'; //for multi-site i believe
+$_SERVER['HTTP_HOST']   = 'default'; //for multi-site
 
 require_once(dirname(__FILE__)."/../../interface/globals.php");
 require_once(dirname(__FILE__)."/../patient.inc");

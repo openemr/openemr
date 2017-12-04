@@ -923,7 +923,6 @@ class Display extends base
         <div id="hide_nav" style="<?php if ($setting_bootstrap_submenu == 'hide') {
             echo "display:none;"; } ?>">      
             <nav id="navbar_oe" class="bgcolor2 navbar-fixed-top navbar-custom navbar-bright navbar-inner" name="kiosk_hide" 
-                style="font-size:0.9em;" 
                 data-role="page banner navigation">
                 <!-- Brand and toggle get grouped for better mobile display -->
                     <div class="container-fluid">
@@ -1398,7 +1397,8 @@ class Display extends base
                                         <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To'); ?>:</label></td><td>
                                         <input type="date" id="datepicker2" name="datepicker2"
                                                 data-format="<?php echo $date_format; ?>"
-                                                class="form-control datepicker input-sm text-center hasDatepicker" value="<?php echo attr($to_date); ?>" style="max-width:140px;min-width:85px;">
+                                                class="form-control datepicker input-sm text-center hasDatepicker" 
+                                                value="<?php echo attr($to_date); ?>" style="max-width:140px;min-width:85px;">
                                       </td></tr>
                                       <tr><td class="text-center" colspan="2">
                                         <input href="#" class="css_button btn ui-buttons ui-widget ui-corner-all news" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>">
@@ -1708,6 +1708,8 @@ class Display extends base
         while ($icons = sqlFetchArray($result)) {
             $icon[$icons['msg_type']][$icons['msg_status']] = $icons['i_html'];
         }
+        //if the patient is dead, should we really be sending them a message?
+        //Maybe we would need to customize this for a pathologist but for the rest, the answer is no...
         if (empty($appt['phone_cell']) || ($appt["hipaa_allowsms"]=="NO")) {
             $pat['SMS'] = $icon['SMS']['NotAllowed'];
             $pat['ALLOWED']['SMS'] = 'NO';

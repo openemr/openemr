@@ -14,8 +14,7 @@
 
 $ignoreAuth=true;
 $_SERVER['REQUEST_URI'] = '';
-$_SERVER['SERVER_NAME'] = 'example.tld'; //PUT your server name here
-$_SERVER['HTTP_HOST']   = 'default'; //for multi-site i believe
+$_SERVER['HTTP_HOST']   = 'default'; //for multi-site I believe
 
 require_once(dirname(__FILE__)."/../../interface/globals.php");
 require_once(dirname(__FILE__)."/API.php");
@@ -26,7 +25,7 @@ require_once(dirname(__FILE__) ."/../log.inc");
    
 function start_MedEx()
 {
-    $hb = new MedExApi\MedEx('MedExBank.com');
+    $hb = new MedExApi\MedEx('api.MedExBank.com');
     $logged_in = $hb->login();
     if ($logged_in) {
         $token      = $logged_in['token'];
