@@ -99,6 +99,7 @@ foreach ($appointments as $apt) {
 <html>
 <head>
 <title><?php echo xlt("Flow Board") ?></title>
+<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/font-awesome-4-6-3/css/font-awesome.css" type="text/css">
 
@@ -433,10 +434,10 @@ foreach ($appointments as $appointment) {
     <?php echo getListItemTitle('patient_flow_board_rooms', $appt_room);?>
      </td>
      <td class="detail" align="center">
-    <?php echo text(oeFormatTime($appt_time)); ?>
+     <?php echo text(oeFormatTime($appt_time)); ?>
      </td>
      <td class="detail" align="center">
-<?php echo ($newarrive ? text(oeFormatTime($newarrive)) : '&nbsp;') ?>
+     <?php echo ($newarrive ? text(oeFormatTime($newarrive)) : '&nbsp;') ?>
      </td>
      <td class="detail" align="center">
     <?php if (empty($tracker_id)) { #for appt not yet with tracker id and for recurring appt ?>
@@ -507,7 +508,7 @@ if (($yestime == '1') && ($timecheck >=1) && (strtotime($newarrive)!= '')) {
         <td class="detail" align="center">
         <?php
         if (strtotime($newend) != '') {
-              echo text(oeFormatTime($newend)) ;
+            echo text(oeFormatTime($newend)) ;
         }
         ?>
          </td>

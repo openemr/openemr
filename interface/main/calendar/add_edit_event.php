@@ -100,7 +100,8 @@ if (isset($_GET['starttimeh'])) {
 
  <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
  <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
-
+<link rel="stylesheet" href="<?php echo $url . $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
+<script src="<?php echo $url . $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
 <!-- validation library -->
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
 <?php    $use_validate_js = 1;?>
@@ -1117,7 +1118,7 @@ while ($crow = sqlFetchArray($cres)) {
 
  // This invokes the find-patient popup.
  function sel_patient() {
-  dlgopen('find_patient_popup.php', '_blank', 500, 400);
+  dlgopen('find_patient_popup.php', '_blank', 700, 400);
  }
 
  // This is for callback by the find-group popup.
@@ -1357,8 +1358,8 @@ var weekDays = new Array(
 </head>
 
 <body class="body_top main-calendar-add_edit_event" onunload='imclosing()'>
-
-<form method='post' name='theform' id='theform' action='add_edit_event.php?eid=<?php echo attr($eid) ?>' />
+<div class="container-responsive">
+<form class="form-inline" method='post' name='theform' id='theform' action='add_edit_event.php?eid=<?php echo attr($eid) ?>' />
 <!-- ViSolve : Requirement - Redirect to Create New Patient Page -->
 <input   type='hidden' size='2' name='resname' value='empty' />
 <?php
@@ -1388,7 +1389,7 @@ $classpati='';
 <input   type="hidden" name="rt2_flag2" id="rt2_flag2" value="<?php echo attr(isset($rspecs['rt2_pf_flag']) ? $rspecs['rt2_pf_flag'] : '0'); ?>">
 <!-- End of addition by epsdky -->
 <center>
-<table border='0' >
+<table class="table" border='0' >
 <?php
     $provider_class='';
     $group_class='';
@@ -1428,7 +1429,7 @@ if ($_GET['prov']==true) {
         </ul>
 </th></tr>
 <tr><td colspan='10'>
-<table border='0' width='100%' bgcolor='#DDDDDD'>
+<table class="table" border='0' width='100%' bgcolor='#DDDDDD'>
     <tr>
         <td width='1%' nowrap>
             <b><?php echo xlt('Category'); ?>:</b>
@@ -1974,7 +1975,7 @@ if ($repeatexdate != "") {
 <input type="button" name="future_events" id="future_events" value="<?php echo xla('Future'); ?>">
 <input type="button" name="current_event" id="current_event" value="<?php echo xla('Current'); ?>">
 </div>
-
+</div>
 </body>
 
 <script language='JavaScript'>

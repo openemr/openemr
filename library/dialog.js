@@ -118,31 +118,59 @@ function dialogID() {
 * */
 function includeScript(url, async, type) {
 
-    // @todo add link load for style sheets.
-    // @todo safety check if replacement dependency link exist in head first.
-    //
     try {
         let rqit = new XMLHttpRequest();
 
         rqit.open("GET", url, async); // false = synchronous.
         rqit.send(null);
 
-        if (rqit.status == 200) {
-            let headElement = document.getElementsByTagName("head")[0];
-            let newScriptElement = document.createElement("script");
-            newScriptElement.type = "text/javascript";
-            newScriptElement.text = rqit.responseText;
-            headElement.appendChild(newScriptElement);
-            console.log('Needed to load:[ ' + url + ' ] For: [ ' + location + ' ]');
-            return false; // in case req comes from a submit form.
+        if (rqit.status === 200) {
+            if (type === "script") {
+                let headElement = document.getElementsByTagName("head")[0];
+                let newScriptElement = document.createElement("script");
+                newScriptElement.type = "text/javascript";
+                newScriptElement.text = rqit.responseText;
+                headElement.appendChild(newScriptElement);
+                console.log('Needed to load:[ ' + url + ' ] For: [ ' + location + ' ]');
+                return false; // in case req comes from a submit form.
+            } else if (type === "link") {
+                let headElement = document.getElementsByTagName("head")[0];
+                let newScriptElement = document.createElement("link")
+                newScriptElement.type = "text/css";
+                newScriptElement.rel = "stylesheet";
+                newScriptElement.text = rqit.responseText;
+                headElement.appendChild(newScriptElement);
+                console.log('Needed to load:[ ' + url + ' ] For: [ ' + location + ' ]');
+                return false;
+            }
         }
 
         throw new Error('<?php echo xlt("Failed to get URL:") ?>' + url);
+
     }
     catch (e) {
         throw e;
     }
 
+}
+
+// test for and/or remove dependency.
+function inDom(dependency, type, remove) {
+    let el = type;
+    let attr = type === 'script' ? 'src' : type === 'link' ? 'href' : 'none';
+    let all = document.getElementsByTagName(el)
+    for (let i = all.length; i > -1; i--) {
+        if (all[i] && all[i].getAttribute(attr) != null && all[i].getAttribute(attr).indexOf(dependency) != -1) {
+            if (remove) {
+                all[i].parentNode.removeChild(all[i]);
+                console.log("Removed from DOM: " + dependency)
+                return true
+            } else {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 /*
@@ -180,8 +208,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     }
 
     // Check for dependencies we will need.
-    // webroot_url is a global defined in main.
-    //
+    // webroot_url is a global defined in main_screen.php.
     let jqurl = top.webroot_url + '/public/assets/jquery-min-1-9-1/index.js';
     let bscss = top.webroot_url + '/public/assets/bootstrap-3-3-4/dist/css/bootstrap.min.css';
     let bsurl = top.webroot_url + '/public/assets/bootstrap-3-3-4/dist/js/bootstrap.min.js';
@@ -196,13 +223,16 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         } else {
             let version = $.fn.jquery.split(' ')[0].split('.');
             if ((version[0] < 2 && version[1] < 9) || (version[0] == 1 && version[1] == 9 && version[2] < 1)) {
+                inDom('jquery-min', 'script', true);
                 includeScript(jqurl, false, 'script');
-                console.log('Replacing jQuery version:[ '+ version +' ]');
+                console.log('Replacing jQuery version:[ ' + version + ' ]');
             }
         }
         if (typeof jQuery.fn.modal === 'undefined') {
-            //includeScript(bscss, 'link');
-            includeScript(bsurl, false, 'script');
+            if (!inDom('bootstrap.min.css', 'link', false))
+                includeScript(bscss, false, 'link');
+            if (!inDom('bootstrap.min.js', 'script', false))
+                includeScript(bsurl, false, 'script');
         }
         if (typeof jQuery.ui === 'undefined') {
             includeScript(jqui, false, 'script');
@@ -230,7 +260,8 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 
         where = wframe; // A moving target for Frames UI.
     }
-
+    
+    // get url straight...
     if (opts.url) {
         url = opts.url;
     }
@@ -359,7 +390,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                         sizing(e, height);
                     }
 
-                }, 50);
+                }, 150);
             });
         }
 

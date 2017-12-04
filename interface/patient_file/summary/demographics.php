@@ -24,6 +24,8 @@ require_once("$srcdir/clinical_rules.php");
 require_once("$srcdir/options.js.php");
 require_once("$srcdir/group.inc");
 require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
+
+use OpenEMR\Core\Header;
 use OpenEMR\Reminder\BirthdayReminder;
 
 if (isset($_GET['set_pid'])) {
@@ -161,14 +163,11 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 <html>
 
 <head>
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
-<script type="text/javascript" src="../../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+
+    <?php Header::setupHeader(['common']); ?>
+    <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
+    <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+
 <script type="text/javascript" language="JavaScript">
 
  var mypcc = '<?php echo htmlspecialchars($GLOBALS['phone_country_code'], ENT_QUOTES); ?>';
@@ -202,7 +201,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
  }
 
  function newEvt() {
-  dlgopen('../../main/calendar/add_edit_event.php?patientid=<?php echo htmlspecialchars($pid, ENT_QUOTES); ?>', '_blank', 775, 500);
+     dlgopen('../../main/calendar/add_edit_event.php?patientid=<?php echo htmlspecialchars($pid, ENT_QUOTES); ?>', '_blank', 775, 500);
   return false;
  }
 
@@ -229,6 +228,35 @@ function toggleIndicator(target,div) {
         $("#"+div).show();
     $.post( "../../../library/ajax/user_settings.php", { target: div, mode: 1 });
     }
+}
+
+// edit prescriptions dialog. @todo pull fancybox dependencies for this replace.
+// replace fancybox dialog sjp 11/25/17
+// called from stats.php.
+//
+function editScripts(url) {
+
+    var AddScript = function () {
+        var iam = top.tab_mode ? top.frames.editScripts : window[0];
+        iam.location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=&pid=<?php echo attr($pid);?>"
+    };
+    var ListScripts = function () {
+        var iam = top.tab_mode ? top.frames.editScripts : window[0];
+        iam.location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo attr($pid); ?>"
+    };
+    var title = '<?php echo xla('Prescriptions Add/Edit'); ?>';
+
+    dlgopen(url, 'editScripts', 'modal-mlg', 300, '', title, {
+        buttons: [
+            {text: '<?php echo xla('Add'); ?>', close: false, style: 'primary  btn-sm', click: AddScript},
+            {text: '<?php echo xla('List'); ?>', close: false, style: 'primary  btn-sm', click: ListScripts},
+            {text: '<?php echo xla('Done'); ?>', close: true, style: 'default btn-sm', click: refreshme}
+        ],
+        allowResize: true,
+        allowDrag: true,
+        dialogId: 'editscripts',
+        type: 'iframe'
+    });
 }
 
 $(document).ready(function(){
@@ -288,19 +316,7 @@ $(document).ready(function(){
     }
     ?>
     // load divs
-    $("#stats_div").load("stats.php", { 'embeddedScreen' : true }, function() {
-    // (note need to place javascript code here also to get the dynamic link to work)
-        $(".rx_modal").fancybox( {
-                'overlayOpacity' : 0.0,
-                'showCloseButton' : true,
-                'frameHeight' : 600,
-                'frameWidth' : 1200,
-            'centerOnScroll' : false,
-            'callbackOnClose' : function()  {
-                refreshme();
-            }
-        });
-    });
+    $("#stats_div").load("stats.php", { 'embeddedScreen' : true }, function() {});
     $("#pnotes_ps_expand").load("pnotes_fragment.php");
     $("#disclosures_ps_expand").load("disc_fragment.php");
 
@@ -473,18 +489,18 @@ if (sqlNumRows($result4)>0) {
  encurl = 'encounter/encounter_top.php?set_encounter=' + <?php echo attr($encounter);?> + '&pid=' + <?php echo attr($pid);?>;
     <?php if ($GLOBALS['new_tabs_layout']) { ?>
   parent.left_nav.setEncounter('<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($query_result['date'])))); ?>', '<?php echo attr($encounter); ?>', 'enc');
-  top.restoreSession();
+    top.restoreSession();
   parent.left_nav.loadFrame('enc2', 'enc', 'patient_file/' + encurl);
     <?php } else { ?>
   var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
   parent.left_nav.setEncounter('<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($query_result['date'])))); ?>', '<?php echo attr($encounter); ?>', othername);
-  top.restoreSession();
+    top.restoreSession();
   parent.frames[othername].location.href = '../' + encurl;
     <?php } ?>
 <?php } // end setting new encounter id (only if new pid is also set) ?>
 }
 
-$(window).load(function() {
+$(window).on('load', function() {
  setMyPatient();
 });
 

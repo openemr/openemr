@@ -39,7 +39,7 @@ if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
     }
 }
 ?>
-
+<!DOCTYPE html>
 <html>
 <head>
 <?php html_header_show();?>
@@ -59,11 +59,11 @@ form {
     font-weight: bold;
     padding: 3px;
 }
-#searchResultsHeader { 
+#searchResultsHeader {
     width: 100%;
     background-color: lightgrey;
 }
-#searchResultsHeader table { 
+#searchResultsHeader table {
     width: 96%;  /* not 100% because the 'searchResults' table has a scrollbar */
     border-collapse: collapse;
 }
@@ -111,7 +111,7 @@ form {
 .noResults { background-color: #ccc; }
 .tooManyResults { background-color: #fc0; }
 .howManyResults { background-color: #9f6; }
-#searchspinner { 
+#searchspinner {
     display: inline;
     visibility: hidden;
 }
@@ -123,7 +123,7 @@ form {
 }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <!-- ViSolve: Verify the noresult parameter -->
 <?php
 if (isset($_GET["res"])) {
@@ -155,9 +155,9 @@ if (isset($_GET["res"])) {
 </head>
 
 <body class="body_top">
-
+<div class="container-responsive">
 <div id="searchCriteria">
-<form method='post' name='theform' id="theform" action='find_patient_popup.php?<?php if (isset($_GET['pflag'])) {
+<form class="form-inline" method='post' name='theform' id="theform" action='find_patient_popup.php?<?php if (isset($_GET['pflag'])) {
     echo "pflag=0";
 } ?>'>
     <?php echo htmlspecialchars(xl('Search by:'), ENT_NOQUOTES); ?>
@@ -207,7 +207,7 @@ if (isset($_GET["res"])) {
 <?php if (isset($result)) : ?>
 
 <div id="searchResultsHeader" class="head">
-<table>
+<table class="table table-striped">
  <tr>
   <th class="srName"><?php echo htmlspecialchars(xl('Name'), ENT_NOQUOTES); ?></th>
   <th class="srPhone"><?php echo htmlspecialchars(xl('Phone'), ENT_NOQUOTES); ?></th> <!-- (CHEMED) Search by phone number -->
@@ -215,11 +215,10 @@ if (isset($_GET["res"])) {
   <th class="srDOB"><?php echo htmlspecialchars(xl('DOB'), ENT_NOQUOTES); ?></th>
   <th class="srID"><?php echo htmlspecialchars(xl('ID'), ENT_NOQUOTES); ?></th>
  </tr>
-</table> 
 </div>
 
 <div id="searchResults">
-<table> 
+
 <?php
 foreach ($result as $iter) {
     $iterpid   = $iter['pid'];
@@ -263,7 +262,7 @@ $(document).ready(function(){
     $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
     $(".oneresult").click(function() { SelectPatient(this); });
-    //ViSolve 
+    //ViSolve
     $(".noresult").click(function () { SubmitForm(this);});
 
     //$(".event").dblclick(function() { EditEvent(this); });
@@ -290,5 +289,6 @@ var SelectPatient = function (eObj) {
 </script>
 
 </center>
+</div>
 </body>
 </html>
