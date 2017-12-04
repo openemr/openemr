@@ -22,6 +22,7 @@ return array(
     'Symfony\\Component\\Config\\' => array($vendorDir . '/symfony/config'),
     'Stripe\\' => array($vendorDir . '/stripe/stripe-php/lib'),
     'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),
+    'OpenEMR\\Tabs\\' => array($baseDir . '/library/tabs/src'),
     'OpenEMR\\Services\\' => array($baseDir . '/services'),
     'OpenEMR\\Sample\\' => array($baseDir . '/library/sample/src'),
     'OpenEMR\\Rx\\Weno\\' => array($baseDir . '/library/weno/src'),

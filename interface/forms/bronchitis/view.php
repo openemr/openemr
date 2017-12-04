@@ -32,7 +32,7 @@ $obj = formFetch("form_bronchitis", $_GET["id"]);
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save', 'e'); ?>]</a>
 <br>
-<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link"
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
  onclick="top.restoreSession()">[<?php xl('Don\'t Save Changes', 'e'); ?>]</a>
 <br></br>
 
@@ -505,7 +505,7 @@ stripslashes($obj{"diagnosis3_bronchitis_form"});?>" size="40"><br>
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save', 'e'); ?> ]</a>
 <br>
-<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link"
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
  onclick="top.restoreSession()">[<?php xl('Don\'t Save Changes', 'e'); ?> ]</a>
 
 </form>

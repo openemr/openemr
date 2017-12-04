@@ -76,6 +76,7 @@
             "OpenEMR\\Reminder\\" : "library/reminder/src",
             "OpenEMR\\Billing\\" : "library/billing/src",
             "OpenEMR\\Pdf\\" : "library/pdf/src",
+            "OpenEMR\\Tabs\\" : "library/tabs/src",
             "OpenEMR\\Rx\\Weno\\" : "library/weno/src"
         }
     },

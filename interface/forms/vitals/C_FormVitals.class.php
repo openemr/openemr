@@ -17,7 +17,7 @@ class C_FormVitals extends Controller
         $this->template_mod = $template_mod;
         $this->template_dir = dirname(__FILE__) . "/templates/vitals/";
         $this->assign("FORM_ACTION", $GLOBALS['web_root']);
-        $this->assign("DONT_SAVE_LINK", $GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl");
+        $this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
         $this->assign("STYLE", $GLOBALS['style']);
 
       // Options for units of measurement and things to omit.

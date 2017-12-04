@@ -171,26 +171,24 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
             }
         }
         ?>
-     top.window.parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
- top.restoreSession();
+
+    // Get the left_nav window, and the name of its sibling (top or bottom) frame that this form is in.
+    // This works no matter how deeply we are nested.
+    var my_left_nav = top.left_nav;
+    var w = window;
+    for (; w.parent != top; w = w.parent);
+    var my_win_name = w.name;
+    my_left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
+    top.restoreSession();
 <?php if ($mode == 'new') { ?>
-    if(parent.left_nav) {
-        parent.left_nav.setEncounter(<?php echo "'" . attr(oeFormatShortDate($date)) . "', '" . attr($encounter) . "', window.name"; ?>);
-        //console.log('new - parent.left_nav is defined');
-    }
-    else {
-        parent.parent.frames["left_nav"].setEncounter(<?php echo "'" . attr(oeFormatShortDate($date)) . "', '" . attr($encounter) . "', window.name"; ?>);
-        //console.log('new - parent.left_nav is undefined');
-    }
-<?php } // end if new encounter ?>
-    if(parent.left_nav){
-        parent.left_nav.loadFrame('enc2', window.name, '<?php echo $nexturl; ?>');
-        //console.log('modify - parent.left_nav is defined');
-    }
-    else {
-        parent.parent.frames["left_nav"].loadFrame('enc2', parent.name, '<?php echo $nexturl; ?>');
-        //console.log('modify - parent.left_nav is undefined');
-    }
+    my_left_nav.setEncounter(<?php echo "'" . attr(oeFormatShortDate($date)) . "', " . attr($encounter) . ", window.name"; ?>);
+    // Load the tab set for the new encounter, w is usually the RBot frame.
+    w.location.href = '<?php echo "$rootdir/patient_file/encounter/encounter_top.php"; ?>';
+<?php } else { // not new encounter ?>
+    // Always return to encounter summary page.
+    window.location.href = '<?php echo "$rootdir/patient_file/encounter/forms.php"; ?>';
+<?php } // end if not new encounter ?>
+
 </script>
 
 </body>

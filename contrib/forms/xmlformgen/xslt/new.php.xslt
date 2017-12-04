@@ -50,7 +50,6 @@ $submiturl = $GLOBALS['rootdir'].'/forms/'.$form_folder.'/save.php?mode=new&amp;
 </xsl:if>
 <xsl:text disable-output-escaping="yes"><![CDATA[
 /* no get logic here */
-$returnurl = 'encounter_top.php';
 ]]></xsl:text>
 <!-- FIXME: this needs to work for layout based fields, as well. ideas? -->
 <!-- no call to split_timeofday, no data from the db in the new form. -->
@@ -116,7 +115,7 @@ require_once($GLOBALS['srcdir'].'/options_listadd.inc');
 <body class="body_top">
 
 <div id="title">
-<a href="<?php echo $returnurl; ?>" onclick="top.restoreSession()">
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" onclick="top.restoreSession()">
 <span class="title"><?php xl($form_name,'e'); ?></span>
 <span class="back">(<?php xl('Back','e'); ?>)</span>
 </a>
@@ -155,7 +154,7 @@ require_once($GLOBALS['srcdir'].'/options_listadd.inc');
 
 $(document).ready(function(){
     $(".save").click(function() { top.restoreSession(); document.forms["<?php echo $form_folder; ?>"].submit(); });
-    $(".dontsave").click(function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl"; ?>'; });
+    $(".dontsave").click(function() { location.href='parent.closeTab(window.name, false)'; });
 
 	$(".sectionlabel input").click( function() {
     	var section = $(this).attr("data-section");

@@ -160,7 +160,7 @@ if ($formid) {
 &nbsp;
 <input type='button' value='Add Appointment' onclick='newEvt()' />
 &nbsp;
-<input type='button' value='Cancel' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
+<input type='button' value='Cancel' onclick="parent.closeTab(window.name, false)" />
 </p>
 
 </center>

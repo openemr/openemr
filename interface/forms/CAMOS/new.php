@@ -7,7 +7,6 @@ if ((($_SESSION['encounter'] == '') || ($_SESSION['pid'] == '')) || ($_GET['mode
 }
 
 //  formHeader("Form: CAMOS");
-$returnurl = 'encounter_top.php';
 function myauth()
 {
     return 1;
@@ -1116,7 +1115,7 @@ if (!$out_of_encounter) {
   <option value=12><?php xl('Back twelve visits', 'e'); ?></option>
 </select>
 <?php
-echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[".xl('Leave The Form')."]</a>";
+echo "<a href='{$GLOBALS['form_exit_url']}' onclick='top.restoreSession()'>[".xl('Leave The Form')."]</a>";
 ?>
 <input type=button name='hide columns' value='<?php xl('Hide/Show Columns', 'e'); ?>' onClick="hide_columns()">
 <input type=button name='submit form' value='<?php xl('Submit Selected Content', 'e'); ?>' onClick="js_button('submit','submit_selection')">
@@ -1257,7 +1256,7 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
 <?php
 
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
-    echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[".xl('Leave The Form')."]</a>";
+    echo "<a href='{$GLOBALS['form_exit_url']}' onclick='top.restoreSession()'>[".xl('Leave The Form')."]</a>";
     echo "<a href='".$GLOBALS['webroot'] . "/interface/forms/CAMOS/help.html' target='new'> | [".xl('Help')."]</a>";
 //  echo $previous_encounter_data; //probably don't need anymore now that we have clone last visit
 }

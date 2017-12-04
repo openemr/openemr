@@ -182,7 +182,7 @@ echo "<form method='post' name='my_form' " .
     <td><input type='submit' value='<?php echo xla('Save'); ?>' class='button-css' />&nbsp;
     <input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' class='button-css' />&nbsp;
     <input type='button' class='button-css' value='<?php echo xla('Cancel'); ?>'
- onclick="top.restoreSession();location='<?php echo "$rootdir/patient_file/encounter/$returnurl" ?>'" /></td>
+ onclick="parent.closeTab(window.name, false)" /></td>
     </tr>
 </table>
 </form>

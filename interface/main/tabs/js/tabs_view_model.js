@@ -265,7 +265,25 @@ function menuActionClick(data,evt)
                 return;
             }
         }
-        navigateTab(webroot_url+data.url(),data.target);
+
+        // Fixups for loading a new encounter form, as these are now in tabs.
+        // See loadNewForm() in left_nav.php for comparable logic in the non-tabs case.
+        var dataurl = data.url();
+        var matches = dataurl.match(/load_form.php\?formname=(\w+)/);
+        if (matches) {
+          // If the encounter frameset already exists, just tell it to add a tab for this form.
+          for (var i = 0; i < frames.length; ++i) {
+            if (frames[i].twAddFrameTab) {
+              frames[i].twAddFrameTab('enctabs', data.label(), webroot_url + dataurl);
+              return;
+            }
+          }
+          // Otherwise continue by creating the encounter frameset including this form.
+          dataurl = '/interface/patient_file/encounter/encounter_top.php?formname=' +
+            matches[1] + '&formdesc=' + encodeURIComponent(data.label());
+        }
+
+        navigateTab(webroot_url + dataurl, data.target);
         activateTabByName(data.target,true);
         var par = $(evt.currentTarget).closest("ul.menuEntries");
         par.wrap("<ul class='timedReplace' style='display:none;'></ul>");

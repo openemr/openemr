@@ -58,6 +58,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         ),
         'O' => 
         array (
+            'OpenEMR\\Tabs\\' => 13,
             'OpenEMR\\Services\\' => 17,
             'OpenEMR\\Sample\\' => 15,
             'OpenEMR\\Rx\\Weno\\' => 16,
@@ -160,6 +161,10 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
+        ),
+        'OpenEMR\\Tabs\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/library/tabs/src',
         ),
         'OpenEMR\\Services\\' => 
         array (
@@ -1710,6 +1715,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OpenEMR\\Services\\ProductRegistrationService' => __DIR__ . '/../..' . '/services/ProductRegistrationService.php',
         'OpenEMR\\Services\\UserService' => __DIR__ . '/../..' . '/services/UserService.php',
         'OpenEMR\\Services\\VersionService' => __DIR__ . '/../..' . '/services/VersionService.php',
+        'OpenEMR\\Tabs\\TabsWrapper' => __DIR__ . '/../..' . '/library/tabs/src/TabsWrapper.php',
         'PDFBarcode' => __DIR__ . '/..' . '/mpdf/mpdf/classes/barcode.php',
         'PDF_Label' => __DIR__ . '/../..' . '/library/classes/PDF_Label.php',
         'PHPExcel' => __DIR__ . '/..' . '/phpoffice/phpexcel/Classes/PHPExcel.php',
