@@ -1384,7 +1384,7 @@ return array(
     'OpenEMR\\Services\\ProductRegistrationService' => $baseDir . '/services/ProductRegistrationService.php',
     'OpenEMR\\Services\\UserService' => $baseDir . '/services/UserService.php',
     'OpenEMR\\Services\\VersionService' => $baseDir . '/services/VersionService.php',
-    'OpenEMR\\Tabs\\TabsWrapper' => $baseDir . '/library/tabs/src/TabsWrapper.class.php',
+    'OpenEMR\\Tabs\\TabsWrapper' => $baseDir . '/library/tabs/src/TabsWrapper.php',
     'PDFBarcode' => $vendorDir . '/mpdf/mpdf/classes/barcode.php',
     'PDF_Label' => $baseDir . '/library/classes/PDF_Label.php',
     'PHPExcel' => $vendorDir . '/phpoffice/phpexcel/Classes/PHPExcel.php',
