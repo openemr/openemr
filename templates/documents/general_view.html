@@ -10,6 +10,15 @@
 
 <script language="JavaScript">
 
+ function popoutcontent(othis) {literal}{{/literal}
+    let popsrc = $(othis).parents('body').find('#DocContents iframe').attr("src");
+    let wname = '_' + Math.random().toString(36).substr(2, 6);
+    let opt = "menubar=no,location=no,resizable=yes,scrollbars=yes,status=no";
+    window.open(popsrc,wname, opt);
+
+ return false;
+ {literal}}{/literal}
+
  // Process click on Delete link.
  function deleteme(docid) {literal}{{/literal}
   dlgopen('interface/patient_file/deleter.php?document=' + docid, '_blank', 500, 450);
@@ -113,6 +122,8 @@ function ImgProcedure() {literal}{{/literal}
                 <button class="btn btn-xs btn-primary active">{xl t='Contents'|escape:'html'}</button>
               </div>
             <span style="float:right;">
+            <a class="css_button" href='' onclick='return popoutcontent(this)' title="{xl t='Pop Out Full Screen.'|escape:'html'}">
+                <span class="glyphicon glyphicon-fullscreen"></span></a>
             <a class="css_button" href="{$web_path}" title="{xl t='Original file'|escape:'html'}" onclick="top.restoreSession()"><span>{xl t='Download'|escape:'html'}</span></a>
             <a class="css_button" href='' onclick='return showpnotes({$file->get_id()})'><span>{xl t='Show Notes'|escape:'html'}</span></a>
             {$delete_string}
@@ -344,7 +355,7 @@ function ImgProcedure() {literal}{{/literal}
             <script type="text/javascript" src="{$webroot}/library/js/dwv/dicom_gui.js"></script>
             <script type="text/javascript" src="{$webroot}/library/js/dwv/dicom_launcher.js"></script>
             {elseif $file->get_ccr_type($file->get_id()) ne "CCR" and $file->get_ccr_type($file->get_id()) ne "CCD"}
-			<iframe frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}as_file=true"></iframe>
+            <iframe frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}as_file=true"></iframe>
 			{/if}
 		</td>
 	</tr>

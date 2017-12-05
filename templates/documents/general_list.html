@@ -11,7 +11,7 @@
 <head>
 
 {headerShow}
-
+<link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/bootstrap-3-3-4/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="{$GLOBALS.css_header}" type="text/css">
 <link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone-4-3-0/dist/dropzone.css">
 <link href="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
@@ -119,6 +119,42 @@ $(".pBtn").click(function(event) {
         $input.val('');
 });
 $("#list_collapse").detach().appendTo("#objTreeMenu_1_node_1 nobr");
+
+// functions to view and pop out documents as needed.
+//
+$(function() {
+    $("img[id^='icon_objTreeMenu_']").tooltip({
+        items: $("img[src*='file3.png']"),
+        content: '{/literal}{xl t="Double Click on this icon to pop up document in a new viewer."|escape:"html"}{literal}'
+    });
+
+    $("img[id^='icon_objTreeMenu_']").on('dblclick', function (e) {
+        let popsrc = $(this).next("a").attr('href') || '';
+        if (!popsrc.includes('&view&')) return false;
+        popsrc = popsrc.replace('&view&', '&retrieve&') + 'as_file=false';
+        let poContentModal = function () {
+            let wname = '_' + Math.random().toString(36).substr(2, 6);
+            let opt = "menubar=no,location=no,resizable=yes,scrollbars=yes,status=no";
+            window.open(popsrc, wname, opt);
+        };
+
+        let btnText = '{/literal}{xl t="Full Screen"|escape:"html"}{literal}';
+        let btnClose = '{/literal}{xl t="Close"|escape:"html"}{literal}';
+
+        dlgopen(popsrc, 'popdoc', 'modal-xl', 700, '', '', {
+            buttons: [
+                {text: btnText, close: true, style: 'primary btn-xs', click: poContentModal},
+                {text: btnClose, close: true, style: 'default btn-xs'}
+            ],
+            sizeHeight: 'full',
+            allowResize: false,
+            allowDrag: true,
+            dialogId: '',
+            type: 'iframe'
+        });
+        return false;
+    });
+});
 
 $(document).ready(function(){{/literal}
     {datetimepickerSupport}
