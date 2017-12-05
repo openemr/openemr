@@ -803,7 +803,7 @@ class Callback extends Base
                 $data['patient_id'] = $patient['pid'];
             }
         }
-        $this->MedEx->logging->log_this($data);
+        //$this->MedEx->logging->log_this($data);
         //Store responses in TABLE medex_outgoing
         $sqlINSERT = "INSERT INTO medex_outgoing (msg_pc_eid, msg_pid, campaign_uid, msg_type, msg_reply, msg_extra_text, msg_date, medex_uid) 
                         VALUES (?,?,?,?,?,?,utc_timestamp(),?)";
@@ -815,12 +815,12 @@ class Callback extends Base
             $sqlFLOW = "UPDATE patient_tracker_element set status=? where pt_tracker_id in (select id from patient_tracker where eid=?)";
             sqlStatement($sqlFLOW, array($data['msg_type'],$data['pc_eid']));//if it is not in tracker what will happen?  Error and continue?
             $log['sql']=$sqlFlow;
-            $this->MedEx->logging->log_this($log);
+            //$this->MedEx->logging->log_this($data);
         } elseif ($data['msg_reply']=="CALL") {
             $sqlUPDATE = "UPDATE openemr_postcalendar_events set pc_apptstatus = 'CALL' where pc_eid=?";
             $test = sqlQuery($sqlUPDATE, array($data['pc_eid']));
             $log['sql']=$sqlUPDATE . " -- ".$data['pc_eid'];
-            $this->MedEx->logging->log_this($log);
+            //$this->MedEx->logging->log_this($data);
             //this requires attention.  Send up the FLAG!
             //$this->MedEx->logging->new_message($data);
         } elseif (($data['msg_type']=="AVM") && ($data['msg_reply']=="STOP")) {
@@ -828,17 +828,17 @@ class Callback extends Base
             $sqlUPDATE = "UPDATE patient_data set hipaa_voice = 'NO' where pid=?";
             $log['sql'] = $sqlUPDATE;
             sqlQuery($sqlUPDATE, array($data['patient_id']));
-            $this->MedEx->logging->log_this($log);
+            //$this->MedEx->logging->log_this($data);
         } elseif (($data['msg_type']=="SMS") && ($data['msg_reply']=="STOP")) {
             $sqlUPDATE = "UPDATE patient_data set hipaa_allowsms = 'NO' where pid=?";
             $log['sql']=$sqlUPDATE;
             sqlQuery($sqlUPDATE, array($data['patient_id']));
-            $this->MedEx->logging->log_this($log);
+            //$this->MedEx->logging->log_this($data);
         } elseif (($data['msg_type']=="EMAIL") && ($data['msg_reply']=="STOP")) {
             $sqlUPDATE = "UPDATE patient_data set hipaa_allowemail = 'NO' where pid=?";
             $log['sql']=$sqlUPDATE;
             sqlQuery($sqlUPDATE, array($data['patient_id']));
-            $this->MedEx->logging->log_this($log);
+            //$this->MedEx->logging->log_this($data);
         }
         if (($data['msg_type']=="SMS")&&($data['msg_reply']=="Other")) {
             //this requires attention.  Send up the FLAG!
@@ -847,7 +847,7 @@ class Callback extends Base
         if (($data['msg_reply']=="SENT")||($data['msg_reply']=="READ")) {
             $sqlDELETE = "DELETE FROM medex_outgoing where msg_pc_eid=? and msg_reply='To Send'";
             $log['sql']=$sqlDELETE;
-            $this->MedEx->logging->log_this($log);
+            //$this->MedEx->logging->log_this($data);
             sqlQuery($sqlDELETE, array($data['pc_eid']));
         }
         $response['comments'] = $data['pc_eid']." - ".$data['campaign_uid']." - ".$data['msg_type']." - ".$data['reply']." - ".$data['extra'];
@@ -868,11 +868,13 @@ class Logging extends base
         $timed = date(DATE_RFC2822);
         fputs($std_log, "**********************\nlibrary/MedEx/API.php fn log_this(data):  ".$timed."\n");
         if (is_array($data)) {
+            $dumper = print_r($data, true);
+            fputs($std_log,$dumper);
             foreach ($data as $key => $value) {
                 fputs($stdlog, $key.": ".$value."\n");
             }
         } else {
-            fputs($std_log, "\n".$data. "\n");
+            fputs($std_log, "\nDATA= ".$data. "\n");
         }
         fclose($std_log);
         return true;
@@ -1055,7 +1057,7 @@ class Display extends base
         if (empty($prefs)) {
             $prefs = sqlFetchArray(sqlStatement("SELECT * from medex_prefs"));
         }
-            $this->MedEx->logging->log_this($log);
+            $this->MedEx->logging->log_this($prefs);
         ?>
         <div class="row">
             <div class="col-sm-12 text-center">
@@ -2266,7 +2268,6 @@ class Display extends base
 
         <?php
     }
-
     public function syncPat($pid, $logged_in)
     {   
         if($pid == 'pat_list') {
