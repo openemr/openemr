@@ -112,6 +112,9 @@ $gacl->add_object('admin', 'Multipledb', 'multipledb', 10, 0, 'ACO');
 // xl('Multipledb')
 $gacl->add_object('admin', 'Menu', 'menu', 10, 0, 'ACO');
 // xl('Menu')
+$gacl->add_object('admin', 'Manage modules', 'manage_modules', 10, 0, 'ACO');
+// xl('Manage modules')
+
 
 // Create ACOs for encounters.
 //
