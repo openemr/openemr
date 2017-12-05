@@ -991,11 +991,11 @@ class Display extends base
                                     if ($GLOBALS['disable_pat_trkr'] != '1') {
                                     ?>
                                     <li id="menu_pend_recalls" name="menu_pend_recalls"> <a id="BUTTON_pend_recalls_menu" onclick="tabYourIt('flb','patient_tracker/patient_tracker.php?skip_timeout_reset=1');"> <?php echo xlt("Flow Board"); ?></a></li>
-                                    <li class="divider"><hr /></li>
                                     <?php }  
                                     if ($logged_in) 
                                     {
                                         ?>
+                                        <li class="divider"><hr /></li>
                                         <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns&g=rem' target="_medex" class='nowrap text-left' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Reminder Campaigns"); ?></a></li>
                                         <?php
                                     } 
@@ -2356,6 +2356,7 @@ class Setup extends Base
                             <ul class="text-left" style="margin-left:125px;">
                                 <li> <?php echo xlt('Appointment Reminders'); ?></li>
                                 <li> <?php echo xlt('Patient Recalls'); ?></li>
+                                <li> <?php echo xlt('Office Announcements'); ?></li>
                                 <li> <?php echo xlt('Patient Surveys'); ?></li>
                             </ul>
                         </div>
