@@ -19,30 +19,43 @@
  *
  * @package OpenEMR
  * @author  Kevin Yeh <kevin.y@integralemr.com>
+ * @author  Jerry Padgett <sjpadgett@gmail.com>
  * @link    http://www.open-emr.org
  */
+// Reworked to be used in both frmes and tabs u.i.. sjp 12/01/17
 
-if(top.tab_mode===true)
-{
-    if(!opener)
-    {
-        opener=top.get_opener(window.name);
-    }
-
-    window.close=
-        function () {
-            var dialogDiv = top.$("#dialogDiv");
-            var frameName = window.name;
-            var dialogModal = top.$('div#'+frameName); // This is a dynamic div.
-            var body = top.$("body");
-            var removeFrame = body.find("iframe[name='" + frameName + "']");
-            removeFrame.remove();
-            if (body.children("div.dialogIframe").length === 0) {
-                dialogDiv.hide();
-            };
-            if (dialogModal.length > 0) { // Will let modal's hidden event clean up.
-                dialogModal.modal('hide');
-            };
-
-        };
+if (!opener) {
+    opener = top.get_opener(window.name);
 }
+
+window.close =
+    function () {
+        var frameName = window.name;
+        if (!top.tab_mode) {
+            let wframe = opener;
+            for (; wframe.name !== 'RTop' && wframe.name !== 'RBot'; wframe = wframe.parent) {
+                if (wframe.parent === wframe) {
+                    wframe = window;
+                }
+            }
+            for (let i = 0; wframe.document.body.localName !== 'body' && i < 4; wframe = wframe[i++]) {
+                if (i === 3) {
+                    console.log("Opener: unable to find modal's frame");
+                    return false;
+                }
+            }
+            dialogModal = wframe.$('div#' + frameName);
+        } else {
+            var dialogModal = top.$('div#' + frameName); // This is a dynamic div.
+        }
+        var dialogDiv = top.$("#dialogDiv");
+        var body = top.$("body");
+        var removeFrame = body.find("iframe[name='" + frameName + "']");
+        removeFrame.remove();
+        if (body.children("div.dialogIframe").length === 0) {
+            dialogDiv.hide();
+        };
+        if (dialogModal.length > 0) { // Will let modal's hidden event clean up.
+            dialogModal.modal('hide');
+        };
+    };

@@ -202,7 +202,7 @@ foreach ($pelines as $sysname => $sysarray) {
 <input type='submit' name='bn_save' value='<?php xl('Save', 'e'); ?>' />
 &nbsp;
 <input type='button' value='<?php xl('Cancel', 'e'); ?>'
- onclick="top.restoreSession();location='<?php echo "$rootdir/patient_file/encounter/$returnurl" ?>'" />
+ onclick="parent.closeTab(window.name, false)" />
 </p>
 
 </center>

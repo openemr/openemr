@@ -135,6 +135,7 @@ if ($GLOBALS['new_tabs_layout']) {
 </title>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 <script type="text/javascript" src="../../library/topdialog.js"></script>
+    <script type="text/javascript" src="tabs/js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
@@ -142,6 +143,8 @@ if ($GLOBALS['new_tabs_layout']) {
 
 // Flag that tab mode is off
 var tab_mode=false;
+
+var webroot_url = '<?php echo $GLOBALS['web_root']; ?>';
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 

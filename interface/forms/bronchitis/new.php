@@ -61,7 +61,7 @@ $returnurl = 'encounter_top.php';
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save', 'e'); ?>]</a>
 <br>
-<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link" style="color: #483D8B"
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" style="color: #483D8B"
  onclick="top.restoreSession()">[<?php xl('Don\'t Save', 'e'); ?>]</a>
 <br></br>
 <span class="text" ><?php xl('Onset of Illness:', 'e'); ?> </span><input type="entry" name="bronchitis_date_of_illness" value=""></input>
@@ -439,7 +439,7 @@ $returnurl = 'encounter_top.php';
 <br>
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save', 'e'); ?>]</a>
 <br>
-<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link" style="color: #483D8B"
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" style="color: #483D8B"
  onclick="top.restoreSession()">[<?php xl('Don\'t Save', 'e'); ?>]</a>
 </form>
 

@@ -133,9 +133,9 @@ parent.$.fn.fancybox.close();
         function displayAlert()
         {
             if(document.getElementById('primary_business_entity').checked==false)
-                alert("<?php echo addslashes(xl('Primary Business Entity tax id is used as account id for NewCrop ePrescription. Changing the facility will affect the working in NewCrop.'));?>");
+                alert("<?php echo addslashes(xl('Primary Business Entity tax id is used as the account id for NewCrop ePrescription.'));?>");
             else if(document.getElementById('primary_business_entity').checked==true)
-                alert("<?php echo addslashes(xl('Once the Primary Business Facility is set, it should not be changed. Changing the facility will affect the working in NewCrop ePrescription.'));?>");
+                alert("<?php echo addslashes(xl('Once the Primary Business Facility is set, changing the facility id will affect NewCrop ePrescription.'));?>");
         }
     </script>
 
@@ -223,7 +223,7 @@ parent.$.fn.fancybox.close();
         <?php
         $disabled='';
         $resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => $my_fid));
-        if (sizeof($resPBE)>0) {
+        if ($resPBE) {
             $disabled='disabled';
         }
         ?>

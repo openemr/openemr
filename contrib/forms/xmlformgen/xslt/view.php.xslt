@@ -56,7 +56,7 @@ if ($_GET['mode']) {
 }
 else
 {
- $returnurl = 'encounter_top.php';
+ $returnurl = $GLOBALS['form_exit_url'];
 }
 
 ]]></xsl:text>
@@ -158,9 +158,14 @@ function PrintForm() {
 
 $(document).ready(function(){
     $(".save").click(function() { top.restoreSession(); document.forms["<?php echo $form_folder; ?>"].submit(); });
-    $(".dontsave").click(function() { location.href='<?php echo $returnurl; ?>'; });
-    $(".print").click(function() { PrintForm(); });
 
+<?php if ($returnurl == 'show.php') { ?>
+    $(".dontsave").click(function() { location.href='<?php echo $returnurl; ?>'; });
+<?php } else { ?>
+    $(".dontsave").click(function() { parent.closeTab(window.name, false); });
+<?php } ?>
+
+    $(".print").click(function() { PrintForm(); });
     $(".sectionlabel input").click( function() {
     	var section = $(this).attr("data-section");
 		if ( $(this).attr('checked' ) ) {
