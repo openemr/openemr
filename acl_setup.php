@@ -112,6 +112,9 @@ $gacl->add_object('admin', 'Multipledb', 'multipledb', 10, 0, 'ACO');
 // xl('Multipledb')
 $gacl->add_object('admin', 'Menu', 'menu', 10, 0, 'ACO');
 // xl('Menu')
+$gacl->add_object('admin', 'Manage modules', 'manage_modules', 10, 0, 'ACO');
+// xl('Manage modules')
+
 
 // Create ACOs for encounters.
 //
@@ -257,7 +260,7 @@ if (isset($this) && isset($this->iuser)) {
 $gacl->add_acl(
     array(
         'acct'=>array('bill', 'disc', 'eob', 'rep', 'rep_a'),
-        'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu'),
+        'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'),
         'encounters'=>array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
         'lists'=>array('default','state','country','language','ethrace'),
         'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab'),
@@ -534,7 +537,7 @@ $gacl->add_acl(
 $gacl->add_acl(
     array(
         'acct'=>array('bill', 'disc', 'eob', 'rep', 'rep_a'),
-        'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu'),
+        'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'),
         'encounters'=>array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
         'lists'=>array('default','state','country','language','ethrace'),
         'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab'),

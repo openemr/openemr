@@ -1328,7 +1328,12 @@ if ($reglastcat) {
     <?php  if (acl_check('menus', 'modle')) {?>
    <li><a class="collapsed" id="modimg" ><span><?php echo xlt('Modules') ?></span></a>
     <ul>
-    <?php genMiscLink('RTop', 'adm', '0', xl('Manage Modules'), 'modules/zend_modules/public/Installer'); ?>
+    <?php
+    if (acl_check('admin', 'manage_modules')) {
+        genMiscLink('RTop', 'adm', '0', xl('Manage Modules'), 'modules/zend_modules/public/Installer');
+    }
+    ?>
+
         <?php //genTreeLink('RTop','ort',xl('Settings')); ?>
         <?php
         $module_query = sqlStatement("select mod_id, mod_directory,mod_name,mod_nick_name,mod_relative_link,type from modules where mod_active = 1 AND sql_run= 1 order by mod_ui_order asc");
