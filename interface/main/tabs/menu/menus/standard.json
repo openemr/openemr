@@ -501,12 +501,16 @@
         "children": [],
         "requirement": 0,
         "acl_req": [
-          "menus",
-          "modle"
+          "admin",
+          "manage_modules"
         ]
       }
     ],
-    "requirement": 0
+    "requirement": 0,
+    "acl_req": [
+    "menus",
+    "modle"
+  ]
   },
   {
     "label": "Inventory",
