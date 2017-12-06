@@ -33,6 +33,23 @@
 
  // Called to show patient notes related to this document in the "other" frame.
  function showpnotes(docid) {literal}{{/literal}
+ {literal}
+ if (top.tab_mode) {
+     let btnClose = '{/literal}{xl t="Done"|escape:"html"}{literal}';
+     let url = top.webroot_url + '/interface/patient_file/summary/pnotes.php?docid=' + docid;
+     dlgopen(url, 'pno1', 'modal-xl', 500, '', '', {
+         buttons: [
+             {text: btnClose, close: true, style: 'default btn-xs'}
+         ],
+         sizeHeight: 'auto',
+         allowResize: true,
+         allowDrag: true,
+         dialogId: '',
+         type: 'iframe'
+     });
+     return false;
+ }
+ {/literal}
   var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
   parent.left_nav.forceDual();
   parent.left_nav.loadFrame('pno1', othername, 'patient_file/summary/pnotes.php?docid=' + docid);
