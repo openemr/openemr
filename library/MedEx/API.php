@@ -120,31 +120,29 @@ class Practice extends Base
         global $GLOBALS;
         $fields2 = array();
         $fields3 = array();
-        
         $callback = "https://".$GLOBALS['_SERVER']['SERVER_NAME'].$GLOBALS['_SERVER']['PHP_SELF'];
         $callback = str_replace('ajax/execute_background_services.php', 'MedEx/MedEx.php', $callback);
         $fields2['callback_url'] = $callback;
         //get the providers list:
         $sqlQuery = "SELECT * from medex_prefs";
-        $my_status = sqlStatement($sqlQuery);
-        while ($urowME = sqlFetchArray($my_status)) {
-            $providers = explode('|', $urowME['ME_providers']);
-            foreach ($providers as $provider) {
-                $runQuery = "SELECT * FROM users WHERE id=?";
-                $ures = sqlStatement($runQuery, array($provider));
-                while ($urow = sqlFetchArray($ures)) {
-                    $fields2['providers'][] = $urow;
-                }
+        $my_status = sqlQuery($sqlQuery);
+        $providers = explode('|', $my_status['ME_providers']);
+        foreach ($providers as $provider) {
+            $runQuery = "SELECT * FROM users WHERE id=?";
+            $ures = sqlStatement($runQuery, array($provider));
+            while ($urow = sqlFetchArray($ures)) {
+                $fields2['providers'][] = $urow;
             }
-            //get the facilities list:
-            $facilities = explode('|', $urowME['ME_facilities']);
-            foreach ($facilities as $facility) {
-                $runQuery = "SELECT * FROM facility where id=?";
-                $ures = sqlStatement($runQuery, array($facility));
-                while ($urow = sqlFetchArray($ures)) {
-                    $fields2['facilities'][] = $urow;
-                }
+        }
+        //get the facilities list and flag which we do messaging for
+        $facilities = explode('|', $my_status['ME_facilities']);
+        $runQuery = "SELECT * FROM facility where service_location='1'";
+        $ures = sqlStatement($runQuery);
+        while ($urow = sqlFetchArray($ures)) {
+            if (in_array($urow['id'],$facilities)) {
+                $urow['messages_active'] = '1';
             }
+            $fields2['facilities'][] = $urow;
         }
         //get the categories list:
         $runQuery = "SELECT pc_catid, pc_catname, pc_catdesc, pc_catcolor, pc_seq
@@ -350,7 +348,7 @@ class Events extends Base
                 if ($event['time_order'] > '0') { // future appts
                     $interval ="+";
                     //NOTE IF you have customized the pc_appstatus flags, you need to adjust them here too.
-                    if ($event['E_instructions'] == "stop") {   //ie don't send this if it has been confirmed.
+                    if ($event['E_instructions'] == "stop") {   // ie. don't send this if it has been confirmed.
                                                                 // we will only send it if nothing has been done to the appointment status
                         $appt_status = " and pc_apptstatus='-'";//we only look at future appts w/ apptstatus == NONE ='-'
                     // OR send anyway - unless appstatus is not cancelled, then it is no longer an appointment to confirm...
@@ -359,19 +357,21 @@ class Events extends Base
                                          and pc_apptstatus != 'x' ";
                     } else {
                         $event['E_instructions'] ='stop';
+                        $appt_status = " and pc_apptstatus='-'";//we only look at future appts w/ apptstatus == NONE ='-'
                     }
                 } else {
                     // Past appts -> appts that are completed.
                     // Need to exclude appts that were cancelled or noshowed
                     // Use the flag in the list_options to note that the appointment is completed
-                     $interval ='-';// appts completed - this is defined by list_option->toggle_setting2=1 for Flow Board
-                    $appt_status = " and pc_apptstatus in (SELECT option_id from list_options where toggle_setting_2='1' and list_id='appstat') ";
+                    $interval ='-';// appts completed - this is defined by list_option->toggle_setting2=1 for Flow Board
+                    $appt_status = " and pc_apptstatus in (SELECT option_id from list_options where toggle_setting_2='1' and list_id='appstat') 
+                                     and pc_apptstatus != '%' 
+                                     and pc_apptstatus != 'x' ";
                     //T_appt_stats = list of appstat(s) to restrict event to in a '|' separated list
                     if ($event['T_appt_stats']>'') {
-                        $list = implode('|',$event['T_appt_stats']);
+                        $list = implode(',',$event['T_appt_stats']);
                         $appt_status = " and pc_appstatus in (".$list.")";
                     }
-                    //11.7.17 added above
                 }
                 $timing = (int)$event['E_fire_time']-1;//the minus one is a critical change
                 // if it is Friday do stuff as scheduled + 2 days more
@@ -392,7 +392,7 @@ class Events extends Base
                 $sql2= "SELECT ME_facilities from medex_prefs";
                 $pref_facilities = sqlQuery($sql2);
                 
-                if ($pref_facilities['ME_facilities'] !='') {
+                if (!empty($pref_facilities['ME_facilities'])) {
                     $places = str_replace("|", ",", $pref_facilities['ME_facilities']);
                     $query  = "select * from openemr_postcalendar_events as cal 
                                 left join patient_data as pat on cal.pc_pid=pat.pid 
@@ -473,8 +473,9 @@ class Events extends Base
                 $count_recalls ='0';
                 $query  = "select * from medex_recalls as recall 
                             left join patient_data as pat on recall.r_pid=pat.pid 
-                            WHERE (r_eventDate < CURDATE() ".$interval." INTERVAL ".$timing." DAY) 
-                            ORDER BY r_eventDate";
+                            WHERE (recall.r_eventDate < CURDATE() ".$interval." INTERVAL ".$timing." DAY) and
+                            pat.deceased_date =''
+                            ORDER BY recall.r_eventDate";
                 $result = sqlStatement($query);
                 $recall3 = array();
  
@@ -568,43 +569,52 @@ class Events extends Base
                     $appt3[] = $recall2;
                 }
             } else if ($event['M_group'] == 'ANNOUNCE') {
-                //  They are date limited to one day (date1), or may encompass a date range (date10-date11).
-                //  These events can be processed ASAP, or start on a specific date ($event['ann_deliv_sched_date'])
+                //  They are date limited to one day (date1), or may encompass a date range (T_appts_start,T_appts_end).
+                //  These events can be processed ASAP, or start on a specific date ($event['T_start_date'])
                 //      If a specific date range is set, the event load may be spread out over 2/4/6 days 
                 //      to balance staff work-load (patients calling in or if enabled hitting "0" to auto-reach the office).  
-                //      MedEx server handles this load balancing.  
-                //  The event can be further limited by provider(s), facility.
-                //  Let's build that query now.
+                //      MedEx server handles this load balancing.  The variable is T_spread if your interested.
+                //  The event can be further limited by provider(s), facility and or appt_stats.
+                //  Let's build this query now.
 
-                if (!empty($event['ann_deliv_sched_date'])) {
+                if (!empty($event['T_start_date'])) {
                     $now = strtotime('now');
-                    $delivery_date = strtotime($event['ann_deliv_sched_date']);
+                    $delivery_date = strtotime($event['T_start_date']);
                     if ($now < $delivery_date) {
                         //not ready to run, move on
                         continue;
                     }
                 }
-                if ($event['date_range']=='1') {
+                $escapedArr[]=''; //will hold prepared statement items for query.
+                if (!empty($event['T_appts_start']) && (empty($event['T_appts_end']))) {
                     //the announcement only affects appts on a single day 
-                    $target_dates = "pc_eventDate = '".$event['date1']."'";
-                } else if ($event['date_range']=='2') {
+                    $target_dates = "pc_eventDate = ?";
+                    $escapedArr[]=$event['T_appts_start'];
+                } else if (!empty($event['T_appts_start']) && (!empty($event['T_appts_end']))) {
                     //the event spans more than one day
-                    $target_dates = "pc_eventDate >= '".$event['date10']."' and pc_eventDate <= '".$event['date11']."'";
+                    $target_dates = "pc_eventDate >= ? and pc_eventDate <= ?";
+                    $escapedArr[]=$event['T_appts_start'];
+                    $escapedArr[]=$event['T_appts_end'];
                 } else {
                     continue;
                     //we shouldn't get here so move to next event if we do
                 }
                 if (!empty($event['T_appt_stats'])) {
                     $list = implode(',',$event['T_appt_stats']);
-                    $appt_status = " AND pc_appstatus in (".$list.")";
+                    $appt_status = " AND pc_appstatus in (?) ";
+                    $escapedArr[]=$list;
+                } else {
+                    $appt_status =" AND pc_apptstatus !='%' AND pc_apptstatus != 'x' ";
                 }
                 if (!empty($event['T_providers'])) {
                     $list = implode(',',$event['T_providers']);
-                    $docs = " AND pc_aid in (".$list.") ";
+                    $docs = " AND pc_aid in (?) ";
+                    $escapedArr[]=$list;
                 }
                 if (!empty($event['T_facilities'])) {
                     $list = implode(',',$event['T_facilitiess']);
-                    $places = " AND pc_facility in (".$list.") ";
+                    $places = " AND pc_facility in (?) ";
+                    $escapedArr[]=$list;
                 }
 
                 $sql_ANNOUNCE = "SELECT * from openemr_postcalendar_events as cal 
@@ -614,7 +624,7 @@ class Events extends Base
                                     ".$docs."
                                     ".$appt_status." 
                                 ORDER BY pc_eventDate,pc_startTime";
-                $result = sqlStatement($sql_ANNOUNCE);
+                $result = sqlStatement($sql_ANNOUNCE,$escapedArr);
                 while ($appt= sqlFetchArray($result)) {
                         list($response,$results) = $this->MedEx->checkModality($event, $appt);
                         if ($results==false) {
@@ -645,7 +655,7 @@ class Events extends Base
                         $appt2['phone_home']    = $appt['phone_home'];
                         $appt2['phone_cell']    = $appt['phone_cell'];
                         $appt2['email']         = $appt['email'];
-                        $appt2['e_apptstatus'] = $appt['pc_apptstatus'];
+                        $appt2['e_apptstatus']  = $appt['pc_apptstatus'];
                         
                         $appt2['C_UID']         = $event['C_UID'];
                         $appt2['E_fire_time']   = $event['E_fire_time'];
@@ -659,12 +669,120 @@ class Events extends Base
                         $appt2['to']            = $results;
                         $appt3[] = $appt2;
                 }
-            } else if ($event['M_group'] == 'DOB_RELATED') {
-                $sql = "SELECT * from patient_data 
-                        where 
-                            DOB > CURDATE() - INTERVAL ".$timing." DAY 
-                        AND 
-                            DOB < (curdate() - INTERVAL '".$timing.":1:1' DAY_MINUTE)) ";
+            } else if ($event['M_group'] == 'SURVEY') {
+                // eg. CAHPS® Clinician & Group Survey v3.0
+                // Base survey target = Patients who completed appts in the last 6 months.  Maybe 1 year.
+                // Need to exclude appts that were cancelled or no-showed.
+                // Use the flag in the list_options to note that the appointment is completed
+                if (empty($event['timing'])) {
+                    $event['timing'] = "180";
+                }
+
+                $escapedArr[]=''; //will hold prepared statement items for query.
+                
+                // appts completed - this is defined by list_option->toggle_setting2=1 for Flow Board
+                $appt_status = " and pc_apptstatus in (SELECT option_id from list_options where toggle_setting_2='1' and list_id='appstat') ";
+                //if we are to refine further, to not limit by completed status but with a specific appt_stats
+                //T_appt_stats = array -> list of appstat(s) to restrict event to in a ',' separated list
+                if (!empty($event['T_appt_stats'])) {
+                    $list = implode(',',$event['T_appt_stats']);
+                    $appt_status = " and pc_appstatus in (?) ";
+                    $escapedArr[]=$list;
+                }
+                $sql2= "SELECT * from medex_prefs";
+                $pref = sqlQuery($sql2);
+                //if we are refining survey by provider
+                if (!empty($event['T_providers'])) {
+                    $all_providers = explode('|',$pref['providers']);
+                    foreach ($surv_provs as $surv_prov) {
+                        if (in_array($surv_prov,$all_providers)) {
+                            $prov_list[] = $surv_prov;
+                        }
+                    }
+                    $list = implode(',',$prov_list);
+                    $provider_clause = " AND cal.pc_aid in (?) ";
+                    $escapedArr[]=$list;
+                }
+                //if we are refining survey by facility
+                if (!empty($event['T_facilities'])) {
+                    $list = implode(',',$event['T_facilities']);
+                    $facility_clause = " AND cal.pc_facility in (?) ";
+                    $escapedArr[]=$list;
+                }
+                
+                $query  = "select * from openemr_postcalendar_events as cal 
+                            left join patient_data as pat on cal.pc_pid=pat.pid 
+                            WHERE (
+                                cal.pc_eventDate > CURDATE() - INTERVAL ".$event['timing']." DAY AND 
+                                cal.pc_eventDate < CURDATE() ) AND 
+                                pat.pid=cal.pc_pid AND 
+                                pc_apptstatus !='%' AND 
+                                pc_apptstatus != 'x' ".
+                                $appt_status.
+                                $provider_clause.
+                                $facility_clause."
+                                GROUP BY pc_pid
+                                ORDER BY pc_eventDate,pc_startTime";
+                $result = sqlStatement($query,$escapedArr);
+                while ($appt= sqlFetchArray($result)) {
+                    //SUBEVENTS are not implemented yet.  This is how they will work:
+                    // If you routinely make 2 back-to-back or related appointments (eg 2 stage yearly physical or Surgery and post-op day#3 visit)
+                    // we can combine reminders occurring within X days.
+                    // Visit 2 is silent as far as its own reminder messages until Visit 1 has passed.
+                    // Then Visit 2 fires for any remaining rules that match it.
+                    // Let me know if this is a desired feature and we can add it to v2.0
+                    /*if ($appt['e_is_subEvent_of'] > '0') {
+                        $query ="select * from medex_outgoing where e_uid=?";
+                        $event2 = sqlStatement($query,array($appt['e_is_subEvent_of']));
+                        if (new DateTime() < new DateTime($event2["e_eventDate"]." ".$event2["e_eventTime"])) {
+                            // if current time is less than Parent Appt, ignore this appt
+                            continue;
+                        }
+                    }*/
+                    list($response,$results) = $this->MedEx->checkModality($event, $appt);
+                    if ($results==false) {
+                        continue; //not happening - either not allowed or not possible
+                    }
+                    $count_appts++;
+
+                    $appt2 = array();
+                    $appt2['pc_pid']        = $appt['pc_pid'];
+                    $appt2['e_C_UID']       = $event['C_UID'];
+                    
+                    $appt2['pc_eventDate']  = $appt['pc_eventDate'];
+                    $appt2['pc_startTime']  = $appt['pc_startTime'];
+                    $appt2['pc_eid']        = $appt['pc_eid'];
+                    $appt2['e_pc_eid']      = $appt['pc_eid'];
+                    $appt2['pc_aid']        = $appt['pc_aid'];
+                    $appt2['e_reason']      = (!empty($appt['e_reason']))?:'';
+                    $appt2['e_is_subEvent_of']= (!empty($appt['e_is_subEvent_of']))?:"0";
+                    $appt2['language']      = $appt['language'];
+                    $appt2['pc_facility']   = $appt['pc_facility'];
+                    $appt2['fname']         = $appt['fname'];
+                    $appt2['lname']         = $appt['lname'];
+                    $appt2['mname']         = $appt['mname'];
+                    $appt2['street']        = $appt['street'];
+                    $appt2['postal_code']   = $appt['postal_code'];
+                    $appt2['city']          = $appt['city'];
+                    $appt2['state']         = $appt['state'];
+                    $appt2['country_code']  = $appt['country_code'];
+                    $appt2['phone_home']    = $appt['phone_home'];
+                    $appt2['phone_cell']    = $appt['phone_cell'];
+                    $appt2['email']         = $appt['email'];
+                    $appt2['pc_apptstatus'] = $appt['pc_apptstatus'];
+
+                    $appt2['C_UID']         = $event['C_UID'];
+                    $appt2['E_fire_time']   = $event['E_fire_time'];
+                    $appt2['time_order']    = $event['time_order'];
+                    $appt2['M_type']        = $event['M_type'];
+                    $appt2['reply']         = "To Send";
+                    $appt2['extra']         = "QUEUED";
+                    $appt2['status']        = "SENT";
+                   
+                    $appt2['to']            = $results;
+                    $appt3[] = $appt2;
+                }
+            
             }
         }
         if (!empty($RECALLS_completed)) {
@@ -791,8 +909,6 @@ class Callback extends Base
         if (empty($data['campaign_uid'])) {
             return; //throw new InvalidDataException("There must be a Campaign to update...");
         }
-        //logging should follow openEMR conventions, this doesn't but it works for now
-        $data['TIMER'] = date(DATE_RFC2822);
          //process AVM responses
         if (!$data['patient_id']) {
             if ($data['e_pid']) {
@@ -803,7 +919,8 @@ class Callback extends Base
                 $data['patient_id'] = $patient['pid'];
             }
         }
-        //$this->MedEx->logging->log_this($data);
+        $data['TIMER'] = date(DATE_RFC2822);
+        $this->MedEx->logging->log_this($data);
         //Store responses in TABLE medex_outgoing
         $sqlINSERT = "INSERT INTO medex_outgoing (msg_pc_eid, msg_pid, campaign_uid, msg_type, msg_reply, msg_extra_text, msg_date, medex_uid) 
                         VALUES (?,?,?,?,?,?,utc_timestamp(),?)";
@@ -815,12 +932,12 @@ class Callback extends Base
             $sqlFLOW = "UPDATE patient_tracker_element set status=? where pt_tracker_id in (select id from patient_tracker where eid=?)";
             sqlStatement($sqlFLOW, array($data['msg_type'],$data['pc_eid']));//if it is not in tracker what will happen?  Error and continue?
             $log['sql']=$sqlFlow;
-            //$this->MedEx->logging->log_this($data);
+            $this->MedEx->logging->log_this($log);
         } elseif ($data['msg_reply']=="CALL") {
             $sqlUPDATE = "UPDATE openemr_postcalendar_events set pc_apptstatus = 'CALL' where pc_eid=?";
             $test = sqlQuery($sqlUPDATE, array($data['pc_eid']));
             $log['sql']=$sqlUPDATE . " -- ".$data['pc_eid'];
-            //$this->MedEx->logging->log_this($data);
+            $this->MedEx->logging->log_this($log);
             //this requires attention.  Send up the FLAG!
             //$this->MedEx->logging->new_message($data);
         } elseif (($data['msg_type']=="AVM") && ($data['msg_reply']=="STOP")) {
@@ -828,17 +945,17 @@ class Callback extends Base
             $sqlUPDATE = "UPDATE patient_data set hipaa_voice = 'NO' where pid=?";
             $log['sql'] = $sqlUPDATE;
             sqlQuery($sqlUPDATE, array($data['patient_id']));
-            //$this->MedEx->logging->log_this($data);
+            $this->MedEx->logging->log_this($log);
         } elseif (($data['msg_type']=="SMS") && ($data['msg_reply']=="STOP")) {
             $sqlUPDATE = "UPDATE patient_data set hipaa_allowsms = 'NO' where pid=?";
             $log['sql']=$sqlUPDATE;
             sqlQuery($sqlUPDATE, array($data['patient_id']));
-            //$this->MedEx->logging->log_this($data);
+            $this->MedEx->logging->log_this($log);
         } elseif (($data['msg_type']=="EMAIL") && ($data['msg_reply']=="STOP")) {
             $sqlUPDATE = "UPDATE patient_data set hipaa_allowemail = 'NO' where pid=?";
             $log['sql']=$sqlUPDATE;
             sqlQuery($sqlUPDATE, array($data['patient_id']));
-            //$this->MedEx->logging->log_this($data);
+            $this->MedEx->logging->log_this($log);
         }
         if (($data['msg_type']=="SMS")&&($data['msg_reply']=="Other")) {
             //this requires attention.  Send up the FLAG!
@@ -847,7 +964,7 @@ class Callback extends Base
         if (($data['msg_reply']=="SENT")||($data['msg_reply']=="READ")) {
             $sqlDELETE = "DELETE FROM medex_outgoing where msg_pc_eid=? and msg_reply='To Send'";
             $log['sql']=$sqlDELETE;
-            //$this->MedEx->logging->log_this($data);
+            $this->MedEx->logging->log_this($log);
             sqlQuery($sqlDELETE, array($data['pc_eid']));
         }
         $response['comments'] = $data['pc_eid']." - ".$data['campaign_uid']." - ".$data['msg_type']." - ".$data['reply']." - ".$data['extra'];
@@ -868,13 +985,11 @@ class Logging extends base
         $timed = date(DATE_RFC2822);
         fputs($std_log, "**********************\nlibrary/MedEx/API.php fn log_this(data):  ".$timed."\n");
         if (is_array($data)) {
-            $dumper = print_r($data, true);
-            fputs($std_log,$dumper);
             foreach ($data as $key => $value) {
                 fputs($stdlog, $key.": ".$value."\n");
             }
         } else {
-            fputs($std_log, "\nDATA= ".$data. "\n");
+            fputs($std_log, "\n".$data. "\n");
         }
         fclose($std_log);
         return true;
@@ -991,11 +1106,11 @@ class Display extends base
                                     if ($GLOBALS['disable_pat_trkr'] != '1') {
                                     ?>
                                     <li id="menu_pend_recalls" name="menu_pend_recalls"> <a id="BUTTON_pend_recalls_menu" onclick="tabYourIt('flb','patient_tracker/patient_tracker.php?skip_timeout_reset=1');"> <?php echo xlt("Flow Board"); ?></a></li>
+                                    <li class="divider"><hr /></li>
                                     <?php }  
                                     if ($logged_in) 
                                     {
                                         ?>
-                                        <li class="divider"><hr /></li>
                                         <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns&g=rem' target="_medex" class='nowrap text-left' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Reminder Campaigns"); ?></a></li>
                                         <?php
                                     } 
@@ -1057,7 +1172,7 @@ class Display extends base
         if (empty($prefs)) {
             $prefs = sqlFetchArray(sqlStatement("SELECT * from medex_prefs"));
         }
-            $this->MedEx->logging->log_this($prefs);
+            $this->MedEx->logging->log_this($log);
         ?>
         <div class="row">
             <div class="col-sm-12 text-center">
@@ -1087,7 +1202,7 @@ class Display extends base
                                                 </div>
                                             </div>
                                             <div class="divTableRow">
-                                                <div class="divTableCell divTableHeading"><?php echo xlt('Facility Messages'); ?></div>
+                                                <div class="divTableCell divTableHeading"><?php echo xlt('Enable Messaging'); ?></div>
                                                 <div class="divTableCell indent20">
                                                 <?php
                                                 $count="1";
@@ -1111,7 +1226,7 @@ class Display extends base
                                                 </div>
                                             </div>
                                             <div class="divTableRow">
-                                                <div class="divTableCell divTableHeading"><?php echo xlt('Provider Messages'); ?></div>
+                                                <div class="divTableCell divTableHeading"><?php echo xlt('Included Providers'); ?></div>
                                                 <div class="divTableCell indent20">
                                                 <?php
                                                 $count="1";
@@ -1693,7 +1808,8 @@ class Display extends base
         $query = "Select * from medex_recalls,patient_data as pat 
                     where pat.pid=medex_recalls.r_pid and 
                     r_eventDate >= ? and 
-                    r_eventDate <= ?
+                    r_eventDate <= ? and 
+                    pat.deceased_date =''
                     order by r_eventDate ASC";
         $result = sqlStatement($query, array($from_date,$to_date));
         while ($recall= sqlFetchArray($result)) {
@@ -1928,7 +2044,7 @@ class Display extends base
                 </form>
             </div>
             <div class="row-fluid text-center">
-                <input class="btn btn-info" onclick="add_this_recall();" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new">
+                <input class="btn" onclick="add_this_recall();" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new">
                 <p>
                     <em class="small text-muted">* <?php echo xlt('N.B.{{Nota bene}}')." ".xlt('Demographic changes made here are recorded system-wide'); ?>.</em>
                 </p>
@@ -2268,6 +2384,7 @@ class Display extends base
 
         <?php
     }
+
     public function syncPat($pid, $logged_in)
     {   
         if($pid == 'pat_list') {
@@ -2356,7 +2473,6 @@ class Setup extends Base
                             <ul class="text-left" style="margin-left:125px;">
                                 <li> <?php echo xlt('Appointment Reminders'); ?></li>
                                 <li> <?php echo xlt('Patient Recalls'); ?></li>
-                                <li> <?php echo xlt('Office Announcements'); ?></li>
                                 <li> <?php echo xlt('Patient Surveys'); ?></li>
                             </ul>
                         </div>
@@ -2372,9 +2488,8 @@ class Setup extends Base
                         </div>
                     </div>
                     <div class="text-center row showReminders">
-                        <input value="<?php echo xla('Sign-up'); ?>" onclick="goReminderRecall('setup&stage=2');" class="btn btn-info">
+                        <input value="<?php echo xla('Sign-up'); ?>" onclick="goReminderRecall('setup&stage=2');" class="btn">
                     </div>
-
                 </div>
             </div>
         </div>
@@ -2384,11 +2499,14 @@ class Setup extends Base
         ?>
         <div class="row">
             <form name="medex_start" id="medex_start">
-                <div class="col-sm-10 col-sm-offset-1 text-center">
+                <div class="col-sm-1"></div>
+                <div class="col-sm-10 text-center">
                     <div id="setup_1" class="showReminders borderShadow">
                         <div class="title row fa"><?php echo xlt('Register'); ?>: MedEx Bank</div>
                         <div class="row showReminders">
-                            <div class="fa col-sm-10 col-sm-offset-1 text-center">
+                            <div class="col-sm-1">
+                            </div>
+                            <div class="fa col-sm-10 text-center">
                                 <div class="divTable4 fa" id="answer" name="answer">
                                     <div class="divTableBody">
                                         <div class="divTableRow">
@@ -2409,7 +2527,8 @@ class Setup extends Base
                                             <div class="divTableCell"><i id="pwd_check" name="pwd_check" class="top_right_corner nodisplay red fa fa-check"></i>
                                                 <i class="fa top_right_corner fa-question" id="pwd_ico_help" aria-hidden="true" onclick="$('#pwd_help').toggleClass('nodisplay');"></i>
                                                 <input type="password" placeholder="<?php xla('Password'); ?>" id="new_password" name="new_password" class="form-control" required> 
-                                                <div id="pwd_help" class="nodisplay signup_help"><?php echo xlt('Secure Password Required').": ". xlt('8-12 characters long, including at least one upper case letter, one lower case letter, one number, one special character and no common strings'); ?>...</div>
+                                                <br />
+                                                <div id="pwd_help" class="nodisplay signup_help"><?php echo xlt('8-12 characters long, including at least one upper case letter, one lower case letter, one number and one special character'); ?></div>
                                             </div>
                                         </div>
                                         <div class="divTableRow">
@@ -2418,6 +2537,7 @@ class Setup extends Base
                                             </div>
                                             <div class="divTableCell"><i id="pwd_rcheck" name="pwd_rcheck" class="top_right_corner nodisplay red fa fa-check"></i>
                                                 <input type="password" placeholder="<?php echo xla('Repeat password'); ?>" id="new_rpassword" name="new_rpassword" class="form-control" required>
+                                                        <br />
                                                 <div id="pwd_rhelp" class="nodisplay signup_help" style=""><?php echo xlt('Passwords do not match.'); ?></div>
                                             </div>
                                         </div>
@@ -2425,52 +2545,23 @@ class Setup extends Base
                                 </div>
                                 <div id="ihvread" name="ihvread" class="fa text-left">
                                     <input type="checkbox" class="updated required" name="TERMS_yes" id="TERMS_yes" required>
-                                    <label for="TERMS_yes" class="input-helper input-helper--checkbox" title="Terms and Conditions"><?php echo xlt('I have read and my practice agrees to the'); ?> 
+                                    <label for="TERMS_yes" class="input-helper input-helper--checkbox" title="<?php echo xla('Terms and Conditions'); ?>"><?php echo xlt('I have read and my practice agrees to the'); ?> 
                                         <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=5','TERMS',800, 600);">MedEx <?php echo xlt('Terms and Conditions'); ?></a></label><br />
                                     <input type="checkbox" class="updated required" name="BusAgree_yes" id="BusAgree_yes" required>
-                                    <label for="BusAgree_yes" class="input-helper input-helper--checkbox" title="BAA"><?php echo xlt('I have read and accept the'); ?> 
+                                    <label for="BusAgree_yes" class="input-helper input-helper--checkbox" title="<?php echo xla('HIPAA Agreement'); ?>"><?php echo xlt('I have read and accept the'); ?> 
                                     <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=8','Bus Assoc Agree',800, 600);">MedEx <?php echo xlt('Business Associate Agreement'); ?></a></label>
                                     <br />
-                                    <div class="align-center row showReminders">
-                                        <input id="Register" class="btn btn-info" value="<?php echo xla('Register'); ?>" />
-                                    </div>
-
-                                    <div id="myModal" class="modal fade" role="dialog">
-                                      <div class="modal-dialog">
-
-                                        <!-- Modal content-->
-                                        <div class="modal-content">
-                                          <div class="modal-header"  style="background-color: #0d4867;color: #fff;font-weight: 700;">
-                                            <button type="button" class="close" data-dismiss="modal" style="color:#fff;opacity:1;box-shadow:unset !important;">&times;</button>
-                                            <h2 class="modal-title" style="font-weight:600;">Sign-Up Confirmation</h2>
-                                          </div>
-                                          <div class="modal-body" style="padding: 10px 45px;">
-                                            <p>You are opening a secure connection to MedExBank.com to create your account.<br />
-                                               By proceeding, you agree to the MedEx Terms and Conditions and formally execute <br />
-                                               the Business Associate Agreement with MedEx on behalf of your practice.  <br />
-                                               During this step your EHR will exchange Practice data with the MedEx servers.  <br />
-                                                <br />
-                                                You will them be directed to login at MedExBank.com to:
-                                                <ul style="text-align: left;width: 90%;margin: 0 auto;">
-                                                    <li> confirm your practice and providers' information</li>
-                                                    <li> choose your service options</li>
-                                                    <li> update and activate your message templates</li>
-                                                </ul>
-                                            </p>
-                                          </div>
-                                          <div class="modal-footer">
-                                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                                            <button type="button" class="btn btn-default" onlick="actualSignUp();" id="actualSignUp">Proceed</button>
-                                          </div>
-                                        </div>
-
-                                      </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="align-center row showReminders">
+                                    <input value="Register" class="btn" onclick="signUp();" value="<?php echo xlt('Register'); ?>" />
                     </div>
                 </div>
+                            </div>
+                            <div class="col-sm-1"></div>
+                        </div>
+                    </div>
+                    <div class="col-sm-1"></div>
+                </div>
+                <div class="col-sm-1"></div>
             </form>
         </div>
         <script>
@@ -2484,10 +2575,30 @@ class Setup extends Base
                 if (!$("#TERMS_yes").is(':checked')) return alert('<?php echo xlt('You must agree to the Terms & Conditions before signing up');?>... ');
                 if (!$("#BusAgree_yes").is(':checked')) return alert('<?php echo xlt('You must agree to the HIPAA Business Associate Agreement');?>... ');
                 //No translation for now - unless you can get it translated without breaking the Auto-Registration...
-                
-                $("#myModal").modal();
+                if (confirm(" CONFIRM: You are opening a secure connection to MedExBank.com to create your account.\n\nBefore your practice can send live messages, you will need to login to MedExBank.com to:\n     confirm your practice information\n     choose your service options\n     create your desired SMS/Voice and/or e-mail messages."))
+                    {
+                    var url = "save.php?MedEx=start";
+                    formData = $("form#medex_start").serialize();
+                    top.restoreSession();
+                    $.ajax({
+                        type   : 'POST',
+                        url    : url,
+                        data   : formData 
+                        })
+                    .done(function(result) {
+                            obj = JSON.parse(result);
+                            $("#answer").html(obj.show);
+                            $("#ihvread").addClass('nodisplay');
+                                
+                            if (obj.success) {
+                                $("#butme").html('<a href="messages.php?go=Preferences"><?php echo xlt('Preferences'); ?></a>');
+                                url="https://www.medexbank.com/cart/upload/";
+                                window.open(url, 'clinical', 'resizable=1,scrollbars=1');
+                refresh_me();
+                            }
+                    });
+                }
             }
-            
             function validateEmail(email) {
                 var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
                 return re.test(email);
@@ -2589,33 +2700,6 @@ class Setup extends Base
                 return true;
             }
             $(document).ready(function() {
-                $("#Register").click(function() {
-                     signUp();
-                });
-                $("#actualSignUp").click(function() {
-                    var url = "save.php?MedEx=start";
-                    var email = $("#new_email").val();
-                    $("#actualSignUp").html('<i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i><span class="sr-only">Loading...</span>');
-                    formData = $("form#medex_start").serialize();
-                    top.restoreSession();
-                    $.ajax({
-                        type   : 'POST',
-                        url    : url,
-                        data   : formData 
-                        })
-                    .done(function(result) {
-                        obj = JSON.parse(result);
-                        $("#answer").html(obj.show);
-                        $("#ihvread").addClass('nodisplay');
-                        $('#myModal').modal('toggle');
-                        if (obj.success) {
-                            $("#butme").html('<a href="messages.php?go=Preferences"><?php echo xlt('Preferences'); ?></a>');
-                            url="https://www.medexbank.com/login/"+email;
-                            window.open(url, 'clinical', 'resizable=1,scrollbars=1');
-                        refresh_me();
-                                }
-                        });
-                });
                 $("#new_email").blur(function(e) {
                                     e.preventDefault();
                                     var email = $("#new_email").val();
@@ -2715,7 +2799,7 @@ class MedEx
     public function getLastError()
     {
         return $this->lastError; }
-    public function login()
+    public function login($callback_key)
     {
         $response= array();
         $result = sqlStatement("SHOW TABLES LIKE 'medex_prefs'");
@@ -2737,7 +2821,8 @@ class MedEx
             'username' => $username,
             'key' => $key,
             'UID' => $UID,
-            'MedEx' => 'openEMR'
+            'MedEx' => 'openEMR',
+            'callback_key' => $callback_token
         ));
         $this->curl->makeRequest();
         

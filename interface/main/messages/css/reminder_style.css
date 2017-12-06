@@ -204,14 +204,7 @@ width: 98%;
   text-align:left;
   padding-left:1em;
  }
- .sms,.email,.mail,.manual,.btn,.vm {
-  text-align:center;
-  font-size:1.0em;
-  padding:6px;
-  min-width:30px;
-  margin:2px;
- }
- .divTableFoot {
+  .divTableFoot {
   background-color: #EEE;
   display: table-footer-group;
   font-weight: bold;
@@ -285,15 +278,7 @@ input[type="radio"] {
  }
  .indent20 table {
  }
- .btn {
-  position:relative;
-  z-index: 1;
-  border:1pt solid black;
-  background-color: #0d659a;
-  color: white;
-  padding: 7px;
- }
- .btn1 {
+.btn1 {
   position:relative;
   z-index:1;
   border-bottom-left-radius: 0px;
@@ -459,32 +444,9 @@ td.right { width: 30%; }
  .w_30 {
   width: 30px !important;
  }
-
- .btn {
-  border: solid black 0.5pt;
-  box-shadow: 3px 3px 3px #7b777760;
-}
 .signup_help {
   color:red;
-  margin:0 15px;
   padding:0 15px;
-  font-feature-settings: normal;
-  font-kerning: auto;
-  font-language-override: normal;
-  font-size: 0.8em;
-  font-size-adjust: none;
-  font-stretch: normal;
-  font-style: normal;
-  font-synthesis: weight style;
-  font-variant: normal;
-  font-variant-alternates: normal;
-  font-variant-caps: normal;
-  font-variant-east-asian: normal;
-  font-variant-ligatures: normal;
-  font-variant-numeric: normal;
-  font-variant-position: normal;
-  font-weight: 700;
-  line-height: 15.2167px;
 }
 .div_title {
   position:relative;

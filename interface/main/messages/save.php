@@ -57,6 +57,8 @@ if ($_REQUEST['go'] =='Preferences') {
         if ($result['output'] == false) {
             $result['success'] = "medex_prefs updated";
         }
+        $result['logged_in'] = $MedEx->login();
+        $result['response']  = $MedEx->practice->sync($result['logged_in']['token']);
         echo json_encode($result);
     }
     exit;
@@ -124,9 +126,6 @@ if ($_REQUEST['MedEx']=="start") {
         
         if ($logged_in) {
             $token      = $logged_in['token'];
-            $practice   = $MedEx->practice->sync($token);
-            $token      = $logged_in['token'];
-
             $response   = $MedEx->practice->sync($token);
             $campaigns  = $MedEx->campaign->events($token);
             $response   = $MedEx->events->generate($token, $campaigns['events']);

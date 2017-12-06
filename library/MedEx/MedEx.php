@@ -12,7 +12,7 @@
  */
 
 $ignoreAuth=true;
-$_SERVER['HTTP_HOST']   = 'default'; //for multi-site
+$_SERVER['HTTP_HOST']   = 'default'; //change for multi-site
 
 require_once(dirname(__FILE__)."/../../interface/globals.php");
 require_once(dirname(__FILE__)."/../patient.inc");
@@ -20,27 +20,21 @@ require_once(dirname(__FILE__)."/../log.inc");
 require_once(dirname(__FILE__)."/API.php");
 require_once(dirname(__FILE__)."/../formatting.inc.php");
 
-
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 
-$logged_in = $MedEx->login();
-$log['Time']= date(DATE_RFC2822);
-$log['action'] = "MedEx.php fired";
-if ($logged_in) {
-    if ((!empty($_POST['callback']))&&($_SERVER['REMOTE_ADDR']=='66.175.210.18')) {
-        $data = json_decode($_POST, true);
-        $response = $MedEx->callback->receive($data);
-        echo $response;
+$logged_in = $MedEx->login($_POST['callback_key']);
+if (($logged_in) && (!empty($_POST['callback_key']))) {
+    $data = json_decode($_POST, true);
+    $response = $MedEx->callback->receive($data);
+    if (!empty($response['success'])) {
+        $token      = $logged_in['token'];
+        $response   = $MedEx->practice->sync($token);
+        $campaigns  = $MedEx->campaign->events($token);
+        $response   = $MedEx->events->generate($token, $campaigns['events']);
+        echo "200";
         exit;
     }
-    $token      = $logged_in['token'];
-    $response   = $MedEx->practice->sync($token);
-    $campaigns  = $MedEx->campaign->events($token);
-    $response   = $MedEx->events->generate($token, $campaigns['events']);
-
-} else {
-    echo "not logged in";
-    echo $MedEx->getLastError();
 }
-echo "200";
+echo "Not logged in: ";
+echo $MedEx->getLastError();
 exit;
