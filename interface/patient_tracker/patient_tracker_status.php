@@ -121,7 +121,7 @@ require_once("$srcdir/patient_tracker.inc.php");
      <td>
       <a href='javascript:;' class='css_button_small' style='color:gray' onclick='document.getElementById("form_note").submit();'><span><?php echo xla('Save')?></span></a>
       &nbsp;
-      <a href='javascript:;' class='css_button_small' style='color:gray' onclick="window.close().submit();" ><span><?php  echo xla('Cancel'); ?></span></a>
+      <a href='javascript:;' class='css_button_small' style='color:gray' onclick="window.close();" ><span><?php  echo xla('Cancel'); ?></span></a>
      </td>
     </tr>
     </table>

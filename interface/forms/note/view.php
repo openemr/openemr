@@ -114,7 +114,7 @@ function PrintForm() {
 
 $(document).ready(function(){
     $(".save").click(function() { top.restoreSession(); $("#my_form").submit(); });
-    $(".dontsave").click(function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>'; });
+    $(".dontsave").click(function() { parent.closeTab(window.name, false); });
     $(".printform").click(function() { PrintForm(); });
 
     // disable the Print ability if the form has changed

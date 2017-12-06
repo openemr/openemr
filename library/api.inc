@@ -3,7 +3,7 @@
 require_once(dirname(__FILE__) . "/../interface/globals.php");
 require_once("{$GLOBALS['srcdir']}/billing.inc");
 
-$GLOBALS['form_exit_url'] = "$rootdir/patient_file/encounter/encounter_top.php";
+$GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
 
 function formHeader($title = "My Form")
 {
@@ -70,14 +70,17 @@ function formUpdate($tableName, $values, $id, $authorized = "0")
     return sqlInsert($sql);
 }
 
-
-function formJump($address = "0")
+function formJump($address = '')
 {
-    $returnurl = 'encounter_top.php';
-    if ($address == "0") {
-        $address = "{$GLOBALS['rootdir']}/patient_file/encounter/$returnurl";
+    echo "<script>\n";
+    if ($address) {
+        echo "top.restoreSession();\n";
+        echo "location.href = '" . addslashes($address) . "';\n";
+    } else {
+        echo "parent.closeTab(window.name, true);\n";
     }
-    echo "\n<script language='Javascript'>top.restoreSession();window.location='$address';</script>\n";
+    echo "</script>\n";
+    // TBD: Exit seems wrong here, but that's how it has been forever.
     exit;
 }
 

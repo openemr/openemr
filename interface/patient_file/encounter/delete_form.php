@@ -38,7 +38,7 @@ if (file_exists($deleteform)) {
 // if no custom 'delete' form, then use a generic one
 
 // when the Cancel button is pressed, where do we go?
-$returnurl = 'encounter_top.php';
+$returnurl = 'forms.php';
 
 if ($_POST['confirm']) {
     if ($_POST['id'] != "*" && $_POST['id'] != '') {

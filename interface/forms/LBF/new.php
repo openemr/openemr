@@ -383,6 +383,16 @@ div.section {
 // Support for beforeunload handler.
 var somethingChanged = false;
 
+function verifyCancel() {
+  if (somethingChanged) {
+    if (!confirm('<?php echo xl('You have unsaved changes. Do you really want to close this form?'); ?>')) {
+      return false;
+    }
+  }
+  somethingChanged = false;
+  parent.closeTab(window.name, false);
+}
+
 $(document).ready(function() {
 
   // fancy box
@@ -1507,7 +1517,7 @@ if ($form_is_graphable) {
 <?php
 } // end form is graphable
 ?>
-                    <button type='button' class="btn btn-link btn-cancel" onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'">
+                    <button type='button' class="btn btn-link btn-cancel" onclick="verifyCancel()">
                         <?php echo xlt('Cancel'); ?>
                     </button>
 <?php

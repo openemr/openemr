@@ -203,7 +203,7 @@ echo "<form method='post' name='my_form' " .
   <input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />&nbsp;
 
     <input type='button' class="button-css" value='<?php echo xlt('Cancel');?>'
- onclick="top.restoreSession();location='<?php echo "$rootdir/patient_file/encounter/$returnurl" ?>'" /></td>
+ onclick="parent.closeTab(window.name, false)" /></td>
     </tr>
 </table>
 </form>

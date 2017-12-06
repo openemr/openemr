@@ -238,12 +238,6 @@ jQuery(document).ready( function($) {
 
      $(".deleteme").click(function(evt) { deleteme(); evt.stopPropogation(); });
 
-    var GotoForm = function(obj) {
-        var parts = $(obj).attr("id").split("~");
-        top.restoreSession();
-        parent.location.href = "<?php echo $rootdir; ?>/patient_file/encounter/view_form.php?formname="+parts[0]+"&id="+parts[1];
-    }
-
 <?php
   // If the user was not just asked about orphaned orders, build javascript for that.
 if (!isset($_GET['attachid'])) {
@@ -289,6 +283,24 @@ if (!isset($_GET['attachid'])) {
   top.window.parent.left_nav.removeOptionSelected(EncounterId);
   top.window.parent.left_nav.clearEncounter();
  }
+
+// Called to open the data entry form a specified encounter form instance.
+function openEncounterForm(formdir, formname, formid) {
+  var url = '<?php echo "$rootdir/patient_file/encounter/view_form.php?formname=" ?>' +
+    formdir + '&id=' + formid;
+  if (formdir == 'newpatient' || !parent.twAddFrameTab) {
+    location.href = url;
+  }
+  else {
+    parent.twAddFrameTab('enctabs', formname, url);
+  }
+  return false;
+}
+
+// Called when an encounter form may changed something that requires a refresh here.
+function refreshVisitDisplay() {
+  location.href = '<?php echo $rootdir; ?>/patient_file/encounter/forms.php';
+}
 
 </script>
 
@@ -364,23 +376,22 @@ function divtoggle(spanid, divid) {
 <!-- Form menu start -->
 <script language="JavaScript">
 
-function openNewForm(sel) {
+function openNewForm(sel, label) {
   top.restoreSession();
-  FormNameValueArray = sel.split('formname=');
-  if (!parent.Forms)
-  {
-    location.href = sel;
+  var FormNameValueArray = sel.split('formname=');
+  if (FormNameValueArray[1] == 'newpatient') {
+    // TBD: Make this work when it's not the first frame.
+    parent.frames[0].location.href = sel;
   }
-  else
-  {
-    parent.Forms.location.href = sel;
+  else {
+    parent.twAddFrameTab('enctabs', label, sel);
   }
 }
 
 function toggleFrame1(fnum) {
   top.frames['left_nav'].document.forms[0].cb_top.checked=false;
   top.window.parent.left_nav.toggleFrame(fnum);
- }
+}
 </script>
 <style type="text/css">
 #sddm
@@ -543,19 +554,24 @@ if (!empty($reg)) {
                 $new_category = htmlspecialchars(xl($new_category), ENT_QUOTES);
             }
             if ($new_nickname != '') {
-                $nickname = $new_nickname;} else {
-                $nickname = $entry['name'];}
-                if ($old_category != $new_category) {
-                    $new_category_ = $new_category;
-                    $new_category_ = str_replace(' ', '_', $new_category_);
-                    if ($old_category != '') {
-                        $StringEcho.= "</table></div></li>";}
-                    $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('$DivId');\" >$new_category</a><div id='$DivId' ><table border='0' cellspacing='0' cellpadding='0'>";
-                    $old_category = $new_category;
-                    $DivId++;
+                $nickname = $new_nickname;
+            } else {
+                $nickname = trim($entry['name']);
+            }
+            if ($old_category != $new_category) {
+                $new_category_ = $new_category;
+                $new_category_ = str_replace(' ', '_', $new_category_);
+                if ($old_category != '') {
+                    $StringEcho .= "</table></div></li>";
                 }
-                $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=\"openNewForm('" . $rootdir .'/patient_file/encounter/load_form.php?formname=' .urlencode($entry['directory']) .
-                "')\" href='JavaScript:void(0);'>" . xl_form_title($nickname) . "</a></td></tr>";
+                $StringEcho .= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('$DivId');\" >$new_category</a><div id='$DivId' ><table border='0' cellspacing='0' cellpadding='0'>";
+                $old_category = $new_category;
+                $DivId++;
+            }
+            $StringEcho .= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=\"openNewForm('" .
+                $rootdir . "/patient_file/encounter/load_form.php?formname=" . urlencode($entry['directory']) .
+                "', '" . addslashes(xl_form_title($nickname)) . "')\" href='JavaScript:void(0);'>" .
+                text(xl_form_title($nickname)) . "</a></td></tr>";
         }
     }
     $StringEcho.= '</table></div></li>';
@@ -591,9 +607,10 @@ if ($encounterLocked === false) {
                     continue;
                 }
             }
-            $StringEcho .= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a href='" .
-            $rootdir . '/patient_file/encounter/load_form.php?formname=' .
-            urlencode($option_id) . "' >" . xl_form_title($title) . "</a></td></tr>";
+            $StringEcho .= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=\"openNewForm('" .
+                $rootdir . "/patient_file/encounter/load_form.php?formname=" . urlencode($option_id) .
+                "', '" . addslashes(xl_form_title($title)) . "')\" href='JavaScript:void(0);'>" .
+                text(xl_form_title($title)) . "</a></td></tr>";
         }
     }
 }
@@ -629,7 +646,9 @@ if ($encounterLocked === false) {
             }
             $jid++;
             $modid = $modulerow['mod_id'];
-            $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=\"openNewForm('$relative_link')\" href='JavaScript:void(0);'>" . xl_form_title($nickname) . "</a></td></tr>";
+            $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=" .
+                "\"openNewForm('$relative_link', '" . addslashes(xl_form_title($nickname)) . "')\" " .
+                "href='JavaScript:void(0);'>" . xl_form_title($nickname) . "</a></td></tr>";
         }
     }
     ?>
@@ -981,13 +1000,11 @@ if ($pass_sens_squad &&
             if ((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '', 'write') and $is_group == 0 and $authPostCalendarCategoryWrite)
             or (((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '', 'write')) and $is_group and acl_check("groups", "glog", false, 'write')) and $authPostCalendarCategoryWrite)) {
                 echo "<a class='css_button_small form-edit-button' " .
-                        "id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "' " .
-                        // "target='Forms' " .
-                        "href='$rootdir/patient_file/encounter/view_form.php?" .
-                        "formname=" . attr($formdir) . "&id=" . attr($iter['form_id']) . "' " .
-                        "title='" . xla('Edit this form') . "' " .
-                        "onclick='top.restoreSession()'>";
-
+                    "id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "' " .
+                    "href='#' " .
+                    "title='" . xla('Edit this form') . "' " .
+                    "onclick=\"return openEncounterForm('" . attr($formdir) . "', '" .
+                    attr($form_name) . "', '" . attr($iter['form_id']) . "')\">";
                 echo "<span>" . xlt('Edit') . "</span></a>";
             }
         }

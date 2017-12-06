@@ -374,7 +374,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     // Segment REF (Payer Secondary Identification) omitted.
     // Segment REF (Billing Provider Secondary Identification) omitted.
 
-    if ($claim->isSelfOfInsured()) {
+    if (!$claim->isSelfOfInsured()) {
         ++$edicount;
         $out .= "HL" .        // Loop 2000C Patient Information
             "*" . $HLcount .

@@ -139,13 +139,26 @@ ajax_bill_loc(pid,dte,facility);
 
 // Handler for Cancel clicked when creating a new encounter.
 // Show demographics or encounters list depending on what frame we're in.
-function cancelClicked() {
- if (window.name == 'RBot') {
-  parent.left_nav.loadFrame('ens1', window.name, 'patient_file/history/encounters.php');
+function cancelClickedNew() {
+ var target = window;
+ while (target != top) {
+  if (target.name == 'RBot') {
+   target.parent.left_nav.loadFrame('ens1', window.name, 'patient_file/history/encounters.php');
+   break;
+  }
+  else if (target.name == 'RTop') {
+   target.parent.left_nav.loadFrame('dem1', window.name, 'patient_file/summary/demographics.php');
+   break;
+  }
+  target = target.parent;
  }
- else {
-  parent.left_nav.loadFrame('dem1', window.name, 'patient_file/summary/demographics.php');
- }
+ return false;
+}
+ 
+// Handler for cancel clicked when not creating a new encounter.
+// Just reload the view mode.
+function cancelClickedOld() {
+ location.href = '<?php echo "$rootdir/patient_file/encounter/forms.php"; ?>';
  return false;
 }
 
@@ -177,13 +190,13 @@ function cancelClicked() {
 <div>
     <div style = 'float:left; margin-left:8px;margin-top:-3px'>
       <a href="javascript:saveClicked(undefined);" class="css_button link_submit"><span><?php echo xlt('Save'); ?></span></a>
-        <?php if ($viewmode || !isset($_GET["autoloaded"]) || $_GET["autoloaded"] != "1") { ?>
+<?php if ($viewmode || empty($_GET["autoloaded"])) { // not creating new encounter ?>
     </div>
     <div style = 'float:left; margin-top:-3px'>
-      <a href="<?php echo "$rootdir/patient_file/encounter/encounter_top.php"; ?>"
-        class="css_button link_submit" onClick="top.restoreSession()"><span><?php echo xlt('Cancel'); ?></span></a>
+      <a href="" class="css_button link_submit" onClick="return cancelClickedOld()">
+      <span><?php echo xlt('Cancel'); ?></span></a>
     <?php } else { // not $viewmode ?>
-      <a href="" class="css_button link_submit" onClick="return cancelClicked()">
+      <a href="" class="css_button link_submit" onClick="return cancelClickedNew()">
       <span><?php echo xlt('Cancel'); ?></span></a>
     <?php } // end not $viewmode ?>
     </div>

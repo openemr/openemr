@@ -1,7 +1,5 @@
 <?php
-
-
-$GLOBALS['form_exit_url'] = "$rootdir/patient_file/encounter/encounter_top.php";
+$GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
 
 function getFormById($id, $cols = "*")
 {
