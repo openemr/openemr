@@ -1328,9 +1328,11 @@ if ($reglastcat) {
     <?php  if (acl_check('menus', 'modle')) {?>
    <li><a class="collapsed" id="modimg" ><span><?php echo xlt('Modules') ?></span></a>
     <ul>
-    <?php if (acl_check('admin', 'manage_modules')) {
+    <?php
+    if (acl_check('admin', 'manage_modules')) {
         genMiscLink('RTop', 'adm', '0', xl('Manage Modules'), 'modules/zend_modules/public/Installer');
-    }  ?>
+    }
+    ?>
 
         <?php //genTreeLink('RTop','ort',xl('Settings')); ?>
         <?php
