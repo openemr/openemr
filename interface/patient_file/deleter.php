@@ -32,7 +32,7 @@ require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/sl_eob.inc.php');
 
  $patient     = $_REQUEST['patient'];
- $encounterid = $_REQUEST['encounterid'];
+ $encounterid = intval($_REQUEST['encounterid']);
  $formid      = $_REQUEST['formid'];
  $issue       = $_REQUEST['issue'];
  $document    = $_REQUEST['document'];
