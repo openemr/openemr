@@ -29,7 +29,7 @@ class DataDriverMySQLi implements IDataDriver
             "'",
             '"'
     );
-    
+
     /** @var characters that will be used to replace bad chars */
     static $GOOD_CHARS = array (
             "\\\\",
@@ -40,7 +40,7 @@ class DataDriverMySQLi implements IDataDriver
             "\'",
             '\"'
     );
-    
+
     /**
      * @inheritdocs
      */
@@ -52,7 +52,7 @@ class DataDriverMySQLi implements IDataDriver
     {
         return mysqli_ping($connection);
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -61,26 +61,78 @@ class DataDriverMySQLi implements IDataDriver
         if (! function_exists("mysqli_connect")) {
             throw new DatabaseException('mysqli extension is not enabled on this server.', DatabaseException::$CONNECTION_ERROR);
         }
-            
+
             // if the port is provided in the connection string then strip it out and provide it as a separate param
         $hostAndPort = explode(":", $connectionstring);
         $host = $hostAndPort [0];
         $port = count($hostAndPort) > 1 ? $hostAndPort [1] : null;
-        
-        $connection = mysqli_connect($host, $username, $password, $database, $port);
-        
-        if (mysqli_connect_errno()) {
+
+        $connection = @mysqli_init();
+        if (is_null($connection)) {
             throw new DatabaseException("Error connecting to database: " . mysqli_connect_error(), DatabaseException::$CONNECTION_ERROR);
         }
-        
+
+        //Below was added by OpenEMR to support mysql ssl
+        $mysqlSsl = false;
+        if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
+            $mysqlSsl = true;
+            if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
+                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")) {
+                // with client side certificate/key
+                mysqli_ssl_set(
+                    $connection,
+                    "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key",
+                    "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert",
+                    "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca",
+                    null,
+                    null
+                );
+            } else {
+                // without client side certificate/key
+                mysqli_ssl_set(
+                    $connection,
+                    null,
+                    null,
+                    "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca",
+                    null,
+                    null
+                );
+            }
+        }
+        if ($mysqlSsl) {
+            $ok = mysqli_real_connect(
+                $connection,
+                $host,
+                $username,
+                $password,
+                $database,
+                $port,
+                null,
+                MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT
+            );
+        } else {
+            $ok = mysqli_real_connect(
+                $connection,
+                $host,
+                $username,
+                $password,
+                $database,
+                $port
+            );
+        }
+
+        if (!$ok) {
+            throw new DatabaseException("Error connecting to database: " . mysqli_connect_error(), DatabaseException::$CONNECTION_ERROR);
+        }
+
         if ($charset) {
             mysqli_set_charset($connection, $charset);
-            
+
             if (mysqli_connect_errno()) {
                 throw new DatabaseException("Unable to set charset: " . mysqli_connect_error(), DatabaseException::$CONNECTION_ERROR);
             }
         }
-        
+
         if ($bootstrap) {
             $statements = explode(';', $bootstrap);
             foreach ($statements as $sql) {
@@ -91,10 +143,16 @@ class DataDriverMySQLi implements IDataDriver
                 }
             }
         }
-        
+
+        if ($GLOBALS['debug_ssl_mysql_connection']) {
+            $sslTestCipher = mysqli_query($connection, "SHOW STATUS LIKE 'Ssl_cipher';");
+            error_log("CHECK SSL CIPHER IN PATIENT PORTAL MYSQLI: " . print_r(mysqli_fetch_assoc($sslTestCipher), true));
+            mysqli_free_result($sslTestCipher);
+        }
+
         return $connection;
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -102,7 +160,7 @@ class DataDriverMySQLi implements IDataDriver
     {
         @mysqli_close($connection); // ignore warnings
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -111,10 +169,10 @@ class DataDriverMySQLi implements IDataDriver
         if (! $rs = @mysqli_query($connection, $sql)) {
             throw new DatabaseException(mysqli_error($connection), DatabaseException::$ERROR_IN_QUERY);
         }
-        
+
         return $rs;
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -123,10 +181,10 @@ class DataDriverMySQLi implements IDataDriver
         if (! $result = @mysqli_query($connection, $sql)) {
             throw new DatabaseException(mysqli_error($connection), DatabaseException::$ERROR_IN_QUERY);
         }
-        
+
         return mysqli_affected_rows($connection);
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -134,7 +192,7 @@ class DataDriverMySQLi implements IDataDriver
     {
         return mysqli_fetch_assoc($rs);
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -142,7 +200,7 @@ class DataDriverMySQLi implements IDataDriver
     {
         return (mysqli_insert_id($connection));
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -150,7 +208,7 @@ class DataDriverMySQLi implements IDataDriver
     {
         return mysqli_error($connection);
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -158,7 +216,7 @@ class DataDriverMySQLi implements IDataDriver
     {
         mysqli_free_result($rs);
     }
-    
+
     /**
      * @inheritdocs
      * this method currently uses replacement and not mysqli_real_escape_string
@@ -170,7 +228,7 @@ class DataDriverMySQLi implements IDataDriver
         return str_replace(self::$BAD_CHARS, self::$GOOD_CHARS, $val);
         // return mysqli_real_escape_string($val);
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -179,14 +237,14 @@ class DataDriverMySQLi implements IDataDriver
         if ($val === null) {
             return DatabaseConfig::$CONVERT_NULL_TO_EMPTYSTRING ? "''" : 'NULL';
         }
-        
+
         if ($val instanceof ISqlFunction) {
             return $val->GetQuotedSql($this);
         }
-        
+
         return "'" . $this->Escape($val) . "'";
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -194,18 +252,18 @@ class DataDriverMySQLi implements IDataDriver
     {
         $sql = "SHOW TABLE STATUS FROM `" . $this->Escape($dbname) . "`";
         $rs = $this->Query($connection, $sql);
-        
+
         $tables = array ();
-        
+
         while ($row = $this->Fetch($connection, $rs)) {
             if ($ommitEmptyTables == false || $rs ['Data_free'] > 0) {
                 $tables [] = $row ['Name'];
             }
         }
-        
+
         return $tables;
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -213,7 +271,7 @@ class DataDriverMySQLi implements IDataDriver
     {
         $result = "";
         $rs = $this->Query($connection, "optimize table `" . $this->Escape($table) . "`");
-        
+
         while ($row = $this->Fetch($connection, $rs)) {
             $tbl = $row ['Table'];
             if (! isset($results [$tbl])) {
@@ -222,10 +280,10 @@ class DataDriverMySQLi implements IDataDriver
 
             $result .= trim($results [$tbl] . " " . $row ['Msg_type'] . "=\"" . $row ['Msg_text'] . "\"");
         }
-        
+
         return $result;
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -234,7 +292,7 @@ class DataDriverMySQLi implements IDataDriver
         $this->Execute($connection, "SET AUTOCOMMIT=0");
         $this->Execute($connection, "START TRANSACTION");
     }
-    
+
     /**
      * @inheritdocs
      */
@@ -243,7 +301,7 @@ class DataDriverMySQLi implements IDataDriver
         $this->Execute($connection, "COMMIT");
         $this->Execute($connection, "SET AUTOCOMMIT=1");
     }
-    
+
     /**
      * @inheritdocs
      */
