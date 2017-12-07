@@ -919,8 +919,6 @@ class Callback extends Base
                 $data['patient_id'] = $patient['pid'];
             }
         }
-        $data['TIMER'] = date(DATE_RFC2822);
-        $this->MedEx->logging->log_this($data);
         //Store responses in TABLE medex_outgoing
         $sqlINSERT = "INSERT INTO medex_outgoing (msg_pc_eid, msg_pid, campaign_uid, msg_type, msg_reply, msg_extra_text, msg_date, medex_uid) 
                         VALUES (?,?,?,?,?,?,utc_timestamp(),?)";
@@ -932,12 +930,10 @@ class Callback extends Base
             $sqlFLOW = "UPDATE patient_tracker_element set status=? where pt_tracker_id in (select id from patient_tracker where eid=?)";
             sqlStatement($sqlFLOW, array($data['msg_type'],$data['pc_eid']));//if it is not in tracker what will happen?  Error and continue?
             $log['sql']=$sqlFlow;
-            $this->MedEx->logging->log_this($log);
         } elseif ($data['msg_reply']=="CALL") {
             $sqlUPDATE = "UPDATE openemr_postcalendar_events set pc_apptstatus = 'CALL' where pc_eid=?";
             $test = sqlQuery($sqlUPDATE, array($data['pc_eid']));
             $log['sql']=$sqlUPDATE . " -- ".$data['pc_eid'];
-            $this->MedEx->logging->log_this($log);
             //this requires attention.  Send up the FLAG!
             //$this->MedEx->logging->new_message($data);
         } elseif (($data['msg_type']=="AVM") && ($data['msg_reply']=="STOP")) {
@@ -945,17 +941,14 @@ class Callback extends Base
             $sqlUPDATE = "UPDATE patient_data set hipaa_voice = 'NO' where pid=?";
             $log['sql'] = $sqlUPDATE;
             sqlQuery($sqlUPDATE, array($data['patient_id']));
-            $this->MedEx->logging->log_this($log);
         } elseif (($data['msg_type']=="SMS") && ($data['msg_reply']=="STOP")) {
             $sqlUPDATE = "UPDATE patient_data set hipaa_allowsms = 'NO' where pid=?";
             $log['sql']=$sqlUPDATE;
             sqlQuery($sqlUPDATE, array($data['patient_id']));
-            $this->MedEx->logging->log_this($log);
         } elseif (($data['msg_type']=="EMAIL") && ($data['msg_reply']=="STOP")) {
             $sqlUPDATE = "UPDATE patient_data set hipaa_allowemail = 'NO' where pid=?";
             $log['sql']=$sqlUPDATE;
             sqlQuery($sqlUPDATE, array($data['patient_id']));
-            $this->MedEx->logging->log_this($log);
         }
         if (($data['msg_type']=="SMS")&&($data['msg_reply']=="Other")) {
             //this requires attention.  Send up the FLAG!
@@ -964,7 +957,6 @@ class Callback extends Base
         if (($data['msg_reply']=="SENT")||($data['msg_reply']=="READ")) {
             $sqlDELETE = "DELETE FROM medex_outgoing where msg_pc_eid=? and msg_reply='To Send'";
             $log['sql']=$sqlDELETE;
-            $this->MedEx->logging->log_this($log);
             sqlQuery($sqlDELETE, array($data['pc_eid']));
         }
         $response['comments'] = $data['pc_eid']." - ".$data['campaign_uid']." - ".$data['msg_type']." - ".$data['reply']." - ".$data['extra'];
@@ -985,11 +977,13 @@ class Logging extends base
         $timed = date(DATE_RFC2822);
         fputs($std_log, "**********************\nlibrary/MedEx/API.php fn log_this(data):  ".$timed."\n");
         if (is_array($data)) {
+            $dumper = print_r($data, true);
+            fputs($std_log,$dumper);
             foreach ($data as $key => $value) {
                 fputs($stdlog, $key.": ".$value."\n");
             }
         } else {
-            fputs($std_log, "\n".$data. "\n");
+            fputs($std_log, "\nDATA= ".$data. "\n");
         }
         fclose($std_log);
         return true;
@@ -1106,11 +1100,11 @@ class Display extends base
                                     if ($GLOBALS['disable_pat_trkr'] != '1') {
                                     ?>
                                     <li id="menu_pend_recalls" name="menu_pend_recalls"> <a id="BUTTON_pend_recalls_menu" onclick="tabYourIt('flb','patient_tracker/patient_tracker.php?skip_timeout_reset=1');"> <?php echo xlt("Flow Board"); ?></a></li>
-                                    <li class="divider"><hr /></li>
                                     <?php }  
                                     if ($logged_in) 
                                     {
                                         ?>
+                                        <li class="divider"><hr /></li>
                                         <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns&g=rem' target="_medex" class='nowrap text-left' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Reminder Campaigns"); ?></a></li>
                                         <?php
                                     } 
@@ -1172,7 +1166,6 @@ class Display extends base
         if (empty($prefs)) {
             $prefs = sqlFetchArray(sqlStatement("SELECT * from medex_prefs"));
         }
-            $this->MedEx->logging->log_this($log);
         ?>
         <div class="row">
             <div class="col-sm-12 text-center">
@@ -2044,7 +2037,7 @@ class Display extends base
                 </form>
             </div>
             <div class="row-fluid text-center">
-                <input class="btn" onclick="add_this_recall();" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new">
+                <input class="btn btn-info" onclick="add_this_recall();" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new">
                 <p>
                     <em class="small text-muted">* <?php echo xlt('N.B.{{Nota bene}}')." ".xlt('Demographic changes made here are recorded system-wide'); ?>.</em>
                 </p>
@@ -2384,7 +2377,6 @@ class Display extends base
 
         <?php
     }
-
     public function syncPat($pid, $logged_in)
     {   
         if($pid == 'pat_list') {
@@ -2473,6 +2465,7 @@ class Setup extends Base
                             <ul class="text-left" style="margin-left:125px;">
                                 <li> <?php echo xlt('Appointment Reminders'); ?></li>
                                 <li> <?php echo xlt('Patient Recalls'); ?></li>
+                                <li> <?php echo xlt('Office Announcements'); ?></li>
                                 <li> <?php echo xlt('Patient Surveys'); ?></li>
                             </ul>
                         </div>
@@ -2488,8 +2481,9 @@ class Setup extends Base
                         </div>
                     </div>
                     <div class="text-center row showReminders">
-                        <input value="<?php echo xla('Sign-up'); ?>" onclick="goReminderRecall('setup&stage=2');" class="btn">
+                        <input value="<?php echo xla('Sign-up'); ?>" onclick="goReminderRecall('setup&stage=2');" class="btn btn-info">
                     </div>
+
                 </div>
             </div>
         </div>
@@ -2499,14 +2493,11 @@ class Setup extends Base
         ?>
         <div class="row">
             <form name="medex_start" id="medex_start">
-                <div class="col-sm-1"></div>
-                <div class="col-sm-10 text-center">
+                <div class="col-sm-10 col-sm-offset-1 text-center">
                     <div id="setup_1" class="showReminders borderShadow">
                         <div class="title row fa"><?php echo xlt('Register'); ?>: MedEx Bank</div>
                         <div class="row showReminders">
-                            <div class="col-sm-1">
-                            </div>
-                            <div class="fa col-sm-10 text-center">
+                            <div class="fa col-sm-10 col-sm-offset-1 text-center">
                                 <div class="divTable4 fa" id="answer" name="answer">
                                     <div class="divTableBody">
                                         <div class="divTableRow">
@@ -2527,8 +2518,7 @@ class Setup extends Base
                                             <div class="divTableCell"><i id="pwd_check" name="pwd_check" class="top_right_corner nodisplay red fa fa-check"></i>
                                                 <i class="fa top_right_corner fa-question" id="pwd_ico_help" aria-hidden="true" onclick="$('#pwd_help').toggleClass('nodisplay');"></i>
                                                 <input type="password" placeholder="<?php xla('Password'); ?>" id="new_password" name="new_password" class="form-control" required> 
-                                                <br />
-                                                <div id="pwd_help" class="nodisplay signup_help"><?php echo xlt('8-12 characters long, including at least one upper case letter, one lower case letter, one number and one special character'); ?></div>
+                                                <div id="pwd_help" class="nodisplay signup_help"><?php echo xlt('Secure Password Required').": ". xlt('8-12 characters long, including at least one upper case letter, one lower case letter, one number, one special character and no common strings'); ?>...</div>
                                             </div>
                                         </div>
                                         <div class="divTableRow">
@@ -2537,7 +2527,6 @@ class Setup extends Base
                                             </div>
                                             <div class="divTableCell"><i id="pwd_rcheck" name="pwd_rcheck" class="top_right_corner nodisplay red fa fa-check"></i>
                                                 <input type="password" placeholder="<?php echo xla('Repeat password'); ?>" id="new_rpassword" name="new_rpassword" class="form-control" required>
-                                                        <br />
                                                 <div id="pwd_rhelp" class="nodisplay signup_help" style=""><?php echo xlt('Passwords do not match.'); ?></div>
                                             </div>
                                         </div>
@@ -2545,23 +2534,52 @@ class Setup extends Base
                                 </div>
                                 <div id="ihvread" name="ihvread" class="fa text-left">
                                     <input type="checkbox" class="updated required" name="TERMS_yes" id="TERMS_yes" required>
-                                    <label for="TERMS_yes" class="input-helper input-helper--checkbox" title="<?php echo xla('Terms and Conditions'); ?>"><?php echo xlt('I have read and my practice agrees to the'); ?> 
+                                    <label for="TERMS_yes" class="input-helper input-helper--checkbox" title="Terms and Conditions"><?php echo xlt('I have read and my practice agrees to the'); ?> 
                                         <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=5','TERMS',800, 600);">MedEx <?php echo xlt('Terms and Conditions'); ?></a></label><br />
                                     <input type="checkbox" class="updated required" name="BusAgree_yes" id="BusAgree_yes" required>
-                                    <label for="BusAgree_yes" class="input-helper input-helper--checkbox" title="<?php echo xla('HIPAA Agreement'); ?>"><?php echo xlt('I have read and accept the'); ?> 
+                                    <label for="BusAgree_yes" class="input-helper input-helper--checkbox" title="BAA"><?php echo xlt('I have read and accept the'); ?> 
                                     <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=8','Bus Assoc Agree',800, 600);">MedEx <?php echo xlt('Business Associate Agreement'); ?></a></label>
                                     <br />
-                    <div class="align-center row showReminders">
-                                    <input value="Register" class="btn" onclick="signUp();" value="<?php echo xlt('Register'); ?>" />
-                    </div>
-                </div>
+                                    <div class="align-center row showReminders">
+                                        <input id="Register" class="btn btn-info" value="<?php echo xla('Register'); ?>" />
+                                    </div>
+
+                                    <div id="myModal" class="modal fade" role="dialog">
+                                      <div class="modal-dialog">
+
+                                        <!-- Modal content-->
+                                        <div class="modal-content">
+                                          <div class="modal-header"  style="background-color: #0d4867;color: #fff;font-weight: 700;">
+                                            <button type="button" class="close" data-dismiss="modal" style="color:#fff;opacity:1;box-shadow:unset !important;">&times;</button>
+                                            <h2 class="modal-title" style="font-weight:600;">Sign-Up Confirmation</h2>
+                                          </div>
+                                          <div class="modal-body" style="padding: 10px 45px;">
+                                            <p>You are opening a secure connection to MedExBank.com to create your account.<br />
+                                               By proceeding, you agree to the MedEx Terms and Conditions and formally execute <br />
+                                               the Business Associate Agreement with MedEx on behalf of your practice.  <br />
+                                               During this step your EHR will exchange Practice data with the MedEx servers.  <br />
+                                                <br />
+                                                You will them be directed to login at MedExBank.com to:
+                                                <ul style="text-align: left;width: 90%;margin: 0 auto;">
+                                                    <li> confirm your practice and providers' information</li>
+                                                    <li> choose your service options</li>
+                                                    <li> update and activate your message templates</li>
+                                                </ul>
+                                            </p>
+                                          </div>
+                                          <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                            <button type="button" class="btn btn-default" onlick="actualSignUp();" id="actualSignUp">Proceed</button>
+                                          </div>
+                                        </div>
+
+                                      </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-sm-1"></div>
                         </div>
                     </div>
-                    <div class="col-sm-1"></div>
                 </div>
-                <div class="col-sm-1"></div>
             </form>
         </div>
         <script>
@@ -2575,30 +2593,10 @@ class Setup extends Base
                 if (!$("#TERMS_yes").is(':checked')) return alert('<?php echo xlt('You must agree to the Terms & Conditions before signing up');?>... ');
                 if (!$("#BusAgree_yes").is(':checked')) return alert('<?php echo xlt('You must agree to the HIPAA Business Associate Agreement');?>... ');
                 //No translation for now - unless you can get it translated without breaking the Auto-Registration...
-                if (confirm(" CONFIRM: You are opening a secure connection to MedExBank.com to create your account.\n\nBefore your practice can send live messages, you will need to login to MedExBank.com to:\n     confirm your practice information\n     choose your service options\n     create your desired SMS/Voice and/or e-mail messages."))
-                    {
-                    var url = "save.php?MedEx=start";
-                    formData = $("form#medex_start").serialize();
-                    top.restoreSession();
-                    $.ajax({
-                        type   : 'POST',
-                        url    : url,
-                        data   : formData 
-                        })
-                    .done(function(result) {
-                            obj = JSON.parse(result);
-                            $("#answer").html(obj.show);
-                            $("#ihvread").addClass('nodisplay');
-                                
-                            if (obj.success) {
-                                $("#butme").html('<a href="messages.php?go=Preferences"><?php echo xlt('Preferences'); ?></a>');
-                                url="https://www.medexbank.com/cart/upload/";
-                                window.open(url, 'clinical', 'resizable=1,scrollbars=1');
-                refresh_me();
-                            }
-                    });
-                }
+                
+                $("#myModal").modal();
             }
+            
             function validateEmail(email) {
                 var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
                 return re.test(email);
@@ -2700,6 +2698,33 @@ class Setup extends Base
                 return true;
             }
             $(document).ready(function() {
+                $("#Register").click(function() {
+                     signUp();
+                });
+                $("#actualSignUp").click(function() {
+                    var url = "save.php?MedEx=start";
+                    var email = $("#new_email").val();
+                    $("#actualSignUp").html('<i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i><span class="sr-only">Loading...</span>');
+                    formData = $("form#medex_start").serialize();
+                    top.restoreSession();
+                    $.ajax({
+                        type   : 'POST',
+                        url    : url,
+                        data   : formData 
+                        })
+                    .done(function(result) {
+                        obj = JSON.parse(result);
+                        $("#answer").html(obj.show);
+                        $("#ihvread").addClass('nodisplay');
+                        $('#myModal').modal('toggle');
+                        if (obj.success) {
+                            $("#butme").html('<a href="messages.php?go=Preferences"><?php echo xlt('Preferences'); ?></a>');
+                            url="https://www.medexbank.com/login/"+email;
+                            window.open(url, 'clinical', 'resizable=1,scrollbars=1');
+                        refresh_me();
+                                }
+                        });
+                });
                 $("#new_email").blur(function(e) {
                                     e.preventDefault();
                                     var email = $("#new_email").val();
