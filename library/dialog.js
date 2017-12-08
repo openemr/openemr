@@ -120,6 +120,16 @@ function includeScript(url, async, type) {
 
     try {
         let rqit = new XMLHttpRequest();
+        if (type === "link") {
+            let headElement = document.getElementsByTagName("head")[0];
+            let newScriptElement = document.createElement("link")
+            newScriptElement.type = "text/css";
+            newScriptElement.rel = "stylesheet";
+            newScriptElement.href = url;
+            headElement.appendChild(newScriptElement);
+            console.log('Needed to load:[ ' + url + ' ] For: [ ' + location + ' ]');
+            return false;
+        }
 
         rqit.open("GET", url, async); // false = synchronous.
         rqit.send(null);
@@ -133,15 +143,6 @@ function includeScript(url, async, type) {
                 headElement.appendChild(newScriptElement);
                 console.log('Needed to load:[ ' + url + ' ] For: [ ' + location + ' ]');
                 return false; // in case req comes from a submit form.
-            } else if (type === "link") {
-                let headElement = document.getElementsByTagName("head")[0];
-                let newScriptElement = document.createElement("link")
-                newScriptElement.type = "text/css";
-                newScriptElement.rel = "stylesheet";
-                newScriptElement.text = rqit.responseText;
-                headElement.appendChild(newScriptElement);
-                console.log('Needed to load:[ ' + url + ' ] For: [ ' + location + ' ]');
-                return false;
             }
         }
 
@@ -216,7 +217,8 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 
     // wait for DOM then check dependencies needed to run this feature.
     // dependency duration is 'till target's next reload so, temporary...
-    //
+    // seldom will this get used as more of U.I is moved to Bootstrap
+    // but better to continue than stop because of a dependency...
     $(function () {
         if (typeof jQuery.fn.jquery === 'undefined') {
             includeScript(jqurl, false, 'script'); // true is async
@@ -228,9 +230,10 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                 console.log('Replacing jQuery version:[ ' + version + ' ]');
             }
         }
+        if (!inDom('bootstrap.min.css', 'link', false)) {
+            includeScript(bscss, false, 'link');
+        }
         if (typeof jQuery.fn.modal === 'undefined') {
-            if (!inDom('bootstrap.min.css', 'link', false))
-                includeScript(bscss, false, 'link');
             if (!inDom('bootstrap.min.js', 'script', false))
                 includeScript(bsurl, false, 'script');
         }
@@ -334,7 +337,9 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     var altClose = '<div class="closeDlgIframe" data-dismiss="modal" ></div>';
 
     var mhtml =
-        ('<div id="%id%" class="modal fade dialogModal" tabindex="-1" role="dialog">%sStyle%' +
+        (
+            '<div id="%id%" class="modal fade dialogModal" tabindex="-1" role="dialog">%sStyle%' +
+            '<style>.modal-backdrop{opacity:0; transition:opacity 1s;}.modal-backdrop.in{opacity:0.2;}</style>' +
             '<div %dialogId% class="modal-dialog %szClass%" role="document">' +
             '<div class="modal-content">' +
             '%head%' + '%altclose%' +
@@ -376,7 +381,8 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 
     // Write the completed template to calling document or 'where' window.
     where.$("body").append($dlgContainer);
-
+    $dlgContainer.modal();
+    
     $(function () {
         // DOM Ready. Handle events and cleanup.
         if (opts.type === 'iframe') {
@@ -397,7 +403,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         $dlgContainer.on('show.bs.modal', function () {
             if (opts.allowResize) {
                 $('.modal-content', this).resizable({
-                    grid: [5,5],
+                    grid: [5, 5],
                     animate: true,
                     animateEasing: "swing",
                     animateDuration: "fast",
@@ -542,9 +548,9 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         frameContentHt = frameContentHt - hasHeader - hasFooter;
         size = (frameContentHt / viewPortHt * 100).toFixed(4);
         size = size + 'vh';
-        $idoc.parents('div.modal-body').css({'height': size, 'max-height': '91.5vh','max-width': '96vw'});
+        $idoc.parents('div.modal-body').css({'height': size, 'max-height': '91.5vh', 'max-width': '96vw'});
         console.log('Modal loaded and sized! Content:' + frameContentHt + ' Viewport:' + viewPortHt + ' Modal height:' +
-            size + ' Type:' + opts.sizeHeight + ' Width:' + viewPortWt + ' isFooter:' + hasFooter);
+            size + ' Type:' + opts.sizeHeight + ' Width:' + hasHeader + ' isFooter:' + hasFooter);
 
         return size;
     }

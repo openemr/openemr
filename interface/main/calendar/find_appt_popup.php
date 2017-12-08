@@ -243,8 +243,16 @@ if (in_array($sdate, $holidays)) {
 }
 
 //////
+?>
 
+<!DOCTYPE html>
+<html>
+<head>
 
+    <?php Header::setupHeader(['common', 'datetime-picker', 'opener']); ?>
+    <title><?php echo xlt('Find Available Appointments'); ?></title>
+
+<?php
 
  // The cktime parameter is a number of minutes into the starting day of a
  // tentative appointment that is to be checked.  If it is present then we are
@@ -274,8 +282,8 @@ if (isset($_REQUEST['cktime'])) {
             echo " opener.document.forms[0].submit();\n";
             echo " window.close();\n";
             echo "}\n";
-            echo "</script></head><body onload='setTimeout(\"mytimeout()\",250);'>" .
-        xlt('Time slot is open, saving event') . "...</body></html>";
+            echo "</script></head><body onload='setTimeout(\"mytimeout()\",2500);'><h4></br>..." .
+        xlt('Time slot is available, saving event') . "...</h4></body></html>";
             exit();
     }
 
@@ -283,12 +291,6 @@ if (isset($_REQUEST['cktime'])) {
     // after this page is loaded.
 }
 ?>
-<!DOCTYPE html>
-<html>
-<head>
-
-    <?php Header::setupHeader(['common', 'datetime-picker', 'opener']); ?>
-    <title><?php echo xlt('Find Available Appointments'); ?></title>
 
 <script language="JavaScript">
 
