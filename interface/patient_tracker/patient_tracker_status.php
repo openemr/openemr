@@ -97,7 +97,7 @@ require_once("$srcdir/patient_tracker.inc.php");
 ?>
  </head>
   <body class="body_top">
-    <center>
+    <div style="text-align: center;">
     <form id="form_note" method="post" action="patient_tracker_status.php?tracker_id=<?php echo attr($tracker_id) ?>" enctype="multipart/form-data" >
     <table>
     <h2><?php echo xlt('Change Status for'). " " . text($row['fname']) . " " . text($row['lname']); ?></h2>
@@ -118,13 +118,13 @@ require_once("$srcdir/patient_tracker.inc.php");
 <br><br>
     <tr>
      <td>
-      <a href='javascript:;' class='css_button_small' style='color:gray' onclick='document.getElementById("form_note").submit();'><span><?php echo xla('Save')?></span></a>
+      <a href='javascript:' class='css_button_small' style='color:gray' onclick='document.getElementById("form_note").submit();'><span><?php echo xla('Save')?></span></a>
       &nbsp;
-      <a href='javascript:;' class='css_button_small' style='color:gray' onclick="window.close().submit();" ><span><?php  echo xla('Cancel'); ?></span></a>
+      <a href='javascript:' class='css_button_small' style='color:gray' onclick="window.close().submit();" ><span><?php  echo xla('Cancel'); ?></span></a>
      </td>
     </tr>
     </table>
     </form>
-    </center>
+    </div>
   </body>
 </html>
