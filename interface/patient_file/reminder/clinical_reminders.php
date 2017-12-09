@@ -21,12 +21,10 @@ require_once("$srcdir/clinical_rules.php");
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 </head>
 
 <?php
@@ -232,8 +230,6 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 <script type="text/javascript">
   $(document).ready(function() {
 
-    enable_modals();
-
     tabbify();
 
     $(".passive_alert").change(function() {
@@ -266,15 +262,18 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
       });
     });
 
-    $(".medium_modal").fancybox( {
-      'overlayOpacity' : 0.0,
-      'showCloseButton' : true,
-      'frameHeight' : 500,
-      'frameWidth' : 800,
-      'centerOnScroll' : false,
-      'callbackOnClose' : function()  {
-        refreshme();
-      }
+    $(".medium_modal").on('click', function(e) {
+        e.preventDefault();
+        dlgopen('', '', 800, 200, '', '', {
+            buttons: [
+                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm', click:refreshme}
+            ],
+            allowResize: false,
+            allowDrag: true,
+            dialogId: '',
+            type: 'iframe',
+            url: $(this).attr('href')
+        });
     });
 
     function refreshme() {
