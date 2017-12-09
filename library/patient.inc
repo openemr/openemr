@@ -443,6 +443,14 @@ function getHistoryData($pid, $given = "*", $dateStart = '', $dateEnd = '')
     return $res;
 }
 
+// function to get the primary insurance for the given patient
+function getPatientPrimaryInsurance($pid)
+{
+     $sql = "SELECT d.provider, i.name FROM insurance_data AS d, insurance_companies AS i WHERE d.type = 'primary' AND d.pid = ? AND d.provider = i.id ";
+     $res = sqlQuery($sql,$pid);
+     return $res;
+}
+
 // function getInsuranceData($pid, $type = "primary", $given = "insd.*, DATE_FORMAT(subscriber_DOB,'%m/%d/%Y') as subscriber_DOB, ic.name as provider_name")
 function getInsuranceData($pid, $type = "primary", $given = "insd.*, ic.name as provider_name")
 {

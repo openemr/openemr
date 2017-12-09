@@ -408,6 +408,13 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
    //
     $rcnt = 0;
     while ($row = $rows[$rcnt++]) {
+
+        #skip if medicare primary insurance  Added by Sherwin 12/08/2017
+        $insurance = getPatientPrimaryInsurance($row['pid']);
+        if ($insurance == 'MEDICARE') {
+            continue ;   // get out
+        }
+        
         $svcdate = substr($row['date'], 0, 10);
         $duedate = $svcdate; // TBD?
         $duncount = $row['stmt_count'];
