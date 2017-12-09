@@ -119,7 +119,7 @@ function image_widget($doc_id, $doc_catg)
         $image_file = $docobj->get_url_file();
         $image_width = $GLOBALS['generate_doc_thumb'] == 1 ? '' : 'width=100';
         $extension = substr($image_file, strrpos($image_file, "."));
-        $viewable_types = array('.png','.jpg','.jpeg','.png','.bmp','.PNG','.JPG','.JPEG','.PNG','.BMP'); // image ext supported by fancybox viewer
+        $viewable_types = array('.png','.jpg','.jpeg','.png','.bmp','.PNG','.JPG','.JPEG','.PNG','.BMP'); // fancybox replaced, now is embedded iframe
     if (in_array($extension, $viewable_types)) { // extention matches list
         $to_url = "<td> <a href = $web_root" .
         "/controller.php?document&retrieve&patient_id=$pid&document_id=$doc_id&as_file=false&original_file=true&disable_exit=false&show_original=true" .
@@ -165,15 +165,14 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 <head>
 
     <?php Header::setupHeader(['common']); ?>
-    <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-    <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 
 <script type="text/javascript" language="JavaScript">
 
  var mypcc = '<?php echo htmlspecialchars($GLOBALS['phone_country_code'], ENT_QUOTES); ?>';
  //////////
  function oldEvt(apptdate, eventid) {
-  dlgopen('../../main/calendar/add_edit_event.php?date=' + apptdate + '&eid=' + eventid, '_blank', 775, 500);
+   let title = '<?php echo xla('Appointments'); ?>';
+   dlgopen('../../main/calendar/add_edit_event.php?date=' + apptdate + '&eid=' + eventid, '_blank', 675, 300, '', title);
  }
 
  function advdirconfigure() {
@@ -201,8 +200,9 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
  }
 
  function newEvt() {
+     let title = '<?php echo xla('Appointments'); ?>';
      let url = '../../main/calendar/add_edit_event.php?patientid=<?php echo htmlspecialchars($pid, ENT_QUOTES); ?>';
-     dlgopen(url, '_blank', 675, 300, '', 'Appointments');
+     dlgopen(url, '_blank', 675, 300, '', title);
      return false;
  }
 
@@ -325,15 +325,18 @@ $(document).ready(function(){
       top.restoreSession();
       $("#clinical_reminders_ps_expand").load("clinical_reminders_fragment.php", { 'embeddedScreen' : true }, function() {
           // (note need to place javascript code here also to get the dynamic link to work)
-          $(".medium_modal").fancybox( {
-                  'overlayOpacity' : 0.0,
-                  'showCloseButton' : true,
-                  'frameHeight' : 500,
-                  'frameWidth' : 800,
-                  'centerOnScroll' : false,
-                  'callbackOnClose' : function()  {
-                  refreshme();
-                  }
+          $(".medium_modal").on('click', function(e) {
+              e.preventDefault();
+              dlgopen('', '', 800, 200, '', '', {
+                  buttons: [
+                      {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+                  ],
+                  allowResize: false,
+                  allowDrag: true,
+                  dialogId: '',
+                  type: 'iframe',
+                  url: $(this).attr('href')
+              });
           });
       });
     <?php } // end crw?>
@@ -365,52 +368,77 @@ while ($gfrow = sqlFetchArray($gfres)) {
 <?php
 }
 ?>
-    // fancy box
-    enable_modals();
-
     tabbify();
 
 // modal for dialog boxes
-  $(".large_modal").fancybox( {
-    'overlayOpacity' : 0.0,
-    'showCloseButton' : true,
-    'frameHeight' : 600,
-    'frameWidth' : 1000,
-    'centerOnScroll' : false
-  });
+    $(".large_modal").on('click', function(e) {
+        e.preventDefault();
+        dlgopen('', '', 1000, 600, '', '', {
+            buttons: [
+                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+            ],
+            allowResize: false,
+            allowDrag: true,
+            dialogId: '',
+            type: 'iframe',
+            url: $(this).attr('href')
+        });
+    });
+
+
 
 // modal for image viewer
-  $(".image_modal").fancybox( {
-    'overlayOpacity' : 0.0,
-    'showCloseButton' : true,
-    'centerOnScroll' : false,
-    'autoscale' : true
-  });
+    $(".image_modal").on('click', function(e) {
+        e.preventDefault();
+        dlgopen('', '', 400, 300, '', '<?php echo xla('Patient Images'); ?>', {
+            allowResize: true,
+            allowDrag: true,
+            dialogId: '',
+            type: 'iframe',
+            url: $(this).attr('href')
+        });
+    });
 
-  $(".iframe1").fancybox( {
-  'left':10,
-    'overlayOpacity' : 0.0,
-    'showCloseButton' : true,
-    'frameHeight' : 300,
-    'frameWidth' : 350
-  });
-// special size for patient portal
-  $(".small_modal").fancybox( {
-    'overlayOpacity' : 0.0,
-    'showCloseButton' : true,
-    'frameHeight' : 200,
-    'frameWidth' : 380,
-            'centerOnScroll' : false
+    $(".iframe1").on('click', function(e) {
+        e.preventDefault();
+        dlgopen('', '', 350, 300, '', '', {
+            buttons: [
+                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+            ],
+            allowResize: false,
+            allowDrag: true,
+            dialogId: '',
+            type: 'iframe',
+            url: $(this).attr('href')
+        });
+    });
+// for patient portal
+  $(".small_modal").on('click', function(e) {
+      e.preventDefault();
+      dlgopen('', '', 380, 200, '', '', {
+          buttons: [
+              {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+          ],
+          allowResize: false,
+          allowDrag: true,
+          dialogId: '',
+          type: 'iframe',
+          url: $(this).attr('href')
+      });
   });
 
   function openReminderPopup() {
-      $("#reminder_popup_link").fancybox({
-          'overlayOpacity' : 0.0,
-          'showCloseButton' : true,
-          'frameHeight' : 500,
-          'frameWidth' : 500,
-          'centerOnScroll' : false,
-      }).trigger('click');
+      top.restoreSession()
+      dlgopen('', 'reminders', 500, 500, '', '', {
+          buttons: [
+              {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+          ],
+          allowResize: false,
+          allowDrag: true,
+          dialogId: '',
+          type: 'iframe',
+          url: $("#reminder_popup_link").attr('href')
+      });
   }
 
 
@@ -423,29 +451,20 @@ while ($gfrow = sqlFetchArray($gfres)) {
     if ($birthdayAlert->isDisplayBirthdayAlert()) {
     ?>
     // show the active reminder modal
-    $("#birthday_popup").fancybox({
-        'overlayOpacity' : 0.0,
-        'showCloseButton' : true,
-        'frameHeight' : 170,
-        'frameWidth' : 200,
-        'centerOnScroll' : false,
-        'callbackOnClose' : function () {
-            <?php if ($active_reminders || $all_allergy_alerts) { ?>
-                //working only with setTimeout 0, must call openReminderPopup only ofter callbackOnClose is finished (fancybox v1 isn't support multi instances)
-                setTimeout(function () {
-                    openReminderPopup();
-                });
-            <?php }?>
-        }
-    }).trigger('click');
+    dlgopen('', 'bdayreminder', 300, 170, '', '<?php echo xla('A Birthday Reminder'); ?>', {
+        allowResize: false,
+        allowDrag: true,
+        dialogId: '',
+        type: 'iframe',
+        url: $("#birthday_popup").attr('href')
+    });
+
     <?php } elseif ($active_reminders || $all_allergy_alerts) { ?>
     openReminderPopup();
     <?php }?>
 <?php } elseif ($active_reminders || $all_allergy_alerts) { ?>
     openReminderPopup();
 <?php }?>
-
-
 
 });
 

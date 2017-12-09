@@ -194,6 +194,7 @@ if (isset($_REQUEST['form_save']) && $_REQUEST['form_save']=='SUBMIT') {
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <script type="text/javascript">
 function transmit(){
 
@@ -241,7 +242,7 @@ function transmit(){
             <td colspan="5" align="center">
                 <a href="#" class="css_button" onclick="return transmit()"><span><?php echo htmlspecialchars(xl('Save'), ENT_QUOTES);?></span></a>
                 <input type="hidden" name="form_cancel" id="form_cancel">
-                <a href="#" class="css_button" onclick="top.restoreSession(); parent.$.fn.fancybox.close();"><span><?php echo htmlspecialchars(xl('Cancel'), ENT_QUOTES);?></span></a>
+                <a href="#" class="css_button" onclick="top.restoreSession(); window.close();"><span><?php echo htmlspecialchars(xl('Cancel'), ENT_QUOTES);?></span></a>
             </td>
         </tr>
     </table>
