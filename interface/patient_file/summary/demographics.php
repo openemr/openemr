@@ -164,7 +164,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 
 <head>
 
-    <?php Header::setupHeader(['common', 'opener']); ?>
+    <?php Header::setupHeader(['common']); ?>
 
 <script type="text/javascript" language="JavaScript">
 

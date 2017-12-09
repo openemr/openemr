@@ -381,7 +381,6 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 
     // Write the completed template to calling document or 'where' window.
     where.$("body").append($dlgContainer);
-    $dlgContainer.modal();
     
     $(function () {
         // DOM Ready. Handle events and cleanup.
