@@ -25,14 +25,14 @@ Run `$ docker ps` to see the OpenEMR and MySQL containers in the following forma
 
 ```
 CONTAINER ID        IMAGE                       COMMAND                  CREATED             STATUS              PORTS                                         NAMES
-769905694cc0        openemr_local_development   "/var/www/localhos..."   4 minutes ago       Up 4 minutes        0.0.0.0:8080->80/tcp, 0.0.0.0:8081->443/tcp   openemrlocaldevelopmentdocker_openemr_1
+769905694cc0        openemr_local_development   "/var/www/localhos..."   4 minutes ago       Up 4 minutes        0.0.0.0:8080->80/tcp, 0.0.0.0:8081->443/tcp   openemrlocaldevelopment
 4876b74e3e41        mysql                       "docker-entrypoint..."   5 minutes ago       Up 5 minutes        3306/tcp                                      openemrlocaldevelopmentdocker_mysql_1
 ```
 
 ### Bash Access
 
 ```
-$ docker run -it openemr_local_development bash
+$ docker exec -it openemr_local_development bash
 ``` 
 
 ### MySQL Client Access
@@ -40,15 +40,16 @@ $ docker run -it openemr_local_development bash
 If you are interested in using the MySQL client line as opposed to a GUI program, execute the following (password is passed in/is simple because this is for local development purposes):
 
 ```
-$ docker run -it openemr_local_development bash
-$ mysql -u root --password=root openemr
+$ docker exec -it openemr_local_development mysql -u root --password=root openemr
 ```
 
 ### Apache Error Log Tail
 
 ```
-$ docker run -it openemr_local_development tail -f /var/log/apache2/error.log
+$ docker exec -it openemr_local_development tail -f /var/log/apache2/error.log
 ```
+
+...if you want the `access.log`, you can use this approach as well.
 
 ### Recommended Development Setup
 

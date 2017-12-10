@@ -9,8 +9,9 @@ services:
       MYSQL_ROOT_PASSWORD: root
     ports:
     - 3307:3306
-  openemr_local_development:
+  openemr:
     restart: always
+    container_name: openemr_local_development 
     build: ./contrib/util/docker
     ports:
     - 8080:80
