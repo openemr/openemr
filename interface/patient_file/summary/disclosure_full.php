@@ -97,12 +97,10 @@ $disclQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CON
 $r2= sqlStatement($disclQry, array($pid));
 $totalRecords=sqlNumRows($r2);
 
-//echo "select id,event,recipient,description,date from extended_log where patient_id=$pid AND event in (select option_id from list_options where list_id='disclosure_type') order by date desc limit $offset ,$N";
-//display all of the disclosures for the day, as well as others that are active from previous dates, up to a certain number, $N
 $disclInnerQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
   " LEFT JOIN users u ON u.username = el.user" .
   " WHERE patient_id = ? AND event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1)" .
-  " ORDER BY date DESC LIMIT $offset, $N";
+  " ORDER BY date DESC LIMIT " . escape_limit($offset) . " , " . escape_limit($N);
 
 $r1= sqlStatement($disclInnerQry, array($pid));
 $n=sqlNumRows($r1);
@@ -159,7 +157,7 @@ if ($n>0) {?>
 <?php
 if ($offset > ($N-1) && $n!=0) {
     echo "   <a class='link' href='disclosure_full.php?active=" . $active .
-    "&offset=" . ($offset-$N) . "' onclick='top.restoreSession()'>[" .
+    "&offset=" . attr($offset-$N) . "' onclick='top.restoreSession()'>[" .
     xlt('Previous') . "]</a>\n";
 }
 ?>
@@ -168,7 +166,7 @@ if ($offset > ($N-1) && $n!=0) {
 
 if ($n >= $N && $noOfRecordsLeft!=$N) {
     echo "&nbsp;&nbsp;   <a class='link' href='disclosure_full.php?active=" . $active.
-    "&offset=" . ($offset+$N)  ."&leftrecords=".$noOfRecordsLeft."' onclick='top.restoreSession()'>[" .
+    "&offset=" . attr($offset+$N)  ."&leftrecords=".$noOfRecordsLeft."' onclick='top.restoreSession()'>[" .
     xlt('Next') . "]</a>\n";
 }
 ?>
