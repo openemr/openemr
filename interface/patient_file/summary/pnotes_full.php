@@ -263,8 +263,10 @@ if ($docid) {
 if ($orderid) {
     $title_docname .= " " . xl("linked to procedure order") . " $orderid";
 }
+$docid_esc=attr($docid);
+$orderid_esc=attr($orderid);
 
-$urlparms = "docid=$docid&orderid=$orderid";
+$urlparms = "docid=$docid_esc&orderid=$orderid_esc";
 ?>
 
     <div>
