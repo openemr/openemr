@@ -60,26 +60,26 @@ EOD;
         if (!defined('INCLUDED_TW_ONETIME_CSS')) {
             define(INCLUDED_TW_ONETIME_CSS, true);
             $s .= <<<EOD
-#enctabs-wrapper{
-  margin: 0px;
-}
-.ui-tabs .ui-tabs-panel {
-  padding: 0px 0px;
-}
-.ui-tabs .ui-tabs-nav .ui-tabs-anchor {
-  padding: .1em .4em;
-}
-EOD;
+        #enctabs-wrapper{
+          margin: 0px;
         }
+        .ui-tabs .ui-tabs-panel {
+          padding: 0px 0px;
+        }
+        .ui-tabs .ui-tabs-nav .ui-tabs-anchor {
+          padding: .1em .4em;
+        }
+EOD;
+            if ($_SESSION['language_direction'] == 'rtl') {
+                $s .= <<<EOD
+        .ui-tabs { direction: rtl; }
+        .ui-tabs .ui-tabs-nav li.ui-tabs-tab {float: right; }
+        .ui-tabs .ui-tabs-nav li a { float: right; }
+        }           
+EOD;
+            }
+}
 
-        if ($_SESSION['language_direction'] == 'rtl') {
-            $s .= <<<EOD
-.ui-tabs { direction: rtl; }
-.ui-tabs .ui-tabs-nav li.ui-tabs-tab {float: right; }
-.ui-tabs .ui-tabs-nav li a { float: right; }
-}  
-EOD;
-        }
 
         $s .= <<<EOD
 #{$this->tabsid} li .ui-icon-close {
