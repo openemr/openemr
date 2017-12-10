@@ -64,8 +64,8 @@ $N = 15;
 $M = 15;
 
 $mode   = $_REQUEST['mode'];
-$offset = $_REQUEST['offset'];
-$offset_sent = $_REQUEST['offset_sent'];
+$offset = int($_REQUEST['offset']);
+$offset_sent = int($_REQUEST['offset_sent']);
 $form_active = $_REQUEST['form_active'];
 $form_inactive = $_REQUEST['form_inactive'];
 $noteid = $_REQUEST['noteid'];
