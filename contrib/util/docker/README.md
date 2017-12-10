@@ -80,6 +80,8 @@ $ docker-compose rm -v
 $ docker-compose up
 ```
 
+If the state is still not good, a last resort would be to run `$ docker system prune`.
+
 ### Git Gotchas
 
 When doing a `$ git status`, you will see a decent amount of files either modified or deleted in `./interface/main/calendar/modules/`, `./sites/default/`, and setup + configration files at `./`. Please do not include these files in your branch by being careful to `$ git add ` only the files you are changing or adding.
