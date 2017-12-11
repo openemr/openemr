@@ -64,8 +64,8 @@ $N = 15;
 $M = 15;
 
 $mode   = $_REQUEST['mode'];
-$offset = (int)$_REQUEST['offset'];
-$offset_sent = (int)$_REQUEST['offset_sent'];
+$offset = $_REQUEST['offset'];
+$offset_sent = $_REQUEST['offset_sent'];
 $form_active = $_REQUEST['form_active'];
 $form_inactive = $_REQUEST['form_inactive'];
 $noteid = $_REQUEST['noteid'];
@@ -504,12 +504,13 @@ if ($result != "") {
   <td>
 <?php
 if ($offset > ($N-1)) {
+    $offsetN = $offset-$N;
     echo "   <a class='link' href='pnotes_full.php" .
     "?$urlparms" .
     "&form_active=" . htmlspecialchars($form_active, ENT_QUOTES) .
     "&form_inactive=" . htmlspecialchars($form_inactive, ENT_QUOTES) .
     "&form_doc_only=" . htmlspecialchars($form_doc_only, ENT_QUOTES) .
-    "&offset=" . ($offset-$N) . "&" . attr($activity_string_html) . "' onclick='top.restoreSession()'>[" .
+    "&offset=" . attr($offsetN) . "&" . attr($activity_string_html) . "' onclick='top.restoreSession()'>[" .
     htmlspecialchars(xl('Previous'), ENT_NOQUOTES) . "]</a>\n";
 }
 ?>
@@ -517,12 +518,13 @@ if ($offset > ($N-1)) {
   <td align='right'>
 <?php
 if ($result_count == $N) {
+    $offsetN = $offset+$N;
     echo "   <a class='link' href='pnotes_full.php" .
     "?$urlparms" .
     "&form_active=" . htmlspecialchars($form_active, ENT_QUOTES) .
     "&form_inactive=" . htmlspecialchars($form_inactive, ENT_QUOTES) .
     "&form_doc_only=" . htmlspecialchars($form_doc_only, ENT_QUOTES) .
-    "&offset=" . ($offset+$N) . "&" . attr($activity_string_html) . "' onclick='top.restoreSession()'>[" .
+    "&offset=" .attr($offsetN) . "&" . attr($activity_string_html) . "' onclick='top.restoreSession()'>[" .
     htmlspecialchars(xl('Next'), ENT_NOQUOTES) . "]</a>\n";
 }
 ?>
@@ -658,13 +660,14 @@ if ($result_sent != "") {
   <td>
 <?php
 if ($offset_sent > ($M-1)) {
+    $offsetSentM = $offset_sent-$M;
     echo "   <a class='link' href='pnotes_full.php" .
     "?$urlparms" .
     "&s=1" .
     "&form_active=" . htmlspecialchars($form_active, ENT_QUOTES) .
     "&form_inactive=" . htmlspecialchars($form_inactive, ENT_QUOTES) .
     "&form_doc_only=" . htmlspecialchars($form_doc_only, ENT_QUOTES) .
-    "&offset_sent=" . ($offset_sent-$M) . "&" . attr($activity_string_html) . "' onclick='top.restoreSession()'>[" .
+    "&offset_sent=" . attr($offsetSentM) . "&" . attr($activity_string_html) . "' onclick='top.restoreSession()'>[" .
     htmlspecialchars(xl('Previous'), ENT_NOQUOTES) . "]</a>\n";
 }
 ?>
@@ -672,13 +675,14 @@ if ($offset_sent > ($M-1)) {
   <td align='right'>
 <?php
 if ($result_sent_count == $M) {
+    $offsetSentM = $offset_sent+$M;
     echo "   <a class='link' href='pnotes_full.php" .
     "?$urlparms" .
     "&s=1" .
     "&form_active=" . htmlspecialchars($form_active, ENT_QUOTES) .
     "&form_inactive=" . htmlspecialchars($form_inactive, ENT_QUOTES) .
     "&form_doc_only=" . htmlspecialchars($form_doc_only, ENT_QUOTES) .
-    "&offset_sent=" . ($offset_sent+$M) . "&" . attr($activity_string_html) . "' onclick='top.restoreSession()'>[" .
+    "&offset_sent=" .  attr($offsetSentM) . "&" . attr($activity_string_html) . "' onclick='top.restoreSession()'>[" .
     htmlspecialchars(xl('Next'), ENT_NOQUOTES) . "]</a>\n";
 }
 ?>
