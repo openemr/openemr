@@ -88,3 +88,9 @@ If the state is still not good, a last resort would be to run `$ docker system p
 When doing a `$ git status`, you will see a decent amount of files either modified or deleted in `./interface/main/calendar/modules/`, `./sites/default/`, and setup + configration files at `./`. Please do not include these files in your branch by being careful to `$ git add ` only the files you are changing or adding.
 
 The gap presented with this "gotcha" is something our community is working to close and we hope to provide a reasonably elegant solution in future releases of this docker-compose system.
+
+## Meta
+
+The reason `docker-assets.zip` is in place is because we don't want to serve up the setup scripts via Apache. There is also an `.htaccess` file in place to really lock down this directory.
+
+If you wish to develop code for this solution, please unzip the contents, make your changes, and then rezip the contents. The Pull Request reviewer will have to manually compare the changes the old-fashioned way :).
