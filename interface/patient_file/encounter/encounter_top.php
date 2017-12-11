@@ -89,7 +89,7 @@ function closeTab(winname, refresh) {
 
 </script>
 </head>
-<body id="enctabs-wrapper">
+<body style="margin: 0px;">
 <?php echo $tabset->genHtml(); ?>
 </body>
 </html>
