@@ -85,7 +85,7 @@ if (isset($_GET['deletelid'])) {
 <br>
 <?php
 $N=15;
-$offset = intval($_REQUEST['offset']);
+$offset =$_REQUEST['offset'];
 if (!isset($offset)) {
     $offset = 0;
 }
