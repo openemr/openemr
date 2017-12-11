@@ -451,7 +451,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
     if ($birthdayAlert->isDisplayBirthdayAlert()) {
     ?>
     // show the active reminder modal
-    dlgopen('', 'bdayreminder', 300, 170, '', '<?php echo xla('A Birthday Reminder'); ?>', {
+    dlgopen('', 'bdayreminder', 300, 170, '', false, {
         allowResize: false,
         allowDrag: true,
         dialogId: '',
