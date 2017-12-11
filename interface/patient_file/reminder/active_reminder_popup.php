@@ -18,6 +18,7 @@ require_once("$srcdir/clinical_rules.php");
 <html>
 <head>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 </head>
 
 <body class="body_top">
@@ -53,7 +54,7 @@ if (!empty($active_alerts) && empty($all_allergy_alerts)) {
 ?>
 </span>&nbsp;&nbsp;&nbsp;</td>
 <td>
-    <a href="#" id="close" class="css_button large_button" onclick="parent.$.fn.fancybox.close(); return false;">
+    <a href="#" id="close" class="css_button large_button" onclick="window.close(); return false;">
         <span class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Close'), ENT_NOQUOTES);?></span>
     </a>
 </td>

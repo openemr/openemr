@@ -1,80 +1,41 @@
-# contrib/util/docker/Dockerfile Automated setup of openemr in docker container
-#
-# Dockerfile providing environment to run openemr in for testing purposes.
-#
-# Copyright (C) 2017 Jeffrey McAteer <jeffrey.p.mcateer@gmail.com>
-#
-# LICENSE: This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 3
-# of the License, or (at your option) any later version.
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
-#
-# @package OpenEMR
-# @author  Jeffrey McAteer <jeffrey.p.mcateer@gmail.com>
-# @link    http://www.open-emr.org
+FROM alpine:3.5
 
-# Quick one-liner:
-# cd contrib/util/docker; docker build . -t openemr; cd ../../..; docker run -it -p 8000:80 -p 3306:3306 -v `pwd`:/var/www/html/ openemr
+#Install dependencies
+#php7-tokenizer will be needed when migrating to 7.1
+RUN apk add --no-cache \
+    apache2 git php7 php7-ctype php7-session php7-apache2 php7-xml \
+    php7-json php7-pdo php7-pdo_mysql php7-curl php7-ldap php7-mcrypt php7-iconv \
+    php7-xml php7-xsl php7-gd php7-zip php7-soap php7-mbstring php7-zlib \
+    php7-mysqli php7-sockets php7-phar php7-openssl perl mysql-client tar curl imagemagick-dev nodejs unzip \
+    python openssl git libffi-dev py-pip python-dev build-base openssl-dev \
+    dcron vim nano bash bash-doc bash-completion tree curl && \
+    apk add apache2-ssl --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.6/main
+RUN npm install -g bower
+RUN curl -sS https://getcomposer.org/installer | php7 -- --install-dir=/usr/bin --filename=composer 
+RUN git clone https://github.com/letsencrypt/letsencrypt /opt/certbot \
+    && pip install -e /opt/certbot/acme -e /opt/certbot \
+    && mkdir -p /etc/ssl/certs /etc/ssl/private \
+    && apk del --no-cache git build-base libffi-dev python-dev
+WORKDIR /var/www/localhost/htdocs/openemr
+VOLUME [ "/etc/letsencrypt/", "/etc/ssl" ]
+#configure apache & php properly
+ENV APACHE_LOG_DIR=/var/log/apache2
+COPY docker-assets.zip .
+RUN unzip docker-assets.zip
+RUN mv php.ini /etc/php7/php.ini
+RUN mv openemr.conf /etc/apache2/conf.d/
+#add runner and auto_configure and prevent auto_configure from being run w/o being enabled
+RUN mv run_openemr.sh /var/www/localhost/htdocs/
+RUN mv auto_configure.php /var/www/localhost/htdocs/
+RUN mv utilities/unlock_admin.php /root/
+RUN mv utilities/unlock_admin.sh /root/
+RUN rm docker-assets.zip
+RUN chmod 500 /var/www/localhost/htdocs/run_openemr.sh /root/unlock_admin.sh \
+    && chmod 000 /var/www/localhost/htdocs/auto_configure.php /root/unlock_admin.php \
+    && ln -s /usr/bin/php7 /usr/bin/php
+#fix issue with apache2 dying prematurely
+RUN mkdir -p /run/apache2
+#go
+CMD [ "/var/www/localhost/htdocs/run_openemr.sh" ]
 
-# NB: The current directory now matters much more when building the container. Move to the contrib/util/docker container to build
-#     so you aren't sending ~500mb to the docker server, then move to the root of the git repo (or hardcode the absolute path)
-#     so the -v flag lines up (the absolute path of the git repo must be on the left, path to mount inside container on right)
-
-# NB: 'localhost' does not resolve to this container - use 127.0.0.1 instead for things like sql server
-
-FROM php:7.0-apache
-LABEL maintainer "jeffrey.p.mcateer@gmail.com"
-
-ENV DEBIAN_FRONTEND noninteractive
-
-RUN yes | apt-get update && \
-    yes | apt-get upgrade && \
-    yes | apt-get install mysql-server libcurl4-gnutls-dev && \
-    docker-php-ext-install mysqli curl pdo_mysql
-
-# Configure SQL
-RUN sed -i 's/bind-address.*127.0.0.1/bind-address = 0.0.0.0/g' /etc/mysql/my.cnf
-RUN /etc/init.d/mysql start; sleep 3; \
-    mysql -u root --password='' -e 'GRANT ALL PRIVILEGES ON *.* TO "root"@"%" IDENTIFIED BY "" WITH GRANT OPTION; FLUSH PRIVILEGES;'
-
-# Setup config per. req
-ENV INI /usr/local/etc/php/conf.d/fixes.ini
-RUN echo '<?php'                    > $INI; \
-    echo 'short_open_tag=false;'    >> $INI; \
-    echo 'max_input_vars=3001;'     >> $INI; \
-    echo 'max_execution_time=61;'   >> $INI; \
-    echo 'max_input_time=91;'       >> $INI; \
-    echo 'post_max_size="31M";'     >> $INI; \
-    echo 'memory_limit="129M";'     >> $INI; \
-    echo 'file_uploads = "On";'     >> $INI; \
-    echo '?>'                       >> $INI
-
-# Protect proper dirs
-ENV CONF /etc/apache2/apache2.conf
-RUN echo '<Directory "/var/www/html">'                      >> $CONF; \
-    echo '      AllowOverride FileInfo'                     >> $CONF; \
-    echo '  </Directory>'                                   >> $CONF; \
-    echo '  <Directory "/var/www/html/sites">'              >> $CONF; \
-    echo '      AllowOverride None'                         >> $CONF; \
-    echo '  </Directory>'                                   >> $CONF; \
-    echo '  <Directory "/var/www/html/sites/*/documents">'  >> $CONF; \
-    echo '      order deny,allow'                           >> $CONF; \
-    echo '      Deny from all'                              >> $CONF; \
-    echo '  </Directory>'                                   >> $CONF; \
-    echo '  <Directory "/var/www/html/sites/*/edi">'        >> $CONF; \
-    echo '      order deny,allow'                           >> $CONF; \
-    echo '      Deny from all'                              >> $CONF; \
-    echo '  </Directory>'                                   >> $CONF; \
-    echo '  <Directory "/var/www/html/sites/*/era">'        >> $CONF; \
-    echo '      order deny,allow'                           >> $CONF; \
-    echo '      Deny from all'                              >> $CONF; \
-    echo '  </Directory>'                                   >> $CONF; \
-    echo 'LoadModule rewrite_module /usr/lib/apache2/modules/mod_rewrite.so' >> $CONF
-
-CMD ["sh", "-c", "[ -e /var/www/html/contrib/util/docker/container_init.sh ] && /var/www/html/contrib/util/docker/container_init.sh || echo 'You have not mounted the openemr directory inside the container.'"]
+EXPOSE 80 443

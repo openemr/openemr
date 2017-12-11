@@ -1339,7 +1339,7 @@ var weekDays = new Array(
                 '&startdate=' + formDate.value +
                 '&evdur=' + document.forms[0].form_duration.value +
                 '&eid=<?php echo 0 + $eid; ?>' + extra,
-                'aeevt', 725, 200, '', title);
+                '', 725, 200, '', title);
     }
 
 </script>
@@ -1348,7 +1348,7 @@ var weekDays = new Array(
 
 </head>
 
-<body class="body_top main-calendar-add_edit_event" onunload='imclosing()'>
+<body class="body_top main-calendar-add_edit_event">
 <div class="container-responsive">
 <form class="form-inline" method='post' name='theform' id='theform' action='add_edit_event.php?eid=<?php echo attr($eid) ?>' />
 <!-- ViSolve : Requirement - Redirect to Create New Patient Page -->
