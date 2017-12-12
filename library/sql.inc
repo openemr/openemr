@@ -24,107 +24,25 @@ require_once(dirname(__FILE__) . "/sqlconf.php");
 require_once(dirname(__FILE__) . "/../vendor/adodb/adodb-php/adodb.inc.php");
 require_once(dirname(__FILE__) . "/../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
 require_once(dirname(__FILE__) . "/log.inc");
+require_once(dirname(__FILE__) . "/ADODB_mysqli_log.php");
 
-/**
-* ADODB_mysql class wrapper to ensure proper auditing in OpenEMR.
-*
-* @author  Kevin Yeh <kevin.y@integralemr.com>
-*/
-class ADODB_mysqli_log extends ADODB_mysqli
-{
-        /**
-        * ADODB Execute function wrapper to ensure proper auditing in OpenEMR.
-        *
-        * @param  string  $sql         query
-        * @param  array   $inputarr    binded variables array (optional)
-        * @return boolean              returns false if error
-        */
-    	function Execute($sql,$inputarr=false)
-        {
-            $retval= parent::Execute($sql,$inputarr);
-            if ($retval === false) {
-              $outcome = false;
-              // Stash the error into last_mysql_error so it doesn't get clobbered when
-              // we insert into the audit log.
-              $GLOBALS['last_mysql_error']=$this->ErrorMsg();
-
-              // Last error no
-              $GLOBALS['last_mysql_error_no']=$this->ErrorNo();
-            }
-            else {
-              $outcome = true;
-            }
-            // Stash the insert ID into lastidado so it doesn't get clobbered when
-            // we insert into the audit log.
-            $GLOBALS['lastidado']=$this->Insert_ID();
-            auditSQLEvent($sql,$outcome,$inputarr);
-            return $retval;
-        }
-
-        /**
-        * ADODB Execute function wrapper to skip auditing in OpenEMR.
-        *
-        * Bypasses the OpenEMR auditing engine.
-        *
-        * @param  string  $sql         query
-        * @param  array   $inputarr    binded variables array (optional)
-        * @return boolean              returns false if error
-        */
-        function ExecuteNoLog($sql,$inputarr=false)
-        {
-            return parent::Execute($sql,$inputarr);
-        }
-
-        /*
-        * ADODB GenID function wrapper to work with OpenEMR.
-        *
-        * Need to override to fix a bug where call to GenID was updating
-        * sequences table but always returning a zero with the OpenEMR audit
-        * engine both on and off. Note this bug only appears to occur in recent
-        * php versions on windows. The fix is to use the ExecuteNoLog() function
-        * rather than the Execute() functions within this function (otherwise,
-        * there are no other changes from the original ADODB GenID function).
-        *
-        * @param  string  $seqname     table name containing sequence (default is adodbseq)
-        * @param  integer $startID     id to start with for a new sequence (default is 1)
-        * @return integer              returns the sequence integer
-        */
-        function GenID($seqname='adodbseq',$startID=1)
-        {
-                // post-nuke sets hasGenID to false
-                if (!$this->hasGenID) return false;
-
-                $getnext = sprintf($this->_genIDSQL,$seqname);
-                $holdtransOK = $this->_transOK; // save the current status
-                $rs = @$this->ExecuteNoLog($getnext);
-                if (!$rs) {
-                        if ($holdtransOK) $this->_transOK = true; //if the status was ok before reset
-                        $u = strtoupper($seqname);
-                        $this->ExecuteNoLog(sprintf($this->_genSeqSQL,$seqname));
-                        $cnt = $this->GetOne(sprintf($this->_genSeqCountSQL,$seqname));
-                        if (!$cnt) $this->ExecuteNoLog(sprintf($this->_genSeq2SQL,$seqname,$startID-1));
-                        $rs = $this->ExecuteNoLog($getnext);
-                }
-
-                if ($rs) {
-                        $this->genID = mysqli_insert_id($this->_connectionID);
-                        $rs->Close();
-                } else
-                        $this->genID = 0;
-
-                return $this->genID;
-        }
+if (!defined('ADODB_FETCH_ASSOC')) {
+    define('ADODB_FETCH_ASSOC', 2);
 }
-if (!defined('ADODB_FETCH_ASSOC')) define('ADODB_FETCH_ASSOC', 2);
+
 $database = NewADOConnection("mysqli_log"); // Use the subclassed driver which logs execute events
-// Below clientFlags flag is telling the mysql connection to allow local_infile setting,
+// Below optionFlags flag is telling the mysql connection to ensure local_infile setting,
 // which is needed to import data in the Administration->Other->External Data Loads feature.
-// Note this is a specific bug to work in Ubuntu 12.04, of which the Data Load feature does not
-// work and is suspicious for a bug in PHP of that OS; Setting this clientFlags fixes this bug
-// and appears to not cause problems in other operating systems.
-$database->clientFlags = 128;
+// (Note the MYSQLI_READ_DEFAULT_GROUP is just to keep the current setting hard-coded in adodb)
+$database->optionFlags = array(array(MYSQLI_READ_DEFAULT_GROUP,0), array(MYSQLI_OPT_LOCAL_INFILE,1));
+// Set mysql to use ssl, if applicable.
+// Can support basic encryption by including just the mysql-ca pem (this is mandatory for ssl)
+// Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
+if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
+    $database->clientFlags = MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT;
+}
 $database->port = $port;
-$database->PConnect($host, $login, $pass, $dbase);
+$database->Connect($host, $login, $pass, $dbase);
 $GLOBALS['adodb']['db'] = $database;
 $GLOBALS['dbh'] = $database->_connectionID;
 
@@ -145,6 +63,10 @@ if (!$sql_strict_set_success) {
 // set up associations in adodb calls (not sure why above define
 //  command does not work)
 $GLOBALS['adodb']['db']->SetFetchMode(ADODB_FETCH_ASSOC);
+
+if ($GLOBALS['debug_ssl_mysql_connection']) {
+    error_log("CHECK SSL CIPHER IN MAIN ADODB: " . print_r($GLOBALS['adodb']['db']->ExecuteNoLog("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true));
+}
 
 //fmg: This makes the login screen informative when no connection can be made
 if (!$GLOBALS['dbh']) {

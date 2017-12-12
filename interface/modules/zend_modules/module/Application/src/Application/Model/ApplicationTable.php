@@ -28,7 +28,7 @@ class ApplicationTable extends AbstractTableGateway
 {
     protected $table = 'application';
     protected $adapter;
-    
+
     /**
      * 
      * @param \Zend\Db\Adapter\Adapter $adapter
@@ -41,7 +41,7 @@ class ApplicationTable extends AbstractTableGateway
       $this->resultSetPrototype->setArrayObjectPrototype(new Application());
       $this->initialize();
     }
-    
+
     /**
      * Function zQuery
      * All DB Transactions take place
@@ -56,6 +56,13 @@ class ApplicationTable extends AbstractTableGateway
     {
       $return = false;
       $result = false;
+
+      if ($GLOBALS['debug_ssl_mysql_connection']) {
+        $temp_return = $this->adapter->query("SHOW STATUS LIKE 'Ssl_cipher';")->execute();
+        foreach ($temp_return as $temp_row) {
+          error_log("CHECK SSL CIPHER IN ZEND: " . print_r($temp_row, true));
+        }
+      }
 
       try {
         $statement  = $this->adapter->query($sql);
@@ -84,7 +91,7 @@ class ApplicationTable extends AbstractTableGateway
       }
       return $return;
     }
-    
+
     /**
      * Function errorHandler
      * All error display and log
@@ -192,14 +199,15 @@ class ApplicationTable extends AbstractTableGateway
                                     ON usr. username =  garo.value
                             WHERE
                                 garo.section_value = ? AND usr. id = ?";
-                                
-        $res_groups     = $this->zQuery($sql_user_group,array('users',$user_id));
+
+        $res_groups     = $this->zQuery($sql_user_group, array('users',$user_id));
         $groups = array();
         foreach($res_groups as $row){
           array_push($groups,$row['group_id']);
         }
-        $groups_str = implode(",",$groups);
-        
+
+        $groups_str = implode(",", $groups);
+
         $count_user_denied      = 0;
         $count_user_allowed     = 0;
         $count_group_denied     = 0;
@@ -339,7 +347,7 @@ class ApplicationTable extends AbstractTableGateway
       }
       return $arr;
     }
-    
+
     /*
     * Retrive the data format from GLOBALS
     *
@@ -371,7 +379,7 @@ class ApplicationTable extends AbstractTableGateway
         
         $temp 	= explode(' ',$input_date); //split using space and consider the first portion, in case of date with time
         $input_date = $temp[0];
-        
+
         $output_format = \Application\Model\ApplicationTable::dateFormat($output_format);
         $input_format = \Application\Model\ApplicationTable::dateFormat($input_format);
         
@@ -391,13 +399,13 @@ class ApplicationTable extends AbstractTableGateway
             $index = array_search($format,$input_date_array);
             $output_date_arr[$key] = $input_date_arr[$index];
         }
-        
+
         $output_date = implode($seperator_output, $output_date_arr);
-        
+
         $output_date = $temp[1] ? $output_date." ".$temp[1] : $output_date; //append the time, if exists, with the new formatted date
         return $output_date;
     }
-    
+
     /*
     * Using generate id function from OpenEMR sql.inc library file
     * @param  string  $seqname     table name containing sequence (default is adodbseq)

@@ -349,7 +349,7 @@ function pnInit()
         define('ADODB_DIR', dirname(__FILE__) . '/../../../../vendor/adodb/adodb-php');
     }
 
-    require ADODB_DIR . '/adodb.inc.php';
+    require_once ADODB_DIR . '/adodb.inc.php';
 
     // Temporary fix for hacking the hlpfile global
     // TODO - remove with pre-0.71 code
@@ -490,6 +490,12 @@ function pnDBInit()
 
     // Start connection
     $dbconn = ADONewConnection($dbtype);
+    // Set mysql to use ssl, if applicable.
+    // Can support basic encryption by including just the mysql-ca pem (this is mandatory for ssl)
+    // Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
+    if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
+        $dbconn->clientFlags = MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT;
+    }
     $dbconn->port = $dbport;
     $dbh = $dbconn->Connect($dbhost, $dbuname, $dbpass, $dbname);
     if (!$dbh) {
@@ -519,6 +525,10 @@ function pnDBInit()
     // force oracle to a consistent date format for comparison methods later on
     if (strcmp($dbtype, 'oci8') == 0) {
         $dbconn->Execute("alter session set NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS'");
+    }
+
+    if ($GLOBALS['debug_ssl_mysql_connection']) {
+        error_log("CHECK SSL CIPHER IN CALENDAR ADODB: " . print_r($dbconn->Execute("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true));
     }
 
     return true;
