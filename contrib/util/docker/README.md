@@ -2,7 +2,7 @@
 
 This is a development Docker Compose solution for programming OpenEMR. New and existing contributors can enjoy the benefits of simply pulling down their fork and running a single command to get coding!
 
-Code changes are _immediately_ reflected in the container. 
+Code changes are _immediately_ reflected in the container.
 
 _Note: This is only to be used for local development purposes. For production-grade deployment options, please check out [openemr-devops](https://github.com/openemr/openemr-devops)._
 
@@ -12,6 +12,7 @@ Install [git](https://git-scm.com/downloads), [docker](https://www.docker.com/ge
 
 ```
 $ git clone git@github.com:YOUR_USERNAME/openemr.git
+$ cd openemr
 $ docker-compose up
 ```
 
@@ -33,7 +34,7 @@ CONTAINER ID        IMAGE                       COMMAND                  CREATED
 
 ```
 $ docker exec -it openemr_local_development bash
-``` 
+```
 
 ### MySQL Client Access
 
