@@ -14,6 +14,9 @@ if ($response !== true) {
 
 // Default values for optional variables that are allowed to be set by callers.
 
+//This is to help debug the ssl mysql connection. This will send messages to php log to show if mysql connections have a cipher set up.
+$GLOBALS['debug_ssl_mysql_connection'] = false;
+
 // Unless specified explicitly, apply Auth functions
 if (!isset($ignoreAuth)) {
     $ignoreAuth = false;

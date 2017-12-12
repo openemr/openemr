@@ -19,6 +19,19 @@ $tmp = $GLOBALS['disable_utf8_flag'] ? "SET sql_mode = ''" : "SET NAMES 'UTF8', 
 $tmp .= ", time_zone = '" . (new DateTime())->format("P") . "'";
 $utf8 = array(PDO::MYSQL_ATTR_INIT_COMMAND => $tmp);
 
+// Set mysql to use ssl, if applicable.
+// Can support basic encryption by including just the mysql-ca pem (this is mandatory for ssl)
+// Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
+if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
+    $utf8[PDO::MYSQL_ATTR_SSL_CA ] = $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca";
+    $utf8[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+    if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
+        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")) {
+        $utf8[PDO::MYSQL_ATTR_SSL_KEY] = $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key";
+        $utf8[PDO::MYSQL_ATTR_SSL_CERT] = $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert";
+    }
+}
+
 // Sets default factory using the default database
 $factories = array(
     'Zend\Db\Adapter\Adapter' => function ($serviceManager) {
@@ -58,7 +71,6 @@ if ($GLOBALS['allow_multiple_databases']) {
 
     $dbh = null; // Close pdo connection
 }
-
 
 return array(
     'db' => array(

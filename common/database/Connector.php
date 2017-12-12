@@ -76,6 +76,11 @@ final class Connector
         static $singletonInstance = null;
         if ($singletonInstance === null) {
             $singletonInstance = new Connector();
+
+            if ($GLOBALS['debug_ssl_mysql_connection']) {
+                // below is to debug mysql ssl connection
+                error_log("CHECK SSL CIPHER IN DOCTRINE: " . print_r($singletonInstance->entityManager->getConnection()->query("SHOW STATUS LIKE 'Ssl_cipher';")->FetchAll(), true));
+            }
         }
 
         return $singletonInstance;
@@ -132,6 +137,19 @@ final class Connector
         $connection['driverOptions'] = array(
             1002 => $driverOptionsString
         );
+
+        // Set mysql to use ssl, if applicable.
+        // Can support basic encryption by including just the mysql-ca pem (this is mandatory for ssl)
+        // Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
+        if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
+            $connection['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA ] = $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca";
+            $connection['driverOptions'][\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+            if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
+                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")) {
+                $connection['driverOptions'][\PDO::MYSQL_ATTR_SSL_KEY] = $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key";
+                $connection['driverOptions'][\PDO::MYSQL_ATTR_SSL_CERT] = $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert";
+            }
+        }
 
         $this->logger->trace("Wiring up Doctrine entities");
         $configuration = Setup::createAnnotationMetadataConfiguration($entityPath, false, null, null, false);
