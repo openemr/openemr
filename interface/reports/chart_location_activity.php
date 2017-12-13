@@ -1,12 +1,15 @@
 <?php
-// Copyright (C) 2008-2015 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
-// This reports checkins and checkouts for a specified patient's chart.
+/**
+ * This reports checkins and checkouts for a specified patient's chart.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2008-2015 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once("../globals.php");
@@ -20,44 +23,41 @@ $form_patient_id = trim($_POST['form_patient_id']);
 ?>
 <html>
 <head>
-<title><?php echo xlt('Chart Location Activity'); ?></title>
+    <title><?php echo xlt('Chart Location Activity'); ?></title>
 
-<?php Header::setupHeader(); ?>
+    <?php Header::setupHeader(); ?>
 
-<style type="text/css">
-
-/* specifically include & exclude from printing */
-@media print {
-    #report_parameters {
-        visibility: hidden;
-        display: none;
+    <style type="text/css">
+    /* specifically include & exclude from printing */
+    @media print {
+        #report_parameters {
+            visibility: hidden;
+            display: none;
+        }
+        #report_parameters_daterange {
+            visibility: visible;
+            display: inline;
+        }
+        #report_results table {
+           margin-top: 0px;
+        }
     }
-    #report_parameters_daterange {
-        visibility: visible;
-        display: inline;
+
+    /* specifically exclude some from the screen */
+    @media screen {
+        #report_parameters_daterange {
+            visibility: hidden;
+            display: none;
+        }
     }
-    #report_results table {
-       margin-top: 0px;
-    }
-}
+    </style>
 
-/* specifically exclude some from the screen */
-@media screen {
-    #report_parameters_daterange {
-        visibility: hidden;
-        display: none;
-    }
-}
-
-</style>
-
-<script language="JavaScript">
- $(document).ready(function() {
-  var win = top.printLogSetup ? top : opener.top;
-  win.printLogSetup(document.getElementById('printbutton'));
- });
-</script>
-
+    <script language="JavaScript">
+        $(document).ready(function() {
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
+        });
+    </script>
 </head>
 
 <body class="body_top">
@@ -85,7 +85,7 @@ if (!empty($form_patient_id)) {
 }
 
 if (!empty($ptrow)) {
-    echo '<span class="title">' . text(xl('for', '', '', ' '));
+    echo '<span class="title">' . xlt('for') . ' ';
     echo text($ptrow['lname']) . ', ' . text($ptrow['fname']) . ' ' . text($ptrow['mname']) . ' ';
     echo "(" . text($ptrow['pubpid']) . ")";
     echo "</span>\n";
