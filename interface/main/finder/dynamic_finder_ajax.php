@@ -151,9 +151,9 @@ while ($row = sqlFetchArray($res)) {
                 $name .= ' ' . $row['mname'];
             }
 
-            $arow[] = $name;
+            $arow[] = attr($name);
         } else {
-            $arow[] = isset($fieldsInfo[$colname]) ? generate_plaintext_field($fieldsInfo[$colname], $row[$colname]) : $row[$colname];
+            $arow[] = isset($fieldsInfo[$colname]) ? attr(generate_plaintext_field($fieldsInfo[$colname], $row[$colname])) : attr($row[$colname]);
         }
     }
 
