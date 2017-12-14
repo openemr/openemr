@@ -279,7 +279,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 
     // Convert dialog size to percentages and/or css class.
     var sizeChoices = ['modal-sm', 'modal-md', 'modal-mlg', 'modal-lg', 'modal-xl'];
-    if (Number.isInteger(width)) {
+    if (Math.abs(width) > 0) {
         width = Math.abs(width);
         mWidth = (width / where.innerWidth * 100).toFixed(4) + '%';
         msSize = '<style>.modal-custom' + winname + ' {width:' + mWidth + ';}</style>';
