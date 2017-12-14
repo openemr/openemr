@@ -262,7 +262,10 @@ class Prescription extends ORDataObject
     }
     function get_encounter()
     {
-        return $_SESSION['encounter'];
+        //This is the original code, I don't know if commenting this out is going to break anything
+        //retrieving the stored encounter
+        //return $_SESSION['encounter'];
+        return $this->encounter;
     }
 
     function get_unit_display($display_form = "")

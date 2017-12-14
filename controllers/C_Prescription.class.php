@@ -524,8 +524,23 @@ class C_Prescription extends Controller
         $pdf->ezText("\n\n\n\n" . xl('Signature') . ":________________________________\n" . xl('Date') . ": " . date('Y-m-d'), 12);
     }
 
-    function multiprintcss_footer()
+    function multiprintcss_footer($p)
     {
+        if ($p->get_encounter())  //Check to see if there is an encounter associated with the prescription
+        {
+            $enc = $p->get_encounter();
+            $sql = "SELECT code FROM billing WHERE code_type = 'ICD10' AND encounter = ?";
+            $list = sqlStatement($sql,$enc);
+            $diagnosis = array();
+            while ($row = sqlFetchArray($list)){
+                $diagnosis[] = $row;
+            }
+            echo "Visit: " . $p->get_encounter() . "<br>";  //Add this to be able to find the encounter that is being referenced for the codes
+            echo "Diagnosis: " ;
+            foreach ($diagnosis as $key => $code) {
+                echo $code['code'] . ", ";
+            }
+        }
         echo ("<div class='signdiv'>\n");
         echo (xl('Signature') . ":________________________________<br>");
         echo (xl('Date') . ": " . date('Y-m-d'));
@@ -690,7 +705,7 @@ class C_Prescription extends Controller
             }
 
             if (++$on_this_page > 3 || $p->provider->id != $this->providerid) {
-                $this->multiprintcss_footer();
+                $this->multiprintcss_footer($p);
                 $this->multiprintcss_header($p);
                 $on_this_page = 1;
             }
@@ -698,7 +713,7 @@ class C_Prescription extends Controller
             $this->multiprintcss_body($p);
         }
 
-        $this->multiprintcss_footer();
+        $this->multiprintcss_footer($p);
         $this->multiprintcss_postfooter();
         return;
     }
@@ -804,7 +819,7 @@ class C_Prescription extends Controller
         $this->multiprintcss_preheader();
         $this->multiprintcss_header($p);
         $this->multiprintcss_body($p);
-        $this->multiprintcss_footer();
+        $this->multiprintcss_footer($p);
         $this->multiprintcss_postfooter();
     }
 
