@@ -59,6 +59,25 @@
             ]
         },
     },
+    <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
+    /**
+     * In RTL languages a datepicker popup is opened in left and it's cutted by the edge of the window
+     * This patch resolves that and moves a datepicker popup to right side.
+     */
+    onGenerate:function(current_time,$input){
+        //position of input
+        var position = $($input).offset()
+        //width of date picke popup
+        var datepickerPopupWidth = $('.xdsoft_datetimepicker').width();
+
+        if(position.left < datepickerPopupWidth){
+            $('.xdsoft_datetimepicker').offset({left:position.left});
+        } else {
+            //put a popup in the regular position
+            $('.xdsoft_datetimepicker').offset({left:position.left - datepickerPopupWidth + $($input).innerWidth()});
+        }
+    },
+    <?php } ?>
     yearStart: '1900',
     scrollInput: false,
     scrollMonth: false,

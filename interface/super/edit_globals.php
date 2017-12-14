@@ -400,7 +400,7 @@ input     { font-size:10pt; }
 <?php // mdsupport - Optional server based searching mechanism for large number of fields on this screen. ?>
 <span style='float: right;'>
     <input name='srch_desc' size='20' type="text"
-        value='<?php echo (!empty($_POST['srch_desc']) ? htmlspecialchars($_POST['srch_desc']) : '') ?>' />
+        value='<?php echo (!empty($_POST['srch_desc']) ? attr($_POST['srch_desc']) : '') ?>' />
     <input type='submit' name='form_search' id='globals_form_search' value='<?php echo xla('Search'); ?>' />
 </span>
 

@@ -28,7 +28,7 @@ class ApplicationTable extends AbstractTableGateway
 {
     protected $table = 'application';
     protected $adapter;
-    
+
     /**
      *
      * @param \Zend\Db\Adapter\Adapter $adapter
@@ -41,7 +41,7 @@ class ApplicationTable extends AbstractTableGateway
         $this->resultSetPrototype->setArrayObjectPrototype(new Application());
         $this->initialize();
     }
-    
+
     /**
      * Function zQuery
      * All DB Transactions take place
@@ -56,6 +56,13 @@ class ApplicationTable extends AbstractTableGateway
     {
         $return = false;
         $result = false;
+
+        if ($GLOBALS['debug_ssl_mysql_connection']) {
+            $temp_return = $this->adapter->query("SHOW STATUS LIKE 'Ssl_cipher';")->execute();
+            foreach ($temp_return as $temp_row) {
+                error_log("CHECK SSL CIPHER IN ZEND: " . print_r($temp_row, true));
+            }
+        }
 
         try {
             $statement  = $this->adapter->query($sql);
@@ -85,7 +92,7 @@ class ApplicationTable extends AbstractTableGateway
 
         return $return;
     }
-    
+
     /**
      * Function errorHandler
      * All error display and log
@@ -139,7 +146,7 @@ class ApplicationTable extends AbstractTableGateway
         $logMsg .= "\n $trace";
         error_log("ERROR: " . $logMsg, 0);
     }
-     
+
     /**
      * Function quoteValue
      * Escape Quotes in the value
@@ -195,7 +202,7 @@ class ApplicationTable extends AbstractTableGateway
                                     ON usr. username =  garo.value
                             WHERE
                                 garo.section_value = ? AND usr. id = ?";
-                                
+
         $res_groups     = $this->zQuery($sql_user_group, array('users',$user_id));
         $groups = array();
         foreach ($res_groups as $row) {
@@ -203,27 +210,27 @@ class ApplicationTable extends AbstractTableGateway
         }
 
         $groups_str = implode(",", $groups);
-        
+
         $count_user_denied      = 0;
         $count_user_allowed     = 0;
         $count_group_denied     = 0;
         $count_group_allowed    = 0;
-        
+
         $res_user_denied    = $this->zQuery($sql_user_acl, array($section_identifier,$user_id,0));
         foreach ($res_user_denied as $row) {
             $count_user_denied  = $row['count'];
         }
-        
+
         $res_user_allowed   = $this->zQuery($sql_user_acl, array($section_identifier,$user_id,1));
         foreach ($res_user_allowed as $row) {
             $count_user_allowed  = $row['count'];
         }
-        
+
         $res_group_denied   = $this->zQuery($sql_group_acl, array($section_identifier,$groups_str,0));
         foreach ($res_group_denied as $row) {
             $count_group_denied  = $row['count'];
         }
-        
+
         $res_group_allowed  = $this->zQuery($sql_group_acl, array($section_identifier,$groups_str,1));
         foreach ($res_group_allowed as $row) {
             $count_group_allowed  = $row['count'];
@@ -249,7 +256,7 @@ class ApplicationTable extends AbstractTableGateway
     {
         $pages        = 0;
         $limitEnd     =  \Application\Plugin\CommonPlugin::escapeLimit($limit);
-      
+
         if (isset($GLOBALS['set_autosuggest_options'])) {
             if ($GLOBALS['set_autosuggest_options'] == 1) {
                 $leading        = '%';
@@ -271,14 +278,14 @@ class ApplicationTable extends AbstractTableGateway
             $leading        = $post->leading;
             $trailing       = $post->trailing;
         }
-      
+
         $queryString  = $post->queryString;
-      
-      
+
+
         $page         = $post->page;
         $searchType   = $post->searchType;
         $searchEleNo  = $post->searchEleNo;
-      
+
         if ($page == '') {
             $limitStart = 0;
         } else {
@@ -347,7 +354,7 @@ class ApplicationTable extends AbstractTableGateway
 
         return $arr;
     }
-    
+
     /*
     * Retrive the data format from GLOBALS
     *
@@ -378,38 +385,38 @@ class ApplicationTable extends AbstractTableGateway
         if (!$input_date) {
             return;
         }
-        
+
         $input_date = preg_replace('/T|Z/', ' ', $input_date);
-        
+
         $temp   = explode(' ', $input_date); //split using space and consider the first portion, in case of date with time
         $input_date = $temp[0];
-        
+
         $output_format = \Application\Model\ApplicationTable::dateFormat($output_format);
         $input_format = \Application\Model\ApplicationTable::dateFormat($input_format);
-        
+
         preg_match("/[^ymd]/", $output_format, $date_seperator_output);
         $seperator_output   = $date_seperator_output[0];
         $output_date_arr    = explode($seperator_output, $output_format);
-        
+
         preg_match("/[^ymd]/", $input_format, $date_seperator_input);
         $seperator_input    = $date_seperator_input[0];
         $input_date_array   = explode($seperator_input, $input_format);
-        
+
         preg_match("/[^1234567890]/", $input_date, $date_seperator_input);
         $seperator_input    = $date_seperator_input[0];
         $input_date_arr     = explode($seperator_input, $input_date);
-  
+
         foreach ($output_date_arr as $key => $format) {
             $index = array_search($format, $input_date_array);
             $output_date_arr[$key] = $input_date_arr[$index];
         }
-        
+
         $output_date = implode($seperator_output, $output_date_arr);
-        
+
         $output_date = $temp[1] ? $output_date." ".$temp[1] : $output_date; //append the time, if exists, with the new formatted date
         return $output_date;
     }
-    
+
     /*
     * Using generate id function from OpenEMR sql.inc library file
     * @param  string  $seqname     table name containing sequence (default is adodbseq)

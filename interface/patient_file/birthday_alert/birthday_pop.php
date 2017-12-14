@@ -22,24 +22,25 @@ use OpenEMR\Core\Header;
     <title><?php echo xlt("Happy Birthday"); ?></title>
 </head>
 <body>
-<p class="h2"><?php echo xlt('Happy Birthday');?><img src="<?php echo$GLOBALS['images_static_relative']?>/balloons-154949_960_720.png" height="42" width="42"></p>
+    <div style="padding: 15px; text-align: center">
+        <p class="h2"><?php echo xlt('Happy Birthday');?>&ensp;<img src="<?php echo$GLOBALS['images_static_relative']?>/balloons-154949_960_720.png" height="42" width="42"></p>
 
-<?php if ($GLOBALS['patient_birthday_alert_manual_off']) { ?>
-    <div class="checkbox">
-        <label><input type="checkbox" name="turnOff" id="turnOff" value="1"><?php echo xlt('Turn Off birthday alert');?></label>
+        <?php if ($GLOBALS['patient_birthday_alert_manual_off']) { ?>
+            <div class="checkbox">
+                <label><input type="checkbox" name="turnOff" id="turnOff" value="1"><?php echo xlt('Turn Off birthday alert');?></label>
+            </div>
+        <?php } else { ?>
+            <div class="checkbox" style="visibility: hidden;">
+                <label><input type="checkbox" name="turnOff" id="turnOff" value="1" checked><?php echo xlt('Turn Off birthday alert');?></label>
+            </div>
+        <?php } ?>
     </div>
-<?php } else { ?>
-    <div class="checkbox" style="visibility: hidden;">
-        <label><input type="checkbox" name="turnOff" id="turnOff" value="1" checked><?php echo xlt('Turn Off birthday alert');?></label>
-    </div>
-<?php } ?>
-
 <script>
     <?php if ($GLOBALS['patient_birthday_alert_manual_off']) { ?>
         $("#turnOff").change(function () {
     <?php } ?>
-            var pid = <?php echo attr($_GET['pid'])?>;
-            var user_id = <?php echo attr($_GET['user_id'])?>;
+            var pid = "<?php echo attr($_GET['pid'])?>";
+            var user_id = "<?php echo attr($_GET['user_id'])?>";
             var value = $("#turnOff").prop('checked');
             var data =  {"pid": pid, "user_id": user_id, "turnOff": value};
             $.ajax({
