@@ -99,6 +99,9 @@ class DataDriverMySQLi implements IDataDriver
                 );
             }
         }
+        if (!defined(MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT)) {
+            define(MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT, 64);
+        }
         if ($mysqlSsl) {
             $ok = mysqli_real_connect(
                 $connection,
