@@ -176,10 +176,9 @@ class gacl {
             // Can support basic encryption by including just the mysql-ca pem (this is mandatory for ssl)
             // Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
             if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
-                if (!defined(MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT)) {
-                    define(MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT, 64);
-                }
-                $this->db->clientFlags = MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT;
+                if (defined('MYSQLI_CLIENT_SSL')) {
+                    $this->db->clientFlags = MYSQLI_CLIENT_SSL;
+            	}
             }
 
 			// Port to be used in connection
