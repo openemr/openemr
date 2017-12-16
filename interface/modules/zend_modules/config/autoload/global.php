@@ -24,7 +24,6 @@ $utf8 = array(PDO::MYSQL_ATTR_INIT_COMMAND => $tmp);
 // Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
 if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
     $utf8[PDO::MYSQL_ATTR_SSL_CA ] = $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca";
-    $utf8[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
     if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
         file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")) {
         $utf8[PDO::MYSQL_ATTR_SSL_KEY] = $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key";
