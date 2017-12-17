@@ -184,7 +184,7 @@ class gacl {
 			// Port to be used in connection
 			$this->db->port = $sqlconf["port"];
 
-			$this->db->Connect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
+			$this->db->PConnect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
 
 		        // Modified 5/2009 by BM for UTF-8 project
 		        if ($this->_db_utf8_flag) {
