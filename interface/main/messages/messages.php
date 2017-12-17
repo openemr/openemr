@@ -61,15 +61,12 @@ if (($_POST['setting_bootstrap_submenu']) ||
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-migrate/jquery-migrate-3.0.0.min.js"></script>
 
-    <link rel="stylesheet"
-          href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/themes/excite-bike/jquery-ui.css">
     <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
         <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css"
               rel="stylesheet" type="text/css"/>
     <?php } ?>
     <link rel="stylesheet"
           href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.css"/>
     <link rel="stylesheet"
           href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
@@ -80,6 +77,8 @@ if (($_POST['setting_bootstrap_submenu']) ||
     <link rel="stylesheet"
           href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>"
           type="text/css">
+    <link rel="stylesheet"
+          href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/themes/redmond/jquery-ui.css">
 
     <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico"/>
 
@@ -87,9 +86,7 @@ if (($_POST['setting_bootstrap_submenu']) ||
             src="<?php echo $GLOBALS['web_root']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
     <script type="text/javascript"
             src="<?php echo $GLOBALS['web_root']; ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.js"></script>
-    <script type="text/javascript"
+     <script type="text/javascript"
             src="<?php echo $GLOBALS['assets_static_relative'] ?>/moment-2-13-0/moment.js"></script>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -99,9 +96,8 @@ if (($_POST['setting_bootstrap_submenu']) ||
         var xljs_PthsApSched = '<?php echo xl('This patient already has an appointment scheduled for'); ?>';
         var xljs_PlsDecRecDate = '<?php echo xl('Please decide on a Recall Date'); ?>';
         <?php
-
         if ($GLOBALS['date_display_format'] == '0') {
-            $date_format = 'yy-m-d';
+            $date_format = 'yy-mm-dd';
         } elseif ($GLOBALS['date_display_format'] == '1') {
             $date_format = 'mm/dd/yy';
         } elseif ($GLOBALS['date_display_format'] == '2') {
@@ -109,6 +105,7 @@ if (($_POST['setting_bootstrap_submenu']) ||
         }
         ?>
         var xljs_dateFormat = '<?php echo $date_format; ?>';
+
     </script>
     <script type="text/javascript"
             src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
@@ -123,9 +120,14 @@ if (($_POST['setting_bootstrap_submenu']) ||
     <meta name="author" content="OpenEMR: MedExBank">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        label {
-            font-weight: 400;
+        .btn {
+            border: solid black 0.5pt;
+            box-shadow: 3px 3px 3px #7b777760;
         }
+        .ui-datepicker-year {
+            color: #000;
+        }
+
     </style>
 
 </head>
@@ -157,7 +159,7 @@ if (!empty($_REQUEST['go'])) { ?>
     } elseif ($_REQUEST['go'] == 'SMS_bot') {
         $MedEx->display->SMS_bot($logged_in);
     } else {
-        echo xlt('Warning') . ": " . xlt('Navigation error') . ". " . xlt('Please behave') . ".";
+        echo xlt('Warning') . ": " . xlt('Navigation error') . ". " . xlt('Please refresh this page') . ".";
     }
 } else {
     //original message.php stuff
@@ -166,7 +168,7 @@ if (!empty($_REQUEST['go'])) { ?>
         <div class="row">
             <div class="col-sm-4 text-left col-offset-sm-2">
                 <div>
-                    <span class="title text-left"><?php echo xlt('Messages'); ?></span>
+                    <span class="title"><?php echo xlt('Messages'); ?></span><br /><br />
                     <?php
                     // TajEmo Work by CB 2012/01/11 02:51:25 PM adding dated reminders
                     // I am asuming that at this point security checks have been performed
@@ -180,10 +182,10 @@ if (!empty($_REQUEST['go'])) { ?>
                     <div class="dr_container">
                         <span class="title"><?php echo xlt('Recalls'); ?></span>
                         <br/><br/>
-                        <a class="css_button_small btn"
+                        <a class="btn btn-primary"
                            onclick="goReminderRecall('addRecall');"><span><?php echo xlt('New Recall'); ?></span></a>
                         &nbsp;
-                        <a class="css_button_small btn"
+                        <a class="btn btn-primary"
                            onclick="goReminderRecall('Recalls');"><span><?php echo xlt('Recall Board'); ?></span></a>
                         &nbsp;
                     </div>
@@ -407,7 +409,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 echo($task == "addnew" ? "cursor:pointer;cursor:hand;" : "") ?>' value='<?php
                                 echo attr($patientname); ?>' <?php
                                 echo(($task == "addnew" || $result['pid'] == 0) ? "onclick='sel_patient()' readonly" : "disabled") ?>
-                                       title='<?php
+                                      data-toggle='tooltip' title='<?php
                                        echo($task == "addnew" ? (xlt('Click to select patient')) : "") ?>'/>
                                 <input type='hidden' class="form-control" name='reply_to' id='reply_to'
                                        value='<?php echo attr($reply_to); ?>'/>
@@ -522,14 +524,15 @@ if (!empty($_REQUEST['go'])) { ?>
 
                     <?php if ($noteid) { ?>
                         <!-- This is for displaying an existing note. -->
-                        <input type="button" class="form-control" id="newnote"
+                        <input type="button" class="form-control btn btn-primary" id="newnote"
                                value="<?php echo xla('Send message'); ?>">
-                        <input type="button" class="form-control" id="printnote"
+                        <input type="button" class="form-control btn btn-primary" id="printnote"
                                value="<?php echo xla('Print message'); ?>">
-                        <input type="button" class="form-control" id="cancel" value="<?php echo xla('Cancel'); ?>">
+                        <input type="button" class="form-control btn btn-primary" id="cancel"
+                               value="<?php echo xla('Cancel'); ?>">
                     <?php } else { ?>
                         <!-- This is for displaying a new note. -->
-                        <input type="button" class="form-control" id="newnote"
+                        <input type="button" class="form-control btn btn-primary" id="newnote"
                                value="<?php echo xla('Send message'); ?>">
                         <input type="button" class="form-control" id="cancel" value="<?php echo xla('Cancel'); ?>">
                     <?php }

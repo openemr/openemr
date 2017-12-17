@@ -25,7 +25,7 @@ require_once(dirname(__FILE__) ."/../log.inc");
    
 function start_MedEx()
 {
-    $hb = new MedExApi\MedEx('api.MedExBank.com');
+    $hb = new MedExApi\MedEx('MedExBank.com');
     $logged_in = $hb->login();
     if ($logged_in) {
         $token      = $logged_in['token'];

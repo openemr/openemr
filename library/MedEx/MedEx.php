@@ -2,7 +2,23 @@
 /**
  * /library/MedEx/MedEx.php
  *
- * This file is the callback service for MedEx
+ * This file is the callback service for MedEx to update local DB with new responses in real-time.
+ * It must be accessible remotely to receive data synchronously.
+ *
+ * It is not required if a practice is happy syncing using background services only.
+ *
+ * The advantages using this file are:
+ *  1.  Real time updates of patient responses == synchronous receiver
+ *  2.  Reduced need to run the MedEx_background service
+ *          - MedEx_background syncs DB responses asynchronously, ie only when run (default = every 29 minutes)
+ *          - It consumes resources and may affecting performance of the server if run too often.
+ *              (see MedEx_background.php for configuration examples)
+ *
+ * Uses multiple authentication steps for security:
+ *  - local API_key
+ *  - MedEx username
+ *  - session token
+ *  - MedEx generated token
  *
  * @package MedEx
  * @author MedEx <support@MedExBank.com>
@@ -22,18 +38,19 @@ require_once(dirname(__FILE__)."/../formatting.inc.php");
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 
-$logged_in = $MedEx->login($_POST['callback_key']);
+$logged_in = $MedEx->login();
 if (($logged_in) && (!empty($_POST['callback_key']))) {
-    $data = json_decode($_POST, true);
     $response = $MedEx->callback->receive($data);
     if (!empty($response['success'])) {
         $token      = $logged_in['token'];
-        $response   = $MedEx->practice->sync($token);
-        $campaigns  = $MedEx->campaign->events($token);
-        $response   = $MedEx->events->generate($token, $campaigns['events']);
-        echo "200";
-        exit;
+        $response['practice']   = $MedEx->practice->sync($token);
+        $response['campaigns']  = $MedEx->campaign->events($token);
+        $response['generate']   = $MedEx->events->generate($token, $response['campaigns']['events']);
+        $response['success']    = "200";
     }
+    header('Content-type: application/json');
+    echo json_encode($response);
+    exit;
 }
 echo "Not logged in: ";
 echo $MedEx->getLastError();

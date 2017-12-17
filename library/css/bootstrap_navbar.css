@@ -1,5 +1,5 @@
 .little_image { width:20px; }
-.navbar { height: 22px; z-index:1000;} 
+.navbar { height: 22px; z-index:1100;} 
 .navbar-fixed-top {
     background-color: #C9DBF2;
 padding: 0px;
@@ -43,6 +43,7 @@ z-index: 1000;
 .dropdown-menu {
     background-color:#dee9f7; /* Mac Menu dropdown bar background color */
 }
+
 .dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
     color: #fff; /*#262626;*/
     text-decoration: none;
@@ -55,16 +56,13 @@ z-index: 1000;
     padding:10 5 0 10;
     margin: 10px 0px 2px 0px;   
 }
-.Xdropdown:hover {
-	background-color: #1C5ECF;
-	color:#fff;
-}
+
 li.open > a:first {
     color:#fff  !important;
 }
 .navbar-nav > li > .dropdown .open {
-    Xmargin-top: 1px;
-    Xbackground-color:red;
+    margin-top: 1px;
+    background-color:red;
 }
 .dropdown-menu .divider {
     height: 1px;

@@ -14,34 +14,7 @@ var show_just;
 
 
 $(function () {
-    $("#datepicker1").datepicker({
-        beforeShow: function () {
-            setTimeout(function () {
-                $('.ui-datepicker').css('z-index', 99999999999999);
-            }, 0);
-        },
-        changeYear: true,
-        defaultDate: "-6m",
-        showButtonPanel: true,
-        dateFormat: xljs_dateFormat,
-        onSelect: function (dateText, inst) {
-            $('#' + inst.id).attr('value', dateText);
-        }
-    });
-    $("#datepicker2").datepicker({
-        beforeShow: function () {
-            setTimeout(function () {
-                $('.ui-datepicker').css('z-index', 99999999999999);
-            }, 0);
-        },
-        changeYear: true,
-        defaultDate: "+1m",
-        showButtonPanel: true,
-        dateFormat: xljs_dateFormat,
-        onSelect: function (dateText, inst) {
-            $('#' + inst.id).attr('value', dateText);
-        }
-    });
+  
 });
 
 
@@ -255,8 +228,6 @@ function process_this(material, id, eid='') {
             // $("#msg_notes_"+r_uid).val(present+" "+material+" printed.\n");
             //$("#msg_notes_"+r_uid).focus();
         });
-
-        //refresh_me();
     });
     //
 
@@ -361,9 +332,9 @@ function show_this(colorish='') {
 
     $('.ALL').hide().filter(function () {
         var d = $(this).data();
-        meets_fac = (facV === '') || (facV === d.facility);
-        meets_prov = (provV === '') || (provV === d.provider);
-        meets_pid = pidV === '';
+        meets_fac = (facV === '') || (facV == d.facility);
+        meets_prov = (provV === '') || (provV == d.provider);
+        meets_pid = pidV == '';
         if ((pidV > '') && pidRE.test(d.pid)) {
             meets_pid = true;
         }
@@ -382,22 +353,21 @@ function tabYourIt(tabNAME, url) {
     parent.left_nav.loadFrame('1', tabNAME, url);
 }
 
-
 $(document).ready(function () {
     //bootstrap menu functions
     $('.dropdown').hover(function () {
         $(".dropdown").removeClass('open');
         $(this).addClass('open');
-        // $(this).find('.dropdown-menu').first().stop(true, true).delay(250).slideDown();
+        $(this).find('.dropdown-menu').first().stop(true, true).delay(250).slideDown();
     }, function () {
-        // $(this).find('.dropdown-menu').first().stop(true, true).delay(250).slideUp();
-        $("[class='dropdown']").removeClass('open');
+        $(this).find('.dropdown-menu').first().stop(true, true).delay(250).slideUp();
+        $('.dropdown').removeClass('open');
         $(this).parent().removeClass('open');
     });
     $("[class='dropdown-toggle']").hover(function () {
         $(".dropdown").removeClass('open');
         $(this).parent().addClass('open');
-        //$(this).find('.dropdown-menu').first().stop(true, true).delay(250).slideDown();
+        $(this).find('.dropdown-menu').first().stop(true, true).delay(250).slideDown();
     });
     $(".divTableRow").mouseover(function () {
         if ((!$(this).hasClass('divTableHeading')) &&
@@ -431,5 +401,32 @@ $(document).ready(function () {
             }, 2000);
         });
     });
+                  $('[data-toggle="tooltip"]').tooltip();
+                  $("#datepicker1").datepicker({
+                                                       beforeShow: function () {
+                                                           setTimeout(function () {
+                                                                      $('.ui-datepicker').css('z-index', 999);
+                                                                      }, 0);
+                                                           },
+                                                       changeYear: true,
+                                                       showButtonPanel: true,
+                                                       dateFormat: xljs_dateFormat,
+                                                       onSelect: function (dateText, inst) {
+                                                           $('#' + inst.id).attr('value', dateText).css('text-align','center');
+                                                       }
+                                                       });
+                  $("#datepicker2").datepicker({
+                                                beforeShow: function () {
+                                                setTimeout(function () {
+                                                           $('.ui-datepicker').css('z-index', 999);
+                                                           }, 0);
+                                                },
+                                                changeYear: true,
+                                                showButtonPanel: true,
+                                                dateFormat: xljs_dateFormat,
+                                                onSelect: function (dateText, inst) {
+                                                $('#' + inst.id).attr('value', dateText);
+                                                }
+                                                });
 });
 

@@ -139,8 +139,6 @@ if (!$_REQUEST['flb_table']) {
     <title><?php echo xlt('Flow Board'); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet"
-          href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/excite-bike/jquery-ui.css">
     <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
         <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css"
               rel="stylesheet" type="text/css"/>
@@ -154,8 +152,10 @@ if (!$_REQUEST['flb_table']) {
           href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>"
           type="text/css">
     <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+    <link rel="stylesheet"
+          href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/themes/redmond/jquery-ui.css" />
 
-    <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico"/>
+    <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico" />
 
     <script type="text/javascript"
             src="<?php echo $GLOBALS['web_root']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
@@ -164,6 +164,11 @@ if (!$_REQUEST['flb_table']) {
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/jquery-ui.min.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-migrate/jquery-migrate-3.0.0.min.js"></script>
+    <script type="text/javascript"
+            src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>">
+    </script>
+
     <script>
         <?php
         if ($GLOBALS['date_display_format'] == '0') {
@@ -176,11 +181,12 @@ if (!$_REQUEST['flb_table']) {
         ?>
         var xljs_dateFormat = '<?php echo $date_format; ?>';
     </script>
-    <script type="text/javascript"
-            src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
     <script type="text/javascript">
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>
+    <link rel="stylesheet"
+          href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/themes/cupertino/jquery-ui.css">
+
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js">
     </script>
     <meta charset="utf-8">
@@ -234,17 +240,23 @@ if (!$_REQUEST['flb_table']) {
             margin: 0 auto;
             width: 70%;
         }
+        .ui-datepicker-year {
+            color: #000;
+        }
+        input[type="text"] {
+            text-align:center;
+        }
     </style>
 
 </head>
 
 <body class="body_top">
-<?php
-if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
-    $MedEx->display->navigation($logged_in);
-}
-?>
-<div class="container-fluid" style="margin-top: 20px;">
+    <?php
+    if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
+        $MedEx->display->navigation($logged_in);
+    }
+    ?>
+    <div class="container-fluid" style="margin-top: 20px;">
     <div class="row-fluid" id="flb_selectors" style="display:<?php echo attr($setting_selectors); ?>;">
         <div class="col-sm-12">
             <div class="showRFlow" id="show_flows" style="text-align:center;margin:20px auto;" name="kiosk_hide">
@@ -267,7 +279,7 @@ if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
                             //generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>$xl_All),$_POST['form_apptstatus']);
                             //remove and replace Matrix code to add bootstrap class form-group and padding
                             ?>
-                            <select id="form_apptcat" name="form_apptcat" class="form-group"
+                            <select id="form_apptcat" name="form_apptcat" class="form-group ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all"
                                     onchange="refineMe('apptcat');" title="">
                                 <?php
                                 $categories = fetchAppointmentCategories();
@@ -282,7 +294,7 @@ if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
                                 ?>
                             </select>
 
-                            <select id="form_apptstatus" name="form_apptstatus" class="form-group"
+                            <select id="form_apptstatus" name="form_apptstatus" class="form-group ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all"
                                     onchange="refineMe();">
                                 <option value=""><?php echo xlt("Visit Status"); ?></option>
 
@@ -305,7 +317,7 @@ if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
                                    onKeyUp="refineMe();">
                         </div>
                         <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
-                            <select class="form-group" id="form_facility" name="form_facility"
+                            <select class="form-group ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" id="form_facility" name="form_facility"
                                 <?php
                                 $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
                                 while ($fac = sqlFetchArray($fac_sql)) {
@@ -339,7 +351,7 @@ if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
                             }
                             ?>
 
-                            <select class="form-group" id="form_provider" name="form_provider" <?php
+                            <select class="form-group ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" id="form_provider" name="form_provider" <?php
                             if ($count_provs < '2') {
                                 echo "disabled";
                             }
@@ -358,7 +370,7 @@ if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
                         </div>
                         <div class="col-sm-<?php echo $col_width; ?>">
                             <div style="margin: 0 auto;" class="input-append">
-                                <table class="table-condensed" style="margin:0 auto;">
+                                <table class="table-hover table-condensed" style="margin:0 auto;">
                                     <?php
                                     if ($GLOBALS['ptkr_date_range'] == '1') {
                                         $type = 'date';
@@ -367,34 +379,32 @@ if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
                                         $type = 'hidden';
                                         $style = 'display:none;';
                                     } ?>
-                                    <tr style="<?php echo $style; ?>">
-                                        <td class="text-right" style="vertical-align:bottom;">
+                                    <tr style="<?php echo $style; ?>" class="align-bottom">
+                                        <td class="text-right align-bottom">
                                             <label for="flow_from"><?php echo xlt('From'); ?>:</label></td>
                                         <td>
-                                            <input type="date" id="datepicker1" name="datepicker1"
-                                                   data-provide="datepicker"
-                                                   data-format="<?php echo $date_format; ?>"
-                                                   class="form-control hasDatepicker input-sm text-center"
-                                                   value="<?php echo attr($from_date); ?>"
+                                            <input type="text"
+                                                   id="datepicker1" name="datepicker1"
+                                                   class="form-control input-sm text-center"
+                                                   value="<?php echo oeFormatShortDate($from_date); ?>"
                                                    style="max-width:140px;min-width:85px;">
                                         </td>
                                     </tr>
                                     <tr style="<?php echo $style; ?>">
-                                        <td class="text-right" style="vertical-align:bottom;">
+                                        <td class="text-right">
                                             <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To'); ?>:</label></td>
                                         <td>
-                                            <input type="date" id="datepicker2" name="datepicker2"
-                                                   data-provide="datepicker"
-                                                   data-format="<?php echo $date_format; ?>"
-                                                   class="form-control hasDatepicker input-sm text-center"
-                                                   value="<?php echo attr($to_date); ?>"
+                                            <input type="text"
+                                                   id="datepicker2" name="datepicker2"
+                                                   class="form-control input-sm text-center"
+                                                   value="<?php echo oeFormatShortDate($to_date); ?>"
                                                    style="max-width:140px;min-width:85px;">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-center" colspan="2">
                                             <input href="#"
-                                                   class="css_button btn ui-buttons ui-widget ui-corner-all news"
+                                                   class="btn btn-primary"
                                                    type="submit" id="filter_submit"
                                                    value="<?php echo xla('Filter'); ?>">
                                             <input type="hidden" id="kiosk" name="kiosk"
@@ -411,8 +421,12 @@ if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
 
                                 <div class="text-center" style="margin: 0 auto;">
                                     <b><u>MedEx <?php echo xlt('Reminders'); ?></u></b><br/>
-                                    <div class="text-left" style="width: 70%;margin: 5px auto;">
-                                        <?php echo $current_events; ?>
+                                    <div class="text-left" style="width: 50%;margin: 5px auto;">
+                                        <a href="https://medexbank.com/cart/upload/index.php?route=information/campaigns&amp;g=rem"
+                                           target="_medex">
+
+                                            <?php echo $current_events; ?>
+                                        </a>
                                     </div>
                                 </div>
                             <?php } ?>
@@ -425,7 +439,7 @@ if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
     </div>
     <div class="row-fluid">
         <div class="row divTable">
-            <div class="col-sm-12 text-center small" style='margin:5px;'>
+            <div class="col-sm-12 text-center" style='margin:5px;'>
                 <span class="hidden-xs" id="status_summary">
                     <?php
                     $statuses_output = "<span style='margin:0 10px;'><em>" . xlt('Total patients') . ':</em> <span class="badge">' . text($appointments_status['count_all']) . "</span></span>";
@@ -453,9 +467,9 @@ if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
                        class='fa fa-caret-<?php echo $caret = ($setting_selectors == 'none') ? 'down' : 'up'; ?> fa-stack-1x'></i>
                   </span>
                  
-                  <a class='css_button' onclick="print_FLB();"> <?php echo xlt('Print'); ?> </a>
+                  <a class='btn btn-primary' onclick="print_FLB();"> <?php echo xlt('Print'); ?> </a>
                 
-                  <a class='css_button' onclick="kiosk_FLB();"> <?php echo xlt('Kiosk'); ?> </a>
+                  <a class='btn btn-primary' onclick="kiosk_FLB();"> <?php echo xlt('Kiosk'); ?> </a>
                 </span>
             </div>
 
@@ -794,9 +808,9 @@ if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
 
                         $timecheck = round(abs($to_time - $from_time) / 60, 0);
                         if ($timecheck >= $statalert && ($statalert > '0')) { // Determine if the time in status limit has been reached.
-                            echo "<td class='text-center  js-blink-infinite small'>  "; // and if so blink
+                            echo "<td class='text-center  js-blink-infinite small' nowrap>  "; // and if so blink
                         } else {
-                            echo "<td class='detail text-center'> "; // and if not do not blink
+                            echo "<td class='detail text-center' nowrap> "; // and if not do not blink
                         }
                         if (($yestime == '1') && ($timecheck >= 1) && (strtotime($newarrive) != '')) {
                             echo text($timecheck . ' ' . ($timecheck >= 2 ? xl('minutes') : xl('minute')));
@@ -906,8 +920,9 @@ if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
     </form>
 
     <?php echo myLocalJS(); ?>
+</body>
+</html>
     <?php
-    echo "</body></html>";
     } //end of second !$_REQUEST['flb_table']
 
     //$content = ob_get_clean();
@@ -1006,10 +1021,10 @@ if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
                 //and hide what we don't want to show
                 $('#flb_table tbody tr').hide().filter(function () {
                     var d = $(this).data();
-                    meets_cat = (apptcatV === '') || (apptcatV === d.apptcat);
-                    meets_stat = (apptstatV === '') || (apptstatV === d.apptstatus);
-                    meets_fac = (facV === '') || (facV === d.facility);
-                    meets_prov = (provV === '') || (provV === d.provider);
+                    meets_cat = (apptcatV === '') || (apptcatV == d.apptcat);
+                    meets_stat = (apptstatV === '') || (apptstatV == d.apptstatus);
+                    meets_fac = (facV === '') || (facV == d.facility);
+                    meets_prov = (provV === '') || (provV == d.provider);
                     meets_pid = (pidV === '');
                     if ((pidV > '') && pidRE.test(d.pid)) {
                         meets_pid = true;
@@ -1104,7 +1119,6 @@ if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
                 $("[name='kiosk_hide']").show();
                 $("[name='kiosk_show']").hide();
 
-
                 onresize = function () {
                     var state = 1 >= outerHeight - innerHeight ? "fullscreen" : "windowed";
                     if (window.state === state) return;
@@ -1126,8 +1140,6 @@ if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
                     $("[name='kiosk_show']").show();
                     //alert(e.type);
                 }, false);
-
-
 
                 <?php
                 if ($GLOBALS['pat_trkr_timer'] != '0') {
@@ -1169,7 +1181,6 @@ if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
                     });
                 });
 
-
                 // mdsupport - Immediately post changes to setting_new_window
                 $('#setting_new_window').click(function () {
                     $('#setting_new_window').val(this.checked ? 'checked' : ' ');
@@ -1195,8 +1206,36 @@ if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
                     top.restoreSession;
                     refreshMe();
                 });
-            });
 
+                $('[data-toggle="tooltip"]').tooltip();
+
+                $("#datepicker1").datepicker({
+                    beforeShow: function () {
+                        setTimeout(function () {
+                            $('.ui-datepicker').css('z-index', 999);
+                        }, 0);
+                    },
+                    changeYear: true,
+                    showButtonPanel: true,
+                    dateFormat: xljs_dateFormat,
+                    onSelect: function (dateText, inst) {
+                        $('#' + inst.id).attr('value', dateText).css('text-align', 'center');
+                    }
+                });
+                $("#datepicker2").datepicker({
+                    beforeShow: function () {
+                        setTimeout(function () {
+                            $('.ui-datepicker').css('z-index', 999);
+                        }, 0);
+                    },
+                    changeYear: true,
+                    showButtonPanel: true,
+                    dateFormat: xljs_dateFormat,
+                    onSelect: function (dateText, inst) {
+                        $('#' + inst.id).attr('value', dateText);
+                    }
+                });
+            });
         </script>
         <?php
     }
