@@ -44,7 +44,7 @@ if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
     }
 }
 $database->port = $port;
-$database->Connect($host, $login, $pass, $dbase);
+$database->PConnect($host, $login, $pass, $dbase);
 $GLOBALS['adodb']['db'] = $database;
 $GLOBALS['dbh'] = $database->_connectionID;
 
