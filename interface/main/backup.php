@@ -136,7 +136,19 @@ if ($form_step == 104) {
 $cmd = '';
 $mysql_cmd = $MYSQL_PATH . DIRECTORY_SEPARATOR . 'mysql';
 $mysql_dump_cmd = $mysql_cmd . 'dump';
-$file_to_compress = '';  // if named, this iteration's file will be gzipped after it is created 
+$mysql_ssl = '';
+if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
+    // Support for mysql SSL encryption
+    $mysql_ssl = " --ssl-ca=" . $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca ";
+    if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
+        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")) {
+        // Support for mysql SSL client based cert authentication
+        $mysql_ssl .= "--ssl-cert=" . $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert ";
+        $mysql_ssl .= "--ssl-key=" . $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key ";
+    }
+}
+
+$file_to_compress = '';  // if named, this iteration's file will be gzipped after it is created
 $eventlog=0;  // Eventlog Flag
 
 if ($form_step == 0) {
@@ -184,7 +196,7 @@ if ($form_step == 1) {
     " -h " . escapeshellarg($sqlconf["host"]) .
     " --port=".escapeshellarg($sqlconf["port"]) .
     " --routines".
-    " --opt --quote-names -r $file_to_compress " .
+    " --opt --quote-names -r $file_to_compress $mysql_ssl " .
     escapeshellarg($sqlconf["dbase"]);
   }
   else
@@ -193,7 +205,7 @@ if ($form_step == 1) {
     " -p" . escapeshellarg($sqlconf["pass"]) .
     " -h " . escapeshellarg($sqlconf["host"]) .
     " --port=".escapeshellarg($sqlconf["port"]) .
-    " --opt --quote-names -r $file_to_compress " .
+    " --opt --quote-names -r $file_to_compress $mysql_ssl " .
     escapeshellarg($sqlconf["dbase"]);
   }
   $auto_continue = true;
@@ -206,7 +218,7 @@ if ($form_step == 2) {
     $file_to_compress = "$BACKUP_DIR/phpgacl.sql";   // gzip this file after creation
     $cmd = "$mysql_dump_cmd -u " . escapeshellarg($gacl_object->_db_user) .
       " -p" . escapeshellarg($gacl_object->_db_password) .
-      " --opt --quote-names -r $file_to_compress " .
+      " --opt --quote-names -r $file_to_compress $mysql_ssl " .
       escapeshellarg($gacl_object->_db_name);
     $auto_continue = true;
   }
@@ -352,7 +364,7 @@ if ($form_step == 102)
     if (IS_WINDOWS)
     {
       # This section sets the character_set_client to utf8 in the sql file as part or the import property.
-      # windows will place the quotes in the outputted code if they are there. we removed them here.      
+      # windows will place the quotes in the outputted code if they are there. we removed them here.
       $cmd = "echo SET character_set_client = utf8; > $EXPORT_FILE & ";
     }
     else
@@ -365,7 +377,7 @@ if ($form_step == 102)
                 " -p" . escapeshellarg($sqlconf["pass"]) .
                 " -h " . escapeshellarg($sqlconf["host"]) .
                 " --port=".escapeshellarg($sqlconf["port"]) .
-                " --opt --quote-names " .
+                " --opt --quote-names $mysql_ssl " .
                 escapeshellarg($sqlconf["dbase"]) . " $tables";
                 if (IS_WINDOWS)
                 {
@@ -381,9 +393,9 @@ if ($form_step == 102)
       }
       $dumppfx = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
                  " -p" . escapeshellarg($sqlconf["pass"]) .
-                 " -h " . escapeshellarg($sqlconf["host"]) . 
+                 " -h " . escapeshellarg($sqlconf["host"]) .
                  " --port=".escapeshellarg($sqlconf["port"]) .
-                 " --skip-opt --quote-names --complete-insert --no-create-info";
+                 " --skip-opt --quote-names --complete-insert --no-create-info $mysql_ssl";
       // Individual lists.
       if (is_array($_POST['form_sel_lists']))
       {
@@ -502,7 +514,7 @@ if ($form_step == 202) {
         " -p" . escapeshellarg($sqlconf["pass"]) .
         " -h " . escapeshellarg($sqlconf["host"]) .
         " --port=".escapeshellarg($sqlconf["port"]) .
-        " " .
+        " $mysql_ssl " .
         escapeshellarg($sqlconf["dbase"]) .
         " < $EXPORT_FILE";
     }
@@ -544,13 +556,13 @@ $res=sqlStatement("rename table log_comment_encrypt to log_comment_encrypt_backu
 $res=sqlStatement("create table if not exists log_new like log");
 $res=sqlStatement("rename table log to log_backup,log_new to log");
 $res=sqlStatement("create table if not exists log_validator_new like log_validator");
-$res=sqlStatement("rename table log_validator to log_validator_backup, log_validator_new to log_validator"); 
+$res=sqlStatement("rename table log_validator to log_validator_backup, log_validator_new to log_validator");
 echo "<br>";
   $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
     " -p" . escapeshellarg($sqlconf["pass"]) .
     " -h " . escapeshellarg($sqlconf["host"]) .
     " --port=".escapeshellarg($sqlconf["port"]) .
-    " --opt --quote-names -r $BACKUP_EVENTLOG_FILE " .
+    " --opt --quote-names -r $BACKUP_EVENTLOG_FILE $mysql_ssl " .
     escapeshellarg($sqlconf["dbase"]) ." --tables log_comment_encrypt_backup log_backup log_validator_backup";
 # Set Eventlog Flag when it is done
 $eventlog=1;
@@ -634,7 +646,7 @@ function obliterate_dir($dir) {
 // array of file/directory names to archive
 function create_tar_archive($archiveName, $compressMethod, $itemArray) {
   global $newBackupMethod;
-    
+
   if ($newBackupMethod) {
    // Create a tar object using the pear library
    //  (this is the preferred method)
@@ -643,7 +655,7 @@ function create_tar_archive($archiveName, $compressMethod, $itemArray) {
   }
   else {
    // Create the tar files via command line tools
-   //  (this method used when the tar pear library is not available)  
+   //  (this method used when the tar pear library is not available)
    $files = '"' . implode('" "', $itemArray) . '"';
    if ($compressMethod == "gz") {
     $command = "tar --same-owner --ignore-failed-read -zcphf $archiveName $files";
