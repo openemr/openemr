@@ -74,7 +74,7 @@ class DataDriverMySQLi implements IDataDriver
 
         //Below was added by OpenEMR to support mysql ssl
         $mysqlSsl = false;
-        if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
+        if (defined('MYSQLI_CLIENT_SSL') && file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
             $mysqlSsl = true;
             if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
                 file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")) {
@@ -108,7 +108,7 @@ class DataDriverMySQLi implements IDataDriver
                 $database,
                 $port,
                 null,
-                MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT
+                MYSQLI_CLIENT_SSL
             );
         } else {
             $ok = mysqli_real_connect(

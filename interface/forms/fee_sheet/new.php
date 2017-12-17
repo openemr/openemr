@@ -529,10 +529,8 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'] || $_POST['bn_sa
         } else {
             // Otherwise return to the normal encounter summary frameset.
             //
-            $to = $GLOBALS['form_exit_url'];
             formHeader("Redirecting....");
-            header("location: $to");
-            //formJump();
+            formJump();
         }
 
         formFooter();
