@@ -20,6 +20,7 @@ require_once("$srcdir/validation/LBF_Validation.php");
 require_once("$srcdir/patientvalidation.inc.php");
 
 use OpenEMR\Core\Header;
+
 // Check authorization.
 if (!acl_check('patients', 'demo', '', array('write','addonly'))) {
     die(xlt("Adding demographics is not authorized."));

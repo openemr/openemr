@@ -17,6 +17,7 @@ require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 
 use OpenEMR\Core\Header;
+
 // Check if user has permission for any issue type.
 $auth = false;
 foreach ($ISSUE_TYPES as $type => $dummy) {
