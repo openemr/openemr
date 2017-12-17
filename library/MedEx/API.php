@@ -136,7 +136,7 @@ class Practice extends Base
                 $fields2['providers'][] = $urow;
             }
         }
-        //get the facilities list and flag which we do messaging for
+        //get the facilities list and flag which we do messaging for (checkboxes in Preferences)
         $facilities = explode('|', $my_status['ME_facilities']);
         $runQuery = "SELECT * FROM facility WHERE service_location='1'";
         $ures = sqlStatement($runQuery);
@@ -167,23 +167,18 @@ class Practice extends Base
         $this->curl->setData($fields2);
         $this->curl->makeRequest();
         $response = $this->curl->getResponse();
-        //Patient responses are delivered via callback as they are generated.
-        //However client's server may have downtime or perhaps this EHR is run from a laptop only during certain hours?
-        //If they are ever offline, we also need a different way of loading appointments! For now they are
-        //always on-line sending crons and background_service messages.
-        //We need to make sure all our messages are up-to-date.
         //Practice: Since the last MedEx login, who has responded to one of our messages and do we know about these responses?
         //Have we deleted, cancelled or changed an appointment that we thought we were supposed to send, and now don't want to?
         //1. Check to see if anything pending was cancelled/changed.
-        //2. Make sure any recalls don't have appointments just scheduled
+        //2. Make sure any recalls don't have appointments just scheduled. If so no Recall message needed.
         //3. Sync any responses received on MedEx that we didn't see already.
         //     Send and Receive everything since last timestamp/update noted in medex_prefs and check.
-        //     Finally we may have manually made an appointment (which deletes a Recall) or manually confirmed an appt too.
+        //Finally we may have manually made an appointment (which deletes a Recall) or manually confirmed an appt too.
         //4. We need to send this data to MedEx so it stops processing events that are confirmed/completed.
         
         //1. Check to see if anything pending was cancelled/changed.
         //for appts, we are just looking for appts that are flagged as 'To Send' BUT
-        // were confirmed, cancelled, moved by the staff since added to table medex_outgoing...
+        // were confirmed, cancelled, moved by the staff since the appt was added to table medex_outgoing...
         $sql = "SELECT * FROM medex_outgoing WHERE msg_pc_eid != 'recall_%' AND msg_reply LIKE 'To Send'";
         $test = sqlStatement($sql);
         while ($result1 = sqlFetchArray($test)) {
@@ -237,6 +232,7 @@ class Practice extends Base
 
         foreach ($responses['messages'] as $data) {
             //check to see if this response is present already
+            //$this->MedEx->logging->log_this($data);
             $data['msg_extra'] = $data['msg_extra']?:'';
             //note for sms_bot there maybe repeat "reply" values.  we now show medex_uid.  just use that instead...
             $sqlQuery ="SELECT * FROM medex_outgoing WHERE medex_uid=?";
@@ -452,8 +448,6 @@ class Events extends Base
                 $timing2 = ($timing +1).":1:1";
                 // this is + 1 day, 1 hour and 1 minute...
                 // This retrieves recalls that need consideration today.
-                $log = "/tmp/generate.log";
-                $stdlog = fopen($log, 'a');
 
                 $count_recalls ='0';
                 $query  = "SELECT * FROM medex_recalls AS recall 
@@ -461,14 +455,12 @@ class Events extends Base
                             WHERE (recall.r_eventDate < CURDATE() ".$interval." INTERVAL ".$timing." DAY) AND
                             pat.deceased_date =''
                             ORDER BY recall.r_eventDate";
-                fputs($stdlog,"RECALL SQL + ".$query."\n");
                 $result = sqlStatement($query);
                 $recall3 = array();
  
                 while ($recall = sqlFetchArray($result)) {
                     // Can we run the rule - is the modality possible?
                     list($response,$results) = $this->MedEx->checkModality($event, $recall);
-fputs($stdlog,"response= ".print_r($response, true)."\nresults=".print_r($results,true)."\n");
 
                     if ($results==false) {
                         continue; //not happening - either not allowed or not possible
@@ -709,20 +701,6 @@ fputs($stdlog,"response= ".print_r($response, true)."\nresults=".print_r($result
                                 ORDER BY pc_eventDate,pc_startTime";
                 $result = sqlStatement($query,$escapedArr);
                 while ($appt= sqlFetchArray($result)) {
-                    //SUBEVENTS are not implemented yet.  This is how they will work:
-                    // If you routinely make 2 back-to-back or related appointments (eg 2 stage yearly physical or Surgery and post-op day#3 visit)
-                    // we can combine reminders occurring within X days.
-                    // Visit 2 is silent as far as its own reminder messages until Visit 1 has passed.
-                    // Then Visit 2 fires for any remaining rules that match it.
-                    // Let me know if this is a desired feature and we can add it to v2.0
-                    /*if ($appt['e_is_subEvent_of'] > '0') {
-                        $query ="select * from medex_outgoing where e_uid=?";
-                        $event2 = sqlStatement($query,array($appt['e_is_subEvent_of']));
-                        if (new DateTime() < new DateTime($event2["e_eventDate"]." ".$event2["e_eventTime"])) {
-                            // if current time is less than Parent Appt, ignore this appt
-                            continue;
-                        }
-                    }*/
                     list($response,$results) = $this->MedEx->checkModality($event, $appt);
                     if ($results==false) {
                         continue; //not happening - either not allowed or not possible
@@ -800,10 +778,10 @@ fputs($stdlog,"response= ".print_r($response, true)."\nresults=".print_r($result
     /**
      *  This function deletes Recalls from MedEx when they are completed and no further processing is
      *   needed. They are in an array = $data.
-* @param $token
-* @param $data
-* @return bool
-*/
+     * @param $token
+     * @param $data
+     * @return bool
+     */
     private function process_deletes($token, $data)
     {
         $this->curl->setUrl($this->MedEx->getUrl('custom/remRecalls&token='.$token));
@@ -831,6 +809,7 @@ fputs($stdlog,"response= ".print_r($response, true)."\nresults=".print_r($result
             throw new InvalidDataException("You have no appointments that need processing at this time.");
         }
         $data= array();
+
         foreach ($appts as $appt) {
             $data['appts'][] = $appt;
             $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply=?, msg_extra_text=?, msg_date=NOW()
@@ -845,7 +824,7 @@ fputs($stdlog,"response= ".print_r($response, true)."\nresults=".print_r($result
                 sleep(1);
             }
         }
-        //finish those $data < 20.
+        //finish those $data < 100.
         $this->curl->setUrl($this->MedEx->getUrl('custom/loadAppts&token='.$token));
         $this->curl->setData($data);
         $this->curl->makeRequest();
@@ -978,21 +957,20 @@ class Logging extends base
 {
     public function log_this($data)
     {
-        $log3 = "/tmp/medex_login.log" ;
-        $std_log3 = fopen($log3, 'a');// or die(print_r(error_get_last(), true));
+        $log = "/tmp/medex.log" ;
+        $std_log = fopen($log3, 'a');// or die(print_r(error_get_last(), true));
         $timed = date(DATE_RFC2822);
-        fputs($std_log3, "**********************\nlibrary/MedEx/API.php fn log_this(data):  ".$timed."\n");
+        fputs($std_log, "**********************\nlibrary/MedEx/API.php fn log_this(data):  ".$timed."\n");
         if (is_array($data)) {
             $dumper = print_r($data, true);
-            fputs($std_log3,$dumper);
+            fputs($std_log,$dumper);
             foreach ($data as $key => $value) {
-                fputs($stdlog3, $key.": ".$value."\n");
+                fputs($stdlog, $key.": ".$value."\n");
             }
         } else {
-            fputs($std_log3, "\nDATA= ".$data. "\n");
+            fputs($std_log, "\nDATA= ".$data. "\n");
         }
-
-        fclose($std_log3);
+        fclose($std_log);
         return true;
     }
 }
@@ -1199,14 +1177,20 @@ class Display extends base
                                             <div class="divTableRow">
                                                 <div class="divTableCell divTableHeading"><?php echo xlt('General'); ?></div>
                                                 <div class="divTableCell indent20">
-                                                    <input type="checkbox" class="update" name="ME_hipaa_default_override" id="ME_hipaa_default_override" value="1" <?php
+                                                    <input type="checkbox" class="update" name="ME_hipaa_default_override" id="ME_hipaa_default_override" value="1"
+                                                    <?php
                                                     if ($prefs['ME_hipaa_default_override']=='1') {
                                                         echo 'checked ="checked"';
-                                                    } ?>/>
+                                                    }
+                                                    ?> >
                                                     <label for="ME_hipaa_default_override" class="input-helper input-helper--checkbox"
-                                                    data-toggle='tooltip' data-placement='auto right'  data-placement='auto'  title='<?php echo xla('Default'); ?>: "<?php echo xla('checked'); ?>". <?php echo xla('When checked, messages are processed for patients with Patient Demographic Choice: "Hipaa Notice Received" set to "Unassigned" or "Yes". When unchecked, this choice must = "YES" to process the patient reminder. For patients with Choice ="No", Reminders will need to be processed manually.'); //or no translation... ?>'>
-                                                        <?php echo xlt('Assume patients receive HIPAA policy'); ?></label><br />
-                                                    <input type="checkbox" class="update" name="MSGS_default_yes" id="MSGS_default_yes" value="1" <?php if ($prefs['MSGS_default_yes']=='1') {
+                                                           data-toggle='tooltip'
+                                                           data-placement='auto right'
+                                                           title='<?php echo xla('Default'); ?>: "<?php echo xla('checked'); ?>".
+                                                            <?php echo xla('When checked, messages are processed for patients with Patient Demographic Choice: "Hipaa Notice Received" set to "Unassigned" or "Yes". When unchecked, this choice must = "YES" to process the patient reminder. For patients with Choice ="No", Reminders will need to be processed manually.'); //or no translation... ?>'>
+                                                            <?php echo xlt('Assume patients receive HIPAA policy'); ?>
+                                                     </label><br />
+                                                     <input type="checkbox" class="update" name="MSGS_default_yes" id="MSGS_default_yes" value="1" <?php if ($prefs['MSGS_default_yes']=='1') {
                                                         echo "checked='checked'";} ?>>
                                                     <label for="MSGS_default_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Default: Checked. When checked, messages are processed for patients with Patient Demographic Choice (Phone/Text/Email) set to \'Unassigned\' or \'Yes\'. If this is unchecked, a given type of message can only be sent if its Demographic Choice = \'Yes\'.'); ?>">
                                                         <?php echo xlt('Assume patients permit Messaging'); ?></label>
@@ -1811,10 +1795,9 @@ class Display extends base
      *   We also use color coding in the Recall Board -
      *       -- whitish for pending, nothing happed yet.
      *       -- yellowish for in process, something happened but no appointment was made yet!
-     *       -- reddish for manual processing needed.  This only applies to MedEx subscribers - all the other recalls are already manual, hence whitish for them.
+     *       -- reddish for manual processing needed.
      *       -- greenish for completed and an appointment was made.
      *   In the ideal workflow, the secretary would be going through the Recall Board line by line once per day/week/month (per practice needs).
-     *       When they call a patient and make the appointment (by clicking the  Calendar icon)
      *       They can then just delete the Recall by clicking the X on the right.  Done move on to the next.
      *       However a patient may have called in randomly to make this appointment - the secretary may be unaware that the Recall even exists.
      *       In this work-flow, the secretary does not have to open the Recall Board, nor should they waste their time when we can do it for them...
@@ -1824,12 +1807,12 @@ class Display extends base
      *       and display in the "progress" column what has transpired.
      *       Thanks, move on, nothing to see here.
      *       This also allows anyone (management?) a tool to see what Recall work was performed over the last 16 hours.
-* @param $recall
-* @param string $events
-* @return mixed
+     * @param $recall
+     * @param string $events
+     * @return mixed
 
-* @internal param string $possibleModalities
-*/
+     * @internal param string $possibleModalities
+     */
     public function show_progress_recall($recall, $events = '')
     {
         global $logged_in;
@@ -2890,7 +2873,6 @@ class MedEx
         $this->curl->makeRequest();
         $response = $this->curl->getResponse();
 
-
         if (isset($response['success']) && isset($response['token'])) {
             return $response;
         } else if (isset($response['error'])) {
@@ -2908,6 +2890,7 @@ class MedEx
         $sqlQuery = "SELECT * FROM medex_icons";
         $result = sqlStatement($sqlQuery);
         while ($icons = sqlFetchArray($result)) {
+            //substitute data-toggle="tooltip" data-placement="auto" title="..." with data-toggle="tooltip" data-placement="auto" title="'.xla('...').'" in $icons['i_html']
             $title = preg_match('/title=\"(.*)\"/', $icons['i_html']);
             $xl_title = xla($title);
             $icons['i_html'] = str_replace($title, $xl_title, $icons['i_html']);
@@ -2942,13 +2925,6 @@ class MedEx
         } else {
             return array(false,false);
         }
-    }
-    public function medex_logit($event = "MedEx-Messaging-Service", $success, $comments)
-    {
-        //Need to figure out how and where to log this!!!!
-        //$event, $user, $groupname, $success, $comments="", $patient_id=null,
-        //$log_from = 'open-emr', $menu_item = 'dashboard', $ccda_doc_id = 0) {
-        //newEvent($event,"MedEx-messenger",0,$success,$comments="", $patient_id=null,$log_from = 'open-emr', $menu_item = 'dashboard', $ccda_doc_id = 0);
     }
 }
 //class InvalidDataException extends \Exception {}
