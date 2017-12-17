@@ -175,7 +175,7 @@ function acl_check($section, $value, $user = '', $return_value = '')
     if ($GLOBALS['phpgacl_location_global']) {
       // This will return all pertinent ACL's (including return_values and whether allow/deny)
       // Walk through them to assess for access
-        $gacl_object = new gacl();
+        global $gacl_object;
         $acl_results = $gacl_object->acl_query($section, $value, $GLOBALS['section_aro_value_global'], $user, null, null, null, null, null, true);
         if (empty($acl_results)) {
             return false; //deny access
