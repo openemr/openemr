@@ -185,7 +185,7 @@ function selectField(jobj) {
       jobj['max_length'], jobj['list_id'], jobj['titlecols'], jobj['datacols'], jobj['edit_options'],
       jobj['description'], jobj['fld_rows']);
   }
-  window.close();
+  dlgclose();
   return false;
 }
 function newField() {
@@ -212,7 +212,7 @@ function SelectList(jobj) {
     alert('The destination form was closed; I cannot act on your selection.');
   else
     opener.SetList(jobj['code']);
-  window.close();
+  dlgclose();
   return false;
 };
 
@@ -223,7 +223,7 @@ var SelectItem = function(jobj) {
     alert('The destination form was closed; I cannot act on your selection.');
   else
     opener.MoveFields(jobj['code']);
-  window.close();
+  dlgclose();
   return false;
 };
 
@@ -273,7 +273,7 @@ if ($what == 'codes') {
     echo " <option value=''>" . xlt('All') . "</option>\n";
     echo "</select>\n";
     echo "&nbsp;&nbsp;\n";
-    echo "<input type='button' value='" . xla('Close') . "' onclick='window.close()' />\n";
+    echo "<input type='button' value='" . xla('Close') . "' onclick='dlgclose()' />\n";
 }
 if ($what == 'lists') {
     echo "<input type='button' value='" . xla('Delete') . "' onclick='SelectList({\"code\":\"\"})' />\n";

@@ -93,7 +93,7 @@ form {
 }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 
 <?php if ($popup) { ?>
 <script type="text/javascript" src="../../../library/topdialog.js"></script>
@@ -532,13 +532,12 @@ var SelectPatient = function (eObj) {
         echo "top.restoreSession();\n";
 } ?>
     <?php if ($popup) {
+        echo "dlgclose();\n";
         echo "opener.";
 }
 
     echo $target; ?>.location.href = '<?php echo $newPage; ?>' + parts[0];
-    <?php if ($popup) {
-        echo "window.close();\n";
-} ?>
+
     return true;
 }
 

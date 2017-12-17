@@ -112,7 +112,7 @@ if ($_POST) {
       // ------------ 2) communicate with user
             echo '   alert("'.addslashes(xl('Reminder Sent')).'");';
       // ------------ 3) close this window
-            echo '  window.close();';
+            echo '  dlgclose();';
             echo '</script></body></html>';
       // --------- stop script from executing further
             exit;

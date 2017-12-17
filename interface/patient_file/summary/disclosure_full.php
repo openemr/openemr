@@ -55,15 +55,18 @@ if (isset($_GET['deletelid'])) {
 ?>
 <html>
 <head>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
+<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
+<?php } ?>
 <link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
 <!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
-<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
-<script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 </head>
+
 <body class="body_top">
 <div>
     <span class="title"><?php echo xlt('Disclosures'); ?></span>
@@ -85,7 +88,7 @@ if (isset($_GET['deletelid'])) {
 <br>
 <?php
 $N=15;
-$offset =$_REQUEST['offset'];
+$offset = $_REQUEST['offset'];
 if (!isset($offset)) {
     $offset = 0;
 }
@@ -157,8 +160,8 @@ if ($n>0) {?>
 <?php
 if ($offset > ($N-1) && $n!=0) {
     echo "   <a class='link' href='disclosure_full.php?active=" . $active .
-    "&offset=" . attr($offset-$N) . "' onclick='top.restoreSession()'>[" .
-    xlt('Previous') . "]</a>\n";
+        "&offset=" . attr($offset-$N) . "' onclick='top.restoreSession()'>[" .
+        xlt('Previous') . "]</a>\n";
 }
 ?>
 
@@ -166,8 +169,8 @@ if ($offset > ($N-1) && $n!=0) {
 
 if ($n >= $N && $noOfRecordsLeft!=$N) {
     echo "&nbsp;&nbsp;   <a class='link' href='disclosure_full.php?active=" . $active.
-    "&offset=" . attr($offset+$N)  ."&leftrecords=".$noOfRecordsLeft."' onclick='top.restoreSession()'>[" .
-    xlt('Next') . "]</a>\n";
+        "&offset=" . attr($offset+$N)  ."&leftrecords=".$noOfRecordsLeft."' onclick='top.restoreSession()'>[" .
+        xlt('Next') . "]</a>\n";
 }
 ?>
   </td>
@@ -177,26 +180,40 @@ if ($n >= $N && $noOfRecordsLeft!=$N) {
 </body>
 
 <script type="text/javascript">
-$(document).ready(function()
-        {
-/// todo, move this to a common library
+$(document).ready(function () {
+    // todo, move this to a common library
     //for row highlight.
-     $(".noterow").mouseover(function() { $(this).toggleClass("highlight"); });
-     $(".noterow").mouseout(function() { $(this).toggleClass("highlight"); });
-     //fancy box
-        enable_modals();
-        //for deleting the disclosures
-        $(".deletenote").click(function() { DeleteNote(this); });
+    $(".noterow").mouseover(function () {
+        $(this).toggleClass("highlight");
+    });
+    $(".noterow").mouseout(function () {
+        $(this).toggleClass("highlight");
+    });
 
-        var DeleteNote = function(logevent)
-        {
-        if (confirm("<?php echo htmlspecialchars(xl('Are you sure you want to delete this disclosure?', '', '', '\n ') . xl('This action CANNOT be undone.'), ENT_QUOTES); ?>"))
-            {
-                    top.restoreSession();
-                        window.location.replace("disclosure_full.php?deletelid="+logevent.id)
-                }
-            }
-       });
+    //for deleting the disclosures
+    $(".deletenote").click(function () {
+        DeleteNote(this);
+    });
+
+    var DeleteNote = function (logevent) {
+        if (confirm("<?php echo htmlspecialchars(xl('Are you sure you want to delete this disclosure?', '', '', '\n ') . xl('This action CANNOT be undone.'), ENT_QUOTES); ?>")) {
+            top.restoreSession();
+            window.location.replace("disclosure_full.php?deletelid=" + logevent.id)
+        }
+    }
+
+    $(".iframe").on('click', function(e) {
+        e.preventDefault();e.stopPropagation();
+        dlgopen('', '', 500, 310, '', '', {
+            allowResize: true,
+            allowDrag: true,
+            dialogId: '',
+            type: 'iframe',
+            url: $(this).attr('href')
+        });
+    });
+
+});
 </script>
 </html>
 

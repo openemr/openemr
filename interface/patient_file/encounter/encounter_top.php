@@ -57,8 +57,10 @@ $encounter_date = date("Y-m-d", strtotime($dateres["date"]));
 <head>
 <title><?php echo text(oeFormatShortDate($encounter_date)) . ' ' . xlt('Encounter'); ?></title>
 <?php html_header_show(); ?>
+<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 <?php echo $tabset->genCss(); ?>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
 <?php echo $tabset->genJavaScript(); ?>
 <script>
 

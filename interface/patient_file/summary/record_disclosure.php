@@ -41,6 +41,7 @@ if (isset($_GET['editlid'])) {
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <!-- supporting javascript code -->
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
@@ -91,16 +92,16 @@ if ($editlid) {
     <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure'), ENT_NOQUOTES); ?></span><?php
 } ?>
 </div>
-<div><a onclick="return submitform()" class="css_button large_button"
+<div><a onclick="submitform(); return dlgclose()" class="css_button large_button"
     name='form_save' id='form_save' href='#'> <span
     class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Save'), ENT_NOQUOTES);?></span>
 </a></div>
 <div><a class="css_button large_button" id='cancel'
-    href='disclosure_full.php' target='_parent' onclick='top.restoreSession()'> <span
+    href='#' onclick='top.restoreSession();dlgclose()'> <span
     class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Cancel'), ENT_NOQUOTES);?></span>
 </a></div>
 <br>
-<form NAME="disclosure_form" METHOD="POST" ACTION="disclosure_full.php" target='_parent' onsubmit='return top.restoreSession()'>
+<form NAME="disclosure_form" METHOD="POST" ACTION="disclosure_full.php" target='pat' onsubmit='return top.restoreSession()'>
 <input type=hidden name=mode value="disclosure">
 <table border=0 cellpadding=3 cellspacing=0 align='center'>
     <br>

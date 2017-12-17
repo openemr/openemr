@@ -29,6 +29,8 @@ require_once($GLOBALS['srcdir'].'/log.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['srcdir'].'/gprelations.inc.php');
 
+use OpenEMR\Core\Header;
+
 if ($_GET['set_pid']) {
     require_once($GLOBALS['srcdir'].'/pid.inc');
     setpid($_GET['set_pid']);
@@ -207,17 +209,9 @@ $result_sent = getSentPnotesByDate(
 
 <html>
 <head>
-<?php html_header_show();?>
 
-<link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
+    <?php Header::setupHeader(['dialog', 'common', 'jquery-ui']); ?>
 
-<!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
-<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
-<script type="text/javascript" src="../../../library/js/common.js"></script>
-<script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript">
 /// todo, move this to a common library
 
@@ -231,10 +225,26 @@ $(document).ready(function(){
     $("#stats_div").load("stats.php");
     $("#notes_div").load("pnotes_fragment.php");
 
-    // fancy box
-    enable_modals();
     tabbify();
+
+    // fancybox replacement 12-14-17
+    $(".note_modal").on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dlgopen('', '', 650, 400, '', '', {
+            buttons: [
+                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+            ],
+            allowResize: true,
+            allowDrag: true,
+            dialogId: '',
+            type: 'iframe',
+            url: $(this).attr('href')
+        });
+    });
+
 });
+
 function show_div(name){
   if(name == 'inbox'){
     document.getElementById('inbox_div').style.display = '';
@@ -274,10 +284,10 @@ $urlparms = "docid=$docid_esc&orderid=$orderid_esc";
     </div>
     <div id='namecontainer_pnotes' class='namecontainer_pnotes' style='float:left;margin-right:10px'>
         <?php echo htmlspecialchars(xl('for'), ENT_NOQUOTES);?>&nbsp;<span class="title">
-      <a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo htmlspecialchars(getPatientName($patient_id), ENT_NOQUOTES); ?></a></span>
+      <a href="../summary/demographics.php" onclick="return top.restoreSession()"><?php echo htmlspecialchars(getPatientName($patient_id), ENT_NOQUOTES); ?></a></span>
     </div>
     <div>
-        <a href="pnotes_full_add.php?<?php echo $urlparms; ?>" class="css_button iframe" onclick='top.restoreSession()'><span><?php echo xlt('Add'); ?></span></a>
+        <a href="pnotes_full_add.php?<?php echo $urlparms; ?>" class="css_button note_modal" onclick='return top.restoreSession()'><span><?php echo xlt('Add'); ?></span></a>
         <a href="demographics.php" class="css_button" onclick="top.restoreSession()">
             <span><?php echo htmlspecialchars(xl('View Patient'), ENT_NOQUOTES);?></span>
         </a>
@@ -288,19 +298,19 @@ $urlparms = "docid=$docid_esc&orderid=$orderid_esc";
     <?php if ($active == "all") { ?>
       <span><?php echo xlt('Show All'); ?></span>
     <?php } else { ?>
-      <a href="pnotes_full.php?<?php echo $urlparms; ?>" class="link" onclick="top.restoreSession()"><span><?php echo xlt('Show All'); ?></span></a>
+      <a href="pnotes_full.php?<?php echo $urlparms; ?>" class="link" onclick="return top.restoreSession()"><span><?php echo xlt('Show All'); ?></span></a>
     <?php } ?>
     |
     <?php if ($active == '1') { ?>
       <span><?php echo xlt('Show Active'); ?></span>
     <?php } else { ?>
-      <a href="pnotes_full.php?form_active=1&<?php echo $urlparms; ?>" class="link" onclick="top.restoreSession()"><span><?php echo xlt('Show Active'); ?></span></a>
+      <a href="pnotes_full.php?form_active=1&<?php echo $urlparms; ?>" class="link" onclick="return top.restoreSession()"><span><?php echo xlt('Show Active'); ?></span></a>
     <?php } ?>
     |
     <?php if ($active == '0') { ?>
       <span><?php echo xlt('Show Inactive'); ?></span>
     <?php } else { ?>
-      <a href="pnotes_full.php?form_inactive=1&<?php echo $urlparms; ?>" class="link" onclick="top.restoreSession()"><span><?php echo xlt('Show Inactive'); ?></span></a>
+      <a href="pnotes_full.php?form_inactive=1&<?php echo $urlparms; ?>" class="link" onclick="return top.restoreSession()"><span><?php echo xlt('Show Inactive'); ?></span></a>
     <?php } ?>
     </div>
 
@@ -377,7 +387,7 @@ if ($billing_note) {
   <td colspan='5' style="padding: 5px;" >
     <a href="#" class="change_activity" ><span><?php echo htmlspecialchars(xl('Update Active'), ENT_NOQUOTES); ?></span></a>
     |
-    <a href="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo attr($activity_string_html);?>" class="" id='Submit' onclick='top.restoreSession()'><span><?php echo htmlspecialchars(xl('Refresh'), ENT_NOQUOTES); ?></span></a>
+    <a href="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo attr($activity_string_html);?>" class="" id='Submit' onclick='return top.restoreSession()'><span><?php echo htmlspecialchars(xl('Refresh'), ENT_NOQUOTES); ?></span></a>
   </td>
  </tr></table>
 <?php endif; ?>
@@ -447,13 +457,13 @@ if ($result != "") {
 
 
         echo "  <td><a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=".htmlspecialchars($row_note_id, ENT_QUOTES).
-        "' class='css_button_small iframe' onclick='top.restoreSession()'><span>". htmlspecialchars(xl('Edit'), ENT_NOQUOTES) ."</span></a>\n";
+        "' class='css_button_small note_modal' onclick='return top.restoreSession()'><span>". htmlspecialchars(xl('Edit'), ENT_NOQUOTES) ."</span></a>\n";
 
         // display, or not, a button to delete the note
         // if the user is an admin or if they are the author of the note, they can delete it
         if (($iter['user'] == $_SESSION['authUser']) || (acl_check('admin', 'super', '', 'write'))) {
             echo " <a href='#' class='deletenote css_button_small' id='del" . htmlspecialchars($row_note_id, ENT_QUOTES) .
-            "' title='" . htmlspecialchars(xl('Delete this note'), ENT_QUOTES) . "' onclick='top.restoreSession()'><span>" .
+            "' title='" . htmlspecialchars(xl('Delete this note'), ENT_QUOTES) . "' onclick='return top.restoreSession()'><span>" .
             htmlspecialchars(xl('Delete'), ENT_NOQUOTES) . "</span>\n";
         }
 
@@ -473,7 +483,7 @@ if ($result != "") {
         echo "  </td>\n";
 
         echo "  <td class='bold notecell' id='".htmlspecialchars($row_note_id, ENT_QUOTES)."'>" .
-        "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=".htmlspecialchars($row_note_id, ENT_QUOTES)."' class='iframe' onclick='top.restoreSession()'>\n";
+        "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=".htmlspecialchars($row_note_id, ENT_QUOTES)."' class='note_modal' onclick='return top.restoreSession()'>\n";
         // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
         echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
         echo "  </a></td>\n";
@@ -510,8 +520,8 @@ if ($offset > ($N-1)) {
     "&form_active=" . htmlspecialchars($form_active, ENT_QUOTES) .
     "&form_inactive=" . htmlspecialchars($form_inactive, ENT_QUOTES) .
     "&form_doc_only=" . htmlspecialchars($form_doc_only, ENT_QUOTES) .
-    "&offset=" . attr($offsetN) . "&" . attr($activity_string_html) . "' onclick='top.restoreSession()'>[" .
-    htmlspecialchars(xl('Previous'), ENT_NOQUOTES) . "]</a>\n";
+    "&offset=" .attr($offsetN) . "&" . attr($activity_string_html) . "' onclick='return top.restoreSession()'>[" .
+        htmlspecialchars(xl('Previous'), ENT_NOQUOTES) . "]</a>\n";
 }
 ?>
   </td>
@@ -524,8 +534,8 @@ if ($result_count == $N) {
     "&form_active=" . htmlspecialchars($form_active, ENT_QUOTES) .
     "&form_inactive=" . htmlspecialchars($form_inactive, ENT_QUOTES) .
     "&form_doc_only=" . htmlspecialchars($form_doc_only, ENT_QUOTES) .
-    "&offset=" .attr($offsetN) . "&" . attr($activity_string_html) . "' onclick='top.restoreSession()'>[" .
-    htmlspecialchars(xl('Next'), ENT_NOQUOTES) . "]</a>\n";
+    "&offset=" .attr($offsetN) . "&" . attr($activity_string_html) . "' onclick='return top.restoreSession()'>[" .
+        htmlspecialchars(xl('Next'), ENT_NOQUOTES) . "]</a>\n";
 }
 ?>
   </td>
@@ -539,7 +549,7 @@ if ($result_count == $N) {
  <tr>
   <td colspan='5' style="padding: 5px;" >
     <a href="pnotes_full.php?<?php echo $urlparms; ?>&s=1&<?php echo attr($activity_string_html);?>"
-     class="" id='Submit' onclick='top.restoreSession()'><span><?php echo xlt('Refresh'); ?></span></a>
+     class="" id='Submit' onclick='return top.restoreSession()'><span><?php echo xlt('Refresh'); ?></span></a>
   </td>
  </tr></table>
 <?php endif; ?>
@@ -608,13 +618,13 @@ if ($result_sent != "") {
 
 
         echo "  <td><a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=".htmlspecialchars($row_note_id, ENT_QUOTES).
-        "' class='css_button_small iframe' onclick='top.restoreSession()'><span>". htmlspecialchars(xl('Edit'), ENT_NOQUOTES) ."</span></a>\n";
+        "' class='css_button_small note_modal' onclick='return top.restoreSession()'><span>". htmlspecialchars(xl('Edit'), ENT_NOQUOTES) ."</span></a>\n";
 
         // display, or not, a button to delete the note
         // if the user is an admin or if they are the author of the note, they can delete it
         if (($iter['user'] == $_SESSION['authUser']) || (acl_check('admin', 'super', '', 'write'))) {
             echo " <a href='#' class='deletenote css_button_small' id='del" . htmlspecialchars($row_note_id, ENT_QUOTES) .
-            "' title='" . htmlspecialchars(xl('Delete this note'), ENT_QUOTES) . "' onclick='top.restoreSession()'><span>" .
+            "' title='" . htmlspecialchars(xl('Delete this note'), ENT_QUOTES) . "' onclick='return restoreSession()'><span>" .
             htmlspecialchars(xl('Delete'), ENT_NOQUOTES) . "</span>\n";
         }
 
@@ -634,7 +644,7 @@ if ($result_sent != "") {
         echo "  </td>\n";
 
         echo "  <td class='bold notecell' id='".htmlspecialchars($row_note_id, ENT_QUOTES)."'>" .
-        "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=".htmlspecialchars($row_note_id, ENT_QUOTES)."' class='iframe' onclick='top.restoreSession()'>\n";
+        "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=".htmlspecialchars($row_note_id, ENT_QUOTES)."' class='note_modal' onclick='return top.restoreSession()'>\n";
         // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
         echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
         echo "  </a></td>\n";
@@ -667,7 +677,7 @@ if ($offset_sent > ($M-1)) {
     "&form_active=" . htmlspecialchars($form_active, ENT_QUOTES) .
     "&form_inactive=" . htmlspecialchars($form_inactive, ENT_QUOTES) .
     "&form_doc_only=" . htmlspecialchars($form_doc_only, ENT_QUOTES) .
-    "&offset_sent=" . attr($offsetSentM) . "&" . attr($activity_string_html) . "' onclick='top.restoreSession()'>[" .
+    "&offset_sent=" . attr($offsetSentM) . "&" . attr($activity_string_html) . "' onclick='return top.restoreSession()'>[" .
     htmlspecialchars(xl('Previous'), ENT_NOQUOTES) . "]</a>\n";
 }
 ?>
@@ -682,7 +692,7 @@ if ($result_sent_count == $M) {
     "&form_active=" . htmlspecialchars($form_active, ENT_QUOTES) .
     "&form_inactive=" . htmlspecialchars($form_inactive, ENT_QUOTES) .
     "&form_doc_only=" . htmlspecialchars($form_doc_only, ENT_QUOTES) .
-    "&offset_sent=" .  attr($offsetSentM) . "&" . attr($activity_string_html) . "' onclick='top.restoreSession()'>[" .
+    "&offset_sent=" .  attr($offsetSentM) . "&" . attr($activity_string_html) . "' onclick='return top.restoreSession()'>[" .
     htmlspecialchars(xl('Next'), ENT_NOQUOTES) . "]</a>\n";
 }
 ?>

@@ -36,15 +36,13 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/log.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/gprelations.inc.php");
+
+use OpenEMR\Core\Header;
 ?>
+<!DOCTYPE html>
 <html>
 <head>
-
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/textformat.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
+    <?php Header::setupHeader(['dialog', 'textformat', 'jquery-ui']); ?>
 </head>
 
 <body class="body_top">

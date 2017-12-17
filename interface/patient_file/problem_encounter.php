@@ -30,6 +30,8 @@ include_once("$srcdir/patient.inc");
 include_once("$srcdir/acl.inc");
 include_once("$srcdir/lists.inc");
 
+use OpenEMR\Core\Header;
+
 $patdata = getPatientData($pid, "fname,lname,squad");
 
 $thisauth = ((acl_check('encounters', 'notes', '', 'write') ||
@@ -82,7 +84,7 @@ if ($_POST['form_save']) {
 
     echo " var myboss = opener ? opener : parent;\n";
     echo " myboss.location.reload();\n";
-    echo " window.close();\n";
+    echo " dlgclose();\n";
     echo "</script></body></html>\n";
     exit();
 }
@@ -98,20 +100,17 @@ $eres = sqlStatement("SELECT * FROM form_encounter WHERE pid = ? " .
 // get problem/encounter relations
 $peres = sqlStatement("SELECT * FROM issue_encounter WHERE pid = ?", array($pid));
 ?>
+<!DOCTYPE html>
 <html>
 <head>
-<?php html_header_show();?>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-<link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
+    <?php Header::setupHeader(['opener', 'topdialog', 'dialog']); ?>
+
 <title><?php echo xlt('Issues and Encounters'); ?></title>
 
 <style>
 tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
 tr.detail { font-size:10pt; background-color:#eeeeee; }
 </style>
-
-<script type="text/javascript" src="../../library/topdialog.js"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 
@@ -140,7 +139,7 @@ function refreshIssue(issue, title) {
 function newIssue() {
  var f = document.forms[0];
  var tmp = (keyid && f.form_key[1].checked) ? ('?enclink=' + keyid) : '';
- dlgopen('summary/add_edit_issue.php' + tmp, '_blank', 600, 475);
+ dlgopen('summary/add_edit_issue.php' + tmp, '_blank', 600, 625);
 }
 
 // Determine if a given problem/encounter pair is currently linked.
@@ -268,8 +267,7 @@ function doclick(pfx, id) {
 </script>
 
 </head>
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'
- bgcolor='#ffffff' onunload='imclosing()'>
+<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' bgcolor='#ffffff'>
 <form method='post' action='problem_encounter.php' onsubmit='return top.restoreSession()'>
 <?php
  echo "<input type='hidden' name='form_pid' value='" . attr($pid) . "' />\n";
@@ -284,7 +282,7 @@ while ($row = sqlFetchArray($peres)) {
  echo "' />\n";
 ?>
 
-<table border='0' cellpadding='5' cellspacing='0' width='100%'>
+<table class="table">
 
  <tr>
   <td colspan='2' align='center'>
@@ -293,8 +291,8 @@ while ($row = sqlFetchArray($peres)) {
  </tr>
 
  <tr>
-  <td align='center' valign='top'>
-   <table width='100%' cellpadding='1' cellspacing='2'>
+  <td align='center' valign='top' style="padding: 0 0 0 5px;">
+   <table class="table table-condensed">
     <tr class='head'>
      <td colspan='3' align='center'>
       <input type='radio' name='form_key' value='p' onclick='clearall()' checked />
@@ -319,8 +317,8 @@ while ($row = sqlFetchArray($pres)) {
 ?>
    </table>
   </td>
-  <td align='center' valign='top'>
-   <table width='100%' cellpadding='1' cellspacing='2'>
+  <td align='center' valign='top' style="padding: 0 5px 0 0;">
+   <table class="table table-condensed">
     <tr class='head'>
      <td colspan='2' align='center'>
       <input type='radio' name='form_key' value='e' onclick='clearall()' />
@@ -349,7 +347,7 @@ while ($row = sqlFetchArray($eres)) {
   <td colspan='2' align='center'>
    <input type='submit' name='form_save' value='<?php echo xla('Save'); ?>' disabled /> &nbsp;
    <input type='button' value='<?php echo xla('Add Issue'); ?>' onclick='newIssue()' />
-   <input type='button' value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
+   <input type='button' value='<?php echo xla('Cancel'); ?>' onclick='dlgclose()' />
   </td>
  </tr>
 

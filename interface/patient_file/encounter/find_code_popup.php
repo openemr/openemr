@@ -48,7 +48,7 @@ $target_element = $_GET['target_element'];
 td { font-size:10pt; }
 </style>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
- 
+
 <script language="JavaScript">
 
  // Standard function
@@ -59,7 +59,7 @@ td { font-size:10pt; }
   else {
    var msg = opener.set_related(codetype, code, selector, codedesc);
    if (msg) alert(msg);
-   window.close();
+      dlgclose();
    return false;
   }
  }
@@ -75,7 +75,7 @@ td { font-size:10pt; }
    alert('<?php echo xls('The destination form was closed; I cannot act on your selection.'); ?>');
   else
    opener.set_related_target(codetype, code, selector, codedesc, target_element);
-  window.close();
+     dlgclose();
   return false;
  }
 

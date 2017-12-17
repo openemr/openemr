@@ -20,7 +20,7 @@ $searchcolor = empty($GLOBALS['layout_search_color']) ?
 <html>
 <head>
 <?php html_header_show();?>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>    
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <style>
@@ -36,11 +36,11 @@ form {
  font-weight: bold;
  padding: 3px;
 }
-#searchResultsHeader { 
+#searchResultsHeader {
  width: 100%;
  background-color: lightgrey;
 }
-#searchResultsHeader table { 
+#searchResultsHeader table {
  width: 96%;  /* not 100% because the 'searchResults' table has a scrollbar */
  border-collapse: collapse;
 }
@@ -82,13 +82,13 @@ form {
  color: red;
  font-weight: bold;
 }
-.highlight { 
+.highlight {
  background-color: #336699;
  color: white;
 }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 
 <script language="JavaScript">
 
@@ -260,10 +260,10 @@ if ($result) {
 <center>
 <?php if ($pubpid_matched) { ?>
 <input type='button' value='<?php echo htmlspecialchars(xl('Cancel'), ENT_QUOTES); ?>'
- onclick='window.close();' />
+ onclick='dlgclose();' />
 <?php } else { ?>
 <input type='button' value='<?php echo htmlspecialchars(xl('Confirm Create New Patient'), ENT_QUOTES); ?>'
- onclick='opener.top.restoreSession();opener.document.forms[0].submit();window.close();' />
+ onclick='dlgclose("srcConfirmSave", false);' />
 <?php } ?>
 </center>
 
@@ -288,7 +288,7 @@ var SelectPatient = function (eObj) {
   objID = eObj.id;
   var parts = objID.split("~");
   opener.<?php echo $target; ?>.location.href = '<?php echo $newPage; ?>' + parts[0];
-  window.close();
+  dlgclose();
   return true;
 }
 

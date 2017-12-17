@@ -366,7 +366,7 @@ if ($_POST['form_save']) {
     echo " else if (myboss.reloadIssues) myboss.reloadIssues();\n";
     echo " else myboss.location.reload();\n";
     echo " if (parent.$ && parent.$.fancybox) parent.$.fancybox.close();\n";
-    echo " else window.close();\n";
+    echo " else dlgclose();\n";
 
     echo "</script></body></html>\n";
     exit();
@@ -398,6 +398,7 @@ if (!empty($irow['type'])) {
 <head>
 <?php html_header_show();?>
 <title><?php echo ($issue ? xlt('Edit') : xlt('Add New')) . ' ' . xlt('Issue'); ?></title>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
@@ -422,6 +423,7 @@ ul.tabNav li.current a { background:#ffffff; }
 </style>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
@@ -556,7 +558,7 @@ if ($ISSUE_TYPES['ippf_gcac'] && !$_POST['form_save']) {
 
  function closeme() {
     if (parent.$ && parent.$.fancybox) parent.$.fancybox.close();
-    window.close();
+    dlgclose();
  }
 
  // Called when the Active checkbox is clicked.  For consistency we
@@ -635,7 +637,7 @@ if ($irow['type'] == 'medical_problem') {
     }
 }
 ?>
- dlgopen('<?php echo $url; ?>', '_blank', 900, 600);
+ dlgopen('<?php echo $url; ?>', '_blank', 800, 725);
 }
 
 // Check for errors when the form is submitted.

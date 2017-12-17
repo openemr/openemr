@@ -91,7 +91,7 @@ if ($_POST["form_submit"] || $_POST["form_delete"]) {
         echo "window.history.back()\n";
     } else {
         echo "opener.location.reload()\n";
-        echo "window.close()\n";
+        echo "dlgclose()\n";
     }
 
     echo "</script>\n</body>\n</html>\n";
@@ -125,7 +125,7 @@ if ($_POST["form_submit"] || $_POST["form_delete"]) {
 
 <p>
 <input type="submit" name="form_submit" value="Upload" />
-<input type="button" value="Cancel" onclick="window.close()" />
+<input type="button" value="Cancel" onclick="dlgclose()" />
 <input type="submit" name="form_delete" value="Delete" />
 
 </center>
