@@ -6,7 +6,7 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2009 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -147,8 +147,9 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     "~\n";
 
     $HLBillingPayToProvider = $HLcount++;
-    // Situational PRV segment for provider taxonomy code for Medicaid.
-    if ($claim->claimType() == 'MC') {
+
+    // Situational PRV segment for provider taxonomy.
+    if ($claim->facilityTaxonomy()) {
         ++$edicount;
         $out .= "PRV" .
         "*" . "BI" .
