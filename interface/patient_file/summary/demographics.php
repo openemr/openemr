@@ -1259,6 +1259,31 @@ expand_collapse_widget(
     </tr>
 <?php } // end amendments authorized ?>
 
+<?php if ($GLOBALS['morphine_eq'] == 1) {  // medreq ?>
+<tr>
+    <td width='650px'>
+        <?php // morphine expand collapse widget  Sherwin
+        $widgetTitle = xl("Morphine Equivalents");
+        $widgetLabel = "moreq";
+        $widgetButtonLabel = xl("No Edit");
+        $widgetButtonLink = "";
+        $widgetButtonClass = "";
+        $linkMethod = "html";
+        $bodyClass = "notab";
+
+        $fixedWidth = true;
+        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
+            $widgetButtonLink, $widgetButtonClass, $linkMethod,$bodyClass,
+            $widgetAuth, $fixedWidth);
+        ?>
+
+        <br/>
+        <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
+        </div>
+    </td>
+</tr>
+<?php } ?>
+
 <?php if (acl_check('patients', 'lab')) { ?>
     <tr>
      <td width='650px'>

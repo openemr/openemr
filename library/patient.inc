@@ -1963,3 +1963,93 @@ function is_patient_deceased($pid, $date = '')
         return $results['days_deceased'];
     }
 }
+/** stuff for the cms note Sherwin **/
+function getMeq($pid){
+    $sql = "SELECT last FROM `morphine_eq` WHERE `pid` = ? ORDER BY id DESC LIMIT 1 ";
+    return sqlQuery($sql, $pid);
+}
+
+function getMedication($pid){
+
+    $sql = "SELECT title FROM `lists` WHERE `type` LIKE 'medication' AND `pid` = ? ";
+    $fetch = sqlStatement($sql, array($pid));
+    $list = array();
+    while($row = sqlFetchArray($fetch)){
+        $list[] = $row;
+    }
+
+    return $list;
+
+}
+
+function getMedicalProblems($pid){
+
+    $sql = "SELECT title FROM `lists` WHERE `type` LIKE 'medical_problem' AND `pid` = ? ";
+    $fetch = sqlStatement($sql, array($pid));
+    $list = array();
+    while($row = sqlFetchArray($fetch)){
+        $list[] = $row;
+    }
+
+    return $list;
+
+}
+
+function getZung($pid){
+    $sql = "SELECT result FROM rule_patient_data WHERE pid = ? and item LIKE ? ORDER BY id DESC LIMIT 2";
+    $fetch = sqlStatement($sql, array($pid, 'act_Zung'));
+    $zentries = array();
+    while($row = sqlFetchArray($fetch)){
+        $zentries[] = $row;
+    }
+    return $zentries;
+}
+
+function morphineReport($group){
+
+    switch ($group) {
+        case 'a':
+            $sql = "SELECT * FROM morphine_eq WHERE last >= 361 AND datetime >= (NOW() - INTERVAL 90 DAY) GROUP BY pid";
+            $res = sqlStatement($sql);
+            return $res;
+            break;
+        case 'b':
+            $sql = "SELECT * FROM `morphine_eq` WHERE `last` >= 241 AND `last` <= 360 AND datetime >= (NOW() - INTERVAL 90 DAY) GROUP BY pid";
+            $res = sqlStatement($sql);
+            return $res;
+            break;
+        case 'c':
+            $sql = "SELECT * FROM `morphine_eq` WHERE `last` >= 181 AND `last` <= 240 AND datetime >= (NOW() - INTERVAL 90 DAY) GROUP BY pid";
+            $res = sqlStatement($sql);
+            return $res;
+            break;
+        case 'd':
+            $sql = "SELECT * FROM `morphine_eq` WHERE `last` >= 121 AND `last` <= 180 AND datetime >= (NOW() - INTERVAL 90 DAY) GROUP BY pid";
+            $res = sqlStatement($sql);
+            return $res;
+            break;
+        case 'e':
+            $sql = "SELECT * FROM `morphine_eq` WHERE `last` >= 1 AND `last` <= 120 AND datetime >= (NOW() - INTERVAL 90 DAY) GROUP BY pid";
+            $res = sqlStatement($sql);
+            return $res;
+        case 't':
+            $sql = "SELECT a.id, a.pid FROM `patient_data` AS a RIGHT JOIN form_encounter AS e ON a.pid = e.pid WHERE a.genericname2 = '1' GROUP BY e.pid ";
+            $res = sqlStatement($sql);
+            $rows = 0;
+            while ($row = sqlFetchArray($res)){
+                ++$rows;
+            }
+
+            return $rows;
+            break;
+
+    }
+}
+
+
+
+
+
+
+
+?>

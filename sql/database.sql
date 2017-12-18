@@ -10765,3 +10765,77 @@ CREATE TABLE `patient_birthday_alert` (
   `turned_off_on` date NOT NULL,
   PRIMARY KEY  (`pid`,`user_id`)
 ) ENGINE=InnoDB;
+
+-----------------------------------------------------------
+--
+-- Table structure for table `morphine_eq`
+--
+
+DROP TABLE IF EXISTS `morphine_eq`;
+CREATE TABLE IF NOT EXISTS `morphine_eq` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `datetime` datetime NOT NULL,
+  `encounter` int(10) NOT NULL,
+  `last` int(6) NOT NULL,
+  `next` int(6) NOT NULL,
+  `notes` varchar(90) NOT NULL,
+  `pid` int(6) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
+-------------------------------------------------------------
+
+--
+-- Table structure for table `morphine_list`
+--
+
+DROP TABLE IF EXISTS `morphine_list`;
+CREATE TABLE IF NOT EXISTS `morphine_list` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `drugname` varchar(90) NOT NULL,
+  `multiplier` decimal(5,2) NOT NULL,
+  `days` int(3) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
+--
+-- Dumping data for table `morphine_list`
+--
+
+INSERT INTO `morphine_list` (`id`, `drugname`, `multiplier`, `days`) VALUES
+(1, 'Nucynta', '0.40', 30),
+(2, 'Tapentadol', '0.40', 30),
+(3, 'Codeine', '0.15', 30),
+(4, 'Tramadol', '0.10', 30),
+(5, 'Hysingla', '1.00', 30),
+(6, 'Dilaudid', '4.00', 30),
+(7, 'Oxycodone', '1.50', 30),
+(35, 'Oxyado', '1.50', 30),
+(9, 'Hydromorphone', '4.00', 30),
+(10, 'Morphine', '1.00', 30),
+(11, 'Embeda', '1.00', 30),
+(12, 'Kadian', '1.00', 30),
+(13, 'Butrans', '10.00', 30),
+(14, 'MSIR', '1.00', 30),
+(15, 'MS Contin', '1.00', 30),
+(16, 'Exalgo', '4.00', 30),
+(17, 'Avinza', '1.00', 30),
+(18, 'Hydrocodone', '1.00', 30),
+(19, 'Zohydro', '1.00', 30),
+(20, 'Lortab', '1.00', 30),
+(21, 'Norco', '1.00', 30),
+(22, 'Vicodin', '1.00', 30),
+(23, 'Endocet', '1.50', 30),
+(24, 'Oxycontin', '1.50', 30),
+(25, 'Percocet', '1.50', 30),
+(26, 'Roxicodone', '1.50', 30),
+(27, 'Fentanyl', '7.20', 30),
+(28, 'Buprenorphine', '12.60', 30),
+(29, 'Methadone', '3.00', 30),
+(33, 'Levomethadyl', '8.00', 30),
+(34, 'Opium', '1.00', 30),
+(38, 'Xtampza', '1.50', 30),
+(37, 'Arymo', '1.00', 30),
+(39, 'MS Contin ER', '1.00', 30),
+(40, 'Opana ER', '3.00', 30),
+(41, 'Oxymorphone ER', '3.00', 30);
