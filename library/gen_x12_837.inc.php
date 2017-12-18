@@ -151,7 +151,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     if ($claim->claimType() == 'MC') {
         ++$edicount;
         $out .= "PRV" .
-        "*" . "BI" .
+        "*" . "PXC" .
         "*" . "ZZ" .
         "*" . $claim->providerTaxonomy() .
         "~\n";
@@ -678,7 +678,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
             ++$edicount;
             $out .= "PRV" .
             "*" . "PE" . // Performing provider
-            "*" . ($claim->claimType() != 'MC' ? "PXC" : "ZZ") .
+            "*" . "PXC" . // PXC is 5010 compliant
             "*" . $claim->providerTaxonomy() .
             "~\n";
         } else {
