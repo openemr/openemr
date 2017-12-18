@@ -6,7 +6,7 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2009 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -115,7 +115,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     $out .= "~\n";
 
     ++$edicount;
-    $out .= "PER" .
+    $out .= "PER" . // Loop 1000A, Submitter EDI contact information
     "*" . "IC" .
     "*" . $claim->billingContactName() .
     "*" . "TE" .
@@ -125,7 +125,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     $out .= "~\n";
 
     ++$edicount;
-    $out .= "NM1" .    // Loop 1000B Receiver
+    $out .= "NM1" . // Loop 1000B Receiver
     "*" . "40" .
     "*" . "2" .
     "*" . $claim->clearingHouseName() .
@@ -139,21 +139,22 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
 
     ++$HLcount;
     ++$edicount;
-    $out .= "HL" .        // Loop 2000A Billing/Pay-To Provider HL Loop
+    $out .= "HL" . // Loop 2000A Billing/Pay-To Provider HL Loop
     "*" . $HLcount .
     "*" .
     "*" . "20" .
-    "*" . "1" .              // 1 indicates there are child segments
+    "*" . "1" . // 1 indicates there are child segments
     "~\n";
 
     $HLBillingPayToProvider = $HLcount++;
-    // Situational PRV segment for provider taxonomy code for Medicaid.
-    if ($claim->claimType() == 'MC') {
+
+    // Situational PRV segment for provider taxonomy.
+    if ($claim->facilityTaxonomy()) {
         ++$edicount;
         $out .= "PRV" .
         "*" . "BI" .
-        "*" . "ZZ" .
-        "*" . $claim->providerTaxonomy() .
+        "*" . "PXC" .
+        "*" . $claim->facilityTaxonomy() .
         "~\n";
     }
 
@@ -678,7 +679,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
             ++$edicount;
             $out .= "PRV" .
             "*" . "PE" . // Performing provider
-            "*" . ($claim->claimType() != 'MC' ? "PXC" : "ZZ") .
+            "*" . "PXC" .
             "*" . $claim->providerTaxonomy() .
             "~\n";
         } else {
@@ -1080,7 +1081,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     //
         if ($claim->providerNPI() != $claim->providerNPI($prockey)) {
             ++$edicount;
-            $out .= "NM1" .       // Loop 2310B Rendering Provider
+            $out .= "NM1" .       // Loop 2420A Rendering Provider
             "*" . "82" .
             "*" . "1" .
             "*" . $claim->providerLastName($prockey) .
@@ -1097,6 +1098,8 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
             }
             $out .= "~\n";
 
+            // Segment PRV*PE (Rendering Provider Specialty Information) .
+
             if ($claim->providerTaxonomy($prockey)) {
                 ++$edicount;
                 $out .= "PRV" .
@@ -1106,7 +1109,6 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
                 "~\n";
             }
 
-            // Segment PRV*PE (Rendering Provider Specialty Information) omitted.
             // Segment REF (Rendering Provider Secondary Identification) omitted.
             // Segment NM1 (Purchased Service Provider Name) omitted.
             // Segment REF (Purchased Service Provider Secondary Identification) omitted.

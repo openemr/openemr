@@ -158,7 +158,7 @@ parent.$.fn.fancybox.close();
 
 <form name='facility-form' id="facility-form" method='post' action="facilities.php" target="_parent">
     <input type=hidden name=mode value="facility">
-    <input type=hidden name=newmode value="admin_facility"> <!--    Diffrentiate Admin and add post backs -->
+    <input type=hidden name=newmode value="admin_facility"> <!--    Differentiate Admin and add post backs -->
     <input type=hidden name=fid value="<?php echo $my_fid;?>">
     <?php $facility = $facilityService->getById($my_fid); ?>
 
@@ -198,6 +198,12 @@ parent.$.fn.fancybox.close();
             <td width="21"><span class=text><?php ($GLOBALS['simplified_demographics'] ? xl('Facility Code', 'e') : xl('Facility NPI', 'e')); ?>:
           </span></td><td><input type=entry size=20 name=facility_npi value="<?php echo htmlspecialchars($facility["facility_npi"], ENT_QUOTES) ?>"></td>
         </tr>
+        <tr>
+            <td><span class=text><?php (xl('Facility Taxonomy', 'e')); ?>:</span></td>
+            <td><input type=entry size=20 name=facility_taxonomy value="<?php echo htmlspecialchars($facility["facility_taxonomy"], ENT_QUOTES) ?>"></td>
+        </tr>
+        
+
         <tr>
             <td><span class=text><?php xl('Website', 'e'); ?>: </span></td><td><input type=entry size=20 name=website value="<?php echo htmlspecialchars($facility["website"], ENT_QUOTES) ?>"></td>
             <td><span class=text><?php xl('Email', 'e'); ?>: </span></td><td><input type=entry size=20 name=email value="<?php echo htmlspecialchars($facility["email"], ENT_QUOTES) ?>"></td>
