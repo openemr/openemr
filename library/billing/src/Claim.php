@@ -789,6 +789,11 @@ class Claim
         }
     }
 
+    public function facilityTaxonomy()
+    {
+        return $this->x12Clean(trim($this->facility['facility_taxonomy']));
+    }
+
     public function clearingHouseName()
     {
         return $this->x12Clean(trim($this->x12_partner['name']));

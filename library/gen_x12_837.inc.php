@@ -115,7 +115,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     $out .= "~\n";
 
     ++$edicount;
-    $out .= "PER" .
+    $out .= "PER" . // Loop 1000A, Submitter EDI contact information
     "*" . "IC" .
     "*" . $claim->billingContactName() .
     "*" . "TE" .
@@ -125,7 +125,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     $out .= "~\n";
 
     ++$edicount;
-    $out .= "NM1" .    // Loop 1000B Receiver
+    $out .= "NM1" . // Loop 1000B Receiver
     "*" . "40" .
     "*" . "2" .
     "*" . $claim->clearingHouseName() .
@@ -139,11 +139,11 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
 
     ++$HLcount;
     ++$edicount;
-    $out .= "HL" .        // Loop 2000A Billing/Pay-To Provider HL Loop
+    $out .= "HL" . // Loop 2000A Billing/Pay-To Provider HL Loop
     "*" . $HLcount .
     "*" .
     "*" . "20" .
-    "*" . "1" .              // 1 indicates there are child segments
+    "*" . "1" . // 1 indicates there are child segments
     "~\n";
 
     $HLBillingPayToProvider = $HLcount++;
@@ -151,9 +151,9 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     if ($claim->claimType() == 'MC') {
         ++$edicount;
         $out .= "PRV" .
+        "*" . "BI" .
         "*" . "PXC" .
-        "*" . "ZZ" .
-        "*" . $claim->providerTaxonomy() .
+        "*" . $claim->facilityTaxonomy() .
         "~\n";
     }
 
@@ -678,7 +678,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
             ++$edicount;
             $out .= "PRV" .
             "*" . "PE" . // Performing provider
-            "*" . "PXC" . // PXC is 5010 compliant
+            "*" . "PXC" .
             "*" . $claim->providerTaxonomy() .
             "~\n";
         } else {
@@ -1080,7 +1080,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     //
         if ($claim->providerNPI() != $claim->providerNPI($prockey)) {
             ++$edicount;
-            $out .= "NM1" .       // Loop 2310B Rendering Provider
+            $out .= "NM1" .       // Loop 2420A Rendering Provider
             "*" . "82" .
             "*" . "1" .
             "*" . $claim->providerLastName($prockey) .
@@ -1097,6 +1097,8 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
             }
             $out .= "~\n";
 
+            // Segment PRV*PE (Rendering Provider Specialty Information) .
+
             if ($claim->providerTaxonomy($prockey)) {
                 ++$edicount;
                 $out .= "PRV" .
@@ -1106,7 +1108,6 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
                 "~\n";
             }
 
-            // Segment PRV*PE (Rendering Provider Specialty Information) omitted.
             // Segment REF (Rendering Provider Secondary Identification) omitted.
             // Segment NM1 (Purchased Service Provider Name) omitted.
             // Segment REF (Purchased Service Provider Secondary Identification) omitted.
