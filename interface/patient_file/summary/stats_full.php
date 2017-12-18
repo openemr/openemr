@@ -47,7 +47,7 @@ $language = $tmp['language'];
 
 <head>
 
-    <?php Header::setupHeader(['dialog']); ?>
+    <?php Header::setupHeader(); ?>
 
 <title><?php echo xlt('Patient Issues'); ?></title>
 

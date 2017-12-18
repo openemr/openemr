@@ -76,7 +76,7 @@ $fres = getLayoutRes();
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['dialog', 'textformat', 'common','datetime-picker', 'jquery-ui']); ?>
+<?php Header::setupHeader(['common','datetime-picker', 'jquery-ui']); ?>
 <title><?php echo xlt("Search or Add Patient"); ?></title>
 
 <style>
@@ -835,13 +835,6 @@ if (f.form_phone_cell   ) phonekeyup(f.form_phone_cell   ,mypcc);
 // var override = false; // flag that overrides the duplication warning
 
 $(document).ready(function() {
-/*enable_modals();
- $(".medium_modal").fancybox( {
-                'overlayOpacity' : 0.0,
-                'showCloseButton' : true,
-                'frameHeight' : 460,
-                'frameWidth' : 650
-        });*/
     $(".medium_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
         dlgopen('', '', 650, 460, '', '', {

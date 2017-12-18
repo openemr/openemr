@@ -21,7 +21,7 @@ use OpenEMR\Core\Header;
 
 <html>
 <head>
-    <?php Header::setupHeader(['dialog', 'textformat', 'common']); ?>
+    <?php Header::setupHeader(['common']); ?>
 </head>
 
 <?php

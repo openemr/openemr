@@ -42,7 +42,7 @@ use OpenEMR\Core\Header;
 <!DOCTYPE html>
 <html>
 <head>
-    <?php Header::setupHeader(['dialog', 'textformat', 'jquery-ui']); ?>
+    <?php Header::setupHeader(['jquery-ui']); ?>
 </head>
 
 <body class="body_top">
