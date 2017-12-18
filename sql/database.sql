@@ -1639,6 +1639,7 @@ CREATE TABLE `facility` (
   `attn` varchar(65) default NULL,
   `domain_identifier` varchar(60) default NULL,
   `facility_npi` varchar(15) default NULL,
+  `facility_taxonomy` varchar(15) default NULL,
   `tax_id_type` VARCHAR(31) NOT NULL DEFAULT '',
   `color` VARCHAR(7) NOT NULL DEFAULT '',
   `primary_business_entity` INT(10) NOT NULL DEFAULT '0' COMMENT '0-Not Set as business entity 1-Set as business entity',
