@@ -152,6 +152,10 @@
       // This will return all pertinent ACL's (including return_values and whether allow/deny)
       // Walk through them to assess for access
       global $gacl_object;
+      if (!is_object($gacl_object)) {
+        // This is a specific fix to support embedded phpmyadmin. Do not need this in 5.0.1 or greater since have removed phpmyadmin.
+        $gacl_object = new gacl();
+      }
       $acl_results = $gacl_object->acl_query($section, $value, $GLOBALS['section_aro_value_global'], $user,NULL,NULL,NULL,NULL,NULL,TRUE);
       if (empty($acl_results)) {
         return FALSE; //deny access
