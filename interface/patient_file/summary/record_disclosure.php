@@ -66,11 +66,25 @@ function submitform() {
     else if (document.forms[0].dates.value.length > 0 && document.forms[0].recipient_name.value.length > 0 && document.forms[0].desc_disc.value.length > 0) {
         top.restoreSession();
         document.forms[0].submit();
-        dlgclose();
     }
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
+    $("#disclosure_form").submit(function (event) {
+        event.preventDefault(); //prevent default action
+        var post_url = $(this).attr("action");
+        var request_method = $(this).attr("method");
+        var form_data = $(this).serialize();
+
+        $.ajax({
+            url: post_url,
+            type: request_method,
+            data: form_data
+        }).done(function (r) { //
+            dlgclose('refreshme', false);
+        });
+    });
+
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -85,23 +99,22 @@ $(document).ready(function() {
 <body class="body_top">
 <div id="record-disclosure" style='float: left; margin-right: 10px' >
 <div style='float: left; margin-right: 5px'><?php
-if ($editlid) {
+    if ($editlid) {
     ?><!--Edit the disclosures-->
     <span class="title"><?php echo htmlspecialchars(xl('Edit Disclosure'), ENT_NOQUOTES); ?></span><?php
-} else { ?>
-    <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure'), ENT_NOQUOTES); ?></span><?php
-} ?>
+    } else { ?>
+        <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure'), ENT_NOQUOTES); ?></span><?php
+    } ?>
 </div>
-<div><a onclick="submitform();" class="css_button large_button"
-    name='form_save' id='form_save' href='#'> <span
-    class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Save'), ENT_NOQUOTES);?></span>
-</a></div>
-<div><a class="css_button large_button" id='cancel'
-    href='#' onclick='top.restoreSession();dlgclose()'> <span
-    class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Cancel'), ENT_NOQUOTES);?></span>
-</a></div>
-<br>
-<form name="disclosure_form" method="POST" action="disclosure_full.php" target='pat'>
+
+<form name="disclosure_form" id="disclosure_form" method="POST" action="disclosure_full.php">
+    <div><button class='css_button_span large_button_span' name='form_save' id='form_save'>
+            <?php echo htmlspecialchars(xl('Save'), ENT_NOQUOTES); ?>
+        </button></div>
+    <div><a class="css_button large_button" id='cancel' href='#' onclick='top.restoreSession();dlgclose()'> <span
+                class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Cancel'), ENT_NOQUOTES); ?></span>
+        </a></div>
+    <br>
 <input type=hidden name=mode value="disclosure">
 <table border=0 cellpadding=3 cellspacing=0 align='center'>
     <br>

@@ -45,6 +45,8 @@ if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
         //insert the disclosure records in the extended_log table.
          recordDisclosure($dates, $event, $pid, $recipient_name, $disclosure_desc, $uname);
     }
+    // added ajax submit to record_disclosure thus an exit() 12/19/17
+    exit();
 }
 
 if (isset($_GET['deletelid'])) {
@@ -214,6 +216,11 @@ $(document).ready(function () {
     });
 
 });
+// for record disclosure dlgclose callback
+function refreshme() {
+    top.restoreSession();
+    document.location.href = href="disclosure_full.php";
+}
 </script>
 </html>
 
