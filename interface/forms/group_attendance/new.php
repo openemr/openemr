@@ -177,7 +177,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
             $('.new_patient').css("border-color", "black");
             $('.error_wrap .error').html("");
             var url = '<?php echo $GLOBALS['webroot']?>/interface/main/calendar/find_patient_popup.php';
-            dlgopen(url, '_blank', 500, 400,true,'','');
+            dlgopen(url, '_blank', 500, 400);
         });
 
         $('.cancel_button').click(function () {
