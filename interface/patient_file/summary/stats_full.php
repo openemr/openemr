@@ -16,6 +16,8 @@ require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 
+use OpenEMR\Core\Header;
+
 // Check if user has permission for any issue type.
 $auth = false;
 foreach ($ISSUE_TYPES as $type => $dummy) {
@@ -44,14 +46,10 @@ $language = $tmp['language'];
 <html>
 
 <head>
-<?php html_header_show();?>
 
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+    <?php Header::setupHeader(); ?>
 
 <title><?php echo xlt('Patient Issues'); ?></title>
-
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
 
 <script language="JavaScript">
 
@@ -64,13 +62,13 @@ function refreshIssue(issue, title) {
 function dopclick(id,category) {
     top.restoreSession();
     if (category == 0) category = '';
-    dlgopen('add_edit_issue.php?issue=' + encodeURIComponent(id) + '&thistype=' + encodeURIComponent(category), '_blank', 950, 700);
+    dlgopen('add_edit_issue.php?issue=' + encodeURIComponent(id) + '&thistype=' + encodeURIComponent(category), '_blank', 650, 600);
 }
 
 // Process click on number of encounters.
 function doeclick(id) {
     top.restoreSession();
-    dlgopen('../problem_encounter.php?issue=' + id, '_blank', 550, 400);
+    dlgopen('../problem_encounter.php?issue=' + id, '_blank', 700, 400);
 }
 
 // Process click on diagnosis for patient education popup.
@@ -289,7 +287,7 @@ $(document).ready(function(){
     $(".noneCheck").click(function() {
       top.restoreSession();
       $.post( "../../../library/ajax/lists_touch.php", { type: this.name, patient_id: <?php echo htmlspecialchars($pid, ENT_QUOTES); ?> });
-      $(this).hide(); 
+      $(this).hide();
     });
 });
 

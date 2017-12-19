@@ -15,16 +15,13 @@
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/clinical_rules.php");
+
+use OpenEMR\Core\Header;
 ?>
 
 <html>
 <head>
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="../../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
+    <?php Header::setupHeader(['common']); ?>
 </head>
 
 <?php
@@ -262,25 +259,26 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
       });
     });
 
-    $(".medium_modal").on('click', function(e) {
-        e.preventDefault();
-        dlgopen('', '', 800, 200, '', '', {
-            buttons: [
-                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm', click:refreshme}
-            ],
-            allowResize: false,
-            allowDrag: true,
-            dialogId: '',
-            type: 'iframe',
-            url: $(this).attr('href')
-        });
-    });
+  });
 
-    function refreshme() {
+  function refreshme() {
       top.restoreSession();
       location.reload();
-    }
+  }
 
+  $(".medium_modal").on('click', function(e) {
+      e.preventDefault();e.stopPropagation();
+      dlgopen('', '', 800, 200, '', '', {
+          buttons: [
+              {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+          ],
+          onClosed: 'refreshme',
+          allowResize: true,
+          allowDrag: true,
+          dialogId: 'reminders',
+          type: 'iframe',
+          url: $(this).attr('href')
+      });
   });
 </script>
 

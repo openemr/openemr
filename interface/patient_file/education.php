@@ -60,9 +60,9 @@ if ($_POST['bn_submit']) {
         if (false) {
             $data = file_get_contents($url);
             echo $data;
-        } else {
+        } else { // Removed opener because this is not a dialog. sjp 12/14/17
             echo "<html><body>"
-            ."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"
+            //."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"
             . "<script language='JavaScript'>\n";
             echo "document.location.href = '$url';\n";
             echo "</script></body></html>\n";
@@ -102,7 +102,7 @@ if ($_POST['bn_submit']) {
 
     <title><?php echo xlt('Education'); ?></title>
 
-    <?php Header::setupHeader('opener'); ?>
+    <?php Header::setupHeader(); ?>
 
 </head>
 <body class="body_top">
