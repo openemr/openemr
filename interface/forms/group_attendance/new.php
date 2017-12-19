@@ -69,11 +69,15 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
 
 <head>
     <?php html_header_show();?>
+
     <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/datatables.net-jqui-1-10-13/css/dataTables.jqueryui.min.css" type="text/css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" type="text/css">
+
     <script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-min-1-9-1/index.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-ui-1-10-4/ui/jquery.ui.core.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-ui-1-12-1/jquery-ui.min.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'];?>/datatables.net-1-10-13/js/jquery.dataTables.min.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/js/bootstrap.min.js?v=40"></script>
     <script src="<?php echo $GLOBALS['web_root'];?>/library/dialog.js"></script>
 </head>
 
@@ -173,7 +177,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
             $('.new_patient').css("border-color", "black");
             $('.error_wrap .error').html("");
             var url = '<?php echo $GLOBALS['webroot']?>/interface/main/calendar/find_patient_popup.php';
-            dlgopen(url, '_blank', 500, 400);
+            dlgopen(url, '_blank', 500, 400,true,'','');
         });
 
         $('.cancel_button').click(function () {
