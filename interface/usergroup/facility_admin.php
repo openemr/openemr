@@ -158,7 +158,7 @@ parent.$.fn.fancybox.close();
 
 <form name='facility-form' id="facility-form" method='post' action="facilities.php" target="_parent">
     <input type=hidden name=mode value="facility">
-    <input type=hidden name=newmode value="admin_facility"> <!--    Differentiate Admin and add post backs -->
+    <input type=hidden name=newmode value="admin_facility"> <!--    Diffrentiate Admin and add post backs -->
     <input type=hidden name=fid value="<?php echo $my_fid;?>">
     <?php $facility = $facilityService->getById($my_fid); ?>
 
@@ -199,7 +199,7 @@ parent.$.fn.fancybox.close();
           </span></td><td><input type=entry size=20 name=facility_npi value="<?php echo htmlspecialchars($facility["facility_npi"], ENT_QUOTES) ?>"></td>
         </tr>
         <tr>
-            <td><span class=text><?php (xl('Facility Taxonomy', 'e')); ?>:</span></td>
+            <td>&nbsp;</td><td>&nbsp;</td><td><span class=text><?php (xl('Facility Taxonomy', 'e')); ?>:</span></td>
             <td><input type=entry size=20 name=facility_taxonomy value="<?php echo htmlspecialchars($facility["facility_taxonomy"], ENT_QUOTES) ?>"></td>
         </tr>
         
