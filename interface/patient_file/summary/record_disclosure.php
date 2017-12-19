@@ -35,6 +35,7 @@ if (isset($_GET['editlid'])) {
     $editlid=$_GET['editlid'];
 }
 ?>
+<!DOCTYPE html>
 <html>
 <head>
 <link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
@@ -47,26 +48,25 @@ if (isset($_GET['editlid'])) {
 
 <script type="text/javascript">
 //function to validate fields in record disclosure page
-function submitform()
-{
-    if (document.forms[0].dates.value.length<=0)
-
-    {document.forms[0].dates.focus();document.forms[0].dates.style.backgroundColor="red";
+function submitform() {
+    if (document.forms[0].dates.value.length <= 0) {
+        document.forms[0].dates.focus();
+        document.forms[0].dates.style.backgroundColor = "red";
     }
-        else if (document.forms[0].recipient_name.value.length<=0)
-        {
-    document.forms[0].dates.style.backgroundColor="white";
-    document.forms[0].recipient_name.focus();document.forms[0].recipient_name.style.backgroundColor="red";
+    else if (document.forms[0].recipient_name.value.length <= 0) {
+        document.forms[0].dates.style.backgroundColor = "white";
+        document.forms[0].recipient_name.focus();
+        document.forms[0].recipient_name.style.backgroundColor = "red";
     }
-        else  if (document.forms[0].desc_disc.value.length<=0)
-        {
-    document.forms[0].recipient_name.style.backgroundColor="white";
-    document.forms[0].desc_disc.focus();document.forms[0].desc_disc.style.backgroundColor="red";
+    else if (document.forms[0].desc_disc.value.length <= 0) {
+        document.forms[0].recipient_name.style.backgroundColor = "white";
+        document.forms[0].desc_disc.focus();
+        document.forms[0].desc_disc.style.backgroundColor = "red";
     }
-    else  if (document.forms[0].dates.value.length>0 && document.forms[0].recipient_name.value.length>0 && document.forms[0].desc_disc.value.length>0)
-        {
-    top.restoreSession();
+    else if (document.forms[0].dates.value.length > 0 && document.forms[0].recipient_name.value.length > 0 && document.forms[0].desc_disc.value.length > 0) {
+        top.restoreSession();
         document.forms[0].submit();
+        dlgclose();
     }
 }
 
@@ -92,7 +92,7 @@ if ($editlid) {
     <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure'), ENT_NOQUOTES); ?></span><?php
 } ?>
 </div>
-<div><a onclick="submitform(); return dlgclose()" class="css_button large_button"
+<div><a onclick="submitform();" class="css_button large_button"
     name='form_save' id='form_save' href='#'> <span
     class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Save'), ENT_NOQUOTES);?></span>
 </a></div>
@@ -101,7 +101,7 @@ if ($editlid) {
     class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Cancel'), ENT_NOQUOTES);?></span>
 </a></div>
 <br>
-<form NAME="disclosure_form" METHOD="POST" ACTION="disclosure_full.php" target='pat' onsubmit='return top.restoreSession()'>
+<form name="disclosure_form" method="POST" action="disclosure_full.php" target='pat'>
 <input type=hidden name=mode value="disclosure">
 <table border=0 cellpadding=3 cellspacing=0 align='center'>
     <br>

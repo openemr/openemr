@@ -388,7 +388,10 @@ while ($lrow = sqlFetchArray($lres)) {
 
  dlgopen(url, '_blank', 700, 500);
 }
-
+function srchDone(pid){
+    top.restoreSession();
+    document.location.href = "./../../patient_file/summary/demographics.php?set_pid=" + pid;
+}
 //-->
 
 </script>
@@ -958,7 +961,6 @@ while ($lrow = sqlFetchArray($lres)) {
 // callback for new patient save confirm from new_search_popup.php
 // note that dlgclose() callbacks mostly need to init outside dom.
 function srcConfirmSave() {
-    top.restoreSession();
     document.forms[0].submit();
 }
 

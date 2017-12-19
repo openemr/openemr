@@ -142,7 +142,10 @@ if (isset($this_message['pid'])) {
 <html>
   <head>
     <title><?php echo xlt('Send a Reminder') ?></title>
-
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
+    <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
+        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
+    <?php } ?>
     <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
@@ -151,6 +154,7 @@ if (isset($this_message['pid'])) {
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
     <script language="JavaScript">
       $(document).ready(function (){
@@ -250,7 +254,7 @@ if (isset($this_message['pid'])) {
       })
 
         function sel_patient(){
-           window.open('../../main/calendar/find_patient_popup.php', '_newDRPat', '' + ",width="   + 500 + ",height="  + 400 + ",left="    + 25  + ",top="     + 25   + ",screenX=" + 25  + ",screenY=" + 25);
+           dlgopen('../../main/calendar/find_patient_popup.php', '_newDRPat', 650, 400, '', '');
         }
 
         function setpatient(pid, lname, fname, dob){
@@ -279,7 +283,7 @@ if (isset($this_message['pid'])) {
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
 
-    <h1><?php echo xlt('Send a Reminder') ?></h1>
+    <h4><?php echo xlt('Send a Reminder') ?></h4>
     <form id="addDR" style="margin:0 0 10px 0;" id="newMessage" method="post" onsubmit="return top.restoreSession()">
      <div style="text-align:center; color:red" id="errorMessage"></div>
 
@@ -391,7 +395,7 @@ if (isset($this_message['pid'])) {
         $remindersArray[$RA['messageID']]['dDate'] = $RA['dDate'];
     }
 
-        echo '<h2>',xlt('Messages You have sent Today'),'</h2>';
+        echo '<h4>',xlt('Messages You have sent Today'),'</h4>';
         echo '<table border="1" width="100%" cellpadding="5px" id="logTable">
                 <thead>
                   <tr>

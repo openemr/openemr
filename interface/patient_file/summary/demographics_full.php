@@ -231,7 +231,10 @@ function ins_search(ins) {
     insurance_index = ins;
     return false;
 }
-
+function InsSaveClose() {
+    top.restoreSession();
+    document.location.reload();
+}
 // The ins_search.php window calls this to set the selected insurance.
 function set_insurance(ins_id, ins_name) {
  var thesel = document.forms[0]['i' + insurance_index + 'provider'];
@@ -563,7 +566,7 @@ echo xlt($CapInstype); ?></a></li><?php
             </td>
             <td class='required'>:</td>
             <td>
-                        <a href="../../practice/ins_search.php" class="medium_modal css_button" onclick="ins_search(<?php echo $i?>)">
+             <a href="../../practice/ins_search.php" class="medium_modal css_button" onclick="ins_search(<?php echo $i?>)">
              <span><?php echo xlt('Search/Add') ?></span>
                   </a>
              <select name="i<?php echo $i?>provider" class="form-control">

@@ -102,7 +102,7 @@ if ($_POST['bn_submit']) {
 
     <title><?php echo xlt('Education'); ?></title>
 
-    <?php Header::setupHeader(); ?> // Removed opener because this is not a dialog. sjp 12/14/17
+    <?php Header::setupHeader(); ?>
 
 </head>
 <body class="body_top">

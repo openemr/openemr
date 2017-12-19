@@ -121,9 +121,7 @@ td { font-size:10pt; }
    alert('The target form was closed; I cannot apply your selection.');
   else
    opener.set_insurance(ins_id, ins_name);
-   window.close();
-   opener.location.reload();
-   top.restoreSession();
+   dlgclose('InsSaveClose',false);
  }
 
  // This is set to true on a mousedown of the Save button.  The
@@ -224,9 +222,9 @@ if ($_POST['form_save']) {
         echo " alert('$info_msg');\n";
     }
 
-    echo " window.close();\n";
     echo " top.restoreSession();\n";
     echo " if (opener.set_insurance) opener.set_insurance($ins_id,'".addslashes($ins_name)."');\n";
+    echo " dlgclose();\n";
     echo "</script></body></html>\n";
     exit();
 }

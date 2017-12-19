@@ -90,7 +90,7 @@ td { font-size:10pt; }
  // This is invoked when an insurance company name is clicked.
  function setins(ins_id, ins_name) {
    opener.set_insurance(ins_id, ins_name);
-   window.close();
+   dlgclose();
    return false;
  }
 

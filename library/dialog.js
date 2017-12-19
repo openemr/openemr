@@ -251,14 +251,18 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         where = opts.type === 'iframe' ? top : window;
     } else { // if frames u.i, this will search for the first body node so we have a landing place for stackable's
         let wframe = window;
-        for (; wframe.name !== 'RTop' && wframe.name !== 'RBot'; wframe = wframe.parent) {
-            if (wframe.parent === wframe) {
-                wframe = window;
+        if (wframe.name !== 'left_nav') {
+            for (let i = 0; wframe.name !== 'RTop' && wframe.name !== 'RBot' && i < 6; wframe = wframe.parent) {
+                if (i === 5) {
+                    wframe = window;
+                }
+                i++;
             }
+        } else {
+            wframe = top.window['RTop'];
         }
-        for (let i = 0; wframe.document.body.localName !== 'body' && i < 7; wframe = wframe[i++]) {
-            // @todo add graceful error...
-            if (i === 6) {
+        for (let i = 0; wframe.document.body.localName !== 'body' && i < 6; wframe = wframe[i++]) {
+            if (i === 5) {
                 alert('<?php echo xlt("Unable to find window to build") ?>');
                 return false;
             }

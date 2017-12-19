@@ -520,23 +520,17 @@ $(document).ready(function(){
 });
 
 var SelectPatient = function (eObj) {
-<?php
+
 // The layout loads just the demographics frame here, which in turn
 // will set the pid and load all the other frames.
-    $newPage = "../../patient_file/summary/demographics.php?set_pid=";
-    $target = "document";
-?>
     objID = eObj.id;
     var parts = objID.split("~");
-    <?php if (!$popup) {
-        echo "top.restoreSession();\n";
-} ?>
-    <?php if ($popup) {
-        echo "dlgclose();\n";
-        echo "opener.";
-}
-
-    echo $target; ?>.location.href = '<?php echo $newPage; ?>' + parts[0];
+    <?php if (!$popup) { ?>
+        top.restoreSession();
+        document.location.href = "../../patient_file/summary/demographics.php?set_pid=" + parts[0];
+    <?php } else if ($popup) { ?>
+        dlgclose("srchDone", parts[0]);
+    <?php } ?>
 
     return true;
 }
