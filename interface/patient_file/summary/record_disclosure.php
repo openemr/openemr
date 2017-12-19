@@ -99,12 +99,12 @@ $(document).ready(function () {
 <body class="body_top">
 <div id="record-disclosure" style='float: left; margin-right: 10px' >
 <div style='float: left; margin-right: 5px'><?php
-    if ($editlid) {
+if ($editlid) {
     ?><!--Edit the disclosures-->
     <span class="title"><?php echo htmlspecialchars(xl('Edit Disclosure'), ENT_NOQUOTES); ?></span><?php
-    } else { ?>
+} else { ?>
         <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure'), ENT_NOQUOTES); ?></span><?php
-    } ?>
+} ?>
 </div>
 
 <form name="disclosure_form" id="disclosure_form" method="POST" action="disclosure_full.php">
