@@ -14,6 +14,7 @@
 require_once("../globals.php");
 require_once("../../library/acl.inc");
 
+use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -49,6 +50,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] !
     );
 
     $insert_id = $facilityService->insert($newFacility);
+    exit(); // sjp 12/20/17 for ajax save
 }
 
 /*		Editing existing facility					*/
@@ -75,8 +77,8 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] =
       "attn" => trim(isset($_POST["attn"]) ? $_POST["attn"] : ''),
       "tax_id_type" =>  trim(isset($_POST["tax_id_type"]) ? $_POST["tax_id_type"] : ''),
       "primary_business_entity" => trim(isset($_POST["primary_business_entity"]) ? $_POST["primary_business_entity"] : ''),
-      "facility_npi" => trim(isset($_POST["facility_npi"]) ? $_POST["facility_npi"] : ''),
       "facility_taxonomy" => trim(isset($_POST["facility_taxonomy"]) ? $_POST["facility_taxonomy"] : ''),
+      "facility_npi" => trim(isset($_POST["facility_npi"]) ? $_POST["facility_npi"] : ''),
       "facility_code" => trim(isset($_POST["facility_id"]) ? $_POST["facility_id"] : '')
     );
 
@@ -86,6 +88,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] =
     // This is necassary because some provider based code uses facility name for lookups instead of facility id.
     //
     $facilityService->updateUsersFacility($newFacility['name'], $newFacility['fid']);
+    exit(); // sjp 12/20/17 for ajax save
 }
 
 ?>
@@ -95,41 +98,44 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] =
 
 <title><?php echo xlt("Facilities") ; ?></title>
 
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
-<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.css" type="text/css">
-<?php } ?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-
-<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui.js"></script>
+    <?php Header::setupHeader(['common', 'jquery-ui']); ?>
 
 <script type="text/javascript">
 
-
+function refreshme() {
+    top.restoreSession();
+    document.location.reload();
+}
 $(document).ready(function(){
 
-    // fancy box
-    enable_modals();
-
-    // special size for
-    $(".addfac_modal").fancybox( {
-        'overlayOpacity' : 0.0,
-        'showCloseButton' : true,
-        'frameHeight' : 460,
-        'frameWidth' : 650
+    $(".medium_modal").on('click', function(e) {
+        e.preventDefault();e.stopPropagation();
+        dlgopen('', '', 700, 590, '', '', {
+            buttons: [
+                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+            ],
+            onClosed: '',
+            allowResize: false,
+            allowDrag: true, // note these default to true if not defined here. left as example.
+            dialogId: '',
+            type: 'iframe',
+            url: $(this).attr('href')
+        });
     });
 
-    // special size for
-    $(".medium_modal").fancybox( {
-        'overlayOpacity' : 0.0,
-        'showCloseButton' : true,
-        'frameHeight' : 460,
-        'frameWidth' : 650
+    $(".addfac_modal").on('click', function(e) {
+        e.preventDefault();e.stopPropagation();
+        dlgopen('', '', 700, 620, '', '', {
+            buttons: [
+                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+            ],
+            onClosed: '',
+            allowResize: false,
+            allowDrag: true,
+            dialogId: '',
+            type: 'iframe',
+            url: $(this).attr('href')
+        });
     });
 
 });
@@ -145,7 +151,7 @@ $(document).ready(function(){
             <div class="page-header clearfix">
                 <h2 class="clearfix"><?php echo xlt("Facilities") ; ?></h2>
             </div>
-            <a href="facilities_add.php" class="iframe addfac_modal btn btn-default btn-add"><span><?php echo xlt('Add Facility');?></span></a>
+            <a href="facilities_add.php" class="addfac_modal btn btn-default btn-add"><span><?php echo xlt('Add Facility');?></span></a>
             </div>
         </div>
         <br>
@@ -188,7 +194,7 @@ $(document).ready(function(){
                                     }
                             ?>
                             <tr height="22">
-                                 <td valign="top" class="text"><b><a href="facility_admin.php?fid=<?php echo attr($iter3["id"]); ?>" class="iframe medium_modal"><span><?php echo text($iter3["name"]);?></span></a></b>&nbsp;</td>
+                                 <td valign="top" class="text"><b><a href="facility_admin.php?fid=<?php echo attr($iter3["id"]); ?>" class="medium_modal"><span><?php echo text($iter3["name"]);?></span></a></b>&nbsp;</td>
                                  <td valign="top" class="text"><?php echo text($varstreet.$varcity.$varstate.$iter3["country_code"]." ".$iter3["postal_code"]); ?>&nbsp;</td>
                                  <td><?php echo text($iter3["phone"]);?>&nbsp;</td>
                             </tr>
