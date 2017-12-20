@@ -160,24 +160,6 @@ class Practice extends Base
             $fields2['apptstats'][] = $urow;
         }
         $data = array($fields2);
-
-        //get clinical reminders for practice
-        //what clinical reminders exist for this practice that are active.
-        $sql = "SELECT * FROM `clinical_rules`,`list_options`
-                WHERE 
-                `clinical_rules`.`pid`=0 AND 
-                `clinical_rules`.`cqm_flag` !=1 AND 
-                `clinical_rules`.`amc_flag` !=1 and 
-                `clinical_rules`.`patient_reminder_flag` = 1 AND
-                `list_options`.list_id='clinical_rules' AND 
-                `clinical_rules`.id = `list_options`.option_id";
-        $ures = sqlStatementCdrEngine($sql);
-        while ($urow = sqlFetchArray($ures)) {
-            $fields2['clinical_reminders'][] = $urow;
-        }
-
-        /*
-        $data = array($fields2);
         if (!is_array($data)) {
             return false; //throw new InvalidProductException('Invalid practice information');
         }
@@ -185,8 +167,6 @@ class Practice extends Base
         $this->curl->setData($fields2);
         $this->curl->makeRequest();
         $response = $this->curl->getResponse();
-
-
         //Practice: Since the last MedEx login, who has responded to one of our messages and do we know about these responses?
         //Have we deleted, cancelled or changed an appointment that we thought we were supposed to send, and now don't want to?
         //1. Check to see if anything pending was cancelled/changed.
@@ -306,7 +286,7 @@ class Events extends Base
 {
     //this is run via MedEx_background.php or MedEx.php to find appointments that match our Campaign events and rules.
     /**  
-     *  Messaging Campaigns are categorized by function: there are RECALLs, REMINDERs, CLINICAL_REMINDERS, SURVEYs and ANNOUNCEments (and later whatever comes down the pike).
+     *  Messaging Campaigns are categorized by function: there are RECALLs, REMINDERs, SURVEYs and ANNOUNCEments (and later whatever comes down the pike).
      *  To meet a campaign's goals, we schedule campaign events.
      *  REMINDER and RECALL campaigns each have their own events which the user creates and personalizes.  
      *      There is only one REMINDER Campaign and one RECALL Campaign, each with unlimited events.
@@ -340,7 +320,7 @@ class Events extends Base
         // -->If Friday, send all appts matching campaign fire_Time + 2 days works for past appts also.
 
         foreach ($events as $event) {
-            if ($event['M_group'] == 'REMINDER') {
+                if ($event['M_group'] == 'REMINDER') {
                 if ($event['time_order'] > '0') { // future appts
                     $interval ="+";
                     //NOTE IF you have customized the pc_appstatus flags, you need to adjust them here too.
