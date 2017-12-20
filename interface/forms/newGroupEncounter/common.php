@@ -1,32 +1,22 @@
 <?php
 /**
- * Common script for the encounter form (new and view) scripts.
+ * Common script for the encounter form (new and view) scripts for therapy groups.
  *
- * Copyright (C) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
- * Copyright (C) 2016 Amiel Elboim <amielel@matrix.co.il>
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Amiel Elboim <amielel@matrix.co.il>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Amiel Elboim <amielel@matrix.co.il>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @copyright Copyright (c) 2016 Amiel Elboim <amielel@matrix.co.il>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/group.inc");
 require_once("$srcdir/classes/POSRef.class.php");
 
+use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -63,19 +53,10 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-<?php html_header_show();?>
+
 <title><?php echo xlt('Therapy Group Encounter'); ?></title>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.css" media="screen" />
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.pack.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<?php Header::setupHeader(['common', 'datetime-picker']); ?>
 
 <!-- validation library -->
 <?php
@@ -85,8 +66,6 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
 <?php include_once("{$GLOBALS['srcdir']}/ajax/facility_ajax_jav.inc.php"); ?>
 <script language="JavaScript">
-
- var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 /*
  // Process click on issue title.
@@ -130,7 +109,6 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
 
-   enable_big_modals();
  });
 
 function bill_loc(){
@@ -180,15 +158,16 @@ function cancelClicked() {
 <div>
     <div style = 'float:left; margin-left:8px;margin-top:-3px'>
       <a href="javascript:saveClicked(undefined);" class="css_button link_submit"><span><?php echo xlt('Save'); ?></span></a>
-        <?php if ($viewmode || !isset($_GET["autoloaded"]) || $_GET["autoloaded"] != "1") { ?>
+        <?php
+        if ($viewmode || !isset($_GET["autoloaded"]) || $_GET["autoloaded"] != "1") { ?>
     </div>
     <div style = 'float:left; margin-top:-3px'>
       <a href="<?php echo $GLOBALS['form_exit_url']; ?>"
         class="css_button link_submit" onClick="top.restoreSession()"><span><?php echo xlt('Cancel'); ?></span></a>
-    <?php } else { // not $viewmode ?>
+        <?php } else { // not $viewmode ?>
       <a href="" class="css_button link_submit" onClick="return cancelClicked()">
       <span><?php echo xlt('Cancel'); ?></span></a>
-    <?php } // end not $viewmode ?>
+        <?php } // end not $viewmode ?>
     </div>
  </div>
 
@@ -250,9 +229,7 @@ $facilities = $facilityService->getAllServiceLocations();
 if ($facilities) {
     foreach ($facilities as $iter) {
     ?>
-       <option value="<?php echo attr($iter['id']); ?>" <?php if ($def_facility == $iter['id']) {
-            echo "selected";
-}?>><?php echo text($iter['name']); ?></option>
+       <option value="<?php echo attr($iter['id']); ?>" <?php echo ($def_facility == $iter['id']) ? "selected" : ""; ?>><?php echo text($iter['name']); ?></option>
 <?php
     }
 }
@@ -334,9 +311,7 @@ echo ">" . xlt('None'). "</option>\n";
 ?>
     </tr>
 
-    <tr<?php if (!$GLOBALS['gbl_visit_referral_source']) {
-        echo " style='visibility:hidden;'";
-} ?>>
+     <tr<?php echo (!$GLOBALS['gbl_visit_referral_source']) ? " style='visibility:hidden;'" : ""; ?>>
      <td class='bold' nowrap><?php echo xlt('Referral Source'); ?>:</td>
      <td class='text'>
 <?php
@@ -354,9 +329,7 @@ echo ">" . xlt('None'). "</option>\n";
      </td>
     </tr>
 
-    <tr<?php if ($GLOBALS['ippf_specific']) {
-        echo " style='visibility:hidden;'";
-} ?>>
+    <tr<?php echo ($GLOBALS['ippf_specific']) ? " style='visibility:hidden;'" : ""; ?>>
      <td class='bold' nowrap><?php echo xlt('Additional Date:'); ?></td>
      <td class='text' nowrap><!-- default is blank so that while generating claim the date is blank. -->
       <input type='text' size='10' class='datepicker' name='form_onset_date' id='form_onset_date'
@@ -419,7 +392,5 @@ if (!empty($erow['encounter'])) {
 }
 ?>
 </script>
-
-
 
 </html>
