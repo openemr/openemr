@@ -22,6 +22,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 
+use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -59,22 +60,12 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
   "pid = ? AND enddate IS NULL " .
   "ORDER BY type, begdate", array($pid));
 ?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html>
 <html>
 <head>
-<?php html_header_show();?>
+
 <title><?php echo xlt('Patient Encounter'); ?></title>
-
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
-
-<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.css" media="screen" />
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.pack.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+    <?php Header::setupHeader(['jquery-ui', 'datetime-picker']); ?>
 
 <!-- validation library -->
 <?php
@@ -89,7 +80,11 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
  // Process click on issue title.
  function newissue() {
-  dlgopen('../../patient_file/summary/add_edit_issue.php', '_blank', 800, 600);
+  dlgopen('../../patient_file/summary/add_edit_issue.php', '_blank', 700, 535, '', '', {
+      buttons: [
+          {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+      ]
+  });
   return false;
  }
 
@@ -118,9 +113,19 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
        $('#new-encounter-form').submit();
      }
    }
-
-   enable_big_modals();
-
+   $(".enc_issue").on('click', function(e) {
+       e.preventDefault();e.stopPropagation();
+       dlgopen('', '', 700, 535, '', '', {
+           buttons: [
+               {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+           ],
+           allowResize: true,
+           allowDrag: true,
+           dialogId: '',
+           type: 'iframe',
+           url: $(this).attr('href')
+       });
+   });
    $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -154,7 +159,7 @@ function cancelClickedNew() {
  }
  return false;
 }
- 
+
 // Handler for cancel clicked when not creating a new encounter.
 // Just reload the view mode.
 function cancelClickedOld() {
@@ -446,7 +451,7 @@ if ($issuesauth) {
   </div>
   <div style='float:left;margin-left:8px;margin-top:-3px'>
     <?php if (acl_check('patients', 'med', '', 'write')) { ?>
-       <a href="../../patient_file/summary/add_edit_issue.php" class="css_button_small link_submit iframe"
+       <a href="../../patient_file/summary/add_edit_issue.php" class="css_button_small link_submit enc_issue"
         onclick="top.restoreSession()"><span><?php echo xlt('Add'); ?></span></a>
         <?php } ?>
   </div>
@@ -553,7 +558,11 @@ if (!empty($erow['encounter'])) {
   function sel_group() {
       top.restoreSession();
       var url = '<?php echo $GLOBALS['webroot']?>/interface/main/calendar/find_group_popup.php';
-      dlgopen(url, '_blank', 500, 400);
+      dlgopen(url, '_blank', 500, 400, '', '', {
+          buttons: [
+              {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+          ]
+      });
   }
   // This is for callback by the find-group popup.
   function setgroup(gid, name) {
