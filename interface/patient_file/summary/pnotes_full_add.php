@@ -197,8 +197,7 @@ if ($orderid) {
 $urlparms = "docid=$docid&orderid=$orderid";
 ?>
 
-<form border='0' method='post' name='new_note' id="new_note" target="_parent"
- action='pnotes_full.php?<?php echo $urlparms; ?>'>
+<form border='0' method='post' name='new_note' id="new_note" action='pnotes_full.php?<?php echo $urlparms; ?>'>
 
     <div>
         <div style='float:left; margin-right: 5px'>
@@ -430,6 +429,20 @@ $(document).ready(function(){
           dlgclose();
      });
 
+    $("#new_note").submit(function (event) {
+        event.preventDefault();
+        var post_url = $(this).attr("action");
+        var request_method = $(this).attr("method");
+        var form_data = $(this).serialize();
+
+        $.ajax({
+            url: post_url,
+            type: request_method,
+            data: form_data
+        }).done(function (r) { //
+            dlgclose('refreshme', false);
+        });
+    });
 });
 </script>
 
