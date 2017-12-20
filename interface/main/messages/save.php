@@ -141,18 +141,10 @@ if ($_REQUEST['MedEx'] == "start") {
             echo json_encode($response);
         } else {
             $response_prob = array();
-            $response_prob['show'] = xlt("We ran into some problems connecting to the MedEx servers from your EHR") . ".<br>
-				" . xlt('Proceed to') . " <a href='https://medexbank.com/cart/upload/'>MedEx Bank</a>.<br />
-				<div class='center left' >
-					<ul style='text-align: left;'>
-                        <li> " . xlt('Login using your email/password') . " </li>
-						<li> " . xlt('Confirm your practice information') . "</li>
-						<li> " . xlt('Refine the stock message templates as needed') . "</li>
-						<li> " . xlt('Activate your subscription plan') . "</li>
-						<li> " . xlt('Contact support if your server\'s IP address is dynamic') . "</li>
-					</ul>
-				</div>
-				";
+            $response_prob['show'] = xlt("We ran into some problems connecting your EHR to the MedEx servers") . ".<br >
+				" .xlt('Most often this is due to a Username/Password mismatch')."<br />"
+                .xlt('Run Setup again or contact support for assistance').
+                " <a href='https://medexbank.com/cart/upload/'>MedEx Bank</a>.<br />";
             echo json_encode($response_prob);
         }
         //then redirect user to preferences with a success message!
