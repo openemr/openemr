@@ -93,7 +93,7 @@ form {
 }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 
 <?php if ($popup) { ?>
 <script type="text/javascript" src="../../../library/topdialog.js"></script>
@@ -520,25 +520,18 @@ $(document).ready(function(){
 });
 
 var SelectPatient = function (eObj) {
-<?php
+
 // The layout loads just the demographics frame here, which in turn
 // will set the pid and load all the other frames.
-    $newPage = "../../patient_file/summary/demographics.php?set_pid=";
-    $target = "document";
-?>
     objID = eObj.id;
     var parts = objID.split("~");
-    <?php if (!$popup) {
-        echo "top.restoreSession();\n";
-} ?>
-    <?php if ($popup) {
-        echo "opener.";
-}
+    <?php if (!$popup) { ?>
+        top.restoreSession();
+        document.location.href = "../../patient_file/summary/demographics.php?set_pid=" + parts[0];
+    <?php } else if ($popup) { ?>
+        dlgclose("srchDone", parts[0]);
+    <?php } ?>
 
-    echo $target; ?>.location.href = '<?php echo $newPage; ?>' + parts[0];
-    <?php if ($popup) {
-        echo "window.close();\n";
-} ?>
     return true;
 }
 

@@ -386,12 +386,15 @@ function genFindBlock()
 <html>
 <head>
 <title>Navigation</title>
-
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
+<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
+<?php } ?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/font-awesome-4-6-3/css/font-awesome.css" type="text/css">
 <style type="text/css">
  body {
-  font-size:8pt;
+  font-size:9pt;
   font-weight:normal;
   padding: 5px 3px 5px 3px;
  }
@@ -416,7 +419,9 @@ function genFindBlock()
  border-color: #000000;
  background-color:transparent;
 }
-
+#navigation-slide, #navigation-slide * {
+ font-size:unset !important;
+}
 #navigation ul {
  background-color:transparent;
 }
@@ -434,9 +439,9 @@ function genFindBlock()
   vertical-align:middle;
 }
 </style>
-
 <link rel="stylesheet" href="../../library/js/jquery.treeview-1.4.1/jquery.treeview.css" />
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="../../library/js/jquery.treeview-1.4.1/jquery.treeview.js" ></script>
 
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>

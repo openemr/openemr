@@ -199,7 +199,7 @@ parent.$.fn.fancybox.close();
           </span></td><td><input type=entry size=20 name=facility_npi value="<?php echo htmlspecialchars($facility["facility_npi"], ENT_QUOTES) ?>"></td>
         </tr>
         <tr>
-            <td><span class=text><?php (xl('Facility Taxonomy', 'e')); ?>:</span></td>
+            <td>&nbsp;</td><td>&nbsp;</td><td><span class=text><?php (xl('Facility Taxonomy', 'e')); ?>:</span></td>
             <td><input type=entry size=20 name=facility_taxonomy value="<?php echo htmlspecialchars($facility["facility_taxonomy"], ENT_QUOTES) ?>"></td>
         </tr>
         

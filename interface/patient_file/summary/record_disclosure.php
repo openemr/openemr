@@ -35,41 +35,56 @@ if (isset($_GET['editlid'])) {
     $editlid=$_GET['editlid'];
 }
 ?>
+<!DOCTYPE html>
 <html>
 <head>
 <link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <!-- supporting javascript code -->
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script type="text/javascript">
 //function to validate fields in record disclosure page
-function submitform()
-{
-    if (document.forms[0].dates.value.length<=0)
-
-    {document.forms[0].dates.focus();document.forms[0].dates.style.backgroundColor="red";
+function submitform() {
+    if (document.forms[0].dates.value.length <= 0) {
+        document.forms[0].dates.focus();
+        document.forms[0].dates.style.backgroundColor = "red";
     }
-        else if (document.forms[0].recipient_name.value.length<=0)
-        {
-    document.forms[0].dates.style.backgroundColor="white";
-    document.forms[0].recipient_name.focus();document.forms[0].recipient_name.style.backgroundColor="red";
+    else if (document.forms[0].recipient_name.value.length <= 0) {
+        document.forms[0].dates.style.backgroundColor = "white";
+        document.forms[0].recipient_name.focus();
+        document.forms[0].recipient_name.style.backgroundColor = "red";
     }
-        else  if (document.forms[0].desc_disc.value.length<=0)
-        {
-    document.forms[0].recipient_name.style.backgroundColor="white";
-    document.forms[0].desc_disc.focus();document.forms[0].desc_disc.style.backgroundColor="red";
+    else if (document.forms[0].desc_disc.value.length <= 0) {
+        document.forms[0].recipient_name.style.backgroundColor = "white";
+        document.forms[0].desc_disc.focus();
+        document.forms[0].desc_disc.style.backgroundColor = "red";
     }
-    else  if (document.forms[0].dates.value.length>0 && document.forms[0].recipient_name.value.length>0 && document.forms[0].desc_disc.value.length>0)
-        {
-    top.restoreSession();
+    else if (document.forms[0].dates.value.length > 0 && document.forms[0].recipient_name.value.length > 0 && document.forms[0].desc_disc.value.length > 0) {
+        top.restoreSession();
         document.forms[0].submit();
     }
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
+    $("#disclosure_form").submit(function (event) {
+        event.preventDefault(); //prevent default action
+        var post_url = $(this).attr("action");
+        var request_method = $(this).attr("method");
+        var form_data = $(this).serialize();
+
+        $.ajax({
+            url: post_url,
+            type: request_method,
+            data: form_data
+        }).done(function (r) { //
+            dlgclose('refreshme', false);
+        });
+    });
+
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -88,19 +103,18 @@ if ($editlid) {
     ?><!--Edit the disclosures-->
     <span class="title"><?php echo htmlspecialchars(xl('Edit Disclosure'), ENT_NOQUOTES); ?></span><?php
 } else { ?>
-    <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure'), ENT_NOQUOTES); ?></span><?php
+        <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure'), ENT_NOQUOTES); ?></span><?php
 } ?>
 </div>
-<div><a onclick="return submitform()" class="css_button large_button"
-    name='form_save' id='form_save' href='#'> <span
-    class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Save'), ENT_NOQUOTES);?></span>
-</a></div>
-<div><a class="css_button large_button" id='cancel'
-    href='disclosure_full.php' target='_parent' onclick='top.restoreSession()'> <span
-    class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Cancel'), ENT_NOQUOTES);?></span>
-</a></div>
-<br>
-<form NAME="disclosure_form" METHOD="POST" ACTION="disclosure_full.php" target='_parent' onsubmit='return top.restoreSession()'>
+
+<form name="disclosure_form" id="disclosure_form" method="POST" action="disclosure_full.php">
+    <div><button class='css_button_span large_button_span' name='form_save' id='form_save'>
+            <?php echo htmlspecialchars(xl('Save'), ENT_NOQUOTES); ?>
+        </button></div>
+    <div><a class="css_button large_button" id='cancel' href='#' onclick='top.restoreSession();dlgclose()'> <span
+                class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Cancel'), ENT_NOQUOTES); ?></span>
+        </a></div>
+    <br>
 <input type=hidden name=mode value="disclosure">
 <table border=0 cellpadding=3 cellspacing=0 align='center'>
     <br>

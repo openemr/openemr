@@ -19,6 +19,8 @@ require_once("$srcdir/erx_javascript.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
 require_once("$srcdir/patientvalidation.inc.php");
 
+use OpenEMR\Core\Header;
+
 // Check authorization.
 if (!acl_check('patients', 'demo', '', array('write','addonly'))) {
     die(xlt("Adding demographics is not authorized."));
@@ -74,17 +76,8 @@ $fres = getLayoutRes();
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
-
+<?php Header::setupHeader(['common','datetime-picker', 'jquery-ui']); ?>
 <title><?php echo xlt("Search or Add Patient"); ?></title>
-
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
-<?php } ?>
-<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
-<link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 
 <style>
 body {
@@ -105,13 +98,6 @@ div.section {
     height: auto;
 }
 </style>
-
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
-<script type="text/javascript" src="../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
@@ -402,7 +388,10 @@ while ($lrow = sqlFetchArray($lres)) {
 
  dlgopen(url, '_blank', 700, 500);
 }
-
+function srchDone(pid){
+    top.restoreSession();
+    document.location.href = "./../../patient_file/summary/demographics.php?set_pid=" + pid;
+}
 //-->
 
 </script>
@@ -641,7 +630,7 @@ foreach ($insurancei as $iid => $iname) {
     echo ">" . text($iname) . "</option>\n";
 }
 ?>
-     </select>&nbsp;<a class='iframe medium_modal' href='../practice/ins_search.php' onclick='ins_search(<?php echo $i?>)'>
+     </select>&nbsp;<a class='medium_modal' href='../practice/ins_search.php' onclick='ins_search(<?php echo $i?>)'>
   <span> <?php echo xlt('Search/Add Insurer'); ?></span></a>
   </td>
  </tr>
@@ -849,13 +838,20 @@ if (f.form_phone_cell   ) phonekeyup(f.form_phone_cell   ,mypcc);
 // var override = false; // flag that overrides the duplication warning
 
 $(document).ready(function() {
-enable_modals();
- $(".medium_modal").fancybox( {
-                'overlayOpacity' : 0.0,
-                'showCloseButton' : true,
-                'frameHeight' : 460,
-                'frameWidth' : 650
+    $(".medium_modal").on('click', function(e) {
+        e.preventDefault();e.stopPropagation();
+        dlgopen('', '', 650, 460, '', '', {
+            buttons: [
+                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+            ],
+            //onClosed: 'refreshme',
+            allowResize: false,
+            allowDrag: true,
+            dialogId: '',
+            type: 'iframe',
+            url: $(this).attr('href')
         });
+    });
     // added to integrate insurance stuff
     <?php for ($i=1; $i<=3; $i++) { ?>
     $("#form_i<?php echo $i?>subscriber_relationship").change(function() { auto_populate_employer_address<?php echo $i?>(); });
@@ -924,7 +920,6 @@ enable_modals();
         } // end function
     } // end function
 
-
 // Set onclick/onfocus handlers for toggling background color.
 <?php
 $lres = getLayoutRes();
@@ -962,6 +957,12 @@ while ($lrow = sqlFetchArray($lres)) {
   });
 
 }); // end document.ready
+
+// callback for new patient save confirm from new_search_popup.php
+// note that dlgclose() callbacks mostly need to init outside dom.
+function srcConfirmSave() {
+    document.forms[0].submit();
+}
 
 </script>
 <?php /*Include the validation script and rules for this form*/

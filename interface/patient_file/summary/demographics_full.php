@@ -71,7 +71,6 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
 <?php } ?>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <style>
@@ -84,9 +83,9 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="../../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
@@ -100,14 +99,21 @@ var somethingChanged = false;
 
 $(document).ready(function(){
     tabbify();
-    enable_modals();
+    //enable_modals();
 
-    // special size for
-    $(".medium_modal").fancybox( {
-        'overlayOpacity' : 0.0,
-        'showCloseButton' : true,
-        'frameHeight' : 460,
-        'frameWidth' : 650
+    $(".medium_modal").on('click', function(e) {
+        e.preventDefault();e.stopPropagation();
+        let title = '<?php echo xla('Insurance Search/Select/Add'); ?>';
+        dlgopen('', '', 700, 460, '', title, {
+            buttons: [
+                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+            ],
+            allowResize: true,
+            allowDrag: true,
+            dialogId: '',
+            type: 'iframe',
+            url: $(this).attr('href')
+        });
     });
 
   $('.datepicker').datetimepicker({
@@ -225,7 +231,10 @@ function ins_search(ins) {
     insurance_index = ins;
     return false;
 }
-
+function InsSaveClose() {
+    top.restoreSession();
+    document.location.reload();
+}
 // The ins_search.php window calls this to set the selected insurance.
 function set_insurance(ins_id, ins_name) {
  var thesel = document.forms[0]['i' + insurance_index + 'provider'];
@@ -557,7 +566,7 @@ echo xlt($CapInstype); ?></a></li><?php
             </td>
             <td class='required'>:</td>
             <td>
-                        <a href="../../practice/ins_search.php" class="iframe medium_modal css_button" onclick="ins_search(<?php echo $i?>)">
+             <a href="../../practice/ins_search.php" class="medium_modal css_button" onclick="ins_search(<?php echo $i?>)">
              <span><?php echo xlt('Search/Add') ?></span>
                   </a>
              <select name="i<?php echo $i?>provider" class="form-control">

@@ -191,7 +191,7 @@ if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
                 alert("<?php echo htmlspecialchars(xl('The destination form was closed; I cannot act on your selection.'), ENT_QUOTES); ?>");
             else
                 opener.setgroup(gid, name, end_date);
-            window.close();
+            dlgclose();
             return false;
         }
 
