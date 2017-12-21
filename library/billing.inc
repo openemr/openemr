@@ -430,8 +430,8 @@ function doVoid($patient_id, $encounter_id, $purge = false, $time = '')
             "pid = ? AND encounter = ?",
             array($patient_id, $encounter_id)
         );
-        $adjustments = $row['adjustments'];
-        $payments = $row['payments'];
+        $adjustments = empty($row['adjustments']) ? 0 : $row['adjustments'];
+        $payments = empty($row['payments']) ? 0 : $row['payments'];
     } else {
         $date_original = $time;
     }
@@ -444,8 +444,8 @@ function doVoid($patient_id, $encounter_id, $purge = false, $time = '')
             "pid = ? AND encounter = ? AND post_time = ?",
             array($patient_id, $encounter_id, $date_original)
         );
-        $adjustments = $row['adjustments'];
-        $payments = $row['payments'];
+        $adjustments = empty($row['adjustments']) ? 0 : $row['adjustments'];
+        $payments = empty($row['payments']) ? 0 : $row['payments'];
     }
 
   // Get old invoice reference number.
@@ -468,8 +468,8 @@ function doVoid($patient_id, $encounter_id, $purge = false, $time = '')
         "amount1 = ?, " .
         "amount2 = ?, " .
         "other_info = ?";
-        $sqlarr = array($patient_id, $encounter_id, $what_voided, $_SESSION['authUserID'], $row['adjustments'],
-        $row['payments'], $old_invoice_refno);
+        $sqlarr = array($patient_id, $encounter_id, $what_voided, $_SESSION['authUserID'], $adjustments,
+            $payments, $old_invoice_refno);
         if ($date_original) {
               $query .= ", date_original = ?";
               $sqlarr[] = $date_original;
