@@ -94,25 +94,16 @@ session_start();
 // Set the site ID if required.  This must be done before any database
 // access is attempted.
 if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
-  if (!empty($_GET['site'])) {
-    $tmp = $_GET['site'];
-  }
-  else {
-    if (empty($ignoreAuth)) {
-         $files = array();
-        if ($dh = opendir($GLOBALS['OE_SITES_BASE'])) {
-            while (false !== ($file = readdir($dh))) {
-                // Skip '.' and '..'
-                if ($file == '.' || $file == '..') {
-                    continue;
-                }
-                $tmp = $file;
-                $count_sites++;
-            }
+    if (!empty($_GET['site'])) {
+        $tmp = $_GET['site'];
+    } else {
+        if (empty($ignoreAuth)) {
+            die("Site ID is missing from session data!");
         }
-        closedir($dh);
-        if ($count_sites != '1') {
-             die("Site ID is missing from session data!");
+
+        $tmp = $_SERVER['HTTP_HOST'];
+        if (!is_dir($GLOBALS['OE_SITES_BASE'] . "/$tmp")) {
+            $tmp = "default";
         }
     }
 
