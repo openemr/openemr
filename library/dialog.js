@@ -447,12 +447,20 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 
         }).modal({backdrop: 'static', keyboard: true}, 'show');// Show Modal
 
-        // define this dialog close() function.
-        where.dlgclose = function () {
+        // define local dialog close() function. openers scope
+        window.dlgclose = function (calling, args) {
+            opts.callBack = {call: calling, args: args};
             dlgContainer.modal('hide'); // important to clean up in only one place, hide event....
             return false;
         };
 
+        // define local callback function. Set with opener or from opener, will exe on hide.
+        window.dlgSetCallBack = function (calling, args) {
+            opts.callBack = {call: calling, args: args};
+            return false;
+        };
+
+        // in residents dialog scope
         where.setCallBack = function (calling, args) {
             opts.callBack = {call: calling, args: args};
             return true;

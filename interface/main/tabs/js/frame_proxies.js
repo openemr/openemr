@@ -92,6 +92,7 @@ left_nav.setPatientEncounter = function(EncounterIdArray,EncounterDateArray,Cale
                               ,CalendarCategoryArray[encIdx]));
     }
 }
+
 left_nav.setEncounter=function(edate, eid, frname)
 {
     app_view_model.application_data[attendant_type]().selectedEncounterID(eid);
@@ -110,4 +111,21 @@ left_nav.loadFrame=function(id,name,url)
 left_nav.syncRadios = function()
 {
 
+};
+
+left_nav.clearEncounter = function () {
+    app_view_model.application_data[attendant_type]().selectedEncounterID('');
+};
+
+//Removes an item from the Encounter drop down.
+left_nav.removeOptionSelected = function (EncounterId)
+{
+    var self = app_view_model.application_data[attendant_type]();
+    for (var encIdx = 0; encIdx < self.encounterArray().length; encIdx++) {
+        var curEnc = self.encounterArray()[encIdx];
+        if (curEnc.id() === self.selectedEncounterID()) {
+            self.encounterArray.remove(curEnc);
+            return;
+        }
+    }
 };
