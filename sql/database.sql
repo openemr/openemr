@@ -10740,7 +10740,7 @@ CREATE TABLE `form_groups_encounter` (
 --
 
 DROP TABLE IF EXISTS `form_therapy_groups_attendance`;
-CREATE TABLE `form_therapy_groups_attendance` (
+CREATE TABLE `form_group_attendance` (
   `id`	bigint(20) auto_increment,
   `date`	date,
   `group_id`	int(11),

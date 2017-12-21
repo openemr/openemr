@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `form_therapy_groups_attendance` (
+CREATE TABLE IF NOT EXISTS `form_group_attendance` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` date NOT NULL ,
   `group_id` int(11),

@@ -255,8 +255,8 @@ INSERT INTO registry (name, state, directory, sql_run, unpackaged, date, priorit
 INSERT INTO registry (name, state, directory, sql_run, unpackaged, date, priority, category, nickname, patient_encounter, therapy_group_encounter) VALUES ('New Group Encounter Form', 1, 'newGroupEncounter', 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1);
 #EndIf
 
-#IfNotTable form_therapy_groups_attendance
-CREATE TABLE `form_therapy_groups_attendance` (
+#IfNotTable form_group_attendance
+CREATE TABLE `form_group_attendance` (
   id	bigint(20) auto_increment,
   date	date,
   group_id	int(11),
@@ -665,4 +665,8 @@ DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'transactions';
 #IfMissingColumn openemr_postcalendar_categories pc_constant_id
 ALTER TABLE `openemr_postcalendar_categories` ADD `pc_constant_id` VARCHAR (255) default NULL;
 UPDATE `openemr_postcalendar_categories` SET pc_constant_id = LOWER(REPLACE (pc_catname,' ', '_'));
+#EndIf
+
+#IfTable form_therapy_groups_attendance
+RENAME TABLE form_therapy_groups_attendance TO form_group_attendance;
 #EndIf
