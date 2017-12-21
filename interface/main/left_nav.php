@@ -383,6 +383,7 @@ function genFindBlock()
 <?php
 } // End function genFindBlock()
 ?>
+<!DOCTYPE html>
 <html>
 <head>
 <title>Navigation</title>
@@ -394,7 +395,8 @@ function genFindBlock()
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/font-awesome-4-6-3/css/font-awesome.css" type="text/css">
 <style type="text/css">
  body {
-  font-size:9pt;
+  font-size:1em;
+  line-height: 1em !important;
   font-weight:normal;
   padding: 5px 3px 5px 3px;
  }
@@ -410,26 +412,27 @@ function genFindBlock()
   font-weight:bold;
  }
 .inputtext {
- font-size:9pt;
- font-weight:normal;
- border-style:solid;
- border-width:1px;
- padding-left:2px;
- padding-right:2px;
- border-color: #000000;
- background-color:transparent;
+  font-size:9pt;
+  font-weight:normal;
+  border-style:solid;
+  border-width:1px;
+  padding-left:2px;
+  padding-right:2px;
+  border-color: #000000;
+  background-color:transparent;
 }
 #navigation-slide, #navigation-slide * {
- font-size:unset !important;
+  font-size: 1.3rem !important;
+  cursor: pointer;
 }
 #navigation ul {
- background-color:transparent;
+  background-color:transparent;
 }
 #navigation-slide ul {
- background-color:transparent;
+  background-color:transparent;
 }
 #navigation-slide a{
- width: 92%;
+  width: 92%;
 }
 .nav-menu-img{
   width:25px;
