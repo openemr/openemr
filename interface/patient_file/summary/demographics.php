@@ -172,7 +172,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
  //////////
  function oldEvt(apptdate, eventid) {
    let title = '<?php echo xla('Appointments'); ?>';
-   dlgopen('../../main/calendar/add_edit_event.php?date=' + apptdate + '&eid=' + eventid, '_blank', 675, 300, '', title);
+   dlgopen('../../main/calendar/add_edit_event.php?date=' + apptdate + '&eid=' + eventid, '_blank', 725, 500, '', title);
  }
 
  function advdirconfigure() {
@@ -185,13 +185,19 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
  }
 
  // Process click on Delete link.
- function deleteme() {
-  dlgopen('../deleter.php?patient=<?php echo htmlspecialchars($pid, ENT_QUOTES); ?>', '_blank', 500, 450);
+ function deleteme() { // @todo don't think this is used any longer!!
+  dlgopen('../deleter.php?patient=<?php echo htmlspecialchars($pid, ENT_QUOTES); ?>', '_blank', 500, 450, '', '',{
+      allowResize: false,
+      allowDrag: false,
+      dialogId: 'patdel',
+      type: 'iframe'
+  });
   return false;
  }
 
  // Called by the deleteme.php window on a successful delete.
  function imdeleted() {
+     //dlgclose();
     <?php if ($GLOBALS['new_tabs_layout']) { ?>
    top.clearPatient();
     <?php } else { ?>
@@ -202,7 +208,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
  function newEvt() {
      let title = '<?php echo xla('Appointments'); ?>';
      let url = '../../main/calendar/add_edit_event.php?patientid=<?php echo htmlspecialchars($pid, ENT_QUOTES); ?>';
-     dlgopen(url, '_blank', 675, 300, '', title);
+     dlgopen(url, '_blank', 725, 500, '', title);
      return false;
  }
 
@@ -236,7 +242,6 @@ function toggleIndicator(target,div) {
 // called from stats.php.
 //
 function editScripts(url) {
-
     var AddScript = function () {
         var iam = top.tab_mode ? top.frames.editScripts : window[0];
         iam.location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=&pid=<?php echo attr($pid);?>"
@@ -245,14 +250,16 @@ function editScripts(url) {
         var iam = top.tab_mode ? top.frames.editScripts : window[0];
         iam.location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo attr($pid); ?>"
     };
-    var title = '<?php echo xla('Prescriptions Add/Edit'); ?>';
 
-    dlgopen(url, 'editScripts', 'modal-mlg', 300, '', title, {
+    var title = '<?php echo xla('Prescriptions'); ?>';
+
+    dlgopen(url, 'editScripts', 1150, 500, '', title, {
         buttons: [
             {text: '<?php echo xla('Add'); ?>', close: false, style: 'primary  btn-sm', click: AddScript},
             {text: '<?php echo xla('List'); ?>', close: false, style: 'primary  btn-sm', click: ListScripts},
-            {text: '<?php echo xla('Done'); ?>', close: true, style: 'default btn-sm', click: refreshme}
+            {text: '<?php echo xla('Done'); ?>', close: true, style: 'default btn-sm'}
         ],
+        onClosed: 'refreshme',
         allowResize: true,
         allowDrag: true,
         dialogId: 'editscripts',
@@ -326,14 +333,15 @@ $(document).ready(function(){
       $("#clinical_reminders_ps_expand").load("clinical_reminders_fragment.php", { 'embeddedScreen' : true }, function() {
           // (note need to place javascript code here also to get the dynamic link to work)
           $(".medium_modal").on('click', function(e) {
-              e.preventDefault();
+              e.preventDefault();e.stopPropagation();
               dlgopen('', '', 800, 200, '', '', {
                   buttons: [
                       {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
                   ],
+                  onClosed: 'refreshme',
                   allowResize: false,
                   allowDrag: true,
-                  dialogId: '',
+                  dialogId: 'demreminder',
                   type: 'iframe',
                   url: $(this).attr('href')
               });
@@ -372,12 +380,12 @@ while ($gfrow = sqlFetchArray($gfres)) {
 
 // modal for dialog boxes
     $(".large_modal").on('click', function(e) {
-        e.preventDefault();
+        e.preventDefault();e.stopPropagation();
         dlgopen('', '', 1000, 600, '', '', {
             buttons: [
                 {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
             ],
-            allowResize: false,
+            allowResize: true,
             allowDrag: true,
             dialogId: '',
             type: 'iframe',
@@ -385,11 +393,35 @@ while ($gfrow = sqlFetchArray($gfres)) {
         });
     });
 
-
+    $(".rx_modal").on('click', function(e) {
+        e.preventDefault();e.stopPropagation();
+        var AddAmendment = function () {
+            var iam = top.tab_mode ? top.frames.editAmendments : window[0];
+            iam.location.href = "<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/add_edit_amendments.php"
+        };
+        var ListAmendments = function () {
+            var iam = top.tab_mode ? top.frames.editAmendments : window[0];
+            iam.location.href = "<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/list_amendments.php"
+        };
+        var title = '<?php echo xla('Amendments'); ?>';
+        dlgopen('', 'editAmendments', 800, 300, '', title, {
+            buttons: [
+                {text: '<?php echo xla('Add'); ?>', close: false, style: 'primary  btn-sm', click: AddAmendment},
+                {text: '<?php echo xla('List'); ?>', close: false, style: 'primary  btn-sm', click: ListAmendments},
+                {text: '<?php echo xla('Done'); ?>', close: true, style: 'default btn-sm'}
+            ],
+            onClosed: 'refreshme',
+            allowResize: true,
+            allowDrag: true,
+            dialogId: '',
+            type: 'iframe',
+            url: $(this).attr('href')
+        });
+    });
 
 // modal for image viewer
     $(".image_modal").on('click', function(e) {
-        e.preventDefault();
+        e.preventDefault();e.stopPropagation();
         dlgopen('', '', 400, 300, '', '<?php echo xla('Patient Images'); ?>', {
             allowResize: true,
             allowDrag: true,
@@ -399,13 +431,28 @@ while ($gfrow = sqlFetchArray($gfres)) {
         });
     });
 
+    $(".deleter").on('click', function(e) {
+        e.preventDefault();e.stopPropagation();
+        dlgopen('', '', 600, 360, '', '', {
+            buttons: [
+                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+            ],
+            //onClosed: 'imdeleted',
+            allowResize: false,
+            allowDrag: false,
+            dialogId: 'patdel',
+            type: 'iframe',
+            url: $(this).attr('href')
+        });
+    });
+
     $(".iframe1").on('click', function(e) {
-        e.preventDefault();
+        e.preventDefault();e.stopPropagation();
         dlgopen('', '', 350, 300, '', '', {
             buttons: [
                 {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
             ],
-            allowResize: false,
+            allowResize: true,
             allowDrag: true,
             dialogId: '',
             type: 'iframe',
@@ -414,12 +461,12 @@ while ($gfrow = sqlFetchArray($gfres)) {
     });
 // for patient portal
   $(".small_modal").on('click', function(e) {
-      e.preventDefault();
+      e.preventDefault();e.stopPropagation();
       dlgopen('', '', 380, 200, '', '', {
           buttons: [
               {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
           ],
-          allowResize: false,
+          allowResize: true,
           allowDrag: true,
           dialogId: '',
           type: 'iframe',
@@ -433,7 +480,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
           buttons: [
               {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
           ],
-          allowResize: false,
+          allowResize: true,
           allowDrag: true,
           dialogId: '',
           type: 'iframe',
@@ -561,9 +608,9 @@ if (!empty($grparr['']['grp_size'])) {
 
 <body class="body_top patient-demographics">
 
-<a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='display: none;' class='iframe' onclick='top.restoreSession()'></a>
+<a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='display: none;' onclick='top.restoreSession()'></a>
 
-<a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr($pid); ?>&user_id=<?php echo attr($_SESSION['authId']); ?>' id='birthday_popup' style='display: none;' class='iframe' onclick='top.restoreSession()'></a>
+<a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr($pid); ?>&user_id=<?php echo attr($_SESSION['authId']); ?>' id='birthday_popup' style='display: none;' onclick='top.restoreSession()'></a>
 <?php
 $thisauth = acl_check('patients', 'demo');
 if ($thisauth) {
@@ -589,9 +636,9 @@ if ($thisauth) : ?>
         </td>
         <?php if (acl_check('admin', 'super') && $GLOBALS['allow_pat_delete']) : ?>
         <td style='padding-left:1em;' class="delete">
-            <a class='css_button iframe'
+            <a class='css_button deleter'
                href='../deleter.php?patient=<?php echo htmlspecialchars($pid, ENT_QUOTES);?>'
-               onclick='top.restoreSession()'>
+               onclick='return top.restoreSession()'>
                 <span><?php echo htmlspecialchars(xl('Delete'), ENT_NOQUOTES);?></span>
             </a>
         </td>
@@ -619,7 +666,7 @@ if (($GLOBALS['portal_onsite_enable'] && $GLOBALS['portal_onsite_address']) ||
         if ($portalStatus['allow_patient_portal']=='YES') :
             $portalLogin = sqlQuery("SELECT pid FROM `patient_access_onsite` WHERE `pid`=?", array($pid));?>
                 <td style='padding-left:1em;'>
-                    <a class='css_button iframe small_modal'
+                    <a class='css_button small_modal'
                            href='create_portallogin.php?portalsite=on&patient=<?php echo htmlspecialchars($pid, ENT_QUOTES);?>'
                        onclick='top.restoreSession()'>
                             <?php $display = (empty($portalLogin)) ? xlt('Create Onsite Portal Credentials') : xlt('Reset Onsite Portal Credentials'); ?>
@@ -637,7 +684,7 @@ if ($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address']) :
         $portalLogin = sqlQuery("SELECT pid FROM `patient_access_offsite` WHERE `pid`=?", array($pid));
         ?>
         <td style='padding-left:1em;'>
-            <a class='css_button iframe small_modal'
+            <a class='css_button small_modal'
                href='create_portallogin.php?portalsite=off&patient=<?php echo htmlspecialchars($pid, ENT_QUOTES);?>'
                onclick='top.restoreSession()'>
                 <span>
@@ -1232,8 +1279,8 @@ expand_collapse_widget(
         $widgetTitle = xlt('Amendments');
         $widgetLabel = "amendments";
         $widgetButtonLabel = xlt("Edit");
-        $widgetButtonLink = $GLOBALS['webroot'] . "/interface/patient_file/summary/main_frameset.php?feature=amendment";
-        $widgetButtonClass = "iframe rx_modal";
+        $widgetButtonLink = $GLOBALS['webroot'] . "/interface/patient_file/summary/list_amendments.php?id=" . attr($pid);
+        $widgetButtonClass = "rx_modal";
         $linkMethod = "html";
         $bodyClass = "summary_item small";
         $widgetAuth = acl_check('patients', 'amendment', '', 'write');
@@ -1250,7 +1297,7 @@ expand_collapse_widget(
 
         while ($row=sqlFetchArray($result)) {
                 echo "&nbsp;&nbsp;";
-                echo "<a class= '" . $widgetButtonClass . "' href='" . $widgetButtonLink . "&id=" . attr($row['amendment_id']) . "' onclick='top.restoreSession()'>" . text($row['amendment_date']);
+                echo "<a class= '" . $widgetButtonClass . "' href='" . $GLOBALS['webroot'] . "/interface/patient_file/summary/add_edit_amendments.php?id=" . attr($row['amendment_id']) . "' onclick='top.restoreSession()'>" . text($row['amendment_date']);
                 echo "&nbsp; " . text($row['amendment_desc']);
 
                 echo "</a><br>\n";

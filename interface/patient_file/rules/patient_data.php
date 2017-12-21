@@ -21,7 +21,6 @@ require_once("$srcdir/options.inc.php");
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
@@ -60,7 +59,9 @@ function submitme() {
 }
 
 $(document).ready(function(){
-  $("#cancel").click(function() { window.close(); });
+  $("#cancel").click(function() {
+      dlgclose();
+  });
 
   $('.datetimepicker').datetimepicker({
     <?php $datetimepicker_timepicker = true; ?>
@@ -114,9 +115,9 @@ if ($_POST['form_complete']) {
 
   // Close this window and refresh the patient summary display.
     echo "<html>\n<body>\n<script language='JavaScript'>\n";
-    echo " window.close();\n";
+    echo " dlgclose();\n";
     echo " top.restoreSession();\n";
-    echo " if ( opener ) { opener.location.reload(); } else { parent.location.reload(); } \n";
+    // refreshed by dialog callback- if issue with refresh try to do elsewhere as here is an IE11 issue.
     echo "</script>\n</body>\n</html>\n";
     exit();
 }

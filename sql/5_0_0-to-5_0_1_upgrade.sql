@@ -667,6 +667,10 @@ ALTER TABLE `openemr_postcalendar_categories` ADD `pc_constant_id` VARCHAR (255)
 UPDATE `openemr_postcalendar_categories` SET pc_constant_id = LOWER(REPLACE (pc_catname,' ', '_'));
 #EndIf
 
+#IfMissingColumn facility facility_taxonomy
+ALTER TABLE facility ADD facility_taxonomy VARCHAR(15) DEFAULT NULL;
+#EndIf
+
 #IfTable form_therapy_groups_attendance
 RENAME TABLE form_therapy_groups_attendance TO form_group_attendance;
 #EndIf

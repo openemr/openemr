@@ -242,7 +242,7 @@ function transmit(){
             <td colspan="5" align="center">
                 <a href="#" class="css_button" onclick="return transmit()"><span><?php echo htmlspecialchars(xl('Save'), ENT_QUOTES);?></span></a>
                 <input type="hidden" name="form_cancel" id="form_cancel">
-                <a href="#" class="css_button" onclick="top.restoreSession(); window.close();"><span><?php echo htmlspecialchars(xl('Cancel'), ENT_QUOTES);?></span></a>
+                <a href="#" class="css_button" onclick="top.restoreSession(); dlgclose();"><span><?php echo htmlspecialchars(xl('Cancel'), ENT_QUOTES);?></span></a>
             </td>
         </tr>
     </table>

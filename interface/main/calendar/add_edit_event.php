@@ -840,7 +840,7 @@ if (empty($collectthis)) {
           " if(window.opener.pattrk){" .
          "  window.opener.pattrk.submit()\n " . // This is for patient flow board page refresh}
           " }};\n";
-        echo " window.close();\n";
+        echo " dlgclose();\n";
         echo "</script>\n</body>\n</html>\n";
         exit();
     }
@@ -1111,7 +1111,7 @@ while ($crow = sqlFetchArray($cres)) {
  // This invokes the find-patient popup.
  function sel_patient() {
   let title = '<?php echo xlt('Patient Search'); ?>';
-  dlgopen('find_patient_popup.php', 'findPatient', 700, 200, '', title);
+  dlgopen('find_patient_popup.php', 'findPatient', 650, 300, '', title);
  }
 
  // This is for callback by the find-group popup.
@@ -1128,7 +1128,8 @@ while ($crow = sqlFetchArray($cres)) {
  // This invokes the find-group popup.
  function sel_group() {
      top.restoreSession();
-     dlgopen('find_group_popup.php', '_blank', 500, 400);
+     let title = '<?php echo xlt('Group Search'); ?>';
+     dlgopen('find_group_popup.php', '_blank', 650, 300, '', title);
  }
 
  // Do whatever is needed when a new event category is selected.
@@ -1362,7 +1363,7 @@ if ($_POST["resname"]=="noresult") {
 			top.restoreSession();
 			opener.document.location="../../new/new.php";
 			// Close the window
-			window.close();
+			dlgclose();
 </script>';
 }
 
@@ -1989,7 +1990,7 @@ $(document).ready(function(){
     $("#form_duplicate").click(function(e) { validateform(e,"duplicate"); });
     $("#find_available").click(function() { find_available(''); });
     $("#form_delete").click(function() { deleteEvent(); });
-    $("#cancel").click(function() { window.close(); });
+    $("#cancel").click(function() { dlgclose(); });
 
     // buttons affecting the modification of a repeating event
     $("#all_events").click(function() { $("#recurr_affect").val("all"); EnableForm(); SubmitForm(); });

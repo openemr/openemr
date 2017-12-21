@@ -131,7 +131,7 @@ if (isset($_GET["res"])) {
    alert("<?php echo htmlspecialchars(xl('The destination form was closed; I cannot act on your selection.'), ENT_QUOTES); ?>");
   else
    opener.setpatient(pid, lname, fname, dob);
-  window.close();
+  dlgclose();
   return false;
  }
 
@@ -167,7 +167,7 @@ if (isset($_GET["res"])) {
     title='<?php echo htmlspecialchars(xl('If name, any part of lastname or lastname,firstname'), ENT_QUOTES); ?>'>
    &nbsp;
    <input type='submit' id="submitbtn" value='<?php echo htmlspecialchars(xl('Search'), ENT_QUOTES); ?>'>
-   <!-- &nbsp; <input type='button' value='<?php //echo htmlspecialchars(xl('Close'), ENT_QUOTES); ?>' onclick='window.close()' /> -->
+   <!-- &nbsp; <input type='button' value='<?php //echo htmlspecialchars(xl('Close'), ENT_QUOTES); ?>' onclick='dlgclose()' /> -->
    <div id="searchspinner"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif"></div>
 </form>
 </div>

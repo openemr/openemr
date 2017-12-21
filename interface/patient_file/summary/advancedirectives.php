@@ -28,7 +28,7 @@ use OpenEMR\Core\Header;
         // Close this window and refresh the calendar display.
         echo "</head><body>\n<script language='JavaScript'>\n";
         echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
-        echo " window.close();\n";
+        echo " dlgclose();\n";
         echo "</script>\n</body>\n</html>\n";
         exit();
     }
@@ -52,7 +52,7 @@ use OpenEMR\Core\Header;
         }
 
         $(document).ready(function(){
-            $("#cancel").click(function() { window.close(); });
+            $("#cancel").click(function() { dlgclose(); });
 
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>

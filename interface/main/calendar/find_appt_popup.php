@@ -280,7 +280,7 @@ if (isset($_REQUEST['cktime'])) {
             echo "function mytimeout() {\n";
             echo " opener.top.restoreSession();\n";
             echo " opener.document.forms[0].submit();\n";
-            echo " window.close();\n";
+            echo " dlgclose();\n";
             echo "}\n";
             echo "</script></head><body onload='setTimeout(\"mytimeout()\",2500);'><h4></br>..." .
         xlt('Time slot is available, saving event') . "...</h4></body></html>";
@@ -299,7 +299,7 @@ if (isset($_REQUEST['cktime'])) {
    alert('<?php echo xls('The destination form was closed; I cannot act on your selection.'); ?>');
   else
    opener.setappt(year,mon,mday,hours,minutes);
-  window.close();
+  dlgclose();
   return false;
  }
 
@@ -471,7 +471,7 @@ if (!$ckavail) {
             if (confirm('<?php echo xls('On this date there is a holiday, use it anyway?'); ?>')) {
                 opener.top.restoreSession();
                 opener.document.forms[0].submit();
-                window.close();
+                dlgclose();
             } <?php
         } else {
             //Someone is going to have to go over this with a fine-toothed comb because I couldn't really parse the original here
@@ -484,7 +484,7 @@ if (!$ckavail) {
             } ?>
             opener.top.restoreSession();
             opener.document.forms[0].submit();
-            window.close();
+            dlgclose();
         }
     <?php
         }

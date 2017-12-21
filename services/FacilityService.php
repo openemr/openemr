@@ -166,7 +166,8 @@ class FacilityService
         $sql .= "     tax_id_type='" . add_escape_custom($data["tax_id_type"]) . "',";
         $sql .= "     primary_business_entity='" . add_escape_custom($data["primary_business_entity"]) . "',";
         $sql .= "     facility_npi='" . add_escape_custom($data["facility_npi"]) . "',";
-        $sql .= "     facility_code='" . add_escape_custom($data["facility_code"]) . "'";
+        $sql .= "     facility_code='" . add_escape_custom($data["facility_code"]) . "',";
+        $sql .= "     facility_taxonomy='" . add_escape_custom($data["facility_taxonomy"]) . "'";
         $sql .= " WHERE id='" . add_escape_custom($data["fid"]) . "'";
 
         return sqlStatement($sql);
@@ -196,7 +197,8 @@ class FacilityService
         $sql .= "     tax_id_type='" . add_escape_custom($data["tax_id_type"]) . "',";
         $sql .= "     primary_business_entity='" . add_escape_custom($data["primary_business_entity"]) . "',";
         $sql .= "     facility_npi='" . add_escape_custom($data["facility_npi"]) . "',";
-        $sql .= "     facility_code='" . add_escape_custom($data["facility_code"]) . "'";
+        $sql .= "     facility_code='" . add_escape_custom($data["facility_code"]) . "',";
+        $sql .= "     facility_taxonomy='" . add_escape_custom($data["facility_taxonomy"]) . "'";
 
         return sqlInsert($sql);
     }
@@ -238,6 +240,7 @@ class FacilityService
         $sql .= "        FAC.attn,";
         $sql .= "        FAC.domain_identifier,";
         $sql .= "        FAC.facility_npi,";
+        $sql .= "        FAC.facility_taxonomy,";
         $sql .= "        FAC.tax_id_type,";
         $sql .= "        FAC.color,";
         $sql .= "        FAC.primary_business_entity,";

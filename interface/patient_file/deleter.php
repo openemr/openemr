@@ -205,12 +205,7 @@ document.deletefrm.submit();
 }
 // Java script function for closing the popup
 function popup_close() {
-    if(parent.$.fn.fancybox === undefined) {
-        window.close();
-     }
-     else {
-        parent.$.fn.fancybox.close();
-     }
+    dlgclose();
 }
 </script>
 </head>
@@ -421,13 +416,7 @@ if ($_POST['form_submit']) {
         echo " alert('" . addslashes($info_msg) . "');\n";
     }
 
-    if ($encounterid) { //this code need to be same as 'parent.imdeleted($encounterid)' when the popup is div like
-        echo "window.opener.imdeleted('" . attr($encounterid) . "');\n";
-    } else {
-        echo " if (opener && opener.imdeleted) opener.imdeleted(); else parent.imdeleted();\n";
-    }
-
-    echo " window.close();\n";
+    echo " dlgclose('imdeleted', $encounterid);\n";
     echo "</script></body></html>\n";
     exit();
 }

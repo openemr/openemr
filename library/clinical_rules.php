@@ -130,17 +130,17 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             // Start link for reminders that use the custom rules input screen
             $url = "../rules/patient_data.php?category=".htmlspecialchars($action['category'], ENT_QUOTES);
             $url .= "&item=".htmlspecialchars($action['item'], ENT_QUOTES);
-            echo "<a href='".$url."' class='iframe medium_modal' onclick='top.restoreSession()'>";
+            echo "<a href='".$url."' class='medium_modal' onclick='return top.restoreSession()'>";
         } else if ($action['clin_rem_link']) {
             // Start link for reminders that use the custom rules input screen
             $pieces_url = parse_url($action['clin_rem_link']);
             $url_prefix = $pieces_url['scheme'];
             if ($url_prefix == 'https' || $url_prefix == 'http') {
                 echo "<a href='" . $action['clin_rem_link'] .
-                "' class='iframe  medium_modal' onclick='top.restoreSession()'>";
+                "' class='medium_modal' onclick='return top.restoreSession()'>";
             } else {
                 echo "<a href='../../../" . $action['clin_rem_link'] .
-                "' class='iframe  medium_modal' onclick='top.restoreSession()'>";
+                "' class='medium_modal' onclick='return top.restoreSession()'>";
             }
         } else {
             // continue since no link is needed
@@ -2206,7 +2206,7 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget)
     } else { // count($value_array) == 1
         // Search the title column in lists table
         //   Yes, this is essentially the same as the code type listed as CUSTOM above. This provides flexibility and will ensure compatibility.
-        
+
         // Check for '**'
         if (substr($value, -2)=='**') {
             $sqloper = " LIKE CONCAT('%',?,'%') ";
@@ -2214,7 +2214,7 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget)
         } else {
             $sqloper = "=?";
         }
-    
+
         $response = sqlQueryCdrEngine("SELECT * FROM `lists` " .
         "WHERE `type`=? " .
         "AND `pid`=? " .

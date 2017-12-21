@@ -89,8 +89,8 @@ td { font-size:10pt; }
 
  // This is invoked when an insurance company name is clicked.
  function setins(ins_id, ins_name) {
-   parent.set_insurance(ins_id, ins_name);
-   parent.$.fn.fancybox.close();
+   opener.set_insurance(ins_id, ins_name);
+   dlgclose();
    return false;
  }
 
@@ -102,7 +102,7 @@ td { font-size:10pt; }
 <form method='post' name='theform'>
 <center>
 
-<table border='0' width='100%'>
+<table class="table table-condensed" border='0' width='100%'>
  <tr>
   <td><b><?php xl('Name', 'e');?></b>&nbsp;</td>
   <td><b><?php xl('Attn', 'e');?></b>&nbsp;</td>
