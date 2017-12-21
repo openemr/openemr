@@ -1630,6 +1630,13 @@ $GLOBALS_METADATA = array(
             xl('When Checked, Patient Encounter Number Will Show in Patient Flow Board.')
         ),
 
+        'ptkr_show_staff' => array(
+            xl('Flow Board: Show Staff Action'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('When Checked, Last Staff to Update Board Will Show in Patient Flow Board.')
+        ),
+
         'ptkr_date_range' => array(
             xl('Flow Board: Allow Date Range'),
             'bool',                          // data type

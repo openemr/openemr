@@ -202,7 +202,7 @@ if (!$_REQUEST['flb_table']) {
             width: 170px;
         }
 
-        .btn {
+        .btn{
             border: solid black 0.5pt;
             box-shadow: 3px 3px 3px #7b777760;
         }
@@ -245,6 +245,9 @@ if (!$_REQUEST['flb_table']) {
         }
         input[type="text"] {
             text-align:center;
+        }
+        button {
+            color: #000 !important;
         }
     </style>
 
@@ -310,7 +313,7 @@ if (!$_REQUEST['flb_table']) {
                                 ?>
                             </select>
 
-                            <input type="text" style="max-width:200px;margin:3px auto;"
+                            <input type="text"
                                    placeholder="<?php echo xla('Patient Name'); ?>"
                                    class="form-control input-sm" id="form_patient_name" name="form_patient_name"
                                    value="<?php echo ($form_patient_name) ? attr($form_patient_name) : ""; ?>"
@@ -355,7 +358,7 @@ if (!$_REQUEST['flb_table']) {
                             if ($count_provs < '2') {
                                 echo "disabled";
                             }
-                            ?> style="max-width: 200px;" onchange="refineMe('provider');">
+                            ?> onchange="refineMe('provider');">
                                 <option value="" selected><?php echo xlt('All Providers'); ?></option>
 
                                 <?php
@@ -363,7 +366,7 @@ if (!$_REQUEST['flb_table']) {
                                 ?>
                             </select>
                             <input placeholder="<?php echo xla('Patient ID'); ?>"
-                                   style="max-width:200px;margin:3px auto;" class="form-control input-sm" type="text"
+                                   class="form-control input-sm" type="text"
                                    id="form_patient_id" name="form_patient_id"
                                    value="<?php echo ($form_patient_id) ? attr($form_patient_id) : ""; ?>"
                                    onKeyUp="refineMe();">
@@ -420,11 +423,10 @@ if (!$_REQUEST['flb_table']) {
                                 ?>
 
                                 <div class="text-center" style="margin: 0 auto;">
-                                    <b><u>MedEx <?php echo xlt('Reminders'); ?></u></b><br/>
-                                    <div class="text-left" style="width: 50%;margin: 5px auto;">
+                                    <span class="bold" style="text-decoration:underline;font-size:1.2em;">MedEx <?php echo xlt('Reminders'); ?></span><br/>
+                                    <div class="text-left blockquote" style="width: 60%;margin: 5px auto;">
                                         <a href="https://medexbank.com/cart/upload/index.php?route=information/campaigns&amp;g=rem"
                                            target="_medex">
-
                                             <?php echo $current_events; ?>
                                         </a>
                                     </div>
