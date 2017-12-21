@@ -77,8 +77,8 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] =
       "attn" => trim(isset($_POST["attn"]) ? $_POST["attn"] : ''),
       "tax_id_type" =>  trim(isset($_POST["tax_id_type"]) ? $_POST["tax_id_type"] : ''),
       "primary_business_entity" => trim(isset($_POST["primary_business_entity"]) ? $_POST["primary_business_entity"] : ''),
-      "facility_taxonomy" => trim(isset($_POST["facility_taxonomy"]) ? $_POST["facility_taxonomy"] : ''),
       "facility_npi" => trim(isset($_POST["facility_npi"]) ? $_POST["facility_npi"] : ''),
+      "facility_taxonomy" => trim(isset($_POST["facility_taxonomy"]) ? $_POST["facility_taxonomy"] : ''),
       "facility_code" => trim(isset($_POST["facility_id"]) ? $_POST["facility_id"] : '')
     );
 
@@ -111,13 +111,8 @@ $(document).ready(function(){
     $(".medium_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
         dlgopen('', '', 700, 590, '', '', {
-            buttons: [
-                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
-            ],
-            onClosed: '',
             allowResize: false,
             allowDrag: true, // note these default to true if not defined here. left as example.
-            dialogId: '',
             type: 'iframe',
             url: $(this).attr('href')
         });
@@ -126,13 +121,8 @@ $(document).ready(function(){
     $(".addfac_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
         dlgopen('', '', 700, 620, '', '', {
-            buttons: [
-                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
-            ],
-            onClosed: '',
             allowResize: false,
             allowDrag: true,
-            dialogId: '',
             type: 'iframe',
             url: $(this).attr('href')
         });
