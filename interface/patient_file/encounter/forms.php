@@ -279,15 +279,26 @@ if (!isset($_GET['attachid'])) {
 
  // Process click on Delete link.
  function deleteme() {
-  dlgopen('../deleter.php?encounterid=<?php echo $encounter; ?>', '_blank', 500, 450);
+  dlgopen('../deleter.php?encounterid=<?php echo $encounter; ?>', '_blank', 500, 200, '', '', {
+      buttons: [
+          {text: '<?php echo xla('Done'); ?>', close: true, style: 'primary btn-sm'}
+      ],
+      allowResize: false,
+      allowDrag: true,
+  });
   return false;
  }
 
  // Called by the deleter.php window on a successful delete.
- function imdeleted(EncounterId) {
-  top.window.parent.left_nav.removeOptionSelected(EncounterId);
-  top.window.parent.left_nav.clearEncounter();
- }
+function imdeleted(EncounterId) {
+    top.window.parent.left_nav.removeOptionSelected(EncounterId);
+    top.window.parent.left_nav.clearEncounter();
+    if (top.tab_mode) {
+        top.encounterList();
+    } else {
+        toencounter('Past Encounter List')
+    }
+}
 
 // Called to open the data entry form a specified encounter form instance.
 function openEncounterForm(formdir, formname, formid) {
