@@ -115,7 +115,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
    }
    $(".enc_issue").on('click', function(e) {
        e.preventDefault();e.stopPropagation();
-       dlgopen('', '', 700, 535, '', '', {
+       dlgopen('', '', 700, 650, '', '', {
            buttons: [
                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
            ],

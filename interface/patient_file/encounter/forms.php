@@ -296,7 +296,7 @@ function imdeleted(EncounterId) {
     if (top.tab_mode) {
         top.encounterList();
     } else {
-        toencounter('Past Encounter List')
+        top.window.parent.left_nav.loadFrame('ens1', window.parent.name, 'patient_file/history/encounters.php');
     }
 }
 
