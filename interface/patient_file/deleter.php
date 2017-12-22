@@ -417,8 +417,12 @@ if ($_POST['form_submit']) {
             echo " alert('" . addslashes($info_msg) . "');\n";
         }
         echo " dlgclose('imdeleted',false);\n";
-    } else { // this allows dialog to stay open then close with button or X.
-        echo " opener.dlgSetCallBack('imdeleted', $encounterid);\n";
+    } else {
+        if ($GLOBALS['sql_string_no_show_screen']) {
+            echo " dlgclose('imdeleted', $encounterid);\n";
+        } else { // this allows dialog to stay open then close with button or X.
+            echo " opener.dlgSetCallBack('imdeleted', $encounterid);\n";
+        }
     }
     echo "</script></body></html>\n";
     exit();

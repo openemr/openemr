@@ -115,7 +115,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
    }
    $(".enc_issue").on('click', function(e) {
        e.preventDefault();e.stopPropagation();
-       dlgopen('', '', 700, 535, '', '', {
+       dlgopen('', '', 700, 650, '', '', {
            buttons: [
                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
            ],
@@ -144,28 +144,31 @@ ajax_bill_loc(pid,dte,facility);
 
 // Handler for Cancel clicked when creating a new encounter.
 // Show demographics or encounters list depending on what frame we're in.
-function cancelClickedNew() {
- var target = window;
- while (target != top) {
-  if (target.name == 'RBot') {
-   target.parent.left_nav.loadFrame('ens1', window.name, 'patient_file/history/encounters.php');
-   break;
-  }
-  else if (target.name == 'RTop') {
-   target.parent.left_nav.loadFrame('dem1', window.name, 'patient_file/summary/demographics.php');
-   break;
-  }
-  target = target.parent;
+ function cancelClickedNew() {
+     if (top.tab_mode) {
+         window.parent.left_nav.loadFrame('ens1', window.name, 'patient_file/history/encounters.php');
+     }
+     var target = window;
+     while (target != top) {
+         if (target.name == 'RBot') {
+             target.parent.left_nav.loadFrame('ens1', window.name, 'patient_file/history/encounters.php');
+             break;
+         }
+         else if (target.name == 'RTop') {
+             target.parent.left_nav.loadFrame('dem1', window.name, 'patient_file/summary/demographics.php');
+             break;
+         }
+         target = target.parent;
+     }
+     return false;
  }
- return false;
-}
 
-// Handler for cancel clicked when not creating a new encounter.
-// Just reload the view mode.
-function cancelClickedOld() {
- location.href = '<?php echo "$rootdir/patient_file/encounter/forms.php"; ?>';
- return false;
-}
+ // Handler for cancel clicked when not creating a new encounter.
+ // Just reload the view mode.
+ function cancelClickedOld() {
+     location.href = '<?php echo "$rootdir/patient_file/encounter/forms.php"; ?>';
+     return false;
+ }
 
 </script>
 </head>
@@ -219,7 +222,7 @@ function cancelClickedOld() {
     <tr>
      <td class='bold' nowrap><?php echo xlt('Visit Category:'); ?></td>
      <td class='text'>
-      <select name='pc_catid' id='pc_catid'>
+      <select class="form-control" name='pc_catid' id='pc_catid'>
           <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
             <?php
             //Bring only patient ang group categories
@@ -280,7 +283,7 @@ function cancelClickedOld() {
     <tr>
      <td class='bold' nowrap><?php echo xlt('Facility:'); ?></td>
      <td class='text'>
-      <select name='facility_id' onChange="bill_loc()">
+      <select class="form-control" name='facility_id' onChange="bill_loc()">
 <?php
 
 if ($viewmode) {
@@ -322,7 +325,7 @@ if ($facilities) {
         <tr>
             <td><span class='bold' nowrap><?php echo xlt('POS Code'); ?>: </span></td>
             <td colspan="6">
-                <select name="pos_code">
+                <select class="form-control" name="pos_code">
                 <?php
 
                 $pc = new POSRef();
@@ -350,7 +353,7 @@ if ($sensitivities && count($sensitivities)) {
 ?>
    <td class='bold' nowrap><?php echo xlt('Sensitivity:'); ?></td>
     <td class='text'>
-     <select name='form_sensitivity'>
+     <select class="form-control" name='form_sensitivity'>
 <?php
 foreach ($sensitivities as $value) {
    // Omit sensitivities to which this user does not have access.
@@ -398,7 +401,7 @@ echo ">" . xlt('None'). "</option>\n";
     <tr id="therapy_group_name" style="display: none">
         <td class='bold' nowrap><?php echo xlt('Group name'); ?>:</td>
         <td>
-            <input type='text' size='10' name='form_group' id="form_group" style='width:100%;cursor:pointer;cursor:hand' placeholder='<?php echo xla('Click to select');?>' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr(getGroup($result['external_id'])['group_name']) : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
+            <input type='text' class="input-sm" size='10' name='form_group' id="form_group" style='width:100%;cursor:pointer;cursor:hand' placeholder='<?php echo xla('Click to select');?>' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr(getGroup($result['external_id'])['group_name']) : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
             <input type='hidden' name='form_gid' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr($result['external_id']) : '' ?>' />
         </td>
     </tr>
@@ -407,7 +410,7 @@ echo ">" . xlt('None'). "</option>\n";
     <tr>
      <td class='bold' nowrap><?php echo xlt('Date of Service:'); ?></td>
      <td class='text' nowrap>
-      <input type='text' size='10' class='datepicker' name='form_date' id='form_date' <?php echo $disabled ?>
+      <input type='text' size='10' class='datepicker input-sm' name='form_date' id='form_date' <?php echo $disabled ?>
        value='<?php echo $viewmode ? substr($result['date'], 0, 10) : date('Y-m-d'); ?>'
        title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
      </td>
@@ -418,7 +421,7 @@ echo ">" . xlt('None'). "</option>\n";
 } ?>>
      <td class='bold' nowrap><?php echo xlt('Onset/hosp. date:'); ?></td>
      <td class='text' nowrap><!-- default is blank so that while generating claim the date is blank. -->
-      <input type='text' size='10' class='datepicker' name='form_onset_date' id='form_onset_date'
+      <input type='text' size='10' class='datepicker input-sm' name='form_onset_date' id='form_onset_date'
        value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? substr($result['onset_date'], 0, 10) : ''; ?>'
        title='<?php echo xla('yyyy-mm-dd Date of onset or hospitalization'); ?>' />
      </td>
@@ -468,7 +471,7 @@ if ($issuesauth) {
   <td class='text' valign='top'>
 
 <?php if ($issuesauth) { ?>
-   <select multiple name='issues[]' size='8' style='width:100%'
+   <select class="form-control" multiple name='issues[]' size='8' style='width:100%'
     title='<?php echo xla('Hold down [Ctrl] for multiple selections or to unselect'); ?>'>
 <?php
 while ($irow = sqlFetchArray($ires)) {
