@@ -36,16 +36,16 @@ require_once(dirname(__FILE__) ."/../log.inc");
    
 function start_MedEx()
 {
-    $hb = new MedExApi\MedEx('MedExBank.com');
-    $logged_in = $hb->login();
+    $MedEx = new MedExApi\MedEx('MedExBank.com');
+    $logged_in = $MedEx->login();
     if ($logged_in) {
         $token      = $logged_in['token'];
-        $response   = $hb->practice->sync($token);
-        $campaigns  = $hb->campaign->events($token);
-        $response   = $hb->events->generate($token, $campaigns['events']);
+        $response   = $MedEx->practice->sync($token);
+        $campaigns  = $MedEx->campaign->events($token);
+        $response   = $MedEx->events->generate($token, $campaigns['events']);
         echo "200";
     } else {
-        echo $hb->getLastError();
+        echo $MedEx->getLastError();
     }
     echo "401";
 }

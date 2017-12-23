@@ -2877,6 +2877,7 @@ class MedEx
             return $response;
         } else if (isset($response['error'])) {
             $this->lastError = $response['error'];
+            sqlQuery("UPDATE `background_services` SET `active`='0' WHERE `name`='MedEx'");
         }
         return false;
     }
