@@ -249,6 +249,12 @@ if (!$_REQUEST['flb_table']) {
         button {
             color: #000 !important;
         }
+        .ui-widget {
+            font-size: 1.0em;
+        }
+        body_top {
+            height:100%;
+        }
     </style>
 
 </head>
@@ -1217,6 +1223,10 @@ if (!$_REQUEST['flb_table']) {
                             $('.ui-datepicker').css('z-index', 999);
                         }, 0);
                     },
+                    widgetPositioning: {
+                        horizontal: 'right',
+                        vertical: 'bottom'
+                    },
                     changeYear: true,
                     showButtonPanel: true,
                     dateFormat: xljs_dateFormat,
@@ -1229,6 +1239,10 @@ if (!$_REQUEST['flb_table']) {
                         setTimeout(function () {
                             $('.ui-datepicker').css('z-index', 999);
                         }, 0);
+                    },
+                    widgetPositioning: {
+                        horizontal: 'right',
+                        vertical: 'bottom'
                     },
                     changeYear: true,
                     showButtonPanel: true,
