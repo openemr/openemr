@@ -47,23 +47,27 @@ $mailOrder = $tData->mailOrderPharmacy();
 </head>
 
 <body class="body_top">
-<h1><?php print xlt("Prescription Transmit Review"); ?></h1>
-<table>
-    <th width="200px"><?php print xlt("Drug"); ?></th>
-    <th width="100px"><?php print xlt("Quantity"); ?></th>
 
+<h2><?php print xlt("Prescription Transmit Review"); ?></h2>
+<div class="table-responsive text-center" style="margin-left:10%;width:75%;">
+<table class="table table-condensed table-striped">
+    <thead>
+        <th class='text-center'><?php print xlt("Drug"); ?></th>
+        <th class='text-center'><?php print xlt("Quantity"); ?></th>
+    </thead>
     <?php
     //List drugs to be sent
 
     $drug = array(); //list of records that need to updated with pharmacy information
     while ($list = sqlFetchArray($send)) {
-        print "<tr align='center'><td>". text($list['drug']) . " </td><td> " . text($list['quantity']) . "</td></tr>";
+        print "<tr class='text-center'><td>". text($list['drug']) . " </td><td> " . text($list['quantity']) . "</td></tr>";
         $drug[] = $list['id'];
     }
 
 
     ?>
 </table>
+</div>
 <?php if (empty($drug)) {
     echo "<br> <p class='text-danger'><strong> ".xlt("No prescriptions selected"). "</strong></p>";
     exit;

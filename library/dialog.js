@@ -584,9 +584,9 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         jQuery(e.currentTarget).parents('div.modal-content').height('');
         jQuery(e.currentTarget).parent('div.modal-body').css({'height': 0});
         if (top.tab_mode) {
-            var viewPortHt = Math.max(top.window.document.documentElement.clientHeight, top.window.innerHeight || 0);
+            var viewPortHt = top.window.innerHeight || 0;
         } else {
-            var viewPortHt = Math.max(window.document.documentElement.clientHeight, top.window.innerHeight || 0);
+            var viewPortHt = window.innerHeight || 0;
         }
         //minSize = 100;
         var frameContentHt = Math.max(jQuery(idoc).height(), idoc.body.offsetHeight || 0) + 30;
