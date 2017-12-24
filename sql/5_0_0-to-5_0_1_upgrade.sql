@@ -255,6 +255,10 @@ INSERT INTO registry (name, state, directory, sql_run, unpackaged, date, priorit
 INSERT INTO registry (name, state, directory, sql_run, unpackaged, date, priority, category, nickname, patient_encounter, therapy_group_encounter) VALUES ('New Group Encounter Form', 1, 'newGroupEncounter', 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1);
 #EndIf
 
+#IfTable form_therapy_groups_attendance
+RENAME TABLE form_therapy_groups_attendance TO form_group_attendance;
+#EndIf
+
 #IfNotTable form_group_attendance
 CREATE TABLE `form_group_attendance` (
   id	bigint(20) auto_increment,
@@ -671,6 +675,3 @@ UPDATE `openemr_postcalendar_categories` SET pc_constant_id = LOWER(REPLACE (pc_
 ALTER TABLE facility ADD facility_taxonomy VARCHAR(15) DEFAULT NULL;
 #EndIf
 
-#IfTable form_therapy_groups_attendance
-RENAME TABLE form_therapy_groups_attendance TO form_group_attendance;
-#EndIf
