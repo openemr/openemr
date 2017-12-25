@@ -11,10 +11,8 @@
 <html>
 <head>
 
-{headerShow}
-<link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/themes/base/jquery-ui.min.css" type="text/css" />
-<link rel="stylesheet" href="{$GLOBALS.css_header}" type="text/css">
+    {headerTemplate assets='jquery-ui'}
+    <link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/themes/base/jquery-ui.min.css" type="text/css" />
 
 {literal}
 <style type="text/css">
@@ -39,14 +37,7 @@ select{
     }
 {/literal}
 </script>
-{literal}
-{/literal}
 <!---Gen Look up-->
-<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-min-3-1-1/index.js"></script>
-<script src="{$GLOBALS.assets_static_relative}/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
-<script type="text/javascript" src="{$GLOBALS.webroot}/library/dialog.js?v={$GLOBALS.v_js_includes}"></script>
-<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/jquery-ui.js"></script>
-
 {literal}
 <script language='JavaScript'>
 
@@ -326,21 +317,7 @@ $().ready(function() {
 
     $("#drug").focus();
     $("#prescribe").submit(function() { return CheckForErrors(this) });
-    //$("#druglookup").click(function() { DoDrugLookup(this) }); // patched out until further notice. not needed!!?
 });
-
-
-// pop up a drug lookup window with the value of the drug name, if we have one
-function DoDrugLookup(eObj) {
-    drugname = "";
-    if ($('#drug').val() != "") { drugname = $('#drug').val(); }
-    $("#druglist").css('display','block');
-    document.lookup.action='controller.php?prescription&edit&id=&pid={/literal}{$prescription->patient->id}{literal}&drug=sss'+drugname;
-    drugPopup = window.open('controller.php?prescription&lookup&drug='+drugname, 'drugPopup', 'width=400,height=50,menubar=no,titlebar=no,left = 825,top = 400');
-    drugPopup.opener = self;
-    return true;
-}
-
 
 // check the form for required fields before submitting
 var CheckForErrors = function(eObj) {
