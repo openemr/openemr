@@ -31,10 +31,10 @@ $date = date("Y-m-d H:m:s");
     }else{
             if(!empty($res)){  
                 
-                echo "<b>Last:</b> " . $res['last'] . "</BR>" ;
+                echo "<b>".xlt('Last').":</b> " . $res['last'] . "</BR>" ;
                 //echo "<b>Note: </b>" . $res['notes'] . "</BR></BR>";
             }else{
-                echo xl('No Previous entries recorded') . "</br></br>";
+                echo xlt('No Previous entries recorded') . "</br></br>";
             }
     }
 
@@ -87,7 +87,7 @@ if($sum > 80){
 ?>
 <script language='JavaScript'>
 
-  g = new Dygraph(
+  var g = new Dygraph(
     // containing div
     document.getElementById("moreq_graph"),
     // CSV or path to a CSV file.

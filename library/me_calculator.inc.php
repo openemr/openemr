@@ -34,8 +34,8 @@
 	
     function fetchMEs($pid)
     {
-         $sql = "SELECT * FROM morphine_eq WHERE pid = $pid ORDER BY id DESC LIMIT 1";
-         $query = sqlStatement($sql);
+         $sql = "SELECT * FROM morphine_eq WHERE pid = ? ORDER BY id DESC LIMIT 1";
+         $query = sqlStatement($sql,$pid);
          $res = sqlFetchArray($query);
          return $res;
     }
