@@ -197,7 +197,6 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 
  // Called by the deleteme.php window on a successful delete.
  function imdeleted() {
-     //dlgclose();
     <?php if ($GLOBALS['new_tabs_layout']) { ?>
    top.clearPatient();
     <?php } else { ?>
@@ -252,8 +251,12 @@ function editScripts(url) {
     };
 
     var title = '<?php echo xla('Prescriptions'); ?>';
+    let w = 810;
+    <?php if ($GLOBALS['weno_rx_enable']) {
+        echo 'w = 910;'; }?>
 
-    dlgopen(url, 'editScripts', 1150, 500, '', title, {
+
+    dlgopen(url, 'editScripts', w, 300, '', '', {
         buttons: [
             {text: '<?php echo xla('Add'); ?>', close: false, style: 'primary  btn-sm', click: AddScript},
             {text: '<?php echo xla('List'); ?>', close: false, style: 'primary  btn-sm', click: ListScripts},
@@ -476,7 +479,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
 
   function openReminderPopup() {
       top.restoreSession()
-      dlgopen('', 'reminders', 500, 500, '', '', {
+      dlgopen('', 'reminders', 500, 250, '', '', {
           buttons: [
               {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
           ],
