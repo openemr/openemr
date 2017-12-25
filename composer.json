@@ -31,7 +31,6 @@
         "symfony/event-dispatcher" : "2.8.*",
         "symfony/http-foundation" : "2.8.*",
         "symfony/yaml" : "2.8.*",
-        "phpoffice/phpexcel" : "1.8.1",
         "ezyang/htmlpurifier" : "4.9.3",
         "knplabs/knp-snappy" : "^0.5.0",
         "stripe/stripe-php" : "5.2.0"
