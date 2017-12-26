@@ -448,8 +448,10 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         }).modal({backdrop: 'static', keyboard: true}, 'show');// Show Modal
 
         // define local dialog close() function. openers scope
-        window.dlgclose = function (calling, args) {
-            opts.callBack = {call: calling, args: args};
+        window.dlgcloseAjax = function (calling, args) {
+            if (calling) {
+                opts.callBack = {call: calling, args: args};
+            }
             dlgContainer.modal('hide'); // important to clean up in only one place, hide event....
             return false;
         };
