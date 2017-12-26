@@ -214,7 +214,7 @@ $(document).ready(function () {
 // for record disclosure dlgclose callback
 function refreshme() {
     top.restoreSession();
-    document.location.href = href="disclosure_full.php";
+    document.location.reload();
 }
 </script>
 </html>
