@@ -10,44 +10,46 @@
  * @link    http://www.open-emr.org
  */
 
-    require_once("../../globals.php");
-    require_once("$srcdir/dated_reminder_functions.php");
+require_once("../../globals.php");
+require_once("$srcdir/dated_reminder_functions.php");
 
-  $dateRanges = array();
+use OpenEMR\Core\Header;
+
+$dateRanges = array();
 // $dateranges = array ( number_period => text to display ) == period is always in the singular
 // eg. $dateRanges['4_week'] = '4 Weeks From Now';
-  $dateRanges['1_day'] =  xl('1 Day From Now');
-  $dateRanges['2_day'] = xl('2 Days From Now');
-  $dateRanges['3_day'] = xl('3 Days From Now');
-  $dateRanges['4_day'] = xl('4 Days From Now');
-  $dateRanges['5_day'] = xl('5 Days From Now');
-  $dateRanges['6_day'] = xl('6 Days From Now');
-  $dateRanges['1_week'] = xl('1 Week From Now');
-  $dateRanges['2_week'] = xl('2 Weeks From Now');
-  $dateRanges['3_week'] = xl('3 Weeks From Now');
-  $dateRanges['4_week'] = xl('4 Weeks From Now');
-  $dateRanges['5_week'] = xl('5 Weeks From Now');
-  $dateRanges['6_week'] = xl('6 Weeks From Now');
-  $dateRanges['1_month'] = xl('1 Month From Now');
-  $dateRanges['2_month'] = xl('2 Months From Now');
-  $dateRanges['3_month'] = xl('3 Months From Now');
-  $dateRanges['4_month'] = xl('4 Months From Now');
-  $dateRanges['5_month'] = xl('5 Months From Now');
-  $dateRanges['6_month'] = xl('6 Months From Now');
-  $dateRanges['7_month'] = xl('7 Months From Now');
-  $dateRanges['8_month'] = xl('8 Months From Now');
-  $dateRanges['9_month'] = xl('9 Months From Now');
-  $dateRanges['1_year'] = xl('1 Year From Now');
-  $dateRanges['2_year'] = xl('2 Years From Now');
+$dateRanges['1_day'] =  xl('1 Day From Now');
+$dateRanges['2_day'] = xl('2 Days From Now');
+$dateRanges['3_day'] = xl('3 Days From Now');
+$dateRanges['4_day'] = xl('4 Days From Now');
+$dateRanges['5_day'] = xl('5 Days From Now');
+$dateRanges['6_day'] = xl('6 Days From Now');
+$dateRanges['1_week'] = xl('1 Week From Now');
+$dateRanges['2_week'] = xl('2 Weeks From Now');
+$dateRanges['3_week'] = xl('3 Weeks From Now');
+$dateRanges['4_week'] = xl('4 Weeks From Now');
+$dateRanges['5_week'] = xl('5 Weeks From Now');
+$dateRanges['6_week'] = xl('6 Weeks From Now');
+$dateRanges['1_month'] = xl('1 Month From Now');
+$dateRanges['2_month'] = xl('2 Months From Now');
+$dateRanges['3_month'] = xl('3 Months From Now');
+$dateRanges['4_month'] = xl('4 Months From Now');
+$dateRanges['5_month'] = xl('5 Months From Now');
+$dateRanges['6_month'] = xl('6 Months From Now');
+$dateRanges['7_month'] = xl('7 Months From Now');
+$dateRanges['8_month'] = xl('8 Months From Now');
+$dateRanges['9_month'] = xl('9 Months From Now');
+$dateRanges['1_year'] = xl('1 Year From Now');
+$dateRanges['2_year'] = xl('2 Years From Now');
 
 // --- need to add a check to ensure the post is being sent from the correct location ???
 
 // default values for $this_message
-    $this_message = array('message'=>'','message_priority'=>3,'dueDate'=>'');
-    $forwarding = false;
+$this_message = array('message'=>'','message_priority'=>3,'dueDate'=>'');
+$forwarding = false;
 
 // default values for Max words to input in a reminder
-  $max_reminder_words=160;
+$max_reminder_words=160;
 
 // ---------------- FOR FORWARDING MESSAGES ------------->
 if (isset($_GET['mID']) and is_numeric($_GET['mID'])) {
@@ -141,21 +143,11 @@ if (isset($this_message['pid'])) {
     ?>
 <html>
   <head>
-    <title><?php echo xlt('Send a Reminder') ?></title>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-    <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
-        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
-    <?php } ?>
-    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
-    <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/topdialog.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+    <title><?php echo xlt('Send a Reminder') ?></title>
+
+    <?php Header::setupHeader(['datetime-picker','opener','topdialog','common']); ?>
+
     <script language="JavaScript">
       $(document).ready(function (){
 
