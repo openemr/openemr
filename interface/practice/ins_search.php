@@ -20,6 +20,8 @@
  require_once("../globals.php");
  require_once("$srcdir/acl.inc");
 
+ use OpenEMR\Core\Header;
+
  // Putting a message here will cause a popup window to display it.
  $info_msg = "";
 
