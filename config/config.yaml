@@ -40,6 +40,9 @@ assets:
     jquery-ui:
         basePath: %assets_static_relative%/jquery-ui-1-12-1/
         script: jquery-ui.min.js
+    jquery-ui-base:
+        basePath: %assets_static_relative%/jquery-ui-1-12-1/themes/base/
+        link: jquery-ui.min.css
     jquery-ui-darkness:
         basePath: %assets_static_relative%/jquery-ui-1-12-1/themes/ui-darkness/
         link: jquery-ui.min.css

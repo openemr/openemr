@@ -16,6 +16,8 @@ require_once("$srcdir/erx_javascript.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
 require_once("$srcdir/patientvalidation.inc.php");
 
+use OpenEMR\Core\Header;
+
  // Session pid must be right or bad things can happen when demographics are saved!
  //
  include_once("$srcdir/pid.inc");
@@ -62,16 +64,10 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 
 <title><?php echo xlt('Edit Current Patient'); ?></title>
 
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
-<?php } ?>
-<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+<?php Header::setupHeader(['datetime-picker','common']); ?>
 
 <style>
     .form-control {
@@ -81,16 +77,7 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
     }
 </style>
 
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
-<script type="text/javascript" src="../../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
-
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
-
-
 
 <script type="text/javascript">
 

@@ -17,8 +17,8 @@
  // permits selection of one of them via the same set_insurance()
  // function.
 
- include_once("../globals.php");
- include_once("$srcdir/acl.inc");
+ require_once("../globals.php");
+ require_once("$srcdir/acl.inc");
 
  // Putting a message here will cause a popup window to display it.
  $info_msg = "";
@@ -58,11 +58,8 @@
 <html>
 <head>
 <title><?php xl('Insurance Company Search/Add', 'e');?></title>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
-<?php } ?>
-<link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
+
+<?php Header::setupHeader(['opener','topdialog']); ?>
 
 <style>
 td { font-size:10pt; }
@@ -78,11 +75,6 @@ td { font-size:10pt; }
 
 </style>
 
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-<script type="text/javascript" src="../../library/topdialog.js"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
 <script language="JavaScript">
 
  var mypcc = '<?php  echo $GLOBALS['phone_country_code'] ?>';
