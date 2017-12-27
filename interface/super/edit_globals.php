@@ -18,6 +18,7 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/globals.inc.php");
 require_once("$srcdir/user.inc");
 require_once(dirname(__FILE__)."/../../myportal/soap_service/portal_connectivity.php");
+
 use OpenEMR\Core\Header;
 
 $userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');
@@ -737,9 +738,8 @@ $(document).ready(function(){
 
     <?php // mdsupport - Highlight search results ?>
   $('.srch div').wrapInner("<mark></mark>");
-  $('.tab > .container').find('div.srch:first').each(function() {
-      var srch_div = $(this).closest('div').prevAll().length + 1;
-      $('.tabNav > li:nth-child('+srch_div+') a').wrapInner("<mark></mark>");
+  $('.tab .row.srch :first-child').closest('.tab').each(function() {
+    $('.tabNav li:nth-child('+($(this).index()+1)+') a').wrapInner("<mark></mark>");
   });
   // Use the counter ($i) to make the form user friendly for user-specific globals use
     <?php if ($userMode) { ?>
