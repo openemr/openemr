@@ -588,7 +588,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         if (top.tab_mode) {
             var viewPortHt = top.window.innerHeight || 0;
         } else {
-            var viewPortHt = window.innerHeight || 0;
+            var viewPortHt = where.window.innerHeight || 0;
         }
         //minSize = 100;
         var frameContentHt = Math.max(jQuery(idoc).height(), idoc.body.offsetHeight || 0) + 30;
