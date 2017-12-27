@@ -588,7 +588,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
 
                               echo "  <input type='text' class='form-control jscolor {hash:true}' name='form_$i' id='form_$i' " .
                                 "maxlength='15' value='" . attr($fldvalue) . "' />" .
-                                "<input type='button' value='" . xla('Default'). "' onclick=\"document.forms[0].form_$i.color.fromString('" . attr($flddef) . "')\">\n";
+                                "<input type='button' value='" . xla('Default'). "' onclick=\"document.forms[0].form_$i.jscolor.fromString('" . attr($flddef) . "')\">\n";
                 } else if ($fldtype == 'default_visit_category') {
                                 $sql = "SELECT pc_catid, pc_catname, pc_cattype 
                 FROM openemr_postcalendar_categories
