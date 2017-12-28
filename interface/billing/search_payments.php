@@ -36,6 +36,9 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/billrep.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/payment.inc.php");
+
+use OpenEMR\Core\Header;
+
 //===============================================================================
 //Deletion of payment and its corresponding distributions.
 //===============================================================================
@@ -204,74 +207,31 @@ if (isset($_POST["mode"])) {
 
 //===============================================================================
 ?>
+<!DOCTYPE html>
 <html>
 <head>
-<?php if (function_exists('html_header_show')) {
-    html_header_show();
-} ?>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+    <?php Header::setupHeader(['jquery-ui', 'datetime-picker']); ?>
 
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
-<script type="text/javascript" src="../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+    <?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
+    <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
 
 <script type='text/javascript'>
-//For different browsers there was disparity in width.So this code is used to adjust the width.
-if (/MSIE (\d+\.\d+);/.test(navigator.userAgent)){ //test for MSIE x.x;
- var ieversion=new Number(RegExp.$1) // capture x.x portion and store as a number
- if (ieversion>=5 && ieversion<=8)
-   {
-     $(document).ready(function() {
-        // fancy box
-        // special size for
-        $(".medium_modal").fancybox( {
-            'overlayOpacity' : 0.0,
-            'showCloseButton' : true,
-            'frameHeight' : 500,
-            'frameWidth' : 1097,
-            'centerOnScroll' : false
-        });
-    });
-   }
-  else
-   {
-     $(document).ready(function() {
-        // fancy box
-        // special size for
-        $(".medium_modal").fancybox( {
-            'overlayOpacity' : 0.0,
-            'showCloseButton' : true,
-            'frameHeight' : 500,
-            'frameWidth' : 1050,
-            'centerOnScroll' : false
-        });
-    });
-   }
-}
-else
-{
- $(document).ready(function() {
-    // fancy box
-    // special size for
-    $(".medium_modal").fancybox( {
-        'overlayOpacity' : 0.0,
-        'showCloseButton' : true,
-        'frameHeight' : 500,
-        'frameWidth' : 1050,
-        'centerOnScroll' : false
-    });
-});
-}
 
 $(document).ready(function() {
+    $(".medium_modal").on('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dlgopen('', '', 1050, 350, '', '', {
+            buttons: [
+                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+            ],
+            onClosed: '',
+            type: 'iframe',
+            url: $(this).attr('href')
+        });
+    });
+
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -556,9 +516,9 @@ document.onclick=HideTheAjaxDivs;
                                 ?>
                               <tr class="text"  bgcolor='<?php echo $bgcolor; ?>'>
                                 <td class="<?php echo $StringClass; ?>" ><a href="#" onClick="javascript:return DeletePayments(<?php echo htmlspecialchars($RowSearch['session_id']); ?>);" ><img src="../pic/Delete.gif" border="0"/></a></td>
-                                <td class="<?php echo $StringClass; ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php echo htmlspecialchars($RowSearch['session_id']); ?></a></td>
-                                <td class="<?php echo $StringClass; ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php echo $RowSearch['check_date']=='0000-00-00' ? '&nbsp;' : htmlspecialchars(oeFormatShortDate($RowSearch['check_date'])); ?></a></td>
-                                <td class="<?php echo $StringClass; ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal'  ><?php
+                                <td class="<?php echo $StringClass; ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='medium_modal' ><?php echo htmlspecialchars($RowSearch['session_id']); ?></a></td>
+                                <td class="<?php echo $StringClass; ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='medium_modal' ><?php echo $RowSearch['check_date']=='0000-00-00' ? '&nbsp;' : htmlspecialchars(oeFormatShortDate($RowSearch['check_date'])); ?></a></td>
+                                <td class="<?php echo $StringClass; ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='medium_modal'  ><?php
                                 $frow['data_type']=1;
                                 $frow['list_id']='payment_type';
                                 $PaymentType='';
@@ -572,15 +532,15 @@ document.onclick=HideTheAjaxDivs;
 
                                 generate_print_field($frow, $PaymentType);
                     ?></a></td>
-                        <td class="<?php echo $StringClass; ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal'  ><?php echo  $Payer=='' ? '&nbsp;' : htmlspecialchars($Payer) ;?></a></td>
-                        <td class="<?php echo $StringClass; ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php echo $RowSearch['payer_id']*1 > 0 ? htmlspecialchars($RowSearch['payer_id']) : '&nbsp;'; ?></a></td>
-                        <td align="left" class="<?php echo $StringClass; ?> " ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php
+                        <td class="<?php echo $StringClass; ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='medium_modal'  ><?php echo  $Payer=='' ? '&nbsp;' : htmlspecialchars($Payer) ;?></a></td>
+                        <td class="<?php echo $StringClass; ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='medium_modal' ><?php echo $RowSearch['payer_id']*1 > 0 ? htmlspecialchars($RowSearch['payer_id']) : '&nbsp;'; ?></a></td>
+                        <td align="left" class="<?php echo $StringClass; ?> " ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='medium_modal' ><?php
                               $frow['data_type']=1;
                               $frow['list_id']='payment_method';
                               generate_print_field($frow, $RowSearch['payment_method']);
                     ?></a></td>
-                        <td align="left" class="<?php echo $StringClass; ?> " ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php echo $RowSearch['reference']=='' ? '&nbsp;' : htmlspecialchars($RowSearch['reference']); ?></a></td>
-                        <td align="left" class="<?php echo $StringClass; ?> " ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php
+                        <td align="left" class="<?php echo $StringClass; ?> " ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='medium_modal' ><?php echo $RowSearch['reference']=='' ? '&nbsp;' : htmlspecialchars($RowSearch['reference']); ?></a></td>
+                        <td align="left" class="<?php echo $StringClass; ?> " ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='medium_modal' ><?php
                               $rs= sqlStatement("select pay_total,global_amount from ar_session where session_id='".$RowSearch['session_id']."'");
                               $row=sqlFetchArray($rs);
                               $pay_total=$row['pay_total'];
@@ -590,8 +550,8 @@ document.onclick=HideTheAjaxDivs;
                               $pay_amount=$row['sum_pay_amount'];
                               $UndistributedAmount=$pay_total-$pay_amount-$global_amount;
                               echo $UndistributedAmount*1==0 ? htmlspecialchars(xl('Fully Paid'), ENT_QUOTES) : htmlspecialchars(xl('Unapplied'), ENT_QUOTES); ?></a></td>
-                                <td align="right" class="<?php echo $StringClass; ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php echo htmlspecialchars($RowSearch['pay_total']); ?></a></td>
-                                <td align="right" class="<?php echo $StringClass; ?> right" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php echo htmlspecialchars(number_format($UndistributedAmount, 2)); ?></a></td>
+                                <td align="right" class="<?php echo $StringClass; ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='medium_modal' ><?php echo htmlspecialchars($RowSearch['pay_total']); ?></a></td>
+                                <td align="right" class="<?php echo $StringClass; ?> right" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='medium_modal' ><?php echo htmlspecialchars(number_format($UndistributedAmount, 2)); ?></a></td>
                               </tr>
                                 <?php
                         }//while ($RowSearch = sqlFetchArray($ResultSearch))
