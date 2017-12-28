@@ -1,12 +1,15 @@
 <?php
-// Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
-
+/**
+ * Front payment gui.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2006-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once("../globals.php");
@@ -431,7 +434,7 @@ $(document).ready(function() {
 
  // Process click on Delete button.
  function deleteme() {
-  dlgopen('deleter.php?payment=<?php echo $payment_key ?>', '_blank', 500, 450);
+  dlgopen('deleter.php?payment=<?php echo attr($payment_key); ?>', '_blank', 500, 450);
   return false;
  }
  // Called by the deleteme.php window on a successful delete.
@@ -463,7 +466,7 @@ $(document).ready(function() {
 <br><?php echo text($frow['street']) ?>
 <br><?php echo text($frow['city'] . ', ' . $frow['state']) . ' ' .
     text($frow['postal_code']) ?>
-<br><?php echo htmlentities($frow['phone']) ?>
+<br><?php echo text($frow['phone']) ?>
 
 <p>
 <table border='0' cellspacing='8'>
@@ -521,7 +524,7 @@ if ($todaysenc && $todaysenc != $encounter) {
 
 <?php if (acl_check('admin', 'super')) { ?>
 &nbsp;
-<input type='button' value='<?php xl('Delete', 'e'); ?>' style='color:red' onclick='deleteme()' />
+<input type='button' value='<?php echo xla('Delete'); ?>' style='color:red' onclick='deleteme()' />
 <?php } ?>
 
 </div>
@@ -562,13 +565,10 @@ if ($todaysenc && $todaysenc != $encounter) {
 
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <script type="text/javascript" src="../../library/textformat.js"></script>
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
 <script type="text/javascript" src="../../library/js/common.js"></script>
-<script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.easydrag.handler.beta2.js"></script>
 <script language='JavaScript'>
  var mypcc = '1';
 </script>
@@ -929,7 +929,7 @@ function make_insurance()
 <body class="body_top" onunload='imclosing()' onLoad="cursor_pointer();">
 <center>
 
-<form method='post' action='front_payment.php<?php echo ($payid) ? "?payid=$payid" : ""; ?>'
+<form method='post' action='front_payment.php<?php echo ($payid) ? "?payid=".attr($payid) : ""; ?>'
  onsubmit='return validate();'>
 <input type='hidden' name='form_pid' value='<?php echo attr($pid) ?>' />
 
