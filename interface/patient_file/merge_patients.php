@@ -29,6 +29,8 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/log.inc");
 
+use OpenEMR\Core\Header;
+
 // Set this to true for production use. If false you will get a "dry run" with no updates.
 $PRODUCTION = true;
 
@@ -36,13 +38,12 @@ if (!acl_check('admin', 'super')) {
     die(xlt('Not authorized'));
 }
 ?>
+<!DOCTYPE html>
 <html>
 
 <head>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <title><?php echo xlt('Merge Patients'); ?></title>
-
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+    <?php Header::setupHeader(['jquery-ui']); ?>
 
 <script language="JavaScript">
 
@@ -61,7 +62,7 @@ function setpatient(pid, lname, fname, dob) {
 function sel_patient(ename, epid) {
  el_pt_name = ename;
  el_pt_id = epid;
- dlgopen('../main/calendar/find_patient_popup.php', '_blank', 500, 400);
+ dlgopen('../main/calendar/find_patient_popup.php', '_blank', 600, 400);
 }
 
 </script>
@@ -69,8 +70,8 @@ function sel_patient(ename, epid) {
 </head>
 
 <body class="body_top">
-
-<center><h2><?php echo xlt('Merge Patients') ?></h2></center>
+<div class="container">
+<h2><?php echo xlt('Merge Patients') ?></h2>
 
 <?php
 
@@ -105,7 +106,7 @@ function updateRows($tblname, $colname, $source_pid, $target_pid)
 if (!empty($_POST['form_submit'])) {
     $target_pid = intval($_POST['form_target_pid']);
     $source_pid = intval($_POST['form_source_pid']);
-
+    echo "<div class='well'>";
     if ($target_pid == $source_pid) {
         die(xlt('Target and source pid may not be the same!'));
     }
@@ -226,7 +227,7 @@ if (!empty($_POST['form_submit'])) {
         }
     }
 
-    echo "<br />" . xlt('Merge complete.');
+    echo "<br />" . xlt('Merge complete.') . "</div>";
 
     exit(0);
 }
@@ -237,8 +238,8 @@ if (!empty($_POST['form_submit'])) {
 </p>
 
 <form method='post' action='merge_patients.php'>
-<center>
-<table style='width:90%'>
+<div class="table-responsive">
+<table style='width:100%'>
  <tr>
   <td>
     <?php echo xlt('Target Patient') ?>
@@ -271,10 +272,10 @@ if (!empty($_POST['form_submit'])) {
  </tr>
 </table>
 <p><input type='submit' name='form_submit' value='<?php echo xla('Merge'); ?>' /></p>
-</center>
+</div>
 </form>
-
-<p><?php echo xlt('This utility is experimental.  Back up your database and documents before using it!'); ?></p>
+<div class="well well-lg">
+    <p><strong><?php echo xlt('This utility is experimental.  Back up your database and documents before using it!'); ?></strong></p>
 
 <?php if (!$PRODUCTION) { ?>
 <p><?php echo xlt('This will be a "dry run" with no physical data updates.'); ?></p>
@@ -287,6 +288,7 @@ if (!empty($_POST['form_submit'])) {
 <p><?php echo xlt('The second ("source") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.'); ?></p>
 
 <p><?php echo xlt('The merge will not run unless SSN and DOB for the two charts are identical. DOBs cannot be empty.'); ?></p>
-
+</div>
+</div>
 </body>
 </html>
