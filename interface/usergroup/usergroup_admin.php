@@ -382,6 +382,11 @@ if (isset($_GET["mode"])) {
         }
     }
 }
+// added for form submit's from usergroup_admin_add and user_admin.php
+// sjp 12/29/17
+if (isset($_REQUEST["mode"])) {
+    exit(trim($alertmsg));
+}
 
 $form_inactive = empty($_REQUEST['form_inactive']) ? false : true;
 
@@ -401,11 +406,6 @@ $(document).ready(function(){
     $(".medium_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
         dlgopen('', '', 660, 450, '', '', {
-            //onClosed: 'refreshme',
-            sizeHeight: 'auto',
-            allowResize: true,
-            allowDrag: true,
-            dialogId: '',
             type: 'iframe',
             url: $(this).attr('href')
         });
