@@ -1,5 +1,5 @@
 <?php
-// +-----------------------------------------------------------------------------+ 
+// +-----------------------------------------------------------------------------+
 // Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
@@ -19,7 +19,7 @@
 // openemr/interface/login/GnuGPL.html
 // For more information write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
+//
 // Author:   Eldho Chacko <eldho@zhservices.com>
 //           Jacob T Paul <jacob@zhservices.com>
 //
@@ -33,11 +33,12 @@ $list_id = $_REQUEST['list_id'];
 <html>
     <head>
         <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+        <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
         <script type="text/javascript">
         function add_template(){
             top.restoreSession();
-            mainform=window.parent.parent.document;
+            mainform=window.opener.opener.document;
             if(document.getElementById('template_name').value){
                 len = document.getElementById('multi_context').options.length;
                 sel_len=0;
@@ -68,12 +69,13 @@ $list_id = $_REQUEST['list_id'];
                         else{
                             mainform.getElementById('templateDD').innerHTML = thedata;
                             alert("<?php echo addslashes(xl('Successfully added category'));?> "+document.getElementById('template_name').value);
-                            window.parent.parent.location.reload();
+                            //window.opener.opener.location.reload();
+                            dlgclose();
                         }
                             },
                 error:function(){
-                    
-                }	
+
+                }
                 });
                 }
                 else{
@@ -95,8 +97,8 @@ $list_id = $_REQUEST['list_id'];
                         <select multiple name="multi_context[]" id="multi_context" size="5">
                             <?php
                             $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
-                            while($row=sqlFetchArray($res)){
-                            echo "<option value='".htmlspecialchars($row['cl_list_id'],ENT_QUOTES)."'>".htmlspecialchars($row['cl_list_item_long'],ENT_QUOTES)."</option>";
+                            while ($row=sqlFetchArray($res)) {
+                                echo "<option value='".htmlspecialchars($row['cl_list_id'], ENT_QUOTES)."'>".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."</option>";
                             }
                             ?>
                         </select>
@@ -105,7 +107,7 @@ $list_id = $_REQUEST['list_id'];
                     <input type="text" name="template_name" id="template_name">
                     </td>
                     <td>
-                    <a href="#" onclick="add_template()" class="css_button"><span><?php echo htmlspecialchars(xl('ADD'),ENT_QUOTES);?></span></a>
+                    <a href="#" onclick="add_template()" class="css_button"><span><?php echo htmlspecialchars(xl('ADD'), ENT_QUOTES);?></span></a>
                     </td>
                 </tr>
             </table>

@@ -13,6 +13,7 @@ function moveOptions_11(theSelFrom, theSelTo){
     if(result){
         url = 'quest_popup.php?content='+str;
         window.open(url,'quest_pop','width=640,height=190,menubar=no,toolbar=0,location=0, directories=0, status=0,left=400,top=375');
+        //dlgopen(url,'quest_pop', '', 640, 190);
     }
     else{
         val = str;
@@ -29,7 +30,7 @@ function movePD(val,theSelTo){
     window.frames[0].document.body.innerHTML=textAreaContent;
 }
 function edit(id){
-    val=window.parent.document.getElementById(id).value;
+    val=window.opener.document.getElementById(id).value;
     arr=val.split("|*|*|*|");
     document.getElementById('textarea1').value=arr[0];
 }
@@ -73,7 +74,7 @@ function ascii_write(asc, theSelTo){
 }
 function SelectToSave(textara){
     var textAreaContent = window.frames[0].document.body.innerHTML;
-    mainform=window.parent.document;
+    mainform=window.opener.document;
     if(mainform.getElementById(textara+'_div'))
     mainform.getElementById(textara+'_div').innerHTML = textAreaContent;
     if(mainform.getElementById(textara+'_optionTD') && document.getElementById('options'))
@@ -83,13 +84,13 @@ function SelectToSave(textara){
     if(document.getElementById('options'))
     mainform.getElementById(textara).value +="|*|*|*|"+document.getElementById('options').innerHTML;
     }
-    parent.$.fn.fancybox.close();
+    dlgclose();
 }
 function removeHTMLTags(strInputCode){
-            /* 
-                    This line is optional, it replaces escaped brackets with real ones, 
+            /*
+                    This line is optional, it replaces escaped brackets with real ones,
                     i.e. < is replaced with < and > is replaced with >
-            */	
+            */
             strInputCode = strInputCode.replace(/&(lt|gt);/g, function (strMatch, p1){
                     return (p1 == "lt")? "<" : ">";
             });
@@ -115,7 +116,7 @@ function TemplateSentence(val){
                 },
     error:function(){
         //alert("fail");
-    }	
+    }
    });
    return;
 }
@@ -137,7 +138,7 @@ function delete_item(id){
                 },
     error:function(){
         //alert("fail");
-    }	
+    }
    });
    return;
     }
@@ -162,7 +163,7 @@ function save_item(){
          item: 	document.getElementById('item').value,
          templateid: document.getElementById('template').value,
          source: "add_item"
-         
+
     },
     success: function(thedata){
                 //alert(thedata)
@@ -171,7 +172,7 @@ function save_item(){
                 },
     error:function(){
         //alert("fail");
-    }	
+    }
    });
    return;
 }
@@ -189,7 +190,7 @@ function update_item(id){
          templateid: document.getElementById('template').value,
          content: document.getElementById('update_item_txt'+id).value,
          source: "update_item"
-         
+
     },
     success: function(thedata){
                 //alert(thedata)
@@ -198,7 +199,7 @@ function update_item(id){
                 },
     error:function(){
         //alert("fail");
-    }	
+    }
    });
    return;
 }

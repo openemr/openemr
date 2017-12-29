@@ -447,12 +447,22 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 
         }).modal({backdrop: 'static', keyboard: true}, 'show');// Show Modal
 
-        // define this dialog close() function.
-        where.dlgclose = function () {
+        // define local dialog close() function. openers scope
+        window.dlgcloseAjax = function (calling, args) {
+            if (calling) {
+                opts.callBack = {call: calling, args: args};
+            }
             dlgContainer.modal('hide'); // important to clean up in only one place, hide event....
             return false;
         };
 
+        // define local callback function. Set with opener or from opener, will exe on hide.
+        window.dlgSetCallBack = function (calling, args) {
+            opts.callBack = {call: calling, args: args};
+            return false;
+        };
+
+        // in residents dialog scope
         where.setCallBack = function (calling, args) {
             opts.callBack = {call: calling, args: args};
             return true;
@@ -576,9 +586,9 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         jQuery(e.currentTarget).parents('div.modal-content').height('');
         jQuery(e.currentTarget).parent('div.modal-body').css({'height': 0});
         if (top.tab_mode) {
-            var viewPortHt = Math.max(top.window.document.documentElement.clientHeight, top.window.innerHeight || 0);
+            var viewPortHt = top.window.innerHeight || 0;
         } else {
-            var viewPortHt = window.innerHeight || 0;
+            var viewPortHt = where.window.innerHeight || 0;
         }
         //minSize = 100;
         var frameContentHt = Math.max(jQuery(idoc).height(), idoc.body.offsetHeight || 0) + 30;

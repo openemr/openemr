@@ -1,5 +1,5 @@
 <?php
-// +-----------------------------------------------------------------------------+ 
+// +-----------------------------------------------------------------------------+
 // Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
@@ -19,7 +19,7 @@
 // openemr/interface/login/GnuGPL.html
 // For more information write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
+//
 // Author:   Eldho Chacko <eldho@zhservices.com>
 //           Jacob T Paul <jacob@zhservices.com>
 //
@@ -28,18 +28,16 @@
 
 
 require_once("../../interface/globals.php");
-if(trim($_POST['contextname'])!='' && $_POST['action']=='add'){
-    $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0 AND cl_list_item_long=?",array($_POST['contextname']));
-    if(!sqlNumRows($res)){
-        $id = sqlInsert("INSERT INTO customlists (cl_list_type,cl_list_item_long) VALUES(?,?)",array(2,$_POST['contextname']));
-        sqlStatement("UPDATE customlists SET cl_list_id=? WHERE cl_list_slno=?",array($id,$id));
+if (trim($_POST['contextname'])!='' && $_POST['action']=='add') {
+    $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0 AND cl_list_item_long=?", array($_POST['contextname']));
+    if (!sqlNumRows($res)) {
+        $id = sqlInsert("INSERT INTO customlists (cl_list_type,cl_list_item_long) VALUES(?,?)", array(2,$_POST['contextname']));
+        sqlStatement("UPDATE customlists SET cl_list_id=? WHERE cl_list_slno=?", array($id,$id));
     }
-}
-elseif($_POST['action']=='delete' && $_POST['item']!=''){
-    sqlStatement("UPDATE customlists SET cl_deleted=1 WHERE cl_list_type=2 AND cl_list_slno=?",array($_POST['item']));
-}
-elseif($_POST['action']=='update' && $_POST['item']!=''){
-    sqlStatement("UPDATE customlists SET cl_list_item_long=? WHERE cl_deleted=0 AND cl_list_type=2 AND cl_list_slno=?",array($_POST['updatecontextname'],$_POST['item']));
+} elseif ($_POST['action']=='delete' && $_POST['item']!='') {
+    sqlStatement("UPDATE customlists SET cl_deleted=1 WHERE cl_list_type=2 AND cl_list_slno=?", array($_POST['item']));
+} elseif ($_POST['action']=='update' && $_POST['item']!='') {
+    sqlStatement("UPDATE customlists SET cl_list_item_long=? WHERE cl_deleted=0 AND cl_list_type=2 AND cl_list_slno=?", array($_POST['updatecontextname'],$_POST['item']));
 }
 ?>
 <html>
@@ -53,7 +51,8 @@ elseif($_POST['action']=='update' && $_POST['item']!=''){
         .class1{background-color:#add9e9}
         .class2{background-color:#b1c0a5}
         </style>
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+        <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
         <script type="text/javascript">
             $(document).ready(function() {
             $('#contextadd').hide();
@@ -119,7 +118,7 @@ elseif($_POST['action']=='update' && $_POST['item']!=''){
                 document.designation_managment.submit();
                 }
                 else{
-                   alert("<?php echo addslashes(xl('Context name can\'t be empty'));?>"); 
+                   alert("<?php echo addslashes(xl('Context name can\'t be empty'));?>");
                 }
             }
             function CheckContextLive(id){
@@ -138,7 +137,7 @@ elseif($_POST['action']=='update' && $_POST['item']!=''){
                 },
                 error:function(){
                     alert("fail");
-                }	
+                }
                 });
                 return;
             }
@@ -148,32 +147,32 @@ elseif($_POST['action']=='update' && $_POST['item']!=''){
     <body class="body_top">
      <form name="designation_managment" action="" method="post">
         <table cellpadding='2' cellspacing='0' border="0" align="center">
-      
+
             <tr height="30">
-              <td class='title_bar' colspan="4" align="center"><u><?php echo htmlspecialchars(xl('Add Context'),ENT_QUOTES);?></u></td>
-              <td class='title_bar' align="center"><a href="#" id="addcontextbtn" class="css_button"><span><?php echo htmlspecialchars(xl('Add'),ENT_QUOTES);?></span></a></td>
+              <td class='title_bar' colspan="4" align="center"><u><?php echo htmlspecialchars(xl('Add Context'), ENT_QUOTES);?></u></td>
+              <td class='title_bar' align="center"><a href="#" id="addcontextbtn" class="css_button"><span><?php echo htmlspecialchars(xl('Add'), ENT_QUOTES);?></span></a></td>
             </tr>
             <tr id="contextlist">
                 <td colspan="4">
                     <table>
                         <tr>
                          <td align="center" class="title_bar_top top right bottom left">#</td>
-                         <td align="center" class="title_bar_top top right bottom"><?php echo htmlspecialchars(xl('Context'),ENT_QUOTES);?></td>
-                         <td align="center" class="title_bar_top top right bottom"><?php echo htmlspecialchars(xl('Edit'),ENT_QUOTES);?></td>
-                         <td align="center" class="title_bar_top top right bottom"><?php echo htmlspecialchars(xl('Delete'),ENT_QUOTES);?></td>
+                         <td align="center" class="title_bar_top top right bottom"><?php echo htmlspecialchars(xl('Context'), ENT_QUOTES);?></td>
+                         <td align="center" class="title_bar_top top right bottom"><?php echo htmlspecialchars(xl('Edit'), ENT_QUOTES);?></td>
+                         <td align="center" class="title_bar_top top right bottom"><?php echo htmlspecialchars(xl('Delete'), ENT_QUOTES);?></td>
                         </tr>
                         <?php
                         $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
                         $i = 0;
-                        while($row = sqlFetchArray($res)){
+                        while ($row = sqlFetchArray($res)) {
                             $i++;
                             $class = ($class=='class1') ? 'class2' : 'class1';
                         ?>
                             <tr class="text <?php echo $class;?>">
-                                <td class="right bottom left"><?php echo htmlspecialchars($i,ENT_QUOTES);?></td>
-                                <td class="right bottom"><?php echo htmlspecialchars(xl($row['cl_list_item_long']),ENT_QUOTES);?></td>
-                                <td class="right bottom"><a href="#" onclick='editme("<?php echo htmlspecialchars($row['cl_list_slno'],ENT_QUOTES);?>","<?php echo htmlspecialchars($row['cl_list_item_long'],ENT_QUOTES);?>")'><img src='../../images/b_edit.png' border=0></a></td>
-                                <td class="right bottom"><a href="#" onclick="deleteme(<?php echo htmlspecialchars($row['cl_list_slno'],ENT_QUOTES);?>)"><img src='../../images/deleteBtn.png' border=0></a></td>
+                                <td class="right bottom left"><?php echo htmlspecialchars($i, ENT_QUOTES);?></td>
+                                <td class="right bottom"><?php echo htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES);?></td>
+                                <td class="right bottom"><a href="#" onclick='editme("<?php echo htmlspecialchars($row['cl_list_slno'], ENT_QUOTES);?>","<?php echo htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES);?>")'><img src='../../images/b_edit.png' border=0></a></td>
+                                <td class="right bottom"><a href="#" onclick="deleteme(<?php echo htmlspecialchars($row['cl_list_slno'], ENT_QUOTES);?>)"><img src='../../images/deleteBtn.png' border=0></a></td>
                             </tr>
                         <?php
                         }
@@ -183,11 +182,11 @@ elseif($_POST['action']=='update' && $_POST['item']!=''){
             </tr>
             <tr id="contextadd">
                 <td colspan="3"><input type="text" name="contextname" id="contextname"></td>
-                <td colspan="1"><a href="#" onclick="checkSubmit()" class="css_button"><span><?php echo htmlspecialchars(xl('Save'),ENT_QUOTES);?><a href="#" id="cancel" class="css_button"><span><?php echo htmlspecialchars(xl('Cancel'),ENT_QUOTES);?></td>
+                <td colspan="1"><a href="#" onclick="checkSubmit()" class="css_button"><span><?php echo htmlspecialchars(xl('Save'), ENT_QUOTES);?><a href="#" id="cancel" class="css_button"><span><?php echo htmlspecialchars(xl('Cancel'), ENT_QUOTES);?></td>
             </tr>
             <tr id="contextupdate">
                 <td colspan="3"><input type="text" name="updatecontextname" id="updatecontextname"></td>
-                <td colspan="1"><a href="#" onclick="checkUpdate()" class="css_button"><span><?php echo htmlspecialchars(xl('Update'),ENT_QUOTES);?><a href="#" id="ucancel" class="css_button"><span><?php echo htmlspecialchars(xl('Cancel'),ENT_QUOTES);?></td>
+                <td colspan="1"><a href="#" onclick="checkUpdate()" class="css_button"><span><?php echo htmlspecialchars(xl('Update'), ENT_QUOTES);?><a href="#" id="ucancel" class="css_button"><span><?php echo htmlspecialchars(xl('Cancel'), ENT_QUOTES);?></td>
             </tr>
             <input type="hidden" name="action" id="action">
             <input type="hidden" name="item" id="item">

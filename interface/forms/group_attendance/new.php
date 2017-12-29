@@ -260,9 +260,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
         /* Form elements */
         $('.cancel').click(function () {
             top.restoreSession();
-            var srcdir = "<?php echo $GLOBALS['rootdir'];?>";
-            var url = srcdir + "/patient_file/encounter/encounter_top.php";
-            window.location = url;
+            parent.closeTab(window.name, false);
         });
 
 

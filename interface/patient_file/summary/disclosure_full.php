@@ -28,6 +28,8 @@ require_once("../../globals.php");
 require_once("$srcdir/log.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Core\Header;
+
 //retrieve the user name
 $res = sqlQuery("select username from users where username=?", array($_SESSION{"authUser"}));
 $uname=$res{"username"};
@@ -57,16 +59,9 @@ if (isset($_GET['deletelid'])) {
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
-<?php } ?>
-<link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
-<!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/js/common.js"></script>
+
+    <?php Header::setupHeader(['common']); ?>
+
 </head>
 
 <body class="body_top">
@@ -219,7 +214,7 @@ $(document).ready(function () {
 // for record disclosure dlgclose callback
 function refreshme() {
     top.restoreSession();
-    document.location.href = href="disclosure_full.php";
+    document.location.reload();
 }
 </script>
 </html>

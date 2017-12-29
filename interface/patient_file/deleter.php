@@ -410,13 +410,20 @@ if ($_POST['form_submit']) {
     }
 
   // Close this window and tell our opener that it's done.
-  //
+  // Not sure yet if the callback can be used universally.
     echo "<script language='JavaScript'>\n";
-    if ($info_msg) {
-        echo " alert('" . addslashes($info_msg) . "');\n";
+    if (!$encounterid) {
+        if ($info_msg) {
+            echo " alert('" . addslashes($info_msg) . "');\n";
+        }
+        echo " dlgclose('imdeleted',false);\n";
+    } else {
+        if ($GLOBALS['sql_string_no_show_screen']) {
+            echo " dlgclose('imdeleted', $encounterid);\n";
+        } else { // this allows dialog to stay open then close with button or X.
+            echo " opener.dlgSetCallBack('imdeleted', $encounterid);\n";
+        }
     }
-
-    echo " dlgclose('imdeleted', $encounterid);\n";
     echo "</script></body></html>\n";
     exit();
 }

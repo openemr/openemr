@@ -7,13 +7,11 @@
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *}
+<!DOCTYPE html>
 <html>
 <head>
 
-{headerShow}
-<link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/themes/base/jquery-ui.min.css" type="text/css" />
-<link rel="stylesheet" href="{$GLOBALS.css_header}" type="text/css">
+    {headerTemplate assets='jquery-ui|jquery-ui-base'}
 
 {literal}
 <style type="text/css">
@@ -38,14 +36,7 @@ select{
     }
 {/literal}
 </script>
-{literal}
-{/literal}
 <!---Gen Look up-->
-<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-min-3-1-1/index.js"></script>
-<script src="{$GLOBALS.assets_static_relative}/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
-<script type="text/javascript" src="{$GLOBALS.webroot}/library/dialog.js?v={$GLOBALS.v_js_includes}"></script>
-<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/jquery-ui.js"></script>
-
 {literal}
 <script language='JavaScript'>
 
@@ -161,22 +152,22 @@ select{
 
 <table CELLSPACING="0" CELLPADDING="3" BORDER="0">
 <tr>
-  <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Currently Active'|escape:'html'}</td>
+  <td COLSPAN="1" class="text input-sm" ALIGN="right" VALIGN="MIDDLE" >{xl t='Currently Active'|escape:'html'}</td>
   <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-    <input type="checkbox" name="active" value="1"{if $prescription->get_active() > 0} checked{/if} />
+    <input class="input-sm"type="checkbox" name="active" value="1"{if $prescription->get_active() > 0} checked{/if} />
   </td>
 </tr>
 <tr>
   <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Starting Date'|escape:'html'}</td>
   <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-    {html_select_date start_year="-10" end_year="+5" time=$prescription->start_date prefix="start_date_"}
+    {html_select_date class="input-sm" start_year="-10" end_year="+5" time=$prescription->start_date prefix="start_date_"}
     <input type="hidden" name="start_date" value="{$prescription->start_date|escape:'html'}">
   </td>
 </tr>
 <tr>
   <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Provider'|escape:'html'}</td>
   <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-    {html_options name="provider_id" options=$prescription->provider->utility_provider_array() selected=$prescription->provider->get_id()}
+    {html_options class="input-sm" name="provider_id" options=$prescription->provider->utility_provider_array() selected=$prescription->provider->get_id()}
     <input type="hidden" name="patient_id" value="{$prescription->patient->id|escape:'html'}" />
   </td>
 </tr>
@@ -184,10 +175,10 @@ select{
 <tr>
   <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Drug'|escape:'html'}</td>
   <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-            <input class="form-control" type="input" size="20" name="drug" id="drug" value="{$prescription->drug|escape:'html'}"/>
-            <a href="javascript:;" id="druglookup" class="small" name="B4" onclick="$('#hiddendiv').show(); document.getElementById('hiddendiv').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;52&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">
+            <input class="input-sm" type="input" size="35" name="drug" id="drug" value="{$prescription->drug|escape:'html'}"/>
+            <a href="javascript:;" id="druglookup" class="small" name="B4" onclick="$('#hiddendiv').show(); document.getElementById('hiddendiv').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;75&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">
             ({xl t='click here to search'|escape:'html'})</a>
-            <div id=hiddendiv style="display:none">&nbsp;</div>
+            <div class="well well-sm" id="hiddendiv" style="display:none">&nbsp;</div>
   </td>
 </tr>
 {if $DRUG_ARRAY_VALUES}
@@ -251,7 +242,7 @@ select{
 <tr>
   <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Notes'|escape:'html'}</td>
   <td COLSPAN="2" class="text" ALIGN="LEFT" VALIGN="MIDDLE" >
-  <textarea class="form-control" name="note" cols="30" rows="2" wrap="virtual">{$prescription->note|escape:'html'}</textarea>
+  <textarea class="form-control" name="note" cols="30" rows="1" wrap="virtual">{$prescription->note|escape:'html'}</textarea>
   </td>
 </tr>
 <tr>
@@ -261,11 +252,11 @@ select{
     {html_options name="substitute" options=$prescription->substitute_array selected=$prescription->substitute}
   </td>
 {else}
-  <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Add to Medication List'|escape:'html'}</td>
-  <td COLSPAN="2" class="text" ALIGN="LEFT" VALIGN="MIDDLE" >
-    {html_radios name="medication" options=$prescription->medication_array selected=$prescription->medication}
+  <td COLSPAN="1" class="text input-sm" ALIGN="right" VALIGN="MIDDLE" >{xl t='Add to Medication List'|escape:'html'}</td>
+  <td COLSPAN="2" class="text input-sm" ALIGN="LEFT" VALIGN="MIDDLE" >
+    {html_radios class="input-sm" name="medication" options=$prescription->medication_array selected=$prescription->medication}
     &nbsp; &nbsp;
-    {html_options name="substitute" options=$prescription->substitute_array selected=$prescription->substitute}
+    {html_options class="input-sm" name="substitute" options=$prescription->substitute_array selected=$prescription->substitute}
   </td>
 {/if}
 </tr>
@@ -325,21 +316,7 @@ $().ready(function() {
 
     $("#drug").focus();
     $("#prescribe").submit(function() { return CheckForErrors(this) });
-    $("#druglookup").click(function() { DoDrugLookup(this) });
 });
-
-
-// pop up a drug lookup window with the value of the drug name, if we have one
-function DoDrugLookup(eObj) {
-    drugname = "";
-    if ($('#drug').val() != "") { drugname = $('#drug').val(); }
-    $("#druglist").css('display','block');
-    document.lookup.action='controller.php?prescription&edit&id=&pid={/literal}{$prescription->patient->id}{literal}&drug=sss'+drugname;
-    drugPopup = window.open('controller.php?prescription&lookup&drug='+drugname, 'drugPopup', 'width=400,height=50,menubar=no,titlebar=no,left = 825,top = 400');
-    drugPopup.opener = self;
-    return true;
-}
-
 
 // check the form for required fields before submitting
 var CheckForErrors = function(eObj) {

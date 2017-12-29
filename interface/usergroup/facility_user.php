@@ -1,32 +1,22 @@
 <?php
-// +-----------------------------------------------------------------------------+
-// Copyright (C) 2012 NP Clinics <info@npclinics.com.au>
-//
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-//
-// A copy of the GNU General Public License is included along with this program:
-// openemr/interface/login/GnuGPL.html
-// For more information write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
-// Author:   Scott Wakefield <scott@npclinics.com.au>
-//
-// +------------------------------------------------------------------------------+
+/**
+ * Facility user-specific settings.
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Scott Wakefield <scott@npclinics.com.au>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2012 NP Clinics <info@npclinics.com.au>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
+
+use OpenEMR\Core\Header;
 
 // Ensure authorized
 if (!acl_check('admin', 'users')) {
@@ -56,112 +46,109 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.easydrag.handler.beta2.js"></script>
 
-<script type="text/javascript">
+    <title><?php echo xlt("Facility Specific User Information"); ?></title>
 
-$(document).ready(function(){
+    <?php Header::setupHeader(['common','jquery-ui']); ?>
 
-    // fancy box
-    enable_modals();
+    <script type="text/javascript">
+        function refreshme() {
+            top.restoreSession();
+            document.location.reload();
+        }
 
-    // special size for
-    $(".iframe_small").fancybox( {
-        'overlayOpacity' : 0.0,
-        'showCloseButton' : true,
-        'frameHeight' : 300,
-        'frameWidth' : 500
-    });
-
-    $(function(){
-        // add drag and drop functionality to fancybox
-        $("#fancy_outer").easydrag();
-    });
-});
-
-</script>
-
+        $(document).ready(function(){
+            $(".small_modal").on('click', function(e) {
+                e.preventDefault();e.stopPropagation();
+                dlgopen('', '', 500, 200, '', '', {
+                    //onClosed: 'refreshme',
+                    sizeHeight: 'auto',
+                    allowResize: true,
+                    allowDrag: true,
+                    dialogId: '',
+                    type: 'iframe',
+                    url: $(this).attr('href')
+                });
+            });
+        });
+    </script>
 </head>
 <body class="body_top">
+    <?php
+    // Collect all users
+    $u_res = sqlStatement("select * from `users` WHERE `username` != '' AND `active` = 1 order by `username`");
 
-<?php
-// Collect all users
-$u_res = sqlStatement("select * from `users` WHERE `username` != '' AND `active` = 1 order by `username`");
+    // Collect all facilities and store them in an array
+    $f_res = sqlStatement("select * from `facility` order by `name`");
+    $f_arr = array();
+    for ($i=0; $row=sqlFetchArray($f_res); $i++) {
+        $f_arr[$i]=$row;
+    }
 
-// Collect all facilities and store them in an array
-$f_res = sqlStatement("select * from `facility` order by `name`");
-$f_arr = array();
-for ($i=0; $row=sqlFetchArray($f_res); $i++) {
-    $f_arr[$i]=$row;
-}
+    // Collect layout information and store them in an array
+    $l_res = sqlStatement("SELECT * FROM layout_options " .
+                          "WHERE form_id = 'FACUSR' AND uor > 0 AND field_id != '' " .
+                          "ORDER BY group_id, seq");
+    $l_arr = array();
+    for ($i=0; $row=sqlFetchArray($l_res); $i++) {
+        $l_arr[$i]=$row;
+    }
+    ?>
 
-// Collect layout information and store them in an array
-$l_res = sqlStatement("SELECT * FROM layout_options " .
-                      "WHERE form_id = 'FACUSR' AND uor > 0 AND field_id != '' " .
-                      "ORDER BY group_id, seq");
-$l_arr = array();
-for ($i=0; $row=sqlFetchArray($l_res); $i++) {
-    $l_arr[$i]=$row;
-}
-
-?>
-
-<div>
-    <div>
-       <table>
-      <tr >
-        <td><b><?php echo xlt('Facility Specific User Information'); ?></b></td>
-        <td><a href="usergroup_admin.php" class="css_button" onclick="top.restoreSession()"><span><?php echo xlt('Back to Users'); ?></span></a>
-        </td>
-     </tr>
-    </table>
-    </div>
-
-    <div style="width:400px;">
-        <div>
-
-            <table cellpadding="1" cellspacing="0" class="showborder">
-                <tbody><tr height="22" class="showborder_head">
-                    <th width="180px"><b><?php echo xlt('Username'); ?></b></th>
-                    <th width="270px"><b><?php echo xlt('Full Name'); ?></b></th>
-                    <th width="190px"><b><span class="bold"><?php echo xlt('Facility'); ?></span></b></th>
-                                        <?php
-                                        foreach ($l_arr as $layout_entry) {
-                                            echo "<th width='100px'><b><span class='bold'>" . text(xl_layout_label($layout_entry['title'])) . "&nbsp;</span></b></th>";
-                                        }
-                                        ?>
-                </tr>
-                    <?php
-                    while ($user = sqlFetchArray($u_res)) {
-                        foreach ($f_arr as $facility) {
-                    ?>
-                <tr height="20"  class="text" style="border-bottom: 1px dashed;">
-                   <td class="text"><b><a href="facility_user_admin.php?user_id=<?php echo attr($user['id']);?>&fac_id=<?php echo attr($facility['id']);?>" class="iframe_small" onclick="top.restoreSession()"><span><?php echo text($user['username']);?></span></a></b>&nbsp;</td>
-                   <td><span class="text"><?php echo text($user['fname'] . " " . $user['lname']);?></span>&nbsp;</td>
-                   <td><span class="text"><?php echo text($facility['name']);?>&nbsp;</td>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="page-title">
+                    <h2><?php echo xlt('Facility Specific User Information'); ?></h2>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="btn-group">
+                    <a href="usergroup_admin.php" class="btn btn-default btn-back" onclick="top.restoreSession()"><?php echo xlt('Back to Users'); ?></a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th><b><?php echo xlt('Username'); ?></b></th>
+                            <th><b><?php echo xlt('Full Name'); ?></b></th>
+                            <th><b><span class="bold"><?php echo xlt('Facility'); ?></span></b></th>
+                            <?php
+                            foreach ($l_arr as $layout_entry) {
+                                echo "<th>" . text(xl_layout_label($layout_entry['title'])) . "&nbsp;</th>";
+                            }
+                            ?>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        while ($user = sqlFetchArray($u_res)) {
+                            foreach ($f_arr as $facility) { ?>
+                                <tr>
+                                    <td><a href="facility_user_admin.php?user_id=<?php echo attr($user['id']);?>&fac_id=<?php echo attr($facility['id']);?>" class="small_modal" onclick="top.restoreSession()"><b><?php echo text($user['username']);?></b></a>&nbsp;</td>
+                                    <td><?php echo text($user['fname'] . " " . $user['lname']);?></td>
+                                    <td><?php echo text($facility['name']);?>&nbsp;</td>
                                     <?php
                                     foreach ($l_arr as $layout_entry) {
                                         $entry_data = sqlQuery("SELECT `field_value` FROM `facility_user_ids` " .
-                                                            "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user['id'],$facility['id'],$layout_entry['field_id']));
-                                        echo "<td><span class='text'>" . generate_display_field($layout_entry, $entry_data['field_value']) . "&nbsp;</td>";
+                                                               "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user['id'],$facility['id'],$layout_entry['field_id']));
+                                        echo "<td>" . generate_display_field($layout_entry, $entry_data['field_value']) . "&nbsp;</td>";
                                     }
                                     ?>
-                </tr>
-                <?php
+                                </tr>
+                            <?php
+                            }
                         }
-                    }
-                ?>
-                </tbody>
-            </table>
+                        ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
 </body>
 </html>

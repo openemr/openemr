@@ -1,31 +1,23 @@
 <?php
 /**
-*
-* add_transaction is a misnomer, as this script will now also edit
-* existing transactions.
-*
-*
-* LICENSE: This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
-*
-* @package   OpenEMR
-* @author    Rod Roark <rod@sunsetsystems.com>
-* @author    Brady Miller <brady.g.miller@gmail.com>
-* @link      http://www.open-emr.org
-*/
+ * add_transaction is a misnomer, as this script will now also edit
+ * existing transactions.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 
 require_once("../../globals.php");
 require_once("$srcdir/transactions.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/amc.php");
+
+use OpenEMR\Core\Header;
 
 // This can come from the URL if it's an Add.
 $title   = empty($_REQUEST['title']) ? 'LBTref' : $_REQUEST['title'];
@@ -153,28 +145,12 @@ $trow = $transid ? getTransById($transid) : array();
 
 <title><?php echo xlt('Add/Edit Patient Transaction'); ?></title>
 
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
-<?php } ?>
-<link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
-
-<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<?php Header::setupHeader(['common','datetime-picker']); ?>
 
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
 <script type="text/javascript">
 $(document).ready(function() {
-  if (window.enable_modals) {
-    enable_modals();
-  }
   if(window.tabbify){
     tabbify();
   }
@@ -187,14 +163,14 @@ var mypcc = '<?php echo htmlspecialchars($GLOBALS['phone_country_code'], ENT_QUO
 
 $(document).ready(function(){
   $("#send_sum_flag").click(function() {
-    if ( $('#send_sum_flag').attr('checked') ) {
+    if ( $('#send_sum_flag').prop('checked') ) {
       // Enable the send_sum_elec_flag checkbox
       $("#send_sum_elec_flag").removeAttr("disabled");
     }
     else {
       //Disable the send_sum_elec_flag checkbox (also uncheck it if applicable)
       $("#send_sum_elec_flag").attr("disabled", true);
-      $("#send_sum_elec_flag").removeAttr("checked");
+      $("#send_sum_elec_flag").prop("checked", false);
     }
   });
 

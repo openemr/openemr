@@ -160,6 +160,7 @@ if (isset($mode)) {
 
         $noteid = '';
     }
+    exit(); // add exit for ajax save from pnotes_full_add.php sjp 12/20/2017
 }
 
 $title = '';
@@ -206,7 +207,7 @@ $result_sent = getSentPnotesByDate(
     $orderid
 );
 ?>
-
+<!DOCTYPE html>
 <html>
 <head>
 
@@ -253,6 +254,11 @@ function show_div(name){
     document.getElementById('inbox_div').style.display = 'none';
     document.getElementById('outbox_div').style.display = '';
   }
+}
+
+function refreshme() {
+    top.restoreSession();
+    document.location.reload();
 }
 </script>
 </head>

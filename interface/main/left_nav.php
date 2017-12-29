@@ -383,6 +383,7 @@ function genFindBlock()
 <?php
 } // End function genFindBlock()
 ?>
+<!DOCTYPE html>
 <html>
 <head>
 <title>Navigation</title>
@@ -393,51 +394,52 @@ function genFindBlock()
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/font-awesome-4-6-3/css/font-awesome.css" type="text/css">
 <style type="text/css">
- body {
-  font-size:9pt;
-  font-weight:normal;
-  padding: 5px 3px 5px 3px;
- }
- .smalltext {
-  font-family:sans-serif;
-  font-size:8pt;
-  font-weight:normal;
- }
- a.navitem, a.navitem:visited {
-  color:#0000ff;
-  font-family:sans-serif;
-  font-size:8pt;
-  font-weight:bold;
- }
-.inputtext {
- font-size:9pt;
- font-weight:normal;
- border-style:solid;
- border-width:1px;
- padding-left:2px;
- padding-right:2px;
- border-color: #000000;
- background-color:transparent;
-}
-#navigation-slide, #navigation-slide * {
- font-size:unset !important;
-}
-#navigation ul {
- background-color:transparent;
-}
-#navigation-slide ul {
- background-color:transparent;
-}
-#navigation-slide a{
- width: 92%;
-}
-.nav-menu-img{
-  width:25px;
-  height:25px;
-  border:none;
-  margin-right:5px;
-  vertical-align:middle;
-}
+    html {
+        font-size: 1em;
+    }
+    body {
+        font-size:8pt;
+        font-weight:normal;
+        padding: 5px 3px 5px 3px;
+    }
+    .smalltext {
+        font-family:sans-serif;
+        font-size:8pt;
+        font-weight:normal;
+    }
+    a.navitem, a.navitem:visited {
+        color:#0000ff;
+        font-family:sans-serif;
+        font-size:8pt;
+        font-weight:bold;
+    }
+    .inputtext {
+        font-size:9pt;
+        font-weight:normal;
+        border-style:solid;
+        border-width:1px;
+        padding-left:2px;
+        padding-right:2px;
+        border-color: #000000;
+        background-color:transparent;
+    }
+
+    #navigation ul {
+        background-color:transparent;
+    }
+    #navigation-slide ul {
+        background-color:transparent;
+    }
+    #navigation-slide a{
+        width: 92%;
+    }
+    .nav-menu-img{
+        width:25px;
+        height:25px;
+        border:none;
+        margin-right:5px;
+        vertical-align:middle;
+    }
 </style>
 <link rel="stylesheet" href="../../library/js/jquery.treeview-1.4.1/jquery.treeview.css" />
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
