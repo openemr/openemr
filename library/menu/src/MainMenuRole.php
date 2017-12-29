@@ -41,7 +41,7 @@ class MainMenuRole
      */
     public static function displayMainMenuRoleSelector($selected = "")
     {
-        $output = "<select name='main_menu_role'>";
+        $output = "<select name='main_menu_role' id='main_menu_role' class='form-control'>";
         $output .= "<option value='standard' " . (($selected == "standard") ? "selected" : "") . ">" . xlt("Standard") . "</option>";
         $output .= "<option value='answering_service' " . (($selected == "answering_service") ? "selected" : "") . ">" . xlt("Answering Service") . "</option>";
         $output .= "<option value='front_office' " . (($selected == "front_office") ? "selected" : "") . ">" . xlt("Front Office") . "</option>";
