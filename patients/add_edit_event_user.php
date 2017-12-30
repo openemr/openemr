@@ -572,7 +572,7 @@ if ($_POST['form_action'] != "") {
 //  echo " if (!opener.closed && opener.refreshme) window.opener.location.reload(true);\n";
 //  echo " opener.refreshme();";
 //  echo " window.location='https://ehr.clinicdr.com/".$GLOBALS['instance_name']."/clinicdr-ehr/interface/main/calendar/index.php?module=PostCalendar&func=view&tplview=default&pc_category=&pc_topic='";
-    echo " parent.jQuery.fn.fancybox.close();\n";
+    echo " dlgclose();\n";
     echo "</script>\n</body>\n</html>\n";
     exit();
 }
@@ -1084,7 +1084,7 @@ while ($crow = sqlFetchArray($cres)) {
 <p>
 <input type='button' name='form_save' value='<?php xl('Save', 'e');?>' onclick="validate()" />
 &nbsp;
-<input type='button' value='<?php xl('Cancel', 'e');?>' onclick='parent.$.fn.fancybox.close()' />
+<input type='button' value='<?php xl('Cancel', 'e');?>' onclick='dlgclose()' />
 </p>
 </center>
 </form>

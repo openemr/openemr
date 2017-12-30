@@ -119,7 +119,7 @@ function image_widget($doc_id, $doc_catg)
         $image_file = $docobj->get_url_file();
         $image_width = $GLOBALS['generate_doc_thumb'] == 1 ? '' : 'width=100';
         $extension = substr($image_file, strrpos($image_file, "."));
-        $viewable_types = array('.png','.jpg','.jpeg','.png','.bmp','.PNG','.JPG','.JPEG','.PNG','.BMP'); // fancybox replaced, now is embedded iframe
+        $viewable_types = array('.png','.jpg','.jpeg','.png','.bmp','.PNG','.JPG','.JPEG','.PNG','.BMP');
     if (in_array($extension, $viewable_types)) { // extention matches list
         $to_url = "<td> <a href = $web_root" .
         "/controller.php?document&retrieve&patient_id=$pid&document_id=$doc_id&as_file=false&original_file=true&disable_exit=false&show_original=true" .
@@ -236,8 +236,7 @@ function toggleIndicator(target,div) {
     }
 }
 
-// edit prescriptions dialog. @todo pull fancybox dependencies for this replace.
-// replace fancybox dialog sjp 11/25/17
+// edit prescriptions dialog.
 // called from stats.php.
 //
 function editScripts(url) {
