@@ -12,28 +12,7 @@ function tabbify() {
         });
         return false;
     });
-    
-}
 
-function enable_modals() {
-
-    // fancy box
-	$(".iframe").fancybox( {
-		'overlayOpacity' : 0.0,
-		'showCloseButton' : true,
-        'centerOnScroll' : false
-    });
-
-}
-
-function enable_big_modals() {
-  // Requires fancybox 1.3.4 or better.
-  $(".iframe").fancybox({
-    'width'         : '99%',
-    'height'        : '99%',
-    'autoScale'     : false,
-    'type'          : 'iframe'
-  });
 }
 
 //----------------------------------------

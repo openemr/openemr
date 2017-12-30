@@ -228,7 +228,6 @@ $(document).ready(function(){
 
     tabbify();
 
-    // fancybox replacement 12-14-17
     $(".note_modal").on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
