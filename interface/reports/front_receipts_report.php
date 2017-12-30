@@ -64,7 +64,9 @@ function bucks($amt)
  // The OnClick handler for receipt display.
  function show_receipt(pid,timestamp) {
   dlgopen('../patient_file/front_payment.php?receipt=1&patient=' + pid +
-   '&time=' + timestamp, '_blank', 550, 400);
+   '&time=' + timestamp, '_blank', 550, 400, '', '', {
+      onClosed: 'reload'
+  });
  }
 
 </script>
