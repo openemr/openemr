@@ -365,8 +365,7 @@ if ($_POST['form_save']) {
     echo " if (myboss.refreshIssue) myboss.refreshIssue('" . attr($issue) . "','$tmp_title');\n";
     echo " else if (myboss.reloadIssues) myboss.reloadIssues();\n";
     echo " else myboss.location.reload();\n";
-    echo " if (parent.$ && parent.$.fancybox) parent.$.fancybox.close();\n";
-    echo " else dlgclose();\n";
+    echo " dlgclose();\n";
 
     echo "</script></body></html>\n";
     exit();
@@ -560,7 +559,6 @@ if ($ISSUE_TYPES['ippf_gcac'] && !$_POST['form_save']) {
  }
 
  function closeme() {
-    if (parent.$ && parent.$.fancybox) parent.$.fancybox.close();
     dlgclose();
  }
 

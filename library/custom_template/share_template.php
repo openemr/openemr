@@ -64,7 +64,7 @@ $list_id = $_REQUEST['list_id'];
                     alert("fail");
                 }
                 });
-                parent.$.fn.fancybox.close();
+                dlgclose();
                 return;
                 }
                 else{

@@ -39,25 +39,26 @@ require_once("$srcdir/options.inc.php");
 require_once("../interface/patient_file/history/history.inc.php");
 require_once("$srcdir/edi.inc");
 require_once("$srcdir/lists.inc");
-
 ?>
 <html>
 <head>
+
 <title><?php echo xlt('Patient Information'); ?></title>
+
 <?php html_header_show(); ?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="<?php echo $web_root; ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <script type="text/javascript" src="<?php echo $web_root; ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $web_root; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $web_root; ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $web_root; ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
 
 <link rel="stylesheet" href="css/base.css" type="text/css"/>
 <link rel="stylesheet" href="css/tables.css" type="text/css"/>
+
 <script type="text/javascript" language="JavaScript">
 
  function refreshme() {
@@ -76,21 +77,6 @@ require_once("$srcdir/lists.inc");
     }
  }
 
-function refreshAppointments() {
-      $("#appointments_ps_expand").load("get_appointments.php", { 'embeddedScreen' : true }, function() {
-          $(".edit_event").fancybox({
-              'overlayOpacity' : 0.0,
-              'showCloseButton' : true,
-              'centerOnScroll' : false,
-              'autoscale' : true,
-              'hihdeOnContentClick' : false,
-              'callbackOnClose' : function()  {
-                  refreshAppointments();
-              }
-          });
-      });
-}
-
 function show_date_fun(){
   if(document.getElementById('show_date').checked == true){
     document.getElementById('date_div').style.display = '';
@@ -102,106 +88,13 @@ function show_date_fun(){
 
 $(document).ready(function(){
 
-    // load divs
-      $("#labtestresults_ps_expand").load("get_lab_results.php", { 'embeddedScreen' : true }, function() {
-          // (note need to place javascript code here also to get the dynamic link to work)
-          $(".medium_modal").fancybox( {
-                  'overlayOpacity' : 0.0,
-                  'showCloseButton' : true,
-                  'frameHeight' : 500,
-                  'frameWidth' : 800,
-                  'centerOnScroll' : false,
-                  'callbackOnClose' : function()  {
-                  refreshme();
-                  }
-          });
-      });
-      $("#problemlist_ps_expand").load("get_problems.php", { 'embeddedScreen' : true }, function() {
-          // (note need to place javascript code here also to get the dynamic link to work)
-          $(".medium_modal").fancybox( {
-                  'overlayOpacity' : 0.0,
-                  'showCloseButton' : true,
-                  'frameHeight' : 500,
-                  'frameWidth' : 800,
-                  'centerOnScroll' : false,
-                  'callbackOnClose' : function()  {
-                  refreshme();
-                  }
-          });
-      });
-      $("#medicationlist_ps_expand").load("get_medications.php", { 'embeddedScreen' : true  }, function() {
-          // (note need to place javascript code here also to get the dynamic link to work)
-          $(".medium_modal").fancybox( {
-                  'overlayOpacity' : 0.0,
-                  'showCloseButton' : true,
-                  'frameHeight' : 500,
-                  'frameWidth' : 800,
-                  'centerOnScroll' : false,
-                  'callbackOnClose' : function()  {
-                  refreshme();
-                  }
-          });
-      });
-      $("#medicationallergylist_ps_expand").load("get_allergies.php", { 'embeddedScreen' : true }, function() {
-          // (note need to place javascript code here also to get the dynamic link to work)
-          $(".medium_modal").fancybox( {
-                  'overlayOpacity' : 0.0,
-                  'showCloseButton' : true,
-                  'frameHeight' : 500,
-                  'frameWidth' : 800,
-                  'centerOnScroll' : false,
-                  'callbackOnClose' : function()  {
-                  refreshme();
-                  }
-          });
-      });
-      $("#amendments_ps_expand").load("get_amendments.php", { 'embeddedScreen' : true }, function() {
-          // (note need to place javascript code here also to get the dynamic link to work)
-          $(".medium_modal").fancybox( {
-                  'overlayOpacity' : 0.0,
-                  'showCloseButton' : true,
-                  'frameHeight' : 500,
-                  'frameWidth' : 800,
-                  'centerOnScroll' : false,
-                  'callbackOnClose' : function()  {
-                  refreshme();
-                  }
-          });
-      });
-
-
-      refreshAppointments();
-
-    // fancy box
-    enable_modals();
-
-  // modal for dialog boxes
-  $(".large_modal").fancybox( {
-    'overlayOpacity' : 0.0,
-    'showCloseButton' : true,
-    'frameHeight' : 600,
-    'frameWidth' : 1000,
-    'centerOnScroll' : false
-  });
-
-  // modal for image viewer
-  $(".image_modal").fancybox( {
-    'overlayOpacity' : 0.0,
-    'showCloseButton' : true,
-    'centerOnScroll' : false,
-    'autoscale' : true
-  });
-
-  $(".add_event").fancybox( {
-    'overlayOpacity' : 0.0,
-    'showCloseButton' : true,
-    'centerOnScroll' : false,
-    'autoscale' : true,
-    'hideOnContentClick' : false,
-    'onClose' : function() {
-        refreshme();
-    }
-  });
+        // load divs
+        $("#labtestresults_ps_expand").load("get_lab_results.php");
+        $("#problemlist_ps_expand").load("get_problems.php");
+        $("#medicationlist_ps_expand").load("get_medications.php");
+        $("#medicationallergylist_ps_expand").load("get_allergies.php");
+        $("#amendments_ps_expand").load("get_amendments.php");
+        $("#appointments_ps_expand").load("get_appointments.php");
 
         $(".generateCCR").click(
         function() {

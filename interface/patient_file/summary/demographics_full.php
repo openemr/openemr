@@ -86,7 +86,6 @@ var somethingChanged = false;
 
 $(document).ready(function(){
     tabbify();
-    //enable_modals();
 
     $(".medium_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();

@@ -124,29 +124,6 @@ $(document).ready(function(){
         toggle( $(this), "#DEM" );
     });
 
-    // fancy box
-    // @todo I can not see where these are used in this scope
-    // options fancy is handled there. will leave till after testing..
-/*    enable_modals();
-
-    tabbify();
-
-    // special size for
-    $(".large_modal").fancybox( {
-        'overlayOpacity' : 0.0,
-        'showCloseButton' : true,
-        'frameHeight' : 600,
-        'frameWidth' : 1000
-    });
-
-    // special size for
-    $(".medium_modal").fancybox( {
-        'overlayOpacity' : 0.0,
-        'showCloseButton' : true,
-        'frameHeight' : 260,
-        'frameWidth' : 510
-    });*/
-
 });
 
 $(document).ready(function(){

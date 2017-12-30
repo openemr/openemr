@@ -2,10 +2,6 @@
 /*
  * Add or edit an event in the calendar.
  *
- * Can be displayed as a popup window, or as an iframe via
- * fancybox.
- *
- *
  * The event editor looks something like this:
  *
  * //------------------------------------------------------------//
