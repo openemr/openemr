@@ -78,7 +78,7 @@ function submitform() {
       var password = trim(document.new_user.stiltskin.value);
       if(password != "") {
          var pwdresult = passwordvalidate(password);
-         if(pwdresult == 0){
+         if(pwdresult === 0){
             alert("<?php echo xls('The password must be at least eight characters, and should');
             echo '\n';
             echo xls('contain at least three of the four following items:');
@@ -146,9 +146,23 @@ function submitform() {
    }
     <?php } // End erx_enable only include block?>
 
-    document.forms[0].submit();
-    dlgclose();
+    let post_url = $("#new_user").attr("action");
+    let request_method = $("#new_user").attr("method");
+    let form_data = $("#new_user").serialize();
 
+    $.ajax({
+        url: post_url,
+        type: request_method,
+        data: form_data
+    }).done(function (r) {
+        if (r) {
+            alert(r);
+        } else {
+            dlgclose('reload', false);
+        }
+    });
+
+    return false;
 }
 function authorized_clicked() {
      var f = document.forms[0];
@@ -184,8 +198,7 @@ function authorized_clicked() {
 <table border=0>
 
 <tr><td valign=top>
-<form name='new_user' id="new_user" method='post'  target="_parent" action="usergroup_admin.php"
- onsubmit='return top.restoreSession()'>
+<form name='new_user' id="new_user" method='post' action="usergroup_admin.php">
 <input type='hidden' name='mode' value='new_user'>
 <input type='hidden' name='secure_pwd' value="<?php echo attr($GLOBALS['secure_password']); ?>">
 

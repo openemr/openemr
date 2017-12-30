@@ -79,7 +79,7 @@ function submitform() {
     if(document.forms[0].clearPass.value!="")
     {
         //Checking for the strong password if the 'secure password' feature is enabled
-        if(document.forms[0].secure_pwd.value == 1)
+        if(document.forms[0].secure_pwd.value === 1)
         {
                     var pwdresult = passwordvalidate(document.forms[0].clearPass.value);
                     if(pwdresult == 0) {
@@ -164,9 +164,24 @@ function submitform() {
       return false;
     }
     <?php } ?>
-    if(flag == 0){
-                    document.forms[0].submit();
-                    dlgclose();
+
+    if (flag === 0) {
+        let post_url = $("#user_form").attr("action");
+        let request_method = $("#user_form").attr("method");
+        let form_data = $("#user_form").serialize();
+        // submit form
+        $.ajax({
+            url: post_url,
+            type: request_method,
+            data: form_data
+        }).done(function (r) {
+            if (r) {
+                alert(r);
+            } else {
+                dlgclose('reload', false);
+            }
+        });
+        return false;
     }
 }
 //Getting the list of selected item in ACL
@@ -213,7 +228,7 @@ function authorized_clicked() {
 </td></tr>
 </table>
 <br>
-<FORM NAME="user_form" id="user_form" METHOD="POST" ACTION="usergroup_admin.php" target="_parent" onsubmit='return top.restoreSession()'>
+<FORM NAME="user_form" id="user_form" METHOD="POST" ACTION="usergroup_admin.php">
 
 <input type=hidden name="pwd_expires" value="<?php echo attr($GLOBALS['password_expiration_days']); ?>" >
 <input type=hidden name="pre_active" value="<?php echo attr($iter["active"]); ?>" >
