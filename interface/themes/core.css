@@ -117,8 +117,8 @@ div.closeDlgIframe {
     position: absolute;
     top: -12px;
     right: -12px;
-    height: 30px;
-    width: 30px;
+    height: 25px;
+    width: 25px;
     cursor: pointer;
     z-index: 10010;
 }
@@ -132,8 +132,8 @@ div.closeDlgIframe:before {
     width: 100%;
     text-align: center;
     margin: auto;
-    line-height: 30px;
-    height: 30px;
+    line-height: 25px;
+    height: 25px;
 }
 
 .ui-draggable:hover {
