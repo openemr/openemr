@@ -429,17 +429,28 @@ $facilityService = new FacilityService();
 
         function closeHow(e) {
             if (top.tab_mode) {
-                top.activateTabByName('pat',true);
-                top.tabCloseByName('enc');
+                top.activateTabByName('pat', true);
+                top.tabCloseByName(window.name);
             } else {
+                if (opener) {
+                    if (opener.name === "left_nav") {
+                        dlgclose();
+                        return;
+                    }
+                }
                 window.history.back();
             }
         }
 
         // This is action to take before printing and is called from restoreSession.php.
         function printlog_before_print() {
-            var divstyle = document.getElementById('hideonprint').style;
+            let divstyle = document.getElementById('hideonprint').style;
             divstyle.display = 'none';
+            // currently exit is not hidden by default in case receipt print is not needed
+            // and left here for future option to force users to print via global etc..
+            // can still print later via reports.
+            divstyle = document.getElementById('showonprint').style;
+            divstyle.display = '';
         }
 
         // Process click on Delete button.
@@ -451,7 +462,7 @@ $facilityService = new FacilityService();
         // Called by the deleteme.php window on a successful delete.
         function imdeleted() {
             if (opener) {
-                dlgclose(); // we're in reports and callback reloads.
+                dlgclose(); // we're in reports/leftnav and callback reloads.
             } else {
                 window.history.back(); // this is us full screen.
             }
@@ -543,6 +554,9 @@ $facilityService = new FacilityService();
                 <input type='button' value='<?php echo xla('Delete'); ?>' style='color:red' onclick='deleteme()'/>
             <?php } ?>
     </div>
+    <div id='showonprint'>
+        <input type='button' value='<?php echo xla('Exit'); ?>' id='donebutton' onclick="closeHow(event)"/>
+    </div>
 </center>
 </body>
 
@@ -608,9 +622,15 @@ $facilityService = new FacilityService();
 
         function closeHow(e) {
             if (top.tab_mode) {
-                top.activateTabByName('pat',true);
-                top.tabCloseByName('enc');
+                top.activateTabByName('pat', true);
+                top.tabCloseByName(window.name);
             } else {
+                if (opener) {
+                    if (opener.name === "left_nav") {
+                        dlgclose();
+                        return;
+                    }
+                }
                 window.history.back();
             }
         }
