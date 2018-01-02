@@ -381,7 +381,7 @@ while ($crow = sqlFetchArray($cres)) {
           <td>
             <input type='text' name='form_from_date' id="form_from_date"
             class='datepicker form-control'
-            size='10' value='<?php echo oeFormatShortDate($from_date); ?>'>
+            size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
           </td>
           <td class='control-label'>
             <?php xl('To', 'e'); ?>:
@@ -389,7 +389,7 @@ while ($crow = sqlFetchArray($cres)) {
           <td>
             <input type='text' name='form_to_date' id="form_to_date"
             class='datepicker form-control'
-            size='10' value='<?php echo oeFormatShortDate($to_date); ?>'>
+            size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>'>
           </td>
         </tr>
       </table>
