@@ -475,10 +475,14 @@ $facilityService = new FacilityService();
             // Hard-coding of RBot for this purpose is awkward, but since this is a
             // pop-up and our openemr is left_nav, we have no good clue as to whether
             // the top frame is more appropriate.
-            topframe.left_nav.forceDual();
-            topframe.left_nav.setEncounter(datestr, enc, '');
-            topframe.left_nav.loadFrame('enc2', 'RBot', 'patient_file/encounter/encounter_top.php?set_encounter=' + enc);
-            window.close();
+            if(!top.tab_mode) {
+                topframe.left_nav.forceDual();
+                topframe.left_nav.setEncounter(datestr, enc, '');
+                topframe.left_nav.loadFrame('enc2', 'RBot', 'patient_file/encounter/encounter_top.php?set_encounter=' + enc);
+            } else {
+                top.goToEncounter(enc);
+            }
+            if (opener) dlgclose();
         }
 
     </script>
@@ -546,7 +550,7 @@ $facilityService = new FacilityService();
             if ($todaysenc && $todaysenc != $encounter) {
                 echo "&nbsp;<input type='button' " .
                     "value='" . xla('Open Today`s Visit') . "' " .
-                    "onclick='toencounter($todaysenc,\"$today\",opener.top)' />\n";
+                    "onclick='toencounter($todaysenc, \"$today\", (opener ? opener.top : top))' />\n";
             }
             ?>
 
@@ -691,6 +695,19 @@ $facilityService = new FacilityService();
             ok = -1;
             top.restoreSession();
             issue = 'no';
+            // prevent an empty form submission
+            let flgempty = true;
+            for (let i = 0; i < f.elements.length; ++i) {
+                let ename = f.elements[i].name;
+                if (ename.indexOf('form_upay[') === 0 || ename.indexOf('form_bpay[') === 0) {
+                    if (Number(f.elements[i].value) !== 0) flgempty = false;
+                }
+            }
+            if (flgempty) {
+                alert("<?php echo xlt('A Payment is Required!. Please input a payment line item entry.') ?>");
+                return false;
+            }
+            // continue validation.
             if (((document.getElementById('form_method').options[document.getElementById('form_method').selectedIndex].value == 'check_payment' ||
                     document.getElementById('form_method').options[document.getElementById('form_method').selectedIndex].value == 'bank_draft') &&
                     document.getElementById('check_number').value == '')) {
@@ -715,7 +732,7 @@ $facilityService = new FacilityService();
                     if (ename.indexOf('form_upay[0') == 0) //Today is this text box.
                     {
                         if (elem.value * 1 > 0) {//A warning message, if the amount is posted with out encounter.
-                            if (confirm("<?php echo addslashes(xlt('If patient has appointment click OK to create encounter otherwise, cancel and create encounter.')) ?>")) {
+                            if (confirm("<?php echo addslashes(xlt('If patient has appointment click OK to create encounter otherwise, cancel this and then create an encounter for today visit.')) ?>")) {
                                 ok = 1;
                             }
                             else {
