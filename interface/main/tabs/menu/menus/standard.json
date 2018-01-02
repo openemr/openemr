@@ -797,10 +797,31 @@
       },
       {
         "label": "Lists",
-        "menu_id": "adm0",
-        "target": "adm",
-        "url": "/interface/super/edit_list.php",
-        "children": [],
+        "icon": "fa-caret-right",
+        "children": [
+          {"label":"LBF / LBT Lists",
+            "menu_id": "adm0",
+            "target": "adm",
+            "url": "/interface/super/edit_list.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "admin",
+              "super"
+            ]
+          },
+          {"label":"Morphine Eq Drug List",
+            "menu_id": "adm0",
+            "target": "adm0",
+            "url": "/interface/patient_file/morphine_list.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "admin",
+              "super"
+            ]
+          }
+        ],
         "requirement": 0,
         "acl_req": [
           "admin",
@@ -1127,14 +1148,6 @@
         "label": "Clients",
         "icon": "fa-caret-right",
         "children": [
-          {"label":"Morphine Eq",
-		   "menu_id": "rep0",
-		   "target": "rep",
-		    "url": "/interface/reports/morphineReport.php",
-			"children": [],
-			"requirement": 0,
-			"global_req": "morphine_eq"
-		  },	
           {
             "label": "List",
             "menu_id": "rep0",
@@ -1455,6 +1468,17 @@
               "patients",
               "med"
             ]
+          },
+          {"label":"Morphine Eq",
+            "menu_id": "adm0",
+            "target": "adm0",
+            "url": "/interface/reports/morphineReport.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "admin",
+              "super"
+            ]
           }
         ],
         "requirement": 0
@@ -1565,18 +1589,6 @@
               "drugs"
             ]
           },
-          {
-		   "label":"Morphine List",
-		   "url":"/interface/patient_file/morphine_list.php",
-		   "target":"rep",
-		   "children":[],
-		   "requirement":0,
-            "acl_req": [
-              "acct",
-              "rep_a"
-            ],
-            "global_req": "morphine_eq"			
-		   },
           {
             "label": "Activity",
             "url": "/interface/reports/inventory_activity.php",

@@ -49,7 +49,7 @@
                         
     function getMeds(){
         
-           $sql = "SELECT `drug`,`quantity`,`size`,`refill_MTD` FROM `prescriptions` ".
+           $sql = "SELECT `drug`,`quantity`,`size`, `date_added` FROM `prescriptions` ".
                  " WHERE `patient_id`= " .$GLOBALS['pid'] ." AND active = 1";
          
             $drugs = sqlStatement($sql);

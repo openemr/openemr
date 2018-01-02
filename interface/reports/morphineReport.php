@@ -38,8 +38,12 @@ $buttonLabel = xlt('View Patients');
     <h1><?php echo xlt('Morphine Report') ?></h1>
     <h3><?php echo xlt('Report Period: Last 90 days') ?></h3>
     <div>
-        <p><strong><?php echo xlt('Total # of active patient today is') ?> <?php echo $reportDataTotalPatients;  ?></strong></p>
+        <p><strong><?php echo xlt('Total # of active patients today is') ?> <?php echo $reportDataTotalPatients;  ?></strong></p>
     </div>
+<?php
+      if ($reportDataTotalPatients > 0){
+?>
+
     <div class="row">
         <div class="col-sm-2">
             <p>Group Over 361</p>
@@ -57,6 +61,7 @@ $buttonLabel = xlt('View Patients');
                     $a++;
                 }
                 echo "</div>"; //closing div for the collapse
+
                 echo "<br><br>". $blurb1 . $a . "<br>";
                 $percentOver361 = ($a/$reportDataTotalPatients)*100;
                 echo $blurb2 . round($percentOver361, 2) ."%";
@@ -149,7 +154,11 @@ $buttonLabel = xlt('View Patients');
     </div>
 
 </div>
-
+            <?php
+               } else {
+                echo xl('Nothing to report at this time');
+               }
+            ?>
 
 </body>
 </html>

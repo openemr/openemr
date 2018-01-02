@@ -357,6 +357,10 @@ $(document).ready(function(){
 
     // Initialize labdata
     $("#labdata_ps_expand").load("labdata_fragment.php");
+
+    // Initialize Med Equivalent
+    $("#moreq_ps_expand").load("morphine_fragment.php");
+
 <?php
 // Initialize for each applicable LBF form.
 $gfres = sqlStatement("SELECT grp_form_id FROM layout_group_properties WHERE " .
@@ -1265,18 +1269,24 @@ expand_collapse_widget(
         <?php // morphine expand collapse widget  Sherwin
         $widgetTitle = xl("Morphine Equivalents");
         $widgetLabel = "moreq";
-        $widgetButtonLabel = xl("No Edit");
-        $widgetButtonLink = "";
+        $widgetButtonLabel = xl("Data");
+        $widgetButtonLink = "../summary/morphine_fragment.php";#hope this works
         $widgetButtonClass = "";
         $linkMethod = "html";
         $bodyClass = "notab";
 
         $fixedWidth = true;
-        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-            $widgetButtonLink, $widgetButtonClass, $linkMethod,$bodyClass,
-            $widgetAuth, $fixedWidth);
+        expand_collapse_widget(
+                $widgetTitle,
+                $widgetLabel,
+                $widgetButtonLabel,
+                $widgetButtonLink,
+                $widgetButtonClass,
+                $linkMethod,
+                $bodyClass,
+                $widgetAuth,
+                $fixedWidth);
         ?>
-
         <br/>
         <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
         </div>

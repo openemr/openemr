@@ -2006,35 +2006,42 @@ function getZung($pid){
 }
 
 function morphineReport($group){
-
+    $interval = 90;
     switch ($group) {
+
         case 'a':
-            $sql = "SELECT * FROM morphine_eq WHERE last >= 361 AND datetime >= (NOW() - INTERVAL 90 DAY) GROUP BY pid";
-            $res = sqlStatement($sql);
+            $sql = "SELECT * FROM morphine_eq WHERE last >= ? AND datetime >= (NOW() - INTERVAL ? DAY) GROUP BY pid";
+            $int = array(361,$interval);
+            $res = sqlStatement($sql,$int);
             return $res;
             break;
         case 'b':
-            $sql = "SELECT * FROM `morphine_eq` WHERE `last` >= 241 AND `last` <= 360 AND datetime >= (NOW() - INTERVAL 90 DAY) GROUP BY pid";
-            $res = sqlStatement($sql);
+            $sql = "SELECT * FROM `morphine_eq` WHERE `last` >= ? AND `last` <= ? AND datetime >= (NOW() - INTERVAL ? DAY) GROUP BY pid";
+            $int = array(241,360,$interval);
+            $res = sqlStatement($sql,$int);
             return $res;
             break;
         case 'c':
-            $sql = "SELECT * FROM `morphine_eq` WHERE `last` >= 181 AND `last` <= 240 AND datetime >= (NOW() - INTERVAL 90 DAY) GROUP BY pid";
-            $res = sqlStatement($sql);
+            $sql = "SELECT * FROM `morphine_eq` WHERE `last` >= ? AND `last` <= ? AND datetime >= (NOW() - INTERVAL ? DAY) GROUP BY pid";
+            $int = array(181,240,$interval);
+            $res = sqlStatement($sql,$int);
             return $res;
             break;
         case 'd':
-            $sql = "SELECT * FROM `morphine_eq` WHERE `last` >= 121 AND `last` <= 180 AND datetime >= (NOW() - INTERVAL 90 DAY) GROUP BY pid";
-            $res = sqlStatement($sql);
+            $sql = "SELECT * FROM `morphine_eq` WHERE `last` >= ? AND `last` <= ? AND datetime >= (NOW() - INTERVAL ? DAY) GROUP BY pid";
+            $int = array(121,180,$interval);
+            $res = sqlStatement($sql,$int);
             return $res;
             break;
         case 'e':
-            $sql = "SELECT * FROM `morphine_eq` WHERE `last` >= 1 AND `last` <= 120 AND datetime >= (NOW() - INTERVAL 90 DAY) GROUP BY pid";
-            $res = sqlStatement($sql);
+            $sql = "SELECT * FROM `morphine_eq` WHERE `last` >= ? AND `last` <= ? AND datetime >= (NOW() - INTERVAL ? DAY) GROUP BY pid";
+            $int = array(1,120,$interval);
+            $res = sqlStatement($sql,$int);
             return $res;
         case 't':
-            $sql = "SELECT a.id, a.pid FROM `patient_data` AS a RIGHT JOIN form_encounter AS e ON a.pid = e.pid WHERE a.genericname2 = '1' GROUP BY e.pid ";
-            $res = sqlStatement($sql);
+            $sql = "SELECT a.id, a.pid FROM `patient_data` AS a RIGHT JOIN form_encounter AS e ON a.pid = e.pid WHERE a.genericname2 = ? GROUP BY e.pid ";
+            $int = array(1);
+            $res = sqlStatement($sql,$int);
             $rows = 0;
             while ($row = sqlFetchArray($res)){
                 ++$rows;

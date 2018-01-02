@@ -889,6 +889,13 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',                              // default
             xl('Observation Results in Immunization')
+        ),
+
+        'morphine_eq' => array(
+            xl('Morphine Equivalence Graph'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Morphine Equivalence Graph')
         )
 
     ),
