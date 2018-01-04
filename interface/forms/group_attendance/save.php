@@ -66,7 +66,7 @@ elseif ($_GET['mode'] == 'update') {
     sqlInsert($sql_for_form_tga, $sqlBindArray);
 
     //Delete from therapy_groups_participant_attendance table
-    $sql_delete_from_table_tgpa = "DELETE FROM form_group_attendance WHERE form_id = ?;";
+    $sql_delete_from_table_tgpa = "DELETE FROM therapy_groups_participant_attendance WHERE form_id = ?;";
     sqlStatement($sql_delete_from_table_tgpa, array($id));
 
     //Database insertions for participants
