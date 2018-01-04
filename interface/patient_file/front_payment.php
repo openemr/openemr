@@ -704,7 +704,7 @@ $facilityService = new FacilityService();
                 }
             }
             if (flgempty) {
-                alert("<?php echo xlt('A Payment is Required!. Please input a payment line item entry.') ?>");
+                alert("<?php echo xls('A Payment is Required!. Please input a payment line item entry.') ?>");
                 return false;
             }
             // continue validation.

@@ -23,7 +23,7 @@
  * @author  Terry Hill <terry@lillysystems.com>
  * @link    http://www.open-emr.org
  */
- 
+
   require_once("../globals.php");
   require_once("$srcdir/log.inc");
   require_once("$srcdir/patient.inc");
@@ -34,7 +34,7 @@
 
   $debug = 0; // set to 1 for debugging mode
 
- 
+
   // If we permit deletion of transactions.  Might change this later.
   $ALLOW_DELETE = true;
 
@@ -108,51 +108,57 @@ function writeoff(code) {
 
 // Onsubmit handler.  A good excuse to write some JavaScript.
 function validate(f) {
- var delcount = 0;
- for (var i = 0; i < f.elements.length; ++i) {
-  var ename = f.elements[i].name;
-  // Count deletes.
-  if (ename.substring(0, 9) == 'form_del[') {
-   if (f.elements[i].checked) ++delcount;
-   continue;
-  }
-  var pfxlen = ename.indexOf('[pay]');
-  if (pfxlen < 0) continue;
-  var pfx = ename.substring(0, pfxlen);
-  var code = pfx.substring(pfx.indexOf('[')+1, pfxlen-1);
-  if (f[pfx+'[pay]'].value || f[pfx+'[adj]'].value) {
-   if (! f[pfx+'[date]'].value) {
-    alert('<?php xl('Date is missing for code ', 'e')?>' + code);
-    return false;
-   }
-  }
-  if (f[pfx+'[pay]'].value && isNaN(parseFloat(f[pfx+'[pay]'].value))) {
-   alert('<?php xl('Payment value for code ', 'e') ?>' + code + '<?php xl(' is not a number', 'e') ?>');
-   return false;
-  }
-  if (f[pfx+'[adj]'].value && isNaN(parseFloat(f[pfx+'[adj]'].value))) {
-   alert('<?php xl('Adjustment value for code ', 'e') ?>' + code + '<?php xl(' is not a number', 'e') ?>');
-   return false;
-  }
-  if (f[pfx+'[adj]'].value && ! f[pfx+'[reason]'].value) {
-   alert('<?php xl('Please select an adjustment reason for code ', 'e') ?>' + code);
-   return false;
-  }
-  // TBD: validate the date format
- }
- // Demand confirmation if deleting anything.
- if (delcount > 0) {
-  if (!confirm('<?php echo xl('Really delete'); ?> ' + delcount +
-   ' <?php echo xl('transactions'); ?>?' +
-   ' <?php echo xl('This action will be logged'); ?>!')
-  ) return false;
- }
- return true;
+    var delcount = 0; var allempty = true;
+    for (var i = 0; i < f.elements.length; ++i) {
+        var ename = f.elements[i].name;
+        // Count deletes.
+        if (ename.substring(0, 9) == 'form_del[') {
+            if (f.elements[i].checked) ++delcount;
+            continue;
+        }
+        var pfxlen = ename.indexOf('[pay]');
+        if (pfxlen < 0) continue;
+        var pfx = ename.substring(0, pfxlen);
+        var code = pfx.substring(pfx.indexOf('[') + 1, pfxlen - 1);
+        if (f[pfx + '[pay]'].value || f[pfx + '[adj]'].value) {
+            allempty = false;
+            if (!f[pfx + '[date]'].value) {
+                alert('<?php xl('Date is missing for code ', 'e')?>' + code);
+                return false;
+            }
+        }
+        if (f[pfx + '[pay]'].value && isNaN(parseFloat(f[pfx + '[pay]'].value))) {
+            alert('<?php xl('Payment value for code ', 'e') ?>' + code + '<?php xl(' is not a number', 'e') ?>');
+            return false;
+        }
+        if (f[pfx + '[adj]'].value && isNaN(parseFloat(f[pfx + '[adj]'].value))) {
+            alert('<?php xl('Adjustment value for code ', 'e') ?>' + code + '<?php xl(' is not a number', 'e') ?>');
+            return false;
+        }
+        if (f[pfx + '[adj]'].value && !f[pfx + '[reason]'].value) {
+            alert('<?php xl('Please select an adjustment reason for code ', 'e') ?>' + code);
+            return false;
+        }
+        // TBD: validate the date format
+    }
+    // Check if save is clicked with nothing to post.
+    if (allempty && delcount === 0) {
+        alert('<?php xl('Nothing to Post! Please review entries or use Cancel to exit transaction', 'e')?>');
+        return false;
+    }
+    // Demand confirmation if deleting anything.
+    if (delcount > 0) {
+        if (!confirm('<?php echo xl('Really delete'); ?> ' + delcount +
+                ' <?php echo xl('transactions'); ?>?' +
+                ' <?php echo xl('This action will be logged'); ?>!')
+        ) return false;
+    }
+    return true;
 }
 
 <!-- Get current date -->
 
-function getFormattedToday() 
+function getFormattedToday()
 {
    var today = new Date();
    var dd = today.getDate();
@@ -172,7 +178,7 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
    var adjAmount = 0.0;
    var balAmount = 0.0;
    var coPayAmount = 0.0;
-   
+
    // coPayFiled will be null if there is no co-pay entry in the fee sheet
    if (coPayField)
       coPayAmount = coPayField.value;
@@ -190,7 +196,7 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
       balAmount = parseFloat(balAmount) + parseFloat(coPayAmount);
 
    adjAmount = balAmount - payAmount;
-   
+
    // Assign rounded adjustment value back to TextField
    adjField.value = adjAmount = Math.round(adjAmount*100)/100;
 }
@@ -708,8 +714,8 @@ foreach ($codes as $code => $cdata) {
 </td>
 <td class="detail">
 <input type="text" name="form_line[<?php echo $code ?>][pay]" size="10"
-style="background-color:<?php echo $bgcolor ?>" 
-onKeyUp="updateFields(document.forms[0]['form_line[<?php echo $code ?>][pay]'], 
+style="background-color:<?php echo $bgcolor ?>"
+onKeyUp="updateFields(document.forms[0]['form_line[<?php echo $code ?>][pay]'],
                       document.forms[0]['form_line[<?php echo $code ?>][adj]'],
                       document.forms[0]['form_line[<?php echo $code ?>][bal]'],
                         document.forms[0]['form_line[CO-PAY][bal]'],
@@ -717,7 +723,7 @@ onKeyUp="updateFields(document.forms[0]['form_line[<?php echo $code ?>][pay]'],
 </td>
 <td class="detail">
 <input type="text" name="form_line[<?php echo $code ?>][adj]" size="10"
-value='<?php echo $totalAdjAmount ?>' 
+value='<?php echo $totalAdjAmount ?>'
 style="background-color:<?php echo $bgcolor ?>" />
 &nbsp; <a href="" onclick="return writeoff('<?php echo $code ?>')">W</a>
 </td>

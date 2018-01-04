@@ -405,16 +405,21 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 function showpnotes(orderid) {
  // Find the top or bottom frame that contains or opened this page; return if none.
  var w = window.opener ? window.opener : window;
- for (; w.name != 'RTop' && w.name != 'RBot'; w = w.parent) {
-  if (w.parent == w) {
-   // This message is not translated because a developer will need to find it.
-   alert('Internal error locating target frame in ' + (window.opener ? 'opener' : 'window'));
-   return false;
-  }
+ if (!top.tab_mode) {
+     for (; w.name != 'RTop' && w.name != 'RBot'; w = w.parent) {
+         if (w.parent == w) {
+             // This message is not translated because a developer will need to find it.
+             alert('Internal error locating target frame in ' + (window.opener ? 'opener' : 'window'));
+             return false;
+         }
+     }
+     var othername = (w.name == 'RTop') ? 'RBot' : 'RTop';
+     w.parent.left_nav.forceDual();
+     w.parent.left_nav.loadFrame('pno1', othername, 'patient_file/summary/pnotes_full.php?orderid=' + orderid);
+ } else {
+     let url = '../../patient_file/summary/pnotes_full.php?orderid=' + orderid;
+     dlgopen(url, 'notes', 750, 500, '', '', {onClosed: 'reload'});
  }
- var othername = (w.name == 'RTop') ? 'RBot' : 'RTop';
- w.parent.left_nav.forceDual();
- w.parent.left_nav.loadFrame('pno1', othername, 'patient_file/summary/pnotes_full.php?orderid=' + orderid);
  return false;
 }
 
