@@ -135,10 +135,10 @@ class C_Prescription extends Controller
             $this->assign("prescriptions", Prescription::prescriptions_factory($id));
         }
 
-                // flag to indicate the CAMOS form is regsitered and active
-                $this->assign("CAMOS_FORM", isRegistered("CAMOS"));
+        // flag to indicate the CAMOS form is regsitered and active
+        $this->assign("CAMOS_FORM", isRegistered("CAMOS"));
 
-                $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_list.html");
+        $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_list.html");
     }
 
     function block_action($id, $sort = "")
@@ -189,8 +189,8 @@ class C_Prescription extends Controller
 
         //print_r($_POST);
 
-    // Stupid Smarty code treats empty values as not specified values.
-    // Since active is a checkbox, represent the unchecked state as -1.
+        // Stupid Smarty code treats empty values as not specified values.
+        // Since active is a checkbox, represent the unchecked state as -1.
         if (empty($_POST['active'])) {
             $_POST['active'] = '-1';
         }
@@ -213,32 +213,32 @@ class C_Prescription extends Controller
             return $this->edit_action($this->prescriptions[0]->id);
         }
 
-    // Set the AMC reporting flag (to record percentage of prescriptions that
-    // are set as e-prescriptions)
+        // Set the AMC reporting flag (to record percentage of prescriptions that
+        // are set as e-prescriptions)
         if (!(empty($_POST['escribe_flag']))) {
-              // add the e-prescribe flag
-              processAmcCall('e_prescribe_amc', true, 'add', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
+            // add the e-prescribe flag
+            processAmcCall('e_prescribe_amc', true, 'add', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
         } else {
-              // remove the e-prescribe flag
-              processAmcCall('e_prescribe_amc', true, 'remove', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
+            // remove the e-prescribe flag
+            processAmcCall('e_prescribe_amc', true, 'remove', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
         }
 
-    // Set the AMC reporting flag (to record prescriptions that checked drug formulary)
+        // Set the AMC reporting flag (to record prescriptions that checked drug formulary)
         if (!(empty($_POST['checked_formulary_flag']))) {
-              // add the e-prescribe flag
-              processAmcCall('e_prescribe_chk_formulary_amc', true, 'add', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
+            // add the e-prescribe flag
+            processAmcCall('e_prescribe_chk_formulary_amc', true, 'add', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
         } else {
-              // remove the e-prescribe flag
-              processAmcCall('e_prescribe_chk_formulary_amc', true, 'remove', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
+            // remove the e-prescribe flag
+            processAmcCall('e_prescribe_chk_formulary_amc', true, 'remove', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
         }
 
-    // Set the AMC reporting flag (to record prescriptions that are controlled substances)
+        // Set the AMC reporting flag (to record prescriptions that are controlled substances)
         if (!(empty($_POST['controlled_substance_flag']))) {
-              // add the e-prescribe flag
-              processAmcCall('e_prescribe_cont_subst_amc', true, 'add', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
+            // add the e-prescribe flag
+            processAmcCall('e_prescribe_cont_subst_amc', true, 'add', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
         } else {
-              // remove the e-prescribe flag
-              processAmcCall('e_prescribe_cont_subst_amc', true, 'remove', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
+            // remove the e-prescribe flag
+            processAmcCall('e_prescribe_cont_subst_amc', true, 'remove', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
         }
 
 // TajEmo Work by CB 2012/05/29 02:58:29 PM to stop from going to send screen. Improves Work Flow
@@ -291,12 +291,12 @@ class C_Prescription extends Controller
         $my_y = $pdf->y;
         $pdf->ezNewPage();
         $pdf->ezText('<b>' . $p->provider->get_name_display() . '</b>', 12);
-    // A client had a bad experience with a patient misusing a DEA number, so
-    // now the doctors write those in on printed prescriptions and only when
-    // necessary.  If you need to change this back, then please make it a
-    // configurable option.  Faxed prescriptions were not changed.  -- Rod
-    // Now it is configureable. Change value in
-    //     Administration->Globals->Rx
+        // A client had a bad experience with a patient misusing a DEA number, so
+        // now the doctors write those in on printed prescriptions and only when
+        // necessary.  If you need to change this back, then please make it a
+        // configurable option.  Faxed prescriptions were not changed.  -- Rod
+        // Now it is configureable. Change value in
+        //     Administration->Globals->Rx
         if ($GLOBALS['rx_enable_DEA']) {
             if ($this->is_faxing || $GLOBALS['rx_show_DEA']) {
                 $pdf->ezText('<b>' . xl('DEA') . ':</b>' . $p->provider->federal_drug_id, 12);
@@ -307,7 +307,7 @@ class C_Prescription extends Controller
 
         if ($GLOBALS['rx_enable_NPI']) {
             if ($this->is_faxing || $GLOBALS['rx_show_NPI']) {
-                    $pdf->ezText('<b>' . xl('NPI') . ':</b>' . $p->provider->npi, 12);
+                $pdf->ezText('<b>' . xl('NPI') . ':</b>' . $p->provider->npi, 12);
             } else {
                 $pdf->ezText('<b>' . xl('NPI') . ':</b> _________________________', 12);
             }
@@ -495,8 +495,27 @@ class C_Prescription extends Controller
         return $this->multiprint_footer($pdf);
     }
 
-    function multiprint_footer(& $pdf)
+    function multiprint_footer(& $pdf,$p)
     {
+        $dc = $p->get_refill_MTD();
+
+        if ($p->get_encounter())
+        {
+            $enc = $p->get_encounter();
+            $sql = "SELECT code FROM billing WHERE code_type = ? AND encounter = ?";
+            $arr = array('ICD10',$enc);
+            $list = sqlStatement($sql,$arr);
+            $diagnosis = array();
+            while ($row = sqlFetchArray($list)){
+                $diagnosis[] = $row;
+            }
+            $pdf->ezText( xl("Encounter#: " . $p->get_encounter()) . "\n");
+            $pdf->ezText( xl("Diagnosis: "));
+            foreach ($diagnosis as $key => $code) {
+                $pdf->ezText( xl($code['code']));
+            }
+        }
+
         if ($this->pconfig['use_signature'] && ( $this->is_faxing || $this->is_print_to_fax )) {
             $sigfile = str_replace('{userid}', $_SESSION{"authUser"}, $this->pconfig['signature']);
             if (file_exists($sigfile)) {
@@ -521,15 +540,43 @@ class C_Prescription extends Controller
             }
         }
 
-        $pdf->ezText("\n\n\n\n" . xl('Signature') . ":________________________________\n" . xl('Date') . ": " . date('Y-m-d'), 12);
+        $pdf->ezText("\n\n\n" . xl('Signature') . ":________________________________\n" . xl('Date') . ": " . date('Y-m-d'), 12);
+        $pdf->ezText("\n\n\n" . xl('Medical Director: Phillip J. Haggerty MD APMC INC.'));
+        $pdf->ezText($dc);
+        /*if (!empty($dc)) { //sherwin
+            $pdf->ezText("\n\n\n" . xl('The intended fill date of this medication is day ' . $dc . ' of each month. If this day falls on a day your pharmacy is closed, this may be filled on the last open day prior in order to provide the medication on day ' . $dc . '. Please note that this will not move this fill date in future months.'));
+        }*/
     }
 
-    function multiprintcss_footer()
+
+    function multiprintcss_footer($p)
     {
+        $dc = $p->get_refill_MTD();
+        if ($p->get_encounter())
+        {
+            $enc = $p->get_encounter();
+            $sql = "SELECT code FROM billing WHERE code_type = 'ICD10' AND encounter = ?";
+            $list = sqlStatement($sql,$enc);
+            $diagnosis = array();
+            while ($row = sqlFetchArray($list)){
+                $diagnosis[] = $row;
+            }
+            echo "Encounter: " . $p->get_encounter() . "<br>";
+            echo "Diagnosis: " ;
+            foreach ($diagnosis as $key => $code) {
+                echo $code['code'] . ", ";
+            }
+        }
+
+
         echo ("<div class='signdiv'>\n");
         echo (xl('Signature') . ":________________________________<br>");
         echo (xl('Date') . ": " . date('Y-m-d'));
+        echo ("<br><br>" . xl('Medical Director: Phillip J. Haggerty MD APMC INC.'));
         echo ("</div>\n");
+        if(!empty($dc)){
+            echo (xl('<br><br>The intended fill date of this medication is day ' .$dc. ' of each month. If this day falls on a day your pharmacy is closed, this may be filled on the last open day prior in order to provide the medication on day ' .$dc. '. Please note that this will not move this fill date in future months.'));
+        }
         echo ("</div>\n");
     }
 
@@ -586,7 +633,7 @@ class C_Prescription extends Controller
         if ($pdf->ezText($d, 10, array(), 1)) {
             $pdf->ez['leftMargin'] -= $pdf->ez['leftMargin'];
             $pdf->ez['rightMargin'] -= $pdf->ez['rightMargin'];
-            $this->multiprint_footer($pdf);
+            $this->multiprint_footer($pdf, $p);
             $pdf->ezNewPage();
             $this->multiprint_header($pdf, $p);
             $pdf->ez['leftMargin'] += $pdf->ez['leftMargin'];
@@ -648,9 +695,9 @@ class C_Prescription extends Controller
             if ($on_this_page == 0) {
                 $this->multiprint_header($pdf, $p);
             }
-
-            if (++$on_this_page > 3 || $p->provider->id != $this->providerid) {
-                $this->multiprint_footer($pdf);
+            //modify for one perpage sherwin
+            if (++$on_this_page > 1 || $p->provider->id != $this->providerid) {
+                $this->multiprint_footer($pdf,$p);
                 $pdf->ezNewPage();
                 $this->multiprint_header($pdf, $p);
                 // $print_header = false;
@@ -660,11 +707,11 @@ class C_Prescription extends Controller
             $this->multiprint_body($pdf, $p);
         }
 
-        $this->multiprint_footer($pdf);
+        $this->multiprint_footer($pdf,$p);
 
-            $pFirstName = $p->patient->fname; //modified by epsdky for prescription title change to include patient name and ID
-            $pFName = convert_safe_file_dir_name($pFirstName);
-            $modedFileName = "Rx_{$pFName}_{$p->patient->id}.pdf";
+        $pFirstName = $p->patient->fname; //modified by epsdky for prescription title change to include patient name and ID
+        $pFName = convert_safe_file_dir_name($pFirstName);
+        $modedFileName = "Rx_{$pFName}_{$p->patient->id}.pdf";
 
         $pdf->ezStream(array('Content-Disposition' => $modedFileName));
         return;
@@ -688,9 +735,9 @@ class C_Prescription extends Controller
             if ($on_this_page == 0) {
                 $this->multiprintcss_header($p);
             }
-
-            if (++$on_this_page > 3 || $p->provider->id != $this->providerid) {
-                $this->multiprintcss_footer();
+            //modify for one perpage sherwin
+            if (++$on_this_page > 1 || $p->provider->id != $this->providerid) {
+                $this->multiprintcss_footer($p);
                 $this->multiprintcss_header($p);
                 $on_this_page = 1;
             }
@@ -698,7 +745,7 @@ class C_Prescription extends Controller
             $this->multiprintcss_body($p);
         }
 
-        $this->multiprintcss_footer();
+        $this->multiprintcss_footer($p);
         $this->multiprintcss_postfooter();
         return;
     }
@@ -724,9 +771,9 @@ class C_Prescription extends Controller
                 return $this->_print_prescription($p, $dummy);
                 break;
             case (xl("Print")." (".xl("HTML").")"):
-                                $this->_state = false;
+                $this->_state = false;
                 return $this->_print_prescription_css($p, $dummy);
-                        break;
+                break;
             case xl("Print To Fax"):
                 $this->_state = false;
                 $this->is_print_to_fax = true;
@@ -786,7 +833,7 @@ class C_Prescription extends Controller
 
         $this->multiprint_header($pdf, $p);
         $this->multiprint_body($pdf, $p);
-        $this->multiprint_footer($pdf);
+        $this->multiprint_footer($pdf,$p);
 
         if (!empty($toFile)) {
             $toFile = $pdf->ezOutput();
@@ -804,7 +851,7 @@ class C_Prescription extends Controller
         $this->multiprintcss_preheader();
         $this->multiprintcss_header($p);
         $this->multiprintcss_body($p);
-        $this->multiprintcss_footer();
+        $this->multiprintcss_footer($p);
         $this->multiprintcss_postfooter();
     }
 
@@ -864,12 +911,12 @@ class C_Prescription extends Controller
     function do_lookup()
     {
         if ($_POST['process'] != "true") {
-                    // don't do a lookup
+            // don't do a lookup
             $this->assign("drug", $_GET['drug']);
-                    return;
+            return;
         }
 
-                // process the lookup
+        // process the lookup
         $this->assign("drug", $_POST['drug']);
         $list = array();
         if (!empty($_POST['drug'])) {
@@ -914,7 +961,7 @@ class C_Prescription extends Controller
                 }
 
                 $fileName = $GLOBALS['OE_SITE_DIR'] . "/documents/" . $p->get_id() .
-                $p->get_patient_id() . "_fax_.pdf";
+                    $p->get_patient_id() . "_fax_.pdf";
                 //print "filename is $fileName";
                 touch($fileName); // php bug
                 $handle = fopen($fileName, "w");
@@ -938,5 +985,42 @@ class C_Prescription extends Controller
         if ($err) {
             $this->assign("process_result", $err);
         }
+    }
+    /*
+     * This is being added to quickly update the current prescription with the currently
+     * logged in provider and the todays date to re-issue the prescription without having to do them
+     * individually. Added by Sherwin
+     *
+     */
+    function ReIssueRx_action(){
+
+        //Get the previous page ref
+        $prev_page = $_SERVER['HTTP_REFERER'];
+
+        //Call Prescription Object
+        $su = new Prescription();
+
+        //Get the Current logged in Provider ID
+        $dc = $su->get_provider_id();
+
+        /*
+         * Pull current encounter #
+         *
+         */
+        $en = $this->pconfig = $GLOBALS['encounter'];
+
+        /*
+         * Get the current patient ID
+         */
+        $p = $this->pconfig = $GLOBALS['pid'];
+
+        sqlStatement("UPDATE prescriptions " .
+            "SET date_modified = current_date(), provider_id = $dc, encounter = $en "  .
+            "WHERE patient_id = $p AND active = 1");
+
+
+        header('location:' . $prev_page);
+        return;
+
     }
 }
