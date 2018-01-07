@@ -57,11 +57,6 @@ class BirthdayReminder
         return false;
     }
 
-    public static function __callStatic($name, $arguments)
-    {
-        // TODO: Implement __callStatic() method.
-    }
-
     private function isBirthdayAlertOff()
     {
         $sql = "SELECT `turned_off_on` FROM `patient_birthday_alert` WHERE pid = ? AND user_id = ?";
