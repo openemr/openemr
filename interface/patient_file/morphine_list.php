@@ -53,23 +53,23 @@ if(!empty($_GET['delete']))
 <h1><?php echo xlt('Morphine List'); ?></h1>
 <p>
 <?php echo xlt('Please enter the main word of the drug only. For instance') ?>, <b> 
-<?php echo xlt('Embeda') ?></b> <?php echo xlt('can be prescribed as') ?> <b>
-<?php echo xlt('Embeda ER') ?></b>. 
-<?php echo xlt('Only enter') ?> <b><?php echo xlt('Embeda') ?></b>.<br> 
-<?php echo xlt('The system will look for all variation before and after the word Embeda') ?></p>
+<?php echo 'Embeda' ?></b> <?php echo xlt('can be prescribed as') ?> <b>
+<?php echo 'Embeda ER' ?></b>.
+<?php echo xlt('Only enter') ?> <b><?php echo 'Embeda' ?></b>.<br>
+<?php echo xlt('The system will look for all variation before and after the word'). 'Embeda' ?></p>
 <p><?php echo xlt('The Days field is defaulted to 30') ?>. </p>
-<h3><?php echo xlt('Add to list:'); ?></h3>
-<form method="POST" action="morphine_list.php" class="form-inline"  >
+<h3><?php echo xlt('Add to list').":"; ?></h3>
+<form method="POST" action="morphine_list.php" class="form-inline"  onsubmit="return top.restoreSession()">
   <div class="form-group">
-    <input type="hidden" name="id" value="<?php if($_GET['update']) echo $updateData['id']; ?>">
+      <input type="hidden" name="id" value="<?php echo ($_GET['update']) ? attr($updateData['id']) : ''; ?>">
     <label for="drug"><?php echo xlt('Drug Name') ?>:</label>
     <input type="text" class="form-control" name="drugname" id="drugname" 
-    value="<?php if($_GET['update']) echo trim($updateData['drugname']); ?>">
+    value="<?php echo ($_GET['update']) ? trim($updateData['drugname']) : ''; ?>">
   </div>
   <div class="form-group">
     <label for="drug"><?php echo xlt('Multiplier') ?>:</label>
     <input type="text" class="form-control" name="multiplier" id="multiplier" 
-    value="<?php if($_GET['update']) echo $updateData['multiplier']; ?>">
+    value="<?php echo ($_GET['update']) ? attr($updateData['multiplier']) : ''; ?>">
   </div>
   <div class="form-group">
     <label for="drug">Days:</label>
@@ -104,11 +104,11 @@ if(!empty($_GET['delete']))
   <?php  
 
   foreach($showList as $item){
-  	echo "<tr><td></td><td>". $item['drugname'] . "</td>";
-  	echo "<td>". $item['multiplier'] . "</td>";
-  	echo "<td>". $item['days'] . "</td>
-  	      <td><a href='morphine_list.php?delete=".$item['id']."' class='btn btn-default' title='".xlt('This button will delete the entry no question or prompts')."'>".xlt('Delete')."</a></td>
-  	      <td><a href='morphine_list.php?update=".$item['id']."' class='btn btn-default' title='".xlt('Click here to change the entry')."'>".xlt('Update')."</a></td></tr>";
+  	echo "<tr><td></td><td>". text($item['drugname']) . "</td>";
+  	echo "<td>". text($item['multiplier']) . "</td>";
+  	echo "<td>". text($item['days']) . "</td>
+  	      <td><a href='morphine_list.php?delete=".attr($item['id'])."' class='btn btn-default' title='".xla('This button will delete the entry no question or prompts')."'>".xla('Delete')."</a></td>
+  	      <td><a href='morphine_list.php?update=".attr($item['id'])."' class='btn btn-default' title='".xla('Click here to change the entry')."'>".xla('Update')."</a></td></tr>";
 
   }
  ?>

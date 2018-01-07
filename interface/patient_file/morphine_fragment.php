@@ -11,7 +11,7 @@
 
 // Some initial api-inputs
 
-require_once("../../globals.php");
+require_once("../globals.php");
 require_once("$srcdir/me_calculator.inc.php");
 ?>
 <br>
@@ -31,7 +31,7 @@ $date = date("Y-m-d H:m:s");
     }else{
             if(!empty($res)){  
                 
-                echo "<b>".xlt('Last').":</b> " . $res['last'] . "</BR>" ;
+                echo "<b>".xlt('Last').":</b> " . text($res['last']) . "</BR>" ;
                 //echo "<b>Note: </b>" . $res['notes'] . "</BR></BR>";
             }else{
                 echo xlt('No Previous entries recorded') . "</br></br>";
@@ -51,14 +51,14 @@ $date = date("Y-m-d H:m:s");
       $size = $d['size'];
       $quantity = $d['quantity'];
       $display = getMeCalculations($med, $size, $quantity );
-      echo "<tr><td align='right'>".$display[0]."</td><td>".$display[1]."</td></tr>";
+      echo "<tr><td align='right'>".text($display[0])."</td><td>".text($display[1])."</td></tr>";
       $total[] = $display[1];
 	  
      }
 	 $i = count($total);
 	 if(array_sum($total) != 0) 
 	 {
-      echo "<tr><td align='right'><b>".xlt('Total ME')." = </b>"."</td><td>". array_sum($total)."</td></tr>"; 
+      echo "<tr><td align='right'><b>".xlt('Total ME')." = </b>"."</td><td>". text(array_sum($total))."</td></tr>";
      }else{
 		 print "<tr><td align='right'><b>". xlt('No Matching Meds found'). "</b></td><td></td></tr>";
 	 }
@@ -79,7 +79,7 @@ $date = date("Y-m-d");
 if($res['encounter'] != $GLOBALS['encounter'] && $savedDate[0] != $date && $sum != 0){
 
     $saveRes = saveMEinfo($pid, $enc, $sum);
-	echo xl($saveRes);
+	echo $saveRes;
 }
 
 $plots = getGraphData($pid);

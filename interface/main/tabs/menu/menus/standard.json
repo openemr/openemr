@@ -811,8 +811,8 @@
             ]
           },
           {"label":"Morphine Eq Drug List",
-            "menu_id": "adm0",
-            "target": "adm0",
+            "menu_id": "adm",
+            "target": "adm",
             "url": "/interface/patient_file/morphine_list.php",
             "children": [],
             "requirement": 0,
@@ -1470,8 +1470,8 @@
             ]
           },
           {"label":"Morphine Eq",
-            "menu_id": "adm0",
-            "target": "adm0",
+            "menu_id": "adm",
+            "target": "adm",
             "url": "/interface/reports/morphineReport.php",
             "children": [],
             "requirement": 0,

@@ -41,7 +41,7 @@
  function updateDrug($id)
  {
  	$sql = "SELECT * FROM morphine_list WHERE id = ?";
- 	$item = sqlQuery($sql, $id);
+ 	$item = sqlQuery($sql, array($id));
 
  	return $item;
  }

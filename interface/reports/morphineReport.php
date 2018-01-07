@@ -17,19 +17,17 @@ use OpenEMR\Core\Header;
 $group = "t";
 $reportDataTotalPatients = morphineReport($group);
 
-$blurb1 = xlt('Number of Patients in this group are ');
-$blurb2 = xlt("Percentage of patients in this group ");
+$blurb1 = xlt('Number of Patients in this group are');
+$blurb2 = xlt("Percentage of patients in this group");
 $buttonLabel = xlt('View Patients'); 
 ?>
 
 <html>
 <head>
-    <title>Morphine Report</title>
+    <title><?php echo xl('Morphine Report') ?></title>
 
     <?php Header::setupHeader(); ?>
 
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css"> 
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
 	
 </head>
 <body class="body_top">
@@ -38,7 +36,7 @@ $buttonLabel = xlt('View Patients');
     <h1><?php echo xlt('Morphine Report') ?></h1>
     <h3><?php echo xlt('Report Period: Last 90 days') ?></h3>
     <div>
-        <p><strong><?php echo xlt('Total # of active patients today is') ?> <?php echo $reportDataTotalPatients;  ?></strong></p>
+        <p><strong><?php echo xlt('Total # of active patients today is') ?> <?php echo text($reportDataTotalPatients);  ?></strong></p>
     </div>
 <?php
       if ($reportDataTotalPatients > 0){
@@ -47,7 +45,7 @@ $buttonLabel = xlt('View Patients');
     <div class="row">
         <div class="col-sm-2">
             <p>Group Over 361</p>
-            <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#first"><?php echo $buttonLabel ?></button>
+            <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#first"><?php echo text($buttonLabel) ?></button>
             <div id="first" class="collapse">
                 <?php
                 $group = "a";
@@ -57,14 +55,14 @@ $buttonLabel = xlt('View Patients');
 				{
                     $pid = $row['pid'];
                     $name = getPatientName($pid);
-                    echo $name . " - " . $row['last'] . "<br>";
+                    echo text($name) . " - " . text($row['last']) . "<br>";
                     $a++;
                 }
                 echo "</div>"; //closing div for the collapse
 
-                echo "<br><br>". $blurb1 . $a . "<br>";
+                echo "<br><br>". text($blurb1) . text($a) . "<br>";
                 $percentOver361 = ($a/$reportDataTotalPatients)*100;
-                echo $blurb2 . round($percentOver361, 2) ."%";
+                echo text($blurb2) . text(round($percentOver361, 2)) ."%";
                 ?>
             </div>
         <div class="col-sm-2">
@@ -79,13 +77,13 @@ $buttonLabel = xlt('View Patients');
                 
                 $pid = $row['pid'];
                 $name = getPatientName($pid);
-                echo $name . " - " . $row['last'] . "<br>";
+                echo text($name) . " - " . text($row['last']) . "<br>";
                 $b++;
             }
             echo "</div>"; //closing div for the collapse
-            echo "<br><br>". $blurb1 . $b . "<br>";
+            echo "<br><br>". text($blurb1) . text($b) . "<br>";
             $percentOver241 = ($b/$reportDataTotalPatients)*100;
-            echo $blurb2 . round($percentOver241, 2) ."%";
+            echo text($blurb2) . text(round($percentOver241, 2)) ."%";
             ?>
         </div>
         <div class="col-sm-2">
@@ -100,13 +98,13 @@ $buttonLabel = xlt('View Patients');
                 
                 $pid = $row['pid'];
                 $name = getPatientName($pid);
-                echo $name . " - " . $row['last'] . "<br>";
+                echo text($name) . " - " . text($row['last']) . "<br>";
                 $c++;
             }
             echo "</div>"; //closing div for the collapse
-            echo "<br><br>" . $blurb1 . $c . "<br>";
+            echo "<br><br>" . text($blurb1) . text($c) . "<br>";
             $percentOver181 = ($c/$reportDataTotalPatients)*100;
-            echo $blurb2 . round($percentOver181, 2) ."%";
+            echo text($blurb2). text(round($percentOver181, 2)) ."%";
             ?>
         </div>
         <div class="col-sm-2">
@@ -121,18 +119,18 @@ $buttonLabel = xlt('View Patients');
                 
                 $pid = $row['pid'];
                 $name = getPatientName($pid);
-                echo $name . " - " . $row['last'] . "<br>";
+                echo text($name) . " - " . text($row['last']) . "<br>";text()
                 $d++;
             }
             echo "</div>"; //closing div for the collapse
-            echo "<br><br>" . $blurb1  . $d . "<br>";
+            echo "<br><br>" . text($blurb1)  . text($d) . "<br>";
             $percentOver121 = ($d/$reportDataTotalPatients)*100;
-            echo $blurb2 . round($percentOver121, 2) ."%";
+            echo text($blurb2) . text(round($percentOver121, 2)) ."%";
             ?>
         </div>
         <div class="col-sm-2">
             <p>Group 1-120</p>
-            <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#fifth"><?php echo $buttonLabel ?></button>
+            <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#fifth"><?php echo text($buttonLabel) ?></button>
             <div id="fifth" class="collapse">
             <?php
             $group = "e";

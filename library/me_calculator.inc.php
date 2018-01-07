@@ -18,12 +18,12 @@
     function saveMEinfo($pid, $enc, $sum)
     {
         if(empty($enc)){
-            return "<font color='red'>Please select an encounter to save this data</font>";
+            return "<font color='red'>".xl('Please select an encounter to save this data')."</font>";
         } else {
         sqlStatement("INSERT INTO `morphine_eq` (`id`, `datetime`, `encounter`, `last`, `next`, `notes`, `pid`)". 
                       "VALUES ('', NOW(), $enc, $sum, '', '', $pid)");
                       
-                      return "Saved";
+                      return xlt("Saved");
         }
     }
 	/*
@@ -35,7 +35,7 @@
     function fetchMEs($pid)
     {
          $sql = "SELECT * FROM morphine_eq WHERE pid = ? ORDER BY id DESC LIMIT 1";
-         $query = sqlStatement($sql,$pid);
+         $query = sqlStatement($sql,array($pid));
          $res = sqlFetchArray($query);
          return $res;
     }
@@ -50,9 +50,9 @@
     function getMeds(){
         
            $sql = "SELECT `drug`,`quantity`,`size`, `date_added` FROM `prescriptions` ".
-                 " WHERE `patient_id`= " .$GLOBALS['pid'] ." AND active = 1";
-         
-            $drugs = sqlStatement($sql);
+                 " WHERE `patient_id`= ?  AND active = ?";
+            $arr = array($GLOBALS['pid'], 1);
+            $drugs = sqlStatement($sql,$arr);
         
         return $drugs;
     }
