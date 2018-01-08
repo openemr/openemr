@@ -57,65 +57,71 @@ if (($_POST['setting_bootstrap_submenu']) ||
 <html>
 <head>
     <title><?php echo xlt('Message Center'); ?></title>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-migrate/jquery-migrate-3.0.0.min.js"></script>
 
     <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
         <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css"
               rel="stylesheet" type="text/css"/>
     <?php } ?>
-    <link rel="stylesheet"
-          href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-    <link rel="stylesheet"
-          href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
-    <link rel="stylesheet"
-          href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>"
-          type="text/css">
-    <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-    <link rel="stylesheet"
+     <link rel="stylesheet"
           href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>"
           type="text/css">
-    <link rel="stylesheet"
-          href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/themes/redmond/jquery-ui.css">
 
-    <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico"/>
 
-    <script type="text/javascript"
-            src="<?php echo $GLOBALS['web_root']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript"
-            src="<?php echo $GLOBALS['web_root']; ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
-    <script type="text/javascript"
+      <script type="text/javascript"
             src="<?php echo $GLOBALS['assets_static_relative'] ?>/moment-2-13-0/moment.js"></script>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script>
-        var xljs1 = '<?php echo xl('Preferences updated successfully'); ?>';
-        var xljs_NOTE = '<?php echo xl('NOTE'); ?>';
-        var xljs_PthsApSched = '<?php echo xl('This patient already has an appointment scheduled for'); ?>';
-        var xljs_PlsDecRecDate = '<?php echo xl('Please decide on a Recall Date'); ?>';
-        <?php
-        if ($GLOBALS['date_display_format'] == '0') {
-            $date_format = 'yy-mm-dd';
-        } elseif ($GLOBALS['date_display_format'] == '1') {
-            $date_format = 'mm/dd/yy';
-        } elseif ($GLOBALS['date_display_format'] == '2') {
-            $date_format = 'dd/mm/yy';
-        }
-        ?>
-        var xljs_dateFormat = '<?php echo $date_format; ?>';
 
-    </script>
-    <script type="text/javascript"
-            src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript">
-        <?php require_once("$srcdir/restoreSession.php"); ?>
-    </script>
-    <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js">
-    </script>
-    <meta charset="utf-8">
+        <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
+            <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css"
+                  rel="stylesheet" type="text/css"/>
+        <?php } ?>
+        <link rel="stylesheet"
+              href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
+        <link rel="stylesheet"
+              href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
+        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
+        <link rel="stylesheet"
+              href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>"
+              type="text/css">
+        <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+
+        <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico" />
+
+        <script type="text/javascript"
+                src="<?php echo $GLOBALS['web_root']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+        <script type="text/javascript"
+                src="<?php echo $GLOBALS['web_root']; ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+        <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
+        <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
+        <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
+        <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-migrate/jquery-migrate-3.0.0.min.js"></script>
+        <script type="text/javascript"
+                src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>">
+        </script>
+
+        <script>
+            <?php
+            if ($GLOBALS['date_display_format'] == '0') {
+                $date_format = 'yy-m-d';
+            } elseif ($GLOBALS['date_display_format'] == '1') {
+                $date_format = 'mm/dd/yy';
+            } elseif ($GLOBALS['date_display_format'] == '2') {
+                $date_format = 'dd/mm/yy';
+            }
+            ?>
+            var xljs_dateFormat = '<?php echo $date_format; ?>';
+        </script>
+        <script type="text/javascript">
+            <?php require_once "$srcdir/restoreSession.php"; ?>
+        </script>
+
+    <link rel="stylesheet"
+              href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/themes/redmond/jquery-ui.css">
+
+        <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js">
+        </script>
+
+        <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="MedEx Bank">
     <meta name="author" content="OpenEMR: MedExBank">

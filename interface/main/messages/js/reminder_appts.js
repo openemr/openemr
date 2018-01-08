@@ -401,7 +401,6 @@ $(document).ready(function () {
             }, 2000);
         });
     });
-                  $('[data-toggle="tooltip"]').tooltip();
                   $("#datepicker1").datepicker({
                                                        beforeShow: function () {
                                                            setTimeout(function () {

@@ -130,11 +130,11 @@ if ($_REQUEST['MedEx'] == "start") {
         $logged_in = $MedEx->login();
 
         if ($logged_in) {
-            $token = $logged_in['token'];
-            $response = $MedEx->practice->sync($token);
-            $campaigns = $MedEx->campaign->events($token);
-            $response = $MedEx->events->generate($token, $campaigns['events']);
-            $response['success'] = "OK BABY!";
+            $token      = $logged_in['token'];
+            $response['practice']   = $MedEx->practice->sync($token);
+            $response['campaigns']  = $MedEx->campaign->events($token);
+            $response['generate']   = $MedEx->events->generate($token, $response['campaigns']['events']);
+            $response['success']    = "200";
             $response['show'] = xlt("Sign-up successful for") . " " . $data['company'] . ".<br />" . xlt("Proceeding to Preferences") . ".<br />" .
                 xlt("If this page does not refresh, reload the Messages page manually") . ".<br />";
             //get js to reroute user to preferences.
@@ -149,7 +149,7 @@ if ($_REQUEST['MedEx'] == "start") {
         }
         //then redirect user to preferences with a success message!
     } else {
-        echo xlt("Sorry you are not privileged enough...");
+        echo xlt("Sorry you are not privileged enough. Enrollment is limited to Adminstrator accounts.");
     }
     exit;
 }
