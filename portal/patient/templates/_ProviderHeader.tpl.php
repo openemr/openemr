@@ -59,7 +59,7 @@
         </script>
     </head>
 
-    <body>
+    <body class="skin-blue">
         <div class="navbar navbar-default navbar-fixed-top">
             <div class="container">
                     <div class="navbar-header"><a class="navbar-brand" href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/provider"><?php echo xlt('Home'); ?></a>
