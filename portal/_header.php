@@ -32,10 +32,8 @@ use OpenEMR\Core\Header;
 <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 <meta name="description" content="Developed By sjpadgett@gmail.com">
 
-    <?php $css = $GLOBALS['css_header'];
-    $GLOBALS['css_header'] = "";
-    Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-sunny', 'emodal']);
-    //$GLOBALS['css_header'] = $css; ?>
+    <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'jquery-ui', 'jquery-ui-sunny', 'emodal']); ?>
+
 <script type="text/javascript" src="../interface/main/tabs/js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
 <link href="assets/css/style.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
 <link href="sign/css/signer.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />

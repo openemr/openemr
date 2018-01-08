@@ -40,8 +40,6 @@ require_once("../interface/globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/forms.inc");
 
-use OpenEMR\Core\Header;
-
  // Exit if the modify calendar for portal flag is not set-pulled for v5
  /* if (!($GLOBALS['portal_onsite_appt_modify'])) {
    echo add_escape_custom( xl('You are not authorized to schedule appointments.'),ENT_NOQUOTES);
