@@ -129,7 +129,7 @@ function getAuthPortalUsers()
     src='<?php echo $GLOBALS['assets_static_relative']; ?>/checklist-model-0-10-0/checklist-model.js'></script>
 
 </head>
-<body>
+<body class="skin-blue">
     <!-- style='background:#f1f2f7;' -->
     <script>
 (function() {
@@ -163,7 +163,7 @@ function getAuthPortalUsers()
     $scope.xLate.confirm.one = "<?php echo xlt('Confirm to Delete Current Thread?'); ?>";
     $scope.xLate.confirm.all = "<?php echo xlt('Confirm to Delete Selected?'); ?>";
     $scope.xLate.confirm.err = "<?php echo xlt('You are sending to yourself!'); ?>";  // I think I got rid of this ability - look into..
-        
+
         $scope.init = function () {
            $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
            $scope.getSentMessages();
@@ -181,7 +181,7 @@ function getAuthPortalUsers()
             }
             return haystack.toLowerCase().indexOf(needle.toLowerCase()) !== -1;
         };
-        
+
         // filter the items
         $scope.search = function () {
             $scope.filteredItems = $filter('filter')($scope.items, function (item) {
@@ -195,7 +195,7 @@ function getAuthPortalUsers()
             // now group by pages
             $scope.groupToPages();
         };
-        
+
         // calculate page in place
         $scope.groupToPages = function () {
             $scope.selected = null;
@@ -208,7 +208,7 @@ function getAuthPortalUsers()
               }
             }
         };
-        
+
         $scope.range = function (start, end) {
             var ret = [];
             if (!end) {
@@ -220,27 +220,27 @@ function getAuthPortalUsers()
             }
             return ret;
         };
-        
+
         $scope.prevPage = function () {
             if ($scope.currentPage > 0) {
                 $scope.currentPage--;
             }
             return false;
         };
-        
+
         $scope.nextPage = function () {
             if ($scope.currentPage < $scope.pagedItems.length - 1) {
                 $scope.currentPage++;
             }
             return false;
         };
-        
+
         $scope.setPage = function () {
             $scope.currentPage = this.n;
         };
-        
+
         $scope.deleteItem = function (idx) {
-            if( !confirm($scope.xLate.confirm.one) ) return false;  
+            if( !confirm($scope.xLate.confirm.one) ) return false;
             var itemToDelete = $scope.allItems[idx];
             var idxInItems = $scope.items.indexOf(itemToDelete);
             $scope.deleteMessage(itemToDelete.mail_chain); // Just this user's message
@@ -249,7 +249,7 @@ function getAuthPortalUsers()
             $scope.init()
             return false;
         };
-                
+
         $scope.batchDelete = function ( i ) {
             if( !confirm($scope.xLate.confirm.all) ) return false;
             var itemToDelete = [];
@@ -266,7 +266,7 @@ function getAuthPortalUsers()
             });
             return false;
         };
-        
+
         $scope.deleteMessage = function (id){
             $http.post('handle_note.php', $.param( {'task':'delete','noteid':id} ))
             .success(function(data, status, headers, config) {
@@ -275,7 +275,7 @@ function getAuthPortalUsers()
                 alert(data);
             });
         };
-        
+
         $scope.isMessageSelected = function () {
             if (typeof $scope.selected!=="undefined" && $scope.selected!==null) {
                 return true;
@@ -284,7 +284,7 @@ function getAuthPortalUsers()
                 return false;
             }
         };
-        
+
         $scope.isSentSelected = function () {
             $scope.isSent = true; $scope.isTrash = $scope.isAll = $scope.isInbox = false;
             $scope.items = [];
@@ -292,7 +292,7 @@ function getAuthPortalUsers()
             $scope.search();
             return true;
         }
-        
+
         $scope.isTrashSelected = function () {
             $scope.isTrash = true; $scope.isSent = $scope.isAll = $scope.isInbox = false;
             $scope.items = [];
@@ -300,21 +300,21 @@ function getAuthPortalUsers()
             $scope.search();
             return true;
         }
-        
-        $scope.isInboxSelected = function () { 
+
+        $scope.isInboxSelected = function () {
             $scope.isInbox = true; $scope.isTrash = $scope.isAll = $scope.isSent = false;
             $scope.items = $scope.inboxItems;
             $scope.search();
             return true;
         }
-        
-        $scope.isAllSelected = function () { 
+
+        $scope.isAllSelected = function () {
             $scope.isAll = true; $scope.isTrash = $scope.isSent = $scope.isInbox = false;
             $scope.items = $scope.allItems;
             $scope.search();
             return true;
         }
-        
+
         $scope.readMessage = function (idx) {
             if( $scope.items[idx].message_status == 'New'){ // mark mail read else ignore
                 $http.post('handle_note.php', $.param({'task':'setread','noteid':$scope.items[idx].id}))
@@ -332,24 +332,24 @@ function getAuthPortalUsers()
         };
         $scope.selMessage = function (idx) {
             $scope.selected = $scope.allItems[idx];
-           
+
         };
-    
+
         $scope.readAll = function () {
             for (var i in $scope.items) {
                 $scope.items[i].message_status = 'Read';
             }
         };
-        
+
         $scope.closeMessage = function () {
             $scope.selected = null;
         };
-        
+
         $scope.renderMessageBody = function(html)
         {
             return html;
         };
-        
+
         $scope.getInbox = function () {
             $http.post('handle_note.php', $.param({'task':'getinbox','owner':$scope.cUserId}))
             .success(function(data, status, headers, config) {
@@ -361,7 +361,7 @@ function getAuthPortalUsers()
                 alert(data);
             });
         };
-        
+
         $scope.getAllMessages = function () {
             $http.post('handle_note.php', $.param({'task':'getall','owner':$scope.cUserId}))
             .success(function(data, status, headers, config) {
@@ -373,7 +373,7 @@ function getAuthPortalUsers()
                 alert(data);
             });
         };
-        
+
         $scope.getDeletedMessages = function () {
             $http.post('handle_note.php', $.param({'task':'getdeleted','owner':$scope.cUserId}))
             .success(function(data, status, headers, config) {
@@ -386,7 +386,7 @@ function getAuthPortalUsers()
                 alert(data);
             });
         };
-        
+
         $scope.getSentMessages = function () {
             $http.post('handle_note.php', $.param({'task':'getsent','owner':$scope.cUserId}))
             .success(function(data, status, headers, config) {
@@ -396,13 +396,13 @@ function getAuthPortalUsers()
                 alert(data);
             });
         }
-        
+
         $scope.submitForm = function(compose){
             $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
             // re-enable title for submit
             $("#title").prop( "disabled", false )
             $("#selSendto").prop( "disabled", false )
-            
+
             compose.owner = $scope.cUserId
             compose.sender_id=$scope.cUserId
             compose.sender_name=$scope.userproper
@@ -525,7 +525,7 @@ function getAuthPortalUsers()
         $scope.message = function(idx) {
             return items(idx);
         };
-        
+
     }]);   // end messageCtrl
 
 })(); // application end

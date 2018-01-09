@@ -319,8 +319,7 @@ function editAppointment(mode,deid){
                     <div class="panel panel-primary collapse" id="downloadpanel">
                         <header class="panel-heading"> <?php echo xlt('Download Documents'); ?> </header>
                         <div id="docsdownload" class="panel-body">
-                        <?php if ($GLOBALS['portal_onsite_document_download']) {
-?>// really should always be able to download!
+                        <?php if ($GLOBALS['portal_onsite_document_download']) { ?>
                             <div>
                                 <span class="text"><?php echo xlt('Download all patient documents');?></span>
                                 <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>

@@ -66,10 +66,6 @@ $ignoreAuth = 1;
 ?>
 
 <script type="text/javascript" src="../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js" type="text/javascript"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
-
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <style>
 input[type="checkbox"], input[type="radio"] {
@@ -576,8 +572,8 @@ while ($row = sqlFetchArray($res)) {
     echo " <tr>\n";
     echo "  <td align='center' class='text'>" .
        "<input type='checkbox' name='procedures[]' value='$poid' />&nbsp;&nbsp;</td>\n";
-    echo "  <td class='text'>" . text(oeFormatShortDate($row['date_ordered'])) . "&nbsp;&nbsp;</td>\n";
-    echo "  <td class='text'>" . text(oeFormatShortDate($row['date'])) . "&nbsp;&nbsp;</td>\n";
+    echo "  <td class='text'>" . oeFormatShortDate($row['date_ordered']) . "&nbsp;&nbsp;</td>\n";
+    echo "  <td class='text'>" . oeFormatShortDate($row['date']) . "&nbsp;&nbsp;</td>\n";
     echo "  <td class='text'>";
     $opres = sqlStatement(
         "SELECT procedure_code, procedure_name FROM procedure_order_code " .

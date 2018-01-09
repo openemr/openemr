@@ -179,9 +179,7 @@ input[type="checkbox"], input[type="radio"] {
 </style>
 
 <?php if (!$PDF_OUTPUT) { ?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign_report.css?v=<?php echo $v_js_includes; ?>" />
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/SearchHighlight.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript">var $j = jQuery.noConflict();</script>
 
@@ -521,7 +519,7 @@ if ($printable) {
   // Setup Headers and Footers for html2PDF only Download
   // in HTML view it's just one line at the top of page 1
     echo '<page_header style="text-align:right;"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS'] . '</page_header>    ';
-    echo '<page_footer style="text-align:right;">' . xlt('Generated on') . ' ' . text(oeFormatShortDate()) . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
+    echo '<page_footer style="text-align:right;">' . xlt('Generated on') . ' ' . oeFormatShortDate() . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
 
   // Use logo if it exists as 'practice_logo.gif' in the site dir
   // old code used the global custom dir which is no longer a valid
@@ -536,7 +534,7 @@ if ($printable) {
 <?php echo $facility['phone'] ?><br>
 
 <a href="javascript:window.close();"><span class='title'><?php echo $titleres['fname'] . " " . $titleres['lname']; ?></span></a><br>
-<span class='text'><?php xl('Generated on', 'e'); ?>: <?php echo text(oeFormatShortDate()); ?></span>
+<span class='text'><?php xl('Generated on', 'e'); ?>: <?php echo oeFormatShortDate(); ?></span>
 <br><br>
 
 <?php
@@ -820,7 +818,7 @@ foreach ($ar as $key => $val) {
                     echo '<td>' . xl('Note') . ' #' . $note->get_id() . '</td>';
                     echo '</tr>';
                     echo '<tr>';
-                    echo '<td>' . xl('Date') . ': ' . text(oeFormatShortDate($note->get_date())) . '</td>';
+                    echo '<td>' . xl('Date') . ': ' . oeFormatShortDate($note->get_date()) . '</td>';
                     echo '</tr>';
                     echo '<tr>';
                     echo '<td>'.$note->get_note().'<br><br></td>';
