@@ -459,8 +459,7 @@ class Events extends Base
                 $count_recalls ='0';
                 $query  = "SELECT * FROM medex_recalls AS recall 
                             LEFT JOIN patient_data AS pat ON recall.r_pid=pat.pid 
-                            WHERE (recall.r_eventDate < CURDATE() ".$interval." INTERVAL ".$timing." DAY) AND
-                            pat.deceased_date =''
+                            WHERE (recall.r_eventDate < CURDATE() ".$interval." INTERVAL ".$timing." DAY) 
                             ORDER BY recall.r_eventDate";
                 $result = sqlStatement($query);
                 $recall3 = array();
