@@ -1436,16 +1436,14 @@ class Display extends base
                             
                                 <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
                                     <input placeholder="<?php echo attr('Patient ID'); ?>"  
-                                        style="max-width:200px;" 
-                                        class="form-control input-sm" 
+                                        class="form-control input-sm"
                                         type="text" id="form_patient_id" 
                                         name="form_patient_id" 
                                         value="<?php echo ( $form_patient_id ) ? attr($form_patient_id) : ""; ?>"
                                         onKeyUp="show_this();">
                                     
                                     <input type="text" 
-                                        style="max-width:200px;" 
-                                        placeholder="<?php echo attr('Patient Name'); ?>" 
+                                        placeholder="<?php echo attr('Patient Name'); ?>"
                                         class="form-control input-sm" id="form_patient_name" 
                                         name="form_patient_name" 
                                         value="<?php echo ( $form_patient_name ) ? attr($form_patient_name) : ""; ?>"
@@ -1480,7 +1478,7 @@ class Display extends base
                                     if ($count_provs <'2') {
                                         echo "disabled";
                                     }
-                                        ?> style="max-width: 200px;"  onchange="show_this();">
+                                        ?> onchange="show_this();">
                                         <option value="" selected><?php echo xlt('All Providers'); ?></option>
 
                                         <?php
@@ -2168,7 +2166,7 @@ foreach ($events as $event) {
                                         <?php echo xlt('plus 2 years'); ?></label><br />
                                     <label for="new_recall_when_3yr" class="indent20 input-helper input-helper--checkbox"><input type="radio" name="new_recall_when" id="new_recall_when_3yr" value="1095" class="form-control">
                                         <?php echo xlt('plus 3 years'); ?></label><br />
-                                        <span class="bold"> <?php echo xlt('Date'); ?>:</span> <input class="form-control datepicker input-sm text-center hasDatepicker" type="text" id="datepicker2" name="datepicker2" value="">
+                                        <span class="bold"> <?php echo xlt('Date'); ?>:</span> <input class="form-control input-sm text-center" type="text" id="datepicker2" name="datepicker2" value="">
                                 </div>
                             </div>
                             <div class="divTableRow">
@@ -2266,7 +2264,7 @@ foreach ($events as $event) {
                                 <div class="divTableCell"><input type="text" name="new_phone_cell" id="new_phone_cell" class="form-control" value="<?php echo attr($result_pat['phone_cell']); ?>"></div>
                             </div>
                             <div class="divTableRow news">
-                                <div class="divTableCell divTableHeading msg_sent" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Text Message'); ?>"><?php echo xlt('SMS OK'); ?></div>
+                                <div class="divTableCell divTableHeading msg_sent" data-placement="auto" title="<?php echo xla('Text Message permission'); ?>"><?php echo xlt('SMS OK'); ?></div>
                         
                                 <div class="divTableCell indent20">
                                     <input type="radio" class="form-control" name="new_allowsms" id="new_allowsms_yes" value="YES"> <label for="new_allowsms_yes"><?php echo xlt('YES'); ?></label>
@@ -2275,7 +2273,7 @@ foreach ($events as $event) {
                                 </div>
                             </div>
                             <div class="divTableRow indent20">
-                                <div class="divTableCell divTableHeading msg_how" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Automated Voice Message'); ?>"><?php echo xlt('AVM OK'); ?></div>
+                                <div class="divTableCell divTableHeading msg_how" data-placement="auto" title="<?php echo xla('Automated Voice Message permission'); ?>"><?php echo xlt('AVM OK'); ?></div>
                                 <div class="divTableCell indent20">
                                     <input type="radio" class="form-control" name="new_voice" id="new_voice_yes" value="YES"> <label for="new_voice_yes"><?php echo xlt('YES'); ?></label>
                                     &nbsp;&nbsp; 
@@ -2307,6 +2305,45 @@ foreach ($events as $event) {
             </div>
         
         </div>
+        <script>
+            $(document).ready(function () {
+                $("#datepicker1").datepicker({
+                    beforeShow: function () {
+                        setTimeout(function () {
+                            $('.ui-datepicker').css('z-index', 999);
+                        }, 0);
+                    },
+                    widgetPositioning: {
+                        horizontal: 'right',
+                        vertical: 'bottom'
+                    },
+                    changeYear: true,
+                    showButtonPanel: true,
+                    dateFormat: xljs_dateFormat,
+                    onSelect: function (dateText, inst) {
+                        $('#' + inst.id).attr('value', dateText).css('text-align', 'center');
+                    }
+                });
+
+                $("#datepicker2").datepicker({
+                    beforeShow: function () {
+                        setTimeout(function () {
+                            $('.ui-datepicker').css('z-index', 999);
+                        }, 0);
+                    },
+                    widgetPositioning: {
+                        horizontal: 'right',
+                        vertical: 'bottom'
+                    },
+                    changeYear: true,
+                    showButtonPanel: true,
+                    dateFormat: xljs_dateFormat,
+                    onSelect: function (dateText, inst) {
+                        $('#' + inst.id).attr('value', dateText);
+                    }
+                });
+            }
+</script>
         <?php
     }
     public function icon_template()
@@ -2583,16 +2620,13 @@ class Setup extends Base
                                             <h2 class="modal-title" style="font-weight:600;">Sign-Up Confirmation</h2>
                                           </div>
                                           <div class="modal-body" style="padding: 10px 45px;">
-                                            <p>You are opening a secure connection to MedExBank.com to create your account.<br />
-                                               By proceeding, you agree to the MedEx Terms and Conditions and formally execute <br />
-                                               the Business Associate Agreement with MedEx on behalf of your practice.  <br />
-                                               During this step your EHR will exchange Practice data with the MedEx servers.  <br />
+                                            <p>You are opening a secure connection to MedExBank.com.  During this step your EHR will synchronize with the MedEx servers.  <br />
                                                 <br />
-                                                You will them be directed to login at MedExBank.com to:
+                                                Re-enter your username (e-mail) and password in the MedExBank.com login window to:
                                                 <ul style="text-align: left;width: 90%;margin: 0 auto;">
                                                     <li> confirm your practice and providers' information</li>
                                                     <li> choose your service options</li>
-                                                    <li> update and activate your message templates</li>
+                                                    <li> update and activate your messages </li>
                                                 </ul>
                                             </p>
                                           </div>
@@ -2621,9 +2655,8 @@ class Setup extends Base
                 if ($("#new_rpassword").val() !== password) return alert('<?php echo xlt('Passwords do not match'); ?>!');
                 if (!$("#TERMS_yes").is(':checked')) return alert('<?php echo xlt('You must agree to the Terms & Conditions before signing up');?>... ');
                 if (!$("#BusAgree_yes").is(':checked')) return alert('<?php echo xlt('You must agree to the HIPAA Business Associate Agreement');?>... ');
-                //No translation for now - unless you can get it translated without breaking the Auto-Registration...
-                
                 $("#myModal").modal();
+                return false;
             }
             
             function validateEmail(email) {
