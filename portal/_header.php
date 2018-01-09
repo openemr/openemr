@@ -70,7 +70,7 @@ use OpenEMR\Core\Header;
                                 <?php
                                 foreach ($msgs as $i) {
                                     if ($i['message_status']=='New') {
-                                        echo "<li><a href='/messaging/messages.php'><h4>" . text($i['title']) . "</h4></a></li>";
+                                        echo "<li><a href='" . $GLOBALS['web_root'] . "/portal/messaging/messages.php'><h4>" . text($i['title']) . "</h4></a></li>";
                                     }
                                 }
                                 ?>
