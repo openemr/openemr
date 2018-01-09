@@ -284,9 +284,11 @@ class Campaign extends Base
 
 class Events extends Base
 {
-    //this is run via MedEx_background.php or MedEx.php to find appointments that match our Campaign events and rules.
-    /**  
-     *  Messaging Campaigns are categorized by function: there are RECALLs, REMINDERs, SURVEYs and ANNOUNCEments (and later whatever comes down the pike).
+    /**
+     *  This is run via MedEx_background.php or MedEx.php to find appointments that match our Campaign events and rules.
+     *
+     *  Messaging Campaigns are categorized by function:
+     *      There are RECALLs, REMINDERs, CLINICAL_REMINDERs, SURVEYs and ANNOUNCEments (and later whatever comes down the pike).
      *  To meet a campaign's goals, we schedule campaign events.
      *  REMINDER and RECALL campaigns each have their own events which the user creates and personalizes.  
      *      There is only one REMINDER Campaign and one RECALL Campaign, each with unlimited events.
@@ -299,6 +301,11 @@ class Events extends Base
      *
      *  So SURVEY AND ANNOUNCE events have parent Campaigns they are attached to 
      *  but RECALLS and REMINDERS do not (they are a RECALL or a REMINDER).
+     *  Clinical Reminders can be handled locally in full, some parts local, some on MedEx or all on MedEx.  ie.  some practices may want
+     *  to send emails themselves, but have MedEx handle the SMS and phone arms of the campaign, etc.
+     *  Whatever is decided, the desired event is created on MedEx and we are notified it exists in $MedEx->campaign->events($token).
+     *  We are taking those events and building our list of recipients, logging what we do in MedEx_outgoing.
+     *  and sending MedEx the information to process the event.
      *  In this function we are generating all appts that match scheduled campaign events so MedEx can conduct the campaign events.
      * @param $token
      * @param $events
@@ -307,7 +314,7 @@ class Events extends Base
     public function generate($token, $events)
     {
         if (empty($events)) {
-            throw new InvalidDataException("You have no Campaign Events on MedEx at this time.");
+            return false; //throw new InvalidDataException("You have no Campaign Events on MedEx at this time.");
             //You have no campaign events on MedEx!
         }
         $appts = array();
@@ -320,7 +327,7 @@ class Events extends Base
         // -->If Friday, send all appts matching campaign fire_Time + 2 days works for past appts also.
 
         foreach ($events as $event) {
-                if ($event['M_group'] == 'REMINDER') {
+            if ($event['M_group'] == 'REMINDER') {
                 if ($event['time_order'] > '0') { // future appts
                     $interval ="+";
                     //NOTE IF you have customized the pc_appstatus flags, you need to adjust them here too.
@@ -895,6 +902,7 @@ class Callback extends Base
         }
         if (empty($data['campaign_uid'])) {
           //  throw new InvalidDataException("There must be a Campaign to update...");
+          $response['success'] = "No campaigns to process.";
         }
          //why aren't they the same??
         if (!$data['patient_id']) {  //process AVM responses??
