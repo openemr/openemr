@@ -334,7 +334,7 @@ echo generate_select_list(
 
 <?php
  // List the access control groups if phpgacl installed
-if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
+if (isset($phpgacl_location)) {
 ?>
  <tr>
 <td class='text'><?php xl('Access Control', 'e'); ?>:</td>

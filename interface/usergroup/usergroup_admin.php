@@ -196,7 +196,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
             sqlStatement("update users set weno_prov_id = '$erxprid' where id = ? ", array($_POST["id"]));
         }
       
-        if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
+        if (isset($phpgacl_location)) {
             // Set the access control group of user
             $user_data = sqlFetchArray(sqlStatement("select username from users where id= ?", array($_POST["id"])));
             set_user_aro(
@@ -290,7 +290,7 @@ if (isset($_POST["mode"])) {
                   sqlStatement("insert into groups set name = '" . trim(formData('groupname')) .
                     "', user = '" . trim(formData('rumple')) . "'");
 
-                if (isset($phpgacl_location) && acl_check('admin', 'acl') && trim(formData('rumple'))) {
+                if (isset($phpgacl_location) && trim(formData('rumple'))) {
                               // Set the access control group of user
                               set_user_aro(
                                   $_POST['access_group'],

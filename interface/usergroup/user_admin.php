@@ -420,7 +420,7 @@ echo generate_select_list(
 
 <?php
  // Collect the access control group of user
-if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
+if (isset($phpgacl_location)) {
 ?>
  <tr>
 <td class='text'><?php echo xlt('Access Control'); ?>:</td>
