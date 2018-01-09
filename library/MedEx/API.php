@@ -1654,8 +1654,7 @@ class Display extends base
         $query = "SELECT * FROM medex_recalls,patient_data AS pat 
                     WHERE pat.pid=medex_recalls.r_pid AND 
                     r_eventDate >= ? AND 
-                    r_eventDate <= ? AND 
-                    pat.deceased_date =''
+                    r_eventDate <= ?
                     ORDER BY r_eventDate ASC";
         $result = sqlStatement($query, array($from_date,$to_date));
         while ($recall= sqlFetchArray($result)) {
