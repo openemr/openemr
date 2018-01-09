@@ -153,7 +153,7 @@ if (!$_REQUEST['flb_table']) {
           type="text/css">
     <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
     <link rel="stylesheet"
-          href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/themes/redmond/jquery-ui.css" />
+          href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/themes/cupertino/jquery-ui.css" />
 
     <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico" />
 
@@ -162,7 +162,7 @@ if (!$_REQUEST['flb_table']) {
     <script type="text/javascript"
             src="<?php echo $GLOBALS['web_root']; ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-migrate/jquery-migrate-3.0.0.min.js"></script>
     <script type="text/javascript"
@@ -430,7 +430,7 @@ if (!$_REQUEST['flb_table']) {
 
                                 <div class="text-center" style="margin: 0 auto;">
                                     <span class="bold" style="text-decoration:underline;font-size:1.2em;">MedEx <?php echo xlt('Reminders'); ?></span><br/>
-                                    <div class="text-left blockquote" style="width: 60%;margin: 5px auto;">
+                                    <div class="text-left blockquote" style="width: 65%;margin: 5px auto;">
                                         <a href="https://medexbank.com/cart/upload/index.php?route=information/campaigns&amp;g=rem"
                                            target="_medex">
                                             <?php echo $current_events; ?>
