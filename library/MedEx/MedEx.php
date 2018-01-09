@@ -39,15 +39,17 @@ require_once(dirname(__FILE__)."/../formatting.inc.php");
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 
 $logged_in = $MedEx->login();
+
 if (($logged_in) && (!empty($_POST['callback_key']))) {
-    $response = $MedEx->callback->receive($data);
-    if (!empty($response['success'])) {
-        $token      = $logged_in['token'];
-        $response['practice']   = $MedEx->practice->sync($token);
-        $response['campaigns']  = $MedEx->campaign->events($token);
-        $response['generate']   = $MedEx->events->generate($token, $response['campaigns']['events']);
-        $response['success']    = "200";
+    $token                  = $logged_in['token'];
+    $response['practice']   = $MedEx->practice->sync($token);
+    $response['callback']   = $MedEx->callback->receive($data);
+    if (!empty($response['callback'])) {
+        $response['campaigns'] = $MedEx->campaign->events($token);
+        $response['generate'] = $MedEx->events->generate($token, $response['campaigns']['events']);
     }
+    $response['success']    = "200";
+
     header('Content-type: application/json');
     echo json_encode($response);
     exit;
