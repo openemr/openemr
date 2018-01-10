@@ -45,6 +45,9 @@ class Header
      *
      * // If 2 or more assets are needed:
      * Header::setupHeader(['array', 'of', 'keys']);
+     *
+     * // If wish to not include a normally autoloaded asset
+     * Header::setupHeader('no_main-theme');
      * ```
      *
      * Inside of a twig template (Parameters same as before):
@@ -103,9 +106,16 @@ class Header
 
         foreach ($map as $k => $opts) {
             $autoload = (isset($opts['autoload'])) ? $opts['autoload'] : false;
+            $allowNoLoad= (isset($opts['allowNoLoad'])) ? $opts['allowNoLoad'] : false;
             $alreadyBuilt = (isset($opts['alreadyBuilt'])) ? $opts['alreadyBuilt'] : false;
             $rtl = (isset($opts['rtl'])) ? $opts['rtl'] : false;
             if ($autoload === true || in_array($k, $assets)) {
+                if ($allowNoLoad === true) {
+                    if (in_array("no_" . $k, $assets)) {
+                        continue;
+                    }
+                }
+
                 $tmp = self::buildAsset($opts, $alreadyBuilt);
 
                 foreach ($tmp['scripts'] as $s) {

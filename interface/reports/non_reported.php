@@ -1,40 +1,28 @@
 <?php
-/*
+/**
  * This report lists non reported patient diagnoses for a given date range.
  * Ensoftek: Jul-2015: Modified HL7 generation to 2.5.1 spec and MU2 compliant.
  * This implementation is only for the A01 profile which will suffice for MU2 certification.
  *
- *
- * Copyright (C) 2008 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2010 Tomasz Wyderka <wyderkat@cofoh.com>
- * Copyright (C) 2015 Ensoftek <rammohan@ensoftek.com>
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author Rod Roark <rod@sunsetsystems.com>
- * @author Tomasz Wyderka <wyderkat@cofoh.com>
- * @author Ensoftek <rammohan@ensoftek.com>
- * @author Brady Miller <brady.g.miller@gmail.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Tomasz Wyderka <wyderkat@cofoh.com>
+ * @author    Ensoftek <rammohan@ensoftek.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2008 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2010 Tomasz Wyderka <wyderkat@cofoh.com>
+ * @copyright Copyright (c) 2015 Ensoftek <rammohan@ensoftek.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Core\Header;
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("../../custom/code_types.inc.php");
 
+use OpenEMR\Core\Header;
 
 // Ensoftek: Jul-2015: Get the facility of the logged in user.
 function getLoggedInUserFacility()
@@ -76,17 +64,8 @@ function mapCodeType($incode)
 }
 
 
-if (isset($_POST['form_from_date'])) {
-    $from_date = $_POST['form_from_date'] !== "" ?
-    fixDate($_POST['form_from_date'], date('Y-m-d')) :
-    0;
-}
-
-if (isset($_POST['form_to_date'])) {
-    $to_date =$_POST['form_to_date'] !== "" ?
-    fixDate($_POST['form_to_date'], date('Y-m-d')) :
-    0;
-}
+$from_date = (!empty($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : '';
+$to_date = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : '';
 
 //
 $form_code = isset($_POST['form_code']) ? $_POST['form_code'] : array();
@@ -96,7 +75,7 @@ if (empty($form_code)) {
 } else {
     $query_codes = 'c.id in (';
     foreach ($form_code as $code) {
-        $query_codes .= $code . ",";
+        $query_codes .= add_escape_custom($code) . ",";
     }
 
       $query_codes = substr($query_codes, 0, -1);
@@ -109,6 +88,7 @@ function tr($a)
     return (str_replace(' ', '^', $a));
 }
 
+  $sqlBindArray = array();
   $query =
   "select " .
   "l.pid as patientid, " .
@@ -140,19 +120,21 @@ if ($_POST['form_get_hl7']==='true') {
   "where ".
   "c.reportable=1 and ".
   "l.id not in (select lists_id from syndromic_surveillance) and ";
-if ($from_date!=0) {
-    $query .= "l.date >= '$from_date' " ;
+if (!empty($from_date)) {
+    $query .= "l.date >= ? " ;
+    array_push($sqlBindArray, $from_date);
 }
 
-if ($from_date!=0 and $to_date!=0) {
+if (!empty($from_date) && !empty($to_date)) {
     $query .= " and " ;
 }
 
-if ($to_date!=0) {
-    $query .= "l.date <= '$to_date' ";
+if (!empty($to_date)) {
+    $query .= "l.date <= ? ";
+    array_push($sqlBindArray, $to_date);
 }
 
-if ($from_date!=0 or $to_date!=0) {
+if (!empty($from_date) || !empty($to_date)) {
     $query .= " and " ;
 }
 
@@ -177,7 +159,7 @@ $facility_info = getLoggedInUserFacility();
 if ($_POST['form_get_hl7']==='true') {
     $content = '';
 
-    $res = sqlStatement($query);
+    $res = sqlStatement($query, $sqlBindArray);
 
     while ($r = sqlFetchArray($res)) {
         // MSH
@@ -272,9 +254,9 @@ if ($_POST['form_get_hl7']==='true') {
 
 
         // mark if issues generated/sent
-        $query_insert = "insert into syndromic_surveillance(lists_id,submission_date,filename) " .
-         "values (" . $r['issueid'] . ",'" . $now1 . "','" . $filename . "')";
-        sqlStatement($query_insert);
+        $query_insert = "insert into syndromic_surveillance(lists_id, submission_date, filename) " .
+         "values (?, ?, ?)";
+        sqlStatement($query_insert, array($r['issueid'], $now1, $filename));
     }
 
   // Ensoftek: Jul-2015: No need to tr the content
@@ -292,64 +274,64 @@ if ($_POST['form_get_hl7']==='true') {
 
 <html>
 <head>
+    <title><?php echo xlt('Syndromic Surveillance - Non Reported Issues'); ?></title>
 
-<title><?php xl('Syndromic Surveillance - Non Reported Issues', 'e'); ?></title>
+    <?php Header::setupHeader('datetime-picker'); ?>
 
-<?php Header::setupHeader('datetime-picker'); ?>
-<script language="JavaScript">
+    <script language="JavaScript">
 
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+        <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
- $(document).ready(function() {
-  var win = top.printLogSetup ? top : opener.top;
-  win.printLogSetup(document.getElementById('printbutton'));
+        $(document).ready(function() {
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
 
-  $('.datepicker').datetimepicker({
-    <?php $datetimepicker_timepicker = false; ?>
-    <?php $datetimepicker_showseconds = false; ?>
-    <?php $datetimepicker_formatInput = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-  });
- });
+            $('.datepicker').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+        });
 
-</script>
+    </script>
 
-<style type="text/css">
-/* specifically include & exclude from printing */
-@media print {
-    #report_parameters {
-        visibility: hidden;
-        display: none;
+    <style type="text/css">
+    /* specifically include & exclude from printing */
+    @media print {
+        #report_parameters {
+            visibility: hidden;
+            display: none;
+        }
+        #report_parameters_daterange {
+            visibility: visible;
+            display: inline;
+            margin-bottom: 10px;
+        }
+        #report_results table {
+           margin-top: 0px;
+        }
     }
-    #report_parameters_daterange {
-        visibility: visible;
-        display: inline;
-        margin-bottom: 10px;
+    /* specifically exclude some from the screen */
+    @media screen {
+        #report_parameters_daterange {
+            visibility: hidden;
+            display: none;
+        }
+        #report_results {
+            width: 100%;
+        }
     }
-    #report_results table {
-       margin-top: 0px;
-    }
-}
-/* specifically exclude some from the screen */
-@media screen {
-    #report_parameters_daterange {
-        visibility: hidden;
-        display: none;
-    }
-    #report_results {
-        width: 100%;
-    }
-}
-</style>
+    </style>
 </head>
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Syndromic Surveillance - Non Reported Issues', 'e'); ?></span>
+<span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Syndromic Surveillance - Non Reported Issues'); ?></span>
 
 <div id="report_parameters_daterange">
-<?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
+<?php echo text(oeFormatShortDate($from_date)) ." &nbsp; " . xlt('to')  . "&nbsp; ". text(oeFormatShortDate($to_date)); ?>
 </div>
 
 <form name='theform' id='theform' method='post' action='non_reported.php'
@@ -364,7 +346,7 @@ onsubmit='return top.restoreSession()'>
       <table class='text'>
         <tr>
           <td class='control-label'>
-            <?php xl('Diagnosis', 'e'); ?>:
+            <?php echo xlt('Diagnosis'); ?>:
           </td>
           <td>
 <?php
@@ -381,12 +363,12 @@ while ($crow = sqlFetchArray($cres)) {
        // diagnosis code sets in the future.
         $crow['name'] = convert_type_id_to_key($crow['code_type']) . ":" . $crow['name'];
         $codeid = $crow['id'];
-        echo "    <option value='$codeid'";
+        echo "    <option value='" . attr($codeid) . "'";
         if (in_array($codeid, $form_code)) {
             echo " selected";
         }
 
-        echo ">" . $crow['name'] . "\n";
+        echo ">" . text($crow['name']) . "\n";
     }
 }
 
@@ -394,13 +376,12 @@ while ($crow = sqlFetchArray($cres)) {
 ?>
           </td>
           <td class='control-label'>
-            <?php xl('From', 'e'); ?>:
+            <?php echo xlt('From'); ?>:
           </td>
           <td>
             <input type='text' name='form_from_date' id="form_from_date"
             class='datepicker form-control'
-            size='10' value='<?php echo $form_from_date ?>'
-            title='yyyy-mm-dd'>
+            size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
           </td>
           <td class='control-label'>
             <?php xl('To', 'e'); ?>:
@@ -408,8 +389,7 @@ while ($crow = sqlFetchArray($cres)) {
           <td>
             <input type='text' name='form_to_date' id="form_to_date"
             class='datepicker form-control'
-            size='10' value='<?php echo $form_to_date ?>'
-            title='yyyy-mm-dd'>
+            size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>'>
           </td>
         </tr>
       </table>
@@ -434,7 +414,7 @@ while ($crow = sqlFetchArray($cres)) {
                     <?php echo xlt('Print'); ?>
                 </a>
                 <a href='#' class='btn btn-default btn-transmit' onclick=
-                  "if(confirm('<?php xl('This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?', 'e'); ?>')) {
+                  "if(confirm('<?php echo xls('This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?'); ?>')) {
                     $('#form_get_hl7').attr('value','true');
                     $('#theform').submit();
                   }">
@@ -458,40 +438,40 @@ if ($_POST['form_refresh']) {
 <div id="report_results">
 <table>
 <thead align="left">
-<th> <?php xl('Patient ID', 'e'); ?> </th>
-<th> <?php xl('Patient Name', 'e'); ?> </th>
-<th> <?php xl('Diagnosis', 'e'); ?> </th>
-<th> <?php xl('Issue ID', 'e'); ?> </th>
-<th> <?php xl('Issue Title', 'e'); ?> </th>
-<th> <?php xl('Issue Date', 'e'); ?> </th>
+<th> <?php echo xlt('Patient ID'); ?> </th>
+<th> <?php echo xlt('Patient Name'); ?> </th>
+<th> <?php echo xlt('Diagnosis'); ?> </th>
+<th> <?php echo xlt('Issue ID'); ?> </th>
+<th> <?php echo xlt('Issue Title'); ?> </th>
+<th> <?php echo xlt('Issue Date'); ?> </th>
 </thead>
 <tbody>
 <?php
 $total = 0;
 //echo "<p> DEBUG query: $query </p>\n"; // debugging
-$res = sqlStatement($query);
+$res = sqlStatement($query, $sqlBindArray);
 
 
 while ($row = sqlFetchArray($res)) {
 ?>
 <tr>
 <td>
-<?php echo htmlspecialchars($row['patientid']) ?>
+<?php echo text($row['patientid']) ?>
 </td>
 <td>
-<?php echo htmlspecialchars($row['patientname']) ?>
+<?php echo text($row['patientname']) ?>
 </td>
 <td>
-<?php echo htmlspecialchars($row['diagnosis']) ?>
+<?php echo text($row['diagnosis']) ?>
 </td>
 <td>
-<?php echo htmlspecialchars($row['issueid']) ?>
+<?php echo text($row['issueid']) ?>
 </td>
 <td>
-<?php echo htmlspecialchars($row['issuetitle']) ?>
+<?php echo text($row['issuetitle']) ?>
 </td>
 <td>
-<?php echo htmlspecialchars($row['issuedate']) ?>
+<?php echo text($row['issuedate']) ?>
 </td>
 </tr>
 <?php
@@ -500,9 +480,9 @@ while ($row = sqlFetchArray($res)) {
 ?>
 <tr class="report_totals">
  <td colspan='9'>
-    <?php xl('Total Number of Issues', 'e'); ?>
+    <?php echo xlt('Total Number of Issues'); ?>
   :
-    <?php echo $total ?>
+    <?php echo text($total); ?>
  </td>
 </tr>
 

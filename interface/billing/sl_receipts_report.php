@@ -7,39 +7,33 @@
  * but I wanted to make the code available to the project because
  * many other practices have this same need. - rod@sunsetsystems.com
  *
- * Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
- * Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Terry Hill <terry@lillysystems.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Terry Hill <terry@lillysystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2006-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-
-use OpenEMR\Core\Header;
 
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
+// This determines if a particular procedure code corresponds to receipts
+// for the "Clinic" column as opposed to receipts for the practitioner.  Each
+// practice will have its own policies in this regard, so you'll probably
+// have to customize this function.  If you use the "fee sheet" encounter
+// form then the code below may work for you.
+//
+require_once('../forms/fee_sheet/codes.php');
 
-  // This determines if a particular procedure code corresponds to receipts
-  // for the "Clinic" column as opposed to receipts for the practitioner.  Each
-  // practice will have its own policies in this regard, so you'll probably
-  // have to customize this function.  If you use the "fee sheet" encounter
-  // form then the code below may work for you.
-  //
-  require_once('../forms/fee_sheet/codes.php');
+use OpenEMR\Core\Header;
+
 function is_clinic($code)
 {
     global $bcodes;
@@ -65,106 +59,106 @@ if (! acl_check('acct', 'rep')) {
 }
 
 
-  $form_use_edate  = $_POST['form_use_edate'];
+$form_use_edate  = $_POST['form_use_edate'];
 
-  $form_proc_codefull = trim($_POST['form_proc_codefull']);
-  // Parse the code type and the code from <code_type>:<code>
-  $tmp_code_array = explode(':', $form_proc_codefull);
-  $form_proc_codetype = $tmp_code_array[0];
-  $form_proc_code = $tmp_code_array[1];
+$form_proc_codefull = trim($_POST['form_proc_codefull']);
+// Parse the code type and the code from <code_type>:<code>
+$tmp_code_array = explode(':', $form_proc_codefull);
+$form_proc_codetype = $tmp_code_array[0];
+$form_proc_code = $tmp_code_array[1];
 
-  $form_dx_codefull  = trim($_POST['form_dx_codefull']);
-  // Parse the code type and the code from <code_type>:<code>
-  $tmp_code_array = explode(':', $form_dx_codefull);
-  $form_dx_codetype = $tmp_code_array[0];
-  $form_dx_code = $tmp_code_array[1];
+$form_dx_codefull  = trim($_POST['form_dx_codefull']);
+// Parse the code type and the code from <code_type>:<code>
+$tmp_code_array = explode(':', $form_dx_codefull);
+$form_dx_codetype = $tmp_code_array[0];
+$form_dx_code = $tmp_code_array[1];
 
-  $form_procedures = empty($_POST['form_procedures']) ? 0 : 1;
-  $form_from_date  = fixDate($_POST['form_from_date'], date('Y-m-01'));
-  $form_to_date    = fixDate($_POST['form_to_date'], date('Y-m-d'));
-  $form_facility   = $_POST['form_facility'];
+$form_procedures = empty($_POST['form_procedures']) ? 0 : 1;
+$form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-01');
+$form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
+
+$form_facility   = $_POST['form_facility'];
 ?>
 <html>
 <head>
 
-<?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
+    <title><?php echo xlt('Cash Receipts by Provider')?></title>
 
-<style type="text/css">
-/* specifically include & exclude from printing */
-@media print {
-    #report_parameters {
-        visibility: hidden;
-        display: none;
-    }
-    #report_parameters_daterange {
-        visibility: visible;
-        display: inline;
-    }
-    #report_results {
-       margin-top: 30px;
-    }
-}
+    <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-/* specifically exclude some from the screen */
-@media screen {
-    #report_parameters_daterange {
-        visibility: hidden;
-        display: none;
-    }
-}
-</style>
+    <style type="text/css">
+        /* specifically include & exclude from printing */
+        @media print {
+            #report_parameters {
+                visibility: hidden;
+                display: none;
+            }
+            #report_parameters_daterange {
+                visibility: visible;
+                display: inline;
+            }
+            #report_results {
+               margin-top: 30px;
+            }
+        }
 
-<script language="JavaScript">
+        /* specifically exclude some from the screen */
+        @media screen {
+            #report_parameters_daterange {
+                visibility: hidden;
+                display: none;
+            }
+        }
+    </style>
 
- $(document).ready(function() {
-  oeFixedHeaderSetup(document.getElementById('mymaintable'));
-  var win = top.printLogSetup ? top : opener.top;
-  win.printLogSetup(document.getElementById('printbutton'));
+    <script language="JavaScript">
+        $(document).ready(function() {
+            oeFixedHeaderSetup(document.getElementById('mymaintable'));
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
 
-  $('.datepicker').datetimepicker({
-    <?php $datetimepicker_timepicker = false; ?>
-    <?php $datetimepicker_showseconds = false; ?>
-    <?php $datetimepicker_formatInput = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-  });
- });
+            $('.datepicker').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+        });
 
-// This is for callback by the find-code popup.
-// Erases the current entry
-// The target element is set by the find-code popup
-//  (this allows use of this in multiple form elements on the same page)
-function set_related_target(codetype, code, selector, codedesc, target_element) {
- var f = document.forms[0];
- var s = f[target_element].value;
- if (code) {
-  s = codetype + ':' + code;
- } else {
-  s = '';
- }
- f[target_element].value = s;
-}
+        // This is for callback by the find-code popup.
+        // Erases the current entry
+        // The target element is set by the find-code popup
+        //  (this allows use of this in multiple form elements on the same page)
+        function set_related_target(codetype, code, selector, codedesc, target_element) {
+            var f = document.forms[0];
+            var s = f[target_element].value;
+            if (code) {
+                s = codetype + ':' + code;
+            } else {
+                s = '';
+            }
+            f[target_element].value = s;
+        }
 
-// This invokes the find-code (procedure/service codes) popup.
-function sel_procedure() {
- dlgopen('../patient_file/encounter/find_code_popup.php?target_element=form_proc_codefull&codetype=<?php echo attr(collect_codetypes("procedure", "csv")) ?>', '_blank', 500, 400);
-}
+        // This invokes the find-code (procedure/service codes) popup.
+        function sel_procedure() {
+            dlgopen('../patient_file/encounter/find_code_popup.php?target_element=form_proc_codefull&codetype=<?php echo attr(collect_codetypes("procedure", "csv")) ?>', '_blank', 500, 400);
+        }
 
-// This invokes the find-code (diagnosis codes) popup.
-function sel_diagnosis() {
- dlgopen('../patient_file/encounter/find_code_popup.php?target_element=form_dx_codefull&codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")) ?>', '_blank', 500, 400);
-}
+        // This invokes the find-code (diagnosis codes) popup.
+        function sel_diagnosis() {
+            dlgopen('../patient_file/encounter/find_code_popup.php?target_element=form_dx_codefull&codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")) ?>', '_blank', 500, 400);
+        }
 
-</script>
-
-<title><?php echo xlt('Cash Receipts by Provider')?></title>
+    </script>
 </head>
 
 <body class="body_top">
 
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Cash Receipts by Provider'); ?></span>
 
-<form method='post' action='sl_receipts_report.php' id='theform'>
+<form method='post' action='sl_receipts_report.php' id='theform' onsubmit='return top.restoreSession()'>
 
 <div id="report_parameters">
 
@@ -215,9 +209,7 @@ function sel_diagnosis() {
             <td>
                <select name='form_use_edate' class='form-control'>
                 <option value='0'><?php echo xlt('Payment Date'); ?></option>
-                <option value='1'<?php if ($form_use_edate) {
-                    echo ' selected';
-} ?>><?php echo xlt('Invoice Date'); ?></option>
+                <option value='1'<?php echo ($form_use_edate) ? ' selected' : ''; ?>><?php echo xlt('Invoice Date'); ?></option>
                </select>
             </td>
         </tr>
@@ -226,55 +218,55 @@ function sel_diagnosis() {
                 <?php echo xlt('From'); ?>:
             </td>
             <td>
-               <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php  echo attr($form_from_date); ?>'
-                title='<?php echo xla('Date of appointments mm/dd/yyyy'); ?>' >
+               <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'
+                title='<?php echo xla('Date of appointments'); ?>' >
             </td>
             <td class='control-label'>
                 <?php echo xlt('To'); ?>:
             </td>
             <td>
-               <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php  echo attr($form_to_date); ?>'
-                title='<?php echo xla('Optional end date mm/dd/yyyy'); ?>' >
+               <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'
+                title='<?php echo xla('Optional end date'); ?>' >
             </td>
             <td>&nbsp;</td>
         </tr>
         <tr>
             <td class='control-label'>
-                <?php if (!$GLOBALS['simplified_demographics']) {
+                <?php
+                if (!$GLOBALS['simplified_demographics']) {
                     echo '&nbsp;' . xlt('Procedure/Service') . ':';
-} ?>
+                } ?>
             </td>
             <td>
                <input type='text' class='form-control' name='form_proc_codefull' size='11' value='<?php echo attr($form_proc_codefull); ?>' onclick='sel_procedure()'
                 title='<?php echo xla('Optional procedure/service code'); ?>'
-                <?php if ($GLOBALS['simplified_demographics']) {
+                <?php
+                if ($GLOBALS['simplified_demographics']) {
                     echo "style='display:none'";
-} ?>>
+                } ?>>
             </td>
 
             <td class='control-label'>
-                <?php if (!$GLOBALS['simplified_demographics']) {
+                <?php
+                if (!$GLOBALS['simplified_demographics']) {
                     echo '&nbsp;' . xlt('Diagnosis') . ':';
-} ?>
+                } ?>
             </td>
             <td>
                <input type='text' class='form-control' name='form_dx_codefull' size='11' value='<?php echo attr($form_dx_codefull); ?>' onclick='sel_diagnosis()'
                 title='<?php echo xla('Enter a diagnosis code to exclude all invoices not containing it'); ?>'
-                <?php if ($GLOBALS['simplified_demographics']) {
+                <?php
+                if ($GLOBALS['simplified_demographics']) {
                     echo "style='display:none'";
-} ?>>
+                } ?>>
             </td>
 
             <td>
         <div class='checkbox'>
-                <label><input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) {
-                    echo " checked";
-} ?>><?php echo xlt('Details')?></label>
+                <label><input type='checkbox' name='form_details' value='1'<?php echo ($_POST['form_details']) ? " checked" : ""; ?>><?php echo xlt('Details')?></label>
         </div>
         <div class='checkbox'>
-                <label><input type='checkbox' name='form_procedures' value='1'<?php if ($form_procedures) {
-                    echo " checked";
-} ?>><?php echo xlt('Procedures')?></label>
+                <label><input type='checkbox' name='form_procedures' value='1'<?php echo ($form_procedures) ? " checked" : ""; ?>><?php echo xlt('Procedures')?></label>
         </div>
             </td>
         </tr>
@@ -324,11 +316,12 @@ if ($_POST['form_refresh']) {
  </th>
 <?php if ($form_procedures) { ?>
   <th>
-    <?php if ($GLOBALS['cash_receipts_report_invoice'] == '0') {
+    <?php
+    if ($GLOBALS['cash_receipts_report_invoice'] == '0') {
         echo xlt('Invoice');
-} else {
-    echo xlt('Name');
-}?>
+    } else {
+        echo xlt('Name');
+    }?>
   </th>
 <?php } ?>
 <?php if ($form_proc_codefull) { ?>
@@ -661,10 +654,11 @@ if ($form_proc_code && $form_proc_codetype) {
     echo "  </td>\n";
 }
 ?>
-    <?php if ($form_proc_codefull) { ?>
-  <td class="detail">
+<?php
+if ($form_proc_codefull) { ?>
+    <td class="detail">
     <?php echo text($insconame) ?>
-  </td>
+    </td>
 <?php } ?>
 <?php if ($form_procedures) { ?>
   <td class="detail">

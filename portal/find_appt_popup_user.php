@@ -42,7 +42,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 } else {
     session_destroy();
     header('Location: '.$landingpage.'&w');
-    exit;
+    exit();
 }
 
 //
@@ -51,12 +51,6 @@ $ignoreAuth = 1;
 
  include_once("../interface/globals.php");
  include_once("$srcdir/patient.inc");
-
- // Exit if the modify calendar for portal flag is not set patched out v5
- /* if (!($GLOBALS['portal_onsite_appt_modify'])) {
-   echo htmlspecialchars( xl('You are not authorized to schedule appointments.'),ENT_NOQUOTES);
-   exit;
- } */
 
  $input_catid = $_REQUEST['catid'];
 
@@ -320,90 +314,89 @@ if ($_REQUEST['startdate'] && preg_match(
         }
     }
 ?>
+<!DOCTYPE html>
 <html>
 <head>
-<?php html_header_show(); ?>
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <title><?php xl('Find Available Appointments', 'e'); ?></title>
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
     <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
 <?php } ?>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
-
-
 <!-- for the pop up calendar -->
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js" type="text/javascript"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js" type="text/javascript"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script>
 
- function setappt(year,mon,mday,hours,minutes) {
-  if (opener.closed || ! opener.setappt)
-   alert('<?php xl('The destination form was closed; I cannot act on your selection.', 'e'); ?>');
-  else
-   opener.setappt(year,mon,mday,hours,minutes);
-  window.close();
-  return false;
- }
+function setappt(year,mon,mday,hours,minutes) {
+    opener.setappt(year,mon,mday,hours,minutes);
+    dlgclose();
+    return false;
+}
 
 </script>
 
+ <style>
+     form {
+         /* this eliminates the padding normally around a FORM tag */
+         padding: 0px;
+         margin: 0px;
+     }
 
-<style>
-form {
-    /* this eliminates the padding normally around a FORM tag */
-    padding: 0px;
-    margin: 0px;
-}
-#searchCriteria {
-    text-align: center;
-    width: 100%;
-   /* font-size: 0.8em; */
-    background-color: #bfe6ff;
-    font-weight: bold;
-    padding: 3px;
-}
-#searchResultsHeader {
-    width: 100%;
-    background-color: lightgrey;
-}
-#searchResultsHeader table {
-    width: 96%;  /* not 100% because the 'searchResults' table has a scrollbar */
-    border-collapse: collapse;
-}
-#searchResultsHeader th {
-   /* font-size: 0.7em; */
-}
-#searchResults {
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-}
+     #searchCriteria {
+         text-align: center;
+         width: 100%;
+         background-color: #bfe6ff4d;
+         font-weight: bold;
+         padding: 3px;
+     }
 
-.srDate { width: 20%; }
-.srTimes { width: 80%; }
+     #searchResults {
+         width: 100%;
+         height: 100%;
+         overflow: auto;
+     }
 
-#searchResults table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: white;
-}
-#searchResults td {
-   /* font-size: 0.7em; */
-    border-bottom: 1px solid gray;
-    padding: 1px 5px 1px 5px;
-}
-.highlight { background-color: #ff9; }
-.blue_highlight { background-color: #BBCCDD; color: white; }
-#am {
-    border-bottom: 1px solid lightgrey;
-    color: #00c;
-}
-#pm { color: #c00; }
-#pm a { color: #c00; }
-</style>
+     .srDate {
+         background-color: #bfe6ff4d;
+     }
+
+     #searchResults table {
+         width: 100%;
+         border-collapse: collapse;
+         background-color: white;
+     }
+
+     #searchResults td {
+         border-bottom: 1px solid gray;
+         padding: 1px 5px 1px 5px;
+     }
+
+     .highlight {
+         background-color: #ffff994d;
+     }
+
+     .blue_highlight {
+         background-color: #BBCCDD;
+         color: white;
+     }
+
+     #am {
+         border-bottom: 1px solid lightgrey;
+         color: #00c;
+     }
+
+     #pm {
+         color: #c00;
+     }
+
+     #pm a {
+         color: #c00;
+     }
+ </style>
 
 </head>
 
@@ -414,7 +407,6 @@ form {
    <input type="hidden" name='bypatient' />
 
     <?php xl('Start date:', 'e'); ?>
-
 
    <input type='text' class='datepicker' name='startdate' id='startdate' size='10' value='<?php echo $sdate ?>'
     title='yyyy-mm-dd starting date for search'/>
@@ -430,15 +422,18 @@ form {
 
 <div id="searchResultsHeader">
 <table class='table table-bordered'>
- <tr>
-  <th class="srDate"><?php xl('Day', 'e'); ?></th>
-  <th class="srTimes"><?php xl('Available Times', 'e'); ?></th>
- </tr>
+
 </table>
 </div>
 
-<div id="searchResults">
-<table class='table table-condensed table-inversed table-bordered'>
+<div id="searchResults" class="container">
+<table class='table table-inversed table-bordered'>
+    <thead id="searchResultsHeader">
+    <tr>
+        <th class="srDate"><?php xl('Day', 'e'); ?></th>
+        <th class="srTimes"><?php xl('Available Times', 'e'); ?></th>
+    </tr>
+    </thead>
 <?php
     $lastdate = "";
     $ampmFlag = "am"; // establish an AM-PM line break flag

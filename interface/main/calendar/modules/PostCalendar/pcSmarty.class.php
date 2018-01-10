@@ -32,16 +32,16 @@ class pcSmarty extends Smarty
         $osTheme = pnVarPrepForOS($theme);
         pnThemeLoad($theme);
         global $bgcolor1,$bgcolor2,$bgcolor3,$bgcolor4,$bgcolor5,$bgcolor6,$textcolor1,$textcolor2;
-        
+
         // call constructor
         parent::__construct();
-        
+
         // gather module information
         $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
         $pcDir = pnVarPrepForOS($pcModInfo['directory']);
         $pcDisplayName = $pcModInfo['displayname'];
         unset($pcModInfo);
-        
+
         // setup up pcSmarty configs
         $this->compile_check    =   true;
         $this->force_compile    =   false;
@@ -49,6 +49,7 @@ class pcSmarty extends Smarty
         $this->template_dir     =   "modules/$pcDir/pntemplates";
         array_push($this->plugins_dir, "modules/$pcDir/pnincludes/Smarty/plugins");
         array_push($this->plugins_dir, "modules/$pcDir/plugins");
+        array_push($this->plugins_dir, "../../../../library/smarty/plugins");
         $this->compile_dir      =   "modules/$pcDir/pntemplates/compiled";
         $this->cache_dir        =   "modules/$pcDir/pntemplates/cache";
         $this->caching          =   _SETTING_USE_CACHE;

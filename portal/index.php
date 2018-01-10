@@ -104,7 +104,12 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
 <html>
 <head>
     <title><?php echo xlt('Patient Portal Login'); ?></title>
-    <?php Header::setupHeader(['datetime-picker']); ?>
+    <?php
+        $css = $GLOBALS['css_header'];
+        $GLOBALS['css_header'] = "";
+        Header::setupHeader(['datetime-picker']);
+        //$GLOBALS['css_header'] = $css;
+    ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery.gritter-1-7-4/js/jquery.gritter.min.js"></script>
     <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery.gritter-1-7-4/css/jquery.gritter.css" />
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/emodal-1-2-65/dist/eModal.js"></script>
@@ -166,7 +171,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
     }
 </script>
 </head>
-<body>
+<body class="skin-blue">
 <br><br>
 <div class="container text-center">
     <?php if (isset($_SESSION['password_update']) || isset($_GET['password_update'])) {

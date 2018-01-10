@@ -29,7 +29,7 @@
 <title><?php $this->eprint($this->title); ?></title>
 <meta content="width=device-width, initial-scale=1, user-scalable=no"
     name="viewport">
-    
+
 <meta name="description" content="OpenEMR Portal" />
 <meta name="author" content="Form | sjpadgett@gmail.com" />
 
@@ -58,4 +58,4 @@
         </script>
 
 </head>
-<body>
+<body class="skin-blue">

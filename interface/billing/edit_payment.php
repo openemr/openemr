@@ -45,6 +45,9 @@ require_once("$srcdir/payment.inc.php");
 //===============================================================================
 // deletion of payment distribution code
 //===============================================================================
+
+use OpenEMR\Core\Header;
+
 if (isset($_POST["mode"])) {
     if ($_POST["mode"] == "DeletePaymentDistribution") {
         $DeletePaymentDistributionId=trim(formData('DeletePaymentDistributionId'));
@@ -455,23 +458,11 @@ $ResultSearchSub = sqlStatement("SELECT  distinct encounter,code_type,code,modif
 //==============================================================================
 //===============================================================================
 ?>
-
+<!DOCTYPE html>
 <html>
 <head>
-<?php if (function_exists('html_header_show')) {
-    html_header_show();
-} ?>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
-
-<!-- supporting javascript code -->
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
-<script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+    <?php Header::setupHeader(['datetime-picker']); ?>
 
 <script language='JavaScript'>
  var mypcc = '1';

@@ -434,21 +434,25 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             // now we can run functions in our window.
             if (opts.onClosed) {
                 console.log('Doing onClosed:[' + opts.onClosed + ']');
-
-                window[opts.onClosed]();
-
+                if (opts.onClosed === 'reload') {
+                    window.location.reload();
+                } else {
+                    window[opts.onClosed]();
+                }
             }
             if (opts.callBack.call) {
                 console.log('Doing callBack:[' + opts.callBack.call + '|' + opts.callBack.args + ']');
-
-                window[opts.callBack.call](opts.callBack.args);
-
+                if (opts.callBack.call === 'reload') {
+                    window.location.reload();
+                } else {
+                    window[opts.callBack.call](opts.callBack.args);
+                }
             }
 
         }).modal({backdrop: 'static', keyboard: true}, 'show');// Show Modal
 
         // define local dialog close() function. openers scope
-        window.dlgcloseAjax = function (calling, args) {
+        window.dlgCloseAjax = function (calling, args) {
             if (calling) {
                 opts.callBack = {call: calling, args: args};
             }

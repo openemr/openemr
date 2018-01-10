@@ -882,7 +882,7 @@ function getAuth(){
 }
 </script>
 
-<body class="body_top" onunload='imclosing()' onLoad="cursor_pointer();"
+<body class="skin-blue" onunload='imclosing()' onLoad="cursor_pointer();"
     style="text-align: center; margin: auto;">
 
     <form id="payfrm" method='post'

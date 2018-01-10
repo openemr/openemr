@@ -160,7 +160,9 @@ if (isset($mode)) {
 
         $noteid = '';
     }
-    exit(); // add exit for ajax save from pnotes_full_add.php sjp 12/20/2017
+    if ($mode != "delete") {
+        exit(); // add exit for ajax save from pnotes_full_add.php sjp 12/20/2017
+    }
 }
 
 $title = '';
@@ -228,7 +230,6 @@ $(document).ready(function(){
 
     tabbify();
 
-    // fancybox replacement 12-14-17
     $(".note_modal").on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();

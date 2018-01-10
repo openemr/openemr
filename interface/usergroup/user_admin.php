@@ -15,6 +15,7 @@ require_once("$srcdir/calendar.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 
+use OpenEMR\Core\Header;
 use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Services\FacilityService;
 
@@ -36,10 +37,7 @@ $iter = $result[0];
 <html>
 <head>
 
-<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-9-1/index.js"></script>
-<script type="text/javascript" src="../../library/js/common.js"></script>
+<?php Header::setupHeader(['common','opener']); ?>
 
 <script src="checkpwd_validation.js" type="text/javascript"></script>
 
@@ -81,7 +79,7 @@ function submitform() {
     if(document.forms[0].clearPass.value!="")
     {
         //Checking for the strong password if the 'secure password' feature is enabled
-        if(document.forms[0].secure_pwd.value == 1)
+        if(document.forms[0].secure_pwd.value === 1)
         {
                     var pwdresult = passwordvalidate(document.forms[0].clearPass.value);
                     if(pwdresult == 0) {
@@ -166,9 +164,24 @@ function submitform() {
       return false;
     }
     <?php } ?>
-    if(flag == 0){
-                    document.forms[0].submit();
-                    parent.$.fn.fancybox.close();
+
+    if (flag === 0) {
+        let post_url = $("#user_form").attr("action");
+        let request_method = $("#user_form").attr("method");
+        let form_data = $("#user_form").serialize();
+        // submit form
+        $.ajax({
+            url: post_url,
+            type: request_method,
+            data: form_data
+        }).done(function (r) {
+            if (r) {
+                alert(r);
+            } else {
+                dlgclose('reload', false);
+            }
+        });
+        return false;
     }
 }
 //Getting the list of selected item in ACL
@@ -198,18 +211,24 @@ function authorized_clicked() {
   .physician_type_class{
     width: 150px !important;
   }
+  #main_menu_role {
+    width: 120px !important;
+  }
 </style>
 </head>
 <body class="body_top">
+
+<div class="container">
+
 <table><tr><td>
 <span class="title"><?php echo xlt('Edit User'); ?></span>&nbsp;
 </td><td>
-    <a class="css_button" name='form_save' id='form_save' href='#' onclick='return submitform()'> <span><?php echo xlt('Save');?></span> </a>
-    <a class="css_button" id='cancel' href='#'><span><?php echo xlt('Cancel');?></span></a>
+    <a class="btn btn-default btn-save" name='form_save' id='form_save' href='#' onclick='return submitform()'> <span><?php echo xlt('Save');?></span> </a>
+    <a class="btn btn-link btn-cancel" id='cancel' href='#'><span><?php echo xlt('Cancel');?></span></a>
 </td></tr>
 </table>
 <br>
-<FORM NAME="user_form" id="user_form" METHOD="POST" ACTION="usergroup_admin.php" target="_parent" onsubmit='return top.restoreSession()'>
+<FORM NAME="user_form" id="user_form" METHOD="POST" ACTION="usergroup_admin.php">
 
 <input type=hidden name="pwd_expires" value="<?php echo attr($GLOBALS['password_expiration_days']); ?>" >
 <input type=hidden name="pre_active" value="<?php echo attr($iter["active"]); ?>" >
@@ -243,10 +262,10 @@ for ($i=0; $i<$bg_count; $i++) {
 <TABLE border=0 cellpadding=0 cellspacing=0>
 <TR>
     <TD style="width:180px;"><span class=text><?php echo xlt('Username'); ?>: </span></TD>
-    <TD style="width:270px;"><input type=entry name=username style="width:150px;" value="<?php echo attr($iter["username"]); ?>" disabled></td>
+    <TD style="width:270px;"><input type=entry name=username style="width:150px;" class="form-control" value="<?php echo attr($iter["username"]); ?>" disabled></td>
     <?php if (!$GLOBALS['use_active_directory']) { ?>
-        <TD style="width:200px;"><span class=text><?php echo xlt('Your Password'); ?>: </span></TD>
-        <TD class='text' style="width:280px;"><input type='password' name=adminPass style="width:150px;"  value="" autocomplete='off'><font class="mandatory">*</font></TD>
+        <TD style="width:200px;"><span class=text>*<?php echo xlt('Your Password'); ?>*: </span></TD>
+        <TD class='text' style="width:280px;"><input type='password' name=adminPass style="width:150px;"  class="form-control" value="" autocomplete='off'><font class="mandatory"></font></TD>
     <?php } ?>
 </TR>
     <?php if (!$GLOBALS['use_active_directory']) { ?>
@@ -254,7 +273,7 @@ for ($i=0; $i<$bg_count; $i++) {
     <TD style="width:180px;"><span class=text></span></TD>
     <TD style="width:270px;"></td>
     <TD style="width:200px;"><span class=text><?php echo xlt('User\'s New Password'); ?>: </span></TD>
-    <TD class='text' style="width:280px;">    <input type=text name=clearPass style="width:150px;"  value=""><font class="mandatory">*</font></td>
+    <TD class='text' style="width:280px;">    <input type=text name=clearPass style="width:150px;"  class="form-control" value=""><font class="mandatory"></font></td>
 </TR>
     <?php } ?>
 
@@ -275,21 +294,19 @@ for ($i=0; $i<$bg_count; $i++) {
         echo " disabled";
     } ?> />
  &nbsp;&nbsp;<span class='text'><?php echo xlt('Active'); ?>:
- <input type="checkbox" name="active"<?php if ($iter["active"]) {
-        echo " checked";
-} ?> />
+ <input type="checkbox" name="active"<?php echo ($iter["active"]) ? " checked" : ""; ?>/>
 </TD>
 </TR>
 
 <TR>
 <TD><span class=text><?php echo xlt('First Name'); ?>: </span></TD>
-<TD><input type=entry name=fname id=fname style="width:150px;" value="<?php echo attr($iter["fname"]); ?>"><span class="mandatory">&nbsp;*</span></td>
+<TD><input type=entry name=fname id=fname style="width:150px;" class="form-control" value="<?php echo attr($iter["fname"]); ?>"><span class="mandatory"></span></td>
 <td><span class=text><?php echo xlt('Middle Name'); ?>: </span></TD><td><input type=entry name=mname style="width:150px;"  value="<?php echo attr($iter["mname"]); ?>"></td>
 </TR>
 
 <TR>
-<td><span class=text><?php echo xlt('Last Name'); ?>: </span></td><td><input type=entry name=lname id=lname style="width:150px;"  value="<?php echo attr($iter["lname"]); ?>"><span class="mandatory">&nbsp;*</span></td>
-<td><span class=text><?php echo xlt('Default Facility'); ?>: </span></td><td><select name=facility_id style="width:150px;" >
+<td><span class=text><?php echo xlt('Last Name'); ?>: </span></td><td><input type=entry name=lname id=lname style="width:150px;"  class="form-control" value="<?php echo attr($iter["lname"]); ?>"><span class="mandatory"></span></td>
+<td><span class=text><?php echo xlt('Default Facility'); ?>: </span></td><td><select name=facility_id style="width:150px;" class="form-control">
 <?php
 $fres = $facilityService->getAllBillingLocations();
 if ($fres) {
@@ -314,7 +331,7 @@ if ($fres) {
  <td colspan=2>&nbsp;</td>
  <td><span class=text><?php echo xlt('Schedule Facilities:');?></td>
  <td>
-  <select name="schedule_facility[]" multiple style="width:150px;" >
+  <select name="schedule_facility[]" multiple style="width:150px;" class="form-control">
 <?php
   $userFacilities = getUserFacilities($_GET['id']);
   $ufid = array();
@@ -327,7 +344,7 @@ if ($fres) {
     foreach ($fres as $frow) :
 ?>
    <option <?php echo in_array($frow['id'], $ufid) || $frow['id'] == $iter['facility_id'] ? "selected" : null ?>
-      value="<?php echo attr($frow['id']); ?>"><?php echo text($frow['name']) ?></option>
+           class="form-control" value="<?php echo attr($frow['id']); ?>"><?php echo text($frow['name']) ?></option>
 <?php
     endforeach;
 }
@@ -338,14 +355,14 @@ if ($fres) {
 <?php } ?>
 
 <TR>
-<TD><span class=text><?php echo xlt('Federal Tax ID'); ?>: </span></TD><TD><input type=text name=taxid style="width:150px;"  value="<?php echo attr($iter["federaltaxid"]); ?>"></td>
-<TD><span class=text><?php echo xlt('Federal Drug ID'); ?>: </span></TD><TD><input type=text name=drugid style="width:150px;"  value="<?php echo attr($iter["federaldrugid"]); ?>"></td>
+<TD><span class=text><?php echo xlt('Federal Tax ID'); ?>: </span></TD><TD><input type=text name=taxid style="width:150px;"  class="form-control" value="<?php echo attr($iter["federaltaxid"]); ?>"></td>
+<TD><span class=text><?php echo xlt('Federal Drug ID'); ?>: </span></TD><TD><input type=text name=drugid style="width:150px;"  class="form-control" value="<?php echo attr($iter["federaldrugid"]); ?>"></td>
 </TR>
 
 <tr>
-<td><span class="text"><?php echo xlt('UPIN'); ?>: </span></td><td><input type="text" name="upin" style="width:150px;" value="<?php echo attr($iter["upin"]); ?>"></td>
+<td><span class="text"><?php echo xlt('UPIN'); ?>: </span></td><td><input type="text" name="upin" style="width:150px;" class="form-control" value="<?php echo attr($iter["upin"]); ?>"></td>
 <td class='text'><?php echo xlt('See Authorizations'); ?>: </td>
-<td><select name="see_auth" style="width:150px;" >
+<td><select name="see_auth" style="width:150px;" class="form-control" >
 <?php
 foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value) {
     echo " <option value='" . attr($key) . "'";
@@ -360,25 +377,25 @@ foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key =>
 </tr>
 
 <tr>
-<td><span class="text"><?php echo xlt('NPI'); ?>: </span></td><td><input type="text" name="npi" style="width:150px;"  value="<?php echo attr($iter["npi"]); ?>"></td>
-<td><span class="text"><?php echo xlt('Job Description'); ?>: </span></td><td><input type="text" name="job" style="width:150px;"  value="<?php echo attr($iter["specialty"]); ?>"></td>
+<td><span class="text"><?php echo xlt('NPI'); ?>: </span></td><td><input type="text" name="npi" style="width:150px;" class="form-control" value="<?php echo attr($iter["npi"]); ?>"></td>
+<td><span class="text"><?php echo xlt('Job Description'); ?>: </span></td><td><input type="text" name="job" style="width:150px;" class="form-control" value="<?php echo attr($iter["specialty"]); ?>"></td>
 </tr>
 
 <tr>
 <td><span class="text"><?php echo xlt('Taxonomy'); ?>: </span></td>
-<td><input type="text" name="taxonomy" style="width:150px;"  value="<?php echo attr($iter["taxonomy"]); ?>"></td>
+<td><input type="text" name="taxonomy" style="width:150px;" class="form-control" value="<?php echo attr($iter["taxonomy"]); ?>"></td>
 <td>&nbsp;</td><td>&nbsp;</td></tr>
 
 <tr>
 <td><span class="text"><?php echo xlt('State License Number'); ?>: </span></td>
-<td><input type="text" name="state_license_number" style="width:150px;"  value="<?php echo attr($iter["state_license_number"]); ?>"></td>
+<td><input type="text" name="state_license_number" style="width:150px;" class="form-control" value="<?php echo attr($iter["state_license_number"]); ?>"></td>
 <td class='text'><?php echo xlt('NewCrop eRX Role'); ?>:</td>
 <td>
     <?php echo generate_select_list("erxrole", "newcrop_erx_role", $iter['newcrop_user_role'], '', xl('Select Role'), '', '', '', array('style'=>'width:150px')); ?>
 </td>
 </tr>
 <tr>
-<td><span class="text"><?php echo xlt('Weno Provider ID'); ?>: </span></td><td><input type="text" name="erxprid" style="width:150px;"  value="<?php echo attr($iter["weno_prov_id"]); ?>"></td>
+<td><span class="text"><?php echo xlt('Weno Provider ID'); ?>: </span></td><td><input type="text" name="erxprid" style="width:150px;" class="form-control" value="<?php echo attr($iter["weno_prov_id"]); ?>"></td>
 </tr>
 
 <tr>
@@ -420,7 +437,7 @@ echo generate_select_list(
 
  <tr>
 <td class='text'><?php echo xlt('Access Control'); ?>:</td>
- <td><select id="access_group_id" name="access_group[]" multiple style="width:150px;" >
+ <td><select id="access_group_id" name="access_group[]" multiple style="width:150px;" class="form-control">
 <?php
   // Collect the access control group of user
   $list_acl_groups = acl_get_group_title_list();
@@ -437,12 +454,12 @@ foreach ($list_acl_groups as $value) {
     ?>
   </select></td>
   <td><span class=text><?php echo xlt('Additional Info'); ?>:</span></td>
-  <td><textarea style="width:150px;" name="comments" wrap=auto rows=4 cols=25><?php echo text($iter["info"]); ?></textarea></td>
+  <td><textarea style="width:150px;" name="comments" wrap=auto rows=4 cols=25 class="form-control"><?php echo text($iter["info"]); ?></textarea></td>
 
   </tr>
   <tr height="20" valign="bottom">
   <td colspan="4" class="text">
-  <font class="mandatory">*</font> <?php echo xlt('You must enter your own password to change user passwords. Leave blank to keep password unchanged.'); ?>
+  *<?php echo xlt('You must enter your own password to change user passwords. Leave blank to keep password unchanged.'); ?>
 <!--
 Display red alert if entered password matched one of last three passwords/Display red alert if user password was expired and the user was inactivated previously
 -->
@@ -461,11 +478,14 @@ Display red alert if entered password matched one of last three passwords/Displa
 <script language="JavaScript">
 $(document).ready(function(){
     $("#cancel").click(function() {
-          parent.$.fn.fancybox.close();
+          dlgclose();
      });
 
 });
 </script>
+
+<div class="container">
+
 </BODY>
 
 </HTML>

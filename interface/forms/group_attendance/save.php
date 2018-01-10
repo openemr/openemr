@@ -58,7 +58,7 @@ if ($_GET['mode'] == 'new') {
     participant_insertions($newid, $therapy_group, $group_encounter_data, $appt_data);
 } //If editing a form
 elseif ($_GET['mode'] == 'update') {
-    //Update form_therapy_groups_attendance table
+    //Update form_group_attendance table
     $id = $_GET['id'];
     $sql_for_form_tga = "UPDATE form_group_attendance SET date = NOW(), user = ?, groupname = ?, authorized = ? WHERE id = ?;";
     $sqlBindArray = array();
@@ -66,7 +66,7 @@ elseif ($_GET['mode'] == 'update') {
     sqlInsert($sql_for_form_tga, $sqlBindArray);
 
     //Delete from therapy_groups_participant_attendance table
-    $sql_delete_from_table_tgpa = "DELETE FROM form_group_attendance WHERE form_id = ?;";
+    $sql_delete_from_table_tgpa = "DELETE FROM therapy_groups_participant_attendance WHERE form_id = ?;";
     sqlStatement($sql_delete_from_table_tgpa, array($id));
 
     //Database insertions for participants
