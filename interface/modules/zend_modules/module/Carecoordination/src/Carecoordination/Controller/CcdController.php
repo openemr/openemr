@@ -49,7 +49,7 @@ class CcdController extends AbstractActionController
     * Upload CCD file
     */
     public function uploadAction()
-    {        
+    {
         $request          = $this->getRequest();
         $upload           = $request->getPost('upload');
         $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCD');

@@ -52,10 +52,11 @@ class DocumentsController extends AbstractActionController
   /*
   * Upload document
   */
-    public function uploadAction($request=null)
+    public function uploadAction($request = null)
     {
-        if(!$request)
+        if (!$request) {
             $request        = $this->getRequest();
+        }
         if ($request->isPost()) {
             $error          = false;
             $files          = array();
