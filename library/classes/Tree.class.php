@@ -365,7 +365,7 @@ function array_merge_n()
     $array = array();
 
     // Arrays to be merged (function's arguments):
-    $arrays =& func_get_args();
+    $arrays = func_get_args();
 
     // Merging of each array with the resulting one:
     foreach ($arrays as $array_i) {
