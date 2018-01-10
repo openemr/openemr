@@ -70,7 +70,7 @@ use OpenEMR\Core\Header;
                                 <?php
                                 foreach ($msgs as $i) {
                                     if ($i['message_status']=='New') {
-                                        echo "<li><a href='/messaging/messages.php'><h4>" . text($i['title']) . "</h4></a></li>";
+                                        echo "<li><a href='" . $GLOBALS['web_root'] . "/portal/messaging/messages.php'><h4>" . text($i['title']) . "</h4></a></li>";
                                     }
                                 }
                                 ?>
@@ -148,7 +148,10 @@ use OpenEMR\Core\Header;
                             class="fa fa-calendar"></i> <span><?php echo xlt('Reports'); ?></span>
                     </a>
                         <ul class="dropdown-menu">
-                            <li><a id="callccda" href="<?php echo $GLOBALS['web_root']; ?>/ccdaservice/ccda_gateway.php?action=startandrun"><i class="fa fa-envelope" aria-hidden="true"></i><span><?php echo xlt('View CCD'); ?></span></a></li>
+                            <?php if ($GLOBALS['ccda_alt_service_enable'] > 1) { ?>
+                                <li><a id="callccda" href="<?php echo $GLOBALS['web_root']; ?>/ccdaservice/ccda_gateway.php?action=startandrun">
+                                        <i class="fa fa-envelope" aria-hidden="true"></i><span><?php echo xlt('View CCD'); ?></span></a></li>
+                            <?php } ?>
                             <li data-toggle="pill"><a href="#reportpanel" data-toggle="collapse"
                                 data-parent="#panelgroup"> <i class="fa fa-folder-open"></i> <span><?php echo xlt('Report Content'); ?></span></a></li>
                             <li data-toggle="pill"><a href="#downloadpanel" data-toggle="collapse"

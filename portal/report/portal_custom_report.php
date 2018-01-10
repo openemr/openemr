@@ -179,9 +179,7 @@ input[type="checkbox"], input[type="radio"] {
 </style>
 
 <?php if (!$PDF_OUTPUT) { ?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign_report.css?v=<?php echo $v_js_includes; ?>" />
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/SearchHighlight.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript">var $j = jQuery.noConflict();</script>
 
@@ -523,7 +521,7 @@ if ($printable) {
     echo '<page_header style="text-align:right;"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS'] . '</page_header>    ';
     echo '<page_footer style="text-align:right;">' . xlt('Generated on') . ' ' . text(oeFormatShortDate()) . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
 
-  // Use logo if it exists as 'practice_logo.gif' in the site dir
+    // Use logo if it exists as 'practice_logo.gif' in the site dir
   // old code used the global custom dir which is no longer a valid
     $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
     if (file_exists($practice_logo)) {
