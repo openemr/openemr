@@ -17,11 +17,14 @@ require_once("$srcdir/auth.inc");
 
 use OpenEMR\Core\Header;
 
+if (!acl_check('admin', 'user')) {
+    die(xlt('Access denied'));
+}
+
 $alertmsg = '';
 $bg_msg = '';
 $set_active_msg=0;
 $show_message=0;
-
 
 /* Sending a mail to the admin when the breakglass user is activated only if $GLOBALS['Emergency_Login_email'] is set to 1 */
 $bg_count=count($access_group);
