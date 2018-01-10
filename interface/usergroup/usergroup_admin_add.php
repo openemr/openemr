@@ -342,14 +342,11 @@ echo generate_select_list(
 </tr>
 <?php } ?>
 
-<?php
- // List the access control groups if phpgacl installed
-if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
-?>
  <tr>
 <td class='text'><?php echo xlt('Access Control'); ?>:</td>
  <td><select name="access_group[]" multiple style="width:120px;" class="form-control">
 <?php
+// List the access control groups
   $list_acl_groups = acl_get_group_title_list();
   $default_acl_group = 'Administrators';
 foreach ($list_acl_groups as $value) {
@@ -368,9 +365,6 @@ foreach ($list_acl_groups as $value) {
 
   </tr>
   <tr height="25"><td colspan="4">&nbsp;</td></tr>
-<?php
-}
-?>
 
 </table>
 

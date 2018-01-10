@@ -435,14 +435,11 @@ echo generate_select_list(
 </tr>
 <?php } ?>
 
-<?php
- // Collect the access control group of user
-if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
-?>
  <tr>
 <td class='text'><?php echo xlt('Access Control'); ?>:</td>
  <td><select id="access_group_id" name="access_group[]" multiple style="width:150px;" class="form-control">
 <?php
+  // Collect the access control group of user
   $list_acl_groups = acl_get_group_title_list();
   $username_acl_groups = acl_get_group_titles($iter["username"]);
 foreach ($list_acl_groups as $value) {
@@ -469,9 +466,7 @@ Display red alert if entered password matched one of last three passwords/Displa
   <div class="redtext" id="error_message">&nbsp;</div>
   </td>
   </tr>
-<?php
-}
-?>
+
 </table>
 
 <INPUT TYPE="HIDDEN" NAME="id" VALUE="<?php echo attr($_GET["id"]); ?>">
