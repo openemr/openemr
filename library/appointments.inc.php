@@ -130,10 +130,11 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
         "e.pc_eventDate, e.pc_endDate, e.pc_startTime, e.pc_endTime, e.pc_duration, e.pc_recurrtype, e.pc_recurrspec, e.pc_recurrfreq, e.pc_catid, e.pc_eid, e.pc_gid, " .
         "e.pc_title, e.pc_hometext, e.pc_apptstatus, " .
         "p.fname, p.mname, p.lname, p.pid, p.pubpid, p.phone_home, p.phone_cell, " .
+        "p.hipaa_allowsms, p.phone_home, p.phone_cell, p.hipaa_voice, p.hipaa_allowemail, p.email, " .
         "u.fname AS ufname, u.mname AS umname, u.lname AS ulname, u.id AS uprovider_id, " .
         "f.name, " .
         "$tracker_fields" .
-        "c.pc_catname, c.pc_catid " .
+        "c.pc_catname, c.pc_catid, e.pc_facility " .
         "FROM openemr_postcalendar_events AS e " .
         "$tracker_joins" .
         "LEFT OUTER JOIN facility AS f ON e.pc_facility = f.id " .
