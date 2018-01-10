@@ -20,6 +20,10 @@ use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
 
+if (!acl_check('admin', 'users')) {
+    exit();
+}
+
 $alertmsg = '';
 
 ?>
