@@ -17,7 +17,7 @@ require_once("$srcdir/auth.inc");
 
 use OpenEMR\Core\Header;
 
-if (!acl_check('admin', 'user')) {
+if (!acl_check('admin', 'users')) {
     die(xlt('Access denied'));
 }
 
