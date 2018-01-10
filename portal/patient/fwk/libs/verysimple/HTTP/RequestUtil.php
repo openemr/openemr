@@ -289,8 +289,7 @@ class RequestUtil
      */
     public static function GetCurrentURL($include_querystring = true, $append_post_vars = false)
     {
-        if(!empty($_SERVER['HTTP_X_FORWARDED_PROTO']))
-        {
+        if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
             $server_protocol = $_SERVER['HTTP_X_FORWARDED_PROTO'];
         } else {
             $server_protocol = isset($_SERVER ["SERVER_PROTOCOL"]) ? $_SERVER ["SERVER_PROTOCOL"] : "";
