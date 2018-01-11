@@ -1217,7 +1217,7 @@ if ($refresh and $refresh != 'fullscreen') {
                 <!-- end of the CLINICAL BOX -->
                 <!-- start of slide down pupils_panel -->
                 <?php ($DIMODPUPILSIZE != '') ? ($display_dim_pupils_panel = "display") : ($display_dim_pupils_panel = "nodisplay"); ?>
-                <div id="dim_pupils_panel" name="dim_pupils_panel" class="vitals <?php echo attr($display_dim_pupils_panel); ?>"
+                <div id="dim_pupils_panel" name="dim_pupils_panel" class="vitals <?php echo attr($display_dim_pupils_panel); ?>">
                   <span class="top_left"><b id="pupils_DIM"><?php echo xlt('Pupils') ?>: <?php echo xlt('Dim'); ?></b> </span>
                   <div id="Lyr71">
                     <table>

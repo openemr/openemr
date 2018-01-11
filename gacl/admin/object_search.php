@@ -1,6 +1,6 @@
 <?php
 require_once('gacl_admin.inc.php');
-
+require_once('securityPatterns.php');
 switch (strtolower($_GET['object_type'])) {
 	case 'axo':
 		$object_type = 'axo';
@@ -18,8 +18,8 @@ switch ($_GET['action']) {
 			$array_field = $db->qstr(strtolower(trim($array_field)));
 		}
 		
-		$value_search_str = trim($_GET['value_search_str']);
-		$name_search_str = trim($_GET['name_search_str']);
+		$value_search_str = applyIVPattern($_GET['value_search_str']);
+		$name_search_str = applyIVPattern($_GET['name_search_str']);
 		
 		$exploded_value_search_str = explode("\n", $value_search_str);
 		$exploded_name_search_str = explode("\n", $name_search_str);
@@ -42,7 +42,7 @@ switch ($_GET['action']) {
 		$query = '
 			SELECT	section_value,value,name
 			FROM	'. $gacl_api->_db_table_prefix . $object_type .'
-			WHERE	section_value='. $db->qstr($_GET['section_value']) .'
+			WHERE	section_value='. $db->qstr(applyIVPattern($_GET['section_value'])) .'
 			AND		(';
 		
 		if (count($exploded_value_search_str) > 1) {
@@ -78,14 +78,14 @@ switch ($_GET['action']) {
 		$smarty->assign('options_objects', $options_objects);
 		$smarty->assign('total_rows', $total_rows);
 		
-		$smarty->assign('value_search_str', $_GET['value_search_str']);
-		$smarty->assign('name_search_str', $_GET['name_search_str']);
+		$smarty->assign('value_search_str', applyIVPattern($_GET['value_search_str']));
+		$smarty->assign('name_search_str', applyIVPattern($_GET['name_search_str']));
 		
 		//break;
 	default:
-		$smarty->assign('src_form', $_GET['src_form']);
-		$smarty->assign('section_value', $_GET['section_value']);
-		$smarty->assign('section_value_name', ucfirst($_GET['section_value']));
+		$smarty->assign('src_form', applyIVPattern($_GET['src_form']));
+		$smarty->assign('section_value', applyIVPattern($_GET['section_value']));
+		$smarty->assign('section_value_name', ucfirst(applyIVPattern($_GET['section_value'])));
 		$smarty->assign('object_type', $object_type);
 		$smarty->assign('object_type_name', strtoupper($object_type));
 		
