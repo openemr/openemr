@@ -16,7 +16,7 @@ require_once("$srcdir/options.inc.php");
     // Called by the deleteme.php window on a successful delete.
     function imdeleted() {
         top.restoreSession();
-        location.href = 'transaction/transactions.php';
+        location.href = '../../patient_file/transaction/transactions.php';
     }
     // Process click on Delete button.
     function deleteme(transactionId) {
