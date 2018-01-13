@@ -44,6 +44,9 @@ abstract class BaseController
 
     public function set_view($view, $template = '')
     {
+        if (!isset($this->viewBean)) {
+            $this->viewBean = new stdClass();
+        }
         $this->viewBean->_view = $view;
         if ($template) {
             $this->viewBean->_template = $template;
@@ -57,6 +60,9 @@ abstract class BaseController
 
     public function redirect($redirect)
     {
+        if (!isset($this->viewBean)) {
+            $this->viewBean = new stdClass();
+        }
         $this->viewBean->_redirect = $redirect;
     }
 

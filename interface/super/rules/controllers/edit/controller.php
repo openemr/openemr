@@ -16,7 +16,9 @@ class Controller_edit extends BaseController
         if (is_null($rule)) {
             $rule = $this->getRuleManager()->newRule();
         }
-
+        if (!isset($this->viewBean)) {
+            $this->viewBean = new stdClass();
+        }
         $this->viewBean->rule = $rule;
         $this->set_view("summary.php");
     }
@@ -45,7 +47,9 @@ class Controller_edit extends BaseController
     {
         $ruleId = _get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
-
+        if (!isset($this->viewBean)) {
+            $this->viewBean = new stdClass();
+        }
         $this->viewBean->rule = $rule;
         $this->set_view("intervals.php");
     }
@@ -88,7 +92,9 @@ class Controller_edit extends BaseController
         $rule = $this->getRuleManager()->getRule($ruleId);
         $guid = _get('guid');
         $criteria = $this->getRuleManager()->getRuleFilterCriteria($rule, $guid);
-
+        if (!isset($this->viewBean)) {
+            $this->viewBean = new stdClass();
+        }
         $this->viewBean->type = "filter";
         $this->viewBean->rule = $rule;
         $this->viewBean->criteria = $criteria;
@@ -113,7 +119,9 @@ class Controller_edit extends BaseController
         $rule = $this->getRuleManager()->getRule($ruleId);
         $guid = _get('guid');
         $criteria = $this->getRuleManager()->getRuleTargetCriteria($rule, $guid);
-
+        if (!isset($this->viewBean)) {
+            $this->viewBean = new stdClass();
+        }
         $this->viewBean->type = "target";
         $this->viewBean->rule = $rule;
         $this->viewBean->criteria = $criteria;
@@ -214,6 +222,9 @@ class Controller_edit extends BaseController
         $rule = $this->getRuleManager()->getRule($ruleId);
         $guid = _get('guid');
         $action = $this->getRuleManager()->getRuleAction($rule, $guid);
+        if (!isset($this->viewBean)) {
+            $this->viewBean = new stdClass();
+        }
         $this->viewBean->action = $action;
         $this->viewBean->rule = $rule;
         $this->addHelper("common.php");
@@ -237,6 +248,9 @@ class Controller_edit extends BaseController
         $action = new RuleAction();
         $action->id = $ruleId;
         $action->groupId = $groupId;
+        if (!isset($this->viewBean)) {
+            $this->viewBean = new stdClass();
+        }
         $this->viewBean->action = $action;
         $this->viewBean->rule = $rule;
         $this->addHelper("common.php");
@@ -293,7 +307,9 @@ class Controller_edit extends BaseController
         if ($type == "target") {
             $allowed = $this->getRuleManager()->getAllowedTargetCriteriaTypes();
         }
-
+        if (!isset($this->viewBean)) {
+            $this->viewBean = new stdClass();
+        }
         $this->viewBean->allowed = $allowed;
         $this->viewBean->id = $id;
         $this->viewBean->groupId = $groupId;
@@ -320,6 +336,9 @@ class Controller_edit extends BaseController
         }
 
         $criteria->groupId = $groupId;
+        if (!isset($this->viewBean)) {
+            $this->viewBean = new stdClass();
+        }
         $this->viewBean->type = $type;
         $this->viewBean->rule = $rule;
         $this->viewBean->criteria = $criteria;
