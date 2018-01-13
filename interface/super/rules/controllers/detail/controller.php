@@ -16,6 +16,9 @@ class Controller_detail extends BaseController
         if (is_null($rule)) {
             $this->redirect("index.php?action=browse!list");
         } else {
+            if (!isset($this->viewBean)) {
+                $this->viewBean = new stdClass();
+            }
             $this->viewBean->rule = $rule;
             $this->set_view("view.php");
         }
