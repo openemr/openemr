@@ -9,6 +9,11 @@
 class Controller_detail extends BaseController
 {
 
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     function _action_view()
     {
         $ruleId = _get('id');
