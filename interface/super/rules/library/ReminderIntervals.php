@@ -65,7 +65,7 @@ class ReminderIntervals
                     return $detail;
 +               }
             }
-         }
+        }
 
         return null;
     }
