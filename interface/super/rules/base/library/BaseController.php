@@ -19,9 +19,15 @@
 abstract class BaseController
 {
 
-    var $viewBean;
-    var $ruleManager;
-    var $codeManager;
+    public $viewBean;
+    public $ruleManager;
+    public $codeManager;
+
+    public function __construct()
+    {
+        $this->viewBean = new stdClass();
+    }
+
 
     public function _action_error()
     {
