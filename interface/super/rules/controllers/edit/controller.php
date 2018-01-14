@@ -37,9 +37,7 @@ class Controller_edit extends BaseController
         $web_ref = _post('fld_web_reference');
         if (is_null($rule_id)) {
             // its a new rule submit
-            $ruleId = $this->getRuleManager()->updateSummary($ruleId,
-                $types, $title, $developer, $funding, $release, $web_ref);
-
+            $ruleId = $this->getRuleManager()->updateSummary($ruleId, $types, $title, $developer, $funding, $release, $web_ref);
             // redirect to the intervals page
             $this->redirect("index.php?action=edit!intervals&id=$ruleId");
         } else {

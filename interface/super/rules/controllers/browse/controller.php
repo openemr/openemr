@@ -10,6 +10,10 @@ require_once(src_dir() . "/clinical_rules.php");
 
 class Controller_browse extends BaseController
 {
+    public function __construct()
+    {
+        parent::__construct();
+    }
 
     function _action_list()
     {
