@@ -1,35 +1,21 @@
 <?php
-/*
+/**
  * Collections report
  *
  * (TLH) Added payor,provider,fixed cvs download to included selected fields
  * (TLH) Added ability to download selected invoices only or all for patient
  *
- * Copyright (C) 2015 Terry Hill <terry@lillysystems.com>
- * Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author Rod Roark <rod@sunsetsystems.com>
- * @author Terry Hill <terry@lilysystems.com>
- * @author Brady Miller <brady.g.miller@gmail.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Terry Hill <terry@lillysystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2006-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2015 Terry Hill <terry@lillysystems.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-
-use OpenEMR\Core\Header;
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
@@ -37,16 +23,15 @@ require_once("../../library/invoice_summary.inc.php");
 require_once("../../library/sl_eob.inc.php");
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Core\Header;
 
 $alertmsg = '';
 $bgcolor = "#aaaaaa";
 $export_patient_count = 0;
 $export_dollars = 0;
 
-$today = date("Y-m-d");
-
-$form_date      = fixDate($_POST['form_date'], "");
-$form_to_date   = fixDate($_POST['form_to_date'], "");
+$form_date      = (isset($_POST['form_date'])) ? DateToYYYYMMDD($_POST['form_date']) : "";
+$form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : "";
 $is_ins_summary = $_POST['form_category'] == 'Ins Summary';
 $is_due_ins     = ($_POST['form_category'] == 'Due Ins') || $is_ins_summary;
 $is_due_pt      = $_POST['form_category'] == 'Due Pt';
@@ -167,7 +152,7 @@ for ($c = 0; $c < $form_age_cols;
 function bucks($amount)
 {
     if ($amount) {
-        echo oeFormatMoney($amount); // was printf("%.2f", $amount);
+        return oeFormatMoney($amount); // was printf("%.2f", $amount);
     }
 }
 
@@ -229,11 +214,11 @@ function endPatient($ptrow)
             if ($form_age_cols) {
                 for ($c = 0; $c < $form_age_cols; ++$c) {
                     echo "  <td class='detotal' align='right'>&nbsp;" .
-                    oeFormatMoney($ptrow['agedbal'][$c]) . "&nbsp;</td>\n";
+                    text(oeFormatMoney($ptrow['agedbal'][$c])) . "&nbsp;</td>\n";
                 }
             } else {
                 echo "  <td class='detotal' align='right'>&nbsp;" .
-                oeFormatMoney($pt_balance) . "&nbsp;</td>\n";
+                text(oeFormatMoney($pt_balance)) . "&nbsp;</td>\n";
             }
 
             if ($form_cb_idays) {
@@ -276,19 +261,19 @@ function endInsurance($insrow)
         echo " <tr bgcolor='$bgcolor'>\n";
         echo "  <td class='detail'>" . text($insrow['insname']) . "</td>\n";
         echo "  <td class='detotal' align='right'>&nbsp;" .
-        oeFormatMoney($insrow['charges']) . "&nbsp;</td>\n";
+        text(oeFormatMoney($insrow['charges'])) . "&nbsp;</td>\n";
         echo "  <td class='detotal' align='right'>&nbsp;" .
-        oeFormatMoney($insrow['adjustments']) . "&nbsp;</td>\n";
+        text(oeFormatMoney($insrow['adjustments'])) . "&nbsp;</td>\n";
         echo "  <td class='detotal' align='right'>&nbsp;" .
-        oeFormatMoney($insrow['paid']) . "&nbsp;</td>\n";
+        text(oeFormatMoney($insrow['paid'])) . "&nbsp;</td>\n";
         if ($form_age_cols) {
             for ($c = 0; $c < $form_age_cols; ++$c) {
                 echo "  <td class='detotal' align='right'>&nbsp;" .
-                oeFormatMoney($insrow['agedbal'][$c]) . "&nbsp;</td>\n";
+                text(oeFormatMoney($insrow['agedbal'][$c])) . "&nbsp;</td>\n";
             }
         } else {
             echo "  <td class='detotal' align='right'>&nbsp;" .
-            oeFormatMoney($ins_balance) . "&nbsp;</td>\n";
+            text(oeFormatMoney($ins_balance)) . "&nbsp;</td>\n";
         }
 
         echo " </tr>\n";
@@ -321,61 +306,58 @@ if ($_POST['form_csvexport']) {
 <html>
 <head>
 
-<?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
+    <title><?php echo xlt('Collections Report')?></title>
 
-<title><?php echo xlt('Collections Report')?></title>
-<style type="text/css">
+    <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-@media print {
-    #report_parameters {
-        visibility: hidden;
-        display: none;
-    }
-    #report_parameters_daterange {
-        visibility: visible;
-        display: inline;
-    }
-    #report_results {
-       margin-top: 30px;
-    }
-}
+    <style type="text/css">
+        @media print {
+            #report_parameters {
+                visibility: hidden;
+                display: none;
+            }
+            #report_parameters_daterange {
+                visibility: visible;
+                display: inline;
+            }
+            #report_results {
+               margin-top: 30px;
+            }
+        }
 
-/* specifically exclude some from the screen */
-@media screen {
-    #report_parameters_daterange {
-        visibility: hidden;
-        display: none;
-    }
-}
+        /* specifically exclude some from the screen */
+        @media screen {
+            #report_parameters_daterange {
+                visibility: hidden;
+                display: none;
+            }
+        }
+    </style>
 
-</style>
+    <script language="JavaScript">
+        $(document).ready(function() {
+            oeFixedHeaderSetup(document.getElementById('mymaintable'));
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
 
-<script language="JavaScript">
+            $('.datepicker').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+        });
 
- $(document).ready(function() {
-  oeFixedHeaderSetup(document.getElementById('mymaintable'));
-  var win = top.printLogSetup ? top : opener.top;
-  win.printLogSetup(document.getElementById('printbutton'));
-
-  $('.datepicker').datetimepicker({
-    <?php $datetimepicker_timepicker = false; ?>
-    <?php $datetimepicker_showseconds = false; ?>
-    <?php $datetimepicker_formatInput = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-  });
- });
-
-function checkAll(checked) {
- var f = document.forms[0];
- for (var i = 0; i < f.elements.length; ++i) {
-  var ename = f.elements[i].name;
-  if (ename.indexOf('form_cb[') == 0)
-   f.elements[i].checked = checked;
- }
-}
-
-</script>
+        function checkAll(checked) {
+            var f = document.forms[0];
+            for (var i = 0; i < f.elements.length; ++i) {
+                var ename = f.elements[i].name;
+                if (ename.indexOf('form_cb[') == 0)
+                    f.elements[i].checked = checked;
+            }
+        }
+    </script>
 
 </head>
 
@@ -383,7 +365,7 @@ function checkAll(checked) {
 
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Collections'); ?></span>
 
-<form method='post' action='collections_report.php' enctype='multipart/form-data' id='theform'>
+<form method='post' action='collections_report.php' enctype='multipart/form-data' id='theform' onsubmit='return top.restoreSession()'>
 
 <div id="report_parameters">
 
@@ -405,71 +387,49 @@ function checkAll(checked) {
                     </tr>
                     <tr>
                         <td>
-                           <label><input type='checkbox' name='form_cb_ssn'<?php if ($form_cb_ssn) {
-                                echo ' checked';
-} ?>>
+                           <label><input type='checkbox' name='form_cb_ssn'<?php echo ($form_cb_ssn) ? ' checked' : ''; ?>>
                             <?php echo xlt('SSN') ?>&nbsp;</label>
                         </td>
                         <td>
-                           <label><input type='checkbox' name='form_cb_dob'<?php if ($form_cb_dob) {
-                                echo ' checked';
-} ?>>
+                           <label><input type='checkbox' name='form_cb_dob'<?php echo ($form_cb_dob) ? ' checked' : ''; ?>>
                             <?php echo xlt('DOB') ?>&nbsp;</label>
                         </td>
                         <td>
-                           <label><input type='checkbox' name='form_cb_pubpid'<?php if ($form_cb_pubpid) {
-                                echo ' checked';
-} ?>>
+                           <label><input type='checkbox' name='form_cb_pubpid'<?php echo ($form_cb_pubpid) ? ' checked' : ''; ?>>
                             <?php echo xlt('ID') ?>&nbsp;</label>
                         </td>
                         <td>
-                           <label><input type='checkbox' name='form_cb_policy'<?php if ($form_cb_policy) {
-                                echo ' checked';
-} ?>>
+                           <label><input type='checkbox' name='form_cb_policy'<?php echo ($form_cb_policy) ? ' checked' : ''; ?>>
                             <?php echo xlt('Policy') ?>&nbsp;</label>
                         </td>
                         <td>
-                           <label><input type='checkbox' name='form_cb_phone'<?php if ($form_cb_phone) {
-                                echo ' checked';
-} ?>>
+                           <label><input type='checkbox' name='form_cb_phone'<?php echo ($form_cb_phone) ? ' checked' : ''; ?>>
                             <?php echo xlt('Phone') ?>&nbsp;</label>
                         </td>
                         <td>
-                           <label><input type='checkbox' name='form_cb_city'<?php if ($form_cb_city) {
-                                echo ' checked';
-} ?>>
+                           <label><input type='checkbox' name='form_cb_city'<?php echo ($form_cb_city) ? ' checked' : ''; ?>>
                             <?php echo xlt('City') ?>&nbsp;</label>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                           <label><input type='checkbox' name='form_cb_ins1'<?php if ($form_cb_ins1) {
-                                echo ' checked';
-} ?>>
+                           <label><input type='checkbox' name='form_cb_ins1'<?php echo ($form_cb_ins1) ? ' checked' : ''; ?>>
                             <?php echo xlt('Primary Ins') ?>&nbsp;</label>
                         </td>
                         <td>
-                           <label><input type='checkbox' name='form_cb_referrer'<?php if ($form_cb_referrer) {
-                                echo ' checked';
-} ?>>
+                           <label><input type='checkbox' name='form_cb_referrer'<?php echo ($form_cb_referrer) ? ' checked' : ''; ?>>
                             <?php echo xlt('Referrer') ?>&nbsp;</label>
                         </td>
                         <td>
-                           <label><input type='checkbox' name='form_cb_adate'<?php if ($form_cb_adate) {
-                                echo ' checked';
-} ?>>
+                           <label><input type='checkbox' name='form_cb_adate'<?php echo ($form_cb_adate) ? ' checked' : ''; ?>>
                             <?php echo xlt('Act Date') ?>&nbsp;</label>
                         </td>
                         <td>
-                           <label><input type='checkbox' name='form_cb_idays'<?php if ($form_cb_idays) {
-                                echo ' checked';
-} ?>>
+                           <label><input type='checkbox' name='form_cb_idays'<?php echo ($form_cb_idays) ? ' checked' : ''; ?>>
                             <?php echo xlt('Inactive Days') ?>&nbsp;</label>
                         </td>
                         <td>
-                           <label><input type='checkbox' name='form_cb_err'<?php if ($form_cb_err) {
-                                echo ' checked';
-} ?>>
+                           <label><input type='checkbox' name='form_cb_err'<?php echo ($form_cb_err) ? ' checked' : ''; ?>>
                             <?php echo xlt('Errors') ?></label>
                         </td>
                     </tr>
@@ -485,15 +445,13 @@ function checkAll(checked) {
                             <?php echo xlt('Service Date'); ?>:
                         </td>
                         <td>
-                           <input type='text' class='datepicker form-control' name='form_date' id="form_date" size='10' value='<?php echo attr($form_date) ?>'
-                            title='yyyy-mm-dd'>
+                           <input type='text' class='datepicker form-control' name='form_date' id="form_date" size='10' value='<?php echo attr(oeFormatShortDate($form_date)); ?>'>
                         </td>
                         <td class='control-label'>
                             <?php echo xlt('To'); ?>:
                         </td>
                         <td>
-                           <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
-                            title='yyyy-mm-dd'>
+                           <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
                         </td>
                         <td>
                            <select name='form_category' class='form-control'>
@@ -612,9 +570,7 @@ function checkAll(checked) {
                         </td>
                         <td>
               <div class="checkbox">
-                           <label><input type='checkbox' name='form_cb_with_debt'<?php if ($form_cb_with_debt) {
-                                echo ' checked';
-} ?>>
+                           <label><input type='checkbox' name='form_cb_with_debt'<?php echo ($form_cb_with_debt) ? ' checked' : ''; ?>>
                             <?php echo xlt('Patients with debt') ?></label>
               </div>
                         </td>
@@ -990,8 +946,8 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
 
    <thead>
     <?php if ($is_due_ins) { ?>
-  <th>&nbsp;<?php echo xlt('Insurance')?></th>
-<?php } ?>
+    <th>&nbsp;<?php echo xlt('Insurance')?></th>
+    <?php } ?>
     <?php if (!$is_ins_summary) { ?>
     <th>&nbsp;<?php echo xlt('Name')?></th>
     <?php } ?>
@@ -1054,7 +1010,7 @@ if ($form_age_cols) {
 ?>
     <?php if ($form_cb_idays) { ?>
   <th align="right"><?php echo xlt('IDays')?>&nbsp;</th>
-<?php } ?>
+    <?php } ?>
 <?php if (!$is_ins_summary) { ?>
   <th align="center"><?php echo xlt('Prv') ?></th>
   <th align="center"><?php echo xlt('Sel') ?></th>
@@ -1131,95 +1087,95 @@ if ($form_age_cols) {
 <?php
 if ($ptrow['count'] == 1) {
     if ($is_due_ins) {
-        echo "  <td class='detail'>&nbsp;" . attr($insname) ."</td>\n";
+        echo "  <td class='detail'>&nbsp;" . text($insname) ."</td>\n";
     }
 
-    echo "  <td class='detail'>&nbsp;" . attr($ptname) ."</td>\n";
+    echo "  <td class='detail'>&nbsp;" . text($ptname) ."</td>\n";
     if ($form_cb_ssn) {
-        echo "  <td class='detail'>&nbsp;" . attr($row['ss']) . "</td>\n";
+        echo "  <td class='detail'>&nbsp;" . text($row['ss']) . "</td>\n";
     }
 
     if ($form_cb_dob) {
-        echo "  <td class='detail'>&nbsp;" . attr(oeFormatShortDate($row['DOB'])) . "</td>\n";
+        echo "  <td class='detail'>&nbsp;" . text(oeFormatShortDate($row['DOB'])) . "</td>\n";
     }
 
     if ($form_cb_pubpid) {
-        echo "  <td class='detail'>&nbsp;" . attr($row['pubpid']) . "</td>\n";
+        echo "  <td class='detail'>&nbsp;" . text($row['pubpid']) . "</td>\n";
     }
 
     if ($form_cb_policy) {
-        echo "  <td class='detail'>&nbsp;" . attr($row['policy']) . "</td>\n";
+        echo "  <td class='detail'>&nbsp;" . text($row['policy']) . "</td>\n";
     }
 
     if ($form_cb_phone) {
-        echo "  <td class='detail'>&nbsp;" . attr($row['phone']) . "</td>\n";
+        echo "  <td class='detail'>&nbsp;" . text($row['phone']) . "</td>\n";
     }
 
     if ($form_cb_city) {
-        echo "  <td class='detail'>&nbsp;" . attr($row['city']) . "</td>\n";
+        echo "  <td class='detail'>&nbsp;" . text($row['city']) . "</td>\n";
     }
 
     if ($form_cb_ins1 || $form_payer_id) {
-        echo "  <td class='detail'>&nbsp;" . attr($row['ins1']) . "</td>\n";
+        echo "  <td class='detail'>&nbsp;" . text($row['ins1']) . "</td>\n";
     }
 
     if ($form_provider) {
-        echo "  <td class='detail'>&nbsp;" . attr($provider_name) . "</td>\n";
+        echo "  <td class='detail'>&nbsp;" . text($provider_name) . "</td>\n";
     }
 
     if ($form_cb_referrer) {
-        echo "  <td class='detail'>&nbsp;" . attr($row['referrer']) . "</td>\n";
+        echo "  <td class='detail'>&nbsp;" . text($row['referrer']) . "</td>\n";
     }
 } else {
-    echo "  <td class='detail' colspan='$initial_colspan'>";
+    echo "  <td class='detail' colspan='" . attr($initial_colspan) . "'>";
     echo "&nbsp;</td>\n";
 }
 ?>
   <td class="detail">
      &nbsp;<a href="../billing/sl_eob_invoice.php?id=<?php echo attr($row['id']) ?>"
-    target="_blank"><?php echo empty($row['irnumber']) ? $row['invnumber'] : $row['irnumber']; ?></a>
+    target="_blank"><?php echo empty($row['irnumber']) ? text($row['invnumber']) : text($row['irnumber']); ?></a>
   </td>
   <td class="detail">
-   &nbsp;<?php echo attr(oeFormatShortDate($row['dos'])); ?>
+   &nbsp;<?php echo text(oeFormatShortDate($row['dos'])); ?>
   </td>
 <?php if ($form_cb_adate) { ?>
   <td class='detail'>
-   &nbsp;<?php echo attr(oeFormatShortDate($row['ladate'])); ?>
+   &nbsp;<?php echo text(oeFormatShortDate($row['ladate'])); ?>
   </td>
 <?php } ?>
   <td class="detail" align="right">
-    <?php attr(bucks($row['charges'])) ?>&nbsp;
+    <?php echo text(bucks($row['charges'])) ?>&nbsp;
   </td>
   <td class="detail" align="right">
-    <?php attr(bucks($row['adjustments'])) ?>&nbsp;
+    <?php echo text(bucks($row['adjustments'])) ?>&nbsp;
   </td>
   <td class="detail" align="right">
-    <?php attr(bucks($row['paid'])) ?>&nbsp;
+    <?php echo text(bucks($row['paid'])) ?>&nbsp;
   </td>
 <?php
 if ($form_age_cols) {
     for ($c = 0; $c < $form_age_cols; ++$c) {
         echo "  <td class='detail' align='right'>";
         if ($c == $agecolno) {
-            bucks($balance);
+            echo text(bucks($balance));
         }
 
         echo "&nbsp;</td>\n";
     }
 } else {
 ?>
-<td class="detail" align="right"><?php bucks($balance) ?>&nbsp;</td>
+<td class="detail" align="right"><?php echo text(bucks($balance)); ?>&nbsp;</td>
 <?php
 } // end else
 ?>
 <?php
 if ($form_cb_idays) {
     echo "  <td class='detail' align='right'>";
-    echo attr($row['inactive_days']) . "&nbsp;</td>\n";
+    echo text($row['inactive_days']) . "&nbsp;</td>\n";
 }
 ?>
   <td class="detail" align="center">
-    <?php echo $row['duncount'] ? $row['duncount'] : "&nbsp;" ?>
+    <?php echo $row['duncount'] ? text($row['duncount']) : "&nbsp;" ?>
   </td>
   <td class="detail" align="center">
 <?php
@@ -1321,20 +1277,20 @@ if ($form_cb_err) {
         }
 
         echo "  <td class='dehead' align='right'>&nbsp;" .
-        oeFormatMoney($grand_total_charges) . "&nbsp;</td>\n";
+        text(oeFormatMoney($grand_total_charges)) . "&nbsp;</td>\n";
         echo "  <td class='dehead' align='right'>&nbsp;" .
-        oeFormatMoney($grand_total_adjustments) . "&nbsp;</td>\n";
+        text(oeFormatMoney($grand_total_adjustments)) . "&nbsp;</td>\n";
         echo "  <td class='dehead' align='right'>&nbsp;" .
-        oeFormatMoney($grand_total_paid) . "&nbsp;</td>\n";
+        text(oeFormatMoney($grand_total_paid)) . "&nbsp;</td>\n";
         if ($form_age_cols) {
             for ($c = 0; $c < $form_age_cols; ++$c) {
                 echo "  <td class='dehead' align='right'>" .
-                oeFormatMoney($grand_total_agedbal[$c]) . "&nbsp;</td>\n";
+                text(oeFormatMoney($grand_total_agedbal[$c])) . "&nbsp;</td>\n";
             }
         } else {
             echo "  <td class='dehead' align='right'>" .
-            oeFormatMoney($grand_total_charges +
-            $grand_total_adjustments - $grand_total_paid) . "&nbsp;</td>\n";
+            text(oeFormatMoney($grand_total_charges +
+            $grand_total_adjustments - $grand_total_paid)) . "&nbsp;</td>\n";
         }
 
         if ($form_cb_idays) {
