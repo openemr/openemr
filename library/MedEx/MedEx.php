@@ -42,12 +42,10 @@ $logged_in = $MedEx->login();
 
 if (($logged_in) && (!empty($_POST['callback_key']))) {
     $token                  = $logged_in['token'];
-    $response['practice']   = $MedEx->practice->sync($token);
     $response['callback']   = $MedEx->callback->receive($data);
-    if (!empty($response['callback'])) {
-        $response['campaigns'] = $MedEx->campaign->events($token);
-        $response['generate'] = $MedEx->events->generate($token, $response['campaigns']['events']);
-    }
+    $response['practice']   = $MedEx->practice->sync($token);
+    $response['campaigns'] = $MedEx->campaign->events($token);
+    $response['generate'] = $MedEx->events->generate($token, $response['campaigns']['events']);
     $response['success']    = "200";
 
     header('Content-type: application/json');

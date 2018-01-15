@@ -408,12 +408,9 @@ class Events extends Base
 
                         $appt2 = array();
                         $appt2['pc_pid']        = $appt['pc_pid'];
-                        $appt2['e_C_UID']       = $event['C_UID'];
-                        
                         $appt2['pc_eventDate']  = $appt['pc_eventDate'];
                         $appt2['pc_startTime']  = $appt['pc_startTime'];
                         $appt2['pc_eid']        = $appt['pc_eid'];
-                        $appt2['e_pc_eid']      = $appt['pc_eid'];
                         $appt2['pc_aid']        = $appt['pc_aid'];
                         $appt2['e_reason']      = (!empty($appt['e_reason']))?:'';
                         $appt2['e_is_subEvent_of']= (!empty($appt['e_is_subEvent_of']))?:"0";
@@ -433,19 +430,15 @@ class Events extends Base
                         $appt2['pc_apptstatus'] = $appt['pc_apptstatus'];
 
                         $appt2['C_UID']         = $event['C_UID'];
-                        $appt2['E_fire_time']   = $event['E_fire_time'];
-                        $appt2['time_order']    = $event['time_order'];
-                        $appt2['M_type']        = $event['M_type'];
                         $appt2['reply']         = "To Send";
                         $appt2['extra']         = "QUEUED";
                         $appt2['status']        = "SENT";
-                       
                         $appt2['to']            = $results;
                         $appt3[] = $appt2;
                     }
                 }
             } else
-                if ($event['M_group'] == 'RECALL') {
+            if ($event['M_group'] == 'RECALL') {
                 if ($event['time_order'] > '0') {
                     $interval ="+";
                 } else {
@@ -505,8 +498,8 @@ class Events extends Base
                     // Yes, and for new ones, ones just due today, we will follow that directive.
                     // However we will limit recalls that are in the past to one event!  
                     // Note:  This only is an issue the first time loading a recall whose due date has already passed.
-                    // Now the question is why was this even an issue?  Something happened to add this logic...
-                   
+                    // If a new recall is added for this patient eg. two years from now we need a new one,
+                    // the old one will be deleted from memory.
                     if (strtotime($recall['r_eventDate']) < mktime(0, 0, 0)) {
                         if ($this->recursive_array_search("recall_".$recall['r_pid'], $appt3)) {
                             continue; 
@@ -516,13 +509,10 @@ class Events extends Base
                     $count_recalls++;
                     $recall2 = array();
                     $recall2['pc_pid']        = $recall['r_pid'];
-                    $recall2['e_C_UID']       = $event['C_UID'];
                     $recall2['pc_eventDate']  = $recall['r_eventDate'];
                     $recall2['pc_startTime']  = '10:42:00';
                     $recall2['pc_eid']        = "recall_".$recall['r_pid'];
-                    $recall2['e_pc_eid']      = "recall_".$recall['r_pid'];
                     $recall2['pc_aid']        = $recall['r_provider'];
-                    $recall2['e_reason']      = (!empty($recall['r_reason']))?:'';
                     $recall2['e_is_subEvent_of']= "0";
                     $recall2['language']      = $recall['language'];
                     $recall2['pc_facility']   = $recall['r_facility'];
@@ -965,7 +955,7 @@ class Logging extends base
     public function log_this($data)
     {
         $log = "/tmp/medex.log" ;
-        $std_log = fopen($log3, 'a');// or die(print_r(error_get_last(), true));
+        $std_log = fopen($log, 'a');// or die(print_r(error_get_last(), true));
         $timed = date(DATE_RFC2822);
         fputs($std_log, "**********************\nlibrary/MedEx/API.php fn log_this(data):  ".$timed."\n");
         if (is_array($data)) {
@@ -2515,7 +2505,7 @@ class Setup extends Base
         <div class="row">
             <div class="col-sm-10 text-center col-xs-offset-1">
                 <div id="setup_1">
-                    <div class="title row">MedEx</div>
+                    <div class="title">MedEx</div>
                     <div class="row showReminders ">
                         <div class="col-sm-10 text-center col-xs-offset-1">
                             <em>
@@ -2533,7 +2523,7 @@ class Setup extends Base
                                 <li> <?php echo xlt('Patient Surveys'); ?></li>
                             </ul>
                         </div>
-                        <div class="col-sm-4 col-xs-offset-1 text-left">
+                        <div class="col-sm-4 col-xs-offset-1 text-center">
                             <h3 class="title"><?php echo xlt('Channels'); ?>:</h3>
                             <ul class="text-left" style="margin-left:75px;">
                                 <li> <?php echo xlt('SMS Messages'); ?></li>
@@ -2562,7 +2552,7 @@ class Setup extends Base
                         <div class="title row fa"><?php echo xlt('Register'); ?>: MedEx Bank</div>
                         <div class="row showReminders">
                             <div class="fa col-sm-10 col-sm-offset-1 text-center">
-                                <div class="divTable4 fa" id="answer" name="answer">
+                                <div class="divTable4" id="answer" name="answer">
                                     <div class="divTableBody">
                                         <div class="divTableRow">
                                             <div class="divTableCell divTableHeading">

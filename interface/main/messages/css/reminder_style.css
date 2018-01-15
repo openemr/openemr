@@ -264,7 +264,7 @@ h1 {
 }
 
 .nodisplay {
-    display: none;
+    display: none !important;
 }
 
 .right {
