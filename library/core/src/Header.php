@@ -234,7 +234,7 @@ class Header
         $template = ($type == 'script') ? $script : $link;
         $v = $GLOBALS['v_js_includes'];
         $path = $path . "?v={$v}";
-        return str_replace("%path%", $path, $template);
+        return str_replace("%path%", attr($path), $template);
     }
 
     /**

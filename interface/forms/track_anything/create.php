@@ -32,7 +32,7 @@ formHeader("Form: Track anything");
 
 ?>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo attr($css_header);?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $web_root; ?>/interface/forms/track_anything/style.css" type="text/css">  
 <?php
 echo "<div id='ta_type'>";

@@ -38,7 +38,7 @@ if (isset($_GET['editlid'])) {
 <!DOCTYPE html>
 <html>
 <head>
-<link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
+<link rel='stylesheet' href="<?php echo attr($css_header);?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <!-- supporting javascript code -->

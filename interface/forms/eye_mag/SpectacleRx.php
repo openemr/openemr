@@ -277,7 +277,7 @@ if ($_REQUEST['dispensed']) {
             <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 
             <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-            <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
+            <link rel="stylesheet" href="<?php echo attr($GLOBALS['css_header']); ?>" type="text/css">
             <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-10-4/themes/ui-lightness/jquery-ui.min.css">
             <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
             <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.css" />
@@ -577,7 +577,7 @@ if ($_REQUEST['dispensed']) {
             <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.js"></script>
 
             <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-            <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
+            <link rel="stylesheet" href="<?php echo attr($GLOBALS['css_header']); ?>" type="text/css">
             <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-10-4/themes/ui-lightness/jquery-ui.min.css">
             <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
             <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.css" />

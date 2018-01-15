@@ -33,7 +33,7 @@ if ($is_lbf) {
 
 <?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo attr($css_header);?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.css" type="text/css"></script>
 <?php
 // Hide the current value css entries. This is currently specific

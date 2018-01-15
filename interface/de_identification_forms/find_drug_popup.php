@@ -29,7 +29,7 @@ $form_code_type = $_POST['form_code_type'];
 <head>
 <?php html_header_show(); ?>
 <title><?php xl('Drug Finder', 'e'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo attr($css_header) ?>' type='text/css'>
 
 <style>
 td { font-size:10pt; }

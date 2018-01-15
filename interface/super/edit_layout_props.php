@@ -39,7 +39,7 @@ $group_id  = empty($_GET['group_id' ]) ? '' : $_GET['group_id' ];
 <head>
 <?php html_header_show();?>
 <title><?php echo xlt("Edit Layout Properties"); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo attr($css_header) ?>' type='text/css'>
 
 <style>
 td { font-size:10pt; }

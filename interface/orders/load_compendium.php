@@ -80,7 +80,7 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
 <html>
 
 <head>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo attr($css_header) ?>' type='text/css'>
 <title><?php echo xlt('Load Lab Configuration'); ?></title>
 </head>
 

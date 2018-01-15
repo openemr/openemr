@@ -26,7 +26,7 @@ include_once("$srcdir/options.inc.php");
 
 
 <!-- page styles -->
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo attr($css_header);?>" type="text/css">
 
 <style>
 .highlight {

@@ -139,7 +139,7 @@ if (isset($_FILES) && !empty($_FILES)) {
 <head>
 <?php html_header_show();?>
 <title><?php echo htmlspecialchars(xl('EDI-271 Response File Upload'), ENT_NOQUOTES); ?></title>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo attr($css_header);?>" type="text/css">
 <style type="text/css">
 
 /* specifically include & exclude from printing */

@@ -51,7 +51,7 @@ if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
 <head>
     <?php html_header_show(); ?>
     <title><?php echo htmlspecialchars(xl('Group Finder'), ENT_NOQUOTES); ?></title>
-    <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+    <link rel="stylesheet" href='<?php echo attr($css_header) ?>' type='text/css'>
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
     <style>
         form {

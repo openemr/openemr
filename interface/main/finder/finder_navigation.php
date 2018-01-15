@@ -7,7 +7,7 @@ include_once("../../globals.php");
 <?php html_header_show();?>
 <title>Navigation</title>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo attr($css_header);?>" type="text/css">
 
 </head>
 <body class="body_nav">

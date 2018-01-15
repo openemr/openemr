@@ -42,7 +42,7 @@ if (trim($_POST['contextname'])!='' && $_POST['action']=='add') {
 ?>
 <html>
     <head>
-        <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+        <link rel="stylesheet" href="<?php echo attr($css_header);?>" type="text/css">
         <style>
         .bottom{border-bottom:1px solid black;}
         .top{border-top:1px solid black;}

@@ -52,7 +52,7 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 <html>
 <head>
 <?php html_header_show();?>
-<link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
+<link rel='stylesheet' href="<?php echo attr($css_header);?>" type="text/css">
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
 <style>
 /* min & max buttons are hidden in the newer concurrent layout */

@@ -4,7 +4,7 @@ include_once("../../../library/api.inc");
 formHeader("Form: CAMOS");
 ?>
 <html><head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo attr($css_header);?>" type="text/css">
 </head>
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <form method=post action="<?php echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="my_form"

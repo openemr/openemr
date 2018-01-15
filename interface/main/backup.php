@@ -127,7 +127,7 @@ if ($form_step == 104) {
 <html>
 
 <head>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo attr($css_header) ?>' type='text/css'>
 <title><?php xl('Backup', 'e'); ?></title>
 </head>
 

@@ -34,7 +34,7 @@ function applyCode($layoutid, $codetype, $code, $description)
 
 <head>
 <title><?php echo xlt('Install Layout Service Codes'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo attr($css_header) ?>' type='text/css'>
 
 <style type="text/css">
  .dehead { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }

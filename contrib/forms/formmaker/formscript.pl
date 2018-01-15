@@ -131,7 +131,7 @@ include_once("$srcdir/api.inc");
 formHeader("Form: FORM_NAME");
 ?>
 <html><head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo attr($css_header);?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 </head>
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
@@ -157,7 +157,7 @@ include_once("$srcdir/api.inc");
 formHeader("Form: FORM_NAME");
 ?>
 <html><head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo attr($css_header);?>" type="text/css">
 </head>
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <form method=post action="<?php echo $rootdir;?>/forms/FORM_NAME/save.php?mode=new" name="my_form" onsubmit="return top.restoreSession()">
@@ -334,7 +334,7 @@ function chkdata_Radio(&$obj, $nam, $var) {
 
 ?>
 <html><head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo attr($css_header);?>" type="text/css">
 </head>
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 DATE_HEADER

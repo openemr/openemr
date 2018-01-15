@@ -62,7 +62,7 @@ window.close(); // comment out for debugging
 
 <title><?php xl('Order and Result Types', 'e'); ?></title>
 
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo attr($css_header) ?>' type='text/css'>
 
 <style type="text/css">
 body {

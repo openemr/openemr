@@ -648,7 +648,7 @@ if (!$debug) {
 <html>
 <head>
 <?php html_header_show();?>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo attr($css_header);?>" type="text/css">
 <style type="text/css">
  body       { font-family:sans-serif; font-size:8pt; font-weight:normal }
  .dehead    { color:#000000; font-family:sans-serif; font-size:9pt; font-weight:bold }

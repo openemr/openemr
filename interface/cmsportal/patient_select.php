@@ -37,7 +37,7 @@ if ($postid) {
 <html>
 <head>
 <?php html_header_show(); ?>
-<link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
+<link rel=stylesheet href="<?php echo attr($css_header); ?>" type="text/css">
 <style>
 
 #searchResults {

@@ -150,7 +150,7 @@ function postToGet($arin)
 <?php } else {?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo attr($css_header);?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign_report.css" />
 <?php } ?>
 
@@ -869,7 +869,7 @@ if ($PDF_OUTPUT) {
         $ptdata = getPatientData($pid, 'cmsportal_login');
         $contents = $pdf->Output('', true);
         echo "<html><head>\n";
-        echo "<link rel='stylesheet' href='$css_header' type='text/css'>\n";
+        echo "<link rel='stylesheet' href='" . attr($css_header) ."' type='text/css'>\n";
         echo "</head><body class='body_top'>\n";
         $result = cms_portal_call(array(
             'action' => 'putmessage',
