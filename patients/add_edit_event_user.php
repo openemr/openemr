@@ -675,7 +675,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
 <head>
 <?php html_header_show(); ?>
 <title><?php echo $eid ? "Edit" : "Add New" ?> <?php xl('Event', 'e');?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo attr($css_header) ?>' type='text/css'>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <style>

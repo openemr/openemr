@@ -128,7 +128,7 @@ if ($form_output == 3) {
 <?php html_header_show(); ?>
 <title><?php echo $report_title; ?></title>
 
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+<link rel='stylesheet' href='<?php echo attr($css_header) ?>' type='text/css'>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <style type="text/css">

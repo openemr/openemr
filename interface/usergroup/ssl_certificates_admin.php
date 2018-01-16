@@ -552,7 +552,7 @@ if ($_POST["mode"] == "create_client_certificate") {
 
     </script>
 
-    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+    <link rel="stylesheet" href="<?php echo attr($css_header);?>" type="text/css">
     <style type="text/css">
       div.borderbox {
         margin: 5px 5px;

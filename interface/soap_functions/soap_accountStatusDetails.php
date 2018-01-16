@@ -52,7 +52,7 @@ $accountStatus = $eRxSOAP->getAccountStatus()
 
 ?>
 <head>
-    <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+    <link rel="stylesheet" href="<?php echo attr($css_header); ?>" type="text/css">
 </head>
 <body class='body_top'>
     <table class='text' align=center width='90%' height='80%' style='padding-top:6%'>

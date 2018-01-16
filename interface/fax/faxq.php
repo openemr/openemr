@@ -86,7 +86,7 @@ if ($scandir && $GLOBALS['enable_scanner']) {
 <head>
 <?php html_header_show();?>
 
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo attr($css_header) ?>' type='text/css'>
 <title><?php xl('Received Faxes', 'e'); ?></title>
 
 <style>

@@ -268,7 +268,7 @@ if (isset($this_message['pid'])) {
           $("#sendTo").each(function(){$("#sendTo option").attr("selected","selected"); });
         }
     </script>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo attr($css_header);?>" type="text/css">
   </head>
   <body class="body_top">
 <!-- Required for the popup date selectors -->

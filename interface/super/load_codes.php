@@ -37,7 +37,7 @@ $code_type = empty($_POST['form_code_type']) ? '' : $_POST['form_code_type'];
 
 <head>
 <title><?php echo xlt('Install Code Set'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo attr($css_header) ?>' type='text/css'>
 
 <style type="text/css">
  .dehead { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }

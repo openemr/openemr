@@ -26,7 +26,7 @@ echo $this->doctype(); ?>
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <link rel="stylesheet" href="<?php echo  $GLOBALS['css_header'];?>" type="text/css">
+        <link rel="stylesheet" href="<?php echo  attr($GLOBALS['css_header']);?>" type="text/css">
         <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0') ?>
         <?php echo $this->headTitle($this->translate('Manage Modules'))->setSeparator(' - ')->setAutoEscape(false) ?>
 				<?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/images/favicon.ico'))
@@ -40,7 +40,7 @@ echo $this->doctype(); ?>
 												->prependStylesheet($this->basePath() . '/css/bubbletip.css')
 												->prependStylesheet($this->basePath() . '/css/bubbles.css')
 												->prependStylesheet($this->basePath() . '/css/emr.css')
-												->prependStylesheet($GLOBALS['css_header']) ?>
+												->prependStylesheet(attr($GLOBALS['css_header'])) ?>
 
         <!-- Scripts -->
         <?php echo $this->headScript()

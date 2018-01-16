@@ -39,7 +39,7 @@ a {
 -->
 </style>
 {/literal}
-<link rel="stylesheet" href="{$GLOBALS.css_header}" type="text/css">
+<link rel="stylesheet" href="{$GLOBALS.css_header|escape:'html'}" type="text/css">
 </head>
 <body class="body_top">
 <form name="patientfinder" method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">

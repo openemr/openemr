@@ -41,7 +41,7 @@ $records2 = array();
         <?php html_header_show(); ?>
         <title><?php echo xlt('External Data'); ?></title>
         <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
-        <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+        <link rel='stylesheet' href='<?php echo attr($css_header) ?>' type='text/css'>
         <script>
             $(document).ready(function() {
                 $('.ext-tab-head li').click(function() {

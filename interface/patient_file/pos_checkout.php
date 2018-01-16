@@ -174,7 +174,7 @@ function generate_receipt($patient_id, $encounter = 0)
 <html>
 <head>
 <?php html_header_show(); ?>
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+<link rel='stylesheet' href='<?php echo attr($css_header) ?>' type='text/css'>
 
 <title><?php echo xlt('Receipt for Payment'); ?></title>
 
@@ -709,7 +709,7 @@ while ($urow = sqlFetchArray($ures)) {
 ?>
 <html>
 <head>
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+<link rel='stylesheet' href='<?php echo attr($css_header) ?>' type='text/css'>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <title><?php echo xlt('Patient Checkout'); ?></title>

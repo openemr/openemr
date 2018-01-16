@@ -70,7 +70,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
 <head>
     <?php html_header_show();?>
 
-    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+    <link rel="stylesheet" href="<?php echo attr($css_header);?>" type="text/css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/datatables.net-jqui-1-10-13/css/dataTables.jqueryui.min.css" type="text/css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" type="text/css">
 

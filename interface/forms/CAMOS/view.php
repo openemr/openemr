@@ -30,7 +30,7 @@ $textarea_rows = 22;
 $textarea_cols = 90;
 ?>
 <html><head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo attr($css_header);?>" type="text/css">
 <script type="text/javascript">
 function checkall(){
   var f = document.my_form;
@@ -68,7 +68,7 @@ function show_edit(t) {
 }
 </script>
 <?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo attr($css_header);?>" type="text/css">
 </head>
 <body class="body_top">
 <form method=post action="<?php echo $rootdir?>/forms/CAMOS/save.php?mode=delete&id=<?php echo $_GET["id"];?>" name="my_form">

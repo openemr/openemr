@@ -45,7 +45,7 @@ if ($_POST["setval"] == 'approve') {
     <html>
         <head>
             <title><?php echo xlt('CCR Review and Approve');?></title>
-            <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css" >
+            <link rel="stylesheet" href="<?php echo attr($css_header); ?>" type="text/css" >
         </head>
         <body class="body_top" >
             <center><?php echo xlt('Approved Successfully'); ?></center>
@@ -60,7 +60,7 @@ if ($_POST["setval"] == 'approve') {
     <html>
         <head>
             <title><?php echo xlt('CCR Review and Approve');?></title>
-            <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css" >
+            <link rel="stylesheet" href="<?php echo attr($css_header); ?>" type="text/css" >
         </head>
         <body class="body_top" >
             <center><?php echo xlt('Discarded'); ?></center>
@@ -74,7 +74,7 @@ if ($_POST["setval"] == 'approve') {
 <html>
 <head>
 <title><?php echo xlt('CCR Review and Approve');?></title>
-<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css" >
+<link rel="stylesheet" href="<?php echo attr($css_header); ?>" type="text/css" >
 <style>
 
 table {

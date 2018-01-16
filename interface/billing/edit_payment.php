@@ -693,7 +693,7 @@ document.onclick=HideTheAjaxDivs;
     padding: 10px;
 }
 </style>
-<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+<link rel="stylesheet" href="<?php echo attr($css_header); ?>" type="text/css">
 </head>
 <body class="body_top" onLoad="OnloadAction()"  >
 <form name='new_payment' method='post'  action="edit_payment.php" onsubmit='

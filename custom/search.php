@@ -12,7 +12,7 @@ require_once("../interface/globals.php");
 ?>
 <html>
 <head>
-  <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+  <link rel="stylesheet" href="<?php echo attr($css_header);?>" type="text/css">
 <style type="text/css">
  body {
   font-size:8pt;

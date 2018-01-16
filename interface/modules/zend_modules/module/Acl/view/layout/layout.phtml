@@ -47,7 +47,7 @@ echo $this->doctype();
 			->prependStylesheet($this->basePath() . '/css/bubbletip.css')
 			->prependStylesheet($this->basePath() . '/css/bubbles.css')
 			->prependStylesheet($this->basePath() . '/css/jquery.custom-scrollbar.css')
-			->prependStylesheet($GLOBALS['css_header']) ?>
+			->prependStylesheet(attr($GLOBALS['css_header'])) ?>
         
         <!-- Scripts -->
         <?php echo $this->headScript()

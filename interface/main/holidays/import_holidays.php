@@ -80,7 +80,7 @@ if (!empty($_POST['sync'])) {
 <html>
 <head>
     <title><?php echo xlt('Holidays management'); ?></title>
-    <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+    <link rel="stylesheet" href='<?php echo attr($css_header) ?>' type='text/css'>
 
 </head>
 

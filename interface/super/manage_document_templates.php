@@ -97,7 +97,7 @@ if (!empty($_POST['bn_upload'])) {
 
 <head>
 <title><?php echo xlt('Document Template Management'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo attr($css_header) ?>' type='text/css'>
 
 <style type="text/css">
  .dehead { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }

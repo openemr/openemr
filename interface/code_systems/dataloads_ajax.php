@@ -46,7 +46,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
 <html>
 <head>
 <title><?php echo xlt('External Data Loads'); ?></title>
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'/>
+<link rel='stylesheet' href='<?php echo attr($css_header) ?>' type='text/css'/>
 <link rel='stylesheet' href='../../library/css/jquery-ui-1.8.21.custom.css' type='text/css'/>
 
 

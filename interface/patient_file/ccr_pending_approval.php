@@ -36,7 +36,7 @@ if ($_REQUEST['approve'] == 1) {
   <html>
         <head>
             <title><?php echo xlt('CCR Approve');?></title>
-            <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css" >
+            <link rel="stylesheet" href="<?php echo attr($css_header); ?>" type="text/css" >
         </head>
         <body class="body_top" >
             <center><?php echo xlt('Approved Successfully'); ?></center>
@@ -50,7 +50,7 @@ if ($_REQUEST['approve'] == 1) {
 <html>
 <head>
 <title><?php echo xlt('Pending Approval');?></title>
-<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+<link rel="stylesheet" href="<?php echo attr($css_header); ?>" type="text/css">
 <style>
 
 table {

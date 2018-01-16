@@ -39,7 +39,7 @@ while ($row = sqlFetchArray($res)) {
 <head>
 <?php html_header_show(); ?>
     <title><?php echo xlt("Patient Finder"); ?></title>
-<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+<link rel="stylesheet" href="<?php echo attr($css_header); ?>" type="text/css">
 
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-dt-1-10-13/css/jquery.dataTables.min.css" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-dt-1-3-2/css/colReorder.dataTables.min.css" type="text/css">

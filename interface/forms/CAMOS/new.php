@@ -217,7 +217,7 @@ if ($preselect_category == '' && !$out_of_encounter) {
 ?>
 
 <html><head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo attr($css_header);?>" type="text/css">
 
 <script language="javascript" type="text/javascript">
 

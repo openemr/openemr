@@ -88,7 +88,7 @@ if ($deIdentificationStatus == 0) {
 <html>
 <head>
 <title>De Identification</title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo attr($css_header) ?>' type='text/css'>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <style type="text/css">
 .style1 {

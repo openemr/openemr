@@ -29,7 +29,7 @@
         ->prependStylesheet($this->basePath() . '/css/ccda.css')
         ->prependStylesheet($this->basePath() . '/css/demo.css')
         ->prependStylesheet($this->basePath() . '/css/themes/base/jquery.ui.all.css')
-        ->prependStylesheet($GLOBALS['css_header'])
+        ->prependStylesheet(attr($GLOBALS['css_header']))
         ?>
     
         <?php echo $this->headScript()

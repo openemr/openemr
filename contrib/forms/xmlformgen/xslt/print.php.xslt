@@ -60,7 +60,7 @@ $returnurl = 'encounter_top.php';
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js"></script>
 
 <!-- Global Stylesheet -->
-<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css"/>
+<link rel="stylesheet" href="<?php echo attr($css_header); ?>" type="text/css"/>
 <!-- Form Specific Stylesheet. -->
 <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css" type="text/css"/>
 <title><?php echo htmlspecialchars('Print '.$form_name); ?></title>
