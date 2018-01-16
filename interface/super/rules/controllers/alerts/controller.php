@@ -19,6 +19,11 @@
 class Controller_alerts extends BaseController
 {
 
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     function _action_listactmgr()
     {
         $c = new CdrAlertManager();

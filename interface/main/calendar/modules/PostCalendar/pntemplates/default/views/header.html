@@ -1,9 +1,7 @@
+<!DOCTYPE html>
 <html>
 <head>
-<!-- Get the style sheet for the theme defined in globals.php -->
-<link rel="stylesheet" href="[-php-]echo $GLOBALS['css_header'][-/php-]" type="text/css">
-<link rel="stylesheet" href="[-php-]echo $GLOBALS['assets_static_relative'][-/php-]/font-awesome-4-6-3/css/font-awesome.min.css">
-<link rel="stylesheet" href="[-php-]echo $GLOBALS['assets_static_relative'][-/php-]/bootstrap-3-3-4/dist/css/bootstrap.min.css">
+[-headerTemplate-]
 <!-- this style sheet is used for the ajax_* style calendars -->
 <link rel="stylesheet" href="[-php-]echo $GLOBALS['webroot'].'/interface/themes/ajax_calendar.css?v='.$GLOBALS['v_js_includes'];[-/php-]" type="text/css">
 <!--[if IE]>
@@ -11,9 +9,6 @@
 <![endif]-->
 
 <!-- the javascript used for the ajax_* style calendars -->
-<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/dialog.js?v=[-php-] echo $GLOBALS['v_js_includes']; [-/php-]"></script>
-<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/textformat.js"></script>
-<script type="text/javascript" src="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery-min-1-7-2/index.js"></script>
 <script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/js/calendarDirectSelect.js"></script>
 <script>function event_time_click(elem){EditEvent($(elem).parents("div.event_appointment").get(0))} </script>
 [-php-]
@@ -23,7 +18,7 @@
  */
 function create_event_time_anchor($displayString)
 {
-    $title=htmlspecialchars(xl('Click to edit'));
+    $title=xla('Click to edit');
     return "<a class='event_time' onclick='event_time_click(this)' title='" .$title."'>".$displayString."</a>";
 }
 [-/php-]

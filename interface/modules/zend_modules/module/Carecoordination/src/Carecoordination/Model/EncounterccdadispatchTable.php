@@ -1758,7 +1758,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     
     * return    int     $age    Age of a patient will be returned
     */
-    public function getAge($pid, $date)
+    public function getAge($pid, $date = null)
     {
         if ($date != '') {
             $date = $date;
@@ -2206,7 +2206,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     *
     * @return	String		$formatted_date	New formatted date
     */
-    public function date_format($date, $format)
+    public function date_format($date, $format = null)
     {
         if (!$date) {
             return;

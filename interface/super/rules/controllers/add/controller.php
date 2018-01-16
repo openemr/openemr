@@ -9,6 +9,11 @@
 class Controller_add extends BaseController
 {
 
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     function _action_add()
     {
         $this->viewBean->_view = "add.php";

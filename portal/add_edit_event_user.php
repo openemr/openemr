@@ -556,7 +556,7 @@ if ($_POST['form_action'] == "save") {
 if ($_POST['form_action'] != "") {
   // Leave
     $_SESSION['whereto'] = 'appointmentpanel';
-    header('Location:./home.php');
+    header('Location:./home.php#appointmentpanel');
     exit();
 }
 
@@ -657,22 +657,16 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
 ?>
 <html>
 <head>
-<?php //html_header_show(); ?>
+
 <title><?php echo $eid ? "Edit" : "Add New" ?> <?php xl('Event', 'e');?></title>
-<link href="assets/css/style.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
-<script type="text/javascript" src="../library/topdialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-
+    <link href="assets/css/style.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 </head>
 
-<body class="body_top" >
-
-<form method='post' name='theaddform' id='theaddform' action='add_edit_event_user.php?eid=<?php echo $eid ?>'>
+<body class="skin-blue" >
+<div class="well">
+<form class="form-inline" method='post' name='theaddform' id='theaddform' action='add_edit_event_user.php?eid=<?php echo $eid ?>'>
 <input type="hidden" name="form_action" id="form_action" value="">
    <input type='hidden' name='form_category' id='form_category' value='<?php echo $row['pc_catid'] ? $row['pc_catid'] : '5'; ?>' />
    <input type='hidden' name='form_apptstatus' id='form_apptstatus' value='<?php echo $row['pc_apptstatus'] ? $row['pc_apptstatus'] : "^" ?>' />
@@ -682,14 +676,14 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
    <b><?php xl('Visit', 'e'); ?>: </b>
   </td>
   <td nowrap style='padding:0px 5px 5px 0'>
-   <input class="form-control input-md" type="text" id='form_title' name='form_title' value='<?php echo htmlspecialchars($row['pc_title'], ENT_QUOTES) ? htmlspecialchars(['pc_title'], ENT_QUOTES) : 'Office Visit'; ?>' readonly='readonly'/>
+   <input class="form-control" type="text" id='form_title' name='form_title' value='<?php echo htmlspecialchars($row['pc_title'], ENT_QUOTES) ? htmlspecialchars(['pc_title'], ENT_QUOTES) : 'Office Visit'; ?>' readonly='readonly'/>
   </td>
   <td></td>
   <td width='1%' nowrap>
     <b><?php xl('Date', 'e'); ?>:</b>
   </td>
   <td colspan='2' nowrap id='tdallday1'>
-   <input class="form-control input-md" type='text' size='10' name='form_date' readonly id='form_date'
+   <input class="form-control" type='text' size='10' name='form_date' readonly id='form_date'
     value='<?php echo (isset($eid) && $eid) ? $row['pc_eventDate'] : $date; ?>'  />
   </td>
  </tr>
@@ -698,7 +692,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
    <b><?php //xl('Title','e'); ?></b>
   </td>
   <td style='padding:0px 5px 5px 0' nowrap>
-   <!-- <input class="form-control input-md" type='text' size='10' name='form_title' readonly value='<?php //echo htmlspecialchars($row['pc_title'],ENT_QUOTES) ?>' title='<?php //xl('Event title','e'); ?>' /> -->
+   <!-- <input class="form-control input-sm" type='text' size='10' name='form_title' readonly value='<?php //echo htmlspecialchars($row['pc_title'],ENT_QUOTES) ?>' title='<?php //xl('Event title','e'); ?>' /> -->
   </td>
   <td nowrap>
   </td>
@@ -721,7 +715,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
    <b><?php xl('Patient', 'e'); ?>:</b>
   </td>
   <td style='padding:0px 5px 5px 0' nowrap>
-   <input class="form-control input-md" type='text' size='10' id='form_patient' name='form_patient' value='<?php echo $patientname ?>' title='Patient' readonly />
+   <input class="form-control" type='text' id='form_patient' name='form_patient' value='<?php echo $patientname ?>' title='Patient' readonly />
    <input type='hidden' name='form_pid' value='<?php echo $patientid ?>' />
   </td>
   <td nowrap>
@@ -729,7 +723,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
   </td>
   <td nowrap id='tdallday4'><?php xl('Duration', 'e'); ?></td>
   <td nowrap id='tdallday5'>
-   <!-- --> <input class="form-control input-md" type='text' size='1' name='form_duration' value='<?php echo $row['pc_duration'] ? ($row['pc_duration']*1/60) : "0" ?>' readonly /><?php echo xl('minutes'); ?>
+  <input class="form-control input-sm" type='text' size='1' name='form_duration' value='<?php echo $row['pc_duration'] ? ($row['pc_duration']*1/60) : "0" ?>' readonly /><?php echo xl('minutes'); ?>
   </td>
  </tr>
     <tr>
@@ -739,7 +733,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
    <b><?php xl('Provider', 'e'); ?>:</b>
   </td>
   <td style='padding:0px 5px 5px 0' nowrap>
-  <select class="form-control input-md" name='form_provider_ae' id='form_provider_ae' onchange='change_provider();'>
+  <select class="form-control" name='form_provider_ae' id='form_provider_ae' onchange='change_provider();'>
 <?php
         // present a list of providers to choose from
         // default to the currently logged-in user
@@ -769,7 +763,7 @@ while ($urow = sqlFetchArray($ures)) {
    <b><?php xl('Reason', 'e'); ?>:</b>
   </td>
   <td style='padding:0px 5px 5px 0' colspan='4' nowrap>
-    <input class="form-control input-md" type='text' size='40' name='form_comments' style='width:100%' value='<?php echo htmlspecialchars($hometext, ENT_QUOTES) ?>' title='<?php xl('Optional information about this event', 'e');?>' />
+    <input class="form-control" type='text' size='40' name='form_comments' style='width:100%' value='<?php echo htmlspecialchars($hometext, ENT_QUOTES) ?>' title='<?php xl('Optional information about this event', 'e');?>' />
   </td>
  </tr>
 </table>
@@ -828,7 +822,7 @@ while ($crow = sqlFetchArray($cres)) {
 }
 ?>
 
-<?php // require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
  // This is for callback by the find-patient popup.
  function setpatient(pid, lname, fname, dob) {
@@ -957,22 +951,28 @@ while ($crow = sqlFetchArray($cres)) {
   f.form_minute.value = ('' + (minutes + 100)).substring(1);
  }
 
-    // Invoke the find-available popup.
-    function find_available() {
-
-        // (CHEMED) Conditional value selection, because there is no <select> element
-        // when making an appointment for a specific provider
-        var se = document.getElementById('form_provider_ae');
+ // Invoke the find-available popup.
+ function find_available() {
+     // when making an appointment for a specific provider
+     var se = document.getElementById('form_provider_ae');
         <?php if ($userid != 0) { ?>
-            s = se.value;
+     s = se.value;
         <?php } else {?>
-            s = se.options[se.selectedIndex].value;
+     s = se.options[se.selectedIndex].value;
         <?php }?>
-        var formDate = document.getElementById('form_date');
-         window.open('find_appt_popup_user.php?bypatient&providerid=' + s +
-                '&catid=5' +
-                '&startdate=' + formDate.value, '_blank', "width=900,height=800");
-    }
+     var formDate = document.getElementById('form_date');
+     var url = 'find_appt_popup_user.php?bypatient&providerid=' + s + '&catid=5' + '&startdate=' + formDate.value;
+     var params = {
+         buttons: [
+             {text: '<?php echo xla('Cancel'); ?>', close: true, style: 'danger btn-sm'}
+
+         ],
+         allowResize: true,
+         dialogId: 'apptDialog',
+         type: 'iframe'
+     };
+     dlgopen(url, 'apptFind', 'modal-md', 300, '', 'Find Date', params);
+ }
 
  // Check for errors when the form is submitted.
  function validate() {
@@ -1023,6 +1023,6 @@ while ($crow = sqlFetchArray($cres)) {
         });
     });
 </script>
-
+</div>
 </body>
 </html>

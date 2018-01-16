@@ -59,10 +59,11 @@ class ReminderIntervals
         if (is_null($range)) {
             return $details;
         }
-
-        foreach ($details as $detail) {
-            if ($detail->intervalRange == $range) {
-                return $detail;
+        if (is_array($details)) {
+            foreach ($details as $detail) {
+                if ($detail->intervalRange == $range) {
+                    return $detail;
+                }
             }
         }
 

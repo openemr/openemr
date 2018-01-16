@@ -31,6 +31,7 @@ assets:
         alreadyBuilt: true
         link: %css_header%
         autoload: true
+        allowNoLoad: true
     tabs-theme:
         basePath: %webroot%/interface/themes/
         link: %theme_tabs_layout%

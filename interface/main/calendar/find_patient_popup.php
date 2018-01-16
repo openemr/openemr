@@ -167,7 +167,6 @@ if (isset($_GET["res"])) {
     title='<?php echo htmlspecialchars(xl('If name, any part of lastname or lastname,firstname'), ENT_QUOTES); ?>'>
    &nbsp;
    <input type='submit' id="submitbtn" value='<?php echo htmlspecialchars(xl('Search'), ENT_QUOTES); ?>'>
-   <!-- &nbsp; <input type='button' value='<?php //echo htmlspecialchars(xl('Close'), ENT_QUOTES); ?>' onclick='dlgclose()' /> -->
    <div id="searchspinner"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif"></div>
 </form>
 </div>
@@ -199,7 +198,7 @@ if (isset($_GET["res"])) {
   <th class="srDOB"><?php echo htmlspecialchars(xl('DOB'), ENT_NOQUOTES); ?></th>
   <th class="srID"><?php echo htmlspecialchars(xl('ID'), ENT_NOQUOTES); ?></th>
  </tr>
-</thead>>
+</thead>
 <tbody id="searchResults">
 <?php
 foreach ($result as $iter) {

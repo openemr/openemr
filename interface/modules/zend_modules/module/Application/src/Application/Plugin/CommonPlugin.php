@@ -121,7 +121,7 @@ class CommonPlugin extends AbstractPlugin
         $result       = $appTable->zQuery($master_query, array(0,$approval_status,$ip_address,$type));
         $audit_master_id    = $result->getGeneratedValue();
         $detail_query = "INSERT INTO `audit_details` (`table_name`, `field_name`, `field_value`, `audit_master_id`, `entry_identification`) VALUES ";
-        $detail_query_array = '';
+        $detail_query_array = array();
         foreach ($field_name_value_array as $key => $val) {
             foreach ($field_name_value_array[$key] as $cnt => $field_details) {
                 foreach ($field_details as $field_name => $field_value) {
@@ -191,9 +191,7 @@ class CommonPlugin extends AbstractPlugin
   */
     public function escape($string)
     {
-        $viewHelperManager  = $this->getServiceLocator()->get('ViewHelperManager');
-        $escapeHtml         = $viewHelperManager->get('escapeHtml'); // $escapeHtml can be called as function because of its __invoke method
-        return $escapeHtml($string);
+        return htmlspecialchars($string, ENT_QUOTES);
     }
   
     public function getListtitle($listId, $listOptionId)

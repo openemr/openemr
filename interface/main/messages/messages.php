@@ -487,7 +487,7 @@ $(document).ready(function(){
 
  // This invokes the find-patient popup.
  function sel_patient() {
-  dlgopen('../../main/calendar/find_patient_popup.php', '_blank', 500, 400);
+  dlgopen('../../main/calendar/find_patient_popup.php', '_blank', 625, 400);
  }
 
   function addtolist(sel){

@@ -74,7 +74,8 @@ class CarecoordinationController extends AbstractActionController
 
         if ($upload == 1) {
             $time_start = date('Y-m-d H:i:s');
-            $cdoc = \Documents\Controller\DocumentsController::uploadAction();
+            $obj_doc    = new DocumentsController();
+            $cdoc = $obj_doc->uploadAction($request);
             $uploaded_documents = array();
             $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(array('user' => $_SESSION['authId'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')));
             if ($uploaded_documents[0]['id'] > 0) {

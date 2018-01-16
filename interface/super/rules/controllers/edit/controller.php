@@ -9,6 +9,11 @@
 class Controller_edit extends BaseController
 {
 
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     function _action_summary()
     {
         $ruleId = _get('id');
@@ -33,7 +38,6 @@ class Controller_edit extends BaseController
         if (is_null($rule_id)) {
             // its a new rule submit
             $ruleId = $this->getRuleManager()->updateSummary($ruleId, $types, $title, $developer, $funding, $release, $web_ref);
-
             // redirect to the intervals page
             $this->redirect("index.php?action=edit!intervals&id=$ruleId");
         } else {

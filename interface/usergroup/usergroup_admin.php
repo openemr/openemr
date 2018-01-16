@@ -17,11 +17,14 @@ require_once("$srcdir/auth.inc");
 
 use OpenEMR\Core\Header;
 
+if (!acl_check('admin', 'users')) {
+    die(xlt('Access denied'));
+}
+
 $alertmsg = '';
 $bg_msg = '';
 $set_active_msg=0;
 $show_message=0;
-
 
 /* Sending a mail to the admin when the breakglass user is activated only if $GLOBALS['Emergency_Login_email'] is set to 1 */
 $bg_count=count($access_group);
@@ -198,17 +201,15 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
             sqlStatement("update users set weno_prov_id = '$erxprid' where id = ? ", array($_POST["id"]));
         }
 
-        if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
-            // Set the access control group of user
-            $user_data = sqlFetchArray(sqlStatement("select username from users where id= ?", array($_POST["id"])));
-            set_user_aro(
-                $_POST['access_group'],
-                $user_data["username"],
-                formData('fname', 'P'),
-                formData('mname', 'P'),
-                formData('lname', 'P')
-            );
-        }
+        // Set the access control group of user
+        $user_data = sqlFetchArray(sqlStatement("select username from users where id= ?", array($_POST["id"])));
+        set_user_aro(
+            $_POST['access_group'],
+            $user_data["username"],
+            formData('fname', 'P'),
+            formData('mname', 'P'),
+            formData('lname', 'P')
+        );
     }
 }
 
@@ -292,7 +293,7 @@ if (isset($_POST["mode"])) {
                   sqlStatement("insert into groups set name = '" . trim(formData('groupname')) .
                     "', user = '" . trim(formData('rumple')) . "'");
 
-                if (isset($phpgacl_location) && acl_check('admin', 'acl') && trim(formData('rumple'))) {
+                if (trim(formData('rumple'))) {
                               // Set the access control group of user
                               set_user_aro(
                                   $_POST['access_group'],

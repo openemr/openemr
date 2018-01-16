@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * Copyright (C) 2016-2018 Jerry Padgett <sjpadgett@gmail.com>
  *
  * LICENSE: This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as
@@ -20,6 +20,9 @@
  * @author Jerry Padgett <sjpadgett@gmail.com>
  * @link http://www.open-emr.org
  */
+
+use OpenEMR\Core\Header;
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -29,24 +32,19 @@
 <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 <meta name="description" content="Developed By sjpadgett@gmail.com">
 
-<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'jquery-ui', 'jquery-ui-sunny', 'emodal']); ?>
 
-<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
-    <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
-<?php } ?>
-
-
+<script type="text/javascript" src="../interface/main/tabs/js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
 <link href="assets/css/style.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
 <link href="sign/css/signer.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
 <link href="sign/assets/signpad.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet">
 
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js" type="text/javascript"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
 <script src="sign/assets/signpad.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
 <script src="sign/assets/signer.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/emodal-1-2-65/dist/eModal.js"></script>
-
+    <script type="text/javascript">
+        var tab_mode = true; // for dialogs
+        <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+    </script>
 </head>
 <body class="skin-blue fixed">
     <header class="header">
@@ -72,7 +70,7 @@
                                 <?php
                                 foreach ($msgs as $i) {
                                     if ($i['message_status']=='New') {
-                                        echo "<li><a href='/messaging/messages.php'><h4>" . text($i['title']) . "</h4></a></li>";
+                                        echo "<li><a href='" . $GLOBALS['web_root'] . "/portal/messaging/messages.php'><h4>" . text($i['title']) . "</h4></a></li>";
                                     }
                                 }
                                 ?>
@@ -150,7 +148,10 @@
                             class="fa fa-calendar"></i> <span><?php echo xlt('Reports'); ?></span>
                     </a>
                         <ul class="dropdown-menu">
-                            <li><a id="callccda" href="<?php echo $GLOBALS['web_root']; ?>/ccdaservice/ccda_gateway.php?action=startandrun"><i class="fa fa-envelope" aria-hidden="true"></i><span><?php echo xlt('View CCD'); ?></span></a></li>
+                            <?php if ($GLOBALS['ccda_alt_service_enable'] > 1) { ?>
+                                <li><a id="callccda" href="<?php echo $GLOBALS['web_root']; ?>/ccdaservice/ccda_gateway.php?action=startandrun">
+                                        <i class="fa fa-envelope" aria-hidden="true"></i><span><?php echo xlt('View CCD'); ?></span></a></li>
+                            <?php } ?>
                             <li data-toggle="pill"><a href="#reportpanel" data-toggle="collapse"
                                 data-parent="#panelgroup"> <i class="fa fa-folder-open"></i> <span><?php echo xlt('Report Content'); ?></span></a></li>
                             <li data-toggle="pill"><a href="#downloadpanel" data-toggle="collapse"

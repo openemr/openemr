@@ -10737,10 +10737,10 @@ CREATE TABLE `form_groups_encounter` (
 ----------------------------------------------------------
 
 --
--- Table structure for `form_therapy_groups_attendance`
+-- Table structure for `form_group_attendance`
 --
 
-DROP TABLE IF EXISTS `form_therapy_groups_attendance`;
+DROP TABLE IF EXISTS `form_group_attendance`;
 CREATE TABLE `form_group_attendance` (
   `id`	bigint(20) auto_increment,
   `date`	date,

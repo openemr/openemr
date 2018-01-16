@@ -425,7 +425,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                 .fadeOut(function () {
                     jQuery(this).remove();
                 });
-            where.jQuery('#' + winname).modal('handleUpdate'); // allow for scroll bar
+            dlgContainer.modal('handleUpdate'); // allow for scroll bar
         }).on('hidden.bs.modal', function (e) {
             // remove our dialog
             jQuery(this).remove();

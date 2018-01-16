@@ -7,6 +7,7 @@
  * path - $GLOBALS key specifying the path
  * pid - patient id to be used for all selected documents
  * category - encoded category description to assign all selected documents
+ * owner - owner of all selected documents
  * limit - Maximum number of files to be imported
  * in_situ - Retain documents in current folder
  *
@@ -39,7 +40,7 @@ $arg = array(
     'path' => 'scanner_output_directory',
     'pid' => '00',
     'category' => 1,
-    'owner' => null,
+    'owner' => '',
     'limit' => 10,
     'in_situ' => 0,
 );
@@ -127,7 +128,7 @@ foreach ($docs as $doc) {
         $objDoc->set_size($doc->getSize());
         $objDoc->set_hash(sha1_file($doc_pathname));
         $objDoc->set_type($objDoc->type_array['file_url']);
-        $objDoc->set_owner('');
+        $objDoc->set_owner($arg['owner']);
         $objDoc->set_foreign_id($arg['pid']);
         $objDoc->persist();
         $objDoc->populate();
@@ -144,7 +145,7 @@ foreach ($docs as $doc) {
             'full_path' => $doc_pathname,
             'upload_error' => '',
             'size' => $doc->getSize(),
-            'owner' => '',
+            'owner' => $arg['owner'],
             'patient_id' => $arg['pid'],
             'category_id' => '1',
             'higher_level_path' => '',

@@ -64,7 +64,7 @@ class Module
         
             'Carecoordination\Model\EncounterccdadispatchTable' =>  function ($sm) {
                     $tableGateway = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new EncounterccdadispatchTable($tableGateway);
+                    $table = new EncounterccdadispatchTable($tableGateway, $sm);
                     return $table;
             },
         

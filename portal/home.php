@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * Copyright (C) 2016-2018 Jerry Padgett <sjpadgett@gmail.com>
  *
  * LICENSE: This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as
@@ -24,7 +24,7 @@
  require_once("$srcdir/patient.inc");
  require_once("lib/portal_mail.inc");
 
-if ($_SESSION['register'] == true) {
+if ($_SESSION['register'] === true) {
     session_destroy();
     header('Location: '.$landingpage.'&w');
     exit();
@@ -55,28 +55,29 @@ require_once '_header.php';
  echo "<script>var cpid='" . attr($pid) . "';var cuser='" . attr($user) . "';var webRoot='" . $GLOBALS['web_root'] . "';var ptName='" . attr($_SESSION['ptName']) . "';</script>";
 ?>
 <script type="text/javascript">
-$(document).ready(function(){
-    $("#profilereport").load("./get_profile.php", { 'embeddedScreen' : true  }, function() {
-        $( "table" ).addClass( "table  table-responsive" );
-        $( ".demographics td" ).removeClass( "label" );
-        $( ".demographics td" ).addClass( "bold" );
-        $( ".insurance table" ).addClass( "table-sm table-striped" );
-        $("#editDems").click( function() {
+var webroot_url = webRoot;
+
+$(document).ready(function () {
+
+    $("#profilereport").load("./get_profile.php", {'embeddedScreen': true}, function () {
+        $("table").addClass("table  table-responsive");
+        $(".demographics td").removeClass("label");
+        $(".demographics td").addClass("bold");
+        $(".insurance table").addClass("table-sm table-striped");
+        $("#editDems").click(function () {
             showProfileModal()
-                });
-    });
-    $("#appointmentslist").load("./get_appointments.php", { 'embeddedScreen' : true  }, function() {
-        $("#reports").load("./report/portal_patient_report.php?pid='<?php echo attr($pid) ?>'", { 'embeddedScreen' : true  }, function() {
-            <?php if ($GLOBALS['portal_two_payments']) { ?>
-                $("#payment").load("./portal_payment.php", { 'embeddedScreen' : true  }, function() { });
-            <?php } ?>
         });
     });
-    $("#medicationlist").load("./get_medications.php", { 'embeddedScreen' : true  }, function() {
-        $("#allergylist").load("./get_allergies.php", { 'embeddedScreen' : true  }, function() {
-            $("#problemslist").load("./get_problems.php", { 'embeddedScreen' : true  }, function() {
-                $("#amendmentslist").load("./get_amendments.php", { 'embeddedScreen' : true  }, function() {
-                    $("#labresults").load("./get_lab_results.php", { 'embeddedScreen' : true  }, function() {
+    $("#reports").load("./report/portal_patient_report.php?pid='<?php echo attr($pid) ?>'", {'embeddedScreen': true}, function () {
+        <?php if ($GLOBALS['portal_two_payments']) { ?>
+            $("#payment").load("./portal_payment.php", {'embeddedScreen': true}, function () {});
+        <?php } ?>
+    });
+    $("#medicationlist").load("./get_medications.php", {'embeddedScreen': true}, function () {
+        $("#allergylist").load("./get_allergies.php", {'embeddedScreen': true}, function () {
+            $("#problemslist").load("./get_problems.php", {'embeddedScreen': true}, function () {
+                $("#amendmentslist").load("./get_amendments.php", {'embeddedScreen': true}, function () {
+                    $("#labresults").load("./get_lab_results.php", {'embeddedScreen': true}, function () {
 
                     });
                 });
@@ -84,42 +85,44 @@ $(document).ready(function(){
         });
     });
 
-    $('.sigPad').signaturePad({ drawOnly: true });
-    $(".generateDoc_download").click( function() {
+    $('.sigPad').signaturePad({drawOnly: true});
+    $(".generateDoc_download").click(function () {
         $("#doc_form").submit();
     });
-     function showProfileModal(){
-         var title = '<?php echo xla('Demographics Legend Red: Charted Values. Blue: Patient Edits'); ?> ';
-         var params = {
-                    buttons: [
-                       { text: '<?php echo xla('Help'); ?>', close: false, style: 'info',id: 'formHelp'},
-                       { text: '<?php echo xla('Cancel'); ?>', close: true, style: 'default'},
-                       { text: '<?php echo xla('Revert Edits'); ?>', close: false, style: 'danger',id: 'replaceAllButton'},
-                       { text: '<?php echo xla('Send for Review'); ?>', close: false, style: 'success', id: 'donePatientButton'}],
-                   size: eModal.size.xl,
-                   subtitle: '<?php echo xla('Changes take effect after provider review.'); ?>',
-                   title: title,
-                   useBin: false,
-                    url: webRoot+'/portal/patient/patientdata?pid='+cpid+'&user='+cuser
-                };
-            return eModal.ajax(params)
-                .then(function () { });
-     }
-     function saveProfile(){
-         page.updateModel();
-     }
-     /* $(document.body).on('hidden.bs.modal', function (){
-            window.location.href = './home.php';
-        }); */
+
+    function showProfileModal() {
+        var title = '<?php echo xla('Demographics Legend Red: Charted Values. Blue: Patient Edits'); ?> ';
+
+        var params = {
+            buttons: [
+                {text: '<?php echo xla('Help'); ?>', close: false, style: 'info', id: 'formHelp'},
+                {text: '<?php echo xla('Cancel'); ?>', close: true, style: 'default'},
+                {text: '<?php echo xla('Revert Edits'); ?>', close: false, style: 'danger', id: 'replaceAllButton'},
+                {text: '<?php echo xla('Send for Review'); ?>',
+                    close: false,
+                    style: 'success',
+                    id: 'donePatientButton'
+                }],
+            onClosed: 'reload',
+            type: 'GET',
+            url: webRoot + '/portal/patient/patientdata?pid=' + cpid + '&user=' + cuser
+        };
+        dlgopen('','','modal-xl', 500, '', title, params);
+    }
+
+    function saveProfile() {
+        page.updateModel();
+    }
+
     var gowhere = '#<?php echo $whereto?>';
     $(gowhere).collapse('show');
 
     var $doHides = $('#panelgroup');
-    $doHides.on('show.bs.collapse','.collapse', function() {
+    $doHides.on('show.bs.collapse', '.collapse', function () {
         $doHides.find('.collapse.in').collapse('hide');
     });
     //Enable sidebar toggle
-    $("[data-toggle='offcanvas']").click(function(e) {
+    $("[data-toggle='offcanvas']").click(function (e) {
         e.preventDefault();
         //If window is small enough, enable sidebar push menu
         if ($(window).width() <= 992) {
@@ -133,13 +136,39 @@ $(document).ready(function(){
             $(".right-side").toggleClass("strech");
         }
     });
-    $(function(){
+    $(function () {
         $('#popwait').hide();
-        $('#callccda').click(function(){
+        $('#callccda').click(function () {
             $('#popwait').show();
         })
     });
 });
+
+function editAppointment(mode,deid){
+    if(mode == 'add'){
+        var title = '<?php echo xla('Request New Appointment'); ?>';
+        var mdata = {pid:deid};
+    }
+    else{
+        var title = '<?php echo xla('Edit Appointment'); ?>';
+        var mdata = {eid:deid};
+    }
+    var params = {
+        dialogId: 'editpop',
+        buttons: [
+            { text: '<?php echo xla('Cancel'); ?>', close: true, style: 'default' }
+            //{ text: 'Print', close: false, style: 'success', click: showCustom }
+        ],
+        type:'GET',
+        dataType: 'text',
+        url: './add_edit_event_user.php',
+        data: mdata
+    };
+
+    dlgopen('', 'apptModal', 610, 300, '', title, params);
+
+};
+
 </script>
     <!-- Right side column. Contains content of the page -->
     <aside class="right-side">
@@ -190,7 +219,65 @@ $(document).ready(function(){
                 <div class="col-sm-6">
                     <div class="panel panel-primary collapse" id="appointmentpanel">
                         <header class="panel-heading"><?php echo xlt('Appointments'); ?>  </header>
-                        <div id="appointmentslist" class="panel-body"></div>
+                        <div id="appointmentslist" class="panel-body">
+                        <?php
+                            $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " . "e.pc_startTime, e.pc_hometext, e.pc_apptstatus, u.fname, u.lname, u.mname, " .
+                                "c.pc_catname " . "FROM openemr_postcalendar_events AS e, users AS u, " .
+                                "openemr_postcalendar_categories AS c WHERE " . "e.pc_pid = ? AND e.pc_eventDate >= CURRENT_DATE AND " . "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " . "ORDER BY e.pc_eventDate, e.pc_startTime";
+
+                            $res = sqlStatement($query, array(
+                                $pid
+                            ));
+
+                            if (sqlNumRows($res) > 0) {
+                                $count = 0;
+                                echo '<table id="appttable" style="width:100%;background:#eee;" class="table table-striped fixedtable"><thead>
+                                </thead><tbody>';
+                                while ($row = sqlFetchArray($res)) {
+                                    $count++;
+                                    $dayname = xl(date("l", strtotime($row ['pc_eventDate'])));
+                                    $dispampm = "am";
+                                    $disphour = substr($row ['pc_startTime'], 0, 2) + 0;
+                                    $dispmin = substr($row ['pc_startTime'], 3, 2);
+                                    if ($disphour >= 12) {
+                                        $dispampm = "pm";
+                                        if ($disphour > 12) {
+                                            $disphour -= 12;
+                                        }
+                                    }
+
+                                    if ($row ['pc_hometext'] != "") {
+                                        $etitle = 'Comments' . ": " . $row ['pc_hometext'] . "\r\n";
+                                    } else {
+                                        $etitle = "";
+                                    }
+
+                                    echo "<tr><td><p>";
+                                    echo "<a href='#' onclick='editAppointment(0," . htmlspecialchars($row ['pc_eid'], ENT_QUOTES) . ')' . "' title='" . htmlspecialchars($etitle, ENT_QUOTES) . "'>";
+                                    echo "<b>" . htmlspecialchars($dayname . ", " . $row ['pc_eventDate'], ENT_NOQUOTES) . "</b><br>";
+                                    echo htmlspecialchars("$disphour:$dispmin " . $dispampm . " " . $row ['pc_catname'], ENT_NOQUOTES) . "<br>";
+                                    echo htmlspecialchars($row ['fname'] . " " . $row ['lname'], ENT_NOQUOTES) . "<br>";
+                                    echo htmlspecialchars("Status: " . $row ['pc_apptstatus'], ENT_NOQUOTES);
+                                    echo "</a></p></td></tr>";
+                                }
+
+                                if (isset($res) && $res != null) {
+                                    if ($count < 1) {
+                                        echo "&nbsp;&nbsp;" . xlt('None');
+                                    }
+                                }
+                            } else { // if no appts
+                                echo xlt('No Appointments');
+                            }
+
+                            echo '</tbody></table>';
+                        ?>
+                            <div style='margin: 5px 0 5px'>
+                                <a href='#' onclick="editAppointment('add',<?php echo attr($pid); ?>)">
+                                    <button class='btn btn-primary pull-right'><?php echo xlt('Schedule New Appointment'); ?></button>
+                                </a>
+                            </div>
+                        </div>
                         <div class="panel-footer"></div>
                     </div><!-- /.panel -->
                 </div><!-- /.col -->
@@ -212,7 +299,7 @@ $(document).ready(function(){
                     <div class="panel panel-primary collapse" style="padding-top:0;padding-bottom:0;" id="messagespanel">
                         <!-- <header class="panel-heading"><?php //echo xlt('Secure Chat'); ?>  </header>-->
                         <div id="messages" class="panel-body" style="height:calc(100vh - 120px);overflow:auto;padding:0 0 0 0;" >
-                        <iframe src="./messaging/secure_chat.php" width="100%" height="100%"></iframe><!--  -->
+                             <iframe src="./messaging/secure_chat.php" width="100%" height="100%"></iframe>
                         </div>
                     </div>
                 </div><!-- /.col -->
@@ -232,8 +319,7 @@ $(document).ready(function(){
                     <div class="panel panel-primary collapse" id="downloadpanel">
                         <header class="panel-heading"> <?php echo xlt('Download Documents'); ?> </header>
                         <div id="docsdownload" class="panel-body">
-                        <?php if ($GLOBALS['portal_onsite_document_download']) {
-?>// really should always be able to download!
+                        <?php if ($GLOBALS['portal_onsite_document_download']) { ?>
                             <div>
                                 <span class="text"><?php echo xlt('Download all patient documents');?></span>
                                 <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
@@ -262,10 +348,7 @@ $(document).ready(function(){
             <div class="row">
                 <div class="col-sm-12">
                     <div class="panel panel-primary collapse" id="profilepanel">
-                        <header class="panel-heading"><?php echo xlt('Profile'); ?>
-                        <!-- <button type="button" id="editDems" class="btn btn-info btn-sm pull-right">Pop-up Edit</button>
-                        <button type="button" id="editProfile" class="btn btn-info btn-sm pull-right">Pop-up iFrame</button> -->
-                        </header>
+                        <header class="panel-heading"><?php echo xlt('Profile'); ?></header>
                         <div id="profilereport" class="panel-body"></div>
                     <div class="panel-footer"></div>
                     </div>
@@ -283,15 +366,14 @@ $(document).ready(function(){
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <div class="input-group">
-                        <span class="input-group-addon"
-                            onclick="getSignature(document.getElementById('patientSignaturem'))"><em> <?php echo xlt('Show Current Signature On File');?><br>
-                            <?php echo xlt('As appears on documents');?>.</em></span> <img
-                            class="signature form-control" type="patient-signature"
-                            id="patientSignaturem" onclick="getSignature(this)"
-                            alt="Signature On File" src="">
-                        <!-- <span class="input-group-addon" onclick="clearSig(this)"><i class="glyphicon glyphicon-trash"></i></span> -->
+                    <span class="input-group-addon"
+                          onclick="getSignature(document.getElementById('patientSignaturem'))"><em> <?php echo xlt('Show Current Signature On File'); ?>
+                            <br>
+                            <?php echo xlt('As appears on documents'); ?>.</em></span> <img
+                        class="signature form-control" type="patient-signature"
+                        id="patientSignaturem" onclick="getSignature(this)"
+                        alt="Signature On File" src="">
                 </div>
-                <!-- <h4 class="modal-title">Sign</h4> -->
             </div>
             <div class="modal-body">
                 <form name="signit" id="signit" class="sigPad">

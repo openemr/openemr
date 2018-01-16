@@ -35,6 +35,11 @@ use xmltoarray_parser_htmlfix;
 class CcdController extends AbstractActionController
 {
     protected $ccdTable;
+    
+    protected $carecoordinationTable;
+    
+    protected $documentsTable;
+    
     public function __construct($sm = null)
     {
         $this->listenerObject = new Listener;
@@ -47,13 +52,14 @@ class CcdController extends AbstractActionController
     {
         $request          = $this->getRequest();
         $upload           = $request->getPost('upload');
-        $category_details = \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->fetch_cat_id('CCD');
+        $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCD');
 
         if ($upload == 1) {
             $time_start         = date('Y-m-d H:i:s');
-            $cdoc               = \Documents\Controller\DocumentsController::uploadAction();
+            $obj_doc            = new DocumentsController();
+            $cdoc               = $obj_doc->uploadAction($request);
             $uploaded_documents = array();
-            $uploaded_documents = \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->fetch_uploaded_documents(array('user' => $_SESSION['authId'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')));
+            $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(array('user' => $_SESSION['authId'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')));
             if ($uploaded_documents[0]['id'] > 0) {
                 $_REQUEST["document_id"]    = $uploaded_documents[0]['id'];
                 $_REQUEST["batch_import"]   = 'YES';
@@ -65,12 +71,12 @@ class CcdController extends AbstractActionController
                 if ($row['doc_type'] == 'CCD') {
                     $_REQUEST["document_id"] = $row['doc_id'];
                     $this->importAction();
-                    \Documents\Model\DocumentsTable::updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
+                    $this->updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
                 }
             }
         }
 
-        $records = \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCD','type' => '13'));
+        $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCD','type' => '13'));
         $view = new ViewModel(array(
           'records'       => $records,
           'category_id'   => $category_details[0]['id'],
@@ -92,12 +98,12 @@ class CcdController extends AbstractActionController
         $request     = $this->getRequest();
         if ($request->getQuery('document_id')) {
             $_REQUEST["document_id"] = $request->getQuery('document_id');
-            $category_details          = \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->fetch_cat_id('CCD');
-            \Documents\Controller\DocumentsController::getDocumentsTable()->updateDocumentCategory($category_details[0]['id'], $_REQUEST["document_id"]);
+            $category_details          = $this->getCarecoordinationTable()->fetch_cat_id('CCD');
+            $this->getDocumentsTable()->updateDocumentCategory($category_details[0]['id'], $_REQUEST["document_id"]);
         }
 
         $document_id                      =    $_REQUEST["document_id"];
-        $xml_content                      =    \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->getDocument($document_id);
+        $xml_content                      =    $this->getCarecoordinationTable()->getDocument($document_id);
 
         $xmltoarray                       =    new \Zend\Config\Reader\Xml();
         $array                            =    $xmltoarray->fromString((string) $xml_content);
@@ -120,5 +126,28 @@ class CcdController extends AbstractActionController
         }
 
         return $this->ccdTable;
+    }
+    /**
+     * Table gateway
+     * @return object
+     */
+    public function getCarecoordinationTable()
+    {
+        if (!$this->carecoordinationTable) {
+            $sm = $this->getServiceLocator();
+            $this->carecoordinationTable = $sm->get('Carecoordination\Model\CarecoordinationTable');
+        }
+
+        return $this->carecoordinationTable;
+    }
+    
+    public function getDocumentsTable()
+    {
+        if (!$this->documentsTable) {
+            $sm = $this->getServiceLocator();
+            $this ->documentsTable = $sm->get('Documents\Model\DocumentsTable');
+        }
+
+        return $this->documentsTable;
     }
 }
