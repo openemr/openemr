@@ -244,7 +244,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
                     sqlStatement("DELETE FROM globals WHERE gl_name = ?", array( $fldid ));
 
                     foreach ($_POST["form_$i"] as $fldvalue) {
-                        $fldvalue = trim($fldvalue);
+                        $fldvalue = strip_tags(trim($fldvalue));
                         sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?,?,?)', array( $fldid, $fldindex, $fldvalue ));
                         ++$fldindex;
                     }
@@ -252,7 +252,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
             } else {
                 /* check value of single field. Don't update if the database holds the same value */
                 if (isset($_POST["form_$i"])) {
-                    $fldvalue = trim($_POST["form_$i"]);
+                    $fldvalue = strip_tags(trim($_POST["form_$i"]));
                 } else {
                     $fldvalue = "";
                 }

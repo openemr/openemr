@@ -72,6 +72,8 @@ function setUserSetting($label, $value, $user = null, $createDefault = true, $ov
 
     $cur_value = getUserSetting($label, $user, $user);
 
+    $value = strip_tags($value);
+
   // Check for a custom settings
     if (is_null($cur_value)) {
         sqlStatement("INSERT INTO user_settings(setting_user, setting_label, setting_value) " .
