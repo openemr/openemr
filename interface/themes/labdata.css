@@ -1,0 +1,96 @@
+.graph {color:#0000cc;}
+
+.graph_button{
+	font:11px Arial,Helvetica,sans-serif;
+	cursor: pointer;
+	color:#000000;
+	background-color:#d3d7cf; 
+}
+  
+#labdata table{
+	border:1px solid black;
+}
+
+#labdata th.list{
+	background-color:#B8CCE4; 
+	font-weight:bold;
+	text-align:center;
+}
+
+#labdata td.list_item{
+	background-color:#DEE5F1; 
+}
+
+#labdata td.list_result{
+	background-color:#EBF1DD; 
+	text-align:right;
+}
+
+#labdata td.list_result_abnorm{
+	background-color:#EBF1DD; 	
+	font-weight:bold;
+	text-align:right;
+}
+
+#labdata td.list_log{
+	background-color:#E5E0EC; 	
+	text-align:right;
+}
+
+#labdata td.list_spacer{
+	background-color:#C4BD97; 
+}
+
+
+
+
+#labdata th.matrix{
+	background-color:#B8CCE4; 
+	font-weight:bold;
+	text-align:center;
+}
+
+#labdata th.matrix_time{
+	background-color:#E5E0EC; 
+	font:11px Arial,Helvetica,sans-serif;
+	font-weight:bold;
+}
+#labdata th.matrix_spacer{
+	background-color:#C4BD97; 
+}
+
+
+
+
+#labdata td.matrix_item{
+	background-color:#DEE5F1; 	
+	font:12px Arial,Helvetica,sans-serif;
+}
+
+#labdata td.matrix_result{
+	background-color:#EBF1DD; 
+	text-align:right;
+	font:12px Arial,Helvetica,sans-serif;
+}
+
+#labdata td.matrix_result_abnorm{
+	background-color:#EBF1DD; 	
+	font:12px Arial,Helvetica,sans-serif;
+	font-weight:bold;
+	text-align:right;
+}
+
+#labdata td.matrix_log{
+	background-color:#E5E0EC; 	
+	text-align:right;
+}
+
+#labdata td.matrix_spacer{
+	background-color:#C4BD97; 
+}
+
+
+
+
+
+

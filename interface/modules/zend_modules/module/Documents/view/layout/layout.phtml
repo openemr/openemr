@@ -1,0 +1,60 @@
+<?php
+//    +-----------------------------------------------------------------------------+ 
+//    OpenEMR - Open Source Electronic Medical Record
+//    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU Affero General Public License as
+//    published by the Free Software Foundation, either version 3 of the
+//    License, or (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//    Author:   Basil PT <basil@zhservices.com>
+//
+// +------------------------------------------------------------------------------+
+?>
+<?php echo $this->doctype(); ?>
+
+<html lang="en" ng-app="documentsApp">
+    <head>
+        <meta charset="utf-8">
+        <?php echo $this->headTitle($this->translate('Welcome to ZHOpenEMR'))->setSeparator(' - ')->setAutoEscape(false) ?>
+
+        <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0') ?>
+
+        <!-- styles -->
+        <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))
+												->prependStylesheet($this->basePath() . '/css/file_uploader.css')
+												->prependStylesheet($this->basePath() . '/css/'.$GLOBALS['zhemr']['default_theme'].'/documents.css')
+												->prependStylesheet($this->basePath() . '/css/'.$GLOBALS['zhemr']['default_theme'].'/css_buttons.css')
+                        ->prependStylesheet($this->basePath() . '/css/layout.css')
+                        ->prependStylesheet($this->basePath() . '/css/skeleton.css')
+                        ->prependStylesheet($this->basePath() . '/css/base.css')
+                        ->prependStylesheet($this->basePath() . '/css/default/datepicker.css')?>
+        <!-- Scripts -->
+        <?php echo $this->headScript()->prependFile($this->basePath() . '/js/lib/modernizr-2.6.2.min.js') ?>
+    </head>
+    <body class="body_top">
+			<div class="body_container">
+				<div class="row">
+          <div class="fullwidth">
+            <div class="container" ng-controller="documentsController">
+            <?php echo $this->content; ?>
+            </div>
+          </div>
+				</div>
+			<?php echo $this->inlineScript()->prependFile($this->basePath() . '/js/scripts/file_uploader.js')
+                                      ->prependFile($this->basePath() . '/js/controller/documentsController.js')
+																		  ->prependFile($this->basePath() . '/js/scripts/documents.js')
+																			->prependFile($this->basePath() . '/js/lib/angular.min.js')
+                                      ->prependFile($this->basePath() . '/js/lib/jquery-ui.js')
+                                      ->prependFile($this->basePath() . '/js/lib/jquery-1.10.2.min.js') ?>
+		  <?php echo $this->javascriptGlobals(); ?>
+    </body>
+</html>

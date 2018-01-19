@@ -1,48 +1,9 @@
 <?php
-/* $Id$ */
-//  ------------------------------------------------------------------------ //
-//                OpenEMR Electronic Medical Records System                  //
-//                    Copyright (c) 2005-2010 oemr.org                       //
-//                       <http://www.oemr.org/>                              //
-//  ------------------------------------------------------------------------ //
-//  This program is free software; you can redistribute it and/or modify     //
-//  it under the terms of the GNU General Public License as published by     //
-//  the Free Software Foundation; either version 2 of the License, or        //
-//  (at your option) any later version.                                      //
-//                                                                           //
-//  You may not change or alter any portion of this comment or credits       //
-//  of supporting developers from this source code or any supporting         //
-//  source code which is considered copyrighted (c) material of the          //
-//  original comment or credit authors.                                      //
-//                                                                           //
-//  This program is distributed in the hope that it will be useful,          //
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of           //
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            //
-//  GNU General Public License for more details.                             //
-//                                                                           //
-//  You should have received a copy of the GNU General Public License        //
-//  along with this program; if not, write to the Free Software              //
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA //
-//  ------------------------------------------------------------------------ //
-
-$GLOBALS['oer_config']['freeb']['claim_file_dir'] 	= "/usr/share/freeb/public/";
-//currently can be pdf or txt
-$GLOBALS['oer_config']['freeb']['default_format'] 	= "pdf";
-$GLOBALS['oer_config']['freeb']['username'] 		= "freeb";
-$GLOBALS['oer_config']['freeb']['password'] 		= "12345";
-$GLOBALS['oer_config']['freeb']['print_command'] 	= "/usr/bin/lpr";
-$GLOBALS['oer_config']['freeb']['printer_name'] 	= "HP_LaserJet4L";
-// This does not seem useful for PDF HCFAs, see freeb/targetbin/ascii2pdf instead:
-$GLOBALS['oer_config']['freeb']['printer_extras'] 	= "-o PageSize=Letter -o portrait";
-// Set this to make an additional copy of HCFA PDFs in the specified directory,
-// e.g. for an external billing service. You must end this path with a slash:
-$GLOBALS['oer_config']['freeb']['copy_pdfs_to'] = '';
-
 //used differently by different applications, intuit programs only like numbers
-$GLOBALS['oer_config']['ofx']['bankid'] 	= "123456789";
+$GLOBALS['oer_config']['ofx']['bankid']     = "123456789";
 
 //you can use this to match to an existing account in you accounting application
-$GLOBALS['oer_config']['ofx']['acctid'] 	= "123456789";
+$GLOBALS['oer_config']['ofx']['acctid']     = "123456789";
 
 //use FL for FLORIDA compatible format, leave blank for default
 $GLOBALS['oer_config']['prescriptions']['format'] = "";
@@ -89,24 +50,6 @@ $GLOBALS['oer_config']['druglabels']['disclaimer'] =
   'Caution: Federal law prohibits dispensing without a prescription. ' .
   'Use only as directed.';
 
-// Accounts Receivable support. Use one of the following numeric values:
-//   0 = None
-//   1 = Using SQL-Ledger
-//   2 = A/R internal to OpenEMR (recommended)
-//
-$GLOBALS['oer_config']['ws_accounting']['enabled'] = 2;
-
-// If 1 is chosen above, then the following must be set correctly:
-//
-$GLOBALS['oer_config']['ws_accounting']['server'] = "localhost";
-$GLOBALS['oer_config']['ws_accounting']['port'] = "80";
-$GLOBALS['oer_config']['ws_accounting']['url'] = "/sql-ledger/ws_server.pl";
-$GLOBALS['oer_config']['ws_accounting']['username'] = "unused";
-$GLOBALS['oer_config']['ws_accounting']['password'] = "unused";
-$GLOBALS['oer_config']['ws_accounting']['url_path'] = "http://" .
-  $_SERVER["SERVER_NAME"] . "/sql-ledger/login.pl";
-$GLOBALS['oer_config']['ws_accounting']['income_acct'] = "4320";
-
 //don't alter below this line unless you are an advanced user and know what you are doing
 
 $GLOBALS['oer_config']['prescriptions']['logo'] = dirname(__FILE__) .
@@ -118,4 +61,3 @@ $GLOBALS['oer_config']['druglabels']['logo'] = dirname(__FILE__) .
   "/../../interface/pic/" . $GLOBALS['oer_config']['druglabels']['logo_pic'];
 
 $GLOBALS['oer_config']['documents']['repository'] = $GLOBALS['oer_config']['documents']['repopath'];
-?>

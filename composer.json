@@ -1,0 +1,88 @@
+{
+    "name" : "openemr/openemr",
+    "description" : "OpenEMR is a Free and Open Source electronic health records and medical practice management application",
+    "license" : "GPL",
+    "support" : {
+        "website" : "http://www.open-emr.org/",
+        "issues" : "https://github.com/openemr/openemr/issues",
+        "forum" : "https://community.open-emr.org/",
+        "wiki" : "http://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page",
+        "source" : "http://github.com/openemr/openemr"
+    },
+    "require" : {
+        "mpdf/mpdf" : "6.1.3",
+        "adldap2/adldap2" : "7.0.4",
+        "smarty/smarty" : "2.6.*",
+        "adodb/adodb-php" : "5.20.9",
+        "phpmailer/phpmailer" : "5.2.16",
+        "rospdf/pdf-php" : "0.12.22",
+        "phpseclib/phpseclib" : "2.0.2",
+        "zendframework/zendframework" : "2.4.9",
+        "phenx/php-font-lib" : "0.4",
+        "phenx/php-svg-lib" : "0.1",
+        "dompdf/dompdf" : "0.7.0",
+        "doctrine/common" : "2.5.0",
+        "doctrine/couchdb" : "1.0-beta2",
+        "doctrine/orm" : "2.5.5",
+        "twig/twig" : "1.33.*",
+        "vlucas/phpdotenv" : "2.4",
+        "symfony/config" : "2.8.*",
+        "symfony/dependency-injection" : "2.8.*",
+        "symfony/event-dispatcher" : "2.8.*",
+        "symfony/http-foundation" : "2.8.*",
+        "symfony/yaml" : "2.8.*",
+        "ezyang/htmlpurifier" : "4.9.3",
+        "knplabs/knp-snappy" : "^0.5.0",
+        "stripe/stripe-php" : "5.2.0",
+        "phpoffice/phpspreadsheet": "1.0.0"
+    },
+    "require-dev" : {
+    },
+    "repositories" : [{
+        "type" : "vcs",
+        "url" : "https://github.com/openemr/wkhtmltopdf-openemr"
+        }
+    ],
+    "autoload" : {
+        "exclude-from-classmap" : [
+            "library/classes/ClinicalTypes/",
+            "library/classes/rulesets/",
+            "library/classes/smtp/",
+            "library/classes/Prescription.class.php"
+        ],
+        "classmap" : [
+            "library/classes"
+        ],
+        "files" : [
+            "library/htmlspecialchars.inc.php",
+            "library/formdata.inc.php",
+            "library/sanitize.inc.php",
+            "library/formatting.inc.php",
+            "library/date_functions.php",
+            "library/validation/validate_core.php",
+            "library/translation.inc.php"
+        ],
+        "psr-4" : {
+            "OpenEMR\\Common\\" : "common",
+            "OpenEMR\\Entities\\" : "entities",
+            "OpenEMR\\Services\\" : "services",
+            "OpenEMR\\Repositories\\" : "repositories",
+            "OpenEMR\\Encounter\\Services\\" : "interface/patient_file/encounter/Services",
+            "OpenEMR\\Admin\\" : "library/admin/src",
+            "OpenEMR\\Core\\" : "library/core/src",
+            "OpenEMR\\Menu\\" : "library/menu/src",
+            "OpenEMR\\Calendar\\" : "library/calendar/src",
+            "OpenEMR\\Sample\\" : "library/sample/src",
+            "OpenEMR\\Reminder\\" : "library/reminder/src",
+            "OpenEMR\\Billing\\" : "library/billing/src",
+            "OpenEMR\\Pdf\\" : "library/pdf/src",
+            "OpenEMR\\Tabs\\" : "library/tabs/src",
+            "OpenEMR\\Rx\\Weno\\" : "library/weno/src"
+        }
+    },
+    "config" : {
+        "preferred-install" : {
+            "doctrine/couchdb" : "dist"
+        }
+    }
+}

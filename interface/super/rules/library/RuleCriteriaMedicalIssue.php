@@ -6,18 +6,21 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
-require_once( library_src( 'RuleCriteriaSimpleText.php') );
+require_once(library_src('RuleCriteriaSimpleText.php'));
 /**
  * Description of RuleCriteriaMedicalIssue
  *
  * @author aron
  */
-class RuleCriteriaMedicalIssue extends RuleCriteriaSimpleText {
-    function __construct( $title, $value='' ) {
+class RuleCriteriaMedicalIssue extends RuleCriteriaSimpleText
+{
+    function __construct($title, $value = '')
+    {
         parent::__construct($title, $value);
     }
 
-    function getDbView() {
+    function getDbView()
+    {
         $dbView = parent::getDbView();
 
         $dbView->method = "lists";
@@ -25,6 +28,4 @@ class RuleCriteriaMedicalIssue extends RuleCriteriaSimpleText {
         $dbView->value = "CUSTOM::" . $this->value;
         return $dbView;
     }
-
 }
-?>

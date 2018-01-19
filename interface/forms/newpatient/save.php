@@ -1,168 +1,194 @@
 <?php
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * Encounter form save script.
+ *
+ * Copyright (C) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author  Roberto Vasquez <robertogagliotta@gmail.com>
+ * @link    http://www.open-emr.org
+ */
+
+
+
 
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
-require_once("$srcdir/sql.inc");
 require_once("$srcdir/encounter.inc");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/formatting.inc.php");
-require_once("$srcdir/formdata.inc.php");
 
-$conn = $GLOBALS['adodb']['db'];
+use OpenEMR\Services\FacilityService;
 
-$date             = formData('form_date');
-$onset_date       = formData('form_onset_date');
-$sensitivity      = formData('form_sensitivity');
-$pc_catid         = formData('pc_catid');
-$facility_id      = formData('facility_id');
-$billing_facility = formData('billing_facility');
-$reason           = formData('reason');
-$mode             = formData('mode');
-$referral_source  = formData('form_referral_source');
+$facilityService = new FacilityService();
 
-$facilityresult = sqlQuery("select name FROM facility WHERE id = $facility_id");
+$date             = (isset($_POST['form_date']))            ? $_POST['form_date'] : '';
+$onset_date       = (isset($_POST['form_onset_date']))      ? $_POST['form_onset_date'] : '';
+$sensitivity      = (isset($_POST['form_sensitivity']))     ? $_POST['form_sensitivity'] : '';
+$pc_catid         = (isset($_POST['pc_catid']))             ? $_POST['pc_catid'] : '';
+$facility_id      = (isset($_POST['facility_id']))          ? $_POST['facility_id'] : '';
+$billing_facility = (isset($_POST['billing_facility']))     ? $_POST['billing_facility'] : '';
+$reason           = (isset($_POST['reason']))               ? $_POST['reason'] : '';
+$mode             = (isset($_POST['mode']))                 ? $_POST['mode'] : '';
+$referral_source  = (isset($_POST['form_referral_source'])) ? $_POST['form_referral_source'] : '';
+$pos_code         = (isset($_POST['pos_code']))              ? $_POST['pos_code'] : '';
+//save therapy group if exist in external_id column
+$external_id         = isset($_POST['form_gid']) ? $_POST['form_gid'] : '';
+
+$facilityresult = $facilityService->getById($facility_id);
 $facility = $facilityresult['name'];
 
-if ($GLOBALS['concurrent_layout'])
-  $normalurl = "patient_file/encounter/encounter_top.php";
-else
-  $normalurl = "$rootdir/patient_file/encounter/patient_encounter.php";
+$normalurl = "patient_file/encounter/encounter_top.php";
 
 $nexturl = $normalurl;
 
-if ($mode == 'new')
-{
-  $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
-  $encounter = $conn->GenID("sequences");
-  addForm($encounter, "New Patient Encounter",
-    sqlInsert("INSERT INTO form_encounter SET " .
-      "date = '$date', " .
-      "onset_date = '$onset_date', " .
-      "reason = '$reason', " .
-      "facility = '$facility', " .
-      "pc_catid = '$pc_catid', " .
-      "facility_id = '$facility_id', " .
-      "billing_facility = '$billing_facility', " .
-      "sensitivity = '$sensitivity', " .
-      "referral_source = '$referral_source', " .
-      "pid = '$pid', " .
-      "encounter = '$encounter', " .
-      "provider_id = '$provider_id'"),
-    "newpatient", $pid, $userauthorized, $date);
-}
-else if ($mode == 'update')
-{
-  $id = $_POST["id"];
-  $result = sqlQuery("SELECT encounter, sensitivity FROM form_encounter WHERE id = '$id'");
-  if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
-   die("You are not authorized to see this encounter.");
-  }
-  $encounter = $result['encounter'];
+if ($mode == 'new') {
+    $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
+    $encounter = generate_id();
+    addForm(
+        $encounter,
+        "New Patient Encounter",
+        sqlInsert("INSERT INTO form_encounter SET " .
+        "date = '" . add_escape_custom($date) . "', " .
+        "onset_date = '" . add_escape_custom($onset_date) . "', " .
+        "reason = '" . add_escape_custom($reason) . "', " .
+        "facility = '" . add_escape_custom($facility) . "', " .
+        "pc_catid = '" . add_escape_custom($pc_catid) . "', " .
+        "facility_id = '" . add_escape_custom($facility_id) . "', " .
+        "billing_facility = '" . add_escape_custom($billing_facility) . "', " .
+        "sensitivity = '" . add_escape_custom($sensitivity) . "', " .
+        "referral_source = '" . add_escape_custom($referral_source) . "', " .
+        "pid = '" . add_escape_custom($pid) . "', " .
+        "encounter = '" . add_escape_custom($encounter) . "', " .
+        "pos_code = '" . add_escape_custom($pos_code) . "', " .
+        "external_id = '" . add_escape_custom($external_id) . "', " .
+        "provider_id = '" . add_escape_custom($provider_id) . "'"),
+        "newpatient",
+        $pid,
+        $userauthorized,
+        $date
+    );
+} else if ($mode == 'update') {
+    $id = $_POST["id"];
+    $result = sqlQuery("SELECT encounter, sensitivity FROM form_encounter WHERE id = ?", array($id));
+    if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
+        die(xlt("You are not authorized to see this encounter."));
+    }
+
+    $encounter = $result['encounter'];
   // See view.php to allow or disallow updates of the encounter date.
-  $datepart = acl_check('encounters', 'date_a') ? "date = '$date', " : "";
-  sqlStatement("UPDATE form_encounter SET " .
+    $datepart = acl_check('encounters', 'date_a') ? "date = '" . add_escape_custom($date) . "', " : "";
+    sqlStatement("UPDATE form_encounter SET " .
     $datepart .
-    "onset_date = '$onset_date', " .
-    "reason = '$reason', " .
-    "facility = '$facility', " .
-    "pc_catid = '$pc_catid', " .
-    "facility_id = '$facility_id', " .
-    "billing_facility = '$billing_facility', " .
-    "sensitivity = '$sensitivity', " .
-    "referral_source = '$referral_source' " .
-    "WHERE id = '$id'");
-}
-else {
-  die("Unknown mode '$mode'");
+    "onset_date = '" . add_escape_custom($onset_date) . "', " .
+    "reason = '" . add_escape_custom($reason) . "', " .
+    "facility = '" . add_escape_custom($facility) . "', " .
+    "pc_catid = '" . add_escape_custom($pc_catid) . "', " .
+    "facility_id = '" . add_escape_custom($facility_id) . "', " .
+    "billing_facility = '" . add_escape_custom($billing_facility) . "', " .
+    "sensitivity = '" . add_escape_custom($sensitivity) . "', " .
+    "referral_source = '" . add_escape_custom($referral_source) . "', " .
+    "pos_code = '" . add_escape_custom($pos_code) . "' " .
+    "WHERE id = '" . add_escape_custom($id) . "'");
+} else {
+    die("Unknown mode '" . text($mode) . "'");
 }
 
 setencounter($encounter);
 
 // Update the list of issues associated with this encounter.
-sqlStatement("DELETE FROM issue_encounter WHERE " .
-  "pid = '$pid' AND encounter = '$encounter'");
 if (is_array($_POST['issues'])) {
-  foreach ($_POST['issues'] as $issue) {
-    $query = "INSERT INTO issue_encounter ( " .
-      "pid, list_id, encounter " .
-      ") VALUES ( " .
-      "'$pid', '$issue', '$encounter'" .
-    ")";
-    sqlStatement($query);
-  }
+    sqlStatement("DELETE FROM issue_encounter WHERE " .
+    "pid = ? AND encounter = ?", array($pid, $encounter));
+    foreach ($_POST['issues'] as $issue) {
+        $query = "INSERT INTO issue_encounter ( pid, list_id, encounter ) VALUES (?,?,?)";
+        sqlStatement($query, array($pid,$issue,$encounter));
+    }
 }
 
 // Custom for Chelsea FC.
 //
 if ($mode == 'new' && $GLOBALS['default_new_encounter_form'] == 'football_injury_audit') {
-
   // If there are any "football injury" issues (medical problems without
   // "illness" in the title) linked to this encounter, but no encounter linked
   // to such an issue has the injury form in it, then present that form.
 
-  $lres = sqlStatement("SELECT list_id " .
+    $lres = sqlStatement("SELECT list_id " .
     "FROM issue_encounter, lists WHERE " .
-    "issue_encounter.pid = '$pid' AND " .
-    "issue_encounter.encounter = '$encounter' AND " .
+    "issue_encounter.pid = ? AND " .
+    "issue_encounter.encounter = ? AND " .
     "lists.id = issue_encounter.list_id AND " .
     "lists.type = 'medical_problem' AND " .
-    "lists.title NOT LIKE '%Illness%'");
+    "lists.title NOT LIKE '%Illness%'", array($pid,$encounter));
 
-  if (mysql_num_rows($lres)) {
-    $nexturl = "patient_file/encounter/load_form.php?formname=" .
-      $GLOBALS['default_new_encounter_form'];
-    while ($lrow = sqlFetchArray($lres)) {
-      $frow = sqlQuery("SELECT count(*) AS count " .
-         "FROM issue_encounter, forms WHERE " .
-         "issue_encounter.list_id = '" . $lrow['list_id'] . "' AND " .
-         "forms.pid = issue_encounter.pid AND " .
-         "forms.encounter = issue_encounter.encounter AND " .
-         "forms.formdir = '" . $GLOBALS['default_new_encounter_form'] . "'");
-      if ($frow['count']) $nexturl = $normalurl;
+    if (sqlNumRows($lres) > 0) {
+        $nexturl = "patient_file/encounter/load_form.php?formname=" .
+        $GLOBALS['default_new_encounter_form'];
+        while ($lrow = sqlFetchArray($lres)) {
+            $frow = sqlQuery("SELECT count(*) AS count " .
+             "FROM issue_encounter, forms WHERE " .
+             "issue_encounter.list_id = ? AND " .
+             "forms.pid = issue_encounter.pid AND " .
+             "forms.encounter = issue_encounter.encounter AND " .
+             "forms.formdir = ?", array($lrow['list_id'],$GLOBALS['default_new_encounter_form']));
+            if ($frow['count']) {
+                $nexturl = $normalurl;
+            }
+        }
     }
-  }
 }
+
 $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe ".
-	" left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = '$pid' order by fe.date desc");
+    " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($pid));
 ?>
 <html>
 <body>
 <script language='JavaScript'>
-<?php if ($GLOBALS['concurrent_layout'])
- {//Encounter details are stored to javacript as array.
-?>
-	EncounterDateArray=new Array;
-	CalendarCategoryArray=new Array;
-	EncounterIdArray=new Array;
-	Count=0;
-	 <?php
-			   if(sqlNumRows($result4)>0)
-				while($rowresult4 = sqlFetchArray($result4))
-				 {
-	?>
-					EncounterIdArray[Count]='<?php echo htmlspecialchars($rowresult4['encounter'], ENT_QUOTES); ?>';
-					EncounterDateArray[Count]='<?php echo htmlspecialchars(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date']))), ENT_QUOTES); ?>';
-					CalendarCategoryArray[Count]='<?php echo htmlspecialchars( xl_appt_category($rowresult4['pc_catname']), ENT_QUOTES); ?>';
-					Count++;
-	 <?php
-				 }
-	 ?>
-	 top.window.parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
-<?php } ?>
- top.restoreSession();
-<?php if ($GLOBALS['concurrent_layout']) { ?>
+    EncounterDateArray=new Array;
+    CalendarCategoryArray=new Array;
+    EncounterIdArray=new Array;
+    Count=0;
+        <?php
+        if (sqlNumRows($result4)>0) {
+            while ($rowresult4 = sqlFetchArray($result4)) {
+        ?>
+        EncounterIdArray[Count]='<?php echo attr($rowresult4['encounter']); ?>';
+    EncounterDateArray[Count]='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>';
+    CalendarCategoryArray[Count]='<?php echo attr(xl_appt_category($rowresult4['pc_catname'])); ?>';
+            Count++;
+    <?php
+            }
+        }
+        ?>
+
+    // Get the left_nav window, and the name of its sibling (top or bottom) frame that this form is in.
+    // This works no matter how deeply we are nested.
+    var my_left_nav = top.left_nav;
+    var w = window;
+    for (; w.parent != top; w = w.parent);
+    var my_win_name = w.name;
+    my_left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
+    top.restoreSession();
 <?php if ($mode == 'new') { ?>
- parent.left_nav.setEncounter(<?php echo "'" . oeFormatShortDate($date) . "', $encounter, window.name"; ?>);
- parent.left_nav.setRadio(window.name, 'enc');
-<?php } // end if new encounter ?>
- parent.left_nav.loadFrame('enc2', window.name, '<?php echo $nexturl; ?>');
-<?php } else { // end if concurrent layout ?>
- window.location="<?php echo $nexturl; ?>";
-<?php } // end not concurrent layout ?>
+    my_left_nav.setEncounter(<?php echo "'" . attr(oeFormatShortDate($date)) . "', " . attr($encounter) . ", window.name"; ?>);
+    // Load the tab set for the new encounter, w is usually the RBot frame.
+    w.location.href = '<?php echo "$rootdir/patient_file/encounter/encounter_top.php"; ?>';
+<?php } else { // not new encounter ?>
+    // Always return to encounter summary page.
+    window.location.href = '<?php echo "$rootdir/patient_file/encounter/forms.php"; ?>';
+<?php } // end if not new encounter ?>
+
 </script>
 
 </body>

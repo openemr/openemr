@@ -8,12 +8,12 @@
 //
 class ExclusionsNone implements CqmFilterIF
 {
-    public function getTitle() 
+    public function getTitle()
     {
         return "Exclusions: None";
     }
     
-    public function test( CqmPatient $patient, $beginDate, $endDate )
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         return false;
     }

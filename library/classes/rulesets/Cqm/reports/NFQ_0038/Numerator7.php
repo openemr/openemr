@@ -6,17 +6,19 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-class NFQ_0038_Numerator7 implements CqmFilterIF 
+class NFQ_0038_Numerator7 implements CqmFilterIF
 {
-    public function getTitle() {
+    public function getTitle()
+    {
         return "Numerator 7";
     }
     
-    public function test( CqmPatient $patient, $beginDate, $endDate )
-    { 
-        if ( Immunizations::checkPheumococcal( $patient, $beginDate, $endDate ) ) {
+    public function test(CqmPatient $patient, $beginDate, $endDate)
+    {
+        if (Immunizations::checkPheumococcal($patient, $beginDate, $endDate)) {
             return true;
         }
+
         return false;
     }
 }

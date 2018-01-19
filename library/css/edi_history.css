@@ -46,15 +46,19 @@
 	#turnover, tr td:nth-child(9)		{ display:none; visibility:hidden; }
 }
 */
-body {
-	background-color: #f0eee9;
-	width: 100%;
+
+@media print
+{
+  table.era835 thead { display:table-header-group }
+  table.era835 tfoot { display:table-footer-group }
+  table.era835 tbody.eraclp { page-break-inside:avoid; page-break-after:auto }
 }
+
 p.text {
 	width:80%;
 	text-align:left;
 	font-family: serif;
-	font-size: 14px;
+	font-size: medium;
 	background-color: #ede9c0;	
 	}
 /*
@@ -83,17 +87,26 @@ ol.logview li {
 /*
  * ibr-ebr file listings for process csv output
  */
+ 
 table.ibr_ebr {
-	font-size: 14px;
-	background-color: #bce9f8;
+	font-size: medium;
+	background-color: #9dc1d2;
 	width: 800px;
 	border-collapse: collapse;
 	border: 1px solid #000;
 	empty-cells: show; 
 }
+table.ibr_ebr caption {
+    padding: 2px 10px;
+    text-align: left;
+    font-weight: bold;
+    font-size: medium;
+    background-color: #9dc1d2;
+    border: 1px solid #000;
+}
 table.ibr_ebr th {
 	padding: 5px;
-	background-color: #7fb3cb;
+	background-color: #9dc1d2;
 }
 table.ibr_ebr td {
 	color: #000000;
@@ -105,10 +118,10 @@ table.ibr_ebr td.reject {
 	padding: 3px;
 }
 table.ibr_ebr tr.odd td {
-	background-color: #b5bcc0;
+	background-color: #c6d8db;
 }
 table.ibr_ebr tr.even td {
-	background-color: #a3c1e0;
+	background-color: #a3d6e0;
 }
 table.ibr_ebr tr.fodd td {
 	background-color: #a3d8e0;
@@ -121,7 +134,7 @@ table.ibr_ebr tr.feven td {
  * dpr result in process new output
  */
 p.dpr_notice {
-	font-size: 14px;
+	font-size: medium;
 	font-weight: bold;
 	text-align: Left;
 	background-color: #d1fded;
@@ -133,12 +146,20 @@ p.dpr_notice {
  * dpr claims
  */
 table.ibr_dpr {
-	font-size: 14px;
+	font-size: medium;
 	background-color: #d1fad0;
 	width: 800px;
 	border-collapse: collapse;
 	border: 1px solid #000;
 	empty-cells: show; 
+} 
+table.ibr_dpr caption {
+    padding: 2px 10px;
+    text-align: left;
+    font-weight: bold;
+    font-size: medium;
+    background-color: #d1fad0;
+    border: 1px solid #000;
 }
 table.ibr_dpr th {
 	padding: 5px;
@@ -170,12 +191,20 @@ table.ibr_dpr tr.feven td {
  * 277 file listings for process csv output
  */
 table.f277 {
-	font-size: 14px;
+	font-size: medium;
 	background-color: #bcf8e7;
 	width: 800px;
 	border-collapse: collapse;
 	border: 1px solid #000;
 	empty-cells: show; 
+} 
+table.f277 caption {
+    padding: 2px 10px;
+    text-align: left;
+    font-weight: bold;
+    font-size: medium;
+    background-color: #bcf8e7;
+    border: 1px solid #000;
 }
 table.f277 th {
 	padding: 5px;
@@ -206,26 +235,34 @@ table.f277 tr.feven td {
  * batch file listings for process csv output
  */
 table.batch {
-	font-size: 14px;
-	background-color: #bcdebb;
+	font-size: medium;
+	background-color: #9fd7ad;
 	width: 800px;
 	border-collapse: collapse;
 	border: 1px solid #000;
 	empty-cells: show; 
+} 
+table.batch caption {
+    padding: 2px 10px;
+    text-align: left;
+    font-weight: bold;
+    font-size: medium;
+    background-color: #9fd7ad;
+    border: 1px solid #000;
 }
 table.batch th {
 	padding: 5px;
-	background-color: #7fb3cb;
+	background-color: #9fd7ad;
 }
 table.batch td {
 	color: #000000;
 	padding: 3px;
 }
 table.batch tr.odd td {
-	background-color: #99b4a2;
+	background-color: #beddcd;
 }
 table.batch tr.even td {
-	background-color: #bcd6c1;
+	background-color: #d4ebd9;
 }
 
 
@@ -234,23 +271,31 @@ table.batch tr.even td {
  * 999 file listings for process csv output
  */
 table.f997 {
-	font-size: 14px;
+	font-size: medium;
 	background-color: #bcdebb;
 	width: 800px;
 	border-collapse: collapse;
 	border: 1px solid #000;
 	empty-cells: show; 
 }
+table.f997 caption {
+    padding: 2px 10px;
+    text-align: left;
+    font-weight: bold;
+    font-size: medium;
+    background-color: #d8a684;
+    border: 1px solid #000;
+}
 table.f997 th {
 	padding: 5px;
-	background-color: #7fb3Cb;
+	background-color: #e1cbbd;
 }
 table.f997 td {
 	color: #000000;
 	padding: 3px;
 }
 table.f997 tr.odd td {
-	background-color: #b4a499;
+	background-color: #c5bdb7;
 }
 table.f997 tr.even td {
 	background-color: #eeb995;
@@ -263,12 +308,20 @@ table.f997 tr.even td {
  * 
  */
 table.eracsv {
-	font-size: 14px;
+	font-size: medium;
 	background-color: #acc3a5;
 	width: 800px;
 	border-collapse: collapse;
 	border: 1px solid #000;
 	empty-cells: show; 
+}
+table.eracsv caption {
+    padding: 2px 10px;
+    text-align: left;
+    font-weight: bold;
+    font-size: medium;
+    background-color: #c5d7bf;
+    border: 1px solid #000;
 }
 table.eracsv th {
 	padding: 5px;
@@ -340,7 +393,7 @@ table.clmhist tr.ch835 td {
  */
 table.bht277 {
   clear: both;
-  font-size: 14px;
+  font-size: medium;
   background-color: #BDD7DE;
   border-collapse: collapse;
   border: 1px solid #000;
@@ -353,7 +406,7 @@ table.bht277 caption {
   padding: 5px;
   text-align: left;
   font-weight: bold;
-  font-size: 14px;
+  font-size: large;
   background-color: #96C8D6;
   border: 2px solid #000;
 }
@@ -413,7 +466,7 @@ table.summaryRA caption {
     padding: 2px 10px;
     text-align: left;
     font-weight: bold;
-    font-size: 12px;
+    font-size: large;
     background-color: #C0E8E7;
     border: 2px solid #000;
 }
@@ -425,7 +478,7 @@ p.ibrmsg {
 	background-color: #d4ddde;
 	margin: 1.6em 8px;
 	text-align: left;
-	font-size: 12px;
+	font-size: medium;
 }
 
 /* 
@@ -435,7 +488,7 @@ p.ak999stat {
 	background-color: #eae1d0;
 	margin: 1.6em 8px;
 	text-align: left;
-	font-size: 12px;
+	font-size: medium;
 }
 	
 /*
@@ -447,7 +500,7 @@ p.ak999stat {
  *		  }  
  */
 table.era835 {
-	font-size: 14px;
+	font-size: medium;
 	background-color: #F2E7CF;
 	width: 960px;
 	border-collapse: collapse;
@@ -499,7 +552,7 @@ table.era835 caption {
     padding: 2px;
     text-align: left;
     font-weight: bold;
-    font-size: 14px;
+    font-size: large;
     background-color: #D8F4DF;
     border: 2px solid #000;
 }
@@ -508,6 +561,12 @@ table.era835 caption {
  * files display, text files, monospace
  * 
  */
+div.filetext {  
+  font-family: sans-serif;
+  background-color: #FDF5DB;
+  width: auto;
+  clear:both;
+} 
 
 div.filetext pre,code,kbd,samp,tt {
   font-family: monospace,monospace;
@@ -523,7 +582,6 @@ div.filetext code {
   width: auto;
   float: left
 }
-
 
 div.filetext ol {
 	font-family: sans-serif;
@@ -554,15 +612,23 @@ div.filetext ol p {
   /*overflow: break-word; */
 }
 
+div.filetext table.batchst caption {
+    font-family: sans-serif;
+    padding: 4px;
+    text-align: left;
+    font-weight: bold;
+    font-size: large;
+}
+
 div.filetext table.batchst thead {
   font-family: monospace,monospace;
-  font-size: 1em;
+  font-size: medium;
   border-width: thin;
 }
 
 div.filetext table.batchst tbody {
   font-family: monospace,monospace;
-  font-size: 12px;
+  font-size: medium;
   border-width: thin;
   width: auto;
 }
@@ -590,12 +656,238 @@ div.filetext table.batchst td.btseg {
 .ui-widget .ui-widget { font-size: 0.9em; }
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-family: Arial,'Liberation Sans','DejaVu Sans', sans-serif; font-size: 1em; }
 
-table.dataTable tr.odd { background-color: #e2fff3; }
-table.dataTable tr.even { background-color: #f1f9f4; }
 
-table.dataTable tr.odd td.sorting_1 { background-color: #c4fae1; }
-table.dataTable tr.odd td.sorting_2 { background-color: #c9ffd5; }
-table.dataTable tr.odd td.sorting_3 { background-color: #e0ffe7; }
-table.dataTable tr.even td.sorting_1 { background-color: #ecf7f0; }
-table.dataTable tr.even td.sorting_2 { background-color: #ecf4ee; }
-table.dataTable tr.even td.sorting_3 { background-color: #f9fffa; }
+/* ******************************************
+ * DataTables css -- copied and tweaked
+ * Page setup styles
+ * 
+ */
+ 
+div.csvcptn {
+	float: left;
+	margin: 3px 12px 3px 3px;
+	font-weight: bold;
+	font-size: 1.1em;
+}
+	
+/* Table csvDisplay */
+.outlinetr { outline: 1px solid #09450f }
+
+table.csvDisplay {
+    width: 100%;
+    clear: both;
+}
+ 
+table.csvDisplay td {
+    padding: 3px 10px;
+    border: 1px solid #C8C8C8;
+}
+
+table.csvDisplay thead th {
+	padding: 3px 0px 3px 10px;
+	cursor: pointer;
+}
+
+table.csvDisplay tfoot th {
+	padding: 3px 10px;
+}
+
+table.csvDisplay td.center,
+table.csvDisplay td.csvDisplays_empty {
+	text-align: center;
+}
+
+table.csvDisplay tr.odd { background-color: #D7EDE8; }
+table.csvDisplay tr.even { background-color: #B8EADF; }
+
+table.csvDisplay tr.odd td.sorting_1 { background-color: #DEF4EB; }
+table.csvDisplay tr.odd td.sorting_2 { background-color: #DBFCF1; }
+table.csvDisplay tr.odd td.sorting_3 { background-color: #E0FFF1; }
+table.csvDisplay tr.even td.sorting_1 { background-color: #BAE7D4; }
+table.csvDisplay tr.even td.sorting_2 { background-color: #D9E8E3; }
+table.csvDisplay tr.even td.sorting_3 { background-color: #D9E6E1; }
+
+
+/*
+ * Table wrapper
+ */
+.dataTables_wrapper {
+	position: relative;
+	clear: both;
+	*zoom: 1;
+}
+.dataTables_wrapper .ui-widget-header {
+	font-weight: normal;
+}
+.dataTables_wrapper .ui-toolbar {
+	padding: 5px;
+}
+
+
+/* Page length menu */
+.dataTables_length {
+	float: left;
+}
+
+/* Filter */
+.dataTables_filter {
+	float: right;
+	text-align: right;
+}
+
+/* Table information */
+.dataTables_info {
+	padding-top: 3px;
+	clear: both;
+	float: left;
+}
+
+/* Pagination */
+.dataTables_paginate {
+	float: right;
+	text-align: right;
+}
+
+.dataTables_paginate .ui-button {
+	margin-right: -0.1em !important;
+}
+
+.paging_two_button .ui-button {
+	float: left;
+	cursor: pointer;
+}
+
+.paging_full_numbers .ui-button {
+	padding: 2px 6px;
+	margin: 0;
+	cursor: pointer;
+	* cursor: hand;
+	color: #333 !important;
+}
+
+/* Two button pagination - previous / next */
+.paginate_disabled_previous,
+.paginate_enabled_previous,
+.paginate_disabled_next,
+.paginate_enabled_next {
+	height: 19px;
+	float: left;
+	cursor: pointer;
+	color: #111 !important;
+}
+.paginate_disabled_previous:hover,
+.paginate_enabled_previous:hover,
+.paginate_disabled_next:hover,
+.paginate_enabled_next:hover {
+	text-decoration: none !important;
+}
+.paginate_disabled_previous:active,
+.paginate_enabled_previous:active,
+.paginate_disabled_next:active,
+.paginate_enabled_next:active {
+	outline: none;
+}
+
+.paginate_disabled_previous,
+.paginate_disabled_next {
+	color: #666 !important;
+}
+.paginate_disabled_previous,
+.paginate_enabled_previous {
+	padding-left: 23px;
+}
+.paginate_disabled_next,
+.paginate_enabled_next {
+	padding-right: 23px;
+	margin-left: 10px;
+}
+
+.paginate_enabled_previous { background: url('../images/back_enabled.png') no-repeat top left; }
+.paginate_enabled_previous:hover { background: url('../images/back_enabled_hover.png') no-repeat top left; }
+.paginate_disabled_previous { background: url('../images/back_disabled.png') no-repeat top left; }
+
+.paginate_enabled_next { background: url('../images/forward_enabled.png') no-repeat top right; }
+.paginate_enabled_next:hover { background: url('../images/forward_enabled_hover.png') no-repeat top right; }
+.paginate_disabled_next { background: url('../images/forward_disabled.png') no-repeat top right; }
+
+/* Full number pagination */
+.paging_full_numbers a:active {
+	outline: none
+}
+.paging_full_numbers a:hover {
+	text-decoration: none;
+}
+
+.paging_full_numbers a.paginate_button,
+.paging_full_numbers a.paginate_active {
+	border: 1px solid #AAAAAA;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	padding: 2px 5px;
+	margin: 0 3px;
+	cursor: pointer;
+	color: #333 !important;
+}
+
+.paging_full_numbers a.paginate_button {
+	background-color: #DDDDDD;
+}
+
+.paging_full_numbers a.paginate_button:hover {
+	background-color: #CCCCCC;
+	text-decoration: none !important;
+}
+
+.paging_full_numbers a.paginate_active {
+	background-color: #99B3FF;
+}
+
+
+/*
+ * Processing indicator
+ */
+.dataTables_processing {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 250px;
+	height: 30px;
+	margin-left: -125px;
+	margin-top: -15px;
+	padding: 14px 0 2px 0;
+	border: 1px solid #ddd;
+	text-align: center;
+	color: #999;
+	font-size: 14px;
+	background-color: white;
+}
+
+
+/* Sorting */
+table.csvDisplay thead th div.DataTables_sort_wrapper {
+	position: relative;
+	padding-right: 20px;
+	padding-right: 20px;
+}
+
+table.csvDisplay thead th div.DataTables_sort_wrapper span {
+	position: absolute;
+	top: 50%;
+	margin-top: -8px;
+	right: 0;
+}
+
+table.csvDisplay th:active {
+	outline: none;
+}
+
+/* Scrolling */
+.dataTables_scroll {
+	clear: both;
+}
+
+.dataTables_scrollBody {
+	*margin-top: -1px;
+	-webkit-overflow-scrolling: touch;
+}

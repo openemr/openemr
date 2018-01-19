@@ -6,21 +6,33 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
-require_once( src_dir() . "/clinical_rules.php");
+require_once(src_dir() . "/clinical_rules.php");
 
-class Controller_browse extends BaseController {
-
-    function _action_list() {
-        $this->set_view( "list.php" );
+class Controller_browse extends BaseController
+{
+    public function __construct()
+    {
+        parent::__construct();
     }
 
-    function _action_getrows() {
+    function _action_list()
+    {
+        $this->set_view("list.php");
+    }
+    
+    function _action_plans_config()
+    {
+        $this->set_view("plans_config.php");
+    }
+
+    function _action_getrows()
+    {
         $rows = array();
 
-        $rules = resolve_rules_sql('','0',TRUE);
-        foreach( $rules as $rowRule ) {
-            $title = getLabel($rowRule['id'],'clinical_rules');
-            $type = "Reminder";
+        $rules = resolve_rules_sql('', '0', true);
+        foreach ($rules as $rowRule) {
+            $title = getLabel($rowRule['id'], 'clinical_rules');
+            $type = xl("Reminder");
 
             $row = array(
                 "title" => $title,
@@ -30,8 +42,6 @@ class Controller_browse extends BaseController {
             $rows[] = $row;
         }
 
-        $this->emit_json( $rows );
+        $this->emit_json($rows);
     }
-
 }
-?>

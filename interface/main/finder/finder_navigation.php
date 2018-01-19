@@ -1,4 +1,4 @@
-<?php 
+<?php
 include_once("../../globals.php");
 ?>
 
@@ -21,23 +21,33 @@ include_once("../../globals.php");
 <td style="text-align:left; width: 250px; white-space: nowrap;">
 <input type="textbox" size="10" name="patient" value="<?php echo $_REQUEST['patient']; ?>" >
 <select name="findBy">
-<option value="Last" <?php if ($_REQUEST['findBy'] == 'Last') echo 'selected' ?>><?php xl('Name','e');?></option>
-<option value="Phone" <?php if ($_REQUEST['findBy'] == 'Phone') echo 'selected' ?>><?php xl('Phone','e');?></option>
-<option value="ID" <?php if ($_REQUEST['findBy'] == 'ID') echo 'selected' ?>><?php xl('ID','e');?></option>
-<option value="SSN" <?php if ($_REQUEST['findBy'] == 'SSN') echo 'selected' ?>><?php xl('SSN','e');?></option>
-<option value="DOB" <?php if ($_REQUEST['findBy'] == 'DOB') echo 'selected' ?>><?php xl('DOB','e');?></option>
+<option value="Last" <?php if ($_REQUEST['findBy'] == 'Last') {
+    echo 'selected';
+} ?>><?php xl('Name', 'e');?></option>
+<option value="Phone" <?php if ($_REQUEST['findBy'] == 'Phone') {
+    echo 'selected';
+} ?>><?php xl('Phone', 'e');?></option>
+<option value="ID" <?php if ($_REQUEST['findBy'] == 'ID') {
+    echo 'selected';
+} ?>><?php xl('ID', 'e');?></option>
+<option value="SSN" <?php if ($_REQUEST['findBy'] == 'SSN') {
+    echo 'selected';
+} ?>><?php xl('SSN', 'e');?></option>
+<option value="DOB" <?php if ($_REQUEST['findBy'] == 'DOB') {
+    echo 'selected';
+} ?>><?php xl('DOB', 'e');?></option>
 </select>
-<a href="javascript:top.restoreSession();document.find_patient.action='<?php echo $rootdir?>/main/finder/patient_finder.php';document.find_patient.submit();" class="link">&nbsp;<?php xl('Find Patient','e');?></a>
+<a href="javascript:top.restoreSession();document.find_patient.action='<?php echo $rootdir?>/main/finder/patient_finder.php';document.find_patient.submit();" class="link">&nbsp;<?php xl('Find Patient', 'e');?></a>
 </td>
 
 <td style="text-align:left">
 &nbsp;&nbsp;&nbsp;<a class="menu" target="_top" href="../../new/new_patient.php" onclick="top.restoreSession()">
-<?php xl('New Patient','e');?></a>&nbsp;
+<?php xl('New Patient', 'e');?></a>&nbsp;
 </td>
 
 <td style="text-align:right">
 &nbsp;<a href="../main_screen.php" target="_top" class="logout" onclick="top.restoreSession()">
-<?php xl('Back','e');?></a>&nbsp;&nbsp;
+<?php xl('Back', 'e');?></a>&nbsp;&nbsp;
 </td>
 </tr>
 </table>

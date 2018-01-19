@@ -55,7 +55,7 @@ function pnModGetVar($modname, $name)
               AND $modulevarscolumn[name] = '" . pnVarPrepForStore($name) . "'";
     $result = $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return;
     }
 
@@ -109,7 +109,7 @@ function pnModSetVar($modname, $name, $value)
 
     $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return;
     }
 
@@ -141,7 +141,7 @@ function pnModDelVar($modname, $name)
               AND $modulevarscolumn[name] = '" . pnVarPrepForStore($name) . "'";
     $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return;
     }
 
@@ -149,6 +149,7 @@ function pnModDelVar($modname, $name)
     if (isset($pnmodvar[$modname][$name])) {
         unset($pnmodvar[$modname][$name]);
     }
+
     return true;
 }
 
@@ -178,7 +179,7 @@ function pnModGetIDFromName($module)
               WHERE $modulescolumn[name] = '" . pnVarPrepForStore($module) . "'";
     $result = $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return;
     }
 
@@ -203,7 +204,7 @@ function pnModGetIDFromName($module)
 function pnModGetInfo($modid)
 {
     // a $modid of 0 is associated with core ( pn_blocks.mid, ... ).
-    if ( $modid == 0 ) {
+    if ($modid == 0) {
         return false;
     }
 
@@ -228,7 +229,7 @@ function pnModGetInfo($modid)
               WHERE $modulescolumn[id] = " . pnVarPrepForStore($modid);
     $result = $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return;
     }
 
@@ -275,7 +276,7 @@ function pnModGetUserMods()
               ORDER BY $modulescolumn[name]";
     $result = $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return;
     }
 
@@ -284,7 +285,7 @@ function pnModGetUserMods()
     }
 
     $resarray = array();
-    while(list($name,
+    while (list($name,
                $modtype,
                $directory,
                $regid,
@@ -303,6 +304,7 @@ function pnModGetUserMods()
 
         array_push($resarray, $tmparray);
     }
+
     $result->Close();
 
     return $resarray;
@@ -336,7 +338,7 @@ function pnModGetAdminMods()
 
     $result = $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return;
     }
 
@@ -345,7 +347,7 @@ function pnModGetAdminMods()
     }
 
     $resarray = array();
-    while(list($name,
+    while (list($name,
                $modtype,
                $directory,
                $regid,
@@ -364,6 +366,7 @@ function pnModGetAdminMods()
 
         array_push($resarray, $tmparray);
     }
+
     $result->Close();
 
     return $resarray;
@@ -376,7 +379,7 @@ function pnModGetAdminMods()
  * @returns bool
  * @return true on success, false on failure
  */
-function pnModAPILoad($modname, $type='user')
+function pnModAPILoad($modname, $type = 'user')
 {
     static $loaded = array();
 
@@ -401,7 +404,7 @@ function pnModAPILoad($modname, $type='user')
               WHERE $modulescolumn[name] = '" . pnVarPrepForStore($modname) . "'";
     $result = $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return;
     }
 
@@ -451,7 +454,7 @@ function pnModAPILoad($modname, $type='user')
  * @param directory - directory that module is in (if known)
  * @returns bool
  */
-function pnModDBInfoLoad($modname, $directory='')
+function pnModDBInfoLoad($modname, $directory = '')
 {
     static $loaded = array();
 
@@ -470,7 +473,7 @@ function pnModDBInfoLoad($modname, $directory='')
                 FROM $modulestable
                 WHERE $modulescolumn[name] = '" . pnVarPrepForStore($modname) . "'";
         $result = $dbconn->Execute($sql);
-        if($dbconn->ErrorNo() != 0) {
+        if ($dbconn->ErrorNo() != 0) {
             return;
         }
 
@@ -492,6 +495,7 @@ function pnModDBInfoLoad($modname, $directory='')
         global $pntable;
         $pntable = array_merge($pntable, $tablefunc());
     }
+
     $loaded[$modname] = true;
 
     return true;
@@ -504,7 +508,7 @@ function pnModDBInfoLoad($modname, $directory='')
  * @returns string
  * @return name of module loaded, or false on failure
  */
-function pnModLoad($modname, $type='user')
+function pnModLoad($modname, $type = 'user')
 {
     static $loaded = array();
 
@@ -529,7 +533,7 @@ function pnModLoad($modname, $type='user')
               WHERE $modulescolumn[name] = '" . pnVarPrepForStore($modname) . "'";
     $result = $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return;
     }
 
@@ -580,7 +584,7 @@ function pnModLoad($modname, $type='user')
  * @param args - arguments to pass to the function
  * @returns mixed
  */
-function pnModAPIFunc($modname, $type='user', $func='main', $args=array())
+function pnModAPIFunc($modname, $type = 'user', $func = 'main', $args = array())
 {
 
     if (empty($modname)) {
@@ -590,6 +594,7 @@ function pnModAPIFunc($modname, $type='user', $func='main', $args=array())
     if (empty($type)) {
         $func = 'user';
     }
+
     if (empty($func)) {
         $func = 'main';
     }
@@ -611,7 +616,7 @@ function pnModAPIFunc($modname, $type='user', $func='main', $args=array())
  * @param args - argument array
  * @returns mixed
  */
-function pnModFunc($modname, $type='user', $func='main', $args=array())
+function pnModFunc($modname, $type = 'user', $func = 'main', $args = array())
 {
 
     if (empty($modname)) {
@@ -621,6 +626,7 @@ function pnModFunc($modname, $type='user', $func='main', $args=array())
     if (empty($type)) {
         $func = 'user';
     }
+
     if (empty($func)) {
         $func = 'main';
     }
@@ -643,7 +649,7 @@ function pnModFunc($modname, $type='user', $func='main', $args=array())
  * @returns string
  * @return absolute URL for call
  */
-function pnModURL($modname, $type='user', $func='main', $args=array(), $path = '')
+function pnModURL($modname, $type = 'user', $func = 'main', $args = array(), $path = '')
 {
     if (empty($modname)) {
         return false;
@@ -665,9 +671,11 @@ function pnModURL($modname, $type='user', $func='main', $args=array(), $path = '
     if ((!empty($type)) && ($type != 'user')) {
         $urlargs[] = "type=$type";
     }
+
     if ((!empty($func)) && ($func != 'main')) {
         $urlargs[] = "func=$func";
     }
+
     $urlargs = join('&', $urlargs);
     $url = "index.php?$urlargs";
 
@@ -677,22 +685,23 @@ function pnModURL($modname, $type='user', $func='main', $args=array(), $path = '
     if (!is_array($args)) {
         return false;
     } else {
-        foreach ($args as $k=>$v) {
+        foreach ($args as $k => $v) {
             if (is_array($v)) {
-                foreach($v as $l=>$w) {
-                    $url .= "&$k" . "[$l]=$w";
+                foreach ($v as $l => $w) {
+                    $url .= "&" . attr($k) . "[" . attr($l) . "]=" . attr($w);
                 }
             } else {
-                $url .= "&$k=$v";
+                $url .= "&" . attr($k) . "=" . attr($v);
             }
         }
     }
-	//remove characters not belonging in a path, prevent possible injection
-	//this may break windows path accesses?
-	$path = preg_replace("/[^\.\/a-zA-Z0-9]/","",$path)
-;
+
+    //remove characters not belonging in a path, prevent possible injection
+    //this may break windows path accesses?
+    $path = preg_replace("/[^\.\/a-zA-Z0-9]/", "", $path);
+
     // The URL
-	$final_url = pnGetBaseURL() . $path . $url;
+    $final_url = pnGetBaseURL() . $path . $url;
     return $final_url;
 }
 
@@ -726,7 +735,7 @@ function pnModAvailable($modname)
               WHERE $modulescolumn[name] = '" . pnVarPrepForStore($modname) . "'";
     $result = $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return;
     }
 
@@ -751,7 +760,8 @@ function pnModAvailable($modname)
  * @returns string
  * @return the name of the current top-level module, false if not in a module
  */
-function pnModGetName() {
+function pnModGetName()
+{
     $modname = pnVarCleanFromInput('module');
     if (empty($modname)) {
         $name = pnVarCleanFromInput('name');
@@ -760,9 +770,11 @@ function pnModGetName() {
             if (empty($ModName)) {
                 return false;
             }
+
             $modname = preg_replace('/^NS-/', '', $ModName);
             return $modname;
         }
+
         return $name;
     } else {
         $modname = preg_replace('/^NS-/', '', $modname);
@@ -779,14 +791,16 @@ function pnModGetName() {
  * @param hooktype name of the hook type
  * @param hookfunc name of the hook function
  */
-function pnModRegisterHook($hookobject,
-                           $hookaction,
-                           $hookarea,
-                           $hookmodule,
-                           $hooktype,
-                           $hookfunc)
-{
-    
+function pnModRegisterHook(
+    $hookobject,
+    $hookaction,
+    $hookarea,
+    $hookmodule,
+    $hooktype,
+    $hookfunc
+) {
+
+
     // Get database info
     list($dbconn) = pnDBGetConn();
     $pntable = pnDBGetTables();
@@ -812,7 +826,7 @@ function pnModRegisterHook($hookobject,
               '" . pnVarPrepForStore($hookfunc) . "')";
     $dbconn->Execute($sql);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return false;
     }
 
@@ -828,14 +842,16 @@ function pnModRegisterHook($hookobject,
  * @param hooktype name of the hook type
  * @param hookfunc name of the hook function
  */
-function pnModUnregisterHook($hookobject,
-                             $hookaction,
-                             $hookarea,
-                             $hookmodule,
-                             $hooktype,
-                             $hookfunc)
-{
-    
+function pnModUnregisterHook(
+    $hookobject,
+    $hookaction,
+    $hookarea,
+    $hookmodule,
+    $hooktype,
+    $hookfunc
+) {
+
+
     // Get database info
     list($dbconn) = pnDBGetConn();
     $pntable = pnDBGetTables();
@@ -852,7 +868,7 @@ function pnModUnregisterHook($hookobject,
              AND $hookscolumn[tfunc] = '" . pnVarPrepForStore($hookfunc) . "'";
     $dbconn->Execute($sql);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return false;
     }
 
@@ -868,7 +884,8 @@ function pnModUnregisterHook($hookobject,
  * @returns string
  * @return output from hooks
  */
-function pnModCallHooks($hookobject, $hookaction, $hookid, $extrainfo) {
+function pnModCallHooks($hookobject, $hookaction, $hookid, $extrainfo)
+{
 
     // Get database info
     list($dbconn) = pnDBGetConn();
@@ -886,8 +903,8 @@ function pnModCallHooks($hookobject, $hookaction, $hookid, $extrainfo) {
             AND $hookscolumn[object] = '" . pnVarPrepForStore($hookobject) . "'
             AND $hookscolumn[action] = '" . pnVarPrepForStore($hookaction) . "'";
     $result = $dbconn->Execute($sql);
-                  
-    if($dbconn->ErrorNo() != 0) {
+
+    if ($dbconn->ErrorNo() != 0) {
         return null;
     }
 
@@ -899,20 +916,24 @@ function pnModCallHooks($hookobject, $hookaction, $hookid, $extrainfo) {
         if ($hookarea == 'GUI') {
             if (pnModAvailable($hookmodule, $hooktype) &&
                 pnModLoad($hookmodule, $hooktype)) {
-                $output .= pnModFunc($hookmodule,
-                                     $hooktype,
-                                     $hookfunc,
-                                     array('objectid' => $hookid,
-                                           'extrainfo' => $extrainfo));
+                $output .= pnModFunc(
+                    $hookmodule,
+                    $hooktype,
+                    $hookfunc,
+                    array('objectid' => $hookid,
+                    'extrainfo' => $extrainfo)
+                );
             }
         } else {
             if (pnModAvailable($hookmodule, $hooktype) &&
                 pnModAPILoad($hookmodule, $hooktype)) {
-                $extrainfo = pnModAPIFunc($hookmodule,
-                                          $hooktype,
-                                          $hookfunc,
-                                          array('objectid' => $hookid,
-                                                'extrainfo' => $extrainfo));
+                $extrainfo = pnModAPIFunc(
+                    $hookmodule,
+                    $hooktype,
+                    $hookfunc,
+                    array('objectid' => $hookid,
+                    'extrainfo' => $extrainfo)
+                );
             }
         }
     }
@@ -923,5 +944,3 @@ function pnModCallHooks($hookobject, $hookaction, $hookid, $extrainfo) {
         return $extrainfo;
     }
 }
-
-?>

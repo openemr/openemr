@@ -1,0 +1,52 @@
+{
+
+	"name": "mpdf/mpdf",
+	"type": "library",
+
+	"description": "A PHP class to generate PDF files from HTML with Unicode/UTF-8 and CJK support",
+
+	"keywords": ["php", "pdf", "utf-8"],
+	"homepage": "http://mpdf.github.io",
+
+	"license": ["GPL-2.0"],
+
+	"authors": [
+		{
+			"name": "Ian Back",
+			"role": "Developer"
+		}
+	],
+
+	"support": {
+		"issues": "https://github.com/mpdf/mpdf/issues",
+		"source": "https://github.com/mpdf/mpdf",
+		"docs": "http://mpdf.github.io"
+	},
+
+	"require": {
+		"php": ">=5.4.0",
+		"ext-mbstring": "*",
+		"setasign/fpdi": "1.6.*"
+	},
+
+	"require-dev": {
+		"phpunit/phpunit": "^4.7"
+	},
+
+	"suggest": {
+		"ext-zlib": "Needed for compression of embedded resources, such as fonts"
+	},
+
+	"autoload": {
+		"classmap": ["mpdf.php", "classes"]
+	},
+
+	"scripts": {
+		"post-install-cmd": [
+			"php -r \"chmod('./ttfontdata', 0777);\"",
+			"php -r \"chmod('./tmp', 0777);\"",
+			"php -r \"chmod('./graph_cache', 0777);\""
+		]
+	}
+
+}

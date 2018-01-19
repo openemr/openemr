@@ -1,3 +1,18 @@
+<?php
+/**
+ * Generated DocBlock
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  bradymiller <bradymiller>
+ * @author  cornfeed <jdough823@gmail.com>
+ * @author  fndtn357 <fndtn357@gmail.com>
+ * @copyright Copyright (c) 2010 bradymiller <bradymiller>
+ * @copyright Copyright (c) 2011 cornfeed <jdough823@gmail.com>
+ * @copyright Copyright (c) 2012 fndtn357 <fndtn357@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+?>
 <html>
 <head>
 <?php html_header_show();?>

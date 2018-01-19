@@ -17,15 +17,11 @@
  *
  * @package OpenEMR
  * @author  (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
 
 require_once("../../interface/globals.php");
 
@@ -41,5 +37,6 @@ require_once("../../interface/globals.php");
 </li>
 </ol>
 <h5 class="error_msg"><?php echo xlt("NOTE: Only the full monthly RxNorm release is currently supported"); ?></h5>
+<h5 class="error_msg"><?php echo xlt("NOTE: The import can take up to several hours"); ?></h5>
 </p>
 </div>

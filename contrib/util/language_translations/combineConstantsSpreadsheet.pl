@@ -6,7 +6,7 @@
 # (at your option) any later version.
 #
 # author Brady Miller
-# email  brady@sparmy.com
+# email  brady.g.miller@gmail.com
 # date   04/03/09
 #
 # This is a perl script that will create a new ranslation spreadsheet
@@ -30,7 +30,7 @@ my @spreadsheet;
 my @newSpreadsheet;
 my $inputSpreadsheet;
 my $inputConstants;
-my $constantRow = 5; # from spreadsheet, 0 is lowest
+my $constantRow = 6; # from spreadsheet, 0 is lowest
 my $constantColumn = 1; # from spreadsheet, 0 is lowest
 my $constantIdColumn = 0; # from spreadsheet, 0 is lowest
 

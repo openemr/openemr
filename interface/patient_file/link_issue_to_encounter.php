@@ -18,23 +18,22 @@ $thispid = 0 + (empty($_REQUEST['thispid']) ? $pid : $_REQUEST['thispid']);
 $thisenc = 0 + (empty($_REQUEST['thisenc']) ? 0 : $_REQUEST['thisenc']);
 
 if (!acl_check('patients', 'med')) {
-  echo "alert('" . xl('Not authorized') . ".');\n";
-  exit();
+    echo "alert('" . xl('Not authorized') . ".');\n";
+    exit();
 }
 
 if (!($thisenc && $thispid)) {
-  echo "alert('" . xl('Internal error: pid or encounter is missing.') . ".');\n";
-  exit();
+    echo "alert('" . xl('Internal error: pid or encounter is missing.') . ".');\n";
+    exit();
 }
 
 $msg = xl('Internal error!');
 
 if ($issue) {
-  $msg = xl('Issue') . " $issue " . xl('has been linked to visit') .
+    $msg = xl('Issue') . " $issue " . xl('has been linked to visit') .
     " $thispid.$thisenc.";
-}
-else {
-  $issue = sqlInsert("INSERT INTO lists ( " .
+} else {
+    $issue = sqlInsert("INSERT INTO lists ( " .
     "date, pid, type, title, activity, comments, begdate, user, groupname " .
     ") VALUES ( " .
     "NOW(), "                               .
@@ -46,22 +45,21 @@ else {
     "'" . date('Y-m-d')             . "', " .
     "'" . $_SESSION['authUser']     . "', " .
     "'" . $_SESSION['authProvider'] . "' "  .
-   ")");
+    ")");
 
-  if ($issue) {
-    sqlStatement("INSERT INTO lists_ippf_gcac ( id ) VALUES ( $issue )");
-    $msg = xl('An incomplete GCAC issue has been created and linked. Someone will need to complete it later.');
-  }
+    if ($issue) {
+        sqlStatement("INSERT INTO lists_ippf_gcac ( id ) VALUES ( $issue )");
+        $msg = xl('An incomplete GCAC issue has been created and linked. Someone will need to complete it later.');
+    }
 }
 
 if ($issue) {
-  $query = "INSERT INTO issue_encounter ( " .
+    $query = "INSERT INTO issue_encounter ( " .
     "pid, list_id, encounter " .
     ") VALUES ( " .
     "'$thispid', '$issue', '$thisenc'" .
-  ")";
-  sqlStatement($query);
+    ")";
+    sqlStatement($query);
 }
 
 echo "alert('$msg');\n";
-?>

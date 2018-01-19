@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="OpenEMR"
+         description="OpenEMR is a Free and Open Source electronic health records and medical practice management application"
+         default="dist" basedir=".">
+
+    <property name="dir.src" value="${project.basedir}"/>
+    <property name="dir.vendor" value="${project.basedir}/vendor"/>
+    <property name="dir.assets" value="${project.basedir}/public/assets"/>
+
+    <target name="vendor-clean">
+        <echo msg="Trying to clean up vendor dir"/>
+        <phingcall target="clean-vendor-dir">
+        </phingcall>
+    </target>
+
+    <target name="assets-clean">
+        <echo msg="Trying to clean up assets dir"/>
+        <phingcall target="clean-assets-dir">
+        </phingcall>
+    </target>
+
+
+    <target name="clean-vendor-dir">
+        <!-- Delete git files from vendor  -->
+        <delete verbose="true">
+            <fileset dir="${dir.vendor}" includes="**/*.git*" defaultexcludes="false"/>
+            <fileset dir="${dir.vendor}" includes="**/*.cvs*" defaultexcludes="false"/>
+        </delete>
+
+        <delete dir="${dir.vendor}/adodb/adodb-php/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/adodb/adodb-php/docs" verbose="true"/>
+        <delete dir="${dir.vendor}/doctrine/cache/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/doctrine/collections/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/doctrine/common/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/doctrine/couchdb/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/doctrine/inflector/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/doctrine/instantiator/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/doctrine/orm/docs" verbose="true"/>
+        <delete dir="${dir.vendor}/dompdf/dompdf/wwww" verbose="true"/>
+        <delete dir="${dir.vendor}/dompdf/dompdf/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/ezyang/htmlpurifier/test" verbose="true"/>
+        <delete dir="${dir.vendor}/ezyang/htmlpurifier/maintenance" verbose="true"/>
+        <delete dir="${dir.vendor}/ezyang/htmlpurifier/plugins" verbose="true"/>
+        <delete dir="${dir.vendor}/illuminate/support/Testing" verbose="true"/>
+        <delete dir="${dir.vendor}/phpmailer/phpmailer/examples" verbose="true"/>
+        <delete dir="${dir.vendor}/phpmailer/phpmailer/test" verbose="true"/>
+        <delete dir="${dir.vendor}/phpmailer/phpmailer/docs" verbose="true"/>
+        <delete dir="${dir.vendor}/phpoffice/phpspreadsheet/docs" verbose="true"/>
+        <delete dir="${dir.vendor}/phpoffice/phpspreadsheet/samples" verbose="true"/>
+        <delete dir="${dir.vendor}/psr/log/Psr/Log/Test" verbose="true"/>
+        <delete dir="${dir.vendor}/rospdf/pdf-php/examples" verbose="true"/>
+        <delete dir="${dir.vendor}/smarty/smarty/demo" verbose="true"/>
+        <delete dir="${dir.vendor}/stripe/stripe-php/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/stripe/stripe-php/examples" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/config/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/console/Tester" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/console/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/dependency-injection/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/debug/Resources/ext/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/debug/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/event-dispatcher/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/filesystem/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/http-foundation/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/process/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/yaml/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/twig/twig/doc" verbose="true"/>
+        <delete dir="${dir.vendor}/twig/twig/test" verbose="true"/>
+        <delete dir="${dir.vendor}/zendframework/zendxml/tests" verbose="true"/>
+    </target>
+
+
+    <target name="clean-assets-dir">
+        <!-- Delete git files from vendor  -->
+        <delete verbose="true">
+            <fileset dir="${dir.assets}" includes="**/*.git*" defaultexcludes="false"/>
+            <fileset dir="${dir.assets}" includes="**/*.cvs*" defaultexcludes="false"/>
+        </delete>
+
+        <delete dir="${dir.assets}/AnythingSlider-1-9-4/demos" verbose="true"/>
+        <delete dir="${dir.assets}/bootstrap-rtl-3-3-4/examples" verbose="true"/>
+        <delete dir="${dir.assets}/Chart.js-2-1-3/docs" verbose="true"/>
+        <delete dir="${dir.assets}/Chart.js-2-1-3/samples" verbose="true"/>
+        <delete dir="${dir.assets}/Chart.js-2-1-3/test" verbose="true"/>
+        <delete dir="${dir.assets}/flot-0-8-3/examples" verbose="true"/>
+        <delete dir="${dir.assets}/jquery-datetimepicker-2-5-4/tests" verbose="true"/>
+        <delete dir="${dir.assets}/jszip-3-1-5/docs" verbose="true"/>
+        <delete dir="${dir.assets}/jszip-3-1-5/documentation" verbose="true"/>
+        <delete dir="${dir.assets}/modernizr-3-5-0/test" verbose="true"/>
+        <delete dir="${dir.assets}/numeral-1-5-3/tests" verbose="true"/>
+        <delete dir="${dir.assets}/select2-4-0/docs" verbose="true"/>
+        <delete dir="${dir.assets}/select2-4-0/tests" verbose="true"/>
+        <delete dir="${dir.assets}/summernote-0-8-2/examples" verbose="true"/>
+        <delete dir="${dir.assets}/summernote-0-8-2/lang" verbose="true"/>
+        <delete dir="${dir.assets}/summernote-0-8-2/meteor" verbose="true"/>
+        <delete dir="${dir.assets}/summernote-0-8-2/plugin" verbose="true"/>
+        <delete dir="${dir.assets}/summernote-0-8-2/src" verbose="true"/>
+        <delete dir="${dir.assets}/summernote-0-8-2/tools" verbose="true"/>
+    </target>
+
+
+</project>

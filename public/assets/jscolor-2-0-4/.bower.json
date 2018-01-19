@@ -1,0 +1,14 @@
+{
+  "name": "jscolor-2-0-4",
+  "homepage": "https://github.com/EastDesire/jscolor",
+  "version": "2.0.4",
+  "_release": "2.0.4",
+  "_resolution": {
+    "type": "version",
+    "tag": "2.0.4",
+    "commit": "29ddce0a38b9bed078f039b191f33b9c8cf2dc5d"
+  },
+  "_source": "https://github.com/EastDesire/jscolor.git",
+  "_target": "2.0.4",
+  "_originalSource": "https://github.com/EastDesire/jscolor.git"
+}

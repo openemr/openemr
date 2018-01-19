@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2011 Brady Miller <brady@sparmy.com>
+// Copyright (C) 2011 Brady Miller <brady.g.miller@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,18 +15,15 @@ class AMC_304g_Numerator implements AmcFilterIF
         return "AMC_304g Numerator";
     }
     
-    public function test( AmcPatient $patient, $beginDate, $endDate ) 
+    public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // Simply need to have the patient portal allowed.
         // TO DO: THIS ASSUMES THAT THERE IS A FUNCTIONING PATIENT PORTAL
-        $check = sqlQuery("SELECT `allow_patient_portal` FROM `patient_data` WHERE `pid`=?", array($patient->id) );        
-        if ( $check['allow_patient_portal'] == "YES" )
-        {
+        $check = sqlQuery("SELECT `allow_patient_portal` FROM `patient_data` WHERE `pid`=?", array($patient->id));
+        if ($check['allow_patient_portal'] == "YES") {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
 }
-?>

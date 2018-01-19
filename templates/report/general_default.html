@@ -145,17 +145,6 @@ if (is_dir($reportsdir)) {
 <a href="services_by_category.php" target="_blank" onclick="top.restoreSession()">{xl t='Services by Category'}</a>
 </li>
 {php}
- if ($GLOBALS['athletic_team']) {
-  echo "<li>\n";
-  echo "<a href='javascript:dopopup(\"players_report.php\")'>Team Roster</a>\n";
-  echo "</li><li>\n";
-  echo "<a href='javascript:dopopup(\"absences_report.php\")'>Days and Games Missed</a>\n";
-  echo "</li><li>\n";
-  echo "<a href='javascript:dopopup(\"football_injury_report.php\")'>Football Injury Reports</a>\n";
-  echo "</li><li>\n";
-  echo "<a href='javascript:dopopup(\"injury_overview_report.php\")'>Injury Overview Report</a>\n";
-  echo "</li>\n";
- }
  if (!empty($GLOBALS['code_types']['IPPF'])) {
   echo "<li>\n";
   echo "<a href='javascript:dopopup(\"ippf_statistics.php?t=i\")'>IPPF Statistics</a>\n";

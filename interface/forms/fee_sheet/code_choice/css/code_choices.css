@@ -1,0 +1,64 @@
+/**
+ * Copyright (C) 2014 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Kevin Yeh <kevin.y@integralemr.com>
+ * @link    http://www.open-emr.org
+ */
+
+div.code-choices
+{
+    font-size: 10pt;
+    position:relative;
+    z-index: 0;
+}
+div.category-display
+{
+    float:left;
+    width: 33%;
+    cursor: pointer;
+}
+
+div.category-display > button
+{
+    width: 25em;
+    font-weight: bold;
+    text-align: left;
+}
+
+div.category-display > button:hover
+{
+    color: blue;
+}
+.active-category
+{
+    position: absolute;
+    z-index: 10;
+    background-color: white;
+    width: 99%;
+    border: 1px black solid;
+    padding: 4pt;
+}
+
+div.code-choice
+{
+    float:left;
+    width: 33%;
+    cursor: pointer;
+    text-align: left;
+}
+
+div.code-choice:hover{
+    background-color: yellow;
+}

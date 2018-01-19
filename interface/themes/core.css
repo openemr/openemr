@@ -1,0 +1,206 @@
+/**
+ * Core OpenEMR styles.
+ *
+ * These helpers are used regardless of the theme being used
+ *
+ * @author Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2017 Robert Down
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE General Public License 3
+ */
+
+@import "themeBuilder.php";
+
+@font-face {
+    font-family: "FontAwesome";
+    src: url("../../public/assets/font-awesome-4-6-3/fonts/fontawesome-webfont.ttf") format("truetype");
+}
+
+.chart-dygraphs {
+    direction:ltr;
+}
+
+.css_button[href*="deleter"]:before,
+input[type="button"][href*="deleter"] [type="submit"]:before,
+button[href*="deleter"]:before {
+    font-family: "FontAwesome";
+    content: "\f014";
+    display: inline-block;
+}
+
+.btn::before {
+    font-family: "FontAwesome";
+    display: inline;
+}
+
+.btn-save::before {
+    content: "\f00c\00a0\00a0";
+}
+
+.btn-cancel::before {
+    content: "\f00d\00a0\00a0";
+}
+
+.btn-add::before {
+    content: '\f067\00a0\00a0';
+}
+
+.btn-search::before {
+    content: '\f002\00a0\00a0';
+}
+
+.btn-delete::before {
+    content: '\f014\00a0\00a0';
+}
+
+.btn-duplicate::before {
+    content: '\f0c5\00a0\00a0';
+}
+
+.btn-refresh::before {
+    content: '\f021\00a0\00a0';
+}
+
+.btn-edit::before {
+    content: '\f040\00a0\00a0';
+}
+
+.btn-transmit::before {
+    content: '\f061\00a0\00a0';
+}
+
+.btn-print::before {
+    content: '\f02f\00a0\00a0';
+}
+
+.btn-back::before {
+    content: '\f053\00a0\00a0';
+}
+
+.btn-show::before {
+    content: '\f06e\00a0\00a0';
+}
+
+.btn-hide::before {
+    content: '\f070\00a0\00a0';
+}
+
+.btn-undo::before {
+    content: '\f0e2\00a0\00a0';
+}
+
+.btn-update::before {
+    content: '\f01e\00a0\00a0';
+}
+
+.btn-download::before {
+    content: '\f019\00a0\00a0';
+}
+
+.btn-mail::before {
+    content: '\f0e0\00a0\00a0';
+}
+
+.btn-calendar::before {
+    content: '\f073\00a0\00a0';
+}
+
+.btn-graph::before {
+    content: '\f201\00a0\00a0';
+}
+
+.btn-filter::before {
+    content: '\f0b0\00a0\00a0';
+}
+
+div.closeDlgIframe {
+    background: #ff5d5a;
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    height: 25px;
+    width: 25px;
+    cursor: pointer;
+    z-index: 10010;
+}
+
+div.closeDlgIframe:before {
+    color: #fff;
+    content: "\f00d";
+    font-family: "FontAwesome";
+    font-weight: bold;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    margin: auto;
+    line-height: 25px;
+    height: 25px;
+}
+
+.ui-draggable:hover {
+    cursor: move;
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+}
+
+.ui-draggable:active {
+    cursor: move;
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
+
+.ui-icon-gripsmall-diagonal-se {
+    background-position: -64px -224px;
+}
+
+.ui-icon, .ui-widget-content .ui-icon {
+    background-image: url("../../public/assets/jquery-ui-1-12-1/themes/sunny/images/ui-icons_d19405_256x240.png");
+}
+
+.ui-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.ui-icon {
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: -.25em;
+    position: relative;
+    text-indent: -99999px;
+    overflow: hidden;
+    background-repeat: no-repeat;
+}
+
+.ui-resizable-handle {
+    position: absolute;
+    font-size: 0.1px;
+    display: block;
+    -ms-touch-action: none;
+    touch-action: none;
+}
+
+.ui-resizable-se {
+    cursor: se-resize;
+    width: 12px;
+    height: 12px;
+    right: 1px;
+    bottom: 1px;
+}
+
+.ui-resizable-s {
+    cursor: s-resize;
+    height: 7px;
+    width: 100%;
+    bottom: -5px;
+    left: 0;
+}
+
+.ui-resizable-e {
+    cursor: e-resize;
+    width: 7px;
+    right: -5px;
+    top: 0;
+    height: 100%;
+}

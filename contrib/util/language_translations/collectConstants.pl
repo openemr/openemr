@@ -6,7 +6,7 @@
 # (at your option) any later version.
 #
 # author Brady Miller
-# email  brady@sparmy.com
+# email  brady.g.miller@gmail.com
 # date   03/25/09
 #
 # This is a perl script that will collect unique constants within
@@ -154,7 +154,7 @@ foreach my $var (@filenames) {
  my $smartyXL = 0; #flag
  
  
- if ($fileString =~ /xl[at]?\s*\(/i) {
+ if ($fileString =~ /xl[ast]?\s*\(/i) {
   # line contains a traditional xl(function)
   $traditionalXL = 1;
  }
@@ -175,7 +175,7 @@ foreach my $var (@filenames) {
   @xlInstances = split(/\{\s*xl\s*t\s*=\s*/i, $fileString);
  }  
  elsif ($traditionalXL) {
-  @xlInstances = split(/xl[at]?\s*\(+/i, $fileString);   
+  @xlInstances = split(/xl[ast]?\s*\(+/i, $fileString);   
  }
  else {
   # no xl functions to parse on this page
@@ -223,6 +223,13 @@ foreach my $var (@filenames) {
    #  by the date function.
    if ($de eq "d") {
     print LOGFILE "MESSAGE:  Special case character 'd' skipped\n";
+    print LOGFILE $editvar2."\n";
+    next;
+   }
+
+   # Skip line with the js_xl function
+   if ($de eq "m") {
+    print LOGFILE "MESSAGE:  Special case character 'm' skipped. Done to skip the function js_xl() line.\n";
     print LOGFILE $editvar2."\n";
     next;
    }

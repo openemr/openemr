@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2011 Brady Miller <brady@sparmy.com>
+// Copyright (C) 2011 Brady Miller <brady.g.miller@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,16 +15,15 @@ class AMC_304i_Numerator implements AmcFilterIF
         return "AMC_304i Numerator";
     }
     
-    public function test( AmcPatient $patient, $beginDate, $endDate ) 
+    public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // Needs a summary send to place of referral.
         //  (so basically an amc element needs to exist)
-        $amcElement = amcCollect('send_sum_amc',$patient->id,'transactions',$patient->object['id']);
+        $amcElement = amcCollect('send_sum_amc', $patient->id, 'transactions', $patient->object['id']);
         if (!(empty($amcElement))) {
-          return true;
-        }
-        else {
-          return false;
+            return true;
+        } else {
+            return false;
         }
     }
 }

@@ -8,7 +8,7 @@ include_once("./globals.php");
 
 
 </head>
-<body ONLOAD="javascript:top.location.href='<?php echo "$rootdir/login/login_frame.php"; ?>';">
+<body ONLOAD="javascript:top.location.href='<?php echo "$rootdir/login/login.php"; ?>';">
 
 </body>
 </html>

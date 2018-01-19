@@ -1,0 +1,32 @@
+{
+  "name": "bootstrap-sidebar",
+  "version": "0.2.2",
+  "authors": [
+    "Asyraf <asyraf9@gmail.com>"
+  ],
+  "description": "a sidebar plugin for bootstrap 3",
+  "main": [
+    "dist/js/sidebar.js",
+    "dist/css/sidebar.css"
+  ],
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "bootstrap",
+    "sidebar",
+    "plugin"
+  ],
+  "license": "MIT",
+  "homepage": "http://github.com/asyraf9/bootstrap-sidebar",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.1.1"
+  }
+}

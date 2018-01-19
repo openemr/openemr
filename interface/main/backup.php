@@ -1,6 +1,6 @@
 <?php
 /* $Id$ */
-// Copyright (C) 2008-2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008-2014, 2016 Rod Roark <rod@sunsetsystems.com>
 // Adapted for cross-platform operation by Bill Cernansky (www.mi-squared.com)
 //
 // This program is free software; you can redistribute it and/or
@@ -14,14 +14,8 @@
 // * an OpenEMR database dump (gzipped)
 // * a phpGACL database dump (gzipped), if phpGACL is used and has
 //   its own database
-// * a SQL-Ledger database dump (gzipped), if SQL-Ledger is used
-//   (currently skipped on Windows servers)
 // * the OpenEMR web directory (.tar.gz)
 // * the phpGACL web directory (.tar.gz), if phpGACL is used
-// * the SQL-Ledger web directory (.tar.gz), if SQL-Ledger is used
-//   and its web directory exists as a sister of the openemr directory
-//   and has the name "sql-ledger" (otherwise we do not have enough
-//   information to find it)
 //
 // The OpenEMR web directory is important because it includes config-
 // uration files, patient documents, and possible customizations, and
@@ -38,22 +32,34 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/log.inc");
 
-if (!acl_check('admin', 'super')) die(xl('Not authorized','','','!'));
+if (!extension_loaded('zlib')) {
+      die('Abort '.basename(__FILE__).' : Missing zlib extensions');
+}
+
+if (!function_exists('gzopen') && function_exists('gzopen64')) {
+    function gzopen($filename, $mode, $use_include_path = 0)
+    {
+        return gzopen64($filename, $mode, $use_include_path);
+    }
+}
+
+
+if (!acl_check('admin', 'super')) {
+    die(xl('Not authorized', '', '', '!'));
+}
 
 include_once("Archive/Tar.php");
 
 // Set up method, which will depend on OS and if pear tar.php is installed
 if (class_exists('Archive_Tar')) {
  # pear tar.php is installed so can use os independent method
- $newBackupMethod = true;
-}
-elseif (IS_WINDOWS) {
+    $newBackupMethod = true;
+} elseif (IS_WINDOWS) {
  # without the tar.php module, can't run backup in windows
- die(xl("Error. You need to install the Archive/Tar.php php module."));
-}
-else {
+    die(xl("Error. You need to install the Archive/Tar.php php module."));
+} else {
  # without the tar.php module, can run via system commands in non-windows
- $newBackupMethod = false;   
+    $newBackupMethod = false;
 }
 
 $BTN_TEXT_CREATE = xl('Create Backup');
@@ -65,10 +71,19 @@ $BTN_TEXT_CREATE_EVENTLOG = xl('Create Eventlog Backup');
 $form_step   = isset($_POST['form_step']) ? trim($_POST['form_step']) : '0';
 $form_status = isset($_POST['form_status' ]) ? trim($_POST['form_status' ]) : '';
 
-if (!empty($_POST['form_export'])) $form_step = 101;
-if (!empty($_POST['form_import'])) $form_step = 201;
+if (!empty($_POST['form_export'])) {
+    $form_step = 101;
+}
+
+if (!empty($_POST['form_import'])) {
+    $form_step = 201;
+}
+
 //ViSolve: Assign Unique Number for the Log Creation
-if (!empty($_POST['form_backup'])) $form_step = 301;
+if (!empty($_POST['form_backup'])) {
+    $form_step = 301;
+}
+
 // When true the current form will submit itself after a brief pause.
 $auto_continue = false;
 
@@ -82,38 +97,38 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
 $MYSQL_PATH = $GLOBALS['mysql_bin_dir'];
 $PERL_PATH = $GLOBALS['perl_bin_dir'];
 
-if ($form_step == 8) {
-  header("Pragma: public");
-  header("Expires: 0");
-  header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-  header("Content-Type: application/force-download");
-  header("Content-Length: " . filesize($TAR_FILE_PATH));
-  header("Content-Disposition: attachment; filename=" . basename($TAR_FILE_PATH));
-  header("Content-Description: File Transfer");
-  readfile($TAR_FILE_PATH);
-  unlink($TAR_FILE_PATH);
-  obliterate_dir($BACKUP_DIR);
-  exit(0);
+if ($form_step == 6) {
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Content-Type: application/force-download");
+    header("Content-Length: " . filesize($TAR_FILE_PATH));
+    header("Content-Disposition: attachment; filename=" . basename($TAR_FILE_PATH));
+    header("Content-Description: File Transfer");
+    readfile($TAR_FILE_PATH);
+    unlink($TAR_FILE_PATH);
+    obliterate_dir($BACKUP_DIR);
+    exit(0);
 }
 
 if ($form_step == 104) {
-  header("Pragma: public");
-  header("Expires: 0");
-  header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-  header("Content-Type: application/force-download");
-  header("Content-Length: " . filesize($EXPORT_FILE));
-  header("Content-Disposition: attachment; filename=" . basename($EXPORT_FILE));
-  header("Content-Description: File Transfer");
-  readfile($EXPORT_FILE);
-  unlink($EXPORT_FILE);
-  exit(0);
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Content-Type: application/force-download");
+    header("Content-Length: " . filesize($EXPORT_FILE));
+    header("Content-Disposition: attachment; filename=" . basename($EXPORT_FILE));
+    header("Content-Description: File Transfer");
+    readfile($EXPORT_FILE);
+    unlink($EXPORT_FILE);
+    exit(0);
 }
 ?>
 <html>
 
 <head>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<title><?php xl('Backup','e'); ?></title>
+<title><?php xl('Backup', 'e'); ?></title>
 </head>
 
 <body class="body_top">
@@ -121,7 +136,9 @@ if ($form_step == 104) {
 &nbsp;<br />
 <form method='post' action='backup.php' enctype='multipart/form-data'>
 
-<table style='width:50em'>
+<table<?php if ($form_step != 101) {
+    echo " style='width:50em'";
+} ?>>
  <tr>
   <td>
 
@@ -129,318 +146,447 @@ if ($form_step == 104) {
 $cmd = '';
 $mysql_cmd = $MYSQL_PATH . DIRECTORY_SEPARATOR . 'mysql';
 $mysql_dump_cmd = $mysql_cmd . 'dump';
-$file_to_compress = '';  // if named, this iteration's file will be gzipped after it is created 
+$mysql_ssl = '';
+if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
+    // Support for mysql SSL encryption
+    $mysql_ssl = " --ssl-ca=" . $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca ";
+    if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
+        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")) {
+        // Support for mysql SSL client based cert authentication
+        $mysql_ssl .= "--ssl-cert=" . $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert ";
+        $mysql_ssl .= "--ssl-key=" . $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key ";
+    }
+}
+
+$file_to_compress = '';  // if named, this iteration's file will be gzipped after it is created
 $eventlog=0;  // Eventlog Flag
 
 if ($form_step == 0) {
-  echo "<table>\n";
-  echo " <tr>\n";
-  echo "  <td><input type='submit' name='form_create' value='$BTN_TEXT_CREATE' /></td>\n";
-  echo "  <td>" . xl('Create and download a full backup') . "</td>\n";
-  echo " </tr>\n";
+    echo "<table>\n";
+    echo " <tr>\n";
+    echo "  <td><input type='submit' name='form_create' value='$BTN_TEXT_CREATE' /></td>\n";
+    echo "  <td>" . xl('Create and download a full backup') . "</td>\n";
+    echo " </tr>\n";
   // The config import/export feature is optional.
-  if (!empty($GLOBALS['configuration_import_export'])) {
-    echo " <tr>\n";
-    echo "  <td><input type='submit' name='form_export' value='$BTN_TEXT_EXPORT' /></td>\n";
-    echo "  <td>" . xl('Download configuration data') . "</td>\n";
-    echo " </tr>\n";
-    echo " <tr>\n";
-    echo "  <td><input type='submit' name='form_import' value='$BTN_TEXT_IMPORT' /></td>\n";
-    echo "  <td>" . xl('Upload configuration data') . "</td>\n";
-    echo " </tr>\n";
+    if (!empty($GLOBALS['configuration_import_export'])) {
+        echo " <tr>\n";
+        echo "  <td><input type='submit' name='form_export' value='$BTN_TEXT_EXPORT' /></td>\n";
+        echo "  <td>" . xl('Download configuration data') . "</td>\n";
+        echo " </tr>\n";
+        echo " <tr>\n";
+        echo "  <td><input type='submit' name='form_import' value='$BTN_TEXT_IMPORT' /></td>\n";
+        echo "  <td>" . xl('Upload configuration data') . "</td>\n";
+        echo " </tr>\n";
     }
+
 // ViSolve : Add ' Create Log table backup Button'
-   echo " <tr>\n";
-   echo "  <td><input type='submit' name='form_backup' value='$BTN_TEXT_CREATE_EVENTLOG' /></td>\n";
-   echo "  <td>" . xl('Create Eventlog Backup') . "</td>\n";
-   echo " </tr>\n";
-   echo " <tr>\n";
-   echo "  <td></td><td class='text'><b>" . xl('Note')."</b>&nbsp;" . xl('Please refer to').'&nbsp;README-Log-Backup.txt&nbsp;'.xl('file in the Documentation directory to learn how to automate the process of creating log backups') . "</td>\n";
-   echo " </tr>\n";
-  echo "</table>\n";
+    echo " <tr>\n";
+    echo "  <td><input type='submit' name='form_backup' value='$BTN_TEXT_CREATE_EVENTLOG' /></td>\n";
+    echo "  <td>" . xl('Create Eventlog Backup') . "</td>\n";
+    echo " </tr>\n";
+    echo " <tr>\n";
+    echo "  <td></td><td class='text'><b>" . xl('Note')."</b>&nbsp;" . xl('Please refer to').'&nbsp;README-Log-Backup.txt&nbsp;'.xl('file in the Documentation directory to learn how to automate the process of creating log backups') . "</td>\n";
+    echo " </tr>\n";
+    echo "</table>\n";
 }
 
 if ($form_step == 1) {
-  $form_status .= xl('Dumping OpenEMR database') . "...<br />";
-  echo nl2br($form_status);
-  if (file_exists($TAR_FILE_PATH))
-    if (! unlink($TAR_FILE_PATH)) die(xl("Couldn't remove old backup file:") . " " . $TAR_FILE_PATH);
-  if (! obliterate_dir($TMP_BASE)) die(xl("Couldn't remove dir:"). " " . $TMP_BASE);
-  if (! mkdir($BACKUP_DIR, 0777, true)) die(xl("Couldn't create backup dir:") . " " . $BACKUP_DIR);
-  $file_to_compress = "$BACKUP_DIR/openemr.sql";   // gzip this file after creation
-  
-  if($GLOBALS['include_de_identification']==1)
-  {
-    //include routines during backup when de-identification is enabled
-    $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
-    " -p" . escapeshellarg($sqlconf["pass"]) .
-    " -h" . escapeshellarg($sqlconf["host"]) .
-    " --routines".
-    " --opt --quote-names -r $file_to_compress " .
-    escapeshellarg($sqlconf["dbase"]);
-  }
-  else
-  { 
-    $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
-    " -p" . escapeshellarg($sqlconf["pass"]) .
-    " -h" . escapeshellarg($sqlconf["host"]) .
-    " --opt --quote-names -r $file_to_compress " .
-    escapeshellarg($sqlconf["dbase"]);
-  } 
-  $auto_continue = true;
+    $form_status .= xl('Dumping OpenEMR database') . "...<br />";
+    echo nl2br($form_status);
+    if (file_exists($TAR_FILE_PATH)) {
+        if (! unlink($TAR_FILE_PATH)) {
+            die(xl("Couldn't remove old backup file:") . " " . $TAR_FILE_PATH);
+        }
+    }
+
+    if (! obliterate_dir($TMP_BASE)) {
+        die(xl("Couldn't remove dir:"). " " . $TMP_BASE);
+    }
+
+    if (! mkdir($BACKUP_DIR, 0777, true)) {
+        die(xl("Couldn't create backup dir:") . " " . $BACKUP_DIR);
+    }
+
+    $file_to_compress = "$BACKUP_DIR/openemr.sql";   // gzip this file after creation
+
+    if ($GLOBALS['include_de_identification']==1) {
+        //include routines during backup when de-identification is enabled
+        $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
+        " -p" . escapeshellarg($sqlconf["pass"]) .
+        " -h " . escapeshellarg($sqlconf["host"]) .
+        " --port=".escapeshellarg($sqlconf["port"]) .
+        " --routines".
+        " --opt --quote-names -r $file_to_compress $mysql_ssl " .
+        escapeshellarg($sqlconf["dbase"]);
+    } else {
+        $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
+        " -p" . escapeshellarg($sqlconf["pass"]) .
+        " -h " . escapeshellarg($sqlconf["host"]) .
+        " --port=".escapeshellarg($sqlconf["port"]) .
+        " --opt --quote-names -r $file_to_compress $mysql_ssl " .
+        escapeshellarg($sqlconf["dbase"]);
+    }
+
+    $auto_continue = true;
 }
 
 if ($form_step == 2) {
-  if (!empty($phpgacl_location) && $gacl_object->_db_name != $sqlconf["dbase"]) {
-    $form_status .= xl('Dumping phpGACL database') . "...<br />";
-    echo nl2br($form_status);
-    $file_to_compress = "$BACKUP_DIR/phpgacl.sql";   // gzip this file after creation
-    $cmd = "$mysql_dump_cmd -u " . escapeshellarg($gacl_object->_db_user) .
-      " -p" . escapeshellarg($gacl_object->_db_password) .
-      " --opt --quote-names -r $file_to_compress " .
-      escapeshellarg($gacl_object->_db_name);
-    $auto_continue = true;
-  }
-  else {
-    ++$form_step;
-  }
+    if (!empty($phpgacl_location) && $gacl_object->_db_name != $sqlconf["dbase"]) {
+        $form_status .= xl('Dumping phpGACL database') . "...<br />";
+        echo nl2br($form_status);
+        $file_to_compress = "$BACKUP_DIR/phpgacl.sql";   // gzip this file after creation
+        $cmd = "$mysql_dump_cmd -u " . escapeshellarg($gacl_object->_db_user) .
+        " -p" . escapeshellarg($gacl_object->_db_password) .
+        " --opt --quote-names -r $file_to_compress $mysql_ssl " .
+        escapeshellarg($gacl_object->_db_name);
+        $auto_continue = true;
+    } else {
+        ++$form_step;
+    }
 }
 
 if ($form_step == 3) {
-  if ($GLOBALS['oer_config']['ws_accounting']['enabled'] &&
-      $GLOBALS['oer_config']['ws_accounting']['enabled'] !== 2) {
-    if (IS_WINDOWS) {
-      // Somebody may want to make this work in Windows, if they have SQL-Ledger set up.
-      $form_status .= xl('Skipping SQL-Ledger dump - not implemented for Windows server') . "...<br />";
-      echo nl2br($form_status);
-      ++$form_step;
-    }
-    else {
-      $form_status .= xl('Dumping SQL-Ledger database') . "...<br />";
-      echo nl2br($form_status);
-      $file_to_compress = "$BACKUP_DIR/sql-ledger.sql";   // gzip this file after creation
-      $cmd = "PGPASSWORD=" . escapeshellarg($sl_dbpass) . " pg_dump -U " .
-        escapeshellarg($sl_dbuser) . " -h localhost --format=c -f " .
-        "$file_to_compress " . escapeshellarg($sl_dbname);
-      $auto_continue = true;
-    }
-  }
-  else {
-    ++$form_step;
-  }
-}
-
-if ($form_step == 4) {
-  $form_status .= xl('Dumping OpenEMR web directory tree') . "...<br />";
-  echo nl2br($form_status);
-  $cur_dir = getcwd();
-  chdir($webserver_root);
+    $form_status .= xl('Dumping OpenEMR web directory tree') . "...<br />";
+    echo nl2br($form_status);
+    $cur_dir = getcwd();
+    chdir($webserver_root);
 
   // Select the files and directories to archive.  Basically everything
   // except site-specific data for other sites.
-  $file_list = array();
-  $dh = opendir($webserver_root);
-  if (!$dh) die("Cannot read directory '$webserver_root'.");
-  while (false !== ($filename = readdir($dh))) {
-    if ($filename == '.' || $filename == '..') continue;
-    if ($filename == 'sites') {
-      // Omit other sites.
-      $file_list[] = "$filename/" . $_SESSION['site_id'];
+    $file_list = array();
+    $dh = opendir($webserver_root);
+    if (!$dh) {
+        die("Cannot read directory '$webserver_root'.");
     }
-    else {
-      $file_list[] = $filename;
+
+    while (false !== ($filename = readdir($dh))) {
+        if ($filename == '.' || $filename == '..') {
+            continue;
+        }
+
+        if ($filename == 'sites') {
+            // Omit other sites.
+            $file_list[] = "$filename/" . $_SESSION['site_id'];
+        } else {
+            $file_list[] = $filename;
+        }
     }
-  }
-  closedir($dh);
 
-  $arch_file = $BACKUP_DIR . DIRECTORY_SEPARATOR . "openemr.tar.gz";
-  if (!create_tar_archive($arch_file, "gz", $file_list))
-    die(xl("An error occurred while dumping OpenEMR web directory tree"));
-  chdir($cur_dir);
-  $auto_continue = true;
-}
+    closedir($dh);
 
-if ($form_step == 5) {
-  if ((!empty($phpgacl_location)) && ($phpgacl_location != $srcdir."/../gacl") ) {
-    $form_status .= xl('Dumping phpGACL web directory tree') . "...<br />";
-    echo nl2br($form_status);
-    $cur_dir = getcwd();
-    chdir($phpgacl_location);
-    $file_list = array('.');    // archive entire directory
-    $arch_file = $BACKUP_DIR . DIRECTORY_SEPARATOR . "phpgacl.tar.gz";
-    if (!create_tar_archive($arch_file, "gz", $file_list))
-      die (xl("An error occurred while dumping phpGACL web directory tree"));
+    $arch_file = $BACKUP_DIR . DIRECTORY_SEPARATOR . "openemr.tar.gz";
+    if (!create_tar_archive($arch_file, "gz", $file_list)) {
+        die(xl("An error occurred while dumping OpenEMR web directory tree"));
+    }
+
     chdir($cur_dir);
     $auto_continue = true;
-  }
-  else {
-    ++$form_step;
-  }
 }
 
-if ($form_step == 6) {
-  if ($GLOBALS['oer_config']['ws_accounting']['enabled'] &&
-    $GLOBALS['oer_config']['ws_accounting']['enabled'] !== 2 &&
-    is_dir("$webserver_root/../sql-ledger"))
-  {
-    $form_status .= xl('Dumping SQL-Ledger web directory tree') . "...<br />";
+if ($form_step == 4) {
+    if ((!empty($phpgacl_location)) && ($phpgacl_location != $srcdir."/../gacl")) {
+        $form_status .= xl('Dumping phpGACL web directory tree') . "...<br />";
+        echo nl2br($form_status);
+        $cur_dir = getcwd();
+        chdir($phpgacl_location);
+        $file_list = array('.');    // archive entire directory
+        $arch_file = $BACKUP_DIR . DIRECTORY_SEPARATOR . "phpgacl.tar.gz";
+        if (!create_tar_archive($arch_file, "gz", $file_list)) {
+            die(xl("An error occurred while dumping phpGACL web directory tree"));
+        }
+
+        chdir($cur_dir);
+        $auto_continue = true;
+    } else {
+        ++$form_step;
+    }
+}
+
+if ($form_step == 5) {   // create the final compressed tar containing all files
+    $form_status .= xl('Backup file has been created. Will now send download.') . "<br />";
     echo nl2br($form_status);
     $cur_dir = getcwd();
-    $arch_dir = $webserver_root . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "sql-ledger";
-    chdir($arch_dir);
-    $file_list = array('.');    // archive entire directory
-    $arch_file = $BACKUP_DIR . DIRECTORY_SEPARATOR . "sql-ledger.tar.gz";
-    if (!create_tar_archive($arch_file, "gz", $file_list))
-      die(xl("An error occurred while dumping SQL-Ledger web directory tree"));
+    chdir($BACKUP_DIR);
+    $file_list = array('.');
+    if (!create_tar_archive($TAR_FILE_PATH, '', $file_list)) {
+        die(xl("Error: Unable to create downloadable archive"));
+    }
+
     chdir($cur_dir);
-    $auto_continue = true;
-  }
-  else {
-    ++$form_step;
-  }
-}
-if ($form_step == 7) {   // create the final compressed tar containing all files
-  $form_status .= xl('Backup file has been created. Will now send download.') . "<br />";
-  echo nl2br($form_status);
-  $cur_dir = getcwd();
-  chdir($BACKUP_DIR);
-  $file_list = array('.');
-  if (!create_tar_archive($TAR_FILE_PATH, '', $file_list))
-    die(xl("Error: Unable to create downloadable archive"));
-  chdir($cur_dir);
    /* To log the backup event */
-  if ($GLOBALS['audit_events_backup']){
-  newEvent("backup", $_SESSION['authUser'], $_SESSION['authProvider'], 0,"Backup is completed");
-}
-  $auto_continue = true;
-}
+    if ($GLOBALS['audit_events_backup']) {
+        newEvent("backup", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Backup is completed");
+    }
 
+    $auto_continue = true;
+}
 
 if ($form_step == 101) {
-  echo xl('Select the configuration items to export') . ":";
-  echo "<br />&nbsp;<br />\n";
-  echo "<input type='checkbox' name='form_cb_services' value='1' />\n";
-  echo " " . xl('Services') . "<br />\n";
-  echo "<input type='checkbox' name='form_cb_products' value='1' />\n";
-  echo " " . xl('Products') . "<br />\n";
-  echo "<input type='checkbox' name='form_cb_lists' value='1' />\n";
-  echo " " . xl('Lists') . "<br />\n";
-  echo "<input type='checkbox' name='form_cb_layouts' value='1' />\n";
-  echo " " . xl('Layouts') . "<br />\n";
-  echo "<input type='checkbox' name='form_cb_prices' value='1' />\n";
-  echo " " . xl('Prices') . "<br />\n";
-  echo "<input type='checkbox' name='form_cb_categories' value='1' />\n";
-  echo " " . xl('Document Categories') . "<br />\n";
-  echo "<input type='checkbox' name='form_cb_feesheet' value='1' />\n";
-  echo " " . xl('Fee Sheet Options') . "<br />\n";
-  echo "<input type='checkbox' name='form_cb_lang' value='1' />\n";
-  echo " " . xl('Translations') . "<br />\n";
+    echo "<p><b>&nbsp;" . xl('Select the configuration items to export') . ":</b></p>";
 
-  echo "&nbsp;<br /><input type='submit' value='" . xl('Continue') . "' />\n";
+    echo "<table cellspacing='10' cellpadding='0'>\n<tr>\n<td valign='top' nowrap>\n";
+
+    echo "<b>" . xlt('Tables') . "</b><br />\n";
+    echo "<input type='checkbox' name='form_cb_services' value='1' />\n";
+    echo " " . xl('Services') . "<br />\n";
+    echo "<input type='checkbox' name='form_cb_products' value='1' />\n";
+    echo " " . xl('Products') . "<br />\n";
+    echo "<input type='checkbox' name='form_cb_prices' value='1' />\n";
+    echo " " . xl('Prices') . "<br />\n";
+    echo "<input type='checkbox' name='form_cb_categories' value='1' />\n";
+    echo " " . xl('Document Categories') . "<br />\n";
+    echo "<input type='checkbox' name='form_cb_feesheet' value='1' />\n";
+    echo " " . xl('Fee Sheet Options') . "<br />\n";
+    echo "<input type='checkbox' name='form_cb_lang' value='1' />\n";
+    echo " " . xl('Translations') . "<br />\n";
+
+  // Multi-select for lists.
+    echo "</td><td valign='top'>\n";
+    echo "<b>" . xlt('Lists') . "</b><br />\n";
+    echo "<select multiple name='form_sel_lists[]' size='15'>";
+    $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
+    "list_id = 'lists' AND activity = 1 ORDER BY title, seq");
+    while ($lrow = sqlFetchArray($lres)) {
+        echo "<option value='" . attr($lrow['option_id']) . "'";
+        echo ">" . text(xl_list_label($lrow['title'])) . "</option>\n";
+    }
+
+    echo "</select>\n";
+
+    // Multi-select for layouts.
+    echo "</td><td valign='top'>\n";
+    echo "<b>" . xlt('Layouts') . "</b><br />\n";
+    echo "<select multiple name='form_sel_layouts[]' size='15'>";
+    $lres = sqlStatement("SELECT grp_form_id, grp_title FROM layout_group_properties WHERE " .
+      "grp_group_id = '' AND grp_activity = 1 ORDER BY grp_form_id");
+    while ($lrow = sqlFetchArray($lres)) {
+        $key = $lrow['grp_form_id'];
+        echo "<option value='" . attr($key) . "'";
+        echo ">" . text($key) . ": " . text(xl_layout_label($lrow['grp_title'])) . "</option>\n";
+    }
+
+    echo "</select>\n";
+
+    echo "</td>\n</tr>\n</table>\n";
+    echo "&nbsp;<br /><input type='submit' value='" . xl('Continue') . "' />\n";
 }
 
 if ($form_step == 102) {
-  $tables = '';
-  if ($_POST['form_cb_services'  ]) $tables .= ' codes';
-  if ($_POST['form_cb_products'  ]) $tables .= ' drugs drug_templates';
-  if ($_POST['form_cb_lists'     ]) $tables .= ' list_options';
-  if ($_POST['form_cb_layouts'   ]) $tables .= ' layout_options';
-  if ($_POST['form_cb_prices'    ]) $tables .= ' prices';
-  if ($_POST['form_cb_categories']) $tables .= ' categories categories_seq';
-  if ($_POST['form_cb_feesheet'  ]) $tables .= ' fee_sheet_options';
-  if ($_POST['form_cb_lang'      ]) $tables .= ' lang_languages lang_constants lang_definitions';
-  if ($tables) {
-    $form_status .= xl('Creating export file') . "...<br />";
-    echo nl2br($form_status);
-    if (file_exists($EXPORT_FILE))
-      if (! unlink($EXPORT_FILE)) die(xl("Couldn't remove old export file: ") . $EXPORT_FILE);
+    $tables = '';
+    if ($_POST['form_cb_services'  ]) {
+        $tables .= ' codes';
+    }
 
-    // The substitutions below use perl because sed's not usually on windows systems.
-    $perl = $PERL_PATH . DIRECTORY_SEPARATOR . 'perl';
-    $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
-      " -p" . escapeshellarg($sqlconf["pass"]) .
-      " --opt --quote-names " .
-      escapeshellarg($sqlconf["dbase"]) . " $tables" .
-      " | $perl -pe 's/ DEFAULT CHARSET=utf8//i; s/ collate[ =][^ ;,]*//i;'" .
-      " > $EXPORT_FILE;";
-  }
-  else {
-    echo xl('No items were selected!');
-    $form_step = -1;
-  }
-  $auto_continue = true;
+    if ($_POST['form_cb_products'  ]) {
+        $tables .= ' drugs drug_templates';
+    }
+
+    if ($_POST['form_cb_prices'    ]) {
+        $tables .= ' prices';
+    }
+
+    if ($_POST['form_cb_categories']) {
+        $tables .= ' categories categories_seq';
+    }
+
+    if ($_POST['form_cb_feesheet'  ]) {
+        $tables .= ' fee_sheet_options';
+    }
+
+    if ($_POST['form_cb_lang'      ]) {
+        $tables .= ' lang_languages lang_constants lang_definitions';
+    }
+
+    if ($tables || is_array($_POST['form_sel_lists']) || is_array($_POST['form_sel_layouts'])) {
+        $form_status .= xl('Creating export file') . "...<br />";
+        echo nl2br($form_status);
+        if (file_exists($EXPORT_FILE)) {
+            if (! unlink($EXPORT_FILE)) {
+                die(xl("Couldn't remove old export file: ") . $EXPORT_FILE);
+            }
+        }
+
+        // The substitutions below use perl because sed's not usually on windows systems.
+        $perl = $PERL_PATH . DIRECTORY_SEPARATOR . 'perl';
+
+
+        # This condition was added because the windows operating system uses different syntax for the shell commands.
+        # The test is if it is the windows operating system.
+        if (IS_WINDOWS) {
+            # This section sets the character_set_client to utf8 in the sql file as part or the import property.
+            # windows will place the quotes in the outputted code if they are there. we removed them here.
+            $cmd = "echo SET character_set_client = utf8; > $EXPORT_FILE & ";
+        } else {
+            $cmd = "echo 'SET character_set_client = utf8;' > $EXPORT_FILE;";
+        }
+
+        if ($tables) {
+            $cmd .= "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
+                " -p" . escapeshellarg($sqlconf["pass"]) .
+                " -h " . escapeshellarg($sqlconf["host"]) .
+                " --port=".escapeshellarg($sqlconf["port"]) .
+                " --opt --quote-names $mysql_ssl " .
+                escapeshellarg($sqlconf["dbase"]) . " $tables";
+            if (IS_WINDOWS) {
+              # The Perl script differs in windows also.
+                $cmd .= " | $perl -pe \"s/ DEFAULT CHARSET=utf8//i; s/ collate[ =][^ ;,]*//i;\"" .
+                " >> $EXPORT_FILE & ";
+            } else {
+                $cmd .= " | $perl -pe 's/ DEFAULT CHARSET=utf8//i; s/ collate[ =][^ ;,]*//i;'" .
+                " > $EXPORT_FILE;";
+            }
+        }
+
+        $dumppfx = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
+                 " -p" . escapeshellarg($sqlconf["pass"]) .
+                 " -h " . escapeshellarg($sqlconf["host"]) .
+                 " --port=".escapeshellarg($sqlconf["port"]) .
+                 " --skip-opt --quote-names --complete-insert --no-create-info $mysql_ssl";
+        // Individual lists.
+        if (is_array($_POST['form_sel_lists'])) {
+            foreach ($_POST['form_sel_lists'] as $listid) {
+                if (IS_WINDOWS) {
+                    # windows will place the quotes in the outputted code if they are there. we removed them here.
+                    $cmd .= " echo DELETE FROM list_options WHERE list_id = '$listid'; >> $EXPORT_FILE & ";
+                    $cmd .= " echo DELETE FROM list_options WHERE list_id = 'lists' AND option_id = '$listid'; >> $EXPORT_FILE & ";
+                } else {
+                    $cmd .= "echo \"DELETE FROM list_options WHERE list_id = '$listid';\" >> $EXPORT_FILE;";
+                    $cmd .= "echo \"DELETE FROM list_options WHERE list_id = 'lists' AND option_id = '$listid';\" >> $EXPORT_FILE;";
+                }
+                $cmd .= $dumppfx .
+                " --where=\"list_id = 'lists' AND option_id = '$listid' OR list_id = '$listid' " .
+                "ORDER BY list_id != 'lists', seq, title\" " .
+                escapeshellarg($sqlconf["dbase"]) . " list_options";
+                if (IS_WINDOWS) {
+                  # windows uses the & to join statements.
+                    $cmd .=  " >> $EXPORT_FILE & ";
+                } else {
+                    $cmd .=  " >> $EXPORT_FILE;";
+                }
+            }
+        }
+
+        // Individual layouts.
+        if (is_array($_POST['form_sel_layouts'])) {
+            foreach ($_POST['form_sel_layouts'] as $layoutid) {
+                if (IS_WINDOWS) {
+                    # windows will place the quotes in the outputted code if they are there. we removed them here.
+                    $cmd .= " echo DELETE FROM layout_options WHERE form_id = '$layoutid'; >> $EXPORT_FILE & ";
+                } else {
+                    $cmd .= "echo \"DELETE FROM layout_options WHERE form_id = '$layoutid';\" >> $EXPORT_FILE;";
+                }
+                if (IS_WINDOWS) {
+                    # windows will place the quotes in the outputted code if they are there. we removed them here.
+                    $cmd .= "echo \"DELETE FROM layout_group_properties WHERE grp_form_id = '$layoutid';\" >> $EXPORT_FILE &;";
+                } else {
+                    $cmd .= "echo \"DELETE FROM layout_group_properties WHERE grp_form_id = '$layoutid';\" >> $EXPORT_FILE;";
+                }
+                $cmd .= $dumppfx .
+                    " --where=\"grp_form_id = '$layoutid'\" " .
+                    escapeshellarg($sqlconf["dbase"]) . " layout_group_properties";
+                if (IS_WINDOWS) {
+                    # windows uses the & to join statements.
+                    $cmd .= " >> $EXPORT_FILE & ";
+                } else {
+                    $cmd .= " >> $EXPORT_FILE;";
+                }
+                $cmd .= $dumppfx .
+                " --where=\"form_id = '$layoutid' ORDER BY group_id, seq, title\" " .
+                escapeshellarg($sqlconf["dbase"]) . " layout_options" ;
+                if (IS_WINDOWS) {
+                    # windows uses the & to join statements.
+                    $cmd .=  " >> $EXPORT_FILE & ";
+                } else {
+                    $cmd .=  " >> $EXPORT_FILE;";
+                }
+            }
+        }
+    } else {
+        echo xl('No items were selected!');
+        $form_step = -1;
+    }
+
+    $auto_continue = true;
 }
 
 if ($form_step == 103) {
-  $form_status .= xl('Done.  Will now send download.') . "<br />";
-  echo nl2br($form_status);
-  $auto_continue = true;
+    $form_status .= xl('Done.  Will now send download.') . "<br />";
+    echo nl2br($form_status);
+    $auto_continue = true;
 }
 
 if ($form_step == 201) {
-  echo xl('WARNING: This will overwrite configuration information with data from the uploaded file!') . " \n";
-  echo xl('Use this feature only with newly installed sites, ');
-  echo xl('otherwise you will destroy references to/from existing data.') . "\n";
-  echo "<br />&nbsp;<br />\n";
-  echo xl('File to upload') . ":\n";
-  echo "<input type='hidden' name='MAX_FILE_SIZE' value='4000000' />\n";
-  echo "<input type='file' name='userfile' /><br />&nbsp;<br />\n";
-  echo "<input type='submit' value='" . xl('Continue') . "' />\n";
+    echo xl('WARNING: This will overwrite configuration information with data from the uploaded file!') . " \n";
+    echo xl('Use this feature only with newly installed sites, ');
+    echo xl('otherwise you will destroy references to/from existing data.') . "\n";
+    echo "<br />&nbsp;<br />\n";
+    echo xl('File to upload') . ":\n";
+    echo "<input type='hidden' name='MAX_FILE_SIZE' value='4000000' />\n";
+    echo "<input type='file' name='userfile' /><br />&nbsp;<br />\n";
+    echo "<input type='submit' value='" . xl('Continue') . "' />\n";
 }
 
 if ($form_step == 202) {
   // Process uploaded config file.
-  if (is_uploaded_file($_FILES['userfile']['tmp_name'])) {
-    if (move_uploaded_file($_FILES['userfile']['tmp_name'], $EXPORT_FILE)) {
-      $form_status .= xl('Applying') . "...<br />";
-      echo nl2br($form_status);
-      $cmd = "$mysql_cmd -u" . escapeshellarg($sqlconf["login"]) .
-        " -p" . escapeshellarg($sqlconf["pass"]) . " " .
-        escapeshellarg($sqlconf["dbase"]) .
-        " < $EXPORT_FILE";
+    if (is_uploaded_file($_FILES['userfile']['tmp_name'])) {
+        if (move_uploaded_file($_FILES['userfile']['tmp_name'], $EXPORT_FILE)) {
+            $form_status .= xl('Applying') . "...<br />";
+            echo nl2br($form_status);
+            $cmd = "$mysql_cmd -u " . escapeshellarg($sqlconf["login"]) .
+            " -p" . escapeshellarg($sqlconf["pass"]) .
+            " -h " . escapeshellarg($sqlconf["host"]) .
+            " --port=".escapeshellarg($sqlconf["port"]) .
+            " $mysql_ssl " .
+            escapeshellarg($sqlconf["dbase"]) .
+            " < $EXPORT_FILE";
+        } else {
+            echo xl('Internal error accessing uploaded file!');
+            $form_step = -1;
+        }
+    } else {
+        echo xl('Upload failed!');
+        $form_step = -1;
     }
-    else {
-      echo xl('Internal error accessing uploaded file!');
-      $form_step = -1;
-    }
-  }
-  else {
-    echo xl('Upload failed!');
-    $form_step = -1;
-  }
-  $auto_continue = true;
+
+    $auto_continue = true;
 }
 
 if ($form_step == 203) {
-  $form_status .= xl('Done') . ".";
-  echo nl2br($form_status);
+    $form_status .= xl('Done') . ".";
+    echo nl2br($form_status);
 }
 
 /// ViSolve : EventLog Backup
 if ($form_step == 301) {
 # Get the Current Timestamp, to attach with the log backup file
-  $backuptime=date("Ymd_His");
+    $backuptime=date("Ymd_His");
 # Eventlog backup directory
-$BACKUP_EVENTLOG_DIR = $GLOBALS['backup_log_dir'] . "/emr_eventlog_backup";
+    $BACKUP_EVENTLOG_DIR = $GLOBALS['backup_log_dir'] . "/emr_eventlog_backup";
 
 # Check if Eventlog Backup directory exists, if not create it with Write permission
-  if (!file_exists($BACKUP_EVENTLOG_DIR))
-  {
-  mkdir($BACKUP_EVENTLOG_DIR);
-  chmod($BACKUP_EVENTLOG_DIR,0777);
-}
+    if (!file_exists($BACKUP_EVENTLOG_DIR)) {
+        mkdir($BACKUP_EVENTLOG_DIR);
+        chmod($BACKUP_EVENTLOG_DIR, 0777);
+    }
+
 # Frame the Eventlog Backup File Name
-$BACKUP_EVENTLOG_FILE=$BACKUP_EVENTLOG_DIR.'/eventlog_'.$backuptime.'.sql';
+    $BACKUP_EVENTLOG_FILE=$BACKUP_EVENTLOG_DIR.'/eventlog_'.$backuptime.'.sql';
 # Create a new table similar to event table, rename the existing table as backup table, and rename the new table to event log table.  Then export the contents of the table into a text file and drop the table.
-$res=sqlStatement("create table if not exists log_new like log");
-$res=sqlStatement("rename table log to log_backup,log_new to log");
-echo "<br>";
-  $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
+    $res=sqlStatement("create table if not exists log_comment_encrypt_new like log_comment_encrypt");
+    $res=sqlStatement("rename table log_comment_encrypt to log_comment_encrypt_backup,log_comment_encrypt_new to log_comment_encrypt");
+    $res=sqlStatement("create table if not exists log_new like log");
+    $res=sqlStatement("rename table log to log_backup,log_new to log");
+    $res=sqlStatement("create table if not exists log_validator_new like log_validator");
+    $res=sqlStatement("rename table log_validator to log_validator_backup, log_validator_new to log_validator");
+    echo "<br>";
+    $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
     " -p" . escapeshellarg($sqlconf["pass"]) .
-    " --opt --quote-names -r $BACKUP_EVENTLOG_FILE " .
-    escapeshellarg($sqlconf["dbase"]) ." --tables log_backup";
+    " -h " . escapeshellarg($sqlconf["host"]) .
+    " --port=".escapeshellarg($sqlconf["port"]) .
+    " --opt --quote-names -r $BACKUP_EVENTLOG_FILE $mysql_ssl " .
+    escapeshellarg($sqlconf["dbase"]) ." --tables log_comment_encrypt_backup log_backup log_validator_backup";
 # Set Eventlog Flag when it is done
-$eventlog=1;
+    $eventlog=1;
 // 301 If ends here.
 }
 
@@ -460,32 +606,41 @@ $eventlog=1;
 ob_flush();
 flush();
 if ($cmd) {
-  $tmp0 = exec($cmd, $tmp1, $tmp2);
+    $tmp0 = exec($cmd, $tmp1, $tmp2);
 
-  if ($tmp2) 
-  {
-    if ($eventlog==1)
-     {
-	// ViSolve : Restore previous state, if backup fails.
-         $res=sqlStatement("drop table if exists log");
-         $res=sqlStatement("rename table log_backup to log");
-     }
-    die("\"$cmd\" returned $tmp2: $tmp0");
-  }
+    if ($tmp2) {
+        if ($eventlog==1) {
+          // ViSolve : Restore previous state, if backup fails.
+             $res=sqlStatement("drop table if exists log_comment_encrypt");
+             $res=sqlStatement("rename table log_comment_encrypt_backup to log_comment_encrypt");
+             $res=sqlStatement("drop table if exists log");
+             $res=sqlStatement("rename table log_backup to log");
+             $res=sqlStatement("drop table if exists log_validator");
+             $res=sqlStatement("rename table log_validator_backup to log_validator");
+        }
+
+        die("\"$cmd\" returned $tmp2: $tmp0");
+    }
+
   //  ViSolve:  If the Eventlog is set, then clear the temporary table  -- Start here
-  if ($eventlog==1)       {
+    if ($eventlog==1) {
         $res=sqlStatement("drop table if exists log_backup");
+        $res=sqlStatement("drop table if exists log_comment_encrypt_backup");
+        $res=sqlStatement("drop table if exists log_validator_backup");
         echo "<br><b>";
         echo xl('Backup Successfully taken in')." ";
-        echo  $BACKUP_EVENTLOG_DIR; 
-		echo "</b>";
-     }
+        echo  $BACKUP_EVENTLOG_DIR;
+        echo "</b>";
+    }
+
  //  ViSolve:  If the Eventlog is set, then clear the temporary table  -- Ends here
 }
+
 // If a file was flagged to be gzip-compressed after this cmd, do it.
 if ($file_to_compress) {
-  if (!gz_compress_file($file_to_compress))
-    die (xl("Error in gzip compression of file: ") . $file_to_compress);  
+    if (!gz_compress_file($file_to_compress)) {
+        die(xl("Error in gzip compression of file: ") . $file_to_compress);
+    }
 }
 ?>
 
@@ -498,67 +653,93 @@ if ($file_to_compress) {
 <?php }
 
 // Recursive directory remove (like an O/S insensitive "rm -rf dirname")
-function obliterate_dir($dir) {
-  if (!file_exists($dir)) return true;
-  if (!is_dir($dir) || is_link($dir)) return unlink($dir);
-  foreach (scandir($dir) as $item) {
-    if ($item == '.' || $item == '..') continue;
-    if (!obliterate_dir($dir . DIRECTORY_SEPARATOR . $item)) {
-      chmod($dir . DIRECTORY_SEPARATOR . $item, 0777);
-      if (!obliterate_dir($dir . DIRECTORY_SEPARATOR . $item)) return false;
-    };
-  }
-  return rmdir($dir);
+function obliterate_dir($dir)
+{
+    if (!file_exists($dir)) {
+        return true;
+    }
+
+    if (!is_dir($dir) || is_link($dir)) {
+        return unlink($dir);
+    }
+
+    foreach (scandir($dir) as $item) {
+        if ($item == '.' || $item == '..') {
+            continue;
+        }
+
+        if (!obliterate_dir($dir . DIRECTORY_SEPARATOR . $item)) {
+            chmod($dir . DIRECTORY_SEPARATOR . $item, 0777);
+            if (!obliterate_dir($dir . DIRECTORY_SEPARATOR . $item)) {
+                return false;
+            }
+        };
+    }
+
+    return rmdir($dir);
 }
 
 // Create a tar archive given the archive file name, compression method if any, and the
 // array of file/directory names to archive
-function create_tar_archive($archiveName, $compressMethod, $itemArray) {  
-  global $newBackupMethod;
-    
-  if ($newBackupMethod) {
-   // Create a tar object using the pear library
-   //  (this is the preferred method)
-   $tar = new Archive_Tar($archiveName, $compressMethod);
-   if ($tar->create($itemArray)) return true;
-  }
-  else {
-   // Create the tar files via command line tools
-   //  (this method used when the tar pear library is not available)  
-   $files = '"' . implode('" "', $itemArray) . '"';
-   if ($compressMethod == "gz") {
-    $command = "tar --same-owner --ignore-failed-read -zcphf $archiveName $files";
-   }
-   else {
-    $command = "tar -cpf $archiveName $files";
-   }
-   $temp0 = exec($command, $temp1, $temp2);
-   if ($temp2) die("\"$command\" returned $temp2: $temp0");
-   return true;
-  }
-  return false;
+function create_tar_archive($archiveName, $compressMethod, $itemArray)
+{
+    global $newBackupMethod;
+
+    if ($newBackupMethod) {
+       // Create a tar object using the pear library
+       //  (this is the preferred method)
+        $tar = new Archive_Tar($archiveName, $compressMethod);
+        if ($tar->create($itemArray)) {
+            return true;
+        }
+    } else {
+       // Create the tar files via command line tools
+       //  (this method used when the tar pear library is not available)
+        $files = '"' . implode('" "', $itemArray) . '"';
+        if ($compressMethod == "gz") {
+            $command = "tar --same-owner --ignore-failed-read -zcphf $archiveName $files";
+        } else {
+            $command = "tar -cpf $archiveName $files";
+        }
+
+        $temp0 = exec($command, $temp1, $temp2);
+        if ($temp2) {
+            die("\"$command\" returned $temp2: $temp0");
+        }
+
+        return true;
+    }
+
+    return false;
 }
 
 // Compress a file using gzip. Source file removed, leaving only the compressed
 // *.gz file, just like gzip command line would behave.
-function gz_compress_file($source) {
-  $dest=$source.'.gz';
-  $error=false;
-  if ($fp_in=fopen($source,'rb')) {
-    if ($fp_out=gzopen($dest,'wb')) {
-      while(!feof($fp_in))
-        gzwrite($fp_out,fread($fp_in,1024*512));
-      gzclose($fp_out);
-      fclose($fp_in);
-      unlink($source);
+function gz_compress_file($source)
+{
+    $dest=$source.'.gz';
+    $error=false;
+    if ($fp_in=fopen($source, 'rb')) {
+        if ($fp_out=gzopen($dest, 'wb')) {
+            while (!feof($fp_in)) {
+                gzwrite($fp_out, fread($fp_in, 1024*512));
+            }
+
+            gzclose($fp_out);
+            fclose($fp_in);
+            unlink($source);
+        } else {
+            $error=true;
+        }
+    } else {
+        $error=true;
     }
-    else $error=true;
-  }
-  else $error=true;
-  if($error)
-    return false;
-  else
-    return $dest;
+
+    if ($error) {
+        return false;
+    } else {
+        return $dest;
+    }
 }
 ?>
 

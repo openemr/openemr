@@ -21,4 +21,3 @@ $c = new C_FormPainMap();
 
 /* Render a 'new form' page. */
 echo $c->default_action();
-?>

@@ -25,23 +25,29 @@ include_once("$srcdir/forms.inc");
 $row = array();
 
 if (! $encounter) { // comes from globals.php
- die("Internal error: we do not seem to be in an encounter!");
+    die("Internal error: we do not seem to be in an encounter!");
 }
 
-function cbvalue($cbname) {
- return $_POST[$cbname] ? '1' : '0';
+function cbvalue($cbname)
+{
+    return $_POST[$cbname] ? '1' : '0';
 }
 
-function cbinput($name, $colname) {
- global $row;
- $ret  = "<input type='checkbox' name='$name' value='1'";
- if ($row[$colname]) $ret .= " checked";
- $ret .= " />";
- return $ret;
+function cbinput($name, $colname)
+{
+    global $row;
+    $ret  = "<input type='checkbox' name='$name' value='1'";
+    if ($row[$colname]) {
+        $ret .= " checked";
+    }
+
+    $ret .= " />";
+    return $ret;
 }
 
-function cbcell($name, $desc, $colname) {
- return "<td width='25%' nowrap>" . cbinput($name, $colname) . "$desc</td>\n";
+function cbcell($name, $desc, $colname)
+{
+    return "<td width='25%' nowrap>" . cbinput($name, $colname) . "$desc</td>\n";
 }
 
 $formid = $_GET['id'];
@@ -49,57 +55,54 @@ $formid = $_GET['id'];
 // If Save was clicked, save the info.
 //
 if ($_POST['bn_save']) {
-
- $fu_timing   = $_POST['fu_timing'];
- $fu_location = $_POST['fu_location'];
+    $fu_timing   = $_POST['fu_timing'];
+    $fu_location = $_POST['fu_location'];
 
  // If updating an existing form...
  //
- if ($formid) {
-  $query = "UPDATE form_specialist_notes SET " .
-   "notes = '"            . $_POST['form_notes']       . "', " .
-   "followup_required = " . cbvalue('fu_required')     . ", "  .
-   "followup_timing = '$fu_timing'"                    . ", "  .
-   "followup_location = '$fu_location'"                . " "   .
-   "WHERE id = '$formid'";
-  sqlStatement($query);
- }
-
- // If adding a new form...
+    if ($formid) {
+        $query = "UPDATE form_specialist_notes SET " .
+         "notes = '"            . $_POST['form_notes']       . "', " .
+         "followup_required = " . cbvalue('fu_required')     . ", "  .
+         "followup_timing = '$fu_timing'"                    . ", "  .
+         "followup_location = '$fu_location'"                . " "   .
+         "WHERE id = '$formid'";
+        sqlStatement($query);
+    } // If adding a new form...
  //
- else {
-  $query = "INSERT INTO form_specialist_notes ( " .
-   "notes, followup_required, followup_timing, followup_location " .
-   ") VALUES ( " .
-   "'" . $_POST['form_notes']       . "', " .
-   cbvalue('fu_required')           . ", "  .
-   "'$fu_timing'"                   . ", "  .
-   "'$fu_location'"                 . " "   .
-   ")";
-  $newid = sqlInsert($query);
-  addForm($encounter, "Specialist Notes", $newid, "specialist_notes", $pid, $userauthorized);
- }
+    else {
+        $query = "INSERT INTO form_specialist_notes ( " .
+         "notes, followup_required, followup_timing, followup_location " .
+         ") VALUES ( " .
+         "'" . $_POST['form_notes']       . "', " .
+         cbvalue('fu_required')           . ", "  .
+         "'$fu_timing'"                   . ", "  .
+         "'$fu_location'"                 . " "   .
+         ")";
+        $newid = sqlInsert($query);
+        addForm($encounter, "Specialist Notes", $newid, "specialist_notes", $pid, $userauthorized);
+    }
 
- formHeader("Redirecting....");
- formJump();
- formFooter();
- exit;
+    formHeader("Redirecting....");
+    formJump();
+    formFooter();
+    exit;
 }
 
 if ($formid) {
- $row = sqlQuery ("SELECT * FROM form_specialist_notes WHERE " .
-  "id = '$formid' AND activity = '1'") ;
+    $row = sqlQuery("SELECT * FROM form_specialist_notes WHERE " .
+    "id = '$formid' AND activity = '1'") ;
 }
 ?>
 <html>
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="../../../library/dialog.js"></script>
+<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script language='JavaScript'>
  function newEvt() {
   dlgopen('../../main/calendar/add_edit_event.php?patientid=<?php echo $pid ?>',
-   '_blank', 550, 270);
+   '_blank', 775, 500);
   return false;
  }
 </script>
@@ -130,7 +133,7 @@ if ($formid) {
    <table width='100%'>
     <tr>
      <td width='1%' nowrap>
-      <?php echo cbinput('fu_required', 'followup_required') ?>Required on&nbsp;
+        <?php echo cbinput('fu_required', 'followup_required') ?>Required on&nbsp;
      </td>
      <td width='49%' nowrap>
       <input type='text' name='fu_timing' size='10' style='width:100%'
@@ -157,7 +160,7 @@ if ($formid) {
 &nbsp;
 <input type='button' value='Add Appointment' onclick='newEvt()' />
 &nbsp;
-<input type='button' value='Cancel' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
+<input type='button' value='Cancel' onclick="parent.closeTab(window.name, false)" />
 </p>
 
 </center>

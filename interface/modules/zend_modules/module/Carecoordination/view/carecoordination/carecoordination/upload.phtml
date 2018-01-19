@@ -1,0 +1,460 @@
+<?php 
+/* +-----------------------------------------------------------------------------+
+*    OpenEMR - Open Source Electronic Medical Record
+*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU Affero General Public License as
+*    published by the Free Software Foundation, either version 3 of the
+*    License, or (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU Affero General Public License for more details.
+*
+*    You should have received a copy of the GNU Affero General Public License
+*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+*    @author  Vinish K <vinish@zhservices.com>
+*    @author  Chandni Babu <chandnib@zhservices.com> 
+* +------------------------------------------------------------------------------+
+*/
+
+echo $this->headLink()->prependStylesheet($this->basePath() . '/css/autosuggest/autosuggest.css');
+echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autosuggest.js');
+?>
+<style type="text/css">  
+  #patient_select{
+    width     : 410px;
+    height    : 110px;
+    display   : none;
+    position  : fixed;
+    left      : 38%;
+    top       : 20%;
+    background: #f9f9f9;
+    -moz-box-shadow: 1px 4px 4px 1px #8B8B8B;
+    -webkit-box-shadow: 1px 4px 4px 1px #8B8B8B;
+    box-shadow: 1px 4px 4px 1px #8B8B8B;
+  }  
+</style>
+<script type="text/javascript">
+    $(document).ready(function()
+    {
+        height_value = parent.window.innerHeight-100;
+        if(height_value < 600){ height_value = 600 };
+        if (parent.document.getElementById('ccda_iframe')) {
+            parent.iframeLoaded(height_value, 'ccda_iframe');
+        }
+        
+        $('.add_new_patient').click(function(){
+            arr = (this.id).split('|');
+            $('#action').val(arr[0]);
+            $('#am_id').val(arr[1]);
+            $('#document_id').val(arr[2]);
+            if(arr[3] > 0) {
+              var status = '';
+              var status = confirm('<?php echo $this->listenerObject->z_xlt("Do You Really Want to Continue")."?";?>');
+              if(status == true) { 
+                $('#form_ccda_import').submit();
+              }
+              else {
+                $('#action').val('');
+                $('#am_id').val('');
+                $('#document_id').val('');
+              }
+            }
+            else {
+              $('#form_ccda_import').submit();
+            }
+        });
+        
+        $('.add_to_existing_patient').click(function(){
+            arr = (this.id).split('|');
+            $('#amid').val(arr[1]);
+            $('#patient_select').show('scale','',500,'');
+        });
+        
+        $('#go').click(function(){
+            $('#pid').val($('#string_id1').val());
+            $('#form_ccda_import').attr('action','<?php echo $this->basePath();?>/carecoordination/revandapprove');
+            document.getElementById('form_ccda_import').submit();
+        });
+        
+        $('.expandAuditDetails').click(function(){
+          var arr = (this.id).split('_');
+          
+          if($('#'+this.id).hasClass('se_in_23')){
+            $('#'+this.id).addClass("se_in_24");
+            $('#'+this.id).removeClass("se_in_23");
+            $('#hide_'+arr[1]).show('slow');
+            getCCDAComponents(arr[1]);
+          }
+          else if($('#'+this.id).hasClass('se_in_24')){
+            $('#'+this.id).addClass("se_in_23");
+            $('#'+this.id).removeClass("se_in_24");
+            $('#hide_'+arr[1]).hide('slow');
+          }
+        });
+        $("body").on("click",".expandCompDetails",function(){
+          var arr   = (this.id).split('-');
+          component = $('#'+this.id).attr('component');        
+          amid      = $('#'+this.id).attr('amid');        
+          if($('#'+this.id).hasClass('se_in_23')){
+            $('#'+this.id).addClass("se_in_24");
+            $('#'+this.id).removeClass("se_in_23");
+            $('#hideComp-'+arr[1]).show('slow');
+            getEachCCDAComponentDetails(arr[1],component,amid);
+          }
+          else if($('#'+this.id).hasClass('se_in_24')){
+            $('#'+this.id).addClass("se_in_23");
+            $('#'+this.id).removeClass("se_in_24");
+            $('#hideComp-'+arr[1]).hide('slow');
+          }
+        });
+    });
+  
+    $(document).ready(function()
+    {
+        var obj = $("#dragandrophandler");
+        obj.on('dragenter', function (e) 
+        {
+            e.stopPropagation();
+            e.preventDefault();
+            $(this).css('background', 'url("<?php echo $this->basePath();?>/css/icons/ark.png") no-repeat center');
+        });
+        obj.on('dragover', function (e) 
+        {
+            e.stopPropagation();
+            e.preventDefault();
+        });
+        obj.on('drop', function (e) 
+        {
+            $(this).css('background', 'url("")');
+            e.preventDefault();
+            var files = e.originalEvent.dataTransfer.files;
+        
+            //We need to send dropped files to Server
+            handleFileUpload(files,obj);
+        });
+        
+        $('#file_uploader').change(function(e){
+            var files = e.target.files;
+            handleFileUpload(files,$('#file_uploader'));
+        });
+        
+        $('#close_patient_select').click(function(){
+            $('#patient_select').hide('scale','',500,'');
+        });
+        var uploadURL = "<?php echo $this->basePath();?>/carecoordination/upload";
+    });
+  
+    function sendFileToServer(formData,status)
+    {
+        var uploadURL = "<?php echo $this->basePath();?>/carecoordination/upload"; //Upload URL
+        var extraData = {}; //Extra Data.
+        var jqXHR=$.ajax({
+            xhr: function() {
+                var xhrobj = $.ajaxSettings.xhr();
+                if (xhrobj.upload) {
+                    xhrobj.upload.addEventListener('progress', function(event) {
+                        var percent = 0;
+                        var position = event.loaded || event.position;
+                        var total = event.total;
+                        if (event.lengthComputable) {
+                            percent = Math.ceil(position / total * 100);
+                        }
+                        //Set progress
+                        status.setProgress(percent);
+                    }, false);
+                }
+                return xhrobj;
+            },
+            url: uploadURL,
+            type: "POST",
+            contentType:false,
+            processData: false,
+            cache: false,
+            data: formData,
+            success: function(data){
+                status.setProgress(100);
+                uploadedSuccessfullCount++;
+                if (uploadedSuccessfullCount == rowCount) {
+                    $('#status1').hide('clip','',500,'');
+                    $('#form_ccda_import').submit();
+                }
+            }
+        });
+        status.setAbort(jqXHR);
+    }
+  
+    var rowCount=0;
+    var uploadedSuccessfullCount = 0;
+    function createStatusbar(obj)
+    {
+        rowCount++;
+        var row="odd";
+        if(rowCount %2 ==0) row ="even";
+        this.statusbar = $("<div class='statusbar "+row+"'></div>");
+        this.filename = $("<div class='filename'></div>").appendTo(this.statusbar);
+        this.size = $("<div class='filesize'></div>").appendTo(this.statusbar);
+        this.progressBar = $("<div class='progressBar'><div></div></div>").appendTo(this.statusbar);
+        this.abort = $("<div class='abort'><?php echo $this->listenerObject->z_xlt('Abort'); ?></div>").appendTo(this.statusbar);
+        $('#status1').append(this.statusbar);    
+       
+        this.setFileNameSize = function(name,size)
+        {
+            var sizeStr="";
+            var sizeKB = size/1024;
+            if(parseInt(sizeKB) > 1024)
+            {
+                var sizeMB = sizeKB/1024;
+                sizeStr = sizeMB.toFixed(2)+" MB";
+            }
+            else
+            {
+                sizeStr = sizeKB.toFixed(2)+" KB";
+            }
+          
+            this.filename.html(name);
+            this.size.html(sizeStr);
+        }
+        this.setProgress = function(progress)
+        {		
+            var progressBarWidth =progress*this.progressBar.width()/ 100;  
+            this.progressBar.find('div').animate({ width: progressBarWidth }, 10).html(progress + "%&nbsp;");
+            if(parseInt(progress) >= 100)
+            {
+                this.abort.hide();
+            }
+        }
+        this.setAbort = function(jqxhr)
+        {
+            var sb = this.statusbar;
+            this.abort.click(function()
+            {
+                jqxhr.abort();
+                sb.hide();
+                rowCount = rowCount-1;
+            });
+        }
+    }
+  
+    function handleFileUpload(files,obj)
+    {
+        fnames = '';
+        for (var i = 0; i < files.length; i++) 
+        {
+            var fd = new FormData();
+            fd.append('file', files[i]);
+            fd.append('document_category', '<?php echo $this->escapeHtml($this->category_id);?>');
+            fd.append('file_location', '<?php echo $this->escapeHtml($this->file_location);?>');
+            fd.append('patient_id', '<?php echo $this->escapeHtml($this->patient_id);?>');
+            fd.append('upload','1');
+            
+            nameArr = files[i].name.split(".");
+            if(nameArr[1]!== 'xml') {
+              if(fnames == '') {
+                fnames = files[i].name;
+              }
+              else {
+                fnames += ','+files[i].name;
+              }
+              continue;
+            }
+            
+            var status = new createStatusbar(obj); //Using this we can set progress.
+            status.setFileNameSize(files[i].name,files[i].size);
+            sendFileToServer(fd,status);    
+        }
+        if(fnames != '') {
+          alert('<?php echo $this->listenerObject->z_xlt("Can't upload");?> '+fnames);
+        }
+        $('#status1').show('clip','',500,'');
+    }
+    
+    function getCCDAComponents(id)
+    {
+        $.ajax({
+        type: "POST",
+        url: '<?php echo $this->basePath();?>/carecoordination/getCCDAComponents?id='+id,
+        dataType: "text",
+        beforeSend: function(){
+         appendLoader = '<img src="<?php echo $this->basePath();?>/images/pulling.gif" style="width:1%;margin-left:50%">';
+         $('#hide_'+id).html(appendLoader);
+        },
+        data: {},
+        success: function(thedata){
+         $('#hide_'+id).html(thedata);
+        },
+        error: function(xhr, status, error) {
+         alert(xhr.responseText);
+        }
+      });
+    }
+    
+    function getEachCCDAComponentDetails(id,component,amid)
+    {
+        $.ajax({
+        type: "POST",
+        url: '<?php echo $this->basePath();?>/carecoordination/getEachCCDAComponentDetails?id='+id+'&component='+component+'&amid='+amid,
+        dataType: "text",
+        beforeSend: function(){
+         appendLoader = '<img src="<?php echo $this->basePath();?>/images/pulling.gif" style="width:1%;margin-left:50%">';
+         $('#hideComp-'+id).html(appendLoader);
+        },
+        data: {},
+        success: function(thedata){
+         $('#hideComp-'+id).html(thedata);
+        },
+        error: function(xhr, status, error) {
+         alert(xhr.responseText);
+        }
+      });
+    }
+</script>
+<body id="dragandrophandler" style="min-height: 600px">
+    <form method="post" enctype="multipart/form-data" id="form_ccda_import">
+        <input type="hidden" name="action" id="action">
+        <input type="hidden" name="am_id" id="am_id">
+        <input type="hidden" name="document_id" id="document_id">
+        <!--Patient search for merging data in case of no match-->
+        <div id="patient_select">
+          <div style="background: none repeat scroll 0 0 #F1F1F1; width: 100%; height: 25px; text-align: right; margin-bottom: 20px;border-bottom: 1px solid #CCCCCC;">
+            <img title="Close" id="close_patient_select" style="height: 25px; cursor: pointer;" src="<?php echo $this->basePath();?>/images/close.png">
+          </div>
+          <input type="hidden" name="amid" id="amid">
+          <input type="hidden" name="pid" id="pid">
+          <!-- Auto suggest -->
+          <div id="autosuggest1" style="float: left; clear: right; margin-left: 10px; font-size: 12px;">      
+              <?php echo $this->listenerObject->z_xlt('Patient');?>
+              <input type="text"  class="lookup" id="inputString1" 
+                onKeyDown="PreventIt(event);" onkeyup="lookup(this.value.trim(), 'patient', '1', 'single');" 
+                value=""
+                autocomplete="off" />
+              <input type="hidden" id="string_value1" name="string_value" value="" />
+              <input type="text" id="string_id1" name="string_id" value="" class="string_id" />      
+            <!-- Start Records display area -->
+            <div class="suggestions" id="suggestions1" style="display: none; float: left; position: absolute; width: 450px; left: 60px;">
+              <div class="autoSuggestionsList" id="autoSuggestionsList1">&nbsp;</div>
+            </div>
+            <!-- End Records display area -->
+          </div>
+          <a style="text-decoration: none; float: right; margin-left: 10px;" href="#" id="go">
+            <img title='<?php echo $this->listenerObject->z_xlt("GO");?>' style="height: 30px; cursor: pointer;" src="<?php echo $this->basePath();?>/css/icons/go.png">
+          </a>
+          <!-- End Auto suggest -->    
+        </div>
+        <!---->
+        <div class="body_inner_wrapper">
+            <div class="header_wrap">
+              <div id="uploader">
+                <input type="file" id="file_uploader" multiple>
+              </div>
+              <div id="refresh" onclick="javascript:document.getElementById('form_ccda_import').submit();">&nbsp;</div>
+            </div>
+            <div class="clear"></div>
+            
+            <!--Display upload status-->
+            <div style="display: none" id="status1"></div>
+            <!---->
+            
+            <div class="clear"></div>
+            <div class="se_in_8">
+                <?php
+                if(count($this->records) > 0){
+                    ?>
+                    <table class="responsive">
+                        <tr class="se_in_9">
+                            <th>&nbsp;</th>
+                            <th style="height: 20px;">#</th>
+                            <th><?php echo $this->listenerObject->z_xlt('Date'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('Owner'); ?></th>
+                            <th nowrap><?php echo $this->listenerObject->z_xlt('Patient Name'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('DOB'); ?></th>            
+                            <th nowrap><?php echo $this->listenerObject->z_xlt('Match Found'); ?></th>
+                            <th nowrap><?php echo $this->listenerObject->z_xlt('Matched Patient'); ?></th>
+                            <th>&nbsp;</th>
+                        </tr>                        
+                    <?php
+                    $slno = 0;
+                    foreach($this->records as $row){ 
+                        ?>
+                        <tr>
+                            <td id="expandAuditDetails_<?php echo $this->escapeHtml($row['amid']).'-'.$this->escapeHtml($row['pid']);?>" class="expandAuditDetails se_in_23"></td>
+                            <td style="height: 20px;"><?php echo ++$slno; ?></td>
+                            <td><?php echo \Application\Model\ApplicationTable::fixDate($row['date'],'dd/mm/yyyy','yyyy-mm-dd'); ?></td>
+                            <td><?php echo $this->escapeHtml($row['fname']." ".$row['lname']); ?></td>
+                            <td><?php echo $this->escapeHtml($row['pat_name']); ?></td>
+                            <td><?php echo \Application\Model\ApplicationTable::fixDate($row['dob'],'dd/mm/yyyy','yyyy-mm-dd'); ?></td>
+                            <td>
+                                <?php
+                                if($row['imported'] == 1){
+                                    if($row['pid'] > 0){
+                                        echo "<span style='color: red' title='".$this->escapeHtml($row['matched_patient'])." [".$this->escapeHtml($row['pid'])."]'>".$this->listenerObject->z_xlt('Yes')."</span>";
+                                    }
+                                    else{
+                                        echo $this->listenerObject->z_xlt('No');
+                                    }
+                                }
+                                ?>
+                            </td>
+                            <td>
+                                <?php echo $this->escapeHtml($row['matched_patient']); ?>
+                            </td>
+                            <td nowrap>
+                                <?php
+                                if($row['imported'] == 0){
+                                ?>
+                                    <img class="import_ccda" id="import_ccda|<?php echo $this->escapeHtml($row['document_id']);?>" style="height:20px; cursor: pointer;" title="<?php echo $this->listenerObject->z_xlt("Import CCDA");?>" src="<?php echo $this->basePath();?>/css/icons/import.png">&nbsp;&nbsp;&nbsp;
+                                    <a style="text-decoration: none;" target="_blank" href="<?php echo $this->basePath();?>/documents/documents/retrieve/<?php echo $this->escapeHtml($row['document_id']);?>">
+                                      <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath();?>/css/icons/view.png" title='<?php echo $this->listenerObject->z_xlt("View details");?>'>
+                                    </a>
+                                <?php
+                                }
+                                else if($row['imported'] == 1){
+                                    if($row['pid'] > 0){
+                                    ?>
+                                        <a style="text-decoration: none;" href="<?php echo $this->basePath();?>/carecoordination/revandapprove?document_id=<?php echo $this->escapeHtml($row['document_id']);?>&amid=<?php echo $this->escapeHtml($row['amid']);?>&pid=<?php echo $this->escapeHtml($row['pid']);?>">
+                                          <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath();?>/css/icons/compare.png" title='<?php echo $this->listenerObject->z_xlt("Review and Approve");?>'>
+                                        </a>&nbsp;&nbsp;
+                                    <?php
+                                    }
+                                    else{
+                                    ?>
+                                        <a style="text-decoration: none;" href="#AE">
+                                          <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath();?>/css/icons/add_to_existing.png" title='<?php echo $this->listenerObject->z_xlt("Merge to any patient");?>' class="add_to_existing_patient" id="add_to_existing_patient|<?php echo $this->escapeHtml($row['amid']);?>">
+                                        </a>&nbsp;&nbsp;
+                                    <?php
+                                    }
+                                    ?>
+                                        <a style="text-decoration: none;" target="_blank" href="<?php echo $this->basePath();?>/documents/documents/retrieve/<?php echo $this->escapeHtml($row['document_id']);?>">
+                                          <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath();?>/css/icons/view.png" title='<?php echo $this->listenerObject->z_xlt("View details");?>'
+                                        </a>&nbsp;&nbsp;
+                                        <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath();?>/css/icons/add_patient.png" title='<?php echo $this->listenerObject->z_xlt("Add as new patient");?>' class="add_new_patient" id="add_new_patient|<?php echo $this->escapeHtml($row['amid']);?>|<?php echo $this->escapeHtml($row['document_id'])."|".$this->escapeHtml($row['pid']);?>">
+                                    <?php
+                                }
+                                ?>
+                            </td>
+                        </tr>
+                        <tr>
+                         <td colspan="9" id="hide_<?php echo $this->escapeHtml($row['amid']).'-'.$this->escapeHtml($row['pid']);?>" class="imported_ccda_details" style="display: none;"></td>
+                        </tr>
+                        <?php
+                    }
+                    ?>
+                    </table>
+                    <?php
+                }
+                else{
+                    ?>
+                    <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($this->details) > 0){ ?>display: none; <?php } ?>">
+                        <?php echo $this->listenerObject->z_xlt('Nothing to display');?>
+                    </div>
+                    <?php
+                }
+                ?>
+            </div>
+        </div>
+    </form>
+</body>

@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2011 Brady Miller <brady@sparmy.com>
+// Copyright (C) 2011 Brady Miller <brady.g.miller@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,14 +13,13 @@ class NFQ_0028b_Denominator implements CqmFilterIF
         return "NFQ 0028b Denominator";
     }
 
-    public function test( CqmPatient $patient, $beginDate, $endDate )
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         // See if user has been a tobacco user before or simultaneosly to the encounter within two years (24 months)
         $date_array = array();
-        foreach ( $this->getApplicableEncounters() as $encType ) 
-        {
-            $dates = Helper::fetchEncounterDates( $encType, $patient, $beginDate, $endDate );
-            $date_array = array_merge($date_array,$dates);
+        foreach ($this->getApplicableEncounters() as $encType) {
+            $dates = Helper::fetchEncounterDates($encType, $patient, $beginDate, $endDate);
+            $date_array = array_merge($date_array, $dates);
         }
 
         // sort array to get the most recent encounter first
@@ -28,20 +27,17 @@ class NFQ_0028b_Denominator implements CqmFilterIF
         rsort($date_array);
 
         // go through each unique date from most recent
-        foreach ( $date_array as $date ) 
-        {
+        foreach ($date_array as $date) {
             // encounters time stamp is always 00:00:00, so change it to 23:59:59 or 00:00:00 as applicable
-            $date = date( 'Y-m-d 23:59:59', strtotime( $date ));
-            $beginMinus24Months = strtotime( '-24 month' , strtotime ( $date ) );
-            $beginMinus24Months = date( 'Y-m-d 00:00:00' , $beginMinus24Months );
+            $date = date('Y-m-d 23:59:59', strtotime($date));
+            $beginMinus24Months = strtotime('-24 month', strtotime($date));
+            $beginMinus24Months = date('Y-m-d 00:00:00', $beginMinus24Months);
             // this is basically a check to see if the patient is an reported as an active smoker on their last encounter
-            if ( Helper::check( ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_USER, $patient, $beginMinus24Months, $date ) ) {
+            if (Helper::check(ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_USER, $patient, $beginMinus24Months, $date)) {
                 return true;
-            }
-            else if ( Helper::check( ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_NON_USER, $patient, $beginMinus24Months, $date ) ) {
+            } else if (Helper::check(ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_NON_USER, $patient, $beginMinus24Months, $date)) {
                 return false;
-            }
-            else {
+            } else {
                 // nothing reported during this date period, so move on to next encounter
             }
         }
@@ -49,9 +45,9 @@ class NFQ_0028b_Denominator implements CqmFilterIF
         return false;
     }
     
-    private function getApplicableEncounters() 
+    private function getApplicableEncounters()
     {
-        return array( 
+        return array(
             Encounter::ENC_OFF_VIS,
             Encounter::ENC_HEA_AND_BEH,
             Encounter::ENC_OCC_THER,

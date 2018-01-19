@@ -1,6 +1,6 @@
 <?php
 /*******************************************************************************\
- * Copyright (C) Brady Miller (brady@sparmy.com)                                *
+ * Copyright (C) Brady Miller (brady.g.miller@gmail.com)                                *
  *                                                                              *
  * This program is free software; you can redistribute it and/or                *
  * modify it under the terms of the GNU General Public License                  *
@@ -17,13 +17,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
  ********************************************************************************/
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
 
 require_once("../../globals.php");
 
@@ -32,27 +26,26 @@ require_once("../../globals.php");
 <br>
 <?php
 //retrieve most recent set of vitals.
-$result=sqlQuery("SELECT FORM_VITALS.date, FORM_VITALS.id FROM form_vitals AS FORM_VITALS LEFT JOIN forms AS FORMS ON FORM_VITALS.id = FORMS.form_id WHERE FORM_VITALS.pid=? AND FORMS.deleted != '1' ORDER BY FORM_VITALS.date DESC", array($pid) );
+$result=sqlQuery("SELECT FORM_VITALS.date, FORM_VITALS.id FROM form_vitals AS FORM_VITALS LEFT JOIN forms AS FORMS ON FORM_VITALS.id = FORMS.form_id WHERE FORM_VITALS.pid=? AND FORMS.deleted != '1' ORDER BY FORM_VITALS.date DESC", array($pid));
     
-if ( !$result ) //If there are no disclosures recorded
-{ ?>
-  <span class='text'> <?php echo htmlspecialchars(xl("No vitals have been documented."),ENT_NOQUOTES); 
+if (!$result) { //If there are no disclosures recorded
+    ?>
+  <span class='text'> <?php echo htmlspecialchars(xl("No vitals have been documented."), ENT_NOQUOTES);
 ?>
   </span> 
-<?php 
-} else
-{
+<?php
+} else {
 ?> 
   <span class='text'><b>
-  <?php echo htmlspecialchars(xl('Most recent vitals from:')." ".$result['date'],ENT_NOQUOTES); ?>
+    <?php echo htmlspecialchars(xl('Most recent vitals from:')." ".$result['date'], ENT_NOQUOTES); ?>
   </b></span>
   <br />
   <br />
-  <?php include_once($GLOBALS['incdir'] . "/forms/vitals/report.php");
-  call_user_func("vitals_report", '', '', 2, $result['id']);
-  ?>  <span class='text'>
+    <?php include_once($GLOBALS['incdir'] . "/forms/vitals/report.php");
+    call_user_func("vitals_report", '', '', 2, $result['id']);
+    ?>  <span class='text'>
   <br />
-  <a href='../encounter/trend_form.php?formname=vitals' onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Click here to view and graph all vitals.'),ENT_NOQUOTES);?></a>
+  <a href='../encounter/trend_form.php?formname=vitals' onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Click here to view and graph all vitals.'), ENT_NOQUOTES);?></a>
   </span><?php
 } ?>
 <br />

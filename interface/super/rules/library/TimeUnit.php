@@ -11,7 +11,8 @@
  * enum
  * @author aron
  */
-class TimeUnit {
+class TimeUnit
+{
     var $code;
     var $lbl;
 
@@ -19,7 +20,8 @@ class TimeUnit {
     const Month = "month";
     const Year = "year";
 
-    function __construct( $code, $lbl ) {
+    function __construct($code, $lbl)
+    {
         $this->lbl = $lbl;
         $this->code = $code;
     }
@@ -29,27 +31,29 @@ class TimeUnit {
      * @param string $value
      * @return ReminderIntervalType
      */
-    public static function from( $code ) {
+    public static function from($code)
+    {
         $map = self::map();
         return $map[$code];
     }
 
-    public static function values() {
+    public static function values()
+    {
         $map = self::map();
         return array_values($map);
     }
 
-    private static function map() {
+    private static function map()
+    {
         $map = array(
-            'minute'        =>  new TimeUnit( 'minute', xl( 'Minutes' ) ),
-            'hour'          =>  new TimeUnit( 'hour', xl( 'Hours' ) ),
-            'day'           =>  new TimeUnit( 'day', xl('Days' ) ),
-            'week'          =>  new TimeUnit( 'week', xl('Weeks' ) ),
-            'month'         =>  new TimeUnit( 'month', xl('Months' ) ),
-            'year'          =>  new TimeUnit( 'year', xl('Years' ) ),
-            'flu_season'    =>  new TimeUnit( 'flu_season', xl('Flu season' ) )
+            'minute'        =>  new TimeUnit('minute', xl('Minutes')),
+            'hour'          =>  new TimeUnit('hour', xl('Hours')),
+            'day'           =>  new TimeUnit('day', xl('Days')),
+            'week'          =>  new TimeUnit('week', xl('Weeks')),
+            'month'         =>  new TimeUnit('month', xl('Months')),
+            'year'          =>  new TimeUnit('year', xl('Years')),
+            'flu_season'    =>  new TimeUnit('flu_season', xl('Flu season'))
         );
         return $map;
     }
 }
-?>

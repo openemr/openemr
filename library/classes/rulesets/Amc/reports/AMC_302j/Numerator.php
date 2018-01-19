@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2011 Brady Miller <brady@sparmy.com>
+// Copyright (C) 2011 Brady Miller <brady.g.miller@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,15 +15,21 @@ class AMC_302j_Numerator implements AmcFilterIF
         return "AMC_302j Numerator";
     }
     
-    public function test( AmcPatient $patient, $beginDate, $endDate ) 
+    public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // Need a medication reconciliation completed.
         //  (so basically the completed element of the object can't be empty
-        if ( !(empty($patient->object['completed'])) ) {
-          return true;
-        }
-        else {
-          return false;
+        $sql = "SELECT amc_misc_data.map_id as `encounter`, amc_misc_data.date_completed as `completed`, form_encounter.date as `date` " .
+        "FROM `amc_misc_data`, `form_encounter` " .
+        "WHERE amc_misc_data.map_id = form_encounter.encounter " .
+        "AND amc_misc_data.map_category = 'form_encounter' " .
+        "AND amc_misc_data.amc_id = 'med_reconc_amc' " .
+        "AND form_encounter.encounter = ?";
+        $check = sqlQuery($sql, array($patient->object['encounter']));
+        if ($check['completed'] != "") {
+            return true;
+        } else {
+            return false;
         }
     }
 }

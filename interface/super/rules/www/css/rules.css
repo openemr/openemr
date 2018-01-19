@@ -7,12 +7,13 @@
 /* 
  * browse rules
  */
-root { 
+root {
     display: block;
 }
 
 .rule_container {
-    width: 40%;
+    min-width: 524px;
+    width: 100%;
 }
 .rule_row {
     padding-bottom: 2px;
@@ -24,11 +25,17 @@ root {
 }
 
 .rule_row .rule_title {
-    width: 90%;
+    display: inline-block;
+}
+
+.rule_title{
+    width: 380px;
 }
 
 .rule_row .rule_type {
-    width: 10%;
+    display: inline-block;
+    padding-left: 10px;
+    min-width: 70px;
 }
 
 .rule_row.header {
@@ -37,7 +44,6 @@ root {
 }
 
 .rule_container {
-
     margin-top: 10px;
 }
 
@@ -49,7 +55,7 @@ root {
  * browse rules
  */
 .rule_detail {
-     max-width: 100%;
+    max-width: 100%;
 }
 
 .rule_detail .section {
@@ -57,20 +63,20 @@ root {
 }
 
 .rule_detail .section .section {
-	margin-left: 30px;
+    margin-left: 30px;
 }
 
 .rule_detail .section .section .row {
-	margin-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 .rule_detail .section .group {
-	margin-top: 12px;
-	border: 1px dotted;
+    margin-top: 12px;
+    border: 1px dotted;
 }
 
 .rule_detail .header, .rule_detail .ruletitle {
-     font-size: 18px;
+    font-size: 18px;
 }
 
 .rule_detail .ruletitle {
@@ -86,7 +92,7 @@ root {
 .mid_col {
     float: left;
     display:block;
-    width: 200px;
+    width: 33%;
 }
 
 .end_col {
@@ -117,7 +123,7 @@ root {
 }
 
 .rule_detail.edit.summry .left_col {
-    width: 60px;
+    width: 120px;
     text-align: right;
     margin-right: 10px;
     font-weight: bold;

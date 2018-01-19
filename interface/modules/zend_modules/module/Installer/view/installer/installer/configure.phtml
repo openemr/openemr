@@ -1,0 +1,214 @@
+<?php
+/* +-----------------------------------------------------------------------------+
+*    OpenEMR - Open Source Electronic Medical Record
+*    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU Affero General Public License as
+*    published by the Free Software Foundation, either version 3 of the
+*    License, or (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU Affero General Public License for more details.
+*
+*    You should have received a copy of the GNU Affero General Public License
+*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*    @author  Jacob T.Paul <jacob@zhservices.com>
+*    @author  Vipin Kumar <vipink@zhservices.com>
+ *   @author  Remesh Babu S <remesh@zhservices.com>
+* +------------------------------------------------------------------------------+
+*/
+
+$listener	= $this->listenerObject;
+$hangers  = $this->hangers;
+$Hooks    = $this->Hooks;
+$hookObj  =  $this->hookObject;
+$mod_id   = $this->mod_id;
+$title    = $listener->z_xlt('Module Installer');
+$this->headTitle($title);
+$baseModuleDir    = $GLOBALS['baseModDir'];
+$customDir        = $GLOBALS['customModDir'];
+$zendModDir       = $GLOBALS['zendModDir'];
+$confirmationMSG  = $listener->z_xlt("Do you really want to delete?");
+if(count($TabSettings)>0){
+    
+?>
+<div class="easyui-tabs" id="tab<?php echo $this->escapeHtml($mod_id); ?>" style="width:950px;height:auto;">
+<?php
+  if($TabSettings[1]['cnt'] > 0){            
+?>
+    <div title="<?php echo $listener->z_xla('Access Control');?>" id="tab_acl<?php echo $this->escapeHtml($mod_id); ?>" iconCls="icon-acl">
+      <div class="easyui-accordion" id="configaccord<?php echo $this->escapeHtml($mod_id); ?>" style="width:930px;height:auto;align:center;margin:5px">
+        <iframe src="<?php echo $GLOBALS['webroot']; ?>/interface/modules/zend_modules/public/acl/acltab?module_id=<?php echo $this->escapeHtml($this->mod_id); ?>" style="width:100%;height: 700px;overflow: hidden;" frameborder="0"></iframe>
+      </div>    
+    </div>
+  <?php       
+  }else{
+  ?>
+    <div class="easyui-accordion" id="configaccord<?php echo $this->escapeHtml($mod_id); ?>" style="width:930px;height:auto;align:center;margin:5px"></div>
+  <?php
+  }
+  if($TabSettings[2]['cnt'] > 0){
+?>
+    <div title="<?php echo $listener->z_xla('Preference');?>" id="tab_preference<?php echo $this->escapeHtml($mod_id); ?>" iconCls="icon-preference">  
+    <!-- For Future Development-->
+    </div>
+<?php
+}
+if($TabSettings[3]['cnt'] > 0){
+  $modID = '';
+?>
+    <div title="<?php echo $listener->z_xla('Hooks');?>" id="tab_hooks<?php echo $this->escapeHtml($mod_id); ?>" iconCls="icon-plug" > 
+      <table width="100%">
+            <tr>
+              <td colspan="2" align="center" style="font-size:14px;font-weight:bold">
+                 <?php echo $listener->z_xlt("Manage Hooks");?>
+              </td>
+            </tr>
+            <tr>
+                <td>
+                  <form name="hooksform<?php echo $this->escapeHtml($mod_id); ?>" id="hooksform<?php echo $this->escapeHtml($mod_id); ?>">                    
+                    <table  width="100%">
+                        <tr>
+                            <td style="width: 150px"><span id="hook_response<?php echo $this->escapeHtml($mod_id); ?>">&nbsp;</span></td>
+                            <?php
+                                $hanger_count = 0;
+                                foreach($hangers as $value => $title){ 
+                                ?>
+                                    <td align="center"><?php echo $listener->z_xlt($title);?></td>
+                            <?php
+                                    $hanger_count++;
+                                }
+                                ?>                                
+                        </tr>
+                        <?php
+                        if(count($Hooks)> 0){
+                            foreach($Hooks as $obj_hooks){                               
+                            ?>
+                            <tr>
+                                <td><?php echo $listener->z_xlt($obj_hooks['title']);?></td>
+                                <?php
+                                    foreach($hangers as $value => $title){
+                                        $checked = "";
+                                        if($hookObj->getHookStatus($mod_id,$obj_hooks['name'],$value) == "1"){
+                                            $checked = "checked=\"checked\"";
+                                        }
+                                    ?>
+                                        <td align="center">
+                                            <input type="checkbox" <?php echo $checked; ?>
+                                                name="hook_hanger[<?php echo $this->escapeHtml($obj_hooks['name']);?>][<?php echo $this->escapeHtml($value); ?>]"
+                                                id="hook_hanger_<?php echo $this->escapeHtml($obj_hooks['name']);?>_<?php echo $this->escapeHtml($value); ?>"
+                                                value="<?php echo $this->escapeHtml($obj_hooks['name']).",".$this->escapeHtml($value);?>"
+                                                onclick="javascript:SaveMe('hooksform',<?php echo $this->escapeHtml($mod_id);?>)" >
+                                        </td>
+                                <?php
+                                    }
+                                    ?>    
+                            </tr>    
+                        <?php
+                            }
+                        }  
+                                else{ ?>
+                            <tr>                            
+                            <td  colspan="<?php echo $this->escapeHtml($hanger_count)+1; ?>" align="center" style="font-size:14px">
+                                <?php echo $listener->z_xlt('No Hooks Available in this Module'); ?>
+                            </td>
+                        </tr>
+                        <?php
+                            }
+                                    ?>                            
+                    </table>
+                    <input type="hidden" name="mod_id" value="<?php echo $this->escapeHtml($mod_id);?>">
+                  </form>
+                </td>
+            </tr>            
+        </table>
+    </div>
+    <!-- Start Configuration Tab -->
+     <div title="<?php echo $listener->z_xla('Settings');?>" id="tab_config<?php echo $this->escapeHtml($mod_id); ?>" iconCls="icon-preference"> 
+        <?php
+            if(is_object($this->settings) && count($this->settings) > 0){
+                
+            $form = $this->settings;
+                if(method_exists($form,'prepare')){
+                    $form->prepare();                
+        ?>
+         <form name="configform" id="configform<?php echo $this->escapeHtml($mod_id); ?>">
+            <table style="width:100%; margin: 0px; height: 140px">
+                    <?php
+                            
+                    $i = 0;
+                    foreach ($form as $element) : 
+                    ?>
+                    <tr>
+                      <td width='15%'><?php echo $listener->z_xlt($element->getLabel()) ?></td>
+                      <td><?php echo $this->formElement($element->setValue($configuration[$element->getAttribute('id')]['field_value'])); ?></td>
+                    </tr>
+                    <?php
+                    $i++;
+                     endforeach;        
+                    ?>
+                <tr>
+                    <td></td>
+                    <td>
+                       <a href="#" class="easyui-linkbutton" iconCls="icon-save" 
+                          plain="true" onclick="javascript:saveConfig('configform',<?php echo $this->escapeHtml($mod_id);?>)">
+                              <?php echo $listener->z_xlt('Save'); ?>
+                       </a>
+                        <span id='target<?php echo $this->escapeHtml($mod_id); ?>' style="color: #996600" ></span>
+                    </td>
+                </tr>
+            </table>
+             <input type="hidden" name="module_id" value="<?php echo $this->escapeHtml($mod_id);?>">
+         </form>
+         <?php
+         }
+                else {
+                    echo $listener->z_xlt('No Settings avaliable in this module');
+                }
+            }
+            else {
+                echo $listener->z_xlt('No Settings avaliable in this module');
+            }
+         ?>
+     </div>
+    <!-- End Configuration Tab -->
+    <?php    
+    }
+    ?>
+    <?php if (count($setup) > 0) { ?>
+    <div title="<?php echo $listener->z_xla($setup['title']);?>"  style="width:800px;height:auto;"
+         id="tab_config<?php echo $this->escapeHtml($mod_id); ?>" 
+         iconCls="icon-setup">
+      <iframe scrolling="yes" frameborder="0"  
+              src="<?php echo $this->basePath() . '/' . $this->escapeHtml($setup[module_dir]); ?>/setup/index" 
+              style="width:100%;height:400px;">
+      </iframe>
+    </div>
+    <?php } ?>
+</div>
+<?php
+} else if (count($setup) > 0) { ?>
+  <div class="easyui-tabs" id="tab<?php echo $this->escapeHtml($mod_id); ?>" style="width:800px;height:auto;">
+    <div title="<?php echo $listener->z_xla($setup['title']);?>" 
+         id="tab_config<?php echo $this->escapeHtml($mod_id); ?>" 
+         iconCls="icon-setup">
+      <iframe scrolling="yes" frameborder="0"  
+              src="<?php echo $this->basePath() . '/' . $this->escapeHtml($setup[module_dir]); ?>/setup/index" 
+              style="width:100%;height:400px;">
+      </iframe>
+    </div>
+  </div>
+<?php
+} else{
+?>
+    <div class="easyui-tabs" id="tab<?php echo $this->escapeHtml($mod_id); ?>" style="width:800px;height:auto;">
+    <?php echo $listener->z_xlt('No Configuration Defined for this Module');?>
+    </div>
+<?php
+}
+?>
+   
+    

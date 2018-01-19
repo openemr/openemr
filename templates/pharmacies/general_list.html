@@ -1,25 +1,33 @@
-<a href="controller.php?practice_settings&{$TOP_ACTION}pharmacy&action=edit" {php} if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; {/php} onclick="top.restoreSession()" class="css_button" >
-<span>{xl t='Add a Pharmacy'}</span></a><br><br>
+<a href="controller.php?practice_settings&{$TOP_ACTION}pharmacy&action=edit" onclick="top.restoreSession()" class="btn btn-default btn-add" >
+<span>{xl t='Add a Pharmacy'|escape:'html'}</span></a><br><br>
 
-<table cellpadding="1" cellspacing='0' class="showborder">
-	<tr class="showborder_head">
-		<th width="170px"><b>{xl t='Name'}</b></th>
-		<th width="320px"><b>{xl t='Address'}</b></th>
-		<th><b>{xl t='Default Method'}</b></th>
-	</tr>
+<table class="table table-responsive table-striped">
+	<thead>
+        <tr>
+            <th>{xl t='Name'|escape:'html'}</th>
+            <th>{xl t='Address'|escape:'html'}</th>
+            <th>{xl t='Default Method'|escape:'html'}</th>
+        </tr>
+    </thead>
+    <tbody>
 	{foreach from=$pharmacies item=pharmacy}
-	<tr height="22">
-		<td><a href="{$CURRENT_ACTION}action=edit&id={$pharmacy->id}" onclick="top.restoreSession()">{$pharmacy->name}&nbsp;</a></td>
+	<tr>
 		<td>
-		{if $pharmacy->address->line1 != ''}{$pharmacy->address->line1}, {/if}
-		{if $pharmacy->address->city != ''}{$pharmacy->address->city}, {/if}
-			{$pharmacy->address->state|upper} {$pharmacy->address->zip}&nbsp;</td>
-		<td>{$pharmacy->get_transmit_method_display()}&nbsp;
+		    <a href="{$CURRENT_ACTION}action=edit&id={$pharmacy->id|escape:'html'}" onclick="top.restoreSession()">
+		        {$pharmacy->name|escape:'html'}
+		    </a>
+		</td>
+		<td>
+		{if $pharmacy->address->line1 != ''}{$pharmacy->address->line1|escape:'html'}, {/if}
+		{if $pharmacy->address->city != ''}{$pharmacy->address->city|escape:'html'}, {/if}
+			{$pharmacy->address->state|upper} {$pharmacy->address->zip|escape:'html'}&nbsp;</td>
+		<td>{$pharmacy->get_transmit_method_display()|escape:'html'}&nbsp;
 	{foreachelse}</td>
 	</tr>
 
-	<tr class="center_display">
-		<td colspan="3"><b>{xl t='No Pharmacies Found'}<b></td>
+	<tr>
+		<td colspan="3"><b>{xl t='No Pharmacies Found'|escape:'html'}<b></td>
 	</tr>
 	{/foreach}
+    </tbody>
 </table>

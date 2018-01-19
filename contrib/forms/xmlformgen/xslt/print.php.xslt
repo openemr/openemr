@@ -40,7 +40,7 @@ require_once($GLOBALS['srcdir'].'/options.inc.php');
 <xsl:apply-templates select="table" mode="fetch"/>
 <xsl:apply-templates select="layout|manual" mode="head"/>
 <xsl:text disable-output-escaping="yes"><![CDATA[
-$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+$returnurl = 'encounter_top.php';
 
 ]]></xsl:text>
 <xsl:apply-templates select="//field[@type='date']" mode="split_timeofday"/>
@@ -56,7 +56,7 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 
 <!-- supporting javascript code -->
 <!-- for dialog -->
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js"></script>
 
 <!-- Global Stylesheet -->

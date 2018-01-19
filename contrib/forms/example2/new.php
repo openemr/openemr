@@ -1,6 +1,21 @@
 <?php
 /*
  * The page shown when the user requests a new form
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
+ *
+ * @package   OpenEMR
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @link      http://www.open-emr.org
  */
 
 include_once("../../globals.php");
@@ -14,25 +29,21 @@ $form_folder = "example";
 
 formHeader("Form: ".$forn_name);
 
-$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+$returnurl = 'encounter_top.php';
 ?>
 
 <html><head>
 <?php html_header_show();?>
 
 <!-- other supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <!-- page styles -->
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css" type="text/css">
-
-<!-- pop up calendar -->
-<style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_en.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
+<link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <script language="JavaScript">
 // this line is to assist the calendar text boxes
@@ -49,8 +60,8 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 <span class="title"><?php xl($form_name, 'e'); ?></span><br>
 
 <!-- Save/Cancel buttons -->
-<input type="button" class="save" value="<?php xl('Save','e'); ?>"> &nbsp; 
-<input type="button" class="dontsave" value="<?php xl('Don\'t Save','e'); ?>"> &nbsp; 
+<input type="button" class="save" value="<?php xl('Save', 'e'); ?>"> &nbsp;
+<input type="button" class="dontsave" value="<?php xl('Don\'t Save', 'e'); ?>"> &nbsp;
 
 <!-- container for the main body of the form -->
 <div id="form_container">
@@ -58,25 +69,17 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 <div id="general">
 <table>
 <tr><td>
-Date: 
-   <input type='text' size='10' name='form_date' id='form_date'
+Date:
+   <input type='text' size='10' class='datepicker' name='form_date' id='form_date'
     value='<?php echo date('Y-m-d', time()); ?>'
-    title='<?php xl('yyyy-mm-dd','e'); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_form_date' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
+    title='<?php xl('yyyy-mm-dd', 'e'); ?>' />
 </td></tr>
 <tr><td>
 Name: <input id="name" name="name" type="text" size="50" maxlength="250">
 Date of Birth:
-   <input type='text' size='10' name='dob' id='dob'
+   <input type='text' size='10' class='datepicker' name='dob' id='dob'
     value='<?php echo $date ?>'
-    title='<?php xl('yyyy-mm-dd Date of Birth','e'); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc);' />
-   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_dob' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
+    title='<?php xl('yyyy-mm-dd Date of Birth', 'e'); ?>' />
 </td></tr>
 <tr><td>
 Phone: <input name="phone" id="phone" type="text" size="15" maxlength="15">
@@ -98,36 +101,36 @@ Signature?
 <input type="radio" id="sig" name="sig" value="n">No
 &nbsp;&nbsp;
 Date of signature:
-   <input type='text' size='10' name='sig_date' id='sig_date'
+   <input type='text' size='10' class='datepicker' name='sig_date' id='sig_date'
     value='<?php echo date('Y-m-d', time()); ?>'
-    title='<?php xl('yyyy-mm-dd','e'); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_sig_date' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
+    title='<?php xl('yyyy-mm-dd', 'e'); ?>' />
 </div>
 </div>
 
 </div> <!-- end form_container -->
 
 <!-- Save/Cancel buttons -->
-<input type="button" class="save" value="<?php xl('Save','e'); ?>"> &nbsp; 
-<input type="button" class="dontsave" value="<?php xl('Don\'t Save','e'); ?>"> &nbsp; 
+<input type="button" class="save" value="<?php xl('Save', 'e'); ?>"> &nbsp;
+<input type="button" class="dontsave" value="<?php xl('Don\'t Save', 'e'); ?>"> &nbsp;
 </form>
 
 </body>
 
 <script language="javascript">
-/* required for popup calendar */
-Calendar.setup({inputField:"dob", ifFormat:"%Y-%m-%d", button:"img_dob"});
-Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_form_date"});
-Calendar.setup({inputField:"sig_date", ifFormat:"%Y-%m-%d", button:"img_sig_date"});
 
 // jQuery stuff to make the page a little easier to use
 
 $(document).ready(function(){
     $(".save").click(function() { top.restoreSession(); document.my_form.submit(); });
-    $(".dontsave").click(function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>'; });
+    $(".dontsave").click(function() { parent.closeTab(window.name, false); });
+
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
 });
 </script>
 

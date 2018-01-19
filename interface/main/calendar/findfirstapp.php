@@ -13,7 +13,7 @@ include_once("$srcdir/patient.inc");
 <body bgcolor="#FFFFFF" >
 <form>
 
-<input type=submit value="<?php xl('Find','e'); ?>" />
+<input type=submit value="<?php xl('Find', 'e'); ?>" />
 
 </form>
 

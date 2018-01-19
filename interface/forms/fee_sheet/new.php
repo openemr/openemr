@@ -1,626 +1,554 @@
 <?php
-// Copyright (C) 2005-2011 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/*
+* Fee Sheet Program used to create charges, copays and add diagnosis codes to the encounter
+*
+* Copyright (C) 2005-2016 Rod Roark <rod@sunsetsystems.com>
+*
+* LICENSE: This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 3
+* of the License, or (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+*
+* @package OpenEMR
+* @author Rod Roark <rod@sunsetsystems.com>
+* @author Terry Hill <terry@lillysystems.com>
+* @link http://www.open-emr.org
+*/
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 require_once("../../globals.php");
-require_once("$srcdir/acl.inc");
-require_once("$srcdir/api.inc");
+require_once("$srcdir/FeeSheetHtml.class.php");
 require_once("codes.php");
-require_once("../../../custom/code_types.inc.php");
-require_once("../../drugs/drugs.inc.php");
-require_once("$srcdir/formatting.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/formdata.inc.php");
+
+//acl check
+if (!acl_check_form('fee_sheet')) {
+    ?>
+    <script>alert('<?php echo xls("Not authorized"); ?>')</script>;
+    <?php
+    formJump();
+}
 
 // Some table cells will not be displayed unless insurance billing is used.
 $usbillstyle = $GLOBALS['ippf_specific'] ? " style='display:none'" : "";
+$justifystyle = justifiers_are_used() ? "" : " style='display:none'";
 
-function alphaCodeType($id) {
-  global $code_types;
-  foreach ($code_types as $key => $value) {
-    if ($value['id'] == $id) return $key;
-  }
-  return '';
+$liprovstyle = (isset($GLOBALS['support_fee_sheet_line_item_provider']) &&
+  $GLOBALS['support_fee_sheet_line_item_provider'] != 1) ? " style='display:none'" : "";
+
+// This flag comes from the LBFmsivd form and perhaps later others.
+$rapid_data_entry = empty($_GET['rde']) ? 0 : 1;
+
+// This comes from the Add More Items button, or is preserved from its previous value.
+$add_more_items = (empty($_GET['addmore']) && empty($_POST['bn_addmore'])) ? 0 : 1;
+
+$alertmsg = '';
+
+// Determine if more than one price level is in use.
+$tmp = sqlQuery("SELECT COUNT(*) AS count FROM list_options where list_id = 'pricelevel' AND activity = 1");
+$price_levels_are_used = $tmp['count'] > 1;
+// For revenue codes
+$institutional = $GLOBALS['ub04_support'] == "1" ? true : false;
+// Format a money amount with decimals but no other decoration.
+// Second argument is used when extra precision is required.
+function formatMoneyNumber($value, $extradecimals = 0)
+{
+    return sprintf('%01.' . ($GLOBALS['currency_decimals'] + $extradecimals) . 'f', $value);
 }
 
 // Helper function for creating drop-lists.
-function endFSCategory() {
-  global $i, $last_category, $FEE_SHEET_COLUMNS;
-  if (! $last_category) return;
-  echo "   </select>\n";
-  echo "  </td>\n";
-  if ($i >= $FEE_SHEET_COLUMNS) {
-    echo " </tr>\n";
-    $i = 0;
-  }
+function endFSCategory()
+{
+    global $i, $last_category, $FEE_SHEET_COLUMNS;
+    if (! $last_category) {
+        return;
+    }
+
+    echo "   </select>\n";
+    echo "  </td>\n";
+    if ($i >= $FEE_SHEET_COLUMNS) {
+        echo " </tr>\n";
+        $i = 0;
+    }
 }
 
 // Generate JavaScript to build the array of diagnoses.
-function genDiagJS($code_type, $code) {
-  global $code_types;
-  if ($code_types[$code_type]['diag']) {
-    echo "diags.push('" . attr($code_type) . "|" . attr($code) . "');\n";
-  }
-}
-
-// For IPPF only.  Returns 0 = none, 1 = nonsurgical, 2 = surgical.
-//
-function contraceptionClass($code_type, $code) {
-  global $code_types;
-  if (!$GLOBALS['ippf_specific']) return 0;
-  $contra = 0;
-  // Get the related service codes.
-  $codesrow = sqlQuery("SELECT related_code FROM codes WHERE " .
-    "code_type = ? " .
-    " AND code = ? LIMIT 1", array($code_types[$code_type]['id'],$code) );
-  if (!empty($codesrow['related_code']) && $code_type == 'MA') {
-    $relcodes = explode(';', $codesrow['related_code']);
-    foreach ($relcodes as $relstring) {
-      if ($relstring === '') continue;
-      list($reltype, $relcode) = explode(':', $relstring);
-      if ($reltype !== 'IPPF') continue;
-      if      (preg_match('/^11....110/'    , $relcode)) $contra |= 1;
-      else if (preg_match('/^11....999/'    , $relcode)) $contra |= 1;
-      else if (preg_match('/^112152010/'    , $relcode)) $contra |= 1;
-      else if (preg_match('/^11317[1-2]111/', $relcode)) $contra |= 1;
-      else if (preg_match('/^12118[1-2].13/', $relcode)) $contra |= 2;
-      else if (preg_match('/^12118[1-2]999/', $relcode)) $contra |= 2;
-    }
-  }
-  return $contra;
-}
-
-// This writes a billing line item to the output page.
-//
-function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
-  $auth = TRUE, $del = FALSE, $units = NULL, $fee = NULL, $id = NULL,
-  $billed = FALSE, $code_text = NULL, $justify = NULL, $provider_id = 0, $notecodes='')
+function genDiagJS($code_type, $code)
 {
-  global $code_types, $ndc_applies, $ndc_uom_choices, $justinit, $pid;
-  global $contraception, $usbillstyle, $hasCharges;
+    global $code_types;
+    if ($code_types[$code_type]['diag']) {
+        echo "diags.push('" . attr($code_type) . "|" . attr($code) . "');\n";
+    }
+}
 
-  if ($codetype == 'COPAY') {
-    if (!$code_text) $code_text = 'Cash';
-    if ($fee > 0) $fee = 0 - $fee;
-  }
-  if (! $code_text) {
-    $sqlArray = array();
-    $query = "select id, units, code_text from codes where code_type = ? " .
-      " and " .
-      "code = ? and ";
-    array_push($sqlArray,$code_types[$codetype]['id'],$code);
-    if ($modifier) {
-      $query .= "modifier = ?";
-      array_push($sqlArray,$modifier);
-    } else {
-      $query .= "(modifier is null or modifier = '')";
-    }
-    $result = sqlQuery($query, $sqlArray);
-    $code_text = $result['code_text'];
-    if (empty($units)) $units = max(1, intval($result['units']));
-    if (!isset($fee)) {
-      // Fees come from the prices table now.
-      $query = "SELECT prices.pr_price " .
-        "FROM patient_data, prices WHERE " .
-        "patient_data.pid = ? AND " .
-        "prices.pr_id = ? AND " .
-        "prices.pr_selector = '' AND " .
-        "prices.pr_level = patient_data.pricelevel " .
-        "LIMIT 1";
-      echo "\n<!-- $query -->\n"; // debugging
-      $prrow = sqlQuery($query, array($pid,$result['id']) );
-      $fee = empty($prrow) ? 0 : $prrow['pr_price'];
-    }
-  }
-  $fee = sprintf('%01.2f', $fee);
-  if (empty($units)) $units = 1;
-  $units = max(1, intval($units));
-  // We put unit price on the screen, not the total line item fee.
-  $price = $fee / $units;
-  $strike1 = ($id && $del) ? "<strike>" : "";
-  $strike2 = ($id && $del) ? "</strike>" : "";
-  echo " <tr>\n";
-  echo "  <td class='billcell'>$strike1" .
-    ($codetype == 'COPAY' ? xl($codetype) : $codetype) . $strike2;
-  //if the line to ouput is copay, show the date here passed as $ndc_info,
-  //since this variable is not applicable in the case of copay.
-  if($codetype == 'COPAY'){
-    echo "(".htmlspecialchars($ndc_info).")";
-    $ndc_info = '';
-  }
-  if ($id) {
-    echo "<input type='hidden' name='bill[".attr($lino)."][id]' value='$id'>";
-  }
-  echo "<input type='hidden' name='bill[".attr($lino)."][code_type]' value='".attr($codetype)."'>";
-  echo "<input type='hidden' name='bill[".attr($lino)."][code]' value='".attr($code)."'>";
-  echo "<input type='hidden' name='bill[".attr($lino)."][billed]' value='".attr($billed)."'>";
-  echo "</td>\n";
-  if ($codetype != 'COPAY') {
-    echo "  <td class='billcell'>$strike1" . text($code) . "$strike2</td>\n";
-  } else {
-    echo "  <td class='billcell'>&nbsp;</td>\n";
-  }
-  if ($billed) {
-    if (modifiers_are_used(true)) {
-      echo "  <td class='billcell'>$strike1" . text($modifier) . "$strike2" .
-        "<input type='hidden' name='bill[".attr($lino)."][mod]' value='".attr($modifier)."'></td>\n";
-    }
-    if (fees_are_used()) {
-      echo "  <td class='billcell' align='right'>" . text(oeFormatMoney($price)) . "</td>\n";
-      if ($codetype != 'COPAY') {
-        echo "  <td class='billcell' align='center'>" . text($units) . "</td>\n";
-      } else {
-        echo "  <td class='billcell'>&nbsp;</td>\n";
-      }
-    }
-    if (justifiers_are_used()) {
-      echo "  <td class='billcell' align='center'$usbillstyle>" . text($justify) . "</td>\n";
-    }
+// Write all service lines to the web form.
+//
+function echoServiceLines()
+{
+    global $code_types, $justinit, $usbillstyle, $liprovstyle, $justifystyle, $fs, $price_levels_are_used, $institutional;
 
-    // Show provider for this line.
-    echo "  <td class='billcell' align='center'>";
-    genProviderSelect('', '-- '.xl("Default").' --', $provider_id, true);
-    echo "</td>\n";
-    if ($code_types[$codetype]['claim'] && !$code_types[$codetype]['diag']) {
-      echo "  <td class='billcell' align='center'$usbillstyle>" .
-        htmlspecialchars($notecodes, ENT_NOQUOTES) . "</td>\n";
-    }
-    else {
-      echo "  <td class='billcell' align='center'$usbillstyle></td>\n";
-    }
-    echo "  <td class='billcell' align='center'$usbillstyle><input type='checkbox'" .
-      ($auth ? " checked" : "") . " disabled /></td>\n";
-    echo "  <td class='billcell' align='center'><input type='checkbox'" .
-      " disabled /></td>\n";
-  }
-  else { // not billed
-    if (modifiers_are_used(true)) {
-      if ($codetype != 'COPAY' && ($code_types[$codetype]['mod'] || $modifier)) {
-        echo "  <td class='billcell'><input type='text' name='bill[".attr($lino)."][mod]' " .
-             "value='" . attr($modifier) . "' " .
-             "title='" . xla("Multiple modifiers can be separated by colons or spaces, maximum of 4 (M1:M2:M3:M4)") . "' " .
-             "value='" . attr($modifier) . "' size='" . attr($code_types[$codetype]['mod']) . "'></td>\n";
-      } else {
-        echo "  <td class='billcell'>&nbsp;</td>\n";
-      }
-    }
-    if (fees_are_used()) {
-      if ($codetype == 'COPAY' || $code_types[$codetype]['fee'] || $fee != 0) {
-        echo "  <td class='billcell' align='right'>" .
-          "<input type='text' name='bill[".attr($lino)."][price]' " .
-          "value='" . attr($price) . "' size='6'";
-        if (acl_check('acct','disc'))
-          echo " style='text-align:right'";
-        else
-          echo " style='text-align:right;background-color:transparent' readonly";
-        echo "></td>\n";
-        echo "  <td class='billcell' align='center'>";
-        if ($codetype != 'COPAY') {
-          echo "<input type='text' name='bill[".attr($lino)."][units]' " .
-          "value='" . attr($units) . "' size='2' style='text-align:right'>";
-        } else {
-          echo "<input type='hidden' name='bill[".attr($lino)."][units]' value='" . attr($units) . "'>";
+    foreach ($fs->serviceitems as $lino => $li) {
+        $id       = $li['hidden']['id'];
+        $codetype = $li['hidden']['code_type'];
+        $code     = $li['hidden']['code'];
+        if ($institutional) {
+            $revenue_code = $li['hidden']['revenue_code'];
         }
+        $modifier = $li['hidden']['mod'];
+        $billed   = $li['hidden']['billed'];
+        $ndc_info = isset($li['ndc_info']) ? $li['ndc_info'] : '';
+        $pricelevel = $li['pricelevel'];
+        $justify  = $li['justify'];
+
+        $strike1 = $li['del'] ? "<strike>" : "";
+        $strike2 = $li['del'] ? "</strike>" : "";
+
+        echo " <tr>\n";
+
+        echo "  <td class='billcell'>$strike1" .
+        ($codetype == 'COPAY' ? xl($codetype) : text($codetype)) . $strike2;
+        // if the line to ouput is copay, show the date here passed as $ndc_info,
+        // since this variable is not applicable in the case of copay.
+        if ($codetype == 'COPAY') {
+            echo "(" . text($ndc_info) . ")";
+            $ndc_info = '';
+        }
+
+        if ($id) {
+            echo "<input type='hidden' name='bill[" . attr($lino) . "][id]' value='" . attr($id) . "' />";
+        }
+
+        echo "<input type='hidden' name='bill[" . attr($lino) . "][code_type]' value='" . attr($codetype) . "' />";
+        echo "<input type='hidden' name='bill[" . attr($lino) . "][code]' value='" . attr($code) . "' />";
+        echo "<input type='hidden' name='bill[" . attr($lino)."][billed]' value='" . attr($billed)."' />";
+        if (isset($li['hidden']['method'])) {
+            echo "<input type='hidden' name='bill[$lino][method]'   value='" . attr($li['hidden']['method'  ]) . "' />";
+            echo "<input type='hidden' name='bill[$lino][cyp]'      value='" . attr($li['hidden']['cyp'     ]) . "' />";
+            echo "<input type='hidden' name='bill[$lino][methtype]' value='" . attr($li['hidden']['methtype']) . "' />";
+        }
+
         echo "</td>\n";
-      } else {
-        echo "  <td class='billcell'>&nbsp;</td>\n";
-        echo "  <td class='billcell'>&nbsp;</td>\n";
-      }
-    }
-    if (justifiers_are_used()) {
-      if ($code_types[$codetype]['just'] || $justify) {
-        echo "  <td class='billcell' align='center'$usbillstyle ";
-        echo "title='" . xla("Select one or more diagnosis codes to justify the service") . "' >";
-        echo "<select name='bill[".attr($lino)."][justify]' onchange='setJustify(this)'>";
-        echo "<option value='" . attr($justify) . "'>" . text($justify) . "</option></select>";
-        echo "</td>\n";
-        $justinit .= "setJustify(f['bill[".attr($lino)."][justify]']);\n";
-      } else {
-        echo "  <td class='billcell'$usbillstyle>&nbsp;</td>\n";
-      }
-    }
 
-    // Provider drop-list for this line.
-    echo "  <td class='billcell' align='center'>";
-    genProviderSelect("bill[$lino][provid]", '-- '.xl("Default").' --', $provider_id);
-    echo "</td>\n";
-    if ($code_types[$codetype]['claim'] && !$code_types[$codetype]['diag']) {
-      echo "  <td class='billcell' align='center'$usbillstyle><input type='text' name='bill[".attr($lino)."][notecodes]' " .
-        "value='" . htmlspecialchars($notecodes, ENT_QUOTES) . "' maxlength='10' size='8' /></td>\n";
-    }
-    else {
-      echo "  <td class='billcell' align='center'$usbillstyle></td>\n";
-    }
-    echo "  <td class='billcell' align='center'$usbillstyle><input type='checkbox' name='bill[".attr($lino)."][auth]' " .
-      "value='1'" . ($auth ? " checked" : "") . " /></td>\n";
-    echo "  <td class='billcell' align='center'><input type='checkbox' name='bill[".attr($lino)."][del]' " .
-      "value='1'" . ($del ? " checked" : "") . " /></td>\n";
-  }
+        if ($codetype != 'COPAY') {
+            echo "  <td class='billcell'>$strike1" . text($code) . "$strike2</td>\n";
+        } else {
+            echo "  <td class='billcell'>&nbsp;</td>\n";
+        }
 
-  echo "  <td class='billcell'>$strike1" . text($code_text) . "$strike2</td>\n";
-  echo " </tr>\n";
+        echo "  <td class='billcell'>$strike1" . text($li['code_text']) . "$strike2</td>\n";
 
-  // If NDC info exists or may be required, add a line for it.
-  if ($codetype == 'HCPCS' && $ndc_applies && !$billed) {
-    $ndcnum = ''; $ndcuom = ''; $ndcqty = '';
-    if (preg_match('/^N4(\S+)\s+(\S\S)(.*)/', $ndc_info, $tmp)) {
-      $ndcnum = $tmp[1]; $ndcuom = $tmp[2]; $ndcqty = $tmp[3];
+        if ($billed) {
+            if ($institutional) {
+                echo "  <td class='billcell'>$strike1" . text($revenue_code) . "$strike2" .
+                "<input type='hidden' name='bill[" . attr($lino) . "][revenue_code]' value='" . attr($revenue_code) . "'></td>\n";
+            }
+
+            if (modifiers_are_used(true)) {
+                echo "  <td class='billcell'>$strike1" . text($modifier) . "$strike2" .
+                "<input type='hidden' name='bill[" . attr($lino) . "][mod]' value='" . attr($modifier) . "'></td>\n";
+            }
+
+            if (fees_are_used()) {
+                if ($price_levels_are_used) {
+                    // Show price level for this line.
+                    echo "  <td class='billcell' align='center'>";
+                    echo $fs->genPriceLevelSelect('', ' ', $li['hidden']['codes_id'], '', $pricelevel, true);
+                    echo "</td>\n";
+                }
+
+                echo "  <td class='billcell' align='right'>" . text(oeFormatMoney($li['price'])) . "</td>\n";
+                if ($codetype != 'COPAY') {
+                    echo "  <td class='billcell' align='center'>" . text($li['units']) . "</td>\n";
+                } else {
+                    echo "  <td class='billcell'>&nbsp;</td>\n";
+                }
+
+                echo "  <td class='billcell' align='center'$justifystyle>$justify</td>\n";
+            }
+
+            // Show provider for this line.
+            echo "  <td class='billcell' align='center' $liprovstyle>";
+            echo $fs->genProviderSelect('', '-- ' .xl("Default"). ' --', $li['provid'], true);
+            echo "</td>\n";
+
+            if ($code_types[$codetype]['claim'] && !$code_types[$codetype]['diag']) {
+                echo "  <td class='billcell' align='center'$usbillstyle>" .
+                text($li['notecodes']) . "</td>\n";
+            } else {
+                echo "  <td class='billcell' align='center'$usbillstyle></td>\n";
+            }
+
+            echo "  <td class='billcell' align='center'$usbillstyle><input type='checkbox'" .
+            ($li['auth'] ? " checked" : "") . " disabled /></td>\n";
+
+            if ($GLOBALS['gbl_auto_create_rx']) {
+                echo "  <td class='billcell' align='center'>&nbsp;</td>\n";
+            }
+
+            echo "  <td class='billcell' align='center'><input type='checkbox'" .
+            " disabled /></td>\n";
+        } else { // not billed
+            if ($institutional) {
+                if ($codetype != 'COPAY' && $codetype != 'ICD10') {
+                    echo "  <td class='billcell'><input type='text' class='revcode' name='bill[" . attr($lino) . "][revenue_code]' " .
+                        "title='" . xla("Revenue Code for this item. Type for hints/search") . "' " .
+                        "value='" . attr($revenue_code) . "' size='4'></td>\n";
+                } else {
+                    echo "  <td class='billcell'>&nbsp;</td>\n";
+                }
+            }
+            if (modifiers_are_used(true)) {
+                if ($codetype != 'COPAY' && ($code_types[$codetype]['mod'] || $modifier)) {
+                    echo "  <td class='billcell'><input type='text' name='bill[" . attr($lino) . "][mod]' " .
+                       "title='" . xla("Multiple modifiers can be separated by colons or spaces, maximum of 4 (M1:M2:M3:M4)") . "' " .
+                       "value='" . attr($modifier) . "' size='" . attr($code_types[$codetype]['mod']) . "'></td>\n";
+                } else {
+                    echo "  <td class='billcell'>&nbsp;</td>\n";
+                }
+            }
+
+            if (fees_are_used()) {
+                if ($codetype == 'COPAY' || $code_types[$codetype]['fee'] || $fee != 0) {
+                    if ($price_levels_are_used) {
+                        echo "  <td class='billcell' align='center'>";
+                        echo $fs->genPriceLevelSelect("bill[$lino][pricelevel]", ' ', $li['hidden']['codes_id'], '', $pricelevel);
+                        echo "</td>\n";
+                    }
+
+                    echo "  <td class='billcell' align='right'>" .
+                    "<input type='text' name='bill[$lino][price]' " .
+                    "value='" . attr($li['price']) . "' size='6' onchange='setSaveAndClose()'";
+                    if (acl_check('acct', 'disc')) {
+                        echo " style='text-align:right'";
+                    } else {
+                        echo " style='text-align:right;background-color:transparent' readonly";
+                    }
+
+                    echo "></td>\n";
+
+                    echo "  <td class='billcell' align='center'>";
+                    if ($codetype != 'COPAY') {
+                        echo "<input type='text' name='bill[" . attr($lino) . "][units]' " .
+                        "value='" . attr($li['units']) . "' size='2' style='text-align:right'>";
+                    } else {
+                        echo "<input type='hidden' name='bill[" . attr($lino) . "][units]' value='" . attr($li['units']) . "'>";
+                    }
+
+                    echo "</td>\n";
+
+                    if ($code_types[$codetype]['just'] || $li['justify']) {
+                        echo "  <td class='billcell' align='center'$justifystyle>";
+                        echo "<select name='bill[" . attr($lino) . "][justify]' onchange='setJustify(this)'>";
+                        echo "<option value='" . attr($li['justify']) . "'>" . text($li['justify']) . "</option></select>";
+                        echo "</td>\n";
+                        $justinit .= "setJustify(f['bill[" . attr($lino) . "][justify]']);\n";
+                    } else {
+                        echo "  <td class='billcell'$justifystyle>&nbsp;</td>\n";
+                    }
+                } else {
+                    if ($price_levels_are_used) {
+                        echo "  <td class='billcell'>&nbsp;</td>\n";
+                    }
+
+                    echo "  <td class='billcell'>&nbsp;</td>\n";
+                    echo "  <td class='billcell'>&nbsp;</td>\n";
+                    echo "  <td class='billcell'$justifystyle>&nbsp;</td>\n"; // justify
+                }
+            }
+
+            // Provider drop-list for this line.
+            echo "  <td class='billcell' align='center' $liprovstyle>";
+            echo $fs->genProviderSelect("bill[$lino][provid]", '-- '.xl("Default").' --', $li['provid']);
+            echo "</td>\n";
+
+            if ($code_types[$codetype]['claim'] && !$code_types[$codetype]['diag']) {
+                echo "  <td class='billcell' align='center'$usbillstyle><input type='text' name='bill[" . attr($lino) . "][notecodes]' " .
+                "value='" . text($li['notecodes']) . "' maxlength='10' size='8' /></td>\n";
+            } else {
+                echo "  <td class='billcell' align='center'$usbillstyle></td>\n";
+            }
+
+            echo "  <td class='billcell' align='center'$usbillstyle><input type='checkbox' name='bill[".attr($lino) . "][auth]' " .
+            "value='1'" . ($li['auth'] ? " checked" : "") . " /></td>\n";
+
+            if ($GLOBALS['gbl_auto_create_rx']) {
+                echo "  <td class='billcell' align='center'>&nbsp;</td>\n";   // KHY: May need to confirm proper location of this cell
+            }
+
+            echo "  <td class='billcell' align='center'><input type='checkbox' name='bill[" . attr($lino) . "][del]' " .
+            "value='1'" . ($li['del'] ? " checked" : "") . " /></td>\n";
+        }
+
+        echo " </tr>\n";
+
+        // If NDC info exists or may be required, add a line for it.
+        if (isset($li['ndcnum'])) {
+            echo " <tr>\n";
+            echo "  <td class='billcell' colspan='2'>&nbsp;</td>\n";
+            echo "  <td class='billcell' colspan='6'>&nbsp;NDC:&nbsp;";
+            echo "<input type='text' name='bill[" . attr($lino) . "][ndcnum]' value='" . attr($li['ndcnum']) . "' " .
+            "size='11' style='background-color:transparent'>";
+            echo " &nbsp;Qty:&nbsp;";
+            echo "<input type='text' name='bill[" . attr($lino) . "][ndcqty]' value='" . attr($li['ndcqty']) . "' " .
+            "size='3' style='background-color:transparent;text-align:right'>";
+            echo " ";
+            echo "<select name='bill[" . attr($lino) . "][ndcuom]' style='background-color:transparent'>";
+            foreach ($fs->ndc_uom_choices as $key => $value) {
+                echo "<option value='" . attr($key) . "'";
+                if ($key == $li['ndcuom']) {
+                    echo " selected";
+                }
+
+                echo ">" . text($value) . "</option>";
+            }
+
+            echo "</select>";
+            echo "</td>\n";
+            echo " </tr>\n";
+        } else if (!empty($li['ndc_info'])) {
+            echo " <tr>\n";
+            echo "  <td class='billcell' colspan='2'>&nbsp;</td>\n";
+            echo "  <td class='billcell' colspan='6'>&nbsp;" . xlt("NDC Data") . ": " . text($li['ndc_info']) . "</td>\n";
+            echo " </tr>\n";
+        }
     }
-    echo " <tr>\n";
-    echo "  <td class='billcell' colspan='2'>&nbsp;</td>\n";
-    echo "  <td class='billcell' colspan='6'>&nbsp;NDC:&nbsp;";
-    echo "<input type='text' name='bill[".attr($lino)."][ndcnum]' value='" . attr($ndcnum) . "' " .
-      "size='11' style='background-color:transparent'>";
-    echo " &nbsp;Qty:&nbsp;";
-    echo "<input type='text' name='bill[".attr($lino)."][ndcqty]' value='" . attr($ndcqty) . "' " .
-      "size='3' style='background-color:transparent;text-align:right'>";
-    echo " ";
-    echo "<select name='bill[".attr($lino)."][ndcuom]' style='background-color:transparent'>";
-    foreach ($ndc_uom_choices as $key => $value) {
-      echo "<option value='" . attr($key) . "'";
-      if ($key == $ndcuom) echo " selected";
-      echo ">" . text($value) . "</option>";
-    }
-    echo "</select>";
-    echo "</td>\n";
-    echo " </tr>\n";
-  }
-  else if ($ndc_info) {
-    echo " <tr>\n";
-    echo "  <td class='billcell' colspan='2'>&nbsp;</td>\n";
-    echo "  <td class='billcell' colspan='6'>&nbsp;" . xlt("NDC Data") . ": " . text($ndc_info) . "</td>\n";
-    echo " </tr>\n";
-  }
-
-  // For IPPF.  Track contraceptive services.
-  if (!$del) $contraception |= contraceptionClass($codetype, $code);
-
-  if ($fee != 0) $hasCharges = true;
 }
 
-// This writes a product (drug_sales) line item to the output page.
+// Write all product lines to the web form.
 //
-function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
-  $fee = NULL, $sale_id = 0, $billed = FALSE)
+function echoProductLines()
 {
-  global $code_types, $ndc_applies, $pid, $usbillstyle, $hasCharges;
+    global $code_types, $usbillstyle, $liprovstyle, $justifystyle, $fs, $price_levels_are_used;
 
-  $drow = sqlQuery("SELECT name FROM drugs WHERE drug_id = ?", array($drug_id) );
-  $code_text = $drow['name'];
+    foreach ($fs->productitems as $lino => $li) {
+        $drug_id      = $li['hidden']['drug_id'];
+        $selector     = $li['hidden']['selector'];
+        $sale_id      = $li['hidden']['sale_id'];
+        $billed       = $li['hidden']['billed'];
+        $fee          = $li['fee'];
+        $price        = $li['price'];
+        $pricelevel   = $li['pricelevel'];
+        $units        = $li['units'];
+        $del          = $li['del'];
+        $warehouse_id = $li['warehouse'];
+        $rx           = $li['rx'];
 
-  $fee = sprintf('%01.2f', $fee);
-  if (empty($units)) $units = 1;
-  $units = max(1, intval($units));
-  // We put unit price on the screen, not the total line item fee.
-  $price = $fee / $units;
-  $strike1 = ($sale_id && $del) ? "<strike>" : "";
-  $strike2 = ($sale_id && $del) ? "</strike>" : "";
-  echo " <tr>\n";
-  echo "  <td class='billcell'>{$strike1}" . xlt("Product") . "$strike2";
-  echo "<input type='hidden' name='prod[".attr($lino)."][sale_id]' value='" . attr($sale_id) . "'>";
-  echo "<input type='hidden' name='prod[".attr($lino)."][drug_id]' value='" . attr($drug_id) . "'>";
-  echo "<input type='hidden' name='prod[".attr($lino)."][billed]' value='" . attr($billed) . "'>";
-  echo "</td>\n";
-  echo "  <td class='billcell'>$strike1" . text($drug_id) . "$strike2</td>\n";
-  if (modifiers_are_used(true)) {
-    echo "  <td class='billcell'>&nbsp;</td>\n";
-  }
-  if ($billed) {
-    if (fees_are_used()) {
-      echo "  <td class='billcell' align='right'>" . text(oeFormatMoney($price)) . "</td>\n";
-      echo "  <td class='billcell' align='center'>" . text($units) . "</td>\n";
-    }
-    if (justifiers_are_used()) {
-      echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // justify
-    }
-    echo "  <td class='billcell' align='center'>&nbsp;</td>\n";             // provider
-    echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // auth
-    echo "  <td class='billcell' align='center'><input type='checkbox'" .   // del
-      " disabled /></td>\n";
-  } else {
-    if (fees_are_used()) {
-      echo "  <td class='billcell' align='right'>" .
-        "<input type='text' name='prod[".attr($lino)."][price]' " .
-        "value='" . attr($price) . "' size='6'";
-      if (acl_check('acct','disc'))
-        echo " style='text-align:right'";
-      else
-        echo " style='text-align:right;background-color:transparent' readonly";
-      echo "></td>\n";
-      echo "  <td class='billcell' align='center'>";
-      echo "<input type='text' name='prod[".attr($lino)."][units]' " .
-        "value='" . attr($units) . "' size='2' style='text-align:right'>";
-      echo "</td>\n";
-    }
-    if (justifiers_are_used()) {
-      echo "  <td class='billcell'$usbillstyle>&nbsp;</td>\n"; // justify
-    }
-    echo "  <td class='billcell' align='center'>&nbsp;</td>\n"; // provider
-    echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // auth
-    echo "  <td class='billcell' align='center'><input type='checkbox' name='prod[".attr($lino)."][del]' " .
-      "value='1'" . ($del ? " checked" : "") . " /></td>\n";
-  }
+        $strike1 = ($sale_id && $del) ? "<strike>" : "";
+        $strike2 = ($sale_id && $del) ? "</strike>" : "";
 
-  echo "  <td class='billcell'>$strike1" . text($code_text) . "$strike2</td>\n";
-  echo " </tr>\n";
+        echo " <tr>\n";
+        echo "  <td class='billcell'>{$strike1}" . xlt("Product") . "$strike2";
+        echo "<input type='hidden' name='prod[" . attr($lino) . "][sale_id]' value='" . attr($sale_id) . "'>";
+        echo "<input type='hidden' name='prod[" . attr($lino) . "][drug_id]' value='" . attr($drug_id) . "'>";
+        echo "<input type='hidden' name='prod[" . attr($lino) . "][selector]' value='" . attr($selector) . "'>";
+        echo "<input type='hidden' name='prod[" . attr($lino) . "][billed]' value='" . attr($billed) . "'>";
+        if (isset($li['hidden']['method'])) {
+            echo "<input type='hidden' name='prod[$lino][method]' value='"   . attr($li['hidden']['method'  ]) . "' />";
+            echo "<input type='hidden' name='prod[$lino][methtype]' value='" . attr($li['hidden']['methtype']) . "' />";
+        }
 
-  if ($fee != 0) $hasCharges = true;
+        echo "</td>\n";
+
+        echo "  <td class='billcell'>$strike1" . text($drug_id) . "$strike2</td>\n";
+
+        echo "  <td class='billcell'>$strike1" . text($li['code_text']) . "$strike2</td>\n";
+
+        if (modifiers_are_used(true)) {
+            echo "  <td class='billcell'>&nbsp;</td>\n";
+        }
+
+        if ($billed) {
+            if (fees_are_used()) {
+                if ($price_levels_are_used) {
+                    echo "  <td class='billcell' align='center'>";
+                    echo $fs->genPriceLevelSelect('', ' ', $drug_id, $selector, $pricelevel, true);
+                    echo "</td>\n";
+                }
+
+                echo "  <td class='billcell' align='right'>" . text(oeFormatMoney($price)) . "</td>\n";
+                echo "  <td class='billcell' align='center'>" . text($units) . "</td>\n";
+            }
+
+            if (justifiers_are_used()) { // KHY Evaluate proper position/usage of if justifiers
+                echo "  <td class='billcell' align='center'$justifystyle>&nbsp;</td>\n"; // justify
+            }
+
+            // Show warehouse for this line.
+            echo "  <td class='billcell' align='center' $liprovstyle>";
+            echo $fs->genWarehouseSelect('', ' ', $warehouse_id, true, $drug_id, $sale_id > 0);
+            echo "</td>\n";
+            //
+            echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // note codes
+            echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // auth
+            if ($GLOBALS['gbl_auto_create_rx']) {
+                echo "  <td class='billcell' align='center'><input type='checkbox'" . // rx
+                " disabled /></td>\n";
+            }
+
+            echo "  <td class='billcell' align='center'><input type='checkbox'" .   // del
+            " disabled /></td>\n";
+        } else { // not billed
+            if (fees_are_used()) {
+                if ($price_levels_are_used) {
+                    echo "  <td class='billcell' align='center'>";
+                    echo $fs->genPriceLevelSelect("prod[$lino][pricelevel]", ' ', $drug_id, $selector, $pricelevel);
+                    echo "</td>\n";
+                }
+
+                echo "  <td class='billcell' align='right'>" .
+                "<input type='text' name='prod[" . attr($lino) . "][price]' " .
+                "value='" . attr($price) . "' size='6' onchange='setSaveAndClose()'";
+                if (acl_check('acct', 'disc')) {
+                    echo " style='text-align:right'";
+                } else {
+                    echo " style='text-align:right;background-color:transparent' readonly";
+                }
+
+                echo "></td>\n";
+                echo "  <td class='billcell' align='center'>";
+                echo "<input type='text' name='prod[" . attr($lino) . "][units]' " .
+                "value='" . attr($units) . "' size='2' style='text-align:right'>";
+                echo "</td>\n";
+            }
+
+            if (justifiers_are_used()) {
+                echo "  <td class='billcell'$justifystyle>&nbsp;</td>\n"; // justify
+            }
+
+            // Generate warehouse selector if there is a choice of warehouses.
+            echo "  <td class='billcell' align='center' $liprovstyle>";
+            echo $fs->genWarehouseSelect("prod[$lino][warehouse]", ' ', $warehouse_id, false, $drug_id, $sale_id > 0);
+            echo "</td>\n";
+            //
+            echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // note codes
+            echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // auth
+            if ($GLOBALS['gbl_auto_create_rx']) {
+                echo "  <td class='billcell' align='center'>" .
+                "<input type='checkbox' name='prod[$lino][rx]' value='1'" .
+                ($rx ? " checked" : "") . " /></td>\n";
+            }
+
+            echo "  <td class='billcell' align='center'><input type='checkbox' name='prod[" . attr($lino) . "][del]' " .
+            "value='1'" . ($del ? " checked" : "") . " /></td>\n";
+        }
+
+        echo " </tr>\n";
+    }
 }
 
-// Build a drop-down list of providers.  This includes users who
-// have the word "provider" anywhere in their "additional info"
-// field, so that we can define providers (for billing purposes)
-// who do not appear in the calendar.
-//
-function genProviderSelect($selname, $toptext, $default=0, $disabled=false) {
-  $query = "SELECT id, lname, fname FROM users WHERE " .
-    "( authorized = 1 OR info LIKE '%provider%' ) AND username != '' " .
-    "AND active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
-    "ORDER BY lname, fname";
-  $res = sqlStatement($query);
-  echo "   <select name='" . attr($selname) . "'";
-  if ($disabled) echo " disabled";
-  echo ">\n";
-  echo "    <option value=''>" . text($toptext) . "\n";
-  while ($row = sqlFetchArray($res)) {
-    $provid = $row['id'];
-    echo "    <option value='" . attr($provid) . "'";
-    if ($provid == $default) echo " selected";
-    echo ">" . text($row['lname'] . ", " . $row['fname']) . "\n";
-  }
-  echo "   </select>\n";
-}
-
-// This is just for IPPF, to indicate if the visit includes contraceptive services.
-$contraception = 0;
-
-// Possible units of measure for NDC drug quantities.
-//
-$ndc_uom_choices = array(
-  'ML' => 'ML',
-  'GR' => 'Grams',
-  'ME' => 'Milligrams',
-  'F2' => 'I.U.',
-  'UN' => 'Units'
-);
+$fs = new FeeSheetHtml();
 
 // $FEE_SHEET_COLUMNS should be defined in codes.php.
-if (empty($FEE_SHEET_COLUMNS)) $FEE_SHEET_COLUMNS = 2;
-
-$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
-
-// Update price level in patient demographics.
-if (!empty($_POST['pricelevel'])) {
-  sqlStatement("UPDATE patient_data SET pricelevel = ? WHERE pid = ?", array($_POST['pricelevel'],$pid) );
+if (empty($FEE_SHEET_COLUMNS)) {
+    $FEE_SHEET_COLUMNS = 2;
 }
 
-// Get some info about this visit.
-$visit_row = sqlQuery("SELECT fe.date, opc.pc_catname " .
-  "FROM form_encounter AS fe " .
-  "LEFT JOIN openemr_postcalendar_categories AS opc ON opc.pc_catid = fe.pc_catid " .
-  "WHERE fe.pid = ? AND fe.encounter = ? LIMIT 1", array($pid,$encounter) );
-$visit_date = substr($visit_row['date'], 0, 10);
+// Update price level in patient demographics if it's changed.
+if (!empty($_POST['pricelevel'])) {
+    $fs->updatePriceLevel($_POST['pricelevel']);
+}
+
+$current_checksum = $fs->visitChecksum();
+// It's important to look for a checksum mismatch even if we're just refreshing
+// the display, otherwise the error goes undetected on a refresh-then-save.
+if (isset($_POST['form_checksum'])) {
+    if ($_POST['form_checksum'] != $current_checksum) {
+        $alertmsg = xl('Someone else has just changed this visit. Please cancel this page and try again.');
+        $comment = "CHECKSUM ERROR, expecting '{$_POST['form_checksum']}'";
+        newEvent("checksum", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $comment, $pid);
+    }
+}
+
+if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
+    $alertmsg = $fs->checkInventory($_POST['prod']);
+}
 
 // If Save or Save-and-Close was clicked, save the new and modified billing
-// lines; then if no error, redirect to $returnurl.
+// lines; then if no error, redirect to $GLOBALS['form_exit_url'].
 //
-if ($_POST['bn_save'] || $_POST['bn_save_close']) {
-  $main_provid = 0 + $_POST['ProviderID'];
-  $main_supid  = 0 + $_POST['SupervisorID'];
-  if ($main_supid == $main_provid) $main_supid = 0;
-  $default_warehouse = $_POST['default_warehouse'];
+if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'] || $_POST['bn_save_stay'])) {
+    $main_provid = 0 + $_POST['ProviderID'];
+    $main_supid  = 0 + $_POST['SupervisorID'];
 
-  $bill = $_POST['bill'];
-  $copay_update = FALSE;
-  $update_session_id = '';
-  $ct0 = '';//takes the code type of the first fee type code type entry from the fee sheet, against which the copay is posted
-  $cod0 = '';//takes the code of the first fee type code type entry from the fee sheet, against which the copay is posted
-  $mod0 = '';//takes the modifier of the first fee type code type entry from the fee sheet, against which the copay is posted
-  for ($lino = 1; $bill["$lino"]['code_type']; ++$lino) {
-    $iter = $bill["$lino"];
-    $code_type = $iter['code_type'];
-    $code      = $iter['code'];
-    $del       = $iter['del'];
+    $fs->save(
+        $_POST['bill'],
+        $_POST['prod'],
+        $main_provid,
+        $main_supid,
+        $_POST['default_warehouse'],
+        $_POST['bn_save_close']
+    );
 
-    // Skip disabled (billed) line items.
-    if ($iter['billed']) continue;
-
-    $id        = $iter['id'];
-    $modifier  = trim($iter['mod']);
-    if( !($cod0) && ($code_types[$code_type]['fee'] == 1) ){
-      $mod0 = $modifier;
-      $cod0 = $code;
-      $ct0 = $code_type;
+    if ($_POST['bn_save_stay']) {
+        $current_checksum = $fs->visitChecksum();
     }
-    $units     = max(1, intval(trim($iter['units'])));
-    $fee       = sprintf('%01.2f',(0 + trim($iter['price'])) * $units);
-    
-    if($code_type == 'COPAY'){
-      if($id == ''){
-        //adding new copay from fee sheet into ar_session and ar_activity tables
-        if($fee < 0){
-          $fee = $fee * -1;
-        }
-        $session_id = idSqlStatement("INSERT INTO ar_session(payer_id,user_id,pay_total,payment_type,description,".
-          "patient_id,payment_method,adjustment_code,post_to_date) VALUES('0',?,?,'patient','COPAY',?,'','patient_payment',now())",
-          array($_SESSION['authId'],$fee,$pid));
-        SqlStatement("INSERT INTO ar_activity (pid,encounter,code_type,code,modifier,payer_type,post_time,post_user,session_id,".
-          "pay_amount,account_code) VALUES (?,?,?,?,?,0,now(),?,?,?,'PCP')",
-          array($pid,$encounter,$ct0,$cod0,$mod0,$_SESSION['authId'],$session_id,$fee));
-      }else{
-        //editing copay saved to ar_session and ar_activity
-        if($fee < 0){
-          $fee = $fee * -1;
-        }
-        $session_id = $id;
-        $res_amount = sqlQuery("SELECT pay_amount FROM ar_activity WHERE pid=? AND encounter=? AND session_id=?",
-          array($pid,$encounter,$session_id));
-        if($fee != $res_amount['pay_amount']){
-          sqlStatement("UPDATE ar_session SET user_id=?,pay_total=?,modified_time=now(),post_to_date=now() WHERE session_id=?",
-            array($_SESSION['authId'],$fee,$session_id));
-          sqlStatement("UPDATE ar_activity SET code_type=?, code=?, modifier=?, post_user=?, post_time=now(),".
-            "pay_amount=?, modified_time=now() WHERE pid=? AND encounter=? AND account_code='PCP' AND session_id=?",
-            array($ct0,$cod0,$mod0,$_SESSION['authId'],$fee,$pid,$encounter,$session_id));
-        }
-      }
-      if(!$cod0){
-        $copay_update = TRUE;
-        $update_session_id = $session_id;
-      }
-      continue;
-    }
-    $justify   = trim($iter['justify']);
-    $notecodes = trim($iter['notecodes']);
-    if ($justify) $justify = str_replace(',', ':', $justify) . ':';
-    // $auth      = $iter['auth'] ? "1" : "0";
-    $auth      = "1";
-    $provid    = 0 + $iter['provid'];
-
-    $ndc_info = '';
-    if ($iter['ndcnum']) {
-    $ndc_info = 'N4' . trim($iter['ndcnum']) . '   ' . $iter['ndcuom'] .
-      trim($iter['ndcqty']);
-    }
-
-    // If the item is already in the database...
-    if ($id) {
-      if ($del) {
-        deleteBilling($id);
-      }
-      else {
-        // authorizeBilling($id, $auth);
-        sqlQuery("UPDATE billing SET code = ?, " .
-          "units = ?, fee = ?, modifier = ?, " .
-          "authorized = ?, provider_id = ?, " .
-          "ndc_info = ?, justify = ?, notecodes = ? " .
-          "WHERE " .
-          "id = ? AND billed = 0 AND activity = 1", array($code,$units,$fee,$modifier,$auth,$provid,$ndc_info,$justify,$notecodes,$id) );
-      }
-    }
-
-    // Otherwise it's a new item...
-    else if (! $del) {
-      $code_text = lookup_code_descriptions($code_type.":".$code);
-      addBilling($encounter, $code_type, $code, $code_text, $pid, $auth,
-        $provid, $modifier, $units, $fee, $ndc_info, $justify, 0, $notecodes);
-    }
-  } // end for
-  
-  //if modifier is not inserted during loop update the record using the first
-  //non-empty modifier and code
-  if($copay_update == TRUE && $update_session_id != '' && $mod0 != ''){
-    sqlStatement("UPDATE ar_activity SET code_type=?, code=?, modifier=?".
-      " WHERE pid=? AND encounter=? AND account_code='PCP' AND session_id=?",
-      array($ct0,$cod0,$mod0,$pid,$encounter,$update_session_id));
-  }
-
-  // Doing similarly to the above but for products.
-  $prod = $_POST['prod'];
-  for ($lino = 1; $prod["$lino"]['drug_id']; ++$lino) {
-    $iter = $prod["$lino"];
-
-    if (!empty($iter['billed'])) continue;
-
-    $drug_id   = $iter['drug_id'];
-    $sale_id   = $iter['sale_id']; // present only if already saved
-    $units     = max(1, intval(trim($iter['units'])));
-    $fee       = sprintf('%01.2f',(0 + trim($iter['price'])) * $units);
-    $del       = $iter['del'];
-
-    // If the item is already in the database...
-    if ($sale_id) {
-      if ($del) {
-        // Zero out this sale and reverse its inventory update.  We bring in
-        // drug_sales twice so that the original quantity can be referenced
-        // unambiguously.
-        sqlStatement("UPDATE drug_sales AS dsr, drug_sales AS ds, " .
-          "drug_inventory AS di " .
-          "SET di.on_hand = di.on_hand + dsr.quantity, " .
-          "ds.quantity = 0, ds.fee = 0 WHERE " .
-          "dsr.sale_id = ? AND ds.sale_id = dsr.sale_id AND " .
-          "di.inventory_id = ds.inventory_id", array($sale_id) );
-        // And delete the sale for good measure.
-        sqlStatement("DELETE FROM drug_sales WHERE sale_id = ?", array($sale_id) );
-      }
-      else {
-        // Modify the sale and adjust inventory accordingly.
-        $query = "UPDATE drug_sales AS dsr, drug_sales AS ds, " .
-          "drug_inventory AS di " .
-          "SET di.on_hand = di.on_hand + dsr.quantity - " . add_escape_custom($units) . ", " .
-          "ds.quantity = ?, ds.fee = ?, " .
-          "ds.sale_date = ? WHERE " .
-          "dsr.sale_id = ? AND ds.sale_id = dsr.sale_id AND " .
-          "di.inventory_id = ds.inventory_id";
-        sqlStatement($query, array($units,$fee,$visit_date,$sale_id) );
-      }
-    }
-
-    // Otherwise it's a new item...
-    else if (! $del) {
-      $sale_id = sellDrug($drug_id, $units, $fee, $pid, $encounter, 0,
-        $visit_date, '', $default_warehouse);
-      if (!$sale_id) die(xlt("Insufficient inventory for product ID") . " \"" . text($drug_id) . "\".");
-    }
-  } // end for
-
-  // Set the main/default service provider in the new-encounter form.
-  /*******************************************************************
-  sqlStatement("UPDATE forms, users SET forms.user = users.username WHERE " .
-    "forms.pid = '$pid' AND forms.encounter = '$encounter' AND " .
-    "forms.formdir = 'newpatient' AND users.id = '$provid'");
-  *******************************************************************/
-  sqlStatement("UPDATE form_encounter SET provider_id = ?, " .
-    "supervisor_id = ?  WHERE " .
-    "pid = ? AND encounter = ?", array($main_provid,$main_supid,$pid,$encounter) );
-
-  // Save-and-Close is currently IPPF-specific but might be more generally
-  // useful.  It provides the ability to mark an encounter as billed
-  // directly from the Fee Sheet, if there are no charges.
-  if ($_POST['bn_save_close']) {
-    $tmp1 = sqlQuery("SELECT SUM(ABS(fee)) AS sum FROM drug_sales WHERE " .
-      "pid = ? AND encounter = ?", array($pid,$encounter) );
-    $tmp2 = sqlQuery("SELECT SUM(ABS(fee)) AS sum FROM billing WHERE " .
-      "pid = ? AND encounter = ? AND billed = 0 AND " .
-      "activity = 1", array($pid,$encounter) );
-    if ($tmp1['sum'] + $tmp2['sum'] == 0) {
-      sqlStatement("update drug_sales SET billed = 1 WHERE " .
-        "pid = ? AND encounter = ? AND billed = 0", array($pid,$encounter));
-      sqlStatement("UPDATE billing SET billed = 1, bill_date = NOW() WHERE " .
-        "pid = ? AND encounter = ? AND billed = 0 AND " .
-        "activity = 1", array($pid,$encounter));
-    }
-    else {
-      // Would be good to display an error message here... they clicked
-      // Save and Close but the close could not be done.  However the
-      // framework does not provide an easy way to do that.
-    }
-  }
-
-  // More IPPF stuff.
-  if (!empty($_POST['contrastart'])) {
-    $contrastart = $_POST['contrastart'];
-    sqlStatement("UPDATE patient_data SET contrastart = ?" .
-      " WHERE pid = ?", array($contrastart,$pid) );
-  }
 
   // Note: Taxes are computed at checkout time (in pos_checkout.php which
   // also posts to SL).  Currently taxes with insurance claims make no sense,
   // so for now we'll ignore tax computation in the insurance billing logic.
 
-  formHeader("Redirecting....");
-  formJump();
-  formFooter();
-  exit;
+    if ($_POST['running_as_ajax']) {
+        // In the case of running as an AJAX handler, we need to return this same
+        // form with an updated checksum to properly support the invoking logic.
+        // See review/js/fee_sheet_core.js for that logic.
+        $current_checksum = $fs->visitChecksum(true);
+        // Also remove form data for the newly entered lines so they are not
+        // duplicated from the database.
+        unset($_POST['bill']);
+        unset($_POST['prod']);
+    } elseif (!isset($_POST['bn_save_stay'])) { // not running as ajax
+        // If appropriate, update the status of the related appointment to
+        // "In exam room".
+        updateAppointmentStatus($fs->pid, $fs->visit_date, '<');
+
+        // More Family Planning stuff.
+        if (isset($_POST['ippfconmeth'])) {
+            $tmp_form_id = $fs->doContraceptionForm($_POST['ippfconmeth'], $_POST['newmauser'], $main_provid);
+            if ($tmp_form_id) {
+                // Contraceptive method does not match what is in an existing Contraception
+                // form for this visit, or there is no such form.  Open the form.
+                formJump("{$GLOBALS['rootdir']}/patient_file/encounter/view_form.php" .
+                "?formname=LBFccicon&id=" . ($tmp_form_id < 0 ? 0 : $tmp_form_id));
+                formFooter();
+                exit;
+            }
+        }
+
+        if ($rapid_data_entry || ($_POST['bn_save_close'] && $_POST['form_has_charges'])) {
+            // In rapid data entry mode or if "Save and Checkout" was clicked,
+            // we go directly to the Checkout page.
+            formJump("{$GLOBALS['rootdir']}/patient_file/pos_checkout.php?framed=1" .
+            "&ptid={$fs->pid}&enid={$fs->encounter}&rde=$rapid_data_entry");
+        } else {
+            // Otherwise return to the normal encounter summary frameset.
+            //
+            formHeader("Redirecting....");
+            formJump();
+        }
+
+        formFooter();
+        exit;
+    } // end not running as ajax
+} // end save or save-and-close
+
+// Handle reopen request.  In that case no other changes will be saved.
+// If there was a checkout this will undo it.
+if (!$alertmsg && $_POST['bn_reopen']) {
+    doVoid($fs->pid, $fs->encounter, true);
+    $current_checksum = $fs->visitChecksum();
+  // Remove the line items so they are refreshed from the database on redisplay.
+    unset($_POST['bill']);
+    unset($_POST['prod']);
 }
 
-$billresult = getBillingByEncounter($pid, $encounter, "*");
+$billresult = getBillingByEncounter($fs->pid, $fs->encounter, "*");
 ?>
 <html>
 <head>
@@ -628,43 +556,82 @@ $billresult = getBillingByEncounter($pid, $encounter, "*");
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <style>
 .billcell { font-family: sans-serif; font-size: 10pt }
+.ui-autocomplete { max-height: 250px; max-width: 350px; overflow-y: auto; overflow-x: hidden; }
 </style>
-<script language="JavaScript">
+<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-12-1/themes/base/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+<script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/knockout-3-4-0/dist/knockout.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
+<script>
+var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 var diags = new Array();
 
 <?php
 if ($billresult) {
-  foreach ($billresult as $iter) {
-    genDiagJS($iter["code_type"], trim($iter["code"]));
-  }
+    foreach ($billresult as $iter) {
+        genDiagJS($iter["code_type"], trim($iter["code"]));
+    }
 }
+
 if ($_POST['bill']) {
-  foreach ($_POST['bill'] as $iter) {
-    if ($iter["del"]) continue; // skip if Delete was checked
-    if ($iter["id"])  continue; // skip if it came from the database
-    genDiagJS($iter["code_type"], $iter["code"]);
-  }
+    foreach ($_POST['bill'] as $iter) {
+        if ($iter["del"]) {
+            continue; // skip if Delete was checked
+        }
+
+        if ($iter["id"]) {
+            continue; // skip if it came from the database
+        }
+
+        genDiagJS($iter["code_type"], $iter["code"]);
+    }
 }
+
 if ($_POST['newcodes']) {
-  $arrcodes = explode('~', $_POST['newcodes']);
-  foreach ($arrcodes as $codestring) {
-    if ($codestring === '') continue;
-    $arrcode = explode('|', $codestring);
-    list($code, $modifier) = explode(":", $arrcode[1]);
-    genDiagJS($arrcode[0], $code);
-  }
+    $arrcodes = explode('~', $_POST['newcodes']);
+    foreach ($arrcodes as $codestring) {
+        if ($codestring === '') {
+            continue;
+        }
+
+        $arrcode = explode('|', $codestring);
+        list($code, $modifier) = explode(":", $arrcode[1]);
+        genDiagJS($arrcode[0], $code);
+    }
 }
 ?>
+function reinitForm(){
+    var cache = {};
+    $( ".revcode" ).autocomplete({
+        minLength: 1,
+        source: function( request, response ) {
+            var term = request.term;
+            request.code_group = "revenue_code";
+            if ( term in cache ) {
+              response( cache[ term ] );
+              return;
+            }
+            $.getJSON( "<?php echo $GLOBALS['web_root'] ?>/interface/billing/ub04_helpers.php", request, function( data, status, xhr ) {
+              cache[ term ] = data;
+              response( data );
+            })
+        }
+    }).dblclick(function(event) {
+        $(this).autocomplete('search'," ");
+       });
+}
 
 // This is invoked by <select onchange> for the various dropdowns,
 // including search results.
 function codeselect(selobj) {
- var i = selobj.selectedIndex;
- if (i > 0) {
+ var i = selobj ? selobj.selectedIndex : -1;
+ if (i) {
   top.restoreSession();
   var f = document.forms[0];
-  f.newcodes.value = selobj.options[i].value;
+  if (selobj) f.newcodes.value = selobj.options[i].value;
   f.submit();
  }
 }
@@ -676,44 +643,39 @@ function copayselect() {
  f.submit();
 }
 
+<?php echo $fs->jsLineItemValidation(); ?>
+
 function validate(f) {
- for (var lino = 1; f['bill['+lino+'][code_type]']; ++lino) {
-  var pfx = 'bill['+lino+']';
-  if (f[pfx+'[ndcnum]'] && f[pfx+'[ndcnum]'].value) {
-   // Check NDC number format.
-   var ndcok = true;
-   var ndc = f[pfx+'[ndcnum]'].value;
-   var a = ndc.split('-');
-   if (a.length != 3) {
-    ndcok = false;
-   }
-   else if (a[0].length < 1 || a[1].length < 1 || a[2].length < 1 ||
-    a[0].length > 5 || a[1].length > 4 || a[2].length > 2) {
-    ndcok = false;
-   }
-   else {
-    for (var i = 0; i < 3; ++i) {
-     for (var j = 0; j < a[i].length; ++j) {
-      var c = a[i].charAt(j);
-      if (c < '0' || c > '9') ndcok = false;
-     }
+ if (f.bn_reopen) {
+  var reopening = f.bn_reopen.clicked;
+  var voiding = reopening && f.bn_reopen.clicked == 2;
+  f.bn_reopen.clicked = false;
+  if (reopening) {
+   if (voiding) {
+    if (!confirm('<?php echo xls('Re-opening this visit will cause a void. Payment information will need to be re-entered. Do you want to proceed?'); ?>')) {
+     return false;
     }
    }
-   if (!ndcok) {
-    alert('<?php echo addslashes(xl('Format incorrect for NDC')) ?> "' + ndc +
-     '", <?php echo addslashes(xl('should be like nnnnn-nnnn-nn')) ?>');
-    if (f[pfx+'[ndcnum]'].focus) f[pfx+'[ndcnum]'].focus();
-    return false;
-   }
-   // Check for valid quantity.
-   var qty = f[pfx+'[ndcqty]'].value - 0;
-   if (isNaN(qty) || qty <= 0) {
-    alert('<?php echo addslashes(xl('Quantity for NDC')) ?> "' + ndc +
-     '" <?php echo addslashes(xl('is not valid (decimal fractions are OK).')) ?>');
-    if (f[pfx+'[ndcqty]'].focus) f[pfx+'[ndcqty]'].focus();
-    return false;
-   }
+   top.restoreSession();
+   return true;
   }
+ }
+ var refreshing = false;
+ if (f.bn_refresh) {
+  refreshing = f.bn_refresh.clicked ? true : false;
+  f.bn_refresh.clicked = false;
+ }
+ if (f.bn_addmore) {
+  refreshing = refreshing || f.bn_addmore.clicked;
+  f.bn_addmore.clicked = false;
+ }
+ var searching = false;
+ if (f.bn_search) {
+  searching = f.bn_search.clicked ? true : false;
+  f.bn_search.clicked  = false;
+ }
+ if (!refreshing && !searching) {
+  if (!jsLineItemValidation(f)) return false;
  }
  top.restoreSession();
  return true;
@@ -750,11 +712,76 @@ function setJustify(seljust) {
  theopts[j++] = new Option('Clear','',false,false);
 }
 
+// Determine if there are any charges in this visit.
+function hasCharges() {
+ var f = document.forms[0];
+ for (var i = 0; i < f.elements.length; ++i) {
+  var elem = f.elements[i];
+  if (elem.name.indexOf('[price]') > 0) {
+   var fee = Number(elem.value);
+   if (!isNaN(fee) && fee != 0) return true;
+  }
+ }
+ return false;
+}
+
+// Function to check if there are any charges in the form, and to enable
+// or disable the Save and Close button accordingly.
+//
+function setSaveAndClose() {
+ var f = document.forms[0];
+ if (!f.bn_save_close) return;
+ if (hasCharges()) {
+  f.form_has_charges.value = '1';
+  f.bn_save_close.value = '<?php echo xla('Save and Checkout'); ?>';
+ }
+ else {
+  f.form_has_charges.value = '0';
+  f.bn_save_close.value = '<?php echo xla('Save and Close'); ?>';
+ }
+}
+
+// Open the add-event dialog.
+function newEvt() {
+ var f = document.forms[0];
+ var url = '../../main/calendar/add_edit_event.php?patientid=<?php echo urlencode($fs->pid); ?>';
+ if (f.ProviderID && f.ProviderID.value) {
+  url += '&userid=' + parseInt(f.ProviderID.value);
+ }
+ dlgopen(url, '_blank', 600, 300);
+ return false;
+}
+
+function warehouse_changed(sel) {
+ if (!confirm('<?php echo xls('Do you really want to change Warehouse?'); ?>')) {
+  // They clicked Cancel so reset selection to its default state.
+  for (var i = 0; i < sel.options.length; ++i) {
+   sel.options[i].selected = sel.options[i].defaultSelected;
+  }
+ }
+}
+
+// Invoked when a line item price level is changed.
+function pricelevel_changed(sel) {
+ var f = document.forms[0];
+ var prname = sel.name.replace('pricelevel', 'price');
+ if (f[prname]) {
+  var price = parseFloat(sel.options[sel.selectedIndex].id.substring(4));
+  if (isNaN(price)) price = 0;
+  f[prname].value = price;
+ }
+ else {
+  alert('<?php echo xls('Form element not found'); ?>: ' + prname);
+ }
+}
+
 </script>
+
 </head>
 
 <body class="body_top">
-<form method="post" action="<?php echo $rootdir; ?>/forms/fee_sheet/new.php"
+<form method="post" action="<?php echo $rootdir; ?>/forms/fee_sheet/new.php?<?php
+ echo "rde=" . urlencode($rapid_data_entry) . "&addmore=" . urlencode($add_more_items); ?>"
  onsubmit="return validate(this)">
 <span class="title"><?php echo xlt('Fee Sheet'); ?></span><br>
 <input type='hidden' name='newcodes' value=''>
@@ -762,11 +789,12 @@ function setJustify(seljust) {
 <center>
 
 <?php
-$isBilled = isEncounterBilled($pid, $encounter);
+$isBilled = !$add_more_items && isEncounterBilled($fs->pid, $fs->encounter);
 if ($isBilled) {
-  echo "<p><font color='green'>" . xlt("This encounter has been billed. If you need to change it, it must be re-opened.") . "</font></p>\n";
-}
-else { // the encounter is not yet billed
+    echo "<p><font color='green'>" .
+    xlt("This encounter has been billed. To make changes, re-open it or select Add More Items.") .
+    "</font></p>\n";
+} else { // the encounter is not yet billed
 ?>
 
 <table width='95%'>
@@ -778,76 +806,88 @@ $last_category = '';
 $res = sqlStatement("SELECT * FROM fee_sheet_options " .
   "ORDER BY fs_category, fs_option");
 while ($row = sqlFetchArray($res)) {
-  $fs_category = $row['fs_category'];
-  $fs_option   = $row['fs_option'];
-  $fs_codes    = $row['fs_codes'];
-  if($fs_category !== $last_category) {
-    endFSCategory();
-    $last_category = $fs_category;
-    ++$i;
-    echo ($i <= 1) ? " <tr>\n" : "";
-    echo "  <td width='50%' align='center' nowrap>\n";
-    echo "   <select style='width:96%' onchange='codeselect(this)'>\n";
-    echo "    <option value=''> " . text(substr($fs_category, 1)) . "</option>\n";
-  }
-  echo "    <option value='" . attr($fs_codes) . "'>" . text(substr($fs_option, 1)) . "</option>\n";
+    $fs_category = $row['fs_category'];
+    $fs_option   = $row['fs_option'];
+    $fs_codes    = $row['fs_codes'];
+    if ($fs_category !== $last_category) {
+        endFSCategory();
+        $last_category = $fs_category;
+        ++$i;
+        echo ($i <= 1) ? " <tr>\n" : "";
+        echo "  <td width='50%' align='center' nowrap>\n";
+        echo "   <select style='width:96%' onchange='codeselect(this)'>\n";
+        echo "    <option value=''> " . xlt(substr($fs_category, 1)) . "</option>\n";
+    }
+
+    echo "    <option value='" . attr($fs_codes) . "'>" . xlt(substr($fs_option, 1)) . "</option>\n";
 }
+
 endFSCategory();
 
 // Create drop-lists based on categories defined within the codes.
 $pres = sqlStatement("SELECT option_id, title FROM list_options " .
-  "WHERE list_id = 'superbill' ORDER BY seq");
+  "WHERE list_id = 'superbill' AND activity = 1 ORDER BY seq");
 while ($prow = sqlFetchArray($pres)) {
-  global $code_types;
-  ++$i;
-  echo ($i <= 1) ? " <tr>\n" : "";
-  echo "  <td width='50%' align='center' nowrap>\n";
-  echo "   <select style='width:96%' onchange='codeselect(this)'>\n";
-  echo "    <option value=''> " . text($prow['title']) . "\n";
-  $res = sqlStatement("SELECT code_type, code, code_text,modifier FROM codes " .
+    global $code_types;
+    ++$i;
+    echo ($i <= 1) ? " <tr>\n" : "";
+    echo "  <td width='50%' align='center' nowrap>\n";
+    echo "   <select style='width:96%' onchange='codeselect(this)'>\n";
+    echo "    <option value=''> " . text(xl_list_label($prow['title'])) . "\n";
+    $res = sqlStatement("SELECT code_type, code, code_text,modifier FROM codes " .
     "WHERE superbill = ? AND active = 1 " .
-    "ORDER BY code_text", array($prow['option_id']) );
-  while ($row = sqlFetchArray($res)) {
-    $ctkey = alphaCodeType($row['code_type']);
-    if ($code_types[$ctkey]['nofs']) continue;
-    echo "    <option value='" . attr($ctkey) . "|" .
-      attr($row['code']) . ':'. attr($row['modifier']) . "|'>" . text($row['code_text']) . "</option>\n";
-  }
-  echo "   </select>\n";
-  echo "  </td>\n";
-  if ($i >= $FEE_SHEET_COLUMNS) {
-    echo " </tr>\n";
-    $i = 0;
-  }
+    "ORDER BY code_text", array($prow['option_id']));
+    while ($row = sqlFetchArray($res)) {
+        $ctkey = $fs->alphaCodeType($row['code_type']);
+        if ($code_types[$ctkey]['nofs']) {
+            continue;
+        }
+
+        echo "    <option value='" . attr($ctkey) . "|" .
+        attr($row['code']) . ':'. attr($row['modifier']) . "|'>" . text($row['code_text']) . "</option>\n";
+    }
+
+    echo "   </select>\n";
+    echo "  </td>\n";
+    if ($i >= $FEE_SHEET_COLUMNS) {
+        echo " </tr>\n";
+        $i = 0;
+    }
 }
 
 // Create one more drop-list, for Products.
 if ($GLOBALS['sell_non_drug_products']) {
-  ++$i;
-  echo ($i <= 1) ? " <tr>\n" : "";
-  echo "  <td width='50%' align='center' nowrap>\n";
-  echo "   <select name='Products' style='width:96%' onchange='codeselect(this)'>\n";
-  echo "    <option value=''> " . xlt('Products') . "\n";
-  $tres = sqlStatement("SELECT dt.drug_id, dt.selector, d.name " .
+    ++$i;
+    echo ($i <= 1) ? " <tr>\n" : "";
+    echo "  <td width='50%' align='center' nowrap>\n";
+    echo "   <select name='Products' style='width:96%' onchange='codeselect(this)'>\n";
+    echo "    <option value=''> " . xlt('Products') . "\n";
+    $tres = sqlStatement("SELECT dt.drug_id, dt.selector, d.name " .
     "FROM drug_templates AS dt, drugs AS d WHERE " .
-    "d.drug_id = dt.drug_id AND d.active = 1 " .
+    "d.drug_id = dt.drug_id AND d.active = 1 AND d.consumable = 0 " .
     "ORDER BY d.name, dt.selector, dt.drug_id");
-  while ($trow = sqlFetchArray($tres)) {
-    echo "    <option value='PROD|" . attr($trow['drug_id']) . '|' . attr($trow['selector']) . "'>" .
-      text($trow['drug_id']) . ':' . text($trow['selector']);
-    if ($trow['name'] !== $trow['selector']) echo ' ' . text($trow['name']);
-    echo "</option>\n";
-  }
-  echo "   </select>\n";
-  echo "  </td>\n";
-  if ($i >= $FEE_SHEET_COLUMNS) {
-    echo " </tr>\n";
-    $i = 0;
-  }
+    while ($trow = sqlFetchArray($tres)) {
+        echo "    <option value='PROD|" . attr($trow['drug_id']) . '|' . attr($trow['selector']) . "'>";
+        echo text($trow['name']);
+        if ($trow['name'] !== $trow['selector']) {
+            echo ' / ' . text($trow['selector']);
+        }
+
+        echo "</option>\n";
+    }
+
+    echo "   </select>\n";
+    echo "  </td>\n";
+    if ($i >= $FEE_SHEET_COLUMNS) {
+        echo " </tr>\n";
+        $i = 0;
+    }
 }
 
 $search_type = $default_search_type;
-if ($_POST['search_type']) $search_type = $_POST['search_type'];
+if ($_POST['search_type']) {
+    $search_type = $_POST['search_type'];
+}
 
 $ndc_applies = true; // Assume all payers require NDC info.
 
@@ -860,25 +900,31 @@ echo "  <td colspan='" . attr($FEE_SHEET_COLUMNS) . "' align='center' nowrap>\n"
 //
 $numrows = 0;
 if ($_POST['bn_search'] && $_POST['search_term']) {
-  $res = code_set_search($search_type,$_POST['search_term']);
-  if (!empty($res)) {
-    $numrows = sqlNumRows($res);
-  }
+    $res = main_code_set_search($search_type, $_POST['search_term']);
+    if (!empty($res)) {
+        $numrows = sqlNumRows($res);
+    }
 }
 
 echo "   <select name='Search Results' style='width:98%' " .
   "onchange='codeselect(this)'";
-if (! $numrows) echo ' disabled';
+if (! $numrows) {
+    echo ' disabled';
+}
+
 echo ">\n";
 echo "    <option value=''> " . xlt("Search Results") . " ($numrows " . xlt("items") . ")\n";
 
 if ($numrows) {
-  while ($row = sqlFetchArray($res)) {
-    $code = $row['code'];
-    if ($row['modifier']) $code .= ":" . $row['modifier'];
-    echo "    <option value='" . attr($search_type) . "|" . attr($code) . "|'>" . text($code) . " " .
-      text($row['code_text']) . "</option>\n";
-  }
+    while ($row = sqlFetchArray($res)) {
+        $code = $row['code'];
+        if ($row['modifier']) {
+            $code .= ":" . $row['modifier'];
+        }
+
+        echo "    <option value='" . attr($search_type) . "|" . attr($code) . "|'>" . text($code) . " " .
+        text($row['code_text']) . "</option>\n";
+    }
 }
 
 echo "   </select>\n";
@@ -891,27 +937,48 @@ echo " </tr>\n";
 <p style='margin-top:8px;margin-bottom:8px'>
 <table>
  <tr>
+<?php if ($fs->ALLOW_COPAYS) { ?>
   <td>
    <input type='button' value='<?php echo xla('Add Copay');?>'
     onclick="copayselect()" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   </td>
+<?php } ?>
   <td>
-   <?php echo xlt('Search'); ?>&nbsp;
+    <?php echo xlt('Search'); ?>&nbsp;
+  </td>
+  <td class='billcell'>
 <?php
-  foreach ($code_types as $key => $value) {
-    if (!empty($value['nofs'])) continue;
-    echo "   <input type='radio' name='search_type' value='" . attr($key) . "'";
-    if ($key == $default_search_type) echo " checked";
-    echo " />" . text($key) . "&nbsp;\n";
-  }
+  $nofs_code_types = array();
+foreach ($code_types as $key => $value) {
+    if (!empty($value['nofs'])) {
+        continue;
+    }
+
+    $nofs_code_types[$key] = $value;
+}
+
+  $size_select = (count($nofs_code_types) < 5) ? count($nofs_code_types) : 5;
 ?>
-   <?php echo xlt('for'); ?>&nbsp;
+<?php
+foreach ($nofs_code_types as $key => $value) {
+    echo "   <label><input type='radio' name='search_type' value='" . attr($key) . "'";
+    if ($key == $search_type) {
+        echo " checked";
+    }
+
+    echo " />" . xlt($value['label']) . "</label>&nbsp;\n";
+}
+?>
+  </td>
+  <td class='billcell'>
+    <?php echo xlt('for'); ?>&nbsp;
   </td>
   <td>
    <input type='text' name='search_term' value=''> &nbsp;
   </td>
   <td>
-   <input type='submit' name='bn_search' value='<?php echo xla('Search');?>'>
+   <input type='submit' name='bn_search' value='<?php echo xla('Search');?>'
+    onclick='return this.clicked = true;'>
   </td>
  </tr>
 </table>
@@ -921,211 +988,347 @@ echo " </tr>\n";
 <?php } // end encounter not billed ?>
 
 <table cellspacing='5'>
+    <?php if ($billresult) { ?>
  <tr>
   <td class='billcell'><b><?php echo xlt('Type');?></b></td>
   <td class='billcell'><b><?php echo xlt('Code');?></b></td>
+  <td class='billcell'><b><?php echo xlt('Description');?></b></td>
+<?php if ($institutional) { ?>
+  <td class='billcell'><b><?php echo xlt('Revenue');?></b></td>
+<?php } ?>
 <?php if (modifiers_are_used(true)) { ?>
   <td class='billcell'><b><?php echo xlt('Modifiers');?></b></td>
 <?php } ?>
 <?php if (fees_are_used()) { ?>
+<?php if ($price_levels_are_used) { ?>
+  <td class='billcell' align='center'><b><?php echo xlt('Price Level');?></b>&nbsp;</td>
+<?php } ?>
   <td class='billcell' align='right'><b><?php echo xlt('Price');?></b>&nbsp;</td>
   <td class='billcell' align='center'><b><?php echo xlt('Units');?></b></td>
 <?php } ?>
 <?php if (justifiers_are_used()) { ?>
-  <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Justify');?></b></td>
+  <td class='billcell' align='center'<?php echo $justifystyle; ?>><b><?php echo xlt('Justify');?></b></td>
 <?php } ?>
-  <td class='billcell' align='center'><b><?php echo xlt('Provider');?></b></td>
+  <td class='billcell' align='center' <?php echo $liprovstyle; ?>><b><?php echo xlt('Provider/Warehouse');?></b></td>
   <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Note Codes');?></b></td>
   <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Auth');?></b></td>
+<?php if ($GLOBALS['gbl_auto_create_rx']) { ?>
+  <td class='billcell' align='center'><b><?php echo xlt('Rx'); ?></b></td>
+<?php } ?>
   <td class='billcell' align='center'><b><?php echo xlt('Delete');?></b></td>
-  <td class='billcell'><b><?php echo xlt('Description');?></b></td>
  </tr>
-
+    <?php } ?>
 <?php
 $justinit = "var f = document.forms[0];\n";
-
-// $encounter_provid = -1;
-
-$hasCharges = false;
 
 // Generate lines for items already in the billing table for this encounter,
 // and also set the rendering provider if we come across one.
 //
-$bill_lino = 0;
+// $bill_lino = 0;
 if ($billresult) {
-  foreach ($billresult as $iter) {
-    ++$bill_lino;
-    $bline = $_POST['bill']["$bill_lino"];
-    $del = $bline['del']; // preserve Delete if checked
+    foreach ($billresult as $iter) {
+        if (!$ALLOW_COPAYS && $iter["code_type"] == 'COPAY') {
+            continue;
+        }
 
-    $modifier   = trim($iter["modifier"]);
-    $units      = $iter["units"];
-    $fee        = $iter["fee"];
-    $authorized = $iter["authorized"];
-    $ndc_info   = $iter["ndc_info"];
-    $justify    = trim($iter['justify']);
-    $notecodes  = trim($iter['notecodes']);
-    if ($justify) $justify = substr(str_replace(':', ',', $justify), 0, strlen($justify) - 1);
-    $provider_id = $iter['provider_id'];
+        if ($iter["code_type"] == 'TAX') {
+            continue;
+        }
 
-    // Also preserve other items from the form, if present.
-    if ($bline['id'] && !$iter["billed"]) {
-      $modifier   = trim($bline['mod']);
-      $units      = max(1, intval(trim($bline['units'])));
-      $fee        = sprintf('%01.2f',(0 + trim($bline['price'])) * $units);
-      $authorized = $bline['auth'];
-      $ndc_info   = '';
-      if ($bline['ndcnum']) {
-        $ndc_info = 'N4' . trim($bline['ndcnum']) . '   ' . $bline['ndcuom'] .
-        trim($bline['ndcqty']);
-      }
-      $justify    = $bline['justify'];
-      $notecodes  = trim($bline['notecodes']);
-      $provider_id = 0 + $bline['provid'];
+        // ++$bill_lino;
+        $bill_lino = count($fs->serviceitems);
+        $bline = $_POST['bill']["$bill_lino"];
+        $del = $bline['del']; // preserve Delete if checked
+        if ($institutional) {
+            $revenue_code   = trim($iter["revenue_code"]);
+        }
+        $modifier   = trim($iter["modifier"]);
+        $units      = $iter["units"];
+        $fee        = $iter["fee"];
+        $authorized = $iter["authorized"];
+        $ndc_info   = $iter["ndc_info"];
+        $justify    = trim($iter['justify']);
+        $notecodes  = trim($iter['notecodes']);
+        if ($justify) {
+            $justify = substr(str_replace(':', ',', $justify), 0, strlen($justify) - 1);
+        }
+
+        $provider_id = $iter['provider_id'];
+
+        // Also preserve other items from the form, if present.
+        if ($bline['id'] && !$iter["billed"]) {
+            if ($institutional) {
+                //$revenue_code   = trim($bline['revenue_code']);
+            }
+            $modifier   = trim($bline['mod']);
+            $units      = max(1, intval(trim($bline['units'])));
+            $fee        = formatMoneyNumber((0 + trim($bline['price'])) * $units);
+            $authorized = $bline['auth'];
+            $ndc_info   = '';
+            if ($bline['ndcnum']) {
+                $ndc_info = 'N4' . trim($bline['ndcnum']) . '   ' . $bline['ndcuom'] .
+                trim($bline['ndcqty']);
+            }
+
+            $justify    = $bline['justify'];
+            $notecodes  = trim($bline['notecodes']);
+            $provider_id = 0 + $bline['provid'];
+        }
+
+        if ($iter['code_type'] == 'COPAY') { // moved copay display to below
+            continue;
+        }
+
+        $fs->addServiceLineItem(array(
+        'codetype'    => $iter['code_type'],
+        'code'        => trim($iter['code']),
+        'revenue_code'    => $revenue_code,
+        'modifier'    => $modifier,
+        'ndc_info'    => $ndc_info,
+        'auth'        => $authorized,
+        'del'         => $del,
+        'units'       => $units,
+        'pricelevel'  => $iter['pricelevel'],
+        'fee'         => $fee,
+        'id'          => $iter['id'],
+        'billed'      => $iter['billed'],
+        'code_text'   => trim($iter['code_text']),
+        'justify'     => $justify,
+        'provider_id' => $provider_id,
+        'notecodes'   => $notecodes,
+        ));
     }
-    
-    if($iter['code_type'] == 'COPAY'){//moved copay display to below
-      --$bill_lino;
-      continue;
-    }
-    
-    // list($code, $modifier) = explode("-", $iter["code"]);
-    echoLine($bill_lino, $iter["code_type"], trim($iter["code"]),
-      $modifier, $ndc_info,  $authorized,
-      $del, $units, $fee, $iter["id"], $iter["billed"],
-      $iter["code_text"], $justify, $provider_id, $notecodes);
-  }
 }
 
-$resMoneyGot = sqlStatement("SELECT pay_amount as PatientPay,session_id as id,date(post_time) as date ".
-  "FROM ar_activity where pid =? and encounter =? and payer_type=0 and account_code='PCP'",
-  array($pid,$encounter));//new fees screen copay gives account_code='PCP'
-while($rowMoneyGot = sqlFetchArray($resMoneyGot)){
-  $PatientPay=$rowMoneyGot['PatientPay']*-1;
-  $id=$rowMoneyGot['id'];
-  echoLine(++$bill_lino,'COPAY','','',$rowMoneyGot['date'],'1','','',$PatientPay,$id);
+$resMoneyGot = sqlStatement(
+    "SELECT pay_amount as PatientPay,session_id as id,date(post_time) as date ".
+    "FROM ar_activity where pid =? and encounter =? and payer_type=0 and account_code='PCP'",
+    array($fs->pid, $fs->encounter)
+); //new fees screen copay gives account_code='PCP'
+while ($rowMoneyGot = sqlFetchArray($resMoneyGot)) {
+    $PatientPay=$rowMoneyGot['PatientPay']*-1;
+    $id=$rowMoneyGot['id'];
+    $fs->addServiceLineItem(array(
+    'codetype'    => 'COPAY',
+    'code'        => '',
+    'modifier'    => '',
+    'ndc_info'    => $rowMoneyGot['date'],
+    'auth'        => 1,
+    'del'         => '',
+    'units'       => '',
+    'fee'         => $PatientPay,
+    'id'          => $id,
+    ));
 }
 
 // Echo new billing items from this form here, but omit any line
 // whose Delete checkbox is checked.
 //
 if ($_POST['bill']) {
-  foreach ($_POST['bill'] as $key => $iter) {
-    if ($iter["id"])  continue; // skip if it came from the database
-    if ($iter["del"]) continue; // skip if Delete was checked
-    $ndc_info = '';
-    if ($iter['ndcnum']) {
-      $ndc_info = 'N4' . trim($iter['ndcnum']) . '   ' . $iter['ndcuom'] .
-      trim($iter['ndcqty']);
+    foreach ($_POST['bill'] as $key => $iter) {
+        if ($iter["id"]) {
+            continue; // skip if it came from the database
+        }
+
+        if ($iter["del"]) {
+            continue; // skip if Delete was checked
+        }
+
+        $ndc_info = '';
+        if ($iter['ndcnum']) {
+            $ndc_info = 'N4' . trim($iter['ndcnum']) . '   ' . $iter['ndcuom'] .
+            trim($iter['ndcqty']);
+        }
+
+        $units = max(1, intval(trim($iter['units'])));
+        $fee = formatMoneyNumber((0 + trim($iter['price'])) * $units);
+        //the date is passed as $ndc_info, since this variable is not applicable in the case of copay.
+        $ndc_info = '';
+        if ($iter['code_type'] == 'COPAY') {
+            $ndc_info = date("Y-m-d");
+            if ($fee > 0) {
+                $fee = 0 - $fee;
+            }
+        }
+
+        $fs->addServiceLineItem(array(
+        'codetype'    => $iter['code_type'],
+        'code'        => trim($iter['code']),
+        'revenue_code'        => trim($iter['revenue_code']),
+        'modifier'    => trim($iter["mod"]),
+        'ndc_info'    => $ndc_info,
+        'auth'        => $iter['auth'],
+        'del'         => $iter['del'],
+        'units'       => $units,
+        'fee'         => $fee,
+        'justify'     => $iter['justify'],
+        'provider_id' => $iter['provid'],
+        'notecodes'   => $iter['notecodes'],
+        'pricelevel'  => $iter['pricelevel'],
+        ));
     }
-    // $fee = 0 + trim($iter['fee']);
-    $units = max(1, intval(trim($iter['units'])));
-    $fee = sprintf('%01.2f',(0 + trim($iter['price'])) * $units);
-    //the date is passed as $ndc_info, since this variable is not applicable in the case of copay.
-    $ndc_info = '';
-    if ($iter['code_type'] == 'COPAY'){
-      $ndc_info = date("Y-m-d");
-      if($fee > 0)
-      $fee = 0 - $fee;
-    }
-    echoLine(++$bill_lino, $iter["code_type"], $iter["code"], trim($iter["mod"]),
-      $ndc_info, $iter["auth"], $iter["del"], $units,
-      $fee, NULL, FALSE, NULL, $iter["justify"], 0 + $iter['provid'],
-      $iter['notecodes']);
-  }
 }
 
 // Generate lines for items already in the drug_sales table for this encounter.
 //
-$query = "SELECT * FROM drug_sales WHERE " .
-  "pid = ? AND encounter = ? " .
+$query = "SELECT ds.*, di.warehouse_id FROM drug_sales AS ds, drug_inventory AS di WHERE " .
+  "ds.pid = ? AND ds.encounter = ?  AND di.inventory_id = ds.inventory_id " .
   "ORDER BY sale_id";
-$sres = sqlStatement($query, array($pid,$encounter) );
-$prod_lino = 0;
+$sres = sqlStatement($query, array($fs->pid, $fs->encounter));
+// $prod_lino = 0;
 while ($srow = sqlFetchArray($sres)) {
-  ++$prod_lino;
-  $pline = $_POST['prod']["$prod_lino"];
-  $del   = $pline['del']; // preserve Delete if checked
-  $sale_id = $srow['sale_id'];
-  $drug_id = $srow['drug_id'];
-  $units   = $srow['quantity'];
-  $fee     = $srow['fee'];
-  $billed  = $srow['billed'];
+  // ++$prod_lino;
+    $prod_lino = count($fs->productitems);
+    $pline = $_POST['prod']["$prod_lino"];
+    $rx    = !empty($srow['prescription_id']);
+    $del   = $pline['del']; // preserve Delete if checked
+    $sale_id = $srow['sale_id'];
+    $drug_id = $srow['drug_id'];
+    $selector = $srow['selector'];
+    $pricelevel = $srow['pricelevel'];
+    $units   = $srow['quantity'];
+    $fee     = $srow['fee'];
+    $billed  = $srow['billed'];
+    $warehouse_id  = $srow['warehouse_id'];
   // Also preserve other items from the form, if present and unbilled.
-  if ($pline['sale_id'] && !$srow['billed']) {
-    // $units      = trim($pline['units']);
-    // $fee        = trim($pline['fee']);
-    $units = max(1, intval(trim($pline['units'])));
-    $fee   = sprintf('%01.2f',(0 + trim($pline['price'])) * $units);
-  }
-  echoProdLine($prod_lino, $drug_id, $del, $units, $fee, $sale_id, $billed);
+    if ($pline['sale_id'] && !$srow['billed']) {
+        $units = max(1, intval(trim($pline['units'])));
+        $fee   = formatMoneyNumber((0 + trim($pline['price'])) * $units);
+        $rx    = !empty($pline['rx']);
+    }
+
+    $fs->addProductLineItem(array(
+    'drug_id'      => $drug_id,
+    'selector'     => $selector,
+    'pricelevel'   => $pricelevel,
+    'rx'           => $rx,
+    'del'          => $del,
+    'units'        => $units,
+    'fee'          => $fee,
+    'sale_id'      => $sale_id,
+    'billed'       => $billed,
+    'warehouse_id' => $warehouse_id,
+    ));
 }
 
 // Echo new product items from this form here, but omit any line
 // whose Delete checkbox is checked.
 //
 if ($_POST['prod']) {
-  foreach ($_POST['prod'] as $key => $iter) {
-    if ($iter["sale_id"])  continue; // skip if it came from the database
-    if ($iter["del"]) continue; // skip if Delete was checked
-    // $fee = 0 + trim($iter['fee']);
-    $units = max(1, intval(trim($iter['units'])));
-    $fee   = sprintf('%01.2f',(0 + trim($iter['price'])) * $units);
-    echoProdLine(++$prod_lino, $iter['drug_id'], FALSE, $units, $fee);
-  }
+    foreach ($_POST['prod'] as $key => $iter) {
+        if ($iter["sale_id"]) {
+            continue; // skip if it came from the database
+        }
+
+        if ($iter["del"]) {
+            continue; // skip if Delete was checked
+        }
+
+        $units = max(1, intval(trim($iter['units'])));
+        $fee   = formatMoneyNumber((0 + trim($iter['price'])) * $units);
+        $rx    = !empty($iter['rx']); // preserve Rx if checked
+        $warehouse_id = empty($iter['warehouse_id']) ? '' : $iter['warehouse_id'];
+        $fs->addProductLineItem(array(
+        'drug_id'      => $iter['drug_id'],
+        'selector'     => $iter['selector'],
+        'pricelevel'   => $iter['pricelevel'],
+        'rx'           => $rx,
+        'units'        => $units,
+        'fee'          => $fee,
+        'warehouse_id' => $warehouse_id,
+        ));
+    }
 }
 
 // If new billing code(s) were <select>ed, add their line(s) here.
 //
-if ($_POST['newcodes']) {
-  $arrcodes = explode('~', $_POST['newcodes']);
-  foreach ($arrcodes as $codestring) {
-    if ($codestring === '') continue;
-    $arrcode = explode('|', $codestring);
-    $newtype = $arrcode[0];
-    $newcode = $arrcode[1];
-    $newsel  = $arrcode[2];
-    if ($newtype == 'COPAY') {
-      $tmp = sqlQuery("SELECT copay FROM insurance_data WHERE pid = ? " .
-        "AND type = 'primary' ORDER BY date DESC LIMIT 1", array($pid) );
-      $code = sprintf('%01.2f', 0 + $tmp['copay']);
-      echoLine(++$bill_lino, $newtype, $code, '', date("Y-m-d"), '1', '0', '1',
-        sprintf('%01.2f', 0 - $code));
+if ($_POST['newcodes'] && !$alertmsg) {
+    $arrcodes = explode('~', $_POST['newcodes']);
+
+  // A first pass here checks for any sex restriction errors.
+    foreach ($arrcodes as $codestring) {
+        if ($codestring === '') {
+            continue;
+        }
+
+        list($newtype, $newcode) = explode('|', $codestring);
+        if ($newtype == 'MA') {
+            list($code, $modifier) = explode(":", $newcode);
+            $tmp = sqlQuery(
+                "SELECT sex FROM codes WHERE code_type = ? AND code = ? LIMIT 1",
+                array($code_types[$newtype]['id'], $code)
+            );
+            if ($tmp['sex'] == '1' && $fs->patient_male || $tmp['sex'] == '2' && !$fs->patient_male) {
+                  $alertmsg = xl('Service is not compatible with the sex of this client.');
+            }
+        }
     }
-    else if ($newtype == 'PROD') {
-      $result = sqlQuery("SELECT * FROM drug_templates WHERE " .
-        "drug_id = ? AND selector = ?", array($newcode,$newsel) );
-      $units = max(1, intval($result['quantity']));
-      $prrow = sqlQuery("SELECT prices.pr_price " .
-        "FROM patient_data, prices WHERE " .
-        "patient_data.pid = ? AND " .
-        "prices.pr_id = ? AND " .
-        "prices.pr_selector = ? AND " .
-        "prices.pr_level = patient_data.pricelevel " .
-        "LIMIT 1", array($pid,$newcode,$newsel) );
-      $fee = empty($prrow) ? 0 : $prrow['pr_price'];
-      echoProdLine(++$prod_lino, $newcode, FALSE, $units, $fee);
+
+    if (!$alertmsg) {
+        foreach ($arrcodes as $codestring) {
+            if ($codestring === '') {
+                continue;
+            }
+
+            $arrcode = explode('|', $codestring);
+            $newtype = $arrcode[0];
+            $newcode = $arrcode[1];
+            $newsel  = $arrcode[2];
+            if ($newtype == 'COPAY') {
+                $tmp = sqlQuery("SELECT copay FROM insurance_data WHERE pid = ? " .
+                "AND type = 'primary' ORDER BY date DESC LIMIT 1", array($fs->pid));
+                $code = formatMoneyNumber(0 + $tmp['copay']);
+                $fs->addServiceLineItem(array(
+                  'codetype'    => $newtype,
+                  'code'        => $code,
+                  'ndc_info'    => date('Y-m-d'),
+                  'auth'        => '1',
+                  'units'       => '1',
+                  'fee'         => formatMoneyNumber(0 - $code),
+                ));
+            } else if ($newtype == 'PROD') {
+                $result = sqlQuery("SELECT dt.quantity, d.route " .
+                "FROM drug_templates AS dt, drugs AS d WHERE " .
+                "dt.drug_id = ? AND dt.selector = ? AND " .
+                "d.drug_id = dt.drug_id", array($newcode,$newsel));
+                $units = max(1, intval($result['quantity']));
+                // By default create a prescription if drug route is set.
+                $rx = !empty($result['route']);
+                $fs->addProductLineItem(array(
+                'drug_id'      => $newcode,
+                'selector'     => $newsel,
+                'rx'           => $rx,
+                'units'        => $units,
+                ));
+            } else {
+                list($code, $modifier) = explode(":", $newcode);
+                $ndc_info = '';
+                // If HCPCS, find last NDC string used for this code.
+                if ($newtype == 'HCPCS' && $ndc_applies) {
+                    $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
+                    "code_type = ? AND code = ? AND ndc_info LIKE 'N4%' " .
+                    "ORDER BY date DESC LIMIT 1", array($newtype,$code));
+                    if (!empty($tmp)) {
+                        $ndc_info = $tmp['ndc_info'];
+                    }
+                }
+
+                $fs->addServiceLineItem(array(
+                        'codetype'    => $newtype,
+                        'code'        => $code,
+                        'modifier'    => trim($modifier),
+                        'ndc_info'    => $ndc_info,
+                        ));
+            }
+        }
     }
-    else {
-      list($code, $modifier) = explode(":", $newcode);
-      $ndc_info = '';
-      // If HCPCS, find last NDC string used for this code.
-      if ($newtype == 'HCPCS' && $ndc_applies) {
-        $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
-          "code_type = ? AND code = ? AND ndc_info LIKE 'N4%' " .
-          "ORDER BY date DESC LIMIT 1", array($newtype,$code) );
-        if (!empty($tmp)) $ndc_info = $tmp['ndc_info'];
-      }
-      echoLine(++$bill_lino, $newtype, $code, trim($modifier), $ndc_info);
-    }
-  }
 }
 
-$tmp = sqlQuery("SELECT provider_id, supervisor_id FROM form_encounter " .
-  "WHERE pid = ? AND encounter = ? " .
-  "ORDER BY id DESC LIMIT 1", array($pid,$encounter) );
-$encounter_provid = 0 + $tmp['provider_id'];
-$encounter_supid  = 0 + $tmp['supervisor_id'];
+// Write the form's line items.
+echoServiceLines();
+echoProductLines();
+// Ensure DOM is updated.
+echo "<script>reinitForm();</script>";
 ?>
 </table>
 </p>
@@ -1139,12 +1342,21 @@ echo "<span class='billcell'><b>\n";
 echo xlt('Providers') . ": &nbsp;";
 
 echo "&nbsp;&nbsp;" . xlt('Rendering') . "\n";
-genProviderSelect('ProviderID', '-- '.xl("Please Select").' --', $encounter_provid, $isBilled);
+if ($GLOBALS['default_rendering_provider'] == '0') {
+    $default_rid = '';
+} elseif ($GLOBALS['default_rendering_provider'] == '1') {
+    $default_rid = $fs->provider_id;
+} else {
+    $default_rid = isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : $fs->provider_id;
+}
+echo $fs->genProviderSelect('ProviderID', '-- ' . xl("Please Select") . ' --', $default_rid, $isBilled);
 
 if (!$GLOBALS['ippf_specific']) {
-  echo "&nbsp;&nbsp;" . xlt('Supervising') . "\n";
-  genProviderSelect('SupervisorID', '-- '.xl("N/A").' --', $encounter_supid, $isBilled);
+    echo "&nbsp;&nbsp;" . xlt('Supervising') . "\n";
+    echo $fs->genProviderSelect('SupervisorID', '-- '.xl("N/A").' --', $fs->supervisor_id, $isBilled);
 }
+
+echo "<input type='button' value='" . xla('New Appointment') . "' onclick='newEvt()' />\n";
 
 echo "</b></span>\n";
 ?>
@@ -1153,102 +1365,118 @@ echo "</b></span>\n";
 &nbsp;
 
 <?php
-// If applicable, ask for the contraceptive services start date.
-$trow = sqlQuery("SELECT count(*) AS count FROM layout_options WHERE " .
-  "form_id = 'DEM' AND field_id = 'contrastart' AND uor > 0");
-if ($trow['count'] && $contraception && !$isBilled) {
-  $date1 = substr($visit_row['date'], 0, 10);
-  // If admission or surgical, then force contrastart.
-  if ($contraception > 1 ||
-    strpos(strtolower($visit_row['pc_catname']), 'admission') !== false)
-  {
-    echo "   <input type='hidden' name='contrastart' value='" . attr($date1) . "' />\n";
-  }
-  else {
-    // echo "<!-- contraception = $contraception -->\n"; // debugging
-    $trow = sqlQuery("SELECT contrastart " .
-      "FROM patient_data WHERE " .
-      "pid = ? LIMIT 1", array($pid) );
-    if (empty($trow['contrastart']) || substr($trow['contrastart'], 0, 4) == '0000') {
-      $date0 = date('Y-m-d', strtotime($date1) - (60 * 60 * 24));
-      echo "   <select name='contrastart'>\n";
-      echo "    <option value='" . attr($date1) . "'>" . xlt('This visit begins new contraceptive use') . "</option>\n";
-      echo "    <option value='" . attr($date0) . "'>" . xlt('Contraceptive services previously started') . "</option>\n";
-      echo "    <option value=''>" . xlt('None of the above') . "</option>\n";
-      echo "   </select>\n";
-      echo "&nbsp; &nbsp; &nbsp;\n";
-    }
-  }
-}
-
-// If there is a choice of warehouses, allow override of user default.
-if ($prod_lino > 0) { // if any products are in this form
-  $trow = sqlQuery("SELECT count(*) AS count FROM list_options WHERE list_id = 'warehouse'");
-  if ($trow['count'] > 1) {
-    $trow = sqlQuery("SELECT default_warehouse FROM users WHERE username = ?", array($_SESSION['authUser']) );
-    echo "   <span class='billcell'><b>" . xlt('Warehouse') . ":</b></span>\n";
-    echo generate_select_list('default_warehouse', 'warehouse',
-      $trow['default_warehouse'], '');
-    echo "&nbsp; &nbsp; &nbsp;\n";
-  }
+if ($fs->contraception_code && !$isBilled) {
+  // This will give the form save logic the associated contraceptive method.
+    echo "<input type='hidden' name='ippfconmeth' value='" . attr($fs->contraception_code) . "'>\n";
+  // If needed, this generates a dropdown to ask about prior contraception.
+    echo $fs->generateContraceptionSelector();
 }
 
 // Allow the patient price level to be fixed here.
 $plres = sqlStatement("SELECT option_id, title FROM list_options " .
-  "WHERE list_id = 'pricelevel' ORDER BY seq");
+  "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq, title");
 if (true) {
-  $trow = sqlQuery("SELECT pricelevel FROM patient_data WHERE " .
-    "pid = ? LIMIT 1", array($pid) );
-  $pricelevel = $trow['pricelevel'];
-  echo "   <span class='billcell'><b>" . xlt('Price Level') . ":</b></span>\n";
-  echo "   <select name='pricelevel'";
-  if ($isBilled) echo " disabled";
-  echo ">\n";
-  while ($plrow = sqlFetchArray($plres)) {
-    $key = $plrow['option_id'];
-    $val = $plrow['title'];
-    echo "    <option value='" . attr($key) . "'";
-    if ($key == $pricelevel) echo ' selected';
-    echo ">" . text($val) . "</option>\n";
-  }
-  echo "   </select>\n";
+    $pricelevel = $fs->getPriceLevel();
+    echo "   <span class='billcell'><b>" . xlt('Default Price Level') . ":</b></span>\n";
+    echo "   <select name='pricelevel'";
+    if ($isBilled) {
+        echo " disabled";
+    }
+
+    echo ">\n";
+    while ($plrow = sqlFetchArray($plres)) {
+        $key = $plrow['option_id'];
+        $val = $plrow['title'];
+        echo "    <option value='" . attr($key) . "'";
+        if ($key == $pricelevel) {
+            echo ' selected';
+        }
+
+        echo ">" . text(xl_list_label($val)) . "</option>\n";
+    }
+
+    echo "   </select>\n";
 }
 ?>
 
 &nbsp; &nbsp; &nbsp;
 
-<?php if (!$isBilled) { ?>
-<input type='submit' name='bn_save' value='<?php echo xla('Save');?>' />
+<?php if (!$isBilled) { // visit is not yet billed ?>
+<input type='submit' name='bn_save' value='<?php echo xla('Save'); ?>' />
+<input type='submit' name='bn_save_stay' value='<?php echo xla('Save Current'); ?>' />
+<?php if ($rapid_data_entry) {
+    echo " style='background-color:#cc0000';color:#ffffff'";
+} ?>
+<?php if ($GLOBALS['ippf_specific']) { // start ippf-only stuff ?>
+<?php if ($fs->hasCharges) { // unbilled with charges ?>
+<input type='submit' name='bn_save_close' value='<?php echo xla('Save and Checkout'); ?>' />
+<?php } else { // unbilled with no charges ?>
+<input type='submit' name='bn_save_close' value='<?php echo xla('Save and Close'); ?>' />
+<?php } // end no charges ?>
 &nbsp;
-<?php if (!$hasCharges) { ?>
-<input type='submit' name='bn_save_close' value='<?php echo xla('Save and Close');?>' />
+<?php } // end ippf-only ?>
+<input type='submit' name='bn_refresh' onclick='return this.clicked = true;'
+value='<?php echo xla('Refresh');?>' />
 &nbsp;
-<?php } ?>
-<input type='submit' name='bn_refresh' value='<?php echo xla('Refresh');?>'>
+<?php } else { // visit is billed ?>
+<?php if ($fs->hasCharges) { // billed with charges ?>
+<input type='button' value='<?php echo xla('Show Receipt'); ?>'
+ onclick="top.restoreSession();location='../../patient_file/pos_checkout.php?framed=1<?php
+    echo "&ptid=" . urlencode($fs->pid) . "&enc=" . urlencode($fs->encounter); ?>'" />
 &nbsp;
-<?php } ?>
+<input type='submit' name='bn_reopen' onclick='return this.clicked = 2;'
+ value='<?php echo xla('Void Checkout and Re-Open'); ?>' />
+&nbsp;
+<?php } else { ?>
+<input type='submit' name='bn_reopen' onclick='return this.clicked = true;'
+ value='<?php echo xla('Re-Open Visit'); ?>' />
+&nbsp;
+<?php } // end billed without charges ?>
+<input type='submit' name='bn_addmore' onclick='return this.clicked = true;'
+ value='<?php echo xla('Add More Items'); ?>' />
+&nbsp;
+<?php } // end billed ?>
+<input type='hidden' name='form_has_charges' value='<?php echo $fs->hasCharges ? 1 : 0; ?>' />
+<input type='hidden' name='form_checksum' value='<?php echo $current_checksum; ?>' />
+<input type='hidden' name='form_alertmsg' value='<?php echo attr($alertmsg); ?>' />
 
 <input type='button' value='<?php echo xla('Cancel');?>'
- onclick="top.restoreSession();location='<?php echo "$rootdir/patient_file/encounter/$returnurl" ?>'" />
-
-<?php if ($code_types['UCSMC']) { ?>
-<p style='font-family:sans-serif;font-size:8pt;color:#666666;'>
-&nbsp;<br>
-<?php echo xlt('UCSMC codes provided by the University of Calgary Sports Medicine Centre');?>
-</p>
-<?php } ?>
+ onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
 
 </center>
 
 </form>
 
-<?php
-// TBD: If $alertmsg, display it with a JavaScript alert().
-?>
+<script type="text/javascript">
+setSaveAndClose();
 
-<script language='JavaScript'>
-<?php echo $justinit; ?>
+<?php
+echo $justinit;
+if ($alertmsg) {
+    echo "alert('" . addslashes($alertmsg) . "');\n";
+}
+?>
 </script>
 
 </body>
 </html>
+<?php if (!empty($_POST['running_as_ajax'])) {
+    exit();
+} ?>
+<?php require_once("review/initialize_review.php"); ?>
+<?php require_once("code_choice/initialize_code_choice.php"); ?>
+<?php if ($GLOBALS['ippf_specific']) {
+    require_once("contraception_products/initialize_contraception_products.php");
+} ?>
+<script>
+var translated_price_header="<?php echo xlt("Price");?>";
+
+$( "[name='search_term']" ).keydown(function(event){
+    if(event.keyCode==13){
+        $("[name=bn_search]").trigger('click');
+        return false;
+     }
+ });
+
+$("[name=search_term]").focus();
+</script>

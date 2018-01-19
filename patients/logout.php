@@ -13,9 +13,8 @@
         $landingpage = "index.php?site=".$_SESSION['site_id'];
 
     //log out by killing the session
-	session_destroy();
+    session_destroy();
 
     //redirect to pretty login/logout page
-	header('Location: '.$landingpage.'&logout');
-    // 
-?>
+    header('Location: '.$landingpage.'&logout');
+    //

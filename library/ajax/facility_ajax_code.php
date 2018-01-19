@@ -27,26 +27,16 @@
 // Jacob T.Paul <jacob@zhservices.com>
 //
 // +------------------------------------------------------------------------------+
-//SANITIZE ALL ESCAPES
 
-$sanitize_all_escapes=true;
 
-//
-
-//STOP FAKE REGISTER GLOBALS
-
-$fake_register_globals=false;
 
 //
 require_once("../../interface/globals.php");
-require_once("$srcdir/sql.inc");
-require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/options.inc.php");
 
 $pid=$_REQUEST['pid'];
 $facility=$_REQUEST['facility'];
 $date=$_REQUEST['date'];
-$q=sqlStatement("SELECT pc_billing_location FROM openemr_postcalendar_events WHERE pc_pid=? AND pc_eventDate=? AND pc_facility=?", array($pid,$date,$facility) );
+$q=sqlStatement("SELECT pc_billing_location FROM openemr_postcalendar_events WHERE pc_pid=? AND pc_eventDate=? AND pc_facility=?", array($pid,$date,$facility));
 $row=sqlFetchArray($q);
-billing_facility('billing_facility',$row['pc_billing_location']);
-?>
+billing_facility('billing_facility', $row['pc_billing_location']);

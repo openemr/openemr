@@ -6,7 +6,7 @@ include_once("../../globals.php");
 <head>
 <?php html_header_show();?>
 <TITLE>
-<?php xl ('Patient Finder','e'); ?>
+<?php xl('Patient Finder', 'e'); ?>
 </TITLE>
 
 <script language='JavaScript'>

@@ -6,7 +6,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-require_once( 'ClinicalType.php' );
+require_once('ClinicalType.php');
 
 class Medication extends ClinicalType
 {
@@ -43,46 +43,51 @@ class Medication extends ClinicalType
     const SMOKING_CESSATION = 'med_active_smoking_cessation';
     const SMOKING_CESSATION_ORDER = 'med_order_smoking_cessation';
     
-    public function getListId() {
-        return "Clinical_Rules_Med_Types";
-    }   
+    const ANTIBIOTIC_FOR_PHARYNGITIS = 'med_antibiotic_pharyngitis';
+    const INFLUENZA_VACCINE = 'med_influenza_vaccination';
     
-    public function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null ) 
+    public function getListId()
+    {
+        return "Clinical_Rules_Med_Types";
+    }
+    
+    public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
     {
         $return = false;
-        $listOptions = Codes::lookup( $this->getOptionId(), 'CVX' );
-        if ( count( $listOptions ) > 0 ) 
-        {
+        $listOptions = Codes::lookup($this->getOptionId(), 'CVX');
+        if (count($listOptions) > 0) {
             $sqlQueryBind= array();
             $query = "SELECT * " .
-        	"FROM immunizations " .
-                "WHERE patient_id = ? " .
+            "FROM immunizations " .
+                "WHERE patient_id = ? AND added_erroneously = '0' " .
                 "AND administered_date >= ? " .
                 "AND administered_date <= ? ";
             $query.= "AND ( ";
             $count = 0;
-            array_push($sqlQueryBind,$patient->id,$beginDate,$endDate);
-            foreach( $listOptions as $option_id ) {
-            	$query.= "cvx_code = ? ";
-            	$count++;
-            	if ( $count < count( $listOptions ) ) {
-            	    $query.= "OR ";
-            	}
-                array_push($sqlQueryBind,$option_id);
-            }
-            $query.= " ) "; 
+            array_push($sqlQueryBind, $patient->id, $beginDate, $endDate);
+            foreach ($listOptions as $option_id) {
+                $query.= "cvx_code = ? ";
+                $count++;
+                if ($count < count($listOptions)) {
+                    $query.= "OR ";
+                }
 
-            $result = sqlStatement( $query, $sqlQueryBind );
+                array_push($sqlQueryBind, $option_id);
+            }
+
+            $query.= " ) ";
+
+            $result = sqlStatement($query, $sqlQueryBind);
             $rows = array();
-            for( $iter = 0; $row = sqlFetchArray( $result ); $iter++ ) {
+            for ($iter = 0; $row = sqlFetchArray($result); $iter++) {
                     $rows[$iter] = $row;
             }
             
-            if ( isset( $options[self::OPTION_COUNT] ) && 
-                count( $rows ) >= $options[self::OPTION_COUNT] ) {
-                $return = true;    
-            } else if ( !isset( $options[self::OPTION_COUNT] ) &&
-                count( $rows ) > 0 ) {
+            if (isset($options[self::OPTION_COUNT]) &&
+                count($rows) >= $options[self::OPTION_COUNT] ) {
+                $return = true;
+            } else if (!isset($options[self::OPTION_COUNT]) &&
+                count($rows) > 0 ) {
                 $return = true;
             }
         }

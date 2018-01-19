@@ -5,18 +5,13 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
 
 $backpic = "";
 $ignoreAuth=1;
 
 require_once(dirname(__FILE__)."/../../interface/globals.php");
-require_once ($GLOBALS['srcdir'] . "/classes/postmaster.php");
-require_once ($GLOBALS['srcdir'] . "/maviq_phone_api.php");
+require_once($GLOBALS['srcdir'] . "/maviq_phone_api.php");
 require_once($GLOBALS['srcdir'] . "/reminders.php");
 ?>
 
@@ -40,7 +35,7 @@ require_once($GLOBALS['srcdir'] . "/reminders.php");
 <table>
  <tr>
   <td class='text' align='left' colspan="3"><br>
-  
+
     <?php $update_rem_log = update_reminders(); ?>
 
     <span class="text"><?php echo htmlspecialchars(xl('The patient reminders have been updated'), ENT_NOQUOTES) . ":"?></span><br>

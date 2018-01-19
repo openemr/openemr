@@ -1,0 +1,26 @@
+#personPopupContainer  
+{  
+    position:absolute;  
+    left:5px;  
+    top:0;
+    right:10;
+    display:none;  
+    z-index: 20000;
+    border:1px solid #95B8E7;
+    padding:10px 40px; 
+    background:#FFF;
+    border-radius:8px;
+    -moz-border-radius:8px; /* Old Firefox */
+    box-shadow: 5px 5px 3px #888888;
+}  
+  
+.personPopupPopup  
+{  
+}  
+ 
+#personPopupContent  
+{  
+    background-color: #FFF;  
+    /*min-width: 175px;  
+    min-height: 50px;  */
+}

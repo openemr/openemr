@@ -71,7 +71,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 #datePicker .tdDOW-small {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 10px;
-    vertical-align: top; 
+    vertical-align: top;
     background-color: lightblue;
     text-align: center;
     border: none;
@@ -105,7 +105,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     text-align: center;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 12px;
-    font-style: normal 
+    font-style: normal
 }
 
 #datePicker .tdMonthDay-small {
@@ -146,7 +146,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 }
 .timeslot {
     height: [-php-]echo $timeslotHeightVal.$timeslotHeightUnit;[-/php-];
-    margin: 0px; 
+    margin: 0px;
     padding: 0px;
 }
 .schedule {
@@ -160,7 +160,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 .event_in {
     position: absolute;
     background-color: white;
-    width: 100%; 
+    width: 100%;
     z-index:1;
     font-size: 0.8em;
     color: #ddd;
@@ -169,7 +169,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 .event_out {
     position: absolute;
     background-color: lightgray;
-    width: 100%; 
+    width: 100%;
     z-index:1;
     font-size: 0.8em;
     color: #ddd;
@@ -253,7 +253,7 @@ echo date('d M Y', strtotime($atmp[0]));
 
 <div id="bigCal">
 [-php-]
-    
+
 echo "<table border='0' cellpadding='1' cellspacing='0' width='100%'>\n";
 
 // output the TD with the times DIV
@@ -286,7 +286,7 @@ foreach ($providers as $provider) {
     $calStartMin = ($tmpTime['hour'] * 60) + $tmpTime['minute'];
     $tmpTime = $times[count($times)-1];
     $calEndMin = ($tmpTime['hour'] * 60) + $tmpTime['minute'];
-        
+
     // having a 'title' for the TD makes the date appear by the mouse pointer
     // this is nice when all you see are times on the left side and no head
     // row with the dates or day-of-week (DOW)
@@ -320,7 +320,7 @@ foreach ($providers as $provider) {
                 if ($e1['eid'] == "") { continue; }
                 // skip events for other providers
                 if ($providerid != $e1['aid']) { continue; }
-            
+
                 // create a numeric start and end for comparison
                 $starth = substr($e1['startTime'], 0, 2);
                 $startm = substr($e1['startTime'], 3, 2);
@@ -346,7 +346,7 @@ foreach ($providers as $provider) {
                 // than was was previously set
                 if (! isset($eventPositions[$eid]->width)) { $eventPositions[$eid]->width = $width; }
                 else if ($eventPositions[$eid]->width > $width) { $eventPositions[$eid]->width = $width; }
-               
+
                 // set the left position if not already set or if the current left is
                 // greater than what was previously set
                 if (! isset($eventPositions[$eid]->leftpos)) { $eventPositions[$eid]->leftpos = $leftpos; }
@@ -384,7 +384,14 @@ foreach ($providers as $provider) {
                     $evtClass = "event_out";
                     break;
                 case 4:  // VACATION
+                    $evtClass = "event_reserved";
+                    break;
+                case 6:  // HOLIDAY
+                    $evtClass = "event_holiday";
+                    break;
                 case 8:  // LUNCH
+                    $evtClass = "event_reserved";
+                    break;
                 case 11: // RESERVED
                     $evtClass = "event_reserved";
                     break;
@@ -392,7 +399,7 @@ foreach ($providers as $provider) {
                     $evtClass = "event_appointment";
                     break;
             }
-            
+
             // if this is an IN or OUT event then we have some extra special
             // processing to be done
             // the IN event creates a DIV until the OUT event
@@ -434,7 +441,7 @@ foreach ($providers as $provider) {
             // times the interval height
             $eStartPos = $eStartInterval * $timeslotHeightVal;
             $evtTop = $eStartPos.$timeslotHeightUnit;
-            
+
             // calculate the HEIGHT value for the event DIV
             // diff between end and start of event
             $eEndMin = $eStartMin + ($event['duration']/60);
@@ -522,7 +529,7 @@ foreach ($providers as $provider) {
         } // end EVENT loop
 
         echo "</div>";
-        
+
     } // end date
 
     echo "</td>\n";
@@ -542,11 +549,11 @@ echo "<P>";
 
 </body>
 
-<script type="text/javascript" src="../../../library/js/jquery-1.2.2.min.js"></script>
-<script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
+<script language='JavaScript'>
 $(document).ready(function(){
-    window.print();
-    window.close();
+    var win = top.printLogPrint ? top : opener.top;
+    win.printLogPrint(window);
 });
 </script>
 

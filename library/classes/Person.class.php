@@ -8,28 +8,26 @@ This file was generated on %date% at %time%
 The original location of this file is /home/duhlman/uml-generated-code/prescription.php
 **************************************************************************/
 
-require_once("ORDataObject.class.php");
 /**
  * class Person
  *
  */
-class Person {
-	var $id;
-	var $last_name;
-	var $first_name;
-	var $user_name;
+class Person
+{
+    var $id;
+    var $last_name;
+    var $first_name;
+    var $user_name;
 
-	/**
-	 * Constructor sets all Prescription attributes to their default value
-	 */
-	function Person($id = "", $prefix = "")	{
-		$this->id = $id;
+    /**
+     * Constructor sets all Prescription attributes to their default value
+     */
+    function __construct($id = "", $prefix = "")
+    {
+        $this->id = $id;
+    }
 
-	}
-
-	function populate() {
-
-	}
-
+    function populate()
+    {
+    }
 } // end of Person
-?>

@@ -1,0 +1,46 @@
+{
+  "name": "datatables.net",
+  "description": "DataTables for jQuery ",
+  "main": [
+    "js/jquery.dataTables.js"
+  ],
+  "keywords": [
+    "filter",
+    "sort",
+    "DataTables",
+    "jQuery",
+    "table",
+    "DataTables"
+  ],
+  "dependencies": {
+    "jquery": ">=1.7"
+  },
+  "moduleType": [
+    "globals",
+    "amd",
+    "node"
+  ],
+  "ignore": [
+    "composer.json",
+    "datatables.json",
+    "package.json"
+  ],
+  "authors": [
+    {
+      "name": "SpryMedia Ltd",
+      "homepage": "https://datatables.net"
+    }
+  ],
+  "homepage": "https://datatables.net",
+  "license": "MIT",
+  "version": "1.10.13",
+  "_release": "1.10.13",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.10.13",
+    "commit": "f86c994dabba11cf31cfc4162c7f6418cad807db"
+  },
+  "_source": "https://github.com/DataTables/Dist-DataTables.git",
+  "_target": "1.10.13",
+  "_originalSource": "datatables.net"
+}

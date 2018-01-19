@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2011 Brady Miller <brady@sparmy.com>
+// Copyright (C) 2011 Brady Miller <brady.g.miller@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@ class AMC_302j extends AbstractAmcReport
         return "transitions-in";
     }
  
-    public function createDenominator() 
+    public function createDenominator()
     {
         return new AMC_302j_Denominator();
     }

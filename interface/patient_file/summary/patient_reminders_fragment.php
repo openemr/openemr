@@ -1,6 +1,6 @@
 <?php
 //
-// Copyright (C) 2010 Brady Miller (brady@sparmy.com)
+// Copyright (C) 2010 Brady Miller (brady.g.miller@gmail.com)
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -10,15 +10,9 @@
 // This simply shows the Clinical Reminder Widget
 //
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
 
-require_once( dirname(__FILE__) . "/../../globals.php");
+require_once(dirname(__FILE__) . "/../../globals.php");
 require_once("$srcdir/reminders.php");
 
 //To improve performance and not freeze the session when running this
@@ -28,6 +22,3 @@ require_once("$srcdir/reminders.php");
 session_write_close();
 
 patient_reminder_widget($pid);
-
-?>
-

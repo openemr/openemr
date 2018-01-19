@@ -6,7 +6,7 @@
 #(at your option) any later version.
 #
 # Copyright 2011
-# authors: Brady Miller <brady@sparmy.com>
+# authors: Brady Miller <brady.g.miller@gmail.com>
 #
 # Debian package configure script steps:
 #  1) Collect the mysql root password

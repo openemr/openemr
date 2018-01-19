@@ -1,0 +1,6 @@
+@import "%fonts_dir%/lato/lato.css";
+
+body {
+    %font-family%
+    %font-size%
+}

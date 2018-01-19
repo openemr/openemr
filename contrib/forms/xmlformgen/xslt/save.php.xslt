@@ -32,8 +32,6 @@ require_once('../../globals.php');
 require_once($GLOBALS['srcdir'].'/api.inc');
 /* for ??? */
 require_once($GLOBALS['srcdir'].'/forms.inc');
-/* for formDataCore() */
-require_once($GLOBALS['srcdir'].'/formdata.inc.php');
 
 ]]></xsl:text>
 <xsl:apply-templates select="table|RealName|safename|acl|layout"/>

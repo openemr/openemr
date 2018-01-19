@@ -1,21 +1,32 @@
-<a href="controller.php?practice_settings&{$TOP_ACTION}insurance_company&action=edit" {php} if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; {/php} onclick="top.restoreSession()" class="css_button" >
-<span>{xl t='Add a Company'}</span></a><br>
-<br>
-<table cellpadding="1" cellspacing="0" class="showborder">
-	<tr class="showborder_head">
-		<th width="140px"><b>{xl t='Name'}</b></th>
-		<th width="300px"><b>{xl t='City, State'}</b></th>
-		<th><b>{xl t='Default X12 Partner'}</b></th>
-	</tr>
-	{foreach from=$icompanies item=insurancecompany}
-	<tr height="22">
-		<td><a href="{$CURRENT_ACTION}action=edit&id={$insurancecompany->id}" onsubmit="return top.restoreSession()">{$insurancecompany->name}&nbsp;</a></td>
-		<td>{$insurancecompany->address->city} {$insurancecompany->address->state|upper}&nbsp;</td>
-		<td>{$insurancecompany->get_x12_default_partner_name()}&nbsp;</td>
-	</tr>
-	{foreachelse}
-	<tr class="center_display">
-		<td colspan="3">{xl t='No Insurance Companies Found'}</td>
-	</tr>
-	{/foreach}
+<a href="controller.php?practice_settings&{$TOP_ACTION}insurance_company&action=edit" onclick="top.restoreSession()"
+   class="btn btn-default btn-add">
+    {xl t='Add a Company'|escape:'html'}</a>
+    <br><br>
+<table class="table table-responsive table-striped">
+    <thead>
+        <tr>
+            <th>{xl t='Name'|escape:'html'}</th>
+            <th>{xl t='City, State'|escape:'html'}</th>
+            <th>{xl t='Default X12 Partner'|escape:'html'}</th>
+            <th>{xl t='Deactivated'|escape:'html'}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {foreach from=$icompanies item=insurancecompany}
+        <tr>
+            <td>
+                <a href="{$CURRENT_ACTION}action=edit&id={$insurancecompany->id|escape:'html'}" onclick="top.restoreSession()">
+                    {$insurancecompany->name|escape:'html'}
+                </a>
+            </td>
+            <td>{$insurancecompany->address->city|escape:'html'} {$insurancecompany->address->state|upper|escape:'html'}&nbsp;</td>
+            <td>{$insurancecompany->get_x12_default_partner_name()|escape:'html'}&nbsp;</td>
+            <td>{if $insurancecompany->get_inactive() eq 1}{xl t='Yes'|escape:'html'}{/if}&nbsp;</td>
+        </tr>
+        {foreachelse}
+        <tr>
+            <td colspan="4">{xl t='No Insurance Companies Found'|escape:'html'}</td>
+        </tr>
+        {/foreach}
+    </tbody>
 </table>

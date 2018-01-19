@@ -75,13 +75,21 @@ $result = SqlFetchArray($res); ?>
 <textarea cols=85 rows=2 wrap=virtual name="discharge_criteria" ><?php echo stripslashes($obj{"discharge_criteria"});?></textarea><br><br>
 
 <b>Recommendations:</b><br>
-<input type="checkbox" name="individual_family_therapy" <?php if ($obj{"individual_family_therapy"} == "on") {echo "checked";};?>>&nbsp;<b>Individual and / or Family Therapy</b></input>
+<input type="checkbox" name="individual_family_therapy" <?php if ($obj{"individual_family_therapy"} == "on") {
+    echo "checked";
+};?>>&nbsp;<b>Individual and / or Family Therapy</b></input>
 <img src="../../../images/space.gif" width="6" height="1">
-<input type="checkbox" name="substance_abuse" <?php if ($obj{"substance_abuse"} == "on") {echo "checked";};?>>&nbsp;<b>Substance Abuse</b></input><br>
+<input type="checkbox" name="substance_abuse" <?php if ($obj{"substance_abuse"} == "on") {
+    echo "checked";
+};?>>&nbsp;<b>Substance Abuse</b></input><br>
 
-<input type="checkbox" name="group_therapy" <?php if ($obj{"group_therapy"} == "on") {echo "checked";};?>>&nbsp;<b>Group Therapy - psychoeducational group</b></input>
+<input type="checkbox" name="group_therapy" <?php if ($obj{"group_therapy"} == "on") {
+    echo "checked";
+};?>>&nbsp;<b>Group Therapy - psychoeducational group</b></input>
 <img src="../../../images/space.gif" width="6" height="1">
-<input type="checkbox" name="parenting" <?php if ($obj{"parenting"} == "on") {echo "checked";};?>>&nbsp;<b>Parenting</b></input><br><br>
+<input type="checkbox" name="parenting" <?php if ($obj{"parenting"} == "on") {
+    echo "checked";
+};?>>&nbsp;<b>Parenting</b></input><br><br>
 
 <b>Action Steps by supports - family:</b><br>
 <textarea cols=85 rows=3 wrap=virtual name="action_steps_by_supports" ><?php echo stripslashes($obj{"action_steps_by_supports"});?></textarea><br><br>

@@ -6,17 +6,16 @@
 
 include_once("../../globals.php");
 
+$clean_id=sanitizeNumber($_GET["id"]);
+
 if (substr($_GET["formname"], 0, 3) === 'LBF') {
   // Use the List Based Forms engine for all LBFxxxxx forms.
-  include_once("$incdir/forms/LBF/view.php");
-}
-else {
-
+    include_once("$incdir/forms/LBF/view.php");
+} else {
   // ensure the path variable has no illegal characters
-  check_file_dir_name($_GET["formname"]);
+    check_file_dir_name($_GET["formname"]);
 
-  include_once("$incdir/forms/" . $_GET["formname"] . "/view.php");
+    include_once("$incdir/forms/" . $_GET["formname"] . "/view.php");
 }
 
-$id = $_GET["id"];
-?>
+$id = $clean_id;

@@ -7,9 +7,9 @@
 // of the License, or (at your option) any later version.
 //
 class NFQ_0064 extends AbstractCqmReport
-{   
+{
     public function createPopulationCriteria()
     {
-         return new NFQ_0064_PopulationCriteria();    
+         return new NFQ_0064_PopulationCriteria();
     }
 }

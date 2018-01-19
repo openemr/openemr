@@ -19,4 +19,4 @@ CREATE TABLE IF NOT EXISTS form_ippf_srh (
   uro_exams   varchar(255) NOT NULL DEFAULT '',
   uro_disease varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

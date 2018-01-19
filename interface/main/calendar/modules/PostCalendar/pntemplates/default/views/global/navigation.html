@@ -1,9 +1,1 @@
-[-*(CHEMED) if user prefers a fancy calendar switch to a different template*-]
-[-php-]
- $this->assign('cal_ui', $_SESSION['cal_ui']);
-[-/php-]
-[-if $cal_ui eq 2-]
-    [-include file="$TPL_NAME/views/global/fancy_navigation.html"-]
-[-else-] [-*Use default template*-]
     [-include file="$TPL_NAME/views/global/orig_navigation.html"-]
-[-/if-]

@@ -34,13 +34,18 @@
 /*
  * Path to ADODB.
  */
+
 if ( !defined('ADODB_DIR') ) {
-	define('ADODB_DIR', dirname(__FILE__).'/adodb');
+	define('ADODB_DIR', dirname(__FILE__).'/../vendor/adodb/adodb-php');
 }
 
 //openemr configuration file - bm - 05-2009
 // to collect sql database login info and the utf8 flag
-include_once(dirname(__FILE__).'/../library/sqlconf.php');
+// also collect the adodb libraries to support mysqli_mod that is needed for mysql ssl support
+require_once(dirname(__FILE__) . "/../library/sqlconf.php");
+require_once(dirname(__FILE__) . "/../vendor/adodb/adodb-php/adodb.inc.php");
+require_once(dirname(__FILE__) . "/../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
+require_once(dirname(__FILE__) . "/../library/ADODB_mysqli_mod.php");
 
 /**
 * phpGACL main class
@@ -70,7 +75,7 @@ class gacl {
 	var $_db_table_prefix = 'gacl_';
 
 	/** @var string The database type, based on available ADODB connectors - mysql, postgres7, sybase, oci8po See here for more: http://php.weblogs.com/adodb_manual#driverguide */
-	var $_db_type = 'mysql';
+	var $_db_type = 'mysqli_mod';
 
 	/** @var string The database server */
 	var $_db_host = '';
@@ -89,7 +94,7 @@ class gacl {
 
         /** @var boolean The utf8 encoding flag - bm 05-2009 */
         var $_db_utf8_flag = '';
-    
+
 	/*
 	 * NOTE: 	This cache must be manually cleaned each time ACL's are modified.
 	 * 		Alternatively you could wait for the cache to expire.
@@ -114,8 +119,8 @@ class gacl {
 	 * Constructor
 	 * @param array An arry of options to oeverride the class defaults
 	 */
-	function gacl($options = NULL) {
-	    
+	function __construct($options = NULL) {
+
 		$available_options = array('db','debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','db_type','db_host','db_user','db_password','db_name','caching','force_cache_expire','cache_dir','cache_expire_time');
 
 		//Values supplied in $options array overwrite those in the config file.
@@ -154,9 +159,9 @@ class gacl {
 		}
 	        else {
 		$utf8_flag = false;
-		}   
-                $this->_db_utf8_flag = $utf8_flag;	    
-	    
+		}
+                $this->_db_utf8_flag = $utf8_flag;
+
 		require_once( ADODB_DIR .'/adodb.inc.php');
 		require_once( ADODB_DIR .'/adodb-pager.inc.php');
 
@@ -166,6 +171,19 @@ class gacl {
 			$this->db = ADONewConnection($this->_db_type);
 			//Use NUM for slight performance/memory reasons.
 			$this->db->SetFetchMode(ADODB_FETCH_NUM);
+
+            // Set mysql to use ssl, if applicable.
+            // Can support basic encryption by including just the mysql-ca pem (this is mandatory for ssl)
+            // Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
+            if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
+                if (defined('MYSQLI_CLIENT_SSL')) {
+                    $this->db->clientFlags = MYSQLI_CLIENT_SSL;
+            	}
+            }
+
+			// Port to be used in connection
+			$this->db->port = $sqlconf["port"];
+
 			$this->db->PConnect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
 
 		        // Modified 5/2009 by BM for UTF-8 project
@@ -176,7 +194,17 @@ class gacl {
 				}
 			}
 		        // ---------------------------------------
-			
+
+			//Turn off STRICT SQL
+			$sql_strict_set_success = $this->db->Execute("SET sql_mode = ''");
+			if (!$sql_strict_set_success) {
+				error_log("Unable to set strict sql setting: ".$this->db->ErrorMsg(), 0);
+			}
+
+            if ($GLOBALS['debug_ssl_mysql_connection']) {
+                error_log("CHECK SSL CIPHER IN GACL ADODB: " . print_r($this->db->Execute("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true));
+            }
+
 		}
 		$this->db->debug = $this->_debug;
 
@@ -198,7 +226,7 @@ class gacl {
 				'writeControl' => FALSE,
 				'readControl' => FALSE,
 				'memoryCaching' => TRUE,
-				'automaticSerialization' => FALSE				
+				'automaticSerialization' => FALSE
 			);
 			$this->Cache_Lite = new Hashed_Cache_Lite($cache_options);
 		}
@@ -234,18 +262,21 @@ class gacl {
 	}
 
 	/**
-	* Wraps the actual acl_query() function.
 	*
-	* It is simply here to return TRUE/FALSE accordingly.
-	* @param string The ACO section value
-	* @param string The ACO value
-	* @param string The ARO section value
-	* @param string The ARO section
-	* @param string The AXO section value (optional)
-	* @param string The AXO section value (optional)
-	* @param integer The group id of the ARO ??Mike?? (optional)
-	* @param integer The group id of the AXO ??Mike?? (optional)
-	* @return boolean TRUE if the check succeeds, false if not.
+        * Check if the current user has a given type or types of access to an access control object.
+	*
+        * Implemented as a wrapper of acl_query().
+	* This function exists simply to return TRUE/FALSE accordingly.
+        *
+	* @param string $aco_section_value The ACO section value
+	* @param string $aco_value The ACO value
+	* @param string $aro_section_value The ARO section value
+	* @param string $aro_value The ARO value
+	* @param string $axo_section_value The AXO section value (optional)
+	* @param string $axo_value The AXO section value (optional)
+	* @param integer $root_aro_group The group id of the ARO (optional)
+	* @param integer $root_axo_group The group id of the AXO (optional)
+	* @return boolean true if the check succeeds, false if not.
 	*/
 	function acl_check($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL) {
 		$acl_result = $this->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value, $root_aro_group, $root_axo_group);
@@ -312,12 +343,13 @@ class gacl {
 
 	/**
 	* The Main function that does the actual ACL lookup.
+        *
 	* @param string The ACO section value
 	* @param string The ACO value
 	* @param string The ARO section value
-	* @param string The ARO section
+	* @param string The ARO value
 	* @param string The AXO section value (optional)
-	* @param string The AXO section value (optional)
+	* @param string The AXO value (optional)
 	* @param string The value of the ARO group (optional)
 	* @param string The value of the AXO group (optional)
 	* @param boolean Debug the operation if true (optional)
@@ -325,7 +357,7 @@ class gacl {
 	* @return array Returns as much information as possible about the ACL so other functions can trim it down and omit unwanted data.
 	*/
 	function acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL, $debug=NULL, $return_all=FALSE) {
-				
+
 		$cache_id = 'acl_query_'.$aco_section_value.'-'.$aco_value.'-'.$aro_section_value.'-'.$aro_value.'-'.$axo_section_value.'-'.$axo_value.'-'.$root_aro_group.'-'.$root_axo_group.'-'.$debug.'-'.$return_all;
 
 		$retarr = $this->get_cache($cache_id);
@@ -492,35 +524,33 @@ class gacl {
 			}
 
                         if ($return_all) {
-                                while ($arr =& $rs->fetchRow()) {
+                                while ($arr = $rs->FetchRow()) {
                                         $row[] = $arr;
                                 }
                         }
                         else {
-			        $row =& $rs->FetchRow();
+			        $row = $rs->FetchRow();
                         }
 
 
 			/*
 			 * Return ACL ID. This is the key to "hooking" extras like pricing assigned to ACLs etc... Very useful.
 			 */
-			if (is_array($row)) {
+			if (isset($row) && is_array($row)) {
 
                                 if ($return_all) {
                                         foreach ($row as $single_row) {
+						$allow = FALSE;
                                                 if ( isset($single_row[1]) AND $single_row[1] == 1 ) {
                                                         $allow = TRUE;
-                                                } else {
-                                                        $allow = FALSE;
                                                 }
                                                 $retarr[] = array('acl_id' => &$single_row[0], 'return_value' => &$single_row[2], 'allow' => $allow);
                                         }
                                 }
                                 else {
+					$allow = FALSE;
 				        if ( isset($row[1]) AND $row[1] == 1 ) {
 					        $allow = TRUE;
-				        } else {
-					        $allow = FALSE;
 				        }
 				        $retarr = array('acl_id' => &$row[0], 'return_value' => &$row[2], 'allow' => $allow);
                                 }
@@ -546,7 +576,15 @@ class gacl {
 			$this->put_cache($retarr, $cache_id);
 		}
 
-		$this->debug_text("<b>acl_query():</b> ACO Section: $aco_section_value ACO Value: $aco_value ARO Section: $aro_section_value ARO Value $aro_value ACL ID: ". $retarr['acl_id'] .' Result: '. $retarr['allow']);
+		if ($return_all)
+		{
+			$this->debug_text("<b>acl_query():</b> ACO Section: $aco_section_value ACO Value: $aco_value ARO Section: $aro_section_value ARO Value $aro_value ACL ID: OMITTED due to return_all");
+		}
+		else
+		{
+			$this->debug_text("<b>acl_query():</b> ACO Section: $aco_section_value ACO Value: $aco_value ARO Section: $aro_section_value ARO Value $aro_value ACL ID: ". $retarr['acl_id'] .' Result: '. $retarr['allow']);
+		}
+
 		return $retarr;
 	}
 

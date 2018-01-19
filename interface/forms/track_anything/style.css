@@ -1,0 +1,198 @@
+.graph {color:#0000cc;}
+
+.graph_button{
+	font:11px Arial,Helvetica,sans-serif;
+	cursor: pointer;
+	color:#000000;
+	background-color:#d3d7cf; 
+}
+  
+.ta_button{
+	font:10px Arial,Helvetica,sans-serif;
+	cursor: pointer;
+	color:#000000;
+	background-color:#d3d7cf; 
+}
+  
+.delete_button{
+	font:10px Arial,Helvetica,sans-serif;
+	cursor: pointer;
+	color:white;
+	background-color:red; 
+}
+ .nodelete_button{
+	font:10px Arial,Helvetica,sans-serif;
+	cursor: pointer;
+	color:black;
+	background-color:#d3d7cf; 
+}
+  
+
+#track_anything table{
+	border:1px solid black;
+	padding: 5px;
+}
+
+#track_anything td.menu{
+	font:11px Arial,Helvetica,sans-serif;
+}
+ 
+
+#track_anything th.time{
+	font:15px Arial,Helvetica,sans-serif;
+	background-color:#d3d7cf;
+	text-align:center;
+	color:black;
+	font-weight:bold;
+}
+#track_anything td.time{
+	font:13px Arial,Helvetica,sans-serif;
+	background-color:#eeeeec;
+	color:black;
+}
+ 
+	 
+#track_anything th.item{
+	font:15px Arial,Helvetica,sans-serif;
+	background-color:#B8CCE4; 
+	text-align:center;
+	color:black;
+	font-weight:bold;
+}
+
+	 
+#track_anything th.value{
+	font:15px Arial,Helvetica,sans-serif;
+	background-color:#DEE5F1; 
+	text-align:center;
+	color:black;
+	font-weight:bold;
+}
+
+
+#track_anything td.item{
+	font:13px Arial,Helvetica,sans-serif;
+	background-color:#DEE5F1;
+	color:black;
+	text-align:right;
+}
+ 
+#track_anything td.check{
+	font:13px Arial,Helvetica,sans-serif;
+	background-color:#d3d7cf;
+	color:black;
+}
+
+
+#ta_type p{
+margin-left:auto;
+margin-right:auto;
+} 
+
+
+#ta_type th{
+ background-color:#B8CCE4; 
+ padding:0pt;
+ font:15px Arial,Helvetica,sans-serif;	
+ color:black;
+ font-weight:bold;
+} 
+
+#ta_type td.parent{
+ padding:0pt;
+ background-color:#C6D9F0;
+ font:12px Arial,Helvetica,sans-serif;	
+ color:black;
+ font-weight:bold;
+} 
+
+#ta_type td.child{
+ padding:0pt;
+ background-color:#DEE5F1;
+ font:11px Arial,Helvetica,sans-serif;	
+ color:black;
+} 
+
+#ta_type td.op{
+ padding:0pt;
+ font:10px Arial,Helvetica,sans-serif;	
+ color:black;
+	background-color:#eeeeec;
+} 
+
+#ta_type th.add{
+ padding:0pt;
+ font:15px Arial,Helvetica,sans-serif;	
+ color:black;
+	background-color:#eeeeec;
+} 
+#ta_type td.add{
+ padding:0pt;
+ font:15px Arial,Helvetica,sans-serif;	
+ color:black;
+	background-color:#eeeeec;
+} 
+
+
+#ta_type th.edit{
+ padding:0pt;
+ font:15px Arial,Helvetica,sans-serif;	
+ color:black;
+ background-color:#eeeeec;
+} 
+#ta_type td.edit{
+ padding:0pt;
+ font:15px Arial,Helvetica,sans-serif;	
+ color:black;
+	background-color:#eeeeec;
+} 
+
+
+
+#ta_type th.deactive{
+ font:10px Arial,Helvetica,sans-serif;	
+ color:black;
+ font-style:italic;
+ background-color: #a5a5a5;
+	
+}
+
+
+#ta_type td.deactive{
+ font:10px Arial,Helvetica,sans-serif;	
+ color:black;
+ font-style:italic;
+ background-color:#bfbfbf;
+	
+}
+
+
+
+
+#ta_type .failure{
+ padding:0pt;
+ font:15px Arial,Helvetica,sans-serif;	
+ color:red;
+	background-color:#eeeeec;
+} 
+
+#ta_type table.create{
+	border:4px solid #B8CCE4; 
+	padding: 10px;
+}
+
+
+#ta_type table.add{
+	border:2px solid green;
+	padding: 5px;
+}
+
+#ta_type table.edit{
+	border:2px solid blue;
+	padding: 5px;
+}
+
+#ta_type table.del{
+	border:4px solid red;
+	padding: 5px;
+}

@@ -1,0 +1,2013 @@
+/**
+ * Stylesheet for flat colors
+ * The color palette is used to style the various elements in a consistent manner
+
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author Ranganath Pathak <pathak@scrs1.org>
+ * @copyright Copyright (c) 2017 Ranganath Pathak
+ * @version 1.0
+ * @license http://opensource.org/licenses/gpl-license.php GNU Public License
+ * @link http://www.open-emr.org
+*/
+
+
+/*
+    COLOR PALETTE
+    #470E4F - Darkest Deep Purple*
+    #64136F - Darker Deep Purple*
+    #A446B0 - Dark Deep Purple
+    #BB76C5 - Mid Deep Purple
+    #D2A4D8 - Mid Pale Deep Purple*
+    #D7AFDD - Pale Deep Purple
+    #DDBAE2 - Mid Pale Pale Deep Purple*
+    #EAD5ED - Pale Pale Deep Purple*
+    #E7E6F9 - Pale Purple~
+    #F3E8F5 - Paler Deep Purple
+    #2F2F7D - Midnight Blue~
+    #FFFFFF - White*~
+    * - used in styling buttons and input
+    ~ - common for all flat stylesheets
+*/
+@import "core.css";
+* {
+    font-family: /* 1 */
+    -apple-system, BlinkMacSystemFont, /* 2 */
+    "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+     "Droid Sans", /* 3 */
+    "Helvetica Neue", sans-serif;
+}
+html{
+    font-size:14px;
+}
+/* RP_MODIFIED  2/09/2015, 1/17/2016*/
+body {
+    margin: 0px 0px 0px 2px;
+    /* set the base fontsize for all DOM children */
+    font-size: 1em;
+    /* set the base font size for all DOM children */
+}
+a {
+    color: #0000cc;
+    text-decoration: none;
+}
+a:visited {
+    color: #0000cc;
+}
+a:hover {
+    color: #ff5555;
+}
+.menu {
+    font-style: italic;
+    font-size: 11pt;
+    color: #0000cc;
+    text-decoration: none;
+    text-align: left;
+}
+.menu_selected {
+    font-style: italic;
+    font-size: 11pt;
+    color: #000000;
+    text-decoration: none;
+    text-align: left;
+}
+.logout {
+    font-style: italic;
+    font-size: 11pt;
+    color: #000000;
+    text-decoration: none;
+    text-align: right;
+}
+.text {
+    text-decoration: none;
+    color: #000000;
+    font-size: 10pt;
+}
+.required {
+    text-decoration: none;
+    font-size: 10pt;
+    color: #880000;
+    font-weight: bold;
+}
+.bold {
+    text-decoration: none;
+    font-size: 10pt;
+    color: #000000;
+    font-weight: bold;
+}
+.alert , .alert-custom{
+    font-size: 70%;
+    color: #FF0000;
+    text-decoration: none;
+}
+.small {
+    text-decoration: none;
+    color: #000000;
+    font-size: 80%;
+}
+.link {
+    text-decoration: none;
+    color: #0000cc;
+    font-size: 70%;
+}
+.more {
+    text-decoration: none;
+    font-size: 70%;
+}
+.back {
+    text-decoration: none;
+    font-size: 70%;
+}
+.link_selected {
+    text-decoration: none;
+    color: #0000FF;
+    font-size: 70%;
+}
+.link_selected:visited {
+    text-decoration: none;
+    color: #0000FF;
+    font-size: 70%;
+}
+.link_submit {
+    text-decoration: none;
+    color: #000077;
+    font-size: 10pt;
+}
+.link_submit a:visited {
+    color: #000077;
+}
+.link_submit a:hover {
+    color: #ff5555;
+}
+.items {
+    font-size: 6pt;
+}
+.title {
+    font-size: 12pt;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* see .titlebar below */
+
+.title_bar {
+    font-size: 12pt;
+    font-weight: bold;
+    text-decoration: none;
+    color: #000000;
+}
+.title_bar_top {
+    font-size: 13px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #000000;
+}
+/*=============================================================
+ * Here we have taken variables from globals.php and turned them into CSS
+ * classes these should be used in place of the GLOBAL variables
+ * -- JRM March 2008
+ =============================================================*/
+
+.body_top {
+    background-color: #F3E8F5;
+    margin: 8px
+}
+/* $top_bg_line RP_MODIFIED 2/8/15 #EAE6FF*/
+.bgcolor2 {
+    background-color: #F3E8F5;
+}
+/* $GLOBALS['style']['BGCOLOR2'] RP_MODIFIED 2/8/15 #EAE6FF*/
+
+.body_bottom {
+    background: url('../pic/aquabg.gif') repeat;
+    margin: 8px
+}
+/* $bottom_bg_line */
+.body_title {
+    background-color: #A446B0;
+}
+/* $title_bg_line FFF RP_MODIFIED 12/22/2012 #BE4E1E;*/
+.body_nav {
+    background-color: #F3E8F5;
+}
+/* $nav_bg_line RP_MODIFIED 2/8/15 #EAE6FF */
+.body_filler {
+    background-color: #f7f0d5;
+}
+/* $login_filler_line */
+.body_login {
+    background: url('../pic/aquabg.gif') repeat;
+}
+/* $login_body_line */
+
+.table_bg {
+    background-color: #ccc;
+}
+
+/* $table_bg */
+.bgcolor1 {
+    background-color: #ccc;
+}
+/* $GLOBALS['style']['BGCOLOR1'] */
+.textcolor11 {
+    background-color: #222;
+}
+/* $GLOBALS['style']['TEXTCOLOR11'] */
+.highlightcolor {
+    background-color: #ddd;
+}
+/* $GLOBALS['style']['HIGHLIGHTCOLOR'] */
+.bottom_line {
+    background: url('../pic/aquabg.gif') repeat;
+}
+/* $GLOBALS['style']['BOTTOM_BG_LINE'] */
+.logobar {
+    background-color: #2F2F7D;
+    height: 110px;
+}
+/* $GLOBALS['logoBarHeight'] 24262c RP_MODIFIED 12/22/2012*/
+
+.navbar {
+    height: 22px;
+}
+/* $GLOBALS['navBarHeight'] */
+.titlebar {
+    height: 20px;
+}
+/* $GLOBALS['titleBarHeight'] */
+
+/* style taken out of the addressbook code and put here instead */
+#addressbook_list td {
+    font-family: Arial, Helvetica, sans-serif;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+#addressbook_list a, #addressbook_list a:visited, #addressbook_list a:hover {
+    color: #0000cc;
+}
+#addressbook_list tr.search {
+    font-size: 9pt;
+    font-weight: bold;
+}
+#addressbook_list tr.head {
+    font-size: 10pt;
+    /*background-color:#cccccc;*/
+    font-weight: bold;
+}
+#addressbook_list tr.detail {
+    font-size: 10pt;
+}
+#addressbook_list .inputtext {
+    /*font-family:monospace;
+font-size:9pt;
+font-weight:normal;
+border-style:solid;
+border-width:1px;
+border-color: #000000;
+background-color:transparent;RP_MODIFIED 1/18/2016*/
+}
+#addressbook_list .button {
+    font-family: sans-serif;
+    font-size: 8pt;
+    font-weight: bold;
+}
+.address_names:hover {
+    color: magenta;
+}
+.highlight {
+    color: magenta !Important;
+}
+
+/* styles taken out of templates/report/general_default.html */
+
+#reports_list td {
+    font-size: 8pt;
+    font-family: helvetica;
+}
+#reports_list a {
+    font-size: 8pt;
+    font-family: helvetica;
+}
+
+/* styles taken out of templates/documents/general_list.html */
+
+#documents_list td {
+    font-size: 8pt;
+    font-family: helvetica;
+}
+#documents_list a {
+    font-size: 8pt;
+    font-family: helvetica;
+}
+#documents_list .treeMenuDefault {
+    font-style: italic;
+}
+#documents_list .treeMenuBold {
+    font-style: italic;
+    font-weight: bold;
+}
+#documents_list {
+    width: 29%;
+    height: 95%;
+    overflow: auto;
+    float: left;
+    border-right: dashed 1px;
+}
+#documents_actions {
+    padding-top: 10px;
+    width: 70%;
+    height: 95%;
+    float: right;
+    overflow: auto;
+}
+#documents_actions iframe {
+    display: inline;
+    border: none;
+    width: 100%;
+    height: 600px;
+    overflow: auto;
+}
+#documents_actions form {
+    margin: 0px;
+    padding: 0px;
+}
+#documents_actions table {
+    width: 100%;
+    height: 95%;
+}
+/*=============================================================
+ * This section relates to the custom layouts that can be made
+ * using the OEMR tool in the Admin section. For example, the
+ * Patient Demographics are a custom layout.
+ *============================================================*/
+#DEM .groupname {
+    font-weight: bold;
+    color: #080;
+    font-size: 0.8em;
+    padding-right: 5px;
+    vertical-align: top;
+}
+#DEM .label_custom {
+    font-weight: bold;
+    font-size: 0.8em;
+    vertical-align: top;
+    text-align: right;
+}
+#DEM .data {
+    font-size: 0.8em;
+    vertical-align: top;
+    text-align: left;
+    padding-right: 6px;
+    /*30px - ie 6 fix*/
+}
+/* Patient History */
+#HIS .groupname {
+    font-weight: bold;
+    color: #080;
+    font-size: 9pt;
+    padding-right: 1px;
+    vertical-align: top;
+    height: 2em;
+}
+#HIS .label_custom {
+    font-weight: bold;
+    font-size: 9pt;
+    vertical-align: top;
+}
+#HIS .data {
+    font-size: 9pt;
+    vertical-align: top;
+    text-align: left;
+    padding-right: 10px;
+}
+/*=============================================================
+ * Patient Notes
+ * seen in the patient summary and notes screens
+ *============================================================*/
+#pnotes .billing {
+    background-color: #dfd;
+}
+#pnotes .highlight {
+    background-color: #fff;
+}
+#pnotes table {
+    border-collapse: collapse;
+}
+#pnotes .noterow {
+    cursor: pointer;
+}
+#pnotes .noterow td {
+    border-bottom: 1px dashed black;
+    vertical-align: top;
+    padding: 5px;
+    margin: 5px;
+}
+#pnotes_ps_expand  div.tab table td {
+  padding-right: 10px;
+}
+/*=============================================================
+ * Patient Stats
+ * seen in the patient stats screens
+ *============================================================*/
+#patient_stats {
+    padding: 10px;
+}
+#patient_stats table {
+    width: 100%;
+    border-collapse: collapse;
+}
+#patient_stats td {
+    padding: 3px;
+}
+#patient_stats .statrow {
+    cursor: pointer;
+}
+#patient_stats .head {
+    font-size: 10pt;
+    background-color: #cccccc;
+    text-align: center;
+}
+#patient_stats .detail {
+    font-size: 10pt;
+    vertical-align: top;
+}
+#patient_stats .btn {
+    background-color: transparent;
+}
+#patient_stats .bg1 {
+    background-color: #ddddff;
+}
+#patient_stats .bg2 {
+    background-color: #ffdddd;
+}
+#patient_stats .center {
+    text-align: center;
+}
+/*=============================================================
+ * Patient Stats Summary
+ * seen in the patient summary screen
+ *============================================================*/
+#patient_stats_summary table {
+    border-collapse: collapse;
+}
+#patient_stats_summary .noend_noreturn {
+    color: #ee0000;
+}
+#patient_stats_summary .noend {
+    color: #dd5500;
+}
+#patient_stats_summary .noreturn {
+    color: #0000ff;
+}
+#patient_stats_summary .title {
+    font-size: 1.1em;
+}
+#patient_stats_issues {
+    width: 100%;
+}
+#patient_stats_spreadsheets {
+    width: 100%;
+}
+#patient_stats_imm {
+    width: 100%;
+}
+#patient_stats_prescriptions {
+    width: 100%;
+}
+/*=============================================================
+ * Patient Past Encounters and Documents
+ * seen in the patient encounter screen
+ *============================================================*/
+#patient_pastenc {
+    width: 100%;
+}
+#patient_pastenc .billing_note {
+    width: 25%;
+}
+#patient_pastenc .billing_note_text {
+    padding: 5px;
+    border: 2px outset black;
+    background-color: lightgrey;
+}
+#patient_pastenc .billing_note_text_highlight {
+    background-color: #f7f5d1;
+}
+#patient_pastenc table {
+    border-collapse: collapse;
+    width: 100%;
+}
+#patient_pastenc tr {
+    cursor: pointer;
+}
+#patient_pastenc td {
+    border-top: 1px solid black;
+    vertical-align: top;
+}
+#patient_pastenc th {
+    text-align: left;
+}
+#patient_pastenc #tooltipdiv {
+    position: absolute;
+    width: 500px;
+    border: 1px solid black;
+    padding: 2px;
+    background-color: #ffffaa;
+    visibility: hidden;
+    z-index: 1000;
+    font-size: 9pt;
+}
+#patient_pastenc .highlight {
+    background-color: #fff;
+}
+#patient_pastenc .tooltip {
+    position: absolute;
+    border: 1px solid #333;
+    background: #f7f5d1;
+    padding: 2px 5px;
+    color: #333;
+    display: none;
+}
+/*=============================================================
+ * Patient Reports
+ * seen in the patient reports screens
+ *============================================================*/
+#patient_reports {
+    width: 100%;
+}
+#patient_reports .issues {
+    padding-right: 30px;
+}
+#patient_reports .issues table {
+    margin: 10px 0px 10px 0px;
+}
+#patient_reports .issues td {
+    padding: 2px;
+}
+#patient_reports .encounters td {
+    padding: 2px;
+}
+#patient_reports .encounter_forms {
+    margin: 5px 15px 5px 15px;
+}
+#patient_reports td {
+    vertical-align: top;
+}
+#patient_reports ul {
+    list-style: none;
+}
+/*=============================================================
+ * Report - Custom
+ * seen as the patient report (custom_report.php)
+ *============================================================*/
+#report_custom {
+    width: 100%;
+}
+#report_custom hr {
+    border: 2px dotted black;
+}
+#report_custom .billing {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom h1 {
+    font-size: 120%;
+    margin: 0px 0px 5px 0px;
+    padding: 0px;
+}
+#report_custom .immunizations {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .notes {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .transactions {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .communications {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .documents {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .demographics {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .insurance {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .history {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .issue {
+    margin-left: 20px;
+}
+#report_custom .issue_type {
+    font-weight: bold;
+    padding: 5px 0px 5px 0px;
+}
+#report_custom .issue_diag {
+    margin: 0px 20px 0px 20px;
+}
+#report_custom .issue_title {}
+#report_custom .issue_comments {}
+#report_custom .encounter {
+    width: 100%;
+    border-top: 2px dotted black;
+    padding: 10px 5px 10px 5px;
+    margin-top: 10px;
+}
+#report_custom .encounter h1 {
+    font-size: 140%;
+    margin: 0px;
+    padding: 0px;
+}
+#report_custom .encounter_form {
+    margin: 10px;
+    padding: 10px;
+    border-top: 1px solid gray;
+}
+#addressbook_list tr.evenrow, #searchResults tr:nth-child(even) {
+    background-color: #FFFFFF;
+    /*RP_MODIFIED 1/16/2016 :#D7AFDD */
+}
+#addressbook_list tr.oddrow, #searchResults tr:nth-child(odd),
+.signout-restore-subheading {
+    background-color: #DDBAE2;
+    /*RP_MODIFIED 1/16/2016 #ffffff */
+}
+/* The top navigation icon styling*/
+.top-nav-icons {
+    margin-right: 15px;
+    margin-top: 5px
+}
+/*
+ * CSS BUTTONS
+*/
+.message-table-header, #searchResultsHeader, #searchResultsHeader th,
+#addressbook_list tr.head, .signout-heading, #report_results table thead,
+.dehead, .showborder_head {
+    background: #BB76C5;
+    /*styles the message table header*/
+}
+input[type="button"], input[type="submit"], button {
+    font-size: 12px;
+    font-weight: 600;
+    color: #FFFFFF !Important;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    background: #64136F;
+    border: 1px solid transparent;
+    border-radius: 2px;
+}
+.head, #searchCriteria {
+    background: #BB76C5 ! Important;
+}
+#searchCriteria {
+    padding: 0px !Important;
+    margin-bottom: 5px;
+}
+input[type="button"]:focus, input[type="button"]:active:focus,
+input[type="button"].active:focus, input[type="submit"]:focus,
+input[type="submit"]:active:focus, button.active:focus, button:focus,
+button:active:focus, button.active:focus {
+    /*transform: translateY(2px);*/
+}
+input[type="text"], input[type="entry"], input[type="password"],
+input[type="search"], textarea {
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    border: 1px solid #64136F !Important;
+    padding: 2px 3px;
+    margin: 3px !Important;
+}
+select {
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    border: 1px solid #64136F ! Important;
+    margin: 3px;
+}
+input[type="text"]:focus, input[type="entry"]:focus,
+input[type="password"]:focus, input[type="search"]:focus, textarea:focus,
+select:focus {
+    background: #EAD5ED;
+    border-color: #470E4F !important;
+    box-shadow: 0 0 3px #D2A4D8 !important;
+    outline: none;
+    -webkit-transition: 0.2s linear all;
+    -moz-transition: 0.2s linear all;
+    transition: 0.2s linear all;
+}
+select[multiple] {
+  height:auto !Important;
+}
+.css_button_small, .css_button {
+    display: inline-block;
+    padding: 2px 3px;
+    margin-bottom: 0;
+    margin-right: 3px;
+    float: left;
+    font-size: 10px;
+    font-weight: 600;
+    color: #FFFFFF !important;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    background: #64136F;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    opacity: 1;
+}
+.css_button_small:focus, .css_button_small:active:focus,
+.css_button_small.active:focus, .css_button_small.focus,
+.css_button_small:active.focus, .css_button_small.active.focus {
+    outline: thin dotted;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px;
+}
+.css_button_small:hover, .css_button_small:focus, .css_button_small.focus,
+.css_button:hover, .css_button:focus, .css_button.focus {
+    color: #FFFFFF;
+    text-decoration: none;
+}
+.css_button_small:active, .css_button_small.active, .css_button:active,
+.css_button.active {
+    background-image: none;
+    outline: 0;
+    -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+    transform: translateY(2px);
+}
+.css_button_small.disabled, .css_button_small[disabled], fieldset[disabled] .css_button_small {
+    cursor: not-allowed;
+    filter: alpha(opacity=65);
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    opacity: .65;
+}
+.css_button_icon {
+    padding: 3px 12px 5px 12px;
+}
+a:visited .css_button_small, a.css_button_small, a:visited .css_button,
+a.css_button {
+    color: #FFFFFF;
+}
+.css_button_small span {}
+.css_button {}
+.css_button span {}
+.sellistclass {
+    float: left;
+}
+.disabled_button {
+    color: grey;
+}
+a.disabled_button:hover {
+    color: grey;
+}
+/*
+ * TABS A7A7A7
+*/
+ul.tabNav {
+    margin: 0 0 -4 0;
+    padding: 0;
+}
+
+/*RP_MODIFIED 7/16/2016*/
+
+ul.tabNav {
+    float: left;
+    list-style: none;
+    width: 100%;
+}
+ul.tabNav li {
+    float: left;
+    margin: 0 1px 0 0;
+    padding: 6px 0 0;
+    font-size: 0.8em;
+    vertical-align: bottom;
+    text-align: left;
+}
+ul.tabNav li.current {
+    padding-top: 0;
+    font-weight: bold;
+    font-size: 0.8em;
+    vertical-align: bottom;
+    text-align: left;
+}
+ul.tabNav a {
+    background: #EAD5ED;
+    border: solid #A446B0;
+    ;
+    border-width: 3px 1px 0px 1px;
+    color: #333;
+    display: block;
+    padding: 4px 4px 5px 4px;
+    text-decoration: none;
+    border-top-left-radius: 5px;
+    /*#CFCCF7 RP_MODIFIED 2/11/2015*/
+    border-top-right-radius: 5px;
+}
+
+/*added RP_MODIFIED */
+
+ul.tabNav a:hover {
+    background-color: #A446B0;
+    color: #000000;
+}
+
+/*RP_MODIFIED 2/11/2015 */
+
+ul.tabNav li.current a {
+    background: #D7AFDD;
+    padding: 8px;
+}
+div.tabContainer {
+    clear: both;
+    float: left;
+    width: 100%;
+}
+div.tabContainer div.tab {
+    border: 1px solid #ffffff;
+    color: #000;
+    display: none;
+    padding: 10px;
+}
+div.tabContainer div.current {
+    display: block;
+    border: 1px solid #D7AFDD;
+    background: #D7AFDD;
+}
+div.tab {
+    min-height: 180px;
+    background: #ffffff none repeat scroll 0 0;
+    margin-bottom: 10px;
+    width: 665px;
+}
+div.tab_long {
+    min-height: 180px;
+    background: #ffffff none repeat scroll 0 0;
+    margin-bottom: 10px;
+    width: 100%;
+}
+div.tab p:last-child {
+    margin-bottom: 0;
+}
+div.tab table td {
+    padding-right: 1px;
+    padding-bottom: 0px
+}
+div.tab table td.label_custom {
+    min-width: 80px;
+}
+div.tab table td.data {
+    min-width: 120px;
+}
+div.notab {
+    background: #FFFFFF none repeat scroll 0 0;
+    margin-bottom: 10px;
+    width: 100%;
+}
+div.notab-right {
+    background: #FFFFFF none repeat scroll 0 0;
+    margin-bottom: 10px;
+    width: 100%;
+}
+.section-header {
+    margin-bottom: 5px;
+    width: 685px;
+    border-bottom: 1px solid;
+}
+.section-header-dynamic {
+    margin-bottom: 5px;
+    border-bottom: 1px solid;
+}
+.summary_item {
+    background: #FFFFFF;
+    padding: 8px;
+}
+
+/*
+* REPORTS
+*/
+
+#report_parameters {
+    background-color: #DDBAE2;
+    margin: 10px 0px 5px 0px;
+}
+#report_parameters table {
+    border: solid 1px #470E4F;
+    width: 100%;
+    border-collapse: collapse;
+}
+#report_parameters table td {
+    padding: 5px;
+}
+#report_parameters table table {
+    border: 0px;
+    border-collapse: collapse;
+    font-size: 0.8em;
+}
+#report_parameters table table td.label_custom {
+    text-align: right;
+}
+#report_parameters>table>tbody>tr>td>table {
+    border-left: 1px solid #470E4F !Important;
+    /*openemr5*/
+}
+#report_parameters .form-control {
+    width: auto;
+}
+#report_results table {
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1px;
+}
+#report_results table thead {
+    padding: 5px;
+    display: table-header-group;
+    border: solid 1px #470E4F;
+    text-align: left;
+    font-weight: bold;
+    font-size: 0.7em;
+}
+#report_results table th {
+    border-bottom: 2px solid #470E4F;
+    padding: 5px;
+}
+#report_results table td {
+    padding: 5px;
+    border-bottom: 1px dashed;
+    font-size: 0.8em;
+}
+.report_totals td {
+    background-color: #DDBAE2;
+    font-weight: bold;
+}
+
+/**
+* List-table formatting
+**/
+
+.showborder {
+    width: 650px;
+}
+.showborder td {
+    border-bottom: 1px dashed #000000;
+    text-align: left;
+    font-size: 9pt;
+}
+.showborder_head th {
+    border-bottom: 1px solid #000000;
+    text-align: left;
+    font-size: 9pt;
+}
+.shownoborder td {
+    text-align: left;
+    font-size: 9pt;
+}
+.showborder_long {
+    width: 100%;
+}
+.showborder_long tr td {
+    border-bottom: 1px dashed #000000;
+    text-align: left;
+    font-size: 9pt;
+}
+
+/**
+* Drug lookup
+**/
+
+.drug_lookup {
+    font-family: helvetica;
+    font-size: 8pt;
+    border: 2px outset rgb(102, 102, 102);
+    background-color: #F3E8F5;
+    /*RP_MODIFIED 2/8/2014 #F3E8F5*/
+    padding: 5px;
+    position: absolute;
+    display: block;
+}
+
+/* Password alert styles */
+
+.pwdalert {
+    display: block;
+    width: 390pt;
+    margin-left: 100px;
+    padding: 10px 10px 10px 15px;
+    color: black;
+}
+.alertmsg1 {
+    border: 3px solid #fe7b7a;
+    background-color: #ffd6d6;
+}
+.alertmsg2 {
+    border: 3px solid #f56fff;
+    background-color: #fabfff;
+}
+.alertmsg3 {
+    border: 3px solid #9acc2e;
+    background-color: #eef7dd;
+}
+
+/* Password alert styles */
+
+
+/* Style for red font */
+
+.redtext {
+    text-decoration: none;
+    color: #FF0000;
+    font-size: 10pt;
+}
+
+/* Style for red font */
+
+.de_identification_status_message {
+    width: 50%;
+    border: 1px solid #0000FF;
+}
+.de_identification_input_controls_box {
+    width: 100%;
+    border: 1px solid #0000FF;
+}
+.de_id_upgrade_login {
+    width: 40%;
+    border: 1px solid Black;
+    background-color: #ffffff;
+}
+#navigation-slide, #navigation-slide * {
+    padding-left: 0px;
+    margin-left: 0px;
+}
+#navigation-slide li {
+    list-style: none;
+}
+#navigation-slide a {
+    background: #FFFFFF;
+    border-top: 2px solid #F3E8F5;
+    /*RP_MODIFIED 2/8/15 #EAE6FF*/
+    color: #000;
+    display: block;
+    font-weight: bold;
+    padding: 5px 2px 5px 10px;
+    width: 150px;
+}
+#navigation-slide li a.collapsed {
+    background: #A446B0;
+    /* for non-css3 browsers RP_MODIFIED 2/8/2015 #999*/
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#A446B0', endColorstr='#A446B0');
+    /* for IE b5cbff*/
+    background: -webkit-gradient(linear, left top, left bottom, from(#A446B0), to(#A446B0));
+    /* for webkit browsers b5cbff*/
+    background: -moz-linear-gradient(top, #A446B0, #A446B0);
+    /* for firefox 3.6+ b5cbff*/
+}
+#navigation-slide li a.expanded {
+    background: #BB76C5;
+    /* for non-css3 browsers RP_MODIFIED 2/8/2015 #999*/
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#BB76C5',
+        endColorstr='#BB76C5');
+    /* for IE 61a0ff)*/
+    background: -webkit-gradient(linear, left top, left bottom, from(#BB76C5),
+        to(#BB76C5));
+    /* for webkit browsers */
+    background: -moz-linear-gradient(top, #BB76C5, #BB76C5);
+    /* for firefox 3.6+ 61a0ff*/
+}
+#navigation-slide ul li a.collapsed_lv2 {
+    background: #7870DE;
+    /* for non-css3 browsers RP_MODIFIED 2/8/2015 #999*/
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#7870de',
+        endColorstr='#7870de');
+    /* for IE e7e6f9*/
+    background: -webkit-gradient(linear, left top, left bottom, from(#7870de),
+        to(#7870de));
+    /* for webkit browsers e7e6f9*/
+    background: -moz-linear-gradient(top, #7870de, #7870de);
+    /* for firefox 3.6+ e7e6f9*/
+}
+#navigation-slide ul li a.expanded_lv2 {
+    background: #e7e6f9;
+    /* for non-css3 browsers RP_MODIFIED 2/8/2015 #999*/
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#e7e6f9',
+        endColorstr='#e7e6f9');
+    /* for IE 7870de*/
+    background: -webkit-gradient(linear, left top, left bottom, from(#e7e6f9),
+        to(#e7e6f9));
+    /* for webkit browsers 7870de */
+    background: -moz-linear-gradient(top, #e7e6f9, #e7e6f9);
+    /* for firefox 3.6+ 7870de*/
+}
+#navigation-slide ul li a.collapsed_lv3 {
+    background: #aaaaaa;
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#aaaaaa',
+        endColorstr='#aaaaaa');
+    background: -webkit-gradient(linear, left top, left bottom, from(#aaaaaa),
+        to(#aaaaaa));
+    background: -moz-linear-gradient(top, #aaaaaa, #aaaaaa);
+}
+#navigation-slide ul li a.expanded_lv3 {
+    background: #eeeeee;
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee',
+        endColorstr='#eeeeee');
+    background: -webkit-gradient(linear, left top, left bottom, from(#eeeeee),
+        to(#eeeeee));
+    background: -moz-linear-gradient(top, #eeeeee, #eeeeee);
+}
+
+#sddm li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    float: left;
+    border: 1px solid #F3E8F5;
+    /*RP_MODIFIED 2/8/15 #EAE6FF*/
+    background: #A446B0;
+    /* for non-css3 browsers #999 RP_MODIFIED 2/11/2015 */
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#A446B0',
+        endColorstr='#A446B0');
+    /* for IE b5cbff RP_MODIFIED 2/11/2015 #61a0ff*/
+    background: -webkit-gradient(linear, left top, left bottom, from(#A446B0),
+        to(#A446B0));
+    /* for webkit browsers b5cbff RP_MODIFIED 2/11/2015 #61a0ff*/
+    background: -moz-linear-gradient(top, #A446B0, #A446B0);
+    /* for firefox 3.6+ b5cbff RP_MODIFIED 2/11/2015 #61a0ff*/
+}
+#sddm li a {
+    display: block;
+    margin: 0 1px 0 0;
+    padding: 4px 10px;
+    color: #004080;
+    text-align: left;
+    text-decoration: none;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+#sddm li a:hover {
+    background: #DDBAE2;
+}
+#sddm div {
+    position: absolute;
+    visibility: hidden;
+    display: none;
+    margin: 0;
+    padding: 0;
+    background: #C9F1B5;
+    border-left: 1px solid #000000;
+    border-right: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+}
+#sddm div a {
+    position: relative;
+    display: block;
+    margin: 0;
+    padding: 5px 10px;
+    width: 170px;
+    white-space: normal;
+    text-align: left;
+    text-decoration: none;
+    background: #F3E8F5;
+    color: #2875DE;
+    font-size: 0.8em;
+    font-weight: normal;
+    z-index: 10;
+}
+#sddm div a:hover {
+    background: #DDBAE2;
+    color: #000000;
+}
+.encounter-form-category-li {
+    z-index: 100;
+    background-color: #F3E8F5 !Important;
+}
+.text-area {
+    background-color: #FFFFFF;
+    border: 1px solid black;
+    width: 100%;
+    height: 100px;
+    overflow: auto;
+    text-align: left;
+}
+.example_menu {
+    font-size: 70%;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    vertical-align: top;
+    width: 136px;
+}
+.expand_all, .collapse_all {
+    cursor: pointer;
+}
+.example_menu ul {
+    display: none;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+#menu1 li, #menu2 li, #menu3 li, #menu4 li, #menu5 li, .example_menu li {
+    background-image: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid white;
+}
+.example_menu ul ul {
+    display: block;
+}
+.example_menu a {
+    color: #000;
+    cursor: pointer;
+    display: block;
+    font-weight: bold;
+    margin-left: 0;
+    padding: 2px 2px 2px 17px;
+    width: 160px;
+}
+.example_menu a.expanded {
+    background: #bbb url('collapse.gif') no-repeat 3px 50%;
+}
+.example_menu a.collapsed {
+    background: #bbb url('expand.gif') no-repeat 3px 50%;
+}
+.example_menu a:hover {
+    text-decoration: none;
+}
+.example_menu ul li span {
+    background: #d9d1a4;
+    color: #000;
+    display: block;
+    font-weight: normal;
+    width: 100%;
+}
+.example_menu ul a:Subjective {
+    font-weight: normal;
+}
+.example_menu ul a:hover {
+    background: #f5f5f5;
+    text-decoration: underline;
+}
+.example_menu li.active a {
+    background: #fff;
+}
+.example_menu li.active li a {
+    background: #e8e8e8;
+}
+#menu1 li.footer, #menu2 li.footer, #menu3 li.footer, #menu4 li.footer, #menu5
+li.footer, .example_menu .footer {
+    background: transparent url('footer.jpg') no-repeat 0 0;
+    border-top: 2px solid #fff;
+    height: 9px;
+    line-height: 15px;
+    margin: 0 0 10px 0;
+    width: 131px;
+}
+.example_menu .footer span {
+    display: none;
+}
+.cke_contents {
+    height: 300px !important;
+}
+.btn {
+    cursor: pointer;
+    display: inline-block;
+    background-repeat: no-repeat;
+    padding: 5px 14px 6px;
+    text-shadow: none;
+    color: #333;
+    font-size: 12px !Important;
+    line-height: 1 !Important;
+    border-bottom-color: #bbb;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    -webkit-transition: 0.1s linear all;
+    -moz-transition: 0.1s linear all;
+    transition: 0.1s linear all;
+}
+.btn.large {
+    font-size: 16px;
+    line-height: normal;
+    padding: 9px 14px 9px;
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    border-radius: 0px;
+}
+.btn.small {
+    padding: 3px 3px 3px;
+    font-size: 9px;
+}
+.btn-custom {
+    background-color: #0084cc hsl(201, 100%, 40%) !important;
+    background-repeat: repeat-x;
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr="#0084cc", endColorstr="#0084cc");
+    background-image: -khtml-gradient(linear, left top, left bottom, from(#0084cc), to(#0084cc));
+    background-image: -moz-linear-gradient(top, #0084cc, #0084cc);
+    background-image: -ms-linear-gradient(top, #0084cc, #0084cc);
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #0084cc), color-stop(100%, #0084cc));
+    background-image: -webkit-linear-gradient(top, #0084cc, #0084cc);
+    background-image: -o-linear-gradient(top, #0084cc, #0084cc);
+    background-image: linear-gradient(#0084cc, #0084cc);
+    border-color: #0084cc #0084cc hsl(201, 100%, 40%);
+    color: #fff !important;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.00);
+    -webkit-font-smoothing: antialiased;
+}
+.div-message {
+    background-color: white;
+    color: gray;
+    margin: 5 0 5 0px;
+    border: 1px solid #64136F;
+    /*RP_ADDED 7/5/2016*/
+    padding: 5px;
+    width: 648px;
+}
+.signout-content {
+    background: #F3E8F5;
+    /*RP_ADDED 8/27/2016*/
+}
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~search div ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+div.section, div.borderbox {
+    border-color: #470E4F !important;
+    background-color: #DDBAE2;
+}
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~search div ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5login*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+.login div.container {
+    margin-top: 5%;
+    max-width: 500px;
+    background: #F3E8F5 ! Important;
+    border-top: solid #A446B0 40px;
+    border-left: solid #EAD5ED 1px;
+    border-right: solid #EAD5ED 1px;
+    border-bottom: solid #EAD5ED 1px;
+}
+body.login {
+    background: #fcfcfc ! Important;
+}
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5login*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5fee-sheet*~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+.feesheet-title {
+    font-weight: 900;
+    background: #A446B0 !important;
+    margin: 0px 0px 10px 0px;
+    padding: 3px;
+}
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5fee-sheet*~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/*~~~~~~~~~~openemr5_tabs-Full~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+#mainBox > .body_top, .body_top_tabs {
+    background-color: #A446B0 !important;
+}
+.tabSpan, .tabSpan_tabs {
+    border-top: 5px solid #A446B0 !important;
+    border-left: 1px solid #A446B0 !important;
+    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0) !important;
+    border-right: 1px solid #A446B0 !important;
+    border-radius: 3px 6px 0px 0px !important;
+}
+.tabNotchosen, .tabsNoHover {
+    border-bottom: 2px solid #A446B0 !important;
+}
+.tabNotchosen:hover {
+    background: transparent !Important;
+}
+.tabSpan_tabs:hover {
+    background: #DDBAE2 !Important;
+}
+.tabControls_tabs {
+    border-bottom: none !important;
+}
+.ptName {
+    font-size: 20px;
+    background: #ffff9e;
+    padding: 0px 5px 0px 5px;
+}
+.patientInfo {
+    padding: 1px 1px 1px 10px;
+    font-size: 16px;
+    font-weight: 600;
+}
+.patientCurrentEncounter {
+    font-size: 16px;
+    font-weight: 600;
+}
+.menuLabel {
+    color: #000000 !Important;
+    font-weight: 700 !Important;
+    font-size: 14px !Important;
+    /*padding: 5px 10px !Important;*/
+}
+.patientEncounterList {
+    border: 1px solid #64136F;
+    background: white;
+}
+
+/*.patientEncounterList {
+    background: #ffff9e !Important;
+    border: 1px solid #64136F;
+
+}
+ .patientEncounterList:hover{
+    background: #EAD5ED  !important;
+    border-color: #470E4F !important;
+    box-shadow: 0 0 3px #D2A4D8;
+    outline: none;
+    -webkit-transition: 0.2s linear all;
+    -moz-transition: 0.2s linear all;
+    transition: 0.2s linear all;
+
+    overflow: visible;
+    height: auto;
+    z-index:4;
+}*/
+
+.appMenu>span:hover {
+    background-color: #DDBAE2 !important;
+}
+.menuSection:hover {
+    background-color: #DDBAE2 !Important;
+}
+.menuLabel:hover {
+    background: #DDBAE2 !Important;
+}
+.menuSection>.menuEntries {
+    box-shadow: 0px 2px 2px #D2A4D8 !Important;
+    border: none ! Important;
+    border-radius: 0px ! Important;
+}
+.menuEntries li .menuLabel {
+    padding: 5px 10px ! Important;
+}
+.menuEntres li .menuLabel:hover {
+    background-color: #DDBAE2 !Important;
+    color: #333;
+}
+.appMenu li:hover {
+    background-color: #DDBAE2 !Important;
+}
+.menuSection>.menuEntries {
+    background-color: #F3E8F5 !Important;
+}
+.body_title,  .body_title_tabs {
+    background-color: #D2A4D8 !important;
+}
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs body*~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+.tabs_body, #searchCriteria {
+    background-color: #D7AFDD;
+}
+.tabs_body_light {
+    background-color: #DDBAE2;
+}
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs body*~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs calendar*~~~~~~~~~~~~~~~~~~~~~~~*/
+#calsearch_params {
+    background-color: #DDBAE2 !important;
+    width: 98% !Important;
+}
+.calsearch_body {
+    background-color: #F3E8F5 !Important;
+}
+.chevron_color {
+    color: #64136F;
+}
+div#providerPicker select {
+    margin: 0px;
+}
+#calsearch_results_header {
+    margin-top: 5px;
+    width: 99% ! Important;
+}
+#calsearch_results_data {
+    width: 99% ! Important;
+}
+#topToolbarRight {
+    padding: 3px;
+}
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs calendar*~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 calendar icon*~~~~~~~~~~~~~~~~~~~~~~*/
+img[src *="show_calendar.gif"] {
+    margin-bottom: 3px;
+}
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 calendar icon*~~~~~~~~~~~~~~~~~~~~~~*/
+
+/* Form styles */
+
+.formtable {
+    font-size: 13px;
+    line-height: 24px;
+}
+.formtable tr td {
+    line-height: 24px;
+}
+.report_search_bar {
+    background-color: #DDBAE2;
+}
+body.admin-layout input[type="button"] {
+    display: inline-block;
+    float: none;
+}
+
+/* error message = new validation */
+.error-message {
+    color: red;
+    display: block;
+    white-space: nowrap;
+    font-weight: normal;
+    font-size: 11px;
+}
+.error-border {
+    border: 1px solid red !important;
+}
+.tinylogocontainer {
+    display: inline-block;
+    border: none;
+}
+.tinylogopng {
+    display: inline-block;
+    width: 44px;
+    height: 22px;
+}
+
+/* flow board filters*/
+#flow_board_parameters {
+    width: 1041px;
+    margin: 25px auto;
+    background-color: #DDBAE2;
+}
+#flow_board_parameters td {
+    padding: 10px;
+}
+#flow_board_parameters table {
+    border: solid 1px #470E4F;
+    width: 100%;
+    border-collapse: collapse;
+}
+.divider {
+    border-color: #470E4F !Important;
+}
+/* flow board filters*/
+
+/* ------- Therapy groups styling --------- */
+.group-row {
+    margin-top: 15px;
+}
+.container-group {
+    margin-top: auto;
+}
+.group-error-msg {
+    color: #ff6643;
+}
+.group-success-msg {
+    color: #4c8029;
+}
+#component-border {
+    margin-bottom: 20px;
+    border: 1px solid #2672ec;
+    width: 100%;
+    min-height: 150px;
+    padding: 10px;
+}
+#main-component ul {}
+.float-right {
+    float: right;
+}
+.rtl .float-right {
+    float: left;
+}
+table.dataTable#therapy_groups_list tbody td {
+    padding-left: 20px;
+    padding-right: 20px;
+    font-size: 15px;
+}
+.therapy_group #therapy_groups_list_container {
+    margin-top: initial;
+    width: initial;
+}
+.therapy_group #therapy_groups_list_container input[type="text"] {
+    border-color: #ccc;
+}
+.therapy_group #therapy_groups_list_container input[type=number] {
+    -moz-appearance: textfield;
+}
+.therapy_group #therapy_groups_list_container input[type=number]::-webkit-inner-spin-button,
+.therapy_group #therapy_groups_list_container input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.therapy_group .delete_btn button, .therapy_group .delete_btn span {
+    background-color: #ef3935;
+    font-size: 15px;
+    padding: 2px 10px;
+}
+.therapy_group .delete_btn a {
+    text-decoration: none;
+    color: white;
+}
+.therapy_group #therapy_groups_list_container .failed_message {
+    font-size: 15px;
+}
+#updateParticipants {
+    position: relative;
+}
+#addParticipant {
+    position: absolute;
+    right: 0px;
+    z-index: 100;
+}
+#add-participant-form {
+    transition: max-height 1s ease-out;
+    max-height: 0;
+    overflow: hidden;
+}
+.showAddForm {
+    max-height: 250px !important;
+}
+.groups-error-msg {
+    color: #ff542d;
+    font-size: 1.3em;
+    padding: 8px;
+    text-align: center;
+}
+.therapy_group .event_details {
+    font-size: 14px;
+}
+#add_participant {
+    margin-bottom: 20px;
+    margin-left: 10px;
+}
+#add_participant .patient_wrap, #add_participant .comment_wrap,
+#add_participant .button_wrap {
+    margin-top: 7px;
+}
+#add_participant .patient_wrap, #add_participant .comment_wrap {
+    display: inline-block;
+}
+#add_participant .button_wrap input {
+    float: none;
+    display: inline-block;
+}
+#add_participant_element .input_label {
+    display: block;
+}
+#add_participant_element .error_wrap .error {
+    color: red;
+}
+#group_attendance_form_table tbody td {
+    text-align: center;
+}
+#file_type_whitelist .subject-black-list, #file_type_whitelist .subject-white-list {
+    display: inline-block;
+    width: 420px;
+    float: left;
+}
+#file_type_whitelist {
+    height: 400px;
+    padding: 10px;
+}
+#white-list, #black-list {
+    margin: 10px;
+    padding: 10px;
+    width: 400px;
+}
+#file_type_whitelist select {
+    height: 250px;
+    padding: 0;
+}
+#file_type_whitelist option {
+    padding: 4px 10px 4px 10px;
+}
+#file_type_whitelist option:hover {
+    background: #EEEEEE;
+}
+#file_type_whitelist .subject-info-arrows {
+    display: inline-block;
+    width: 58px;
+    margin: 130px 30px 30px 30px;
+    float: left;
+}
+#file_type_whitelist .subject-info-save {
+    width: 60px;
+    margin: 170px 30px 30px 30px;
+    float: left;
+}
+#file_type_whitelist input[type=button] {
+    float: none !important;
+    width: 63px;
+}
+#file_type_whitelist #add-manually {
+    display: inline-block
+}
+#file_type_whitelist #add-manually-input {
+    width: 190px;
+}
+#file_type_whitelist .top-list {
+    margin: 20px 20px 2px 20px;
+}
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 external data*~~~~~~~~~~~~~~~~~~~~~~*/
+.dm-ed-in-1 {
+    background-color: #DDBAE2 !Important;
+    border-bottom: thin solid #470E4F !Important;
+}
+ul.ext-tab-head li.child-active {
+    border-bottom: 2px solid #64136F !Important;
+}
+.dm-ed-in-9 {
+    background-color: #BB76C5;
+}
+.dm-ed-in-6 {
+    padding-left: 5px;
+}
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 external data*~~~~~~~~~~~~~~~~~~~~~~*/
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 ros~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+.responsetd {
+    border-color: #470E4F !important;
+    background-color: #DDBAE2;
+    border-spacing: 5px ! Important;
+    border-collapse: separate;
+    margin: 0px 0px 5px 10px;
+}
+.response {
+    background-color: #F3E8F5;
+    border-color: #470E4F !important;
+}
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 ros~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 codes~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+.code_fieldset {
+    border: 1px solid #470E4F !important;
+    background-color: #DDBAE2 !Important;
+}
+.code_edit {
+    background-color: #BB76C5 !Important;
+}
+.code_legend {
+    background-color: #BB76C5 !Important;
+    margin-bottom: 0px !Important;
+}
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 codes~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 bootstrap nav menu*~~~~~~~~~~~~~~~~~*/
+.navbar-custom, .navbar-nav, .nav>.active>a, .navbar-nav>.active>a:hover,
+.navbar-nav>.active>a:focus {
+    /* color: white;
+    background-color: transparent !Important;*/
+}
+.navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus,
+.navbar-default .navbar-nav>.active>a:hover {
+    background-color: #DDBAE2 !Important;
+}
+.dropdown-menu>li>a:focus, .dropdown-menu>li>a:hover {
+    background-color: #DDBAE2 !Important;
+}
+.dropdown-menu {
+    background-color: #F3E8F5 !Important;
+    border-top: 1px solid #F3E8F5 !Important;
+    border-radius: 0px !Important;
+}
+.navbar-nav {
+    font-size: 15px;
+}
+.navbar-default {
+    background-color: #A446B0 !Important;
+    border: none;
+}
+.navbar-default .navbar-nav>li>a:focus, .navbar-default .navbar-nav>li>a:hover {
+    background-color: #DDBAE2 !Important;
+}
+.navbar-nav>li>.dropdown-menu {
+    box-shadow: 0px 2px 2px #D2A4D8 !Important;
+}
+.navbar-collapse.collapse.in {
+    background-color: #A446B0 !Important;
+    font-weight: 700;
+    color: #000000 !Important;
+}
+.navbar-default .navbar-brand {
+    color: #000000 !Important;
+}
+.navbar-default .navbar-nav>li>a {
+    color: #000000 !Important;
+}
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 bootstrap nav menu*~~~~~~~~~~~~~~~~~*/
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 bootstrap *~~~~~~~~~~~~~~~~~~~~~~~~~*/
+input[type=checkbox], input[type=radio] {
+    margin: 4px !Important;
+}
+fieldset {
+    border-color: #470E4F !important;
+    background-color: #DDBAE2 !Important;
+    margin-bottom: 10px!Important;
+    padding: 0px 0px 15px 0px !Important;
+
+}
+legend {
+    border-bottom: 2px solid #A446B0 !Important;
+    background: #A446B0 !Important;
+    padding-left: 10px ! Important;
+    color: #000000 !Important;
+}
+label {
+    padding: 0px 5px !Important;
+}
+textarea.form-control {
+    height: auto !Important;
+}
+:focus {
+    outline: none !important;
+}
+.table>thead {
+    background: #BB76C5 !Important;
+}
+.table-striped>tbody>tr:nth-of-type(odd) {
+    background-color: #FFFFFF !Important;
+}
+.btn-default {
+    background: #64136F !Important;
+    color: #FFFFFF !Important;
+    /*border-color:#F3E8F5!Important; #D2A4D8*/
+    border-color: #64136F !Important;
+}
+.btn-link {
+    background: #F3E8F5 !Important;
+    color: #8e8e8e !Important;
+    border-color: #470E4F !Important;
+	border-radius: 2px !Important;
+}
+.btn-default.active, .btn-default.focus, .btn-default:active,
+.btn-default:focus, .btn-default:hover, .open>.dropdown-toggle.btn-default {
+    border-color: #470E4F !Important;
+    background: #470E4F !Important;
+}
+.btn-link:focus, .btn-link:hover {
+    text-decoration: none !Important;
+}
+.btn-link {
+    border: 1px solid #ccc;
+    border-radius: 3px !Important;
+}
+.btn-link.active, .btn-link.focus, .btn-link:active, .btn-link:focus,
+.btn-link:hover, .open>.dropdown-toggle.btn-link {
+    color: #666666 !Important;
+    border-color: #64136F !Important;
+    background: #EAD5ED !Important;
+    box-shadow:0px 0px 2px #64136F inset;
+    transition: border-color ease-in-out .3s,box-shadow ease-in-out .3s;
+}
+.btn-separate-left,  .oe-opt-btn-separate-left{
+	margin-left: 20px !Important;
+}
+.btn-group  .btn {
+    margin-right:2px !Important;
+}
+.btn-group>.btn:first-child:not(:last-child):not(.dropdown-toggle) {
+	border-top-right-radius: 0px !Important;
+    border-bottom-right-radius: 0px !Important;
+    border-bottom-left-radius: 3px !Important;
+    border-top-left-radius: 3px !Important;
+}
+.btn-group-pinch>.btn:nth-last-child(2):not(.dropdown-toggle), .oe-opt-btn-group-pinch>.btn:nth-last-child(2):not(.dropdown-toggle) {
+	border-top-right-radius: 3px !Important;
+	border-bottom-right-radius: 3px !Important;
+}
+.btn-sm {
+    font-size: 10px !Important;
+}
+.btn-lg {
+    border-radius: 3px !Important;
+}
+.control-label {
+    font-weight: 600 ! Important;
+}
+.form-group {
+    margin-bottom: 5px !Important;
+}
+.form-horizontal .control-label {
+    padding-top: 2px ! Important;
+}
+.form-control {
+    height: 24px ! Important;
+    padding: 0px 6px !Important;
+}
+.checkbox input[type=checkbox], .checkbox-inline input[type=checkbox],
+.radio input[type=radio], .radio-inline input[type=radio] {
+    margin-left: -20px !Important;
+}
+.checkbox label, .radio label {
+    padding-left: 20px !important;
+}
+.position-override{
+        text-align:center !Important;
+        margin-left:0px;
+    }
+.oe-custom-line{
+   padding-bottom:5px;
+}
+.oe-large {
+	display: inline-block;
+}
+.oe-small {
+	display: none;
+}
+.oe-show-hide {
+	display: none;
+}
+.oe-legend-radio{
+    font-size:12px;
+    padding:5px 5px 0px 0px;
+}
+.oe-bold-black {
+    font-weight: 700 !Important;
+    color: black !Important;
+}
+.oe-btn-circle {
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  padding: 6px 0;
+  font-size: 12px;
+  line-height: 1.428571429;
+  border-radius: 15px;
+  background: #64136F !Important;
+  color: #FFFFFF !Important;
+  border-color: #470E4F !Important;
+}
+.patientInfo   a.btn, .patientDataColumn   a.btn{
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  padding: 2px 0;
+  font-size: 12px;
+  line-height: 1.428571429;
+  border-radius: 10px !Important;
+  background: #64136F !Important;
+  color: #FFFFFF !Important;
+  border-color: #470E4F !Important;
+  margin:5px;
+}
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 bootstrap *~~~~~~~~~~~~~~~~~~~~~~~~~*/
+#globals_form_search {
+    margin-top: -3px;
+    padding: 2px 3px 1px 3px;
+}
+th.currentvalues, th.historicalvalues {
+    background: #A446B0 !Important;
+}
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 batch payments, EOB *~~~~~~~~~~~~~~~~~~~~~~~~~*/
+.oe-payment-select {
+    width: 80px !important;
+    text-align: right;
+    font-size: 12px;
+}
+.oe-ckbox-label{
+    padding-left: 30px;
+    font-weight: 500;
+}
+.oe-file-div{
+    padding:10px 15px;
+}
+.oe-modal-dialog{
+    width:65% !Important;
+}
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 batch payments, EOB *~~~~~~~~~~~~~~~~~~~~~~~~~*/

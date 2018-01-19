@@ -31,6 +31,8 @@
 require_once(dirname(__FILE__).'/../gacl.class.php');
 require_once(dirname(__FILE__).'/../gacl_api.class.php');
 require_once(dirname(__FILE__).'/gacl_admin_api.class.php');
+require_once(dirname(__FILE__).'/../../vendor/autoload.php');
+
 
 // phpGACL Configuration file.
 if ( !isset($config_file) ) {
@@ -58,9 +60,6 @@ $gacl = &$gacl_api;
 
 $db = &$gacl->db;
 
-//Setup the Smarty Class.
-require_once($gacl_options['smarty_dir'].'/Smarty.class.php');
-
 $smarty = new Smarty;
 $smarty->compile_check = TRUE;
 $smarty->template_dir = $gacl_options['smarty_template_dir'];
@@ -75,6 +74,6 @@ $author_email = 'ipso@snappymail.ca';
  * Don't need to show notices, some of them are pretty lame and people get overly worried when they see them.
  * Mean while I will try to fix most of these. ;) Please submit patches if you find any I may have missed.
  */
-error_reporting (E_ALL ^ E_NOTICE);
-
+//commented out below to instead have php decide which errors to show.
+//error_reporting (E_ALL ^ E_NOTICE);
 ?>

@@ -1,0 +1,619 @@
+/*
+    RTL adjustments for style*.css files
+
+    Author     : Amiel Elboim, Matrix
+*/
+
+/* General RTL calsses */
+
+tr, td, th{
+    text-align: right !important;
+
+}
+
+body {
+    margin: 0px 0px 0px 2px;
+    direction: rtl;
+}
+
+.menu {
+    text-align: left;
+}
+
+.menu_selected {
+    text-align: left;
+}
+
+.logout {
+    text-align: right;
+}
+
+
+
+
+#documents_list {
+    float: right;
+    border-right: dashed 1px;
+}
+#documents_actions {
+    float: left;
+}
+
+#documents_actions form {
+    margin: 0px; padding: 0px;
+}
+
+
+/*=============================================================
+ * This section relates to the custom layouts that can be made
+ * using the OEMR tool in the Admin section. For example, the
+ * Patient Demographics are a custom layout.
+ *============================================================*/
+
+#DEM .label_custom {
+
+    text-align: left;
+}
+#DEM .data {
+    text-align: right;
+    padding-right: 6px;/*30px - ie 6 fix*/
+}
+
+/* Patient History */
+
+#HIS .groupname {
+    padding-right: 1px;
+}
+
+#HIS .data {
+
+    text-align: right;
+    padding-right: 10px;
+}
+
+
+/*=============================================================
+ * Patient Past Encounters and Documents
+ * seen in the patient encounter screen
+ *============================================================*/
+
+#patient_pastenc th {
+    text-align: right;
+
+}
+
+
+/*=============================================================
+ * Patient Reports
+ * seen in the patient reports screens
+ *============================================================*/
+#patient_reports .issues {
+    padding-right: 30px;
+}
+#patient_reports .issues table {
+    margin: 10px 0px 10px 0px;
+}
+#patient_reports .issues td {
+    padding: 2px;
+}
+#patient_reports .encounters td {
+    padding: 2px;
+}
+#patient_reports .encounter_forms {
+    margin:5px 15px 5px 15px;
+
+}
+/*=============================================================
+ * Report - Custom
+ * seen as the patient report (custom_report.php)
+ *============================================================*/
+
+#report_custom .billing {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom h1 {
+    margin:  0px 0px 5px 0px;
+    padding: 0px;
+}
+#report_custom .immunizations {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .notes {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .transactions {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .communications {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .documents {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .demographics {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .insurance {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .history {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .issue {
+    margin-left: 20px;
+}
+#report_custom .issue_type {
+    padding: 5px 0px 5px 0px;
+}
+#report_custom .issue_diag {
+    margin: 0px 20px 0px 20px;
+}
+#report_custom .encounter {
+    border-top:2px dotted black;
+    padding: 10px 5px 10px 5px;
+}
+#report_custom .encounter h1 {
+    margin: 0px;
+    padding: 0px;
+}
+#report_custom .encounter_form {
+    margin: 10px;
+    padding: 10px;
+    border-top: 1px solid gray;
+}
+
+
+
+/*
+ * CSS BUTTONS
+*/
+.css_button_small {
+    float: right;
+    margin-right: 3px;
+    padding-right: 10px; /* sliding doors padding */
+}
+
+.css_button_small span {
+    padding: 0px 0px 0px 10px;
+}
+
+.css_button {
+    float: right;
+    margin-right: 3px;
+    padding-right: 10px; /* sliding doors padding */
+}
+
+.css_button span {
+    padding: 5px 0 5px 10px;
+}
+.sellistclass {
+float:right;
+}
+/*
+ * TABS
+*/
+
+ul.tabNav { margin: 0; padding: 0; }
+ul.tabNav { float: right; }
+ul.tabNav li { float: right;
+               margin: 0 1px 0 0;
+               padding: 6px 0 0;
+    text-align: right;
+}
+ul.tabNav li.current {
+    padding-top: 0;
+    text-align: right;
+}
+ul.tabNav a {
+   padding: 4px 4px 5px 4px;
+}
+ul.tabNav li.current a {padding: 8px; }
+
+div.tabContainer {
+    float: right;
+}
+
+div.tab table td {
+	padding-right: 1px;
+}
+/*
+* REPORTS
+*/
+
+#report_parameters table table td.label_custom {
+	text-align: left;
+}
+
+#report_results table thead {
+	text-align:right;
+}
+/**
+* List-table formatting
+**/
+.showborder td {
+text-align:right;
+}
+.showborder_head  th {
+text-align:right;
+}
+.shownoborder td {
+text-align:right;
+}
+.showborder_long tr td{
+text-align:right;
+}
+
+
+
+#navigation-slide, #navigation-slide *{
+    padding-right:0px;
+    margin-right:0px;
+}
+
+#navigation-slide a{
+
+    padding: 5px 2px 5px 10px;
+}
+
+#sddm li
+{	margin: 0;
+	padding: 0;
+        float:right;
+}
+
+#sddm li a
+{
+	margin: 0 1px 0 0;
+	padding: 4px 10px;
+	text-align:right;
+}
+
+#sddm div a
+{
+    margin: 0;
+    padding: 5px 10px;
+    text-align: right;
+}
+
+
+.text-area{
+  text-align:right;
+}
+.example_menu a {
+	margin-left: 0;
+	padding: 2px 2px 2px 17px;
+}
+
+#menu1 li.footer, #menu2 li.footer, #menu3 li.footer, #menu4 li.footer, #menu5 li.footer, .example_menu .footer {
+	margin: 0 0 10px 0;
+}
+
+/* Calander */
+#bottomLeft{
+
+    float: right !important;
+}
+#bigCal{
+    border-right: 1px solid black !important;
+}
+
+
+/*miscellaneous*/
+.misc-internet-search{
+    float: right !important;
+}
+
+form#new_note div{
+
+    float: none !important;
+}
+/* record_disclosure.php */
+#record-disclosure, #record-disclosure>div {
+
+    float:none !important;
+
+}
+/* newpatient/common.php  */
+form#new-encounter-form div{
+
+    float: none !important;
+    display: inherit;
+}
+form#new-encounter-form a{
+    margin-top: 4px;
+}
+
+/* /patient_file/encounter/forms.php  */
+#encounter_forms .encounter-summary-column{
+    float: right !important;
+}
+#encounter_forms .form_header_controls, #encounter_forms .form_header{
+    float: none !important;
+}
+
+
+/* /interface/main/main_title.php */
+table#main-title tr td:nth-child(1){
+    text-align: left !important;
+}
+table#main-title tr td:nth-child(2){
+    text-align: center !important;
+}
+table#main-title tr td:nth-child(2) div, table#main-title tr td:nth-child(3) div{
+    float: none !important;
+}
+table#main-title tr td:nth-child(3){
+    text-align: center !important;
+}
+table#main-title tr td:nth-child(4){
+    text-align: right !important;
+}
+table#main-title tr td:nth-child(4) table{
+    float: left;
+}
+
+/* /interface/patient_file/summary/demographics.php */
+.demographics-box{
+    position: relative
+}
+.demographics-box>div{
+    float: none !important;
+    position: absolute;
+}
+.demographics-box>div:first-child{
+    width: 55% !important;
+}
+.demographics-box>div:last-child{
+   margin-right: 55%
+}
+
+
+#tdallday3>span{
+    direction: ltr;
+    display: inline-block;
+}
+#tdallday3>span>input{
+    text-align: right;
+}
+
+/* /interface/clickmap/template/general_new.html */
+.graphic-pain-map{
+    float: none !important;
+    width: 600px;
+}
+.graphic-pain-map img{
+    width: 100%;
+}
+body>.nav{
+    margin-right: 40px;
+}
+
+
+/* ajax_template.html */
+
+#dateNAV img{
+    display: none;
+}
+#dateNav>a:nth-child(2), #dateNav>a:nth-child(3){
+    display: inline-block;
+    width: 16px;
+    height: 15.5px;
+}
+#dateNav>a:nth-child(2){
+
+    background-image: url(../main/calendar/modules/PostCalendar/pntemplates/default/images/rightbtn.gif);
+    margin-right: 10px;
+}
+#dateNav>a:nth-child(3){
+
+    background-image: url(../main/calendar/modules/PostCalendar/pntemplates/default/images/leftbtn.gif);
+
+}
+
+/* /main/messages/messages.php */
+td.amount-msg{
+
+    text-align: left !important;
+    direction: ltr;
+}
+
+/*  /interface/billing/edih_view.php  */
+#tabs ul.ui-tabs-nav li.ui-state-default{
+    float: right;
+}
+
+
+/* /interface/code_systems/dataloads_ajax.php */
+
+#accordion .left_wrpr, #accordion .wrpr{
+    float: right !important;
+}
+.ui-dialog .ui-dialog-title{
+
+    float: none !important;
+}
+
+
+/*  /library/js/datatables/media/css/demo_table.css */
+
+#pt_table_paginate #pt_table_next{
+
+    float: none !important;
+     background: url('../../library/css/images/back_disabled.png') no-repeat top left !important;
+     display: inline-block;
+    width: 54px !important;
+    padding-left: 20px !important;
+    padding-right: 5px !important;
+
+}
+
+#pt_table_paginate #pt_table_previous{
+
+    float: none !important;
+     background: url('../../library/css/images/forward_disabled.png') no-repeat top right !important;
+     display: inline-block;
+     width: 54px !important;
+     padding-right: 20px !important;
+     padding-left: 5px !important;
+
+}
+
+.cancel-float{
+    float: none !important;
+}
+
+/* /templates/documents/general_view.html */
+#documents_actions form[name^=document]>div>div, #documents_actions form[name=notes]>div>div{
+
+    float: none !important;
+    display: inline-block;
+}
+
+
+#documents_list img[src*=branch], #documents_list img[src*=line], #documents_list img[src*=plus], #documents_list img[src*=minus]{
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+#documents_list img[src*=branchbottom]{
+    -webkit-transform:  translate(2px ,0) rotate(-90deg);
+    -moz-transform:  translate(2px ,0) rotate(-90deg);
+    -o-transform:  translate(2px ,0) rotate(-90deg);
+    -ms-transform:  translate(2px ,0) rotate(-90deg);
+    transform: translate(2px ,0) rotate(-90deg);
+}
+
+
+.tabs-container ul.tabs{
+    width: 100%;
+}
+
+.tabs-container ul.tabs li{
+
+    float: none !important;
+}
+.container_body .viewport .overview{
+    left: initial !important;
+}
+
+.top-menu-carecoordination li{
+    float: right !important;
+}
+
+
+.setup-carecoordination .top-menu-carecoordination li{
+    float: right !important;
+}
+.setup-carecoordination .ca-ca-in-1{
+    float: right !important;
+}
+.setup-carecoordination ul.virtualpage_system_based_forms{
+
+    float: right !important;
+}
+.setup-carecoordination .ca-ca-in-2{
+
+    float: right;
+    padding-right: 2% !important;
+    float: right !important;
+}
+.setup-carecoordination #paginatediv_database_tables a[rel=next]{
+    float: left !important;
+    transform: rotate(180deg);
+}
+.setup-carecoordination #paginatediv_database_tables a[rel=previous]{
+    float: right !important;
+    transform: rotate(180deg);
+}
+
+/* online - portal */
+
+/* patients/summary_pat_portal.php */
+div#portal-buttons-bottom{
+    padding: 5px 15px;
+}
+
+#DEM .label_custom, #report_parameters table table td.label_custom {
+    text-align: left !important;
+}
+
+/* flow board */
+form#pattrk h2>span{
+    float: right !important;
+}
+form#pattrk #inanewwindow>span{
+    float: left !important;
+}
+
+/* cdr Groups */
+.cdr-rules-class .ui-multiselect .ui-state-default {
+    padding: 0 20px;
+}
+
+.rule_detail.edit.summry .left_col {
+    float: none;
+    margin: 5px;
+}
+
+.rule_detail .left_col,
+.rule_detail .mid_col,
+.rule_detail .end_col {
+    float: none;
+    display: inline-block;
+}
+
+#namecontainer_preminders {
+    float: right !important;
+}
+
+/* Therapy Groups */
+#therapy_groups_list_container #clear_filters{
+    float: right;
+}
+
+#namecontainer_creminders {
+    float: right !important;
+}
+
+.xdsoft_datepicker .xdsoft_mounthpicker button, .xdsoft_datepicker .xdsoft_mounthpicker > div{
+    float: right;
+}
+
+.xdsoft_datepicker .xdsoft_mounthpicker button.xdsoft_prev, .xdsoft_datepicker .xdsoft_mounthpicker button.xdsoft_next{
+    -webkit-transform: rotate(180deg);     /* Chrome and other webkit browsers */
+    -moz-transform: rotate(180deg);        /* FF */
+    -o-transform: rotate(180deg);          /* Opera */
+    -ms-transform: rotate(180deg);         /* IE9 */
+    transform: rotate(180deg);             /* W3C compliant browsers */
+
+    /* IE8 and below */
+    filter: progid:DXImageTransform.Microsoft.Matrix(M11=-1, M12=0, M21=0, M22=-1, DX=0, DY=0, SizingMethod='auto expand');
+}
+
+#file_type_whitelist .subject-black-list,
+#file_type_whitelist .subject-white-list,
+#file_type_whitelist .subject-info-save,
+#file_type_whitelist .subject-info-arrows
+{
+    float: right;
+}
+
+#white-list, #black-list{
+    direction: ltr;
+}
+
+div.formname{
+    float: right !important;
+    padding-left: 10px !important;
+}

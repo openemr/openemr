@@ -1,0 +1,64 @@
+{
+  "name": "angular-summernote",
+  "description": "AngularJS directive to Summernote",
+  "version": "0.8.1",
+  "main": [
+    "./dist/angular-summernote.js"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "node_modules/",
+    "examples/",
+    "test/",
+    "Gruntfile.js",
+    "karma.conf.js",
+    "package.json",
+    ".travis.yml",
+    ".jshintrc",
+    ".gitignore",
+    ".editorconfig",
+    ".bowerrc",
+    ".coveralls.yml"
+  ],
+  "keywords": [
+    "angular.js",
+    "summernote",
+    "editor",
+    "directive"
+  ],
+  "authors": [
+    {
+      "name": "\"Outsider\" Jeonghoon Byun",
+      "email": "outsideris@gmail.com",
+      "url": "http://blog.outsider.ne.kr/"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/summernote/angular-summernote.git"
+  },
+  "dependencies": {
+    "summernote": "~0.8.0",
+    "angular": "~1.5.0"
+  },
+  "devDependencies": {
+    "angular-1.2": "https://raw.githubusercontent.com/angular/bower-angular/v1.2.29/angular.min.js",
+    "angular-1.3": "https://raw.githubusercontent.com/angular/bower-angular/v1.3.20/angular.min.js",
+    "angular-1.4": "https://raw.githubusercontent.com/angular/bower-angular/v1.4.9/angular.min.js",
+    "chai": "~2.3.0",
+    "angular-mocks": "~1.5.0",
+    "angular-mocks-1.2": "https://raw.githubusercontent.com/angular/bower-angular-mocks/v1.2.29/angular-mocks.js",
+    "angular-mocks-1.3": "https://raw.githubusercontent.com/angular/bower-angular-mocks/v1.3.20/angular-mocks.js",
+    "angular-mocks-1.4": "https://raw.githubusercontent.com/angular/bower-angular-mocks/v1.4.9/angular-mocks.js"
+  },
+  "homepage": "https://github.com/summernote/angular-summernote",
+  "_release": "0.8.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.8.1",
+    "commit": "d2b09a26c791b1b3b2f038133b33f5b5ee004684"
+  },
+  "_source": "https://github.com/summernote/angular-summernote.git",
+  "_target": "0.8.1",
+  "_originalSource": "angular-summernote"
+}

@@ -1,72 +1,87 @@
 <?php
-// Copyright (C) 2008-2010 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * Services by category report.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2008-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/sql.inc");
-require_once("$srcdir/formatting.inc.php");
+
+use OpenEMR\Core\Header;
 
 // Format dollars for display.
 //
-function bucks($amount) {
-  if (empty($amount)) return '';
-  return oeFormatMoney($amount);
-}
+function bucks($amount)
+{
+    if (empty($amount)) {
+        return '';
+    }
 
-$filter = $_REQUEST['filter'] + 0;
-$where = "c.active = 1";
-if ($filter) $where .= " AND c.code_type = '$filter'";
-if (empty($_REQUEST['include_uncat']))
-  $where .= " AND c.superbill != '' AND c.superbill != '0'";
+    return oeFormatMoney($amount);
+}
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<style type="text/css">
+    <title><?php echo xlt('Services by Category'); ?></title>
 
-/* specifically include & exclude from printing */
-@media print {
-    #report_parameters {
-        visibility: hidden;
-        display: none;
-    }
-    #report_parameters_daterange {
-        visibility: visible;
-        display: inline;
-    }
-    #report_results table {
-       margin-top: 0px;
-    }
-}
+    <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-/* specifically exclude some from the screen */
-@media screen {
-    #report_parameters_daterange {
-        visibility: hidden;
-        display: none;
-    }
-}
-</style>
-<title><?php xl('Services by Category','e'); ?></title>
+    <style type="text/css">
+        /* specifically include & exclude from printing */
+        @media print {
+            #report_parameters {
+                visibility: hidden;
+                display: none;
+            }
+            #report_parameters_daterange {
+                visibility: visible;
+                display: inline;
+            }
+            #report_results table {
+               margin-top: 0px;
+            }
+        }
 
-<script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+        /* specifically exclude some from the screen */
+        @media screen {
+            #report_parameters_daterange {
+                visibility: hidden;
+                display: none;
+            }
+        }
 
+        table.mymaintable, table.mymaintable td, table.mymaintable th {
+            border: 1px solid #aaaaaa;
+            border-collapse: collapse;
+        }
+        table.mymaintable td, table.mymaintable th {
+            padding: 1pt 4pt 1pt 4pt;
+        }
+    </style>
+
+    <script language="JavaScript">
+
+     $(document).ready(function() {
+         oeFixedHeaderSetup(document.getElementById('mymaintable'));
+         var win = top.printLogSetup ? top : opener.top;
+         win.printLogSetup(document.getElementById('printbutton'));
+     });
+    </script>
 </head>
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Services by Category','e'); ?></span>
+<span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Services by Category'); ?></span>
 
-<form method='post' action='services_by_category.php' name='theform' id='theform'>
+<form method='post' action='services_by_category.php' name='theform' id='theform' onsubmit='return top.restoreSession()'>
 
 <div id="report_parameters">
 
@@ -75,146 +90,164 @@ if (empty($_REQUEST['include_uncat']))
 <table>
  <tr>
   <td width='280px'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
-		<tr>
-			<td>
-			   <select name='filter'>
-				<option value='0'><?php xl('All','e'); ?></option>
-			<?php
-			foreach ($code_types as $key => $value) {
-			  echo "<option value='" . $value['id'] . "'";
-			  if ($value['id'] == $filter) echo " selected";
-			  echo ">$key</option>\n";
-			}
-			?>
-			   </select>
-			</td>
-			<td>
-			   <input type='checkbox' name='include_uncat' value='1'<?php if (!empty($_REQUEST['include_uncat'])) echo " checked"; ?> />
-			   <?php xl('Include Uncategorized','e'); ?>
-			</td>
-		</tr>
-	</table>
+    <table class='text'>
+        <tr>
+            <td>
+               <select name='filter' class='form-control'>
+                <option value='0'><?php echo xlt('All'); ?></option>
+            <?php
+            foreach ($code_types as $key => $value) {
+                echo "<option value='" . attr($value['id']) . "'";
+                if ($value['id'] == $filter) {
+                    echo " selected";
+                }
 
-	</div>
+                echo ">" . text($key) . "</option>\n";
+            }
+            ?>
+               </select>
+            </td>
+            <td>
+        <div class="checkbox">
+                <label><input type='checkbox' name='include_uncat' value='1'<?php echo (!empty($_REQUEST['include_uncat'])) ? " checked" : ""; ?> />
+                <?php echo xlt('Include Uncategorized'); ?></label>
+        </div>
+            </td>
+        </tr>
+    </table>
+
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
-				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-					<span>
-						<?php xl('Submit','e'); ?>
-					</span>
-					</a>
-
-					<?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' onclick='window.print()'>
-						<span>
-							<?php xl('Print','e'); ?>
-						</span>
-					</a>
-					<?php } ?>
-				</div>
-			</td>
-		</tr>
-	</table>
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
+                <div class="text-center">
+          <div class="btn-group" role="group">
+                      <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                            <?php echo xlt('Submit'); ?>
+                      </a>
+                        <?php if ($_POST['form_refresh']) { ?>
+                        <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                                <?php echo xlt('Print'); ?>
+                        </a>
+                        <?php } ?>
+          </div>
+                </div>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>
 </div> <!-- end of parameters -->
 
-<?php 
-    if ($_POST['form_refresh']) { 
+<?php
+if ($_POST['form_refresh']) {
 ?>
 
 <div id="report_results">
 
 
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
- <thead style='display:table-header-group'>
-  <tr bgcolor="#dddddd">
-   <th class='bold'><?php xl('Category'   ,'e'); ?></th>
-   <th class='bold'><?php xl('Type'       ,'e'); ?></th>
-   <th class='bold'><?php xl('Code'       ,'e'); ?></th>
-   <th class='bold'><?php xl('Mod'        ,'e'); ?></th>
-   <th class='bold'><?php xl('Units'      ,'e'); ?></th>
-   <th class='bold'><?php xl('Description','e'); ?></th>
+<table width='98%' id='mymaintable' class='mymaintable'>
+<thead style='display:table-header-group'>
+<tr bgcolor="#dddddd">
+<th class='bold'><?php echo xlt('Category'); ?></th>
+<th class='bold'><?php echo xlt('Type'); ?></th>
+<th class='bold'><?php echo xlt('Code'); ?></th>
+<th class='bold'><?php echo xlt('Mod'); ?></th>
+<th class='bold'><?php echo xlt('Units'); ?></th>
+<th class='bold'><?php echo xlt('Description'); ?></th>
 <?php if (related_codes_are_used()) { ?>
-   <th class='bold'><?php xl('Related'    ,'e'); ?></th>
+   <th class='bold'><?php echo xlt('Related'); ?></th>
 <?php } ?>
 <?php
 $pres = sqlStatement("SELECT title FROM list_options " .
-		     "WHERE list_id = 'pricelevel' ORDER BY seq");
+     "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq");
 while ($prow = sqlFetchArray($pres)) {
-  // Added 5-09 by BM - Translate label if applicable
-  echo "   <th class='bold' align='right' nowrap>" . xl_list_label($prow['title']) . "</th>\n";
+// Added 5-09 by BM - Translate label if applicable
+    echo "   <th class='bold' align='right' nowrap>" . text(xl_list_label($prow['title'])) . "</th>\n";
 }
 ?>
-  </tr>
- </thead>
- <tbody>
+</tr>
+</thead>
+<tbody>
 <?php
+
+$sqlBindArray = array();
+$filter = sanitizeNumber($_REQUEST['filter']);
+$where = "c.active = 1";
+if ($filter) {
+    $where .= " AND c.code_type = ?";
+    array_push($sqlBindArray, $filter);
+}
+if (empty($_REQUEST['include_uncat'])) {
+    $where .= " AND c.superbill != '' AND c.superbill != '0'";
+}
+
 $res = sqlStatement("SELECT c.*, lo.title FROM codes AS c " .
-  "LEFT OUTER JOIN list_options AS lo ON lo.list_id = 'superbill' " .
-  "AND lo.option_id = c.superbill " .
-  "WHERE $where ORDER BY lo.title, c.code_type, c.code, c.modifier");
+"LEFT OUTER JOIN list_options AS lo ON lo.list_id = 'superbill' " .
+"AND lo.option_id = c.superbill AND lo.activity = 1 " .
+"WHERE $where ORDER BY lo.title, c.code_type, c.code, c.modifier", $sqlBindArray);
 
 $last_category = '';
 $irow = 0;
 while ($row = sqlFetchArray($res)) {
-  $category = $row['title'] ? $row['title'] : 'Uncategorized';
-  $disp_category = '&nbsp';
-  if ($category !== $last_category) {
-    $last_category = $category;
-    $disp_category = $category;
-    ++$irow;
-  }
-  foreach ($code_types as $key => $value) {
-    if ($value['id'] == $row['code_type']) {
-      break;
+    $category = $row['title'] ? $row['title'] : xl('Uncategorized');
+    $disp_category = ' ';
+    if ($category !== $last_category) {
+        $last_category = $category;
+        $disp_category = $category;
+        ++$irow;
     }
-  }
-  $bgcolor = (($irow & 1) ? "#ffdddd" : "#ddddff");
-  echo "  <tr bgcolor='$bgcolor'>\n";
-  // Added 5-09 by BM - Translate label if applicable
-  echo "   <td class='text'>" . xl_list_label($disp_category) . "</td>\n";
-  echo "   <td class='text'>$key</td>\n";
-  echo "   <td class='text'>" . $row['code'] . "</td>\n";
-  echo "   <td class='text'>" . $row['modifier'] . "</td>\n";
-  echo "   <td class='text'>" . $row['units'] . "</td>\n";
-  echo "   <td class='text'>" . $row['code_text'] . "</td>\n";
 
-  if (related_codes_are_used()) {
-    // Show related codes.
-    echo "   <td class='text'>";
-    $arel = explode(';', $row['related_code']);
-    foreach ($arel as $tmp) {
-      list($reltype, $relcode) = explode(':', $tmp);
-      $reltype = $code_types[$reltype]['id'];
-      $relrow = sqlQuery("SELECT code_text FROM codes WHERE " .
-        "code_type = '$reltype' AND code = '$relcode' LIMIT 1");
-      echo $relcode . ' ' . trim($relrow['code_text']) . '<br />';
+    foreach ($code_types as $key => $value) {
+        if ($value['id'] == $row['code_type']) {
+            break;
+        }
     }
-    echo "</td>\n";
-  }
 
-  $pres = sqlStatement("SELECT p.pr_price " .
+    $bgcolor = (($irow & 1) ? "#ffdddd" : "#ddddff");
+    echo "  <tr bgcolor='$bgcolor'>\n";
+    // Added 5-09 by BM - Translate label if applicable
+    echo "   <td class='text'>" . text(xl_list_label($disp_category)) . "</td>\n";
+    echo "   <td class='text'>" . text($key) . "</td>\n";
+    echo "   <td class='text'>" . text($row['code']) . "</td>\n";
+    echo "   <td class='text'>" . text($row['modifier']) . "</td>\n";
+    echo "   <td class='text'>" . text($row['units']) . "</td>\n";
+    echo "   <td class='text'>" . text($row['code_text']) . "</td>\n";
+
+    if (related_codes_are_used()) {
+        // Show related codes.
+        echo "   <td class='text'>";
+        $arel = explode(';', $row['related_code']);
+        foreach ($arel as $tmp) {
+            list($reltype, $relcode) = explode(':', $tmp);
+            $reltype = $code_types[$reltype]['id'];
+            $relrow = sqlQuery("SELECT code_text FROM codes WHERE " .
+            "code_type = ? AND code = ? LIMIT 1", array($reltype, $relcode));
+            echo text($relcode) . ' ' . text(trim($relrow['code_text'])) . '<br />';
+        }
+
+        echo "</td>\n";
+    }
+
+    $pres = sqlStatement("SELECT p.pr_price " .
     "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
-    "p.pr_id = '" . $row['id'] . "' AND p.pr_selector = '' " .
+    "p.pr_id = ? AND p.pr_selector = '' " .
     "AND p.pr_level = lo.option_id " .
-    "WHERE list_id = 'pricelevel' ORDER BY lo.seq");
-  while ($prow = sqlFetchArray($pres)) {
-    echo "   <td class='text' align='right'>" . bucks($prow['pr_price']) . "</td>\n";
-  }
-  echo "  </tr>\n";
+    "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq", array($row['id']));
+    while ($prow = sqlFetchArray($pres)) {
+        echo "   <td class='text' align='right'>" . text(bucks($prow['pr_price'])) . "</td>\n";
+    }
+
+    echo "  </tr>\n";
 }
 ?>
- </tbody>
+</tbody>
 </table>
 
 <?php } // end of submit logic ?>

@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2011 Brady Miller <brady@sparmy.com>
+// Copyright (C) 2011 Brady Miller <brady.g.miller@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -7,7 +7,7 @@
 // of the License, or (at your option) any later version.
 //
 class NFQ_0028b_PopulationCriteria implements CqmPopulationCrtiteriaFactory
-{    
+{
     public function getTitle()
     {
         return "Population Criteria";
@@ -31,5 +31,10 @@ class NFQ_0028b_PopulationCriteria implements CqmPopulationCrtiteriaFactory
     public function createExclusion()
     {
         return new ExclusionsNone();
+    }
+    
+    public function createDenominatorException()
+    {
+        return new ExceptionsNone();
     }
 }

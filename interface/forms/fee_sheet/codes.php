@@ -151,5 +151,3 @@ $bcodes['HCPCS']['Therapeutic Injections'] = array(
 	'J3410' => 'Vistaril up to 25 mg',
 );
 *********************************************************************/
-
-?>

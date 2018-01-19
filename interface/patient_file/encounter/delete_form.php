@@ -1,4 +1,28 @@
 <?php
+/**
+ * This script delete an Encounter form.
+ *
+ * Copyright (C) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Roberto Vasquez <robertogagliotta@gmail.com>
+ * @link    http://www.open-emr.org
+ */
+
+
+
+
 include_once("../../globals.php");
 
 // allow a custom 'delete' form
@@ -14,13 +38,25 @@ if (file_exists($deleteform)) {
 // if no custom 'delete' form, then use a generic one
 
 // when the Cancel button is pressed, where do we go?
-$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+$returnurl = 'forms.php';
 
 if ($_POST['confirm']) {
-    // set the deleted flag of the indicated form
-    $sql = "update forms set deleted=1 where id=".$_POST['id'];
-    if ($_POST['id'] != "*" && $_POST['id'] != '') sqlInsert($sql);
-    // log the event   
+    if ($_POST['id'] != "*" && $_POST['id'] != '') {
+      // set the deleted flag of the indicated form
+        $sql = "update forms set deleted=1 where id=?";
+        sqlInsert($sql, array($_POST['id']));
+      // Delete the visit's "source=visit" attributes that are not used by any other form.
+        sqlStatement(
+            "DELETE FROM shared_attributes WHERE " .
+            "pid = ? AND encounter = ? AND field_id NOT IN (" .
+            "SELECT lo.field_id FROM forms AS f, layout_options AS lo WHERE " .
+            "f.pid = ? AND f.encounter = ? AND f.formdir LIKE 'LBF%' AND " .
+            "f.deleted = 0 AND " .
+            "lo.form_id = f.formdir AND lo.source = 'E' AND lo.uor > 0)",
+            array($pid, $encounter, $pid, $encounter)
+        );
+    }
+    // log the event
     newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Form ".$_POST['formname']." deleted from Encounter ".$_POST['encounter']);
 
     // redirect back to the encounter
@@ -36,27 +72,27 @@ if ($_POST['confirm']) {
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 <!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
 
 </head>
 
 <body class="body_top">
 
-<span class="title">Delete Encounter Form</span>
+<span class="title"><?php echo xlt('Delete Encounter Form'); ?></span>
 
 <form method="post" action="<?php echo $rootdir;?>/patient_file/encounter/delete_form.php" name="my_form" id="my_form">
 <?php
 // output each GET variable as a hidden form input
 foreach ($_GET as $key => $value) {
-    echo '<input type="hidden" id="'.$key.'" name="'.$key.'" value="'.$value.'"/>'."\n";
+    echo '<input type="hidden" id="'.attr($key).'" name="'.attr($key).'" value="'.attr($value).'"/>'."\n";
 }
 ?>
 <input type="hidden" id="confirm" name="confirm" value="1"/>
 <p>
-You are about to delete the form '<?php echo $_GET['formname']; ?>' from <?php xl('This Encounter','e'); ?>.
+<?php echo xlt('You are about to delete the following form from this encounter') . ': ' . text(xl_form_title($_GET['formname'])); ?>
 </p>
-<input type="button" id="confirmbtn" name="confirmbtn" value="Yes, Delete this form">
-<input type="button" id="cancel" name="cancel" value="Cancel">
+<input type="button" id="confirmbtn" name="confirmbtn" value='<?php echo xla('Yes, Delete this form'); ?>'>
+<input type="button" id="cancel" name="cancel" value='<?php echo xla('Cancel'); ?>'>
 </form>
 
 </body>
@@ -70,7 +106,7 @@ $(document).ready(function(){
 });
 
 function ConfirmDelete() {
-    if (confirm("This action cannot be undone. Are you sure you wish to delete this form?")) {
+    if (confirm('<?php echo xls('This action cannot be undone. Are you sure you wish to delete this form?'); ?>')) {
         top.restoreSession();
         $("#my_form").submit();
         return true;

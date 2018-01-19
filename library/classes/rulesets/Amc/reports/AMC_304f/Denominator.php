@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2011 Brady Miller <brady@sparmy.com>
+// Copyright (C) 2011 Brady Miller <brady.g.miller@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,22 +18,20 @@ class AMC_304f_Denominator implements AmcFilterIF
         return "AMC_304f Denominator";
     }
 
-    public function test( AmcPatient $patient, $beginDate, $endDate )
+    public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // All unique patients seen by the EP or admitted to the eligible
         // hospital’s or CAH’s inpatient or emergency department (POS 21 or 23)
         // Also need to have requested their records.
         //  (basically needs an encounter within the report dates and to have requested their
         //   records within the report dates)
-        $amccheck =  sqlQuery("SELECT * FROM `amc_misc_data` WHERE `amc_id`=? AND `pid`=? AND `date_created`>=? AND `date_created`<=?", array('provide_rec_pat_amc',$patient->id,$beginDate,$endDate) );
+        $amccheck =  sqlQuery("SELECT * FROM `amc_misc_data` WHERE `amc_id`=? AND `pid`=? AND `date_created`>=? AND `date_created`<=?", array('provide_rec_pat_amc',$patient->id,$beginDate,$endDate));
         $options = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
-        if ( (Helper::checkAnyEncounter($patient, $beginDate, $endDate, $options)) &&
+        if ((Helper::checkAnyEncounter($patient, $beginDate, $endDate, $options)) &&
              !(empty($amccheck)) ) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
-    
 }

@@ -1,246 +1,373 @@
 <?php
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * Login screen.
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author  Kevin Yeh <kevin.y@integralemr.com>
+ * @author  Scott Wakefield <scott.wakefield@gmail.com>
+ * @author  ViCarePlus <visolve_emr@visolve.com>
+ * @author  Julia Longtin <julialongtin@diasp.org>
+ * @author  cfapress
+ * @author  markleeds
+ * @link    http://www.open-emr.org
+ */
+
+
+
+use OpenEMR\Core\Header;
 
 $ignoreAuth=true;
-include_once("../globals.php");
-include_once("$srcdir/sha1.js");
-include_once("$srcdir/sql.inc");
-include_once("$srcdir/md5.js");
+require_once("../globals.php");
+
+// mdsupport - Add 'App' functionality for user interfaces without standard menu and frames
+// If this script is called with app parameter, validate it without showing other apps.
+//
+// Build a list of valid entries
+$emr_app = array();
+if ($GLOBALS['new_tabs_layout']) {
+    $rs = sqlStatement(
+        "SELECT option_id, title,is_default FROM list_options
+			WHERE list_id=? and activity=1 ORDER BY seq, option_id",
+        array ('apps')
+    );
+    if (sqlNumRows($rs)) {
+        while ($app = sqlFetchArray($rs)) {
+            $app_req = explode('?', trim($app['title']));
+            if (! file_exists('../'.$app_req[0])) {
+                continue;
+            }
+
+                $emr_app [trim($app ['option_id'])] = trim($app ['title']);
+            if ($app ['is_default']) {
+                $emr_app_def = $app ['option_id'];
+            }
+        }
+    }
+}
+
+$div_app = '';
+if (count($emr_app)) {
+    // Standard app must exist
+    $std_app = 'main/main_screen.php';
+    if (!in_array($std_app, $emr_app)) {
+        $emr_app['*OpenEMR'] = $std_app;
+    }
+
+    if (isset($_REQUEST['app']) && $emr_app[$_REQUEST['app']]) {
+        $div_app = sprintf('<input type="hidden" name="appChoice" value="%s">', attr($_REQUEST['app']));
+    } else {
+        foreach ($emr_app as $opt_disp => $opt_value) {
+            $opt_htm .= sprintf(
+                '<option value="%s" %s>%s</option>\n',
+                attr($opt_disp),
+                ($opt_disp == $opt_default ? 'selected="selected"' : ''),
+                text(xl_list_label($opt_disp))
+            );
+        }
+
+        $div_app = sprintf(
+            '
+<div id="divApp" class="form-group">
+	<label for="appChoice" class="control-label text-right">%s:</label>
+    <div>
+        <select class="form-control" id="selApp" name="appChoice" size="1">%s</select>
+    </div>
+</div>',
+            xlt('App'),
+            $opt_htm
+        );
+    }
+}
+
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-<link rel=stylesheet href="../themes/login.css" type="text/css">
+    <title><?php echo text($openemr_name) . " " . xlt('Login'); ?></title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-<script language='JavaScript' src="../../library/js/jquery-1.4.3.min.js"></script>
-<script language='JavaScript'>
+    <?php Header::setupHeader(['jquery-ui', 'jquery-ui-darkness']); ?>
 
-//VicarePlus :: Validation function for checking the hashing algorithm used for encrypting password
-function chk_hash_fn()
-{
-var str = document.forms[0].authUser.value;
-   $.ajax({
-  url: "validateUser.php?u="+str,
-  context: document.body,
-  success: function(data){
-        if(data == 0) //VicarePlus :: If the hashing algorithm is 'MD5'
-        {
-                document.forms[0].authPass.value=MD5(document.forms[0].clearPass.value);
-                document.forms[0].authNewPass.value=SHA1(document.forms[0].clearPass.value);
-        }
-        else  //VicarePlus :: If the hashing algorithm is 'SHA1'
-        {
-                document.forms[0].authPass.value=SHA1(document.forms[0].clearPass.value);
-        }
-                document.forms[0].clearPass.value='';
-                document.login_form.submit();
+    <link rel="stylesheet" href="../themes/login.css?v=<?php echo $v_js_includes; ?>" type="text/css">
+
+    <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
+
+    <script type="text/javascript">
+        var registrationTranslations = <?php echo json_encode(array(
+            'title' => xla('OpenEMR Product Registration'),
+            'pleaseProvideValidEmail' => xla('Please provide a valid email address'),
+            'success' => xla('Success'),
+            'registeredSuccess' => xla('Your installation of OpenEMR has been registered'),
+            'submit' => xla('Submit'),
+            'noThanks' => xla('No Thanks'),
+            'registeredEmail' => xla('Registered email'),
+            'registeredId' => xla('Registered id'),
+            'genericError' => xla('Error. Try again later'),
+            'closeTooltip' => ''
+        ));
+        ?>;
+
+        var registrationConstants = <?php echo json_encode(array(
+            'webroot' => $GLOBALS['webroot']
+        ))
+        ?>;
+    </script>
+
+    <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_service.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_controller.js?v=<?php echo $v_js_includes; ?>"></script>
+
+    <script type="text/javascript">
+        jQuery(document).ready(function() {
+            init();
+
+            var productRegistrationController = new ProductRegistrationController();
+            productRegistrationController.getProductRegistrationStatus(function(err, data) {
+                if (err) { return; }
+
+                if (data.statusAsString === 'UNREGISTERED') {
+                    productRegistrationController.showProductRegistrationModal();
                 }
+            });
         });
-}
 
-function imsubmitted() {
-<?php if (!empty($GLOBALS['restore_sessions'])) { ?>
- // Delete the session cookie by setting its expiration date in the past.
- // This forces the server to create a new session ID.
- var olddate = new Date();
- olddate.setFullYear(olddate.getFullYear() - 1);
- document.cookie = '<?php echo session_name() . '=' . session_id() ?>; path=/; expires=' + olddate.toGMTString();
-<?php } ?>
- return false; //Currently the submit action is handled by the chk_hash_fn() function itself.
-}
-</script>
+        function init() {
+            $("#authUser").focus();
+        }
+
+        function transmit_form() {
+            document.forms[0].submit();
+        }
+
+        function imsubmitted() {
+            <?php if (!empty($GLOBALS['restore_sessions'])) { ?>
+                // Delete the session cookie by setting its expiration date in the past.
+                // This forces the server to create a new session ID.
+                var olddate = new Date();
+                olddate.setFullYear(olddate.getFullYear() - 1);
+                document.cookie = '<?php echo session_name() . '=' . session_id() ?>; path=<?php echo($web_root ? $web_root : '/');?>; expires=' + olddate.toGMTString();
+            <?php } ?>
+            return false; //Currently the submit action is handled by the encrypt_form().
+        }
+    </script>
 
 </head>
-<body <?php echo $login_body_line;?> onload="javascript:document.login_form.authUser.focus();" >
+<body class="login">
+    <div class="container">
+        <form method="POST" id="login_form"
+            action="../main/main_screen.php?auth=login&site=<?php echo attr($_SESSION['site_id']); ?>"
+            target="_top" name="login_form" onsubmit="return imsubmitted();">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div>
+                        <div class="center-block" style="max-width:400px">
+                            <img class="img-responsive center-block" src="<?php echo $GLOBALS['images_static_relative']; ?>/login-logo.png" />
+                        </div>
 
-<span class="text"></span>
-<center>
+                        <input type='hidden' name='new_login_session_management' value='1' />
 
-<form method="POST"
- action="../main/main_screen.php?auth=login&site=<?php echo htmlspecialchars($_SESSION['site_id']); ?>"
- target="_top" name="login_form" onsubmit="return imsubmitted();">
+                        <?php
+                        // collect groups
+                        $res = sqlStatement("select distinct name from groups");
+                        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+                              $result[$iter] = $row;
+                        }
 
-<?php
-// collect groups
-$res = sqlStatement("select distinct name from groups");
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-	$result[$iter] = $row;
-if (count($result) == 1) {
-	$resvalue = $result[0]{"name"};
-	echo "<input type='hidden' name='authProvider' value='$resvalue' />\n";
-}
-// collect default language id
-$res2 = sqlStatement("select * from lang_languages where lang_description = '".$GLOBALS['language_default']."'");
-for ($iter = 0;$row = sqlFetchArray($res2);$iter++)
-          $result2[$iter] = $row;
-if (count($result2) == 1) {
-          $defaultLangID = $result2[0]{"lang_id"};
-          $defaultLangName = $result2[0]{"lang_description"};
-}
-else {
-          //default to english if any problems
-          $defaultLangID = 1;
-          $defaultLangName = "English";
-}
-// set session variable to default so login information appears in default language
-$_SESSION['language_choice'] = $defaultLangID;
-// collect languages if showing language menu
-if ($GLOBALS['language_menu_login']) {
-    
-        // sorting order of language titles depends on language translation options.
-        $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
-        if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation']))
-        {
-          $sql = "SELECT * FROM lang_languages ORDER BY lang_description, lang_id";
-	  $res3=SqlStatement($sql);
-        }
-        else {
-          // Use and sort by the translated language name.
-          $sql = "SELECT ll.lang_id, " .
-            "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
-	    "ll.lang_description " .
-            "FROM lang_languages AS ll " .
-            "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
-            "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
-            "ld.lang_id = '$mainLangID' " .
-            "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-          $res3=SqlStatement($sql);
-	}
-    
-        for ($iter = 0;$row = sqlFetchArray($res3);$iter++)
-               $result3[$iter] = $row;
-        if (count($result3) == 1) {
-	       //default to english if only return one language
-               echo "<input type='hidden' name='languageChoice' value='1' />\n";
-        }
-}
-else {
-        echo "<input type='hidden' name='languageChoice' value='".$defaultLangID."' />\n";   
-}
-?>
+                        if (count($result) == 1) {
+                              $resvalue = $result[0]{"name"};
+                              echo "<input type='hidden' name='authProvider' value='" . attr($resvalue) . "' />\n";
+                        }
 
-<table width="100%" height="90%">
-<td align='center' valign='middle' width='34%'>
-<div class="login-box">
-<div class="logo-left"><?php echo $logocode;?></div>
+                        // collect default language id
+                        $res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default']));
+                        for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
+                            $result2[$iter] = $row;
+                        }
 
-<div class="table-right">
-<table width="100%">
-<?php if (count($result) != 1) { ?>
-<tr>
-<td><span class="text"><?php xl('Group:','e'); ?></span></td>
-<td>
-<select name=authProvider>
-<?php
-	foreach ($result as $iter) {
-		echo "<option value='".$iter{"name"}."'>".$iter{"name"}."</option>\n";
-	}
-?>
-</select>
-</td></tr>
-<?php } ?>
+                        if (count($result2) == 1) {
+                            $defaultLangID = $result2[0]{"lang_id"};
+                            $defaultLangName = $result2[0]{"lang_description"};
+                        } else {
+                            //default to english if any problems
+                            $defaultLangID = 1;
+                            $defaultLangName = "English";
+                        }
 
-<?php if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)): ?>
-<tr><td colspan='2' class='text' style='color:red'>
-Invalid username or password
-</td></tr>
-<?php endif; ?>
+                        // set session variable to default so login information appears in default language
+                        $_SESSION['language_choice'] = $defaultLangID;
+                        // collect languages if showing language menu
+                        if ($GLOBALS['language_menu_login']) {
+                            // sorting order of language titles depends on language translation options.
+                            $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+                            if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation'])) {
+                                $sql = "SELECT *,lang_description as trans_lang_description FROM lang_languages ORDER BY lang_description, lang_id";
+                                  $res3=SqlStatement($sql);
+                            } else {
+                                // Use and sort by the translated language name.
+                                $sql = "SELECT ll.lang_id, " .
+                                    "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
+                                      "ll.lang_description " .
+                                    "FROM lang_languages AS ll " .
+                                    "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
+                                    "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
+                                    "ld.lang_id = ? " .
+                                    "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
+                                $res3=SqlStatement($sql, array($mainLangID));
+                            }
 
-<?php if (isset($_SESSION['relogin']) && ($_SESSION['relogin'] == 1)): ?>
-<tr><td colspan='2' class='text' style='color:red;background-color:#dfdfdf;border:solid 1px #bfbfbf;text-align:center'>
-<b><?php echo xl('Password security has recently been upgraded.'); ?><br>
-<?php echo xl('Please login again.'); ?></b>
-<?php unset($_SESSION['relogin']); ?>
-</td></tr>
-<?php endif; ?>
+                            for ($iter = 0; $row = sqlFetchArray($res3); $iter++) {
+                                $result3[$iter] = $row;
+                            }
 
-<tr>
-<td><span class="text"><?php xl('Username:','e'); ?></span></td>
-<td>
-<input class="entryfield" type="text" size="10" name="authUser">
-</td></tr><tr>
-<td><span class="text"><?php xl('Password:','e'); ?></span></td>
-<td>
-<input class="entryfield" type="password" size="10" name="clearPass">
-</td></tr>
+                            if (count($result3) == 1) {
+                                  //default to english if only return one language
+                                echo "<input type='hidden' name='languageChoice' value='1' />\n";
+                            }
+                        } else {
+                            echo "<input type='hidden' name='languageChoice' value='".attr($defaultLangID)."' />\n";
+                        }
+                        ?>
+                    </div>
+                </div>
+            </div>
+            <?php if (isset($_SESSION['relogin']) && ($_SESSION['relogin'] == 1)) : // Begin relogin dialog ?>
+            <div class="row">
+                <div class="col-sm-12">
+                    <p>
+                        <strong><?php echo xlt('Password security has recently been upgraded.'); ?><br>
+                        <?php echo xlt('Please login again.'); ?></strong>
+                    </p>
+                    <?php unset($_SESSION['relogin']); ?>
+                </div>
+            </div>
+            <?php endif; ?>
+            <?php if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)) : // Begin login failure block ?>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="well well-lg login-failure">
+                        <?php echo xlt('Invalid username or password'); ?>
+                    </div>
+                </div>
+            </div>
+            <?php endif; // End login failure block?>
+            <div class="row">
+                <?php
+                $extraLogo = $GLOBALS['extra_logo_login'];
+                $loginFormColumnCount = ($extraLogo == 1) ? '6' : '12';
+                ?>
+                <?php if ($extraLogo) : ?>
+                    <div class="col-sm-6">
+                        <?php echo $logocode; ?>
+                    </div>
+                <?php endif; ?>
+                <div class="col-sm-<?php echo $loginFormColumnCount;?>">
+                    <div class="row">
+                        <div class="center-block login-title-label">
+                            <?php if ($GLOBALS['show_label_login']) : ?>
+                                <?php echo text($openemr_name); ?>
+                            <?php endif; ?>
+                        </div>
+                        <?php
+                        // Figure out how to display the tiny logos
+                        $t1 = $GLOBALS['tiny_logo_1'];
+                        $t2 = $GLOBALS['tiny_logo_2'];
+                        if ($t1 && !$t2) : ?>
+                            <div class="col-sm-12 center-block">
+                                <?php echo $tinylogocode1; ?>
+                            </div>
+                        <?php
+                        endif;
+                        if ($t2 && !$t1) : ?>
+                            <div class="col-sm-12 center-block">
+                                <?php echo $tinylogocode2; ?>
+                            </div>
+                        <?php
+                        endif;
+                        if ($t1 && $t2) : ?>
+                            <div class="col-sm-6 center-block"><?php echo $tinylogocode1;?></div>
+                            <div class="col-sm-6 center-block"><?php echo $tinylogocode2;?></div>
+                        <?php
+                        endif;
+                        ?>
+                    </div>
+                    <?php if (count($result) > 1) : // Begin Display check for groups ?>
+                        <div class="form-group">
+                            <label for="group" class="control-label text-right"><?php echo xlt('Group:'); ?></label>
+                            <div>
+                                <select name="authProvider" class="form-control">
+                                    <?php
+                                    foreach ($result as $iter) {
+                                        echo "<option value='".attr($iter{"name"})."'>".text($iter{"name"})."</option>\n";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+                    <?php endif; // End Display check for groups ?>
+                    <div class="form-group">
+                        <label for="authUser" class="control-label text-right"><?php echo xlt('Username:'); ?></label>
+                        <input type="text" class="form-control" id="authUser" name="authUser" placeholder="<?php echo xla('Username:'); ?>">
+                    </div>
+                    <div class="form-group">
+                        <label for="clearPass" class="control-label text-right"><?php echo xlt('Password:'); ?></label>
+                        <input type="password" class="form-control" id="clearPass" name="clearPass" placeholder="<?php echo xla('Password:'); ?>">
+                    </div>
+                    <?php echo $div_app ?>
+                    <?php if ($GLOBALS['language_menu_login'] && (count($result3) != 1)) : // Begin language menu block ?>
+                        <div class="form-group">
+                            <label for="language" class="control-label text-right"><?php echo xlt('Language'); ?>:</label>
+                            <div>
+                                <select class="form-control" name="languageChoice" size="1">
+                                    <?php
+                                    echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" . xlt('Default') . " - " . xlt($defaultLangName) . "</option>\n";
+                                    foreach ($result3 as $iter) :
+                                        if ($GLOBALS['language_menu_showall']) {
+                                            if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
+                                                continue; // skip the dummy language
+                                            }
 
-<?php
-if ($GLOBALS['language_menu_login']) {
-if (count($result3) != 1) { ?>
-<tr>
-<td><span class="text"><?php xl('Language','e'); ?>:</span></td>
-<td>
-<select class="entryfield" name=languageChoice size="1">
-<?php
-        echo "<option selected='selected' value='".$defaultLangID."'>" . xl('Default','','',' -') . xl($defaultLangName,'',' ') . "</option>\n";
-        foreach ($result3 as $iter) {
-	        if ($GLOBALS['language_menu_showall']) {
-                    if ( !$GLOBALS['allow_debug_language'] && $iter[lang_description] == 'dummy') continue; // skip the dummy language
-                    echo "<option value='".$iter['lang_id']."'>".$iter['trans_lang_description']."</option>\n";
-		}
-	        else {
-		    if (in_array($iter[lang_description], $GLOBALS['language_menu_show'])) {
-                        if ( !$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') continue; // skip the dummy language
-		        echo "<option value='".$iter['lang_id']."'>" . $iter['trans_lang_description'] . "</option>\n";
-		    }
-		}
-        }
-?>
-</select>
-</td></tr>
-<?php }} ?>
+                                                echo "<option value='".attr($iter['lang_id'])."'>".text($iter['trans_lang_description'])."</option>\n";
+                                        } else {
+                                            if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
+                                                if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
+                                                    continue; // skip the dummy language
+                                                }
 
-<tr><td>&nbsp;</td><td>
-<input type="hidden" name="authPass">
-<input type="hidden" name="authNewPass">
-<?php if (isset($GLOBALS['use_adldap_auth']) && ($GLOBALS['use_adldap_auth']== true)): ?>
-<!-- ViCareplus : As per NIST standard, the SHA1 encryption algorithm is used -->
-<input class="button large" type="submit" onClick="javascript:this.form.authPass.value=SHA1(this.form.clearPass.value);" value="<?php xl('Login','e');?>">
-<?php else: ?>
-<input class="button large" type="submit" onClick="chk_hash_fn();" value="<?php xl('Login','e');?>">
-<?php endif; ?>
-</td></tr>
-<tr><td colspan='2' class='text' style='color:red'>
-<?php
-$ip=$_SERVER['REMOTE_ADDR'];
-
-// The following commented out because it is too slow when the log
-// table is large.  -- Rod 2009-11-11
-/*********************************************************************
-$query = "select user, date, comments from log where event like 'login' and comments like '%".$ip."' order by date desc limit 1";
-$statement = sqlStatement($query);
-if ($result = sqlFetchArray($statement)) {
-        if (strpos($result['comments'],"ailure")) {
-                echo $result['user']." attempted unauthorized login on this machine: ".$result['date'];
-        }
-}
-*********************************************************************/
-
-?>
-</div>
-</td></tr>
-</table>
-
-</div>
-<div style="clear: both;"> </div>
-<div class="version">
-<?php echo "v$openemr_version" ?> | <a  href="../../acknowledge_license_cert.html" target="main"><?php xl('Acknowledgments, Licensing and Certification','e'); ?></a>
-</div>
-</div>
-<div class="demo">
-		<!-- Uncomment this for the OpenEMR demo installation
-		<p><center>login = admin
-		<br>password = pass
-		-->
-</div>
-</td>
-</tr>
-</table>
-</form>
-</center>
+                                                    echo "<option value='".attr($iter['lang_id'])."'>" . text($iter['trans_lang_description']) . "</option>\n";
+                                            }
+                                        }
+                                    endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                    <?php endif; // End language menu block ?>
+                    <div class="form-group pull-right">
+                        <button type="submit" class="btn btn-default btn-lg" onClick="transmit_form()"><i class="fa fa-sign-in"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
+                    </div>
+                </div>
+                <div class="col-sm-12 text-center">
+                    <p class="small">
+                        <a href="../../acknowledge_license_cert.html" target="main"><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></a>
+                    </p>
+                </div>
+                <div class="product-registration-modal" style="display: none">
+                    <p class="context"><?php echo xlt("Register your installation with OEMR to receive important notifications, such as security fixes and new release announcements."); ?></p>
+                    <input placeholder="<?php echo xlt('email'); ?>" type="email" class="email" style="width: 100%; color: black" />
+                    <p class="message" style="font-style: italic"></p>
+                </div>
+            </div>
+        </form>
+    </div>
 </body>
 </html>

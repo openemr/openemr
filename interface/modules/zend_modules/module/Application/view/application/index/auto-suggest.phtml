@@ -1,0 +1,201 @@
+<?php
+/* +-----------------------------------------------------------------------------+
+*    OpenEMR - Open Source Electronic Medical Record
+*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU Affero General Public License as
+*    published by the Free Software Foundation, either version 3 of the
+*    License, or (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU Affero General Public License for more details.
+*
+*    You should have received a copy of the GNU Affero General Public License
+*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*    @author  BASIL PT <basil@zhservices.com>
+* +------------------------------------------------------------------------------+
+*/
+  if ($this->searchEleNo == '') {
+    $this->searchEleNo = 0;
+  }
+  $limit = $this->limit;
+  $pages = 0;
+  $limitEnd	= $limit;
+  $rows = $this->result['rowCount'];
+	if ($this->page == '' || $this->page == 0) {
+		$limitStart = 0;
+	} else {
+		$limitStart = $this->page;
+	}
+  $pages = ceil($rows / $limit);
+  if ($rows >= 1 && round($rows / $limit) == 0) {
+			$pages = 1;
+		} else {
+			$pages = round($rows / $limit) + 1;
+	}
+  $id = 6;
+?>
+<style>
+  .selected_item {
+    background-color: #E0ECFF;
+    border: 1px solid #d9d9d9;
+    cursor: default;
+    display: block;
+    height: 20px;
+    white-space: nowrap;
+    -webkit-border-radius: 3px;
+    border-radius: 3px; 
+    margin: 1.2px;
+    float: left;
+    font-size: 12px;
+    text-align: center;
+  }
+  
+  .selected_item:hover {
+    border: thin solid #FFAFAF;
+  }
+  
+  .close {
+    /*float: right;*/
+    padding-left: 5px; 
+    color: #f00;
+    cursor:pointer;
+  }
+</style>
+<div class="panel_content_wrapper">
+<div class="panel-head">
+  <div class="top_panel_head">
+    <span style="padding-left:20px;">
+    <?php 
+    if ($limitStart >= $limit) {
+      echo '<a href="javascript:void(0)" style="color: #fff;" onClick="previousPage(' . $this->escapeHtml($limitStart - $limit) . ','. "'" . $this->escapeHtml($this->searchType) . "'" .',' . $this->escapeHtml($this->searchEleNo) . ',' . "'" . $this->escapeHtml($this->searchMode) . "'" . ');" id="previous">' . $this->listenerObject->z_xlt('Previous') . '</a>';
+    }
+    ?>
+    </span>
+    <span class="panel-title" style="margin-left:5px; width:105px;"><?php echo $this->listenerObject->z_xlt('Total Records');?>.</span>
+    <span><?php echo $this->escapeHtml($rows); ?></span>
+    <span class="panel-title" style="padding-left:10px; width:100px;"><?php echo $this->listenerObject->z_xlt('Total Pages');?>.</span>
+    <span><?php if ($rows > 0) echo ($this->escapeHtml($limitStart / $limit) + 1) . ' / ' . $this->escapeHtml($pages); ?></span>
+  
+
+  <span style="padding-left:20px;">
+    <?php 
+    if ($limitStart < $rows - $limit) {
+      echo '<a href="javascript:void(0)" style="color: #fff;" onClick="nextPage(' . $this->escapeHtml($limitStart + $limit) . ',' . "'" . $this->escapeHtml($this->searchType) . "'" .',' . $this->escapeHtml($this->searchEleNo) . ',' . "'" . $this->escapeHtml($this->searchMode) . "'" . ');" id="next">' . $this->listenerObject->z_xlt('Next') . '</a>';
+    }
+    ?>
+	</span>
+</div>
+  <div style="clear:both;"></div>
+  <div class="bottom_panel_head">
+	<?php if($this->searchType == 'emrdirect') { 
+	  if($rows > 0) {?>
+    <div class="itemHead" style="width:30px;"><?php echo $this->listenerObject->z_xlt('Sl.No'); ?></div>
+    <div class="itemHead" style="width:180px;"><?php echo $this->listenerObject->z_xlt('NAME'); ?></div>
+    <div class="itemHead" style="width:180px"><?php echo $this->listenerObject->z_xlt('DIRECT ADDRESS'); ?></div>
+      <?php
+	  }
+    } 
+    else {?>
+    <div class="itemHead" style="width:30px;"><?php echo $this->listenerObject->z_xlt('Sl.No'); ?></div>
+    <div class="itemHead" style="width:232px;"><?php echo $this->listenerObject->z_xlt('NAME'); ?></div>
+    <div class="itemHead" style="width:40px;"><?php echo $this->listenerObject->z_xlt('PID'); ?></div>
+    <div class="itemHead" style="width:60px;"><?php echo $this->listenerObject->z_xlt('DOB'); ?></div>
+	<?php } ?>
+    <div style="clear:both;"></div>
+  </div>
+  
+</div>
+<div class="panel_content">
+  <?php
+  $i = $limitStart + 1;
+	$lineNo = 1;
+  if ($rows > 0) {
+    foreach ($result as $value) : 
+	  if($this->searchType == 'emrdirect') {
+		$name       = $CommonPlugin->hightlight($this->escapeHtml($value['fname']), $keyword) . ' ' . $CommonPlugin->hightlight($this->escapeHtml($value['lname']), $keyword);
+		$d_adress   = $CommonPlugin->hightlight($this->escapeHtml($value['email']), $keyword);
+      }
+	  else{
+      $name       = $CommonPlugin->hightlight($this->escapeHtml($value['fname']), $keyword) . ' ' . $CommonPlugin->hightlight($this->escapeHtml($value['lname']), $keyword);
+      $patient_id = $CommonPlugin->hightlight($this->escapeHtml($value['pid']), $keyword);
+      $dob        = $CommonPlugin->hightlight($value['DOB'], $keyword);
+	  }
+      
+      if ($this->searchType == 'patient') {
+        $fullName = $this->escapeHtml($value['lname']) . "," . " " . $this->escapeHtml($value['fname']) . " " . $this->escapeHtml($value['mname']);
+      }else if ($this->searchType == 'multiplepatient') {
+        $fullName = $this->escapeHtml($value['lname']) . "," . " " . $this->escapeHtml($value['fname']);
+      }else if ($this->searchType == 'multiplepatientfullname'){
+        $fullName = $this->escapeHtml($value['lname']) . "," . $this->escapeHtml($value['mname']) . "," . $this->escapeHtml($value['fname']);
+      }
+      if (($i % 2) == 1)  { 
+        $row = 'row1'; 
+      } else if (($i % 2) == 0) {
+        $row = 'row2'; 
+      }
+      ?>
+    <div class="panel_row">
+      <?php 
+        $fill = 'filllist';
+      ?>
+        <ul tabindex="0" 
+            onKeyDown="move(event, '<?php echo $lineNo; ?>', '<?php echo'list_' . $this->searchEleNo; ?>', '<?php echo $this->searchEleNo;?>');" 
+            id="<?php echo 'list_' . $this->searchEleNo . '_' . $lineNo; ?>" 
+            style="margin:0; padding:0;" 
+            class="<?php if ($lineNo == 1) { echo "row"; } else { echo $row;} ?>">
+        <li>
+	  <?php  
+      if($this->searchType == 'emrdirect') {?>
+          <span style="float: left;" 
+              id="<?php echo $fill . '_' . $this->searchEleNo . '_' . $lineNo; ?>" 
+              onClick='fill("<?php echo $this->escapeHtml($value['email']).'|'.$this->escapeHtml($value['id']);?>", "<?php echo $this->searchType; ?>", "<?php echo $this->searchEleNo;?>" , "<?php echo $this->searchMode; ?>");'>
+      <div class="itemBox" style="width:30px;"><?php echo $i; ?></div>
+      <div class="itemBox" style="width: 180px;height: auto;">
+      <?php
+        echo $name;
+      ?>
+      </div>
+      <div class="itemBox" style="width:240px"><?php echo $d_adress; ?></div>			
+      </li>
+      </ul>					
+      </span>	
+        <?php }
+	else{
+        if ($this->searchType == 'patient') { ?>
+          <span style="float: left;" 
+              id="<?php echo $fill . '_' . $this->searchEleNo . '_' . $lineNo; ?>" 
+              onClick='fill("<?php echo $this->escapeHtml($value['fname']) . ' ' . $this->escapeHtml($value['lname']) . '|' . $this->escapeHtml($value['pid']); ?>", "<?php echo $this->searchType; ?>", "<?php echo $this->searchEleNo;?>" , "<?php echo $this->searchMode; ?>");'>
+      <?php } ?>
+      <div class="itemBox" style="width:30px;"><?php echo $i; ?></div>
+      <div class="itemBox" style="width: 232px;height: auto;">
+      <?php
+        echo $name;
+      ?>
+      </div>
+      <div class="itemBox" style="width:40px;"><?php echo $this->escapeHtml($patient_id); ?></div>
+      <div class="itemBox" style="width:60px; border-right:none;"><?php echo $this->escapeHtml($dob); ?></div>					
+      </li>
+      </ul>					
+      </span>
+	  <?php
+	}
+	  ?>
+     <div style="clear:both;"></div>
+      </div>
+
+      <?php
+      $i++;
+      $lineNo++;
+      if($lineNo >= count($result)) break;
+    endforeach;
+  }
+  ?>
+  </div>
+</div>
+ 
+
+

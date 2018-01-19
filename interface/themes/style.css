@@ -1,6 +1,4 @@
 
-A:{visited: #000000;}
-
 .menu {
 	font-family: sans-serif;
 	font-style: italic;
@@ -52,7 +50,7 @@ A:{visited: #000000;}
 	font-weight: bold;
 }
 
-.alert {
+.alert-custom {
 	font-family: sans-serif;
 	font-size: 70%;
 	color: #FF0000;
@@ -160,7 +158,7 @@ background-color:transparent;
 font-family:sans-serif;
 font-size:8pt;
 font-weight:bold;
-
+}
 /* styles taken out of templates/report/general_default.html */
 #reports_list td {
 font-size:8pt;
@@ -189,23 +187,23 @@ font-weight: bold;
 }
 #documents_list {
     width: 25%;
-    height: 90%; 
-    overflow: auto; 
+    height: 90%;
+    overflow: auto;
     border: 2px inset;
     float: left;
 }
 #documents_actions {
     padding-top: 10px;
     width: 70%;
-    height: 90%; 
+    height: 90%;
     float: right;
     overflow: auto;
 }
 #documents_actions iframe {
     display: inline;
-    border:none; 
-    width:100%; 
-    height:600px; 
+    border:none;
+    width:100%;
+    height:600px;
     overflow: auto;
 }
 #documents_actions form {
@@ -228,7 +226,7 @@ font-weight: bold;
     padding-right: 5px;
     vertical-align: bottom;
 }
-#DEM .label {
+#DEM .label_custom {
     font-weight: bold;
     font-size: 0.8em;
     vertical-align: bottom;
@@ -238,4 +236,17 @@ font-weight: bold;
     font-size: 0.8em;
     vertical-align: bottom;
     text-align: left;
+}
+
+.tinylogocontainer
+{
+	display: inline-block;
+	border: none;
+}
+
+.tinylogopng
+{
+	display: inline-block;
+	width: 44px;
+	height: 22px;
 }

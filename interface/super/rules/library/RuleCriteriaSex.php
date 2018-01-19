@@ -11,31 +11,38 @@
  *
  * @author aron
  */
-class RuleCriteriaSex extends RuleCriteria {
+class RuleCriteriaSex extends RuleCriteria
+{
     
     var $value;
 
-    function __construct( $value ) {
+    function __construct($value)
+    {
         $this->value = $value;
     }
 
-    function getRequirements() {
-        return xl_list_label( $this->value, ENT_NOQUOTES );
+    function getRequirements()
+    {
+        return xl_list_label($this->value, ENT_NOQUOTES);
     }
 
-    function getTitle() {
-        return xl( "Sex" );
+    function getTitle()
+    {
+        return xl("Sex");
     }
 
-    function getView() {
+    function getView()
+    {
         return "sex.php";
     }
 
-    function getOptions() {
-        return getListOptionsArray( 'sex' );
+    function getOptions()
+    {
+        return getListOptionsArray('sex');
     }
 
-    function getDbView() {
+    function getDbView()
+    {
         $dbView = parent::getDbView();
 
         $dbView->method = "sex";
@@ -44,12 +51,11 @@ class RuleCriteriaSex extends RuleCriteria {
         return $dbView;
     }
 
-    function updateFromRequest() {
+    function updateFromRequest()
+    {
         parent::updateFromRequest();
 
         $sex = _post("fld_sex");
         $this->value = $sex;
     }
-
 }
-?>

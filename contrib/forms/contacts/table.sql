@@ -24,4 +24,4 @@ va_far longtext,
 va_near longtext,
 additional_notes longtext,
 PRIMARY KEY (id)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

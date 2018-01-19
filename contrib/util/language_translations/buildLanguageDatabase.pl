@@ -1,14 +1,15 @@
 #!/usr/bin/perl
 #
+# Copyright (C) 2009-2013 Brady Miller <brady.g.miller@gmail.com>
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
-# author Brady Miller
-# email  brady@sparmy.com
-# date   04/03/09
-#
+# Author   Brady Miller <brady.g.miller@gmail.com>
+# Author   Ramin Moshiri <raminmoshiri@gmail.com> 
+# 
 # This is a perl script that will build the language translation sql
 # dumpfiles from the tab delimited language translation spreadsheet.
 # It will create two output dumpfiles:
@@ -41,9 +42,8 @@ use strict;
 # constants that get modified during the pipeline and don't look
 # like originals in the end. If this number increases, a english constant
 # was likely modified in the spreadsheet, and can then use log output
-# to localize and fix the problem.  As of list of 3.0.1 constants
-# the known number of mismatched constants is 57 .
-my $mismatchesKnown = 95;
+# to localize and fix the problem.
+my $mismatchesKnown = 63;
 
 # Hold variables to calculate language database statistics
 my $totalConstants;
@@ -59,10 +59,11 @@ my $logFile = "log.txt";
 my $stats = "stats.txt";
 my $constantIdColumn = 0; # 0 is lowest
 my $constantColumn = 1; # 0 is lowest 
-my $constantRow = 5; # 0 is lowest
+my $constantRow = 6; # 0 is lowest
 my $languageNumRow = 0; # 0 is lowest
 my $languageIdRow = 1; # 0 is lowest
 my $languageNameRow = 2; # 0 is lowest
+my $languageIsRtlRow = 3; # 0 is lowest
 
 # variables for checking/fixing constants application 
 my $checkFilename; # holds list of constants if checking
@@ -392,14 +393,17 @@ sub createLanguages() {
  my @numberRow = split($de,$page[$languageNumRow]);
  my @idRow = split($de,$page[$languageIdRow]);
  my @nameRow = split($de,$page[$languageNameRow]);
+ my @rtlRow = split($de,$page[$languageIsRtlRow]);
+ $tempReturn .= "INSERT INTO `lang_languages`   (`lang_id`, `lang_code`, `lang_description`, `lang_is_rtl`) VALUES\n";
  for (my $i = $constantColumn; $i < @numberRow; $i++) {
-  $tempReturn .= "INSERT INTO `lang_languages` VALUES (".$numberRow[$i].", '".$idRow[$i]."', '".$nameRow[$i]."');\n";
+  $tempReturn .= "(".$numberRow[$i].", '".$idRow[$i]."', '".$nameRow[$i]."', ".$rtlRow[$i]."),\n";
   $tempCounter = $numberRow[$i];
      
   # set up for statistics later
   push (@languages, $nameRow[$i]);
   $numberConstantsLanguages[$numberRow[$i]-1] = 0;
  }
+ $tempReturn  =~ s/,\n$/;\n/;
  $tempCounter += 1;
 
  # create header
@@ -413,8 +417,9 @@ CREATE TABLE `lang_languages` (
   `lang_id` int(11) NOT NULL auto_increment,
   `lang_code` char(2) NOT NULL default '',
   `lang_description` varchar(100) default NULL,
+  `lang_is_rtl` TINYINT DEFAULT 0,
   UNIQUE KEY `lang_id` (`lang_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=".$tempCounter." ;
+) ENGINE=InnoDB AUTO_INCREMENT=".$tempCounter." ;
 \n
 --
 -- Dumping data for table `lang_languages`
@@ -450,13 +455,15 @@ sub createConstants() {
  # create table input
  my $tempReturn;
  my $tempCounter; 
+ $tempReturn .= "INSERT INTO `lang_constants`   (`cons_id`, `constant_name`) VALUES\n";
  for (my $i = $constantRow; $i < @page; $i++) {
   my @tempRow = split($de,$page[$i]);
   my $tempId = $tempRow[$constantIdColumn];
   my $tempConstant = $tempRow[$constantColumn];
-  $tempReturn .= "INSERT INTO `lang_constants` VALUES (".$tempId.", '".$tempConstant."');\n";
+  $tempReturn .= "(".$tempId.", '".$tempConstant."'),\n";
   $tempCounter = $tempId;
  }
+ $tempReturn  =~ s/,\n$/;\n/;
  $tempCounter += 1; 
 
  # create header
@@ -468,10 +475,10 @@ sub createConstants() {
 DROP TABLE IF EXISTS `lang_constants`;
 CREATE TABLE `lang_constants` (
   `cons_id` int(11) NOT NULL auto_increment,
-  `constant_name` varchar(255) BINARY default NULL,
+  `constant_name` mediumtext BINARY,
   UNIQUE KEY `cons_id` (`cons_id`),
-  KEY `constant_name` (`constant_name`)
-) ENGINE=MyISAM AUTO_INCREMENT=".$tempCounter." ;
+  KEY `constant_name` (`constant_name`(100))
+) ENGINE=InnoDB AUTO_INCREMENT=".$tempCounter." ;
 \n
 -- 
 -- Dumping data for table `lang_constants`
@@ -524,7 +531,7 @@ sub createDefinitions() {
     $tempReturn .= "INSERT INTO `lang_definitions` VALUES (".$counter.", ".$tempId.", ".$tempLangNumber.", '".$tempDefinition."');\n";
     $tempCounter = $counter;
     $counter += 1;
-       
+     
     # set up for statistics
     $numberConstantsLanguages[($tempLangNumber - 1)] += 1;
    }
@@ -546,7 +553,7 @@ CREATE TABLE `lang_definitions` (
   `definition` mediumtext,
   UNIQUE KEY `def_id` (`def_id`),
   KEY `cons_id` (`cons_id`) 
-) ENGINE=MyISAM AUTO_INCREMENT=".$tempCounter." ;
+) ENGINE=InnoDB AUTO_INCREMENT=".$tempCounter." ;
 \n
 -- 
 -- Dumping data for table `lang_definitions`

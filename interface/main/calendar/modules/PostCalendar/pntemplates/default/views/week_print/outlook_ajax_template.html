@@ -10,8 +10,8 @@
 [-config_load file="default.conf"-]
 [-*Load the Language Definitions*-]
 [-config_load file="lang.$USER_LANG"-]
-[-* DO NOT INCLUDE the default header, 
-  * which includes a stylesheet to screw up 
+[-* DO NOT INCLUDE the default header,
+  * which includes a stylesheet to screw up
   * our styles below *-]
 [-*include file="$TPL_NAME/views/header.html"*-]
 <html>
@@ -48,7 +48,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     font-weight: bold;
 }
 .pagebreak {
-    page-break-after: always;    
+    page-break-after: always;
 }
 
 /* these are for the small datepicker DIV */
@@ -67,7 +67,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 }
 #datePicker .tdDOW-small {
     font-family: Arial, Helvetica, sans-serif;
-    vertical-align: top; 
+    vertical-align: top;
     text-align: center;
     border-bottom: 1px solid black;
     padding: 2px 3px 2px 3px;
@@ -93,7 +93,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     text-align: center;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 12px;
-    font-style: normal 
+    font-style: normal
 }
 
 #datePicker .tdMonthDay-small {
@@ -133,7 +133,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 }
 .timeslot {
     height: [-php-]echo $timeslotHeightVal.$timeslotHeightUnit;[-/php-];
-    margin: 0px; 
+    margin: 0px;
     padding: 0px;
 }
 .schedule {
@@ -145,7 +145,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 }
 /* types of events */
 .event_in {
-    width: 98%; 
+    width: 98%;
     font-size: 0.8em;
     padding: 2px;
 }
@@ -206,7 +206,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
  $DOWlist = array();
  $tmpDOW = pnModGetVar(__POSTCALENDAR__, 'pcFirstDayOfWeek');
  // bound check and auto-correction
- if ($tmpDOW <0 || $tmpDOW >6) { 
+ if ($tmpDOW <0 || $tmpDOW >6) {
     pnModSetVar(__POSTCALENDAR__, 'pcFirstDayOfWeek', '0');
     $tmpDOW = 0;
  }
@@ -251,7 +251,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 
 <div id="bigCal">
 [-php-]
-    
+
 // start out without adding a pagebreak
 $addPagebreak = false;
 
@@ -284,14 +284,14 @@ foreach ($providers as $provider) {
     echo "<div id='datePicker'>";
     PrintDatePicker(strtotime($nyear."-".$nmonth."-1"), $DOWlist, $this->_tpl_vars['A_SHORT_DAY_NAMES']);
     echo "</div>";
-    
+
     // output a small calendar for the chosen month
     echo "<div id='datePicker'>";
     PrintDatePicker(strtotime($atmp[0]), $DOWlist, $this->_tpl_vars['A_SHORT_DAY_NAMES']);
     echo "</div>";
 
     echo "</div>"; // end the bigCalHeader
-    
+
     $providerid = $provider['id'];
 
     // to specially handle the IN/OUT events I'm doing something new here
@@ -348,7 +348,7 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
 
             // skip events without an ID (why they are in the loop, I have no idea)
             if ($event['eid'] == "") { continue; }
-            
+
             // specially handle all-day events
             if ($event['alldayevent'] == 1) {
                 $tmpTime = $times[0];
@@ -376,7 +376,14 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
                     $evtClass = "event_out";
                     break;
                 case 4:  // VACATION
-                case 8:  // LUNCH
+                   $evtClass = "event_reserved";
+                   break;
+                 case 6:  // HOLIDAY
+                    $evtClass = "event_holiday";
+                    break;
+                 case 8:  // LUNCH
+                    $evtClass = "event_reserved";
+                    break;
                 case 11: // RESERVED
                     $evtClass = "event_reserved";
                     break;
@@ -384,7 +391,7 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
                     $evtClass = "event_appointment";
                     break;
             }
-            
+
             // if this is an IN or OUT event then we have some extra special
             // processing to be done
             // the IN event creates a DIV until the OUT event
@@ -426,7 +433,7 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
             // times the interval height
             $eStartPos = $eStartInterval * $timeslotHeightVal;
             $evtTop = $eStartPos.$timeslotHeightUnit;
-            
+
             // calculate the HEIGHT value for the event DIV
             // diff between end and start of event
             $eEndMin = $eStartMin + ($event['duration']/60);
@@ -538,7 +545,7 @@ function PrintDatePicker($caldate, $DOWlist, $daynames) {
         echo "<td class='tdDOW-small'>".$daynames[$dow]."</td>";
     }
     echo '</tr>';
-    
+
     // to make a complete week row we need to compute the real
     // start and end dates for the view
     list ($year, $month, $day) = explode(" ", date('Y m d', $caldate));
@@ -582,7 +589,7 @@ function PrintDatePicker($caldate, $DOWlist, $daynames) {
         $td .= "> ".date('d', $currdate)."</td>\n";
         if ($skipit == true) { echo "<td></td>"; }
         else { echo $td; }
-   
+
         // end of week row
         if (date('w', $currdate) == $DOWlist[6]) echo "</tr>\n";
 
@@ -596,7 +603,7 @@ function PrintDatePicker($caldate, $DOWlist, $daynames) {
 
 </body>
 
-<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/js/jquery-1.2.2.min.js"></script>
+<script type="text/javascript" src="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery-min-1-2-2/index.js"></script>
 <script>
 $(document).ready(function(){
     // a poor-man's attempt to scale down the text to make sure
@@ -607,8 +614,8 @@ $(document).ready(function(){
     else if ($("#bigCal").height() > 1200) {
         $("#weekcal *").css("font-size", "80%");
     }
-    window.print();
-    window.close();
+    var win = top.printLogPrint ? top : opener.top;
+    win.printLogPrint(window);
 });
 </script>
 

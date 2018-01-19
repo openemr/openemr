@@ -1,6 +1,6 @@
 <?php
 /*******************************************************************************\
- * Copyright 2010 Brady Miller <brady@sparmy.com>                               *
+ * Copyright 2010 Brady Miller <brady.g.miller@gmail.com>                               *
  * Copyright 2011 Rod Roark <rod@sunsetsystems.com>                             *
  *                                                                              *
  * This program is free software; you can redistribute it and/or                *
@@ -18,14 +18,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
  ********************************************************************************/
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes = true;
-
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals = false;
-
 require_once("../../globals.php");
-require_once("$srcdir/formatting.inc.php");
 
 $lbf_form_id = $_GET['formname'];
 ?>
@@ -33,20 +26,22 @@ $lbf_form_id = $_GET['formname'];
 <br />
 <?php
 // Retrieve most recent instance of this form for this patient.
-$result = sqlQuery("SELECT f.form_id, f.form_name, fe.date " .
-  "FROM forms AS f, form_encounter AS fe WHERE " .
-  "f.pid = ? AND f.formdir = ? AND " .
-  "f.deleted = 0 AND " .
-  "fe.pid = f.pid AND fe.encounter = f.encounter " .
-  "ORDER BY fe.date DESC, f.encounter DESC, f.date DESC " .
-  "LIMIT 1",
-  array($pid, $lbf_form_id));
+$result = sqlQuery(
+    "SELECT f.form_id, f.form_name, fe.date " .
+    "FROM forms AS f, form_encounter AS fe WHERE " .
+    "f.pid = ? AND f.formdir = ? AND " .
+    "f.deleted = 0 AND " .
+    "fe.pid = f.pid AND fe.encounter = f.encounter " .
+    "ORDER BY fe.date DESC, f.encounter DESC, f.date DESC " .
+    "LIMIT 1",
+    array($pid, $lbf_form_id)
+);
 
 if (!$result) { //If there are none
 ?>
   <span class='text'> <?php echo htmlspecialchars(xl("None have been documented"), ENT_NOQUOTES); ?>
-  </span> 
-<?php } else { ?> 
+  </span>
+<?php } else { ?>
   <span class='text'><b>
 <?php
   echo htmlspecialchars(xl('Most recent from') . ": " .
@@ -63,7 +58,7 @@ if (!$result) { //If there are none
   <br />
   <a href='../encounter/trend_form.php?formname=<?php echo $lbf_form_id; ?>'
    onclick='top.restoreSession()'>
-   <?php echo htmlspecialchars(xl('Click here to view and graph'),ENT_NOQUOTES);?>
+    <?php echo htmlspecialchars(xl('Click here to view and graph'), ENT_NOQUOTES);?>
   </a>
   </span>
 <?php } ?>

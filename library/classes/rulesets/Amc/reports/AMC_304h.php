@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2011 Brady Miller <brady@sparmy.com>
+// Copyright (C) 2011 Brady Miller <brady.g.miller@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,10 +17,10 @@ class AMC_304h extends AbstractAmcReport
 
     public function getObjectToCount()
     {
-        return "encounters";
+        return "encounters_office_visit";
     }
  
-    public function createDenominator() 
+    public function createDenominator()
     {
         return new AMC_304h_Denominator();
     }

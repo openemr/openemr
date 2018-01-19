@@ -1,0 +1,13 @@
+{
+  "name": "jquery-min-1-11-1",
+  "_cacheHeaders": {
+    "ETag": "W/\"553fb36a-176d5\"",
+    "Last-Modified": "Tue, 28 Apr 2015 16:20:58 GMT",
+    "Content-Type": "application/javascript; charset=utf-8"
+  },
+  "_release": "e-tag:W/\"553fb36",
+  "main": "index.js",
+  "_source": "https://code.jquery.com/jquery-1.11.3.min.js",
+  "_target": "*",
+  "_originalSource": "https://code.jquery.com/jquery-1.11.3.min.js"
+}

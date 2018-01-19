@@ -1,22 +1,30 @@
-<a href="{$CURRENT_ACTION}action=edit&id=default" {php} if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; {/php} onclick="top.restoreSession()" class="css_button" >
-<span>{xl t='Add New Partner'}</span></a><br><br>
-<table cellpadding="1" cellspacing="0" class="showborder">
-	<tr class="showborder_head">
-		<th width="200px">{xl t='Name'}</th>
-		<th width="130px">{xl t='Sender ID'}</th>
-		<th width="130px">{xl t='Receiver ID'}</th>
-		<th>{xl t='Version'}</th>
-	</tr>
-	{foreach from=$partners item=partner}
-	<tr height="22">
-		<td><a href="{$CURRENT_ACTION}action=edit&x12_partner_id={$partner->id}" onclick="top.restoreSession()">{$partner->get_name()}&nbsp;</a></td>
-		<td>{$partner->get_x12_sender_id()}&nbsp;</td>
-		<td>{$partner->get_x12_receiver_id()}&nbsp;</td>
-		<td>{$partner->get_x12_version()}&nbsp;</td>
-	</tr>
-	{foreachelse}
-	<tr height="25" class="center_display">
-		<td colspan="4">{xl t='No Partners Found'}</td>
-	</tr>
-	{/foreach}
+<a href="{$CURRENT_ACTION}action=edit&id=default" onclick="top.restoreSession()" class="btn btn-default btn-add">
+    {xl t='Add New Partner'|escape:'html'}
+</a>
+<br><br>
+<table class="table table-responsive table-striped">
+    <thead>
+    <tr>
+        <th>{xl t='Name'|escape:'html'}</th>
+        <th>{xl t='Sender ID'|escape:'html'}</th>
+        <th>{xl t='Receiver ID'|escape:'html'}</th>
+        <th>{xl t='Version'|escape:'html'}</th>
+    </tr>
+    </thead>
+    {foreach from=$partners item=partner}
+    <tr>
+        <td>
+            <a href="{$CURRENT_ACTION}action=edit&x12_partner_id={$partner->id|escape:'html'}" onclick="top.restoreSession()">
+                {$partner->get_name()|escape:'html'}&nbsp;
+            </a>
+        </td>
+        <td>{$partner->get_x12_sender_id()|escape:'html'}&nbsp;</td>
+        <td>{$partner->get_x12_receiver_id()|escape:'html'}&nbsp;</td>
+        <td>{$partner->get_x12_version()|escape:'html'}&nbsp;</td>
+    </tr>
+    {foreachelse}
+    <tr>
+        <td colspan="4">{xl t='No Partners Found'|escape:'html'}</td>
+    </tr>
+    {/foreach}
 </table>

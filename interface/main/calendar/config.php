@@ -12,23 +12,31 @@
 //                  1 for encoded
 // ----------------------------------------------------------------------
 //
-include_once("../../../library/sqlconf.php");
-// Modified 5/2009 by BM for UTF-8 project 
+
+// to collect sql database login info and the utf8 flag
+// also collect the adodb libraries to support mysqli_mod that is needed for mysql ssl support
+require_once(dirname(__FILE__) . "/../../../library/sqlconf.php");
+require_once(dirname(__FILE__) . "/../../../vendor/adodb/adodb-php/adodb.inc.php");
+require_once(dirname(__FILE__) . "/../../../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
+require_once(dirname(__FILE__) . "/../../../library/ADODB_mysqli_mod.php");
+
+// Modified 5/2009 by BM for UTF-8 project
 global $host,$port,$login,$pass,$dbase,$disable_utf8_flag;
 if (!$disable_utf8_flag) {
- $pnconfig['utf8Flag'] = true;
+    $pnconfig['utf8Flag'] = true;
+} else {
+    $pnconfig['utf8Flag'] = false;
 }
-else {
- $pnconfig['utf8Flag'] = false;
-}
+
 // ---------------------------------------
 
 $pnconfig['modname'] = "PostCalendar";
 $pnconfig['startpage'] = "PostCalendar";
 $pnconfig['language'] = "eng";
-$pnconfig['dbtype'] = 'mysql';
+$pnconfig['dbtype'] = 'mysqli_mod';
 $pnconfig['dbtabletype'] = 'MyISAM';
 $pnconfig['dbhost'] = $host;
+$pnconfig['dbport'] = $port;
 $pnconfig['dbuname'] = $login;
 $pnconfig['dbpass'] = $pass;
 $pnconfig['dbname'] = $dbase;
@@ -41,13 +49,13 @@ $pntable = array();
 $session_info = $prefix . '_session_info';
 $pntable['session_info'] = $session_info;
 $pntable['session_info_column'] = array (
-		'sessid'    => $session_info . 
-		'.pn_sessid', 'ipaddr'    => $session_info . 
-		'.pn_ipaddr','firstused' => $session_info . 
-		'.pn_firstused','lastused'  => $session_info . 
-		'.pn_lastused','uid'       => $session_info . 
-		'.pn_uid','vars'      => $session_info . 
-		'.pn_vars');
+        'sessid'    => $session_info .
+        '.pn_sessid', 'ipaddr'    => $session_info .
+        '.pn_ipaddr','firstused' => $session_info .
+        '.pn_firstused','lastused'  => $session_info .
+        '.pn_lastused','uid'       => $session_info .
+        '.pn_uid','vars'      => $session_info .
+        '.pn_vars');
 // ----------------------------------------------------------------------
 // For debugging (Pablo Roca)
 //
@@ -59,7 +67,7 @@ $pntable['session_info_column'] = array (
 //          0 = No
 //          1 = Yes
 // ----------------------------------------------------------------------
-GLOBAL $pndebug;
+global $pndebug;
 $pndebug['debug']          = 0;
 $pndebug['debug_sql']      = 0;
 
@@ -74,10 +82,11 @@ $pndebug['debug_sql']      = 0;
 // if there is a personal_config.php in the folder where is config.php
 // we add it. (This HAS to be at the end, after all initialization.)
 // ----------------------------------------------------------------------
-if (@file_exists("personal_config.php"))
-{ include("personal_config.php"); }
+if (@file_exists("personal_config.php")) {
+    include("personal_config.php");
+}
+
 // ----------------------------------------------------------------------
 // Make config file backwards compatible (deprecated)
 // ----------------------------------------------------------------------
 extract($pnconfig, EXTR_OVERWRITE);
-?>

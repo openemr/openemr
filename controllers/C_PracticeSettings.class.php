@@ -1,151 +1,162 @@
 <?php
 
-require_once ($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/Pharmacy.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/InsuranceCompany.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/Provider.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/InsuranceNumbers.class.php");
 
-class C_PracticeSettings extends Controller {
+class C_PracticeSettings extends Controller
+{
 
-	var $template_mod;
+    var $template_mod;
 
-	function C_PracticeSettings ($template_mod = "general") {
-		parent::Controller();
-		$this->template_mod = $template_mod;
-		$this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
-		$this->assign("TOP_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings" . "&");
-		$this->assign("STYLE", $GLOBALS['style']);
-	    $this->assign("CSS_HEADER",  $GLOBALS['css_header'] );
-	}
+    var $direction;
 
-	function default_action($display = "") {
-		$this->assign("display",$display);
-		$this->display($GLOBALS['template_dir'] . "practice_settings/" . $this->template_mod . "_list.html");
-	}
+    function __construct($template_mod = "general")
+    {
+        parent::__construct();
+        $this->template_mod = $template_mod;
+        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("TOP_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings" . "&");
+        $this->assign("STYLE", $GLOBALS['style']);
+        $this->direction = ($GLOBALS['_SESSION']['language_direction'] == 'rtl') ? 'right' : 'left';
+    }
 
-	function pharmacy_action($arg) {
-		$c = new Controller();
+    function default_action($display = "")
+    {
+        $this->assign("display", $display);
+        $this->assign("direction", $this->direction);
+        $this->display($GLOBALS['template_dir'] . "practice_settings/" . $this->template_mod . "_list.html");
+    }
 
-		//this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
-		//and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
-		//and value passing
+    function pharmacy_action($arg)
+    {
+        $c = new Controller();
 
-		$fga = func_get_args();
+        //this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
+        //and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
+        //and value passing
 
-		$fga = array_slice($fga,1);
-		$args = array_merge(array("pharmacy" => "",$arg => ""),$fga);
+        $fga = func_get_args();
 
-		$display =  $c->act($args);
-		$this->assign("ACTION_NAME", xl("Pharmacies") );
-		$this->default_action($display);
-	}
+        $fga = array_slice($fga, 1);
+        $args = array_merge(array("pharmacy" => "", $arg => ""), $fga);
+        $this->assign("direction", $this->direction);
+        $display = $c->act($args);
+        $this->assign("ACTION_NAME", xl("Pharmacies"));
+        $this->default_action($display);
+    }
 
-	function insurance_company_action($arg) {
-		$c = new Controller();
+    function insurance_company_action($arg)
+    {
+        $c = new Controller();
 
-		//this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
-		//and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
-		//and value passing
+        //this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
+        //and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
+        //and value passing
 
-		$fga = func_get_args();
+        $fga = func_get_args();
 
-		$fga = array_slice($fga,1);
-		$args = array_merge(array("insurance_company" => "",$arg => ""),$fga);
+        $fga = array_slice($fga, 1);
+        $args = array_merge(array("insurance_company" => "", $arg => ""), $fga);
 
-		$display =  $c->act($args);
-		$this->assign("ACTION_NAME", xl("Insurance Companies") );
-		$this->default_action($display);
-	}
+        $display = $c->act($args);
+        $this->assign("direction", $this->direction);
+        $this->assign("ACTION_NAME", xl("Insurance Companies"));
+        $this->default_action($display);
+    }
 
-	function insurance_numbers_action($arg) {
-		$c = new Controller();
+    function insurance_numbers_action($arg)
+    {
+        $c = new Controller();
 
-		//this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
-		//and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
-		//and value passing
+        //this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
+        //and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
+        //and value passing
 
-		$fga = func_get_args();
+        $fga = func_get_args();
 
-		$fga = array_slice($fga,1);
-		$args = array_merge(array("insurance_numbers" => "",$arg => ""),$fga);
+        $fga = array_slice($fga, 1);
+        $args = array_merge(array("insurance_numbers" => "", $arg => ""), $fga);
 
-		$display =  $c->act($args);
+        $display = $c->act($args);
 
-		$this->assign("ACTION_NAME", xl("Insurance Numbers") );
-		$this->default_action($display);
-	}
+        $this->assign("ACTION_NAME", xl("Insurance Numbers"));
+        $this->assign("direction", $this->direction);
+        $this->default_action($display);
+    }
 
-	function document_action($arg) {
-		$c = new Controller();
+    function document_action($arg)
+    {
+        $c = new Controller();
 
-		//this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
-		//and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
-		//and value passing
+        //this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
+        //and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
+        //and value passing
 
-		$fga = func_get_args();
+        $fga = func_get_args();
 
-		$fga = array_slice($fga,1);
-		$args = array_merge(array("document" => "",$arg => ""),$fga);
+        $fga = array_slice($fga, 1);
+        $args = array_merge(array("document" => "", $arg => ""), $fga);
 
-		$display =  $c->act($args);
+        $display = $c->act($args);
 
-		$this->assign("ACTION_NAME", xl("Documents") );
-		$this->default_action($display);
-	}
+        $this->assign("ACTION_NAME", xl("Documents"));
+        $this->assign("direction", $this->direction);
+        $this->default_action($display);
+    }
 
-	function document_category_action($arg) {
-		$c = new Controller();
+    function document_category_action($arg)
+    {
+        $c = new Controller();
 
-		//this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
-		//and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
-		//and value passing
+        //this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
+        //and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
+        //and value passing
 
-		$fga = func_get_args();
+        $fga = func_get_args();
 
-		$fga = array_slice($fga,1);
-		$args = array_merge(array("document_category" => "",$arg => ""),$fga);
+        $fga = array_slice($fga, 1);
+        $args = array_merge(array("document_category" => "", $arg => ""), $fga);
 
-		$display =  $c->act($args);
+        $display = $c->act($args);
 
-		$this->assign("ACTION_NAME", xl("Documents") );
-		$this->default_action($display);
-	}
+        $this->assign("ACTION_NAME", xl("Documents"));
+        $this->assign("direction", $this->direction);
+        $this->default_action($display);
+    }
 
-	function x12_partner_action($arg) {
-		$c = new Controller();
+    function x12_partner_action($arg)
+    {
+        $c = new Controller();
 
-		//this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
-		//and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
-		//and value passing
+        //this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
+        //and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
+        //and value passing
 
-		$fga = func_get_args();
+        $fga = func_get_args();
 
-		$fga = array_slice($fga,1);
-		$args = array_merge(array("x12_partner" => "",$arg => ""),$fga);
+        $fga = array_slice($fga, 1);
+        $args = array_merge(array("x12_partner" => "", $arg => ""), $fga);
 
-		$display =  $c->act($args);
+        $display = $c->act($args);
 
-		$this->assign("ACTION_NAME", xl("X12 Partners") );
-		$this->default_action($display);
-	}
+        $this->assign("ACTION_NAME", xl("X12 Partners"));
+        $this->assign("direction", $this->direction);
+        $this->default_action($display);
+    }
 
 
-	function hl7_action($arg) {
-		$c = new Controller();
+    function hl7_action($arg)
+    {
+        $c = new Controller();
 
-		//this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
-		//and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
-		//and value passing
+        //this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
+        //and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
+        //and value passing
 
-		$fga = func_get_args();
-		$fga = array_slice($fga,1);
-		$args = array_merge(array("hl7" => "",$arg => ""),$fga);
-		$display =  $c->act($args);
-		$this->assign("ACTION_NAME", xl("HL7 Viewer") );
-		$this->default_action($display);
-	}
-
+        $fga = func_get_args();
+        $fga = array_slice($fga, 1);
+        $args = array_merge(array("hl7" => "", $arg => ""), $fga);
+        $display = $c->act($args);
+        $this->assign("ACTION_NAME", xl("HL7 Viewer"));
+        $this->assign("direction", $this->direction);
+        $this->default_action($display);
+    }
 }
-
-?>

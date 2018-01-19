@@ -8,21 +8,15 @@ $special_timeout = 3600;
 include_once("../../globals.php");
 if (substr($_GET["formname"], 0, 3) === 'LBF') {
   // Use the List Based Forms engine for all LBFxxxxx forms.
-  include_once("$incdir/forms/LBF/new.php");
-}
-else {
-	if( (!empty($_GET['pid'])) && ($_GET['pid'] > 0) )
-	 {
-		$pid = $_GET['pid'];
-		$encounter = $_GET['encounter'];
-	 }
-         if($_GET["formname"] != "newpatient" ){
-            include_once("$incdir/patient_file/encounter/new_form.php");
-         }
+    include_once("$incdir/forms/LBF/new.php");
+} else {
+    if ((!empty($_GET['pid'])) && ($_GET['pid'] > 0)) {
+        $pid = $_GET['pid'];
+        $encounter = $_GET['encounter'];
+    }
 
   // ensure the path variable has no illegal characters
-  check_file_dir_name($_GET["formname"]);
+    check_file_dir_name($_GET["formname"]);
 
-  include_once("$incdir/forms/" . $_GET["formname"] . "/new.php");
+    include_once("$incdir/forms/" . $_GET["formname"] . "/new.php");
 }
-?>

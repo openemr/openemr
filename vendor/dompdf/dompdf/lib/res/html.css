@@ -1,0 +1,508 @@
+/**
+ * dompdf default stylesheet.
+ * 
+ * The Original Code is mozilla.org code.
+ *
+ * The Initial Developer of the Original Code is Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 1998 the Initial Developer. 
+ * All Rights Reserved.
+ * 
+ * @package dompdf
+ * @link    http://dompdf.github.com/
+ * @author  Benj Carson <benjcarson@digitaljunkies.ca>
+ * @author  Blake Ross <BlakeR1234@aol.com>
+ * @author  Fabien Ménager <fabien.menager@gmail.com>
+ * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ * @version $Id$
+ */
+
+@page {
+  margin: 1.2cm;
+}
+
+html { 
+  display: -dompdf-page;
+  counter-reset: page;
+}
+
+/* blocks */
+
+div, map, dt, isindex {
+  display: block;
+}
+
+body {
+  page-break-before: avoid;
+  display: block;
+  counter-increment: page;
+}
+
+p, dl, multicol {
+  display: block;
+  margin: 1em 0;
+}
+
+dd {
+  display: block;
+  margin-left: 40px;
+}
+
+blockquote {
+  display: block;
+  margin: 1em 40px;
+}
+
+address {
+  display: block;
+  font-style: italic;
+}
+
+center {
+  display: block;
+  text-align: center;
+}
+
+blockquote[type=cite] {
+  display: block;
+  margin: 1em 0px;
+  padding-left: 1em;
+  border-left: solid;
+  border-color: blue;
+  border-width: thin;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  display: block;
+  font-weight: bold;
+}
+
+h1 {
+  font-size: 2em;
+  margin: .67em 0;
+}
+
+h2 {
+  font-size: 1.5em;
+  margin: .83em 0;
+}
+
+h3 {
+  font-size: 1.17em;
+  margin: 1em 0;
+}
+
+h4 {
+  margin: 1.33em 0;
+}
+
+h5 {
+  font-size: 0.83em;
+  margin: 1.67em 0;
+}
+
+h6 {
+  font-size: 0.67em;
+  margin: 2.33em 0;
+}
+
+listing {
+  display: block;
+  font-family: fixed;
+  font-size: medium;
+  white-space: pre;
+  margin: 1em 0;
+}
+
+plaintext, xmp, pre {
+  display: block;
+  font-family: fixed;
+  white-space: pre;
+  margin: 1em 0;
+}
+
+article, aside, details,
+figcaption, figure,
+footer, header, hgroup,
+nav, section {
+  display: block;
+}
+
+/* tables */
+
+table {
+  display: table;
+  border-spacing: 2px; 
+  border-collapse: separate;
+  margin-top: 0;
+  margin-bottom: 0;
+  text-indent: 0;
+  text-align: left; /* quirk */
+}
+
+table[border] {
+  border-style: outset;
+  border-color: gray;
+}
+
+/* This won't work (???) */
+/*
+table[border] td,
+table[border] th {
+  border: 1pt solid grey;
+}*/
+
+/* make sure backgrounds are inherited in tables  -- see bug 4510 */
+td, th, tr {
+  background: inherit;
+}
+   
+/* caption inherits from table not table-outer */  
+caption {
+  display: block;
+  text-align: center;
+}
+
+tr {
+  display: table-row;
+  vertical-align: inherit;
+}
+
+col {
+  display: table-column;
+}
+
+colgroup {
+  display: table-column-group;
+}
+
+tbody {
+  display: table-row-group;
+  vertical-align: middle;
+}
+
+thead {
+  display: table-header-group;
+  vertical-align: middle;
+}
+
+tfoot {
+  display: table-footer-group;
+  vertical-align: middle;
+}
+
+/* To simulate tbody auto-insertion */
+table > tr {
+  vertical-align: middle;
+}
+
+td { 
+  display: table-cell;
+  vertical-align: inherit;
+  text-align: inherit; 
+  padding: 1px;
+}
+
+th {
+  display: table-cell;
+  vertical-align: inherit;
+  font-weight: bold;
+  padding: 1px;
+  text-align: center;
+}
+
+/* inlines */
+q {
+  quotes: '"' '"' "'" "'"; /* FIXME only the first level is used */
+}
+
+q:before {
+  content: open-quote;
+}
+
+q:after {
+  content: close-quote;
+}
+
+:link {
+  color: #00c;
+  text-decoration: underline;
+}
+
+b, strong {
+  font-weight: bolder;
+}
+
+i, cite, em, var, dfn {
+  font-style: italic;
+}
+
+tt, code, kbd, samp {
+  font-family: fixed;
+}
+
+u, ins {
+  text-decoration: underline;
+}
+
+s, strike, del {
+  text-decoration: line-through;
+}
+
+blink {
+  text-decoration: blink;
+}
+
+big {
+  font-size: larger;
+}
+
+small {
+  font-size: smaller;
+}
+
+sub {
+  vertical-align: sub;
+  font-size: smaller;
+  line-height: normal;
+}
+
+sup {
+  vertical-align: super;
+  font-size: smaller;
+  line-height: normal;
+}
+
+nobr {
+  white-space: nowrap;
+}
+
+/* lists */
+
+ul, menu, dir {
+  display: block;
+  list-style-type: disc;
+  margin: 1em 0;
+  padding-left: 40px;
+}
+
+ol {
+  display: block;
+  list-style-type: decimal;
+  margin: 1em 0;
+  padding-left: 40px;
+}
+
+li {
+  display: list-item;
+}
+
+/*li:before {
+  display: -dompdf-list-bullet !important;
+  content: counter(-dompdf-default-counter) ". ";
+  padding-right: 0.5em;
+}*/
+
+/* nested lists have no top/bottom margins */
+ul ul,   ul ol,   ul dir,   ul menu,   ul dl,
+ol ul,   ol ol,   ol dir,   ol menu,   ol dl,
+dir ul,  dir ol,  dir dir,  dir menu,  dir dl,
+menu ul, menu ol, menu dir, menu menu, menu dl,
+dl ul,   dl ol,   dl dir,   dl menu,   dl dl {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* 2 deep unordered lists use a circle */
+ol ul,   ul ul,   menu ul,   dir ul,
+ol menu, ul menu, menu menu, dir menu,
+ol dir,  ul dir,  menu dir,  dir dir {
+  list-style-type: circle;
+}
+
+/* 3 deep (or more) unordered lists use a square */
+ol ol ul,     ol ul ul,     ol menu ul,     ol dir ul,
+ol ol menu,   ol ul menu,   ol menu menu,   ol dir menu,
+ol ol dir,    ol ul dir,    ol menu dir,    ol dir dir,
+ul ol ul,     ul ul ul,     ul menu ul,     ul dir ul,
+ul ol menu,   ul ul menu,   ul menu menu,   ul dir menu,
+ul ol dir,    ul ul dir,    ul menu dir,    ul dir dir,
+menu ol ul,   menu ul ul,   menu menu ul,   menu dir ul,
+menu ol menu, menu ul menu, menu menu menu, menu dir menu,
+menu ol dir,  menu ul dir,  menu menu dir,  menu dir dir,
+dir ol ul,    dir ul ul,    dir menu ul,    dir dir ul,
+dir ol menu,  dir ul menu,  dir menu menu,  dir dir menu,
+dir ol dir,   dir ul dir,   dir menu dir,   dir dir dir {
+  list-style-type: square;
+}
+
+/* forms */
+/* From http://dev.w3.org/csswg/css3-ui/#appearance */
+form {
+  display: block;
+}
+
+input, button, select {
+  display: inline-block;
+  font-family: sans-serif;
+}
+
+input[type=text],
+input[type=password],
+select {
+  width: 12em;
+}
+
+input[type=text],
+input[type=password],
+input[type=button],
+input[type=submit],
+input[type=reset],
+input[type=file],
+button,
+textarea,
+select {
+  background: #FFF;
+  border: 1px solid #999;
+  padding: 2px;
+  margin: 2px;
+}
+
+input[type=button],
+input[type=submit],
+input[type=reset],
+input[type=file],
+button {
+  background: #CCC;
+  width: 8em;
+  text-align: center;
+}
+
+input[type=text]:before,
+input[type=button]:before,
+input[type=submit]:before,
+input[type=reset]:before {
+  content: attr(value);
+}
+
+input[type=file]:before {
+  content: "Chose a file";
+}
+
+input[type=password][value]:before {
+  font-family: "DejaVu Sans";
+  content: "\2022\2022\2022\2022\2022\2022\2022\2022";
+  line-height: 1em;
+}
+
+input[type=checkbox],
+input[type=radio],
+select:after {
+  font-family: "DejaVu Sans";
+  font-size: 18px;
+  line-height: 1;
+}
+
+input[type=checkbox]:before {
+  content: "\2610";
+}
+
+input[type=checkbox][checked]:before {
+  content: "\2611";
+}
+
+input[type=radio]:before {
+  content: "\25CB";
+}
+
+input[type=radio][checked]:before {
+  content: "\25C9";
+}
+
+textarea {
+  display: block;
+  height: 3em;
+  overflow: hidden;
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+select {
+  position: relative!important;
+  overflow: hidden!important;
+}
+
+select:after {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 5em;
+  width: 1.4em;
+  text-align: center;
+  background: #CCC;
+  content: "\25BE";
+}
+
+select option {
+  display: none;
+}
+
+select option[selected] {
+  display: inline;
+}
+
+fieldset {
+  display: block;
+  margin: 0.6em 2px 2px;
+  padding: 0.75em;
+  border: 1pt groove #666;
+  position: relative;
+}
+
+fieldset > legend {
+  position: absolute;
+  top: -0.6em;
+  left: 0.75em;
+  padding: 0 0.3em;
+  background: white;
+}
+
+legend {
+  display: inline-block;
+}
+
+/* leafs */
+
+hr {
+  display: block;
+  height: 0;
+  border: 1px inset;
+  margin: 0.5em auto 0.5em auto;
+}
+
+iframe {
+  border: 2px inset;
+}
+
+noframes {
+  display: none;
+}
+
+br { 
+  display: -dompdf-br;
+}
+
+img, img_generated {
+  display: -dompdf-image;
+}
+
+dompdf_generated {
+  display: inline;
+}
+
+/* hidden elements */
+area, base, basefont, head, meta, script, style, title,
+noembed, noscript, param {
+  display: none;
+  -dompdf-keep: yes;
+}

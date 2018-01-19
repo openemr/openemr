@@ -11,36 +11,43 @@
  *
  * @author aron
  */
-class RuleCriteriaDiagnosis extends RuleCriteria {
+class RuleCriteriaDiagnosis extends RuleCriteria
+{
 
     var $title;
     var $codeType;
     var $id;
 
-    function __construct( $title, $codeType='', $id='' ) {
+    function __construct($title, $codeType = '', $id = '')
+    {
         $this->title = $title;
         $this->codeType = $codeType;
         $this->id = $id;
     }
 
-    function getRequirements() {
+    function getRequirements()
+    {
         $codeManager = new CodeManager();
         $code = $codeManager->get($this->id);
-        if ( is_null( $code ) ) {
+        if (is_null($code)) {
             return $this->codeType . ":" . $this->id;
         }
+
         return $code->display();
     }
 
-    function getTitle() {
+    function getTitle()
+    {
         return $this->title;
     }
 
-    function getView() {
+    function getView()
+    {
         return "diagnosis.php";
     }
 
-    function getDbView() {
+    function getDbView()
+    {
         $dbView = parent::getDbView();
 
         $dbView->method = "lists";
@@ -49,7 +56,8 @@ class RuleCriteriaDiagnosis extends RuleCriteria {
         return $dbView;
     }
 
-    function updateFromRequest() {
+    function updateFromRequest()
+    {
         parent::updateFromRequest();
         $value = _post("fld_value");
         $exploded = explode(" ", $value);
@@ -57,6 +65,4 @@ class RuleCriteriaDiagnosis extends RuleCriteria {
         $this->codeType = $diagInfo[0];
         $this->id = $diagInfo[1];
     }
-
 }
-?>

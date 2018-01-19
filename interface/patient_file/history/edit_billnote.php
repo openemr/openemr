@@ -1,18 +1,27 @@
 <?php
- // Copyright (C) 2007 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ * Billing notes.
+ *
+ * Copyright (C) 2007 Rod Roark <rod@sunsetsystems.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @link    http://www.open-emr.org
+ */
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
 
  include_once("../../globals.php");
  include_once("$srcdir/log.inc");
@@ -22,7 +31,9 @@ $fake_register_globals=false;
 
  $info_msg = "";
 
- if (!acl_check('acct', 'bill','','write')) die(htmlspecialchars(xl('Not authorized'),ENT_NOQUOTES));
+if (!acl_check('acct', 'bill', '', 'write')) {
+    die(htmlspecialchars(xl('Not authorized'), ENT_NOQUOTES));
+}
 ?>
 <html>
 <head>
@@ -37,40 +48,43 @@ $fake_register_globals=false;
 <body>
 <?php
 if ($_POST['form_submit'] || $_POST['form_cancel']) {
-  $fenote = trim($_POST['form_note']);
-  if ($_POST['form_submit']) {
-    sqlStatement("UPDATE form_encounter " .
-      "SET billing_note = ? WHERE id = ?", array($fenote,$feid) );
-  }
-  else {
-    $tmp = sqlQuery("SELECT billing_note FROM form_encounter " .
-      " WHERE id = ?", array($feid) );
-    $fenote = $tmp['billing_note'];
-  }
+    $fenote = trim($_POST['form_note']);
+    if ($_POST['form_submit']) {
+        sqlStatement("UPDATE form_encounter " .
+        "SET billing_note = ? WHERE id = ?", array($fenote,$feid));
+    } else {
+        $tmp = sqlQuery("SELECT billing_note FROM form_encounter " .
+        " WHERE id = ?", array($feid));
+        $fenote = $tmp['billing_note'];
+    }
+
   // escape and format note for viewing
-  $fenote = htmlspecialchars($fenote,ENT_QUOTES);
-  $fenote = str_replace("\r\n", "<br />", $fenote);
-  $fenote = str_replace("\n"  , "<br />", $fenote);
-  if (! $fenote) $fenote = '['. xl('Add') . ']';
-  echo "<script language='JavaScript'>\n";
-  echo " parent.closeNote($feid, '$fenote')\n";
-  echo "</script></body></html>\n";
-  exit();
+    $fenote = htmlspecialchars($fenote, ENT_QUOTES);
+    $fenote = str_replace("\r\n", "<br />", $fenote);
+    $fenote = str_replace("\n", "<br />", $fenote);
+    if (! $fenote) {
+        $fenote = '['. xl('Add') . ']';
+    }
+
+    echo "<script language='JavaScript'>\n";
+    echo " parent.closeNote($feid, '$fenote')\n";
+    echo "</script></body></html>\n";
+    exit();
 }
 
 $tmp = sqlQuery("SELECT billing_note FROM form_encounter " .
-  " WHERE id = ?", array($feid) );
+  " WHERE id = ?", array($feid));
 $fenote = $tmp['billing_note'];
 ?>
 
-<form method='post' action='edit_billnote.php?feid=<?php echo htmlspecialchars($feid,ENT_QUOTES); ?>'>
+<form method='post' action='edit_billnote.php?feid=<?php echo htmlspecialchars($feid, ENT_QUOTES); ?>' onsubmit='return top.restoreSession()'>
 
 <center>
-<textarea name='form_note' style='width:100%'><?php echo htmlspecialchars($fenote,ENT_NOQUOTES); ?></textarea>
+<textarea name='form_note' style='width:100%'><?php echo htmlspecialchars($fenote, ENT_NOQUOTES); ?></textarea>
 <p>
-<input type='submit' name='form_submit' value='<?php echo htmlspecialchars( xl('Save'), ENT_QUOTES); ?>' />
+<input type='submit' name='form_submit' value='<?php echo htmlspecialchars(xl('Save'), ENT_QUOTES); ?>' />
 &nbsp;&nbsp;
-<input type='submit' name='form_cancel' value='<?php echo htmlspecialchars( xl('Cancel'), ENT_QUOTES); ?>' />
+<input type='submit' name='form_cancel' value='<?php echo htmlspecialchars(xl('Cancel'), ENT_QUOTES); ?>' />
 </center>
 </form>
 </body>

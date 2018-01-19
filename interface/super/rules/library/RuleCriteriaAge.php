@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class RuleCriteriaAge extends RuleCriteria {
+class RuleCriteriaAge extends RuleCriteria
+{
     var $type;
     var $value;
     var $timeUnit;
@@ -20,41 +21,47 @@ class RuleCriteriaAge extends RuleCriteria {
      *
      * @param TimeUnit $timeUnit
      */
-    function __construct( $type, $value = null, $timeUnit = null) {
+    function __construct($type, $value = null, $timeUnit = null)
+    {
         $this->type = $type;
         $this->value = $value;
         $this->timeUnit = $timeUnit;
     }
 
-    function getRequirements() {
+    function getRequirements()
+    {
         return $this->value;
     }
 
-    function getTitle() {
-        $title = xl( "Age" );
-        if ( $this->type == "min" ) {
-            $title .= " " . xl( "Min" );
+    function getTitle()
+    {
+        $title = xl("Age");
+        if ($this->type == "min") {
+            $title .= " " . xl("Min");
         } else {
-            $title .= " " . xl( "Max" );
+            $title .= " " . xl("Max");
         }
 
         $title .= " (" . $this->timeUnit->lbl . ")";
         return $title;
     }
 
-    function getType() {
-        if ( $this->type == "min" ) {
-            return xl( "Min" );
+    function getType()
+    {
+        if ($this->type == "min") {
+            return xl("Min");
         } else {
-            return xl( "Max" );
+            return xl("Max");
         }
     }
 
-    function getView() {
+    function getView()
+    {
         return "age.php";
     }
 
-    function getDbView() {
+    function getDbView()
+    {
         $dbView = parent::getDbView();
 
         $dbView->method = "age_" . $this->type;
@@ -63,16 +70,16 @@ class RuleCriteriaAge extends RuleCriteria {
         return $dbView;
     }
 
-    function updateFromRequest() {
+    function updateFromRequest()
+    {
         parent::updateFromRequest();
         $age = _post("fld_value");
-        $timeUnit = TimeUnit::from( _post("fld_timeunit") );
-        if ( $timeUnit == null ) {
-            $timeUnit = TimeUnit::from( _post("fld_target_interval_type") );
+        $timeUnit = TimeUnit::from(_post("fld_timeunit"));
+        if ($timeUnit == null) {
+            $timeUnit = TimeUnit::from(_post("fld_target_interval_type"));
         }
 
         $this->value = $age;
         $this->timeUnit = $timeUnit;
     }
 }
-?>

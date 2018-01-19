@@ -6,9 +6,9 @@ CREATE TABLE IF NOT EXISTS `form_soap` (
 `groupname` varchar(255) default NULL,
 `authorized` tinyint(4) default 0,
 `activity` tinyint(4) default 0,
-`subjective` text default NULL,
-`objective` text default NULL,
-`assessment` text default NULL,
-`plan` text default NULL,
+`subjective` text,
+`objective` text,
+`assessment` text,
+`plan` text,
 PRIMARY KEY (id)
 ) ENGINE=InnoDB;

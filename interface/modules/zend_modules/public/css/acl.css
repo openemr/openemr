@@ -1,0 +1,302 @@
+/* +-----------------------------------------------------------------------------+
+*    OpenEMR - Open Source Electronic Medical Record
+*    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU Affero General Public License as
+*    published by the Free Software Foundation, either version 3 of the
+*    License, or (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU Affero General Public License for more details.
+*
+*    You should have received a copy of the GNU Affero General Public License
+*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*    @author  Jacob T.Paul <jacob@zhservices.com>
+*    @author  Basil P T <basil@zhservices.com>
+* +------------------------------------------------------------------------------+
+*/
+
+.container_body{
+	background-color:#EFEFFF;
+	font-family:bookman old style,verdana,arial,sans-serif;
+	font-size:14px;
+}
+#outer_table{
+	width:750px;
+}
+.container_div{
+	background-color:#FFFFFF;
+	
+}
+.myButton {
+	
+	-moz-box-shadow:inset 0px 1px 0px 0px #7a8eb9;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #7a8eb9;
+	box-shadow:inset 0px 1px 0px 0px #7a8eb9;
+	
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #637aad), color-stop(1, #5972a7));
+	background:-moz-linear-gradient(top, #637aad 5%, #5972a7 100%);
+	background:-webkit-linear-gradient(top, #637aad 5%, #5972a7 100%);
+	background:-o-linear-gradient(top, #637aad 5%, #5972a7 100%);
+	background:-ms-linear-gradient(top, #637aad 5%, #5972a7 100%);
+	background:linear-gradient(to bottom, #637aad 5%, #5972a7 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#637aad', endColorstr='#5972a7',GradientType=0);
+	
+	background-color:#637aad;
+	
+	border:1px solid #314179;
+	
+	display:inline-block;
+	color:#ffffff !important;
+	font-family:arial;
+	font-size:13px;
+	font-weight:bold;
+	padding:2px 12px;
+	text-decoration:none;
+	
+}
+.myButton:hover {
+	
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #5972a7), color-stop(1, #637aad));
+	background:-moz-linear-gradient(top, #5972a7 5%, #637aad 100%);
+	background:-webkit-linear-gradient(top, #5972a7 5%, #637aad 100%);
+	background:-o-linear-gradient(top, #5972a7 5%, #637aad 100%);
+	background:-ms-linear-gradient(top, #5972a7 5%, #637aad 100%);
+	background:linear-gradient(to bottom, #5972a7 5%, #637aad 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#5972a7', endColorstr='#637aad',GradientType=0);
+	
+	background-color:#5972a7;
+}
+.myButton:active {
+	position:relative;
+	top:1px;
+}
+.myButtonGreen {
+	
+	-moz-box-shadow:inset 0px 1px 0px 0px #9acc85;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #9acc85;
+	box-shadow:inset 0px 1px 0px 0px #9acc85;
+	
+	background-color:#74ad5a;
+	
+	border:1px solid #3b6e22;
+	
+	display:inline-block;
+	color:#ffffff;
+	font-family:arial;
+	font-size:13px;
+	font-weight:bold;
+	padding:6px 12px;
+	text-decoration:none;
+	
+}
+.myButtonGreen:hover {
+	
+	background-color:#68a54b;
+}
+.myButtonGreen:active {
+	position:relative;
+	top:1px;
+}
+.select_box{
+	background-position: 97% center;
+	background-repeat: no-repeat;
+	border: 1px solid #AAAAAA;
+	color: #555555;
+	font-size: inherit;
+	overflow: hidden;
+	padding: 5px 10px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	width: 250px;
+}
+.group_edit_text_box{
+	border: 1px solid #AAAAAA;
+	color: #555555;
+	font-size: inherit;
+	overflow: hidden;
+	padding: 5px 10px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	width: 200px;
+}
+
+.image_button{
+	cursor:pointer;
+}
+.head{
+	text-align: center;
+	vertical-align:middle;
+	color: #43609C;
+	font-size: 18px;
+	
+}
+.container{
+	background-color:#E0ECFF;
+	border-radius:5px;
+	width:25%;
+	color: #4E84C4;
+	font-size: 16px;
+}
+.container_top{
+  background-color:#FFFFFF;
+  height: 40px;
+  border-radius:5px;
+  text-align: left;
+  padding: 0px 15px;
+}
+.container_head{
+  background-color:#FFFFFF;
+  height: 30px;
+  border-radius:5px;
+  text-align: left;
+  padding: 0px 15px;
+  font-weight: bold;
+  font-size: 18px;
+  text-align: center;
+  color: #43609C;
+}
+.container_div{
+	background-color:#FFFFFF;
+	border-radius:5px;
+	width:25%;
+	height:430px;
+	vertical-align:top;
+	padding:5px;
+	font-size:14px;
+}
+.selected_componet{
+	color:#B32317;
+}
+.delete_droppable{
+	
+	height:50px;
+	border-radius:5px; 
+	/*display:none;*/
+
+}
+.deleted{
+	background-color:#FF2A00;
+	background-image:url('../images/delete.png');
+	background-position: center;
+	background-repeat: no-repeat;
+	opacity:0.7;
+}
+#messages{
+  color: #466837;
+  float: right;
+  margin-right: 10px;
+}
+.list{
+  cursor: pointer;
+  -webkit-user-select: none;  
+  -moz-user-select: none;    
+  -ms-user-select: none;      
+  user-select: none;
+}
+.ui-draggable{
+  cursor: move;
+  -webkit-user-select: none;  
+  -moz-user-select: none;    
+  -ms-user-select: none;      
+  user-select: none;
+}
+.red{
+  background-color: #E0ECFF;
+  opacity:0.7;
+}
+#table_acl{
+	margin-top: 5px;
+    }
+    #table_acl td{
+	padding: 1px 5px;
+	/*min-width: 170px;
+	max-width: 170px;*/
+    }
+    .tr_head{
+	background-color: #ABC4C0;
+    }
+    .tr_module{
+	background-color: #87A1BF;
+	color: #FFFFFF;
+    }
+    .tr_section_1{
+	background-color:#E0ECFF;
+	font-size:14px;
+    }
+    .tr_section_2{
+	background-color:#EFF5FF;
+	font-size:14px;
+    }
+    .align_center{
+	text-align: center;
+    }
+    .div_container{
+	background-color: #F5F5F5;
+	padding: 10px;
+    }
+    
+    .css_button_light_blue {
+        
+        background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #79bbff), color-stop(1, #378de5));
+        background:-moz-linear-gradient(top, #79bbff 5%, #378de5 100%);
+        background:-webkit-linear-gradient(top, #79bbff 5%, #378de5 100%);
+        background:-o-linear-gradient(top, #79bbff 5%, #378de5 100%);
+        background:-ms-linear-gradient(top, #79bbff 5%, #378de5 100%);
+        background:linear-gradient(to bottom, #79bbff 5%, #378de5 100%);
+        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#79bbff', endColorstr='#378de5',GradientType=0);
+        
+        background-color:#79bbff;
+        
+        -moz-border-radius:4px;
+        -webkit-border-radius:4px;
+        border-radius:4px;
+        
+        border:1px solid #84bbf3;
+        
+        display:inline-block;
+        color:#ffffff !important;
+        font-family:Verdana;
+        font-size:12px;
+        font-weight:bold;
+        padding:5px 20px;
+        text-decoration:none;
+        
+    }
+    .css_button_light_blue:hover {
+        
+        background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #378de5), color-stop(1, #79bbff));
+        background:-moz-linear-gradient(top, #378de5 5%, #79bbff 100%);
+        background:-webkit-linear-gradient(top, #378de5 5%, #79bbff 100%);
+        background:-o-linear-gradient(top, #378de5 5%, #79bbff 100%);
+        background:-ms-linear-gradient(top, #378de5 5%, #79bbff 100%);
+        background:linear-gradient(to bottom, #378de5 5%, #79bbff 100%);
+        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#378de5', endColorstr='#79bbff',GradientType=0);
+        
+        background-color:#378de5;
+    }
+    .css_button_light_blue:active {
+        position:relative;
+        top:1px;
+    }
+    .popup_items{
+	background: #EFEFFF;
+	border: 1px solid #ccc;
+	border-color: rgba(0,0,0,.2);
+	box-shadow: 0 2px 10px rgba(0,0,0,.2);
+	display: none;
+	overflow: hidden;
+	position: absolute;
+	-webkit-animation: gb__a .2s;
+	animation: gb__a .2s;
+	-webkit-border-radius: 2px;
+	border-radius: 2px;
+	-webkit-user-select: text;
+	width: 400px;
+	height: 300px;
+	z-index:9999;
+	padding: 10px;
+    }

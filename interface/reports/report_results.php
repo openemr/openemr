@@ -3,87 +3,67 @@
  * Generic script to list stored reports. Part of the module to allow the tracking,
  * storing, and viewing of reports.
  *
- * Copyright (C) 2012 Brady Miller <brady@sparmy.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2012-2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//
-
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
-require_once("$srcdir/formatting.inc.php");
 require_once "$srcdir/options.inc.php";
-require_once "$srcdir/formdata.inc.php";
 require_once "$srcdir/clinical_rules.php";
 require_once "$srcdir/report_database.inc";
+
+use OpenEMR\Core\Header;
 ?>
 
 <html>
 
 <head>
-<?php html_header_show();?>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+    <title><?php echo xlt('Report Results/History'); ?></title>
 
-<title><?php echo htmlspecialchars( xl('Report Results/History'), ENT_NOQUOTES); ?></title>
+    <?php Header::setupHeader('datetime-picker'); ?>
 
-<script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+    <script LANGUAGE="JavaScript">
+        $( document ).ready(function(){
+            $('.datepicker').datetimepicker({
+                <?php $datetimepicker_timepicker = true; ?>
+                <?php $datetimepicker_showseconds = true; ?>
+                <?php $datetimepicker_formatInput = false; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+        });
+    </script>
 
-<script LANGUAGE="JavaScript">
+    <style type="text/css">
+        /* specifically include & exclude from printing */
+        @media print {
+            #report_parameters {
+                visibility: hidden;
+                display: none;
+            }
+            #report_parameters_daterange {
+                visibility: visible;
+                display: inline;
+            }
+            #report_results table {
+               margin-top: 0px;
+            }
+        }
 
- var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
-
-</script>
-
-<style type="text/css">
-
-/* specifically include & exclude from printing */
-@media print {
-    #report_parameters {
-        visibility: hidden;
-        display: none;
-    }
-    #report_parameters_daterange {
-        visibility: visible;
-        display: inline;
-    }
-    #report_results table {
-       margin-top: 0px;
-    }
-}
-
-/* specifically exclude some from the screen */
-@media screen {
-    #report_parameters_daterange {
-        visibility: hidden;
-        display: none;
-    }
-}
-
-</style>
+        /* specifically exclude some from the screen */
+        @media screen {
+            #report_parameters_daterange {
+                visibility: hidden;
+                display: none;
+            }
+        }
+    </style>
 </head>
 
 <body class="body_top">
@@ -91,7 +71,7 @@ require_once "$srcdir/report_database.inc";
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-<span class='title'><?php echo htmlspecialchars( xl('Report History/Results'), ENT_NOQUOTES); ?></span>
+<span class='title'><?php echo xlt('Report History/Results'); ?></span>
 
 <form method='post' name='theform' id='theform' action='report_results.php' onsubmit='return top.restoreSession()'>
 
@@ -100,58 +80,52 @@ require_once "$srcdir/report_database.inc";
 <table>
  <tr>
   <td width='470px'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
+    <table class='text'>
 
                    <tr>
-                      <td class='label'>
-                         <?php echo htmlspecialchars( xl('Begin Date'), ENT_NOQUOTES); ?>:
+                      <td class='control-label'>
+                            <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
-                         <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo htmlspecialchars( $_POST['form_begin_date'], ENT_QUOTES); ?>'
-                            onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
-                           <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-                            id='img_begin_date' border='0' alt='[?]' style='cursor:pointer'
-                            title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
+                         <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo attr($_POST['form_begin_date']); ?>'
+                            class='datepicker form-control'
+                            title='<?php echo xla('yyyy-mm-dd hh:mm:ss'); ?>'>
                       </td>
                    </tr>
 
                 <tr>
-                        <td class='label'>
-                              <?php echo htmlspecialchars( xl('End Date'), ENT_NOQUOTES); ?>:
+                        <td class='control-label'>
+                                <?php echo xlt('End Date'); ?>:
                         </td>
                         <td>
-                           <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo htmlspecialchars( $_POST['form_end_date'], ENT_QUOTES); ?>'
-                                onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
-                             <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-                                id='img_end_date' border='0' alt='[?]' style='cursor:pointer'
-                                title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
+                           <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo attr($_POST['form_end_date']); ?>'
+                                class='datepicker form-control'
+                                title='<?php echo xla('yyyy-mm-dd hh:mm:ss'); ?>'>
                         </td>
                 </tr>
-	</table>
-	</div>
+    </table>
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
-				<div style='margin-left:15px'>
-					<a id='search_button' href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit()'>
-					<span>
-						<?php echo htmlspecialchars( xl('Search'), ENT_NOQUOTES); ?>
-					</span>
-					</a>
-                                        <a id='refresh_button' href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit()'>
-                                        <span>
-                                                <?php echo htmlspecialchars( xl('Refresh'), ENT_NOQUOTES); ?>
-                                        </span>
-                                        </a>
-				</div>
-			</td>
-		</tr>
-	</table>
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
+                <div class="text-center">
+          <div class="btn-group" role="group">
+            <a href='#' id='search_button' class='btn btn-default btn-search' onclick='top.restoreSession(); $("#theform").submit()'>
+                <?php echo xlt('Search'); ?>
+            </a>
+            <a href='#' id='refresh_button' class='btn btn-default btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
+                <?php echo xlt('Refresh'); ?>
+            </a>
+          </div>
+                </div>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>
@@ -167,83 +141,138 @@ require_once "$srcdir/report_database.inc";
 
  <thead>
   <th align='center'>
-   <?php echo htmlspecialchars( xl('Title'), ENT_NOQUOTES); ?>
+    <?php echo xlt('Title'); ?>
   </th>
 
   <th align='center'>
-   <?php echo htmlspecialchars( xl('Date'), ENT_NOQUOTES); ?>
+    <?php echo xlt('Date'); ?>
   </th>
 
   <th align='center'>
-   <?php echo htmlspecialchars( xl('Status'), ENT_NOQUOTES); ?>
+    <?php echo xlt('Status'); ?>
   </th>
 
  </thead>
  <tbody>  <!-- added for better print-ability -->
 <?php
 
- $res = listingReportDatabase($_POST['form_begin_date'],$_POST['form_end_date']);
- while ($row = sqlFetchArray($res)) {
-
+$res = listingReportDatabase($_POST['form_begin_date'], $_POST['form_end_date']);
+while ($row = sqlFetchArray($res)) {
   // Figure out the title and link
-  if ($row['type'] == "cqm") {
-    if (!$GLOBALS['enable_cqm']) continue;
-    $type_title = xl('Clinical Quality Measures (CQM)');
-    $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-  }
-  else if ($row['type'] == "amc") {
-    if (!$GLOBALS['enable_amc']) continue;
-    $type_title = xl('Automated Measure Calculations (AMC)');
-    $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-  }
-  else if ($row['type'] == "process_reminders") {
-    if (!$GLOBALS['enable_cdr']) continue;
-    $type_title = xl('Processing Patient Reminders');
-    $link="../batchcom/batch_reminders.php?report_id=" . attr($row["report_id"]);
-  }
-  else if ($row['type'] == "process_send_reminders") {
-    if (!$GLOBALS['enable_cdr']) continue;
-    $type_title = xl('Processing and Sending Patient Reminders');
-    $link="../batchcom/batch_reminders.php?report_id=" . attr($row["report_id"]);
-  }
-  else if ($row['type'] == "passive_alert") {
-    if (!$GLOBALS['enable_cdr']) continue;
-    $type_title = xl('Standard Measures (Passive Alerts)');
-    $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-  }
-  else if ($row['type'] == "active_alert") {
-    if (!$GLOBALS['enable_cdr']) continue;
-    $type_title = xl('Standard Measures (Active Alerts)');
-    $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-  }
-  else if ($row['type'] == "patient_reminder") {
-    if (!$GLOBALS['enable_cdr']) continue;
-    $type_title = xl('Standard Measures (Patient Reminders)');
-    $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-  }
-  else {
-    // Not identified, so give an unknown title
-    $type_title = xl('Unknown');
-    $link="";
-  }
+    if ($row['type'] == "cqm") {
+        if (!$GLOBALS['enable_cqm']) {
+            continue;
+        }
+
+        $type_title = xl('Clinical Quality Measures (CQM)');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    } else if ($row['type'] == "cqm_2011") {
+        if (!$GLOBALS['enable_cqm']) {
+            continue;
+        }
+
+        $type_title = xl('2011 Clinical Quality Measures (CQM)');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    } else if ($row['type'] == "cqm_2014") {
+        if (!$GLOBALS['enable_cqm']) {
+            continue;
+        }
+
+        $type_title = xl('2014 Clinical Quality Measures (CQM)');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    } else if ($row['type'] == "amc") {
+        if (!$GLOBALS['enable_amc']) {
+            continue;
+        }
+
+        $type_title = xl('Automated Measure Calculations (AMC)');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    } else if ($row['type'] == "amc_2011") {
+        if (!$GLOBALS['enable_amc']) {
+            continue;
+        }
+
+        $type_title = xl('2011 Automated Measure Calculations (AMC)');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    } else if ($row['type'] == "amc_2014") {
+        if (!$GLOBALS['enable_amc']) {
+            continue;
+        }
+
+        $type_title = xl('2014 Automated Measure Calculations (AMC)');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    } else if ($row['type'] == "amc_2014_stage1") {
+        if (!$GLOBALS['enable_amc']) {
+            continue;
+        }
+
+        $type_title = xl('2014 Automated Measure Calculations (AMC) - Stage I');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    } else if ($row['type'] == "amc_2014_stage2") {
+        if (!$GLOBALS['enable_amc']) {
+            continue;
+        }
+
+        $type_title = xl('2014 Automated Measure Calculations (AMC) - Stage II');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    } else if ($row['type'] == "process_reminders") {
+        if (!$GLOBALS['enable_cdr']) {
+            continue;
+        }
+
+        $type_title = xl('Processing Patient Reminders');
+        $link="../batchcom/batch_reminders.php?report_id=" . attr($row["report_id"]);
+    } else if ($row['type'] == "process_send_reminders") {
+        if (!$GLOBALS['enable_cdr']) {
+            continue;
+        }
+
+        $type_title = xl('Processing and Sending Patient Reminders');
+        $link="../batchcom/batch_reminders.php?report_id=" . attr($row["report_id"]);
+    } else if ($row['type'] == "passive_alert") {
+        if (!$GLOBALS['enable_cdr']) {
+            continue;
+        }
+
+        $type_title = xl('Standard Measures (Passive Alerts)');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    } else if ($row['type'] == "active_alert") {
+        if (!$GLOBALS['enable_cdr']) {
+            continue;
+        }
+
+        $type_title = xl('Standard Measures (Active Alerts)');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    } else if ($row['type'] == "patient_reminder") {
+        if (!$GLOBALS['enable_cdr']) {
+            continue;
+        }
+
+        $type_title = xl('Standard Measures (Patient Reminders)');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    } else {
+        // Not identified, so give an unknown title
+        $type_title = xl('Unknown') . "-" . $row['type'];
+        $link="";
+    }
 ?>
- <tr>
+<tr>
     <?php if ($row["progress"] == "complete") { ?>
       <td align='center'><a href='<?php echo $link; ?>' onclick='top.restoreSession()'><?php echo text($type_title); ?></a></td>
     <?php } else { ?>
       <td align='center'><?php echo text($type_title); ?></td>
     <?php } ?>
-    <td align='center'><?php echo text($row["date_report"]); ?></td>
+  <td align='center'><?php echo text($row["date_report"]); ?></td>
     <?php if ($row["progress"] == "complete") { ?>
       <td align='center'><?php echo xlt("Complete") . " (" . xlt("Processing Time") . ": " . text($row['report_time_processing']) . " " . xlt("Minutes") . ")"; ?></td>
     <?php } else { ?>
       <td align='center'><?php echo xlt("Pending") . " (" . text($row["progress_items"]) . " / " . text($row["total_items"]) . " " . xlt("Patients Processed") . ")"; ?></td>
     <?php } ?>
 
- </tr>
+</tr>
 
 <?php
- } // $row = sqlFetchArray($res) while
+} // $row = sqlFetchArray($res) while
 ?>
 </tbody>
 </table>
@@ -253,15 +282,4 @@ require_once "$srcdir/report_database.inc";
 
 </body>
 
-<!-- stuff for the popup calendar -->
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-<script language="Javascript">
- Calendar.setup({inputField:"form_begin_date", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img_begin_date", showsTime:'true'});
- Calendar.setup({inputField:"form_end_date", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img_end_date", showsTime:'true'});
-</script>
-
 </html>
-

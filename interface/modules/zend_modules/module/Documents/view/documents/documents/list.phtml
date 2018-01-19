@@ -1,0 +1,150 @@
+<?php
+/* +-----------------------------------------------------------------------------+
+*    OpenEMR - Open Source Electronic Medical Record
+*    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU Affero General Public License as
+*    published by the Free Software Foundation, either version 3 of the
+*    License, or (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU Affero General Public License for more details.
+*
+*    You should have received a copy of the GNU Affero General Public License
+*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*    @author  Basil PT <basil@zhservices.com>
+* +------------------------------------------------------------------------------+
+*/
+$category = $this->category;
+$pid			= $this->pid;
+?>
+<input type="hidden" name="angular_jquery_map" id="angular_jquery_map">
+<input type="hidden" value="<?php echo $this->escapeHtml($pid); ?>" name="current_pid" id="current_pid"> 
+<input type="hidden" name="document_category" id="document_category">
+<div class="container" ng-init="getCategories(0);">
+	<div class="row doc-doc-ls-1">
+		<div class="row doc-doc-ls-2">
+			<div class="three columns  disable-select disable_margin" >
+				<div class="doc-doc-ls-3"></div>
+				<h3><?php echo $this->layout()->plugin->z_xlt('Documents'); ?></h3>
+			</div>
+			<div class="nine columns  disable-select disable_margin">
+				<div class="doc-doc-ls-13">
+					<div class="doc-doc-ls-12 button-small grey_light  rounded_button disable-select">
+						<input type="file" name="uploader_1_browse" id="uploader_1_browse" class="">
+						<span><?php echo $this->layout()->plugin->z_xlt('Browse'); ?></span>
+					</div>
+					<a id="uploader_1_upload" class="doc-doc-ls-12 button-small default_button rounded_button disable-select" href="#" ><?php echo $this->layout()->plugin->z_xlt('Upload'); ?></a>		
+				</div>
+				<?php $style = ($GLOBALS['zhemr']['enable_document_encryption'] == '1') ? "" : "style='display:none;'"; ?>
+				<div <?php echo $style; ?> class="doc-doc-ls-14 doc-doc-ls-13">
+					<input type="checkbox" id="is_file_encrypted" value="1" /><?php echo $this->layout()->plugin->z_xlt('Encrypted File'); ?>
+					<input type="hidden" id="is_file_encrypted_hidden" value="" />
+					<input type="text" placeholder="Pass Phrase" id="encryption_key">
+				</div>
+				</div>
+		</div>
+	</div>
+</div>
+<div class="clear">&nbsp;</div>
+<div class="container doc-doc-ls-4 doc-doc-ls-15">
+	<div class="row">
+		<div class="disable-select three columns disable_margin doc-doc-ls-5">
+			<ul class="doc-doc-ls-6">
+				<li ng-repeat="category_id in unSorted(left_menu)" ng-click="updateNavigation('root',category_id);getDocuments(category_id);" ng-class="getClass($first,'current')">
+					<div class="file-icon doc-folder"></div>
+					{{left_menu[category_id].category_name}}
+				</li>
+			</ul>
+		</div>
+		<div class="disable-select nine columns disable_margin doc-doc-ls-8" ng-init="getDocuments(1);">
+			<div class="doc-doc-ls-9">
+				<div class="doc-doc-ls-11" ng-repeat="index in unSorted(navigation)">
+					<div class="doc-doc-ls-10"></div>
+					<div class="doc-doc-ls-11" ng-click="updateNavigation('prev',index);getDocuments(navigation[index].id);">{{navigation[index].name}}</div>
+				</div>
+				<div class="clear"></div>
+			</div>
+			<ul class="doc-doc-ls-7">
+				<li ng-repeat="category_id in unSorted(right_menu_directory)" ng-click="updateNavigation('next',category_id);getDocuments(category_id);">
+					<div class="file-icon doc-folder"></div>
+					{{right_menu_directory[category_id].category_name}}
+				</li>
+				<li ng-repeat="doc_id in unSorted(right_menu_files)" ng-click="openFile(doc_id);">
+					<div ng-class="fileIcon(right_menu_files[doc_id].mime)"></div>
+					{{right_menu_files[doc_id].doc_name}}
+				</li>
+			</ul>
+		</div>
+	</div> 
+</div>
+<div class="container doc-doc-ls-4 doc-doc-ls-16">
+	<div class="row">
+		<div class="disable-select three columns disable_margin doc-doc-ls-5">
+			<div class="doc-doc-ls-18">
+				<table class="doc-doc-ls-17" align="center">
+					<tr><td></td></tr>
+					<tr><td><label><?php echo $this->layout()->plugin->z_xlt('File Name'); ?></label><input ng-model="current_document['doc_name']" type="text"></td></tr>
+					<tr><td><label><?php echo $this->layout()->plugin->z_xlt('Date'); ?></label><input ng-model="current_document['doc_docdate']" type="text" class="date_field"></td></tr>
+					<tr><td><label><?php echo $this->layout()->plugin->z_xlt('Patient Name'); ?></label><input type="text" ng-model="current_document['doc_pid']"></td></tr>
+					<tr><td><label><?php echo $this->layout()->plugin->z_xlt('Notes'); ?></label>
+					<textarea ng-model="current_document['doc_notes']">
+					</textarea>
+					</td></tr>
+					<tr>
+						<td>
+							<label><?php echo $this->layout()->plugin->z_xlt('Issue'); ?></label>
+							<select class="styled_select_light" ng-model="current_document['doc_issues']">
+								<option value=""></option>
+                <option value="select1"><?php echo $this->layout()->plugin->z_xlt('Select1'); ?></option>
+                <option value="select2"><?php echo $this->layout()->plugin->z_xlt('Select2'); ?></option>
+							</select>
+                              
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label><?php echo $this->layout()->plugin->z_xlt('Category'); ?></label>
+               <select ng-model="current_document['doc_category_id']"  class="styled_select_light">
+                  <?php foreach($category as $occurence_key => $occurence_val) : ?>
+                    <option value="<?php echo $this->escapeHtml($occurence_val['cat_id']);?>"><?php echo $this->escapeHtml($this->layout()->plugin->z_xlt($occurence_val['cat_name'])); ?></option>
+                  <?php endforeach; ?>
+               </select>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class="doc-doc-ls-19">
+				<center>
+					<div class="doc-doc-ls-20">
+					<a id="uploader_1_upload" class="doc-doc-ls-12 button-small green_normal rounded_button disable-select" href="#" ng-click="saveFile();"><?php echo $this->layout()->plugin->z_xlt('Update'); ?></a>
+					</div>
+				</center>
+			</div>
+		</div>
+		<div class="disable-select nine columns disable_margin doc-doc-ls-8 doc-doc-ls-8-preview">
+			<div class="doc-doc-ls-27">
+				<div class="image_button button_image button_download" ng-click="downloadFile();"></div>
+				<div class="image_button button_image button_delete" ng-click="deleteFile(current_document['doc_id']);closeFile();getDocuments(current_document['doc_category_id']);"></div>
+				<div class="doc-doc-ls-28" ng-show="data_integrity==1"></div>
+				<div class="doc-doc-ls-29" ng-show="data_integrity==1"><?php echo $this->layout()->plugin->z_xlt('Document passed integrity check'); ?></div>
+				<div class="doc-doc-ls-30" ng-show="data_integrity==0"></div>
+				<div class="doc-doc-ls-29" ng-show="data_integrity==0"><?php echo $this->layout()->plugin->z_xlt('Data integrity has been compromised'); ?></div>
+				<div class="image_button button_close doc-doc-ls-26" ng-click="closeFile();"></div>
+			</div>
+			<hr class="doc-doc-ls-25">
+			<div class="doc-doc-ls-27">
+				<div class="image_button button_prev" ng-click="nextDoc('previous');"></div>
+				<div class="image_button button_next doc-doc-ls-26" ng-click="nextDoc('next');"></div>
+			</div>
+			<hr class="doc-doc-ls-25">
+			<div class="doc-doc-ls-22">
+				<iframe id="file_preview" class="doc-doc-ls-22"></iframe>
+			</div>
+		</div>
+	</div> 
+</div>
+<div class="clear"></div>

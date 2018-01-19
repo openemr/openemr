@@ -1,0 +1,1798 @@
+<?php
+/* +-----------------------------------------------------------------------------+
+ *    OpenEMR - Open Source Electronic Medical Record
+ *    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ *
+ *    This program is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU Affero General Public License as
+ *    published by the Free Software Foundation, either version 3 of the
+ *    License, or (at your option) any later version.
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU Affero General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Affero General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *    @author  Chandni Babu <chandnib@zhservices.com>
+ *    @author  Riju KP <rijukp@zhservices.com>  
+ * +------------------------------------------------------------------------------+
+ */
+
+$patient_data = array(
+    'sex' => 'Sex',
+    'pubpid' => 'External ID',
+    'street' => 'Street',
+    'city' => 'City',
+    'state' => 'State',
+    'postal_code' => 'Postal Code',
+    'country_code' => 'Country',
+    'phone_home' => 'Phone',
+    'status' => 'Marital Status',
+    'religion' => 'Religion',
+    'race' => 'Race',
+    'ethnicity' => 'Ethnicity',
+    'ss' => 'SSN'
+);
+
+$date_format = \Application\Model\ApplicationTable::dateFormat('dd/mm/yyyy');
+$ignore = $this->listenerObject->z_xlt('Ignore');
+$update = $this->listenerObject->z_xlt('Update');
+$insert = $this->listenerObject->z_xlt('Insert');
+?>
+<style type="text/css">
+    .demo_old{
+        color       :red;
+        padding-left:25px;
+    }
+    select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"], .uneditable-input{
+        margin: 0px;
+        width: 100px !important;
+    }
+    .styled_chkbox input[type=checkbox] + label {
+        display:inline-block;
+        width:82%;
+        padding: 2px 10px;
+        background-color: #F7F7F7;
+        /*font-weight: normal !important;*/
+        /*color:black;*/
+        color: #444444 !important;
+        font-size: 13px !important;
+
+        text-align: center;
+        border-radius: 5px;
+        border: thin solid #DDDDDD;
+        cursor: pointer;
+    }
+    .styled_chkbox input[type=checkbox]:checked + label {
+        background: none repeat scroll 0 0 #003366;
+        border: thin solid #185796;
+        color: #FFFFFF !important;
+        font-size: 13px !important;
+        border-radius: 5px;
+        padding: 2px 10px;
+    }
+</style>
+<script type="text/javascript">
+    function submit_form(setval)
+    {
+        $('#setval').val(setval);
+        var chkvalproblem1 = '';
+        var chkvalproblem2 = '';
+        var chkvalproblem3 = '';
+        var chkvalallergy1 = '';
+        var chkvalallergy2 = '';
+        var chkvalallergy3 = '';
+        var chkvalmed1 = '';
+        var chkvalmed2 = '';
+        var chkvalmed3 = '';
+        $('.checkAssignProblem1').each(function() {
+            if(chkvalproblem1 == '')
+                chkvalproblem1 = $(this).val();
+            else
+                chkvalproblem1 = chkvalproblem1 + "||" + $(this).val();
+        });
+        $('.checkAssignProblem2').each(function() {
+            if(chkvalproblem2 == '')
+                chkvalproblem2 = $(this).val();
+            else
+                chkvalproblem2 = chkvalproblem2 + "||" + $(this).val();
+        });
+        $('.checkAssignProblem3').each(function() {
+            if(chkvalproblem3 == '')
+                chkvalproblem3 = $(this).val();
+            else
+                chkvalproblem3 = chkvalproblem3 + "||" + $(this).val();
+        });
+        $('.checkAssignAllergy1').each(function() {
+            if(chkvalallergy1 == '')
+                chkvalallergy1 = $(this).val();
+            else
+                chkvalallergy1 = chkvalallergy1 + "||" + $(this).val();
+        });
+        $('.checkAssignAllergy2').each(function() {
+            if(chkvalallergy2 == '')
+                chkvalallergy2 = $(this).val();
+            else
+                chkvalallergy2 = chkvalallergy2 + "||" + $(this).val();
+        });
+        $('.checkAssignAllergy3').each(function() {
+            if(chkvalallergy3 == '')
+                chkvalallergy3 = $(this).val();
+            else
+                chkvalallergy3 = chkvalallergy3 + "||" + $(this).val();
+        });
+        $('.checkAssignMed1').each(function() {
+            if(chkvalmed1 == '')
+                chkvalmed1 = $(this).val();
+            else
+                chkvalmed1 = chkvalmed1 + "||" + $(this).val();
+        });
+        $('.checkAssignMed2').each(function() {
+            if(chkvalmed2 == '')
+                chkvalmed2 = $(this).val();
+            else
+                chkvalmed2 = chkvalmed2 + "||" + $(this).val();
+        });
+        $('.checkAssignMed3').each(function() {
+            if(chkvalmed3 == '')
+                chkvalmed3 = $(this).val();
+            else
+                chkvalmed3 = chkvalmed3 + "||" + $(this).val();
+        });
+        $("#problem1check").val(chkvalproblem1);
+        $("#problem2check").val(chkvalproblem2);
+        $("#problem3check").val(chkvalproblem3);
+        $("#allergy1check").val(chkvalallergy1);
+        $("#allergy2check").val(chkvalallergy2);
+        $("#allergy3check").val(chkvalallergy3);
+        $("#med1check").val(chkvalmed1);
+        $("#med2check").val(chkvalmed2);
+        $("#med3check").val(chkvalmed3);
+    }
+    function setProcedureNameHidden(procedure_name, ij)
+    {
+        $(".procedure_result-proc_name-" + ij).val(procedure_name);
+    }
+    $(document).ready(function() {
+        $('#checkall').click(function() {
+            if ($(this).is(':checked')) {
+                $(".chkall_I").val('insert');
+                $(".chkall_U").val('update');
+            }
+            else {
+                $(".chkall_I").val('ignore');
+                $(".chkall_U").val('ignore');
+            }
+        });
+        $('.checkAssignProblem1').click(function(){ 
+          if ($(this).is(':checked')) { 
+              $(this).val('1');
+          }
+          else { 
+              $(this).val('0');
+          }
+      });
+      $('.checkAssignProblem2').click(function(){ 
+          if ($(this).is(':checked')) { 
+              $(this).val('1');
+          }
+          else { 
+              $(this).val('0');
+          }
+      });
+      $('.checkAssignProblem3').click(function(){ 
+          if ($(this).is(':checked')) { 
+              $(this).val('1');
+          }
+          else { 
+              $(this).val('0');
+          }
+      });
+      $('.checkAssignAllergy1').click(function(){ 
+          if ($(this).is(':checked')) { 
+              $(this).val('1');
+          }
+          else { 
+              $(this).val('0');
+          }
+      });
+      $('.checkAssignAllergy2').click(function(){ 
+          if ($(this).is(':checked')) { 
+              $(this).val('1');
+          }
+          else { 
+              $(this).val('0');
+          }
+      });
+      $('.checkAssignAllergy3').click(function(){ 
+          if ($(this).is(':checked')) { 
+              $(this).val('1');
+          }
+          else { 
+              $(this).val('0');
+          }
+      });
+      $('.checkAssignMed1').click(function(){ 
+          if ($(this).is(':checked')) { 
+              $(this).val('1');
+          }
+          else { 
+              $(this).val('0');
+          }
+      });
+      $('.checkAssignMed2').click(function(){ 
+          if ($(this).is(':checked')) { 
+              $(this).val('1');
+          }
+          else { 
+              $(this).val('0');
+          }
+      });
+      $('.checkAssignMed3').click(function(){ 
+          if ($(this).is(':checked')) { 
+              $(this).val('1');
+          }
+          else { 
+              $(this).val('0');
+          }
+      });
+    });
+</script>
+<form method="post" action="<?php echo $this->basePath() . '/carecoordination/revandapprove'; ?>">
+    <input type="hidden" name="amid" value="<?php echo $this->escapeHtml($this->amid); ?>">
+    <input type="hidden" name="pid" value="<?php echo $this->escapeHtml($this->pid); ?>">
+    <input type="hidden" name="document_id" id="document_id" value="<?php echo $this->escapeHtml($this->document_id); ?>" >
+    <input type="hidden" name="setval" id="setval">
+    <input type="hidden" name="med1check" id="med1check">
+    <input type="hidden" name="med2check" id="med2check">
+    <input type="hidden" name="med3check" id="med3check">
+    <input type="hidden" name="problem1check" id="problem1check">
+    <input type="hidden" name="problem2check" id="problem2check">
+    <input type="hidden" name="problem3check" id="problem3check">
+    <input type="hidden" name="allergy1check" id="allergy1check">
+    <input type="hidden" name="allergy2check" id="allergy2check">
+    <input type="hidden" name="allergy3check" id="allergy3check">
+    <div class="body_inner_wrapper">
+        <div class="header_wrap" style="height: 110px!important;">
+            <a style="text-decoration: none; position: absolute; top: 25px; left: 20px;" href="<?php echo $this->basePath(); ?>/carecoordination/upload" title="<?php echo $this->listenerObject->z_xlt('Go Back') ?>">
+                <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath(); ?>/css/icons/go_back.png">
+            </a>
+        <input type="submit" class="search_button" value="<?php echo $this->listenerObject->z_xlt('Approve'); ?>" onclick="submit_form('approve');" style="position: absolute; left: 45%;top: 25px;">
+        <input type="submit" class="search_button" value="<?php echo $this->listenerObject->z_xlt('Discard'); ?>" onclick="submit_form('discard');" style="position: absolute; left: 52%;top: 25px;">
+            <div class="styled_chkbox" style="position: absolute; left: 90%;top: 25px;">
+                <input type="checkbox" style="display:none;" id="checkall" value=""/>
+                <label style="line-height:24px;" for="checkall"><?php echo $this->listenerObject->z_xlt('Import All'); ?></label>
+            </div>
+        </div>
+        <div class="clear"></div>
+          <div style="position: absolute; left: 1%;top: 80px;">
+              <label><?php if($this->documentationOf) echo $this->listenerObject->z_xlt("Source of the document") . ": " . $this->escapeHtml($this->documentationOf);?></label>
+          </div>
+        <div class="clear"></div>
+
+        <div id="status1"></div>
+
+        <div class="clear"></div>
+        <div class="se_in_8">
+            <table class="responsive">
+                <tr class="se_in_9 se_in_25">
+                    <th colspan="7"><?php echo $this->listenerObject->z_xlt('Demographics'); ?></th>
+                </tr>
+                <tr>
+                <?php
+                $i = 0;
+                foreach ($this->demographics as $row_dem) {
+                    if ($row_dem['field_name'] != 'lname' && $row_dem['field_name'] != 'fname' && $row_dem['field_name'] != 'DOB') {
+                        $i++;
+                        if ($row_dem['field_name'] == 'sex') {
+                            ?>
+                            <td><?php echo $this->listenerObject->z_xlt($patient_data[$row_dem['field_name']]); ?></td>
+                            <td nowrap>
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>">
+                                    <?php foreach ($this->gender_list as $value) { ?>
+                                        <option value="<?php echo $this->escapeHtml($value['option_id']); ?>" <?php if ($value['option_id'] == $row_dem['field_value']) echo "selected"; ?>><?php echo $this->listenerObject->z_xlt($value['title']); ?></option>
+                                    <?php } ?>
+                                </select>
+                                <span class="demo_old"><?php echo $this->listenerObject->z_xlt($this->demographics_old[0][$row_dem['field_name']]); ?></span>
+                            </td>
+                            <td>
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="chkall_U">
+                                    <option value="ignore"><?php echo $ignore; ?></option>
+                                    <option value="update"><?php echo $update; ?></option>
+                                </select>
+                            </td>
+                            <?php
+                        }
+            else if($row_dem['field_name'] == 'state'){ ?>
+                            <td><?php echo $this->listenerObject->z_xlt($patient_data[$row_dem['field_name']]); ?></td>
+                            <td nowrap>
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>">
+                                    <?php foreach ($this->state_list as $value) { ?>
+                                        <option value="<?php echo $this->escapeHtml($value['option_id']); ?>" <?php if ($value['option_id'] == $row_dem['field_value']) echo "selected"; ?>><?php echo $this->listenerObject->z_xlt($value['title']); ?></option>
+                                    <?php } ?>
+                                </select>
+                                <span class="demo_old"><?php echo $this->listenerObject->z_xlt($this->demographics_old[0][$row_dem['field_name']]); ?></span>
+                            </td>
+                            <td>
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="chkall_U">
+                                    <option value="ignore"><?php echo $ignore; ?></option>
+                                    <option value="update"><?php echo $update; ?></option>
+                                </select>
+                            </td>
+                            <?php
+                        }
+            else if($row_dem['field_name'] == 'country_code'){ ?>
+                            <td><?php echo $this->listenerObject->z_xlt($patient_data[$row_dem['field_name']]); ?></td>
+                            <td nowrap>
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>">
+                                    <?php foreach ($this->country_list as $value) { ?>
+                                        <option value="<?php echo $this->escapeHtml($value['option_id']); ?>" <?php if ($value['option_id'] == $row_dem['field_value']) echo "selected"; ?>><?php echo $this->listenerObject->z_xlt($value['title']); ?></option>
+                                    <?php } ?>
+                                </select>
+                                <span class="demo_old"><?php echo $this->listenerObject->z_xlt($this->demographics_old[0][$row_dem['field_name']]); ?></span>
+                            </td>
+                            <td>
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="chkall_U">
+                                    <option value="ignore"><?php echo $ignore; ?></option>
+                                    <option value="update"><?php echo $update; ?></option>
+                                </select>
+                            </td>
+                            <?php
+                        }
+            else if($row_dem['field_name'] == 'status'){ ?>
+                            <td><?php echo $this->listenerObject->z_xlt($patient_data[$row_dem['field_name']]); ?></td>
+                            <td nowrap>
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>">
+                                    <?php foreach ($this->marital_status_list as $value) { ?>
+                                        <option value="<?php echo $this->escapeHtml($value['option_id']); ?>" <?php if ($value['option_id'] == $row_dem['field_value'] || $value['title'] == $row_dem['field_value']) echo "selected"; ?>><?php echo $this->listenerObject->z_xlt($value['title']); ?></option>
+                                    <?php } ?>
+                                </select>
+                                <span class="demo_old"><?php echo $this->listenerObject->z_xlt($this->demographics_old[0][$row_dem['field_name']]); ?></span>
+                            </td>
+                            <td>
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="chkall_U">
+                                    <option value="ignore"><?php echo $ignore; ?></option>
+                                    <option value="update"><?php echo $update; ?></option>
+                                </select>
+                            </td>
+                            <?php
+                        }
+            else if($row_dem['field_name'] == 'religion'){ ?>
+                            <td><?php echo $this->listenerObject->z_xlt($patient_data[$row_dem['field_name']]); ?></td>
+                            <td nowrap>
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>">
+                                    <?php foreach ($this->religion_list as $value) { ?>
+                                        <option value="<?php echo $this->escapeHtml($value['option_id']); ?>" <?php if ($value['option_id'] == $row_dem['field_value'] || $value['title'] == $row_dem['field_value']) echo "selected"; ?>><?php echo $this->listenerObject->z_xlt($value['title']); ?></option>
+                                    <?php } ?>
+                                </select>
+                                <span class="demo_old"><?php echo $this->listenerObject->z_xlt($this->demographics_old[0][$row_dem['field_name']]); ?></span>
+                            </td>
+                            <td>
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="chkall_U">
+                                    <option value="ignore"><?php echo $ignore; ?></option>
+                                    <option value="update"><?php echo $update; ?></option>
+                                </select>
+                            </td>
+                            <?php
+                        }
+            else if($row_dem['field_name'] == 'race'){ ?>
+                            <td><?php echo $this->listenerObject->z_xlt($patient_data[$row_dem['field_name']]); ?></td>
+                            <td nowrap>
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>">
+                                    <?php foreach ($this->race_list as $value) { ?>
+                                        <option value="<?php echo $this->escapeHtml($value['option_id']); ?>" <?php if ($value['option_id'] == $row_dem['field_value'] || $value['title'] == $row_dem['field_value']) echo "selected"; ?>><?php echo $this->listenerObject->z_xlt($value['title']); ?></option>
+                                    <?php } ?>
+                                </select>
+                                <span class="demo_old"><?php echo $this->listenerObject->z_xlt($this->demographics_old[0][$row_dem['field_name']]); ?></span>
+                            </td>
+                            <td>
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="chkall_U">
+                                    <option value="ignore"><?php echo $ignore; ?></option>
+                                    <option value="update"><?php echo $update; ?></option>
+                                </select>
+                            </td>
+                            <?php
+                        }
+            else if($row_dem['field_name'] == 'ethnicity'){ ?>
+                            <td><?php echo $this->listenerObject->z_xlt($patient_data[$row_dem['field_name']]); ?></td>
+                            <td nowrap>
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>">
+                                    <?php foreach ($this->ethnicity_list as $value) { ?>
+                                        <option value="<?php echo $this->escapeHtml($value['option_id']); ?>" <?php if ($value['option_id'] == $row_dem['field_value'] || $value['title'] == $row_dem['field_value']) echo "selected"; ?>><?php echo $this->listenerObject->z_xlt($value['title']); ?></option>
+                                    <?php } ?>
+                                </select>
+                                <span class="demo_old"><?php echo $this->listenerObject->z_xlt($this->demographics_old[0][$row_dem['field_name']]); ?></span>
+                            </td>
+                            <td>
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="chkall_U">
+                                    <option value="ignore"><?php echo $ignore; ?></option>
+                                    <option value="update"><?php echo $update; ?></option>
+                                </select>
+                            </td>
+                            <?php
+                        }
+                        else {
+                            ?>
+                            <td><?php echo $this->listenerObject->z_xlt($patient_data[$row_dem['field_name']]); ?></td>
+                            <td nowrap>
+                                <input name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>" type="text" value="<?php echo $this->listenerObject->z_xlt($row_dem['field_value']); ?>" style="width: 150px;">
+                                <span class="demo_old"><?php echo $this->listenerObject->z_xlt($this->demographics_old[0][$row_dem['field_name']]); ?></span>
+                            </td>
+                            <td>
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="chkall_U">
+                                    <option value="ignore"><?php echo $ignore; ?></option>
+                                    <option value="update"><?php echo $update; ?></option>
+                                </select>
+                            </td>
+                            <?php
+                        }
+                        if ($i % 2 == 0) {
+                            if ($i % 4 == 2) {
+                                ?>
+                            </tr><tr class='alternate'>
+                            <?php
+              }
+              else{
+                            ?>
+                        </tr><tr>
+                            <?php
+                        }
+            }
+            else{
+                        ?>
+                        <td></td>
+                        <?php
+                    }
+                }
+            }
+            ?>
+       <td colspan="3">&nbsp;</td> </tr>
+    </table>
+    <br/>
+    <table class="responsive">
+        <tr class="se_in_9 se_in_25">
+            <th colspan="9"><?php echo $this->listenerObject->z_xlt('Social History'); ?></th>
+        </tr>
+        <?php
+        foreach ($this->social_history as $res_existing_social_history) {
+            $arr_his_alcohol = explode("|", $res_existing_social_history['alcohol']);
+            $arr_his_tobacco = explode("|", $res_existing_social_history['tobacco']);
+            $alc1 = explode("alcohol", $arr_his_alcohol[1]);
+            $tob1 = explode('tobacco', $arr_his_tobacco[1]);
+            if ($arr_his_alcohol[2] != 0 && $arr_his_alcohol[2] != '')
+                $date_alcohol = $arr_his_alcohol[2];
+            if ($arr_his_tobacco[2] != 0 && $arr_his_tobacco[2] != '')
+                $date_tobacco = $arr_his_tobacco[2];
+            ?>
+            <tr style="border-bottom: 0px">
+                <td><?php echo $this->listenerObject->z_xlt('Alcohol'); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt(ucfirst($this->listenerObject->z_xlt($arr_his_alcohol[0]))); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Status'); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt(ucfirst($this->listenerObject->z_xlt($alc1[0]))); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Date'); ?></td>
+                <td><?php if ($date_alcohol) echo \Application\Model\ApplicationTable::fixDate($date_alcohol, $date_format, 'yyyy-mm-dd'); ?>
+                <td colspan="3">&nbsp;</td>
+            </tr>
+            <tr>
+                <td><?php echo $this->listenerObject->z_xlt('Tobacco'); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt(ucfirst($this->listenerObject->z_xlt($arr_his_tobacco[0]))); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Status'); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt(ucfirst($this->listenerObject->z_xlt($tob1[0]))); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Date'); ?></td>
+                <td><?php if ($date_tobacco) echo \Application\Model\ApplicationTable::fixDate($date_tobacco, $date_format, 'yyyy-mm-dd'); ?>
+                <td colspan="3">&nbsp;</td>
+            </tr>
+            <?php
+        }
+        $tobacco_status = array(
+            '449868002' => 'Current',
+            '8517006' => 'Quit',
+            '266919005' => 'Never'
+        );
+        $alcohol_status = array(
+            '219006' => 'Current',
+            '82581004' => 'Quit',
+            '228274009' => 'Never'
+        );
+        foreach ($this->social_history_audit['social_history'] as $key => $val) {
+            $array_his_alcohol = explode("|", $val['alcohol']);
+            if ($array_his_alcohol[2] != 0 && $array_his_alcohol[2] != '') {
+                $his_alc_date = \Carecoordination\Model\CarecoordinationTable::formatDate($array_his_alcohol[2], 0);
+            }
+            $array_his_tobacco = explode("|", $val['smoking']);
+            if ($array_his_tobacco[2] != 0 && $array_his_tobacco[2] != '') {
+                $his_tob_date = \Carecoordination\Model\CarecoordinationTable::formatDate($array_his_tobacco[2], 0);
+            }
+            ?>
+            <tr style="border-bottom: 0px">
+                <td><?php echo $this->listenerObject->z_xlt('Alcohol'); ?></td>
+                <td><input type='text' name='social_history-alcohol_note[]' value='<?php echo $this->listenerObject->z_xlt(ucfirst($array_his_alcohol[0])); ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Status'); ?></td>
+                <td>
+                    <?php foreach ($alcohol_status as $key => $value) { ?>
+                        <input type='radio' name='social_history-alcohol_status[]' value='<?php echo $this->escapeHtml(strtolower($value)) . "alcohol"; ?>' <?php if ($key == $array_his_alcohol[1]) echo "checked"; ?>><?php echo $this->listenerObject->z_xlt($value); ?>
+                    <?php } ?>
+                </td>
+                <td><?php echo $this->listenerObject->z_xlt('Date'); ?></td>
+                <td><input type='text' name='social_history-alcohol_date[]' value='<?php if ($his_alc_date) echo $his_alc_date; ?>' ></td>
+                <td colspan="3">&nbsp;</td>
+            </tr>
+            <tr>
+                <td><?php echo $this->listenerObject->z_xlt('Tobacco'); ?></td>
+                <td>
+                    <select name='social_history-tobacco_snomed[]'>
+                        <?php foreach ($this->tobacco as $value) { ?>
+                            <option value ='<?php echo $this->escapeHtml($value['option_id']) ?>' <?php if ($value['codes'] == "SNOMED-CT:" . $array_his_tobacco[1]) echo "selected"; ?> ><?php echo $this->listenerObject->z_xlt($value['title']); ?></option>
+                        <?php } ?>
+                    </select></td>
+                <td><?php echo $this->listenerObject->z_xlt('Status'); ?></td>
+                <td>
+                    <?php foreach ($tobacco_status as $key => $value) { ?>
+                        <input type='radio' name='social_history-tobacco_status[]' value='<?php echo $this->escapeHtml(strtolower($value)) . "tobacco"; ?>' <?php if ($key == $array_his_tobacco[1]) echo "checked"; ?>><?php echo $this->listenerObject->z_xlt($value); ?>
+                    <?php } ?>
+                </td>
+                <td><?php echo $this->listenerObject->z_xlt('Date'); ?></td>
+                <td><input type='text' name='social_history-tobacco_date[]' value='<?php if ($his_tob_date) echo $his_tob_date; ?>' ></td>
+                <td colspan="2">&nbsp;</td>
+                <td>
+                    <select name='social_history-sel[]' class="chkall_I">
+                        <option value='ignore' ><?php echo $ignore; ?></option>
+                        <option value='insert' ><?php echo $insert; ?></option>
+                    </select>
+                </td>
+            </tr>
+            <?php
+        }
+        ?>
+    </table>
+    <br/>
+    <table class="responsive">
+        <tr class="se_in_9 se_in_25">
+            <th colspan="9"><?php echo $this->listenerObject->z_xlt('Encounter'); ?></th>
+        </tr>
+        <?php
+        foreach ($this->encounter as $res_existing_encounter) {
+            if ($res_existing_encounter['date'] != 0 && $res_existing_encounter['date'] != '')
+                $date_encounter = $res_existing_encounter['date'];
+            ?>
+            <tr>
+                <td><?php echo $this->listenerObject->z_xlt('Date'); ?></td>
+                <td><?php if ($date_encounter) echo \Application\Model\ApplicationTable::fixDate($date_encounter, $date_format, 'yyyy-mm-dd'); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Provider'); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt($res_existing_encounter['provider_name']); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Facility'); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt($res_existing_encounter['facility']); ?></td>
+                <td colspan="3">&nbsp;</td>
+            </tr>
+            <?php
+        }
+        foreach ($this->encounter_audit['encounter'] as $key => $val) {
+            if ($val['date'] != 0 && $val['date'] != '') {
+                $enc_xml_date = \Carecoordination\Model\CarecoordinationTable::formatDate($val['date'], 0);
+            }
+            ?>
+            <tr>
+                <td><?php echo $this->listenerObject->z_xlt('Date'); ?></td>
+                <td><input type='text' name='encounter-date[]' value='<?php if ($enc_xml_date) echo $enc_xml_date; ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Provider'); ?></td>
+                <td><input type='text' name='encounter-provider[]' value='<?php echo $this->listenerObject->z_xlt($val['provider_name']); ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Facility'); ?></td>
+                <td><input type='text' name='encounter-facility[]' value='<?php echo $this->listenerObject->z_xlt($val['represented_organization_name']); ?>' ></td>
+                <td colspan="2">&nbsp;</td>
+                <td>
+                    <select name='encounter-sel[]' class="chkall_I">
+                        <option value='ignore' ><?php echo $ignore; ?></option>
+                        <option value='insert' ><?php echo $insert; ?></option>
+                    </select>
+                </td>
+            <input type="hidden" name="encounter-extension[]" value="<?php echo $this->escapeHtml($val['extension']); ?>">
+            <input type="hidden" name="encounter-root[]" value="<?php echo $this->escapeHtml($val['root']); ?>">
+            <input type="hidden" name="encounter-provider_npi[]" value="<?php echo $this->escapeHtml($val['provider_npi']); ?>">
+            <input type="hidden" name="encounter-provider_address[]" value="<?php echo $this->escapeHtml($val['provider_address']); ?>">
+            <input type="hidden" name="encounter-provider_city[]" value="<?php echo $this->escapeHtml($val['provider_city']); ?>">
+            <input type="hidden" name="encounter-provider_state[]" value="<?php echo $this->escapeHtml($val['provider_state']); ?>">
+            <input type="hidden" name="encounter-provider_postalCode[]" value="<?php echo $this->escapeHtml($val['provider_postalCode']); ?>">
+            <input type="hidden" name="encounter-provider_country[]" value="<?php echo $this->escapeHtml($val['provider_country']); ?>">
+            <input type="hidden" name="encounter-represented_organization_name[]" value="<?php echo $this->escapeHtml($val['represented_organization_name']); ?>">
+            <input type="hidden" name="encounter-represented_organization_address[]" value="<?php echo $this->escapeHtml($val['represented_organization_address']); ?>">
+            <input type="hidden" name="encounter-represented_organization_city[]" value="<?php echo $this->escapeHtml($val['represented_organization_city']); ?>">
+            <input type="hidden" name="encounter-represented_organization_state[]" value="<?php echo $this->escapeHtml($val['represented_organization_state']); ?>">
+            <input type="hidden" name="encounter-represented_organization_zip[]" value="<?php echo $this->escapeHtml($val['represented_organization_zip']); ?>">
+            <input type="hidden" name="encounter-represented_organization_country[]" value="<?php echo $this->escapeHtml($val['represented_organization_country']); ?>">
+            <input type="hidden" name="encounter-represented_organization_telecom[]" value="<?php echo $this->escapeHtml($val['represented_organization_telecom']); ?>">
+            <input type="hidden" name="encounter-encounter_diagnosis_date[]" value="<?php echo $this->escapeHtml($val['encounter_diagnosis_date']); ?>">
+            <input type="hidden" name="encounter-encounter_diagnosis_code[]" value="<?php echo $this->escapeHtml($val['encounter_diagnosis_code']); ?>">
+            <input type="hidden" name="encounter-encounter_diagnosis_issue[]" value="<?php echo $this->escapeHtml($val['encounter_diagnosis_issue']); ?>">
+            </tr>
+            <?php
+        }
+        ?>
+    </table>
+    <br/>
+    <table class="responsive">
+        <tr class="se_in_9 se_in_25">
+            <th colspan="9"><?php echo $this->listenerObject->z_xlt('Problems'); ?></th>
+        </tr>
+        <?php 
+        $internal_problems_Arr = $internal_conflicted_problems_Arr = $imported_conflicted_problems_Arr = array();
+        foreach ($this->problems as $res_existing_prob) {
+         $set = 0;
+         foreach ($this->problems_audit['lists1'] as $k => $v) { 
+          if(in_array(substr($res_existing_prob['diagnosis'], 10), $this->problems_audit['lists1'][$k])) {
+           $set = 1;
+           array_push($internal_conflicted_problems_Arr, $res_existing_prob);
+           array_push($imported_conflicted_problems_Arr, $v);
+           unset($this->problems_audit['lists1'][$k]);
+          }
+         }
+         if($set == 0) {
+          array_push($internal_problems_Arr, $res_existing_prob);   
+         }
+        }
+        if(count($this->problems)>0) { ?>
+            <tr style="background:#DAF2FB;">
+                <td colspan="9"><?php echo $this->listenerObject->z_xlt('Internal Problems');?></td>
+            </tr>
+            <?php }
+            foreach($this->problems as $res_existing_prob) { 
+            $beg_date = $end_date = '';
+            if ($res_existing_prob['enddate']) {
+                 $activity = 0;
+           }
+           else{
+                 $activity = 1;
+             }
+
+            if ($res_existing_prob['enddate'] && $res_existing_prob['enddate'] != 0) {
+                $end_date = \Application\Model\ApplicationTable::fixDate($res_existing_prob['enddate'], $date_format, 'yyyy-mm-dd');
+            }
+            if ($res_existing_prob['begdate'] && $res_existing_prob['begdate'] != 0) {
+                $beg_date = \Application\Model\ApplicationTable::fixDate($res_existing_prob['begdate'], $date_format, 'yyyy-mm-dd');
+            }?>
+                <tr style='border-bottom: 0px'>
+                    <td><?php echo $this->listenerObject->z_xlt('Title'); ?></td>
+                    <td><?php echo $this->listenerObject->z_xlt($res_existing_prob['title']); ?></td>
+                    <td><?php echo $this->listenerObject->z_xlt('Begin Date'); ?></td>
+                    <td><?php if ($beg_date) echo $beg_date; ?></td>
+                    <td><?php echo $this->listenerObject->z_xlt('Code'); ?></td>
+                    <td><?php echo $this->escapeHtml($res_existing_prob['diagnosis']); ?></td>
+                    <td><?php echo $this->listenerObject->z_xlt('Status'); ?></td>
+                    <td><?php if($activity == 1) echo "<span style='color: #13D813'>".$this->listenerObject->z_xlt('Active').'</span>'; else echo "<span style='color: red'>".$this->listenerObject->z_xlt('Inactive').'</span>'; ?></td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td><?php echo $this->listenerObject->z_xlt('End Date'); ?></td>
+                    <td><?php if ($end_date) echo $end_date; ?></td>
+                    <td><?php echo $this->listenerObject->z_xlt('Resolved');?></td>
+                    <td><input type='checkbox' name='lists1_exist-resolved[]' value='<?php if($res_existing_prob['enddate']) echo '1'; else echo '0';?>' <?php if($res_existing_prob['enddate']) echo 'checked="checked"'?> class="checkAssignProblem2"></td>
+                    <input type='hidden' name='lists1_exist-list_id[]' value='<?php echo $this->escapeHtml($res_existing_prob['id']);?>' >
+                    <td><?php echo  $this->listenerObject->z_xlt('Mod Date');?></td>
+                    <td>
+                      <?php		    
+                        echo \Application\Model\ApplicationTable::fixDate(substr($res_existing_prob['modifydate'], 0, 10), $date_format, 'yyyy-mm-dd');
+                      ?>
+                    </td>
+                    <td colspan="2">&nbsp;</td>
+                    <td>
+                     <select name='lists1_exist-sel[]' class="chkall_U">
+                       <option value='ignore' ><?php echo $ignore; ?></option>
+                       <option value='update' ><?php echo $update; ?></option>
+                     </select>
+                    </td>
+                </tr>
+                <?php
+            }
+        if(count($internal_conflicted_problems_Arr)>0) { ?>
+            <tr style="background:#DAF2FB;">
+                <td colspan="9"><?php echo $this->listenerObject->z_xlt('Conflicted Problems');?></td>
+            </tr>
+            <?php }
+        foreach ($internal_conflicted_problems_Arr as $res_existing_prob) {
+            $beg_date = $end_date = '';
+            if ($res_existing_prob['enddate'] && $res_existing_prob['enddate'] != 0) {
+                $end_date = \Application\Model\ApplicationTable::fixDate($res_existing_prob['enddate'], $date_format, 'yyyy-mm-dd');
+            }
+            if ($res_existing_prob['begdate'] && $res_existing_prob['begdate'] != 0) {
+                $beg_date = \Application\Model\ApplicationTable::fixDate($res_existing_prob['begdate'], $date_format, 'yyyy-mm-dd');
+            }
+            foreach ($imported_conflicted_problems_Arr as $k => $v) {
+                if ($v['status'] == 'Active') {
+                    $act = 'Active';
+                } else {
+                    $act = 'Inactive';
+                }
+                if (in_array(substr($res_existing_prob['diagnosis'], 10), $imported_conflicted_problems_Arr[$k])) { ?>
+                    <tr style="border-bottom: 0px">
+                        <td><?php echo $this->listenerObject->z_xlt('Title'); ?></td>
+                        <td><input type='text' name='lists1-title-con[]' value='<?php echo $this->escapeHtml($v['list_code_text']); ?>' ></td>
+                        <td><?php echo $this->listenerObject->z_xlt('Code'); ?></td>
+                        <td><input type='text' name='lists1-diagnosis-con[]' value='<?php echo $this->escapeHtml($v['list_code']); ?>' ></td>
+                        <td><?php echo $this->listenerObject->z_xlt('Begin Date'); ?></td>
+                        <td><input type='text' name='lists1-begdate-con[]' value='<?php if ($v['begdate']) echo \Carecoordination\Model\CarecoordinationTable::formatDate($v['begdate'], 0); ?>' ></td>
+                        <td colspan="2">&nbsp;</td>
+                        <td>
+                            <select name='lists1-con-sel[]' class="chkall_U">
+                                <option value='ignore' ><?php echo $ignore; ?></option>
+                                <option value='update' ><?php echo $update; ?></option>
+                            </select>
+                        </td>
+                    <input type='hidden' name='lists1-old-id-con[]' value='<?php echo $this->escapeHtml($res_existing_prob['id']); ?>' >
+                    <input type='hidden' name='lists1-enddate-con[]' value='<?php if ($v['enddate']) echo \Carecoordination\Model\CarecoordinationTable::formatDate($v['enddate'], 0); ?>'>
+                    <input type='hidden' name='lists1-activity-con[]' value='<?php echo $this->escapeHtml($act); ?>' >
+                    <input type="hidden" name="lists1-extension-con[]" value="<?php echo $this->escapeHtml($v['extension']); ?>">
+                    <input type="hidden" name="lists1-root-con[]" value="<?php echo $this->escapeHtml($v['root']); ?>">
+                    <input type="hidden" name="lists1-observation_text-con[]" value="<?php echo $this->escapeHtml($v['observation_text']); ?>">
+                    <input type="hidden" name="lists1-observation-con[]" value="<?php echo $this->escapeHtml($v['observation']); ?>">
+                    </tr>
+                    <tr style='color:red' >
+                        <td>&nbsp;</td>
+                        <td><?php echo $this->listenerObject->z_xlt($res_existing_prob['title']); ?></td>
+                        <td>&nbsp;</td>
+                        <td><?php echo $this->escapeHtml($res_existing_prob['diagnosis']); ?></td>
+                        <td>&nbsp;</td>
+                        <td><?php echo $beg_date; ?></td>
+                        <td><?php echo $this->listenerObject->z_xlt('Resolved');?></td>
+                        <td><input type='checkbox' name='lists1-resolved-con[]' value='<?php if($res_existing_prob['enddate']) echo '1'; else echo '0';?>' <?php if($res_existing_prob['enddate']) echo 'checked="checked"'?> class="checkAssignProblem1"></td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <?php
+                }
+              }
+            }
+            if(count($this->problems_audit['lists1'])>0) { ?>
+            <tr style="background:#DAF2FB;">
+                <td colspan="9"><?php echo $this->listenerObject->z_xlt('Imported Problems');?></td>
+            </tr>
+            <?php } 
+        foreach ($this->problems_audit['lists1'] as $key => $val) {
+            if ($val['status'] == 'Active') {
+                $activity = 'Active';
+          }
+          else{
+                $activity = 'Inactive';
+            }
+            if ($val['enddate'] != 0 && $val['enddate'] != '') {
+                $problem_enddate = \Carecoordination\Model\CarecoordinationTable::formatDate($val['enddate'], 0);
+            }
+            if ($val['begdate'] != 0 && $val['begdate'] != '') {
+                $problem_begdate = \Carecoordination\Model\CarecoordinationTable::formatDate($val['begdate'], 0);
+            } ?>
+            <tr style='border-bottom: 0px'>
+                <td><?php echo $this->listenerObject->z_xlt('Title'); ?></td>
+                <td><input type='text' name='lists1-title[]' value='<?php echo $this->listenerObject->z_xlt($val['list_code_text']); ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Begin Date'); ?></td>
+                <td><input type='text' name='lists1-begdate[]' value='<?php if ($problem_begdate) echo $problem_begdate; ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Code'); ?></td>
+                <td><input type='text' name='lists1-diagnosis[]' value='<?php echo $this->escapeHtml($val['list_code']); ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Status'); ?></td>
+                <td><?php if($problem_enddate) echo "<span style='color: red'>".$this->listenerObject->z_xlt('Inactive').'</span>'; else echo "<span style='color: #13D813'>".$this->listenerObject->z_xlt('Active').'</span>'; ?></td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+             <td><?php echo $this->listenerObject->z_xlt('Resolved');?></td>
+             <td><input type='checkbox' name='lists1-resolved[]' value='<?php if($problem_enddate) echo '1'; else echo '0';?>' <?php if($problem_enddate) echo 'checked="checked"'?> class="checkAssignProblem3"></td>
+             <td><?php echo  $this->listenerObject->z_xlt('Mod Date');?></td>
+		<td>
+		  <?php
+		    $val['modified_time'] = substr($val['modified_time'],0,4) . "-" . substr($val['modified_time'], 4, 2) . "-" . substr($val['modified_time'], 6, 2);
+		    echo \Application\Model\ApplicationTable::fixDate($val['modified_time'], $date_format, 'yyyy-mm-dd');
+		  ?>
+		</td>
+             <td colspan='4'>&nbsp;</td>
+             <td>
+                    <select name='lists1-sel[]' class="chkall_I">
+                        <option value='ignore' ><?php echo $ignore; ?></option>
+                        <option value='insert' ><?php echo $insert; ?></option>
+                    </select>
+              </td>
+            </tr>
+            <tr>
+            <input type='hidden' name='lists1-enddate[]' value='<?php if ($problem_enddate) echo $problem_enddate; ?>'>
+            <input type='hidden' name='lists1-activity[]' value='<?php echo $this->escapeHtml($activity); ?>' >   
+            <input type="hidden" name="lists1-extension[]" value="<?php echo $this->escapeHtml($val['extension']); ?>">
+            <input type="hidden" name="lists1-root[]" value="<?php echo $this->escapeHtml($val['root']); ?>">
+            <input type="hidden" name="lists1-observation_text[]" value="<?php echo $this->escapeHtml($val['observation_text']); ?>">
+            <input type="hidden" name="lists1-observation[]" value="<?php echo $this->escapeHtml($val['observation']); ?>">
+            </tr>
+            <?php
+        }
+        ?>
+    </table>
+    <br/>
+    <table class="responsive">
+        <tr class="se_in_9 se_in_25">
+            <th colspan="9"><?php echo $this->listenerObject->z_xlt('Allergy'); ?></th>
+        </tr>
+        <?php
+        $internal_allergies_Arr = $internal_conflicted_allergies_Arr = $imported_conflicted_allergies_Arr = array();
+        foreach ($this->allergies as $res_existing_allergies) {
+         $set = 0;
+         foreach ($this->allergies_audit['lists2'] as $key => $val) { 
+          if(in_array(substr($res_existing_allergies['diagnosis'], 7), $this->allergies_audit['lists2'][$key])) {
+           $set = 1;
+           array_push($internal_conflicted_allergies_Arr, $res_existing_allergies);
+           array_push($imported_conflicted_allergies_Arr, $val);
+           unset($this->allergies_audit['lists2'][$key]);
+          }
+         }
+         if($set == 0) {
+          array_push($internal_allergies_Arr, $res_existing_allergies);   
+         }
+        }
+        if(count($this->allergies)>0) { ?>
+            <tr style="background:#DAF2FB;">
+                <td colspan="9"><?php echo $this->listenerObject->z_xlt('Internal Allergies');?></td>
+            </tr>
+        <?php }
+        foreach($this->allergies as $res_existing_allergies) {
+            $beg_date = $end_date = '';
+             if ($res_existing_allergies['enddate']) {
+                $activity = 0;
+            }
+            else{
+                  $activity = 1;
+            }
+              if ($res_existing_allergies['enddate'] != NULL && $res_existing_allergies['enddate'] != 0) {
+                $end_date = \Application\Model\ApplicationTable::fixDate($res_existing_allergies['enddate'], $date_format, 'yyyy-mm-dd');
+            }
+            if ($res_existing_allergies['begdate'] != NULL && $res_existing_allergies['begdate'] != 0) {
+                $beg_date = \Application\Model\ApplicationTable::fixDate($res_existing_allergies['begdate'], $date_format, 'yyyy-mm-dd');
+            }
+            $severity = Carecoordination\Model\CarecoordinationTable::getListTitle($res_existing_allergies['severity_al'], 'severity_ccda', $res_existing_allergies['severity_al']);
+            ?>
+            <tr style="border-bottom: 0px">
+                <td><?php echo $this->listenerObject->z_xlt('Title'); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt($res_existing_allergies['title']); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Begin Date'); ?></td>
+                <td><?php if ($beg_date) echo $beg_date; ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Diagnosis'); ?></td>
+                <td><?php echo $this->escapeHtml($res_existing_allergies['diagnosis']); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Severity'); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt($severity); ?></td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td><?php echo $this->listenerObject->z_xlt('Status'); ?></td>
+                <td><?php if($activity == 1) echo "<span style='color: #13D813'>".$this->listenerObject->z_xlt('Active').'</span>'; else echo "<span style='color: red'>".$this->listenerObject->z_xlt('Inactive').'</span>'; ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('End Date'); ?></td> 
+                <td><?php if ($end_date) echo $end_date; ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Resolved');?></td>
+                <td><input type="checkbox" name="lists2_exist-resolved[]" value="<?php if($res_existing_allergies['enddate']) echo '1'; else echo '0';?>" <?php if($res_existing_allergies['enddate']) echo 'checked="checked"'?> class="checkAssignAllergy2"></td>
+                <input type='hidden' name='lists2_exist-list_id[]' value='<?php echo $this->escapeHtml($res_existing_allergies['id']);?>'>
+                <td><?php echo  $this->listenerObject->z_xlt('Mod Date');?></td>
+		<td>
+		  <?php		    
+		    echo \Application\Model\ApplicationTable::fixDate(substr($res_existing_allergies['modifydate'], 0, 10), $date_format, 'yyyy-mm-dd');
+		  ?>
+		</td>
+                <td>
+                  <select name='lists2_exist-sel[]' class="chkall_U">
+                    <option value='ignore' ><?php echo $ignore; ?></option>
+                    <option value='update' ><?php echo $update; ?></option>
+                  </select>
+                </td>
+            </tr>
+        <?php }
+          if(count($internal_conflicted_allergies_Arr)>0) { ?>
+         <tr style="background:#DAF2FB;">
+                <td colspan="9"><?php echo $this->listenerObject->z_xlt('Conflicted Allergies');?></td>
+            </tr>
+         <?php }
+        foreach ($internal_conflicted_allergies_Arr as $res_existing_allergies) {
+           
+            if ($res_existing_allergies['enddate'] != NULL && $res_existing_allergies['enddate'] != 0) {
+                $end_date = \Application\Model\ApplicationTable::fixDate($res_existing_allergies['enddate'], $date_format, 'yyyy-mm-dd');
+            }
+            if ($res_existing_allergies['begdate'] != NULL && $res_existing_allergies['begdate'] != 0) {
+                $beg_date = \Application\Model\ApplicationTable::fixDate($res_existing_allergies['begdate'], $date_format, 'yyyy-mm-dd');
+            }
+           foreach ($imported_conflicted_allergies_Arr as $key => $val) {
+               
+            $allergy_begdate = '';
+            $allergy_enddate = '';
+
+            if ($val['status'] == 'Active') {
+                $activity = 'Active';
+          }
+          else{
+                $activity = 'Inactive';
+            }
+            if ($val['begdate'] != 0 && $val['begdate'] != NULL) {
+                $allergy_begdate = \Carecoordination\Model\CarecoordinationTable::formatDate($val['begdate'], 0);
+            }
+
+            if ($val['enddate'] != 0 && $val['enddate'] != NULL) {
+                $allergy_enddate = \Carecoordination\Model\CarecoordinationTable::formatDate($val['enddate'], 0);
+            }
+             if (in_array(substr($res_existing_allergies['diagnosis'], 7), $imported_conflicted_allergies_Arr[$key])) { ?>
+            <tr style="border-bottom: 0px">
+                <td><?php echo $this->listenerObject->z_xlt('Title'); ?></td>
+                <td><input type='text' name='lists2-title-con[]' value='<?php echo $this->escapeHtml($val['list_code_text']); ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Begin Date'); ?></td>
+                <td><input type='text' name='lists2-begdate-con[]' value='<?php if ($allergy_begdate) echo $allergy_begdate; ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Diagnosis'); ?></td>
+                <td><input type='text' name='lists2-diagnosis-con[]' value='<?php echo $this->escapeHtml($val['list_code']); ?>' ></td>
+                <td colspan="2">&nbsp;</td>
+                <td>
+                            <select name='lists2-con-sel[]' class="chkall_U">
+                                <option value='ignore' ><?php echo $ignore; ?></option>
+                                <option value='update' ><?php echo $update; ?></option>
+                            </select>
+                </td>
+            </tr>
+            <tr>
+            <input type='hidden' name='lists2-list_id-con[]' value='<?php echo $this->escapeHtml($res_existing_allergies['id']);?>' >
+            <input type='hidden' name='lists2-enddate-con[]' value='<?php if ($allergy_enddate) echo $allergy_enddate; ?>'>
+            <input type='hidden' name='lists2-activity-con[]' value='<?php echo $this->escapeHtml($activity); ?>' >
+            <input type='hidden' name='lists2-severity_al-con[]' value='<?php echo $this->escapeHtml($val['severity_al']); ?>' >  
+            <input type="hidden" name="lists2-extension-con[]" value="<?php echo $this->escapeHtml($val['extension']); ?>">
+            <input type="hidden" name="lists2-reaction-con[]" value="<?php echo $this->escapeHtml($val['reaction']); ?>">
+            <input type="hidden" name="lists2-reaction_text-con[]" value="<?php echo $this->escapeHtml($val['reaction_text']); ?>">
+            <input type="hidden" name="lists2-codeSystemName-con[]" value="<?php echo $this->escapeHtml($val['codeSystemName']); ?>">
+            <input type="hidden" name="lists2-outcome-con[]" value="<?php echo $this->escapeHtml($val['outcome']); ?>">
+            <input type="hidden" name="lists2-severity_al-con[]" value="<?php echo $this->escapeHtml($val['severity_al']); ?>">
+            </tr> 
+            <tr style='color:red' >
+                <td>&nbsp;</td>
+                <td><?php echo $this->escapeHtml($res_existing_allergies['title']); ?></td>
+                <td>&nbsp;</td>
+                <td><?php if ($beg_date) echo $beg_date; ?></td>
+                <td>&nbsp;</td>
+                <td><?php echo $this->escapeHtml($res_existing_allergies['diagnosis']); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Resolved');?></td>
+                <td><input type='checkbox' name='lists2-resolved-con[]' value='<?php if($res_existing_allergies['enddate']) echo '1'; else echo '0';?>' <?php if($res_existing_allergies['enddate']) echo 'checked="checked"'?> class="checkAssignAllergy1"></td>
+                <td>&nbsp;</td>
+            </tr>
+            <?php
+           }
+           }
+        }
+        if(count($this->allergies_audit['lists2'])>0) {?>
+            <tr style="background:#DAF2FB;">
+                <td colspan="9"><?php echo $this->listenerObject->z_xlt('Imported Allergies');?></td>
+            </tr>
+        <?php }
+        foreach ($this->allergies_audit['lists2'] as $key => $val) {
+            $allergy_begdate = '';
+            $allergy_enddate = '';
+
+            if ($val['status'] == 'Active') {
+                $activity = 'Active';
+          }
+          else{
+                $activity = 'Inactive';
+            }
+            if ($val['begdate'] != 0 && $val['begdate'] != NULL) {
+                $allergy_begdate = \Carecoordination\Model\CarecoordinationTable::formatDate($val['begdate'], 0);
+            }
+
+            if ($val['enddate'] != 0 && $val['enddate'] != NULL) {
+                $allergy_enddate = \Carecoordination\Model\CarecoordinationTable::formatDate($val['enddate'], 0);
+            }
+            ?>
+            <tr style="border-bottom: 0px">
+                <td><?php echo $this->listenerObject->z_xlt('Title'); ?></td>
+                <td><input type='text' name='lists2-title[]' value='<?php echo $this->listenerObject->z_xlt($val['list_code_text']); ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Begin Date'); ?></td>
+                <td><input type='text' name='lists2-begdate[]' value='<?php if ($allergy_begdate) echo $allergy_begdate; ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Diagnosis'); ?></td>
+                <td><input type='text' name='lists2-diagnosis[]' value='<?php echo $this->escapeHtml($val['list_code']); ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Status'); ?></td>
+                <td><?php if($allergy_enddate) echo "<span style='color: red'>".$this->listenerObject->z_xlt('Inactive').'</span>'; else echo "<span style='color: #13D813'>".$this->listenerObject->z_xlt('Active').'</span>'; ?></td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td><?php echo $this->listenerObject->z_xlt('Resolved');?></td>
+                <td><input type='checkbox' name='lists2-resolved[]' value='<?php if($allergy_enddate) echo '1'; else echo '0';?>' <?php if($allergy_enddate) echo 'checked="checked"'?> class="checkAssignAllergy3"></td>
+                <td><?php echo  $this->listenerObject->z_xlt('Mod Date');?></td>
+		<td>
+		  <?php
+		    $val['modified_time'] = substr($val['modified_time'],0,4) . "-" . substr($val['modified_time'], 4, 2) . "-" . substr($val['modified_time'], 6, 2);
+		    echo \Application\Model\ApplicationTable::fixDate($val['modified_time'], $date_format, 'yyyy-mm-dd');
+		  ?>
+		</td>
+                <td colspan='4'>&nbsp;</td>
+                <td>
+                    <select name='lists2-sel[]' class="chkall_I">
+                        <option value='ignore' ><?php echo $ignore; ?></option>
+                        <option value='insert' ><?php echo $insert; ?></option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+            <input type='hidden' name='lists2-enddate[]' value='<?php if ($allergy_enddate) echo $allergy_enddate; ?>'>
+            <input type='hidden' name='lists2-activity[]' value='<?php echo $this->escapeHtml($activity); ?>' >
+            <input type='hidden' name='lists2-severity_al[]' value='<?php echo $this->escapeHtml($val['severity_al']); ?>' >  
+            <input type="hidden" name="lists2-extension[]" value="<?php echo $this->escapeHtml($val['extension']); ?>">
+            <input type="hidden" name="lists2-reaction[]" value="<?php echo $this->escapeHtml($val['reaction']); ?>">
+            <input type="hidden" name="lists2-reaction_text[]" value="<?php echo $this->escapeHtml($val['reaction_text']); ?>">
+            <input type="hidden" name="lists2-codeSystemName[]" value="<?php echo $this->escapeHtml($val['codeSystemName']); ?>">
+            <input type="hidden" name="lists2-outcome[]" value="<?php echo $this->escapeHtml($val['outcome']); ?>">
+            <input type="hidden" name="lists2-severity_al[]" value="<?php echo $this->escapeHtml($val['severity_al']); ?>">
+            </tr>  
+            <?php
+        }
+        ?>
+    </table>
+    <br/>
+    <table class="responsive">
+        <tr class="se_in_9 se_in_25">
+            <th colspan="9"><?php echo $this->listenerObject->z_xlt('Medications'); ?></th>
+        </tr>
+        <?php 
+        $internal_medications_Arr = $internal_conflicted_medications_Arr = $imported_conflicted_medications_Arr = array();
+        foreach ($this->medications as $res_existing_medications) {
+         $set = 0;
+         foreach ($this->medications_audit['lists3'] as $key => $val) { 
+          if(in_array($res_existing_medications['rxnorm_drugcode'], $this->medications_audit['lists3'][$key])) {
+           $set = 1;
+           array_push($internal_conflicted_medications_Arr, $res_existing_medications);
+           array_push($imported_conflicted_medications_Arr, $val);
+          }
+         }
+         if($set == 0) {
+          array_push($internal_medications_Arr, $res_existing_medications);   
+         }
+        }
+        if(count($this->medications)>0) {?>
+        <tr style="background:#DAF2FB;">
+         <td colspan="9"><?php echo $this->listenerObject->z_xlt('Internal Medications');?></td>
+        </tr>
+        <?php }
+        foreach($this->medications as $res_existing_medications) {  
+            $units = \Carecoordination\Model\CarecoordinationTable::getListTitle($res_existing_medications['unit'], 'drug_units', '');
+            $route = \Carecoordination\Model\CarecoordinationTable::getListTitle($res_existing_medications['route'], 'drug_route', '');
+            if ($res_existing_medications['date_added'] != 0 && $res_existing_medications['date_added'] != '')
+                $date_added = $res_existing_medications['date_added'];  ?>
+            <tr style="border-bottom: 0px">
+                <td><?php echo $this->listenerObject->z_xlt('Date'); ?></td>
+                <td><?php if ($date_added) echo \Application\Model\ApplicationTable::fixDate($date_added, $date_format, 'yyyy-mm-dd'); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Name'); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt($res_existing_medications['drug']); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Dose'); ?></td>
+                <td><?php echo $this->escapeHtml($res_existing_medications['dosage']); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Strength'); ?></td>
+                <td><?php echo $this->escapeHtml($res_existing_medications['size']); ?></td>
+                <td><?php if($res_existing_medications['active'] == 1) echo "<span style='color: #13D813'>".$this->listenerObject->z_xlt('Active').'</span>'; else echo "<span style='color: red'>".$this->listenerObject->z_xlt('Inactive').'</span>'; ?></td>
+            </tr>
+            <tr>
+                <td><?php echo $this->listenerObject->z_xlt('Units'); ?></td>
+                <td><?php echo $this->escapeHtml($units); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Note'); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt($res_existing_medications['note']); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Discontinue'); ?></td>
+                <td><input type="checkbox" name="lists3_exist-discontinue[]" value="<?php if($res_existing_medications['end_date'] && $res_existing_medications['active'] == -1) echo '1'; else echo '0';?>" <?php if($res_existing_medications['end_date'] && $res_existing_medications['active'] == -1) echo 'checked="checked"'?> class="checkAssignMed2"></td>
+                <input type='hidden' name='lists3_exist-id[]' value='<?php echo $res_existing_medications['id'];?>'>
+                <td><?php echo  $this->listenerObject->z_xlt('Mod Date');?></td>
+		<td>
+		  <?php		    
+		    echo \Application\Model\ApplicationTable::fixDate(substr($res_existing_medications['datetime'], 0, 10), $date_format, 'yyyy-mm-dd');
+		  ?>
+		</td>
+                <td>
+                 <select name='lists3_exist-sel[]' class="chkall_U">
+                   <option value='ignore' ><?php echo $ignore; ?></option>
+                   <option value='update' ><?php echo $update; ?></option>
+                 </select>
+                </td>
+            </tr>
+            <?php
+        }
+        if(count($imported_conflicted_medications_Arr)>0){ ?>
+        <tr style="background:#DAF2FB;">
+                <td colspan="9"><?php echo $this->listenerObject->z_xlt('Conflicted Medications');?></td>
+            </tr>
+        <?php }
+        foreach ($internal_conflicted_medications_Arr as $res_existing_medications) {
+            $units = \Carecoordination\Model\CarecoordinationTable::getListTitle($res_existing_medications['unit'], 'drug_units', '');
+            $route = \Carecoordination\Model\CarecoordinationTable::getListTitle($res_existing_medications['route'], 'drug_route', '');
+            if ($res_existing_medications['date_added'] != 0 && $res_existing_medications['date_added'] != '')
+                $date_added = $res_existing_medications['date_added'];
+
+           foreach ($imported_conflicted_medications_Arr as $key => $val) {
+            $route_option_id = \Carecoordination\Model\CarecoordinationTable::getOptionId('drug_route', $val['route_display']);
+            $unit_option_id = \Carecoordination\Model\CarecoordinationTable::getOptionId('drug_units', $val['rate_unit']);
+            $drug_unit_list = \Application\Plugin\CommonPlugin::getList('drug_units', $unit_option_id, '');
+            $drug_route_list = \Application\Plugin\CommonPlugin::getList('drug_route', $route_option_id, '');
+            
+            if(strlen($val['begdate']) == 8){
+             $val['begdate'] = substr($val['begdate'],0,4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2);
+            }
+            if ($val['begdate'] != 0 && $val['begdate'] != '')
+                $beg_date = \Application\Model\ApplicationTable::fixDate($val['begdate'], $date_format, 'yyyy-mm-dd');
+            else
+                $beg_date = \Application\Model\ApplicationTable::fixDate(date('Y-m-d'), $date_format, 'yyyy-mm-dd');
+
+             if (in_array($res_existing_medications['rxnorm_drugcode'], $imported_conflicted_medications_Arr[$key])) { ?>
+            <tr style="border-bottom: 0px">
+                <td><?php echo $this->listenerObject->z_xlt('Date'); ?></td>
+                <td><input type='text' name='lists3-date_added-con[]' value='<?php if ($beg_date) echo $beg_date; ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Name'); ?></td>
+                <td><input type='text' name='lists3-drug-con[]' value='<?php echo $this->escapeHtml($val['drug_text']); ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Dose'); ?></td>
+                <td><input type='text' name='lists3-dose-con[]' value='<?php echo $this->escapeHtml($val['dose']); ?>' ></td>        
+                 <td><?php echo $this->listenerObject->z_xlt('Strength'); ?></td>
+                <td> <input style="" type='text'  name='lists3-size-con[]' value='<?php echo $this->escapeHtml($val['rate']); ?>' ></td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr style="border-bottom: 0px;">           
+                <td><?php echo $this->listenerObject->z_xlt('Units'); ?></td>
+                <td> 
+                    <select name='lists3-rate_unit-con[]'>
+                        <?php foreach ($drug_unit_list as $value) : ?>
+                            <option value="<?php echo $this->escapeHtml($value['value']); ?>" <?php if ($value['selected'] == 1) echo "selected"; ?>><?php echo $this->listenerObject->z_xlt($value['label']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </td>
+                <td><?php echo $this->listenerObject->z_xlt('Note'); ?></td>
+                <td><input type='text' name='lists3-note-con[]' value='<?php echo $this->escapeHtml($val['note']); ?>' ></td>
+                <td colspan="4">&nbsp;</td>
+                <td>
+                            <select name='lists3-con-sel[]' class="chkall_U">
+                                <option value='ignore' ><?php echo $ignore; ?></option>
+                                <option value='update' ><?php echo $update; ?></option>
+                            </select>
+                </td>
+            <input type='hidden' name='lists3-id-con[]' value='<?php echo $res_existing_medications['id'];?>'>
+            <input type="hidden" name="lists3-extension-con[]" value="<?php echo $this->escapeHtml($val['extension']); ?>">
+            <input type="hidden" name="lists3-root-con[]" value="<?php echo $this->escapeHtml($val['root']); ?>">
+            <input type="hidden" name="lists3-route-con[]" value="<?php echo $this->escapeHtml($val['route']); ?>">
+            <input type="hidden" name="lists3-drugcode-con[]" value="<?php echo $this->escapeHtml($val['drug_code']); ?>">
+            <input type="hidden" name="lists3-route_display-con[]" value="<?php echo $this->escapeHtml($val['route_display']); ?>">
+            <input type="hidden" name="lists3-dose_unit-con[]" value="<?php echo $this->escapeHtml($val['dose_unit']); ?>">
+            <input type="hidden" name="lists3-enddate-con[]" value="<?php echo $this->escapeHtml($val['enddate']); ?>">
+            <input type="hidden" name="lists3-indication-con[]" value="<?php echo $this->escapeHtml($val['indication']); ?>">
+            <input type="hidden" name="lists3-prn-con[]" value="<?php echo $this->escapeHtml($val['prn']); ?>">
+            <input type="hidden" name="lists3-provider_title-con[]" value="<?php echo $this->escapeHtml($val['provider_title']); ?>">
+            <input type="hidden" name="lists3-provider_fname-con[]" value="<?php echo $this->escapeHtml($val['provider_fname']); ?>">
+            <input type="hidden" name="lists3-provider_lname-con[]" value="<?php echo $this->escapeHtml($val['provider_lname']); ?>">
+            <input type="hidden" name="lists3-provider_address-con[]" value="<?php echo $this->escapeHtml($val['provider_address']); ?>">
+            <input type="hidden" name="lists3-provider_city-con[]" value="<?php echo $this->escapeHtml($val['provider_city']); ?>">
+            <input type="hidden" name="lists3-provider_state-con[]" value="<?php echo $this->escapeHtml($val['provider_state']); ?>">
+            <input type="hidden" name="lists3-provider_postalCode-con[]" value="<?php echo $this->escapeHtml($val['provider_postalCode']); ?>">
+            <input type="hidden" name="lists3-provider_country-con[]" value="<?php echo $this->escapeHtml($val['provider_country']); ?>">
+            <input type="hidden" name="lists3-provider_root-con[]" value="<?php echo $this->escapeHtml($val['provider_root']); ?>">
+            </tr>
+            <tr style="color:red;">
+                <td><?php if ($date_added) echo \Application\Model\ApplicationTable::fixDate($date_added, $date_format, 'yyyy-mm-dd'); ?></td>
+                <td><?php echo $this->escapeHtml($res_existing_medications['drug']); ?></td>
+                <td><?php echo $this->escapeHtml($res_existing_medications['dosage']); ?></td>
+                <td><?php echo $this->escapeHtml($res_existing_medications['size']); ?></td>
+                <td><?php echo $this->escapeHtml($units); ?></td>
+                <td><?php echo $this->escapeHtml($res_existing_medications['note']); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Discontinue');?></td>
+                <td><input type='checkbox' name='lists3-discontinue[]' value='<?php if($res_existing_medications['end_date'] && $res_existing_medications['active'] == -1) echo '1'; else echo '0';?>' <?php if($res_existing_medications['end_date'] && $res_existing_medications['active'] == -1) echo 'checked="checked"'?> class="checkAssignMed1"></td>
+                <td>&nbsp;</td>
+            </tr>
+            <?php
+                    unset($imported_conflicted_medications_Arr[$key]);
+             }
+          }
+        }
+        if(count($this->medications_audit['lists3'])>0) { ?>
+        <tr style="background:#DAF2FB;">
+         <td colspan="9"><?php echo $this->listenerObject->z_xlt('Imported Medications');?></td>
+        </tr>
+        <?php } 
+        foreach ($this->medications_audit['lists3'] as $key => $val) {
+            $route_option_id = \Carecoordination\Model\CarecoordinationTable::getOptionId('drug_route', $val['route_display']);
+            $unit_option_id = \Carecoordination\Model\CarecoordinationTable::getOptionId('drug_units', $val['rate_unit']);
+            $drug_unit_list = \Application\Plugin\CommonPlugin::getList('drug_units', $unit_option_id, '');
+            $drug_route_list = \Application\Plugin\CommonPlugin::getList('drug_route', $route_option_id, '');
+            
+            if(strlen($val['begdate']) == 8){
+             $val['begdate'] = substr($val['begdate'],0,4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2);
+            }
+            if ($val['begdate'] != 0 && $val['begdate'] != '')
+                $beg_date = \Application\Model\ApplicationTable::fixDate($val['begdate'], $date_format, 'yyyy-mm-dd');
+            else
+                $beg_date = \Application\Model\ApplicationTable::fixDate(date('Y-m-d'), $date_format, 'yyyy-mm-dd'); ?>
+            <tr style="border-bottom: 0px">
+                <td><?php echo $this->listenerObject->z_xlt('Date'); ?></td>
+                <td><input type='text' name='lists3-date_added[]' value='<?php if ($beg_date) echo $beg_date; ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Name'); ?></td>
+                <td><input type='text' name='lists3-drug[]' value='<?php echo $this->escapeHtml($val['drug_text']); ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Dose'); ?></td>
+                <td><input type='text' name='lists3-dose[]' value='<?php echo $this->escapeHtml($val['dose']); ?>' ></td>        
+                <td><?php echo $this->listenerObject->z_xlt('Strength'); ?></td>
+                <td> <input style="" type='text' size='7' name='lists3-size[]' value='<?php echo $this->escapeHtml($val['rate']); ?>' ></td>
+                <td><?php if($val['enddate'] && $val['enddate'] != 0) echo "<span style='color: red'>".$this->listenerObject->z_xlt('Inactive').'</span>'; else echo "<span style='color: #13D813'>".$this->listenerObject->z_xlt('Active').'</span>'; ?></td>
+            </tr>
+            <tr>           
+                <td><?php echo $this->listenerObject->z_xlt('Units'); ?></td>
+                <td> 
+                    <select name='lists3-rate_unit[]'>
+                        <?php foreach ($drug_unit_list as $value) : ?>
+                            <option value="<?php echo $this->escapeHtml($value['value']); ?>" <?php if ($value['selected'] == 1) echo "selected"; ?>><?php echo $this->listenerObject->z_xlt($value['label']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </td>
+                <td><?php echo $this->listenerObject->z_xlt('Note'); ?></td>
+                <td><input type='text' name='lists3-note[]' value='<?php echo $this->escapeHtml($val['note']); ?>' ></td>
+                <td><?php echo  $this->listenerObject->z_xlt('Discontinue');?></td>
+                <td><input type='checkbox' name='lists3-discontinue[]' value='<?php if($val['enddate'] && $val['enddate'] != 0) echo '1'; else echo '0';?>' <?php if($val['enddate'] && $val['enddate'] != 0) echo 'checked="checked"'?> class="checkAssignMed3"></td>
+		<td><?php echo  $this->listenerObject->z_xlt('Mod Date');?></td>
+		<td>
+		  <?php
+		    $val['modified_time'] = substr($val['modified_time'],0,4) . "-" . substr($val['modified_time'], 4, 2) . "-" . substr($val['modified_time'], 6, 2);
+		    echo \Application\Model\ApplicationTable::fixDate($val['modified_time'], $date_format, 'yyyy-mm-dd');
+		  ?>
+		</td>
+                <td>
+                    <select name='lists3-sel[]' class="chkall_I">
+                        <option value='ignore' ><?php echo $ignore; ?></option>
+                        <option value='insert' ><?php echo $insert; ?></option>
+                    </select>
+                </td>
+            <input type="hidden" name="lists3-extension[]" value="<?php echo $this->escapeHtml($val['extension']); ?>">
+            <input type="hidden" name="lists3-root[]" value="<?php echo $this->escapeHtml($val['root']); ?>">
+            <input type="hidden" name="lists3-route[]" value="<?php echo $this->escapeHtml($val['route']); ?>">
+            <input type="hidden" name="lists3-drugcode[]" value="<?php echo $this->escapeHtml($val['drug_code']); ?>">
+            <input type="hidden" name="lists3-route_display[]" value="<?php echo $this->escapeHtml($val['route_display']); ?>">
+            <input type="hidden" name="lists3-dose_unit[]" value="<?php echo $this->escapeHtml($val['dose_unit']); ?>">
+            <input type="hidden" name="lists3-enddate[]" value="<?php echo $this->escapeHtml($val['enddate']); ?>">
+            <input type="hidden" name="lists3-indication[]" value="<?php echo $this->escapeHtml($val['indication']); ?>">
+            <input type="hidden" name="lists3-prn[]" value="<?php echo $this->escapeHtml($val['prn']); ?>">
+            <input type="hidden" name="lists3-provider_title[]" value="<?php echo $this->escapeHtml($val['provider_title']); ?>">
+            <input type="hidden" name="lists3-provider_fname[]" value="<?php echo $this->escapeHtml($val['provider_fname']); ?>">
+            <input type="hidden" name="lists3-provider_lname[]" value="<?php echo $this->escapeHtml($val['provider_lname']); ?>">
+            <input type="hidden" name="lists3-provider_address[]" value="<?php echo $this->escapeHtml($val['provider_address']); ?>">
+            <input type="hidden" name="lists3-provider_city[]" value="<?php echo $this->escapeHtml($val['provider_city']); ?>">
+            <input type="hidden" name="lists3-provider_state[]" value="<?php echo $this->escapeHtml($val['provider_state']); ?>">
+            <input type="hidden" name="lists3-provider_postalCode[]" value="<?php echo $this->escapeHtml($val['provider_postalCode']); ?>">
+            <input type="hidden" name="lists3-provider_country[]" value="<?php echo $this->escapeHtml($val['provider_country']); ?>">
+            <input type="hidden" name="lists3-provider_root[]" value="<?php echo $this->escapeHtml($val['provider_root']); ?>">
+            </tr>
+            <?php
+        }
+        ?>
+    </table>
+    <br/>
+    <table class="responsive">
+        <tr class="se_in_9 se_in_25">
+            <th colspan="9"><?php echo $this->listenerObject->z_xlt('Immunization'); ?></th>
+        </tr>
+        <?php
+        foreach ($this->immunizations as $res_existing_immunizations) {
+            if ($res_existing_immunizations['administered_date'] != 0 && $res_existing_immunizations['administered_date'] != '')
+                $date_administered = $res_existing_immunizations['administered_date'];
+            ?>
+            <tr>
+                <td><?php echo $this->listenerObject->z_xlt('Administered Date'); ?></td>
+                <td><?php if ($date_administered) echo \Application\Model\ApplicationTable::fixDate($date_administered, $date_format, 'yyyy-mm-dd'); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Cvx Code'); ?></td>
+                <td><?php echo $this->escapeHtml($res_existing_immunizations['cvx_code']); ?></td>
+                <td colspan="5">&nbsp;</td>
+            </tr>
+            <?php
+        }
+        foreach ($this->immunizations_audit['immunization'] as $key => $val) {
+            if ($val['administered_date'] != 0 && $val['administered_date'] != '') {
+                $immunization_date = \Carecoordination\Model\CarecoordinationTable::formatDate($val['administered_date'], 0);
+            }
+            ?>
+            <tr>
+                <td><?php echo $this->listenerObject->z_xlt('Administered Date'); ?></td>
+                <td><input type='text' name='immunization-administered_date[]' value='<?php if ($immunization_date) echo $immunization_date; ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Cvx Code'); ?></td>
+                <td><input type='text' name='immunization-cvx_code[]' value='<?php echo $this->escapeHtml($val['cvx_code']); ?>' ></td>
+                <td colspan="4">&nbsp;</td>
+                <td>
+                    <select name='immunization-sel[]' class="chkall_I">
+                        <option value='ignore' ><?php echo $ignore; ?></option>
+                        <option value='insert' ><?php echo $insert; ?></option>
+                    </select>
+                </td>
+            <input type="hidden" name="immunization-extension[]" value="<?php echo $this->escapeHtml($val['extension']); ?>">
+            <input type="hidden" name="immunization-root[]" value="<?php echo $this->escapeHtml($val['root']); ?>">
+            <input type="hidden" name="immunization-provider_npi[]" value="<?php echo $this->escapeHtml($val['provider_npi']); ?>">
+            <input type="hidden" name="immunization-provider_name[]" value="<?php echo $this->escapeHtml($val['provider_name']); ?>">
+            <input type="hidden" name="immunization-provider_address[]" value="<?php echo $this->escapeHtml($val['provider_address']); ?>">
+            <input type="hidden" name="immunization-provider_city[]" value="<?php echo $this->escapeHtml($val['provider_city']); ?>">
+            <input type="hidden" name="immunization-provider_state[]" value="<?php echo $this->escapeHtml($val['provider_state']); ?>">
+            <input type="hidden" name="immunization-provider_postalCode[]" value="<?php echo $this->escapeHtml($val['provider_postalCode']); ?>">
+            <input type="hidden" name="immunization-provider_country[]" value="<?php echo $this->escapeHtml($val['provider_country']); ?>">
+            <input type="hidden" name="immunization-represented_organization[]" value="<?php echo $this->escapeHtml($val['represented_organization']); ?>">
+            <input type="hidden" name="immunization-represented_organization_tele[]" value="<?php echo $this->escapeHtml($val['represented_organization_tele']); ?>">
+            <input type="hidden" name="immunization-provider_telecom[]" value="<?php echo $this->escapeHtml($val['provider_telecom']); ?>">
+            <input type="hidden" name="immunization-route[]" value="<?php echo $this->escapeHtml($val['route_code']); ?>">
+            <input type="hidden" name="immunization-route_code_text[]" value="<?php echo $this->escapeHtml($val['route_code_text']); ?>">
+            <input type="hidden" name="immunization-cvx_code_text[]" value="<?php echo $this->escapeHtml($val['cvx_code_text']); ?>">
+            <input type="hidden" name="immunization-amount_administered[]" value="<?php echo $this->escapeHtml($val['amount_administered']); ?>">
+            <input type="hidden" name="immunization-amount_administered_unit[]" value="<?php echo $this->escapeHtml($val['amount_administered_unit']); ?>">
+            <input type="hidden" name="immunization-manufacturer[]" value="<?php echo $this->escapeHtml($val['manufacturer']); ?>">
+            <input type="hidden" name="immunization-completion_status[]" value="<?php echo $this->escapeHtml($val['completion_status']); ?>">
+            </tr>
+            <?php
+        }
+        ?>
+    </table>
+    <br/>
+    <table class="responsive">
+        <tr class="se_in_9 se_in_25">
+            <th colspan="9"><?php echo $this->listenerObject->z_xlt('Lab Results'); ?></th>
+        </tr>
+        <?php
+        $arr_sub_lab_result = array();
+        $exis_arr_sub_lab_result = array();
+        $j = 0;
+        foreach ($this->lab_results as $res_existing_lab_results) {
+            $exis_arr_sub_lab_result[$res_existing_lab_results['tcode']]['order_title'] = $res_existing_lab_results['order_title'];
+            $exis_arr_sub_lab_result[$res_existing_lab_results['tcode']]['date_ordered'] = $res_existing_lab_results['date_ordered'];
+            $exis_arr_sub_lab_result[$res_existing_lab_results['tcode']][$res_existing_lab_results['result_id']]['result_desc'] = $res_existing_lab_results['result_desc'];
+            $exis_arr_sub_lab_result[$res_existing_lab_results['tcode']][$res_existing_lab_results['result_id']]['result_value'] = $res_existing_lab_results['result_value'];
+            $exis_arr_sub_lab_result[$res_existing_lab_results['tcode']][$res_existing_lab_results['result_id']]['units'] = $res_existing_lab_results['units'];
+            $exis_arr_sub_lab_result[$res_existing_lab_results['tcode']][$res_existing_lab_results['result_id']]['range'] = $res_existing_lab_results['range'];
+        }
+        ?>
+        <tr style="border-top: 1px solid #CCCCCC;">
+            <td><?php echo $this->listenerObject->z_xlt('Procedure Name'); ?></td>
+            <td><?php echo $this->listenerObject->z_xlt('Date Ordered'); ?></td>
+            <td><?php echo $this->listenerObject->z_xlt('Result'); ?></td>
+            <td><?php echo $this->listenerObject->z_xlt('Value'); ?></td>
+            <td><?php echo $this->listenerObject->z_xlt('Range'); ?></td>
+            <td colspan="5">&nbsp;</td>
+        </tr>
+        <?php
+        foreach ($exis_arr_sub_lab_result as $key1 => $v1) {
+            $t = 0;
+            if ($v1['date_ordered'] != 0 && $v1['date_ordered'] != '')
+                $ordered_date = $v1['date_ordered'];
+            foreach ($v1 as $key2 => $value2) {
+                $t++;
+                ?> 
+                <tr <?php if (count($v1) != $t) { ?> style="border-bottom: 0px" <?php } ?>>
+                    <?php if ($t == 1) { ?>
+                        <td><?php echo $this->listenerObject->z_xlt($v1['order_title']); ?></td>
+                        <td><?php if ($ordered_date) echo \Application\Model\ApplicationTable::fixDate($ordered_date, $date_format, 'yyyy-mm-dd'); ?></td>
+                    <?php } else { ?> 
+                        <td>&nbsp;</td> 
+                        <td>&nbsp;</td> 
+                <?php  }
+                    if (is_array($value2)) {
+                        ?>
+                        <td><?php echo $this->listenerObject->z_xlt($value2['result_desc']); ?></td>
+                        <td><?php echo $this->escapeHtml($value2['result_value']) . " " . $this->listenerObject->z_xlt($value2['units']); ?></td>
+                        <td><?php echo $this->escapeHtml($value2['range']); ?></td>
+                        <td colspan="4">&nbsp;</td> 
+                    </tr>
+                    <?php
+                }
+            }
+        }
+        foreach ($this->lab_results_audit['procedure_result'] as $key => $val) {
+            $j = count($arr_sub_lab_result[$val['extension']]) + 1;
+            $arr_sub_lab_result[$val['extension']]['proc_text'] = $val['proc_text'];
+            $arr_sub_lab_result[$val['extension']]['date'] = $val['date'];
+            $arr_sub_lab_result[$val['extension']]['proc_code'] = $val['proc_code'];
+            $arr_sub_lab_result[$val['extension']]['extension'] = $val['extension'];
+            $arr_sub_lab_result[$val['extension']]['status'] = $val['status'];
+            $arr_sub_lab_result[$val['extension']][$j]['results_date'] = $val['results_date'];
+            $arr_sub_lab_result[$val['extension']][$j]['results_text'] = $val['results_text'];
+            $arr_sub_lab_result[$val['extension']][$j]['results_value'] = $val['results_value'];
+            $arr_sub_lab_result[$val['extension']][$j]['results_range'] = $val['results_range'];
+            $arr_sub_lab_result[$val['extension']][$j]['results_code'] = $val['results_code'];
+        }
+        ?>
+
+        <tr style="border-bottom: 1px solid #CCCCCC; border-top: 1px solid #CCCCCC;">
+            <td><?php echo $this->listenerObject->z_xlt('Procedure Name'); ?></td>
+            <td><?php echo $this->listenerObject->z_xlt('Date Ordered'); ?></td>
+            <td><?php echo $this->listenerObject->z_xlt('Result'); ?></td>
+            <td><?php echo $this->listenerObject->z_xlt('Value'); ?></td>
+            <td><?php echo $this->listenerObject->z_xlt('Range'); ?></td>
+            <td colspan="5">&nbsp;</td>
+        </tr>
+        <?php
+        $ij = 0;
+        foreach ($arr_sub_lab_result as $k1 => $val1) {
+            $k = 0;
+            $ij++;
+            if ($val1['date'] != 0) {
+                $result_date = \Carecoordination\Model\CarecoordinationTable::formatDate($val1['date'], 0);
+            }
+            foreach ($val1 as $k2 => $val2) {
+                $k++;
+                if (is_array($val2) && $val2['results_date'] != 0 && $val2['results_date'] != '') {
+                    $proc_result_date = \Carecoordination\Model\CarecoordinationTable::formatDate($val2['results_date'], 0);
+                }
+                ?>
+                <tr <?php if (count($val1) != $k) { ?> style="border-bottom: 0px" <?php } ?>>
+                    <?php if ($k == 1) { ?>
+                        <td><input type='text'  name='procedure_result-proc_text[]' value='<?php echo $this->listenerObject->z_xlt($val1['proc_text']); ?>' onblur="setProcedureNameHidden(this.value, '<?php echo $ij; ?>');"></td>          
+                    <?php } else { ?>
+                        <td>&nbsp;</td>
+            <?php }
+                    if (is_array($val2)) {
+                        ?>
+                        <td><input type='text'  name='procedure_result-result_date[]' value='<?php if ($proc_result_date) echo $proc_result_date; ?>'></td>
+                        <td><input type='text' name='procedure_result-result[]' value='<?php echo $this->listenerObject->z_xlt($val2['results_text']); ?>' ></td>
+                        <td><input type='text' name='procedure_result-result_value[]' value='<?php echo $this->escapeHtml($val2['results_value']); ?>' ></td>    
+                        <td><input type='text' name='procedure_result-result_range[]' value='<?php echo $this->escapeHtml($val2['results_range']); ?>' ></td>
+                        <td colspan="5">
+                            <select name='procedure_result-sel[]' class="chkall_I">
+                                <option value='ignore' ><?php echo $ignore; ?></option>
+                                <option value='insert' ><?php echo $insert; ?></option>
+                            </select>
+                        </td>
+                    <input type="hidden" name="procedure_result-proc_code[]" value="<?php echo $this->escapeHtml($val1['proc_code']); ?>">
+                    <input type="hidden" name="procedure_result-results_code[]" value="<?php echo $this->escapeHtml($val2['results_code']); ?>">
+                    <input type="hidden" name="procedure_result-date[]" value="<?php if ($result_date) echo $result_date; ?>">
+                    <input type="hidden" name="procedure_result-extension[]" value="<?php echo $this->escapeHtml($val1['extension']); ?>">
+                    <input type="hidden" name="procedure_result-status[]" value="<?php echo $this->escapeHtml($val1['status']); ?>">
+                    <input type="hidden" name="procedure_result-result_code[]" value="<?php echo $this->escapeHtml($val2['results_code']); ?>">
+                    </tr>
+                    <?php
+                }
+            }
+        }
+        ?>
+    </table>
+    <br/>
+    <table class="responsive">
+        <tr class="se_in_9 se_in_25">
+            <th colspan="9"><?php echo $this->listenerObject->z_xlt('Vitals'); ?></th>
+        </tr>
+        <?php
+        foreach ($this->vitals as $res_existing_vitals) {
+            if ($res_existing_vitals['date'] != 0 && $res_existing_vitals['date'] != '')
+                $date_vitals = $res_existing_vitals['date'];
+            ?>
+            <tr style="border-bottom: 0px">
+                <td><?php echo $this->listenerObject->z_xlt('Date'); ?></td>
+                <td><?php if ($date_vitals) echo \Application\Model\ApplicationTable::fixDate($date_vitals, $date_format, 'yyyy-mm-dd'); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Weight'); ?></td>
+                <td><?php echo $this->escapeHtml($res_existing_vitals['weight']); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Height'); ?></td>
+                <td><?php echo $this->escapeHtml($res_existing_vitals['height']); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Respiration'); ?></td>
+                <td><?php echo $this->escapeHtml($res_existing_vitals['respiration']); ?></td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr style="border-bottom: 0px">
+                <td><?php echo $this->listenerObject->z_xlt('Pulse'); ?></td>
+                <td><?php echo $this->escapeHtml($res_existing_vitals['pulse']); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Oxygen Saturation'); ?></td>
+                <td><?php echo $this->escapeHtml($res_existing_vitals['oxygen_saturation']); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Temperature'); ?></td>
+                <td><?php echo $this->escapeHtml($res_existing_vitals['temperature']); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Head Circ'); ?></td>
+                <td><?php echo $this->escapeHtml($res_existing_vitals['head_circ']); ?></td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td><?php echo $this->listenerObject->z_xlt('BPD'); ?></td>
+                <td><?php echo $this->escapeHtml($res_existing_vitals['bpd']); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('BPS'); ?></td>
+                <td><?php echo $this->escapeHtml($res_existing_vitals['bps']); ?></td>
+                <td colspan="5">&nbsp;</td>
+            </tr>
+            <?php
+        }
+        foreach ($this->vitals_audit['vital_sign'] as $key => $val) {
+            if ($val['date'] != 0 && $val['date'] != '') {
+                $vitals_date = \Carecoordination\Model\CarecoordinationTable::formatDate($val['date'], 0);
+            }
+            ?>
+            <tr style="border-bottom: 0px">
+                <td><?php echo $this->listenerObject->z_xlt('Date'); ?></td>
+                <td><input type='text' name='vital_sign-date[]' value='<?php if ($vitals_date) echo $vitals_date; ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Weight'); ?></td>
+                <td><input type='text' name='vital_sign-weight[]' value='<?php echo $this->escapeHtml($val['weight']); ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Height'); ?></td>
+                <td><input type='text' name='vital_sign-height[]' value='<?php echo $this->escapeHtml($val['height']); ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Respiration'); ?></td>
+                <td><input type='text' name='vital_sign-resp[]' value='<?php echo $this->escapeHtml($val['respiration']); ?>' ></td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr style="border-bottom: 0px">
+                <td><?php echo $this->listenerObject->z_xlt('Pulse'); ?></td>
+                <td><input type='text' name='vital_sign-pulse[]' value='<?php echo $this->escapeHtml($val['pulse']); ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Oxygen Saturation'); ?></td>
+                <td><input type='text' name='vital_sign-oxy_sat[]' value='<?php echo $this->escapeHtml($val['oxygen_saturation']); ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Temperature'); ?></td>
+                <td><input type='text' name='vital_sign-temp[]' value='<?php echo $this->escapeHtml($val['temperature']); ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Head Circ'); ?></td>
+                <td><input type='text' name='vital_sign-head_circ[]' value='<?php echo $this->escapeHtml($val['head_circ']); ?>' ></td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td><?php echo $this->listenerObject->z_xlt('BPD'); ?></td>
+                <td><input type='text' name='vital_sign-bpd[]' value='<?php echo $this->escapeHtml($val['bpd']); ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('BPS'); ?></td>
+                <td><input type='text' name='vital_sign-bps[]' value='<?php echo $this->escapeHtml($val['bps']); ?>' ></td>
+                <td colspan="4">&nbsp;</td>
+                <td>
+                    <select name='vital_sign-sel[]' class="chkall_I">
+                        <option value='ignore' ><?php echo $ignore; ?></option>
+                        <option value='insert' ><?php echo $insert; ?></option>
+                    </select>
+                </td>
+            <input type="hidden" name="vital_sign-extension[]" value="<?php echo $this->escapeHtml($val['extension']); ?>">
+            </tr>
+            <?php
+        }
+        ?>
+    </table>
+    <br/>
+    <table class="responsive">
+        <tr class="se_in_9 se_in_25">
+            <th colspan="9"><?php echo $this->listenerObject->z_xlt('Procedure'); ?></th>
+        </tr>
+        <?php
+        foreach ($this->procedure as $res_existing_procedure) {
+            ?>
+            <tr>
+                <td><?php echo $this->listenerObject->z_xlt('Date'); ?></td>
+                <td><?php echo \Application\Model\ApplicationTable::fixDate($res_existing_procedure['date'], $date_format, 'yyyy-mm-dd'); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Code'); ?></td>
+                <td><?php echo $this->escapeHtml($res_existing_procedure['code']); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Title'); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt($res_existing_procedure['code_text']); ?></td>
+                <td colspan="3">&nbsp;</td>
+            </tr>
+            <?php
+        }
+        foreach ($this->procedure_audit['procedure'] as $key => $val) {
+            if ($val['date'] != 0) {
+                $procedure_date = \Carecoordination\Model\CarecoordinationTable::formatDate($val['date'], 0);
+            }
+            ?>
+            <tr>
+                <td><?php echo $this->listenerObject->z_xlt('Date'); ?></td>
+                <td><input type='text' name='procedures-date[]' value='<?php if ($procedure_date) echo $procedure_date; ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Code'); ?></td>
+                <td><input type='text' name='procedures-code[]' value='<?php echo $this->escapeHtml($val['code']); ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Code Text'); ?></td>
+                <td><input type='text' name='procedures-code_text[]' style="width: 100% !important;" value='<?php echo $this->listenerObject->z_xlt($val['code_text']); ?>' ></td>
+                <td colspan="2">&nbsp;</td>
+                <td>
+                    <select name='procedure-sel[]' class="chkall_I">
+                        <option value='ignore' ><?php echo $ignore; ?></option>
+                        <option value='insert' ><?php echo $insert; ?></option>
+                    </select>
+                </td>
+            <input type='hidden' name='procedures-extension[]' value='<?php echo $this->escapeHtml($val['extension']); ?>'>
+            <input type='hidden' name='procedures-root[]' value='<?php echo $this->escapeHtml($val['root']); ?>'>
+            <input type='hidden' name='procedures-codeSystemName[]' value='<?php echo $this->escapeHtml($val['codeSystemName']); ?>'>
+            <input type='hidden' name='procedures-represented_organization1[]' value='<?php echo $this->escapeHtml($val['represented_organization1']); ?>'>
+            <input type='hidden' name='procedures-represented_organization_address1[]' value='<?php echo $this->escapeHtml($val['represented_organization_address1']); ?>'>
+            <input type='hidden' name='procedures-represented_organization_city1[]' value='<?php echo $this->escapeHtml($val['represented_organization_city1']); ?>'>
+            <input type='hidden' name='procedures-represented_organization_country1[]' value='<?php echo $this->escapeHtml($val['represented_organization_country1']); ?>'>
+            <input type='hidden' name='procedures-represented_organization_postalcode1[]' value='<?php echo $this->escapeHtml($val['represented_organization_postalcode1']); ?>'>
+            <input type='hidden' name='procedures-represented_organization_state1[]' value='<?php echo $this->escapeHtml($val['represented_organization_state1']); ?>'>
+            <input type='hidden' name='procedures-represented_organization_telecom1[]' value='<?php echo $this->escapeHtml($val['represented_organization_telecom1']); ?>'>
+            <input type='hidden' name='procedures-represented_organization2[]' value='<?php echo $this->escapeHtml($val['represented_organization2']); ?>'>
+            <input type='hidden' name='procedures-represented_organization_address2[]' value='<?php echo $this->escapeHtml($val['represented_organization_address2']); ?>'>
+            <input type='hidden' name='procedures-represented_organization_city2[]' value='<?php echo $this->escapeHtml($val['represented_organization_city2']); ?>'>
+            <input type='hidden' name='procedures-represented_organization_country2[]' value='<?php echo $this->escapeHtml($val['represented_organization_country2']); ?>'>
+            <input type='hidden' name='procedures-represented_organization_postalcode2[]' value='<?php echo $this->escapeHtml($val['represented_organization_postalcode2']); ?>'>
+            <input type='hidden' name='procedures-represented_organization_state2[]' value='<?php echo $this->escapeHtml($val['represented_organization_state2']); ?>'>
+            </tr>
+            <?php
+        }
+        ?>
+    </table>
+    <br/>
+    <table class="responsive">
+        <tr class="se_in_9 se_in_25">
+            <th colspan="9"><?php echo $this->listenerObject->z_xlt('Care Plan'); ?></th>
+        </tr>
+        <?php
+        foreach ($this->care_plan as $res_existing_care_plan) {
+            ?>
+            <tr>
+                <td><?php echo $this->listenerObject->z_xlt('Code Text'); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt($res_existing_care_plan['codetext']); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Description'); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt($res_existing_care_plan['description']); ?></td>
+                <td colspan="5">&nbsp;</td>
+            </tr>
+            <?php
+        }
+        foreach($this->care_plan_audit['care_plan']  as $key => $val){?>
+            <tr>
+                <td><?php echo $this->listenerObject->z_xlt('Code Text'); ?></td>
+                <td><input type='text' style='width:100%!important;' name='care_plan-text[]' value='<?php echo $this->listenerObject->z_xlt($val['code_text']); ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Description'); ?></td>
+                <td><input type='text' style='width:100%!important;' name='care_plan-description[]' value='<?php echo $this->listenerObject->z_xlt($val['description']); ?>' ></td>
+                <td colspan="4">&nbsp;</td>
+                <td>
+                    <select name='care_plan-sel[]' class="chkall_I">
+                        <option value='ignore' ><?php echo $ignore; ?></option>
+                        <option value='insert' ><?php echo $insert; ?></option>
+                    </select>
+                </td>
+            <input type="hidden" name="care_plan-extension[]" value="<?php echo $this->escapeHtml($val['extension']); ?>">
+            <input type="hidden" name="care_plan-root[]" value="<?php echo $this->escapeHtml($val['root']); ?>">
+            <input type="hidden" name="care_plan-code[]" value="<?php echo $this->escapeHtml($val['code']); ?>">
+            </tr>
+            <?php
+        }
+        ?>
+    </table>
+    <br/>
+    <table class="responsive">
+        <tr class="se_in_9 se_in_25">
+            <th colspan="9"><?php echo $this->listenerObject->z_xlt('Functional Cognitive Status'); ?></th>
+        </tr>
+        <?php
+        foreach ($this->functional_cognitive_status as $res_existing_functional_cognitive_status) {
+            ?>
+            <tr>
+                <td><?php echo $this->listenerObject->z_xlt('Code Text'); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt($res_existing_functional_cognitive_status['codetext']); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt('Description'); ?></td>
+                <td><?php echo $this->listenerObject->z_xlt($res_existing_functional_cognitive_status['description']); ?></td>
+                <td colspan="5">&nbsp;</td>
+            </tr>
+            <?php
+        }
+        foreach($this->functional_cognitive_status_audit['functional_cognitive_status']  as $key => $val){?>
+            <tr>
+                <td><?php echo $this->listenerObject->z_xlt('Code Text'); ?></td>
+                <td><input type='text' style='width:100%!important;' name='functional_cognitive_status-text[]' value='<?php echo $this->listenerObject->z_xlt($val['code_text']); ?>' ></td>
+                <td><?php echo $this->listenerObject->z_xlt('Description'); ?></td>
+                <td><input type='text' style='width:100%!important;' name='functional_cognitive_status-description[]' value='<?php echo $this->listenerObject->z_xlt($val['description']); ?>' ></td>
+                <td colspan="4">&nbsp;</td>
+                <td>
+                    <select name='functional_cognitive_status-sel[]' class="chkall_I">
+                        <option value='ignore' ><?php echo $ignore; ?></option>
+                        <option value='insert' ><?php echo $insert; ?></option>
+                    </select>
+                </td>
+            <input type="hidden" name="functional_cognitive_status-extension[]" value="<?php echo $this->escapeHtml($val['extension']); ?>">
+            <input type="hidden" name="functional_cognitive_status-root[]" value="<?php echo $this->escapeHtml($val['root']); ?>">
+            <input type="hidden" name="functional_cognitive_status-code[]" value="<?php echo $this->escapeHtml($val['code']); ?>">
+            <input type="hidden" name="functional_cognitive_status-date[]" value="<?php echo $this->escapeHtml($val['date']); ?>">
+            </tr>
+            <?php
+        }
+        ?>      
+    </table>
+    <br/>
+    <table class="responsive">
+        <tr class="se_in_9 se_in_25">
+            <th colspan="9"><?php echo $this->listenerObject->z_xlt('Referral Reason'); ?></th>
+        </tr>
+        <?php
+        foreach ($this->referral as $res_existing_referral) {
+            ?>
+            <tr>
+                <td><?php echo $this->listenerObject->z_xlt('Body'); ?></td>
+                <td><?php echo $this->escapeHtml($res_existing_referral['body']); ?></td>
+                <td colspan="7">&nbsp;</td>
+            </tr>
+            <?php
+        }
+        foreach ($this->referral_audit['referral'] as $key => $val) {
+            $referal_data = explode("#$%^&*",$val['body']);
+            foreach($referal_data as $k => $v) {
+            ?>
+            <tr>
+                <td><?php echo $this->listenerObject->z_xlt('Body'); ?></td>
+                <td><textarea style='min-width:100%!important;min-height:100px;' name='referral-body[]'><?php echo $this->escapeHtml($v); ?></textarea></td>
+                <td colspan="6">&nbsp;</td>
+                <td>
+                    <select name='referral-sel[]' class="styled_select_light chkall_I">
+                        <option value='ignore' ><?php echo $this->listenerObject->z_xlt('Ignore'); ?></option>
+                        <option value='insert' ><?php echo $this->listenerObject->z_xlt('Insert'); ?></option>
+                    </select>
+                </td>
+            <input type="hidden" name="referral-root[]" value="<?php echo $this->escapeHtml($val['root']); ?>">
+            </tr>
+            <?php }
+        }
+        ?>
+    </table>
+    <br/>
+    <table class="responsive">
+                <tr class="se_in_9 se_in_25">
+                  <th colspan="9"><?php echo $this->listenerObject->z_xlt('Discharge Medications'); ?></th>
+                </tr> 
+                <?php foreach ($this->discharge_medication_audit['discharge_medication'] as $key => $val) {
+                    $route_option_id = \Carecoordination\Model\CarecoordinationTable::getOptionId('drug_route', $val['route_display']);
+                    $unit_option_id = \Carecoordination\Model\CarecoordinationTable::getOptionId('drug_units', $val['rate_unit']);
+                    $drug_unit_list = \Application\Plugin\CommonPlugin::getList('drug_units', $unit_option_id, '');
+                    $drug_route_list = \Application\Plugin\CommonPlugin::getList('drug_route', $route_option_id, '');
+
+                    if(strlen($val['begdate']) == 8){
+                     $val['begdate'] = substr($val['begdate'],0,4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2);
+                    }
+                    if ($val['begdate'] != 0 && $val['begdate'] != '')
+                        $beg_date = \Application\Model\ApplicationTable::fixDate($val['begdate'], $date_format, 'yyyy-mm-dd');
+                    else
+                        $beg_date = \Application\Model\ApplicationTable::fixDate(date('Y-m-d'), $date_format, 'yyyy-mm-dd'); ?>
+                    <tr style="border-bottom: 0px">
+                        <td><?php echo $this->listenerObject->z_xlt('Date'); ?></td>
+                        <td><input type='text' name='discharge_medication-date_added[]' value='<?php if ($beg_date) echo $beg_date; ?>' ></td>
+                        <td><?php echo $this->listenerObject->z_xlt('Name'); ?></td>
+                        <td><input type='text' name='discharge_medication-drug[]' value='<?php echo $this->escapeHtml($val['drug_text']); ?>' ></td>
+                        <td><?php echo $this->listenerObject->z_xlt('Dose'); ?></td>
+                        <td><input type='text' name='discharge_medication-dose[]' value='<?php echo $this->escapeHtml($val['dose']); ?>' ></td>        
+                        <td><?php echo $this->listenerObject->z_xlt('Strength'); ?></td>
+                        <td> <input style="" type='text' size='7' name='discharge_medication-size[]' value='<?php echo $this->escapeHtml($val['rate']); ?>' ></td>
+                        <td><?php if($val['enddate'] && $val['enddate'] != 0) echo "<span style='color: red'>".$this->listenerObject->z_xlt('Inactive').'</span>'; else echo "<span style='color: #13D813'>".$this->listenerObject->z_xlt('Active').'</span>'; ?></td>
+                    </tr>
+                    <tr>           
+                        <td><?php echo $this->listenerObject->z_xlt('Units'); ?></td>
+                        <td> 
+                            <select name='discharge_medication-rate_unit[]'>
+                                <?php foreach ($drug_unit_list as $value) : ?>
+                                    <option value="<?php echo $this->escapeHtml($value['value']); ?>" <?php if ($value['selected'] == 1) echo "selected"; ?>><?php echo $this->listenerObject->z_xlt($value['label']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
+                        <td><?php echo $this->listenerObject->z_xlt('Note'); ?></td>
+                        <td><input type='text' name='discharge_medication-note[]' value='<?php echo $this->escapeHtml($val['note']); ?>' ></td>
+                        <td><?php echo  $this->listenerObject->z_xlt('Discontinue');?></td>
+                        <td><input type='checkbox' name='discharge_medication-discontinue[]' value='<?php if($val['enddate'] && $val['enddate'] != 0) echo '1'; else echo '0';?>' <?php if($val['enddate'] && $val['enddate'] != 0) echo 'checked="checked"'?> class="checkAssignMed3"></td>
+                        <td colspan="2">&nbsp;</td>
+                        <td>
+                            <select name='discharge_medication-sel[]' class="chkall_I">
+                                <option value='ignore' ><?php echo $ignore; ?></option>
+                                <option value='insert' ><?php echo $insert; ?></option>
+                            </select>
+                        </td>
+                    <input type="hidden" name="discharge_medication-extension[]" value="<?php echo $this->escapeHtml($val['extension']); ?>">
+                    <input type="hidden" name="discharge_medication-root[]" value="<?php echo $this->escapeHtml($val['root']); ?>">
+                    <input type="hidden" name="discharge_medication-route[]" value="<?php echo $this->escapeHtml($val['route']); ?>">
+                    <input type="hidden" name="discharge_medication-drugcode[]" value="<?php echo $this->escapeHtml($val['drug_code']); ?>">
+                    <input type="hidden" name="discharge_medication-route_display[]" value="<?php echo $this->escapeHtml($val['route_display']); ?>">
+                    <input type="hidden" name="discharge_medication-dose_unit[]" value="<?php echo $this->escapeHtml($val['dose_unit']); ?>">
+                    <input type="hidden" name="discharge_medication-enddate[]" value="<?php echo $this->escapeHtml($val['enddate']); ?>">
+                    <input type="hidden" name="discharge_medication-indication[]" value="<?php echo $this->escapeHtml($val['indication']); ?>">
+                    <input type="hidden" name="discharge_medication-prn[]" value="<?php echo $this->escapeHtml($val['prn']); ?>">
+                    <input type="hidden" name="discharge_medication-provider_title[]" value="<?php echo $this->escapeHtml($val['provider_title']); ?>">
+                    <input type="hidden" name="discharge_medication-provider_fname[]" value="<?php echo $this->escapeHtml($val['provider_fname']); ?>">
+                    <input type="hidden" name="discharge_medication-provider_lname[]" value="<?php echo $this->escapeHtml($val['provider_lname']); ?>">
+                    <input type="hidden" name="discharge_medication-provider_address[]" value="<?php echo $this->escapeHtml($val['provider_address']); ?>">
+                    <input type="hidden" name="discharge_medication-provider_city[]" value="<?php echo $this->escapeHtml($val['provider_city']); ?>">
+                    <input type="hidden" name="discharge_medication-provider_state[]" value="<?php echo $this->escapeHtml($val['provider_state']); ?>">
+                    <input type="hidden" name="discharge_medication-provider_postalCode[]" value="<?php echo $this->escapeHtml($val['provider_postalCode']); ?>">
+                    <input type="hidden" name="discharge_medication-provider_country[]" value="<?php echo $this->escapeHtml($val['provider_country']); ?>">
+                    <input type="hidden" name="discharge_medication-provider_root[]" value="<?php echo $this->escapeHtml($val['provider_root']); ?>">
+                    </tr>
+                    <?php
+                }
+                ?>
+             </table>
+            <br/>
+            <table class="responsive">
+                <tr class="se_in_9 se_in_25">
+                  <th colspan="9"><?php echo $this->listenerObject->z_xlt('Discharge Summary'); ?></th>
+                </tr> 
+                 <?php
+                foreach($this->discharge_summary as $res_existing_discharge_summary){
+                    ?>
+                  <tr>
+                    <td><?php echo $this->listenerObject->z_xlt('Description'); ?></td>
+                    <td><?php echo $res_existing_discharge_summary[''];?></td>
+                    <td colspan="7">&nbsp;</td>
+                  </tr>
+                    <?php
+                }
+                foreach($this->discharge_summary_audit['discharge_summary']  as $key => $val){
+                  $text = str_replace("#$%","\n",$val['text']);?>
+                  <tr>
+                    <td><?php echo $this->listenerObject->z_xlt('Summary'); ?></td>
+                    <td><textarea name='discharge_summary-text[]' style='min-width: 800px!important;min-height: 180px;text-align: left;'><?php echo $this->escapeHtml($text);?></textarea></td>
+                    <td colspan="6">&nbsp;</td>
+                    <td>
+                      <select name='discharge_summary-sel[]' class="styled_select_light chkall_I">
+                        <option value='ignore' ><?php echo $this->listenerObject->z_xlt('Ignore'); ?></option>
+                        <option value='insert' ><?php echo $this->listenerObject->z_xlt('Insert'); ?></option>
+                      </select>
+                    </td>
+                    <input type="hidden" name="discharge_summary-root[]" value="<?php echo $val['root'];?>">
+                  </tr>
+                    <?php
+                }
+                  ?>
+            </table>
+</div>
+</div>
+</form>

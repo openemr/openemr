@@ -5,8 +5,8 @@
 #the Free Software Foundation; either version 2 of the License, or
 #(at your option) any later version.
 #
-# Copyright 2011
-# authors: Brady Miller <brady@sparmy.com>
+# Copyright 2011-2014
+# authors: Brady Miller <brady.g.miller@gmail.com>
 #          Amalu Obinna <amaluobinna@aol.com>
 #
 # Debian package post installation script steps:
@@ -222,14 +222,24 @@ case "$1" in
 
       # Set file and directory permissions
       chmod 666 $SITEDIR/sqlconf.php
+      chown $WEB_GROUP.$WEB_USER $OPENEMR/interface/modules/zend_modules/config/application.config.php
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/documents
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/edi
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/era
-      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/library/freeb
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/letter_templates
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/gacl/admin/templates_c
+
+      # NEED TO CONFIGURE APACHE BEFORE CONFIGURATION SINCE ZEND SUPPORT NEEDS PROPER CONFIGURATION
+      # Activate the OpenEMR conf file for apache
+      log_only "Activate OpenEMR config file for Apache"
+      a2ensite git-openemr.conf
+      # Ensure the apache rewrite module is turned on
+      a2enmod rewrite
+      # Restart the apache server
+      log_only "Restarting Apache service..."
+      invoke-rc.d apache2 restart >> $LOG 2>&1
 
       #CONFIGURE OPENEMR
       if $configure_flag; then
@@ -257,9 +267,6 @@ case "$1" in
 
          log_only "Done configuring OpenEMR"
       fi
-
-      log_only "Restarting Apache service..."
-      invoke-rc.d apache2 restart >> $LOG 2>&1
 
       #update config file, change process to complete and remove plan and pass
       sed -i "s/^[ 	]*process[ 	=].*$/process=complete/" $CONFIG

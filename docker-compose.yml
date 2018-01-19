@@ -1,0 +1,29 @@
+# Use admin/pass as user/password credentials
+version: '3.1'
+services:
+  mysql:
+    restart: always
+    image: mysql
+    command: ['mysqld','--character-set-server=utf8']
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+    - 3307:3306
+  openemr:
+    restart: always
+    container_name: openemr_local_development 
+    build: ./contrib/util/docker
+    ports:
+    - 8080:80
+    - 8081:443
+    volumes:
+    - .:/var/www/localhost/htdocs/openemr
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASS: root
+      MYSQL_USER: root
+      MYSQL_PASS: root
+      OE_USER: admin
+      OE_PASS: pass
+    links:
+    - mysql

@@ -6,19 +6,20 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
-// 
+//
 // This file is used to add an item to the list_options table
 //
-// OUTPUT 
+// OUTPUT
 //   on error = NULL
 //   on succcess = JSON data, array of "value":"title" for new list of options
 */
 
 include_once("../../interface/globals.php");
-include_once("{$GLOBALS['srcdir']}/sql.inc");
 
 // check for required values
-if ($_GET['listid'] == "" || trim($_GET['newitem']) == "" || trim($_GET['newitem_abbr']) == "") exit;
+if ($_GET['listid'] == "" || trim($_GET['newitem']) == "" || trim($_GET['newitem_abbr']) == "") {
+    exit;
+}
 
 // set the values for the new list item
 $is_default = 0;
@@ -30,26 +31,24 @@ $option_value = 0;
 // make sure we're not adding a duplicate title or id
 $exists_title = sqlQuery("SELECT * FROM list_options WHERE ".
                     " list_id='".$list_id."'".
-                    " and title='".trim($title). "'" 
-                    );
-if ($exists_title) { 
-	echo json_encode(array("error"=> xl('Record already exist') ));
-	exit; 
+                    " and title = '" . trim($title) . "' AND activity = 1");
+if ($exists_title) {
+    echo json_encode(array("error"=> xl('Record already exist') ));
+    exit;
 }
 
 $exists_id = sqlQuery("SELECT * FROM list_options WHERE ".
                     " list_id='".$list_id."'".
-                    " and option_id='".trim($option_id)."'"
-                    );
-if ($exists_id) { 
-	echo json_encode(array("error"=> xl('Record already exist') ));
-	exit; 
+                    " and option_id = '" . trim($option_id) . "' AND activity = 1");
+if ($exists_id) {
+    echo json_encode(array("error"=> xl('Record already exist') ));
+    exit;
 }
 
 // determine the sequential order of the new item,
 // it should be the maximum number for the specified list plus one
 $seq = 0;
-$row = sqlQuery("SELECT max(seq) as maxseq FROM list_options WHERE list_id= '".$list_id."'");
+$row = sqlQuery("SELECT max(seq) as maxseq FROM list_options WHERE list_id = '" . $list_id . "' AND activity = 1");
 $seq = $row['maxseq']+1;
 
 // add the new list item
@@ -62,28 +61,25 @@ $rc = sqlInsert("INSERT INTO list_options ( " .
                 ",'".$seq."'" .
                 ",'".$is_default."'" .
                 ",'".$option_value."'".
-                ")"
-);
+                ")");
 
 // return JSON data of list items on success
 echo '{ "error":"", "options": [';
 // send the 'Unassigned' empty variable
 echo '{"id":"","title":"' . xl('Unassigned') . '"}';
 $comma = ",";
-$lres = sqlStatement("SELECT * FROM list_options WHERE list_id = '$list_id' ORDER BY seq");
+$lres = sqlStatement("SELECT * FROM list_options WHERE list_id = '$list_id' AND activity = 1 ORDER BY seq");
 while ($lrow = sqlFetchArray($lres)) {
     echo $comma;
     echo '{"id":"'.$lrow['option_id'].'",';
-    
+
     // translate title if translate-lists flag set and not english
     if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
-     echo '"title":"' . xl($lrow['title']) .'"}';
-    }
-    else {
-     echo '"title":"'.$lrow['title'].'"}';	
+        echo '"title":"' . xl($lrow['title']) .'"}';
+    } else {
+        echo '"title":"'.$lrow['title'].'"}';
     }
 }
+
 echo "]}";
 exit;
-
-?>

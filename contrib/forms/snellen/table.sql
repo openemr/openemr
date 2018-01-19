@@ -6,10 +6,10 @@ CREATE TABLE IF NOT EXISTS `form_snellen` (
   `groupname`           varchar(255) DEFAULT NULL,
   `authorized`          tinyint(4)   NOT NULL DEFAULT 0,
   `activity`            tinyint(4)   NOT NULL DEFAULT 0,
-  `left_1`           text NOT NULL DEFAULT '',
-  `left_2`           text NOT NULL DEFAULT '',
-  `right_1`           text NOT NULL DEFAULT '',
-  `right_2`           text NOT NULL DEFAULT '',
-  `notes`           text NOT NULL DEFAULT '', 
+  `left_1`           text,
+  `left_2`           text,
+  `right_1`           text,
+  `right_2`           text,
+  `notes`           text, 
   PRIMARY KEY (id)
 ) ENGINE=InnoDB;

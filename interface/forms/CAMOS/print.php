@@ -2,7 +2,6 @@
 include_once("../../globals.php");
 include_once("../../../library/api.inc");
 formHeader("Form: CAMOS");
-$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
 ?>
 <html><head>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
@@ -12,11 +11,10 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
  onsubmit="return top.restoreSession()">
 <h1><php xl ('CAMOS','e'); ?> </h1>
 <hr>
-<input type="submit" name="submit form" value="<?php xl('submit form','e'); ?>" />
+<input type="submit" name="submit form" value="<?php xl('submit form', 'e'); ?>" />
 <?php
-echo "<a href='".$GLOBALS['webroot'] .
-  "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[" .
-  xl('do not save') . "]</a>";
+echo "<a href='{$GLOBALS['form_exit_url']}' onclick='top.restoreSession()'>[" .
+xl('do not save') . "]</a>";
 ?>
 <table></table><h3><php xl ('Computer Aided Medical Ordering System','e'); ?></h3>
 <table><tr><td><php xl ('category','e'); ?></td> <td><input type="text" name="category"  /></td></tr>
@@ -25,12 +23,10 @@ echo "<a href='".$GLOBALS['webroot'] .
 <tr><td><php xl ('content','e'); ?></td> <td><input type="text" name="content"  /></td></tr>
 </table><input type="submit" name="submit form" value="submit form" />
 <?php
-echo "<a href='" . $GLOBALS['webroot'] .
-  "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[" .
-  xl('do not save') ."]</a>";
+echo "<a href='{$GLOBALS['form_exit_url']}' onclick='top.restoreSession()'>[" .
+xl('do not save') ."]</a>";
 ?>
 
 </form>
 <?php
 formFooter();
-?>

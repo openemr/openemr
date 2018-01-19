@@ -329,7 +329,7 @@ function removeOptionSelected()
   }
   if(OptionRemoved=='no')
    {
-       alert("<?php echo htmlspecialchars( xl('Select Criteria to Remove'), ENT_QUOTES) ?>")
+       alert("<?php echo htmlspecialchars(xl('Select Criteria to Remove'), ENT_QUOTES) ?>")
    }
 }
 function ProcessBeforeSubmitting()//Validations and necessary actions are taken here.
@@ -379,12 +379,12 @@ function ValidateDateCriteria(selStr)
          DateArray=selObj.options[i].value.split("'");
          if(DateArray[1]>DateArray[3])
           {
-             alert("<?php echo htmlspecialchars( xl('From Date Cannot be Greater than To Date.'), ENT_QUOTES) ?>");
+             alert("<?php echo htmlspecialchars(xl('From Date Cannot be Greater than To Date.'), ENT_QUOTES) ?>");
              return false;
           }
          if(DateArray[1]=='' || DateArray[3]=='')
           {
-             alert("<?php echo htmlspecialchars( xl('Date values Cannot be Blank.'), ENT_QUOTES) ?>");
+             alert("<?php echo htmlspecialchars(xl('Date values Cannot be Blank.'), ENT_QUOTES) ?>");
              return false;
           }
      }

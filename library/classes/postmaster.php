@@ -5,8 +5,6 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-require_once ($GLOBALS['srcdir'] . "/classes/class.phpmailer.php");
-
 // Add these two lines to Authenticate in phpmailer.php, lines 633-634
 // Customized for Web hosts that don't require SMTP authentication
 // if ($SMTP_Auth=="No") { $connection = true; }
@@ -22,40 +20,32 @@ class MyMailer extends PHPMailer
     var $Port;
     var $CharSet;
 
-    function MyMailer()
+    function __construct()
     {
         $this->emailMethod();
     }
-    
+
     function emailMethod()
     {
         global $HTML_CHARSET;
         $this->CharSet = $HTML_CHARSET;
-        switch($GLOBALS['EMAIL_METHOD'])
-        {
-            case "PHPMAIL" :
-            {
+        switch ($GLOBALS['EMAIL_METHOD']) {
+            case "PHPMAIL":
                 $this->Mailer = "mail";
-            }
-            break;
-            case "SMTP" :
-            {
-		global $SMTP_Auth;
+                break;
+            case "SMTP":
+                global $SMTP_Auth;
                 $this->Mailer = "smtp";
                 $this->SMTPAuth = $SMTP_Auth;
                 $this->Host = $GLOBALS['SMTP_HOST'];
                 $this->Username = $GLOBALS['SMTP_USER'];
                 $this->Password = $GLOBALS['SMTP_PASS'];
                 $this->Port = $GLOBALS['SMTP_PORT'];
-            }
-            break;
-            case "SENDMAIL" :
-            {
+                $this->SMTPSecure = $GLOBALS['SMTP_SECURE'];
+                break;
+            case "SENDMAIL":
                 $this->Mailer = "sendmail";
-            }
-            break;
+                break;
         }
     }
 }
-
-?>

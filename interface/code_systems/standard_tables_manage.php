@@ -20,18 +20,12 @@
  * @package OpenEMR
  * @author  (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
  * @author  Rohit Kumar <pandit.rohit@netsity.com>
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
 
 require_once("../../interface/globals.php");
 require_once("$srcdir/acl.inc");
@@ -51,7 +45,7 @@ $db = isset($_GET['db']) ? $_GET['db'] : '0';
 $version = isset($_GET['version']) ? $_GET['version'] : '0';
 $file_revision_date = isset($_GET['file_revision_date']) ? $_GET['file_revision_date'] : '0';
 $file_checksum = isset($_GET['file_checksum']) ? $_GET['file_checksum'] : '0';
-$newInstall = 	isset($_GET['newInstall']) ? $_GET['newInstall'] : '0';
+$newInstall =   isset($_GET['newInstall']) ? $_GET['newInstall'] : '0';
 $mainPATH = $GLOBALS['fileroot']."/contrib/".strtolower($db);
 
 $files_array = scandir($mainPATH);
@@ -63,6 +57,7 @@ foreach ($files_array as $file) {
     if (strpos($file, ".zip") === false) {
         continue;
     }
+
     if (is_file($this_file)) {
         handle_zip_file($db, $this_file);
     }
@@ -71,20 +66,33 @@ foreach ($files_array as $file) {
 // load the database
 if ($db == 'RXNORM') {
     if (!rxnorm_import(IS_WINDOWS)) {
-        echo htmlspecialchars( xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
+        echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
         temp_dir_cleanup($db);
         exit;
     }
-} else if ( $db == 'SNOMED') {
-    if (!snomed_import()) {
-        echo htmlspecialchars( xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
+} else if ($db == 'SNOMED') {
+    if ($version == "US Extension") {
+        if (!snomed_import(true)) {
+            echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
+            temp_dir_cleanup($db);
+            exit;
+        }
+    } else { //$version is not "US Extension"
+        if (!snomed_import(false)) {
+            echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
+            temp_dir_cleanup($db);
+            exit;
+        }
+    }
+} else if ($db == 'CQM_VALUESET') {
+    if (!valueset_import($db)) {
+        echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
         temp_dir_cleanup($db);
         exit;
     }
-}
-else { //$db == 'ICD'
+} else { //$db == 'ICD'
     if (!icd_import($db)) {
-        echo htmlspecialchars( xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
+        echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
         temp_dir_cleanup($db);
         exit;
     }
@@ -92,7 +100,7 @@ else { //$db == 'ICD'
 
 // set the revision version in the database
 if (!update_tracker_table($db, $file_revision_date, $version, $file_checksum)) {
-    echo htmlspecialchars( xl('ERROR: Unable to set the version number.'), ENT_NOQUOTES)."<br>";
+    echo htmlspecialchars(xl('ERROR: Unable to set the version number.'), ENT_NOQUOTES)."<br>";
     temp_dir_cleanup($db);
     exit;
 }
@@ -102,10 +110,11 @@ if ($newInstall === "1") {
     ?>
     <div><?php echo xlt("Successfully installed the following database") . ": " . text($db); ?></div>
     <?php
-} else { 
+} else {
     ?>
     <div><?php echo xlt("Successfully upgraded the following database") . ": " . text($db); ?></div>
     <?php
 }
+
 temp_dir_cleanup($db);
 ?>

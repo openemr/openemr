@@ -1,5 +1,5 @@
 <?php
-// +-----------------------------------------------------------------------------+ 
+// +-----------------------------------------------------------------------------+
 // Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
@@ -19,19 +19,13 @@
 // openemr/interface/login/GnuGPL.html
 // For more information write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
+//
 // Author:   Eldho Chacko <eldho@zhservices.com>
 //           Jacob T Paul <jacob@zhservices.com>
 //
 // +------------------------------------------------------------------------------+
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
 
 require_once("../../interface/globals.php");
 $content = $_REQUEST['content'];
@@ -39,6 +33,8 @@ $content = $_REQUEST['content'];
 <html>
     <head>
         <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+        <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
         <script type="text/javascript">
     function showWhereInTextarea(){
     opener.restoreSession();
@@ -51,11 +47,11 @@ $content = $_REQUEST['content'];
     else{
         var range = textarea.createTextRange();
         range.collapse(true);
-        
+
         range.moveStart('character',parseInt(start) );
         range.moveEnd('character',parseInt(len));
         range.select();
-        
+
     }
     document.getElementById('quest').focus();
     }
@@ -78,10 +74,10 @@ $content = $_REQUEST['content'];
             <tr class="text">
                 <td>
                     <?php
-                    $res = sqlStatement("SELECT * FROM list_options WHERE list_id='nation_notes_replace_buttons' ORDER BY seq");
-                    while($row = sqlFetchArray($res)){
+                    $res = sqlStatement("SELECT * FROM list_options WHERE list_id = 'nation_notes_replace_buttons' AND activity = 1 ORDER BY seq");
+                    while ($row = sqlFetchArray($res)) {
                     ?>
-                    <a href="#" onclick="replace_quest('<?php echo htmlspecialchars($row['option_id'],ENT_QUOTES);?>')" class="css_button"><span><?php echo htmlspecialchars($row['title'],ENT_QUOTES);?></span></a>
+                    <a href="#" onclick="replace_quest('<?php echo htmlspecialchars($row['option_id'], ENT_QUOTES);?>')" class="css_button"><span><?php echo htmlspecialchars($row['title'], ENT_QUOTES);?></span></a>
                     <?php
                     }
                     ?>
@@ -89,16 +85,16 @@ $content = $_REQUEST['content'];
             </tr>
             <tr class="text">
                 <td>
-                <textarea name="quest" id="quest" rows="5" cols="70"><?php echo htmlspecialchars($content,ENT_QUOTES);?></textarea>
+                <textarea name="quest" id="quest" rows="5" cols="70"><?php echo htmlspecialchars($content, ENT_QUOTES);?></textarea>
                 </td>
             </tr>
             <tr>
                 <td colspan="2" align="center">
-                    <input type="button" name="save" value="<?php echo htmlspecialchars(xl('Save'),ENT_QUOTES);?>" onclick="save_this()">
-                    <input type="button" name="cancel" value="<?php echo htmlspecialchars(xl('Cancel'),ENT_QUOTES);?>" onclick="javascript:window.close()">
+                    <input type="button" name="save" value="<?php echo htmlspecialchars(xl('Save'), ENT_QUOTES);?>" onclick="save_this()">
+                    <input type="button" name="cancel" value="<?php echo htmlspecialchars(xl('Cancel'), ENT_QUOTES);?>" onclick="javascript:window.close()">
                 </td>
             </tr>
-        </table>    
-        
+        </table>
+
     </body>
 </html>

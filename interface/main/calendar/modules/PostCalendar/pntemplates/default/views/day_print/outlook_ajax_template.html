@@ -10,8 +10,8 @@
 [-config_load file="default.conf"-]
 [-*Load the Language Definitions*-]
 [-config_load file="lang.$USER_LANG"-]
-[-* DO NOT INCLUDE the default header, 
-  * which includes a stylesheet to screw up 
+[-* DO NOT INCLUDE the default header,
+  * which includes a stylesheet to screw up
   * our styles below *-]
 [-*include file="$TPL_NAME/views/header.html"*-]
 
@@ -71,7 +71,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 #datePicker .tdDOW-small {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 10px;
-    vertical-align: top; 
+    vertical-align: top;
     background-color: lightblue;
     text-align: center;
     border: none;
@@ -105,7 +105,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     text-align: center;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 12px;
-    font-style: normal 
+    font-style: normal
 }
 
 #datePicker .tdMonthDay-small {
@@ -146,7 +146,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 }
 .timeslot {
     height: [-php-]echo $timeslotHeightVal.$timeslotHeightUnit;[-/php-];
-    margin: 0px; 
+    margin: 0px;
     padding: 0px;
 }
 .schedule {
@@ -160,7 +160,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 .event_in {
     position: absolute;
     background-color: white;
-    width: 100%; 
+    width: 100%;
     font-size: 0.8em;
     color: #ddd;
     border-top: 1px dashed #ddd;
@@ -168,7 +168,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 .event_out {
     position: absolute;
     background-color: lightgray;
-    width: 100%; 
+    width: 100%;
     font-size: 0.8em;
     color: #ddd;
     border-top: 1px dashed #ddd;
@@ -210,7 +210,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
  $DOWlist = array();
  $tmpDOW = pnModGetVar(__POSTCALENDAR__, 'pcFirstDayOfWeek');
  // bound check and auto-correction
- if ($tmpDOW <0 || $tmpDOW >6) { 
+ if ($tmpDOW <0 || $tmpDOW >6) {
     pnModSetVar(__POSTCALENDAR__, 'pcFirstDayOfWeek', '0');
     $tmpDOW = 0;
  }
@@ -260,7 +260,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     echo "<br><span style='font-size:0.8em;font-weight:normal'>".xl(date('l', strtotime($atmp[0])))."</span>";
     echo "</span>";
     echo "</div>";
-    
+
     // output a calendar for the subsequent month
     list($nyear, $nmonth, $nday) = explode(" ", date("Y m d", strtotime($atmp[0])));
     $nmonth++;
@@ -268,7 +268,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     echo "<div id='datePicker'>";
     PrintDatePicker(strtotime($nyear."-".$nmonth."-1"), $DOWlist, $this->_tpl_vars['A_SHORT_DAY_NAMES']);
     echo "</div>";
-    
+
     // output a small calendar for the chosen month
     echo "<div id='datePicker'>";
     PrintDatePicker(strtotime($atmp[0]), $DOWlist, $this->_tpl_vars['A_SHORT_DAY_NAMES']);
@@ -286,7 +286,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 
 <div id="bigCal">
 [-php-]
-    
+
 echo "<table border='0' cellpadding='1' cellspacing='0' width='100%'>\n";
 
 // output the TD with the times DIV
@@ -320,7 +320,7 @@ foreach ($providers as $provider) {
     $calStartMin = ($tmpTime['hour'] * 60) + $tmpTime['minute'];
     $tmpTime = $times[count($times)-1];
     $calEndMin = ($tmpTime['hour'] * 60) + $tmpTime['minute'];
-        
+
     // having a 'title' for the TD makes the date appear by the mouse pointer
     // this is nice when all you see are times on the left side and no head
     // row with the dates or day-of-week (DOW)
@@ -354,7 +354,7 @@ foreach ($providers as $provider) {
                 if ($e1['eid'] == "") { continue; }
                 // skip events for other providers
                 if ($providerid != $e1['aid']) { continue; }
-            
+
                 // specially handle all-day events
                 if ($e1['alldayevent'] == 1) {
                     $tmpTime = $times[0];
@@ -363,7 +363,7 @@ foreach ($providers as $provider) {
                     $e1['startTime'] = $tmpTime['hour'].":".$tmpTime['minute'].":00";
                     $e1['duration'] = ($calEndMin - $calStartMin) * 60;  // measured in seconds
                 }
-            
+
                 // create a numeric start and end for comparison
                 $starth = substr($e1['startTime'], 0, 2);
                 $startm = substr($e1['startTime'], 3, 2);
@@ -389,7 +389,7 @@ foreach ($providers as $provider) {
                 // than was was previously set
                 if (! isset($eventPositions[$eid]->width)) { $eventPositions[$eid]->width = $width; }
                 else if ($eventPositions[$eid]->width > $width) { $eventPositions[$eid]->width = $width; }
-               
+
                 // set the left position if not already set or if the current left is
                 // greater than what was previously set
                 if (! isset($eventPositions[$eid]->leftpos)) { $eventPositions[$eid]->leftpos = $leftpos; }
@@ -437,7 +437,14 @@ foreach ($providers as $provider) {
                     $evtClass = "event_out";
                     break;
                 case 4:  // VACATION
+                    $evtClass = "event_reserved";
+                    break;
+                case 6:  // HOLIDAY
+                    $evtClass = "event_holiday";
+                    break;
                 case 8:  // LUNCH
+                    $evtClass = "event_reserved";
+                    break;
                 case 11: // RESERVED
                     $evtClass = "event_reserved";
                     break;
@@ -445,7 +452,7 @@ foreach ($providers as $provider) {
                     $evtClass = "event_appointment";
                     break;
             }
-            
+
             // if this is an IN or OUT event then we have some extra special
             // processing to be done
             // the IN event creates a DIV until the OUT event
@@ -487,7 +494,7 @@ foreach ($providers as $provider) {
             // times the interval height
             $eStartPos = $eStartInterval * $timeslotHeightVal;
             $evtTop = $eStartPos.$timeslotHeightUnit;
-            
+
             // calculate the HEIGHT value for the event DIV
             // diff between end and start of event
             $eEndMin = $eStartMin + ($event['duration']/60);
@@ -542,7 +549,7 @@ foreach ($providers as $provider) {
                 $content .= $dispstarth . ':' . $startm;
                 if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
                 $content .= htmlspecialchars($event['apptstatus']);
-                
+
                 if ($patientid) {
                     if ($catid == 1) $content .= "<strike>";
                     $content .= htmlspecialchars($lname);
@@ -565,7 +572,7 @@ foreach ($providers as $provider) {
             }
 
             $divTitle .= "\n(double click to edit)";
-           
+
             // a special case for the 'IN' event so it doesn't overlap another
             // event DIV and include the time
             if ($event['catid'] == 2) {
@@ -597,7 +604,7 @@ foreach ($providers as $provider) {
         } // end EVENT loop
 
         echo "</div>";
-        
+
     } // end date
 
     echo "</td>\n";
@@ -631,7 +638,7 @@ function PrintDatePicker($caldate, $DOWlist, $daynames) {
         echo "<td class='tdDOW-small'>".$daynames[$dow]."</td>";
     }
     echo '</tr>';
-    
+
     // to make a complete week row we need to compute the real
     // start and end dates for the view
     list ($year, $month, $day) = explode(" ", date('Y m d', $caldate));
@@ -678,7 +685,7 @@ function PrintDatePicker($caldate, $DOWlist, $daynames) {
         $td .= "> ".date('d', $currdate)."</td>\n";
         if ($skipit == true) { echo "<td></td>"; }
         else { echo $td; }
-   
+
         // end of week row
         if (date('w', $currdate) == $DOWlist[6]) echo "</tr>\n";
 
@@ -693,11 +700,11 @@ function PrintDatePicker($caldate, $DOWlist, $daynames) {
 
 </body>
 
-<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/js/jquery-1.2.2.min.js"></script>
+<script type="text/javascript" src="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery-min-1-2-2/index.js"></script>
 <script>
 $(document).ready(function(){
-    window.print();
-    window.close();
+    var win = top.printLogPrint ? top : opener.top;
+    win.printLogPrint(window);
 });
 </script>
 

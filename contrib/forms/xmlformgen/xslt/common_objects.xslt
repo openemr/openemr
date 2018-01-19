@@ -160,14 +160,6 @@ if ( acl_check(']]></xsl:text>
  $thisauth_write_addonly=TRUE;
 }
 ]]></xsl:text>
-<xsl:text disable-output-escaping="yes"><![CDATA[
-/* perform a squad check for pages touching patients, if we're in 'athletic team' mode */
-if ($GLOBALS['athletic_team']!='false') {
-  $tmp = getPatientData($pid, 'squad');
-  if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-   die(text($form_name).': '.xlt("Access Denied"));
-}
-]]></xsl:text>
 <xsl:if test="$page='new' or $page='view'">
 <xsl:text disable-output-escaping="yes"><![CDATA[
 if (!$thisauth_write_addonly)
@@ -234,7 +226,7 @@ while ($frow = sqlFetchArray($fres)) {
   if ($titlecols > 0) {
     end_cell();
     echo "<td colspan='$titlecols' valign='top'";
-    echo ($frow['uor'] == 2) ? " class='required'" : " class='label'";
+    echo ($frow['uor'] == 2) ? " class='required'" : " class='label_custom'";
     if ($cell_count == 2) echo " style='padding-left:10pt'";
     echo '>';
     $cell_count += $titlecols;

@@ -1,0 +1,98 @@
+/*******************************/
+/********* bubbletip ***********/
+/*******************************/
+.bubbletip
+{
+	position: absolute;
+	z-index: 50;
+	border-collapse: collapse;
+}
+.bubbletip td.bt-topleft
+{
+	background: transparent url(images/bubbletip.png) no-repeat scroll 0px 0px;
+	height: 33px;
+	width: 33px;
+}
+.bubbletip td.bt-top
+{
+	background: transparent url(images/bubbletip-T-B.png) repeat-x scroll 0px 0px;
+	height: 33px;
+}
+.bubbletip td.bt-topright
+{
+	background: transparent url(images/bubbletip.png) no-repeat scroll -73px 0px;
+	height: 33px;
+	width: 33px;
+}
+.bubbletip td.bt-left-tail div.bt-left, .bubbletip td.bt-left
+{
+	background: transparent url(images/bubbletip-L-R.png) repeat-y scroll 0px 0px;
+	width: 33px;
+}
+.bubbletip td.bt-left-tail div.bt-left-tail
+{
+	background: transparent url(images/bubbletip.png) no-repeat scroll 0px -33px;
+	width: 33px;
+	height: 40px;
+}
+.bubbletip td.bt-right-tail div.bt-right, .bubbletip td.bt-right
+{
+	background: transparent url(images/bubbletip-L-R.png) repeat-y scroll -33px 0px;
+	width: 33px;
+}
+.bubbletip td.bt-right-tail div.bt-right-tail
+{
+	background: transparent url(images/bubbletip.png) no-repeat scroll -73px -33px;
+	width: 33px;
+	height: 40px;
+}
+.bubbletip td.bt-bottomleft
+{
+	background: transparent url(images/bubbletip.png) no-repeat scroll 0px -73px;
+	height: 33px;
+	width: 33px;
+}
+.bubbletip td.bt-bottom
+{
+	background: transparent url(images/bubbletip-T-B.png) repeat-x scroll 0px -33px;
+	height: 33px;
+}
+.bubbletip td.bt-bottomright
+{
+	background: transparent url(bubbletip.png) no-repeat scroll -73px -73px;
+	height: 33px;
+	width: 33px;
+}
+.bubbletip table.bt-top, .bubbletip table.bt-bottom
+{
+	width: 100%;
+}
+.bubbletip table.bt-top th
+{
+	width: 50%;
+	background: transparent url(images/bubbletip-T-B.png) repeat-x scroll 0px 0px;
+}
+.bubbletip table.bt-bottom th
+{
+	width: 50%;
+	background: transparent url(images/bubbletip-T-B.png) repeat-x scroll 0px -33px;
+}
+.bubbletip table.bt-top td div
+{
+	background: transparent url(images/bubbletip.png) no-repeat scroll -33px 0px;
+	width: 40px;
+	height: 33px;
+}
+.bubbletip table.bt-bottom td div
+{
+	background: transparent url(images/bubbletip.png) no-repeat scroll -33px -73px;
+	width: 40px;
+	height: 33px;
+}
+.bubbletip td.bt-content
+{
+	background-color: #fff;
+	vertical-align: middle;
+}
+/*******************************/
+

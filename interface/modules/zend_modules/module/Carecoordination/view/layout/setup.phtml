@@ -1,0 +1,54 @@
+<?php
+/* +-----------------------------------------------------------------------------+
+*    OpenEMR - Open Source Electronic Medical Record
+*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU Affero General Public License as
+*    published by the Free Software Foundation, either version 3 of the
+*    License, or (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU Affero General Public License for more details.
+*
+*    You should have received a copy of the GNU Affero General Public License
+*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+*    @author  Vinish K <vinish@zhservices.com>
+* +------------------------------------------------------------------------------+
+*/
+?>
+<?php echo $this->doctype(); ?>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/images/favicon.ico'))
+        ->prependStylesheet($this->basePath() . '/css/jquery.treeview.css')
+        ->prependStylesheet($this->basePath() . '/css/ccda.css')
+        ->prependStylesheet($this->basePath() . '/css/demo.css')
+        ->prependStylesheet($this->basePath() . '/css/themes/base/jquery.ui.all.css')
+        ->prependStylesheet($GLOBALS['css_header'])
+        ?>
+    
+        <?php echo $this->headScript()
+        ->prependFile($this->basePath() . '/js/carecoordination/jquery.treeview.js')
+        ->prependFile($this->basePath() . '/js/carecoordination/jquery.cookie.js')
+        ->prependFile($this->basePath() . '/js/carecoordination/virtualpaginate.js')
+        ->prependFile($this->basePath() . '/js/carecoordination/ui/jquery.ui.tabs.js')
+        ->prependFile($this->basePath() . '/js/carecoordination/ui/jquery.ui.sortable.js')
+        ->prependFile($this->basePath() . '/js/carecoordination/ui/jquery.ui.mouse.js')
+        ->prependFile($this->basePath() . '/js/carecoordination/ui/jquery.ui.widget.js')
+        ->prependFile($this->basePath() . '/js/carecoordination/ui/jquery.ui.core.js')
+        ->prependFile($this->basePath() . '/js/carecoordination/jquery-1.8.3.js')
+        ->prependFile($this->basePath() . '/js/carecoordination/jquery.js')
+        ?>
+
+    </head>
+    <body  class="body_top setup-carecoordination">
+        <div class="container" style="width:100%">
+            <?php echo $this->content; ?>
+        </div>
+    </body>
+</html>

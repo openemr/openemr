@@ -1,0 +1,190 @@
+<?php
+/* +-----------------------------------------------------------------------------+
+*    OpenEMR - Open Source Electronic Medical Record
+*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU Affero General Public License as
+*    published by the Free Software Foundation, either version 3 of the
+*    License, or (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU Affero General Public License for more details.
+*
+*    You should have received a copy of the GNU Affero General Public License
+*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*    @author  BASIL PT <basil@zhservices.com>
+*    @author  Riju K P <rijukp@zhservices.com>
+* +------------------------------------------------------------------------------+
+*/
+
+
+$combinationFormData 	= $this->combinationFormData;
+$faxRecievers			= $this->faxRecievers;
+$required_buttons		= $this->required_butons;
+$download_format		= $this->download_format;
+?>
+ <div class="header_wrap_left">
+		<div class="send-to" title="<?php  echo $this->listenerObject->z_xlt('Send To');?>"><?php  echo $this->listenerObject->z_xlt('SEND TO');?></div>
+ </div><!-- header_wrap_left --> 
+<div class="ap-st-st-12">
+	<div class="ap-st-st-2">
+		<div class="ap-st-st-1" style="<?php if(!in_array('hie',$required_buttons)) echo "display:none;"?>"><input class="ap-st-st-3" type="radio" name="send_to" id="send_to_hie" value="hie" <?php if($this->send_via == "hie") echo "checked"; ?>>&nbsp;<span><?php echo $this->listenerObject->z_xlt('HIE')?></span></div>		
+		<div class="ap-st-st-1" style="<?php if(!in_array('emr_direct',$required_buttons)) echo "display:none;"?>"><input class="ap-st-st-3" type="radio" name="send_to" id="send_to_emrdirect" value="emr_direct" <?php if($this->send_via == "emr_direct") echo "checked"; ?>>&nbsp;<span><?php echo $this->listenerObject->z_xlt('EMR Direct')?></span></div>
+		<div class="ap-st-st-1" style="<?php if(!in_array('download',$required_buttons)) echo "display:none;"?>"><input class="ap-st-st-3" type="radio" name="send_to" id="download" value="download" <?php if($this->send_via == "download") echo "checked"; ?>>&nbsp;<span><?php echo $this->listenerObject->z_xlt('Print To')?></span></div>
+    <div class="ap-st-st-1" style="<?php if(!in_array('download_all',$required_buttons)) echo "display:none;"?>"><input class="ap-st-st-3" type="radio" name="send_to" id="download_all" value="download_all" <?php if($this->send_via == "download_all") echo "checked"; ?>>&nbsp;<span><?php echo $this->listenerObject->z_xlt('Download')?></span></div>
+	</div>
+	<div style="padding-left: 10px;padding-top: 1%;" id="adv-op-div" class="ap-st-st-13">
+           <div style="float:left;"><span class="showcomponentsForCCDA-div"><?php echo $this->listenerObject->z_xlt('Advance Options')?></span></div>
+           <div id="advance-opt" class="showcomponentsForCCDA-div"></div> 
+       </div>
+	<!--HIE-->
+	<div id="hie_div" <?php if($this->send_via == "hie") echo "class='display_block'"; ?>>
+	       <div class="ap-st-st-13">
+			      <table width="50%">
+					     <tr>
+							    <td nowrap>
+									   <input type="checkbox" name="hie_myhealthaccess" id="hie_myhealthaccess" checked disabled><label class="hie_label" for="hie_myhealthaccess"><?php echo $this->listenerObject->z_xlt('My Health');?></label>
+							    </td>
+							    <td nowrap>
+									   <input type="checkbox" name="myhealthaccess_ccda" id="myhealthaccess_ccda" checked disabled><label class="hie_label" for="myhealthaccess_ccda"><?php echo $this->listenerObject->z_xlt('CCDA');?></label>
+							    </td>
+					     </tr>
+			      </table>
+			      <table style="display: none;">
+			      <?php
+			      foreach($this->ccda_sections as $key_ccda => $value_ccda){
+			      ?>
+			      <tr>
+					     <td width="5%">
+							    <input checked type="checkbox" name="ccda" id="<?php echo $this->escapeHtml($key_ccda); ?>" value="<?php echo $this->escapeHtml($key_ccda); ?>">
+					     </td>
+					     <td>							    
+							    <label for="<?php echo $this->escapeHtml($key_ccda); ?>"><?php echo $this->escapeHtml($this->listenerObject->z_xlt($value_ccda)); ?></label>
+					     </td>
+			      </tr>
+			      <?php
+			      }
+			      ?>
+			      </table>
+	       </div>
+	</div>
+	<!--End HIE-->
+	
+	<!--EMR Direct-->
+	<div id="emrDirect_div" <?php if($this->send_via == "emr_direct") echo "class='display_block'"; ?>>
+		<div class="ap-st-st-13">
+			<div id="autosuggest1" class="autosuggest">
+				<input type="hidden" value="" id="page1" name="page1" />
+				<input type="hidden" id="string_value1" class="emr_to_phimail" name="string_value" value="" />
+				<input type="hidden" id="string_id1" name="string_id" value="" class="string_id" />
+				<table width="50%">
+					<div class="selected_search" id="selected_search1"></div><div class="clear"></div>
+                                        <tr>
+                                            <td>
+                                                <label style="padding-left:0px!important;"><?php echo $this->listenerObject->z_xlt('Direct Address') . ":"; ?></label>
+                                                <input type="text" name="emr_to_phimail" class="lookup multiple" id="inputString1" onKeyDown="PreventIt(event)" onkeyup="lookup(this.value.trim(), 'emrdirect', '1', 'multiple');" autocomplete="off">
+                                            </td>
+                                            <td><input type="radio" class="ap-st-st-3" name="phimail_format" value="xml" checked="true"><?php echo $this->listenerObject->z_xlt('XML'); ?></td>
+                                            <td><input type="radio" class="ap-st-st-3" name="phimail_format" value="pdf"><?php echo $this->listenerObject->z_xlt('PDF'); ?></td>
+                                            <td><input type="radio" class="ap-st-st-3" name="phimail_format" value="html"><?php echo $this->listenerObject->z_xlt('HTML'); ?></td>
+                                        </tr>
+				</table>
+        <label style="padding-left:10px !important;"><?php echo $this->listenerObject->z_xlt('Reason for Referral') . ":"; ?></label>
+        <textarea id="referral_reason" class="referral_reason" name="referral_reason" style="max-width:500px!important;min-width:500px!important;margin-left:10px;"></textarea>
+				<div class="suggestions" id="suggestions1" style="display: none; float: left; position: absolute; width: 510px;left:18px;z-index: 1;top: 120px;">
+					<div class="autoSuggestionsList" id="autoSuggestionsList1">&nbsp;</div>
+				</div>
+			</div>
+			<?php if(count($this->ccda_sections) > 0) {?>
+			<div id="chkall_cmp_div" style="margin-left:10px;">
+				<input type="checkbox" id="chkall_comp" checked="true" /><?php echo $this->listenerObject->z_xlt('Check All');?>
+			</div>
+			<div class="ap-st-st-11 ap-st-st-5" >
+				<?php 
+				$i = 0;
+				foreach($this->ccda_sections as $key_ccda => $value_ccda) { 
+					if($i%2 == 0 && $i!=0){ ?>
+						<div class="clear"></div>
+					<?php  } ?>
+					<div style="float:left;margin-top:-3px;width:250px" class="chkdiv" id="chkbx_click<?php echo $i;?>">
+						<input type="checkbox" class="chkbx_click chkbx_cmps" id="chkbx_click<?php echo $i;?>" value="<?php echo $this->escapeHtml($key_ccda);?>" checked="true">
+						<?php echo $this->escapeHtml($this->listenerObject->z_xlt($value_ccda));?>
+					</div>
+					<?php 
+					$i++;
+				}
+				?>
+			</div>
+			<?php }?>
+		</div>
+	</div>
+	<!--End EMR Direct-->
+	
+	<!--Download-->
+	<div id="download_div" <?php if($this->send_via == "download") echo "class='display_block'"; ?>>
+		<div class="ap-st-st-13">
+			<table width="50%">
+				<tr>
+					<td width="10px;">
+						<input <?php if(!in_array('pdf_format', $download_format)) echo "disabled"?> type="radio" name="download_format" id="pdf_format" style="margin: 0; clear: right; float: left;">
+						<label for="pdf_format"><?php echo $this->listenerObject->z_xlt('PDF');?></label>
+					</td>
+					<td width="10px;">
+						<input <?php if(!in_array('doc_format', $download_format)) echo "disabled"?> type="radio" name="download_format" id="doc_format" style="margin: 0; clear: right; float: left;">
+						<label for="doc_format"><?php echo $this->listenerObject->z_xlt('DOC{{document format}}');?></label>
+					</td>
+					<td width="10px;">
+						<input <?php if(!in_array('hl7_format', $download_format)) echo "disabled"?> type="radio" name="download_format" id="hl7_format" style="margin: 0; clear: right; float: left;" checked="true">
+						<label for="hl7_format"><?php echo $this->listenerObject->z_xlt('HL7');?></label>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<!--Download-->
+	<!--Download All-->
+  <div id="download_all_div" <?php if($this->send_via == "download_all") echo "class='display_block'"; ?>>
+    <div class="ap-st-st-13">
+      <table width="50%">
+        <tr>
+          <td nowrap><input type="radio" name="downloadformat" id="downloadformat_ccda" value="ccda" checked >&nbsp;<span style="font-size: 13px"><?php echo $this->listenerObject->z_xlt('CCDA')?></span></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div id="componentsForCCDA" style="height:160px!important;display:none;" class="ap-st-st-13">
+            <div>
+             <input type="checkbox" id="latest_ccda"/>
+             <?php echo $this->listenerObject->z_xlt('Latest Medical Records');?>
+            </div>
+           <?php if(count($this->ccda_components) > 0) {?>
+             <div id="chkall_cmp_div1" style="margin-left: 70%;">
+              <input type="checkbox" id="chkall_cmp1" checked="true" /><?php echo $this->listenerObject->z_xlt('Check All - Components');?>
+             </div>
+              <?php 
+              $i = 0;
+              foreach($this->ccda_components as $key_ccda => $value_ccda) { 
+                if($i%2 == 0 && $i!=0){ ?>
+                <div class="clear"></div>
+                <?php  } ?>
+                <div style="float:left;margin-top:2px;width:50%" class="chkdivcmp1" id="chkbxcmp_click1<?php echo $i;?>">
+                  <input type="checkbox" class="check_component1 chkbxcmp_click1" id="chkbxcmp_click1<?php echo $i;?>" value="<?php echo $this->escapeHtml($key_ccda);?>" checked="true">
+                  <span><?php echo $this->escapeHtml($value_ccda);?></span>
+                </div>
+                <?php 
+                $i++; }
+                 }?>
+        </div>
+  <!--End Download All-->
+	<div class="ap-st-st-6">
+	        <div class="activity_indicator"><img src="<?php echo $this->basePath(); ?>/css/images/gl.gif" alt="" /></div>
+		<div class="ap-st-st-7" onclick="send();"><?php echo $this->listenerObject->z_xlt('SEND');?></div>
+	</div>
+</div>
+<?php $this->headScript()->captureStart() ?>
+	var APP_URL 	= "<?php echo $this->basePath(); ?>";
+	var WEB_ROOT	= "<?php echo $GLOBALS['webroot']; ?>";
+<?php $this->headScript()->captureEnd() ?>

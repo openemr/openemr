@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2011 Brady Miller <brady@sparmy.com>
+// Copyright (C) 2011 Brady Miller <brady.g.miller@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,11 +18,10 @@ class AMC_304i_Denominator implements AmcFilterIF
         return "AMC_304i Denominator";
     }
 
-    public function test( AmcPatient $patient, $beginDate, $endDate )
+    public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         //  (basically needs a referral within the report dates,
         //   which are already filtered for, so all the objects are a positive)
         return true;
     }
-    
 }

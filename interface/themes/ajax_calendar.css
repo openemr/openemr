@@ -1,12 +1,12 @@
 /* ====================================
- * the style sheet for the ajax_template calendar 
+ * the style sheet for the ajax_template calendar
  * ====================================*/
 
 a {
- text-decoration:none;
+    text-decoration:none;
 }
 td {
- font-family: Arial, Helvetica, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
 }
 div.tiny { width:1px; height:1px; font-size:1px; }
 .currentview {
@@ -25,15 +25,14 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 }
 
 #topToolbarRight {
-	background-color:#BBCCFF;
     float: right;
     width: 100%;
-	border-bottom:1px solid black;
-	border-TOP:1px solid black;
+    border-bottom:1px solid black;
+	padding: 5px 0px 3px 0px; /*RP_ADDED_2017-02-19*/
 }
 #dateNAV {
     float: left;
-	font-family: Arial, Helvetica, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size: 14pt;
 }
 #dateDisplay {
@@ -68,14 +67,14 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     float: left;
 }
 #facilityColor table{
-	width:100%;
-	border-collapse: collapse;
+    width:100%;
+    border-collapse: collapse;
 }
 #bottom{
     float:left;
     position: relative;
     width:100%;
- }
+}
 #bigCal {
     overflow: hidden;
     background-color: #FFF3D1;
@@ -99,19 +98,19 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     min-width:140px;
     float: left;
     clear: left;
-    
+
 }
 /* these are for the small datepicker DIV */
 #datePicker {
     width: 100%;
 }
 #datePicker table {
-	width:96%;
+    width:96%;
     border-collapse: collapse;
     margin-left: 3px;
 }
 #datePicker td {
-	width: 19.5px;
+    width: 19.5px;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 0.7em;
     text-align: center;
@@ -128,7 +127,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 #datePicker .tdDOW-small {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 10px;
-    vertical-align: top; 
+    vertical-align: top;
     text-align: center;
     border: none;
     padding: 2px 3px 2px 3px;
@@ -145,6 +144,15 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     padding: 2px 3px 2px 3px;
     background-color: #ffffff;
     color: #999999;
+}
+#datePicker .tdHoliday-small {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    vertical-align: top;
+    border: none;
+    padding: 2px 3px 2px 3px;
+    background-color: #ffffff;
+    color: red;
 }
 #datePicker .tdOtherMonthDay-small {
     font-family: Arial, Helvetica, sans-serif;
@@ -177,8 +185,8 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 
 /* the DIV of times */
 #times {
-	border-right: 1px solid #999;
-    width: 2em;
+    border-right: 1px solid #999;
+    width: 1%;
     background-color: #FFF3D1;
     padding: 0px;
 }
@@ -197,12 +205,13 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     font-size: 0.8em;
 }
 .timeslot {
-    /* height value is tied to two PHP variables in the ajax_*.html files 
-     * if you change this value then be sure to change the matching value 
+    /* height value is tied to two PHP variables in the ajax_*.html files
+     * if you change this value then be sure to change the matching value
      * in those files */
     height: 20px;
-    margin: 0px; 
+    margin: 0px;
     padding: 0px;
+    text-align: center;
 }
 .schedule {
     background-color: #FFF3D1;
@@ -211,22 +220,24 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     padding: 0px;
     margin: 0px;
     border: 1px solid #999999;
+    width: 25em;
+
 }
 
 /* for the header row with provider names */
 .providerheader {
     text-align: center;
     background-color: #EDEAFF;
-    width: 100%; 
-    overflow:hidden; 
+    width: 100%;
+    overflow:hidden;
     border-bottom: 1px solid lightgrey;
     white-space: nowrap;
 }
 
 /* for the DIV inside each TD, this DIV contains any events for a single day */
 .calendar_day {
-    position: relative; 
-    height: 100%; 
+    position: relative;
+    height: 100%;
     width: 100%;
 }
 
@@ -243,9 +254,9 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 
 /* classes specific to the MONTH view */
 .month_daylink {
-    width:95%; 
-    font-size: 0.8em; 
-    text-align:right; 
+    width:95%;
+    font-size: 0.8em;
+    text-align:right;
     background-color: #FFF;
     padding:1px 2px 1px 2px;
 }
@@ -270,16 +281,23 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 .event_in {
     background-color: white;
     z-index:1;
+    white-space: nowrap;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border: 1px solid #000000;
 }
-.event_out {
-    background-color: lightgray;
-    z-index:1;
-}
+
 .event_appointment {
     background-color: white;
     z-index:2;
     overflow: hidden;
     border: 1px solid #ccc;
+    white-space: nowrap;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border: 1px solid #000000;
 }
 .event_noshow {
     background-color: pink;
@@ -293,19 +311,69 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     overflow: hidden;
     border: 1px solid #cfc;
 }
-.event_highlight { 
-    font-weight: bold; 
+.event_holiday {
+    background-color: mediumpurple;
+    z-index:2;
+    overflow: hidden;
+    border: 1px solid #cfc;
+}
+.event_highlight {
+    font-weight: bold;
     border-top: 1px solid #999;
     border-left: 1px solid #999;
     border-right: 2px solid #666;
     border-bottom: 2px solid #666;
     margin: -3px;
     background-color: black;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border: 1px solid #000000;
 }
+.event_time
+{
+    cursor: pointer;
+}
+.event_time:hover
+{
+    color: red;
+}
+
 .view1 {
-font-size:10px;
+    font-size:10px;
 }
 .view2 {
-background-color:#94D6E7;
-font-size:10px;
+    background-color:#94D6E7;
+    font-size:10px;
 }
+
+.in_start
+{
+    background: transparent;
+    z-index:2;
+}
+.event_out.event_highlight, .in_start.event_highlight {
+    font-weight: bold;
+    border-top: 1px solid #999;
+    border-left: 1px solid #999;
+    border-right: 2px solid #666;
+    border-bottom: 2px solid #666;
+    margin: 0px;
+    background-color: yellow;
+    opacity: 1;
+    z-index: 2;
+    cursor: pointer;
+}
+
+.event_out{
+    z-index: 3;
+    background-color:#ff7533;
+}
+.weekend-day{
+    background: rgba(146, 115, 214, 0.33);
+}
+
+.event_holiday{
+    width:100% !important;
+}
+

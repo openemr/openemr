@@ -2,12 +2,7 @@
 <head>
 {php}html_header_show();{/php}
 
-<style type="text/css">@import url({$FORM_ACTION}/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="{$FORM_ACTION}/library/dialog.js"></script>
-<script type="text/javascript" src="{$FORM_ACTION}/library/textformat.js"></script>
-<script type="text/javascript" src="{$FORM_ACTION}/library/dynarch_calendar.js"></script>
-{php} include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); {/php}
-<script type="text/javascript" src="{$FORM_ACTION}/library/dynarch_calendar_setup.js"></script>
+<link rel="stylesheet" href="{php}echo $GLOBALS['assets_static_relative'];{/php}/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <script type="text/javascript">
 var mypcc = '{php} echo $GLOBALS['phone_country_code'] {/php}';
@@ -16,7 +11,67 @@ var mypcc = '{php} echo $GLOBALS['phone_country_code'] {/php}';
 //  for entring of vitals and for graphing/trending previous vitals by being embedded
 //  in the interface/patient_file/encounter/trend_form.php page.
 if (typeof jQuery == 'undefined') {
-  document.write("<script type='text/javascript' src='{/literal}{php}echo $GLOBALS['webroot'];{/php}{literal}/library/js/jquery.js'><\/script>")
+  document.write("<script type='text/javascript' src='{/literal}{php}echo $GLOBALS['assets_static_relative'];{/php}{literal}/jquery-min-1-7-2/index.js'><\/script>{/literal}")
+}
+</script>
+
+<script type="text/javascript" src="{$FORM_ACTION}/library/dialog.js?v={php} echo $v_js_includes; {/php}"></script>
+<script type="text/javascript" src="{$FORM_ACTION}/library/textformat.js?v={php} echo $v_js_includes; {/php}"></script>
+<script type='text/javascript' src="{php}echo $GLOBALS['assets_static_relative'];{/php}/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
+{literal}
+<script type="text/javascript">
+function vitalsFormSubmitted() {
+	var invalid = "";
+
+	var elementsToValidate = new Array();
+
+	elementsToValidate[0] = new Array();
+	elementsToValidate[0][0] = 'weight_input';
+	elementsToValidate[0][1] = '{/literal}{xl t="Weight"}{literal}' + ' (' + '{/literal}{xl t="lbs"}{literal}' + ')';
+
+	elementsToValidate[1] = new Array();
+	elementsToValidate[1][0] = 'weight_input_metric';
+	elementsToValidate[1][1] = '{/literal}{xl t="Weight"}{literal}' + ' (' + '{/literal}{xl t="kg"}{literal}' + ')';
+
+	elementsToValidate[2] = new Array();
+	elementsToValidate[2][0] = 'height_input';
+	elementsToValidate[2][1] = '{/literal}{xl t="Height/Length"}{literal}' + ' (' + '{/literal}{xl t="in"}{literal}' + ')';
+
+	elementsToValidate[3] = new Array();
+	elementsToValidate[3][0] = 'height_input_metric';
+	elementsToValidate[3][1] = '{/literal}{xl t="Height/Length"}{literal}' + ' (' + '{/literal}{xl t="cm"}{literal}' + ')';
+
+	elementsToValidate[4] = new Array();
+	elementsToValidate[4][0] = 'bps_input';
+	elementsToValidate[4][1] = '{/literal}{xl t="BP Systolic"}{literal}';
+
+	elementsToValidate[5] = new Array();
+	elementsToValidate[5][0] = 'bpd_input';
+	elementsToValidate[5][1] = '{/literal}{xl t="BP Diastolic"}{literal}';
+
+	for (var i = 0; i < elementsToValidate.length; i++) {
+		var current_elem_id = elementsToValidate[i][0];
+		var tag_name = elementsToValidate[i][1];
+
+		document.getElementById(current_elem_id).classList.remove('error');
+
+		if (isNaN(document.getElementById(current_elem_id).value)) {
+			invalid += "{/literal}{xl t="The following field has an invalid value"}{literal}" + ": " + tag_name + "\n";
+			document.getElementById(current_elem_id).className = document.getElementById(current_elem_id).className + " error";
+			document.getElementById(current_elem_id).focus();
+		}
+	}
+
+	if (invalid.length > 0) {
+		invalid += "\n" + "{/literal}{xl t="Please correct the value(s) before proceeding!"}{literal}";
+		alert(invalid);
+
+		return false;
+	} else {
+
+		return top.restoreSession();
+	}
 }
 </script>
 <style type="text/css" title="mystyles" media="all">
@@ -57,37 +112,38 @@ td,th {
 .readonly {
     display:none;
 }
+
+.error {
+  border:2px solid red;
+}
 </style>
 {/literal}
 
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
 <p><table><tr><td><span class="title">{xl t="Vitals"}</span></td><td>&nbsp;&nbsp;&nbsp;<a href="../summary/demographics.php" class="readonly css_button_small" onclick="top.restoreSession()"> <span>{xl t="View Patient"}</span></a></td></tr></table></p>
-<form name="vitals" method="post" action="{$FORM_ACTION}/interface/forms/vitals/save.php" onSubmit="return top.restoreSession()">
-<div id="chart"></div>
+<form name="vitals" method="post" action="{$FORM_ACTION}/interface/forms/vitals/save.php" onSubmit="return vitalsFormSubmitted()">
+<div id="chart" class="chart-dygraphs"></div>
 <table>
 	<tr><th align="left">{xl t="Name"}</th><th align="left">{xl t="Unit"}</th>
 	<th class='currentvalues' title='{xl t='Date and time of this observation'}'>
-    <input type='text' size='14' name='date' id='date'
-     value='{$vitals->get_date()|date_format:"%Y-%m-%d %H:%M"}'
-     onkeyup='datekeyup(this,mypcc,true)' onblur='dateblur(this,mypcc,true)' />
-    <img src='{$FORM_ACTION}/interface/pic/show_calendar.gif' id='img_date' align='absbottom'
-     width='24' height='22' border='0' alt='[?]' style='cursor:pointer' />
+    <input type='text' size='14' class='datetimepicker' name='date' id='date'
+     value='{$vitals->get_date()|date_format:"%Y-%m-%d %H:%M"}' />
 </th>
 	{foreach item=result from=$results}
 		<th class='historicalvalues'>{$result.date|date_format:"%Y-%m-%d %H:%M"}</th>
 	{/foreach}</tr>
-	
+
 	{if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
 		{if $units_of_measurement == 2}<td class="unfocus graph" id="weight">{else}<td class="graph" id="weight">{/if}{xl t="Weight"}</td>
 		{if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="lbs"}</td>
 		{if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                <input type="text" size='5' name='weight' id='weight_input' value="{if $vitals->get_weight() != 0}{$vitals->get_weight()}{/if}" onChange="convLbtoKg('weight_input');"/>
-                </td>		
+                <input type="text" size='5' name='weight' id='weight_input' value="{if $vitals->get_weight() != 0}{$vitals->get_weight()}{/if}" onChange="convLbtoKg('weight_input');" title='{xl t="Decimal pounds or pounds and ounces separated by #(e.g. 5#4)"}'/>
+                </td>
 	{foreach item=result from=$results}
-		<td  class='historicalvalues'>{if $result.weight != 0}{$result.weight}{/if}</td>
+		<td  class='historicalvalues'>{$vitals->display_weight($result.weight)}</td>
 	{/foreach}</tr>
-	
+
 	{if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
                 {if $units_of_measurement == 1}<td class="unfocus graph" id="weight_metric">{else}<td class="graph" id="weight_metric">{/if}{xl t="Weight"}</td>
 		{if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="kg"}</td>
@@ -97,9 +153,9 @@ td,th {
         {foreach item=result from=$results}
                 <td  class='historicalvalues'>{if $result.weight != 0}{math equation="number * constant" number=$result.weight constant=0.45359237 format="%.2f"}{/if}</td>
         {/foreach}</tr>
-	
+
 	{if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
-	        {if $units_of_measurement == 2}<td class="unfocus graph" id="height">{else}<td class="graph" id="height">{/if}{xl t="Height"}</td>
+	        {if $units_of_measurement == 2}<td class="unfocus graph" id="height">{else}<td class="graph" id="height">{/if}{xl t="Height/Length"}</td>
 		{if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="in"}</td>
 		{if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
                 <input type="text" size='5' name='height' id='height_input' value="{if $vitals->get_height() != 0}{$vitals->get_height()}{/if}" onChange="convIntoCm('height_input');"/>
@@ -107,42 +163,45 @@ td,th {
 	{foreach item=result from=$results}
 		<td class='historicalvalues'>{if $result.height != 0}{$result.height}{/if}</td>
 	{/foreach}</tr>
-	
+
 	{if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
-                {if $units_of_measurement == 1}<td class="unfocus graph" id="height_metric">{else}<td class="graph" id="height_metric">{/if}{xl t="Height"}</td>
+                {if $units_of_measurement == 1}<td class="unfocus graph" id="height_metric">{else}<td class="graph" id="height_metric">{/if}{xl t="Height/Length"}</td>
 		{if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="cm"}</td>
                 {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                <input type="text" size='5' id='height_input_metric' value="{if $vitals->get_height() != 0}{math equation="number * constant" number=$vitals->get_height() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('height_input');"/>
+                <input type="text" size='5' id='height_input_metric' value="{if $vitals->get_height() != 0}{math equation="round(number * constant,1)" number=$vitals->get_height() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('height_input');"/>
                 </td>
         {foreach item=result from=$results}
                 <td class='historicalvalues'>{if $result.height != 0}{math equation="number * constant" number=$result.height constant=2.54 format="%.2f"}{/if}</td>
         {/foreach}</tr>
-	
+
 	<tr><td class="graph" id="bps">{xl t="BP Systolic"}</td><td>{xl t="mmHg"}</td>
 		<td class='currentvalues'><input type="text" size='5'
 			name='bps' id='bps_input' value="{$vitals->get_bps()}"/></td>
 	{foreach item=result from=$results}
 		<td class='historicalvalues'>{$result.bps}</td>
 	{/foreach}</tr>
+
 	<tr><td class="graph" id="bpd">{xl t="BP Diastolic"}</td><td>{xl t="mmHg"}</td>
 		<td class='currentvalues'><input type="text" size='5'
 			name='bpd' id='bpd_input' value="{$vitals->get_bpd()}"/></td>
 	{foreach item=result from=$results}
 		<td  class='historicalvalues'>{$result.bpd}</td>
 	{/foreach}</tr>
+
 	<tr><td class="graph" id="pulse">{xl t="Pulse"}</td><td>{xl t="per min"}</td>
 			<td class='currentvalues'><input type="text" size='5'
 			name='pulse' id='pulse_input' value="{if $vitals->get_pulse() != 0}{$vitals->get_pulse()|string_format:"%.0f"}{/if}"/></td>
 	{foreach item=result from=$results}
 		<td class='historicalvalues'>{if $result.pulse != 0}{$result.pulse|string_format:"%.0f"}{/if}</td>
 	{/foreach}</tr>
+
 	<tr><td class="graph" id="respiration">{xl t="Respiration"}</td><td>{xl t="per min"}</td>
 		<td class='currentvalues'><input type="text" size='5'
 			name='respiration' id='respiration_input' value="{if $vitals->get_respiration() != 0}{$vitals->get_respiration()|string_format:"%.0f"}{/if}"/></td>
 	{foreach item=result from=$results}
 		<td class='historicalvalues'>{if $result.respiration != 0}{$result.respiration|string_format:"%.0f"}{/if}</td>
 	{/foreach}</tr>
-	
+
 	{if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
 	        {if $units_of_measurement == 2}<td class="unfocus graph" id="temperature">{else}<td class="graph" id="temperature">{/if}{xl t="Temperature"}</td>
 		{if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="F"}</td>
@@ -152,7 +211,7 @@ td,th {
 	{foreach item=result from=$results}
 		<td class='historicalvalues'>{if $result.temperature != 0}{$result.temperature}{/if}</td>
 	{/foreach}</tr>
-	
+
 	{if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
                 {if $units_of_measurement == 1}<td class="unfocus graph" id="temperature_metric">{else}<td class="graph" id="temperature_metric">{/if}{xl t="Temperature"}</td>
 		{if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="C"}</td>
@@ -162,9 +221,9 @@ td,th {
         {foreach item=result from=$results}
                 <td class='historicalvalues'>{if $result.temperature != 0}{math equation="(number - constant2 ) * constant" number=$result.temperature constant=0.5556 constant2=32 format="%.2f"}{/if}</td>
         {/foreach}</tr>
-	
+
 	<tr><td>{xl t="Temp Location"}<td></td></td>
-			<td class='currentvalues'><select name="temp_method" id='temp_method'/><option value=""> </option>  
+			<td class='currentvalues'><select name="temp_method" id='temp_method'/><option value=""> </option>
 			<option value="Oral"              {if $vitals->get_temp_method() == "Oral"              || $vitals->get_temp_method() == 2 } selected{/if}>{xl t="Oral"}
 			<option value="Tympanic Membrane" {if $vitals->get_temp_method() == "Tympanic Membrane" || $vitals->get_temp_method() == 1 } selected{/if}>{xl t="Tympanic Membrane"}
 			<option value="Rectal"            {if $vitals->get_temp_method() == "Rectal"            || $vitals->get_temp_method() == 3 } selected{/if}>{xl t="Rectal"}
@@ -181,8 +240,8 @@ td,th {
 	{foreach item=result from=$results}
 		<td  class='historicalvalues'>{if $result.oxygen_saturation != 0}{$result.oxygen_saturation|string_format:"%.0f"}{/if}</td>
 	{/foreach}</tr>
-	
-	{if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
+
+	{if $units_of_measurement == 4 || $gbl_vitals_options > 0}<tr class="hide">{else}<tr>{/if}
 	        {if $units_of_measurement == 2}<td class="unfocus graph" id="head_circ">{else}<td class="graph" id="head_circ">{/if}{xl t="Head Circumference"}</td>
 		{if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="in"}</td>
 		{if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
@@ -191,18 +250,18 @@ td,th {
 	{foreach item=result from=$results}
 		<td class='historicalvalues'>{if $result.head_circ != 0}{$result.head_circ}{/if}</td>
 	{/foreach}</tr>
-	
-	{if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
+
+	{if $units_of_measurement == 3 || $gbl_vitals_options > 0}<tr class="hide">{else}<tr>{/if}
                 {if $units_of_measurement == 1}<td class="unfocus graph" id="head_circ_metric">{else}<td class="graph" id="head_circ_metric">{/if}{xl t="Head Circumference"}</td>
 		{if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="cm"}</td>
                 {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                <input type="text" size='5' id='head_circ_input_metric' value="{if $vitals->get_head_circ() != 0}{math equation="number * constant" number=$vitals->get_head_circ() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('head_circ_input');"/>
+                <input type="text" size='5' id='head_circ_input_metric' value="{if $vitals->get_head_circ() != 0}{math equation="round(number * constant,1)" number=$vitals->get_head_circ() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('head_circ_input');"/>
                 </td>
         {foreach item=result from=$results}
                 <td class='historicalvalues'>{if $result.head_circ != 0}{math equation="number * constant" number=$result.head_circ constant=2.54 format="%.2f"}{/if}</td>
         {/foreach}</tr>
-	
-	{if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
+
+	{if $units_of_measurement == 4 || $gbl_vitals_options > 0}<tr class="hide">{else}<tr>{/if}
 	        {if $units_of_measurement == 2}<td class="unfocus graph" id="waist_circ">{else}<td class="graph" id="waist_circ">{/if}{xl t="Waist Circumference"}</td>
 		{if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="in"}</td>
 		{if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
@@ -211,17 +270,17 @@ td,th {
 	{foreach item=result from=$results}
 		<td class='historicalvalues'>{if $result.waist_circ != 0}{$result.waist_circ}{/if}</td>
 	{/foreach}</tr>
-	
-	{if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
+
+	{if $units_of_measurement == 3 || $gbl_vitals_options > 0}<tr class="hide">{else}<tr>{/if}
                 {if $units_of_measurement == 1}<td class="unfocus graph" id="waist_circ_metric">{else}<td class="graph" id="waist_circ_metric">{/if}{xl t="Waist Circumference"}</td>
 		{if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="cm"}</td>
                 {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                <input type="text" size='5' id='waist_circ_input_metric' value="{if $vitals->get_waist_circ() != 0}{math equation="number * constant" number=$vitals->get_waist_circ() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('waist_circ_input');"/>
+                <input type="text" size='5' id='waist_circ_input_metric' value="{if $vitals->get_waist_circ() != 0}{math equation="round(number * constant,1)" number=$vitals->get_waist_circ() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('waist_circ_input');"/>
                 </td>
         {foreach item=result from=$results}
                 <td class='historicalvalues'>{if $result.waist_circ != 0}{math equation="number * constant" number=$result.waist_circ constant=2.54 format="%.2f"}{/if}</td>
         {/foreach}</tr>
-	
+
 	<tr><td class="graph" id="BMI">{xl t="BMI"}</td><td>{xl t="kg/m^2"}</td>
 		<td class='currentvalues'><input type="text" size='5'
 			name='BMI' id='BMI_input' value="{if $vitals->get_BMI() != 0}{$vitals->get_BMI()|substr:0:5}{/if}"/></td>
@@ -254,6 +313,7 @@ td,th {
 	{/if}
 	</td>
 	</tr>
+
 	<tr><td colspan='3' style='text-align:center'>&nbsp;</td></tr>
 	<tr>
 	<td colspan='3' style='text-align:center'>
@@ -281,16 +341,69 @@ vitals[0] = formdate+'-{$vitals->get_height()}-{$vitals->get_weight()}-{$vitals-
 {foreach item=result from=$results}
 vitals[vitals.length] = '{$result.date|date_format:"%Y%m%d"}-{$result.height}-{$result.weight}-{$result.head_circ}';
 {/foreach}
+var patientAge='{$patient_age}';
+var patient_dob='{$patient_dob}';
 var webroot = '{$FORM_ACTION}';
 var pid = '{$vitals->get_pid()}';
 var cancellink = '{$DONT_SAVE_LINK}';
+var birth_xl='{xl t="Birth-24 months"}'
+var older_xl='{xl t="2-20 years"}';
 {literal}
+function addGCSelector()
+{
+    var options=new Array();
+    var birth={'display':birth_xl,'param':'birth'};
+    var age2={'display':older_xl,'param':'2-20'}
+    if((patientAge.indexOf('24 month')>=0) || (patientAge.indexOf('month')==-1))
+        {
+            var dob_data=patient_dob.split("-");
+            var dob_date=new Date(dob_data[0],parseInt(dob_data[1])-1,dob_data[2]);
+            options[0]=age2;
+            for(var idx=0;idx<vitals.length;idx++)
+                {
+                    var str_data_date=vitals[idx].split("-")[0];
+                    var data_date=new Date(str_data_date.substr(0,4),parseInt(str_data_date.substr(4,2))-1,str_data_date.substr(6,2));
+                    if(((data_date-dob_date)/86400000)<=2*365)
+                        {
+                            idx=vitals.length;
+                            options[1]=birth
+                        }
+                }
+        }
+        else
+        {
+            options[0]=birth;
+        }
+        var chart_buttons_cell=$("#pdfchart").parent("td");
+        var select=$("<select id='chart_type'></select>");
+        chart_buttons_cell.prepend(select);
+        for(idx=0;idx<options.length;idx++)
+            {
+                var option=$("<option value='"+options[idx].param+"'>"+options[idx].display+"</option>");
+                select.append(option);
+            }
+        select.find("option:first").attr("selected","true");
+        if(options.length<2)
+            {
+                select.css("display","none");
+            }
+}
 
 $(document).ready(function(){
     $("#growthchart").click(function() { ShowGrowthchart(); });
     $("#pdfchart").click(function() { ShowGrowthchart(1); });
     $("#htmlchart").click(function() { ShowGrowthchart(2); });
     $("#cancel").click(function() { location.href=cancellink; });
+    addGCSelector();
+
+    $('.datetimepicker').datetimepicker({
+        {/literal}{php} $datetimepicker_timepicker = true; {/php}
+        {php} $datetimepicker_showseconds = false; {/php}
+        {php} $datetimepicker_formatInput = false; {/php}
+        {php} require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); {/php}
+        {php} // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma {/php}{literal}
+    });
+
 });
 
 function ShowGrowthchart(doPDF) {
@@ -306,6 +419,7 @@ function ShowGrowthchart(doPDF) {
     newURL = webroot+'/interface/forms/vitals/growthchart/chart.php?pid='+pid+'&data='+datastring;
     if (doPDF == 1) newURL += "&pdf=1";
     if (doPDF == 2) newURL += "&html=1";
+    newURL+="&chart_type="+$("#chart_type").val();
     // do the new window stuff
     top.restoreSession();
     window.open(newURL, '_blank', "menubar=1,toolbar=1,scrollbars=1,resizable=1,width=600,height=450");
@@ -313,10 +427,18 @@ function ShowGrowthchart(doPDF) {
 
 function convLbtoKg(name) {
     var lb = $("#"+name).val();
-
+    var hash_loc=lb.indexOf("#");
+    if(hash_loc>=0)
+    {
+        var pounds=lb.substr(0,hash_loc);
+        var ounces=lb.substr(hash_loc+1);
+        var num=parseInt(pounds)+parseInt(ounces)/16;
+        lb=num;
+        $("#"+name).val(lb);
+    }
     if (lb == "0") {
         $("#"+name+"_metric").val("0");
-    }		
+    }
     else if (lb == parseFloat(lb)) {
 	kg = lb*0.45359237;
         kg = kg.toFixed(2);
@@ -326,17 +448,17 @@ function convLbtoKg(name) {
         $("#"+name+"_metric").val("");
     }
 
-    if (name == "weight") {
+    if (name == "weight_input") {
         calculateBMI();
     }
-} 
+}
 
 function convKgtoLb(name) {
     var kg = $("#"+name+"_metric").val();
 
     if (kg == "0") {
         $("#"+name).val("0");
-    }    
+    }
     else if (kg == parseFloat(kg)) {
         lb = kg/0.45359237;
         lb = lb.toFixed(2);
@@ -356,7 +478,7 @@ function convIntoCm(name) {
 
     if (inch == "0") {
         $("#"+name+"_metric").val("0");
-    }    
+    }
     else if (inch == parseFloat(inch)) {
         cm = inch*2.54;
         cm = cm.toFixed(2);
@@ -376,7 +498,7 @@ function convCmtoIn(name) {
 
     if (cm == "0") {
         $("#"+name).val("0");
-    }    
+    }
     else if (cm == parseFloat(cm)) {
         inch = cm/2.54;
         inch = inch.toFixed(2);
@@ -384,7 +506,7 @@ function convCmtoIn(name) {
     }
     else {
         $("#"+name).val("");
-    }    
+    }
 
     if (name == "height_input") {
         calculateBMI();
@@ -437,8 +559,6 @@ function calculateBMI() {
         $("#BMI_input").val("");
     }
 }
-
-Calendar.setup({inputField:"date", ifFormat:"%Y-%m-%d %H:%M", button:"img_date", showsTime:true});
 
 </script>
 {/literal}

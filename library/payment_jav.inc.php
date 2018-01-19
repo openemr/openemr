@@ -33,19 +33,19 @@ function CheckVisible(MakeBlank)
  {//Displays and hides the check number text box.Add and edit page uses the same function.
  //In edit its value should not be lost on just a change.It is controlled be the 'MakeBlank' argument.
    if(document.getElementById('payment_method').options[document.getElementById('payment_method').selectedIndex].value=='check_payment' ||
-   	  document.getElementById('payment_method').options[document.getElementById('payment_method').selectedIndex].value=='bank_draft'  )
+      document.getElementById('payment_method').options[document.getElementById('payment_method').selectedIndex].value=='bank_draft'  )
    {
-	document.getElementById('div_check_number').style.display='none';
-	document.getElementById('check_number').style.display='';
+    document.getElementById('div_check_number').style.display='none';
+    document.getElementById('check_number').style.display='';
    }
    else
    {
-	document.getElementById('div_check_number').style.display='';
-	if(MakeBlank=='yes')
-	 {//In Add page clearing the field is done.
-		document.getElementById('check_number').value='';
-	 }
-	document.getElementById('check_number').style.display='none';
+    document.getElementById('div_check_number').style.display='';
+    if(MakeBlank=='yes')
+     {//In Add page clearing the field is done.
+        document.getElementById('check_number').value='';
+     }
+    document.getElementById('check_number').style.display='none';
    }
  }
 function PayingEntityAction()
@@ -59,75 +59,75 @@ function PayingEntityAction()
   document.getElementById('description').value='';
   if(document.getElementById('ajax_div_insurance'))
    {
-	 $("#ajax_div_patient_error").empty();
-	 $("#ajax_div_patient").empty();
-	 $("#ajax_div_insurance_error").empty();
-	 $("#ajax_div_insurance").empty();
-	 $("#ajax_div_insurance").hide();
-	  document.getElementById('payment_method').style.display='';
+     $("#ajax_div_patient_error").empty();
+     $("#ajax_div_patient").empty();
+     $("#ajax_div_insurance_error").empty();
+     $("#ajax_div_insurance").empty();
+     $("#ajax_div_insurance").hide();
+      document.getElementById('payment_method').style.display='';
    }
-	//As per the selected value, one value is selected in the 'Payment Category' drop down.
-	if(document.getElementById('type_name').options[document.getElementById('type_name').selectedIndex].value=='patient')
-	 {
-	  document.getElementById('adjustment_code').value='patient_payment';
-	 }
-	else if(document.getElementById('type_name').options[document.getElementById('type_name').selectedIndex].value=='insurance')
-	 {
-	  document.getElementById('adjustment_code').value='insurance_payment';
-	 }
-	//As per the selected value, certain values are not selectable in the 'Payment Category' drop down.They are greyed out.
-	var list=document.getElementById('type_name');
+    //As per the selected value, one value is selected in the 'Payment Category' drop down.
+    if(document.getElementById('type_name').options[document.getElementById('type_name').selectedIndex].value=='patient')
+     {
+      document.getElementById('adjustment_code').value='patient_payment';
+     }
+    else if(document.getElementById('type_name').options[document.getElementById('type_name').selectedIndex].value=='insurance')
+     {
+      document.getElementById('adjustment_code').value='insurance_payment';
+     }
+    //As per the selected value, certain values are not selectable in the 'Payment Category' drop down.They are greyed out.
+    var list=document.getElementById('type_name');
     var newValue = (list.options[list.selectedIndex].value);
     if (newValue=='patient') {
         if(document.getElementById('option_insurance_payment'))
-        	document.getElementById('option_insurance_payment').style.backgroundColor='#DEDEDE';
+            document.getElementById('option_insurance_payment').style.backgroundColor='#DEDEDE';
         if(document.getElementById('option_family_payment'))
-        	document.getElementById('option_family_payment').style.backgroundColor='#ffffff';
+            document.getElementById('option_family_payment').style.backgroundColor='#ffffff';
         if(document.getElementById('option_patient_payment'))
-        	document.getElementById('option_patient_payment').style.backgroundColor='#ffffff';
+            document.getElementById('option_patient_payment').style.backgroundColor='#ffffff';
     }
     if (newValue=='insurance') {
         if(document.getElementById('option_family_payment'))
-        	document.getElementById('option_family_payment').style.backgroundColor='#DEDEDE';
+            document.getElementById('option_family_payment').style.backgroundColor='#DEDEDE';
         if(document.getElementById('option_patient_payment'))
-        	document.getElementById('option_patient_payment').style.backgroundColor='#DEDEDE';
+            document.getElementById('option_patient_payment').style.backgroundColor='#DEDEDE';
         if(document.getElementById('option_insurance_payment'))
-        	document.getElementById('option_insurance_payment').style.backgroundColor='#ffffff';
+            document.getElementById('option_insurance_payment').style.backgroundColor='#ffffff';
     }
  }
 function FilterSelection(listSelected) {
-	//function PayingEntityAction() greyed out certain values as per the selection in the 'Paying Entity' drop down.
-	//When the same are selected in the 'Payment Category' drop down, this function reverts back to the old value.
-	if(document.getElementById('type_name').options[document.getElementById('type_name').selectedIndex].value=='patient')
-	 {
-	  ValueToPut='patient_payment';
-	 }
-	else if(document.getElementById('type_name').options[document.getElementById('type_name').selectedIndex].value=='insurance')
-	 {
-	  ValueToPut='insurance_payment';
-	 }
+    //function PayingEntityAction() greyed out certain values as per the selection in the 'Paying Entity' drop down.
+    //When the same are selected in the 'Payment Category' drop down, this function reverts back to the old value.
+    if(document.getElementById('type_name').options[document.getElementById('type_name').selectedIndex].value=='patient')
+     {
+      ValueToPut='patient_payment';
+     }
+    else if(document.getElementById('type_name').options[document.getElementById('type_name').selectedIndex].value=='insurance')
+     {
+      ValueToPut='insurance_payment';
+     }
 
     var newValueSelected = (listSelected.options[listSelected.selectedIndex].value);
-	
-	var list=document.getElementById('type_name');
+    
+    var list=document.getElementById('type_name');
     var newValue = (list.options[list.selectedIndex].value);
     if (newValue=='patient') {
         if(newValueSelected=='insurance_payment')
-        	listSelected.value=ValueToPut;//Putting values back
+            listSelected.value=ValueToPut;//Putting values back
     }
     if (newValue=='insurance') {
         if(newValueSelected=='family_payment')
-        	listSelected.value=ValueToPut;
+            listSelected.value=ValueToPut;
         if(newValueSelected=='patient_payment')
-        	listSelected.value=ValueToPut;//Putting values back
+            listSelected.value=ValueToPut;//Putting values back
     }
 }
 function RestoreValues(CountIndex)
  {//old remainder is restored back
    if(document.getElementById('Allowed'+CountIndex).value*1==0 && document.getElementById('Payment'+CountIndex).value*1==0 && document.getElementById('AdjAmount'+CountIndex).value*1==0 && document.getElementById('Takeback'+CountIndex).value*1==0)
     {
-	 document.getElementById('RemainderTd'+CountIndex).innerHTML=document.getElementById('HiddenRemainderTd'+CountIndex).value*1
-	}
+     document.getElementById('RemainderTd'+CountIndex).innerHTML=document.getElementById('HiddenRemainderTd'+CountIndex).value*1
+    }
  }
 function ActionFollowUp(CountIndex)
  {//Activating or deactivating the FollowUpReason text box.
@@ -147,7 +147,7 @@ function ValidateDateGreaterThanNow(DateValue,DateFormat)
   if(DateFormat=='%Y-%m-%d')
    {
     DateValueArray=DateValue.split('-');
-	DateValue=DateValueArray[1]+'/'+DateValueArray[2]+'/'+DateValueArray[0];
+    DateValue=DateValueArray[1]+'/'+DateValueArray[2]+'/'+DateValueArray[0];
    }
   else if(DateFormat=='%m/%d/%Y')
    {
@@ -155,7 +155,7 @@ function ValidateDateGreaterThanNow(DateValue,DateFormat)
   else if(DateFormat=='%d/%m/%Y')
    {
     DateValueArray=DateValue.split('/');
-	DateValue=DateValueArray[1]+'/'+DateValueArray[0]+'/'+DateValueArray[2];
+    DateValue=DateValueArray[1]+'/'+DateValueArray[0]+'/'+DateValueArray[2];
    }
   PassedDate = new Date(DateValue);
   Now = new Date();
@@ -169,9 +169,9 @@ function DateCheckGreater(DateValue1,DateValue2,DateFormat)
   if(DateFormat=='%Y-%m-%d')
    {
     DateValueArray=DateValue1.split('-');
-	DateValue1=DateValueArray[1]+'/'+DateValueArray[2]+'/'+DateValueArray[0];
+    DateValue1=DateValueArray[1]+'/'+DateValueArray[2]+'/'+DateValueArray[0];
     DateValueArray=DateValue2.split('-');
-	DateValue2=DateValueArray[1]+'/'+DateValueArray[2]+'/'+DateValueArray[0];
+    DateValue2=DateValueArray[1]+'/'+DateValueArray[2]+'/'+DateValueArray[0];
    }
   else if(DateFormat=='%m/%d/%Y')
    {
@@ -179,9 +179,9 @@ function DateCheckGreater(DateValue1,DateValue2,DateFormat)
   else if(DateFormat=='%d/%m/%Y')
    {
     DateValueArray=DateValue1.split('/');
-	DateValue1=DateValueArray[1]+'/'+DateValueArray[0]+'/'+DateValueArray[2];
+    DateValue1=DateValueArray[1]+'/'+DateValueArray[0]+'/'+DateValueArray[2];
     DateValueArray=DateValue2.split('/');
-	DateValue2=DateValueArray[1]+'/'+DateValueArray[0]+'/'+DateValueArray[2];
+    DateValue2=DateValueArray[1]+'/'+DateValueArray[0]+'/'+DateValueArray[2];
    }
   PassedDateValue1 = new Date(DateValue1);
   PassedDateValue2 = new Date(DateValue2);
@@ -198,16 +198,16 @@ function ConvertToUpperCase(ObjectPassed)
  function SearchOnceMore()
  {//Used in the option buttons,listing the charges.
  //'Non Paid', 'Show Primary Complete', 'Show All Transactions' uses this when a patient is selected through ajax.
-	if(document.getElementById('hidden_patient_code').value*1>0)
-	 {
-		document.getElementById('mode').value='search';
-		top.restoreSession();
-		document.forms[0].submit();
-	 }
-	else
-	 {
-		alert("<?php echo htmlspecialchars( xl('Please Select a Patient.'), ENT_QUOTES) ?>")
-	 }
+    if(document.getElementById('hidden_patient_code').value*1>0)
+     {
+        document.getElementById('mode').value='search';
+        top.restoreSession();
+        document.forms[0].submit();
+     }
+    else
+     {
+        alert("<?php echo htmlspecialchars(xl('Please Select a Patient.'), ENT_QUOTES) ?>")
+     }
  }
 function CheckUnappliedAmount()
  {//The value retured from here decides whether Payments can be posted/modified or not.
@@ -229,42 +229,42 @@ function ValidateNumeric(TheObject)
  {//Numeric validations, used while typing numbers.
   if(TheObject.value!=TheObject.value*1)
    {
-    alert("<?php echo htmlspecialchars( xl('Value Should be Numeric'), ENT_QUOTES) ?>");
-	TheObject.focus();
-	return false;
+    alert("<?php echo htmlspecialchars(xl('Value Should be Numeric'), ENT_QUOTES) ?>");
+    TheObject.focus();
+    return false;
    }
  }
 function SavePayment()
  {//Used before saving.
- 	if(FormValidations())//FormValidations contains the form checks
-	 {
-		if(confirm("<?php echo htmlspecialchars( xl('Would you like to save?'), ENT_QUOTES) ?>"))
-		 {
-			top.restoreSession();
-			document.getElementById('mode').value='new_payment';
-			document.forms[0].submit();
-		 }
-		else
-		 return false;
-	 }
-	else
-	 return false;
+    if(FormValidations())//FormValidations contains the form checks
+     {
+        if(confirm("<?php echo htmlspecialchars(xl('Would you like to save?'), ENT_QUOTES) ?>"))
+         {
+            top.restoreSession();
+            document.getElementById('mode').value='new_payment';
+            document.forms[0].submit();
+         }
+        else
+         return false;
+     }
+    else
+     return false;
  }
 function OpenEOBEntry()
  {//Used before allocating the recieved amount.
- 	if(FormValidations())//FormValidations contains the form checks
-	 {
-		if(confirm("<?php echo htmlspecialchars( xl('Would you like to Allocate?'), ENT_QUOTES) ?>"))
-		 {
-			top.restoreSession();
-			document.getElementById('mode').value='distribute';
-			document.forms[0].submit();
-		 }
-		else
-		 return false;
-	 }
-	else
-	 return false;
+    if(FormValidations())//FormValidations contains the form checks
+     {
+        if(confirm("<?php echo htmlspecialchars(xl('Would you like to Allocate?'), ENT_QUOTES) ?>"))
+         {
+            top.restoreSession();
+            document.getElementById('mode').value='distribute';
+            document.forms[0].submit();
+         }
+        else
+         return false;
+     }
+    else
+     return false;
  }
 function ScreenAdjustment(PassedObject,CountIndex)
  {//Called when there is change in the amount by typing.
@@ -275,63 +275,60 @@ function ScreenAdjustment(PassedObject,CountIndex)
   Allowed=document.getElementById('Allowed'+CountIndex).value*1;
   if(document.getElementById('Allowed'+CountIndex).id==PassedObject.id)
    {
-	  document.getElementById('Payment'+CountIndex).value=Allowed;
+      document.getElementById('Payment'+CountIndex).value=Allowed;
    }
   Payment=document.getElementById('Payment'+CountIndex).value*1;
   ChargeAmount=document.getElementById('HiddenChargeAmount'+CountIndex).value*1;
   Remainder=document.getElementById('HiddenRemainderTd'+CountIndex).value*1;
   if(document.getElementById('Allowed'+CountIndex).id==PassedObject.id)
    {
-	  if(document.getElementById('HiddenIns'+CountIndex).value==1)
-	   {
-		  document.getElementById('AdjAmount'+CountIndex).value=Math.round((ChargeAmount-Allowed)*100)/100;
-	   }
-	  else
-	   {
-		  document.getElementById('AdjAmount'+CountIndex).value=Math.round((Remainder-Allowed)*100)/100;
-	   }
+      if(document.getElementById('HiddenIns'+CountIndex).value==1)
+       {
+          document.getElementById('AdjAmount'+CountIndex).value=Math.round((ChargeAmount-Allowed)*100)/100;
+       }
+      else
+       {
+          document.getElementById('AdjAmount'+CountIndex).value=Math.round((Remainder-Allowed)*100)/100;
+       }
    }
   AdjustmentAmount=document.getElementById('AdjAmount'+CountIndex).value*1;
   CopayAmount=document.getElementById('HiddenCopayAmount'+CountIndex).value*1;
   Takeback=document.getElementById('Takeback'+CountIndex).value*1;
   if(document.getElementById('HiddenIns'+CountIndex).value==1 && Allowed!=0)
    {//Means it is primary's first payment.
-	  document.getElementById('RemainderTd'+CountIndex).innerHTML=Math.round((ChargeAmount-AdjustmentAmount-CopayAmount-Payment+Takeback)*100)/100;
+      document.getElementById('RemainderTd'+CountIndex).innerHTML=Math.round((ChargeAmount-AdjustmentAmount-CopayAmount-Payment+Takeback)*100)/100;
    }
   else
    {//All other case.
-	  document.getElementById('RemainderTd'+CountIndex).innerHTML=Math.round((Remainder-AdjustmentAmount-Payment+Takeback)*100)/100;
+      document.getElementById('RemainderTd'+CountIndex).innerHTML=Math.round((Remainder-AdjustmentAmount-Payment+Takeback)*100)/100;
    }
   FillAmount();
  }
 function FillAmount()
  {//Called when there is change in the amount by typing.
  //Readjusts the various values.
-  <?php 
-  if($screen=='new_payment')
-   {
-  ?>
-  	UnpostedAmt=document.getElementById('HidUnpostedAmount').value*1;
-  <?php 
-   }
-  else
-   {
-  ?>
-  	UnpostedAmt=document.getElementById('payment_amount').value*1;
-  <?php 
-   }
-  ?>
+    <?php
+    if ($screen=='new_payment') {
+        ?>
+    UnpostedAmt=document.getElementById('HidUnpostedAmount').value*1;
+        <?php
+    } else {
+        ?>
+    UnpostedAmt=document.getElementById('payment_amount').value*1;
+        <?php
+    }
+    ?>
   
   TempTotal=0;
   for(RowCount=1;;RowCount++)
    {
-	  if(!document.getElementById('Payment'+RowCount))
-	   break;
-	  else
-	   {
-		 Takeback=document.getElementById('Takeback'+RowCount).value*1;
-		 TempTotal=Math.round((TempTotal+document.getElementById('Payment'+RowCount).value*1-Takeback)*100)/100;
-	   }
+      if(!document.getElementById('Payment'+RowCount))
+       break;
+      else
+       {
+         Takeback=document.getElementById('Takeback'+RowCount).value*1;
+         TempTotal=Math.round((TempTotal+document.getElementById('Payment'+RowCount).value*1-Takeback)*100)/100;
+       }
    }
   document.getElementById('TdUnappliedAmount').innerHTML=Math.round((UnpostedAmt-TempTotal)*100)/100;
   document.getElementById('HidUnappliedAmount').value=Math.round((UnpostedAmt-TempTotal)*100)/100;
@@ -339,50 +336,50 @@ function FillAmount()
  }
 function ActionOnInsPat(CountIndex)
  {//Called when there is onchange in the Ins/Pat drop down.
- 	InsPatDropDownValue=document.getElementById('payment_ins'+CountIndex).options[document.getElementById('payment_ins'+CountIndex).selectedIndex].value;
- 	document.getElementById('HiddenIns'+CountIndex).value=InsPatDropDownValue;
-	if(InsPatDropDownValue==1)
-	 {
-	  document.getElementById('trCharges'+CountIndex).bgColor='#ddddff';
-	 }
-	else if(InsPatDropDownValue==2)
-	 {
-	  document.getElementById('trCharges'+CountIndex).bgColor='#ffdddd';
-	 }
-	else if(InsPatDropDownValue==3)
-	 {
-	  document.getElementById('trCharges'+CountIndex).bgColor='#F2F1BC';
-	 }
-	else if(InsPatDropDownValue==0)
-	 {
-	  document.getElementById('trCharges'+CountIndex).bgColor='#AAFFFF';
-	 }
+    InsPatDropDownValue=document.getElementById('payment_ins'+CountIndex).options[document.getElementById('payment_ins'+CountIndex).selectedIndex].value;
+    document.getElementById('HiddenIns'+CountIndex).value=InsPatDropDownValue;
+    if(InsPatDropDownValue==1)
+     {
+      document.getElementById('trCharges'+CountIndex).bgColor='#ddddff';
+     }
+    else if(InsPatDropDownValue==2)
+     {
+      document.getElementById('trCharges'+CountIndex).bgColor='#ffdddd';
+     }
+    else if(InsPatDropDownValue==3)
+     {
+      document.getElementById('trCharges'+CountIndex).bgColor='#F2F1BC';
+     }
+    else if(InsPatDropDownValue==0)
+     {
+      document.getElementById('trCharges'+CountIndex).bgColor='#AAFFFF';
+     }
  }
 function CheckPayingEntityAndDistributionPostFor()
  {//Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
-	PayingEntity=document.getElementById('type_name').options?document.getElementById('type_name').options[document.getElementById('type_name').selectedIndex].value:document.getElementById('type_name').value;
-	CountIndexAbove=0;
-	for(RowCount=CountIndexAbove+1;;RowCount++)
-	 {
-	  if(!document.getElementById('Payment'+RowCount))
-	   break;
-	  else if(document.getElementById('Allowed'+RowCount).value=='' && document.getElementById('Payment'+RowCount).value=='' && document.getElementById('AdjAmount'+RowCount).value=='' && document.getElementById('Deductible'+RowCount).value=='' && document.getElementById('Takeback'+RowCount).value=='' && document.getElementById('FollowUp'+RowCount).checked==false)
-	  {
-	  }
-	 else
-	   {
-		InsPatDropDownValue=document.getElementById('payment_ins'+RowCount).options[document.getElementById('payment_ins'+RowCount).selectedIndex].value;
-		if(PayingEntity=='patient' && InsPatDropDownValue>0)
-		 {
-		  alert("<?php echo htmlspecialchars( xl('Cannot Post for Insurance.The Paying Entity selected is Patient.'), ENT_QUOTES) ?>");
-		  return false;
-		 }
-		else if(PayingEntity=='insurance' && InsPatDropDownValue==0)
-		 {
-		  alert("<?php echo htmlspecialchars( xl('Cannot Post for Patient.The Paying Entity selected is Insurance.'), ENT_QUOTES) ?>");
-		  return false;
-		 }
-	   }
+    PayingEntity=document.getElementById('type_name').options?document.getElementById('type_name').options[document.getElementById('type_name').selectedIndex].value:document.getElementById('type_name').value;
+    CountIndexAbove=0;
+    for(RowCount=CountIndexAbove+1;;RowCount++)
+     {
+      if(!document.getElementById('Payment'+RowCount))
+       break;
+      else if(document.getElementById('Allowed'+RowCount).value=='' && document.getElementById('Payment'+RowCount).value=='' && document.getElementById('AdjAmount'+RowCount).value=='' && document.getElementById('Deductible'+RowCount).value=='' && document.getElementById('Takeback'+RowCount).value=='' && document.getElementById('FollowUp'+RowCount).checked==false)
+      {
+      }
+     else
+       {
+        InsPatDropDownValue=document.getElementById('payment_ins'+RowCount).options[document.getElementById('payment_ins'+RowCount).selectedIndex].value;
+        if(PayingEntity=='patient' && InsPatDropDownValue>0)
+         {
+          alert("<?php echo htmlspecialchars(xl('Cannot Post for Insurance.The Paying Entity selected is Patient.'), ENT_QUOTES) ?>");
+          return false;
+         }
+        else if(PayingEntity=='insurance' && InsPatDropDownValue==0)
+         {
+          alert("<?php echo htmlspecialchars(xl('Cannot Post for Patient.The Paying Entity selected is Insurance.'), ENT_QUOTES) ?>");
+          return false;
+         }
+       }
      }
   return true;
  }
@@ -390,102 +387,100 @@ function FormValidations()
  {//Screen validations are done here.
   if(document.getElementById('check_date').value=='')
    {
-    alert("<?php echo htmlspecialchars( xl('Please Fill the Date'), ENT_QUOTES) ?>");
-	document.getElementById('check_date').focus();
-	return false;
+    alert("<?php echo htmlspecialchars(xl('Please Fill the Date'), ENT_QUOTES) ?>");
+    document.getElementById('check_date').focus();
+    return false;
    }
   else if(!ValidateDateGreaterThanNow(document.getElementById('check_date').value,'<?php echo DateFormatRead();?>'))
    {
-    alert("<?php echo htmlspecialchars( xl('Date Cannot be greater than Today'), ENT_QUOTES) ?>");
-	document.getElementById('check_date').focus();
-	return false;
+    alert("<?php echo htmlspecialchars(xl('Date Cannot be greater than Today'), ENT_QUOTES) ?>");
+    document.getElementById('check_date').focus();
+    return false;
    }
   if(document.getElementById('post_to_date').value=='')
    {
-    alert("<?php echo htmlspecialchars( xl('Please Fill the Post To Date'), ENT_QUOTES) ?>");
-	document.getElementById('post_to_date').focus();
-	return false;
+    alert("<?php echo htmlspecialchars(xl('Please Fill the Post To Date'), ENT_QUOTES) ?>");
+    document.getElementById('post_to_date').focus();
+    return false;
    }
   else if(!ValidateDateGreaterThanNow(document.getElementById('post_to_date').value,'<?php echo DateFormatRead();?>'))
    {
-    alert("<?php echo htmlspecialchars( xl('Post To Date Cannot be greater than Today'), ENT_QUOTES) ?>");
-	document.getElementById('post_to_date').focus();
-	return false;
+    alert("<?php echo htmlspecialchars(xl('Post To Date Cannot be greater than Today'), ENT_QUOTES) ?>");
+    document.getElementById('post_to_date').focus();
+    return false;
    }
-  else if(DateCheckGreater(document.getElementById('post_to_date').value,'<?php echo $GLOBALS['post_to_date_benchmark']=='' ? date('Y-m-d',time() - (10 * 24 * 60 * 60)) : htmlspecialchars(oeFormatShortDate($GLOBALS['post_to_date_benchmark']));?>',
+  else if(DateCheckGreater(document.getElementById('post_to_date').value,'<?php echo $GLOBALS['post_to_date_benchmark']=='' ? date('Y-m-d', time() - (10 * 24 * 60 * 60)) : htmlspecialchars(oeFormatShortDate($GLOBALS['post_to_date_benchmark']));?>',
   '<?php echo DateFormatRead();?>'))
    {
-    alert("<?php echo htmlspecialchars( xl('Post To Date Must be greater than the Financial Close Date.'), ENT_QUOTES) ?>");
-	document.getElementById('post_to_date').focus();
-	return false;
+    alert("<?php echo htmlspecialchars(xl('Post To Date Must be greater than the Financial Close Date.'), ENT_QUOTES) ?>");
+    document.getElementById('post_to_date').focus();
+    return false;
    }
    if(((document.getElementById('payment_method').options[document.getElementById('payment_method').selectedIndex].value=='check_payment' ||
-   	  document.getElementById('payment_method').options[document.getElementById('payment_method').selectedIndex].value=='bank_draft') &&
-	   document.getElementById('check_number').value=='' ))
+      document.getElementById('payment_method').options[document.getElementById('payment_method').selectedIndex].value=='bank_draft') &&
+       document.getElementById('check_number').value=='' ))
    {
-    alert("<?php echo htmlspecialchars( xl('Please Fill the Check Number'), ENT_QUOTES) ?>");
-	document.getElementById('check_number').focus();
-	return false;
+    alert("<?php echo htmlspecialchars(xl('Please Fill the Check Number'), ENT_QUOTES) ?>");
+    document.getElementById('check_number').focus();
+    return false;
    }
-  <?php 
-  if($screen=='edit_payment')
-   {
-  ?>
-	   if(document.getElementById('check_number').value!='' &&
-	   document.getElementById('payment_method').options[document.getElementById('payment_method').selectedIndex].value=='')
-		{
-		alert("<?php echo htmlspecialchars( xl('Please Select the Payment Method'), ENT_QUOTES) ?>");
-		document.getElementById('payment_method').focus();
-		return false;
-		}
-  <?php 
-   }
-  ?>
+    <?php
+    if ($screen=='edit_payment') {
+        ?>
+       if(document.getElementById('check_number').value!='' &&
+       document.getElementById('payment_method').options[document.getElementById('payment_method').selectedIndex].value=='')
+        {
+        alert("<?php echo htmlspecialchars(xl('Please Select the Payment Method'), ENT_QUOTES) ?>");
+        document.getElementById('payment_method').focus();
+        return false;
+        }
+    <?php
+    }
+    ?>
    if(document.getElementById('payment_amount').value=='')
    {
-    alert("<?php echo htmlspecialchars( xl('Please Fill the Payment Amount'), ENT_QUOTES) ?>");
-	document.getElementById('payment_amount').focus();
-	return false;
+    alert("<?php echo htmlspecialchars(xl('Please Fill the Payment Amount'), ENT_QUOTES) ?>");
+    document.getElementById('payment_amount').focus();
+    return false;
    }
    if(document.getElementById('payment_amount').value!=document.getElementById('payment_amount').value*1)
    {
-    alert("<?php echo htmlspecialchars( xl('Payment Amount must be Numeric'), ENT_QUOTES) ?>");
-	document.getElementById('payment_amount').focus();
-	return false;
+    alert("<?php echo htmlspecialchars(xl('Payment Amount must be Numeric'), ENT_QUOTES) ?>");
+    document.getElementById('payment_amount').focus();
+    return false;
    }
-  <?php 
-  if($screen=='edit_payment')
-   {
-  ?>
-	  if(document.getElementById('adjustment_code').options[document.getElementById('adjustment_code').selectedIndex].value=='')
-	   {
-		alert("<?php echo htmlspecialchars( xl('Please Fill the Payment Category'), ENT_QUOTES) ?>");
-		document.getElementById('adjustment_code').focus();
-		return false;
-	   }
-  <?php 
-   }
-  ?>
+    <?php
+    if ($screen=='edit_payment') {
+        ?>
+      if(document.getElementById('adjustment_code').options[document.getElementById('adjustment_code').selectedIndex].value=='')
+       {
+        alert("<?php echo htmlspecialchars(xl('Please Fill the Payment Category'), ENT_QUOTES) ?>");
+        document.getElementById('adjustment_code').focus();
+        return false;
+       }
+    <?php
+    }
+    ?>
   if(document.getElementById('type_code').value=='')
    {
-    alert("<?php echo htmlspecialchars( xl('Please Fill the Payment From'), ENT_QUOTES) ?>");
-	document.getElementById('type_code').focus();
-	return false;
+    alert("<?php echo htmlspecialchars(xl('Please Fill the Payment From'), ENT_QUOTES) ?>");
+    document.getElementById('type_code').focus();
+    return false;
    }
   if(document.getElementById('hidden_type_code').value!=document.getElementById('div_insurance_or_patient').innerHTML)
    {
-	alert("<?php echo htmlspecialchars( xl('Take Payment From, from Drop Down'), ENT_QUOTES) ?>");
-	document.getElementById('type_code').focus();
-	return false;
+    alert("<?php echo htmlspecialchars(xl('Take Payment From, from Drop Down'), ENT_QUOTES) ?>");
+    document.getElementById('type_code').focus();
+    return false;
    }
   if(document.getElementById('deposit_date').value=='')
    {
    }
   else if(!ValidateDateGreaterThanNow(document.getElementById('deposit_date').value,'<?php echo DateFormatRead();?>'))
    {
-    alert("<?php echo htmlspecialchars( xl('Deposit Date Cannot be greater than Today'), ENT_QUOTES) ?>");
-	document.getElementById('deposit_date').focus();
-	return false;
+    alert("<?php echo htmlspecialchars(xl('Deposit Date Cannot be greater than Today'), ENT_QUOTES) ?>");
+    document.getElementById('deposit_date').focus();
+    return false;
    }
   return true;
 }
@@ -493,16 +488,16 @@ function FormValidations()
 function UpdateTotalValues(start,count,Payment,PaymentTotal)
 {//Used in totaling the columns.
  var paymenttot=0;
-	 if(count > 0)
-	 {
-	   for(i=start;i<start+count;i++)
-	   {
-			 if(document.getElementById(Payment+i))
-			 {
-				   paymenttot=paymenttot+document.getElementById(Payment+i).value*1;
-			 }
-	   }
-		 document.getElementById(PaymentTotal).innerHTML=Math.round((paymenttot)*100)/100;
-	}
+     if(count > 0)
+     {
+       for(i=start;i<start+count;i++)
+       {
+             if(document.getElementById(Payment+i))
+             {
+                   paymenttot=paymenttot+document.getElementById(Payment+i).value*1;
+             }
+       }
+         document.getElementById(PaymentTotal).innerHTML=Math.round((paymenttot)*100)/100;
+    }
 }
 </script>

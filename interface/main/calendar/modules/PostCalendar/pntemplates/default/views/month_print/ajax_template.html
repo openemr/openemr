@@ -83,7 +83,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     border-collapse: collapse;
 }
 .pagebreak {
-    page-break-after: always;    
+    page-break-after: always;
 }
 
 /* these are for the small datepicker DIV */
@@ -94,7 +94,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 #datePicker .tdDOW-small {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 10px;
-    vertical-align: top; 
+    vertical-align: top;
     background-color: lightblue;
     text-align: center;
     border: none;
@@ -128,7 +128,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     text-align: center;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 12px;
-    font-style: normal 
+    font-style: normal
 }
 
 #datePicker .tdMonthDay-small {
@@ -169,7 +169,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 }
 .timeslot {
     height: [-php-]echo $timeslotHeightVal.$timeslotHeightUnit;[-/php-];
-    margin: 0px; 
+    margin: 0px;
     padding: 0px;
 }
 .schedule {
@@ -182,12 +182,12 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 /* types of events */
 .event_in {
     background-color: white;
-    width: 100%; 
+    width: 100%;
     z-index:1;
 }
 .event_out {
     background-color: pink;
-    width: 100%; 
+    width: 100%;
     z-index:1;
 }
 .event_appointment {
@@ -216,7 +216,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 }
 </style>
 
-<script type="text/javascript" src="../../../library/js/jquery-1.2.2.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
 
 [-php-]
 
@@ -264,7 +264,7 @@ foreach ($providers as $provider) {
     echo "<div id='bigCalHeader'>";
     echo date('F', strtotime($Date));
     echo "</div>";
-    
+
     $providerid = $provider['id'];
 
     echo "<table border='0' cellpadding='1' cellspacing='0' width='100%'>\n";
@@ -309,7 +309,7 @@ foreach ($providers as $provider) {
         echo date("d", strtotime($date))."</div>";
 
         if (count($events) == 0) { echo "&nbsp;"; }
-        
+
         foreach ($events as $event) {
             // skip events for other providers
             // yeah, we've got that sort of overhead here... it ain't perfect
@@ -336,8 +336,15 @@ foreach ($providers as $provider) {
                 case 3:  // OUT of office
                     $evtClass = "event_out";
                     break;
-                case 4:  // VACATION
-                case 8:  // LUNCH
+                 case 4:  // VACATION
+                    $evtClass = "event_reserved";
+                    break;
+                 case 6:  // HOLIDAY
+                    $evtClass = "event_holiday";
+                    break;
+                 case 8:  // LUNCH
+                    $evtClass = "event_reserved";
+                    break;
                 case 11: // RESERVED
                     $evtClass = "event_reserved";
                     break;
@@ -345,7 +352,7 @@ foreach ($providers as $provider) {
                     $evtClass = "event_appointment";
                     break;
             }
-            
+
             // now, output the event DIV
 
             echo "<div class='".$evtClass."' style='background-color:".$event['catcolor'].";'>";
@@ -419,8 +426,8 @@ foreach ($providers as $provider) {
 
 <script language='JavaScript'>
 $(document).ready(function(){
-    window.print();
-    window.close();
+    var win = top.printLogPrint ? top : opener.top;
+    win.printLogPrint(window);
 });
 </script>
 

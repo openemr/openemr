@@ -1,0 +1,2 @@
+This folder holds temporary files that created when downloading file from couchDB.
+Here the system stores the file with the content from couchDB and removes it after downloading is finished.

@@ -21,4 +21,3 @@ $c = new C_FormPainMap();
 
 /* Render a 'view/edit form' page. */
 echo $c->view_action($_GET['id']);
-?>

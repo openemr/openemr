@@ -7,7 +7,7 @@
 // of the License, or (at your option) any later version.
 //
 class NFQ_0041_PopulationCriteria implements CqmPopulationCrtiteriaFactory
-{    
+{
     public function getTitle()
     {
         return "Population Criteria";
@@ -31,5 +31,10 @@ class NFQ_0041_PopulationCriteria implements CqmPopulationCrtiteriaFactory
     public function createExclusion()
     {
         return new NFQ_0041_Exclusions();
+    }
+    
+    public function createDenominatorException()
+    {
+        return new ExceptionsNone();
     }
 }

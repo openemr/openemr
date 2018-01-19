@@ -62,7 +62,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     position: relative;
 }
 .pagebreak {
-    page-break-after: always;    
+    page-break-after: always;
 }
 #bigCal table {
     border-collapse: collapse;
@@ -76,7 +76,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 #datePicker .tdDOW-small {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 10px;
-    vertical-align: top; 
+    vertical-align: top;
     background-color: lightblue;
     text-align: center;
     border: none;
@@ -110,7 +110,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     text-align: center;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 12px;
-    font-style: normal 
+    font-style: normal
 }
 
 #datePicker .tdMonthDay-small {
@@ -151,7 +151,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 }
 .timeslot {
     height: [-php-]echo $timeslotHeightVal.$timeslotHeightUnit;[-/php-];
-    margin: 0px; 
+    margin: 0px;
     padding: 0px;
 }
 .schedule {
@@ -165,7 +165,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 .event_in {
     position: absolute;
     background-color: white;
-    width: 100%; 
+    width: 100%;
     z-index:1;
     font-size: 0.8em;
     color: #ddd;
@@ -174,7 +174,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 .event_out {
     position: absolute;
     background-color: lightgray;
-    width: 100%; 
+    width: 100%;
     z-index:1;
     font-size: 0.8em;
     color: #ddd;
@@ -319,7 +319,7 @@ while ($currdate <= $enddate) {
         // add a class that highlights the 'current date'
         $tdClass .= " currentWeek";
     }
-    
+
     if (date('Ymd',$currdate) == $Date) {
         // $Date is defined near the top of this file
         // and is equal to whatever date the user has clicked
@@ -337,7 +337,7 @@ while ($currdate <= $enddate) {
     $td .= "title=\"Go to week of ".date('M d, Y', $currdate)."\" ";
     $td .= "> ".date('d', $currdate)."</td>\n";
     echo $td;
-   
+
     // end of week row
     if (date('w', $currdate) == 6) echo "</tr>\n";
 
@@ -369,7 +369,7 @@ foreach ($A_EVENTS as $date => $events) {
     echo "<hr width=100%>";
 }
 */
-    
+
 // start out without adding a pagebreak
 $addPagebreak = false;
 
@@ -388,7 +388,7 @@ foreach ($providers as $provider) {
     echo " - ";
     echo date('d M Y', strtotime($atmp[count($atmp)-1]));
     echo "</div>";
-    
+
     $providerid = $provider['id'];
 
     // to specially handle the IN/OUT events I'm doing something new here
@@ -480,7 +480,7 @@ foreach ($providers as $provider) {
                 if ($e1['eid'] == "") { continue; }
                 // skip events for other providers
                 if ($providerid != $e1['aid']) { continue; }
-            
+
                 // create a numeric start and end for comparison
                 $starth = substr($e1['startTime'], 0, 2);
                 $startm = substr($e1['startTime'], 3, 2);
@@ -506,7 +506,7 @@ foreach ($providers as $provider) {
                 // than was was previously set
                 if (! isset($eventPositions[$eid]->width)) { $eventPositions[$eid]->width = $width; }
                 else if ($eventPositions[$eid]->width > $width) { $eventPositions[$eid]->width = $width; }
-               
+
                 // set the left position if not already set or if the current left is
                 // greater than what was previously set
                 if (! isset($eventPositions[$eid]->leftpos)) { $eventPositions[$eid]->leftpos = $leftpos; }
@@ -544,7 +544,14 @@ foreach ($providers as $provider) {
                     $evtClass = "event_out";
                     break;
                 case 4:  // VACATION
+                    $evtClass = "event_reserved";
+                    break;
+                case 6:  // HOLIDAY
+                    $evtClass = "event_holiday";
+                    break;
                 case 8:  // LUNCH
+                    $evtClass = "event_reserved";
+                    break;
                 case 11: // RESERVED
                     $evtClass = "event_reserved";
                     break;
@@ -552,7 +559,7 @@ foreach ($providers as $provider) {
                     $evtClass = "event_appointment";
                     break;
             }
-            
+
             // if this is an IN or OUT event then we have some extra special
             // processing to be done
             // the IN event creates a DIV until the OUT event
@@ -594,7 +601,7 @@ foreach ($providers as $provider) {
             // times the interval height
             $eStartPos = $eStartInterval * $timeslotHeightVal;
             $evtTop = $eStartPos.$timeslotHeightUnit;
-            
+
             // calculate the HEIGHT value for the event DIV
             // diff between end and start of event
             $eEndMin = $eStartMin + ($event['duration']/60);
@@ -669,21 +676,38 @@ foreach ($providers as $provider) {
 
             $divTitle .= "\n(double click to edit)";
 
-            // output the DIV and content
-            echo "<div class='".$evtClass." event' style='top:".$evtTop."; height:".$evtHeight.
+                    //This is to differentiate between the events of holiday(6) or vacation(4) in order to disable
+                    //the ability to double click and edit this events
+                    if ($event['catid']!="6" && $event['catid']!="4" )
+                    {
+                    // output the DIV
+                    echo "<div class='".$evtClass." event' style='top:".$evtTop."; height:".$evtHeight.
                     "; background-color:".$event["catcolor"].
                     "; $divWidth".
                     "; $divLeft".
                     "' ".
                     " id='".$eventdate."-".$eventid."'".
                     ">";
-            echo $content;
-            echo "</div>\n";
+                    }
+                    else
+                    {
+                    // output the DIV
+                    echo "<div class='".$evtClass." hiddenevent' style='top:".$evtTop."; height:".$evtHeight.
+                    "; background-color:".$event["catcolor"].
+                    "; $divWidth".
+                    "; $divLeft".
+                    "' ".
+                    " id='".$eventdate."-".$eventid."'".
+                    ">";
+                    }
+                    // output the content
+                    echo $content;
+                    echo "</div>\n";
         } // end EVENT loop
 
         echo "</div>";
         echo "</td>\n";
-        
+
     } // end date
 
     echo " </tr>\n";
@@ -701,11 +725,11 @@ foreach ($providers as $provider) {
 
 </body>
 
-<script type="text/javascript" src="../../../library/js/jquery-1.2.2.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
 <script>
 $(document).ready(function(){
-    window.print();
-    window.close();
+    var win = top.printLogPrint ? top : opener.top;
+    win.printLogPrint(window);
 });
 </script>
 

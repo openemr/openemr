@@ -1,151 +1,129 @@
 <?php
-include_once("../globals.php");
-include_once("$srcdir/sha1.js");
-include_once("$srcdir/sql.inc");
-include_once("$srcdir/auth.inc");
+/**
+ * User password change tool
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
+ */
+
+require_once("../globals.php");
+require_once("$srcdir/auth.inc");
+
+use OpenEMR\Core\Header;
+
+if ($GLOBALS['use_active_directory']) {
+    exit();
+}
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
+<title><?php echo xlt('Change Password'); ?></title>
+
 <script src="checkpwd_validation.js" type="text/javascript"></script>
+
 <script language='JavaScript'>
 //Validating password and display message if password field is empty - starts
-function pwdvalidation()
+var webroot='<?php echo $webroot?>';
+function update_password()
 {
-  var password1=trim(document.user_form.clearPass.value);
-  var password2=trim(document.user_form.clearPass2.value);
-  document.getElementById("display_msg").innerHTML="";
-  if (password1 == "")
-  {
-	alert("<?php echo xl('Please enter the password'); ?>");
-    document.user_form.clearPass.focus();
+    top.restoreSession();
+    // Not Empty
+    // Strong if required
+    // Matches
+
+    $.post("user_info_ajax.php",
+        {
+            curPass:    $("input[name='curPass']").val(),
+            newPass:    $("input[name='newPass']").val(),
+            newPass2:   $("input[name='newPass2']").val(),
+        },
+        function(data)
+        {
+            $("input[type='password']").val("");
+            $("#display_msg").html(data);
+        }
+
+    );
     return false;
-  }
-  if (password2 == "")
-  {
-	alert("<?php echo xl('Please enter the password'); ?>");
-    document.user_form.clearPass2.focus();
-    return false;
-  }
-  if (password1 != password2)
-  {
-	alert("<?php echo xl('Error: passwords don\'t match. Please check your typing.'); ?>");
-    document.user_form.clearPass.value="";
-    document.user_form.clearPass2.value="";
-    document.user_form.clearPass.focus();
-    return false;
-  }
-//Checking for the strong password if the 'secure password' feature is enabled
-  if(document.user_form.secure_pwd.value == 1){ 
-  var pwdresult = passwordvalidate(password1);
-  if  (pwdresult == 0){
-    alert("<?php echo xl('The password must be at least eight characters, and should'); echo '\n'; echo xl('contain at least three of the four following items:'); echo '\n'; echo xl('A number'); echo '\n'; echo xl('A lowercase letter'); echo '\n'; echo xl('An uppercase letter'); echo '\n'; echo xl('A special character');echo '('; echo xl('not a letter or number'); echo ').'; echo '\n'; echo xl('For example:'); echo ' healthCare@09'; ?>");
-    document.user_form.clearPass.value="";
-    document.user_form.clearPass2.value="";
-    document.user_form.clearPass.focus();
-    return false;
-  }
-}
-  // ViCareplus : As per NIST standard, SHA1 encryption algorithm is used
-  document.user_form.authPass.value=SHA1(document.user_form.clearPass.value);
-  document.user_form.clearPass.value='';
-  document.user_form.authPass2.value=SHA1(document.user_form.clearPass2.value);
-  document.user_form.clearPass2.value='';
 }
 
 </script>
 </head>
-<body class="body_top">
-
-<span class="title"><?php xl('Password Change','e'); ?></span>
-<br><br>
+<body class="body_top" onload="document.forms[0].curPass.focus()">
 
 <?php
 
-$update_pwd_failed=0;
 $ip=$_SERVER['REMOTE_ADDR'];
-if ($_GET["mode"] == "update") {
-  if ($_GET["authPass"] && $_GET["authPass2"] && $_GET["authPass"] != "da39a3ee5e6b4b0d3255bfef95601890afd80709") { // account for empty
-    $tqvar = addslashes($_GET["authPass"]);
-    $tqvar2 = addslashes($_GET["authPass2"]);
-    if ($tqvar == $tqvar2)  {
-
-   // Validating the password  
-    if($GLOBALS['password_history'] != 0){
-      $updatepwd = UpdatePasswordHistory($_SESSION["authId"],$tqvar);  
-      }else {
-      sqlStatement("update users set password='$tqvar' where id={$_SESSION["authId"]}");
-      $updatepwd=1;	
-     }
-      if ($updatepwd == 1) {
-        echo "<span class='alert'>".xl("Password change successful.",'','',' ').xl("Click")."<a href='$rootdir/logout.php?auth=logout' class=link_submit>".xl("here",'',' ',' ')."</a>".xl("to login again").".<br><br></span>";
-      } else {
-        $update_pwd_failed=1;
-      }
-    }
-    else {
-      echo "<span class=alert>" . xl("Error: passwords don't match. Please check your typing.") . "</span><br><br>\n";
-    }
-  }
-}
-
-$res = sqlStatement("select * from users where id={$_SESSION["authId"]}"); 
+$res = sqlStatement("select fname,lname,username from users where id=?", array($_SESSION["authId"]));
 $row = sqlFetchArray($res);
       $iter=$row;
 ?>
-<div id="display_msg">
-<?php
+<div class="container">
+   <div class="row">
+      <div class="col-xs-12">
+         <div class="page-header">
+            <h3><?php echo xlt('Change Password'); ?></h3>
+         </div>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-xs-12">
+        <div id="display_msg"></div>
+      </div>
+   </div>
 
-if ($update_pwd_failed==1) //display message if entered password matched one of last three passwords.
-{
-  echo "<font class='redtext'>". xl("Recent three passwords are not allowed.") ."</font>";
-}
-?>
+  <div class="row">
+     <div class="col-xs-12">
+        <form method='post' action='user_info.php' class='form-horizontal' onsubmit='return update_password()'>
+        <input type=hidden name=secure_pwd value="<?php echo $GLOBALS['secure_password']; ?>">
+        <div class="form-group">
+           <label class='control-label col-sm-2'><?php echo xlt('Full Name') . ":"; ?></label>
+           <div class="col-sm-10">
+           <p class="form-control-static"><?php echo text($iter["fname"]) . " " . text($iter["lname"]) ?></p>
+           </div>
+        </div>
+        <div class="form-group">
+           <label class='control-label col-sm-2'><?php echo xlt('User Name') . ":"; ?></label>
+           <div class="col-sm-10">
+           <p class="form-control-static"><?php echo text($iter["username"]) ?></p>
+           </div>
+        </div>
+        <div class="form-group">
+           <label for='curPass' class='control-label col-sm-2'><?php echo xlt('Current Password') . ":"; ?></label>
+           <div class='col-sm-3'>
+           <input type='password' class='form-control'  name='curPass'  id='curPass' value="" autocomplete='off'>
+           </div>
+        </div>
+        <div class="form-group">
+           <label class='control-label col-sm-2'><?php echo xlt('New Password') . ":"; ?></label>
+           <div class='col-sm-3'>
+           <input type='password' class='form-control' name='newPass'  value="" autocomplete='off'>
+           </div>
+        </div>
+        <div class="form-group">
+           <label class='control-label col-sm-2'><?php echo xlt('Repeat New Password') . ":"; ?></label>
+           <div class='col-sm-3'>
+           <input type='password' class='form-control' name=newPass2  value="" autocomplete='off'>
+           </div>
+        </div>
+        <div class="form-group">
+           <div class='col-sm-offset-2 col-sm-10'>
+              <button type="Submit" class='btn btn-default btn-save'><?php echo xlt('Save Changes'); ?></button>
+           </div>
+        </div>
+        </form>
+     </div>
+  </div>
 </div>
-<br>
-<span class="text"><?php xl('Once you change your password, you will have to re-login.','e'); ?><br></span>
-<FORM NAME="user_form" METHOD="GET" ACTION="user_info.php"
- onsubmit="top.restoreSession()">
-<input type=hidden name=secure_pwd value="<?php echo $GLOBALS['secure_password']; ?>">
-<TABLE>
-<TR>
-<TD><span class=text><?php xl('Full Name','e'); ?>: </span></TD>
-<TD><span class=text><?php echo htmlspecialchars($iter["fname"] . " " . $iter["lname"], ENT_NOQUOTES); ?></span></td>
-</TR>
 
-<TR>
-<TD><span class=text><?php xl('Username','e'); ?>: </span></TD>
-<TD><span class=text><?php echo $iter["username"]; ?></span></td>
-</TR>
-
-<TR>
-<TD><span class=text><?php xl('Password','e'); ?>: </span></TD>
-<TD><input type=password name=clearPass size=20 value=""></td>
-</TR>
-<TR>
-<TD><span class=text><?php xl('Password','e'); ?> (<?xl('Again','e');?>): </span></TD>
-<TD><input type=password name=clearPass2 size=20 value=""></td>
-</TR>
-
-</TABLE>
-<br>&nbsp;&nbsp;&nbsp;
-<INPUT TYPE="HIDDEN" NAME="id" VALUE="<?php echo $_GET["id"]; ?>">
-<INPUT TYPE="HIDDEN" NAME="mode" VALUE="update">
-<INPUT TYPE="HIDDEN" NAME="authPass" VALUE="">
-<INPUT TYPE="HIDDEN" NAME="authPass2" VALUE="">
-<INPUT TYPE="Submit" VALUE=<?php xl('Save Changes','e','\'','\''); ?> onClick="return pwdvalidation()">
-
-<?php if (! $GLOBALS['concurrent_layout']) { ?>
-&nbsp;&nbsp;&nbsp;
-[<a href="../main/main_screen.php" target="_top" class="link_submit"
-  onclick="top.restoreSession()"><?php xl('Back','e'); ?></font></a>]
-<?php } ?>
-
-</FORM>
-
-<br><br>
-</BODY>
-</HTML>
+</body>
+</html>
 
 <?php
 //  da39a3ee5e6b4b0d3255bfef95601890afd80709 == blank

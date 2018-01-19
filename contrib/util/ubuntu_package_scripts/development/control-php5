@@ -1,0 +1,24 @@
+Package: git-openemr
+Version: 1.0.0-7
+Maintainer: Brady Miller <brady.g.miller@gmail.com>
+Installed-Size: 220000
+Priority: optional
+Section: web
+Architecture: all
+Homepage: http://www.open-emr.org/
+Pre-Depends: debconf
+Depends: mysql-server | mariadb-server, apache2, makepasswd, libapache2-mod-php5, libtiff-tools, php5, php5-mysql, php5-cli, php5-gd, php5-xsl, php5-curl, php5-mcrypt, php-soap, php5-json, imagemagick, php-gettext, git-core, php5-ldap
+Description: Comprehensive Medical Practice Management Application
+ OpenEMR provides office scheduling, electronic medical records,
+ prescriptions, insurance billing, accounting and access controls.
+ .
+ This package will install the most recent development version
+ (unstable) of OpenEMR from the official github repository. This
+ package is easily removed and will not interfere with the
+ production version package of OpenEMR, which is entitled openemr.
+ .
+ To use OpenEMR after installation, go to http://localhost/git-openemr ,
+ the user is 'admin' and password is 'pass'.
+ .
+ The OpenEMR project home page, wiki (documentation), and forums
+ can be found at http://www.open-emr.org .

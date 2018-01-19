@@ -1,54 +1,61 @@
 <?php
-// Copyright (C) 2008-2010 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * This reports checkins and checkouts for a specified patient's chart.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2008-2010 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-// This reports checkins and checkouts for a specified patient's chart.
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/formatting.inc.php");
+
+use OpenEMR\Core\Header;
+use OpenEMR\Services\PatientService;
+
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
-<title><?php xl('Charts Checked Out','e'); ?></title>
+    <title><?php echo xlt('Charts Checked Out'); ?></title>
 
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<style type="text/css">
+    <?php Header::setupHeader(); ?>
 
-/* specifically include & exclude from printing */
-@media print {
-    #report_parameters {
-        visibility: hidden;
-        display: none;
-    }
-    #report_parameters_daterange {
-        visibility: visible;
-        display: inline;
-    }
-    #report_results table {
-       margin-top: 0px;
-    }
-}
+    <style type="text/css">
 
-/* specifically exclude some from the screen */
-@media screen {
-    #report_parameters_daterange {
-        visibility: hidden;
-        display: none;
+    /* specifically include & exclude from printing */
+    @media print {
+        #report_parameters {
+            visibility: hidden;
+            display: none;
+        }
+        #report_parameters_daterange {
+            visibility: visible;
+            display: inline;
+        }
+        #report_results table {
+           margin-top: 0px;
+        }
     }
-}
 
-</style>
+    /* specifically exclude some from the screen */
+    @media screen {
+        #report_parameters_daterange {
+            visibility: hidden;
+            display: none;
+        }
+    }
+
+    </style>
 </head>
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Charts Checked Out','e'); ?></span>
+<span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Charts Checked Out'); ?></span>
 
 <div id="report_results">
 <br/>
@@ -72,44 +79,33 @@ $query = "SELECT ct.ct_when, " .
 sqlStatement("DROP TEMPORARY TABLE IF EXISTS cttemp");
 sqlStatement("CREATE TEMPORARY TABLE cttemp SELECT " .
   "ct_pid, MAX(ct_when) AS ct_when FROM chart_tracker GROUP BY ct_pid");
-$query = "SELECT ct.ct_when, " .
-  "u.username, u.fname AS ufname, u.mname AS umname, u.lname AS ulname, " .
-  "p.pubpid, p.fname, p.mname, p.lname " .
-  "FROM chart_tracker AS ct " .
-  "JOIN cttemp ON cttemp.ct_pid = ct.ct_pid AND cttemp.ct_when = ct.ct_when " .
-  "LEFT OUTER JOIN users AS u ON u.id = ct.ct_userid " .
-  "LEFT OUTER JOIN patient_data AS p ON p.pid = ct.ct_pid " .
-  "WHERE ct.ct_userid != 0 " .
-  "ORDER BY p.pubpid";
-
-$res = sqlStatement($query);
-
+$res = PatientService::getChartTrackerInformation();
 $data_ctr = 0;
 while ($row = sqlFetchArray($res)) {
-
-if ( $data_ctr == 0 ) { ?>
-<table>
- <thead>
-  <th> <?php xl('Chart','e'); ?> </th>
-  <th> <?php xl('Patient','e'); ?> </th>
-  <th> <?php xl('Location','e'); ?> </th>
-  <th> <?php xl('As Of','e'); ?> </th>
- </thead>
- <tbody>
-<?php  } ?>
+    if ($data_ctr == 0) { ?>
+    <table>
+     <thead>
+          <th> <?php echo xlt('Chart'); ?> </th>
+          <th> <?php echo xlt('Patient'); ?> </th>
+          <th> <?php echo xlt('Location'); ?> </th>
+          <th> <?php echo xlt('As Of'); ?> </th>
+     </thead>
+     <tbody>
+    <?php
+    } ?>
 
  <tr>
   <td>
-   <?php echo $row['pubpid']; ?>
+    <?php echo text($row['pubpid']); ?>
   </td>
   <td>
-   <?php echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']; ?>
+    <?php echo text($row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']); ?>
   </td>
   <td>
-   <?php echo $row['ulname'] . ', ' . $row['ufname'] . ' ' . $row['umname']; ?>
+    <?php echo text($row['ulname'] . ', ' . $row['ufname'] . ' ' . $row['umname']); ?>
   </td>
   <td>
-   <?php echo oeFormatShortDate(substr($row['ct_when'], 0, 10)) . substr($row['ct_when'], 10); ?>
+    <?php echo text(oeFormatShortDate(substr($row['ct_when'], 0, 10))) . text(substr($row['ct_when'], 10)); ?>
   </td>
  </tr>
 <?php
@@ -117,8 +113,8 @@ if ( $data_ctr == 0 ) { ?>
 $data_ctr++;
 } // end while
 
-if ( $data_ctr < 1 ) { ?>
-<span class='text'><?php xl('There are no charts checked out.','e'); ?></span>
+if ($data_ctr < 1) { ?>
+<span class='text'><?php echo xla('There are no charts checked out.'); ?></span>
 <?php
 }
 ?>

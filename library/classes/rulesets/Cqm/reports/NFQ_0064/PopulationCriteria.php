@@ -7,7 +7,7 @@
 // of the License, or (at your option) any later version.
 //
 class NFQ_0064_PopulationCriteria implements CqmPopulationCrtiteriaFactory
-{    
+{
     public function getTitle()
     {
         return "Population Criteria";
@@ -34,5 +34,10 @@ class NFQ_0064_PopulationCriteria implements CqmPopulationCrtiteriaFactory
     public function createExclusion()
     {
         return new DiabetesExclusions();
+    }
+    
+    public function createDenominatorException()
+    {
+        return new ExceptionsNone();
     }
 }

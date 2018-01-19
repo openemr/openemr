@@ -1,0 +1,328 @@
+/*
+ * application style overrides and customizations
+ *
+ * From phreeze package
+ * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ *
+ */
+.modal.left .modal-dialog, .modal.right .modal-dialog {
+	position: fixed;
+	margin: auto;
+	width: 100%;
+	height: 75%;
+	-webkit-transform: translate3d(0%, 0, 0);
+	-ms-transform: translate3d(0%, 0, 0);
+	-o-transform: translate3d(0%, 0, 0);
+	transform: translate3d(0%, 0, 0);
+}
+
+.modal.left .modal-content, .modal.right .modal-content {
+	height: 75%;
+	overflow-y: auto;
+}
+
+.modal.left .modal-body, .modal.right .modal-body {
+	padding: 15px 15px 80px;
+}
+
+/*Left*/
+.modal.left.fade .modal-dialog {
+	left: -320px;
+	-webkit-transition: opacity 0.3s linear, left 0.3s ease-out;
+	-moz-transition: opacity 0.3s linear, left 0.3s ease-out;
+	-o-transition: opacity 0.3s linear, left 0.3s ease-out;
+	transition: opacity 0.3s linear, left 0.3s ease-out;
+}
+
+.modal.left.fade.in .modal-dialog {
+	left: 0;
+}
+
+.modal.right.fade .modal-dialog {
+	right: -320px;
+	-webkit-transition: opacity 0.3s linear, right 0.3s ease-out;
+	-moz-transition: opacity 0.3s linear, right 0.3s ease-out;
+	-o-transition: opacity 0.3s linear, right 0.3s ease-out;
+	transition: opacity 0.3s linear, right 0.3s ease-out;
+}
+
+.modal.right.fade.in .modal-dialog {
+	right: 0;
+}
+
+/* ----- MODAL STYLE ----- */
+.modal-content {
+	border-radius: 0;
+	border: none;
+}
+
+.modal-header {
+	border-bottom-color: #EEEEEE;
+	background-color: #FAFAFA;
+}
+
+/* .close {
+	background-color: #999999;
+	color: #000000;
+	line-height: 35px;
+	position: absolute;
+	left: -5px;
+	text-align: center;
+	top: -15px;
+	width: 35px;
+	text-decoration: none;
+	font-weight: bold;
+	-webkit-border-radius: 12px;
+	-moz-border-radius: 12px;
+	border-radius: 12px;
+	-moz-box-shadow: 1px 1px 3px #000;
+	-webkit-box-shadow: 1px 1px 3px #000;
+	box-shadow: 1px 1px 3px #000;
+}
+ */
+.close:hover {
+	background: #00d9ff;
+}
+
+.popover {
+	max-width: 100%;
+}
+
+fieldset {
+	background-color: #ffffff;
+}
+
+legend {
+	background-color: #ddedff;
+	font-style: italic;
+}
+
+fieldset.forms-border {
+	border: 2px groove #9bcdff !important;
+	padding: 0 1.4em 1.4em 1.4em !important;
+	margin: 0 0 1.5em 0 !important;
+	-webkit-box-shadow: 0px 0px 0px 0px #000;
+	box-shadow: 0px 0px 0px 0px #000;
+}
+
+legend.forms-border {
+	width: auto; /* Or auto */
+	padding: 0 5px; /* To give a bit of padding on the left and right */
+	border-bottom: none;
+}
+
+input[type=checkbox]:checked+label {
+	background-color: #fdfdfd;
+	border-color: #ff0080;
+	color: #000;
+}
+
+.btn-default.active {
+	background-color: #fdfdfd;
+	border-color: #ff0080;
+	color: #000;
+}
+
+.btn-default.checked {
+	background-color: #fdfdfd;
+	border-color: #ff0080;
+	color: #000;
+}
+
+.form-inline .form-groups {
+	margin-left: 0;
+	margin-right: 0;
+}
+
+.form-group.inline {
+	outline: 1px solid lightgrey;
+	background-color: ghostwhite !important;
+	padding: 5px;
+	margin: 8px 8px 0px 0px;
+	width: auto;
+}
+
+.control-label {
+	background-color: white !important;
+}
+
+/* .col-xs-2 {
+	min-width: 0;
+	width: 12%;
+	display: inline;
+	padding: 2px 2px 2px 2px;
+} */
+
+.equal {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.equal>div[class*='col-'] {
+	display: flex;
+	flex-direction: column;
+}
+
+body {
+	padding-top: 60px;
+	padding-bottom: 40px;
+	background-color: #f0f0f0;
+}
+
+.signature {
+	width: auto !important;
+	height: 70px;
+	z-index: 5 !important;
+	padding-top: 20px;
+}
+
+img {
+	color: red !important;
+	user-drag: none;
+	user-select: none;
+	-moz-user-select: none;
+	-webkit-user-drag: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+}
+
+h1 {
+	margin-bottom: 8px;
+}
+
+hr {
+	margin: 10px 0px 10px 0px;
+}
+
+p.buttonContainer {
+
+}
+table.collection thead {
+	background: #e7ecfe;
+}
+table.collection tbody {
+	background: white;
+}
+table.collection tr:hover {
+	cursor: pointer;
+}
+
+table.collection th:hover {
+	cursor: pointer;
+	opacity: 0.5;
+}
+
+.date-picker input {
+	width: 80px;
+}
+
+.date-picker i {
+	color: #999;
+	margin-top: 2px;
+	margin-left: -1px;
+}
+
+.bootstrap-timepicker-component input {
+	width: 70px;
+}
+
+.bootstrap-timepicker-component i {
+	color: #999;
+	margin-top: 3px;
+	margin-left: 0px;
+}
+
+.searchContainer input, searchContainer button {
+	margin-top: 8px;
+}
+
+.searchContainer input {
+	margin-top: 8px;
+}
+
+/* search filter button */
+.input-append button.add-on {
+	height: inherit !important;
+	color: #999999;
+	padding-left: 10px;
+	padding-right: 10px;
+	margin-top: 8px;
+}
+
+#loader {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  z-index: 1;
+  width: 150px;
+  height: 150px;
+  margin: -75px 0 0 -75px;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  border-bottom: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+/*  I have use for this */
+/* span.loader {
+	margin: 0px;
+	display: inline-block;
+	width: 45%;
+}
+
+span.loader .progress-bar {
+	display: inline-block;
+	width: 100%;
+	height: 30px;
+}
+
+.popover{
+    width: 600px;
+} */
+
+/* form controls */
+span.help-inline {
+	font-size: 1.1em;
+	font-style: italic;
+	padding: 5px 5px;
+	color: red;
+	cursor:pointer;
+}
+
+/* fixes spacing glitch with combo-box followed by an empty inline help */
+span.help-inline:empty {
+	display: none;
+}
+
+input[type=text], input[type=email], input[type=date],select, fieldset {
+ -webkit-appearance: none;
+ -moz-box-sizing: border-box;
+ box-sizing: border-box;
+}
+
+input:required:invalid, input:focus:invalid {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAeVJREFUeNqkU01oE1EQ/mazSTdRmqSxLVSJVKU9RYoHD8WfHr16kh5EFA8eSy6hXrwUPBSKZ6E9V1CU4tGf0DZWDEQrGkhprRDbCvlpavan3ezu+LLSUnADLZnHwHvzmJlvvpkhZkY7IqFNaTuAfPhhP/8Uo87SGSaDsP27hgYM/lUpy6lHdqsAtM+BPfvqKp3ufYKwcgmWCug6oKmrrG3PoaqngWjdd/922hOBs5C/jJA6x7AiUt8VYVUAVQXXShfIqCYRMZO8/N1N+B8H1sOUwivpSUSVCJ2MAjtVwBAIdv+AQkHQqbOgc+fBvorjyQENDcch16/BtkQdAlC4E6jrYHGgGU18Io3gmhzJuwub6/fQJYNi/YBpCifhbDaAPXFvCBVxXbvfbNGFeN8DkjogWAd8DljV3KRutcEAeHMN/HXZ4p9bhncJHCyhNx52R0Kv/XNuQvYBnM+CP7xddXL5KaJw0TMAF8qjnMvegeK/SLHubhpKDKIrJDlvXoMX3y9xcSMZyBQ+tpyk5hzsa2Ns7LGdfWdbL6fZvHn92d7dgROH/730YBLtiZmEdGPkFnhX4kxmjVe2xgPfCtrRd6GHRtEh9zsL8xVe+pwSzj+OtwvletZZ/wLeKD71L+ZeHHWZ/gowABkp7AwwnEjFAAAAAElFTkSuQmCC);
+    background-position: right top;
+    background-repeat: no-repeat;
+    -moz-box-shadow: none;
+  }
+
+  input:required:valid {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAepJREFUeNrEk79PFEEUx9/uDDd7v/AAQQnEQokmJCRGwc7/QeM/YGVxsZJQYI/EhCChICYmUJigNBSGzobQaI5SaYRw6imne0d2D/bYmZ3dGd+YQKEHYiyc5GUyb3Y+77vfeWNpreFfhvXfAWAAJtbKi7dff1rWK9vPHx3mThP2Iaipk5EzTg8Qmru38H7izmkFHAF4WH1R52654PR0Oamzj2dKxYt/Bbg1OPZuY3d9aU82VGem/5LtnJscLxWzfzRxaWNqWJP0XUadIbSzu5DuvUJpzq7sfYBKsP1GJeLB+PWpt8cCXm4+2+zLXx4guKiLXWA2Nc5ChOuacMEPv20FkT+dIawyenVi5VcAbcigWzXLeNiDRCdwId0LFm5IUMBIBgrp8wOEsFlfeCGm23/zoBZWn9a4C314A1nCoM1OAVccuGyCkPs/P+pIdVIOkG9pIh6YlyqCrwhRKD3GygK9PUBImIQQxRi4b2O+JcCLg8+e8NZiLVEygwCrWpYF0jQJziYU/ho2TUuCPTn8hHcQNuZy1/94sAMOzQHDeqaij7Cd8Dt8CatGhX3iWxgtFW/m29pnUjR7TSQcRCIAVW1FSr6KAVYdi+5Pj8yunviYHq7f72po3Y9dbi7CxzDO1+duzCXH9cEPAQYAhJELY/AqBtwAAAAASUVORK5CYII=);
+    background-position: right top;
+    background-repeat: no-repeat;
+  }
+  

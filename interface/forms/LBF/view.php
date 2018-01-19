@@ -1,3 +1,2 @@
 <?php
 require("new.php");
-?>

@@ -26,4 +26,4 @@ CREATE TABLE IF NOT EXISTS `form_intakeverslag` (
   `autosave_flag` tinyint(4) default 1,
   `autosave_datetime` datetime default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB AUTO_INCREMENT=2 ;

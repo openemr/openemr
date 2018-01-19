@@ -1,0 +1,49 @@
+*******************************************************
+** Ce programme est distribué sous la licence LGPL,  **
+** reportez-vous au fichier _LGPL.txt ou à           **
+** http://www.gnu.org/licenses/lgpl.html             **
+** pour en savoir plus.                              **
+**                                                   **
+**  Copyright 2000-2010 par Laurent Minguet          **
+*******************************************************
+**************************
+* QRCode generator v0.99 *
+**************************
+
+Utilisation :
+------------
+ - necessite PHP5
+ 
+ - regardez le fichier index.php pour voir le fonctionnement.
+ 
+ - voici un exemple :
+    require_once('qrcode.class.php');
+    $qrcode = new QRcode('your message here', 'H'); // error level : L, M, Q, H
+    $qrcode->displayPNG();
+
+ - il existe la possibilité de désactiver le border et la zone de sécurité blanche entourant le code en utilisant :
+    $qrcode->disableBorder();
+
+ - il existe également une methode de sortie spécifique pour FPDF :
+    $qrcode->displayFPDF($fpdf, $x, $y, $w, $background, $color);
+    
+ - il existe également une methode de sortie spécifique pour créer un tableau HTML :
+    $qrcode->displayHTML();
+    
+Informations :
+-------------
+ Generateur de QRCode
+ (QR Code is registered trademark of DENSO WAVE INCORPORATED | http://www.denso-wave.com/qrcode/)
+ Fortement inspiré de "QRcode image PHP scripts version 0.50g (C)2000-2005,Y.Swetake"
+
+ Programmation en PHP5
+
+ Programmeur :	Spipu
+		email   : webmaster@spipu.net
+		site    : http://prgm.spipu.net/php_qrcode
+		
+Remerciement :
+-------------
+ * Y.Swetake pour "QRcode image PHP scripts version 0.50g"
+ * Josep S. pour l'ajout de displayPNG
+ 

@@ -1,35 +1,52 @@
+<!DOCTYPE html>
 <html>
 <head>
-{php}html_header_show();{/php}
 
-<link rel="stylesheet" href="{$CSS_HEADER}" type="text/css">
-<link rel="stylesheet" type="text/css" href="{php}echo $GLOBALS['rootdir'] . '/../library/js/fancybox/jquery.fancybox-1.2.6.css';{/php}" media="screen" />
-<script type="text/javascript" src="{php}echo $GLOBALS['rootdir'] . '/../library/js/jquery.1.3.2.js';{/php}"></script>
-<script type="text/javascript" src="{php}echo $GLOBALS['rootdir'] . '/../library/js/common.js';{/php}"></script>
+    <title>{xl t='Practice Settings'|escape:'html'}</title>
+
+    {headerTemplate assets='bootstrap-sidebar|common'}
+
 </head>
-<body class="body_top">
+<body class="body_top" style="padding-top: 35px;">
 
-<div>
-    <b>{xl t='Practice Settings'}</b>
-</div>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle visible-xs" data-toggle="sidebar" data-target=".sidebar">
+                <span class="sr-only">{xl t='Toggle navigation'|escape:'html'}</span>
+                <i class="fa fa-bars fa-inverted"></i>
+            </button>
+            <a class="navbar-brand" href="#">{xl t='Practice Settings'|escape:'html'}</a>
+        </div>
 
-<div>
-    <div class="small">
-        <a href="{$TOP_ACTION}pharmacy&action=list">{xl t='Pharmacies'}</a> |
-        <a href="{$TOP_ACTION}insurance_company&action=list">{xl t='Insurance Companies'}</a> |
-        <a href="{$TOP_ACTION}insurance_numbers&action=list">{xl t='Insurance Numbers'}</a> |
-        <a href="{$TOP_ACTION}x12_partner&action=list">{xl t='X12 Partners'}</a> |
-        <a href="{$TOP_ACTION}document&action=queue">{xl t='Documents'}</a> |
-        <a href="{$TOP_ACTION}hl7&action=default">{xl t='HL7 Viewer'}</a>
-    </div>
+        <div class="collapse navbar-collapse" id="practice-setting-nav">
+            <ul class="nav navbar-nav">
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
 
-    <br/>
-    <div class="section-header">
-        <b>{$ACTION_NAME}</b>
-    </div>
-    <div class="tabContainer">
-        <div class="tab current">
-            {$display}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-12 col-sm-2 sidebar sidebar-{$direction} sidebar-sm-show">
+            <ul class="nav navbar-stacked">
+                <li><a href="{$TOP_ACTION}pharmacy&action=list">{xl t='Pharmacies'|escape:'html'}</a></li>
+                <li><a href="{$TOP_ACTION}insurance_company&action=list">{xl t='Insurance Companies'|escape:'html'}</a></li>
+                <li><a href="{$TOP_ACTION}insurance_numbers&action=list">{xl t='Insurance Numbers'|escape:'html'}</a></li>
+                <li><a href="{$TOP_ACTION}x12_partner&action=list">{xl t='X12 Partners'|escape:'html'}</a></li>
+                <li><a href="{$TOP_ACTION}document&action=queue">{xl t='Documents'|escape:'html'}</a></li>
+                <li><a href="{$TOP_ACTION}hl7&action=default">{xl t='HL7 Viewer'|escape:'html'}</a></li>
+            </ul>
+        </div>
+        <div class="col-xs-12 col-sm-10 col-sm-offset-2">
+            <div class="page-header section-header">
+                <h2>{$ACTION_NAME}</h2>
+            </div>
+            <div>
+                {$display}
+            </div>
         </div>
     </div>
 </div>

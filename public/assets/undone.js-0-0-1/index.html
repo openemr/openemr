@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width'>
+
+    <link href='http://fonts.googleapis.com/css?family=Sanchez' rel='stylesheet'>
+    <style>
+        html,body{margin:0; padding:0; height:100%}
+
+        body {
+            display: table;
+            width: 100%;
+
+            font-family: 'Sanchez', serif;
+            text-align: center;
+            background:#333 url(grain.jpg);
+        }
+
+        div {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        h1 {color:deeppink}
+
+        hr {
+          display:block;
+          height:1px;
+          width:100%;
+          margin: 21px 0;
+
+          background: black;
+          border: 0 none;
+          border-bottom: 1px solid rgba(255,255,255,.3);
+          -moz-box-shadow: 0 1px 30px rgba(0,0,0,.9);
+               box-shadow: 0 1px 30px rgba(0,0,0,.9);
+        }
+
+        .toggle {height: 12px}
+        .hidden {visibility: hidden}
+        button, .toggle {
+            display:inline-block;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14px;
+            color: black;
+            padding: 7px 18px;
+            cursor: pointer;
+            background: -moz-linear-gradient(top, #19e6dc 0%, #1b82d1);
+            background: -webkit-gradient( linear, left top, left bottom, from(#19e6dc), to(#1b82d1));
+            border: 1px solid black;
+            box-shadow: 0 0 2px rgba(000,000,000,0), inset 0 0 5px rgba(255,255,255,0.4);
+            text-shadow: 0 -1px 3px rgba(255,255,255,0.8), 0 1px 0 rgba(255,255,255,0.3);
+
+            opacity: 0.9
+        }
+
+        button[disabled] {
+            background: -moz-linear-gradient(top, #fff 0%, #aaa);
+            background: -webkit-gradient( linear, left top, left bottom, from(#fff), to(#aaa));
+        }
+
+        button:hover {
+            opacity: 1
+        }
+
+    </style>
+
+    <title>undone.js | The undo/redo manager for well formed javascript applications</title>
+</head>
+
+<body>
+    <div>
+        <h1>Undone.js</h1>
+        <button id='undo' title="ctrl + Z" disabled>Undo</button>
+        <button id='redo' title="ctrl + Y" disabled>Redo</button>
+        <button id='clear'>Clear</button>
+        <br>
+        <input type="range" min="0" max="800" value="0" disabled>
+        <hr>
+    </div>
+
+    <script src='http://code.jquery.com/jquery-1.9.1.min.js'></script>
+    <script src="undone.js"></script>
+    <script src='jquery.undone.js'></script>
+    <script>
+
+        $.undone();
+
+        $("#undo, #redo, #clear").click(function(){
+            // undone[this.className]();
+            $.undone(this.id);
+        });
+
+        $(document).on("mouseenter", ".toggle", function () {
+            var self = $(this);
+            $.undone("register",
+                function () { self.addClass("hidden"); },
+                function () { self.removeClass("hidden"); }
+            );
+        });
+
+
+        $(document).keydown(function (e) {
+            var key = e.which;
+            if (e.ctrlKey) { // ctrl
+                if (key === 90) $.undone("undo"); // z
+                if (key === 89) $.undone("redo"); // y
+            }
+        });
+
+        $(window).on("undone:change", function(e, name, undoLen, redoLen){
+            $("#undo").prop("disabled", !undoLen);
+            $("#redo").prop("disabled", !redoLen);
+            $("input").val(undoLen)
+        });
+
+
+        // create the items
+        var items = 800;
+        while(items--) {
+            var a = document.createElement("a");
+            a.href = "#";
+            a.className = "toggle";
+            document.getElementsByTagName("div")[0].appendChild(a);
+        }
+    </script>
+</body>
+</html>

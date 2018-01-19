@@ -9,7 +9,6 @@ require_once("../globals.php");
 require_once("$srcdir/lab_exchange_api.php");
 require_once("lab_exchange_tools.php");
 require_once("../main/messages/lab_results_messages.php");
-include_once("$srcdir/formdata.inc.php");
 
 $lab_query_report = "";
 $lab_patient_success = array();
@@ -17,16 +16,16 @@ $lab_patient_errors = array();
 $lab_provider_errors = array();
 
 // Create the REST client
-$client = new LabExchangeClient($GLOBALS['lab_exchange_siteid'],$GLOBALS['lab_exchange_token'],$GLOBALS['lab_exchange_endpoint']);
+$client = new LabExchangeClient($GLOBALS['lab_exchange_siteid'], $GLOBALS['lab_exchange_token'], $GLOBALS['lab_exchange_endpoint']);
 
 // Make the request
 $response = $client->sendRequest("results", "GET");
 $lab_query_report .= xl("Lab Query Status") . "<hr>";
 
 // Check response for success or error
-if ($response->IsError)
+if ($response->IsError) {
     $lab_query_report .= xl("Error retrieving results from Lab Exchange Network") . ": {$response->ErrorMessage} <br><br>";
-else {
+} else {
     $lab_query_report .= xl("Success retrieving results from Lab Exchange Network") . " <br><br>";
 
     $resultSet = $response->ResponseXml;
@@ -54,9 +53,7 @@ else {
         if (!$patient_id) {
             $lab_patient_errors[] = $labResult;
             continue;
-        }
-        else
-        {
+        } else {
             $lab_patient_success[] = $labResult;
         }
 
@@ -83,8 +80,7 @@ else {
             // Match provider
             $user_id = lab_exchange_match_provider($orderingProviderId);
             
-            if(!$user_id)
-            {
+            if (!$user_id) {
                 $lab_provider_errors[] = $resultReport;
             }
 
@@ -198,7 +194,6 @@ else {
                 $check_result = sqlQuery("SELECT COUNT(*) AS count, procedure_result_id FROM procedure_result WHERE procedure_report_id = '" . add_escape_custom($report_id) . "' AND procedure_type_id = '" . add_escape_custom($resultCode) . "'");
 
                 if ($check_result['count'] <= 0) {
-
                     $sql_result_data =
                             "procedure_report_id = '" . add_escape_custom($report_id) . "', " .
                             "procedure_type_id = '" . add_escape_custom($resultCode) . "', " .
@@ -238,8 +233,10 @@ else {
         // Make the confirmation request.
         $response = $client->sendRequest($url, "POST");
         // Check response for success or error.
-        if ($response->IsError)
+        if ($response->IsError) {
             echo xl("Error confirming receipt of lab results") . ": {$response->ErrorMessage}<br>\n";
+        }
+
 //        else {
 //            echo xl("Success confirming receipt of lab result") . " <br>\n";
 //            echo $response->ResponseXml;
@@ -249,34 +246,32 @@ else {
         // report on lab_patient_errors
     $lab_query_report .= "<br>". xl("Provider Matching Errors") . ":<hr><table style=\"font-size:12px;\" cellpadding='3px'>";
 
-    if(count($lab_provider_errors) == 0)
+    if (count($lab_provider_errors) == 0) {
         $lab_query_report .= "<tr><td>" .xl("No errors found"). "</td></tr>";
-    else
-    {
+    } else {
         $lab_query_report .= "<tr><td>" .
             xl("First Name") . "</td><td>" .
             xl("Last Name") . "</td><td>" .
             xl("NPI") . "</td><tr>";
 
-        foreach ($lab_provider_errors as $labResultReport)
-        {
+        foreach ($lab_provider_errors as $labResultReport) {
             $lab_query_report .=
                 "<tr><td>{$labResultReport->OrderingProviderFirstName}</td>".
                 "<td>{$labResultReport->OrderingProviderLastName}</td>".
                 "<td>{$labResultReport->OrderingProviderId}</td></tr>";
         }
     }
+
     $lab_query_report .= "</table>";
 
 
     // report on lab_patient_errors
     $lab_query_report .= "<br>". xl("Patient Lookup Errors") . ":<hr><table style=\"font-size:12px;\" cellpadding='3px'>";
 
-    if(count($lab_patient_errors) == 0)
+    if (count($lab_patient_errors) == 0) {
         $lab_query_report .= "<tr><td>" .xl("No errors found"). "</td></tr>";
-    else
-    {
-        $lab_query_report .= "<tr><td>" . 
+    } else {
+        $lab_query_report .= "<tr><td>" .
             xl("First Name") . "</td><td>" .
             xl("Middle Name") . "</td><td>" .
             xl("Last Name") . "</td><td>" .
@@ -305,16 +300,16 @@ else {
                 "<td>{$patient->HomePhone}</td></tr>";
         }
     }
+
     $lab_query_report .= "</table>";
 
     // report on lab_patient_success
     $lab_query_report .= "<br><br>". xl("New results from Lab Exchange") . ":<hr><table style=\"font-size:12px;\" >";
 
-    if(count($lab_patient_success) == 0)
+    if (count($lab_patient_success) == 0) {
         $lab_query_report .= "<tr><td>" . xl("No new results found") . "</td></tr>";
-    else
-    {
-        $lab_query_report .= "<tr><td>" . 
+    } else {
+        $lab_query_report .= "<tr><td>" .
             xl("First Name") . "</td><td>" .
             xl("Middle Name") . "</td><td>" .
             xl("Last Name") .   "</td><td>" .
@@ -343,8 +338,8 @@ else {
                 "<td>{$patient->HomePhone}</td></tr>";
         }
     }
-    $lab_query_report .= "</table>";
 
+    $lab_query_report .= "</table>";
 }
 ?>
 <html>
@@ -352,9 +347,9 @@ else {
 
 <?php html_header_show(); ?>
         <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-        <script type="text/javascript" src="../../../library/dialog.js"></script>
+        <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
         <script type="text/javascript" src="../../../library/textformat.js"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/jquery.js"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
     </head>
 
     <body class="body_top">

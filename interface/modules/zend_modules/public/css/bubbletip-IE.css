@@ -1,0 +1,64 @@
+/*******************************/
+/******** bubbletip-IE *********/
+/*******************************/
+.bubbletip td.bt-topleft
+{
+	background-image: url(images/bubbletip-TL-corner.png);
+	background-repeat: no-repeat;
+	background-position: 0px 0px;
+	background-attachment: scroll;
+}
+.bubbletip td.bt-top
+{
+	background: transparent url(images/bubbletip-T.png) repeat-x scroll 0px 0px;
+}
+.bubbletip td.bt-topright
+{
+	background: transparent url(images/bubbletip-TR-corner.png) no-repeat scroll 0px 0px;
+}
+.bubbletip td.bt-left-tail div.bt-left, .bubbletip td.bt-left
+{
+	background: transparent url(images/bubbletip-L.png) repeat-y scroll 0px 0px;
+}
+.bubbletip td.bt-left-tail div.bt-left-tail
+{
+	background: transparent url(images/bubbletip-L-tail.png) no-repeat scroll 0px 0px;
+}
+.bubbletip td.bt-right-tail div.bt-right, .bubbletip td.bt-right
+{
+	background: transparent url(images/bubbletip-R.png) repeat-y scroll 0px 0px;
+}
+.bubbletip td.bt-right-tail div.bt-right-tail
+{
+	background: transparent url(images/bubbletip-R-tail.png) no-repeat scroll 0px 0px;
+}
+.bubbletip td.bt-bottomleft
+{
+	background: transparent url(images/bubbletip-BL-corner.png) no-repeat scroll 0px 0px;
+}
+.bubbletip td.bt-bottom
+{
+	background: transparent url(images/bubbletip-B.png) repeat-x scroll 0px 0px;
+}
+.bubbletip td.bt-bottomright
+{
+	background: transparent url(images/bubbletip-BR-corner.png) no-repeat scroll 0px 0px;
+}
+.bubbletip table.bt-top th
+{
+	background: transparent url(images/bubbletip-T.png) repeat-x scroll 0px 0px;
+}
+.bubbletip table.bt-bottom th
+{
+	background: transparent url(images/bubbletip-B.png) repeat-x scroll 0px 0px;
+}
+.bubbletip table.bt-top td div
+{
+	background: transparent url(images/bubbletip-T-tail.png) no-repeat scroll 0px 0px;
+}
+.bubbletip table.bt-bottom td div
+{
+	background: transparent url(images/bubbletip-B-tail.png) no-repeat scroll 0px 0px;
+}
+/*******************************/
+

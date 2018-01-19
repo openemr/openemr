@@ -25,4 +25,4 @@ left_ear_6000 longtext,
 with_hearing_aid varchar(255),
 additional_notes longtext,
 PRIMARY KEY (id)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

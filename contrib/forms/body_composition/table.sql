@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS form_body_composition (
  tbw                      float(6,2)      NOT NULL DEFAULT 0.00,
 
  -- other
- other                    text            NOT NULL DEFAULT '',
+ other                    text,
 
  PRIMARY KEY (id)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
