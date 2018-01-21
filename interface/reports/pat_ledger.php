@@ -3,27 +3,14 @@
  * This is a report to create a patient ledger of charges with payments
  * applied.
  *
- * Copyright (C) 2015 Rich Genandt <rgenandt@gmail.com>
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  WMT
- * @author  Terry Hill <terry@lillysystems.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Terry Hill <terry@lillysystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2015 Rich Genandt <rgenandt@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');
@@ -299,13 +286,6 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
 
     $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
 }
-if (!isset($_REQUEST['form_from_date'])) {
-    $_REQUEST['form_from_date'] = '';
-}
-
-if (!isset($_REQUEST['form_to_date'])) {
-    $_REQUEST['form_to_date'] = '';
-}
 
 if (!isset($_REQUEST['form_facility'])) {
     $_REQUEST['form_facility'] = '';
@@ -358,10 +338,10 @@ if (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'Y') {
 
 $form_from_date = date('Y-m-d', $last_year);
 if ($_REQUEST['form_from_date']) {
-    $form_from_date = fixDate($_REQUEST['form_from_date'], $last_year);
+    $form_from_date = DateToYYYYMMDD($_POST['form_from_date']);
 }
 
-$form_to_date   = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
+$form_to_date   = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 $form_facility  = $_REQUEST['form_facility'];
 $form_provider  = $_REQUEST['form_provider'];
 $form_patient   = $_REQUEST['form_patient'];
@@ -380,89 +360,87 @@ if ($_REQUEST['form_csvexport']) {
 <html>
 <head>
 
-<?php Header::setupHeader('datetime-picker'); ?>
-<script type="text/javascript">
-var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
-var pt_name;
-var pt_id;
-function checkSubmit() {
-    var pat = document.forms[0].elements['form_patient'].value;
-    if(!pat || pat == 0) {
-        alert('<?php echo xls('A Patient Must Be Selected to Generate This Report') ?>');
-        return false;
-    }
-    document.forms[0].elements['form_refresh'].value = true;
-    document.forms[0].elements['form_csvexport'].value = '';
-    document.forms[0].submit();
-}
-function setpatient(pid, lname, fname, dob) {
-  document.forms[0].elements['form_patient'].value = lname + ', ' + fname;
-  document.forms[0].elements['form_pid'].value = pid;
-  document.forms[0].elements['form_dob'].value = dob;
-}
-function sel_patient() {
-    dlgopen('../main/calendar/find_patient_popup.php?pflag=0', '_blank', 500, 400);
-}
-</script>
+    <title><?php echo xlt('Patient Ledger by Date'); ?></title>
 
-<style type="text/css">
+    <?php Header::setupHeader('datetime-picker'); ?>
 
-/* specifically include & exclude from printing */
-@media print {
-  #report_parameters {
-    visibility: hidden;
-    display: none;
-  }
-  #report_parameters_daterange {
-    visibility: visible;
-    display: inline;
-  }
-  #report_results {
-     margin-top: 30px;
-  }
-  #report_header {
-    visibility: visible;
-    display: inline;
-  }
-  #title {
-    visibility: hidden;
-    display: none;
-  }
-}
-/* specifically exclude some from the screen */
-@media screen {
-  #report_parameters_daterange {
-    visibility: hidden;
-    display: none;
-  }
-  #report_header {
-    visibility: hidden;
-    display: none;
-  }
-  #title {
-    visibility: visible;
-    display: inline;
-  }
-}
-</style>
+    <script type="text/javascript">
+        var pt_name;
+        var pt_id;
+        function checkSubmit() {
+            var pat = document.forms[0].elements['form_patient'].value;
+            if(!pat || pat == 0) {
+                alert('<?php echo xls('A Patient Must Be Selected to Generate This Report') ?>');
+                return false;
+            }
+            document.forms[0].elements['form_refresh'].value = true;
+            document.forms[0].elements['form_csvexport'].value = '';
+            document.forms[0].submit();
+        }
+        function setpatient(pid, lname, fname, dob) {
+          document.forms[0].elements['form_patient'].value = lname + ', ' + fname;
+          document.forms[0].elements['form_pid'].value = pid;
+          document.forms[0].elements['form_dob'].value = dob;
+        }
+        function sel_patient() {
+            dlgopen('../main/calendar/find_patient_popup.php?pflag=0', '_blank', 500, 400);
+        }
+    </script>
 
-<title><?php echo xlt('Patient Ledger by Date') ?></title>
+    <style type="text/css">
+        /* specifically include & exclude from printing */
+        @media print {
+            #report_parameters {
+                visibility: hidden;
+                display: none;
+            }
+            #report_parameters_daterange {
+                visibility: visible;
+                display: inline;
+            }
+            #report_results {
+                margin-top: 30px;
+            }
+            #report_header {
+                visibility: visible;
+                display: inline;
+            }
+            #title {
+                visibility: hidden;
+                display: none;
+            }
+        }
+        /* specifically exclude some from the screen */
+        @media screen {
+            #report_parameters_daterange {
+                visibility: hidden;
+                display: none;
+            }
+            #report_header {
+                visibility: hidden;
+                display: none;
+            }
+            #title {
+                visibility: visible;
+                display: inline;
+            }
+        }
+    </style>
 
-<script language="JavaScript">
- $(document).ready(function() {
-  var win = top.printLogSetup ? top : opener.top;
-  win.printLogSetup(document.getElementById('printbutton'));
+    <script language="JavaScript">
+        $(document).ready(function() {
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
 
-  $('.datepicker').datetimepicker({
-    <?php $datetimepicker_timepicker = false; ?>
-    <?php $datetimepicker_showseconds = false; ?>
-    <?php $datetimepicker_formatInput = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-  });
- });
-</script>
-
+            $('.datepicker').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+        });
+    </script>
 </head>
 <body class="body_top">
 <?php if ($type_form == '0') { ?>
@@ -470,7 +448,7 @@ function sel_patient() {
 <?php } else { ?>
 <span class='title' id='title'><?php echo xlt('Patient Ledger'); ?></span>
 <?php } ?>
-<form method='post' action='pat_ledger.php?form=<?php echo attr($type_form);?>&patient_id=<?php echo attr($form_pid);?>' id='theform'>
+<form method='post' action='pat_ledger.php?form=<?php echo attr($type_form);?>&patient_id=<?php echo attr($form_pid);?>' id='theform' onsubmit='return top.restoreSession()'>
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
@@ -516,18 +494,18 @@ function sel_patient() {
         <?php echo xlt('From'); ?>:&nbsp;&nbsp;&nbsp;&nbsp;
       </td>
       <td>
-        <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>' title='yyyy-mm-dd'>
+        <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
       </td>
       <td class='control-label' class='control-label'>
         <?php echo xlt('To'); ?>:
       </td>
       <td>
-        <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>' title='yyyy-mm-dd'>
+        <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
       </td>
         <?php if ($type_form == '0') { ?>
       <td><span class='control-label'><?php echo xlt('Patient'); ?>:&nbsp;&nbsp;</span></td>
       <td>
-        <input type='text' size='20' name='form_patient' class='form-control' style='width:100%;cursor:pointer;cursor:hand' id='form_patient' value='<?php echo attr($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
+        <input type='text' size='20' name='form_patient' class='form-control' style='width:100%;cursor:pointer;cursor:hand' id='form_patient' value='<?php echo ($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
         <?php } else { ?>
         <input type='hidden' name='form_patient' value='<?php echo attr($form_patient); ?>' />
         <?php } ?>
@@ -650,7 +628,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     </tr>
     <tr>
         <?php
-            $title = xl('For Dates') . ': '.$form_from_date.' - '.$form_to_date;
+            $title = xl('For Dates') . ': ' . oeFormatShortDate($form_from_date) . ' - ' . oeFormatShortDate($form_to_date);
         ?>
     <td class="title" ><?php echo text($title); ?></td>
     </tr>
@@ -827,33 +805,31 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_adj)) ."</td>\n";
         echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_bal)) . "</td>\n";
         echo " </tr>\n";
-    ?>
-    </table>
-  <tr><td>&nbsp;</td></tr><br><br>
-    <?php if ($GLOBALS['print_next_appointment_on_ledger'] == 1) {
-                    $next_day = mktime(0, 0, 0, date('m'), date('d')+1, date('Y'));
-                    # add one day to date so it will not get todays appointment
-                    $current_date2 = date('Y-m-d', $next_day);
-                    $events = fetchNextXAppts($current_date2, $form_pid);
-                    $next_appoint_date = oeFormatShortDate($events[0]['pc_eventDate']);
-                    $next_appoint_time = substr($events[0]['pc_startTime'], 0, 5);
-        if (strlen(umname) != 0) {
-            $next_appoint_provider = $events[0]['ufname'] . ' ' . $events[0]['umname'] . ' ' .  $events[0]['ulname'];
-        } else {
-            $next_appoint_provider = $events[0]['ufname'] . ' ' .  $events[0]['ulname'];
-        }
+        ?>
+        </table>
+        <tr><td>&nbsp;</td></tr><br><br>
+        <?php if ($GLOBALS['print_next_appointment_on_ledger'] == 1) {
+            $next_day = mktime(0, 0, 0, date('m'), date('d')+1, date('Y'));
+            # add one day to date so it will not get todays appointment
+            $current_date2 = date('Y-m-d', $next_day);
+            $events = fetchNextXAppts($current_date2, $form_pid);
+            $next_appoint_date = oeFormatShortDate($events[0]['pc_eventDate']);
+            $next_appoint_time = substr($events[0]['pc_startTime'], 0, 5);
+            if (strlen(umname) != 0) {
+                $next_appoint_provider = $events[0]['ufname'] . ' ' . $events[0]['umname'] . ' ' .  $events[0]['ulname'];
+            } else {
+                $next_appoint_provider = $events[0]['ufname'] . ' ' .  $events[0]['ulname'];
+            }
 
-        if (strlen($next_appoint_time) != 0) {
-    ?>
-  <tr>
-    <td class="title" ><?php echo xlt('Next Appointment Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') . ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider); ?></td>
-  </tr>
-
-    <?php
-        }
-} // end ($GLOBALS['print_next_appointment_on_ledger'] == 1)
+            if (strlen($next_appoint_time) != 0) { ?>
+                <tr>
+                <td class="title" ><?php echo xlt('Next Appointment Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') . ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider); ?></td>
+                </tr>
+            <?php
+            }
+        } // end ($GLOBALS['print_next_appointment_on_ledger'] == 1)
     } // end (!$_REQUEST['form_csvexport'] && $orow)
-      echo "</div>\n";
+    echo "</div>\n";
 }
 
 if (! $_REQUEST['form_csvexport']) {
@@ -867,7 +843,7 @@ if (! $_REQUEST['form_csvexport']) {
 
     if (!$_REQUEST['form_refresh'] && !$_REQUEST['form_csvexport']) { ?>
     <div class='text'>
-            <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
+        <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
     </div><?php
     } ?>
 </form>
