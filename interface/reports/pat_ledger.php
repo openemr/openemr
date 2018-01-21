@@ -5,6 +5,7 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
+ * @author    WMT
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015 Rich Genandt <rgenandt@gmail.com>
@@ -827,7 +828,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
                 </tr>
             <?php
             }
-        } // end ($GLOBALS['print_next_appointment_on_ledger'] == 1)
+} // end ($GLOBALS['print_next_appointment_on_ledger'] == 1)
     } // end (!$_REQUEST['form_csvexport'] && $orow)
     echo "</div>\n";
 }
