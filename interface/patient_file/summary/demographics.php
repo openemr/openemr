@@ -359,7 +359,7 @@ $(document).ready(function(){
     $("#labdata_ps_expand").load("labdata_fragment.php");
 
     // Initialize Med Equivalent
-    $("#moreq_ps_expand").load("morphine_fragment.php");
+    $("#moreq_ps_expand").load("../morphine_fragment.php");
 
 <?php
 // Initialize for each applicable LBF form.
