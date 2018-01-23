@@ -25,7 +25,8 @@ validate.extend(validate.validators.datetime, {
     // The value is guaranteed not to be null or undefined but otherwise it
     // could be anything.
     parse: function(value, options) {
-        return +moment.utc(value);
+        var format = (typeof options.format !== 'undefined') ? options.format : 'YYYY-MM-DD';
+        return (moment.utc(value, format));
     },
     // Input is a unix timestamp
     format: function(value, options) {
