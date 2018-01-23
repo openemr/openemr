@@ -308,8 +308,10 @@ function parse_static_text($frow)
 
 // $frow is a row from the layout_options table.
 // $currvalue is the current value, if any, of the associated item.
+// $useFormatDate - change values of dates inputs to local format date (according $GLOBALS['date_display_format']).
+// IMPORTANT - in the case $useFormatDate is true, not forget to convert a dates back to mysql format using DateToYYYYMMDD() function before saving.
 //
-function generate_form_field($frow, $currvalue)
+function generate_form_field($frow, $currvalue, $useFormatDate = false)
 {
     global $rootdir, $date_init, $ISSUE_TYPES, $code_types;
 
@@ -459,11 +461,13 @@ function generate_form_field($frow, $currvalue)
         if ($data_type == 4) {
             $modtmp = isOption($frow['edit_options'], 'F') === false ? 0 : 1;
             if (!$modtmp) {
+                $dateValue  = $useFormatDate ? oeFormatShortDate(substr($currescaped, 0, 10)) : substr($currescaped, 0, 10);
                 echo "<input type='text' size='10' class='datepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
-                " value='" . substr($currescaped, 0, 10) . "'";
+                " value='" .  $dateValue  ."'";
             } else {
-                    echo "<input type='text' size='20' class='datetimepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
-                    " value='" . substr($currescaped, 0, 20) . "'";
+                $dateValue  = $useFormatDate ? oeFormatDateTime(substr($currescaped, 0, 20)) : substr($currescaped, 0, 20);
+                echo "<input type='text' size='20' class='datetimepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
+                    " value='" . $dateValue . "'";
             }
         }
         if (!$agestr) {
@@ -3361,7 +3365,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
 
                 ++$item_count;
 
-                echo generate_form_field($group_fields, $currvalue);
+                echo generate_form_field($group_fields, $currvalue, true);
             }
             ?>
 

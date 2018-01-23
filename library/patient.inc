@@ -832,7 +832,7 @@ function getPatientName($pid)
 /* find patient data by DOB */
 function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
-    $DOB = fixDate($DOB, $DOB);
+    $DOB = DateToYYYYMMDD($DOB);
     $sqlBindArray = array();
     $where = "DOB like ? ";
     array_push($sqlBindArray, $DOB."%");
@@ -968,8 +968,8 @@ function newPatientData(
     $regdate = ""
 ) {
 
-    $DOB = fixDate($DOB);
-    $regdate = fixDate($regdate);
+    $DOB = DateToYYYYMMDD($DOB);
+    $regdate = DateToYYYYMMDD($regdate);
 
     $fitness = 0;
     $referral_source = '';
@@ -1095,10 +1095,14 @@ function fixDate($date, $default = "0000-00-00")
 
 function pdValueOrNull($key, $value)
 {
-    if (($key == 'DOB' || $key == 'regdate' || $key == 'contrastart' ||
-    substr($key, 0, 8) == 'userdate' || $key == 'deceased_date') &&
-    (empty($value) || $value == '0000-00-00')) {
-        return "NULL";
+    if ($key == 'DOB' || $key == 'regdate' || $key == 'contrastart' ||
+    substr($key, 0, 8) == 'userdate' || $key == 'deceased_date') {
+        if ((empty($value) || $value == '0000-00-00')) {
+            return "NULL";
+        } else {
+            //return format date for mysql
+            return "'" . DateToYYYYMMDD($value) . "'";
+        }
     } else {
         return "'" . add_escape_custom($value) . "'";
     }
@@ -1110,7 +1114,7 @@ function updatePatientData($pid, $new, $create = false)
 {
   /*******************************************************************
     $real = getPatientData($pid);
-    $new['DOB'] = fixDate($new['DOB']);
+    $new['DOB'] = DateToYYYYMMDD($new['DOB']);
     while(list($key, $value) = each ($new))
         $real[$key] = $value;
     $real['date'] = "'+NOW()+'";
@@ -1125,8 +1129,6 @@ function updatePatientData($pid, $new, $create = false)
   // The above was broken, though seems intent to insert a new patient_data
   // row for each update.  A good idea, but nothing is doing that yet so
   // the code below does not yet attempt it.
-
-    $new['DOB'] = fixDate($new['DOB']);
 
     if ($create) {
         $sql = "INSERT INTO patient_data SET pid = '" . add_escape_custom($pid) . "', date = NOW()";
@@ -1261,7 +1263,7 @@ function newInsuranceData(
     }
 
   // If a bad date was passed, err on the side of caution.
-    $effective_date = fixDate($effective_date, date('Y-m-d'));
+    $effective_date = DateToYYYYMMDD($effective_date);
 
     $idres = sqlStatement("SELECT * FROM insurance_data WHERE " .
     "pid = ? AND type = ? ORDER BY date DESC", array($pid,$type));

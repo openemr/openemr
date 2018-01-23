@@ -345,7 +345,7 @@ if (empty($collectthis)) {
 
              // the starting date of the event, pay attention with this value
              // when editing recurring events -- JRM Oct-08
-             $event_date = fixDate($_POST['form_date']);
+             $event_date = DateToYYYYMMDD($_POST['form_date']);
 
              //If used new recurrence mechanism of set days every week
         if (!empty($_POST['days_every_week'])) {
@@ -360,7 +360,7 @@ if (empty($collectthis)) {
 
             $my_repeat_freq = implode(",", $days_every_week_arr);
             $my_repeat_type = 6;
-            $event_date = fixDate(setEventDate($_POST['form_date'], $my_repeat_freq));
+            $event_date = setEventDate(DateToYYYYMMDD($_POST['form_date']), $my_repeat_freq);
         } elseif (!empty($_POST['form_repeat'])) {
             $my_recurrtype = 1;
             if ($my_repeat_type > 4) {
@@ -599,7 +599,7 @@ if (empty($collectthis)) {
                         "pc_room = '" . add_escape_custom($_POST['form_room']) . "', " .
                         "pc_informant = '" . add_escape_custom($_SESSION['authUserID']) . "', " .
                         "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
-                        "pc_endDate = '" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
+                        "pc_endDate = '" . add_escape_custom(DateToYYYYMMDD($_POST['form_enddate'])) . "', " .
                         "pc_duration = '" . add_escape_custom(($duration * 60)) . "', " .
                         "pc_recurrtype = '" . add_escape_custom($my_recurrtype) . "', " .
                         "pc_recurrspec = '" . add_escape_custom(serialize($recurrspec)) . "', " .
@@ -694,7 +694,7 @@ if (empty($collectthis)) {
                     "pc_room = '" . add_escape_custom($_POST['form_room']) . "', " .
                     "pc_informant = '" . add_escape_custom($_SESSION['authUserID']) . "', " .
                     "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
-                    "pc_endDate = '" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
+                    "pc_endDate = '" . add_escape_custom(DateToYYYYMMDD($_POST['form_enddate'])) . "', " .
                     "pc_duration = '" . add_escape_custom(($duration * 60)) . "', " .
                     "pc_recurrtype = '" . add_escape_custom($my_recurrtype) . "', " .
                     "pc_recurrspec = '" . add_escape_custom(serialize($recurrspec)) . "', " .
@@ -1027,6 +1027,8 @@ td { font-size:0.8em; }
 
 <script language="JavaScript">
 
+<?php require $GLOBALS['srcdir'] . "/formatting_DateToYYYYMMDD_js.js.php" ?>
+
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  var durations = new Array();
@@ -1278,7 +1280,7 @@ var weekDays = new Array(
  function dateChanged() {
   var f = document.forms[0];
   if (!f.form_date.value) return;
-  var d = new Date(f.form_date.value);
+  var d = new Date(DateToYYYYMMDD_js(f.form_date.value));
   var downame = weekDays[d.getUTCDay()];
   var nthtext = '';
   var occur = Math.floor((d.getUTCDate() - 1) / 7);
@@ -1441,8 +1443,8 @@ if ($_GET['prov']==true) {
         </td>
         <td nowrap>
             <input   type='text' size='10' class='datepicker input-sm' name='form_date' id='form_date'
-                    value='<?php echo attr($date) ?>'
-                    title='<?php echo xla('yyyy-mm-dd event date or starting date'); ?>'
+                    value='<?php echo attr(oeFormatShortDate($date)) ?>'
+                    title='<?php echo xla('event date or starting date'); ?>'
                     onchange='dateChanged()' />
         </td>
         <td nowrap>
@@ -1859,7 +1861,7 @@ if ($_GET['group']!=true) {
   <td nowrap id='tdrepeat2'><?php echo xlt('until date'); ?>
   </td>
   <td nowrap>
-   <input   type='text' size='10' class='datepicker' name='form_enddate' id='form_enddate' value='<?php echo attr($recurrence_end_date) ?>' title='<?php echo xla('yyyy-mm-dd last date of this event');?>' />
+   <input   type='text' size='10' class='datepicker' name='form_enddate' id='form_enddate' value='<?php echo attr(oeFormatShortDate($recurrence_end_date)) ?>' title='<?php echo xla('last date of this event');?>' />
 <?php
 if ($repeatexdate != "") {
     $tmptitle = "The following dates are excluded from the repeating series";
@@ -2000,7 +2002,7 @@ $(document).ready(function(){
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
-        <?php $datetimepicker_formatInput = false; ?>
+        <?php $datetimepicker_formatInput = true; ?>
         <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
@@ -2037,7 +2039,7 @@ function validateform(event,valu){
     <?php if (!$GLOBALS['allow_early_check_in']) { ?>
         //Prevent from user to change status to Arrive before the time
         //Dependent in globals setting - allow_early_check_in
-        if($('#form_apptstatus').val() == '@' && new Date($('#form_date').val()).getTime() > new Date().getTime()){
+        if($('#form_apptstatus').val() == '@' && new Date(DateToYYYYMMDD_js($('#form_date').val())).getTime() > new Date().getTime()){
             alert('<?php echo xls("You can not change status to 'Arrive' before the appointment's time") .'.'; ?>');
             $('#form_save').attr('disabled', false);
             return false;
@@ -2046,10 +2048,24 @@ function validateform(event,valu){
 
     //add rule if choose repeating event
     if ($('#form_repeat').is(':checked') || $('#days_every_week').is(':checked')){
+
+        <?php switch ($GLOBALS['date_display_format']){
+            case 0:
+                echo "var format = 'YYYY-MM-DD';";
+                break;
+            case 1:
+                echo "var format = 'MM/DD/YYYY';";
+                break;
+            case 2:
+                echo "var format = 'DD/MM/YYYY';";
+                break;
+        } ?>
+
         collectvalidation.form_enddate = {
             datetime: {
                 dateOnly: true,
                 earliest: $('#form_date').val(),
+                format: format,
                 message: "An end date later than the start date is required for repeated events!"
             },
             presence: true

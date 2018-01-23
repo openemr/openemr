@@ -105,14 +105,14 @@ $(document).ready(function(){
   $('.datepicker').datetimepicker({
     <?php $datetimepicker_timepicker = false; ?>
     <?php $datetimepicker_showseconds = false; ?>
-    <?php $datetimepicker_formatInput = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
     <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datetimepicker').datetimepicker({
     <?php $datetimepicker_timepicker = true; ?>
     <?php $datetimepicker_showseconds = false; ?>
-    <?php $datetimepicker_formatInput = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
     <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
@@ -590,8 +590,8 @@ echo xlt($CapInstype); ?></a></li><?php
              <td class='required'>:</td>
              <td>
               <input type='entry' size='16' class='datepicker form-control' id='i<?php echo $i ?>effective_date' name='i<?php echo $i ?>effective_date'
-               value='<?php echo attr($result3['date']); ?>'
-               title='yyyy-mm-dd' />
+               value='<?php echo attr(oeFormatShortDate($result3['date'])); ?>'
+                />
              </td>
             </tr>
 
@@ -689,7 +689,7 @@ echo xlt($CapInstype); ?></a></li><?php
             <tr>
                 <td><span class=bold><?php echo xlt('D.O.B.'); ?> </span></td>
                 <td class=required>:</td>
-                <td><input type='entry' size='11' class='datepicker form-control' id='i<?php echo $i?>subscriber_DOB' name='i<?php echo $i?>subscriber_DOB' value='<?php echo attr($result3['subscriber_DOB']); ?>' title='yyyy-mm-dd' />
+                <td><input type='entry' size='11' class='datepicker form-control' id='i<?php echo $i?>subscriber_DOB' name='i<?php echo $i?>subscriber_DOB' value='<?php echo attr(oeFormatShortDate($result3['subscriber_DOB'])); ?>' title='yyyy-mm-dd' />
         </td>
                 <td><span class=bold><?php echo xlt('Sex'); ?>: </span></td>
                 <td><?php
