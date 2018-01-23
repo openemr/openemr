@@ -76,8 +76,7 @@ while ($frow = sqlFetchArray($fres)) {
 updatePatientData($pid, $newdata['patient_data'], true);
 updateEmployerData($pid, $newdata['employer_data'], true);
 
-$i1dob = fixDate(filter_input(INPUT_POST, "i1subscriber_DOB"));
-$i1date = fixDate(filter_input(INPUT_POST, "i1effective_date"));
+$i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
 
 // sqlStatement("unlock tables");
 // end table lock
@@ -115,10 +114,7 @@ newInsuranceData(
 );
 
 
-$i2dob = fixDate(filter_input(INPUT_POST, "i2subscriber_DOB"));
-$i2date = fixDate(filter_input(INPUT_POST, "i2effective_date"));
-
-
+$i2dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i2subscriber_DOB"));
 
 newInsuranceData(
     $pid,
@@ -151,8 +147,7 @@ newInsuranceData(
     filter_input(INPUT_POST, 'i2accept_assignment')
 );
 
-$i3dob  = fixDate(filter_input(INPUT_POST, "i3subscriber_DOB"));
-$i3date = fixDate(filter_input(INPUT_POST, "i3effective_date"));
+$i3dob  = DateToYYYYMMDD(filter_input(INPUT_POST, "i3subscriber_DOB"));
 
 newInsuranceData(
     $pid,

@@ -54,7 +54,7 @@ if ($_POST['form_create']) {
   // ===================
   // DBC SYSTEM WAS REMOVED
     $form_sex               = trim($_POST["sex"]) ;
-    $form_dob               = trim($_POST["DOB"]) ;
+    $form_dob               = DateToYYYYMMDD(trim($_POST["DOB"])) ;
     $form_street            = '' ;
     $form_city              = '' ;
     $form_postcode          = '' ;

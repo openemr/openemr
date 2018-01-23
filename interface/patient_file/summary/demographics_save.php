@@ -54,7 +54,7 @@ updatePatientData($pid, $newdata['patient_data']);
 updateEmployerData($pid, $newdata['employer_data']);
 
 $i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
-$i1date = filter_input(INPUT_POST, "i1effective_date") ? filter_input(INPUT_POST, "i1effective_date") :  date('Y-m-d');
+$i1date = empty(filter_input(INPUT_POST, "i1effective_date")) ? oeFormatShortDate(date('Y-m-d')) : filter_input(INPUT_POST, "i1effective_date");
 
 newInsuranceData(
     $pid,
@@ -89,7 +89,8 @@ newInsuranceData(
 );
 
 $i2dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i2subscriber_DOB"));
-$i2date = filter_input(INPUT_POST, "i2effective_date") ? filter_input(INPUT_POST, "i2effective_date") :  date('Y-m-d');
+$i2date = empty(filter_input(INPUT_POST, "i2effective_date")) ? oeFormatShortDate(date('Y-m-d')) : filter_input(INPUT_POST, "i2effective_date");
+
 
 newInsuranceData(
     $pid,
@@ -124,7 +125,7 @@ newInsuranceData(
 );
 
 $i3dob  = DateToYYYYMMDD(filter_input(INPUT_POST, "i3subscriber_DOB"));
-$i3date = filter_input(INPUT_POST, "i3effective_date") ? filter_input(INPUT_POST, "i3effective_date") :  date('Y-m-d');
+$i3date = empty(filter_input(INPUT_POST, "i3effective_date")) ? oeFormatShortDate(date('Y-m-d')) : filter_input(INPUT_POST, "i3effective_date");
 
 newInsuranceData(
     $pid,
