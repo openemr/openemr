@@ -1264,7 +1264,9 @@ function newInsuranceData(
 
   // If a bad date was passed, err on the side of caution.
     $effective_date = DateToYYYYMMDD($effective_date);
-    if(empty($effective_date)) $effective_date = '0000-00-00';
+    if (empty($effective_date)) {
+        $effective_date = '0000-00-00';
+    }
 
     $idres = sqlStatement("SELECT * FROM insurance_data WHERE " .
     "pid = ? AND type = ? ORDER BY date DESC", array($pid,$type));
