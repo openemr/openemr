@@ -349,7 +349,8 @@ if (!empty($glrow)) {
         if ($gl_name == 'language_menu_other') {
             $GLOBALS['language_menu_show'][] = $gl_value;
         } elseif ($gl_name == 'css_header') {
-            $GLOBALS[$gl_name] = $rootdir.'/themes/'.$gl_value.'?v='.$v_js_includes;
+            //Escape css file name using 'attr' for security (prevent XSS).
+            $GLOBALS[$gl_name] = $rootdir.'/themes/'.attr($gl_value).'?v='.$v_js_includes;
             $temp_css_theme_name = $gl_value;
         } elseif ($gl_name == 'weekend_days') {
             $GLOBALS[$gl_name] = explode(',', $gl_value);
@@ -429,7 +430,8 @@ if (!empty($glrow)) {
 
         // Check file existance
         if (file_exists($include_root.'/themes/'.$new_theme)) {
-            $GLOBALS['css_header'] = $rootdir.'/themes/'.$new_theme.'?v='.$v_js_includes;
+            //Escape css file name using 'attr' for security (prevent XSS).
+            $GLOBALS['css_header'] = $rootdir.'/themes/'.attr($new_theme).'?v='.$v_js_includes;
         } else {
             // throw a warning if rtl'ed file does not exist.
             error_log("Missing theme file ".text($include_root).'/themes/'.text($new_theme));

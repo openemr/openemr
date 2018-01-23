@@ -101,6 +101,7 @@ $USER_SPECIFIC_TABS = array('Appearance',
     'CDR',
     'Connectors');
 $USER_SPECIFIC_GLOBALS = array('default_top_pane',
+    'default_second_tab',
     'new_tabs_layout',
     'theme_tabs_layout',
     'css_header',
@@ -143,15 +144,29 @@ $GLOBALS_METADATA = array(
     'Appearance' => array(
 
         'default_top_pane' => array(
-            xl('Main Top Pane Screen'),       // descriptive name
+            xl('Main Top Pane Screen(Or Default First Tab)'),       // descriptive name
             array(
                 'main_info.php' => xl('Calendar Screen'),
                 '../new/new.php' => xl('Patient Search/Add Screen'),
                 '../../interface/main/finder/dynamic_finder.php' => xl('Patient Finder Screen'),
                 '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => xl('Patient Flow Board'),
+                '../../interface/main/messages/messages.php?form_active=1' => xl('Messages Screen')
             ),
             'main_info.php',                  // default = calendar
-            xl('Type of screen layout')
+            xl('Main Top Pane Screen(Or Default First Tab)')
+        ),
+
+        'default_second_tab' => array(
+            xl('Default Second Tab'),       // descriptive name
+            array(
+                '../../interface/main/messages/messages.php?form_active=1' => xl('Messages Screen'),
+                'main_info.php' => xl('Calendar Screen'),
+                '../new/new.php' => xl('Patient Search/Add Screen'),
+                '../../interface/main/finder/dynamic_finder.php' => xl('Patient Finder Screen'),
+                '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => xl('Patient Flow Board'),
+            ),
+            '../../interface/main/messages/messages.php?form_active=1',    // default = messages
+            xl('Default Second Tab')
         ),
 
         'new_tabs_layout' => array(
@@ -847,7 +862,7 @@ $GLOBALS_METADATA = array(
             '0',                              // default = false
             xl('This will force the Billing Widget in the Patient Summary screen to always be open.')
         ),
-        
+
         'activate_ccr_ccd_report' => array(
             xl('Activate CCR/CCD Reporting'),
             'bool',                           // data type
