@@ -199,18 +199,24 @@ class Document extends ORDataObject
             if (file_exists($filename)) {
                 $d = new Document($result->fields['id']);
             } else {
-                $sql = "DELETE FROM  " . $d->_table . " WHERE id= '" . $result->fields['id'] ."'";
+                $sql = "DELETE FROM  " . $d->_table . " WHERE id= '" . $result->fields['id'] . "'";
                 $result = $d->_db->Execute($sql);
                 echo("There is a database for the file but it no longer exists on the file system. Its document entry has been deleted. '$filename'\n");
             }
         } else {
-            $file_command = $GLOBALS['oer_config']['document']['file_command_path'] ;
-            $cmd_args = "-i ".escapeshellarg($new_path.$fname);
+            $file_command = $GLOBALS['oer_config']['document']['file_command_path'];
+            $cmd_args = "-i " . escapeshellarg($new_path . $fname);
 
-            $command = $file_command." ".$cmd_args;
+            $command = $file_command . " " . $cmd_args;
             $mimetype = exec($command);
             $mime_array = explode(":", $mimetype);
             $mimetype = $mime_array[1];
+            if ($mimetype == 'application/octet-stream') { // windows most likely...
+                $parts = pathinfo($fname);
+                if (strtolower($parts['extension']) == 'dcm') { // cheat for dicom on windows because MS must be different!!!
+                    $mimetype = 'application/dicom';
+                }
+            }
             $d->set_mimetype($mimetype);
             $d->url = $url;
             $d->size = filesize($filename);
