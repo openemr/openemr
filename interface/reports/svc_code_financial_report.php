@@ -8,35 +8,24 @@
  * Administration->Service section by assigning code with
  * 'Service Reporting'.
  *
- * Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Visolve
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Visolve
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-
-use OpenEMR\Core\Header;
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/appointments.inc.php";
+
+use OpenEMR\Core\Header;
 
 $grand_total_units  = 0;
 $grand_total_amt_billed  = 0;
@@ -49,10 +38,10 @@ if (! acl_check('acct', 'rep')) {
     die(xlt("Unauthorized access."));
 }
 
-  $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
-  $form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
-  $form_facility  = $_POST['form_facility'];
-  $form_provider  = $_POST['form_provider'];
+$form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
+$form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
+$form_facility  = $_POST['form_facility'];
+$form_provider  = $_POST['form_provider'];
 
 if ($_POST['form_csvexport']) {
     header("Pragma: public");
@@ -67,59 +56,55 @@ else {
 ?>
 <html>
 <head>
+    <title><?php echo xlt('Financial Summary by Service Code') ?></title>
 
-<?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-<style type="text/css">
-/* specifically include & exclude from printing */
-@media print {
-  #report_parameters {
-      visibility: hidden;
-      display: none;
-  }
-  #report_parameters_daterange {
-      visibility: visible;
-      display: inline;
-  }
-  #report_results {
-     margin-top: 30px;
-  }
-}
+    <style type="text/css">
+        /* specifically include & exclude from printing */
+        @media print {
+            #report_parameters {
+                visibility: hidden;
+                display: none;
+            }
+            #report_parameters_daterange {
+                visibility: visible;
+                display: inline;
+            }
+            #report_results {
+                margin-top: 30px;
+            }
+        }
 
-/* specifically exclude some from the screen */
-@media screen {
-  #report_parameters_daterange {
-      visibility: hidden;
-      display: none;
-  }
-}
-</style>
+        /* specifically exclude some from the screen */
+        @media screen {
+            #report_parameters_daterange {
+                visibility: hidden;
+                display: none;
+            }
+        }
+    </style>
 
-<title><?php echo xlt('Financial Summary by Service Code') ?></title>
+    <script language="JavaScript">
+        $(document).ready(function() {
+            oeFixedHeaderSetup(document.getElementById('mymaintable'));
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
 
-<script language="JavaScript">
-
-$(document).ready(function() {
-oeFixedHeaderSetup(document.getElementById('mymaintable'));
-var win = top.printLogSetup ? top : opener.top;
-win.printLogSetup(document.getElementById('printbutton'));
-
-$('.datepicker').datetimepicker({
-<?php $datetimepicker_timepicker = false; ?>
-<?php $datetimepicker_showseconds = false; ?>
-<?php $datetimepicker_formatInput = false; ?>
-<?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-<?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-});
-});
-
-</script>
-
+            $('.datepicker').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+        });
+    </script>
 </head>
 
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' class="body_top">
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Financial Summary by Service Code'); ?></span>
-<form method='post' action='svc_code_financial_report.php' id='theform'>
+<form method='post' action='svc_code_financial_report.php' id='theform' onsubmit='return top.restoreSession()'>
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
@@ -162,15 +147,13 @@ $('.datepicker').datetimepicker({
                             <?php echo xlt('From'); ?>:&nbsp;&nbsp;&nbsp;&nbsp;
                           </td>
                           <td>
-                           <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
-                                title='yyyy-mm-dd'>
+                           <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
                         </td>
                         <td class='control-label'>
                             <?php echo xlt('To'); ?>:
                         </td>
                         <td>
-                           <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
-                                title='yyyy-mm-dd'>
+                           <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
                         </td>
                         <td>
                           <div class="checkbox">
