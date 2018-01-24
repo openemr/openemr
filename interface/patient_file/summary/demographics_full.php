@@ -689,7 +689,7 @@ echo xlt($CapInstype); ?></a></li><?php
             <tr>
                 <td><span class=bold><?php echo xlt('D.O.B.'); ?> </span></td>
                 <td class=required>:</td>
-                <td><input type='entry' size='11' class='datepicker form-control' id='i<?php echo $i?>subscriber_DOB' name='i<?php echo $i?>subscriber_DOB' value='<?php echo attr(oeFormatShortDate($result3['subscriber_DOB'])); ?>' title='yyyy-mm-dd' />
+                <td><input type='entry' size='11' class='datepicker form-control' id='i<?php echo $i?>subscriber_DOB' name='i<?php echo $i?>subscriber_DOB' value='<?php echo attr(oeFormatShortDate($result3['subscriber_DOB'])); ?>' />
         </td>
                 <td><span class=bold><?php echo xlt('Sex'); ?>: </span></td>
                 <td><?php

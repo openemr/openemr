@@ -422,7 +422,7 @@ echo ">" . xlt('None'). "</option>\n";
      <td class='bold' nowrap><?php echo xlt('Onset/hosp. date:'); ?></td>
      <td class='text' nowrap><!-- default is blank so that while generating claim the date is blank. -->
       <input type='text' size='10' class='datepicker input-sm' name='form_onset_date' id='form_onset_date'
-       value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? oeFormatShortDate(substr($result['onset_date'], 0, 10)) : ''; ?>'
+       value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr($result['onset_date'], 0, 10))) : ''; ?>'
        title='<?php echo xla('Date of onset or hospitalization'); ?>' />
      </td>
     </tr>

@@ -2049,17 +2049,7 @@ function validateform(event,valu){
     //add rule if choose repeating event
     if ($('#form_repeat').is(':checked') || $('#days_every_week').is(':checked')){
 
-<?php switch ($GLOBALS['date_display_format']) {
-            case 0:
-                echo "var format = 'YYYY-MM-DD';";
-                break;
-            case 1:
-                echo "var format = 'MM/DD/YYYY';";
-                break;
-            case 2:
-                echo "var format = 'DD/MM/YYYY';";
-                break;
-} ?>
+        var format = '<?php echo DateFormatRead('validateJS'); ?>';
 
         collectvalidation.form_enddate = {
             datetime: {

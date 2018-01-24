@@ -101,7 +101,7 @@ if (isset($_GET['docUpdateId'])) {
                 // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
                 echo "<td valign='top' class='text'>".htmlspecialchars($iter['user'], ENT_NOQUOTES)."</td>\n";
                 echo "<td valign='top' class='text'>".htmlspecialchars($iter['assigned_to'], ENT_NOQUOTES)."</td>\n";
-                echo "<td valign='top' class='text'>".htmlspecialchars(oeFormatShortDate(date('Y-m-d H:i', strtotime($iter['date']))), ENT_NOQUOTES)."</td>\n";
+                echo "<td valign='top' class='text'>".htmlspecialchars(oeFormatDateTime(date('Y-m-d H:i', strtotime($iter['date']))), ENT_NOQUOTES)."</td>\n";
                 echo "  <td valign='top' class='text'><b>";
                 echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
                 echo "</b></td>\n";
