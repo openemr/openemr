@@ -1742,8 +1742,8 @@ foreach ($photos as $photo_doc_id) {
                 echo "<span title='" . htmlspecialchars($etitle, ENT_QUOTES) . "'>";
             }
 
-            echo "<b>" . htmlspecialchars($row['pc_eventDate'], ENT_NOQUOTES) . ", ";
-            echo htmlspecialchars(sprintf("%02d", $disphour) .":$dispmin " . xl($dispampm) . " (" . xl($dayname), ENT_NOQUOTES)  . ")</b> ";
+            echo "<b>" . text(oeFormatShortDate($row['pc_eventDate'])) . ", ";
+            echo text(sprintf("%02d", $disphour) .":$dispmin " . xl($dispampm) . " (" . xl($dayname))  . ")</b> ";
             if ($row['pc_recurrtype']) {
                 echo "<img src='" . $GLOBALS['webroot'] . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".htmlspecialchars(xl("Repeating event"), ENT_QUOTES)."' alt='".htmlspecialchars(xl("Repeating event"), ENT_QUOTES)."'>";
             }
