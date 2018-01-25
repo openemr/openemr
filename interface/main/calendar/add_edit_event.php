@@ -61,6 +61,9 @@ use OpenEMR\Core\Header;
  $date          = $_GET['date'];        // this and below only for new events
  $userid        = $_GET['userid'];
  $default_catid = $_GET['catid'] ? $_GET['catid'] : '5';
+
+ $_POST['form_date'] = DateToYYYYMMDD($_POST['form_date']);
+ $_POST['form_enddate'] = DateToYYYYMMDD($_POST['form_enddate']);
  //
 if ($date) {
     $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
@@ -345,7 +348,7 @@ if (empty($collectthis)) {
 
              // the starting date of the event, pay attention with this value
              // when editing recurring events -- JRM Oct-08
-             $event_date = DateToYYYYMMDD($_POST['form_date']);
+             $event_date = $_POST['form_date'];
 
              //If used new recurrence mechanism of set days every week
         if (!empty($_POST['days_every_week'])) {
@@ -360,7 +363,7 @@ if (empty($collectthis)) {
 
             $my_repeat_freq = implode(",", $days_every_week_arr);
             $my_repeat_type = 6;
-            $event_date = setEventDate(DateToYYYYMMDD($_POST['form_date']), $my_repeat_freq);
+            $event_date = setEventDate($_POST['form_date'], $my_repeat_freq);
         } elseif (!empty($_POST['form_repeat'])) {
             $my_recurrtype = 1;
             if ($my_repeat_type > 4) {
@@ -556,7 +559,7 @@ if (empty($collectthis)) {
                     // perform a check to see if user changed event date
                     // this is important when editing an existing recurring event
                     // oct-08 JRM
-                    if (DateToYYYYMMDD($_POST['form_date']) == $_POST['selected_date']) {
+                    if ($_POST['form_date'] == $_POST['selected_date']) {
                         // user has NOT changed the start date of the event (and not recurrtype 3)
                         if ($my_recurrtype != 3) {
                             $event_date = fixDate($_POST['event_start_date']);
@@ -599,7 +602,7 @@ if (empty($collectthis)) {
                         "pc_room = '" . add_escape_custom($_POST['form_room']) . "', " .
                         "pc_informant = '" . add_escape_custom($_SESSION['authUserID']) . "', " .
                         "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
-                        "pc_endDate = '" . add_escape_custom(DateToYYYYMMDD($_POST['form_enddate'])) . "', " .
+                        "pc_endDate = '" . add_escape_custom($_POST['form_enddate']) . "', " .
                         "pc_duration = '" . add_escape_custom(($duration * 60)) . "', " .
                         "pc_recurrtype = '" . add_escape_custom($my_recurrtype) . "', " .
                         "pc_recurrspec = '" . add_escape_custom(serialize($recurrspec)) . "', " .
@@ -675,7 +678,7 @@ if (empty($collectthis)) {
         // perform a check to see if user changed event date
         // this is important when editing an existing recurring event
         // oct-08 JRM
-                    if (DateToYYYYMMDD($_POST['form_date']) == $_POST['selected_date']) {
+                    if ($_POST['form_date'] == $_POST['selected_date']) {
                         // user has NOT changed the start date of the event (and not recurrtype 3)
                         if ($my_recurrtype != 3) {
                             $event_date = fixDate($_POST['event_start_date']);
@@ -694,7 +697,7 @@ if (empty($collectthis)) {
                     "pc_room = '" . add_escape_custom($_POST['form_room']) . "', " .
                     "pc_informant = '" . add_escape_custom($_SESSION['authUserID']) . "', " .
                     "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
-                    "pc_endDate = '" . add_escape_custom(DateToYYYYMMDD($_POST['form_enddate'])) . "', " .
+                    "pc_endDate = '" . add_escape_custom($_POST['form_enddate']) . "', " .
                     "pc_duration = '" . add_escape_custom(($duration * 60)) . "', " .
                     "pc_recurrtype = '" . add_escape_custom($my_recurrtype) . "', " .
                     "pc_recurrspec = '" . add_escape_custom(serialize($recurrspec)) . "', " .
