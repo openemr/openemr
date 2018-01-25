@@ -61,6 +61,54 @@ overflow: auto;
 <script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript">
 $("#list_collapse").detach().appendTo("#objTreeMenu_1_node_1 nobr");
+
+// functions to view and pop out documents as needed.
+//
+$(function () {
+    $("img[id^='icon_objTreeMenu_']").tooltip({
+        items: $("img[src*='file3.png']"),
+        content: '{/literal}{xl t="Double Click on this icon to pop up document in a new viewer."|escape:"html"}{literal}'
+    });
+
+    $("img[id^='icon_objTreeMenu_']").on('dblclick', function (e) {
+        let popsrc = $(this).next("a").attr('href') || '';
+        let diview = $(this).next("a").text();
+        let dflg = false;
+        if (!popsrc.includes('&view&')) {
+            return false;
+        } else if (diview.toLowerCase().includes('.dcm')) {
+            popsrc = "{/literal}{$GLOBALS.webroot}{literal}/library/dicom_frame.php?web_path=" + popsrc;
+            dflg = true;
+        }
+        popsrc = popsrc.replace('&view&', '&retrieve&') + 'as_file=false';
+        let poContentModal = function () {
+            let wname = '_' + Math.random().toString(36).substr(2, 6);
+            let opt = "menubar=no,location=no,resizable=yes,scrollbars=yes,status=no";
+            window.open(popsrc, wname, opt);
+        };
+
+        let btnText = '{/literal}{xl t="Full Screen"|escape:"html"}{literal}';
+        let btnClose = '{/literal}{xl t="Close"|escape:"html"}{literal}';
+        let size = 'modal-xl';
+        let sizeHeight = 'full';
+        if (dflg) {
+            size = 'modal-md';
+        }
+        dlgopen(popsrc, 'popdoc', size, 600, '', '', {
+            buttons: [
+                {text: btnText, close: true, style: 'primary btn-xs', click: poContentModal},
+                {text: btnClose, close: true, style: 'default btn-xs'}
+            ],
+            sizeHeight: sizeHeight,
+            allowResize: true,
+            allowDrag: true,
+            dialogId: '',
+            type: 'iframe'
+        });
+        return false;
+    });
+});
+
 </script>
 </body>
 </html>

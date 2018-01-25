@@ -143,9 +143,16 @@ class C_Document extends Controller {
                     if ( $_POST['destination'] != '' ) {
                       $fname = $_POST['destination'];
                     }
+                    $mimetype = $_FILES['file']['type'][$key];
+                    if ($mimetype == 'application/octet-stream') { // windows most likely...
+                        $parts = pathinfo($fname);
+                        if (strtolower($parts['extension']) == 'dcm') { // cheat for dicom on windows because MS must be different!!!
+                            $mimetype = 'application/dicom';
+                        }
+                    }
                     $d = new Document();
                     $rc = $d->createDocument($patient_id, $category_id, $fname,
-                      $_FILES['file']['type'][$key], $filetext,
+                      $mimetype, $filetext,
                       empty($_GET['higher_level_path']) ? '' : $_GET['higher_level_path'],
                       empty($_POST['path_depth']) ? 1 : $_POST['path_depth'],
                       $non_HTTP_owner, $_FILES['file']['tmp_name'][$key]);

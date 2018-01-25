@@ -293,54 +293,23 @@ function ImgProcedure() {literal}{{/literal}
 
 		</td>
 	</tr>
-	<tr>
+        <tr id="DocContents" style="height:100%">
 		<td>
             <div class="text"  title="{xl t='Preview file'}"><b>{xl t='Content'}</b></div>
             {if $file->get_mimetype() eq "image/tiff"}
-			<embed frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}as_file=false"></embed>
-			{elseif $file->get_mimetype() eq "image/png" or
+                         <embed frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{$web_path|escape:'html'}as_file=false"></embed>
+	                 {elseif $file->get_mimetype() eq "image/png" or
 			 $file->get_mimetype() eq "image/jpg" or
 			 $file->get_mimetype() eq "image/jpeg" or
 			 $file->get_mimetype() eq "image/gif" or
 			 $file->get_mimetype() eq "application/pdf" }
-			<iframe frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}as_file=false"></iframe>
+                         <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{$web_path|escape:'html'}as_file=false"></iframe>		
             {elseif $file->get_mimetype() eq "application/dicom"}
-            <!-- DWV -->
-            <div id="dwv" src="{$web_path}as_file=false">
-                <!-- Toolbar -->
-                <div class="toolbar"></div>
-                <div class="warn_diagnostic">{xl t='Not For Diagnostic Use'|escape:'html'}</div>
-                <!-- Layer Container -->
-                <div class="layerContainer">
-                    <canvas class="imageLayer">Only for HTML5 compatible browsers...</canvas>
-                </div><!-- /layerContainer -->
-            </div><!-- /dwv -->
-            <!-- Third party (dwv) -->
-            <script type="text/javascript" src="{$assets_static_relative}/modernizr-3-5-0/dist/modernizr-build.js"></script>
-            <script type="text/javascript" src="{$assets_static_relative}/i18next-9-0-1/i18next.min.js"></script>
-            <script type="text/javascript" src="{$assets_static_relative}/i18next-xhr-backend-1-4-3/i18nextXHRBackend.min.js"></script>
-            <script type="text/javascript" src="{$assets_static_relative}/i18next-browser-languagedetector-2-0-0/i18nextBrowserLanguageDetector.min.js"></script>
-            <script type="text/javascript" src="{$assets_static_relative}/konva-1-6-8/konva.min.js"></script>
-            <script type="text/javascript" src="{$assets_static_relative}/magic-wand-js/js/magic-wand-min.js"></script>
-            <script type="text/javascript" src="{$assets_static_relative}/jszip-3-1-5/dist/jszip.min.js"></script>
-            <!-- Third party (viewer) -->
-            <script type="text/javascript" src="{$assets_static_relative}/flot-0-8-3/jquery.flot.js"></script>
-            <!-- decoders -->
-            <script type="text/javascript" src="{$assets_static_relative}/dwv-0-21-0/decoders/pdfjs/jpx.js"></script>
-            <script type="text/javascript" src="{$assets_static_relative}/dwv-0-21-0/decoders/pdfjs/util.js"></script>
-            <script type="text/javascript" src="{$assets_static_relative}/dwv-0-21-0/decoders/pdfjs/arithmetic_decoder.js"></script>
-            <script type="text/javascript" src="{$assets_static_relative}/dwv-0-21-0/decoders/pdfjs/jpg.js"></script>
-            <script type="text/javascript" src="{$assets_static_relative}/dwv-0-21-0/decoders/rii-mango/lossless-min.js"></script>
-            <!-- Local (dwv) -->
-            <script type="text/javascript" src="{$assets_static_relative}/dwv-0-21-0/dist/dwv.min.js"></script>
-            <!-- i18n dwv wrapper -->
-            <script type="text/javascript" src="{$webroot}/library/js/dwv/dwv_i18n.js"></script>
-            <!-- Main -->
-            <script type="text/javascript" src="{$webroot}/library/js/dwv/dicom_gui.js"></script>
-            <script type="text/javascript" src="{$webroot}/library/js/dwv/dicom_launcher.js"></script>
+            <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{$GLOBALS.webroot}/library/dicom_frame.php?web_path={$web_path|escape:'html'}as_file=false"></iframe>
             {elseif $file->get_ccr_type($file->get_id()) ne "CCR" and $file->get_ccr_type($file->get_id()) ne "CCD"}
-			<iframe frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}as_file=true"></iframe>
-			{/if}
+                      <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{$web_path|escape:'html'}as_file=true"></iframe>
+
+                       {/if}
 		</td>
 	</tr>
 </table>
