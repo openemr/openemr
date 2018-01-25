@@ -1,15 +1,31 @@
 <?php
+/**
+ * Dicom viewer wrapper script for documents
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Jerry Padgett <sjpadgett@gmail.com> 'Viewer wrapper'
+ * @author  Victor Kofia <https://kofiav.com> 'Viewer'
+ * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Victor Kofia <https://kofiav.com>
+ * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+ */
+
+/* Warning: This script wraps the Dicom viewer which is HTML5 compatible only and bootstrap styling
+*  should not be used inside this script due to style conflicts with viewer, namely, hidden class.
+*/
 
 require_once('../interface/globals.php');
 
 $web_path = $_REQUEST['web_path'];
 $patid = $_REQUEST['patient_id'];
-$docid = $_REQUEST['document_id'];
-$web_path .= '&retrieve&patient_id=' . $patid . '&document_id=' . $docid . '&as_file=false'
+$docid = isset($_REQUEST['document_id']) ? $_REQUEST['document_id'] : $_REQUEST['doc_id'];
+$web_path .= '&retrieve&patient_id=' . attr($patid) . '&document_id=' . attr($docid) . '&as_file=false'
 ?>
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/modernizr-3-5-0/dist/modernizr-build.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/i18next-9-0-1/i18next.min.js"></script>
@@ -33,7 +49,7 @@ $web_path .= '&retrieve&patient_id=' . $patid . '&document_id=' . $docid . '&as_
 </head>
 <style type="text/css">
     .warn_diagnostic {
-        margin: 10 auto 10 auto;
+        margin: 10px auto 10px auto;
         color: rgb(255, 0, 0);
         font-size: 1.5em;
     }
