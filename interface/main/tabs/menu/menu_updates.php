@@ -112,12 +112,10 @@ function update_reports_menu(&$menu_list)
                                     WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='reports' ORDER BY mod_id");
     $reportsHooks = array();
     if (sqlNumRows($module_query)) {
-
         $jid = 0;
         $modid = '';
 
         while ($hookrow = sqlFetchArray($module_query)) {
-
             if ($hookrow['type'] == 0) {
                 $modulePath = $GLOBALS['customModDir'];
                 $added = "";
@@ -156,7 +154,6 @@ function update_reports_menu(&$menu_list)
 
             $jid++;
             $modid = $hookrow['mod_id'];
-
         }
     }
 }
