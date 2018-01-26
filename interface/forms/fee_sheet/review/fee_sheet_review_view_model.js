@@ -51,10 +51,9 @@ function procedure(json_source)
     //var justify_codes=json_source.justify.split(":"); //This does not take into account if the justification is empty
 	//If justify is empty the system will hang and not display the review
 	//This stops the review from hanging
-	if(json_source.justify !== null){
-    var justify_codes=json_source.justify.split(":");
-    }else
-    {
+	if(json_source.justify !== null) {
+        var justify_codes=json_source.justify.split(":");
+    } else {
         var justify_codes="";  //Modified by Sherwin 6/28/2017
     }
 	
