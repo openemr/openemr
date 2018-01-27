@@ -2,6 +2,8 @@
 
 set -x
 
+# openemr's setup requireemnts
+
 sudo chmod 666 \
 '/var/www/html/sites/*/sqlconf.php' \
 '/var/www/html/interface/modules/zend_modules/config/application.config.php'
