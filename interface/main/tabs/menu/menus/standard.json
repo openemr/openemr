@@ -438,6 +438,27 @@
         "global_req": "!simplified_demographics"
       },
       {
+        "label": "Text 2 Code",
+        "menu_id": "t2c",
+        "target": "t2c",
+        "url": "/interface/billing/text2codes.php",
+        "children": [],
+        "requirement": 0,
+        "acl_req": [
+          [
+            "acct",
+            "eob",
+            "write"
+          ],
+          [
+            "acct",
+            "bill",
+            "write"
+          ]
+        ],
+        "global_req": "!simplified_demographics"
+      },	  
+      {
         "label": "Batch Payments",
         "menu_id": "npa0",
         "target": "pat",
