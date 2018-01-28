@@ -463,11 +463,11 @@ function generate_form_field($frow, $currvalue, $useFormatDate = false)
             if (!$modtmp) {
                 $dateValue  = $useFormatDate ? oeFormatShortDate(substr($currescaped, 0, 10)) : substr($currescaped, 0, 10);
                 echo "<input type='text' size='10' class='datepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
-                " value='" .  $dateValue  ."'";
+                " value='" .  attr($dateValue)  ."'";
             } else {
                 $dateValue  = $useFormatDate ? oeFormatDateTime(substr($currescaped, 0, 20)) : substr($currescaped, 0, 20);
                 echo "<input type='text' size='20' class='datetimepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
-                    " value='" . $dateValue . "'";
+                    " value='" . attr($dateValue) . "'";
             }
         }
         if (!$agestr) {

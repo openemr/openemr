@@ -562,7 +562,7 @@ if (empty($collectthis)) {
                     if ($_POST['form_date'] == $_POST['selected_date']) {
                         // user has NOT changed the start date of the event (and not recurrtype 3)
                         if ($my_recurrtype != 3) {
-                            $event_date = fixDate($_POST['event_start_date']);
+                            $event_date = $_POST['event_start_date'];
                         }
                     }
 
@@ -681,7 +681,7 @@ if (empty($collectthis)) {
                     if ($_POST['form_date'] == $_POST['selected_date']) {
                         // user has NOT changed the start date of the event (and not recurrtype 3)
                         if ($my_recurrtype != 3) {
-                            $event_date = fixDate($_POST['event_start_date']);
+                            $event_date = $_POST['event_start_date'];
                         }
                     }
 
