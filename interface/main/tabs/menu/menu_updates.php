@@ -27,6 +27,7 @@ include_once("$srcdir/registry.inc");
 $menu_update_map=array();
 $menu_update_map["Visit Forms"]="update_visit_forms";
 $menu_update_map["Modules"]="update_modules_menu";
+$menu_update_map["Reports"]="update_reports_menu";
 $menu_update_map["Create Visit"] = "update_create_visit";
 
 function update_modules_menu(&$menu_list)
@@ -96,6 +97,63 @@ function update_modules_menu(&$menu_list)
 
                 array_push($menu_list->children, $newEntry);
             }
+        }
+    }
+}
+
+/**
+ * load reports are created by modules system
+ * @param $menu_list
+ */
+function update_reports_menu(&$menu_list)
+{
+    $module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
+                                    obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
+                                    WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='reports' ORDER BY mod_id");
+    $reportsHooks = array();
+    if (sqlNumRows($module_query)) {
+        $jid = 0;
+        $modid = '';
+
+        while ($hookrow = sqlFetchArray($module_query)) {
+            if ($hookrow['type'] == 0) {
+                $modulePath = $GLOBALS['customModDir'];
+                $added = "";
+            } else {
+                $added = "index";
+                $modulePath = $GLOBALS['zendModDir'];
+            }
+
+            if ($jid == 0 || ($modid != $hookrow['mod_id'])) {
+                //create new label
+                $newEntry = new stdClass();
+                $newEntry->requirement = 0;
+                $newEntry->icon = "fa-caret-right";
+                $newEntry->label = xlt($hookrow['mod_ui_name']);
+                $newEntry->children = array();
+
+                $reportsHooks[] = $newEntry;
+                array_unshift($menu_list->children, $newEntry);
+            }
+
+            if (zh_acl_check($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {
+                continue;
+            }
+
+            $relative_link = "/interface/modules/" . $modulePath . "/" . $hookrow['mod_relative_link'] . $hookrow['path'];
+            $mod_nick_name = $hookrow['menu_name'] ? $hookrow['menu_name'] : 'NoName';
+
+            $subEntry = new stdClass();
+            $subEntry->requirement = 0;
+            $subEntry->target = 'rep';
+            $subEntry->menu_id = 'rep0';
+            $subEntry->label = xlt($mod_nick_name);
+            $subEntry->url = $relative_link;
+
+            $reportsHooks[count($reportsHooks)-1]->children[] = $subEntry;
+
+            $jid++;
+            $modid = $hookrow['mod_id'];
         }
     }
 }
