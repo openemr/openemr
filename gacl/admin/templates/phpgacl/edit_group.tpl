@@ -29,10 +29,11 @@
                 </select>
             </td>
             <td>
-                <input type="text" class="group-name" size="50" name="name" value="{$name}">
+            // added html escape to fix XSS - but it is not working (for both name and value parameters)
+                <input type="text" class="group-name" size="50" name="name" value="{$name|escape:'html'}">
             </td>
             <td>
-                <input type="text" class="group-value" size="50" name="value" value="{$value}">
+                <input type="text" class="group-value" size="50" name="value" value="{$value|escape:'html'}">
             </td>
           </tr>
           <tr class="controls" align="center">
