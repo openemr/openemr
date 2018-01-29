@@ -17,8 +17,10 @@
 {foreach from=$groups item=group}
           <tr valign="middle" align="center">
             <td>{$group.id}</td>
-            <td align="left">{$group.name}</td>
-            <td align="left">{$group.value}</td>
+            // escaped sripts to fix XSS - it works - BUT introduces some unnecessary code displays in ARO Group Admin 
+            // For Ex : you can check that at AXO Group Admin
+            <td align="left">{$group.name|escape:'html'}</td>
+            <td align="left">{$group.value|escape:'html'}</td>
             <td>{$group.object_count}</td>
             <td>
               [&nbsp;<a href="assign_group.php?group_type={$group_type}&group_id={$group.id}&return_page={$return_page}">Assign&nbsp;{$group_type|upper}</a>&nbsp;]
