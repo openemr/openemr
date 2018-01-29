@@ -84,12 +84,12 @@ switch ($_POST['action']) {
 		//No parent, assume a "root" group, generate a new parent id.
 		if (empty($_POST['group_id'])) {
 			$gacl_api->debug_text('Insert');
-			
-			$insert_id = $gacl_api->add_group($_POST['value'], $_POST['name'], $parent_id, $group_type);
+			// fix for XSS vulnerability 
+			$insert_id = $gacl_api->add_group(htmlspecialchars($_POST['value']), htmlspecialchars($_POST['name']), $parent_id, $group_type);
 		} else {
 			$gacl_api->debug_text('Update');
-			
-			$gacl_api->edit_group($_POST['group_id'], $_POST['value'], $_POST['name'], $parent_id, $group_type);
+			// fix for XSS vulnerability 
+			$gacl_api->edit_group($_POST['group_id'], htmlspecialchars($_POST['value']), htmlspecialchars($_POST['name']), $parent_id, $group_type);
 		}
 		
 		$gacl_api->return_page($return_page);
