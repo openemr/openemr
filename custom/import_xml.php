@@ -11,11 +11,11 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
- include_once("../interface/globals.php");
- include_once("$srcdir/patient.inc");
- include_once("$srcdir/acl.inc");
+require_once("../interface/globals.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/acl.inc");
 
- use OpenEMR\Core\Header;
+use OpenEMR\Core\Header;
 
 function setInsurance($pid, $ainsurance, $asubscriber, $seq)
 {
@@ -131,7 +131,7 @@ if ($_POST['form_import']) {
         $apatient['lname'],
         $apatient['mname'],
         $apatient['sex'],
-        $apatient['dob'],
+        fixDate($apatient['dob']),
         $apatient['street'],
         $apatient['zip'],
         $apatient['city'],

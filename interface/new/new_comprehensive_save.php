@@ -77,6 +77,7 @@ updatePatientData($pid, $newdata['patient_data'], true);
 updateEmployerData($pid, $newdata['employer_data'], true);
 
 $i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
+$i1date = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date"));
 
 // sqlStatement("unlock tables");
 // end table lock
@@ -115,6 +116,7 @@ newInsuranceData(
 
 
 $i2dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i2subscriber_DOB"));
+$i2date = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date"));
 
 newInsuranceData(
     $pid,
@@ -148,6 +150,7 @@ newInsuranceData(
 );
 
 $i3dob  = DateToYYYYMMDD(filter_input(INPUT_POST, "i3subscriber_DOB"));
+$i3date = DateToYYYYMMDD(filter_input(INPUT_POST, "i3effective_date"));
 
 newInsuranceData(
     $pid,

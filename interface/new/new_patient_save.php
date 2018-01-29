@@ -59,6 +59,7 @@ if ($_POST['form_create']) {
     $form_city              = '' ;
     $form_postcode          = '' ;
     $form_countrycode       = '' ;
+    $form_regdate           = DateToYYYYMMDD(trim($_POST['regdate']));
   // EOS DBC
   // ===================
 
@@ -109,7 +110,7 @@ if ($_POST['form_create']) {
         "", // $drivers_license = "",
         "", // $hipaa_notice = "",
         "", // $hipaa_message = "",
-        $_POST['regdate']
+        $form_regdate
     );
 
     newEmployerData($pid);

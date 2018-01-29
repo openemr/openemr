@@ -33,7 +33,7 @@ if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
     } elseif ($searchby == "ID") {
         $result = getPatientId("$searchparm", "*");
     } elseif ($searchby == "DOB") {
-        $result = getPatientDOB("$searchparm", "*");
+        $result = getPatientDOB(DateToYYYYMMDD($searchparm), "*");
     } elseif ($searchby == "SSN") {
         $result = getPatientSSN("$searchparm", "*");
     }

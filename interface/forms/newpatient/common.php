@@ -411,7 +411,7 @@ echo ">" . xlt('None'). "</option>\n";
      <td class='bold' nowrap><?php echo xlt('Date of Service:'); ?></td>
      <td class='text' nowrap>
       <input type='text' size='10' class='datepicker input-sm' name='form_date' id='form_date' <?php echo $disabled ?>
-       value='<?php echo $viewmode ? oeFormatShortDate(substr($result['date'], 0, 10)) : oeFormatShortDate(date('Y-m-d')); ?>'
+       value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : oeFormatShortDate(date('Y-m-d')); ?>'
        title='<?php echo xla('Date of service'); ?>' />
      </td>
     </tr>

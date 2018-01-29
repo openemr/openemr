@@ -308,10 +308,8 @@ function parse_static_text($frow)
 
 // $frow is a row from the layout_options table.
 // $currvalue is the current value, if any, of the associated item.
-// $useFormatDate - change values of dates inputs to local format date (according $GLOBALS['date_display_format']).
-// IMPORTANT - in the case $useFormatDate is true, not forget to convert a dates back to mysql format using DateToYYYYMMDD() function before saving.
 //
-function generate_form_field($frow, $currvalue, $useFormatDate = false)
+function generate_form_field($frow, $currvalue)
 {
     global $rootdir, $date_init, $ISSUE_TYPES, $code_types;
 
@@ -461,11 +459,11 @@ function generate_form_field($frow, $currvalue, $useFormatDate = false)
         if ($data_type == 4) {
             $modtmp = isOption($frow['edit_options'], 'F') === false ? 0 : 1;
             if (!$modtmp) {
-                $dateValue  = $useFormatDate ? oeFormatShortDate(substr($currescaped, 0, 10)) : substr($currescaped, 0, 10);
+                $dateValue  = oeFormatShortDate(substr($currescaped, 0, 10));
                 echo "<input type='text' size='10' class='datepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
                 " value='" .  attr($dateValue)  ."'";
             } else {
-                $dateValue  = $useFormatDate ? oeFormatDateTime(substr($currescaped, 0, 20)) : substr($currescaped, 0, 20);
+                $dateValue  = oeFormatDateTime(substr($currescaped, 0, 20), 0);
                 echo "<input type='text' size='20' class='datetimepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
                     " value='" . attr($dateValue) . "'";
             }
@@ -1419,7 +1417,12 @@ function generate_print_field($frow, $currvalue)
         if ($currvalue === '') {
             echo '&nbsp;';
         } else {
-            echo text(oeFormatShortDate($currvalue));
+            $modtmp = isOption($frow['edit_options'], 'F') === false ? 0 : 1;
+            if (!$modtmp) {
+                echo text(oeFormatShortDate($currvalue));
+            } else {
+                echo text(oeFormatDateTime($currvalue));
+            }
             if ($agestr) {
                 echo "&nbsp;(" . text($agestr) . ")";
             }
@@ -2466,7 +2469,12 @@ function generate_plaintext_field($frow, $currvalue)
         $s = $currvalue;
     } // date
     else if ($data_type == 4) {
-        $s = text(oeFormatShortDate($currvalue));
+        $modtmp = isOption($frow['edit_options'], 'F') === false ? 0 : 1;
+        if (!$modtmp) {
+            $s = text(oeFormatShortDate($currvalue));
+        } else {
+            $s = text(oeFormatDateTime($currvalue));
+        }
         $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
         $age_asof_date = '';
         // Optional display of age or gestational age.
@@ -3365,7 +3373,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
 
                 ++$item_count;
 
-                echo generate_form_field($group_fields, $currvalue, true);
+                echo generate_form_field($group_fields, $currvalue);
             }
             ?>
 
@@ -3388,7 +3396,14 @@ function get_layout_form_value($frow, $prefix = 'form_')
     $field_id  = $frow['field_id'];
     $value  = '';
     if (isset($_POST["$prefix$field_id"])) {
-        if ($data_type == 21) {
+        if ($data_type == 4) {
+            $modtmp = isOption($frow['edit_options'], 'F') === false ? 0 : 1;
+            if (!$modtmp) {
+                $value = DateToYYYYMMDD($_POST["$prefix$field_id"]);
+            } else {
+                $value = DateTimeToYYYYMMDDHHMMSS($_POST["$prefix$field_id"]);
+            }
+        } else if ($data_type == 21) {
             if (!$frow['list_id']) {
                 if (!empty($_POST["form_$field_id"])) {
                     $value = xlt('Yes');
