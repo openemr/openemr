@@ -1374,7 +1374,7 @@ class gacl_api extends gacl {
 						$width= $level * 20;
 						$spacing = "<img src=\"s.gif\" width=\"$width\">";
 						$next = $level + 1;
-						$text = $spacing." ".$name;
+						$text = $spacing." ".htmlspecialchars($name,ENT_QUOTES);
 						break;
 					case 'ARRAY':
 						$next = $level;
