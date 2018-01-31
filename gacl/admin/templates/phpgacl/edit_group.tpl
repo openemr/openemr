@@ -29,7 +29,6 @@
                 </select>
             </td>
             <td>
-            // added html escape to fix XSS - but it is not working (for both name and value parameters)
                 <input type="text" class="group-name" size="50" name="name" value="{$name|escape:'html'}">
             </td>
             <td>
@@ -43,8 +42,8 @@
           </tr>
         </tbody>
       </table>
-    <input type="hidden" name="group_id" value="{$id}">
-    <input type="hidden" name="group_type" value="{$group_type}">
+    <input type="hidden" name="group_id" value="{$id|escape:'html'}">
+    <input type="hidden" name="group_type" value="{$group_type|escape:'html'}">
     <input type="hidden" name="return_page" value="{$return_page}">
   </form>
 {include file="phpgacl/footer.tpl"}
