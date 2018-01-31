@@ -47,7 +47,15 @@ body
     width: 100%;
     flex: 1 0 auto;
     margin: 0;
-    padding: 0;
+    padding: 0px 5px 0px 0px;
+}
+
+#mainBox .logo {
+    padding: 10px 0px;
+    margin: 3px 10px 0px 10px;
+    width: 20px;
+    z-index: 10000;
+    float: right;
 }
 
 #mainBox > div
@@ -64,13 +72,6 @@ body
     padding: 0;
     z-index: 3;
     margin: 0;
-}
-
-#mainBox  .logo{
-float: left;
-margin:3px 4px 0px 10px;
-width:20px;
-z-index:10000;
 }
 
 #framesDisplay
@@ -165,12 +166,27 @@ z-index:10000;
     background-color: #f4f4f4;
 }
 
-#attendantData .patientDataColumn:nth-child(1) span{
-    float:left;
+#attendantData .patientDataColumn:nth-child(1) span {
+    float: right;
+    margin-right: 5px;
+    margin-left: 12px;
 }
 
-#attendantData .patientDataColumn:nth-child(1) .patientInfo:nth-child(2) {
-    float: left;
+#attendantData .patientDataColumn:nth-child(1) span{
+    float:right;
+}
+
+#attendantData .patientDataColumn .patientInfo:nth-child(2) {
+    float: right;
+}
+
+
+#attendantData .patientDataColumn:nth-child(1) .patientInfo .ptName span {
+    float: none;
+}
+
+#attendantData .patientDataColumn:nth-child(1) .patientInfo .ptName span:nth-child(2) {
+    margin: 2px;
 }
 
 .patientInfo a {
@@ -199,7 +215,7 @@ z-index:10000;
 .patientDataColumn
 {
     width: 33%;
-    float: left;
+    float: right;
     display: block;
 }
 
@@ -263,7 +279,7 @@ z-index:10000;
 #userData
 {
     position: relative;
-    float: right;
+    float: left;
 }
 .patientInfo
 {
@@ -276,6 +292,14 @@ z-index:10000;
 
 .top {
     vertical-align:top;
+}
+
+.appMenu {
+    position: relative;
+    float: right;
+    margin-right: 0px;
+    display: flex;
+    flex-direction: row;
 }
 
 .appMenu > span
@@ -304,6 +328,12 @@ z-index:10000;
  {
     background-color: transparent;
 }
+
+.btn-group.dropdown {
+    float: right;
+    direction: ltr;
+}
+
 .menuSection{
     position: relative;
 }
@@ -326,11 +356,21 @@ z-index:10000;
     display: none;
     position: absolute;
     top: -3px;
-    left: 161px;
+    right: 161px;
 }
 .menuSection:hover > .menuEntries{
     display: block;
 }
+
+.closeButton {
+    display: inline-block;
+    float: left;
+    position: relative;
+    top: 6px;
+    left: 5px;
+    transform: scaleX(-1);
+}
+
 
 /* Need separate styling for top level vs submenu items
  * This currently controls ALL links in menu, no bueno
