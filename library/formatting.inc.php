@@ -152,18 +152,24 @@ function DateFormatRead($mode = 'legacy')
     if ($GLOBALS['date_display_format']==0) {
         if ($mode == 'legacy') {
             return "%Y-%m-%d";
+        } elseif ($mode == 'validateJS') {
+            return "YYYY-MM-DD";
         } else { //$mode=='jquery-datetimepicker'
             return "Y-m-d";
         }
     } else if ($GLOBALS['date_display_format']==1) {
         if ($mode == 'legacy') {
             return "%m/%d/%Y";
+        } elseif ($mode == 'validateJS') {
+            return "MM/DD/YYYY";
         } else { //$mode=='jquery-datetimepicker'
             return "m/d/Y";
         }
     } else if ($GLOBALS['date_display_format']==2) {
         if ($mode == 'legacy') {
             return "%d/%m/%Y";
+        } elseif ($mode == 'validateJS') {
+            return "DD/MM/YYYY";
         } else { //$mode=='jquery-datetimepicker'
             return "d/m/Y";
         }

@@ -158,6 +158,10 @@ if ($popup) {
             } else if ($field_id == 'pubpid') {
                 $where .= " AND $field_id LIKE ?";
                 array_push($sqlBindArray, $value);
+                //for 'date' field
+            } else if ($data_type == 4) {
+                $where .= " AND $field_id LIKE ?";
+                array_push($sqlBindArray, DateToYYYYMMDD($value));
             } else {
                 $where .= " AND $field_id LIKE ?";
                 array_push($sqlBindArray, $value."%");

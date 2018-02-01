@@ -1742,8 +1742,8 @@ foreach ($photos as $photo_doc_id) {
                 echo "<span title='" . htmlspecialchars($etitle, ENT_QUOTES) . "'>";
             }
 
-            echo "<b>" . htmlspecialchars($row['pc_eventDate'], ENT_NOQUOTES) . ", ";
-            echo htmlspecialchars(sprintf("%02d", $disphour) .":$dispmin " . xl($dispampm) . " (" . xl($dayname), ENT_NOQUOTES)  . ")</b> ";
+            echo "<b>" . text(oeFormatShortDate($row['pc_eventDate'])) . ", ";
+            echo text(sprintf("%02d", $disphour) .":$dispmin " . xl($dispampm) . " (" . xl($dayname))  . ")</b> ";
             if ($row['pc_recurrtype']) {
                 echo "<img src='" . $GLOBALS['webroot'] . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".htmlspecialchars(xl("Repeating event"), ENT_QUOTES)."' alt='".htmlspecialchars(xl("Repeating event"), ENT_QUOTES)."'>";
             }
@@ -1821,7 +1821,7 @@ foreach ($photos as $photo_doc_id) {
                     $red_text = " style=\"color:red;\" ";
                 }
 
-                echo "<span" . $red_text . ">" . xlt('End Date') . ': ' . text($row['pc_endDate']) . "</span>";
+                echo "<span" . $red_text . ">" . xlt('End Date') . ': ' . text(oeFormatShortDate($row['pc_endDate'])) . "</span>";
                 echo "</div>";
             }
 
@@ -1885,7 +1885,7 @@ foreach ($photos as $photo_doc_id) {
             }
 
             echo "<a href='javascript:oldEvt(" . htmlspecialchars(preg_replace("/-/", "", $row['pc_eventDate']), ENT_QUOTES) . ', ' . htmlspecialchars($row['pc_eid'], ENT_QUOTES) . ")' title='" . htmlspecialchars($etitle, ENT_QUOTES) . "'>";
-            echo "<b>" . htmlspecialchars(xl($dayname) . ", " . $row['pc_eventDate'], ENT_NOQUOTES) . "</b>" . xlt("Status") .  "(";
+            echo "<b>" . htmlspecialchars(xl($dayname) . ", " . oeFormatShortDate($row['pc_eventDate']), ENT_NOQUOTES) . "</b> " . xlt("Status") .  "(";
             echo " " .  generate_display_field(array('data_type'=>'1','list_id'=>'apptstat'), $row['pc_apptstatus']) . ")<br>";   // can't use special char parser on this
             echo htmlspecialchars("$disphour:$dispmin ") . xl($dispampm) . " ";
             echo htmlspecialchars($row['fname'] . " " . $row['lname'], ENT_NOQUOTES) . "</a><br>\n";
