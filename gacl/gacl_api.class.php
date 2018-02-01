@@ -1365,7 +1365,7 @@ class gacl_api extends gacl {
 						}
 
 						$next = $level .'|&nbsp; ';
-						$text = $spacing.$name;
+						$text = $spacing.htmlspecialchars($name,ENT_QUOTES);
 						break;
 					case 'HTML':
 						/*
