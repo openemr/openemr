@@ -60,6 +60,9 @@ function oeFormatShortDate($date = 'today', $showYear = true)
 // 1 - Time format 12 hr
 function oeFormatTime($time, $format = "global")
 {
+    if (empty($time)) {
+        return "";
+    }
     $formatted = $time;
     if ($format === "global") {
         $format = $GLOBALS['time_display_format'];
