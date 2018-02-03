@@ -1,15 +1,15 @@
 <?php
 //First make sure user has access
-include_once("../../interface/globals.php");
-include_once("$srcdir/acl.inc");
+require_once("../../interface/globals.php");
+require_once("$srcdir/acl.inc");
 //ensure user has proper access
 if (!acl_check('admin', 'acl')) {
-            echo xl('ACL Administration Not Authorized');
+            echo xlt('ACL Administration Not Authorized');
             exit;
 }
 //ensure php is installed
 if (!isset($phpgacl_location)) {
-            echo xl('php-GACL access controls are turned off');
+            echo xlt('php-GACL access controls are turned off');
             exit;
 }
 
@@ -17,7 +17,7 @@ require_once("gacl_admin.inc.php");
 
 function get_system_info() {
 	global $gacl_api;
-	
+
 	//Grab system info
 	$system_info .= 'PHP Version: '.phpversion()."\n";
 	$system_info .= 'Zend Version: '.zend_version()."\n";
@@ -51,7 +51,7 @@ function get_system_info() {
 	$system_info .= ' OS: '. PHP_OS ."\n";
 	$system_info .= ' IP Address: '. $_SERVER["REMOTE_ADDR"] ."\n";
 	$system_info .= ' Browser: '. $_SERVER["HTTP_USER_AGENT"] ."\n\n";
-	
+
 	$system_info .= 'System Information: '. php_uname() ."\n";
 
 	return trim($system_info);
@@ -68,7 +68,7 @@ function submit_system_info($system_information, $system_info_md5) {
 
 	mail('phpgacl@snappymail.ca', 'phpGACL Report... ', "". $system_information ."\n\nTainted: $tainted");
 
-	return $tainted;	
+	return $tainted;
 }
 
 switch ($_POST['action']) {
@@ -76,7 +76,7 @@ switch ($_POST['action']) {
         $gacl_api->debug_text("Submit!!");
 
 		submit_system_info($_POST['system_information'], $_POST['system_info_md5']);
-	
+
 		echo "<div align=center>Thanks for contributing to phpGACL. <br> Click <a href=\"acl_list.php\">here</a> to proceed to the Administration Interface.</div><br>\n";
 		exit;
         break;
