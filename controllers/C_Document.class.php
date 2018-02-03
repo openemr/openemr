@@ -161,7 +161,7 @@ class C_Document extends Controller
                         $za = new ZipArchive();
                         $handler = $za->open($_FILES['file']['tmp_name'][$key]);
                         if ($handler) {
-                            $mimetype = "application/dicom";
+                            $mimetype = "application/dicom+zip";
                             for ($i = 0; $i < $za->numFiles; $i++) {
                                 $stat = $za->statIndex($i);
                                 $parts = pathinfo($stat['name']);

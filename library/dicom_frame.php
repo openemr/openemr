@@ -17,10 +17,17 @@
 
 require_once('../interface/globals.php');
 
+$web_path = $_REQUEST['web_path'];
 $patid = $_REQUEST['patient_id'];
 $docid = isset($_REQUEST['document_id']) ? $_REQUEST['document_id'] : $_REQUEST['doc_id'];
 $d = new Document(attr($docid));
-$web_path = attr(str_ireplace($server_document_root, '', $d->get_url_filepath()));
+$type = '.dcm';
+if ($d->get_mimetype() == 'application/dicom+zip') {
+    $type = '.zip';
+}
+
+$web_path .= '&retrieve&patient_id=' . attr($patid) . '&document_id=' . attr($docid) . '&as_file=false&type=' . attr($type);
+
 ?>
 <!DOCTYPE html>
 <html>
