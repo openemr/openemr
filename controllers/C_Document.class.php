@@ -149,6 +149,20 @@ class C_Document extends Controller {
                         if (strtolower($parts['extension']) == 'dcm') { // cheat for dicom on windows because MS must be different!!!
                             $mimetype = 'application/dicom';
                         }
+                    } elseif (stripos($mimetype, 'zip') !== false) {
+                        $za = new ZipArchive();
+                        $handler = $za->open($_FILES['file']['tmp_name'][$key]);
+                        if ($handler) {
+                            $mimetype = "application/dicom+zip";
+                            for ($i = 0; $i < $za->numFiles; $i++) {
+                                $stat = $za->statIndex($i);
+                                $parts = pathinfo($stat['name']);
+                                if (strtolower($parts['extension']) != "dcm") {
+                                    $mimetype = "application/zip";
+                                    break;
+                                }
+                            }
+                        }
                     }
                     $d = new Document();
                     $rc = $d->createDocument($patient_id, $category_id, $fname,
