@@ -53,8 +53,8 @@ while ($frow = sqlFetchArray($fres)) {
 updatePatientData($pid, $newdata['patient_data']);
 updateEmployerData($pid, $newdata['employer_data']);
 
-$i1dob = fixDate(filter_input(INPUT_POST, "i1subscriber_DOB"));
-$i1date = fixDate(filter_input(INPUT_POST, "i1effective_date"), date('Y-m-d'));
+$i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
+$i1date = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date"));
 
 newInsuranceData(
     $pid,
@@ -88,8 +88,9 @@ newInsuranceData(
     filter_input(INPUT_POST, 'i1policy_type')
 );
 
-$i2dob = fixDate(filter_input(INPUT_POST, "i2subscriber_DOB"));
-$i2date = fixDate(filter_input(INPUT_POST, "i2effective_date"), date('Y-m-d'));
+$i2dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i2subscriber_DOB"));
+$i2date = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date"));
+
 
 newInsuranceData(
     $pid,
@@ -123,8 +124,8 @@ newInsuranceData(
     filter_input(INPUT_POST, 'i2policy_type')
 );
 
-$i3dob  = fixDate(filter_input(INPUT_POST, "i3subscriber_DOB"));
-$i3date = fixDate(filter_input(INPUT_POST, "i3effective_date"), date('Y-m-d'));
+$i3dob  = DateToYYYYMMDD(filter_input(INPUT_POST, "i3subscriber_DOB"));
+$i3date = DateToYYYYMMDD(filter_input(INPUT_POST, "i3effective_date"));
 
 newInsuranceData(
     $pid,

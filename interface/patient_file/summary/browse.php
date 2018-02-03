@@ -1,10 +1,20 @@
 <?php
+/**
+ * Patient selector for insurance gui
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
+require_once("../../globals.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/options.inc.php");
 
-include_once("../../globals.php");
-include_once("$srcdir/patient.inc");
-include_once("$srcdir/options.inc.php");
+use OpenEMR\Core\Header;
 
 //the maximum number of patient records to display:
 $M = 100;
@@ -13,25 +23,43 @@ $browsenum = (is_numeric($_REQUEST['browsenum'])) ? $_REQUEST['browsenum'] : 1;
 ?>
 <html>
 <head>
-<?php html_header_show();?>
-<link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
+    <?php Header::setupHeader(['datetime-picker', 'opener']); ?>
+
+    <script language="javascript">
+        $(document).ready(function(){
+            $('[name="findBy"').on('change', function () {
+                if($(this).val() === 'DOB'){
+                    $('#searchparm').datetimepicker({
+                        <?php $datetimepicker_timepicker = false; ?>
+                        <?php $datetimepicker_showseconds = false; ?>
+                        <?php $datetimepicker_formatInput = true; ?>
+                        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+                    });
+                } else {
+                    $('#searchparm').datetimepicker("destroy");
+                }
+            });
+        });
+    </script>
+
 </head>
 
 <body class="body_top">
 
-<a href="javascript:window.close();"><font class=title><?php echo htmlspecialchars(xl('Browse for Record'), ENT_NOQUOTES); ?></font><font class=back><?php echo htmlspecialchars($tback, ENT_NOQUOTES);?></font></a>
+<a href="javascript:window.close();"><font class=title><?php echo xlt('Browse for Record'); ?></font><font class=back><?php echo text($tback);?></font></a>
 
-<form border='0' method='post' name="find_patient" action="browse.php?browsenum=<?php echo ".htmlspecialchars( $browsenum, ENT_QUOTES)."?>">
+<form border='0' method='post' name="find_patient" action="browse.php?browsenum=<?php echo ".attr( $browsenum)."?>">
 
-<input type='entry' size='10' name='patient'>
+<input type='entry' size='10' name='patient' id='searchparm'>
 <select name="findBy" size='1'>
- <option value="ID"><?php echo htmlspecialchars(xl('ID'), ENT_NOQUOTES); ?></option>
- <option value="Last" selected><?php echo htmlspecialchars(xl('Last Name'), ENT_NOQUOTES); ?></option>
- <option value="SSN"><?php echo htmlspecialchars(xl('SSN'), ENT_NOQUOTES); ?></option>
- <option value="DOB"><?php echo htmlspecialchars(xl('DOB'), ENT_NOQUOTES); ?></option>
+ <option value="ID"><?php echo xlt('ID'); ?></option>
+ <option value="Last" selected><?php echo xlt('Last Name'); ?></option>
+ <option value="SSN"><?php echo xlt('SSN'); ?></option>
+ <option value="DOB"><?php echo xlt('DOB'); ?></option>
 </select>
-<a href="javascript:document.find_patient.submit();" class=link><?php echo htmlspecialchars(xl('Find'), ENT_NOQUOTES); ?></a>&nbsp;&nbsp;
-<a href="javascript:auto_populate_employer_address();" class=link_submit><?php echo htmlspecialchars(xl('Copy Values'), ENT_NOQUOTES); ?></a>
+<a href="javascript:document.find_patient.submit();" class=link><?php echo xlt('Find'); ?></a>&nbsp;&nbsp;
+<a href="javascript:auto_populate_employer_address();" class=link_submit><?php echo xlt('Copy Values'); ?></a>
 </form>
 
 <?php
@@ -61,7 +89,7 @@ function auto_populate_employer_address(){
  if (df.form_i<?php echo htmlspecialchars($browsenum, ENT_QUOTES);?>subscriber_country) // in case this is commented out
   df.form_i<?php echo htmlspecialchars($browsenum, ENT_QUOTES);?>subscriber_country.value='<?php echo htmlspecialchars($result3{subscriber_country}, ENT_QUOTES);?>';
  df.i<?php echo htmlspecialchars($browsenum, ENT_QUOTES);?>subscriber_phone.value='<?php echo htmlspecialchars($result3{subscriber_phone}, ENT_QUOTES);?>';
- df.i<?php echo htmlspecialchars($browsenum, ENT_QUOTES);?>subscriber_DOB.value='<?php echo htmlspecialchars($result3{subscriber_DOB}, ENT_QUOTES);?>';
+ df.i<?php echo htmlspecialchars($browsenum, ENT_QUOTES);?>subscriber_DOB.value='<?php echo attr(oeFormatShortDate($result3{subscriber_DOB}));?>';
  df.i<?php echo htmlspecialchars($browsenum, ENT_QUOTES);?>subscriber_ss.value='<?php echo htmlspecialchars($result3{subscriber_ss}, ENT_QUOTES);?>';
  df.form_i<?php echo htmlspecialchars($browsenum, ENT_QUOTES);?>subscriber_sex.value='<?php echo htmlspecialchars($result3{subscriber_sex}, ENT_QUOTES);?>';
 
@@ -93,7 +121,7 @@ function auto_populate_employer_address(){
 </select>
 
 </form>
-<table>
+<table class="table">
 <tr>
 <td><span class=text><?php echo htmlspecialchars(xl('First Name'), ENT_NOQUOTES); ?>:</span></td>
 <td><span class=text><?php echo htmlspecialchars($result3{subscriber_fname}, ENT_NOQUOTES);?></span></td>
@@ -142,7 +170,7 @@ function auto_populate_employer_address(){
 </tr>
 <tr>
 <td><span class=text><?php echo htmlspecialchars(xl('DOB'), ENT_NOQUOTES); ?>:</span></td>
-<td><span class=text><?php echo htmlspecialchars($result3{subscriber_DOB}, ENT_NOQUOTES);?></span></td>
+<td><span class=text><?php echo text(oeFormatShortDate($result3{subscriber_DOB}));?></span></td>
 </tr>
 <tr>
 <td><span class=text><?php echo htmlspecialchars(xl('SS'), ENT_NOQUOTES); ?>:</span></td>
@@ -218,17 +246,17 @@ function auto_populate_employer_address(){
 } else {
 ?>
 
-<table border=0 cellpadding=5 cellspacing=0>
+<table class="table">
 <tr>
-<td>
+<th>
 <span class=bold><?php echo htmlspecialchars(xl('Name'), ENT_NOQUOTES); ?></span>
-</td><td>
+</th><th>
 <span class=bold><?php echo htmlspecialchars(xl('SS'), ENT_NOQUOTES); ?></span>
-</td><td>
+</th><th>
 <span class=bold><?php echo htmlspecialchars(xl('DOB'), ENT_NOQUOTES); ?></span>
-</td><td>
+</th><th>
 <span class=bold><?php echo htmlspecialchars(xl('ID'), ENT_NOQUOTES); ?></span>
-</td></tr>
+</th></tr>
 <?php
 
 $count=0;
@@ -236,7 +264,7 @@ $total=0;
 
 $findby = $_POST['findBy'];
 $patient = $_POST['patient'];
-if ($findby == "Last" && $result = getPatientLnames("$patient", "*,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS")) {
+if ($findby == "Last" && $result = getPatientLnames("$patient", "*")) {
     foreach ($result as $iter) {
         if ($total >= $M) {
             break;
@@ -255,7 +283,7 @@ if ($findby == "Last" && $result = getPatientLnames("$patient", "*,DATE_FORMAT(D
             print "<td><a class=text target=_top href='browse.php?browsenum=" .
                         htmlspecialchars($browsenum, ENT_QUOTES) . "&set_pid=" .
                         htmlspecialchars($iter{"pid"}, ENT_QUOTES) . "'>" .
-                        htmlspecialchars($iter{"DOB_TS"}, ENT_NOQUOTES) . "</a></td>";
+                        text(oeFormatShortDate($iter{"DOB"})) . "</a></td>";
         } else {
             print "<td><a class=text target=_top href='browse.php?browsenum=" .
                         htmlspecialchars($browsenum, ENT_QUOTES) . "&set_pid=" .
@@ -271,7 +299,7 @@ if ($findby == "Last" && $result = getPatientLnames("$patient", "*,DATE_FORMAT(D
     }
 }
 
-if ($findby == "ID" && $result = getPatientId("$patient", "*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS")) {
+if ($findby == "ID" && $result = getPatientId("$patient", "*")) {
     foreach ($result as $iter) {
         if ($total >= $M) {
             break;
@@ -290,7 +318,7 @@ if ($findby == "ID" && $result = getPatientId("$patient", "*, DATE_FORMAT(DOB,'%
             print "<td><a class=text target=_top href='browse.php?browsenum=" .
                         htmlspecialchars($browsenum, ENT_QUOTES) . "&set_pid=" .
                         htmlspecialchars($iter{"pid"}, ENT_QUOTES) . "'>" .
-                        htmlspecialchars($iter{"DOB_TS"}, ENT_NOQUOTES) . "</a></td>";
+                        text(oeFormatShortDate($iter{"DOB"})) . "</a></td>";
         } else {
             print "<td><a class=text target=_top href='browse.php?browsenum=" .
                         htmlspecialchars($browsenum, ENT_QUOTES) . "&set_pid=" .
@@ -306,7 +334,7 @@ if ($findby == "ID" && $result = getPatientId("$patient", "*, DATE_FORMAT(DOB,'%
     }
 }
 
-if ($findby == "DOB" && $result = getPatientDOB("$patient", "*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS")) {
+if ($findby == "DOB" && $result = getPatientDOB(DateToYYYYMMDD($patient), "*")) {
     foreach ($result as $iter) {
         if ($total >= $M) {
             break;
@@ -325,7 +353,7 @@ if ($findby == "DOB" && $result = getPatientDOB("$patient", "*, DATE_FORMAT(DOB,
             print "<td><a class=text target=_top href='browse.php?browsenum=" .
                 htmlspecialchars($browsenum, ENT_QUOTES) . "&set_pid=" .
                 htmlspecialchars($iter{"pid"}, ENT_QUOTES) . "'>" .
-                htmlspecialchars($iter{"DOB_TS"}, ENT_NOQUOTES) . "</a></td>";
+                text(oeFormatShortDate($iter{"DOB"})) . "</a></td>";
         } else {
             print "<td><a class=text target=_top href='browse.php?browsenum=" .
                 htmlspecialchars($browsenum, ENT_QUOTES) . "&set_pid=" .
@@ -341,7 +369,7 @@ if ($findby == "DOB" && $result = getPatientDOB("$patient", "*, DATE_FORMAT(DOB,
     }
 }
 
-if ($findby == "SSN" && $result = getPatientSSN("$patient", "*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS")) {
+if ($findby == "SSN" && $result = getPatientSSN("$patient", "*")) {
     foreach ($result as $iter) {
         if ($total >= $M) {
             break;
@@ -360,7 +388,7 @@ if ($findby == "SSN" && $result = getPatientSSN("$patient", "*, DATE_FORMAT(DOB,
             print "<td><a class=text target=_top href='browse.php?browsenum=" .
                 htmlspecialchars($browsenum, ENT_QUOTES) . "&set_pid=" .
                 htmlspecialchars($iter{"pid"}, ENT_QUOTES) . "'>" .
-                htmlspecialchars($iter{"DOB_TS"}, ENT_NOQUOTES) . "</a></td>";
+                text(oeFormatShortDate($iter{"DOB"})) . "</a></td>";
         } else {
             print "<td><a class=text target=_top href='browse.php?browsenum=" .
                 htmlspecialchars($browsenum, ENT_QUOTES) . "&set_pid=" .

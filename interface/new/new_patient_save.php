@@ -54,11 +54,12 @@ if ($_POST['form_create']) {
   // ===================
   // DBC SYSTEM WAS REMOVED
     $form_sex               = trim($_POST["sex"]) ;
-    $form_dob               = trim($_POST["DOB"]) ;
+    $form_dob               = DateToYYYYMMDD(trim($_POST["DOB"])) ;
     $form_street            = '' ;
     $form_city              = '' ;
     $form_postcode          = '' ;
     $form_countrycode       = '' ;
+    $form_regdate           = DateToYYYYMMDD(trim($_POST['regdate']));
   // EOS DBC
   // ===================
 
@@ -109,7 +110,7 @@ if ($_POST['form_create']) {
         "", // $drivers_license = "",
         "", // $hipaa_notice = "",
         "", // $hipaa_message = "",
-        $_POST['regdate']
+        $form_regdate
     );
 
     newEmployerData($pid);

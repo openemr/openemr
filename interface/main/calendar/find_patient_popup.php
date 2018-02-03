@@ -33,7 +33,7 @@ if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
     } elseif ($searchby == "ID") {
         $result = getPatientId("$searchparm", "*");
     } elseif ($searchby == "DOB") {
-        $result = getPatientDOB("$searchparm", "*");
+        $result = getPatientDOB(DateToYYYYMMDD($searchparm), "*");
     } elseif ($searchby == "SSN") {
         $result = getPatientSSN("$searchparm", "*");
     }
@@ -108,7 +108,6 @@ form {
 }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <!-- ViSolve: Verify the noresult parameter -->
 <?php
 if (isset($_GET["res"])) {
@@ -249,6 +248,20 @@ $(document).ready(function(){
 
     //$(".event").dblclick(function() { EditEvent(this); });
     $("#theform").submit(function() { SubmitForm(this); });
+
+    $('[name="searchby"').on('change', function () {
+        if($(this).val() === 'DOB'){
+            $('#searchparm').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+        } else {
+            $('#searchparm').datetimepicker("destroy");
+        }
+    });
 
 });
 
