@@ -1,4 +1,4 @@
-{include file="phpgacl/header.tpl"} 
+{include file="phpgacl/header.tpl"}
   </head>
 <body>
 {include file="phpgacl/navigation.tpl"}
@@ -62,27 +62,27 @@
 {foreach from=$acls item=acl}
   <tr valign="top" align="left">
     <td valign="middle" rowspan="2" align="center">
-        {$acl.id}
+        {$acl.id|escape:'html'}
     </td>
     <td nowrap>
-		{$acl.aco_section_value}
+		{$acl.aco_section_value|escape:'html'}
     </td>
     <td nowrap>
-		{$acl.aco_value}
-    </td>
-
-    <td nowrap>
-		{$acl.aro_section_value}<br>
-    </td>
-    <td nowrap>
-		{$acl.aro_value}<br>
+		{$acl.aco_value|escape:'html'}
     </td>
 
     <td nowrap>
-		{$acl.axo_section_value}<br>
+		{$acl.aro_section_value|escape:'html'}<br>
     </td>
     <td nowrap>
-		{$acl.axo_value}<br>
+		{$acl.aro_value|escape:'html'}<br>
+    </td>
+
+    <td nowrap>
+		{$acl.axo_section_value|escape:'html'}<br>
+    </td>
+    <td nowrap>
+		{$acl.axo_value|escape:'html'}<br>
     </td>
 
     <td valign="middle" class="{if $acl.allow}green{else}red{/if}" align="center">
@@ -93,15 +93,15 @@
 		{/if}
     </td>
     <td valign="middle" align="center">
-        {$acl.updated_date}
+        {$acl.updated_date|escape:'html'}
      </td>
   </tr>
   <tr valign="middle" align="left">
     <td colspan="4">
-        <b>Return Value:</b> {$acl.return_value}<br>
+        <b>Return Value:</b> {$acl.return_value|escape:'html'}<br>
     </td>
     <td colspan="4">
-        <b>Note:</b> {$acl.note}
+        <b>Note:</b> {$acl.note|escape:'html'}
     </td>
   </tr>
 {/foreach}
