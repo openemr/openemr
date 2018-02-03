@@ -1,4 +1,4 @@
-{include file="phpgacl/header.tpl"} 
+{include file="phpgacl/header.tpl"}
   </head>
 <body>
 {include file="phpgacl/navigation.tpl"}
@@ -23,14 +23,14 @@
   </tr>
   <tr valign="middle" align="center">
     <td nowrap><b>acl_query(</b></td>
-    <td><input type="text" name="aco_section_value" size="15" value="{$aco_section_value}"></td>
-    <td><input type="text" name="aco_value" size="15" value="{$aco_value}"></td>
-    <td><input type="text" name="aro_section_value" size="15" value="{$aro_section_value}"></td>
-    <td><input type="text" name="aro_value" size="15" value="{$aro_value}"></td>
-    <td><input type="text" name="axo_section_value" size="15" value="{$axo_section_value}"></td>
-    <td><input type="text" name="axo_value" size="15" value="{$axo_value}"></td>
-    <td><input type="text" name="root_aro_group_id" size="15" value="{$root_aro_group_id}"></td>
-    <td><input type="text" name="root_axo_group_id" size="15" value="{$root_axo_group_id}"></td>
+    <td><input type="text" name="aco_section_value" size="15" value="{$aco_section_value|escape:'html'}"></td>
+    <td><input type="text" name="aco_value" size="15" value="{$aco_value|escape:'html'}"></td>
+    <td><input type="text" name="aro_section_value" size="15" value="{$aro_section_value|escape:'html'}"></td>
+    <td><input type="text" name="aro_value" size="15" value="{$aro_value|escape:'html'}"></td>
+    <td><input type="text" name="axo_section_value" size="15" value="{$axo_section_value|escape:'html'}"></td>
+    <td><input type="text" name="axo_value" size="15" value="{$axo_value|escape:'html'}"></td>
+    <td><input type="text" name="root_aro_group_id" size="15" value="{$root_aro_group_id|escape:'html'}"></td>
+    <td><input type="text" name="root_axo_group_id" size="15" value="{$root_axo_group_id|escape:'html'}"></td>
     <td><b>)</b></td>
   </tr>
   <tr class="controls" align="center">
@@ -62,27 +62,27 @@
 {foreach from=$acls item=acl}
   <tr valign="top" align="left">
     <td valign="middle" rowspan="2" align="center">
-        {$acl.id}
+        {$acl.id|escape:'html'}
     </td>
     <td nowrap>
-		{$acl.aco_section_value}
+		{$acl.aco_section_value|escape:'html'}
     </td>
     <td nowrap>
-		{$acl.aco_value}
-    </td>
-
-    <td nowrap>
-		{$acl.aro_section_value}<br>
-    </td>
-    <td nowrap>
-		{$acl.aro_value}<br>
+		{$acl.aco_value|escape:'html'}
     </td>
 
     <td nowrap>
-		{$acl.axo_section_value}<br>
+		{$acl.aro_section_value|escape:'html'}<br>
     </td>
     <td nowrap>
-		{$acl.axo_value}<br>
+		{$acl.aro_value|escape:'html'}<br>
+    </td>
+
+    <td nowrap>
+		{$acl.axo_section_value|escape:'html'}<br>
+    </td>
+    <td nowrap>
+		{$acl.axo_value|escape:'html'}<br>
     </td>
 
     <td valign="middle" class="{if $acl.allow}green{else}red{/if}" align="center">
@@ -93,15 +93,15 @@
 		{/if}
     </td>
     <td valign="middle" align="center">
-        {$acl.updated_date}
+        {$acl.updated_date|escape:'html'}
      </td>
   </tr>
   <tr valign="middle" align="left">
     <td colspan="4">
-        <b>Return Value:</b> {$acl.return_value}<br>
+        <b>Return Value:</b> {$acl.return_value|escape:'html'}<br>
     </td>
     <td colspan="4">
-        <b>Note:</b> {$acl.note}
+        <b>Note:</b> {$acl.note|escape:'html'}
     </td>
   </tr>
 {/foreach}
