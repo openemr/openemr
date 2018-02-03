@@ -58,20 +58,31 @@ function oeFormatShortDate($date = 'today', $showYear = true)
 
 // 0 - Time format 24 hr
 // 1 - Time format 12 hr
-function oeFormatTime($time, $format = "global")
+function oeFormatTime($time, $format = "global", $seconds = false)
 {
     if (empty($time)) {
         return "";
     }
+
     $formatted = $time;
+
     if ($format === "global") {
         $format = $GLOBALS['time_display_format'];
     }
 
-    if ($format == 0) {
-        $formatted = date("H:i", strtotime($time));
-    } else if ($format == 1) {
-        $formatted = date("g:i a", strtotime($time));
+
+    if ($format == 1) {
+        if ($seconds) {
+            $formatted = date("g:i:s a", strtotime($time));
+        } else {
+            $formatted = date("g:i a", strtotime($time));
+        }
+    } else { // ($format == 0)
+        if ($seconds) {
+            $formatted = date("H:i:s", strtotime($time));
+        } else {
+            $formatted = date("H:i", strtotime($time));
+        }
     }
 
     return $formatted;
@@ -82,9 +93,9 @@ function oeFormatTime($time, $format = "global")
  * @param $datetime
  * @return string
  */
-function oeFormatDateTime($datetime, $formatTime = "global")
+function oeFormatDateTime($datetime, $formatTime = "global", $seconds = false)
 {
-    return oeFormatShortDate(substr($datetime, 0, 10)) . " " . oeFormatTime(substr($datetime, 11), $formatTime);
+    return oeFormatShortDate(substr($datetime, 0, 10)) . " " . oeFormatTime(substr($datetime, 11), $formatTime, $seconds);
 }
 
 /**
@@ -225,7 +236,11 @@ function DateTimeToYYYYMMDDHHMMSS($DateTimeValue)
     // Then deal with the time
     $fixed_time = TimeToHHMMSS(substr($DateTimeValue, 11));
 
-    return $fixed_date . " " . $fixed_time;
+    if (empty($fixed_date) && empty($fixed_time)) {
+        return "";
+    } else {
+        return $fixed_date . " " . $fixed_time;
+    }
 }
 
 // Returns age in a desired format:
