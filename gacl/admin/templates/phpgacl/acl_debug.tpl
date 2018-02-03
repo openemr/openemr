@@ -23,14 +23,14 @@
   </tr>
   <tr valign="middle" align="center">
     <td nowrap><b>acl_query(</b></td>
-    <td><input type="text" name="aco_section_value" size="15" value="{$aco_section_value}"></td>
-    <td><input type="text" name="aco_value" size="15" value="{$aco_value}"></td>
-    <td><input type="text" name="aro_section_value" size="15" value="{$aro_section_value}"></td>
-    <td><input type="text" name="aro_value" size="15" value="{$aro_value}"></td>
-    <td><input type="text" name="axo_section_value" size="15" value="{$axo_section_value}"></td>
-    <td><input type="text" name="axo_value" size="15" value="{$axo_value}"></td>
-    <td><input type="text" name="root_aro_group_id" size="15" value="{$root_aro_group_id}"></td>
-    <td><input type="text" name="root_axo_group_id" size="15" value="{$root_axo_group_id}"></td>
+    <td><input type="text" name="aco_section_value" size="15" value="{$aco_section_value|escape:'html'}"></td>
+    <td><input type="text" name="aco_value" size="15" value="{$aco_value|escape:'html'}"></td>
+    <td><input type="text" name="aro_section_value" size="15" value="{$aro_section_value|escape:'html'}"></td>
+    <td><input type="text" name="aro_value" size="15" value="{$aro_value|escape:'html'}"></td>
+    <td><input type="text" name="axo_section_value" size="15" value="{$axo_section_value|escape:'html'}"></td>
+    <td><input type="text" name="axo_value" size="15" value="{$axo_value|escape:'html'}"></td>
+    <td><input type="text" name="root_aro_group_id" size="15" value="{$root_aro_group_id|escape:'html'}"></td>
+    <td><input type="text" name="root_axo_group_id" size="15" value="{$root_axo_group_id|escape:'html'}"></td>
     <td><b>)</b></td>
   </tr>
   <tr class="controls" align="center">
