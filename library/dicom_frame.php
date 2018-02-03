@@ -20,7 +20,14 @@ require_once('../interface/globals.php');
 $web_path = $_REQUEST['web_path'];
 $patid = $_REQUEST['patient_id'];
 $docid = isset($_REQUEST['document_id']) ? $_REQUEST['document_id'] : $_REQUEST['doc_id'];
-$web_path .= '&retrieve&patient_id=' . attr($patid) . '&document_id=' . attr($docid) . '&as_file=false'
+$d = new Document(attr($docid));
+$type = '.dcm';
+if ($d->get_mimetype() == 'application/dicom+zip') {
+    $type = '.zip';
+}
+
+$web_path .= '&retrieve&patient_id=' . attr($patid) . '&document_id=' . attr($docid) . '&as_file=false&type=' . attr($type);
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -80,9 +87,9 @@ $web_path .= '&retrieve&patient_id=' . attr($patid) . '&document_id=' . attr($do
     <div class="layerContainer">
         <canvas class="imageLayer"><?php echo xlt('Only for HTML5 compatible browsers.') ?></canvas>
     </div><!-- /layerContainer -->
- </div><!-- /dwv -->
- <!-- Main -->
- <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/dwv/dicom_gui.js"></script>
- <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/dwv/dicom_launcher.js"></script>
+</div><!-- /dwv -->
+<!-- Main -->
+<script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/dicom_gui.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/dicom_launcher.js"></script>
 </body>
 </html>
