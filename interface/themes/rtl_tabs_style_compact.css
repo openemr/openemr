@@ -25,11 +25,6 @@
     padding: 0px 5px 0px 0px;
 }
 
-#mainBox .logo {
-    margin:3px 10px 0px 4px;
-    float: right;
-}
-
 #attendantData .patientDataColumn:nth-child(1) span {
     float: right;
     margin-right: 5px;

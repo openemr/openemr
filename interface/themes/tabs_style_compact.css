@@ -48,6 +48,13 @@ body
     padding: 0;
 }
 
+#mainBox  .logo{
+    float: left;
+    margin:3px 4px 0px 10px;
+    width:20px;
+    z-index:10000;
+}
+
 #mainBox > div
 {
     flex: 0 1 auto;
@@ -69,6 +76,14 @@ body
     flex: 1 0 auto;
     display: flex;
     flex-direction: row;
+}
+
+#attendantData .patientDataColumn:nth-child(1) span{
+    float:left;
+}
+
+#attendantData .patientDataColumn:nth-child(1) .patientInfo:nth-child(2) {
+    float: left;
 }
 
 #framesDisplay > div
