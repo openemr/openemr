@@ -1102,13 +1102,13 @@ function generate_form_field($frow, $currvalue)
             case "4":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
-                $resdate = $tmp[2];
+                $resdate = oeFormatShortDate($tmp[2]);
                 $reslist = $tmp[3];
                 break;
             case "3":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
-                $resdate = $tmp[2];
+                $resdate = oeFormatShortDate($tmp[2]);
                 break;
             case "2":
                 $resnote = $tmp[0];
@@ -1832,13 +1832,13 @@ function generate_print_field($frow, $currvalue)
             case "4":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
-                $resdate = $tmp[2];
+                $resdate = oeFormatShortDate($tmp[2])   ;
                 $reslist = $tmp[3];
                 break;
             case "3":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
-                $resdate = $tmp[2];
+                $resdate = oeFormatShortDate($tmp[2]);
                 break;
             case "2":
                 $resnote = $tmp[0];
@@ -2318,13 +2318,13 @@ function generate_display_field($frow, $currvalue)
             case "4":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
-                $resdate = $tmp[2];
+                $resdate = oeFormatShortDate($tmp[2]);
                 $reslist = $tmp[3];
                 break;
             case "3":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
-                $resdate = $tmp[2];
+                $resdate = oeFormatShortDate($tmp[2]);
                 break;
             case "2":
                 $resnote = $tmp[0];
@@ -2663,7 +2663,7 @@ function generate_plaintext_field($frow, $currvalue)
         $tmp = explode('|', $currvalue);
         $resnote = count($tmp) > 0 ? $tmp[0] : '';
         $restype = count($tmp) > 1 ? $tmp[1] : '';
-        $resdate = count($tmp) > 2 ? $tmp[2] : '';
+        $resdate = count($tmp) > 2 ? oeFormatShortDate($tmp[2]) : '';
         $reslist = count($tmp) > 3 ? $tmp[3] : '';
         $res = "";
         if ($restype == "current"       . $field_id) {
@@ -3465,10 +3465,10 @@ function get_layout_form_value($frow, $prefix = 'form_')
                 $restype = '0';
             }
 
-            $resdate = str_replace('|', ' ', $_POST["date_$field_id"]);
+            $resdate = DateToYYYYMMDD(str_replace('|', ' ', $_POST["date_$field_id"]));
             $resnote = str_replace('|', ' ', $_POST["$prefix$field_id"]);
             if ($data_type == 32) {
-              //VicarePlus :: Smoking status data is imploded into "note|type|date|list".
+                //VicarePlus :: Smoking status data is imploded into "note|type|date|list".
                 $reslist = str_replace('|', ' ', $_POST["$prefix$field_id"]);
                 $res_text_note = str_replace('|', ' ', $_POST["{$prefix}text_$field_id"]);
                 $value = "$res_text_note|$restype|$resdate|$reslist";
