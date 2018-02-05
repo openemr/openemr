@@ -201,7 +201,7 @@ if (isset($_SESSION['app1'])) {
 <div id="mainBox" <?php echo $disp_mainBox ?>>
     <div id="dialogDiv"></div>
     <div class="body_top">
-        <a href="http://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" target="_blank"><img class="logo" alt="openEMR small logo" style="float: left; margin:3px 4px 0px 10px;width:20px;z-index:10000;" border="0" src="<?php echo $GLOBALS['images_static_relative']; ?>/menu-logo.png"></a>
+        <a href="http://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" target="_blank"><img class="logo" alt="openEMR small logo"  border="0" src="<?php echo $GLOBALS['images_static_relative']; ?>/menu-logo.png"></a>
         <span id="menu logo" data-bind="template: {name: 'menu-template', data: application_data} "></span>
         <span id="userData" data-bind="template: {name: 'user-data-template', data:application_data} "></span>
     </div>

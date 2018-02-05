@@ -35,6 +35,9 @@ assets:
     tabs-theme:
         basePath: %webroot%/interface/themes/
         link: %theme_tabs_layout%
+        rtl:
+            basePath: %webroot%/interface/themes/
+            link: rtl_%theme_tabs_layout%
     knockout:
         basePath: %assets_static_relative%/knockout-3-4-0/dist/
         script: knockout.js
