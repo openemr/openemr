@@ -50,6 +50,9 @@ assets:
     jquery-ui-sunny:
         basePath: %assets_static_relative%/jquery-ui-1-12-1/themes/sunny/
         link: jquery-ui.min.css
+    jquery-ui-redmond:
+        basePath: %assets_static_relative%/jquery-ui-1-12-1/themes/redmond/
+        link: jquery-ui.min.css
     fontawesome:
         basePath: %assets_static_relative%/font-awesome-4-6-3/css/
         link: font-awesome.min.css
@@ -98,3 +101,7 @@ assets:
         basePath: %assets_static_relative%/modified/dygraphs-2-0-0/
         script: dygraph.js
         link: dygraph.css
+    moment:
+        basePath: %assets_static_relative%/moment-2-13-0/
+        script: moment.js
+
