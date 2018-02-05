@@ -78,14 +78,6 @@ body
     flex-direction: row;
 }
 
-#attendantData .patientDataColumn:nth-child(1) span{
-    float:left;
-}
-
-#attendantData .patientDataColumn:nth-child(1) .patientInfo:nth-child(2) {
-    float: left;
-}
-
 #framesDisplay > div
 {
     flex: 1 0 auto;
@@ -396,4 +388,8 @@ body
         position:relative;
         top:6px;
         right:5px;
+}
+
+.float-element {
+    float: left;
 }

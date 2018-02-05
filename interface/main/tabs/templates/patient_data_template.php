@@ -16,10 +16,10 @@
 <script type="text/html" id="patient-data-template">
     <div>
         <span class="patientDataColumn">
-            <span><a data-bind="click: viewPtFinder" href="#" class="btn btn-default btn-sm">
+            <span class="float-element"><a data-bind="click: viewPtFinder" href="#" class="btn btn-default btn-sm">
                 <i class="fa fa-search" aria-hidden="true"></i>
             </a></span>
-            <div class="patientInfo">
+            <div class="patientInfo float-element">
               <!-- ko if: patient -->
                   <div data-bind="with: patient" class="patientPicture">
                       <img data-bind="attr: {src: patient_picture}"

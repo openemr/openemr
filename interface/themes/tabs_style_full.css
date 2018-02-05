@@ -165,14 +165,6 @@ z-index:10000;
     background-color: #f4f4f4;
 }
 
-#attendantData .patientDataColumn:nth-child(1) span{
-    float:left;
-}
-
-#attendantData .patientDataColumn:nth-child(1) .patientInfo:nth-child(2) {
-    float: left;
-}
-
 .patientInfo a {
     color: #333 !important;
 }
@@ -425,4 +417,8 @@ div.menuLabel:hover {
     position:relative;
     top:6px;
     right:5px;
+}
+
+.float-element {
+    float: left;
 }

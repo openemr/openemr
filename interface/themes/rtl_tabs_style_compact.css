@@ -35,14 +35,6 @@
     float:right;
 }
 
-#attendantData .patientDataColumn .patientInfo:nth-child(2) {
-    float: right;
-}
-
-#attendantData .patientDataColumn:nth-child(1) .patientInfo:nth-child(2) {
-    float: right;
-}
-
 #attendantData .patientDataColumn:nth-child(1) .patientInfo .ptName span {
     float: none;
 }
@@ -86,4 +78,8 @@
 {
     float: left;
     padding-left: 20px;
+}
+
+.float-element {
+    float: right;
 }
