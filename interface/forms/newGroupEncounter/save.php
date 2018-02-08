@@ -43,8 +43,8 @@ $facilityService = new FacilityService();
 $group_id = $_SESSION['therapy_group'];
 $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
 
-$date             = (isset($_POST['form_date']))            ? $_POST['form_date'] : '';
-$onset_date       = (isset($_POST['form_onset_date']))      ? $_POST['form_onset_date'] : '';
+$date             = (isset($_POST['form_date']))            ? DateToYYYYMMDD($_POST['form_date']) : '';
+$onset_date       = (isset($_POST['form_onset_date']))      ? DateToYYYYMMDD($_POST['form_onset_date']) : '';
 $sensitivity      = (isset($_POST['form_sensitivity']))     ? $_POST['form_sensitivity'] : '';
 $pc_catid         = (isset($_POST['pc_catid']))             ? $_POST['pc_catid'] : '';
 $facility_id      = (isset($_POST['facility_id']))          ? $_POST['facility_id'] : '';

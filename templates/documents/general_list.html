@@ -122,7 +122,7 @@ $("#list_collapse").detach().appendTo("#objTreeMenu_1_node_1 nobr");
 
 // functions to view and pop out documents as needed.
 //
-$(function() {
+$(function () {
     $("img[id^='icon_objTreeMenu_']").tooltip({
         items: $("img[src*='file3.png']"),
         content: '{/literal}{xl t="Double Click on this icon to pop up document in a new viewer."|escape:"html"}{literal}'
@@ -130,7 +130,14 @@ $(function() {
 
     $("img[id^='icon_objTreeMenu_']").on('dblclick', function (e) {
         let popsrc = $(this).next("a").attr('href') || '';
-        if (!popsrc.includes('&view&')) return false;
+        let diview = $(this).next("a").text();
+        let dflg = false;
+        if (!popsrc.includes('&view&')) {
+            return false;
+        } else if (diview.toLowerCase().includes('.dcm') || diview.toLowerCase().includes('.zip')) {
+            popsrc = "{/literal}{$GLOBALS.webroot}{literal}/library/dicom_frame.php?web_path=" + popsrc;
+            dflg = true;
+        }
         popsrc = popsrc.replace('&view&', '&retrieve&') + 'as_file=false';
         let poContentModal = function () {
             let wname = '_' + Math.random().toString(36).substr(2, 6);
@@ -140,14 +147,18 @@ $(function() {
 
         let btnText = '{/literal}{xl t="Full Screen"|escape:"html"}{literal}';
         let btnClose = '{/literal}{xl t="Close"|escape:"html"}{literal}';
-
-        dlgopen(popsrc, 'popdoc', 'modal-xl', 700, '', '', {
+        let size = 'modal-xl';
+        let sizeHeight = 'full';
+        if (dflg) {
+            size = 'modal-md';
+        }
+        dlgopen(popsrc, 'popdoc', size, 600, '', '', {
             buttons: [
                 {text: btnText, close: true, style: 'primary btn-xs', click: poContentModal},
                 {text: btnClose, close: true, style: 'default btn-xs'}
             ],
-            sizeHeight: 'full',
-            allowResize: false,
+            sizeHeight: sizeHeight,
+            allowResize: true,
             allowDrag: true,
             dialogId: '',
             type: 'iframe'

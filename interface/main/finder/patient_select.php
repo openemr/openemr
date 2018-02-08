@@ -127,7 +127,7 @@ $MAXSHOW = 100; // maximum number of results to display at once
 
 //the maximum number of patient records to display:
 $sqllimit = $MAXSHOW;
-$given = "*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS";
+$given = "*";
 $orderby = "lname ASC, fname ASC";
 
 $search_service_code = trim($_POST['search_service_code']);
@@ -158,6 +158,10 @@ if ($popup) {
             } else if ($field_id == 'pubpid') {
                 $where .= " AND $field_id LIKE ?";
                 array_push($sqlBindArray, $value);
+                //for 'date' field
+            } else if ($data_type == 4) {
+                $where .= " AND $field_id LIKE ?";
+                array_push($sqlBindArray, DateToYYYYMMDD($value));
             } else {
                 $where .= " AND $field_id LIKE ?";
                 array_push($sqlBindArray, $value."%");
@@ -231,7 +235,7 @@ if ($popup) {
     } else if ($findBy == "ID") {
         $result = getPatientId("$patient", $given, "id ASC, ".$orderby, $sqllimit, $fstart);
     } else if ($findBy == "DOB") {
-        $result = getPatientDOB("$patient", $given, "DOB ASC, ".$orderby, $sqllimit, $fstart);
+        $result = getPatientDOB(DateToYYYYMMDD($patient), $given, "DOB ASC, ".$orderby, $sqllimit, $fstart);
     } else if ($findBy == "SSN") {
         $result = getPatientSSN("$patient", $given, "ss ASC, ".$orderby, $sqllimit, $fstart);
     } elseif ($findBy == "Phone") {                  //(CHEMED) Search by phone number
@@ -413,7 +417,7 @@ if ($result) {
 
         echo "<td class='srSS'>" . htmlspecialchars($iter['ss'], ENT_NOQUOTES) . "</td>";
         if ($iter{"DOB"} != "0000-00-00 00:00:00") {
-            echo "<td class='srDOB'>" . htmlspecialchars($iter['DOB_TS'], ENT_NOQUOTES) . "</td>";
+            echo "<td class='srDOB'>" . text(oeFormatShortDate($iter['DOB'])) . "</td>";
         } else {
             echo "<td class='srDOB'>&nbsp;</td>";
         }
@@ -431,11 +435,11 @@ if ($result) {
             $pid = '';
 
           // calculate date differences based on date of last encounter with billing entries
-            $query = "select DATE_FORMAT(max(form_encounter.date),'%m/%d/%y') as mydate," .
+            $query = "select max(form_encounter.date) as mydate," .
                   " (to_days(current_date())-to_days(max(form_encounter.date))) as day_diff," .
-                  " DATE_FORMAT(max(form_encounter.date) + interval " .
+                  " (max(form_encounter.date) + interval " .
               add_escape_custom($add_days) .
-                  " day,'%m/%d/%y') as next_appt, dayname(max(form_encounter.date) + interval " .
+                  " day) as next_appt, dayname(max(form_encounter.date) + interval " .
                   add_escape_custom($add_days) .
               " day) as next_appt_day from form_encounter " .
                   "join billing on billing.encounter = form_encounter.encounter and " .
@@ -446,15 +450,15 @@ if ($result) {
             if ($results = sqlFetchArray($statement)) {
                 $last_date_seen = $results['mydate'];
                 $day_diff = $results['day_diff'];
-                $next_appt_date= xl($results['next_appt_day']).', '.$results['next_appt'];
+                $next_appt_date= xl($results['next_appt_day']).', '.oeFormatShortDate($results['next_appt']);
             }
 
           // calculate date differences based on date of last encounter regardless of billing
-            $query = "select DATE_FORMAT(max(form_encounter.date),'%m/%d/%y') as mydate," .
+            $query = "select max(form_encounter.date) as mydate," .
                   " (to_days(current_date())-to_days(max(form_encounter.date))) as day_diff," .
-                  " DATE_FORMAT(max(form_encounter.date) + interval " .
+                  " (max(form_encounter.date) + interval " .
               add_escape_custom($add_days) .
-                  " day,'%m/%d/%y') as next_appt, dayname(max(form_encounter.date) + interval " .
+                  " day) as next_appt, dayname(max(form_encounter.date) + interval " .
                   add_escape_custom($add_days) .
               " day) as next_appt_day from form_encounter " .
                   " where form_encounter.pid = ?";
@@ -462,7 +466,7 @@ if ($result) {
             if ($results = sqlFetchArray($statement)) {
                 $last_date_seen = $results['mydate'];
                 $day_diff = $results['day_diff'];
-                $next_appt_date= xl($results['next_appt_day']).', '.$results['next_appt'];
+                $next_appt_date= xl($results['next_appt_day']).', '.oeFormatShortDate($results['next_appt']);
             }
 
           //calculate count of encounters by distinct billing dates with cpt4
@@ -487,8 +491,8 @@ if ($result) {
 
             echo "<td class='srNumEnc'>" . htmlspecialchars($encounter_count, ENT_NOQUOTES) . "</td>\n";
             echo "<td class='srNumDay'>" . htmlspecialchars($day_diff, ENT_NOQUOTES) . "</td>\n";
-            echo "<td class='srDateLast'>" . htmlspecialchars($last_date_seen, ENT_NOQUOTES) . "</td>\n";
-            echo "<td class='srDateNext'>" . htmlspecialchars($next_appt_date, ENT_NOQUOTES) . "</td>\n";
+            echo "<td class='srDateLast'>" . text(oeFormatShortDate($last_date_seen)) . "</td>\n";
+            echo "<td class='srDateNext'>" . text($next_appt_date) . "</td>\n";
         } else { // alternate search results style
             foreach ($extracols as $field_id => $frow) {
                 echo "<td class='srMisc'>";

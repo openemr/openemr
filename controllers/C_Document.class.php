@@ -151,12 +151,33 @@ class C_Document extends Controller
                     if ($_POST['destination'] != '') {
                         $fname = $_POST['destination'];
                     }
+                    $mimetype = $_FILES['file']['type'][$key];
+                    if ($mimetype == 'application/octet-stream') { // windows most likely...
+                        $parts = pathinfo($fname);
+                        if (strtolower($parts['extension']) == 'dcm') { // cheat for dicom on windows because MS must be different!!!
+                            $mimetype = 'application/dicom';
+                        }
+                    } elseif (stripos($mimetype, 'zip') !== false) {
+                        $za = new ZipArchive();
+                        $handler = $za->open($_FILES['file']['tmp_name'][$key]);
+                        if ($handler) {
+                            $mimetype = "application/dicom+zip";
+                            for ($i = 0; $i < $za->numFiles; $i++) {
+                                $stat = $za->statIndex($i);
+                                $parts = pathinfo($stat['name']);
+                                if (strtolower($parts['extension']) != "dcm") {
+                                    $mimetype = "application/zip";
+                                    break;
+                                }
+                            }
+                        }
+                    }
                     $d = new Document();
                     $rc = $d->createDocument(
                         $patient_id,
                         $category_id,
                         $fname,
-                        $_FILES['file']['type'][$key],
+                        $mimetype,
                         $filetext,
                         empty($_GET['higher_level_path']) ? '' : $_GET['higher_level_path'],
                         empty($_POST['path_depth']) ? 1 : $_POST['path_depth'],

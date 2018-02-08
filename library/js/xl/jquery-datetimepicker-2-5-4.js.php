@@ -84,9 +84,17 @@
     rtl: <?php echo ($_SESSION['language_direction'] == 'rtl') ? "true" : "false"; ?>,
     <?php if ($datetimepicker_timepicker) { ?>
         <?php if ($datetimepicker_showseconds) { ?>
-            format: 'Y-m-d H:i:s',
+            <?php if ($datetimepicker_formatInput) { ?>
+                format: '<?php echo DateFormatRead("jquery-datetimepicker"); ?> H:i:s',
+            <?php } else { ?>
+                format: 'Y-m-d H:i:s',
+            <?php } ?>
         <?php } else { ?>
-            format: 'Y-m-d H:i',
+            <?php if ($datetimepicker_formatInput) { ?>
+                format: '<?php echo DateFormatRead("jquery-datetimepicker"); ?> H:i',
+            <?php } else { ?>
+                format: 'Y-m-d H:i',
+            <?php } ?>
         <?php } ?>
         timepicker:true,
         step: '30'

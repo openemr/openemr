@@ -77,7 +77,7 @@ function saveInsurance($pid)
         $subscriber_employer_country = "",
         $copay = $_REQUEST['copay'],
         $subscriber_sex = "",
-        $effective_date = $_REQUEST['date'],
+        $effective_date = DateToYYYYMMDD($_REQUEST['date']),
         $accept_assignment = "TRUE",
         $policy_type = ""
     );

@@ -832,7 +832,6 @@ function getPatientName($pid)
 /* find patient data by DOB */
 function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
-    $DOB = fixDate($DOB, $DOB);
     $sqlBindArray = array();
     $where = "DOB like ? ";
     array_push($sqlBindArray, $DOB."%");
@@ -967,9 +966,6 @@ function newPatientData(
     $hipaa_message = "",
     $regdate = ""
 ) {
-
-    $DOB = fixDate($DOB);
-    $regdate = fixDate($regdate);
 
     $fitness = 0;
     $referral_source = '';
@@ -1110,7 +1106,6 @@ function updatePatientData($pid, $new, $create = false)
 {
   /*******************************************************************
     $real = getPatientData($pid);
-    $new['DOB'] = fixDate($new['DOB']);
     while(list($key, $value) = each ($new))
         $real[$key] = $value;
     $real['date'] = "'+NOW()+'";
@@ -1125,8 +1120,6 @@ function updatePatientData($pid, $new, $create = false)
   // The above was broken, though seems intent to insert a new patient_data
   // row for each update.  A good idea, but nothing is doing that yet so
   // the code below does not yet attempt it.
-
-    $new['DOB'] = fixDate($new['DOB']);
 
     if ($create) {
         $sql = "INSERT INTO patient_data SET pid = '" . add_escape_custom($pid) . "', date = NOW()";
@@ -1260,8 +1253,13 @@ function newInsuranceData(
         return false;
     }
 
-  // If a bad date was passed, err on the side of caution.
-    $effective_date = fixDate($effective_date, date('Y-m-d'));
+    // If empty dates were passed, then zero them.
+    if (empty($effective_date)) {
+        $effective_date = '0000-00-00';
+    }
+    if (empty($subscriber_DOB)) {
+        $subscriber_DOB = '0000-00-00';
+    }
 
     $idres = sqlStatement("SELECT * FROM insurance_data WHERE " .
     "pid = ? AND type = ? ORDER BY date DESC", array($pid,$type));

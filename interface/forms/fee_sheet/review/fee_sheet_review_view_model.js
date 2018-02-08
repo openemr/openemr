@@ -48,22 +48,22 @@ function procedure(json_source)
     retval.units=ko.observable(json_source.units);
     retval.mod_size=ko.observable(json_source.mod_size);
     retval.justify=ko.observableArray();
-    var justify_codes=json_source.justify.split(":");
-    for(var idx=0;idx<justify_codes.length;idx++)
-        {
-            var justify_parse=justify_codes[idx].split("|");
-            if(justify_parse.length==2)
-                {
-                    var new_code={};
-                    new_code.code_type=justify_parse[0];
-                    new_code.code=justify_parse[1];
-                    new_code.descriptions="";
-                    new_code.selected=true;
-                    var ko_code=new code_entry(new_code)
-                    ko_code.priority=idx+1;
-                    retval.justify.push(ko_code);                  
-                }
+    if (json_source.justify !== null) {
+        var justify_codes = json_source.justify.split(":");
+        for (var idx = 0; idx < justify_codes.length; idx++) {
+            var justify_parse = justify_codes[idx].split("|");
+            if (justify_parse.length == 2) {
+                var new_code = {};
+                new_code.code_type = justify_parse[0];
+                new_code.code = justify_parse[1];
+                new_code.descriptions = "";
+                new_code.selected = true;
+                var ko_code = new code_entry(new_code)
+                ko_code.priority = idx + 1;
+                retval.justify.push(ko_code);
+            }
         }
+    }
     retval.genJustify=function()
     {
         var justify_string="";

@@ -25,7 +25,7 @@ dwv.i18nLocalesPath = null;
 dwv.i18nInitialise = function (language, localesPath)
 {
     var lng = (typeof language === "undefined") ? "auto" : language;
-    var lpath = (typeof localesPath === "undefined") ? "public/assets/dwv-0-21-0" : localesPath;
+    var lpath = (typeof localesPath === "undefined") ? "./../public/assets/dwv-0-21-0" : localesPath;
     // store as global
     dwv.i18nLocalesPath = lpath;
     // i18n options: default 'en' language and

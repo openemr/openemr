@@ -66,6 +66,13 @@ body
     margin: 0;
 }
 
+#mainBox  .logo{
+float: left;
+margin:3px 4px 0px 10px;
+width:20px;
+z-index:10000;
+}
+
 #framesDisplay
 {
     flex: 1 0 auto;
@@ -157,6 +164,7 @@ body
 {
     background-color: #f4f4f4;
 }
+
 .patientInfo a {
     color: #333 !important;
 }
@@ -409,4 +417,8 @@ div.menuLabel:hover {
     position:relative;
     top:6px;
     right:5px;
+}
+
+.float-element {
+    float: left;
 }

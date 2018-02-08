@@ -58,17 +58,31 @@ function oeFormatShortDate($date = 'today', $showYear = true)
 
 // 0 - Time format 24 hr
 // 1 - Time format 12 hr
-function oeFormatTime($time, $format = "")
+function oeFormatTime($time, $format = "global", $seconds = false)
 {
+    if (empty($time)) {
+        return "";
+    }
+
     $formatted = $time;
-    if ($format == "") {
+
+    if ($format === "global") {
         $format = $GLOBALS['time_display_format'];
     }
 
-    if ($format == 0) {
-        $formatted = date("H:i", strtotime($time));
-    } else if ($format == 1) {
-        $formatted = date("g:i a", strtotime($time));
+
+    if ($format == 1) {
+        if ($seconds) {
+            $formatted = date("g:i:s a", strtotime($time));
+        } else {
+            $formatted = date("g:i a", strtotime($time));
+        }
+    } else { // ($format == 0)
+        if ($seconds) {
+            $formatted = date("H:i:s", strtotime($time));
+        } else {
+            $formatted = date("H:i", strtotime($time));
+        }
     }
 
     return $formatted;
@@ -79,9 +93,9 @@ function oeFormatTime($time, $format = "")
  * @param $datetime
  * @return string
  */
-function oeFormatDateTime($datetime)
+function oeFormatDateTime($datetime, $formatTime = "global", $seconds = false)
 {
-    echo oeFormatShortDate(substr($datetime, 0, 10)) . " " . oeFormatTime(substr($datetime, 10));
+    return oeFormatShortDate(substr($datetime, 0, 10)) . " " . oeFormatTime(substr($datetime, 11), $formatTime, $seconds);
 }
 
 /**
@@ -152,18 +166,24 @@ function DateFormatRead($mode = 'legacy')
     if ($GLOBALS['date_display_format']==0) {
         if ($mode == 'legacy') {
             return "%Y-%m-%d";
+        } elseif ($mode == 'validateJS') {
+            return "YYYY-MM-DD";
         } else { //$mode=='jquery-datetimepicker'
             return "Y-m-d";
         }
     } else if ($GLOBALS['date_display_format']==1) {
         if ($mode == 'legacy') {
             return "%m/%d/%Y";
+        } elseif ($mode == 'validateJS') {
+            return "MM/DD/YYYY";
         } else { //$mode=='jquery-datetimepicker'
             return "m/d/Y";
         }
     } else if ($GLOBALS['date_display_format']==2) {
         if ($mode == 'legacy') {
             return "%d/%m/%Y";
+        } elseif ($mode == 'validateJS') {
+            return "DD/MM/YYYY";
         } else { //$mode=='jquery-datetimepicker'
             return "d/m/Y";
         }
@@ -172,9 +192,9 @@ function DateFormatRead($mode = 'legacy')
 
 function DateToYYYYMMDD($DateValue)
 {
-//With the help of function DateFormatRead() now the user can enter date is any of the 3 formats depending upon the global setting.
- //But in database the date can be stored only in the yyyy-mm-dd format.
- //This function accepts a date in any of the 3 formats, and as per the global setting, converts it to the yyyy-mm-dd format.
+    //With the help of function DateFormatRead() now the user can enter date is any of the 3 formats depending upon the global setting.
+    //But in database the date can be stored only in the yyyy-mm-dd format.
+    //This function accepts a date in any of the 3 formats, and as per the global setting, converts it to the yyyy-mm-dd format.
     if (trim($DateValue)=='') {
         return '';
     }
@@ -190,6 +210,36 @@ function DateToYYYYMMDD($DateValue)
         if ($GLOBALS['date_display_format']==2) {
             return $DateValueArray[2].'-'.$DateValueArray[1].'-'.$DateValueArray[0];
         }
+    }
+}
+
+function TimeToHHMMSS($TimeValue)
+{
+    //For now, just return the $TimeValue, since input fields are not formatting time.
+    // This can be upgraded if decided to format input time fields.
+
+    if (trim($TimeValue)=='') {
+        return '';
+    }
+
+    return $TimeValue;
+}
+
+
+function DateTimeToYYYYMMDDHHMMSS($DateTimeValue)
+{
+    //This function accepts a timestamp in any of the selected formats, and as per the global setting, converts it to the yyyy-mm-dd hh:mm:ss format.
+
+    // First deal with the date
+    $fixed_date = DateToYYYYMMDD(substr($DateTimeValue, 0, 10));
+
+    // Then deal with the time
+    $fixed_time = TimeToHHMMSS(substr($DateTimeValue, 11));
+
+    if (empty($fixed_date) && empty($fixed_time)) {
+        return "";
+    } else {
+        return $fixed_date . " " . $fixed_time;
     }
 }
 

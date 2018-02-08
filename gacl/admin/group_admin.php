@@ -1,15 +1,15 @@
 <?php
 //First make sure user has access
-include_once("../../interface/globals.php");
-include_once("$srcdir/acl.inc");
+require_once("../../interface/globals.php");
+require_once("$srcdir/acl.inc");
 //ensure user has proper access
 if (!acl_check('admin', 'acl')) {
-            echo xl('ACL Administration Not Authorized');
+            echo xlt('ACL Administration Not Authorized');
             exit;
 }
 //ensure php is installed
 if (!isset($phpgacl_location)) {
-            echo xl('php-GACL access controls are turned off');
+            echo xlt('php-GACL access controls are turned off');
             exit;
 }
 
@@ -44,16 +44,16 @@ switch ($_POST['action']) {
 		break;
 	default:
 		$formatted_groups = $gacl_api->format_groups($gacl_api->sort_groups($group_type), HTML);
-		
+
 		$query = '
 			SELECT		a.id, a.name, a.value, count(b.'. $group_type .'_id)
 			FROM		'. $group_table .' a
 			LEFT JOIN	'. $group_map_table .' b ON b.group_id=a.id
 			GROUP BY	a.id,a.name,a.value';
 		$rs = $db->Execute($query);
-		
+
 		$group_data = array();
-		
+
 		if(is_object($rs)) {
 			while($row = $rs->FetchRow()) {
 				$group_data[$row[0]] = array(
@@ -63,9 +63,9 @@ switch ($_POST['action']) {
 				);
 			}
 		}
-		
+
 		$groups = array();
-		
+
 		foreach($formatted_groups as $id => $name) {
 			$groups[] = array(
 				'id' => $id,
@@ -77,7 +77,7 @@ switch ($_POST['action']) {
 				'object_count' => $group_data[$id]['count']
 			);
 		}
-		
+
 		$smarty->assign('groups', $groups);
 		break;
 }
