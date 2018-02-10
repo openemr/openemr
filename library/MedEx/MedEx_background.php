@@ -40,9 +40,9 @@ function start_MedEx()
     $logged_in = $MedEx->login();
     if ($logged_in) {
         $token      = $logged_in['token'];
-        $response   = $MedEx->practice->sync($token);
+        $MedEx->practice->sync($token);
         $campaigns  = $MedEx->campaign->events($token);
-        $response   = $MedEx->events->generate($token, $campaigns['events']);
+        $MedEx->events->generate($token, $campaigns['events']);
         echo "200";
     } else {
         echo $MedEx->getLastError();
