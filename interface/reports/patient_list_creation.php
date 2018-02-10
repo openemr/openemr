@@ -23,8 +23,8 @@ $search_options = array("Demographics"=>xl("Demographics"),"Problems"=>xl("Probl
 $comarr = array("allow_sms"=>xl("Allow SMS"),"allow_voice"=>xl("Allow Voice Message"),"allow_mail"=>xl("Allow Mail Message"),"allow_email"=>xl("Allow Email"));
 $_POST['form_details'] = true;
 
-$sql_date_from = (!empty($_POST['date_from'])) ? $_POST['date_from'] : date('Y-01-01 H:i:s');
-$sql_date_to = (!empty($_POST['date_to'])) ? $_POST['date_to'] : date('Y-m-d H:i:s');
+$sql_date_from = (!empty($_POST['date_from'])) ? DateTimeToYYYYMMDDHHMMSS($_POST['date_from']) : date('Y-01-01 H:i:s');
+$sql_date_to = (!empty($_POST['date_to'])) ? DateTimeToYYYYMMDDHHMMSS($_POST['date_to']) : date('Y-m-d H:i:s');
 
 $patient_id = trim($_POST["patient_id"]);
 $age_from = $_POST["age_from"];
@@ -151,7 +151,7 @@ $communication = trim($_POST["communication"]);
                 $('.datetimepicker').datetimepicker({
                     <?php $datetimepicker_timepicker = true; ?>
                     <?php $datetimepicker_showseconds = true; ?>
-                    <?php $datetimepicker_formatInput = false; ?>
+                    <?php $datetimepicker_formatInput = true; ?>
                     <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
@@ -176,8 +176,8 @@ $communication = trim($_POST["communication"]);
 
         <div id="report_parameters_daterange">
             <p>
-            <?php echo "<span style='margin-left:5px;'><b>".xlt('Date Range').":</b>&nbsp;".text(date($sql_date_from, strtotime($sql_date_from))) .
-              " &nbsp; " . xlt('to') . " &nbsp; ". text(date($sql_date_to, strtotime($sql_date_to)))."</span>"; ?>
+            <?php echo "<span style='margin-left:5px;'><b>".xlt('Date Range').":</b>&nbsp;".text(oeFormatDateTime($sql_date_from, "global", true)) .
+              " &nbsp; " . xlt('to') . " &nbsp; ". text(oeFormatDateTime($sql_date_to, "global", true))."</span>"; ?>
             <span style="margin-left:5px; " ><b><?php echo xlt('Option'); ?>:</b>&nbsp;<?php echo text($_POST['srch_option']);
             if ($_POST['srch_option'] == "Communication" && $_POST['communication'] != "") {
                 if (isset($comarr[$_POST['communication']])) {
@@ -198,10 +198,10 @@ $communication = trim($_POST["communication"]);
                         <table class='text'>
                             <tr>
                                 <td class='control-label' ><?php echo xlt('From'); ?>: </td>
-                                <td><input type='text' class='datetimepicker form-control' name='date_from' id="date_from" size='18' value='<?php echo attr($sql_date_from); ?>'>
+                                <td><input type='text' class='datetimepicker form-control' name='date_from' id="date_from" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_from, 0, true)); ?>'>
                                 </td>
                                 <td class='control-label'><?php echo xlt('To{{range}}'); ?>: </td>
-                                <td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo attr($sql_date_to); ?>'>
+                                <td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_to, 0, true)); ?>'>
                                 </td>
                                 <td class='control-label'><?php echo xlt('Option'); ?>: </td>
                                 <td class='control-label'>
@@ -566,7 +566,7 @@ $communication = trim($_POST["communication"]);
                         </tr>
                         <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
                                 <tr bgcolor = "#CCCCCC" style="font-size:15px;">
-                                    <td ><?php echo text($patDetailVal['lists_date']); ?></td>
+                                    <td ><?php echo text(oeFormatDateTime($patDetailVal['lists_date'], "global", true)); ?></td>
                                     <td ><?php echo text($patDetailVal['lists_diagnosis']); ?></td>
                                     <td ><?php echo text($patDetailVal['lists_title']); ?></td>
                                     <td ><?php echo text($patDetailVal['patient_name']); ?></td>
@@ -591,7 +591,7 @@ $communication = trim($_POST["communication"]);
                         <?php
                         foreach ($patFinalDataArr as $patKey => $labResInsideArr) {?>
                                 <tr bgcolor = "#CCCCCC" >
-                                                    <td> <?php echo text($labResInsideArr['procedure_result_date']);?>&nbsp;</td>
+                                                    <td> <?php echo text(oeFormatDateTime($labResInsideArr['procedure_result_date'], "global", true));?>&nbsp;</td>
                                                     <td> <?php echo text($labResInsideArr['procedure_result_facility'], ENT_NOQUOTES); ?>&nbsp;</td>
                                                     <td> <?php echo generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'), $labResInsideArr['procedure_result_units']); ?>&nbsp;</td>
                                                     <td> <?php echo text($labResInsideArr['procedure_result_result']); ?>&nbsp;</td>
@@ -615,7 +615,7 @@ $communication = trim($_POST["communication"]);
                         </tr>
                         <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
                                 <tr bgcolor = "#CCCCCC" >
-                                    <td ><?php echo ($patDetailVal['patient_date'] != '') ? text($patDetailVal['patient_date']) : ""; ?></td>
+                                    <td ><?php echo ($patDetailVal['patient_date'] != '') ? text(oeFormatDateTime($patDetailVal['patient_date'], "global", true)) : ""; ?></td>
                                     <td ><?php echo text($patDetailVal['patient_name']); ?></td>
                                     <td ><?php echo text($patDetailVal['patient_id']); ?></td>
                                     <td ><?php echo text($patDetailVal['patient_age']);?></td>
@@ -636,7 +636,7 @@ $communication = trim($_POST["communication"]);
                         </tr>
                             <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
                                 <tr bgcolor = "#CCCCCC" style="font-size:15px;">
-                                    <td ><?php echo ($patDetailVal['patient_date'] != '') ? text($patDetailVal['patient_date']) : ""; ?></td>
+                                    <td ><?php echo ($patDetailVal['patient_date'] != '') ? text(oeFormatDateTime($patDetailVal['patient_date'], "global", true)) : ""; ?></td>
                                     <td ><?php echo text($patDetailVal['patient_name']); ?></td>
                                     <td ><?php echo text($patDetailVal['patient_id']); ?></td>
                                     <td ><?php echo text($patDetailVal['patient_age']);?></td>
