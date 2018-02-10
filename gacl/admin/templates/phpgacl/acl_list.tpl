@@ -75,9 +75,9 @@
   </tr>
   <tr valign="middle" align="center">
     <td align="left"><b>Object:</b> </td>
-    <td><input type="text" name="filter_aco" size="20" value="{$filter_aco}" class="filter"></td>
-    <td><input type="text" name="filter_aro" size="20" value="{$filter_aro}" class="filter"></td>
-    <td><input type="text" name="filter_axo" size="20" value="{$filter_axo}" class="filter"></td>
+    <td><input type="text" name="filter_aco" size="20" value="{$filter_aco|escape:'html'}" class="filter"></td>
+    <td><input type="text" name="filter_aro" size="20" value="{$filter_aro|escape:'html'}" class="filter"></td>
+    <td><input type="text" name="filter_axo" size="20" value="{$filter_axo|escape:'html'}" class="filter"></td>
     <td align="left" width="11%"><b>Allow:</b> </td>
     <td align="left" width="11%">
 		 <select name="filter_allow" tabindex="0" class="filter">
@@ -88,8 +88,8 @@
   <tr valign="middle" align="center">
     <td align="left"><b>Group:</b> </td>
     <td>&nbsp;</td>
-    <td><input type="text" name="filter_aro_group" size="20" value="{$filter_aro_group}" class="filter"></td>
-    <td><input type="text" name="filter_axo_group" size="20" value="{$filter_axo_group}" class="filter"></td>
+    <td><input type="text" name="filter_aro_group" size="20" value="{$filter_aro_group|escape:'html'}" class="filter"></td>
+    <td><input type="text" name="filter_axo_group" size="20" value="{$filter_axo_group|escape:'html'}" class="filter"></td>
     <td align="left"><b>Enabled:</b> </td>
     <td align="left">
 		<select name="filter_enabled" tabindex="0" class="filter">
@@ -99,7 +99,7 @@
   </tr>
   <tr valign="middle" align="left">
 	<td><b>Return&nbsp;Value:</b> </td>
-	<td colspan="5"><input type="text" name="filter_return_value" size="50" value="{$filter_return_value}" class="filter"></td>
+	<td colspan="5"><input type="text" name="filter_return_value" size="50" value="{$filter_return_value|escape:'html}" class="filter"></td>
   </tr>
   <tr class="controls" align="center">
     <td colspan="6"><input type="submit" class="button" name="action" value="Filter"></td>
@@ -133,7 +133,7 @@
 		{foreach from=$acl.aco key=section item=objects}
 			<li>{$section}<ol>
 			{foreach from=$objects item=obj}
-				<li>{$obj}</li>
+				<li>{$obj|escape:'html'}</li>
 			{/foreach}
 			</ol></li>
 		{/foreach}
@@ -148,7 +148,7 @@
 		  {foreach from=$acl.aro key=section item=objects}
 			<li>{$section}<ol>
 			{foreach from=$objects item=obj}
-				<li>{$obj}</li>
+				<li>{$obj|escape:'html'}</li>
 			{/foreach}
 			</ol></li>
 		  {/foreach}
@@ -160,7 +160,7 @@
 	  {if count($acl.aro_groups) gt 0}
 		<b>Groups</b><ol>
 		  {foreach from=$acl.aro_groups item=group}
-			<li>{$group}</li>
+			<li>{$group|escape:'html'}</li>
 		  {/foreach}
 		</ol>
 	  {/if}
@@ -171,7 +171,7 @@
 		  {foreach from=$acl.axo key=section item=objects}
 			<li>{$section}<ol>
 			{foreach from=$objects item=obj}
-				<li>{$obj}</li>
+				<li>{$obj|escape:'html'}</li>
 			{/foreach}
 			</ol></li>
 		  {/foreach}
@@ -183,7 +183,7 @@
 	  {if count($acl.axo_groups) gt 0}
 		<b>Groups</b><ol>
 		  {foreach from=$acl.axo_groups item=group}
-			<li>{$group}</li>
+			<li>{$group|escape:'html'}</li>
 		  {/foreach}
 		</ol>
 	  {/if}
@@ -206,24 +206,24 @@
         [ <a href="acl_admin.php?action=edit&acl_id={$acl.id}&return_page={$return_page}">Edit</a> ]
     </td>
     <td valign="middle" rowspan="3" align="center">
-        <input type="checkbox" class="checkbox" name="delete_acl[]" value="{$acl.id}">
+        <input type="checkbox" class="checkbox" name="delete_acl[]" value="{$acl.id|escape:'html'}">
     </td>
   </tr>
 
   <tr class="{$class}">
     <td valign="top" colspan="3" align="left">
-        <b>Return Value:</b> {$acl.return_value}
+        <b>Return Value:</b> {$acl.return_value|escape:'html'}
     </td>
     <td valign="middle" colspan="2" align="center">
-        {$acl.section_name}
+        {$acl.section_name|escape:'html'}
     </td>
   </tr>
   <tr class="{$class}">
     <td valign="top" colspan="3" align="left">
-        <b>Note:</b> {$acl.note}
+        <b>Note:</b> {$acl.note|escape:'html'}
     </td>
     <td valign="middle" colspan="2" align="center">
-        {$acl.updated_date|date_format:"%d-%b-%Y&nbsp;%H:%M:%S"}
+        {$acl.updated_date|date_format:"%d-%b-%Y&nbsp;%H:%M:%S"|escape:'html'}
     </td>
   </tr>
 {/foreach}
