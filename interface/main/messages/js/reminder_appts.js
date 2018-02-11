@@ -12,12 +12,6 @@ var labels = [];
 var postcards = [];
 var show_just;
 
-
-$(function () {
-  
-});
-
-
 /*
  * Function to find a patient in the DB
  * This pop-up is the standard openEMR file find_patient_popup.php
@@ -108,7 +102,7 @@ function add_this_recall(e) {
         return false;
     } else {
         var url = "save.php";
-        formData = JSON.stringify($("form#addRecall").serialize());
+        formData = $.toJSON($("form#addRecall").serialize());
         top.restoreSession();
         $.ajax({
             type: 'POST',
@@ -326,15 +320,15 @@ function show_this(colorish='') {
     var facV = $("#form_facility").val();
     var provV = $("#form_provider").val();
     var pidV = $("#form_patient_id").val();
-    var pidRE = new RegExp(pidV, 'ig');
+    var pidRE = new RegExp(pidV, 'i');
     var pnameV = $("#form_patient_name").val();
-    var pnameRE = new RegExp(pnameV, 'ig');
+    var pnameRE = new RegExp(pnameV, 'i');
 
     $('.ALL').hide().filter(function () {
         var d = $(this).data();
         meets_fac = (facV === '') || (facV == d.facility);
         meets_prov = (provV === '') || (provV == d.provider);
-        meets_pid = pidV == '';
+        meets_pid = pidV === '';
         if ((pidV > '') && pidRE.test(d.pid)) {
             meets_pid = true;
         }

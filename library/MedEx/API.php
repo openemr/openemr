@@ -871,7 +871,7 @@
                     if ($event['E_timing'] == '5') {
                         $target_dates = " cal.pc_eventDate > curdate()  ";
                     } else {
-                        if ( !is_numeric($event['E_fire_time') ) { //this would be an error in building the event
+                        if ( !is_numeric($event['E_fire_time']) ) { //this would be an error in building the event
                             $event['E_fire_time'] ='0';
                         }
                         $timing = (int)$event['E_fire_time'];
