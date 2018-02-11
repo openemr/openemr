@@ -69,8 +69,7 @@ if (($_POST['setting_bootstrap_submenu']) ||
         }
         ?>
         var xljs_dateFormat = '<?php echo $date_format; ?>';
-    </script>
-    <script type="text/javascript">
+        var xljs1 = '<?php echo xl( 'Preferences updated successfully' ); ?>';
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>
 
