@@ -25,9 +25,9 @@
               {$sections[x].id}
               <input type="hidden" name="sections[{$sections[x].id}][]" value="{$sections[x].id}">
             </td>
-            <td><input type="text" size="10" name="sections[{$sections[x].id}][]" value="{$sections[x].value}"></td>
-            <td><input type="text" size="10" name="sections[{$sections[x].id}][]" value="{$sections[x].order}"></td>
-            <td><input type="text" size="40" name="sections[{$sections[x].id}][]" value="{$sections[x].name}"></td>
+            <td><input type="text" size="10" name="sections[{$sections[x].id}][]" value="{$sections[x].value|escape:'html'}"></td>
+            <td><input type="text" size="10" name="sections[{$sections[x].id}][]" value="{$sections[x].order|escape:'html'}"></td>
+            <td><input type="text" size="40" name="sections[{$sections[x].id}][]" value="{$sections[x].name|escape:'html'}"></td>
             <td>&nbsp;</td>
             <td><input type="checkbox" class="checkbox" name="delete_sections[]" value="{$sections[x].id}"></td>
           </tr>
