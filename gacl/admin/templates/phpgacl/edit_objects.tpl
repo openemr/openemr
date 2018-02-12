@@ -27,9 +27,9 @@
               <input type="hidden" name="objects[{$objects[x].id}][]" value="{$objects[x].id}">
             </td>
             <td>{$section_name}</td>
-            <td><input type="text" size="10" name="objects[{$objects[x].id}][]" value="{$objects[x].value}"></td>
-            <td><input type="text" size="10" name="objects[{$objects[x].id}][]" value="{$objects[x].order}"></td>
-            <td><input type="text" size="40" name="objects[{$objects[x].id}][]" value="{$objects[x].name}"></td>
+            <td><input type="text" size="10" name="objects[{$objects[x].id}][]" value="{$objects[x].value|escape:'html'}"></td>
+            <td><input type="text" size="10" name="objects[{$objects[x].id}][]" value="{$objects[x].order|escape:'html'}"></td>
+            <td><input type="text" size="40" name="objects[{$objects[x].id}][]" value="{$objects[x].name|escape:'html'}"></td>
             <td>&nbsp;</td>
             <td><input type="checkbox" class="checkbox" name="delete_object[]" value="{$objects[x].id}"></td>
           </tr>
@@ -75,8 +75,8 @@
           </tr>
         </tbody>
       </table>
-    <input type="hidden" name="section_value" value="{$section_value}">
-    <input type="hidden" name="object_type" value="{$object_type}">
-    <input type="hidden" name="return_page" value="{$return_page}">
+    <input type="hidden" name="section_value" value="{$section_value|escape:'html'}">
+    <input type="hidden" name="object_type" value="{$object_type|escape:'html'}">
+    <input type="hidden" name="return_page" value="{$return_page|escape:'html'}">
   </form>
 {include file="phpgacl/footer.tpl"}
