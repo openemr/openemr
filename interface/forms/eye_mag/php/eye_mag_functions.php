@@ -2919,12 +2919,12 @@ background-image: none;" />
                 $base_filetoshow = $GLOBALS['web_root']."/interface/forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
 
                 // random to not pull from cache.
-            if (file_exists($file_store) && ($doc['id'] > '0')) {
-                $filetoshow = $GLOBALS['web_root']."/controller.php?document&retrieve&patient_id=".attr($pid)."&document_id=".attr($doc['id'])."&as_file=false&blahblah=".rand();
-            } else {
-                //base image.
-                $filetoshow = $base_filetoshow;
-            }
+                if (file_exists($file_store) && ($doc['id'] > '0')) {
+                    $filetoshow = $GLOBALS['web_root']."/controller.php?document&retrieve&patient_id=".attr($pid)."&document_id=".attr($doc['id'])."&as_file=false&show_original=true&blahblah=".rand();
+                } else {
+                    //base image.
+                    $filetoshow = $base_filetoshow;
+                }
             ?>
 
             <input type="hidden" id="url_<?php echo attr($zone); ?>" name="url_<?php echo attr($zone); ?>" value="<?php echo $filetoshow; ?>" />
