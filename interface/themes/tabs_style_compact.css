@@ -48,6 +48,13 @@ body
     padding: 0;
 }
 
+#mainBox  .logo{
+    float: left;
+    margin:3px 4px 0px 10px;
+    width:20px;
+    z-index:10000;
+}
+
 #mainBox > div
 {
     flex: 0 1 auto;
@@ -381,4 +388,8 @@ body
         position:relative;
         top:6px;
         right:5px;
+}
+
+.float-element {
+    float: left;
 }

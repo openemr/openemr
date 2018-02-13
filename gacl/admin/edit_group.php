@@ -1,15 +1,15 @@
 <?php
 //First make sure user has access
-include_once("../../interface/globals.php");
-include_once("$srcdir/acl.inc");
+require_once("../../interface/globals.php");
+require_once("$srcdir/acl.inc");
 //ensure user has proper access
 if (!acl_check('admin', 'acl')) {
-            echo xl('ACL Administration Not Authorized');
+            echo xlt('ACL Administration Not Authorized');
             exit;
 }
 //ensure php is installed
 if (!isset($phpgacl_location)) {
-            echo xl('php-GACL access controls are turned off');
+            echo xlt('php-GACL access controls are turned off');
             exit;
 }
 
@@ -43,55 +43,55 @@ switch(strtolower(trim($group_type))) {
 switch ($_POST['action']) {
 	case 'Delete':
 		$gacl_api->debug_text('Delete');
-		
+
 		if (count($_POST['delete_group']) > 0) {
 			//Always reparent children when deleting a group.
 			foreach ($_POST['delete_group'] as $group_id) {
 				$gacl_api->debug_text('Deleting group_id: '. $group_id);
-				
+
 				$result = $gacl_api->del_group($group_id, TRUE, $group_type);
 				if ($result == FALSE) {
 					$retry[] = $group_id;
 				}
 			}
-			
+
 			if (count($retry) > 0) {
 				foreach($retry as $group_id) {
-					$gacl_api->del_group($group_id, TRUE, $group_type);	
+					$gacl_api->del_group($group_id, TRUE, $group_type);
 				}
 			}
-		
+
 		}
-		
+
 		//Return page.
 		$gacl_api->return_page($return_page);
 		break;
 	case 'Submit':
 		$gacl_api->debug_text('Submit');
-		
+
 		if (empty($_POST['parent_id'])) {
-			$parent_id = 0;   
+			$parent_id = 0;
 		} else {
 			$parent_id = $_POST['parent_id'];
 		}
-		
+
 		//Make sure we're not reparenting to ourself.
 		if (!empty($_POST['group_id']) AND $parent_id == $_POST['group_id']) {
 			echo "Sorry, can't reparent to self!<br />\n";
 			exit;
 		}
-		
+
 		//No parent, assume a "root" group, generate a new parent id.
 		if (empty($_POST['group_id'])) {
 			$gacl_api->debug_text('Insert');
-			
+
 			$insert_id = $gacl_api->add_group($_POST['value'], $_POST['name'], $parent_id, $group_type);
 		} else {
 			$gacl_api->debug_text('Update');
-			
+
 			$gacl_api->edit_group($_POST['group_id'], $_POST['value'], $_POST['name'], $parent_id, $group_type);
 		}
-		
+
 		$gacl_api->return_page($return_page);
 		break;
 	default:
@@ -101,7 +101,7 @@ switch ($_POST['action']) {
 				SELECT	id,parent_id,value,name
 				FROM	'. $group_table .'
 				WHERE	id='. (int)$_GET['group_id'];
-			
+
 			list($id, $parent_id, $value, $name) = $db->GetRow($query);
 			//showarray($row);
 		} else {
@@ -109,12 +109,12 @@ switch ($_POST['action']) {
 			$value = '';
 			$name = '';
 		}
-		
+
 		$smarty->assign('id', $id);
 		$smarty->assign('parent_id', $parent_id);
 		$smarty->assign('value', $value);
 		$smarty->assign('name', $name);
-		
+
 		$smarty->assign('options_groups', $gacl_api->format_groups($gacl_api->sort_groups($group_type)));
 		break;
 }

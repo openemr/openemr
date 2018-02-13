@@ -36,7 +36,7 @@
     </div>
 </script>
 <script type="text/html" id="menu-template">
-    <div style="margin-right:200px;">
+    <div>
         <div class='appMenu' data-bind="foreach: menu">
                 <span data-bind="template: {name:header ? 'menu-header' : 'menu-action', data: $data }"></span>
         </div>

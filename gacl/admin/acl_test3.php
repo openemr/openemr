@@ -8,16 +8,16 @@ if (!empty($_GET['debug'])) {
 }
 */
 //First make sure user has access
-include_once("../../interface/globals.php");
-include_once("$srcdir/acl.inc");
+require_once("../../interface/globals.php");
+require_once("$srcdir/acl.inc");
 //ensure user has proper access
 if (!acl_check('admin', 'acl')) {
-            echo xl('ACL Administration Not Authorized');
+            echo xlt('ACL Administration Not Authorized');
             exit;
 }
 //ensure php is installed
 if (!isset($phpgacl_location)) {
-            echo xl('php-GACL access controls are turned off');
+            echo xlt('php-GACL access controls are turned off');
             exit;
 }
 
@@ -84,11 +84,11 @@ while (list(,$row) = @each($rows)) {
 			$axo_value,
 			$axo_name
 		) = $row;
-	
+
 	$acl_check_begin_time = $profiler->getMicroTime();
 	$acl_result = $gacl->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value);
 	$acl_check_end_time = $profiler->getMicroTime();
-	
+
 	$access = &$acl_result['allow'];
 	$return_value = &$acl_result['return_value'];
 
@@ -98,32 +98,32 @@ while (list(,$row) = @each($rows)) {
 	if ($aco_section_name != $tmp_aco_section_name OR $aco_name != $tmp_aco_name) {
 		$display_aco_name = "$aco_section_name > $aco_name";
 	} else {
-		$display_aco_name = "<br>";	
+		$display_aco_name = "<br>";
 	}
-	
+
 	$acls[] = array(
 						'aco_section_value' => $aco_section_value,
 						'aco_section_name' => $aco_section_name,
 						'aco_value' => $aco_value,
 						'aco_name' => $aco_name,
-						
+
 						'aro_section_value' => $aro_section_value,
 						'aro_section_name' => $aro_section_name,
 						'aro_value' => $aro_value,
 						'aro_name' => $aro_name,
-						
+
 						'axo_section_value' => $axo_section_value,
 						'axo_section_name' => $axo_section_name,
 						'axo_value' => $axo_value,
 						'axo_name' => $axo_name,
-						
+
 						'access' => $access,
 						'return_value' => $return_value,
 						'acl_check_time' => number_format($acl_check_time, 2),
-						
+
 						'display_aco_name' => $display_aco_name,
 					);
-	
+
 	$tmp_aco_section_name = $aco_section_name;
 	$tmp_aco_name = $aco_name;
 }

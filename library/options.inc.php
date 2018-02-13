@@ -459,11 +459,13 @@ function generate_form_field($frow, $currvalue)
         if ($data_type == 4) {
             $modtmp = isOption($frow['edit_options'], 'F') === false ? 0 : 1;
             if (!$modtmp) {
+                $dateValue  = oeFormatShortDate(substr($currescaped, 0, 10));
                 echo "<input type='text' size='10' class='datepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
-                " value='" . substr($currescaped, 0, 10) . "'";
+                " value='" .  attr($dateValue)  ."'";
             } else {
-                    echo "<input type='text' size='20' class='datetimepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
-                    " value='" . substr($currescaped, 0, 20) . "'";
+                $dateValue  = oeFormatDateTime(substr($currescaped, 0, 20), 0);
+                echo "<input type='text' size='20' class='datetimepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
+                    " value='" . attr($dateValue) . "'";
             }
         }
         if (!$agestr) {
@@ -1100,13 +1102,13 @@ function generate_form_field($frow, $currvalue)
             case "4":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
-                $resdate = $tmp[2];
+                $resdate = oeFormatShortDate($tmp[2]);
                 $reslist = $tmp[3];
                 break;
             case "3":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
-                $resdate = $tmp[2];
+                $resdate = oeFormatShortDate($tmp[2]);
                 break;
             case "2":
                 $resnote = $tmp[0];
@@ -1415,7 +1417,12 @@ function generate_print_field($frow, $currvalue)
         if ($currvalue === '') {
             echo '&nbsp;';
         } else {
-            echo text(oeFormatShortDate($currvalue));
+            $modtmp = isOption($frow['edit_options'], 'F') === false ? 0 : 1;
+            if (!$modtmp) {
+                echo text(oeFormatShortDate($currvalue));
+            } else {
+                echo text(oeFormatDateTime($currvalue));
+            }
             if ($agestr) {
                 echo "&nbsp;(" . text($agestr) . ")";
             }
@@ -1825,13 +1832,13 @@ function generate_print_field($frow, $currvalue)
             case "4":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
-                $resdate = $tmp[2];
+                $resdate = oeFormatShortDate($tmp[2])   ;
                 $reslist = $tmp[3];
                 break;
             case "3":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
-                $resdate = $tmp[2];
+                $resdate = oeFormatShortDate($tmp[2]);
                 break;
             case "2":
                 $resnote = $tmp[0];
@@ -2311,13 +2318,13 @@ function generate_display_field($frow, $currvalue)
             case "4":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
-                $resdate = $tmp[2];
+                $resdate = oeFormatShortDate($tmp[2]);
                 $reslist = $tmp[3];
                 break;
             case "3":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
-                $resdate = $tmp[2];
+                $resdate = oeFormatShortDate($tmp[2]);
                 break;
             case "2":
                 $resnote = $tmp[0];
@@ -2462,7 +2469,12 @@ function generate_plaintext_field($frow, $currvalue)
         $s = $currvalue;
     } // date
     else if ($data_type == 4) {
-        $s = text(oeFormatShortDate($currvalue));
+        $modtmp = isOption($frow['edit_options'], 'F') === false ? 0 : 1;
+        if (!$modtmp) {
+            $s = text(oeFormatShortDate($currvalue));
+        } else {
+            $s = text(oeFormatDateTime($currvalue));
+        }
         $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
         $age_asof_date = '';
         // Optional display of age or gestational age.
@@ -2651,7 +2663,7 @@ function generate_plaintext_field($frow, $currvalue)
         $tmp = explode('|', $currvalue);
         $resnote = count($tmp) > 0 ? $tmp[0] : '';
         $restype = count($tmp) > 1 ? $tmp[1] : '';
-        $resdate = count($tmp) > 2 ? $tmp[2] : '';
+        $resdate = count($tmp) > 2 ? oeFormatShortDate($tmp[2]) : '';
         $reslist = count($tmp) > 3 ? $tmp[3] : '';
         $res = "";
         if ($restype == "current"       . $field_id) {
@@ -3384,7 +3396,14 @@ function get_layout_form_value($frow, $prefix = 'form_')
     $field_id  = $frow['field_id'];
     $value  = '';
     if (isset($_POST["$prefix$field_id"])) {
-        if ($data_type == 21) {
+        if ($data_type == 4) {
+            $modtmp = isOption($frow['edit_options'], 'F') === false ? 0 : 1;
+            if (!$modtmp) {
+                $value = DateToYYYYMMDD($_POST["$prefix$field_id"]);
+            } else {
+                $value = DateTimeToYYYYMMDDHHMMSS($_POST["$prefix$field_id"]);
+            }
+        } else if ($data_type == 21) {
             if (!$frow['list_id']) {
                 if (!empty($_POST["form_$field_id"])) {
                     $value = xlt('Yes');
@@ -3446,10 +3465,10 @@ function get_layout_form_value($frow, $prefix = 'form_')
                 $restype = '0';
             }
 
-            $resdate = str_replace('|', ' ', $_POST["date_$field_id"]);
+            $resdate = DateToYYYYMMDD(str_replace('|', ' ', $_POST["date_$field_id"]));
             $resnote = str_replace('|', ' ', $_POST["$prefix$field_id"]);
             if ($data_type == 32) {
-              //VicarePlus :: Smoking status data is imploded into "note|type|date|list".
+                //VicarePlus :: Smoking status data is imploded into "note|type|date|list".
                 $reslist = str_replace('|', ' ', $_POST["$prefix$field_id"]);
                 $res_text_note = str_replace('|', ' ', $_POST["{$prefix}text_$field_id"]);
                 $value = "$res_text_note|$restype|$resdate|$reslist";

@@ -54,30 +54,30 @@
     <td align="left"><b>Section:</b> </td>
     <td>
 		<select name="filter_aco_section" tabindex="0" class="filter">
-			{html_options options=$options_filter_aco_sections selected=$filter_aco_section}
+			{html_options options=$options_filter_aco_sections selected=$filter_aco_section_escaped}
 		</select>
     </td>
     <td>
 		<select name="filter_aro_section" tabindex="0" class="filter">
-			{html_options options=$options_filter_aro_sections selected=$filter_aro_section}
+			{html_options options=$options_filter_aro_sections selected=$filter_aro_section_escaped}
 		</select>
     </td>
     <td>
 		<select name="filter_axo_section" tabindex="0" class="filter">
-			{html_options options=$options_filter_axo_sections selected=$filter_axo_section}
+			{html_options options=$options_filter_axo_sections selected=$filter_axo_section_escaped}
 		</select>
     </td>
     <td colspan="2">
 		<select name="filter_acl_section" tabindex="0" class="filter">
-			{html_options options=$options_filter_acl_sections selected=$filter_acl_section}
+			{html_options options=$options_filter_acl_sections selected=$filter_acl_section_escaped}
 		</select>
     </td>
   </tr>
   <tr valign="middle" align="center">
     <td align="left"><b>Object:</b> </td>
-    <td><input type="text" name="filter_aco" size="20" value="{$filter_aco}" class="filter"></td>
-    <td><input type="text" name="filter_aro" size="20" value="{$filter_aro}" class="filter"></td>
-    <td><input type="text" name="filter_axo" size="20" value="{$filter_axo}" class="filter"></td>
+    <td><input type="text" name="filter_aco" size="20" value="{$filter_aco|escape:'html'}" class="filter"></td>
+    <td><input type="text" name="filter_aro" size="20" value="{$filter_aro|escape:'html'}" class="filter"></td>
+    <td><input type="text" name="filter_axo" size="20" value="{$filter_axo|escape:'html'}" class="filter"></td>
     <td align="left" width="11%"><b>Allow:</b> </td>
     <td align="left" width="11%">
 		 <select name="filter_allow" tabindex="0" class="filter">
@@ -88,8 +88,8 @@
   <tr valign="middle" align="center">
     <td align="left"><b>Group:</b> </td>
     <td>&nbsp;</td>
-    <td><input type="text" name="filter_aro_group" size="20" value="{$filter_aro_group}" class="filter"></td>
-    <td><input type="text" name="filter_axo_group" size="20" value="{$filter_axo_group}" class="filter"></td>
+    <td><input type="text" name="filter_aro_group" size="20" value="{$filter_aro_group|escape:'html'}" class="filter"></td>
+    <td><input type="text" name="filter_axo_group" size="20" value="{$filter_axo_group|escape:'html'}" class="filter"></td>
     <td align="left"><b>Enabled:</b> </td>
     <td align="left">
 		<select name="filter_enabled" tabindex="0" class="filter">
@@ -99,7 +99,7 @@
   </tr>
   <tr valign="middle" align="left">
 	<td><b>Return&nbsp;Value:</b> </td>
-	<td colspan="5"><input type="text" name="filter_return_value" size="50" value="{$filter_return_value}" class="filter"></td>
+	<td colspan="5"><input type="text" name="filter_return_value" size="50" value="{$filter_return_value|escape:'html'}" class="filter"></td>
   </tr>
   <tr class="controls" align="center">
     <td colspan="6"><input type="submit" class="button" name="action" value="Filter"></td>
@@ -109,7 +109,7 @@
 <table cellpadding="2" cellspacing="2" border="2" width="100%">
   <tr class="pager">
 	<td colspan="8">
-		{include file="phpgacl/pager.tpl" pager_data=$paging_data link="?action=$action&filter_aco_section=$filter_aco_section&filter_aco=$filter_aco&filter_aro_section=$filter_aro_section&filter_aro=$filter_aro&filter_axo_section=$filter_axo_section&filter_axo=$filter_axo&filter_aro_group=$filter_aro_group&filter_axo_group=$filter_axo_group&filter_return_value=$filter_return_value&filter_allow=$filter_allow&filter_enabled=$filter_enabled&"}
+		{include file="phpgacl/pager.tpl" pager_data=$paging_data link="?action=$action_escaped&filter_aco_section=$filter_aco_section_escaped&filter_aco=$filter_aco_escaped&filter_aro_section=$filter_aro_section_escaped&filter_aro=$filter_aro_escaped&filter_axo_section=$filter_axo_section_escaped&filter_axo=$filter_axo_escaped&filter_aro_group=$filter_aro_group_escaped&filter_axo_group=$filter_axo_group_escaped&filter_return_value=$filter_return_value_escaped&filter_allow=$filter_allow_escaped&filter_enabled=$filter_enabled_escaped&"}
 	</td>
   </tr>
   <tr>
@@ -126,14 +126,14 @@
 {foreach from=$acls item=acl}
   {cycle assign=class values="odd,even"}
   <tr class="{$class}">
-    <td valign="middle" rowspan="3" align="center">{$acl.id}</td>
+    <td valign="middle" rowspan="3" align="center">{$acl.id|escape:'html'}</td>
     <td valign="top" align="left">
 	{if count($acl.aco) gt 0}
 		<ul>
 		{foreach from=$acl.aco key=section item=objects}
-			<li>{$section}<ol>
+			<li>{$section|escape:'html'}<ol>
 			{foreach from=$objects item=obj}
-				<li>{$obj}</li>
+				<li>{$obj|escape:'html'}</li>
 			{/foreach}
 			</ol></li>
 		{/foreach}
@@ -146,9 +146,9 @@
 	  {if count($acl.aro) gt 0}
 		<ul>
 		  {foreach from=$acl.aro key=section item=objects}
-			<li>{$section}<ol>
+			<li>{$section|escape:'html'}<ol>
 			{foreach from=$objects item=obj}
-				<li>{$obj}</li>
+				<li>{$obj|escape:'html'}</li>
 			{/foreach}
 			</ol></li>
 		  {/foreach}
@@ -160,7 +160,7 @@
 	  {if count($acl.aro_groups) gt 0}
 		<b>Groups</b><ol>
 		  {foreach from=$acl.aro_groups item=group}
-			<li>{$group}</li>
+			<li>{$group|escape:'html'}</li>
 		  {/foreach}
 		</ol>
 	  {/if}
@@ -169,9 +169,9 @@
 	  {if count($acl.axo) gt 0}
 		<ul>
 		  {foreach from=$acl.axo key=section item=objects}
-			<li>{$section}<ol>
+			<li>{$section|escape:'html'}<ol>
 			{foreach from=$objects item=obj}
-				<li>{$obj}</li>
+				<li>{$obj|escape:'html'}</li>
 			{/foreach}
 			</ol></li>
 		  {/foreach}
@@ -183,7 +183,7 @@
 	  {if count($acl.axo_groups) gt 0}
 		<b>Groups</b><ol>
 		  {foreach from=$acl.axo_groups item=group}
-			<li>{$group}</li>
+			<li>{$group|escape:'html'}</li>
 		  {/foreach}
 		</ol>
 	  {/if}
@@ -203,33 +203,33 @@
 		{/if}
     </td>
     <td valign="middle" rowspan="3" align="center">
-        [ <a href="acl_admin.php?action=edit&acl_id={$acl.id}&return_page={$return_page}">Edit</a> ]
+        [ <a href="acl_admin.php?action=edit&acl_id={$acl.id|escape:'html'}&return_page={$return_page|escape:'html'}">Edit</a> ]
     </td>
     <td valign="middle" rowspan="3" align="center">
-        <input type="checkbox" class="checkbox" name="delete_acl[]" value="{$acl.id}">
+        <input type="checkbox" class="checkbox" name="delete_acl[]" value="{$acl.id|escape:'html'}">
     </td>
   </tr>
 
   <tr class="{$class}">
     <td valign="top" colspan="3" align="left">
-        <b>Return Value:</b> {$acl.return_value}
+        <b>Return Value:</b> {$acl.return_value|escape:'html'}
     </td>
     <td valign="middle" colspan="2" align="center">
-        {$acl.section_name}
+        {$acl.section_name|escape:'html'}
     </td>
   </tr>
   <tr class="{$class}">
     <td valign="top" colspan="3" align="left">
-        <b>Note:</b> {$acl.note}
+        <b>Note:</b> {$acl.note|escape:'html'}
     </td>
     <td valign="middle" colspan="2" align="center">
-        {$acl.updated_date|date_format:"%d-%b-%Y&nbsp;%H:%M:%S"}
+        {$acl.updated_date|date_format:"%d-%b-%Y&nbsp;%H:%M:%S"|escape:'html'}
     </td>
   </tr>
 {/foreach}
   <tr class="pager">
 	<td colspan="8">
-		{include file="phpgacl/pager.tpl" pager_data=$paging_data link="?action=$action&filter_aco_section=$filter_aco_section&filter_aco=$filter_aco&filter_aro_section=$filter_aro_section&filter_aro=$filter_aro&filter_axo_section=$filter_axo_section&filter_axo=$filter_axo&filter_aro_group=$filter_aro_group&filter_axo_group=$filter_axo_group&filter_return_value=$filter_return_value&filter_allow=$filter_allow&filter_enabled=$filter_enabled&"}
+		{include file="phpgacl/pager.tpl" pager_data=$paging_data link="?action=$action_escaped&filter_aco_section=$filter_aco_section_escaped&filter_aco=$filter_aco_escaped&filter_aro_section=$filter_aro_section_escaped&filter_aro=$filter_aro_escaped&filter_axo_section=$filter_axo_section_escaped&filter_axo=$filter_axo_escaped&filter_aro_group=$filter_aro_group_escaped&filter_axo_group=$filter_axo_group_escaped&filter_return_value=$filter_return_value_escaped&filter_allow=$filter_allow_escaped&filter_enabled=$filter_enabled_escaped&"}
 	</td>
   </tr>
   <tr class="controls">
@@ -239,6 +239,6 @@
     </td>
   </tr>
 </table>
-<input type="hidden" name="return_page" value="{$return_page}">
+<input type="hidden" name="return_page" value="{$return_page|escape:'html'}">
 </form>
 {include file="phpgacl/footer.tpl"}

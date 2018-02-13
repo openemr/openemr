@@ -1,15 +1,15 @@
 <?php
 //First make sure user has access
-include_once("../../interface/globals.php");
-include_once("$srcdir/acl.inc");
+require_once("../../interface/globals.php");
+require_once("$srcdir/acl.inc");
 //ensure user has proper access
 if (!acl_check('admin', 'acl')) {
-            echo xl('ACL Administration Not Authorized');
+            echo xlt('ACL Administration Not Authorized');
             exit;
 }
 //ensure php is installed
 if (!isset($phpgacl_location)) {
-            echo xl('php-GACL access controls are turned off');
+            echo xlt('php-GACL access controls are turned off');
             exit;
 }
 
@@ -19,7 +19,7 @@ require_once("gacl_admin.inc.php");
 if ( isset($_GET['object_type']) AND $_GET['object_type'] != '' ) {
 	$object_type = $_GET['object_type'];
 } else {
-	$object_type = $_POST['object_type'];	
+	$object_type = $_POST['object_type'];
 }
 
 switch(strtolower(trim($object_type))) {
@@ -44,19 +44,19 @@ switch(strtolower(trim($object_type))) {
         exit();
         break;
 }
-   
+
 switch ($_POST['action']) {
     case 'Delete':
-   
+
         if (count($_POST['delete_sections']) > 0) {
             foreach($_POST['delete_sections'] as $id) {
                 $gacl_api->del_object_section($id, $object_type, TRUE);
             }
-        }   
-            
+        }
+
         //Return page.
         $gacl_api->return_page($_POST['return_page']);
-        
+
         break;
     case 'Submit':
         $gacl_api->debug_text("Submit!!");
@@ -74,7 +74,7 @@ switch ($_POST['action']) {
         //Insert new sections
         while (list(,$row) = @each($_POST['new_sections'])) {
             list($value, $order, $name) = $row;
-            
+
             if (!empty($value) AND !empty($order) AND !empty($name)) {
 
                 $object_section_id = $gacl_api->add_object_section($name, $value, $order, 0, $object_type);
@@ -83,8 +83,8 @@ switch ($_POST['action']) {
         }
         $gacl_api->debug_text("return_page: ". $_POST['return_page']);
         $gacl_api->return_page($_POST['return_page']);
-        
-        break;    
+
+        break;
     default:
         $query = "select id,value,order_value,name from $object_sections_table order by order_value";
 
@@ -95,17 +95,17 @@ switch ($_POST['action']) {
 
         while (list(,$row) = @each($rows)) {
             list($id, $value, $order_value, $name) = $row;
-            
+
                 $sections[] = array(
                                                 'id' => $id,
                                                 'value' => $value,
                                                 'order' => $order_value,
-                                                'name' => $name            
+                                                'name' => $name
                                             );
         }
 
         $new_sections = array();
-        
+
         for($i=0; $i < 5; $i++) {
                 $new_sections[] = array(
                                                 'id' => $i,
@@ -124,6 +124,8 @@ switch ($_POST['action']) {
 }
 
 $smarty->assign('object_type', $object_type);
+$smarty->assign('object_type_escaped', attr($object_type));
+
 $smarty->assign('return_page', $_SERVER['REQUEST_URI']);
 
 $smarty->assign('current','edit_'. $object_type .'_sections');

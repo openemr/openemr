@@ -1,15 +1,15 @@
 <?php
 //First make sure user has access
-include_once("../../interface/globals.php");
-include_once("$srcdir/acl.inc");
+require_once("../../interface/globals.php");
+require_once("$srcdir/acl.inc");
 //ensure user has proper access
 if (!acl_check('admin', 'acl')) {
-            echo xl('ACL Administration Not Authorized');
+            echo xlt('ACL Administration Not Authorized');
             exit;
 }
 //ensure php is installed
 if (!isset($phpgacl_location)) {
-            echo xl('php-GACL access controls are turned off');
+            echo xlt('php-GACL access controls are turned off');
             exit;
 }
 
@@ -28,7 +28,7 @@ switch ($_GET['action']) {
 										$_GET['root_aro_group_id'],
 										$_GET['root_axo_group_id'],
 										TRUE);
-		
+
 		//Grab all relavent columns
 		$result['query'] = str_replace(	'a.id,a.allow,a.return_value',
 										'	a.id,
@@ -44,7 +44,7 @@ switch ($_GET['action']) {
 											ax.value as axo_value',
 											$result['query']);
 		$rs = $gacl_api->db->Execute($result['query']);
-		
+
 		if (is_object($rs)) {
 			while ($row = $rs->FetchRow()) {
 				list(
@@ -60,30 +60,30 @@ switch ($_GET['action']) {
 					$axo_section_value,
 					$axo_value
 				) = $row;
-				
+
 				$acls[] = array(
 					'id' => $id,
 					'allow' => $allow,
 					'return_value' => $return_value,
 					'note' => $note,
 					'updated_date' => date('d-M-y H:m:i',$updated_date),
-					
+
 					'aco_section_value' => $aco_section_value,
 					'aco_value' => $aco_value,
-					
+
 					'aro_section_value' => $aro_section_value,
 					'aro_value' => $aro_value,
-					
+
 					'axo_section_value' => $axo_section_value,
 					'axo_value' => $axo_value,
 				);
 			}
 		}
-		
+
 		//echo "<br><br>$x ACL_CHECK()'s<br>\n";
-		
+
 		$smarty->assign('acls', $acls);
-		
+
 		$smarty->assign('aco_section_value', $_GET['aco_section_value']);
 		$smarty->assign('aco_value', $_GET['aco_value']);
 		$smarty->assign('aro_section_value', $_GET['aro_section_value']);

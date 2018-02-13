@@ -1,15 +1,15 @@
 <?php
 //First make sure user has access
-include_once("../../interface/globals.php");
-include_once("$srcdir/acl.inc");
+require_once("../../interface/globals.php");
+require_once("$srcdir/acl.inc");
 //ensure user has proper access
 if (!acl_check('admin', 'acl')) {
-            echo xl('ACL Administration Not Authorized');
+            echo xlt('ACL Administration Not Authorized');
             exit;
 }
 //ensure php is installed
 if (!isset($phpgacl_location)) {
-            echo xl('php-GACL access controls are turned off');
+            echo xlt('php-GACL access controls are turned off');
             exit;
 }
 
@@ -19,7 +19,7 @@ require_once("gacl_admin.inc.php");
 if ($_GET['object_type'] != '') {
 	$object_type = $_GET['object_type'];
 } else {
-	$object_type = $_POST['object_type'];	
+	$object_type = $_POST['object_type'];
 }
 
 switch(strtolower(trim($object_type))) {
@@ -46,20 +46,20 @@ switch(strtolower(trim($object_type))) {
 
 switch ($_POST['action']) {
     case 'Delete':
-   
+
         if (count($_POST['delete_object']) > 0) {
             foreach($_POST['delete_object'] as $id) {
                 $gacl_api->del_object($id, $object_type, TRUE);
             }
-        }   
-            
+        }
+
         //Return page.
         $gacl_api->return_page($_POST['return_page']);
-        
+
         break;
     case 'Submit':
         $gacl_api->debug_text("Submit!!");
-    
+
         //Update objects
         while (list(,$row) = @each($_POST['objects'])) {
             list($id, $value, $order, $name) = $row;
@@ -74,20 +74,20 @@ switch ($_POST['action']) {
         //Insert new sections
         while (list(,$row) = @each($_POST['new_objects'])) {
             list($value, $order, $name) = $row;
-            
+
             if (!empty($value) AND !empty($name)) {
                 $object_id= $gacl_api->add_object($_POST['section_value'], $name, $value, $order, 0, $object_type);
             }
         }
         $gacl_api->debug_text("return_page: ". $_POST['return_page']);
         $gacl_api->return_page($_POST['return_page']);
-        
-        break;    
+
+        break;
     default:
         //Grab section name
         $query = "select name from $object_sections_table where value = '". $_GET['section_value'] ."'";
         $section_name = $db->GetOne($query);
-        
+
         $query = "select
                                     id,
                                     section_value,
@@ -97,18 +97,18 @@ switch ($_POST['action']) {
                         from    $object_table
                         where   section_value='". $_GET['section_value'] ."'
                         order by order_value";
-        $rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);        
+        $rs = $db->pageexecute($query, $gacl_api->_items_per_page, $_GET['page']);
         $rows = $rs->GetRows();
 
         while (list(,$row) = @each($rows)) {
             list($id, $section_value, $value, $order_value, $name) = $row;
-            
+
                 $objects[] = array(
                                                 'id' => $id,
                                                 'section_value' => $section_value,
                                                 'value' => $value,
                                                 'order' => $order_value,
-                                                'name' => $name            
+                                                'name' => $name
                                             );
         }
 
@@ -124,15 +124,20 @@ switch ($_POST['action']) {
 
         $smarty->assign('objects', $objects);
         $smarty->assign('new_objects', $new_objects);
-        
+
         $smarty->assign("paging_data", $gacl_api->get_paging_data($rs));
-        
+
         break;
 }
 
-$smarty->assign('section_value', stripslashes($_GET['section_value']));
+$smarty->assign('section_value', $_GET['section_value']);
+$smarty->assign('section_value_escaped', attr($_GET['section_value']));
+
 $smarty->assign('section_name', $section_name);
+
 $smarty->assign('object_type', $object_type);
+$smarty->assign('object_type_escaped', attr($object_type));
+
 $smarty->assign('return_page', $_SERVER['REQUEST_URI']);
 
 $smarty->assign('current','edit_'. $object_type .'s');

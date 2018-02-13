@@ -134,7 +134,6 @@ $(function () {
         let dflg = false;
         if (!popsrc.includes('&view&')) {
             return false;
-        } else if (diview.toLowerCase().includes('.dcm')) {
             popsrc = "{/literal}{$GLOBALS.webroot}{literal}/library/dicom_frame.php?web_path=" + popsrc;
             dflg = true;
         }

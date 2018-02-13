@@ -157,6 +157,7 @@ class C_Document extends Controller
                         if (strtolower($parts['extension']) == 'dcm') { // cheat for dicom on windows because MS must be different!!!
                             $mimetype = 'application/dicom';
                         }
+
                     }
                     $d = new Document();
                     $rc = $d->createDocument(
