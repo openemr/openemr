@@ -124,6 +124,8 @@ switch ($_POST['action']) {
 }
 
 $smarty->assign('object_type', $object_type);
+$smarty->assign('object_type_escaped', attr($object_type));
+
 $smarty->assign('return_page', $_SERVER['REQUEST_URI']);
 
 $smarty->assign('current','edit_'. $object_type .'_sections');
