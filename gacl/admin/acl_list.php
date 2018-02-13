@@ -222,14 +222,22 @@ switch ($_GET['action']) {
 		$smarty->assign('acls', $acls);
 
 		$smarty->assign('filter_aco', $_GET['filter_aco']);
+        $smarty->assign('filter_aco_escaped', attr($_GET['filter_aco']));
 
 		$smarty->assign('filter_aro', $_GET['filter_aro']);
+        $smarty->assign('filter_aro_escaped', attr($_GET['filter_aro']));
+
 		$smarty->assign('filter_aro_group', $_GET['filter_aro_group']);
+        $smarty->assign('filter_aro_group_escaped', attr($_GET['filter_aro_group']));
 
 		$smarty->assign('filter_axo', $_GET['filter_axo']);
+        $smarty->assign('filter_axo_escaped', attr($_GET['filter_axo']));
+
 		$smarty->assign('filter_axo_group', $_GET['filter_axo_group']);
+        $smarty->assign('filter_axo_group_escaped', attr($_GET['filter_axo_group']));
 
 		$smarty->assign('filter_return_value', $_GET['filter_return_value']);
+        $smarty->assign('filter_return_value_escaped', attr($_GET['filter_return_value']));
 
 		foreach(array('aco','aro','axo','acl') as $type) {
 			//
@@ -248,7 +256,7 @@ switch ($_GET['action']) {
 
 			if ( is_object($rs) ) {
 				while ($row = $rs->FetchRow()) {
-					$options[$row[0]] = $row[1];
+					$options[attr($row[0])] = attr($row[1]);
 				}
 			}
 
@@ -259,6 +267,7 @@ switch ($_GET['action']) {
 			}
 
 			$smarty->assign('filter_' . $type . '_section', $_GET['filter_' . $type .'_section']);
+            $smarty->assign('filter_' . $type . '_section_escaped', attr($_GET['filter_' . $type .'_section']));
 		}
 
 		$smarty->assign('options_filter_allow', array('-1' => 'Any', 1 => 'Allow', 0 => 'Deny'));
@@ -272,10 +281,15 @@ switch ($_GET['action']) {
 		}
 
 		$smarty->assign('filter_allow', $_GET['filter_allow']);
+        $smarty->assign('filter_allow_escaped', attr($_GET['filter_allow']));
+
 		$smarty->assign('filter_enabled', $_GET['filter_enabled']);
+        $smarty->assign('filter_enabled_escaped', attr($_GET['filter_enabled']));
 }
 
 $smarty->assign('action', $_GET['action']);
+$smarty->assign('action_escaped', attr($_GET['action']));
+
 $smarty->assign('return_page', $_SERVER['PHP_SELF']);
 
 $smarty->assign('current','acl_list');
