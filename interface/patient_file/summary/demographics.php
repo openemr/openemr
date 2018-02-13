@@ -249,7 +249,7 @@ function editScripts(url) {
         iam.location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo attr($pid); ?>"
     };
 
-    var title = '<?php echo xla('Prescriptions'); ?>';
+    let title = '<?php echo xla('Prescriptions'); ?>';
     let w = 810;
     <?php if ($GLOBALS['weno_rx_enable']) {
         echo 'w = 910;'; }?>
@@ -265,6 +265,21 @@ function editScripts(url) {
         allowResize: true,
         allowDrag: true,
         dialogId: 'editscripts',
+        type: 'iframe'
+    });
+}
+
+function doPublish() {
+    let title = '<?php echo xla('Publish Patient to FHIR Server'); ?>';
+    let url = top.webroot_url + '/phpfhir/providerPublishUI.php?patient_id=<?php echo $pid ?>';
+
+    dlgopen(url, 'publish', 'modal-mlg', 750, '', '', {
+        buttons: [
+            {text: '<?php echo xla('Done'); ?>', close: true, style: 'default btn-sm'}
+        ],
+        allowResize: true,
+        allowDrag: true,
+        dialogId: '',
         type: 'iframe'
     });
 }
@@ -761,6 +776,9 @@ if ($GLOBALS['patient_id_category_name']) {
           |
           <a href="../../reports/external_data.php" onclick='top.restoreSession()'>
             <?php echo xlt('External Data'); ?></a>
+          |
+          <a href="" onclick='doPublish();return false;'>
+                <?php echo xlt('Publish'); ?></a>
 
 <!-- DISPLAYING HOOKS STARTS HERE -->
 <?php
