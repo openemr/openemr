@@ -2,7 +2,7 @@
 
 namespace oeFHIR;
 
-require_once '../../HL7/FHIR/STU3/PHPFHIRResponseParser.php';
+//require_once '../../HL7/FHIR/STU3/PHPFHIRResponseParser.php';
 
 use HL7\FHIR\STU3\FHIRDomainResource\FHIRPatient;
 use HL7\FHIR\STU3\FHIRElement\FHIRAddress;
