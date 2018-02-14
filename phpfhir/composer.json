@@ -1,0 +1,22 @@
+{
+    "name": "OpenEMR FHIR",
+    "type": "module",
+    "license": "Gpl",
+    "description": "",
+    "authors": [
+        {
+            "name": "Jerry Padgett",
+            "email": "sjpadgett@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.6.0",
+        "guzzlehttp/guzzle": "~6.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "HL7\\FHIR\\STU3\\": "./HL7/FHIR/STU3/src",
+            "oeFHIR\\": "./classes/src"
+        }
+    }
+}
