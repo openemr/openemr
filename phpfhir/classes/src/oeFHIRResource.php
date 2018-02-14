@@ -2,12 +2,11 @@
 
 namespace oeFHIR;
 
-//require_once '../../HL7/FHIR/STU3/PHPFHIRResponseParser.php';
-
 use HL7\FHIR\STU3\FHIRDomainResource\FHIRPatient;
 use HL7\FHIR\STU3\FHIRElement\FHIRAddress;
 use HL7\FHIR\STU3\FHIRElement\FHIRHumanName;
 use HL7\FHIR\STU3\FHIRElement\FHIRId;
+use HL7\FHIR\STU3\PHPFHIRResponseParser;
 
 class oeFHIRResource
 {
@@ -51,7 +50,7 @@ class oeFHIRResource
 
     public function parseResource($rjson = '', $scheme = 'json')
     {
-        $parser = new \HL7\FHIR\STU3\PHPFHIRResponseParser();
+        $parser = new PHPFHIRResponseParser(false);
         if ($scheme == 'json') {
             $class_object = $parser->parse($rjson);
         } else {
