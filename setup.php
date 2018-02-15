@@ -25,12 +25,12 @@
 // Warning. If you set $allow_multisite_setup to true, this is a potential security vulnerability.
 // Recommend setting it back to false (or removing this setup.php script entirely) after you
 //  are done with the multisite procedure.
-$allow_multisite_setup = false;
+$allow_multisite_setup = true;
 
 // Warning. If you set $allow_cloning_setup to true, this is a potential security vulnerability.
 // Recommend setting it back to false (or removing this setup.php script entirely) after you
 //  are done with the cloning setup procedure.
-$allow_cloning_setup = false;
+$allow_cloning_setup = true;
 if (!$allow_cloning_setup && !empty($_REQUEST['clone_database'])) {
     die("To turn on support for cloning setup, need to edit this script and change \$allow_cloning_setup to true. After you are done setting up the cloning, ensure you change \$allow_cloning_setup back to false or remove this script altogether");
 }
