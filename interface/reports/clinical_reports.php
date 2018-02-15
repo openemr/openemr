@@ -20,8 +20,8 @@ use OpenEMR\Core\Header;
 
 $comarr = array('allow_sms'=>xl('Allow SMS'),'allow_voice'=>xl('Allow Voice Message'),'allow_mail'=>xl('Allow Mail Message'),'allow_email'=>xl('Allow Email'));
 
-$sql_date_from = (!empty($_POST['date_from'])) ? $_POST['date_from'] : date('Y-01-01 H:i:s');
-$sql_date_to = (!empty($_POST['date_to'])) ? $_POST['date_to'] : date('Y-m-d H:i:s');
+$sql_date_from = (!empty($_POST['date_from'])) ? DateTimeToYYYYMMDDHHMMSS($_POST['date_from']) : date('Y-01-01 H:i:s');
+$sql_date_to = (!empty($_POST['date_to'])) ? DateTimeToYYYYMMDDHHMMSS($_POST['date_to']) : date('Y-m-d H:i:s');
 
 $type = $_POST["type"];
 $facility = isset($_POST['facility']) ? $_POST['facility'] : '';
@@ -193,7 +193,7 @@ $communication = trim($_POST["communication"]);
             $('.datetimepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = true; ?>
-                <?php $datetimepicker_formatInput = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
@@ -209,8 +209,8 @@ $communication = trim($_POST["communication"]);
 <!-- Search can be done using age range, gender, and ethnicity filters.
 Search options include diagnosis, procedure, prescription, medical history, and lab results.
 -->
-<div id="report_parameters_daterange"> <?php echo htmlspecialchars(date("d F Y", strtotime($sql_date_from)), ENT_NOQUOTES) .
-      " &nbsp; to &nbsp; ". htmlspecialchars(date("d F Y", strtotime($sql_date_to)), ENT_NOQUOTES); ?> </div>
+<div id="report_parameters_daterange"> <?php echo text(oeFormatDateTime($sql_date_from, "global", true)) .
+      " &nbsp; " . xlt("to") . " &nbsp; ". text(oeFormatDateTime($sql_date_to, "global", true)); ?> </div>
 <form name='theform' id='theform' method='post' action='clinical_reports.php' onsubmit='return top.restoreSession()'>
     <div id="report_parameters">
         <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
@@ -222,13 +222,13 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                         <td class='control-label' width="100"><?php echo htmlspecialchars(xl('Facility'), ENT_NOQUOTES); ?>: </td>
                         <td width="250"> <?php dropdown_facility($facility, 'facility', false); ?> </td>
                         <td class='control-label' width="100"><?php echo htmlspecialchars(xl('From'), ENT_NOQUOTES); ?>: </td>
-                        <td><input type='text' class='datetimepicker form-control' name='date_from' id="date_from" size='18' value='<?php echo htmlspecialchars($sql_date_from, ENT_QUOTES); ?>' title='yyyy-mm-dd H:m:s'></td>
+                        <td><input type='text' class='datetimepicker form-control' name='date_from' id="date_from" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_from, 0, true)); ?>'></td>
                     </tr>
                     <tr>
                         <td class='control-label'><?php echo htmlspecialchars(xl('Patient ID'), ENT_NOQUOTES); ?>:</td>
                         <td><input name='patient_id' class="numeric_only form-control" type='text' id="patient_id" title='<?php echo htmlspecialchars(xl('Optional numeric patient ID'), ENT_QUOTES); ?>' value='<?php echo htmlspecialchars($patient_id, ENT_QUOTES); ?>' size='10' maxlength='20' /></td>
                         <td class='control-label'><?php echo htmlspecialchars(xl('To'), ENT_NOQUOTES); ?>: </td>
-                        <td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo htmlspecialchars($sql_date_to, ENT_QUOTES); ?>' title='yyyy-mm-dd H:m:s'></td>
+                        <td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_to, 0, true)); ?>'></td>
                     </tr>
                     <tr>
                         <td class='control-label'><?php echo htmlspecialchars(xl('Age Range'), ENT_NOQUOTES); ?>:</td>
@@ -773,7 +773,7 @@ if ($_POST['form_refresh']) {
                 <td colspan=10><b><?php echo htmlspecialchars(xl('Diagnosis Name'), ENT_NOQUOTES);?></b></td>
                 </tr>
                             <tr bgcolor="#FFFFFF">
-                <td><?php echo htmlspecialchars($row['lists_date'], ENT_NOQUOTES); ?>&nbsp;</td>
+                <td><?php echo text(oeFormatDateTime($row['lists_date'], "global", true)); ?>&nbsp;</td>
                 <td><?php echo htmlspecialchars($row['lists_diagnosis'], ENT_NOQUOTES); ?>&nbsp;</td>
                                 <td colspan=10><?php echo htmlspecialchars($row['lists_title'], ENT_NOQUOTES); ?>&nbsp;</td>
                 </tr>
@@ -1001,7 +1001,7 @@ if ($_POST['form_refresh']) {
                         <td colspan="7"><b><?php echo htmlspecialchars(xl('Notes'), ENT_NOQUOTES);?></b></td>
                     </tr>
                     <tr bgcolor="#FFFFFF">
-                        <td><?php echo htmlspecialchars($row['imm_date'], ENT_NOQUOTES); ?>&nbsp;</td>
+                        <td><?php echo text(oeFormatDateTime($row['imm_date'])); ?>&nbsp;</td>
                         <td><?php echo htmlspecialchars($row['cvx_code'], ENT_NOQUOTES); ?>&nbsp;</td>
                         <td><?php echo htmlspecialchars($row['imm_code_short'], ENT_NOQUOTES)." (".htmlspecialchars($row['imm_code']).")"; ?>&nbsp;</td>
                         <td>
