@@ -776,11 +776,11 @@ if ($GLOBALS['patient_id_category_name']) {
           |
           <a href="../../reports/external_data.php" onclick='top.restoreSession()'>
             <?php echo xlt('External Data'); ?></a>
-          <?php if ($GLOBALS['fhir_enable']) { ?>
+            <?php if ($GLOBALS['fhir_enable']) { ?>
               |
               <a href="" onclick='doPublish();return false;'>
                 <?php echo xlt('Publish'); ?></a>
-          <?php } ?>
+            <?php } ?>
 <!-- DISPLAYING HOOKS STARTS HERE -->
 <?php
     $module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh
