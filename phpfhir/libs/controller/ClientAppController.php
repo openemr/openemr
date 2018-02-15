@@ -1,4 +1,13 @@
 <?php
+/**
+ * clientController class
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+ */
 
 require_once("oeDispatcher.php");
 

@@ -271,7 +271,7 @@ function editScripts(url) {
 
 function doPublish() {
     let title = '<?php echo xla('Publish Patient to FHIR Server'); ?>';
-    let url = top.webroot_url + '/phpfhir/providerPublishUI.php?patient_id=<?php echo $pid ?>';
+    let url = top.webroot_url + '/phpfhir/providerPublishUI.php?patient_id=<?php echo attr($pid); ?>';
 
     dlgopen(url, 'publish', 'modal-mlg', 750, '', '', {
         buttons: [
@@ -776,10 +776,11 @@ if ($GLOBALS['patient_id_category_name']) {
           |
           <a href="../../reports/external_data.php" onclick='top.restoreSession()'>
             <?php echo xlt('External Data'); ?></a>
-          |
-          <a href="" onclick='doPublish();return false;'>
+            <?php if ($GLOBALS['fhir_enable']) { ?>
+              |
+              <a href="" onclick='doPublish();return false;'>
                 <?php echo xlt('Publish'); ?></a>
-
+            <?php } ?>
 <!-- DISPLAYING HOOKS STARTS HERE -->
 <?php
     $module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh
