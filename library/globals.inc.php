@@ -2571,7 +2571,7 @@ $GLOBALS_METADATA = array(
                 1 => xl('On: HAPI FHIR.'),
                 2 => xl('On: Smart on FHIR.'),
             ),
-            '1',
+            '0',
             xl('Enable FHIR Provider Client Service')
         ),
 
