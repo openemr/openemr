@@ -42,7 +42,7 @@ if ($use_validate_js) {
     /*e: event*/
     /*form id: used to get the validation rules*/?>
 
-
+    var g_date_format='<?php echo $GLOBALS["date_display_format"];?>';
 
 function submitme(new_validate,e,form_id, constraints) {
 
