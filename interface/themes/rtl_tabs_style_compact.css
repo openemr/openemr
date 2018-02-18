@@ -60,9 +60,11 @@
     display: inline-block;
     float: left;
     position: relative;
-    top: 6px;
+    top: 12px;
     left: 5px;
+    right: 0;
     transform: scaleX(-1);
+    padding-right: 7px;
 }
 
 #userData
@@ -82,4 +84,8 @@
 
 .float-element {
     float: right;
+}
+
+.menuSection > .menuEntries .menuEntries {
+    right: 161px;
 }
