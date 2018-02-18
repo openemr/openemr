@@ -188,6 +188,21 @@ class FetchLiveData
         return $records;
     }
 
+    public function getUser($id)
+    {
+
+        $query = "SELECT *
+                   FROM users
+                   WHERE id = ?";
+        $result = $this->oeQuery($query, array($id));
+        $records = array();
+        foreach ($result as $row) {
+            $records[] = $row;
+        }
+
+        return $records[0];
+    }
+
     /*
      * Fetch the current Vitals of a patient from form_vitals table
      *
@@ -232,25 +247,54 @@ class FetchLiveData
     }
 
     /*
-     * Fetch the encounter data of a patient from form_encounter table
-     *
-     * @param    pid       Integer     patient id
-     * @return   records   Array       encounter data
-     */
-    public function getEncounterData($pid)
+      * Fetch the list of encounter Id's of a patient from form_encounter table
+      *
+      * @param    pid       Integer     patient id
+      * @return   records   Array       encounter data
+      */
+    public function getEncounterIdList($pid)
     {
 
-        $query = "SELECT form_encounter.*,u.fname AS provider_name
+        $query = "SELECT form_encounter.encounter,form_encounter.reason
                    FROM form_encounter
-                   LEFT JOIN users AS u
-                   ON form_encounter.provider_id=u.id
                    WHERE pid = ?";
+
         $result = $this->oeQuery($query, array($pid));
         $records = array();
         foreach ($result as $row) {
             $records[] = $row;
         }
 
+        return $records;
+    }
+
+    /*
+     * Fetch the encounter data of a patient from form_encounter table
+     *
+     * @param    pid       Integer     patient id
+     * @return   records   Array       encounter data
+     */
+    public function getEncounterData($pid, $eid = '')
+    {
+
+        $query = "SELECT form_encounter.*,u.lname AS provider_name
+                   FROM form_encounter
+                   LEFT JOIN users AS u
+                   ON form_encounter.provider_id=u.id
+                   WHERE pid = ?";
+        $data = array($pid);
+        if ($eid) {
+            $query .= " && encounter=?";
+            $data = array($pid, $eid);
+        }
+        $result = $this->oeQuery($query, $data);
+        $records = array();
+        foreach ($result as $row) {
+            $records[] = $row;
+        }
+        if ($eid) {
+            $records = $records[0];
+        }
         return $records;
     }
 

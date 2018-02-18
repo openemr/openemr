@@ -42,7 +42,7 @@ class oeFHIRHttpClient
     {
         $uri = $type . '/' . $id;
         $returned = $this->client->request('PUT', $uri, ['body' => $data]);
-        $head = 'Transaction Status: ' . $returned->getStatusCode() . ' ' . $returned->getReasonPhrase() . '<br/>';
+        $head = '<strong>Transaction Status: ' . $returned->getStatusCode() . ' ' . $returned->getReasonPhrase() . '</strong><br/>';
         foreach ($returned->getHeaders() as $name => $values) {
             $head .= $name . ': ' . implode(', ', $values) . "<br/>";
         }
@@ -54,6 +54,16 @@ class oeFHIRHttpClient
     {
         $actionIs = $action == 'history' ? '/_history' : ''; // no action = read latest version
         $uri = $type . '/' . $id . $actionIs . '?_format=json';
+        $returned = $this->client->request('GET', $uri);
+        $body = $returned->getBody()->getContents();
+
+        return $body;
+    }
+
+    // @todo for now search for type by patient
+    public function searchResource($type = 'Patient', $id = '', $search = '')
+    {
+        $uri = $type . '?patient=' . $id . '&_format=json&_pretty=true';
         $returned = $this->client->request('GET', $uri);
         $body = $returned->getBody()->getContents();
 
