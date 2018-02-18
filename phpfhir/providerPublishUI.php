@@ -34,12 +34,22 @@ echo "<script>var pid='" . attr($pid) . "'</script>";
             top.restoreSession();
             e.preventDefault();
             e.stopPropagation();
-            let profile = 'Patient'; // @TODO get profile from view
+            let wait = '<i class="fa fa-cog fa-spin fa-4x"></i>';
+            let profile = getSelResource();
+            if (profile === 'Encounter' && req === 'create') {
+                req = req + 'EncounterAll';
+            }
             let actionUrl = '?action=' + req;
-            return $.post(actionUrl, {'type': profile, 'pid': pid}).done(function (data) {
-                $("#dashboard").empty().html(data);
+            let id = pid; // eventually will be other live id's
+            $("#dashboard").empty().html(wait);
+            return $.post(actionUrl, {'type': profile, 'pid': pid, oeid: id}).done(function (data) {
+                $("#dashboard").empty().html('<pre>' + data + '</pre>');
             });
         };
+
+        function getSelResource() {
+            return $('#resource option:selected').val()
+        }
 
     </script>
 </head>
@@ -89,16 +99,31 @@ echo "<script>var pid='" . attr($pid) . "'</script>";
     </div><!-- /.container-fluid -->
 </nav>
 <div class="container-fluid main-container">
+    <div class="row">
+        <form>
+            <div class="col-md-2 content form-group">
+                <div class="input-group input-group-sm">
+                    <label for="enc">Resource (select one):</label>
+                    <select class="form-control" id="resource">
+                        <option value="Patient" selected>Patient (This)</option>
+                        <option value="Encounter">Encounters (All)</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+
     <div class="col-md-2 sidebar">
         <ul class="nav nav-pills nav-stacked">
             <li class="active"><a href="#"><?php echo xlt('Home'); ?></a></li>
             <li><a onclick="doPublish(event, 'create')" href="#"><?php echo xlt('Publish'); ?></a></li>
             <li><a onclick="doPublish(event, 'read')" href="#"><?php echo xlt('Read'); ?></a></li>
             <li><a onclick="doPublish(event, 'history')" href="#"><?php echo xlt('Get History'); ?></a></li>
-            <li><a onclick="alert('Not Implemented');return false;" href="#"><?php echo xlt('Search'); ?></a></li>
+            <li><a onclick="doPublish(event, 'search')" href="#"><?php echo xlt('Search'); ?></a></li>
             <li><a href="#"></a></li>
         </ul>
     </div>
+
     <div class="col-md-10 content">
         <div class="panel panel-default">
             <div class="panel-heading">
