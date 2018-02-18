@@ -103,10 +103,10 @@ echo "<script>var pid='" . attr($pid) . "'</script>";
         <form>
             <div class="col-md-2 content form-group">
                 <div class="input-group input-group-sm">
-                    <label for="enc">Resource (select one):</label>
+                    <label for="enc"><?php echo xlt('Resource (select one)') ?></label>
                     <select class="form-control" id="resource">
-                        <option value="Patient" selected>Patient (This)</option>
-                        <option value="Encounter">Encounters (All)</option>
+                        <option value="Patient" selected><?php echo xlt('Current Patient') ?></option>
+                        <option value="Encounter"><?php echo xlt('All Encounters') ?></option>
                     </select>
                 </div>
             </div>
