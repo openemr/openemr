@@ -65,7 +65,24 @@ validate.validators.pastDate = function(value, options) {
         }
     }
 
-    var date =  new Date(value);
+    var format=0;
+    if (typeof(g_date_format) !== 'undefined') {
+        format=g_date_format;
+    }
+
+    var date = '';
+
+        switch(format) {
+            // case date format is dd/mm/YYYY
+            case "2":
+                var dateParts = value.split("/");
+                var date = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+                break;
+            default:
+                date =  new Date(value);
+        }
+
+
     var mls_date = date.getTime();
     if(isNaN(mls_date)) {
        return throwError('Must be valid date');
