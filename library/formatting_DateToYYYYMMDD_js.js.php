@@ -46,5 +46,5 @@ function DateToYYYYMMDDHHMMSS_js(value){
 
     var value = datePart + ' ' + timePart;
 
-    return (value).trim();
+    return value.trim();
 }
