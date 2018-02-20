@@ -394,7 +394,7 @@ $form_inactive = empty($_REQUEST['form_inactive']) ? false : true;
 ?>
 <html>
 <head>
-<title><?php echo xlt('User / Group');?></title>
+<title><?php echo xlt('User / Groups');?></title>
 
 <?php Header::setupHeader(['common','jquery-ui']); ?>
 

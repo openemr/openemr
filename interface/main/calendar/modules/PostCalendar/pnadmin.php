@@ -724,6 +724,11 @@ EOF;
     $header = <<<EOF
 	<html>
 	<head></head>
+
+EOF;
+    $header .= "<title>".xl("Calendar")."</title>";
+    $header .= <<<EOF
+	
 	<body bgcolor=
 EOF;
     $header .= '"' . $GLOBALS['style']['BGCOLOR2'] . '">';
