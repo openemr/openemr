@@ -18,8 +18,8 @@ require_once "$srcdir/amc.php";
 use OpenEMR\Core\Header;
 
 // Collect form parameters (set defaults if empty)
-$begin_date = (isset($_POST['form_begin_date'])) ? trim($_POST['form_begin_date']) : "";
-$end_date = (isset($_POST['form_end_date'])) ? trim($_POST['form_end_date']) : "";
+$begin_date = (isset($_POST['form_begin_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim($_POST['form_begin_date'])) : "";
+$end_date = (isset($_POST['form_end_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim($_POST['form_end_date'])) : "";
 $rule = (isset($_POST['form_rule'])) ? trim($_POST['form_rule']) : "";
 $provider  = trim($_POST['form_provider']);
 
@@ -42,7 +42,7 @@ $provider  = trim($_POST['form_provider']);
   $('.datepicker').datetimepicker({
     <?php $datetimepicker_timepicker = true; ?>
     <?php $datetimepicker_showseconds = true; ?>
-    <?php $datetimepicker_formatInput = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
     <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
@@ -183,9 +183,8 @@ $provider  = trim($_POST['form_provider']);
                         <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
-                         <input type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo attr($begin_date); ?>'
-                            class='datepicker form-control'
-                            title='<?php echo xla('yyyy-mm-dd hh:mm:ss'); ?>'>
+                         <input type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo attr(oeFormatDateTime($begin_date, 0, true)); ?>'
+                            class='datepicker form-control'>
                       </td>
                  </tr>
 
@@ -194,9 +193,8 @@ $provider  = trim($_POST['form_provider']);
                             <?php echo xlt('End Date'); ?>:
                         </td>
                         <td>
-                           <input type='text' name='form_end_date' id="form_end_date" size='20' value='<?php echo attr($end_date); ?>'
-                                class='datepicker form-control'
-                                title='<?php echo xla('yyyy-mm-dd hh:mm:ss'); ?>'>
+                           <input type='text' name='form_end_date' id="form_end_date" size='20' value='<?php echo attr(oeFormatDateTime($end_date, 0, true)); ?>'
+                                class='datepicker form-control'>
                         </td>
                 </tr>
 
@@ -355,7 +353,7 @@ foreach ($resultsArray as $result) {
     echo "<tr bgcolor='" . $bgcolor ."'>";
     echo "<td>" . text($result['lname'].",".$result['fname']) . "</td>";
     echo "<td>" . text($result['pid']) . "</td>";
-    echo "<td>" . text($result['date']) . "</td>";
+    echo "<td>" . text(oeFormatDateTime($result['date'], "global", true)) . "</td>";
     if ($rule == "send_sum_amc" || $rule == "provide_sum_pat_amc") {
         echo "<td>" . text($result['id']) . "</td>";
     } else { //$rule == "provide_rec_pat_amc"

@@ -16,6 +16,9 @@ require_once "$srcdir/options.inc.php";
 require_once "$srcdir/clinical_rules.php";
 
 use OpenEMR\Core\Header;
+
+$form_begin_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_begin_date']);
+$form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 ?>
 
 <html>
@@ -30,7 +33,7 @@ use OpenEMR\Core\Header;
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = true; ?>
-                <?php $datetimepicker_formatInput = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
@@ -86,9 +89,8 @@ use OpenEMR\Core\Header;
                             <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
-                         <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo attr($_POST['form_begin_date']); ?>'
-                            class='datepicker form-control'
-                            title='<?php echo xla('yyyy-mm-dd hh:mm:ss'); ?>'>
+                         <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo attr(oeFormatDateTime($form_begin_date, 0, true)); ?>'
+                            class='datepicker form-control'>
                       </td>
                    </tr>
 
@@ -97,9 +99,8 @@ use OpenEMR\Core\Header;
                                 <?php echo xlt('End Date'); ?>:
                         </td>
                         <td>
-                           <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo attr($_POST['form_end_date']); ?>'
-                                class='datepicker form-control'
-                                title='<?php echo xla('yyyy-mm-dd hh:mm:ss'); ?>'>
+                           <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo attr(oeFormatDateTime($form_end_date, 0, true)); ?>'
+                                class='datepicker form-control'>
                         </td>
                 </tr>
     </table>
@@ -161,7 +162,7 @@ use OpenEMR\Core\Header;
  </thead>
  <tbody>  <!-- added for better print-ability -->
     <?php
-    $res = listingCDRReminderLog($_POST['form_begin_date'], $_POST['form_end_date']);
+    $res = listingCDRReminderLog($form_begin_date, $form_end_date);
 
     while ($row = sqlFetchArray($res)) {
         //Create category title
@@ -182,7 +183,7 @@ use OpenEMR\Core\Header;
         }
         ?>
      <tr>
-       <td><?php echo text($row['date']); ?></td>
+       <td><?php echo text(oeFormatDateTime($row['date'], "global", true)); ?></td>
     <td><?php echo text($row['pid']); ?></td>
     <td><?php echo text($row['uid']); ?></td>
     <td><?php echo text($category_title); ?></td>
