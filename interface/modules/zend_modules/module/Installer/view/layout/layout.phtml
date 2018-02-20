@@ -28,7 +28,7 @@ echo $this->doctype(); ?>
         <meta charset="utf-8">
         <link rel="stylesheet" href="<?php echo  $GLOBALS['css_header'];?>" type="text/css">
         <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0') ?>
-        <?php echo $this->headTitle($this->translate('Manage Modules'))->setSeparator(' - ')->setAutoEscape(false) ?>
+        <?php echo $this->headTitle(xl('Manage Modules'))->setSeparator(' - ')->setAutoEscape(false) ?>
 				<?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/images/favicon.ico'))
 												->prependStylesheet($this->basePath() . '/css/easyui.css')
                         ->prependStylesheet($this->basePath() . '/css/icon.css')
