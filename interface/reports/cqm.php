@@ -61,11 +61,11 @@ if (!empty($report_id)) {
 
   // Collect form parameters (set defaults if empty)
     if ($type_report == "amc") {
-        $begin_date = (isset($_POST['form_begin_date'])) ? trim($_POST['form_begin_date']) : "";
+        $begin_date = (isset($_POST['form_begin_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim($_POST['form_begin_date'])) : "";
         $labs_manual = (isset($_POST['labs_manual_entry'])) ? trim($_POST['labs_manual_entry']) : "0";
     }
 
-    $target_date = (isset($_POST['form_target_date'])) ? trim($_POST['form_target_date']) : date('Y-m-d H:i:s');
+    $target_date = (isset($_POST['form_target_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim($_POST['form_target_date'])) : date('Y-m-d H:i:s');
     $rule_filter = (isset($_POST['form_rule_filter'])) ? trim($_POST['form_rule_filter']) : "";
     $plan_filter = (isset($_POST['form_plan_filter'])) ? trim($_POST['form_plan_filter']) : "";
     $organize_method = (empty($plan_filter)) ? "default" : "plans";
@@ -109,6 +109,8 @@ if (!empty($report_id)) {
 
 <script LANGUAGE="JavaScript">
 
+    <?php require $GLOBALS['srcdir'] . "/formatting_DateToYYYYMMDD_js.js.php" ?>
+
  var mypcc = '<?php echo text($GLOBALS['phone_country_code']) ?>';
 
  $(document).ready(function() {
@@ -118,7 +120,7 @@ if (!empty($report_id)) {
   $('.datepicker').datetimepicker({
     <?php $datetimepicker_timepicker = true; ?>
     <?php $datetimepicker_showseconds = true; ?>
-    <?php $datetimepicker_formatInput = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
     <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
@@ -161,8 +163,8 @@ if (!empty($report_id)) {
        $.post("../../library/ajax/execute_cdr_report.php",
          {provider: $("#form_provider").val(),
           type: $("#form_rule_filter").val(),
-          date_target: $("#form_target_date").val(),
-          date_begin: $("#form_begin_date").val(),
+          date_target: DateToYYYYMMDDHHMMSS_js($("#form_target_date").val()),
+          date_begin: DateToYYYYMMDDHHMMSS_js($("#form_begin_date").val()),
           plan: $("#form_plan_filter").val(),
           labs: $("#labs_manual_entry").val(),
           pat_prov_rel: $("#form_pat_prov_rel").val(),
@@ -204,9 +206,9 @@ if (!empty($report_id)) {
       //QRDA Category III Export
       if(sNested == "QRDA"){
         var form_rule_filter = theform.form_rule_filter.value
-        var sLoc = '../../custom/export_qrda_xml.php?target_date=' + theform.form_target_date.value + '&qrda_version=3&rule_filter=cqm_2014&form_provider='+theform.form_provider.value+"&report_id=<?php echo attr($report_id);?>";
+        var sLoc = '../../custom/export_qrda_xml.php?target_date=' + DateToYYYYMMDDHHMMSS_js(theform.form_target_date.value) + '&qrda_version=3&rule_filter=cqm_2014&form_provider='+theform.form_provider.value+"&report_id=<?php echo attr($report_id);?>";
       }else{
-        var sLoc = '../../custom/export_registry_xml.php?&target_date=' + theform.form_target_date.value + '&nested=' + sNested;
+        var sLoc = '../../custom/export_registry_xml.php?&target_date=' + DateToYYYYMMDDHHMMSS_js(theform.form_target_date.value) + '&nested=' + sNested;
       }
       dlgopen(sLoc, '_blank', 600, 500);
       return false;
@@ -242,8 +244,8 @@ if (!empty($report_id)) {
  function Form_Validate() {
         <?php if ((empty($report_id)) && (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2"))) { ?>
          var d = document.forms[0];
-         FromDate = d.form_begin_date.value;
-         ToDate = d.form_target_date.value;
+         FromDate = DateToYYYYMMDDHHMMSS_js(d.form_begin_date.value);
+         ToDate = DateToYYYYMMDDHHMMSS_js(d.form_target_date.value);
           if ( (FromDate.length > 0) && (ToDate.length > 0) ) {
              if (FromDate > ToDate){
                   alert("<?php echo xls('End date must be later than Begin date!'); ?>");
@@ -329,7 +331,7 @@ if (!empty($report_id)) {
 <?php } ?>
 
 <?php if (!empty($report_id)) { ?>
-    <?php echo " - " . xlt('Date of Report') . ": " . text($date_report);
+    <?php echo " - " . xlt('Date of Report') . ": " . text(oeFormatDateTime($date_report, "global", true));
         //prepare to disable form elements
         $dis_text = " disabled='disabled' ";
     ?>
@@ -358,9 +360,8 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
                             <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
-                         <input <?php echo $dis_text; ?> type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo attr($begin_date); ?>'
-                            class='datepicker form-control'
-                            title='<?php echo xla('yyyy-mm-dd hh:mm:ss'); ?>'>
+                         <input <?php echo $dis_text; ?> type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo attr(oeFormatDateTime($begin_date, 0, true)); ?>'
+                            class='datepicker form-control'>
                             <?php if (empty($report_id)) { ?>
                             <?php } ?>
                       </td>
@@ -376,9 +377,8 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
                             <?php } ?>
                         </td>
                         <td>
-                           <input <?php echo $dis_text; ?> type='text' name='form_target_date' id="form_target_date" size='20' value='<?php echo attr($target_date); ?>'
-                                class='datepicker form-control'
-                                title='<?php echo xla('yyyy-mm-dd hh:mm:ss'); ?>'>
+                           <input <?php echo $dis_text; ?> type='text' name='form_target_date' id="form_target_date" size='20' value='<?php echo attr(oeFormatDateTime($target_date, 0, true)); ?>'
+                                class='datepicker form-control'>
                             <?php if (empty($report_id)) { ?>
                             <?php } ?>
                         </td>

@@ -1,28 +1,21 @@
 <?php
 /**
- * this is the javascript DateToYYYYMMDD_js to allow date internationalization
- * converts date back to YYYY-MM-DD format
+ * javascripts function to allow date internationalization
+ * and converts date back to YYYY-MM-DD and YYYY-MM-DD HH:MM:SS (SS is optional)
+ * formats
  *
- * Copyright (C) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
- * Copyright (C) 2016 Amiel Elboim <amielel@matrix.co.il>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
- * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @author    Amiel Elboim <amielel@matrix.co.il>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @copyright Copyright (c) 2016 Amiel Elboim <amielel@matrix.co.il>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 ?>
+
 function DateToYYYYMMDD_js(value){
     var value = value.replace(/\//g,'-');
     var parts = value.split('-');
@@ -34,4 +27,24 @@ function DateToYYYYMMDD_js(value){
         value = parts[2] + '-' + parts[1]  + '-' + parts[0];
 
     return value;
+}
+
+function TimeToHHMMSS_js(value){
+    //For now, just return the Value, since input fields are not formatting time.
+    // This can be upgraded if decided to format input time fields.
+    return value.trim();
+}
+
+function DateToYYYYMMDDHHMMSS_js(value){
+    if (typeof value === 'undefined') {
+        return undefined;
+    }
+    var parts = value.split(' ');
+
+    var datePart = DateToYYYYMMDD_js(parts[0]);
+    var timePart = TimeToHHMMSS_js(parts[1]);
+
+    var value = datePart + ' ' + timePart;
+
+    return value.trim();
 }
