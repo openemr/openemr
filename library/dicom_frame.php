@@ -16,6 +16,7 @@
 */
 
 require_once('../interface/globals.php');
+require_once(dirname(__FILE__) . "/classes/Document.class.php");
 
 $web_path = $_REQUEST['web_path'];
 $patid = $_REQUEST['patient_id'];
@@ -33,7 +34,7 @@ $web_path .= '&retrieve&patient_id=' . attr($patid) . '&document_id=' . attr($do
 <html>
 <head>
     <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-1/index.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/modernizr-3-5-0/dist/modernizr-build.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/i18next-9-0-1/i18next.min.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/i18next-xhr-backend-1-4-3/i18nextXHRBackend.min.js"></script>

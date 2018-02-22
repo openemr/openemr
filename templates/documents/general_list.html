@@ -34,6 +34,8 @@ overflow: auto;
 }
 </style>
 {/literal}
+<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-min-1-11-1/index.js"></script>
+<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-ui-1-11-4/jquery-ui.min.js"></script>
 </head>
 <!--<body bgcolor="{$STYLE.BGCOLOR2}">-->
 
@@ -58,18 +60,13 @@ overflow: auto;
 		{/if}
 		{$activity}
 </div>
-<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-min-3-1-1/index.js"></script>
+{literal}
 <script type="text/javascript">
 $("#list_collapse").detach().appendTo("#objTreeMenu_1_node_1 nobr");
 
 // functions to view and pop out documents as needed.
 //
-$(function () {
-    $("img[id^='icon_objTreeMenu_']").tooltip({
-        items: $("img[src*='file3.png']"),
-        content: '{/literal}{xl t="Double Click on this icon to pop up document in a new viewer."|escape:"html"}{literal}'
-    });
-
+$(function() {
     $("img[id^='icon_objTreeMenu_']").on('dblclick', function (e) {
         let popsrc = $(this).next("a").attr('href') || '';
         let diview = $(this).next("a").text();
@@ -110,5 +107,6 @@ $(function () {
 });
 
 </script>
+{/literal}
 </body>
 </html>
