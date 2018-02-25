@@ -3,27 +3,17 @@
  * This module creates statistical reports related to lab tests and
  * other procedure orders.
  *
- *  Copyright (C) 2010-2016 Rod Roark <rod@sunsetsystems.com>
- *  Copyright (C) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
- *  Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Roberto Vasquez <robertogagliotta@gmail.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
@@ -34,11 +24,11 @@ require_once "$srcdir/options.inc.php";
 // Might want something different here.
 //
 if (! acl_check('acct', 'rep')) {
-    die("Unauthorized access.");
+    die(xlt("Unauthorized access."));
 }
 
-$from_date     = fixDate($_POST['form_from_date']);
-$to_date       = fixDate($_POST['form_to_date'], date('Y-m-d'));
+$from_date     = isset($_POST['form_from_date']) ? DateToYYYYMMDD($_POST['form_from_date']) : '0000-00-00';
+$to_date       = isset($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 $form_by       = $_POST['form_by'];     // this is a scalar
 $form_show     = $_POST['form_show'];   // this is an array
 $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
@@ -135,7 +125,7 @@ function genEndRow()
 function getListTitle($list, $option)
 {
     $row = sqlQuery("SELECT title FROM list_options WHERE " .
-    "list_id = '$list' AND option_id = '$option' AND activity = 1");
+    "list_id = ? AND option_id = ? AND activity = 1", array($list, $option));
     if (empty($row['title'])) {
         return $option;
     }
@@ -158,18 +148,18 @@ function genAnyCell($data, $right = false, $class = '')
                 echo ',';
             }
 
-            echo '"' . $datum . '"';
+            echo '"' . attr($datum) . '"';
         } else {
             echo "  <td";
             if ($class) {
-                echo " class='$class'";
+                echo " class='" . attr($class) . "'";
             }
 
             if ($right) {
                 echo " align='right'";
             }
 
-            echo ">$datum</td>\n";
+            echo ">" . text($datum) . "</td>\n";
         }
 
         ++$cellcount;
@@ -198,7 +188,7 @@ function genNumCell($num, $cnum)
 //
 function loadColumnData($key, $row)
 {
-    global $areport, $arr_titles, $from_date, $to_date, $arr_show;
+    global $areport, $arr_titles, $arr_show;
 
   // If no result, do nothing.
     if (empty($row['abnormal'])) {
@@ -239,7 +229,7 @@ function loadColumnData($key, $row)
     }
 
   // Increment the correct age category.
-    $age = getAge(fixDate($row['DOB']), $row['date_ordered']);
+    $age = getAge($row['DOB'], $row['date_ordered']);
     $i = min(intval(($age - 5) / 5), 8);
     if ($age < 11) {
         $i = 0;
@@ -307,7 +297,7 @@ if ($form_output == 3) {
 <html>
 <head>
 <?php html_header_show(); ?>
-<title><?php echo $report_title; ?></title>
+<title><?php echo text($report_title); ?></title>
 
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
@@ -327,7 +317,7 @@ $(document).ready(function() {
 $('.datepicker').datetimepicker({
 <?php $datetimepicker_timepicker = false; ?>
 <?php $datetimepicker_showseconds = false; ?>
-<?php $datetimepicker_formatInput = false; ?>
+<?php $datetimepicker_formatInput = true; ?>
 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
 });
@@ -348,42 +338,42 @@ $('.datepicker').datetimepicker({
 
 <tr>
 <td valign='top' class='dehead' nowrap>
-<?php xl('Rows', 'e'); ?>:
+<?php echo xlt('Rows'); ?>:
 </td>
 <td valign='top' class='detail'>
  <select name='form_by' title='Left column of report'>
 <?php
 foreach ($arr_by as $key => $value) {
-    echo "    <option value='$key'";
+    echo "    <option value='" . attr($key) . "'";
     if ($key == $form_by) {
         echo " selected";
     }
 
-    echo ">" . $value . "</option>\n";
+    echo ">" . text($value) . "</option>\n";
 }
 ?>
  </select>
 </td>
 <td valign='top' class='dehead' nowrap>
-<?php xl('Filters', 'e'); ?>:
+<?php echo xlt('Filters'); ?>:
 </td>
 <td rowspan='2' colspan='2' class='detail'
  style='border-style:solid;border-width:1px;border-color:#cccccc'>
  <table>
   <tr>
    <td valign='top' class='detail' nowrap>
-    <?php xl('Sex', 'e'); ?>:
+    <?php echo xlt('Sex'); ?>:
    </td>
    <td class='detail' valign='top'>
-  <select name='form_sexes' title='<?php xl('To filter by sex', 'e'); ?>'>
+  <select name='form_sexes' title='<?php echo xla('To filter by sex'); ?>'>
 <?php
 foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Only')) as $key => $value) {
-    echo "       <option value='$key'";
+    echo "       <option value='" . attr($key) . "'";
     if ($key == $form_sexes) {
         echo " selected";
     }
 
-    echo ">$value</option>\n";
+    echo ">" . text($value) . "</option>\n";
 }
 ?>
     </select>
@@ -391,20 +381,18 @@ foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Onl
   </tr>
   <tr>
    <td valign='top' class='detail' nowrap>
-    <?php xl('Facility', 'e'); ?>:
+    <?php echo xlt('Facility'); ?>:
    </td>
    <td valign='top' class='detail'>
-    <?php dropdown_facility(strip_escape_custom($form_facility), 'form_facility', false); ?>
+    <?php dropdown_facility($form_facility, 'form_facility', false); ?>
    </td>
   </tr>
   <tr>
    <td colspan='2' class='detail' nowrap>
-    <?php xl('From', 'e'); ?>
-  <input type='text' class='datepicker' name='form_from_date' id='form_from_date' size='10' value='<?php echo $from_date ?>'
-     title='Start date yyyy-mm-dd'>
-    <?php xl('To', 'e'); ?>
-  <input type='text' class='datepicker' name='form_to_date' id='form_to_date' size='10' value='<?php echo $to_date ?>'
-     title='End date yyyy-mm-dd'>
+    <?php echo xlt('From'); ?>
+  <input type='text' class='datepicker' name='form_from_date' id='form_from_date' size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
+    <?php echo xlt('To'); ?>
+  <input type='text' class='datepicker' name='form_to_date' id='form_to_date' size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>'>
    </td>
   </tr>
  </table>
@@ -412,11 +400,11 @@ foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Onl
 </tr>
 <tr>
 <td valign='top' class='dehead' nowrap>
-<?php xl('Columns', 'e'); ?>:
+<?php echo xlt('Columns'); ?>:
 </td>
 <td valign='top' class='detail'>
  <select name='form_show[]' size='4' multiple
-title='<?php xl('Hold down Ctrl to select multiple items', 'e'); ?>'>
+title='<?php echo xla('Hold down Ctrl to select multiple items'); ?>'>
 <?php
 foreach ($arr_show as $key => $value) {
     $title = $value['title'];
@@ -424,12 +412,12 @@ foreach ($arr_show as $key => $value) {
         $title = $value['description'];
     }
 
-    echo "    <option value='$key'";
+    echo "    <option value='" . attr($key) . "'";
     if (is_array($form_show) && in_array($key, $form_show)) {
         echo " selected";
     }
 
-    echo ">$title</option>\n";
+    echo ">" . text($title) . "</option>\n";
 }
 ?>
  </select>
@@ -437,23 +425,23 @@ foreach ($arr_show as $key => $value) {
 </tr>
 <tr>
 <td valign='top' class='dehead' nowrap>
-<?php xl('To', 'e'); ?>:
+<?php echo xlt('To'); ?>:
 </td>
 <td colspan='3' valign='top' class='detail' nowrap>
 <?php
-foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $value) {
-    echo "   <input type='radio' name='form_output' value='$key'";
+foreach (array(1 => xl('Screen'), 2 => xl('Printer'), 3 => xl('Export File')) as $key => $value) {
+    echo "   <input type='radio' name='form_output' value='" . attr($key) . "'";
     if ($key == $form_output) {
         echo ' checked';
     }
 
-    echo " />$value &nbsp;";
+    echo " />" . text($value) . " &nbsp;";
 }
 ?>
 </td>
 <td align='right' valign='top' class='detail' nowrap>
-<input type='submit' name='form_submit' value='<?php xl('Submit', 'e'); ?>'
-title='<?php xl('Click to generate the report', 'e'); ?>' />
+<input type='submit' name='form_submit' value='<?php echo xla('Submit'); ?>'
+title='<?php echo xla('Click to generate the report'); ?>' />
 </td>
 </tr>
 <tr>
@@ -597,13 +585,13 @@ if ($_POST['form_submit']) {
             $type = $code_types[$codetype]['id'];
             $dispkey = array($key, '');
             $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
-            "code_type = '$type' AND code = '$code' ORDER BY id LIMIT 1");
+            "code_type = ? AND code = ? ORDER BY id LIMIT 1", array($type, $code));
             if (!empty($crow['code_text'])) {
                 $dispkey[1] = $crow['code_text'];
             }
         }
 
-        genStartRow("bgcolor='$bgcolor'");
+        genStartRow("bgcolor='" . attr($bgcolor) . "'");
 
         genAnyCell($dispkey, false, 'detail');
 
