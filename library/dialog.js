@@ -396,8 +396,10 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                 setTimeout(function () {
                     if (opts.sizeHeight === 'auto') {
                         SizeModaliFrame(e, height);
-                    } else {
+                    } else if (opts.sizeHeight === 'fixed') {
                         sizing(e, height);
+                    } else {
+                        sizing(e, height); // must be full height of container
                     }
                 }, 500);
             });
@@ -562,22 +564,26 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 
     // dynamic sizing - special case for full height - @todo use for fixed wt and ht
     function sizing(e, height) {
-        var $idoc = jQuery(e.currentTarget);
+        let viewPortHt = 0;
+        let $idoc = jQuery(e.currentTarget);
         if (top.tab_mode) {
-            var viewPortHt = Math.max(top.window.document.documentElement.clientHeight, top.window.innerHeight || 0);
-            var viewPortWt = Math.max(top.window.document.documentElement.clientWidth, top.window.innerWidth || 0);
+            viewPortHt = Math.max(top.window.document.documentElement.clientHeight, top.window.innerHeight || 0);
+            viewPortWt = Math.max(top.window.document.documentElement.clientWidth, top.window.innerWidth || 0);
         } else {
-            var viewPortHt = window.innerHeight || 0;
-            var viewPortWt = window.innerWidth || 0;
+            viewPortHt = window.innerHeight || 0;
+            viewPortWt = window.innerWidth || 0;
         }
-        var frameContentHt = opts.sizeHeight === 'full' ? viewPortHt : height;
+        let frameContentHt = opts.sizeHeight === 'full' ? viewPortHt : height;
         frameContentHt = frameContentHt > viewPortHt ? viewPortHt : frameContentHt;
-        var hasHeader = $idoc.parents('div.modal-content').find('div.modal-header').height() || 0;
-        var hasFooter = $idoc.parents('div.modal-content').find('div.modal-footer').height() || 0;
+        let hasHeader = $idoc.parents('div.modal-content').find('div.modal-header').height() || 0;
+        let hasFooter = $idoc.parents('div.modal-content').find('div.modal-footer').height() || 0;
         frameContentHt = frameContentHt - hasHeader - hasFooter;
         size = (frameContentHt / viewPortHt * 100).toFixed(4);
+        let maxsize = hasHeader ? 90 : hasFooter ? 87.5 : 96;
+        maxsize = hasHeader && hasFooter ? 80 : maxsize;
+        maxsize = maxsize + 'vh';
         size = size + 'vh';
-        $idoc.parents('div.modal-body').css({'height': size, 'max-height': '91.5vh', 'max-width': '96vw'});
+        $idoc.parents('div.modal-body').css({'height': size, 'max-height': maxsize, 'max-width': '96vw'});
         console.log('Modal loaded and sized! Content:' + frameContentHt + ' Viewport:' + viewPortHt + ' Modal height:' +
             size + ' Type:' + opts.sizeHeight + ' Width:' + hasHeader + ' isFooter:' + hasFooter);
 
@@ -586,23 +592,24 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 
     // sizing for modals with iframes
     function SizeModaliFrame(e, minSize) {
-        var idoc = e.currentTarget.contentDocument ? e.currentTarget.contentDocument : e.currentTarget.contentWindow.document;
+        let viewPortHt;
+        let idoc = e.currentTarget.contentDocument ? e.currentTarget.contentDocument : e.currentTarget.contentWindow.document;
         jQuery(e.currentTarget).parents('div.modal-content').height('');
         jQuery(e.currentTarget).parent('div.modal-body').css({'height': 0});
         if (top.tab_mode) {
-            var viewPortHt = top.window.innerHeight || 0;
+            viewPortHt = top.window.innerHeight || 0;
         } else {
-            var viewPortHt = where.window.innerHeight || 0;
+            viewPortHt = where.window.innerHeight || 0;
         }
         //minSize = 100;
-        var frameContentHt = Math.max(jQuery(idoc).height(), idoc.body.offsetHeight || 0) + 30;
+        let frameContentHt = Math.max(jQuery(idoc).height(), idoc.body.offsetHeight || 0) + 30;
         frameContentHt = frameContentHt < minSize ? minSize : frameContentHt;
         frameContentHt = frameContentHt > viewPortHt ? viewPortHt : frameContentHt;
-        var hasHeader = jQuery(e.currentTarget).parents('div.modal-content').find('div.modal-header').length;
-        var hasFooter = jQuery(e.currentTarget).parents('div.modal-content').find('div.modal-footer').length;
+        let hasHeader = jQuery(e.currentTarget).parents('div.modal-content').find('div.modal-header').length;
+        let hasFooter = jQuery(e.currentTarget).parents('div.modal-content').find('div.modal-footer').length;
         size = (frameContentHt / viewPortHt * 100).toFixed(4);
-        var maxsize = hasHeader ? 90 : hasFooter ? 87.5 : 96;
-        maxsize = hasHeader && hasFooter ? 84 : maxsize;
+        let maxsize = hasHeader ? 90 : hasFooter ? 87.5 : 96;
+        maxsize = hasHeader && hasFooter ? 80 : maxsize;
         maxsize = maxsize + 'vh';
         size = size + 'vh'; // will start the dialog as responsive. Any resize by user turns dialog to absolute positioning.
 
