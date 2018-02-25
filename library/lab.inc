@@ -10,11 +10,6 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("{$GLOBALS['srcdir']}/sql.inc");
-
-$GLOBALS['form_exit_url'] = $GLOBALS['concurrent_layout'] ?
-    "$rootdir/patient_file/encounter/encounter_top.php" :
-    "$rootdir/patient_file/encounter/patient_encounter.php";
 
 /**
  * @param $pid
@@ -23,8 +18,8 @@ $GLOBALS['form_exit_url'] = $GLOBALS['concurrent_layout'] ?
  */
 function fetchProcedureId($pid, $encounter)
 {
-    $sql = "SELECT procedure_order_id FROM procedure_order WHERE patient_id = $pid AND encounter_id = $encounter";
-    $res = sqlQuery($sql);
+    $sql = "SELECT procedure_order_id FROM procedure_order WHERE patient_id = ? AND encounter_id = ?";
+    $res = sqlQuery($sql,array($pid,$encounter));
 
     return $res['procedure_order_id'];
 

@@ -12,11 +12,6 @@
 use OpenEMR\Core\Header;
 
 include_once("../../globals.php");
-include_once("$srcdir/api.inc");
-require_once("$srcdir/patient.inc");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/htmlspecialchars.inc.php");
-require_once("$srcdir/lab.inc");
 
 formHeader("Form:Lab Requisition");
 
@@ -163,22 +158,22 @@ table, th, td {
             }
 
             ?>
-            <img  src="../../forms/requisition/barcode.php?text=<?php echo $bar; ?>" alt="barcode" /></br>
+            <img  src="../../forms/requisition/barcode.php?text=<?php echo attr($bar); ?>" alt="barcode" /></br>
         &#160;&#160;&#160;&#160;&#160;	<?php echo text($bar); ?>
         </div>
         <div class="reqHeader" id="printableArea">
-        <p><font size="4"><b>Req #:</b> <?php echo text($bar); ?>  &#160;&#160;&#160;&#160;&#160;&#160;<b>Client #:</b> <?php echo text($provLabId['recv_fac_id']); ?></font></p>
+        <p><font size="4"><b><?php print xlt('Requisition Number') ?>:</b> <?php echo text($bar); ?>  &#160;&#160;&#160;&#160;&#160;&#160;<b><?php print xlt('Client Number') ?>:</b> <?php echo text($provLabId['recv_fac_id']); ?></font></p>
            <div class="cinfo">
            <font size="4">
-               <?php echo xlt($facility['name']) ."<br>". xlt($facility['street']) . "<br>" .
-                          xlt($facility['city']).",".xlt($facility['state']).",".text($facility['postal_code']) . "<br>" .
+               <?php echo text($facility['name']) ."<br>". text($facility['street']) . "<br>" .
+                          text($facility['city']).",".text($facility['state']).",".text($facility['postal_code']) . "<br>" .
                           text($facility['phone']); ?>
                           </font>
            </div>
            <div class="pdata">
                  <p><font size="4">
-          <?php echo xlt($pp['organization'])."</br>".
-          xlt($pp['street'])." | ".xlt($pp['city']).", ".xlt($pp['state'])." ".text($pp['zip'])."</br>".
+          <?php echo text($pp['organization'])."</br>".
+          text($pp['street'])." | ".text($pp['city']).", ".text($pp['state'])." ".text($pp['zip'])."</br>".
           "O:".text($pp['phone'])." | F:".text($pp['fax'])."</br>";
                  ?></font></p>
 
@@ -195,8 +190,8 @@ table, th, td {
                        <?php echo xlt('Hours')?>:</br>
                      </div>
                     <div class="pFill">
-                      <?php echo $order[6];?> </br>
-                        <?php echo $order[0];?>
+                      <?php echo text($order[6]);?> </br>
+                        <?php echo text($order[0]);?>
                     </div>
                    </td>
                    <td style="vertical-align:top width: 800px">
@@ -223,7 +218,7 @@ table, th, td {
                        <?php echo xlt('NPI') ?>:         </br>
                        <?php echo xlt('UPIN') ?>:        </br>
                        </div>
-                     <div class="pFill"><?php echo xlt($provider['fname']) ." ". xlt($provider['lname']); ?></br>
+                     <div class="pFill"><?php echo text($provider['fname']) ." ". text($provider['lname']); ?></br>
                        <?php echo text($npi[0]); ?></br>
                        <?php echo text($npi[1]); ?></br>
 
@@ -268,14 +263,14 @@ table, th, td {
                     <div class="pFill">
                        <?php if(empty($ins[0]['name'])){echo "Patient Bill";}else{echo xlt("Insurance");} ?></br>
                        <?php echo "/"; ?></br>
-                       <?php echo xlt($ins[0]['name']); ?></br>
-                       <?php echo xlt($ins[0]['line1']); ?></br>
-                       <?php echo xlt($ins[0]['city']) .", ". xlt($ins[0]['state'])." ".text($ins[0]['zip']); ?></br>
+                       <?php echo text($ins[0]['name']); ?></br>
+                       <?php echo text($ins[0]['line1']); ?></br>
+                       <?php echo text($ins[0]['city']) .", ". text($ins[0]['state'])." ".text($ins[0]['zip']); ?></br>
                        <?php echo text($ins[0]['policy_number']); ?></br>
                        <?php echo text($ins[0]['group_number']); ?></br>
                        <?php echo "/"; ?></br>
-                       <?php echo xlt($ins[0]['subscriber_employer']); ?></br>
-                       <?php echo xlt($ins[0]['subscriber_relationship']); ?></br>
+                       <?php echo text($ins[0]['subscriber_employer']); ?></br>
+                       <?php echo text($ins[0]['subscriber_relationship']); ?></br>
 
 
                        </div>
@@ -297,14 +292,14 @@ table, th, td {
                      <div class="pFill">
                        <?php if(empty($ins[1]['name'])){echo " ";}else{echo xlt("Insurance");}; ?></br>
                        <?php echo "/"; ?></br>
-                       <?php echo xlt($ins[1]['name']); ?></br>
-                       <?php echo xlt($ins[1]['line1']); ?></br>
-                       <?php echo xlt($ins[1]['city']) .", ". xlt($ins[1]['state'])." ".$ins[1]['zip']; ?></br>
+                       <?php echo text($ins[1]['name']); ?></br>
+                       <?php echo text($ins[1]['line1']); ?></br>
+                       <?php echo text($ins[1]['city']) .", ". xlt($ins[1]['state'])." ".$ins[1]['zip']; ?></br>
                        <?php echo text($ins[1]['policy_number']); ?></br>
                        <?php echo text($ins[1]['group_number']); ?></br>
                        <?php echo "/"; ?></br>
-                       <?php echo xlt($ins[1]['subscriber_employer']); ?></br>
-                       <?php echo xlt($ins[1]['subscriber_relationship']); ?></br>
+                       <?php echo text($ins[1]['subscriber_employer']); ?></br>
+                       <?php echo text($ins[1]['subscriber_relationship']); ?></br>
 
                        </div>
                    </td>
@@ -314,21 +309,21 @@ table, th, td {
                    <td style="vertical-align:top; width:400px;">
                        <div class="notes">
                          <font size="4"><strong><?php echo xlt('Test Ordered') ?>:</strong></font></br>
-                          <?php echo xlt($order[2]) ." ". xlt($order[3]); ?><br>
-                          <?php echo xlt($order[17]) ." ". xlt($order[16]); ?><br>
-                          <?php echo xlt($order[28]) ." ". xlt($order[29]); ?><br>
+                          <?php echo text($order[2]) ." ". text($order[3]); ?><br>
+                          <?php echo text($order[17]) ." ". text($order[16]); ?><br>
+                          <?php echo text($order[28]) ." ". text($order[29]); ?><br>
                        </div>
                    </td>
                    <td style="vertical-align:top">
                     <div class="notes">
                      <font size="4"><strong><?php echo xlt('Order Notes') ?>:</strong></font></br>
-                       <?php echo $order[8]; ?>
+                       <?php echo text($order[8]); ?>
                      </div>
                    <div class="dx">
                      <font size="4"><strong><?php echo xlt('Dx Codes') ?>:</strong></font></br>
-                     <?php echo $order[4]; ?><br>
-                     <?php echo $order[18]; ?><br>
-                     <?php echo $order[30]; ?><br>
+                     <?php echo text($order[4]); ?><br>
+                     <?php echo text($order[18]); ?><br>
+                     <?php echo text($order[30]); ?><br>
                    </div>
                    </td>
                </tr>
@@ -339,8 +334,8 @@ table, th, td {
                <tr style="height:125px">
                   <td style="vertical-align:top">
                        <font size="4"><strong><?php echo xlt('AOE Q&A') ?>: </strong></font></br>
-                       <b>Question:</b> <?php print $order['question_text']; ?></br>
-                       <b>Answer:</b> <?php print $order['answer']; ?>
+                       <b>Question:</b> <?php print alt($order['question_text']); ?></br>
+                       <b>Answer:</b> <?php print alt($order['answer']); ?>
                   </td>
                </tr>
             </table>

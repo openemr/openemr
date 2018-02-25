@@ -1891,8 +1891,8 @@ function getAllinsurances($pid){
            ON a.provider = b.id
            RIGHT JOIN addresses AS c 
            ON a.provider = c.foreign_id
-           WHERE a.pid = $pid  ";
-   $inco = sqlStatement($sql);
+           WHERE a.pid = ? ";
+   $inco = sqlStatement($sql,array($pid));
    
     while($icl = sqlFetchArray($inco)){
 	  $insarr[] = $icl;
