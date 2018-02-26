@@ -63,6 +63,7 @@ validate.validators.pastDate = function(value, options) {
 
             return throwError('Must be year format');
         }
+        else return; // passed only year validation
     }
 
     var format=0;
