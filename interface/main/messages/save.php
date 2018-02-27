@@ -15,7 +15,6 @@ require_once "$srcdir/lists.inc";
 require_once "$srcdir/forms.inc";
 require_once "$srcdir/patient.inc";
 require_once "$srcdir/MedEx/API.php";
-require_once("$srcdir/formatting.inc.php");
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 if ($_REQUEST['go'] == 'sms_search') {

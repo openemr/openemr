@@ -23,6 +23,8 @@ require_once "$srcdir/patient_tracker.inc.php";
 require_once "$srcdir/user.inc";
 require_once "$srcdir/MedEx/API.php";
 
+use OpenEMR\Core\Header;
+
 // These settings are sticky user preferences linked to a given page.
 // mdsupport - user_settings prefix
 $uspfx = substr(__FILE__, strlen($webserver_root)) . '.';
@@ -47,7 +49,7 @@ if ($_POST['saveCALLback'] == "Save") {
                 (?,?,?,'NOTES','CALLED',?)";
     sqlQuery($sqlINSERT, array($_POST['pc_eid'], $_POST['pc_pid'], $_POST['campaign_uid'], $_POST['txtCALLback']));
 }
-$from_date = !is_null($_REQUEST['datepicker1']) ? date('Y-m-d', strtotime($_REQUEST['datepicker1'])) : date('Y-m-d');
+$from_date = !is_null($_REQUEST['form_from_date']) ? DateToYYYYMMDD($_REQUEST['form_from_date']) : date('Y-m-d');
 
 
 if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
@@ -62,7 +64,7 @@ if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
 }
 
 $to_date = date('Y-m-d', $ptkr_future_time);
-$to_date = !is_null($_REQUEST['datepicker2']) ? date('Y-m-d', strtotime($_REQUEST['datepicker2'])) : $to_date;
+$to_date = !is_null($_REQUEST['form_to_date']) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
 $form_patient_name = !is_null($_POST['form_patient_name']) ? $_POST['form_patient_name'] : null;
 $form_patient_id = !is_null($_POST['form_patient_id']) ? $_POST['form_patient_id'] : null;
 
@@ -89,7 +91,7 @@ while ($lrow = sqlFetchArray($lres)) {
 }
 
 $chk_prov = array();  // list of providers with appointments
-// Scan appointments for additional info 
+// Scan appointments for additional info
 foreach ($appointments as $apt) {
     $chk_prov[$apt['uprovider_id']] = $apt['ulname'] . ', ' . $apt['ufname'] . ' ' . $apt['umname'];
 }
@@ -113,22 +115,22 @@ if ($GLOBALS['medex_enable'] == '1') {
             }
             $icon = $icons[$event['M_type']]['SCHEDULED']['html'];
             if ($event['E_timing'] == '1') {
-                $action = "before";
+                $action = xl("before");
             }
             if ($event['E_timing'] == '2') {
-                $action = "before (PM)";
+                $action = xl("before (PM)");
             }
             if ($event['E_timing'] == '3') {
-                $action = "after";
+                $action = xl("after");
             }
             if ($event['E_timing'] == '4') {
-                $action = "after (PM)";
+                $action = xl("after (PM)");
             }
-            $days = ($event['E_fire_time'] == '1') ? "day" : "days";
-            $current_events .= $icon . " &nbsp; " . (int)$event['E_fire_time'] . " " . $days . " " . xlt($action) . "<br />";
+            $days = ($event['E_fire_time'] == '1') ? xl("day") : xl("days");
+            $current_events .= $icon . " &nbsp; " . (int)$event['E_fire_time'] . " " . text($days) . " " . text($action) . "<br />";
         }
     } else {
-        $current_events = $icons['SMS']['FAILED']['html'] . " Currently off-line";
+        $current_events = $icons['SMS']['FAILED']['html'] . " " . xlt("Currently off-line");
     }
 }
 
@@ -137,37 +139,8 @@ if (!$_REQUEST['flb_table']) {
 <html>
 <head>
     <title><?php echo xlt('Flow Board'); ?></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
-        <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css"
-              rel="stylesheet" type="text/css"/>
-    <?php } ?>
-    <link rel="stylesheet"
-          href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-    <link rel="stylesheet"
-          href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
-    <link rel="stylesheet"
-          href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>"
-          type="text/css">
-    <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-    <link rel="stylesheet"
-          href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/themes/cupertino/jquery-ui.css" />
-
-    <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico" />
-
-    <script type="text/javascript"
-            src="<?php echo $GLOBALS['web_root']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript"
-            src="<?php echo $GLOBALS['web_root']; ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-migrate/jquery-migrate-3.0.0.min.js"></script>
-    <script type="text/javascript"
-            src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>">
-    </script>
+    <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-cupertino', 'opener', 'pure']); ?>
 
     <script>
         <?php
@@ -184,11 +157,12 @@ if (!$_REQUEST['flb_table']) {
     <script type="text/javascript">
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>
-    <link rel="stylesheet"
-          href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/themes/cupertino/jquery-ui.css">
 
-    <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js">
-    </script>
+    <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>" type="text/css">
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
+
+    <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico" />
+
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="author" content="OpenEMR: MedExBank">
@@ -393,8 +367,8 @@ if (!$_REQUEST['flb_table']) {
                                             <label for="flow_from"><?php echo xlt('From'); ?>:</label></td>
                                         <td>
                                             <input type="text"
-                                                   id="datepicker1" name="datepicker1"
-                                                   class="form-control input-sm text-center"
+                                                   id="form_from_date" name="form_from_date"
+                                                   class="datepicker form-control input-sm text-center"
                                                    value="<?php echo oeFormatShortDate($from_date); ?>"
                                                    style="max-width:140px;min-width:85px;">
                                         </td>
@@ -404,8 +378,8 @@ if (!$_REQUEST['flb_table']) {
                                             <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To'); ?>:</label></td>
                                         <td>
                                             <input type="text"
-                                                   id="datepicker2" name="datepicker2"
-                                                   class="form-control input-sm text-center"
+                                                   id="form_to_date" name="form_to_date"
+                                                   class="datepicker form-control input-sm text-center"
                                                    value="<?php echo oeFormatShortDate($to_date); ?>"
                                                    style="max-width:140px;min-width:85px;">
                                         </td>
@@ -460,7 +434,7 @@ if (!$_REQUEST['flb_table']) {
                 </span>
                 <span id="pull_kiosk_right" class="pull-right">
                   <a id='setting_cog'><i class="fa fa-cog fa-2x fa-fw">&nbsp;</i></a>
-                  
+
                   <label for='setting_new_window' id='settings'>
                     <input type='checkbox' name='setting_new_window' id='setting_new_window'
                            value='<?php echo $setting_new_window; ?>' <?php echo $setting_new_window; ?> />
@@ -474,9 +448,9 @@ if (!$_REQUEST['flb_table']) {
                     <i id="print_caret"
                        class='fa fa-caret-<?php echo $caret = ($setting_selectors == 'none') ? 'down' : 'up'; ?> fa-stack-1x'></i>
                   </span>
-                 
+
                   <a class='btn btn-primary' onclick="print_FLB();"> <?php echo xlt('Print'); ?> </a>
-                
+
                   <a class='btn btn-primary' onclick="kiosk_FLB();"> <?php echo xlt('Kiosk'); ?> </a>
                 </span>
             </div>
@@ -987,8 +961,8 @@ if (!$_REQUEST['flb_table']) {
                 top.restoreSession();
                 var posting = $.post('../patient_tracker/patient_tracker.php', {
                     flb_table: '1',
-                    datepicker1: $("#datepicker1").val(),
-                    datepicker2: $("#datepicker2").val(),
+                    form_from_date: $("#form_from_date").val(),
+                    form_to_date: $("#form_to_date").val(),
                     form_facility: $("#form_facility").val(),
                     form_provider: $("#form_provider").val(),
                     form_apptstatus: $("#form_apptstatus").val(),
@@ -1216,40 +1190,14 @@ if (!$_REQUEST['flb_table']) {
 
                 $('[data-toggle="tooltip"]').tooltip();
 
-                $("#datepicker1").datepicker({
-                    beforeShow: function () {
-                        setTimeout(function () {
-                            $('.ui-datepicker').css('z-index', 999);
-                        }, 0);
-                    },
-                    widgetPositioning: {
-                        horizontal: 'right',
-                        vertical: 'bottom'
-                    },
-                    changeYear: true,
-                    showButtonPanel: true,
-                    dateFormat: xljs_dateFormat,
-                    onSelect: function (dateText, inst) {
-                        $('#' + inst.id).attr('value', dateText).css('text-align', 'center');
-                    }
+                $('.datepicker').datetimepicker({
+                    <?php $datetimepicker_timepicker = false; ?>
+                    <?php $datetimepicker_showseconds = false; ?>
+                    <?php $datetimepicker_formatInput = true; ?>
+                    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
-                $("#datepicker2").datepicker({
-                    beforeShow: function () {
-                        setTimeout(function () {
-                            $('.ui-datepicker').css('z-index', 999);
-                        }, 0);
-                    },
-                    widgetPositioning: {
-                        horizontal: 'right',
-                        vertical: 'bottom'
-                    },
-                    changeYear: true,
-                    showButtonPanel: true,
-                    dateFormat: xljs_dateFormat,
-                    onSelect: function (dateText, inst) {
-                        $('#' + inst.id).attr('value', dateText);
-                    }
-                });
+
             });
         </script>
         <?php

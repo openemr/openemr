@@ -56,7 +56,7 @@ if (($_POST['setting_bootstrap_submenu']) ||
 <head>
     <title><?php echo xlt('Message Center'); ?></title>
 
-    <?php Header::setupHeader(['jquery-ui', 'jquery-ui-redmond', 'opener', 'moment']); ?>
+    <?php Header::setupHeader(['jquery-ui', 'jquery-ui-redmond', 'opener', 'moment', 'pure']); ?>
 
     <script>
         <?php
@@ -73,9 +73,11 @@ if (($_POST['setting_bootstrap_submenu']) ||
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>
 
-     <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
-     <link rel="stylesheet"  href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>" type="text/css">
-     <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
+    <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
+    <link rel="stylesheet"  href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>" type="text/css">
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
+
+    <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico" />
 
         <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -122,7 +124,7 @@ if (!empty($_REQUEST['go'])) { ?>
     } elseif ($_REQUEST['go'] == 'SMS_bot') {
         $MedEx->display->SMS_bot($logged_in);
     } else {
-        echo xlt('Warning') . ": " . xlt('Navigation error') . ". " . xlt('Please refresh this page') . ".";
+        echo xlt('Warning: Navigation error. Please refresh this page.');
     }
 } else {
     //original message.php stuff
@@ -164,7 +166,7 @@ if (!empty($_REQUEST['go'])) { ?>
 
                         <form id="smsForm" class="input-group">
                             <input id="SMS_patient" type="text" style="margin:0;max-width:100%;" class="form-control"
-                                   placeholder="Patient Name"/>
+                                   placeholder="<?php echo xla("Patient Name"); ?>/>
                             <span class="input-group-addon" onclick="SMS_direct();"><i
                                         class="glyphicon glyphicon-phone"></i></span>
                             <input type="hidden" id="sms_pid">
@@ -720,11 +722,11 @@ if (!empty($_REQUEST['go'])) { ?>
             top.restoreSession();
             var f = document.getElementById('new_note');
             if (f.reply_to.value.length === 0 || f.reply_to.value === '0') {
-                alert('<?php echo htmlspecialchars(xl('Please choose a patient'), ENT_QUOTES); ?>');
+                alert('<?php echo xls('Please choose a patient'); ?>');
             }
             else if (f.assigned_to.value.length === 0 &&
                 document.getElementById("form_message_status").value !== 'Done') {
-                alert('<?php echo addslashes(xl('Recipient required unless status is Done')); ?>');
+                alert('<?php echo xls('Recipient required unless status is Done'); ?>');
             }
             else {
                 $("#new_note").submit();
