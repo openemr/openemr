@@ -1,5 +1,15 @@
+/**
+ * bootstrap_navbar.css
+ *
+ * @package MedEx
+ * @author MedEx <support@MedExBank.com>
+ * @link http://www.MedExBank.com
+ * @copyright Copyright (c) 2018 MedEx <support@MedExBank.com>
+ * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+ */
+
 .little_image { width:20px; }
-.navbar { height: 22px; z-index:1100;} 
+.navbar { height: 22px; z-index:1100;}
 .navbar-fixed-top {
     background-color: #C9DBF2;
 padding: 0px;
@@ -54,7 +64,7 @@ z-index: 1000;
     color:black;
     height:24px;
     padding:10 5 0 10;
-    margin: 10px 0px 2px 0px;   
+    margin: 10px 0px 2px 0px;
 }
 
 li.open > a:first {
@@ -70,7 +80,7 @@ li.open > a:first {
     Xoverflow: hidden;
     background-color: #C0C0C0; /*gba(131, 135, 146, 0.61);*/
 }
-.navbar-toggle {  
+.navbar-toggle {
     /* this is the responsive view shown when the screen is very narrow
     background-color:yellow;
     height:24px;

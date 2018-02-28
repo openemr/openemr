@@ -31,9 +31,7 @@ require_once(dirname(__FILE__)."/../../interface/globals.php");
 require_once(dirname(__FILE__)."/API.php");
 require_once(dirname(__FILE__)."/../patient.inc");
 require_once(dirname(__FILE__)."/../log.inc");
-require_once(dirname(__FILE__)."/../formatting.inc.php");
-require_once(dirname(__FILE__) ."/../log.inc");
-   
+
 function start_MedEx()
 {
     $MedEx = new MedExApi\MedEx('MedExBank.com');

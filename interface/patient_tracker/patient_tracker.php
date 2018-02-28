@@ -369,7 +369,7 @@ if (!$_REQUEST['flb_table']) {
                                             <input type="text"
                                                    id="form_from_date" name="form_from_date"
                                                    class="datepicker form-control input-sm text-center"
-                                                   value="<?php echo oeFormatShortDate($from_date); ?>"
+                                                   value="<?php echo attr(oeFormatShortDate($from_date)); ?>"
                                                    style="max-width:140px;min-width:85px;">
                                         </td>
                                     </tr>
@@ -380,7 +380,7 @@ if (!$_REQUEST['flb_table']) {
                                             <input type="text"
                                                    id="form_to_date" name="form_to_date"
                                                    class="datepicker form-control input-sm text-center"
-                                                   value="<?php echo oeFormatShortDate($to_date); ?>"
+                                                   value="<?php echo attr(oeFormatShortDate($to_date)); ?>"
                                                    style="max-width:140px;min-width:85px;">
                                         </td>
                                     </tr>
@@ -427,7 +427,7 @@ if (!$_REQUEST['flb_table']) {
                     $statuses_output = "<span style='margin:0 10px;'><em>" . xlt('Total patients') . ':</em> <span class="badge">' . text($appointments_status['count_all']) . "</span></span>";
                     unset($appointments_status['count_all']);
                     foreach ($appointments_status as $status_symbol => $count) {
-                        $statuses_output .= " | <span style='margin:0 10px;'><em>" . text(xl_list_label($statuses_list[$status_symbol])) . ":</em> <span class='badge'>" . $count . "</span></span>";
+                        $statuses_output .= " | <span style='margin:0 10px;'><em>" . text(xl_list_label($statuses_list[$status_symbol])) . ":</em> <span class='badge'>" . text($count) . "</span></span>";
                     }
                     echo $statuses_output;
                     ?>
@@ -442,7 +442,7 @@ if (!$_REQUEST['flb_table']) {
                   </label>
                   <a id='refreshme'><i class="fa fa-refresh fa-2x fa-fw">&nbsp;</i></a>
                   <span class="fa-stack fa-lg" id="flb_caret" onclick="toggleSelectors();"
-                        title="Show/Hide the Selection Area"
+                        title="<?php echo xla('Show/Hide the Selection Area'); ?>"
                         style="color:<?php echo $color = ($setting_selectors == 'none') ? 'red' : 'black'; ?>;">
                     <i class="fa fa-square-o fa-stack-2x"></i>
                     <i id="print_caret"
@@ -590,13 +590,13 @@ if (!$_REQUEST['flb_table']) {
                                 if (!empty($row['msg_extra_text'])) {
                                     $local = attr($row['msg_extra_text']) . " |";
                                 }
-                                $prog_text .= oeFormatShortDate($row['msg_date']) . " :: " . attr($row['msg_type']) . " : " . attr($row['msg_reply']) . " | " . $local . " |";
+                                $prog_text .= attr(oeFormatShortDate($row['msg_date'])) . " :: " . attr($row['msg_type']) . " : " . attr($row['msg_reply']) . " | " . $local . " |";
 
                                 if ($row['msg_reply'] == 'Other') {
                                     $other_title .= $row['msg_extra_text'] . "\n";
                                     $icon_extra .= str_replace(
                                         "EXTRA",
-                                        oeFormatShortDate($row['msg_date']) . "\n" . xla('Patient Message') . ":\n" . attr($row['msg_extra_text']) . "\n",
+                                        attr(oeFormatShortDate($row['msg_date'])) . "\n" . xla('Patient Message') . ":\n" . attr($row['msg_extra_text']) . "\n",
                                         $icons[$row['msg_type']]['EXTRA']['html']
                                     );
                                     continue;
@@ -611,7 +611,7 @@ if (!$_REQUEST['flb_table']) {
                                 } elseif ($row['msg_type'] == "NOTES") {
                                     $CALLED = "1";
                                     $FINAL = $icons['NOTES']['CALLED']['html'];
-                                    $FINAL = str_replace("Call Back: COMPLETED", oeFormatShortDate($row['msg_date']) . " :: " . xla('Callback Performed') . " | " . xla('NOTES') . ": " . $row['msg_extra_text'] . " | ", $FINAL);
+                                    $FINAL = str_replace("Call Back: COMPLETED", attr(oeFormatShortDate($row['msg_date'])) . " :: " . xla('Callback Performed') . " | " . xla('NOTES') . ": " . $row['msg_extra_text'] . " | ", $FINAL);
                                     $icon_CALL = $icon_4_call;
                                     continue;
                                 } elseif (($row['msg_reply'] == "READ") || ($appointment[$row['msg_type']]['stage'] == "READ")) {
@@ -633,16 +633,16 @@ if (!$_REQUEST['flb_table']) {
                                 if (($row['msg_reply'] == "CALL") && (!$CALLED)) {
                                     $icon_here = '';
                                     $icon_4_CALL = $icons[$row['msg_type']]['CALL']['html'];
-                                    $icon_CALL = "<span onclick=\"doCALLback('" . $date_squash . "','" . $appointment['eid'] . "','" . $appointment['pc_cattype'] . "')\">" . $icon_4_CALL . "</span>
-                                    <span class='hidden' name='progCALLback_" . $appointment['eid'] . "' id='progCALLback_" . $appointment['eid'] . "'>
-                                      <form id='notation_" . $appointment['eid'] . "' method='post' 
+                                    $icon_CALL = "<span onclick=\"doCALLback('" . attr($date_squash) . "','" . attr($appointment['eid']) . "','" . attr($appointment['pc_cattype']) . "')\">" . $icon_4_CALL . "</span>
+                                    <span class='hidden' name='progCALLback_" . attr($appointment['eid']) . "' id='progCALLback_" . attr($appointment['eid']) . "'>
+                                      <form id='notation_" . attr($appointment['eid']) . "' method='post' 
                                       action='#'>
-                                        <h4>Call Back Notes:</h4>
-                                        <input type='hidden' name='pc_eid' id='pc_eid' value='" . $appointment['eid'] . "'>
-                                        <input type='hidden' name='pc_pid' id='pc_pid' value='" . $appointment['pc_pid'] . "'>
-                                        <input type='hidden' name='campaign_uid' id='campaign_uid' value='" . $row['campaign_uid'] . "'>
+                                        <h4>" . xlt('Call Back Notes') . ":</h4>
+                                        <input type='hidden' name='pc_eid' id='pc_eid' value='" . attr($appointment['eid']) . "'>
+                                        <input type='hidden' name='pc_pid' id='pc_pid' value='" . attr($appointment['pc_pid']) . "'>
+                                        <input type='hidden' name='campaign_uid' id='campaign_uid' value='" . attr($row['campaign_uid']) . "'>
                                         <textarea name='txtCALLback' id='txtCALLback' rows=6 cols=20></textarea>
-                                        <input type='submit' name='saveCALLback' id='saveCALLback' value='Save'>
+                                        <input type='submit' name='saveCALLback' id='saveCALLback' value='" . xla("Save") ."'>
                                       </form>
                                     </span>
                                       ";
@@ -746,7 +746,7 @@ if (!$_REQUEST['flb_table']) {
                         <?php }
                         if ($GLOBALS['ptkr_date_range'] == '1') { ?>
                             <td class="detail hidden-xs text-center" name="kiosk_hide">
-                                <?php echo oeFormatShortDate($appointment['pc_eventDate']);
+                                <?php echo text(oeFormatShortDate($appointment['pc_eventDate']));
                                 ?>
                             </td>
                         <?php } ?>
