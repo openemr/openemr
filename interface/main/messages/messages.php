@@ -56,20 +56,11 @@ if (($_POST['setting_bootstrap_submenu']) ||
 <head>
     <title><?php echo xlt('Message Center'); ?></title>
 
-    <?php Header::setupHeader(['jquery-ui', 'jquery-ui-redmond', 'opener', 'moment', 'pure']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-redmond', 'opener', 'moment', 'pure']); ?>
 
     <script>
-        <?php
-        if ($GLOBALS['date_display_format'] == '0') {
-            $date_format = 'yy-m-d';
-        } elseif ($GLOBALS['date_display_format'] == '1') {
-            $date_format = 'mm/dd/yy';
-        } elseif ($GLOBALS['date_display_format'] == '2') {
-            $date_format = 'dd/mm/yy';
-        }
-        ?>
-        var xljs_dateFormat = '<?php echo $date_format; ?>';
-        var xljs1 = '<?php echo xl( 'Preferences updated successfully' ); ?>';
+        var xljs1 = '<?php echo xl('Preferences updated successfully'); ?>';
+        var format_date_moment_js = '<?php echo attr(DateFormatRead("validateJS")); ?>';
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>
 

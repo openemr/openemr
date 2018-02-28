@@ -142,18 +142,6 @@ if (!$_REQUEST['flb_table']) {
 
     <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-cupertino', 'opener', 'pure']); ?>
 
-    <script>
-        <?php
-        if ($GLOBALS['date_display_format'] == '0') {
-            $date_format = 'yy-m-d';
-        } elseif ($GLOBALS['date_display_format'] == '1') {
-            $date_format = 'mm/dd/yy';
-        } elseif ($GLOBALS['date_display_format'] == '2') {
-            $date_format = 'dd/mm/yy';
-        }
-        ?>
-        var xljs_dateFormat = '<?php echo $date_format; ?>';
-    </script>
     <script type="text/javascript">
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>

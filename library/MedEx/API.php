@@ -1039,7 +1039,7 @@
         public function save_recall($saved)
         {
             $this->delete_Recall();
-            $mysqldate = date('Y-m-d', strtotime($_REQUEST['datepicker2']));
+            $mysqldate = DateToYYYYMMDD($_REQUEST['form_recall_date']);
             $queryINS = "INSERT INTO medex_recalls (r_pid,r_reason,r_eventDate,r_provider,r_facility)
                             VALUES (?,?,?,?,?)
                             ON DUPLICATE KEY
@@ -1572,10 +1572,9 @@
             global $rcb_selectors;
             global $rcb_facility;
             global $rcb_provider;
-            global $date_format;
 
             //let's get all the recalls the user requests, or if no dates set use defaults
-            $from_date = !is_null($_REQUEST['datepicker1']) ? date('Y-m-d', strtotime($_REQUEST['datepicker1'])) : date('Y-m-d', strtotime('-6 months'));
+            $from_date = !is_null($_REQUEST['form_from_date']) ? DateToYYYYMMDD($_REQUEST['form_from_date']) : date('Y-m-d', strtotime('-6 months'));
             //limit date range for initial Board to keep us sane and not tax the server too much
 
             if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
@@ -1591,7 +1590,7 @@
             $to_date = date('Y-m-d', $ptkr_future_time);
             //prevSetting to_date?
 
-            $to_date = !is_null($_REQUEST['datepicker2']) ? date('Y-m-d', strtotime($_REQUEST['datepicker2'])) : $to_date;
+            $to_date = !is_null($_REQUEST['form_to_date']) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
 
             $recalls = $this->get_recalls($from_date, $to_date);
 
@@ -1699,16 +1698,16 @@
                                         <table class="table-hover table-condensed" style="margin:0 auto;">
                                           <tr><td class="text-right" style="vertical-align:bottom;">
                                             <label for="flow_from"><?php echo xlt('From'); ?>:</label></td><td>
-                                            <input id="datepicker1" name="datepicker1"
-                                                    class="form-control input-sm text-center"
+                                            <input id="form_from_date" name="form_from_date"
+                                                    class="datepicker form-control input-sm text-center"
                                                     value="<?php echo attr(oeFormatShortDate($from_date)); ?>"
                                                     style="max-width:140px;min-width:85px;">
 
                                           </td></tr>
                                           <tr><td class="text-right" style="vertical-align:bottom;">
                                             <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To'); ?>:</label></td><td>
-                                            <input id="datepicker2" name="datepicker2"
-                                                    class="form-control input-sm text-center"
+                                            <input id="form_to_date" name="form_to_date"
+                                                    class="datepicker form-control input-sm text-center"
                                                     value="<?php echo attr(oeFormatShortDate($to_date)); ?>"
                                                     style="max-width:140px;min-width:85px;">
                                           </td></tr>
@@ -1834,6 +1833,14 @@
                 }
                 $(document).ready(function() {
                     show_this();
+
+                    $('.datepicker').datetimepicker({
+                        <?php $datetimepicker_timepicker = false; ?>
+                        <?php $datetimepicker_showseconds = false; ?>
+                        <?php $datetimepicker_formatInput = true; ?>
+                        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+                    });
                 });
             </script>
             <?php
@@ -1904,11 +1911,11 @@
                 if ($GLOBALS['ptkr_show_pid']) {
                     echo '<br /><span data-toggle="tooltip" data-placement="auto" title="'.xla("Patient ID").'" class="small">'. xlt('PID').': '.text($recall['pid']).'</span>';
                 }
-                echo '<br /><span data-toggle="tooltip" data-placement="auto" title="'.xla("Most recent visit").'" class="small">Last Visit: '.oeFormatShortDate($last_visit).'</span>';
+                echo '<br /><span data-toggle="tooltip" data-placement="auto" title="'.xla("Most recent visit").'" class="small">' . xlt("Last Visit") . ': '.text(oeFormatShortDate($last_visit)).'</span>';
                 echo '<br /><span class="small" data-toggle="tooltip" data-placement="auto" title="'.xla("Date of Birth and Age").'">'. xlt('DOB').': '.text($DOB).' ('.$age.')</span>';
                 echo '</div>';
 
-                echo '<div class="divTableCell appt_date">'.oeFormatShortDate($recall['r_eventDate']);
+                echo '<div class="divTableCell appt_date">'.text(oeFormatShortDate($recall['r_eventDate']));
                 if ($recall['r_reason']>'') {
                     echo '<br />'.text($recall['r_reason']);
                 }
@@ -2359,7 +2366,7 @@
                                             <?php echo xlt('plus 2 years'); ?></label><br />
                                         <label for="new_recall_when_3yr" class="indent20 input-helper input-helper--checkbox"><input type="radio" name="new_recall_when" id="new_recall_when_3yr" value="1095" class="form-control">
                                             <?php echo xlt('plus 3 years'); ?></label><br />
-                                            <span class="bold"> <?php echo xlt('Date'); ?>:</span> <input class="form-control input-sm text-center" type="text" id="datepicker2" name="datepicker2" value="">
+                                            <span class="bold"> <?php echo xlt('Date'); ?>:</span> <input class="datepicker form-control input-sm text-center" type="text" id="form_recall_date" name="form_recall_date" value="">
                                     </div>
                                 </div>
                                 <div class="divTableRow">
@@ -2500,42 +2507,14 @@
             </div>
             <script>
                 $(document).ready(function () {
-                    $("#datepicker1").datepicker({
-                        beforeShow: function () {
-                            setTimeout(function () {
-                                $('.ui-datepicker').css('z-index', 999);
-                            }, 0);
-                        },
-                        widgetPositioning: {
-                            horizontal: 'right',
-                            vertical: 'bottom'
-                        },
-                        changeYear: true,
-                        showButtonPanel: true,
-                        dateFormat: xljs_dateFormat,
-                        onSelect: function (dateText, inst) {
-                            $('#' + inst.id).attr('value', dateText).css('text-align', 'center');
-                        }
+                    $('.datepicker').datetimepicker({
+                        <?php $datetimepicker_timepicker = false; ?>
+                        <?php $datetimepicker_showseconds = false; ?>
+                        <?php $datetimepicker_formatInput = true; ?>
+                        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                     });
-
-                    $("#datepicker2").datepicker({
-                        beforeShow: function () {
-                            setTimeout(function () {
-                                $('.ui-datepicker').css('z-index', 999);
-                            }, 0);
-                        },
-                        widgetPositioning: {
-                            horizontal: 'right',
-                            vertical: 'bottom'
-                        },
-                        changeYear: true,
-                        showButtonPanel: true,
-                        dateFormat: xljs_dateFormat,
-                        onSelect: function (dateText, inst) {
-                            $('#' + inst.id).attr('value', dateText);
-                        }
-                    });
-                }
+                });
     </script>
             <?php
         }

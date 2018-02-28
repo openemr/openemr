@@ -94,9 +94,9 @@ function setpatient(pid, lname, fname, dob) {
  *  This function is called with pressing Submit on the Add a Recall page
  */
 function add_this_recall(e) {
-    if ($('#datepicker2').val() === '') {
+    if ($('#form_recall_date').val() === '') {
         alert(xljs_PlsDecRecDate);
-        $("#datepicker2").focus();
+        $("#form_recall_date").focus();
         //e.defaultPrevented();
         e.preventDefault();
         return false;
@@ -375,9 +375,8 @@ $(document).ready(function () {
     });
     $("[name='new_recall_when']").change(function () {
         var dolv = moment($("#DOLV").val());
-        var new_date = moment($(this).val(), 'days');
-        now = dolv.add($(this).val(), 'days').format('YYYY-MM-DD');
-        $("#datepicker2").val(now);
+        now = dolv.add($(this).val(), 'days').format(format_date_moment_js);
+        $("#form_recall_date").val(now);
     });
     $(".update").on('change', function (e) {
         var formData = $("form#save_prefs").serialize();
@@ -395,31 +394,5 @@ $(document).ready(function () {
             }, 2000);
         });
     });
-                  $("#datepicker1").datepicker({
-                                                       beforeShow: function () {
-                                                           setTimeout(function () {
-                                                                      $('.ui-datepicker').css('z-index', 999);
-                                                                      }, 0);
-                                                           },
-                                                       changeYear: true,
-                                                       showButtonPanel: true,
-                                                       dateFormat: xljs_dateFormat,
-                                                       onSelect: function (dateText, inst) {
-                                                           $('#' + inst.id).attr('value', dateText).css('text-align','center');
-                                                       }
-                                                       });
-                  $("#datepicker2").datepicker({
-                                                beforeShow: function () {
-                                                setTimeout(function () {
-                                                           $('.ui-datepicker').css('z-index', 999);
-                                                           }, 0);
-                                                },
-                                                changeYear: true,
-                                                showButtonPanel: true,
-                                                dateFormat: xljs_dateFormat,
-                                                onSelect: function (dateText, inst) {
-                                                $('#' + inst.id).attr('value', dateText);
-                                                }
-                                                });
 });
 
