@@ -12,11 +12,9 @@
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Roberto Vasquez <robertogagliotta@gmail.com>
  * @Copyright (C) 2008-2012 Rod Roark <rod@sunsetsystems.com>
- * @Copyright (C) 2011-2017 Brady Miller <brady.g.miller@gmail.com>
+ * @Copyright (C) 2011-2018 Brady Miller <brady.g.miller@gmail.com>
  * @Copyright (C) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
  */
-
-
 
 
 require_once("../interface/globals.php");
@@ -120,7 +118,7 @@ if (!empty($row)) {
     $current_location = xlt('Unassigned');
     if ($ct_userid) {
         $user = $userService->getUser($ct_userid);
-        $current_location = text($user->getLname() . ", " . $user->getFname() . " " . $user->getMname() . " " . $row['ct_when']);
+        $current_location = text($user->getLname() . ", " . $user->getFname() . " " . $user->getMname() . " " . oeFormatDateTime($row['ct_when'], "global", true));
     } else if ($ct_location) {
         $current_location = generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'), $ct_location);
     }
@@ -145,7 +143,7 @@ if (!empty($row)) {
             <div class="form-group">
                 <label for="form_pat_id" class='control-label col-sm-3'><?php echo xlt('DOB') . ":"; ?></label>
                 <div class='col-sm-9'>
-                    <p class="form-control-static"><?php echo text($row['DOB']) ?></p>
+                    <p class="form-control-static"><?php echo text(oeFormatShortDate($row['DOB'])) ?></p>
                 </div>
               </div>
             <div class="form-group">
