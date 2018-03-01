@@ -24,8 +24,6 @@
  */
 
 $ignoreAuth=true;
-$_SERVER['REQUEST_URI'] = '';
-$_SERVER['HTTP_HOST']   = 'default'; //adjust for multi-site
 
 require_once(dirname(__FILE__)."/../../interface/globals.php");
 require_once(dirname(__FILE__)."/API.php");

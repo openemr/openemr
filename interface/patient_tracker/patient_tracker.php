@@ -972,6 +972,10 @@ if (!$_REQUEST['flb_table']) {
                         refineMe();
                     });
             }
+            function refreshme() {
+                // Just need this to support refreshme call from the popup used for recurrent appt
+                refreshMe();
+            }
 
             /**
              * This function hides all then shows only the flb_table rows that match our selection, client side.

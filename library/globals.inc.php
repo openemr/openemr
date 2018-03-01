@@ -849,7 +849,7 @@ $GLOBALS_METADATA = array(
             '0',                              // default = false
             xl('This will force the Billing Widget in the Patient Summary screen to always be open.')
         ),
-        
+
         'activate_ccr_ccd_report' => array(
             xl('Activate CCR/CCD Reporting'),
             'bool',                           // data type
@@ -1587,7 +1587,7 @@ $GLOBALS_METADATA = array(
             '1',                              // default
             xl('Automatically create a new encounter when an appointment check in status is selected.')
         ),
-        
+
         'allow_early_check_in' => array(
             xl('Allow Early Check In'),
             'bool',                           // data type
@@ -1653,8 +1653,9 @@ $GLOBALS_METADATA = array(
                 'M3' => xl('Three Months Ahead'),
                 'M1' => xl('One Month Ahead'),
                 'D1' => xl('One Day Ahead'),
+                'D0' => xl('Same Day'),
             ),
-            'D1',                     // default = One Day Ahead
+            'D0',                     // default = One Day Ahead
             xl('This is the Ending date for the Patient Flow Board Date Range. (only applicable if Allow Date Range in option above is Enabled)')
         ),
 
@@ -1708,7 +1709,7 @@ $GLOBALS_METADATA = array(
           xl('Do not display the Recall Board.')
         ),
 
- 
+
 
 
     ),
@@ -2595,7 +2596,7 @@ $GLOBALS_METADATA = array(
           '0',
           xl('Enable MedEx Communication Service')
         ),
-        
+
         'erx_enable' => array(
             xl('Enable NewCrop eRx Service'),
             'bool',
