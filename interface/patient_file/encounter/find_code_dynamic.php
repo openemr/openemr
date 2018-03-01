@@ -143,7 +143,38 @@ $(document).ready(function() {
  }
 <?php } ?>
 
-});
+
+
+    //add new checkbox along side the search input
+    $("<label><input type='checkbox' id='like'\> Like</label>").appendTo($("input[type='search']").parent());
+
+    //on keyup event inside the search
+    $("input[type='search']").on('keyup',function(e){
+    e.stopPropagation();
+    var val = $(this).val();
+    var left = val[0];
+    var right = val[val.length-1];
+
+    var code = e.keyCode || e.which;
+    if((code >= 8 &&  code <=46) || code>=104) { //if not a number or not a 'ab' char
+        return;
+    }
+
+
+    if($("#like")[0].checked) {
+
+        //zone the search value with the % wildecards to obtain a 'like' value search element.
+        val = val.replace(/%/g, "");
+        val  = '%'+val+'%';
+        $(this).val(val);
+    }
+
+    });
+
+
+
+
+    });
 
 <?php if ($what == 'codes') { ?>
 
@@ -307,5 +338,7 @@ echo "</p>\n";
 <?php } ?>
 
 </form>
+
+
 </body>
 </html>
