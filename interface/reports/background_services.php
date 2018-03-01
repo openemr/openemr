@@ -2,28 +2,17 @@
 /**
  * Report to view the background services.
  *
- * Copyright (C) 2013 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2013-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
-use OpenEMR\Core\Header;
-
 require_once("../globals.php");
+
+use OpenEMR\Core\Header;
 ?>
 
 <html>
@@ -150,13 +139,13 @@ while ($row = sqlFetchArray($res)) {
           <td align='center'><?php echo ($row['running']>0) ? xlt("Yes") : xlt("No"); ?></td>
 
         <?php if ($row['running'] > -1) { ?>
-          <td align='center'><?php echo text($row['last_run_start']); ?></td>
+          <td align='center'><?php echo text(oeFormatDateTime($row['last_run_start'], "global", true)); ?></td>
         <?php } else { ?>
           <td align='center'><?php echo xlt('Never'); ?></td>
         <?php } ?>
 
         <?php if ($row['active'] && ($row['execute_interval'] > 0)) { ?>
-          <td align='center'><?php echo text($row['next_run']); ?></td>
+          <td align='center'><?php echo text(oeFormatDateTime($row['next_run'], "global", true)); ?></td>
         <?php } else { ?>
           <td align='center'><?php echo xlt('Not Applicable'); ?></td>
         <?php } ?>

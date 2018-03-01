@@ -7,7 +7,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2008-2010 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -105,7 +105,7 @@ while ($row = sqlFetchArray($res)) {
     <?php echo text($row['ulname'] . ', ' . $row['ufname'] . ' ' . $row['umname']); ?>
   </td>
   <td>
-    <?php echo text(oeFormatShortDate(substr($row['ct_when'], 0, 10))) . text(substr($row['ct_when'], 10)); ?>
+    <?php echo text(oeFormatDateTime($row['ct_when'], "global", true)); ?>
   </td>
  </tr>
 <?php
