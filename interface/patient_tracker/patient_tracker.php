@@ -426,7 +426,7 @@ if (!$_REQUEST['flb_table']) {
                   <label for='setting_new_window' id='settings'>
                     <input type='checkbox' name='setting_new_window' id='setting_new_window'
                            value='<?php echo $setting_new_window; ?>' <?php echo $setting_new_window; ?> />
-                      <?php echo xlt('Open Patient in New Window'); ?>
+                        <?php echo xlt('Open Patient in New Window'); ?>
                   </label>
                   <a id='refreshme'><i class="fa fa-refresh fa-2x fa-fw">&nbsp;</i></a>
                   <span class="fa-stack fa-lg" id="flb_caret" onclick="toggleSelectors();"
@@ -445,7 +445,7 @@ if (!$_REQUEST['flb_table']) {
 
             <div class="col-sm-12 textclear" id="flb_table" name="flb_table">
                 <?php
-                }
+}
                 //end of if !$_REQUEST['flb_table'] - this is the table we fetch via ajax during a refreshMe() call
                 ?>
                 <table class="table table-responsive table-condensed table-hover table-bordered">
@@ -729,10 +729,10 @@ if (!$_REQUEST['flb_table']) {
                             <td class="detail hidden-xs hidden-sm text-center" name="kiosk_hide">
                                 <?php if ($appt_enc != 0) {
                                     echo text($appt_enc);
-                                } ?>
+} ?>
                             </td>
                         <?php }
-                        if ($GLOBALS['ptkr_date_range'] == '1') { ?>
+if ($GLOBALS['ptkr_date_range'] == '1') { ?>
                             <td class="detail hidden-xs text-center" name="kiosk_hide">
                                 <?php echo text(oeFormatShortDate($appointment['pc_eventDate']));
                                 ?>
@@ -754,11 +754,11 @@ if (!$_REQUEST['flb_table']) {
                                 <?php } else { ?>
                                 <a onclick="return bpopup(<?php echo attr($tracker_id); // calls popup for patient tracker status?>)">
                                     <?php }
-                                    if ($appointment['room'] > '') {
-                                        echo getListItemTitle('patient_flow_board_rooms', $appt_room);
-                                    } else {
-                                        echo text(getListItemTitle("apptstat", $status)); // drop down list for appointment status
-                                    }
+if ($appointment['room'] > '') {
+    echo getListItemTitle('patient_flow_board_rooms', $appt_room);
+} else {
+    echo text(getListItemTitle("apptstat", $status)); // drop down list for appointment status
+}
                                     ?>
                                 </a>
                         </td>
@@ -852,16 +852,16 @@ if (!$_REQUEST['flb_table']) {
                                         // the following block allows the check box for drug screens to be disabled once the status is check out ?>
                                         <input type=checkbox disabled='disable' class="drug_screen_completed"
                                                id="<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>" <?php if ($appointment['drug_screen_completed'] == "1") {
-                                            echo "checked";
-                                        } ?>>
+                                                    echo "checked";
+} ?>>
                                         <?php
                                     } else {
                                         ?>
                                         <input type=checkbox class="drug_screen_completed"
                                                id='<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>'
                                                name="drug_screen_completed" <?php if ($appointment['drug_screen_completed'] == "1") {
-                                            echo "checked";
-                                        } ?>>
+                                                    echo "checked";
+} ?>>
                                         <?php
                                     } ?>
                                 </td>
@@ -893,231 +893,231 @@ if (!$_REQUEST['flb_table']) {
 </body>
 </html>
     <?php
-    } //end of second !$_REQUEST['flb_table']
+                } //end of second !$_REQUEST['flb_table']
 
     //$content = ob_get_clean();
     //echo $content;
 
-    exit;
+                exit;
 
-    function myLocalJS()
-    {
-        ?>
-        <script type="text/javascript">
-            var auto_refresh = null;
-            //this can be refined to redact HIPAA material using @media print options.
-            top.restoreSession();
-            window.parent.$("[name='flb']").attr('allowFullscreen', 'true');
-            <?php
-            if ($_REQUEST['kiosk'] == '1') { ?>
-            $("[name='kiosk_hide']").hide();
-            $("[name='kiosk_show']").show();
-            <?php } else { ?>
+                function myLocalJS()
+                {
+                    ?>
+                    <script type="text/javascript">
+                        var auto_refresh = null;
+                        //this can be refined to redact HIPAA material using @media print options.
+                        top.restoreSession();
+                        window.parent.$("[name='flb']").attr('allowFullscreen', 'true');
+                        <?php
+                        if ($_REQUEST['kiosk'] == '1') { ?>
+                        $("[name='kiosk_hide']").hide();
+                        $("[name='kiosk_show']").show();
+                        <?php } else { ?>
             $("[name='kiosk_hide']").show();
             $("[name='kiosk_show']").hide();
             <?php  }   ?>
-            function print_FLB() {
-                window.print();
-            }
-
-            function toggleSelectors() {
-                if ($("#flb_selectors").css('display') === 'none') {
-                    $.post("<?php echo $GLOBALS['webroot'] . "/interface/patient_tracker/patient_tracker.php"; ?>", {
-                        'setting_selectors': 'block',
-                        success: function (data) {
-
-                            $("#flb_selectors").slideToggle();
-                            $("#flb_caret").css('color', '#000');
+                        function print_FLB() {
+                            window.print();
                         }
-                    });
-                } else {
-                    $.post("<?php echo $GLOBALS['webroot'] . "/interface/patient_tracker/patient_tracker.php"; ?>", {
-                        'setting_selectors': 'none',
-                        success: function (data) {
-                            $("#flb_selectors").slideToggle();
-                            $("#flb_caret").css('color', 'red');
-                        }
-                    });
-                }
-                $("#print_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');
-            }
 
-            /**
-             * This function refreshes the whole flb_table according to our to/from dates.
-             */
-            function refreshMe() {
-                top.restoreSession();
-                var posting = $.post('../patient_tracker/patient_tracker.php', {
-                    flb_table: '1',
-                    form_from_date: $("#form_from_date").val(),
-                    form_to_date: $("#form_to_date").val(),
-                    form_facility: $("#form_facility").val(),
-                    form_provider: $("#form_provider").val(),
-                    form_apptstatus: $("#form_apptstatus").val(),
-                    form_patient_name: $("#form_patient_name").val(),
-                    form_patient_id: $("#form_patient_id").val(),
-                    form_apptcat: $("#form_apptcat").val(),
-                    kiosk: $("#kiosk").val()
-                }).done(
-                    function (data) {
-                        $("#flb_table").html(data);
-                        if ($("#kiosk").val() === '') {
-                            $("[name='kiosk_hide']").show();
-                            $("[name='kiosk_show']").hide();
-                        } else {
+                        function toggleSelectors() {
+                            if ($("#flb_selectors").css('display') === 'none') {
+                                $.post("<?php echo $GLOBALS['webroot'] . "/interface/patient_tracker/patient_tracker.php"; ?>", {
+                                    'setting_selectors': 'block',
+                                    success: function (data) {
+
+                                        $("#flb_selectors").slideToggle();
+                                        $("#flb_caret").css('color', '#000');
+                                    }
+                                });
+                            } else {
+                                $.post("<?php echo $GLOBALS['webroot'] . "/interface/patient_tracker/patient_tracker.php"; ?>", {
+                                    'setting_selectors': 'none',
+                                    success: function (data) {
+                                        $("#flb_selectors").slideToggle();
+                                        $("#flb_caret").css('color', 'red');
+                                    }
+                                });
+                            }
+                            $("#print_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');
+                        }
+
+                        /**
+                         * This function refreshes the whole flb_table according to our to/from dates.
+                         */
+                        function refreshMe() {
+                            top.restoreSession();
+                            var posting = $.post('../patient_tracker/patient_tracker.php', {
+                                flb_table: '1',
+                                form_from_date: $("#form_from_date").val(),
+                                form_to_date: $("#form_to_date").val(),
+                                form_facility: $("#form_facility").val(),
+                                form_provider: $("#form_provider").val(),
+                                form_apptstatus: $("#form_apptstatus").val(),
+                                form_patient_name: $("#form_patient_name").val(),
+                                form_patient_id: $("#form_patient_id").val(),
+                                form_apptcat: $("#form_apptcat").val(),
+                                kiosk: $("#kiosk").val()
+                            }).done(
+                                function (data) {
+                                    $("#flb_table").html(data);
+                                    if ($("#kiosk").val() === '') {
+                                        $("[name='kiosk_hide']").show();
+                                        $("[name='kiosk_show']").hide();
+                                    } else {
+                                        $("[name='kiosk_hide']").hide();
+                                        $("[name='kiosk_show']").show();
+                                    }
+
+                                    refineMe();
+                                });
+                        }
+                        function refreshme() {
+                            // Just need this to support refreshme call from the popup used for recurrent appt
+                            refreshMe();
+                        }
+
+                        /**
+                         * This function hides all then shows only the flb_table rows that match our selection, client side.
+                         * It is called on initial load, on refresh and 'onchange/onkeyup' of a flow board parameter.
+                         */
+                        function refineMe() {
+                            var apptcatV = $("#form_apptcat").val();
+                            var apptstatV = $("#form_apptstatus").val();
+                            var facV = $("#form_facility").val();
+                            var provV = $("#form_provider").val();
+                            var pidV = String($("#form_patient_id").val());
+                            var pidRE = new RegExp(pidV, 'g');
+                            var pnameV = $("#form_patient_name").val();
+                            var pnameRE = new RegExp(pnameV, 'ig');
+
+                            //and hide what we don't want to show
+                            $('#flb_table tbody tr').hide().filter(function () {
+                                var d = $(this).data();
+                                meets_cat = (apptcatV === '') || (apptcatV == d.apptcat);
+                                meets_stat = (apptstatV === '') || (apptstatV == d.apptstatus);
+                                meets_fac = (facV === '') || (facV == d.facility);
+                                meets_prov = (provV === '') || (provV == d.provider);
+                                meets_pid = (pidV === '');
+                                if ((pidV > '') && pidRE.test(d.pid)) {
+                                    meets_pid = true;
+                                }
+                                meets_pname = (pnameV === '');
+                                if ((pnameV > '') && pnameRE.test(d.pname)) {
+                                    meets_pname = true;
+                                }
+                                return meets_pname && meets_pid && meets_cat && meets_stat && meets_fac && meets_prov;
+                            }).show();
+                        }
+
+                        // popup for patient tracker status
+                        function bpopup(tkid) {
+                            top.restoreSession();
+                            dlgopen('../patient_tracker/patient_tracker_status.php?tracker_id=' + tkid, '_blank', 500, 250);
+                            return false;
+                        }
+
+                        // popup for calendar add edit
+                        function calendarpopup(eid, date_squash) {
+                            top.restoreSession();
+                            dlgopen('../main/calendar/add_edit_event.php?eid=' + eid + '&date=' + date_squash, '_blank', 775, 500);
+                            return false;
+                        }
+
+                        // used to display the patient demographic and encounter screens
+                        function topatient(newpid, enc) {
+                            if ($('#setting_new_window').val() === 'checked') {
+                                openNewTopWindow(newpid, enc);
+                            }
+                            else {
+                                top.restoreSession();
+                                if (enc > 0) {
+                                    top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + newpid + "&set_encounterid=" + enc;
+                                }
+                                else {
+                                    top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + newpid;
+                                }
+                            }
+                        }
+
+                        function doCALLback(eventdate, eid, pccattype) {
+                            $("#progCALLback_" + eid).parent().removeClass('js-blink-infinite').css('animation-name', 'none');
+                            $("#progCALLback_" + eid).removeClass("hidden");
+                            clearInterval(auto_refresh);
+                        }
+
+                        // opens the demographic and encounter screens in a new window
+                        function openNewTopWindow(newpid, newencounterid) {
+                            document.fnew.patientID.value = newpid;
+                            document.fnew.encounterID.value = newencounterid;
+                            top.restoreSession();
+                            document.fnew.submit();
+                        }
+
+                        //opens the two-way SMS phone app
+                        /**
+                         * @return {boolean}
+                         */
+                        function SMS_bot(pid) {
+                            top.restoreSession();
+                            var from = '<?php echo attr($from_date); ?>';
+                            var to = '<?php echo attr($to_date); ?>';
+                            var oefrom = '<?php echo attr(oeFormatShortDate($from_date)); ?>';
+                            var oeto = '<?php echo attr(oeFormatShortDate($to_date)); ?>';
+                            window.open('../main/messages/messages.php?nomenu=1&go=SMS_bot&pid=' + pid + '&to=' + to + '&from=' + from + '&oeto=' + oeto + '&oefrom=' + oefrom, 'SMS_bot', 'width=370,height=600,resizable=0');
+                            return false;
+                        }
+
+                        function kiosk_FLB() {
+                            $("#kiosk").val('1');
                             $("[name='kiosk_hide']").hide();
                             $("[name='kiosk_show']").show();
+                            var i = document.getElementById("flb_table");
+                            // go full-screen
+                            if (i.requestFullscreen) {
+                                i.requestFullscreen();
+                            } else if (i.webkitRequestFullscreen) {
+                                i.webkitRequestFullscreen();
+                            } else if (i.mozRequestFullScreen) {
+                                i.mozRequestFullScreen();
+                            } else if (i.msRequestFullscreen) {
+                                i.msRequestFullscreen();
+                            }
+                            // refreshMe();
                         }
 
-                        refineMe();
-                    });
-            }
-            function refreshme() {
-                // Just need this to support refreshme call from the popup used for recurrent appt
-                refreshMe();
-            }
+                        $(document).ready(function () {
+                            refineMe();
+                            $("#kiosk").val('');
+                            $("[name='kiosk_hide']").show();
+                            $("[name='kiosk_show']").hide();
 
-            /**
-             * This function hides all then shows only the flb_table rows that match our selection, client side.
-             * It is called on initial load, on refresh and 'onchange/onkeyup' of a flow board parameter.
-             */
-            function refineMe() {
-                var apptcatV = $("#form_apptcat").val();
-                var apptstatV = $("#form_apptstatus").val();
-                var facV = $("#form_facility").val();
-                var provV = $("#form_provider").val();
-                var pidV = String($("#form_patient_id").val());
-                var pidRE = new RegExp(pidV, 'g');
-                var pnameV = $("#form_patient_name").val();
-                var pnameRE = new RegExp(pnameV, 'ig');
+                            onresize = function () {
+                                var state = 1 >= outerHeight - innerHeight ? "fullscreen" : "windowed";
+                                if (window.state === state) return;
+                                window.state = state;
+                                var event = document.createEvent("Event");
+                                event.initEvent(state, true, true);
+                                window.dispatchEvent(event);
+                            };
 
-                //and hide what we don't want to show
-                $('#flb_table tbody tr').hide().filter(function () {
-                    var d = $(this).data();
-                    meets_cat = (apptcatV === '') || (apptcatV == d.apptcat);
-                    meets_stat = (apptstatV === '') || (apptstatV == d.apptstatus);
-                    meets_fac = (facV === '') || (facV == d.facility);
-                    meets_prov = (provV === '') || (provV == d.provider);
-                    meets_pid = (pidV === '');
-                    if ((pidV > '') && pidRE.test(d.pid)) {
-                        meets_pid = true;
-                    }
-                    meets_pname = (pnameV === '');
-                    if ((pnameV > '') && pnameRE.test(d.pname)) {
-                        meets_pname = true;
-                    }
-                    return meets_pname && meets_pid && meets_cat && meets_stat && meets_fac && meets_prov;
-                }).show();
-            }
+                            addEventListener('windowed', function (e) {
+                                $("#kiosk").val('');
+                                $("[name='kiosk_hide']").show();
+                                $("[name='kiosk_show']").hide();
+                                //alert(e.type);
+                            }, false);
+                            addEventListener('fullscreen', function (e) {
+                                $("#kiosk").val('1');
+                                $("[name='kiosk_hide']").hide();
+                                $("[name='kiosk_show']").show();
+                                //alert(e.type);
+                            }, false);
 
-            // popup for patient tracker status
-            function bpopup(tkid) {
-                top.restoreSession();
-                dlgopen('../patient_tracker/patient_tracker_status.php?tracker_id=' + tkid, '_blank', 500, 250);
-                return false;
-            }
-
-            // popup for calendar add edit
-            function calendarpopup(eid, date_squash) {
-                top.restoreSession();
-                dlgopen('../main/calendar/add_edit_event.php?eid=' + eid + '&date=' + date_squash, '_blank', 775, 500);
-                return false;
-            }
-
-            // used to display the patient demographic and encounter screens
-            function topatient(newpid, enc) {
-                if ($('#setting_new_window').val() === 'checked') {
-                    openNewTopWindow(newpid, enc);
-                }
-                else {
-                    top.restoreSession();
-                    if (enc > 0) {
-                        top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + newpid + "&set_encounterid=" + enc;
-                    }
-                    else {
-                        top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + newpid;
-                    }
-                }
-            }
-
-            function doCALLback(eventdate, eid, pccattype) {
-                $("#progCALLback_" + eid).parent().removeClass('js-blink-infinite').css('animation-name', 'none');
-                $("#progCALLback_" + eid).removeClass("hidden");
-                clearInterval(auto_refresh);
-            }
-
-            // opens the demographic and encounter screens in a new window
-            function openNewTopWindow(newpid, newencounterid) {
-                document.fnew.patientID.value = newpid;
-                document.fnew.encounterID.value = newencounterid;
-                top.restoreSession();
-                document.fnew.submit();
-            }
-
-            //opens the two-way SMS phone app
-            /**
-             * @return {boolean}
-             */
-            function SMS_bot(pid) {
-                top.restoreSession();
-                var from = '<?php echo attr($from_date); ?>';
-                var to = '<?php echo attr($to_date); ?>';
-                var oefrom = '<?php echo attr(oeFormatShortDate($from_date)); ?>';
-                var oeto = '<?php echo attr(oeFormatShortDate($to_date)); ?>';
-                window.open('../main/messages/messages.php?nomenu=1&go=SMS_bot&pid=' + pid + '&to=' + to + '&from=' + from + '&oeto=' + oeto + '&oefrom=' + oefrom, 'SMS_bot', 'width=370,height=600,resizable=0');
-                return false;
-            }
-
-            function kiosk_FLB() {
-                $("#kiosk").val('1');
-                $("[name='kiosk_hide']").hide();
-                $("[name='kiosk_show']").show();
-                var i = document.getElementById("flb_table");
-                // go full-screen
-                if (i.requestFullscreen) {
-                    i.requestFullscreen();
-                } else if (i.webkitRequestFullscreen) {
-                    i.webkitRequestFullscreen();
-                } else if (i.mozRequestFullScreen) {
-                    i.mozRequestFullScreen();
-                } else if (i.msRequestFullscreen) {
-                    i.msRequestFullscreen();
-                }
-                // refreshMe();
-            }
-
-            $(document).ready(function () {
-                refineMe();
-                $("#kiosk").val('');
-                $("[name='kiosk_hide']").show();
-                $("[name='kiosk_show']").hide();
-
-                onresize = function () {
-                    var state = 1 >= outerHeight - innerHeight ? "fullscreen" : "windowed";
-                    if (window.state === state) return;
-                    window.state = state;
-                    var event = document.createEvent("Event");
-                    event.initEvent(state, true, true);
-                    window.dispatchEvent(event);
-                };
-
-                addEventListener('windowed', function (e) {
-                    $("#kiosk").val('');
-                    $("[name='kiosk_hide']").show();
-                    $("[name='kiosk_show']").hide();
-                    //alert(e.type);
-                }, false);
-                addEventListener('fullscreen', function (e) {
-                    $("#kiosk").val('1');
-                    $("[name='kiosk_hide']").hide();
-                    $("[name='kiosk_show']").show();
-                    //alert(e.type);
-                }, false);
-
-                <?php
-                if ($GLOBALS['pat_trkr_timer'] != '0') {
-                ?>
-                var reftime = "<?php echo attr($GLOBALS['pat_trkr_timer']); ?>";
+                            <?php
+                            if ($GLOBALS['pat_trkr_timer'] != '0') {
+                            ?>
+                            var reftime = "<?php echo attr($GLOBALS['pat_trkr_timer']); ?>";
                 var parsetime = reftime.split(":");
                 parsetime = (parsetime[0] * 60) + (parsetime[1] * 1) * 1000;
                 if (auto_refresh) clearInteral(auto_refresh);
@@ -1125,39 +1125,39 @@ if (!$_REQUEST['flb_table']) {
                     refreshMe() // this will run after every parsetime seconds
                 }, parsetime);
                 <?php
-                }
-                ?>
+                            }
+                            ?>
 
-                $('#settings').css("display", "none");
-                $('.js-blink-infinite').each(function () {
-                    // set up blinking text
-                    var elem = $(this);
-                    setInterval(function () {
-                        if (elem.css('visibility') === 'hidden') {
+                            $('#settings').css("display", "none");
+                            $('.js-blink-infinite').each(function () {
+                                // set up blinking text
+                                var elem = $(this);
+                                setInterval(function () {
+                                    if (elem.css('visibility') === 'hidden') {
                             elem.css('visibility', 'visible');
-                        } else {
+                                    } else {
                             elem.css('visibility', 'hidden');
-                        }
-                    }, 500);
-                });
-                // toggle of the check box status for drug screen completed and ajax call to update the database
-                $(".drug_screen_completed").change(function () {
-                    top.restoreSession();
-                    if (this.checked) {
-                        testcomplete_toggle = "true";
-                    } else {
-                        testcomplete_toggle = "false";
-                    }
-                    $.post("../../library/ajax/drug_screen_completed.php", {
-                        trackerid: this.id,
-                        testcomplete: testcomplete_toggle
-                    });
-                });
+                                    }
+                                }, 500);
+                            });
+                            // toggle of the check box status for drug screen completed and ajax call to update the database
+                            $(".drug_screen_completed").change(function () {
+                                top.restoreSession();
+                                if (this.checked) {
+                                    testcomplete_toggle = "true";
+                                } else {
+                                    testcomplete_toggle = "false";
+                                }
+                                $.post("../../library/ajax/drug_screen_completed.php", {
+                                    trackerid: this.id,
+                                    testcomplete: testcomplete_toggle
+                                });
+                            });
 
-                // mdsupport - Immediately post changes to setting_new_window
-                $('#setting_new_window').click(function () {
-                    $('#setting_new_window').val(this.checked ? 'checked' : ' ');
-                    $.post("<?php echo basename(__FILE__) ?>", {
+                            // mdsupport - Immediately post changes to setting_new_window
+                            $('#setting_new_window').click(function () {
+                                $('#setting_new_window').val(this.checked ? 'checked' : ' ');
+                                $.post("<?php echo basename(__FILE__) ?>", {
                         'setting_new_window': $('#setting_new_window').val(),
                         success: function (data) {
                         }
@@ -1190,9 +1190,9 @@ if (!$_REQUEST['flb_table']) {
                     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
 
-            });
-        </script>
-        <?php
-    }
+                        });
+                    </script>
+                    <?php
+                }
 
     ?>

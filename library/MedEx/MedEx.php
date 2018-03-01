@@ -37,18 +37,18 @@
 
     $MedEx = new MedExApi\MedEx('MedExBank.com');
     $logged_in = $MedEx->login();
-    if ( ($logged_in) && (!empty($_POST['callback_key'])) ) {
-        $data                   = json_decode($_POST, true);
-        $token                  = $logged_in['token'];
-        $response['callback']   = $MedEx->callback->receive($data);
-        $response['practice']   = $MedEx->practice->sync($token);
-        $response['campaigns']  = $MedEx->campaign->events($token);
-        $response['generate']   = $MedEx->events->generate($token, $response['campaigns']['events']);
-        $response['success']    = "200";
-        header('Content-type: application/json');
-        echo json_encode($response);
-        exit;
-    }
+if (($logged_in) && (!empty($_POST['callback_key']))) {
+    $data                   = json_decode($_POST, true);
+    $token                  = $logged_in['token'];
+    $response['callback']   = $MedEx->callback->receive($data);
+    $response['practice']   = $MedEx->practice->sync($token);
+    $response['campaigns']  = $MedEx->campaign->events($token);
+    $response['generate']   = $MedEx->events->generate($token, $response['campaigns']['events']);
+    $response['success']    = "200";
+    header('Content-type: application/json');
+    echo json_encode($response);
+    exit;
+}
     echo "Not logged in: ";
     echo $MedEx->getLastError();
     exit;

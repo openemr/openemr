@@ -3992,8 +3992,8 @@ var allPanels = $('.building_blocks > dd').hide();
                   build_IMPPLAN(obj.IMPPLAN_items);
                   scroll='1';
                     <?php if ($GLOBALS['new_tabs_layout'] !=='1') {
-                      ?>  $("[class='tabHide']").css("display","inline-block"); <?php
-                      } ?>
+                        ?>  $("[class='tabHide']").css("display","inline-block"); <?php
+} ?>
                   $("input,textarea,text").focus(function(){
                                                  $(this).css("background-color","#ffff99");
                                                  });

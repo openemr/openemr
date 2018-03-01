@@ -3472,7 +3472,8 @@ if ($refresh and $refresh != 'fullscreen') {
                               </td>
                             </tr>
                             <tr>
-                              <td style="padding-top:10px;width:60%;"><b><u><?php echo xlt('Visit'); echo " ".xlt('Codes'); ?>:</u></b>
+                              <td style="padding-top:10px;width:60%;"><b><u><?php echo xlt('Visit');
+                                echo " ".xlt('Codes'); ?>:</u></b>
                               </td>
                             </tr>
                             <tr>
@@ -3517,7 +3518,7 @@ if ($refresh and $refresh != 'fullscreen') {
 
 
                                         echo "    <option value='" . attr($fs_codes) . "'>" . text($code)." ".text(substr($fs_category, 1)).": ".text($code_text) . "</option>\n";
-                                      $code_text = (strlen(substr($fs_option, 1)) > 26) ? substr(substr($fs_option, 1),0,24).'...' : substr($fs_option, 1);
+                                        $code_text = (strlen(substr($fs_option, 1)) > 26) ? substr(substr($fs_option, 1), 0, 24).'...' : substr($fs_option, 1);
                                     }
 
                                     // Create drop-lists based on categories defined within the codes.
@@ -3577,26 +3578,30 @@ if ($refresh and $refresh != 'fullscreen') {
 
                                     $counter='0';
                                     $count='0';
-                                    $arrTESTS = explode("|",$Resource); //form_eye_mag:Resource = billable things (not visit code) performed today
+                                    $arrTESTS = explode("|", $Resource); //form_eye_mag:Resource = billable things (not visit code) performed today
                                     $query = "select * from list_options where list_id=? and activity='1' order by seq";
-                                    $TODO_data = sqlStatement($query,array("Eye_todo_done_".$providerID));
+                                    $TODO_data = sqlStatement($query, array("Eye_todo_done_".$providerID));
                                     while ($row = sqlFetchArray($TODO_data)) {
-                                      if ($row['codes'] ==='') continue;
-                                      list($code_type_here,$code) = explode(":",$row['codes']);
-                                      $codedesc = lookup_code_descriptions($row['codes']);
-                                      $order   = array("\r\n", "\n","\r");
-                                      $codedesc = str_replace($order,'',$codedesc);
-                                      if ($codedesc =='') $codedesc = $row['title'];
-                                      $codetext = $codedesc ." (".$row['codes'].")";
-                                      $checked ='';
-                                      if (in_array($row['codes'],$arrTESTS)) {
-                                        $checked = "checked='yes'";
-                                        $class1 = "lights_on";
-                                        $class2 = "";
-                                      } else {
-                                        $class1 = "lights_off";
-                                        $class2 = 'nodisplay';
-                                      }
+                                        if ($row['codes'] ==='') {
+                                            continue;
+                                        }
+                                        list($code_type_here,$code) = explode(":", $row['codes']);
+                                        $codedesc = lookup_code_descriptions($row['codes']);
+                                        $order   = array("\r\n", "\n","\r");
+                                        $codedesc = str_replace($order, '', $codedesc);
+                                        if ($codedesc =='') {
+                                            $codedesc = $row['title'];
+                                        }
+                                        $codetext = $codedesc ." (".$row['codes'].")";
+                                        $checked ='';
+                                        if (in_array($row['codes'], $arrTESTS)) {
+                                            $checked = "checked='yes'";
+                                            $class1 = "lights_on";
+                                            $class2 = "";
+                                        } else {
+                                            $class1 = "lights_off";
+                                            $class2 = 'nodisplay';
+                                        }
                                       /**
                                        *  This will link to a report generator for billable procedures/tests.
                                        *  They items need to be read/interpreted/dictated/documented to be billable.
@@ -3609,12 +3614,12 @@ if ($refresh and $refresh != 'fullscreen') {
                                        *  This will be another series of forms then.
                                        *  echo "<i class='fa fa-file-word-o'></i>";
                                        */
-                                      echo '<td class="'.$class1.' ">';
-                                      echo "<input type='checkbox' class='TESTS indent20' id='TEST_$counter' data-codetext='".attr($codetext)."' data-title='".attr($codedesc)."' name='TEST[]' $checked value='". attr($row['codes']) ."'> ";
-                                      $label = text(substr($codedesc,0,25));
-                                      echo "<label for='TEST_$counter' class='input-helper input-helper--checkbox'>";
-                                      echo $label."</label>";
-                                      echo '<div id="TEST_'.$counter.'_justmods" class="'.$class2.' indent20" style="margin-bottom: 5px;">'.xlt('Modifier(s)').': <input type="text" style="width:100px;" id="TEST_'.$counter.'_modifier" value="'.$row['modifier'].'">';
+                                        echo '<td class="'.$class1.' ">';
+                                        echo "<input type='checkbox' class='TESTS indent20' id='TEST_$counter' data-codetext='".attr($codetext)."' data-title='".attr($codedesc)."' name='TEST[]' $checked value='". attr($row['codes']) ."'> ";
+                                        $label = text(substr($codedesc, 0, 25));
+                                        echo "<label for='TEST_$counter' class='input-helper input-helper--checkbox'>";
+                                        echo $label."</label>";
+                                        echo '<div id="TEST_'.$counter.'_justmods" class="'.$class2.' indent20" style="margin-bottom: 5px;">'.xlt('Modifier(s)').': <input type="text" style="width:100px;" id="TEST_'.$counter.'_modifier" value="'.$row['modifier'].'">';
                                       /*
                                       OK we are going to attach this test to a specific ICD10 code listed above.
                                       The codes are listed by number.
@@ -3622,19 +3627,20 @@ if ($refresh and $refresh != 'fullscreen') {
 
                                       */
 
-                                      echo '<br />'.xlt('Justify Dx').': 
+                                        echo '<br />'.xlt('Justify Dx').': 
 
                                       <span class="TESTS_justify indent20" id="TEST_'.$counter.'_justify"></span>
                                       </div>
                                      ';
 
-                                      $count++;$counter++;
-                                      if ($count =="2") {
-                                        echo '</td><tr>';
-                                        $count='0';
-                                      } else {
-                                        echo "</td>";
-                                      }
+                                        $count++;
+                                        $counter++;
+                                        if ($count =="2") {
+                                            echo '</td><tr>';
+                                            $count='0';
+                                        } else {
+                                            echo "</td>";
+                                        }
                                     }
 
                                     ?>
@@ -3658,7 +3664,8 @@ if ($refresh and $refresh != 'fullscreen') {
                               </td>
                               <td style="padding-left:15px;vertical-align:text-top;text-left">
                                 <div class="widget text-center">
-                                  <b><u><?php echo xlt('Process'); echo " ".xlt('Billing'); ?>:</b></u><br />
+                                  <b><u><?php echo xlt('Process');
+                                    echo " ".xlt('Billing'); ?>:</b></u><br />
                                   <button id="code_me_now" style="width:150px;"><?php echo xlt('Populate Fee Sheet'); ?></button>
                                   <button id="goto_fee_sheet"
                                     class="nodisplay" style="width:150px;"
@@ -3681,25 +3688,27 @@ if ($refresh and $refresh != 'fullscreen') {
                       *  This list is used to create the plan for the next visit.  Anything with a CODE
                       *  is also listed as a billable item/TEST in the CODING ENGINE.
                       */
-                      $query = "select * from list_options where list_id=? and activity='1' order by seq";
-                      $TODO_data = sqlStatement($query,array("Eye_todo_done_".$providerID));
-                      if (sqlNumRows($TODO_data) < '1') {
-                        // Provider list is not created yet, or was deleted.
-                        // Create it fom defaults...
-                        $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`) VALUES ('lists', ?, ?, '0', '1', '0', '', '', '', '0')";
-                        sqlStatement($query,array('Eye_todo_done_'.$providerID,'Eye Orders '.$prov_data['lname']));
-                        $SQL_INSERT = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `mapping`, `notes`, `codes`, `activity`, `subtype`) VALUES ";
-                        $number_rows=0;
-                        $query = "SELECT * FROM list_options where list_id =? ORDER BY seq";
-                        $TODO_data = sqlStatement($query,array("Eye_todo_done_defaults"));
-                        while ($TODO= sqlFetchArray($TODO_data))   {
-                          if ($number_rows > 0) $SQL_INSERT .= ",
+                        $query = "select * from list_options where list_id=? and activity='1' order by seq";
+                        $TODO_data = sqlStatement($query, array("Eye_todo_done_".$providerID));
+                        if (sqlNumRows($TODO_data) < '1') {
+                          // Provider list is not created yet, or was deleted.
+                          // Create it fom defaults...
+                            $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`) VALUES ('lists', ?, ?, '0', '1', '0', '', '', '', '0')";
+                            sqlStatement($query, array('Eye_todo_done_'.$providerID,'Eye Orders '.$prov_data['lname']));
+                            $SQL_INSERT = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `mapping`, `notes`, `codes`, `activity`, `subtype`) VALUES ";
+                            $number_rows=0;
+                            $query = "SELECT * FROM list_options where list_id =? ORDER BY seq";
+                            $TODO_data = sqlStatement($query, array("Eye_todo_done_defaults"));
+                            while ($TODO= sqlFetchArray($TODO_data)) {
+                                if ($number_rows > 0) {
+                                    $SQL_INSERT .= ",
                             ";
-                          $SQL_INSERT .= "('Eye_todo_done_".add_escape_custom($providerID)."','".add_escape_custom($TODO['option_id'])."','".add_escape_custom($TODO['title'])."','".add_escape_custom($TODO['seq'])."','".add_escape_custom($TODO['mapping'])."','".add_escape_custom($TODO['notes'])."','".add_escape_custom($TODO['codes'])."','".add_escape_custom($TODO['activity'])."','".add_escape_custom($TODO['subtype'])."')";
-                          $number_rows++;
+                                }
+                                $SQL_INSERT .= "('Eye_todo_done_".add_escape_custom($providerID)."','".add_escape_custom($TODO['option_id'])."','".add_escape_custom($TODO['title'])."','".add_escape_custom($TODO['seq'])."','".add_escape_custom($TODO['mapping'])."','".add_escape_custom($TODO['notes'])."','".add_escape_custom($TODO['codes'])."','".add_escape_custom($TODO['activity'])."','".add_escape_custom($TODO['subtype'])."')";
+                                $number_rows++;
+                            }
+                            sqlStatement($SQL_INSERT.";");
                         }
-                        sqlStatement($SQL_INSERT.";");
-                      }
                         ?>
                       <dt class="borderShadow">
                         <span><?php echo xlt('Next Visit Orders'); ?></span>
@@ -3714,38 +3723,39 @@ if ($refresh and $refresh != 'fullscreen') {
                           </tr>
                             <tr>
                                 <td style="padding-right:20px;padding-left:20px;">
-                              <?php
+                                <?php
                               // Iterate through this "provider's" PLAN/to_do list of options.
                               //could maybe use options.inc checkbox type 21?
-                              $count=0;
-                              $counter=0;
-                              $PLAN_arr = explode("|",$PLAN);
-                              while ($row = sqlFetchArray($TODO_data)) {
-                                $arrPLAN[$counter]['option_id'] = $row['option_id'];
-                                $arrPLAN[$counter]['title'] = $row['title'];
-                                $arrPLAN[$counter]['option_value'] = $row['option_value'];
-                                $arrPLAN[$counter]['mapping'] = $row['mapping'];
-                                $arrPLAN[$counter]['notes'] = $row['notes'];
-                                $arrPLAN[$counter]['codes'] = $row['codes'];
-                                $arrPLAN[$counter]['subtype'] = $row['subtype'];
-                                $checked ='';
-                                $title=$row['title'];
-                                if (in_array($title,$PLAN_arr)) {
-                                  $checked = "checked='yes'";
+                                $count=0;
+                                $counter=0;
+                                $PLAN_arr = explode("|", $PLAN);
+                                while ($row = sqlFetchArray($TODO_data)) {
+                                    $arrPLAN[$counter]['option_id'] = $row['option_id'];
+                                    $arrPLAN[$counter]['title'] = $row['title'];
+                                    $arrPLAN[$counter]['option_value'] = $row['option_value'];
+                                    $arrPLAN[$counter]['mapping'] = $row['mapping'];
+                                    $arrPLAN[$counter]['notes'] = $row['notes'];
+                                    $arrPLAN[$counter]['codes'] = $row['codes'];
+                                    $arrPLAN[$counter]['subtype'] = $row['subtype'];
+                                    $checked ='';
+                                    $title=$row['title'];
+                                    if (in_array($title, $PLAN_arr)) {
+                                        $checked = "checked='yes'";
+                                    }
+                                 // <!-- <i title="Build your plan." class="fa fa-share-square-o fa-flip-horizontal" id="make_blank_PLAN" name="make_blank_PLAN"></i>-->
+                                    echo "<input type='checkbox' id='PLAN$counter' name='PLAN[]' $checked value='".attr($row[title])."'> ";
+                                    $label = text(substr($row['title'], 0, 30));
+                                    echo "<label for='PLAN$counter' class='input-helper input-helper--checkbox' title='".attr($row['notes'])."'>";
+                                    echo $label."</label><br />";
+                                    $count++;
+                                    $counter++;
+                                    if ($count =="3") {
+                                        echo '</td><tr><td style="padding-right:20px;padding-left:20px;">';
+                                        $count='0';
+                                    } else {
+                                        echo "</td><td>";
+                                    }
                                 }
-                               // <!-- <i title="Build your plan." class="fa fa-share-square-o fa-flip-horizontal" id="make_blank_PLAN" name="make_blank_PLAN"></i>-->
-                                echo "<input type='checkbox' id='PLAN$counter' name='PLAN[]' $checked value='".attr($row[title])."'> ";
-                                $label = text(substr($row['title'],0,30));
-                                echo "<label for='PLAN$counter' class='input-helper input-helper--checkbox' title='".attr($row['notes'])."'>";
-                                echo $label."</label><br />";
-                                $count++;$counter++;
-                                if ($count =="3") {
-                                  echo '</td><tr><td style="padding-right:20px;padding-left:20px;">';
-                                  $count='0';
-                                } else {
-                                  echo "</td><td>";
-                                }
-                              }
                                 ?>
                                 <script>
                                 var PLANoptions = <?php echo json_encode($arrPLAN); ?>;
@@ -3754,7 +3764,8 @@ if ($refresh and $refresh != 'fullscreen') {
                             </tr>
                             <tr>
                               <td colspan="3" style="padding-left:20px;padding-top:4px;">
-                                <textarea id="Plan<?php echo $counter; ?>" name="PLAN[]"><?php if (($PLAN) && ($PLAN_arr[count($PLAN_arr)-1] > '')) echo $PLAN_arr[count($PLAN_arr)-1]; ?></textarea>
+                                <textarea id="Plan<?php echo $counter; ?>" name="PLAN[]"><?php if (($PLAN) && ($PLAN_arr[count($PLAN_arr)-1] > '')) {
+                                    echo $PLAN_arr[count($PLAN_arr)-1];} ?></textarea>
                               </td>
                             </tr>
                           </table>
@@ -3766,8 +3777,8 @@ if ($refresh and $refresh != 'fullscreen') {
                         <div style="padding:5px 20px 5px 20px;">
                         <?php
                           $query ="SELECT * FROM users WHERE id=?";
-                          $pcp_data =  sqlQuery($query,array($pat_data['providerID']));
-                          $ref_data =  sqlQuery($query,array($pat_data['ref_providerID']));
+                          $pcp_data =  sqlQuery($query, array($pat_data['providerID']));
+                          $ref_data =  sqlQuery($query, array($pat_data['ref_providerID']));
                         ?>
                          <table style="width:100%;">
                             <tr>
@@ -3777,28 +3788,34 @@ if ($refresh and $refresh != 'fullscreen') {
                             </tr>
                             <tr>
                               <td></td>
-                              <td class="bold"><?php echo text($pcp_data['fname'])." ".text($pcp_data['lname']); ?><?php if ($pcp_data['suffix']) echo ", ".text($pcp_data['suffix']); ?></td>
-                              <td class="bold"><?php echo text($ref_data['fname'])." ".text($ref_data['lname']); ?><?php if ($ref_data['suffix']) echo ", ".text($ref_data['suffix']); ?></td>
+                              <td class="bold"><?php echo text($pcp_data['fname'])." ".text($pcp_data['lname']); ?><?php if ($pcp_data['suffix']) {
+                                    echo ", ".text($pcp_data['suffix']);} ?></td>
+                              <td class="bold"><?php echo text($ref_data['fname'])." ".text($ref_data['lname']); ?><?php if ($ref_data['suffix']) {
+                                    echo ", ".text($ref_data['suffix']);} ?></td>
                             </tr>
                             <tr>
                               <td class="bold top"><?php echo xlt('Phone'); ?>:</td>
                               <td>
-                                <?php echo text($pcp_data['phonew1']); if ($pcp_data['phonew2']) echo "<br />". text($pcp_data['phonew2']); ?>
+                                <?php echo text($pcp_data['phonew1']);
+                                if ($pcp_data['phonew2']) {
+                                    echo "<br />". text($pcp_data['phonew2']);} ?>
                               </td>
                               <td>
-                                <?php echo text($ref_data['phonew1']); if ($pcp_data['phonew2']) echo "<br />". text($pcp_data['phonew2']); ?>
+                                <?php echo text($ref_data['phonew1']);
+                                if ($pcp_data['phonew2']) {
+                                    echo "<br />". text($pcp_data['phonew2']);} ?>
                               </td>
                             </tr>
                             <tr>
                               <td class="bold top"><?php echo xlt('Fax'); ?>:</td>
                               <td class="bold">
                                 <?php
-                                  if ($pcp_data['fax'] > '') {
+                                if ($pcp_data['fax'] > '') {
                                     // does the fax already exist?
                                     $query    = "SELECT * FROM form_taskman WHERE TO_ID=? and PATIENT_ID=? and ENC_ID=?";
-                                    $FAX_PCP  =  sqlQuery($query,array($pat_data['providerID'],$pid,$encounter));
+                                    $FAX_PCP  =  sqlQuery($query, array($pat_data['providerID'],$pid,$encounter));
                                     if ($FAX_PCP['ID']) { //it is here already, make them print and manually fax it.  Show icon
-                                      echo text($pcp_data['fax'])."&nbsp;&nbsp;
+                                        echo text($pcp_data['fax'])."&nbsp;&nbsp;
                                       <span id='status_Fax_pcp'>
                                       <a href='".$webroot."/controller.php?document&view&patient_id=".$pid."&doc_id=".$FAX_PCP['DOC_ID']."'
                                       target='_blank' title='".xla('View the Summary Report sent via Fax Server on')." ".$FAX_PCP['COMPLETED_DATE'].".'>
@@ -3808,19 +3825,19 @@ if ($refresh and $refresh != 'fullscreen') {
                                         </i>";
                                     } else { ?>
                                       <a href="#" onclick="top.restoreSession(); create_task('<?php echo attr($pat_data['providerID']); ?>','Fax','pcp'); return false;">
-                                      <?php echo text($pcp_data['fax']); ?></a>&nbsp;&nbsp;
+                                        <?php echo text($pcp_data['fax']); ?></a>&nbsp;&nbsp;
                                       <span id="status_Fax_pcp"><i class="fa fa-fax fa-fw"></i></span>
-                                      <?php
+                                        <?php
                                     }
-                                  } ?>
+                                } ?>
                               </td>
                               <td class="bold">
                                 <?php if ($ref_data['fax'] > '') {
                                     // does the fax already exist?
                                     $query    = "SELECT * FROM form_taskman WHERE TO_ID=? and PATIENT_ID=? and ENC_ID=?";
-                                    $FAX_REF  =  sqlQuery($query,array($pat_data['ref_providerID'],$pid,$encounter));
+                                    $FAX_REF  =  sqlQuery($query, array($pat_data['ref_providerID'],$pid,$encounter));
                                     if ($FAX_REF['ID']) { //it is here already, make them print and manually fax it.  Show icon
-                                      echo text($ref_data['fax'])."&nbsp;&nbsp;
+                                        echo text($ref_data['fax'])."&nbsp;&nbsp;
                                       <span id='status_Fax_ref'>
                                       <a href='".$webroot."/controller.php?document&view&patient_id=".$pid."&doc_id=".$FAX_REF['DOC_ID']."'
                                       target='_blank' title='".xla('View the Summary Report sent via Fax Server on')." ".$FAX_REF['COMPLETED_DATE'].".'>
@@ -3830,44 +3847,88 @@ if ($refresh and $refresh != 'fullscreen') {
                                         </i>";
                                     } else { ?>
                                       <a href="#" onclick="top.restoreSession(); create_task('<?php echo attr($pat_data['ref_providerID']); ?>','Fax','ref'); return false;">
-                                      <?php echo text($ref_data['fax']); ?></a>&nbsp;&nbsp;
+                                        <?php echo text($ref_data['fax']); ?></a>&nbsp;&nbsp;
                                       <span id="status_Fax_ref"><i class="fa fa-fax fa-fw"></i></span>
-                                      <?php
+                                        <?php
                                     }
-                                  } ?>
+} ?>
                               </td>
                             </tr>
                             <tr>
                               <td class="top bold"><?php echo xlt('Address'); ?>:</td>
                               <td class="top"><?php
-                                  if ($pcp_data['organization'] >'') echo text($pcp_data['organization'])."<br />";
-                                  if ($pcp_data['street'] >'') echo text($pcp_data['street'])."<br />";
-                                  if ($pcp_data['streetb'] >'') echo text($pcp_data['streetb'])."<br />";
-                                  if ($pcp_data['city'] >'') echo text($pcp_data['city']).", ";
-                                  if ($pcp_data['state'] >'') echo text($pcp_data['state'])." ";
-                                  if ($pcp_data['zip'] >'') echo text($pcp_data['zip'])."<br />";
+                                if ($pcp_data['organization'] >'') {
+                                    echo text($pcp_data['organization'])."<br />";
+                                }
+                                if ($pcp_data['street'] >'') {
+                                    echo text($pcp_data['street'])."<br />";
+                                }
+                                if ($pcp_data['streetb'] >'') {
+                                    echo text($pcp_data['streetb'])."<br />";
+                                }
+                                if ($pcp_data['city'] >'') {
+                                    echo text($pcp_data['city']).", ";
+                                }
+                                if ($pcp_data['state'] >'') {
+                                    echo text($pcp_data['state'])." ";
+                                }
+                                if ($pcp_data['zip'] >'') {
+                                    echo text($pcp_data['zip'])."<br />";
+                                }
 
-                                  if ($pcp_data['street2'] >'') echo "<br />".text($pcp_data['street2'])."<br />";
-                                  if ($pcp_data['streetb2'] >'') echo text($pcp_data['streetb2'])."<br />";
-                                  if ($pcp_data['city2'] >'') echo text($pcp_data['city2']).", ";
-                                  if ($pcp_data['state2'] >'') echo text($pcp_data['state2'])." ";
-                                  if ($pcp_data['zip2'] >'') echo text($pcp_data['zip2'])."<br />";
-                                  ?>
+                                if ($pcp_data['street2'] >'') {
+                                    echo "<br />".text($pcp_data['street2'])."<br />";
+                                }
+                                if ($pcp_data['streetb2'] >'') {
+                                    echo text($pcp_data['streetb2'])."<br />";
+                                }
+                                if ($pcp_data['city2'] >'') {
+                                    echo text($pcp_data['city2']).", ";
+                                }
+                                if ($pcp_data['state2'] >'') {
+                                    echo text($pcp_data['state2'])." ";
+                                }
+                                if ($pcp_data['zip2'] >'') {
+                                    echo text($pcp_data['zip2'])."<br />";
+                                }
+                                    ?>
                               </td>
                               <td class="top"><?php
-                                  if ($ref_data['organization'] >'') echo text($ref_data['organization'])."<br />";
-                                  if ($ref_data['street'] >'') echo text($ref_data['street'])."<br />";
-                                  if ($ref_data['streetb'] >'') echo text($ref_data['streetb'])."<br />";
-                                  if ($ref_data['city'] >'') echo text($ref_data['city']).", ";
-                                  if ($ref_data['state'] >'') echo text($ref_data['state'])." ";
-                                  if ($ref_data['zip'] >'') echo text($ref_data['zip'])."<br />";
+                                if ($ref_data['organization'] >'') {
+                                    echo text($ref_data['organization'])."<br />";
+                                }
+                                if ($ref_data['street'] >'') {
+                                    echo text($ref_data['street'])."<br />";
+                                }
+                                if ($ref_data['streetb'] >'') {
+                                    echo text($ref_data['streetb'])."<br />";
+                                }
+                                if ($ref_data['city'] >'') {
+                                    echo text($ref_data['city']).", ";
+                                }
+                                if ($ref_data['state'] >'') {
+                                    echo text($ref_data['state'])." ";
+                                }
+                                if ($ref_data['zip'] >'') {
+                                    echo text($ref_data['zip'])."<br />";
+                                }
 
-                                  if ($ref_data['street2'] >'') echo "<br />".text($ref_data['street2'])."<br />";
-                                  if ($ref_data['streetb2'] >'') echo text($ref_data['streetb2'])."<br />";
-                                  if ($ref_data['city2'] >'') echo text($ref_data['city2']).", ";
-                                  if ($ref_data['state2'] >'') echo text($ref_data['state2'])." ";
-                                  if ($ref_data['zip2'] >'') echo text($ref_data['zip2'])."<br />";
-                                  ?>
+                                if ($ref_data['street2'] >'') {
+                                    echo "<br />".text($ref_data['street2'])."<br />";
+                                }
+                                if ($ref_data['streetb2'] >'') {
+                                    echo text($ref_data['streetb2'])."<br />";
+                                }
+                                if ($ref_data['city2'] >'') {
+                                    echo text($ref_data['city2']).", ";
+                                }
+                                if ($ref_data['state2'] >'') {
+                                    echo text($ref_data['state2'])." ";
+                                }
+                                if ($ref_data['zip2'] >'') {
+                                    echo text($ref_data['zip2'])."<br />";
+                                }
+                                    ?>
                               </td>
                             </tr>
 

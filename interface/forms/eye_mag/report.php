@@ -881,7 +881,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                     <?php
                     } ?>
             </td>
-            <?php        
+            <?php
             } ?>
       </tr>
     </table>

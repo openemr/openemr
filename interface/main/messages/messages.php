@@ -350,23 +350,23 @@ if (!empty($_REQUEST['go'])) { ?>
                                     <b class='<?php echo($task == "addnew" ? "required" : "") ?>'><?php echo xlt('Patient'); ?>
                                         :</b>
                                     <?php
-                                }
+}
 
-                                if ($reply_to) {
-                                    $prow = sqlQuery("SELECT lname, fname,pid, pubpid, DOB  " .
-                                        "FROM patient_data WHERE pid = ?", array($reply_to));
-                                    $patientname = $prow['lname'] . ", " . $prow['fname'];
-                                }
+if ($reply_to) {
+    $prow = sqlQuery("SELECT lname, fname,pid, pubpid, DOB  " .
+        "FROM patient_data WHERE pid = ?", array($reply_to));
+    $patientname = $prow['lname'] . ", " . $prow['fname'];
+}
 
-                                if ($patientname == '') {
-                                    $patientname = xl('Click to select');
-                                } ?>
+if ($patientname == '') {
+    $patientname = xl('Click to select');
+} ?>
                                 <input type='text' name='form_patient' class="form-control" style='<?php
                                 echo($task == "addnew" ? "cursor:pointer;cursor:hand;" : "") ?>' value='<?php
                                 echo attr($patientname); ?>' <?php
                                 echo(($task == "addnew" || $result['pid'] == 0) ? "onclick='sel_patient()' readonly" : "disabled") ?>
                                       data-toggle='tooltip' title='<?php
-                                       echo($task == "addnew" ? (xlt('Click to select patient')) : "") ?>'/>
+                                        echo($task == "addnew" ? (xlt('Click to select patient')) : "") ?>'/>
                                 <input type='hidden' class="form-control" name='reply_to' id='reply_to'
                                        value='<?php echo attr($reply_to); ?>'/>
                                 &nbsp; &nbsp;
@@ -500,56 +500,56 @@ if (!empty($_REQUEST['go'])) { ?>
             <?php
             } else {
             // This is for sorting the records.
-            $sort = array("users.lname", "patient_data.lname", "pnotes.title", "pnotes.date", "pnotes.message_status");
-            $sortby = (isset($_REQUEST['sortby']) && ($_REQUEST['sortby'] != "")) ? $_REQUEST['sortby'] : $sort[0];
-            $sortorder = (isset($_REQUEST['sortorder']) && ($_REQUEST['sortorder'] != "")) ? $_REQUEST['sortorder'] : "asc";
-            $begin = isset($_REQUEST['begin']) ? $_REQUEST['begin'] : 0;
+                $sort = array("users.lname", "patient_data.lname", "pnotes.title", "pnotes.date", "pnotes.message_status");
+                $sortby = (isset($_REQUEST['sortby']) && ($_REQUEST['sortby'] != "")) ? $_REQUEST['sortby'] : $sort[0];
+                $sortorder = (isset($_REQUEST['sortorder']) && ($_REQUEST['sortorder'] != "")) ? $_REQUEST['sortorder'] : "asc";
+                $begin = isset($_REQUEST['begin']) ? $_REQUEST['begin'] : 0;
 
-            for ($i = 0; $i < count($sort); $i++) {
-                $sortlink[$i] = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sort[$i]) . "&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortdown.gif\" border=0 alt=\"" . xla('Sort Up') . "\"></a>";
-            }
-            for ($i = 0; $i < count($sort); $i++) {
-                if ($sortby == $sort[$i]) {
-                    switch ($sortorder) {
-                        case "asc":
-                            $sortlink[$i] = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=desc&$activity_string_html\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortup.gif\" border=0 alt=\"" . xla('Sort Up') . "\"></a>";
-                            break;
-                        case "desc":
-                            $sortlink[$i] = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortdown.gif\" border=0 alt=\"" . xla('Sort Down') . "\"></a>";
-                            break;
-                    }
-                    break;
+                for ($i = 0; $i < count($sort); $i++) {
+                    $sortlink[$i] = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sort[$i]) . "&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortdown.gif\" border=0 alt=\"" . xla('Sort Up') . "\"></a>";
                 }
-            }
+                for ($i = 0; $i < count($sort); $i++) {
+                    if ($sortby == $sort[$i]) {
+                        switch ($sortorder) {
+                            case "asc":
+                                $sortlink[$i] = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=desc&$activity_string_html\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortup.gif\" border=0 alt=\"" . xla('Sort Up') . "\"></a>";
+                                break;
+                            case "desc":
+                                $sortlink[$i] = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortdown.gif\" border=0 alt=\"" . xla('Sort Down') . "\"></a>";
+                                break;
+                        }
+                        break;
+                    }
+                }
             // Manage page numbering and display beneath the Messages table.
-            $listnumber = 25;
-            $total = getPnotesByUser($active, $show_all, $_SESSION['authUser'], true);
-            if ($begin == "" or $begin == 0) {
-                $begin = 0;
-            }
-            $prev = $begin - $listnumber;
-            $next = $begin + $listnumber;
-            $start = $begin + 1;
-            $end = $listnumber + $start - 1;
-            if ($end >= $total) {
-                $end = $total;
-            }
-            if ($end < $start) {
-                $start = 0;
-            }
-            if ($prev >= 0) {
-                $prevlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($prev) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><<</a>";
-            } else {
-                $prevlink = "<<";
-            }
+                $listnumber = 25;
+                $total = getPnotesByUser($active, $show_all, $_SESSION['authUser'], true);
+                if ($begin == "" or $begin == 0) {
+                    $begin = 0;
+                }
+                $prev = $begin - $listnumber;
+                $next = $begin + $listnumber;
+                $start = $begin + 1;
+                $end = $listnumber + $start - 1;
+                if ($end >= $total) {
+                    $end = $total;
+                }
+                if ($end < $start) {
+                    $start = 0;
+                }
+                if ($prev >= 0) {
+                    $prevlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($prev) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><<</a>";
+                } else {
+                    $prevlink = "<<";
+                }
 
-            if ($next < $total) {
-                $nextlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($next) . "&$activity_string_html\" onclick=\"top.restoreSession()\">>></a>";
-            } else {
-                $nextlink = ">>";
-            }
+                if ($next < $total) {
+                    $nextlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($next) . "&$activity_string_html\" onclick=\"top.restoreSession()\">>></a>";
+                } else {
+                    $nextlink = ">>";
+                }
             // Display the Messages table header.
-            echo "
+                echo "
                     <table width=100%>
                         <tr>
                             <td>
@@ -570,25 +570,25 @@ if (!empty($_REQUEST['go'])) { ?>
                 xlt('Status') . "</b> $sortlink[4]</td>
                                         </tr>";
             // Display the Messages table body.
-            $count = 0;
-            $result = getPnotesByUser($active, $show_all, $_SESSION['authUser'], false, $sortby, $sortorder, $begin, $listnumber);
-            while ($myrow = sqlFetchArray($result)) {
-                $name = $myrow['user'];
-                $name = $myrow['users_lname'];
-                if ($myrow['users_fname']) {
-                    $name .= ", " . $myrow['users_fname'];
-                }
-                $patient = $myrow['pid'];
-                if ($patient > 0) {
-                    $patient = $myrow['patient_data_lname'];
-                    if ($myrow['patient_data_fname']) {
-                        $patient .= ", " . $myrow['patient_data_fname'];
+                $count = 0;
+                $result = getPnotesByUser($active, $show_all, $_SESSION['authUser'], false, $sortby, $sortorder, $begin, $listnumber);
+                while ($myrow = sqlFetchArray($result)) {
+                    $name = $myrow['user'];
+                    $name = $myrow['users_lname'];
+                    if ($myrow['users_fname']) {
+                        $name .= ", " . $myrow['users_fname'];
                     }
-                } else {
-                    $patient = "* " . xlt('Patient must be set manually') . " *";
-                }
-                $count++;
-                echo "
+                    $patient = $myrow['pid'];
+                    if ($patient > 0) {
+                        $patient = $myrow['patient_data_lname'];
+                        if ($myrow['patient_data_fname']) {
+                            $patient .= ", " . $myrow['patient_data_fname'];
+                        }
+                    } else {
+                        $patient = "* " . xlt('Patient must be set manually') . " *";
+                    }
+                    $count++;
+                    echo "
                         <tr id=\"row$count\" style=\"background:white\" height=\"24\">
                             <td align=\"center\" style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\">
                                 <input type=checkbox id=\"check$count\" name=\"delete_id[]\" value=\"" .
@@ -617,10 +617,10 @@ if (!empty($_REQUEST['go'])) { ?>
                                 </table>
                             </td>
                         </tr>";
-            }
+                }
             // Display the Messages table footer.
 
-            echo "            </table>
+                echo "            </table>
                                 </form>
                                 <table class='table'>
                                     <tr>
@@ -749,14 +749,14 @@ if (!empty($_REQUEST['go'])) { ?>
             Count = 0;
             <?php
             if (isset($enc_list) && sqlNumRows($enc_list) > 0) {
-            while ($row = sqlFetchArray($enc_list)) {
-            ?>
-            EncounterIdArray[Count] = '<?php echo attr($row['encounter']); ?>';
+                while ($row = sqlFetchArray($enc_list)) {
+                ?>
+                EncounterIdArray[Count] = '<?php echo attr($row['encounter']); ?>';
             EncounterDateArray[Count] = '<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($row['date'])))); ?>';
             CalendarCategoryArray[Count] = '<?php echo attr(xl_appt_category($row['pc_catname'])); ?>';
             Count++;
             <?php
-            }
+                }
             }
             ?>
             top.restoreSession();
