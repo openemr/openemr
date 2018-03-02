@@ -743,7 +743,7 @@ CREATE TABLE `medex_outgoing` (
   `msg_extra_text` text,
   `medex_uid` varchar(11),
   PRIMARY KEY (`msg_uid`),
-  UNIQUE KEY `msg_eid` (`msg_uid`,`msg_pc_eid`)
+  UNIQUE KEY `msg_eid` (`msg_uid`,`msg_pc_eid`,`medex_uid`)
 ) ENGINE=InnoDB;
 #Endif
 
