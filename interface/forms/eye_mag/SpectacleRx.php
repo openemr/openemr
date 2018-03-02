@@ -405,7 +405,7 @@ if ($_REQUEST['dispensed']) {
                             $expir = date("Y-m-d", strtotime("+6 months", strtotime($row['REFDATE_OK'])));
                         }
                         $expir_date = oeFormatShortDate($expir);
-    
+
                         ?>
                         <div id="RXID_<?php echo attr($row['id']); ?>" style="position:relative;text-align:center;width:80%;margin: 10 auto;">
                             <i class="pull-right fa fa-close"
@@ -442,7 +442,7 @@ if ($_REQUEST['dispensed']) {
                                     } else if ($row['REFTYPE'] == "CTL") {
                                         echo xlt('Contact Lens');
                                     }  ?>
-                                        <input type="hidden" name="REFTYPE" value="<?php echo $row['REFTYPE']; ?>" />
+                                        <input type="hidden" name="REFTYPE" value="<?php echo attr($row['REFTYPE']); ?>" />
                                     </td>
                                 </tr>
                                 <tr>
@@ -561,7 +561,7 @@ if ($_REQUEST['dispensed']) {
 
                                             </tr>
                                         </table>
-    
+
                                         <?php
                                     } ?>
                                     </td>
