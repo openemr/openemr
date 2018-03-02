@@ -160,7 +160,7 @@ if (isset($mode)) {
 
         $noteid = '';
     }
-    if ($mode != "delete") {
+    if ($mode != "delete" && $mode != "update") {
         exit(); // add exit for ajax save from pnotes_full_add.php sjp 12/20/2017
     }
 }
