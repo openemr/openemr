@@ -2622,6 +2622,7 @@ $GLOBALS_METADATA = array(
             'text',
             'https://hapi.fhir.org/baseDstu3/',
             xl('Base URL for FHIR Server. Url should end with /')
+        ),
 
         'medex_enable' => array(
           xl('Enable MedEx Communication Service'),
