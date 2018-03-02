@@ -199,11 +199,10 @@ if (!empty($_REQUEST['go'])) { ?>
                 if (acl_check('admin', 'super')) {
                     if ($show_all == 'yes') {
                         $showall = "yes";
-                        $lnkvar = "'messages.php?show_all=no&$activity_string_html' name='Just Mine' onclick=\"top.restoreSession()\"> (" . xlt('Just Mine') . ")";
+                        $lnkvar = "\"messages.php?show_all=no&$activity_string_html\" name='Just Mine' onclick=\"top.restoreSession()\">(" . xlt('Just Mine') . ")";
                     } else {
                         $showall = "no";
-                        $lnkvar1 = "'messages.php?show_all=yes&$activity_string_html' name='See All' onclick=\"top.restoreSession()\"";
-                        $linkvar2 = "(" . xlt('See All') . ")";
+                        $lnkvar = "\"messages.php?show_all=yes&$activity_string_html\" name='See All' onclick=\"top.restoreSession()\">(" . xlt('See All') . ")";
                     }
                 }
                 ?>
@@ -212,7 +211,7 @@ if (!empty($_REQUEST['go'])) { ?>
                     <tr>
                         <td>
                             <span class="title"><?php echo xlt('Messages'); ?></span>
-                            <a class='more' href=<?php echo $lnkvar1; ?>> <?php echo $linkvar2; ?> </a>
+                            <a class='more' href=<?php echo $lnkvar; ?></a>
                         </td>
                     </tr>
                 </table>
@@ -250,7 +249,7 @@ if (!empty($_REQUEST['go'])) { ?>
                     $noteid = $_POST['noteid'];
                     $form_note_type = $_POST['form_note_type'];
                     $form_message_status = $_POST['form_message_status'];
-                    $reply_to = $_POST['reply_to'];
+                    $reply_to = explode(';', rtrim($_POST['reply_to'], ';'));
                     $assigned_to_list = explode(';', $_POST['assigned_to']);
                     foreach ($assigned_to_list as $assigned_to) {
                         if ($noteid && $assigned_to != '-patient-') {
@@ -266,14 +265,16 @@ if (!empty($_REQUEST['go'])) { ?>
                                     die("getPnoteById() did not find id '" . text($noteid) . "'");
                                 }
                                 $pres = sqlQuery("SELECT lname, fname " .
-                                    "FROM patient_data WHERE pid = ?", array($reply_to));
+                                    "FROM patient_data WHERE pid = ?", array($reply_to[0]));
                                 $patientname = $pres['lname'] . ", " . $pres['fname'];
                                 $note .= "\n\n$patientname on " . $row['date'] . " wrote:\n\n";
                                 $note .= $row['body'];
                             }
                             // There's no note ID, and/or it's assigned to the patient.
                             // In these cases a new note is created.
-                            addPnote($reply_to, $note, $userauthorized, '1', $form_note_type, $assigned_to, '', $form_message_status);
+                            foreach ($reply_to as $patient) {
+                                addPnote($patient, $note, $userauthorized, '1', $form_note_type, $assigned_to, '', $form_message_status);
+                            }
                         }
                     }
                     break;
@@ -342,40 +343,43 @@ if (!empty($_REQUEST['go'])) { ?>
                                 generate_form_field(array('data_type' => 1, 'field_id' => 'note_type', 'list_id' => 'note_type', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'), $title);
                                 ?>
                                 &nbsp; &nbsp;
-                                <?php if ($task != "addnew" && $result['pid'] != 0) { ?>
-                                    <a class="patLink"
-                                       onclick="goPid('<?php echo attr($result['pid']); ?>')"><?php echo xlt('Patient'); ?>
-                                        :</a>
-                                <?php } else { ?>
-                                    <b class='<?php echo($task == "addnew" ? "required" : "") ?>'><?php echo xlt('Patient'); ?>
-                                        :</b>
-                                    <?php
-}
-
-if ($reply_to) {
-    $prow = sqlQuery("SELECT lname, fname,pid, pubpid, DOB  " .
-        "FROM patient_data WHERE pid = ?", array($reply_to));
-    $patientname = $prow['lname'] . ", " . $prow['fname'];
-}
-
-if ($patientname == '') {
-    $patientname = xl('Click to select');
-} ?>
-                                <input type='text' name='form_patient' class="form-control" style='<?php
-                                echo($task == "addnew" ? "cursor:pointer;cursor:hand;" : "") ?>' value='<?php
-                                echo attr($patientname); ?>' <?php
-                                echo(($task == "addnew" || $result['pid'] == 0) ? "onclick='sel_patient()' readonly" : "disabled") ?>
-                                      data-toggle='tooltip' title='<?php
-                                        echo($task == "addnew" ? (xlt('Click to select patient')) : "") ?>'/>
-                                <input type='hidden' class="form-control" name='reply_to' id='reply_to'
-                                       value='<?php echo attr($reply_to); ?>'/>
-                                &nbsp; &nbsp;
                                 <b><?php echo xlt('Status'); ?>:</b>
                                 <?php
                                 if ($form_message_status == "") {
                                     $form_message_status = 'New';
                                 }
                                 generate_form_field(array('data_type' => 1, 'field_id' => 'message_status', 'list_id' => 'message_status', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'), $form_message_status); ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class='text form-group'>
+                                <?php
+                                if ($task != "addnew" && $result['pid'] != 0) { ?>
+                                    <a class="patLink"
+                                       onclick="goPid('<?php echo attr($result['pid']); ?>')"><?php echo xlt('Patient'); ?>
+                                        :</a>
+                                    <?php
+                                } else { ?>
+                                    <b class='<?php echo($task == "addnew" ? "required" : "") ?>'><?php echo xlt('Patient'); ?>
+                                        :</b>
+                                    <?php
+                                }
+
+                                if ($reply_to) {
+                                    $prow = sqlQuery("SELECT lname, fname,pid, pubpid, DOB  " .
+                                        "FROM patient_data WHERE pid = ?", array($reply_to));
+                                    $patientname = $prow['lname'] . ", " . $prow['fname'];
+                                }
+
+                                ?>
+                                <input type='text' size='10' name='form_patient' class="form-control" style='width:150px;' value='<?php echo attr($patientname); ?>' readonly/>
+                                <input type='hidden' class="form-control" name='reply_to' id='reply_to'
+                                       value='<?php echo attr($reply_to); ?>'/>
+
+                                <?php
+                                if ($task=="addnew" || $result['pid']==0) {
+                                    echo '<input type="button" value="' . xla('Add Patient') . '" style="float: none; display: inline-block;" onclick="sel_patient()"/>';
+                                } ?>
                             </td>
                         </tr>
                         <tr>
@@ -402,11 +406,14 @@ if ($patientname == '') {
                                         }
                                         echo "</option>\n";
                                     }
-                                    echo "<option value='-" . xla('patient') . "-'";
-                                    echo ">-" . xlt('Patient') . "-";
-                                    echo "</option>\n";
+                                    if ($GLOBALS['portal_offsite_enable']) {
+                                        echo "<option value='-" . xla('patient') . "-'";
+                                        echo ">-" . xlt('Patient') . "-";
+                                        echo "</option>\n";
+                                    }
                                     ?>
                                 </select>
+                                <input type="button" name="clear_user" id="clear_user" style="float: none; display: inline-block;" value="<?php echo xla('Clear'); ?>">
                             </td>
                         </tr>
                         <?php
@@ -707,6 +714,13 @@ if ($patientname == '') {
                 CancelNote();
             });
             $("#note").focus();
+
+            //clear button in messages
+            $("#clear_user").click(function(){
+                $("#assigned_to_text").val("<?php echo xls('Select Users From The Dropdown List'); ?>");
+                $("#assigned_to").val("");
+                $("#users").val("--");
+            });
         });
 
         var NewNote = function () {
@@ -786,8 +800,8 @@ if ($patientname == '') {
         // This is for callback by the find-patient popup.
         function setpatient(pid, lname, fname, dob) {
             var f = document.getElementById('new_note');
-            f.form_patient.value = lname + ', ' + fname;
-            f.reply_to.value = pid;
+            f.form_patient.value += lname + ', ' + fname + '; ';
+            f.reply_to.value += pid + ';';
             <?php if ($noteid) { ?>
             //used when direct messaging service inserts a pnote with indeterminate patient
             //to allow the user to assign the message to a patient.
