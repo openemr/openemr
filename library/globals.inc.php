@@ -1619,7 +1619,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'disable_pat_trkr' => array(
-            xl('Flow Board: Disable '),
+            xl('Flow Board: Disable'),
             'bool',                           // data type
             '0',                              // default
             xl('Completely remove the ability to display the Patient Flow Board.')
@@ -1719,7 +1719,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'disable_rcb' => array(
-          xl('Recall Board: Disable '),
+          xl('Recall Board: Disable'),
           'bool',                           // data type
           '0',                              // default
           xl('Do not display the Recall Board.')
