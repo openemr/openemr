@@ -1,25 +1,17 @@
 <?php
 /**
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * Log Viewer.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-include_once("../globals.php");
-include_once("$srcdir/log.inc");
+
+require_once("../globals.php");
+require_once("$srcdir/log.inc");
 ?>
 <html>
 <head>
@@ -88,38 +80,32 @@ function eventTypeChange(eventname)
 </script>
 </head>
 <body class="body_top">
-<font class="title"><?php  xl('Logs Viewer', 'e'); ?></font>
+<font class="title"><?php echo xlt('Logs Viewer'); ?></font>
 <br>
 <?php
 $err_message=0;
-if ($_GET["start_date"]) {
-    $start_date = formData('start_date', 'G');
-}
 
-if ($_GET["end_date"]) {
-    $end_date = formData('end_date', 'G');
-}
-
-if ($_GET["form_patient"]) {
-    $form_patient = formData('form_patient', 'G');
-}
-
+$start_date = (!empty($_GET["start_date"])) ? DateTimeToYYYYMMDDHHMMSS($_GET["start_date"]) : date("Y-m-d") . " 00:00";
+$end_date = (!empty($_GET["end_date"])) ? DateTimeToYYYYMMDDHHMMSS($_GET["end_date"]) : date("Y-m-d") . " 23:59";
 /*
  * Start date should not be greater than end date - Date Validation
  */
-if ($start_date && $end_date) {
-    if ($start_date > $end_date) {
-        echo "<table><tr class='alert'><td colspan=7>";
-        xl('Start Date should not be greater than End Date', e);
-        echo "</td></tr></table>";
-        $err_message=1;
-    }
+if ($start_date > $end_date) {
+    echo "<table><tr class='alert'><td colspan=7>";
+    echo xlt('Start Date should not be greater than End Date');
+    echo "</td></tr></table>";
+    $err_message=1;
+}
+
+if ($_GET["form_patient"]) {
+    $form_patient = isset($_GET["form_patient"]) ? $_GET["form_patient"] : "";
 }
 
 ?>
 <?php
-$form_user = formData('form_user', 'R');
-$form_pid = formData('form_pid', 'R');
+$form_user = isset($_REQUEST['form_user']) ? $_REQUEST['form_user'] : '';
+$form_pid = isset($_REQUEST['form_pid']) ? $_REQUEST['form_pid'] : '';
+
 if ($form_patient == '') {
     $form_pid = '';
 }
@@ -136,62 +122,56 @@ $sqlQuery = "SELECT username, fname, lname FROM users " .
 $ures = sqlStatement($sqlQuery);
 ?>
 
-<?php
-$get_sdate=$start_date ? $start_date : date("Y-m-d H:i");
-$get_edate=$end_date ? $end_date : date("Y-m-d H:i");
-
-?>
-
 <br>
 <FORM METHOD="GET" name="theform" id="theform">
 <?php
+$sortby = isset($_GET['sortby']) ? $_GET['sortby'] : '';
+$direction = isset($_GET['direction']) ? $_GET['direction'] : '';
 
-$sortby = formData('sortby', 'G') ;
-$direction = formData('direction', 'G') ;
 ?>
-<input type="hidden" name="direction" id="direction" value="<?php echo !empty($direction) ? $direction : 'asc'; ?>">
-<input type="hidden" name="sortby" id="sortby" value="<?php echo $sortby; ?>">
+<input type="hidden" name="direction" id="direction" value="<?php echo !empty($direction) ? attr($direction) : 'asc'; ?>">
+<input type="hidden" name="sortby" id="sortby" value="<?php echo attr($sortby); ?>">
 <input type=hidden name=csum value="">
 <table>
 <tr><td>
-<span class="text"><?php  xl('Start Date', 'e'); ?>: </span>
+<span class="text"><?php echo xlt('Start Date'); ?>: </span>
 </td><td>
-<input class="datetimepicker" type="text" size="18" name="start_date" id="start_date" value="<?php echo $start_date ? $start_date : (date("Y-m-d") . " 00:00"); ?>" title="<?php  xl('yyyy-mm-dd H:m Start Date', 'e'); ?>" />
+<input class="datetimepicker" type="text" size="18" name="start_date" id="start_date" value="<?php echo attr(oeFormatDateTime($start_date, 0)); ?>" title="<?php echo xla('Start Date'); ?>" />
 </td>
 <td>
 <span class="text"><?php  xl('End Date', 'e'); ?>: </span>
 </td><td>
-<input class="datetimepicker" type="text" size="18" name="end_date" id="end_date" value="<?php echo $end_date ? $end_date : (date("Y-m-d") . " 23:59"); ?>" title="<?php  xl('yyyy-mm-dd H:m End Date', 'e'); ?>" />
+<input class="datetimepicker" type="text" size="18" name="end_date" id="end_date" value="<?php echo attr(oeFormatDateTime($end_date, 0)); ?>" title="<?php echo xla('End Date'); ?>" />
 </td>
 <!--VicarePlus :: Feature For Generating Log For The Selected Patient --!>
 <td>
-&nbsp;&nbsp;<span class='text'><?php echo htmlspecialchars(xl('Patient'), ENT_NOQUOTES); ?>: </span>
+&nbsp;&nbsp;<span class='text'><?php echo xlt('Patient'); ?>: </span>
 </td>
 <td>
-<input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo $form_patient ? $form_patient : htmlspecialchars(xl('Click To Select'), ENT_QUOTES); ?>' onclick='sel_patient()' title='<?php echo htmlspecialchars(xl('Click to select patient'), ENT_QUOTES); ?>' />
-<input type='hidden' name='form_pid' value='<?php echo $form_pid; ?>' />
+<input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo $form_patient ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
+<input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
 </td>
 </tr>
 <tr><td>
-<span class='text'><?php  xl('User', 'e'); ?>: </span>
+<span class='text'><?php echo xlt('User'); ?>: </span>
 </td>
 <td>
 <?php
 echo "<select name='form_user'>\n";
-echo " <option value=''>" . xl('All') . "</option>\n";
+echo " <option value=''>" . xlt('All') . "</option>\n";
 while ($urow = sqlFetchArray($ures)) {
     if (!trim($urow['username'])) {
         continue;
     }
 
-    echo " <option value='" . $urow['username'] . "'";
+    echo " <option value='" . attr($urow['username']) . "'";
     if ($urow['username'] == $form_user) {
         echo " selected";
     }
 
-    echo ">" . $urow['lname'];
+    echo ">" . text($urow['lname']);
     if ($urow['fname']) {
-        echo ", " . $urow['fname'];
+        echo ", " . text($urow['fname']);
     }
 
     echo "</option>\n";
@@ -202,10 +182,11 @@ echo "</select>\n";
 </td>
 <td>
 <!-- list of events name -->
-<span class='text'><?php  xl('Name of Events', 'e'); ?>: </span>
+<span class='text'><?php echo xlt('Name of Events'); ?>: </span>
 </td>
 <td>
 <?php
+$eventname = isset($_GET['eventname']) ? $_GET['eventname'] : '';
 $res = sqlStatement("select distinct event from log order by event ASC");
 $ename_list=array();
 $j=0;
@@ -225,7 +206,7 @@ while ($erow = sqlFetchArray($res)) {
     $j=$j+1;
 }
 
-$res1 = sqlStatement("select distinct event from  extended_log order by event ASC");
+$res1 = sqlStatement("select distinct event from extended_log order by event ASC");
 // $j=0; // This can't be right!  -- Rod 2013-08-23
 while ($row = sqlFetchArray($res1)) {
     if (!trim($row['event'])) {
@@ -250,14 +231,14 @@ $ename_list=array_unique($ename_list);
 $ename_list=array_merge($ename_list);
 $ecount=count($ename_list);
 echo "<select name='eventname' onchange='eventTypeChange(this.options[this.selectedIndex].value);'>\n";
-echo " <option value=''>" . xl('All') . "</option>\n";
+echo " <option value=''>" . xlt('All') . "</option>\n";
 for ($k=0; $k<$ecount; $k++) {
-    echo " <option value='" .$ename_list[$k]. "'";
+    echo " <option value='" . attr($ename_list[$k]) . "'";
     if ($ename_list[$k] == $eventname && $ename_list[$k]!= "") {
         echo " selected";
     }
 
-    echo ">" . $ename_list[$k];
+    echo ">" . text($ename_list[$k]);
     echo "</option>\n";
 }
 
@@ -266,27 +247,28 @@ echo "</select>\n";
 </td>
 <!-- type of events ends  -->
 <td>
-&nbsp;&nbsp;<span class='text'><?php  xl('Type of Events', 'e'); ?>: </span>
+&nbsp;&nbsp;<span class='text'><?php echo xlt('Type of Events'); ?>: </span>
 </td><td>
 <?php
+$type_event = isset($_GET['type_event']) ? $_GET['type_event'] : '';
 $event_types=array("select", "update", "insert", "delete", "replace");
 $lcount=count($event_types);
 if ($eventname=="disclosure") {
     echo "<select name='type_event' disabled='disabled'>\n";
-    echo " <option value=''>" . xl('All') . "</option>\n";
+    echo " <option value=''>" . xlt('All') . "</option>\n";
     echo "</option>\n";
 } else {
     echo "<select name='type_event'>\n";
 }
 
-  echo " <option value=''>" . xl('All') . "</option>\n";
+  echo " <option value=''>" . xlt('All') . "</option>\n";
 for ($k=0; $k<$lcount; $k++) {
-    echo " <option value='" .$event_types[$k]. "'";
+    echo " <option value='" .attr($event_types[$k]). "'";
     if ($event_types[$k] == $type_event && $event_types[$k]!= "") {
         echo " selected";
     }
 
-    echo ">" . preg_replace('/^select$/', 'Query', $event_types[$k]); // Convert select to Query for MU2 requirement
+    echo ">" . text(preg_replace('/^select$/', 'Query', $event_types[$k])); // Convert select to Query for MU2 requirement
     echo "</option>\n";
 }
 
@@ -294,19 +276,16 @@ echo "</select>\n";
 ?>
 </td>
 <tr><td>
-<span class='text'><?php xl('Include Checksum', 'e'); ?>: </span>
+<span class='text'><?php echo xlt('Include Checksum'); ?>: </span>
 </td><td>
 <?php
-
-$check_sum = formData('check_sum', 'G');
+$check_sum = isset($_GET['check_sum']) ? $_GET['check_sum'] : '';
 ?>
-<input type="checkbox" name="check_sum" " <?php if ($check_sum == 'on') {
-    echo "checked";
-}  ?>"></input>
+<input type="checkbox" name="check_sum" <?php echo ($check_sum == 'on') ? "checked" : ""; ?>></input>
 </td>
 <td>
-<input type=hidden name="event" value=<?php echo $event ; ?>>
-<a href="javascript:document.theform.submit();" class='link_submit'>[<?php  xl('Refresh', 'e'); ?>]</a>
+<input type=hidden name="event" value="<?php echo attr($event); ?>">
+<a href="javascript:document.theform.submit();" class='link_submit'>[<?php echo xlt('Refresh'); ?>]</a>
 </td>
 <td>
 <div id='valid_button'>
@@ -325,26 +304,23 @@ $check_sum = formData('check_sum', 'G');
 <div id="logview">
 <table>
  <tr>
-  <!-- <TH><?php  xl('Date', 'e'); ?><TD> -->
-  <th id="sortby_date" class="text sortby" title="<?php xl('Sort by date/time', 'e'); ?>"><?php xl('Date', 'e'); ?></th>
-  <th id="sortby_event" class="text sortby" title="<?php xl('Sort by Event', 'e'); ?>"><?php  xl('Event', 'e'); ?></th>
-  <th id="sortby_category" class="text sortby" title="<?php xl('Sort by Category', 'e'); ?>"><?php  xl('Category', 'e'); ?></th>
-  <th id="sortby_user" class="text sortby" title="<?php xl('Sort by User', 'e'); ?>"><?php  xl('User', 'e'); ?></th>
-  <th id="sortby_cuser" class="text sortby" title="<?php xl('Sort by Crt User', 'e'); ?>"><?php  xl('Certificate User', 'e'); ?></th>
-  <th id="sortby_group" class="text sortby" title="<?php xl('Sort by Group', 'e'); ?>"><?php  xl('Group', 'e'); ?></th>
-  <th id="sortby_pid" class="text sortby" title="<?php xl('Sort by PatientID', 'e'); ?>"><?php  xl('PatientID', 'e'); ?></th>
-  <th id="sortby_success" class="text sortby" title="<?php xl('Sort by Success', 'e'); ?>"><?php  xl('Success', 'e'); ?></th>
-  <th id="sortby_comments" class="text sortby" title="<?php xl('Sort by Comments', 'e'); ?>"><?php  xl('Comments', 'e'); ?></th>
+  <!-- <TH><?php echo xlt('Date'); ?><TD> -->
+  <th id="sortby_date" class="text sortby" title="<?php echo xla('Sort by date/time'); ?>"><?php echo xlt('Date'); ?></th>
+  <th id="sortby_event" class="text sortby" title="<?php echo xla('Sort by Event'); ?>"><?php echo xlt('Event'); ?></th>
+  <th id="sortby_category" class="text sortby" title="<?php echo xla('Sort by Category'); ?>"><?php echo xlt('Category'); ?></th>
+  <th id="sortby_user" class="text sortby" title="<?php echo xla('Sort by User'); ?>"><?php echo xlt('User'); ?></th>
+  <th id="sortby_cuser" class="text sortby" title="<?php echo xla('Sort by Crt User'); ?>"><?php echo xlt('Certificate User'); ?></th>
+  <th id="sortby_group" class="text sortby" title="<?php echo xla('Sort by Group'); ?>"><?php echo xlt('Group'); ?></th>
+  <th id="sortby_pid" class="text sortby" title="<?php echo xla('Sort by PatientID'); ?>"><?php echo xlt('PatientID'); ?></th>
+  <th id="sortby_success" class="text sortby" title="<?php echo xla('Sort by Success'); ?>"><?php echo xlt('Success'); ?></th>
+  <th id="sortby_comments" class="text sortby" title="<?php echo xla('Sort by Comments'); ?>"><?php echo xlt('Comments'); ?></th>
     <?php  if ($check_sum) {?>
-  <th id="sortby_checksum" class="text sortby" title="<?php xl('Sort by Checksum', 'e'); ?>"><?php  xl('Checksum', 'e'); ?></th>
+  <th id="sortby_checksum" class="text sortby" title="<?php echo xla('Sort by Checksum'); ?>"><?php echo xlt('Checksum'); ?></th>
     <?php } ?>
  </tr>
 <?php
-
-$eventname = formData('eventname', 'G');
-$type_event = formData('type_event', 'G');
 ?>
-<input type=hidden name=event value=<?php echo $eventname."-".$type_event ?>>
+<input type="hidden" name="event" value="<?php echo attr($eventname) . "-" . attr($type_event) ?>">
 <?php
 
 $tevent="";
@@ -363,7 +339,7 @@ if (($eventname == "") && ($type_event != "")) {
         $gev = $getevent;
 }
 
-if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent,'direction' => $_GET['direction']))) {
+if ($ret = getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent,'direction' => $_GET['direction']))) {
     foreach ($ret as $iter) {
         //translate comments
         $patterns = array ('/^success/','/^failure/','/ encounter/');
@@ -385,16 +361,16 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
         ?>
        <TR class="oneresult">
         <TD class="text"><?php echo text(oeFormatDateTime($iter["date"])); ?></TD>
-    <TD class="text"><?php echo preg_replace('/select$/', 'Query', $iter["event"]); //Convert select term to Query for MU2 requirements ?></TD>
-    <TD class="text"><?php echo $iter["category"]?></TD>
-    <TD class="text"><?php echo $iter["user"]?></TD>
-    <TD class="text"><?php echo $iter["crt_user"]?></TD>
-    <TD class="text"><?php echo $iter["groupname"]?></TD>
-    <TD class="text"><?php echo $iter["patient_id"]?></TD>
-    <TD class="text"><?php echo $iter["success"]?></TD>
+    <TD class="text"><?php echo text(preg_replace('/select$/', 'Query', $iter["event"])); //Convert select term to Query for MU2 requirements ?></TD>
+    <TD class="text"><?php echo text($iter["category"]); ?></TD>
+    <TD class="text"><?php echo text($iter["user"]); ?></TD>
+    <TD class="text"><?php echo text($iter["crt_user"]); ?></TD>
+    <TD class="text"><?php echo text($iter["groupname"]); ?></TD>
+    <TD class="text"><?php echo text($iter["patient_id"]); ?></TD>
+    <TD class="text"><?php echo text($iter["success"]); ?></TD>
     <TD class="text"><?php echo nl2br(text(preg_replace('/^select/i', 'Query', $trans_comments))); //Convert select term to Query for MU2 requirements ?></TD>
     <?php  if ($check_sum) { ?>
-  <TD class="text"><?php echo $iter["checksum"]?></TD>
+  <TD class="text"><?php echo text($iter["checksum"]); ?></TD>
     <?php } ?>
      </TR>
 
@@ -404,22 +380,22 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
 
 if (($eventname=="disclosure") || ($gev == "")) {
     $eventname="disclosure";
-    if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' =>$eventname))) {
+    if ($ret = getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' =>$eventname))) {
         foreach ($ret as $iter) {
             $comments=xl('Recipient Name').":".$iter["recipient"].";".xl('Disclosure Info').":".$iter["description"];
             ?>
             <TR class="oneresult">
-              <TD class="text"><?php echo htmlspecialchars(oeFormatShortDate(substr($iter["date"], 0, 10)) . substr($iter["date"], 10), ENT_NOQUOTES); ?></TD>
-          <TD class="text"><?php echo htmlspecialchars(xl($iter["event"]), ENT_NOQUOTES);?></TD>
-          <TD class="text"><?php echo htmlspecialchars(xl($iter["category"]), ENT_NOQUOTES);?></TD>
-          <TD class="text"><?php echo htmlspecialchars($iter["user"], ENT_NOQUOTES);?></TD>
-          <TD class="text"><?php echo htmlspecialchars($iter["crt_user"], ENT_NOQUOTES);?></TD>
-          <TD class="text"><?php echo htmlspecialchars($iter["groupname"], ENT_NOQUOTES);?></TD>
-          <TD class="text"><?php echo htmlspecialchars($iter["patient_id"], ENT_NOQUOTES);?></TD>
-          <TD class="text"><?php echo htmlspecialchars($iter["success"], ENT_NOQUOTES);?></TD>
-          <TD class="text"><?php echo htmlspecialchars($comments, ENT_NOQUOTES);?></TD>
+              <TD class="text"><?php echo text(oeFormatDateTime($iter["date"])); ?></TD>
+          <TD class="text"><?php echo xlt($iter["event"]); ?></TD>
+          <TD class="text"><?php echo xlt($iter["category"]); ?></TD>
+          <TD class="text"><?php echo text($iter["user"]); ?></TD>
+          <TD class="text"><?php echo text($iter["crt_user"]); ?></TD>
+          <TD class="text"><?php echo text($iter["groupname"]); ?></TD>
+          <TD class="text"><?php echo text($iter["patient_id"]); ?></TD>
+          <TD class="text"><?php echo text($iter["success"]); ?></TD>
+          <TD class="text"><?php echo text($comments); ?></TD>
             <?php  if ($check_sum) { ?>
-  <TD class="text"><?php echo htmlspecialchars($iter["checksum"], ENT_NOQUOTES);?></TD>
+  <TD class="text"><?php echo text($iter["checksum"]); ?></TD>
     <?php } ?>
      </TR>
     <?php
@@ -464,7 +440,7 @@ $(document).ready(function(){
     $('.datetimepicker').datetimepicker({
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = false; ?>
-        <?php $datetimepicker_formatInput = false; ?>
+        <?php $datetimepicker_formatInput = true; ?>
         <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
