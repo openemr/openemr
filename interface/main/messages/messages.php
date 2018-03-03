@@ -55,6 +55,8 @@ if (($_POST['setting_bootstrap_submenu']) ||
 <html>
 <head>
     <title><?php echo xlt('Message Center'); ?></title>
+    <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
+    <link rel="stylesheet"  href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>" type="text/css">
 
     <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-redmond', 'opener', 'moment', 'pure']); ?>
 
@@ -64,8 +66,6 @@ if (($_POST['setting_bootstrap_submenu']) ||
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>
 
-    <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
-    <link rel="stylesheet"  href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>" type="text/css">
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
 
     <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico" />

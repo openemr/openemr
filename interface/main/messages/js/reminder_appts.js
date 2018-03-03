@@ -344,6 +344,9 @@ function show_this(colorish='') {
 
 //in bootstrap_menu.js
 function tabYourIt(tabNAME, url) {
+    if (!top.tab_mode) {
+        tabNAME = window.name;
+    }
     parent.left_nav.loadFrame('1', tabNAME, url);
 }
 

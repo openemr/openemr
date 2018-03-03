@@ -111,6 +111,7 @@ $usrval = json_encode(array ( $cb_top_chk, $cb_bot_chk ));
 $primary_docs = array(
 'cal' => array(xl('Calendar')  , 0, 'main/main_info.php'),
 'pfb' => array(xl('Patient Flow Board')  , 0, '../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1'),
+'rcb' => array(xl('Recall Board')  , 0, '../interface/main/messages/messages.php?go=Recalls'),
 'app' => array(xl('Portal Activity')  , 0, '../myportal/index.php'),
 'aop' => array(xl('Portal Dashboard')  , 0, '../portal/patient/provider'),
 'msg' => array(xl('Messages')  , 0, 'main/messages/messages.php?form_active=1'),
@@ -1083,6 +1084,7 @@ $(document).ready(function(){
     });
     $("#navigation-slide > li  > a#cal0").prepend('<i class="fa fa-fw fa-calendar fa-2x"></i>&nbsp;');
     $("#navigation-slide > li  > a#pfb0").prepend('<i class="fa fa-fw fa-list-alt fa-2x"></i>&nbsp;');
+    $("#navigation-slide > li  > a#rcb0").prepend('<i class="fa fa-fw fa-calendar-minus-o fa-2x"></i>&nbsp;');
     $("#navigation-slide > li  > a#msg0").prepend('<i class="fa fa-fw fa-envelope-o fa-2x"></i>&nbsp;');
     $("#navigation-slide > li  > a#app0").prepend('<i class="fa fa-fw fa-user fa-2x"></i>&nbsp;');
     $("#navigation-slide > li  > a#aop0").prepend('<i class="fa fa-fw fa-tachometer fa-2x"></i>&nbsp;');
@@ -1166,7 +1168,9 @@ if (!$GLOBALS['disable_calendar'] && acl_check('patients', 'appt')) {
 if (!$GLOBALS['disable_pat_trkr'] && !$GLOBALS['disable_calendar'] && acl_check('patients', 'appt')) {
     genTreeLink('RTop', 'pfb', xl('Flow Board'));
 }
-
+if (!$GLOBALS['disable_rcb'] && !$GLOBALS['disable_calendar'] && acl_check('patients', 'appt')) {
+    genTreeLink('RBot', 'rcb', xl('Recall Board'));
+}
 if (acl_check('patients', 'notes')) {
     genTreeLink('RBot', 'msg', xl('Messages'));
 }
