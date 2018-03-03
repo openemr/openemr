@@ -160,42 +160,55 @@ function getEvents($params)
             $sortby = "";  //VicarePlus :: since there is no category field in extended_log
         }
 
+        $sqlBindArray = array();
         $columns = "DISTINCT date, event, user, recipient,patient_id,description";
-        $sql = "SELECT $columns FROM extended_log WHERE date >= '$date1' AND date <= '$date2'";
+        $sql = "SELECT $columns FROM extended_log WHERE date >= ? AND date <= ?";
+        array_push($sqlBindArray, $date1, $date2);
+
         if ($user != "") {
-            $sql .= " AND user LIKE '$user'";
+            $sql .= " AND user LIKE ?";
+            array_push($sqlBindArray, $user);
         }
 
         if ($patient != "") {
-            $sql .= " AND patient_id LIKE '$patient'";
+            $sql .= " AND patient_id LIKE ?";
+            array_push($sqlBindArray, $patient);
         }
 
         if ($levent != "") {
-            $sql .= " AND event LIKE '$levent%'";
+            $sql .= " AND event LIKE ?";
+            array_push($sqlBindArray, $levent . "%");
         }
 
         if ($sortby != "") {
-            $sql .= " ORDER BY ".$sortby." DESC"; // descending order
+            $sql .= " ORDER BY " . escape_sql_column_name($sortby, array('extended_log')) . " DESC"; // descending order
         }
 
         $sql .= " LIMIT 5000";
     } else {
     // do the query
-        $sql = "SELECT $cols FROM log WHERE date >= '$date1' AND date <= '$date2'";
+        $sqlBindArray = array();
+        $sql = "SELECT $cols FROM log WHERE date >= ? AND date <= ?";
+        array_push($sqlBindArray, $date1, $date2);
+
         if ($user != "") {
-            $sql .= " AND user LIKE '$user'";
+            $sql .= " AND user LIKE ?";
+            array_push($sqlBindArray, $user);
         }
 
         if ($patient != "") {
-            $sql .= " AND patient_id LIKE '$patient'";
+            $sql .= " AND patient_id LIKE ?";
+            array_push($sqlBindArray, $patient);
         }
 
         if ($levent != "") {
-            $sql .= " AND event LIKE '$levent%'";
+            $sql .= " AND event LIKE ?";
+            array_push($sqlBindArray, $levent . "%");
         }
 
         if ($tevent != "") {
-            $sql .= " AND event LIKE '%$tevent'";
+            $sql .= " AND event LIKE ?";
+            array_push($sqlBindArray, "%" . $tevent);
         }
 
         if ($sortby != "") {
@@ -205,7 +218,7 @@ function getEvents($params)
         $sql .= " LIMIT 5000";
     }
 
-    $res = sqlStatement($sql);
+    $res = sqlStatement($sql, $sqlBindArray);
     for ($iter=0; $row=sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
