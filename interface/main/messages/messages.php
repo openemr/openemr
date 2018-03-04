@@ -157,7 +157,7 @@ if (!empty($_REQUEST['go'])) { ?>
 
                         <form id="smsForm" class="input-group">
                             <input id="SMS_patient" type="text" style="margin:0;max-width:100%;" class="form-control"
-                                   placeholder="<?php echo xla("Patient Name"); ?>/>
+                                   placeholder="<?php echo xla("Patient Name"); ?>" />
                             <span class="input-group-addon" onclick="SMS_direct();"><i
                                         class="glyphicon glyphicon-phone"></i></span>
                             <input type="hidden" id="sms_pid">
