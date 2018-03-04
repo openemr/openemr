@@ -156,7 +156,8 @@ $(document).ready(function() {
     var right = val[val.length-1];
 
     var code = e.keyCode || e.which;
-    if((code >= 8 &&  code <=46) || code>=104) { //if not a number or not a 'ab' char
+    if(code >= 48 &&  code <=90) { //if not a number or not a 'ab' char
+        console.log(code);
         return;
     }
 
