@@ -37,7 +37,7 @@
                     </a>
                 <!-- /ko -->
                 <!-- ko ifnot: patient -->
-                    <?php echo xlt("None{{Patient}}");?>
+                    <?php echo xlt("None"). xlt("{{Patient}}");?>
                 <!-- /ko -->
                 <!-- ko if: patient -->
                     <a class="btn btn-xs btn-link" href="#" data-bind="click:clearPatient" title="<?php echo xla("Clear") ?>">
@@ -69,7 +69,7 @@
                     </a>
                 <!-- /ko -->
                 <!-- ko if:!selectedEncounter() -->
-                    <?php echo xlt("None{{Encounter}}") ?>
+                    <?php echo xlt("None"). xlt("{{Encounter}}") ?>
                 <!-- /ko -->
             </div>
             <!-- ko if: encounterArray().length > 0 -->
