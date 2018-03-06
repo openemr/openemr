@@ -429,28 +429,39 @@ class C_Document extends Controller
         return $this->list_action($patient_id);
     }
 
-    function encrypt($plaintext, $key, $cypher = 'tripledes', $mode = 'cfb')
+    function encrypt($plaintext, $key)
     {
-        $td = mcrypt_module_open($cypher, '', $mode, '');
-        $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
-        mcrypt_generic_init($td, $key, $iv);
-        $crypttext = mcrypt_generic($td, $plaintext);
-        mcrypt_generic_deinit($td);
-        return $iv.$crypttext;
+        $keyHash = hash("sha256", $key);
+
+        $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('AES-256-CBC'));
+
+        $processedValue = openssl_encrypt(
+            $plaintext,
+            'AES-256-CBC',
+            $keyHash,
+            OPENSSL_RAW_DATA,
+            $iv
+        );
+
+        return $iv . $processedValue;
     }
 
-    function decrypt($crypttext, $key, $cypher = 'tripledes', $mode = 'cfb')
+    function decrypt($crypttext, $key)
     {
-        $plaintext = '';
-        $td = mcrypt_module_open($cypher, '', $mode, '');
-        $ivsize = mcrypt_enc_get_iv_size($td) ;
-        $iv = substr($crypttext, 0, $ivsize);
-        $crypttext = substr($crypttext, $ivsize);
-        if ($iv) {
-            mcrypt_generic_init($td, $key, $iv);
-            $plaintext = mdecrypt_generic($td, $crypttext);
-        }
-        return $plaintext;
+        $keyHash = hash('sha256', $key);
+
+        $ivLength = openssl_cipher_iv_length('AES-256-CBC');
+
+        $iv = substr($crypttext, 0, $ivLength);
+        $encrypted_data = substr($crypttext, $ivLength);
+
+        return openssl_decrypt(
+            $encrypted_data,
+            'AES-256-CBC',
+            $keyHash,
+            OPENSSL_RAW_DATA,
+            $iv
+        );
     }
 
     /**
@@ -544,7 +555,7 @@ class C_Document extends Controller
                 $filetext = fread($f, filesize($tmpcouchpath));
                     $ciphertext = $this->encrypt($filetext, $passphrase);
                     $tmpfilepath = $GLOBALS['temporary_files_dir'];
-                    $tmpfilename = "/encrypted_".$d->get_url_file();
+                    $tmpfilename = "/encrypted_aes_".$d->get_url_file();
                     $tmpfile = fopen($tmpfilepath.$tmpfilename, "w+");
                 fwrite($tmpfile, $ciphertext);
                 fclose($tmpfile);
@@ -625,7 +636,7 @@ class C_Document extends Controller
                             $filetext = fread($f, filesize($url));
                     $ciphertext = $this->encrypt($filetext, $passphrase);
                     $tmpfilepath = $GLOBALS['temporary_files_dir'];
-                    $tmpfilename = "/encrypted_".$d->get_url_file();
+                    $tmpfilename = "/encrypted_aes_".$d->get_url_file();
                     $tmpfile = fopen($tmpfilepath.$tmpfilename, "w+");
                         fwrite($tmpfile, $ciphertext);
                         fclose($tmpfile);

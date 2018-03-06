@@ -7,7 +7,7 @@ Section: web
 Architecture: all
 Homepage: http://www.open-emr.org/
 Pre-Depends: debconf
-Depends: mysql-server | mariadb-server, apache2, makepasswd, libapache2-mod-php, libtiff-tools, php, php-mysql, php-cli, php-gd, php-xsl, php-curl, php-mcrypt, php-soap, php-json, imagemagick, php-gettext, php-mbstring, php-zip, git-core, php-ldap
+Depends: mysql-server | mariadb-server, apache2, makepasswd, libapache2-mod-php, libtiff-tools, php, php-mysql, php-cli, php-gd, php-xsl, php-curl, php-soap, php-json, imagemagick, php-gettext, php-mbstring, php-zip, git-core, php-ldap
 Description: Comprehensive Medical Practice Management Application
  OpenEMR provides office scheduling, electronic medical records,
  prescriptions, insurance billing, accounting and access controls.

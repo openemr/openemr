@@ -17,6 +17,7 @@ require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/globals.inc.php");
 require_once("$srcdir/user.inc");
+require_once("$srcdir/log.inc");
 require_once(dirname(__FILE__)."/../../myportal/soap_service/portal_connectivity.php");
 
 use OpenEMR\Core\Header;
@@ -209,9 +210,9 @@ if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
 //
 if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) {
     $force_off_enable_auditlog_encryption = true;
-  // Need to force enable_auditlog_encryption off if the php mycrypt module
-  // is not installed.
-    if (extension_loaded('mcrypt')) {
+  // Need to force enable_auditlog_encryption off if the php openssl module
+  // is not installed or the AES-256-CBC cipher is not available.
+    if (extension_loaded('openssl') && in_array('AES-256-CBC', openssl_get_cipher_methods())) {
         $force_off_enable_auditlog_encryption = false;
     }
 
@@ -267,11 +268,15 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
                     ||
                    ( isset($old_globals[$fldid]) && $old_globals[ $fldid ]['gl_value'] !== $fldvalue ) // if the value in database is different
                 ) {
-                      // Need to force enable_auditlog_encryption off if the php mcrypt module
-                      // is not installed.
-                    if ($force_off_enable_auditlog_encryption && ($fldid  == "enable_auditlog_encryption")) {
-                          error_log("OPENEMR ERROR: UNABLE to support auditlog encryption since the php mcrypt module is not installed", 0);
-                          $fldvalue=0;
+                    // Need to force enable_auditlog_encryption off if the php openssl module
+                    // is not installed or the AES-256-CBC cipher is not available.
+                    if ($force_off_enable_auditlog_encryption && ($fldid == "enable_auditlog_encryption")) {
+                        error_log("OPENEMR ERROR: UNABLE to support auditlog encryption since the php openssl module is not installed or the AES-256-CBC cipher is not available", 0);
+                        $fldvalue=0;
+                    }
+                    if (!$force_off_enable_auditlog_encryption && ($fldid == "enable_auditlog_encryption") && ($fldvalue==1)) {
+                        // Run below function to set up the encryption key
+                        aes256PrepKey();
                     }
 
                       // special treatment for some vars

@@ -9574,6 +9574,7 @@ CREATE TABLE IF NOT EXISTS `log_comment_encrypt` (
   `log_id` int(11) NOT NULL,
   `encrypt` enum('Yes','No') NOT NULL DEFAULT 'No',
   `checksum` longtext,
+  `version` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0 for mycrypt and 1 for openssl',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
