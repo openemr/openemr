@@ -208,8 +208,11 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     jQuery(function () {
         // Check for dependencies we will need.
         // webroot_url is a global defined in main_screen.php or main.php.
-
-        let bscss = top.webroot_url + '/public/assets/bootstrap-3-3-4/dist/css/bootstrap.min.css';
+        let bscss = "";
+        if (top.jsLanguageDirection !== 'rtl')
+            bscss = top.webroot_url + '/public/assets/bootstrap-3-3-4/dist/css/bootstrap.min.css';
+        else
+            bscss = top.webroot_url + '/public/assets/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css';
         let bsurl = top.webroot_url + '/public/assets/bootstrap-3-3-4/dist/js/bootstrap.min.js';
         let jqui = top.webroot_url + '/public/assets/jquery-ui-1-12-1/jquery-ui.min.js';
 

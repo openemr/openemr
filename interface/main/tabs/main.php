@@ -105,6 +105,7 @@ function isEncounterLocked( encounterId ) {
     <?php } ?>
 }
 var webroot_url="<?php echo $web_root; ?>";
+var jsLanguageDirection = "<?php echo $_SESSION["language_direction"]; ?>";
 </script>
 
 <?php Header::setupHeader(["knockout","tabs-theme",'jquery-ui']); ?>
