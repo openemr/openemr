@@ -158,6 +158,7 @@ if ($GLOBALS['new_tabs_layout']) {
 var tab_mode=false;
 
 var webroot_url = '<?php echo $GLOBALS['web_root']; ?>';
+var jsLanguageDirection = "<?php echo $_SESSION["language_direction"]; ?>";
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
