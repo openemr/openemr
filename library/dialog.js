@@ -208,11 +208,9 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     jQuery(function () {
         // Check for dependencies we will need.
         // webroot_url is a global defined in main_screen.php or main.php.
-        let bscss = "";
-        if (top.jsLanguageDirection !== 'rtl')
-            bscss = top.webroot_url + '/public/assets/bootstrap-3-3-4/dist/css/bootstrap.min.css';
-        else
-            bscss = top.webroot_url + '/public/assets/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css';
+
+        let bscss = top.webroot_url + '/public/assets/bootstrap-3-3-4/dist/css/bootstrap.min.css';
+        let bscssRtl = top.webroot_url + '/public/assets/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css';
         let bsurl = top.webroot_url + '/public/assets/bootstrap-3-3-4/dist/js/bootstrap.min.js';
         let jqui = top.webroot_url + '/public/assets/jquery-ui-1-12-1/jquery-ui.min.js';
 
@@ -224,6 +222,9 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         }
         if (!inDom('bootstrap.min.css', 'link', false)) {
             includeScript(bscss, false, 'link');
+            if (top.jsLanguageDirection === 'rtl') {
+                includeScript(bscssRtl, false, 'link');
+            }
         }
         if (typeof jQuery.fn.modal === 'undefined') {
             if (!inDom('bootstrap.min.js', 'script', false))
