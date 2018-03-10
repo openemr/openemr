@@ -12,8 +12,10 @@
  */
 
 
-include_once("../globals.php");
-include_once("$srcdir/log.inc");
+require_once("../globals.php");
+require_once("$srcdir/log.inc");
+require_once("$srcdir/crypto.php");
+
 ?>
 <html>
 <head>
@@ -91,28 +93,21 @@ function eventTypeChange(eventname)
 <br>
 <?php
 $err_message=0;
-if ($_GET["start_date"]) {
-    $start_date = $_GET['start_date'];
-}
 
-if ($_GET["end_date"]) {
-    $end_date = $_GET['end_date'];
+$start_date = (!empty($_GET["start_date"])) ? DateTimeToYYYYMMDDHHMMSS($_GET["start_date"]) : date("Y-m-d") . " 00:00:00";
+$end_date = (!empty($_GET["end_date"])) ? DateTimeToYYYYMMDDHHMMSS($_GET["end_date"]) : date("Y-m-d") . " 23:59:59";
+/*
+ * Start date should not be greater than end date - Date Validation
+ */
+if ($start_date > $end_date) {
+    echo "<table><tr class='alert'><td colspan=7>";
+    echo xlt('Start Date should not be greater than End Date');
+    echo "</td></tr></table>";
+    $err_message=1;
 }
 
 if ($_GET["form_patient"]) {
     $form_patient = $_GET['form_patient'];
-}
-
-/*
- * Start date should not be greater than end date - Date Validation
- */
-if ($start_date && $end_date) {
-    if ($start_date > $end_date) {
-        echo "<table><tr class='alert'><td colspan=7>";
-        echo xlt('Start Date should not be greater than End Date');
-        echo "</td></tr></table>";
-        $err_message=1;
-    }
 }
 
 ?>
@@ -122,9 +117,6 @@ $form_pid = $_REQUEST['form_pid'];
 if ($form_patient == '') {
     $form_pid = '';
 }
-
-$get_sdate=$start_date ? $start_date : date("Y-m-d H:i:s");
-$get_edate=$end_date ? $end_date : date("Y-m-d H:i:s");
 
 ?>
 <br>
@@ -139,12 +131,12 @@ $sortby = $_GET['sortby'];
 <tr><td>
 <span class="text"><?php echo xlt('Start Date'); ?>: </span>
 </td><td>
-<input type="text" size="18" class="datetimepicker" name="start_date" id="start_date" value="<?php echo $start_date ? $start_date : date('Y-m-d H:i:s'); ?>" title="<?php echo xla('yyyy-mm-dd H:m Start date'); ?>" />
+<input type="text" size="18" class="datetimepicker" name="start_date" id="start_date" value="<?php echo attr(oeFormatDateTime($start_date, 0, true)); ?>" title="<?php echo xla('Start date'); ?>" />
 </td>
 <td>
 <span class="text"><?php echo xlt('End Date'); ?>: </span>
 </td><td>
-<input type="text" size="18" class="datetimepicker" name="end_date" id="end_date" value="<?php echo $end_date ? $end_date : date('Y-m-d H:i:s'); ?>" title="<?php echo xla('yyyy-mm-dd H:m End date'); ?>" />
+<input type="text" size="18" class="datetimepicker" name="end_date" id="end_date" value="<?php echo attr(oeFormatDateTime($end_date, 0, true)); ?>" title="<?php echo xla('End date'); ?>" />
 </td>
 
 <td>
@@ -214,7 +206,7 @@ if (($eventname == "") && ($type_event != "")) {
 
 $dispArr = array();
 $icnt = 1;
-if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent))) {
+if ($ret = getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent))) {
     foreach ($ret as $iter) {
         //translate comments
         $patterns = array ('/^success/','/^failure/','/ encounter/');
@@ -223,11 +215,13 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
         $dispCheck = false;
         $log_id = $iter['id'];
         $commentEncrStatus = "No";
+        $encryptVersion = 0;
         $logEncryptData = logCommentEncryptData($log_id);
 
         if (count($logEncryptData) > 0) {
             $commentEncrStatus = $logEncryptData['encrypt'];
             $checkSumOld = $logEncryptData['checksum'];
+            $encryptVersion = $logEncryptData['version'];
             $concatLogColumns = $iter['date'].$iter['event'].$iter['user'].$iter['groupname'].$iter['comments'].$iter['patient_id'].$iter['success'].$iter['checksum'].$iter['crt_user'];
             $checkSumNew = sha1($concatLogColumns);
 
@@ -242,11 +236,23 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
         }
 
         if ($commentEncrStatus == "Yes") {
-            $decrypt_comment =  trim(aes256Decrypt($iter["comments"]));
-            $trans_comments = preg_replace($patterns, $replace, $decrypt_comment);
+            if ($encryptVersion == 1) {
+                // Use new openssl method
+                if (extension_loaded('openssl')) {
+                    $trans_comments = preg_replace($patterns, $replace, trim(aes256Decrypt($iter["comments"])));
+                } else {
+                    $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
+                }
+            } else { //$encryptVersion == 0
+                // Use old mcrypt method
+                if (extension_loaded('mcrypt')) {
+                    $trans_comments = preg_replace($patterns, $replace, trim(aes256Decrypt_mycrypt($iter["comments"])));
+                } else {
+                    $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is not installed.");
+                }
+            }
         } else {
-            $comments = trim($iter["comments"]);
-            $trans_comments = preg_replace($patterns, $replace, $comments);
+            $trans_comments = preg_replace($patterns, $replace, trim($iter["comments"]));
         }
 
         //Alter Checksum value records only display here
@@ -254,7 +260,7 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
             $dispArr[] = $icnt++;
         ?>
      <TR class="oneresult">
-          <TD class="text tamperColor"><?php echo text(oeFormatShortDate(substr($iter["date"], 0, 10))) . substr($iter["date"], 10) ?></TD>
+          <TD class="text tamperColor"><?php echo text(oeFormatDateTime($iter["date"], "global", true)); ?></TD>
           <TD class="text tamperColor"><?php echo text($iter["user"]); ?></TD>
           <TD class="text tamperColor"><?php echo text($iter["patient_id"]);?></TD>
           <TD class="text tamperColor"><?php echo text($trans_comments);?></TD>
@@ -318,7 +324,7 @@ $(document).ready(function(){
     $('.datetimepicker').datetimepicker({
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = true; ?>
-        <?php $datetimepicker_formatInput = false; ?>
+        <?php $datetimepicker_formatInput = true; ?>
         <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });

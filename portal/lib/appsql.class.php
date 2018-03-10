@@ -27,6 +27,7 @@
  *            wrapper class for moving some care coordination zend product
  */
 require_once(dirname(__FILE__) . '/../../library/sql.inc');
+require_once(dirname(__FILE__) . '/../../library/crypto.php');
 class ApplicationTable
 {
 

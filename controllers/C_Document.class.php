@@ -5,6 +5,7 @@
 // of the License, or (at your option) any later version.
 
 require_once(dirname(__FILE__) . "/../library/forms.inc");
+require_once(dirname(__FILE__) . "/../library/crypto.php");
 
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
@@ -431,37 +432,12 @@ class C_Document extends Controller
 
     function encrypt($plaintext, $key)
     {
-        $keyHash = hash("sha256", $key);
-
-        $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('AES-256-CBC'));
-
-        $processedValue = openssl_encrypt(
-            $plaintext,
-            'AES-256-CBC',
-            $keyHash,
-            OPENSSL_RAW_DATA,
-            $iv
-        );
-
-        return $iv . $processedValue;
+        return aes256Encrypt($plaintext, $key, false);
     }
 
     function decrypt($crypttext, $key)
     {
-        $keyHash = hash('sha256', $key);
-
-        $ivLength = openssl_cipher_iv_length('AES-256-CBC');
-
-        $iv = substr($crypttext, 0, $ivLength);
-        $encrypted_data = substr($crypttext, $ivLength);
-
-        return openssl_decrypt(
-            $encrypted_data,
-            'AES-256-CBC',
-            $keyHash,
-            OPENSSL_RAW_DATA,
-            $iv
-        );
+        return aes256Decrypt($crypttext, $key, false);
     }
 
     /**
