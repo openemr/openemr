@@ -11,7 +11,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-//Function to AES256 encrypt a given string
+/**
+ * Function to AES256 encrypt a given string
+ *
+ * @param  string  $sValue          Raw data that will be encrypted.
+ * @param  string  $customPassword  If null, then use standard key. If provide a password, then will derive key from this.
+ * @param  string  $baseEncode      True if wish to base64_encode() encrypted data.
+ * @return string                   returns the encrypted data.
+ */
 function aes256Encrypt($sValue, $customPassword = null, $baseEncode = true)
 {
     if (!extension_loaded('openssl')) {
@@ -54,7 +61,14 @@ function aes256Encrypt($sValue, $customPassword = null, $baseEncode = true)
     }
 }
 
-//Function to AES256 decrypt a given string
+/**
+ * Function to AES256 decrypt a given string
+ *
+ * @param  string  $sValue          Encrypted data that will be decrypted.
+ * @param  string  $customPassword  If null, then use standard key. If provide a password, then will derive key from this.
+ * @param  string  $baseEncode      True if wish to base64_decode() encrypted data.
+ * @return string                   returns the decrypted data.
+ */
 function aes256Decrypt($sValue, $customPassword = null, $baseEncode = true)
 {
     if (!extension_loaded('openssl')) {
@@ -93,7 +107,8 @@ function aes256Decrypt($sValue, $customPassword = null, $baseEncode = true)
     );
 }
 
-// Function to decrypt a given string that is only used for backward compatibility
+// Function to decrypt a given string
+// This specific function is only used for backward compatibility
 function aes256Decrypt_mycrypt($sValue)
 {
     $sSecretKey = pack('H*', "bcb04b7e103a0cd8b54763051cef08bc55abe029fdebae5e1d417e2ffb2a00a3");
@@ -115,7 +130,12 @@ function aes256Decrypt_mycrypt($sValue)
     );
 }
 
-// Function to collect (and create if needed) the standard key
+// Function to collect (and create, if needed) the standard key
+// The key is stored at sites/<site-dir>/documents/logs_and_misc/methods/one
+//  This mechanism will allow easy migration to new keys/ciphers in the future while
+//  also maintaining backward compatibility of encrypted data (for example, if upgrade
+//  to another cipher/mode, then could place the new key for this in
+//  sites/<site-dir>/documents/logs_and_misc/methods/two and then adjust pertinent code).
 function aes256PrepKey()
 {
     // Collect the key. If it does not exist, then create it
