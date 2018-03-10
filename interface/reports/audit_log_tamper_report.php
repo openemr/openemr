@@ -12,8 +12,10 @@
  */
 
 
-include_once("../globals.php");
-include_once("$srcdir/log.inc");
+require_once("../globals.php");
+require_once("$srcdir/log.inc");
+require_once("$srcdir/crypto.php");
+
 ?>
 <html>
 <head>

@@ -52,6 +52,8 @@ require_once("../custom/code_types.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
+require_once("$srcdir/log.inc");
+require_once("$srcdir/crypto.php");
 
 $appsql = new ApplicationTable();
 

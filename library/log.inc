@@ -1,5 +1,7 @@
 <?php
 
+require_once(dirname(__FILE__) . "/crypto.php");
+
 function newEvent($event, $user, $groupname, $success, $comments = "", $patient_id = null, $log_from = 'open-emr', $menu_item = 'dashboard', $ccda_doc_id = 0)
 {
     $adodb = $GLOBALS['adodb']['db'];
@@ -961,86 +963,6 @@ function deleteDisclosure($deletelid)
         $ret = sqlInsertClean_audit($sql);
 }
 
-//July 1, 2014: Ensoftek: Function to AES256 encrypt a given string
-function aes256Encrypt($sValue)
-{
-    if (empty($GLOBALS['key_for_encryption'])) {
-        // Collect the key. If it does not exist, then create it
-        $GLOBALS['key_for_encryption'] = aes256PrepKey();
-    }
-
-    if (!extension_loaded('openssl')) {
-        error_log("OpenEMR Error : Audit Log with encryption is not working because missing openssl extension.");
-    }
-
-    $sSecretKey = $GLOBALS['key_for_encryption'];
-
-    $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('AES-256-CBC'));
-
-    $processedValue = openssl_encrypt(
-        $sValue,
-        'AES-256-CBC',
-        $sSecretKey,
-        OPENSSL_RAW_DATA,
-        $iv
-    );
-
-    if (rtrim($sValue) != "" && $processedValue == "") {
-        error_log("OpenEMR Error : Audit Log with encryption is not working.");
-    }
-
-    // prepend the encrypted value with the $iv
-    return base64_encode($iv . $processedValue);
-}
-
-//July 1, 2014: Ensoftek: Function to AES256 decrypt a given string
-function aes256Decrypt($sValue)
-{
-    if (empty($GLOBALS['key_for_encryption'])) {
-        // Collect the key. If it does not exist, then create it
-        $GLOBALS['key_for_encryption'] = aes256PrepKey();
-    }
-
-    $sSecretKey = $GLOBALS['key_for_encryption'];
-
-    $ivLength = openssl_cipher_iv_length('AES-256-CBC');
-
-    $raw = base64_decode($sValue);
-
-    $iv = substr($raw, 0, $ivLength);
-    $encrypted_data = substr($raw, $ivLength);
-
-    return openssl_decrypt(
-        $encrypted_data,
-        'AES-256-CBC',
-        $sSecretKey,
-        OPENSSL_RAW_DATA,
-        $iv
-    );
-}
-
-//July 1, 2014: Ensoftek: Function to AES256 decrypt a given string
-function aes256Decrypt_mycrypt($sValue)
-{
-    $sSecretKey = pack('H*', "bcb04b7e103a0cd8b54763051cef08bc55abe029fdebae5e1d417e2ffb2a00a3");
-    return rtrim(
-        mcrypt_decrypt(
-            MCRYPT_RIJNDAEL_256,
-            $sSecretKey,
-            base64_decode($sValue),
-            MCRYPT_MODE_ECB,
-            mcrypt_create_iv(
-                mcrypt_get_iv_size(
-                    MCRYPT_RIJNDAEL_256,
-                    MCRYPT_MODE_ECB
-                ),
-                MCRYPT_RAND
-            )
-        ),
-        "\0"
-    );
-}
-
 //July 1, 2014: Ensoftek: Utility function to get data from table(log_comment_encrypt)
 function logCommentEncryptData($log_id)
 {
@@ -1053,27 +975,6 @@ function logCommentEncryptData($log_id)
     }
 
     return $encryptRow;
-}
-
-function aes256PrepKey()
-{
-    // Collect the key. If it does not exist, then create it
-    if (!file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/one")) {
-        // Create a key file
-        // Below will produce a 256bit key (32 bytes equals 256 bits)
-        $newKey = base64_encode(openssl_random_pseudo_bytes(32));
-        file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/one", $newKey);
-    }
-
-    // Collect key from file
-    $key = base64_decode(rtrim(file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/one")));
-
-    if (empty($key)) {
-        error_log("OpenEMR Error : Audit Log with encryption is not working. Unable to collect key information or key is empty.");
-    }
-
-    // Return the key
-    return $key;
 }
 
 /**
