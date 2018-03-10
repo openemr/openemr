@@ -45,11 +45,11 @@ function newEvent($event, $user, $groupname, $success, $comments = "", $patient_
 
     // Send item to log_comment_encrypt for comment encyption tracking
     $last_log_id = $GLOBALS['adodb']['db']->Insert_ID();
-    $encryptLogQry = "INSERT INTO log_comment_encrypt (log_id, encrypt, checksum) ".
+    $encryptLogQry = "INSERT INTO log_comment_encrypt (log_id, encrypt, checksum, `version`) ".
                      " VALUES ( ".
                      $adodb->qstr($last_log_id) . "," .
                      $adodb->qstr($encrypt_comment) . "," .
-                     "'')";
+                     "'', '1')";
     sqlInsertClean_audit($encryptLogQry);
 
     if (($patient_id=="NULL") || ($patient_id==null)) {
@@ -865,11 +865,11 @@ function auditSQLEvent($statement, $outcome, $binds = null)
         $checksumGenerate = sha1($concatLogColumns);
     }
 
-    $encryptLogQry = "INSERT INTO log_comment_encrypt (log_id, encrypt, checksum) ".
+    $encryptLogQry = "INSERT INTO log_comment_encrypt (log_id, encrypt, checksum, `version`) ".
                      " VALUES ( ".
                       $adodb->qstr($last_log_id) . "," .
                       $adodb->qstr($encrypt_comment) . "," .
-                      $adodb->qstr($checksumGenerate) .")";
+                      $adodb->qstr($checksumGenerate) .", '1')";
     sqlInsertClean_audit($encryptLogQry);
 
     send_atna_audit_msg($user, $group, $event, $pid, $success, $comments);
@@ -964,29 +964,63 @@ function deleteDisclosure($deletelid)
 //July 1, 2014: Ensoftek: Function to AES256 encrypt a given string
 function aes256Encrypt($sValue)
 {
-    $sSecretKey = pack('H*', "bcb04b7e103a0cd8b54763051cef08bc55abe029fdebae5e1d417e2ffb2a00a3");
-    return rtrim(
-        base64_encode(
-            mcrypt_encrypt(
-                MCRYPT_RIJNDAEL_256,
-                $sSecretKey,
-                $sValue,
-                MCRYPT_MODE_ECB,
-                mcrypt_create_iv(
-                    mcrypt_get_iv_size(
-                        MCRYPT_RIJNDAEL_256,
-                        MCRYPT_MODE_ECB
-                    ),
-                    MCRYPT_RAND
-                )
-            )
-        ),
-        "\0"
+    if (empty($GLOBALS['key_for_encryption'])) {
+        // Collect the key. If it does not exist, then create it
+        $GLOBALS['key_for_encryption'] = aes256PrepKey();
+    }
+
+    if (!extension_loaded('openssl')) {
+        error_log("OpenEMR Error : Audit Log with encryption is not working because missing openssl extension.");
+    }
+
+    $sSecretKey = $GLOBALS['key_for_encryption'];
+
+    $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('AES-256-CBC'));
+
+    $processedValue = openssl_encrypt(
+        $sValue,
+        'AES-256-CBC',
+        $sSecretKey,
+        OPENSSL_RAW_DATA,
+        $iv
     );
+
+    if (rtrim($sValue) != "" && $processedValue == "") {
+        error_log("OpenEMR Error : Audit Log with encryption is not working.");
+    }
+
+    // prepend the encrypted value with the $iv
+    return base64_encode($iv . $processedValue);
 }
 
 //July 1, 2014: Ensoftek: Function to AES256 decrypt a given string
 function aes256Decrypt($sValue)
+{
+    if (empty($GLOBALS['key_for_encryption'])) {
+        // Collect the key. If it does not exist, then create it
+        $GLOBALS['key_for_encryption'] = aes256PrepKey();
+    }
+
+    $sSecretKey = $GLOBALS['key_for_encryption'];
+
+    $ivLength = openssl_cipher_iv_length('AES-256-CBC');
+
+    $raw = base64_decode($sValue);
+
+    $iv = substr($raw, 0, $ivLength);
+    $encrypted_data = substr($raw, $ivLength);
+
+    return openssl_decrypt(
+        $encrypted_data,
+        'AES-256-CBC',
+        $sSecretKey,
+        OPENSSL_RAW_DATA,
+        $iv
+    );
+}
+
+//July 1, 2014: Ensoftek: Function to AES256 decrypt a given string
+function aes256Decrypt_mycrypt($sValue)
 {
     $sSecretKey = pack('H*', "bcb04b7e103a0cd8b54763051cef08bc55abe029fdebae5e1d417e2ffb2a00a3");
     return rtrim(
@@ -1015,9 +1049,31 @@ function logCommentEncryptData($log_id)
     while ($logRow = sqlFetchArray($logRes)) {
         $encryptRow['encrypt'] = $logRow['encrypt'];
         $encryptRow['checksum'] = $logRow['checksum'];
+        $encryptRow['version'] = $logRow['version'];
     }
 
     return $encryptRow;
+}
+
+function aes256PrepKey()
+{
+    // Collect the key. If it does not exist, then create it
+    if (!file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/one")) {
+        // Create a key file
+        // Below will produce a 256bit key (32 bytes equals 256 bits)
+        $newKey = base64_encode(openssl_random_pseudo_bytes(32));
+        file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/one", $newKey);
+    }
+
+    // Collect key from file
+    $key = base64_decode(rtrim(file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/one")));
+
+    if (empty($key)) {
+        error_log("OpenEMR Error : Audit Log with encryption is not working. Unable to collect key information or key is empty.");
+    }
+
+    // Return the key
+    return $key;
 }
 
 /**

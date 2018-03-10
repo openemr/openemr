@@ -30,7 +30,7 @@ use C_Document;
 class Documents extends AbstractPlugin
 {
     protected $documentsTable;
-    
+
   /**
    *
    * Documents Table Object
@@ -41,32 +41,32 @@ class Documents extends AbstractPlugin
         $sm->get('Zend\Db\Adapter\Adapter');
         $this->documentsTable = new DocumentsTable();
     }
-    
+
     /**
      * encrypt - Encrypts a plain text
-     * Supports TripleDES encryption
+     * Supports AES-256-CBC encryption
      * @param String $plain_text Plain Text to be encrypted
      * @param String $key Encryption Key
      * @return String
      */
-    public function encrypt($plaintext, $key, $cypher = 'tripledes', $mode = 'cfb')
+    public function encrypt($plaintext, $key)
     {
                 $obj = new \C_Document();
-                $obj->encrypt($plaintext, $key, $cypher, $mode);
+                $obj->encrypt($plaintext, $key);
     }
-    
+
     /**
      * decrypt  - Decrypts an Encrypted String
      * @param String $crypttext Encrypted String
      * @param String $key Decryption Key
      * @return String
      */
-    public function decrypt($crypttext, $key, $cypher = 'tripledes', $mode = 'cfb')
+    public function decrypt($crypttext, $key)
     {
                 $obj = new \C_Document();
-                $obj->decrypt($crypttext, $key, $cypher, $mode);
+                $obj->decrypt($crypttext, $key);
     }
-    
+
     /**
      * couchDB - Couch DB Connection
      *               - Uses Doctrine  CouchDBClient
@@ -80,7 +80,7 @@ class Documents extends AbstractPlugin
         $password   = $GLOBALS['couchdb_pass'];
         $database   = $GLOBALS['couchdb_dbase'];
         $enable_log = ($GLOBALS['couchdb_log'] == 1) ? true : false;
-        
+
         $options = array(
             'host'        => $host,
             'port'        => $port,
@@ -92,7 +92,7 @@ class Documents extends AbstractPlugin
         $connection = \Doctrine\CouchDB\CouchDBClient::create($options);
         return $connection;
     }
-    
+
     /**
      * saveCouchDocument - Save Document to Couch DB
      * @param Object $connection Couch DB Connection Object
@@ -111,7 +111,7 @@ class Documents extends AbstractPlugin
             return false;
         }
     }
-    
+
     /**
      * getDocument Retieve Documents from Couch/HDD
      * @param Integer $documentId Document ID
@@ -125,7 +125,7 @@ class Documents extends AbstractPlugin
                 $document = $obj->retrieve_action("", $documentId, true, true, true);
         return $document;
     }
-    
+
     public function fetchXmlDocuments()
     {
         $obj = new ApplicationTable();

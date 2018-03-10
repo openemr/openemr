@@ -347,14 +347,30 @@ if ($ret = getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' =
 
         $log_id = $iter['id'];
         $commentEncrStatus = "No";
+        $encryptVersion = 0;
         $logEncryptData = logCommentEncryptData($log_id);
         if (count($logEncryptData) > 0) {
             $commentEncrStatus = $logEncryptData['encrypt'];
+            $encryptVersion = $logEncryptData['version'];
         }
 
         //July 1, 2014: Ensoftek: Decrypt comment data if encrypted
         if ($commentEncrStatus == "Yes") {
-            $trans_comments = preg_replace($patterns, $replace, aes256Decrypt($iter["comments"]));
+            if ($encryptVersion == 1) {
+                // Use new openssl method
+                if (extension_loaded('openssl')) {
+                    $trans_comments = preg_replace($patterns, $replace, aes256Decrypt($iter["comments"]));
+                } else {
+                    $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
+                }
+            } else { //$encryptVersion == 0
+                // Use old mcrypt method
+                if (extension_loaded('mcrypt')) {
+                    $trans_comments = preg_replace($patterns, $replace, aes256Decrypt_mycrypt($iter["comments"]));
+                } else {
+                    $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is not installed.");
+                }
+            }
         } else {
             $trans_comments = preg_replace($patterns, $replace, $iter["comments"]);
         }

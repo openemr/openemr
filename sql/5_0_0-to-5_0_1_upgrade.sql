@@ -804,3 +804,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
 ('apptstat', 'EMAIL', 'EMAIL Confirmed', 20, 0, 0, '', 'FFEBE3|0', '', 0, 0, 1, '');
 #Endif
+
+#IfMissingColumn log_comment_encrypt version
+ALTER TABLE `log_comment_encrypt` ADD `version` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0 for mycrypt and 1 for openssl'
+#Endif
