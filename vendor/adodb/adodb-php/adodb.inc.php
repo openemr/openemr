@@ -14,7 +14,7 @@
 /**
 	\mainpage
 
-	@version   v5.20.9  21-Dec-2016
+	@version   v5.20.10  08-Mar-2018
 	@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 	@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
 
@@ -232,7 +232,7 @@ if (!defined('_ADODB_LAYER')) {
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'v5.20.9  21-Dec-2016';
+		$ADODB_vers = 'v5.20.10  08-Mar-2018';
 
 		/**
 		 * Determines whether recordset->RecordCount() is used.
@@ -2392,6 +2392,7 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	function Close() {
 		$rez = $this->_close();
+		$this->_queryID = false;
 		$this->_connectionID = false;
 		return $rez;
 	}
@@ -4618,8 +4619,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				$class = $db; break;
 		}
 
-		$file = ADODB_DIR."/drivers/adodb-".$db.".inc.php";
-		@include_once($file);
+		$file = "drivers/adodb-$db.inc.php";
+		@include_once(ADODB_DIR . '/' . $file);
 		$ADODB_LASTDB = $class;
 		if (class_exists("ADODB_" . $class)) {
 			return $class;

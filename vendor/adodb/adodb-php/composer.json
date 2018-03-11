@@ -1,7 +1,7 @@
 {
 	"name" : "adodb/adodb-php",
 	"description" : "ADOdb is a PHP database abstraction layer library",
-	"license" : [ "BSD-3-Clause", "LGPL-2.1" ],
+	"license" : [ "BSD-3-Clause", "LGPL-2.1-or-later" ],
 	"authors" : [
 		{
 			"name": "John Lim",

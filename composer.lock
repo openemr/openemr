@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "78cc4b7fb34354a528ae5cc7826c9aef",
+    "content-hash": "65d7be6a127ddd23d5106f5bae1e0b14",
     "packages": [
         {
             "name": "adldap2/adldap2",
@@ -60,16 +60,16 @@
         },
         {
             "name": "adodb/adodb-php",
-            "version": "v5.20.9",
+            "version": "v5.20.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ADOdb/ADOdb.git",
-                "reference": "f601748cca1ccb86dfd427620a1692a70e681075"
+                "reference": "2db8794c142ecc9ca9c5398737bb35ca39031fe3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ADOdb/ADOdb/zipball/f601748cca1ccb86dfd427620a1692a70e681075",
-                "reference": "f601748cca1ccb86dfd427620a1692a70e681075",
+                "url": "https://api.github.com/repos/ADOdb/ADOdb/zipball/2db8794c142ecc9ca9c5398737bb35ca39031fe3",
+                "reference": "2db8794c142ecc9ca9c5398737bb35ca39031fe3",
                 "shasum": ""
             },
             "require": {
@@ -84,7 +84,7 @@
             "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause",
-                "LGPL-2.1"
+                "LGPL-2.1-or-later"
             ],
             "authors": [
                 {
@@ -110,7 +110,7 @@
                 "library",
                 "php"
             ],
-            "time": "2016-12-21T17:19:42+00:00"
+            "time": "2018-03-08T22:32:18+00:00"
         },
         {
             "name": "doctrine/annotations",
