@@ -118,7 +118,7 @@ function handleAltServices($this_serviceid, $gln = '', $sinterval = 1)
     if (!$bs_active && $this_serviceid == 'ccdaservice') {
         require_once(dirname(__FILE__)."/../../ccdaservice/ssmanager.php");
 
-        service_shutdown(0);
+        @service_shutdown(0);
     }
 }
 ?>
