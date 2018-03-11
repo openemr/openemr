@@ -12,8 +12,8 @@
     "require" : {
         "mpdf/mpdf" : "6.1.3",
         "adldap2/adldap2" : "7.0.4",
-        "smarty/smarty" : "2.6.*",
-        "adodb/adodb-php" : "5.20.9",
+        "smarty/smarty" : "2.6.31",
+        "adodb/adodb-php" : "5.20.10",
         "phpmailer/phpmailer" : "5.2.16",
         "rospdf/pdf-php" : "0.12.22",
         "phpseclib/phpseclib" : "2.0.10",
