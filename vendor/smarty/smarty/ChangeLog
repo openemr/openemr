@@ -1,3 +1,12 @@
+===== 2.6.31  ===
+2017-11-03
+    * replace functions deprecated in PHP 7.2
+
+
+2016-09-11  Uwe Tews
+    * {math} fix parameter checking order to avoid misleading message
+    * {math} replace wrong versiom
+
 2016-07-19  Uwe Tews
     * {math} shell injection vulnerability patch provided by Tim Weber
     
@@ -783,7 +792,7 @@
       docs/fr/programmers/plugins/plugins-inserts.xml:
       sync with EN
 
-2006-10-14  Fernando Correa da Conceição  <fernando_conceicao@yahoo.com.br>
+2006-10-14  Fernando Correa da Conceiï¿½ï¿½o  <fernando_conceicao@yahoo.com.br>
 
     * docs/pt_BR/programmers/api-variables/variable-error-reporting.xml:
       New Translation
@@ -4324,7 +4333,7 @@
       fixed bug in _run_mod_handler
 
     * libs/Smarty_Compiler.class.php:
-      fixed bug with autoload-handling of modifiers. thanks ándre.
+      fixed bug with autoload-handling of modifiers. thanks ï¿½ndre.
 
 2003-08-05  Messju Mohr  <messju@lammfellpuschen.de>
 
