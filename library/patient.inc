@@ -1106,12 +1106,12 @@ function updatePatientData($pid, $new, $create = false)
 {
   /*******************************************************************
     $real = getPatientData($pid);
-    while(list($key, $value) = each ($new))
+    foreach ($new as $key => $value)
         $real[$key] = $value;
     $real['date'] = "'+NOW()+'";
     $real['id'] = "";
     $sql = "insert into patient_data set ";
-    while(list($key, $value) = each($real))
+    foreach ($real as $key => $value)
         $sql .= $key." = '$value', ";
     $sql = substr($sql, 0, -2);
     return sqlInsert($sql);
@@ -1371,14 +1371,14 @@ function updateInsuranceData($id, $new)
     $fields = sqlListFields("insurance_data");
     $use = array();
 
-    while (list($key, $value) = each($new)) {
+    foreach ($new as $key => $value) {
         if (in_array($key, $fields)) {
             $use[$key] = $value;
         }
     }
 
     $sql = "UPDATE insurance_data SET ";
-    while (list($key, $value) = each($use)) {
+    foreach ($use as $key => $value) {
         $sql .= "`$key` = '" . add_escape_custom($value) . "', ";
     }
 
@@ -1393,7 +1393,7 @@ function newHistoryData($pid, $new = false)
     $sql = "insert into history_data set pid = ?, date = NOW()";
     array_push($arraySqlBind, $pid);
     if ($new) {
-        while (list($key, $value) = each($new)) {
+        foreach ($new as $key => $value) {
             array_push($arraySqlBind, $value);
             $sql .= ", `$key` = ?";
         }
@@ -1404,25 +1404,25 @@ function newHistoryData($pid, $new = false)
 
 function updateHistoryData($pid, $new)
 {
-        $real = getHistoryData($pid);
-    while (list($key, $value) = each($new)) {
+    $real = getHistoryData($pid);
+    foreach ($new as $key => $value) {
         $real[$key] = $value;
     }
 
-        $real['id'] = "";
+    $real['id'] = "";
     // need to unset date, so can reset it below
     unset($real['date']);
 
-        $arraySqlBind = array();
-        $sql = "insert into history_data set `date` = NOW(), ";
-    while (list($key, $value) = each($real)) {
+    $arraySqlBind = array();
+    $sql = "insert into history_data set `date` = NOW(), ";
+    foreach ($real as $key => $value) {
         array_push($arraySqlBind, $value);
         $sql .= "`$key` = ?, ";
     }
 
-        $sql = substr($sql, 0, -2);
+    $sql = substr($sql, 0, -2);
 
-        return sqlInsert($sql, $arraySqlBind);
+    return sqlInsert($sql, $arraySqlBind);
 }
 
 // Returns Age
