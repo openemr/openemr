@@ -1,27 +1,15 @@
 <?php
 /**
- *
  * Patient disclosures main screen.
  *
- * Copyright (C) Visolve <vicareplus_engg@visolve.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Visolve <vicareplus_engg@visolve.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Visolve <vicareplus_engg@visolve.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) Visolve <vicareplus_engg@visolve.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 
 require_once("../../globals.php");
@@ -127,19 +115,19 @@ if ($n>0) {?>
     }
 
     foreach ($result2 as $iter) {
-        $description =nl2br(text($iter{description})); //for line break if there is any new lines in the input text area field.
+        $description =nl2br(text($iter{'description'})); //for line break if there is any new lines in the input text area field.
         ?>
         <!-- List the recipient name, description, date and edit and delete options-->
         <tr  class="noterow" height='25'>
             <!--buttons for edit and delete.-->
-            <td valign='top'><a href='record_disclosure.php?editlid=<?php echo text($iter{id}); ?>'
+            <td valign='top'><a href='record_disclosure.php?editlid=<?php echo text($iter{'id'}); ?>'
             class='css_button_small iframe' onclick='top.restoreSession()'><span><?php echo xlt('Edit');?></span></a>
             <a href='#' class='deletenote css_button_small'
-            id='<?php echo text($iter{id}); ?>' onclick='top.restoreSession()'><span><?php echo xlt('Delete');?></span></a></td>
-            <td class="text" valign='top'><?php echo text($iter{recipient});?>&nbsp;</td>
+            id='<?php echo text($iter{'id'}); ?>' onclick='top.restoreSession()'><span><?php echo xlt('Delete');?></span></a></td>
+            <td class="text" valign='top'><?php echo text($iter{'recipient'});?>&nbsp;</td>
             <td class='text' valign='top'><?php echo text(getListItemTitle('disclosure_type', $iter['event'])); ?>&nbsp;</td>
-            <td class='text'><?php echo text($iter{date})." ".$description;?>&nbsp;</td>
-            <td class='text'><?php echo text($iter{user_fullname});?></td>
+            <td class='text'><?php echo text($iter{'date'})." ".$description;?>&nbsp;</td>
+            <td class='text'><?php echo text($iter{'user_fullname'});?></td>
         </tr>
         <?php
     }
