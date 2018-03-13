@@ -132,8 +132,8 @@ class Pharmacy extends ORDataObject
     }
     function get_transmit_method()
     {
-        if ($this->transmit_method == TYPE_EMAIL && empty($this->email)) {
-            return TYPE_PRINT;
+        if ($this->transmit_method == TRANSMIT_EMAIL && empty($this->email)) {
+            return TRANSMIT_PRINT;
         }
 
         return $this->transmit_method;
