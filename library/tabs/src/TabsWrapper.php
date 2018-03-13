@@ -5,7 +5,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -51,14 +53,14 @@ class TabsWrapper
         // are included and will implement it as needed.
         // Note: require.js may be another option, but trying to keep it simple for now.
         if (!defined('INCLUDED_JQUERY_UI_CSS')) {
-            define(INCLUDED_JQUERY_UI_CSS, '1-12-1');
+            define('INCLUDED_JQUERY_UI_CSS', '1-12-1');
             $s .= "<link rel='stylesheet' href='$web_root/public/assets/jquery-ui-" . INCLUDED_JQUERY_UI_CSS . "/themes/base/jquery-ui.css'>\n";
         }
         $s .= <<<EOD
 <style>
 EOD;
         if (!defined('INCLUDED_TW_ONETIME_CSS')) {
-            define(INCLUDED_TW_ONETIME_CSS, true);
+            define('INCLUDED_TW_ONETIME_CSS', true);
             $s .= <<<EOD
         .ui-tabs .ui-tabs-panel {
           padding: 0px 0px;
@@ -96,11 +98,11 @@ EOD;
         global $web_root;
         $s = '';
         if (!defined('INCLUDED_JQUERY_UI')) {
-            define(INCLUDED_JQUERY_UI, '1-12-1');
+            define('INCLUDED_JQUERY_UI', '1-12-1');
             $s .= "<script src='$web_root/public/assets/jquery-ui-" . INCLUDED_JQUERY_UI . "/jquery-ui.min.js'></script>\n";
         }
         if (!defined('INCLUDED_TW_ONETIME_JS')) {
-            define(INCLUDED_TW_ONETIME_JS, true);
+            define('INCLUDED_TW_ONETIME_JS', true);
             $s .= <<<EOD
 <script>
 
