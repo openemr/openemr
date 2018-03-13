@@ -806,5 +806,5 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 #Endif
 
 #IfMissingColumn log_comment_encrypt version
-ALTER TABLE `log_comment_encrypt` ADD `version` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0 for mycrypt and 1 for openssl'
+ALTER TABLE `log_comment_encrypt` ADD `version` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0 for mycrypt and 1 for openssl';
 #Endif
