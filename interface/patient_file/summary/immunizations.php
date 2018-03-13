@@ -2,26 +2,17 @@
 /**
  * Immunizations
  *
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-include_once("../../globals.php");
-include_once("$srcdir/options.inc.php");
-include_once("$srcdir/immunization_helper.php");
+
+require_once("../../globals.php");
+require_once("$srcdir/options.inc.php");
+require_once("$srcdir/immunization_helper.php");
 
 if (isset($_GET['mode'])) {
     /*
@@ -256,7 +247,7 @@ function getImmunizationObservationResults()
 function saveImmunizationObservationResults($id, $immunizationdata)
 {
     $imm_obs_data = getImmunizationObservationResults();
-    if (count($imm_obs_data) > 0) {
+    if (!empty($imm_obs_data) && count($imm_obs_data) > 0) {
         foreach ($imm_obs_data as $key => $val) {
             if ($val['imo_id'] && $val['imo_id'] != 0) {
                 $sql2                   = " DELETE
@@ -570,7 +561,7 @@ var mypcc = '<?php echo htmlspecialchars($GLOBALS['phone_country_code'], ENT_QUO
                 <legend><?php echo htmlspecialchars(xl('Observation Results'), ENT_QUOTES); ?></legend>
                 <table class="obs_res_table">
                     <?php
-                    if (count($imm_obs_data) > 0) {
+                    if (!empty($imm_obs_data) && count($imm_obs_data) > 0) {
                         foreach ($imm_obs_data as $key => $value) {
                               $key_snomed = 0;
                             $key_cvx = 0;
@@ -755,7 +746,7 @@ value="<?php if ($id != 0 && $value['imo_criteria'] == 'vaccine_type') {
                     <img src='../../pic/add.png' onclick="addNewRow();" align='absbottom' width='27' height='24' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to add new row'); ?>'>
                   </center>
                 </div>
-                <input type ="hidden" name="tr_count" id="tr_count" value="<?php echo (count($imm_obs_data)>0) ? count($imm_obs_data) : 1 ;?>">
+                <input type ="hidden" name="tr_count" id="tr_count" value="<?php echo (!empty($imm_obs_data) && count($imm_obs_data)>0) ? count($imm_obs_data) : 1 ;?>">
                 <input type="hidden" id="clickId" value="">
               </fieldset>
             </div>

@@ -1,28 +1,17 @@
 <?php
-use ESign\Api;
-
 /**
- *
  * Patient custom report.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @author  Ken Chapple <ken@mi-squared.com>
- * @author  Tony McCormick <tony@mi-squared.com>
- * @author  Jerry Padgett <sjpadgett@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Tony McCormick <tony@mi-squared.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
@@ -41,6 +30,7 @@ if ($GLOBALS['gbl_portal_cms_enable']) {
 }
 require_once("$srcdir/appointments.inc.php");
 
+use ESign\Api;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -429,7 +419,7 @@ foreach ($ar as $key => $val) {
             echo "<hr />";
             echo "<div class='text billing'>";
             print "<h1>".xl('Billing Information').":</h1>";
-            if (count($ar['newpatient']) > 0) {
+            if (!empty($ar['newpatient']) && count($ar['newpatient']) > 0) {
                 $billings = array();
                 echo "<table>";
                 echo "<tr><td width='400' class='bold'>Code</td><td class='bold'>".xl('Fee')."</td></tr>\n";

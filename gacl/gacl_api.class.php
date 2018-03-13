@@ -940,12 +940,12 @@ class gacl_api extends gacl {
 
 		$this->debug_text("add_acl():");
 
-		if (count($aco_array) == 0) {
+		if (empty($aco_array) || count($aco_array) == 0) {
 			$this->debug_text("Must select at least one Access Control Object");
 			return false;
 		}
 
-		if (count($aro_array) == 0 AND count($aro_group_ids) == 0) {
+		if ((empty($aco_array) || count($aro_array) == 0) AND (empty($aro_group_ids) || count($aro_group_ids) == 0)) {
 			$this->debug_text("Must select at least one Access Request Object or Group");
 			return false;
 		}

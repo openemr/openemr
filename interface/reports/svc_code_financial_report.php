@@ -342,7 +342,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 }
 
 if (! $_POST['form_csvexport']) {
-    if ($_POST['form_refresh'] && count($print) != 1) {
+    if ($_POST['form_refresh'] && empty($print)) {
         echo "<span style='font-size:10pt;'>";
            echo xlt('No matches found. Try search again.');
            echo "</span>";
