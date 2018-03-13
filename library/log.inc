@@ -47,7 +47,7 @@ function newEvent($event, $user, $groupname, $success, $comments = "", $patient_
 
     // Send item to log_comment_encrypt for comment encyption tracking
     $last_log_id = $GLOBALS['adodb']['db']->Insert_ID();
-    $encryptLogQry = "INSERT INTO log_comment_encrypt (log_id, encrypt, checksum, `version`) ".
+    $encryptLogQry = "INSERT INTO log_comment_encrypt (log_id, encrypt, checksum, version) ".
                      " VALUES ( ".
                      $adodb->qstr($last_log_id) . "," .
                      $adodb->qstr($encrypt_comment) . "," .
