@@ -1108,8 +1108,22 @@ class Callback extends Base
             if ($data['msg_reply']=="CONFIRMED") {
                 $sqlUPDATE = "UPDATE openemr_postcalendar_events SET pc_apptstatus = ? WHERE pc_eid=?";
                 sqlStatement($sqlUPDATE, array($data['msg_type'],$data['pc_eid']));
-                $sqlFLOW = "UPDATE patient_tracker_element SET status=? WHERE pt_tracker_id IN (SELECT id FROM patient_tracker WHERE eid=?)";
-                sqlStatement($sqlFLOW, array($data['msg_type'],$data['pc_eid']));//if it is not in tracker what will happen?  Error and continue?
+                //need to insert this into patient_tracker
+                $query = "SELECT * FROM patient_tracker WHERE pc_eid=?";
+                $tracker = sqlFetchArray(sqlStatement($query, array($data['pc_eid'])));  //otherwise this will need to be a loop
+                #Update lastseq in tracker.
+                sqlStatement(
+                    "UPDATE `patient_tracker` SET  `lastseq` = ? WHERE eid=?",
+                    array(($tracker['lastseq']+1),$data['pc_eid'])
+                );
+                #Add a tracker item.
+                $datetime = date("Y-m-d H:i:s");
+                sqlInsert(
+                    "INSERT INTO `patient_tracker_element` " .
+                            "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `seq`) " .
+                            "VALUES (?,?,?,?,?,?)",
+                    array($tracker['id'],$datetime,'MedEx',$data['msg_type'],($tracker['lastseq']+1))
+                );
             } elseif ($data['msg_reply']=="CALL") {
                 $sqlUPDATE = "UPDATE openemr_postcalendar_events SET pc_apptstatus = 'CALL' WHERE pc_eid=?";
                 $test = sqlQuery($sqlUPDATE, array($data['pc_eid']));
