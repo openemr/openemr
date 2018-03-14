@@ -1,4 +1,13 @@
 <?php
+/**
+ * C_Pharmacy class
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 class C_Pharmacy extends Controller
@@ -27,7 +36,7 @@ class C_Pharmacy extends Controller
     {
         if ($p_obj != null && get_class($p_obj) == "pharmacy") {
             $this->pharmacies[0] = $p_obj;
-        } elseif (get_class($this->pharmacies[0]) != "pharmacy") {
+        } elseif (!is_object($this->pharmacies[0]) || get_class($this->pharmacies[0]) != "pharmacy") {
             $this->pharmacies[0] = new Pharmacy($id);
         }
 

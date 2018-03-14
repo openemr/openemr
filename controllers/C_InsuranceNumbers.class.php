@@ -1,4 +1,13 @@
 <?php
+/**
+ * C_InsuranceNumbers class
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 class C_InsuranceNumbers extends Controller
@@ -28,12 +37,12 @@ class C_InsuranceNumbers extends Controller
     {
 
         //case where a direct id is provided, doesn't matter if a provider id is available get it from the insurance_numbers record
-        if (get_class($this->insurance_numbers[0]) != "insurancenumbers" && is_numeric($id)) {
+        if ((!is_object($this->insurance_numbers[0]) || get_class($this->insurance_numbers[0]) != "insurancenumbers") && is_numeric($id)) {
             $this->insurance_numbers[0] = new InsuranceNumbers($id);
             $this->providers[0] = new Provider($this->insurance_numbers[0]->get_provider_id());
         } elseif (is_numeric($provider_id)) {
             $this->providers[0] = new Provider($provider_id);
-            if (get_class($this->insurance_numbers[0]) != "insurancenumbers") {
+            if (!is_object($this->insurance_numbers[0]) || get_class($this->insurance_numbers[0]) != "insurancenumbers") {
                 if ($id == "default") {
                     $this->insurance_numbers[0] = $this->providers[0]->get_insurance_numbers_default();
                     if (!is_object($this->insurance_numbers[0])) {
