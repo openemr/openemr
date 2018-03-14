@@ -1122,7 +1122,6 @@ class Callback extends Base
                             "VALUES (?,?,?,?,?,?)",
                             array($tracker['id'],$datetime,'MedEx',$data['msg_type'],($tracker['lastseq']+1))
                             );
-                sqlStatement($sqlFLOW, array(,$data['pc_eid']));
             } elseif ($data['msg_reply']=="CALL") {
                 $sqlUPDATE = "UPDATE openemr_postcalendar_events SET pc_apptstatus = 'CALL' WHERE pc_eid=?";
                 $test = sqlQuery($sqlUPDATE, array($data['pc_eid']));
