@@ -2028,7 +2028,6 @@ function are_days_checked(){
 * this enable to add new rules for this form in the pageValidation list.
 * */
 var collectvalidation = <?php echo($collectthis); ?>;
-
 function validateform(event,valu){
 
     $('#form_save').attr('disabled', true);
