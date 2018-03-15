@@ -27,7 +27,7 @@ $set_active_msg=0;
 $show_message=0;
 
 /* Sending a mail to the admin when the breakglass user is activated only if $GLOBALS['Emergency_Login_email'] is set to 1 */
-$bg_count=count($access_group);
+$bg_count=count($_POST['access_group']);
 $mail_id = explode(".", $SMTP_HOST);
 for ($i=0; $i<$bg_count; $i++) {
     if (($_POST['access_group'][$i] == "Emergency Login") && ($_POST['active'] == 'on') && ($_POST['pre_active'] == 0)) {
