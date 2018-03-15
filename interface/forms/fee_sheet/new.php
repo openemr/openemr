@@ -1,27 +1,16 @@
 <?php
-/*
-* Fee Sheet Program used to create charges, copays and add diagnosis codes to the encounter
-*
-* Copyright (C) 2005-2016 Rod Roark <rod@sunsetsystems.com>
-*
-* LICENSE: This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 3
-* of the License, or (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
-*
-* @package OpenEMR
-* @author Rod Roark <rod@sunsetsystems.com>
-* @author Terry Hill <terry@lillysystems.com>
-* @link http://www.open-emr.org
-*/
-
-
+/**
+ * Fee Sheet Program used to create charges, copays and add diagnosis codes to the encounter
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Terry Hill <terry@lillysystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once("../../globals.php");
@@ -475,7 +464,7 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
 //
 if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'] || $_POST['bn_save_stay'])) {
     $main_provid = 0 + $_POST['ProviderID'];
-    $main_supid  = 0 + $_POST['SupervisorID'];
+    $main_supid  = 0 + (int)$_POST['SupervisorID'];
 
     $fs->save(
         $_POST['bill'],
@@ -1072,7 +1061,7 @@ if ($billresult) {
 
             $justify    = $bline['justify'];
             $notecodes  = trim($bline['notecodes']);
-            $provider_id = 0 + $bline['provid'];
+            $provider_id = 0 + (int)$bline['provid'];
         }
 
         if ($iter['code_type'] == 'COPAY') { // moved copay display to below
