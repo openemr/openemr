@@ -385,7 +385,7 @@ function getRecHistoryData($pid)
     while ($result = sqlFetchArray($res)) {
         foreach ($result as $key => $val) {
             if ($key == "pid" || $key == "date" || $key == "id") {
-                next;
+                continue;
             } else {
                 $curdate = $result{"date"};
                 if (($retar{$key}[$arcount{$key}]{"value"} != $val)) {
@@ -411,7 +411,7 @@ function getRecEmployerData($pid)
     while ($result = sqlFetchArray($res)) {
         foreach ($result as $key => $val) {
             if ($key == "pid" || $key == "date" || $key == "id") {
-                next;
+                continue;
             } else {
                 $curdate = $result{"date"};
                 if (($retar{$key}[$arcount{$key}]{"value"} != $val)) {
@@ -437,7 +437,7 @@ function getRecPatientData($pid)
     while ($result = sqlFetchArray($res)) {
         foreach ($result as $key => $val) {
             if ($key == "pid" || $key == "date" || $key == "id") {
-                next;
+                continue;
             } else {
                 $curdate = $result{"date"};
                 if (($retar{$key}[$arcount{$key}]{"value"} != $val)) {
@@ -463,7 +463,7 @@ function getRecInsuranceData($pid, $ins_type)
     while ($result = sqlFetchArray($res)) {
         foreach ($result as $key => $val) {
             if ($key == "pid" || $key == "date" || $key == "id") {
-                next;
+                continue;
             } else {
                 $curdate = $result{"date"};
                 if (($retar{$key}[$arcount{$key}]{"value"} != $val)) {
@@ -530,7 +530,7 @@ function printRecDataOne($data_array, $recres, $N)
     print "<table><tr>\n";
     $count = 0;
     foreach ($data_array as $akey => $aval) {
-        if (sizeof($recres{$akey})>0 && ($recres{$akey}[1]{"value"}!="0000-00-00 00:00:00")) {
+        if (!empty($recres{$akey}) && sizeof($recres{$akey})>0 && ($recres{$akey}[1]{"value"}!="0000-00-00 00:00:00")) {
             if ($count == $N) {
                 print "</tr><tr>\n";
                 $count = 0;
