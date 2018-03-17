@@ -326,7 +326,7 @@ if (count($emr_app)) {
                     <?php echo $div_app ?>
                     <?php if ($GLOBALS['language_menu_login'] && (count($result3) != 1)) : // Begin language menu block ?>
                         <div class="form-group">
-                            <label for="language" class="control-label text-right"><?php echo xlt('Languages'); ?>:</label>
+                            <label for="language" class="control-label text-right"><?php echo xlt('Language'); ?>:</label>
                             <div>
                                 <select class="form-control" name="languageChoice" size="1">
                                     <?php
