@@ -184,17 +184,25 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             // If there are new action(s), then throw a popup (if the enable_cdr_new_crp global is turned on)
             //  Note I am taking advantage of a slight hack in order to run javascript within code that
             //  is being passed via an ajax call by using a dummy image.
-            echo '<img src="../../pic/empty.gif" onload="alert(\''.xls('New Due Clinical Reminders').'\n\n';
+            //  mdsupport - it would be better to use separate access for this information.  Until then disable alert ..
+            $jsAdd = "";
+            $alertsNew = array();
             foreach ($new_targets as $key => $value) {
                 $category_item = explode(":", $key);
                 $category = $category_item[0];
                 $item = $category_item[1];
-                echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
-                   ': ' . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $item). '\n';
+                $dispCat = generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category);
+                if (empty($alertsNew[$dispCat])) {
+                    $alertsNew[$dispCat] = array();
+                }
+                $alertsNew[$dispCat][] = generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $item);
             }
-
-            echo '\n' . '('. xls('See the Clinical Reminders widget for more details'). ')';
-            echo '\');this.parentNode.removeChild(this);" />';
+            foreach ($alertsNew as $dispCat => $alertsList) {
+                foreach ($alertsList as $alertMsg) {
+                    $jsAdd .= sprintf("addPtAlert('%s', '%s');", $dispCat, $alertMsg);
+                };
+            }
+            echo '<img src="../../pic/empty.gif" onload="'.$jsAdd.'this.parentNode.removeChild(this);" />';
         }
     }
 }
