@@ -111,6 +111,7 @@ $usrval = json_encode(array ( $cb_top_chk, $cb_bot_chk ));
 $primary_docs = array(
 'cal' => array(xl('Calendar')  , 0, 'main/main_info.php'),
 'pfb' => array(xl('Patient Flow Board')  , 0, '../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1'),
+'wfb' => array(xl('Patient Flow Board')  , 0, '../interface/workflow_tracker/patient_tracker.php?skip_timeout_reset=1'),
 'rcb' => array(xl('Recall Board')  , 0, '../interface/main/messages/messages.php?go=Recalls'),
 'app' => array(xl('Portal Activity')  , 0, '../myportal/index.php'),
 'aop' => array(xl('Portal Dashboard')  , 0, '../portal/patient/provider'),
