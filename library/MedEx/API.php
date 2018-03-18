@@ -1988,7 +1988,7 @@ if (!empty($logged_in['products']['not_ordered'])) {
             echo $show['progression'];
 
             if ($show['appt']) {
-                echo "<span onclick=\"newEvt('".attr($prog['pid'])."','".attr($show['pc_eid'])."');\" class='btn btn-danger text-center' data-toggle='tooltip' data-placement='auto'  title='".xla('Appointment made by')." ".attr($prog['who'])." ".xla('on')." ".attr($prog['when'])."'><b>".xlt('Appt{{Appointment}}').":</b> ".text($show['appt'])."<br />";
+                echo "<span onclick=\"newEvt('".attr($prog['pid'])."','".attr($show['pc_eid'])."');\" class='btn btn-danger text-center' data-toggle='tooltip' data-placement='auto'  title='".xla('Appointment made by')." ".attr($prog['who'])." ".xla('on')." ".attr($prog['when'])."'><b>".xlt('Appt{{Abbreviation for appointment}}').":</b> ".text($show['appt'])."<br />";
             }
             echo '</div>';
             echo '</div>';
@@ -2716,7 +2716,7 @@ class Setup extends Base
                             <h3 class="title"><?php echo xlt('Channels'); ?>:</h3>
                             <ul class="text-left" style="margin-left:75px;">
                                 <li> <?php echo xlt('SMS Messages'); ?></li>
-                                <li> <?php echo xlt('Voice Mesages'); ?></li>
+                                <li> <?php echo xlt('Voice Messages'); ?></li>
                                 <li> <?php echo xlt('E-mail Messaging'); ?></li>
                                 <li> <?php echo xlt('Postcards'); ?></li>
                                 <li> <?php echo xlt('Address Labels'); ?></li>

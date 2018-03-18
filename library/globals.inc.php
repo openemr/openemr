@@ -2469,7 +2469,7 @@ $GLOBALS_METADATA = array(
             xl('Enable Version 2 Onsite Patient Portal'),
             'bool',                           // data type
             '0',
-            xl('Enable Version 2 Onsite Patient Portal.')
+            xl('Enable Version 2 Onsite Patient Portal')
         ),
 
         'portal_onsite_two_address' => array(
@@ -2511,7 +2511,7 @@ $GLOBALS_METADATA = array(
             xl('Enable Version 1 Onsite Patient Portal'),
             'bool',                           // data type
             '0',
-            xl('Enable Version 1 Onsite Patient Portal.')
+            xl('Enable Version 1 Onsite Patient Portal')
         ),
 
         'portal_onsite_address' => array(
@@ -2751,7 +2751,7 @@ $GLOBALS_METADATA = array(
             xl('Enable Weno eRx Service'),
             'bool',
             '0',
-            xl('Enable Weno eRx Service.') . ' ' . xl('Contact Open Med Practice, www.openmedpractice.com for subscribing to the Weno Free eRx service.')
+            xl('Enable Weno eRx Service') . ' ' . xl('Contact Open Med Practice, www.openmedpractice.com for subscribing to the Weno Free eRx service.')
         ),
 
         'weno_account_id' => array(
@@ -3331,7 +3331,7 @@ $GLOBALS_METADATA = array(
             xl('Envelope y-axis starting pt'),
             'num',                           // data type
             '220',
-            xl(' Distance from the right most edge of the envelope in portrait position in mm')
+            xl('Distance from the right most edge of the envelope in portrait position in mm')
         ),
 
     ),
