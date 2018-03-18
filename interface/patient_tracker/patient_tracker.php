@@ -247,11 +247,6 @@ if (!$_REQUEST['flb_table']) {
                 <form name="flb" id="flb" method="post">
                     <div class=" text-center row divTable" style="width: 85%;padding: 10px 10px 0;margin: 10px auto;">
                         <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
-                            <?php
-                            //$xl_All = xla('Appt{{abbreviation ofr Appointment}} Status: All');
-                            //generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>$xl_All),$_POST['form_apptstatus']);
-                            //remove and replace Matrix code to add bootstrap class form-group and padding
-                            ?>
                             <select id="form_apptcat" name="form_apptcat" class="form-group ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all"
                                     onchange="refineMe('apptcat');" title="">
                                 <?php

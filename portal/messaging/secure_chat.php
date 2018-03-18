@@ -993,7 +993,7 @@ background:#fff;
                                     src="<?php echo $GLOBALS['images_static_relative']; ?>/favicon-32x32.png"
                                     alt="">
                                 <div class="direct-chat-text right">
-                                    <div style="padding-left: 0px; padding-right: 0px;" title="<?php echo xlt('Click to make chat this current  recipient only...'); ?>" ng-click="makeCurrent(message)" ng-bind-html=renderMessageBody(message.message)></div>
+                                    <div style="padding-left: 0px; padding-right: 0px;" title="<?php echo xlt('Click to make chat this current recipient only...'); ?>" ng-click="makeCurrent(message)" ng-bind-html=renderMessageBody(message.message)></div>
                                 </div>
                             </div>
                         </div>
