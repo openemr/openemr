@@ -84,3 +84,8 @@
 --    desc: find all MyISAM tables and convert them to InnoDB.
 --    arguments: none
 --    behavior: can take a long time.
+
+
+#IfMissingColumn users main_menu_role
+ALTER TABLE `users` ADD `patient_menu_role` VARCHAR(50) NOT NULL DEFAULT 'standard';
+#EndIf
