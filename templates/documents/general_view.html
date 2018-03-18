@@ -1,11 +1,11 @@
 <head>
 <style type="text/css">@import url(library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="library/dialog.js?v={php} echo $v_js_includes; {/php}"></script>
+
 <script type="text/javascript" src="library/textformat.js"></script>
 <script type="text/javascript" src="library/dynarch_calendar.js"></script>
 {php} include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); {/php}
 <script type="text/javascript" src="library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="{php}echo $GLOBALS['assets_static_relative'] {/php}/jquery-min-1-9-1/index.js"></script>
+
 <script language="JavaScript">
  var mypcc = '{php} echo $GLOBALS['phone_country_code'] {/php}';
 
@@ -47,7 +47,7 @@ function tagUpdate() {literal}{{/literal}
 		{literal}}{/literal}
 	{literal}}{/literal} else if (f.encounter_id.value == 0 ) {literal}{{/literal}
 		alert(" {xl t='Please select encounter'}");
-		return false;	
+		return false;
 	{literal}}{/literal}
 	//top.restoreSession();
 	document.forms['document_tag'].submit();
@@ -74,7 +74,7 @@ function ImgProcedure() {literal}{{/literal}
 		return false;
 	{literal}}{/literal}
 	f.procedure_code.value = f.image_procedure_id.options[f.image_procedure_id.selectedIndex].getAttribute('data-code');
-	document.forms['img_procedure_tag'].submit();	
+	document.forms['img_procedure_tag'].submit();
 {literal}}{/literal}
  // Process click on Import link.
  function import_ccr(docid) {literal}{
@@ -123,11 +123,11 @@ function ImgProcedure() {literal}{{/literal}
                 <form method="post" name="document_encrypt" action="{$web_path}" onsubmit="return top.restoreSession()">
                 <div>
                     <div style="float:left">
-                        <b>{xl t='Encryption'}</b>&nbsp; 
+                        <b>{xl t='Encryption'}</b>&nbsp;
                     </div>
                     <div style="float:none">
                         <a href="javascript:;" onclick="submitNonEmpty( document.forms['document_encrypt'] );">(<span>{xl t='download encrypted file'})</span></a>
-                    </div> 
+                    </div>
                 </div>
                 <div>
                     {xl t='Pass Phrase'}:
@@ -204,7 +204,7 @@ function ImgProcedure() {literal}{{/literal}
             </div>
 
 			<br/>
-			
+
 			<div class="text">
 			   <form method="post" name="document_tag" id="document_tag" action="{$TAG_ACTION}" onsubmit="return top.restoreSession()">
 
@@ -221,7 +221,7 @@ function ImgProcedure() {literal}{{/literal}
 				 <div>
 					<select id="encounter_id"  name="encounter_id"  >{$ENC_LIST}</select>&nbsp;
 					<input type="checkbox" name="encounter_check" id="encounter_check"  onclick='set_checkbox(this)'/> <label for="encounter_check"><b>{xl t='Create Encounter'}</b></label>&nbsp;&nbsp;
-					   {xl t='Visit Category'} : &nbsp;<select id="visit_category_id"  name="visit_category_id"  disabled>{$VISIT_CATEGORY_LIST}</select>&nbsp; 
+					   {xl t='Visit Category'} : &nbsp;<select id="visit_category_id"  name="visit_category_id"  disabled>{$VISIT_CATEGORY_LIST}</select>&nbsp;
 
 			   </div>
 			   </form>
@@ -243,7 +243,7 @@ function ImgProcedure() {literal}{{/literal}
 				<a href="{$clear_procedure_tag}">(<span>{xl t='clear'})</span></a>
 			</div>
 			</form>
-		   </div>	
+		   </div>
 
             <br/>
 
@@ -263,10 +263,10 @@ function ImgProcedure() {literal}{{/literal}
                         </a>
                     </div>
                     <div>
-                        
+
                     </div>
                     <div style="float:none">
-                    	
+
                     </div>
                 <div>
                     <textarea cols="53" rows="8" wrap="virtual" name="note" style="width:100%"></textarea><br>
@@ -294,23 +294,21 @@ function ImgProcedure() {literal}{{/literal}
 		</td>
 	</tr>
         <tr id="DocContents" style="height:100%">
-		<td>
-            <div class="text"  title="{xl t='Preview file'}"><b>{xl t='Content'}</b></div>
-            {if $file->get_mimetype() eq "image/tiff"}
-                         <embed frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{$web_path|escape:'html'}as_file=false"></embed>
-	                 {elseif $file->get_mimetype() eq "image/png" or
-			 $file->get_mimetype() eq "image/jpg" or
-			 $file->get_mimetype() eq "image/jpeg" or
-			 $file->get_mimetype() eq "image/gif" or
-			 $file->get_mimetype() eq "application/pdf" }
-                         <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{$web_path|escape:'html'}as_file=false"></iframe>		
-            {elseif $file->get_mimetype() eq "application/dicom" or $file->get_mimetype() eq "application/dicom+zip"}
-            <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{$GLOBALS.webroot}/library/dicom_frame.php?web_path={$web_path|escape:'html'}as_file=false"></iframe>
-            {elseif $file->get_ccr_type($file->get_id()) ne "CCR" and $file->get_ccr_type($file->get_id()) ne "CCD"}
-                      <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{$web_path|escape:'html'}as_file=true"></iframe>
-
-                       {/if}
-		</td>
+            <td>
+                {if $file->get_mimetype() eq "image/tiff"}
+                <embed frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{$web_path|escape:'html'}as_file=false"></embed>
+                {elseif $file->get_mimetype() eq "image/png" or
+                $file->get_mimetype() eq "image/jpg" or
+                $file->get_mimetype() eq "image/jpeg" or
+                $file->get_mimetype() eq "image/gif" or
+                $file->get_mimetype() eq "application/pdf" }
+                <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{$web_path|escape:'html'}as_file=false"></iframe>
+                {elseif $file->get_mimetype() eq "application/dicom" or $file->get_mimetype() eq "application/dicom+zip"}
+                <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{php}echo $GLOBALS[webroot]{/php}/library/dicom_frame.php?web_path={$web_path|escape:'html'}as_file=false"></iframe>
+                {elseif $file->get_ccr_type($file->get_id()) ne "CCR" and $file->get_ccr_type($file->get_id()) ne "CCD"}
+                <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{$web_path|escape:'html'}as_file=true"></iframe>
+                {/if}
+            </td>
 	</tr>
 </table>
 <script language='JavaScript'>
