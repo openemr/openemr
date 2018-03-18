@@ -84,3 +84,18 @@
 --    desc: find all MyISAM tables and convert them to InnoDB.
 --    arguments: none
 --    behavior: can take a long time.
+
+#IfNotRow2D list_options list_id lists option_id patient_file_menu
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`) VALUES
+('lists', 'patient_file_menu', 'Patient file menu',      1, 0, 0, '', NULL, '', 0, 0, 1, '', 1, '2018-03-15 06:41:39'),
+('patient_file_menu', 'documents', 'Documents',         10, 0, 0, '', NULL, '', 0, 0, 1, '', 1, '2018-03-15 06:41:39'),
+('patient_file_menu', 'external_data', 'External Data', 20, 0, 0, '', NULL, '', 0, 0, 1, '', 1, '2018-03-15 06:41:39'),
+('patient_file_menu', 'history', 'History',             30, 0, 0, '', NULL, '', 0, 0, 1, '', 1, '2018-03-15 06:41:39'),
+('patient_file_menu', 'issues', 'Issues',               40, 0, 0, '', NULL, '', 0, 0, 1, '', 1, '2018-03-15 06:41:39'),
+('patient_file_menu', 'ledger', 'Ledger',               50, 0, 0, '', NULL, '', 0, 0, 1, '', 1, '2018-03-15 06:41:39'),
+('patient_file_menu', 'publish', 'Publish',             60, 0, 0, '', NULL, '', 0, 0, 0, '', 1, '2018-03-15 06:41:39'),
+('patient_file_menu', 'report', 'Report',               70, 0, 0, '', NULL, '', 0, 0, 1, '', 1, '2018-03-15 06:41:39'),
+('patient_file_menu', 'transactions', 'Transactions',   80, 0, 0, '', NULL, '', 0, 0, 1, '', 1, '2018-03-15 06:41:39');
+#EndIf
+
+

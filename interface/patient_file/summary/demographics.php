@@ -749,38 +749,65 @@ $idcard_doc_id = false;
 if ($GLOBALS['patient_id_category_name']) {
     $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name']);
 }
+$res=sqlStatement("SELECT option_id,activity FROM list_options WHERE list_id='patient_file_menu' ");
 
+while ($row = sqlFetchArray($res)) {
+    $patient_file_menu[$row['option_id']]=$row['activity'];
+}
 ?>
 <table cellspacing='0' cellpadding='0' border='0' class="subnav">
   <tr>
       <td class="small" colspan='4'>
+
+          <?php if($patient_file_menu["history"]=="1"){ ?>
           <a href="../history/history.php" onclick='top.restoreSession()'>
             <?php echo htmlspecialchars(xl('History'), ENT_NOQUOTES); ?></a>
           |
+          <?php }?>
+
+          <?php if($patient_file_menu["report"]=="1"){ ?>
             <?php //note that we have temporarily removed report screen from the modal view ?>
           <a href="../report/patient_report.php" onclick='top.restoreSession()'>
             <?php echo htmlspecialchars(xl('Report'), ENT_NOQUOTES); ?></a>
           |
+          <?php }?>
+
+          <?php if($patient_file_menu["documents"]=="1"){ ?>
             <?php //note that we have temporarily removed document screen from the modal view ?>
           <a href="../../../controller.php?document&list&patient_id=<?php echo $pid;?>" onclick='top.restoreSession()'>
             <?php echo htmlspecialchars(xl('Documents'), ENT_NOQUOTES); ?></a>
           |
+          <?php }?>
+
+          <?php if($patient_file_menu["transactions"]=="1"){ ?>
           <a href="../transaction/transactions.php" onclick='top.restoreSession()'>
             <?php echo htmlspecialchars(xl('Transactions'), ENT_NOQUOTES); ?></a>
           |
+          <?php }?>
+
+          <?php if($patient_file_menu["issues"]=="1"){ ?>
           <a href="stats_full.php?active=all" onclick='top.restoreSession()'>
             <?php echo htmlspecialchars(xl('Issues'), ENT_NOQUOTES); ?></a>
           |
+          <?php }?>
+
+          <?php if($patient_file_menu["ledger"]=="1"){ ?>
           <a href="../../reports/pat_ledger.php?form=1&patient_id=<?php echo attr($pid);?>" onclick='top.restoreSession()'>
             <?php echo xlt('Ledger'); ?></a>
           |
+          <?php }?>
+
+          <?php if($patient_file_menu["external_data"]=="1"){ ?>
           <a href="../../reports/external_data.php" onclick='top.restoreSession()'>
             <?php echo xlt('External Data'); ?></a>
-            <?php if ($GLOBALS['fhir_enable']) { ?>
+          <?php }?>
+
+          <?php if($patient_file_menu["publish"]=="1"){ ?>
               |
               <a href="" onclick='doPublish();return false;'>
                 <?php echo xlt('Publish'); ?></a>
-            <?php } ?>
+          <?php }?>
+
 <!-- DISPLAYING HOOKS STARTS HERE -->
 <?php
     $module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh
