@@ -327,6 +327,11 @@ class User
     private $mainMenuRole;
 
     /**
+     * @Column(name="patient_menu_role", type="string")
+     */
+    private $patientMenuRole;
+
+    /**
      * @Column(name="weno_prov_id", type="string")
      */
     private $wenoProvId;
@@ -896,6 +901,11 @@ class User
         return $this->mainMenuRole;
     }
 
+    public function getPatientMenuRole()
+    {
+        return $this->patientMenuRole;
+    }
+
     public function setMainMenuRole($value)
     {
         $this->mainMenuRole = $value;
@@ -975,6 +985,7 @@ class User
                "cpoe: '" . $this->getCpoe() . "' " .
                "physicianType: '" . $this->getPhysicianType() . "' " .
                "mainMenuRole: '" . $this->getMainMenuRole() . "' " .
+               "patientMenuRole: '" . $this->getPatientMenuRole() . "' " .
                "wenoProvId: '" . $this->getWenoProvId() . "' ";
     }
 

@@ -16,6 +16,7 @@ require_once("$srcdir/erx_javascript.inc.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\MainMenuRole;
+use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -300,6 +301,12 @@ foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key =>
   </td>
   <td>
     <?php echo MainMenuRole::displayMainMenuRoleSelector(); ?>
+  </td>
+  <td>
+    <span class="text"><?php echo xlt('Main Menu Role'); ?>: </span>
+  </td>
+  <td>
+    <?php echo PatientMenuRole::displayPatientMenuRoleSelector(); ?>
   </td>
 </tr>
 
