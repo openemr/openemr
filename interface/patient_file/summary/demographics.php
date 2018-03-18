@@ -37,7 +37,8 @@ if (isset($_GET['set_pid'])) {
 // Ajax requests should deal directly with the javascript object
 // Expected to be associative array -
 $localAlerts = array();
-function addPtAlertLocal($aCat, $aMsg) {
+function addPtAlertLocal($aCat, $aMsg)
+{
     if (empty($localAlerts[$aCat])) {
         $localAlerts[$aCat] = array();
     }
@@ -52,7 +53,7 @@ if ($GLOBALS['enable_cdr']) {
         //Check for new allergies conflicts and throw popup if any exist(note need alert logging to support this)
         $new_allergy_alerts = allergy_conflict($pid, 'new', $_SESSION['authUser']);
         if (!empty($new_allergy_alerts)) {
-            // If this inline call is made ajax, use standard addPtAlert alert processing approach... 
+            // If this inline call is made ajax, use standard addPtAlert alert processing approach.
             foreach ($new_allergy_alerts as $new_allergy_alert) {
                 addPtAlertLocal(xls('ACTIVE MEDICATIONS ALLERGIES'), addslashes($new_allergy_alert));
             }
@@ -520,7 +521,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
     });
 
     <?php }
-    } ?>
+} ?>
 
 });
 
@@ -2053,17 +2054,16 @@ function listPtAlerts() {
         htmReturn += '</td></tr>';
     }
     if (intAlerts > 0) {
-        htmReturn = '<small><table class="table table-condensed table-striped">'+htmReturn+'</table></small>';
+        htmReturn = '<small><table class="table table-condensed table-striped table-sm">'+htmReturn+'</table></small>';
     }
     return htmReturn;
 }
 function showPtAlerts() {
-    if (ajaxCalls == 0) {
+    if ((ajaxCalls == 0) && (intAlerts > 0)) {
         $("#pt-alerts").qtip().show();
     }
 }
-<?php 
-//Create the tooltips with all alerts
+<?php //Create the tooltips with all alerts
 foreach ($localAlerts as $aCat => $aMsgList) {
     foreach ($aMsgList as $aMsg) {
         printf('addPtAlert("%s","%s");%s', $aCat, $aMsg, "\n");
