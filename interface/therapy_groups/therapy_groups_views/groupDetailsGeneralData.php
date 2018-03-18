@@ -144,7 +144,7 @@
                                     <div class="col-md-6">
                                         <div class="row">
                                             <div class="col-md-4 col-sm-5">
-                                                <span class="bold"><?php echo xlt('Main counselors'); ?>:</span>
+                                                <span class="bold"><?php echo xlt('Main Counselors'); ?>:</span>
                                             </div>
                                             <div class="col-md-8 col-sm-7">
                                                 <select name="counselors[]" multiple class="full-width" <?php echo $readonly; ?>>

@@ -48,7 +48,7 @@ if ($GLOBALS['weno_rx_enable'] != 1) {
 
    $drugData = $tables->drugTableInfo();
 if (!$drugData['ndc']) {
-    echo "<a href='drugPaidInsert.php' class='btn btn-default'>".xlt("Import Formularies")."</a> <br>".xlt("Be patient this may take a while");
+    echo "<a href='drugPaidInsert.php' class='btn btn-default'>".xlt("Import Formularies")."</a> <br>".xlt("Be patient, this can take a while.");
 } else {
     print xlt("Formularies inserted into table")."<br>";
 }
