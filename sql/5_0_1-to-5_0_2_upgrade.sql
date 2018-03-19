@@ -93,7 +93,6 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('patient_file_menu', 'history', 'History',             30, 0, 0, '', NULL, '', 0, 0, 1, '', 1, '2018-03-15 06:41:39'),
 ('patient_file_menu', 'issues', 'Issues',               40, 0, 0, '', NULL, '', 0, 0, 1, '', 1, '2018-03-15 06:41:39'),
 ('patient_file_menu', 'ledger', 'Ledger',               50, 0, 0, '', NULL, '', 0, 0, 1, '', 1, '2018-03-15 06:41:39'),
-('patient_file_menu', 'publish', 'Publish',             60, 0, 0, '', NULL, '', 0, 0, 0, '', 1, '2018-03-15 06:41:39'),
 ('patient_file_menu', 'report', 'Report',               70, 0, 0, '', NULL, '', 0, 0, 1, '', 1, '2018-03-15 06:41:39'),
 ('patient_file_menu', 'transactions', 'Transactions',   80, 0, 0, '', NULL, '', 0, 0, 1, '', 1, '2018-03-15 06:41:39');
 #EndIf

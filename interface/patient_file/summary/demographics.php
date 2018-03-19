@@ -802,11 +802,11 @@ while ($row = sqlFetchArray($res)) {
             <?php echo xlt('External Data'); ?></a>
           <?php }?>
 
-          <?php if($patient_file_menu["publish"]=="1"){ ?>
+          <?php if ($GLOBALS['fhir_enable']) { ?>
               |
               <a href="" onclick='doPublish();return false;'>
-                <?php echo xlt('Publish'); ?></a>
-          <?php }?>
+                  <?php echo xlt('Publish'); ?></a>
+          <?php } ?>
 
 <!-- DISPLAYING HOOKS STARTS HERE -->
 <?php
