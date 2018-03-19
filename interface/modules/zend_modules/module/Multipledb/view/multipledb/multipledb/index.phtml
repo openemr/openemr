@@ -26,6 +26,8 @@
     endif;
     ?>
 </script>
+
+<title><?php echo xlt("Multiple DataBase"); ?></title>
 <a href="<?php echo $this->basePath() ?>/multipledb/edit"><input type="submit" value="<?php echo  $translate->z_xlt('Add new database') ?>"></a>
 <a href="<?php echo $this->basePath() ?>/multipledb/generatesafekey"><input type="submit" value="<?php echo  $translate->z_xlt('Generate safe key') ?>"></a>
 <table class="responstable">
@@ -87,4 +89,6 @@ html;
             window.location = href;
         }
     }
+    
 </script>
+
