@@ -88,6 +88,8 @@
         <delete dir="${dir.assets}/jszip-3-1-5/documentation" verbose="true"/>
         <delete dir="${dir.assets}/modernizr-3-5-0/test" verbose="true"/>
         <delete dir="${dir.assets}/numeral-1-5-3/tests" verbose="true"/>
+        <delete dir="${dir.assets}/qtip2-3-0-3/grunt" verbose="true"/>
+        <delete dir="${dir.assets}/qtip2-3-0-3/src" verbose="true"/>
         <delete dir="${dir.assets}/select2-4-0/docs" verbose="true"/>
         <delete dir="${dir.assets}/select2-4-0/tests" verbose="true"/>
         <delete dir="${dir.assets}/summernote-0-8-2/examples" verbose="true"/>
