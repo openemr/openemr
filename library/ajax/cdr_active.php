@@ -17,7 +17,7 @@ require_once("$srcdir/clinical_rules.php");
 // Set the session flag to show that notification was last done with this patient
 $_SESSION['alert_notify_pid'] = $pid;
 
-function forceArray ($objIn)
+function forceArray($objIn)
 {
     if (is_array($objIn)) {
         return $objIn;
