@@ -754,59 +754,55 @@ $res=sqlStatement("SELECT option_id,activity FROM list_options WHERE list_id='pa
 while ($row = sqlFetchArray($res)) {
     $patient_file_menu[$row['option_id']]=$row['activity'];
 }
+
+$mainMenuRole = "top_menu";
+$menu_path= $mainMenuRole . ".json";
+$menu_parsed =json_decode(file_get_contents($menu_path),true);
+if (!$menu_parsed) {
+    die("\nJSON ERROR: " . json_last_error());
+}
+
 ?>
 <table cellspacing='0' cellpadding='0' border='0' class="subnav">
   <tr>
       <td class="small" colspan='4'>
 
-          <?php if($patient_file_menu["history"]=="1"){ ?>
-          <a href="../history/history.php" onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('History'), ENT_NOQUOTES); ?></a>
-          |
-          <?php }?>
 
-          <?php if($patient_file_menu["report"]=="1"){ ?>
-            <?php //note that we have temporarily removed report screen from the modal view ?>
-          <a href="../report/patient_report.php" onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('Report'), ENT_NOQUOTES); ?></a>
-          |
-          <?php }?>
+          <?php
+          $link_valid=true;
 
-          <?php if($patient_file_menu["documents"]=="1"){ ?>
-            <?php //note that we have temporarily removed document screen from the modal view ?>
-          <a href="../../../controller.php?document&list&patient_id=<?php echo $pid;?>" onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('Documents'), ENT_NOQUOTES); ?></a>
-          |
-          <?php }?>
+          // Check if the first link is enabled by globals
+          if ($menu_parsed["0"]["global_controlled"]!="" && !$GLOBALS[$menu_parsed["0"]["global_controlled"]]){
+              $link_valid=false;
+          }
 
-          <?php if($patient_file_menu["transactions"]=="1"){ ?>
-          <a href="../transaction/transactions.php" onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('Transactions'), ENT_NOQUOTES); ?></a>
-          |
-          <?php }?>
+          foreach ($menu_parsed as $key=>$value){
 
-          <?php if($patient_file_menu["issues"]=="1"){ ?>
-          <a href="stats_full.php?active=all" onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('Issues'), ENT_NOQUOTES); ?></a>
-          |
-          <?php }?>
+              if ($link_valid){
+                  $link= ($value['pid']!="true")? $value['url'] : $value['url'].attr($pid);
+              ?>
+                  <a href="<?php echo $link ?>" onclick="<?php echo $value['on_click'] ?>">
+                      <?php echo htmlspecialchars(xl($value['label'] ), ENT_NOQUOTES); ?>
+                  </a>
+              <?php
+              }
+              // Check if the next link is enabled by globals
+              if ($menu_parsed[$key+1]["global_controlled"]!="" && !$GLOBALS[$menu_parsed[$key+1]["global_controlled"]]){
+                  $link_valid=false;
+              }
+              if ($link_valid){
+                echo "|";
+              }
 
-          <?php if($patient_file_menu["ledger"]=="1"){ ?>
-          <a href="../../reports/pat_ledger.php?form=1&patient_id=<?php echo attr($pid);?>" onclick='top.restoreSession()'>
-            <?php echo xlt('Ledger'); ?></a>
-          |
-          <?php }?>
+          }
 
-          <?php if($patient_file_menu["external_data"]=="1"){ ?>
-          <a href="../../reports/external_data.php" onclick='top.restoreSession()'>
-            <?php echo xlt('External Data'); ?></a>
-          <?php }?>
+          ?>
 
-          <?php if ($GLOBALS['fhir_enable']) { ?>
-              |
-              <a href="" onclick='doPublish();return false;'>
-                  <?php echo xlt('Publish'); ?></a>
-          <?php } ?>
+
+
+
+
+
 
 <!-- DISPLAYING HOOKS STARTS HERE -->
 <?php
