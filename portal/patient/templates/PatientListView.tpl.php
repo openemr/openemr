@@ -347,7 +347,7 @@ body{
                     </div>
                 </div>
                 <div class="form-group inline" id="referralSourceInputContainer">
-                    <label class="control-label" for="referralSource"><?php echo xlt('How Refered')?></label><br>
+                    <label class="control-label" for="referralSource"><?php echo xlt('How Referred')?></label><br>
                     <div class="controls inline-inputs">
                         <?php
                       # Generate drop down list for Referral Source
@@ -375,7 +375,7 @@ body{
                 <div class="form-group inline dynhide" id="guardiansnameInputContainer">
                     <label class="control-label" for="guardiansname"><?php echo xlt('Guardians Name')?></label>
                     <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="guardiansname" placeholder="<?php echo xla('Guardiansname'); ?>" value="<%= _.escape(item.get('guardiansname') || '') %>">
+                        <input type="text" class="form-control" id="guardiansname" placeholder="<?php echo xla('Guardians Name'); ?>" value="<%= _.escape(item.get('guardiansname') || '') %>">
                         <span class="help-inline"></span>
                     </div>
                 </div>
@@ -512,9 +512,9 @@ body{
                     </div>
                 </div>
                 <div class="form-group inline" id="migrantseasonalInputContainer">
-                    <label class="control-label" for="migrantseasonal"><?php //echo xlt('Migrantseasonal')?></label>
+                    <label class="control-label" for="migrantseasonal"><?php //echo xlt('Migrant Seasonal')?></label>
                     <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="migrantseasonal" placeholder="<?php //echo xla('Migrantseasonal')?>" value="<%= _.escape(item.get('migrantseasonal') || '') %>">
+                        <input type="text" class="form-control" id="migrantseasonal" placeholder="<?php //echo xla('Migrant Seasonal')?>" value="<%= _.escape(item.get('migrantseasonal') || '') %>">
                         <span class="help-inline"></span>
                     </div>
                 </div> -->

@@ -1,0 +1,106 @@
+{
+  "env": {
+    "node": true,
+    "browser": true,
+    "builtin": true
+  },
+  "globals": {
+    "jQuery": true,
+    "$": true,
+    "QTip": true,
+    "TRUE": true,
+    "FALSE": true,
+    "NULL": true,
+    "WIDTH": true,
+    "HEIGHT": true,
+    "TOP": true,
+    "LEFT": true,
+    "BOTTOM": true,
+    "RIGHT": true,
+    "X": true,
+    "Y": true,
+    "CENTER": true,
+    "FLIP": true,
+    "FLIPINVERT": true,
+    "SHIFT": true,
+    "QTIP": true,
+    "PROTOTYPE": true,
+    "CORNER": true,
+    "CHECKS": true,
+    "PLUGINS": true,
+    "NAMESPACE": true,
+    "ATTR_HAS": true,
+    "ATTR_ID": true,
+    "WIDGET": true,
+    "SELECTOR": true,
+    "INACTIVE_EVENTS": true,
+    "CLASS_FIXED": true,
+    "CLASS_DEFAULT": true,
+    "CLASS_FOCUS": true,
+    "CLASS_HOVER": true,
+    "CLASS_DISABLED": true,
+    "BROWSER": true,
+    "replaceSuffix": true,
+    "oldtitle": true,
+    "trackingBound": true,
+    "createWidgetClass": true,
+    "sanitizeOptions": true,
+    "cloneEvent": true
+  },
+  "rules": {
+    "block-scoped-var": 2,
+    "camelcase": 2,
+    "curly": [
+      2,
+      "all"
+    ],
+    "dot-notation": [
+      2,
+      {
+        "allowKeywords": true
+      }
+    ],
+    "eqeqeq": [
+      2,
+      "allow-null"
+    ],
+    "strict": [
+      2,
+      "never"
+    ],
+    "guard-for-in": 2,
+    "new-cap": 2,
+    "no-bitwise": 2,
+    "no-caller": 2,
+    "no-debugger": 2,
+    "no-empty": 2,
+    "no-eval": 2,
+    "no-extend-native": 2,
+    "no-extra-parens": 2,
+    "no-irregular-whitespace": 2,
+    "no-iterator": 2,
+    "no-loop-func": 2,
+    "no-multi-str": 2,
+    "no-new": 2,
+    "no-proto": 2,
+    "no-script-url": 2,
+    "no-sequences": 2,
+    "no-shadow": 2,
+    "no-undef": 2,
+    "no-unused-vars": 2,
+    "no-with": 2,
+    "quotes": [
+      2,
+      "single"
+    ],
+    "semi": [
+      0,
+      "never"
+    ],
+    "valid-typeof": 2,
+    "wrap-iife": [
+      2,
+      "inside"
+    ]
+  }
+}
