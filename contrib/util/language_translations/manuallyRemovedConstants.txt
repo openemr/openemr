@@ -9,4 +9,8 @@ tring)  Which with example
 cfirst($array_his_alcohol[0])); ?>' ></td>                 <td><?php echo $this->listenerObject->z_
 cfirst($this->listenerObject->z_
 heda
+rim($i
+rim($row['
+[Q<A5>L^G^O<B1><82>^U./ESC<89><B8>G^L<93>J^DESC-^^<C3>F^E^K^K<9E>K <B6><CC><D5><D6>J^?$%*B^V<D7>F^F^O^QE%<DF>F^K<D4><E8>M^@<ED><D5>^WD^N<F0>C ^L<CF>^K'D^Y<F5>B^R^W^BV<F0>G^P^<95>      ^D^Wd
+...
 
