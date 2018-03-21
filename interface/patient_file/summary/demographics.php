@@ -776,7 +776,6 @@ if (!$menu_parsed) {
             }
 
             foreach ($menu_parsed as $key => $value) {
-
                 if ($link_valid) {
                     $link = ($value['pid'] != "true") ? $value['url'] : $value['url'] . attr($pid);
                     ?>
@@ -798,7 +797,6 @@ if (!$menu_parsed) {
                 if ($link_valid) {
                     echo "|";
                 }
-
             }
 
             ?>
