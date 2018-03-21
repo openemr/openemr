@@ -4,11 +4,16 @@
 {php}$this->assign('GLOBALS', $GLOBALS);{/php}
 
 <link rel="stylesheet" href="{$GLOBALS.css_header}" type="text/css">
-
+<link href="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 {literal}
 {/literal}
 
 <script type="text/javascript" src="{$WEBROOT}/library/js/DocumentTreeMenu.js"></script>
+
+<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-min-1-11-1/index.js"></script>
+<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="library/dialog.js?v={$GLOBALS.v_js_includes}"></script>
+    <script type="text/javascript" src="library/textformat.js?v={$GLOBALS.v_js_includes}"></script>
 </head>
 <!--<body bgcolor="{$STYLE.BGCOLOR2}">-->
 
@@ -33,9 +38,50 @@
 		{/if}
 		{$activity}
 </div>
-<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-min-3-1-1/index.js"></script>
+{literal}
 <script type="text/javascript">
 $("#list_collapse").detach().appendTo("#objTreeMenu_1_node_1 nobr");
+
+// functions to view and pop out documents as needed.
+//
+$(function() {
+
+    $("img[id^='icon_objTreeMenu_']").tooltip({
+        items: $("img[src*='file3.png']"),
+        content: '{/literal}{xl t="Double Click on this icon to pop up document in a new viewer."|escape:"html"}{literal}'
+    });
+
+    $("img[id^='icon_objTreeMenu_']").on('dblclick', function (e) {
+        let popsrc = $(this).next("a").attr('href') || '';
+        let diview = $(this).next("a").text();
+        let dflg = false;
+        if (!popsrc.includes('&view&')) {
+            return false;
+        } else if (diview.toLowerCase().includes('.dcm') || diview.toLowerCase().includes('.zip')) {
+            popsrc = "{/literal}{$GLOBALS.webroot}{literal}/library/dicom_frame.php?web_path=" + popsrc;
+            dflg = true;
+        }
+        popsrc = popsrc.replace('&view&', '&retrieve&') + 'as_file=false';
+        let poContentModal = function () {
+            let wname = '_' + Math.random().toString(36).substr(2, 6);
+            let opt = "menubar=no,location=no,resizable=yes,scrollbars=yes,status=no";
+            window.open(popsrc, wname, opt);
+        };
+
+        let btnText = '{/literal}{xl t="Full Screen"|escape:"html"}{literal}';
+        let btnClose = '{/literal}{xl t="Close"|escape:"html"}{literal}';
+        let size = 950;
+        let sizeHeight = 'full';
+        if (dflg) {
+            size = 750;
+        }
+        dlgopen(popsrc,'_blank',size, 750, true);
+
+        return false;
+    });
+});
+
 </script>
+{/literal}
 </body>
 </html>

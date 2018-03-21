@@ -1,0 +1,234 @@
+{
+    "basics": {
+        "open": "Öffnen",
+        "close": "Schließen",
+        "help": "Hilfe",
+        "back": "Zurück",
+        "reset": "Zurücksetzen",
+        "apply": "Anwenden",
+        "name": "Name",
+        "value": "Wert",
+        "dicomTags": "DICOM-Tags",
+        "columns": "Spalten",
+        "group": "Gruppe",
+        "element": "Element",
+        "vr": "VR",
+        "vl": "VL",
+        "presets": "Voreinstellungen",
+        "toolbox": "Werkzeugkasten",
+        "history": "Geschichte",
+        "image": "Bild",
+        "info": "Info",
+        "downloadState": "Zustand herunterladen",
+        "drawList": "Annotations",
+        "search": "Search",
+        "id": "ID",
+        "slice": "Slice",
+        "frame": "Frame",
+        "type": "Type",
+        "color": "Color",
+        "label": "Label",
+        "description": "Description",
+        "editMode": "Edit Mode",
+        "deleteDraws": "Delete All",
+        "visible": "Visible"
+    },
+    "colour": {
+        "Yellow": {
+            "name": "Gelb"
+        },
+        "Red": {
+            "name": "Rot"
+        },
+        "White": {
+            "name": "Weiß"
+        },
+        "Green": {
+            "name": "Olivgrün"
+        },
+        "Blue": {
+            "name": "Blau"
+        },
+        "Lime": {
+            "name": "Lindgrün"
+        },
+        "Fuchsia": {
+            "name": "Magenta"
+        },
+        "Black": {
+            "name": "Schwarz"
+        }
+    },
+    "unit": {
+        "mm": "mm",
+        "cm2": "cm²",
+        "degree": "\u00B0"
+    },
+    "help": {
+        "intro": {
+            "p0": "DWV (DICOM Web Viewer) ist ein Open-Source-Betrachter für medizinische Bilddaten. Er basiert auf dem Zero-Footprint-Prinzip und nutzt nur JavaScript- und HTML5-Technologie, d.h. er ist auf allen Plattformen lauffähig, die einen modernen Browser bereitstellen (Laptops, Tablets, Mobiltelefone und sogar moderne Fernseher). Er kann sowohl lokale als auch in Cloud-Systemen gespeicherte DICOM-Dateien (das Standardformat für medizinische Bilddaten wie MRT, CT, Echografie, Mammografie,...) laden und enthält Standard-Tools für deren Verarbeitung, wie z.B. Kontrast, Zoom, Verschieben, Zeichnen von Regionen und Bildverarbeitungsfilter wie Schwellwertfilter und Schärfen.",
+            "p1": "Alle DICOM-Tags sind in einer durchsuchbaren Tabelle verfügbar. Klicken Sie dazu auf den \"Tags\"-Button mit dem Gittersymbol. Durch Klicken auf den Info-Button mit dem i-Symbol können Sie die Bildinformationen über dem Bild einblenden."
+        },
+        "tool_intro": "Die Werkzeuge legen die möglichen Benutzerinteraktionen fest. Es sind foldende Werkzeuge verfügbar:"
+    },
+    "tool": {
+        "WindowLevel": {
+            "name": "Fensterung",
+            "brief": "Verändert das Fenster der Grauwertskalierung.",
+            "mouse_drag": "Horizontales Ziehen mit der Maus verändert die Fenstergröße, vertikales Ziehen verschiebt das Fenster.",
+            "double_click": "Ein Doppelklick zentriert das Grauwertfenster über dem angeklickten Grauwert.",
+            "touch_drag": "Horizontales Ziehen mit dem Finger verändert die Fenstergröße, vertikales Ziehen verschiebt das Fenster."
+        },
+        "ZoomAndPan": {
+            "name": "Zoom/Verschieben",
+            "brief": "Mit dem Zoom/Verschieben-Werkzeug kann das Bild vergrößert, verkleinert und verschoben werden.",
+            "mouse_wheel": "Das Mausrad vergrößert oder verkleinert das Bild.",
+            "mouse_drag": "Ziehen mit der Maus verschiebt das Bild in die gewünschte Richtung.",
+            "twotouch_pinch": "Durch Auseinander- oder Zusammenbewegen zweier Finger auf dem Touchscreen kann das Bild vergrößert oder verkleinert werden.",
+            "touch_drag": "Ziehen mit dem Finger verschiebt das Bild in die gewünschte Richtung."
+        },
+        "Scroll": {
+            "name": "Scrollen",
+            "brief": "The scroll tool allows to scroll through slices/frames. ",
+            "double_click": "A double click launches a slice or frame play. A single click stops it.",
+            "tap_and_hold": "A tap and hold launches a slice or frame play. A single tap stops it.",
+            "mouse_drag": "Drag the mouse vertically to change the slice, horizontally to change the frame. Keyboard shortcuts: CTRL + up or down arrow to change slices, CTRL + left or right arrow to change frames.",
+            "touch_drag": "Drag your finger vertically to change the slice, horizontally to change the frame."
+        },
+        "Draw": {
+            "name": "Zeichnen",
+            "brief": "Ermöglicht das Zeichnen von Formen in das Bild. Wählen Sie Form und Farbe aus den Drop-Down-Menüs. Die Formen können nach ihrer Erstellung ausgewählt werden. Das Verschieben der dann erscheinenden formspezifischen Ankerpunkte erlaubt eine nachträgliche Bearbeitung. Wird eine Form auf das rote Kreuz gezogen, wird sie gelöscht. Alle Aktionen können rückgängige gemacht werden.",
+            "mouse_drag": "A single mouse drag draws the desired shape. For the protractor, click to start, draw the first ray to the vertex, wait half a second and draw the second ray.",
+            "touch_drag": "A single touch drag draws the desired shape. For the protractor, tap to start, draw the first ray to the vertex, wait half a second and draw the second ray."
+        },
+        "Filter": {
+            "name": "Filter",
+            "brief": "Es sind einige einfache Bildbearbeitungsfilter verfügbar: Ein Schwellwertfilter, um das Bild auf eine Region mit Grauwerten in einem vorgegebenen Fenster zu beschränken, ein Filter zum Schärfen und ein Sobel-Filter zum Berechnen eines Gradienten-Bildes."
+        },
+        "Livewire": {
+            "name": "Livewire",
+            "brief": "Das Livewire-Werkzeug ist ein halbautomatisches Segmentierungswerkzeug, das automatisch Grauwertkanten folgt. Erstmaliger Klick initialisiert die Segmentierungsgrenze. Danach kann das vorgeschlagene Segment durch Mausbewegung geändert werden. Nochmaliger Klick übernimmt das aktuell dargestellte Segment in die Gesamtlinie und startet ein neues Segment. Das Verfahren endet, sobald der erste Punkt nochmals angeklickt wird. ACHTUNG: Das Verfahren kann viel Zeit in Anspruch nehmen!"
+        },
+        "Floodfill": {
+            "name": "Floodfill",
+            "brief": "Das Floodfill-Werkzeug ist ein halbautomatisches Segmentierungswerkzeug, das eine Kontur um Flächen benachbarter Pixel ähnlichen Grauwerts erzeugt.",
+            "click": "Klick auf Pixel erzeut eine Kontur auf Basis des Grauwerts.
+Click on pixel to create a contour based on its intensity.",
+            "tap": "Tippen auf Pixel erzeut eine Kontur auf Basis des Grauwerts."
+        },
+        "info": {
+            "position": "Position = {{value}}",
+            "value": "Grauwert = {{value}}",
+            "frame": "Bild = {{value}}",
+            "window_center": "Fensterzentrum = {{value}}",
+            "window_width": "Fensterbreite = {{value}}"
+        }
+    },
+    "shape": {
+        "Line": {
+            "name": "Linie"
+        },
+        "Ruler": {
+            "name": "Ruler"
+        },
+        "Protractor": {
+            "name": "Winkelmesser"
+        },
+        "Rectangle": {
+            "name": "Rechteck"
+        },
+        "Roi": {
+            "name": "Freihandform"
+        },
+        "Ellipse": {
+            "name": "Ellipse"
+        },
+        "Arrow": {
+            "name": "Arrow"
+        },
+        "FreeHand": {
+            "name": "Free hand"
+        }
+    },
+    "io": {
+        "File": {
+            "name": "Datei"
+        },
+        "Url": {
+            "name": "URL"
+        },
+        "GoogleDrive": {
+            "name": "GoogleDrive",
+            "auth": {
+                "title": "Google Drive Autorisierung",
+                "body": "Bitte autorisieren Sie DWV, auf Ihr Google Drive zugreifen zu dürfen.\nDies ist nur bei der ersten Verwendung nötig.",
+                "button": "Autorisieren"
+            }
+        },
+        "Dropbox": {
+            "name": "Dropbox"
+        }
+    },
+    "filter": {
+        "Threshold": {
+            "name": "Schwellwert"
+        },
+        "Sharpen": {
+            "name": "Schärfen"
+        },
+        "Sobel": {
+            "name": "Sobel"
+        }
+    },
+    "colourmap": {
+        "plain": {
+            "name": "Schwarzweiß"
+        },
+        "invplain": {
+            "name": "Schwarzweiß invertiert"
+        },
+        "rainbow": {
+            "name": "Regenbogen"
+        },
+        "hot": {
+            "name": "Warm"
+        },
+        "hotiron": {
+            "name": "Heißes Eisen"
+        },
+        "pet": {
+            "name": "PET"
+        },
+        "hotmetalblue": {
+            "name": "Heißes Eisen weiß"
+        },
+        "pet20step": {
+            "name": "PET 20 Stufen"
+        }
+    },
+    "wl": {
+        "presets": {
+            "mediastinum": {
+                "name": "Mittelfellraum"
+            },
+            "lung": {
+                "name": "Lunge"
+            },
+            "bone": {
+                "name": "Knochen"
+            },
+            "brain": {
+                "name": "Gehirn"
+            },
+            "head": {
+                "name": "Kopf"
+            },
+            "manual": {
+                "name": "Manuell"
+            },
+            "minmax": {
+                "name": "Min/Max"
+            }
+        }
+    }
+}

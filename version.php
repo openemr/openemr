@@ -11,7 +11,7 @@ $v_tag   = ''; // minor revision number, should be empty for production releases
 // A real patch identifier. This is incremented when we release a patch for a
 // production release. Note the above $v_patch variable is a misnomer and actually
 // stores release version information.
-$v_realpatch = '7';
+$v_realpatch = '8';
 
 // Database version identifier, this is to be incremented whenever there
 // is a database change in the course of development.  It is used
@@ -35,7 +35,7 @@ $v_offsite_portal='1.47';
 // end with "?v=$v_js_includes".  Search the code for examples of doing this.
 // All this is to keep browsers from using an older cached version.
 // Need to assign it as a global below to work in template scripts.
-$v_js_includes = 21;
+$v_js_includes = 22;
 
 
 // Do note modify below
