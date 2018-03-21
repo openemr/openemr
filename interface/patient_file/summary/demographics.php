@@ -757,53 +757,52 @@ while ($row = sqlFetchArray($res)) {
 
 $mainMenuRole = "top_menu";
 $menu_path= $mainMenuRole . ".json";
-$menu_parsed =json_decode(file_get_contents($menu_path),true);
+$menu_parsed =json_decode(file_get_contents($menu_path), true);
 if (!$menu_parsed) {
     die("\nJSON ERROR: " . json_last_error());
 }
 
 ?>
 <table cellspacing='0' cellpadding='0' border='0' class="subnav">
-  <tr>
-      <td class="small" colspan='4'>
+    <tr>
+        <td class="small" colspan='4'>
 
+            <?php
+            $link_valid = true;
 
-          <?php
-          $link_valid=true;
+            // Check if the first link is enabled by globals
+            if ($menu_parsed["0"]["global_controlled"] != "" && !$GLOBALS[$menu_parsed["0"]["global_controlled"]]) {
+                $link_valid = false;
+            }
 
-          // Check if the first link is enabled by globals
-          if ($menu_parsed["0"]["global_controlled"]!="" && !$GLOBALS[$menu_parsed["0"]["global_controlled"]]){
-              $link_valid=false;
-          }
+            foreach ($menu_parsed as $key => $value) {
 
-          foreach ($menu_parsed as $key=>$value){
+                if ($link_valid) {
+                    $link = ($value['pid'] != "true") ? $value['url'] : $value['url'] . attr($pid);
+                    ?>
+                    <a href="<?php
+                    echo $link;
+                    ?>" onclick="<?php
+                    echo $value['on_click'];
+                    ?>">
+                        <?php
+                        echo htmlspecialchars(xl($value['label']), ENT_NOQUOTES);
+                        ?>
+                    </a>
+                    <?php
+                }
+                // Check if the next link is enabled by globals
+                if ($menu_parsed[$key + 1]["global_controlled"] != "" && !$GLOBALS[$menu_parsed[$key + 1]["global_controlled"]]) {
+                    $link_valid = false;
+                }
+                if ($link_valid) {
+                    echo "|";
+                }
 
-              if ($link_valid){
-                  $link= ($value['pid']!="true")? $value['url'] : $value['url'].attr($pid);
-              ?>
-                  <a href="<?php echo $link ?>" onclick="<?php echo $value['on_click'] ?>">
-                      <?php echo htmlspecialchars(xl($value['label'] ), ENT_NOQUOTES); ?>
-                  </a>
-              <?php
-              }
-              // Check if the next link is enabled by globals
-              if ($menu_parsed[$key+1]["global_controlled"]!="" && !$GLOBALS[$menu_parsed[$key+1]["global_controlled"]]){
-                  $link_valid=false;
-              }
-              if ($link_valid){
-                echo "|";
-              }
+            }
 
-          }
-
-          ?>
-
-
-
-
-
-
-
+            ?>
+            
 <!-- DISPLAYING HOOKS STARTS HERE -->
 <?php
     $module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh
