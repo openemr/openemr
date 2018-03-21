@@ -756,8 +756,8 @@ while ($row = sqlFetchArray($res)) {
 }
 
 $mainMenuRole = "top_menu";
-$menu_path= $mainMenuRole . ".json";
-$menu_parsed =json_decode(file_get_contents($menu_path), true);
+$menu_path = $mainMenuRole . ".json";
+$menu_parsed = json_decode(file_get_contents($menu_path), true);
 if (!$menu_parsed) {
     die("\nJSON ERROR: " . json_last_error());
 }
@@ -802,47 +802,47 @@ if (!$menu_parsed) {
             }
 
             ?>
-            
-<!-- DISPLAYING HOOKS STARTS HERE -->
-<?php
-    $module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh
+
+            <!-- DISPLAYING HOOKS STARTS HERE -->
+            <?php
+            $module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh
 					LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id
 					LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
 					WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='demographics' ORDER BY mod_id");
-    $DivId = 'mod_installer';
-    if (sqlNumRows($module_query)) {
-        $jid    = 0;
-        $modid  = '';
-        while ($modulerow = sqlFetchArray($module_query)) {
-            $DivId      = 'mod_'.$modulerow['mod_id'];
-            $new_category   = $modulerow['mod_ui_name'];
-            $modulePath     = "";
-            $added          = "";
-            if ($modulerow['type'] == 0) {
-                $modulePath     = $GLOBALS['customModDir'];
-                $added      = "";
-            } else {
-                $added      = "index";
-                $modulePath     = $GLOBALS['zendModDir'];
-            }
+            $DivId = 'mod_installer';
+            if (sqlNumRows($module_query)) {
+                $jid = 0;
+                $modid = '';
+                while ($modulerow = sqlFetchArray($module_query)) {
+                    $DivId = 'mod_' . $modulerow['mod_id'];
+                    $new_category = $modulerow['mod_ui_name'];
+                    $modulePath = "";
+                    $added = "";
+                    if ($modulerow['type'] == 0) {
+                        $modulePath = $GLOBALS['customModDir'];
+                        $added = "";
+                    } else {
+                        $added = "index";
+                        $modulePath = $GLOBALS['zendModDir'];
+                    }
 
-            if (!acl_check('admin', 'super') && !zh_acl_check($_SESSION['authUserID'], $modulerow['obj_name'])) {
-                continue;
-            }
+                    if (!acl_check('admin', 'super') && !zh_acl_check($_SESSION['authUserID'], $modulerow['obj_name'])) {
+                        continue;
+                    }
 
-            $relative_link  = "../../modules/".$modulePath."/".$modulerow['path'];
-            $nickname   = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';
-            $jid++;
-            $modid = $modulerow['mod_id'];
+                    $relative_link = "../../modules/" . $modulePath . "/" . $modulerow['path'];
+                    $nickname = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';
+                    $jid++;
+                    $modid = $modulerow['mod_id'];
+                    ?>
+                    |
+                    <a href="<?php echo $relative_link; ?>" onclick='top.restoreSession()'>
+                        <?php echo xlt($nickname); ?></a>
+                    <?php
+                }
+            }
             ?>
-            |
-            <a href="<?php echo $relative_link; ?>" onclick='top.restoreSession()'>
-            <?php echo xlt($nickname); ?></a>
-        <?php
-        }
-    }
-    ?>
-<!-- DISPLAYING HOOKS ENDS HERE -->
+            <!-- DISPLAYING HOOKS ENDS HERE -->
 
         </td>
     </tr>
