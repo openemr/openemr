@@ -1,30 +1,32 @@
 <?php
 /**
- * Generated DocBlock
+ * CAMOS view.php
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  markleeds <markleeds>
- * @author  fndtn357 <fndtn357@gmail.com>
- * @author  cornfeed <jdough823@gmail.com>
- * @author  cfapress <cfapress>
- * @author  Wakie87 <scott@npclinics.com.au>
- * @author  Robert Down <robertdown@live.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2009 markleeds <markleeds>
- * @copyright Copyright (c) 2012 fndtn357 <fndtn357@gmail.com>
- * @copyright Copyright (c) 2011 cornfeed <jdough823@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    markleeds <markleeds>
+ * @author    fndtn357 <fndtn357@gmail.com>
+ * @author    cornfeed <jdough823@gmail.com>
+ * @author    cfapress <cfapress>
+ * @author    Wakie87 <scott@npclinics.com.au>
+ * @author    Robert Down <robertdown@live.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2008 cfapress <cfapress>
+ * @copyright Copyright (c) 2009 markleeds <markleeds>
+ * @copyright Copyright (c) 2011 cornfeed <jdough823@gmail.com>
+ * @copyright Copyright (c) 2012 fndtn357 <fndtn357@gmail.com>
  * @copyright Copyright (c) 2016 Wakie87 <scott@npclinics.com.au>
+ * @copyright Copyright (c) 2016-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
- * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+
 ?>
 <!-- view.php -->
 <?php
-include_once("../../globals.php");
-include_once("../../../library/api.inc");
+require_once("../../globals.php");
+require_once("../../../library/api.inc");
 formHeader("Form: CAMOS");
 $textarea_rows = 22;
 $textarea_cols = 90;
@@ -71,7 +73,7 @@ function show_edit(t) {
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 <body class="body_top">
-<form method=post action="<?php echo $rootdir?>/forms/CAMOS/save.php?mode=delete&id=<?php echo $_GET["id"];?>" name="my_form">
+<form method=post action="<?php echo $rootdir?>/forms/CAMOS/save.php?mode=delete&id=<?php echo attr($_GET["id"]); ?>" name="my_form">
 <h1> <?php xl('CAMOS', 'e'); ?> </h1>
 <input type="submit" name="delete" value="<?php xl('Delete Selected Items', 'e'); ?>" />
 <input type="submit" name="update" value="<?php xl('Update Selected Items', 'e'); ?>" />

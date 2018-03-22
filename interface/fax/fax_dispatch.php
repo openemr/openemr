@@ -7,9 +7,10 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2006-2010 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -22,13 +23,17 @@ if ($_GET['file']) {
     $mode = 'fax';
     $filename = $_GET['file'];
 
-  // ensure the file variable has no illegal characters
+    // ensure the file variable has no illegal characters
     check_file_dir_name($filename);
 
     $filepath = $GLOBALS['hylafax_basedir'] . '/recvq/' . $filename;
 } else if ($_GET['scan']) {
     $mode = 'scan';
     $filename = $_GET['scan'];
+
+    // ensure the file variable has no illegal characters
+    check_file_dir_name($filename);
+
     $filepath = $GLOBALS['scanner_output_directory'] . '/' . $filename;
 } else {
     die("No filename was given.");
