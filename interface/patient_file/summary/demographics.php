@@ -355,9 +355,7 @@ $(document).ready(function(){
     $("#disclosures_ps_expand").load("disc_fragment.php");
 
     <?php if ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw']) { ?>
-      ajaxLoad("#clinical_reminders_ps_expand", "clinical_reminders_fragment.php", { 'embeddedScreen' : true }, function() {
-          // Additional actions related to clinical reminders
-      });
+      ajaxLoad("#clinical_reminders_ps_expand", "clinical_reminders_fragment.php");
     <?php } // end crw?>
 
     <?php if ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_prw']) { ?>
@@ -521,7 +519,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
     });
 
     <?php }
-} ?>
+    } ?>
 
 });
 
@@ -583,7 +581,7 @@ $(window).on('load', function() {
 
 </script>
 
-<style type="css/text">
+<style type="text/css">
 
 #pnotes_ps_expand {
   height:auto;
@@ -612,11 +610,9 @@ if (!empty($grparr['']['grp_size'])) {
 }
 <?php } ?>
 
-/* qTip2 seems to ignore these settings suggested in documentation */
-.qtip-custom, .ui-tooltip, .qtip{
-    max-width: 600px;
-    min-width: 600px;
-    width: 600px;
+/* qTip2 seems to ignore width setting suggested in documentation without this */
+.qtip-custom {
+    max-width: none !important;
 }
 </style>
 
@@ -1997,8 +1993,10 @@ function ajaxLoad(jqSel, datSrc, objArgs, fnCallback) {
     ajaxCalls++;
     top.restoreSession();
     $(jqSel).load(datSrc, objArgs, function() {
-        fnCallback;
         ajaxCalls--;
+        if (typeof fnCallback === "function") {
+            fnCallback;
+        }
         showPtAlerts();
     });
 }
@@ -2006,6 +2004,7 @@ function ajaxLoad(jqSel, datSrc, objArgs, fnCallback) {
 var intAlerts = 0;
 var objAlerts = {}
 var ajaxCalls = 0;
+var alertsAPI;
 //Setup an alert by providing two objects with minimum property as 
 //Category - id, txt
 //Alert - seq(numeric), txt
@@ -2054,27 +2053,34 @@ function listPtAlerts() {
         htmReturn += '</td></tr>';
     }
     if (intAlerts > 0) {
-        htmReturn = '<small><table class="table table-condensed table-striped table-sm">'+htmReturn+'</table></small>';
+        htmReturn = '<small><table class="table table-condensed table-striped">'+htmReturn+'</table></small>';
+    } else {
+        htmReturn = '<?php echo xlt('None') ?>';
     }
     return htmReturn;
 }
 function showPtAlerts() {
-    if ((ajaxCalls == 0) && (intAlerts > 0)) {
-        $("#pt-alerts").qtip().show();
-    }
+    setTimeout(function() {
+        // console.log ("Show alerts "+ajaxCalls+" / "+intAlerts+" "+((ajaxCalls == 0) && (intAlerts > 0)));
+        if ((ajaxCalls == 0) && (intAlerts > 0)) {
+            $("#pt-alerts").qtip().show();
+        }
+    }, 3000);
 }
-<?php //Create the tooltips with all alerts
+<?php 
+//Create the tooltips with all alerts
 foreach ($localAlerts as $aCat => $aMsgList) {
     foreach ($aMsgList as $aMsg) {
         printf('addPtAlert("%s","%s");%s', $aCat, $aMsg, "\n");
     }
+    echo 'showPtAlerts();\n';
 }
 ?>
 $(document).ready(function() {
     $("#pt-alerts").qtip({
         content: {
             text: listPtAlerts,
-            title: '<img src="../../pic/empty.gif" height="10" width="600"><div style="width:600px;"><strong><?php echo xlt('Alerts').'/'.xlt('Reminders') ?></strong></div>',
+            title: '<strong><?php echo xlt('Alerts').' / '.xlt('Reminders') ?></strong>',
             button: '<?php echo xlt('Close')?>'
         },
         hide: {
@@ -2082,8 +2088,10 @@ $(document).ready(function() {
         },
         style: {
             classes: 'qtip-bootstrap qtip-custom',
+            width: 600,
         }
     });
+    alertsAPI = $("#pt-alerts").qtip('api');
     showPtAlerts();
 });
 </script>
