@@ -977,18 +977,24 @@ if (empty($collectthis)) {
     }
 
  // If we have a patient ID, get the name and phone numbers to display.
-    if ($patientid) {
-        $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB " .
-         "FROM patient_data WHERE pid = ?", array($patientid));
-        $patientname = $prow['lname'] . ", " . $prow['fname'];
-        if ($prow['phone_home']) {
-            $patienttitle['phone_home'] = xl("Home Phone").": " . $prow['phone_home'];
-        }
-
-        if ($prow['phone_biz']) {
-            $patienttitle['phone_biz'] = xl("Work Phone").": " . $prow['phone_biz'];
-        }
+ //dh-3-23-2018 added patient_type to SQL and set the $default_cat_id to the one in patient_data table
+ if ($patientid) {
+    $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB, patient_type " .
+     "FROM patient_data WHERE pid = ?", array($patientid));
+    $patientname = $prow['lname'] . ", " . $prow['fname'];
+    //dh adding this section
+    $arow = sqlQuery("Select pc_cat_id from openemr_postcalendar_categories where" .
+    "pc_constant_id = ?", array($prow['patient_type']);
+    $default_cat_id = $arow['patient_type'];
+    //dh
+    if ($prow['phone_home']) {
+        $patienttitle['phone_home'] = xl("Home Phone").": " . $prow['phone_home'];
     }
+
+    if ($prow['phone_biz']) {
+        $patienttitle['phone_biz'] = xl("Work Phone").": " . $prow['phone_biz'];
+    }
+}
 
  // If we have a group id, get group data
     if ($groupid) {
