@@ -984,7 +984,7 @@ if (empty($collectthis)) {
     $patientname = $prow['lname'] . ", " . $prow['fname'];
     //dh adding this section
     $arow = sqlQuery("Select pc_cat_id from openemr_postcalendar_categories where" .
-    "pc_constant_id = ?", array($prow['patient_type']);
+    "pc_constant_id = ?", array($prow['patient_type']));
     $default_cat_id = $arow['patient_type'];
     //dh
     if ($prow['phone_home']) {
