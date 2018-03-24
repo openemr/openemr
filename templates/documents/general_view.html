@@ -338,7 +338,7 @@ function ImgProcedure() {literal}{{/literal}
 			 $file->get_mimetype() eq "application/pdf" }
 			<iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{$web_path|escape:'html'}as_file=false"></iframe>
             {elseif $file->get_mimetype() eq "application/dicom" or $file->get_mimetype() eq "application/dicom+zip"}
-            <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{php}echo $GLOBALS[webroot]{/php}/library/dicom_frame.php?web_path={$web_path|escape:'html'}as_file=false"></iframe>
+            <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{$webroot}/library/dicom_frame.php?web_path={$web_path|escape:'html'}as_file=false"></iframe>
             {elseif $file->get_ccr_type($file->get_id()) ne "CCR" and $file->get_ccr_type($file->get_id()) ne "CCD"}
             <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{$web_path|escape:'html'}as_file=true"></iframe>
 			{/if}
