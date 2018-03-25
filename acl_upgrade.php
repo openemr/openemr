@@ -96,6 +96,7 @@
 *       ADD  rx          Prescriptions             (Physicians,Clinicians(addonly))
 *       ADD  amendment   Amendments                (Physicians,Clinicians(addonly))
 *       ADD  lab         Lab Results               (Physicians,Clinicians(addonly))
+*       ADD  docs_rm     Documents deleting        (Administrators)
 *     Section "admin" (Administration):
 *       ADD  multipledb  Multipledb                (Administrators)
 *       ADD  menu        Menu                      (Administrators)
@@ -671,7 +672,7 @@ if ($acl_version < $upgrade_acl) {
 
     //Add new object Sections
     echo "<BR/><B>Adding new object sections</B><BR/>";
-    addObjectAcl('patients', 'Patients', 'rmdocs', 'Documents deleting');
+    addObjectAcl('patients', 'Patients', 'docs_rm', 'Documents deleting');
 
     //Add new Objects
     echo "<BR/><B>Adding new objects</B><BR/>";
@@ -682,8 +683,8 @@ if ($acl_version < $upgrade_acl) {
     //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
     // (will also place in the appropriate group and CREATE a new group if needed)
     echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
-    updateAcl($admin_write, 'Administrators', 'patients', 'Patients', 'rmdocs', 'Documents deleting', 'write');
-    updateAcl($emergency_write, 'Emergency Login', 'patients', 'Patients', 'rmdocs', 'Documents deleting', 'write');
+    updateAcl($admin_write, 'Administrators', 'patients', 'Patients', 'docs_rm', 'Documents deleting', 'write');
+    updateAcl($emergency_write, 'Emergency Login', 'patients', 'Patients', 'docs_rm', 'Documents deleting', 'write');
 
 
     //Update the ACLs
