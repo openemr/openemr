@@ -171,7 +171,7 @@ $gacl->add_object('patients', 'Transactions (write optional)', 'trans', 10, 0, '
 $gacl->add_object('patients', 'Documents (write,addonly optional)', 'docs', 10, 0, 'ACO');
 // xl('Documents (write,addonly optional)')
 $gacl->add_object('patients', 'Documents Delete', 'docs_rm', 10, 0, 'ACO');
-// xl('Documents deleting')
+// xl('Documents Delete')
 $gacl->add_object('patients', 'Patient Notes (write,addonly optional)', 'notes', 10, 0, 'ACO');
 // xl('Patient Notes (write,addonly optional)')
 $gacl->add_object('patients', 'Sign Lab Results (write,addonly optional)', 'sign', 10, 0, 'ACO');
