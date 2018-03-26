@@ -49,7 +49,16 @@ if ($_POST['saveCALLback'] == "Save") {
                 (?,?,?,'NOTES','CALLED',?)";
     sqlQuery($sqlINSERT, array($_POST['pc_eid'], $_POST['pc_pid'], $_POST['campaign_uid'], $_POST['txtCALLback']));
 }
-$from_date = !is_null($_REQUEST['form_from_date']) ? DateToYYYYMMDD($_REQUEST['form_from_date']) : date('Y-m-d');
+// dh changing this next line to default to the monday of the current week
+// $from_date = !is_null($_REQUEST['form_from_date']) ? DateToYYYYMMDD($_REQUEST['form_from_date']) : date('Y-m-d');
+
+if (!is_null($_REQUEST['form_from_date'])){
+    DateToYYYYMMDD($_REQUEST['form_from_date'])
+} elseif (date('w') ==1) {
+    date('Y-m-d')
+} else {
+    date('Y-m-d', strtotime('previous monday'));
+}
 
 
 if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
