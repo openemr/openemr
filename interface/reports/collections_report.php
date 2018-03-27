@@ -679,6 +679,9 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       "p.fname, p.mname, p.lname, p.street, p.city, p.state, " .
       "p.postal_code, p.phone_home, p.ss, p.billing_note, " .
       "p.pubpid, p.DOB, CONCAT(u.lname, ', ', u.fname) AS referrer, " .
+      "( SELECT bill_date FROM billing AS b WHERE " .
+      "b.pid = f.pid AND b.encounter = f.encounter AND " .
+      "b.activity = 1 AND b.code_type != 'COPAY' LIMIT 1) AS billdate, " .
       "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
       "b.pid = f.pid AND b.encounter = f.encounter AND " .
       "b.activity = 1 AND b.code_type != 'COPAY' ) AS charges, " .
@@ -737,6 +740,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
         if (! $duncount) {
             for ($i = 1; $i <= 3; ++$i) {
                 $tmp = arGetPayerID($patient_id, $svcdate, $i);
+
                 if (empty($tmp)) {
                     break;
                 }
@@ -789,6 +793,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
         $row['referrer']  = $erow['referrer'];
         $row['provider']  = $erow['provider_id'];
         $row['irnumber']  = $erow['invoice_refno'];
+        $row['billdate']  = $erow['billdate'];  // use this for ins_due claim age date
 
       // Also get the primary insurance company name whenever there is one.
         $row['ins1'] = '';
@@ -854,6 +859,11 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
             $row['billing_errmsg'] = 'Ins1 seems not done';
         }
 
+        // Calculate claim age date for due ins
+        if ($is_due_ins) {
+            $ladate = $row['billdate'];
+        }
+
         $row['ladate'] = $ladate;
 
       // Compute number of days since last activity.
@@ -865,7 +875,12 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
             substr($ladate, 8, 2),
             substr($ladate, 0, 4)
         );
-        $row['inactive_days'] = floor((time() - $latime) / (60 * 60 * 24));
+
+        if ($ladate == '') {
+            $row['inactive_days'] = "n/a";
+        } else {
+            $row['inactive_days'] = floor((time() - $latime) / (60 * 60 * 24));
+        }
 
       // Look up insurance policy number if we need it.
         if ($form_cb_policy) {
