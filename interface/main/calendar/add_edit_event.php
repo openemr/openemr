@@ -978,12 +978,13 @@ if (empty($collectthis)) {
 
  // If we have a patient ID, get the name and phone numbers to display.
  //dh-3-23-2018 added patient_type to SQL and set the $default_cat_id to the one in patient_data table
+ //need error checking added for case where patient_type doesnt exist in patient_data
  if ($patientid) {
     $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB, patient_type " .
      "FROM patient_data WHERE pid = ?", array($patientid));
     $patientname = $prow['lname'] . ", " . $prow['fname'];
     //dh adding this section
-    $arow = sqlQuery("Select pc_cat_id from openemr_postcalendar_categories where" .
+    $arow = sqlQuery("Select pc_cat_id from openemr_postcalendar_categories where " .
     "pc_constant_id = ?", array($prow['patient_type']));
     $default_cat_id = $arow['patient_type'];
     //dh
