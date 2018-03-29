@@ -84,7 +84,7 @@ switch ($_POST['action']) {
 		$system_info = get_system_info();
 
 		//Read credits.
-		$smarty->assign("credits", htmlentities( implode('',file('../CREDITS')) ));
+		$smarty->assign("credits", implode('',file('../CREDITS')) );
 
 		$smarty->assign("system_info", $system_info);
 		$smarty->assign("system_info_md5", md5($system_info) );
