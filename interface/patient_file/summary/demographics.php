@@ -24,9 +24,11 @@ require_once("$srcdir/clinical_rules.php");
 require_once("$srcdir/options.js.php");
 require_once("$srcdir/group.inc");
 require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
+require_once($GLOBALS['fileroot'] . "/interface/main/tabs/menu/menu_updates.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Reminder\BirthdayReminder;
+use OpenEMR\Menu\PatientMenuRole;
 
 if (isset($_GET['set_pid'])) {
     include_once("$srcdir/pid.inc");
@@ -755,12 +757,24 @@ while ($row = sqlFetchArray($res)) {
     $patient_file_menu[$row['option_id']]=$row['activity'];
 }
 
-$mainMenuRole = "top_menu";
-$menu_path = $mainMenuRole . ".json";
-$menu_parsed = json_decode(file_get_contents($menu_path), true);
+// Use a json file to build menu
+// Collect the selected menu of user
+$patientMenuRole = PatientMenuRole::getPatientMenuRole();
+// Load the selected menu
+if (preg_match("/.json$/", $patientMenuRole)) {
+    // load custom menu (includes .json in id)
+    $menu_parsed = json_decode(file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/custom_menus/patient/menus/" . $patientMenuRole));
+} else {
+    // load a standardized menu (does not include .json in id)
+    $menu_parsed = json_decode(file_get_contents($GLOBALS['fileroot'] . "/interface/main/tabs/menu/menus/patient_menus/" . $patientMenuRole . ".json"),true);
+}
+// if error, then die and report error
 if (!$menu_parsed) {
     die("\nJSON ERROR: " . json_last_error());
 }
+menu_update_entries($menu_parsed);
+$menu_restrictions=array();
+//menu_apply_restrictions($menu_parsed, $menu_restrictions, $menu_type);
 
 ?>
 <table cellspacing='0' cellpadding='0' border='0' class="subnav">
