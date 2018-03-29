@@ -6,7 +6,7 @@ $host	= 'localhost';
 $port	= '3306';
 $login	= 'openemr';
 $pass	= 'openemr';
-$dbase	= 'openemr33';
+$dbase	= 'openemr';
 
 //Added ability to disable
 //utf8 encoding - bm 05-2009
@@ -24,8 +24,8 @@ $sqlconf["dbase"] = $dbase;
 //////////////////////////
 //////////////////////////
 //////DO NOT TOUCH THIS///
-$config = 1; /////////////
+$config = 0; /////////////
 //////////////////////////
 //////////////////////////
 //////////////////////////
-?>
+
