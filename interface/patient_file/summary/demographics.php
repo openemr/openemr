@@ -766,7 +766,7 @@ if (preg_match("/.json$/", $patientMenuRole)) {
     $menu_parsed = json_decode(file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/custom_menus/patient/menus/" . $patientMenuRole));
 } else {
     // load a standardized menu (does not include .json in id)
-    $menu_parsed = json_decode(file_get_contents($GLOBALS['fileroot'] . "/interface/main/tabs/menu/menus/patient_menus/" . $patientMenuRole . ".json"),true);
+    $menu_parsed = json_decode(file_get_contents($GLOBALS['fileroot'] . "/interface/main/tabs/menu/menus/patient_menus/" . $patientMenuRole . ".json"), true);
 }
 // if error, then die and report error
 if (!$menu_parsed) {
