@@ -121,7 +121,7 @@ if (!empty($_REQUEST['go'])) { ?>
     //original message.php stuff
     ?>
     <div class="container">
-        <?php $logged_in = true; if ($GLOBALS['disable_rcb'] != '1' || $logged_in) { ?>
+        <?php if ($GLOBALS['disable_rcb'] != '1' || $logged_in) { ?>
         <div class="row">
             <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
             <div class="col-sm-6 col-md-6 col-lg-6">
