@@ -121,7 +121,7 @@ if (!empty($_REQUEST['go'])) { ?>
     //original message.php stuff
     ?>
     <div class="container">
-        <?php if ($GLOBALS['disable_rcb'] != '1' || $logged_in) { ?>
+        <?php $logged_in = true; if ($GLOBALS['disable_rcb'] != '1' || $logged_in) { ?>
         <div class="row">
             <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
             <div class="col-sm-6 col-md-6 col-lg-6">
@@ -137,8 +137,8 @@ if (!empty($_REQUEST['go'])) { ?>
                 </div>
             </div>
             <?php
-            }
-            if ($logged_in) { ?>
+}
+if ($logged_in) { ?>
                 <div class="col-sm-4 col-md-4 col-lg-4">
                     <span class="title"><?php echo xlt('SMS Zone'); ?></span>
                     <br/><br/>
@@ -155,7 +155,7 @@ if (!empty($_REQUEST['go'])) { ?>
                 </div>
 
                 <?php
-            } ?>
+} ?>
         </div>
         <hr/>
         <?php } ?>
