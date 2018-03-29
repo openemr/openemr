@@ -59,9 +59,9 @@
 				<b>All information will be kept private, will not be sold, and will only be used for informational purposes regarding phpGACL.</b>
 				<br /><br />
     		<form method="post" name="about" action="about.php" align="center">
-				<textarea name="system_information" rows="10" cols="60" wrap="VIRTUAL">{$system_info}</textarea>
+				<textarea name="system_information" rows="10" cols="60" wrap="VIRTUAL">{$system_info|escape:'html'}</textarea>
 				<br />
-				<input type="hidden" name="system_info_md5" value="{$system_info_md5}" />
+				<input type="hidden" name="system_info_md5" value="{$system_info_md5|escape:'html'}" />
 				<input type="submit" name="action" value="Submit" />
 				</form>
 			</td>
@@ -75,7 +75,7 @@
           <tr>
 			<td>
 <pre>
-{$credits}
+{$credits|escape:'html'}
 </pre>
 			</td>
           </tr>
