@@ -12,7 +12,7 @@
  */
 
 $special_timeout = 3600;
-include_once("../../globals.php");
+require_once("../../globals.php");
 
 $formname = $_GET["formname"];
 $is_lbf = substr($formname, 0, 3) === 'LBF';
@@ -50,7 +50,7 @@ if ($is_lbf) {
 <style>
   .currentvalues { display: none;}
   .valuesunfocus { display: none;}
-  .editonly      { display: none;}
+  .editonly      { display: none !important;}
 
   .graph {color:#0000cc;}
 
