@@ -52,10 +52,9 @@ if ($_POST['saveCALLback'] == "Save") {
 // dh changing this next line to default to the monday of the current week
 // $from_date = !is_null($_REQUEST['form_from_date']) ? DateToYYYYMMDD($_REQUEST['form_from_date']) : date('Y-m-d');
 
-
-if (!is_null($_REQUEST['form_from_date'])){
-    $from_date = DateToYYYYMMDD($_REQUEST['form_from_date']);
-    
+ 
+if (!is_null($_REQUEST['form_from_date'])) {
+    $from_date = DateToYYYYMMDD($_REQUEST['form_from_date']);    
 } elseif (date('w') ==1) {
     $from_date = date('Y-m-d', strtotime('previous monday'));
 } else {
