@@ -121,8 +121,46 @@ if (!empty($_REQUEST['go'])) { ?>
     //original message.php stuff
     ?>
     <div class="container">
+        <?php if ($GLOBALS['disable_rcb'] != '1' || $logged_in) { ?>
         <div class="row">
-            <div class="col-sm-4 text-left col-offset-sm-2">
+            <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
+            <div class="col-sm-6 col-md-6 col-lg-6">
+                <div class="dr_container">
+                    <span class="title"><?php echo xlt('Recalls'); ?></span>
+                    <br/><br/>
+                    <a class="btn btn-primary"
+                       onclick="goReminderRecall('addRecall');"><span><?php echo xlt('New Recall'); ?></span></a>
+                    &nbsp;
+                    <a class="btn btn-primary"
+                       onclick="goReminderRecall('Recalls');"><span><?php echo xlt('Recall Board'); ?></span></a>
+                    &nbsp;
+                </div>
+            </div>
+            <?php
+            }
+            if ($logged_in) { ?>
+                <div class="col-sm-4 col-md-4 col-lg-4">
+                    <span class="title"><?php echo xlt('SMS Zone'); ?></span>
+                    <br/><br/>
+
+                    <form id="smsForm" class="input-group">
+                        <input id="SMS_patient" type="text" style="margin:0;max-width:100%;" class="form-control"
+                               placeholder="<?php echo xla("Patient Name"); ?>" />
+                        <span class="input-group-addon" onclick="SMS_direct();"><i
+                                    class="glyphicon glyphicon-phone"></i></span>
+                        <input type="hidden" id="sms_pid">
+                        <input type="hidden" id="sms_mobile" value="">
+                        <input type="hidden" id="sms_allow" value="">
+                    </form>
+                </div>
+
+                <?php
+            } ?>
+        </div>
+        <hr/>
+        <?php } ?>
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-12">
                 <div>
                     <span class="title"><?php echo xlt('Messages'); ?></span><br /><br />
                     <?php
@@ -132,46 +170,9 @@ if (!empty($_REQUEST['go'])) { ?>
                     ?>
                 </div>
             </div>
-            <div class="col-sm-4 text-center">
-                <?php
-                if ($GLOBALS['disable_rcb'] != '1') { ?>
-                    <div class="dr_container">
-                        <span class="title"><?php echo xlt('Recalls'); ?></span>
-                        <br/><br/>
-                        <a class="btn btn-primary"
-                           onclick="goReminderRecall('addRecall');"><span><?php echo xlt('New Recall'); ?></span></a>
-                        &nbsp;
-                        <a class="btn btn-primary"
-                           onclick="goReminderRecall('Recalls');"><span><?php echo xlt('Recall Board'); ?></span></a>
-                        &nbsp;
-                    </div>
-                    <?php
-                } ?>
-            </div>
-            <div class="col-sm-3 text-center">
-                <?php
-                if ($logged_in) { ?>
-                    <div class="">
-                        <span class="title"><?php echo xlt('SMS Zone'); ?></span>
-                        <br/><br/>
-
-                        <form id="smsForm" class="input-group">
-                            <input id="SMS_patient" type="text" style="margin:0;max-width:100%;" class="form-control"
-                                   placeholder="<?php echo xla("Patient Name"); ?>" />
-                            <span class="input-group-addon" onclick="SMS_direct();"><i
-                                        class="glyphicon glyphicon-phone"></i></span>
-                            <input type="hidden" id="sms_pid">
-                            <input type="hidden" id="sms_mobile" value="">
-                            <input type="hidden" id="sms_allow" value="">
-                        </form>
-                    </div>
-
-                    <?php
-                } ?>
-            </div>
         </div>
         <div class="row">
-            <div class="col-sm-10 text-center col-offset-sm-2">
+            <div class="col-sm-12 col-md-12 text-center">
                 <hr/>
                 <?php
                 // Check to see if the user has Admin rights, and if so, allow access to See All.
@@ -330,7 +331,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         <input type=hidden name=noteid id=noteid value='" . attr($noteid) . "'>
                         <input type=hidden name=task id=task value=add>";
                 ?><br/>
-                <div id="pnotes" class="col-sm-8 col-offset-4 form-inline text-center">
+                <div id="pnotes" class="form-inline text-center">
                     <table border='0' cellspacing='8'>
                         <tr>
                             <td class='text form-group'>
