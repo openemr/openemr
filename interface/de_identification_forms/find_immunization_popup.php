@@ -1,21 +1,17 @@
 <?php
-/********************************************************************************\
- * Copyright (C) ViCarePlus, Visolve (vicareplus_engg@visolve.com)              *
- *                                                                              *
- * This program is free software; you can redistribute it and/or                *
- * modify it under the terms of the GNU General Public License                  *
- * as published by the Free Software Foundation; either version 2               *
- * of the License, or (at your option) any later version.                       *
- *                                                                              *
- * This program is distributed in the hope that it will be useful,              *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of               *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                *
- * GNU General Public License for more details.                                 *
- *                                                                              *
- * You should have received a copy of the GNU General Public License            *
- * along with this program; if not, write to the Free Software                  *
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
- \********************************************************************************/
+/**
+ * find_immunization_popup.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Visolve <vicareplus_engg@visolve.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) ViCarePlus, Visolve <vicareplus_engg@visolve.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("../../custom/code_types.inc.php");
@@ -35,14 +31,14 @@ td { font-size:10pt; }
 <script language="JavaScript">
 //pass value selected to the parent window
  function window_submit(chk)
- { 
+ {
   var str;
   var len=chk.length;
-  if (len==undefined && chk.checked==1) 
+  if (len==undefined && chk.checked==1)
   {
     if(!str)
       str = chk.value;
-    else  
+    else
     str = "#"+chk.value;
   }
   else
@@ -53,7 +49,7 @@ td { font-size:10pt; }
     {
      if(!str)
       str = chk[pr].value;
-     else 
+     else
       str = str+"#"+chk[pr].value;
     }
    }
@@ -64,16 +60,16 @@ td { font-size:10pt; }
    alert("<?php echo xl('The destination form was closed');?>");
   else
    opener.set_related(str,"immunizations");
-   
+
   window.close();
-  
+
  }
- 
+
 function window_close(chk)
 {
  window.close();
 }
- 
+
 function chkbox_select_none(chk)
 {
  var len=chk.length;
@@ -110,7 +106,7 @@ function check_search_str()
  }
  top.restoreSession();
  return true;
-}   
+}
 </script>
 </head>
 <body class="body_top">
@@ -125,10 +121,10 @@ function check_search_str()
   <td>
    <b>
     <?php xl('Search for', 'e'); ?>
-   <input type='text' name='search_term' id='search_term' size='12' value='<?php echo $_REQUEST['search_term']; ?>'
+   <input type='text' name='search_term' id='search_term' size='12' value='<?php echo attr($_REQUEST['search_term']); ?>'
     title='<?php xl('Any part of the immunization id or immunization name', 'e'); ?>' />
    &nbsp;
-   <input type='submit' name='bn_search' value='<?php xl('Search', 'e'); ?>' />  
+   <input type='submit' name='bn_search' value='<?php xl('Search', 'e'); ?>' />
    </b>
   </td>
  </tr>
@@ -143,7 +139,7 @@ function check_search_str()
 <?php if ($_REQUEST['bn_search']) { ?>
 <table border='0'>
  <tr>
-  <td colspan="4">  
+  <td colspan="4">
 <?php
   $search_term = $_REQUEST['search_term'];
   {
@@ -160,7 +156,7 @@ if ($row = sqlFetchArray($res)) {
         echo xl('Please enter new search string');?>");
      document.theform.search_term.value=" ";
      document.theform.search_term.focus();
-     </script>    
+     </script>
         <?php
     }
 
@@ -185,13 +181,13 @@ if ($row = sqlFetchArray($res)) {
  </table>
 <center>
  <input type='button' name='select_all' value='<?php xl('Select All', 'e'); ?>' onclick="chkbox_select_all(document.select_immunization.chkbox);"/>
- 
+
  <input type='button' name='select_none' value='<?php xl('Unselect All', 'e'); ?>' onclick="chkbox_select_none(document.select_immunization.chkbox);"/>
- 
+
  <input type='button' name='submit' value='<?php xl('Submit', 'e'); ?>' onclick="window_submit(document.select_immunization.chkbox);"/>
- 
+
  <input type='button' name='cancel' value='<?php xl('Cancel', 'e'); ?>' onclick="window_close();"/>
- 
+
  </center>
 <?php } ?>
 </form>

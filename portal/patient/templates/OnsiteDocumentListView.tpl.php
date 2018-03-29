@@ -354,7 +354,7 @@ body {
                             src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/loading.gif" /> <input type="hidden" id="output" name="output" class="output">
                     </div>
                     <input type="hidden" name="type" id="type" value="patient-signature">
-                    <button type="button" onclick="signDoc(this)"><?php echo xlt('Acknowledge as my Electronic Signature.');?></button>
+                    <button type="button" onclick="signDoc(this)"><?php echo xlt('Acknowledge as my Electronic Signature');?></button>
                 </form>
             </div>
         </div>

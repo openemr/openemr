@@ -63,7 +63,7 @@ function getPnotesByUser($activity = "1", $show_all = "no", $user = '', $count =
 
   // run the query
   // 2013-02-08 EMR Direct: minor changes to query so notes with pid=0 don't disappear
-    $sql = "SELECT pnotes.id, pnotes.user, pnotes.pid, pnotes.title, pnotes.date, pnotes.message_status,
+    $sql = "SELECT pnotes.id, pnotes.user, pnotes.pid, pnotes.title, pnotes.date, pnotes.message_status, pnotes.activity,
           IF(pnotes.pid = 0 OR pnotes.user != pnotes.pid,users.fname,patient_data.fname) as users_fname,
           IF(pnotes.pid = 0 OR pnotes.user != pnotes.pid,users.lname,patient_data.lname) as users_lname,
           patient_data.fname as patient_data_fname, patient_data.lname as patient_data_lname
@@ -241,7 +241,8 @@ function getPatientNotes($pid = '', $limit = '', $offset = 0, $search = '')
         CONCAT(pd.fname, ' ', pd.lname)
       ) AS body,
       p.message_status,
-      'Message' as `type`
+      'Message' as `type`,
+      p.activity
     FROM
       pnotes AS p
       LEFT JOIN patient_data AS pd

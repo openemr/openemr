@@ -24,6 +24,7 @@ Appointment
 Appointment Reminder Rule
 Appointment Statuses
 Appropriate Testing for Children with Pharyngitis (CQM)
+Apps
 Arm
 Asian
 Assess Penicillin Allergy
@@ -33,6 +34,7 @@ Audiological physician
 Aunt
 Authorize.net
 autosaved
+AVM Confirmed
 Back Pain
 Bank Draft
 Below lower panic limits
@@ -53,6 +55,7 @@ Breast Disease
 Brother
 Burning With Urination
 Buttock
+Callback requested
 Cambodian
 Cancer Screening: Colon Cancer Screening
 Cancer Screening: Mammogram
@@ -173,6 +176,7 @@ Electronic
 Electronic Notes
 Eligibility status for Vaccine for Children supplied vaccine
 Eligible
+EMAIL Confimed
 Emergency contact
 Emergency Contact Person
 Emergency Contact Phone Number
@@ -240,6 +244,7 @@ Female Symptoms
 FH Blood Problems
 Fibroids
 File Room
+Files type white list
 Filipino
 Final
 Final diagnosis by specialist
@@ -268,7 +273,9 @@ Grandparent
 Great Grandparent
 Greater Than
 Greater Than or Equal To
+Group Attendance Statuses
 Group Payment
+Group Statuses
 Guamanian
 Guardian
 Guardian Email Address
@@ -340,6 +347,7 @@ Influenza 2
 Influenza Immunization for Patients >= 50 Years Old
 Influenza Immunization for Patients >= 50 Years Old (CQM)
 Influenza Vaccine
+Inhale
 Injection
 INR
 Insurance Types
@@ -530,6 +538,8 @@ PHIN Questions
 Physician
 Physician Type
 PID (Pelvic Inflammatory Disease)
+Plan of Care
+Plan of Care Type
 Pneumococcal Conjugate 1
 Pneumococcal Conjugate 2
 Pneumococcal Conjugate 3
@@ -668,6 +678,7 @@ Site Worker
 Skin Cancer
 Skin Disease
 Skin Other
+SMS Confirmed
 SNOMED Clinical Term
 SNOMED Diagnosis
 SNOMED Procedure
@@ -688,12 +699,14 @@ Step Sibling
 Stepchild
 Street and Number
 Strength and Conditioning
+Supervising Provider
 Surgery Issue List
 T.V.
 Tax Rate
 Td
 Temp Method
 Test Scheduling
+Test/Order
 The EP, eligible hospital or CAH who receives a patient from another setting of care or provider of care or believes an encounter is relevant should perform medication reconciliation.
 The EP, eligible hospital or CAH who transitions their patient to another setting of care or provider of care or refers their patient to another provider of care should provide summary of care record for each transition of care or referral (Measure A).
 The EP, eligible hospital or CAH who transitions their patient to another setting of care or provider of care or refers their patient to another provider of care should provide summary of care record for each transition of care or referral (Measure B).
@@ -783,5 +796,13 @@ x Canceled
 Yes/No
 % Canceled < 24h
 - None
+- Not Reported
 -- All --
 --Select Role--
+< Not Reported
+= Took Place
+> Did Not Take Place
+? Did Not Attend
+@ Attended
+^ Pending
+~ Late Arrival

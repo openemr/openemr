@@ -1,4 +1,15 @@
 <?php
+/**
+ * facilities_add.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
 require_once("../globals.php");
 require_once("../../library/acl.inc");
 require_once("$srcdir/options.inc.php");
@@ -230,7 +241,7 @@ function displayAlert()
     <?php
     $disabled='';
     $resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => $my_fid));
-    if (sizeof($resPBE)>0) {
+    if (!empty($resPBE) && sizeof($resPBE)>0) {
         $disabled='disabled';
     }
     ?>

@@ -1,5 +1,16 @@
 <?php
-include_once("../../globals.php");
+/**
+ * finder_navigation.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
+require_once("../../globals.php");
 ?>
 
 <html>
@@ -19,7 +30,7 @@ include_once("../../globals.php");
 <tr>
 
 <td style="text-align:left; width: 250px; white-space: nowrap;">
-<input type="textbox" size="10" name="patient" value="<?php echo $_REQUEST['patient']; ?>" >
+<input type="textbox" size="10" name="patient" value="<?php echo attr($_REQUEST['patient']); ?>" >
 <select name="findBy">
 <option value="Last" <?php if ($_REQUEST['findBy'] == 'Last') {
     echo 'selected';

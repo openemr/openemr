@@ -750,7 +750,7 @@ foreach ($providers as $provider) {
                     $link_title .= $divTitle ."\n";
                     $link_title .= "(" . xl('Click to view') . ")";
                     $content .= "<a href='javascript:goGid($groupid)' title='$link_title'>";
-                    $content .= "<img src='{$this->_tpl_vars[TPL_IMAGE_PATH]}/user-blue.gif' border='0' title='$link_title' alt='xla(View Patient)' />";
+                    $content .= "<img src='{$this->_tpl_vars[TPL_IMAGE_PATH]}/user-blue.gif' border='0' title='$link_title' alt='" . xla('View Patient') . "' />";
                     if ($catid == 1) $content .= "<strike>";
                     $content .= htmlspecialchars($groupname);
                     if ($GLOBALS['calendar_appt_style'] != 1) {
