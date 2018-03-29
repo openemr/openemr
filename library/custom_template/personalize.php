@@ -1,29 +1,16 @@
 <?php
-// +-----------------------------------------------------------------------------+
-// Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-//
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-//
-// A copy of the GNU General Public License is included along with this program:
-// openemr/interface/login/GnuGPL.html
-// For more information write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
-// Author:   Eldho Chacko <eldho@zhservices.com>
-//           Jacob T Paul <jacob@zhservices.com>
-//
-// +------------------------------------------------------------------------------+
+/**
+ * personalize.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Eldho Chacko <eldho@zhservices.com>
+ * @author    Jacob T Paul <jacob@zhservices.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once("../../interface/globals.php");
@@ -353,7 +340,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                 <?php
                 if (acl_check('nationnotes', 'nn_configure')) {
                     ?>
-                    <a href="add_template.php?list_id=<?php echo $_REQUEST['list_id']; ?>"
+                    <a href="add_template.php?list_id=<?php echo attr($_REQUEST['list_id']); ?>"
                        onclick="top.restoreSession();" class="iframe_small css_button"
                        title="<?php echo htmlspecialchars(xl('Add Category'), ENT_QUOTES); ?>"><span><?php echo htmlspecialchars(xl('Add Category'), ENT_QUOTES); ?></span></a>
                     <?php

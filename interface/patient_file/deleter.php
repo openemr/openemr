@@ -287,7 +287,7 @@ if ($_POST['form_submit']) {
         row_delete("issue_encounter", "list_id = '" . add_escape_custom($issue) ."'");
         row_delete("lists", "id = '" . add_escape_custom($issue) ."'");
     } else if ($document) {
-        if (!acl_check('admin', 'super')) {
+        if (!acl_check('patients', 'docs_rm')) {
             die("Not authorized!");
         }
 

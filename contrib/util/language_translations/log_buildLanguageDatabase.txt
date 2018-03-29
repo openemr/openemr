@@ -1,446 +1,642 @@
 Checking constants:
 
 Following constant not same:
+	original- val:Add desired privileges by moving items (ACOs) from the 'Inactive' column to the 'Active' column.
+	spreadsheet- ID:166 val:Add desired privileges by moving items (ACOs) from the \'Inactive\' column to the \'Active\' column.
+Following constant not same:
 	original- val:After Uploading click the button "Import"
-	spreadsheet- ID:253 val:After Uploading click the button \"Import\"
+	spreadsheet- ID:315 val:After Uploading click the button \"Import\"
+Following constant not same:
+	original- val:After Uploading, click "Import"
+	spreadsheet- ID:316 val:After Uploading, click \"Import\"
 Following constant not same:
 	original- val:Age format for "age from" is not valid
-	spreadsheet- ID:261 val:Age format for \"age from\" is not valid
+	spreadsheet- ID:324 val:Age format for \"age from\" is not valid
 Following constant not same:
 	original- val:Age format for "age up to" is not valid
-	spreadsheet- ID:262 val:Age format for \"age up to\" is not valid
+	spreadsheet- ID:325 val:Age format for \"age up to\" is not valid
+Following constant not same:
+	original- val:Allow Check In before the appointment's time.
+	spreadsheet- ID:394 val:Allow Check In before the appointment\'s time.
 Following constant not same:
 	original- val:Automatically create a new encounter when appointment status is set to "@" (arrived).
-	spreadsheet- ID:619 val:Automatically create a new encounter when appointment status is set to \"@\" (arrived).
+	spreadsheet- ID:744 val:Automatically create a new encounter when appointment status is set to \"@\" (arrived).
 Following constant not same:
 	original- val:Can't find file!
-	spreadsheet- ID:882 val:Can\'t find file!
+	spreadsheet- ID:1047 val:Can\'t find file!
 Following constant not same:
 	original- val:Can't upload
-	spreadsheet- ID:883 val:Can\'t upload
+	spreadsheet- ID:1048 val:Can\'t upload
 Following constant not same:
 	original- val:Click 'export' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click 'import'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.
-	spreadsheet- ID:1140 val:Click \'export\' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click \'import\'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.
+	spreadsheet- ID:1337 val:Click \'export\' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click \'import\'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.
+Following constant not same:
+	original- val:Click on the 'Add Group' button to create this new group (ARO).
+	spreadsheet- ID:1386 val:Click on the \'Add Group\' button to create this new group (ARO).
+Following constant not same:
+	original- val:Click on the icon next to the 'Access Control List Administration' title to go to the phpGACL page.
+	spreadsheet- ID:1387 val:Click on the icon next to the \'Access Control List Administration\' title to go to the phpGACL page.
+Following constant not same:
+	original- val:Click the 'Add New Group' button to display the 'New Group Information' section.
+	spreadsheet- ID:1391 val:Click the \'Add New Group\' button to display the \'New Group Information\' section.
+Following constant not same:
+	original- val:Click the 'Delete Group' button to completely remove this group.
+	spreadsheet- ID:1392 val:Click the \'Delete Group\' button to completely remove this group.
+Following constant not same:
+	original- val:Click the 'Remove Group' button to display the 'Remove Group Form'.
+	spreadsheet- ID:1393 val:Click the \'Remove Group\' button to display the \'Remove Group Form\'.
+Following constant not same:
+	original- val:Click the 'Yes' radio button.
+	spreadsheet- ID:1394 val:Click the \'Yes\' radio button.
+Following constant not same:
+	original- val:Clicking on the icon next to their name will bring up the 'Edit' window.
+	spreadsheet- ID:1435 val:Clicking on the icon next to their name will bring up the \'Edit\' window.
 Following constant not same:
 	original- val:Couldn't create backup dir:
-	spreadsheet- ID:1493 val:Couldn\'t create backup dir:
+	spreadsheet- ID:1743 val:Couldn\'t create backup dir:
 Following constant not same:
 	original- val:Couldn't remove dir:
-	spreadsheet- ID:1494 val:Couldn\'t remove dir:
+	spreadsheet- ID:1744 val:Couldn\'t remove dir:
 Following constant not same:
 	original- val:Couldn't remove old backup file:
-	spreadsheet- ID:1495 val:Couldn\'t remove old backup file:
+	spreadsheet- ID:1745 val:Couldn\'t remove old backup file:
 Following constant not same:
 	original- val:Couldn't remove old export file: 
-	spreadsheet- ID:1496 val:Couldn\'t remove old export file: 
+	spreadsheet- ID:1746 val:Couldn\'t remove old export file: 
 Following constant not same:
 	original- val:Date format for "appointment end" is not valid
-	spreadsheet- ID:1664 val:Date format for \"appointment end\" is not valid
+	spreadsheet- ID:1934 val:Date format for \"appointment end\" is not valid
 Following constant not same:
 	original- val:Date format for "appointment start" is not valid
-	spreadsheet- ID:1665 val:Date format for \"appointment start\" is not valid
+	spreadsheet- ID:1935 val:Date format for \"appointment start\" is not valid
 Following constant not same:
 	original- val:Date format for "Next Appointment" is not valid
-	spreadsheet- ID:1666 val:Date format for \"Next Appointment\" is not valid
+	spreadsheet- ID:1936 val:Date format for \"Next Appointment\" is not valid
 Following constant not same:
 	original- val:Date format for "not seen since" is not valid
-	spreadsheet- ID:1667 val:Date format for \"not seen since\" is not valid
+	spreadsheet- ID:1937 val:Date format for \"not seen since\" is not valid
+Following constant not same:
+	original- val:Date format for "seen before" is not valid
+	spreadsheet- ID:1938 val:Date format for \"seen before\" is not valid
 Following constant not same:
 	original- val:Date format for "seen since" is not valid
-	spreadsheet- ID:1668 val:Date format for \"seen since\" is not valid
+	spreadsheet- ID:1939 val:Date format for \"seen since\" is not valid
+Following constant not same:
+	original- val:Detail's group was saved successfully
+	spreadsheet- ID:2164 val:Detail\'s group was saved successfully
 Following constant not same:
 	original- val:Display the patient's current glasses
-	spreadsheet- ID:1979 val:Display the patient\'s current glasses
+	spreadsheet- ID:2290 val:Display the patient\'s current glasses
 Following constant not same:
 	original- val:Don't Save
-	spreadsheet- ID:2074 val:Don\'t Save
+	spreadsheet- ID:2397 val:Don\'t Save
 Following constant not same:
 	original- val:Empty value in "Email Hours"
-	spreadsheet- ID:2288 val:Empty value in \"Email Hours\"
+	spreadsheet- ID:2641 val:Empty value in \"Email Hours\"
 Following constant not same:
 	original- val:Empty value in "Email Sender"
-	spreadsheet- ID:2289 val:Empty value in \"Email Sender\"
+	spreadsheet- ID:2642 val:Empty value in \"Email Sender\"
 Following constant not same:
 	original- val:Empty value in "Email Subject"
-	spreadsheet- ID:2290 val:Empty value in \"Email Subject\"
+	spreadsheet- ID:2643 val:Empty value in \"Email Subject\"
 Following constant not same:
 	original- val:Empty value in "Email Text"
-	spreadsheet- ID:2291 val:Empty value in \"Email Text\"
+	spreadsheet- ID:2644 val:Empty value in \"Email Text\"
 Following constant not same:
 	original- val:Empty value in "Name of Provider"
-	spreadsheet- ID:2292 val:Empty value in \"Name of Provider\"
+	spreadsheet- ID:2645 val:Empty value in \"Name of Provider\"
 Following constant not same:
 	original- val:Empty value in "Password"
-	spreadsheet- ID:2293 val:Empty value in \"Password\"
+	spreadsheet- ID:2646 val:Empty value in \"Password\"
 Following constant not same:
 	original- val:Empty value in "SMS Hours"
-	spreadsheet- ID:2294 val:Empty value in \"SMS Hours\"
+	spreadsheet- ID:2647 val:Empty value in \"SMS Hours\"
 Following constant not same:
 	original- val:Empty value in "SMS Text"
-	spreadsheet- ID:2295 val:Empty value in \"SMS Text\"
+	spreadsheet- ID:2648 val:Empty value in \"SMS Text\"
 Following constant not same:
 	original- val:Empty value in "Username"
-	spreadsheet- ID:2296 val:Empty value in \"Username\"
+	spreadsheet- ID:2649 val:Empty value in \"Username\"
 Following constant not same:
 	original- val:Error in "Gender" selection
-	spreadsheet- ID:2492 val:Error in \"Gender\" selection
+	spreadsheet- ID:2885 val:Error in \"Gender\" selection
 Following constant not same:
 	original- val:Error in "HIPAA" selection
-	spreadsheet- ID:2493 val:Error in \"HIPAA\" selection
+	spreadsheet- ID:2886 val:Error in \"HIPAA\" selection
 Following constant not same:
 	original- val:Error in "Process" selection
-	spreadsheet- ID:2494 val:Error in \"Process\" selection
+	spreadsheet- ID:2887 val:Error in \"Process\" selection
 Following constant not same:
 	original- val:Error in "SMS Gateway" selection
-	spreadsheet- ID:2495 val:Error in \"SMS Gateway\" selection
+	spreadsheet- ID:2888 val:Error in \"SMS Gateway\" selection
 Following constant not same:
 	original- val:Error in "Sort By" selection
-	spreadsheet- ID:2496 val:Error in \"Sort By\" selection
+	spreadsheet- ID:2889 val:Error in \"Sort By\" selection
 Following constant not same:
 	original- val:Error: passwords don't match. Please check your typing.
-	spreadsheet- ID:2530 val:Error: passwords don\'t match. Please check your typing.
+	spreadsheet- ID:2927 val:Error: passwords don\'t match. Please check your typing.
 Following constant not same:
 	original- val:FAILURE: Couldn't create the zip
-	spreadsheet- ID:2728 val:FAILURE: Couldn\'t create the zip
+	spreadsheet- ID:3144 val:FAILURE: Couldn\'t create the zip
 Following constant not same:
 	original- val:Field 'name' cannot be NULL
-	spreadsheet- ID:2783 val:Field \'name\' cannot be NULL
+	spreadsheet- ID:3200 val:Field \'name\' cannot be NULL
 Following constant not same:
 	original- val:Filename must end with ".pdf"
-	spreadsheet- ID:2808 val:Filename must end with \".pdf\"
+	spreadsheet- ID:3228 val:Filename must end with \".pdf\"
+Following constant not same:
+	original- val:Group's name
+	spreadsheet- ID:3596 val:Group\'s name
 Following constant not same:
 	original- val:Guardian's Name
-	spreadsheet- ID:3123 val:Guardian\'s Name
+	spreadsheet- ID:3609 val:Guardian\'s Name
+Following constant not same:
+	original- val:If a field's Data Col = 0 the data field will immediately follow its label field on the same line
+	spreadsheet- ID:3842 val:If a field\'s Data Col = 0 the data field will immediately follow its label field on the same line
+Following constant not same:
+	original- val:If a field's Label Col = 0 the label will immediately follow the previous data field in the Order sequence, on the same line as the Data field.
+	spreadsheet- ID:3843 val:If a field\'s Label Col = 0 the label will immediately follow the previous data field in the Order sequence, on the same line as the Data field.
+Following constant not same:
+	original- val:If a field's Label Col = 1 the label field will go to a new line unless the previous field's total column values (Label + Data) is less than number of Layout columns from Group Properties or Layout Properties.
+	spreadsheet- ID:3844 val:If a field\'s Label Col = 1 the label field will go to a new line unless the previous field\'s total column values (Label + Data) is less than number of Layout columns from Group Properties or Layout Properties.
 Following constant not same:
 	original- val:If the csv file has been uploaded, then click on the "Import holiday events" button. NOTE that clicking on the button will remove all the existing rows in the calendar_external table
-	spreadsheet- ID:3343 val:If the csv file has been uploaded, then click on the \"Import holiday events\" button. NOTE that clicking on the button will remove all the existing rows in the calendar_external table
+	spreadsheet- ID:3856 val:If the csv file has been uploaded, then click on the \"Import holiday events\" button. NOTE that clicking on the button will remove all the existing rows in the calendar_external table
+Following constant not same:
+	original- val:If you click on any user in the 'User Memberships' section you will now see these newly created group (ARO) in the 'Inactive' column. These can now be assigned in the usual fashion as needed.
+	spreadsheet- ID:3863 val:If you click on any user in the \'User Memberships\' section you will now see these newly created group (ARO) in the \'Inactive\' column. These can now be assigned in the usual fashion as needed.
+Following constant not same:
+	original- val:If you click on the edit icon next to this newly created group (ARO) you will note that the 'Active' column contains only a single entry - Placeholder (Maintains empty ACLs). As yet this new group (ARO) has NO access to any part of the program as there are no ACOs assigned in the 'Active' column.
+	spreadsheet- ID:3864 val:If you click on the edit icon next to this newly created group (ARO) you will note that the \'Active\' column contains only a single entry - Placeholder (Maintains empty ACLs). As yet this new group (ARO) has NO access to any part of the program as there are no ACOs assigned in the \'Active\' column.
 Following constant not same:
 	original- val:If you have already filled the calendar_external table, then click on "Synchronize" button to have the holidays in the calendar view. NOTE that clicking on the button will remove all the existing items in the calendar view related to holidays
-	spreadsheet- ID:3348 val:If you have already filled the calendar_external table, then click on \"Synchronize\" button to have the holidays in the calendar view. NOTE that clicking on the button will remove all the existing items in the calendar view related to holidays
+	spreadsheet- ID:3867 val:If you have already filled the calendar_external table, then click on \"Synchronize\" button to have the holidays in the calendar view. NOTE that clicking on the button will remove all the existing items in the calendar view related to holidays
 Following constant not same:
 	original- val:Internal error: encounter '
-	spreadsheet- ID:3588 val:Internal error: encounter \'
+	spreadsheet- ID:4125 val:Internal error: encounter \'
 Following constant not same:
 	original- val:Invalid source designation "
-	spreadsheet- ID:3623 val:Invalid source designation \"
+	spreadsheet- ID:4163 val:Invalid source designation \"
 Following constant not same:
 	original- val:k, here's the rest 
-	spreadsheet- ID:3738 val:k, here\'s the rest 
+	spreadsheet- ID:4284 val:k, here\'s the rest
 Following constant not same:
 	original- val:Make sure "
-	spreadsheet- ID:4078 val:Make sure \"
+	spreadsheet- ID:4654 val:Make sure \"
 Following constant not same:
 	original- val:Mother's Name
-	spreadsheet- ID:4344 val:Mother\'s Name
+	spreadsheet- ID:4947 val:Mother\'s Name
+Following constant not same:
+	original- val:Move the individual items from 'Active' to 'Inactive' or vice-versa by selecting the items and pressing the relevant button with the double chevron.
+	spreadsheet- ID:4956 val:Move the individual items from \'Active\' to \'Inactive\' or vice-versa by selecting the items and pressing the relevant button with the double chevron.
+Following constant not same:
+	original- val:Note there is no 'Save' button.
+	spreadsheet- ID:5442 val:Note there is no \'Save\' button.
 Following constant not same:
 	original- val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example '<i>file.jpg</i>' will become '<i>file.jpg.1</i>'. Filenames are considered unique per patient, not per category. 
-	spreadsheet- ID:4807 val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example \'<i>file.jpg</i>\' will become \'<i>file.jpg.1</i>\'. Filenames are considered unique per patient, not per category. 
+	spreadsheet- ID:5455 val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example \'<i>file.jpg</i>\' will become \'<i>file.jpg.1</i>\'. Filenames are considered unique per patient, not per category. 
+Following constant not same:
+	original- val:Participant's name
+	spreadsheet- ID:5868 val:Participant\'s name
 Following constant not same:
 	original- val:Passwords Don't match!
-	spreadsheet- ID:5196 val:Passwords Don\'t match!
+	spreadsheet- ID:5898 val:Passwords Don\'t match!
+Following constant not same:
+	original- val:Patient's number
+	spreadsheet- ID:6095 val:Patient\'s number
 Following constant not same:
 	original- val:Pay attention to the "Done with" checkboxes.  After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected!  Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
-	spreadsheet- ID:5360 val:Pay attention to the \"Done with\" checkboxes.  After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected!  Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
+	spreadsheet- ID:6104 val:Pay attention to the \"Done with\" checkboxes.  After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected!  Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
 Following constant not same:
 	original- val:Please enter at least the item's name
-	spreadsheet- ID:5559 val:Please enter at least the item\'s name
+	spreadsheet- ID:6332 val:Please enter at least the item\'s name
 Following constant not same:
 	original- val:Please enter at least the track's name
-	spreadsheet- ID:5560 val:Please enter at least the track\'s name
+	spreadsheet- ID:6333 val:Please enter at least the track\'s name
 Following constant not same:
 	original- val:Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
-	spreadsheet- ID:5595 val:Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
+	spreadsheet- ID:6372 val:Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
 Following constant not same:
 	original- val:The 'Clear' button will remove all annotations.
-	spreadsheet- ID:7396 val:The \'Clear\' button will remove all annotations.
+	spreadsheet- ID:8401 val:The \'Clear\' button will remove all annotations.
+Following constant not same:
+	original- val:The 'Edit' window is divided into two columns, 'Active' and 'Inactive'. The groups (AROs) that are listed in the active column are those groups that the user belongs to.
+	spreadsheet- ID:8402 val:The \'Edit\' window is divided into two columns, \'Active\' and \'Inactive\'. The groups (AROs) that are listed in the active column are those groups that the user belongs to.
+Following constant not same:
+	original- val:The Encounter Preview button is useful for showing encounter type layout forms as seen when using form in an encounter. Note, this feature is only useful for showing encounter forms and won't display system forms like Demographics
+	spreadsheet- ID:8418 val:The Encounter Preview button is useful for showing encounter type layout forms as seen when using form in an encounter. Note, this feature is only useful for showing encounter forms and won\'t display system forms like Demographics
 Following constant not same:
 	original- val:The first ("target") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.
-	spreadsheet- ID:7424 val:The first (\"target\") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.
+	spreadsheet- ID:8434 val:The first (\"target\") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.
+Following constant not same:
+	original- val:The group (ARO) that you created will now appear in alphabetical order in the 'Groups and Access Controls' section.
+	spreadsheet- ID:8453 val:The group (ARO) that you created will now appear in alphabetical order in the \'Groups and Access Controls\' section.
+Following constant not same:
+	original- val:The items listed in the 'Active' column delineate the privileges of this group (ARO) and constitutes this group's Access Control List (ACL).
+	spreadsheet- ID:8463 val:The items listed in the \'Active\' column delineate the privileges of this group (ARO) and constitutes this group\'s Access Control List (ACL).
 Following constant not same:
 	original- val:The second ("source") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.
-	spreadsheet- ID:7475 val:The second (\"source\") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.
+	spreadsheet- ID:8495 val:The second (\"source\") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.
 Following constant not same:
 	original- val:The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the "W" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
-	spreadsheet- ID:7476 val:The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the \"W\" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
+	spreadsheet- ID:8496 val:The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the \"W\" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
+Following constant not same:
+	original- val:The user's actual privileges are determined by the access to the parts of the program i.e. (ACO) that each group (ARO) has.
+	spreadsheet- ID:8511 val:The user\'s actual privileges are determined by the access to the parts of the program i.e. (ACO) that each group (ARO) has.
 Following constant not same:
 	original- val:The X12 files as well as the resulting HTML output reports are archived in the "era" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
-	spreadsheet- ID:7488 val:The X12 files as well as the resulting HTML output reports are archived in the \"era\" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
+	spreadsheet- ID:8513 val:The X12 files as well as the resulting HTML output reports are archived in the \"era\" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
 Following constant not same:
 	original- val:This will be a "dry run" with no physical data updates.
-	spreadsheet- ID:7613 val:This will be a \"dry run\" with no physical data updates.
+	spreadsheet- ID:8667 val:This will be a \"dry run\" with no physical data updates.
+Following constant not same:
+	original- val:This will turn off use of safe apostrophe, which is done by converting \' and " to `.(it is highly recommended that this setting is turned off and that safe apostrophe\'s are used)
+	spreadsheet- ID:8687 val:This will turn off use of safe apostrophe, which is done by converting \' and \" to `.(it is highly recommended that this setting is turned off and that safe apostrophe\'s are used)
 Following constant not same:
 	original- val:To ded'ble
-	spreadsheet- ID:7690 val:To ded\'ble
+	spreadsheet- ID:8750 val:To ded\'ble
+Following constant not same:
+	original- val:To select multiple groups hold down the 'Shift' or 'Ctrl' keys while clicking.
+	spreadsheet- ID:8770 val:To select multiple groups hold down the \'Shift\' or \'Ctrl\' keys while clicking.
 Following constant not same:
 	original- val:Upon clicking an invoice number the "manual posting window" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
-	spreadsheet- ID:8011 val:Upon clicking an invoice number the \"manual posting window\" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
+	spreadsheet- ID:9108 val:Upon clicking an invoice number the \"manual posting window\" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
 Following constant not same:
 	original- val:uses php <a href="http://php.net/strftime">strftime</a> format
-	spreadsheet- ID:8109 val:uses php <a href=\"http://php.net/strftime\">strftime</a> format
+	spreadsheet- ID:9233 val:uses php <a href=\"http://php.net/strftime\">strftime</a> format
+Following constant not same:
+	original- val:When checked, messages are processed for patients with Patient Demographic Choice: "Hipaa Notice Received" set to "Unassigned" or "Yes". When unchecked, this choice must = "YES" to process the patient reminder. For patients with Choice ="No", Reminders will need to be processed manually.
+	spreadsheet- ID:9475 val:When checked, messages are processed for patients with Patient Demographic Choice: \"Hipaa Notice Received\" set to \"Unassigned\" or \"Yes\". When unchecked, this choice must = \"YES\" to process the patient reminder. For patients with Choice =\"No\", Reminders will need to be processed manually.
+Following constant not same:
+	original- val:You can close the edit box by clicking on the 'slashed eye' icon next to the group's name.
+	spreadsheet- ID:9609 val:You can close the edit box by clicking on the \'slashed eye\' icon next to the group\'s name.
+Following constant not same:
+	original- val:You can not change status to 'Arrive' before the appointment's time
+	spreadsheet- ID:9611 val:You can not change status to \'Arrive\' before the appointment\'s time
 Following constant not same:
 	original- val:You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, '/*lock::*/'
-	spreadsheet- ID:8443 val:You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, \'/*lock::*/\'
+	spreadsheet- ID:9621 val:You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, \'/*lock::*/\'
 Following constant not same:
 	original- val:" for code 
-	spreadsheet- ID:8549 val:\" for code 
+	spreadsheet- ID:9744 val:\" for code 
 Following constant not same:
 	original- val:" is CHECKED in PostCalendar Settings!
-	spreadsheet- ID:8550 val:\" is CHECKED in PostCalendar Settings!
+	spreadsheet- ID:9745 val:\" is CHECKED in PostCalendar Settings!
 Following constant not same:
 	original- val:' should exist but does not.
-	spreadsheet- ID:8559 val:\' should exist but does not.
+	spreadsheet- ID:9754 val:\' should exist but does not.
 
 Done checking constants:
-	63 mismatches found (known is 63)
+	95 mismatches found (known is 95)
 Good, constants weren't modified by translators
 
 Checking constants:
 
 Following constant not same:
+	original- val:Add desired privileges by moving items (ACOs) from the 'Inactive' column to the 'Active' column.
+	spreadsheet- ID:166 val:Add desired privileges by moving items (ACOs) from the \'Inactive\' column to the \'Active\' column.
+Following constant not same:
 	original- val:After Uploading click the button "Import"
-	spreadsheet- ID:253 val:After Uploading click the button \"Import\"
+	spreadsheet- ID:315 val:After Uploading click the button \"Import\"
+Following constant not same:
+	original- val:After Uploading, click "Import"
+	spreadsheet- ID:316 val:After Uploading, click \"Import\"
 Following constant not same:
 	original- val:Age format for "age from" is not valid
-	spreadsheet- ID:261 val:Age format for \"age from\" is not valid
+	spreadsheet- ID:324 val:Age format for \"age from\" is not valid
 Following constant not same:
 	original- val:Age format for "age up to" is not valid
-	spreadsheet- ID:262 val:Age format for \"age up to\" is not valid
+	spreadsheet- ID:325 val:Age format for \"age up to\" is not valid
+Following constant not same:
+	original- val:Allow Check In before the appointment's time.
+	spreadsheet- ID:394 val:Allow Check In before the appointment\'s time.
 Following constant not same:
 	original- val:Automatically create a new encounter when appointment status is set to "@" (arrived).
-	spreadsheet- ID:619 val:Automatically create a new encounter when appointment status is set to \"@\" (arrived).
+	spreadsheet- ID:744 val:Automatically create a new encounter when appointment status is set to \"@\" (arrived).
 Following constant not same:
 	original- val:Can't find file!
-	spreadsheet- ID:882 val:Can\'t find file!
+	spreadsheet- ID:1047 val:Can\'t find file!
 Following constant not same:
 	original- val:Can't upload
-	spreadsheet- ID:883 val:Can\'t upload
+	spreadsheet- ID:1048 val:Can\'t upload
 Following constant not same:
 	original- val:Click 'export' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click 'import'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.
-	spreadsheet- ID:1140 val:Click \'export\' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click \'import\'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.
+	spreadsheet- ID:1337 val:Click \'export\' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click \'import\'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.
+Following constant not same:
+	original- val:Click on the 'Add Group' button to create this new group (ARO).
+	spreadsheet- ID:1386 val:Click on the \'Add Group\' button to create this new group (ARO).
+Following constant not same:
+	original- val:Click on the icon next to the 'Access Control List Administration' title to go to the phpGACL page.
+	spreadsheet- ID:1387 val:Click on the icon next to the \'Access Control List Administration\' title to go to the phpGACL page.
+Following constant not same:
+	original- val:Click the 'Add New Group' button to display the 'New Group Information' section.
+	spreadsheet- ID:1391 val:Click the \'Add New Group\' button to display the \'New Group Information\' section.
+Following constant not same:
+	original- val:Click the 'Delete Group' button to completely remove this group.
+	spreadsheet- ID:1392 val:Click the \'Delete Group\' button to completely remove this group.
+Following constant not same:
+	original- val:Click the 'Remove Group' button to display the 'Remove Group Form'.
+	spreadsheet- ID:1393 val:Click the \'Remove Group\' button to display the \'Remove Group Form\'.
+Following constant not same:
+	original- val:Click the 'Yes' radio button.
+	spreadsheet- ID:1394 val:Click the \'Yes\' radio button.
+Following constant not same:
+	original- val:Clicking on the icon next to their name will bring up the 'Edit' window.
+	spreadsheet- ID:1435 val:Clicking on the icon next to their name will bring up the \'Edit\' window.
 Following constant not same:
 	original- val:Couldn't create backup dir:
-	spreadsheet- ID:1493 val:Couldn\'t create backup dir:
+	spreadsheet- ID:1743 val:Couldn\'t create backup dir:
 Following constant not same:
 	original- val:Couldn't remove dir:
-	spreadsheet- ID:1494 val:Couldn\'t remove dir:
+	spreadsheet- ID:1744 val:Couldn\'t remove dir:
 Following constant not same:
 	original- val:Couldn't remove old backup file:
-	spreadsheet- ID:1495 val:Couldn\'t remove old backup file:
+	spreadsheet- ID:1745 val:Couldn\'t remove old backup file:
 Following constant not same:
 	original- val:Couldn't remove old export file: 
-	spreadsheet- ID:1496 val:Couldn\'t remove old export file: 
+	spreadsheet- ID:1746 val:Couldn\'t remove old export file: 
 Following constant not same:
 	original- val:Date format for "appointment end" is not valid
-	spreadsheet- ID:1664 val:Date format for \"appointment end\" is not valid
+	spreadsheet- ID:1934 val:Date format for \"appointment end\" is not valid
 Following constant not same:
 	original- val:Date format for "appointment start" is not valid
-	spreadsheet- ID:1665 val:Date format for \"appointment start\" is not valid
+	spreadsheet- ID:1935 val:Date format for \"appointment start\" is not valid
 Following constant not same:
 	original- val:Date format for "Next Appointment" is not valid
-	spreadsheet- ID:1666 val:Date format for \"Next Appointment\" is not valid
+	spreadsheet- ID:1936 val:Date format for \"Next Appointment\" is not valid
 Following constant not same:
 	original- val:Date format for "not seen since" is not valid
-	spreadsheet- ID:1667 val:Date format for \"not seen since\" is not valid
+	spreadsheet- ID:1937 val:Date format for \"not seen since\" is not valid
+Following constant not same:
+	original- val:Date format for "seen before" is not valid
+	spreadsheet- ID:1938 val:Date format for \"seen before\" is not valid
 Following constant not same:
 	original- val:Date format for "seen since" is not valid
-	spreadsheet- ID:1668 val:Date format for \"seen since\" is not valid
+	spreadsheet- ID:1939 val:Date format for \"seen since\" is not valid
+Following constant not same:
+	original- val:Detail's group was saved successfully
+	spreadsheet- ID:2164 val:Detail\'s group was saved successfully
 Following constant not same:
 	original- val:Display the patient's current glasses
-	spreadsheet- ID:1979 val:Display the patient\'s current glasses
+	spreadsheet- ID:2290 val:Display the patient\'s current glasses
 Following constant not same:
 	original- val:Don't Save
-	spreadsheet- ID:2074 val:Don\'t Save
+	spreadsheet- ID:2397 val:Don\'t Save
 Following constant not same:
 	original- val:Empty value in "Email Hours"
-	spreadsheet- ID:2288 val:Empty value in \"Email Hours\"
+	spreadsheet- ID:2641 val:Empty value in \"Email Hours\"
 Following constant not same:
 	original- val:Empty value in "Email Sender"
-	spreadsheet- ID:2289 val:Empty value in \"Email Sender\"
+	spreadsheet- ID:2642 val:Empty value in \"Email Sender\"
 Following constant not same:
 	original- val:Empty value in "Email Subject"
-	spreadsheet- ID:2290 val:Empty value in \"Email Subject\"
+	spreadsheet- ID:2643 val:Empty value in \"Email Subject\"
 Following constant not same:
 	original- val:Empty value in "Email Text"
-	spreadsheet- ID:2291 val:Empty value in \"Email Text\"
+	spreadsheet- ID:2644 val:Empty value in \"Email Text\"
 Following constant not same:
 	original- val:Empty value in "Name of Provider"
-	spreadsheet- ID:2292 val:Empty value in \"Name of Provider\"
+	spreadsheet- ID:2645 val:Empty value in \"Name of Provider\"
 Following constant not same:
 	original- val:Empty value in "Password"
-	spreadsheet- ID:2293 val:Empty value in \"Password\"
+	spreadsheet- ID:2646 val:Empty value in \"Password\"
 Following constant not same:
 	original- val:Empty value in "SMS Hours"
-	spreadsheet- ID:2294 val:Empty value in \"SMS Hours\"
+	spreadsheet- ID:2647 val:Empty value in \"SMS Hours\"
 Following constant not same:
 	original- val:Empty value in "SMS Text"
-	spreadsheet- ID:2295 val:Empty value in \"SMS Text\"
+	spreadsheet- ID:2648 val:Empty value in \"SMS Text\"
 Following constant not same:
 	original- val:Empty value in "Username"
-	spreadsheet- ID:2296 val:Empty value in \"Username\"
+	spreadsheet- ID:2649 val:Empty value in \"Username\"
 Following constant not same:
 	original- val:Error in "Gender" selection
-	spreadsheet- ID:2492 val:Error in \"Gender\" selection
+	spreadsheet- ID:2885 val:Error in \"Gender\" selection
 Following constant not same:
 	original- val:Error in "HIPAA" selection
-	spreadsheet- ID:2493 val:Error in \"HIPAA\" selection
+	spreadsheet- ID:2886 val:Error in \"HIPAA\" selection
 Following constant not same:
 	original- val:Error in "Process" selection
-	spreadsheet- ID:2494 val:Error in \"Process\" selection
+	spreadsheet- ID:2887 val:Error in \"Process\" selection
 Following constant not same:
 	original- val:Error in "SMS Gateway" selection
-	spreadsheet- ID:2495 val:Error in \"SMS Gateway\" selection
+	spreadsheet- ID:2888 val:Error in \"SMS Gateway\" selection
 Following constant not same:
 	original- val:Error in "Sort By" selection
-	spreadsheet- ID:2496 val:Error in \"Sort By\" selection
+	spreadsheet- ID:2889 val:Error in \"Sort By\" selection
 Following constant not same:
 	original- val:Error: passwords don't match. Please check your typing.
-	spreadsheet- ID:2530 val:Error: passwords don\'t match. Please check your typing.
+	spreadsheet- ID:2927 val:Error: passwords don\'t match. Please check your typing.
 Following constant not same:
 	original- val:FAILURE: Couldn't create the zip
-	spreadsheet- ID:2728 val:FAILURE: Couldn\'t create the zip
+	spreadsheet- ID:3144 val:FAILURE: Couldn\'t create the zip
 Following constant not same:
 	original- val:Field 'name' cannot be NULL
-	spreadsheet- ID:2783 val:Field \'name\' cannot be NULL
+	spreadsheet- ID:3200 val:Field \'name\' cannot be NULL
 Following constant not same:
 	original- val:Filename must end with ".pdf"
-	spreadsheet- ID:2808 val:Filename must end with \".pdf\"
+	spreadsheet- ID:3228 val:Filename must end with \".pdf\"
+Following constant not same:
+	original- val:Group's name
+	spreadsheet- ID:3596 val:Group\'s name
 Following constant not same:
 	original- val:Guardian's Name
-	spreadsheet- ID:3123 val:Guardian\'s Name
+	spreadsheet- ID:3609 val:Guardian\'s Name
+Following constant not same:
+	original- val:If a field's Data Col = 0 the data field will immediately follow its label field on the same line
+	spreadsheet- ID:3842 val:If a field\'s Data Col = 0 the data field will immediately follow its label field on the same line
+Following constant not same:
+	original- val:If a field's Label Col = 0 the label will immediately follow the previous data field in the Order sequence, on the same line as the Data field.
+	spreadsheet- ID:3843 val:If a field\'s Label Col = 0 the label will immediately follow the previous data field in the Order sequence, on the same line as the Data field.
+Following constant not same:
+	original- val:If a field's Label Col = 1 the label field will go to a new line unless the previous field's total column values (Label + Data) is less than number of Layout columns from Group Properties or Layout Properties.
+	spreadsheet- ID:3844 val:If a field\'s Label Col = 1 the label field will go to a new line unless the previous field\'s total column values (Label + Data) is less than number of Layout columns from Group Properties or Layout Properties.
 Following constant not same:
 	original- val:If the csv file has been uploaded, then click on the "Import holiday events" button. NOTE that clicking on the button will remove all the existing rows in the calendar_external table
-	spreadsheet- ID:3343 val:If the csv file has been uploaded, then click on the \"Import holiday events\" button. NOTE that clicking on the button will remove all the existing rows in the calendar_external table
+	spreadsheet- ID:3856 val:If the csv file has been uploaded, then click on the \"Import holiday events\" button. NOTE that clicking on the button will remove all the existing rows in the calendar_external table
+Following constant not same:
+	original- val:If you click on any user in the 'User Memberships' section you will now see these newly created group (ARO) in the 'Inactive' column. These can now be assigned in the usual fashion as needed.
+	spreadsheet- ID:3863 val:If you click on any user in the \'User Memberships\' section you will now see these newly created group (ARO) in the \'Inactive\' column. These can now be assigned in the usual fashion as needed.
+Following constant not same:
+	original- val:If you click on the edit icon next to this newly created group (ARO) you will note that the 'Active' column contains only a single entry - Placeholder (Maintains empty ACLs). As yet this new group (ARO) has NO access to any part of the program as there are no ACOs assigned in the 'Active' column.
+	spreadsheet- ID:3864 val:If you click on the edit icon next to this newly created group (ARO) you will note that the \'Active\' column contains only a single entry - Placeholder (Maintains empty ACLs). As yet this new group (ARO) has NO access to any part of the program as there are no ACOs assigned in the \'Active\' column.
 Following constant not same:
 	original- val:If you have already filled the calendar_external table, then click on "Synchronize" button to have the holidays in the calendar view. NOTE that clicking on the button will remove all the existing items in the calendar view related to holidays
-	spreadsheet- ID:3348 val:If you have already filled the calendar_external table, then click on \"Synchronize\" button to have the holidays in the calendar view. NOTE that clicking on the button will remove all the existing items in the calendar view related to holidays
+	spreadsheet- ID:3867 val:If you have already filled the calendar_external table, then click on \"Synchronize\" button to have the holidays in the calendar view. NOTE that clicking on the button will remove all the existing items in the calendar view related to holidays
 Following constant not same:
 	original- val:Internal error: encounter '
-	spreadsheet- ID:3588 val:Internal error: encounter \'
+	spreadsheet- ID:4125 val:Internal error: encounter \'
 Following constant not same:
 	original- val:Invalid source designation "
-	spreadsheet- ID:3623 val:Invalid source designation \"
+	spreadsheet- ID:4163 val:Invalid source designation \"
 Following constant not same:
 	original- val:k, here's the rest 
-	spreadsheet- ID:3738 val:k, here\'s the rest 
+	spreadsheet- ID:4284 val:k, here\'s the rest
 Following constant not same:
 	original- val:Make sure "
-	spreadsheet- ID:4078 val:Make sure \"
+	spreadsheet- ID:4654 val:Make sure \"
 Following constant not same:
 	original- val:Mother's Name
-	spreadsheet- ID:4344 val:Mother\'s Name
+	spreadsheet- ID:4947 val:Mother\'s Name
+Following constant not same:
+	original- val:Move the individual items from 'Active' to 'Inactive' or vice-versa by selecting the items and pressing the relevant button with the double chevron.
+	spreadsheet- ID:4956 val:Move the individual items from \'Active\' to \'Inactive\' or vice-versa by selecting the items and pressing the relevant button with the double chevron.
+Following constant not same:
+	original- val:Note there is no 'Save' button.
+	spreadsheet- ID:5442 val:Note there is no \'Save\' button.
 Following constant not same:
 	original- val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example '<i>file.jpg</i>' will become '<i>file.jpg.1</i>'. Filenames are considered unique per patient, not per category. 
-	spreadsheet- ID:4807 val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example \'<i>file.jpg</i>\' will become \'<i>file.jpg.1</i>\'. Filenames are considered unique per patient, not per category. 
+	spreadsheet- ID:5455 val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example \'<i>file.jpg</i>\' will become \'<i>file.jpg.1</i>\'. Filenames are considered unique per patient, not per category. 
+Following constant not same:
+	original- val:Participant's name
+	spreadsheet- ID:5868 val:Participant\'s name
 Following constant not same:
 	original- val:Passwords Don't match!
-	spreadsheet- ID:5196 val:Passwords Don\'t match!
+	spreadsheet- ID:5898 val:Passwords Don\'t match!
+Following constant not same:
+	original- val:Patient's number
+	spreadsheet- ID:6095 val:Patient\'s number
 Following constant not same:
 	original- val:Pay attention to the "Done with" checkboxes.  After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected!  Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
-	spreadsheet- ID:5360 val:Pay attention to the \"Done with\" checkboxes.  After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected!  Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
+	spreadsheet- ID:6104 val:Pay attention to the \"Done with\" checkboxes.  After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected!  Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
 Following constant not same:
 	original- val:Please enter at least the item's name
-	spreadsheet- ID:5559 val:Please enter at least the item\'s name
+	spreadsheet- ID:6332 val:Please enter at least the item\'s name
 Following constant not same:
 	original- val:Please enter at least the track's name
-	spreadsheet- ID:5560 val:Please enter at least the track\'s name
+	spreadsheet- ID:6333 val:Please enter at least the track\'s name
 Following constant not same:
 	original- val:Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
-	spreadsheet- ID:5595 val:Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
+	spreadsheet- ID:6372 val:Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
 Following constant not same:
 	original- val:The 'Clear' button will remove all annotations.
-	spreadsheet- ID:7396 val:The \'Clear\' button will remove all annotations.
+	spreadsheet- ID:8401 val:The \'Clear\' button will remove all annotations.
+Following constant not same:
+	original- val:The 'Edit' window is divided into two columns, 'Active' and 'Inactive'. The groups (AROs) that are listed in the active column are those groups that the user belongs to.
+	spreadsheet- ID:8402 val:The \'Edit\' window is divided into two columns, \'Active\' and \'Inactive\'. The groups (AROs) that are listed in the active column are those groups that the user belongs to.
+Following constant not same:
+	original- val:The Encounter Preview button is useful for showing encounter type layout forms as seen when using form in an encounter. Note, this feature is only useful for showing encounter forms and won't display system forms like Demographics
+	spreadsheet- ID:8418 val:The Encounter Preview button is useful for showing encounter type layout forms as seen when using form in an encounter. Note, this feature is only useful for showing encounter forms and won\'t display system forms like Demographics
 Following constant not same:
 	original- val:The first ("target") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.
-	spreadsheet- ID:7424 val:The first (\"target\") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.
+	spreadsheet- ID:8434 val:The first (\"target\") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.
+Following constant not same:
+	original- val:The group (ARO) that you created will now appear in alphabetical order in the 'Groups and Access Controls' section.
+	spreadsheet- ID:8453 val:The group (ARO) that you created will now appear in alphabetical order in the \'Groups and Access Controls\' section.
+Following constant not same:
+	original- val:The items listed in the 'Active' column delineate the privileges of this group (ARO) and constitutes this group's Access Control List (ACL).
+	spreadsheet- ID:8463 val:The items listed in the \'Active\' column delineate the privileges of this group (ARO) and constitutes this group\'s Access Control List (ACL).
 Following constant not same:
 	original- val:The second ("source") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.
-	spreadsheet- ID:7475 val:The second (\"source\") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.
+	spreadsheet- ID:8495 val:The second (\"source\") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.
 Following constant not same:
 	original- val:The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the "W" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
-	spreadsheet- ID:7476 val:The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the \"W\" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
+	spreadsheet- ID:8496 val:The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the \"W\" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
+Following constant not same:
+	original- val:The user's actual privileges are determined by the access to the parts of the program i.e. (ACO) that each group (ARO) has.
+	spreadsheet- ID:8511 val:The user\'s actual privileges are determined by the access to the parts of the program i.e. (ACO) that each group (ARO) has.
 Following constant not same:
 	original- val:The X12 files as well as the resulting HTML output reports are archived in the "era" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
-	spreadsheet- ID:7488 val:The X12 files as well as the resulting HTML output reports are archived in the \"era\" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
+	spreadsheet- ID:8513 val:The X12 files as well as the resulting HTML output reports are archived in the \"era\" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
 Following constant not same:
 	original- val:This will be a "dry run" with no physical data updates.
-	spreadsheet- ID:7613 val:This will be a \"dry run\" with no physical data updates.
+	spreadsheet- ID:8667 val:This will be a \"dry run\" with no physical data updates.
+Following constant not same:
+	original- val:This will turn off use of safe apostrophe, which is done by converting \' and " to `.(it is highly recommended that this setting is turned off and that safe apostrophe\'s are used)
+	spreadsheet- ID:8687 val:This will turn off use of safe apostrophe, which is done by converting \' and \" to `.(it is highly recommended that this setting is turned off and that safe apostrophe\'s are used)
 Following constant not same:
 	original- val:To ded'ble
-	spreadsheet- ID:7690 val:To ded\'ble
+	spreadsheet- ID:8750 val:To ded\'ble
+Following constant not same:
+	original- val:To select multiple groups hold down the 'Shift' or 'Ctrl' keys while clicking.
+	spreadsheet- ID:8770 val:To select multiple groups hold down the \'Shift\' or \'Ctrl\' keys while clicking.
 Following constant not same:
 	original- val:Upon clicking an invoice number the "manual posting window" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
-	spreadsheet- ID:8011 val:Upon clicking an invoice number the \"manual posting window\" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
+	spreadsheet- ID:9108 val:Upon clicking an invoice number the \"manual posting window\" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
 Following constant not same:
 	original- val:uses php <a href="http://php.net/strftime">strftime</a> format
-	spreadsheet- ID:8109 val:uses php <a href=\"http://php.net/strftime\">strftime</a> format
+	spreadsheet- ID:9233 val:uses php <a href=\"http://php.net/strftime\">strftime</a> format
+Following constant not same:
+	original- val:When checked, messages are processed for patients with Patient Demographic Choice: "Hipaa Notice Received" set to "Unassigned" or "Yes". When unchecked, this choice must = "YES" to process the patient reminder. For patients with Choice ="No", Reminders will need to be processed manually.
+	spreadsheet- ID:9475 val:When checked, messages are processed for patients with Patient Demographic Choice: \"Hipaa Notice Received\" set to \"Unassigned\" or \"Yes\". When unchecked, this choice must = \"YES\" to process the patient reminder. For patients with Choice =\"No\", Reminders will need to be processed manually.
+Following constant not same:
+	original- val:You can close the edit box by clicking on the 'slashed eye' icon next to the group's name.
+	spreadsheet- ID:9609 val:You can close the edit box by clicking on the \'slashed eye\' icon next to the group\'s name.
+Following constant not same:
+	original- val:You can not change status to 'Arrive' before the appointment's time
+	spreadsheet- ID:9611 val:You can not change status to \'Arrive\' before the appointment\'s time
 Following constant not same:
 	original- val:You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, '/*lock::*/'
-	spreadsheet- ID:8443 val:You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, \'/*lock::*/\'
+	spreadsheet- ID:9621 val:You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, \'/*lock::*/\'
 Following constant not same:
 	original- val:" for code 
-	spreadsheet- ID:8549 val:\" for code 
+	spreadsheet- ID:9744 val:\" for code 
 Following constant not same:
 	original- val:" is CHECKED in PostCalendar Settings!
-	spreadsheet- ID:8550 val:\" is CHECKED in PostCalendar Settings!
+	spreadsheet- ID:9745 val:\" is CHECKED in PostCalendar Settings!
 Following constant not same:
 	original- val:' should exist but does not.
-	spreadsheet- ID:8559 val:\' should exist but does not.
+	spreadsheet- ID:9754 val:\' should exist but does not.
 
 Done checking constants:
-	63 mismatches found (known is 63)
+	95 mismatches found (known is 95)
 Good, constants weren't modified by translators
 
 
 Language Statistics:
-Total number of languages with translations: 42
-Total number of constants: 8691
-Total number of real definitions: 157768
-Albanian: 42.47% (3691 definitions)
-Amharic: 0.05% (4 definitions)
-Arabic: 71.15% (6184 definitions)
-Armenian: 79.3% (6892 definitions)
-Bahasa Indonesia: 64.14% (5574 definitions)
-Bengali: 1.24% (108 definitions)
+Total number of languages with translations: 46
+Total number of constants: 9895
+Total number of real definitions: 174000
+Albanian: 37.3% (3691 definitions)
+Amharic: 0.53% (52 definitions)
+Arabic: 63.01% (6235 definitions)
+Armenian: 69.65% (6892 definitions)
+Bahasa Indonesia: 56.42% (5583 definitions)
+Bengali: 1.74% (172 definitions)
 Bosnian: 0% (0 definitions)
-Chinese (Simplified): 63.49% (5518 definitions)
-Chinese (Traditional): 61.25% (5323 definitions)
+Chinese (Simplified): 55.77% (5518 definitions)
+Chinese (Traditional): 53.79% (5323 definitions)
 Croatian: 0% (0 definitions)
-Czech: 60.91% (5294 definitions)
-Danish: 36.57% (3178 definitions)
-dummy: 100% (8691 definitions)
-Dutch: 81.46% (7080 definitions)
-English (Indian): 1.62% (141 definitions)
+Czech: 53.5% (5294 definitions)
+Danish: 32.12% (3178 definitions)
+dummy: 100% (9895 definitions)
+Dutch: 79.55% (7871 definitions)
+English (Indian): 1.74% (172 definitions)
 English (Standard): 0% (0 definitions)
-Estonian: 8.07% (701 definitions)
-Finnish: 38.02% (3304 definitions)
-French (Canadian): 29.92% (2600 definitions)
-French (Standard): 59.43% (5165 definitions)
-Georgian: 2.44% (212 definitions)
-German: 56.3% (4893 definitions)
-Greek: 65.19% (5666 definitions)
-Hebrew: 86.85% (7548 definitions)
-Hindi: 70.74% (6148 definitions)
-Hungarian: 0.07% (6 definitions)
-Italian: 77.71% (6754 definitions)
-Japanese: 34.22% (2974 definitions)
-Korean: 1.82% (158 definitions)
-Lithuanian: 0.66% (57 definitions)
-Marathi: 78.67% (6837 definitions)
-Mongolian: 0.35% (30 definitions)
-Norwegian: 10.99% (955 definitions)
-Persian: 38.06% (3308 definitions)
-Polish: 22.99% (1998 definitions)
-Portuguese (Brazilian): 48.97% (4256 definitions)
-Portuguese (European): 44.99% (3910 definitions)
-Romanian: 34.46% (2995 definitions)
-Russian: 64.4% (5597 definitions)
-Serbian: 0% (0 definitions)
+Estonian: 7.08% (701 definitions)
+Filipino: 0.1% (10 definitions)
+Finnish: 33.39% (3304 definitions)
+French (Canadian): 26.37% (2609 definitions)
+French (Standard): 52.5% (5195 definitions)
+Georgian: 2.15% (213 definitions)
+German: 49.45% (4893 definitions)
+Greek: 71.76% (7101 definitions)
+Hebrew: 76.37% (7557 definitions)
+Hindi: 62.13% (6148 definitions)
+Hungarian: 0.06% (6 definitions)
+Italian: 68.26% (6754 definitions)
+Japanese: 30.26% (2994 definitions)
+Korean: 1.6% (158 definitions)
+Lithuanian: 0.58% (57 definitions)
+Marathi: 69.1% (6837 definitions)
+Mongolian: 0.4% (40 definitions)
+Norwegian: 9.65% (955 definitions)
+Persian: 33.58% (3323 definitions)
+Polish: 24.6% (2434 definitions)
+Portuguese (Brazilian): 48.72% (4821 definitions)
+Portuguese (European): 40.61% (4018 definitions)
+Romanian: 87.76% (8684 definitions)
+Russian: 57.65% (5704 definitions)
+Serbian: 0.22% (22 definitions)
 Sinhala: 0% (0 definitions)
 Slovak: 0% (0 definitions)
-Somali: 1.14% (99 definitions)
-Spanish (Latin American): 70.45% (6123 definitions)
-Spanish (Spain): 65.99% (5735 definitions)
-Swedish: 36.26% (3151 definitions)
-Turkish: 62.69% (5448 definitions)
-Ukrainian: 71.78% (6238 definitions)
-Vietnamese: 68.06% (5915 definitions)
+Somali: 1% (99 definitions)
+Spanish (Latin American): 63.97% (6330 definitions)
+Spanish (Spain): 59.32% (5870 definitions)
+Swedish: 31.86% (3153 definitions)
+Tamil: 62.12% (6147 definitions)
+Thai: 0.36% (36 definitions)
+Turkish: 57.53% (5693 definitions)
+Ukrainian: 63.04% (6238 definitions)
+Urdu: 0% (0 definitions)
+Vietnamese: 59.78% (5915 definitions)

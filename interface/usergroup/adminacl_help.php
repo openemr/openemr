@@ -78,7 +78,7 @@ use OpenEMR\Core\Header;
 
                 <p><?php echo xlt("Rather than granting access to each ACO individually for each user the program grants access to groups that request these privileges. These groups are called Access Request Objects (ARO)."); ?>
 
-                <p><?php echo xlt("The default installation has six such groups -  Accounting, Administrators, Clinicians, Emergency Login, Front Office and Physicians."); ?>
+                <p><?php echo xlt("The default installation has six such groups - Accounting, Administrators, Clinicians, Emergency Login, Front Office and Physicians."); ?>
 
                 <p><?php echo xlt("Each of these groups (AROs) has access to pre-determined parts of the program (ACOs)."); ?>
 
@@ -174,7 +174,7 @@ use OpenEMR\Core\Header;
             </div>
             <div class= "row" id="users_section">
                 <h4 class="oe-help-heading"><?php echo xlt("User Memberships"); ?><a href="#listed_items"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
-                <p><?php echo xlt("By default the User Memberships section is selected and all the active registred users will be listed in alphabetical order by their user names."); ?>
+                <p><?php echo xlt("By default the User Memberships section is selected and all the active registered users will be listed in alphabetical order by their user names."); ?>
 
                 <p><?php echo xlt("Clicking on the icon next to their name will bring up the 'Edit' window."); ?>
 
@@ -190,7 +190,7 @@ use OpenEMR\Core\Header;
             </div>
             <div class= "row" id="groups_section">
                 <h4 class="oe-help-heading"><?php echo xlt("Groups and Access Controls"); ?><a href="#listed_items"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
-                <p><?php echo xlt("Checking the Groups and Access Controls checkbox will reveal this section that lists all the categories with sub-categories (ACOs), i.e. the parts of the program contolled by the access control list privileges."); ?>
+                <p><?php echo xlt("Checking the Groups and Access Controls checkbox will reveal this section that lists all the categories with sub-categories (ACOs), i.e. the parts of the program controlled by the access control list privileges."); ?>
 
                 <p><?php echo xlt("It also lets you create new groups (AROs) as well as remove existing ones."); ?>
 
@@ -208,7 +208,7 @@ use OpenEMR\Core\Header;
 
                 <p><?php echo xlt("Move the individual items from 'Active' to 'Inactive' or vice-versa by selecting the items and pressing the relevant button with the double chevron."); ?>  <input class='button_submit' type='button' value=' >> ' >&nbsp;&nbsp;<input class='button_submit' type='button' value=' << ' >
 
-                <p><i class="fa fa-exclamation-circle" style="color:orange" aria-hidden="true"></i> <strong><?php echo xlt(" Note there is no 'Save' button."); ?></strong>
+                <p><i class="fa fa-exclamation-circle" style="color:orange" aria-hidden="true"></i> <strong><?php echo xlt("Note there is no 'Save' button."); ?></strong>
 
                 <p><?php echo xlt("Click the slashed-eye icon to close."); ?>
 

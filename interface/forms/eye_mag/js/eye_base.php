@@ -1273,7 +1273,7 @@ function build_IMPPLAN(items,nodisplay) {
     }
       $('#Coding_DX_Codes').html("");
       $('#visit_justification').html("");
-    
+
     if ((items == null) || ((typeof items == "undefined")|| (items.length =='0'))) {
         items = [];
         $('#IMPPLAN_text').removeClass('nodisplay'); //Display Builder instructions for starting out
@@ -1302,7 +1302,7 @@ function build_IMPPLAN(items,nodisplay) {
                     for (i=0;i < CodeArr.length;i++) {
                       if (CodeArr.length == (TitleArr.length-1)) { //there is a trailing \r
                         $('#Coding_DX_Codes').append(count_dx +'. '+CodeArr[i]+': '+TitleArr[i]+'<br />');
-                        
+
                         justify_btn = '<span class="modifier status_on" name="visit_justifier" id="visit_just_'+count_dx+'" value="" data-justcode="'+value.codetype+'|'+value.code+'" title="'+value.codedesc+'">'+count_dx+'</span>';
                         $('#visit_justification').append(justify_btn);
                         visit_justifier.push(value.codetype+'|'+value.code);
@@ -1386,9 +1386,9 @@ function build_IMPPLAN(items,nodisplay) {
           var herenow = $("#TEST_"+index+"_justify");
           for (var i = 0, length = visit_justifier.length; i < length; i++) {
             item2 = visit_justifier[i];
-            justify_btn = '&nbsp;<span class="modifier" id="TEST_'+index+'_just_'+i+'" name="TEST_'+index+'_justifiers" value="" data-justcode="'+item2+'" title="'+item2+'">'+(i+1)+'</span>';  
+            justify_btn = '&nbsp;<span class="modifier" id="TEST_'+index+'_just_'+i+'" name="TEST_'+index+'_justifiers" value="" data-justcode="'+item2+'" title="'+item2+'">'+(i+1)+'</span>';
             herenow.append(justify_btn);
-          } 
+          }
         });
 
             // The IMPRESSION DXs are "contenteditable" spans.
@@ -1640,7 +1640,7 @@ function build_CODING_list() {
                              codetype: value['codetype'],
                              title:    value['title']
                              });
-        
+
         }
       }
     });
@@ -1695,7 +1695,7 @@ function build_CODING_list() {
                                        });
                     }
                   });
-    
+
     CODING_to_feesheet(CODING_items);
 }
 
@@ -1907,9 +1907,9 @@ function update_DOCS() {
                    code_400(); //the user does not have write privileges!
                    return;
                    }
-                   //TODO:  We should also update the Communication Engine for sending note 
+                   //TODO:  We should also update the Communication Engine for sending note
                    // to reflect these people...
-                   // Currently we have to reload the page to get the new names we selected 
+                   // Currently we have to reload the page to get the new names we selected
                    // to show up in the Communications Engine
                    });
 }
@@ -2024,9 +2024,9 @@ function update_appt_status(new_status) {
                    code_400(); //the user does not have write privileges!
                    return;
                    }
-                   //TODO:  We should also update the Communication Engine for sending note 
+                   //TODO:  We should also update the Communication Engine for sending note
                    // to reflect these people...
-                   // Currently we have to reload the page to get the new names we selected 
+                   // Currently we have to reload the page to get the new names we selected
                    // to show up in the Communications Engine
                    });
 }
@@ -2047,11 +2047,11 @@ var allPanels = $('.building_blocks > dd').hide();
                   check_exam_detail();
                   hide_DRAW();
                   hide_right();
-                  
+
                   Suggest_visit_code();
                   show_QP_section('IMPPLAN','1');
 
-                  
+
                   //on checking TESTS, show modifiers and justifier fields
                   $(".TESTS").click(function() {
                     var test_id = this.id;
@@ -2064,7 +2064,7 @@ var allPanels = $('.building_blocks > dd').hide();
                     }
 
                   });
-                  
+
 
                   $('[title]').qtip({
                                     position: {
@@ -2431,7 +2431,7 @@ var allPanels = $('.building_blocks > dd').hide();
                   $(".neurosens,.neurosens2").blur(function() {
                                                    check_CPT_92060();
                                                    });
-                  
+
                   //  functions to improve flow of refraction input
                   $("input[name$='PRISM'],input[class^='prism']").blur(function() {
                                                                        //make it all caps
@@ -3227,7 +3227,7 @@ var allPanels = $('.building_blocks > dd').hide();
                                             //$row['notes'] is the clinical zone (EXT,ANTSEG,RETINA,NEURO)
                                             //$row['option_id'] is the field name
                                             //$row['title'] is the default value to use for this provider
-                                                ${$row[notes]}[$row[option_id]] = $row[title]; //This builds each clinical section into its own array (used below)
+                                                ${$row['notes']}[$row['option_id']] = $row['title']; //This builds each clinical section into its own array (used below)
                                                 echo '$("#'.$row['option_id'].'").val("'.$row['title'].'").css("background-color","beige");
                                             ';
                                             }
@@ -3865,7 +3865,7 @@ var allPanels = $('.building_blocks > dd').hide();
                                                              // alert('Form was IMP');
                                                            }
                                                          });
-                                                         
+
                   $('#IMP').blur(function() {
                                  //add this DX to the obj.IMPPLAN_items array
                                  //take the first line as the impression and the rest as the plan
@@ -3910,7 +3910,7 @@ var allPanels = $('.building_blocks > dd').hide();
                                                         });
                                  build_IMPPLAN(obj.IMPPLAN_items,'1');
                                  store_IMPPLAN(obj.IMPPLAN_items);
-                                 
+
                                  //submit_form('1');//tell the server where we stand
                                  });
                   $('#Add_Glasses').click(function() {
@@ -3963,7 +3963,7 @@ var allPanels = $('.building_blocks > dd').hide();
                     var item = $( "input[type=radio][name=visit_status]:checked" ).val();
                     update_appt_status(item);
                   });
-                  
+
 
                    $(document).on("click", "[name='visit_justifier']", function () {
                                                    var d = $(this).data();
@@ -3988,7 +3988,7 @@ var allPanels = $('.building_blocks > dd').hide();
                     }
 
                   });
-                  
+
                   build_IMPPLAN(obj.IMPPLAN_items);
                   scroll='1';
                     <?php if ($GLOBALS['new_tabs_layout'] !=='1') {

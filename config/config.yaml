@@ -113,3 +113,7 @@ assets:
     pure:
         basePath: %assets_static_relative%/pure-0-5-0/
         link: pure-min.css
+    qtip2:
+        basePath: %assets_static_relative%/qtip2-3-0-3/dist/
+        script: jquery.qtip.min.js
+        link: jquery.qtip.min.css

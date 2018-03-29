@@ -170,6 +170,8 @@ $gacl->add_object('patients', 'Transactions (write optional)', 'trans', 10, 0, '
 // xl('Transactions (write optional)')
 $gacl->add_object('patients', 'Documents (write,addonly optional)', 'docs', 10, 0, 'ACO');
 // xl('Documents (write,addonly optional)')
+$gacl->add_object('patients', 'Documents Delete', 'docs_rm', 10, 0, 'ACO');
+// xl('Documents Delete')
 $gacl->add_object('patients', 'Patient Notes (write,addonly optional)', 'notes', 10, 0, 'ACO');
 // xl('Patient Notes (write,addonly optional)')
 $gacl->add_object('patients', 'Sign Lab Results (write,addonly optional)', 'sign', 10, 0, 'ACO');
@@ -263,7 +265,7 @@ $gacl->add_acl(
         'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'),
         'encounters'=>array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
         'lists'=>array('default','state','country','language','ethrace'),
-        'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab'),
+        'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm'),
         'sensitivities'=>array('normal', 'high'),
         'nationnotes'=>array('nn_configure'),
         'patientportal'=>array('portal'),
@@ -540,7 +542,7 @@ $gacl->add_acl(
         'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'),
         'encounters'=>array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
         'lists'=>array('default','state','country','language','ethrace'),
-        'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab'),
+        'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm'),
         'sensitivities'=>array('normal', 'high'),
         'nationnotes'=>array('nn_configure'),
         'patientportal'=>array('portal'),

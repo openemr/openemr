@@ -3,13 +3,13 @@
 * Function to check and/or sanitize things for security such as
 * directories names, file names, etc.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @author  Roberto Vasquez <robertogagliotta@gmail.com>
- * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
- * @copyright Copyright (c) 2012-2017 Brady Miller <brady.g.miller@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @copyright Copyright (c) 2012-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -28,7 +28,7 @@ function convert_safe_file_dir_name($label)
     return preg_replace('/[^A-Za-z0-9_.-]/', '_', $label);
 }
 
-//Basename functionality for nonenglish languages (without this, basename function ommits nonenglish characters).
+//Basename functionality for nonenglish languages (without this, basename function omits nonenglish characters).
 function basename_international($path)
 {
     $parts = preg_split('~[\\\\/]~', $path);

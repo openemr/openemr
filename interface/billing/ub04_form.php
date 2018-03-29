@@ -962,7 +962,7 @@ textarea{
         <?php echo xlt('Either type a search term in appropriate box or double click box to see available codes.'); ?><br>
         * <?php echo xlt('Double Clicking a NPI box will bring up a current Users dialog for providers.'); ?><br>
         * <?php echo xlt('PDF buttons will save, mark claim reviewed and download claim'); ?><br>
-        * <?php echo xlt('Reset button resets the edited claim to the fee sheet version. If subsequently  saved, it will replace last claim version and be considered reviewed. Otherwise, claim is reset to fee sheet version.'); ?><br>
+        * <?php echo xlt('Reset button resets the edited claim to the fee sheet version. If subsequently saved, it will replace last claim version and be considered reviewed. Otherwise, claim is reset to fee sheet version.'); ?><br>
         * <?php echo xlt('Save button saves claim and marks reviewed'); ?><br>
         * <?php echo xlt('Return button simply returns, then refreshes billing manager'); ?><br><br>
     </div>
