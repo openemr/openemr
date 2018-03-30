@@ -54,7 +54,6 @@ if (($_POST['setting_bootstrap_submenu']) ||
 ?>
 <html>
 <head>
-    <title><?php echo xlt('Message Center'); ?></title>
     <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
     <link rel="stylesheet"  href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>" type="text/css">
 
@@ -85,10 +84,6 @@ if (($_POST['setting_bootstrap_submenu']) ||
         }
 
     </style>
-
-</head>
-
-<body class="body_top">
 <?php
 if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
     $MedEx->display->navigation($logged_in);
@@ -98,6 +93,7 @@ if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
 if (!empty($_REQUEST['go'])) { ?>
     <?php
     if (($_REQUEST['go'] == "setup") && (!$logged_in)) {
+        echo "<title>" . xlt('MedEx Setup') . "</title></head><body class='body_top'>";
         $stage = $_REQUEST['stage'];
         if (!is_numeric($stage)) {
             echo "<br /><span class='title'>$stage " . xlt('Warning') . ": " . xlt('This is not a valid request') . ".</span>";
@@ -105,40 +101,46 @@ if (!empty($_REQUEST['go'])) { ?>
             $MedEx->setup->MedExBank($stage);
         }
     } elseif ($_REQUEST['go'] == "addRecall") {
+        echo "<title>" . xlt('New Recall') . "</title></head><body class='body_top'>";
         $MedEx->display->display_add_recall();
     } else if ($_REQUEST['go'] == 'Recalls') {
+        echo "<title>" . xlt('Recall Board') . "</title></head><body class='body_top'>";
         $MedEx->display->display_recalls($logged_in);
     } elseif ((($_REQUEST['go'] == "setup") || ($_REQUEST['go'] == 'Preferences')) && ($logged_in)) {
+        echo "<title>MedEx" . xlt('Preferences') . "</title></head><body class='body_top'>";
         $MedEx->display->preferences();
     } elseif ($_REQUEST['go'] == 'icons') {
+        echo "<title>MedEx" . xlt('Icons') . "</title></head><body class='body_top'>";
         $MedEx->display->icon_template();
     } elseif ($_REQUEST['go'] == 'SMS_bot') {
+        echo "<title>MedEx" . xlt('SMS') . "</title></head><body class='body_top'>";
         $MedEx->display->SMS_bot($logged_in);
     } else {
+        echo "<title>" . xlt('MedEx Setup') . "</title></head><body class='body_top'>";
         echo xlt('Warning: Navigation error. Please refresh this page.');
     }
 } else {
     //original message.php stuff
+    echo "<title>" . xlt('Message Center') . "</title></head><body class='body_top'>";
     ?>
     <div class="container">
         <?php if ($GLOBALS['disable_rcb'] != '1' || $logged_in) { ?>
-        <div class="row">
+            <div class="row">
             <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
-            <div class="col-sm-6 col-md-6 col-lg-6">
-                <div class="dr_container">
-                    <span class="title"><?php echo xlt('Recalls'); ?></span>
-                    <br/><br/>
-                    <a class="btn btn-primary"
-                       onclick="goReminderRecall('addRecall');"><span><?php echo xlt('New Recall'); ?></span></a>
-                    &nbsp;
-                    <a class="btn btn-primary"
-                       onclick="goReminderRecall('Recalls');"><span><?php echo xlt('Recall Board'); ?></span></a>
-                    &nbsp;
+                <div class="col-sm-6 col-md-6 col-lg-6">
+                    <div class="dr_container">
+                        <span class="title"><?php echo xlt('Recalls'); ?></span>
+                        <br/><br/>
+                        <a class="btn btn-primary"
+                           onclick="goReminderRecall('addRecall');"><span><?php echo xlt('New Recall'); ?></span></a>
+                        &nbsp;
+                        <a class="btn btn-primary"
+                           onclick="goReminderRecall('Recalls');"><span><?php echo xlt('Recall Board'); ?></span></a>
+                        &nbsp;
+                    </div>
                 </div>
-            </div>
-            <?php
-}
-if ($logged_in) { ?>
+            <?php } ?>
+            <?php if ($logged_in) { ?>
                 <div class="col-sm-4 col-md-4 col-lg-4">
                     <span class="title"><?php echo xlt('SMS Zone'); ?></span>
                     <br/><br/>
@@ -153,16 +155,14 @@ if ($logged_in) { ?>
                         <input type="hidden" id="sms_allow" value="">
                     </form>
                 </div>
-
-                <?php
-} ?>
-        </div>
-        <hr/>
+            <?php } ?>
+            </div>
+            <hr/>
         <?php } ?>
         <div class="row">
             <div class="col-sm-12 col-md-12 col-lg-12">
                 <div>
-                    <span class="title"><?php echo xlt('Messages'); ?></span><br /><br />
+                    <span class="title"><?php echo xlt('Reminders'); ?></span><br /><br />
                     <?php
                     // TajEmo Work by CB 2012/01/11 02:51:25 PM adding dated reminders
                     // I am asuming that at this point security checks have been performed
