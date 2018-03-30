@@ -34,13 +34,13 @@ ko.bindingHandlers.location={
                         var titleDocument=jqDocument.attr('title');
                         var titleText="Unknown";
                         var titleClass=jqDocument.find(".title:first");
-                        if (titleClass.length>=1)
-                        {
-                            titleText=titleClass.text();
-                        }
-                        else if (titleDocument.length>=1)
+                        if (titleDocument.length>=1)
                         {
                             titleText=titleDocument;
+                        }
+                        else if (titleClass.length>=1)
+                        {
+                            titleText=titleClass.text();
                         }
                         else
                         {
