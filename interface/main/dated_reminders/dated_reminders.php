@@ -162,8 +162,8 @@ if (isset($_POST['drR'])) {
           $pdHTML = '<div class="dr_container"><table><tr><td valign="top">
                         <p><a class="hideDR css_button_small btn" href="#"><span>'.xlt('Hide Reminders').'</span></a><br /></p>
                         <div class="drHide">'.
-                        '<p><a title="'.xla('View Past and Future Reminders').'" onclick="openLogScreen()" class="css_button btn" href="#"><span>'.xlt('View Log').'</span></a><br /></p>'
-                        .'<p><a onclick="openAddScreen(0)" class="css_button btn" href="#"><span>'.xlt('Send A Dated Reminder').'</span></a></p></div>
+                        '<p><a title="'.xla('View Past and Future Reminders').'" onclick="openLogScreen()" class="css_button_small btn" href="#"><span>'.xlt('View Log').'</span></a><br /></p>'
+                        .'<p><a onclick="openAddScreen(0)" class="css_button_small btn" href="#"><span>'.xlt('Send A Dated Reminder').'</span></a></p></div>
                         </td><td class="drHide drTD">';
 
           $pdHTML .= getRemindersHTML($reminders, $today);
