@@ -1660,6 +1660,16 @@ $GLOBALS_METADATA = array(
             xl('This Allows a Date Range to be Selected in Patient Flow Board.')
         ),
 
+        'ptkr_start_date'=> array(
+            xl('Flow Board: Default Starting Date'),
+            array(
+                'D0' => xl('Current Day'),
+                'B0' => xl('Beginning of Work Week (First day in week above)'),
+            ),
+            'D0',                    // default = Current Day
+            xl('This is the default Beginning date for the Patient Flow Board.  Use Current Day if Allow Date Range is set to no.')
+        ),
+
         'ptkr_end_date' => array(
             xl('Flow Board: Ending Date'),
             array(
@@ -1668,6 +1678,7 @@ $GLOBALS_METADATA = array(
                 'M6' => xl('Six Months Ahead'),
                 'M3' => xl('Three Months Ahead'),
                 'M1' => xl('One Month Ahead'),
+                'D7' => xl('One Week Ahead'),
                 'D1' => xl('One Day Ahead'),
                 'D0' => xl('Same Day'),
             ),
