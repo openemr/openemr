@@ -1,0 +1,70 @@
+// menu
+.f-menu {
+	@include border-box;
+	position: fixed;
+	top: 0;
+	left: 0;
+	transform: translate(-$menu-width, 0);
+	width: $menu-width;
+	height: 100%;
+	z-index: 1;
+	background-color: map-get($colors, menu-background);
+	overflow-x: hidden;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+
+	.f-menu-active & {
+		transform: translate(0, 0);
+
+	}
+
+	ul {
+		margin-top: 0;
+		margin-bottom: 0;
+		padding-left: 0;
+	}
+
+	> ul {
+		margin-top: 0;
+		margin-bottom: 1rem;
+
+		> li {
+			margin-top: 1rem;
+		}
+	}
+
+	li {
+		list-style-type: none;
+		margin-top: 0;
+		margin-bottom: 0;
+	}
+
+	a {
+		display: block;
+		padding: 0.5rem 2rem;
+		color: map-get($colors, menu-text) !important;
+		text-decoration: none;
+		font-size: 0.75rem;
+		line-height: 1;
+
+		&:hover {
+			color: map-get($colors, menu-text) !important;
+			text-decoration: underline;
+		}
+
+		&.f-active {
+			box-shadow: inset 3px 0 0 0 map-get($colors, accent);
+		}
+	}
+
+	.f-menu__heading {
+		padding-left: 1.5rem;
+		font-weight: 700;
+		font-size: .6875rem;
+		text-transform: uppercase;
+
+		&:hover {
+			color: map-get($colors, normal);
+		}
+	}
+}

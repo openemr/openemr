@@ -1,0 +1,65 @@
+.f-controls {
+	@include clearfix;
+	@include border-box;
+
+	.f-control {
+		display: block;
+		float: left;
+		text-align: center;
+		width: percentage(1/3);
+		margin: 0;
+		padding: 1rem 0;
+
+		&.f-active {
+			box-shadow: inset 0 3px 0 0 map-get($colors, accent);
+
+			use {
+				fill: map-get($colors, menu-text);
+			}
+		}
+
+		svg {
+			vertical-align: middle;
+
+			use {
+				fill: if($theme == $theme-dark, map-get($colors, normal), map-get($colors, light) );
+			}
+		}
+	}
+}
+
+.f-control {
+	@include border-box;
+	display: inline-block;
+	cursor: pointer;
+	margin-left: 0.618rem;
+
+	&:first-child {
+		margin-left: 0;
+	}
+
+	svg {
+		width: 14px;
+		height: 14px;
+
+		use {
+			fill: map-get($colors, light);
+		}
+	}
+}
+
+.f-control-bar {
+	@include clearfix;
+	padding: 1rem 0;
+}
+
+.f-menu-toggle {
+	cursor: pointer;
+	vertical-align: middle;
+
+	svg {
+		display: block;
+		float: left;
+		margin-bottom: -1px;
+	}
+}

@@ -1,0 +1,125 @@
+/**
+ * Github-like theme for Prism.js
+ * @author Luke Askew http://github.com/lukeaskew
+ */
+
+// color vars
+$code-colors: (
+	blue: #183691,
+	teal: #0086b3,
+	black: #333,
+	purple: #a71d5d,
+	maroon: #a71d5d,
+	green: #63a35c,
+	light-gray: #f7f7f7,
+	dark-gray: #969896
+);
+
+
+// base
+code,
+code[class*='language-'],
+pre[class*='language-'] {
+	color: map-get($code-colors, black);
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	tab-size: 4;
+	hyphens: none;
+	font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+	line-height: 1.4;
+	direction: ltr;
+	cursor: text;
+	letter-spacing: normal;
+}
+
+// code blocks
+pre[class*='language-'] {
+	overflow: auto;
+	margin: 1em 0;
+	padding: 1.2em;
+	border-radius: 3px;
+	font-size: 85%;
+}
+
+p code,
+li code,
+table code {
+	margin: 0;
+	border-radius: 3px;
+	padding: 0.2em 0;
+	font-size: 85%;
+
+	&:before,
+	&:after {
+		letter-spacing: -0.2em;
+		content: '\00a0';
+	}
+}
+
+code,
+:not(pre) > code[class*='language-'],
+pre[class*='language-'] {
+	background: map-get($code-colors, light-gray);
+}
+
+// inline code
+:not(pre) > code[class*='language-'] {
+	padding: 0.1em;
+	border-radius: 0.3em;
+}
+
+
+// token colors
+.token {
+
+	&.comment,
+	&.prolog,
+	&.doctype,
+	&.cdata {
+		color: map-get($code-colors, dark-gray);
+	}
+
+	&.punctuation,
+	&.string,
+	&.atrule,
+	&.attr-value {
+		color: map-get($code-colors, blue);
+	}
+
+	&.property,
+	&.tag {
+		color: map-get($code-colors, green);
+	}
+
+	&.boolean,
+	&.number {
+		color: map-get($code-colors, teal);
+	}
+
+	&.selector,
+	&.attr-name,
+	&.attr-value .punctuation:first-child,
+	&.keyword,
+	&.regex,
+	&.important {
+		color: map-get($code-colors, maroon);
+	}
+
+
+	&.operator,
+	&.entity,
+	&.url,
+	.language-css &.string {
+		color: map-get($code-colors, purple);
+	}
+
+	&.entity {
+		cursor: help;
+	}
+
+}
+
+.namespace {
+	opacity: 0.7;
+}

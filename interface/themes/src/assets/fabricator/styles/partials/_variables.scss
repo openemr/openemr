@@ -1,0 +1,42 @@
+$base-colors: (
+	dark: hsl(0, 0%, 12%),
+	medium: hsl(0, 0%, 46%),
+	light: hsl(0, 0%, 80%),
+	accent: hsl(0, 0%, 46%)
+);
+
+$theme-dark: (
+	menu-background: map-get($base-colors, dark),
+	menu-text: map-get($base-colors, light),
+	normal: map-get($base-colors, medium)
+);
+
+$theme-light: (
+	menu-background: hsl(0, 0%, 100%),
+	menu-text: map-get($base-colors, medium),
+	normal: map-get($base-colors, medium)
+);
+
+$theme: $theme-light;
+
+$colors: map-merge($base-colors, $theme);
+
+$menu-width: 14rem;
+
+
+// mixins
+@mixin clearfix {
+	&:after {
+		clear: both;
+	}
+
+	&:before,
+	&:after {
+		display: table;
+		content: ' ';
+	}
+}
+
+@mixin border-box {
+	box-sizing: border-box;
+}

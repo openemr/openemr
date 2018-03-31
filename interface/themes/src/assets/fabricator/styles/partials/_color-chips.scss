@@ -1,0 +1,29 @@
+.f-color-chips {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.f-color-chip {
+	flex-grow: 1;
+	flex-shrink: 0;
+	flex-basis: 100%;
+	border-top-width: 8em;
+	border-top-style: solid;
+	border-bottom-width: 0;
+	border-bottom-style: solid;
+	background-color: #fff;
+	font-weight: 700;
+	font-size: 0.75em;
+	padding: 1em;
+	margin-bottom: 2em;
+
+	@media (min-width: 60em) {
+		flex-basis: 13em;
+	}
+
+	.f-color-chip__color {
+		background-color: #fff;
+		content: attr(data-color);
+		font-weight: 400;
+	}
+}

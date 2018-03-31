@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>{{title}}</title>
+
+	{{#if fabricator}}<link rel="stylesheet" href="{{baseurl}}/assets/fabricator/styles/f.css">{{/if}}
+
+	<!-- toolkit styles -->
+	<link rel="stylesheet" href="{{baseurl}}/assets/toolkit/styles/toolkit.css">
+	<!-- /toolkit styles -->
+
+</head>
+<body>
+
+	{{#if fabricator}}
+		{{> f-icons}}
+		{{> f-menu}}
+		<div class="f-container">
+			{{> f-control-bar}}
+	{{/if}}
+
+
+	{% body %}
+
+
+	{{#if fabricator}}
+		</div>
+	<script src="{{baseurl}}/assets/fabricator/scripts/f.js"></script>
+	{{/if}}
+
+	<!-- toolkit scripts -->
+	<script src="{{baseurl}}/assets/toolkit/scripts/toolkit.js"></script>
+	<!-- /toolkit scripts -->
+
+</body>
+</html>

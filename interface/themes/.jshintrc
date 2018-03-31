@@ -1,0 +1,20 @@
+{
+  "boss": true,
+  "browser": true,
+  "curly": true,
+  "debug": true,
+  "devel": true,
+  "eqeqeq": true,
+  "expr": true,
+  "forin": true,
+  "immed": true,
+  "noarg": true,
+  "node": true,
+  "noempty": true,
+  "nonew": true,
+  "strict": true,
+  "trailing": true,
+  "undef": true,
+  "unused": true,
+  "globals": {}
+}
