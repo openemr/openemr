@@ -51,6 +51,10 @@
 .f-control-bar {
 	@include clearfix;
 	padding: 1rem 0;
+
+	.f-menu-theme {
+		float: right;
+	}
 }
 
 .f-menu-toggle {

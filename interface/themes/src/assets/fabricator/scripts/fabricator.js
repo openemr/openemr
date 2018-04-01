@@ -17,7 +17,8 @@ fabricator.options = {
 	toggles: {
 		labels: true,
 		notes: true,
-		code: false
+		code: true,
+		theme: 'light'
 	},
 	menu: false,
 	mq: '(min-width: 60em)'
@@ -58,7 +59,8 @@ fabricator.dom = {
 	root: document.querySelector('html'),
 	primaryMenu: document.querySelector('.f-menu'),
 	menuItems: document.querySelectorAll('.f-menu li a'),
-	menuToggle: document.querySelector('.f-menu-toggle')
+	menuToggle: document.querySelector('.f-menu-toggle'),
+	themeMenu: document.querySelector('.f-menu-theme')
 };
 
 
@@ -229,19 +231,23 @@ fabricator.allItemsToggles = function () {
 		var button = document.querySelector('.f-controls [data-f-toggle-control=' + type + ']'),
 			_items = items[type];
 
-		for (var i = 0; i < _items.length; i++) {
-			if (value) {
-				_items[i].classList.remove('f-item-hidden');
-			} else {
-				_items[i].classList.add('f-item-hidden');
+		if (_items) {
+			for (var i = 0; i < _items.length; i++) {
+				if (value) {
+					_items[i].classList.remove('f-item-hidden');
+				} else {
+					_items[i].classList.add('f-item-hidden');
+				}
 			}
 		}
 
 		// toggle styles
-		if (value) {
-			button.classList.add('f-active');
-		} else {
-			button.classList.remove('f-active');
+		if (button) {
+			if (value) {
+				button.classList.add('f-active');
+			} else {
+				button.classList.remove('f-active');
+			}
 		}
 
 		// update options
@@ -359,10 +365,58 @@ fabricator.setInitialMenuState = function () {
 
 
 /**
+ * load the default theme and add a listener for when it changes
+ * See: http://www.javascriptkit.com/javatutors/loadjavascriptcss.shtml
+ */
+fabricator.setInitialTheme = function () {
+	var themePath = "/assets/toolkit/styles/style_";
+	var themeMenu = fabricator.dom.themeMenu;
+	themeMenu.value = fabricator.options.toggles.theme;
+
+	loadjscssfile(themePath + themeMenu.value + ".css", "css") //dynamically load and add this .css file
+
+	themeMenu.addEventListener("change", function() {
+		removejscssfile(themePath + fabricator.options.toggles.theme + ".css", "css");
+		loadjscssfile(themePath + themeMenu.value + ".css", "css");
+		fabricator.options.toggles.theme = themeMenu.value;
+	});
+
+	return this;
+
+};
+
+// helper function for above
+function loadjscssfile(filename, filetype){
+	if (filetype==="js"){ //if filename is a external JavaScript file
+		var fileref=document.createElement('script');
+		fileref.setAttribute("type","text/javascript");
+		fileref.setAttribute("src", filename);
+	}
+	else if (filetype==="css"){ //if filename is an external CSS file
+		var fileref=document.createElement("link");
+		fileref.setAttribute("rel", "stylesheet");
+		fileref.setAttribute("type", "text/css");
+		fileref.setAttribute("href", filename);
+	}
+	if (typeof fileref!=="undefined")
+		document.getElementsByTagName("head")[0].appendChild(fileref)
+}
+
+// helper function for above
+function removejscssfile(filename, filetype){
+	var targetelement=(filetype=="js")? "script" : (filetype=="css")? "link" : "none" //determine element type to create nodelist from
+	var targetattr=(filetype=="js")? "src" : (filetype=="css")? "href" : "none" //determine corresponding attribute to test for
+	var allsuspects=document.getElementsByTagName(targetelement)
+	for (var i=allsuspects.length; i>=0; i--){ //search backwards within nodelist for matching elements to remove
+		if (allsuspects[i] && allsuspects[i].getAttribute(targetattr)!=null && allsuspects[i].getAttribute(targetattr).indexOf(filename)!=-1)
+			allsuspects[i].parentNode.removeChild(allsuspects[i]) //remove element by calling parentNode.removeChild()
+	}
+}
+
+/**
  * Initialization
  */
 (function () {
-
 	// invoke
 	fabricator
 		.setInitialMenuState()
@@ -372,5 +426,7 @@ fabricator.setInitialMenuState = function () {
 		.buildColorChips()
 		.setActiveItem()
 		.bindCodeAutoSelect();
+
+	fabricator.setInitialTheme();
 
 }());

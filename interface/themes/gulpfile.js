@@ -28,7 +28,8 @@ var config = {
 		},
 		styles: {
 			fabricator: 'src/assets/fabricator/styles/fabricator.scss',
-			toolkit: 'src/assets/toolkit/styles/toolkit.scss'
+			style_light: 'src/assets/toolkit/styles/style_light.scss',
+            style_manila: 'src/assets/toolkit/styles/style_manila.scss'
 		},
 		images: 'src/assets/toolkit/images/**/*',
 		views: 'src/toolkit/views/*.html'
@@ -61,8 +62,9 @@ gulp.task('styles:fabricator', function () {
 		.pipe(gulpif(config.dev, reload({stream:true})));
 });
 
-gulp.task('styles:toolkit', function () {
-	gulp.src(config.src.styles.toolkit)
+// todo generalize and combine into one task
+gulp.task('styles:style_light', function () {
+	gulp.src(config.src.styles.style_light)
 		.pipe(sourcemaps.init())
 		.pipe(sass().on('error', sass.logError))
 		.pipe(prefix('last 1 version'))
@@ -72,7 +74,18 @@ gulp.task('styles:toolkit', function () {
 		.pipe(gulpif(config.dev, reload({stream:true})));
 });
 
-gulp.task('styles', ['styles:fabricator', 'styles:toolkit']);
+gulp.task('styles:style_manila', function () {
+    gulp.src(config.src.styles.style_manila)
+        .pipe(sourcemaps.init())
+        .pipe(sass().on('error', sass.logError))
+        .pipe(prefix('last 1 version'))
+        .pipe(gulpif(!config.dev, csso()))
+        .pipe(sourcemaps.write())
+        .pipe(gulp.dest(config.dest + '/assets/toolkit/styles'))
+        .pipe(gulpif(config.dev, reload({stream:true})));
+});
+
+gulp.task('styles', ['styles:fabricator', 'styles:style_light', 'styles:style_manila']);
 
 
 // scripts
@@ -150,10 +163,14 @@ gulp.task('serve', function () {
 	gulp.task('styles:fabricator:watch', ['styles:fabricator']);
 	gulp.watch('src/assets/fabricator/styles/**/*.scss', ['styles:fabricator:watch']);
 
-	gulp.task('styles:toolkit:watch', ['styles:toolkit']);
-	gulp.watch('src/assets/toolkit/styles/**/*.scss', ['styles:toolkit:watch']);
+    // todo generalize and combine into one task
+	gulp.task('styles:style_light:watch', ['styles:style_light']);
+	gulp.watch('src/assets/toolkit/styles/**/*.scss', ['styles:style_light:watch']);
 
-	gulp.task('scripts:watch', ['scripts'], reload);
+    gulp.task('styles:style_manila:watch', ['styles:style_manila']);
+    gulp.watch('src/assets/toolkit/styles/**/*.scss', ['styles:style_manila:watch']);
+
+    gulp.task('scripts:watch', ['scripts'], reload);
 	gulp.watch('src/assets/{fabricator,toolkit}/scripts/**/*.js', ['scripts:watch']).on('change', webpackCache);
 
 	gulp.task('images:watch', ['images'], reload);
