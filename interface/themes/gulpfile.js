@@ -29,7 +29,8 @@ var config = {
 		styles: {
 			fabricator: 'src/assets/fabricator/styles/fabricator.scss',
 			style_light: 'src/assets/toolkit/styles/style_light.scss',
-            style_manila: 'src/assets/toolkit/styles/style_manila.scss'
+            style_manila: 'src/assets/toolkit/styles/style_manila.scss',
+            style_color: 'src/assets/toolkit/styles/style_COLOR-base.scss'
 		},
 		images: 'src/assets/toolkit/images/**/*',
 		views: 'src/toolkit/views/*.html'
@@ -85,7 +86,18 @@ gulp.task('styles:style_manila', function () {
         .pipe(gulpif(config.dev, reload({stream:true})));
 });
 
-gulp.task('styles', ['styles:fabricator', 'styles:style_light', 'styles:style_manila']);
+gulp.task('styles:style_color', function () {
+    gulp.src(config.src.styles.style_color)
+        .pipe(sourcemaps.init())
+        .pipe(sass().on('error', sass.logError))
+        .pipe(prefix('last 1 version'))
+        .pipe(gulpif(!config.dev, csso()))
+        .pipe(sourcemaps.write())
+        .pipe(gulp.dest(config.dest + '/assets/toolkit/styles'))
+        .pipe(gulpif(config.dev, reload({stream:true})));
+});
+
+gulp.task('styles', ['styles:fabricator', 'styles:style_light', 'styles:style_manila', 'styles:style_color']);
 
 
 // scripts
@@ -163,12 +175,8 @@ gulp.task('serve', function () {
 	gulp.task('styles:fabricator:watch', ['styles:fabricator']);
 	gulp.watch('src/assets/fabricator/styles/**/*.scss', ['styles:fabricator:watch']);
 
-    // todo generalize and combine into one task
-	gulp.task('styles:style_light:watch', ['styles:style_light']);
-	gulp.watch('src/assets/toolkit/styles/**/*.scss', ['styles:style_light:watch']);
-
-    gulp.task('styles:style_manila:watch', ['styles:style_manila']);
-    gulp.watch('src/assets/toolkit/styles/**/*.scss', ['styles:style_manila:watch']);
+	gulp.task('styles:style_light:watch', ['styles:style_light', 'styles:style_manila','styles:style_color']);
+	gulp.watch('src/assets/toolkit/styles/**/*.scss', ['styles:style_light:watch', 'styles:style_color']);
 
     gulp.task('scripts:watch', ['scripts'], reload);
 	gulp.watch('src/assets/{fabricator,toolkit}/scripts/**/*.js', ['scripts:watch']).on('change', webpackCache);
