@@ -18,7 +18,7 @@ fabricator.options = {
 		labels: true,
 		notes: true,
 		code: true,
-		theme: 'light'
+		theme: 'style_light'
 	},
 	menu: false,
 	mq: '(min-width: 60em)'
@@ -369,7 +369,7 @@ fabricator.setInitialMenuState = function () {
  * See: http://www.javascriptkit.com/javatutors/loadjavascriptcss.shtml
  */
 fabricator.setInitialTheme = function () {
-	var themePath = "/assets/toolkit/styles/style_";
+	var themePath = "/assets/toolkit/styles/";
 	var themeMenu = fabricator.dom.themeMenu;
 	themeMenu.value = fabricator.options.toggles.theme;
 

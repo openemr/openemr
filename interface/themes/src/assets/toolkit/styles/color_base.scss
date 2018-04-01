@@ -21,31 +21,18 @@
  * @link http://www.open-emr.org
 */
 
-$darkest: #3F0B15;
-$darker: #5F111F;
-$dark: #B0475B;
-$mid: #CF8E9A;
-$midpale: #E2BBC2;
-$pale: #EBD1D6;
-$midpalepale: #F1DEE2;
-$palepale: #F5E8EA;
-$palepurple: #E7E6F9;
-$paler: #FAF3F4;
-$midnightblue: #2F2F7D;
-$white: #FFFFFF;
-
 /*
     COLOR PALETTE
-    #{$darkest} - Darkest*
-    #{$darker} - Darker*
-    #{$dark} - Dark
-    #{$mid} - Mid
-    #{$midpale} - Mid Pale*
-    #{$pale} - Pale
-    #{$midpalepale} - Mid Pale Pale*
-    #{$palepale} - Pale Pale*
+    #{$darkest} - Darkest #{$colorname}*
+    #{$darker} - Darker #{$colorname}*
+    #{$dark} - Dark #{$colorname}
+    #{$mid} - Mid #{$colorname}
+    #{$midpale} - Mid Pale #{$colorname}*
+    #{$pale} - Pale #{$colorname}
+    #{$midpalepale} - Mid Pale Pale #{$colorname}*
+    #{$palepale} - Pale Pale #{$colorname}*
     #{$palepurple} - Pale Purple~
-    #{$paler} - Paler
+    #{$paler} - Paler #{$colorname}
     #{$midnightblue} - Midnight Blue~
     #{$white} - White*~
     * - used in styling buttons and input

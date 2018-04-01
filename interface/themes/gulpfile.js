@@ -30,7 +30,7 @@ var config = {
 			fabricator: 'src/assets/fabricator/styles/fabricator.scss',
 			style_light: 'src/assets/toolkit/styles/style_light.scss',
             style_manila: 'src/assets/toolkit/styles/style_manila.scss',
-            style_color: 'src/assets/toolkit/styles/style_COLOR-base.scss'
+            style_color: 'src/assets/toolkit/styles/colors/**/*.scss'
 		},
 		images: 'src/assets/toolkit/images/**/*',
 		views: 'src/toolkit/views/*.html'
@@ -97,7 +97,13 @@ gulp.task('styles:style_color', function () {
         .pipe(gulpif(config.dev, reload({stream:true})));
 });
 
-gulp.task('styles', ['styles:fabricator', 'styles:style_light', 'styles:style_manila', 'styles:style_color']);
+gulp.task('styles:style_list', function () {
+	gulp.src("src/assets/toolkit/styles/**/style_*.scss")
+		.pipe(require('gulp-filelist')('themeOptions.html', {flatten: true, removeExtensions: true, destRowTemplate: "<option value=\"@filePath@\">@filePath@</option>\n"}))
+		.pipe(gulp.dest('src/views/layouts/includes'));
+});
+
+gulp.task('styles', ['styles:fabricator', 'styles:style_light', 'styles:style_manila', 'styles:style_color', "styles:style_list"]);
 
 
 // scripts
