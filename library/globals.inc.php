@@ -121,6 +121,7 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'pat_trkr_timer',
     'ptkr_visit_reason',
     'ptkr_date_range',
+    'ptkr_start_date',
     'ptkr_end_date',
     'checkout_roll_off',
     'patient_birthday_alert',
@@ -1666,7 +1667,7 @@ $GLOBALS_METADATA = array(
                 'D0' => xl('Current Day'),
                 'B0' => xl('Beginning of Work Week (First day in week above)'),
             ),
-            'D0',                    // default = Current Day
+            'B0',                    // default = Current Day
             xl('This is the default Beginning date for the Patient Flow Board.  Use Current Day if Allow Date Range is set to no.')
         ),
 
