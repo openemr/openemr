@@ -179,12 +179,12 @@ a:hover {
  =============================================================*/
 
 .body_top {
-	background-color: #FAF3F4;
+	background-color: $paler;
 	margin: 8px
 }
 /* $top_bg_line RP_MODIFIED 2/8/15 #EAE6FF*/
 .bgcolor2 {
-	background-color: #FAF3F4;
+	background-color: $paler;
 }
 /* $GLOBALS['style']['BGCOLOR2'] RP_MODIFIED 2/8/15 #EAE6FF*/
 
@@ -194,11 +194,11 @@ a:hover {
 }
 /* $bottom_bg_line */
 .body_title {
-	background-color: #B0475B;
+	background-color: $dark;
 }
 /* $title_bg_line FFF RP_MODIFIED 12/22/2012 #BE4E1E;*/
 .body_nav {
-	background-color: #FAF3F4;
+	background-color: $paler;
 }
 /* $nav_bg_line RP_MODIFIED 2/8/15 #EAE6FF */
 .body_filler {
@@ -232,7 +232,7 @@ a:hover {
 }
 /* $GLOBALS['style']['BOTTOM_BG_LINE'] */
 .logobar {
-	background-color: #2F2F7D;
+	background-color: $midnightblue;
 	height: 110px;
 }
 /* $GLOBALS['logoBarHeight'] 24262c RP_MODIFIED 12/22/2012*/
@@ -645,12 +645,12 @@ background-color:transparent;RP_MODIFIED 1/18/2016*/
 	border-top: 1px solid gray;
 }
 #addressbook_list tr.evenrow, #searchResults tr:nth-child(even) {
-	background-color: #FFFFFF;
-	/*RP_MODIFIED 1/16/2016 :#EBD1D6 */
+	background-color: $white;
+	/*RP_MODIFIED 1/16/2016 :$pale */
 }
 #addressbook_list tr.oddrow, #searchResults tr:nth-child(odd),
 .signout-restore-subheading {
-	background-color: #F1DEE2;
+	background-color: $midpalepale;
 	/*RP_MODIFIED 1/16/2016 #ffffff */
 }
 /* The top navigation icon styling*/
@@ -664,23 +664,23 @@ background-color:transparent;RP_MODIFIED 1/18/2016*/
 .message-table-header, #searchResultsHeader, #searchResultsHeader th,
 #addressbook_list tr.head, .signout-heading, #report_results table thead,
 .dehead, .showborder_head {
-	background: #CF8E9A;
+	background: $mid;
 	/*styles the message table header*/
 }
 input[type="button"], input[type="submit"], button {
 	font-size: 12px;
 	font-weight: 600;
-	color: #FFFFFF !important;
+	color: $white !important;
 	line-height: 1.42857143;
 	text-align: center;
 	white-space: nowrap;
 	vertical-align: middle;
-	background: #5F111F;
+	background: $darker;
 	border: 1px solid transparent;
 	border-radius: 2px;
 }
 .head, #searchCriteria {
-	background: #CF8E9A !important;
+	background: $mid !important;
 }
 #searchCriteria {
 	padding: 0px !important;
@@ -697,7 +697,7 @@ input[type="search"], textarea {
 	-webkit-border-radius: 2px;
 	-moz-border-radius: 2px;
 	border-radius: 2px;
-	border: 1px solid #5F111F !important;
+	border: 1px solid $darker !important;
 	padding: 2px 3px;
 	margin: 3px !important;
 }
@@ -705,15 +705,15 @@ select {
 	-webkit-border-radius: 2px;
 	-moz-border-radius: 2px;
 	border-radius: 2px;
-	border: 1px solid #5F111F !important;
+	border: 1px solid $darker !important;
 	margin: 3px;
 }
 input[type="text"]:focus, input[type="entry"]:focus,
 input[type="password"]:focus, input[type="search"]:focus, textarea:focus,
 select:focus {
-	background: #F5E8EA;
-	border-color: #3F0B15 !important;
-	box-shadow: 0 0 3px #E2BBC2 !important;
+	background: $palepale;
+	border-color: $darkest !important;
+	box-shadow: 0 0 3px $midpale !important;
 	outline: none;
 	-webkit-transition: 0.2s linear all;
 	-moz-transition: 0.2s linear all;
@@ -730,7 +730,7 @@ select[multiple] {
 	float: left;
 	font-size: 10px;
 	font-weight: 600;
-	color: #FFFFFF !important;
+	color: $white !important;
 	line-height: 1.42857143;
 	text-align: center;
 	white-space: nowrap;
@@ -743,7 +743,7 @@ select[multiple] {
 	-ms-user-select: none;
 	user-select: none;
 	background-image: none;
-	background: #5F111F;
+	background: $darker;
 	border: 1px solid transparent;
 	border-radius: 2px;
 	opacity: 1;
@@ -757,7 +757,7 @@ select[multiple] {
 }
 .css_button_small:hover, .css_button_small:focus, .css_button_small.focus,
 .css_button:hover, .css_button:focus, .css_button.focus {
-	color: #FFFFFF;
+	color: $white;
 	text-decoration: none;
 }
 .css_button_small:active, .css_button_small.active, .css_button:active,
@@ -780,7 +780,7 @@ select[multiple] {
 }
 a:visited .css_button_small, a.css_button_small, a:visited .css_button,
 a.css_button {
-	color: #FFFFFF;
+	color: $white;
 }
 .css_button_small span {}
 .css_button {}
@@ -825,8 +825,8 @@ ul.tabNav li.current {
 	text-align: left;
 }
 ul.tabNav a {
-	background: #F5E8EA;
-	border: solid #B0475B;
+	background: $palepale;
+	border: solid $dark;
 ;
 	border-width: 3px 1px 0px 1px;
 	color: #333;
@@ -841,14 +841,14 @@ ul.tabNav a {
 /*added RP_MODIFIED */
 
 ul.tabNav a:hover {
-	background-color: #B0475B;
+	background-color: $dark;
 	color: #000000;
 }
 
 /*RP_MODIFIED 2/11/2015 */
 
 ul.tabNav li.current a {
-	background: #EBD1D6;
+	background: $pale;
 	padding: 8px;
 }
 div.tabContainer {
@@ -864,8 +864,8 @@ div.tabContainer div.tab {
 }
 div.tabContainer div.current {
 	display: block;
-	border: 1px solid #EBD1D6;
-	background: #EBD1D6;
+	border: 1px solid $pale;
+	background: $pale;
 }
 div.tab {
 	min-height: 180px;
@@ -893,12 +893,12 @@ div.tab table td.data {
 	min-width: 120px;
 }
 div.notab {
-	background: #FFFFFF none repeat scroll 0 0;
+	background: $white none repeat scroll 0 0;
 	margin-bottom: 10px;
 	width: 100%;
 }
 div.notab-right {
-	background: #FFFFFF none repeat scroll 0 0;
+	background: $white none repeat scroll 0 0;
 	margin-bottom: 10px;
 	width: 100%;
 }
@@ -912,7 +912,7 @@ div.notab-right {
 	border-bottom: 1px solid;
 }
 .summary_item {
-	background: #FFFFFF;
+	background: $white;
 	padding: 8px;
 }
 
@@ -921,11 +921,11 @@ div.notab-right {
 */
 
 #report_parameters {
-	background-color: #F1DEE2;
+	background-color: $midpalepale;
 	margin: 10px 0px 5px 0px;
 }
 #report_parameters table {
-	border: solid 1px #3F0B15;
+	border: solid 1px $darkest;
 	width: 100%;
 	border-collapse: collapse;
 }
@@ -941,7 +941,7 @@ div.notab-right {
 	text-align: right;
 }
 #report_parameters>table>tbody>tr>td>table {
-	border-left: 1px solid #3F0B15 !important;
+	border-left: 1px solid $darkest !important;
 	/*openemr5*/
 }
 #report_parameters .form-control {
@@ -959,13 +959,13 @@ div.notab-right {
 #report_results table thead {
 	padding: 5px;
 	display: table-header-group;
-	border: solid 1px #3F0B15;
+	border: solid 1px $darkest;
 	text-align: left;
 	font-weight: bold;
 	font-size: 0.7em;
 }
 #report_results table th {
-	border-bottom: 2px solid #3F0B15;
+	border-bottom: 2px solid $darkest;
 	padding: 5px;
 }
 #report_results table td {
@@ -974,7 +974,7 @@ div.notab-right {
 	font-size: 0.8em;
 }
 .report_totals td {
-	background-color: #F1DEE2;
+	background-color: $midpalepale;
 	font-weight: bold;
 }
 
@@ -1016,8 +1016,8 @@ div.notab-right {
 	font-family: helvetica;
 	font-size: 8pt;
 	border: 2px outset rgb(102, 102, 102);
-	background-color: #FAF3F4;
-	/*RP_MODIFIED 2/8/2014 #FAF3F4*/
+	background-color: $paler;
+	/*RP_MODIFIED 2/8/2014 $paler*/
 	padding: 5px;
 	position: absolute;
 	display: block;
@@ -1079,8 +1079,8 @@ div.notab-right {
 	list-style: none;
 }
 #navigation-slide a {
-	background: #FFFFFF;
-	border-top: 2px solid #FAF3F4;
+	background: $white;
+	border-top: 2px solid $paler;
 	/*RP_MODIFIED 2/8/15 #EAE6FF*/
 	color: #000;
 	display: block;
@@ -1089,25 +1089,25 @@ div.notab-right {
 	width: 150px;
 }
 #navigation-slide li a.collapsed {
-	background: #B0475B;
+	background: $dark;
 	/* for non-css3 browsers RP_MODIFIED 2/8/2015 #999*/
-	filter: unquote("progid: DXImageTransform.Microsoft.gradient(startColorstr='#B0475B', endColorstr='#B0475B')");
+	filter: unquote("progid: DXImageTransform.Microsoft.gradient(startColorstr='$dark', endColorstr='$dark')");
 	/* for IE b5cbff*/
-	background: -webkit-gradient(linear, left top, left bottom, from(#B0475B), to(#B0475B));
+	background: -webkit-gradient(linear, left top, left bottom, from($dark), to($dark));
 	/* for webkit browsers b5cbff*/
-	background: -moz-linear-gradient(top, #B0475B, #B0475B);
+	background: -moz-linear-gradient(top, $dark, $dark);
 	/* for firefox 3.6+ b5cbff*/
 }
 #navigation-slide li a.expanded {
-	background: #CF8E9A;
+	background: $mid;
 	/* for non-css3 browsers RP_MODIFIED 2/8/2015 #999*/
-	filter: unquote("progid: DXImageTransform.Microsoft.gradient(startColorstr='#CF8E9A',
-		endColorstr='#CF8E9A')");
+	filter: unquote("progid: DXImageTransform.Microsoft.gradient(startColorstr='$mid',
+		endColorstr='$mid')");
 	/* for IE 61a0ff)*/
-	background: -webkit-gradient(linear, left top, left bottom, from(#CF8E9A),
-		to(#CF8E9A));
+	background: -webkit-gradient(linear, left top, left bottom, from($mid),
+		to($mid));
 	/* for webkit browsers */
-	background: -moz-linear-gradient(top, #CF8E9A, #CF8E9A);
+	background: -moz-linear-gradient(top, $mid, $mid);
 	/* for firefox 3.6+ 61a0ff*/
 }
 #navigation-slide ul li a.collapsed_lv2 {
@@ -1156,17 +1156,17 @@ div.notab-right {
 	padding: 0;
 	list-style: none;
 	float: left;
-	border: 1px solid #FAF3F4;
+	border: 1px solid $paler;
 	/*RP_MODIFIED 2/8/15 #EAE6FF*/
-	background: #B0475B;
+	background: $dark;
 	/* for non-css3 browsers #999 RP_MODIFIED 2/11/2015 */
-	filter: unquote("progid: DXImageTransform.Microsoft.gradient(startColorstr='#B0475B',
-		endColorstr='#B0475B')");
+	filter: unquote("progid: DXImageTransform.Microsoft.gradient(startColorstr='$dark',
+		endColorstr='$dark')");
 	/* for IE b5cbff RP_MODIFIED 2/11/2015 #61a0ff*/
-	background: -webkit-gradient(linear, left top, left bottom, from(#B0475B),
-		to(#B0475B));
+	background: -webkit-gradient(linear, left top, left bottom, from($dark),
+		to($dark));
 	/* for webkit browsers b5cbff RP_MODIFIED 2/11/2015 #61a0ff*/
-	background: -moz-linear-gradient(top, #B0475B, #B0475B);
+	background: -moz-linear-gradient(top, $dark, $dark);
 	/* for firefox 3.6+ b5cbff RP_MODIFIED 2/11/2015 #61a0ff*/
 }
 #sddm li a {
@@ -1180,7 +1180,7 @@ div.notab-right {
 	font-weight: bold;
 }
 #sddm li a:hover {
-	background: #F1DEE2;
+	background: $midpalepale;
 }
 #sddm div {
 	position: absolute;
@@ -1202,22 +1202,22 @@ div.notab-right {
 	white-space: normal;
 	text-align: left;
 	text-decoration: none;
-	background: #FAF3F4;
+	background: $paler;
 	color: #2875DE;
 	font-size: 0.8em;
 	font-weight: normal;
 	z-index: 10;
 }
 #sddm div a:hover {
-	background: #F1DEE2;
+	background: $midpalepale;
 	color: #000000;
 }
 .encounter-form-category-li {
 	z-index: 100;
-	background-color: #FAF3F4 !important;
+	background-color: $paler !important;
 }
 .text-area {
-	background-color: #FFFFFF;
+	background-color: $white;
 	border: 1px solid black;
 	width: 100%;
 	height: 100px;
@@ -1352,19 +1352,19 @@ li.footer, .example_menu .footer {
 	background-color: white;
 	color: gray;
 	margin: 5 0 5 0px;
-	border: 1px solid #5F111F;
+	border: 1px solid $darker;
 	/*RP_ADDED 7/5/2016*/
 	padding: 5px;
 	width: 648px;
 }
 .signout-content {
-	background: #FAF3F4;
+	background: $paler;
 	/*RP_ADDED 8/27/2016*/
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~search div ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 div.section, div.borderbox {
-	border-color: #3F0B15 !important;
-	background-color: #F1DEE2;
+	border-color: $darkest !important;
+	background-color: $midpalepale;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~search div ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -1372,11 +1372,11 @@ div.section, div.borderbox {
 .login div.container {
 	margin-top: 5%;
 	max-width: 500px;
-	background: #FAF3F4 !important;
-	border-top: solid #B0475B 40px;
-	border-left: solid #F5E8EA 1px;
-	border-right: solid #F5E8EA 1px;
-	border-bottom: solid #F5E8EA 1px;
+	background: $paler !important;
+	border-top: solid $dark 40px;
+	border-left: solid $palepale 1px;
+	border-right: solid $palepale 1px;
+	border-bottom: solid $palepale 1px;
 }
 body.login {
 	background: #fcfcfc !important;
@@ -1386,7 +1386,7 @@ body.login {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5fee-sheet*~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 .feesheet-title {
 	font-weight: 900;
-	background: #B0475B !important;
+	background: $dark !important;
 	margin: 0px 0px 10px 0px;
 	padding: 3px;
 }
@@ -1394,23 +1394,23 @@ body.login {
 
 /*~~~~~~~~~~openemr5_tabs-Full~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 #mainBox > .body_top, .body_top_tabs {
-	background-color: #B0475B !important;
+	background-color: $dark !important;
 }
 .tabSpan, .tabSpan_tabs {
-	border-top: 5px solid #B0475B !important;
-	border-left: 1px solid #B0475B !important;
+	border-top: 5px solid $dark !important;
+	border-left: 1px solid $dark !important;
 	box-shadow: 0px 0px 0px rgba(0, 0, 0, 0) !important;
-	border-right: 1px solid #B0475B !important;
+	border-right: 1px solid $dark !important;
 	border-radius: 3px 6px 0px 0px !important;
 }
 .tabNotchosen, .tabsNoHover {
-	border-bottom: 2px solid #B0475B !important;
+	border-bottom: 2px solid $dark !important;
 }
 .tabNotchosen:hover {
 	background: transparent !important;
 }
 .tabSpan_tabs:hover {
-	background: #F1DEE2 !important;
+	background: $midpalepale !important;
 }
 .tabControls_tabs {
 	border-bottom: none !important;
@@ -1436,19 +1436,19 @@ body.login {
 	/*padding: 5px 10px !important;*/
 }
 .patientEncounterList {
-	border: 1px solid #5F111F;
+	border: 1px solid $darker;
 	background: white;
 }
 
 /*.patientEncounterList {
     background: #ffff9e !important;
-    border: 1px solid #5F111F;
+    border: 1px solid $darker;
 
 }
  .patientEncounterList:hover{
-    background: #F5E8EA  !important;
-    border-color: #3F0B15 !important;
-    box-shadow: 0 0 3px #E2BBC2;
+    background: $palepale  !important;
+    border-color: $darkest !important;
+    box-shadow: 0 0 3px $midpale;
     outline: none;
     -webkit-transition: 0.2s linear all;
     -moz-transition: 0.2s linear all;
@@ -1460,16 +1460,16 @@ body.login {
 }*/
 
 .appMenu>span:hover {
-	background-color: #F1DEE2 !important;
+	background-color: $midpalepale !important;
 }
 .menuSection:hover {
-	background-color: #F1DEE2 !important;
+	background-color: $midpalepale !important;
 }
 .menuLabel:hover {
-	background: #F1DEE2 !important;
+	background: $midpalepale !important;
 }
 .menuSection>.menuEntries {
-	box-shadow: 0px 2px 2px #E2BBC2 !important;
+	box-shadow: 0px 2px 2px $midpale !important;
 	border: none !important;
 	border-radius: 0px !important;
 }
@@ -1477,37 +1477,37 @@ body.login {
 	padding: 5px 10px !important;
 }
 .menuEntres li .menuLabel:hover {
-	background-color: #F1DEE2 !important;
+	background-color: $midpalepale !important;
 	color: #333;
 }
 .appMenu li:hover {
-	background-color: #F1DEE2 !important;
+	background-color: $midpalepale !important;
 }
 .menuSection>.menuEntries {
-	background-color: #FAF3F4 !important;
+	background-color: $paler !important;
 }
 .body_title,  .body_title_tabs {
-	background-color: #E2BBC2 !important;
+	background-color: $midpale !important;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs body*~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 .tabs_body, #searchCriteria {
-	background-color: #EBD1D6;
+	background-color: $pale;
 }
 .tabs_body_light {
-	background-color: #F1DEE2;
+	background-color: $midpalepale;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs body*~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs calendar*~~~~~~~~~~~~~~~~~~~~~~~*/
 #calsearch_params {
-	background-color: #F1DEE2 !important;
+	background-color: $midpalepale !important;
 	width: 98% !important;
 }
 .calsearch_body {
-	background-color: #FAF3F4 !important;
+	background-color: $paler !important;
 }
 .chevron_color {
-	color: #5F111F;
+	color: $darker;
 }
 div#providerPicker select {
 	margin: 0px;
@@ -1540,7 +1540,7 @@ img[src *="show_calendar.gif"] {
 	line-height: 24px;
 }
 .report_search_bar {
-	background-color: #F1DEE2;
+	background-color: $midpalepale;
 }
 body.admin-layout input[type="button"] {
 	display: inline-block;
@@ -1572,18 +1572,18 @@ body.admin-layout input[type="button"] {
 #flow_board_parameters {
 	width: 1041px;
 	margin: 25px auto;
-	background-color: #F1DEE2;
+	background-color: $midpalepale;
 }
 #flow_board_parameters td {
 	padding: 10px;
 }
 #flow_board_parameters table {
-	border: solid 1px #3F0B15;
+	border: solid 1px $darkest;
 	width: 100%;
 	border-collapse: collapse;
 }
 .divider {
-	border-color: #3F0B15 !important;
+	border-color: $darkest !important;
 }
 /* flow board filters*/
 
@@ -1745,14 +1745,14 @@ table.dataTable#therapy_groups_list tbody td {
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 external data*~~~~~~~~~~~~~~~~~~~~~~*/
 .dm-ed-in-1 {
-	background-color: #F1DEE2 !important;
-	border-bottom: thin solid #3F0B15 !important;
+	background-color: $midpalepale !important;
+	border-bottom: thin solid $darkest !important;
 }
 ul.ext-tab-head li.child-active {
-	border-bottom: 2px solid #5F111F !important;
+	border-bottom: 2px solid $darker !important;
 }
 .dm-ed-in-9 {
-	background-color: #CF8E9A;
+	background-color: $mid;
 }
 .dm-ed-in-6 {
 	padding-left: 5px;
@@ -1761,28 +1761,28 @@ ul.ext-tab-head li.child-active {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 ros~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 .responsetd {
-	border-color: #3F0B15 !important;
-	background-color: #F1DEE2;
+	border-color: $darkest !important;
+	background-color: $midpalepale;
 	border-spacing: 5px !important;
 	border-collapse: separate;
 	margin: 0px 0px 5px 10px;
 }
 .response {
-	background-color: #FAF3F4;
-	border-color: #3F0B15 !important;
+	background-color: $paler;
+	border-color: $darkest !important;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 ros~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 codes~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 .code_fieldset {
-	border: 1px solid #3F0B15 !important;
-	background-color: #F1DEE2 !important;
+	border: 1px solid $darkest !important;
+	background-color: $midpalepale !important;
 }
 .code_edit {
-	background-color: #CF8E9A !important;
+	background-color: $mid !important;
 }
 .code_legend {
-	background-color: #CF8E9A !important;
+	background-color: $mid !important;
 	margin-bottom: 0px !important;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 codes~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -1795,31 +1795,31 @@ ul.ext-tab-head li.child-active {
 }
 .navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus,
 .navbar-default .navbar-nav>.active>a:hover {
-	background-color: #F1DEE2 !important;
+	background-color: $midpalepale !important;
 }
 .dropdown-menu>li>a:focus, .dropdown-menu>li>a:hover {
-	background-color: #F1DEE2 !important;
+	background-color: $midpalepale !important;
 }
 .dropdown-menu {
-	background-color: #FAF3F4 !important;
-	border-top: 1px solid #FAF3F4 !important;
+	background-color: $paler !important;
+	border-top: 1px solid $paler !important;
 	border-radius: 0px !important;
 }
 .navbar-nav {
 	font-size: 15px;
 }
 .navbar-default {
-	background-color: #B0475B !important;
+	background-color: $dark !important;
 	border: none;
 }
 .navbar-default .navbar-nav>li>a:focus, .navbar-default .navbar-nav>li>a:hover {
-	background-color: #F1DEE2 !important;
+	background-color: $midpalepale !important;
 }
 .navbar-nav>li>.dropdown-menu {
-	box-shadow: 0px 2px 2px #E2BBC2 !important;
+	box-shadow: 0px 2px 2px $midpale !important;
 }
 .navbar-collapse.collapse.in {
-	background-color: #B0475B !important;
+	background-color: $dark !important;
 	font-weight: 700;
 	color: #000000 !important;
 }
@@ -1836,15 +1836,15 @@ input[type=checkbox], input[type=radio] {
 	margin: 4px !important;
 }
 fieldset {
-	border-color: #3F0B15 !important;
-	background-color: #F1DEE2 !important;
+	border-color: $darkest !important;
+	background-color: $midpalepale !important;
 	margin-bottom: 10px!important;
 	padding: 0px 0px 15px 0px !important;
 
 }
 legend {
-	border-bottom: 2px solid #B0475B !important;
-	background: #B0475B !important;
+	border-bottom: 2px solid $dark !important;
+	background: $dark !important;
 	padding-left: 10px !important;
 	color: #000000 !important;
 }
@@ -1858,27 +1858,27 @@ textarea.form-control {
 	outline: none !important;
 }
 .table>thead {
-	background: #CF8E9A !important;
+	background: $mid !important;
 }
 .table-striped>tbody>tr:nth-of-type(odd) {
-	background-color: #FFFFFF !important;
+	background-color: $white !important;
 }
 .btn-default {
-	background: #5F111F !important;
-	color: #FFFFFF !important;
-	/*border-color:#FAF3F4!important; #E2BBC2*/
-	border-color: #5F111F !important;
+	background: $darker !important;
+	color: $white !important;
+	/*border-color:$paler!important; $midpale*/
+	border-color: $darker !important;
 }
 .btn-link {
-	background: #FAF3F4 !important;
+	background: $paler !important;
 	color: #8e8e8e !important;
-	border-color: #3F0B15 !important;
+	border-color: $darkest !important;
 	border-radius: 2px !important;
 }
 .btn-default.active, .btn-default.focus, .btn-default:active,
 .btn-default:focus, .btn-default:hover, .open>.dropdown-toggle.btn-default {
-	border-color: #3F0B15 !important;
-	background: #3F0B15 !important;
+	border-color: $darkest !important;
+	background: $darkest !important;
 }
 .btn-link:focus, .btn-link:hover {
 	text-decoration: none !important;
@@ -1890,9 +1890,9 @@ textarea.form-control {
 .btn-link.active, .btn-link.focus, .btn-link:active, .btn-link:focus,
 .btn-link:hover, .open>.dropdown-toggle.btn-link {
 	color: #666666 !important;
-	border-color: #5F111F !important;
-	background: #F5E8EA !important;
-	box-shadow:0px 0px 2px #5F111F inset;
+	border-color: $darker !important;
+	background: $palepale !important;
+	box-shadow:0px 0px 2px $darker inset;
 	transition: border-color ease-in-out .3s,box-shadow ease-in-out .3s;
 }
 .btn-separate-left,  .oe-opt-btn-separate-left{
@@ -1969,9 +1969,9 @@ textarea.form-control {
 	font-size: 12px;
 	line-height: 1.428571429;
 	border-radius: 15px;
-	background: #5F111F !important;
-	color: #FFFFFF !important;
-	border-color: #3F0B15 !important;
+	background: $darker !important;
+	color: $white !important;
+	border-color: $darkest !important;
 }
 .patientInfo   a.btn, .patientDataColumn   a.btn{
 	width: 20px;
@@ -1981,9 +1981,9 @@ textarea.form-control {
 	font-size: 12px;
 	line-height: 1.428571429;
 	border-radius: 10px !important;
-	background: #5F111F !important;
-	color: #FFFFFF !important;
-	border-color: #3F0B15 !important;
+	background: $darker !important;
+	color: $white !important;
+	border-color: $darkest !important;
 	margin:5px;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 bootstrap *~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -1992,7 +1992,7 @@ textarea.form-control {
 	padding: 2px 3px 1px 3px;
 }
 th.currentvalues, th.historicalvalues {
-	background: #B0475B !important;
+	background: $dark !important;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 batch payments, EOB *~~~~~~~~~~~~~~~~~~~~~~~~~*/
 .oe-payment-select {
