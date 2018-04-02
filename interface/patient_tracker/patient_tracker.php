@@ -53,14 +53,12 @@ if ($_POST['saveCALLback'] == "Save") {
 //set default start date of flow board to value based on globals
 if (!is_null($_REQUEST['form_from_date'])) {
     $from_date = DateToYYYYMMDD($_REQUEST['form_from_date']);
-    echo('not null');
 }elseif(($GLOBALS['ptkr_start_date'])=='D0') {
     $from_date = date('Y-m-d');
-    echo('D0');    
 }elseif(($GLOBALS['ptkr_start_date'])=='B0') {
     if (date(w)==GLOBALS['first_day_week']) {
+        //today is the first day of the week
         $from_date = date('Y-m-d');
-        echo('B0');
     }elseif ($GLOBALS['first_day_week']==0){
         //Sunday
         $from_date = date('Y-m-d', strtotime('previous sunday'));    
@@ -72,7 +70,8 @@ if (!is_null($_REQUEST['form_from_date'])) {
         $from_date = date('Y-m-d', strtotime('previous saturday'));    
         }
     }else {
-        echo 'else ', $GLOBALS['ptkr_start_date'];
+        //shouldnt be able to get here...
+        $from_date = date('Y-m-d');
     }
 
 
