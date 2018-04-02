@@ -60,7 +60,8 @@ fabricator.dom = {
 	primaryMenu: document.querySelector('.f-menu'),
 	menuItems: document.querySelectorAll('.f-menu li a'),
 	menuToggle: document.querySelector('.f-menu-toggle'),
-	themeMenu: document.querySelector('.f-menu-theme')
+	themeMenu: document.querySelector('.f-menu-theme'),
+	rtlToggle: document.querySelector('.f-menu-rtl input')
 };
 
 
@@ -371,6 +372,7 @@ fabricator.setInitialMenuState = function () {
 fabricator.setInitialTheme = function () {
 	var themePath = "/assets/toolkit/styles/";
 	var themeMenu = fabricator.dom.themeMenu;
+	var rtl = fabricator.dom.rtlToggle;
 	themeMenu.value = fabricator.options.toggles.theme;
 
 	loadjscssfile(themePath + themeMenu.value + ".css", "css") //dynamically load and add this .css file
@@ -379,6 +381,18 @@ fabricator.setInitialTheme = function () {
 		removejscssfile(themePath + fabricator.options.toggles.theme + ".css", "css");
 		loadjscssfile(themePath + themeMenu.value + ".css", "css");
 		fabricator.options.toggles.theme = themeMenu.value;
+	});
+
+	rtl.addEventListener("change", function() {
+		console.log(this);
+		if (this.checked) {
+			removejscssfile(themePath + fabricator.options.toggles.theme + ".css", "css");
+			loadjscssfile(themePath + "rtl_" + fabricator.options.toggles.theme + ".css", "css");
+		} else {
+			removejscssfile(themePath + "rtl_" + fabricator.options.toggles.theme + ".css", "css");
+			loadjscssfile(themePath + fabricator.options.toggles.theme + ".css", "css");
+		}
+
 	});
 
 	return this;

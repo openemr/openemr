@@ -10,6 +10,7 @@ var gutil = require('gulp-util');
 var gulpif = require('gulp-if');
 var imagemin = require('gulp-imagemin');
 var prefix = require('gulp-autoprefixer');
+var gap = require('gulp-append-prepend');
 var rename = require('gulp-rename');
 var reload = browserSync.reload;
 var runSequence = require('run-sequence');
@@ -30,7 +31,8 @@ var config = {
 			fabricator: 'src/assets/fabricator/styles/fabricator.scss',
 			style_light: 'src/assets/toolkit/styles/style_light.scss',
             style_manila: 'src/assets/toolkit/styles/style_manila.scss',
-            style_color: 'src/assets/toolkit/styles/colors/**/*.scss'
+            style_color: 'src/assets/toolkit/styles/colors/**/*.scss',
+			all: 'src/assets/toolkit/styles/**/style_*.scss'
 		},
 		images: 'src/assets/toolkit/images/**/*',
 		views: 'src/toolkit/views/*.html'
@@ -97,13 +99,29 @@ gulp.task('styles:style_color', function () {
         .pipe(gulpif(config.dev, reload({stream:true})));
 });
 
+gulp.task('styles:rtl', function () {
+	gulp.src(config.src.styles.all)
+		.pipe(sourcemaps.init())
+		.pipe(sass().on('error', sass.logError))
+		.pipe(prefix('last 1 version'))
+		.pipe(gulpif(!config.dev, csso()))
+		.pipe(sourcemaps.write())
+		.pipe(gap.appendFile('src/assets/toolkit/styles/rtl.css'))
+		.pipe(rename({
+			dirname: "",
+			prefix:"rtl_"
+		}))
+		.pipe(gulp.dest(config.dest + '/assets/toolkit/styles'))
+		.pipe(gulpif(config.dev, reload({stream:true})));
+});
+
 gulp.task('styles:style_list', function () {
-	gulp.src("src/assets/toolkit/styles/**/style_*.scss")
+	gulp.src(config.src.styles.all)
 		.pipe(require('gulp-filelist')('themeOptions.html', {flatten: true, removeExtensions: true, destRowTemplate: "<option value=\"@filePath@\">@filePath@</option>\n"}))
 		.pipe(gulp.dest('src/views/layouts/includes'));
 });
 
-gulp.task('styles', ['styles:fabricator', 'styles:style_light', 'styles:style_manila', 'styles:style_color', "styles:style_list"]);
+gulp.task('styles', ['styles:fabricator', 'styles:style_light', 'styles:style_manila', 'styles:style_color', 'styles:rtl', "styles:style_list"]);
 
 
 // scripts
@@ -181,8 +199,8 @@ gulp.task('serve', function () {
 	gulp.task('styles:fabricator:watch', ['styles:fabricator']);
 	gulp.watch('src/assets/fabricator/styles/**/*.scss', ['styles:fabricator:watch']);
 
-	gulp.task('styles:toolkit:watch', ['styles:style_light', 'styles:style_manila','styles:style_color', 'styles:style_list']);
-	gulp.watch('src/assets/toolkit/styles/**/*.scss', ['styles:style_light', 'styles:style_manila','styles:style_color', 'styles:style_list']);
+	gulp.task('styles:toolkit:watch', ['styles:style_light', 'styles:style_manila','styles:style_color', 'styles:rtl', 'styles:style_list']);
+	gulp.watch('src/assets/toolkit/styles/**/*.scss', ['styles:style_light', 'styles:style_manila','styles:style_color', 'styles:rtl', 'styles:style_list']);
 
     gulp.task('scripts:watch', ['scripts'], reload);
 	gulp.watch('src/assets/{fabricator,toolkit}/scripts/**/*.js', ['scripts:watch']).on('change', webpackCache);
