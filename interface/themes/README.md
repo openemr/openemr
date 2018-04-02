@@ -2,7 +2,7 @@
 
 The OpenEMR-interface uses the [Fabricator](http://fbrctr.github.io/) UI toolkit to document and standardize the creation of user interface elements. The project is using bootstrap as base. It contains different materials that can be assembled into more complex page layouts.
 
-The live version of this guide can be found at `url`.
+The live version of this guide can be found at [openemr-interface.surge.sh](http://openemr-interface.surge.sh).
 
 ## Getting Started
 
