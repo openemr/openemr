@@ -1005,7 +1005,7 @@ function writeITLine($it_array)
                 </li>
             </ul>
                 <input type="hidden" name="formaction" id="formaction">
-                <div class="form-group">
+                <div class="form-group navbar-left">
                     <select name='list_id' class="form-control select-dropdown"
                             id="list_id">
                         <?php
