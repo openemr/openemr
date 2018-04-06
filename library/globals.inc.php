@@ -1672,7 +1672,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'ptkr_end_date' => array(
-            xl('Flow Board: Ending Date'),
+            xl('Flow Board: Default Ending Date'),
             array(
                 'Y1' => xl('One Year Ahead'),
                 'Y2' => xl('Two Years Ahead'),
@@ -1684,7 +1684,7 @@ $GLOBALS_METADATA = array(
                 'D0' => xl('Current Day'),
             ),
             'D0',                     // default = One Day Ahead
-            xl('This is the Ending date for the Patient Flow Board Date Range. (only applicable if Allow Date Range in option above is Enabled)')
+            xl('This is the default Ending date for the Patient Flow Board. (only applicable if Allow Date Range in option above is Enabled)')
         ),
 
         'pat_trkr_timer' => array(
