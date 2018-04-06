@@ -1059,7 +1059,7 @@ foreach (explode(',', $given) as $item) {
                         <tbody>
                         <tr>
                             <td><input type="text" name="form_exercise_patterns" id="form_box" size="20" value="<?php echo attr($result2['exercise_patterns']['resnote']); ?>">&nbsp;</td><td class="text"><input type="radio" name="radio_exercise_patterns" id="radio_exercise_patterns[current]" value="currentexercise_patterns" <?php if ($PMSFH[0]['SOCH']['exercise_patterns']['restype'] =='currentexercise_patterns') {
-                            echo "checked";
+                                echo "checked";
 } ?>><?php echo xlt('Current'); ?>&nbsp;</td>
                         <td class="text"><input type="radio" name="radio_exercise_patterns" id="radio_exercise_patterns[quit]" value="quitexercise_patterns" <?php if ($PMSFH[0]['SOCH']['exercise_patterns']['restype'] =='quitexercise_patterns') {
                             echo "checked";
