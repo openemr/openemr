@@ -2145,7 +2145,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
         $count=0;
         $row_count =2;
     } ?>
-        <table style="width:1.6in;">
+        <table class="PMSFH_header">
                 <tr>
                     <td width="90%">
                         <span class="left" style="font-weight:800;font-size:0.9em;"><?php echo xlt("FH{{Family History}}"); ?></span>
@@ -2190,7 +2190,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
             $count=0;
             $row_count =2;
         } ?>
-                <table style="width:1.6in;">
+                <table class="PMSFH_header">
                 <tr>
                     <td width="90%">
                         <span class="left" style="font-weight:800;font-size:0.9em;"><?php echo xlt("Social"); ?></span>
@@ -2233,7 +2233,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                     $count=0;
                     $row_count =2;
                 } ?>
-            <table style="width:1.6in;">
+            <table class="PMSFH_header">
                 <tr>
                     <td width="90%">
                         <span class="left" style="font-weight:800;font-size:0.9em;"><?php echo xlt("ROS{{Review of Systems}}"); ?></span>
@@ -2285,7 +2285,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
 function show_PMSFH_panel($PMSFH, $columns = '1')
 {
     ob_start();
-    echo '<div style="font-size:1.2em;padding:25 2 2 5;z-index:1;">
+    echo '<div>
     <div>';
 
     //<!-- POH -->
