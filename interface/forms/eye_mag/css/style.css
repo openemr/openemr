@@ -1827,7 +1827,7 @@ View.php
 #HPI_HELP { height:1in;font-weight:600;vertical-align:text-top;}
 #HPI1 { min-height:1.4in;max-height:2.0in;width:2.1in;}
 #CHRONIC_HELP { height:1in;font-weight:600;vertical-align:text-top;font-weight:600;}
-#CHRONIC1,#CHRONIC2,#CHRONIC3 { max-height:2.0in;width:1.8in;margin-bottom:9px;}
+#CHRONIC1,#CHRONIC2,#CHRONIC3 { height: 0.4in;max-height:2.0in;width:1.8in;margin-bottom:9px;}
 #CODE_HIGH_HELP { font-size:0.8em;margin-top:10px;text-align:center;width:85%;font-weight:400;color:#876F6F;}
 .CC_table { min-height: 2.0in;text-align:left;}
 .CC_Box {height:53px;}
