@@ -401,7 +401,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                     <td><input disabled type="text" name="PRIOR_OSTBUT" id="PRIOR_OSTBUT" value="<?php echo attr($OSTBUT); ?>"></td>
                 </tr>
                 <tr>
-                  <td colspan="3" rowspan="4" id="PRIORS_dil_box">
+                  <td colspan="3" rowspan="4" id="PRIORS_dil_box" nowrap="">
                     <br />
                     <?php
                     // This is going to be based off a list in the near future
@@ -1566,11 +1566,12 @@ function build_PMSFH($pid)
     global $id;
     global $ISSUE_TYPES;
     global $ISSUE_TYPE_STYLES;
-     //Define the PMSFH array elements as you need them:
+    $PMSFH = [];
+    $PMSFH['CHRONIC']=[];
+    //Define the PMSFH array elements as you need them:
     $PMSFH_labels = array("POH", "POS", "PMH", "Surgery", "Medication", "Allergy", "SOCH", "FH", "ROS");
-
     foreach ($PMSFH_labels as $panel_type) {
-        $PMSFH[$panel_type][] ='';
+        $PMSFH[$panel_type] = [];
         $subtype = " and (subtype is NULL or subtype ='' )";
         $order = "ORDER BY title";
         if ($panel_type == "FH" || $panel_type == "SOCH" || $panel_type == "ROS") {
@@ -1606,7 +1607,6 @@ function build_PMSFH($pid)
         } elseif ($panel_type =='PMH') {
             $focusISSUE = "medical_problem"; //openEMR ISSUE_TYPE
             $subtype=" and (subtype = ' ' OR subtype IS NULL)"; //fee_sheet makes subtype=
-            $PMSFH['CHRONIC'] = '';
         } elseif ($panel_type =='Surgery') {
             $focusISSUE = "surgery"; //openEMR ISSUE_TYPE
             $subtype="  and (subtype = ' ' OR subtype IS NULL)";
@@ -1712,6 +1712,7 @@ function build_PMSFH($pid)
     $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'HIS' AND group_id = '4' AND uor > 0 " .
     "ORDER BY seq");
+    $PMSFH['SOCH']=[];
     while ($group_fields = sqlFetchArray($group_fields_query)) {
         $titlecols  = $group_fields['titlecols'];
         $datacols   = $group_fields['datacols'];
@@ -1724,7 +1725,7 @@ function build_PMSFH($pid)
         } else {
             $currvalue = $result1[$field_id];
         }
-
+        $PMSFH['SOCH'][$field_id]=[];
         if ($data_type == 28 || $data_type == 32) {
             $tmp = explode('|', $currvalue);
             switch (count($tmp)) {
@@ -1805,6 +1806,8 @@ function build_PMSFH($pid)
 
     //  Drag in Marital status and Employment history to this Social Hx area.
     $patient = getPatientData($pid, "*");
+    $PMSFH['SOCH']['marital_status'] = [];
+    $PMSFH['SOCH']['occupation'] = [];
     $PMSFH['SOCH']['marital_status']['short_title']=xlt("Marital");
     $PMSFH['SOCH']['marital_status']['display']=text($patient['status']);
     $PMSFH['SOCH']['occupation']['short_title']=xlt("Occupation");
