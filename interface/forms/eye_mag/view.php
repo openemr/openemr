@@ -240,16 +240,16 @@ if ($refresh and $refresh != 'fullscreen') {
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <script language="JavaScript">
-      function openNewForm(sel) {
+      function openNewForm(sel, label) {
           top.restoreSession();
             FormNameValueArray = sel.split('formname=');
-            if(FormNameValueArray[1] == 'newpatient' || (!parent.Forms))
+            if(FormNameValueArray[1] == 'newpatient' )
             {
-              parent.location.href = sel
+              parent.frames[0].location.href = sel;
             }
             else
             {
-              parent.Forms.location.href = sel;
+                parent.twAddFrameTab('enctabs', label, sel);
             }
       }
       /**
@@ -772,7 +772,7 @@ if ($refresh and $refresh != 'fullscreen') {
                             <center>
                               <iframe id="iframe" name="iframe"
                                 src="../../forms/eye_mag/a_issue.php?uniqueID=<?php echo $uniqueID; ?>&form_type=POH&pid=<?php echo $pid; ?>&encounter=<?php echo $encounter; ?>&form_id=<?php echo $form_id; ?>"
-                                width="480" height="340" scrolling= "yes" frameBorder= "0" >
+                                width="480" height="363" scrolling= "yes" frameBorder= "0" >
                               </iframe>
                             </center>
                           </div>
@@ -3667,11 +3667,10 @@ if ($refresh and $refresh != 'fullscreen') {
                                   <b><u><?php echo xlt('Process');
                                     echo " ".xlt('Billing'); ?>:</b></u><br />
                                   <button id="code_me_now" style="width:150px;"><?php echo xlt('Populate Fee Sheet'); ?></button>
-                                  <button id="goto_fee_sheet"
-                                    class="nodisplay" style="width:150px;"
-                                    href="../../forms/fee_sheet/view.php" onclick="top.restoreSession()"
-                                    tabindex="-1"><?php echo xlt('Open Fee Sheet'); ?>
-                                  </button>
+                                    <button style="width:150px;"
+                                            onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet', 'Fee Sheet')" href="JavaScript:void(0);"
+                                            tabindex="-1"><?php echo xlt('Open Fee Sheet'); ?>
+                                    </button>
                                 </div>
                               </td>
                             </tr>
@@ -3764,7 +3763,7 @@ if ($refresh and $refresh != 'fullscreen') {
                             </tr>
                             <tr>
                               <td colspan="3" style="padding-left:20px;padding-top:4px;">
-                                <textarea id="Plan<?php echo $counter; ?>" name="PLAN[]"><?php if (($PLAN) && ($PLAN_arr[count($PLAN_arr)-1] > '')) {
+                                <textarea id="Plan<?php echo $counter; ?>" name="PLAN[]" style="width: 440px;height: 44px;"><?php if (($PLAN) && ($PLAN_arr[count($PLAN_arr)-1] > '')) {
                                     echo $PLAN_arr[count($PLAN_arr)-1];} ?></textarea>
                               </td>
                             </tr>
