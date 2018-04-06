@@ -713,15 +713,13 @@ if ($_REQUEST["mode"] == "new") {
                 if (!$item["modifier"]) {
                     $modifier = $res["modifier"];
                 }
-
                 $item["units"] = $res["units"];
                 $item["fee"] = $res["pr_price"];
             }
-
-            addBilling($encounter, $item["codetype"], $item["code"], $item["codedesc"], $pid, '1', $providerID, $item["modifier"], $item["units"], $item["fee"], $ndc_info, $justify, $billed, '');
+            $item["justify"] .=":";
+            addBilling($encounter, $item["codetype"], $item["code"], $item["codedesc"], $pid, '1', $providerID, $item["modifier"], $item["units"], $item["fee"], $ndc_info, $item["justify"], $billed, '');
         }
-
-        echo 'ok';
+        echo "OK";
         exit;
     }
 
