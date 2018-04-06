@@ -1665,10 +1665,10 @@ $GLOBALS_METADATA = array(
             xl('Flow Board: Default Starting Date'),
             array(
                 'D0' => xl('Current Day'),
-                'B0' => xl('Beginning of Work Week (First day in week above)'),
+                'B0' => xl('Beginning of Current Work Week'),
             ),
-            'B0',                    // default = Current Day
-            xl('This is the default Beginning date for the Patient Flow Board.  Use Current Day if Allow Date Range is set to no.')
+            'D0',                    // default = Current Day
+            xl('This is the default Beginning date for the Patient Flow Board. (only applicable if Allow Date Range in option above is Enabled)')
         ),
 
         'ptkr_end_date' => array(
@@ -1681,7 +1681,7 @@ $GLOBALS_METADATA = array(
                 'M1' => xl('One Month Ahead'),
                 'D7' => xl('One Week Ahead'),
                 'D1' => xl('One Day Ahead'),
-                'D0' => xl('Same Day'),
+                'D0' => xl('Current Day'),
             ),
             'D0',                     // default = One Day Ahead
             xl('This is the Ending date for the Patient Flow Board Date Range. (only applicable if Allow Date Range in option above is Enabled)')

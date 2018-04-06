@@ -51,7 +51,9 @@ if ($_POST['saveCALLback'] == "Save") {
 }
 
 //set default start date of flow board to value based on globals
-if (!is_null($_REQUEST['form_from_date'])) {
+if (!$GLOBALS['ptkr_date_range']) {
+    $from_date = date('Y-m-d');
+} elseif (!is_null($_REQUEST['form_from_date'])) {
     $from_date = DateToYYYYMMDD($_REQUEST['form_from_date']);
 } elseif (($GLOBALS['ptkr_start_date'])=='D0') {
     $from_date = date('Y-m-d');
@@ -64,30 +66,35 @@ if (!is_null($_REQUEST['form_from_date'])) {
         $from_date = date('Y-m-d', strtotime('previous sunday'));
     } elseif ($GLOBALS['first_day_week']==1) {
         //Monday
-        $from_date = date('Y-m-d', strtotime('previous monday'));    
+        $from_date = date('Y-m-d', strtotime('previous monday'));
     } elseif ($GLOBALS['first_day_week']==6) {
         //Saturday
-        $from_date = date('Y-m-d', strtotime('previous saturday'));    
+        $from_date = date('Y-m-d', strtotime('previous saturday'));
     }
 } else {
-        //shouldnt be able to get here...
-        $from_date = date('Y-m-d');
+    //shouldnt be able to get here...
+    $from_date = date('Y-m-d');
 }
 
+//set default end date of flow board to value based on globals
+if ($GLOBALS['ptkr_date_range']) {
+    if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
+        $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
+        $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d'), date('Y') + $ptkr_time);
+    } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'M') {
+        $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
+        $ptkr_future_time = mktime(0, 0, 0, date('m') + $ptkr_time, date('d'), date('Y'));
+    } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'D') {
+        $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
+        $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d') + $ptkr_time, date('Y'));
+    }
 
-if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
-    $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
-    $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d'), date('Y') + $ptkr_time);
-} elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'M') {
-    $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
-    $ptkr_future_time = mktime(0, 0, 0, date('m') + $ptkr_time, date('d'), date('Y'));
-} elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'D') {
-    $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
-    $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d') + $ptkr_time, date('Y'));
+    $to_date = date('Y-m-d', $ptkr_future_time);
+    $to_date = !is_null($_REQUEST['form_to_date']) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
+} else {
+    $to_date = date('Y-m-d');
 }
 
-$to_date = date('Y-m-d', $ptkr_future_time);
-$to_date = !is_null($_REQUEST['form_to_date']) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
 $form_patient_name = !is_null($_POST['form_patient_name']) ? $_POST['form_patient_name'] : null;
 $form_patient_id = !is_null($_POST['form_patient_id']) ? $_POST['form_patient_id'] : null;
 
