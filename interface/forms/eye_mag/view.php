@@ -2184,7 +2184,7 @@ if ($refresh and $refresh != 'fullscreen') {
                               <td><input type="text" name="OSTBUT" id="OSTBUT" value="<?php echo attr($OSTBUT); ?>"></td>
                           </tr>
                           <tr>
-                            <td colspan="3" rowspan="4" id="dil_box">
+                            <td colspan="3" rowspan="4" id="dil_box" nowrap="">
                               <br />
                               <span id="dil_listbox_title"><?php echo xlt('Dilated with'); ?>:</span><br />
                                 <?php
@@ -3616,7 +3616,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                        */
                                         echo '<td class="'.$class1.' ">';
                                         echo "<input type='checkbox' class='TESTS indent20' id='TEST_$counter' data-codetext='".attr($codetext)."' data-title='".attr($codedesc)."' name='TEST[]' $checked value='". attr($row['codes']) ."'> ";
-                                        $label = text(substr($codedesc, 0, 25));
+                                        $label = text(substr($codedesc, 0, 35));
                                         echo "<label for='TEST_$counter' class='input-helper input-helper--checkbox'>";
                                         echo $label."</label>";
                                         echo '<div id="TEST_'.$counter.'_justmods" class="'.$class2.' indent20" style="margin-bottom: 5px;">'.xlt('Modifier(s)').': <input type="text" style="width:100px;" id="TEST_'.$counter.'_modifier" value="'.$row['modifier'].'">';

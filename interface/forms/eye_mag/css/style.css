@@ -481,6 +481,9 @@ background-color: red;
     min-height: 2.0in;
     text-align:left;
 }
+.tab_content td {
+	padding-left:5px;
+}
 th {
     font-size: 1.0em;
     text-align: center;
@@ -899,7 +902,8 @@ height: 18px;
     height:12px;
     line-height:18px;
     padding:0.1in;
-    min-width:25px;
+    min-width:35px;
+    width:35px;
     border: white;
     color: black;
     font-weight:700;
@@ -1323,7 +1327,7 @@ height: 18px;
     border-left:1pt solid black;
     border-right:1pt solid black;
     border-top: none;
-    box-shadow: 1px 5px 5px 0px #888888;
+    box-shadow: 0px 3px 4px 0px #888888;
     padding:10px;
     z-index:10;
 }
@@ -1378,10 +1382,10 @@ input[type=text].fullscreen {
     background-color:white;
   /*  height:2.5in; */
     width:2.4in;
-    padding:2px 8px;
+    padding:2px 10px;
     text-align:left;
     font-size: 1.0em;
-    margin:3px auto;
+    margin:3px;
     border:1pt solid black;
     z-index:11;
 }
@@ -1391,10 +1395,10 @@ input[type=text].fullscreen {
     background-color:white;
  /*   height:2.4in; */
     width:2.4in;
-    padding:2px 8px;
+    padding:2px 10px;
     text-align:left;
     font-size: 1.0em;
-    margin:3px auto;
+    margin:3px;
     z-index:11;
 }
 .QP {
@@ -1826,7 +1830,7 @@ View.php
 #CHRONIC1,#CHRONIC2,#CHRONIC3 { max-height:2.0in;width:1.8in;margin-bottom:9px;}
 #CODE_HIGH_HELP { font-size:0.8em;margin-top:10px;text-align:center;width:85%;font-weight:400;color:#876F6F;}
 .CC_table { min-height: 2.0in;text-align:left;}
-.CC_Box {height:60px;}
+.CC_Box {height:53px;}
 .HPI_TITLE { height:1in;font-weight:600;vertical-align:text-top;}
 #HPI2,#HPI3 { min-height:1.5in;max-height:2.0in;width:4.1in;font-weight:600;}
 #tabs_container { margin-top:5px; }
@@ -1921,7 +1925,7 @@ View.php
 .border-top { border-top:1pt solid black;white-space: nowrap;}
 .pupil_dim_comments { position:absolute;  top: 0.2in; left: 1.1in; border: none;padding: auto;}
 #PUPIL_COMMENTS { height:0.50in;width:0.8in;font-size:0.8em; }
-#LayerVision_IOP { display:inline-block;text-align:left;width:85%;}
+#LayerVision_IOP { display:inline-block;text-align:left;width:83%;}
 #LayerVision2 { display:inline-block;text-align:center;width:100%;}
 #Add_Glasses { font-size:0.7em;margin-left:30px;background:#C9DBF2;}
 #wearing_1,#wearing_2,#wearing_3,#wearing_4 { width:100%;}
@@ -2013,12 +2017,11 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
 .PMSFH_table {
     border-collapse: separate;
     margin: 0px 10px 10px;
-    font-size:0.8em;overflow:auto;
     background-color: rgb(255, 248, 220);
     box-shadow:2px 2px 3px #C0C0C0;
     border:1pt solid black;
     border-radius:3px;
-    width:160px;
+    width:180px;
 }
 .oldies_prefix {
     position:relative;
