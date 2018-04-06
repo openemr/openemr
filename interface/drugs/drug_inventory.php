@@ -51,7 +51,6 @@ $orderby = $ORDERHASH[$form_orderby];
 <html>
 
 <head>
-<?php html_header_show();?>
 
 <title><?php echo xlt('Drug Inventory'); ?></title>
 
@@ -69,8 +68,7 @@ table.mymaintable td {
 }
 </style>
 
-<?php Header::setupHeader(); ?>
-<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
+<?php Header::setupHeader('report-helper'); ?>
 
 <script language="JavaScript">
 
