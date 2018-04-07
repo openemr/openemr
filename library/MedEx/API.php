@@ -1109,7 +1109,7 @@ class Callback extends Base
                 $sqlUPDATE = "UPDATE openemr_postcalendar_events SET pc_apptstatus = ? WHERE pc_eid=?";
                 sqlStatement($sqlUPDATE, array($data['msg_type'],$data['pc_eid']));
                 //need to insert this into patient_tracker
-                $query = "SELECT * FROM patient_tracker WHERE pc_eid=?";
+                $query = "SELECT * FROM patient_tracker WHERE eid=?";
                 $tracker = sqlFetchArray(sqlStatement($query, array($data['pc_eid'])));  //otherwise this will need to be a loop
                 #Update lastseq in tracker.
                 sqlStatement(
