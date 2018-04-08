@@ -6,7 +6,6 @@
         "on_click":"top.restoreSession()",
         "url": "../history/history.php",
         "pid":"false",
-        "global_controlled":"",
         "children": [],
         "requirement": 0,
         "acl_req":[]
@@ -18,7 +17,6 @@
         "on_click":"top.restoreSession()",
         "url": "../report/patient_report.php",
         "pid":"false",
-        "global_controlled":"",
         "children": [],
         "requirement": 0,
         "acl_req":[]
@@ -30,7 +28,6 @@
         "on_click":"top.restoreSession()",
         "url": "../../../controller.php?document&list&patient_id=",
         "pid":"true",
-        "global_controlled":"",
         "children": [],
         "requirement": 0,
         "acl_req":[]
@@ -42,7 +39,6 @@
         "on_click":"top.restoreSession()",
         "url": "../transaction/transactions.php",
         "pid":"false",
-        "global_controlled":"",
         "children": [],
         "requirement": 0,
         "acl_req":[]
@@ -54,7 +50,6 @@
         "on_click":"top.restoreSession()",
         "url": "stats_full.php?active=all",
         "pid":"false",
-        "global_controlled":"",
         "children": [],
         "requirement": 0,
         "acl_req":[]
@@ -66,7 +61,6 @@
         "on_click":"top.restoreSession()",
         "url": "../../reports/pat_ledger.php?form=1&patient_id=",
         "pid":"true",
-        "global_controlled":"",
         "children": [],
         "requirement": 0,
         "acl_req":[]
@@ -78,7 +72,6 @@
         "on_click":"top.restoreSession()",
         "url": "../../reports/external_data.php",
         "pid":"false",
-        "global_controlled":"",
         "children": [],
         "requirement": 0,
         "acl_req":[]
@@ -90,9 +83,9 @@
         "on_click":"doPublish();return false;",
         "url": "",
         "pid":"false",
-        "global_controlled":"fhir_enable",
         "children": [],
         "requirement": 0,
-        "acl_req":[]
+        "acl_req":[],
+        "global_req":"fhir_enable"
     }
 ]

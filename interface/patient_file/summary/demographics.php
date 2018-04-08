@@ -751,11 +751,6 @@ $idcard_doc_id = false;
 if ($GLOBALS['patient_id_category_name']) {
     $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name']);
 }
-$res=sqlStatement("SELECT option_id,activity FROM list_options WHERE list_id='patient_file_menu' ");
-
-while ($row = sqlFetchArray($res)) {
-    $patient_file_menu[$row['option_id']]=$row['activity'];
-}
 
 // Use a json file to build menu
 // Collect the selected menu of user
@@ -763,10 +758,10 @@ $patientMenuRole = PatientMenuRole::getPatientMenuRole();
 // Load the selected menu
 if (preg_match("/.json$/", $patientMenuRole)) {
     // load custom menu (includes .json in id)
-    $menu_parsed = json_decode(file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/custom_menus/patient/menus/" . $patientMenuRole));
+    $menu_parsed = json_decode(file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/custom_menus/patient_menus/" . $patientMenuRole));
 } else {
     // load a standardized menu (does not include .json in id)
-    $menu_parsed = json_decode(file_get_contents($GLOBALS['fileroot'] . "/interface/main/tabs/menu/menus/patient_menus/" . $patientMenuRole . ".json"), true);
+    $menu_parsed = json_decode(file_get_contents($GLOBALS['fileroot'] . "/interface/main/tabs/menu/menus/patient_menus/" . $patientMenuRole . ".json"));
 }
 // if error, then die and report error
 if (!$menu_parsed) {
@@ -774,7 +769,7 @@ if (!$menu_parsed) {
 }
 menu_update_entries($menu_parsed);
 $menu_restrictions=array();
-//menu_apply_restrictions($menu_parsed, $menu_restrictions, $menu_type);
+menu_apply_restrictions($menu_parsed, $menu_restrictions);
 
 ?>
 <table cellspacing='0' cellpadding='0' border='0' class="subnav">
@@ -783,32 +778,24 @@ $menu_restrictions=array();
 
             <?php
             $link_valid = true;
+            $last_key=count($menu_restrictions)-1;
 
-            // Check if the first link is enabled by globals
-            if ($menu_parsed["0"]["global_controlled"] != "" && !$GLOBALS[$menu_parsed["0"]["global_controlled"]]) {
-                $link_valid = false;
-            }
+            foreach ($menu_restrictions as $key => $value) {
 
-            foreach ($menu_parsed as $key => $value) {
-                if ($link_valid) {
-                    $link = ($value['pid'] != "true") ? $value['url'] : $value['url'] . attr($pid);
+                    $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
                     ?>
                     <a href="<?php
                     echo $link;
                     ?>" onclick="<?php
-                    echo $value['on_click'];
+                    echo $value->on_click;
                     ?>">
                         <?php
-                        echo htmlspecialchars(xl($value['label']), ENT_NOQUOTES);
+                        echo htmlspecialchars(xl($value->label), ENT_NOQUOTES);
                         ?>
                     </a>
                     <?php
-                }
-                // Check if the next link is enabled by globals
-                if ($menu_parsed[$key + 1]["global_controlled"] != "" && !$GLOBALS[$menu_parsed[$key + 1]["global_controlled"]]) {
-                    $link_valid = false;
-                }
-                if ($link_valid) {
+
+                if ($key!=$last_key) {
                     echo "|";
                 }
             }

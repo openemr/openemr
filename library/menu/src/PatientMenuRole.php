@@ -1,11 +1,13 @@
 <?php
 /**
- * MainMenuRole class.
+ * PatientMenuRole class.
  *
  * @package OpenEMR
  * @link    http://www.open-emr.org
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @author  Eyal Wolanowski <eyal.wolanowski@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Eyal Wolanowski <eyal.wolanowski@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -34,17 +36,17 @@ class PatientMenuRole
     }
 
     /**
-     * Build the html select element to list the MainMenuRole options.
+     * Build the html select element to list the PatientMenuRole options.
      *
-     * @var string $selected Current MainMenuRole for current users.
-     * @return string Html select element to list the MainMenuRole options.
+     * @var string $selected Current PatientMenuRole for current users.
+     * @return string Html select element to list the PatientMenuRole options.
      */
     public static function displayPatientMenuRoleSelector($selected = "")
     {
         $output = "<select name='patient_menu_role' id='patient_menu_role' class='form-control'>";
         $output .= "<option value='standard' " . (($selected == "standard") ? "selected" : "") . ">" . xlt("Standard") . "</option>";
 
-        $customMenuDir = $GLOBALS['OE_SITE_DIR'] . "/documents/custom_menus/patient/menus/";
+        $customMenuDir = $GLOBALS['OE_SITE_DIR'] . "/documents/custom_menus/patient_menus/";
         if (file_exists($customMenuDir)) {
             $dHandle = opendir($customMenuDir);
             while (false !== ($menuCustom = readdir($dHandle))) {
