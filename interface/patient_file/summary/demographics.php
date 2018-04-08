@@ -785,9 +785,9 @@ menu_apply_restrictions($menu_parsed, $menu_restrictions);
                     ?>
                     <a href="<?php echo $link; ?>" onclick="<?php echo $value->on_click;?>"> <?php echo htmlspecialchars(xl($value->label), ENT_NOQUOTES); ?> </a>
                     <?php
-                if ($key!=$last_key) {
-                    echo "|";
-                }
+                    if ($key!=$last_key) {
+                        echo "|";
+                    }
             }
             ?>
 
