@@ -781,25 +781,14 @@ menu_apply_restrictions($menu_parsed, $menu_restrictions);
             $last_key=count($menu_restrictions)-1;
 
             foreach ($menu_restrictions as $key => $value) {
-
                     $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
                     ?>
-                    <a href="<?php
-                    echo $link;
-                    ?>" onclick="<?php
-                    echo $value->on_click;
-                    ?>">
-                        <?php
-                        echo htmlspecialchars(xl($value->label), ENT_NOQUOTES);
-                        ?>
-                    </a>
+                    <a href="<?php echo $link; ?>" onclick="<?php echo $value->on_click;?>"> <?php echo htmlspecialchars(xl($value->label), ENT_NOQUOTES); ?> </a>
                     <?php
-
                 if ($key!=$last_key) {
                     echo "|";
                 }
             }
-
             ?>
 
             <!-- DISPLAYING HOOKS STARTS HERE -->
