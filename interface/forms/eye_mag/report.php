@@ -1682,13 +1682,13 @@ if ($ANTSEG_COMMENTS) { ?>
                       <td class="middle"><?php echo xlt('Disc'); ?></td>
                       <td class="report_text left"><?php echo text($OSDISC); ?></td>
                     </tr>
-                      <?php if ($ODCUP||$OSCUP) { ?>
+                        <?php if ($ODCUP||$OSCUP) { ?>
                     <tr>
                       <td class="report_text right"><?php echo text($ODCUP); ?></td>
                       <td class="middle"><?php echo xlt('Cup'); ?></td>
                       <td class="report_text left"><?php echo text($OSCUP); ?></td>
                     </tr>
-                      <?php } ?>
+                        <?php } ?>
                     <tr>
                       <td class="report_text right"><?php echo text($ODMACULA); ?></td>
                       <td class="middle"><?php echo xlt('Macula'); ?></td>
@@ -1704,14 +1704,14 @@ if ($ANTSEG_COMMENTS) { ?>
                           <td class="middle"><?php echo xlt('Vitreous'); ?></td>
                           <td class="report_text left"><?php echo text($OSVITREOUS); ?></td>
                       </tr>
-                      <?php  if ($ODPERIPH||$OSPERIPH) { ?>
+                        <?php  if ($ODPERIPH||$OSPERIPH) { ?>
                     <tr>
                       <td class="report_text right"><?php echo text($ODPERIPH); ?></td>
                       <td class="middle"><?php echo xlt('Periph{{periphery}}'); ?></td>
                       <td class="report_text left"><?php echo text($OSPERIPH); ?></td>
                     </tr>
                     <?php }
-                    if ($ODCMT||$OSCMT) { ?>
+if ($ODCMT||$OSCMT) { ?>
                     <tr>
                       <td class="report_text right">&nbsp;<?php echo text($ODCMT); ?></td>
                       <td class="middle"><?php echo xlt('Central Macular Thickness'); ?> </td>
