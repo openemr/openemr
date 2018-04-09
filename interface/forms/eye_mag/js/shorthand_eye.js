@@ -270,6 +270,8 @@ function process_kb_1(field,text,appendix) {
         if (field == 'LMAC' || field == 'LMACULA')    field2 = "OSMACULA";
         if (field == 'RV')      field2 = "ODVESSELS";
         if (field == 'LV')      field2 = "OSVESSELS";
+        if (field == 'RVIT')      field2 = "ODVITREOUS";
+        if (field == 'LVIT')      field2 = "OSVITREOUS";
         if (field == 'RP')      field2 = "ODPERIPH";
         if (field == 'LP')      field2 = "OSPERIPH";
         if (field == 'RCMT')    field2 = "ODCMT";
@@ -554,6 +556,16 @@ function process_kb_1(field,text,appendix) {
             $('#OSVESSELS').css("background-color","#F0F8FF");
             response['field'] = 'V';
             response['prior_text'] = $('#OSVESSELS').val();
+            return response;
+        } else if ((field == 'BVIT')||(field == 'VIT')) {
+            field = "ODVITREOUS";
+            (appendix == ".a") ? ($('#'+field).val($('#'+field).val() +', '+text)) : $('#'+field).val(text);
+            field = "OSVITREOUS";
+            (appendix == ".a") ? ($('#'+field).val($('#'+field).val() +', '+text)) : $('#'+field).val(text);
+            $('#ODVITREOUS').css("background-color","#F0F8FF");
+            $('#OSVITREOUS').css("background-color","#F0F8FF");
+            response['field'] = 'V';
+            response['prior_text'] = $('#OSVITREOUS').val();
             return response;
         } else if ((field == 'BP')||(field == 'P')) {
             field = "ODPERIPH";

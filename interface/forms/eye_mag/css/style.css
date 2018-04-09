@@ -216,7 +216,7 @@ input[type="checkbox"].hidden:checked + label:before {
 }
 
 input[type=text] {
-    width: 42px;
+    width: 45px;
     height: 22px;
     padding: 0.2em 0.4em;
     display: inline-block;
@@ -557,6 +557,7 @@ body
     width: 550px;
     margin: 5px auto ;
     padding:10px;
+    height: 400px;
 }
 .exam_section_left b {
 
@@ -571,12 +572,15 @@ body
     min-height:385px;
 }
 .exam_section_right {
-    top:0px;
-    float:left;
-    min-height:400px;
+    top: 0px;
+    float: left;
+    min-height: 400px;
     width: 550px;
-    margin: 5px auto ;
-    padding:10px;
+    margin: 5px auto;
+    padding: 10px;
+}
+.exam_section_right:after {
+    clear : both;
 }
 textarea.EXTTEXT {
     /*narrow_textarea*/
@@ -1942,7 +1946,7 @@ textarea[name=COMMENTS_W] { width:100%;height:3.0em;}
 #ALL_keyboard_left {  color:#0C0C0C;size:0.6em;height: 6em;width:85%;margin:15px;z-index:100;}
 div[name=QP_11] { float:left;width:40px;text-align:left;}
 div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
-#NEURO_11 { font-size:0.8em;position:relative;float:right;text-align:center;width:250px;height:265px;z-index:1;margin:2px 0px 2px 2px;}
+#NEURO_11 { position:relative;float:right;text-align:center;width:250px;height:265px;z-index:1;margin:2px 0px 2px 2px;}
 #NEURO_P_1,#IP_P_1 { position:absolute;top:0.05in;right:0.241in;}
 #NEURO_P_2 { float: right;padding-top: 4em;margin: 0em 1.5em;text-align: center; }
 #NEURO_P_3 { top:0in;padding-left:2.5em;margin: 0.5em auto; }
@@ -2036,7 +2040,7 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
 }
 .PMSFH_header {  width:1.9in;}
 #ACTTRIGGER {  text-decoration: underline;padding-left: 2px;text-align:left;font-weight: 600;}
-#ACTMAIN {  position:relative;z-index:1;margin: 0px auto;}
+#ACTMAIN {  position:relative;z-index:1;margin: margin: 8px;;}
 #ACTNORMAL_CHECK { margin:0em 2em;width:125px;}
 #ACTTABLE { position:relative;text-align:center;font-size:1.0em;margin: 7 5 10 5;border-collapse: separate;}
 #IMPPLAN_1 { text-align: left;}
@@ -2076,4 +2080,7 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
 .status_on {
     background-color: red;
     box-shadow: 0 0 0px 0px #C0C0C0;
+}
+.flip-left {
+    transform: rotate(90deg) scaleX(-1);
 }
