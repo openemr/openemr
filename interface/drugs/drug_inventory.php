@@ -11,6 +11,8 @@
  require_once("drugs.inc.php");
  require_once("$srcdir/options.inc.php");
 
+ use OpenEMR\Core\Header;
+
  // Check authorization.
  $thisauth = acl_check('admin', 'drugs');
 if (!$thisauth) {
@@ -44,14 +46,12 @@ $orderby = $ORDERHASH[$form_orderby];
   "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
   "LEFT JOIN list_options AS lof ON lof.list_id = 'drug_form' AND " .
   "lof.option_id = d.form AND lof.activity = 1 " .
-  "ORDER BY $orderby");
+  "ORDER BY d.active DESC, $orderby");
 ?>
 <html>
 
 <head>
-<?php html_header_show();?>
 
-<link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 <title><?php echo xlt('Drug Inventory'); ?></title>
 
 <style>
@@ -68,9 +68,7 @@ table.mymaintable td {
 }
 </style>
 
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
-<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
+<?php Header::setupHeader('report-helper'); ?>
 
 <script language="JavaScript">
 

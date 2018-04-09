@@ -977,6 +977,7 @@ function writeITLine($it_array)
 </head>
 
 <body class="body_top">
+<form method='post' name='theform' id='theform' action='edit_list.php'>
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -1003,10 +1004,8 @@ function writeITLine($it_array)
                     </a>
                 </li>
             </ul>
-            <form method='post' name='theform' id='theform'
-                  action='edit_list.php' class="navbar-form navbar-left">
                 <input type="hidden" name="formaction" id="formaction">
-                <div class="form-group">
+                <div class="form-group navbar-left">
                     <select name='list_id' class="form-control select-dropdown"
                             id="list_id">
                         <?php

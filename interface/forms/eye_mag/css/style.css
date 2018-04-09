@@ -167,10 +167,8 @@ label {
     font-size:1.1em;
 }
 textarea.HPI_text{
-    height:40px;
     min-width:95%;
     max-width: 95%;
-    max-height:2in;
     overflow:auto;
 
 }
@@ -180,8 +178,8 @@ textarea.HPI_text{
 }
 .QP_class textarea{
     height:3.0em;
-    width:95%;
-    max-width:95%;
+    width: 200px;
+	max-width: 200px;
     overflow:auto;
     margin-bottom:2px;
     margin-left:5px;
@@ -258,7 +256,7 @@ input[type=text] {
  }
 .refraction {
     display:inline-block;
-    min-height:2.2in;
+    min-height:2.3in;
     border: 1.00pt solid #000000;
     box-sizing: content-box !important;
     box-shadow: 10px 10px 5px #888888;
@@ -480,9 +478,11 @@ background-color: red;
     background-color: white;
 }
 .tab_content table {
-    font-size:0.8em;
     min-height: 2.0in;
     text-align:left;
+}
+.tab_content td {
+	padding-left:5px;
 }
 th {
     font-size: 1.0em;
@@ -704,6 +704,7 @@ textarea.ANTSEGTEXT {
   width: 99%;
   z-index:1;
   box-shadow: 0px 9px 9px #888;
+  margin: -1px 0px 0px 0px;
 }
 
 .button-success {
@@ -901,7 +902,8 @@ height: 18px;
     height:12px;
     line-height:18px;
     padding:0.1in;
-    min-width:25px;
+    min-width:35px;
+    width:35px;
     border: white;
     color: black;
     font-weight:700;
@@ -1037,8 +1039,7 @@ height: 18px;
     }
     .ident {
         text-align:center;
-        font-size:0.8em;
-        padding:0px;
+		padding:0px;
     }
     .kb_left {
         position:relative;float:left;
@@ -1085,11 +1086,10 @@ height: 18px;
         padding: 10px;
     }
     .wide_textarea textarea{
-        width:1.9in;
-        max-width: 1.9in;
+        width:2.1in;
+        max-width: 2.1in;
         max-height: 0.44in;
         height: 0.64in;
-        font-size:0.8em;
         box-shadow: 1px 1px 2px #c0c0c0;
         margin: 0.16em;
     }
@@ -1111,15 +1111,14 @@ height: 18px;
         position:absolute;
         top:0.4in;
         left:0.1in;
-        width:3in;
+        width:3.5in;
         padding: 15px 10px 15px 5px;
     }
     .narrow_textarea textarea {
-        width:1.1in;
-        max-width: 1.1in;
+        width:1.3in;
+        max-width: 1.3in;
         max-height: 0.44in;
         height: 0.44in;
-        font-size:0.7em;
      }
     .closeButton2 {
         display:inline-block;
@@ -1328,7 +1327,7 @@ height: 18px;
     border-left:1pt solid black;
     border-right:1pt solid black;
     border-top: none;
-    box-shadow: 1px 5px 5px 0px #888888;
+    box-shadow: 0px 3px 4px 0px #888888;
     padding:10px;
     z-index:10;
 }
@@ -1382,11 +1381,11 @@ input[type=text].fullscreen {
     float:left;
     background-color:white;
   /*  height:2.5in; */
-    width:2.2in;
-    padding:2px 8px;
+    width:2.4in;
+    padding:2px 10px;
     text-align:left;
     font-size: 1.0em;
-    margin:3px auto;
+    margin:3px;
     border:1pt solid black;
     z-index:11;
 }
@@ -1395,11 +1394,11 @@ input[type=text].fullscreen {
     float:left;
     background-color:white;
  /*   height:2.4in; */
-    width:2.2in;
-    padding:2px 8px;
+    width:2.4in;
+    padding:2px 10px;
     text-align:left;
     font-size: 1.0em;
-    margin:3px auto;
+    margin:3px;
     z-index:11;
 }
 .QP {
@@ -1461,6 +1460,10 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
 .navbar-custom {
     background-color:#1D62F0;
     color:black;
+    -moz-box-shadow: 0 2px 8px #c0c0c0;
+    -webkit-box-shadow: 0 2px 8px #c0c0c0;
+    box-shadow: 0 2px 8px #c0c0c0;
+}
 }
 .navbar-custom, .navbar-nav > li > li:focus {
     color: #FFF;
@@ -1468,10 +1471,14 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
     border-radius:0;
     top:0.0in;
 }
+ui-widget-header {
+    border: 0px;
+    background: #fffbeb;
+}
 
 .navbar-custom {
     color:black; /* just changes the base font color */
-    padding:6px 10px 4px;
+    padding:2px;
     margin:0;
 }
 .navbar-nav > li > a {
@@ -1641,8 +1648,8 @@ position: absolute;bottom:0.1in;clear:both;text-align:left;padding-left:25px;
 }
 
 .QP_lengthen textarea{
-    width:4.0in;
-    height:3.0em;
+    width: 4.87in;
+	height: 4.5em;
 }
 .top-right {
     position:absolute;
@@ -1813,7 +1820,7 @@ View.php
 #HPIPMH_sections { display:inline-block;margin: 10 auto;text-align:center; }
 #HPI_left_text { height: 315px;text-align:left;}
 #tabs_container { z-index:3;margin-top:5px;}
-#tabs_content_container{ z-index:1;height:303px;margin: -1px 0px 0px 0px;}
+
 #tab1_CC_text > table { min-height: 2.0in;text-align:left;}
 .pad10 { padding:10px;}
 #CC1 { height:53px;}
@@ -1823,12 +1830,12 @@ View.php
 #CHRONIC1,#CHRONIC2,#CHRONIC3 { max-height:2.0in;width:1.8in;margin-bottom:9px;}
 #CODE_HIGH_HELP { font-size:0.8em;margin-top:10px;text-align:center;width:85%;font-weight:400;color:#876F6F;}
 .CC_table { min-height: 2.0in;text-align:left;}
-.CC_Box {height:60px;}
+.CC_Box {height:53px;}
 .HPI_TITLE { height:1in;font-weight:600;vertical-align:text-top;}
 #HPI2,#HPI3 { min-height:1.5in;max-height:2.0in;width:4.1in;font-weight:600;}
 #tabs_container { margin-top:5px; }
 .count_HPI { width:250px; }
-.tab_content { min-height: 2.0in;text-align:left;font-size: 0.9em;}
+.tab_content { min-height: 2.0in;text-align:left;}
 #CODE_HELP_1,#CODE_HELP_2,#CODE_HELP_3 { font-size:0.7em;margin-top:4px;text-align:center;width:85%;font-weight:400;color:#000; }
 #PMH_left_text { height: 2.5in;text-align:left; }
 .PMH_class { text-align:left;vertical-align:middle; min-height: 2.3in;font-size:0.7em; }
@@ -1918,7 +1925,7 @@ View.php
 .border-top { border-top:1pt solid black;white-space: nowrap;}
 .pupil_dim_comments { position:absolute;  top: 0.2in; left: 1.1in; border: none;padding: auto;}
 #PUPIL_COMMENTS { height:0.50in;width:0.8in;font-size:0.8em; }
-#LayerVision_IOP { display:inline-block;text-align:left;width:85%;}
+#LayerVision_IOP { display:inline-block;text-align:left;width:83%;}
 #LayerVision2 { display:inline-block;text-align:center;width:100%;}
 #Add_Glasses { font-size:0.7em;margin-left:30px;background:#C9DBF2;}
 #wearing_1,#wearing_2,#wearing_3,#wearing_4 { width:100%;}
@@ -1966,7 +1973,7 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
 #PRIORS_RETINA_left_1 table:nth-of-type(1), {
     position:relative;float:right;text-align:right;font-size:0.7em;
 }
-#NEURO_color { border:1pt solid black;float:left;width:195px;padding: 5px 5px 5px 15px;text-align:center;margin:2px 2px;font-size:0.8em;font-weight:bold;}
+#NEURO_color { border:1pt solid black;float:left;width:195px;padding: 5px 5px 5px 15px;text-align:center;margin:2px 2px;font-size:0.9em;font-weight:bold;}
 #NEURO_MOTILITY { float:left;font-size:0.9em;margin:2px 2px;padding:0 15px;font-weight:bold;width:195px;}
 #NEURO_MOTILITY table { width:100%;}
 #EXT_left_1 table:nth-of-type(2),
@@ -2010,12 +2017,11 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
 .PMSFH_table {
     border-collapse: separate;
     margin: 0px 10px 10px;
-    font-size:0.8em;overflow:auto;
     background-color: rgb(255, 248, 220);
     box-shadow:2px 2px 3px #C0C0C0;
     border:1pt solid black;
     border-radius:3px;
-    width:160px;
+    width:180px;
 }
 .oldies_prefix {
     position:relative;

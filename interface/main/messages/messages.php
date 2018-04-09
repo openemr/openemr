@@ -54,7 +54,6 @@ if (($_POST['setting_bootstrap_submenu']) ||
 ?>
 <html>
 <head>
-    <title><?php echo xlt('Message Center'); ?></title>
     <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
     <link rel="stylesheet"  href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>" type="text/css">
 
@@ -85,10 +84,6 @@ if (($_POST['setting_bootstrap_submenu']) ||
         }
 
     </style>
-
-</head>
-
-<body class="body_top">
 <?php
 if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
     $MedEx->display->navigation($logged_in);
@@ -98,6 +93,7 @@ if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
 if (!empty($_REQUEST['go'])) { ?>
     <?php
     if (($_REQUEST['go'] == "setup") && (!$logged_in)) {
+        echo "<title>" . xlt('MedEx Setup') . "</title></head><body class='body_top'>";
         $stage = $_REQUEST['stage'];
         if (!is_numeric($stage)) {
             echo "<br /><span class='title'>$stage " . xlt('Warning') . ": " . xlt('This is not a valid request') . ".</span>";
@@ -105,36 +101,33 @@ if (!empty($_REQUEST['go'])) { ?>
             $MedEx->setup->MedExBank($stage);
         }
     } elseif ($_REQUEST['go'] == "addRecall") {
+        echo "<title>" . xlt('New Recall') . "</title></head><body class='body_top'>";
         $MedEx->display->display_add_recall();
     } else if ($_REQUEST['go'] == 'Recalls') {
+        echo "<title>" . xlt('Recall Board') . "</title></head><body class='body_top'>";
         $MedEx->display->display_recalls($logged_in);
     } elseif ((($_REQUEST['go'] == "setup") || ($_REQUEST['go'] == 'Preferences')) && ($logged_in)) {
+        echo "<title>MedEx" . xlt('Preferences') . "</title></head><body class='body_top'>";
         $MedEx->display->preferences();
     } elseif ($_REQUEST['go'] == 'icons') {
+        echo "<title>MedEx" . xlt('Icons') . "</title></head><body class='body_top'>";
         $MedEx->display->icon_template();
     } elseif ($_REQUEST['go'] == 'SMS_bot') {
+        echo "<title>MedEx" . xlt('SMS') . "</title></head><body class='body_top'>";
         $MedEx->display->SMS_bot($logged_in);
     } else {
+        echo "<title>" . xlt('MedEx Setup') . "</title></head><body class='body_top'>";
         echo xlt('Warning: Navigation error. Please refresh this page.');
     }
 } else {
     //original message.php stuff
+    echo "<title>" . xlt('Message Center') . "</title></head><body class='body_top'>";
     ?>
     <div class="container">
-        <div class="row">
-            <div class="col-sm-4 text-left col-offset-sm-2">
-                <div>
-                    <span class="title"><?php echo xlt('Messages'); ?></span><br /><br />
-                    <?php
-                    // TajEmo Work by CB 2012/01/11 02:51:25 PM adding dated reminders
-                    // I am asuming that at this point security checks have been performed
-                    require_once '../dated_reminders/dated_reminders.php';
-                    ?>
-                </div>
-            </div>
-            <div class="col-sm-4 text-center">
-                <?php
-                if ($GLOBALS['disable_rcb'] != '1') { ?>
+        <?php if ($GLOBALS['disable_rcb'] != '1' || $logged_in) { ?>
+            <div class="row">
+            <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
+                <div class="col-sm-6 col-md-6 col-lg-6">
                     <div class="dr_container">
                         <span class="title"><?php echo xlt('Recalls'); ?></span>
                         <br/><br/>
@@ -145,33 +138,41 @@ if (!empty($_REQUEST['go'])) { ?>
                            onclick="goReminderRecall('Recalls');"><span><?php echo xlt('Recall Board'); ?></span></a>
                         &nbsp;
                     </div>
-                    <?php
-                } ?>
+                </div>
+            <?php } ?>
+            <?php if ($logged_in) { ?>
+                <div class="col-sm-4 col-md-4 col-lg-4">
+                    <span class="title"><?php echo xlt('SMS Zone'); ?></span>
+                    <br/><br/>
+
+                    <form id="smsForm" class="input-group">
+                        <input id="SMS_patient" type="text" style="margin:0;max-width:100%;" class="form-control"
+                               placeholder="<?php echo xla("Patient Name"); ?>" />
+                        <span class="input-group-addon" onclick="SMS_direct();"><i
+                                    class="glyphicon glyphicon-phone"></i></span>
+                        <input type="hidden" id="sms_pid">
+                        <input type="hidden" id="sms_mobile" value="">
+                        <input type="hidden" id="sms_allow" value="">
+                    </form>
+                </div>
+            <?php } ?>
             </div>
-            <div class="col-sm-3 text-center">
-                <?php
-                if ($logged_in) { ?>
-                    <div class="">
-                        <span class="title"><?php echo xlt('SMS Zone'); ?></span>
-                        <br/><br/>
-
-                        <form id="smsForm" class="input-group">
-                            <input id="SMS_patient" type="text" style="margin:0;max-width:100%;" class="form-control"
-                                   placeholder="<?php echo xla("Patient Name"); ?>" />
-                            <span class="input-group-addon" onclick="SMS_direct();"><i
-                                        class="glyphicon glyphicon-phone"></i></span>
-                            <input type="hidden" id="sms_pid">
-                            <input type="hidden" id="sms_mobile" value="">
-                            <input type="hidden" id="sms_allow" value="">
-                        </form>
-                    </div>
-
+            <hr/>
+        <?php } ?>
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-12">
+                <div>
+                    <span class="title"><?php echo xlt('Reminders'); ?></span><br /><br />
                     <?php
-                } ?>
+                    // TajEmo Work by CB 2012/01/11 02:51:25 PM adding dated reminders
+                    // I am asuming that at this point security checks have been performed
+                    require_once '../dated_reminders/dated_reminders.php';
+                    ?>
+                </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-10 text-center col-offset-sm-2">
+            <div class="col-sm-12 col-md-12 text-center">
                 <hr/>
                 <?php
                 // Check to see if the user has Admin rights, and if so, allow access to See All.
@@ -330,7 +331,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         <input type=hidden name=noteid id=noteid value='" . attr($noteid) . "'>
                         <input type=hidden name=task id=task value=add>";
                 ?><br/>
-                <div id="pnotes" class="col-sm-8 col-offset-4 form-inline text-center">
+                <div id="pnotes" class="form-inline text-center">
                     <table border='0' cellspacing='8'>
                         <tr>
                             <td class='text form-group'>

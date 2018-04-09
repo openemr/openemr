@@ -1644,7 +1644,7 @@ function build_CODING_list() {
         }
       }
     });
-        //1.  Visit Codes.  These can have a modifier (22,25,57 hard coded so far)
+        //1.  Visit Codes.  These can have a modifier (22,24,25,57 hard coded so far)
         var visit_justify = visit_justifier.join(":");
         if (typeof visit_modifier != "object") {
           visit_modifiers = [];
@@ -1668,6 +1668,7 @@ function build_CODING_list() {
                           codetext: 'Sensorimotor exam (CPT4:92060)',
                           codetype: 'CPT4',
                           title:    'Neuro/Sensorimotor Code',
+                          justify:  visit_justify
                           });
     }
         //2. Tests/procedures performed to bill
@@ -2000,7 +2001,7 @@ function scrollTo(target) {
   }
 }
 function tabYourIt(tabNAME,url) {
-    parent.left_nav.loadFrame('1',tabNAME,url);
+    parent.loadFrame('1',tabNAME,url);
 }
 
 function update_appt_status(new_status) {

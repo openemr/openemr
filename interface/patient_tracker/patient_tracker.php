@@ -49,22 +49,52 @@ if ($_POST['saveCALLback'] == "Save") {
                 (?,?,?,'NOTES','CALLED',?)";
     sqlQuery($sqlINSERT, array($_POST['pc_eid'], $_POST['pc_pid'], $_POST['campaign_uid'], $_POST['txtCALLback']));
 }
-$from_date = !is_null($_REQUEST['form_from_date']) ? DateToYYYYMMDD($_REQUEST['form_from_date']) : date('Y-m-d');
 
-
-if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
-    $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
-    $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d'), date('Y') + $ptkr_time);
-} elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'M') {
-    $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
-    $ptkr_future_time = mktime(0, 0, 0, date('m') + $ptkr_time, date('d'), date('Y'));
-} elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'D') {
-    $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
-    $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d') + $ptkr_time, date('Y'));
+//set default start date of flow board to value based on globals
+if (!$GLOBALS['ptkr_date_range']) {
+    $from_date = date('Y-m-d');
+} elseif (!is_null($_REQUEST['form_from_date'])) {
+    $from_date = DateToYYYYMMDD($_REQUEST['form_from_date']);
+} elseif (($GLOBALS['ptkr_start_date'])=='D0') {
+    $from_date = date('Y-m-d');
+} elseif (($GLOBALS['ptkr_start_date'])=='B0') {
+    if (date(w)==GLOBALS['first_day_week']) {
+        //today is the first day of the week
+        $from_date = date('Y-m-d');
+    } elseif ($GLOBALS['first_day_week']==0) {
+        //Sunday
+        $from_date = date('Y-m-d', strtotime('previous sunday'));
+    } elseif ($GLOBALS['first_day_week']==1) {
+        //Monday
+        $from_date = date('Y-m-d', strtotime('previous monday'));
+    } elseif ($GLOBALS['first_day_week']==6) {
+        //Saturday
+        $from_date = date('Y-m-d', strtotime('previous saturday'));
+    }
+} else {
+    //shouldnt be able to get here...
+    $from_date = date('Y-m-d');
 }
 
-$to_date = date('Y-m-d', $ptkr_future_time);
-$to_date = !is_null($_REQUEST['form_to_date']) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
+//set default end date of flow board to value based on globals
+if ($GLOBALS['ptkr_date_range']) {
+    if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
+        $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
+        $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d'), date('Y') + $ptkr_time);
+    } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'M') {
+        $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
+        $ptkr_future_time = mktime(0, 0, 0, date('m') + $ptkr_time, date('d'), date('Y'));
+    } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'D') {
+        $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
+        $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d') + $ptkr_time, date('Y'));
+    }
+
+    $to_date = date('Y-m-d', $ptkr_future_time);
+    $to_date = !is_null($_REQUEST['form_to_date']) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
+} else {
+    $to_date = date('Y-m-d');
+}
+
 $form_patient_name = !is_null($_POST['form_patient_name']) ? $_POST['form_patient_name'] : null;
 $form_patient_id = !is_null($_POST['form_patient_id']) ? $_POST['form_patient_id'] : null;
 
