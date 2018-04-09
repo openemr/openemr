@@ -555,10 +555,6 @@ textarea.ANTSEGTEXT {
 .left {
     text-align:left;
 }
-.right {
-    text-align: right;
-}
-
 .canvas {
     
    /* background:#29c7c4;*/
@@ -1775,13 +1771,11 @@ li .handle { display: inline-block; padding: 0.4em; }
     .report_text {
       padding:2 10 2 10;
       width:150px;
-      display: -webkit-flex;
-    -webkit-flex-wrap: wrap;
-    flex-wrap: wrap;
+      flex-wrap: wrap;
     }
     .right {
       -webkit-align-content: right;
-    align-content: right;
+      align-content: right;
       text-align:right;
     }
     .left {
@@ -1805,10 +1799,6 @@ li .handle { display: inline-block; padding: 0.4em; }
     }
     .text {
       font-family: Arial;
-    }
-    .right {
-      text-align:right;
-
     }
     #report_custom .encounter_form {
       padding-bottom:0px;

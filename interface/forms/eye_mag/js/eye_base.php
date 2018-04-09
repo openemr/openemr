@@ -1256,7 +1256,7 @@ function rebuild_IMP(obj2) {
                                    }
                                    k++;
                                    });
-}
+ }
 /*
  * This function builds the Impression/Plan area using the object supplied: items
  * It appends "items" into the Impression Plan area, complete with:
@@ -1999,9 +1999,6 @@ function scrollTo(target) {
   if (offset > (window.pageYOffset +150)||offset < (window.pageYOffset -150)) {
     $('html, body').animate({scrollTop:offset}, scrollSpeed);
   }
-}
-function tabYourIt(tabNAME,url) {
-    parent.loadFrame('1',tabNAME,url);
 }
 
 function update_appt_status(new_status) {
@@ -3216,8 +3213,10 @@ var allPanels = $('.building_blocks > dd').hide();
                                             ('Eye_defaults_".$providerID."','OSMACULA','flat','RETINA','480'),
                                             ('Eye_defaults_".$providerID."','ODVESSELS','2:3','RETINA','490'),
                                             ('Eye_defaults_".$providerID."','OSVESSELS','2:3','RETINA','500'),
-                                            ('Eye_defaults_".$providerID."','ODPERIPH','flat','RETINA','510'),
-                                            ('Eye_defaults_".$providerID."','OSPERIPH','flat','RETINA','520')";
+                                            ('Eye_defaults_".$providerID."','ODVITREOUS','CLEAR','RETINA','510'),
+                                            ('Eye_defaults_".$providerID."','OSVITREOUS','CLEAR','RETINA','520'),
+                                            ('Eye_defaults_".$providerID."','ODPERIPH','flat','RETINA','530'),
+                                            ('Eye_defaults_".$providerID."','OSPERIPH','flat','RETINA','540')";
                                                 sqlStatement($query);
                                             }
 
@@ -3842,12 +3841,10 @@ var allPanels = $('.building_blocks > dd').hide();
                   $('.building_blocks > dt ').click(function() {
                                                           allPanels.slideUp();
                                                           $(this).next().slideDown();
-                                                          return false;
                                                           });
                   $('.building_blocks2 > dt ').click(function() {
                                                            allPanels2.slideUp();
                                                            $(this).next().slideDown();
-                                                           return false;
                                                            });
                   $('#IMP_start_acc').slideDown();
                   $('[id^=inc_]').click(function() {
@@ -3860,7 +3857,11 @@ var allPanels = $('.building_blocks > dd').hide();
                   $("input,textarea,text,checkbox").change(function(){
                                                            $(this).css("background-color","#F0F8FF");
                                                            if (this.name.match(/IOP/)) { color_IOP(this); }
-                                                           if (($(this).id != 'IMP')&&(this.name != 'visit_status')) {
+                                                           if ( ($(this).id != 'IMP') &&
+                                                                (this.name != 'visit_status') &&
+                                                                (!this.name.match(/^inc_/)) &&
+                                                                (!this.name.match(/^TEST/))
+                                                              ) {
                                                               submit_form();
                                                             } else {
                                                              // alert('Form was IMP');
@@ -3935,9 +3936,6 @@ var allPanels = $('.building_blocks > dd').hide();
                                           });
                   $( ".widget a" ).button();
 
-                  $('#goto_fee_sheet').click(function(event) {
-                      tabYourIt('fee_sheet','patient_file/encounter/load_form.php?formname=fee_sheet');
-                    });
                   $( "button" ).button().click(function( event ) {
                          event.preventDefault();
                          });
