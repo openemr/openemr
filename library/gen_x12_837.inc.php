@@ -17,7 +17,7 @@ use OpenEMR\Billing\Claim;
 
 function stripZipCode($zip)
 {
-    $temp = preg_replace('/[-\s]*/','',$zip);
+    $temp = preg_replace('/[-\s]*/','', $zip);
     if (strlen($temp) == 5) {
         return $temp . "9999";
     } else {
