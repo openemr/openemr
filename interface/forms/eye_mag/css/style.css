@@ -53,6 +53,7 @@
 }
 .eye_mag {
     z-index:5;
+    width: 100%;
 }
 #sddm {
     z-index:31;
@@ -123,8 +124,8 @@ a:active {
     font-size:1.0em;
     text-align: center;
     border:1pt solid black;justify-content:center; align-items:center;
-    height:38px;
-    width:38px;
+    height:43px;
+    width:43px;
 }
 textarea.ACT {
     border: none;
@@ -227,7 +228,7 @@ input[type=text] {
 /* REFRACTION PANEL */
 
 #REFRACTION_sections {
-    position:relative;display:inline-block;margin:5px auto;max-width:90%;margin:0;
+    margin:0px auto;
 }
 
 .refraction_panel {
@@ -296,9 +297,8 @@ input[type=text] {
 }
 .refraction ul {
     list-style-type: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
+    margin: 0px 6px;
+    padding: 2px;
 }
 
 .refraction li {
@@ -557,7 +557,6 @@ body
     width: 550px;
     margin: 5px auto ;
     padding:10px;
-    height: 400px;
 }
 .exam_section_left b {
 
@@ -1847,7 +1846,7 @@ View.php
 #LayerTension { width: 1.9in; height: 1.05in;padding: 0.02in; border: 1.00pt solid #000000;float:left;}
 
 
-#DA_EXAM_sections { text-align: center;display:inline-table;max-width: 95%;}
+#DA_EXAM_sections { text-align: center;display:inline-table;max-width: 93%;}
 #DA_EXAM_sections input[type="text"] { margin:1px; }
 #LayerVision { width: 2.2in; min-height: 1.05in;padding: 0.02in; border: 1.00pt solid #000000;float:left;}
 #tabs { font-size:0.5em;}

@@ -83,7 +83,7 @@ function make_task($ajax_req)
         } else if ($task['DOC_TYPE'] == "Fax-resend") {
             //we need to resend this fax????
             //You can only resend from here once.
-            $send['comments'] = xlt('To resend, delete the file from Communications and try again.');
+            $send['comments'] = xlt('To resend, delete the file from Communications, reload this page and try again.');
             echo json_encode($send);
             update_taskman($task, 'refaxed', '2');
             exit;
@@ -302,6 +302,12 @@ function make_document($task)
         }
     } else {
         $category_name = "Encounters - Eye";
+        //$category_name = "Encounters";
+        // $category_name = "Encounters - Eye"; //<---- openEMR base requires this.  My Category names don't use the "- Eye" part...
+        // Should the end user change the Document Category Names, this as is will fail.
+        // Is this an issue also for foreign language users?
+        //  -- perhaps not as I suspect translations occur after DB work just before display to end user.
+        // Maybe we should search category_names for the first match to 'Encounters%' and use that id?
         $query = "select id from categories where name =?";
         $ID = sqlQuery($query, array($category_name));
         $category_id = $ID['id'];
@@ -316,17 +322,7 @@ function make_document($task)
         $sql = "DELETE from documents where documents.url like ?";
         sqlQuery($sql, array("%".$filename));
     }
-
-    /*$pdf = new HTML2PDF(
-        $GLOBALS['pdf_layout'],
-        $GLOBALS['pdf_size'],
-        $GLOBALS['pdf_language'],
-        true, // default unicode setting is true
-        'UTF-8', // default encoding setting is UTF-8
-        array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
-        $_SESSION['language_direction'] == 'rtl' ? true : false
-    );*/
-
+    
     $pdf = new mPDF(
         $GLOBALS['pdf_language'],
         $GLOBALS['pdf_size'],
