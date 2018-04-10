@@ -420,7 +420,6 @@ background: #C0C0C0;
     background: #ffffff;
     font-family:  Arial,Serif, Arial;
     padding:6px;
-    font-size:1.2em;
     text-align:left;
     vertical-align:top;
     width:720px;
@@ -441,11 +440,7 @@ background: #C0C0C0;
 .CTL {
     background-color: white;
 }
-.tab_content table {
-    font-size:0.8em;
-    min-height: 2.0in;
-    text-align:left;
-}
+
 th {
     font-size: 1.0em;
     text-align: center;
@@ -468,13 +463,7 @@ body
     */
     text-align:center;
 }
-.sections {
-    text-align:center;
-    vertical-align:top;
-    width:100%;
-    margin:0;
-    font-size:1.4em;
-}
+
 #form_container {
     border: 0px solid red;
     padding: 0px;
@@ -555,39 +544,7 @@ textarea.ANTSEGTEXT {
 .left {
     text-align:left;
 }
-.canvas {
-    
-   /* background:#29c7c4;*/
-  background-image: url('../../forms/eye_mag/images/beige013.jpg');
-    background-size: 10% 10%;
-    background-repeat: repeat;
-    Xheight:2.5in;
-}
-.AntSegSpan {
-    /* OU OD OS
-    If selected the background changes
 
-    */
-    position:relative;
-    padding-right:0.1in;
-    box-shadow: 1px 1px 1px #888888;
-    border-radius: 8px;
-    margin-right: 4px; 
-    position:relative; 
-    margin-right: 0.1in; 
-    padding: 0.1in; 
-    border: 1.00pt solid #000000; 
-    background: #C0C0C0;
-    font-color:#000000;
-    height:0.05in;
-    font-family:  Arial,Serif, Arial;
-    font-size: 8pt;
-
-}
-.ANTSEGTEXT {
-    width: 2in;
-    height: 16px;
-}
 .button {
     background-color: #E3E1B8; 
     padding: 2px 4px;
