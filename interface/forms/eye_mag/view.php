@@ -117,7 +117,7 @@ $fs = new FeeSheetHtml();
   If they stay in READ-ONLY mode, the fields are locked and submit_form is not allowed...
   In READ-ONLY mode, the form is refreshed via ajax every 15 seconds with changed fields' css
   background-color attribute set to purple.
-  Once the active user with write priviledges closes their instance of the form, the form_id is unlocked.
+  Once the active user with write privileges closes their instance of the form, the form_id is unlocked.
   READ-ONLY users stay read only if they do nothing.
  */
 
@@ -194,17 +194,18 @@ if ($refresh and $refresh != 'fullscreen') {
     }
     // This invokes the find-code popup.
     function sel_diagnosis(target,term) {
-      if (target =='') target = "0";
+      if (target =='') {
+          target = "0";
+      }
       IMP_target = target;
         <?php
-
         if ($irow['type'] == 'PMH') { //or POH
         ?>
-          dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("medical_problem", "csv")) ?>&search_term='+escape(term), '_blank', 600, 400);
+          dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("medical_problem", "csv")) ?>&search_term='+encodeURI(term), '_blank', 600, 400);
             <?php
         } else {
             ?>
-          dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")) ?>&search_term='+escape(term), '_blank', 600, 400);
+          dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")) ?>&search_term='+encodeURI(term), '_blank', 600, 400);
             <?php
         }
         ?>
@@ -1259,7 +1260,7 @@ if ($refresh and $refresh != 'fullscreen') {
                     <?php echo display_GlaucomaFlowSheet($pid); ?>
               </div>
               <!-- end IOP chart section -->
-
+                <br />
               <!-- start of the refraction box -->
               <span class="anchor" id="REFRACTION_anchor"></span>
               <div class="loading" id="EXAM_sections_loading" name="REFRACTION_sections_loading"><i class="fa fa-spinner fa-spin"></i></div>
@@ -1477,7 +1478,29 @@ if ($refresh and $refresh != 'fullscreen') {
                         <td><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
                         <td><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
                         <td><?php echo xlt('Acuity'); ?></td>
-                        <td></td>
+                        <td rowspan="3">
+                            <ul>
+                                <li>
+                                    <input type="radio" name="WETTYPE" id="Streak" value="Streak" <?php if ($WETTYPE == "Streak") {
+                                        echo "checked='checked'";
+} ?>/>
+                                    <label for="Streak" class="input-helper input-helper--checkbox"><?php echo xlt('Streak'); ?></label>
+                                </li>
+                                <li>
+                                    <input type="radio" name="WETTYPE" id="Auto" value="Auto" <?php if ($WETTYPE == "Auto") {
+                                        echo "checked='checked'";
+} ?>>
+                                    <label for="Auto" class="input-helper input-helper--checkbox"><?php echo xlt('Auto{{autorefraction}}'); ?></label>
+                                </li>
+
+                                <li>
+                                    <input type="radio" name="WETTYPE" id="Manual" value="Manual" <?php if ($WETTYPE == "Manual") {
+                                        echo "checked='checked'";
+} ?>>
+                                    <label for="Manual" class="input-helper input-helper--checkbox"><?php echo xlt('Manual'); ?></label>
+                                </li>
+                            </ul>
+                        </td>
                         <td id="IOP_dil"><?php echo xlt('IOP Dilated{{Dilated Intraocular Pressure}}'); ?>
                           <input type="hidden" name="IOPPOSTTIME" id="IOPPOSTTIME" value="">
                         </td>
@@ -1489,29 +1512,6 @@ if ($refresh and $refresh != 'fullscreen') {
                         <td><input type="text" id="CRODCYL" name="CRODCYL" value="<?php echo attr($CRODCYL); ?>" tabindex="10184"></td>
                         <td><input type="text" id="CRODAXIS" name="CRODAXIS" value="<?php echo attr($CRODAXIS); ?>" tabindex="10185"></td>
                         <td><input type="text" id="CRODVA" name="CRODVA"  value="<?php echo attr($CRODVA); ?>" tabindex="10189"></td>
-                        <td rowspan="2">
-                          <ul>
-                            <li>
-                            <input type="radio" name="WETTYPE" id="Flash" value="Flash" <?php if ($WETTYPE == "Flash") {
-                                echo "checked='checked'";
-} ?>/>
-                            <label for="Flash" class="input-helper input-helper--checkbox"><?php echo xlt('Flash'); ?></label>
-                          </li>
-                          <li>
-                            <input type="radio" name="WETTYPE" id="Auto" value="Auto" <?php if ($WETTYPE == "Auto") {
-                                echo "checked='checked'";
-} ?>>
-                            <label for="Auto" class="input-helper input-helper--checkbox"><?php echo xlt('Auto{{autorefraction}}'); ?></label>
-                          </li>
-
-                            <li>
-                              <input type="radio" name="WETTYPE" id="Manual" value="Manual" <?php if ($WETTYPE == "Manual") {
-                                    echo "checked='checked'";
-} ?>>
-                              <label for="Manual" class="input-helper input-helper--checkbox"><?php echo xlt('Manual'); ?></label>
-                            </li>
-                          </ul>
-                        </td>
                         <td><input type="text" id="ODIOPPOST" name="ODIOPPOST"  value="<?php echo attr($ODIOPPOST); ?>">
                         </tr>
                         <tr>
@@ -1914,7 +1914,7 @@ if ($refresh and $refresh != 'fullscreen') {
                 <span class="BAR2_kb" title="<?php echo xla('Click to display shorthand field names.'); ?>" class="ke"><b><?php echo xlt('Shorthand'); ?></b>
                 </span>
 
-                <a onclick="top.restoreSession();goto_url('<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/help.php?zone=all');">
+                <a  target="_shorthand" href="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/help.php">
                 <i title="<?php echo xla('Click for Shorthand Help.'); ?>" class="fa fa-info-circle fa-1"></i>
                 </a><br />
                 <textarea id="ALL_keyboard_left" name="ALL_keyboard_left" tabindex='1000'></textarea>
@@ -2254,35 +2254,35 @@ if ($refresh and $refresh != 'fullscreen') {
                                   </tr>
                                   <tr>
                                       <td>
-                                        <textarea name="ODCONJ" id="ODCONJ" class="right"><?php echo text($ODCONJ); ?></textarea></td>
+                                        <textarea name="ODCONJ" id="ODCONJ" class="right ANTSEG"><?php echo text($ODCONJ); ?></textarea></td>
                                       <td><div class="ident"><?php echo xlt('Conj{{Conjunctiva}}'); ?> / <?php echo xlt('Sclera'); ?></div>
                                         <div class="kb kb_left"><?php echo xlt('RC{{right conjunctiva}}'); ?></div>
                                         <div class="kb kb_right"><?php echo xlt('LC{{left conjunctiva}}'); ?></div></td>
                                       <td><textarea name="OSCONJ" id="OSCONJ" class="ANTSEG"><?php echo text($OSCONJ); ?></textarea></td>
                                   </tr>
                                   <tr>
-                                      <td><textarea name="ODCORNEA" id="ODCORNEA" class="right"><?php echo text($ODCORNEA); ?></textarea></td>
+                                      <td><textarea name="ODCORNEA" id="ODCORNEA" class="right ANTSEG"><?php echo text($ODCORNEA); ?></textarea></td>
                                       <td><div class="ident"><?php echo xlt('Cornea'); ?></div>
                                         <div class="kb kb_left"><?php echo xlt('RK{{right cornea}}'); ?></div>
                                         <div class="kb kb_right"><?php echo xlt('LK{{left cornea}}'); ?></div></td></td>
                                       <td><textarea name="OSCORNEA" id="OSCORNEA" class="ANTSEG"><?php echo text($OSCORNEA); ?></textarea></td>
                                   </tr>
                                   <tr>
-                                      <td><textarea name="ODAC" id="ODAC" class="right"><?php echo text($ODAC); ?></textarea></td>
+                                      <td><textarea name="ODAC" id="ODAC" class="right ANTSEG"><?php echo text($ODAC); ?></textarea></td>
                                       <td><div class="ident"><?php echo xlt('A/C{{anterior chamber}}'); ?></div>
                                         <div class="kb kb_left"><?php echo xlt('RAC{{right anterior chamber}}'); ?></div>
                                         <div class="kb kb_right"><?php echo xlt('LAC{{left anterior chamber}}'); ?></div></td></td>
                                       <td><textarea name="OSAC" id="OSAC" class="ANTSEG"><?php echo text($OSAC); ?></textarea></td>
                                   </tr>
                                   <tr>
-                                      <td><textarea name="ODLENS" id="ODLENS" class="right"><?php echo text($ODLENS); ?></textarea></td>
+                                      <td><textarea name="ODLENS" id="ODLENS" class="right ANTSEG"><?php echo text($ODLENS); ?></textarea></td>
                                       <td><div class="ident"><?php echo xlt('Lens'); ?></div>
                                         <div class="kb kb_left"><?php echo xlt('RL{{right lens}}'); ?></div>
                                         <div class="kb kb_right"><?php echo xlt('LL{{left lens}}'); ?></div></td></td>
                                       <td><textarea name="OSLENS" id="OSLENS" class="ANTSEG"><?php echo text($OSLENS); ?></textarea></td>
                                   </tr>
                                   <tr>
-                                      <td><textarea name="ODIRIS" id="ODIRIS" class="right"><?php echo text($ODIRIS); ?></textarea></td>
+                                      <td><textarea name="ODIRIS" id="ODIRIS" class="right ANTSEG"><?php echo text($ODIRIS); ?></textarea></td>
                                       <td><div class="ident"><?php echo xlt('Iris'); ?></div>
                                         <div class="kb kb_left"><?php echo xlt('RI{{right iris}}'); ?>RI</div><div class="kb kb_right"><?php echo xlt('LL{{left iris}}'); ?></div></td></td>
                                       <td><textarea name="OSIRIS" id="OSIRIS" class="ANTSEG"><?php echo text($OSIRIS); ?></textarea></td>
@@ -2374,10 +2374,10 @@ if ($refresh and $refresh != 'fullscreen') {
                                     <div class="kb kb_left"><?php echo 'CUP'; ?></div>
                                     <?php echo xlt('C/D Ratio{{cup to disc ration}}'); ?>:</td>
                                 <td>
-                                    <input type="text" name="ODCUP" size="4" id="ODCUP" value="<?php echo attr($ODCUP); ?>">
+                                    <input type="text" class="RETINA" name="ODCUP" size="4" id="ODCUP" value="<?php echo attr($ODCUP); ?>">
                                 </td>
                                 <td>
-                                    <input type="text" name="OSCUP" size="4" id="OSCUP" value="<?php echo attr($OSCUP); ?>">
+                                    <input type="text" class="RETINA" name="OSCUP" size="4" id="OSCUP" value="<?php echo attr($OSCUP); ?>">
                                 </td>
                             </tr>
 
@@ -2386,10 +2386,10 @@ if ($refresh and $refresh != 'fullscreen') {
                                     <div class="kb kb_left"><?php echo 'CMT'; ?></div>
                                     <?php echo xlt('CMT{{Central Macular Thickness}}'); ?>:</td>
                                 <td>
-                                    <input type="text" name="ODCMT" size="4" id="ODCMT" value="<?php echo attr($ODCMT); ?>">
+                                    <input class="RETINA" type="text" name="ODCMT" size="4" id="ODCMT" value="<?php echo attr($ODCMT); ?>">
                                 </td>
                                 <td>
-                                    <input type="text" name="OSCMT" size="4" id="OSCMT" value="<?php echo attr($OSCMT); ?>">
+                                    <input class="RETINA" type="text" name="OSCMT" size="4" id="OSCMT" value="<?php echo attr($OSCMT); ?>">
                                 </td>
                             </tr>
                         </table>
@@ -3304,7 +3304,7 @@ if ($refresh and $refresh != 'fullscreen') {
                   </div>
                 </div>
                 <!-- end Neuro -->
-         
+         <br />
                 <!-- start IMP/PLAN -->
                 <div class="size50 clear_both">
                   <div id="IMPPLAN_left" name="IMPPLAN_left" class="clear_both exam_section_left borderShadow">

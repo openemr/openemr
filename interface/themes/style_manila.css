@@ -822,10 +822,6 @@ text-decoration: none;
 border-radius: 8px 8px 0 0;
 box-shadow: 2px -1px 1px #c0c0c0;
  }
- form {
-    width: 95%;
-    margin: 0 auto;
- }
 ul.tabNav li.current a { background:#FFFFFF; }
 
 div.tabContainer {

@@ -270,16 +270,18 @@ if ($_REQUEST['unlock'] == '1') {
     exit;
 } elseif ($_REQUEST['acquire_lock']=="1") {
   //we are taking over the form's active state, others will go read-only
-    $query = "UPDATE ".$table_name." set LOCKED='1',LOCKEDBY=? where id=? and LOCKEDBY=?";
+    $query = "UPDATE ".$table_name." set LOCKED='1',LOCKEDBY=?,LOCKEDDATE=NOW() where id=? and LOCKEDBY=?";
     $result = sqlQuery($query, array($_REQUEST['uniqueID'],$form_id,$_REQUEST['locked_by']));
-    $query = "SELECT LOCKED,LOCKEDBY,LOCKEDDATE from ".$table_name." WHERE ID=?";
-    $lock = sqlQuery($query, array($form_id));
+    //echo $query." " .$_REQUEST['locked_by'];
+    //var_dump($_REQUEST);
+    //$query = "SELECT LOCKED,LOCKEDBY,LOCKEDDATE from ".$table_name." WHERE ID=?";
+    //$lock = sqlQuery($query, array($form_id));
     exit;
 } else {
     $query = "SELECT LOCKED,LOCKEDBY,LOCKEDDATE from ".$table_name." WHERE ID=?";
     $lock = sqlQuery($query, array($form_id));
     if (($lock['LOCKED']) && ($_REQUEST['uniqueID'] != $lock['LOCKEDBY'])) {
-        // We are not the owner or it is not new so it is locked
+        // This session not the owner or it is not new so it is locked
         // Did the user send a demand to take ownership?
         if ($lock['LOCKEDBY'] != $_REQUEST['ownership']) {
             //tell them they are locked out by another user now
@@ -299,7 +301,7 @@ if ($_REQUEST['unlock'] == '1') {
         }
     } elseif (!$lock['LOCKED']) { // it is not locked yet
         $_REQUEST['LOCKED'] = '1';
-        $query = "update ".$table_name." set LOCKED=?,LOCKEDBY=? where id=?";
+        $query = "update ".$table_name." set LOCKED=?,LOCKEDBY=?,LOCKEDDATE=NOW() where id=?";
         sqlQuery($query, array('1',$_REQUEST['LOCKEDBY'],$form_id));
         //go on to save what we want...
     }
@@ -724,7 +726,29 @@ if ($_REQUEST["mode"] == "new") {
     }
 
   /*** END CODE to DEAL WITH PMSFH/ISUUE_TYPES  ****/
-
+    //Update the visit status for this appointment (from inside the Coding Engine)
+    //we also have to update the flow board...  They are not linked automatically.
+    //Flow board counts items for each events so we need to insert new item and update total for the event, via pc_eid...
+    if ($_REQUEST['action'] == 'new_appt_status') {
+        if ($_POST['new_status']) {
+            //make sure visit_date is in YYYY-MM-DD format
+            $Vdated = new DateTime($_POST['visit_date']);
+            $Vdate = $Vdated->format('Y-m-d');
+            //get eid
+            $sql = "select * from patient_tracker where  `pid` = ? and `apptdate`=?";
+            $tracker = sqlFetchArray(sqlStatement($sql, array($_POST['pid'],$Vdate)));
+            sqlStatement("UPDATE `patient_tracker` SET  `lastseq` = ? WHERE `id` = ?", array(($tracker['lastseq']+1),$tracker['id']));
+            #Add a tracker item.
+            $sql = "INSERT INTO `patient_tracker_element` " .
+                "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `room`, `seq`) " .
+                "VALUES (?,NOW(),?,?,?,?)";
+            sqlInsert($sql, array($tracker['id'],$userauthorized,$_POST['new_status'],' ',($tracker['lastseq']+1)));
+            sqlStatement("UPDATE `openemr_postcalendar_events` SET `pc_apptstatus` = ? WHERE `pc_eid` = ?", array($_POST['new_status'],$tracker['eid']));
+            exit;
+        }
+        echo "Failed to update Patient Tracker.";
+        exit;
+    }
   /* Let's save the encounter specific values.
     // Any field that exists in the database could be updated
     // so we need to exclude the important ones...
@@ -1022,6 +1046,7 @@ if ($_REQUEST["mode"] == "new") {
         $send['PMH_panel'] = display_PMSFH('2');
         $send['right_panel'] = show_PMSFH_panel($PMSFH);
         $send['PMSFH'] = $PMSFH[0];
+        $send['Coding'] = build_CODING_items($pid, $encounter);
         echo json_encode($send);
         exit;
     }

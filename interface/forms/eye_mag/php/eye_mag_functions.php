@@ -3443,7 +3443,32 @@ function build_IMPPLAN_items($pid, $form_id)
 
     return $IMPPLAN_items;
 }
-
+    
+            /**
+             *  This builds the CODING_items variable for a given pid and encounter.
+             *  @param string $pid patient_id
+             *  @param string $encounter field id in table form_encounters
+             *  @return object CODING_items
+             */
+function build_CODING_items($pid, $encounter)
+{
+    $query ="select * from billing where encounter=? and pid=? ORDER BY id";
+    $fres = sqlStatement($query, array($encounter,$pid));
+    $i=0;
+    
+    while ($frow = sqlFetchArray($fres)) {
+        $CODING_items[$i]['encounter'] = $frow['encounter'];
+        $CODING_items[$i]['pid'] = $frow['pid'];
+        $CODING_items[$i]['id'] = $frow['id'];
+        $CODING_items[$i]['codetype'] = $frow['code_type'];
+        $CODING_items[$i]['codedesc'] = $frow['code_desc'];
+        $CODING_items[$i]['codetext'] = $frow['code_text'];
+        $CODING_items[$i]['justify'] = $frow['justify'];
+        $i++;
+    }
+    
+    return $CODING_items;
+}
 /**
  *  This function builds an array of documents for this patient ($pid).
  *  We first list all the categories this practice has created by name and by category_id
@@ -3572,9 +3597,11 @@ function display($pid, $encounter, $category_value)
         }
         */
         //open via OpenEMR Documents with treemenu
-        if (count($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]) > '0') {
-            //$episode .= '<a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.$pid.'&parent_id='.$documents['zones'][$category_value][$j]['id'].'&document_id='.$doc[id].'&as_file=false\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" /></a>';
-            $episode .= '<a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.$pid.'&parent_id='.$documents['zones'][$category_value][$j]['id'].'\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" /></a>';
+        $count_here='0';
+        $count_here = count($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]);
+        if ($count_here > '0') {
+            $id_to_show = $documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here-1]['document_id'];
+            $episode .= '<a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.$pid.'&doc_id='.$id_to_show.'\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" /></a>';
         }
 
         $episode .= '</td></tr>';
@@ -3829,7 +3856,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                                 <span id="tooltips_status" name="tooltips_status"></span>
                                 <span class="menu_icon"><i title="<?php echo xla('Turn the Tooltips on/off'); ?>" id="qtip_icon" class="fa fa-check fa-1"></i></span></a>
                             </li>
-                            <li role="presentation"><a role="menuitem" tabindex="-1" target="_blank" href="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/help.php">
+                            <li role="presentation"><a role="menuitem" tabindex="-1" target="_shorthand" href="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/help.php">
                                 <i class="fa fa-help"></i>  <?php echo xlt("Shorthand Help"); ?><span class="menu_icon"><i title="<?php echo xla('Click for Shorthand Help.'); ?>" class="fa fa-info-circle fa-1"></i></span></a>
                             </li>
                         </ul>

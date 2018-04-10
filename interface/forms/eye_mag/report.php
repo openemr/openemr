@@ -270,13 +270,13 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
     if ($choice !== 'TEXT') { ?>
 
         <?php
-    } ?>
-    <table class="report_exam_group">
+    } ?><br /><br />
+    <table style="font-size:1.2em;">
       <tr>
         <td style="text-align:left;padding:1px;vertical-align:top;max-width:720px;">
           <table style="padding:5px;width:700px;">
             <tr>
-              <td colspan="1" style="text-align: justify;text-justify: inter-word;width:100%;">
+              <td style="text-align: justify;text-justify: inter-word;width:100%;">
                 <b><?php echo xlt('Chief Complaint'); ?>:</b> &nbsp;<?php echo text($CC1); ?>
                 <br /><br />
                 <b><?php echo xlt('HPI'); ?>:</b>
@@ -483,8 +483,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
     if ($choice !== 'TEXT') {
     //exclude all of this from displaying on the summary mouseover by default
     ?>
-    <hr style="width:50%;text-align:center;" />
-    <table style="margin:1 auto;" class="report_exam_group">
+     <table style="margin:1px auto;" class="report_exam_group">
       <tr>
         <td style="width:680px;text-align:center;margin:1 auto;">
         <?php
@@ -525,12 +524,12 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
         </td>
       </tr>
     </table>
-    <table class="borderShadow" >
-      <tr style="font-size:10px;">
+    <table class="borderShadow">
+      <tr>
         <!-- Start of the Vision box -->
-        <td class="report_vitals">
+        <td  class="report_vitals">
           <b class="underline"><?php echo xlt('Visual Acuities'); ?></b>
-          <table id="Additional_VA" cellspacing="2" style="text-align:center;font-size:1.0em;">
+          <table id="Additional_VA" cellspacing="2" style="text-align:center;">
             <tr style="font-weight:bold;">
               <td style="text-align:center;"></td>
               <td style="width:50px;text-align:center;text-decoration:underline;"><?php echo xlt('OD'); ?></td>
@@ -626,7 +625,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
         <!-- START OF THE PRESSURE BOX -->
         <td class="report_vitals">
           <b class="underline"><?php echo xlt('Intraocular Pressures'); ?></b>
-          <table cellspacing="2" style="margin:2;text-align:center;font-size:1.0em;">
+          <table cellspacing="2" style="margin:2px;text-align:center;">
             <tr style="font-weight:bold;">
               <td style="text-align:center;"></td>
               <td style="text-align:center;text-decoration:underline;"><?php echo xlt('OD'); ?></td>
@@ -690,15 +689,15 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
             ?>
             <?php
             if ($bad < '1') {  ?>
-          <td class="report_vitals">
+          <td  class="report_vitals">
               <b class="underline"><?php echo xlt('Fields{{visual fields}}'); ?></b>
                 <?php
-                echo "<br /><br />&nbsp;Full to CF OU&nbsp;<br /><br /><br />";
+                echo "<br /><br />Full to CF OU";
             } else {
                 ?>
             <td class="report_vitals">
                 <b class="underline"><?php echo xlt('Fields{{visual fields}}'); ?></b>
-            <table style="font-size:1.0em;text-align:center;">
+            <table style="text-align:center;">
               <tr style="font-weight:bold;">
                       <td style="width:0.5in;text-align:center;text-decoration:underline;" colspan="2"><b><?php echo xlt('OD'); ?></b>
                         <br />
@@ -763,7 +762,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                     ($$zone[$i] >= '1') ? ($$zone[$i] = "-".$$zone[$i]) : ($$zone[$i] = '');
                 }
                 ?>
-              <table style="font-size:1.0em;">
+              <table cellspacing="2" style="margin:2px;text-align:center;">
                 <tr style="font-weight:bold;">
                 <td style="text-align:center;text-decoration:underline;"><?php echo xlt('OD'); ?></td>
                 <td style="text-align:center;text-decoration:underline;"><?php echo xlt('OS'); ?></td>
@@ -789,7 +788,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                   </table>
                 </td>
                 <td style="text-align:center;font-weight:600;padding-left:20px;">
-                  <table style="background: <?php echo $background; ?> no-repeat center center;filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50)              -moz-opacity: 0.5;              -webkit-opacity: 1.0;              opacity:0.5;              padding:1px;">
+                  <table style="background: <?php echo $background; ?> no-repeat center center;background-size: 100% auto; filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50) -moz-opacity: 0.5; -webkit-opacity: 0.5; opacity:1.0;Xpadding-bottom:5px;">
                     <tr>
                       <td class="mot"><?php echo $MOTILITY_LRSO; ?></td>
                       <td class="mot"><?php echo $MOTILITY_LS; ?></td>
@@ -816,7 +815,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
             <?php
             if (($PUPIL_NORMAL =='1')|| $ODPUPILSIZE1||$OSPUPILSIZE1) {
                     ?>
-            <td class="report_vitals" style="border-right:0px;">
+            <td style="border-right:0px;">
                     <?php
                     if (($PUPIL_NORMAL =='1')&&(!$ODPUPILSIZE1||!$OSPUPILSIZE1)) { ?>
                       <b class="underline"><?php echo xlt('Pupils'); ?></b>&nbsp;&nbsp;
@@ -824,12 +823,12 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                     }
 
                     if ($ODPUPILSIZE1||$OSPUPILSIZE1) { ?>
-                  <table cellspacing="0" style="margin:1px;text-align:center;font-size:9px;">
-                    <tr>
+                  <table cellspacing="0" style="margin:1px;text-align:center;">
+                    <tr class="report_vitals">
                       <!-- start of the Pupils box -->
                       <td>
                             <b class="underline"><?php echo xlt('Pupils'); ?></b>
-                        <table style="font-size: 8px;text-align:middle;">
+                        <table  class="report_vitals" style="text-align:middle;">
                             <tr>
                               <th> &nbsp;
                               </th>
@@ -886,7 +885,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
     if ($DIMODPUPILSIZE1||$DIMOSPUPILSIZE1||$PUPIL_COMMENTS||$AMSLEROD||$AMSLEROS) { ?>
       <!-- start of slide down pupils_panel -->
       <br />
-      <table class='borderShadow' style="margin:1px;text-align:center;font-size:9px;">
+      <table class='borderShadow' style="margin:1px;text-align:center;">
         <tr>
           <td>
             <b class="underline"><?php echo xlt('Pupils') ?>: <?php echo xlt('Dim'); ?></b>
@@ -916,7 +915,6 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 </td>
               </tr>
               <tr><td colspan="2" style="padding-left:2px;text-align:bottom;">
-
                     <?php echo text($PUPIL_COMMENTS); ?>
                 </td>
               </tr>
@@ -936,7 +934,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 $AMSLEROS= "0";
             }
             ?>
-            <table style="font-size:1.0em;">
+            <table style="font-size:10px;">
               <tr style="font-weight:bold;">
                 <td style="text-align:center;text-decoration:underline;"><?php echo xlt('OD'); ?></td>
                 <td></td>
@@ -974,16 +972,16 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                   </td>
                 </tr>
                 <tr style="text-align:center;padding:5px;text-decoration:underline;">
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('Type').$count_rx; ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('Eye'); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('Sph{{Sphere}}'); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('Prism'); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('Acuity'); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('Mid{{Middle Distance Add}}'); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('ADD{{Near Add}}'); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('Acuity'); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('Type').$count_rx; ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('Eye'); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('Sph{{Sphere}}'); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('Prism'); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('Acuity'); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('Mid{{Middle Distance Add}}'); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('ADD{{Near Add}}'); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('Acuity'); ?></td>
                 </tr>
                     <?php
                       //$count_rx++;
@@ -1007,27 +1005,27 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                         ?>
                   <tr>
                         <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo xlt('Current RX')." #".$i.": "; ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text(${"ODSPH_$i"})?:"-"); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text(${"ODCYL_$i"})?:"-"); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text(${"ODAXIS_$i"})?:"-"); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text(${"ODPRISM_$i"})?:"-"); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text(${"ODVA_$i"})?:"-"); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text(${"ODMIDADD_$i"})?:"-"); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text(${"ODADD_$i"})?:"-"); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text(${"ODNEARVA_$i"})?:"-"); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text(${"ODSPH_$i"})?:"-"); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text(${"ODCYL_$i"})?:"-"); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text(${"ODAXIS_$i"})?:"-"); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text(${"ODPRISM_$i"})?:"-"); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text(${"ODVA_$i"})?:"-"); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text(${"ODMIDADD_$i"})?:"-"); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text(${"ODADD_$i"})?:"-"); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text(${"ODNEARVA_$i"})?:"-"); ?></td>
                 </tr>
                 <tr>
                       <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo $RX_TYPE; ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('OS{{left eye}}'); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text(${"OSSPH_$i"})?:"-"); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text(${"OSCYL_$i"})?:"-"); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text(${"OSAXIS_$i"})?:"-"); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text(${"OSPRISM_$i"})?:"-");  ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text(${"OSVA_$i"})?:"-"); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text(${"OSMIDADD_$i"})?:"-"); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text(${"OSADD_$i"})?:"-"); ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text(${"OSNEARVA_$i"})?:"-"); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OS{{left eye}}'); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text(${"OSSPH_$i"})?:"-"); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text(${"OSCYL_$i"})?:"-"); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text(${"OSAXIS_$i"})?:"-"); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text(${"OSPRISM_$i"})?:"-");  ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text(${"OSVA_$i"})?:"-"); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text(${"OSMIDADD_$i"})?:"-"); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text(${"OSADD_$i"})?:"-"); ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text(${"OSNEARVA_$i"})?:"-"); ?></td>
                 </tr>
                     <?php
                     if (${"COMMENTS_$i"}) {
@@ -1044,27 +1042,27 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                     if ($ARODSPH||$AROSSPH) { ?>
                   <tr style="border-bottom:1pt solid black;">
                         <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo xlt('Auto Refraction'); ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($ARODSPH)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($ARODCYL)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($ARODAXIS)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($ARODPRISM)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($ARODVA)?:"-");  ?></td>
-                    <td style="font-weight:400;font-size:1.0em;text-align:center;">-</td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($ARODADD)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($ARNEARODVA)?:"-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($ARODSPH)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($ARODCYL)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($ARODAXIS)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($ARODPRISM)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($ARODVA)?:"-");  ?></td>
+                    <td style="font-weight:400;font-size:10px;text-align:center;">-</td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($ARODADD)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($ARNEARODVA)?:"-"); ?></td>
                   </tr>
                   <tr>
                     <td>&nbsp;</td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:right;"><?php echo xlt('OS{{left eye}}'); ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($AROSSPH)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($AROSCYL)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($AROSAXIS)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($AROSPRISM)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($AROSVA)?:"-");  ?></td>
-                    <td style="font-weight:400;font-size:1.0em;text-align:center;">-</td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($AROSADD)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($ARNEAROSVA)?:"-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:right;"><?php echo xlt('OS{{left eye}}'); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($AROSSPH)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($AROSCYL)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($AROSAXIS)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($AROSPRISM)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($AROSVA)?:"-");  ?></td>
+                    <td style="font-weight:400;font-size:10px;text-align:center;">-</td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($AROSADD)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($ARNEAROSVA)?:"-"); ?></td>
                   </tr>
                         <?php
                         if (${"COMMENTS_$i"}) {
@@ -1081,28 +1079,28 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                     if ($MRODSPH||$MROSSPH) { ?>
                     <tr>
                           <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo xlt('Manifest (Dry) Refraction'); ?></td>
-                          <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
-                          <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($MRODSPH)?:"-");  ?></td>
-                          <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($MRODCYL)?:"-");  ?></td>
-                          <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($MRODAXIS)?:"-");  ?></td>
-                          <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($MRODPRISM)?:"-");  ?></td>
-                          <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($MRODVA)?:"-");  ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;">-</td>
-                          <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($MRODADD)?:"-");  ?></td>
-                          <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($MRNEARODVA)?:"-"); ?></td>
+                          <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
+                          <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($MRODSPH)?:"-");  ?></td>
+                          <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($MRODCYL)?:"-");  ?></td>
+                          <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($MRODAXIS)?:"-");  ?></td>
+                          <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($MRODPRISM)?:"-");  ?></td>
+                          <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($MRODVA)?:"-");  ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;">-</td>
+                          <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($MRODADD)?:"-");  ?></td>
+                          <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($MRNEARODVA)?:"-"); ?></td>
                     </tr>
                     <tr></tr>
                     <tr>
                       <td></td>
-                          <td style="font-weight:400;font-size:1.0em;text-align:right;"><?php echo xlt('OS{{left eye}}'); ?></td>
-                          <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($MROSSPH)?:"-");  ?></td>
-                          <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($MROSCYL)?:"-");  ?></td>
-                          <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($MROSAXIS)?:"-");  ?></td>
-                          <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($MROSPRISM)?:"-");  ?></td>
-                          <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($MROSVA)?:"-");  ?></td>
-                      <td style="font-weight:400;font-size:1.0em;text-align:center;">-</td>
-                          <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($MROSADD)?:"-");  ?></td>
-                          <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($MRNEAROSVA)?:"-"); ?></td>
+                          <td style="font-weight:400;font-size:10px;text-align:right;"><?php echo xlt('OS{{left eye}}'); ?></td>
+                          <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($MROSSPH)?:"-");  ?></td>
+                          <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($MROSCYL)?:"-");  ?></td>
+                          <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($MROSAXIS)?:"-");  ?></td>
+                          <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($MROSPRISM)?:"-");  ?></td>
+                          <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($MROSVA)?:"-");  ?></td>
+                      <td style="font-weight:400;font-size:10px;text-align:center;">-</td>
+                          <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($MROSADD)?:"-");  ?></td>
+                          <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($MRNEAROSVA)?:"-"); ?></td>
                     </tr>
                         <?php
                     }
@@ -1110,27 +1108,27 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                     if ($CRODSPH||$CROSSPH) { ?>
                   <tr>
                         <td style="font-weight:600;font-size:0.8em;text-align:right;"><?php echo xlt('Cycloplegic (Wet) Refraction'); ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CRODSPH)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CRODCYL)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CRODAXIS)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CRODPRISM)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CRODVA)?:"-");  ?></td>
-                    <td style="font-weight:400;font-size:1.0em;text-align:center;">-</td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CRODADD)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CRNEARODVA)?:"-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CRODSPH)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CRODCYL)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CRODAXIS)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CRODPRISM)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CRODVA)?:"-");  ?></td>
+                    <td style="font-weight:400;font-size:10px;text-align:center;">-</td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CRODADD)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CRNEARODVA)?:"-"); ?></td>
                   </tr>
                   <tr>
                     <td></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:right;"><?php echo xlt('OS{{left eye}}'); ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CROSSPH)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CROSCYL)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CROSAXIS)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CROSPRISM)?:"-");  ?>&nbsp;</td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CROSVA)?:"-");  ?></td>
-                    <td style="font-weight:400;font-size:1.0em;text-align:center;">-</td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CROSADD)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CRNEAROSVA)?:"-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:right;"><?php echo xlt('OS{{left eye}}'); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CROSSPH)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CROSCYL)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CROSAXIS)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CROSPRISM)?:"-");  ?>&nbsp;</td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CROSVA)?:"-");  ?></td>
+                    <td style="font-weight:400;font-size:10px;text-align:center;">-</td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CROSADD)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CRNEAROSVA)?:"-"); ?></td>
                   </tr>
                         <?php
                     }
@@ -1149,40 +1147,40 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                   </tr>
                   <tr>
                         <td style="font-weight:600;font-size:0.8em;text-align:right;"><?php echo xlt('Contact Lens'); ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CTLODSPH)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CTLODCYL)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CTLODAXIS)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CTLODBC)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CTLODDIAM)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CTLODADD)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CTLODVA)?:"-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLODSPH)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLODCYL)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLODAXIS)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLODBC)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLODDIAM)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLODADD)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLODVA)?:"-"); ?></td>
                   </tr>
                   <tr style="font-size:0.6em;">
                     <td></td>
                     <td></td>
-                        <td colspan="3" style="font-weight:400;font-size:1.0em;text-align:left;"><?php echo xlt('Brand'); ?>:<?php echo (text($CTLBRANDOD)?:"-");  ?></td>
-                        <td colspan="3" style="font-weight:400;font-size:1.0em;text-align:left;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROD)?:"-");  ?></td>
-                        <td colspan="3" style="font-weight:400;font-size:1.0em;text-align:left;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROD)?:"-");  ?></td>
+                        <td colspan="3" style="font-weight:400;font-size:10px;text-align:left;"><?php echo xlt('Brand'); ?>:<?php echo (text($CTLBRANDOD)?:"-");  ?></td>
+                        <td colspan="3" style="font-weight:400;font-size:10px;text-align:left;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROD)?:"-");  ?></td>
+                        <td colspan="3" style="font-weight:400;font-size:10px;text-align:left;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROD)?:"-");  ?></td>
 
                   </tr>
                   <tr>
                     <td></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('OS{{left eye}}'); ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CTLOSSPH)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CTLOSCYL)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CTLOSAXIS)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CTLOSBC)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CTLOSDIAM)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($CTLOSADD)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo ($CTLOSVA?:"-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OS{{left eye}}'); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLOSSPH)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLOSCYL)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLOSAXIS)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLOSBC)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLOSDIAM)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLOSADD)?:"-");  ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo ($CTLOSVA?:"-"); ?></td>
                   </tr>
-                  <tr style="font-size:0.6em;">
+                  <tr style="font-size:9px;">
                     <td></td>
                     <td></td>
-                        <td colspan="3" style="font-weight:400;font-size:1.0em;text-align:left;"><?php echo xlt('Brand'); ?>: <?php echo (text($CTLBRANDOS)?:"-");  ?></td>
-                        <td colspan="3" style="font-weight:400;font-size:1.0em;text-align:left;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROS)?:"-");  ?></td>
-                        <td colspan="3" style="font-weight:400;font-size:1.0em;text-align:left;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROS)?:"-");  ?></td>
+                        <td colspan="3" style="font-weight:400;font-size:10px;text-align:left;"><?php echo xlt('Brand'); ?>: <?php echo (text($CTLBRANDOS)?:"-");  ?></td>
+                        <td colspan="3" style="font-weight:400;font-size:10px;text-align:left;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROS)?:"-");  ?></td>
+                        <td colspan="3" style="font-weight:400;font-size:10px;text-align:left;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROS)?:"-");  ?></td>
                   </tr>
 
                         <?php
@@ -1197,8 +1195,8 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
     if ($GLAREODVA||$CONTRASTODVA||$ODK1||$ODK2||$LIODVA||$PAMODBA) { ?>
       <table>
         <tr>
-          <td id="LayerVision_ADDITIONAL" class="refraction <?php echo $display_Add; ?>" style="padding:10px;font-size:0.9em;">
-          <table id="Additional" style="padding:5;font-size:1.0em;">
+          <td id="LayerVision_ADDITIONAL" class="refraction <?php echo $display_Add; ?>" style="padding:10px;font-size:10px;">
+          <table id="Additional" style="padding:5;font-size:10px;">
             <tr><td colspan="9" style="text-align:left;text-decoration:underline;font-weight:bold;"><?php echo xlt('Additional Data Points'); ?></td></tr>
             <tr><td></td>
               <td><?php echo xlt('PH{{Pinhole}}'); ?></td>
@@ -1317,11 +1315,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 if ($EXT_COMMENTS) { ?>
                 <tr>
                   <td colspan="3">
-
-                      <b><?php echo xlt('Comments'); ?>:</b>
-                    <span style="height:3.0em;">
-                        <?php echo text($EXT_COMMENTS); ?>
-                    </span>
+                      <b><?php echo xlt('Comments'); ?>:</b> <?php echo text($EXT_COMMENTS); ?>
                   </td>
                 </tr>
                 <?php
@@ -1412,10 +1406,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
 if ($ANTSEG_COMMENTS) { ?>
                     <tr>
                       <td colspan="2">
-                        <b><?php echo xlt('Comments'); ?>:</b>
-                        <span style="height:3.0em;">
-                            <?php echo text($ANTSEG_COMMENTS); ?>
-                        </span>
+                        <b><?php echo xlt('Comments'); ?>:</b> <?php echo text($ANTSEG_COMMENTS); ?>
                       </td>
                     </tr>
 <?php } ?>
@@ -1721,12 +1712,7 @@ if ($ODCMT||$OSCMT) { ?>
                     <?php if ($RETINA_COMMENTS) { ?>
                     <tr>
                       <td colspan="2" class="report_text left">
-
-                        <b><?php echo xlt('Comments'); ?>:</b>
-                        <span style="height:3.0em;">
-                            <?php echo text($RETINA_COMMENTS); ?>
-                        </span>
-
+                        <b><?php echo xlt('Comments'); ?>:</b> <?php echo text($RETINA_COMMENTS); ?>
                       </td>
                     </tr>
                     <?php } ?>
@@ -1746,7 +1732,7 @@ if ($ODCMT||$OSCMT) { ?>
     </div>
     <?php
     if ($ACT !='on') { ?>
-                <table style="text-align:center;font-size:0.7em;">
+                <table style="text-align:center;font-size:10px;">
                   <tr>
                     <td colspan=3 style="">
                           <table>
@@ -1762,12 +1748,12 @@ if ($ODCMT||$OSCMT) { ?>
                                 if ($ACT5SCDIST) { ?>
                                   <td style="text-align:center;"> <!-- scDIST -->
                                     <table cellpadding="0"
-                                    style="position:relative;text-align:center;font-size:1.2em;margin: 7 5 10 5;">
+                                    style="position:relative;text-align:center;font-size:12px;margin: 7 5 10 5;">
                                       <tr>
                                           <td id="ACT_tab_SCDIST" name="ACT_tab_SCDIST" class="ACT_deselected"> <?php echo xlt('sc Distance{{without correction distance}}'); ?> </td>
                                       </tr>
                                       <tr>
-                                        <td colspan="4" style="text-align:center;font-size:0.9em;">
+                                        <td colspan="4" style="text-align:center;font-size:10px;">
                                             <table>
                                               <tr>
                                                   <td style="text-align:center;"><?php echo xlt('R{{right}}'); ?></td>
@@ -1801,12 +1787,12 @@ if ($ODCMT||$OSCMT) { ?>
                                 if ($ACT5CCDIST) {
                                     ?>
                                   <td style="text-align:center;"> <!-- ccDIST -->
-                                    <table cellpadding="0" style="position:relative;text-align:center;font-size:1.5em;margin: 7 5 10 5;border-collapse: separate;">
+                                    <table cellpadding="0" style="position:relative;text-align:center;font-size:12px;margin: 7 5 10 5;border-collapse: separate;">
                                     <tr>
                                       <td class="ACT_deselected"> <?php echo xlt('cc Distance{{with correction at distance}}'); ?> </td>
                                     </tr>
                                     <tr>
-                                      <td colspan="4" style="text-align:center;font-size:0.8em;">
+                                      <td colspan="4" style="text-align:center;font-size:10px;">
                                           <table>
                                             <tr>
                                               <td style="text-align:center;"><?php echo xlt('R{{right}}'); ?></td>
@@ -1844,12 +1830,12 @@ if ($ODCMT||$OSCMT) { ?>
                                     ?>
 
                                 <td style="text-align:center;"> <!-- scNEAR -->
-                                    <table cellpadding="0" style="position:relative;text-align:center;font-size:1.5em;margin: 7 5 10 5;border-collapse: separate;">
+                                    <table cellpadding="0" style="position:relative;text-align:center;font-size:10px;margin: 7 5 10 5;border-collapse: separate;">
                                     <tr>
                                       <td class="ACT_deselected"> <?php echo xlt('sc Near{{without correction near}}'); ?> </td>
                                     </tr>
                                     <tr>
-                                      <td colspan="4" style="text-align:center;font-size:0.8em;">
+                                      <td colspan="4" style="text-align:center;font-size:10px">
                                           <table>
                                             <tr>
                                               <td style="text-align:center;"><?php echo xlt('R{{right}}'); ?></td>
@@ -1885,12 +1871,12 @@ if ($ODCMT||$OSCMT) { ?>
                                     ?>
 
                                 <td style="text-align:center;"> <!-- ccNEAR -->
-                                    <table cellpadding="0" style="position:relative;text-align:center;font-size:1.5em;margin: 7 5 10 5;border-collapse: separate;">
+                                    <table cellpadding="0" style="position:relative;text-align:center;font-size:10px;margin: 7 5 10 5;border-collapse: separate;">
                                     <tr>
                                       <td class="ACT_deselected"> <?php echo xlt('cc Near{{with correction at Near}}'); ?> </td>
                                     </tr>
                                     <tr>
-                                      <td colspan="4" style="text-align:center;font-size:1.0em;">
+                                      <td colspan="4" style="text-align:center;font-size:10px;">
                                           <table>
                                             <tr>
                                               <td style="text-align:center;"><?php echo xlt('R{{right}}'); ?></td>
@@ -1927,11 +1913,7 @@ if ($ODCMT||$OSCMT) { ?>
                       <table>
                         <tr>
                           <td colspan="2">
-                            <b><?php echo xlt('Comments'); ?>:</b><br />
-                            <span style="height:3.0em;">
-                                <?php echo report_ACT($NEURO_COMMENTS); ?>
-                            </span>
-                            <br /><br />
+                            <b><?php echo xlt('Comments'); ?>:</b> <?php echo report_ACT($NEURO_COMMENTS); ?>
                           </td>
                         </tr>
                       </table>
