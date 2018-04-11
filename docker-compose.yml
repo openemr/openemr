@@ -6,7 +6,7 @@ services:
     image: mysql
     command: ['mysqld','--character-set-server=utf8']
     environment:
-      MYSQL_ROOT_PASSWORD: !rt&5YU
+      MYSQL_ROOT_PASSWORD: rt&5YU
     ports:
     - 3307:3306
   openemr:
