@@ -1831,7 +1831,7 @@ foreach ($photos as $photo_doc_id) {
                 }
 
                 echo "<div>";
-                echo "<span>" . xlt('Appointment Category') . ': ' . xlt($row['pc_catname']) . "</span>";
+                echo "<span>" . xlt('Appointment Category') . ": <b>" . xlt($row['pc_catname']) . "</b></span>";
                 echo "<br>";
                 echo "<span>" . xlt('Recurrence') . ': ' . text($row['pc_recurrspec']) . "</span>";
                 echo "<br>";
