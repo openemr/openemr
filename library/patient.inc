@@ -1892,7 +1892,7 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false)
     $sqlstatement = "SELECT date, encounter, last_level_billed, " .
       "last_level_closed, stmt_count " .
       "FROM form_encounter WHERE pid = ?";
-    if($eid){
+    if ($eid) {
         $sqlstatement .= " AND encounter = ?";
         array_push($bindarray, $eid);
     }
