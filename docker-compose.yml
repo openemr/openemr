@@ -6,7 +6,7 @@ services:
     image: mysql
     command: ['mysqld','--character-set-server=utf8']
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: toor
     ports:
     - 3307:3306
   openemr:
@@ -20,10 +20,10 @@ services:
     - .:/var/www/localhost/htdocs/openemr
     environment:
       MYSQL_HOST: mysql
-      MYSQL_ROOT_PASS: root
-      MYSQL_USER: root
-      MYSQL_PASS: root
-      OE_USER: admin
+      MYSQL_ROOT_PASS: toor
+      MYSQL_USER: toor
+      MYSQL_PASS: toor
+      OE_USER: dhillson
       OE_PASS: pass
     links:
     - mysql
