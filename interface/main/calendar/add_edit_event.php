@@ -980,16 +980,23 @@ if (empty($collectthis)) {
  //dh-4/8/2018 added patient_type to SQL and set the $default_cat_id to the one in patient_data table
  //need error checking added for case where patient_type doesnt exist in patient_data
 if ($patientid) {
+    echo('patientID');
     $arow = sqlQuery("show columns from patient_data like 'patient_type';");
     if ($arow) {
+        echo('field exists');
         $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB, patient_type " .
    "FROM patient_data WHERE pid = ?", array($patientid));
         $arow = sqlQuery("Select pc_catid from openemr_postcalendar_categories where " .
    "pc_constant_id = ?", array($prow['patient_type']));
-        $default_cat_id = $arow['patient_type'];
+        
+        $patientname = $prow['lname'] . ", " . $prow['fname'];
+        $default_catid = $arow['pc_catid'];
+        echo($default_catid);
     } else {
+        echo('field DOES NOT exists');
         $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB " .
          "FROM patient_data WHERE pid = ?", array($patientid));
+        $patientname = $prow['lname'] . ", " . $prow['fname'];
     }
     //dh
     if ($prow['phone_home']) {
@@ -999,6 +1006,8 @@ if ($patientid) {
     if ($prow['phone_biz']) {
         $patienttitle['phone_biz'] = xl("Work Phone").": " . $prow['phone_biz'];
     }
+} else {
+    echo("no patient ID");
 }
 
 // If we have a group id, get group data
