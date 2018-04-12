@@ -84,7 +84,3 @@
 --    desc: find all MyISAM tables and convert them to InnoDB.
 --    arguments: none
 --    behavior: can take a long time.
-
-#IfNotColumnType form_misc_billing_options icn_resubmission_number VARCHAR(35)
-ALTER TABLE form_misc_billing_options CHANGE `icn_resubmission_number` `icn_resubmission_number` VARCHAR(35) DEFAULT NULL;
-##EndIf
