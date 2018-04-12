@@ -2183,7 +2183,7 @@ INSERT INTO list_options (list_id,option_id,title,seq,notes,activity) VALUES ('f
 #EndIf
 
 #IfMissingColumn form_misc_billing_options icn_resubmission_number
-  ALTER TABLE form_misc_billing_options ADD COLUMN icn_resubmission_number int(35) default NULL;
+  ALTER TABLE form_misc_billing_options ADD COLUMN icn_resubmission_number varchar(35) default NULL;
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id provider_qualifier_code
@@ -2224,3 +2224,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','procedure','Procedure','3','0','0','','RQO','','1','0','0','');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','test_or_order','Test/Order','2','0','0','','RQO','','1','0','0','');
 #EndIf
+
+#IfNotColumnType form_misc_billing_options icn_resubmission_number VARCHAR(35)
+ALTER TABLE form_misc_billing_options CHANGE `icn_resubmission_number` `icn_resubmission_number` VARCHAR(35) DEFAULT NULL;
+##EndIf
