@@ -24,6 +24,6 @@ services:
       MYSQL_USER: derek
       MYSQL_PASS: Qa@er5
       OE_USER: admin
-      OE_PASS: 3de$EDC
+      OE_PASS: 3dEDC
     links:
     - mysql
