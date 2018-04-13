@@ -414,7 +414,7 @@ if ($_POST['form_submit']) {
     echo "<script language='JavaScript'>\n";
     if (!$encounterid) {
         if ($info_msg) {
-            echo " alert('" . addslashes($info_msg) . "');\n";
+        //    echo " alert('" . addslashes($info_msg) . "');\n";
         }
         echo " dlgclose('imdeleted',false);\n";
     } else {
