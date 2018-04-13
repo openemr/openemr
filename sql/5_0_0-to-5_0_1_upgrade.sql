@@ -811,4 +811,8 @@ ALTER TABLE `log_comment_encrypt` ADD `version` tinyint(4) NOT NULL DEFAULT '0' 
 
 #IfNotColumnType form_misc_billing_options icn_resubmission_number VARCHAR(35)
 ALTER TABLE form_misc_billing_options CHANGE `icn_resubmission_number` `icn_resubmission_number` VARCHAR(35) DEFAULT NULL;
-##EndIf
+#EndIf
+
+#IfMissingColumn users patient_menu_role
+ALTER TABLE `users` ADD `patient_menu_role` VARCHAR(50) NOT NULL DEFAULT 'standard';
+#EndIf

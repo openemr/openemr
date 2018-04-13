@@ -402,17 +402,25 @@ foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key =>
 <tr>
   <td><span class="text"><?php echo xlt('Provider Type'); ?>: </span></td>
   <td><?php echo generate_select_list("physician_type", "physician_type", $iter['physician_type'], '', xl('Select Type'), 'physician_type_class', '', '', ''); ?></td>
+</tr>
+<tr>
   <td>
     <span class="text"><?php echo xlt('Main Menu Role'); ?>: </span>
   </td>
   <td>
-    <?php echo MainMenuRole::displayMainMenuRoleSelector($iter["main_menu_role"]); ?>
+    <?php
+    $menuMain = new MainMenuRole();
+    echo $menuMain->displayMenuRoleSelector($iter["main_menu_role"]);
+    ?>
   </td>
   <td>
     <span class="text"><?php echo xlt('Patient Menu Role'); ?>: </span>
   </td>
   <td>
-    <?php echo PatientMenuRole::displayPatientMenuRoleSelector($iter["patient_menu_role"]); ?>
+    <?php
+    $menuPatient = new PatientMenuRole();
+    echo $menuPatient->displayMenuRoleSelector($iter["patient_menu_role"]);
+    ?>
   </td>
 
 

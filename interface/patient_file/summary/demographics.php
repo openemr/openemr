@@ -24,11 +24,10 @@ require_once("$srcdir/clinical_rules.php");
 require_once("$srcdir/options.js.php");
 require_once("$srcdir/group.inc");
 require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
-require_once($GLOBALS['fileroot'] . "/interface/main/tabs/menu/menu_updates.php");
 
 use OpenEMR\Core\Header;
-use OpenEMR\Reminder\BirthdayReminder;
 use OpenEMR\Menu\PatientMenuRole;
+use OpenEMR\Reminder\BirthdayReminder;
 
 if (isset($_GET['set_pid'])) {
     include_once("$srcdir/pid.inc");
@@ -752,86 +751,37 @@ if ($GLOBALS['patient_id_category_name']) {
     $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name']);
 }
 
-// Use a json file to build menu
-// Collect the selected menu of user
-$patientMenuRole = PatientMenuRole::getPatientMenuRole();
-// Load the selected menu
-if (preg_match("/.json$/", $patientMenuRole)) {
-    // load custom menu (includes .json in id)
-    $menu_parsed = json_decode(file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/custom_menus/patient_menus/" . $patientMenuRole));
-} else {
-    // load a standardized menu (does not include .json in id)
-    $menu_parsed = json_decode(file_get_contents($GLOBALS['fileroot'] . "/interface/main/tabs/menu/menus/patient_menus/" . $patientMenuRole . ".json"));
-}
-// if error, then die and report error
-if (!$menu_parsed) {
-    die("\nJSON ERROR: " . json_last_error());
-}
-menu_update_entries($menu_parsed);
-$menu_restrictions=array();
-menu_apply_restrictions($menu_parsed, $menu_restrictions);
-
+// Collect the patient menu then build it
+$menuPatient = new PatientMenuRole();
+$menu_restrictions = $menuPatient->getMenu();
 ?>
 <table cellspacing='0' cellpadding='0' border='0' class="subnav">
     <tr>
         <td class="small" colspan='4'>
 
             <?php
-            $link_valid = true;
-            $last_key=count($menu_restrictions)-1;
-
+            $first = true;
             foreach ($menu_restrictions as $key => $value) {
-                    $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
-                    ?>
-                    <a href="<?php echo $link; ?>" onclick="<?php echo $value->on_click;?>"> <?php echo htmlspecialchars(xl($value->label), ENT_NOQUOTES); ?> </a>
-                    <?php
-                    if ($key!=$last_key) {
+                if (!empty($value->children)) {
+                    // flatten to only show children items
+                    foreach ($value->children as $children_key => $children_value) {
+                        if (!$first) {
+                            echo "|";
+                        }
+                        $first = false;
+                        $link = ($children_value->pid != "true") ? $children_value->url : $children_value->url . attr($pid);
+                        echo "<a href=" . $link . " onclick=" . $children_value->on_click ."> " . text($children_value->label) . " </a>";
+                    }
+                } else {
+                    if (!$first) {
                         echo "|";
                     }
-            }
-            ?>
-
-            <!-- DISPLAYING HOOKS STARTS HERE -->
-            <?php
-            $module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh
-					LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id
-					LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
-					WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='demographics' ORDER BY mod_id");
-            $DivId = 'mod_installer';
-            if (sqlNumRows($module_query)) {
-                $jid = 0;
-                $modid = '';
-                while ($modulerow = sqlFetchArray($module_query)) {
-                    $DivId = 'mod_' . $modulerow['mod_id'];
-                    $new_category = $modulerow['mod_ui_name'];
-                    $modulePath = "";
-                    $added = "";
-                    if ($modulerow['type'] == 0) {
-                        $modulePath = $GLOBALS['customModDir'];
-                        $added = "";
-                    } else {
-                        $added = "index";
-                        $modulePath = $GLOBALS['zendModDir'];
-                    }
-
-                    if (!acl_check('admin', 'super') && !zh_acl_check($_SESSION['authUserID'], $modulerow['obj_name'])) {
-                        continue;
-                    }
-
-                    $relative_link = "../../modules/" . $modulePath . "/" . $modulerow['path'];
-                    $nickname = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';
-                    $jid++;
-                    $modid = $modulerow['mod_id'];
-                    ?>
-                    |
-                    <a href="<?php echo $relative_link; ?>" onclick='top.restoreSession()'>
-                        <?php echo xlt($nickname); ?></a>
-                    <?php
+                    $first = false;
+                    $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
+                    echo "<a href=" . $link . " onclick=" . $value->on_click ."> " . text($value->label) . " </a>";
                 }
             }
             ?>
-            <!-- DISPLAYING HOOKS ENDS HERE -->
-
         </td>
     </tr>
 </table> <!-- end header -->
