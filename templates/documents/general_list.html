@@ -63,7 +63,7 @@ overflow: auto;
   <body class="body_top">
 {/if}
 
-<div id="documents_list">
+<div id="documents_list" style="width:unset;padding:10px;height:unset;float:left;resize:horizontal;">
     <div class="ui-widget"style="float:right;">
         <button id='pid' class="pBtn" type="button" style="float:right;">0</button>
          <input id="selectPatient" type="text" placeholder="{$place_hld|escape:'html'}">
@@ -72,8 +72,8 @@ overflow: auto;
 <div class="title">{xl t='Documents'|escape:'html'}</div>
 {$tree_html}
 </div>
-<div id="documents_actions">
-		{if $message}
+<div id="documents_actions" style="width:unset;float:unset;">
+{if $message}
 			<div class='text' style="margin-bottom:-10px; margin-top:-8px"><i>{$message|escape:'html'}</i></div><br>
 		{/if}
 		{if $messages}
