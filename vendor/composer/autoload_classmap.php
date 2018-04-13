@@ -1366,6 +1366,8 @@ return array(
     'OpenEMR\\Entities\\User' => $baseDir . '/entities/User.php',
     'OpenEMR\\Entities\\Version' => $baseDir . '/entities/Version.php',
     'OpenEMR\\Menu\\MainMenuRole' => $baseDir . '/library/menu/src/MainMenuRole.php',
+    'OpenEMR\\Menu\\MenuRole' => $baseDir . '/library/menu/src/MenuRole.php',
+    'OpenEMR\\Menu\\PatientMenuRole' => $baseDir . '/library/menu/src/PatientMenuRole.php',
     'OpenEMR\\Pdf\\PdfCreator' => $baseDir . '/library/pdf/src/PdfCreator.php',
     'OpenEMR\\Reminder\\BirthdayReminder' => $baseDir . '/library/reminder/src/BirthdayReminder.php',
     'OpenEMR\\Repositories\\ChartTrackerRepository' => $baseDir . '/repositories/ChartTrackerRepository.php',

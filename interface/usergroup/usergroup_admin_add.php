@@ -2,11 +2,11 @@
 /**
  * Add new user.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../globals.php");
@@ -296,17 +296,25 @@ foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key =>
     <td>
         <?php echo generate_select_list("physician_type", "physician_type", '', '', xl('Select Type'), 'physician_type_class', '', '', ''); ?>
     </td>
+</tr>
+<tr>
   <td>
     <span class="text"><?php echo xlt('Main Menu Role'); ?>: </span>
   </td>
   <td>
-    <?php echo MainMenuRole::displayMainMenuRoleSelector(); ?>
+    <?php
+    $menuMain = new MainMenuRole();
+    echo $menuMain->displayMenuRoleSelector();
+    ?>
   </td>
   <td>
-    <span class="text"><?php echo xlt('Main Menu Role'); ?>: </span>
+    <span class="text"><?php echo xlt('Patient Menu Role'); ?>: </span>
   </td>
   <td>
-    <?php echo PatientMenuRole::displayPatientMenuRoleSelector(); ?>
+    <?php
+    $menuPatient = new PatientMenuRole();
+    echo $menuPatient->displayMenuRoleSelector();
+    ?>
   </td>
 </tr>
 

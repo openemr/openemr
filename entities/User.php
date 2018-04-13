@@ -901,14 +901,19 @@ class User
         return $this->mainMenuRole;
     }
 
+    public function setMainMenuRole($value)
+    {
+        $this->mainMenuRole = $value;
+    }
+
     public function getPatientMenuRole()
     {
         return $this->patientMenuRole;
     }
 
-    public function setMainMenuRole($value)
+    public function setPatientMenuRole($value)
     {
-        $this->mainMenuRole = $value;
+        $this->patientMenuRole = $value;
     }
 
     public function getWenoProvId()
