@@ -776,6 +776,14 @@ $GLOBALS_METADATA = array(
             xl('Do not require patient notes to be authorized')
         ),
 
+        'num_of_messages_displayed' => array(
+            xl('Number of Messages to Display in Patient File'),
+            'num',
+            '3',
+            xl('This is the number of messages that will be displayed in messages widget located in the patient file.')
+        ),
+
+
         'support_encounter_claims' => array(
             xl('Allow Encounter Claims'),
             'bool',                           // data type

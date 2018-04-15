@@ -45,7 +45,7 @@ if (isset($_GET['docUpdateId'])) {
   <div class='tab current' >
     <?php
     //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
-    $N = 3; ?>
+    $N = $GLOBALS['num_of_messages_displayed']; ?>
 
     <br/>
 
@@ -147,7 +147,7 @@ if (isset($_GET['docUpdateId'])) {
         <div class='tab'>
             <?php
             //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
-            $M = 3; ?>
+            $M = $GLOBALS['num_of_messages_displayed']; ?>
             <br/>
             <?php
             $has_sent_note = 0;
