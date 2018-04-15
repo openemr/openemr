@@ -1700,6 +1700,8 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OpenEMR\\Entities\\User' => __DIR__ . '/../..' . '/entities/User.php',
         'OpenEMR\\Entities\\Version' => __DIR__ . '/../..' . '/entities/Version.php',
         'OpenEMR\\Menu\\MainMenuRole' => __DIR__ . '/../..' . '/library/menu/src/MainMenuRole.php',
+        'OpenEMR\\Menu\\MenuRole' => __DIR__ . '/../..' . '/library/menu/src/MenuRole.php',
+        'OpenEMR\\Menu\\PatientMenuRole' => __DIR__ . '/../..' . '/library/menu/src/PatientMenuRole.php',
         'OpenEMR\\Pdf\\PdfCreator' => __DIR__ . '/../..' . '/library/pdf/src/PdfCreator.php',
         'OpenEMR\\Reminder\\BirthdayReminder' => __DIR__ . '/../..' . '/library/reminder/src/BirthdayReminder.php',
         'OpenEMR\\Repositories\\ChartTrackerRepository' => __DIR__ . '/../..' . '/repositories/ChartTrackerRepository.php',
