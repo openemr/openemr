@@ -1,5 +1,5 @@
 This package was debianized by Brady Miller <brady.g.miller@gmail.com> on
-Sun, 19 Nov 2017 02:22:50 -0800.
+Sun, 15 Apr 2018 01:46:53 -0700.
 
 It was downloaded from github.
 
@@ -7,10 +7,10 @@ Upstream Author:
     http://www.open-emr.org
 
 Copyright:
-    Copyright (C) 2017 http://www.oemr.org
+    Copyright (C) 2018 http://www.oemr.org
 
 License:
     GPL
 
-The Debian packaging is (C) 2017, Brady Miller <brady.g.miller@gmail.com> and
+The Debian packaging is (C) 2018, Brady Miller <brady.g.miller@gmail.com> and
 is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
