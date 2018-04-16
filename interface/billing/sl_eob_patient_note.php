@@ -1,7 +1,7 @@
 <?php
 /**
  * This allos entry and editing of a "billing note" for the patient.
- * 
+ *
  * Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -31,26 +31,30 @@
 <html>
 <head>
 <?php Header::setupHeader();?>
-<title><?php xl('EOB Posting - Patient Note','e')?></title>
+<title><?php xl('EOB Posting - Patient Note', 'e')?></title>
 </head>
 <body>
-<?php 
+<?php
   $patient_id = $_GET['patient_id'];
-  if (! $patient_id) die(xl("You cannot access this page directly."));
+if (! $patient_id) {
+    die(xl("You cannot access this page directly."));
+}
 
-  if ($_POST['form_save']) {
+if ($_POST['form_save']) {
     $thevalue = trim($_POST['form_note']);
 
     sqlStatement("UPDATE patient_data SET " .
-      "billing_note = ? " .
-      "WHERE pid = ? ", array($thevalue, $patient_id));
+    "billing_note = ? " .
+    "WHERE pid = ? ", array($thevalue, $patient_id));
 
     echo "<script language='JavaScript'>\n";
-    if ($info_msg) echo " alert('$info_msg');\n";
+    if ($info_msg) {
+        echo " alert('$info_msg');\n";
+    }
     echo " window.close();\n";
     echo "</script></body></html>\n";
     exit();
-  }
+}
 
   $row = sqlQuery("select fname, lname, billing_note " .
     "from patient_data where pid = '$patient_id' limit 1");
