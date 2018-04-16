@@ -347,7 +347,7 @@ foreach ($ar as $key => $val) {
             $recurrences = fetchRecurrences($pid);
 
             //print the recurring days to screen
-            if ($recurrences[0] == false) { //if there are no recurrent appointments:
+            if (empty($recurrences)) { //if there are no recurrent appointments:
                 echo "<div class='text' >";
                 echo "<span>" . xlt('None') . "</span>";
                 echo "</div>";
@@ -355,7 +355,7 @@ foreach ($ar as $key => $val) {
             } else {
                 foreach ($recurrences as $row) {
                     //checks if there are recurrences and if they are current (git didn't end yet)
-                    if ($row == false || !recurrence_is_current($row['pc_endDate'])) {
+                    if (!recurrence_is_current($row['pc_endDate'])) {
                         continue;
                     }
 

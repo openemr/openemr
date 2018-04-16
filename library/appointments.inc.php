@@ -77,6 +77,29 @@ $REPEAT_ON_DAY = array(
     '6' => xl('Saturday')
 );
 
+function checkEvent($recurrtype, $recurrspec)
+{
+
+    $eFlag = 0;
+
+    switch ($recurrtype) {
+        case 1:
+        case 3:
+            if (empty($recurrspec['event_repeat_freq']) || !isset($recurrspec['event_repeat_freq_type'])) {
+                $eFlag = 1; }
+
+            break;
+
+        case 2:
+            if (empty($recurrspec['event_repeat_on_freq']) || empty($recurrspec['event_repeat_on_num']) || !isset($recurrspec['event_repeat_on_day'])) {
+                $eFlag = 1; }
+
+            break;
+    }
+
+    return $eFlag;
+}
+
 function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param = null, $tracker_board = false, $nextX = 0, $bind_param = null, $query_param = null)
 {
 
@@ -185,6 +208,9 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
             case '3':
                 $event_recurrspec = @unserialize($event['pc_recurrspec']);
 
+                if (checkEvent($event['pc_recurrtype'], $event_recurrspec)) {
+                    break; }
+
                 $rfreq = $event_recurrspec['event_repeat_freq'];
                 $rtype = $event_recurrspec['event_repeat_freq_type'];
                 $exdate = $event_recurrspec['exdate'];
@@ -233,6 +259,9 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
       //////
             case '2':
                 $event_recurrspec = @unserialize($event['pc_recurrspec']);
+
+                if (checkEvent($event['pc_recurrtype'], $event_recurrspec)) {
+                    break; }
 
                 $rfreq = $event_recurrspec['event_repeat_on_freq'];
                 $rnum  = $event_recurrspec['event_repeat_on_num'];
@@ -663,13 +692,15 @@ function fetchRecurrences($pid)
     $sqlBindArray = array();
     array_push($sqlBindArray, $pid);
     $res = sqlStatement($query, $sqlBindArray);
-    $row = 0;
-    while ($res_arr[$row] = sqlFetchArray($res)) {
-        $res_arr[$row]['pc_recurrspec'] = interpretRecurrence($res_arr[$row]['pc_recurrspec'], $res_arr[$row]['pc_recurrtype']);
-        $row++;
+    $result_data = array();
+    while ($row = sqlFetchArray($res)) {
+        $u_recurrspec = unserialize($row['pc_recurrspec']);
+        if (checkEvent($row['pc_recurrtype'], $u_recurrspec)) {
+            continue; }
+        $row['pc_recurrspec'] = interpretRecurrence($row['pc_recurrspec'], $row['pc_recurrtype']);
+        $result_data[] = $row;
     }
-
-    return $res_arr;
+    return $result_data;
 }
 
 function ends_in_a_week($end_date)
