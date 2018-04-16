@@ -421,6 +421,13 @@ $GLOBALS_METADATA = array(
             xl('Default state of New Window checkbox in the patient list.')
         ),
 
+        'num_of_messages_displayed' => array(
+            xl('Number of Messages Displayed in Patient Summary'),
+            'num',
+            '3',
+            xl('This is the number of messages that will be displayed in the messages widget in the patient summary screen.')
+        ),
+
         'gbl_vitals_options' => array(
             xl('Vitals Form Options'),
             array(
@@ -775,14 +782,6 @@ $GLOBALS_METADATA = array(
             '1',                              // default = true
             xl('Do not require patient notes to be authorized')
         ),
-
-        'num_of_messages_displayed' => array(
-            xl('Number of Messages to Display in Patient File'),
-            'num',
-            '3',
-            xl('This is the number of messages that will be displayed in messages widget located in the patient file.')
-        ),
-
 
         'support_encounter_claims' => array(
             xl('Allow Encounter Claims'),
