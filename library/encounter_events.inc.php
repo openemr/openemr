@@ -48,12 +48,19 @@ function calendar_arrived($form_pid)
     //Take all recurring events relevent for today.
     $result_event=sqlStatement(
         "SELECT * FROM openemr_postcalendar_events WHERE pc_recurrtype != '0' and pc_pid = ? and pc_endDate != '0000-00-00'
-		and pc_eventDate < ? and pc_endDate >= ? ",
+		and pc_eventDate <= ? and pc_endDate >= ? ",
         array($form_pid,$Today,$Today)
     );
-    if (sqlNumRows($result_event)==0) {//no repeating appointment
+    $all_events = array();
+    while ($row = sqlFetchArray($result_event)) {
+        $u_recurrspec = unserialize($row['pc_recurrspec']);
+        if (checkEvent($row['pc_recurrtype'], $u_recurrspec)) {
+            continue; }
+        $all_events[] = $row;
+    }
+    if (empty($all_events)) { // no repeating appointment
         $result_event=sqlStatement(
-            "SELECT * FROM openemr_postcalendar_events WHERE pc_pid =?	and pc_eventDate = ?",
+            "SELECT * FROM openemr_postcalendar_events WHERE pc_pid = ? AND pc_eventDate = ? AND pc_recurrtype = '0'",
             array($form_pid,$Today)
         );
         if (sqlNumRows($result_event)==0) {//no appointment
@@ -64,13 +71,13 @@ function calendar_arrived($form_pid)
              $enc = todaysEncounterCheck($form_pid);//create encounter
              $zero_enc=0;
              sqlStatement(
-                 "UPDATE openemr_postcalendar_events SET pc_apptstatus ='@' WHERE pc_pid =? and pc_eventDate = ?",
+                 "UPDATE openemr_postcalendar_events SET pc_apptstatus ='@' WHERE pc_pid = ? and pc_eventDate = ? AND pc_recurrtype = '0'",
                  array($form_pid,$Today)
              );
         }
     } else //repeating appointment set
      {
-        while ($row_event=sqlFetchArray($result_event)) {
+        foreach ($all_events as $row_event) {
             $pc_eid = $row_event['pc_eid'];
             $pc_eventDate = $row_event['pc_eventDate'];
             $pc_recurrspec_array = unserialize($row_event['pc_recurrspec']);
