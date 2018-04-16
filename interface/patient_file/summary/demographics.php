@@ -26,6 +26,7 @@ require_once("$srcdir/group.inc");
 require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Reminder\BirthdayReminder;
 
 if (isset($_GET['set_pid'])) {
@@ -750,78 +751,37 @@ if ($GLOBALS['patient_id_category_name']) {
     $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name']);
 }
 
+// Collect the patient menu then build it
+$menuPatient = new PatientMenuRole();
+$menu_restrictions = $menuPatient->getMenu();
 ?>
 <table cellspacing='0' cellpadding='0' border='0' class="subnav">
-  <tr>
-      <td class="small" colspan='4'>
-          <a href="../history/history.php" onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('History'), ENT_NOQUOTES); ?></a>
-          |
-            <?php //note that we have temporarily removed report screen from the modal view ?>
-          <a href="../report/patient_report.php" onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('Report'), ENT_NOQUOTES); ?></a>
-          |
-            <?php //note that we have temporarily removed document screen from the modal view ?>
-          <a href="../../../controller.php?document&list&patient_id=<?php echo $pid;?>" onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('Documents'), ENT_NOQUOTES); ?></a>
-          |
-          <a href="../transaction/transactions.php" onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('Transactions'), ENT_NOQUOTES); ?></a>
-          |
-          <a href="stats_full.php?active=all" onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('Issues'), ENT_NOQUOTES); ?></a>
-          |
-          <a href="../../reports/pat_ledger.php?form=1&patient_id=<?php echo attr($pid);?>" onclick='top.restoreSession()'>
-            <?php echo xlt('Ledger'); ?></a>
-          |
-          <a href="../../reports/external_data.php" onclick='top.restoreSession()'>
-            <?php echo xlt('External Data'); ?></a>
-            <?php if ($GLOBALS['fhir_enable']) { ?>
-              |
-              <a href="" onclick='doPublish();return false;'>
-                <?php echo xlt('Publish'); ?></a>
-            <?php } ?>
-<!-- DISPLAYING HOOKS STARTS HERE -->
-<?php
-    $module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh
-					LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id
-					LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
-					WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='demographics' ORDER BY mod_id");
-    $DivId = 'mod_installer';
-    if (sqlNumRows($module_query)) {
-        $jid    = 0;
-        $modid  = '';
-        while ($modulerow = sqlFetchArray($module_query)) {
-            $DivId      = 'mod_'.$modulerow['mod_id'];
-            $new_category   = $modulerow['mod_ui_name'];
-            $modulePath     = "";
-            $added          = "";
-            if ($modulerow['type'] == 0) {
-                $modulePath     = $GLOBALS['customModDir'];
-                $added      = "";
-            } else {
-                $added      = "index";
-                $modulePath     = $GLOBALS['zendModDir'];
-            }
+    <tr>
+        <td class="small" colspan='4'>
 
-            if (!acl_check('admin', 'super') && !zh_acl_check($_SESSION['authUserID'], $modulerow['obj_name'])) {
-                continue;
+            <?php
+            $first = true;
+            foreach ($menu_restrictions as $key => $value) {
+                if (!empty($value->children)) {
+                    // flatten to only show children items
+                    foreach ($value->children as $children_key => $children_value) {
+                        if (!$first) {
+                            echo "|";
+                        }
+                        $first = false;
+                        $link = ($children_value->pid != "true") ? $children_value->url : $children_value->url . attr($pid);
+                        echo "<a href=" . $link . " onclick=" . $children_value->on_click ."> " . text($children_value->label) . " </a>";
+                    }
+                } else {
+                    if (!$first) {
+                        echo "|";
+                    }
+                    $first = false;
+                    $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
+                    echo "<a href=" . $link . " onclick=" . $value->on_click ."> " . text($value->label) . " </a>";
+                }
             }
-
-            $relative_link  = "../../modules/".$modulePath."/".$modulerow['path'];
-            $nickname   = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';
-            $jid++;
-            $modid = $modulerow['mod_id'];
             ?>
-            |
-            <a href="<?php echo $relative_link; ?>" onclick='top.restoreSession()'>
-            <?php echo xlt($nickname); ?></a>
-        <?php
-        }
-    }
-    ?>
-<!-- DISPLAYING HOOKS ENDS HERE -->
-
         </td>
     </tr>
 </table> <!-- end header -->

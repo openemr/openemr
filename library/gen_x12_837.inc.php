@@ -17,7 +17,12 @@ use OpenEMR\Billing\Claim;
 
 function stripZipCode($zip)
 {
-    return preg_replace('/[-\s]*/', '', $zip);
+    $temp = preg_replace('/[-\s]*/', '', $zip);
+    if (strlen($temp) == 5) {
+        return $temp . "9999";
+    } else {
+        return $temp;
+    }
 }
 
 function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)

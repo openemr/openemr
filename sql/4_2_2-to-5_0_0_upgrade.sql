@@ -2183,7 +2183,7 @@ INSERT INTO list_options (list_id,option_id,title,seq,notes,activity) VALUES ('f
 #EndIf
 
 #IfMissingColumn form_misc_billing_options icn_resubmission_number
-  ALTER TABLE form_misc_billing_options ADD COLUMN icn_resubmission_number int(35) default NULL;
+  ALTER TABLE form_misc_billing_options ADD COLUMN icn_resubmission_number varchar(35) default NULL;
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id provider_qualifier_code

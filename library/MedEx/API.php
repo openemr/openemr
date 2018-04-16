@@ -1861,7 +1861,7 @@ if (!empty($logged_in['products']['not_ordered'])) {
                         WHERE pat.pid=medex_recalls.r_pid AND
                         r_eventDate >= ? AND
                         r_eventDate <= ? AND
-                        pat.deceased_date =''
+                        IFNULL(pat.deceased_date,0) = 0
                         ORDER BY r_eventDate ASC";
         $result = sqlStatement($query, array($from_date,$to_date));
         while ($recall= sqlFetchArray($result)) {
@@ -2021,7 +2021,6 @@ if (!empty($logged_in['products']['not_ordered'])) {
          * @param $recall
          * @param string $events
          * @return mixed
-
          * @internal param string $possibleModalities
          */
     public function show_progress_recall($recall, $events = '')
@@ -2618,16 +2617,17 @@ if (!empty($logged_in['products']['not_ordered'])) {
     }
 
     /**
-         *  This function displays a bootstrap responsive pop-up window containing an image of a phone with a record of our messaging activity.
-         *  It is fired from the Flow board.
-         *  It may also end up on the Recall Board.
-         *  It may also allow direct two-way SMS texting to patients if desired.
-         *  It may also allow playback of AVM audio files.
-         *  It may also do other things that haven't been written yet.
-         *  It may open to a messaging status board on large screens.
-         * @param $logged_in
-         * @return bool
-         */
+     *  This function displays a bootstrap responsive pop-up window containing an image of a phone with a record of our messaging activity.
+     *  It is fired from the Flow board.
+     *  It enables two-way SMS texting between logged_in users and patients, if desired.
+     *  It may also end up on the Recall Board.
+     *  It may also allow playback of AVM audio files.
+     *  It may also do other things that haven't been written yet.
+     *  It may open to a messaging status board on large screens.
+     * @param $logged_in
+     * @return bool
+     */
+         
     public function SMS_bot($logged_in)
     {
         $fields = array();
@@ -2943,7 +2943,7 @@ class Setup extends Base
                 $("#actualSignUp").click(function() {
                     var url = "save.php?MedEx=start";
                     var email = $("#new_email").val();
-                    $("#actualSignUp").html('<i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i><span class="sr-only">Loading...</span>');
+                    $("#actualSignUp").html('<i class="fa fa-spinner fa-pulse fa-fw"></i><span class="sr-only">Loading...</span>');
                     formData = $("form#medex_start").serialize();
                     top.restoreSession();
                     $.ajax({
@@ -2957,7 +2957,6 @@ class Setup extends Base
                         $("#ihvread").addClass('nodisplay');
                         $('#myModal').modal('toggle');
                         if (obj.success) {
-                            //$("#butme").html('<a href="messages.php?go=Preferences"><?php echo xlt('Preferences'); ?></a>');
                             url="https://www.medexbank.com/login/"+email;
                             window.open(url, 'clinical', 'resizable=1,scrollbars=1');
                             refresh_me();

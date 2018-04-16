@@ -808,3 +808,11 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 #IfMissingColumn log_comment_encrypt version
 ALTER TABLE `log_comment_encrypt` ADD `version` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0 for mycrypt and 1 for openssl';
 #Endif
+
+#IfNotColumnType form_misc_billing_options icn_resubmission_number VARCHAR(35)
+ALTER TABLE form_misc_billing_options CHANGE `icn_resubmission_number` `icn_resubmission_number` VARCHAR(35) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn users patient_menu_role
+ALTER TABLE `users` ADD `patient_menu_role` VARCHAR(50) NOT NULL DEFAULT 'standard';
+#EndIf
