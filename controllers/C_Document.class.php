@@ -272,10 +272,9 @@ class C_Document extends Controller {
                               echo xl('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.','','',' ') . $temp_url;
                         }
                         $url = $temp_url;
-			$body_notes = attr($_POST['note']);
 			$pdetails = getPatientData($patient_id);
 			$pname = $pdetails['fname']." ".$pdetails['lname'];
-			$this->document_send($_POST['provide_email'],$body_notes,$url,$pname);
+			$this->document_send($_POST['provide_email'],$_POST['note'],$url,$pname);
                         if ($couch_docid && $couch_revid) {
                               // remove the temporary couchdb file
                               unlink($temp_couchdb_url);
@@ -1168,7 +1167,7 @@ class C_Document extends Controller {
 			return;
 		}
 		 
-		  $desc = "Please check the attached patient document.\n Content:".attr($body);
+		  $desc = "Please check the attached patient document.\n Content:".$body;
 		  $mail = new MyMailer();
 		  $from_name = $GLOBALS["practice_return_email_path"];
 		  $from =  $GLOBALS["practice_return_email_path"];
