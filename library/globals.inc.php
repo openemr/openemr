@@ -421,6 +421,13 @@ $GLOBALS_METADATA = array(
             xl('Default state of New Window checkbox in the patient list.')
         ),
 
+        'num_of_messages_displayed' => array(
+            xl('Number of Messages Displayed in Patient Summary'),
+            'num',
+            '3',
+            xl('This is the number of messages that will be displayed in the messages widget in the patient summary screen.')
+        ),
+
         'gbl_vitals_options' => array(
             xl('Vitals Form Options'),
             array(
