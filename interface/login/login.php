@@ -246,12 +246,12 @@ if (count($emr_app)) {
                     <?php if (isset($_SESSION['relogin']) && ($_SESSION['relogin'] == 1)) : // Begin relogin dialog ?>
                     <div class="alert alert-info m-1">
                         <strong>
-                          <?php echo xlt('Password security has recently been upgraded.').'&nbsp;&nbsp;'.xlt('Please login again.'); ?>
+                            <?php echo xlt('Password security has recently been upgraded.').'&nbsp;&nbsp;'.xlt('Please login again.'); ?>
                         </strong>
                     </div>
                     <?php unset($_SESSION['relogin']);
                     endif;
-                    if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)) : // Begin login failure block ?>
+if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)) : // Begin login failure block ?>
                     <div class="alert alert-danger login-failure m-1">
                         <?php echo xlt('Invalid username or password'); ?>
                     </div>
