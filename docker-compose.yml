@@ -25,5 +25,7 @@ services:
       MYSQL_PASS: Qa@er5
       OE_USER: admin
       OE_PASS: 3dEDC
+      DOMAIN: emr.capitalspeechpath.com
+      EMAIL: dhillison@gmail.com
     links:
     - mysql
