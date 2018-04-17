@@ -12,6 +12,12 @@ if ($response !== true) {
     die($response);
 }
 
+// Logic to prevent any session init's while a session is active. PHP 7.2
+// PHP_SESSION_ACTIVE ='s 2
+//
+session_start();
+$isSessionActive = session_status() === PHP_SESSION_ACTIVE ? true : false;
+
 // Default values for optional variables that are allowed to be set by callers.
 
 //This is to help debug the ssl mysql connection. This will send messages to php log to show if mysql connections have a cipher set up.
@@ -40,7 +46,9 @@ if (!defined('IS_WINDOWS')) {
 // Some important php.ini overrides. Defaults for these values are often
 // too small.  You might choose to adjust them further.
 //
-ini_set('session.gc_maxlifetime', '14400');
+if (!$isSessionActive) {
+    ini_set('session.gc_maxlifetime', '14400');
+}
 
 // The webserver_root and web_root are now automatically collected.
 // If not working, can set manually below.
@@ -89,8 +97,10 @@ $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 // OpenEMR instances on same server to prevent session conflicts; also
 // modified interface/login/login.php and library/restoreSession.php to be
 // consistent with this.
-ini_set('session.cookie_path', $web_root ? $web_root : '/');
-session_name("OpenEMR");
+if (!$isSessionActive) {
+    ini_set('session.cookie_path', $web_root ? $web_root : '/');
+    session_name("OpenEMR");
+}
 
 session_start();
 
