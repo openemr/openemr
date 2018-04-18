@@ -1,0 +1,69 @@
+{
+    "name": "zendframework/zend-navigation",
+    "description": "provides support for managing trees of pointers to web pages",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zf2",
+        "navigation"
+    ],
+    "homepage": "https://github.com/zendframework/zend-navigation",
+    "autoload": {
+        "psr-4": {
+            "Zend\\Navigation\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^5.5 || ^7.0",
+        "zendframework/zend-stdlib": "^2.7 || ^3.0"
+    },
+    "require-dev": {
+        "zendframework/zend-config": "^2.6",
+        "zendframework/zend-console": "^2.6",
+        "zendframework/zend-http": "^2.5.4",
+        "zendframework/zend-i18n": "^2.6",
+        "zendframework/zend-log": "^2.7.1",
+        "zendframework/zend-mvc": "^2.7.9 || ^3.0",
+        "zendframework/zend-router": "^3.0",
+        "zendframework/zend-permissions-acl": "^2.6",
+        "zendframework/zend-servicemanager": "^2.7.5 || ^3.0.3",
+        "zendframework/zend-uri": "^2.5",
+        "zendframework/zend-view": "^2.6.5",
+        "phpunit/phpunit": "^4.6",
+        "zendframework/zend-coding-standard": "~1.0.0"
+    },
+    "suggest": {
+        "zendframework/zend-config": "^2.6, to provide page configuration (optional, as arrays and Traversables are also allowed)",
+        "zendframework/zend-permissions-acl": "^2.6, to provide ACL-based access restrictions to pages",
+        "zendframework/zend-router": "^3.0, to use router-based URI generation with Mvc pages",
+        "zendframework/zend-servicemanager": "^2.7.5 || ^3.0.3, to use the navigation factories",
+        "zendframework/zend-view": "^2.6.5, to use the navigation view helpers"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.8-dev",
+            "dev-develop": "2.9-dev"
+        },
+        "zf": {
+            "component": "Zend\\Navigation",
+            "config-provider": "Zend\\Navigation\\ConfigProvider"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\Navigation\\": "test/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml",
+        "upload-coverage": "coveralls -v"
+    }
+}

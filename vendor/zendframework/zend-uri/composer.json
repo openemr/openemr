@@ -1,0 +1,45 @@
+{
+    "name": "zendframework/zend-uri",
+    "description": "a component that aids in manipulating and validating \u00bb Uniform Resource Identifiers (URIs)",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zf2",
+        "uri"
+    ],
+    "homepage": "https://github.com/zendframework/zend-uri",
+    "autoload": {
+        "psr-4": {
+            "Zend\\Uri\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^5.6 || ^7.0",
+        "zendframework/zend-escaper": "^2.5",
+        "zendframework/zend-validator": "^2.5"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.6.x-dev",
+            "dev-develop": "2.7.x-dev"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\Uri\\": "test/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.2.1 || ^5.7.15",
+        "zendframework/zend-coding-standard": "~1.0.0"
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    }
+}

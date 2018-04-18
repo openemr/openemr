@@ -1,0 +1,75 @@
+{
+    "name": "zendframework/zend-log",
+    "description": "component for general purpose logging",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zf2",
+        "log",
+        "logging"
+    ],
+    "homepage": "https://github.com/zendframework/zend-log",
+    "require": {
+        "php": "^5.6 || ^7.0",
+        "psr/log": "^1.0",
+        "zendframework/zend-servicemanager": "^2.7.5 || ^3.0.3",
+        "zendframework/zend-stdlib": "^2.7 || ^3.0"
+    },
+    "require-dev": {
+        "mikey179/vfsStream": "^1.6",
+        "phpunit/phpunit": "^5.7.15 || ^6.0.8",
+        "zendframework/zend-coding-standard": "~1.0.0",
+        "zendframework/zend-db": "^2.6",
+        "zendframework/zend-escaper": "^2.5",
+        "zendframework/zend-filter": "^2.5",
+        "zendframework/zend-mail": "^2.6.1",
+        "zendframework/zend-validator": "^2.10.1"
+    },
+    "provide": {
+        "psr/log-implementation": "1.0.0"
+    },
+    "suggest": {
+        "ext-mongo": "mongo extension to use Mongo writer",
+        "ext-mongodb": "mongodb extension to use MongoDB writer",
+        "zendframework/zend-console": "Zend\\Console component to use the RequestID log processor",
+        "zendframework/zend-db": "Zend\\Db component to use the database log writer",
+        "zendframework/zend-escaper": "Zend\\Escaper component, for use in the XML log formatter",
+        "zendframework/zend-mail": "Zend\\Mail component to use the email log writer",
+        "zendframework/zend-validator": "Zend\\Validator component to block invalid log messages"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.10.x-dev",
+            "dev-develop": "2.11.x-dev"
+        },
+        "zf": {
+            "component": "Zend\\Log",
+            "config-provider": "Zend\\Log\\ConfigProvider"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Zend\\Log\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\Log\\": "test/"
+        },
+        "files": [
+            "autoload/phpunit.php",
+            "test/Writer/TestAsset/chmod.php"
+        ]
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    }
+}

@@ -1,0 +1,22 @@
+docs_dir: doc/book
+site_dir: doc/html
+pages:
+    - index.md
+    - Introduction: intro.md
+    - 'Quick Start': quick-start.md
+    - Reference:
+      - 'Default Services': services.md
+      - Routing: routing.md
+      - 'The MVC Event': mvc-event.md
+      - 'The SendResponse Event': send-response-event.md
+      - 'Available Controllers': controllers.md
+      - 'Controller Plugins': plugins.md
+      - Examples: examples.md
+      - 'Dispatching PSR-7 Middleware': middleware.md
+      - 'Migration Guide': migration.md
+    - Cookbook:
+      - 'Using middleware within event listeners': cookbook/middleware-in-listeners.md
+site_name: zend-mvc
+site_description: 'zend-mvc: MVC application provider'
+repo_url: 'https://github.com/zendframework/zend-mvc'
+copyright: 'Copyright (c) 2016 <a href="http://www.zend.com/">Zend Technologies USA Inc.</a>'

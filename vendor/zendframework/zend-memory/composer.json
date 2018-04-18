@@ -1,0 +1,50 @@
+{
+    "name": "zendframework/zend-memory",
+    "description": " ",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zf2",
+        "memory"
+    ],
+    "homepage": "https://github.com/zendframework/zend-memory",
+    "autoload": {
+        "psr-4": {
+            "Zend\\Memory\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^5.5 || ^7.0"
+    },
+    "require-dev": {
+        "zendframework/zend-cache": "^2.7",
+        "squizlabs/php_codesniffer": "^2.3.1",
+        "phpunit/PHPUnit": "^4.8"
+    },
+    "suggest": {
+        "zendframework/zend-cache": "To support swapping memory objects into and out of non-memory cache storage"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.5-dev",
+            "dev-develop": "2.6-dev"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\Memory\\": "test/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "upload-coverage": "coveralls -v",
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit",
+        "test-coverage": "phpunit --coverage-clover clover.xml"
+    }
+}

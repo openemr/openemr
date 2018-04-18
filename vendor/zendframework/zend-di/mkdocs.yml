@@ -1,0 +1,15 @@
+docs_dir: doc/book
+site_dir: doc/html
+pages:
+    - index.md
+    - Intro: intro.md
+    - "Quick Start": quick-start.md
+    - Reference:
+        - Definitions: definitions.md
+        - "Instance Manager": instance-manager.md
+        - Configuration: config.md
+        - "Debugging and Complex Use Cases": debugging-and-complex-use-cases.md
+site_name: zend-di
+site_description: zend-di
+repo_url: 'https://github.com/zendframework/zend-di'
+copyright: 'Copyright (c) 2016 <a href="http://www.zend.com/">Zend Technologies USA Inc.</a>'
