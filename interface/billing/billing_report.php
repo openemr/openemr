@@ -324,34 +324,13 @@ function MarkAsCleared(Type) {
         }
     }
     if (Type == 1) {
-        Message = '<?php echo htmlspecialchars(
-            xl(
-                '
-        After saving your batch, click[View Log] to check
-        for errors.
-        '
-            ), ENT_QUOTES
-        ); ?>';
+        Message = '<?php echo htmlspecialchars(xl('After saving your batch, click[View Log] to check for errors.'), ENT_QUOTES); ?>';
     }
     if (Type == 2) {
-        Message = '<?php echo htmlspecialchars(
-            xl(
-                '
-        After saving the PDF, click[View Log] to check
-        for errors.
-        '
-            ), ENT_QUOTES
-        ); ?>';
+        Message = '<?php echo htmlspecialchars(xl('After saving the PDF, click[View Log] to check for errors.'), ENT_QUOTES); ?>';
     }
     if (Type == 3) {
-        Message = '<?php echo htmlspecialchars(
-            xl(
-                '
-        After saving the TEXT file(s), click[View Log] to check
-        for errors.
-        '
-            ), ENT_QUOTES
-        ); ?>';
+        Message = '<?php echo htmlspecialchars(xl('After saving the TEXT file(s), click[View Log] to check for errors.'), ENT_QUOTES); ?>';
     }
     if (confirm(Message + "\n\n\n<?php echo addslashes(xl('Total')); ?>" + ' ' +
             CheckBoxBillingCount + ' ' +
@@ -471,7 +450,6 @@ function MarkAsCleared(Type) {
                         $ThisPageSearchCriteriaKeyMaster = "form_encounter.date,billing.date,claims.process_time,claims.target,patient_data.fname," . "form_encounter.pid,claims.payer_id,form_encounter.encounter,insurance_data.provider,billing.id,billing.billed," . "billing.authorized,form_encounter.last_level_billed,billing.x12_partner_id,billing.user";
                         $ThisPageSearchCriteriaDataTypeMaster = "datetime,datetime,datetime,radio,text_like," . "text,include,text,radio,radio,radio," . "radio_like,radio,query_drop_down,text";
                     } else {
-                        
                         $ThisPageSearchCriteriaDisplayMaster = array(
                             xl("Date of Service"),
                             xl("Date of Entry"),
@@ -579,8 +557,9 @@ function MarkAsCleared(Type) {
                                         <?php if ($daysheet_total) { ?> 
                                             <span class="text"><strong><?php echo xlt('Totals'); ?></strong></span> <input name="end_of_day_totals_only" type="checkbox" value="1"></li> 
                                         <?php } ?> 
-                                        <?php if ($provider_run) { ?> <span class="text"><strong><?php echo xlt('Provider'); ?></strong></span><input name="end_of_day_provider_only" type="checkbox" value="1"></li> <?php 
-                                        } ?>
+                                        <?php if ($provider_run) { ?> 
+                                            <span class="text"><strong><?php echo xlt('Provider'); ?></strong></span><input name="end_of_day_provider_only" type="checkbox" value="1"></li>
+                                        <?php } ?> 
                                     <?php } ?>
                                     </span> 
                                     <?php if (! file_exists($EXPORT_INC)) { ?>
@@ -670,7 +649,7 @@ function MarkAsCleared(Type) {
                 <input name='to_date' type='hidden' value="<?php echo attr($to_date); ?>">
                 <input name='from_date' type='hidden' value="<?php echo attr($from_date); ?>"> 
                 <?php
-                if ($my_authorized == "on" ) {
+                if ($my_authorized == "on") {
                     $my_authorized = "1";
                 } else {
                     $my_authorized = "%";
@@ -780,7 +759,8 @@ function MarkAsCleared(Type) {
                                         "SELECT count(*) AS count FROM billing WHERE " .
                                         "encounter = ? AND " .
                                         "pid=? AND " .
-                                        "activity = 1", array(
+                                        "activity = 1",
+                                        array(
                                         $iter['enc_encounter'],
                                         $iter['enc_pid']
                                         )
@@ -828,7 +808,8 @@ function MarkAsCleared(Type) {
                                             "select count(*) as count from billing where " .
                                             "encounter = ? and " .
                                             "pid=? and " .
-                                            "activity = 1 and authorized = 0", array(
+                                            "activity = 1 and authorized = 0",
+                                            array(
                                             $iter['enc_encounter'],
                                             $iter['enc_pid']
                                             )
@@ -851,7 +832,8 @@ function MarkAsCleared(Type) {
                                         "pid = ? and " .
                                         "type='primary' and " .
                                         "subscriber_lname is not null and " .
-                                        "subscriber_lname != '' limit 1", array(
+                                        "subscriber_lname != '' limit 1",
+                                        array(
                                         $iter['enc_pid']
                                         )
                                     );
@@ -872,7 +854,8 @@ function MarkAsCleared(Type) {
                                     // Encounter details are stored to javacript as array.
                                     $result4 = sqlStatement(
                                         "SELECT fe.encounter,fe.date,fe.billing_note,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
-                                        " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array(
+                                        " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc",
+                                        array(
                                         $iter['enc_pid']
                                         )
                                     );
@@ -912,7 +895,8 @@ function MarkAsCleared(Type) {
                                 "SELECT submitted_claim AS status FROM claims WHERE " .
                                 "encounter_id = ? AND " .
                                 "patient_id=? " .
-                                "ORDER BY version DESC LIMIT 1", array(
+                                "ORDER BY version DESC LIMIT 1",
+                                array(
                                 $iter['enc_encounter'],
                                 $iter['enc_pid']
                                 )
@@ -942,7 +926,8 @@ function MarkAsCleared(Type) {
                             "ORDER BY id.type ASC, id.date DESC";
 
                             $result = sqlStatement(
-                                $query, array(
+                                $query,
+                                array(
                                 $iter['enc_pid'],
                                 $raw_encounter_date
                                 )
@@ -993,7 +978,8 @@ function MarkAsCleared(Type) {
 
                             $query = "SELECT * FROM claims WHERE " . "patient_id = ? AND " . "encounter_id = ? " . "ORDER BY version";
                             $cres = sqlStatement(
-                                $query, array(
+                                $query,
+                                array(
                                 $iter['enc_pid'],
                                 $iter['enc_encounter']
                                 )
@@ -1011,7 +997,8 @@ function MarkAsCleared(Type) {
                                 "ORDER BY id.type ASC, id.date DESC";
 
                                 $irow = sqlQuery(
-                                    $query, array(
+                                    $query,
+                                    array(
                                     $iter['enc_pid'],
                                     $crow['payer_id'],
                                     $raw_encounter_date
@@ -1021,7 +1008,7 @@ function MarkAsCleared(Type) {
                                 if ($crow['bill_process']) {
                                     $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("Queued for") . " " . text($irow['type']) . " " . text($crow['target']) . " " . xlt("billing to ") . text($irow['name']);
                                     ++ $lcount;
-                                } else if ($crow['status'] < 6) {
+                                } elseif ($crow['status'] < 6) {
                                     if ($crow['status'] > 1) {
                                         $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . htmlspecialchars(xl("Marked as cleared"), ENT_QUOTES);
                                         ++ $lcount;
@@ -1029,10 +1016,10 @@ function MarkAsCleared(Type) {
                                         $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . htmlspecialchars(xl("Re-opened"), ENT_QUOTES);
                                         ++ $lcount;
                                     }
-                                } else if ($crow['status'] == 6) {
+                                } elseif ($crow['status'] == 6) {
                                     $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . htmlspecialchars(xl("This claim has been forwarded to next level."), ENT_QUOTES);
                                     ++ $lcount;
-                                } else if ($crow['status'] == 7) {
+                                } elseif ($crow['status'] == 7) {
                                     $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . htmlspecialchars(xl("This claim has been denied.Reason:-"), ENT_QUOTES);
                                     if ($crow['process_file']) {
                                         $code_array = explode(',', $crow['process_file']);
@@ -1162,7 +1149,8 @@ function MarkAsCleared(Type) {
                                     $rowcnt = 0;
                                     $resMoneyGot = sqlStatement(
                                         "SELECT pay_amount as PatientPay,date(post_time) as date FROM ar_activity where " .
-                                        "pid = ? and encounter = ? and payer_type=0 and account_code='PCP'", array(
+                                        "pid = ? and encounter = ? and payer_type=0 and account_code='PCP'",
+                                        array(
                                         $iter['enc_pid'],
                                         $iter['enc_encounter']
                                         )

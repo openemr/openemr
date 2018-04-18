@@ -47,71 +47,66 @@ $payment_id              = isset($_REQUEST['payment_id'])          ? $_REQUEST['
 $request_payment_id      = $payment_id ;
 $hidden_patient_code     = isset($_REQUEST['hidden_patient_code']) ? $_REQUEST['hidden_patient_code'] : '';
 $default_search_patient  = isset($_POST['default_search_patient']) ? $_POST['default_search_patient'] : '';
-$hidden_type_code        = formData('hidden_type_code', true );
+$hidden_type_code        = formData('hidden_type_code', true);
 //===============================================================================
 //ar_session addition code
 //===============================================================================
 
-if ($mode == "new_payment" || $mode == "distribute")
-{
-    if(trim(formData('type_name'   ))=='insurance')
-     {
+if ($mode == "new_payment" || $mode == "distribute") {
+    if (trim(formData('type_name'))=='insurance') {
         $QueryPart="payer_id = '$hidden_type_code', patient_id = '0" ; // Closing Quote in idSqlStatement below
-     }
-    elseif(trim(formData('type_name'   ))=='patient')
-     {
+    } elseif (trim(formData('type_name'))=='patient') {
         $QueryPart="payer_id = '0', patient_id = '$hidden_type_code" ; // Closing Quote in idSqlStatement below
-     }
+    }
       $user_id=$_SESSION['authUserID'];
       $closed=0;
       $modified_time = date('Y-m-d H:i:s');
       $check_date=DateToYYYYMMDD(formData('check_date'));
       $deposit_date=DateToYYYYMMDD(formData('deposit_date'));
       $post_to_date=DateToYYYYMMDD(formData('post_to_date'));
-      if($post_to_date=='')
-       $post_to_date=date('Y-m-d');
-      if(formData('deposit_date')=='')
-       $deposit_date=$post_to_date;
+    if ($post_to_date=='') {
+        $post_to_date=date('Y-m-d');
+    }
+    if (formData('deposit_date')=='') {
+        $deposit_date=$post_to_date;
+    }
       $payment_id = idSqlStatement("insert into ar_session set "    .
         $QueryPart .
-        "', user_id = '"     . trim($user_id                  )  .
-        "', closed = '"      . trim($closed                   )  .
-        "', reference = '"   . trim(formData('check_number'   )) .
-        "', check_date = '"  . trim($check_date                 ) .
-        "', deposit_date = '" . trim($deposit_date            )  .
+        "', user_id = '"     . trim($user_id)  .
+        "', closed = '"      . trim($closed)  .
+        "', reference = '"   . trim(formData('check_number')) .
+        "', check_date = '"  . trim($check_date) .
+        "', deposit_date = '" . trim($deposit_date)  .
         "', pay_total = '"    . trim(formData('payment_amount')) .
-        "', modified_time = '" . trim($modified_time            )  .
-        "', payment_type = '"   . trim(formData('type_name'   )) .
-        "', description = '"   . trim(formData('description'   )) .
-        "', adjustment_code = '"   . trim(formData('adjustment_code'   )) .
-        "', post_to_date = '" . trim($post_to_date            )  .
-        "', payment_method = '"   . trim(formData('payment_method'   )) .
+        "', modified_time = '" . trim($modified_time)  .
+        "', payment_type = '"   . trim(formData('type_name')) .
+        "', description = '"   . trim(formData('description')) .
+        "', adjustment_code = '"   . trim(formData('adjustment_code')) .
+        "', post_to_date = '" . trim($post_to_date)  .
+        "', payment_method = '"   . trim(formData('payment_method')) .
         "'");
 }
 
 //===============================================================================
 //ar_activity addition code
 //===============================================================================
-if ($mode == "PostPayments" || $mode == "FinishPayments")
-{
+if ($mode == "PostPayments" || $mode == "FinishPayments") {
     $user_id=$_SESSION['authUserID'];
     $created_time = date('Y-m-d H:i:s');
-    for($CountRow=1;;$CountRow++)
-     {
-      if (isset($_POST["HiddenEncounter$CountRow"]))
-       {
-        DistributionInsert($CountRow,$created_time,$user_id);
-       }
-      else
-       break;
-     }
-    if($_REQUEST['global_amount']=='yes')
-        sqlStatement("update ar_session set global_amount=".trim(formData("HidUnappliedAmount"   ))*1 ." where session_id ='$payment_id'");
-    if($mode=="FinishPayments")
-     {
-      header("Location: edit_payment.php?payment_id=$payment_id&ParentPage=new_payment");
-      die();
-     }
+    for ($CountRow=1;; $CountRow++) {
+        if (isset($_POST["HiddenEncounter$CountRow"])) {
+            DistributionInsert($CountRow, $created_time, $user_id);
+        } else {
+            break;
+        }
+    }
+    if ($_REQUEST['global_amount']=='yes') {
+        sqlStatement("update ar_session set global_amount=".trim(formData("HidUnappliedAmount"))*1 ." where session_id ='$payment_id'");
+    }
+    if ($mode=="FinishPayments") {
+        header("Location: edit_payment.php?payment_id=$payment_id&ParentPage=new_payment");
+        die();
+    }
     $mode = "search";
     $_POST['mode'] = $mode;
 }
@@ -127,19 +122,17 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
 <!DOCTYPE html>
 <html>
 <head>
-    <?php Header::setupHeader(['bootstrap', 'datetime-picker']);?><!--<script type="text/javascript" src="../../library/dialog.js?v=<?php //echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/textformat.js?v=<?php //echo $v_js_includes; ?>"></script>-->
+    <?php Header::setupHeader(['common', 'datetime-picker']);?>
+
 
     <script language='JavaScript'>
     var mypcc = '1';
     </script><?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
     </script><?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
-    <script src="../../library/js/common.js?v=%3C?php%20echo%20$v_js_includes;%20?%3E" type="text/javascript">
-    </script>
     <script language="javascript" type="text/javascript">
     function CancelDistribute()
     {//Used in the cancel button.Helpful while cancelling the distribution.
-       if(confirm("<?php echo htmlspecialchars( xl('Would you like to Cancel Distribution for this Patient?'), ENT_QUOTES) ?>"))
+       if(confirm("<?php echo htmlspecialchars(xl('Would you like to Cancel Distribution for this Patient?'), ENT_QUOTES) ?>"))
         {
            document.getElementById('hidden_patient_code').value='';
            document.getElementById('mode').value='search';
@@ -153,7 +146,7 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
     {//Used in saving the allocation
        if(CompletlyBlank())//Checks whether any of the allocation row is filled.
         {
-         alert("<?php echo htmlspecialchars( xl('Fill the Row.'), ENT_QUOTES) ?>")
+         alert("<?php echo htmlspecialchars(xl('Fill the Row.'), ENT_QUOTES) ?>")
          return false;
         }
        if(!CheckPayingEntityAndDistributionPostFor())//Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
@@ -163,10 +156,10 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
        PostValue=CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
        if(PostValue==1)
         {
-         alert("<?php echo htmlspecialchars( xl('Cannot Post Payments.Undistributed is Negative.'), ENT_QUOTES) ?>")
+         alert("<?php echo htmlspecialchars(xl('Cannot Post Payments.Undistributed is Negative.'), ENT_QUOTES) ?>")
          return false;
         }
-       if(confirm("<?php echo htmlspecialchars( xl('Would you like to Post Payments?'), ENT_QUOTES) ?>"))
+       if(confirm("<?php echo htmlspecialchars(xl('Would you like to Post Payments?'), ENT_QUOTES) ?>"))
         {
            document.getElementById('mode').value='PostPayments';
            top.restoreSession();
@@ -180,7 +173,7 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
     //After this is pressed a confirmation screen comes,where you can edit if needed.
        if(CompletlyBlank())//Checks whether any of the allocation row is filled.
         {
-         alert("<?php echo htmlspecialchars( xl('Fill the Row.'), ENT_QUOTES) ?>")
+         alert("<?php echo htmlspecialchars(xl('Fill the Row.'), ENT_QUOTES) ?>")
          return false;
         }
        if(!CheckPayingEntityAndDistributionPostFor())//Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
@@ -190,15 +183,15 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
        PostValue=CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
        if(PostValue==1)
         {
-         alert("<?php echo htmlspecialchars( xl('Cannot Post Payments.Undistributed is Negative.'), ENT_QUOTES) ?>")
+         alert("<?php echo htmlspecialchars(xl('Cannot Post Payments.Undistributed is Negative.'), ENT_QUOTES) ?>")
          return false;
         }
        if(PostValue==2)
         {
-           if(confirm("<?php echo htmlspecialchars( xl('Would you like to Post and Finish Payments?'), ENT_QUOTES) ?>"))
+           if(confirm("<?php echo htmlspecialchars(xl('Would you like to Post and Finish Payments?'), ENT_QUOTES) ?>"))
             {
                UnappliedAmount=document.getElementById('TdUnappliedAmount').innerHTML*1;
-               if(confirm("<?php echo htmlspecialchars( xl('Undistributed is'), ENT_QUOTES) ?>" + ' ' + UnappliedAmount +  '.' + "<?php echo htmlspecialchars('\n');echo htmlspecialchars( xl('Would you like the balance amount to apply to Global Account?'), ENT_QUOTES) ?>"))
+               if(confirm("<?php echo htmlspecialchars(xl('Undistributed is'), ENT_QUOTES) ?>" + ' ' + UnappliedAmount +  '.' + "<?php echo htmlspecialchars('\n');echo htmlspecialchars(xl('Would you like the balance amount to apply to Global Account?'), ENT_QUOTES) ?>"))
                 {
                    document.getElementById('mode').value='FinishPayments';
                    document.getElementById('global_amount').value='yes';
@@ -217,7 +210,7 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
         }
        else
         {
-           if(confirm("<?php echo htmlspecialchars( xl('Would you like to Post and Finish Payments?'), ENT_QUOTES) ?>"))
+           if(confirm("<?php echo htmlspecialchars(xl('Would you like to Post and Finish Payments?'), ENT_QUOTES) ?>"))
             {
                document.getElementById('mode').value='FinishPayments';
                top.restoreSession();
@@ -259,7 +252,7 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
         {
            document.getElementById('TablePatientPortion').style.display='none';
         }
-       if(confirm("<?php echo htmlspecialchars( xl('Successfully Saved.Would you like to Allocate?'), ENT_QUOTES) ?>"))
+       if(confirm("<?php echo htmlspecialchars(xl('Successfully Saved.Would you like to Allocate?'), ENT_QUOTES) ?>"))
         {
            if(document.getElementById('TablePatientPortion'))
             {
@@ -284,11 +277,11 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
 
     $(document).ready(function() {
        $('.datepicker').datetimepicker({
-           <?php $datetimepicker_timepicker = false; ?>
-           <?php $datetimepicker_showseconds = false; ?>
-           <?php $datetimepicker_formatInput = true; ?>
-           <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-           <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = true; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
        });
     });
     </script>
@@ -441,44 +434,46 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
             </nav>
         </div>
         <div class="row" >        
-            <form action="new_payment.php" id="new_payment" method='post' name='new_payment' onsubmit="<?php if($payment_id*1==0){echo 'top.restoreSession();return SavePayment();';} else{echo 'return false;';}?>" style="display:inline">
-                
+            <form action="new_payment.php" id="new_payment" method='post' name='new_payment' onsubmit="
+            <?php
+            if ($payment_id*1==0) {
+                echo 'top.restoreSession();return SavePayment();';
+            } else {
+                echo 'return false;';
+            }?>" style="display:inline">
                 <fieldset>
                     <?php
                         require_once("payment_master.inc.php"); //Check/cash details are entered here.
                     ?>
                     <br>
                     <?php
-                    if($payment_id*1>0)
-                    {
+                    if ($payment_id*1>0) {
                     ?>
                         <?php
-                            if($PaymentType=='patient' && $default_search_patient != "default_search_patient")
-                             {
-                              $default_search_patient = "default_search_patient";
-                              $_POST['default_search_patient'] = $default_search_patient;
-                              $hidden_patient_code=$TypeCode;
-                              $_REQUEST['hidden_patient_code']=$hidden_patient_code;
-                              $_REQUEST['RadioPaid']='Show_Paid';
-                             }
+                        if ($PaymentType=='patient' && $default_search_patient != "default_search_patient") {
+                            $default_search_patient = "default_search_patient";
+                            $_POST['default_search_patient'] = $default_search_patient;
+                            $hidden_patient_code=$TypeCode;
+                            $_REQUEST['hidden_patient_code']=$hidden_patient_code;
+                            $_REQUEST['RadioPaid']='Show_Paid';
+                        }
                             require_once("payment_pat_sel.inc.php"); //Patient ajax section and listing of charges.
                         ?>
                         <?php
-                            if($CountIndexBelow>0)
-                             {
+                        if ($CountIndexBelow>0) {
                         ?>
-                            <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
-                            <div class="form-group clearfix">
-                                <div class="col-sm-12 text-left position-override">
-                                    <div class="btn-group btn-group-pinch" role="group">
-                                        <button class="btn btn-default btn-save" href="#" onclick="return PostPayments();"><?php echo xlt('Post Payments');?></button>
-                                        <button class="btn btn-default btn-save" href="#" onclick="return FinishPayments();"><?php echo xlt('Finish Payments');?></button>
-                                        <button class="btn btn-link btn-cancel btn-separate-left" href="#" onclick="CancelDistribute()"><?php echo xlt('Cancel');?></button>
-                                    </div>
-                                </div>
+                        <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
+                        <div class="form-group clearfix">
+                        <div class="col-sm-12 text-left position-override">
+                            <div class="btn-group btn-group-pinch" role="group">
+                                <button class="btn btn-default btn-save" href="#" onclick="return PostPayments();"><?php echo xlt('Post Payments');?></button>
+                                <button class="btn btn-default btn-save" href="#" onclick="return FinishPayments();"><?php echo xlt('Finish Payments');?></button>
+                                <button class="btn btn-link btn-cancel btn-separate-left" href="#" onclick="CancelDistribute()"><?php echo xlt('Cancel');?></button>
                             </div>
+                        </div>
+                        </div>
                         <?php
-                            }//if($CountIndexBelow>0)
+                        }//if($CountIndexBelow>0)
                         ?>
                     <?php
                     }

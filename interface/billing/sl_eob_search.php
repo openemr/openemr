@@ -45,9 +45,7 @@ if (! empty($GLOBALS['portal_onsite_two_enable'])) {
 
     function is_auth_portal($pid = 0)
     {
-        if ($pData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid` = ?", array(
-            $pid
-        ))) {
+        if ($pData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid` = ?", array($pid))) {
             if ($pData['allow_patient_portal'] != "YES") {
                 return false;
             } else {
@@ -267,7 +265,7 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
             $GLOBALS['pdf_language'],
             true, // default unicode setting is true
             'UTF-8', // default encoding setting is UTF-8
-            array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
+            array($GLOBALS['pdf_left_margin'], $GLOBALS['pdf_top_margin'], $GLOBALS['pdf_right_margin'], $GLOBALS['pdf_bottom_margin']),
             $_SESSION['language_direction'] == 'rtl' ? true : false
         );
         ob_start();
@@ -574,12 +572,9 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
     ?>
   <html>
   <head>
-     <?php Header::setupHeader(['bootstrap', 'datetime-picker']);?>
-    <title><?php xl('EOB Posting - Search','e'); ?></title>
-    <script src="../../library/textformat.js" type="text/javascript"></script>
-
+        <?php Header::setupHeader(['datetime-picker']);?>
+    <title><?php xl('EOB Posting - Search', 'e'); ?></title>
     <script language="JavaScript">
-
     var mypcc = '1';
 
     function checkAll(checked) {
@@ -597,11 +592,11 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
     }
     $(document).ready(function() {
         $('.datepicker').datetimepicker({
-           <?php $datetimepicker_timepicker = false; ?>
-           <?php $datetimepicker_showseconds = false; ?>
-           <?php $datetimepicker_formatInput = true; ?>
-           <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-           <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = true; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
 
@@ -665,11 +660,13 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                                 $insurancei = getInsuranceProviders();
                                 echo "   <select name='form_payer_id'id='form_payer_id' class='form-control'>\n";
                                 echo "    <option value='0'>-- " . xl('Patient') . " --</option>\n";
-                                foreach ($insurancei as $iid => $iname) {
-                                  echo "<option value='$iid'";
-                                  if ($iid == $_POST['form_payer_id']) echo " selected";
-                                  echo ">" . $iname . "</option>\n";
+                            foreach ($insurancei as $iid => $iname) {
+                                echo "<option value='$iid'";
+                                if ($iid == $_POST['form_payer_id']) {
+                                    echo " selected";
                                 }
+                                echo ">" . $iname . "</option>\n";
+                            }
                                 echo "   </select>\n";
                             ?>
                         </div>
@@ -718,24 +715,24 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                     <div class="col-xs-12 .oe-custom-line oe-show-hide" id = 'inv-search'>
                         <div class="col-xs-3">
                             <label class="control-label" for="form_name"><?php echo xlt('Name'); ?>:</label>
-                            <input type='text' name='form_name' id='form_name' class='form-control' value='<?php echo $_POST['form_name']; ?>' title='<?php xl("Any part of the patient name, or \"last,first\", or \"X-Y\"","e"); ?>' placeholder= '<?php echo xlt('Last name, First name');?>'>
+                            <input type='text' name='form_name' id='form_name' class='form-control' value='<?php echo $_POST['form_name']; ?>' title='<?php xl("Any part of the patient name, or \"last,first\", or \"X-Y\"", "e"); ?>' placeholder= '<?php echo xlt('Last name, First name');?>'>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label" for="form_pid"><?php echo xlt('Chart ID'); ?>:</label>
-                            <input type='text' name='form_pid' id='form_pid' class='form-control' value='<?php echo $_POST['form_pid']; ?>' title='<?php xl("Patient chart ID","e"); ?>'>
+                            <input type='text' name='form_pid' id='form_pid' class='form-control' value='<?php echo $_POST['form_pid']; ?>' title='<?php xl("Patient chart ID", "e"); ?>'>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label" for="form_encounter"><?php echo xlt('Encounter'); ?>:</label>
-                            <input type='text' name='form_encounter' id='form_encounter' class='form-control' value='<?php echo $_POST['form_encounter']; ?>' title='<?php xl("Encounter number","e"); ?>'>
+                            <input type='text' name='form_encounter' id='form_encounter' class='form-control' value='<?php echo $_POST['form_encounter']; ?>' title='<?php xl("Encounter number", "e"); ?>'>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label oe-large" for="form_date"><?php echo xlt('Service Date From'); ?>:</label>
                             <label class="control-label oe-small" for="form_date"><?php echo xlt('Svc Date'); ?>:</label>
-                            <input type='text' name='form_date' id='form_date' class='form-control datepicker' value='<?php echo $_POST['form_date']; ?>' title='<?php xl("Date of service mm/dd/yyyy","e"); ?>'>
+                            <input type='text' name='form_date' id='form_date' class='form-control datepicker' value='<?php echo $_POST['form_date']; ?>' title='<?php xl("Date of service mm/dd/yyyy", "e"); ?>'>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label" for="form_to_date"><?php echo xlt('Service Date To'); ?>:</label>
-                            <input type='text' name='form_to_date' id='form_to_date' class='form-control datepicker' value='<?php echo $_POST['form_to_date']; ?>' title='<?php xl("Ending DOS mm/dd/yyyy if you wish to enter a range","e"); ?>'>
+                            <input type='text' name='form_to_date' id='form_to_date' class='form-control datepicker' value='<?php echo $_POST['form_to_date']; ?>' title='<?php xl("Ending DOS mm/dd/yyyy if you wish to enter a range", "e"); ?>'>
                         </div>
                         <div class="col-xs-1" style="padding-right:0px">
                             <label class="control-label" for="type_name"><?php echo xlt('Type'); ?>:</label>
@@ -743,7 +740,9 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                                 <?php
                                 foreach (array(xl('Open'), xl('All'), xl('Due Pt'), xl('Due Ins')) as $value) {
                                     echo "    <option value='$value'";
-                                    if ($_POST['form_category'] == $value) echo " selected";
+                                    if ($_POST['form_category'] == $value) {
+                                        echo " selected";
+                                    }
                                     echo ">$value</option>\n";
                                 }
                                 ?>
@@ -769,9 +768,9 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                     <div class="col-sm-12 position-override oe-show-hide" id="search-btn">
                         <div class="btn-group" role="group">
                             <button type='submit' class="btn btn-default btn-search oe-show-hide" name='form_search' 
-                            id="btn-inv-search" value='<?php echo xla ("Search"); ?>'><?php echo xlt ("Search"); ?></button>
+                            id="btn-inv-search" value='<?php echo xla("Search"); ?>'><?php echo xlt("Search"); ?></button>
                             <button type='submit' class="btn btn-default btn-save oe-show-hide" name='form_search' 
-                            id="btn-era-upld" value='<?php echo xla ("Upload"); ?>'><?php echo xlt ("Upload"); ?></button>
+                            id="btn-era-upld" value='<?php echo xla("Upload"); ?>'><?php echo xlt("Upload"); ?></button>
                         </div>
                     </div>
                 </div>
@@ -807,60 +806,66 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
 
                                 if (is_file($erafullname)) {
                                     $alertmsg .= "Warning: Set $eraname was already uploaded ";
-                                    if (is_file($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.html"))
-                                    $alertmsg .= "and processed. ";
-                                    else
-                                    $alertmsg .= "but not yet processed. ";
+                                    if (is_file($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.html")) {
+                                        $alertmsg .= "and processed. ";
+                                    } else {
+                                        $alertmsg .= "but not yet processed. ";
+                                    }
                                 }
                                 rename($tmp_name, $erafullname);
                             } // End 835 upload
 
                             if ($eracount) {
                                 // Note that parse_era() modified $eracount and $where.
-                                if (! $where) $where = '1 = 2';
-                            }
-                            else {
+                                if (! $where) {
+                                    $where = '1 = 2';
+                                }
+                            } else {
                                 if ($form_name) {
-                                    if ($where) $where .= " AND ";
+                                    if ($where) {
+                                        $where .= " AND ";
+                                    }
                                     // Allow the last name to be followed by a comma and some part of a first name.
                                     if (preg_match('/^(.*\S)\s*,\s*(.*)/', $form_name, $matches)) {
                                         $where .= "p.lname LIKE '" . $matches[1] . "%' AND p.fname LIKE '" . $matches[2] . "%'";
                                         // Allow a filter like "A-C" on the first character of the last name.
-                                    } 
-                                    else if (preg_match('/^(\S)\s*-\s*(\S)$/', $form_name, $matches)) {
+                                    } elseif (preg_match('/^(\S)\s*-\s*(\S)$/', $form_name, $matches)) {
                                         $tmp = '1 = 2';
                                         while (ord($matches[1]) <= ord($matches[2])) {
-                                        $tmp .= " OR p.lname LIKE '" . $matches[1] . "%'";
-                                        $matches[1] = chr(ord($matches[1]) + 1);
+                                            $tmp .= " OR p.lname LIKE '" . $matches[1] . "%'";
+                                            $matches[1] = chr(ord($matches[1]) + 1);
                                         }
                                         $where .= "( $tmp ) ";
-                                    } 
-                                    else {
-                                    $where .= "p.lname LIKE '%$form_name%'";
+                                    } else {
+                                        $where .= "p.lname LIKE '%$form_name%'";
                                     }
                                 }
                                 if ($form_pid) {
-                                    if ($where) $where .= " AND ";
+                                    if ($where) {
+                                        $where .= " AND ";
+                                    }
                                     $where .= "f.pid = '$form_pid'";
                                 }
                                 if ($form_encounter) {
-                                    if ($where) $where .= " AND ";
+                                    if ($where) {
+                                        $where .= " AND ";
+                                    }
                                     $where .= "f.encounter = '$form_encounter'";
                                 }
                                 if ($form_date) {
-                                    if ($where) $where .= " AND ";
+                                    if ($where) {
+                                        $where .= " AND ";
+                                    }
                                     if ($form_to_date) {
                                         $where .= "f.date >= '$form_date' AND f.date <= '$form_to_date'";
-                                    }
-                                    else {
+                                    } else {
                                         $where .= "f.date = '$form_date'";
                                     }
                                 }
                                 if (! $where) {
                                     if ($_POST['form_category'] == 'All') {
                                         die(xl("At least one search parameter is required if you select All."));
-                                    } 
-                                    else {
+                                    } else {
                                         $where = "1 = 1";
                                     }
                                 }
@@ -902,18 +907,22 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th class="id dehead"><?php xl('id','e');?></th>
-                                    <th class="dehead">&nbsp;<?php xl('Patient','e'); ?></th>
-                                    <th class="dehead">&nbsp;<?php xl('Invoice','e'); ?></th>
-                                    <th class="dehead">&nbsp;<?php xl('Svc Date','e'); ?></th>
-                                    <th class="dehead">&nbsp;<?php xl('Last Stmt','e'); ?></th>
-                                    <th align="right" class="dehead"><?php xl('Charge','e'); ?>&nbsp;</th>
-                                    <th align="right" class="dehead"><?php xl('Adjust','e'); ?>&nbsp;</th>
-                                    <th align="right" class="dehead"><?php xl('Paid','e'); ?>&nbsp;</th>
-                                    <th align="right" class="dehead"><?php xl('Balance','e'); ?>&nbsp;</th>
-                                    <th align="center" class="dehead"><?php xl('Prv','e'); ?></th><?php if (!$eracount) { ?>
-                                    <th align="left" class="dehead"><?php xl('Sel','e'); ?></th>
-                                    <th align="center" class="dehead"><?php xl('Email','e'); ?></th><?php } ?>
+                                    <th class="id dehead"><?php xl('id', 'e');?></th>
+                                    <th class="dehead">&nbsp;<?php xl('Patient', 'e'); ?></th>
+                                    <th class="dehead">&nbsp;<?php xl('Invoice', 'e'); ?></th>
+                                    <th class="dehead">&nbsp;<?php xl('Svc Date', 'e'); ?></th>
+                                    <th class="dehead">&nbsp;<?php xl('Last Stmt', 'e'); ?></th>
+                                    <th align="right" class="dehead"><?php xl('Charge', 'e'); ?>&nbsp;</th>
+                                    <th align="right" class="dehead"><?php xl('Adjust', 'e'); ?>&nbsp;</th>
+                                    <th align="right" class="dehead"><?php xl('Paid', 'e'); ?>&nbsp;</th>
+                                    <th align="right" class="dehead"><?php xl('Balance', 'e'); ?>&nbsp;</th>
+                                    <th align="center" class="dehead"><?php xl('Prv', 'e'); ?></th>
+                                    <?php
+                                    if (!$eracount) { ?>
+                                    <th align="left" class="dehead"><?php xl('Sel', 'e'); ?></th>
+                                    <th align="center" class="dehead"><?php xl('Email', 'e'); ?></th>
+                                    <?php
+                                    } ?>
                                 </tr>
                             </thead>
                             <?php
@@ -922,10 +931,14 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                             while ($row = sqlFetchArray($t_res)) {
                                 $balance = sprintf("%.2f", $row['charges'] + $row['copays'] - $row['payments'] - $row['adjustments']);
                                 //new filter only patients with debt.
-                                if( $_POST['only_with_debt'] && $balance <= 0) continue;
+                                if ($_POST['only_with_debt'] && $balance <= 0) {
+                                    continue;
+                                }
 
 
-                                if ($_POST['form_category'] != 'All' && $eracount == 0 && $balance == 0) continue;
+                                if ($_POST['form_category'] != 'All' && $eracount == 0 && $balance == 0) {
+                                    continue;
+                                }
 
                                 // $duncount was originally supposed to be the number of times that
                                 // the patient was sent a statement for this invoice.
@@ -937,7 +950,9 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                                 // yet closed out insurance.
                                 //
                                 if (! $duncount) {
-                                    for ($i = 1; $i <= 3 && arGetPayerID($row['pid'], $row['date'], $i); ++$i) ;
+                                    for ($i = 1; $i <= 3 && arGetPayerID($row['pid'], $row['date'], $i);
+                                    ++$i) {
+                                    }
                                     $duncount = $row['last_level_closed'] + 1 - $i;
                                 }
 
@@ -950,9 +965,15 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
 
                                 // Skip invoices not in the desired "Due..." category.
                                 //
-                                if (substr($_POST['form_category'], 0, 3) == 'Due' && !$isdueany) continue;
-                                if ($_POST['form_category'] == 'Due Ins' && ($duncount >= 0 || !$isdueany)) continue;
-                                if ($_POST['form_category'] == 'Due Pt'  && ($duncount <  0 || !$isdueany)) continue;
+                                if (substr($_POST['form_category'], 0, 3) == 'Due' && !$isdueany) {
+                                    continue;
+                                }
+                                if ($_POST['form_category'] == 'Due Ins' && ($duncount >= 0 || !$isdueany)) {
+                                    continue;
+                                }
+                                if ($_POST['form_category'] == 'Due Pt'  && ($duncount <  0 || !$isdueany)) {
+                                    continue;
+                                }
 
                                 $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
 
@@ -984,21 +1005,26 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                                     <?php if (!$eracount) { ?>
                                     <td class="detail" align="left">
                                         <input type='checkbox' name='form_cb[<?php echo($row['id']) ?>]'<?php echo $isduept ?> />
-                                        <?php if ($in_collections) echo "<b><font color='red'>IC</font></b>"; ?>
-                                        <?php if ( function_exists('is_auth_portal') ? is_auth_portal( $row['pid'] ) : false){
-                                        echo(' PPt');    echo("<input type='hidden' name='form_invpids[". $row['id'] ."][". $row['pid'] ."]' />"); $is_portal = true;
+                                        <?php
+                                        if ($in_collections) {
+                                            echo "<b><font color='red'>IC</font></b>";
+                                        } ?>
+                                        <?php
+                                        if (function_exists('is_auth_portal') ? is_auth_portal($row['pid']) : false) {
+                                            echo(' PPt');
+                                            echo("<input type='hidden' name='form_invpids[". $row['id'] ."][". $row['pid'] ."]' />");
+                                            $is_portal = true;
                                         }?>
                                     </td>
                                     <?php } ?>
                                     <td align="left" class="detail">
                                         <?php
-                                            $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($row['pid']) );
-                                            if ( $patientData['hipaa_allowemail'] == "YES" && $patientData['allow_patient_portal'] == "YES" && $patientData['hipaa_notice'] == "YES" && validEmail($patientData['email'])) {
-                                                echo xlt("YES");
-                                            } 
-                                            else {
-                                                echo xlt("NO");
-                                            }
+                                            $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($row['pid']));
+                                        if ($patientData['hipaa_allowemail'] == "YES" && $patientData['allow_patient_portal'] == "YES" && $patientData['hipaa_notice'] == "YES" && validEmail($patientData['email'])) {
+                                            echo xlt("YES");
+                                        } else {
+                                            echo xlt("NO");
+                                        }
                                         ?>
                                     </td>
                                 </tr>
@@ -1013,38 +1039,41 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                 <div class="form-group clearfix">
                     <div class="col-sm-12 text-left position-override oe-show-hide" id="statement-download">
                         <div class="btn-group" role="group">
-                        <?php if ($eracount) { ?>
+                            <?php
+                            if ($eracount) { ?>
                                <button type="button" class="btn btn-default btn-save" name="Submit"
-                               onclick='processERA()' value="<?php echo xla ('Process ERA File');?>">
-                               <?php echo xlt ('Process ERA File');?></button>
-                        <?php } else { ?>
+                               onclick='processERA()' value="<?php echo xla('Process ERA File');?>">
+                                <?php echo xlt('Process ERA File');?></button>
+                            <?php
+                            } else { ?>
                                 <button type="button" class="btn btn-default btn-save" name="Submit1"
-                                onclick='checkAll(true)'><?php echo xlt ('Select All');?></button>
+                                onclick='checkAll(true)'><?php echo xlt('Select All');?></button>
                                 <button type="button" class="btn btn-default btn-undo" name="Submit2"
-                                onclick='checkAll(false)'><?php echo xlt ('Clear All');?></button>
+                                onclick='checkAll(false)'><?php echo xlt('Clear All');?></button>
                                 <?php if ($GLOBALS['statement_appearance'] != '1') { ?>
                                     <button type="submit" class="btn btn-default btn-print" name='form_print' 
-                                    value="<?php echo xla ('Print Selected Statements'); ?>">
-                                    <?php echo xlt ('Print Selected Statements');?></button>
+                                    value="<?php echo xla('Print Selected Statements'); ?>">
+                                    <?php echo xlt('Print Selected Statements');?></button>
                                     <button type="submit" class="btn btn-default btn-download" name='form_download' 
-                                    value="<?php echo xla ('Download Selected Statements'); ?>">
-                                    <?php echo xlt ('Download Selected Statements');?></button>
+                                    value="<?php echo xla('Download Selected Statements'); ?>">
+                                    <?php echo xlt('Download Selected Statements');?></button>
                                 <?php } ?>
                                     <button type="submit" class="btn btn-default btn-download" name='form_pdf' 
-                                    value="<?php echo xla ('PDF Download Selected Statements'); ?>">
-                                    <?php echo xlt ('PDF Download Selected Statements');?></button>
+                                    value="<?php echo xla('PDF Download Selected Statements'); ?>">
+                                    <?php echo xlt('PDF Download Selected Statements');?></button>
                                     <button type="submit" class="btn btn-default btn-mail" name='form_download'
-                                    value="<?php echo xla ('Email Selected Statements'); ?>">
-                                    <?php echo xlt ('Email Selected Statements');?></button>
-                                <?php if ($is_portal) {?>
+                                    value="<?php echo xla('Email Selected Statements'); ?>">
+                                    <?php echo xlt('Email Selected Statements');?></button>
+                                    <?php
+                                    if ($is_portal) {?>
                                     <button type="submit" class="btn btn-default btn-save"  name='form_portalnotify'
-                                    value="<?php echo xla ('Notify via Patient Portal'); ?>">
-                                    <?php echo xlt ('Notify via Patient Portal');?></button>
-                                <?php
+                                    value="<?php echo xla('Notify via Patient Portal'); ?>">
+                                    <?php echo xlt('Notify via Patient Portal');?></button>
+                                    <?php
                                     }
-                        }
+                            }
                         ?>
-                            <input type='checkbox' class="btn-separate-left" name='form_without'	value='1' /><?php xl('Without Update', 'e');?>
+                            <input type='checkbox' class="btn-separate-left" name='form_without'    value='1' /><?php xl('Without Update', 'e');?>
                         </div>
                     </div>
                 </div>
@@ -1140,7 +1169,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
     });
     <?php
     if ($alertmsg) {
-      echo "alert('" . htmlentities($alertmsg) . "');\n";
+        echo "alert('" . htmlentities($alertmsg) . "');\n";
     }
 
     ?>
@@ -1164,12 +1193,12 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                 document.getElementById('targetiframe').src ='../../interface/billing/sl_eob_help.php#entire_doc';
             }
         })
-        $('#select-method-tooltip').tooltip({title: "<?php echo xla(' Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file' ); ?>"});
+        $('#select-method-tooltip').tooltip({title: "<?php echo xla(' Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>"});
     });
     </script>
-    <?php 
+    <?php
         $tr_str = xl('Search');
-        if($_POST['form_search'] == "$tr_str"){?>
+    if ($_POST['form_search'] == "$tr_str") {?>
             <script>
                 $("#payment-allocate").insertAfter("#search-upload");
                 $('#payment-allocate').show();
@@ -1177,11 +1206,11 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                 $("#statement-download").show();
             </script>
         <?php
-        }
+    }
     ?>
-    <?php 
+    <?php
         $tr_str = xl('Upload');
-    if($_POST['form_search'] == "$tr_str"){?>
+    if ($_POST['form_search'] == "$tr_str") {?>
         <script>
             $('#era-upld').show();
             $('#search-results').show();
