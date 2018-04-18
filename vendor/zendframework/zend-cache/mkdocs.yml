@@ -1,0 +1,19 @@
+docs_dir: doc/book
+site_dir: doc/html
+pages:
+    - index.md
+    - Storage:
+        - Adapters: storage/adapter.md
+        - Capabilities: storage/capabilities.md
+        - Plugins: storage/plugin.md
+    - "Cache Patterns":
+        - Introduction: pattern/intro.md
+        - CallbackCache: pattern/callback-cache.md
+        - ClassCache: pattern/class-cache.md
+        - ObjectCache: pattern/object-cache.md
+        - OutputCache: pattern/output-cache.md
+        - CaptureCache: pattern/capture-cache.md
+site_name: zend-cache
+site_description: Zend\Cache
+repo_url: 'https://github.com/zendframework/zend-cache'
+copyright: 'Copyright (c) 2016 <a href="http://www.zend.com/">Zend Technologies USA Inc.</a>'

@@ -17,7 +17,7 @@
         "phpmailer/phpmailer" : "5.2.16",
         "rospdf/pdf-php" : "0.12.22",
         "phpseclib/phpseclib" : "2.0.10",
-        "zendframework/zendframework" : "2.4.9",
+        "zendframework/zendframework" : "2.5.3",
         "phenx/php-font-lib" : "0.4",
         "phenx/php-svg-lib" : "0.1",
         "dompdf/dompdf" : "0.7.0",

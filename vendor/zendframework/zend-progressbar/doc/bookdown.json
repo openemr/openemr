@@ -1,0 +1,7 @@
+{
+    "title": "Zend\\Progress-bar",
+    "target": "html/",
+    "content": [
+        "book/zend.progress-bar.upload.md"
+    ]
+}

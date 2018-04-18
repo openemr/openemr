@@ -1,0 +1,11 @@
+docs_dir: doc/book
+site_dir: doc/html
+pages:
+    - index.md
+    - Intro: intro.md
+    - Usage: usage.md
+    - Adapters: adapters.md
+site_name: zend-captcha
+site_description: zend-captcha
+repo_url: 'https://github.com/zendframework/zend-captcha'
+copyright: 'Copyright (c) 2016 <a href="http://www.zend.com/">Zend Technologies USA Inc.</a>'

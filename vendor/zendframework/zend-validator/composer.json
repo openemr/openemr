@@ -1,0 +1,71 @@
+{
+    "name": "zendframework/zend-validator",
+    "description": "provides a set of commonly needed validators",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zf2",
+        "validator"
+    ],
+    "homepage": "https://github.com/zendframework/zend-validator",
+    "autoload": {
+        "psr-4": {
+            "Zend\\Validator\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^5.6 || ^7.0",
+        "zendframework/zend-stdlib": "^2.7.6 || ^3.1",
+        "container-interop/container-interop": "^1.1"
+    },
+    "require-dev": {
+        "zendframework/zend-cache": "^2.6.1",
+        "zendframework/zend-config": "^2.6",
+        "zendframework/zend-db": "^2.7",
+        "zendframework/zend-filter": "^2.6",
+        "zendframework/zend-http": "^2.5.4",
+        "zendframework/zend-i18n": "^2.6",
+        "zendframework/zend-math": "^2.6",
+        "zendframework/zend-servicemanager": "^2.7.5 || ^3.0.3",
+        "zendframework/zend-session": "^2.8",
+        "zendframework/zend-uri": "^2.5",
+        "phpunit/PHPUnit": "^6.0.8 || ^5.7.15",
+        "zendframework/zend-coding-standard": "~1.0.0"
+    },
+    "suggest": {
+        "zendframework/zend-db": "Zend\\Db component, required by the (No)RecordExists validator",
+        "zendframework/zend-filter": "Zend\\Filter component, required by the Digits validator",
+        "zendframework/zend-i18n": "Zend\\I18n component to allow translation of validation error messages",
+        "zendframework/zend-math": "Zend\\Math component, required by the Csrf validator",
+        "zendframework/zend-i18n-resources": "Translations of validator messages",
+        "zendframework/zend-servicemanager": "Zend\\ServiceManager component to allow using the ValidatorPluginManager and validator chains",
+        "zendframework/zend-session": "Zend\\Session component, ^2.8; required by the Csrf validator",
+        "zendframework/zend-uri": "Zend\\Uri component, required by the Uri and Sitemap\\Loc validators"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.10.x-dev",
+            "dev-develop": "2.11.x-dev"
+        },
+        "zf": {
+            "component": "Zend\\Validator",
+            "config-provider": "Zend\\Validator\\ConfigProvider"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\Validator\\": "test/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    }
+}

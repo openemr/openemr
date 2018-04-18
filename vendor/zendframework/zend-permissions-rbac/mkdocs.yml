@@ -1,0 +1,13 @@
+docs_dir: doc/book
+site_dir: doc/html
+pages:
+    - index.md
+    - Intro: intro.md
+    - Reference:
+        - Methods: methods.md
+        - Examples: examples.md
+site_name: zend-permissions-rbac
+site_description: zend-permissions-rbac
+repo_url: 'https://github.com/zendframework/zend-permissions-rbac'
+copyright: 'Copyright (c) 2016 <a href="http://www.zend.com/">Zend Technologies USA Inc.</a>'
+

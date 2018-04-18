@@ -1,0 +1,58 @@
+{
+    "name": "zendframework/zend-xmlrpc",
+    "description": " ",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zf2",
+        "xmlrpc"
+    ],
+    "homepage": "https://github.com/zendframework/zend-xmlrpc",
+    "autoload": {
+        "psr-4": {
+            "Zend\\XmlRpc\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\XmlRpc\\": "test/"
+        },
+        "files": [
+            "test/autoload.php",
+            "test/TestAsset/functions.php"
+        ]
+    },
+    "require": {
+        "php": "^5.6 || ^7.0",
+        "zendframework/zend-http": "^2.5.4",
+        "zendframework/zend-math": "^2.7 || ^3.0",
+        "zendframework/zend-server": "^2.7",
+        "zendframework/zend-stdlib": "^2.7 || ^3.0",
+        "zendframework/zendxml": "^1.0.2"
+    },
+    "require-dev": {
+        "phpunit/PHPUnit": "^5.7.25 || ^6.4.4",
+        "zendframework/zend-coding-standard": "~1.0.0"
+    },
+    "suggest": {
+        "zendframework/zend-cache": "To support Zend\\XmlRpc\\Server\\Cache usage"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.6-dev",
+            "dev-develop": "2.7-dev"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "upload-coverage": "coveralls -v",
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit",
+        "test-coverage": "phpunit --coverage-clover clover.xml"
+    }
+}
