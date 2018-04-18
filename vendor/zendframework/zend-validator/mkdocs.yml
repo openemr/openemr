@@ -1,0 +1,64 @@
+docs_dir: doc/book
+site_dir: doc/html
+pages:
+    - index.md
+    - Intro: intro.md
+    - Reference:
+        - "Validator Chains": validator-chains.md
+        - "Writing Validators": writing-validators.md
+        - "Validation Messages": messages.md
+        - "Standard Validation Classes": set.md
+        - Validators:
+            - Barcode: validators/barcode.md
+            - Between: validators/between.md
+            - Callback: validators/callback.md
+            - CreditCard: validators/credit-card.md
+            - Date: validators/date.md
+            - "Db\\RecordExists and Db\\NoRecordExists": validators/db.md
+            - Digits: validators/digits.md
+            - EmailAddress: validators/email-address.md
+            - Explode: validators/explode.md
+            - GreaterThan: validators/greater-than.md
+            - Hex: validators/hex.md
+            - Hostname: validators/hostname.md
+            - Iban: validators/iban.md
+            - Identical: validators/identical.md
+            - InArray: validators/in-array.md
+            - Ip: validators/ip.md
+            - Isbn: validators/isbn.md
+            - IsCountable: validators/is-countable.md
+            - IsInstanceOf: validators/isinstanceof.md
+            - LessThan: validators/less-than.md
+            - NotEmpty: validators/not-empty.md
+            - Regex: validators/regex.md
+            - Sitemap: validators/sitemap.md
+            - Step: validators/step.md
+            - StringLength: validators/string-length.md
+            - Timezone: validators/timezone.md
+            - Uri: validators/uri.md
+            - Uuid: validators/uuid.md
+        - "File Validators":
+            - Intro: validators/file/intro.md
+            - Count: validators/file/count.md
+            - Crc32: validators/file/crc32.md
+            - ExcludeExtension: validators/file/exclude-extension.md
+            - ExcludeMimeType: validators/file/exclude-mime-type.md
+            - Exists: validators/file/exists.md
+            - Extension: validators/file/extension.md
+            - FilesSize: validators/file/files-size.md
+            - Hash: validators/file/hash.md
+            - ImageSize: validators/file/image-size.md
+            - IsCompressed: validators/file/is-compressed.md
+            - IsImage: validators/file/is-image.md
+            - Md5: validators/file/md5.md
+            - MimeType: validators/file/mime-type.md
+            - NotExists: validators/file/not-exists.md
+            - Sha1: validators/file/sha1.md
+            - Size: validators/file/size.md
+            - Upload: validators/file/upload.md
+            - UploadFile: validators/file/upload-file.md
+            - WordCount: validators/file/word-count.md
+site_name: zend-validator
+site_description: zend-validator
+repo_url: 'https://github.com/zendframework/zend-validator'
+copyright: 'Copyright (c) 2016 <a href="http://www.zend.com/">Zend Technologies USA Inc.</a>'

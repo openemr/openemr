@@ -1,0 +1,88 @@
+{
+    "name": "zendframework/zend-form",
+    "description": "Validate and display simple and complex forms, casting forms to business objects and vice versa",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zf",
+        "zendframework",
+        "form"
+    ],
+    "support": {
+        "docs": "https://docs.zendframework.com/zend-form/",
+        "issues": "https://github.com/zendframework/zend-form/issues",
+        "source": "https://github.com/zendframework/zend-form",
+        "rss": "https://github.com/zendframework/zend-form/releases.atom",
+        "slack": "https://zendframework-slack.herokuapp.com",
+        "forum": "https://discourse.zendframework.com/c/questions/components"
+    },
+    "require": {
+        "php": "^5.6 || ^7.0",
+        "zendframework/zend-inputfilter": "^2.8",
+        "zendframework/zend-hydrator": "^1.1 || ^2.1",
+        "zendframework/zend-stdlib": "^2.7 || ^3.0"
+    },
+    "require-dev": {
+        "doctrine/annotations": "~1.0",
+        "zendframework/zend-cache": "^2.6.1",
+        "zendframework/zend-captcha": "^2.7.1",
+        "zendframework/zend-code": "^2.6 || ^3.0",
+        "zendframework/zend-escaper": "^2.5",
+        "zendframework/zend-eventmanager": "^2.6.2 || ^3.0",
+        "zendframework/zend-filter": "^2.6",
+        "zendframework/zend-i18n": "^2.6",
+        "zendframework/zend-servicemanager": "^2.7.5 || ^3.0.3",
+        "zendframework/zend-session": "^2.8.1",
+        "zendframework/zend-text": "^2.6",
+        "zendframework/zend-validator": "^2.6",
+        "zendframework/zend-view": "^2.6.2",
+        "zendframework/zendservice-recaptcha": "^3.0.0",
+        "phpunit/phpunit": "^5.7.23 || ^6.5.3",
+        "zendframework/zend-coding-standard": "~1.0.0"
+    },
+    "suggest": {
+        "zendframework/zend-captcha": "^2.7.1, required for using CAPTCHA form elements",
+        "zendframework/zend-code": "^2.6 || ^3.0, required to use zend-form annotations support",
+        "zendframework/zend-eventmanager": "^2.6.2 || ^3.0, reuired for zend-form annotations support",
+        "zendframework/zend-i18n": "^2.6, required when using zend-form view helpers",
+        "zendframework/zend-servicemanager": "^2.7.5 || ^3.0.3, required to use the form factories or provide services",
+        "zendframework/zend-view": "^2.6.2, required for using the zend-form view helpers",
+        "zendframework/zendservice-recaptcha": "in order to use the ReCaptcha form element"
+    },
+    "autoload": {
+        "psr-4": {
+            "Zend\\Form\\": "src/"
+        },
+        "files": [
+            "autoload/formElementManagerPolyfill.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\Form\\": "test/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.11.x-dev",
+            "dev-develop": "2.12.x-dev"
+        },
+        "zf": {
+            "component": "Zend\\Form",
+            "config-provider": "Zend\\Form\\ConfigProvider"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml",
+        "upload-coverage": "coveralls -v"
+    }
+}

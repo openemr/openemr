@@ -1,0 +1,7 @@
+{
+    "title": "Zend\\Math",
+    "target": "html/",
+    "content": [
+        "book/zend.math.introduction.md"
+    ]
+}

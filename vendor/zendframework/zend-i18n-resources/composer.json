@@ -1,0 +1,18 @@
+{
+    "name": "zendframework/zend-i18n-resources",
+    "description": "Provides validator translations for zend-i18n's Translator",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zf2",
+        "resources",
+        "translations"
+    ],
+    "require": {
+        "php": ">=5.5"
+    },
+    "autoload": {
+      "classmap": [
+        "src/Resources.php"
+      ]
+    }
+}
