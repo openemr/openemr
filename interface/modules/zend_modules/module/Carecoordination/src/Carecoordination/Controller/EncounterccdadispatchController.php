@@ -412,7 +412,23 @@ class EncounterccdadispatchController extends AbstractActionController
         // Connect to the server.
         $result = socket_connect($socket, $ip, $port);
         if ($result === false) {
-            throw new Exception("Connection Failed");
+            if ($GLOBALS['ccda_alt_service_enable'] > 1) { // we're local service
+                $path = $GLOBALS['fileroot'] . "/ccdaservice";
+                if (IS_WINDOWS) {
+                    $cmd = "node " . $path . "/serveccda.js";
+                    pclose(popen("start /B " . $cmd, "r"));
+                } else {
+                    $cmd = "nodejs " . $path . "/serveccda.js";
+                    exec($cmd . " > /dev/null &");
+                }
+                sleep(2); // give cpu a rest
+                $result = socket_connect($socket, $ip, $port);
+                if ($result === false) { // hmm something is amiss with service. user will likely try again.
+                    throw new Exception("Connection Failed");
+                }
+            } else {
+                throw new Exception("Connection Failed");
+            }
         }
         
         $data = chr(11).$data.chr(28)."\r";
