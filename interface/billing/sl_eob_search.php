@@ -672,20 +672,20 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label" for="form_source"><?php echo xlt('Source'); ?>:</label>
-                            <input type='text' name='form_source' id='form_source' class='form-control' value='<?php echo $_POST['form_source']; ?>' title='<?php echo xlt("A check number or claim number to identify the payment"); ?>'>
+                            <input type='text' name='form_source' id='form_source' class='form-control' value='<?php echo attr($_POST['form_source']); ?>' title='<?php echo xlt("A check number or claim number to identify the payment"); ?>'>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label" for="form_paydate"><?php echo xlt('Pay Date'); ?>:</label>
-                            <input type='text' name='form_paydate' id='form_paydate' class='form-control datepicker' value='<?php echo $_POST['form_paydate']; ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php xlt("Date of payment yyyy-mm-dd"); ?>'>
+                            <input type='text' name='form_paydate' id='form_paydate' class='form-control datepicker' value='<?php echo attr($_POST['form_paydate']); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php xlt("Date of payment yyyy-mm-dd"); ?>'>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label oe-large" for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
                             <label class="control-label oe-small" for="form_deposit_date"><?php echo xlt('Dep Date'); ?>:</label>
-                            <input type='text' name='form_deposit_date' id=='form_deposit_date' class='form-control datepicker' value='<?php echo $_POST['form_deposit_date']; ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php xlt("Date of bank deposit yyyy-mm-dd"); ?>'>
+                            <input type='text' name='form_deposit_date' id=='form_deposit_date' class='form-control datepicker' value='<?php echo attr($_POST['form_deposit_date']); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php xlt("Date of bank deposit yyyy-mm-dd"); ?>'>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label" for="form_amount"><?php echo xlt('Amount'); ?>:</label>
-                            <input type='text' name='form_amount' id='form_amount'  class='form-control' value='<?php echo $_POST['form_amount']; ?>' title='<?php xlt("Paid amount that you will allocate"); ?>'>
+                            <input type='text' name='form_amount' id='form_amount'  class='form-control' value='<?php echo attr($_POST['form_amount']); ?>' title='<?php xlt("Paid amount that you will allocate"); ?>'>
                         </div>
                         <div class="col-xs-1">
                             <label class="control-label oe-large" for="only_with_debt"><?php echo xlt('Pt Debt');?>:</label>
@@ -715,24 +715,24 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                     <div class="col-xs-12 .oe-custom-line oe-show-hide" id = 'inv-search'>
                         <div class="col-xs-3">
                             <label class="control-label" for="form_name"><?php echo xlt('Name'); ?>:</label>
-                            <input type='text' name='form_name' id='form_name' class='form-control' value='<?php echo $_POST['form_name']; ?>' title='<?php xl("Any part of the patient name, or \"last,first\", or \"X-Y\"", "e"); ?>' placeholder= '<?php echo xlt('Last name, First name');?>'>
+                            <input type='text' name='form_name' id='form_name' class='form-control' value='<?php echo attr($_POST['form_name']); ?>' title='<?php xl("Any part of the patient name, or \"last,first\", or \"X-Y\"", "e"); ?>' placeholder= '<?php echo xlt('Last name, First name');?>'>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label" for="form_pid"><?php echo xlt('Chart ID'); ?>:</label>
-                            <input type='text' name='form_pid' id='form_pid' class='form-control' value='<?php echo $_POST['form_pid']; ?>' title='<?php xl("Patient chart ID", "e"); ?>'>
+                            <input type='text' name='form_pid' id='form_pid' class='form-control' value='<?php echo attr($_POST['form_pid']); ?>' title='<?php xl("Patient chart ID", "e"); ?>'>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label" for="form_encounter"><?php echo xlt('Encounter'); ?>:</label>
-                            <input type='text' name='form_encounter' id='form_encounter' class='form-control' value='<?php echo $_POST['form_encounter']; ?>' title='<?php xl("Encounter number", "e"); ?>'>
+                            <input type='text' name='form_encounter' id='form_encounter' class='form-control' value='<?php echo attr($_POST['form_encounter']); ?>' title='<?php xl("Encounter number", "e"); ?>'>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label oe-large" for="form_date"><?php echo xlt('Service Date From'); ?>:</label>
                             <label class="control-label oe-small" for="form_date"><?php echo xlt('Svc Date'); ?>:</label>
-                            <input type='text' name='form_date' id='form_date' class='form-control datepicker' value='<?php echo $_POST['form_date']; ?>' title='<?php xl("Date of service mm/dd/yyyy", "e"); ?>'>
+                            <input type='text' name='form_date' id='form_date' class='form-control datepicker' value='<?php echo attr($_POST['form_date']); ?>' title='<?php xl("Date of service mm/dd/yyyy", "e"); ?>'>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label" for="form_to_date"><?php echo xlt('Service Date To'); ?>:</label>
-                            <input type='text' name='form_to_date' id='form_to_date' class='form-control datepicker' value='<?php echo $_POST['form_to_date']; ?>' title='<?php xl("Ending DOS mm/dd/yyyy if you wish to enter a range", "e"); ?>'>
+                            <input type='text' name='form_to_date' id='form_to_date' class='form-control datepicker' value='<?php echo attr($_POST['form_to_date']); ?>' title='<?php xl("Ending DOS mm/dd/yyyy if you wish to enter a range", "e"); ?>'>
                         </div>
                         <div class="col-xs-1" style="padding-right:0px">
                             <label class="control-label" for="type_name"><?php echo xlt('Type'); ?>:</label>
@@ -995,8 +995,8 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                                     <td class="detail">
                                         &nbsp;<a href="sl_eob_invoice.php?id=<?php echo $row['id'] ?>" target="_blank"><?php echo $row['pid'] . '.' . $row['encounter']; ?></a>
                                     </td>
-                                    <td class="detail">&nbsp;<?php echo oeFormatShortDate($svcdate) ?></td>
-                                    <td class="detail">&nbsp;<?php echo oeFormatShortDate($last_stmt_date) ?></td>
+                                    <td class="detail">&nbsp;<?php echo text(oeFormatShortDate($svcdate)); ?></td>
+                                    <td class="detail">&nbsp;<?php echo text(oeFormatShortDate($last_stmt_date)); ?></td>
                                     <td align="right" class="detail"><?php bucks($row['charges']) ?>&nbsp;</td>
                                     <td align="right" class="detail"><?php bucks($row['adjustments']) ?>&nbsp;</td>
                                     <td align="right" class="detail"><?php bucks($row['payments'] - $row['copays']); ?>&nbsp;</td>

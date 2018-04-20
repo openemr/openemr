@@ -52,14 +52,13 @@
  * @link    http://www.open-emr.org
  */
 
-use OpenEMR\Core\Header;
-
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/billing.inc");
 require_once("../../custom/code_types.inc.php");
 
+use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();

@@ -278,8 +278,10 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
                 
         // Handle deletes. row_delete() is borrowed from deleter.php.
         if ($ALLOW_DELETE && !$debug) {
-            foreach ($_POST['form_del'] as $arseq => $dummy) {
-                row_delete("ar_activity", "pid = '$patient_id' AND " . "encounter = '$encounter_id' AND sequence_no = '$arseq'");
+            if (is_array($_POST['form_del'])) {
+                foreach ($_POST['form_del'] as $arseq => $dummy) {
+                    row_delete("ar_activity", "pid = '$patient_id' AND " . "encounter = '$encounter_id' AND sequence_no = '$arseq'");
+                }
             }
         }
                 

@@ -302,7 +302,7 @@ if ($_POST['form_save']) {
                               $resMoneyAdjusted = sqlStatement(
                                   "SELECT sum(adj_amount) as MoneyAdjusted FROM ar_activity where ".
                                   "pid =? and code_type=? and code=? and modifier=? and encounter =?",
-                                  aarray($form_pid, $Codetype, $Code, $Modifier, $enc)
+                                  array($form_pid, $Codetype, $Code, $Modifier, $enc)
                               );
                               $rowMoneyAdjusted = sqlFetchArray($resMoneyAdjusted);
                               $MoneyAdjusted=$rowMoneyAdjusted['MoneyAdjusted'];
@@ -431,7 +431,7 @@ $(document).ready(function() {
 
  // Process click on Delete button.
  function deleteme() {
-  dlgopen('deleter.php?payment=<?php echo $payment_key ?>', '_blank', 500, 450);
+  dlgopen('deleter.php?payment=<?php echo attr($payment_key); ?>', '_blank', 500, 450);
   return false;
  }
  // Called by the deleteme.php window on a successful delete.
@@ -463,7 +463,7 @@ $(document).ready(function() {
     <br><?php echo text($frow['street']) ?>
     <br><?php echo text($frow['city'] . ', ' . $frow['state']) . ' ' .
         text($frow['postal_code']) ?>
-    <br><?php echo htmlentities($frow['phone']) ?>
+    <br><?php echo text($frow['phone']) ?>
 
     <p>
     <table border='0' cellspacing='8'>
@@ -515,13 +515,13 @@ $(document).ready(function() {
         if ($todaysenc && $todaysenc != $encounter) {
             echo "&nbsp;<input type='button' " .
             "value='" . xla('Open Today`s Visit') . "' " .
-            "onclick='toencounter($todaysenc,\"$today\",opener.top)' />\n";
+            "onclick='toencounter($todaysenc, \"$today\", (opener ? opener.top : top))' />\n";
         }
         ?>
 
         <?php if (acl_check('admin', 'super')) { ?>
         &nbsp;
-        <input type='button' value='<?php xl('Delete', 'e'); ?>' style='color:red' onclick='deleteme()' />
+        <input type='button' value='<?php echo xla('Delete'); ?>' style='color:red' onclick='deleteme()' />
         <?php } ?>
 
     </div>
@@ -641,6 +641,19 @@ function validate() {
     ok = -1;
     top.restoreSession();
     issue = 'no';
+    // prevent an empty form submission
+        let flgempty = true;
+        for (let i = 0; i < f.elements.length; ++i) {
+            let ename = f.elements[i].name;
+            if (ename.indexOf('form_upay[') === 0 || ename.indexOf('form_bpay[') === 0) {
+                if (Number(f.elements[i].value) !== 0) flgempty = false;
+            }
+        }
+        if (flgempty) {
+            alert("<?php echo xls('A Payment is Required!. Please input a payment line item entry.') ?>");
+            return false;
+        }
+        // continue validation.
     if (((document.getElementById('form_method').options[document.getElementById(
                     'form_method').selectedIndex].value == 'check_payment' ||
                 document.getElementById('form_method').options[document.getElementById(
@@ -919,13 +932,8 @@ function make_insurance() {
                     </div>
                 </div>
                 <div class= "row">
-                    <form action='front_payment.php
-                        <?php
-                        if ($payid) {
-                            echo "?payid=$payid";
-                        }
-                        ?>' 
-                        method='post' onsubmit='return validate();'>
+                    <form method='post' action='front_payment.php<?php echo ($payid) ? "?payid=".attr($payid) : ""; ?>
+                        onsubmit='return validate();'>
                         <input name='form_pid' type='hidden' value='<?php echo attr($pid) ?>'>
                         <fieldset>
                         <legend><?php echo xlt('Payment'); ?></legend>
@@ -1205,7 +1213,7 @@ function make_insurance() {
                             <div class="col-sm-12 text-left position-override">
                                 <div class="btn-group btn-group-pinch" role="group">
                                     <button type='submit' class="btn btn-default btn-save" name='form_save' value='<?php echo xlt('Generate Invoice');?>'><?php echo xlt('Generate Invoice');?></button>
-                                    <button type='button' class="btn btn-link btn-cancel btn-separate-left"  value='<?php echo xla('Cancel'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'"><?php echo xlt('Cancel'); ?></button>
+                                    <button type='button' class="btn btn-link btn-cancel btn-separate-left"  value='<?php echo xla('Cancel'); ?>' onclick='dlgclose()'><?php echo xlt('Cancel'); ?></button>
                                     <input type="hidden" name="hidden_patient_code" id="hidden_patient_code" value="<?php echo attr($pid);?>"/>
                                     <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
                                     <input type='hidden' name='mode' id='mode' value='' />

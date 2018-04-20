@@ -1,5 +1,5 @@
 <?php
-    /**
+ /**
  * Fee Sheet Program used to create charges, copays and add diagnosis codes to the encounter
  *
  * @package   OpenEMR
@@ -1188,7 +1188,7 @@ $title = array(xl('Fee Sheet for'), $name, $date);
                                         }
                                         $justify    = $bline['justify'];
                                         $notecodes  = trim($bline['notecodes']);
-                                        $provider_id = 0 + $bline['provid'];
+                                         $provider_id = 0 + (int)$bline['provid'];
                                     }
                                         
                                     if ($iter['code_type'] == 'COPAY') { // moved copay display to below
@@ -1592,11 +1592,11 @@ $title = array(xl('Fee Sheet for'), $name, $date);
     $search_term = $_POST['search_term'];
     if ($numrows && $_POST['bn_search']) {
         echo "<script>";
-            echo "alert( $numrows + ' results returned for search term \"$search_term\"')";
+            echo "alert( $numrows + ' " . xls('results returned for search term') . " \"" . attr($search_term) . "\"')";
         echo "</script>";
     } elseif (!$nnumrows && $_POST['bn_search']) {
         echo "<script>";
-            echo "alert( 'No results returned for search term \"$search_term\". Please try a different search')";
+            echo "alert('" . xls('No results returned for search term') . " \"". attr($search_term) ."\". " . xls('Please try a different search') . "')";
         echo "</script>";
     }
     ?>

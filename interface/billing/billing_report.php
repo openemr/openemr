@@ -567,9 +567,8 @@ function MarkAsCleared(Type) {
                                     <?php } ?>
                                     <li><a class="link_submit"  href="javascript:select_all(); return false;"><strong><?php  echo  xlt('Select All'); ?></strong></a></li>
                                 </ul>
-                               
-                               
-                            </div>
+                               <ul>
+                             </div>
                         </div>
                     </fieldset>
                 </div>
@@ -580,7 +579,7 @@ function MarkAsCleared(Type) {
                 <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets ?>
                 <div class="form-group clearfix">
                     <div class="col-xs-12">
-                        <div class=" col-xs-8 btn-group btn-group-pinch position-override" role="group">
+                        <div class=" col-xs-6 btn-group btn-group-pinch position-override" role="group">
                             <div class = "btn-group">
                                <button type = "button" class = "btn btn-default dropdown-toggle" data-toggle = "dropdown" name="bn_x12_support"
                                     title="<?php echo xla('A claim must be selected to enable this menu.')?>"><?php echo xla('X12 OPTIONS')?> <span class="caret"></span></button>
@@ -635,9 +634,22 @@ function MarkAsCleared(Type) {
                             <button class="btn btn-default btn-download" data-open-popup="true" name="bn_mark" title="<?php echo xla('Post to accounting and mark as billed')?>" type="submit"><?php echo xlt('Mark as Cleared')?></button>
                             <button class="btn btn-default btn-undo" data-open-popup="true" name="bn_reopen" title="<?php echo xla('Mark as not billed')?>" type="submit" ><?php echo xla('Re-Open')?></button> 
                         </div>
-                        <div class="col-xs-4">
-        <?php echo xlt('CMS 1500 Margins'); ?>:&nbsp;<?php echo xlt('Left'); ?>:<input type='text' size='2' name='left_margin' value='<?php echo attr($left_margin); ?>' title='<?php echo xla('HCFA left margin in points'); ?>' />&nbsp;
-                        <?php echo xlt('Top'); ?>:<input type='text' size='2' name='top_margin' value='<?php echo attr($top_margin); ?>' title='<?php echo xla('HCFA top margin in points'); ?>' />
+                        <div class="col-xs-6">
+                            <div class='pull-right'>
+                            <?php echo xlt('CMS 1500 Margins'); ?>:&nbsp;<?php echo xlt('Left'); ?>:<input type='text' size='2' name='left_margin' value='<?php echo attr($left_margin); ?>' title='<?php echo xla('HCFA left margin in points'); ?>' />&nbsp;
+                            <?php echo xlt('Top'); ?>:<input type='text' size='2' name='top_margin' value='<?php echo attr($top_margin); ?>' title='<?php echo xla('HCFA top margin in points'); ?>' />
+                           </div>
+                           <div class='pull-left'>
+                            <?php if ($ub04_support) { ?>
+                            <?php echo xlt('UB04 Margins'); ?>:
+                            <?php echo xlt('Left'); ?>:
+                            <input type='text' size='2' name='left_ubmargin' value='<?php echo attr($left_ubmargin); ?>'
+                                            title='<?php echo xla('UB04 left margin in points'); ?>' />
+                            <?php echo xlt('Top'); ?>:
+                            <input type='text' size='2' name='top_ubmargin' value='<?php echo attr($top_ubmargin); ?>'
+                                            title='<?php echo xla('UB04 top margin in points'); ?>' />
+                            <?php } ?>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -884,11 +896,11 @@ function MarkAsCleared(Type) {
                         <?php
                                 
                                 // Not sure why the next section seems to do nothing except post "To Encounter" button 2/17/09 JCH
-                                $lhtml .= "&nbsp;<a class=\"btn btn-xs btn-default\" role=\"button\" " . "href=\"javascript:window.toencounter(" . $iter['enc_pid'] . ",'" . addslashes($name['pubpid']) . "','" . addslashes($ptname) . "'," . $iter['enc_encounter'] . ",'" . oeFormatShortDate($raw_encounter_date) . "',' " . xl('DOB') . ": " . oeFormatShortDate($name['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAge($name['DOB_YMD']) . "');
+                                 $lhtml .= "&nbsp;<a class=\"btn btn-xs btn-default\" role=\"button\" " . "href=\"javascript:window.toencounter(" . $iter['enc_pid'] . ",'" . addslashes($name['pubpid']) . "','" . addslashes($ptname) . "'," . $iter['enc_encounter'] . ",'" . addslashes(oeFormatShortDate($raw_encounter_date)) . "',' " . xl('DOB') . ": " . addslashes(oeFormatShortDate($name['DOB_YMD'])) . " " . xl('Age') . ": " . getPatientAge($name['DOB_YMD']) . "');
                                      top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . $iter['enc_pid'] . "],EncounterDateArray[" . $iter['enc_pid'] . "], CalendarCategoryArray[" . $iter['enc_pid'] . "])\">" . xlt('Encounter') . " " . text(oeFormatShortDate($raw_encounter_date)) . "</a>";
 
                                 // Changed "To xxx" buttons to allow room for encounter date display 2/17/09 JCH
-                                $lhtml .= "&nbsp;<a class=\"btn btn-xs btn-default\" role=\"button\" " . "href=\"javascript:window.topatient(" . $iter['enc_pid'] . ",'" . addslashes($name['pubpid']) . "','" . addslashes($ptname) . "'," . $iter['enc_encounter'] . ",'" . oeFormatShortDate($raw_encounter_date) . "',' " . xl('DOB') . ": " . oeFormatShortDate($name['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAge($name['DOB_YMD']) . "');
+                                $lhtml .= "&nbsp;<a class=\"btn btn-xs btn-default\" role=\"button\" " . "href=\"javascript:window.topatient(" . $iter['enc_pid'] . ",'" . addslashes($name['pubpid']) . "','" . addslashes($ptname) . "'," . $iter['enc_encounter'] . ",'" . addslashes(oeFormatShortDate($raw_encounter_date)) . "',' " . xl('DOB') . ": " . addslashes(oeFormatShortDate($name['DOB_YMD'])) . " " . xl('Age') . ": " . getPatientAge($name['DOB_YMD']) . "');
                                      top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . $iter['enc_pid'] . "],EncounterDateArray[" . $iter['enc_pid'] . "], CalendarCategoryArray[" . $iter['enc_pid'] . "])\">" . xlt('Patient') . "</a>";
                         if ($ub04_support && isset($iter['billed'])) {
                             $c = sqlQuery(
