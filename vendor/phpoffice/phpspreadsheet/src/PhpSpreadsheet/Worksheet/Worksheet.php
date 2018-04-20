@@ -582,8 +582,6 @@ class Worksheet implements IComparable
      *
      * @param string $index Chart index position
      *
-     * @throws Exception
-     *
      * @return Chart|false
      */
     public function getChartByIndex($index)
@@ -605,8 +603,6 @@ class Worksheet implements IComparable
     /**
      * Return an array of the names of charts on this worksheet.
      *
-     * @throws Exception
-     *
      * @return string[] The names of charts
      */
     public function getChartNames()
@@ -623,8 +619,6 @@ class Worksheet implements IComparable
      * Get a chart by name.
      *
      * @param string $chartName Chart name
-     *
-     * @throws Exception
      *
      * @return Chart|false
      */
@@ -1216,7 +1210,7 @@ class Worksheet implements IComparable
         // Uppercase coordinate
         $pCoordinate = strtoupper($pCoordinate);
 
-        if (strpos($pCoordinate, ':') !== false || strpos($pCoordinate, ',') !== false) {
+        if (Coordinate::coordinateIsRange($pCoordinate)) {
             throw new Exception('Cell coordinate can not be a range of cells.');
         } elseif (strpos($pCoordinate, '$') !== false) {
             throw new Exception('Cell coordinate must not be absolute.');
@@ -1324,7 +1318,7 @@ class Worksheet implements IComparable
         // Uppercase coordinate
         $pCoordinate = strtoupper($pCoordinate);
 
-        if (strpos($pCoordinate, ':') !== false || strpos($pCoordinate, ',') !== false) {
+        if (Coordinate::coordinateIsRange($pCoordinate)) {
             throw new Exception('Cell coordinate can not be a range of cells.');
         } elseif (strpos($pCoordinate, '$') !== false) {
             throw new Exception('Cell coordinate must not be absolute.');
@@ -1469,11 +1463,7 @@ class Worksheet implements IComparable
      */
     public function conditionalStylesExists($pCoordinate)
     {
-        if (isset($this->conditionalStylesCollection[strtoupper($pCoordinate)])) {
-            return true;
-        }
-
-        return false;
+        return isset($this->conditionalStylesCollection[strtoupper($pCoordinate)]);
     }
 
     /**
@@ -1520,10 +1510,8 @@ class Worksheet implements IComparable
      *
      * @param int $columnIndex1 Numeric column coordinate of the cell
      * @param int $row1 Numeric row coordinate of the cell
-     * @param int $columnIndex2 Numeric column coordinate of the range cell
-     * @param int $row2 Numeric row coordinate of the range cell
-     * @param null|int $columnIndex2
-     * @param null|int $row2
+     * @param null|int $columnIndex2 Numeric column coordinate of the range cell
+     * @param null|int $row2 Numeric row coordinate of the range cell
      *
      * @return Style
      */
@@ -1798,8 +1786,9 @@ class Worksheet implements IComparable
      * Set merge cells array for the entire sheet. Use instead mergeCells() to merge
      * a single cell range.
      *
-     * @param array
-     * @param mixed $pValue
+     * @param array $pValue
+     *
+     * @return Worksheet
      */
     public function setMergeCells(array $pValue)
     {
@@ -1814,8 +1803,6 @@ class Worksheet implements IComparable
      * @param string $pRange Cell (e.g. A1) or cell range (e.g. A1:E1)
      * @param string $pPassword Password to unlock the protection
      * @param bool $pAlreadyHashed If the password has already been hashed, set this to true
-     *
-     * @throws Exception
      *
      * @return Worksheet
      */
@@ -1841,8 +1828,6 @@ class Worksheet implements IComparable
      * @param int $row2 Numeric row coordinate of the last cell
      * @param string $password Password to unlock the protection
      * @param bool $alreadyHashed If the password has already been hashed, set this to true
-     *
-     * @throws Exception
      *
      * @return Worksheet
      */
@@ -1986,7 +1971,7 @@ class Worksheet implements IComparable
      *
      *     - A2 will freeze the rows above cell A2 (i.e row 1)
      *     - B1 will freeze the columns to the left of cell B1 (i.e column A)
-     *     - B2 will freeze the rows above and to the left of cell A2 (i.e row 1 and column A)
+     *     - B2 will freeze the rows above and to the left of cell B2 (i.e row 1 and column A)
      *
      * @param null|string $cell Position of the split
      * @param null|string $topLeftCell default position of the right bottom pane
@@ -1997,13 +1982,13 @@ class Worksheet implements IComparable
      */
     public function freezePane($cell, $topLeftCell = null)
     {
-        if (is_string($cell) && (strpos($cell, ':') !== false || strpos($cell, ',') !== false)) {
+        if (is_string($cell) && Coordinate::coordinateIsRange($cell)) {
             throw new Exception('Freeze pane can not be set on a range of cells.');
         }
 
         if ($cell !== null && $topLeftCell === null) {
             $coordinate = Coordinate::coordinateFromString($cell);
-            $topLeftCell = $coordinate[0] . ($coordinate[1] + 1);
+            $topLeftCell = $coordinate[0] . $coordinate[1];
         }
 
         $this->freezePane = $cell;
@@ -2315,8 +2300,7 @@ class Worksheet implements IComparable
     /**
      * Set comments array for the entire sheet.
      *
-     * @param array of Comment
-     * @param mixed $pValue
+     * @param Comment[] $pValue
      *
      * @return Worksheet
      */
@@ -2341,7 +2325,7 @@ class Worksheet implements IComparable
         // Uppercase coordinate
         $pCellCoordinate = strtoupper($pCellCoordinate);
 
-        if (strpos($pCellCoordinate, ':') !== false || strpos($pCellCoordinate, ',') !== false) {
+        if (Coordinate::coordinateIsRange($pCellCoordinate)) {
             throw new Exception('Cell coordinate string can not be a range of cells.');
         } elseif (strpos($pCellCoordinate, '$') !== false) {
             throw new Exception('Cell coordinate string must not be absolute.');
@@ -2411,8 +2395,6 @@ class Worksheet implements IComparable
      *
      * @param string $pCoordinate Cell range, examples: 'A1', 'B2:G5', 'A:C', '3:6'
      *
-     * @throws Exception
-     *
      * @return Worksheet
      */
     public function setSelectedCells($pCoordinate)
@@ -2432,7 +2414,7 @@ class Worksheet implements IComparable
         // Convert '1:3' to 'A1:XFD3'
         $pCoordinate = preg_replace('/^(\d+):(\d+)$/', 'A${1}:XFD${2}', $pCoordinate);
 
-        if (strpos($pCoordinate, ':') !== false || strpos($pCoordinate, ',') !== false) {
+        if (Coordinate::coordinateIsRange($pCoordinate)) {
             list($first) = Coordinate::splitRange($pCoordinate);
             $this->activeCell = $first[0];
         } else {
@@ -2730,7 +2712,7 @@ class Worksheet implements IComparable
      * Extract worksheet title from range.
      *
      * Example: extractSheetTitle("testSheet!A1") ==> 'A1'
-     * Example: extractSheetTitle("'testSheet 1'!A1", true) ==> array('testSheet 1', 'A1');
+     * Example: extractSheetTitle("'testSheet 1'!A1", true) ==> ['testSheet 1', 'A1'];
      *
      * @param string $pRange Range to extract title from
      * @param bool $returnRange Return range? (see example)
@@ -2755,6 +2737,8 @@ class Worksheet implements IComparable
      * Get hyperlink.
      *
      * @param string $pCellCoordinate Cell coordinate to get hyperlink for, eg: 'A1'
+     *
+     * @return Hyperlink
      */
     public function getHyperlink($pCellCoordinate)
     {
@@ -2814,6 +2798,8 @@ class Worksheet implements IComparable
      * Get data validation.
      *
      * @param string $pCellCoordinate Cell coordinate to get data validation for, eg: 'A1'
+     *
+     * @return DataValidation
      */
     public function getDataValidation($pCellCoordinate)
     {

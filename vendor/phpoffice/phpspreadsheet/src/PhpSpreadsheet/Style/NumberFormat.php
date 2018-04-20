@@ -47,7 +47,8 @@ class NumberFormat extends Supervisor
 
     const FORMAT_CURRENCY_USD_SIMPLE = '"$"#,##0.00_-';
     const FORMAT_CURRENCY_USD = '$#,##0_-';
-    const FORMAT_CURRENCY_EUR_SIMPLE = '[$EUR ]#,##0.00_-';
+    const FORMAT_CURRENCY_EUR_SIMPLE = '#,##0.00_-"€"';
+    const FORMAT_CURRENCY_EUR = '#,##0_-"€"';
 
     /**
      * Excel built-in number formats.
@@ -123,13 +124,14 @@ class NumberFormat extends Supervisor
 
     /**
      * Apply styles from array.
+     *
      * <code>
      * $spreadsheet->getActiveSheet()->getStyle('B2')->getNumberFormat()->applyFromArray(
-     *        array(
-     *            'formatCode' => NumberFormat::FORMAT_CURRENCY_EUR_SIMPLE
-     *        )
+     *     [
+     *         'formatCode' => NumberFormat::FORMAT_CURRENCY_EUR_SIMPLE
+     *     ]
      * );
-     * </code>.
+     * </code>
      *
      * @param array $pStyles Array containing style information
      *
@@ -415,6 +417,7 @@ class NumberFormat extends Supervisor
             //    fractional seconds - no php equivalent
             '.s' => '',
         ];
+
     /**
      * Search/replace values to convert Excel date/time format masks hours to PHP format masks (24 hr clock).
      *
@@ -424,6 +427,7 @@ class NumberFormat extends Supervisor
             'hh' => 'H',
             'h' => 'G',
         ];
+
     /**
      * Search/replace values to convert Excel date/time format masks hours to PHP format masks (12 hr clock).
      *
@@ -687,9 +691,9 @@ class NumberFormat extends Supervisor
                     // Strip #
                     $format = preg_replace('/\\#/', '0', $format);
 
-                    $n = "/\[[^\]]+\]/";
+                    $n = '/\\[[^\\]]+\\]/';
                     $m = preg_replace($n, '', $format);
-                    $number_regex = "/(0+)(\.?)(0*)/";
+                    $number_regex = '/(0+)(\\.?)(0*)/';
                     if (preg_match($number_regex, $m, $matches)) {
                         $left = $matches[1];
                         $dec = $matches[2];

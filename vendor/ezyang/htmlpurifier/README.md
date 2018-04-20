@@ -2,7 +2,7 @@ HTML Purifier [![Build Status](https://secure.travis-ci.org/ezyang/htmlpurifier.
 =============
 
 HTML Purifier is an HTML filtering solution that uses a unique combination
-of robust whitelists and agressive parsing to ensure that not only are
+of robust whitelists and aggressive parsing to ensure that not only are
 XSS attacks thwarted, but the resulting HTML is standards compliant.
 
 HTML Purifier is oriented towards richly formatted documents from
@@ -26,4 +26,4 @@ Package available on [Composer](https://packagist.org/packages/ezyang/htmlpurifi
 
 If you're using Composer to manage dependencies, you can use
 
-    $ composer require "ezyang/htmlpurifier": "dev-master"
+    $ composer require "ezyang/htmlpurifier":"dev-master"

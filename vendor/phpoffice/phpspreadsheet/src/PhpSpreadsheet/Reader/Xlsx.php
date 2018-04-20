@@ -702,10 +702,24 @@ class Xlsx extends BaseReader
 
                             if (isset($xmlSheet->sheetViews, $xmlSheet->sheetViews->sheetView)) {
                                 if (isset($xmlSheet->sheetViews->sheetView['zoomScale'])) {
-                                    $docSheet->getSheetView()->setZoomScale((int) ($xmlSheet->sheetViews->sheetView['zoomScale']));
+                                    $zoomScale = (int) ($xmlSheet->sheetViews->sheetView['zoomScale']);
+                                    if ($zoomScale <= 0) {
+                                        // setZoomScale will throw an Exception if the scale is less than or equals 0
+                                        // that is OK when manually creating documents, but we should be able to read all documents
+                                        $zoomScale = 100;
+                                    }
+
+                                    $docSheet->getSheetView()->setZoomScale($zoomScale);
                                 }
                                 if (isset($xmlSheet->sheetViews->sheetView['zoomScaleNormal'])) {
-                                    $docSheet->getSheetView()->setZoomScaleNormal((int) ($xmlSheet->sheetViews->sheetView['zoomScaleNormal']));
+                                    $zoomScaleNormal = (int) ($xmlSheet->sheetViews->sheetView['zoomScaleNormal']);
+                                    if ($zoomScaleNormal <= 0) {
+                                        // setZoomScaleNormal will throw an Exception if the scale is less than or equals 0
+                                        // that is OK when manually creating documents, but we should be able to read all documents
+                                        $zoomScaleNormal = 100;
+                                    }
+
+                                    $docSheet->getSheetView()->setZoomScaleNormal($zoomScaleNormal);
                                 }
                                 if (isset($xmlSheet->sheetViews->sheetView['view'])) {
                                     $docSheet->getSheetView()->setView((string) $xmlSheet->sheetViews->sheetView['view']);
@@ -988,6 +1002,10 @@ class Xlsx extends BaseReader
 
                                         if ((string) $cfRule['text'] != '') {
                                             $objConditional->setText((string) $cfRule['text']);
+                                        }
+
+                                        if (isset($cfRule['stopIfTrue']) && (int) $cfRule['stopIfTrue'] === 1) {
+                                            $objConditional->setStopIfTrue(true);
                                         }
 
                                         if (count($cfRule->formula) > 1) {
@@ -1682,7 +1700,7 @@ class Xlsx extends BaseReader
                                     }
 
                                     // Some definedNames are only applicable if we are on the same sheet...
-                                    if ((string) $definedName['localSheetId'] != '' && (string) $definedName['localSheetId'] == $sheetId) {
+                                    if ((string) $definedName['localSheetId'] != '' && (string) $definedName['localSheetId'] == $oldSheetId) {
                                         // Switch on type
                                         switch ((string) $definedName['name']) {
                                             case '_xlnm._FilterDatabase':
@@ -2051,7 +2069,7 @@ class Xlsx extends BaseReader
             if (is_object($is->r)) {
                 foreach ($is->r as $run) {
                     if (!isset($run->rPr)) {
-                        $objText = $value->createText(StringHelper::controlCharacterOOXML2PHP((string) $run->t));
+                        $value->createText(StringHelper::controlCharacterOOXML2PHP((string) $run->t));
                     } else {
                         $objText = $value->createTextRun(StringHelper::controlCharacterOOXML2PHP((string) $run->t));
 
@@ -2059,7 +2077,7 @@ class Xlsx extends BaseReader
                             $objText->getFont()->setName((string) $run->rPr->rFont['val']);
                         }
                         if (isset($run->rPr->sz['val'])) {
-                            $objText->getFont()->setSize((string) $run->rPr->sz['val']);
+                            $objText->getFont()->setSize((float) $run->rPr->sz['val']);
                         }
                         if (isset($run->rPr->color)) {
                             $objText->getFont()->setColor(new Color(self::readColor($run->rPr->color)));
@@ -2121,7 +2139,7 @@ class Xlsx extends BaseReader
                 'SimpleXMLElement',
                 Settings::getLibXmlLoaderOptions()
             );
-            if ($UIRels) {
+            if (false !== $UIRels) {
                 // we need to save id and target to avoid parsing customUI.xml and "guess" if it's a pseudo callback who load the image
                 foreach ($UIRels->Relationship as $ele) {
                     if ($ele['Type'] == 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image') {
@@ -2137,11 +2155,11 @@ class Xlsx extends BaseReader
             if (count($customUIImagesNames) > 0 && count($customUIImagesBinaries) > 0) {
                 $excel->setRibbonBinObjects($customUIImagesNames, $customUIImagesBinaries);
             } else {
-                $excel->setRibbonBinObjects(null);
+                $excel->setRibbonBinObjects(null, null);
             }
         } else {
-            $excel->setRibbonXMLData(null);
-            $excel->setRibbonBinObjects(null);
+            $excel->setRibbonXMLData(null, null);
+            $excel->setRibbonBinObjects(null, null);
         }
     }
 
@@ -2157,7 +2175,7 @@ class Xlsx extends BaseReader
 
     private static function toCSSArray($style)
     {
-        $style = str_replace(["\r", "\n"], '', $style);
+        $style = trim(str_replace(["\r", "\n"], '', $style), ';');
 
         $temp = explode(';', $style);
         $style = [];

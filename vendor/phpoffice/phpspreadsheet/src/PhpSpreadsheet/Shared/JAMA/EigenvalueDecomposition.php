@@ -37,6 +37,7 @@ class EigenvalueDecomposition
      * @var array
      */
     private $d = [];
+
     private $e = [];
 
     /**
@@ -66,6 +67,7 @@ class EigenvalueDecomposition
      * @var float
      */
     private $cdivr;
+
     private $cdivi;
 
     /**
@@ -439,7 +441,7 @@ class EigenvalueDecomposition
                 $this->e[$n] = 0.0;
                 --$n;
                 $iter = 0;
-                // Two roots found
+            // Two roots found
             } elseif ($l == $n - 1) {
                 $w = $this->H[$n][$n - 1] * $this->H[$n - 1][$n];
                 $p = ($this->H[$n - 1][$n - 1] - $this->H[$n][$n]) / 2.0;
@@ -496,7 +498,7 @@ class EigenvalueDecomposition
                 }
                 $n = $n - 2;
                 $iter = 0;
-                // No convergence yet
+            // No convergence yet
             } else {
                 // Form shift
                 $x = $this->H[$n][$n];
@@ -777,10 +779,7 @@ class EigenvalueDecomposition
     /**
      * Constructor: Check for symmetry, then construct the eigenvalue decomposition.
      *
-     * @param A Square matrix
-     * @param mixed $Arg
-     *
-     * @return Structure to access D and V
+     * @param mixed $Arg A Square matrix
      */
     public function __construct($Arg)
     {
@@ -813,7 +812,7 @@ class EigenvalueDecomposition
     /**
      * Return the eigenvector matrix.
      *
-     * @return V
+     * @return Matrix V
      */
     public function getV()
     {
@@ -823,7 +822,7 @@ class EigenvalueDecomposition
     /**
      * Return the real parts of the eigenvalues.
      *
-     * @return real(diag(D))
+     * @return array real(diag(D))
      */
     public function getRealEigenvalues()
     {
@@ -833,7 +832,7 @@ class EigenvalueDecomposition
     /**
      * Return the imaginary parts of the eigenvalues.
      *
-     * @return imag(diag(D))
+     * @return array imag(diag(D))
      */
     public function getImagEigenvalues()
     {
@@ -843,7 +842,7 @@ class EigenvalueDecomposition
     /**
      * Return the block diagonal eigenvalue matrix.
      *
-     * @return D
+     * @return Matrix D
      */
     public function getD()
     {
