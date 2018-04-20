@@ -667,11 +667,11 @@ class CarecoordinationTable extends AbstractTableGateway
 
     public function fetch_encounter_value($encounter_data)
     {
-        if ($encounter_data['encounter']['effectiveTime']['value'] != 0) {
+        if ($encounter_data['encounter']['effectiveTime']['value'] != 0 || $encounter_data['encounter']['effectiveTime']['low']['value'] != 0) {
             $i = count($this->ccda_data_array['field_name_value_array']['encounter']) + 1;
             $this->ccda_data_array['field_name_value_array']['encounter'][$i]['extension'] = $encounter_data['encounter']['id']['extension'];
             $this->ccda_data_array['field_name_value_array']['encounter'][$i]['root'] = $encounter_data['encounter']['id']['root'];
-            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['date'] = $encounter_data['encounter']['effectiveTime']['value'];
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['date'] = $encounter_data['encounter']['effectiveTime']['value'] ? $encounter_data['encounter']['effectiveTime']['value'] : $encounter_data['encounter']['effectiveTime']['low']['value'];
             $this->ccda_data_array['field_name_value_array']['encounter'][$i]['code'] = $encounter_data['encounter']['code']['code'];
             $this->ccda_data_array['field_name_value_array']['encounter'][$i]['code_text'] = $encounter_data['encounter']['code']['displayName'];
             $this->ccda_data_array['field_name_value_array']['encounter'][$i]['provider_npi'] = $encounter_data['encounter']['performer']['assignedEntity']['id']['extension'];
