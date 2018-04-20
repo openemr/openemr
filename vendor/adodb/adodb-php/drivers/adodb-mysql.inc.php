@@ -1,6 +1,6 @@
 <?php
 /*
-@version   v5.20.10  08-Mar-2018
+@version   v5.20.12  30-Mar-2018
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -585,6 +585,8 @@ class ADODB_mysql extends ADOConnection {
 	// parameters use PostgreSQL convention, not MySQL
 	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs=0)
 	{
+		$nrows = (int) $nrows;
+		$offset = (int) $offset;
 		$offsetStr =($offset>=0) ? ((integer)$offset)."," : '';
 		// jason judge, see http://phplens.com/lens/lensforum/msgs.php?id=9220
 		if ($nrows < 0) $nrows = '18446744073709551615';

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version   v5.20.10  08-Mar-2018
+ * @version   v5.20.12  30-Mar-2018
  * @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
  * @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
  * Released under both BSD license and Lesser GPL library license.
@@ -77,7 +77,7 @@ function _adodb_export(&$rs,$sep,$sepreplace,$fp=false,$addtitles=true,$quote = 
 		reset($fieldTypes);
 		$i = 0;
 		$elements = array();
-		while(list(,$o) = each($fieldTypes)) {
+		foreach ($fieldTypes as $o) {
 
 			$v = ($o) ? $o->name : 'Field'.($i++);
 			if ($escquote) $v = str_replace($quote,$escquotequote,$v);

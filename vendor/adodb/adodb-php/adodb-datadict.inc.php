@@ -1,7 +1,7 @@
 <?php
 
 /**
-  @version   v5.20.10  08-Mar-2018
+  @version   v5.20.12  30-Mar-2018
   @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
   @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -520,7 +520,7 @@ class ADODB_DataDict {
 			list($lines,$pkey,$idxs) = $this->_GenFields($flds);
 			// genfields can return FALSE at times
 			if ($lines == null) $lines = array();
-			list(,$first) = each($lines);
+			$first  = current($lines);
 			list(,$column_def) = preg_split("/[\t ]+/",$first,2);
 		}
 		return array(sprintf($this->renameColumn,$tabname,$this->NameQuote($oldcolumn),$this->NameQuote($newcolumn),$column_def));

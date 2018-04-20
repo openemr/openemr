@@ -794,8 +794,7 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 				if ($useQmark) {
 					$sql = ''; $i = 0;
 					$arr = array_reverse($rs->fields);
-					//Use each() instead of foreach to reduce memory usage -mikefedyk
-					while(list(, $v) = each($arr)) {
+					foreach ($arr as $v) {
 						$sql .= $sqlarr[$i];
 						// from Ron Baldwin <ron.baldwin#sourceprose.com>
 						// Only quote string types
