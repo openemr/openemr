@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "9dbff2d703f375020d68b4c3d944d1c7",
+    "content-hash": "095436b24f8b4308116632e179286413",
     "packages": [
         {
             "name": "adldap2/adldap2",
@@ -60,16 +60,16 @@
         },
         {
             "name": "adodb/adodb-php",
-            "version": "v5.20.10",
+            "version": "v5.20.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ADOdb/ADOdb.git",
-                "reference": "2db8794c142ecc9ca9c5398737bb35ca39031fe3"
+                "reference": "0e5243790c5a02a88b0dfe78c390fe795ad2d672"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ADOdb/ADOdb/zipball/2db8794c142ecc9ca9c5398737bb35ca39031fe3",
-                "reference": "2db8794c142ecc9ca9c5398737bb35ca39031fe3",
+                "url": "https://api.github.com/repos/ADOdb/ADOdb/zipball/0e5243790c5a02a88b0dfe78c390fe795ad2d672",
+                "reference": "0e5243790c5a02a88b0dfe78c390fe795ad2d672",
                 "shasum": ""
             },
             "require": {
@@ -110,7 +110,7 @@
                 "library",
                 "php"
             ],
-            "time": "2018-03-08T22:32:18+00:00"
+            "time": "2018-03-30T17:31:04+00:00"
         },
         {
             "name": "container-interop/container-interop",

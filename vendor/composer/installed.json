@@ -2652,62 +2652,6 @@
         ]
     },
     {
-        "name": "adodb/adodb-php",
-        "version": "v5.20.10",
-        "version_normalized": "5.20.10.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/ADOdb/ADOdb.git",
-            "reference": "2db8794c142ecc9ca9c5398737bb35ca39031fe3"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/ADOdb/ADOdb/zipball/2db8794c142ecc9ca9c5398737bb35ca39031fe3",
-            "reference": "2db8794c142ecc9ca9c5398737bb35ca39031fe3",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.2"
-        },
-        "time": "2018-03-08T22:32:18+00:00",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "adodb.inc.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "BSD-3-Clause",
-            "LGPL-2.1-or-later"
-        ],
-        "authors": [
-            {
-                "name": "John Lim",
-                "email": "jlim@natsoft.com",
-                "role": "Author"
-            },
-            {
-                "name": "Damien Regad",
-                "role": "Current maintainer"
-            },
-            {
-                "name": "Mark Newnham",
-                "role": "Developer"
-            }
-        ],
-        "description": "ADOdb is a PHP database abstraction layer library",
-        "homepage": "http://adodb.org/",
-        "keywords": [
-            "abstraction",
-            "database",
-            "layer",
-            "library",
-            "php"
-        ]
-    },
-    {
         "name": "zendframework/zend-stdlib",
         "version": "2.7.7",
         "version_normalized": "2.7.7.0",
@@ -7276,6 +7220,62 @@
         "keywords": [
             "framework",
             "zf2"
+        ]
+    },
+    {
+        "name": "adodb/adodb-php",
+        "version": "v5.20.12",
+        "version_normalized": "5.20.12.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/ADOdb/ADOdb.git",
+            "reference": "0e5243790c5a02a88b0dfe78c390fe795ad2d672"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/ADOdb/ADOdb/zipball/0e5243790c5a02a88b0dfe78c390fe795ad2d672",
+            "reference": "0e5243790c5a02a88b0dfe78c390fe795ad2d672",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.2"
+        },
+        "time": "2018-03-30T17:31:04+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "adodb.inc.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause",
+            "LGPL-2.1-or-later"
+        ],
+        "authors": [
+            {
+                "name": "John Lim",
+                "email": "jlim@natsoft.com",
+                "role": "Author"
+            },
+            {
+                "name": "Damien Regad",
+                "role": "Current maintainer"
+            },
+            {
+                "name": "Mark Newnham",
+                "role": "Developer"
+            }
+        ],
+        "description": "ADOdb is a PHP database abstraction layer library",
+        "homepage": "http://adodb.org/",
+        "keywords": [
+            "abstraction",
+            "database",
+            "layer",
+            "library",
+            "php"
         ]
     }
 ]
