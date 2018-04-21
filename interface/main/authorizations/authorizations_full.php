@@ -24,7 +24,7 @@ include_once("../../globals.php");
 include_once("$srcdir/patient.inc");
 
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
-    newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, $_GET["pid"]);
+    newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, '', $_GET["pid"]);
     sqlStatement("update billing set authorized=1 where pid=?", array($_GET["pid"]));
     sqlStatement("update forms set authorized=1 where pid=?", array($_GET["pid"]));
     sqlStatement("update pnotes set authorized=1 where pid=?", array($_GET["pid"]));
@@ -124,7 +124,7 @@ if ($res = sqlStatement("select * from forms where authorized=0 and groupname=?"
 if ($authorize) {
     while (list($ppid,$patient) = each($authorize)) {
         $name = getPatientData($ppid);
-    
+
         echo "<tr><td valign=top><span class=bold>". htmlspecialchars($name{"fname"} . " " . $name{"lname"}, ENT_NOQUOTES) .
              "</span><br><a class=link_submit href='authorizations_full.php?mode=authorize&pid=" .
              htmlspecialchars($ppid, ENT_QUOTES) . "' onclick='top.restoreSession()'>" . htmlspecialchars(xl('Authorize'), ENT_NOQUOTES) . "</a></td>\n";
