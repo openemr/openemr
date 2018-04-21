@@ -36,5 +36,5 @@ function setpid($new_pid)
     $_SESSION['pid'] = $new_pid_int;
     $pid = $new_pid_int;
 
-    newEvent("view", $_SESSION["authUser"], $_SESSION["authProvider"], 1, $pid);
+    newEvent("view", $_SESSION["authUser"], $_SESSION["authProvider"], 1, '', $pid);
 }
