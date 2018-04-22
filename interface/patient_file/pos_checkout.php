@@ -713,7 +713,7 @@ function generate_receipt($patient_id, $encounter = 0)
     ?>
 <!DOCTYPE html>
     <head>
-            <?php Header::setupHeader(['bootstrap', 'datetime-picker','font-awesome']);?>
+            <?php Header::setupHeader(['datetime-picker']);?>
             <script language="JavaScript">
             var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
