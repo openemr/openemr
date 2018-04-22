@@ -1,6 +1,6 @@
 <?php
 /*
-@version   v5.20.10  08-Mar-2018
+@version   v5.20.12  30-Mar-2018
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -245,6 +245,8 @@ class ADODB_mssql extends ADOConnection {
 
 	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
 	{
+		$nrows = (int) $nrows;
+		$offset = (int) $offset;
 		if ($nrows > 0 && $offset <= 0) {
 			$sql = preg_replace(
 				'/(^\s*select\s+(distinctrow|distinct)?)/i','\\1 '.$this->hasTop." $nrows ",$sql);
@@ -680,7 +682,12 @@ order by constraint_name, referenced_table_name, keyno";
                 $arr = $args;
             }
 
-            array_walk($arr, create_function('&$v', '$v = "CAST(" . $v . " AS VARCHAR(255))";'));
+			array_walk(
+				$arr,
+				function(&$value, $key) {
+					$value = "CAST(" . $value . " AS VARCHAR(255))";
+				}
+			);
             $s = implode('+',$arr);
             if (sizeof($arr) > 0) return "$s";
 

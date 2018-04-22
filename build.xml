@@ -48,6 +48,8 @@
         <delete dir="${dir.vendor}/phpmailer/phpmailer/docs" verbose="true"/>
         <delete dir="${dir.vendor}/phpoffice/phpspreadsheet/docs" verbose="true"/>
         <delete dir="${dir.vendor}/phpoffice/phpspreadsheet/samples" verbose="true"/>
+        <delete dir="${dir.vendor}/phpunit/php-code-coverage/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/phpunit/tests" verbose="true"/>
         <delete dir="${dir.vendor}/psr/log/Psr/Log/Test" verbose="true"/>
         <delete dir="${dir.vendor}/rospdf/pdf-php/examples" verbose="true"/>
         <delete dir="${dir.vendor}/smarty/smarty/demo" verbose="true"/>
@@ -66,7 +68,6 @@
         <delete dir="${dir.vendor}/symfony/yaml/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/twig/twig/doc" verbose="true"/>
         <delete dir="${dir.vendor}/twig/twig/test" verbose="true"/>
-        <delete dir="${dir.vendor}/zendframework/zendxml/tests" verbose="true"/>
     </target>
 
 

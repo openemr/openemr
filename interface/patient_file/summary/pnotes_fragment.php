@@ -45,7 +45,7 @@ if (isset($_GET['docUpdateId'])) {
   <div class='tab current' >
     <?php
     //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
-    $N = 3; ?>
+    $N = $GLOBALS['num_of_messages_displayed']; ?>
 
     <br/>
 
@@ -133,7 +133,7 @@ if (isset($_GET['docUpdateId'])) {
             <br/>
             <span class='text'>
             <?php echo htmlspecialchars(xl('Displaying the following number of most recent notes:'), ENT_NOQUOTES); ?>
-            <b><?php echo $N;?></b><br>
+            <b><?php echo text($N);?></b><br>
             <a href='pnotes_full.php?s=0' onclick='top.restoreSession()'>
             <?php echo htmlspecialchars(xl('Click here to view them all.'), ENT_NOQUOTES); ?></a>
         </span><?php
@@ -147,7 +147,7 @@ if (isset($_GET['docUpdateId'])) {
         <div class='tab'>
             <?php
             //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
-            $M = 3; ?>
+            $M = $GLOBALS['num_of_messages_displayed']; ?>
             <br/>
             <?php
             $has_sent_note = 0;
@@ -218,7 +218,7 @@ if (isset($_GET['docUpdateId'])) {
                     <br/>
                     <span class='text'>
         <?php echo htmlspecialchars(xl('Displaying the following number of most recent notes'), ENT_NOQUOTES).":"; ?>
-                        <b><?php echo $M;?></b><br>
+                        <b><?php echo text($M);?></b><br>
         <a href='pnotes_full.php?s=1' onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Click here to view them all.'), ENT_NOQUOTES); ?></a>
         </span>
                     <?php

@@ -1,0 +1,59 @@
+{
+    "name": "zendframework/zend-captcha",
+    "description": " ",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zf2",
+        "captcha"
+    ],
+    "homepage": "https://github.com/zendframework/zend-captcha",
+    "autoload": {
+        "psr-4": {
+            "Zend\\Captcha\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^5.6 || ^7.0",
+        "zendframework/zend-math": "^2.6 || ^3.0",
+        "zendframework/zend-stdlib": "^2.7 || ^3.0"
+    },
+    "require-dev": {
+        "zendframework/zend-session": "^2.6",
+        "zendframework/zend-text": "^2.6",
+        "zendframework/zend-validator": "^2.6",
+        "zendframework/zendservice-recaptcha": "^3.0",
+        "zendframework/zend-coding-standard": "~1.0.0",
+        "phpunit/PHPUnit": "~4.8"
+    },
+    "suggest": {
+        "zendframework/zend-i18n-resources": "Translations of captcha messages",
+        "zendframework/zend-session": "Zend\\Session component",
+        "zendframework/zend-text": "Zend\\Text component",
+        "zendframework/zend-validator": "Zend\\Validator component",
+        "zendframework/zendservice-recaptcha": "ZendService\\ReCaptcha component"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.7-dev",
+            "dev-develop": "2.8-dev"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\Captcha\\": "test/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml",
+        "upload-coverage": "coveralls -v"
+    }
+}

@@ -1882,14 +1882,21 @@ function getEffectiveInsurances($patient_id, $encdate)
  *
  * @param int     The PID of the patient.
  * @param boolean Indicates if amounts owed by insurance are to be included.
+ * @param int     Optional encounter id. If value is passed, will fetch only bills from specified encounter.
  * @return number The balance.
  */
-function get_patient_balance($pid, $with_insurance = false)
+function get_patient_balance($pid, $with_insurance = false, $eid = false)
 {
     $balance = 0;
-    $feres = sqlStatement("SELECT date, encounter, last_level_billed, " .
+    $bindarray = array($pid);
+    $sqlstatement = "SELECT date, encounter, last_level_billed, " .
       "last_level_closed, stmt_count " .
-      "FROM form_encounter WHERE pid = ?", array($pid));
+      "FROM form_encounter WHERE pid = ?";
+    if ($eid) {
+        $sqlstatement .= " AND encounter = ?";
+        array_push($bindarray, $eid);
+    }
+    $feres = sqlStatement($sqlstatement, $bindarray);
     while ($ferow = sqlFetchArray($feres)) {
         $encounter = $ferow['encounter'];
         $dos = substr($ferow['date'], 0, 10);

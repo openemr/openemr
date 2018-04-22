@@ -1,0 +1,67 @@
+{
+    "name": "zendframework/zend-i18n",
+    "description": " ",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zf2",
+        "i18n"
+    ],
+    "homepage": "https://github.com/zendframework/zend-i18n",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.7-dev",
+            "dev-develop": "2.8-dev"
+        },
+        "zf": {
+            "component": "Zend\\I18n",
+            "config-provider": "Zend\\I18n\\ConfigProvider"
+        }
+    },
+    "require": {
+        "php": "^7.0 || ^5.6",
+        "zendframework/zend-stdlib": "^2.7 || ^3.0"
+    },
+    "require-dev": {
+        "phpunit/PHPUnit": "^6.0.8 || ^5.7.15",
+        "zendframework/zend-cache": "^2.6.1",
+        "zendframework/zend-coding-standard": "~1.0.0",
+        "zendframework/zend-config": "^2.6",
+        "zendframework/zend-eventmanager": "^2.6.2 || ^3.0",
+        "zendframework/zend-filter": "^2.6.1",
+        "zendframework/zend-servicemanager": "^2.7.5 || ^3.0.3",
+        "zendframework/zend-validator": "^2.6",
+        "zendframework/zend-view": "^2.6.3"
+    },
+    "suggest": {
+        "ext-intl": "Required for most features of Zend\\I18n; included in default builds of PHP",
+        "zendframework/zend-cache": "Zend\\Cache component",
+        "zendframework/zend-config": "Zend\\Config component",
+        "zendframework/zend-eventmanager": "You should install this package to use the events in the translator",
+        "zendframework/zend-filter": "You should install this package to use the provided filters",
+        "zendframework/zend-servicemanager": "Zend\\ServiceManager component",
+        "zendframework/zend-validator": "You should install this package to use the provided validators",
+        "zendframework/zend-view": "You should install this package to use the provided view helpers",
+        "zendframework/zend-i18n-resources": "Translation resources"
+    },
+    "autoload": {
+        "psr-4": {
+            "Zend\\I18n\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\I18n\\": "test/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml",
+        "upload-coverage": "coveralls -v"
+    }
+}

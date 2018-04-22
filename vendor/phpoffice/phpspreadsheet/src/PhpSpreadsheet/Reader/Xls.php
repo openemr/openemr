@@ -420,8 +420,6 @@ class Xls extends BaseReader
      *
      * @param string $pFilename
      *
-     * @throws Exception
-     *
      * @return bool
      */
     public function canRead($pFilename)
@@ -447,6 +445,8 @@ class Xls extends BaseReader
      * @param string $pFilename
      *
      * @throws Exception
+     *
+     * @return array
      */
     public function listWorksheetNames($pFilename)
     {
@@ -505,6 +505,8 @@ class Xls extends BaseReader
      * @param string $pFilename
      *
      * @throws Exception
+     *
+     * @return array
      */
     public function listWorksheetInfo($pFilename)
     {
@@ -1844,9 +1846,8 @@ class Xls extends BaseReader
     /**
      * Make an RC4 decryptor for the given block.
      *
-     * @param int Block for which to create decrypto
+     * @param int $block Block for which to create decrypto
      * @param string $valContext MD5 context state
-     * @param mixed $block
      *
      * @return Xls\RC4
      */
@@ -2962,7 +2963,7 @@ class Xls extends BaseReader
      *
      * --    "OpenOffice.org's Documentation of the Microsoft
      *         Excel File Format"
-     **/
+     */
     private function readSst()
     {
         // offset within (spliced) record data
@@ -5034,6 +5035,7 @@ class Xls extends BaseReader
                 case 0x28:
                     // TODO: Investigate structure for .xls SHEETLAYOUT record as saved by MS Office Excel 2007
                     return;
+
                     break;
             }
         }
@@ -5725,6 +5727,7 @@ class Xls extends BaseReader
                                 break;
                             default:
                                 throw new Exception('Unrecognized space type in tAttrSpace token');
+
                                 break;
                         }
                         // offset: 3; size: 1; number of inserted spaces/carriage returns
@@ -5735,6 +5738,7 @@ class Xls extends BaseReader
                         break;
                     default:
                         throw new Exception('Unrecognized attribute flag in tAttr token');
+
                         break;
                 }
 
@@ -6585,6 +6589,7 @@ class Xls extends BaseReader
                         break;
                     default:
                         throw new Exception('Unrecognized function in formula');
+
                         break;
                 }
                 $data = ['function' => $function, 'args' => $args];
@@ -6954,6 +6959,7 @@ class Xls extends BaseReader
                         break;
                     default:
                         throw new Exception('Unrecognized function in formula');
+
                         break;
                 }
                 $data = ['function' => $function, 'args' => $args];
@@ -7087,6 +7093,7 @@ class Xls extends BaseReader
             // Unknown cases    // don't know how to deal with
             default:
                 throw new Exception('Unrecognized token ' . sprintf('%02X', $id) . ' in formula');
+
                 break;
         }
 
@@ -7500,10 +7507,12 @@ class Xls extends BaseReader
                     }
 
                     return $sheetRange;
+
                     break;
                 default:
                     // TODO: external sheet support
-                    throw new Exception('Xls reader only supports internal sheets in fomulas');
+                    throw new Exception('Xls reader only supports internal sheets in formulas');
+
                     break;
             }
         }
@@ -7513,7 +7522,7 @@ class Xls extends BaseReader
 
     /**
      * read BIFF8 constant value array from array data
-     * returns e.g. array('value' => '{1,2;3,4}', 'size' => 40}
+     * returns e.g. ['value' => '{1,2;3,4}', 'size' => 40]
      * section 2.5.8.
      *
      * @param string $arrayData
@@ -7553,7 +7562,7 @@ class Xls extends BaseReader
     /**
      * read BIFF8 constant value which may be 'Empty Value', 'Number', 'String Value', 'Boolean Value', 'Error Value'
      * section 2.5.7
-     * returns e.g. array('value' => '5', 'size' => 9).
+     * returns e.g. ['value' => '5', 'size' => 9].
      *
      * @param string $valueData
      *
@@ -7805,6 +7814,8 @@ class Xls extends BaseReader
 
     /**
      * @param int $rknum
+     *
+     * @return float
      */
     private static function getIEEE754($rknum)
     {

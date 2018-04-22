@@ -1,0 +1,45 @@
+{
+    "name": "zendframework/zend-permissions-rbac",
+    "description": "provides a role-based access control management",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zf2",
+        "Rbac"
+    ],
+    "homepage": "https://github.com/zendframework/zend-permissions-rbac",
+    "autoload": {
+        "psr-4": {
+            "Zend\\Permissions\\Rbac\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^5.6 || ^7.0"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.6-dev",
+            "dev-develop": "2.7-dev"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\Permissions\\Rbac\\": "test/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.7.15|| ^6.2.1",
+        "zendframework/zend-coding-standard": "~1.0.0"
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    }
+}

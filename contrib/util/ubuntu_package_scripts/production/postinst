@@ -5,7 +5,7 @@
 #the Free Software Foundation; either version 2 of the License, or
 #(at your option) any later version.
 #
-# Copyright 2011-2014
+# Copyright 2011-2018
 # authors: Amalu Obinna <amaluobinna@aol.com>
 #          Brady Miller <brady.g.miller@gmail.com>
 #
@@ -106,10 +106,10 @@ case "$1" in
       }
 
       #function to collect variables from config files
-      # 1st param is variable name, 2nd param is filename 
+      # 1st param is variable name, 2nd param is filename
       collect_var () {
          echo `grep -i "^[[:space:]]*$1[[:space:]=]" $2 | cut -d \= -f 2 | cut -d \; -f 1 | sed "s/[ 	'\"]//gi"`
-      }      
+      }
 
       #function to insert variables into config files
       # 1st param is variable name, 2nd param is variable, 3rd param is filename
@@ -147,7 +147,7 @@ case "$1" in
          unable_exit "Error reading process variable in configuration file."
       fi
 
-      if [ "$PLAN" == "upgrade" ] ; then       
+      if [ "$PLAN" == "upgrade" ] ; then
          #continue with upgrade
          OLD_VERSION=$(collect_var previous_version $CONFIG)
          log_only "Continuing Upgrade from ($OLD_VERSION)"
@@ -247,9 +247,9 @@ case "$1" in
 
          #set writable files and directories (that are not within sites directory)
          chown $WEB_GROUP.$WEB_USER $OPENEMR/interface/modules/zend_modules/config/application.config.php
-         chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache 
-         chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled 
-         chown -R $WEB_GROUP.$WEB_USER $OPENEMR/gacl/admin/templates_c 
+         chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache
+         chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled
+         chown -R $WEB_GROUP.$WEB_USER $OPENEMR/gacl/admin/templates_c
 
          #set writable directories (that are within sites directory)
          # (go through each site)
@@ -274,7 +274,7 @@ case "$1" in
          sed -i "/^[ 	]*.*sqlutfflag[ 	=].*$/d" $CONFIG
 
          #done upgrading
-         prompt_input openemr/success_upgrade critical ret_result 
+         prompt_input openemr/success_upgrade critical ret_result
          log_only "OpenEMR upgrade is complete."
          log_only "Recommend setting optional configuration settings in:"
          log_only "$SITEDIR/<sitename>/config.php"
@@ -294,7 +294,7 @@ case "$1" in
          log_only "Installing OpenEMR"
       else
          unable_exit "Error reading plan variable in configuration file."
-      fi      
+      fi
 
       #This Section edits the php.ini file to accomodate the proper functioning of OpenEMR using php
       log_only "Configuring PHP for OpenEMR"
@@ -348,12 +348,12 @@ case "$1" in
                # make rec to php.ini
                if [ "$FLAG_ON" -eq "0" ]; then
                   log_only "We changed the following setting(s) in your php configuration file at $PHP :"
-               fi      
+               fi
                FLAG_ON=1
             else
                # modify php.ini
                sed -i "s/^[ 	]*$1[ 	=].*$/$1 = $2/" $PHP
-               log_only "Successfully set $1 = $2"  
+               log_only "Successfully set $1 = $2"
             fi
          }
          process_php_commented_out () {
@@ -373,11 +373,11 @@ case "$1" in
             if [ ! -z "$EXEC" ] && [ "$EXEC" -lt "60" ]; then
                process_php "$EXEC_TEXT" "60" $i
             fi
-            if [ ! -z "$INPUT" ] && [ "$INPUT" -lt "90" ]; then
-               process_php "$INPUT_TEXT" "90" $i
+            if [ ! -z "$INPUT" ] && [ "$INPUT" != "-1" ]; then
+               process_php "$INPUT_TEXT" "-1" $i
             fi
-            if [ ! -z "$MEM" ] && [ "$MEM" -lt "128" ]; then
-               process_php "$MEM_TEXT" "128M" $i
+            if [ ! -z "$MEM" ] && [ "$MEM" -lt "512" ]; then
+               process_php "$MEM_TEXT" "512M" $i
             fi
             if [ ! -z "$DISP" ] && [ "$DISP" != "Off" ]; then
                process_php "$DISP_TEXT" "Off" $i
@@ -419,8 +419,8 @@ case "$1" in
          #can't find php config file, so just echo instructions
          log_only "We recommend ensuring you have below settings in your php configuration file:"
          log_only "max_execution_time = 60"
-         log_only "max_input_time = 90"
-         log_only "memory_limit = 128M"
+         log_only "max_input_time = -1"
+         log_only "memory_limit = 512M"
          log_only "display_errors = Off"
          log_only "log_errors = On"
          log_only "register_globals = Off"
@@ -428,7 +428,6 @@ case "$1" in
          log_only "file_uploads = On"
          log_only "upload_max_filesize = 30M"
          log_only "max_input_vars = 3000"
-         log_only "(note max_input_vars setting only exists since php 5.3.9)"
       fi
 
       log_only "Done configuring PHP"
@@ -471,7 +470,7 @@ case "$1" in
       fi
 
       #decide whether to configure OpenEMR after it is installed
-      configure_flag=true 
+      configure_flag=true
       if check_mysql "$MPASS" "mysql"; then
          #before auto configuration, ensure the openemr user and database do not exist
          # Check for openemr database in mysql, if exist then will not configure
@@ -531,9 +530,9 @@ case "$1" in
          login="login=$INSTALL_USER" #username to MySQL openemr database
          pass="pass=$password" #password to MySQL openemr database
          dbname="dbname=$INSTALL_DATABASE" #MySQL openemr database name
- 
-         # 
-         # Run Auto Installer 
+
+         #
+         # Run Auto Installer
          #
          sed -e 's@^exit;@ @' <$INST >$INSTTEMP
          php -f $INSTTEMP $rootpass $login $pass $dbname >> $LOG 2>&1
@@ -575,7 +574,7 @@ case "$1" in
       exit 0
    ;;
    abort-upgrade|abort-remove|abort-deconfigure)
-   
+
       echo "postinst asked to do $1"
       exit 0
    ;;

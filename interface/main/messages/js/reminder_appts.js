@@ -12,7 +12,7 @@ var labels = [];
 var postcards = [];
 var show_just;
 
-/*
+/**
  * Function to find a patient in the DB
  * This pop-up is the standard openEMR file find_patient_popup.php
  * It returns pid, lname, fname, dob to function "setpatient" below
@@ -22,7 +22,7 @@ function recall_name_click(field) {
     dlgopen('../../main/calendar/find_patient_popup.php?pflag=0', '_blank', 500, 400);
 }
 
-/*
+/**
  * Function to insert patient data into addRecall fields
  * pid is sent to server for the data to display
  */
@@ -102,7 +102,7 @@ function add_this_recall(e) {
         return false;
     } else {
         var url = "save.php";
-        formData = $.toJSON($("form#addRecall").serialize());
+        formData = JSON.stringify($("form#addRecall").serialize());
         top.restoreSession();
         $.ajax({
             type: 'POST',
@@ -116,7 +116,7 @@ function add_this_recall(e) {
     }
 }
 
-/*
+/**
  * This function is called when a preference is changed
  */
 function save_preferences(event) {
@@ -170,9 +170,6 @@ function process_this(material, id, eid='') {
     var make_this = [];
     var make_that = [];
     var make_all = [];
-    //if this is checked then do this...
-    //name="msg_phone" id="msg_phone_'.$recall['pid'].'"
-    //if ($("msg_"+material+"_"+id.checked == false)) return;
     if ((material === "phone") || (material === "notes")) {  //we just checked a phone box or left/blurred away from a notes field
         make_this.push(id);
         make_that.push(eid);
@@ -218,10 +215,7 @@ function process_this(material, id, eid='') {
             } else {
                 $("#msg_phone_" + r_uid).append('<br />' + dateval);
             }
-            //var present = $("#msg_notes_"+r_uid).val();
-            // $("#msg_notes_"+r_uid).val(present+" "+material+" printed.\n");
-            //$("#msg_notes_"+r_uid).focus();
-        });
+         });
     });
     //
 
@@ -264,7 +258,6 @@ $(function () {
 function newEvt(pid, pc_eid) {
     var f = document.forms[0];
     var url = '../../main/calendar/add_edit_event.php?patientid=' + pid + '&eid=' + pc_eid;
-    //    if (f.ProviderID && f.ProviderID.value) {url += '&userid=' + parseInt(f.ProviderID.value);}
     dlgopen(url, '_blank', 800, 480);
     return false;
 }
@@ -337,7 +330,6 @@ function show_this(colorish='') {
             meets_pname = true;
         }
         meets_color = (colorish === '') || (colorish == d.status );
-        //alert(meets_fac +' = '+ meets_prov +' = '+ meets_pid +' = '+ meets_pname +' = '+ meets_color);
         return meets_fac && meets_prov && meets_pid && meets_pname && meets_color;
     }).show('4000', 'linear');
 }

@@ -272,7 +272,6 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 /* types of events */
 .event {
     position: absolute;
-    font-size: 0.8em;
     width: 100%;
 }
 .event img {

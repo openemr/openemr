@@ -1,83 +1,35 @@
 # CHANGELOG
 
-## 2.4.9 (2015-11-23)
+## 2.5.3 (2016-01-27)
+
+- [#7665](https://github.com/zendframework/zf2/pull/7665) updates component version constraints from `~2.5.0` to `^2.5` to ensure the latest security updates are always installed.
+
+## 2.5.2 (2015-08-03)
 
 ### SECURITY UPDATES
 
-- **ZF2015-09**: `Zend\Captcha\Word` generates a "word" for a CAPTCHA challenge
-  by selecting a sequence of random letters from a character set. Prior to this
-  vulnerability announcement, the selection was performed using PHP's internal
-  `array_rand()` function. This function does not generate sufficient entropy
-  due to its usage of `rand()` instead of more cryptographically secure methods
-  such as `openssl_pseudo_random_bytes()`. This could potentially lead to
-  information disclosure should an attacker be able to brute force the random
-  number generation. This release contains a patch that replaces the
-  `array_rand()` calls to use `Zend\Math\Rand::getInteger()`, which provides
-  better RNG.
-- **ZF2015-10**: `Zend\Crypt\PublicKey\Rsa\PublicKey` has a call to `openssl_public_encrypt()`
-  which used PHP's default `$padding` argument, which specifies
-  `OPENSSL_PKCS1_PADDING`, indicating usage of PKCS1v1.5 padding. This padding
-  has a known vulnerability, the
-  [Bleichenbacher's chosen-ciphertext attack](http://crypto.stackexchange.com/questions/12688/can-you-explain-bleichenbachers-cca-attack-on-pkcs1-v1-5),
-  which can be used to recover an RSA private key. This release contains a patch
-  that changes the padding argument to use `OPENSSL_PKCS1_OAEP_PADDING`.
+- ZF2015-06: `ZendXml` runs a heuristic detection for XML Entity Expansion and XML
+  eXternal Entity vectors when under php-fpm, due to issues with threading in
+  libxml preventing using that library's built-in mechanisms for disabling them.
+  However, the heuristic was determined to be faulty when multibyte encodings
+  are used for the XML. This release contains a patch to ensure that the
+  heuristic will work with multibyte encodings.
 
-  Users upgrading to this version may have issues decrypting previously stored
-  values, due to the change in padding. If this occurs, you can pass the
-  constant `OPENSSL_PKCS1_PADDING` to a new `$padding` argument in
-  `Zend\Crypt\PublicKey\Rsa::encrypt()` and `decrypt()` (though typically this
-  should only apply to the latter):
+  If you use Zend Framework components that utilize `DOMDocument` or `SimpleXML`
+  (which includes `Zend\XmlRpc`, `Zend\Soap`, `Zend\Feed`, and several others), and
+  deploy using php-fpm in production (or plan to), we recommend upgrading
+  immediately.
 
-  ```php
-  $decrypted = $rsa->decrypt($data, $key, $mode, OPENSSL_PKCS1_PADDING);
-  ```
+## 2.5.1 (2015-06-04)
 
-  where `$rsa` is an instance of `Zend\Crypt\PublicKey\Rsa`.
+- [#7571](https://github.com/zendframework/zf2/pull/7571) makes `zend-ldap` an optional dependency instead of a hard dependency, as `zend-ldap` has a hard requirement on `ext-ldap`, blocking installation for many users. If you use `zend-ldap`, you will need to call `composer require zendframework/zend-ldap` after upgrading to 2.5.1.
 
-  (The `$key` and `$mode` argument defaults are `null` and
-  `Zend\Crypt\PublicKey\Rsa::MODE_AUTO`, if you were not using them previously.)
+## 2.5.0 (2015-06-03)
 
-  We recommend re-encrypting any such values using the new defaults.
-
-## 2.4.8 (2015-09-15)
-
-- [zend-validator/25: validate against DateTimeImmutable instead of DateTimeInterface](https://github.com/zendframework/zend-validator/pull/25)
-- [zend-validator/35: treat 0.0 as non-empty, restoring pre-2.4 behavior](https://github.com/zendframework/zend-validator/pull/35)
-- [zend-inputfilter/26: deprecate "magic" logic for auto-attaching NonEmpty validators in favor of explicit attachment](https://github.com/zendframework/zend-inputfilter/pull/26)
-- [zend-inputfilter/22: ensure fallback values work as per pre-2.4 behavior](https://github.com/zendframework/zend-inputfilter/pull/22)
-- [zend-inputfilter/31: update the InputFilterInterface::add() docblock to match implementations](https://github.com/zendframework/zend-inputfilter/pull/31)
-- [zend-inputfilter/25: Fix how missing optoinal fields are validated to match pre 2.4.0 behavior](https://github.com/zendframework/zend-inputfilter/pull/26)
-- [zend-form/12: deprecate AllowEmpty and ContinueIfEmpty annotations, per zend-inputfilter#26](https://github.com/zendframework/zend-form/pull/12)
-- [zend-form/9: fix typos in aria attribute names of AbstractHelper](https://github.com/zendframework/zend-form/pull/9)
-- [zend-mail/26: fixes the ContentType header to properly handle encoded parameter values](https://github.com/zendframework/zend-mail/pull/26)
-- [zend-mail/11: fixes the Sender header to allow mailbox addresses without TLDs](https://github.com/zendframework/zend-mail/pull/11)
-- [zend-mail/24: fixes parsing of messages that contain an initial blank line before headers](https://github.com/zendframework/zend-mail/pull/24)
-- [zend-http/23: fixes the SetCookie header to allow multiline values (as they are always encoded)](https://github.com/zendframework/zend-http/pull/23)
-- [zend-mvc/27: fixes DefaultRenderingStrategy errors due to controllers returning non-view model results](https://github.com/zendframework/zend-mvc/pull/27)
-
-### SECURITY UPDATES
-
-- **ZF2015-07**: The filesystem storage adapter of `Zend\Cache` was creating
-  directories with a liberal umask that could lead to local arbitrary code
-  execution and/or local privilege escalation. This release contains a patch
-  that ensures the directories are created using permissions of 0775 and files
-  using 0664 (essentially umask 0002). 
-
-## 2.4.7 (2015-08-11)
-
-- [15: validateInputs must allow ArrayAccess for $data](https://github.com/zendframework/zend-inputfilter/pull/15)
-
-## 2.4.6 (2015-08-03)
-
-- [10: Take fallback value into account](https://github.com/zendframework/zend-inputfilter/pull/10)
-
-## 2.4.5 (2015-07-28)
-
-- [7: Ensure Required, AllowEmpty validation combo works](https://github.com/zendframework/zend-inputfilter/pull/7)
-
-## 2.4.4 (2015-07-21)
-
-- [9: Fix count increment on insert in PriorityList](https://github.com/zendframework/zend-stdlib/pull/9)
+- [7072: Split Framework](https://github.com/zendframework/zf2/issues/7072)
+- [7095: Drop PHP 5.3 support](https://github.com/zendframework/zf2/issues/7095)
+- [7119: #7095 - bumping minimum PHP version requirement to 5.4.0](https://github.com/zendframework/zf2/pull/7119)
+- [7542: &#91;WIP&#92; Make ZF2 a meta-package](https://github.com/zendframework/zf2/pull/7542)
 
 ## 2.4.2 (2015-05-11)
 
@@ -97,7 +49,7 @@
 - [7380: Remove unused code](https://github.com/zendframework/zf2/pull/7380)
 - [7383: Fixes typos](https://github.com/zendframework/zf2/pull/7383)
 - [7391: update composer's branch-alias](https://github.com/zendframework/zf2/pull/7391)
-- [7392: improvments for Zend\InputFilter](https://github.com/zendframework/zf2/pull/7392)
+- [7392: improvements for Zend\InputFilter](https://github.com/zendframework/zf2/pull/7392)
 - [7393: implements @todo write more tests for Zend\Ldap\Converter::toLdap()](https://github.com/zendframework/zf2/pull/7393)
 - [7394: fixed return type on disconnect method in pgsql connection](https://github.com/zendframework/zf2/pull/7394)
 - [7396: added connection type to allow force new connection](https://github.com/zendframework/zf2/pull/7396)

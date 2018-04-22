@@ -1,0 +1,96 @@
+[
+    {
+        "label": "History",
+        "menu_id": "history",
+        "target": "main",
+        "on_click":"top.restoreSession()",
+        "url": "../history/history.php",
+        "pid":"false",
+        "children": [],
+        "requirement": 0,
+        "acl_req":[]
+    },
+    {
+        "label": "Report",
+        "menu_id": "report",
+        "target": "main",
+        "on_click":"top.restoreSession()",
+        "url": "../report/patient_report.php",
+        "pid":"false",
+        "children": [],
+        "requirement": 0,
+        "acl_req":[]
+    },
+    {
+        "label": "Documents",
+        "menu_id": "documents",
+        "target": "main",
+        "on_click":"top.restoreSession()",
+        "url": "../../../controller.php?document&list&patient_id=",
+        "pid":"true",
+        "children": [],
+        "requirement": 0,
+        "acl_req":[]
+    },
+    {
+        "label": "Transactions",
+        "menu_id": "transactions",
+        "target": "main",
+        "on_click":"top.restoreSession()",
+        "url": "../transaction/transactions.php",
+        "pid":"false",
+        "children": [],
+        "requirement": 0,
+        "acl_req":[]
+    },
+    {
+        "label": "Issues",
+        "menu_id": "issues",
+        "target": "main",
+        "on_click":"top.restoreSession()",
+        "url": "stats_full.php?active=all",
+        "pid":"false",
+        "children": [],
+        "requirement": 0,
+        "acl_req":[]
+    },
+    {
+        "label": "Ledger",
+        "menu_id": "ledger",
+        "target": "main",
+        "on_click":"top.restoreSession()",
+        "url": "../../reports/pat_ledger.php?form=1&patient_id=",
+        "pid":"true",
+        "children": [],
+        "requirement": 0,
+        "acl_req":[]
+    },
+    {
+        "label": "External Data",
+        "menu_id": "external_data",
+        "target": "main",
+        "on_click":"top.restoreSession()",
+        "url": "../../reports/external_data.php",
+        "pid":"false",
+        "children": [],
+        "requirement": 0,
+        "acl_req":[]
+    },
+    {
+        "label": "Publish",
+        "menu_id": "publish",
+        "target": "main",
+        "on_click":"doPublish();return false;",
+        "url": "",
+        "pid":"false",
+        "children": [],
+        "requirement": 0,
+        "acl_req":[],
+        "global_req":"fhir_enable"
+    },
+    {
+        "label": "Modules",
+        "children": [],
+        "requirement": 0
+    }
+]

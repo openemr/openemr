@@ -822,10 +822,6 @@ text-decoration: none;
 border-radius: 8px 8px 0 0;
 box-shadow: 2px -1px 1px #c0c0c0;
  }
- form {
-    width: 95%;
-    margin: 0 auto;
- }
 ul.tabNav li.current a { background:#FFFFFF; }
 
 div.tabContainer {
@@ -1351,13 +1347,13 @@ height: 300px !important;
     background: #FFF;
     color: #333;
     display: block;
-    padding: 8px;
+    padding: 0px;
     text-decoration: none;
-    border-radius: 8px;
-    border:1pt solid black;
-    box-shadow: 2px 2px 2px #c0c0c0;
- }
- #theform th ul li {
+    border-bottom: 0.1pt solid black;
+    box-shadow: 0px 0px 2px #c0c0c0;
+    margin: 3px;
+}
+#theform th ul li {
     top: .375em;
 }
 #pattrk {

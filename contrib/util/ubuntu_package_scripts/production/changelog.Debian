@@ -1,3 +1,9 @@
+openemr (5.0.1-1) stable; urgency=low
+
+  * New upstream version
+
+ -- Brady Miller <brady.g.miller@gmail.com>  Sun, 15 Apr 2018 01:46:53 -0700
+
 openemr (5.0.0-2) stable; urgency=low
 
   * Security fixes

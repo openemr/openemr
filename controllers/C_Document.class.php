@@ -130,19 +130,55 @@ class C_Document extends Controller
 
             foreach ($_FILES['file']['name'] as $key => $value) {
                 $fname = $value;
-                $err = "";
+                $error = "";
                 if ($_FILES['file']['error'][$key] > 0 || empty($fname) || $_FILES['file']['size'][$key] == 0) {
                     $fname = $value;
                     if (empty($fname)) {
                         $fname = htmlentities("<empty>");
                     }
-                    $error = xl("Error number") .": " . $_FILES['file']['error'][$key] . " " . xl("occurred while uploading file named") . ": " . $fname . "\n";
+                    $error = xl("Error number") . ": " . $_FILES['file']['error'][$key] . " " . xl("occurred while uploading file named") . ": " . $fname . "\n";
                     if ($_FILES['file']['size'][$key] == 0) {
                         $error .= xl("The system does not permit uploading files of with size 0.") . "\n";
                     }
                 } elseif ($GLOBALS['secure_upload'] && !isWhiteFile($_FILES['file']['tmp_name'][$key])) {
-                       $error = xl("The system does not permit uploading files with MIME content type") . " - " . mime_content_type($_FILES['file']['tmp_name'][$key]) . ".\n";
+                    $error = xl("The system does not permit uploading files with MIME content type") . " - " . mime_content_type($_FILES['file']['tmp_name'][$key]) . ".\n";
                 } else {
+                    // Test for a zip of DICOM images
+                    if (stripos($_FILES['file']['type'][$key], 'zip') !== false) {
+                        $za = new ZipArchive();
+                        $handler = $za->open($_FILES['file']['tmp_name'][$key]);
+                        if ($handler) {
+                            $mimetype = "application/dicom+zip";
+                            for ($i = 0; $i < $za->numFiles; $i++) {
+                                $stat = $za->statIndex($i);
+                                $fp = $za->getStream($stat['name']);
+                                if ($fp) {
+                                    $head = fread($fp, 256);
+                                    fclose($fp);
+                                    if (strpos($head, 'DICM') === false) { // Fixed at offset 128. even one non DICOM makes zip invalid.
+                                        $mimetype = "application/zip";
+                                        break;
+                                    }
+                                    unset($head);
+                                    // if here -then a DICOM
+                                    $parts = pathinfo($stat['name']);
+                                    if (strtolower($parts['extension']) != "dcm") { // require extension for viewer
+                                        $new_name = $stat['name'] . ".dcm";
+                                        $za->renameIndex($i, $new_name); // only use index rename!
+                                    }
+                                } else { // Rarely here
+                                    $mimetype = "application/zip";
+                                    break;
+                                }
+                            }
+                            $za->close();
+                            if ($mimetype == "application/dicom+zip") {
+                                $_FILES['file']['type'][$key] = $mimetype;
+                                sleep(1); // Timing insurance in case of re-compression. Only acted on index so...!
+                                $_FILES['file']['size'][$key] = filesize($_FILES['file']['tmp_name'][$key]); // file may have grown.
+                            }
+                        }
+                    }
                     $tmpfile = fopen($_FILES['file']['tmp_name'][$key], "r");
                     $filetext = fread($tmpfile, $_FILES['file']['size'][$key]);
                     fclose($tmpfile);
@@ -152,25 +188,13 @@ class C_Document extends Controller
                     if ($_POST['destination'] != '') {
                         $fname = $_POST['destination'];
                     }
+                    // set mime, test for single DICOM and assign extension if missing.
                     $mimetype = $_FILES['file']['type'][$key];
-                    if ($mimetype == 'application/octet-stream') { // windows most likely...
+                    if (strpos($filetext, 'DICM') !== false) {
+                        $mimetype = 'application/dicom';
                         $parts = pathinfo($fname);
-                        if (strtolower($parts['extension']) == 'dcm') { // cheat for dicom on windows because MS must be different!!!
-                            $mimetype = 'application/dicom';
-                        }
-                    } elseif (stripos($mimetype, 'zip') !== false) {
-                        $za = new ZipArchive();
-                        $handler = $za->open($_FILES['file']['tmp_name'][$key]);
-                        if ($handler) {
-                            $mimetype = "application/dicom+zip";
-                            for ($i = 0; $i < $za->numFiles; $i++) {
-                                $stat = $za->statIndex($i);
-                                $parts = pathinfo($stat['name']);
-                                if (strtolower($parts['extension']) != "dcm") {
-                                    $mimetype = "application/zip";
-                                    break;
-                                }
-                            }
+                        if (!$parts['extension']) {
+                            $fname .= '.dcm';
                         }
                     }
                     $d = new Document();
@@ -286,11 +310,10 @@ class C_Document extends Controller
             if (!file_exists($temp_url)) {
                 echo xl('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.', '', '', ' ') . $temp_url;
             }
-                        $url = $temp_url;
-            $body_notes = attr($_POST['note']);
+            $url = $temp_url;
             $pdetails = getPatientData($patient_id);
             $pname = $pdetails['fname']." ".$pdetails['lname'];
-            $this->document_send($_POST['provide_email'], $body_notes, $url, $pname);
+            $this->document_send($_POST['provide_email'], $_POST['note'], $url, $pname);
             if ($couch_docid && $couch_revid) {
       // remove the temporary couchdb file
                 unlink($temp_couchdb_url);
@@ -1211,7 +1234,7 @@ class C_Document extends Controller
             return;
         }
 
-          $desc = "Please check the attached patient document.\n Content:".attr($body);
+          $desc = "Please check the attached patient document.\n Content:".$body;
           $mail = new MyMailer();
           $from_name = $GLOBALS["practice_return_email_path"];
           $from =  $GLOBALS["practice_return_email_path"];

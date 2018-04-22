@@ -432,11 +432,6 @@ ALTER TABLE `issue_types` ADD `aco_spec` varchar(63) NOT NULL default 'patients|
 ALTER TABLE `categories` ADD `aco_spec` varchar(63) NOT NULL default 'patients|docs';
 #EndIf
 
-#IfNotRow background_services name ccdaservice
-INSERT INTO `background_services` (`name`, `title`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES ('ccdaservice', 'C-CDA Node Service', 1, 'runCheck', '/ccdaservice/ssmanager.php', 95);
-ALTER TABLE `background_services` CHANGE `running` `running` TINYINT(1) NOT NULL DEFAULT '-1' COMMENT 'True indicates managed service is busy. Skip this interval.';
-#EndIf
-
 #IfNotColumnType onsite_mail owner varchar(128)
 ALTER TABLE `onsite_mail` CHANGE `owner` `owner` varchar(128) DEFAULT NULL;
 #Endif
@@ -808,3 +803,11 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 #IfMissingColumn log_comment_encrypt version
 ALTER TABLE `log_comment_encrypt` ADD `version` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0 for mycrypt and 1 for openssl';
 #Endif
+
+#IfNotColumnType form_misc_billing_options icn_resubmission_number VARCHAR(35)
+ALTER TABLE form_misc_billing_options CHANGE `icn_resubmission_number` `icn_resubmission_number` VARCHAR(35) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn users patient_menu_role
+ALTER TABLE `users` ADD `patient_menu_role` VARCHAR(50) NOT NULL DEFAULT 'standard';
+#EndIf

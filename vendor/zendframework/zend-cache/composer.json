@@ -1,0 +1,71 @@
+{
+    "name": "zendframework/zend-cache",
+    "description": "provides a generic way to cache any data",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zf2",
+        "cache"
+    ],
+    "homepage": "https://github.com/zendframework/zend-cache",
+    "autoload": {
+        "psr-4": {
+            "Zend\\Cache\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^5.5 || ^7.0",
+        "zendframework/zend-stdlib": "^2.7 || ^3.0",
+        "zendframework/zend-servicemanager": "^2.7.5 || ^3.0.3",
+        "zendframework/zend-eventmanager": "^2.6.2 || ^3.0"
+    },
+    "require-dev": {
+        "zendframework/zend-serializer": "^2.6",
+        "zendframework/zend-session": "^2.6.2",
+        "phpunit/phpunit": "^4.8",
+        "phpbench/phpbench": "^0.10.0",
+        "zendframework/zend-coding-standard": "~1.0.0"
+    },
+    "suggest": {
+        "zendframework/zend-serializer": "Zend\\Serializer component",
+        "zendframework/zend-session": "Zend\\Session component",
+        "ext-apc": "APC or compatible extension, to use the APC storage adapter",
+        "ext-apcu": "APCU >= 5.1.0, to use the APCu storage adapter",
+        "ext-dba": "DBA, to use the DBA storage adapter",
+        "ext-memcache": "Memcache >= 2.0.0 to use the Memcache storage adapter",
+        "ext-memcached": "Memcached >= 1.0.0 to use the Memcached storage adapter",
+        "ext-mongo": "Mongo, to use MongoDb storage adapter",
+        "ext-redis": "Redis, to use Redis storage adapter",
+        "ext-wincache": "WinCache, to use the WinCache storage adapter",
+        "ext-xcache": "XCache, to use the XCache storage adapter",
+        "mongofill/mongofill": "Alternative to ext-mongo - a pure PHP implementation designed as a drop in replacement"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.7-dev",
+            "dev-develop": "2.8-dev"
+        },
+        "zf": {
+            "component": "Zend\\Cache",
+            "config-provider": "Zend\\Cache\\ConfigProvider"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\Cache\\": "test/",
+            "ZendBench\\Cache\\": "benchmark/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml",
+        "upload-coverage": "coveralls -v"
+    }
+}

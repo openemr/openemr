@@ -105,22 +105,6 @@ function checkBackgroundServices()
     $phimail_interval = max(0, (int) $GLOBALS['phimail_interval']);
     updateBackgroundService('phimail', $phimail_active, $phimail_interval);
 }
-function handleAltServices($this_serviceid, $gln = '', $sinterval = 1)
-{
-    $bgservices = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name = ?", array($gln));
-    while ($globalsrow = sqlFetchArray($bgservices)) {
-        $GLOBALS[$globalsrow['gl_name']] = $globalsrow['gl_value'];
-    }
-
-    $bs_active = empty($GLOBALS[$gln]) ? '0' : '1';
-    $bs_interval = max(0, (int) $sinterval);
-    updateBackgroundService($this_serviceid, $bs_active, $bs_interval);
-    if (!$bs_active && $this_serviceid == 'ccdaservice') {
-        require_once(dirname(__FILE__)."/../../ccdaservice/ssmanager.php");
-
-        @service_shutdown(0);
-    }
-}
 ?>
 
 <html>
@@ -301,7 +285,6 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
 
     checkCreateCDB();
     checkBackgroundServices();
-    handleAltServices('ccdaservice', 'ccda_alt_service_enable', 1);
 
   // July 1, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
   // If Audit Logging status has changed, log it.

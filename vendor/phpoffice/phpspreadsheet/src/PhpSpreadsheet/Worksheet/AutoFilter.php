@@ -123,8 +123,6 @@ class AutoFilter
     /**
      * Get all AutoFilter Columns.
      *
-     * @throws PhpSpreadsheetException
-     *
      * @return AutoFilter\Column[]
      */
     public function getColumns()
@@ -471,6 +469,7 @@ class AutoFilter
      * @var array
      */
     private static $fromReplace = ['\*', '\?', '~~', '~.*', '~.?'];
+
     private static $toReplace = ['.*', '.', '~', '\*', '\?'];
 
     /**

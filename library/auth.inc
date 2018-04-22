@@ -63,7 +63,10 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
     //store the very first initial timestamp for timeout errors
     $_SESSION["last_update"] = time();
 } else if ((isset($_GET['auth'])) && ($_GET['auth'] == "logout")) {
-    newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "success");
+    //If session has timed out / been destroyed, logout record for null user/provider will be invalid.
+    if (!empty($_SESSION['authUser']) && !empty($_SESSION['authProvider'])) {
+        newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "success");
+    }
     authCloseSession();
     authLoginScreen(true);
 } else {

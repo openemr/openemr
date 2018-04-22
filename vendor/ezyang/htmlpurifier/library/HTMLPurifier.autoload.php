@@ -14,10 +14,7 @@ if (function_exists('spl_autoload_register') && function_exists('spl_autoload_un
         spl_autoload_register('__autoload');
     }
 } elseif (!function_exists('__autoload')) {
-    function __autoload($class)
-    {
-        return HTMLPurifier_Bootstrap::autoload($class);
-    }
+    require dirname(__FILE__) . '/HTMLPurifier.autoload-legacy.php';
 }
 
 if (ini_get('zend.ze1_compatibility_mode')) {

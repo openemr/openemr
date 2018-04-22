@@ -101,6 +101,13 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
         $tmp = $_GET['site'];
     } else {
         if (empty($ignoreAuth)) {
+            // mdsupport - Don't die if logout menu link is called from expired session.
+            // Eliminate this code when close method is available for session management.
+            if ((isset($_GET['auth'])) && ($_GET['auth'] == "logout")) {
+                $GLOBALS['login_screen'] = "login_screen.php";
+                $srcdir = "../library";
+                include_once("$srcdir/auth.inc");
+            }
             die("Site ID is missing from session data!");
         }
 

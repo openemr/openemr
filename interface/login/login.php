@@ -172,7 +172,7 @@ if (count($emr_app)) {
                 <div class="col-sm-12">
                     <div>
                         <div class="center-block" style="max-width:400px">
-                            <img class="img-responsive center-block" src="<?php echo $GLOBALS['images_static_relative']; ?>/login-logo.png" />
+                            <img class="img-fluid img-responsive center-block" src="<?php echo $GLOBALS['images_static_relative']; ?>/login-logo.png" />
                         </div>
 
                         <input type='hidden' name='new_login_session_management' value='1' />
@@ -241,26 +241,23 @@ if (count($emr_app)) {
                     </div>
                 </div>
             </div>
-            <?php if (isset($_SESSION['relogin']) && ($_SESSION['relogin'] == 1)) : // Begin relogin dialog ?>
             <div class="row">
                 <div class="col-sm-12">
-                    <p>
-                        <strong><?php echo xlt('Password security has recently been upgraded.'); ?><br>
-                        <?php echo xlt('Please login again.'); ?></strong>
-                    </p>
-                    <?php unset($_SESSION['relogin']); ?>
-                </div>
-            </div>
-            <?php endif; ?>
-            <?php if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)) : // Begin login failure block ?>
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="well well-lg login-failure">
+                    <?php if (isset($_SESSION['relogin']) && ($_SESSION['relogin'] == 1)) : // Begin relogin dialog ?>
+                    <div class="alert alert-info m-1">
+                        <strong>
+                            <?php echo xlt('Password security has recently been upgraded.').'&nbsp;&nbsp;'.xlt('Please login again.'); ?>
+                        </strong>
+                    </div>
+                    <?php unset($_SESSION['relogin']);
+                    endif;
+if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)) : // Begin login failure block ?>
+                    <div class="alert alert-danger login-failure m-1">
                         <?php echo xlt('Invalid username or password'); ?>
                     </div>
+                    <?php endif; // End login failure block?>
                 </div>
             </div>
-            <?php endif; // End login failure block?>
             <div class="row">
                 <?php
                 $extraLogo = $GLOBALS['extra_logo_login'];

@@ -121,6 +121,7 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'pat_trkr_timer',
     'ptkr_visit_reason',
     'ptkr_date_range',
+    'ptkr_start_date',
     'ptkr_end_date',
     'checkout_roll_off',
     'patient_birthday_alert',
@@ -418,6 +419,13 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',                              // default = false
             xl('Default state of New Window checkbox in the patient list.')
+        ),
+
+        'num_of_messages_displayed' => array(
+            xl('Number of Messages Displayed in Patient Summary'),
+            'num',
+            '3',
+            xl('This is the number of messages that will be displayed in the messages widget in the patient summary screen.')
         ),
 
         'gbl_vitals_options' => array(
@@ -1660,19 +1668,30 @@ $GLOBALS_METADATA = array(
             xl('This Allows a Date Range to be Selected in Patient Flow Board.')
         ),
 
+        'ptkr_start_date'=> array(
+            xl('Flow Board: Default Starting Date'),
+            array(
+                'D0' => xl('Current Day'),
+                'B0' => xl('Beginning of Current Work Week'),
+            ),
+            'D0',                    // default = Current Day
+            xl('This is the default Beginning date for the Patient Flow Board. (only applicable if Allow Date Range in option above is Enabled)')
+        ),
+
         'ptkr_end_date' => array(
-            xl('Flow Board: Ending Date'),
+            xl('Flow Board: Default Ending Date'),
             array(
                 'Y1' => xl('One Year Ahead'),
                 'Y2' => xl('Two Years Ahead'),
                 'M6' => xl('Six Months Ahead'),
                 'M3' => xl('Three Months Ahead'),
                 'M1' => xl('One Month Ahead'),
+                'D7' => xl('One Week Ahead'),
                 'D1' => xl('One Day Ahead'),
-                'D0' => xl('Same Day'),
+                'D0' => xl('Current Day'),
             ),
             'D0',                     // default = One Day Ahead
-            xl('This is the Ending date for the Patient Flow Board Date Range. (only applicable if Allow Date Range in option above is Enabled)')
+            xl('This is the default Ending date for the Patient Flow Board. (only applicable if Allow Date Range in option above is Enabled)')
         ),
 
         'pat_trkr_timer' => array(

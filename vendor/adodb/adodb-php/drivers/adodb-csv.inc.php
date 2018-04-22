@@ -1,6 +1,6 @@
 <?php
 /*
-@version   v5.20.10  08-Mar-2018
+@version   v5.20.12  30-Mar-2018
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -83,8 +83,10 @@ class ADODB_csv extends ADOConnection {
 	// parameters use PostgreSQL convention, not MySQL
 	function SelectLimit($sql, $nrows = -1, $offset = -1, $inputarr = false, $secs2cache = 0)
 	{
-	global $ADODB_FETCH_MODE;
+		global $ADODB_FETCH_MODE;
 
+		$nrows = (int) $nrows;
+		$offset = (int) $offset;
 		$url = $this->_url.'?sql='.urlencode($sql)."&nrows=$nrows&fetch=".
 			(($this->fetchMode !== false)?$this->fetchMode : $ADODB_FETCH_MODE).
 			"&offset=$offset";

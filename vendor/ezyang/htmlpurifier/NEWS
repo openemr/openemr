@@ -9,6 +9,20 @@ NEWS ( CHANGELOG and HISTORY )                                     HTMLPurifier
     . Internal change
 ==========================
 
+4.10.0, released 2018-02-22
+# PHP 5.3 is no longer officially supported by HTML Purifier
+  (we did not specifically break support, but we are no longer
+  testing on PHP 5.3)
+! Relative CSS length units are now supported
+- A few PHP 7.2 compatibility fixes, thanks John Flatness
+  <john@zerocrates.org>
+- Improve portability with old versions of libxml which don't
+  support accessing the data of a node
+- IDNA2008 is now used for converting domains to ASCII, fixing
+  some rather strange bugs with international domains
+- Fix race condition resulting in E_WARNING when creating
+  directories with Serializer
+
 4.9.3, released 2017-06-02
 - Workaround PHP 7.1 infinite loop when opcode cache is enabled.
   Thanks @Xiphin (#134, #135)

@@ -1,6 +1,6 @@
 <?php
 /*
-@version   v5.20.10  08-Mar-2018
+@version   v5.20.12  30-Mar-2018
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
    Set tabs to 4.
@@ -209,7 +209,7 @@ class ADODB_text extends ADOConnection {
 			$where_arr = array();
 
 			reset($this->_origarray);
-			while (list($k_arr,$arr) = each($this->_origarray)) {
+			foreach ($this->_origarray as $arr) {
 
 				if ($i == 0 && $this->_skiprow1)
 					$where_arr[] = $arr;
@@ -247,7 +247,7 @@ class ADODB_text extends ADOConnection {
 				$i = 0;
 				$n = '';
 				reset($this->_colnames);
-				while (list($k_n,$n) = each($this->_colnames)) {
+				foreach ($this->_colnames as $n) {
 
 					if ($col == strtoupper(trim($n))) break;
 					$i += 1;
@@ -259,8 +259,7 @@ class ADODB_text extends ADOConnection {
 					$projtypes = array($this->_types[$i]);
 					$projnames = array($n);
 
-					reset($where_arr);
-					while (list($k_a,$a) = each($where_arr)) {
+					foreach ($where_arr as $a) {
 						if ($i == 0 && $this->_skiprow1) {
 							$projarray[] = array($n);
 							continue;
@@ -302,7 +301,7 @@ class ADODB_text extends ADOConnection {
 		if ($at == 0) {
 			$i = 0;
 			reset($projnames);
-			while (list($k_n,$n) = each($projnames)) {
+			foreach ($projnames as $n) {
 				if (strtoupper(trim($n)) == $col) {
 					$at = $i+1;
 					break;

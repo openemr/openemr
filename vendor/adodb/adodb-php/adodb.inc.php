@@ -14,7 +14,7 @@
 /**
 	\mainpage
 
-	@version   v5.20.10  08-Mar-2018
+	@version   v5.20.12  30-Mar-2018
 	@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 	@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
 
@@ -232,7 +232,7 @@ if (!defined('_ADODB_LAYER')) {
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'v5.20.10  08-Mar-2018';
+		$ADODB_vers = 'v5.20.12  30-Mar-2018';
 
 		/**
 		 * Determines whether recordset->RecordCount() is used.
@@ -1163,8 +1163,7 @@ if (!defined('_ADODB_LAYER')) {
 
 				foreach($inputarr as $arr) {
 					$sql = ''; $i = 0;
-					//Use each() instead of foreach to reduce memory usage -mikefedyk
-                    foreach ($arr as $v) {
+					foreach ($arr as $v) {
 						$sql .= $sqlarr[$i];
 						// from Ron Baldwin <ron.baldwin#sourceprose.com>
 						// Only quote string types
@@ -1497,6 +1496,9 @@ if (!defined('_ADODB_LAYER')) {
 	 * @return		the recordset ($rs->databaseType == 'array')
 	 */
 	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0) {
+		$nrows = (int)$nrows;
+		$offset = (int)$offset;
+
 		if ($this->hasTop && $nrows > 0) {
 			// suggested by Reinhard Balling. Access requires top after distinct
 			// Informix requires first before distinct - F Riosa
@@ -1511,7 +1513,7 @@ if (!defined('_ADODB_LAYER')) {
 					// access includes ties in result
 					if ($isaccess) {
 						$sql = preg_replace(
-						'/(^\s*select\s+(distinctrow|distinct)?)/i','\\1 '.$this->hasTop.' '.((integer)$nrows).' ',$sql);
+						'/(^\s*select\s+(distinctrow|distinct)?)/i','\\1 '.$this->hasTop.' '.$nrows.' ',$sql);
 
 						if ($secs2cache != 0) {
 							$ret = $this->CacheExecute($secs2cache, $sql,$inputarr);
@@ -1521,10 +1523,10 @@ if (!defined('_ADODB_LAYER')) {
 						return $ret; // PHP5 fix
 					} else if ($ismssql){
 						$sql = preg_replace(
-						'/(^\s*select\s+(distinctrow|distinct)?)/i','\\1 '.$this->hasTop.' '.((integer)$nrows).' ',$sql);
+						'/(^\s*select\s+(distinctrow|distinct)?)/i','\\1 '.$this->hasTop.' '.$nrows.' ',$sql);
 					} else {
 						$sql = preg_replace(
-						'/(^\s*select\s)/i','\\1 '.$this->hasTop.' '.((integer)$nrows).' ',$sql);
+						'/(^\s*select\s)/i','\\1 '.$this->hasTop.' '.$nrows.' ',$sql);
 					}
 			} else {
 				$nn = $nrows + $offset;
@@ -3038,6 +3040,61 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}*/
 		$rs = $this->PageExecute($sql,$nrows,$page,$inputarr,$secs2cache);
 		return $rs;
+	}
+
+	/**
+	 * Get the last error recorded by PHP and clear the message.
+	 *
+	 * By clearing the message, it becomes possible to detect whether a new error
+	 * has occurred, even when it is the same error as before being repeated.
+	 *
+	 * @return array|null Array if an error has previously occurred. Null otherwise.
+	 */
+	protected function resetLastError() {
+		$error = error_get_last();
+
+		if (is_array($error)) {
+			$error['message'] = '';
+		}
+
+		return $error;
+	}
+
+	/**
+	 * Compare a previously stored error message with the last error recorded by PHP
+	 * to determine whether a new error has occured.
+	 *
+	 * @param array|null $old Optional. Previously stored return value of error_get_last().
+	 *
+	 * @return string The error message if a new error has occured
+	 *                or an empty string if no (new) errors have occured..
+	 */
+	protected function getChangedErrorMsg($old = null) {
+		$new = error_get_last();
+
+		if (is_null($new)) {
+			// No error has occured yet at all.
+			return '';
+		}
+
+		if (is_null($old)) {
+			// First error recorded.
+			return $new['message'];
+		}
+
+		$changed = false;
+		foreach($new as $key => $value) {
+			if ($new[$key] !== $old[$key]) {
+				$changed = true;
+				break;
+			}
+		}
+
+		if ($changed === true) {
+			return $new['message'];
+		}
+
+		return '';
 	}
 
 } // end class ADOConnection

@@ -325,12 +325,27 @@ function writeOptionLine(
     echo "<input type='checkbox' name='opt[$opt_line_no][default]' value='1' " .
         "onclick='defClicked($opt_line_no)' class='optin'$checked />";
     echo "</td>\n";
-
-    echo "  <td>";
-    echo "<input type='checkbox' name='opt[$opt_line_no][activity]' value='1' " .
-        " class='optin'$checked_active />";
-    echo "</td>\n";
-
+    
+    if (preg_match('/Eye_QP_/', $list_id)) {
+        echo "  <td>";
+        echo "<select name='opt[$opt_line_no][activity]' class='optin'>";
+        foreach (array(
+                     1 => xl('Replace'),
+                     2 => xl('Append')
+                 ) as $key => $desc) {
+            echo "<option value='$key'";
+            if ($key == $active) {
+                echo " selected";
+            }
+            echo ">" . htmlspecialchars($desc) . "</option>";
+        }
+        echo "</select>";
+        echo "</td>";
+    } else {
+        echo "  <td>";
+        echo "<input type='checkbox' name='opt[$opt_line_no][activity]' value='1' " . " class='optin'$checked_active />";
+        echo "</td>\n";
+    }
     // Tax rates, contraceptive methods and LBF names have an additional attribute.
     //
     if ($list_id == 'taxrate' || $list_id == 'contrameth' || $list_id == 'lbfnames' || $list_id == 'transactions') {
@@ -436,6 +451,10 @@ function writeOptionLine(
         echo "  <td>";
         echo generate_select_list("opt[$opt_line_no][subtype]", 'issue_subtypes', $subtype, 'Subtype', ' ', 'optin');
         echo "</td>\n";
+    }
+    if (preg_match('/Eye_QP_/', $list_id)) {
+        echo "<input type='hidden' name='opt[$opt_line_no][subtype]' value='" . htmlspecialchars($subtype, ENT_QUOTES) . "' />";
+        echo "<input type='hidden' name='opt[$opt_line_no][mapping]' value='" . htmlspecialchars($mapping, ENT_QUOTES) . "' />";
     }
     echo " </tr>\n";
 }
@@ -977,6 +996,7 @@ function writeITLine($it_array)
 </head>
 
 <body class="body_top">
+<form method='post' name='theform' id='theform' action='edit_list.php'>
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -1003,10 +1023,8 @@ function writeITLine($it_array)
                     </a>
                 </li>
             </ul>
-            <form method='post' name='theform' id='theform'
-                  action='edit_list.php' class="navbar-form navbar-left">
                 <input type="hidden" name="formaction" id="formaction">
-                <div class="form-group">
+                <div class="form-group navbar-left">
                     <select name='list_id' class="form-control select-dropdown"
                             id="list_id">
                         <?php
