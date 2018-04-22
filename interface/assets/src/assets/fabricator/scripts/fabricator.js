@@ -370,7 +370,7 @@ fabricator.setInitialMenuState = function () {
  * See: http://www.javascriptkit.com/javatutors/loadjavascriptcss.shtml
  */
 fabricator.setInitialTheme = function () {
-	var themePath = "/assets/toolkit/styles/";
+	var themePath = "/assets/toolkit/styles/themes/";
 	var themeMenu = fabricator.dom.themeMenu;
 	var rtl = fabricator.dom.rtlToggle;
 	themeMenu.value = fabricator.options.toggles.theme;

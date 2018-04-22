@@ -29,10 +29,10 @@ var config = {
 		},
 		styles: {
 			fabricator: 'src/assets/fabricator/styles/fabricator.scss',
-			style_light: 'src/assets/toolkit/styles/style_light.scss',
-            style_manila: 'src/assets/toolkit/styles/style_manila.scss',
-            style_color: 'src/assets/toolkit/styles/colors/**/*.scss',
-			all: 'src/assets/toolkit/styles/**/style_*.scss'
+			style_light: 'src/assets/toolkit/styles/themes/style_light.scss',
+            style_manila: 'src/assets/toolkit/styles/themes/style_manila.scss',
+            style_color: 'src/assets/toolkit/styles/themes/colors/**/*.scss',
+			all: 'src/assets/toolkit/styles/themes/**/style_*.scss'
 		},
 		images: 'src/assets/toolkit/images/**/*',
 		views: 'src/toolkit/views/*.html'
@@ -73,7 +73,7 @@ gulp.task('styles:style_light', function () {
 		.pipe(prefix('last 1 version'))
 		.pipe(gulpif(!config.dev, csso()))
 		.pipe(sourcemaps.write())
-		.pipe(gulp.dest(config.dest + '/assets/toolkit/styles'))
+		.pipe(gulp.dest(config.dest + '/assets/toolkit/styles/themes'))
 		.pipe(gulpif(config.dev, reload({stream:true})));
 });
 
@@ -84,7 +84,7 @@ gulp.task('styles:style_manila', function () {
         .pipe(prefix('last 1 version'))
         .pipe(gulpif(!config.dev, csso()))
         .pipe(sourcemaps.write())
-        .pipe(gulp.dest(config.dest + '/assets/toolkit/styles'))
+        .pipe(gulp.dest(config.dest + '/assets/toolkit/styles/themes'))
         .pipe(gulpif(config.dev, reload({stream:true})));
 });
 
@@ -95,7 +95,7 @@ gulp.task('styles:style_color', function () {
         .pipe(prefix('last 1 version'))
         .pipe(gulpif(!config.dev, csso()))
         .pipe(sourcemaps.write())
-        .pipe(gulp.dest(config.dest + '/assets/toolkit/styles'))
+        .pipe(gulp.dest(config.dest + '/assets/toolkit/styles/themes'))
         .pipe(gulpif(config.dev, reload({stream:true})));
 });
 
@@ -106,12 +106,12 @@ gulp.task('styles:rtl', function () {
 		.pipe(prefix('last 1 version'))
 		.pipe(gulpif(!config.dev, csso()))
 		.pipe(sourcemaps.write())
-		.pipe(gap.appendFile('src/assets/toolkit/styles/rtl.css'))
+		.pipe(gap.appendFile('src/assets/toolkit/styles/themes/rtl.css'))
 		.pipe(rename({
 			dirname: "",
 			prefix:"rtl_"
 		}))
-		.pipe(gulp.dest(config.dest + '/assets/toolkit/styles'))
+		.pipe(gulp.dest(config.dest + '/assets/toolkit/styles/themes'))
 		.pipe(gulpif(config.dev, reload({stream:true})));
 });
 
