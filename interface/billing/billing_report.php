@@ -789,7 +789,7 @@ function MarkAsCleared(Type) {
                                     //
                                     if ($lhtml) {
                                         while ($rcount < $lcount) {
-                                            $rhtml .= "<tr bgcolor='$bgcolor'><td colspan='8'></td></tr>";
+                                            $rhtml .= "<tr bgcolor='$bgcolor'><td colspan='9'></td></tr>";
                                             ++ $rcount;
                                         }
                                         // This test handles the case where we are only listing encounters
@@ -1215,7 +1215,7 @@ function MarkAsCleared(Type) {
 
                             if ($lhtml) {
                                 while ($rcount < $lcount) {
-                                    $rhtml .= "<tr bgcolor='$bgcolor'><td colspan='8'></td></tr>";
+                                    $rhtml .= "<tr bgcolor='$bgcolor'><td colspan='9'></td></tr>";
                                     ++ $rcount;
                                 }
                                 if (! $missing_mods_only || ($mmo_empty_mod && $mmo_num_charges > 1)) {
