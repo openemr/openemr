@@ -37,7 +37,7 @@ $facilityService = new FacilityService();
 
 <?php
 // Format dollars for display.
-      
+
 function bucks($amount)
 {
     if ($amount) {
@@ -631,7 +631,7 @@ function coloring() {
         if (document.getElementById('paying_' + i)) {
             paying = document.getElementById('paying_' + i).value * 1;
             patient_balance = document.getElementById('duept_' + i).innerHTML * 1;
-    
+
             //balance=document.getElementById('balance_'+i).innerHTML*1;
             if (patient_balance > 0 && paying > 0) {
                 if (paying > patient_balance) {
@@ -715,7 +715,7 @@ function validate() {
             }
         }
     }
-    
+
     if (document.getElementById('radio_type_of_payment1').checked == true){//CO-PAY
         var total = 0;
         for (var i = 0; i < f.elements.length; ++i) {
@@ -812,7 +812,7 @@ function make_visible() {
         var td_inspaid_elem = document.getElementById('td_inspaid_' + i)
         var td_ptpaid_elem = document.getElementById('td_ptpaid_' + i)
         var td_patient_copay_elem = document.getElementById('td_patient_copay_' + i)
-              
+
         var td_copay_elem = document.getElementById('td_copay_' + i)
         var balance_elem = document.getElementById('balance_' + i)
         var duept_elem = document.getElementById('duept_' + i)
@@ -854,7 +854,7 @@ function make_it_hide() {
         var td_inspaid_elem = document.getElementById('td_inspaid_' + i)
         var td_ptpaid_elem = document.getElementById('td_ptpaid_' + i)
         var td_patient_copay_elem = document.getElementById('td_patient_copay_' + i)
-                                                                      
+
         var td_copay_elem = document.getElementById('td_copay_' + i)
         var balance_elem = document.getElementById('balance_' + i)
         var duept_elem = document.getElementById('duept_' + i)
@@ -940,7 +940,7 @@ function make_insurance() {
         <div class="container"><!--begin container div for form-->
             <div class="row">
                 <div class="page-header">
-                    <h2><?php echo xlt('Accept Payment for '); ?><?php echo text($patdata['fname']) . " " .
+                    <h2><?php echo xlt('Accept Payment for'); ?><?php echo " " . text($patdata['fname']) . " " .
                             text($patdata['lname']) . " (" . text($patdata['pubpid']) . ")" ?></h2>
                     <?php $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname']; ?>
                 </div>
@@ -1030,7 +1030,7 @@ function make_insurance() {
                     <fieldset>
                         <legend><?php echo xla('Collect For'); ?></legend>
                         <div class= "table-responsive">
-                            <table class = "table" id="table_display">  
+                            <table class = "table" id="table_display">
                                 <thead>
                                     <tr bgcolor="#CCCCCC" id="tr_head">
                                         <td class="dehead" width="70"><?php echo xla('DOS'); ?></td>
@@ -1212,7 +1212,7 @@ function make_insurance() {
 
                                 // Continue with display of the data entry form.
                                 ?>
-                                
+
                                 <tr bgcolor="#CCCCCC">
                                     <td class="dehead" id='td_total_1'></td>
                                     <td class="dehead" id='td_total_2'></td>
