@@ -27,6 +27,8 @@
 //===============================================================================
 //Electronic posting is handled here.
 //===============================================================================
+use OpenEMR\Core\Header;
+
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/invoice_summary.inc.php");
@@ -51,7 +53,6 @@ function era_callback(&$out)
         if ($where) {
             $where .= ' OR ';
         }
-
         $where .= "( f.pid = '$pid' AND f.encounter = '$encounter' )";
     }
 }
@@ -65,7 +66,6 @@ if ($_FILES['form_erafile']['size']) {
         exec("unzip -p $tmp_name.zip > $tmp_name");
         unlink("$tmp_name.zip");
     }
-
     $alertmsg .= parse_era($tmp_name, 'era_callback');
     $erafullname = $GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi";
     if (is_file($erafullname)) {
@@ -75,214 +75,283 @@ if ($_FILES['form_erafile']['size']) {
             $alertmsg .=  xl("and processed.").' ';
         } else {
             $alertmsg .=  xl("but not yet processed.").' ';
-        }
-
-        ;
+        };
     }
-
     rename($tmp_name, $erafullname);
 } // End 835 upload
 //===============================================================================
 
 //===============================================================================
 ?>
+<!DOCTYPE html>
 <html>
 <head>
-<?php if (function_exists('html_header_show')) {
-    html_header_show();
-} ?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
-
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
-<script type="text/javascript" src="../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
-
-<script language='JavaScript'>
- var mypcc = '1';
-</script>
-<script type="text/javascript" language="javascript" >
-function Validate()
- {
-  if(document.getElementById('uploadedfile').value=='')
-   {
-    alert("<?php echo htmlspecialchars(xl('Please Choose a file'), ENT_QUOTES) ?>");
-    return false;
-   }
-  if(document.getElementById('hidden_type_code').value=='')
-   {
-    alert("<?php echo htmlspecialchars(xl('Select Insurance, by typing'), ENT_QUOTES) ?>");
-    document.getElementById('type_code').focus();
-    return false;
-   }
-  if(document.getElementById('hidden_type_code').value!=document.getElementById('div_insurance_or_patient').innerHTML)
-   {
-    alert("<?php echo htmlspecialchars(xl('Take Insurance, from Drop Down'), ENT_QUOTES) ?>");
-    document.getElementById('type_code').focus();
-    return false;
-   }
-    top.restoreSession();
-    document.forms[0].submit();
- }
-function OnloadAction()
- {//Displays message after upload action,and popups the details.
-  after_value=document.getElementById('after_value').value;
-  if(after_value!='')
-   {
-    alert(after_value);
-   }
-    <?php
-    if ($_FILES['form_erafile']['size']) {
-        ?>
-      var f = document.forms[0];
-        var debug = <?php echo htmlspecialchars($_REQUEST['form_without']*1);?> ;
-      var paydate = f.check_date.value;
-      var post_to_date = f.post_to_date.value;
-      var deposit_date = f.deposit_date.value;
-      window.open('sl_eob_process.php?eraname=<?php echo htmlspecialchars($eraname); ?>&debug=' + debug + '&paydate=' + paydate + '&post_to_date=' + post_to_date + '&deposit_date=' + deposit_date + '&original=original' + '&InsId=<?php echo htmlspecialchars(formData('hidden_type_code')); ?>' , '_blank');
-      return false;
-    <?php
+    <?php Header::setupHeader(['datetime-picker', 'common']);?>
+    <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
+    <script language='JavaScript'>
+    var mypcc = '1';
+    </script>
+    <script language="javascript" type="text/javascript">
+    function Validate()
+    {
+     if(document.getElementById('uploadedfile').value=='')
+      {
+       alert("<?php echo htmlspecialchars(xl('Please Choose a file'), ENT_QUOTES) ?>");
+       return false;
+      }
+     if(document.getElementById('hidden_type_code').value=='')
+      {
+       alert("<?php echo htmlspecialchars(xl('Select Insurance, by typing'), ENT_QUOTES) ?>");
+       document.getElementById('type_code').focus();
+       return false;
+      }
+     if(document.getElementById('hidden_type_code').value!=document.getElementById('div_insurance_or_patient').innerHTML)
+      {
+       alert("<?php echo htmlspecialchars(xl('Take Insurance, from Drop Down'), ENT_QUOTES) ?>");
+       document.getElementById('type_code').focus();
+       return false;
+      }
+       top.restoreSession();
+       document.forms[0].submit();
     }
-    ?>
- }
+    function OnloadAction()
+    {//Displays message after upload action,and popups the details.
+     after_value=document.getElementById('after_value').value;
+     if(after_value!='')
+      {
+       alert(after_value);
+      }
+        <?php
+        if ($_FILES['form_erafile']['size']) {
+            ?>
+            var f = document.forms[0];
+            var debug = <?php echo htmlspecialchars($_REQUEST['form_without']*1);?> ;
+         var paydate = f.check_date.value;
+         var post_to_date = f.post_to_date.value;
+         var deposit_date = f.deposit_date.value;
+         window.open('sl_eob_process.php?eraname=<?php echo htmlspecialchars($eraname); ?>&debug=' + debug + '&paydate=' + paydate + '&post_to_date=' + post_to_date + '&deposit_date=' + deposit_date + '&original=original' + '&InsId=<?php echo htmlspecialchars(formData('hidden_type_code')); ?>' , '_blank');
+         return false;
+        <?php
+        }
+        ?>
+    }
 
-$(document).ready(function() {
-    $('.datepicker').datetimepicker({
-        <?php $datetimepicker_timepicker = false; ?>
-        <?php $datetimepicker_showseconds = false; ?>
-        <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    $(document).ready(function() {
+       $('.datepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = true; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+       });
     });
-});
-</script>
-<script language="javascript" type="text/javascript">
-document.onclick=HideTheAjaxDivs;
-</script>
-<style>
-#ajax_div_insurance {
-    position: absolute;
-    z-index:10;
-    background-color: #FBFDD0;
-    border: 1px solid #ccc;
-    padding: 10px;
-}
-.bottom{border-bottom:1px solid black;}
-.top{border-top:1px solid black;}
-.left{border-left:1px solid black;}
-.right{border-right:1px solid black;}
-</style>
+    </script>
+    <script language="javascript" type="text/javascript">
+    document.onclick=HideTheAjaxDivs;
+    </script>
+    <style>
+    #ajax_div_insurance {
+       position: absolute;
+       z-index:10;
+       background-color: #FBFDD0;
+       border: 1px solid #ccc;
+       padding: 10px;
+    }
+    .bottom{border-bottom:1px solid black;}
+    .top{border-top:1px solid black;}
+    .left{border-left:1px solid black;}
+    .right{border-right:1px solid black;}
+    @media only screen and (max-width: 768px) {
+        [class*="col-"] {
+            width: 100%;
+            text-align: left!Important;
+        }
+        .navbar-toggle>span.icon-bar {
+            background-color: #68171A ! Important;
+        }
+        .navbar-default .navbar-toggle {
+            border-color: #4a4a4a;
+        }
+        .navbar-default .navbar-toggle:focus, .navbar-default .navbar-toggle:hover {
+            background-color: #f2f2f2 !Important;
+            font-weight: 900 !Important;
+            color: #000000 !Important;
+        }
+        .navbar-color {
+            background-color: #E5E5E5;
+        }
+        .icon-bar {
+            background-color: #68171A;
+        }
+        .navbar-header {
+            float: none;
+        }
+        .navbar-toggle {
+            display: block;
+            background-color: #f2f2f2;
+        }
+        .navbar-nav {
+            float: none!important;
+        }
+        .navbar-nav>li {
+            float: none;
+        }
+        .navbar-collapse.collapse.in {
+            z-index: 100;
+            background-color: #dfdfdf;
+            font-weight: 700;
+            color: #000000 !Important;
+        }
+    }
+    
+    
+    @media only screen and (max-width: 700px) {
+        [class*="col-"] {
+        width: 100%;
+        text-align:left!Important;
+        }
+        #form_without{
+        margin-left:0px !Important;
+        }
+        
+    }
+    .input-group .form-control{
+        margin-bottom: 3px;
+        margin-left:0px;
+    }
+    #form_without{
+        margin-left:5px !Important;
+    }
+    </style>
+    <title><?php echo xlt('ERA Posting'); ?></title>
 </head>
-<body class="body_top" onLoad="OnloadAction()">
-<form enctype="multipart/form-data" method='post'  action='era_payments.php'  style="display:inline"  >
-<table width="455" border="0"  cellspacing="0" cellpadding="0">
-  <tr>
-    <td colspan="3" align="left"><b><?php echo htmlspecialchars(xl('Payments'), ENT_QUOTES) ?></b></td>
-  </tr>
-  <tr height="15">
-    <td colspan="3" align="left" ></td>
-  </tr>
-  <tr>
-    <td colspan="3" align="left">
-        <ul class="tabNav">
-         <li><a href='new_payment.php'><?php echo htmlspecialchars(xl('New Payment'), ENT_QUOTES) ?></a></li>
-         <li><a href='search_payments.php'><?php echo htmlspecialchars(xl('Search Payment'), ENT_QUOTES) ?></a></li>
-         <li class='current'><a href='era_payments.php'><?php echo htmlspecialchars(xl('ERA Posting'), ENT_QUOTES) ?></a></li>
-        </ul>   </td>
-  </tr>
-  <tr>
-    <td colspan="3" align="left" >
-    <table width="455" border="0" cellspacing="0" cellpadding="10" bgcolor="#DEDEDE"><tr><td>
-    <table width="435" border="0" style="border:1px solid black" cellspacing="0" cellpadding="0">
-      <tr height="5">
-        <td width="5"  align="left" ></td>
-        <td width="85"  align="left" ></td>
-        <td width="105"  align="left" ></td>
-        <td width="240"  align="left" ></td>
-        </tr>
-      <tr>
-        <td  align="left"></td>
-        <td colspan="3"  align="left"><font class='title'><?php echo htmlspecialchars(xl('ERA'), ENT_QUOTES) ?></font></td>
-      </tr>
-      <tr height="5">
-        <td  align="left" ></td>
-        <td colspan="3"  align="left" ></td>
-      </tr>
-      <tr>
-        <td  align="left"  class="text"></td>
-        <td  align="left"  class="text"><?php echo htmlspecialchars(xl('Date'), ENT_QUOTES).':' ?></td>
-        <td  align="left"  class="text"><input type='text' size='6' class='datepicker' name='check_date' id='check_date' value="<?php echo formData('check_date') ?>"  class="class1 text " onKeyDown="PreventIt(event)" />
-        </td>
-        <td  align="left"  class="text"><input type="hidden" name="MAX_FILE_SIZE" value="5000000" />
-   <input name="form_erafile" id="uploadedfile"  type="file" class="text" size="10" style="display:inline" /></td>
-        </tr>
-      <tr>
-        <td  align="left"  class="text"></td>
-        <td  align="left"  class="text"><?php echo htmlspecialchars(xl('Post To Date'), ENT_QUOTES).':' ?></td>
-        <td  align="left"  class="text"><input type='text' size='6' class='datepicker' name='post_to_date' id='post_to_date'  value="<?php echo formData('post_to_date') ?>" class="class1 text "   onKeyDown="PreventIt(event)"  />
-        </td>
-        <td  align="left"  class="text"><input type='checkbox' name='form_without' value='1' <?php echo $_REQUEST['form_without']*1==1 || ($_REQUEST['form_without']*1==0 && !isset($_FILES['form_erafile'])) ? "checked" : '' ?>/> <?php echo htmlspecialchars(xl('Without Update'), ENT_QUOTES); ?></td>
-        </tr>
-      <tr>
-        <td  align="left"  class="text"></td>
-        <td  align="left"  class="text"><?php echo htmlspecialchars(xl('Deposit Date'), ENT_QUOTES).':' ?></td>
-        <td  align="left"  class="text"><input type='text' size='6' class='datepicker' name='deposit_date' id='deposit_date'  onKeyDown="PreventIt(event)"   class="text " value="<?php echo formData('deposit_date') ?>"    />
-        </td>
-        <td  align="left"  class="text"></td>
-        </tr>
-      <tr>
-        <td  align="left"  class="text"></td>
-        <td  align="left"  class="text"><?php echo htmlspecialchars(xl('Insurance'), ENT_QUOTES).':' ?></td>
-        <td colspan="2"  align="left"  class="text">
-
-
-        <table width="335" border="0" cellspacing="0" cellpadding="0">
-              <tr>
-                <td width="280">
-                <input type="hidden" id="hidden_ajax_close_value" value="<?php echo formData('type_code') ?>" /><input name='type_code'  id='type_code' class="text "
-                style=" width:280px;"   onKeyDown="PreventIt(event)" value="<?php echo formData('type_code') ?>"  autocomplete="off"   /><br>
-                <!--onKeyUp="ajaxFunction(event,'non','search_payments.php');"-->
-                    <div id='ajax_div_insurance_section'>
-                    <div id='ajax_div_insurance_error'>
+<body class="body_top" onload="OnloadAction()">
+    <div class="container">
+        <div class="row">
+            <div class="page-header">
+                <h2><?php echo xlt('Payments'); ?></h2>
+            </div>
+        </div>
+        <div class="row" >
+            <nav class="navbar navbar-default navbar-color navbar-static-top" >
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <button class="navbar-toggle" data-target="#myNavbar" data-toggle="collapse" type="button"><span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span></button>
                     </div>
-                    <div id="ajax_div_insurance" style="display:none;"></div>
+                    <div class="collapse navbar-collapse" id="myNavbar" >
+                        <ul class="nav navbar-nav" >
+                            <li class="oe-bold-black">
+                                <a href='new_payment.php' style="font-weight:700; color:#000000"><?php echo xlt('New Payment'); ?></a>
+                            </li>
+                            <li class="oe-bold-black" >
+                                <a href='search_payments.php' style="font-weight:700; color:#000000"><?php echo xlt('Search Payment'); ?></a>
+                            </li>
+                            <li class="active">
+                                <a href='era_payments.php' style="font-weight:700; color:#000000"><?php echo xlt('ERA Posting'); ?></a>
+                            </li>
+                        </ul>
                     </div>
+                </div>
+            </nav>
+        </div>
+        
+        <div class = "row">
+            <form action='era_payments.php' enctype="multipart/form-data" method='post' style="display:inline">
+                <fieldset>
+                    <div class="col-xs-12 oe-custom-line">
+                        <div class="form-group col-xs9 oe-file-div">
+                            <div class="input-group"> 
+                                <label class="input-group-btn">
+                                    <span class="btn btn-default">
+                                        <?php echo xlt('Browse'); ?>&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;" >
+                                        <input name="MAX_FILE_SIZE" type="hidden" value="5000000"> 
+                                    </span>
+                                </label>
+                                <input type="text" class="form-control" placeholder="<?php echo xlt('Click Browse and select one Electronic Remittance Advice (ERA) file...'); ?>" readonly>
+                            </div>
+                        </div>
                     </div>
+                    <div class="col-xs-12 oe-custom-line">
+                        <div class="form-group col-xs-3">
+                            <label class="control-label" for="check_date"><?php echo xlt('Date'); ?>:</label>
+                            <input class="form-control datepicker" id='check_date' name='check_date' onkeydown="PreventIt(event)" type='text' value="<?php echo formData('check_date') ?>">
+                        </div>
+                        <div class="form-group col-xs-3">
+                            <label class="control-label" for="post_to_date"><?php echo xlt('Post To Date'); ?>:</label>
+                            <input class="form-control datepicker" id='post_to_date' name='post_to_date' onkeydown="PreventIt(event)" type='text' value="<?php echo formData('post_to_date') ?>">
+                        </div>
+                        <div class="form-group col-xs-3 clearfix">
+                            <label class="control-label" for="form_without"><?php echo xlt('Select'); ?>:</label>
+                            <label class="checkbox">
+                                <input name='form_without'  id='form_without' type='checkbox' value='1'> <span class="oe-ckbox-label"><?php echo htmlspecialchars(xl('Without Update'), ENT_QUOTES); ?></span>
+                            </label>
+                        </div>
+                        <div class="form-group col-xs-3">
+                            <label class="control-label" for="deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
+                            <input class="form-control datepicker" id='deposit_date' name='deposit_date' onkeydown="PreventIt(event)" type='text' value="<?php echo formData('deposit_date') ?>">
+                        </div>
+                    </div>
+                    <div class="col-xs-12 oe-custom-line">
+                        <div class="form-group col-xs-6">
+                            <label class="control-label" for="type_code"><?php echo xlt('Insurance'); ?>:</label>
+                            <input id="hidden_ajax_close_value" type="hidden" value="<?php echo formData('type_code') ?>">
+                            <input autocomplete="off" class="form-control" id='type_code' name='type_code' onkeydown="PreventIt(event)"  type="text" value="<?php echo formData('type_code') ?>"><br>
+                            <!--onKeyUp="ajaxFunction(event,'non','search_payments.php');"-->
+                            <div id='ajax_div_insurance_section'>
+                                <div id='ajax_div_insurance_error'></div>
+                                <div id="ajax_div_insurance" style="display:none;"></div>
+                            </div>
+                        </div>
+                        <div class="form-group col-xs-3">
+                            <label class="control-label" for="div_insurance_or_patient"><?php echo xlt('Insurance ID'); ?>:</label>
+                            <div class="form-control" id="div_insurance_or_patient" >
+                                <?php echo formData('hidden_type_code') ?>
+                            </div>
+                            <input id="description" name="description" type="hidden">
+                        </div>
+                    </div>
+                </fieldset>
+                <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
+                <div class="form-group clearfix">
+                    <div class="col-sm-12 text-left position-override">
+                        <div class="btn-group" role="group">
+                            <a class="btn btn-default btn-save" href="#" onclick="javascript:return Validate();"><span><?php echo xlt('Process ERA File');?></span></a>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="after_value" id="after_value" value="<?php echo htmlspecialchars($alertmsg, ENT_QUOTES);?>"/>
+                <input type="hidden" name="hidden_type_code" id="hidden_type_code" value="<?php echo formData('hidden_type_code') ?>"/>
+                <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
+            </form>
+        </div>
+    </div><!-- End of Container Div-->
+    <script>
+        $(function() {
+            //https://www.abeautifulsite.net/whipping-file-inputs-into-shape-with-bootstrap-3
+            // We can attach the `fileselect` event to all file inputs on the page
+            $(document).on('change', ':file', function() {
+                var input = $(this),
+                numFiles = input.get(0).files ? input.get(0).files.length : 1,
+                label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+                input.trigger('fileselect', [numFiles, label]);
+            });
 
-                </td>
-                <td width="50" style="padding-left:5px;"><div  name="div_insurance_or_patient" id="div_insurance_or_patient" class="text"  style="border:1px solid black; padding-left:5px; width:50px; height:17px;"><?php echo formData('hidden_type_code') ?></div><input type="hidden" name="description"  id="description" /></td>
-              </tr>
-            </table>
+            // We can watch for our custom `fileselect` event like this
+            $(document).ready( function() {
+                $(':file').on('fileselect', function(event, numFiles, label) {
+                    var input = $(this).parents('.input-group').find(':text'),
+                    log = numFiles > 1 ? numFiles + ' files selected' : label;
+                    
+                    if( input.length ) {
+                    input.val(log);
+                    } 
+                    else {
+                    if( log ) alert(log);
+                    }
+                });
+            });
 
-
-
-
-        </td>
-        </tr>
-
-      <tr height="5">
-        <td colspan="4"  align="center" ><table  border="0" cellspacing="0" cellpadding="0">
-  <tr>
-    <td><a href="#" onClick="javascript:return Validate();" class="css_button"><span><?php echo htmlspecialchars(xl('Process ERA File'), ENT_QUOTES);?></span></a></td>
-  </tr>
-</table></td>
-        </tr>
-      <tr height="5">
-        <td  align="left" ></td>
-        <td colspan="3"  align="left" ></td>
-        </tr>
-    </table>
-    </td></tr>
-    </table>
-    </td>
-  </tr>
-</table>
-<input type="hidden" name="after_value" id="after_value" value="<?php echo htmlspecialchars($alertmsg, ENT_QUOTES);?>"/>
-<input type="hidden" name="hidden_type_code" id="hidden_type_code" value="<?php echo formData('hidden_type_code') ?>"/>
-<input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
-</form>
+            });
+    </script>
 </body>
 </html>
