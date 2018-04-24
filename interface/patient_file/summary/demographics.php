@@ -1779,14 +1779,14 @@ foreach ($photos as $photo_doc_id) {
 
          //Fetch patient's recurrences. Function returns array with recurrence appointments' category, recurrence pattern (interpreted), and end date.
          $recurrences = fetchRecurrences($pid);
-        if ($recurrences[0] == false) { //if there are no recurrent appointments:
+        if (empty($recurrences)) { //if there are no recurrent appointments:
             echo "<div>";
             echo "<span>" . "&nbsp;&nbsp;" . xlt('None') . "</span>";
             echo "</div></div>";
         } else {
             foreach ($recurrences as $row) {
                 //checks if there are recurrences and if they are current (git didn't end yet)
-                if ($row == false || !recurrence_is_current($row['pc_endDate'])) {
+                if (!recurrence_is_current($row['pc_endDate'])) {
                     continue;
                 }
 
