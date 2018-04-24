@@ -11,11 +11,11 @@
 
 use OpenEMR\Core\Header;
 
-include_once("../../globals.php");
+require_once("../../globals.php");
 
 formHeader("Form:Lab Requisition");
 
-$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+$returnurl = 'encounter_top.php';
 
 $formid = 0 + (isset($_GET['id']) ? $_GET['id'] : '');
 $obj = $formid ? formFetch("form_requisition", $formid) : array();
@@ -204,8 +204,8 @@ table, th, td {
                     <div class="pFill">
                         <?php echo text($pid); ?></br>
                         <?php echo text($pdata['DOB']); ?></br>
-                        <?php echo xlt($pdata['sex']); ?></br>
-                        <?php echo xlt($pdata['fname']) ." ". xlt($pdata['lname']); ?></br>
+                        <?php echo text($pdata['sex']); ?></br>
+                        <?php echo text($pdata['fname']) ." ". xlt($pdata['lname']); ?></br>
                     </div>
                    </td>
                </tr>
@@ -334,8 +334,8 @@ table, th, td {
                <tr style="height:125px">
                   <td style="vertical-align:top">
                        <font size="4"><strong><?php echo xlt('AOE Q&A') ?>: </strong></font></br>
-                       <b>Question:</b> <?php print alt($order['question_text']); ?></br>
-                       <b>Answer:</b> <?php print alt($order['answer']); ?>
+                       <b>Question:</b> <?php print text($order['question_text']); ?></br>
+                       <b>Answer:</b> <?php print text($order['answer']); ?>
                   </td>
                </tr>
             </table>
