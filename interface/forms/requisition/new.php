@@ -204,8 +204,8 @@ table, th, td {
                     <div class="pFill">
                         <?php echo text($pid); ?></br>
                         <?php echo text($pdata['DOB']); ?></br>
-                        <?php echo text($pdata['sex']); ?></br>
-                        <?php echo text($pdata['fname']) ." ". xlt($pdata['lname']); ?></br>
+                        <?php echo text(getListItemTitle('sex',$pdata['sex'])); ?></br>
+                        <?php echo text($pdata['fname']) ." ". text($pdata['lname']); ?></br>
                     </div>
                    </td>
                </tr>
@@ -270,7 +270,7 @@ table, th, td {
                        <?php echo text($ins[0]['group_number']); ?></br>
                        <?php echo "/"; ?></br>
                        <?php echo text($ins[0]['subscriber_employer']); ?></br>
-                       <?php echo text($ins[0]['subscriber_relationship']); ?></br>
+                       <?php echo text(getListItemTitle('sub_relation', $ins[0]['subscriber_relationship'])); ?></br>
 
 
                        </div>
