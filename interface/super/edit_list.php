@@ -2,25 +2,14 @@
 /**
  * Administration Lists Module.
  *
- * Copyright (C) 2007-2017 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2017      Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @author  Teny <teny@zhservices.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Teny <teny@zhservices.com>
+ * @copyright Copyright (c) 2007-2017 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../globals.php");
@@ -29,6 +18,7 @@ require_once("$phpgacl_location/gacl_api.class.php");
 require_once("$srcdir/lists.inc");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
+
 use OpenEMR\Core\Header;
 
 // Below allows the list to default to the first item on the list
@@ -225,12 +215,7 @@ if ($_POST['formaction'] == 'save' && $list_id) {
     // add the new list to the list-of-lists
     sqlInsert("INSERT INTO list_options ( " .
         "list_id, option_id, title, seq, is_default, option_value " .
-        ") VALUES ( " .
-        "'lists'," . // the master list-of-lists
-        "'" . $newlistID . "'," .
-        "'" . $_POST['newlistname'] . "', " .
-        "'" . ($row['maxseq'] + 1) . "'," .
-        "'1', '0')");
+        ") VALUES ( 'lists', ?, ?, ?, '1', '0')", array($newlistID, $_POST['newlistname'], ($row['maxseq'] + 1)));
     $list_id = $newlistID;
 } elseif ($_POST['formaction'] == 'deletelist') {
     // delete the lists options
@@ -325,7 +310,7 @@ function writeOptionLine(
     echo "<input type='checkbox' name='opt[$opt_line_no][default]' value='1' " .
         "onclick='defClicked($opt_line_no)' class='optin'$checked />";
     echo "</td>\n";
-    
+
     if (preg_match('/Eye_QP_/', $list_id)) {
         echo "  <td>";
         echo "<select name='opt[$opt_line_no][activity]' class='optin'>";
