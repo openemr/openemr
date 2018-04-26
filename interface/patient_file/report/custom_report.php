@@ -607,7 +607,7 @@ foreach ($ar as $key => $val) {
                     '/documents/' . $from_pathname . '/' . $from_filename;
                     $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
                 }
-                // adding support for .txt TXA msg type from interface/orders/receive_hl7_results.inc.php
+                // adding support for .txt MDM-TXA interface/orders/receive_hl7_results.inc.php
                 if ($extension != (".pdf" || ".txt")) {
                     $image_data = getimagesize($from_file);
                     $extension = image_type_to_extension($image_data[2]);
@@ -658,7 +658,6 @@ foreach ($ar as $key => $val) {
                     } elseif ($extension == ".txt") {
                         readfile($from_file);
                     } else {
-                        error_log("why did we end up in the else extension is " . $extension);
                         if (! is_file($to_file)) {
                             exec("convert -density 200 \"$from_file\" -append -resize 850 \"$to_file\"");
                         }
