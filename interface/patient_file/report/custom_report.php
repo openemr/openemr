@@ -656,7 +656,9 @@ foreach ($ar as $key => $val) {
 
                         echo "<div><div class='text documents'>\n";
                     } elseif ($extension == ".txt") {
+                        echo "<pre>";
                         readfile($from_file);
+                        echo "</pre>";
                     } else {
                         if (! is_file($to_file)) {
                             exec("convert -density 200 \"$from_file\" -append -resize 850 \"$to_file\"");
