@@ -28,6 +28,12 @@ function convert_safe_file_dir_name($label)
     return preg_replace('/[^A-Za-z0-9_.-]/', '_', $label);
 }
 
+// Convert all non A-Z a-z 0-9 characters to _
+function convert_very_strict_label($label)
+{
+    return preg_replace('/[^A-Za-z0-9]/', '_', $label);
+}
+
 //Basename functionality for nonenglish languages (without this, basename function omits nonenglish characters).
 function basename_international($path)
 {
