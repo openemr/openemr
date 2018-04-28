@@ -299,7 +299,7 @@ table, th, td {
                        <?php echo text($ins[1]['group_number']); ?></br>
                        <?php echo "/"; ?></br>
                        <?php echo text($ins[1]['subscriber_employer']); ?></br>
-                       <?php echo text($ins[1]['subscriber_relationship']); ?></br>
+                       <?php echo text(getListItemTitle('sub_relation', $ins[0]['subscriber_relationship'])); ?></br>
 
                        </div>
                    </td>
