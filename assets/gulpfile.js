@@ -75,6 +75,7 @@ gulp.task('styles:style_uni', function () {
 		.pipe(gulpif(!config.dev, csso()))
 		.pipe(sourcemaps.write())
 		.pipe(gulp.dest(config.dest + '/assets/toolkit/styles/themes'))
+        .pipe(gulp.dest(config.finaldest.themes))
 		.pipe(gulpif(config.dev, reload({stream:true})));
 });
 
@@ -85,6 +86,7 @@ gulp.task('styles:style_color', function () {
         .pipe(prefix('last 1 version'))
         .pipe(gulpif(!config.dev, csso()))
         .pipe(sourcemaps.write())
+        .pipe(gulp.dest(config.finaldest.themes))
         .pipe(gulp.dest(config.dest + '/assets/toolkit/styles/themes'))
         .pipe(gulpif(config.dev, reload({stream:true})));
 });
@@ -102,6 +104,7 @@ gulp.task('styles:rtl', function () {
 			prefix:"rtl_"
 		}))
 		.pipe(gulp.dest(config.dest + '/assets/toolkit/styles/themes'))
+        .pipe(gulp.dest(config.finaldest.themes))
 		.pipe(gulpif(config.dev, reload({stream:true})));
 });
 
