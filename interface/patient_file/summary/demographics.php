@@ -770,7 +770,7 @@ $menu_restrictions = $menuPatient->getMenu();
                         }
                         $first = false;
                         $link = ($children_value->pid != "true") ? $children_value->url : $children_value->url . attr($pid);
-                        echo "<a href=" . $link . " onclick=" . $children_value->on_click ."> " . text($children_value->label) . " </a>";
+                        echo '<a href="' . $link . '" onclick="' . $children_value->on_click .'"> ' . text($children_value->label) . ' </a>';
                     }
                 } else {
                     if (!$first) {
@@ -778,7 +778,7 @@ $menu_restrictions = $menuPatient->getMenu();
                     }
                     $first = false;
                     $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
-                    echo "<a href=" . $link . " onclick=" . $value->on_click ."> " . text($value->label) . " </a>";
+                    echo '<a href="' . $link . '" onclick="' . $value->on_click .'"> ' . text($value->label) . ' </a>';
                 }
             }
             ?>
