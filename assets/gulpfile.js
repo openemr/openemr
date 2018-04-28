@@ -29,15 +29,17 @@ var config = {
 		},
 		styles: {
 			fabricator: 'src/assets/fabricator/styles/fabricator.scss',
-			style_light: 'src/assets/toolkit/styles/themes/style_light.scss',
-            style_manila: 'src/assets/toolkit/styles/themes/style_manila.scss',
+			style_uni: 'src/assets/toolkit/styles/themes/style_*.scss',
             style_color: 'src/assets/toolkit/styles/themes/colors/**/*.scss',
 			all: 'src/assets/toolkit/styles/themes/**/style_*.scss'
 		},
 		images: 'src/assets/toolkit/images/**/*',
 		views: 'src/toolkit/views/*.html'
 	},
-	dest: 'dist'
+	dest: 'dist',
+	finaldest: {
+		themes: '../interface/themes'
+	}
 };
 
 
@@ -65,9 +67,8 @@ gulp.task('styles:fabricator', function () {
 		.pipe(gulpif(config.dev, reload({stream:true})));
 });
 
-// todo generalize and combine into one task
-gulp.task('styles:style_light', function () {
-	gulp.src(config.src.styles.style_light)
+gulp.task('styles:style_uni', function () {
+	gulp.src(config.src.styles.style_uni)
 		.pipe(sourcemaps.init())
 		.pipe(sass().on('error', sass.logError))
 		.pipe(prefix('last 1 version'))
@@ -75,17 +76,6 @@ gulp.task('styles:style_light', function () {
 		.pipe(sourcemaps.write())
 		.pipe(gulp.dest(config.dest + '/assets/toolkit/styles/themes'))
 		.pipe(gulpif(config.dev, reload({stream:true})));
-});
-
-gulp.task('styles:style_manila', function () {
-    gulp.src(config.src.styles.style_manila)
-        .pipe(sourcemaps.init())
-        .pipe(sass().on('error', sass.logError))
-        .pipe(prefix('last 1 version'))
-        .pipe(gulpif(!config.dev, csso()))
-        .pipe(sourcemaps.write())
-        .pipe(gulp.dest(config.dest + '/assets/toolkit/styles/themes'))
-        .pipe(gulpif(config.dev, reload({stream:true})));
 });
 
 gulp.task('styles:style_color', function () {
@@ -121,7 +111,7 @@ gulp.task('styles:style_list', function () {
 		.pipe(gulp.dest('src/views/layouts/includes'));
 });
 
-gulp.task('styles', ['styles:fabricator', 'styles:style_light', 'styles:style_manila', 'styles:style_color', 'styles:rtl', "styles:style_list"]);
+gulp.task('styles', ['styles:fabricator', 'styles:style_uni', 'styles:style_color', 'styles:rtl', "styles:style_list"]);
 
 
 // scripts
