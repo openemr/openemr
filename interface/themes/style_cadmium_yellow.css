@@ -15,22 +15,21 @@
  *
  * @package OpenEMR
  * @author Ranganath Pathak <pathak@scrs1.org>
- * @copyright Copyright (c) 2017 Ranganath Pathak
- * @version 1.0
+ * @copyright Copyright (c) 2018 Ranganath Pathak
+ * @version 1.1
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License
  * @link http://www.open-emr.org
 */
 
-
-/*
+/* 
     COLOR PALETTE
-    #E69700 - Darkest Cadmium Yellow*
+    #E69700 - Darkest Cadmium Yellow*        
     #FF7E00 - Darker Cadmium Yellow *
-    #FFA800 - Dark Cadmium Yellow
+    #FFA800 - Dark Cadmium Yellow 
     #FFCE6F - Mid Cadmium Yellow
     #FFD78B - Mid Pale Cadmium Yellow*
-    #FFDE9F - Pale Cadmium Yellow
-    #FFE4B1 - Mid Pale Pale Cadmium Yellow *
+    #FFDE9F - Pale Cadmium Yellow 
+    #FFE4B1 - Mid Pale Pale Cadmium Yellow *    
     #FFF2D8 - Pale Pale Cadmium Yellow *
     #E7E6F9 - Pale Purple~
     #FFF9ED - Paler Cadmium Yellow
@@ -39,18 +38,19 @@
     * - used in styling buttons and input
     ~ - common for all flat stylesheets
 */
+
 @import "core.css";
 * {
     font-family: /* 1 */
     -apple-system, BlinkMacSystemFont, /* 2 */
-    "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
-     "Droid Sans", /* 3 */
+    "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", /* 3 */
     "Helvetica Neue", sans-serif;
 }
-html{
-    font-size:14px;
+html {
+    font-size: 14px;
 }
 /* RP_MODIFIED  2/09/2015, 1/17/2016*/
+
 body {
     margin: 0px 0px 0px 2px;
     /* set the base fontsize for all DOM children */
@@ -105,7 +105,7 @@ a:hover {
     color: #000000;
     font-weight: bold;
 }
-.alert , .alert-custom{
+.alert, .alert-custom {
     font-size: 70%;
     color: #FF0000;
     text-decoration: none;
@@ -157,7 +157,6 @@ a:hover {
     font-weight: bold;
     text-decoration: none;
 }
-
 /* see .titlebar below */
 
 .title_bar {
@@ -173,8 +172,8 @@ a:hover {
     color: #000000;
 }
 /*=============================================================
- * Here we have taken variables from globals.php and turned them into CSS
- * classes these should be used in place of the GLOBAL variables
+ * Here we have taken variables from globals.php and turned them into CSS  
+ * classes these should be used in place of the GLOBAL variables 
  * -- JRM March 2008
  =============================================================*/
 
@@ -183,6 +182,7 @@ a:hover {
     margin: 8px
 }
 /* $top_bg_line RP_MODIFIED 2/8/15 #EAE6FF*/
+
 .bgcolor2 {
     background-color: #FFF9ED;
 }
@@ -193,18 +193,22 @@ a:hover {
     margin: 8px
 }
 /* $bottom_bg_line */
+
 .body_title {
     background-color: #FFA800;
 }
 /* $title_bg_line FFF RP_MODIFIED 12/22/2012 #BE4E1E;*/
+
 .body_nav {
     background-color: #FFF9ED;
 }
 /* $nav_bg_line RP_MODIFIED 2/8/15 #EAE6FF */
+
 .body_filler {
     background-color: #f7f0d5;
 }
 /* $login_filler_line */
+
 .body_login {
     background: url('../pic/aquabg.gif') repeat;
 }
@@ -213,24 +217,28 @@ a:hover {
 .table_bg {
     background-color: #ccc;
 }
-
 /* $table_bg */
+
 .bgcolor1 {
     background-color: #ccc;
 }
 /* $GLOBALS['style']['BGCOLOR1'] */
+
 .textcolor11 {
     background-color: #222;
 }
 /* $GLOBALS['style']['TEXTCOLOR11'] */
+
 .highlightcolor {
     background-color: #ddd;
 }
 /* $GLOBALS['style']['HIGHLIGHTCOLOR'] */
+
 .bottom_line {
     background: url('../pic/aquabg.gif') repeat;
 }
 /* $GLOBALS['style']['BOTTOM_BG_LINE'] */
+
 .logobar {
     background-color: #2F2F7D;
     height: 110px;
@@ -241,12 +249,14 @@ a:hover {
     height: 22px;
 }
 /* $GLOBALS['navBarHeight'] */
+
 .titlebar {
     height: 20px;
 }
 /* $GLOBALS['titleBarHeight'] */
 
 /* style taken out of the addressbook code and put here instead */
+
 #addressbook_list td {
     font-family: Arial, Helvetica, sans-serif;
     padding-left: 4px;
@@ -287,7 +297,6 @@ background-color:transparent;RP_MODIFIED 1/18/2016*/
 .highlight {
     color: magenta !Important;
 }
-
 /* styles taken out of templates/report/general_default.html */
 
 #reports_list td {
@@ -298,7 +307,6 @@ background-color:transparent;RP_MODIFIED 1/18/2016*/
     font-size: 8pt;
     font-family: helvetica;
 }
-
 /* styles taken out of templates/documents/general_list.html */
 
 #documents_list td {
@@ -350,6 +358,7 @@ background-color:transparent;RP_MODIFIED 1/18/2016*/
  * using the OEMR tool in the Admin section. For example, the
  * Patient Demographics are a custom layout.
  *============================================================*/
+
 #DEM .groupname {
     font-weight: bold;
     color: #080;
@@ -371,6 +380,7 @@ background-color:transparent;RP_MODIFIED 1/18/2016*/
     /*30px - ie 6 fix*/
 }
 /* Patient History */
+
 #HIS .groupname {
     font-weight: bold;
     color: #080;
@@ -394,6 +404,7 @@ background-color:transparent;RP_MODIFIED 1/18/2016*/
  * Patient Notes
  * seen in the patient summary and notes screens
  *============================================================*/
+
 #pnotes .billing {
     background-color: #dfd;
 }
@@ -412,13 +423,14 @@ background-color:transparent;RP_MODIFIED 1/18/2016*/
     padding: 5px;
     margin: 5px;
 }
-#pnotes_ps_expand  div.tab table td {
-  padding-right: 10px;
+#pnotes_ps_expand div.tab table td {
+    padding-right: 10px;
 }
 /*=============================================================
  * Patient Stats
  * seen in the patient stats screens
  *============================================================*/
+
 #patient_stats {
     padding: 10px;
 }
@@ -457,6 +469,7 @@ background-color:transparent;RP_MODIFIED 1/18/2016*/
  * Patient Stats Summary
  * seen in the patient summary screen
  *============================================================*/
+
 #patient_stats_summary table {
     border-collapse: collapse;
 }
@@ -488,6 +501,7 @@ background-color:transparent;RP_MODIFIED 1/18/2016*/
  * Patient Past Encounters and Documents
  * seen in the patient encounter screen
  *============================================================*/
+
 #patient_pastenc {
     width: 100%;
 }
@@ -541,6 +555,7 @@ background-color:transparent;RP_MODIFIED 1/18/2016*/
  * Patient Reports
  * seen in the patient reports screens
  *============================================================*/
+
 #patient_reports {
     width: 100%;
 }
@@ -569,6 +584,7 @@ background-color:transparent;RP_MODIFIED 1/18/2016*/
  * Report - Custom
  * seen as the patient report (custom_report.php)
  *============================================================*/
+
 #report_custom {
     width: 100%;
 }
@@ -648,12 +664,12 @@ background-color:transparent;RP_MODIFIED 1/18/2016*/
     background-color: #FFFFFF;
     /*RP_MODIFIED 1/16/2016 :#FFDE9F */
 }
-#addressbook_list tr.oddrow, #searchResults tr:nth-child(odd),
-.signout-restore-subheading {
+#addressbook_list tr.oddrow, #searchResults tr:nth-child(odd), .signout-restore-subheading {
     background-color: #FFE4B1;
     /*RP_MODIFIED 1/16/2016 #ffffff */
 }
 /* The top navigation icon styling*/
+
 .top-nav-icons {
     margin-right: 15px;
     margin-top: 5px
@@ -661,9 +677,8 @@ background-color:transparent;RP_MODIFIED 1/18/2016*/
 /*
  * CSS BUTTONS
 */
-.message-table-header, #searchResultsHeader, #searchResultsHeader th,
-#addressbook_list tr.head, .signout-heading, #report_results table thead,
-.dehead, .showborder_head {
+
+.message-table-header, #searchResultsHeader, #searchResultsHeader th, #addressbook_list tr.head, .signout-heading, #report_results table thead, .dehead, .showborder_head {
     background: #FFCE6F;
     /*styles the message table header*/
 }
@@ -686,14 +701,10 @@ input[type="button"], input[type="submit"], button {
     padding: 0px !Important;
     margin-bottom: 5px;
 }
-input[type="button"]:focus, input[type="button"]:active:focus,
-input[type="button"].active:focus, input[type="submit"]:focus,
-input[type="submit"]:active:focus, button.active:focus, button:focus,
-button:active:focus, button.active:focus {
+input[type="button"]:focus, input[type="button"]:active:focus, input[type="button"].active:focus, input[type="submit"]:focus, input[type="submit"]:active:focus, button.active:focus, button:focus, button:active:focus, button.active:focus {
     /*transform: translateY(2px);*/
 }
-input[type="text"], input[type="entry"], input[type="password"],
-input[type="search"], textarea {
+input[type="text"], input[type="entry"], input[type="password"], input[type="search"], textarea {
     -webkit-border-radius: 2px;
     -moz-border-radius: 2px;
     border-radius: 2px;
@@ -708,9 +719,7 @@ select {
     border: 1px solid #FF7E00 ! Important;
     margin: 3px;
 }
-input[type="text"]:focus, input[type="entry"]:focus,
-input[type="password"]:focus, input[type="search"]:focus, textarea:focus,
-select:focus {
+input[type="text"]:focus, input[type="entry"]:focus, input[type="password"]:focus, input[type="search"]:focus, textarea:focus, select:focus {
     background: #FFF2D8;
     border-color: #E69700 !important;
     box-shadow: 0 0 3px #FFD78B !important;
@@ -720,7 +729,7 @@ select:focus {
     transition: 0.2s linear all;
 }
 select[multiple] {
-  height:auto !Important;
+    height: auto !Important;
 }
 .css_button_small, .css_button {
     display: inline-block;
@@ -748,20 +757,16 @@ select[multiple] {
     border-radius: 2px;
     opacity: 1;
 }
-.css_button_small:focus, .css_button_small:active:focus,
-.css_button_small.active:focus, .css_button_small.focus,
-.css_button_small:active.focus, .css_button_small.active.focus {
+.css_button_small:focus, .css_button_small:active:focus, .css_button_small.active:focus, .css_button_small.focus, .css_button_small:active.focus, .css_button_small.active.focus {
     outline: thin dotted;
     outline: 5px auto -webkit-focus-ring-color;
     outline-offset: -2px;
 }
-.css_button_small:hover, .css_button_small:focus, .css_button_small.focus,
-.css_button:hover, .css_button:focus, .css_button.focus {
+.css_button_small:hover, .css_button_small:focus, .css_button_small.focus, .css_button:hover, .css_button:focus, .css_button.focus {
     color: #FFFFFF;
     text-decoration: none;
 }
-.css_button_small:active, .css_button_small.active, .css_button:active,
-.css_button.active {
+.css_button_small:active, .css_button_small.active, .css_button:active, .css_button.active {
     background-image: none;
     outline: 0;
     -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
@@ -778,8 +783,7 @@ select[multiple] {
 .css_button_icon {
     padding: 3px 12px 5px 12px;
 }
-a:visited .css_button_small, a.css_button_small, a:visited .css_button,
-a.css_button {
+a:visited .css_button_small, a.css_button_small, a:visited .css_button, a.css_button {
     color: #FFFFFF;
 }
 .css_button_small span {}
@@ -797,11 +801,11 @@ a.disabled_button:hover {
 /*
  * TABS A7A7A7
 */
+
 ul.tabNav {
     margin: 0 0 -4 0;
     padding: 0;
 }
-
 /*RP_MODIFIED 7/16/2016*/
 
 ul.tabNav {
@@ -837,14 +841,12 @@ ul.tabNav a {
     /*#CFCCF7 RP_MODIFIED 2/11/2015*/
     border-top-right-radius: 5px;
 }
-
 /*added RP_MODIFIED */
 
 ul.tabNav a:hover {
     background-color: #FFA800;
     color: #000000;
 }
-
 /*RP_MODIFIED 2/11/2015 */
 
 ul.tabNav li.current a {
@@ -915,7 +917,6 @@ div.notab-right {
     background: #FFFFFF;
     padding: 8px;
 }
-
 /*
 * REPORTS
 */
@@ -977,7 +978,6 @@ div.notab-right {
     background-color: #FFE4B1;
     font-weight: bold;
 }
-
 /**
 * List-table formatting
 **/
@@ -1007,7 +1007,6 @@ div.notab-right {
     text-align: left;
     font-size: 9pt;
 }
-
 /**
 * Drug lookup
 **/
@@ -1022,7 +1021,6 @@ div.notab-right {
     position: absolute;
     display: block;
 }
-
 /* Password alert styles */
 
 .pwdalert {
@@ -1044,9 +1042,7 @@ div.notab-right {
     border: 3px solid #9acc2e;
     background-color: #eef7dd;
 }
-
 /* Password alert styles */
-
 
 /* Style for red font */
 
@@ -1055,7 +1051,6 @@ div.notab-right {
     color: #FF0000;
     font-size: 10pt;
 }
-
 /* Style for red font */
 
 .de_identification_status_message {
@@ -1101,11 +1096,9 @@ div.notab-right {
 #navigation-slide li a.expanded {
     background: #FFCE6F;
     /* for non-css3 browsers RP_MODIFIED 2/8/2015 #999*/
-    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#FFCE6F',
-        endColorstr='#FFCE6F');
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#FFCE6F', endColorstr='#FFCE6F');
     /* for IE 61a0ff)*/
-    background: -webkit-gradient(linear, left top, left bottom, from(#FFCE6F),
-        to(#FFCE6F));
+    background: -webkit-gradient(linear, left top, left bottom, from(#FFCE6F), to(#FFCE6F));
     /* for webkit browsers */
     background: -moz-linear-gradient(top, #FFCE6F, #FFCE6F);
     /* for firefox 3.6+ 61a0ff*/
@@ -1113,11 +1106,9 @@ div.notab-right {
 #navigation-slide ul li a.collapsed_lv2 {
     background: #7870DE;
     /* for non-css3 browsers RP_MODIFIED 2/8/2015 #999*/
-    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#7870de',
-        endColorstr='#7870de');
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#7870de', endColorstr='#7870de');
     /* for IE e7e6f9*/
-    background: -webkit-gradient(linear, left top, left bottom, from(#7870de),
-        to(#7870de));
+    background: -webkit-gradient(linear, left top, left bottom, from(#7870de), to(#7870de));
     /* for webkit browsers e7e6f9*/
     background: -moz-linear-gradient(top, #7870de, #7870de);
     /* for firefox 3.6+ e7e6f9*/
@@ -1125,32 +1116,25 @@ div.notab-right {
 #navigation-slide ul li a.expanded_lv2 {
     background: #e7e6f9;
     /* for non-css3 browsers RP_MODIFIED 2/8/2015 #999*/
-    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#e7e6f9',
-        endColorstr='#e7e6f9');
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#e7e6f9', endColorstr='#e7e6f9');
     /* for IE 7870de*/
-    background: -webkit-gradient(linear, left top, left bottom, from(#e7e6f9),
-        to(#e7e6f9));
+    background: -webkit-gradient(linear, left top, left bottom, from(#e7e6f9), to(#e7e6f9));
     /* for webkit browsers 7870de */
     background: -moz-linear-gradient(top, #e7e6f9, #e7e6f9);
     /* for firefox 3.6+ 7870de*/
 }
 #navigation-slide ul li a.collapsed_lv3 {
     background: #aaaaaa;
-    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#aaaaaa',
-        endColorstr='#aaaaaa');
-    background: -webkit-gradient(linear, left top, left bottom, from(#aaaaaa),
-        to(#aaaaaa));
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#aaaaaa', endColorstr='#aaaaaa');
+    background: -webkit-gradient(linear, left top, left bottom, from(#aaaaaa), to(#aaaaaa));
     background: -moz-linear-gradient(top, #aaaaaa, #aaaaaa);
 }
 #navigation-slide ul li a.expanded_lv3 {
     background: #eeeeee;
-    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee',
-        endColorstr='#eeeeee');
-    background: -webkit-gradient(linear, left top, left bottom, from(#eeeeee),
-        to(#eeeeee));
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#eeeeee');
+    background: -webkit-gradient(linear, left top, left bottom, from(#eeeeee), to(#eeeeee));
     background: -moz-linear-gradient(top, #eeeeee, #eeeeee);
 }
-
 #sddm li {
     margin: 0;
     padding: 0;
@@ -1160,11 +1144,9 @@ div.notab-right {
     /*RP_MODIFIED 2/8/15 #EAE6FF*/
     background: #FFA800;
     /* for non-css3 browsers #999 RP_MODIFIED 2/11/2015 */
-    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#FFA800',
-        endColorstr='#FFA800');
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#FFA800', endColorstr='#FFA800');
     /* for IE b5cbff RP_MODIFIED 2/11/2015 #61a0ff*/
-    background: -webkit-gradient(linear, left top, left bottom, from(#FFA800),
-        to(#FFA800));
+    background: -webkit-gradient(linear, left top, left bottom, from(#FFA800), to(#FFA800));
     /* for webkit browsers b5cbff RP_MODIFIED 2/11/2015 #61a0ff*/
     background: -moz-linear-gradient(top, #FFA800, #FFA800);
     /* for firefox 3.6+ b5cbff RP_MODIFIED 2/11/2015 #61a0ff*/
@@ -1288,8 +1270,7 @@ div.notab-right {
 .example_menu li.active li a {
     background: #e8e8e8;
 }
-#menu1 li.footer, #menu2 li.footer, #menu3 li.footer, #menu4 li.footer, #menu5
-li.footer, .example_menu .footer {
+#menu1 li.footer, #menu2 li.footer, #menu3 li.footer, #menu4 li.footer, #menu5 li.footer, .example_menu .footer {
     background: transparent url('footer.jpg') no-repeat 0 0;
     border-top: 2px solid #fff;
     height: 9px;
@@ -1362,6 +1343,7 @@ li.footer, .example_menu .footer {
     /*RP_ADDED 8/27/2016*/
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~search div ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 div.section, div.borderbox {
     border-color: #E69700 !important;
     background-color: #FFE4B1;
@@ -1369,6 +1351,7 @@ div.section, div.borderbox {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~search div ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5login*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 .login div.container {
     margin-top: 5%;
     max-width: 500px;
@@ -1384,6 +1367,7 @@ body.login {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5login*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5fee-sheet*~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 .feesheet-title {
     font-weight: 900;
     background: #FFA800 !important;
@@ -1393,7 +1377,8 @@ body.login {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5fee-sheet*~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /*~~~~~~~~~~openemr5_tabs-Full~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-#mainBox > .body_top, .body_top_tabs {
+
+#mainBox>.body_top, .body_top_tabs {
     background-color: #FFA800 !important;
 }
 .tabSpan, .tabSpan_tabs {
@@ -1439,11 +1424,10 @@ body.login {
     border: 1px solid #FF7E00;
     background: white;
 }
-
 /*.patientEncounterList {
     background: #ffff9e !Important;
     border: 1px solid #FF7E00;
-
+ 
 }
  .patientEncounterList:hover{
     background: #FFF2D8  !important;
@@ -1453,7 +1437,7 @@ body.login {
     -webkit-transition: 0.2s linear all;
     -moz-transition: 0.2s linear all;
     transition: 0.2s linear all;
-
+    
     overflow: visible;
     height: auto;
     z-index:4;
@@ -1486,10 +1470,11 @@ body.login {
 .menuSection>.menuEntries {
     background-color: #FFF9ED !Important;
 }
-.body_title,  .body_title_tabs {
+.body_title, .body_title_tabs {
     background-color: #FFD78B !important;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs body*~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 .tabs_body, #searchCriteria {
     background-color: #FFDE9F;
 }
@@ -1499,6 +1484,7 @@ body.login {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs body*~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs calendar*~~~~~~~~~~~~~~~~~~~~~~~*/
+
 #calsearch_params {
     background-color: #FFE4B1 !important;
     width: 98% !Important;
@@ -1525,6 +1511,7 @@ div#providerPicker select {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs calendar*~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 calendar icon*~~~~~~~~~~~~~~~~~~~~~~*/
+
 img[src *="show_calendar.gif"] {
     margin-bottom: 3px;
 }
@@ -1546,8 +1533,8 @@ body.admin-layout input[type="button"] {
     display: inline-block;
     float: none;
 }
-
 /* error message = new validation */
+
 .error-message {
     color: red;
     display: block;
@@ -1567,8 +1554,8 @@ body.admin-layout input[type="button"] {
     width: 44px;
     height: 22px;
 }
-
 /* flow board filters*/
+
 #flow_board_parameters {
     width: 1041px;
     margin: 25px auto;
@@ -1588,6 +1575,7 @@ body.admin-layout input[type="button"] {
 /* flow board filters*/
 
 /* ------- Therapy groups styling --------- */
+
 .group-row {
     margin-top: 15px;
 }
@@ -1629,8 +1617,7 @@ table.dataTable#therapy_groups_list tbody td {
 .therapy_group #therapy_groups_list_container input[type=number] {
     -moz-appearance: textfield;
 }
-.therapy_group #therapy_groups_list_container input[type=number]::-webkit-inner-spin-button,
-.therapy_group #therapy_groups_list_container input[type=number]::-webkit-outer-spin-button {
+.therapy_group #therapy_groups_list_container input[type=number]::-webkit-inner-spin-button, .therapy_group #therapy_groups_list_container input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
@@ -1675,8 +1662,7 @@ table.dataTable#therapy_groups_list tbody td {
     margin-bottom: 20px;
     margin-left: 10px;
 }
-#add_participant .patient_wrap, #add_participant .comment_wrap,
-#add_participant .button_wrap {
+#add_participant .patient_wrap, #add_participant .comment_wrap, #add_participant .button_wrap {
     margin-top: 7px;
 }
 #add_participant .patient_wrap, #add_participant .comment_wrap {
@@ -1744,6 +1730,7 @@ table.dataTable#therapy_groups_list tbody td {
     margin: 20px 20px 2px 20px;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 external data*~~~~~~~~~~~~~~~~~~~~~~*/
+
 .dm-ed-in-1 {
     background-color: #FFE4B1 !Important;
     border-bottom: thin solid #E69700 !Important;
@@ -1760,6 +1747,7 @@ ul.ext-tab-head li.child-active {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 external data*~~~~~~~~~~~~~~~~~~~~~~*/
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 ros~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 .responsetd {
     border-color: #E69700 !important;
     background-color: #FFE4B1;
@@ -1774,6 +1762,7 @@ ul.ext-tab-head li.child-active {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 ros~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 codes~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 .code_fieldset {
     border: 1px solid #E69700 !important;
     background-color: #FFE4B1 !Important;
@@ -1788,13 +1777,12 @@ ul.ext-tab-head li.child-active {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 codes~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 bootstrap nav menu*~~~~~~~~~~~~~~~~~*/
-.navbar-custom, .navbar-nav, .nav>.active>a, .navbar-nav>.active>a:hover,
-.navbar-nav>.active>a:focus {
+
+.navbar-custom, .navbar-nav, .nav>.active>a, .navbar-nav>.active>a:hover, .navbar-nav>.active>a:focus {
     /* color: white;
     background-color: transparent !Important;*/
 }
-.navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus,
-.navbar-default .navbar-nav>.active>a:hover {
+.navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus, .navbar-default .navbar-nav>.active>a:hover {
     background-color: #FFE4B1 !Important;
 }
 .dropdown-menu>li>a:focus, .dropdown-menu>li>a:hover {
@@ -1832,6 +1820,7 @@ ul.ext-tab-head li.child-active {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 bootstrap nav menu*~~~~~~~~~~~~~~~~~*/
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 bootstrap *~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 input[type=checkbox], input[type=radio] {
     margin: 4px !Important;
 }
@@ -1840,7 +1829,6 @@ fieldset {
     background-color: #FFE4B1 !Important;
     margin-bottom: 10px!Important;
     padding: 0px 0px 15px 0px !Important;
-
 }
 legend {
     border-bottom: 2px solid #FFA800 !Important;
@@ -1873,10 +1861,9 @@ textarea.form-control {
     background: #FFF9ED !Important;
     color: #8e8e8e !Important;
     border-color: #E69700 !Important;
-	border-radius: 2px !Important;
+    border-radius: 2px !Important;
 }
-.btn-default.active, .btn-default.focus, .btn-default:active,
-.btn-default:focus, .btn-default:hover, .open>.dropdown-toggle.btn-default {
+.btn-default.active, .btn-default.focus, .btn-default:active, .btn-default:focus, .btn-default:hover, .open>.dropdown-toggle.btn-default {
     border-color: #E69700 !Important;
     background: #E69700 !Important;
 }
@@ -1887,29 +1874,28 @@ textarea.form-control {
     border: 1px solid #ccc;
     border-radius: 3px !Important;
 }
-.btn-link.active, .btn-link.focus, .btn-link:active, .btn-link:focus,
-.btn-link:hover, .open>.dropdown-toggle.btn-link {
+.btn-link.active, .btn-link.focus, .btn-link:active, .btn-link:focus, .btn-link:hover, .open>.dropdown-toggle.btn-link {
     color: #666666 !Important;
     border-color: #FF7E00 !Important;
     background: #FFF2D8 !Important;
-    box-shadow:0px 0px 2px #FF7E00 inset;
-    transition: border-color ease-in-out .3s,box-shadow ease-in-out .3s;
+    box-shadow: 0px 0px 2px #FF7E00 inset;
+    transition: border-color ease-in-out .3s, box-shadow ease-in-out .3s;
 }
-.btn-separate-left,  .oe-opt-btn-separate-left{
-	margin-left: 20px !Important;
+.btn-separate-left, .oe-opt-btn-separate-left {
+    margin-left: 20px !Important;
 }
-.btn-group  .btn {
-    margin-right:2px !Important;
+.btn-group .btn {
+    margin-right: 2px !Important;
 }
 .btn-group>.btn:first-child:not(:last-child):not(.dropdown-toggle) {
-	border-top-right-radius: 0px !Important;
+    border-top-right-radius: 0px !Important;
     border-bottom-right-radius: 0px !Important;
     border-bottom-left-radius: 3px !Important;
     border-top-left-radius: 3px !Important;
 }
 .btn-group-pinch>.btn:nth-last-child(2):not(.dropdown-toggle), .oe-opt-btn-group-pinch>.btn:nth-last-child(2):not(.dropdown-toggle) {
-	border-top-right-radius: 3px !Important;
-	border-bottom-right-radius: 3px !Important;
+    border-top-right-radius: 3px !Important;
+    border-bottom-right-radius: 3px !Important;
 }
 .btn-sm {
     font-size: 10px !Important;
@@ -1930,63 +1916,63 @@ textarea.form-control {
     height: 24px ! Important;
     padding: 0px 6px !Important;
 }
-.checkbox input[type=checkbox], .checkbox-inline input[type=checkbox],
-.radio input[type=radio], .radio-inline input[type=radio] {
+.checkbox input[type=checkbox], .checkbox-inline input[type=checkbox], .radio input[type=radio], .radio-inline input[type=radio] {
     margin-left: -20px !Important;
 }
 .checkbox label, .radio label {
     padding-left: 20px !important;
 }
-.position-override{
-        text-align:center !Important;
-        margin-left:0px;
-    }
-.oe-custom-line{
-   padding-bottom:5px;
+.position-override {
+    text-align: center !Important;
+    margin-left: 0px;
+}
+.oe-custom-line {
+    padding-bottom: 5px;
 }
 .oe-large {
-	display: inline-block;
+    display: inline-block;
 }
 .oe-small {
-	display: none;
+    display: none;
 }
 .oe-show-hide {
-	display: none;
+    display: none;
 }
-.oe-legend-radio{
-    font-size:12px;
-    padding:5px 5px 0px 0px;
+.oe-legend-radio {
+    font-size: 12px;
+    padding: 5px 5px 0px 0px;
 }
 .oe-bold-black {
     font-weight: 700 !Important;
     color: black !Important;
 }
 .oe-btn-circle {
-  width: 30px;
-  height: 30px;
-  text-align: center;
-  padding: 6px 0;
-  font-size: 12px;
-  line-height: 1.428571429;
-  border-radius: 15px;
-  background: #FF7E00 !Important;
-  color: #FFFFFF !Important;
-  border-color: #E69700 !Important;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    padding: 6px 0;
+    font-size: 12px;
+    line-height: 1.428571429;
+    border-radius: 15px;
+    background: #FF7E00 !Important;
+    color: #FFFFFF !Important;
+    border-color: #E69700 !Important;
 }
-.patientInfo   a.btn, .patientDataColumn   a.btn{
-  width: 20px;
-  height: 20px;
-  text-align: center;
-  padding: 2px 0;
-  font-size: 12px;
-  line-height: 1.428571429;
-  border-radius: 10px !Important;
-  background: #FF7E00 !Important;
-  color: #FFFFFF !Important;
-  border-color: #E69700 !Important;
-  margin:5px;
+.patientInfo a.btn, .patientDataColumn a.btn {
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    padding: 2px 0;
+    font-size: 12px;
+    line-height: 1.428571429;
+    border-radius: 10px !Important;
+    background: #FF7E00 !Important;
+    color: #FFFFFF !Important;
+    border-color: #E69700 !Important;
+    margin: 5px;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 bootstrap *~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 #globals_form_search {
     margin-top: -3px;
     padding: 2px 3px 1px 3px;
@@ -1995,19 +1981,31 @@ th.currentvalues, th.historicalvalues {
     background: #FFA800 !Important;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 batch payments, EOB *~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 .oe-payment-select {
     width: 80px !important;
     text-align: right;
     font-size: 12px;
 }
-.oe-ckbox-label{
+.oe-ckbox-label {
     padding-left: 30px;
     font-weight: 500;
 }
-.oe-file-div{
-    padding:10px 15px;
+.oe-file-div {
+    padding: 10px 15px;
 }
-.oe-modal-dialog{
-    width:65% !Important;
+.oe-modal-dialog {
+    width: 65% !Important;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 batch payments, EOB *~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 help files *~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+.oe-help-redirect {
+    color: #FF7E00 !Important;
+}
+.oe-help-heading {
+    background-color: #FFF2D8 !Important;
+    border-color: #FFD78B !Important;
+}
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 help files *~~~~~~~~~~~~~~~~~~~~~~~~~*/
