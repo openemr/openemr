@@ -105,12 +105,10 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid)
                 $note .= attr(oeFormatShortDate(date('Y-m-d', strtotime($row['date'])))) . " : " . attr($row['note']) . "\n";
             }
             $docTitle = ( $note ) ? $note : xla("View document");
-            if (1==1) {
-                $docHref = $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr($pid) . "&doc_id=" . attr($documentrow['id']);
-                echo "<div class='text docrow' id='" . attr($documentrow['id']) . "' title='" . $docTitle . "'>\n";
-                echo "<a href='$docHref' onclick='top.restoreSession()' >" . xlt('Document') . ": " . text(basename($documentrow['url'])) . ' (' . text(xl_document_category($documentrow['name'])) . ')' . "</a>";
-                echo "</div>";
-            }
+            $docHref = $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr($pid) . "&doc_id=" . attr($documentrow['id']);
+            echo "<div class='text docrow' id='" . attr($documentrow['id']) . "' title='" . $docTitle . "'>\n";
+            echo "<a href='$docHref' onclick='top.restoreSession()' >" . xlt('Document') . ": " . text(basename($documentrow['url'])) . ' (' . text(xl_document_category($documentrow['name'])) . ')' . "</a>";
+            echo "</div>";
         }
     }
 }
