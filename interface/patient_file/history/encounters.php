@@ -105,11 +105,12 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid)
                 $note .= attr(oeFormatShortDate(date('Y-m-d', strtotime($row['date'])))) . " : " . attr($row['note']) . "\n";
             }
             $docTitle = ( $note ) ? $note : xla("View document");
-
-            $docHref = $GLOBALS['webroot']."/controller.php?document&view&patient_id=".attr($pid)."&doc_id=".attr($documentrow['id']);
-            echo "<div class='text docrow' id='" . attr($documentrow['id'])."' title='". $docTitle . "'>\n";
-            echo "<a href='$docHref' onclick='top.restoreSession()' >". xlt('Document') . ": " . text(basename($documentrow['url'])) . ' (' . text(xl_document_category($documentrow['name'])) . ')' . "</a>";
-            echo "</div>";
+            if (1==1) {
+                $docHref = $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr($pid) . "&doc_id=" . attr($documentrow['id']);
+                echo "<div class='text docrow' id='" . attr($documentrow['id']) . "' title='" . $docTitle . "'>\n";
+                echo "<a href='$docHref' onclick='top.restoreSession()' >" . xlt('Document') . ": " . text(basename($documentrow['url'])) . ' (' . text(xl_document_category($documentrow['name'])) . ')' . "</a>";
+                echo "</div>";
+            }
         }
     }
 }
@@ -121,7 +122,9 @@ function showDocument(&$drow)
     global $ISSUE_TYPES, $auth_med;
 
     $docdate = $drow['docdate'];
+    $doctagenc   = $drow['encounter_id'];
 
+    if ($doctagenc) return;
     echo "<tr class='text docrow' id='".htmlspecialchars($drow['id'], ENT_QUOTES)."' title='". htmlspecialchars(xl('View document'), ENT_QUOTES) . "'>\n";
 
   // show date
@@ -354,7 +357,7 @@ if (!$billing_view) {
   // Query the documents for this patient.  If this list is issue-specific
   // then also limit the query to documents that are linked to the issue.
     $queryarr = array($pid);
-    $query = "SELECT d.id, d.type, d.url, d.docdate, d.list_id, c.name " .
+    $query = "SELECT d.id, d.type, d.url, d.docdate, d.list_id, d.encounter_id, c.name " .
     "FROM documents AS d, categories_to_documents AS cd, categories AS c WHERE " .
     "d.foreign_id = ? AND cd.document_id = d.id AND c.id = cd.category_id ";
     if ($issue) {
