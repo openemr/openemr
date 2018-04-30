@@ -380,6 +380,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 <?php
                                 if ($task=="addnew" || $result['pid']==0) {
                                     echo '<input type="button" value="' . xla('Add Patient') . '" style="float: none; display: inline-block;" onclick="sel_patient()"/>';
+                                    echo '<input type="button" value="' . xla('Multi Select') . '" style="float: none; display: inline-block;" onclick="multi_sel_patient()"/>';
                                 } ?>
                             </td>
                         </tr>
@@ -815,6 +816,10 @@ if (!empty($_REQUEST['go'])) { ?>
         // This invokes the find-patient popup.
         function sel_patient() {
             dlgopen('../../main/calendar/find_patient_popup.php', '_blank', 625, 400);
+        }
+
+        function multi_sel_patient() {
+            dlgopen('../../main/finder/multi_patients_finder.php', '_blank', 625, 400);
         }
 
         function addtolist(sel) {
