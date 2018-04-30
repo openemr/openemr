@@ -64,7 +64,7 @@
 	{literal}}{/literal}
  {literal}}{/literal}
 
-// For tagging it encounter
+// For tagging it with an encounter
 function tagUpdate() {literal}{{/literal}
 	var f = document.forms['document_tag'];
 	if (f.encounter_check.checked) {literal}{{/literal}
@@ -329,7 +329,7 @@ function ImgProcedure() {literal}{{/literal}
 	</tr>
 	<tr id="DocContents" style="height:100%">
 		<td>
-            {if $file->get_mimetype() eq "image/tiff"}
+            {if $file->get_mimetype() eq "image/tiff" or $file->get_mimetype() eq "text/plain"}
 			<embed frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{$web_path|escape:'html'}as_file=false"></embed>
 			{elseif $file->get_mimetype() eq "image/png" or
 			 $file->get_mimetype() eq "image/jpg" or
