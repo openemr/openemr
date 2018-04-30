@@ -2521,10 +2521,10 @@ if (!empty($logged_in['products']['not_ordered'])) {
                     ?>
                     setpatient('<?php echo text($_SESSION['pid']); ?>');
                     <?php
-                    }
+                }
                 ?>
-                var xljs_NOTE = '<?php echo xl( "NOTE" ); ?>';
-                var xljs_PthsApSched = '<?php echo xl( "This patient already has an appointment scheduled for" ); ?>';
+                var xljs_NOTE = '<?php echo xl("NOTE"); ?>';
+                var xljs_PthsApSched = '<?php echo xl("This patient already has an appointment scheduled for"); ?>';
             
             </script>
             <?php

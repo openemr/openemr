@@ -171,9 +171,8 @@ if (($_REQUEST['pid']) && ($_REQUEST['action'] == "new_recall")) {
     $query = "SELECT PLAN FROM form_eye_mag WHERE PID=? AND date < NOW() ORDER BY date DESC LIMIT 1";
     $result2 = sqlQuery($query, array($_REQUEST['pid']));
     if ($result2) {
-        $result['PLAN'] = str_replace("|", " - ", $result2['PLAN'] );
+        $result['PLAN'] = str_replace("|", " - ", $result2['PLAN']);
         $result['PLAN'] = rtrim($result['PLAN'], "- ");
-    
     }
     
     $query = "SELECT * FROM openemr_postcalendar_events WHERE pc_pid =? ORDER BY pc_eventDate DESC LIMIT 1";
