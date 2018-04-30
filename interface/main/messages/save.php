@@ -171,11 +171,30 @@ if (($_REQUEST['pid']) && ($_REQUEST['action'] == "new_recall")) {
     $query = "SELECT PLAN FROM form_eye_mag WHERE PID=? AND date < NOW() ORDER BY date DESC LIMIT 1";
     $result2 = sqlQuery($query, array($_REQUEST['pid']));
     if ($result2) {
-        $result['PLAN'] = $result2['PLAN'];
+        $result['PLAN'] = str_replace("|", " - ", $result2['PLAN'] );
+        $result['PLAN'] = rtrim($result['PLAN'], "- ");
+    
     }
-    $query = "SELECT pc_eventDate FROM openemr_postcalendar_events WHERE pc_pid =? ORDER BY pc_eventDate DESC LIMIT 1";
+    
+    $query = "SELECT * FROM openemr_postcalendar_events WHERE pc_pid =? ORDER BY pc_eventDate DESC LIMIT 1";
     $result2 = sqlQuery($query, array($_REQUEST['pid']));
-    $result['DOLV'] = $result2['pc_eventDate'];
+    if ($result2) { //if they were never actually scheduled this would be blank
+        $result['DOLV']     = oeFormatShortDate($result2['pc_eventDate']);
+        $result['provider'] = $result2['pc_aid'];
+        $result['facility'] = $result2['pc_facility'];
+    }
+    /**
+     * Is there an existing Recall in place already????
+     * If so we need to use that info...
+     */
+    $query = "SELECT * from medex_recalls where r_pid=?";
+    $result3 = sqlQuery($query, array($_REQUEST['pid']));
+    if ($result3) {
+        $result['recall_date']  = $result3['r_eventDate'];
+        $result['PLAN']         = $result3['r_reason'];
+        $result['facility']     = $result3['r_facility'];
+        $result['provider']     = $result3['r_provider'];
+    }
     echo json_encode($result);
     exit;
 }
