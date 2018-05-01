@@ -1,10 +1,28 @@
 <?php
+// Copyright (C) 2017 Amiel Elboim <amiele@matrix.co.il>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
 
 include_once('../../globals.php');
 include_once("$srcdir/patient.inc");
 use OpenEMR\Core\Header;
 
-//echo "<pre>"; print_r($twentyFirstPid);die;
+// for editing selected patients
+if (isset($_GET['patients'])){
+    $patients = rtrim($_GET['patients'],";");
+    $patients = explode(';', $patients);
+    $results = array();
+    foreach ($patients as $patient){
+        $result=getPatientData($patient, 'id, pid, lname, fname, mname, pubpid, ss, DOB, phone_home');
+        //clean data using 'text' function
+        $result=array_map('text', $result);
+        $result['DOB'] = oeFormatShortDate($result['DOB']);
+        $results[] = $result;
+    }
+}
 
 ?>
 
@@ -15,13 +33,9 @@ use OpenEMR\Core\Header;
     <title><?php echo htmlspecialchars(xl('Patient Finder'), ENT_NOQUOTES); ?></title>
 
     <style>
-        #submitbtn{
-            float: none !important;
-        }
         #searchCriteria {
             text-align: center;
             width: 100%;
-            /*font-size: 0.8em;*/
             background-color: #ddddff;
             font-weight: bold;
             padding: 7px;
@@ -36,8 +50,13 @@ use OpenEMR\Core\Header;
             width: 120px !important;
         }
         .buttons-box{
+            margin-left: 10px;
+            margin-right: 10px;
             display: inline-block;
-            margin-left: 22px;
+            vertical-align: middle;
+        }
+        .inline-box{
+            display: inline-block;
             vertical-align: middle;
         }
         .remove-patient{
@@ -46,11 +65,7 @@ use OpenEMR\Core\Header;
         }
         #searchResultsHeader {
             width: 100%;
-            /*background-color: #fff;*/
             border-collapse: collapse;
-        }
-        #searchResultsHeader th {
-            /*font-size: 0.7em;*/
         }
         #searchResults {
             width: 100%;
@@ -59,38 +74,13 @@ use OpenEMR\Core\Header;
             overflow: auto;
         }
 
-        #searchResults tr {
+        #searchResults .remove-patient {
             cursor: hand;
             cursor: pointer;
         }
         #searchResults td {
             /*font-size: 0.7em;*/
             border-bottom: 1px solid #eee;
-        }
-        .oneResult { }
-        .billing { color: red; font-weight: bold; }
-
-        /* for search results or 'searching' notification */
-        #searchstatus {
-            font-size: 0.8em;
-            font-weight: bold;
-            padding: 1px 1px 10px 1px;
-            font-style: italic;
-            color: black;
-            text-align: center;
-        }
-        .noResults { background-color: #ccc; }
-        .tooManyResults { background-color: #fc0; }
-        .howManyResults { background-color: #9f6; }
-        #searchspinner {
-            display: inline;
-            visibility: hidden;
-        }
-
-        /* highlight for the mouse-over */
-        .highlight {
-            background-color: #336699;
-            color: white;
         }
     </style>
 
@@ -111,8 +101,12 @@ use OpenEMR\Core\Header;
                 </select>
             </div>
             <div class="buttons-box">
-                <button id="add-to-list"><?php echo xlt('Add to list'); ?></button>
-                <button id=""><?php echo  xlt('OK'); ?></button>
+                <div class="inline-box">
+                    <button id="add-to-list"><?php echo xlt('Add to list'); ?></button>
+                </div>
+                <div class="inline-box">
+                    <button id="send-patients" onclick="selPatients()"><?php echo  xlt('OK'); ?></button>
+                </div>
             </div>
         </form>
     </div>
@@ -129,7 +123,19 @@ use OpenEMR\Core\Header;
         </tr>
         </thead>
         <tbody id="searchResults">
-
+        <?php 
+        if (isset($_GET['patients'])){ 
+            foreach ($results as $index => $result) {
+                echo '<tr id="row'.$index.'">' .
+                        '<td>'. $result['lname'] . ', ' . $result['fname'] . '</td>' .
+                        '<td>' . $result['phone_home'] . '</td>' .
+                        '<td>' . $result['ss'] . '</td>' .
+                        '<td>' . $result['DOB'] . '</td>' .
+                        '<td>' . $result['pubpid'] . '</td>' .
+                        '<td><i class="fa fa-remove remove-patient" onclick="removePatient('.$index.')"></i></td>' .
+                    '<tr>';
+            }
+         } ?>
         </tbody>
     </table>
 
@@ -138,7 +144,13 @@ use OpenEMR\Core\Header;
 <script>
 
 var currentResult;
+
+<?php if (isset($_GET['patients'])){ ?>
+var patientsList = <?php echo json_encode($results); ?>;
+<?php } else { ?>
 var patientsList = [];
+$('#results-table').hide();
+<?php } ?>
 
 //Initial select2 library for auto completing using ajax
 $('#by-id, #by-name').select2({
@@ -191,7 +203,7 @@ $('#by-name').on('change', function () {
     })
 });
 
-
+//add new patient to list
 $('#add-to-list').on('click', function (e) {
     e.preventDefault();
 
@@ -200,10 +212,15 @@ $('#add-to-list').on('click', function (e) {
     if(patientsList.length === 0){
         $('#results-table').show();
     }
-
+    
     // return if patient already exist in the list
-    if(patientsList.indexOf(currentResult) > -1)return;
+    var exist
+    $.each(patientsList, function (key, patient) {
+        if (patient.pid == currentResult.pid) exist = true;
+    })
+    if(exist)return;
 
+    
     // add to array
     patientsList.push(currentResult);
     var lastIndex = patientsList.length-1;
@@ -223,6 +240,16 @@ $('#add-to-list').on('click', function (e) {
 function removePatient(index) {
     patientsList.splice(index,1);
     $('#row'+index).remove();
+}
+
+//send array of patients to function 'setMultiPatients' of the opener
+function selPatients() {
+    if (opener.closed || ! opener.setMultiPatients)
+        alert("<?php echo htmlspecialchars(xl('The destination form was closed; I cannot act on your selection.'), ENT_QUOTES); ?>");
+    else
+        opener.setMultiPatients(patientsList);
+    dlgclose();
+    return false;
 }
 
 

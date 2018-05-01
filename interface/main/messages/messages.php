@@ -813,13 +813,37 @@ if (!empty($_REQUEST['go'])) { ?>
             <?php } ?>
         }
 
+        // This is for callback by the multi_patients_finder popup.
+        function setMultiPatients(patientsList) {
+            var f = document.getElementById('new_note');
+            f.form_patient.value='';
+            f.reply_to.value='';
+            $.each(patientsList, function (key, patient) {
+                f.form_patient.value += patient.lname + ', ' + patient.fname + '; ';
+                f.reply_to.value += patient.pid + ';';
+            })
+
+            <?php if ($noteid) { ?>
+            //used when direct messaging service inserts a pnote with indeterminate patient
+            //to allow the user to assign the message to a patient.
+            top.restoreSession();
+            $("#task").val("savePatient");
+            $("#new_note").submit();
+            <?php } ?>
+        }
+
         // This invokes the find-patient popup.
         function sel_patient() {
             dlgopen('../../main/calendar/find_patient_popup.php', '_blank', 625, 400);
         }
 
         function multi_sel_patient() {
-            dlgopen('../../main/finder/multi_patients_finder.php', '_blank', 625, 400);
+            var url = '../../main/finder/multi_patients_finder.php'
+            // for edit selected list
+            if($('#reply_to').val() !== ''){
+                url = url+'?patients='+$('#reply_to').val();
+            }
+            dlgopen(url, '_blank', 625, 400);
         }
 
         function addtolist(sel) {
