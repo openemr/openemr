@@ -11,11 +11,11 @@ include_once("$srcdir/patient.inc");
 use OpenEMR\Core\Header;
 
 // for editing selected patients
-if (isset($_GET['patients'])){
-    $patients = rtrim($_GET['patients'],";");
+if (isset($_GET['patients'])) {
+    $patients = rtrim($_GET['patients'], ";");
     $patients = explode(';', $patients);
     $results = array();
-    foreach ($patients as $patient){
+    foreach ($patients as $patient) {
         $result=getPatientData($patient, 'id, pid, lname, fname, mname, pubpid, ss, DOB, phone_home');
         //clean data using 'text' function
         $result=array_map('text', $result);
@@ -123,8 +123,8 @@ if (isset($_GET['patients'])){
         </tr>
         </thead>
         <tbody id="searchResults">
-        <?php 
-        if (isset($_GET['patients'])){ 
+        <?php
+        if (isset($_GET['patients'])) {
             foreach ($results as $index => $result) {
                 echo '<tr id="row'.$index.'">' .
                         '<td>'. $result['lname'] . ', ' . $result['fname'] . '</td>' .
@@ -133,9 +133,9 @@ if (isset($_GET['patients'])){
                         '<td>' . $result['DOB'] . '</td>' .
                         '<td>' . $result['pubpid'] . '</td>' .
                         '<td><i class="fa fa-remove remove-patient" onclick="removePatient('.$index.')"></i></td>' .
-                    '<tr>';
+                    '<tr>'
             }
-         } ?>
+        } ?>
         </tbody>
     </table>
 
@@ -145,7 +145,7 @@ if (isset($_GET['patients'])){
 
 var currentResult;
 
-<?php if (isset($_GET['patients'])){ ?>
+<?php if (isset($_GET['patients'])) { ?>
 var patientsList = <?php echo json_encode($results); ?>;
 <?php } else { ?>
 var patientsList = [];
