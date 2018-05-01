@@ -652,6 +652,9 @@ CREATE TABLE `layout_group_properties` (
   grp_diags       varchar(4095)  not null default '',
   PRIMARY KEY (grp_form_id, grp_group_id)
 ) ENGINE=InnoDB;
+#EndIf
+
+#IfMissingColumn layout_options group_id
 ALTER TABLE layout_options ADD COLUMN group_id VARCHAR(31) NOT NULL default '' AFTER group_name;
 #ConvertLayoutProperties
 ALTER TABLE layout_options DROP COLUMN group_name;
