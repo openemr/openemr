@@ -12,10 +12,10 @@ include_once("$srcdir/patient.inc");
 $type = $_GET['type'];
 $search = $_GET['search'];
 
-switch ($type){
+switch ($type) {
     case 'by-id':
         // load patients ids for select2.js library, expect receive 'text' and 'id'.
-        $results=getPatientId("%$search%",'pubpid as text, pid as id','pubpid');
+        $results=getPatientId("%$search%", 'pubpid as text, pid as id', 'pubpid');
         foreach ($results as $key => $result) {
             //clean data using 'text' function
             $results[$key] = array_map('text', $result);
@@ -23,7 +23,7 @@ switch ($type){
         break;
     case 'by-name':
         // load patients names for select2.js library, expect receive 'text' and 'id'.
-        $results=getPatientLnames("%$search%",'pid as id, CONCAT(lname, ", ",fname)  as text','lname ASC, fname ASC');
+        $results=getPatientLnames("%$search%", 'pid as id, CONCAT(lname, ", ",fname)  as text', 'lname ASC, fname ASC');
         foreach ($results as $key => $result) {
             //clean data using 'text' function
             $results[$key] = array_map('text', $result);
@@ -38,4 +38,5 @@ switch ($type){
 }
 
 $output = array('results' => $results);
-echo json_encode($output);die;
+echo json_encode($output);
+die;
