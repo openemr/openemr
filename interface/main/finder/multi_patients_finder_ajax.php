@@ -1,13 +1,28 @@
 <?php
-// Copyright (C) 2017 Amiel Elboim <amiele@matrix.co.il>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
 
-include_once('../../globals.php');
-include_once("$srcdir/patient.inc");
+/**
+ * Ajax interface for popup of multi select patient.
+ *
+ * Copyright (C) 2016 Amiel Elboim <amielel@matrix.co.il>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Amiel Elboim <amielel@matrix.co.il>
+ * @link    http://www.open-emr.org
+ */
+
+require_once('../../globals.php');
+require_once("$srcdir/patient.inc");
 
 $type = $_GET['type'];
 $search = $_GET['search'];

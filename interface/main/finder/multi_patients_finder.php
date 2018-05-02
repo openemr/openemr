@@ -1,13 +1,28 @@
 <?php
-// Copyright (C) 2017 Amiel Elboim <amiele@matrix.co.il>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
 
-include_once('../../globals.php');
-include_once("$srcdir/patient.inc");
+/**
+ * Multi select patient.
+ *
+ * Copyright (C) 2016 Amiel Elboim <amielel@matrix.co.il>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Amiel Elboim <amielel@matrix.co.il>
+ * @link    http://www.open-emr.org
+ */
+
+require_once('../../globals.php');
+require_once("$srcdir/patient.inc");
 use OpenEMR\Core\Header;
 
 // for editing selected patients
@@ -29,7 +44,7 @@ if (isset($_GET['patients'])) {
 <!DOCTYPE html>
 <html>
 <head>
-    <?php Header::setupHeader(['jquery', 'bootstrap', 'select2', 'opener']); ?>
+    <?php Header::setupHeader(['select2', 'opener']); ?>
     <title><?php echo htmlspecialchars(xl('Patient Finder'), ENT_NOQUOTES); ?></title>
 
     <style>
@@ -126,13 +141,13 @@ if (isset($_GET['patients'])) {
         <?php
         if (isset($_GET['patients'])) {
             foreach ($results as $index => $result) {
-                echo '<tr id="row'.$index.'">' .
-                        '<td>'. $result['lname'] . ', ' . $result['fname'] . '</td>' .
+                echo '<tr id="row' . attr($index) . '">' .
+                        '<td>' . $result['lname'] . ', ' . $result['fname'] . '</td>' .
                         '<td>' . $result['phone_home'] . '</td>' .
                         '<td>' . $result['ss'] . '</td>' .
                         '<td>' . $result['DOB'] . '</td>' .
                         '<td>' . $result['pubpid'] . '</td>' .
-                        '<td><i class="fa fa-remove remove-patient" onclick="removePatient('.$index.')"></i></td>' .
+                        '<td><i class="fa fa-remove remove-patient" onclick="removePatient('.attr($index).')"></i></td>' .
                     '<tr>';
             }
         } ?>
@@ -177,6 +192,7 @@ $('#by-id').on('change', function () {
         },
         dataType: 'json'
     }).done(function(data){
+        top.restoreSession();
         currentResult=data.results;
         //change patient name to selected patient
         $('#by-name').val(null);
@@ -195,6 +211,7 @@ $('#by-name').on('change', function () {
         },
         dataType: 'json'
     }).done(function(data){
+        top.restoreSession();
         currentResult=data.results;
         //change patient pubpid to selected patient
         $('#by-id').val(null);
@@ -245,7 +262,7 @@ function removePatient(index) {
 //send array of patients to function 'setMultiPatients' of the opener
 function selPatients() {
     if (opener.closed || ! opener.setMultiPatients)
-        alert("<?php echo htmlspecialchars(xl('The destination form was closed; I cannot act on your selection.'), ENT_QUOTES); ?>");
+        alert("<?php echo xls('The destination form was closed; I cannot act on your selection.'); ?>");
     else
         opener.setMultiPatients(patientsList);
     dlgclose();
