@@ -133,7 +133,7 @@ if (isset($_GET['patients'])) {
                         '<td>' . $result['DOB'] . '</td>' .
                         '<td>' . $result['pubpid'] . '</td>' .
                         '<td><i class="fa fa-remove remove-patient" onclick="removePatient('.$index.')"></i></td>' .
-                    '<tr>'
+                    '<tr>';
             }
         } ?>
         </tbody>
