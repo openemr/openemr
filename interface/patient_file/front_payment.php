@@ -673,6 +673,12 @@ function validate() {
     let flgempty = true;
     for (let i = 0; i < f.elements.length; ++i) {
         let ename = f.elements[i].name;
+        if (f.elements[i].value == 'pre_payment' && f.elements[i].checked === true) {
+            if (Number(f.elements.namedItem("form_prepayment").value) !== 0) {
+                flgempty = false;
+            }
+            break;
+        }
         if (ename.indexOf('form_upay[') === 0 || ename.indexOf('form_bpay[') === 0) {
             if (Number(f.elements[i].value) !== 0) flgempty = false;
         }

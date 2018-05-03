@@ -122,6 +122,12 @@ function showDocument(&$drow)
 
     $docdate = $drow['docdate'];
 
+    // if doc is already tagged by encounter it already has its own row so return
+    $doc_tagged_enc = $drow['encounter_id'];
+    if ($doc_tagged_enc) {
+        return;
+    }
+
     echo "<tr class='text docrow' id='".htmlspecialchars($drow['id'], ENT_QUOTES)."' title='". htmlspecialchars(xl('View document'), ENT_QUOTES) . "'>\n";
 
   // show date
@@ -354,7 +360,7 @@ if (!$billing_view) {
   // Query the documents for this patient.  If this list is issue-specific
   // then also limit the query to documents that are linked to the issue.
     $queryarr = array($pid);
-    $query = "SELECT d.id, d.type, d.url, d.docdate, d.list_id, c.name " .
+    $query = "SELECT d.id, d.type, d.url, d.docdate, d.list_id, d.encounter_id, c.name " .
     "FROM documents AS d, categories_to_documents AS cd, categories AS c WHERE " .
     "d.foreign_id = ? AND cd.document_id = d.id AND c.id = cd.category_id ";
     if ($issue) {

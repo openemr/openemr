@@ -2331,7 +2331,7 @@ if (!empty($logged_in['products']['not_ordered'])) {
     }
     public function display_add_recall($pid = 'new')
     {
-        global $result_pat;
+        
         ?>
         <div class="container-fluid">
             <div class="row-fluid showReminders clear text-center">
@@ -2351,8 +2351,8 @@ if (!empty($logged_in['products']['not_ordered'])) {
                                 <div class="divTableCell recall_name">
                                     <input type="text" name="new_recall_name" id="new_recall_name" class="form-control"
                                         onclick="recall_name_click(this)"
-                                        value="<?php echo attr($result_pat['fname'])." ".attr($result_pat['lname']); ?>" style="width:225px;">
-                                    <input type="hidden" name="new_pid" id="new_pid" value="<?php echo attr($result_pat['id']); ?>">
+                                        value="" style="width:225px;">
+                                    <input type="hidden" name="new_pid" id="new_pid" value="">
                                 </div>
                             </div>
                             <div class="divTableRow">
@@ -2376,9 +2376,7 @@ if (!empty($logged_in['products']['not_ordered'])) {
                             <div class="divTableRow">
                                 <div class="divTableCell divTableHeading"><?php echo xlt('Recall Reason'); ?></div>
                                 <div class="divTableCell">
-                                    <input class="form-control" type="text"  style="width:225px;" name="new_reason" id="new_reason" value="<?php
-                                    if ($result_pat['PLAN'] > '') {
-                                        echo attr(rtrim("|", trim($result_pat['PLAN']))); } ?>">
+                                    <input class="form-control" type="text"  style="width:225px;" name="new_reason" id="new_reason" value="">
                                     </div>
                                 </div>
                                 <div class="divTableRow">
@@ -2445,27 +2443,25 @@ if (!empty($logged_in['products']['not_ordered'])) {
                                 <div class="divTableRow news">
                                     <div class="divTableCell divTableHeading"><?php echo xlt('DOB'); ?></div>
                                     <div class="divTableCell">&nbsp;&nbsp;
-                                    <?php
-                                    $DOB = oeFormatShortDate($result_pat['DOB']);
-                                    ?>
-                                    <span name="new_DOB" id="new_DOB" style="width:90px;"><?php echo text($DOB); ?></span> -
-                                     <span id="new_age" name="new_age"><?php echo text($result_pat['age']); ?></span></div>
+                                    
+                                    <span name="new_DOB" id="new_DOB" style="width:90px;"></span> -
+                                     <span id="new_age" name="new_age"></span></div>
                                 </div>
                                 <div class="divTableRow news">
                                     <div class="divTableCell divTableHeading"><?php echo xlt('Address'); ?></div>
                                     <div class="divTableCell">
-                                    <input type="text"  class="form-control" name="new_address" id="new_address" style="width:240px;" value="<?php echo attr($result_pat['street']); ?>"><br />
-                                    <input type="text"  class="form-control" name="new_city" id="new_city" style="width:100px;" value="<?php echo attr($result_pat['city']); ?>">
-                                    <input type="text"  class="form-control" name="new_state" id="new_state" style="width:40px;" value="<?php echo attr($result_pat['state']); ?>">
-                                    <input type="text"  class="form-control" name="new_postal_code" id="new_postal_code" style="width:65px;" value="<?php echo attr($result_pat['postal_code']); ?>"></div>
+                                    <input type="text"  class="form-control" name="new_address" id="new_address" style="width:240px;" value=""><br />
+                                    <input type="text"  class="form-control" name="new_city" id="new_city" style="width:100px;" value="">
+                                    <input type="text"  class="form-control" name="new_state" id="new_state" style="width:40px;" value="">
+                                    <input type="text"  class="form-control" name="new_postal_code" id="new_postal_code" style="width:65px;" value=""></div>
                                 </div>
                                 <div class="divTableRow news">
                                     <div class="divTableCell divTableHeading phone_home"><?php echo xlt('Home Phone'); ?></div>
-                                    <div class="divTableCell"><input type="text" name="new_phone_home" id="new_phone_home" class="form-control" value="<?php echo attr($result_pat['phone_home']); ?>"></div>
+                                    <div class="divTableCell"><input type="text" name="new_phone_home" id="new_phone_home" class="form-control" value=""></div>
                                 </div>
                                 <div class="divTableRow news">
                                     <div class="divTableCell divTableHeading phone_cell"><?php echo xlt('Mobile Phone'); ?></div>
-                                    <div class="divTableCell"><input type="text" name="new_phone_cell" id="new_phone_cell" class="form-control" value="<?php echo attr($result_pat['phone_cell']); ?>"></div>
+                                    <div class="divTableCell"><input type="text" name="new_phone_cell" id="new_phone_cell" class="form-control" value=""></div>
                                 </div>
                                 <div class="divTableRow news">
                                     <div class="divTableCell divTableHeading msg_sent" data-placement="auto" title="<?php echo xla('Text Message permission'); ?>"><?php echo xlt('SMS OK'); ?></div>
@@ -2486,7 +2482,7 @@ if (!empty($logged_in['products']['not_ordered'])) {
                                 </div>
                                 <div class="divTableRow news">
                                     <div class="divTableCell divTableHeading phone_cell"><?php echo xlt('E-Mail'); ?></div>
-                                    <div class="divTableCell"><input type="email" name="new_email" id="new_email" class="form-control" style="width:225px;" value="<?php echo attr($result_pat['email']); ?>"></div>
+                                    <div class="divTableCell"><input type="email" name="new_email" id="new_email" class="form-control" style="width:225px;" value=""></div>
                                 </div>
 
                                 <div class="divTableRow news">
@@ -2518,8 +2514,19 @@ if (!empty($logged_in['products']['not_ordered'])) {
                         <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                     });
+                    
                 });
-    </script>
+                <?php
+                if ($_SESSION['pid']>'') {
+                    ?>
+                    setpatient('<?php echo text($_SESSION['pid']); ?>');
+                    <?php
+                }
+                ?>
+                var xljs_NOTE = '<?php echo xl("NOTE"); ?>';
+                var xljs_PthsApSched = '<?php echo xl("This patient already has an appointment scheduled for"); ?>';
+            
+            </script>
             <?php
     }
     public function icon_template()

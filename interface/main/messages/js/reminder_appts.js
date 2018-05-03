@@ -26,10 +26,7 @@ function recall_name_click(field) {
  * Function to insert patient data into addRecall fields
  * pid is sent to server for the data to display
  */
-function setpatient(pid, lname, fname, dob) {
-    var f = document.forms['addRecall'];
-    f.new_recall_name.value = lname + ', ' + fname;//+ '&nbsp; ('+dob+')'+''+pid;
-                                                   //go get the rest of the data
+function setpatient(pid, lname='', fname='', dob='') {
     top.restoreSession();
     $.ajax({
         type: "POST",
@@ -48,7 +45,7 @@ function setpatient(pid, lname, fname, dob) {
             var dolv = moment(obj.DOLV); // another date
             var duration = dolv.diff(now, 'days');
             if (duration > '0') { //it's a future appt dude!
-                alert(xljs_NOTE + ': ' + xljs_PthsApSched + ' ' + obj.DOLV + '...');
+                alert(xljs_NOTE + ': ' + xljs_PthsApSched + ' ' + obj.DOLV );
             }
         }
         $(".news").removeClass('nodisplay');
@@ -86,7 +83,10 @@ function setpatient(pid, lname, fname, dob) {
         //not sure where it is though... or if we can use it here.
         $("#new_age").html(obj.age + ' years old');
         $("#new_reason").val(obj.PLAN);
-
+        $("#new_recall_name").val(obj.lname + ', ' + obj.fname);
+        $("#form_recall_date").val(obj.recall_date);
+        $("#new_provider").val(obj.provider).change();
+        $("#new_facility").val(obj.facility).change();
     });
 }
 

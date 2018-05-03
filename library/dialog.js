@@ -237,7 +237,9 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 
     // onward
     var opts_defaults = {
-        type: 'iframe',
+        type: 'iframe', // POST, GET (ajax) or iframe
+        frameContent: "", // for iframe embedded content
+        ajaxhtml: "", // content for alerts, comfirm etc ajax
         allowDrag: true,
         allowResize: true,
         sizeHeight: 'auto', // fixed in works...
@@ -276,15 +278,19 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     }
 
     // get url straight...
+    var fullURL = "";
     if (opts.url) {
         url = opts.url;
     }
-    if (url[0] === "/") {
-        fullURL = url
+    if (url) {
+        if (url[0] === "/") {
+            fullURL = url
+        }
+        else {
+            fullURL = window.location.href.substr(0, window.location.href.lastIndexOf("/") + 1) + url;
+        }
     }
-    else {
-        fullURL = window.location.href.substr(0, window.location.href.lastIndexOf("/") + 1) + url;
-    }
+
     // what's a window without a name. important for stacking and opener.
     winname = (winname === "_blank" || !winname) ? dialogID() : winname;
 
@@ -335,10 +341,9 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         ('<div><span class="close data-dismiss=modal aria-hidden="true">&times;</span></div>');
 
     var frameHtml =
-        ('<iframe id="modalframe" class="embed-responsive-item modalIframe" name="%winname%" frameborder=0 src="%url%">' +
-            '</iframe>')
+        ('<iframe id="modalframe" class="embed-responsive-item modalIframe" name="%winname%" %url% frameborder=0></iframe>')
             .replace('%winname%', winname)
-            .replace('%url%', fullURL);
+            .replace('%url%', fullURL ? 'src=' + fullURL : '');
 
     var embedded = 'embed-responsive embed-responsive-16by9';
 
@@ -357,7 +362,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             '%body%' + '</div></div></div></div>')
             .replace('%id%', winname)
             .replace('%sStyle%', msSize !== "default" ? msSize : '')
-            .replace('%dialogId%', opts.dialogId ? ('id="' + opts.dialogId + '"') : '')
+            .replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '')
             .replace('%szClass%', mSize ? mSize : '')
             .replace('%head%', mTitle !== '' ? headerhtml : '')
             .replace('%altclose%', mTitle === '' ? altClose : '')
@@ -371,13 +376,20 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     dlgContainer = where.jQuery(mhtml);
     dlgContainer.attr("name", winname);
 
+    // No url and just iframe content
+    if (opts.frameContent && opts.type === 'iframe') {
+        var ipath = 'data:text/html,' + encodeURIComponent(opts.frameContent);
+        dlgContainer.find("iframe[name='" + winname + "']").attr("src", ipath);
+    }
+
     if (opts.buttons) {
         dlgContainer.find('.modal-content').append(buildFooter());
     }
+// Ajax setup
     if (opts.type !== 'iframe') {
         var params = {
-            type: opts.type || '', // if empty and has data object, then post else get.
-            data: opts.data || opts.html || '', // ajax loads fetched content or supplied html. think alerts.
+            method: opts.type || '', // if empty and has data object, then post else get.
+            content: opts.data || opts.html || '', // ajax loads fetched content or supplied html. think alerts.
             url: opts.url || fullURL,
             dataType: opts.dataType || '' // xml/json/text etc.
         };
@@ -486,10 +498,12 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         return dlgContainer;
 
     }); // end events
-
+// Ajax call with promise
     function dialogAjax(data, $dialog) {
         var params = {
             async: true,
+            method: data.method || '',
+            data: opts.content,
             url: data.url || data,
             dataType: data.dataType || 'text'
         };
@@ -514,7 +528,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             var msg = data.error ?
                 data.error(r, s, params) :
                 '<div class="alert alert-danger">' +
-                '<strong><?php echo xlt("XHR Failed:") ?> </strong> [ ' + params.url + '].' + '</div>';
+                '<strong><?php echo xlt("XHR Failed:") ?></strong> [ ' + params.url + '].' + '</div>';
 
             $dialog.find('.modal-body').html(msg);
 
@@ -583,7 +597,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         let hasFooter = $idoc.parents('div.modal-content').find('div.modal-footer').height() || 0;
         frameContentHt = frameContentHt - hasHeader - hasFooter;
         size = (frameContentHt / viewPortHt * 100).toFixed(4);
-        let maxsize = hasHeader ? 90 : hasFooter ? 87.5 : 96;
+        let maxsize = hasHeader ? 90 : hasFooter ? 86.5 : 95.5;
         maxsize = hasHeader && hasFooter ? 80 : maxsize;
         maxsize = maxsize + 'vh';
         size = size + 'vh';

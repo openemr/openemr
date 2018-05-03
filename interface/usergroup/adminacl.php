@@ -532,7 +532,7 @@ if (!isset($phpgacl_location)) {
         <div class="row">
             <div class="col-xs-12">
                 <div class="page-header clearfix">
-                    <h2 class="clearfix"><span id='header_text'><?php echo xlt("Access Control List Administration"); ?></span> &nbsp;&nbsp; <?php echo ($phpgacl_location) ? "<a href='../../gacl/admin/acl_admin.php' onclick='top.restoreSession()'><i id='advanced-tooltip' class='fa fa-external-link fa-2x small' aria-hidden='true'></i> </a>" : ""; ?><a class="pull-right" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#000000"><i class="fa fa-question-circle" aria-hidden="true"></i></a></h2>
+                    <h2 class="clearfix"><span id='header_text'><?php echo xlt("Access Control List Administration"); ?></span> &nbsp;&nbsp; <?php echo ($phpgacl_location) ? "<a href='../../gacl/admin/acl_admin.php' onclick='top.restoreSession()'><i id='advanced-tooltip' class='fa fa-external-link fa-2x small' aria-hidden='true'></i> </a>" : ""; ?><a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#000000"><i class="fa fa-question-circle" aria-hidden="true"></i></a></h2>
                 </div>
             </div>
         </div>
