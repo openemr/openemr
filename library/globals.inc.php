@@ -916,8 +916,7 @@ $GLOBALS_METADATA = array(
             '1',                              // default
             xl('Observation Results in Immunization')
         )
-
-
+        
     ),
     // Report Tab
     //
