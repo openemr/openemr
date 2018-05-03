@@ -8,6 +8,11 @@
 // of the License, or (at your option) any later version.
 
 require_once("../../globals.php");
+require_once "$srcdir/user.inc";
+require_once "$srcdir/MedEx/API.php";
+
+$uspfx = substr(__FILE__, strlen($webserver_root)) . '.';
+$patient_finder_exact_search = prevSetting($uspfx, 'patient_finder_exact_search', 'patient_finder_exact_search', ' ');
 
 $popup = empty($_REQUEST['popup']) ? 0 : 1;
 
@@ -61,6 +66,13 @@ $(document).ready(function() {
   // NOTE kept the legacy command 'sAjaxSource' here for now since was unable to get
   // the new 'ajax' command to work.
   "sAjaxSource": "dynamic_finder_ajax.php",
+
+   "fnServerParams": function ( aoData ) {
+
+         var searchType=$("#setting_search_type:checked").length >0;
+         aoData.push( { "name": "searchType", "value": searchType } );
+     } ,
+
   // dom invokes ColReorderWithResize and allows inclusion of a custom div
   "dom"       : 'Rlfrt<"mytopdiv">ip',
   // These column names come over as $_GET['sColumns'], a comma-separated list of the names.
@@ -72,14 +84,28 @@ $(document).ready(function() {
     <?php // Bring in the translations ?>
     <?php $translationsDatatablesOverride = array('search'=>(xla('Search all columns') . ':')) ; ?>
     <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
+
+
  } );
 
- // This puts our custom HTML into the table header.
- $("div.mytopdiv").html("<form name='myform'><input type='checkbox' name='form_new_window' value='1'<?php
-    if (!empty($GLOBALS['gbl_pt_list_new_window'])) {
-        echo ' checked';
-    } ?> /><?php
-  echo xlt('Open in New Window'); ?></form>");
+    $("div.mytopdiv").html("<form name='myform'>");
+
+    // This puts our custom HTML into the table header.
+    $("div.mytopdiv").append("<input type='checkbox' name='form_new_window' value='1'<?php
+        if (!empty($GLOBALS['gbl_pt_list_new_window'])) {
+            echo ' checked';
+        } ?> /><?php
+        echo xlt('Open in New Window'); ?></form>");
+
+
+    // This control the search type Exact/Like
+    $("div.mytopdiv").append(" <label for='setting_search_type' id='setting_search_type_label'> " +
+                             " <input type='checkbox' name='setting_search_type'  id='setting_search_type'  "+
+                             " value='<?php echo $patient_finder_exact_search; ?>' <?php echo $patient_finder_exact_search; ?>/> " +
+                             " <?php echo xlt('Search with exact method'); ?></label> "
+                            );
+
+    $("div.mytopdiv").append("</form>");
 
  // This is to support column-specific search fields.
  // Borrowed from the multi_filter.html example.
@@ -92,7 +118,7 @@ $(document).ready(function() {
  $('#pt_table').on('click', 'tbody tr', function () {
   // ID of a row element is pid_{value}
   var newpid = this.id.substring(4);
-  // If the pid is invalid, then don't attempt to set 
+  // If the pid is invalid, then don't attempt to set
   // The row display for "No matching records found" has no valid ID, but is
   // otherwise clickable. (Matches this CSS selector).  This prevents an invalid
   // state for the PID to be set.
