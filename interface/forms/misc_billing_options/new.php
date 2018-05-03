@@ -28,7 +28,7 @@ $formid = 0 + (isset($_GET['id']) ? $_GET['id'] : 0);
 if (empty($formid)) {
     $mboquery = sqlquery("SELECT `fmbo`.`id` FROM `form_misc_billing_options` AS `fmbo`
                           INNER JOIN `forms` ON (`fmbo`.`id` = `forms`.`form_id`) WHERE
-                          `forms`.`deleted` = 0 AND
+                          `forms`.`deleted` = 0 AND `forms`.`form_name` = 'Misc Billing Options' AND
                           `forms`.`encounter` = ? ORDER BY `fmbo`.`id` DESC", array($encounter));
     if (!empty($mboquery['id'])) {
         $formid = 0 + $mboquery['id'];
