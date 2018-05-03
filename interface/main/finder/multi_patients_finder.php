@@ -32,9 +32,6 @@ if (isset($_GET['patients'])) {
     $results = array();
     foreach ($patients as $patient) {
         $result=getPatientData($patient, 'id, pid, lname, fname, mname, pubpid, ss, DOB, phone_home');
-        //clean data using 'text' function
-        $result=array_map('text', $result);
-        $result['DOB'] = oeFormatShortDate($result['DOB']);
         $results[] = $result;
     }
 }
@@ -142,11 +139,11 @@ if (isset($_GET['patients'])) {
         if (isset($_GET['patients'])) {
             foreach ($results as $index => $result) {
                 echo '<tr id="row' . attr($index) . '">' .
-                        '<td>' . $result['lname'] . ', ' . $result['fname'] . '</td>' .
-                        '<td>' . $result['phone_home'] . '</td>' .
-                        '<td>' . $result['ss'] . '</td>' .
-                        '<td>' . $result['DOB'] . '</td>' .
-                        '<td>' . $result['pubpid'] . '</td>' .
+                        '<td>' . text($result['lname']) . ', ' . text($result['fname']) . '</td>' .
+                        '<td>' . text($result['phone_home']) . '</td>' .
+                        '<td>' . text($result['ss']) . '</td>' .
+                        '<td>' . text(oeFormatShortDate($result['DOB'])) . '</td>' .
+                        '<td>' . text($result['pubpid']) . '</td>' .
                         '<td><i class="fa fa-remove remove-patient" onclick="removePatient('.attr($index).')"></i></td>' .
                     '<tr>';
             }
@@ -170,6 +167,7 @@ $('#results-table').hide();
 //Initial select2 library for auto completing using ajax
 $('#by-id, #by-name').select2({
     ajax: {
+        beforeSend: top.restoreSession,
         url: 'multi_patients_finder_ajax.php',
         data:function (params) {
             var query = {
@@ -178,12 +176,13 @@ $('#by-id, #by-name').select2({
             }
             return query;
         },
-        dataType: 'json'
+        dataType: 'json',
     }
 });
 
 //get all the data of selected patient
 $('#by-id').on('change', function () {
+    top.restoreSession();
     $.ajax({
         url: 'multi_patients_finder_ajax.php',
         data:{
@@ -192,7 +191,6 @@ $('#by-id').on('change', function () {
         },
         dataType: 'json'
     }).done(function(data){
-        top.restoreSession();
         currentResult=data.results;
         //change patient name to selected patient
         $('#by-name').val(null);
@@ -203,6 +201,7 @@ $('#by-id').on('change', function () {
 
 //get all the data of selected patient
 $('#by-name').on('change', function () {
+    top.restoreSession();
     $.ajax({
         url: 'multi_patients_finder_ajax.php',
         data:{
@@ -211,7 +210,6 @@ $('#by-name').on('change', function () {
         },
         dataType: 'json'
     }).done(function(data){
-        top.restoreSession();
         currentResult=data.results;
         //change patient pubpid to selected patient
         $('#by-id').val(null);
