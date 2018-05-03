@@ -3,22 +3,11 @@
 /**
  * Multi select patient.
  *
- * Copyright (C) 2016 Amiel Elboim <amielel@matrix.co.il>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Amiel Elboim <amielel@matrix.co.il>
+ * @copyright Copyright (c) 2017 Amiel Elboim <amielel@matrix.co.il
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once('../../globals.php');
@@ -105,11 +94,11 @@ if (isset($_GET['patients'])) {
             <div class="select-box">
                 <label><?php echo xlt('Patient name') .':'; ?></label>
                 <select id="by-name" class="input-sm">
-                    <option value=""><?php echo xlt('Type name'); ?></option>
+                    <option value=""><?php echo xlt('Enter name'); ?></option>
                 </select>
                 <label><?php echo xlt('Patient ID'); ?></label>
                 <select id="by-id" class="input-sm">
-                    <option value=""><?php echo xlt('Type ID'); ?></option>
+                    <option value=""><?php echo xlt('Enter ID'); ?></option>
                 </select>
             </div>
             <div class="buttons-box">
@@ -138,13 +127,13 @@ if (isset($_GET['patients'])) {
         <?php
         if (isset($_GET['patients'])) {
             foreach ($results as $index => $result) {
-                echo '<tr id="row' . attr($index) . '">' .
+                echo '<tr id="row' . attr($result['pid']) . '">' .
                         '<td>' . text($result['lname']) . ', ' . text($result['fname']) . '</td>' .
                         '<td>' . text($result['phone_home']) . '</td>' .
                         '<td>' . text($result['ss']) . '</td>' .
                         '<td>' . text(oeFormatShortDate($result['DOB'])) . '</td>' .
                         '<td>' . text($result['pubpid']) . '</td>' .
-                        '<td><i class="fa fa-remove remove-patient" onclick="removePatient('.attr($index).')"></i></td>' .
+                        '<td><i class="fa fa-remove remove-patient" onclick="removePatient('.attr($result['pid']).')"></i></td>' .
                     '<tr>';
             }
         } ?>
@@ -238,23 +227,28 @@ $('#add-to-list').on('click', function (e) {
     
     // add to array
     patientsList.push(currentResult);
-    var lastIndex = patientsList.length-1;
 
-    $('#searchResults').append('<tr id="row'+lastIndex+'">' +
+    $('#searchResults').append('<tr id="row'+currentResult.pid +'">' +
         '<td>'+ currentResult.lname + ', ' + currentResult.fname + '</td>' +
         '<td>' + currentResult.phone_home + '</td>' +
         '<td>' + currentResult.ss + '</td>' +
         '<td>' + currentResult.DOB + '</td>' +
         '<td>' + currentResult.pubpid + '</td>' +
-        '<td><i class="fa fa-remove remove-patient" onclick="removePatient('+lastIndex+')"></i></td>' +
+        '<td><i class="fa fa-remove remove-patient" onclick="removePatient('+currentResult.pid+')"></i></td>' +
     '<tr>');
 
 });
 
 // remove patient from list
-function removePatient(index) {
-    patientsList.splice(index,1);
-    $('#row'+index).remove();
+function removePatient(pid) {
+
+    $.each(patientsList, function (index, patient) {
+        if (typeof patient !== 'undefined' && patient.pid == pid) {
+            patientsList.splice(index,1);
+        }
+    });
+
+    $('#row'+pid).remove();
 }
 
 //send array of patients to function 'setMultiPatients' of the opener

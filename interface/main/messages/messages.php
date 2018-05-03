@@ -379,8 +379,7 @@ if (!empty($_REQUEST['go'])) { ?>
 
                                 <?php
                                 if ($task=="addnew" || $result['pid']==0) {
-                                    echo '<input type="button" value="' . xla('Add Patient') . '" style="float: none; display: inline-block;" onclick="sel_patient()"/>';
-                                    echo '<input type="button" value="' . xla('Multi Select') . '" style="float: none; display: inline-block;" onclick="multi_sel_patient()"/>';
+                                    echo '<input type="button" value="' . xla('Add Patient') . '" style="float: none; display: inline-block;" onclick="multi_sel_patient()"/>';
                                 } ?>
                             </td>
                         </tr>
