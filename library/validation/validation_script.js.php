@@ -158,7 +158,9 @@ function submitme(new_validate,e,form_id, constraints) {
                     }
                 }
                 //show error message
-                var error_msg = getErrorMessage(message);
+                //Validate.js enables to overwrite the error messages by adding 'message' to constraints json. if you want to use your custom message instead
+                //default message you need to add boolean property to the constraints json - 'custom_messages':true.
+                var error_msg = (typeof constraints.custom_messages !== 'undefined' && constraints.custom_messages) ? message : getErrorMessage(message);
 
                 var title= $(input).attr('title');
                 //if it's long title remove it from error message (this could destroy the UI)
