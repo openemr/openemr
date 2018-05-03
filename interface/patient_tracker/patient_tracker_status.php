@@ -20,6 +20,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/encounter_events.inc.php");
 require_once("$srcdir/patient_tracker.inc.php");
+require_once("list.php");
 
 use OpenEMR\Core\Header;
 
@@ -93,7 +94,7 @@ $row = sqlQuery("select fname, lname " .
         <form id="form_note" method="post" action="patient_tracker_status.php?tracker_id=<?php echo attr($tracker_id) ?>" enctype="multipart/form-data" >
             <div class="form-group">
                 <label for="statustype"><?php echo xlt('Status Type'); ?></label>
-                <?php echo generate_select_list('statustype', 'apptstat', $trow['laststatus'], xl('Status Type')); ?>
+                <?php echo generate_select_list_dh('statustype', 'apptstat', $trow['laststatus'], xl('Status Type')); ?>
             </div>
             <div class="form-group">
                 <label for="roomnum"><?php  echo xlt('Exam Room Number'); ?></label>

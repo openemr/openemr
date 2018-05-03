@@ -978,7 +978,7 @@ if (empty($collectthis)) {
 
  // If we have a patient ID, get the name and phone numbers to display.
  //dh-4/8/2018 added patient_type to SQL and set the $default_cat_id to the one in patient_data table
- //need error checking added for case where patient_type doesnt exist in patient_data
+ //
 if ($patientid) {
     echo('patientID');
     $arow = sqlQuery("show columns from patient_data like 'patient_type';");
@@ -1865,6 +1865,8 @@ foreach (array(0 => xl('day') , 4 => xl('workday'), 1 => xl('week'), 2 => xl('mo
 
 <?php
 if ($_GET['group']!=true) {
+        //dh change this to block system reserved appointment statuses from everyone but admin
+        
             generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'apptstat', 'empty_title' => 'SKIP'), $row['pc_apptstatus']);
         } else {
             generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'groupstat', 'empty_title' => 'SKIP'), $row['pc_apptstatus']);
