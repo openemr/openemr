@@ -915,7 +915,7 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',                              // default
             xl('Observation Results in Immunization')
-        ),
+        )
 
 
     ),
