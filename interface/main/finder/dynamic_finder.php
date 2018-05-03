@@ -91,12 +91,9 @@ $(document).ready(function() {
     $("div.mytopdiv").html("<form name='myform'>");
 
     // This puts our custom HTML into the table header.
-    $("div.mytopdiv").append("<input type='checkbox' name='form_new_window' value='1'<?php
-        if (!empty($GLOBALS['gbl_pt_list_new_window'])) {
-            echo ' checked';
-        } ?> /><?php
-        echo xlt('Open in New Window'); ?></form>");
-
+    $("div.mytopdiv").append("<input type='checkbox' name='form_new_window' value='1'
+        <?php if (!empty($GLOBALS['gbl_pt_list_new_window'])) { echo ' checked'; } ?> />
+        <?php echo xlt('Open in New Window'); ?></form>");
 
     // This control the search type Exact/Like
     $("div.mytopdiv").append(" <label for='setting_search_type' id='setting_search_type_label'> " +

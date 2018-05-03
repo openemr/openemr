@@ -30,10 +30,9 @@ if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
 // Search parameter.  -1 means .
 //
 $searchMethodInPatientList= isset($_GET['searchType' ]) ?  $_GET['searchType' ] : false;
-if ($searchMethodInPatientList){
+if ($searchMethodInPatientList) {
     ($_GET['searchType' ]==="true") ?  true : false;
 }
-
 // Column sorting parameters.
 //
 $orderby = '';
@@ -68,7 +67,7 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
                     "fname LIKE '$sSearch' OR " .
                     "mname LIKE '$sSearch' ";
             }
-            else{
+            else {
                 $where .= // like search
                     "lname LIKE '$sSearch%' OR " .
                     "fname LIKE '$sSearch%' OR " .
@@ -101,7 +100,7 @@ for ($i = 0; $i < count($aColumns); ++$i) {
                     "fname LIKE '$sSearch%' OR " .
                     "mname LIKE '$sSearch%' )";
             }
-            else{  // exact search
+            else {  // exact search
                 $where .= " ( " .
                     "lname LIKE '$sSearch' OR " .
                     "fname LIKE '$sSearch' OR " .
@@ -110,7 +109,7 @@ for ($i = 0; $i < count($aColumns); ++$i) {
         } elseif ($searchMethodInPatientList==="true") {
             $where .= " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch%'"; // like search
         }
-        else{
+        else {
             $where .= " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch'"; // exact search
         }
     }
