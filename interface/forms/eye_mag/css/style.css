@@ -161,7 +161,7 @@ textarea.ACT {
     border: 1px solid #222;
 }
 label {
-    font-size:1.0em;
+    font-size:0.9em;
     padding-left:3px;
 }
 .bigger {
@@ -371,13 +371,13 @@ background-color: red;
     padding-left:10px;
     border: 1.00pt solid #000000;
     background: #ffffff;
-    font-family:  'FontAwesome',Arial,Serif, Arial;
-    font-size: 1.1em;
     height: 1.1in;
     float:left;
     margin-right: 3px;
     min-height: 1.1in;
+    min-width: 150px;
     text-align:left;
+    font-size: 0.9em;
 }
 .vitals_right {
     float:right;
@@ -421,7 +421,6 @@ background-color: red;
     background: #ffffff;
     font-family: "FontAwesome",Arial,Serif, Arial;
     padding:6px;
-    font-size:1.0em;
     border-radius: 6px;
 }
 .borderShadow2 {
@@ -1073,6 +1072,10 @@ height: 18px;
     .yellow {
         background-color: yellow;
     }
+
+    textarea {
+        font-size: 0.8em;
+    }
     textarea.EXTTEXT {
         width:1.0in;
         max-width: 1.0in;
@@ -1573,7 +1576,7 @@ a:hover, a:focus {
     color: black;
     box-shadow: inset 0 0 0px 1px grey;
     overflow:auto;
-    font-size:1.0em;
+    font-size:0.9em;
     overflow:auto;
 }
 .panel_title {
@@ -1673,6 +1676,9 @@ position: absolute;bottom:0.1in;clear:both;text-align:left;padding-left:25px;
     top: 35px;
     left:0px;
     display:block;
+    cursor: pointer;
+     font-size:1.2em;
+     margin: 0 auto;
 }
 #stickyalias {
     display: none;
@@ -1700,7 +1706,7 @@ position: absolute;bottom:0.1in;clear:both;text-align:left;padding-left:25px;
 
 }
 .building_blocks dt, dd {
-    font-size:0.9em;
+    font-size:0.8em;
     &:last-of-type {
         border: 1px solid black;
     }
@@ -1712,9 +1718,9 @@ position: absolute;bottom:0.1in;clear:both;text-align:left;padding-left:25px;
 .building_blocks dt {
     background: #C9DBF2 none repeat scroll 0% 0%;
     color: black;
-    font-size: 1.1em;
+    font-size: 1.0em;
     font-family: "FontAwesome",Arial,Serif, Arial;
-    font-weight:400;
+    font-weight:500;
     padding:5px; border:1pt solid #c0c0c0;
 }
 .building_blocks dd {
@@ -1823,7 +1829,7 @@ View.php
 #HPIPMH_sections { display:inline-block;margin: 10 auto;text-align:center; }
 #HPI_left_text { height: 315px;text-align:left;}
 #tabs_container { z-index:3;margin-top:5px;}
-
+#title_bar { width:80%;display:inline-block;}
 #tab1_CC_text > table { min-height: 2.0in;text-align:left;}
 .pad10 { padding:10px;}
 #CC1 { height:53px;}
@@ -1902,12 +1908,11 @@ View.php
 }
 #Lyr50 { width: 1.4in; top:0in; padding: 0in; }
 #Lyr501,#Lyr60,#Lyr701 { position:relative;text-align:right; font-size:0.8em;right:0.1in; }
-#Lyr51 { position: absolute; top: 0.2in; left: 0.12in; display:inline-block;border: none; padding: 0.0in;}
 #Lyr51 > table { padding:0px;margin:auto;width:90%;align:auto;font-size:0.8em;text-align:center;}
 #AmslerOD,#AmslerOS { margin:0.05in;height:0.45in;width:0.5in;}
 .AmslerValue {  font-size:0.8em;text-decoration:italics;}
 #Lyr511 { position: relative; top: 0.04in; left: 0.0in; border: none; background: white; font-size: 0.8em; margin: 2px 10px 2px 0px;}
-#Lyr511  label { padding:2px; vertical-align: bottom;}
+#Lyr511  label { padding:2px; vertical-align: bottom;font-size: 0.8em;}
 .VF_1 { width:0.2in;border-right:1pt solid black;border-bottom:1pt solid black;}
 .VF_2 { width:0.2in;border-left:1pt solid black;border-bottom:1pt solid black;}
 .VF_3 { width:0.2in;border-right:1pt solid black;}
@@ -1940,7 +1945,6 @@ textarea[name=COMMENTS_W] { width:100%;height:3.0em;}
 #CTL_box { box-shadow: 1px 1px 2px #888888;margin:2px 25px; border-radius: 8px; border: 1.00pt solid #000000;}
 #CTL_COMMENTS { width:95%;height:30px; }
 #mid_menu { font-size:1.0em;white-space:nowrap;margin:10px;}
-#EXAM_KB {margin: 0 auto;text-align: center;font-size:1.4em; }
 #IOP_dil { font-size:0.7em;}
 #ALL_keyboard_left {  color:#0C0C0C;size:0.6em;height: 6em;width:85%;margin:15px;z-index:100;}
 div[name=QP_11] { float:left;width:40px;text-align:left;}
@@ -1953,7 +1957,9 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
     padding:4px 10px 4px 10px;margin:20px 4px 4px 4px;
     font-weight:600;
 }
+#IMP { max-width:335px;width:335px; }
 #IMPPLAN_zone {  margin:10px;min-height:2.5in;text-align: left; }
+#IMPPLAN_text { margin:10px 50px;padding-left:30px;text-align: left; }
 #PRIORS_IMPPLAN_left_text { min-height: 2.5in;text-align:left;font-size: 0.9em;}
 #iPlan_build3 { position:absolute;top:0.05in;right:0.241in;}
 #IMP_start2 { position:absolute;top:3px;right:4px;}
@@ -1966,7 +1972,7 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
 }
 #EXT_left_1,#ANTSEG_left_1,#RETINA_left_1,#NEURO_left_1,
 #PRIORS_EXT_left_1,#PRIORS_ANTSEG_left_1,#PRIORS_RETINA_left_1,#PRIORS_NEURO_left_1 {
-    position:relative;float:right;top:0.2in;text-align:right;
+    position:relative;float:right;top:0.2in;text-align:right;font-size:0.9em;
 }
 #EXT_left_1 table:nth-of-type(1),
 #ANTSEG_left_1 table:nth-of-type(1),
@@ -2038,8 +2044,8 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
         min-height:24px;min-width:1.6in;padding:5px;
 }
 .PMSFH_header {  width:1.9in;}
-#ACTTRIGGER {  text-decoration: underline;padding-left: 2px;text-align:left;font-weight: 600;}
-#ACTMAIN {  position:relative;z-index:1;margin: margin: 8px;;}
+#ACTTRIGGER {  text-decoration: underline;padding-left: 2px;float:left;font-weight: 600;font-size: 0.9em;}
+#ACTMAIN {  position:relative;z-index:1;margin: 8px;}
 #ACTNORMAL_CHECK { margin:0em 2em;width:125px;}
 #ACTTABLE { position:relative;text-align:center;font-size:1.0em;margin: 7 5 10 5;border-collapse: separate;}
 #IMPPLAN_1 { text-align: left;}

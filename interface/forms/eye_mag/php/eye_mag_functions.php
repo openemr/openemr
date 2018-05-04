@@ -3642,7 +3642,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
     }
     ?>
        <!-- Navigation -->
-    <nav class="navbar-fixed-top navbar-custom navbar-bright navbar-inner" data-role="page banner navigation" style="margin-bottom: 0;z-index:1050;font-size: 1.2em;">
+    <nav class="navbar-fixed-top navbar-custom navbar-bright navbar-inner" data-role="page banner navigation" style="margin-bottom: 0;z-index:1050;">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="container-fluid" style="margin-top:0px;padding:2px;">
             <div class="navbar-header brand" style="color:black;">
@@ -3900,7 +3900,7 @@ function menu_overhaul_left($pid, $encounter)
         list($documents) = document_engine($pid);
     }
         ?>
-    <div class="borderShadow" style="font-size:1.2em;width:80%;display:inline-block;">
+    <div class="borderShadow" id="title_bar">
         <div id="left_menu" name="left_menu" class="col-md-4">
             <div style="padding-left: 18px;">
                 <table style="text-align:left;">
