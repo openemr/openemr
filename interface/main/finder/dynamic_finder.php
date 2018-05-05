@@ -11,8 +11,9 @@ require_once("../../globals.php");
 require_once "$srcdir/user.inc";
 require_once "$srcdir/MedEx/API.php";
 
-$uspfx = substr(__FILE__, strlen($webserver_root)) . '.';
+$uspfx = 'patient_finder.'; //substr(__FILE__, strlen($webserver_root)) . '.';
 $patient_finder_exact_search = prevSetting($uspfx, 'patient_finder_exact_search', 'patient_finder_exact_search', ' ');
+
 $popup = empty($_REQUEST['popup']) ? 0 : 1;
 
 // Generate some code based on the list of columns.
@@ -53,7 +54,9 @@ while ($row = sqlFetchArray($res)) {
 
     <script language="JavaScript">
 
-        $(document).ready(function () {
+    var uspfx = '<?php echo attr($uspfx); ?>';
+
+    $(document).ready(function () {
 
             // Initializing the DataTable.
             //
@@ -81,8 +84,7 @@ while ($row = sqlFetchArray($res)) {
                 <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
             });
             $("div.mytopdiv").html("<form name='myform'><input type='checkbox' name='form_new_window' value='1' <?php if (!empty($GLOBALS['gbl_pt_list_new_window'])) {
-                echo ' checked';}?> / ><?php echo xlt('Open in New Window'); ?><label for='setting_search_type' id='setting_search_type_label'><input type='checkbox' name='setting_search_type'  id='setting_search_type' value='<?php echo $patient_finder_exact_search; ?>'<?php if ($GLOBALS['search_method_in_patient_list']) {
-                echo ' checked';} ?>/><?php echo xlt('Search with exact method'); ?></label></form>");
+                echo ' checked';}?> / ><?php echo xlt('Open in New Window'); ?><label for='setting_search_type' id='setting_search_type_label'><input type='checkbox' name='setting_search_type'  id='setting_search_type' onchange='persistCriteria(this, event)' value='<?php echo $patient_finder_exact_search; ?>'<?php echo $patient_finder_exact_search ?>/><?php echo xlt('Search with exact method'); ?></label></form>");
             // This is to support column-specific search fields.
             // Borrowed from the multi_filter.html example.
             $("thead input").keyup(function () {
@@ -115,6 +117,14 @@ while ($row = sqlFetchArray($res)) {
             top.restoreSession();
             document.fnew.submit();
         }
+
+        function persistCriteria(el, e){
+            e.preventDefault();
+            let target = uspfx + "patient_finder_exact_search";
+            let val = el.checked ? ' checked' : ' ';
+            $.post( "../../../library/ajax/user_settings.php", { target: target, setting: val });
+        }
+
     </script>
 
 </head>
