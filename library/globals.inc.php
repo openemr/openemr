@@ -1492,6 +1492,12 @@ $GLOBALS_METADATA = array(
             '1',
             xl('Your first day of the week.')
         ),
+        'restrict_cal_provider' => array(
+            xl('Restrict Provider Calendars to Self'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Restricts provider calendars to that provider.  Others (admin) can see all.')
+        ),
         'calendar_appt_style' => array(
             xl('Appointment Display Style'),
             array(
@@ -1625,7 +1631,13 @@ $GLOBALS_METADATA = array(
             '0',                              // default
             xl('Completely remove the ability to display the Patient Flow Board.')
         ),
-
+        'restrict_pat_trkr_provider' => array(
+            xl('Restrict Provider Flow Board to Self'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Restricts provider flowboard to that provider.  Others (admin) can see all.')
+        ),
+        
         'ptkr_visit_reason' => array(
             xl('Flow Board: Show Visit Reason'),
             'bool',                           // data type
