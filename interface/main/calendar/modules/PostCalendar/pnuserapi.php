@@ -1545,6 +1545,9 @@ function calculateEvents($days, $events, $viewtype)
                 list($esY,$esM,$esD) = explode('-', $event['eventDate']);
                 $event_recurrspec = @unserialize($event['recurrspec']);
 
+                if (checkEvent($event['recurrtype'], $event_recurrspec)) {
+                    break; }
+
                 $rfreq = $event_recurrspec['event_repeat_freq'];
                 $rtype = $event_recurrspec['event_repeat_freq_type'];
                 $exdate = $event_recurrspec['exdate']; // this attribute follows the iCalendar spec http://www.ietf.org/rfc/rfc2445.txt
@@ -1611,6 +1614,9 @@ function calculateEvents($days, $events, $viewtype)
 
                 list($esY,$esM,$esD) = explode('-', $event['eventDate']);
                 $event_recurrspec = @unserialize($event['recurrspec']);
+
+                if (checkEvent($event['recurrtype'], $event_recurrspec)) {
+                    break; }
 
                 $rfreq = $event_recurrspec['event_repeat_on_freq'];
                 $rnum  = $event_recurrspec['event_repeat_on_num'];

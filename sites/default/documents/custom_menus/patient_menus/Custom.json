@@ -7,8 +7,7 @@
         "url": "../history/history.php",
         "pid":"false",
         "children": [],
-        "requirement": 0,
-        "acl_req":[]
+        "requirement": 0
     },
     {
         "label": "Report",
@@ -18,8 +17,7 @@
         "url": "../report/patient_report.php",
         "pid":"false",
         "children": [],
-        "requirement": 0,
-        "acl_req":[]
+        "requirement": 0
     },
     {
         "label": "Documents",
@@ -29,8 +27,7 @@
         "url": "../../../controller.php?document&list&patient_id=",
         "pid":"true",
         "children": [],
-        "requirement": 0,
-        "acl_req":[]
+        "requirement": 0
     },
     {
         "label": "Transactions",
@@ -40,8 +37,7 @@
         "url": "../transaction/transactions.php",
         "pid":"false",
         "children": [],
-        "requirement": 0,
-        "acl_req":[]
+        "requirement": 0
     },
     {
         "label": "Issues",
@@ -51,8 +47,7 @@
         "url": "stats_full.php?active=all",
         "pid":"false",
         "children": [],
-        "requirement": 0,
-        "acl_req":[]
+        "requirement": 0
     },
     {
         "label": "Ledger",
@@ -62,8 +57,7 @@
         "url": "../../reports/pat_ledger.php?form=1&patient_id=",
         "pid":"true",
         "children": [],
-        "requirement": 0,
-        "acl_req":[]
+        "requirement": 0
     },
     {
         "label": "External Data",
@@ -73,8 +67,7 @@
         "url": "../../reports/external_data.php",
         "pid":"false",
         "children": [],
-        "requirement": 0,
-        "acl_req":[]
+        "requirement": 0
     },
     {
         "label": "Publish",
@@ -85,7 +78,6 @@
         "pid":"false",
         "children": [],
         "requirement": 0,
-        "acl_req":[],
         "global_req":"fhir_enable"
     },
     {

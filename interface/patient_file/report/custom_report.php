@@ -347,7 +347,7 @@ foreach ($ar as $key => $val) {
             $recurrences = fetchRecurrences($pid);
 
             //print the recurring days to screen
-            if ($recurrences[0] == false) { //if there are no recurrent appointments:
+            if (empty($recurrences)) { //if there are no recurrent appointments:
                 echo "<div class='text' >";
                 echo "<span>" . xlt('None') . "</span>";
                 echo "</div>";
@@ -355,7 +355,7 @@ foreach ($ar as $key => $val) {
             } else {
                 foreach ($recurrences as $row) {
                     //checks if there are recurrences and if they are current (git didn't end yet)
-                    if ($row == false || !recurrence_is_current($row['pc_endDate'])) {
+                    if (!recurrence_is_current($row['pc_endDate'])) {
                         continue;
                     }
 
@@ -607,8 +607,8 @@ foreach ($ar as $key => $val) {
                     '/documents/' . $from_pathname . '/' . $from_filename;
                     $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
                 }
-
-                if ($extension != ".pdf") {
+                // adding support for .txt MDM-TXA interface/orders/receive_hl7_results.inc.php
+                if ($extension != (".pdf" || ".txt")) {
                     $image_data = getimagesize($from_file);
                     $extension = image_type_to_extension($image_data[2]);
                 }
@@ -655,6 +655,10 @@ foreach ($ar as $key => $val) {
                         ob_start();
 
                         echo "<div><div class='text documents'>\n";
+                    } elseif ($extension == ".txt") {
+                        echo "<pre>";
+                        readfile($from_file);
+                        echo "</pre>";
                     } else {
                         if (! is_file($to_file)) {
                             exec("convert -density 200 \"$from_file\" -append -resize 850 \"$to_file\"");

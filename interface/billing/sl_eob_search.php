@@ -15,7 +15,7 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
+use OpenEMR\Core\Header;
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -45,9 +45,7 @@ if (! empty($GLOBALS['portal_onsite_two_enable'])) {
 
     function is_auth_portal($pid = 0)
     {
-        if ($pData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid` = ?", array(
-            $pid
-        ))) {
+        if ($pData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid` = ?", array($pid))) {
             if ($pData['allow_patient_portal'] != "YES") {
                 return false;
             } else {
@@ -267,7 +265,7 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
             $GLOBALS['pdf_language'],
             true, // default unicode setting is true
             'UTF-8', // default encoding setting is UTF-8
-            array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
+            array($GLOBALS['pdf_left_margin'], $GLOBALS['pdf_top_margin'], $GLOBALS['pdf_right_margin'], $GLOBALS['pdf_bottom_margin']),
             $_SESSION['language_direction'] == 'rtl' ? true : false
         );
         ob_start();
@@ -574,530 +572,653 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
     ?>
   <html>
   <head>
-    <?php html_header_show(); ?>
-    <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+        <?php Header::setupHeader(['datetime-picker']);?>
     <title><?php xl('EOB Posting - Search', 'e'); ?></title>
-    <script type="text/javascript" src="../../library/textformat.js"></script>
-
     <script language="JavaScript">
-
     var mypcc = '1';
 
     function checkAll(checked) {
-     var f = document.forms[0];
-     for (var i = 0; i < f.elements.length; ++i) {
-      var ename = f.elements[i].name;
-      if (ename.indexOf('form_cb[') == 0)
-       f.elements[i].checked = checked;
-   }
- }
+        var f = document.forms[0];
+        for (var i = 0; i < f.elements.length; ++i) {
+        var ename = f.elements[i].name;
+        if (ename.indexOf('form_cb[') == 0)
+        f.elements[i].checked = checked;
+        }
+    }
 
- function npopup(pid) {
-   window.open('sl_eob_patient_note.php?patient_id=' + pid, '_blank', 'width=500,height=250,resizable=1');
-   return false;
- }
+    function npopup(pid) {
+    window.open('sl_eob_patient_note.php?patient_id=' + pid, '_blank', 'width=500,height=250,resizable=1');
+    return false;
+    }
+    $(document).ready(function() {
+        $('.datepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = false; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+        });
+    });
 
  </script>
+ <style>
+    @media only screen and (max-width: 768px) {
+       [class*="col-"] {
+       width: 100%;
+       text-align:left!Important;
+        }
+    }
+    @media only screen and (max-width: 1004px) and (min-width: 641px)  {
+        .oe-large {
+            display: none;
+        }
+        .oe-small {
+            display: inline-block;
+        }
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+    .modal-body, .modal-body * {
+        visibility: visible;
+      }
+      .modal-body {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width:100%;
+        height:10000px;
+       }
+    }
+    .superscript {
+        position: relative; 
+        top: -0.5em; 
+        font-size: 70%;
+    }
+</style>
 
 </head>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
-  <center>
+<body>
+    <div class="container">
+        <div class="row">
+             <div class="page-header">
+                <h2 class="clearfix"><span id='header_text'><?php echo xlt('EOB Posting - Search'); ?></span>&nbsp;&nbsp;  <a href='sl_eob_search.php' onclick='top.restoreSession()'  title="<?php echo xlt('Reset'); ?>"><i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i> </a><a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#000000"><i class="fa fa-question-circle" aria-hidden="true"></i></a></h2>
+            </div>
+        </div>
+        <div class="row">
+            <form action='sl_eob_search.php' enctype='multipart/form-data' method='post'>
+                <fieldset id="payment-allocate" class="oe-show-hide">
+                    <legend>
+                        &nbsp;<?php echo xlt('Post Item');?><i id="payment-info-do-not-remove"> </i>
+                    </legend>
+                    <div class="col-xs-12 oe-custom-line">
+                        <div class="col-xs-3">
+                            <label class="control-label" for="form_payer_id"> <?php echo xlt('Payer'); ?>:</label>
+                            <?php
+                                $insurancei = getInsuranceProviders();
+                                echo "   <select name='form_payer_id'id='form_payer_id' class='form-control'>\n";
+                                echo "    <option value='0'>-- " . xl('Patient') . " --</option>\n";
+                            foreach ($insurancei as $iid => $iname) {
+                                echo "<option value='$iid'";
+                                if ($iid == $_POST['form_payer_id']) {
+                                    echo " selected";
+                                }
+                                echo ">" . $iname . "</option>\n";
+                            }
+                                echo "   </select>\n";
+                            ?>
+                        </div>
+                        <div class="col-xs-2">
+                            <label class="control-label" for="form_source"><?php echo xlt('Source'); ?>:</label>
+                            <input type='text' name='form_source' id='form_source' class='form-control' value='<?php echo attr($_POST['form_source']); ?>' title='<?php echo xlt("A check number or claim number to identify the payment"); ?>'>
+                        </div>
+                        <div class="col-xs-2">
+                            <label class="control-label" for="form_paydate"><?php echo xlt('Pay Date'); ?>:</label>
+                            <input type='text' name='form_paydate' id='form_paydate' class='form-control datepicker' value='<?php echo attr($_POST['form_paydate']); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php xlt("Date of payment yyyy-mm-dd"); ?>'>
+                        </div>
+                        <div class="col-xs-2">
+                            <label class="control-label oe-large" for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
+                            <label class="control-label oe-small" for="form_deposit_date"><?php echo xlt('Dep Date'); ?>:</label>
+                            <input type='text' name='form_deposit_date' id=='form_deposit_date' class='form-control datepicker' value='<?php echo attr($_POST['form_deposit_date']); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php xlt("Date of bank deposit yyyy-mm-dd"); ?>'>
+                        </div>
+                        <div class="col-xs-2">
+                            <label class="control-label" for="form_amount"><?php echo xlt('Amount'); ?>:</label>
+                            <input type='text' name='form_amount' id='form_amount'  class='form-control' value='<?php echo attr($_POST['form_amount']); ?>' title='<?php xlt("Paid amount that you will allocate"); ?>'>
+                        </div>
+                        <div class="col-xs-1">
+                            <label class="control-label oe-large" for="only_with_debt"><?php echo xlt('Pt Debt');?>:</label>
+                            <label class="control-label oe-small" for="only_with_debt"><?php echo xlt('Debt');?>:</label>
+                            <div class="text-center">
+                                <input <?php echo $_POST['only_with_debt']?'checked=checked':'';?> type="checkbox" name="only_with_debt" id="only_with_debt" />
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset id="search-upload">
+                    <legend>
+                        &nbsp;<span><?php echo xlt('Select Method');?></span>&nbsp;<i id='select-method-tooltip' class="fa fa-info-circle superscript" aria-hidden="true"></i>
+                        <div id="radio-div" class="pull-right oe-legend-radio">
+                                <label class="radio-inline">
+                                  <input type="radio" id="invoice_search" name="radio-search" onclick="" value="inv-search"><?php echo xlt('Invoice Search'); ?> 
+                                </label>
+                                <label class="radio-inline">
+                                  <input type="radio" id="era_upload" name="radio-search" onclick=""  value="era-upld"><?php echo xlt('ERA Upload'); ?>
+                                </label>
+                        </div>
+                        
+                        <input type="hidden" id="hid1" value="<?php echo xlt('Invoice Search');?>">
+                        <input type="hidden" id="hid2" value="<?php echo xlt('ERA Upload');?>">
+                        <input type="hidden" id="hid3" value="<?php echo xlt('Select Method');?>">
+                    </legend>
+                    <div class="col-xs-12 .oe-custom-line oe-show-hide" id = 'inv-search'>
+                        <div class="col-xs-3">
+                            <label class="control-label" for="form_name"><?php echo xlt('Name'); ?>:</label>
+                            <input type='text' name='form_name' id='form_name' class='form-control' value='<?php echo attr($_POST['form_name']); ?>' title='<?php xl("Any part of the patient name, or \"last,first\", or \"X-Y\"", "e"); ?>' placeholder= '<?php echo xlt('Last name, First name');?>'>
+                        </div>
+                        <div class="col-xs-2">
+                            <label class="control-label" for="form_pid"><?php echo xlt('Chart ID'); ?>:</label>
+                            <input type='text' name='form_pid' id='form_pid' class='form-control' value='<?php echo attr($_POST['form_pid']); ?>' title='<?php xl("Patient chart ID", "e"); ?>'>
+                        </div>
+                        <div class="col-xs-2">
+                            <label class="control-label" for="form_encounter"><?php echo xlt('Encounter'); ?>:</label>
+                            <input type='text' name='form_encounter' id='form_encounter' class='form-control' value='<?php echo attr($_POST['form_encounter']); ?>' title='<?php xl("Encounter number", "e"); ?>'>
+                        </div>
+                        <div class="col-xs-2">
+                            <label class="control-label oe-large" for="form_date"><?php echo xlt('Service Date From'); ?>:</label>
+                            <label class="control-label oe-small" for="form_date"><?php echo xlt('Svc Date'); ?>:</label>
+                            <input type='text' name='form_date' id='form_date' class='form-control datepicker' value='<?php echo attr($_POST['form_date']); ?>' title='<?php xl("Date of service mm/dd/yyyy", "e"); ?>'>
+                        </div>
+                        <div class="col-xs-2">
+                            <label class="control-label" for="form_to_date"><?php echo xlt('Service Date To'); ?>:</label>
+                            <input type='text' name='form_to_date' id='form_to_date' class='form-control datepicker' value='<?php echo attr($_POST['form_to_date']); ?>' title='<?php xl("Ending DOS mm/dd/yyyy if you wish to enter a range", "e"); ?>'>
+                        </div>
+                        <div class="col-xs-1" style="padding-right:0px">
+                            <label class="control-label" for="type_name"><?php echo xlt('Type'); ?>:</label>
+                            <select name='form_category' id='form_category' class='form-control'>
+                                <?php
+                                foreach (array(xl('Open'), xl('All'), xl('Due Pt'), xl('Due Ins')) as $value) {
+                                    echo "    <option value='$value'";
+                                    if ($_POST['form_category'] == $value) {
+                                        echo " selected";
+                                    }
+                                    echo ">$value</option>\n";
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 .oe-custom-line oe-show-hide" id = 'era-upld'>
+                        <div class="form-group col-xs9 oe-file-div">
+                            <div class="input-group"> 
+                                <label class="input-group-btn">
+                                    <span class="btn btn-default">
+                                        Browse&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;" >
+                                        <input name="MAX_FILE_SIZE" type="hidden" value="5000000"> 
+                                    </span>
+                                </label>
+                                <input type="text" class="form-control" placeholder="<?php echo xlt('Click Browse and select one Electronic Remittance Advice (ERA) file...'); ?>" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets ?>
+                <div class="form-group clearfix">
+                    <div class="col-sm-12 position-override oe-show-hide" id="search-btn">
+                        <div class="btn-group" role="group">
+                            <button type='submit' class="btn btn-default btn-search oe-show-hide" name='form_search' 
+                            id="btn-inv-search" value='<?php echo xla("Search"); ?>'><?php echo xlt("Search"); ?></button>
+                            <button type='submit' class="btn btn-default btn-save oe-show-hide" name='form_search' 
+                            id="btn-era-upld" value='<?php echo xla("Upload"); ?>'><?php echo xlt("Upload"); ?></button>
+                        </div>
+                    </div>
+                </div>
+                <fieldset id="search-results" class= "oe-show-hide">
+                    <legend><?php echo xlt('Search Results');?></legend>
+                    <div class = "table-responsive">
+                        <?php
+                        if ($_POST['form_search'] || $_POST['form_print']) {
+                            $form_name      = trim($_POST['form_name']);
+                            $form_pid       = trim($_POST['form_pid']);
+                            $form_encounter = trim($_POST['form_encounter']);
+                            $form_date      = fixDate($_POST['form_date'], "");
+                            $form_to_date   = fixDate($_POST['form_to_date'], "");
 
-    <form method='post' action='sl_eob_search.php' enctype='multipart/form-data'>
+                            $where = "";
 
-      <table border='0' cellpadding='5' cellspacing='0'>
-       <tr>
+                            // Handle X12 835 file upload.
+                            //
+                            if ($_FILES['form_erafile']['size']) {
+                                $tmp_name = $_FILES['form_erafile']['tmp_name'];
 
-        <?php
-  // Identify the payer to support resumable posting sessions.
-        echo "  <td>\n";
-        echo "   " . xl('Payer') . ":\n";
-        echo "  </td>\n";
-        echo "  <td>\n";
-        $insurancei = getInsuranceProviders();
-        echo "   <select name='form_payer_id'>\n";
-        echo "    <option value='0'>-- " . xl('Patient') . " --</option>\n";
-        foreach ($insurancei as $iid => $iname) {
-            echo "<option value='$iid'";
-            if ($iid == $_POST['form_payer_id']) {
-                echo " selected";
-            }
+                                // Handle .zip extension if present.  Probably won't work on Windows.
+                                if (strtolower(substr($_FILES['form_erafile']['name'], -4)) == '.zip') {
+                                    rename($tmp_name, "$tmp_name.zip");
+                                    exec("unzip -p $tmp_name.zip > $tmp_name");
+                                    unlink("$tmp_name.zip");
+                                }
+                                
+                                echo "<!-- Notes from ERA upload processing:\n";
+                                $alertmsg .= parse_era($tmp_name, 'era_callback');
+                                echo "-->\n";
+                                $erafullname = $GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi";
 
-            echo ">" . $iname . "</option>\n";
-        }
+                                if (is_file($erafullname)) {
+                                    $alertmsg .= "Warning: Set $eraname was already uploaded ";
+                                    if (is_file($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.html")) {
+                                        $alertmsg .= "and processed. ";
+                                    } else {
+                                        $alertmsg .= "but not yet processed. ";
+                                    }
+                                }
+                                rename($tmp_name, $erafullname);
+                            } // End 835 upload
 
-        echo "   </select>\n";
-        echo "  </td>\n";
-        ?>
+                            if ($eracount) {
+                                // Note that parse_era() modified $eracount and $where.
+                                if (! $where) {
+                                    $where = '1 = 2';
+                                }
+                            } else {
+                                if ($form_name) {
+                                    if ($where) {
+                                        $where .= " AND ";
+                                    }
+                                    // Allow the last name to be followed by a comma and some part of a first name.
+                                    if (preg_match('/^(.*\S)\s*,\s*(.*)/', $form_name, $matches)) {
+                                        $where .= "p.lname LIKE '" . $matches[1] . "%' AND p.fname LIKE '" . $matches[2] . "%'";
+                                        // Allow a filter like "A-C" on the first character of the last name.
+                                    } elseif (preg_match('/^(\S)\s*-\s*(\S)$/', $form_name, $matches)) {
+                                        $tmp = '1 = 2';
+                                        while (ord($matches[1]) <= ord($matches[2])) {
+                                            $tmp .= " OR p.lname LIKE '" . $matches[1] . "%'";
+                                            $matches[1] = chr(ord($matches[1]) + 1);
+                                        }
+                                        $where .= "( $tmp ) ";
+                                    } else {
+                                        $where .= "p.lname LIKE '%$form_name%'";
+                                    }
+                                }
+                                if ($form_pid) {
+                                    if ($where) {
+                                        $where .= " AND ";
+                                    }
+                                    $where .= "f.pid = '$form_pid'";
+                                }
+                                if ($form_encounter) {
+                                    if ($where) {
+                                        $where .= " AND ";
+                                    }
+                                    $where .= "f.encounter = '$form_encounter'";
+                                }
+                                if ($form_date) {
+                                    if ($where) {
+                                        $where .= " AND ";
+                                    }
+                                    if ($form_to_date) {
+                                        $where .= "f.date >= '$form_date' AND f.date <= '$form_to_date'";
+                                    } else {
+                                        $where .= "f.date = '$form_date'";
+                                    }
+                                }
+                                if (! $where) {
+                                    if ($_POST['form_category'] == 'All') {
+                                        die(xl("At least one search parameter is required if you select All."));
+                                    } else {
+                                        $where = "1 = 1";
+                                    }
+                                }
+                            }
 
-        <td>
-            <?php xl('Source:', 'e'); ?>
-       </td>
-       <td>
-         <input type='text' name='form_source' size='10' value='<?php echo attr($_POST['form_source']); ?>'
-         title='<?php xl("A check number or claim number to identify the payment", "e"); ?>'>
-       </td>
-       <td>
-            <?php xl('Pay Date:', 'e'); ?>
-       </td>
-       <td>
-         <input type='text' name='form_paydate' size='10' value='<?php echo attr($_POST['form_paydate']); ?>'
-         onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-         title='<?php xl("Date of payment yyyy-mm-dd", "e"); ?>'>
-       </td>
+                            // Notes that as of release 4.1.1 the copays are stored
+                            // in the ar_activity table marked with a PCP in the account_code column.
+                            $query = "SELECT f.id, f.pid, f.encounter, f.date, " .
+                            "f.last_level_billed, f.last_level_closed, f.last_stmt_date, f.stmt_count, " .
+                            "p.fname, p.mname, p.lname, p.pubpid, p.billing_note, " .
+                            "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
+                            "b.pid = f.pid AND b.encounter = f.encounter AND " .
+                            "b.activity = 1 AND b.code_type != 'COPAY' ) AS charges, " .
+                            "( SELECT SUM(a.pay_amount) FROM ar_activity AS a WHERE " .
+                            "a.pid = f.pid AND a.encounter = f.encounter AND a.payer_type = 0 AND a.account_code = 'PCP')*-1 AS copays, " .
+                            "( SELECT SUM(a.pay_amount) FROM ar_activity AS a WHERE " .
+                            "a.pid = f.pid AND a.encounter = f.encounter AND a.account_code != 'PCP') AS payments, " .
+                            "( SELECT SUM(a.adj_amount) FROM ar_activity AS a WHERE " .
+                            "a.pid = f.pid AND a.encounter = f.encounter ) AS adjustments " .
+                            "FROM form_encounter AS f " .
+                            "JOIN patient_data AS p ON p.pid = f.pid " .
+                            "WHERE $where " .
+                            "ORDER BY p.lname, p.fname, p.mname, f.pid, f.encounter";
 
-       <td>
-            <?php xl('Deposit Date:', 'e'); ?>
-       </td>
-       <td>
-         <input type='text' name='form_deposit_date' size='10' value='<?php echo attr($_POST['form_deposit_date']); ?>'
-         onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-         title='<?php xl("Date of bank deposit yyyy-mm-dd", "e"); ?>'>
-       </td>
+                            // Note that unlike the SQL-Ledger case, this query does not weed
+                            // out encounters that are paid up.  Also the use of sub-selects
+                            // will require MySQL 4.1 or greater.
 
-       <td>
-            <?php xl('Amount:', 'e'); ?>
-       </td>
-       <td>
-         <input type='text' name='form_amount' size='10' value='<?php echo attr($_POST['form_amount']); ?>'
-         title='<?php xl("Paid amount that you will allocate", "e"); ?>'>
-       </td>
-       <td align='right'>
-         <a href='sl_eob_help.php' target='_blank'><?php xl('Help', 'e'); ?></a>
-       </td>
+                            // echo "<!-- $query -->\n"; // debugging
 
-     </tr>
-   </table>
+                            $t_res = sqlStatement($query);
 
-   <table border='0' cellpadding='5' cellspacing='0'>
+                            $num_invoices = sqlNumRows($t_res);
+                            if ($eracount && $num_invoices != $eracount) {
+                                $alertmsg .= "Of $eracount remittances, there are $num_invoices " .
+                                "matching encounters in OpenEMR. ";
+                            }
+                        ?>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th class="id dehead"><?php xl('id', 'e');?></th>
+                                    <th class="dehead">&nbsp;<?php xl('Patient', 'e'); ?></th>
+                                    <th class="dehead">&nbsp;<?php xl('Invoice', 'e'); ?></th>
+                                    <th class="dehead">&nbsp;<?php xl('Svc Date', 'e'); ?></th>
+                                    <th class="dehead">&nbsp;<?php xl('Last Stmt', 'e'); ?></th>
+                                    <th align="right" class="dehead"><?php xl('Charge', 'e'); ?>&nbsp;</th>
+                                    <th align="right" class="dehead"><?php xl('Adjust', 'e'); ?>&nbsp;</th>
+                                    <th align="right" class="dehead"><?php xl('Paid', 'e'); ?>&nbsp;</th>
+                                    <th align="right" class="dehead"><?php xl('Balance', 'e'); ?>&nbsp;</th>
+                                    <th align="center" class="dehead"><?php xl('Prv', 'e'); ?></th>
+                                    <?php
+                                    if (!$eracount) { ?>
+                                    <th align="left" class="dehead"><?php xl('Sel', 'e'); ?></th>
+                                    <th align="center" class="dehead"><?php xl('Email', 'e'); ?></th>
+                                    <?php
+                                    } ?>
+                                </tr>
+                            </thead>
+                            <?php
+                            $orow = -1;
 
-     <tr bgcolor='#ddddff'>
-      <td>
-        <?php xl('Name:', 'e'); ?>
-     </td>
-     <td>
-       <input type='text' name='form_name' size='10' value='<?php echo attr($_POST['form_name']); ?>'
-       title='<?php xl("Any part of the patient name, or \"last,first\", or \"X-Y\"", "e"); ?>'>
-     </td>
-     <td>
-        <?php xl('Chart ID:', 'e'); ?>
-     </td>
-     <td>
-       <input type='text' name='form_pid' size='10' value='<?php echo attr($_POST['form_pid']); ?>'
-       title='<?php xl("Patient chart ID", "e"); ?>'>
-     </td>
-     <td>
-        <?php xl('Encounter:', 'e'); ?>
-     </td>
-     <td>
-       <input type='text' name='form_encounter' size='10' value='<?php echo attr($_POST['form_encounter']); ?>'
-       title='<?php xl("Encounter number", "e"); ?>'>
-     </td>
-     <td>
-        <?php xl('Svc Date:', 'e'); ?>
-     </td>
-     <td>
-       <input type='text' name='form_date' size='10' value='<?php echo attr($_POST['form_date']); ?>'
-       title='<?php xl("Date of service mm/dd/yyyy", "e"); ?>'>
-     </td>
-     <td>
-        <?php xl('To:', 'e'); ?>
-     </td>
-     <td>
-       <input type='text' name='form_to_date' size='10' value='<?php echo attr($_POST['form_to_date']); ?>'
-       title='<?php xl("Ending DOS mm/dd/yyyy if you wish to enter a range", "e"); ?>'>
-     </td>
-     <td>
-       <select name='form_category'>
-        <?php
-        foreach (array(xl('Open'), xl('All'), xl('Due Pt'), xl('Due Ins')) as $value) {
-            echo "    <option value='$value'";
-            if ($_POST['form_category'] == $value) {
-                echo " selected";
-            }
+                            while ($row = sqlFetchArray($t_res)) {
+                                $balance = sprintf("%.2f", $row['charges'] + $row['copays'] - $row['payments'] - $row['adjustments']);
+                                //new filter only patients with debt.
+                                if ($_POST['only_with_debt'] && $balance <= 0) {
+                                    continue;
+                                }
 
-            echo ">$value</option>\n";
-        }
-        ?>
-      </select>
-    </td>
-    <td>
-     <input type='submit' name='form_search' value='<?php xl("Search", "e"); ?>'>
-   </td>
- </tr>
-       <!-- Filter - only show those who have debt -->
-       <tr bgcolor='#ddddff'>
-           <td colspan='12'>
 
-               <span><?php echo xlt('Patients with debt');?>
-                <input <?php echo $_POST['only_with_debt']?'checked=checked':'';?> type="checkbox" name="only_with_debt"  />
-               </span>
+                                if ($_POST['form_category'] != 'All' && $eracount == 0 && $balance == 0) {
+                                    continue;
+                                }
 
-           </td>
-       </tr>
- <!-- Support for X12 835 upload -->
- <tr bgcolor='#ddddff'>
-  <td colspan='12'>
-    <?php xl('Or upload ERA file:', 'e'); ?>
-   <input type="hidden" name="MAX_FILE_SIZE" value="5000000" />
-   <input name="form_erafile" type="file" />
- </td>
-</tr>
+                                // $duncount was originally supposed to be the number of times that
+                                // the patient was sent a statement for this invoice.
+                                //
+                                $duncount = $row['stmt_count'];
 
-<tr>
-  <td height="1" colspan="10">
-  </td>
-</tr>
+                                // But if we have not yet billed the patient, then compute $duncount as a
+                                // negative count of the number of insurance plans for which we have not
+                                // yet closed out insurance.
+                                //
+                                if (! $duncount) {
+                                    for ($i = 1; $i <= 3 && arGetPayerID($row['pid'], $row['date'], $i);
+                                    ++$i) {
+                                    }
+                                    $duncount = $row['last_level_closed'] + 1 - $i;
+                                }
 
-</table>
+                                $isdueany = ($balance > 0);
 
-<?php
-if ($_POST['form_search'] || $_POST['form_print']) {
-    $form_name      = trim($_POST['form_name']);
-    $form_pid       = trim($_POST['form_pid']);
-    $form_encounter = trim($_POST['form_encounter']);
-    $form_date      = fixDate($_POST['form_date'], "");
-    $form_to_date   = fixDate($_POST['form_to_date'], "");
+                                // An invoice is now due from the patient if money is owed and we are
+                                // not waiting for insurance to pay.
+                                //
+                                $isduept = ($duncount >= 0 && $isdueany) ? " checked" : "";
 
-    $where = "";
+                                // Skip invoices not in the desired "Due..." category.
+                                //
+                                if (substr($_POST['form_category'], 0, 3) == 'Due' && !$isdueany) {
+                                    continue;
+                                }
+                                if ($_POST['form_category'] == 'Due Ins' && ($duncount >= 0 || !$isdueany)) {
+                                    continue;
+                                }
+                                if ($_POST['form_category'] == 'Due Pt'  && ($duncount <  0 || !$isdueany)) {
+                                    continue;
+                                }
 
-  // Handle X12 835 file upload.
-  //
-    if ($_FILES['form_erafile']['size']) {
-        $tmp_name = $_FILES['form_erafile']['tmp_name'];
+                                $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
 
-        // Handle .zip extension if present.  Probably won't work on Windows.
-        if (strtolower(substr($_FILES['form_erafile']['name'], -4)) == '.zip') {
-            rename($tmp_name, "$tmp_name.zip");
-            exec("unzip -p $tmp_name.zip > $tmp_name");
-            unlink("$tmp_name.zip");
-        }
+                                $svcdate = substr($row['date'], 0, 10);
+                                $last_stmt_date = empty($row['last_stmt_date']) ? '' : $row['last_stmt_date'];
 
-        echo "<!-- Notes from ERA upload processing:\n";
-        $alertmsg .= parse_era($tmp_name, 'era_callback');
-        echo "-->\n";
-        $erafullname = $GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi";
+                                // Determine if customer is in collections.
+                                //
+                                $billnote = $row['billing_note'];
+                                $in_collections = stristr($billnote, 'IN COLLECTIONS') !== false;
+                            ?>
+                                <tr bgcolor='<?php echo $bgcolor ?>'>
+                                    <td class="detail">
+                                        <a href="" onclick="return npopup(<?php echo $row['pid'] ?>)"><?php echo $row['pid'];?></a>
+                                    </td>
+                                    <td class="detail">
+                                        &nbsp;<a href="" onclick="return npopup(<?php echo $row['pid'] ?>)"><?php echo $row['lname'] . ', ' . $row['fname']; ?></a>
+                                    </td>
+                                    <td class="detail">
+                                        &nbsp;<a href="sl_eob_invoice.php?id=<?php echo $row['id'] ?>" target="_blank"><?php echo $row['pid'] . '.' . $row['encounter']; ?></a>
+                                    </td>
+                                    <td class="detail">&nbsp;<?php echo text(oeFormatShortDate($svcdate)); ?></td>
+                                    <td class="detail">&nbsp;<?php echo text(oeFormatShortDate($last_stmt_date)); ?></td>
+                                    <td align="right" class="detail"><?php bucks($row['charges']) ?>&nbsp;</td>
+                                    <td align="right" class="detail"><?php bucks($row['adjustments']) ?>&nbsp;</td>
+                                    <td align="right" class="detail"><?php bucks($row['payments'] - $row['copays']); ?>&nbsp;</td>
+                                    <td align="right" class="detail"><?php bucks($balance); ?>&nbsp;</td>
+                                    <td align="center" class="detail"><?php echo $duncount ? $duncount : "&nbsp;" ?></td>
+                                    <?php if (!$eracount) { ?>
+                                    <td class="detail" align="left">
+                                        <input type='checkbox' name='form_cb[<?php echo($row['id']) ?>]'<?php echo $isduept ?> />
+                                        <?php
+                                        if ($in_collections) {
+                                            echo "<b><font color='red'>IC</font></b>";
+                                        } ?>
+                                        <?php
+                                        if (function_exists('is_auth_portal') ? is_auth_portal($row['pid']) : false) {
+                                            echo(' PPt');
+                                            echo("<input type='hidden' name='form_invpids[". $row['id'] ."][". $row['pid'] ."]' />");
+                                            $is_portal = true;
+                                        }?>
+                                    </td>
+                                    <?php } ?>
+                                    <td align="left" class="detail">
+                                        <?php
+                                            $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($row['pid']));
+                                        if ($patientData['hipaa_allowemail'] == "YES" && $patientData['allow_patient_portal'] == "YES" && $patientData['hipaa_notice'] == "YES" && validEmail($patientData['email'])) {
+                                            echo xlt("YES");
+                                        } else {
+                                            echo xlt("NO");
+                                        }
+                                        ?>
+                                    </td>
+                                </tr>
+                            <?php
+                            } // end while
+                        } // end search/print logic
+                        ?>
+                        </table>
+                    </div><!--End of table-responsive div-->
+                </fieldset>
+                <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets ?>
+                <div class="form-group clearfix">
+                    <div class="col-sm-12 text-left position-override oe-show-hide" id="statement-download">
+                        <div class="btn-group" role="group">
+                            <?php
+                            if ($eracount) { ?>
+                               <button type="button" class="btn btn-default btn-save" name="Submit"
+                               onclick='processERA()' value="<?php echo xla('Process ERA File');?>">
+                                <?php echo xlt('Process ERA File');?></button>
+                            <?php
+                            } else { ?>
+                                <button type="button" class="btn btn-default btn-save" name="Submit1"
+                                onclick='checkAll(true)'><?php echo xlt('Select All');?></button>
+                                <button type="button" class="btn btn-default btn-undo" name="Submit2"
+                                onclick='checkAll(false)'><?php echo xlt('Clear All');?></button>
+                                <?php if ($GLOBALS['statement_appearance'] != '1') { ?>
+                                    <button type="submit" class="btn btn-default btn-print" name='form_print' 
+                                    value="<?php echo xla('Print Selected Statements'); ?>">
+                                    <?php echo xlt('Print Selected Statements');?></button>
+                                    <button type="submit" class="btn btn-default btn-download" name='form_download' 
+                                    value="<?php echo xla('Download Selected Statements'); ?>">
+                                    <?php echo xlt('Download Selected Statements');?></button>
+                                <?php } ?>
+                                    <button type="submit" class="btn btn-default btn-download" name='form_pdf' 
+                                    value="<?php echo xla('PDF Download Selected Statements'); ?>">
+                                    <?php echo xlt('PDF Download Selected Statements');?></button>
+                                    <button type="submit" class="btn btn-default btn-mail" name='form_download'
+                                    value="<?php echo xla('Email Selected Statements'); ?>">
+                                    <?php echo xlt('Email Selected Statements');?></button>
+                                    <?php
+                                    if ($is_portal) {?>
+                                    <button type="submit" class="btn btn-default btn-save"  name='form_portalnotify'
+                                    value="<?php echo xla('Notify via Patient Portal'); ?>">
+                                    <?php echo xlt('Notify via Patient Portal');?></button>
+                                    <?php
+                                    }
+                            }
+                        ?>
+                            <input type='checkbox' class="btn-separate-left" name='form_without'    value='1' /><?php xl('Without Update', 'e');?>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div> <!--End of Container div-->
+    <div class="row">
+            <div aria-hidden="true" aria-labelledby="myModalLabel" class="modal fade" id="myModal" role="dialog" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                     <div class="modal-content oe-modal-content">
+                        <div class="modal-header clearfix"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="color:#000000; font-size:1.5em;">×</span></button></div>
+                        <div class="modal-body" id="modal-content" name="modal-content">
+                            <iframe src="" id="targetiframe" style="height:75%; width:100%; overflow-x: hidden; border:none" allowtransparency="true"></iframe>  
+                        </div>
+                        <div class="modal-footer" style="margin-top:0px;">
+                            <button class="btn btn-link btn-cancel pull-right" data-dismiss="modal" type="button"><?php echo xlt('close'); ?></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+    <script language="JavaScript">
+    function processERA() {
+     var f = document.forms[0];
+     var debug = f.form_without.checked ? '1' : '0';
+     var paydate = f.form_paydate.value;
+     window.open('sl_eob_process.php?eraname=<?php echo $eraname ?>&debug=' + debug + '&paydate=' + paydate + '&original=original', '_blank');
+     return false;
+    }
+    $(function() {
+        //https://www.abeautifulsite.net/whipping-file-inputs-into-shape-with-bootstrap-3
+        // We can attach the `fileselect` event to all file inputs on the page
+        $(document).on('change', ':file', function() {
+            var input = $(this),
+            numFiles = input.get(0).files ? input.get(0).files.length : 1,
+            label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+            input.trigger('fileselect', [numFiles, label]);
+        });
 
-        if (is_file($erafullname)) {
-            $alertmsg .= "Warning: Set $eraname was already uploaded ";
-            if (is_file($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.html")) {
-                $alertmsg .= "and processed. ";
-            } else {
-                $alertmsg .= "but not yet processed. ";
-            }
-        }
-
-        rename($tmp_name, $erafullname);
-    } // End 835 upload
-
-    if ($eracount) {
-        // Note that parse_era() modified $eracount and $where.
-        if (! $where) {
-            $where = '1 = 2';
-        }
-    } else {
-        if ($form_name) {
-            if ($where) {
-                $where .= " AND ";
-            }
-
-            // Allow the last name to be followed by a comma and some part of a first name.
-            if (preg_match('/^(.*\S)\s*,\s*(.*)/', $form_name, $matches)) {
-                $where .= "p.lname LIKE '" . $matches[1] . "%' AND p.fname LIKE '" . $matches[2] . "%'";
-                // Allow a filter like "A-C" on the first character of the last name.
-            } else if (preg_match('/^(\S)\s*-\s*(\S)$/', $form_name, $matches)) {
-                $tmp = '1 = 2';
-                while (ord($matches[1]) <= ord($matches[2])) {
-                    $tmp .= " OR p.lname LIKE '" . $matches[1] . "%'";
-                    $matches[1] = chr(ord($matches[1]) + 1);
+        // We can watch for our custom `fileselect` event like this
+        $(document).ready( function() {
+            $(':file').on('fileselect', function(event, numFiles, label) {
+                var input = $(this).parents('.input-group').find(':text'),
+                log = numFiles > 1 ? numFiles + ' files selected' : label;
+                
+                if( input.length ) {
+                input.val(log);
+                } 
+                else {
+                if( log ) alert(log);
                 }
+            });
+        });
 
-                $where .= "( $tmp ) ";
-            } else {
-                $where .= "p.lname LIKE '%$form_name%'";
+    });
+    //to dynamically show /hide relevant divs and change Fieldset legends
+    $(document).ready(function() {
+        $("input[name=radio-search]").on( "change", function() {
+
+             var flip = $(this).val();
+             $(".oe-show-hide").hide();
+             $("#"+flip).show();
+            if(flip == 'inv-search'){
+                $("#search-upload").insertAfter("#payment-allocate");
+                $('#payment-allocate').show();
+                $('#search-btn').show();
+                $('#btn-inv-search').show();
+                var legend_text = $('#hid1').val();
+                $('#search-upload').find('legend').find('span').text(legend_text);
+                $('#search-upload').find('#form_name').focus();
+                $('#select-method-tooltip').hide();
             }
-        }
-
-        if ($form_pid) {
-            if ($where) {
-                $where .= " AND ";
+            else if (flip == 'era-upld'){
+                $('#payment-allocate').hide();
+                $('#search-btn').show();
+                $('#btn-era-upld').show();
+                var legend_text = $('#hid2').val();
+                $('#search-upload').find('legend').find('span').text(legend_text);
+                $('#select-method-tooltip').hide();
             }
-
-            $where .= "f.pid = '$form_pid'";
-        }
-
-        if ($form_encounter) {
-            if ($where) {
-                $where .= " AND ";
+            else{
+                $('#payment-allocate').hide();
+                $('#search-btn').hide();
+                var legend_text = $('#hid3').val();
+                $('#search-upload').find('legend').find('span').text(legend_text);
+                $('#select-method-tooltip').show();
             }
-
-            $where .= "f.encounter = '$form_encounter'";
-        }
-
-        if ($form_date) {
-            if ($where) {
-                $where .= " AND ";
-            }
-
-            if ($form_to_date) {
-                $where .= "f.date >= '$form_date' AND f.date <= '$form_to_date'";
-            } else {
-                $where .= "f.date = '$form_date'";
-            }
-        }
-
-        if (! $where) {
-            if ($_POST['form_category'] == 'All') {
-                die(xl("At least one search parameter is required if you select All."));
-            } else {
-                $where = "1 = 1";
-            }
-        }
-    }
-
-    // Notes that as of release 4.1.1 the copays are stored
-    // in the ar_activity table marked with a PCP in the account_code column.
-    $query = "SELECT f.id, f.pid, f.encounter, f.date, " .
-    "f.last_level_billed, f.last_level_closed, f.last_stmt_date, f.stmt_count, " .
-    "p.fname, p.mname, p.lname, p.pubpid, p.billing_note, " .
-    "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
-    "b.pid = f.pid AND b.encounter = f.encounter AND " .
-    "b.activity = 1 AND b.code_type != 'COPAY' ) AS charges, " .
-    "( SELECT SUM(a.pay_amount) FROM ar_activity AS a WHERE " .
-    "a.pid = f.pid AND a.encounter = f.encounter AND a.payer_type = 0 AND a.account_code = 'PCP')*-1 AS copays, " .
-    "( SELECT SUM(a.pay_amount) FROM ar_activity AS a WHERE " .
-    "a.pid = f.pid AND a.encounter = f.encounter AND a.account_code != 'PCP') AS payments, " .
-    "( SELECT SUM(a.adj_amount) FROM ar_activity AS a WHERE " .
-    "a.pid = f.pid AND a.encounter = f.encounter ) AS adjustments " .
-    "FROM form_encounter AS f " .
-    "JOIN patient_data AS p ON p.pid = f.pid " .
-    "WHERE $where " .
-    "ORDER BY p.lname, p.fname, p.mname, f.pid, f.encounter";
-
-    // Note that unlike the SQL-Ledger case, this query does not weed
-    // out encounters that are paid up.  Also the use of sub-selects
-    // will require MySQL 4.1 or greater.
-
-    // echo "<!-- $query -->\n"; // debugging
-
-    $t_res = sqlStatement($query);
-
-    $num_invoices = sqlNumRows($t_res);
-    if ($eracount && $num_invoices != $eracount) {
-          $alertmsg .= "Of $eracount remittances, there are $num_invoices " .
-          "matching encounters in OpenEMR. ";
-    }
-?>
-
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
-
- <tr bgcolor="#dddddd">
-  <td class="id">
-        <?php xl('id', 'e');?>
-  </td>
-  <td class="dehead">
-   &nbsp;<?php xl('Patient', 'e'); ?>
- </td>
- <td class="dehead">
-   &nbsp;<?php xl('Invoice', 'e'); ?>
- </td>
- <td class="dehead">
-   &nbsp;<?php xl('Svc Date', 'e'); ?>
- </td>
- <td class="dehead">
-   &nbsp;<?php xl('Last Stmt', 'e'); ?>
- </td>
- <td class="dehead" align="right">
-    <?php xl('Charge', 'e'); ?>&nbsp;
- </td>
- <td class="dehead" align="right">
-    <?php xl('Adjust', 'e'); ?>&nbsp;
- </td>
- <td class="dehead" align="right">
-    <?php xl('Paid', 'e'); ?>&nbsp;
- </td>
- <td class="dehead" align="right">
-    <?php xl('Balance', 'e'); ?>&nbsp;
- </td>
- <td class="dehead" align="center">
-    <?php xl('Prv', 'e'); ?>
- </td>
-    <?php if (!$eracount) { ?>
- <td class="dehead" align="left">
-    <?php xl('Sel', 'e'); ?>
- </td>
-  <td class="dehead" align="center">
-    <?php xl('Email', 'e'); ?>
-  </td>
-
-    <?php } ?>
-</tr>
-
-<?php
-$orow = -1;
-
-while ($row = sqlFetchArray($t_res)) {
-    $balance = sprintf("%.2f", $row['charges'] + $row['copays'] - $row['payments'] - $row['adjustments']);
-  //new filter only patients with debt.
-    if ($_POST['only_with_debt'] && $balance <= 0) {
-        continue;
-    }
-
-
-    if ($_POST['form_category'] != 'All' && $eracount == 0 && $balance == 0) {
-        continue;
-    }
-
-      // $duncount was originally supposed to be the number of times that
-      // the patient was sent a statement for this invoice.
-      //
-    $duncount = $row['stmt_count'];
-
-      // But if we have not yet billed the patient, then compute $duncount as a
-      // negative count of the number of insurance plans for which we have not
-      // yet closed out insurance.
-      //
-    if (! $duncount) {
-        for ($i = 1; $i <= 3 && arGetPayerID($row['pid'], $row['date'], $i);
-        ++$i) {
-        }
-
-        $duncount = $row['last_level_closed'] + 1 - $i;
-    }
-
-    $isdueany = ($balance > 0);
-
-      // An invoice is now due from the patient if money is owed and we are
-      // not waiting for insurance to pay.
-      //
-    $isduept = ($duncount >= 0 && $isdueany) ? " checked" : "";
-
-      // Skip invoices not in the desired "Due..." category.
-      //
-    if (substr($_POST['form_category'], 0, 3) == 'Due' && !$isdueany) {
-        continue;
-    }
-
-    if ($_POST['form_category'] == 'Due Ins' && ($duncount >= 0 || !$isdueany)) {
-        continue;
-    }
-
-    if ($_POST['form_category'] == 'Due Pt'  && ($duncount <  0 || !$isdueany)) {
-        continue;
-    }
-
-    $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
-
-    $svcdate = substr($row['date'], 0, 10);
-    $last_stmt_date = empty($row['last_stmt_date']) ? '' : $row['last_stmt_date'];
-
-      // Determine if customer is in collections.
-      //
-    $billnote = $row['billing_note'];
-    $in_collections = stristr($billnote, 'IN COLLECTIONS') !== false;
-    ?>
-  <tr bgcolor='<?php echo $bgcolor ?>'>
-      <td class="detail">
-        <a href="" onclick="return npopup(<?php echo $row['pid'] ?>)"><?php echo $row['pid'];?></a>
-      </td>
-    <td class="detail">
-     &nbsp;<a href="" onclick="return npopup(<?php echo $row['pid'] ?>)"
-     ><?php echo $row['lname'] . ', ' . $row['fname']; ?></a>
-   </td>
-   <td class="detail">
-     &nbsp;<a href="sl_eob_invoice.php?id=<?php echo $row['id'] ?>"
-     target="_blank"><?php echo $row['pid'] . '.' . $row['encounter']; ?></a>
-   </td>
-   <td class="detail">
-     &nbsp;<?php echo text(oeFormatShortDate($svcdate)); ?>
-   </td>
-   <td class="detail">
-     &nbsp;<?php echo text(oeFormatShortDate($last_stmt_date)); ?>
-   </td>
-   <td class="detail" align="right">
-        <?php bucks($row['charges']) ?>&nbsp;
-   </td>
-   <td class="detail" align="right">
-        <?php bucks($row['adjustments']) ?>&nbsp;
-   </td>
-   <td class="detail" align="right">
-        <?php bucks($row['payments'] - $row['copays']); ?>&nbsp;
-   </td>
-   <td class="detail" align="right">
-        <?php bucks($balance); ?>&nbsp;
-   </td>
-   <td class="detail" align="center">
-        <?php echo $duncount ? $duncount : "&nbsp;" ?>
-   </td>
-    <?php if (!$eracount) { ?>
-   <td class="detail" align="left">
-     <input type='checkbox' name='form_cb[<?php echo($row['id']) ?>]'<?php echo $isduept ?> />
-        <?php if ($in_collections) {
-            echo "<b><font color='red'>IC</font></b>";
-} ?>
-        <?php if (function_exists('is_auth_portal') ? is_auth_portal($row['pid']) : false) {
-            echo(' PPt');
-            echo("<input type='hidden' name='form_invpids[". $row['id'] ."][". $row['pid'] ."]' />");
-            $is_portal = true;
-}?>
-   </td>
-    <?php } ?>
-  <td class="detail" align="left">
+        });
+        
+        
+            //if (post-btn == 'search'){$('#payment-allocate').show();}
+            //else if (post-btn == 'upload'){$('#payment-allocate').hide();}
+    });
     <?php
-    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($row['pid']));
-    if ($patientData['hipaa_allowemail'] == "YES" && $patientData['allow_patient_portal'] == "YES" && $patientData['hipaa_notice'] == "YES" && validEmail($patientData['email'])) {
-        echo xlt("YES");
-    } else {
-        echo xlt("NO");
+    if ($alertmsg) {
+        echo "alert('" . htmlentities($alertmsg) . "');\n";
+    }
+
+    ?>
+    /*function loadiframe(htmlHref) //load iframe
+    {
+    document.getElementById('targetiframe').src = htmlHref;
+    }*/
+    
+    
+    $( document ).ready(function() {
+        $('#help-href').click (function(){
+            var radioVal = $("input[name='radio-search']:checked").val();
+            
+            if (radioVal == 'inv-search'){
+                document.getElementById('targetiframe').src ='../../interface/billing/sl_eob_help.php#invoice_search';
+            }
+            else if (radioVal == 'era-upld'){
+                document.getElementById('targetiframe').src ='../../interface/billing/sl_eob_help.php#electonic_remits';
+            }
+            else{
+                document.getElementById('targetiframe').src ='../../interface/billing/sl_eob_help.php#entire_doc';
+            }
+        })
+        $('#select-method-tooltip').tooltip({title: "<?php echo xla(' Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>"});
+    });
+    </script>
+    <?php
+        $tr_str = xl('Search');
+    if ($_POST['form_search'] == "$tr_str") {?>
+            <script>
+                $("#payment-allocate").insertAfter("#search-upload");
+                $('#payment-allocate').show();
+                $("#search-results").show();
+                $("#statement-download").show();
+            </script>
+        <?php
     }
     ?>
-  </td>
-
- </tr>
     <?php
-} // end while
-} // end search/print logic
-
-?>
-
-</table>
-
-<p>
-    <?php if ($eracount) { ?>
-  <input type='button' value='<?php xl('Process ERA File', 'e')?>' onclick='processERA()' /> &nbsp;
-    <?php } else { ?>
-  <input type='button' value='<?php xl('Select All', 'e')?>' onclick='checkAll(true)' /> &nbsp;
-  <input type='button' value='<?php xl('Clear All', 'e')?>' onclick='checkAll(false)' /> &nbsp;
-    <?php if ($GLOBALS['statement_appearance'] != '1') { ?>
-    <input type='submit' name='form_print' value='<?php xl('Print Selected Statements', 'e'); ?>' /> &nbsp;
-    <input type='submit' name='form_download' value='<?php xl('Download Selected Statements', 'e'); ?>' /> &nbsp;
-    <?php } ?>
-  <input type='submit' name='form_pdf' value='<?php xl('PDF Download Selected Statements', 'e'); ?>' /> &nbsp;
-  <input type='submit' name='form_email' value='<?php xl('Email Selected Statements', 'e'); ?>' /> &nbsp;
-<?php if ($is_portal) {?>
-  <input type='submit' name='form_portalnotify' value='<?php xl('Notify via Patient Portal', 'e'); ?>' /> &nbsp;
-<?php }
-}?>
-  <input type='checkbox' name='form_without' value='1' /> <?php xl('Without Update', 'e'); ?>
-</p>
-
-</form>
-</center>
-<script language="JavaScript">
-function processERA() {
-  var f = document.forms[0];
-  var debug = f.form_without.checked ? '1' : '0';
-  var paydate = f.form_paydate.value;
-  window.open('sl_eob_process.php?eraname=<?php echo $eraname ?>&debug=' + debug + '&paydate=' + paydate + '&original=original', '_blank');
-  return false;
-}
-<?php
-if ($alertmsg) {
-    echo "alert('" . htmlentities($alertmsg) . "');\n";
-}
-
-?>
-</script>
+        $tr_str = xl('Upload');
+    if ($_POST['form_search'] == "$tr_str") {?>
+        <script>
+            $('#era-upld').show();
+            $('#search-results').show();
+            $("#statement-download").show();
+        </script>
+    <?php
+    }
+    ?>
+    
 </body>
 </html>

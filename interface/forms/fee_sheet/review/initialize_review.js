@@ -1,6 +1,6 @@
 /**
  * Basic javascript setup for the fee sheet review features
- * 
+ *
  * Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -41,7 +41,8 @@ function add_review_button()
     var template=$("<div class='review'></div>").appendTo(td);
     template.attr("data-bind","template: {name: 'review-display', data: review}");
     // This makes the Review button first in the row.
-    $("[name='search_term']").parent().parent().prepend(td);
+   // $("[name='search_term']").parent().parent().prepend(td); // left the  original code alone
+    $("#copay_review tr:first").append(td);
     return td;
 }
 
@@ -50,11 +51,10 @@ function get_fee_sheet_options(level)
     fee_sheet_options=[];
     var fso=$.ajax(ajax_fee_sheet_options,{type:"GET",data:{pricelevel: level},async:false,dataType:"json"});
     var json_options=JSON.parse(fso.responseText)['fee_sheet_options'];
-    for(var idx=0;idx<json_options.length;idx++)
-        {
+    for (var idx=0; idx<json_options.length; idx++) {
             var cur=json_options[idx];
             fee_sheet_options.push(new fee_sheet_option(cur.code,cur.code_type,cur.description,cur.price));
-        }
+    }
     return fee_sheet_options;
 }
 

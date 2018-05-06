@@ -205,7 +205,7 @@ if ($_POST['formaction']=="generate") {
 } else if (isset($_GET['template']) && $_GET['template'] != "") {
     // utilized to go back to autosaved template
     $bodytext = "";
-    $fh = fopen("$template_dir/" . convert_safe_file_dir_name($_GET['template']), 'r');
+    $fh = fopen("$template_dir/" . convert_very_strict_label($_GET['template']), 'r');
 
     if (!$fh) {
         die(xlt("Requested template does not exist"));
@@ -222,7 +222,7 @@ if ($_POST['formaction']=="generate") {
     }
 } else if ($_POST['formaction'] == "loadtemplate" && $_POST['form_template'] != "") {
     $bodytext = "";
-    $fh = fopen("$template_dir/" . convert_safe_file_dir_name($_POST['form_template']), 'r');
+    $fh = fopen("$template_dir/" . convert_very_strict_label($_POST['form_template']), 'r');
 
     if (!$fh) {
         die(xlt("Requested template does not exist"));
@@ -239,7 +239,7 @@ if ($_POST['formaction']=="generate") {
     }
 } else if ($_POST['formaction'] == "newtemplate" && $_POST['newtemplatename'] != "") {
     // attempt to save the template
-    $fh = fopen("$template_dir/" . convert_safe_file_dir_name($_POST['newtemplatename']), 'w');
+    $fh = fopen("$template_dir/" . convert_very_strict_label($_POST['newtemplatename']), 'w');
     // translate from definition to the constant
     $temp_bodytext = $_POST['form_body'];
     foreach ($FIELD_TAG as $key => $value) {
@@ -255,7 +255,7 @@ if ($_POST['formaction']=="generate") {
 
     // read the saved file back
     $_POST['form_template'] = $_POST['newtemplatename'];
-    $fh = fopen("$template_dir/" . convert_safe_file_dir_name($_POST['form_template']), 'r');
+    $fh = fopen("$template_dir/" . convert_very_strict_label($_POST['form_template']), 'r');
 
     if (!$fh) {
         die(xlt("Requested template does not exist"));
@@ -272,7 +272,7 @@ if ($_POST['formaction']=="generate") {
     }
 } else if ($_POST['formaction'] == "savetemplate" && $_POST['form_template'] != "") {
     // attempt to save the template
-    $fh = fopen("$template_dir/" . convert_safe_file_dir_name($_POST['form_template']), 'w');
+    $fh = fopen("$template_dir/" . convert_very_strict_label($_POST['form_template']), 'w');
     // translate from definition to the constant
     $temp_bodytext = $_POST['form_body'];
     foreach ($FIELD_TAG as $key => $value) {
@@ -287,7 +287,7 @@ if ($_POST['formaction']=="generate") {
     fclose($fh);
 
     // read the saved file back
-    $fh = fopen("$template_dir/" . convert_safe_file_dir_name($_POST['form_template']), 'r');
+    $fh = fopen("$template_dir/" . convert_very_strict_label($_POST['form_template']), 'r');
 
     if (!$fh) {
         die(xlt("Requested template does not exist"));

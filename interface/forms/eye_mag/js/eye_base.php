@@ -2068,6 +2068,8 @@ var allPanels = $('.building_blocks > dd').hide();
                     var test_id = this.id;
                     if  ($(this).is(':checked')) {
                       $("#"+test_id+"_justmods").removeClass('nodisplay');
+                        $("#"+test_id+"_modifier").val('59');
+//make vist_modifier 25 light up too...
                       $(this).parent().removeClass('lights_off').addClass('lights_on');
                     } else {
                       $("#"+test_id+"_justmods").addClass('nodisplay');

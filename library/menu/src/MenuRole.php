@@ -90,7 +90,7 @@ class MenuRole
             $includeEntry = true;
 
             // If the entry has an ACL Requirements(currently only support loose), then test
-            if (isset($srcEntry->acl_req)) {
+            if (!empty($srcEntry->acl_req)) {
                 if (is_array($srcEntry->acl_req[0])) {
                     $noneSet = true;
                     for ($aclIdx=0; $aclIdx<count($srcEntry->acl_req); $aclIdx++) {
@@ -111,7 +111,7 @@ class MenuRole
 
             // If the entry has loose global setting requirements, check
             // Note that global_req is a loose check (if more than 1 global, only 1 needs to pass to show the menu item)
-            if (isset($srcEntry->global_req)) {
+            if (!empty($srcEntry->global_req)) {
                 if (is_array($srcEntry->global_req)) {
                     $noneSet = true;
                     for ($globalIdx=0; $globalIdx<count($srcEntry->global_req); $globalIdx++) {
@@ -153,7 +153,7 @@ class MenuRole
 
             // If the entry has strict global setting requirements, check
             // Note that global_req_strict is a strict check (if more than 1 global, they all need to pass to show the menu item)
-            if (isset($srcEntry->global_req_strict)) {
+            if (!empty($srcEntry->global_req_strict)) {
                 if (is_array($srcEntry->global_req_strict)) {
                     $allSet = true;
                     for ($globalIdx=0; $globalIdx<count($srcEntry->global_req_strict); $globalIdx++) {

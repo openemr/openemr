@@ -770,12 +770,10 @@ if ($refresh and $refresh != 'fullscreen') {
                         <?php ($display_PMH_view == "wide_textarea") ? ($marker ="fa-minus-square-o") : ($marker ="fa-plus-square-o");?>
                         <div id="PMSFH_sections" name="PMSFH_sections">
                           <div id="Enter_PMH" name="Enter_PMH" class="PMH_class">
-                            <center>
                               <iframe id="iframe" name="iframe"
                                 src="../../forms/eye_mag/a_issue.php?uniqueID=<?php echo $uniqueID; ?>&form_type=POH&pid=<?php echo $pid; ?>&encounter=<?php echo $encounter; ?>&form_id=<?php echo $form_id; ?>"
                                 width="510" height="363" scrolling= "yes" frameBorder= "0" >
                               </iframe>
-                            </center>
                           </div>
                         </div>
                       </div>
@@ -3320,17 +3318,17 @@ if ($refresh and $refresh != 'fullscreen') {
                               <table class="IMPPLAN">
                                   <tr>
                                       <td class="right bold" style="width:75px;padding-right:10px;vertical-align:top;"><?php echo  xlt('New Dx{{new diagnosis}}'); ?>: </td>
-                                      <td><textarea style="max-width:335px;width:335px;" name="IMP" id="IMP"><?php echo text($IMP); ?></textarea></td>
+                                      <td><textarea name="IMP" id="IMP"><?php echo text($IMP); ?></textarea></td>
                                   </tr>
                               </table>
                           </div>
-                          <div id="IMPPLAN_text" name="IMPPLAN_text" style="margin:10px 50px;padding-left:30px;">
+                          <div id="IMPPLAN_text" name="IMPPLAN_text">
                                 <?php
-                                  echo '<br /><br /><span style="font-weight:bold;">';
+                                  echo '<br /><br /><span class="bold">';
                                   echo xlt('How-to Build the Impression/Plan').':';
                                   echo '</span><ol>';
                                   echo '<li>'.xlt('Manually type into the New DX box above.').'<br />'.xlt('The *Tab* key creates each entry.').'</li>';
-                                  echo '<span style="font-weight:bold;margin-left:-5px;">'.xlt('or utilize the Impression/Plan Builder').'</span>';
+                                  echo '<span class"bold" style="margin-left:-5px;">'.xlt('or utilize the Impression/Plan Builder').'</span>';
                                   echo '<li>'.xlt('Drag a DX over by its handle').':&nbsp;<i class="fa fa-arrows"></i></li>';
                                   echo '<li>'.xlt('Double click on a DX\'s handle').':&nbsp;<i class="fa fa-arrows"></i></li>';
                                   echo '<li>'.xlt('Multi-select desired DX(s) and click the').' <i class="fa fa-reply flip-left"></i> '.xlt('icon').'</li>';

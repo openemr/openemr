@@ -28,6 +28,7 @@ div.category-display
     float:left;
     width: 33%;
     cursor: pointer;
+    margin:5px;
 }
 
 div.category-display > button
@@ -35,6 +36,7 @@ div.category-display > button
     width: 25em;
     font-weight: bold;
     text-align: left;
+    margin: 2px 5px 2px 10px;
 }
 
 div.category-display > button:hover
