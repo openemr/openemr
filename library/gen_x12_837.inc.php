@@ -1082,7 +1082,51 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
             // Segment REF (Prescription or Compound Drug Association Number) omitted.
         }
 
-        // Loop 2420A removed.
+
+    // Loop 2420A, Rendering Provider (service-specific).
+    // Used if the rendering provider for this service line is different
+    // from that in loop 2310B.
+    // commented block below temporarily since this is removed in 5010
+     /*   if ($claim->providerNPI() != $claim->providerNPI($prockey)) {
+            ++$edicount;
+            $out .= "NM1" .       // Loop 2420A Rendering Provider
+            "*" . "82" .
+            "*" . "1" .
+            "*" . $claim->providerLastName($prockey) .
+            "*" . $claim->providerFirstName($prockey) .
+            "*" . $claim->providerMiddleName($prockey) .
+            "*" .
+            "*";
+            if ($claim->providerNPI($prockey)) {
+                $out .=
+                "*" . "XX" .
+                "*" . $claim->providerNPI($prockey);
+            } else {
+                $log .= "*** Rendering provider has no NPI.\n";
+            }
+            $out .= "~\n";
+
+            // Segment PRV*PE (Rendering Provider Specialty Information) .
+
+            if ($claim->providerTaxonomy($prockey)) {
+                ++$edicount;
+                $out .= "PRV" .
+                "*" . "PE" . // PErforming provider
+                "*" . "PXC" .
+                "*" . $claim->providerTaxonomy($prockey) .
+                "~\n";
+            }
+
+            // Segment REF (Rendering Provider Secondary Identification).
+            // REF*1C is required here for the Medicare provider number if NPI was
+            // specified in NM109.  Not sure if other payers require anything here.
+
+            if ($claim->providerNumberType($prockey) == "G2") {
+                ++$edicount; $out .= "REF" . "*" . $claim->providerNumberType($prockey) .
+                "*" . $claim->providerNumber($prockey) . "~\n";
+            }
+        } */ // end provider exception
+
         // Segment NM1 (Loop 2420B Purchased Service Provider Name) omitted.
         // Segment REF (Loop 2420B Purchased Service Provider Secondary Identification) omitted.
         // Segment NM1,N3,N4 (Loop 2420C Service Facility Location) omitted.
