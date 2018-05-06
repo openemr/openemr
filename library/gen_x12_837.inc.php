@@ -1086,8 +1086,8 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     // Loop 2420A, Rendering Provider (service-specific).
     // Used if the rendering provider for this service line is different
     // from that in loop 2310B.
-    // commented block below temporarily since this is removed in 5010
-     /*   if ($claim->providerNPI() != $claim->providerNPI($prockey)) {
+
+        if ($claim->providerNPI() != $claim->providerNPI($prockey)) {
             ++$edicount;
             $out .= "NM1" .       // Loop 2420A Rendering Provider
             "*" . "82" .
@@ -1125,7 +1125,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
                 ++$edicount; $out .= "REF" . "*" . $claim->providerNumberType($prockey) .
                 "*" . $claim->providerNumber($prockey) . "~\n";
             }
-        } */ // end provider exception
+        } // end provider exception
 
         // Segment NM1 (Loop 2420B Purchased Service Provider Name) omitted.
         // Segment REF (Loop 2420B Purchased Service Provider Secondary Identification) omitted.
