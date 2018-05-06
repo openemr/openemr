@@ -1723,5 +1723,4 @@ class Claim
     {
         return $this->x12Clean(trim($this->billing_prov_id['zip']));
     }
-
 }
