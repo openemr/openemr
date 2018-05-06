@@ -9,7 +9,6 @@
 
 require_once("../../globals.php");
 require_once "$srcdir/user.inc";
-require_once "$srcdir/MedEx/API.php";
 
 $uspfx = 'patient_finder.'; //substr(__FILE__, strlen($webserver_root)) . '.';
 $patient_finder_exact_search = prevSetting($uspfx, 'patient_finder_exact_search', 'patient_finder_exact_search', ' ');

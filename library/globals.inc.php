@@ -915,13 +915,6 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',                              // default
             xl('Observation Results in Immunization')
-        ),
-
-        'search_method_in_patient_list' => array(
-            xl('Use Exact Search in patient list'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Check to enable exact search')
         )
 
     ),
