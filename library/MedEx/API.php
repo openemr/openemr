@@ -1121,7 +1121,7 @@ class Callback extends Base
                 sqlInsert(
                     "INSERT INTO `patient_tracker_element` " .
                             "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `seq`) " .
-                            "VALUES (?,?,?,?,?,?)",
+                            "VALUES (?,?,?,?,?)",
                     array($tracker['id'],$datetime,'MedEx',$data['msg_type'],($tracker['lastseq']+1))
                 );
             } elseif ($data['msg_reply']=="CALL") {
