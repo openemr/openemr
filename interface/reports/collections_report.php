@@ -871,12 +871,13 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
         } else {
             // Compute number of days since last activity.
             $latime = mktime(
-                    0,
-                    0,
-                    0,
-                    substr($ladate, 5, 2),
-                    substr($ladate, 8, 2),
-                    substr($ladate, 0, 4));
+                0,
+                0,
+                0,
+                substr($ladate, 5, 2),
+                substr($ladate, 8, 2),
+                substr($ladate, 0, 4)
+            );
             $row['inactive_days'] = floor((time() - $latime) / (60 * 60 * 24));
         }
 
