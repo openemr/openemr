@@ -1,29 +1,40 @@
-# Use admin/pass as user/password credentials
+# Use admin/pass as user/password credentials to login to openemr (from OE_USER and OE_PASS below)
+# MYSQL_HOST and MYSQL_ROOT_PASS are required for openemr
+# FLEX_REPOSITORY and (FLEX_REPOSITORY_BRANCH or FLEX_REPOSITORY_TAG) are required for flex openemr
+# MYSQL_USER, MYSQL_PASS, OE_USER, MYSQL_PASS are optional for openemr and
+#   if not provided, then default to openemr, openemr, admin, and pass respectively.
 version: '3.1'
 services:
   mysql:
     restart: always
-    image: mysql
+    image: mariadb:10.2
     command: ['mysqld','--character-set-server=utf8']
+    volumes:
+    - databasevolume:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
-    ports:
-    - 3307:3306
   openemr:
     restart: always
-    container_name: openemr_local_development 
-    build: ./contrib/util/docker
+    image: openemr/openemr:flex
     ports:
-    - 8080:80
-    - 8081:443
+    - 80:80
+    - 443:443
     volumes:
-    - .:/var/www/localhost/htdocs/openemr
+    - logvolume01:/var/log
+    - sitevolume:/var/www/localhost/htdocs/openemr/sites
+    - /Users/admin/projects/openEMR/openemr/interface/themes:/var/www/localhost/htdocs/openemr/sites/interface/themes
     environment:
       MYSQL_HOST: mysql
       MYSQL_ROOT_PASS: root
-      MYSQL_USER: root
-      MYSQL_PASS: root
+      MYSQL_USER: openemr
+      MYSQL_PASS: openemr
       OE_USER: admin
       OE_PASS: pass
-    links:
+      FLEX_REPOSITORY: https://github.com/openemr/openemr.git
+      FLEX_REPOSITORY_BRANCH: master
+    depends_on:
     - mysql
+volumes:
+  logvolume01: {}
+  sitevolume: {}
+  databasevolume: {}

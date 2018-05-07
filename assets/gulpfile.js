@@ -192,8 +192,8 @@ gulp.task('serve', function () {
 	gulp.task('styles:fabricator:watch', ['styles:fabricator']);
 	gulp.watch('src/assets/fabricator/styles/**/*.scss', ['styles:fabricator:watch']);
 
-	gulp.task('styles:toolkit:watch', ['styles:style_light', 'styles:style_manila','styles:style_color', 'styles:rtl', 'styles:style_list']);
-	gulp.watch('src/assets/toolkit/styles/**/*.scss', ['styles:style_light', 'styles:style_manila','styles:style_color', 'styles:rtl', 'styles:style_list']);
+	gulp.task('styles:toolkit:watch', ['styles:style_uni','styles:style_color', 'styles:rtl', 'styles:style_list']);
+	gulp.watch('src/assets/toolkit/styles/**/*.scss', ['styles:style_uni','styles:style_color', 'styles:rtl', 'styles:style_list']);
 
     gulp.task('scripts:watch', ['scripts'], reload);
 	gulp.watch('src/assets/{fabricator,toolkit}/scripts/**/*.js', ['scripts:watch']).on('change', webpackCache);
