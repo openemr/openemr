@@ -1,25 +1,17 @@
 <?php
 /**
 * Functions to support parsing and saving hl7 results.
-*
-* Copyright (C) 2013-2016 Rod Roark <rod@sunsetsystems.com>
-*
-* LICENSE: This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
-*
-* @package   OpenEMR
-* @author    Rod Roark <rod@sunsetsystems.com>
-*
-* 07-2015: Ensoftek: Edited for MU2 170.314(b)(5)(A)
-*/
+ *
+ * @package OpenEMR
+ * @author Rod Roark <rod@sunsetsystems.com>
+ * @author Ensoftek
+ * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2015 Ensoftek for MU2 170.314(b)(5)(A)
+ * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
+ * @link https://github.com/openemr/openemr/tree/master
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 require_once("$srcdir/forms.inc");
 
@@ -639,7 +631,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             }
 
             $context = $a[0];
-            // Ensoftek: Could come is as 'ORU^R01^ORU_R01'. Handle all cases when 'ORU^R01' is seen.
+            // Ensoftek: Could come in as 'ORU^R01^ORU_R01'. Handle all cases when 'ORU^R01' is seen.
             if (strstr($a[8], "ORU^R01")) {
                 $msgtype = 'ORU';
             } else if ($a[8] == 'MDM^T02' || $a[8] == 'MDM^T04' || $a[8] == 'MDM^T08') {
@@ -830,6 +822,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     $date_report = substr($datetime_report, 0, 10) . ' 00:00:00';
                     $encounter_id = 0;
                     $provider_id = 0;
+                    $specimen_location = $a[15];
                     // Look for the most recent encounter within 30 days of the report date.
                     $encrow = sqlQuery(
                         "SELECT encounter FROM form_encounter WHERE " .
@@ -861,12 +854,13 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                                   "date_transmitted = ?, " .
                                   "patient_id     = ?, " .
                                   "encounter_id   = ?, " .
-                                  "control_id     = ?",
+                                  "control_id     = ?, " .
+                                  "specimen_location = ?",
                                   array($datetime_report, $provider_id, $lab_id, rhl7DateTime($a[22]),
                                   rhl7DateTime($a[7]),
                                   $patient_id,
                                   $encounter_id,
-                                  $external_order_id)
+                                  $external_order_id, $specimen_location)
                               );
                               // If an encounter was identified then link the order to it.
                         if ($encounter_id && $in_orderid) {
