@@ -27,3 +27,8 @@ if (( $_POST['mode'] == 1 || $_POST['mode'] == 0 ) && ( substr($_POST['target'],
 if ((isset($_POST['lab'])) && (isset($_POST['val']))) {
     setUserSetting($_POST['lab'], $_POST['val']);
 }
+
+// even more generic
+if ((isset($_POST['target'])) && (isset($_POST['setting']))) {
+    setUserSetting($_POST['target'], $_POST['setting']);
+}

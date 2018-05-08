@@ -9,6 +9,8 @@
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 
+use OpenEMR\Core\Header;
+
 $faxstats = array(
 'B' => xl('Blocked'),
 'D' => xl('Sent successfully'),
@@ -84,10 +86,9 @@ if ($scandir && $GLOBALS['enable_scanner']) {
 <html>
 
 <head>
-<?php html_header_show();?>
 
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<title><?php xl('Received Faxes', 'e'); ?></title>
+    <?php Header::setupHeader(['opener']);?>
+    <title><?php xl('Received Faxes', 'e'); ?></title>
 
 <style>
 td {
@@ -113,8 +114,6 @@ td.tabhead {
   text-align: center;
 }
 </style>
-
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 
@@ -168,14 +167,12 @@ function dosvclick(sfname) {
 
 // Process click to pop up the fax dispatch window.
 function domclick(ffname) {
- cascwin('fax_dispatch.php?file=' + ffname, '_blank', 850, 550,
-  "resizable=1,scrollbars=1");
+    dlgopen('fax_dispatch.php?scan=' + ffname, '_blank', 850, 550, '', 'Fax Dispatch');
 }
 
 // Process click to pop up the scanned document dispatch window.
 function dosdclick(sfname) {
- cascwin('fax_dispatch.php?scan=' + sfname, '_blank', 850, 550,
-  "resizable=1,scrollbars=1");
+    dlgopen('fax_dispatch.php?scan=' + sfname, '_blank', 850, 550, '', 'Scanned Dispatch');
 }
 
 </script>
