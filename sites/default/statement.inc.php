@@ -12,12 +12,14 @@
  * @author Raymond Magauran <magauran@medfetch.com>
  * @author Jerry Padgett <sjpadgett@gmail.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @author Daniel Pflieger <daniel@growlingflea.com>
  * @copyright Copyright (c) 2006 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2009 Bill Cernansky <bill@mi-squared.com>
  * @copyright Copyright (c) 2009 Tony McCormick <tony@mi-squared.com>
  * @copyright Copyright (c) 2016 Raymond Magauran <magauran@medfetch.com>
  * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2018 Daniel Pflieger <daniel@growlingflea.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -59,16 +61,15 @@ function make_statement($stmt)
  *  @param string $direction, options "web" or anything else.  Web provides apache-friendly url links.
  *  @return outputs to be displayed however requested
  */
-function report_header_2($stmt, $direction = '', $providerID = '1')
+function report_header_2($stmt,  $providerID = '1')
 {
     $titleres = getPatientData($stmt['pid'], "fname,lname,DOB");
-    if ($_SESSION['pc_facility']) {
-        $sql = "select * from facility where id=?";
-        $facility = sqlQuery($sql, array($_SESSION['pc_facility']));
-    } else {
-        $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
-        $facility = sqlQuery($sql);
-    }
+  //Author Daniel Pflieger - daniel@growlingflea.com
+  //We get the service facility from the encounter.  In cases with multiple service facilities
+  //OpenEMR sends the correct facility
+
+  $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ?", array($stmt['fid']));
+  $facility = sqlFetchArray($service_query);
 
     $DOB = oeFormatShortDate($titleres['DOB']);
   /******************************************************************/
@@ -78,14 +79,6 @@ function report_header_2($stmt, $direction = '', $providerID = '1')
     ?>
   <table style="width:7in;">
     <tr>
-      <td style='width:100px;text-align:top;'>
-        <?php
-          $practice_logo = $GLOBALS['OE_SITE_DIR']."/images/practice_logo.gif";
-        if (file_exists($practice_logo)) {
-            echo "<img src='$practice_logo' align='left' style='width:125px;margin:0px;'><br />\n";
-        }
-        ?>
-      </td>
       <td style='width:40%;'>
         <em style="font-weight:bold;font-size:1.4em;"><?php echo text($facility['name']); ?></em><br />
         <?php echo text($facility['street']); ?><br />
@@ -94,6 +87,34 @@ function report_header_2($stmt, $direction = '', $providerID = '1')
         <?php echo xlt('Fax').': ' .text($facility['fax']); ?><br />
         <br clear='all' />
       </td>
+      <td style='width:100px; text-align:center;'>
+      <?php
+      //Author Daniel Pflieger - daniel@growlingflea.com
+      //We only put space for a logo if it exists.
+      //if it does we put the patient name and the service facility on a separate line.
+      //Patients with long names cause formatting issues and it makes the statement look
+      //unprofessional. Additionally, the end user should be able to choose the
+      //statement logo from Administration -> statement.
+
+      $practice_logo = $GLOBALS['OE_SITE_DIR']."/images/".$GLOBALS['statement_logo'];
+      if (file_exists($practice_logo)) {
+      ?>
+
+
+        <?php
+
+        echo "<img src='$practice_logo' align='left' style='width:125px;margin:0px;'><br />\n";
+
+        ?>
+
+
+
+    <?php } ?>
+
+      </td>
+
+
+
       <td>
         <em style="font-weight:bold;font-size:1.4em;"><?php echo text($titleres['fname']) . " " . text($titleres['lname']); ?></em><br />
         <b style="font-weight:bold;"><?php echo xlt('Chart Number'); ?>:</b> <?php echo text($stmt['pid']); ?><br />
@@ -119,22 +140,20 @@ function create_HTML_statement($stmt)
         return "";
     }
 
-  // Facility (service location)
-    $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
-    " left join users u on f.id=u.facility_id " .
-    " left join  billing b on b.provider_id=u.id and b.pid = ? ".
-    " where  service_location=1", array($stmt['pid']));
-    $row = sqlFetchArray($atres);
-    $clinic_name = "{$row['name']}";
-    $clinic_addr = "{$row['street']}";
-    $clinic_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
-  // Contacts
-    $billing_contact = "{$row['attn']}";
-    $billing_phone = "{$row['phone']}";
-  // Billing location
-    $remit_name = $clinic_name;
-    $remit_addr = $clinic_addr;
-    $remit_csz = $clinic_csz;
+// Facility (service location) modified by Daniel Pflieger at Growlingflea Software
+$service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ? ",  array($stmt['fid']));
+$row = sqlFetchArray($service_query);
+$clinic_name = "{$row['name']}";
+$clinic_addr = "{$row['street']}";
+$clinic_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
+
+
+// Billing location modified by Daniel Pflieger at Growlingflea Software
+$service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?",  array($stmt['fid']));
+$row = sqlFetchArray($service_query);
+$remit_name = "{$row['name']}";
+$remit_addr = "{$row['street']}";
+$remit_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
 
     ob_start();
     ?><div style="padding-left:25px;">
@@ -143,7 +162,7 @@ function create_HTML_statement($stmt)
         "WHERE pid = ? AND encounter = ? " .
         "ORDER BY id DESC LIMIT 1", array($stmt['pid'],$stmt['encounter']));
     $providerID = $find_provider['provider_id'];
-    echo report_header_2($stmt, $direction, $providerID);
+    echo report_header_2($stmt,  $providerID);
 
   // dunning message setup
 
@@ -300,7 +319,7 @@ function create_HTML_statement($stmt)
     $label_call = xl('Please call if any of the above information is incorrect.');
     $label_prompt = xl('We appreciate prompt payment of balances due.');
     $label_dept = xl('Billing Department');
-    $label_bill_phone = (!empty($GLOBALS['billing_phone_number']) ? $GLOBALS['billing_phone_number'] : $billing_phone );
+    $label_bill_phone = (!empty($GLOBALS['billing_phone_number']) ? $GLOBALS['billing_phone_number'] : $row['phone'] );
     $label_appointments = xl('Future Appointments').':';
 
   // This is the top portion of the page.
@@ -330,7 +349,7 @@ function create_HTML_statement($stmt)
     $out .= sprintf("%-s\n", $label_call);
     $out .= sprintf("%-s\n", $label_prompt);
     $out .= "\n";
-    $out .= sprintf("%-s\n", $billing_contact);
+    // $out .= sprintf("%-s\n", $billing_contact);
     $out .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
     if ($GLOBALS['statement_message_to_patient']) {
         $out .= "\n";
@@ -520,24 +539,21 @@ function create_statement($stmt)
   // These are your clinics return address, contact etc.  Edit them.
   // TBD: read this from the facility table
 
-  // Facility (service location)
-    $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code from facility f " .
-    " left join users u on f.id=u.facility_id " .
-    " left join  billing b on b.provider_id=u.id and b.pid = '".$stmt['pid']."' " .
-    " where  service_location=1");
-    $row = sqlFetchArray($atres);
-
-  // Facility (service location)
-
+ // Facility (service location) modified by Daniel Pflieger at Growlingflea Software
+  $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ?", array($stmt['fid']));
+  $row = sqlFetchArray($service_query);
     $clinic_name = "{$row['name']}";
     $clinic_addr = "{$row['street']}";
     $clinic_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
 
 
-  // Billing location
-    $remit_name = $clinic_name;
-    $remit_addr = $clinic_addr;
-    $remit_csz = $clinic_csz;
+ // Billing location modified by Daniel Pflieger at Growlingflea Software
+ $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", array($stmt['fid']));
+ $row = sqlFetchArray($service_query);
+ $remit_name = "{$row['name']}";
+ $remit_addr = "{$row['street']}";
+ $remit_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
+
 
   // Contacts
     $atres = sqlStatement("select f.attn,f.phone from facility f " .
@@ -605,7 +621,7 @@ function create_statement($stmt)
   // Note that "\n" is a line feed (new line) character.
   // reformatted to handle i8n by tony
     $out = "\n\n";
-    $providerNAME = getProviderName($stmt['providerID']);
+    $providerNAME = getProviderName($stmt['provider_id']);
     $out .= sprintf("%-30s %s %-s\n", $clinic_name, $stmt['patient'], $stmt['today']);
     $out .= sprintf("%-30s %s: %-s\n", $providerNAME, $label_chartnum, $stmt['pid']);
     $out .= sprintf("%-30s %s\n", $clinic_addr, $label_insinfo);
@@ -847,7 +863,7 @@ function osp_create_HTML_statement($stmt)
         "WHERE pid = ? AND encounter = ? " .
         "ORDER BY id DESC LIMIT 1", array($stmt['pid'],$stmt['encounter']));
     $providerID = $find_provider['provider_id'];
-    echo report_header_2($stmt, $direction, $providerID);
+    echo report_header_2($stmt,  $providerID);
 
   // dunning message setup
 

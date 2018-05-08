@@ -1148,6 +1148,14 @@ $GLOBALS_METADATA = array(
             xl('Patient statements can be generated as plain text or with a modern graphical appearance.')
         ),
 
+      'statement_logo' => array(
+          xl('Statement Logo GIF Filename'),
+          'text',                           // data type
+          'practice_logo.gif',                               // data type
+
+          xl('Place your logo in sites/default/images and type the filename here.')
+      ),
+
         'billing_phone_number' => array(
             xl('Custom Billing Phone Number'),
             'text',                           // data type
