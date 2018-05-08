@@ -1,5 +1,7 @@
 #
 # This is for building a local OpenEMR development and testing environment.
+# (Recommend not running it from your git repo and instead mirroring your
+#  git repo to a testing directory (such as your web directory).)
 #
 # How to use:
 #   1. docker-compose up -d
