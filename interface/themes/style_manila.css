@@ -838,7 +838,7 @@ margin-top: -0.1px;
 margin-bottom: 2em;
 padding: 10px;
 }
-div.tabContainer div.tab { border: 1px solid #ffffff; color: #000; display: none; padding: 10px; }
+div.tabContainer div.tab { border: none; color: #000; display: none; padding: 10px; }
 div.tabContainer div.current { display: block; box-shadow:0pt;}
 
 .demographics-box div.tabContainer {
