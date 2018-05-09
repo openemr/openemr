@@ -34,6 +34,7 @@ use OpenEMR\Core\Header;
 
 $form_name   = "eye_mag";
 $form_folder = "eye_mag";
+<<<<<<< HEAD
 $Form_Name   = "Eye Exam";
 $form_id     = $_REQUEST['id'];
 $action      = $_REQUEST['action'];
@@ -43,6 +44,20 @@ $display     = $_REQUEST['display'];
 $pid         = $_REQUEST['pid'];
 $refresh     = $_REQUEST['refresh'];
 
+=======
+$Form_Name = "Eye Exam";
+
+//since we come through the controller
+include_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
+
+$form_id    = $_REQUEST['id'];
+$action     = $_REQUEST['action'];
+$finalize   = $_REQUEST['finalize'];
+$id         = $_REQUEST['id'];
+$display    = $_REQUEST['display'];
+$pid        = $_REQUEST['pid'];
+$refresh    = $_REQUEST['refresh'];
+>>>>>>> Eye Updates
 if ($_REQUEST['url']) {
     redirector($_REQUEST['url']);
     exit;
@@ -56,6 +71,7 @@ while ($prefs= sqlFetchArray($result)) {
     $$LOCATION = text($prefs['GOVALUE']);
 }
 
+<<<<<<< HEAD
 $query10 = "select  *,form_encounter.date as encounter_date
               
                from forms,form_encounter,form_eye_base,
@@ -105,6 +121,38 @@ $pat_data       =  sqlQuery($query, array($pid));
 $providerNAME   = getProviderName($provider_id);
 $query          = "SELECT * FROM users where id = ?";
 $prov_data      = sqlQuery($query, array($provider_id));
+=======
+$query = "SELECT * FROM patient_data where pid=?";
+$pat_data =  sqlQuery($query, array($pid));
+
+$query10="select form_encounter.date as encounter_date,form_encounter.*, form_eye_mag.* from form_eye_mag, forms,form_encounter
+                    where
+                    form_encounter.encounter = forms.encounter and
+                    form_eye_mag.id=forms.form_id and
+                    forms.deleted != '1'  and
+                    forms.formdir='eye_mag' and
+                    form_eye_mag.id =? ";
+
+$encounter_data =sqlQuery($query10, array($id));
+@extract($encounter_data);
+//Do we have to have it?
+//We can iterate through every value and perform openEMR escape-specfific functions?
+//We can rewrite the code to rename variables eg $encounter_data['RUL'] instead of $RUL?
+//Isn't this what extract does?
+//And the goal is to redefine each variable, so overwriting them is actually desirable.
+//Given others forms may be based off this and we have no idea what those fields will be named,
+//should we make a decision here to create an openEMR extract like function?
+//Would it have to test for "protected variables" by name?
+
+if ($pid != $_SESSION['pid']) {
+    $_SESSION['pid'] = $pid;
+}
+
+$providerID   = findProvider($pid, $encounter);
+$providerNAME = getProviderName($providerID);
+$query        = "SELECT * FROM users where id = ?";
+$prov_data    =  sqlQuery($query, array($providerID));
+>>>>>>> Eye Updates
 
 // build $PMSFH array
 global $priors;
@@ -172,6 +220,7 @@ if ($refresh and $refresh != 'fullscreen') {
 ?><!DOCTYPE html>
 <html>
   <head>
+<<<<<<< HEAD
       <title> <?php echo xlt('Chart'); ?>: <?php echo text($pat_data['fname'])." ".text($pat_data['lname'])." ".text($visit_date); ?></title>
       <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
       <meta charset="utf-8">
@@ -179,6 +228,75 @@ if ($refresh and $refresh != 'fullscreen') {
       <meta name="description" content="OpenEMR: Eye Exam">
       <meta name="author" content="OpenEMR: Ophthalmology">
       <meta name="viewport" content="width=device-width, initial-scale=1">
+=======
+    <title> <?php echo xlt('Chart'); ?>: <?php echo text($pat_data['fname'])." ".text($pat_data['lname'])." ".text($visit_date); ?></title>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-10-2/index.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jscolor-2-0-4/jscolor.js"></script>
+
+    <script language="JavaScript">
+    <?php require_once("$srcdir/restoreSession.php");
+    ?>
+    function dopclick(id) {
+        <?php if ($thisauth != 'write') : ?>
+      dlgopen('../../patient_file/summary/a_issue.php?issue=0&thistype=' + id, '_blank', 550, 400);
+        <?php else : ?>
+      alert("<?php echo xls('You are not authorized to add/edit issues'); ?>");
+        <?php endif; ?>
+    }
+    function doscript(type,id,encounter,rx_number) {
+      dlgopen('../../forms/eye_mag/SpectacleRx.php?REFTYPE=' + type + '&id='+id+'&encounter='+ encounter+'&form_id=<?php echo attr(addslashes($form_id)); ?>&rx_number='+rx_number, '_blank', 660, 590);
+    }
+
+    function dispensed(pid) {
+      dlgopen('../../forms/eye_mag/SpectacleRx.php?dispensed=1&pid='+pid, '_blank', 560, 590);
+    }
+    function refractions(pid) {
+      dlgopen('../../forms/eye_mag/SpectacleRx.php?dispensed=1&pid='+pid, '_blank', 560, 590);
+    }
+    // This invokes the find-code popup.
+    function sel_diagnosis(target,term) {
+      if (target =='') {
+          target = "0";
+      }
+      IMP_target = target;
+        <?php
+        if ($irow['type'] == 'PMH') { //or POH
+        ?>
+          dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("medical_problem", "csv")) ?>&search_term='+encodeURI(term), '_blank', 600, 400);
+            <?php
+        } else {
+            ?>
+          dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")) ?>&search_term='+encodeURI(term), '_blank', 600, 400);
+            <?php
+        }
+        ?>
+    }
+
+    var obj =[];
+    <?php
+      //also add in any obj.Clinical data if the form was already opened
+      $codes_found = start_your_engines($encounter_data);
+    if ($codes_found) { ?>
+      obj.Clinical = [<?php echo json_encode($codes_found[0]); ?>];
+    <?php
+    } ?>
+
+    </script>
+
+    <!-- Add Font stuff for the look and feel.  -->
+
+    <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/excite-bike/jquery-ui.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.css" />
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
+>>>>>>> Eye Updates
 
         <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor', 'qtip2' ]); ?>
 
@@ -260,7 +378,11 @@ if ($refresh and $refresh != 'fullscreen') {
               <input type="hidden" name="chart_status" id="chart_status" value="on">
               <input type="hidden" name="finalize"  id="finalize" value="0">
 
+<<<<<<< HEAD
 
+=======
+              
+>>>>>>> Eye Updates
 
               <!-- start first div -->
               <div id="first" name="first" class="text_clinical">
