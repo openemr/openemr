@@ -83,7 +83,7 @@ while ($row = sqlFetchArray($res)) {
                 <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
             });
             $("div.mytopdiv").html("<form name='myform'><label for='form_new_window' id='form_new_window_label'><input type='checkbox' id='form_new_window' name='form_new_window' value='1' <?php if (!empty($GLOBALS['gbl_pt_list_new_window'])) {
-                echo ' checked';}?> / ><?php echo xlt('Open in New Window'); ?></label><label for='setting_search_type' id='setting_search_type_label'><input type='checkbox' name='setting_search_type'  id='setting_search_type' onchange='persistCriteria(this, event)' value='<?php echo $patient_finder_exact_search; ?>'<?php echo $patient_finder_exact_search ?>/><?php echo xlt('Search with substring method'); ?></label></form>");
+                echo ' checked';}?> / ><?php echo xlt('Open in New Window'); ?></label><label for='setting_search_type' id='setting_search_type_label'><input type='checkbox' name='setting_search_type'  id='setting_search_type' onchange='persistCriteria(this, event)' value='<?php echo $patient_finder_exact_search; ?>'<?php echo $patient_finder_exact_search ?>/><?php echo xlt('Search with exact method'); ?></label></form>");
             // This is to support column-specific search fields.
             // Borrowed from the multi_filter.html example.
             $("thead input").keyup(function () {
