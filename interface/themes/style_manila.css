@@ -845,12 +845,12 @@ div.tabContainer div.current { display: block; box-shadow:0pt;}
     width:90%;
     margin: -0.1px 2em 2em;
 }
-div.tab {   min-height: 180px;
-    background: #ffffff none repeat scroll 0 0;
+div.tab {   
+    min-height: 180px;
     margin-bottom: 10px;
     width:800px;
-border: 1pt solid black;
-border-radius: 5px;
+    border: 1pt solid black;
+    border-radius: 5px;
 }
 div.tab_long {  min-height: 180px; background: #ffffff none repeat scroll 0 0; margin-bottom: 10px;width:100%;}
 div.tab p:last-child { margin-bottom: 0; }
