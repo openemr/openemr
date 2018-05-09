@@ -19,7 +19,7 @@ $search = $_GET['search'];
 switch ($type) {
     case 'by-id':
         // load patients ids for select2.js library, expect receive 'text' and 'id'.
-        $results=getPatientId("%$search%", 'pubpid as text, pid as id', 'pubpid');
+        $results=getPatientId("$search%", 'pubpid as text, pid as id', 'pubpid');
         foreach ($results as $key => $result) {
             //clean data using 'text' function
             $results[$key] = array_map('text', $result);
