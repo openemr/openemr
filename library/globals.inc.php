@@ -1,10 +1,15 @@
 <?php
-// Copyright (C) 2010-2015 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/*
+ * This program sets the global variables.
+ *
+ * @package OpenEMR
+ * @author Rod Roark <rod@sunsetsystems.com>
+ * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2015 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
+ * @link https://github.com/openemr/openemr/tree/master
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 // $GLOBALS['print_command'] is the
 // Print command for spooling to printers, used by statements.inc.php
@@ -1025,16 +1030,6 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',                              // default = false
             xl('Overlay CMS 1500 on the Preprinted form')
-        ),
-
-        'cms_1500' => array(
-            xl('CMS 1500 Paper Form Format'),
-            array(
-                '0' => xl('08/05{{CMS 1500 format date revision setting in globals}}'),
-                '1' => xl('02/12{{CMS 1500 format date revision setting in globals}}'),
-            ),
-            '1',                              // default
-            xl('This specifies which revision of the form the billing module should generate')
         ),
 
         'cms_1500_box_31_format' => array(
