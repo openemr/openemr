@@ -183,7 +183,7 @@ textarea.HPI_text{
 .QP_class textarea{
     height:3.0em;
     width: 200px;
-	max-width: 200px;
+    max-width: 200px;
     overflow:auto;
     margin-bottom:2px;
     margin-left:5px;
@@ -420,7 +420,7 @@ background-color: red;
     margin: 1px auto; 
     border: 1.00pt solid #000000; 
     background: #ffffff;
-    font-family: "FontAwesome",Arial,Serif, Arial;
+    font-family: "FontAwesome",Arial,Serif;
     padding:6px;
     border-radius: 6px;
 }
@@ -482,7 +482,7 @@ background-color: red;
     text-align:left;
 }
 .tab_content td {
-	padding-left:5px;
+    padding-left:5px;
     font-size: 12px;
 }
 th {
@@ -962,7 +962,7 @@ margin-bottom: -3px;
     }
     .ident {
         text-align:center;
-		padding:0px;
+        padding:0px;
     }
     .kb_left {
         position:relative;float:left;
@@ -1578,7 +1578,7 @@ position: absolute;bottom:0.1in;clear:both;text-align:left;padding-left:25px;
 
 .QP_lengthen textarea{
     width: 4.87in;
-	height: 4.5em;
+    height: 4.5em;
 }
 .top-right {
     position:absolute;
@@ -1755,7 +1755,7 @@ View.php
 #HPIPMH_sections { display:inline-block;margin: 10 auto;text-align:center; }
 #HPI_left_text { height: 315px;text-align:left;}
 #tabs_container { z-index:3;margin-top:5px;}
-#title_bar { width:80%;display:inline-block;}
+#title_bar { width:80%;display:inline-block;height:90px;}
 #tab1_CC_text > table { min-height: 2.0in;text-align:left;}
 .pad10 { padding:10px;}
 #CC1 { height:53px;}
