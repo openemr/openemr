@@ -838,19 +838,19 @@ margin-top: -0.1px;
 margin-bottom: 2em;
 padding: 10px;
 }
-div.tabContainer div.tab { border: 1px solid #ffffff; color: #000; display: none; padding: 10px; }
+div.tabContainer div.tab { border: none; color: #000; display: none; padding: 10px; }
 div.tabContainer div.current { display: block; box-shadow:0pt;}
 
 .demographics-box div.tabContainer {
     width:90%;
     margin: -0.1px 2em 2em;
 }
-div.tab {   min-height: 180px;
-    background: #ffffff none repeat scroll 0 0;
+div.tab {   
+    min-height: 180px;
     margin-bottom: 10px;
     width:800px;
-border: 1pt solid black;
-border-radius: 5px;
+    border: 1pt solid black;
+    border-radius: 5px;
 }
 div.tab_long {  min-height: 180px; background: #ffffff none repeat scroll 0 0; margin-bottom: 10px;width:100%;}
 div.tab p:last-child { margin-bottom: 0; }
