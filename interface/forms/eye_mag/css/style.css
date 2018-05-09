@@ -92,13 +92,13 @@ a:active {
 .text_clinical {
     text-decoration: none;
     color: #000000;
-    font-family:Arial,Arial,sans-serif;
+    font-family:Arial,sans-serif;
 }
 
 .text_clinical a b {
     text-decoration: none;
     color: #000000;
-    font-family: Arial, Arial,sans-serif;
+    font-family: Arial,sans-serif;
 }
 
 .text_clinical a:hover
@@ -123,7 +123,9 @@ a:active {
     outline: none;
     font-size:1.0em;
     text-align: center;
-    border:1pt solid black;justify-content:center; align-items:center;
+    border:1pt solid black;
+    justify-content:center;
+    align-items:center;
     height:43px;
     width:43px;
 }
@@ -132,8 +134,9 @@ textarea.ACT {
     outline: none;
     font-size:1em;
     text-align: center;
-    height:38px;
-    width:38px;
+    height:40px;
+    width:40px;
+    margin: 1px !important;
 }
 
 .input-helper {
@@ -161,7 +164,7 @@ textarea.ACT {
     border: 1px solid #222;
 }
 label {
-    font-size:0.9em;
+    font-size: 11px;
     padding-left:3px;
 }
 .bigger {
@@ -180,7 +183,7 @@ textarea.HPI_text{
 .QP_class textarea{
     height:3.0em;
     width: 200px;
-	max-width: 200px;
+    max-width: 200px;
     overflow:auto;
     margin-bottom:2px;
     margin-left:5px;
@@ -264,8 +267,6 @@ input[type=text] {
     border-radius: 8px;
     margin: 8px auto;
     width:4.3in;
-    font-size: 1.2em;
-    font-family: Arial, Arial,sans-serif;
 }
 #LayerVision_W {
     display:inline-block;
@@ -419,7 +420,7 @@ background-color: red;
     margin: 1px auto; 
     border: 1.00pt solid #000000; 
     background: #ffffff;
-    font-family: "FontAwesome",Arial,Serif, Arial;
+    font-family: "FontAwesome",Arial,Serif;
     padding:6px;
     border-radius: 6px;
 }
@@ -481,7 +482,8 @@ background-color: red;
     text-align:left;
 }
 .tab_content td {
-	padding-left:5px;
+    padding-left:5px;
+    font-size: 12px;
 }
 th {
     font-size: 1.0em;
@@ -754,80 +756,6 @@ margin-bottom: -3px;
   z-index: 10;
 }
 
-/*
-
-h1 {
-
-    font-size: 120%;
-    font-weight: bold;
-}
-
-#form_container {
-    border: 1px solid black;
-    background-color: #ffffcc;
-    width: 750px;
-    padding: 10px;
-    margin: 10px 0px 10px 0px;
-}
-
-#general {
-    padding: 10px;
-}
-
-#history {
-    padding: 10px;
-    border-top: 1px solid black;
-}
-
-#bottom {
-    padding: 10px;
-    border-top: 1px solid black;
-}
-
-.formtext {
-    font-family: courier;
-    font-size: 90%;
-}
-
-.link {
-    font-size: 80%;
-}
-
-.link_submit {
-    font-size: 120%;
-}
-
-.title {
-    font-size: 150%;
-    font-weight: bold;
-}
-
-.bold {
-    font-size: 110%;
-    font-weight: bold;
-}
-
-#print_form_container {
-    border: 1px solid black;
-    background-color: #ffffcc;
-    padding: 10px;
-    margin: 10px 0px 10px 0px;
-}
-
-#print_general {
-    padding: 10px;
-}
-
-#print_history {
-    padding: 10px;
-    border-top: 1px solid black;
-}
-
-#print_bottom {
-    padding: 10px;
-    border-top: 1px solid black;
-}
-*/
 .bold {
     font-weight: bold;
 }
@@ -870,21 +798,14 @@ h1 {
     background-color:#3d94f6;
     -webkit-border-top-left-radius:3px;
     -moz-border-radius-topleft:3px;
-    border-top-left-radius:3px;
     -webkit-border-top-right-radius:3px;
     -moz-border-radius-topright:3px;
-    border-top-right-radius:3px;
     -webkit-border-bottom-right-radius:3px;
     -moz-border-radius-bottomright:3px;
-    border-bottom-right-radius:3px;
     -webkit-border-bottom-left-radius:5px;
     -moz-border-radius-bottomleft:5px;
-    border-bottom-left-radius:5px;
     text-indent:0;
-    border:1px solid #337fed;
     display:inline-block;
-    color:#FFDF00;
-    font-family:Arial,Serif;
     font-size:11px;
     font-weight:600;
     line-height:12px;
@@ -892,12 +813,12 @@ h1 {
     text-align:center;
     padding:0.03in 0.03in 0.04in;
     min-width:35px;
-max-height: 18px;
-margin: 2px auto 2px auto;
-border: black;
-color: black;
-border-radius: 2px 2px 2px 2px;
-height: 18px;
+    max-height: 18px;
+    margin: 2px auto;
+    border: black;
+    color: black;
+    border-radius: 2px;
+    height: 18px;
 }
 .eye_button_blank {
     display:inline-block;
@@ -1041,7 +962,7 @@ height: 18px;
     }
     .ident {
         text-align:center;
-		padding:0px;
+        padding:0px;
     }
     .kb_left {
         position:relative;float:left;
@@ -1074,7 +995,7 @@ height: 18px;
     }
 
     textarea {
-        font-size: 0.8em;
+        font-size: 0.9em;
     }
     textarea.EXTTEXT {
         width:1.0in;
@@ -1098,6 +1019,7 @@ height: 18px;
         height: 0.64in;
         box-shadow: 1px 1px 2px #c0c0c0;
         margin: 0.16em;
+        font-size: 0.9em;
     }
     .wide_textarea th {
         text-align:center;
@@ -1125,6 +1047,7 @@ height: 18px;
         max-width: 1.3in;
         max-height: 0.44in;
         height: 0.44in;
+        font-size: 0.8em;
      }
     .closeButton2 {
         display:inline-block;
@@ -1390,7 +1313,7 @@ input[type=text].fullscreen {
     width:2.4in;
     padding:2px 10px;
     text-align:left;
-    font-size: 1.0em;
+    font-size: 0.9em;
     margin:3px;
     border:1pt solid black;
     z-index:11;
@@ -1403,7 +1326,7 @@ input[type=text].fullscreen {
     width:2.4in;
     padding:2px 10px;
     text-align:left;
-    font-size: 1.0em;
+    font-size: 0.9em;
     margin:3px;
     z-index:11;
 }
@@ -1655,7 +1578,7 @@ position: absolute;bottom:0.1in;clear:both;text-align:left;padding-left:25px;
 
 .QP_lengthen textarea{
     width: 4.87in;
-	height: 4.5em;
+    height: 4.5em;
 }
 .top-right {
     position:absolute;
@@ -1749,6 +1672,9 @@ position: absolute;bottom:0.1in;clear:both;text-align:left;padding-left:25px;
     padding-left:10px;
     height:21px;
 }
+#visit_codes { width: 250px;margin: 5px; }
+#code_me_now { width: 200px;margin: 5px;}
+#open_fee_sheet { width: 200px;margin: 5px;}
   .custom-combobox {
     position: relative;
     display: inline-block;
@@ -1829,7 +1755,7 @@ View.php
 #HPIPMH_sections { display:inline-block;margin: 10 auto;text-align:center; }
 #HPI_left_text { height: 315px;text-align:left;}
 #tabs_container { z-index:3;margin-top:5px;}
-#title_bar { width:80%;display:inline-block;}
+#title_bar { width:80%;display:inline-block;height:90px;}
 #tab1_CC_text > table { min-height: 2.0in;text-align:left;}
 .pad10 { padding:10px;}
 #CC1 { height:53px;}
@@ -1972,7 +1898,7 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
 }
 #EXT_left_1,#ANTSEG_left_1,#RETINA_left_1,#NEURO_left_1,
 #PRIORS_EXT_left_1,#PRIORS_ANTSEG_left_1,#PRIORS_RETINA_left_1,#PRIORS_NEURO_left_1 {
-    position:relative;float:right;top:0.2in;text-align:right;font-size:0.9em;
+    position:relative;float:right;top:0.2in;text-align:right;font-size:12px;
 }
 #EXT_left_1 table:nth-of-type(1),
 #ANTSEG_left_1 table:nth-of-type(1),
@@ -2045,9 +1971,9 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
 }
 .PMSFH_header {  width:1.9in;}
 #ACTTRIGGER {  text-decoration: underline;padding-left: 2px;float:left;font-weight: 600;font-size: 0.9em;}
-#ACTMAIN {  position:relative;z-index:1;margin: 8px;}
+#ACTMAIN {  position:relative;z-index:1;}
 #ACTNORMAL_CHECK { margin:0em 2em;width:125px;}
-#ACTTABLE { position:relative;text-align:center;font-size:1.0em;margin: 7 5 10 5;border-collapse: separate;}
+#ACTTABLE { position:relative;text-align:center;font-size:1.0em;border-collapse: separate;}
 #IMPPLAN_1 { text-align: left;}
 .modifier {
     border: 1pt solid black;
