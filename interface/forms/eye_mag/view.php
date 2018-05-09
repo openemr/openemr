@@ -3673,8 +3673,8 @@ if ($refresh and $refresh != 'fullscreen') {
                                                   <div class="widget text-center">
                                                       <b><u><?php echo xlt('Process');
                                                                   echo " ".xlt('Billing'); ?>:</b></u><br />
-                                                      <button id="code_me_now" style="width:150px;"><?php echo xlt('Populate Fee Sheet'); ?></button>
-                                                      <button style="width:150px;"
+                                                      <button id="code_me_now" ><?php echo xlt('Populate Fee Sheet'); ?></button>
+                                                      <button id="open_fee_sheet" 
                                                               onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet', 'Fee Sheet')" href="JavaScript:void(0);"
                                                               tabindex="-1"><?php echo xlt('Open Fee Sheet'); ?>
                                                       </button>
