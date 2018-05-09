@@ -2583,8 +2583,9 @@ if ($refresh and $refresh != 'fullscreen') {
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2"> <br />
+                                <td colspan="2">
                                     <div id="ACTMAIN" name="ACTMAIN" class="nodisplay ACT_TEXT">
+                                        <br />
                                       <table id="ACTTABLE">
                                             <tr>
                                                 <td id="ACT_tab_SCDIST" name="ACT_tab_SCDIST" class="ACT_selected"> <?php echo xlt('scDist{{without correction distance}}'); ?> </td>
@@ -3502,14 +3503,14 @@ if ($refresh and $refresh != 'fullscreen') {
                                                   <span style="text-decoration:underline;"><?php echo xlt('Modifiers'); ?></span>
                                               </td>
                                               <td class="text-center">
-                                                  <span id="Coding_Visit_Codes" style="text-decoration:underline;"><?php echo xlt('Justify'); ?></span>
+                                                  <span id="Coding_Visit_Codes" class="underline"><?php echo xlt('Justify'); ?></span>
                                                   <span style="font-size:1.2em;">&#x21b4;</span>
                                               </td>
                                           </tr>
                                           <tr class="ui-widget-content">
                                               <td>
                                                   <div >
-                                                      <select id="visit_codes" style="width: 200px;margin: 5px;">
+                                                      <select id="visit_codes">
                                                             <?php
                                                               $i = 0;
                                                               $last_category = '';
@@ -3675,8 +3676,8 @@ if ($refresh and $refresh != 'fullscreen') {
                                                   <div class="widget text-center">
                                                       <b><u><?php echo xlt('Process');
                                                                   echo " ".xlt('Billing'); ?>:</b></u><br />
-                                                      <button id="code_me_now" style="width:150px;"><?php echo xlt('Populate Fee Sheet'); ?></button>
-                                                      <button style="width:150px;"
+                                                      <button id="code_me_now" ><?php echo xlt('Populate Fee Sheet'); ?></button>
+                                                      <button id="open_fee_sheet"
                                                               onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet', 'Fee Sheet')" href="JavaScript:void(0);"
                                                               tabindex="-1"><?php echo xlt('Open Fee Sheet'); ?>
                                                       </button>
