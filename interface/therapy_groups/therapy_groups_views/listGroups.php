@@ -191,6 +191,7 @@
             initComplete: function () {
                 $('#therapy_groups_list_filter').hide(); //hide searchbar
             },
+            ordering: false,
             <?php // Bring in the translations ?>
             <?php $translationsDatatablesOverride = array('lengthMenu'=>(xla('Display').' _MENU_  '.xla('records per page')),
                                                           'zeroRecords'=>(xla('Nothing found - sorry')),
@@ -201,9 +202,6 @@
                                                           'url'=>('')); ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
         });
-
-        /* Order by Start Date column (descending) */
-        table.order( [ 4, 'desc' ] ).draw();
 
         /* Hide/Show filters */
         $("#show_filters").click(function () {
