@@ -43,7 +43,8 @@
     box-sizing: border-box;
 }
 .pure-form label {
-    margin: 0.1em;
+    margin: 0.1em !important;
+    padding: 3px !important;
 }
 .pure-form [disabled] {
     color: #000000 !important;
@@ -995,6 +996,7 @@ margin-bottom: -3px;
         max-height: 0.44in;
         height: 0.44in;
         font-size: 0.8em;
+        margin: 0px !important;
      }
     .closeButton2 {
         display:inline-block;
@@ -1696,7 +1698,7 @@ View.php
 
 
 #DA_EXAM_sections { text-align: center;display:inline-table;max-width: 93%;}
-#DA_EXAM_sections input[type="text"] { margin:1px; }
+#DA_EXAM_sections input[type="text"] { margin: 1px 0px !important; }
 #LayerVision { width: 2.2in; min-height: 1.05in;padding: 0.02in; border: 1.00pt solid #000000;float:left;}
 #tabs { font-size:0.5em;}
 #Lyr31 { position: absolute; top: 0.18in; left: 0.09in;width: 0.4in;height: 0.3in; border: none; padding: 0in;}
@@ -1795,7 +1797,7 @@ textarea[name=COMMENTS_W] { width:100%;height:3.0em;}
 #ALL_keyboard_left {  color:#0C0C0C;size:0.6em;height: 6em;width:85%;margin:15px;z-index:100;}
 div[name=QP_11] { float:left;width:40px;text-align:left;}
 div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
-#NEURO_11 { position:relative;float:right;text-align:center;width:250px;height:265px;z-index:1;margin:2px 0 2px 2px;}
+#NEURO_11 { position:relative;float:right;text-align:center;width:260px;z-index:1;margin:2px 0 2px 2px;}
 #NEURO_P_1,#IP_P_1 { position:absolute;top:0.05in;right:0.241in;}
 #NEURO_P_2 { float: right;padding-top: 4em;margin: 0 1.5em;text-align: center; }
 #NEURO_P_3 { top:0;padding-left:2.5em;margin: 0.5em auto; }
@@ -1806,6 +1808,7 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
 #IMP { max-width:335px;width:335px; }
 #IMPPLAN_zone {  margin:10px;min-height:2.5in;text-align: left; }
 #IMPPLAN_text { margin:10px 50px;padding-left:30px;text-align: left; }
+#IMPPLAN_left_text { text-align: left; }
 #PRIORS_IMPPLAN_left_text { min-height: 2.5in;text-align:left;font-size: 0.9em;}
 #iPlan_build3 { position:absolute;top:0.05in;right:0.241in;}
 #IMP_start2 { position:absolute;top:3px;right:4px;}
@@ -1881,8 +1884,8 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
 #dil_listbox_title,#PRIORS_dil_listbox_title {
     text-decoration:underline;font-size: 1.1em;
 }
-.dil_drug {
-    margin: 0;
+.dil_drug,input[type="checkbox"] {
+    margin: 0 !important;
 }
 .dil_drug_label {
     padding-right: 4px;
@@ -1910,8 +1913,9 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
 .PMSFH_header {  width:1.9in;}
 #ACTTRIGGER {  text-decoration: underline;padding-left: 2px;float:left;font-weight: 600;font-size: 0.9em;}
 #ACTMAIN {  position:relative;z-index:1;}
-#ACTNORMAL_CHECK { margin:0 2em;width:125px;}
+#ACTNORMAL_CHECK { width:145px;}
 #ACTTABLE { position:relative;text-align:center;font-size:1.0em;border-collapse: separate;}
+#ACT_top { width: 210px; font-weight: 600; }
 #IMPPLAN_1 { text-align: left;}
 .modifier {
     border: 1pt solid black;
