@@ -262,14 +262,6 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
             "*" . $claim->billingFacilityState() .
             "*" . stripZipCode($claim->billingFacilityZip()) .
             "~\n";
-
-        if ($claim->billingFacilityNPI() && $claim->billingFacilityETIN()) {
-            ++$edicount;
-            $out .= "REF" .
-                "*" . "EI" .
-                "*" . $claim->billingFacilityETIN() .
-                "~\n";
-        }
     }
 
     // Loop 2010AC Pay-To Plan Name omitted.  Includes:
