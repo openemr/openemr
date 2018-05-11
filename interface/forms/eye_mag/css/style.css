@@ -730,6 +730,9 @@ margin-bottom: -3px;
   z-index: 10;
 }
 
+.bold {
+    font-weight: bold;
+}
 .underline {
     text-decoration: underline;
 }
@@ -996,7 +999,7 @@ margin-bottom: -3px;
         max-height: 0.44in;
         height: 0.44in;
         font-size: 0.8em;
-        margin: 0px !important;
+        margin: 0 !important;
      }
     .closeButton2 {
         display:inline-block;
@@ -1595,8 +1598,8 @@ a:hover, a:focus {
     height:21px;
 }
 #visit_codes { width: 250px;margin: 5px; }
-#code_me_now { width: 200px;float: unset;}
-#open_fee_sheet { width: 200px;float: unset;}
+#code_me_now { width: 200px;margin: 5px;}
+#open_fee_sheet { width: 200px;margin: 5px;}
   .custom-combobox {
     position: relative;
     display: inline-block;

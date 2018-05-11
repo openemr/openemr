@@ -58,7 +58,7 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
     foreach ($aColumns as $colname) {
         $where .= $where ? "OR " : "WHERE ( ";
         if ($colname == 'name') {
-            if (!$searchMethodInPatientList) { // exact search
+            if ($searchMethodInPatientList) { // exact search
                 $where .=
                     "lname LIKE '$sSearch' OR " .
                     "fname LIKE '$sSearch' OR " .
@@ -69,7 +69,7 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
                     "fname LIKE '$sSearch%' OR " .
                     "mname LIKE '$sSearch%' ";
             }
-        } elseif (!$searchMethodInPatientList) {
+        } elseif ($searchMethodInPatientList) {
             $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch' ";
         } else { // exact search
             $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch%' ";
@@ -89,7 +89,7 @@ for ($i = 0; $i < count($aColumns); ++$i) {
         $where .= $where ? ' AND' : 'WHERE';
         $sSearch = add_escape_custom($_GET["sSearch_$i"]);
         if ($colname == 'name') {
-            if (!$searchMethodInPatientList) { // like search
+            if ($searchMethodInPatientList) { // like search
                 $where .= " ( " .
                     "lname LIKE '$sSearch%' OR " .
                     "fname LIKE '$sSearch%' OR " .
@@ -100,7 +100,7 @@ for ($i = 0; $i < count($aColumns); ++$i) {
                     "fname LIKE '$sSearch' OR " .
                     "mname LIKE '$sSearch' )";
             }
-        } elseif (!$searchMethodInPatientList) {
+        } elseif ($searchMethodInPatientList) {
             $where .= " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch%'"; // like search
         } else {
             $where .= " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch'"; // exact search

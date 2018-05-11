@@ -373,13 +373,14 @@ if (!empty($_REQUEST['go'])) { ?>
                                 }
 
                                 ?>
-                                <input type='text' size='10' name='form_patient' class="form-control" style='width:150px;' value='<?php echo attr($patientname); ?>' readonly/>
+                                <input type='text' size='10' name='form_patient' id='form_patient' class="form-control" style='width:150px;' value='<?php echo attr($patientname); ?>' readonly/>
                                 <input type='hidden' class="form-control" name='reply_to' id='reply_to'
                                        value='<?php echo attr($reply_to); ?>'/>
 
                                 <?php
                                 if ($task=="addnew" || $result['pid']==0) {
-                                    echo '<input type="button" value="' . xla('Add Patient') . '" style="float: none; display: inline-block;" onclick="multi_sel_patient()"/>';
+                                    echo '<input type="button" value="' . xla('Add Patient') . '" style="float: none; display: inline-block;" onclick="multi_sel_patient()"/>  ';
+                                    echo '<input type="button" id="clear_patients" style="float: none; display: inline-block;" value="' . xla("Clear") .'"/>';
                                 } ?>
                             </td>
                         </tr>
@@ -721,6 +722,12 @@ if (!empty($_REQUEST['go'])) { ?>
                 $("#assigned_to_text").val("<?php echo xls('Select Users From The Dropdown List'); ?>");
                 $("#assigned_to").val("");
                 $("#users").val("--");
+            });
+
+            //clear inputs of patients
+            $("#clear_patients").click(function(){
+                $("#reply_to").val("");
+                $("#form_patient").val("");
             });
         });
 

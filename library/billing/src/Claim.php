@@ -43,7 +43,7 @@ class Claim
     // This enforces the X12 Basic Character Set. Page A2.
     private function x12Clean($str)
     {
-        return preg_replace('/[^A-Z0-9!"\\&\'()+,\\-.\\/;?= ]/', '', strtoupper($str));
+        return preg_replace('/[^A-Z0-9!"\\&\'()+,\\-.\\/;?=@ ]/', '', strtoupper($str));
     }
 
 // Make sure dates have no formatting and zero filled becomes blank

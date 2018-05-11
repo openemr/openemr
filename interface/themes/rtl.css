@@ -617,3 +617,7 @@ div.formname{
     float: right !important;
     padding-left: 10px !important;
 }
+
+.select2-search, .select2-results{
+    direction: rtl !important;
+}
