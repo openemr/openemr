@@ -64,7 +64,7 @@ echo '{ "error":"", "options": [';
 // send the 'Unassigned' empty variable
 echo '{"id":"","title":"' . xl('Unassigned') . '"}';
 $comma = ",";
-$lres = sqlStatement("SELECT * FROM list_options WHERE list_id = '$list_id' AND activity = 1 ORDER BY seq");
+$lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY ?", array($list_id, $seq);
 while ($lrow = sqlFetchArray($lres)) {
     echo $comma;
     echo '{"id":"'.$lrow['option_id'].'",';
