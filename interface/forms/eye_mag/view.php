@@ -1266,7 +1266,7 @@ if ($refresh and $refresh != 'fullscreen') {
                     ($W ==1) ? ($display_W = "") : ($display_W = "nodisplay");
                     ($W_width =='1') ? ($display_W_width = "refraction_wide") : ($display_W_width = "");
                     ?>
-                  <div id="LayerVision_W" class="<?php echo $display_W; ?> <?php echo $display_W_width; ?> ">
+                  <div id="LayerVision_W" class="<?php echo $display_W; ?> ">
                     <input type="hidden" id="W_1" name="W_1" value="1">
                     <div id="LayerVision_W_1" name="currentRX" class="refraction current_W borderShadow <?php echo $display_W_width; ?>">
                       <i class="closeButton fa fa-close" id="Close_W_1" name="Close_W_1"
@@ -3507,7 +3507,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                           <tr class="ui-widget-content">
                                               <td>
                                                   <div >
-                                                      <select id="visit_codes" style="width: 200px;margin: 5px;">
+                                                      <select id="visit_codes">
                                                             <?php
                                                               $i = 0;
                                                               $last_category = '';
@@ -3570,7 +3570,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                           </tr>
 
                                           <tr>
-                                              <td style="padding-top:5px;vertical-align:text-top;" colspan="3">
+                                              <td style="padding-top:10px;" colspan="3">
                                                   <b><u><?php echo xlt('Tests Performed'); ?>:</u></b>&nbsp;
                                                   <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_todo_done_<?php echo attr($providerID); ?>" target="RTop"
                                                      title="<?php echo xla('Click here to Edit this Doctor\'s Plan options').". \n". xlt('Only entries with a Code are billable').". "; ?>"
@@ -3654,6 +3654,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                           </td>
                                                       </tr>
                                                   </table>
+                                                  <br />
                                               </td>
                                           </tr>
                                       </table>
