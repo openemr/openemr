@@ -3,7 +3,8 @@
 # (Recommend not running it from your git repo and instead mirroring your
 #  git repo to a testing directory (such as your web directory).)
 #
-# How to use:
+# Brief instructions on how to use (for fuller instructions and examples,
+#  see the document at contrib/util/docker/README.md):
 #   1. docker-compose up -d
 #   2. http://localhost:8080 to run setup in openemr (alpine 3.7 with PHP 7.1)
 #      or
