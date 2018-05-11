@@ -10,11 +10,12 @@ production-grade docker deployment options, please check out
 
 ## Setup
 
-Step 1. Install [git](https://git-scm.com/downloads),
+**Step 1.** Install [git](https://git-scm.com/downloads),
 [docker](https://www.docker.com/get-docker) and
 [compose](https://docs.docker.com/compose/install/) for your system. Also, make
 sure you have a [fork](https://help.github.com/articles/fork-a-repo/) of OpenEMR.
 
+**Step 2.** Start OpenEMR.
 ```bash
 $ git clone git@github.com:YOUR_USERNAME/openemr.git
 ```
@@ -41,14 +42,14 @@ develop/test other code. This is done by first running a command or script
 to delete and replace the synchronized directory (ie. remove the /var/www/openemr
 directory) and then restart the development docker (see below for how to do this)
 
-Step 3. Open up OpenEMR in the latest Chrome or Firefox! You have several
+**Step 3.** Open up OpenEMR in the latest Chrome or Firefox! You have several
 options to choose from:
 - http://localhost:8080 (with PHP 7.1)
 - http://localhost:8081 (with PHP 7.2)
 - https://localhost:8090 with SSL (with PHP 7.1)
 - https://localhost:8091 with SSL (with PHP 7.2)
 
-Step 4. Setup up OpenEMR. The first time you run OpenEMR (and whenever you clear your
+**Step 4.** Setup up OpenEMR. The first time you run OpenEMR (and whenever you clear your
 synchronized openemr directory and restart the development docker). On the main
 setup input screen:
  - for `Server Host`, use either `mysql` or `mariadb` (you have both mysql/mariadb
