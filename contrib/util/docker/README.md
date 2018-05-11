@@ -49,7 +49,7 @@ options to choose from:
 - https://localhost:8090 with SSL (with PHP 7.1)
 - https://localhost:8091 with SSL (with PHP 7.2)
 
-**Step 4.** Setup up OpenEMR. The first time you run OpenEMR (and whenever you clear your
+**Step 4.** Setup up OpenEMR. The first time you run OpenEMR (and whenever you clear and replace your
 synchronized openemr directory and restart the development docker). On the main
 setup input screen:
  - for `Server Host`, use either `mysql` or `mariadb` (you have both mysql/mariadb
@@ -65,6 +65,7 @@ to delete and replace the synchronized directory (ie. remove the /var/www/openem
 directory) and then restart the development docker:
 ```bash
 docker-compose down -v
+docker-compose up -d
 ```
 
 ## Usage
@@ -81,7 +82,7 @@ c3ae3ce3a2a0        phpmyadmin/phpmyadmin       "/run.sh phpmyadmin"     6 secon
 796ae2e68dc2        openemr/openemr:flex        "./run_openemr.sh"       6 seconds ago       Up 3 seconds        0.0.0.0:8080->80/tcp, 0.0.0.0:8090->443/tcp   openemr_openemr-7-1_1
 a0f56b4e634c        openemr/openemr:flex-edge   "./run_openemr.sh"       6 seconds ago       Up 4 seconds        0.0.0.0:8081->80/tcp, 0.0.0.0:8091->443/tcp   openemr_openemr-7-2_1
 bd4d8c287931        phpmyadmin/phpmyadmin       "/run.sh phpmyadmin"     6 seconds ago       Up 4 seconds        0.0.0.0:8101->80/tcp                          openemr_phpmyadmin-mysql_1
-249770c5d4b2        mysql:5.7                   "docker-entrypoint..."   6 seconds ago       Up 4 seconds        3306/tcp                                      openemr_mysql_1                                 openemrlocaldevelopmentdocker_mysql_1
+249770c5d4b2        mysql:5.7                   "docker-entrypoint..."   6 seconds ago       Up 4 seconds        3306/tcp                                      openemr_mysql_1
 ```
  - Note the `NAMES` column is extremely important and how you run docker commands
 on specific containers. For example, to go into a shell script in the
@@ -158,6 +159,7 @@ to delete and replace the synchronized directory (ie. remove the /var/www/openem
 directory) and then restart the development docker:
 ```bash
 docker-compose down -v
+docker-compose up -d
 ```
 ### Work in progress
 
