@@ -4,7 +4,7 @@
 #  git repo to a testing directory (such as your web directory).)
 #
 # Brief instructions on how to use (for fuller instructions and examples,
-#  document at contrib/util/docker/README.md):
+#  see the document at contrib/util/docker/README.md):
 #   1. docker-compose up -d
 #   2. http://localhost:8080 to run setup in openemr (alpine 3.7 with PHP 7.1)
 #      or
