@@ -33,16 +33,16 @@ $option_value = 0;
 
 // make sure we're not adding a duplicate title or id
 $exists_title = sqlQuery("SELECT * FROM list_options WHERE ".
-                    " list_id= ? ".
-                    " and title = ? AND activity = 1", array($list_id, $title);
+    " list_id= ? ".
+    " and title = ? AND activity = 1", array($list_id, $title));
 if ($exists_title) {
     echo json_encode(array("error"=> xl('Record already exist') ));
     exit;
 }
 
 $exists_id = sqlQuery("SELECT * FROM list_options WHERE ".
-                    " list_id= ?".
-                    "AND option_id = ?". "AND activity = 1", array($list_id, $option_id);
+    " list_id= ?".
+    "AND option_id = ?". "AND activity = 1", array($list_id, $option_id));
 if ($exists_id) {
     echo json_encode(array("error"=> xl('Record already exist') ));
     exit;
@@ -51,20 +51,19 @@ if ($exists_id) {
 // determine the sequential order of the new item,
 // it should be the maximum number for the specified list plus one
 $seq = 0;
-$row = sqlQuery("SELECT max(seq) as maxseq FROM list_options WHERE list_id = '" . $list_id . "' AND activity = 1", array($list_id, $option_id);
+$row = sqlQuery("SELECT max(seq) as maxseq FROM list_options WHERE list_id = '" . $list_id . "' AND activity = 1", array($list_id, $option_id));
 $seq = $row['maxseq']+1;
 
 // add the new list item
 $rc = sqlInsert("INSERT INTO list_options ( " .
-                "list_id, option_id, title, seq, is_default, option_value 
-                ) VALUES ( ?, ?, ?, ?, ?, ?", array($list_id, $option_id, $title, $seq, $is_default, $option_value);
+    "list_id, option_id, title, seq, is_default, option_value ) VALUES ( ?, ?, ?, ?, ?, ?", array($list_id, $option_id, $title, $seq, $is_default, $option_value));
 
 // return JSON data of list items on success
 echo '{ "error":"", "options": [';
 // send the 'Unassigned' empty variable
 echo '{"id":"","title":"' . xl('Unassigned') . '"}';
 $comma = ",";
-$lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY ?", array($list_id, $seq);
+$lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY ?", array($list_id, $seq));
 while ($lrow = sqlFetchArray($lres)) {
     echo $comma;
     echo '{"id":"'.$lrow['option_id'].'",';
