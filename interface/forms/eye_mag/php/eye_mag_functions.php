@@ -616,7 +616,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         </div>
         <b><?php echo xlt('Prior Exam'); ?>:</b><br />
         <div style="float:left;margin-top:0.8em;font-size:0.8em;">
-            <div id="PRIOR_NEURO_text_list" class="borderShadow PRIORS" style="border:1pt solid black;float:left;width:175px;padding:10px;text-align:center;margin:2 2;font-weight:bold;">
+            <div id="PRIOR_NEURO_text_list" class="borderShadow PRIORS" style="border:1pt solid black;float:left;width:195px;padding:10px;text-align:center;margin:2 2;font-weight:bold;">
                 <table style="font-size:1.0em;font-weight:600;">
                     <tr>
                         <td></td><td style="text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td><td style="text-align:center;"><?php echo xlt('OS{{left eye}}'); ?></td></tr>
@@ -641,7 +641,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                             } ?>"/>
                         </td>
                         <td style="text-align:bottom;">
-                                               &nbsp;<span title="<?php echo xla('Insert normals - 11/11'); ?>" class="fa fa-reply flip-left"></span>
+                                               &nbsp;<span title="<?php echo xla('Insert normals - 11/11'); ?>" class="fa fa-reply"></span>
                                             </td>
                                         </tr>
                     <tr>
@@ -655,7 +655,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                             <input disabled type="text" size="6" name="PRIOR_OSREDDESAT" id="PRIOR_OSREDDESAT" value="<?php echo attr($OSREDDESAT); ?>"/>
                         </td>
                         <td>&nbsp;
-                            <span id="" class="fa fa-reply flip-left" name="" title="<?php echo xla('Insert normals - 100/100'); ?>"></span>
+                            <span id="" class="fa fa-reply" name="" title="<?php echo xla('Insert normals - 100/100'); ?>"></span>
                         </td>
                     </tr>
                     <tr>
@@ -669,14 +669,24 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                             <input disabled type="text" size="6" name="PRIOR_OSCOINS" id="PRIOR_OSCOINS" value="<?php echo attr($OSCOINS); ?>"/>
                         </td>
                         <td>&nbsp;
-                            <span id="" class="fa fa-reply flip-left" name="" title="<?php echo xla('Insert normals - 100/100'); ?>"></span>
+                            <span id="" class="fa fa-reply" name="" title="<?php echo xla('Insert normals - 100/100'); ?>"></span>
                          </td>
                     </tr>
                 </table>
             </div>
-            <div class="borderShadow" style="position:relative;float:right;text-align:center;width:238px;height:250px;z-index:1;margin:2 0 2 2;">
+            <div class="borderShadow" style="position: relative;
+
+float: right;
+
+text-align: center;
+
+width: 260px;
+
+z-index: 1;
+
+margin: 2px 0 2px 2px;">
                 <span class="closeButton fa fa-th" id="PRIOR_Close_ACTMAIN" name="PRIOR_Close_ACTMAIN"></span>
-                <table style="position:relative;float:left;font-size:0.9em;width:210px;font-weight:600;">
+                <table class="ACT_top" style="position:relative;float:left;font-size:0.9em;width:210px;font-weight:600;">
                     <tr style="text-align:left;height:26px;vertical-align:middle;width:180px;">
                         <td >
                             <span id="PRIOR_ACTTRIGGER" name="PRIOR_ACTTRIGGER" style="text-decoration:underline;"><?php echo ('Alternate Cover Test'); ?>:</span>
@@ -692,8 +702,9 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                     </tr>
                     <tr>
                         <td colspan="2" style="text-align:center;">
+                            <br />
                             <div id="PRIOR_ACTMAIN" name="PRIOR_ACTMAIN" class="ACT_TEXT nodisplay" style="position:relative;z-index:1;margin 10 auto;">
-                               <table cellpadding="0" style="position:relative;text-align:center;font-size:0.9em;margin: 7 5 19 5;border-collapse: separate;">
+                               <table cellpadding="0" style="position:relative;margin: 7 5 19 5;">
                                     <tr>
                                         <td id="PRIOR_ACT_tab_SCDIST" name="PRIOR_ACT_tab_SCDIST" class="ACT_selected"> <?php echo xlt('scDist{{ACT without Correction Distance}}'); ?> </td>
                                         <td id="PRIOR_ACT_tab_CCDIST" name="PRIOR_ACT_tab_CCDIST" class="ACT_deselected"> <?php echo xlt('ccDist{{ACT with Correction Distance}}'); ?> </td>
@@ -706,24 +717,24 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                                                 <br />
                                                 <table>
                                                     <tr>
-                                                        <td style="text-align:center;"><?php echo xlt('R{{right}}'); ?></td>
+                                                        <td class="text-center"><?php echo xlt('R{{right}}'); ?></td>
                                                         <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:right;">
                                                         <textarea disabled id="PRIOR_ACT1SCDIST" name="PRIOR_ACT1SCDIST" class="ACT"><?php echo text($ACT1SCDIST); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-top:0pt;text-align:center;">
                                                         <textarea disabled id="PRIOR_ACT2SCDIST"  name="PRIOR_ACT2SCDIST"class="ACT"><?php echo text($ACT2SCDIST); ?></textarea></td>
                                                         <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:left;">
                                                         <textarea disabled id="PRIOR_ACT3SCDIST"  name="PRIOR_ACT3SCDIST" class="ACT"><?php echo text($ACT3SCDIST); ?></textarea></td>
-                                                        <td style="text-align:center;"><?php echo xlt('L{{left}}'); ?></td>
+                                                        <td class="text-center"><?php echo xlt('L{{left}}'); ?></td>
                                                     </tr>
                                                     <tr>
-                                                        <td style="text-align:right;"><i class="fa fa-reply rotate-left right"></i></td>
+                                                        <td class="text-center"><i class="fa fa-reply rotate-left"></i></td>
                                                         <td style="border:1pt solid black;border-left:0pt;text-align:right;">
                                                         <textarea disabled id="PRIOR_ACT4SCDIST" name="PRIOR_ACT4SCDIST" class="ACT"><?php echo text($ACT4SCDIST); ?></textarea></td>
                                                         <td style="border:1pt solid black;text-align:center;">
                                                         <textarea disabled id="PRIOR_ACT5SCDIST" name="PRIOR_ACT5SCDIST" class="ACT"><?php echo text($ACT5SCDIST); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-right:0pt;text-align:left;">
                                                         <textarea disabled id="PRIOR_ACT6SCDIST" name="PRIOR_ACT6SCDIST" class="ACT"><?php echo text($ACT6SCDIST); ?></textarea></td>
-                                                        <td><i class="fa fa-reply flip-left"></i></td>
+                                                        <td class="text-center"><i class="fa fa-reply flip-left"></i></td>
                                                     </tr>
                                                     <tr>
                                                         <td style="border:0; border-top:2pt solid black;border-right:2pt solid black;text-align:right;">
@@ -745,22 +756,22 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                                                 <br />
                                                 <table>
                                                    <tr>
-                                                        <td style="text-align:center;"><?php echo xlt('R{{right}}'); ?></td>
+                                                        <td class="text-center"><?php echo xlt('R{{right}}'); ?></td>
                                                         <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:right;">
                                                         <textarea disabled id="PRIOR_ACT1CCDIST" name="PRIOR_ACT1CCDIST" class="ACT"><?php echo text($ACT1CCDIST); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-top:0pt;text-align:center;">
                                                         <textarea disabled id="PRIOR_ACT2CCDIST"  name="PRIOR_ACT2CCDIST"class="ACT"><?php echo text($ACT2CCDIST); ?></textarea></td>
                                                         <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:left;">
                                                         <textarea disabled id="PRIOR_ACT3CCDIST"  name="PRIOR_ACT3CCDIST" class="ACT"><?php echo text($ACT3CCDIST); ?></textarea></td>
-                                                        <td style="text-align:center;"><?php echo xlt('L{{left}}'); ?></td>
+                                                        <td class="text-center"><?php echo xlt('L{{left}}'); ?></td>
                                                     </tr>
                                                     <tr>
-                                                        <td style="text-align:right;"><i class="fa fa-reply rotate-left"></i></td>
+                                                        <td class="text-center"><i class="fa fa-reply rotate-left"></i></td>
                                                         <td style="border:1pt solid black;border-left:0pt;text-align:right;">
                                                         <textarea disabled id="PRIOR_ACT4CCDIST" name="PRIOR_ACT4CCDIST" class="ACT"><?php echo text($ACT4CCDIST); ?></textarea></td>
                                                         <td style="border:1pt solid black;text-align:center;">
                                                         <textarea disabled id="PRIOR_ACT5CCDIST" name="PRIOR_ACT5CCDIST" class="ACT"><?php echo text($ACT5CCDIST); ?></textarea></td>
-                                                        <td style="border:1pt solid black;border-right:0pt;text-align:left;">
+                                                        <td class="text-center">
                                                         <textarea disabled id="PRIOR_ACT6CCDIST" name="PRIOR_ACT6CCDIST" class="ACT"><?php echo text($ACT6CCDIST); ?></textarea></td>
                                                         <td><i class="fa fa-reply flip-left"></i></td>
                                                     </tr>
@@ -783,7 +794,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                                                 <br />
                                                 <table>
                                                     <tr>
-                                                        <td style="text-align:center;"><?php echo xlt('R{{right}}'); ?></td>
+                                                        <td class="text-center"><?php echo xlt('R{{right}}'); ?></td>
                                                         <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:right;">
                                                         <textarea disabled id="PRIOR_ACT1SCNEAR" name="PRIOR_ACT1SCNEAR" class="ACT"><?php echo text($ACT1SCNEAR); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-top:0pt;text-align:center;">
@@ -793,14 +804,14 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                                                         <td style="text-align:center;"><?php echo xlt('L{{left}}'); ?></td>
                                                     </tr>
                                                     <tr>
-                                                        <td style="text-align:right;"><i class="fa fa-reply rotate-left"></i></td>
+                                                        <td class="text-center"><i class="fa fa-reply rotate-left"></i></td>
                                                         <td style="border:1pt solid black;border-left:0pt;text-align:right;">
                                                         <textarea disabled id="PRIOR_ACT4SCNEAR" name="PRIOR_ACT4SCNEAR" class="ACT"><?php echo text($ACT4SCNEAR); ?></textarea></td>
                                                         <td style="border:1pt solid black;text-align:center;">
                                                         <textarea disabled id="PRIOR_ACT5SCNEAR" name="PRIOR_ACT5SCNEAR" class="ACT"><?php echo text($ACT5SCNEAR); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-right:0pt;text-align:left;">
                                                         <textarea disabled id="PRIOR_ACT6SCNEAR" name="PRIOR_ACT6SCNEAR" class="ACT"><?php echo text($ACT6SCNEAR); ?></textarea></td>
-                                                        <td><i class="fa fa-reply flip-left"></i></td>
+                                                        <td class="text-center"><i class="fa fa-reply flip-left"></i></td>
                                                     </tr>
                                                     <tr>
                                                         <td style="border:0; border-top:2pt solid black;border-right:2pt solid black;text-align:right;">
@@ -822,23 +833,24 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                                                 <br />
                                                 <table>
                                                     <tr>
-                                                        <td style="text-align:center;"><?php echo xlt('R{{right}}'); ?></td>
+                                                        <td class="text-center"><?php echo xlt('R{{right}}'); ?></td>
                                                         <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:right;">
                                                         <textarea disabled id="PRIOR_ACT1CCNEAR" name="PRIOR_ACT1CCNEAR" class="ACT"><?php echo text($ACT1CCNEAR); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-top:0pt;text-align:center;">
                                                         <textarea disabled id="PRIOR_ACT2CCNEAR"  name="PRIOR_ACT2CCNEAR"class="ACT"><?php echo text($ACT2CCNEAR); ?></textarea></td>
                                                         <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:left;">
                                                         <textarea disabled id="PRIOR_ACT3CCNEAR"  name="PRIOR_ACT3CCNEAR" class="ACT"><?php echo text($ACT3CCNEAR); ?></textarea></td>
-                                                        <td style="text-align:center;"><?php echo xlt('L{{left}}'); ?></td>
+                                                        <td class="text-center"><?php echo xlt('L{{left}}'); ?></td>
                                                     </tr>
                                                     <tr>
-                                                        <td style="text-align:right;"><i class="fa fa-reply rotate-left"></i></td>
+                                                        <td class="text-center"><i class="fa fa-reply rotate-left"></i></td>
                                                         <td style="border:1pt solid black;border-left:0pt;text-align:right;">
                                                         <textarea disabled id="PRIOR_ACT4CCNEAR" name="PRIOR_ACT4CCNEAR" class="ACT"><?php echo text($ACT4CCNEAR); ?></textarea></td>
                                                         <td style="border:1pt solid black;text-align:center;">
                                                         <textarea disabled id="PRIOR_ACT5CCNEAR" name="PRIOR_ACT5CCNEAR" class="ACT"><?php echo text($ACT5CCNEAR); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-right:0pt;text-align:left;">
-                                                        <textarea disabled id="PRIOR_ACT6CCNEAR" name="PRIOR_ACT6CCNEAR" class="ACT"><?php echo text($ACT6CCNEAR); ?></textarea></td><td><i class="fa fa-reply flip-left"></i></td>
+                                                        <textarea disabled id="PRIOR_ACT6CCNEAR" name="PRIOR_ACT6CCNEAR" class="ACT"><?php echo text($ACT6CCNEAR); ?></textarea></td>
+                                                        <td class="text-center"><i class="fa fa-reply flip-left"></i></td>
                                                     </tr>
                                                     <tr>
                                                         <td style="border:0; border-top:2pt solid black;border-right:2pt solid black;text-align:right;">
@@ -863,6 +875,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                         </td>
                     </tr>
                 </table>
+                <br />
                 <div id="PRIOR_NPCNPA" name="PRIOR_NPCNPA">
                     <table style="position:relative;float:left;text-align:center;margin: 4 2;width:100%;font-size:1.0em;padding:4px;">
                         <tr style="">
@@ -889,10 +902,12 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="3" style="font-weight:bold;"><br /><u><?php echo xlt('Amplitudes'); ?></u><br />
-                            </td>
+                            <td colspan="3">&nbsp;</td>
                         </tr>
-                        <tr><td ></td><td ><?php echo xlt('Distance'); ?></td><td><?php echo xlt('Near'); ?></td></tr>
+                        <tr><td class="bold underline"><?php echo xlt('Amplitudes'); ?>:</td>
+                            <td ><?php echo xlt('Distance'); ?></td>
+                            <td><?php echo xlt('Near'); ?></td>
+                        </tr>
                         <tr>
                             <td style="text-align:right;"><?php echo xlt('Divergence'); ?>:</td>
                             <td><input disabled type="text" id="PRIOR_DACCDIST" name="PRIOR_DACCDIST" value="<?php echo attr($DACCDIST); ?>"></td>
@@ -913,6 +928,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                         </tr>
                     </table>
                 </div>
+                
             </div>
                 <?php
                 $hash_tag = '<i class="fa fa-minus"></i>';
@@ -1047,7 +1063,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                 }
                 ?>
             <div id="PRIOR_NEURO_MOTILITY" class="text_clinical borderShadow"
-                style="float:left;font-size:0.9em;margin:2 2;padding: 0 10;font-weight:bold;height:134px;width:175px;">
+                style="float:left;font-size:0.9em;margin:2 2;padding: 0 10;font-weight:bold;height:134px;width:195px;">
                 <div>
                     <table style="width:100%;margin:0 0 1 0;">
                         <tr>
@@ -3642,7 +3658,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
     }
     ?>
        <!-- Navigation -->
-    <nav class="navbar-fixed-top navbar-custom navbar-bright navbar-inner" data-role="page banner navigation" style="margin-bottom: 0;z-index:1050;">
+    <nav class="navbar-fixed-top navbar-custom navbar-bright navbar-inner" data-role="page banner navigation" style="margin-bottom: 0;z-index: 9999999;">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="container-fluid" style="margin-top:0px;padding:2px;">
             <div class="navbar-header brand" style="color:black;">

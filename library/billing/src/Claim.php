@@ -38,12 +38,12 @@ class Claim
     public $invoice;           // result from get_invoice_summary()
     public $payers;            // array of arrays, for all payers
     public $copay;             // total of copays from the ar_activity table
-    public $facilityService;
+    public $facilityService;   // via matthew.vita orm work :)
 
     // This enforces the X12 Basic Character Set. Page A2.
     private function x12Clean($str)
     {
-        return preg_replace('/[^A-Z0-9!"\\&\'()+,\\-.\\/;?= ]/', '', strtoupper($str));
+        return preg_replace('/[^A-Z0-9!"\\&\'()+,\\-.\\/;?=@ ]/', '', strtoupper($str));
     }
 
 // Make sure dates have no formatting and zero filled becomes blank
@@ -218,7 +218,7 @@ class Claim
         $this->facility = $this->facilityService->getById($this->encounter['facility_id']);
 
         /*****************************************************************
-      $provider_id = $this->procs[0]['provider_id'];
+        $provider_id = $this->procs[0]['provider_id'];
         *****************************************************************/
         $provider_id = $this->encounter['provider_id'];
         $sql = "SELECT * FROM users WHERE id = '$provider_id'";
@@ -1368,15 +1368,24 @@ class Claim
     {
         // If no box qualifier specified use "431" indicating Onset
         return empty($this->billing_options['box_14_date_qual']) ? '431' :
-              $this->billing_options['box_14_date_qual'];
+            $this->billing_options['box_14_date_qual'];
     }
 
     public function box15Qualifier()
     {
         // If no box qualifier specified use "454" indicating Initial Treatment
         return empty($this->billing_options['box_15_date_qual']) ? '454' :
-              $this->billing_options['box_15_date_qual'];
+            $this->billing_options['box_15_date_qual'];
     }
+
+    public function box17Qualifier()
+    {
+        //If no box qualifier specified use "DK" for ordering provider
+        //someday might make mbo form the place to set referring instead of demographics under choices
+        return empty($this->billing_options['provider_qualifier_code']) ? 'DK' :
+            $this->billing_options['provider_qualifier_code'];
+    }
+
   // Returns an array of unique diagnoses.  Periods are stripped by default
   // Option to keep periods is to support HCFA 1500 02/12 version
     public function diagArray($strip_periods = true)
@@ -1687,7 +1696,31 @@ class Claim
         if (empty($this->billing_prov_id['taxonomy'])) {
             return '207Q00000X';
         }
-
         return $this->x12Clean(trim($this->billing_prov_id['taxonomy']));
+    }
+
+    public function billingProviderStreet()
+    {
+        return $this->x12Clean(trim($this->billing_prov_id['street']));
+    }
+
+    public function billingProviderStreetB()
+    {
+        return $this->x12Clean(trim($this->billing_prov_id['streetb']));
+    }
+
+    public function billingProviderCity()
+    {
+        return $this->x12Clean(trim($this->billing_prov_id['city']));
+    }
+
+    public function billingProviderState()
+    {
+        return $this->x12Clean(trim($this->billing_prov_id['state']));
+    }
+
+    public function billingProviderZip()
+    {
+        return $this->x12Clean(trim($this->billing_prov_id['zip']));
     }
 }

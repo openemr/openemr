@@ -1,36 +1,17 @@
 <?php
-/**
+/*
  * Utilities to support HCFA 1500 02/12 Version
  * For details on format refer to:
  * <http://www.nucc.org/index.php?option=com_content&view=article&id=186&Itemid=138>
  *
- * Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
  * @package OpenEMR
- * @author  Kevin Yeh <kevin.y@integralemr.com>
- * @link    http://www.open-emr.org
+ * @author Kevin Yeh <kevin.y@integralemr.com>
+ * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
+ * @link https://github.com/openemr/openemr/tree/master
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-/**
- *
- * @return type Is the system configured to use the 02/12 version of the form
- */
-function hcfa_1500_version_02_12()
-{
-    return $GLOBALS['cms_1500']=='1';
-}
-
 
 /**
  * Helper class to manage which rows and columns information belong in.
