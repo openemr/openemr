@@ -2176,7 +2176,8 @@ $GLOBALS_METADATA = array(
             array(
                 '0' => xl('No alert'),
                 '1' => xl('Alert only on birthday'),
-                '2' => xl('Alert on and after birthday')
+                '2' => xl('Alert on and after birthday'),
+                '3' => xl('Alert on and up to 28 days after birthday')
             ),
             '1',                              // default
             xl('Alert on patient birthday')
