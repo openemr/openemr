@@ -16,7 +16,7 @@
  * @package OpenEMR
  * @author Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2018 Ranganath Pathak
- * @version 1.1
+ * @version 1.2
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License
  * @link http://www.open-emr.org
 */
@@ -781,7 +781,7 @@ select[multiple] {
     opacity: .65;
 }
 .css_button_icon {
-    padding: 3px 12px 5px 12px;
+    padding: 2px 12px;
 }
 a:visited .css_button_small, a.css_button_small, a:visited .css_button, a.css_button {
     color: #FFFFFF;
@@ -2009,3 +2009,18 @@ th.currentvalues, th.historicalvalues {
     border-color: #DB9979 !Important;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 help files *~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 recall and flowboard *~~~~~~~~~~~~~~~~~~~~~~~~~*/
+.divTable , .borderShadow{
+    background: #F3DDD2 !Important;
+    border: 0.5px solid #E7BBA5 !Important;
+    box-shadow: 0px 0px 0px #E7BBA5 !Important;
+    border-radius: 0px !Important;
+}
+.divTableCell, .divTableHead {
+    border: 1px solid #CF764C !Important;
+    border-radius: 0px !Important;
+}
+.divTableHeading {
+    background-color: #E7BBA5 !Important;
+}
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 recall and flowboard *~~~~~~~~~~~~~~~~~~~~~~~~~*/

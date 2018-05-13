@@ -154,7 +154,7 @@ function GetAllReminderCount($userID = false)
 // @ getRemindersHTML(array $reminders)
 // @ returns HTML as a string, for printing
 // ------------------------------------------------
-function getRemindersHTML($reminders = array(), $today)
+function getRemindersHTML($today, $reminders = array())
 {
     global $hasAlerts;
 // --- initialize the string as blank
@@ -168,32 +168,36 @@ function getRemindersHTML($reminders = array(), $today)
 
 // --------- check if reminder is  overdue
         if (strtotime($r['dueDate']) < $today) {
-            $warning = '! '.xlt('OVERDUE');
-            $class = 'bold alert dr';
-        } // --------- check if reminder is due
-        elseif (strtotime($r['dueDate']) == $today) {
-            $warning = xlt('TODAY');
-            $class='bold alert dr';
+            $warning = '<i class=\'fa fa-exclamation-triangle fa-lg\' style=\'color:red\' aria-hidden=\'true\'></i> '.xlt('OVERDUE');
+            //$class = 'bold alert dr';
+            $class = '';
+        } elseif (strtotime($r['dueDate']) == $today) {
+            // --------- check if reminder is due
+            $warning = '<i class=\'fa fa-exclamation-circle fa-lg\' style=\'color:orange\' aria-hidden=\'true\'></i> '.xlt('TODAY');
+            $class = '';
+        } elseif (strtotime($r['dueDate']) > $today) {
+            $warning = '<i class=\'fa fa-exclamation-circle fa-lg\' style=\'color:green\' aria-hidden=\'true\'></i> '.xlt('UPCOMING');
+            $class = '';
         }
 
          // end check if reminder is due or overdue
          // apend to html string
          $pdHTML .= '<p id="p_'.attr($r['messageID']).'">
-                          <a class="dnRemover css_button_small" onclick="updateme('."'".attr($r['messageID'])."'".')" id="'.attr($r['messageID']).'" href="#">
+                          <a onclick="openAddScreen('.attr($r['messageID']).')" class="dnForwarder btn btn-default btn-send-msg" id="'.attr($r['messageID']).'" href="#"> '.xlt('Forward').' </a>
+                          <a class="dnRemover btn btn-default btn-save" onclick="updateme('."'".attr($r['messageID'])."'".')" id="'.attr($r['messageID']).'" href="#">
                             <span>'.xlt('Set As Completed').'</span>
-                          </a> 
+                          </a>
                           <span title="'.($r['PatientID'] > 0 ? xla('Click Patient Name to Open Patient File') : '').'" class="'.attr($class).'">'.
                          $warning.'         
                             <span onclick="goPid('.attr($r['PatientID']).')" class="patLink" id="'.attr($r['PatientID']).'">'.
                            text($r['PatientName']).'
                             </span> '.
                          text($r['message']).' - ['.text($r['fromName']).']
-                          </span> -----> 
-                          <a onclick="openAddScreen('.attr($r['messageID']).')" class="dnForwarder" id="'.attr($r['messageID']).'" href="#">[ '.xlt('Forward').' ]</a>
+                          </span> 
                         </p>';
     }
 
-    return ($pdHTML == '' ? '<p class="alert-custom"><br />'.xlt('No Reminders').'</p>' : $pdHTML);
+    return ($pdHTML == '' ? '<i class=\'fa fa-exclamation-circle fa-lg\' style=\'color:green\' aria-hidden=\'true\'></i> '.xlt('No Reminders') : $pdHTML);
 }
 // ------------------------------------------------
 // @ END OF getRemindersHTML function
