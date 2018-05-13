@@ -51,7 +51,7 @@ class BirthdayReminder
         $dobStr =strtotime($res['DOB']);
         if ((($GLOBALS['patient_birthday_alert'] == 3) && ($today >= date('Y-m-d', $dobStr)) && ($today <= date('Y-m-d', strtotime('+28 days', $res['DOB']))))||
             (($GLOBALS['patient_birthday_alert'] == 2) && ($today >= date('Y-m-d', $dobStr))) ||
-            (($GLOBALS['patient_birthday_alert'] == 1) && (date('m-d') == date('m-d', $dobStr)))){
+            (($GLOBALS['patient_birthday_alert'] == 1) && (date('m-d') == date('m-d', $dobStr)))) {
             if ($this->isbirthdayAlertOff()) {
                 return false;
             }
