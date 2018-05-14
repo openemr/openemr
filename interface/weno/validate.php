@@ -21,6 +21,8 @@ $validation = new TransmitData();
 $patient = $validation->validatePatient($pid);
 $pharmacy = $validation->patientPharmacyInfo($pid);
 
+
+
 if (empty($GLOBALS['weno_account_id'])) {
     print xlt("Weno Account ID information missing")."<br>";
     exit;
