@@ -61,8 +61,10 @@ if (empty($pharmacy['name'])) {
 }
 if (empty($pharmacy['ncpdp'])) {
 	print xlt("Pharmacy missing NCPDP ID"). "<br>";
+	exit;
 }
 if (empty($pharmacy['npi'])) {
 	print xlt("Pharmacy missing NPI"). "<br>";
+	exit;
 }
 header('Location: confirm.php');
