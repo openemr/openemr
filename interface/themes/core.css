@@ -115,6 +115,9 @@ button[href*="deleter"]:before {
 .btn-filter::before {
     content: '\f0b0\00a0\00a0';
 }
+.btn-send-msg::before {
+    content: '\f1d8\00a0\00a0';
+}
 
 div.closeDlgIframe {
     background: #ff5d5a;
