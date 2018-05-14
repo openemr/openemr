@@ -53,7 +53,7 @@ foreach ($fill as $data) {
 
     //send only 5 digit zip
     $zip = substr($proData[0]['postal_code'],0,5);
-    
+
     // Build the array
     $completeArray = array(
         array(
