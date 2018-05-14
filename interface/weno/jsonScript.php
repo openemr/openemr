@@ -51,6 +51,9 @@ foreach ($fill as $data) {
     // Collect drug data
     $drugData = $prInfo->oneDrug($data);
 
+    //send only 5 digit zip
+      $zip = substr($proData[0]['postal_code'],0,5);
+
     // Build the array
     $completeArray = array(
         array(
@@ -76,7 +79,7 @@ foreach ($fill as $data) {
                 "facilitystreet"  => $proData[0]['street'],
                 "facilitycity"    => $proData[0]['city'],
                 "facilitystate"   => $proData[0]['state'],
-                "facilityzip"     => $proData[0]['postal_code'],
+                "facilityzip"     => $zip,
                 "qualifier"       => $GLOBALS['weno_provider_id'] . ':' . $proData[0]['weno_prov_id'],
                 "wenoAccountId"   => $GLOBALS['weno_account_id'],
                 "wenoAccountPass" => $GLOBALS['weno_account_pass'],
