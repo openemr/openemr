@@ -386,7 +386,6 @@ if (!empty($_REQUEST['go'])) { ?>
                             }
                             break;
                     }
-                    //temp_deleteINSERT_RP
                     if ($task == "addnew" or $task == "edit") {
                         // Display the Messages page layout.
                         echo "<form name='form_patient' id='new_note'
@@ -404,9 +403,6 @@ if (!empty($_REQUEST['go'])) { ?>
                         }
                     
                     ?> 
-                        <!--<div id="pnotes" class="form-inline text-center">
-                        <div id="pnotes" class="">-->
-                            <!--RP Working-->
                         <div class='col-md-12'>
                             <fieldset>
                             <legend><?php echo attr($message_legend); ?></legend>
@@ -502,7 +498,6 @@ if (!empty($_REQUEST['go'])) { ?>
                                             }
                                             ?>
                                         </select>
-                                    
                                     </div>
                                     <div class="col-xs-1">
                                         <label class="control-label" for="users">&nbsp;</label>
@@ -594,7 +589,6 @@ if (!empty($_REQUEST['go'])) { ?>
                                 </div>
                             </fieldset>
                         </div>
-                        <!--End RP Working-->
                         </form>
                     <?php
                     } else {
@@ -782,7 +776,6 @@ if (!empty($_REQUEST['go'])) { ?>
                     <?php
                     }
                     ?>
-                    <!--End INSERT_RP-->
                 </div>
             </fieldset>
         </div><!--end of messages div-->
