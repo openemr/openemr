@@ -623,6 +623,7 @@ if (empty($collectthis)) {
             } elseif (!$row['pc_multiple']) {
                 if ($GLOBALS['select_multi_providers']) {
                     $prov = $_POST['form_provider'][0];
+                    $_POST['form_provider'] = $prov;
                 } else {
                     $prov =  $_POST['form_provider'];
                 }
