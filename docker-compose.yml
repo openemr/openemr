@@ -14,7 +14,7 @@
 #      or
 #      https://localhost:8091 to run setup in openemr with SSL (alpine edge with PHP 7.2)
 #  On the main setup input screen:
-#   1. for Server Host, use either 'mariadb' or 'mysql' or 'mysql-dev' (have both mariadb/mysql/mysql-dev dockers ready to go make testing either one easy; mysql is version 5.7; mysql-dev is version 8)
+#   1. for Server Host, use either 'mariadb' or 'mysql' or `mariadb-dev` or 'mysql-dev' (have both mariadb/mysql/mariadb-dev/mysql-dev dockers ready to go make testing either one easy; mysql is version 5.7; mysql-dev is version 8; mariadb is version 10.2 and mariadb-dev is version 10.3)
 #   2. for Root Pass, use 'root'
 #   3. for User Hostname, use '%'
 #  And when need to tear it down and restart it
@@ -23,7 +23,8 @@
 #  Can see databases via:
 #   -mariadb     via http://localhost:8100
 #   -mysql       via http://localhost:8101
-#   -mysql-dev   via http://localhost:8102
+#   -mariadb-dev via http://localhost:8102
+#   -mysql-dev   via http://localhost:8103
 #
 version: '3.1'
 services:
@@ -59,6 +60,12 @@ services:
     command: ['mysqld','--character-set-server=utf8']
     environment:
       MYSQL_ROOT_PASSWORD: root
+  mariadb-dev:
+    restart: always
+    image: mariadb:10.3
+    command: ['mysqld','--character-set-server=utf8']
+    environment:
+      MYSQL_ROOT_PASSWORD: root
   mysql-dev:
     restart: always
     image: mysql:8
@@ -79,11 +86,18 @@ services:
     - 8101:80
     environment:
       PMA_HOST: mysql
-  phpmyadmin-mysql-dev:
+  phpmyadmin-mariadb-dev:
     restart: always
     image: phpmyadmin/phpmyadmin
     ports:
     - 8102:80
+    environment:
+      PMA_HOST: mariadb-dev
+  phpmyadmin-mysql-dev:
+    restart: always
+    image: phpmyadmin/phpmyadmin
+    ports:
+    - 8103:80
     environment:
       PMA_HOST: mysql-dev
   couchdb:
