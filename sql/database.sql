@@ -242,35 +242,37 @@ CREATE TABLE `categories` (
 -- Inserting data for table `categories`
 --
 
-INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 57, 'patients|docs');
-INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 2, 'patients|docs');
-INSERT INTO `categories` VALUES (3, 'Medical Record', '', 1, 3, 4, 'patients|docs');
-INSERT INTO `categories` VALUES (4, 'Patient Information', '', 1, 5, 10, 'patients|docs');
-INSERT INTO `categories` VALUES (5, 'Patient ID card', '', 4, 6, 7, 'patients|docs');
-INSERT INTO `categories` VALUES (6, 'Advance Directive', '', 1, 11, 18, 'patients|docs');
-INSERT INTO `categories` VALUES (7, 'Do Not Resuscitate Order', '', 6, 12, 13, 'patients|docs');
-INSERT INTO `categories` VALUES (8, 'Durable Power of Attorney', '', 6, 14, 15, 'patients|docs');
-INSERT INTO `categories` VALUES (9, 'Living Will', '', 6, 16, 17, 'patients|docs');
-INSERT INTO `categories` VALUES (10, 'Patient Photograph', '', 4, 8, 9, 'patients|docs');
-INSERT INTO `categories` VALUES (11, 'CCR', '', 1, 19, 20, 'patients|docs');
-INSERT INTO `categories` VALUES (12, 'CCD', '', 1, 21, 22, 'patients|docs');
-INSERT INTO `categories` VALUES (13, 'CCDA', '', 1, 23, 24, 'patients|docs');
-INSERT INTO `categories` VALUES (14, 'Eye Module', '', 1, 25, 50, 'patients|docs');
-INSERT INTO `categories` VALUES (15, 'Communication - Eye', '', 14, 26, 27, 'patients|docs');
-INSERT INTO `categories` VALUES (16, 'Encounters - Eye', '', 14, 28, 29, 'patients|docs');
-INSERT INTO `categories` VALUES (17, 'Imaging - Eye', '', 14, 30, 49, 'patients|docs');
-INSERT INTO `categories` VALUES (18, 'OCT - Eye', 'POSTSEG', 17, 31, 32, 'patients|docs');
-INSERT INTO `categories` VALUES (19, 'FA/ICG - Eye', 'POSTSEG', 17, 33, 34, 'patients|docs');
-INSERT INTO `categories` VALUES (20, 'External Photos - Eye', 'EXT', 17, 35, 36, 'patients|docs');
-INSERT INTO `categories` VALUES (21, 'AntSeg Photos - Eye', 'ANTSEG', 17, 37, 38, 'patients|docs');
-INSERT INTO `categories` VALUES (22, 'Optic Disc - Eye', 'POSTSEG', 17, 39, 40, 'patients|docs');
-INSERT INTO `categories` VALUES (23, 'Fundus - Eye', 'POSTSEG', 17, 41, 42, 'patients|docs');
-INSERT INTO `categories` VALUES (24, 'Radiology - Eye', 'NEURO', 17, 43, 44, 'patients|docs');
-INSERT INTO `categories` VALUES (25, 'VF - Eye', 'NEURO', 17, 45, 46, 'patients|docs');
-INSERT INTO `categories` VALUES (26, 'Drawings - Eye', '', 17, 47, 48, 'patients|docs');
-INSERT INTO `categories` VALUES (27, 'Onsite Portal', '', 1, 51, 56, 'patients|docs');
-INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 52, 53, 'patients|docs');
-INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 54, 55, 'patients|docs');
+INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 59, 'patients|docs');
+INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 4, 'patients|docs');
+INSERT INTO `categories` VALUES (3, 'Imaging', '', 2, 2, 3, 'patients|docs');
+INSERT INTO `categories` VALUES (4, 'Medical Record', '', 1, 5, 6, 'patients|docs');
+INSERT INTO `categories` VALUES (5, 'Patient Information', '', 1, 7, 12, 'patients|docs');
+INSERT INTO `categories` VALUES (6, 'Patient ID card', '', 4, 8, 9, 'patients|docs');
+INSERT INTO `categories` VALUES (7, 'Advance Directive', '', 1, 13, 20, 'patients|docs');
+INSERT INTO `categories` VALUES (8, 'Do Not Resuscitate Order', '', 6, 14, 15, 'patients|docs');
+INSERT INTO `categories` VALUES (9, 'Durable Power of Attorney', '', 6, 16, 17, 'patients|docs');
+INSERT INTO `categories` VALUES (10, 'Living Will', '', 6, 18, 19, 'patients|docs');
+INSERT INTO `categories` VALUES (11, 'Patient Photograph', '', 4, 10, 11, 'patients|docs');
+INSERT INTO `categories` VALUES (12, 'CCR', '', 1, 21, 22, 'patients|docs');
+INSERT INTO `categories` VALUES (13, 'CCD', '', 1, 23, 24, 'patients|docs');
+INSERT INTO `categories` VALUES (14, 'CCDA', '', 1, 25, 26, 'patients|docs');
+INSERT INTO `categories` VALUES (15, 'Eye Module', '', 1, 27, 52, 'patients|docs');
+INSERT INTO `categories` VALUES (16, 'Communication - Eye', '', 14, 28, 29, 'patients|docs');
+INSERT INTO `categories` VALUES (17, 'Encounters - Eye', '', 14, 30, 31, 'patients|docs');
+INSERT INTO `categories` VALUES (18, 'Imaging - Eye', '', 14, 32, 51, 'patients|docs');
+INSERT INTO `categories` VALUES (19, 'OCT - Eye', 'POSTSEG', 17, 33, 34, 'patients|docs');
+INSERT INTO `categories` VALUES (20, 'FA/ICG - Eye', 'POSTSEG', 17, 35, 36, 'patients|docs');
+INSERT INTO `categories` VALUES (21, 'External Photos - Eye', 'EXT', 17, 37, 38, 'patients|docs');
+INSERT INTO `categories` VALUES (22, 'AntSeg Photos - Eye', 'ANTSEG', 17, 39, 40, 'patients|docs');
+INSERT INTO `categories` VALUES (23, 'Optic Disc - Eye', 'POSTSEG', 17, 41, 42, 'patients|docs');
+INSERT INTO `categories` VALUES (24, 'Fundus - Eye', 'POSTSEG', 17, 43, 44, 'patients|docs');
+INSERT INTO `categories` VALUES (25, 'Radiology - Eye', 'NEURO', 17, 45, 46, 'patients|docs');
+INSERT INTO `categories` VALUES (26, 'VF - Eye', 'NEURO', 17, 47, 48, 'patients|docs');
+INSERT INTO `categories` VALUES (27, 'Drawings - Eye', '', 17, 49, 50, 'patients|docs');
+INSERT INTO `categories` VALUES (28, 'Onsite Portal', '', 1, 53, 58, 'patients|docs');
+INSERT INTO `categories` VALUES (29, 'Patient', '', 27, 54, 55, 'patients|docs');
+INSERT INTO `categories` VALUES (30, 'Reviewed', '', 27, 56, 57, 'patients|docs');
+
 
 -----------------------------------------------------------
 
