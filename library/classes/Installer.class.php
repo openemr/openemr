@@ -193,9 +193,14 @@ class Installer
         return $this->execute_sql($sql);
     }
 
+    public function create_database_user()
+    {
+        return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'");
+    }
+
     public function grant_privileges()
     {
-        return $this->execute_sql("GRANT ALL PRIVILEGES ON " . $this->escapeDatabaseName($this->dbname) . ".* TO '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'");
+        return $this->execute_sql("GRANT ALL PRIVILEGES ON " . $this->escapeDatabaseName($this->dbname) . ".* TO '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "'");
     }
 
     public function disconnect()
@@ -310,7 +315,7 @@ class Installer
 
     public function add_initial_user()
     {
-        if ($this->execute_sql("INSERT INTO groups (id, name, user) VALUES (1,'" . $this->escapeSql($this->igroup) . "','" . $this->escapeSql($this->iuser) . "')") == false) {
+        if ($this->execute_sql("INSERT INTO `groups` (id, name, user) VALUES (1,'" . $this->escapeSql($this->igroup) . "','" . $this->escapeSql($this->iuser) . "')") == false) {
             $this->error_message = "ERROR. Unable to add initial user group\n" .
             "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
             return false;
@@ -515,6 +520,11 @@ if ($it_died != 0) {
 
                 // Create the mysql database
                 if (! $this->create_database()) {
+                    return false;
+                }
+
+                // Create the mysql user
+                if (! $this->create_database_user()) {
                     return false;
                 }
 
