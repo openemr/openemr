@@ -20,11 +20,7 @@
 #  And when need to tear it down and restart it
 #   1. docker-compose down -v
 #   2. docker-compose up -d
-#  Can see databases via:
-#   -mariadb     via http://localhost:8100
-#   -mysql       via http://localhost:8101
-#   -mariadb-dev via http://localhost:8102
-#   -mysql-dev   via http://localhost:8103
+#  Can see databases via http://localhost:8100
 #
 version: '3.1'
 services:
@@ -72,34 +68,13 @@ services:
     command: ['mysqld','--character-set-server=utf8']
     environment:
       MYSQL_ROOT_PASSWORD: root
-  phpmyadmin-mariadb:
+  phpmyadmin:
     restart: always
     image: phpmyadmin/phpmyadmin
     ports:
     - 8100:80
     environment:
-      PMA_HOST: mariadb
-  phpmyadmin-mysql:
-    restart: always
-    image: phpmyadmin/phpmyadmin
-    ports:
-    - 8101:80
-    environment:
-      PMA_HOST: mysql
-  phpmyadmin-mariadb-dev:
-    restart: always
-    image: phpmyadmin/phpmyadmin
-    ports:
-    - 8102:80
-    environment:
-      PMA_HOST: mariadb-dev
-  phpmyadmin-mysql-dev:
-    restart: always
-    image: phpmyadmin/phpmyadmin
-    ports:
-    - 8103:80
-    environment:
-      PMA_HOST: mysql-dev
+      PMA_HOSTS: mariadb,mysql,mariadb-dev,mysql-dev
   couchdb:
     restart: always
     image: couchdb
