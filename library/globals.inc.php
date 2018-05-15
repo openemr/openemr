@@ -1356,30 +1356,35 @@ $GLOBALS_METADATA = array(
             'localhost',
             xl('CouchDB host'),
         ),
+
         'couchdb_user' => array(
             xl('CouchDB UserName'),
             'text',
             '',
             xl('Username to connect to CouchDB'),
         ),
+
         'couchdb_pass' => array(
             xl('CouchDB Password'),
             'text',
             '',
             xl('Password to connect to CouchDB'),
         ),
+
         'couchdb_port' => array(
             xl('CouchDB Port'),
             'text',
             '5984',
             xl('CouchDB port'),
         ),
+
         'couchdb_dbase' => array(
             xl('CouchDB Database'),
             'text',
             '',
             xl('CouchDB database name'),
         ),
+
         'couchdb_log' => array(
             xl('CouchDB Log Enable'),
             'bool',
@@ -1421,18 +1426,58 @@ $GLOBALS_METADATA = array(
             'Lab Report',                     // default
             xl('Document category name for storage of electronically received MDM documents.')
         ),
+
         'generate_doc_thumb' => array(
             xl('Generate thumbnail'),
             'bool',
             '0',
             xl('Generate thumbnail images'),
         ),
+
         'thumb_doc_max_size' => array(
             xl('Thumbnail size'),
             'text',          // data type
             '100',           // default
             xl('Maximum size of thumbnail file')
         ),
+
+        'dicom_server_method' => array(
+            xl('DICOM Server'),
+            array(
+                '0' => xl('Orthanc'),
+            ),
+            '0',                              // default
+            xl('Option to retrieve DICOM images.')
+        ),
+
+        'dicom_host' => array(
+            xl('Orthanc HostName'),
+            'text',
+            'localhost',
+            xl('Orthanc host'),
+        ),
+
+        'orthanc_user' => array(
+            xl('Orthanc UserName'),
+            'text',
+            '',
+            xl('Username to connect to Orthanc'),
+        ),
+
+        'orthanc_pass' => array(
+            xl('Orthanc Password'),
+            'text',
+            '',
+            xl('Password to connect to Orthanc'),
+        ),
+
+        'orthanc_port' => array(
+            xl('Orthanc Port'),
+            'text',
+            '8042',
+            xl('Orthanc port'),
+        ),
+
     ),
 
     // Calendar Tab
