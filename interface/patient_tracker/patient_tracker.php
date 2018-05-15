@@ -334,7 +334,7 @@ if (!$_REQUEST['flb_table']) {
                             <?php
                             // Build a drop-down list of ACTIVE providers.
                             $query = "SELECT id, lname, fname FROM users WHERE " .
-                                "authorized = 1  AND active = 1 AND username > '' ORDER BY lname, fname"; #(CHEMED) facility filter
+                                "authorized = 1  AND active = 1 ORDER BY lname, fname"; #(CHEMED) facility filter
                             $ures = sqlStatement($query);
                             while ($urow = sqlFetchArray($ures)) {
                                 $provid = $urow['id'];
