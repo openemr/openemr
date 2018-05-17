@@ -97,7 +97,7 @@ function validate_user_password($username, &$password, $provider)
     // Done with the cleartext password at this point!
     $password='';
     if ($valid) {
-        if ($authGroup = privQuery("select * from groups where user=? and name=?", array($username,$provider))) {
+        if ($authGroup = privQuery("select * from `groups` where user=? and name=?", array($username,$provider))) {
             $_SESSION['authUser'] = $username;
             $_SESSION['authPass'] = $phash;
             $_SESSION['authGroup'] = $authGroup['name'];
