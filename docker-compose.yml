@@ -81,3 +81,9 @@ services:
     environment:
       COUCHDB_USER: admin
       COUCHDB_PASSWORD: password
+  orthanc:
+    restart: always
+    image: jodogne/orthanc-plugins
+    ports:
+    - 4242:4242
+    - 8042:8042
