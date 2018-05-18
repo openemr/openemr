@@ -87,6 +87,8 @@ if (!empty($_POST['form_backup'])) {
 // When true the current form will submit itself after a brief pause.
 $auto_continue = false;
 
+ob_end_flush(); // Prevent out of memory for tar download. sjp 05/18/2018
+
 # set up main paths
 $backup_file_prefix = "emr_backup";
 $backup_file_suffix = ".tar";
