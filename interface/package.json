@@ -1,0 +1,24 @@
+{
+  "name": "openemr-interface",
+  "version": "0.1.0",
+  "description": "UI toolkit, theme and component library for OpenEMR",
+  "main": "index.js",
+  "scripts": {
+    "gulp": "gulp",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "storybook": "start-storybook -s ./ -p 9001 -c .storybook"
+  },
+  "keywords": [
+    "openemr"
+  ],
+  "author": "d3sandoval",
+  "license": "GNU General Public License",
+  "devDependencies": {
+    "@storybook/react": "^3.4.5",
+    "babel-core": "^6.26.3"
+  },
+  "dependencies": {
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2"
+  }
+}
