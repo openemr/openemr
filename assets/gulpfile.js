@@ -30,7 +30,7 @@ var config = {
 		styles: {
 			fabricator: 'src/assets/fabricator/styles/fabricator.scss',
 			style_uni: 'src/assets/toolkit/styles/themes/style_*.scss',
-            style_color: 'src/assets/toolkit/styles/themes/colors/**/*.scss',
+            style_color: 'src/assets/toolkit/styles/themes/colors/*.scss',
 			all: 'src/assets/toolkit/styles/themes/**/style_*.scss'
 		},
 		images: 'src/assets/toolkit/images/**/*',

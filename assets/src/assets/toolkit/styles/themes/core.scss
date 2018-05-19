@@ -8,9 +8,25 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE General Public License 3
  */
 
-/* @import "themeBuilder.php"; */
+@import url("themeBuilder.php"); // reads from user preferences and overrides fonts
 
 @import "core/FontAwesome";
 @import "core/forms";
 @import "core/closeDlgIframe";
 @import "core/cursor";
+@import "core/links";
+@import "core/navmenu";
+@import "core/text";
+@import "core/addressbook";
+
+@import "core/patient/demographics";
+@import "core/patient/history";
+@import "core/patient/notes";
+@import "core/patient/stats";
+@import "core/patient/stats_summary";
+@import "core/patient/past_encounters";
+@import "core/patient/reports";
+@import "core/patient/report_custom";
+
+@import "core/sddm";
+@import "core/therapy-groups";
