@@ -1753,7 +1753,7 @@ foreach ($photos as $photo_doc_id) {
                 }
             }
             // Show Recall if one exists
-            $query = sqlStatement("SELECT * FROM medex_recalls WHERE r_pid = ?",  array($pid));
+            $query = sqlStatement("SELECT * FROM medex_recalls WHERE r_pid = ?", array($pid));
             
             while ($result2 = sqlFetchArray($query)) {
                 //tabYourIt('recall', 'main/messages/messages.php?go=' + choice);
@@ -1762,7 +1762,7 @@ foreach ($photos as $photo_doc_id) {
                 $count2++;
             }
             //if there is no appt and no recall
-            if ( ($count < 1) && ($count2 < 1) ) {
+            if (($count < 1) && ($count2 < 1)) {
                 echo "<br /><br />&nbsp;&nbsp;<a onclick=\"top.left_nav.loadFrame('1', 'rcb', '../interface/main/messages/messages.php?go=addRecall');\">".xlt('No Recall')."</a>";
             }
             $count =0;

@@ -1290,9 +1290,9 @@ if ($refresh and $refresh != 'fullscreen') {
                                         )
                                         ORDER BY id DESC LIMIT 3";
                                 $result = sqlStatement($sql, array($pid, $id));
-                                while ($visit= sqlFetchArray($result)) {
-                                    echo display_PRIOR_section('REFRACTIONS', $visit['id'], $visit['id'], $pid);
-                                }
+                            while ($visit= sqlFetchArray($result)) {
+                                echo display_PRIOR_section('REFRACTIONS', $visit['id'], $visit['id'], $pid);
+                            }
                                 //display_PRIOR_section('REFRACTIONS', $id, $id, $pid, '1');
                             ?>
                         </div>
@@ -3888,7 +3888,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                             <span id="status_Fax_ref"><i class="fa fa-fax fa-fw"></i></span>
                                                             <?php
                                                         }
-                                                    } ?>
+} ?>
                                                   </span>
                                               </td>
                                           </tr>
@@ -3896,7 +3896,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                               <td class="top bold"><?php echo xlt('Address'); ?>:</td>
                                               <td class="top">
                                                   <span id="pcp_address">
-                                                      <?php
+                                                        <?php
                                                         if ($pcp_data['organization'] >'') {
                                                             echo text($pcp_data['organization'])."<br />";
                                                         }
@@ -3937,40 +3937,40 @@ if ($refresh and $refresh != 'fullscreen') {
                                               <td class="top">
                                                 <span id="ref_address">
                                                     <?php
-                                                        if ($ref_data['organization'] >'') {
-                                                            echo text($ref_data['organization'])."<br />";
-                                                        }
-                                                        if ($ref_data['street'] >'') {
-                                                            echo text($ref_data['street'])."<br />";
-                                                        }
-                                                        if ($ref_data['streetb'] >'') {
-                                                            echo text($ref_data['streetb'])."<br />";
-                                                        }
-                                                        if ($ref_data['city'] >'') {
-                                                            echo text($ref_data['city']).", ";
-                                                        }
-                                                        if ($ref_data['state'] >'') {
-                                                            echo text($ref_data['state'])." ";
-                                                        }
-                                                        if ($ref_data['zip'] >'') {
-                                                            echo text($ref_data['zip'])."<br />";
-                                                        }
+                                                    if ($ref_data['organization'] >'') {
+                                                        echo text($ref_data['organization'])."<br />";
+                                                    }
+                                                    if ($ref_data['street'] >'') {
+                                                        echo text($ref_data['street'])."<br />";
+                                                    }
+                                                    if ($ref_data['streetb'] >'') {
+                                                        echo text($ref_data['streetb'])."<br />";
+                                                    }
+                                                    if ($ref_data['city'] >'') {
+                                                        echo text($ref_data['city']).", ";
+                                                    }
+                                                    if ($ref_data['state'] >'') {
+                                                        echo text($ref_data['state'])." ";
+                                                    }
+                                                    if ($ref_data['zip'] >'') {
+                                                        echo text($ref_data['zip'])."<br />";
+                                                    }
                                                     
-                                                        if ($ref_data['street2'] >'') {
-                                                            echo "<br />".text($ref_data['street2'])."<br />";
-                                                        }
-                                                        if ($ref_data['streetb2'] >'') {
-                                                            echo text($ref_data['streetb2'])."<br />";
-                                                        }
-                                                        if ($ref_data['city2'] >'') {
-                                                            echo text($ref_data['city2']).", ";
-                                                        }
-                                                        if ($ref_data['state2'] >'') {
-                                                            echo text($ref_data['state2'])." ";
-                                                        }
-                                                        if ($ref_data['zip2'] >'') {
-                                                            echo text($ref_data['zip2'])."<br />";
-                                                        }
+                                                    if ($ref_data['street2'] >'') {
+                                                        echo "<br />".text($ref_data['street2'])."<br />";
+                                                    }
+                                                    if ($ref_data['streetb2'] >'') {
+                                                        echo text($ref_data['streetb2'])."<br />";
+                                                    }
+                                                    if ($ref_data['city2'] >'') {
+                                                        echo text($ref_data['city2']).", ";
+                                                    }
+                                                    if ($ref_data['state2'] >'') {
+                                                        echo text($ref_data['state2'])." ";
+                                                    }
+                                                    if ($ref_data['zip2'] >'') {
+                                                        echo text($ref_data['zip2'])."<br />";
+                                                    }
                                                     ?>
                                                 </span>
                                               </td>
