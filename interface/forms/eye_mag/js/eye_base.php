@@ -140,10 +140,10 @@ function submit_form(action) {
                    if (result == 'Code 400') {
                    code_400(); //Not the owner: read-only mode or take ownership
                    } else {
-                   // ACTIVE chart.
-                   // Coding engine returns any positive Clinical findings.
-                   //List these findings in the IMP_PLAN Builder
-                   if (action=='1') {}else{populate_form(result);}
+                       // ACTIVE chart.
+                       // Coding engine returns any positive Clinical findings.
+                       //List these findings in the IMP_PLAN Builder
+                       if (action !='1') {populate_form(result);}
                    }
                    });
 };
@@ -1925,9 +1925,32 @@ function update_DOCS() {
                    // to reflect these people...
                    // Currently we have to reload the page to get the new names we selected
                    // to show up in the Communications Engine
-                   });
+                    obj = JSON.parse(result);
+                    build_DOCS(obj);
+    });
 }
 
+/**
+ *  Function to update the PCP and Referring Doctors data.
+ *  Initial use:  update data returned from an ajax call.
+ */
+function build_DOCS(DOCS) {
+    console.log(DOCS);
+    if (DOCS['pcp']) {
+        $("#pcp_name").html(DOCS['pcp']['name']);
+        $("#pcp_address").html(DOCS['pcp']['address']);
+        $("#pcp_phone").html(DOCS['pcp']['phone']);
+        $("#pcp_phonew2").html(DOCS['pcp']['phone2']);
+        $("#pcp_fax").html(DOCS['pcp']['fax_info']);
+    }
+    if (DOCS['ref']) {
+        $("#ref_name").html(DOCS['ref']['name']);
+        $("#ref_address").html(DOCS['ref']['address']);
+        $("#ref_phone").html(DOCS['ref']['phone']);
+        $("#ref_phonew2").html(DOCS['ref']['phonew2']);
+        $("#ref_fax").html(DOCS['ref']['fax_info']);
+    }
+}
 /**
  *  Function to convert ophthalmic prescriptions between plus cylinder and minus cylinder
  *
@@ -2035,10 +2058,6 @@ function update_appt_status(new_status) {
                    code_400(); //the user does not have write privileges!
                    return;
                    }
-                   //TODO:  We should also update the Communication Engine for sending note
-                   // to reflect these people...
-                   // Currently we have to reload the page to get the new names we selected
-                   // to show up in the Communications Engine
                    });
 }
 function color_IOP(IOP){
@@ -2047,6 +2066,24 @@ function color_IOP(IOP){
         $(IOP).css("background-color","rgb(255, 153, 153)");
     }
 }
+function showpnotes(docid) {
+    if (top.tab_mode) {
+        let btnClose = 'Done';
+        let url = top.webroot_url + '/interface/patient_file/summary/pnotes.php?docid=' + docid;
+        dlgopen(url, 'pno1', 'modal-xl', 500, '', '', {
+            buttons: [
+                    {text: btnClose, close: true, style: 'default btn-xs'}
+                ],
+            sizeHeight: 'auto',
+            allowResize: true,
+            allowDrag: true,
+            dialogId: '',
+            type: 'iframe'
+        });
+        return false;
+    }
+}
+
 $(document).ready(function() {
                   check_lock();
 
@@ -3679,43 +3716,39 @@ var allPanels = $('.building_blocks > dd').hide();
                                                 $("#Draw_"+zone).addClass('nodisplay');
                                                 show_QP_section(zone);
                                                 $("#PREFS_"+zone+"_RIGHT").val('QP');
-                                                if ((zone != 'PMH')&&(zone != 'HPI')) {
-                                                }
-                                                if (zone == 'PMH') {
-                                                if($('#HPI_right').css('display') == 'none') {
-                                                $("#PMH_1").css('display','block');
-                                                $("#PRIORS_HPI_left_text").addClass('nodisplay');
-                                                $("#Draw_HPI").addClass('nodisplay');
-                                                show_QP_section('HPI');
-                                                $("#PREFS_HPI_RIGHT").val('QP');
-                                                //$("html,body").animate({scrollTop: '400'}, "slow");
-                                                } else {
-$("#PMH_1").css('display','unset');
-}
-if ($('#PMH_right').height() > $('#PMH_left').height()) {
-                                                $('#PMH_left').height($('#PMH_right').height());
-                                                $('#PMH_1').height($('#PMH_right').height()+20);
-                                                } else { $('#PMH_1').height($('#HPI_1').height());
+
+                                                if ((zone == 'PMH')||(zone == 'HPI')) {
+                                                    if ($('#HPI_right').css('display') == 'none') {
+                                                        $("#Draw_HPI").addClass('nodisplay');
+                                                        show_QP_section('HPI');
+                                                        $("#PREFS_HPI_RIGHT").val('QP');
                                                     }
                                                 }
-                                                else if (zone == 'HPI') {
-                                                if($('#PMH_right').css('display') == 'none') {
-                                                $("#PRIORS_PMH_left_text").addClass('nodisplay');
-                                                $("#Draw_PMH").addClass('nodisplay');
-                                                show_QP_section('PMH','1');
-                                                $("#PREFS_PMH_RIGHT").val('QP');
-                                                }
                                                 if ($('#PMH_right').height() > $('#PMH_left').height()) {
-                                                $('#PMH_left').height($('#PMH_right').height());
-                                                } else { $('#PMH_1').height($('#HPI_1').height()); }
-                                                } else if (zone == 'menu') {
-                                                show_QP();
-                                                } else if (zone == 'IMPPLAN') {
-                                                show_QP_section('IMPPLAN');
-                                                update_PREFS();
+                                                    $('#PMH_left').height($('#PMH_right').height());
+                                                    $('#PMH_1').height($('#PMH_right').height()+20);
+                                                } else {
+                                                    $('#PMH_1').height($('#HPI_1').height());
                                                 }
-
-
+                                                
+                                                if (zone == 'HPIx') {
+                                                    if ($('#PMH_right').css('display') == 'none') {
+                                                        $("#PRIORS_PMH_left_text").addClass('nodisplay');
+                                                        $("#Draw_PMH").addClass('nodisplay');
+                                                        show_QP_section('PMH','1');
+                                                        $("#PREFS_PMH_RIGHT").val('QP');
+                                                    }
+                                                    if ($('#PMH_right').height() > $('#PMH_left').height()) {
+                                                        $('#PMH_left').height($('#PMH_right').height());
+                                                    } else {
+                                                        $('#PMH_1').height($('#HPI_1').height());
+                                                    }
+                                                } else if (zone == 'menu') {
+                                                    show_QP();
+                                                } else if (zone == 'IMPPLAN') {
+                                                    show_QP_section('IMPPLAN');
+                                                    update_PREFS();
+                                                }
                                                 });
 
                   // set default to ccDist.  Change as desired.
@@ -3822,13 +3855,13 @@ if ($('#PMH_right').height() > $('#PMH_left').height()) {
 
 
                   $('.building_blocks > dt ').click(function() {
-                                                          allPanels.slideUp();
-                                                          $(this).next().slideDown();
+                                                            if ( $(this).next().css('display') !== 'block' ) {
+                                                                allPanels.slideUp();
+                                                                $(this).next().slideDown();
+                                                            } else {
+                                                                allPanels.slideUp();
+                                                            }
                                                           });
-                  $('.building_blocks2 > dt ').click(function() {
-                                                           allPanels2.slideUp();
-                                                           $(this).next().slideDown();
-                                                           });
                   $('#IMP_start_acc').slideDown();
                   $('[id^=inc_]').click(function() {
                                         build_DX_list(obj);
@@ -3847,7 +3880,7 @@ if ($('#PMH_right').height() > $('#PMH_left').height()) {
                                                               ) {
                                                               submit_form();
                                                             } else {
-                                                              //alert('Form was IMP');
+                                                                $("#IMP_start_acc").slideDown();
                                                            }
                                                          });
 
@@ -3964,14 +3997,20 @@ if ($('#PMH_right').height() > $('#PMH_left').height()) {
                                                     build_CODING_list();
                                                });
                   $(document).on("click", "span[name$='_justifiers']", function () {
-                    if ($(this).hasClass('status_on')) {
-                        $(this).css("background-color","navy");
-                        $(this).removeClass('status_on');
-                    } else {
-                      $(this).css("background-color","red");
-                      $(this).addClass('status_on');
-                      $('#visit_mod_25').addClass('status_on');
-                    }
+                        var item = parseInt( this.id.match(/_just_(.*)/)[1] ) + 1;
+                        if ($(this).hasClass('status_on')) {
+                            $(this).css("background-color","navy");
+                            $(this).removeClass('status_on');
+                        } else {
+                            if ( $('#visit_just_'+item).hasClass('status_on') ) {
+                                $('#visit_just_'+item).trigger('click');
+                            }
+                            $(this).css("background-color","red");
+                            $(this).addClass('status_on');
+                            if (!$('#visit_mod_25').hasClass("status_on")) {
+                                $('#visit_mod_25').trigger('click');
+                            }
+                        }
                     build_CODING_list();
                   });
                   

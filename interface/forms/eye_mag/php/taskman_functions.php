@@ -63,7 +63,7 @@ function make_task($ajax_req)
 
     if ($task['ID'] && $task['COMPLETED'] =='2') {
         $send['comments'] = xlt('This fax has already been sent.')." ".
-                            xlt('If you made changes and want to re-send it, delete the original (in Communications) and try again.')." ".
+                            xlt('If you made changes and want to re-send it, delete the original (in Communications) or wait 60 seconds, and try again.')." ".
                             xlt('Filename').": ".$filename;
         echo json_encode($send);
         exit;

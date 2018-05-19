@@ -114,12 +114,17 @@ if ($_REQUEST['AJAX_PREFS']) {
               VALUES
               ('PREFS','CTL','Contact Lens',?,'CTL','55',?,'5')";
     sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_CTL']));
-
+    
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS', 'VAX', 'Visual Acuities', ?, 'VAX','65', ?,'15')";
     sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_VAX']));
-
+    
+    $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
+              VALUES
+              ('PREFS', 'RXHX', 'Prior Refractions', ?, 'RXHX','65', ?,'115')";
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_RXHX']));
+    
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','ADDITIONAL','Additional Data Points',?,'ADDITIONAL','56',?,'6')";
@@ -450,10 +455,81 @@ if ($_REQUEST["mode"] == "new") {
         exit;
     }
 
-  //change PCP
+  //change PCP/referring doc
     if ($_REQUEST['action'] == 'docs') {
         $query = "update patient_data set providerID=?,ref_providerID=? where pid =?";
         sqlQuery($query, array($_REQUEST['pcp'],$_REQUEST['rDOC'],$pid));
+        
+        if ($_REQUEST['pcp']) {
+            //return PCP's data to end user to update their form
+            $query = "SELECT * FROM users WHERE id =?";
+            $DOC1 = sqlQuery($query, array($_REQUEST['pcp']));
+            $DOCS['pcp']['name'] = $DOC1['fname'] . " " . $DOC1['lname'];
+            if ($DOC1['suffix']) {
+                $DOCS['pcp']['name'] .= ", " . $DOC1['suffix'];
+            }
+            $DOCS['pcp']['address'] = $DOC1['organization'] . "<br />" . $DOC1['street'] . "<br />" . $DOC1['city'] . ", " . $DOC1['state'] . "  " . $DOC1['zip'] . "<br />";
+            $DOCS['pcp']['fax'] = $DOC1['fax'];
+            $DOCS['pcp']['phone'] = $DOC1['phonew1'];
+    
+            // does the fax already exist?
+            $query = "SELECT * FROM form_taskman WHERE TO_ID=? AND PATIENT_ID=? AND ENC_ID=?";
+            $FAX_PCP = sqlQuery($query, array($_REQUEST['pcp'], $pid, $encounter));
+            if ($FAX_PCP['ID']) { //it is here already, make them print and manually fax it.  Show icon
+                $DOCS['pcp']['fax_info'] = "&nbsp;&nbsp;
+                                            <span id='status_Fax_pcp'>
+                                                <a href='" . $webroot . "/controller.php?document&view&patient_id=" . $pid . "&doc_id=" . $FAX_PCP['DOC_ID'] . "'
+                                                    target='_blank' title='" . xla('View the Summary Report sent via Fax Server on') . " " . $FAX_PCP['COMPLETED_DATE'] . ".'>
+                                                    <i class='fa fa-file-pdf-o fa-fw'></i>
+                                                </a>
+                                                <i class='fa fa-repeat fa-fw' onclick=\"top . restoreSession(); create_task('" . attr($_REQUEST['pcp']) . "','Fax-resend','ref'); return false;\"></i>
+                                            </span>";
+            } else {
+                $DOCS['pcp']['fax_info'] = '
+                <a href="#" onclick="top.restoreSession(); create_task(\'' . attr($_REQUEST['pcp']) . '\',\'Fax\',\'pcp\'); return false;">
+                    ' . text($DOC1['fax']) . '&nbsp;&nbsp;
+                    <span id="status_Fax_pcp"><i class="fa fa-fax fa-fw"></i></span>
+                </a>';
+            }
+        }
+        
+        if ($_REQUEST['rDOC']) {
+            //return referring Doc's data to end user to update their form
+            $query = "SELECT * FROM users WHERE id =?";
+            $DOC2 = sqlQuery($query, array($_REQUEST['rDOC']));
+            $DOCS['ref']['name'] = $DOC2['fname'] . " " . $DOC2['lname'];
+            if ($DOC2['suffix']) {
+                $DOCS['ref']['name'] .= ", " . $DOC2['suffix'];
+            }
+            if ($DOCS['ref']['address'] > '') {
+                $DOCS['ref']['address'] = $DOC2['organization'] . "<br />";
+            }
+            $DOCS['ref']['address'] .= $DOC2['street'] . "<br />" . $DOC2['city'] . ", " . $DOC2['state'] . "  " . $DOC2['zip'] . "<br />";
+            $DOCS['ref']['fax'] = $DOC2['fax'];
+            $DOCS['ref']['phone'] = $DOC2['phonew1'];
+    
+            // does the fax already exist?
+            $query = "SELECT * FROM form_taskman WHERE TO_ID=? AND PATIENT_ID=? AND ENC_ID=?";
+            $FAX_REF = sqlQuery($query, array($_REQUEST['rDOC'], $pid, $encounter));
+            if ($FAX_REF['ID'] >'') { //it is here already, make them print and manually fax it.  Show icon
+                $DOCS['ref']['fax_info'] = text($DOC2['fax']) ."&nbsp;&nbsp;
+                                            <span id='status_Fax_ref'>
+                                                <a href='" . $webroot . "/controller.php?document&view&patient_id=" . $pid . "&doc_id=" . $FAX_REF['DOC_ID'] . "'
+                                                    target='_blank' title='" . xla('View the Summary Report sent via Fax Server on') . " " . $FAX_REF['COMPLETED_DATE'] . ".'>
+                                                    <i class='fa fa-file-pdf-o fa-fw'></i>
+                                                </a>
+                                                <i class='fa fa-repeat fa-fw' onclick=\"top . restoreSession(); create_task('" . attr($_REQUEST['rDOC']) . "','Fax-resend','ref'); return false;\"></i>
+                                            </span>";
+            } else {
+                $DOCS['ref']['fax_info'] = '
+                <a href="#" onclick="top.restoreSession(); create_task(\'' . attr($_REQUEST['rDOC']) . '\',\'Fax\',\'ref\'); return false;">
+                    ' . text($DOC2['fax']) . '&nbsp;&nbsp;
+                    <span id="status_Fax_ref"><i class="fa fa-fax fa-fw"></i></span>
+                </a>';
+            }
+        }
+        
+        echo json_encode($DOCS);
         exit;
     }
 
@@ -1052,8 +1128,29 @@ if ($_REQUEST["mode"] == "new") {
     }
 } elseif ($_REQUEST["mode"] == "retrieve") {
     if ($_REQUEST['PRIORS_query']) {
-        echo display_PRIOR_section($_REQUEST['zone'], $_REQUEST['orig_id'], $_REQUEST['id_to_show'], $pid);
-        exit;
+        if ($_REQUEST['zone'] == 'REFRACTIONS') {
+            //get the last 3 encounters with refraction data, not Wear data, and display all that encounters Rx/W data.
+            $sql = "SELECT id,date FROM form_eye_mag WHERE
+                    pid=? AND id < ? AND
+                    (MRODVA <> '' OR
+                      MROSVA <> '' OR
+                      ARODVA <> '' OR
+                      AROSVA <> '' OR
+                      CRODVA <> '' OR
+                      CROSVA <> '' OR
+                      CTLODVA <> '' OR
+                      CTLOSVA <> ''
+                    )
+                    ORDER BY id DESC LIMIT 3";
+            $result = sqlStatement($sql, array($pid, $_REQUEST['orig_id']));
+            while ($visit= sqlFetchArray($result)) {
+                echo display_PRIOR_section('REFRACTIONS', $visit['id'], $visit['id'], $pid);
+            }
+            exit;
+        } else {
+            echo display_PRIOR_section($_REQUEST['zone'], $_REQUEST['orig_id'], $_REQUEST['id_to_show'], $pid);
+            exit;
+        }
     }
 }
 
