@@ -21,7 +21,7 @@ var config = {
         styles: {
             style_uni: 'themes/style_*.scss',
             style_color: 'themes/colors/*.scss',
-            all: 'themes/**/style_*.scss'
+            all: 'themes/**/*style_*.scss'
         }
     },
     dest: {
@@ -81,12 +81,12 @@ gulp.task('styles:rtl', function () {
         .pipe(gulpif(config.dev, reload({stream:true})));
 });
 
-// gulp.task('styles:style_list', function () {
-//     gulp.src(config.src.styles.all)
-//         .pipe(require('gulp-filelist')('themeOptions.html', {flatten: true, removeExtensions: true, destRowTemplate: "<option value=\"@filePath@\">@filePath@</option>\n"}))
-//         .pipe(gulp.dest('src/views/layouts/includes'));
-// });
+gulp.task('styles:style_list', function () {
+    gulp.src(config.src.styles.all)
+        .pipe(require('gulp-filelist')('themeOptions.json', {flatten: true, removeExtensions: true}))
+        .pipe(gulp.dest('.storybook'));
+});
 
-gulp.task('styles', ['styles:style_uni', 'styles:style_color', 'styles:rtl']);
+gulp.task('styles', ['styles:style_uni', 'styles:style_color', 'styles:rtl', 'styles:style_list']);
 
 gulp.task('default', [ 'browser-sync']);

@@ -16,6 +16,7 @@
   "author": "d3sandoval",
   "license": "GNU GPL",
   "devDependencies": {
+    "@storybook/addon-knobs": "^3.4.5",
     "@storybook/react": "^3.4.5",
     "babel-core": "^6.26.3",
     "browser-sync": "^2.24.4",
@@ -23,6 +24,7 @@
     "gulp-append-prepend": "^1.0.4",
     "gulp-autoprefixer": "^5.0.0",
     "gulp-csso": "^3.0.1",
+    "gulp-filelist": "^1.0.0",
     "gulp-if": "^2.0.2",
     "gulp-rename": "^1.2.3",
     "gulp-sass": "^4.0.1",
