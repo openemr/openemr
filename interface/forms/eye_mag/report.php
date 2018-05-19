@@ -1462,7 +1462,7 @@ if ($ANTSEG_COMMENTS) { ?>
                     <?php
                 }
 
-                if ( isset($RMRD) || isset($LMRD) ) { ?>
+                if (isset($RMRD) || isset($LMRD)) { ?>
                   <tr>
                     <td class="report_text right"><?php echo text($RMRD); ?></td>
                     <td class="middle" title="<?php echo xla('Marginal Reflex Distance'); ?>"><?php echo xlt('MRD{{marginal reflex distance}}'); ?></td>
@@ -1471,7 +1471,7 @@ if ($ANTSEG_COMMENTS) { ?>
                     <?php
                 }
 
-                if ( isset($RVFISSURE) || isset($LVFISSURE) ) { ?>
+                if (isset($RVFISSURE) || isset($LVFISSURE)) { ?>
                   <tr>
                     <td class="report_text right"><?php echo text($RVFISSURE); ?></td>
                     <td class="middle" title="<?php echo xla('Vertical Fissure: central height between lid margins'); ?>"><?php echo xlt('Vert Fissure{{vertical fissure}}'); ?></td>
