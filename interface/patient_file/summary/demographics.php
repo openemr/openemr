@@ -1746,18 +1746,29 @@ foreach ($photos as $photo_doc_id) {
 
         if ($resNotNull) { //////
             if ($count < 1) {
-                echo "&nbsp;&nbsp;" . htmlspecialchars(xl('None'), ENT_NOQUOTES);
+                echo "&nbsp;&nbsp;" . htmlspecialchars(xl('No Appointments'), ENT_NOQUOTES);
             } else { //////
                 if ($extraApptDate) {
                     echo "<div style='color:#0000cc;'><b>" . attr($extraApptDate) . " ( + ) </b></div>";
-                } else {
-                    echo "<div><hr></div>";
                 }
             }
-
+            // Show Recall if one exists
+            $query = sqlStatement("SELECT * FROM medex_recalls WHERE r_pid = ?",  array($pid));
+            
+            while ($result2 = sqlFetchArray($query)) {
+                //tabYourIt('recall', 'main/messages/messages.php?go=' + choice);
+                //parent.left_nav.loadFrame('1', tabNAME, url);
+                echo "&nbsp;&nbsp<b>Recall: <a onclick=\"top.left_nav.loadFrame('1', 'rcb', '../interface/main/messages/messages.php?go=addRecall');\">" . text(oeFormatShortDate($result2['r_eventDate'])). " (". text($result2['r_reason']).") </a></b>";
+                $count2++;
+            }
+            //if there is no appt and no recall
+            if ( ($count < 1) && ($count2 < 1) ) {
+                echo "<br /><br />&nbsp;&nbsp;<a onclick=\"top.left_nav.loadFrame('1', 'rcb', '../interface/main/messages/messages.php?go=addRecall');\">".xlt('No Recall')."</a>";
+            }
+            $count =0;
             echo "</div>";
         }
-    } // End of Appointments.
+    } // End of Appointments Widget.
 
 
     /* Widget that shows recurrences for appointments. */
