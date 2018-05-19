@@ -16,12 +16,12 @@ var sourcemaps = require('gulp-sourcemaps');
 // configuration
 var config = {
     dev: argv['dev'],
-    proxy: argv['p'], // todo add proxy for openemr instance
+    proxy: argv['p'],
     src: {
         styles: {
             style_uni: 'themes/style_*.scss',
             style_color: 'themes/colors/*.scss',
-            all: 'themes/**/*style_*.scss'
+            all: 'themes/**/*style_*.css'
         }
     },
     dest: {
@@ -34,10 +34,20 @@ var config = {
 //     del([config.dest], cb);
 // });
 
-gulp.task('browser-sync', ['styles'], function() {
-    browserSync.init({
-        proxy: "localhost:" + config.proxy
-    });
+gulp.task('ingest', function() {
+    if (typeof config.dev !== "boolean") {
+        // allows for custom proxy to be passed into script
+        config.proxy = config.dev;
+        config.dev = true;
+    }
+});
+
+gulp.task('sync', ['styles'], function() {
+    if (config.proxy) {
+        browserSync.init({
+            proxy: "localhost:" + config.proxy
+        });
+    }
 
     gulp.watch('themes/**/*.scss', ['styles'])
 });
@@ -89,4 +99,4 @@ gulp.task('styles:style_list', function () {
 
 gulp.task('styles', ['styles:style_uni', 'styles:style_color', 'styles:rtl', 'styles:style_list']);
 
-gulp.task('default', [ 'browser-sync']);
+gulp.task('default', [ 'ingest', 'sync' ]);

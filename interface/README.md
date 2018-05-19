@@ -1,22 +1,31 @@
 # OpenEMR-interface
 
-The OpenEMR-interface uses the [Fabricator](http://fbrctr.github.io/) UI toolkit to document and standardize the creation of user interface elements. The project is using bootstrap as base. It contains different materials that can be assembled into more complex page layouts.
+The OpenEMR-interface uses [Storybook](https://storybook.js.org) to document and standardize the creation of user interface elements. The project is using bootstrap as base as is built with [SASS](https://sass-lang.com/) (compiled with [gulp](https://gulpjs.com/)).
+
+Different `themes` share a common `core` and have their own overrides to customize the appearance of OpenEMR. You can view how these themes differ using the "Knobs" tool at the bottom of the storybook interface.
 
 The live version of this guide can be found at [openemr-interface.surge.sh](http://openemr-interface.surge.sh).
 
 ## Getting Started
 
-OpenEMR-interface requires [node.js](http://nodejs.org). Make sure your have `v0.10` or higher installed before proceeding.
+OpenEMR-interface requires [node.js](http://nodejs.org) and [npm](https://www.npmjs.com/).
 
-**Start the local development environment:**
+**Setup local development environment:**
 
 ```
-$ npm start
+$ npm install
 ```
+
+From here you can either:
+* `npm run dev-docs` - runs Storybook (port 9001) and watch changes to local `.scss` files load automatically with [BrowserSync](http://www.browsersync.io/)
+* `npm run dev` - just compiles the local `.scss` files and recompiles when they're changed.
+* `npm run dev 8081` (EXPERIMENTAL) - loads your local OpenEMR instance using BrowserSync (port 3000) in front of 8081 (you can use any port in this command) 
+
+**If you're using docker** or other locally-hosted development environment, it is recommended that you automatically copy files to a mounted volume instead of mounting your working directory. See ["Option 2" in this doc](/contrib/util/docker/README.md) for more info.
 
 ### Development Environment Features
 
-- Live preview sever (using [BrowserSync](http://www.browsersync.io/))
+- Live preview sever
 - CSS Autoprefixing
 - Sass compilation (not yet using in our current themes)
 - Browserify bundling
@@ -24,45 +33,13 @@ $ npm start
 
 ## Build
 
-**Build for release:**
+**Build before you commit:**
 
 ```
 $ npm run build
 ```
 
-Fabricator builds both a static documentation site and optimized CSS and JS toolkit files.
-
-The build artifacts output to the `dist` directory. This can be deployed to any static hosting environment - no language runtime or database is required.
-
 ## TODOs
-- [ ] Add a lot of documentation on current component usage (including migrating the "buttons at the bottom of form" sections, below)
-- [ ] Migrate style dependencies in the php code to use the /dist directory
-- [ ] Migrate component css still left in the `/themes` directory into scss in `/src/assets`
-
-
-Buttons at bottom of form
------
-Sample code for buttons at the bottom of form:
-
-```php
-<div class="form-group clearfix">
-    <div class="col-sm-12 col-sm-offset-1 position-override">
-        <div class="btn-group oe-opt-btn-group-pinch" role="group">
-            <button type='submit' onclick='top.restoreSession()' class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>
-            <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>';"><?php echo xlt('Cancel');?></button>
-        </div>
-    </div>
-</div>
-```
-#### Classes
-When adding buttons to the bottom of forms, will be important to incorporate following classes.
-
-`position-override` gives a hook for style to change placement of buttons. In light/manila style this is ignored and buttons go to left positioned under data entry field. Whereas in the other styles this is used to center the buttons.
-
-`oe-opt-btn-group-pinch` gives a hook for style to pinch the buttons (i think make them more rounded). Not used in light/manila, but used in other styles.
-
-`oe-opt-btn-separate-left` gives a hook to place a space between the buttons. Not used in light/manila, but used in other styles.
-
-#### Miscellaneous
-
-(note there is also flexibility in how the Cancel links are shown. For example, in light, it's simple a link (not a button). And in Manila and other styles , some neat work was done to make it a button, but less accented than the Save buttons.)
+- [ ] Add a lot of documentation on current component usage (starting with theme-only components)
+- [ ] Migrate style dependencies in the php code to use the components from the `interface` directory
+- [ ] Migrate component css still left in the `/themes` directory into scss
