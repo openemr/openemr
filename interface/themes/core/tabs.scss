@@ -12,26 +12,10 @@ ul.tabNav li {
 	vertical-align: bottom;
 	text-align: left;
 }
-ul.tabNav li.current {
-	font-weight: bold;
-	font-size: 0.8em;
-	vertical-align: bottom;
-	text-align: left;
-	position: relative;
-	z-index: 3;
-	top: 0.0875em;
-	border-left:1pt solid black;
-}
+
 ul.tabNav a {
-	background: #F8E6CBE6;
-	color: #333;
 	display: block;
-	padding: 8px;
-	text-decoration: none;
-	border-radius: 8px 8px 0 0;
-	box-shadow: 2px -1px 1px #c0c0c0;
 }
-ul.tabNav li.current a { background:#FFFFFF; }
 
 
 div.tabContainer {

@@ -5,15 +5,16 @@
   "main": "index.js",
   "scripts": {
     "build": "npm install && gulp",
-    "dev": "gulp --dev",
+    "dev": "run-p storybook gulp",
+    "gulp": "gulp -p 9001 --dev",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "storybook": "start-storybook -s ./ -p 9001 -c .storybook"
+    "storybook": "start-storybook -s ./,../ -p 9001 -c .storybook"
   },
   "keywords": [
     "openemr"
   ],
   "author": "d3sandoval",
-  "license": "GNU General Public License",
+  "license": "GNU GPL",
   "devDependencies": {
     "@storybook/react": "^3.4.5",
     "babel-core": "^6.26.3",
@@ -26,7 +27,8 @@
     "gulp-rename": "^1.2.3",
     "gulp-sass": "^4.0.1",
     "gulp-sourcemaps": "^2.6.4",
-    "gulp-util": "^3.0.8"
+    "minimist": "^1.2.0",
+    "npm-run-all": "^4.1.3"
   },
   "dependencies": {
     "react": "^16.3.2",

@@ -5,7 +5,7 @@ var browserSync = require('browser-sync');
 var csso = require('gulp-csso');
 var gap = require('gulp-append-prepend');
 var gulp = require('gulp');
-var gutil = require('gulp-util');
+var argv = require('minimist')(process.argv.slice(2));
 var gulpif = require('gulp-if');
 var prefix = require('gulp-autoprefixer');
 var reload = browserSync.reload;
@@ -15,7 +15,8 @@ var sourcemaps = require('gulp-sourcemaps');
 
 // configuration
 var config = {
-    dev: gutil.env.dev,
+    dev: argv['dev'],
+    proxy: argv['p'], // todo add proxy for openemr instance
     src: {
         styles: {
             style_uni: 'themes/style_*.scss',
@@ -28,10 +29,18 @@ var config = {
     }
 };
 
-// clean
+// clean - will use once css files are no longer committed
 // gulp.task('clean', function (cb) {
 //     del([config.dest], cb);
 // });
+
+gulp.task('browser-sync', ['styles'], function() {
+    browserSync.init({
+        proxy: "localhost:" + config.proxy
+    });
+
+    gulp.watch('themes/**/*.scss', ['styles'])
+});
 
 // styles
 gulp.task('styles:style_uni', function () {
@@ -80,4 +89,4 @@ gulp.task('styles:rtl', function () {
 
 gulp.task('styles', ['styles:style_uni', 'styles:style_color', 'styles:rtl']);
 
-gulp.task('default', [ 'styles' ]);
+gulp.task('default', [ 'browser-sync']);

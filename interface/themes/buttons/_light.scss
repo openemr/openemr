@@ -1,12 +1,26 @@
 /*
  * CSS BUTTONS
  */
+.css_button_small {
+    background: #2672ec;
+    color: #ffffff !important;
+    display: block;
+    float: left;
+    font-weight: 400;
+    margin-right: 3px;
+    padding-right: 10px;
+    /* sliding doors padding */
+    text-decoration: none;
+    padding: 5px 12px 5px;
+    border: none;
+    font-size: 0.7em;
+}
 .css_button_small span {
-	display: block;
+    display: block;
 }
 .css_button_small:hover {
-	background: #1050b6;
-	text-decoration: none;
+    background: #1050b6;
+    text-decoration: none;
 }
 
 .css_button, input[type="button"],input[type="submit"], button {

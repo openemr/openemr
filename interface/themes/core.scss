@@ -18,6 +18,7 @@
 @import "core/navmenu";
 @import "core/text";
 @import "core/addressbook";
+@import "core/documents";
 
 @import "core/patient/demographics";
 @import "core/patient/history";
@@ -28,5 +29,8 @@
 @import "core/patient/reports";
 @import "core/patient/report_custom";
 
+@import "core/tabs";
 @import "core/sddm";
+@import "core/reports";
+@import "core/list-table";
 @import "core/therapy-groups";
