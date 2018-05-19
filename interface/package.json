@@ -9,7 +9,8 @@
     "dev-docs": "run-p storybook gulp-docs",
     "gulp-docs": "gulp -p 9001 --dev",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "storybook": "start-storybook -s ./,../ -p 9001 -c .storybook"
+    "storybook": "start-storybook -s ./,../ -p 9001 -c .storybook",
+    "storybook-build": "build-storybook -c .storybook -o .out"
   },
   "keywords": [
     "openemr"

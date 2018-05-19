@@ -33,13 +33,19 @@ From here you can either:
 
 ## Build
 
-**Build before you commit:**
+**Build before you make your final css commit:**
 
 ```
 $ npm run build
 ```
 
+To build the storybook:
+```
+$ npm run storybook-build
+```
+
 ## TODOs
+- [ ] Add built css (and other dependencies) to storybook .out directory
 - [ ] Add a lot of documentation on current component usage (starting with theme-only components)
 - [ ] Migrate style dependencies in the php code to use the components from the `interface` directory
 - [ ] Migrate component css still left in the `/themes` directory into scss
