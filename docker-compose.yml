@@ -14,15 +14,13 @@
 #      or
 #      https://localhost:8091 to run setup in openemr with SSL (alpine edge with PHP 7.2)
 #  On the main setup input screen:
-#   1. for Server Host, use either 'mysql' or 'mariadb' (have both mysql/mariadb dockers ready to go make testing either one easy)
+#   1. for Server Host, use either 'mariadb' or 'mysql' or `mariadb-dev` or 'mysql-dev' (have both mariadb/mysql/mariadb-dev/mysql-dev dockers ready to go make testing either one easy; mysql is version 5.7; mysql-dev is version 8; mariadb is version 10.2 and mariadb-dev is version 10.3)
 #   2. for Root Pass, use 'root'
 #   3. for User Hostname, use '%'
 #  And when need to tear it down and restart it
 #   1. docker-compose down -v
 #   2. docker-compose up -d
-#  Can see databases via:
-#   -mariadb via http://localhost:8100
-#   -mysql   via http://localhost:8101
+#  Can see databases via http://localhost:8100
 #
 version: '3.1'
 services:
@@ -58,23 +56,34 @@ services:
     command: ['mysqld','--character-set-server=utf8']
     environment:
       MYSQL_ROOT_PASSWORD: root
-  phpmyadmin-mariadb:
+  mariadb-dev:
+    restart: always
+    image: mariadb:10.3
+    command: ['mysqld','--character-set-server=utf8']
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  mysql-dev:
+    restart: always
+    image: mysql:8
+    command: ['mysqld','--character-set-server=utf8','--default-authentication-plugin=mysql_native_password']
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  phpmyadmin:
     restart: always
     image: phpmyadmin/phpmyadmin
     ports:
     - 8100:80
     environment:
-      PMA_HOST: mariadb
-  phpmyadmin-mysql:
-    restart: always
-    image: phpmyadmin/phpmyadmin
-    ports:
-    - 8101:80
-    environment:
-      PMA_HOST: mysql
+      PMA_HOSTS: mariadb,mysql,mariadb-dev,mysql-dev
   couchdb:
     restart: always
     image: couchdb
     environment:
       COUCHDB_USER: admin
       COUCHDB_PASSWORD: password
+  orthanc:
+    restart: always
+    image: jodogne/orthanc-plugins
+    ports:
+    - 4242:4242
+    - 8042:8042

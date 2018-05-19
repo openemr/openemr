@@ -47,8 +47,11 @@ class BirthdayReminder
         if (!empty($res['deceased_date']) && $res['deceased_date'] > 0) {
             return false;
         }
-        if (($GLOBALS['patient_birthday_alert'] == 2) && (date('Y-m-d') >= date('Y-m-d', strtotime($res['DOB']))) ||
-            ($GLOBALS['patient_birthday_alert'] == 1) && (date('m-d') == date('m-d', strtotime($res['DOB'])))) {
+        $today=date('Y-m-d');
+        $dobStr =strtotime($res['DOB']);
+        if ((($GLOBALS['patient_birthday_alert'] == 3) && ($today >= date('Y-m-d', $dobStr)) && ($today <= date('Y-m-d', strtotime('+28 days', $res['DOB']))))||
+            (($GLOBALS['patient_birthday_alert'] == 2) && ($today >= date('Y-m-d', $dobStr))) ||
+            (($GLOBALS['patient_birthday_alert'] == 1) && (date('m-d') == date('m-d', $dobStr)))) {
             if ($this->isbirthdayAlertOff()) {
                 return false;
             }
