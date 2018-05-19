@@ -310,10 +310,10 @@ if (!isset($phpgacl_location)) {
                 action = temparray[2];
                 return_value = temparray[3];
                 if (control == "membership") {
-                    contentPointer = "#" + identity.replace(" ","\\ ");
-                    linkPointer = "#link_" + identity.replace(" ","\\ ");
+                    contentPointer = "#" + identity.replace(/([ .])/g,"\\$1");
+                    linkPointer = "#link_" + identity.replace(/([ .])/g,"\\$1");
                     linkPointerPost ="";
-                    errorPointer = "#error_" + identity.replace(" ","\\ ");
+                    errorPointer = "#error_" + identity.replace(/([ .])/g,"\\$1");
                 }
                 if (control == "acl" || control == "aco") {
                     contentPointer = "#acl_" + identity + "_" + return_value;

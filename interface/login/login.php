@@ -179,7 +179,7 @@ if (count($emr_app)) {
 
                         <?php
                         // collect groups
-                        $res = sqlStatement("select distinct name from groups");
+                        $res = sqlStatement("select distinct name from `groups`");
                         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                               $result[$iter] = $row;
                         }

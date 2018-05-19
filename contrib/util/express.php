@@ -63,7 +63,7 @@ if ($_POST['submit']) {
     $login = $newname;
     $pass = $newname;
     $loginhost = "localhost";
- 
+
     //setup of database
 
     echo "Connecting to MySQL Server...\n";
@@ -179,8 +179,8 @@ if ($upgrade != 1) {
     $iuser = "admin";
     $iuname = "admin";
     $igroup = $newname;
-    //echo "INSERT INTO groups VALUES (1,'$igroup','$iuser')<br>\n";
-    if (mysql_query("INSERT INTO groups (id, name, user) VALUES (1,'$igroup','$iuser')") == false) {
+    //echo "INSERT INTO `groups` VALUES (1,'$igroup','$iuser')<br>\n";
+    if (mysql_query("INSERT INTO `groups` (id, name, user) VALUES (1,'$igroup','$iuser')") == false) {
         echo "ERROR.  Could not run queries.\n";
         echo "<p>".mysql_error()." (#".mysql_errno().")\n";
         flush();

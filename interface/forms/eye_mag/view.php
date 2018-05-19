@@ -26,10 +26,6 @@
  * @link http://www.open-emr.org
  */
 
-
-
-
-
 require_once("../../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
@@ -51,10 +47,6 @@ $finalize   = $_REQUEST['finalize'];
 $id         = $_REQUEST['id'];
 $display    = $_REQUEST['display'];
 $pid        = $_REQUEST['pid'];
-if ($pid =='') {
-    $pid = $_SESSION['pid'];
-}
-
 $refresh    = $_REQUEST['refresh'];
 if ($_REQUEST['url']) {
     redirector($_REQUEST['url']);
@@ -72,15 +64,15 @@ while ($prefs= sqlFetchArray($result)) {
 $query = "SELECT * FROM patient_data where pid=?";
 $pat_data =  sqlQuery($query, array($pid));
 
-$query="select form_encounter.date as encounter_date,form_encounter.*, form_eye_mag.* from form_eye_mag, forms,form_encounter
+$query10="select form_encounter.date as encounter_date,form_encounter.*, form_eye_mag.* from form_eye_mag, forms,form_encounter
                     where
-                    form_encounter.encounter =? and
                     form_encounter.encounter = forms.encounter and
                     form_eye_mag.id=forms.form_id and
                     forms.deleted != '1'  and
                     forms.formdir='eye_mag' and
-                    form_eye_mag.pid=? ";
-$encounter_data =sqlQuery($query, array($encounter,$pid));
+                    form_eye_mag.id =? ";
+
+$encounter_data =sqlQuery($query10, array($id));
 @extract($encounter_data);
 //Do we have to have it?
 //We can iterate through every value and perform openEMR escape-specfific functions?
@@ -89,7 +81,11 @@ $encounter_data =sqlQuery($query, array($encounter,$pid));
 //And the goal is to redefine each variable, so overwriting them is actually desirable.
 //Given others forms may be based off this and we have no idea what those fields will be named,
 //should we make a decision here to create an openEMR extract like function?
-//Would it would have to test for "protected variables" by name?
+//Would it have to test for "protected variables" by name?
+
+if ($pid != $_SESSION['pid']) {
+    $_SESSION['pid'] = $pid;
+}
 
 $providerID   = findProvider($pid, $encounter);
 $providerNAME = getProviderName($providerID);
@@ -230,7 +226,7 @@ if ($refresh and $refresh != 'fullscreen') {
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.css" />
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
-    <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
+    <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
 
     <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
@@ -373,6 +369,8 @@ if ($refresh and $refresh != 'fullscreen') {
               <input type="hidden" name="uniqueID" id="uniqueID" value="<?php echo attr($uniqueID); ?>">
               <input type="hidden" name="chart_status" id="chart_status" value="on">
               <input type="hidden" name="finalize"  id="finalize" value="0">
+
+              
 
               <!-- start first div -->
               <div id="first" name="first" class="text_clinical">
@@ -584,7 +582,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                     <td><textarea name="DURATION1" id="DURATION1" class="count_HPI" tabindex="37"><?php echo text($DURATION1); ?></textarea>
                                     </td>
                                     <td>
-                                      <i><?php echo xlt('How long does it last?'); ?></i>
+                                        <i><?php echo xlt('How long does it last?'); ?></i>
                                     </td>
                                   </tr>
                                 </table>
@@ -1268,7 +1266,7 @@ if ($refresh and $refresh != 'fullscreen') {
                     ($W ==1) ? ($display_W = "") : ($display_W = "nodisplay");
                     ($W_width =='1') ? ($display_W_width = "refraction_wide") : ($display_W_width = "");
                     ?>
-                  <div id="LayerVision_W" class="<?php echo $display_W; ?> <?php echo $display_W_width; ?> ">
+                  <div id="LayerVision_W" class="<?php echo $display_W; ?> ">
                     <input type="hidden" id="W_1" name="W_1" value="1">
                     <div id="LayerVision_W_1" name="currentRX" class="refraction current_W borderShadow <?php echo $display_W_width; ?>">
                       <i class="closeButton fa fa-close" id="Close_W_1" name="Close_W_1"
@@ -2196,44 +2194,33 @@ if ($refresh and $refresh != 'fullscreen') {
                                 ?>
                               <table id="dil_listbox">
                                 <tr>
-                                  <td>
-                                        <input type="checkbox" class="dil_drug" id="CycloMydril" name="CYCLOMYDRIL" value="Cyclomydril" <?php if ($CYCLOMYDRIL == 'Cyclomydril') {
+                                  <td><input type="checkbox" class="dil_drug" id="CycloMydril" name="CYCLOMYDRIL" value="Cyclomydril" <?php if ($CYCLOMYDRIL == 'Cyclomydril') {
                                             echo "checked='checked'";
-} ?> />
-                                        <label for="CycloMydril" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('CycloMydril'); ?></label>
+} ?> /><label for="CycloMydril" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('CycloMydril'); ?></label>
                                   </td>
-                                  <td>
-                                        <input type="checkbox" class="dil_drug" id="Tropicamide" name="TROPICAMIDE" value="Tropicamide 2.5%" <?php if ($TROPICAMIDE == 'Tropicamide 2.5%') {
+                                  <td><input type="checkbox" class="dil_drug" id="Tropicamide" name="TROPICAMIDE" value="Tropicamide 2.5%" <?php if ($TROPICAMIDE == 'Tropicamide 2.5%') {
                                             echo "checked='checked'";
-} ?> />
-                                        <label for="Tropicamide" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Tropic 2.5%'); ?></label>
+} ?> /><label for="Tropicamide" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Tropic 2.5%'); ?></label>
                                   </td>
                                 </tr>
                                 <tr>
-                                  <td>
-                                        <input type="checkbox" class="dil_drug" id="Neo25" name="NEO25" value="Neosynephrine 2.5%"  <?php if ($NEO25 =='Neosynephrine 2.5%') {
+                                  <td><input type="checkbox" class="dil_drug" id="Neo25" name="NEO25" value="Neosynephrine 2.5%"  <?php if ($NEO25 =='Neosynephrine 2.5%') {
                                             echo "checked='checked'";
-} ?> />
-                                        <label for="Neo25" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Neo 2.5%'); ?></label>
+} ?> /><label for="Neo25" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Neo 2.5%'); ?></label>
                                   </td>
-                                  <td>
-                                        <input type="checkbox" class="dil_drug" id="Neo10" name="NEO10" value="Neosynephrine 10%"  <?php if ($NEO10 =='Neosynephrine 10%') {
+                                  <td><input type="checkbox" class="dil_drug" id="Neo10" name="NEO10" value="Neosynephrine 10%"  <?php if ($NEO10 =='Neosynephrine 10%') {
                                             echo "checked='checked'";
-} ?> />
-                                        <label for="Neo10" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Neo 10%'); ?></label>
+} ?> /><label for="Neo10" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Neo 10%'); ?></label>
                                   </td>
                                 </tr>
                                 <tr>
-                                  <td>
-                                        <input type="checkbox" class="dil_drug" id="Cyclogyl" name="CYCLOGYL" value="Cyclopentolate 1%"  <?php if ($CYCLOGYL == 'Cyclopentolate 1%') {
+                                  <td><input type="checkbox" class="dil_drug" id="Cyclogyl" name="CYCLOGYL" value="Cyclopentolate 1%"  <?php if ($CYCLOGYL == 'Cyclopentolate 1%') {
                                             echo "checked='checked'";
-} ?> />
-                                        <label for="Cyclogyl" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Cyclo 1%'); ?></label>
+} ?> /><label for="Cyclogyl" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Cyclo 1%'); ?></label>
                                   </td>
-                                  <td>      <input type="checkbox" class="dil_drug" id="Atropine" name="ATROPINE" value="Atropine 1%"  <?php if ($ATROPINE == 'Atropine 1%') {
+                                  <td><input type="checkbox" class="dil_drug" id="Atropine" name="ATROPINE" value="Atropine 1%"  <?php if ($ATROPINE == 'Atropine 1%') {
                                         echo "checked='checked'";
-} ?> />
-                                        <label for="Atropine" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Atropine 1%'); ?></label>
+} ?> /><label for="Atropine" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Atropine 1%'); ?></label>
                                   </td>
                                 </tr>
                               </table>
@@ -2569,7 +2556,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         </div>
                         <div class="borderShadow" id="NEURO_11">
                           <i class="fa fa-th fa-fw closeButton2" id="Close_ACTMAIN" name="Close_ACTMAIN"></i>
-                          <table >
+                          <table class="ACT_top">
                             <tr>
                                 <td >
                                     <span id="ACTTRIGGER" name="ACTTRIGGER"><?php echo xlt('Alternate Cover Test'); ?>:</span>
@@ -2777,9 +2764,9 @@ if ($refresh and $refresh != 'fullscreen') {
                                             <input type="text" style="width:85%;" class="neurosens" name="STEREOPSIS" id="STEREOPSIS" value="<?php echo attr($STEREOPSIS); ?>">
                                         </td>
                                     </tr>
-                                    <tr><td colspan="3" style="font-weight:bold;"><br /><u><?php echo xlt('Amplitudes'); ?></u><br />
+                                    <tr><td colspan="3">&nbsp;
                                         </td></tr>
-                                    <tr><td ></td><td ><?php echo xlt('Distance'); ?></td><td><?php echo xlt('Near'); ?></td></tr>
+                                    <tr><td  class="bold underline"><?php echo xlt('Amplitudes'); ?>:</td><td ><?php echo xlt('Distance'); ?></td><td><?php echo xlt('Near'); ?></td></tr>
                                     <tr>
                                         <td style="text-align:right;"><?php echo xlt('Divergence'); ?>: </td>
                                         <td><input type="text" id="DACCDIST" class="neurosens2" name="DACCDIST" value="<?php echo attr($DACCDIST); ?>"></td>
@@ -2799,7 +2786,6 @@ if ($refresh and $refresh != 'fullscreen') {
                                         </td>
                                     </tr>
                                 </table>
-                                <br />
                           </div>
                         </div>
                         <div id="NEURO_MOTILITY" class="text_clinical borderShadow">
@@ -3509,7 +3495,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                           <tr class="ui-widget-content">
                                               <td>
                                                   <div >
-                                                      <select id="visit_codes" style="width: 200px;margin: 5px;">
+                                                      <select id="visit_codes">
                                                             <?php
                                                               $i = 0;
                                                               $last_category = '';
@@ -3572,7 +3558,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                           </tr>
 
                                           <tr>
-                                              <td style="padding-top:5px;vertical-align:text-top;" colspan="3">
+                                              <td style="padding-top:10px;" colspan="3">
                                                   <b><u><?php echo xlt('Tests Performed'); ?>:</u></b>&nbsp;
                                                   <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_todo_done_<?php echo attr($providerID); ?>" target="RTop"
                                                      title="<?php echo xla('Click here to Edit this Doctor\'s Plan options').". \n". xlt('Only entries with a Code are billable').". "; ?>"
@@ -3656,6 +3642,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                           </td>
                                                       </tr>
                                                   </table>
+                                                  <br />
                                               </td>
                                           </tr>
                                       </table>
@@ -3675,8 +3662,8 @@ if ($refresh and $refresh != 'fullscreen') {
                                                   <div class="widget text-center">
                                                       <b><u><?php echo xlt('Process');
                                                                   echo " ".xlt('Billing'); ?>:</b></u><br />
-                                                      <button id="code_me_now" style="width:150px;"><?php echo xlt('Populate Fee Sheet'); ?></button>
-                                                      <button style="width:150px;"
+                                                      <button id="code_me_now" ><?php echo xlt('Populate Fee Sheet'); ?></button>
+                                                      <button id="open_fee_sheet" 
                                                               onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet', 'Fee Sheet')" href="JavaScript:void(0);"
                                                               tabindex="-1"><?php echo xlt('Open Fee Sheet'); ?>
                                                       </button>

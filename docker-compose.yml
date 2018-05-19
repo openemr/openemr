@@ -1,29 +1,89 @@
-# Use admin/pass as user/password credentials
+#
+# This is for building a local OpenEMR development and testing environment.
+# (Recommend not running it from your git repo and instead mirroring your
+#  git repo to a testing directory (such as your web directory).)
+#
+# Brief instructions on how to use (for fuller instructions and examples,
+#  see the document at contrib/util/docker/README.md):
+#   1. docker-compose up -d
+#   2. http://localhost:8080 to run setup in openemr (alpine 3.7 with PHP 7.1)
+#      or
+#      https://localhost:8090 to run setup in openemr with SSL (alpine 3.7 with PHP 7.1)
+#      or
+#      http://localhost:8081 to run setup in openemr (alpine edge with PHP 7.2)
+#      or
+#      https://localhost:8091 to run setup in openemr with SSL (alpine edge with PHP 7.2)
+#  On the main setup input screen:
+#   1. for Server Host, use either 'mariadb' or 'mysql' or `mariadb-dev` or 'mysql-dev' (have both mariadb/mysql/mariadb-dev/mysql-dev dockers ready to go make testing either one easy; mysql is version 5.7; mysql-dev is version 8; mariadb is version 10.2 and mariadb-dev is version 10.3)
+#   2. for Root Pass, use 'root'
+#   3. for User Hostname, use '%'
+#  And when need to tear it down and restart it
+#   1. docker-compose down -v
+#   2. docker-compose up -d
+#  Can see databases via http://localhost:8100
+#
 version: '3.1'
 services:
-  mysql:
+  openemr-7-1:
     restart: always
-    image: mysql
-    command: ['mysqld','--character-set-server=utf8']
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-    ports:
-    - 3307:3306
-  openemr:
-    restart: always
-    container_name: openemr_local_development 
-    build: ./contrib/util/docker
+    image: openemr/openemr:flex
     ports:
     - 8080:80
-    - 8081:443
+    - 8090:443
     volumes:
     - .:/var/www/localhost/htdocs/openemr
     environment:
-      MYSQL_HOST: mysql
-      MYSQL_ROOT_PASS: root
-      MYSQL_USER: root
-      MYSQL_PASS: root
-      OE_USER: admin
-      OE_PASS: pass
-    links:
-    - mysql
+      EMPTY: "yes"
+  openemr-7-2:
+    restart: always
+    image: openemr/openemr:flex-edge
+    ports:
+    - 8081:80
+    - 8091:443
+    volumes:
+    - .:/var/www/localhost/htdocs/openemr
+    environment:
+      EMPTY: "yes"
+  mariadb:
+    restart: always
+    image: mariadb:10.2
+    command: ['mysqld','--character-set-server=utf8']
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  mysql:
+    restart: always
+    image: mysql:5.7
+    command: ['mysqld','--character-set-server=utf8']
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  mariadb-dev:
+    restart: always
+    image: mariadb:10.3
+    command: ['mysqld','--character-set-server=utf8']
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  mysql-dev:
+    restart: always
+    image: mysql:8
+    command: ['mysqld','--character-set-server=utf8','--default-authentication-plugin=mysql_native_password']
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  phpmyadmin:
+    restart: always
+    image: phpmyadmin/phpmyadmin
+    ports:
+    - 8100:80
+    environment:
+      PMA_HOSTS: mariadb,mysql,mariadb-dev,mysql-dev
+  couchdb:
+    restart: always
+    image: couchdb
+    environment:
+      COUCHDB_USER: admin
+      COUCHDB_PASSWORD: password
+  orthanc:
+    restart: always
+    image: jodogne/orthanc-plugins
+    ports:
+    - 4242:4242
+    - 8042:8042

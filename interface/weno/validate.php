@@ -57,4 +57,10 @@ if (empty($pharmacy['name'])) {
     print xlt("Pharmacy not assigned to the patient"). "<br>";
     exit;
 }
+if (empty($pharmacy['ncpdp'])) {
+    print xlt("Pharmacy missing NCPDP ID"). "<br>";
+}
+if (empty($pharmacy['npi'])) {
+    print xlt("Pharmacy missing NPI"). "<br>";
+}
 header('Location: confirm.php');

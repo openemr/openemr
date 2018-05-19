@@ -26,12 +26,6 @@ if ($GLOBALS['enable_group_therapy']) {
 
 $is_group = ($attendant_type == 'gid') ? true : false;
 
-if ($is_group && !acl_check("groups", "glog", false, array('view','write'))) {
-    echo xlt("access not allowed");
-    exit();
-}
-
-
 // "issue" parameter exists if we are being invoked by clicking an issue title
 // in the left_nav menu.  Currently that is just for athletic teams.  In this
 // case we only display encounters that are linked to the specified issue.
@@ -52,17 +46,11 @@ $issue = empty($_GET['issue']) ? 0 : 0 + $_GET['issue'];
  $auth_relaxed  = acl_check('encounters', 'relaxed');
  $auth_med      = acl_check('patients', 'med');
  $auth_demo     = acl_check('patients', 'demo');
+ $glog_view_write = acl_check("groups", "glog", false, array('view','write'));
 
  $tmp = getPatientData($pid, "squad");
 if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
     $auth_notes_a = $auth_notes = $auth_coding_a = $auth_coding = $auth_med = $auth_demo = $auth_relaxed = 0;
-}
-
-if (!($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) {
-    echo "<body>\n<html>\n";
-    echo "<p>(".htmlspecialchars(xl('Encounters not authorized'), ENT_NOQUOTES).")</p>\n";
-    echo "</body>\n</html>\n";
-    exit();
 }
 
 // Perhaps the view choice should be saved as a session variable.
@@ -265,6 +253,13 @@ if ($issue) {
 <?php
 // Setup the GET string to append when switching between billing and clinical views.
 
+
+if (!($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed) || ($is_group && !$glog_view_write)) {
+    echo "<body>\n<html>\n";
+    echo "<p>(".htmlspecialchars(xl('Encounters not authorized'), ENT_NOQUOTES).")</p>\n";
+    echo "</body>\n</html>\n";
+    exit();
+}
 
 $pagestart=0;
 if (isset($_GET['pagesize'])) {
