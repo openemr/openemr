@@ -253,6 +253,7 @@ input[type=text] {
      width:20px;
      padding: 0.2em 0.4em;
      display: inline-block;
+
  }
 .refraction {
     display:inline-block;
@@ -261,8 +262,21 @@ input[type=text] {
     box-sizing: content-box !important;
     box-shadow: 10px 10px 5px #888888;
     border-radius: 8px;
-    margin: 8px auto;
     width:4.3in;
+}
+.refraction_tables {
+    padding; 4px;
+    width: 100%;
+}
+
+#PRIORS_REFRACTIONS_left_text {
+    overflow: auto;
+    height: 195px;
+    resize: both;
+    min-width:410px;
+}
+.refraction_tables td {
+    font-size:10px;
 }
 #CTL_box table {
     margin: 0px auto 5px;
@@ -270,7 +284,7 @@ input[type=text] {
 #LayerVision_W {
     display:inline-block;
     min-height:2.2in;
-    margin: 8px auto;
+    margin: 1px auto;
     font-size: 1.0em;
     font-family: Arial, Arial,sans-serif;
     max-width:90%;
@@ -286,11 +300,9 @@ input[type=text] {
     font-size:0.8em;
     vertical-align: middle;
     text-decoration: none;
-    padding: 2px;
     white-space: nowrap;
 }
 .refraction th {
-    text-align: left;
     padding: 2px 8px;
     color: black;
     font-size:0.8em;
@@ -310,7 +322,10 @@ input[type=text] {
     display: inline-block;
     text-align: center;
     width:50px;
-    margin: 0;
+    height:25px;
+}
+.refraction select {
+    width:110px;
 }
 .refraction  b{
     font-weight:bold;
@@ -352,7 +367,7 @@ input[type=text] {
 }
 
 .vitals {
-    box-shadow: 1px 10px 5px #888888;
+    box-shadow: 5px 5px 9px #dad7d7;
     border-radius: 8px;
     position:relative;
     padding: 0.02in;
@@ -399,7 +414,7 @@ input[type=text] {
 }
 .borderShadow {
     position:relative;
-    box-shadow: 5px 5px 9px #888888;
+    box-shadow: 5px 5px 9px #dad7d7;
     margin: 1px auto; 
     border: 1.00pt solid #000000; 
     background: #ffffff;
@@ -410,6 +425,14 @@ input[type=text] {
 .borderShadow2 {
     box-shadow: 1px 1px 1px #888888;
 }
+
+.old_refractions {
+    background:#fffee1;
+    vertical-align: top;
+    width: unset;
+    min-width: 4.3in;
+}
+
 .GFS_table {
     width:100%;
 }
@@ -681,7 +704,6 @@ textarea.ANTSEGTEXT {
   padding: 5px;
   width: 99%;
   z-index:1;
-  box-shadow: 0 9px 9px #888;
   margin: -1px 0 0 0;
 }
 
@@ -730,9 +752,6 @@ margin-bottom: -3px;
   z-index: 10;
 }
 
-.bold {
-    font-weight: bold;
-}
 .underline {
     text-decoration: underline;
 }
@@ -999,7 +1018,7 @@ margin-bottom: -3px;
         max-height: 0.44in;
         height: 0.44in;
         font-size: 0.8em;
-        margin: 0 !important;
+        margin: 0px !important;
      }
     .closeButton2 {
         display:inline-block;
@@ -1339,6 +1358,7 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
 .Draw_class {
     padding:2px;
 }
+
 .navbar-custom {
     background-color:#1D62F0;
     color:black;
@@ -1598,8 +1618,8 @@ a:hover, a:focus {
     height:21px;
 }
 #visit_codes { width: 250px;margin: 5px; }
-#code_me_now { width: 200px;margin: 5px;}
-#open_fee_sheet { width: 200px;margin: 5px;}
+#code_me_now { width: 200px;float: unset;}
+#open_fee_sheet { width: 200px;float: unset;}
   .custom-combobox {
     position: relative;
     display: inline-block;
@@ -1702,11 +1722,11 @@ View.php
 
 #DA_EXAM_sections { text-align: center;display:inline-table;max-width: 93%;}
 #DA_EXAM_sections input[type="text"] { margin: 1px 0px !important; }
+.jscolor input[type="text"] { margin: 26px 2px 0px !important; }
 #LayerVision { width: 2.2in; min-height: 1.05in;padding: 0.02in; border: 1.00pt solid #000000;float:left;}
 #tabs { font-size:0.5em;}
-#Lyr31 { position: absolute; top: 0.18in; left: 0.09in;width: 0.4in;height: 0.3in; border: none; padding: 0in;}
-#Lyr31 > font:nth-of-type(1) { font-family:'San Serif', serif; font-size:3.2em;}
-#Lyr31 > font:nth-of-type(2) { font-family:arial,serif; font-size:0.9em;}
+#Lyr31 { position: absolute; top: 0.18in; left: 0.09in;width: 0.4in;height: 0.3in; border: none; padding: 0in; font-family:'San Serif', serif; font-size:4.2em;}
+
 #more_visions_1,#more_visions_2 { position: absolute;top:0.47in;left:-0.25in;font-size: 0.9em;padding-right:4px;}
 #Visions_A > span:nth-of-type(2),#Visions_B > span:nth-of-type(2) { position:relative;left:0.35in;font-size: 0.8em;}
 #Visions_A > span:nth-of-type(3),#Visions_B  > span:nth-of-type(3) { position:relative;left:0.59in;font-size: 0.8em;}
@@ -1734,7 +1754,7 @@ View.php
     position: absolute; top: 0.18in; left: 0.09in; width: 0.37in;height: 0.45in; border: none; padding: 0;
 }
 #Lyr41 > font:nth-of-type(1) {
-    font-family:arial,serif; font-size:3.2em;
+    font-family:'San Serif', serif;; font-size:4.2em;
 }
 #Lyr41 > font:nth-of-type(2) {
     font-family:arial,serif;
@@ -1757,10 +1777,10 @@ View.php
 }
 #Lyr50 { width: 1.4in; top:0; padding: 0; }
 #Lyr501,#Lyr60,#Lyr701 { position:relative;text-align:right; font-size:0.8em;right:0.1in; }
-#Lyr51 > table { padding: 0;margin:0 auto;width:90%;font-size:0.8em;text-align:center;}
+#Lyr51 > table { padding: 0;margin:-3px 2px 0;width:90%;font-size:0.8em;text-align:center;}
 #AmslerOD,#AmslerOS { margin:0.05in;height:0.45in;width:0.5in;}
 .AmslerValue {  font-size:0.8em;font-style:italic;}
-#Lyr511 { position: relative; top: 0.04in; left: 0.0in; border: none; background: white; font-size: 0.8em; margin: 2px 10px 2px 0;}
+#Lyr511 { position: relative; top: 0.04in; left: 0.0in; border: none; background: white; font-size: 0.8em; padding: 0 10px; margin: -5px auto 0;;}
 #Lyr511  label { padding:2px; vertical-align: bottom;font-size: 0.8em;}
 .VF_1 { width:0.2in;border-right:1pt solid black;border-bottom:1pt solid black;}
 .VF_2 { width:0.2in;border-left:1pt solid black;border-bottom:1pt solid black;}
@@ -1789,10 +1809,10 @@ View.php
 td[name=W_wide2] { text-align:left;vertical-align:top;padding-left:20px;}
 textarea[name=COMMENTS_W] { width:100%;height:3.0em;}
 #LayerVision_MR > table { margin-bottom: 5px; }
-#CRCOMMENTS { width:98%;height:6em;}
+#CRCOMMENTS { width:98%;height: 0.8in;}
 #CTL {width:98%;}
-#CTL_box { box-shadow: 1px 1px 2px #888888;margin:2px 25px; border-radius: 8px; border: 1.00pt solid #000000;}
-#CTL_COMMENTS { width:95%;height:30px; }
+#CTL_box { margin: 5px auto; border-radius: 5px;border: 1px inset #c9c3c3; background-color: #fffbeb; font-size: 1.2em; }
+#CTL_COMMENTS { width:99%;height:38px; background-color: rgb(255, 255, 153); margin-top: 3px; }
 #mid_menu { font-size:0.9em;white-space:nowrap;margin:10px;}
 #mid_menu span { padding: 8px 10px; margin: 2px 5px; }
 #mid_menu span span { padding:0; margin:2px;}
