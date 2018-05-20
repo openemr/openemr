@@ -37,7 +37,8 @@ var config = {
 
 // clean - will make even stricter once css files are no longer committed
 gulp.task('clean', function () {
-    del.sync([config.dist.storybook]);
+    let ignore = "!" + config.dist.storybook+ '.gitignore';
+    del.sync([config.dist.storybook + "*", ignore]);
 });
 
 gulp.task('ingest', function() {
