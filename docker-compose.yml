@@ -78,6 +78,9 @@ services:
   couchdb:
     restart: always
     image: couchdb
+    ports:
+    - 5984:5984
+    - 6984:6984
     environment:
       COUCHDB_USER: admin
       COUCHDB_PASSWORD: password
