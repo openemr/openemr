@@ -114,7 +114,17 @@ class CouchDB
     {
         // First translit string to ASCII, as this characters are most probably
         // supported everywhere
-        $string = iconv('UTF-8', 'ASCII//TRANSLIT', $string);
+        // Note that musl library (used in alpine os) does not support below iconv
+        //  call, so if return is empty, then will try another iconv call, and
+        //  if that is empty, will then not do iconv.
+        $string_iconv = iconv('UTF-8', 'ASCII//TRANSLIT', $string);
+        if (empty($string_iconv)) {
+            $string_iconv = iconv('UTF-8', 'ASCII', $string);
+        }
+        if (empty($string_iconv)) {
+            $string_iconv = $string;
+        }
+        $string = $string_iconv;
 
         // And then still replace any obscure characters by _ to ensure nothing
         // "bad" happens with this string.
