@@ -598,7 +598,7 @@ form#pattrk #inanewwindow>span{
 	transform: rotate(180deg);             /* W3C compliant browsers */
 
 	/* IE8 and below */
-	filter: progid:DXImageTransform.Microsoft.Matrix(M11=-1, M12=0, M21=0, M22=-1, DX=0, DY=0, SizingMethod='auto expand');
+	filter: "progid:DXImageTransform.Microsoft.Matrix(M11=-1, M12=0, M21=0, M22=-1, DX=0, DY=0, SizingMethod='auto expand')";
 }
 
 #file_type_whitelist .subject-black-list,

@@ -359,7 +359,7 @@ ul.tabNav a:hover {
 	/*RP_MODIFIED 2/8/15 #EAE6FF*/
 	background: $dark;
 	/* for non-css3 browsers #999 RP_MODIFIED 2/11/2015 */
-	filter: unquote("progid: DXImageTransform.Microsoft.gradient(startColorstr='$dark', endColorstr='$dark')");
+	filter: unquote("progid:DXImageTransform.Microsoft.gradient(startColorstr='$dark', endColorstr='$dark')");
 	/* for IE b5cbff RP_MODIFIED 2/11/2015 #61a0ff*/
 	background: -webkit-gradient(linear, left top, left bottom, from($dark), to($dark));
 	/* for webkit browsers b5cbff RP_MODIFIED 2/11/2015 #61a0ff*/

@@ -39,7 +39,7 @@
 
 #navigation-slide ul li a.expanded_lv2{
 	background: #999; /* for non-css3 browsers */
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefdcf', endColorstr='#fefdcf'); /* for IE */
+	filter: unquote("progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefdcf', endColorstr='#fefdcf')"); /* for IE */
 	background: -webkit-gradient(linear, left top, left bottom, from(#fefdcf), to(#fefdcf)); /* for webkit browsers */
 	background: -moz-linear-gradient(center top , #fefdcf,#fefdcf) repeat scroll 0% 0% transparent;
 	background: none repeat scroll 0% 0% #fefdcf;
@@ -47,7 +47,7 @@
 
 #navigation-slide ul li a.expanded_lv3{
 	background: #999; /* for non-css3 browsers */
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#eeeeee'); /* for IE */
+	filter: unquote("progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#eeeeee')"); /* for IE */
 	background: -webkit-gradient(linear, left top, left bottom, from(#eeeeee), to(#eeeeee)); /* for webkit browsers */
 	background: -moz-linear-gradient(center top , #eeeeee,#eeeeee) repeat scroll 0% 0% transparent;
 	background: none repeat scroll 0% 0% #eeeeee;
