@@ -210,9 +210,6 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
 function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0')
 {
     global $form_folder;
-    global $id;
-    global $ISSUE_TYPES;
-    global $ISSUE_TYPE_STYLES;
 
     $query  = "SELECT * FROM form_eye_mag_prefs
                 where PEZONE='PREFS' AND id=?
@@ -227,7 +224,9 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
     $result = sqlQuery($query, array($pid,$id_to_show));
     @extract($result);
     ob_start();
-    if ($zone == "EXT") {
+    if ($zone == "REFRACTIONS") {
+        display_refractive_data($result);
+    } elseif ($zone == "EXT") {
         if ($report =='0') {
             $output = priors_select($zone, $orig_id, $id_to_show, $pid);
         }
@@ -686,7 +685,7 @@ z-index: 1;
 
 margin: 2px 0 2px 2px;">
                 <span class="closeButton fa fa-th" id="PRIOR_Close_ACTMAIN" name="PRIOR_Close_ACTMAIN"></span>
-                <table class="ACT_top" style="position:relative;float:left;font-size:0.9em;width:210px;font-weight:600;">
+                <table class="ACT_top bold">
                     <tr style="text-align:left;height:26px;vertical-align:middle;width:180px;">
                         <td >
                             <span id="PRIOR_ACTTRIGGER" name="PRIOR_ACTTRIGGER" style="text-decoration:underline;"><?php echo ('Alternate Cover Test'); ?>:</span>
@@ -1447,9 +1446,9 @@ margin: 2px 0 2px 2px;">
             </div>
         </div>
         <br />
-        <div style="position: absolute;bottom:0.05in;clear:both;font-size:0.9em;text-align:left;padding-left:25px;">
+        <div class="QP_lengthen">
             <b><?php echo xlt('Comments'); ?>:</b><br />
-            <textarea disabled id="PRIOR_NEURO_COMMENTS" name="PRIOR_NEURO_COMMENTS" style="width:4.0in;height:3.0em;"><?php echo text($NEURO_COMMENTS); ?></textarea>
+            <textarea disabled id="PRIOR_NEURO_COMMENTS" name="PRIOR_NEURO_COMMENTS"><?php echo text($NEURO_COMMENTS); ?></textarea>
         </div>
         <input type="hidden" name="PRIOR_PREFS_ACT_SHOW"  id="PRIOR_PREFS_ACT_SHOW" value="<?php echo attr($ACT_SHOW); ?>">
 
@@ -2825,7 +2824,7 @@ function display_QP($zone, $providerID)
                 $action = "APPEND" ;
             }
             ?>
-            <span><?php echo $values['OD']['activity']; ?>
+            <span>
                 <a class="underline QP" onclick="fill_QP_field('<?php echo attr($zone); ?>','OD','<?php echo attr($values['OD']['mapping']); ?>','<?php echo attr($values['OD']['notes']); ?>','<?php echo attr($action); ?>');"><?php echo xlt('OD{{right eye}}'); ?></a> |
                 <a class="underline QP" onclick="fill_QP_field('<?php echo attr($zone); ?>','OS','<?php echo attr($values['OS']['mapping']); ?>','<?php echo attr($values['OS']['notes']); ?>','<?php echo attr($action); ?>');"><?php echo xlt('OS{{left eye}}'); ?></a> |
                 <a class="underline QP" onclick="fill_QP_2fields('<?php echo attr($zone); ?>','OU','<?php echo attr($values['OU']['mapping']); ?>','<?php echo attr($values['OU']['notes']); ?>','<?php echo attr($action); ?>');"><?php echo xlt('OU{{both eyes}}'); ?></a>
@@ -3570,7 +3569,7 @@ function display($pid, $encounter, $category_value)
        /**
         *   Each document is stored in a specific category.  Think of a category as a Folder.
         *   Practices can add/alter/delete category names as they wish.
-        *   In the Eye Form we link to these categories, not by name by by what part of the physical exam they belong to.
+        *   In the Eye Form we link to these categories, not by name but by what part of the physical exam they belong to.
         *   We needed a pointer to tell us if a document category is specific to a clinical section.
         *   For example, a photo of the retina is stored in the category we named "Fundus".
         *       A photo of the optic nerve is stored in the "Optic Disc" category.  Someone else might change the
@@ -3591,6 +3590,10 @@ function display($pid, $encounter, $category_value)
     }
 
     for ($j=0; $j < count($documents['zones'][$category_value]); $j++) {
+        $count_here = count($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]);
+        
+        $id_to_show = $documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here-1]['document_id'];
+    
         $episode .= "<tr>
         <td class='right'><b>".text($documents['zones'][$category_value][$j]['name'])."</b>:&nbsp;</td>
         <td>
@@ -3599,10 +3602,11 @@ function display($pid, $encounter, $category_value)
             </a>
         </td>
         <td>
-            <img src='../../forms/".$form_folder."/images/upload_multi.png' class='little_image'>
+            <a onclick=\"openNewForm('".$GLOBALS['webroot']."/controller.php?document&view&patient_id=".$pid."&doc_id=".$id_to_show."','Documents');\"></a>
+                <img onclick=\"return showpnotes('". $id_to_show ."')\" src='../../forms/".$form_folder."/images/upload_multi.png' class='little_image'>
         </td>
         <td>";
-        // Choose how to display: ANythingSlider or OpenEMR Douments file.
+        // Choose how to display: AnythingSlider or OpenEMR Douments file.
         //open via anything Slider
         /*
          
@@ -3612,11 +3616,10 @@ function display($pid, $encounter, $category_value)
                     <img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" /></a>';
         }
         */
+    
         //open via OpenEMR Documents with treemenu
-        $count_here='0';
-        $count_here = count($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]);
+    
         if ($count_here > '0') {
-            $id_to_show = $documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here-1]['document_id'];
             $episode .= '<a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.$pid.'&doc_id='.$id_to_show.'\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" /></a>';
         }
 
@@ -4030,6 +4033,7 @@ if ($PLAN_today) {
                         ?>
                     </td>
                 </tr>
+                
                 <tr><td class="right" nowrap><b><?php echo xlt("Referred By"); ?>:</b>&nbsp;</td><td style="font-size:0.8em;">&nbsp;
                     <?php
                             $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
@@ -4054,13 +4058,10 @@ if ($PLAN_today) {
                     if (!$got_selected && $currvalue) {
                         echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
                         echo "</select>";
-                        echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
+                        echo " <span class='danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
                     } else {
                         echo "</select>";
                     }
-
-                        //need to develop a select list that when changed updates the PCP for this patient
-
                         ?>
                     </td></tr>
                 <tr><td class="right"><b><?php echo xlt("Insurance"); ?>:</b>&nbsp;</td><td>&nbsp;<?php echo text($ins_co1); ?></td></tr>
@@ -4753,7 +4754,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                 $ODIOPTARGETS[$i]= $visit['ODIOPTARGET'];
             } else if (!$ODIOPTARGETS[$j]) {  //get this from the provider's default list_option
                 $query = "SELECT *  FROM `list_options` WHERE `list_id` LIKE 'Eye_defaults_".$providerID."' and (option_id = 'ODIOPTARGET' OR  option_id = 'OSIOPTARGET')";
-                $results = sqlQuery($query);
+                $result = sqlQuery($query);
                 while ($default_TARGETS = sqlFetchArray($result)) {
                     if ($default_TARGETS['option_id']=='ODIOPTARGET') {
                         $ODIOPTARGETS[$i] = $default_TARGETS["title"];
@@ -4772,7 +4773,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             } else if (!$OSIOPTARGETS[$j] > '') {
                 if (!$OSIOPTARGETS[$i]) {
                     $query = "SELECT *  FROM `list_options` WHERE `list_id` LIKE 'Eye_defaults_".$providerID."' and (option_id = 'ODIOPTARGET' OR  option_id = 'OSIOPTARGET')";
-                    $results = sqlQuery($query);
+                    $result = sqlQuery($query);
                     while ($default_TARGETS = sqlFetchArray($result)) {
                         if ($default_TARGETS['option_id']=='OSIOPTARGET') {
                             $OSIOPTARGETS[$i] = $default_TARGETS["title"];
@@ -4816,14 +4817,14 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             $OSIOP[$i]['method'] = "TPN";
         } else {
             //we are ignoring finger tension for graphing purposes but include this should another form of IOP measurement arrive...
-            //What about the Triggerfish contact lens continuous IOP device for example...
+            //What about the Triggerfish contact lens continuous IOP device for example...  iCare device, etc
         }
 
         if ($encounter_data['ODIOPTARGET']>'') {
             $ODIOPTARGETS[$i] = $encounter_data['ODIOPTARGET'];
         } else {
             $query = "SELECT *  FROM `list_options` WHERE `list_id` LIKE 'Eye_defaults_".$providerID."' and (option_id = 'ODIOPTARGET' OR  option_id = 'OSIOPTARGET')";
-            $results = sqlQuery($query);
+            $result = sqlQuery($query);
             while ($default_TARGETS = sqlFetchArray($result)) {
                 if ($default_TARGETS['option_id']=='ODIOPTARGET') {
                     $ODIOPTARGETS[$i] = $default_TARGETS["title"];
@@ -4839,7 +4840,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             $OSIOPTARGETS[$i] = $encounter_data['ODIOPTARGET'];
         } else if (!$OSIOPTARGETS[$i] > '') {
             $query = "SELECT *  FROM `list_options` WHERE `list_id` LIKE 'Eye_defaults_".$providerID."' and (option_id = 'ODIOPTARGET' OR  option_id = 'OSIOPTARGET')";
-            $results = sqlQuery($query);
+            $result = sqlQuery($query);
             while ($default_TARGETS = sqlFetchArray($result)) {
                 if ($default_TARGETS['option_id']=='OSIOPTARGET') {
                     $OSIOPTARGETS[$i] = $default_TARGETS["title"];
@@ -5043,9 +5044,13 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     $count=0;
                     foreach ($documents['docs_in_name']['VF'] as $VF) {
                         if ($count < 1) {
-                            $current_VF = '<tr><td colspan="3" class="GFS_td_1 blue"><a href="../../forms/'.$form_folder.'/php/Anything_simple.php?display=i&category_id='.attr($VF['parent']).'&encounter='.$encounter.'&category_name=VF" '.
-                            'onclick="return dopopup(\'../../forms/'.$form_folder.'/php/Anything_simple.php?display=i&category_id='.attr($VF['parent']).'&encounter='.$encounter.'&category_name=VF">
-                            '.$VF['encounter_date'].'&nbsp;<img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a></td></tr>';
+                            //    $episode .= '<a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.$pid.'&doc_id='.$id_to_show.'\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" /></a>';
+    
+                            $current_VF = '<tr><td colspan="3" class="GFS_td_1 blue">
+<a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.$pid.'&doc_id='.$id_to_show.'\',\'Documents\');">
+
+<a href="../../forms/'.$form_folder.'/php/Anything_simple.php?display=i&category_id='.attr($VF['parent']).'&encounter='.$encounter.'&category_name=VF" '.
+                            $VF['encounter_date'].'&nbsp;<img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a></td></tr>';
                         } else {
                             $old_VFs .= '<tr><td colspan="3" class="GFS_td_1 hideme_VFs nodisplay""><a href="../../forms/'.$form_folder.'/php/Anything_simple.php?display=i&category_id='.attr($VF['parent']).'&encounter='.$encounter.'&category_name=VF" '.
                             'onclick="return dopopup(\'../../forms/'.$form_folder.'/php/Anything_simple.php?display=i&category_id='.attr($VF['parent']).'&encounter='.$encounter.'&category_name=VF">
@@ -5844,5 +5849,343 @@ function generate_specRx($W)
     ob_end_clean();
     return $output;
 }
+
+/**
+ * Function to display Refractive Data for an encounter
+ * @param array $encounter_data, visit data for a given encounter
+ */
+function display_refractive_data($encounter_data)
+{
+    @extract($encounter_data);
+    $count_rx = '0';
+    
+    $query = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? ORDER BY RX_NUMBER";
+    
+    //echo $query. "<br />PID=".$pid."<br />FORM_ID=".$id."<br />ENCOUNTER=".$encounter."<br />";
+    $wear = sqlStatement($query, array($pid,$id));
+    while ($wearing = sqlFetchArray($wear)) {
+        $count_rx++;
+        ${"display_W_$count_rx"} = '';
+        ${"ODSPH_$count_rx"} = $wearing['ODSPH'];
+        ${"ODCYL_$count_rx"} = $wearing['ODCYL'];
+        ${"ODAXIS_$count_rx"} = $wearing['ODAXIS'];
+        ${"OSSPH_$count_rx"} = $wearing['OSSPH'];
+        ${"OSCYL_$count_rx"} = $wearing['OSCYL'];
+        ${"OSAXIS_$count_rx"} = $wearing['OSAXIS'];
+        ${"ODMIDADD_$count_rx"} = $wearing['ODMIDADD'];
+        ${"OSMIDADD_$count_rx"} = $wearing['OSMIDADD'];
+        ${"ODADD_$count_rx"} = $wearing['ODADD'];
+        ${"OSADD_$count_rx"} = $wearing['OSADD'];
+        ${"ODVA_$count_rx"} = $wearing['ODVA'];
+        ${"OSVA_$count_rx"} = $wearing['OSVA'];
+        ${"ODNEARVA_$count_rx"} = $wearing['ODNEARVA'];
+        ${"OSNEARVA_$count_rx"} = $wearing['OSNEARVA'];
+        ${"ODPRISM_$count_rx"} = $wearing['ODPRISM'];
+        ${"OSPRISM_$count_rx"} = $wearing['OSPRISM'];
+        ${"COMMENTS_$count_rx"} = $wearing['COMMENTS'];
+        ${"W_$count_rx"} = '1';
+        ${"RX_TYPE_$count_rx"} = $wearing['RX_TYPE'];
+    }
+    
+    if (!$ODVA||$OSVA||$ARODSPH||$AROSSPH||$MRODSPH||$MROSSPH||$CRODSPH||$CROSSPH||$CTLODSPH||$CTLOSSPH) { ?>
+        <table class="refraction_tables">
+           <tr class="text-center bold underline" style="background-color: #F3EEC7;">
+                <td ><?php echo oeFormatShortDate($date); ?></td>
+                <td ><?php echo xlt('Eye'); ?></td>
+                <td ><?php echo xlt('Sph{{Sphere}}'); ?></td>
+                <td ><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
+                <td ><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
+                <td ><?php echo xlt('Prism'); ?></td>
+                <td ><?php echo xlt('Acuity'); ?></td>
+                <td ><?php echo xlt('Mid{{Middle Distance Add}}'); ?></td>
+                <td ><?php echo xlt('ADD{{Near Add}}'); ?></td>
+                <td ><?php echo xlt('Acuity'); ?></td>
+            </tr>
+            <?php
+               //$count_rx++;
+            for ($i=1; $i <= $count_rx; $i++) {
+                if (${"RX_TYPE_$i"} =="0") {
+                    $RX_TYPE = '';
+                } else if (${"RX_TYPE_$i"} =="1") {
+                    $RX_TYPE = xlt('Bifocals');
+                } else if (${"RX_TYPE_$i"} =="2") {
+                    $RX_TYPE = xlt('Trifocals');
+                } else if (${"RX_TYPE_$i"} =="3") {
+                    $RX_TYPE = xlt('Progressive');
+                }
+                
+                /*
+              Note html2pdf does not like the last field of a table to be blank.
+              If it is it will squish the lines together.
+              Work around: if the field is blank, then replace it with a "-" else echo it.
+              aka echo (text($field))?:"-");
+                */
+                ?>
+                <tr>
+                    <td class="bold"><?php echo xlt('Wear RX')." #".$i.": "; ?></td>
+                    <td class="bold"><?php echo xlt('OD{{right eye}}'); ?></td>
+                    <td ><?php echo (text(${"ODSPH_$i"})?:"-"); ?></td>
+                    <td ><?php echo (text(${"ODCYL_$i"})?:"-"); ?></td>
+                    <td ><?php echo (text(${"ODAXIS_$i"})?:"-"); ?></td>
+                    <td ><?php echo (text(${"ODPRISM_$i"})?:"-"); ?></td>
+                    <td ><?php echo (text(${"ODVA_$i"})?:"-"); ?></td>
+                    <td ><?php echo (text(${"ODMIDADD_$i"})?:"-"); ?></td>
+                    <td ><?php echo (text(${"ODADD_$i"})?:"-"); ?></td>
+                    <td ><?php echo (text(${"ODNEARVA_$i"})?:"-"); ?></td>
+                   </tr>
+                   <tr>
+                    <td><?php echo $RX_TYPE; ?></td>
+                    <td class="bold""><?php echo xlt('OS{{left eye}}'); ?></td>
+                    <td ><?php echo (text(${"OSSPH_$i"})?:"-"); ?></td>
+                    <td ><?php echo (text(${"OSCYL_$i"})?:"-"); ?></td>
+                    <td ><?php echo (text(${"OSAXIS_$i"})?:"-"); ?></td>
+                    <td ><?php echo (text(${"OSPRISM_$i"})?:"-");  ?></td>
+                    <td ><?php echo (text(${"OSVA_$i"})?:"-"); ?></td>
+                    <td ><?php echo (text(${"OSMIDADD_$i"})?:"-"); ?></td>
+                    <td ><?php echo (text(${"OSADD_$i"})?:"-"); ?></td>
+                    <td ><?php echo (text(${"OSNEARVA_$i"})?:"-"); ?></td>
+                   </tr>
+                    <?php
+                    if (${"COMMENTS_$i"}) {
+                        ?>
+                        <tr>
+                           <td></td>
+                           <td colspan="2"><?php echo xlt('Comments'); ?>:</td>
+                           <td colspan="7"><?php echo text(${"COMMENTS_$i"}); ?></td>
+                        </tr>
+                        <?php
+                    }
+                    ?><tr><td colspan="10">--------------------------------------------------------</td></tr>
+                    <?php
+            }
+            
+            if ($ARODSPH||$AROSSPH) { ?>
+                   <tr style="border-bottom:1pt solid black;">
+                       <td class="bold"><?php echo xlt('AutoRef'); ?></td>
+                       <td class="bold"><?php echo xlt('OD{{right eye}}'); ?></td>
+                       <td ><?php echo (text($ARODSPH)?:"-");  ?></td>
+                       <td ><?php echo (text($ARODCYL)?:"-");  ?></td>
+                       <td ><?php echo (text($ARODAXIS)?:"-");  ?></td>
+                       <td ><?php echo (text($ARODPRISM)?:"-");  ?></td>
+                       <td ><?php echo (text($ARODVA)?:"-");  ?></td>
+                       <td >-</td>
+                       <td ><?php echo (text($ARODADD)?:"-");  ?></td>
+                       <td ><?php echo (text($ARNEARODVA)?:"-"); ?></td>
+                   </tr>
+                   <tr>
+                       <td>&nbsp;</td>
+                       <td class="bold"><?php echo xlt('OS{{left eye}}'); ?></td>
+                       <td ><?php echo (text($AROSSPH)?:"-");  ?></td>
+                       <td ><?php echo (text($AROSCYL)?:"-");  ?></td>
+                       <td ><?php echo (text($AROSAXIS)?:"-");  ?></td>
+                       <td ><?php echo (text($AROSPRISM)?:"-");  ?></td>
+                       <td ><?php echo (text($AROSVA)?:"-");  ?></td>
+                       <td >-</td>
+                       <td ><?php echo (text($AROSADD)?:"-");  ?></td>
+                       <td ><?php echo (text($ARNEAROSVA)?:"-"); ?></td>
+                   </tr>
+                    <?php
+                    if (${"COMMENTS_$i"}) {
+                        ?>
+                        <tr>
+                           <td></td><td></td>
+                           <td>Comments:</td>
+                           <td colspan="7"><?php echo text(${"COMMENTS_$i"}); ?></td>
+                        </tr>
+                        <?php
+                    }?>
+                   <tr><td colspan="10">--------------------------------------------------------</td></tr>
+                    <?php
+            }
+            
+            if ($MRODSPH||$MROSSPH) { ?>
+                   <tr>
+                       <td class="bold"><?php echo xlt('MR (Dry)'); ?></td>
+                       <td class="bold"><?php echo xlt('OD{{right eye}}'); ?></td>
+                       <td ><?php echo (text($MRODSPH)?:"-");  ?></td>
+                       <td ><?php echo (text($MRODCYL)?:"-");  ?></td>
+                       <td ><?php echo (text($MRODAXIS)?:"-");  ?></td>
+                       <td ><?php echo (text($MRODPRISM)?:"-");  ?></td>
+                       <td ><?php echo (text($MRODVA)?:"-");  ?></td>
+                       <td >-</td>
+                       <td ><?php echo (text($MRODADD)?:"-");  ?></td>
+                       <td ><?php echo (text($MRNEARODVA)?:"-"); ?></td>
+                   </tr>
+                   <tr></tr>
+                   <tr>
+                       <td></td>
+                       <td class="bold"><?php echo xlt('OS{{left eye}}'); ?></td>
+                       <td ><?php echo (text($MROSSPH)?:"-");  ?></td>
+                       <td ><?php echo (text($MROSCYL)?:"-");  ?></td>
+                       <td ><?php echo (text($MROSAXIS)?:"-");  ?></td>
+                       <td ><?php echo (text($MROSPRISM)?:"-");  ?></td>
+                       <td ><?php echo (text($MROSVA)?:"-");  ?></td>
+                       <td >-</td>
+                       <td ><?php echo (text($MROSADD)?:"-");  ?></td>
+                       <td ><?php echo (text($MRNEAROSVA)?:"-"); ?></td>
+                   </tr>
+                    <?php
+            }
+            
+            if ($CRODSPH||$CROSSPH) { ?>
+                   <tr>
+                       <td class="bold"><?php echo xlt('CR (Wet)'); ?></td>
+                       <td class="bold"><?php echo xlt('OD{{right eye}}'); ?></td>
+                       <td ><?php echo (text($CRODSPH)?:"-");  ?></td>
+                       <td ><?php echo (text($CRODCYL)?:"-");  ?></td>
+                       <td ><?php echo (text($CRODAXIS)?:"-");  ?></td>
+                       <td ><?php echo (text($CRODPRISM)?:"-");  ?></td>
+                       <td ><?php echo (text($CRODVA)?:"-");  ?></td>
+                       <td >-</td>
+                       <td ><?php echo (text($CRODADD)?:"-");  ?></td>
+                       <td ><?php echo (text($CRNEARODVA)?:"-"); ?></td>
+                   </tr>
+                   <tr>
+                       <td></td>
+                       <td class="bold"><?php echo xlt('OS{{left eye}}'); ?></td>
+                       <td ><?php echo (text($CROSSPH)?:"-");  ?></td>
+                       <td ><?php echo (text($CROSCYL)?:"-");  ?></td>
+                       <td ><?php echo (text($CROSAXIS)?:"-");  ?></td>
+                       <td ><?php echo (text($CROSPRISM)?:"-");  ?>&nbsp;</td>
+                       <td ><?php echo (text($CROSVA)?:"-");  ?></td>
+                       <td >-</td>
+                       <td ><?php echo (text($CROSADD)?:"-");  ?></td>
+                       <td ><?php echo (text($CRNEAROSVA)?:"-"); ?></td>
+                   </tr>
+                    <?php
+            }
+            
+            if ($CTLODSPH||$CTLOSSPH) { ?>
+                   <tr class="bold text-center underline">
+                       <td></td>
+                       <td><?php echo xlt('Eye'); ?></td>
+                       <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
+                       <td><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
+                       <td><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
+                       <td><?php echo xlt('BC{{Base Curve}}'); ?></td>
+                       <td><?php echo xlt('Diam{{Diameter}}'); ?></td>
+                       <td><?php echo xlt('ADD'); ?></td>
+                       <td><?php echo xlt('Acuity'); ?></td>
+                   </tr>
+                   <tr>
+                       <td class="bold"><?php echo xlt('CTL'); ?></td>
+                       <td class="bold"><?php echo xlt('OD{{right eye}}'); ?></td>
+                       <td ><?php echo (text($CTLODSPH)?:"-");  ?></td>
+                       <td ><?php echo (text($CTLODCYL)?:"-");  ?></td>
+                       <td ><?php echo (text($CTLODAXIS)?:"-");  ?></td>
+                       <td ><?php echo (text($CTLODBC)?:"-");  ?></td>
+                       <td ><?php echo (text($CTLODDIAM)?:"-");  ?></td>
+                       <td ><?php echo (text($CTLODADD)?:"-");  ?></td>
+                       <td ><?php echo (text($CTLODVA)?:"-"); ?></td>
+                   </tr>
+                   <tr style="font-size:0.6em;">
+                       <td></td>
+                       <td></td>
+                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('Brand'); ?>:<?php echo (text($CTLBRANDOD)?:"-");  ?></td>
+                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROD)?:"-");  ?></td>
+                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROD)?:"-");  ?></td>
+
+                   </tr>
+                   <tr>
+                       <td></td>
+                       <td text-left><?php echo xlt('OS{{left eye}}'); ?></td>
+                       <td ><?php echo (text($CTLOSSPH)?:"-");  ?></td>
+                       <td ><?php echo (text($CTLOSCYL)?:"-");  ?></td>
+                       <td ><?php echo (text($CTLOSAXIS)?:"-");  ?></td>
+                       <td ><?php echo (text($CTLOSBC)?:"-");  ?></td>
+                       <td ><?php echo (text($CTLOSDIAM)?:"-");  ?></td>
+                       <td ><?php echo (text($CTLOSADD)?:"-");  ?></td>
+                       <td ><?php echo ($CTLOSVA?:"-"); ?></td>
+                   </tr>
+                   <tr style="font-size:9px;">
+                       <td></td>
+                       <td></td>
+                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('Brand'); ?>: <?php echo (text($CTLBRANDOS)?:"-");  ?></td>
+                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROS)?:"-");  ?></td>
+                       <td colspan="3" class="bold text-left" style="font-size:10px;""><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROS)?:"-");  ?></td>
+                   </tr>
+                
+                    <?php
+            }
+            ?>
+            <tr><td colspan="10">--------------------------------------------------------</td></tr>
+        </table>
+    
+        <?php
+    } ?>
+        
+    <?php
+    if ($GLAREODVA||$CONTRASTODVA||$ODK1||$ODK2||$LIODVA||$PAMODBA) { ?>
+      <table>
+        <tr>
+          <td id="LayerVision_ADDITIONAL" class="refraction <?php echo $display_Add; ?>" style="padding:10px;font-size:10px;">
+          <table id="Additional" style="padding:5;font-size:10px;">
+            <tr><td colspan="9" style="text-align:left;text-decoration:underline;font-weight:bold;"><?php echo xlt('Additional Data Points'); ?></td></tr>
+            <tr class="bold"><td></td>
+              <td><?php echo xlt('PH{{Pinhole}}'); ?></td>
+              <td><?php echo xlt('PAM{{Potential Acuity Meter}}'); ?></td>
+              <td><?php echo xlt('LI{{Laser Interferometry}}'); ?></td>
+              <td><?php echo xlt('BAT{{Brightness Acuity Testing}}'); ?></td>
+              <td><?php echo xlt('K1{{Keratometry 1}}'); ?></td>
+              <td><?php echo xlt('K2{{Keratometry 2}}'); ?></td>
+              <td><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
+            </tr>
+            <tr><td class="bold"><?php echo xlt('OD{{right eye}}'); ?>:</td>
+              <td><?php echo text($PHODVA); ?></td>
+              <td><?php echo text($PAMODVA); ?></td>
+              <td><?php echo text($LIODVA); ?></td>
+              <td><?php echo text($GLAREODVA); ?></td>
+              <td><?php echo text($ODK1); ?></td>
+              <td><?php echo text($ODK2); ?></td>
+              <td><?php echo text($ODK2AXIS); ?></td>
+            </tr>
+            <tr>
+              <td class="bold"><?php echo xlt('OS{{left eye}}'); ?>:</td>
+              <td><?php echo text($PHOSVA); ?></td>
+              <td><?php echo text($PAMOSVA); ?></td>
+              <td><?php echo text($LIOSVA); ?></td>
+              <td><?php echo text($GLAREOSVA); ?></td>
+              <td><?php echo text($OSK1); ?></td>
+              <td><?php echo text($OSK2); ?></td>
+              <td><?php echo text($OSK2AXIS); ?></td>
+            </tr>
+            <tr><td>&nbsp;</td></tr>
+            <tr class="bold">
+              <td></td>
+              <td><?php echo xlt('AxLength{{axial Length}}'); ?></td>
+              <td><?php echo xlt('ACD{{anterior chamber depth}}'); ?></td>
+              <td><?php echo xlt('PD{{pupillary distance}}'); ?></td>
+              <td><?php echo xlt('LT{{lens thickness}}'); ?></td>
+              <td><?php echo xlt('W2W{{white-to-white}}'); ?></td>
+              <td><?php echo xlt('ECL{{equivalent contact lens power at the corneal level}}'); ?></td>
+              <!-- <td><?php echo xlt('pend'); ?></td> -->
+            </tr>
+            <tr><td class="bold"><?php echo xlt('OD{{right eye}}'); ?>:</td>
+              <td><?php echo text($ODAXIALLENGTH); ?></td>
+              <td><?php echo text($ODACD); ?></td>
+              <td><?php echo text($ODPDMeasured); ?></td>
+              <td><?php echo text($ODLT); ?></td>
+              <td><?php echo text($ODW2W); ?></td>
+              <td><?php echo text($ODECL); ?></td>
+              <!-- <td><input type=text id="pend" name="pend"  value="<?php echo text($pend); ?>"></td> -->
+            </tr>
+            <tr>
+              <td class="bold"><?php echo xlt('OS{{left eye}}'); ?>:</td>
+              <td><?php echo text($OSAXIALLENGTH); ?></td>
+              <td><?php echo text($OSACD); ?></td>
+              <td><?php echo text($OSPDMeasured); ?></td>
+              <td><?php echo text($OSLT); ?></td>
+              <td><?php echo text($OSW2W); ?></td>
+              <td><?php echo text($OSECL); ?></td>
+              <!--  <td><input type=text id="pend" name="pend" value="<?php echo text($pend); ?>"></td> -->
+            </tr>
+          </table>
+          </td>
+        </tr>
+      </table>
+        <?php
+    }
+}
+
 
 ?>

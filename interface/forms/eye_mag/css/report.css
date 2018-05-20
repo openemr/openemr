@@ -1697,3 +1697,7 @@ input[type=text] {
     margin:0 auto;padding:5px;text-align:center;
     font-size:11px;
 }
+form_header span {
+    display: unset;
+    color: black;
+}

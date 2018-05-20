@@ -400,9 +400,9 @@ if ($_REQUEST['dispensed']) {
                         $row['REFDATE'] = oeFormatShortDate($row['REFDATE']);
                         $row['date'] = oeFormatShortDate(date('Y-m-d', strtotime($row['date'])));
                         if ($REFTYPE == "CTL") {
-                            $expir = date("Y-m-d", strtotime("+1 years", strtotime($row['REFDATE_OK'])));
+                            $expir = date("Y-m-d", strtotime("+1 years", strtotime($row['REFDATE'])));
                         } else {
-                            $expir = date("Y-m-d", strtotime("+6 months", strtotime($row['REFDATE_OK'])));
+                            $expir = date("Y-m-d", strtotime("+6 months", strtotime($row['REFDATE'])));
                         }
                         $expir_date = oeFormatShortDate($expir);
 
@@ -441,6 +441,8 @@ if ($_REQUEST['dispensed']) {
                                         echo xlt('Auto-Refraction');
                                     } else if ($row['REFTYPE'] == "CTL") {
                                         echo xlt('Contact Lens');
+                                    } else {
+                                        echo $row['REFTYPE'];
                                     }  ?>
                                         <input type="hidden" name="REFTYPE" value="<?php echo attr($row['REFTYPE']); ?>" />
                                     </td>
@@ -787,6 +789,8 @@ if ($_REQUEST['dispensed']) {
                 <input type="hidden" name="REFTYPE" value="<?php echo attr($REFTYPE); ?>" />
                 <input type="hidden" name="pid" id="pid" value="<?php echo attr($pid); ?>">
                 <input type="hidden" name="id" id="id" value="<?php echo attr($insert_this_id); ?>">
+                <input type="hidden" name="encounter" id="encounter" value="<?php echo $encounter; ?>">
+
                 <div style="margin:5;text-align:center;display:inline-block;">
 
                     <table style="min-width:615px;">
