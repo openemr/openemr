@@ -1,29 +1,17 @@
 <?php
-// +-----------------------------------------------------------------------------+
-// Copyright (C) 2012 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-//
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-//
-// A copy of the GNU General Public License is included along with this program:
-// openemr/interface/login/GnuGPL.html
-// For more information write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
-// Author:   Eldho Chacko <eldho@zhservices.com>
-//           Jacob T Paul <jacob@zhservices.com>
-//
-// +------------------------------------------------------------------------------+
+/*
+ * CouchDB class.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Eldho Chacko <eldho@zhservices.com>
+ * @author    Jacob T Paul <jacob@zhservices.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2012 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 
 class CouchDB
 {
@@ -33,6 +21,7 @@ class CouchDB
         $this->user = ($GLOBALS['couchdb_user'] != '') ? $GLOBALS['couchdb_user'] : null;
         $this->pass = ($GLOBALS['couchdb_pass'] != '') ? $GLOBALS['couchdb_pass'] : null;
         $this->port = $GLOBALS['couchdb_port'];
+        $this->ssl_port = $GLOBALS['couchdb_ssl_port'];
         $this->dbase = $GLOBALS['couchdb_dbase'];
     }
 
@@ -137,7 +126,15 @@ class CouchDB
 
     function send($method, $url, $post_data = null)
     {
-        $s = fsockopen($this->host, $this->port, $errno, $errstr);
+        // Set couchdb to use ssl, if applicable.
+        // Can support basic encryption by including just the couchdb-ca pem (this is mandatory for ssl)
+        if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/couchdb-ca")) {
+            $context = stream_context_create();
+            $result = stream_context_set_option($context, 'ssl', 'cafile', $GLOBALS['OE_SITE_DIR'] . '/documents/certificates/couchdb-ca');
+            $s = stream_socket_client("ssl://" . $this->host . ":" . $this->ssl_port, $errno, $errstr, ini_get("default_socket_timeout"), STREAM_CLIENT_CONNECT, $context);
+        } else {
+            $s = fsockopen($this->host, $this->port, $errno, $errstr);
+        }
         if (!$s) {
             return false;
         }

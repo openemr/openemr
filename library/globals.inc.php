@@ -2,13 +2,15 @@
 /*
  * This program sets the global variables.
  *
- * @package OpenEMR
- * @author Rod Roark <rod@sunsetsystems.com>
- * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
- * @link https://github.com/openemr/openemr/tree/master
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 // $GLOBALS['print_command'] is the
@@ -1369,10 +1371,16 @@ $GLOBALS_METADATA = array(
             xl('Password to connect to CouchDB'),
         ),
         'couchdb_port' => array(
-            xl('CouchDB Port'),
+            xl('CouchDB Standard Port'),
             'text',
             '5984',
-            xl('CouchDB port'),
+            xl('CouchDB Standard port'),
+        ),
+        'couchdb_ssl_port' => array(
+            xl('CouchDB SSL Port'),
+            'text',
+            '6984',
+            xl('CouchDB SSL port'),
         ),
         'couchdb_dbase' => array(
             xl('CouchDB Database'),
