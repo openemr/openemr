@@ -728,6 +728,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 }
             }
         } else if ('ORC' == $a[0] && 'ORU' == $msgtype) {
+            $orc = true;
             $context = $a[0];
             $arep = array();
             $porow = false;
@@ -753,6 +754,10 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $tmp = explode($d2, $a[4]);
             $in_procedure_code = $tmp[0];
             $in_procedure_name = $tmp[1];
+            //add specimen source onto name for dermatology
+            if (!empty($a[14])) {
+                $in_procedure_name = $in_procedure_name . " - " . $a[15];
+            }
             $in_report_status = rhl7ReportStatus($a[25]);
 
             // Filler identifier is supposed to be unique for each incoming report.
@@ -815,7 +820,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     $in_orderid = intval($porow['procedure_order_id']);
                 }
 
-                if (!$in_orderid) {
+                if (!$in_orderid || $orc) {
                     // Create order.
                     // Need to identify the ordering provider and, if possible, a recent encounter.
                     $datetime_report = rhl7DateTime($a[22]);

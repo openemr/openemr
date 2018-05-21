@@ -78,6 +78,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
     $date_collected = empty($row['date_collected'  ]) ? '' : substr($row['date_collected'], 0, 16);
     $date_collected_suf = empty($row['date_collected_tz' ]) ? '' : (' ' . $row['date_collected_tz' ]);
     $specimen_num   = empty($row['specimen_num'    ]) ? '' : $row['specimen_num'];
+    $specimen_loc   = empty($row['specimen_location']) ? '' : $row['specimen_location'];
     $report_status  = empty($row['report_status'   ]) ? '' : $row['report_status'];
     $review_status  = empty($row['review_status'   ]) ? 'received' : $row['review_status'];
 
@@ -204,7 +205,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
         echo "</td>\n";
 
         echo "  <td>";
-        echo myCellText($specimen_num);
+        echo myCellText($specimen_num) . " " . myCellText($specimen_loc);
         echo "</td>\n";
 
         echo "  <td title='" . xla('Check mark indicates reviewed') . "'>";
@@ -520,7 +521,7 @@ if ($orow['control_id']) {
 
 <?php
   $query = "SELECT " .
-    "po.lab_id, po.date_ordered, pc.procedure_order_seq, pc.procedure_code, " .
+    "po.lab_id, po.date_ordered, pc.procedure_order_seq, pc.procedure_code, po.specimen_location, " .
     "pc.procedure_name, " .
     "pr.date_report, pr.date_report_tz, pr.date_collected, pr.date_collected_tz, " .
     "pr.procedure_report_id, pr.specimen_num, pr.report_status, pr.review_status, pr.report_notes " .
