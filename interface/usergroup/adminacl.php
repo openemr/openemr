@@ -526,13 +526,22 @@ if (!isset($phpgacl_location)) {
             color:#000000 ! Important;
         }
     </style>
+    <?php
+    if ($GLOBALS['enable_help'] == 1) {
+        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xl("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+    } elseif ($GLOBALS['enable_help'] == 2) {
+        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xl("Enable help in Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+    } elseif ($GLOBALS['enable_help'] == 0) {
+         $help_icon = '';
+    }
+    ?>
 </head>
 <body class="body_top">
     <div class="container">
         <div class="row">
             <div class="col-xs-12">
                 <div class="page-header clearfix">
-                    <h2 class="clearfix"><span id='header_text'><?php echo xlt("Access Control List Administration"); ?></span> &nbsp;&nbsp; <?php echo ($phpgacl_location) ? "<a href='../../gacl/admin/acl_admin.php' onclick='top.restoreSession()'><i id='advanced-tooltip' class='fa fa-external-link fa-2x small' aria-hidden='true'></i> </a>" : ""; ?><a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#000000"><i class="fa fa-question-circle" aria-hidden="true"></i></a></h2>
+                    <h2 class="clearfix"><span id='header_text'><?php echo xlt("Access Control List Administration"); ?></span> &nbsp;&nbsp; <?php echo ($phpgacl_location) ? "<a href='../../gacl/admin/acl_admin.php' onclick='top.restoreSession()'><i id='advanced-tooltip' class='fa fa-external-link fa-2x small' aria-hidden='true'></i> </a>" : ""; ?><?php echo $help_icon; ?></h2>
                 </div>
             </div>
         </div>
@@ -651,27 +660,15 @@ if (!isset($phpgacl_location)) {
             </div>
         </div>
     </div><!--end of container div-->
-     <div class="row">
-        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content oe-modal-content">
-                    <div class="modal-header clearfix"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="color:#000000; font-size:1.5em;">×</span></button></div>
-                    <div class="modal-body">
-                        <iframe src="" id="targetiframe" style="height:75%; width:100%; overflow-x: hidden; border:none" allowtransparency="true"></iframe>
-                    </div>
-                    <div class="modal-footer" style="margin-top:0px;">
-                       <button class="btn btn-link btn-cancel pull-right" data-dismiss="modal" type="button"><?php echo xlt('close'); ?></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-        $( document ).ready(function() {
-            $('#help-href').click (function(){
-                document.getElementById('targetiframe').src ='adminacl_help.php';
-            })
-        });
-    </script>
+    <br>
+    <?php
+    //home of the help modal ;)
+    //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
+    if ($GLOBALS['enable_help'] == 1) {
+        echo "<script>var helpFile = 'adminacl_help.php'</script>";
+        //help_modal.php lives in interface, set path accordingly
+        require_once "../help_modal.php";
+    }
+    ?> 
 </body>
 </html>

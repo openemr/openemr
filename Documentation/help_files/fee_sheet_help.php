@@ -5,63 +5,74 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author Ranganath Pathak <pathak@scrs1.org>
+ * @version 1.0.0
  * @copyright Copyright (c) 2017 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
  
 use OpenEMR\Core\Header;
 
-require_once("../../globals.php");
+require_once("../../interface/globals.php");
 ?>
 <!DOCTYPE HTML>
 <html>
     <head>
     <?php Header::setupHeader();?>
-    <title><?php echo xlt("EOB Posting - Instructions");?></title>
+    <title><?php echo xlt("Fee Sheet Help");?></title>
     <style>
-        .oe-help-heading{
-            color:#676666;
-            background-color: #E4E2E0;
-            border-color: #DADADA;
-            padding: 10px 5px;
-            border-radius: 5px;
+    .oe-help-container a {
+        text-decoration: none !important;
+        color: #676666 !important;
+        font-weight: 700;
+    }
+    .oe-help-container h2>a {
+        font-weight: 500;
+    }
+    .oe-help-heading{
+        color:#676666;
+        background-color: #E4E2E0;
+        border-color: #DADADA;
+        padding: 10px 5px;
+        border-radius: 5px;
+    }
+    .oe-help-redirect{
+        color:#676666;
+    }
+    .oe-text-orange {
+        color:orange;
+    }
+    .oe-text-red {
+        color:red;
+    }
+    .oe-text-green {
+        color:green;
+    }
+    .oe-text-black {
+        color:black;
+    }
+    .oe-no-float{
+        float:none; 
+    }
+    .oe-inline{
+        display:inline;
+    }
+    @media only screen and (max-width: 768px) {
+       [class*="col-"] {
+       width: 100%;
+       text-align:left!Important;
         }
-        .oe-help-redirect{
-            color:#676666;
-        }
-        a {
-            text-decoration: none !important;
-            color:#676666 !important;
-            font-weight:700;
-        }
-        h2 > a {
-            font-weight:500;
-        }
-        @media only screen and (max-width: 768px) {
-           [class*="col-"] {
-           width: 100%;
-           text-align:left!Important;
-            }
-        }
-        @media only screen and (max-width: 1004px) and (min-width: 641px)  {
-            .oe-large {
-                display: none;
-            }
-            .oe-small {
-                display: inline-block;
-            }
-        }
-    </style>
+    }
+</style>
     </head>
     <body>
-        <div class="container">
+        <div class="container oe-help-container">
             <div>
                 <center><h2><a name = 'entire_doc'><?php echo xlt("Using the Feesheet");?></a></h2></center>
             </div>
             <div class= "row">
                 <p><?php echo xlt("Use the fee sheet to charge for services or products. ");?>
                 
-                <p><i class="fa fa-exclamation-circle" style="color:orange" aria-hidden="true"></i> <strong><?php echo xlt("Before beginning to use the Fee Sheet read through this help page and do some preliminary setup.");?></strong>
+                <p><i class="fa fa-exclamation-circleoe-text-orange" aria-hidden="true"></i> <strong><?php echo xlt("Before beginning to use the Fee Sheet read through this help page and do some preliminary setup.");?></strong>
                 
                 <p><?php echo xlt("The default fee sheet can be modified and customized to make it more useful.");?>
                 
@@ -90,7 +101,7 @@ require_once("../../globals.php");
                 
                 <p><?php echo xlt("To add more options to the dropdown menu go to Administration > Lists > Manage Lists and select 'Price Level' in the dropdown box and enter the types e.g: Credit Card, Cash etc.."); ?>
                 
-                <p><i class="fa fa-exclamation-circle" style="color:orange" aria-hidden="true"></i> <strong><?php echo xlt("The actual amounts that will be displayed must exist in the database."); ?></strong> <strong><a href="#setup" class="oe-help-redirect"><?php echo xlt("See Setup the Fee Sheet"); ?></a></strong>
+                <p><i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i> <strong><?php echo xlt("The actual amounts that will be displayed must exist in the database."); ?></strong> <strong><a href="#setup" class="oe-help-redirect"><?php echo xlt("See Setup the Fee Sheet"); ?></a></strong>
             </div>
             <div class= "row" id="select_code">
                 <h4 class="oe-help-heading"><?php echo xlt("Select Code"); ?><a href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
@@ -108,7 +119,7 @@ require_once("../../globals.php");
                 
                 <p><?php echo xlt("It lets you search by ICD 9 and ICD 10 diagnostic codes and CPT4 and HCPCS service/procedure codes."); ?>
                 
-                <p><i class="fa fa-exclamation-circle" style="color:orange" aria-hidden="true"></i> <strong><?php echo xlt("For a search to show results the codes must exist in the database.");?></strong>  <strong><a href="#setup" class="oe-help-redirect"><?php echo xlt("See Setup the Fee Sheet"); ?></a></strong>
+                <p><i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i> <strong><?php echo xlt("For a search to show results the codes must exist in the database.");?></strong>  <strong><a href="#setup" class="oe-help-redirect"><?php echo xlt("See Setup the Fee Sheet"); ?></a></strong>
                 
                 <p><?php echo xlt("Select the appropriate radio button. Enter the search term in the search box and click 'Search'. A popup box will alert you about success or failure."); ?>
                 
@@ -154,7 +165,7 @@ require_once("../../globals.php");
             </div>
             <div class= "row" id="setup">
                 <h4 class="oe-help-heading"><?php echo xlt("Setup the Fee Sheet"); ?><a href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
-                <p><i class="fa fa-exclamation-triangle" style="color:red" aria-hidden="true"></i> <strong><?php echo xlt("You need administrator privileges to perform the setup."); ?></strong>
+                <p><i class="fa fa-exclamation-triangle oe-text-red" aria-hidden="true"></i> <strong><?php echo xlt("You need administrator privileges to perform the setup."); ?></strong>
                 
                 <p><?php echo xlt("The very first step would be install the ICD codes. Go to Administraion > Other > External Data Loads. Select the Code sets you want to install and click Install."); ?>
                 
@@ -194,7 +205,7 @@ require_once("../../globals.php");
                 
                 <p><?php echo xlt("The following steps will help customize the Fee Sheet to mimic the old paper superbill with a list of CPT4 and ICD codes arranged in categories."); ?>
                 
-                <p><i class="fa fa-exclamation-triangle" style="color:red" aria-hidden="true"></i> <strong><?php echo xlt("Before you begin customization please ensure that all the ICD and CPT codes you will be needing have been entered into the database."); ?></strong> <strong><a href="#setup" class="oe-help-redirect"><?php echo xlt("See Setup the Fee Sheet"); ?></a></strong>
+                <p><i class="fa fa-exclamation-triangle oe-text-red" aria-hidden="true"></i> <strong><?php echo xlt("Before you begin customization please ensure that all the ICD and CPT codes you will be needing have been entered into the database."); ?></strong> <strong><a href="#setup" class="oe-help-redirect"><?php echo xlt("See Setup the Fee Sheet"); ?></a></strong>
                 
                 <p><?php echo xlt("The first step is to plan what your Fee Sheet 'Select Codes' section should display."); ?>
                 
@@ -204,7 +215,7 @@ require_once("../../globals.php");
                 
                 <p><?php echo xlt("Open a spreadsheet in openoffice/LibreOffice create 5 columns - three for E/M / CPT codes and two for the ICD code categories."); ?>
                 
-                <p><?php echo xlt("Alternatively download a sample spreadsheet."); ?> &nbsp <a href="fee_sheet_customization.ods" class= "btn btn-default btn-download" download="Fee Sheet Customization" target="_blank"> <?php echo xlt("Download"); ?></a>
+                <p><?php echo xlt("Alternatively download a sample spreadsheet."); ?> &nbsp <a href="../../interface/forms/fee_sheet/fee_sheet_customization.ods" class= "btn btn-default btn-download" download="Fee Sheet Customization" target="_blank"> <?php echo xlt("Download"); ?></a>
 
                 <p><?php echo xlt("Fill in the CPT codes using the displayed format. The common E/M codes are already filled in, add more as needed."); ?>
                 
@@ -226,13 +237,13 @@ require_once("../../globals.php");
                 
                 <p><?php echo xlt("Enter the category data in the appropriate fields and click 'Save'. These will  be used to group the ICD codes and will be displayed on the buttons in the 'Select Codes' section."); ?>
                 
-                <p><i class="fa fa-exclamation-circle" style="color:orange" aria-hidden="true"></i> <strong><?php echo xlt("Go to Adminstration > Lists and select 'Code Types' from the dropdown box. Use either ICD 9 or ICD 10, inactivate ICD 9 and select 'No' in the last dropdown box under ICD 10."); ?></strong>
+                <p><i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i> <strong><?php echo xlt("Go to Adminstration > Lists and select 'Code Types' from the dropdown box. Use either ICD 9 or ICD 10, inactivate ICD 9 and select 'No' in the last dropdown box under ICD 10."); ?></strong>
                 
                 <p><?php echo xlt("Go to Adminstration > Codes. Select ICD 10 under Type, enter ICD 10 Code, enter Description, under category select an appropriate category, this ICD 10 code will then appear when the button with that category is clicked."); ?>
                 
                 <p><?php echo xlt("Click 'Save'."); ?>
                 
-                <p><i class="fa fa-exclamation-circle" style="color:orange" aria-hidden="true"></i> <strong><?php echo xlt("After you have finished entering all the ICD 10 codes go to Adminstration > Lists and select 'Code Types' from the dropdown box. Select 'ICD10 Diagnosis' from the last dropdown box under ICD 10."); ?></strong>
+                <p><i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i> <strong><?php echo xlt("After you have finished entering all the ICD 10 codes go to Adminstration > Lists and select 'Code Types' from the dropdown box. Select 'ICD10 Diagnosis' from the last dropdown box under ICD 10."); ?></strong>
                 
                 <p><?php echo xlt("Click 'Save'. Now you will be able to use the Search feature to search all ICD 10 codes."); ?>
                 

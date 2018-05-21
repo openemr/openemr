@@ -1,13 +1,17 @@
 <?php
- // Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ * Access Control List Help.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Ranganath Pathak <pathak01@hotmail.com>
+  * @version 1.0.0
+ * @copyright Copyright (c) 2017 Ranganath Pathak <pathak01@hotmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 use OpenEMR\Core\Header;
 
-include_once("../globals.php");
+require_once("../../interface/globals.php");
 ?>
 <!DOCTYPE HTML>
 <html>
@@ -15,7 +19,15 @@ include_once("../globals.php");
     <?php Header::setupHeader();?>
     <title><?php echo xlt("EOB Posting - Instructions");?></title>
     <style>
-    .oe-help-heading{
+        .oe-help-container a {
+            text-decoration: none !important;
+            color: #676666 !important;
+            font-weight: 700;
+        }
+        .oe-help-container h2>a {
+            font-weight: 500;
+        }
+        .oe-help-heading{
             color:#676666;
             background-color: #E4E2E0;
             border-color: #DADADA;
@@ -25,13 +37,23 @@ include_once("../globals.php");
         .oe-help-redirect{
             color:#676666;
         }
-        a {
-            text-decoration: none !important;
-            color:#676666 !important;
-            font-weight:700;
+        .oe-text-orange {
+            color:orange;
         }
-        h2 > a {
-            font-weight:500;
+        .oe-text-red {
+            color:red;
+        }
+        .oe-text-green {
+            color:green;
+        }
+        .oe-text-black {
+            color:black;
+        }
+        .oe-no-float{
+            float:none; 
+        }
+        .oe-inline{
+            display:inline;
         }
         @media only screen and (max-width: 768px) {
            [class*="col-"] {
@@ -39,18 +61,11 @@ include_once("../globals.php");
            text-align:left!Important;
             }
         }
-        @media only screen and (max-width: 1004px) and (min-width: 641px)  {
-            .oe-large {
-                display: none;
-            }
-            .oe-small {
-                display: inline-block;
-            }
-        }
     </style>
+   
     </head>
     <body>
-        <div class="container" id="home-div">
+        <div class="container oe-help-container" id="home-div">
             <div>
                 <center><h2><a name = 'entire_doc'><?php echo xlt("EOB Data Entry");?></a></h2></center>
             </div>
