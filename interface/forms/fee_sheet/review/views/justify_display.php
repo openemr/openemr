@@ -47,7 +47,7 @@
                 <select data-bind="value: searchType, options: diag_code_types, optionsText: 'key'"></select>
             </span>
         </span>
-        <table>
+        <table class="table table-condensed">
             <thead>
                 <tr>
                     <th class='sort' data-bind="event: {click: sort_justify}" title="<?php echo xla('Click to sort') ?>">#</th>
@@ -58,7 +58,7 @@
             <tbody data-bind="foreach: $data.diagnosis_options">
                 <tr data-bind="attr:{class: source, encounter_issue: encounter_issue}">
                     <td class="priority" data-bind="text: priority()!=99999 ? priority() : ''"/></td>
-                    <td class="checkbox"><input type="checkbox" data-bind="checked: selected, event:{click: function(data,event){return check_justify(data,event,$parent);}}" /></td>
+                    <td class=""><input type="checkbox" data-bind="checked: selected, event:{click: function(data,event){return check_justify(data,event,$parent);}}" /></td>
                     <td class="problem_info"><input type="checkbox" data-bind="visible: $data.prob_id()==null && $data.allowed_to_create_problem_from_diagnosis()=='TRUE', checked: create_problem" title="<?php echo xla('Check to create problem from this diagnosis');?>"/></td>
                     <td class="info" data-bind="text: code, attr:{title:code_type}"></td>
                     <td class="info">
