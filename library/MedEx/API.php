@@ -1365,7 +1365,7 @@ class Display extends base
         <div class="row">
             <div class="col-sm-12 text-center">
                 <div class="showRecalls" id="show_recalls">
-                    <div class="title">MedEx <?php echo xlt('Preferences'); ?></div>
+                    <div class="title"><?php echo text('MedEx');?> <?php echo xlt('Preferences'); ?></div>
                     <div name="div_response" id="div_response" class="form-inline"><br />
                     </div>
                     <form action="#" name="save_prefs" id="save_prefs">
@@ -1375,7 +1375,7 @@ class Display extends base
                                     <div class="divTable2">
                                         <div class="divTableBody prefs">
                                             <div class="divTableRow">
-                                                <div class="divTableCell divTableHeading">MedEx <?php echo xlt('Username'); ?></div>
+                                                <div class="divTableCell divTableHeading"><?php echo text('MedEx');?> <?php echo xlt('Username'); ?></div>
                                                 <div class="divTableCell indent20">
                                                     <?php echo $prefs['ME_username']; ?>
                                                 </div>
@@ -1530,7 +1530,7 @@ class Display extends base
                                                                 <?php
                                                                 if ($service['product_id'] =='54') {
                                                                     ?>
-                                                                    <div style="margin-left:10px;">Appointment Reminders<br />Patient Recalls<br />SMS Bot<br />Go Green Messages</div>
+                                                                    <div style="margin-left:10px;"><?php echo xlt('Appointment Reminders');?><br /><?php echo xlt('Patient Recalls');?><br /><?php echo xlt('SMS Bot');?><br /><?php echo xlt('Go Green Messages');?></div>
                                                                     <?php
                                                                 }
                                                             } ?>
@@ -1550,7 +1550,7 @@ if (!empty($logged_in['products']['not_ordered'])) {
                     <?php
                     if ($service['product_id'] =='54') {
                         ?>
-                        <div style="margin-left:10px;">Appointment Reminders<br />Patient Recalls<br />SMS Bot<br />Go Green Messages</div>
+                        <div style="margin-left:10px;"><?php echo xlt('Appointment Reminders');?><br /><?php echo xlt('Patient Recalls');?><br /><?php echo xlt('SMS Bot');?><br /><?php echo xlt('Go Green Messages');?></div>
                         <?php
                     }
             } ?>
@@ -1718,7 +1718,7 @@ if (!empty($logged_in['products']['not_ordered'])) {
                                           </td></tr>
 
                                           <tr><td class="text-center" colspan="2">
-                                            <input href="#" class="btn btn-primary" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>">
+                                            <button class="btn btn-default btn-filter" style="float:none;" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>"><?php echo xlt('Filter'); ?></button>
                                             </td>
                                           </tr>
                                         </table>
@@ -1750,7 +1750,7 @@ if (!empty($logged_in['products']['not_ordered'])) {
                                             }
                                             ?>
                                             <a class="fa fw fa-plus-square-o" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Add a New Recall'); ?>" id="BUTTON_new_recall_menu" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=addRecall"></a>
-                                            <b><u>MedEx <?php echo xlt('Recall Schedule'); ?></u></b><br />
+                                            <b><u><?php echo text('MedEx');?> <?php echo xlt('Recall Schedule'); ?></u></b><br />
                                             <a href="https://medexbank.com/cart/upload/index.php?route=information/campaigns&amp;g=rec" target="_medex">
                                                 <span>
                                                     <?php echo $current_events; ?>
@@ -2303,19 +2303,19 @@ if (!empty($logged_in['products']['not_ordered'])) {
                 <div class="divTableCell text-center" style="width:10%;"><?php echo xlt('Recall'); ?></div>
 
                 <div class="divTableCell text-center phones" style="width:10%;"><?php echo xlt('Contacts'); ?></div>
-                <div class="divTableCell text-center msg_resp"><?php echo xlt('Postcards'); ?><br />
+                <div class="divTableCell text-center msg_resp" style="width:5%;"><?php echo xlt('Postcards'); ?><br />
                     <span onclick="top.restoreSession();checkAll('postcards',true);" class="fa fa-square-o fa-lg" id="chk_postcards"></span>
                     &nbsp;&nbsp;
                     <span onclick="process_this('postcards');" class="fa fa-print fa-lg"></span>
                 </div>
-                <div class="divTableCell text-center msg_resp"><?php echo xlt('Labels'); ?><br />
+                <div class="divTableCell text-center msg_resp" style="width:5%;"><?php echo xlt('Labels'); ?><br />
                     <span onclick="checkAll('labels',true);" class="fa fa-square-o fa-lg" id="chk_labels"></span>
                     &nbsp;&nbsp;
                     <span onclick="process_this('labels');" class="fa fa-print fa-lg"></span>
                 </div>
-                <div class="divTableCell text-center msg_resp"><?php echo xlt('Office').": ".xlt('Phone'); ?></div>
-                <div class="divTableCell text-center msg_notes"><?php echo xlt('Notes'); ?></div>
-                <div class="divTableCell text-center"><?php echo xlt('Progress'); ?>
+                <div class="divTableCell text-center msg_resp" style="width:10%;"><?php echo xlt('Office').": ".xlt('Phone'); ?></div>
+                <div class="divTableCell text-center msg_notes" style="width:20%;"><?php echo xlt('Notes'); ?></div>
+                <div class="divTableCell text-center"style="width:30%;"><?php echo xlt('Progress'); ?>
                 </div>
 
             </div>
@@ -2498,7 +2498,7 @@ if (!empty($logged_in['products']['not_ordered'])) {
                     </form>
                 </div>
                 <div class="row-fluid text-center">
-                    <input class="btn btn-primary" onclick="add_this_recall();" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new">
+                    <button class="btn btn-default btn-add" style="float:none;" onclick="add_this_recall();" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new"><?php echo xlt('Add Recall'); ?></button>
                     <p>
                         <em class="small text-muted">* <?php echo xlt('N.B.{{Nota bene}}')." ".xlt('Demographic changes made here are recorded system-wide'); ?>.</em>
                     </p>
@@ -2731,7 +2731,7 @@ class Setup extends Base
                         </div>
                     </div>
                     <div class="text-center row showReminders">
-                        <input value="<?php echo xla('Sign-up'); ?>" onclick="goReminderRecall('setup&stage=2');" class="btn btn-primary">
+                        <button type="button" style="float:none" value="<?php echo xla('Sign-up'); ?>" onclick="goReminderRecall('setup&stage=2');" class="btn btn-default btn-add"><?php echo xla('Sign-up'); ?></button>
                     </div>
 
                 </div>
@@ -2745,7 +2745,7 @@ class Setup extends Base
             <form name="medex_start" id="medex_start">
                 <div class="col-sm-10 col-sm-offset-1 text-center">
                     <div id="setup_1" class="showReminders borderShadow">
-                        <div class="title row fa"><?php echo xlt('Register'); ?>: MedEx Bank</div>
+                        <div class="title row fa"><?php echo xlt('Register'); ?>: <?php echo xlt('MedEx Bank');?></div>
                         <div class="row showReminders">
                             <div class="fa col-sm-10 col-sm-offset-1 text-center">
                                 <div class="divTable4" id="answer" name="answer">
@@ -2785,13 +2785,13 @@ class Setup extends Base
                                 <div id="ihvread" name="ihvread" class="fa text-left">
                                     <input type="checkbox" class="updated required" name="TERMS_yes" id="TERMS_yes" required>
                                     <label for="TERMS_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="Terms and Conditions"><?php echo xlt('I have read and my practice agrees to the'); ?>
-                                        <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=5','TERMS',800, 600);">MedEx <?php echo xlt('Terms and Conditions'); ?></a></label><br />
+                                        <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=5','TERMS',800, 600);"><?php echo text('MedEx');?> <?php echo xlt('Terms and Conditions'); ?></a></label><br />
                                     <input type="checkbox" class="updated required" name="BusAgree_yes" id="BusAgree_yes" required>
                                     <label for="BusAgree_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="BAA"><?php echo xlt('I have read and accept the'); ?>
-                                    <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=8','Bus Assoc Agree',800, 600);">MedEx <?php echo xlt('Business Associate Agreement'); ?></a></label>
+                                    <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=8','Bus Assoc Agree',800, 600);"><?php echo text('MedEx');?> <?php echo xlt('Business Associate Agreement'); ?></a></label>
                                     <br />
                                     <div class="align-center row showReminders">
-                                        <input id="Register" class="btn btn-primary" value="<?php echo xla('Register'); ?>" />
+                                        <button type="button" id="Register" class="btn btn-default btn-save" style="float:none" value="<?php echo xla('Register'); ?>"><?php echo xlt('Register'); ?></button>
                                     </div>
 
                                     <div id="myModal" class="modal fade" role="dialog">
@@ -2801,22 +2801,22 @@ class Setup extends Base
                                         <div class="modal-content">
                                           <div class="modal-header"  style="background-color: #0d4867;color: #fff;font-weight: 700;">
                                             <button type="button" class="close" data-dismiss="modal" style="color:#fff;opacity:1;box-shadow:unset !important;">&times;</button>
-                                            <h2 class="modal-title" style="font-weight:600;">Sign-Up Confirmation</h2>
+                                            <h2 class="modal-title" style="font-weight:600;"><?php echo xlt('Sign-Up Confirmation');?></h2>
                                           </div>
                                           <div class="modal-body" style="padding: 10px 45px;">
-                                            <p>You are opening a secure connection to MedExBank.com.  During this step your EHR will synchronize with the MedEx servers.  <br />
+                                            <p><?php echo xlt('You are opening a secure connection to MedExBank.com.  During this step your EHR will synchronize with the MedEx servers.');?>  <br />
                                                 <br />
-                                                Re-enter your username (e-mail) and password in the MedExBank.com login window to:
+                                                <?php echo xlt('Re-enter your username (e-mail) and password in the MedExBank.com login window to');?>:
                                                 <ul style="text-align: left;width: 90%;margin: 0 auto;">
-                                                    <li> confirm your practice and providers' information</li>
-                                                    <li> choose your service options</li>
-                                                    <li> update and activate your messages </li>
+                                                    <li> <?php echo xlt("confirm your practice and providers' information");?></li>
+                                                    <li> <?php echo xlt('choose your service options');?></li>
+                                                    <li> <?php echo xlt('update and activate your messages');?> </li>
                                                 </ul>
                                             </p>
                                           </div>
                                           <div class="modal-footer">
-                                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                                            <button type="button" class="btn btn-default" onlick="actualSignUp();" id="actualSignUp">Proceed</button>
+                                            <button type="button" class="btn btn-default btn-cancel" data-dismiss="modal"><?php echo xlt('Cancel');?></button>
+                                            <button type="button" class="btn btn-default btn-add" onclick="actualSignUp();" id="actualSignUp"><?php echo xlt('Proceed');?></button>
                                           </div>
                                         </div>
 
