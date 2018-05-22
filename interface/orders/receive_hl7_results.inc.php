@@ -728,6 +728,8 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 }
             }
         } else if ('ORC' == $a[0] && 'ORU' == $msgtype) {
+            // ORC segment, http://hl7-definition.caristix.com:9010/Default.aspx?version=HL7%20v2.5.1&segment=ORC
+            // if received set a flag to later create a "new" order for each OBR
             $orc = true;
             $context = $a[0];
             $arep = array();
@@ -755,12 +757,13 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $in_procedure_code = $tmp[0];
             $in_procedure_name = $tmp[1];
             //add specimen source onto name for dermatology
-            if (!empty($a[14])) {
+            if (!empty($a[15])) {
                 $in_procedure_name = $in_procedure_name . " - " . $a[15];
             }
             $in_report_status = rhl7ReportStatus($a[25]);
 
             // Filler identifier is supposed to be unique for each incoming report.
+            // but maybe not for results only? https://corepointhealth.com/resource-center/hl7-resources/hl7-oru-message
             $in_filler_id = $a[3];
             // Child results will have these pointers to their parent.
             $in_parent_obrkey = '';
@@ -821,7 +824,9 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 }
 
                 if (!$in_orderid || $orc) {
-                    // Create order.
+                    // Create order.  Also create a "new" order for each OBR using $orc flag
+                    // since the external order id (filler #) maybe reused due to the inclusion of an ORC segment.
+                    // https://corepointhealth.com/resource-center/hl7-resources/hl7-obr-segment
                     // Need to identify the ordering provider and, if possible, a recent encounter.
                     $datetime_report = rhl7DateTime($a[22]);
                     $date_report = substr($datetime_report, 0, 10) . ' 00:00:00';
