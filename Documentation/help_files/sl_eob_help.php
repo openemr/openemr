@@ -50,10 +50,10 @@ require_once("../../interface/globals.php");
             color:black;
         }
         .oe-no-float{
-            float:none; 
+            float:none !Important; 
         }
         .oe-inline{
-            display:inline;
+            display:inline !Important;
         }
         @media only screen and (max-width: 768px) {
            [class*="col-"] {
@@ -129,9 +129,9 @@ require_once("../../interface/globals.php");
                         
                 </form>
                 <br>
-                <p><?php echo xlt("In the 'Post Item' section that is displayed at the top you may enter a source (e.g. check number), pay date and check amount.  The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim.  The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.")?>
+                <p><?php echo xlt("In the 'Post Item' section that is displayed at the top you may enter a source (e.g. check number), pay date and check amount. The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim. The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.")?>
 
-                <p><?php echo xlt("The section labeled 'Invoice Search' is where you put in your search parameters.  You can search by patient name, chart number, encounter number or date of service, or any combination of these. You may also select whether you want to see all invoices, open invoices, or only invoices that are due (by the patient).  Click the 'Search' button to perform the search.")?>
+                <p><?php echo xlt("The section labeled 'Invoice Search' is where you put in your search parameters. You can search by patient name, chart number, encounter number or date of service, or any combination of these. You may also select whether you want to see all invoices, open invoices, or only invoices that are due (by the patient). Click the 'Search' button to perform the search.")?>
 
                 <p><?php echo xlt("The Search results are displayed in the section 'Search Results'.")?>
                  <form>
@@ -142,9 +142,9 @@ require_once("../../interface/globals.php");
                         </fieldset>
                 </form>
                 <br>
-                <p><?php echo xlt("Upon a successful search you are presented with a list of invoices. You may click on one of the invoice numbers to open a second window, which is the data entry page for manual posting.  You may also click on a patient name if you want to enter a note that the front office staff will see when the patient checks in, and  you may select invoices to appear on patient statements and print those statements.");?>
+                <p><?php echo xlt("Upon a successful search you are presented with a list of invoices. You may click on one of the invoice numbers to open a second window, which is the data entry page for manual posting. You may also click on a patient name if you want to enter a note that the front office staff will see when the patient checks in, and you may select invoices to appear on patient statements and print those statements.");?>
 
-                <p><?php echo xlt("Upon clicking an invoice number the 'manual posting window' appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received. Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.");?>
+                <p><?php echo xlt("Upon clicking an invoice number the 'manual posting window' appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected payments have been received. Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.");?>
 
                 <p><?php echo xlt("The Source and Date columns are copied from the first page, so normally you will not need to touch those. You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both. You can also click the 'W' on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.");?>
 
@@ -156,7 +156,7 @@ require_once("../../interface/globals.php");
             </div>
             <div class= "row" id="era-upload-div">
                 <h4 class="oe-help-heading"><?php echo xlt("ERA Upload"); ?><a id = 'electronic_remits' name = 'electonic_remits' href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
-                <p><?php echo xlt("Alternatively, you may choose to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse. You can do this by first selecting the 'ERA upload' option in the inital 'Select Method' section. This brings up the 'ERA Upload' Section.")?>
+                <p><?php echo xlt("Alternatively, you may choose to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse. You can do this by first selecting the 'ERA upload' option in the initial 'Select Method' section. This brings up the 'ERA Upload' Section.")?>
                 <form>
                     <fieldset>
                         <legend>

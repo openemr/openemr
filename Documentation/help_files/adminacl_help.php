@@ -53,10 +53,10 @@ use OpenEMR\Core\Header;
             color:black;
         }
         .oe-no-float{
-            float:none; 
+            float:none !Important; 
         }
         .oe-inline{
-            display:inline;
+            display:inline !Important;
         }
         @media only screen and (max-width: 768px) {
            [class*="col-"] {
@@ -216,7 +216,7 @@ use OpenEMR\Core\Header;
 
                 <p><?php echo xlt("The user's actual privileges are determined by the access to the parts of the program i.e. (ACO) that each group (ARO) has."); ?>
 
-                <p><?php echo xlt("To move the groups from one column to another select one or more items from the column that you need to move them out of and press the relevant button with the double chevrons."); ?> <input class='button_submit' type='button' value=' >> ' >&nbsp;&nbsp;<input class='button_submit' type='button' value=' << ' >
+                <p><?php echo xlt("To move the groups from one column to another select one or more items from the column that you need to move them out of and press the relevant button with the double chevrons."); ?> <input class='button_submit oe-inline oe-no-float' type='button' value=' >> ' >&nbsp;&nbsp;<input class='button_submit oe-inline oe-no-float' type='button' value=' << ' >
 
                 <p><?php echo xlt("To select multiple groups hold down the 'Shift' or 'Ctrl' keys while clicking."); ?>
 
@@ -240,7 +240,7 @@ use OpenEMR\Core\Header;
 
                 <p><?php echo xlt("The items listed in the 'Active' column delineate the privileges of this group (ARO) and constitutes this group's Access Control List (ACL)."); ?>
 
-                <p><?php echo xlt("Move the individual items from 'Active' to 'Inactive' or vice-versa by selecting the items and pressing the relevant button with the double chevron."); ?>  <input class='button_submit' type='button' value=' >> ' >&nbsp;&nbsp;<input class='button_submit' type='button' value=' << ' >
+                <p><?php echo xlt("Move the individual items from 'Active' to 'Inactive' or vice-versa by selecting the items and pressing the relevant button with the double chevron."); ?>  <input class='button_submit oe-inline oe-no-float' type='button' value=' >> ' >&nbsp;&nbsp;<input class='button_submit oe-inline oe-no-float' type='button' value=' << ' >
 
                 <p><i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i> <strong><?php echo xlt("Note there is no 'Save' button."); ?></strong>
 

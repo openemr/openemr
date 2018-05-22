@@ -54,10 +54,10 @@ require_once("../../interface/globals.php");
             color:white;
         }
         .oe-no-float{
-            float:none; 
+            float:none !Important; 
         }
         .oe-inline{
-            display:inline;
+            display:inline !Important;
         }
         @media only screen and (max-width: 768px) {
            [class*="col-"] {
@@ -101,7 +101,7 @@ require_once("../../interface/globals.php");
 
                 <p><?php echo xlt("Sensitivity - lets you limit the information in this encounter to those with appropriate privileges");?>.
                 
-                <p><?php echo xlt("The default is Normal, i.e. it is visible to everyone. Selecting High will restrict it to users belonging to the Physicians and Administrators groups by deafult");?>.
+                <p><?php echo xlt("The default is Normal, i.e. it is visible to everyone. Selecting High will restrict it to users belonging to the Physicians and Administrators groups by default");?>.
                 
                 <p><i class="fa fa-exclamation-triangle oe-text-red" aria-hidden="true"></i> <strong><?php echo xlt("You need administrator privileges to give access to other groups");?>.</strong>
                 
@@ -126,7 +126,7 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("It is used to link problems with encounters and is also used to see which encounters are associated to a particular issue");?>.
 
                 <p><?php echo xlt("Clicking on the Add Issue button brings up the add issue pop-up box");?>.
-                <a class="css_button_small oe-no-float" style="color:white !Important"><?php echo xlt("Add Issue");?></a>
+                <a class="css_button_small oe-no-float oe-inline" style="color:white !Important"><?php echo xlt("Add Issue");?></a>
 
                 <p><?php echo xlt("The default issue type is set to Problem");?>.
 
@@ -137,7 +137,7 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("Select an appropriate ICD/CPT code. This helps search for education material to give to the patient for that particular problem");?>.
 
                 <p><?php echo xlt("To link this encounter/consult to an existing issue, click the desired issue above to highlight it and then click Save");?>.
-                <button type="button" class="btn btn-default btn-sm btn-save"><?php echo xlt("Save");?></button>
+                <button type="button" class="btn btn-default btn-sm btn-save oe-inline oe-no-float"><?php echo xlt("Save");?></button>
 
                 <p><?php echo xlt("Hold down Ctrl button to select multiple issues");?>.
 

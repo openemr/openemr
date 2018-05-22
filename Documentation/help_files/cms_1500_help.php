@@ -51,10 +51,10 @@ require_once("../../interface/globals.php");
             color:black;
         }
         .oe-no-float{
-            float:none; 
+            float:none !Important; 
         }
         .oe-inline{
-            display:inline;
+            display:inline !Important;
         }
         @media only screen and (max-width: 768px) {
            [class*="col-"] {
@@ -76,7 +76,7 @@ require_once("../../interface/globals.php");
                 
                 <p><?php echo xlt("A standardized form called the Health Insurance Claim Form is used to submit claims");?>.
                 
-                <p><?php echo xlt("The Health Insurance Claim Form is often refered to by its form number CMS 1500 (HCFA 1500)");?>.
+                <p><?php echo xlt("The Health Insurance Claim Form is often referred to by its form number CMS 1500 (HCFA 1500)");?>.
                 
                 <p><?php echo xlt("Although the HCFA-1500 originally was developed for submitting Medicare claims, it eventually was accepted by all commercial/ private insurance carriers to facilitate the standardization of the claims process");?>.
                 
@@ -86,7 +86,7 @@ require_once("../../interface/globals.php");
                 
                 <p><?php echo xlt("HCFA 1500 or CMS 1500 - both refer to the same form. Prior to 2001 the federal agency within the United States Department of Health and Human Services (HHS) that administers the Medicare program was called Health Care Financing Administration (HCFA) since then it is called Centers for Medicare & Medicaid Services (CMS)");?>.
                 
-                <p><?php echo xlt("CMS 1500 was revised on 2012-02-01 and is hence called Form 1500 (02-12) and is set to expire on 2020-03-31. As of  April 1, 2014 only the revised, 02-12 version is accepted.");?>.
+                <p><?php echo xlt("CMS 1500 was revised on 2012-02-01 and is hence called Form 1500 (02-12) and is set to expire on 2020-03-31. As of April 1, 2014 only the revised, 02-12 version is accepted.");?>.
                 
                 <p><?php echo xlt("The UB-04 (CMS 1450) is a claim form used by hospitals, nursing facilities, in-patient, and other facility providers");?>.
                 
@@ -98,7 +98,7 @@ require_once("../../interface/globals.php");
                 
                 <p><?php echo xlt("The CMS 1500 form has 33 boxes and is divided into two sections");?>.&nbsp;<a href="https://www.cms.gov/Medicare/CMS-Forms/CMS-Forms/Downloads/CMS1500.pdf" target="_blank"><i id="show_hide" class="fa fa-eye fa-lg small" title=<?php echo xlt("Click to Show");?>></i></a>
                 
-                <p><?php echo xlt("Patient and Insured Informatiom - Boxes 1 - 13 and  Physician or Supplier Information - Boxes 14 - 33");?>.
+                <p><?php echo xlt("Patient and Insured Informatiom - Boxes 1 - 13 and Physician or Supplier Information - Boxes 14 - 33");?>.
                 
                 <p><?php echo xlt("The information provided in the New Encounter Form and Fee Sheet in openEMR is used to generate the paper claim as well as electronic claims");?>.
                 
@@ -123,11 +123,11 @@ require_once("../../interface/globals.php");
                 
                 <p><?php echo xlt("Box 10 - This information indicates whether the patient’s illness or injury is related to employment, auto accident, or other accident");?>.
                 
-                <p><?php echo xlt("Box 10 D  - Is used to submit the Early and Periodic Screening, Diagnosis and Treatment (EPSDT) Referral Code");?>.
+                <p><?php echo xlt("Box 10 D - Is used to submit the Early and Periodic Screening, Diagnosis and Treatment (EPSDT) Referral Code");?>.
                 
                 <p><?php echo xlt("Box 14 - Is Populated from the Encounter Screen as the Onset Date. It identifies the first date of onset of illness, the actual date of injury, or the LMP for pregnancy");?>.
                 
-                <p><?php echo xlt("Box 16 - Dates Patient Unable to Work in Current Occupation  - is the time span the patient is or was unable to work");?>.
+                <p><?php echo xlt("Box 16 - Dates Patient Unable to Work in Current Occupation - is the time span the patient is or was unable to work");?>.
                 
                  <p><?php echo xlt("Box 17 - The name entered is the referring provider, ordering provider or supervising provider who referred, ordered, or supervised the service(s) or supply(ies) on the claim. If multiple providers are involved, enter one provider using the following priority order: 1. Referring Provider, 2. Ordering Provider, 3. Supervising Provider.");?>.
                 
@@ -139,7 +139,7 @@ require_once("../../interface/globals.php");
                 
                 <p><?php echo xlt("Box 23 - Prior Authorization Number is the payer assigned number authorizing the service(s)");?>.
                 
-                <p><?php echo xlt("X12 only: Replacement Claim,  X12 only ICN resubmission No is used for electronic resubmission of claims. Requirement varies by insurer");?>.
+                <p><?php echo xlt("X12 only: Replacement Claim, X12 only ICN resubmission No is used for electronic resubmission of claims. Requirement varies by insurer");?>.
             </div>
             <div class= "row" id="add_notes">
                 <h4 class="oe-help-heading"><?php echo xlt("Additional Notes"); ?><a href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
