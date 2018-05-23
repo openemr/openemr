@@ -262,7 +262,7 @@ ul.tabNav li.current {
 	text-align: left;
 }
 ul.tabNav a {
-	background: #E1E4F0;
+	background: $palepale;
 	border: solid $dark;
 	border-width: 3px 1px 0px 1px;
 	color: #333;
@@ -277,7 +277,18 @@ ul.tabNav a:hover {
 	background-color: $dark;
 	color: #000000;
 }
+
+div.tabContainer div.current {
+    border: 1px solid $pale;
+    background: $pale;
+}
+
 /*RP_MODIFIED 2/11/2015 */
+
+ul.tabNav li.current a {
+    background: $pale;
+    padding: 8px;
+}
 
 /*
 * REPORTS
