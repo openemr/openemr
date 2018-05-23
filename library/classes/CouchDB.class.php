@@ -129,8 +129,14 @@ class CouchDB
         // Set couchdb to use ssl, if applicable.
         // Can support basic encryption by including just the couchdb-ca pem (this is mandatory for ssl)
         if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/couchdb-ca")) {
-            $context = stream_context_create();
-            $result = stream_context_set_option($context, 'ssl', 'cafile', $GLOBALS['OE_SITE_DIR'] . '/documents/certificates/couchdb-ca');
+            $contextOptions = [
+                'ssl' => [
+                    'verify_peer' => true,
+                    'cafile' => $GLOBALS['OE_SITE_DIR'] . '/documents/certificates/couchdb-ca',
+                    'peer_name' => $this->host
+                ]
+            ];
+            $context = stream_context_create($contextOptions);
             $s = stream_socket_client("ssl://" . $this->host . ":" . $this->ssl_port, $errno, $errstr, ini_get("default_socket_timeout"), STREAM_CLIENT_CONNECT, $context);
         } else {
             $s = fsockopen($this->host, $this->port, $errno, $errstr);
