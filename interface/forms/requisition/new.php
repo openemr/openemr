@@ -12,6 +12,11 @@
 use OpenEMR\Core\Header;
 
 require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/options.inc.php");
+require_once("$srcdir/htmlspecialchars.inc.php");
+require_once("$srcdir/lab.inc");
 
 formHeader("Form:Lab Requisition");
 
