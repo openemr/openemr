@@ -318,6 +318,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         foreach ($row as $result) {
             $provider_details = "<encounter_provider>
                     <facility_id>".$result['id']."</facility_id>
+                    <facility_npi>".htmlspecialchars($result['facility_npi'], ENT_QUOTES)."</facility_npi>
+                    <facility_oid>".htmlspecialchars($result['facility_code'], ENT_QUOTES)."</facility_oid>
                     <facility_name>".htmlspecialchars($result['name'], ENT_QUOTES)."</facility_name>
                     <facility_phone>".htmlspecialchars(($result['phone'] ? $result['phone'] : 0), ENT_QUOTES)."</facility_phone>
                     <facility_fax>".htmlspecialchars($result['fax'], ENT_QUOTES)."</facility_fax>
@@ -998,8 +1000,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $results = "";
         $query   = "SELECT fe.date, fe.encounter,fe.reason,
-	    f.id as fid, f.name, f.phone, f.street as fstreet, f.city as fcity, f.state as fstate, f.postal_code as fzip, f.country_code, f.phone as fphone,
-	    u.fname, u.mname, u.lname, u.npi, u.street, u.city, u.state, u.zip, u.phonew1, cat.pc_catname, lo.title, lo.codes AS physician_type_code,
+	    f.id as fid, f.name, f.phone, f.street as fstreet, f.city as fcity, f.state as fstate, f.postal_code as fzip, f.country_code, f.phone as fphone, f.facility_npi as fnpi,
+	    f.facility_code as foid, u.fname, u.mname, u.lname, u.npi, u.street, u.city, u.state, u.zip, u.phonew1, cat.pc_catname, lo.title, lo.codes AS physician_type_code,
 	    SUBSTRING(ll.diagnosis, LENGTH('SNOMED-CT:')+1, LENGTH(ll.diagnosis)) AS encounter_diagnosis, ll.title, ll.begdate, ll.enddate
 	    FROM form_encounter AS fe
 	    LEFT JOIN facility AS f ON f.id=fe.facility_id
@@ -1072,11 +1074,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 		<zip>".htmlspecialchars($row['zip'], ENT_QUOTES)."</zip>
 		<work_phone>".htmlspecialchars($row['phonew1'], ENT_QUOTES)."</work_phone>
 		<location>".htmlspecialchars($row['name'], ENT_QUOTES)."</location>
-    <location_details>".htmlspecialchars($location_details, ENT_QUOTES)."</location_details>
+        <location_details>".htmlspecialchars($location_details, ENT_QUOTES)."</location_details>
 		<date>".htmlspecialchars($this->date_format(substr($row['date'], 0, 10)), ENT_QUOTES)."</date>
 		<date_formatted>".htmlspecialchars(preg_replace('/-/', '', substr($row['date'], 0, 10)), ENT_QUOTES)."</date_formatted>		
 		<facility_extension>".htmlspecialchars(base64_encode($_SESSION['site_id'].$row['fid']), ENT_QUOTES)."</facility_extension>
 		<facility_sha_extension>".htmlspecialchars(sha1($_SESSION['site_id'].$row['fid']), ENT_QUOTES)."</facility_sha_extension>
+		<facility_npi>".htmlspecialchars($row['fnpi'], ENT_QUOTES)."</facility_npi>
+		<facility_oid>".htmlspecialchars($row['foid'], ENT_QUOTES)."</facility_oid>
 		<facility_name>".htmlspecialchars($row['name'], ENT_QUOTES)."</facility_name>
 		<facility_address>".htmlspecialchars($row['fstreet'], ENT_QUOTES)."</facility_address>
 		<facility_city>".htmlspecialchars($row['fcity'], ENT_QUOTES)."</facility_city>
