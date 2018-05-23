@@ -12,7 +12,7 @@ stories.add('entry', () => (
 ));
 
 stories.add('password', () => (
-    <input class="form-control" type="entry" />
+    <input class="form-control" type="password" />
 ));
 
 stories.add('search', () => (
