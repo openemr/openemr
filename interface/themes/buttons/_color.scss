@@ -44,7 +44,7 @@ select {
 	margin: 3px;
 }
 input[type="text"]:focus, input[type="entry"]:focus, input[type="password"]:focus, input[type="search"]:focus, textarea:focus, select:focus {
-	background: #E1E4F0;
+	background: $palepale;
 	border-color: $darkest !important;
 	box-shadow: 0 0 3px $midpale !important;
 	outline: none;
