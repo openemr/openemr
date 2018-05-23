@@ -165,6 +165,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 <head>
 
     <?php Header::setupHeader(['common']); ?>
+    <?php Header::setupHeader(['dygraphs']); ?>
 
 <script type="text/javascript" language="JavaScript">
 
