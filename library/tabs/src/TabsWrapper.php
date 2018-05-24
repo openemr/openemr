@@ -124,6 +124,7 @@ function twSetup(tabsid) {
   tabs.on("click", "span.ui-icon-close", function() {
     var mytabsid = $(this).closest("div").attr("id");
     var panelId = $(this).prev().attr("href").substring(1);
+    top.restoreSession();
     twCloseTab(mytabsid, panelId);
   });
 }
@@ -140,6 +141,7 @@ function twAddTab(tabsid, label, content) {
   var panelId = tabsid + '-' + (++twObject[tabsid].counter);
   var li = "<li><a href='#" + panelId + "'>" + label + "</a> <span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
   twObject[tabsid].tabs.find(".ui-tabs-nav").append(li);
+  top.restoreSession();
   twObject[tabsid].tabs.append("<div id='" + panelId + "'>" + content + "</div>");
   twObject[tabsid].tabs.tabs("refresh");
   twObject[tabsid].tabs.tabs("option", "active", oldcount);
@@ -149,6 +151,7 @@ function twAddTab(tabsid, label, content) {
 // Add a new tab using an iframe loading a specified URL.
 function twAddFrameTab(tabsid, label, url) {
   var panelId = twNextTabId(tabsid);
+  top.restoreSession();
   twAddTab(
     tabsid,
     label,
@@ -161,6 +164,7 @@ function twAddFrameTab(tabsid, label, url) {
 function twCloseTab(tabsid, panelId) {
   twObject[tabsid].tabs.find("[href='#" + panelId + "']").closest("li").remove();
   twObject[tabsid].tabs.find("#" + panelId).remove();
+  top.restoreSession();
   twObject[tabsid].tabs.tabs("refresh");
 }
 
