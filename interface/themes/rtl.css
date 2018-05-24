@@ -196,7 +196,7 @@ body {
     padding: 5px 0 5px 10px;
 }
 .sellistclass {
-float:right;
+    float:right;
 }
 /*
  * TABS
@@ -205,8 +205,8 @@ float:right;
 ul.tabNav { margin: 0; padding: 0; }
 ul.tabNav { float: right; }
 ul.tabNav li { float: right;
-               margin: 0 1px 0 0;
-               padding: 6px 0 0;
+    margin: 0 1px 0 0;
+    padding: 6px 0 0;
     text-align: right;
 }
 ul.tabNav li.current {
@@ -214,7 +214,7 @@ ul.tabNav li.current {
     text-align: right;
 }
 ul.tabNav a {
-   padding: 4px 4px 5px 4px;
+    padding: 4px 4px 5px 4px;
 }
 ul.tabNav li.current a {padding: 8px; }
 
@@ -223,33 +223,33 @@ div.tabContainer {
 }
 
 div.tab table td {
-	padding-right: 1px;
+    padding-right: 1px;
 }
 /*
 * REPORTS
 */
 
 #report_parameters table table td.label_custom {
-	text-align: left;
+    text-align: left;
 }
 
 #report_results table thead {
-	text-align:right;
+    text-align:right;
 }
 /**
 * List-table formatting
 **/
 .showborder td {
-text-align:right;
+    text-align:right;
 }
 .showborder_head  th {
-text-align:right;
+    text-align:right;
 }
 .shownoborder td {
-text-align:right;
+    text-align:right;
 }
 .showborder_long tr td{
-text-align:right;
+    text-align:right;
 }
 
 
@@ -266,15 +266,15 @@ text-align:right;
 
 #sddm li
 {	margin: 0;
-	padding: 0;
-        float:right;
+    padding: 0;
+    float:right;
 }
 
 #sddm li a
 {
-	margin: 0 1px 0 0;
-	padding: 4px 10px;
-	text-align:right;
+    margin: 0 1px 0 0;
+    padding: 4px 10px;
+    text-align:right;
 }
 
 #sddm div a
@@ -286,15 +286,15 @@ text-align:right;
 
 
 .text-area{
-  text-align:right;
+    text-align:right;
 }
 .example_menu a {
-	margin-left: 0;
-	padding: 2px 2px 2px 17px;
+    margin-left: 0;
+    padding: 2px 2px 2px 17px;
 }
 
 #menu1 li.footer, #menu2 li.footer, #menu3 li.footer, #menu4 li.footer, #menu5 li.footer, .example_menu .footer {
-	margin: 0 0 10px 0;
+    margin: 0 0 10px 0;
 }
 
 /* Calander */
@@ -373,7 +373,7 @@ table#main-title tr td:nth-child(4) table{
     width: 55% !important;
 }
 .demographics-box>div:last-child{
-   margin-right: 55%
+    margin-right: 55%
 }
 
 
@@ -448,8 +448,8 @@ td.amount-msg{
 #pt_table_paginate #pt_table_next{
 
     float: none !important;
-     background: url('../../library/css/images/back_disabled.png') no-repeat top left !important;
-     display: inline-block;
+    background: url('../../library/css/images/back_disabled.png') no-repeat top left !important;
+    display: inline-block;
     width: 54px !important;
     padding-left: 20px !important;
     padding-right: 5px !important;
@@ -459,11 +459,11 @@ td.amount-msg{
 #pt_table_paginate #pt_table_previous{
 
     float: none !important;
-     background: url('../../library/css/images/forward_disabled.png') no-repeat top right !important;
-     display: inline-block;
-     width: 54px !important;
-     padding-right: 20px !important;
-     padding-left: 5px !important;
+    background: url('../../library/css/images/forward_disabled.png') no-repeat top right !important;
+    display: inline-block;
+    width: 54px !important;
+    padding-right: 20px !important;
+    padding-left: 5px !important;
 
 }
 
