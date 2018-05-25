@@ -1876,14 +1876,15 @@ function getEffectiveInsurances($patient_id, $encdate)
 }
 
 /**
- * Get all requisition insurance companies 
+ * Get all requisition insurance companies
  *
  *
  */
 
-function getAllinsurances($pid){
-   $insarr = array();
-   $sql = "SELECT a.type, a.provider, a.plan_name, a.policy_number, a.group_number, 
+function getAllinsurances($pid)
+{
+    $insarr = array();
+    $sql = "SELECT a.type, a.provider, a.plan_name, a.policy_number, a.group_number, 
            a.subscriber_lname, a.subscriber_fname, a.subscriber_relationship, a.subscriber_employer, 
 		   b.name, c.line1, c.line2, c.city, c.state, c.zip 
            FROM `insurance_data` AS a
@@ -1892,12 +1893,12 @@ function getAllinsurances($pid){
            RIGHT JOIN addresses AS c 
            ON a.provider = c.foreign_id
            WHERE a.pid = ? ";
-   $inco = sqlStatement($sql,array($pid));
+    $inco = sqlStatement($sql, array($pid));
    
-    while($icl = sqlFetchArray($inco)){
-	  $insarr[] = $icl;
-	}
-   return $insarr; 
+    while ($icl = sqlFetchArray($inco)) {
+        $insarr[] = $icl;
+    }
+    return $insarr;
 }
 
 /**

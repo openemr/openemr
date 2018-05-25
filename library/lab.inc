@@ -19,10 +19,9 @@
 function fetchProcedureId($pid, $encounter)
 {
     $sql = "SELECT procedure_order_id FROM procedure_order WHERE patient_id = ? AND encounter_id = ?";
-    $res = sqlQuery($sql,array($pid,$encounter));
+    $res = sqlQuery($sql, array($pid,$encounter));
 
     return $res['procedure_order_id'];
-
 }
 
 /**
@@ -43,9 +42,9 @@ function getProceduresInfo($oid, $encounter)
 	 AND po.encounter_id = ?
 	 AND po.procedure_order_id = ?";
 
-    $listOrders = sqlStatement($sql,array($oid,$encounter,$oid));
+    $listOrders = sqlStatement($sql, array($oid,$encounter,$oid));
     $orders = array();
-    while($rows = sqlFetchArray($listOrders)){
+    while ($rows = sqlFetchArray($listOrders)) {
         $orders[] = $rows['procedure_order_id'];
         $orders[] = $rows['procedure_order_seq'];
         $orders[] = $rows['procedure_code'];
@@ -63,7 +62,6 @@ function getProceduresInfo($oid, $encounter)
     }
 
     return $orders;
-
 }
 
 /**
@@ -74,10 +72,9 @@ function getProceduresInfo($oid, $encounter)
 function getSelfPay($pid)
 {
     $sql = "SELECT subscriber_relationship FROM insurance_data WHERE pid = ?";
-    $res = sqlQuery($sql,array($pid));
+    $res = sqlQuery($sql, array($pid));
 
     return $res['subscriber_relationship'];
-
 }
 
 /**
@@ -87,7 +84,7 @@ function getSelfPay($pid)
 function getNPI($prov_id)
 {
     $sql = "SELECT npi, upin FROM users WHERE id = ?";
-    $res = sqlQuery($sql,array($prov_id));
+    $res = sqlQuery($sql, array($prov_id));
     return array($res['npi'], $res['upin']);
 }
 
@@ -99,11 +96,10 @@ function getProcedureProvider($prov_id)
     $sql = "SELECT i.organization, i.street, i.city, i.state, i.zip, i.fax, i.phone, pi.lab_director ".
            "FROM users AS i, procedure_providers AS pi WHERE pi.ppid = ? AND pi.lab_director = i.id ";
 
-    $res = sqlStatement($sql,array($prov_id));
+    $res = sqlStatement($sql, array($prov_id));
     $labs = sqlFetchArray($res);
 
     return $labs;
-
 }
 
 /**
@@ -114,7 +110,7 @@ function getLabProviders($prov_id)
 {
 
     $sql = "select fname, lname from users where authorized = 1 and active = 1 and username != '' and id = ?";
-    $rez = sqlQuery($sql,array($prov_id));
+    $rez = sqlQuery($sql, array($prov_id));
 
 
     return $rez;
@@ -128,21 +124,19 @@ function getLabconfig()
     $sql = "SELECT recv_app_id, recv_fac_id FROM procedure_providers ";
     $res = sqlQuery($sql);
     return $res;
-
 }
 
-function saveBarCode($bar,$pid,$order)
+function saveBarCode($bar, $pid, $order)
 {
     $sql = "INSERT INTO `requisition` (`id`, `req_id`, `pid`, `lab_id`) VALUES (NULL, ?, ?, ?)";
     $inarr = array($bar,$pid,$order);
-    sqlStatement($sql,$inarr);
-
+    sqlStatement($sql, $inarr);
 }
 
-function getBarId($lab_id,$pid)
+function getBarId($lab_id, $pid)
 {
     $sql = "SELECT req_id FROM requisition WHERE lab_id = ? AND pid = ?";
-    $bar = sqlQuery($sql,array($lab_id,$pid));
+    $bar = sqlQuery($sql, array($lab_id,$pid));
 
     return $bar;
 }
