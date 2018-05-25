@@ -9,14 +9,14 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Core\Header;
 
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/htmlspecialchars.inc.php");
 require_once("$srcdir/lab.inc");
+
+use OpenEMR\Core\Header;
 
 formHeader("Form:Lab Requisition");
 
@@ -72,32 +72,32 @@ table, th, td {
      border: 1px solid black;
      border-collapse: collapse;
  }
- 
+
  .req {
      margin: auto;
      width: 90%;
      padding: 10px;
  }
- 
+
  .reqHeader {
      margin: auto;
      width: 90%;
-     padding: 10px;  
+     padding: 10px;
  }
- 
+
  .cinfo {
      float: left;
 
  }
- 
+
  .pdata {
-    
+
      position: relative;
      right: -205px;
      z-index: -5;
-     
+
  }
- 
+
  #printable { display: none; }
 
     @media print
@@ -105,7 +105,7 @@ table, th, td {
         #non-printable { display: none; }
         #printable { display: block; }
     }
- 
+
    .notes {
        padding: 5px;
        position: relative;
@@ -113,7 +113,7 @@ table, th, td {
        width: 255px;
        height: 125px;
    }
- 
+
   .dx {
       padding: 5px;
       position: relative;
@@ -123,17 +123,17 @@ table, th, td {
       width: 130px;
       height: 125px;
   }
-  
+
   .plist {
       padding: 5px;
       position: relative;
       float: left;
-    
+
   }
-  
+
   .pFill {
       float: left;
-      
+
   }
   .barcode{
       position: relative;
@@ -308,7 +308,7 @@ if (!empty($ins[0]['subscriber_relationship']) && $ins[0]['subscriber_relationsh
                         <?php echo "/"; ?></br>
                         <?php echo text($ins[1]['name']); ?></br>
                         <?php echo text($ins[1]['line1']); ?></br>
-                        <?php echo text($ins[1]['city']) .", ". xlt($ins[1]['state'])." ".$ins[1]['zip']; ?></br>
+                        <?php echo text($ins[1]['city']) .", ". text($ins[1]['state'])." ".$ins[1]['zip']; ?></br>
                         <?php echo text($ins[1]['policy_number']); ?></br>
                         <?php echo text($ins[1]['group_number']); ?></br>
                         <?php echo "/"; ?></br>
