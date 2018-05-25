@@ -498,12 +498,16 @@ if (($config == 1) && ($state < 4)) {
                 echo "Creating user with permissions for database...\n";
                 flush();
                 $user_mysql_error = true;
-                if (! $installer->create_database_user()) {
-                    echo "ERROR when creating specified user.\n";
-                    echo $installer->error_message;
-                    break;
+                if (!$installer->check_database_user()) {
+                    if (! $installer->create_database_user()) {
+                        echo "ERROR when creating specified user.\n";
+                        echo $installer->error_message;
+                        break;
+                    } else {
+                        $user_mysql_error = false;
+                    }
                 } else {
-                    $user_mysql_error = false;
+                    echo "User '" . $installer->login . "' already exists, granting privileges...";
                 }
                 if (! $installer->grant_privileges()) {
                     echo "ERROR when granting privileges to the specified user.\n";
