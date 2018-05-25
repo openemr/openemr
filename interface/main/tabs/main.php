@@ -59,12 +59,12 @@ function allFramesLoaded() {
 }
 
 function goRepeaterServices(){
-    top.restoreSession();
     // Ensure send the skip_timeout_reset parameter to not count this as a manual entry in the
     //  timing out mechanism in OpenEMR.
 
     // Send the skip_timeout_reset parameter to not count this as a manual entry in the
     //  timing out mechanism in OpenEMR.
+    top.restoreSession();
     $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php",
         { skip_timeout_reset: "1" },
         function(data) {
@@ -73,6 +73,7 @@ function goRepeaterServices(){
         }
     );
 
+    top.restoreSession();
     // run background-services
     $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/execute_background_services.php",
         { skip_timeout_reset: "1", ajax: "1" }

@@ -296,6 +296,7 @@ function openEncounterForm(formdir, formname, formid) {
   var url = '<?php echo "$rootdir/patient_file/encounter/view_form.php?formname=" ?>' +
     formdir + '&id=' + formid;
   if (formdir == 'newpatient' || !parent.twAddFrameTab) {
+    top.restoreSession();
     location.href = url;
   }
   else {
