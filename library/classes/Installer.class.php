@@ -193,9 +193,25 @@ class Installer
         return $this->execute_sql($sql);
     }
 
+    public function check_database_user()
+    {
+        return $this->execute_sql("SELECT user FROM mysql.user WHERE user = '" . $this->escapeSql($this->login) . "' AND host = '" . $this->escapeSql($this->loginhost) . "'");
+    }
+
     public function create_database_user()
     {
-        return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'");
+        $checkUser = $this->check_database_user();
+
+        if ($checkUser === false) {
+            // there was an error in the check database user query, so return false
+            return false;
+        } else if ($checkUser->num_rows > 0) {
+            // the mysql user already exists, so do not need to create the user, but need to set the password
+            return $this->execute_sql("ALTER USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'");
+        } else {
+            // the mysql user does not yet exist, so create the user
+            return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'");
+        }
     }
 
     public function grant_privileges()
