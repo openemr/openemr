@@ -155,7 +155,8 @@ class Header
     {
         $script = (isset($opts['script'])) ? $opts['script'] : false;
         $link = (isset($opts['link'])) ? $opts['link'] : false;
-        $basePath = self::parsePlaceholders($opts['basePath']);
+        $path = (isset($opts['basePath'])) ? $opts['basePath'] : '';
+        $basePath = self::parsePlaceholders($path);
 
         $scripts = [];
         $links = [];
@@ -196,7 +197,7 @@ class Header
     /**
      * Parse a string for $GLOBAL key placeholders %key-name%.
      *
-     * Perform a regex match all in the given subject for anything warpped in
+     * Perform a regex match all in the given subject for anything wrapped in
      * percent signs `%some-key%` and if that string exists in the $GLOBALS
      * array, will replace the occurence with the value of that key.
      *
