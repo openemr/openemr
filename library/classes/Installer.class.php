@@ -197,6 +197,19 @@ class Installer
     {
         return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'");
     }
+    
+    public function check_database_user()
+    {
+        $sql = "USE mysql";
+        $this->execute_sql($sql);
+        $sql = "SELECT User from user WHERE User = '" . $this->escapeSql($this->login) ."'";
+        $result = $this->execute_sql($sql);
+        if ($result->num_rows > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     public function grant_privileges()
     {
@@ -522,12 +535,15 @@ if ($it_died != 0) {
                 if (! $this->create_database()) {
                     return false;
                 }
-
-                // Create the mysql user
-                if (! $this->create_database_user()) {
-                    return false;
+                
+                //if ($this->check_database_user() === false) {
+                if (!$this->check_database_user()) {
+                    // Create the mysql user if not exists
+                    if (! $this->create_database_user()) {
+                        return false;
+                    }
                 }
-
+                
                 // Grant user privileges to the mysql database
                 if (! $this->grant_privileges()) {
                     return false;
