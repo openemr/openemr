@@ -1,22 +1,22 @@
 {
     "name": "ccdaservice",
-    "version": "0.1.0",
-    "description": "ccdaservice",
-    "main": "serveccda.njs",
+    "version": "5.0.1",
+    "description": "OpenEMR ccda templating generator service",
+    "main": "serveccda.js",
     "scripts": {},
     "repository": {
         "type": "git",
-        "url": "https://github.com/sjpadgett/openemr/tree/ccdaservice"
+        "url": "https://github.com/openemr/openemr/tree/master/ccdaservice"
     },
     "keywords": [
         "node.js",
-        "eclipse",
-        "nodeclipse"
+        "OpenEMR",
+        "CCDA"
     ],
     "author": "sjpadgett@gmail.com",
-    "license": "MIT",
+    "license": "AGPL-3.0",
     "dependencies": {
-        "blue-button-generate": "sjpadgett/blue-button-generate#master",
+        "oe-blue-button-generate": "^1.5.7",
         "net": "^1.0.2",
         "xmljson": "^0.2.0"
     },
