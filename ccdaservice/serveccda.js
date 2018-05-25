@@ -23,7 +23,7 @@
 "use strict";
 var net = require('net');
 var to_json = require('xmljson').to_json;
-var bbg = require('blue-button-generate');
+var bbg = require('oe-blue-button-generate');
 //var bbm = require('blue-button-model'); //for use set global-not needed here
 //var fs = require('fs');
 //var bb = require('blue-button');
@@ -31,9 +31,10 @@ var fs = require('fs');
 
 var server = net.createServer();
 var conn = ''; // make our connection scope global to script
-var facOid = "";
+var oidFacility = "";
 var all = "";
 var npiProvider = "";
+var npiFacility = "";
 
 // some useful routines for populating template sections
 function validate(toValidate, ref, retObj) {
@@ -106,13 +107,37 @@ function safeId(s) {
 }
 
 function fDate(str) {
-
     str = String(str); // at least ensure string so cast it...
 
     if (Number(str) === 0) {
         return '';
     }
+    if (str.length === 8 || (str.length === 14 && (1 * str.substring(12, 14)) === 0)) {
+        return [str.slice(0, 4), str.slice(4, 6), str.slice(6, 8)].join('-')
+    } else if (str.length === 10 && (1 * str.substring(0, 2)) <= 12) {
+        // case mm/dd/yyyy or mm-dd-yyyy
+        return [str.slice(6, 10), str.slice(0, 2), str.slice(3, 5)].join('-')
+    } else if (str.length === 14 && (1 * str.substring(12, 14)) > 0) {
+        // maybe a real time so parse
+    }
     return str;
+}
+
+function getPrecision(str) {
+    str = String(str);
+    let pflg = "day";
+
+    if (Number(str) === 0) {
+        return "day";
+    }
+    if (str.length > 8) {
+        pflg = "minute";
+    }
+    if (str.length > 12) {
+        pflg = "second";
+    }
+
+    return pflg;
 }
 
 function templateDate(date, precision) {
@@ -182,7 +207,7 @@ function populateDemographic(pd, g) {
         },
         "gender": pd.gender.toUpperCase(),
         "identifiers": [{
-            "identifier": facOid,
+            "identifier": oidFacility,
             "extension": "PT-" + pd.id
         }],
         "marital_status": pd.status.toUpperCase() || "U",
@@ -216,8 +241,8 @@ function populateDemographic(pd, g) {
         "attributed_provider": {
             "identity": [
                 {
-                    "root": "2.16.840.1.113883.4.6",
-                    "extension": all.primary_care_provider.provider[0].npi || "UNK"
+                    "root": oidFacility || "2.16.840.1.113883.4.6",
+                    "extension": npiFacility || "UNK"
                 }
             ],
             "phone": [{
@@ -327,13 +352,14 @@ function populateMedication(pd) {
         },
         "identifiers": [{
             "identifier": pd.sha_extension,
-            "extension": pd.extension
+            "extension": pd.extension || "UNK"
         }],
         "status": pd.status,
         "sig": pd.direction,
         "product": {
             "identifiers": [{
-                "identifier": "2a620155-9d11-439e-92b3-5d9815ff4ee8"
+                "identifier": "2a620155-9d11-439e-92b3-5d9815ff4ee8",
+                "extension": "UNK"
             }],
             "unencoded_name": pd.drug,
             "product": {
@@ -361,7 +387,7 @@ function populateMedication(pd) {
                 "date_time": {
                     "point": {
                         "date": fDate(pd.start_date),
-                        "precision": "minute"
+                        "precision": getPrecision(fDate(pd.start_date))
                     }
                 },
                 "identifiers": [{
@@ -525,7 +551,7 @@ function populateEncounter(pd) {
         "date_time": {
             "point": {
                 "date": fDate(pd.date_formatted),
-                "precision": "minute"
+                "precision": getPrecision(fDate(pd.date_formatted))
             }
         },
         "performers": [{
@@ -590,7 +616,7 @@ function populateAllergy(pd) {
     return {
         "identifiers": [{
             "identifier": "36e3e930-7b14-11db-9fe1-0800200c9a66",
-            "extension": pd.extension
+            "extension": pd.id || "UNK"
         }],
         "date_time": {
             "point": {
@@ -600,7 +626,8 @@ function populateAllergy(pd) {
         },
         "observation": {
             "identifiers": [{
-                "identifier": "4adc1020-7b14-11db-9fe1-0800200c9a66"
+                "identifier": "4adc1020-7b14-11db-9fe1-0800200c9a66",
+                "extension": pd.extension || "UNK"
             }],
             "allergen": {
                 "name": pd.title,
@@ -679,7 +706,7 @@ function populateProblem(pd) {
         },
         "identifiers": [{
             "identifier": pd.sha_extension,
-            "extension": pd.extension
+            "extension": pd.extension || "UNK"
         }],
         "problem": {
             "code": {
@@ -694,7 +721,7 @@ function populateProblem(pd) {
                 },
                 /*"high": {
                     "date": fDate(pd.end_date),
-                    "precision": "minute"
+                    "precision": getPrecision()
                 }*/
             }
         },
@@ -724,13 +751,14 @@ function populateProblem(pd) {
                 },
                 /*"high": {
                     "date": fDate(pd.end_date),
-                    "precision": "minute"
+                    "precision": getPrecision()
                 }*/
             }
         },
         "patient_status": pd.observation,
         "source_list_identifiers": [{
-            "identifier": pd.sha_extension
+            "identifier": pd.sha_extension,
+            "extension": pd.extension || "UNK"
         }]
     };
 
@@ -853,36 +881,39 @@ function populateResult(pd) {
 }
 
 function getResultSet(results) {
+
     if (!results) return '';
+
+    let tResult = results.result[0] || results.result;
     var resultSet = {
         "identifiers": [{
-            "identifier": results.result[0].root,
-            "extension": results.result[0].extension
+            "identifier": tResult.root,
+            "extension": tResult.extension
         }],
         "author": [
             {
                 "date_time": {
                     "point": {
-                        "date": fDate(results.result[0].date_ordered),
-                        "precision": "minute"
+                        "date": fDate(tResult.date_ordered),
+                        "precision": getPrecision(fDate(tResult.date_ordered))
                     }
                 },
                 "identifiers": [
                     {
                         "identifier": "2.16.840.1.113883.4.6",
-                        "extension": all.primary_care_provider.provider[0].npi || "UNK"
+                        "extension": all.primary_care_provider.provider.npi || "UNK"
                     }
                 ],
                 "name": [
                     {
-                        "last": all.primary_care_provider.provider[0].lname || "",
-                        "first": all.primary_care_provider.provider[0].fname || ""
+                        "last": all.primary_care_provider.provider.lname || "",
+                        "first": all.primary_care_provider.provider.fname || ""
                     }
                 ]
             }],
         "result_set": {
-            "name": results.result[0].test_name,
-            "code": results.result[0].test_code,
+            "name": tResult.test_name,
+            "code": tResult.test_code,
             "code_system_name": "LOINC"
         }
     };
@@ -949,7 +980,7 @@ function populateVital(pd) {
         "date_time": {
             "point": {
                 "date": fDate(pd.effectivetime),
-                "precision": "minute"
+                "precision": getPrecision(fDate(pd.effectivetime))
             }
         },
         "value": parseFloat(pd.bps),
@@ -968,10 +999,10 @@ function populateVital(pd) {
         "date_time": {
             "point": {
                 "date": fDate(pd.effectivetime),
-                "precision": "minute"
+                "precision": getPrecision(fDate(pd.effectivetime))
             }
         },
-        "interpretations": ["UNK"],
+        "interpretations": ["Normal"],
         "value": parseFloat(pd.bpd),
         "unit": "mm[Hg]"
     }, {
@@ -988,10 +1019,10 @@ function populateVital(pd) {
         "date_time": {
             "point": {
                 "date": fDate(pd.effectivetime),
-                "precision": "minute"
+                "precision": getPrecision(fDate(pd.effectivetime))
             }
         },
-        "interpretations": ["UNK"],
+        "interpretations": ["Normal"],
         "value": parseFloat(pd.pulse),
         "unit": "/min"
     }, {
@@ -1008,10 +1039,10 @@ function populateVital(pd) {
         "date_time": {
             "point": {
                 "date": fDate(pd.effectivetime),
-                "precision": "minute"
+                "precision": getPrecision(fDate(pd.effectivetime))
             }
         },
-        "interpretations": ["UNK"],
+        "interpretations": ["Normal"],
         "value": parseFloat(pd.breath),
         "unit": "/min"
     }, {
@@ -1028,10 +1059,10 @@ function populateVital(pd) {
         "date_time": {
             "point": {
                 "date": fDate(pd.effectivetime),
-                "precision": "minute"
+                "precision": getPrecision(fDate(pd.effectivetime))
             }
         },
-        "interpretations": ["UNK"],
+        "interpretations": ["Normal"],
         "value": parseFloat(pd.temperature),
         "unit": "degF"
     }, {
@@ -1048,10 +1079,10 @@ function populateVital(pd) {
         "date_time": {
             "point": {
                 "date": fDate(pd.effectivetime),
-                "precision": "minute"
+                "precision": getPrecision(fDate(pd.effectivetime))
             }
         },
-        "interpretations": ["UNK"],
+        "interpretations": ["Normal"],
         "value": parseFloat(pd.height),
         "unit": pd.unit_height
     }, {
@@ -1068,10 +1099,10 @@ function populateVital(pd) {
         "date_time": {
             "point": {
                 "date": fDate(pd.effectivetime),
-                "precision": "minute"
+                "precision": getPrecision(fDate(pd.effectivetime))
             }
         },
-        "interpretations": ["UNK"],
+        "interpretations": ["Normal"],
         "value": parseFloat(pd.weight),
         "unit": pd.unit_weight
     }, {
@@ -1088,10 +1119,10 @@ function populateVital(pd) {
         "date_time": {
             "point": {
                 "date": fDate(pd.effectivetime),
-                "precision": "minute"
+                "precision": getPrecision(fDate(pd.effectivetime))
             }
         },
-        "interpretations": ["UNK"],
+        "interpretations": ["Normal"],
         "value": parseFloat(pd.BMI),
         "unit": "kg/m2"
     }];
@@ -1124,7 +1155,7 @@ function populateImmunization(pd) {
         },
         "identifiers": [{
             "identifier": "e6f1ba43-c0ed-4b9b-9f12-f435d8ad8f92",
-            "extension": pd.extension
+            "extension": pd.extension || "UNK"
         }],
         "status": "complete",
         "product": {
@@ -1154,8 +1185,8 @@ function populateImmunization(pd) {
         },
         "performer": {
             "identifiers": [{
-                "identifier": "2.16.840.1.113883.19.5.9999.456",
-                "extension": "2981824"
+                "identifier": "2.16.840.1.113883.4.6",
+                "extension": npiProvider
             }],
             "name": [{
                 "last": pd.lname,
@@ -1170,7 +1201,8 @@ function populateImmunization(pd) {
             }],
             "organization": [{
                 "identifiers": [{
-                    "identifier": "2.16.840.1.113883.19.5.9999.1394"
+                    "identifier": oidFacility,
+                    "extension": npiFacility
                 }],
                 "name": [pd.facility_name]
             }]
@@ -1352,8 +1384,8 @@ function populateHeader(pd) {
         "title": "Clinical Health Summary",
         "date_time": {
             "point": {
-                "date": pd.created_time_timezone || "",
-                "precision": "minute"
+                "date": fDate(pd.created_time) || "",
+                "precision": getPrecision(fDate(pd.created_time))
             }
         },
         "author": {
@@ -1498,11 +1530,11 @@ function populateHeader(pd) {
             "date_time": {
                 "low": {
                     "date": "",
-                    "precision": "minute"
+                    "precision": getPrecision()
                 },
                 "high": {
-                    "date": pd.created_time_timezone,
-                    "precision": "minute"
+                    "date": pd.created_time,
+                    "precision": getPrecision()
                 }
             },
             "performer": [
@@ -1615,8 +1647,9 @@ function genCcda(pd) {
     var theone = {};
 
     all = pd;
-    npiProvider = pd.primary_care_provider.provider[0].npi;
-    facOid = all.encounter_provider.facility_oid;
+    npiProvider = all.primary_care_provider.provider[0].npi;
+    oidFacility = all.encounter_provider.facility_oid;
+    npiFacility = all.encounter_provider.facility_npi;
 
 // Demographics
     let demographic = populateDemographic(pd.patient, pd.guardian, pd);
