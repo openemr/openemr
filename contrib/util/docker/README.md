@@ -52,10 +52,11 @@ options to choose from:
 **Step 4.** Setup up OpenEMR. The first time you run OpenEMR (and whenever you clear and replace your
 synchronized openemr directory and restart the development docker). On the main
 setup input screen:
- - for `Server Host`, use either `mariadb` or `mysql` or `mariadb-dev` or `mysql-dev` (you have all
- mariadb/mysql/mariadb-dev/mysql-dev dockers ready to go to make testing either one easy;
- `mysql` is version 5.7 and `mysql-dev` is version 8; `mariadb` is version 10.2 and
- `mariadb-dev` is version 10.3)
+ - for `Server Host`, use either `mariadb` or `mysql` or `mariadb-dev` or `mysql-dev` or `mysql-old`
+ or `mysql-very-old` (you have all mariadb/mysql/mariadb-\*/mysql-\* dockers ready to go to make
+ testing either one easy; `mysql` is version 5.7 and `mysql-dev` is version 8; `mysql-old` is
+ version 5.6; `mysql-very-old` is version 5.5;`mariadb` is version 10.2 and `mariadb-dev` is
+ version 10.3)
  - for `Root Pass`, use `root`
  - for `User Hostname`, use `%`
 
@@ -78,14 +79,17 @@ Run `$ docker ps` to see the OpenEMR and MySQL containers in the following forma
 
 ```
 CONTAINER ID        IMAGE                       COMMAND                  CREATED             STATUS              PORTS                                         NAMES
-1008d348a0c9        mariadb:10.2                "docker-entrypoint..."   2 minutes ago       Up 2 minutes        3306/tcp                                      openemr_mariadb_1
-664c63569927        mysql:8                     "docker-entrypoint..."   2 minutes ago       Up 2 minutes        3306/tcp                                      openemr_mysql-dev_1
-6524b0fb4060        openemr/openemr:flex        "./run_openemr.sh"       2 minutes ago       Up 2 minutes        0.0.0.0:8080->80/tcp, 0.0.0.0:8090->443/tcp   openemr_openemr-7-1_1
-fd0cbeaabcc6        openemr/openemr:flex-edge   "./run_openemr.sh"       2 minutes ago       Up 2 minutes        0.0.0.0:8081->80/tcp, 0.0.0.0:8091->443/tcp   openemr_openemr-7-2_1
-577db79a7350        mariadb:10.3                "docker-entrypoint..."   2 minutes ago       Up 2 minutes        3306/tcp                                      openemr_mariadb-dev_1
-672444f3ec97        mysql:5.7                   "docker-entrypoint..."   2 minutes ago       Up 2 minutes        3306/tcp                                      openemr_mysql_1
-145078602bd0        couchdb                     "tini -- /docker-e..."   2 minutes ago       Up 2 minutes        4369/tcp, 5984/tcp, 9100/tcp                  openemr_couchdb_1
-f72caa088849        phpmyadmin/phpmyadmin       "/run.sh phpmyadmin"     2 minutes ago       Up 2 minutes        0.0.0.0:8100->80/tcp                          openemr_phpmyadmin_1
+b68254d4bcff        mysql:5.7                   "docker-entrypoint..."   28 seconds ago      Up 25 seconds       3306/tcp                                                             openemr_mysql_1
+9526a2515ede        openemr/openemr:flex-edge   "./run_openemr.sh"       28 seconds ago      Up 25 seconds       0.0.0.0:8081->80/tcp, 0.0.0.0:8091->443/tcp                          openemr_openemr-7-2_1
+8eefa9405711        openemr/openemr:flex        "./run_openemr.sh"       28 seconds ago      Up 24 seconds       0.0.0.0:8080->80/tcp, 0.0.0.0:8090->443/tcp                          openemr_openemr-7-1_1
+5c776d276b0f        mariadb:10.2                "docker-entrypoint..."   28 seconds ago      Up 26 seconds       3306/tcp                                                             openemr_mariadb_1
+c3a8f9124f45        mariadb:10.3                "docker-entrypoint..."   28 seconds ago      Up 24 seconds       3306/tcp                                                             openemr_mariadb-dev_1
+09591bfd9682        phpmyadmin/phpmyadmin       "/run.sh phpmyadmin"     28 seconds ago      Up 26 seconds       0.0.0.0:8100->80/tcp                                                 openemr_phpmyadmin_1
+ec8bce53a671        mysql:8                     "docker-entrypoint..."   28 seconds ago      Up 26 seconds       3306/tcp                                                             openemr_mysql-dev_1
+d27c90dc8d46        jodogne/orthanc-plugins     "Orthanc /etc/orth..."   28 seconds ago      Up 25 seconds       0.0.0.0:4242->4242/tcp, 0.0.0.0:8042->8042/tcp                       openemr_orthanc_1
+08480e3e8d53        mysql:5.5                   "docker-entrypoint..."   28 seconds ago      Up 26 seconds       3306/tcp                                                             openemr_mysql-very-old_1
+d257e8415361        couchdb                     "tini -- /docker-e..."   28 seconds ago      Up 26 seconds       0.0.0.0:5984->5984/tcp, 4369/tcp, 9100/tcp, 0.0.0.0:6984->6984/tcp   openemr_couchdb_1
+a1eab82d90be        mysql:5.6                   "docker-entrypoint..."   28 seconds ago      Up 27 seconds       3306/tcp                                                             openemr_mysql-old_1
 ```
  - Note the `NAMES` column is extremely important and how you run docker commands
 on specific containers. For example, to go into a shell script in the
@@ -101,6 +105,7 @@ $ docker exec -it <container_NAME> bash
 ```
 
 ### MySQL Client Access
+GUI can be accessed via the phpMyAdmin at http://localhost:8100
 
 If you are interested in using the MySQL client line as opposed to a GUI program, execute the following (password is passed in/is simple because this is for local development purposes):
 
@@ -139,7 +144,7 @@ PHP 7.1 host machine and port 8081 on the PHP 7.2 host machine.
 PHP 7.1 host machine and port 8091 on the PHP 7.2 host machine.
 - HTTP is running on port 80 in the PhpMyADMIN container and port 8100 on the
 host machine.
-- MySQL is running on port 3306 in the MariaDB/MySQL/MariaDB-dev/MySQL-dev containers.
+- MySQL is running on port 3306 in the MariaDB/MySQL/MariaDB-\*/MySQL-\* containers.
 
 All host machine ports can be changed by editing the `docker-compose.yml` file.
 Host ports differ from the internal container ports by default to avoid conflicts
