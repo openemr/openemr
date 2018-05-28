@@ -14,7 +14,7 @@
 #      or
 #      https://localhost:8091 to run setup in openemr with SSL (alpine edge with PHP 7.2)
 #  On the main setup input screen:
-#   1. for Server Host, use either 'mariadb' or 'mysql' or `mariadb-dev` or 'mysql-dev' or 'mysql-old' or 'mysql-very-old' (have both mariadb/mysql/mariadb-dev/mysql-dev dockers ready to go make testing either one easy; mysql is version 5.7; mysql-dev is version 8; mysql-old is version 5.6; mysql-very-old is version 5.5; mariadb is version 10.2 and mariadb-dev is version 10.3)
+#   1. for Server Host, use either 'mariadb' or 'mysql' or `mariadb-dev` or 'mysql-dev' or 'mysql-old' or 'mysql-very-old' or 'mariadb-old' or 'mariadb-very-old' or 'mariadb-very-very-old'  (have both mariadb/mysql/mariadb-dev/mysql-dev dockers ready to go make testing either one easy; mysql is version 5.7; mysql-dev is version 8; mysql-old is version 5.6; mysql-very-old is version 5.5; mariadb is version 10.2 and mariadb-dev is version 10.3; mariadb-old is version 10.1; mariadb-very-old is version 10.0; mariadb-very-very-old is version 5.5)
 #   2. for Root Pass, use 'root'
 #   3. for User Hostname, use '%'
 #  And when need to tear it down and restart it
@@ -68,6 +68,24 @@ services:
     command: ['mysqld','--character-set-server=utf8','--default-authentication-plugin=mysql_native_password']
     environment:
       MYSQL_ROOT_PASSWORD: root
+  mariadb-old:
+    restart: always
+    image: mariadb:10.1
+    command: ['mysqld','--character-set-server=utf8']
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  mariadb-very-old:
+    restart: always
+    image: mariadb:10.0
+    command: ['mysqld','--character-set-server=utf8']
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  mariadb-very-very-old:
+    restart: always
+    image: mariadb:5.5
+    command: ['mysqld','--character-set-server=utf8']
+    environment:
+      MYSQL_ROOT_PASSWORD: root
   mysql-old:
     restart: always
     image: mysql:5.6
@@ -86,7 +104,7 @@ services:
     ports:
     - 8100:80
     environment:
-      PMA_HOSTS: mariadb,mysql,mariadb-dev,mysql-dev,mysql-old,mysql-very-old
+      PMA_HOSTS: mariadb,mysql,mariadb-dev,mysql-dev,mysql-old,mysql-very-old,mariadb-old,mariadb-very-old,mariadb-very-very-old
   couchdb:
     restart: always
     image: couchdb
