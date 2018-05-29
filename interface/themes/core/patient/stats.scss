@@ -2,35 +2,36 @@
  * Patient Stats
  * seen in the patient stats screens
  *============================================================*/
+
 #patient_stats {
-	padding: 10px;
+    padding: 10px;
 }
 #patient_stats table {
-	width: 100%;
-	border-collapse: collapse;
+    width: 100%;
+    border-collapse: collapse;
 }
 #patient_stats td {
-	padding: 3px;
+    padding: 3px;
 }
 #patient_stats .statrow {
-	cursor: pointer;
+    cursor: pointer;
 }
 #patient_stats .head {
-	background-color:#cccccc;
-	text-align:center;
+    background-color: #cccccc;
+    text-align: center;
 }
 #patient_stats .detail {
-	vertical-align: top;
+    vertical-align: top;
 }
 #patient_stats .btn {
-	background-color:transparent;
+    background-color: transparent;
 }
 #patient_stats .bg1 {
-	background-color: #ddddff;
+    background-color: #ddddff;
 }
 #patient_stats .bg2 {
-	background-color: #ffdddd;
+    background-color: #ffdddd;
 }
 #patient_stats .center {
-	text-align: center;
+    text-align: center;
 }

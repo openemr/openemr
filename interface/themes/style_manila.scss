@@ -1,4 +1,5 @@
 @import "oe-bootstrap";
+@import "oe-common/all-common-import";
 
 .nav-menu-img {
 	display:none !important;
@@ -9,7 +10,7 @@ body {
 	/* set the base font and size for all DOM children */
 	font-family: 'source_sans_pro','FontAwesome';
 	content: "\f0c4";
-	font-size: 12px;  /* set the base font size for all DOM children */
+	font-size: 16px;  /* set the base font size for all DOM children */
 }
 
 @import "core";
@@ -463,3 +464,4 @@ body dl {
 .calendar {
 	z-index:2;
 }
+

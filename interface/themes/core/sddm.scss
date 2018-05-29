@@ -1,34 +1,34 @@
 #sddm li {
-	margin: 0;
-	list-style: none;
-	float: left;
-	background: #f0f0f0;
+    margin: 0;
+    list-style: none;
+    float: left;
+    background: #f0f0f0;
 }
 #sddm li a {
-	display: block;
-	margin: 0 1px 0 0;
-	text-align: left;
-	text-decoration: none;
+    display: block;
+    margin: 0 1px 0 0;
+    text-align: left;
+    text-decoration: none;
 }
 #sddm li a:hover {
-	background: #d7d7d7;
+    background: #d7d7d7;
 }
 #sddm div {
-	position: absolute;
-	visibility: hidden;
+    position: absolute;
+    visibility: hidden;
 }
 #sddm div a {
-	position: relative;
-	display: block;
-	margin: 0;
-	padding: 5px 10px;
-	width: 170px;
-	white-space: normal;
-	text-align: left;
-	text-decoration: none;
-	font-size: 0.8em;
-	font-weight: normal;
+    position: relative;
+    display: block;
+    margin: 0;
+    padding: 5px 10px;
+    width: 170px;
+    white-space: normal;
+    text-align: left;
+    text-decoration: none;
+    font-size: 0.8em;
+    font-weight: normal;
 }
 #sddm div a:hover {
-	color: #ffffff;
+    color: #ffffff;
 }

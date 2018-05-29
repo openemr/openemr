@@ -1,42 +1,42 @@
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 bootstrap nav menu*~~~~~~~~~~~~~~~~~*/
 
 .navbar-custom, .navbar-nav, .nav>.active>a, .navbar-nav>.active>a:hover, .navbar-nav>.active>a:focus {
-	/* color: white;
+    /* color: white;
     background-color: transparent !important;*/
 }
 .navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus, .navbar-default .navbar-nav>.active>a:hover {
-	background-color: $palepale !important;
+    background-color: $palepale !important;
 }
 .dropdown-menu>li>a:focus, .dropdown-menu>li>a:hover {
-	background-color: $palepale !important;
+    background-color: $palepale !important;
 }
 .dropdown-menu {
-	background-color: $paler !important;
-	border-top: 1px solid $paler !important;
-	border-radius: 0px !important;
+    background-color: $paler !important;
+    border-top: 1px solid $paler !important;
+    border-radius: 0px !important;
 }
 .navbar-nav {
-	font-size: 15px;
+    font-size: 15px;
 }
 .navbar-default {
-	background-color: $dark !important;
-	border: none;
+    background-color: $dark !important;
+    border: none;
 }
 .navbar-default .navbar-nav>li>a:focus, .navbar-default .navbar-nav>li>a:hover {
-	background-color: $palepale !important;
+    background-color: $palepale !important;
 }
 .navbar-nav>li>.dropdown-menu {
-	box-shadow: 0px 2px 2px $midpale !important;
+    box-shadow: 0px 2px 2px $midpale !important;
 }
 .navbar-collapse.collapse.in {
-	background-color: $dark !important;
-	font-weight: 700;
-	color: #000000 !important;
+    background-color: $dark !important;
+    font-weight: 700;
+    color: #000000 !important;
 }
 .navbar-default .navbar-brand {
-	color: #000000 !important;
+    color: #000000 !important;
 }
 .navbar-default .navbar-nav>li>a {
-	color: #000000 !important;
+    color: #000000 !important;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 bootstrap nav menu*~~~~~~~~~~~~~~~~~*/
