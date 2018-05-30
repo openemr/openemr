@@ -42,6 +42,6 @@ function start_MedEx()
         echo "200";
     } else {
         echo $MedEx->getLastError();
+        echo "401";
     }
-    echo "401";
 }

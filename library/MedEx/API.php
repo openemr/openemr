@@ -349,18 +349,16 @@ class Events extends Base
             $escClause=[];
             $escapedArr = []; //will hold prepared statement items for query.
             if ($event['M_group'] == 'REMINDER') {
-                if ($event['time_order'] > '0') {
+                if ($event['time_order'] > '0') { //upcoming appts
                     $interval ="+";
                     //NOTE IF you have customized the pc_appstatus flags, you need to adjust them here too.
+                    //reminders are always or stop, that's it.
                     if ($event['E_instructions'] == "stop") {   // ie. don't send this if it has been confirmed.
                         $appt_status = " and pc_apptstatus='-'";//we only look at future appts w/ apptstatus == NONE ='-'
                         // OR send anyway - unless appstatus is not cancelled, then it is no longer an appointment to confirm...
-                    } elseif ($event['E_instructions'] == "always") {  //send anyway
+                    } else {  //send anyway
                         $appt_status = " and pc_apptstatus != '%'
                                              and pc_apptstatus != 'x' ";
-                    } else { //reminders are always or stop, that's it
-                        $event['E_instructions'] ='stop';
-                        $appt_status = " and pc_apptstatus='-'";//we only look at future appts w/ apptstatus == NONE ='-'
                     }
                 } else {
                     // Past appts -> appts that are completed.
@@ -398,9 +396,10 @@ class Events extends Base
                                     WHERE (pc_eventDate > CURDATE() ".$interval." INTERVAL ".$timing." DAY
                                     AND pc_eventDate < (curdate() ".$interval." INTERVAL '".$timing2."' DAY_MINUTE))
                                     AND pc_facility IN (".$places.")
+                                    ". $appt_status."
                                     AND pat.pid=cal.pc_pid  ORDER BY pc_eventDate,pc_startTime";
 
-                    $result = sqlStatement($query, $escapedArr);
+                    $result = sqlStatement($query);
                     while ($appt= sqlFetchArray($result)) {
                         list($response,$results) = $this->MedEx->checkModality($event, $appt);
                         if ($results==false) {
@@ -611,7 +610,6 @@ class Events extends Base
                     if ($results==false) {
                         continue; //not happening - either not allowed or not possible
                     }
-                    $req_appt = print_r($appt, true);
                     $count_announcements++;
 
                     $appt2 = array();
@@ -742,27 +740,7 @@ class Events extends Base
                     }
                 }
             } else if ($event['M_group'] == 'CLINICAL_REMINDER') {
-                continue;
-                // from function fetch_reminders($patient_id = '', $type = '', $due_status = '', $select = '*')
-                // we need to run the update_reminders first... Use the batch feature probably.
-                // Perhaps in MedEx.php?
-                // $MedEx->campaign->events($token); to get the list of things we need to do:
-                //  eg.  category and item.
-                // $sql = "SELECT * FROM `patient_reminders` where `active`='1' AND
-                //      `date_sent` IS NULL ORDER BY `patient_reminders`.`due_status` DESC ";
-                //   and category=$CR['category']
-                //  MedEx needs this - we are extrapolating it's name for display and item = $CR['item'] (M_name)
-                // We should already have the patient id in the $appt array.
-                // We should also have the reminder info we are targeting.
-                // Then we just need to the matching patient data.
-                // Check if possible_modalities here to see if the event is even possible?
-                // Think we should do that in $MedEx->campaign->events($token);
-                // if not possible we will need to add that info into a Clinical Reminders Flow Board........ visually.
-                // We will need to create this which means we need to overhaul the whole reminders code too?
-                //Maybe not.
-
-                //then this
-                $sql = "SELECT * FROM `patient_reminders`,`patient_data`
+               $sql = "SELECT * FROM `patient_reminders`,`patient_data`
                               WHERE
                             `patient_reminders`.pid ='".$event['PID']."' AND
                             `patient_reminders`.active='1' AND
@@ -770,7 +748,6 @@ class Events extends Base
                             `patient_reminders`.pid=`patient_data`.pid
                               ORDER BY `due_status`, `date_created`";
                 $ures = sqlStatementCdrEngine($sql);
-                $returnval=array();
                 while ($urow = sqlFetchArray($ures)) {
                     list($response,$results) = $this->MedEx->checkModality($event, $urow);
                     if ($results==false) {
@@ -779,7 +756,6 @@ class Events extends Base
                     $fields2['clinical_reminders'][] = $urow;
                 }
             } else if ($event['M_group'] == 'GOGREEN') {
-                $count=0;
                 $escapedArr=[];
                 if (!empty($event['appt_stats'])) {
                     $prepare_me ='';
@@ -903,7 +879,6 @@ class Events extends Base
                             continue; //not happening - either not allowed or not possible
                     }
                     $count_appts++;
-                    continue;
                     $appt2 = array();
                     $appt2['pc_pid']        = $appt['pc_pid'];
                     $appt2['pc_eventDate']  = $appt['pc_eventDate'];
@@ -945,7 +920,7 @@ class Events extends Base
         if (!empty($appt3)) {
             $this->process($token, $appt3);
         }
-        $responses['deletes'] = $hipaa;
+        $responses['deletes'] = $deletes;
         $responses['count_appts'] = $count_appts;
         $responses['count_recalls'] = $count_recalls;
         $responses['count_announcements'] = $count_announcements;
@@ -1102,7 +1077,7 @@ class Callback extends Base
             //Store responses in TABLE medex_outgoing
             $sqlINSERT = "INSERT INTO medex_outgoing (msg_pc_eid, msg_pid, campaign_uid, msg_type, msg_reply, msg_extra_text, msg_date, medex_uid)
                                 VALUES (?,?,?,?,?,?,utc_timestamp(),?)";
-
+            if (!$data['M_type']) { $data['M_type'] ='pending'; }
             sqlQuery($sqlINSERT, array($data['pc_eid'],$data['patient_id'], $data['campaign_uid'], $data['M_type'],$data['msg_reply'],$data['msg_extra'],$data['msg_uid']));
 
             if ($data['msg_reply']=="CONFIRMED") {
