@@ -84,3 +84,5 @@
 --    desc: find all MyISAM tables and convert them to InnoDB.
 --    arguments: none
 --    behavior: can take a long time.
+
+UPDATE `background_services` SET `require_once`='/library/MedEx/MedEx_background.php' WHERE `name`='MedEx';
