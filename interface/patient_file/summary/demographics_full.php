@@ -928,7 +928,9 @@ $use_validate_js=$GLOBALS['new_validate'];
             var fval = $('#form_' + flds[i]).val();
             duplicateFieldsArray['#form_' + flds[i]] = fval;
         }
-        $(".sel2").select2();
+        $(".sel2").select2({
+            <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+        });
     })
 </script>
 

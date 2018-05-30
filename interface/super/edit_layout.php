@@ -1693,8 +1693,8 @@ $(document).ready(function(){
             width:'100%',
             minimumResultsForSearch: 'Infinity',
             containerCssClass: ':all:',
-            dir: langDirection,
-            allowClear: false
+            allowClear: false,
+            <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
         });
     });
       // Populate field option selects

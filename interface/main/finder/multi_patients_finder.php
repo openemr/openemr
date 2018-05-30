@@ -166,7 +166,8 @@ $('#by-id, #by-name').select2({
             return query;
         },
         dataType: 'json',
-    }
+    },
+    <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
 });
 
 //get all the data of selected patient
