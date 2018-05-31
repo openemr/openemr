@@ -1,4 +1,5 @@
 @import "oe-bootstrap";
+@import "oe-common/all-common-import";
 
 body {
 	font-family: lato, Helvetica, Sans-Serif;
@@ -306,4 +307,7 @@ ul.tabNav a:focus {
 /* to align feesheet buttons*/
 div.category-display {
 	margin-left: 25px !important;
+}
+.chevron_color {
+    color: #2672ec;
 }

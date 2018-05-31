@@ -1,13 +1,17 @@
 <?php
- // Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ * Access Control List Help.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Ranganath Pathak <pathak01@hotmail.com>
+  * @version 1.0.0
+ * @copyright Copyright (c) 2017 Ranganath Pathak <pathak01@hotmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 use OpenEMR\Core\Header;
 
-include_once("../globals.php");
+require_once("../../interface/globals.php");
 ?>
 <!DOCTYPE HTML>
 <html>
@@ -15,42 +19,17 @@ include_once("../globals.php");
     <?php Header::setupHeader();?>
     <title><?php echo xlt("EOB Posting - Instructions");?></title>
     <style>
-    .oe-help-heading{
-            color:#676666;
-            background-color: #E4E2E0;
-            border-color: #DADADA;
-            padding: 10px 5px;
-            border-radius: 5px;
-        }
-        .oe-help-redirect{
-            color:#676666;
-        }
-        a {
-            text-decoration: none !important;
-            color:#676666 !important;
-            font-weight:700;
-        }
-        h2 > a {
-            font-weight:500;
-        }
         @media only screen and (max-width: 768px) {
            [class*="col-"] {
            width: 100%;
            text-align:left!Important;
             }
         }
-        @media only screen and (max-width: 1004px) and (min-width: 641px)  {
-            .oe-large {
-                display: none;
-            }
-            .oe-small {
-                display: inline-block;
-            }
-        }
     </style>
+   
     </head>
     <body>
-        <div class="container" id="home-div">
+        <div class="container oe-help-container" id="home-div">
             <div>
                 <center><h2><a name = 'entire_doc'><?php echo xlt("EOB Data Entry");?></a></h2></center>
             </div>
@@ -114,9 +93,9 @@ include_once("../globals.php");
                         
                 </form>
                 <br>
-                <p><?php echo xlt("In the 'Post Item' section that is displayed at the top you may enter a source (e.g. check number), pay date and check amount.  The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim.  The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.")?>
+                <p><?php echo xlt("In the 'Post Item' section that is displayed at the top you may enter a source (e.g. check number), pay date and check amount. The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim. The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.")?>
 
-                <p><?php echo xlt("The section labeled 'Invoice Search' is where you put in your search parameters.  You can search by patient name, chart number, encounter number or date of service, or any combination of these. You may also select whether you want to see all invoices, open invoices, or only invoices that are due (by the patient).  Click the 'Search' button to perform the search.")?>
+                <p><?php echo xlt("The section labeled 'Invoice Search' is where you put in your search parameters. You can search by patient name, chart number, encounter number or date of service, or any combination of these. You may also select whether you want to see all invoices, open invoices, or only invoices that are due (by the patient). Click the 'Search' button to perform the search.")?>
 
                 <p><?php echo xlt("The Search results are displayed in the section 'Search Results'.")?>
                  <form>
@@ -127,9 +106,9 @@ include_once("../globals.php");
                         </fieldset>
                 </form>
                 <br>
-                <p><?php echo xlt("Upon a successful search you are presented with a list of invoices. You may click on one of the invoice numbers to open a second window, which is the data entry page for manual posting.  You may also click on a patient name if you want to enter a note that the front office staff will see when the patient checks in, and  you may select invoices to appear on patient statements and print those statements.");?>
+                <p><?php echo xlt("Upon a successful search you are presented with a list of invoices. You may click on one of the invoice numbers to open a second window, which is the data entry page for manual posting. You may also click on a patient name if you want to enter a note that the front office staff will see when the patient checks in, and you may select invoices to appear on patient statements and print those statements.");?>
 
-                <p><?php echo xlt("Upon clicking an invoice number the 'manual posting window' appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received. Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.");?>
+                <p><?php echo xlt("Upon clicking an invoice number the 'manual posting window' appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected payments have been received. Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.");?>
 
                 <p><?php echo xlt("The Source and Date columns are copied from the first page, so normally you will not need to touch those. You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both. You can also click the 'W' on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.");?>
 
@@ -141,7 +120,7 @@ include_once("../globals.php");
             </div>
             <div class= "row" id="era-upload-div">
                 <h4 class="oe-help-heading"><?php echo xlt("ERA Upload"); ?><a id = 'electronic_remits' name = 'electonic_remits' href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
-                <p><?php echo xlt("Alternatively, you may choose to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse. You can do this by first selecting the 'ERA upload' option in the inital 'Select Method' section. This brings up the 'ERA Upload' Section.")?>
+                <p><?php echo xlt("Alternatively, you may choose to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse. You can do this by first selecting the 'ERA upload' option in the initial 'Select Method' section. This brings up the 'ERA Upload' Section.")?>
                 <form>
                     <fieldset>
                         <legend>

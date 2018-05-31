@@ -3,43 +3,41 @@
  */
 
 .chart-dygraphs {
-	direction:ltr;
+    direction: ltr;
 }
-
-
 /**
 * Drug lookup
 **/
-.drug_lookup {
-	border: 2px outset #666666;
-	background-color: #eae6ff;
-	padding: 5px;
-	position: absolute;
-	display: block;
-}
 
+.drug_lookup {
+    border: 2px outset #666666;
+    background-color: #eae6ff;
+    padding: 5px;
+    position: absolute;
+    display: block;
+}
 /* Form styles */
+
 .formtable {
-	line-height: 24px;
+    line-height: 24px;
 }
 .formtable tr td {
-	line-height: 24px;
+    line-height: 24px;
 }
-
 .report_search_bar {
-	background-color: #EADDB4;
+    background-color: #EADDB4;
 }
-
 /* flow board filters*/
-#flow_board_parameters{
-	margin: 25px auto;
-	background-color: #ececec;
+
+#flow_board_parameters {
+    margin: 25px auto;
+    background-color: #ececec;
 }
-#flow_board_parameters td{
-	padding: 10px;
+#flow_board_parameters td {
+    padding: 10px;
 }
 #flow_board_parameters table {
-	border: solid 1px;
-	width: 100%;
-	border-collapse: collapse;
+    border: solid 1px;
+    width: 100%;
+    border-collapse: collapse;
 }

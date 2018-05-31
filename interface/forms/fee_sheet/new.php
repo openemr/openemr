@@ -757,73 +757,6 @@ function pricelevel_changed(sel) {
 
 </script>
 <style>
-   /* td{
-    padding: 3px 10px;
-    }
-    .code_fieldset{
-        border: 1px solid #0000FF;
-        background-color:#F5F5F5;
-        display: block;
-        margin-left: 2px;
-        margin-right: 2px;
-        padding-top: 0.35em;
-        padding-bottom: 1em;
-        padding-left: 0.75em;
-        padding-right: 0.75em;
-        font-size:1.3em;
-        color:black;
-    }
-    .code_edit{
-        background-color:#E0E0E0;
-    }
-    .code_legend{
-        font-weight:700;
-        font-size:16px;
-        background-color:#E0E0E0;
-        padding:0px 5px 0px 5px;
-        border: none!Important;
-        width:auto !Important;
-        font-size:16px !Important;
-        color:black;
-        margin-bottom: 0px;
-    } 
-    #code_edit_table span{
-        background-color:yellow;
-        font-weight:700;
-    }
-    #code_edit_table tr td {
-        padding: 0px 0px 5px 0px;
-    }
-    #code_edit_table .code_edit td {
-        font-weight: 700;
-        padding: 2px 0px 2px 0px;
-    }
-    #code_edit_table .code_edit td:first-child {
-        padding: 0px 0px 0px 10px;
-    }
-    .block {
-        height:100px;
-        width:200px;
-        text-align:left;
-    }
-    .center {
-        margin:auto;
-        
-    }*/
-    .form-group{
-        margin-bottom: 5px;
-    }
-    legend{
-        border-bottom: 2px solid #E5E5E5;
-        background:#E5E5E5;
-        padding-left:10px;
-    }
-    #search_results .table th, .table td { 
-         border-top: none !important; 
-    }
-    .feesheet-title {
-        background-color: #E5E5E5;
-    }
     @media only screen and (max-width: 1024px) {
         div.category-display{
             width:100% !Important;
@@ -847,6 +780,15 @@ $name .= (!empty($enrow['mname'])) ? $enrow['mname'] . ' ' . $enrow['lname'] : $
 $date = xl('for Encounter on') . ' ' . oeFormatShortDate(substr($enrow['date'], 0, 10));
 $title = array(xl('Fee Sheet for'), $name, $date);
 //echo join(" ", $title);
+
+if ($GLOBALS['enable_help'] == 1) {
+    $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xl("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+} elseif ($GLOBALS['enable_help'] == 2) {
+    $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xl("Enable help in Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+} elseif ($GLOBALS['enable_help'] == 0) {
+     $help_icon = '';
+}
+
 ?>
 </head>
 
@@ -856,7 +798,7 @@ $title = array(xl('Fee Sheet for'), $name, $date);
          <div class="row">
             
                 <div class="page-header clearfix">
-                   <h2 id="header_title" class="clearfix"><span id='header_text'><?php echo join(" ", $title); ?></span><a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#000000"><i class="fa fa-question-circle" aria-hidden="true"></i></a></h2>
+                   <h2 id="header_title" class="clearfix"><span id='header_text'><?php echo join(" ", $title); ?></span><?php echo $help_icon; ?></h2>
                 </div>
            
            </div>
@@ -1524,33 +1466,15 @@ $title = array(xl('Fee Sheet for'), $name, $date);
             <br>
         </div>
     </div><!--End of div container -->
-    <div class="row">
-        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content oe-modal-content">
-                    <div class="modal-header clearfix">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true" style="color:#000000; font-size:1.5em;">×</span></button>
-                    </div>
-                    <div class="modal-body">
-                        <iframe src="" id="targetiframe" style="height:75%; width:100%; overflow-x: hidden; border:none"
-                        allowtransparency="true"></iframe>  
-                    </div>
-                    <div class="modal-footer" style="margin-top:0px;">
-                       <button class="btn btn-link btn-cancel pull-right" data-dismiss="modal" type="button"><?php echo xlt('close'); ?></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-        $( document ).ready(function() {
-            $('#help-href').click (function(){
-                document.getElementById('targetiframe').src ='../../forms/fee_sheet/fee_sheet_help.php';
-            })
-       
-        });
-    </script>
+    <?php
+    //home of the help modal ;)
+    //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
+    if ($GLOBALS['enable_help'] == 1) {
+        echo "<script>var helpFile = 'fee_sheet_help.php'</script>";
+        //help_modal.php lives in interface, set path accordingly
+        require_once "../../help_modal.php";
+    }
+    ?> 
     <script>
     $( document ).ready(function() {
         $('select').addClass("form-control");
