@@ -748,7 +748,8 @@ function writeITLine($it_array)
     <script type="text/javascript">
         $(document).ready(function () {
             $(".select-dropdown").select2({
-                theme: "bootstrap"
+                theme: "bootstrap",
+                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
             });
         });
 
