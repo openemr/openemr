@@ -38,25 +38,25 @@
     $MedEx = new MedExApi\MedEx('MedExBank.com');
     $logged_in = $MedEx->login();
     
-    if (($logged_in) && (!empty($_POST['callback_key']))) {
-        $response = array();
-        $data                   = json_decode($_POST, true);
-        $token                  = $logged_in['token'];
+if (($logged_in) && (!empty($_POST['callback_key']))) {
+    $response = array();
+    $data                   = json_decode($_POST, true);
+    $token                  = $logged_in['token'];
       
-        $callback               = $MedEx->callback->receive($data);
-        $practice               = $MedEx->practice->sync($token);
-        $campaigns              = $MedEx->campaign->events($token);
-        $generate               = $MedEx->events->generate($token, $campaigns['events']);
+    $callback               = $MedEx->callback->receive($data);
+    $practice               = $MedEx->practice->sync($token);
+    $campaigns              = $MedEx->campaign->events($token);
+    $generate               = $MedEx->events->generate($token, $campaigns['events']);
       
-        $response['generate']   = $generate;
-        $response['campaigns']  = $campaigns;
-        $response['practice']   = $practice;
-        $response['success']    = "200";
+    $response['generate']   = $generate;
+    $response['campaigns']  = $campaigns;
+    $response['practice']   = $practice;
+    $response['success']    = "200";
         
-        header('Content-type: application/json');
-        echo json_encode($response);
-        exit;
-    }
+    header('Content-type: application/json');
+    echo json_encode($response);
+    exit;
+}
     echo "Not logged in: ";
     echo $MedEx->getLastError();
     exit;

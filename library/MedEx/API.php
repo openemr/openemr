@@ -740,7 +740,7 @@ class Events extends Base
                     }
                 }
             } else if ($event['M_group'] == 'CLINICAL_REMINDER') {
-               $sql = "SELECT * FROM `patient_reminders`,`patient_data`
+                $sql = "SELECT * FROM `patient_reminders`,`patient_data`
                               WHERE
                             `patient_reminders`.pid ='".$event['PID']."' AND
                             `patient_reminders`.active='1' AND
@@ -1077,7 +1077,8 @@ class Callback extends Base
             //Store responses in TABLE medex_outgoing
             $sqlINSERT = "INSERT INTO medex_outgoing (msg_pc_eid, msg_pid, campaign_uid, msg_type, msg_reply, msg_extra_text, msg_date, medex_uid)
                                 VALUES (?,?,?,?,?,?,utc_timestamp(),?)";
-            if (!$data['M_type']) { $data['M_type'] ='pending'; }
+            if (!$data['M_type']) {
+                $data['M_type'] ='pending'; }
             sqlQuery($sqlINSERT, array($data['pc_eid'],$data['patient_id'], $data['campaign_uid'], $data['M_type'],$data['msg_reply'],$data['msg_extra'],$data['msg_uid']));
 
             if ($data['msg_reply']=="CONFIRMED") {
