@@ -124,6 +124,7 @@ function twSetup(tabsid) {
   tabs.on("click", "span.ui-icon-close", function() {
     var mytabsid = $(this).closest("div").attr("id");
     var panelId = $(this).prev().attr("href").substring(1);
+    top.restoreSession();
     twCloseTab(mytabsid, panelId);
   });
 }
