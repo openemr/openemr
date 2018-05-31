@@ -1,12 +1,12 @@
 /*-----------------------openemr5.0.2 help files styling---------------------- */
 
-.oe-help-container a {
+.oe-help-container a , .oe-help-container a:not(.btn), .oe-help-container a:not(oe-help-redirect){
     text-decoration: none !important;
-    color: #676666 !important;
+    color: #676666;
     font-weight: 700;
 }
 .oe-help-container h2>a {
-    font-weight: 500;
+    font-weight: 500 !important;
 }
 .oe-help-heading {
     padding: 10px 5px;

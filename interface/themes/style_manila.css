@@ -1702,7 +1702,8 @@ div.tabContainer div.tab {
   padding: 10px; }
 
 div.tabContainer div.current {
-  box-shadow: 0pt; }
+  box-shadow: 0pt;
+  display: block; }
 
 .demographics-box div.tabContainer {
   width: 90%;
