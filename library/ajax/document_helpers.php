@@ -25,7 +25,7 @@ require_once(dirname(__FILE__) . "/../../interface/globals.php");
 
 $req = array(
     'term' => (isset($_GET["term"]) ? filter_input(INPUT_GET, 'term') : ''),
-    'sql_limit' => (isset($_GET["limit"]) ? filter_input(INPUT_GET, 'limit') : 20),
+    'sql_limit' => (isset($_GET["limit"]) ? escape_limit(filter_input(INPUT_GET, 'limit')) : 20),
 );
 
 function get_patients_list($req)
