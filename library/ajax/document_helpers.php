@@ -32,13 +32,14 @@ function get_patients_list($req)
 {
     $term = "%" . $req['term'] . "%";
     $clear = "- " . xl("Reset to no patient") . " -";
-    $response = sqlStatement("
-        SELECT CONCAT(fname, ' ',lname,IF(IFNULL(deceased_date,0)=0,'','*')) as label, pid as value
-            FROM patient_data 
+    $response = sqlStatement(
+        "SELECT CONCAT(fname, ' ',lname,IF(IFNULL(deceased_date,0)=0,'','*')) as label, pid as value
+            FROM patient_data
             HAVING label LIKE ?
             ORDER BY IF(IFNULL(deceased_date,0)=0, 0, 1) ASC, IFNULL(deceased_date,0) DESC, lname ASC, fname ASC
             LIMIT " . escape_limit($req['sql_limit']),
-        array($term);
+        array($term)
+    );
     $resultpd[] = array(
         'label' => $clear,
         'value' => '00'
