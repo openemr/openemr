@@ -37,8 +37,8 @@ function get_patients_list($req)
             FROM patient_data 
             HAVING label LIKE ?
             ORDER BY IF(IFNULL(deceased_date,0)=0, 0, 1) ASC, IFNULL(deceased_date,0) DESC, lname ASC, fname ASC
-            LIMIT " . escape_limit($req['sql_limit']), 
-        array($term);    
+            LIMIT " . escape_limit($req['sql_limit']),
+        array($term);
     $resultpd[] = array(
         'label' => $clear,
         'value' => '00'
