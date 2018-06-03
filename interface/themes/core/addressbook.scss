@@ -1,34 +1,35 @@
 /* style taken out of the addressbook code and put here instead */
+
 #addressbook_list {
-	td {
-		padding-left: 4px;
-		padding-right: 4px;
-	}
-	a, a:visited, a:hover {
-		color: #0000cc;
-	}
-	tr.search {
-		font-weight: bold;
-	}
-	tr.head {
-		background-color: #cccccc;
-		font-weight: bold;
-	}
-	tr.evenrow {
-		background-color:#ddddff;
-	}
-	tr.oddrow {
-		background-color:#ffffff;
-	}
-	.inputtext {
-		font-weight: normal;
-		border-style: solid;
-		border-width: 1px;
-		border-color: #000000;
-		background-color: transparent;
-	}
-	.button {
-		font-size: 0.8em;
-		font-weight: bold;
-	}
+    td {
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+    a, a:visited, a:hover {
+        color: #0000cc;
+    }
+    tr.search {
+        font-weight: bold;
+    }
+    tr.head {
+        background-color: #cccccc;
+        font-weight: bold;
+    }
+    tr.evenrow {
+        background-color: #ddddff;
+    }
+    tr.oddrow {
+        background-color: #ffffff;
+    }
+    .inputtext {
+        font-weight: normal;
+        border-style: solid;
+        border-width: 1px;
+        border-color: #000000;
+        background-color: transparent;
+    }
+    .button {
+        font-size: 0.8em;
+        font-weight: bold;
+    }
 }

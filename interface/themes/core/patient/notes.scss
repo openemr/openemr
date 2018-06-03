@@ -2,24 +2,25 @@
  * Patient Notes
  * seen in the patient summary and notes screens
  *============================================================*/
+
 #pnotes .billing {
-	background-color: #dfd;
+    background-color: #dfd;
 }
 #pnotes .highlight {
-	background-color: #fff;
+    background-color: #fff;
 }
 #pnotes table {
-	border-collapse:collapse;
+    border-collapse: collapse;
 }
 #pnotes .noterow {
-	cursor: pointer;
+    cursor: pointer;
 }
 #pnotes .noterow td {
-	border-bottom:1px dashed black;
-	vertical-align: top;
-	padding: 5px;
-	margin: 5px;
+    border-bottom: 1px dashed black;
+    vertical-align: top;
+    padding: 5px;
+    margin: 5px;
 }
-#pnotes_ps_expand  div.tab table td {
-	padding-right: 10px;
+#pnotes_ps_expand div.tab table td {
+    padding-right: 10px;
 }
