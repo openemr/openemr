@@ -25,7 +25,7 @@ require_once(dirname(__FILE__) . "/../../interface/globals.php");
 
 $req = array(
     'term' => (isset($_GET["term"]) ? filter_input(INPUT_GET, 'term') : ''),
-    'sql_limit' => (isset($_GET["limit"]) ? escape_limit(filter_input(INPUT_GET, 'limit')) : 20),
+    'sql_limit' => (isset($_GET["limit"]) ? filter_input(INPUT_GET, 'limit') : 20),
 );
 
 function get_patients_list($req)
@@ -37,8 +37,8 @@ function get_patients_list($req)
             FROM patient_data 
             HAVING label LIKE ?
             ORDER BY IF(IFNULL(deceased_date,0)=0, 0, 1) ASC, IFNULL(deceased_date,0) DESC, lname ASC, fname ASC
-            LIMIT ?", 
-        array($term, $req['sql_limit']));    
+            LIMIT " . escape_limit($req['sql_limit']), 
+        array($term);    
     $resultpd[] = array(
         'label' => $clear,
         'value' => '00'
