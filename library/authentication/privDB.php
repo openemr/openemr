@@ -48,8 +48,27 @@ function getPrivDB()
         $secure_config=$GLOBALS['OE_SITE_DIR'] . "/secure_sqlconf.php";
         if (file_exists($secure_config)) {
             require_once($secure_config);
-            $GLOBALS[PRIV_DB]=NewADOConnection("mysql_log");
-            $GLOBALS[PRIV_DB]->PConnect($secure_host.":".$secure_port, $secure_login, $secure_pass, $secure_dbase);
+            $GLOBALS[PRIV_DB]=NewADOConnection("mysqli_log"); // Use the subclassed driver which logs execute events
+            // Below optionFlags flag is telling the mysql connection to ensure local_infile setting,
+            // which is needed to import data in the Administration->Other->External Data Loads feature.
+            // (Note the MYSQLI_READ_DEFAULT_GROUP is just to keep the current setting hard-coded in adodb)
+            $GLOBALS[PRIV_DB]->optionFlags = array(array(MYSQLI_READ_DEFAULT_GROUP,0), array(MYSQLI_OPT_LOCAL_INFILE,1));
+            // Set mysql to use ssl, if applicable.
+            // Can support basic encryption by including just the mysql-ca pem (this is mandatory for ssl)
+            // Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
+            if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
+                if (defined('MYSQLI_CLIENT_SSL')) {
+                    $GLOBALS[PRIV_DB]->clientFlags = MYSQLI_CLIENT_SSL;
+                }
+            }
+            $GLOBALS[PRIV_DB]->port = $port;
+            $GLOBALS[PRIV_DB]->PConnect($secure_host, $secure_login, $secure_pass, $secure_dbase);
+            // set up associations in adodb calls
+            $GLOBALS[PRIV_DB]->SetFetchMode(ADODB_FETCH_ASSOC);
+            // debug hook for ssl stuff
+            if ($GLOBALS['debug_ssl_mysql_connection']) {
+                error_log("CHECK SSL CIPHER IN PRIV_DB ADODB: " . print_r($GLOBALS[PRIV_DB]->ExecuteNoLog("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true));
+            }
         } else {
             $GLOBALS[PRIV_DB]=$GLOBALS['adodb']['db'];
         }
