@@ -7,7 +7,7 @@
     "build": "run-s gulp-build storybook-build",
     "dev": "gulp --dev",
     "dev-docs": "run-p storybook gulp-docs",
-    "gulp-build": "gulp",
+    "gulp-build": "gulp -b --dev",
     "gulp-docs": "gulp -p 9001 --dev",
     "test": "echo \"Error: no test specified\" && exit 1",
     "storybook": "start-storybook -s ./,../ -p 9001 -c .storybook",
