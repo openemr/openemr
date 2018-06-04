@@ -1,6 +1,3 @@
-@import "oe-bootstrap";
-@import "oe-common/all-common-import";
-
 body {
 	font-family: lato, Helvetica, Sans-Serif;
 	font-size: 14px;
@@ -311,3 +308,5 @@ div.category-display {
 .chevron_color {
     color: #2672ec;
 }
+@import "oe-bootstrap";
+@import "oe-common/all-common-import";

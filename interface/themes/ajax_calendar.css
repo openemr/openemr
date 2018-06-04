@@ -3,39 +3,32 @@
  * ====================================*/
 
 a {
-    text-decoration: none;
+    text-decoration:none;
 }
 td {
     font-family: Arial, Helvetica, sans-serif;
 }
-div.tiny {
-    width: 1px;
-    height: 1px;
-    font-size: 1px;
-}
+div.tiny { width:1px; height:1px; font-size:1px; }
 .currentview {
     border: 2px solid blue;
     cursor: default;
 }
 #printview, #dayview, #weekview, #monthview {
-    cursor: pointer;
-    cursor: hand;
+    cursor: pointer; cursor: hand;
 }
 #functions {
-    width: 13.5%;
-    /* can't make this 25% for some reason */
+    width: 13.5%; /* can't make this 25% for some reason */
     min-width: 105px;
     float: left;
     padding: 0px 5px 0px 5px;
-    margin-right: 0%;
-    /* added because of the width issue above */
+    margin-right: 0%; /* added because of the width issue above */
 }
+
 #topToolbarRight {
     float: right;
     width: 100%;
-    border-bottom: 1px solid black;
-    padding: 5px 0px 3px 0px;
-    /*RP_ADDED_2017-02-19*/
+    border-bottom:1px solid black;
+    padding: 5px 0px 3px 0px; /*RP_ADDED_2017-02-19*/
 }
 #dateNAV {
     float: left;
@@ -52,9 +45,9 @@ div.tiny {
     margin-right: 10px;
 }
 #bigCalHeader {
-    width: 70%;
+    width:70%;
     float: right;
-    text-align: center;
+    text-align:center;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 14pt;
 }
@@ -73,43 +66,46 @@ div.tiny {
     width: 100%;
     float: left;
 }
-#facilityColor table {
-    width: 100%;
+#facilityColor table{
+    width:100%;
     border-collapse: collapse;
 }
-#bottom {
-    float: left;
+#bottom{
+    float:left;
     position: relative;
-    width: 100%;
+    width:100%;
 }
 #bigCal {
     overflow: hidden;
     background-color: #FFF3D1;
-    border-left: 1px solid black;
+    border-left:1px solid black;
 }
+
 #bigCal table {
     border-collapse: collapse;
     border: none;
-    vertical-align: middle;
+    vertical-align:middle;
     width: 100%;
 }
 #bigCal td {
     padding: 1px;
     margin: 0px;
 }
-#bottomLeft {
+
+#bottomLeft
+{
     width: 15%;
-    min-width: 140px;
+    min-width:140px;
     float: left;
     clear: left;
+
 }
 /* these are for the small datepicker DIV */
-
 #datePicker {
     width: 100%;
 }
 #datePicker table {
-    width: 96%;
+    width:96%;
     border-collapse: collapse;
     margin-left: 3px;
 }
@@ -138,8 +134,7 @@ div.tiny {
     background-color: #FFF2E8;
 }
 #datePicker .tdDatePicker {
-    cursor: pointer;
-    cursor: hand;
+    cursor: pointer; cursor: hand;
 }
 #datePicker .tdWeekend-small {
     font-family: Arial, Helvetica, sans-serif;
@@ -187,8 +182,8 @@ div.tiny {
     background-color: #A79BE7;
     color: #E8FAFF;
 }
-/* the DIV of times */
 
+/* the DIV of times */
 #times {
     border-right: 1px solid #999;
     width: 1%;
@@ -226,26 +221,27 @@ div.tiny {
     margin: 0px;
     border: 1px solid #999999;
     width: 25em;
-}
-/* for the header row with provider names */
 
+}
+
+/* for the header row with provider names */
 .providerheader {
     text-align: center;
     background-color: #EDEAFF;
     width: 100%;
-    overflow: hidden;
+    overflow:hidden;
     border-bottom: 1px solid lightgrey;
     white-space: nowrap;
 }
-/* for the DIV inside each TD, this DIV contains any events for a single day */
 
+/* for the DIV inside each TD, this DIV contains any events for a single day */
 .calendar_day {
     position: relative;
     height: 100%;
     width: 100%;
 }
-/* classes specific to the WEEK view */
 
+/* classes specific to the WEEK view */
 .week_dateheader {
     border-left: 1px solid #999;
     border-right: 1px solid #999;
@@ -255,44 +251,45 @@ div.tiny {
 .week_currday {
     background-color: #DBD5FF;
 }
-/* classes specific to the MONTH view */
 
+/* classes specific to the MONTH view */
 .month_daylink {
-    width: 95%;
+    width:95%;
     font-size: 0.8em;
-    text-align: right;
+    text-align:right;
     background-color: #FFF;
-    padding: 1px 2px 1px 2px;
+    padding:1px 2px 1px 2px;
 }
 .month_dateheader {
     font-size: 0.7em;
-    width: 13%;
+    width:13%;
 }
 .month_event {
     font-size: 0.8em;
     width: 100%;
 }
-/* types of events */
 
+/* types of events */
 .event {
     position: absolute;
     width: 100%;
 }
 .event img {
-    vertical-align: middle;
+    vertical-align:middle;
 }
 .event_in {
     background-color: white;
-    z-index: 1;
+    z-index:1;
     white-space: nowrap;
     width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     border: 1px solid #000000;
 }
+
 .event_appointment {
     background-color: white;
-    z-index: 2;
+    z-index:2;
     overflow: hidden;
     border: 1px solid #ccc;
     white-space: nowrap;
@@ -303,19 +300,19 @@ div.tiny {
 }
 .event_noshow {
     background-color: pink;
-    z-index: 2;
+    z-index:2;
     overflow: hidden;
     border: 1px solid #fcc;
 }
 .event_reserved {
     background-color: pink;
-    z-index: 2;
+    z-index:2;
     overflow: hidden;
     border: 1px solid #cfc;
 }
 .event_holiday {
     background-color: mediumpurple;
-    z-index: 2;
+    z-index:2;
     overflow: hidden;
     border: 1px solid #cfc;
 }
@@ -332,22 +329,27 @@ div.tiny {
     text-overflow: ellipsis;
     border: 1px solid #000000;
 }
-.event_time {
+.event_time
+{
     cursor: pointer;
 }
-.event_time:hover {
+.event_time:hover
+{
     color: red;
 }
+
 .view1 {
-    font-size: 10px;
+    font-size:10px;
 }
 .view2 {
-    background-color: #94D6E7;
-    font-size: 10px;
+    background-color:#94D6E7;
+    font-size:10px;
 }
-.in_start {
+
+.in_start
+{
     background: transparent;
-    z-index: 2;
+    z-index:2;
 }
 .event_out.event_highlight, .in_start.event_highlight {
     font-weight: bold;
@@ -361,13 +363,16 @@ div.tiny {
     z-index: 2;
     cursor: pointer;
 }
-.event_out {
+
+.event_out{
     z-index: 3;
-    background-color: #ff7533;
+    background-color:#ff7533;
 }
-.weekend-day {
+.weekend-day{
     background: rgba(146, 115, 214, 0.33);
 }
-.event_holiday {
-    width: 100% !important;
+
+.event_holiday{
+    width:100% !important;
 }
+
