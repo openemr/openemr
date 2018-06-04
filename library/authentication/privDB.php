@@ -63,6 +63,12 @@ function getPrivDB()
             }
             $GLOBALS[PRIV_DB]->port = $port;
             $GLOBALS[PRIV_DB]->PConnect($secure_host, $secure_login, $secure_pass, $secure_dbase);
+            // set up associations in adodb calls
+            $GLOBALS[PRIV_DB]->SetFetchMode(ADODB_FETCH_ASSOC);
+            // debug hook for ssl stuff
+            if ($GLOBALS['debug_ssl_mysql_connection']) {
+                error_log("CHECK SSL CIPHER IN PRIV_DB ADODB: " . print_r($GLOBALS[PRIV_DB]->ExecuteNoLog("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true));
+            }
         } else {
             $GLOBALS[PRIV_DB]=$GLOBALS['adodb']['db'];
         }
