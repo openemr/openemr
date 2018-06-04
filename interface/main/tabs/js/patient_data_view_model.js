@@ -36,7 +36,7 @@ function patient_data_view_model(pname,pid,pubpid,str_dob)
     self.patient_picture=ko.computed(function(){
       return webroot_url + '/controller.php' +
              '?document&retrieve' +
-             '&patient_id=' + pubpid +
+             '&patient_id=' + pid +
              '&document_id=-1' +
              '&as_file=false' +
              '&original_file=true' +
