@@ -9,6 +9,7 @@
  */
 
 @import url("themeBuilder.php"); // reads from user preferences and overrides fonts
+
 @import "core/FontAwesome";
 @import "core/forms";
 @import "core/closeDlgIframe";
@@ -18,6 +19,7 @@
 @import "core/text";
 @import "core/addressbook";
 @import "core/documents";
+
 @import "core/patient/demographics";
 @import "core/patient/history";
 @import "core/patient/notes";
@@ -26,6 +28,7 @@
 @import "core/patient/past_encounters";
 @import "core/patient/reports";
 @import "core/patient/report_custom";
+
 @import "core/tabs";
 @import "core/sddm";
 @import "core/reports";
