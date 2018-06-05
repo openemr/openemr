@@ -24,11 +24,11 @@
  require_once("$srcdir/options.inc.php");
  use OpenEMR\Core\Header;
 
- $popup = empty($_GET['popup']) ? 0 : 1;
- $rtn_selection = 0;
- if($popup){
-     $rtn_selection = $_GET['popup'] == 2 ? 1 : 0;
- }
+$popup = empty($_GET['popup']) ? 0 : 1;
+$rtn_selection = 0;
+if ($popup) {
+    $rtn_selection = $_GET['popup'] == 2 ? 1 : 0;
+}
 
  $form_fname = trim($_POST['form_fname']);
  $form_lname = trim($_POST['form_lname']);
