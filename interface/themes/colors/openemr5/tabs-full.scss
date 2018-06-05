@@ -1,50 +1,50 @@
 /*~~~~~~~~~~openemr5_tabs-Full~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 #mainBox>.body_top, .body_top_tabs {
-	background-color: $dark !important;
+    background-color: $dark !important;
 }
 .tabSpan, .tabSpan_tabs {
-	border-top: 5px solid $dark !important;
-	border-left: 1px solid $dark !important;
-	box-shadow: 0px 0px 0px rgba(0, 0, 0, 0) !important;
-	border-right: 1px solid $dark !important;
-	border-radius: 3px 6px 0px 0px !important;
+    border-top: 5px solid $dark !important;
+    border-left: 1px solid $dark !important;
+    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0) !important;
+    border-right: 1px solid $dark !important;
+    border-radius: 3px 6px 0px 0px !important;
 }
 .tabNotchosen, .tabsNoHover {
-	border-bottom: 2px solid $dark !important;
+    border-bottom: 2px solid $dark !important;
 }
 .tabNotchosen:hover {
-	background: transparent !important;
+    background: transparent !important;
 }
 .tabSpan_tabs:hover {
-	background: $palepale !important;
+    background: $palepale !important;
 }
 .tabControls_tabs {
-	border-bottom: none !important;
+    border-bottom: none !important;
 }
 .ptName {
-	font-size: 20px;
-	background: #ffff9e;
-	padding: 0px 5px 0px 5px;
+    font-size: 20px;
+    background: #ffff9e;
+    padding: 0px 5px 0px 5px;
 }
 .patientInfo {
-	padding: 1px 1px 1px 10px;
-	font-size: 16px;
-	font-weight: 600;
+    padding: 1px 1px 1px 10px;
+    font-size: 16px;
+    font-weight: 600;
 }
 .patientCurrentEncounter {
-	font-size: 16px;
-	font-weight: 600;
+    font-size: 16px;
+    font-weight: 600;
 }
 .menuLabel {
-	color: #000000 !important;
-	font-weight: 700 !important;
-	font-size: 14px !important;
-	/*padding: 5px 10px !important;*/
+    color: #000000 !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    /*padding: 5px 10px !important;*/
 }
 .patientEncounterList {
-	border: 1px solid $darker;
-	background: white;
+    border: 1px solid $darker;
+    background: white;
 }
 /*.patientEncounterList {
     background: #ffff9e !important;
@@ -66,75 +66,75 @@
 }*/
 
 .appMenu>span:hover {
-	background-color: $palepale !important;
+    background-color: $palepale !important;
 }
 .menuSection:hover {
-	background-color: $palepale !important;
+    background-color: $palepale !important;
 }
 .menuLabel:hover {
-	background: $palepale !important;
+    background: $palepale !important;
 }
 .menuSection>.menuEntries {
-	box-shadow: 0px 2px 2px $midpale !important;
-	border: none !important;
-	border-radius: 0px !important;
+    box-shadow: 0px 2px 2px $midpale !important;
+    border: none !important;
+    border-radius: 0px !important;
 }
 .menuEntries li .menuLabel {
-	padding: 5px 10px !important;
+    padding: 5px 10px !important;
 }
 .menuEntres li .menuLabel:hover {
-	background-color: $palepale !important;
-	color: #333;
+    background-color: $palepale !important;
+    color: #333;
 }
 .appMenu li:hover {
-	background-color: $palepale !important;
+    background-color: $palepale !important;
 }
 .menuSection>.menuEntries {
-	background-color: $paler !important;
+    background-color: $paler !important;
 }
 .body_title, .body_title_tabs {
-	background-color: $midpale !important;
+    background-color: $midpale !important;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs body*~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 .tabs_body, #searchCriteria {
-	background-color: $pale;
+    background-color: $pale;
 }
 .tabs_body_light {
-	background-color: $palepale;
+    background-color: $palepale;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs body*~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs calendar*~~~~~~~~~~~~~~~~~~~~~~~*/
 
 #calsearch_params {
-	background-color: $palepale !important;
-	width: 98% !important;
+    background-color: $palepale !important;
+    width: 98% !important;
 }
 .calsearch_body {
-	background-color: $paler !important;
+    background-color: $paler !important;
 }
 .chevron_color {
-	color: $darker;
+    color: $darker;
 }
 div#providerPicker select {
-	margin: 0px;
+    margin: 0px;
 }
 #calsearch_results_header {
-	margin-top: 5px;
-	width: 99% !important;
+    margin-top: 5px;
+    width: 99% !important;
 }
 #calsearch_results_data {
-	width: 99% !important;
+    width: 99% !important;
 }
 #topToolbarRight {
-	padding: 3px;
+    padding: 3px;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs calendar*~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 calendar icon*~~~~~~~~~~~~~~~~~~~~~~*/
 
 img[src *="show_calendar.gif"] {
-	margin-bottom: 3px;
+    margin-bottom: 3px;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 calendar icon*~~~~~~~~~~~~~~~~~~~~~~*/

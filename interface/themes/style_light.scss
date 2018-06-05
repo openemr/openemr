@@ -1,5 +1,3 @@
-@import "oe-bootstrap";
-
 body {
 	font-family: lato, Helvetica, Sans-Serif;
 	font-size: 14px;
@@ -307,3 +305,8 @@ ul.tabNav a:focus {
 div.category-display {
 	margin-left: 25px !important;
 }
+.chevron_color {
+    color: #2672ec;
+}
+@import "oe-bootstrap";
+@import "oe-common/all-common-import";
