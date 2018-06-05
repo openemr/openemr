@@ -132,7 +132,8 @@ many in the community have found
 [PhpStorm](https://www.jetbrains.com/phpstorm/),
 [Sublime Text](https://www.sublimetext.com/),
 and [Vim](http://www.vim.org/) to be useful for coding. For database work,
-[MySQL Workbench](https://dev.mysql.com/downloads/workbench/) offers a smooth experience.
+[MySQL Workbench](https://dev.mysql.com/downloads/workbench/) or PhpMyAdmin
+offers a smooth experience.
 
 Many helpful tips and development "rules of thumb" can be found by reviewing
 [OpenEMR Development](http://open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#Development).
@@ -163,17 +164,17 @@ Programmers looking to use OpenEMR's [Bower](http://www.open-emr.org/wiki/index.
 and [Composer](http://www.open-emr.org/wiki/index.php/Composer) build tools can
 simply `bash` into the OpenEMR container and use them as expected.
 
-### Reset Workspace
+### CouchDB
+In OpenEMR, CouchDB is an option for the patients document storage. For this reason, a CouchDB
+docker is included in this OpenEMR docker development environment. You can visit the CouchDB
+GUI directly via http://localhost:5984/_utils/ with username `admin` and password `password`.
+You can configure OpenEMR to use this CouchDB docker for patient document storage in OpenEMR
+at Administration->Globals->Documents:
+- Document Storage Method->CouchDB
+- CouchDB HostName->admin
+- CouchDB Password->password
+- CouchDB Database can be set to any name you want
 
-There are frequently times where you will want to remove the dockers and start anew.
-For example, when you change github branches and start testing/developing on a
-different github branch. This is done by first running a command or script
-to delete and replace the synchronized directory (ie. remove the /var/www/openemr
-directory) and then restart the development docker:
-```bash
-docker-compose down -v
-docker-compose up -d
-```
 ### Work in progress
 
 This is an ongoing work in progress and feel free to join the super exciting
