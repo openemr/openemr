@@ -3,25 +3,24 @@
  */
 
 div.closeDlgIframe {
-	background: #ff5d5a;
-	position: absolute;
-	top: -12px;
-	right: -12px;
-	height: 25px;
-	width: 25px;
-	cursor: pointer;
-	z-index: 10010;
+    background: #ff5d5a;
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    height: 25px;
+    width: 25px;
+    cursor: pointer;
+    z-index: 10010;
 }
-
 div.closeDlgIframe:before {
-	color: #fff;
-	content: "\f00d";
-	font-family: "FontAwesome";
-	font-weight: bold;
-	display: inline-block;
-	width: 100%;
-	text-align: center;
-	margin: auto;
-	line-height: 25px;
-	height: 25px;
+    color: #fff;
+    content: "\f00d";
+    font-family: "FontAwesome";
+    font-weight: bold;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    margin: auto;
+    line-height: 25px;
+    height: 25px;
 }

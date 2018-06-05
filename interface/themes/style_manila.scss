@@ -1,5 +1,3 @@
-@import "oe-bootstrap";
-
 .nav-menu-img {
 	display:none !important;
 }
@@ -9,7 +7,7 @@ body {
 	/* set the base font and size for all DOM children */
 	font-family: 'source_sans_pro','FontAwesome';
 	content: "\f0c4";
-	font-size: 12px;  /* set the base font size for all DOM children */
+	font-size: 16px;  /* set the base font size for all DOM children */
 }
 
 @import "core";
@@ -232,7 +230,7 @@ div.tabContainer {
 	padding: 10px;
 }
 div.tabContainer div.tab { border: none; color: #000; display: none; padding: 10px; }
-div.tabContainer div.current { box-shadow:0pt;}
+div.tabContainer div.current { box-shadow: 0pt; display: block; }
 
 .demographics-box div.tabContainer {
 	width:90%;
@@ -463,3 +461,9 @@ body dl {
 .calendar {
 	z-index:2;
 }
+
+.chevron_color {
+    color: #063f80;
+}
+@import "oe-bootstrap";
+@import "oe-common/all-common-import";
