@@ -2279,6 +2279,21 @@ th.currentvalues, th.historicalvalues {
   width: 65% !important; }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 batch payments, EOB *~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 recall and flowboard *~~~~~~~~~~~~~~~~~~~~~~~~~*/
+.divTable, .borderShadow {
+  background: #EFEEED !important;
+  border: 0.5px solid #C1BBBA !important;
+  box-shadow: 0px 0px 0px #C1BBBA !important;
+  border-radius: 0px !important; }
+
+.divTableCell, .divTableHead {
+  border: 1px solid #9C9291 !important;
+  border-radius: 0px !important; }
+
+.divTableHeading {
+  background-color: #C1BBBA !important; }
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 recall and flowboard *~~~~~~~~~~~~~~~~~~~~~~~~~*/
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 help files *~~~~~~~~~~~~~~~~~~~~~~~~~*/
 .oe-help-redirect {
   color: #332827 !important; }
@@ -2288,3 +2303,97 @@ th.currentvalues, th.historicalvalues {
   border-color: #B5ADAC !important; }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 help files *~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/*to facilitate importing all common scss files*/
+/*-----------------------openemr5.0.2 help files styling---------------------- */
+.oe-help-container a, .oe-help-container a:not(.btn), .oe-help-container a:not(oe-help-redirect) {
+  text-decoration: none !important;
+  color: #676666;
+  font-weight: 700; }
+
+.oe-help-container h2 > a {
+  font-weight: 500 !important; }
+
+.oe-help-heading {
+  padding: 10px 5px;
+  border-radius: 5px; }
+
+.oe-text-orange {
+  color: orange; }
+
+.oe-text-red {
+  color: red; }
+
+.oe-text-green {
+  color: green; }
+
+.oe-text-black {
+  color: black; }
+
+.oe-no-float {
+  float: none !important; }
+
+.oe-inline {
+  display: inline !important; }
+
+.oe-superscript {
+  position: relative;
+  top: -0.5em;
+  font-size: 70% !important; }
+
+/*-----------------------openemr5.0.2 help files styling---------------------- */
+/*---------------------------openemr5.0.2 messages--------------------------- */
+.oe-margin-t-3 {
+  margin-top: 3px; }
+
+.oe-margin-t-10 {
+  margin-top: 10px; }
+
+.oe-display {
+  display: none; }
+
+.oe-margin-b-20 {
+  margin-bottom: 20px; }
+
+.oe-margin-b-10 {
+  margin-bottom: 10px; }
+
+a.arrowhead, a:hover.arrowhead, a:visited.arrowhead {
+  color: black; }
+
+.oe-cursor-stop {
+  cursor: not-allowed; }
+
+.oe-cursor-add {
+  cursor: cell; }
+
+.oe-patient-background {
+  background: #ffff9e !important; }
+
+/*---------------------------openemr5.0.2 messages--------------------------- */
+/*-------------------openemr ACL-------------------*/
+.loading {
+  text-decoration: blink;
+  font-size: 10px;
+  color: red;
+  font-weight: bold; }
+
+.alert {
+  font-size: 10px;
+  color: red;
+  font-weight: bold; }
+
+.section {
+  border: solid;
+  border-width: 1px;
+  margin: 10px 0 10px 0;
+  padding: 5px; }
+
+#acl select[multiple], #acl select[size] {
+  height: auto !important;
+  width: 400px; }
+
+.section a, .section a:visited, .section a:hover {
+  text-decoration: none;
+  color: #000000 !important; }
+
+/*-------------------openemr ACL-------------------*/
