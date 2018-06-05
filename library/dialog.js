@@ -174,6 +174,53 @@ function inDom(dependency, type, remove) {
     return false;
 }
 
+// Test if supporting dialog callbacks and close dependencies are in scope.
+// This is useful when opening and closing the dialog is in the same scope. Still use include_opener.js
+// in script that will close a dialog that is not in the same scope dlgopen was used.
+// Callback, onClosed and button clicks are still available either way.
+// For a callback on close use: dlgclose(functionName, farg1, farg2 ...) which becomes: functionName(farg1,farg2, etc)
+//
+if (typeof dlgclose !== "function") {
+    if (!opener) {
+        opener = window.name;
+    }
+
+    var dlgclose =
+        function (call, args) {
+            var frameName = window.name;
+            var wframe = opener;
+            if (!top.tab_mode) {
+                for (; wframe.name !== 'RTop' && wframe.name !== 'RBot'; wframe = wframe.parent) {
+                    if (wframe.parent === wframe) {
+                        wframe = window;
+                    }
+                }
+                for (let i = 0; wframe.document.body.localName !== 'body' && i < 4; wframe = wframe[i++]) {
+                    if (i === 3) {
+                        console.log("Opener: unable to find modal's frame");
+                        return false;
+                    }
+                }
+                dialogModal = wframe.$('div#' + frameName);
+            } else {
+                var dialogModal = top.$('div#' + frameName);
+                wframe = top;
+            }
+
+            var removeFrame = dialogModal.find("iframe[name='" + frameName + "']");
+            if (removeFrame.length > 0) {
+                removeFrame.remove();
+            }
+
+            if (dialogModal.length > 0) {
+                if (call) {
+                    wframe.setCallBack(call, args); // sets/creates callback function in dialogs scope.
+                }
+                dialogModal.modal('hide');
+            }
+        };
+}
+
 /*
 * function dlgopen(url, winname, width, height, forceNewWindow, title, opts)
 *
@@ -242,9 +289,10 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         ajaxhtml: "", // content for alerts, comfirm etc ajax
         allowDrag: true,
         allowResize: true,
-        sizeHeight: 'auto', // fixed in works...
+        sizeHeight: 'auto', // 'full' will use as much height as allowed
+        // use is onClosed: fnName ... args not supported however, onClosed: 'reload' is auto defined and requires no function to be created.
         onClosed: false,
-        callBack: false
+        callBack: false // use {call: 'functionName, args: args, args} if known or use dlgclose.
     };
 
     if (!opts) var opts = {};
