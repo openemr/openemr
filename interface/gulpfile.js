@@ -42,7 +42,7 @@ gulp.task('clean', function () {
     del.sync([config.dist.storybook + "*", ignore]);
 });
 
-gulp.task('ingest', function() {
+gulp.task('ingest', function () {
     if (config.dev && typeof config.dev !== "boolean") {
         // allows for custom proxy to be passed into script
         config.proxy = config.dev;
@@ -50,7 +50,7 @@ gulp.task('ingest', function() {
     }
 });
 
-gulp.task('sync', ['styles'], function() {
+gulp.task('sync', ['styles'], function () {
     if (config.proxy) {
         browserSync.init({
             proxy: "127.0.0.1:" + config.proxy

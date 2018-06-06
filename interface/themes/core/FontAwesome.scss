@@ -2,104 +2,107 @@
  * Global uses of the font awesome library
  * TODO fix pathing for all uses
  */
+
 @font-face {
-	font-family: "FontAwesome";
-	src: url("/public/assets/font-awesome-4-6-3/fonts/fontawesome-webfont.ttf") format("truetype");
+    font-family: "FontAwesome";
+    src: url("/public/assets/font-awesome-4-6-3/fonts/fontawesome-webfont.ttf") format("truetype");
 }
 
-.css_button[href*="deleter"]:before,
-input[type="button"][href*="deleter"] [type="submit"]:before,
-button[href*="deleter"]:before {
-	font-family: "FontAwesome";
-	content: "\f014";
-	display: inline-block;
+.css_button[href*="deleter"]:before, input[type="button"][href*="deleter"] [type="submit"]:before, button[href*="deleter"]:before {
+    font-family: "FontAwesome";
+    content: "\f014";
+    display: inline-block;
 }
 
 .btn::before {
-	font-family: "FontAwesome";
-	display: inline;
+    font-family: "FontAwesome";
+    display: inline;
 }
 
 .btn-save::before {
-	content: "\f00c\00a0\00a0";
+    content: "\f00c\00a0\00a0";
 }
 
 .btn-cancel::before {
-	content: "\f00d\00a0\00a0";
+    content: "\f00d\00a0\00a0";
 }
 
 .btn-add::before {
-	content: '\f067\00a0\00a0';
+    content: '\f067\00a0\00a0';
 }
 
 .btn-search::before {
-	content: '\f002\00a0\00a0';
+    content: '\f002\00a0\00a0';
 }
 
 .btn-delete::before {
-	content: '\f014\00a0\00a0';
+    content: '\f014\00a0\00a0';
 }
 
 .btn-duplicate::before {
-	content: '\f0c5\00a0\00a0';
+    content: '\f0c5\00a0\00a0';
 }
 
 .btn-refresh::before {
-	content: '\f021\00a0\00a0';
+    content: '\f021\00a0\00a0';
 }
 
 .btn-edit::before {
-	content: '\f040\00a0\00a0';
+    content: '\f040\00a0\00a0';
 }
 
 .btn-transmit::before {
-	content: '\f061\00a0\00a0';
+    content: '\f061\00a0\00a0';
 }
 
 .btn-receive::before {
-	content: '\f060\00a0\00a0';
+    content: '\f060\00a0\00a0';
 }
 
 .btn-print::before {
-	content: '\f02f\00a0\00a0';
+    content: '\f02f\00a0\00a0';
 }
 
 .btn-back::before {
-	content: '\f053\00a0\00a0';
+    content: '\f053\00a0\00a0';
 }
 
 .btn-show::before {
-	content: '\f06e\00a0\00a0';
+    content: '\f06e\00a0\00a0';
 }
 
 .btn-hide::before {
-	content: '\f070\00a0\00a0';
+    content: '\f070\00a0\00a0';
 }
 
 .btn-undo::before {
-	content: '\f0e2\00a0\00a0';
+    content: '\f0e2\00a0\00a0';
 }
 
 .btn-update::before {
-	content: '\f01e\00a0\00a0';
+    content: '\f01e\00a0\00a0';
 }
 
 .btn-download::before {
-	content: '\f019\00a0\00a0';
+    content: '\f019\00a0\00a0';
 }
 
 .btn-mail::before {
-	content: '\f0e0\00a0\00a0';
+    content: '\f0e0\00a0\00a0';
 }
 
 .btn-calendar::before {
-	content: '\f073\00a0\00a0';
+    content: '\f073\00a0\00a0';
 }
 
 .btn-graph::before {
-	content: '\f201\00a0\00a0';
+    content: '\f201\00a0\00a0';
 }
 
 .btn-filter::before {
-	content: '\f0b0\00a0\00a0';
+    content: '\f0b0\00a0\00a0';
+}
+
+.btn-send-msg::before {
+    content: '\f1d8\00a0\00a0';
 }
