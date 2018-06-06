@@ -1876,6 +1876,9 @@ fieldset {
   font-weight: 500 !important; }
 
 .oe-help-heading {
+  color: #676666;
+  background-color: #E4E2E0;
+  border-color: #DADADA;
   padding: 10px 5px;
   border-radius: 5px; }
 
