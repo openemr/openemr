@@ -1801,6 +1801,9 @@ body dl {
   color: #063f80; }
 
 /*below section is override bootstrap 3 for openemr and some new classes all prefixed with oe-*/
+input[type=checkbox], input[type=radio] {
+  margin: 4px; }
+
 .form-group {
   margin-bottom: 5px !important; }
 
