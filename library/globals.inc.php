@@ -920,6 +920,17 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',                              // default
             xl('Observation Results in Immunization')
+        ),
+
+        'enable_help' => array(
+           xl('Enable Help Modal'),
+            array(
+                '0' => xl('Hide Help Modal'),
+                '1' => xl('Show Help Modal'),
+                '2' => xl('Disable Help Modal'),
+            ),                       // data type
+            '1',                     // default = Print End of Day Report 1
+            xl('This will allow the display of help modal on help enabled pages')
         )
 
     ),
