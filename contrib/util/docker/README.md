@@ -175,7 +175,15 @@ at Administration->Globals->Documents:
 - CouchDB Password->password
 - CouchDB Database can be set to any name you want
 
-### Work in progress
+## Ongoing Development
+
+### Orthanc
+Developers are currently working on integrating the Orthanc PACS server into OpenEMR. This
+feature is currently under development. Although it is not yet integrated with OpenEMR yet,
+you can connect to the Orthanc application gui via http://localhost:8042/ with username `orthanc`
+and password `orthanc`.
+
+## The Docker Development Environment is a work in progress
 
 This is an ongoing work in progress and feel free to join the super exciting
 OpenEMR container projects. Feel free to post PR's to update the
