@@ -7,6 +7,7 @@
     "build": "run-s gulp-build storybook-build",
     "dev": "gulp --dev",
     "dev-docs": "run-p storybook gulp-docs",
+    "gulp-install": "gulp -i",
     "gulp-build": "gulp -b --dev",
     "gulp-docs": "gulp -p 9001 --dev",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -39,6 +40,7 @@
     "storybook-readme": "^3.3.0"
   },
   "dependencies": {
+    "anythingslider": "https://github.com/CSS-Tricks/AnythingSlider/archive/v1.9.4.tar.gz",
     "react": "^16.3.2",
     "react-dom": "^16.3.2"
   }

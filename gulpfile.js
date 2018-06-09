@@ -20,6 +20,7 @@ var config = {
     dev: argv['dev'],
     build: argv['b'], // temporary until build == production
     proxy: argv['p'],
+    install: argv['i'],
     src: {
         styles: {
             style_uni: 'interface/themes/style_*.scss',
@@ -29,6 +30,8 @@ var config = {
         }
     },
     dist: {
+        assets: './public/assets/', // vendor assets dir
+        fonts: './public/fonts/',
         storybook: '.docs/.out/'
     },
     dest: {
@@ -153,11 +156,23 @@ gulp.task('styles:style_list', function () {
 gulp.task('styles', ['styles:style_uni', 'styles:style_color', 'styles:rtl', 'styles:style_list']);
 // END style task definitions
 
+/**
+ * Copies node_modules to ./public
+ */
+gulp.task('install', function() {
+    gulp.src([
+        'node_modules/anythingslider/**/*'
+    ])
+    .pipe(gulp.dest(config.dist.assets + '/AnythingSlider-1-9-4'));
+});
+
  /**
  * Default config
  * - runs by default when `gulp` is called from CLI
  */
-if (config.dev && !config.build) {
+if (config.install) {
+    gulp.task('default', [ 'install' ]);
+} else if (config.dev && !config.build) {
     gulp.task('default', [ 'ingest', 'sync' ]);
 } else {
     gulp.task('default', function (callback) {

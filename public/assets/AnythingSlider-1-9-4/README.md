@@ -1,4 +1,4 @@
-﻿# AnythingSlider jQuery Plugin
+# AnythingSlider jQuery Plugin
 
 A very robust jQuery-based slider plugin. Need to link to a specific slide? No problem. Like a choice of themes? Got it. Need callbacks for when specific slider actions happen? Sure. Need custom tab names? You got it. Need more than one slider per page? Easy. 
 
