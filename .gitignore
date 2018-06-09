@@ -2,3 +2,4 @@
 /logs
 .env
 /.idea/*
+node_modules

@@ -22,17 +22,17 @@ var config = {
     proxy: argv['p'],
     src: {
         styles: {
-            style_uni: 'themes/style_*.scss',
-            style_color: 'themes/colors/*.scss',
-            all: 'themes/**/style_*.css',
-            all_rtl: 'themes/**/*style_*.css',
+            style_uni: 'interface/themes/style_*.scss',
+            style_color: 'interface/themes/colors/*.scss',
+            all: 'interface/themes/**/style_*.css',
+            all_rtl: 'interface/themes/**/*style_*.css',
         }
     },
     dist: {
-        storybook: '.out/'
+        storybook: '.docs/.out/'
     },
     dest: {
-        themes: 'themes'
+        themes: 'interface/themes'
     }
 };
 
@@ -72,7 +72,7 @@ gulp.task('sync', ['styles'], function() {
     }
 
     if (config.dev && !config.build) {
-        gulp.watch('themes/**/*.scss', ['styles']);
+        gulp.watch('inteface/themes/**/*.scss', ['styles']);
     } else {
         // hack to get font awesome files into the .out directory
         gulp.src([
@@ -134,7 +134,7 @@ gulp.task('styles:rtl', function () {
         .pipe(sass().on('error', sass.logError))
         .pipe(prefix('last 1 version'))
         .pipe(gulpif(!config.dev, csso()))
-        .pipe(gap.appendFile('themes/rtl.css'))
+        .pipe(gap.appendFile('interface/themes/rtl.css'))
         .pipe(rename({
             dirname: "",
             prefix:"rtl_"
