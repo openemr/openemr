@@ -76,7 +76,7 @@ gulp.task('sync', ['styles'], function() {
     } else {
         // hack to get font awesome files into the .out directory
         gulp.src([
-            '../public/assets/font-awesome-4-6-3/fonts/**/*.{ttf,woff,eof,svg}'
+            './public/assets/font-awesome-4-6-3/fonts/**/*.{ttf,woff,eof,svg}'
             ], {base: '../'})
             .pipe(gulp.dest(config.dist.storybook));
     }
