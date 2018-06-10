@@ -3047,18 +3047,23 @@ function display_layout_rows($formtype, $result1, $result2 = '')
     disp_end_group();
 }
 
-function display_layout_tabs($formtype, $result1, $result2 = '')
-{
+function get_layout_tabs($formtype) {
     global $item_count, $cell_count, $last_group, $CPR;
 
     $grparr = array();
     getLayoutProperties($formtype, $grparr);
 
-    $fres = sqlStatement("SELECT distinct group_id FROM layout_options " .
-        "WHERE form_id = ? AND uor > 0 " .
-        "ORDER BY group_id", array($formtype));
+    // Get list of tabs and indicator if that tab is to be displayed first 
+    $fres = sqlStatement('
+        SELECT group_id, MAX(INSTR(edit_options, "I")) AS initIfNot0
+            FROM layout_options
+            WHERE form_id = ? AND uor > 0
+            GROUP BY group_id',
+        array($formtype)
+    );
 
-    $first = true;
+    $initTab = -1;
+    $navtabs = array();
     while ($frow = sqlFetchArray($fres)) {
         $this_group = $frow['group_id'];
         // $group_name = substr($this_group, 1);
@@ -3066,13 +3071,26 @@ function display_layout_tabs($formtype, $result1, $result2 = '')
         if ($group_name === 'Employer' && $GLOBALS['omit_employers']) {
             continue;
         }
-?>
-        <li <?php echo $first ? 'class="current"' : '' ?>>
-        <a href="#" id="header_tab_<?php echo htmlspecialchars($group_name, ENT_QUOTES); ?>">
-        <?php echo htmlspecialchars(xl_layout_label($group_name), ENT_NOQUOTES); ?></a>
+        if (($frow['initIfNot0'] > 0) || ($initTab < 0)) {
+            $initTab = $this_group;
+        }
+        $navtabs[$this_group] = array('name'=>$group_name);
+    }
+    $navtabs[$initTab]['opendisp'] = $initTab;
+
+    return $navtabs;
+}
+
+function display_layout_tabs($formtype, $result1, $result2 = '') 
+{
+    $navtabs = get_layout_tabs($formtype);
+    foreach ($navtabs as $navtabId => $navtab) {
+    ?>
+        <li <?php echo ((array_key_exists('opendisp', $navtab)) && ($navtab['opendisp'] == $navtabId)) ? 'class="current"' : '' ?>>
+            <a href="#" id="header_tab_<?php echo htmlspecialchars($navtab['name'], ENT_QUOTES); ?>">
+            <?php echo htmlspecialchars(xl_layout_label($navtab['name']), ENT_NOQUOTES); ?></a>
         </li>
-<?php
-        $first = false;
+    <?php
     }
 }
 
