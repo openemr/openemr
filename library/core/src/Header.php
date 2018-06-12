@@ -158,6 +158,13 @@ class Header
         $path = (isset($opts['basePath'])) ? $opts['basePath'] : '';
         $basePath = self::parsePlaceholders($path);
 
+        // Developer option to override production environment settings
+        $orlatest = (isset($opts['orlatest'])) ? $opts['orlatest'] : false;
+        if ($orlatest) {
+            $basePath = sprintf('%s/latest/%s/', 
+                $GLOBALS['assets_static_relative'], $opts['subdir']);
+        }
+
         $scripts = [];
         $links = [];
 
