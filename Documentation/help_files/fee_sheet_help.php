@@ -36,7 +36,7 @@ require_once("../../interface/globals.php");
             <div class= "row">
                 <p><?php echo xlt("Use the fee sheet to charge for services or products. ");?>
                 
-                <p><i class="fa fa-exclamation-circle" aria-hidden="true"></i> <strong><?php echo xlt("Before beginning to use the Fee Sheet read through this help page and do some preliminary setup.");?></strong>
+                <p><i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i> <strong><?php echo xlt("Before beginning to use the Fee Sheet read through this help page and do some preliminary setup.");?></strong>
                 
                 <p><?php echo xlt("The default fee sheet can be modified and customized to make it more useful.");?>
                 
