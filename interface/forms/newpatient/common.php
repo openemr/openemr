@@ -217,6 +217,12 @@ if ($GLOBALS['enable_help'] == 1) {
         <div class="row">
             <div class="col-xs-12">
                 <form id="new-encounter-form" method='post' action="<?php echo $rootdir ?>/forms/newpatient/save.php" name='new_encounter'>
+                <?php if ($viewmode) { ?>
+                    <input type=hidden name='mode' value='update'>
+                    <input type=hidden name='id' value='<?php echo (isset($_GET["id"])) ? attr($_GET["id"]) : '' ?>'>
+                <?php } else { ?>
+                    <input type='hidden' name='mode' value='new'>
+                <?php } ?>
                     <fieldset>
                         <legend><?php echo xlt('Visit Details')?></legend>
                         <div id = "visit-details">
