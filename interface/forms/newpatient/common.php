@@ -525,7 +525,7 @@ if ($GLOBALS['enable_help'] == 1) {
     if ($GLOBALS['enable_help'] == 1) {
         echo "<script>var helpFile = 'common_help.php'</script>";
         //help_modal.php lives in interface, set path accordingly
-        require_once "../../help_modal.php";
+        require "../../help_modal.php";
     }
     ?> 
 </body>
