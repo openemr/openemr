@@ -714,6 +714,7 @@ if ($fend > $count) {
             <td><span class='bold'><?php echo xlt('Revenue'); ?></span></td>
         <?php } ?>
         <td><span class='bold'><?php echo xlt('Act'); ?></span></td>
+        <td><span class='bold'><?php echo xlt('Category'); ?></span></td>
         <td><span class='bold'><?php echo xlt('Dx Rep'); ?></span></td>
         <td><span class='bold'><?php echo xlt('Serv Rep'); ?></span></td>
         <td><span class='bold'><?php echo xlt('Type'); ?></span></td>
@@ -770,6 +771,14 @@ if ($fend > $count) {
                 echo "  <td class='text'>" . ( ($iter["active"]) ? xlt('Yes') : xlt('No')) . "</td>\n";
             }
 
+            $sres = sqlStatement("SELECT title " .
+                "FROM list_options AS lo " .
+                "WHERE lo.list_id = 'superbill' AND lo.option_id = ?", array($iter['superbill']));
+            if ($srow = sqlFetchArray($sres)) {
+                echo "  <td class='text'>" . text($srow['title']) . "</td>\n";
+            } else {
+                echo "  <td class='text'>" . '' . "</td>\n";
+            }
             echo "  <td class='text'>" . ($iter["reportable"] ? xlt('Yes') : xlt('No')) . "</td>\n";
             echo "  <td class='text'>" . ($iter["financial_reporting"] ? xlt('Yes') : xlt('No')) . "</td>\n";
             echo "  <td class='text'>" . text($iter['code_type_name']) . "</td>\n";
