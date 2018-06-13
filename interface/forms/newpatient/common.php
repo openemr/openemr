@@ -185,17 +185,17 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 <?php
 if ($viewmode) {
     $body_javascript = '';
-    $heading_caption = 'Patient Encounter Form';
+    $heading_caption = xl('Patient Encounter Form');
 } else {
     $body_javascript = 'onload="javascript:document.new_encounter.reason.focus();"';
-    $heading_caption ='New Encounter Form';
+    $heading_caption = xl('New Encounter Form');
 }
 
 
 if ($GLOBALS['enable_help'] == 1) {
-    $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xl("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+    $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
 } elseif ($GLOBALS['enable_help'] == 2) {
-    $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xl("Enable help in Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+    $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
 } elseif ($GLOBALS['enable_help'] == 0) {
      $help_icon = '';
 }
@@ -209,7 +209,7 @@ if ($GLOBALS['enable_help'] == 1) {
                 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
                 <div class="">
                     <div class="page-header">
-                        <h2><?php echo xlt($heading_caption); ?><?php echo $help_icon; ?></h2>
+                        <h2><?php echo text($heading_caption); ?><?php echo $help_icon; ?></h2>
                     </div>
                 </div>
             </div>
