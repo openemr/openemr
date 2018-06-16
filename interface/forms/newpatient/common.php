@@ -511,10 +511,10 @@ if ($GLOBALS['enable_help'] == 1) {
                     <div class="form-group clearfix">
                         <div class="col-sm-12 text-left position-override">
                             <button type="button" class="btn btn-default btn-save" onclick="top.restoreSession(); saveClicked(undefined);"><?php echo xlt('Save');?></button>
-                            <?php if ($viewmode || !isset($_GET["autoloaded"]) || $_GET["autoloaded"] != "1") { ?>
-                                <button type="button" class="btn btn-link btn-cancel btn-separate-left" onclick="top.restoreSession(); location.href='<?php echo "$rootdir/patient_file/encounter/encounter_top.php";?>';"><?php echo xlt('Cancel');?></button>
+                            <?php if ($viewmode || empty($_GET["autoloaded"])) { // not creating new encounter ?>
+                                <button type="button" class="btn btn-link btn-cancel btn-separate-left" onClick="return cancelClickedOld()"><?php echo xlt('Cancel');?></button>
                             <?php } else { // not $viewmode ?>
-                            <button class="btn btn-link btn-cancel btn-separate-left link_submit" onClick="return cancelClicked()">
+                            <button class="btn btn-link btn-cancel btn-separate-left link_submit" onClick="return cancelClickedNew()">
                                     <?php echo xlt('Cancel'); ?></button>
                             <?php } // end not $viewmode ?>
                         </div>
