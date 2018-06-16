@@ -14,9 +14,13 @@
 #      or
 #      https://localhost:8091 to run setup in openemr with SSL (alpine edge with Apache and PHP 7.2)
 #      or
-#      http://localhost:8085 to run setup in openemr (Nginx with php-fpm PHP 7.2) EXPERIMENTAL
+#      http://localhost:8085 to run setup in openemr (Nginx with php-fpm PHP 7.1)
 #      or
-#      https://localhost:8095 to run setup in openemr with SSL (Nginx with php-fpm PHP 7.2) EXPERIMENTAL - NOT YET WORKING
+#      https://localhost:8095 to run setup in openemr with SSL (Nginx with php-fpm PHP 7.1) EXPERIMENTAL - NOT YET WORKING
+#      or
+#      http://localhost:8086 to run setup in openemr (Nginx with php-fpm PHP 7.2)
+#      or
+#      https://localhost:8096 to run setup in openemr with SSL (Nginx with php-fpm PHP 7.2) EXPERIMENTAL - NOT YET WORKING
 #  On the main setup input screen:
 #   1. for Server Host, use either 'mariadb' or 'mysql' or `mariadb-dev` or 'mysql-dev' or 'mysql-old' or 'mysql-very-old' or 'mariadb-old' or 'mariadb-very-old' or 'mariadb-very-very-old'  (have both mariadb/mysql/mariadb-dev/mysql-dev dockers ready to go make testing either one easy; mysql is version 5.7; mysql-dev is version 8; mysql-old is version 5.6; mysql-very-old is version 5.5; mariadb is version 10.2 and mariadb-dev is version 10.3; mariadb-old is version 10.1; mariadb-very-old is version 10.0; mariadb-very-very-old is version 5.5)
 #   2. for Root Pass, use 'root'
@@ -130,12 +134,20 @@ services:
     ports:
     - 8085:80
     - 8095:443
+    - 8086:81
+    - 8096:444
     volumes:
     - .:/usr/share/nginx/html/openemr
     - ./contrib/util/docker/stuff/configs/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-  dev-php-fpm-7-2:
+  dev-php-fpm-7-1:
     restart: always
-    image: openemr/dev-php-fpm-7-2
+    image: openemr/dev-php-fpm:7.1
     volumes:
     - .:/usr/share/nginx/html/openemr
-    - ./contrib/util/docker/stuff/configs/dev-php-fpm-7-2/php.ini:/usr/local/etc/php/php.ini:ro
+    - ./contrib/util/docker/stuff/configs/dev-php-fpm/php.ini:/usr/local/etc/php/php.ini:ro
+  dev-php-fpm-7-2:
+    restart: always
+    image: openemr/dev-php-fpm:7.2
+    volumes:
+    - .:/usr/share/nginx/html/openemr
+    - ./contrib/util/docker/stuff/configs/dev-php-fpm/php.ini:/usr/local/etc/php/php.ini:ro

@@ -46,10 +46,12 @@ directory) and then restart the development docker (see below for how to do this
 options to choose from:
 - http://localhost:8080 (with Apache and PHP 7.1)
 - http://localhost:8081 (with Apache and PHP 7.2)
-- http://localhost:8085 (with Nginx and PHP-FPM 7.2) EXPERIMENTAL
+- http://localhost:8085 (with Nginx and PHP-FPM 7.1)
+- http://localhost:8086 (with Nginx and PHP-FPM 7.2)
 - https://localhost:8090 with SSL (with PHP 7.1)
 - https://localhost:8091 with SSL (with PHP 7.2)
-- https://localhost:8095 with SSL (with Nginx and PHP-FPM 7.2) EXPERIMENTAL (not working yet)
+- https://localhost:8095 with SSL (with Nginx and PHP-FPM 7.1) EXPERIMENTAL (not working yet)
+- https://localhost:8096 with SSL (with Nginx and PHP-FPM 7.2) EXPERIMENTAL (not working yet)
 
 **Step 4.** Setup up OpenEMR. The first time you run OpenEMR (and whenever you clear and replace your
 synchronized openemr directory and restart the development docker). On the main
@@ -150,10 +152,12 @@ if you have any questions after reviewing the wiki.
 
 - HTTP is running on port 80 in the OpenEMR containers and port 8080 on the
 Apache PHP 7.1 host machine and port 8081 on the Apache PHP 7.2 host machine
-and port 8085 on the Nginx PHP 7.2 host machine.
+and port 8085 on the Nginx PHP 7.1 host machine and port 8086 on the Nginx
+PHP 7.2 host machine.
 - HTTPS is running on port 443 in the OpenEMR containers and port 8090 on the
 Apache PHP 7.1 host machine and port 8091 on the Apache PHP 7.2 host machine
-and port 8095 on the Nginx PHP 7.2 host machine.
+and port 8095 on the Nginx PHP 7.1 host machine and port 8096 on the Nginx PHP
+7.2 host machine.
 - HTTP is running on port 80 in the PhpMyADMIN container and port 8100 on the
 host machine.
 - MySQL is running on port 3306 in the MariaDB/MySQL/MariaDB-\*/MySQL-\* containers.
