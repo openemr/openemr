@@ -26,7 +26,7 @@ class TabsWrapper
     }
 
     /**
-     * Set brand / arbitrary element managed by parent 
+     * Set brand / arbitrary element managed by parent
      * @param string $htm : Valid html code
      */
     public function setBrand($htm)
@@ -195,7 +195,7 @@ EOD;
             ++$i;
             $s .= "<li>";
             if ($i == 1) {
-            	$s .= $this->htmBrand;
+                $s .= $this->htmBrand;
             }
             $s = "<a href='#{$this->tabsid}-$i'>" . text($val['title']) . "</a>";
             if ($val['closeable']) {
