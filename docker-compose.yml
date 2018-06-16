@@ -130,7 +130,7 @@ services:
     - 8042:8042
   nginx:
     restart: always
-    image: nginx
+    image: openemr/dev-nginx
     ports:
     - 8085:80
     - 8095:443
@@ -138,16 +138,16 @@ services:
     - 8096:444
     volumes:
     - .:/usr/share/nginx/html/openemr
-    - ./contrib/util/docker/stuff/configs/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    - ./contrib/util/docker/dockers/dev-nginx/nginx.conf:/etc/nginx/nginx.conf:ro
   dev-php-fpm-7-1:
     restart: always
     image: openemr/dev-php-fpm:7.1
     volumes:
     - .:/usr/share/nginx/html/openemr
-    - ./contrib/util/docker/stuff/configs/dev-php-fpm/php.ini:/usr/local/etc/php/php.ini:ro
+    - ./contrib/util/docker/dockers/dev-php-fpm-7-1/php.ini:/usr/local/etc/php/php.ini:ro
   dev-php-fpm-7-2:
     restart: always
     image: openemr/dev-php-fpm:7.2
     volumes:
     - .:/usr/share/nginx/html/openemr
-    - ./contrib/util/docker/stuff/configs/dev-php-fpm/php.ini:/usr/local/etc/php/php.ini:ro
+    - ./contrib/util/docker/dockers/dev-php-fpm-7-2/php.ini:/usr/local/etc/php/php.ini:ro
