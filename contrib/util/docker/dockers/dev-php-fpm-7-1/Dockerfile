@@ -7,9 +7,9 @@
 # (at your option) any later version.
 #
 # php-fpm Dockerfile build for openemr development docker environment
-# This docker is hosted here: https://hub.docker.com/r/openemr/dev-php-fpm/ <tag is 7.2>
+# This docker is hosted here: https://hub.docker.com/r/openemr/dev-php-fpm/ <tag is 7.1>
 #
-FROM php:7.2-fpm
+FROM php:7.1-fpm
 
 # Update
 RUN apt-get update
@@ -35,3 +35,6 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions && sync && \
                            sockets \
                            tokenizer \
                            xmlreader
+
+# Copy over the php.ini conf
+COPY php.ini /usr/local/etc/php/php.ini
