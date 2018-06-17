@@ -10,6 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 use OpenEMR\Core\Header;
+
 require_once('globals.php');
 Header::setupHeader(['jquery-ui', 'jquery-ui-base', 'no_jquery', 'no_bootstrap', 'no_fontawesome', 'no_main-theme', 'no_textformat', 'no_dialog' ]);
 ?>
