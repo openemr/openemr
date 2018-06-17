@@ -165,7 +165,7 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
         ?>
         EncounterIdArray[Count]='<?php echo attr($rowresult4['encounter']); ?>';
     EncounterDateArray[Count]='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>';
-    CalendarCategoryArray[Count]='<?php echo attr(xl_appt_category($rowresult4['pc_catname'])); ?>';
+    CalendarCategoryArray[Count]='<?php echo text(addslashes(xl_appt_category($rowresult4['pc_catname']))); ?>';
             Count++;
     <?php
             }
