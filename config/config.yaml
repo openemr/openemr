@@ -15,11 +15,13 @@ assets:
         basePath: %assets_static_relative%/jquery-min-3-1-1/
         script: index.js
         autoload: true
+        allowNoLoad: true
     bootstrap:
         basePath: %assets_static_relative%/bootstrap-3-3-4/dist/
         script: js/bootstrap.min.js
         link: css/bootstrap.min.css
         autoload: true
+        allowNoLoad: true
         rtl:
             basePath: %assets_static_relative%/bootstrap-rtl-3-3-4/dist/
             link: css/bootstrap-rtl.css
@@ -63,6 +65,7 @@ assets:
         basePath: %assets_static_relative%/font-awesome-4-6-3/css/
         link: font-awesome.min.css
         autoload: true
+        allowNoLoad: true
     datetime-picker:
         basePath: %assets_static_relative%/jquery-datetimepicker-2-5-4/build/
         script: jquery.datetimepicker.full.min.js
@@ -83,10 +86,12 @@ assets:
         basePath: %webroot%/library/
         script: textformat.js
         autoload: true
+        allowNoLoad: true
     dialog:
         basePath: %webroot%/library/
         script: dialog.js
         autoload: true
+        allowNoLoad: true
     select2:
         basePath: %assets_static_relative%/
         script: select2-4-0/dist/js/select2.full.js

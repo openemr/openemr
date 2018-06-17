@@ -9,8 +9,11 @@
  * @version 1.0.0
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+use OpenEMR\Core\Header;
+
 require_once('globals.php');
-    ?>
+Header::setupHeader(['jquery-ui', 'jquery-ui-base', 'no_jquery', 'no_bootstrap', 'no_fontawesome', 'no_main-theme', 'no_textformat', 'no_dialog' ]);
+?>
  <br>
 <?php
 $close =  xl("Close");
@@ -53,5 +56,14 @@ echo $help_modal;
         $('#print-help-href').click (function(){
             $("#targetiframe").get(0).contentWindow.print();
         })
+    });
+    // Jquery draggable
+    $('.modal-dialog').draggable({
+            handle: ".modal-header, .modal-footer"
+    });
+   $( ".modal-content" ).resizable({
+        aspectRatio: true,
+        minHeight: 300,
+        minWidth: 300
     });
 </script>
