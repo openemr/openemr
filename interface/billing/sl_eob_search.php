@@ -1169,7 +1169,8 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
 
     ?>
     $( document ).ready(function() {
-        $('#select-method-tooltip').tooltip({title: "<?php echo xla(' Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>"});
+        //using jquery-ui-1-12-1 tooltip instead of bootstrap tooltip
+        $('#select-method-tooltip').attr( "title", "<?php echo xla(' Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>").tooltip();
     });
     </script>
     <?php

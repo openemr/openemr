@@ -39,13 +39,13 @@ if (!isset($phpgacl_location)) {
 
     <script type="text/JavaScript">
         $(document).ready(function(){
+            //using jquery-ui-1-12-1 tooltip instead of bootstrap tooltip
             var groupTitle = "<?php echo xla('This section allows you to create and remove groups and modify or grant access privileges to existing groups. Check the check box to display section'); ?>";
-            $('#advanced-tooltip').tooltip({title: "<?php echo xla('Click to manually configure access control, recommended for advanced users'); ?>"});
-            $('#user-tooltip').tooltip({title: "<?php echo xla('Click the pencil icon to grant and remove access privileges to the selected user'); ?>"});
-            $('#group-tooltip').tooltip({title: groupTitle});
-            $('#new-group-tooltip').tooltip({title: "<?php echo xla('Enter values in this section to create a new group also known as Access Request Object (ARO)'); ?>"});
-            $('#remove-group-tooltip').tooltip({title: "<?php echo xla('Use this section to delete existing groups or Access Request Objects (AROs)'); ?>"});
-
+            $('#advanced-tooltip').attr( "title", "<?php echo xla('Click to manually configure access control, recommended for advanced users'); ?>" ).tooltip();
+            $('#user-tooltip').attr("title", "<?php echo xla('Click the pencil icon to grant and remove access privileges to the selected user'); ?>" ).tooltip();
+            $('#group-tooltip').attr("title", groupTitle).tooltip();
+            $('#new-group-tooltip').attr("title", "<?php echo xla('Enter values in this section to create a new group also known as Access Request Object (ARO)'); ?>").tooltip();
+            $('#remove-group-tooltip').attr("title", "<?php echo xla('Use this section to delete existing groups or Access Request Objects (AROs)'); ?>").tooltip();
             //Show membership section by default
             $("#membership_show").click();
             membership_show();
@@ -493,9 +493,9 @@ if (!isset($phpgacl_location)) {
     </script>
     <?php
     if ($GLOBALS['enable_help'] == 1) {
-        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xl("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 2) {
-        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !important" title="' . xl("Enable help in Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 0) {
          $help_icon = '';
     }
@@ -632,7 +632,7 @@ if (!isset($phpgacl_location)) {
     if ($GLOBALS['enable_help'] == 1) {
         echo "<script>var helpFile = 'adminacl_help.php'</script>";
         //help_modal.php lives in interface, set path accordingly
-        require_once "../help_modal.php";
+        require "../help_modal.php";
     }
     ?> 
 </body>
