@@ -15,6 +15,8 @@ require_once($GLOBALS['srcdir'] . '/patient.inc');
 require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
+use OpenEMR\Core\Header;
+
 $info_msg = "";
 
 // What we are picking from: codes, fields, lists or groups
@@ -37,19 +39,14 @@ $layout_id = empty($_GET['layout_id']) ? '' : $_GET['layout_id'];
 <!DOCTYPE html>
 <html>
 <head>
-<?php html_header_show(); ?>
 <title><?php echo xlt('Code Finder'); ?></title>
-<link rel="stylesheet" href='<?php echo attr($css_header) ?>' type='text/css'>
 
-<style type="text/css">
-</style>
+<?php Header::setupHeader(['opener']); ?>
 
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-dt-1-10-13/css/jquery.dataTables.min.css" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-dt-1-3-2/css/colReorder.dataTables.min.css" type="text/css">
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-1-10-13/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 
 <script language="JavaScript">
 
@@ -281,8 +278,7 @@ if ($what == 'lists') {
 echo "</p>\n";
 ?>
 
-<!-- Class "display" is defined in demo_table.css -->
-<table cellpadding="0" cellspacing="0" border="0" class="display" id="my_data_table">
+<table id="my_data_table" class="table table-striped table-hover table-sm" style="width: 90%;">
  <thead>
   <tr>
    <th><?php echo xlt('Code'); ?></th>
