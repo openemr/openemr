@@ -13,12 +13,13 @@
  * @link http://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-use OpenEMR\Core\Header;
-
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/api.inc");
 require_once("date_qualifier_options.php");
+
+use OpenEMR\Core\Header;
+
 if (! $encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
 }
@@ -37,7 +38,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['knockout', 'datetime-picker']);?>
+<?php Header::setupHeader(['datetime-picker']);?>
 <title><?php echo xlt('Miscellaneous Billing Options for HCFA-1500'); ?></title>
 <style>
     @media only screen and (max-width: 768px) {
@@ -110,8 +111,8 @@ if ($GLOBALS['enable_help'] == 1) {
                                 }?>>
                             </label>
                         </div>
-                        <span class="text" title="<?php echo xlt("For HCFA 02/12 Onset date specified on the Encounter Form needs a qualifier");?>"></span>
-                        <span class="text" title="<?php echo xlt('For HCFA 02/12 Box 15 is Other Date with a qualifier to specify what the date indicates');?>"></span>
+                        <span class="text" title="<?php echo xla("For HCFA 02/12 Onset date specified on the Encounter Form needs a qualifier");?>"></span>
+                        <span class="text" title="<?php echo xla('For HCFA 02/12 Box 15 is Other Date with a qualifier to specify what the date indicates');?>"></span>
                         <div class="form-group">
                             <label><?php echo xlt('BOX 14. Is Populated from the Encounter Screen as the Onset Date');?>
                                
@@ -195,7 +196,7 @@ if ($GLOBALS['enable_help'] == 1) {
                         <div class="btn-group btn-pinch" role="group">
                             <!-- Save/Cancel buttons -->
                             <button type="submit" class="btn btn-default btn-save save"> <?php echo xla('Save'); ?></button>
-                            <button type="button" class="btn btn-link btn-cancel btn-separate-left dontsave"><?php echo xla('Cancel'); ?></button>
+                            <button type="button" class="dontsave btn btn-link btn-cancel btn-separate-left"><?php echo xla('Cancel'); ?></button>
                         </div>
                     </div>
                 </div>
@@ -218,8 +219,8 @@ if ($GLOBALS['enable_help'] == 1) {
 <script language="javascript">
 // jQuery stuff to make the page a little easier to use
 $(document).ready(function(){
-    $(".save").click(function() { top.restoreSession(); document.my_form.submit(); });
-    $(".dontsave").click(function() { location.href='<?php echo "$rootdir/patient_file/encounter/encounter_top.php";?>'; });
+    $(".dontsave").click(function() { parent.closeTab(window.name, false);});
+    
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
