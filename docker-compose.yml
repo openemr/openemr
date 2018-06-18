@@ -6,7 +6,7 @@ services:
     image: mysql
     command: ['mysqld','--character-set-server=utf8']
     environment:
-      MYSQL_ROOT_PASSWORD: rt&5YU
+      MYSQL_ROOT_PASSWORD: wtr&5YU
     ports:
     - 3307:3306
   openemr:
@@ -20,11 +20,11 @@ services:
     - .:/var/www/localhost/htdocs/openemr
     environment:
       MYSQL_HOST: mysql
-      MYSQL_ROOT_PASS: rt&5YU
+      MYSQL_ROOT_PASS: wtr&5YU
       MYSQL_USER: derek
-      MYSQL_PASS: Qa@er5
+      MYSQL_PASS: Qa@er5t
       OE_USER: admin
-      OE_PASS: 3dEDC
+      OE_PASS: pass
       #DOMAIN: emr.capitalspeechpath.com
       #EMAIL: dhillison@gmail.com
     links:
