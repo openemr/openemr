@@ -89,7 +89,9 @@ require_once("../../interface/globals.php");
                 
                 <p><?php echo xlt("Box 10 D - Is used to submit the Early and Periodic Screening, Diagnosis and Treatment (EPSDT) Referral Code");?>.
                 
-                <p><?php echo xlt("Box 14 - Is Populated from the Encounter Screen as the Onset Date. It identifies the first date of onset of illness, the actual date of injury, or the LMP for pregnancy");?>.
+                <p><?php echo xlt("Box 14 - It identifies the first date of onset of illness, the actual date of injury, or the LMP for pregnancy. Enter the date in the first box and select either Onset of Current Symptoms or Illness  or LMP from the drop-down box");?>.
+                
+                <p><?php echo xlt("Box 15 -  The Other Date identifies additional date information about the patient’s condition or treatment. Enter the date in the first box and select a qualifier from the drop-down box");?>.
                 
                 <p><?php echo xlt("Box 16 - Dates Patient Unable to Work in Current Occupation - is the time span the patient is or was unable to work");?>.
                 
