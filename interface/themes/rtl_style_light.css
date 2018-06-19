@@ -1673,6 +1673,9 @@ fieldset {
   margin-bottom: 10px !important;
   padding: 0px 0px 15px 0px !important; }
 
+.text-to-side {
+  text-align: right; }
+
 .oe-custom-line {
   padding-bottom: 5px; }
 
@@ -1861,6 +1864,9 @@ body {
     margin: 0px; padding: 0px;
 }
 
+.text-to-side{
+    text-align: left;
+}
 
 /*=============================================================
  * This section relates to the custom layouts that can be made
@@ -2139,15 +2145,6 @@ form#new_note div{
 
     float:none !important;
 
-}
-/* newpatient/common.php  */
-form#new-encounter-form div{
-
-    float: none !important;
-    display: inherit;
-}
-form#new-encounter-form a{
-    margin-top: 4px;
 }
 
 /* /patient_file/encounter/forms.php  */
