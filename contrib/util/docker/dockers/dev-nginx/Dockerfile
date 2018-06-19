@@ -13,3 +13,7 @@ FROM nginx
 
 # Copy over the nginx.conf conf
 COPY nginx.conf /etc/nginx/nginx.conf
+
+# Copy over the dummy self signed key/cert
+COPY dummy-cert /etc/nginx/dummy-cert
+COPY dummy-key /etc/nginx/dummy-key

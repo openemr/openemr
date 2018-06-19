@@ -139,6 +139,8 @@ services:
     volumes:
     - .:/usr/share/nginx/html/openemr
     - ./contrib/util/docker/dockers/dev-nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    - ./contrib/util/docker/dockers/dev-nginx/dummy-cert:/etc/nginx/dummy-cert:ro
+    - ./contrib/util/docker/dockers/dev-nginx/dummy-key:/etc/nginx/dummy-key:ro
     depends_on:
     - dev-php-fpm-7-1
     - dev-php-fpm-7-2
