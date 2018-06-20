@@ -72,9 +72,9 @@ if ($GLOBALS['enable_help'] == 1) {
                 <fieldset>
                     <legend><?php echo xlt('Select Options for Current Encounter')?></legend>
                     <div class='col-sm-11 col-offset-sm-1'>
-                        <span class="text"><?php echo xlt('Checked box = yes ,  empty = no');?><br><br></span>
+                        <span class="text"><?php echo xlt('Checked box = yes, empty = no');?><br><br></span>
                         <div class="form-group">
-                            <label><?php echo xlt('Box 10 A. Employment related '); ?>:
+                            <label><?php echo xlt('Box 10 A. Employment related'); ?>:
                                 <input type="checkbox" name="employment_related" id="box10a" value="1"
                                 <?php
                                 if ($obj['employment_related'] == "1") {
@@ -83,7 +83,7 @@ if ($GLOBALS['enable_help'] == 1) {
                             </label>
                         </div>
                         <div class="form-group">
-                            <label><?php echo xlt('Box 10 B. Auto Accident '); ?>:
+                            <label><?php echo xlt('Box 10 B. Auto Accident'); ?>:
                                 <input type="checkbox" name="auto_accident" id="box10b" value="1"
                                 <?php
                                 if ($obj['auto_accident'] == "1") {
@@ -95,7 +95,7 @@ if ($GLOBALS['enable_help'] == 1) {
                             </label>
                         </div>
                         <div class="form-group">
-                            <label><?php echo xlt('Box 10 C. Other Accident '); ?>:
+                            <label><?php echo xlt('Box 10 C. Other Accident'); ?>:
                                 <input type="checkbox" name="other_accident" id="box10c" value="1"
                                 <?php
                                 if ($obj['other_accident'] == "1") {
@@ -137,7 +137,7 @@ if ($GLOBALS['enable_help'] == 1) {
                         <div class="form-group clearfix">
                                 <label for='off_work_from' class="col-sm-3 form-inline"><?php echo xlt('Box 16. Date unable to work from');?>:</label>
                                     <?php $off_work_from = $obj{"off_work_from"}; ?>
-                                        <input type="text" class='datepicker form-inline col-sm-2 ' name='off_work_from' id='off_work_from' value='<?php echo attr($off_work_from); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>'>
+                                        <input type="text" class='datepicker form-inline col-sm-2' name='off_work_from' id='off_work_from' value='<?php echo attr($off_work_from); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>'>
                                 <label for='off_work_to'class="col-sm-3 form-inline"><?php echo xlt('Box 16. Date unable to work to');?>:</label>
                                     <?php $off_work_to = $obj{"off_work_to"}; ?>
                                         <input type="text"  class='datepicker col-sm-2' name='off_work_to' id='off_work_to' value='<?php echo attr($off_work_to); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>'>
@@ -160,39 +160,39 @@ if ($GLOBALS['enable_help'] == 1) {
                         </div>
                         <div class="form-group">
                             <label><?php echo xlt('Box 20. Is Outside Lab used?'); ?>:
-                                <input type="checkbox" name="outside_lab" value="1"
+                                <input type="checkbox" name="outside_lab" id="outside_lab" value="1"
                                 <?php
                                 if ($obj['outside_lab'] == "1") {
                                     echo "checked";
                                 }?>>
                             </label>
                             <label><?php echo xlt('Amount Charged'); ?>:
-                                <input type="text" size="7" align='right' name="lab_amount" value="<?php echo attr($obj{"lab_amount"});?>" >
+                                <input type="text" size="7" align='right' name="lab_amount" id="lab_amount" value="<?php echo attr($obj{"lab_amount"});?>" >
                             </label>
                         </div>
                         <div class="form-group">
-                            <label><?php echo xlt('Box 22. Medicaid Resubmission Code (ICD-10) ');?>:
-                                <input type="text"  name="medicaid_resubmission_code" value="<?php echo attr($obj{"medicaid_resubmission_code"});?>" >
+                            <label><?php echo xlt('Box 22. Medicaid Resubmission Code (ICD-10)');?>:
+                                <input type="text"  name="medicaid_resubmission_code" id="medicaid_resubmission_code" value="<?php echo attr($obj{"medicaid_resubmission_code"});?>" >
                             </label>
-                            <label><?php echo xlt(' Medicaid Original Reference No. ');?>:
-                                <input type="text"  name="medicaid_original_reference" value="<?php echo attr($obj{"medicaid_original_reference"});?>" >
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label><?php echo xlt('Box 23. Prior Authorization No. ');?>:
-                                <input type="text"  name="prior_auth_number" value="<?php echo attr($obj{"prior_auth_number"});?>" >
+                            <label><?php echo xlt(' Medicaid Original Reference No.');?>:
+                                <input type="text"  name="medicaid_original_reference" id="medicaid_original_reference" value="<?php echo attr($obj{"medicaid_original_reference"});?>" >
                             </label>
                         </div>
                         <div class="form-group">
-                            <label><?php echo xlt('X12 only: Replacement Claim '); ?>:
-                                <input type="checkbox" name="replacement_claim" value="1"
+                            <label><?php echo xlt('Box 23. Prior Authorization No.');?>:
+                                <input type="text"  name="prior_auth_number" id="prior_auth_number" value="<?php echo attr($obj{"prior_auth_number"});?>" >
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label><?php echo xlt('X12 only: Replacement Claim'); ?>:
+                                <input type="checkbox" name="replacement_claim" id="replacement_claim" value="1"
                                 <?php
                                 if ($obj['replacement_claim'] == "1") {
                                     echo "checked";
                                 }?>>
                             </label>
                             <label><?php echo xlt('X12 only ICN resubmission No.');?>:
-                                <input type="text" name="icn_resubmission_number" value="<?php echo attr($obj{"icn_resubmission_number"});?>" >
+                                <input type="text" name="icn_resubmission_number" id="icn_resubmission_number" value="<?php echo attr($obj{"icn_resubmission_number"});?>" >
                             </label>
                         </div>
                     </div>
@@ -201,7 +201,7 @@ if ($GLOBALS['enable_help'] == 1) {
                         <legend><?php echo xlt('Additional Notes');?></legend>
                             <div class="form-group">
                                 <div class="col-sm-10 col-sm-offset-1">
-                                    <textarea name="comments"    class="form-control" cols="80" rows="3" ><?php echo text($obj{"comments"});?></textarea>
+                                    <textarea name="comments"  id="comments" class="form-control" cols="80" rows="3" ><?php echo text($obj{"comments"});?></textarea>
                                 </div>
                             </div>
                 </fieldset>
