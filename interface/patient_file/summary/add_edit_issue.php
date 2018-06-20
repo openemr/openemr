@@ -25,9 +25,25 @@ require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'].'/csv_like_join.php');
+
+// TBD - Resolve functional issues if opener is included in Header
 ?>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php
+use OpenEMR\Core\Header;
+
+if ($_POST['form_save']) {
+    // Following hidden field received in the form will be used to ensure integrity of form values
+    // 'issue', 'thispid', 'thisenc'
+    $issue = $_POST['issue'];
+    $thispid = $_POST['thispid'];
+    $thisenc = $_POST['thisenc'];
+} else {
+    $issue = $_REQUEST['issue'];
+    $thispid = 0 + (empty($_REQUEST['thispid']) ? $pid : $_REQUEST['thispid']);
+    // A nonempty thisenc means we are to link the issue to the encounter.
+    $thisenc = 0 + (empty($_REQUEST['thisenc']) ? 0 : $_REQUEST['thisenc']);
+}
 
 if (isset($ISSUE_TYPES['football_injury'])) {
     if ($ISSUE_TYPES['football_injury']) {
@@ -45,12 +61,7 @@ if (isset($ISSUE_TYPES['ippf_gcac'])) {
     }
 }
 
-$issue = $_REQUEST['issue'];
-$thispid = 0 + (empty($_REQUEST['thispid']) ? $pid : $_REQUEST['thispid']);
 $info_msg = "";
-
-// A nonempty thisenc means we are to link the issue to the encounter.
-$thisenc = 0 + (empty($_REQUEST['thisenc']) ? 0 : $_REQUEST['thisenc']);
 
 // A nonempty thistype is an issue type to be forced for a new issue.
 $thistype = empty($_REQUEST['thistype']) ? '' : $_REQUEST['thistype'];
@@ -395,14 +406,8 @@ if (!empty($irow['type'])) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
+<?php Header::setupHeader(['common', 'jquery-ui', 'datetime-picker', 'select2']); ?>
 <title><?php echo ($issue ? xlt('Edit') : xlt('Add New')) . ' ' . xlt('Issue'); ?></title>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
-<?php } ?>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <style>
 
@@ -424,16 +429,7 @@ ul.tabNav li.current a { background:#ffffff; }
 
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-
 <script language="JavaScript">
-
- var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  var aitypes = new Array(); // issue type attributes
  var aopts   = new Array(); // Option objects
@@ -716,9 +712,15 @@ if ($issue) {
 <div class="tabContainer">
 <div class='tab current' style='height:auto;width:97%;'>
 
-<form method='post' name='theform'
- action='add_edit_issue.php?issue=<?php echo attr($issue); ?>&thispid=<?php echo attr($thispid); ?>&thisenc=<?php echo attr($thisenc); ?>'
- onsubmit='return validate()'>
+<form method='post' name='theform' onsubmit='return validate()'>
+
+<?php 
+// action setting not required in html5.  By default form will submit to itself.
+// Provide key values previously passed as part of action string.
+foreach (array('issue'=>$issue, 'thispid'=>$thispid, 'thisenc'=>$thisenc) as $fldName => $fldVal) {
+    printf('<input name="%s" type="hidden" value="%s"/>%s', $fldName, attr($fldVal), PHP_EOL);
+}
+?>
 
 <table border='0' width='100%'>
 
@@ -963,6 +965,11 @@ if ($ISSUE_TYPES['ippf_gcac']) {
  newtype(<?php echo $type_index ?>);
  // Set up the tabbed UI.
  tabbify();
+
+$(document).ready(function() {
+    // Include bs3 / bs4 classes here.  Keep html tags functional.
+    $('table').addClass('table table-sm');
+});
 </script>
 
 <?php validateUsingPageRules($_SERVER['PHP_SELF']);?>
