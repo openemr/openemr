@@ -50,8 +50,8 @@ options to choose from:
 - http://localhost:8086 (with Nginx and PHP-FPM 7.2)
 - https://localhost:8090 with SSL (with Apache and PHP 7.1)
 - https://localhost:8091 with SSL (with Apache and PHP 7.2)
-- https://localhost:8095 with SSL (with Nginx and PHP-FPM 7.1) EXPERIMENTAL (not working yet)
-- https://localhost:8096 with SSL (with Nginx and PHP-FPM 7.2) EXPERIMENTAL (not working yet)
+- https://localhost:8095 with SSL (with Nginx and PHP-FPM 7.1)
+- https://localhost:8096 with SSL (with Nginx and PHP-FPM 7.2)
 
 **Step 4.** Setup up OpenEMR. The first time you run OpenEMR (and whenever you clear and replace your
 synchronized openemr directory and restart the development docker). On the main
