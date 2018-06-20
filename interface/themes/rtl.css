@@ -43,10 +43,12 @@ body {
     margin: 0px; padding: 0px;
 }
 
-.text-to-side{
+.oe-text-to-right{
     text-align: left;
 }
-
+.oe-text-to-left{
+    text-align: right;
+}
 /*=============================================================
  * This section relates to the custom layouts that can be made
  * using the OEMR tool in the Admin section. For example, the
