@@ -714,7 +714,7 @@ if ($issue) {
 
 <form method='post' name='theform' onsubmit='return validate()'>
 
-<?php 
+<?php
 // action setting not required in html5.  By default form will submit to itself.
 // Provide key values previously passed as part of action string.
 foreach (array('issue'=>$issue, 'thispid'=>$thispid, 'thisenc'=>$thisenc) as $fldName => $fldVal) {
@@ -757,8 +757,8 @@ foreach ($ISSUE_TYPES as $key => $value) {
  <tr id='row_titles'>
   <td valign='top' nowrap>&nbsp;</td>
   <td valign='top'>
-   <select name='form_titles' size='4' onchange='set_text()'>
-   </select> <?php echo xlt('(Select one of these, or type your own title)'); ?>
+   <select name='form_titles' size='4' onchange='set_text()'></select>
+   <p><?php echo xlt('(Select one of these, or type your own title)'); ?></p>
   </td>
  </tr>
 
