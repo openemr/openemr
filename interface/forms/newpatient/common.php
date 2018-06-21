@@ -227,7 +227,7 @@ if ($GLOBALS['enable_help'] == 1) {
                         <legend><?php echo xlt('Visit Details')?></legend>
                         <div id = "visit-details">
                             <div class="form-group ">
-                                    <label for="pc_catid" class="control-label col-sm-2 text-right"><?php echo xlt('Visit Category:'); ?></label>
+                                    <label for="pc_catid" class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Visit Category:'); ?></label>
                                     <div class="col-sm-3">
                                         <select  name='pc_catid' id='pc_catid' class='form-control col-sm-12'>
                                             <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
@@ -290,7 +290,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                     if ($sensitivities && count($sensitivities)) {
                                         usort($sensitivities, "sensitivity_compare");
                                         ?>
-                                        <label for="pc_catid" class="control-label col-sm-2 text-right"><?php echo xlt('Sensitivity:'); ?> &nbsp;<i id='sensitivity-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
+                                        <label for="pc_catid" class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Sensitivity:'); ?> &nbsp;<i id='sensitivity-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
                                         <div class="col-sm-3">
                                         <select name='form_sensitivity' id='form_sensitivity' class='form-control col-sm-12' >
                                             <?php
@@ -325,7 +325,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                     <div class="clearfix"></div>
                                 </div>
                                 <div class="form-group">
-                                    <label for='form_date' class="control-label col-sm-2 text-right"><?php echo xlt('Date of Service:'); ?></label>
+                                    <label for='form_date' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Date of Service:'); ?></label>
                                     <div class="col-sm-3">
                                         <input type='text' class='form-control datepicker col-sm-12' name='form_date' id='form_date' <?php echo $disabled ?>
                                         value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : oeFormatShortDate(date('Y-m-d')); ?>'
@@ -337,7 +337,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                         if ($GLOBALS['ippf_specific']) {
                                             echo " style='visibility:hidden;'";
                                         } ?>>
-                                        <label for='form_onset_date' class="control-label col-sm-2 text-right"><?php echo xlt('Onset/hosp. date:'); ?> &nbsp;<i id='onset-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
+                                        <label for='form_onset_date' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Onset/hosp. date:'); ?> &nbsp;<i id='onset-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
                                         <div class="col-sm-3">
                                             <input type='text' class='form-control datepicker col-sm-12' name='form_onset_date' id='form_onset_date'
                                             value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr($result['onset_date'], 0, 10))) : ''; ?>'
@@ -351,7 +351,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                     if (!$GLOBALS['gbl_visit_referral_source']) {
                                         echo "style='display:none'";
                                     } ?>>">
-                                    <label  class="control-label col-sm-2 text-right"><?php echo xlt('Referral Source'); ?>:</label>
+                                    <label  class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Referral Source'); ?>:</label>
                                     <div class="col-sm-3">
                                         <?php echo generate_select_list('form_referral_source', 'refsource', $viewmode ? $result['referral_source'] : '', '');?>
                                     </div>
@@ -359,7 +359,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                 </div>
                                 <?php if ($GLOBALS['enable_group_therapy']) { ?>
                                 <div class="form-group"id="therapy_group_name" style="display: none">
-                                    <label for="form_group" class="control-label col-sm-2 text-right"><?php echo xlt('Group name'); ?>:</label>
+                                    <label for="form_group" class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Group name'); ?>:</label>
                                     <div class="col-sm-3">
                                         <input type='text'name='form_group' class='form-control col-sm-12' id="form_group"  placeholder='<?php echo xla('Click to select');?>' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr(getGroup($result['external_id'])['group_name']) : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
                                         <input type='hidden' name='form_gid' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr($result['external_id']) : '' ?>' />
@@ -369,7 +369,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                 <?php }?>
                                 <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
                                 <div class="form-group">
-                                    <label for='facility_id' class="control-label col-sm-2 text-right"><?php echo xlt('POS Code'); ?>:</label>
+                                    <label for='facility_id' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('POS Code'); ?>:</label>
                                     <div class="col-sm-8">
                                         <select name="pos_code" id="pos_code" class='form-control col-sm-9'>
                                         <?php
@@ -389,7 +389,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                     </div>
                                 <?php }?>
                                 <div class="form-group">
-                                    <label for='facility_id' class="control-label col-sm-2 text-right"><?php echo xlt('Facility'); ?>:</label>
+                                    <label for='facility_id' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Facility'); ?>:</label>
                                     <div class="col-sm-8">
                                         <select name='facility_id' id='facility_id' class='form-control col-sm-9' onChange="bill_loc()">
                                             <?php
@@ -422,7 +422,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                     <div class="clearfix"></div>
                                 </div>
                                 <div class="form-group">
-                                    <label for='billing_facility' class="control-label col-sm-2 text-right"><?php echo xlt('Billing Facility'); ?>:</label>
+                                    <label for='billing_facility' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Billing Facility'); ?>:</label>
                                     <div id="ajaxdiv" class="col-sm-8">
                                         <?php
                                             billing_facility('billing_facility', $result['billing_facility']);

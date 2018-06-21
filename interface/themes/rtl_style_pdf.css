@@ -1141,7 +1141,12 @@ body {
     margin: 0px; padding: 0px;
 }
 
-
+.oe-text-to-right{
+    text-align: left;
+}
+.oe-text-to-left{
+    text-align: right;
+}
 /*=============================================================
  * This section relates to the custom layouts that can be made
  * using the OEMR tool in the Admin section. For example, the
@@ -1419,15 +1424,6 @@ form#new_note div{
 
     float:none !important;
 
-}
-/* newpatient/common.php  */
-form#new-encounter-form div{
-
-    float: none !important;
-    display: inherit;
-}
-form#new-encounter-form a{
-    margin-top: 4px;
 }
 
 /* /patient_file/encounter/forms.php  */

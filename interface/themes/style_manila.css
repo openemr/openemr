@@ -548,6 +548,12 @@ body.admin-layout input[type="button"] {
   width: 44px;
   height: 22px; }
 
+.oe-text-to-right {
+  text-align: right; }
+
+.oe-text-to-left {
+  text-align: left; }
+
 /* style taken out of the addressbook code and put here instead */
 #addressbook_list td {
   padding-left: 4px;
