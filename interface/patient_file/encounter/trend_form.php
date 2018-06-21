@@ -87,6 +87,8 @@ function show_graph(table_graph, name_graph, title_graph)
                 delimiter: '\t',
                 xRangePad: 20,
                 yRangePad: 20,
+                width: 480,
+                height: 320,
                 xlabel: xlabel_translate
             }
         );
@@ -96,7 +98,9 @@ function show_graph(table_graph, name_graph, title_graph)
         },
         error: function() {
             // hide the chart div
-            $('#chart').hide();
+          $('#chart').hide();  
+          alert(title_graph + " " + "<?php echo xlt('has no data to graph');?>" + ".\n" +"<?php echo xlt('Please select an item that has data');?>" + ".");
+          
         }
     });
 }

@@ -132,6 +132,7 @@ margin:1px !Important;
 </style>
 {/literal}
 
+<title>{xl t='Vitals'}</title>
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
 
@@ -139,21 +140,21 @@ margin:1px !Important;
         <div class="row">
             <div class="col-sm-12">
                 <div class="page-header">
-                    <h2>{xl t="Vitals"}&nbsp;&nbsp;&nbsp;<a href="../summary/demographics.php" class="readonly css_button_small" onclick="top.restoreSession()"> <span>{xl t="View Patient"}</span></a></h2>
+                <h2>{xl t="Vitals"}&nbsp;&nbsp;&nbsp;<a  href="../summary/demographics.php" onclick="top.restoreSession()" title="{xl t='Back to patient dashboard'}"><i id="advanced-tooltip" class="readonly fa fa-arrow-circle-o-left fa-2x small" aria-hidden="true"></i> </a></h2>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col-sm-5 col-sm-offset-3">
                 <form name="vitals" method="post" action="{$FORM_ACTION}/interface/forms/vitals/save.php" onSubmit="return vitalsFormSubmitted()">
-                    <div id="chart" class="chart-dygraphs"></div>
+                    <div id="chart" class="chart-dygraphs" style="margin-left:-15px"></div>
                     <table class="table table-condensed">
                         <thead>
-                            <tr >
-                                <th align="left" class='currentvalues'>{xl t="Name"}</th>
-                                <th align="left" class='currentvalues'>{xl t="Unit"}</th>
+                            <tr>
+                                <th align="left" >{xl t="Name"}</th>
+                                <th align="left" >{xl t="Unit"}</th>
                                 <th class='currentvalues' title='{xl t='Date and time of this observation'}'>
-                                <input type='text' size='14' class='datetimepicker' name='date' id='date' value='{$vitals->get_date()|date_format:"%Y-%m-%d %H:%M"}'>
+                                <input type='text' size='14' class='datetimepicker oe-patient-background' name='date' id='date' value='{$vitals->get_date()|date_format:"%Y-%m-%d %H:%M"}'>
                                 </th>
                                 {foreach item=result from=$results}
                                     <th class='historicalvalues'>{$result.date|date_format:"%Y-%m-%d %H:%M"}</th>
@@ -337,7 +338,7 @@ margin:1px !Important;
                                 <tr><td>&nbsp;</td></tr>
 
                                 <tr>
-                                    <td colspan='3' align="center" style='text-align:center'>
+                                    <td colspan='5' align="center" style='text-align:center'>
                                         {if $patient_age <= 20 || (preg_match('/month/', $patient_age))}
                                         <!-- only show growth-chart button for patients < 20 years old -->
                                         <!-- <input type="button" id="growthchart" value="{xl t="Growth-Chart"}" style='margin-left: 20px;'> -->
@@ -353,8 +354,8 @@ margin:1px !Important;
                 <div class="form-group clearfix">
                     <div class="text-left position-override">
                             <div class="btn-group" role="group">
-                                <button type="submit" class="btn btn-default btn-save" name="Submit" value=''>{xl t="Save Vitals"}</button>
-                                <button type="button" class="btn btn-link btn-cancel btn-separate-left" id="cancel" value=''>{xl t="Cancel"}</button>
+                                <button type="submit" class="btn btn-default btn-save editonly" name="Submit" value=''>{xl t="Save"}</button>
+                                <button type="button" class="btn btn-link btn-cancel btn-separate-left editonly" id="cancel" value=''>{xl t="Cancel"}</button>
                             </div>
                     </div>
                 </div>
