@@ -163,7 +163,7 @@ if (isset($_POST['drR'])) {
           $pdHTML = '<div class="container">
                             <div class="drHide col-xs-12">'.
                                 '<a title="'.xla('View Past and Future Reminders').'" onclick="openLogScreen()" class="btn btn-default btn-show" href="#"><span>'.xlt('View Log').'</span></a>&nbsp;'
-                                .'<a onclick="openAddScreen(0)" class="btn btn-default btn-save" href="#"><span>'.xlt('Create A Dated Reminder').'</span></a>
+                                .'<a onclick="openAddScreen(0)" class="btn btn-default btn-add" href="#"><span>'.xlt('Create A Dated Reminder').'</span></a>
                             </div>
                             <div class="col-xs-12 pre-scrollable oe-margin-t-10">
                             <fieldset>
