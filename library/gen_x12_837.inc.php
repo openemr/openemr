@@ -787,9 +787,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
             "*" . $claim->supervisorNumber() .
             "~\n";
         }
-    } else {
-        $log .= "*** Supervising provider has invalid last name.\n";
-    }
+    } 
 
     // Segments NM1*PW, N3, N4 (Ambulance Pick-Up Location) omitted.
     // Segments NM1*45, N3, N4 (Ambulance Drop-Off Location) omitted.
