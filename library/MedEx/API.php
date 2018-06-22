@@ -1694,7 +1694,7 @@ if (!empty($logged_in['products']['not_ordered'])) {
                                           </td></tr>
 
                                           <tr><td class="text-center" colspan="2">
-                                            <input href="#" class="btn btn-primary" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>">
+                                            <button class="btn btn-default btn-filter" style="float:none;" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>"><?php echo xlt('Filter'); ?></button>
                                             </td>
                                           </tr>
                                         </table>
@@ -2279,18 +2279,18 @@ if (!empty($logged_in['products']['not_ordered'])) {
                 <div class="divTableCell text-center" style="width:10%;"><?php echo xlt('Recall'); ?></div>
 
                 <div class="divTableCell text-center phones" style="width:10%;"><?php echo xlt('Contacts'); ?></div>
-                <div class="divTableCell text-center msg_resp"><?php echo xlt('Postcards'); ?><br />
+                <div class="divTableCell text-center msg_resp" style="width:5%;"><?php echo xlt('Postcards'); ?><br />
                     <span onclick="top.restoreSession();checkAll('postcards',true);" class="fa fa-square-o fa-lg" id="chk_postcards"></span>
                     &nbsp;&nbsp;
                     <span onclick="process_this('postcards');" class="fa fa-print fa-lg"></span>
                 </div>
-                <div class="divTableCell text-center msg_resp"><?php echo xlt('Labels'); ?><br />
+                <div class="divTableCell text-center msg_resp" style="width:5%;"><?php echo xlt('Labels'); ?><br />
                     <span onclick="checkAll('labels',true);" class="fa fa-square-o fa-lg" id="chk_labels"></span>
                     &nbsp;&nbsp;
                     <span onclick="process_this('labels');" class="fa fa-print fa-lg"></span>
                 </div>
-                <div class="divTableCell text-center msg_resp"><?php echo xlt('Office').": ".xlt('Phone'); ?></div>
-                <div class="divTableCell text-center msg_notes"><?php echo xlt('Notes'); ?></div>
+                <div class="divTableCell text-center msg_resp" style="width:10%;"><?php echo xlt('Office').": ".xlt('Phone'); ?></div>
+                <div class="divTableCell text-center msg_notes"  style="width:20%;"><?php echo xlt('Notes'); ?></div>
                 <div class="divTableCell text-center"><?php echo xlt('Progress'); ?>
                 </div>
 
@@ -2474,7 +2474,7 @@ if (!empty($logged_in['products']['not_ordered'])) {
                     </form>
                 </div>
                 <div class="row-fluid text-center">
-                    <input class="btn btn-primary" onclick="add_this_recall();" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new">
+                    <button class="btn btn-default btn-add" style="float:none;" onclick="add_this_recall();" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new"><?php echo xlt('Add Recall'); ?></button>
                     <p>
                         <em class="small text-muted">* <?php echo xlt('N.B.{{Nota bene}}')." ".xlt('Demographic changes made here are recorded system-wide'); ?>.</em>
                     </p>

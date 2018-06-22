@@ -24,7 +24,7 @@
 require_once('../../globals.php');
 require_once("$srcdir/dated_reminder_functions.php");
 
-        $days_to_show = 5;
+        $days_to_show = 30;
         $alerts_to_show = $GLOBALS['dated_reminders_max_alerts_to_show'];
         $updateDelay = 60; // time is seconds
 
@@ -48,7 +48,7 @@ if (isset($_POST['drR'])) {
     // ----- get updated data
     $reminders = RemindersArray($days_to_show, $today, $alerts_to_show);
     // ----- echo for ajax to use
-    echo getRemindersHTML($reminders, $today);
+    echo getRemindersHTML($today, $reminders);
     // stop any other output
     exit;
 }
@@ -88,9 +88,10 @@ if (isset($_POST['drR'])) {
       </style>
       <script type="text/javascript">
          $(document).ready(function (){
-            <?php if (!$hasAlerts) {
-                echo '$(".hideDR").html("<span>'.xla('Show Reminders').'</span>"); $(".drHide").hide();';
-} ?>
+            <?php
+            if (!$hasAlerts) {
+              // echo '$(".hideDR").html("<span>'.xla('Show Reminders').'</span>"); $(".drHide").hide();';
+            } ?>
             $(".hideDR").click(function(){
               if($(this).html() == "<span><?php echo xla('Hide Reminders') ?></span>"){
                 $(this).html("<span><?php echo xla('Show Reminders') ?></span>");
@@ -159,15 +160,20 @@ if (isset($_POST['drR'])) {
 
         <?php
           // initialize html string
-          $pdHTML = '<div class="dr_container"><table><tr><td valign="top">
-                        <p><a class="hideDR css_button_small btn" href="#"><span>'.xlt('Hide Reminders').'</span></a><br /></p>
-                        <div class="drHide">'.
-                        '<p><a title="'.xla('View Past and Future Reminders').'" onclick="openLogScreen()" class="css_button_small btn" href="#"><span>'.xlt('View Log').'</span></a><br /></p>'
-                        .'<p><a onclick="openAddScreen(0)" class="css_button_small btn" href="#"><span>'.xlt('Send A Dated Reminder').'</span></a></p></div>
-                        </td><td class="drHide drTD">';
+          $pdHTML = '<div class="container">
+                            <div class="drHide col-xs-12">'.
+                                '<a title="'.xla('View Past and Future Reminders').'" onclick="openLogScreen()" class="btn btn-default btn-show" href="#"><span>'.xlt('View Log').'</span></a>&nbsp;'
+                                .'<a onclick="openAddScreen(0)" class="btn btn-default btn-save" href="#"><span>'.xlt('Create A Dated Reminder').'</span></a>
+                            </div>
+                            <div class="col-xs-12 pre-scrollable oe-margin-t-10">
+                            <fieldset>
+                            <legend>'.xla('Dated Reminders').'</legend>
+                           <table class="table-condensed">
+                            </tr>
+                                <td class="drHide drTD">';
 
-          $pdHTML .= getRemindersHTML($reminders, $today);
-          $pdHTML .= '</td></tr></table></div>';
+          $pdHTML .= getRemindersHTML($today, $reminders);
+          $pdHTML .= '</td></tr></table></fieldset></div></div>';
           // print output
           echo $pdHTML;
         ?>
