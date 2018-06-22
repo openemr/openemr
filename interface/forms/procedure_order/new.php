@@ -438,12 +438,12 @@ $title = array(xl('Procedure Order for'), $name, $date);
                         <legend class=""><?php echo xlt('Select Options for Current Encounter')?></legend>
                         <div class = "col-xs-12">
                             <div class="form-group">
-                                <label for="provider_id" class="control-label col-sm-3 text-right"><?php xl('Ordering Provider', 'e'); ?></label>
+                                <label for="provider_id" class="control-label col-sm-3 oe-text-to-right"><?php xl('Ordering Provider', 'e'); ?></label>
                                 <div class="col-sm-2">
                                     <?php generate_form_field(array('data_type'=>10,'field_id'=>'provider_id'), $row['provider_id']); ?>
                                 </div>
-                            
-                                <label for="lab_id" class="control-label col-sm-3 text-right"><?php xl('Sending To', 'e');?></label>
+
+                                <label for="lab_id" class="control-label col-sm-3 oe-text-to-right"><?php xl('Sending To', 'e');?></label>
                                 <div class="col-sm-2">
                                     <select name='form_lab_id' onchange='lab_id_changed()' class='form-control'>
                                         <?php
@@ -462,7 +462,7 @@ $title = array(xl('Procedure Order for'), $name, $date);
                                 <div class="clearfix"></div>
                             </div>
                             <div class="form-group">
-                                <label for="form_data_ordered" class="control-label col-sm-3 text-right"><?php xl('Order Date', 'e'); ?></label>
+                                <label for="form_data_ordered" class="control-label col-sm-3 oe-text-to-right"><?php xl('Order Date', 'e'); ?></label>
                                 <div class="col-sm-2">
                                     <input type='text'
                                            class='datepicker form-control'
@@ -471,7 +471,7 @@ $title = array(xl('Procedure Order for'), $name, $date);
                                            value="<?php echo $row['date_ordered'];?>"
                                            title="<?php xl('Date of this order', 'e');?>" />
                                 </div>
-                                <label for="form_data_ordered" class="control-label col-sm-3 text-right"><?php xl('Internal Time Collected', 'e'); ?></label>
+                                <label for="form_data_ordered" class="control-label col-sm-3 oe-text-to-right"><?php xl('Internal Time Collected', 'e'); ?></label>
                                 <div class="col-sm-2">
                                     <input class='datetimepicker form-control'
                                            type='text'
@@ -483,15 +483,15 @@ $title = array(xl('Procedure Order for'), $name, $date);
                                 <div class="clearfix"></div>
                             </div>
                             <div class="form-group">
-                                <label for="form_data_ordered" class="control-label col-sm-3 text-right"><?php xl('Priority', 'e'); ?></label>
+                                <label for="form_data_ordered" class="control-label col-sm-3 oe-text-to-right"><?php xl('Priority', 'e'); ?></label>
                                 <div class="col-sm-2">
                                     <?php
                                     generate_form_field(array('data_type'=>1,'field_id'=>'order_priority',
                                         'list_id'=>'ord_priority'), $row['order_priority']);
                                     ?>
                                 </div>
-                            
-                                <label for="form_data_ordered" class="control-label col-sm-3 text-right"><?php xl('Status', 'e'); ?></label>
+
+                                <label for="form_data_ordered" class="control-label col-sm-3 oe-text-to-right"><?php xl('Status', 'e'); ?></label>
                                 <div class="col-sm-2">
                                     <?php
                                     generate_form_field(array('data_type'=>1,'field_id'=>'order_status',
@@ -501,7 +501,7 @@ $title = array(xl('Procedure Order for'), $name, $date);
                                 <div class="clearfix"></div>
                             </div>
                             <div class="form-group">
-                                <label for="form_data_ordered" class="control-label col-sm-3 text-right"><?php xl('History Order', 'e'); ?></label>
+                                <label for="form_data_ordered" class="control-label col-sm-3 oe-text-to-right"><?php xl('History Order', 'e'); ?></label>
                                 <div class="col-sm-2">
                                     <?php
                                         $historyOrderOpts = array(
@@ -515,7 +515,7 @@ $title = array(xl('Procedure Order for'), $name, $date);
                             </div>
                             <?php // Hide this for now with a hidden class as it does not yet do anything ?>
                             <div class="form-group hidden">
-                                <label for="form_data_ordered" class="control-label col-sm-3 text-right"><?php xl('Patient Instructions', 'e'); ?></label>
+                                <label for="form_data_ordered" class="control-label col-sm-3 oe-text-to-right"><?php xl('Patient Instructions', 'e'); ?></label>
                                 <div class="col-sm-7">
                                     <textarea rows='3' cols='35' name='form_patient_instructions' wrap='virtual' class='form-control inputtext'>
                                         <?php echo $row['patient_instructions'] ?>
@@ -549,7 +549,7 @@ $title = array(xl('Procedure Order for'), $name, $date);
                     <fieldset>
                         <legend><?php xl('Procedure Order Details', 'e'); ?></legend>
                         <div class="row procedure-order-container col-md-10 col-md-offset-1">
-                            
+
                             <?php
 
                             // This section merits some explanation. :)
@@ -651,7 +651,7 @@ $title = array(xl('Procedure Order for'), $name, $date);
                                 ++$i;
                             }
                             ?>
-                        </fieldset>    
+                        </fieldset>
                         <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets ?>
                         <div class="form-group clearfix">
                             <div class="col-sm-12 text-left position-override">
@@ -662,7 +662,7 @@ $title = array(xl('Procedure Order for'), $name, $date);
                                     <button type="button" class="btn btn-link btn-cancel btn-separate-left" onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'"><?php echo xla('Cancel'); ?></button>
                                 </div>
                             </div>
-                        </div>     
+                        </div>
                     </form>
             </div>
     </div><!--end of .container -->
