@@ -23,12 +23,12 @@
  */
 
 
-  require_once("../../globals.php");
-  require_once("$srcdir/acl.inc");
-  require_once("$srcdir/dated_reminder_functions.php");
+    require_once("../../globals.php");
+    require_once("$srcdir/acl.inc");
+    require_once("$srcdir/dated_reminder_functions.php");
+    use OpenEMR\Core\Header;
 
-
-  $isAdmin =acl_check('admin', 'users');
+    $isAdmin =acl_check('admin', 'users');
 ?>
 <?php
   /*
@@ -41,21 +41,23 @@ if ($_GET) {
         }
     }
 
-    echo '<table border="1" width="100%" cellpadding="5px" id="logTable">
-            <thead>
-              <tr>
-                <th>'.xlt('ID').'</th>
-                <th>'.xlt('Sent Date').'</th>
-                <th>'.xlt('From').'</th>
-                <th>'.xlt('To').'</th>
-                <th>'.xlt('Patient').'</th>
-                <th>'.xlt('Message').'</th>
-                <th>'.xlt('Due Date').'</th>
-                <th>'.xlt('Processed Date').'</th>
-                <th>'.xlt('Processed By').'</th>
-              </tr>
-            </thead>
-            <tbody>';
+    echo '  <div class="col-xs-12">
+            <h4>'.xlt('Click and drag bottom right corner to resize this display').'</h4>
+            <table class="table table-bordered"  id="logTable">
+                <thead>
+                  <tr>
+                    <th>'.xlt('ID').'</th>
+                    <th>'.xlt('Sent Date').'</th>
+                    <th>'.xlt('From').'</th>
+                    <th>'.xlt('To').'</th>
+                    <th>'.xlt('Patient').'</th>
+                    <th>'.xlt('Message').'</th>
+                    <th>'.xlt('Due Date').'</th>
+                    <th>'.xlt('Processed Date').'</th>
+                    <th>'.xlt('Processed By').'</th>
+                  </tr>
+                </thead>
+                <tbody>';
     $remindersArray = array();
     $TempRemindersArray = logRemindersArray();
     foreach ($TempRemindersArray as $RA) {
@@ -84,19 +86,22 @@ if ($_GET) {
             </tr>';
     }
 
-    echo '</tbody></table>';
+    echo '</tbody></table></div>';
 
     die;
 }
 ?>
 <html>
   <head>
-    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
-
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
-
+    <?php Header::setupHeader(['datetime-picker']); ?>
+    <style>
+        @media only screen and (max-width: 680px) {
+            [class*="col-"] {
+                width: 100%;
+                text-align: left!Important;
+            }
+        }
+    </style>
     <script language="JavaScript">
       $(document).ready(function (){
         $("#submitForm").click(function(){
@@ -124,70 +129,113 @@ if ($_GET) {
         });
       })
     </script>
-  </head>
-  <body class="body_top">
-<!-- Required for the popup date selectors -->
-<div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
-
-
-<?php
-  $allUsers = array();
-  $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authId'])));
-for ($i=0; $uRow=sqlFetchArray($uSQL);
-$i++) {
-    $allUsers[] = $uRow;
-}
-?>
-    <form method="get" id="logForm" onsubmit="return top.restoreSession()">
-      <h1><?php echo xlt('Dated Message Log') ?></h1>
-      <h2><?php echo xlt('filters') ?> :</h2>
-      <blockquote><?php echo xlt('Date The Message Was Sent') ?><br />
-<!----------------------------------------------------------------------------------------------------------------------------------------------------->
-        <?php echo xlt('Start Date') ?> : <input id="sd" type="text" class='datepicker' name="sd" value="" title='<?php echo xla('yyyy-mm-dd'); ?>' />   &nbsp;&nbsp;&nbsp;
-<!----------------------------------------------------------------------------------------------------------------------------------------------------->
-        <?php echo xlt('End Date') ?> : <input id="ed" type="text" class='datepicker' name="ed" value="" title='<?php echo xla('yyyy-mm-dd'); ?>' />   <br /><br />
-<!----------------------------------------------------------------------------------------------------------------------------------------------------->
-      </blockquote>
-      <table style="width:100%">
-        <tr>
-          <td style="width:50%">
-            <?php echo xlt('Sent By, Leave Blank For All') ?> : <br />
-            <select style="width:100%;" id="sentBy" name="sentBy[]" multiple="multiple">
-              <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
-                <?php
-                if ($isAdmin) {
-                    foreach ($allUsers as $user) {
-                        echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>';
-                    }
-                }
-                ?>
-            </select>
-          </td>
-          <td style="width:50%">
-            <?php echo xlt('Sent To, Leave Blank For All') ?> : <br />
-            <select style="width:100%" id="sentTo" name="sentTo[]" multiple="multiple">
-              <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
-                <?php
-                if ($isAdmin) {
-                    foreach ($allUsers as $user) {
-                        echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>';
-                    }
-                }
-                ?>
-            </select>
-          </td>
-        </tr>
-      </table>
-<!----------------------------------------------------------------------------------------------------------------------------------------------------->
-      <input type="checkbox" name="processed" id="processed"><label for="processed"><?php echo xlt('Processed') ?></label>
-<!----------------------------------------------------------------------------------------------------------------------------------------------------->
-      <input type="checkbox" name="pending" id="pending"><label for="pending"><?php echo xlt('Pending') ?></label>
-<!----------------------------------------------------------------------------------------------------------------------------------------------------->
-      <br /><br />
-      <button value="Refresh" id="submitForm"><?php echo xlt('Refresh') ?></button>
-    </form>
-
-    <div id="resultsDiv"></div>
-
-  </body>
+</head>
+<body class="body_top">
+    <div class="container">
+    <!-- Required for the popup date selectors -->
+    <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
+    <?php
+      $allUsers = array();
+      $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authId'])));
+    for ($i=0; $uRow=sqlFetchArray($uSQL);
+    $i++) {
+        $allUsers[] = $uRow;
+    }
+    ?>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="page-header">
+                    <h2><?php echo xlt('Dated Message Log');?> &nbsp;<i id="show_hide" class="fa fa-eye-slash fa-2x small" title="<?php echo xla('Click to Hide Filters'); ?>"></i></h2>
+                </div>
+            </div>
+        </div>
+        <div class="row hideaway">
+            <div class="col-xs-12">
+                <form method="get" id="logForm" onsubmit="return top.restoreSession()">
+                    <fieldset>
+                        <legend><?php echo xlt('Filters') ?></legend>
+                        <div class="col-xs-12">
+                            <h5><?php echo xlt('Date The Message Was Sent');?></h5>
+                            <div class="col-xs-6">
+                                <label class="control-label" for="sd"><?php echo xlt('Start Date') ?>:</label>
+                                <input id="sd" type="text" class='form-control datepicker' name="sd" value="" title='<?php echo xla('yyyy-mm-dd'); ?>'>
+                            </div>
+                            <div class="col-xs-6">
+                                <label class="control-label" for="ed"><?php echo xlt('End Date') ?>:</label>
+                                <input id="ed" type="text" class='form-control datepicker' name="ed" value="" title='<?php echo xla('yyyy-mm-dd'); ?>'>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="col-xs-6">
+                                <label class="control-label" for="sentBy"><?php echo xlt('Sent By, Leave Blank For All');?>:</label>
+                                <select class="form-control" id="sentBy" name="sentBy[]" multiple="multiple">
+                                    <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
+                                    <?php
+                                    if ($isAdmin) {
+                                        foreach ($allUsers as $user) {
+                                            echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>';
+                                        }
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="col-xs-6">
+                                <label class="control-label" for="sentBy"><?php echo xlt('Sent To, Leave Blank For All') ?>:</label>
+                                <select class="form-control" id="sentTo" name="sentTo[]" multiple="multiple">
+                                    <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
+                                    <?php
+                                    if ($isAdmin) {
+                                        foreach ($allUsers as $user) {
+                                            echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>';
+                                        }
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="col-xs-12 form-group">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="processed" id="processed"><?php echo xlt('Processed') ?>
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" name="pending" id="pending"><?php echo xlt('Pending') ?>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="form-group">
+                        <div class="col-sm-12 position-override">
+                            <div class="btn-group oe-opt-btn-group-pinch form-group" role="group">
+                                <button type="button" value="Refresh" id="submitForm" class="btn btn-default btn-refresh" ><?php echo xlt('Refresh') ?></button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div id="resultsDiv"></div>
+            </div>
+        </div>
+    </div><!--end of container div-->
+    <script>
+       $('#show_hide').click(function() {
+            var elementTitle = $('#show_hide').prop('title');
+            var hideTitle = '<?php echo xla('Click to Hide Filters'); ?>';
+            var showTitle = '<?php echo xla('Click to Show Filters'); ?>';
+            $('.hideaway').toggle('1000');
+            $(this).toggleClass('fa-eye-slash fa-eye');
+            if (elementTitle == hideTitle) {
+                elementTitle = showTitle;
+            } else if (elementTitle == showTitle) {
+                elementTitle = hideTitle;
+            }
+            $('#show_hide').prop('title', elementTitle);
+        });
+    </script>
+</body>
 </html>
