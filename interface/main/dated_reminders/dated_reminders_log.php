@@ -93,20 +93,15 @@ if ($_GET) {
 ?>
 <html>
   <head>
-    <!--<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
-
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>-->
-        <?php Header::setupHeader(['datetime-picker']); ?>
-     <style>
-     @media only screen and (max-width: 680px) {
+    <?php Header::setupHeader(['datetime-picker']); ?>
+    <style>
+        @media only screen and (max-width: 680px) {
             [class*="col-"] {
                 width: 100%;
                 text-align: left!Important;
             }
-     }
-     </style>
+        }
+    </style>
     <script language="JavaScript">
       $(document).ready(function (){
         $("#submitForm").click(function(){
