@@ -167,7 +167,7 @@ function dosvclick(sfname) {
 
 // Process click to pop up the fax dispatch window.
 function domclick(ffname) {
-    dlgopen('fax_dispatch.php?scan=' + ffname, '_blank', 850, 550, '', 'Fax Dispatch');
+    dlgopen('fax_dispatch.php?file=' + ffname, '_blank', 850, 550, '', 'Fax Dispatch');
 }
 
 // Process click to pop up the scanned document dispatch window.
