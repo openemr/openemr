@@ -17,3 +17,6 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # Copy over the dummy self signed key/cert
 COPY dummy-cert /etc/nginx/dummy-cert
 COPY dummy-key /etc/nginx/dummy-key
+
+# Needed to ensure permissions work across shared volumes with openemr, nginx, and php-fpm dockers
+RUN usermod -u 1000 nginx

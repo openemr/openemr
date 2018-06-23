@@ -38,3 +38,6 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions && sync && \
 
 # Copy over the php.ini conf
 COPY php.ini /usr/local/etc/php/php.ini
+
+# Needed to ensure permissions work across shared volumes with openemr, nginx, and php-fpm dockers
+RUN usermod -u 1000 www-data
