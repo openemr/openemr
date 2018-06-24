@@ -151,7 +151,11 @@ final class Connector
         }
 
         $this->logger->trace("Wiring up Doctrine entities");
-        $configuration = Setup::createAnnotationMetadataConfiguration($entityPath, false, null, null, false);
+
+        // Note that we need to turn on isDevMode or else it breaks if a user has redis extension installed in PHP, but doesn't have
+        //  redis working from the localhost.
+        // TODO : support false for isDevMode and thus support caching (and prevent issue with redis described above)
+        $configuration = Setup::createAnnotationMetadataConfiguration($entityPath, true, null, null, false);
         $configuration->setAutoGenerateProxyClasses(true);
 
         $this->logger->trace("Creating connection");

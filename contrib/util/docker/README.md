@@ -42,16 +42,20 @@ develop/test other code. This is done by first running a command or script
 to delete and replace the synchronized directory (ie. remove the /var/www/openemr
 directory) and then restart the development docker (see below for how to do this)
 
-**Step 3.** Open up OpenEMR in the latest Chrome or Firefox! You have several
+**Step 3.** Open up OpenEMR in the latest Chrome or Firefox! You have many
 options to choose from:
 - http://localhost:8080 (with Apache and PHP 7.1)
 - http://localhost:8081 (with Apache and PHP 7.2)
 - http://localhost:8085 (with Nginx and PHP-FPM 7.1)
 - http://localhost:8086 (with Nginx and PHP-FPM 7.2)
+- http://localhost:8087 (with Nginx and PHP-FPM 7.1 with redis)
+- http://localhost:8088 (with Nginx and PHP-FPM 7.2 with redis)
 - https://localhost:8090 with SSL (with Apache and PHP 7.1)
 - https://localhost:8091 with SSL (with Apache and PHP 7.2)
 - https://localhost:8095 with SSL (with Nginx and PHP-FPM 7.1)
 - https://localhost:8096 with SSL (with Nginx and PHP-FPM 7.2)
+- https://localhost:8097 with SSL (with Nginx and PHP-FPM 7.1 with redis)
+- https://localhost:8098 with SSL (with Nginx and PHP-FPM 7.2 with redis)
 
 **Step 4.** Setup up OpenEMR. The first time you run OpenEMR (and whenever you clear and replace your
 synchronized openemr directory and restart the development docker). On the main
@@ -84,24 +88,27 @@ docker-compose up -d
 Run `$ docker ps` to see the OpenEMR and MySQL containers in the following format:
 
 ```
-CONTAINER ID        IMAGE                       COMMAND                  CREATED             STATUS              PORTS                                                                                      NAMES
-499e2eec541d        nginx                       "nginx -g 'daemon ..."   7 seconds ago       Up 2 seconds        0.0.0.0:8085->80/tcp, 0.0.0.0:8086->81/tcp, 0.0.0.0:8095->443/tcp, 0.0.0.0:8096->444/tcp   openemr_nginx_1
-e05d57ecb0c4        mysql:8                     "docker-entrypoint..."   7 seconds ago       Up 4 seconds        3306/tcp                                                                                   openemr_mysql-dev_1
-e4f0af5a2370        openemr/openemr:flex        "./run_openemr.sh"       7 seconds ago       Up 3 seconds        0.0.0.0:8080->80/tcp, 0.0.0.0:8090->443/tcp                                                openemr_openemr-7-1_1
-f626b616b23b        mysql:5.6                   "docker-entrypoint..."   7 seconds ago       Up 4 seconds        3306/tcp                                                                                   openemr_mysql-old_1
-3cc17e18ff1f        mariadb:5.5                 "docker-entrypoint..."   7 seconds ago       Up 5 seconds        3306/tcp                                                                                   openemr_mariadb-very-very-old_1
-f3d5ac8197b8        openemr/openemr:flex-edge   "./run_openemr.sh"       7 seconds ago       Up 3 seconds        0.0.0.0:8081->80/tcp, 0.0.0.0:8091->443/tcp                                                openemr_openemr-7-2_1
-9cc408ba7e90        mysql:5.5                   "docker-entrypoint..."   7 seconds ago       Up 4 seconds        3306/tcp                                                                                   openemr_mysql-very-old_1
-053ae93971da        mariadb:10.0                "docker-entrypoint..."   7 seconds ago       Up 5 seconds        3306/tcp                                                                                   openemr_mariadb-very-old_1
-9b3763c3e924        jodogne/orthanc-plugins     "Orthanc /etc/orth..."   7 seconds ago       Up 5 seconds        0.0.0.0:4242->4242/tcp, 0.0.0.0:8042->8042/tcp                                             openemr_orthanc_1
-cf21aa63d1d3        openemr/dev-php-fpm:7.2     "docker-php-entryp..."   7 seconds ago       Up 5 seconds        9000/tcp                                                                                   openemr_dev-php-fpm-7-2_1
-60f8da03ef4e        mysql:5.7                   "docker-entrypoint..."   7 seconds ago       Up 5 seconds        3306/tcp                                                                                   openemr_mysql_1
-f2dbad939dff        mariadb:10.1                "docker-entrypoint..."   7 seconds ago       Up 5 seconds        3306/tcp                                                                                   openemr_mariadb-old_1
-d6495a3c29d7        openemr/dev-php-fpm:7.1     "docker-php-entryp..."   7 seconds ago       Up 4 seconds        9000/tcp                                                                                   openemr_dev-php-fpm-7-1_1
-dc55be0ac0d5        phpmyadmin/phpmyadmin       "/run.sh phpmyadmin"     7 seconds ago       Up 6 seconds        0.0.0.0:8100->80/tcp                                                                       openemr_phpmyadmin_1
-be4ca5eee6fd        couchdb                     "tini -- /docker-e..."   7 seconds ago       Up 6 seconds        0.0.0.0:5984->5984/tcp, 4369/tcp, 9100/tcp, 0.0.0.0:6984->6984/tcp                         openemr_couchdb_1
-2f80ae27cd89        mariadb:10.2                "docker-entrypoint..."   7 seconds ago       Up 5 seconds        3306/tcp                                                                                   openemr_mariadb_1
-6aa06b9588f8        mariadb:10.3                "docker-entrypoint..."   7 seconds ago       Up 6 seconds        3306/tcp                                                                                   openemr_mariadb-dev_1
+CONTAINER ID        IMAGE                           COMMAND                  CREATED             STATUS              PORTS                                                                                                                                                                                NAMES
+3d3d5ca80d4d        openemr/dev-nginx               "nginx -g 'daemon ..."   8 seconds ago       Up 6 seconds        0.0.0.0:8085->80/tcp, 0.0.0.0:8086->81/tcp, 0.0.0.0:8087->82/tcp, 0.0.0.0:8088->83/tcp, 0.0.0.0:8095->443/tcp, 0.0.0.0:8096->444/tcp, 0.0.0.0:8097->445/tcp, 0.0.0.0:8098->446/tcp   openemr_nginx_1
+a1db8dac57cd        mariadb:5.5                     "docker-entrypoint..."   11 seconds ago      Up 6 seconds        3306/tcp                                                                                                                                                                             openemr_mariadb-very-very-old_1
+850d7559ea14        mariadb:10.3                    "docker-entrypoint..."   11 seconds ago      Up 8 seconds        3306/tcp                                                                                                                                                                             openemr_mariadb-dev_1
+5384894c0004        couchdb                         "tini -- /docker-e..."   11 seconds ago      Up 7 seconds        0.0.0.0:5984->5984/tcp, 4369/tcp, 9100/tcp, 0.0.0.0:6984->6984/tcp                                                                                                                   openemr_couchdb_1
+3a554c4bdac2        mysql:5.7                       "docker-entrypoint..."   11 seconds ago      Up 7 seconds        3306/tcp                                                                                                                                                                             openemr_mysql_1
+01bccc418549        redis                           "docker-entrypoint..."   11 seconds ago      Up 6 seconds        6379/tcp                                                                                                                                                                             openemr_redis_1
+0e0fdd7236fc        mariadb:10.2                    "docker-entrypoint..."   11 seconds ago      Up 8 seconds        3306/tcp                                                                                                                                                                             openemr_mariadb_1
+beff9a0990c5        mysql:8                         "docker-entrypoint..."   11 seconds ago      Up 9 seconds        3306/tcp                                                                                                                                                                             openemr_mysql-dev_1
+614a05a22e8a        mysql:5.5                       "docker-entrypoint..."   11 seconds ago      Up 8 seconds        3306/tcp                                                                                                                                                                             openemr_mysql-very-old_1
+4daff45d4347        jodogne/orthanc-plugins         "Orthanc /etc/orth..."   11 seconds ago      Up 8 seconds        0.0.0.0:4242->4242/tcp, 0.0.0.0:8042->8042/tcp                                                                                                                                       openemr_orthanc_1
+e23e9b94ef27        mysql:5.6                       "docker-entrypoint..."   11 seconds ago      Up 9 seconds        3306/tcp                                                                                                                                                                             openemr_mysql-old_1
+d225f652d779        mariadb:10.0                    "docker-entrypoint..."   11 seconds ago      Up 9 seconds        3306/tcp                                                                                                                                                                             openemr_mariadb-very-old_1
+096cedb17b4c        openemr/dev-php-fpm:7.2         "docker-php-entryp..."   11 seconds ago      Up 9 seconds        9000/tcp                                                                                                                                                                             openemr_dev-php-fpm-7-2_1
+5b1667ecbf5d        mariadb:10.1                    "docker-entrypoint..."   11 seconds ago      Up 9 seconds        3306/tcp                                                                                                                                                                             openemr_mariadb-old_1
+b9f1c3a5caa3        openemr/dev-php-fpm:7.1         "docker-php-entryp..."   11 seconds ago      Up 10 seconds       9000/tcp                                                                                                                                                                             openemr_dev-php-fpm-7-1_1
+f6893f40b096        openemr/dev-php-fpm:7.2-redis   "docker-php-entryp..."   11 seconds ago      Up 10 seconds       9000/tcp                                                                                                                                                                             openemr_dev-php-fpm-7-2-redis_1
+a6b9c093c6c8        openemr/openemr:flex-edge       "./run_openemr.sh"       11 seconds ago      Up 8 seconds        0.0.0.0:8081->80/tcp, 0.0.0.0:8091->443/tcp                                                                                                                                          openemr_openemr-7-2_1
+264f1e6485b5        phpmyadmin/phpmyadmin           "/run.sh phpmyadmin"     11 seconds ago      Up 10 seconds       0.0.0.0:8100->80/tcp                                                                                                                                                                 openemr_phpmyadmin_1
+27c1e0dca3c7        openemr/dev-php-fpm:7.1-redis   "docker-php-entryp..."   12 seconds ago      Up 10 seconds       9000/tcp                                                                                                                                                                             openemr_dev-php-fpm-7-1-redis_1
+5f2b8f59f75b        openemr/openemr:flex            "./run_openemr.sh"       12 seconds ago      Up 8 seconds        0.0.0.0:8080->80/tcp, 0.0.0.0:8090->443/tcp                                                                                                                                          openemr_openemr-7-1_1
 ```
  - Note the `NAMES` column is extremely important and how you run docker commands
 on specific containers. For example, to go into a shell script in the
@@ -151,17 +158,7 @@ if you have any questions after reviewing the wiki.
 
 ### Ports
 
-- HTTP is running on port 80 in the OpenEMR containers and port 8080 on the
-Apache PHP 7.1 host machine and port 8081 on the Apache PHP 7.2 host machine
-and port 8085 on the Nginx PHP 7.1 host machine and port 8086 on the Nginx
-PHP 7.2 host machine.
-- HTTPS is running on port 443 in the OpenEMR containers and port 8090 on the
-Apache PHP 7.1 host machine and port 8091 on the Apache PHP 7.2 host machine
-and port 8095 on the Nginx PHP 7.1 host machine and port 8096 on the Nginx PHP
-7.2 host machine.
-- HTTP is running on port 80 in the PhpMyADMIN container and port 8100 on the
-host machine.
-- MySQL is running on port 3306 in the MariaDB/MySQL/MariaDB-\*/MySQL-\* containers.
+See the `docker-compose.yml` file in the base directory for port details.
 
 All host machine ports can be changed by editing the `docker-compose.yml` file.
 Host ports differ from the internal container ports by default to avoid conflicts
